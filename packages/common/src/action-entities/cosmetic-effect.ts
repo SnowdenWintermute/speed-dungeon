@@ -7,6 +7,7 @@ export enum CosmeticEffectNames {
   FrostParticleBurst,
   CombatantIsCold,
   FlameParticleAccumulation,
+  FireParticlesLarge,
 }
 
 export abstract class CosmeticEffect {

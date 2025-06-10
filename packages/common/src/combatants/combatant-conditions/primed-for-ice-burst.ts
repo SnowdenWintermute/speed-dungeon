@@ -7,6 +7,7 @@ import {
 import { Combatant, createShimmedUserOfTriggeredCondition } from "../index.js";
 import {
   CombatActionExecutionIntent,
+  CombatActionIntent,
   CombatActionName,
 } from "../../combat/combat-actions/index.js";
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
@@ -28,13 +29,16 @@ import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementatio
 export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
   name = CombatantConditionName.PrimedForIceBurst;
   stacksOption = new MaxAndCurrent(1, 1);
+  intent = CombatActionIntent.Malicious;
   ticks?: MaxAndCurrent | undefined;
   constructor(
     public id: EntityId,
     public appliedBy: ConditionAppliedBy,
     public level: number
   ) {}
+
   onTick() {}
+  getTickSpeed = () => null;
 
   triggeredWhenHitBy(actionName: CombatActionName) {
     const actionsThatDontTrigger = [

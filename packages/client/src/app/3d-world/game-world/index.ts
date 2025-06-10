@@ -101,8 +101,8 @@ export class GameWorld {
 
     // testingSounds();
 
-    const particleSystems = testParticleSystem(this.scene);
-    particleSystems.forEach((system) => system.start());
+    // const particleSystems = testParticleSystem(this.scene);
+    // particleSystems.forEach((system) => system.start());
 
     // this.startLimitedFramerateRenderLoop(5, 3000);
   }

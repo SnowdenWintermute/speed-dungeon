@@ -113,6 +113,13 @@ export class CombatantProperties {
     this.ownedActions[CombatActionName.Attack] = new CombatantActionState(CombatActionName.Attack);
   }
 
+  static getConditionById(combatantProperties: CombatantProperties, conditionId: EntityId) {
+    for (const condition of combatantProperties.conditions) {
+      if (condition.id === conditionId) return condition;
+    }
+    return null;
+  }
+
   static getCombatActionPropertiesIfOwned = getCombatActionPropertiesIfOwned;
   static getTotalAttributes = getCombatantTotalAttributes;
   static getCombatantTotalElementalAffinities = getCombatantTotalElementalAffinities;

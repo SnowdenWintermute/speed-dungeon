@@ -45,7 +45,8 @@ stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
 
     const toReturn: CosmeticEffectOnTargetTransformNode[] = targetIdsResult.map((targetId) => {
       return {
-        name: CosmeticEffectNames.FlameParticleAccumulation,
+        name: CosmeticEffectNames.FireParticlesLarge,
+        lifetime: 700,
         parent: {
           sceneEntityIdentifier: {
             type: SceneEntityType.CharacterModel,

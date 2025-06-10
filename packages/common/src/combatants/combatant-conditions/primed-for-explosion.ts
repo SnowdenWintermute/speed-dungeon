@@ -7,6 +7,7 @@ import {
 import { Combatant, createShimmedUserOfTriggeredCondition } from "../index.js";
 import {
   CombatActionExecutionIntent,
+  CombatActionIntent,
   CombatActionName,
 } from "../../combat/combat-actions/index.js";
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
@@ -18,6 +19,7 @@ import { CombatantContext } from "../../combatant-context/index.js";
 export class PrimedForExplosionCombatantCondition implements CombatantCondition {
   name = CombatantConditionName.PrimedForExplosion;
   stacksOption = new MaxAndCurrent(10, 1);
+  intent = CombatActionIntent.Malicious;
   ticks?: MaxAndCurrent | undefined;
   constructor(
     public id: EntityId,
@@ -26,6 +28,8 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
   ) {}
 
   onTick() {}
+
+  getTickSpeed = () => null;
 
   triggeredWhenHitBy(actionName: CombatActionName) {
     const actionsThatDontTrigger = [
