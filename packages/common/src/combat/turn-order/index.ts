@@ -4,19 +4,43 @@ import { EntityId } from "../../primatives/index.js";
 
 export * from "./tick-combat-until-next-combatant-is-active.js";
 
-export class CombatantTurnTracker {
+export class TurnOrderManager {
+  turnTrackers: (TurnTracker | ConditionTurnTracker)[] = [];
+  constructor() {}
+
+  // server ticks combat until next tracker
+  // - if is combatant, take their AI turn or wait for user input
+  // - if is condition
+  //   * aggregate any conditions with the same amount of movement and process their branching actions "simultaneously"
+  // - accumulate a list of removed trackers
+  // - accumulate list of added trackers
+  // - send lists to client
+  // - client animates any action replays
+  // - client animates removal of trackers and additions of new trackers
+  // - if conditions, client updates their aggregated condition turn markers until no markers are left, then
+  // removes the aggregated condition marker
+  //
+  // Turn Order Update Events
+  // - tracker deletions
+  // - tracker translations toward left (consolidation)
+  // - new tracker fadeins
+  // - first tracker in order scales and translates
+  //
+}
+
+export class TurnTracker {
   movement: number = 0;
   constructor(
-    public readonly entityId: string,
+    public readonly combatantId: string,
     public readonly tieBreakerId: number
   ) {}
 
   getCombatant(party: AdventuringParty) {
-    return AdventuringParty.getCombatant(party, this.entityId);
+    return AdventuringParty.getCombatant(party, this.combatantId);
   }
 }
 
-export class ConditionTurnTracker extends CombatantTurnTracker {
+export class ConditionTurnTracker extends TurnTracker {
   constructor(
     combatantId: EntityId,
     public readonly conditionId: EntityId,
@@ -41,24 +65,6 @@ export class ConditionTurnTracker extends CombatantTurnTracker {
   }
 }
 
-// server ticks combat until next tracker
-// - if is combatant, take their AI turn or wait for user input
-// - if is condition
-//   * aggregate any conditions with the same amount of movement and process their branching actions "simultaneously"
-// - accumulate a list of removed trackers
-// - accumulate list of added trackers
-// - send lists to client
-// - client animates any action replays
-// - client animates removal of trackers and additions of new trackers
-// - if conditions, client updates their aggregated condition turn markers until no markers are left, then
-// removes the aggregated condition marker
-//
-// Turn Order Update Events
-// - tracker deletions
-// - tracker translations toward left (consolidation)
-// - new tracker fadeins
-// - first tracker in order scales and translates
-//
 // [] () () ()
 //
 // FTK turn trackers behavior
