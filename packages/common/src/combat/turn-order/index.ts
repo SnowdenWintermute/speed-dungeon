@@ -32,9 +32,21 @@ export class TurnOrderManager {
   // - remove any dead combatant trackers and their conditions
   // - animate fill to left
   // - predict missing trackers and fill them
+  buildInitialList() {
+    // - for each combatant and tickable condition create a turnTrackerBuilder with initial delay based on their speed
+    // to create a workingList
+    // - create turnTrackerList
+    // - while (turnTrackerList.length < minLength && !(turnTrackerList.containsOneOfEach()))
+    //   * sort workingList by delay
+    //   * push first in line to turnTrackerList
+    //   * add delay to their turnTrackerBuilder
+    // -
+  }
   fillEmptyTrackerSlots() {
     const missingTrackersCount = this.minTrackersCount - this.turnTrackers.length;
-    if (missingTrackersCount <= 0) return;
+    // - for each combatant and tickable condition, if no tracker exists, create one
+    // - while missingTrackersCount > 0
+    //   - predict the next tracker and add it to the list
     //
   }
   sortTrackers() {
