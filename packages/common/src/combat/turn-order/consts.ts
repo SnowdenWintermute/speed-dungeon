@@ -1,3 +1,9 @@
+import { Milliseconds } from "../../primatives";
+
+// DELAY BASED
+export const SPEED_DELAY_RECOVERY_WEIGHT = 50;
+export const BASE_ACTION_DELAY: Milliseconds = 1000;
+// OLD MOVEMENT BASED
 export const SPEED_MODIFIER = 10;
 export const REQUIRED_MOVEMENT_TO_MOVE = 999;
 export const MAX_TICKS_TO_FILL_MOVEMENT = 10;

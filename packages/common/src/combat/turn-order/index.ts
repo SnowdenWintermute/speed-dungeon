@@ -1,19 +1,55 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { CombatantProperties } from "../../combatants/index.js";
 import { EntityId } from "../../primatives/index.js";
+import { BASE_ACTION_DELAY, SPEED_DELAY_RECOVERY_WEIGHT } from "./consts.js";
 
 export * from "./tick-combat-until-next-combatant-is-active.js";
 
 export class TurnOrderManager {
+  minTrackersCount = 12;
   turnTrackers: (TurnTracker | ConditionTurnTracker)[] = [];
   constructor() {}
+
+  removeCombatantTrackers(combatantId: EntityId) {
+    // call removeConditionTrackers() and push its result to the removedTrackers list
+    // find all combatant trackers with the combatantId
+    // remove each and push to a removedTrackers list
+    // return the removedTrackers list
+  }
+  removeConditionTrackers(conditionId: EntityId) {
+    // find all condition trackers with the combatantId
+    // remove each and push to a removedTrackers list
+    // return the removedTrackers list
+  }
+  getActionDelayCost(combatantSpeed: number, actionDelayMultiplier: number) {
+    const speedBonus = combatantSpeed * SPEED_DELAY_RECOVERY_WEIGHT;
+    const delayAfterSpeedBonus = BASE_ACTION_DELAY / (BASE_ACTION_DELAY + speedBonus);
+    const delay = actionDelayMultiplier * delayAfterSpeedBonus;
+    return delay;
+  }
+  // on action taken
+  // - remove first turn tracker
+  // - remove any dead combatant trackers and their conditions
+  // - animate fill to left
+  // - predict missing trackers and fill them
+  fillEmptyTrackerSlots() {
+    const missingTrackersCount = this.minTrackersCount - this.turnTrackers.length;
+    if (missingTrackersCount <= 0) return;
+    //
+  }
+  sortTrackers() {
+    //
+  }
+  aggregateConditionTrackersTiedForFirst() {}
 
   // server ticks combat until next tracker
   // - if is combatant, take their AI turn or wait for user input
   // - if is condition
   //   * aggregate any conditions with the same amount of movement and process their branching actions "simultaneously"
+  //   * push any conditions with no more ticks remaining to list of removed trackers
   // - accumulate a list of removed trackers
   // - accumulate list of added trackers
+  // - update trackers list with the accumulated lists
   // - send lists to client
   // - client animates any action replays
   // - client animates removal of trackers and additions of new trackers
