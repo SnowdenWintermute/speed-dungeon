@@ -16,7 +16,6 @@ import {
   DynamicAnimationName,
 } from "../../../../app-consts.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
 import { ActionEntityName } from "../../../../action-entities/index.js";
 import {
@@ -30,7 +29,8 @@ import {
 } from "../../combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
 import cloneDeep from "lodash.clonedeep";
-import { AutoTargetingScheme } from "../../../targeting/index.js";
+import { AutoTargetingScheme, CombatActionTargetType } from "../../../targeting/index.js";
+import { AdventuringParty } from "../../../../adventuring-party/index.js";
 
 const targetingProperties = cloneDeep(
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]
@@ -87,16 +87,21 @@ const config: CombatActionComponentConfig = {
   },
 
   getSpawnableEntity: (context) => {
-    const { actionExecutionIntent } = context.tracker;
-    const { party } = context.combatantContext;
-    const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
-    const primaryTargetIdResult = targetingCalculator.getPrimaryTargetCombatant(
-      party,
-      actionExecutionIntent
-    );
-    if (primaryTargetIdResult instanceof Error) throw primaryTargetIdResult;
+    const { party, combatant: user } = context.combatantContext;
 
-    const position = primaryTargetIdResult.combatantProperties.position;
+    // use some symantic coupling "oh no, bad practice!" to
+    // get the target location instead of trying to use auto target
+    // since the action's auto target gives a list of ids and we only
+    // want to spawn the explosion on the one selected by the user
+    const actionTarget = user.combatantProperties.combatActionTarget;
+    if (!actionTarget)
+      throw new Error("expected shimmed condition action user to have a target set");
+    if (actionTarget.type !== CombatActionTargetType.Single)
+      throw new Error("expected shimmed condition action user to have a single target");
+    const primaryTargetResult = AdventuringParty.getCombatant(party, actionTarget.targetId);
+    if (primaryTargetResult instanceof Error) throw primaryTargetResult;
+
+    const position = primaryTargetResult.combatantProperties.position;
 
     return {
       type: SpawnableEntityType.ActionEntity,

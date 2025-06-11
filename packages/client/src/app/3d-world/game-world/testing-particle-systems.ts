@@ -1,38 +1,38 @@
-import {
-  Color4,
-  GPUParticleSystem,
-  Mesh,
-  Quaternion,
-  Scene,
-  Texture,
-  Vector3,
-} from "@babylonjs/core";
+import { GPUParticleSystem, Scene, Texture, Vector3 } from "@babylonjs/core";
 
 export function testParticleSystem(scene: Scene) {
-  const particleSystem = new GPUParticleSystem("particles", { capacity: 8 }, scene);
-  particleSystem.particleTexture = new Texture("img/particle-textures/flare.png");
+  const particleSystems = [
+    new GPUParticleSystem("particles", { capacity: 3 }, scene),
+    new GPUParticleSystem("particles", { capacity: 3 }, scene),
+    new GPUParticleSystem("particles", { capacity: 3 }, scene),
+    new GPUParticleSystem("particles", { capacity: 3 }, scene),
+  ];
+  particleSystems.forEach((particleSystem, i) => {
+    particleSystem.particleTexture = new Texture(`img/particle-textures/explosion-${i + 1}.jpg`);
+    particleSystem.minSize = 0.5;
+    particleSystem.maxSize = 0.6;
 
-  particleSystem.createSphereEmitter(0.3, 1);
+    particleSystem.createBoxEmitter(
+      Vector3.Up(),
+      new Vector3(0, 0.8, 0),
+      new Vector3(0, 0, 0),
+      new Vector3(0, 0, 0)
+    );
 
-  const mesh = new Mesh("");
+    particleSystem.preWarmCycles = 50;
 
-  mesh.rotationQuaternion = Quaternion.FromEulerVector(mesh.rotation);
-  particleSystem.emitter = mesh;
+    particleSystem.minEmitPower = 0.03;
+    particleSystem.maxEmitPower = 0.09;
+    particleSystem.emitRate = 0.5;
+    particleSystem.minLifeTime = 0.6;
+    particleSystem.maxLifeTime = 1;
 
-  particleSystem.minSize = 0.05;
-  particleSystem.maxSize = 0.15;
+    particleSystem.gravity = new Vector3(0, 0.3, 0);
+  });
 
-  particleSystem.addColorGradient(0, new Color4(0.7, 0.8, 1.0, 0));
-  particleSystem.addColorGradient(0.5, new Color4(0.2, 0.5, 1.0, 0.7));
-  particleSystem.addColorGradient(1, new Color4(0, 0, 0, 0.0));
+  // particleSystem.addColorGradient(0, new Color4(0.7, 0.8, 1.0, 0));
+  // particleSystem.addColorGradient(0.5, new Color4(0.2, 0.5, 1.0, 0.7));
+  // particleSystem.addColorGradient(1, new Color4(0, 0, 0, 0.0));
 
-  particleSystem.minEmitPower = 0.1;
-  particleSystem.maxEmitPower = 0.3;
-  particleSystem.emitRate = 1;
-  particleSystem.minLifeTime = 1;
-  particleSystem.maxLifeTime = 3;
-
-  particleSystem.gravity = new Vector3(0, 0.3, 0);
-
-  return [{ particleSystem, mesh }];
+  return particleSystems;
 }

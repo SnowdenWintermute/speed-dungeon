@@ -26,6 +26,7 @@ import pixelationShader from "./pixelationNodeMaterial.json";
 import { ReplayTreeManager } from "./replay-tree-manager";
 import { ActionEntityManager } from "../scene-entities/action-entity-models";
 import { useGameStore } from "@/stores/game-store";
+import { testParticleSystem } from "./testing-particle-systems";
 
 export const LAYER_MASK_1 = 0x10000000;
 export const LAYER_MASK_ALL = 0xffffffff;
@@ -100,8 +101,8 @@ export class GameWorld {
 
     // testingSounds();
 
-    // const systemAndMeshOption = testParticleSystem(this.scene)[0];
-    // if (systemAndMeshOption) systemAndMeshOption.particleSystem.start();
+    // const particleSystems = testParticleSystem(this.scene);
+    // particleSystems.forEach((system) => system.start());
 
     // this.startLimitedFramerateRenderLoop(5, 3000);
   }

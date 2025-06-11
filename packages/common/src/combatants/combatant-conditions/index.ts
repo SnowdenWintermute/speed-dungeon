@@ -1,4 +1,5 @@
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
+import { CombatActionIntent } from "../../combat/combat-actions/combat-action-intent.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { CosmeticEffectOnTargetTransformNode } from "../../combat/combat-actions/combat-action-steps-config.js";
 import { FriendOrFoe } from "../../combat/combat-actions/targeting-schemes-and-categories.js";
@@ -7,6 +8,7 @@ import { EntityId, EntityProperties, MaxAndCurrent } from "../../primatives/inde
 import { IdGenerator } from "../../utility-classes/index.js";
 import { removeFromArray } from "../../utils/index.js";
 import { Combatant, CombatantProperties } from "../index.js";
+import { BurningCombatantCondition } from "./burning.js";
 import { PrimedForExplosionCombatantCondition } from "./primed-for-explosion.js";
 import { PrimedForIceBurstCombatantCondition } from "./primed-for-ice-burst.js";
 
@@ -14,18 +16,21 @@ export enum CombatantConditionName {
   // Poison,
   PrimedForExplosion,
   PrimedForIceBurst,
+  Burning,
 }
 
 export const COMBATANT_CONDITION_NAME_STRINGS: Record<CombatantConditionName, string> = {
   // [CombatantConditionName.Poison]: "Poison",
   [CombatantConditionName.PrimedForExplosion]: "Detonatable",
   [CombatantConditionName.PrimedForIceBurst]: "Shatterable",
+  [CombatantConditionName.Burning]: "Burning",
 };
 
 export const COMBATANT_CONDITION_DESCRIPTIONS: Record<CombatantConditionName, string> = {
   // [CombatantConditionName.Poison]: "Periodically takes damage",
   [CombatantConditionName.PrimedForExplosion]: "Causes an explosion when hit by certain actions",
   [CombatantConditionName.PrimedForIceBurst]: "Causes an ice burst when hit by certain actions",
+  [CombatantConditionName.Burning]: "Periodically takes non-magical fire damage",
 };
 
 type CombatantConditionConstructor = new (
@@ -41,6 +46,7 @@ export const COMBATANT_CONDITION_CONSTRUCTORS: Record<
 > = {
   [CombatantConditionName.PrimedForExplosion]: PrimedForExplosionCombatantCondition,
   [CombatantConditionName.PrimedForIceBurst]: PrimedForIceBurstCombatantCondition,
+  [CombatantConditionName.Burning]: BurningCombatantCondition,
 };
 
 export interface ConditionAppliedBy {
@@ -57,6 +63,7 @@ export interface ConditionAppliedBy {
 export abstract class CombatantCondition {
   ticks?: MaxAndCurrent;
   level: number = 0;
+  intent: CombatActionIntent = CombatActionIntent.Malicious;
   constructor(
     public id: EntityId,
     public appliedBy: ConditionAppliedBy,
@@ -64,7 +71,12 @@ export abstract class CombatantCondition {
     public stacksOption: null | MaxAndCurrent
   ) {}
 
-  abstract onTick(): void;
+  abstract getTickSpeed(): null | number;
+
+  abstract onTick(): void | {
+    numStacksRemoved: number;
+    triggeredActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[];
+  };
   // if tracking ticks, increment current
   // examples of action to take here:
   // - cause resource change

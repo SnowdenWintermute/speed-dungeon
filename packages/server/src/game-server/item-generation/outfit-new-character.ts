@@ -36,10 +36,14 @@ export function outfitNewCharacter(character: Combatant) {
     CombatActionName.UseGreenAutoinjector,
     CombatActionName.UseBlueAutoinjector,
     CombatActionName.IceBoltParent,
+    CombatActionName.Fire,
   ];
 
-  for (const actionName of ownedActions)
-    combatantProperties.ownedActions[actionName] = new CombatantActionState(actionName);
+  for (const actionName of ownedActions) {
+    const action = new CombatantActionState(actionName);
+    if (actionName === CombatActionName.Fire) action.level = 2;
+    combatantProperties.ownedActions[actionName] = action;
+  }
 
   const baseStartingAttributesOption = BASE_STARTING_ATTRIBUTES[combatantProperties.combatantClass];
   if (baseStartingAttributesOption) {

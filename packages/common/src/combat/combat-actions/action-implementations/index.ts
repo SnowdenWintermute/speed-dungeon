@@ -18,6 +18,7 @@ import { COUNTER_ATTACK } from "./counter-attack/index.js";
 import { COUNTER_ATTACK_MELEE_MAIN_HAND } from "./counter-attack/counter-attack-melee-main-hand.js";
 import { COUNTER_ATTACK_RANGED_MAIN_HAND } from "./counter-attack/counter-attack-ranged-main-hand.js";
 import { COUNTER_ATTACK_RANGED_MAIN_HAND_PROJECTILE } from "./counter-attack/counter-attack-ranged-main-hand-projectile.js";
+import { FIRE } from "./fire/index.js";
 
 export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Attack]: ATTACK,
@@ -40,4 +41,5 @@ export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.IceBoltParent]: ICE_BOLT_PARENT,
   [CombatActionName.IceBoltProjectile]: ICE_BOLT_PROJECTILE,
   [CombatActionName.IceBurst]: ICE_BURST,
+  [CombatActionName.Fire]: FIRE,
 };

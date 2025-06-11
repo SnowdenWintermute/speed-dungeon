@@ -7,8 +7,10 @@ import {
   TargetingScheme,
 } from "../combat-actions/targeting-schemes-and-categories.js";
 import { CombatActionComponent } from "../combat-actions/index.js";
+import { Combatant } from "../../combatants/index.js";
 
 export function getValidPreferredOrDefaultActionTargets(
+  combatant: Combatant,
   playerOption: null | SpeedDungeonPlayer,
   combatAction: CombatActionComponent,
   allyIdsOption: null | string[],
@@ -25,10 +27,13 @@ export function getValidPreferredOrDefaultActionTargets(
     friendlySingle: preferredFriendlyOption,
   } = playerOption.targetPreferences;
 
+  const targetingSchemes = combatAction.targetingProperties.getTargetingSchemes(combatant);
+
   // IF SELECTED ACTION CONTAINS PREFERRED TARGETING SCHEME
-  if (combatAction.targetingProperties.targetingSchemes.includes(targetingSchemePreference)) {
+  if (targetingSchemes.includes(targetingSchemePreference)) {
     switch (targetingSchemePreference) {
       case TargetingScheme.Single:
+        console.log("SINGLE");
         // IF PREFERENCE EXISTS SELECT IT IF VALID
         if (preferredCategoryOption !== null) {
           switch (preferredCategoryOption) {
@@ -48,9 +53,7 @@ export function getValidPreferredOrDefaultActionTargets(
         }
         // IF NO VALID PREFERRED SINGLE, GET ANY VALID SINGLE
         for (const category of iterateNumericEnum(FriendOrFoe)) {
-          if (newTargets) {
-            return newTargets;
-          }
+          if (newTargets) return newTargets;
 
           const idsOption = category === FriendOrFoe.Friendly ? allyIdsOption : opponentIdsOption;
           if (idsOption) {
@@ -80,21 +83,19 @@ export function getValidPreferredOrDefaultActionTargets(
   }
 
   if (newTargets) return newTargets;
+
   // IF NO VALID TARGET IN PREFERRED SCHEME OR PREFERRED SCHEME NOT VALID GET ANY VALID TARGET
-  for (const targetingSchemeKey of combatAction.targetingProperties.targetingSchemes) {
-    console.log(
-      combatAction.name,
-      combatAction.targetingProperties.targetingSchemes,
-      targetingSchemeKey
-    );
-    const targetingScheme = targetingSchemeKey as TargetingScheme;
+  for (const targetingSchemeKey of targetingSchemes) {
+    const targetingScheme = targetingSchemeKey;
 
     switch (targetingScheme) {
       case TargetingScheme.Single:
         for (const category of iterateNumericEnum(FriendOrFoe)) {
           const idsOption = category === FriendOrFoe.Friendly ? allyIdsOption : opponentIdsOption;
+
           if (idsOption)
             newTargets = getPreferredOrDefaultSingleTargetOption(idsOption[0] || null, idsOption);
+          if (newTargets) return newTargets;
         }
         break;
       case TargetingScheme.Area:
@@ -107,7 +108,7 @@ export function getValidPreferredOrDefaultActionTargets(
     }
   }
 
-  if (!newTargets) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
+  if (newTargets === null) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
   return newTargets;
 }
 
@@ -121,10 +122,9 @@ function getPreferredOrDefaultSingleTargetOption(
     if (idsToCheckOption) {
       if (idsToCheckOption.includes(preferredSingleTargetOption))
         toReturn = { type: CombatActionTargetType.Single, targetId: preferredSingleTargetOption };
-      else if (idsToCheckOption[0]) {
-        toReturn = { type: CombatActionTargetType.Single, targetId: idsToCheckOption[0] };
-      }
     }
+  } else if (idsToCheckOption && idsToCheckOption[0]) {
+    toReturn = { type: CombatActionTargetType.Single, targetId: idsToCheckOption[0] };
   }
 
   return toReturn;

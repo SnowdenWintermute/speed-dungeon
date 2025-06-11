@@ -7,6 +7,7 @@ import {
   CombatActionComponent,
   CombatActionName,
   CombatActionUsabilityContext,
+  Combatant,
   CombatantProperties,
   TARGETING_SCHEME_STRINGS,
   TARGET_CATEGORY_STRINGS,
@@ -34,9 +35,9 @@ export default function ActionDetails({ actionName, hideTitle }: Props) {
 
   const action = COMBAT_ACTIONS[actionName];
   const costs = action.costProperties.getResourceCosts(focusedCharacter.combatantProperties);
-  const { usabilityContext } = action;
+  const { usabilityContext } = action.targetingProperties;
 
-  const targetingSchemesText = formatTargetingSchemes(action);
+  const targetingSchemesText = formatTargetingSchemes(focusedCharacter, action);
 
   return (
     <div className="flex flex-col pointer-events-auto" style={{ flex: `1 1 1px` }}>
@@ -86,8 +87,9 @@ function ActionCostsDisplay(props: {
   );
 }
 
-function formatTargetingSchemes(action: CombatActionComponent) {
-  return action.targetingProperties.targetingSchemes
+function formatTargetingSchemes(user: Combatant, action: CombatActionComponent) {
+  return action.targetingProperties
+    .getTargetingSchemes(user)
     .map((targetingScheme, i) => TARGETING_SCHEME_STRINGS[targetingScheme])
     .join(", ");
 }
