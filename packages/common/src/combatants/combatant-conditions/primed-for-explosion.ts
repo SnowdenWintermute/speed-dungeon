@@ -63,6 +63,11 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
       targetId: targetCombatant.entityProperties.id,
     };
 
+    console.log(
+      "primed for explosion sets shimmed user target as:",
+      targetCombatant.entityProperties.id
+    );
+
     const combatantContextFromConditionUserPerspective = new CombatantContext(
       combatantContext.game,
       combatantContext.party,
@@ -75,6 +80,8 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
 
     if (actionTarget instanceof Error) throw actionTarget;
     if (actionTarget === null) throw new Error("failed to get auto target");
+
+    console.log("primed for explosion sets action target as:", actionTarget);
 
     const explosionActionIntent = new CombatActionExecutionIntent(
       CombatActionName.Explosion,

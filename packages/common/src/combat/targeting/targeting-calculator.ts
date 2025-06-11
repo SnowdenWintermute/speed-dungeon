@@ -280,13 +280,26 @@ export class TargetingCalculator {
   }
 
   getPrimaryTargetCombatantId(actionExecutionIntent: CombatActionExecutionIntent) {
-    const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
-    const targetIdsResult = this.getCombatActionTargetIds(action, actionExecutionIntent.targets);
-    if (targetIdsResult instanceof Error) throw targetIdsResult;
-    const primaryTargetIdOption = targetIdsResult[0];
-    if (primaryTargetIdOption === undefined)
-      throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
-    return primaryTargetIdOption;
+    console.log("getting primary target id for actionExecutionIntent: ", actionExecutionIntent);
+    switch (actionExecutionIntent.targets.type) {
+      case CombatActionTargetType.Single:
+        return actionExecutionIntent.targets.targetId;
+      case CombatActionTargetType.DistinctIds:
+      case CombatActionTargetType.Sides:
+      case CombatActionTargetType.SingleAndSides:
+      case CombatActionTargetType.Group:
+      case CombatActionTargetType.All:
+        const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
+        const targetIdsResult = this.getCombatActionTargetIds(
+          action,
+          actionExecutionIntent.targets
+        );
+        if (targetIdsResult instanceof Error) throw targetIdsResult;
+        const primaryTargetIdOption = targetIdsResult[0];
+        if (primaryTargetIdOption === undefined)
+          throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
+        return primaryTargetIdOption;
+    }
   }
 
   getPrimaryTargetCombatant(
