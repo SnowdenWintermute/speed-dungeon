@@ -43,11 +43,15 @@ export class ConditionTurnTracker extends CombatantTurnTracker {
 
 // server ticks combat until next tracker
 // - if is combatant, take their AI turn or wait for user input
-// - if is condition, tick the condition and process the branching actions
+// - if is condition
+//   * aggregate any conditions with the same amount of movement and process their branching actions "simultaneously"
 // - accumulate a list of removed trackers
 // - accumulate list of added trackers
 // - send lists to client
+// - client animates any action replays
 // - client animates removal of trackers and additions of new trackers
+// - if conditions, client updates their aggregated condition turn markers until no markers are left, then
+// removes the aggregated condition marker
 //
 // Turn Order Update Events
 // - tracker deletions

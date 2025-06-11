@@ -15,8 +15,8 @@ import {
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 
 export const FIRE_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {
-  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Ranged],
-  getHpChangeProperties: (user, primaryTarget) => {
+  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Spell],
+  getHpChangeProperties: (user, _primaryTarget) => {
     const hpChangeSourceConfig: ResourceChangeSourceConfig = {
       category: ResourceChangeSourceCategory.Magical,
       kineticDamageTypeOption: null,
