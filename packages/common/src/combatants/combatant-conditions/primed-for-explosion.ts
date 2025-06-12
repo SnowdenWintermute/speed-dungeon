@@ -3,6 +3,7 @@ import {
   CombatantCondition,
   CombatantConditionName,
   ConditionAppliedBy,
+  ConditionTickProperties,
 } from "./index.js";
 import { Combatant, createShimmedUserOfTriggeredCondition } from "../index.js";
 import {
@@ -26,10 +27,6 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
     public appliedBy: ConditionAppliedBy,
     public level: number
   ) {}
-
-  onTick() {}
-
-  getTickSpeed = () => null;
 
   triggeredWhenHitBy(actionName: CombatActionName) {
     const actionsThatDontTrigger = [

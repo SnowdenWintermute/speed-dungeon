@@ -1,8 +1,9 @@
-import { Milliseconds } from "../../primatives";
+import { Milliseconds, NormalizedPercentage } from "../../primatives";
 
 // DELAY BASED
 export const SPEED_DELAY_RECOVERY_WEIGHT = 50;
 export const BASE_ACTION_DELAY: Milliseconds = 1000;
+export const BASE_ACTION_DELAY_MULTIPLIER: NormalizedPercentage = 1; // could allow for actions to have greater or lesser delay costs
 // OLD MOVEMENT BASED
 export const SPEED_MODIFIER = 10;
 export const REQUIRED_MOVEMENT_TO_MOVE = 999;

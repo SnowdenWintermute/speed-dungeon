@@ -2,27 +2,18 @@ import { AdventuringParty } from "../../adventuring-party/index.js";
 import { CombatantProperties } from "../../combatants/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { BASE_ACTION_DELAY, SPEED_DELAY_RECOVERY_WEIGHT } from "./consts.js";
+import { TurnOrderScheduler } from "./turn-order-scheduler.js";
 
 export * from "./tick-combat-until-next-combatant-is-active.js";
 
 export class TurnOrderManager {
-  minTrackersCount = 12;
-  turnTrackers: (TurnTracker | ConditionTurnTracker)[] = [];
+  minTrackersCount: number = 12;
+  turnOrderScheduler = new TurnOrderScheduler(this.minTrackersCount);
+  turnTrackers: (CombatantTurnTracker | ConditionTurnTracker)[] = [];
   constructor() {}
 
-  removeCombatantTrackers(combatantId: EntityId) {
-    // call removeConditionTrackers() and push its result to the removedTrackers list
-    // find all combatant trackers with the combatantId
-    // remove each and push to a removedTrackers list
-    // return the removedTrackers list
-  }
-  removeConditionTrackers(conditionId: EntityId) {
-    // find all condition trackers with the combatantId
-    // remove each and push to a removedTrackers list
-    // return the removedTrackers list
-  }
-  getActionDelayCost(combatantSpeed: number, actionDelayMultiplier: number) {
-    const speedBonus = combatantSpeed * SPEED_DELAY_RECOVERY_WEIGHT;
+  static getActionDelayCost(speed: number, actionDelayMultiplier: number) {
+    const speedBonus = speed * SPEED_DELAY_RECOVERY_WEIGHT;
     const delayAfterSpeedBonus = BASE_ACTION_DELAY / (BASE_ACTION_DELAY + speedBonus);
     const delay = actionDelayMultiplier * delayAfterSpeedBonus;
     return delay;
@@ -32,25 +23,16 @@ export class TurnOrderManager {
   // - remove any dead combatant trackers and their conditions
   // - animate fill to left
   // - predict missing trackers and fill them
-  buildInitialList() {
-    // - for each combatant and tickable condition create a turnTrackerBuilder with initial delay based on their speed
-    // to create a workingList
-    // - create turnTrackerList
-    // - while (turnTrackerList.length < minLength && !(turnTrackerList.containsOneOfEach()))
-    //   * sort workingList by delay
-    //   * push first in line to turnTrackerList
-    //   * add delay to their turnTrackerBuilder
-    // -
-  }
-  fillEmptyTrackerSlots() {
-    const missingTrackersCount = this.minTrackersCount - this.turnTrackers.length;
-    // - for each combatant and tickable condition, if no tracker exists, create one
-    // - while missingTrackersCount > 0
-    //   - predict the next tracker and add it to the list
-    //
-  }
-  sortTrackers() {
-    //
+  diffTurnTrackers(newTrackers: (CombatantTurnTracker | ConditionTurnTracker)[]) {
+    const oldTrackers = this.turnTrackers;
+    const oldIds = oldTrackers.map((tracker) => tracker.getId());
+    const newIds = newTrackers.map((tracker) => tracker.getId());
+
+    const removedTrackerIds = oldIds.filter((id) => !newIds.includes(id));
+    const addedTrackers = newTrackers.filter((tracker) => !oldIds.includes(tracker.getId()));
+    const persistedTrackers = newTrackers.filter((tracker) => oldIds.includes(tracker.getId()));
+
+    return { removedTrackerIds, persistedTrackers, addedTrackers };
   }
   aggregateConditionTrackersTiedForFirst() {}
 
@@ -76,25 +58,28 @@ export class TurnOrderManager {
   //
 }
 
-export class TurnTracker {
-  movement: number = 0;
+export class CombatantTurnTracker {
   constructor(
     public readonly combatantId: string,
-    public readonly tieBreakerId: number
+    public readonly timeOfNextMove: number
   ) {}
 
   getCombatant(party: AdventuringParty) {
     return AdventuringParty.getCombatant(party, this.combatantId);
   }
+
+  getId() {
+    return this.timeOfNextMove + this.combatantId;
+  }
 }
 
-export class ConditionTurnTracker extends TurnTracker {
+export class ConditionTurnTracker extends CombatantTurnTracker {
   constructor(
     combatantId: EntityId,
     public readonly conditionId: EntityId,
-    tieBreakerId: number
+    public readonly timeOfNextMove: number
   ) {
-    super(combatantId, tieBreakerId);
+    super(combatantId, timeOfNextMove);
   }
 
   getCondition(party: AdventuringParty) {
@@ -110,6 +95,10 @@ export class ConditionTurnTracker extends TurnTracker {
 
   getSpeed(): number {
     return 0;
+  }
+
+  getId() {
+    return this.timeOfNextMove + this.conditionId;
   }
 }
 

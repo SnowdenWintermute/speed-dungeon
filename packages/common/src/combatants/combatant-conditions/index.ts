@@ -60,6 +60,14 @@ export interface ConditionAppliedBy {
   friendOrFoe: FriendOrFoe;
 }
 
+export interface ConditionTickProperties {
+  getTickSpeed(): number;
+  onTick(): {
+    numStacksRemoved: number;
+    triggeredActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[];
+  };
+}
+
 export abstract class CombatantCondition {
   ticks?: MaxAndCurrent;
   level: number = 0;
@@ -71,12 +79,7 @@ export abstract class CombatantCondition {
     public stacksOption: null | MaxAndCurrent
   ) {}
 
-  abstract getTickSpeed(): null | number;
-
-  abstract onTick(): void | {
-    numStacksRemoved: number;
-    triggeredActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[];
-  };
+  abstract tickProperties?: ConditionTickProperties;
   // if tracking ticks, increment current
   // examples of action to take here:
   // - cause resource change

@@ -37,9 +37,6 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
     public level: number
   ) {}
 
-  onTick() {}
-  getTickSpeed = () => null;
-
   triggeredWhenHitBy(actionName: CombatActionName) {
     const actionsThatDontTrigger = [
       CombatActionName.IceBoltProjectile,

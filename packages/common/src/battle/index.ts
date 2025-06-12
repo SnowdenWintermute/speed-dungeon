@@ -1,8 +1,6 @@
-import { FriendOrFoe } from "../combat/index.js";
+import { FriendOrFoe, TurnOrderManager } from "../combat/index.js";
 import { endActiveCombatantTurn } from "../combat/turn-order/end-active-combatant-turn.js";
-import { CombatantTurnTracker } from "../combat/turn-order/index.js";
-import { Combatant, ConditionAppliedBy } from "../combatants/index.js";
-import { ERROR_MESSAGES } from "../errors/index.js";
+import { Combatant, CombatantCondition, ConditionAppliedBy } from "../combatants/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { EntityId } from "../primatives/index.js";
 import { getAllyAndEnemyBattleGroups } from "./get-ally-and-enemy-battle-groups.js";
@@ -16,29 +14,38 @@ export class Battle {
     public id: EntityId,
     public groupA: BattleGroup,
     public groupB: BattleGroup,
-    public turnTrackers: CombatantTurnTracker[]
+    public turnOrderManager: TurnOrderManager
   ) {}
 
-  static removeCombatantTurnTrackers(battle: Battle, combatantId: string) {
-    let indexToRemoveOption = null;
-    battle.turnTrackers.forEach((turnTracker, i) => {
-      if (turnTracker.entityId === combatantId) {
-        indexToRemoveOption = i;
+  static getAllCombatants(game: SpeedDungeonGame, battle: Battle) {
+    const allCombatantIds = [...battle.groupA.combatantIds, ...battle.groupB.combatantIds];
+    const toReturn: Combatant[] = [];
+    for (const combatantId of allCombatantIds) {
+      const combatantResult = SpeedDungeonGame.getCombatantById(game, combatantId);
+      if (combatantResult instanceof Error) throw combatantResult;
+      toReturn.push(combatantResult);
+    }
+    return toReturn;
+  }
+
+  static getAllTickableConditionsAndCombatants(game: SpeedDungeonGame, battle: Battle) {
+    const combatants = Battle.getAllCombatants(game, battle);
+    const tickableConditions: { condition: CombatantCondition; combatantId: EntityId }[] = [];
+    for (const combatant of combatants) {
+      for (const condition of combatant.combatantProperties.conditions) {
+        if (condition.tickProperties) {
+          tickableConditions.push({ condition, combatantId: combatant.entityProperties.id });
+        }
       }
-    });
-    if (indexToRemoveOption !== null) battle.turnTrackers.splice(indexToRemoveOption, 1);
+    }
+
+    return { combatants, tickableConditions };
   }
 
   static removeCombatant(battle: Battle, combatantId: string) {
-    Battle.removeCombatantTurnTrackers(battle, combatantId);
+    // Battle.removeCombatantTurnTrackers(battle, combatantId);
     battle.groupA.combatantIds = battle.groupA.combatantIds.filter((id) => id !== combatantId);
     battle.groupB.combatantIds = battle.groupB.combatantIds.filter((id) => id !== combatantId);
-  }
-
-  static combatantIsFirstInTurnOrder(battle: Battle, combatantId: string) {
-    if (battle.turnTrackers.length < 1) return false;
-
-    return battle.turnTrackers[0]?.entityId === combatantId;
   }
 
   static getAllyIdsAndOpponentIdsOption = getAllyIdsAndOpponentIdsOption;
@@ -80,41 +87,41 @@ export class Battle {
     };
   }
 
-  static sortTurnTrackers(battle: Battle) {
-    battle.turnTrackers.sort((a, b) => {
-      if (a.movement > b.movement) return -1;
-      if (a.movement < b.movement) return 1;
+  // static sortTurnTrackers(battle: Battle) {
+  //   battle.turnTrackers.sort((a, b) => {
+  //     if (a.movement > b.movement) return -1;
+  //     if (a.movement < b.movement) return 1;
 
-      if (a.tieBreakerId > b.tieBreakerId) return -1;
-      if (a.tieBreakerId < b.tieBreakerId) return 1;
+  //     if (a.tieBreakerId > b.tieBreakerId) return -1;
+  //     if (a.tieBreakerId < b.tieBreakerId) return 1;
 
-      return 0;
-    });
-    return battle.turnTrackers;
-  }
+  //     return 0;
+  //   });
+  //   return battle.turnTrackers;
+  // }
 
-  static getFirstCombatantInTurnOrder(game: SpeedDungeonGame, battle: Battle) {
-    const activeCombatantTurnTrackerOption = battle.turnTrackers[0];
-    if (!activeCombatantTurnTrackerOption)
-      throw new Error(ERROR_MESSAGES.BATTLE.TURN_TRACKERS_EMPTY);
+  // static getFirstCombatantInTurnOrder(game: SpeedDungeonGame, battle: Battle) {
+  //   const activeCombatantTurnTrackerOption = battle.turnTrackers[0];
+  //   if (!activeCombatantTurnTrackerOption)
+  //     throw new Error(ERROR_MESSAGES.BATTLE.TURN_TRACKERS_EMPTY);
 
-    return SpeedDungeonGame.getCombatantById(game, activeCombatantTurnTrackerOption.entityId);
-  }
+  //   return SpeedDungeonGame.getCombatantById(game, activeCombatantTurnTrackerOption.entityId);
+  // }
 
   static endActiveCombatantTurn = endActiveCombatantTurn;
 
   /** Useful for ending the turn when the combatant may have already died before this step */
-  static endCombatantTurnIfInBattle(
-    game: SpeedDungeonGame,
-    battle: Battle,
-    combatantId: EntityId
-  ): Error | CombatantTurnTracker | void {
-    const firstCombatantInTurnOrder = Battle.getFirstCombatantInTurnOrder(game, battle);
-    if (firstCombatantInTurnOrder instanceof Error) throw firstCombatantInTurnOrder;
-    if (firstCombatantInTurnOrder.entityProperties.id === combatantId) {
-      return Battle.endActiveCombatantTurn(game, battle);
-    }
-  }
+  // static endCombatantTurnIfInBattle(
+  //   game: SpeedDungeonGame,
+  //   battle: Battle,
+  //   combatantId: EntityId
+  // ): Error | CombatantTurnTracker | void {
+  //   const firstCombatantInTurnOrder = Battle.getFirstCombatantInTurnOrder(game, battle);
+  //   if (firstCombatantInTurnOrder instanceof Error) throw firstCombatantInTurnOrder;
+  //   if (firstCombatantInTurnOrder.entityProperties.id === combatantId) {
+  //     return Battle.endActiveCombatantTurn(game, battle);
+  //   }
+  // }
 }
 
 export enum BattleGroupType {
