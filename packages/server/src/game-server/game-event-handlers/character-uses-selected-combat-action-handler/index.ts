@@ -77,5 +77,4 @@ export async function useSelectedCombatActionHandler(
     .emit(ServerToClientEvent.ActionCommandPayloads, payloads);
 
   processBattleUntilPlayerTurnOrConclusion(gameServer, game, party, battleOption);
-  console.log("turn trackers: ", battleOption?.turnTrackers);
 }

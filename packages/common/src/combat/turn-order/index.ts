@@ -22,6 +22,19 @@ export class TurnOrderManager {
     const delay = actionDelayMultiplier * delayAfterSpeedBonus;
     return delay;
   }
+
+  currentActorIsPlayerControlled(party: AdventuringParty) {
+    const fastestTurnOrderTracker = this.getFastestActorTurnOrderTracker();
+    if (fastestTurnOrderTracker instanceof ConditionTurnTracker) return false;
+    return party.characterPositions.includes(fastestTurnOrderTracker.combatantId);
+  }
+
+  getFastestActorTurnOrderTracker() {
+    const fastest = this.turnTrackers[0];
+    if (!fastest) throw new Error("turn trackers were empty");
+    return fastest;
+  }
+
   // on action taken
   // - remove first turn tracker
   // - remove any dead combatant trackers and their conditions

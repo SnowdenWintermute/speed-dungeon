@@ -20,6 +20,10 @@ export class Battle {
     this.turnOrderManager = new TurnOrderManager(game, this);
   }
 
+  static rehydrate(battle: Battle, game: SpeedDungeonGame) {
+    return new Battle(battle.id, battle.groupA, battle.groupB, game);
+  }
+
   static getAllCombatants(game: SpeedDungeonGame, battle: Battle) {
     const allCombatantIds = [...battle.groupA.combatantIds, ...battle.groupB.combatantIds];
     const toReturn: Combatant[] = [];
