@@ -147,6 +147,9 @@ export class CombatantProperties {
   static changeMana = changeCombatantMana;
   static clampHpAndMpToMax = clampResourcesToMax;
   static setHpAndMpToMax = setResourcesToMax;
+  static isDead(combatantProperties: CombatantProperties) {
+    return combatantProperties.hitPoints <= 0;
+  }
   static unequipSlots = unequipSlots;
   static dropItem = dropItem;
   static dropEquippedItem = dropEquippedItem;

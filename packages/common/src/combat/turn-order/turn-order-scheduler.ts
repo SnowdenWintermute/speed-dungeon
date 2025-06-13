@@ -41,23 +41,35 @@ export class TurnOrderScheduler {
     }
   }
 
+  sortSchedulerTrackers(key: keyof TurnSchedulerTracker) {
+    this.turnSchedulerTrackers.sort((a, b) => a[key] - b[key]);
+  }
+
+  getFirstTracker() {
+    const fastest = this.turnSchedulerTrackers[0];
+    if (fastest === undefined) throw new Error("turn scheduler list was empty");
+    return fastest;
+  }
+
   buildNewList() {
     this.resetTurnSchedulerTrackers();
 
     const turnTrackerList: (CombatantTurnTracker | ConditionTurnTracker)[] = [];
 
     while (turnTrackerList.length < this.minTrackersCount) {
-      this.turnSchedulerTrackers.sort((a, b) => a.timeOfNextMove - b.timeOfNextMove);
-      const fastestActor = this.turnSchedulerTrackers[0];
-      if (fastestActor === undefined) throw new Error("turn scheduler list was empty");
-      if (fastestActor instanceof CombatantTurnSchedulerTracker)
-        turnTrackerList.push(
-          new CombatantTurnTracker(
-            fastestActor.combatant.entityProperties.id,
-            fastestActor.timeOfNextMove
-          )
-        );
-      else if (fastestActor instanceof TickableConditionTurnSchedulerTracker)
+      this.sortSchedulerTrackers("timeOfNextMove");
+      const fastestActor = this.getFirstTracker();
+      if (fastestActor instanceof CombatantTurnSchedulerTracker) {
+        const combatant = fastestActor.combatant;
+        if (!CombatantProperties.isDead(combatant.combatantProperties)) {
+          turnTrackerList.push(
+            new CombatantTurnTracker(
+              fastestActor.combatant.entityProperties.id,
+              fastestActor.timeOfNextMove
+            )
+          );
+        }
+      } else if (fastestActor instanceof TickableConditionTurnSchedulerTracker)
         turnTrackerList.push(
           new ConditionTurnTracker(
             fastestActor.combatantId,

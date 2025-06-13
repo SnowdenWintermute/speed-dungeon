@@ -47,12 +47,12 @@ export function actionUseIsValid(
     else return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
   }
 
-  if (
-    battleOption !== null &&
-    !Battle.combatantIsFirstInTurnOrder(battleOption, combatant.entityProperties.id)
-  ) {
-    const message = `${ERROR_MESSAGES.COMBATANT.NOT_ACTIVE} first turn tracker ${JSON.stringify(battleOption.turnTrackers[0])}`;
-    return new Error(message);
+  if (battleOption !== null) {
+    const fastestActor = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
+    if (fastestActor.combatantId !== combatant.entityProperties.id) {
+      const message = `${ERROR_MESSAGES.COMBATANT.NOT_ACTIVE} first turn tracker ${JSON.stringify(fastestActor)}`;
+      return new Error(message);
+    }
   }
 
   const isInUsableContext = action.isUsableInThisContext(battleOption);

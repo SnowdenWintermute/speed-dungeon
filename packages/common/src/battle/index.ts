@@ -1,5 +1,4 @@
 import { FriendOrFoe, TurnOrderManager } from "../combat/index.js";
-import { endActiveCombatantTurn } from "../combat/turn-order/end-active-combatant-turn.js";
 import { Combatant, CombatantCondition, ConditionAppliedBy } from "../combatants/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { EntityId } from "../primatives/index.js";
@@ -93,42 +92,6 @@ export class Battle {
       opponentIds: idsByDisposition.allyIds,
     };
   }
-
-  // static sortTurnTrackers(battle: Battle) {
-  //   battle.turnTrackers.sort((a, b) => {
-  //     if (a.movement > b.movement) return -1;
-  //     if (a.movement < b.movement) return 1;
-
-  //     if (a.tieBreakerId > b.tieBreakerId) return -1;
-  //     if (a.tieBreakerId < b.tieBreakerId) return 1;
-
-  //     return 0;
-  //   });
-  //   return battle.turnTrackers;
-  // }
-
-  // static getFirstCombatantInTurnOrder(game: SpeedDungeonGame, battle: Battle) {
-  //   const activeCombatantTurnTrackerOption = battle.turnTrackers[0];
-  //   if (!activeCombatantTurnTrackerOption)
-  //     throw new Error(ERROR_MESSAGES.BATTLE.TURN_TRACKERS_EMPTY);
-
-  //   return SpeedDungeonGame.getCombatantById(game, activeCombatantTurnTrackerOption.entityId);
-  // }
-
-  static endActiveCombatantTurn = endActiveCombatantTurn;
-
-  /** Useful for ending the turn when the combatant may have already died before this step */
-  // static endCombatantTurnIfInBattle(
-  //   game: SpeedDungeonGame,
-  //   battle: Battle,
-  //   combatantId: EntityId
-  // ): Error | CombatantTurnTracker | void {
-  //   const firstCombatantInTurnOrder = Battle.getFirstCombatantInTurnOrder(game, battle);
-  //   if (firstCombatantInTurnOrder instanceof Error) throw firstCombatantInTurnOrder;
-  //   if (firstCombatantInTurnOrder.entityProperties.id === combatantId) {
-  //     return Battle.endActiveCombatantTurn(game, battle);
-  //   }
-  // }
 }
 
 export enum BattleGroupType {

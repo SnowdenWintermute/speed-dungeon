@@ -2,11 +2,14 @@ import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Battle } from "../../battle/index.js";
 import { CombatantProperties } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
-import { EntityId } from "../../primatives/index.js";
-import { BASE_ACTION_DELAY, SPEED_DELAY_RECOVERY_WEIGHT } from "./consts.js";
+import { EntityId, Milliseconds } from "../../primatives/index.js";
+import { CombatActionExecutionIntent } from "../combat-actions/combat-action-execution-intent.js";
+import {
+  BASE_ACTION_DELAY,
+  BASE_ACTION_DELAY_MULTIPLIER,
+  SPEED_DELAY_RECOVERY_WEIGHT,
+} from "./consts.js";
 import { TurnOrderScheduler } from "./turn-order-scheduler.js";
-
-export * from "./tick-combat-until-next-combatant-is-active.js";
 
 export class TurnOrderManager {
   minTrackersCount: number = 12;
@@ -23,10 +26,32 @@ export class TurnOrderManager {
     return delay;
   }
 
+  updateSchedulerWithExecutedActionDelay(
+    actionExecutionIntentOption: null | CombatActionExecutionIntent
+  ): Milliseconds {
+    this.turnOrderScheduler.sortSchedulerTrackers("accumulatedDelay");
+    const firstSchedulerTracker = this.turnOrderScheduler.getFirstTracker();
+
+    // @TODO - get delay multiplier from action
+    const delay = BASE_ACTION_DELAY_MULTIPLIER;
+
+    firstSchedulerTracker.accumulatedDelay += TurnOrderManager.getActionDelayCost(
+      firstSchedulerTracker.speed,
+      delay
+    );
+
+    return delay;
+  }
+
   currentActorIsPlayerControlled(party: AdventuringParty) {
     const fastestTurnOrderTracker = this.getFastestActorTurnOrderTracker();
     if (fastestTurnOrderTracker instanceof ConditionTurnTracker) return false;
     return party.characterPositions.includes(fastestTurnOrderTracker.combatantId);
+  }
+
+  combatantIsFirstInTurnOrder(combatantId: EntityId) {
+    const fastest = this.getFastestActorTurnOrderTracker();
+    return fastest instanceof CombatantTurnTracker && fastest.combatantId === combatantId;
   }
 
   getFastestActorTurnOrderTracker() {
@@ -82,7 +107,10 @@ export class CombatantTurnTracker {
   ) {}
 
   getCombatant(party: AdventuringParty) {
-    return AdventuringParty.getCombatant(party, this.combatantId);
+    const combatantResult = AdventuringParty.getCombatant(party, this.combatantId);
+
+    if (combatantResult instanceof Error) throw combatantResult;
+    return combatantResult;
   }
 
   getId() {

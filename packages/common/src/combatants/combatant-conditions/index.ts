@@ -64,7 +64,7 @@ export interface ConditionTickProperties {
   getTickSpeed(): number;
   onTick(): {
     numStacksRemoved: number;
-    triggeredActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[];
+    triggeredAction: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent };
   };
 }
 

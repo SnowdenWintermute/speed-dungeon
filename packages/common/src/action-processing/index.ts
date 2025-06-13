@@ -13,12 +13,12 @@ import { BattleConclusion } from "../battle/index.js";
 import { Consumable } from "../items/consumables/index.js";
 import { Equipment } from "../items/equipment/index.js";
 import { GameMessageType } from "../packets/game-message.js";
-import { EntityId } from "../primatives/index.js";
+import { EntityId, Milliseconds } from "../primatives/index.js";
 import { NestedNodeReplayEvent } from "./replay-events.js";
 
 export enum ActionCommandType {
   CombatActionReplayTree,
-  EndCombatantTurnIfFirstInTurnOrder,
+  AddDelayToFastestActorTurnSchedulerInBattle,
   BattleResult,
   GameMessages,
   RemovePlayerFromGame,
@@ -54,9 +54,9 @@ export type RemovePlayerFromGamePayload = {
   username: string;
 };
 
-export type EndActiveCombatantTurnPayload = {
-  type: ActionCommandType.EndCombatantTurnIfFirstInTurnOrder;
-  entityId: EntityId;
+export type AddDelayToFastestActorTurnSchedulerInBattlePayload = {
+  type: ActionCommandType.AddDelayToFastestActorTurnSchedulerInBattle;
+  delay: Milliseconds;
 };
 
 export type ActionCommandPayload =
@@ -64,12 +64,13 @@ export type ActionCommandPayload =
   | BattleResultActionCommandPayload
   | GameMessagesPayload
   | RemovePlayerFromGamePayload
-  | EndActiveCombatantTurnPayload;
+  | AddDelayToFastestActorTurnSchedulerInBattlePayload;
 
 export const ACTION_COMMAND_TYPE_STRINGS: Record<ActionCommandType, string> = {
   [ActionCommandType.CombatActionReplayTree]: "Combat Action Replay Tree",
   [ActionCommandType.BattleResult]: "Battle result",
   [ActionCommandType.GameMessages]: "Game messages",
   [ActionCommandType.RemovePlayerFromGame]: "Remove player from game",
-  [ActionCommandType.EndCombatantTurnIfFirstInTurnOrder]: "EndCombatantTurnIfFirstInTurnOrder",
+  [ActionCommandType.AddDelayToFastestActorTurnSchedulerInBattle]:
+    "AddDelayToFastestActorTurnSchedulerInBattle",
 };

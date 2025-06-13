@@ -5,13 +5,18 @@ import {
   ActionCommandType,
   AdventuringParty,
   Battle,
+  COMBATANT_CONDITION_NAME_STRINGS,
+  CombatActionExecutionIntent,
   CombatActionReplayTreePayload,
+  Combatant,
+  CombatantCondition,
   CombatantContext,
   CombatantTurnTracker,
   ConditionTurnTracker,
   ERROR_MESSAGES,
   ServerToClientEvent,
   SpeedDungeonGame,
+  createShimmedUserOfTriggeredCondition,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
@@ -35,6 +40,8 @@ export class BattleProcessor {
 
     let currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
 
+    const payloads: ActionCommandPayload[] = [];
+
     while (currentActorTurnTracker) {
       const partyWipesResult = checkForWipes(game, party.characterPositions[0], party.battleId);
       const battleConcluded = partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated;
@@ -48,44 +55,39 @@ export class BattleProcessor {
       if (battle.turnOrderManager.currentActorIsPlayerControlled(party)) break;
 
       // get action intent for fastest actor
-      const actionIntent = this.getNextActionIntent();
+      const { actionExecutionIntent, user } = this.getNextActionIntentAndUser();
       // process action intents
-      let skippedTurn = false;
-      if (actionIntent === null) {
-        // use the new turn order manager to end their turn
+      let shouldEndTurn = false;
+      if (actionExecutionIntent === null) shouldEndTurn = true;
+      else {
+        const replayTreeResult = processCombatAction(
+          actionExecutionIntent,
+          new CombatantContext(game, party, user)
+        );
 
-        // they skipped their turn due to no valid action
-        console.log("ai skipped turn");
-        const maybeError = Battle.endCombatantTurnIfInBattle(game, battle, entityProperties.id);
-        skippedTurn = true;
-        if (maybeError instanceof Error) return maybeError;
-        newActiveCombatantTrackerOption = battle.turnTrackers[0];
-        continue;
+        if (replayTreeResult instanceof Error) return replayTreeResult;
+        const { rootReplayNode, endedTurn } = replayTreeResult;
+        shouldEndTurn = endedTurn;
+
+        const actionUserId = user.entityProperties.id;
+        const payload: CombatActionReplayTreePayload = {
+          type: ActionCommandType.CombatActionReplayTree,
+          actionUserId,
+          root: rootReplayNode,
+        };
+
+        payloads.push(payload);
       }
 
-      const replayTreeResult = processCombatAction(
-        actionIntent,
-        new CombatantContext(game, party, activeCombatantResult)
-      );
+      if (shouldEndTurn) {
+        const delay =
+          battle.turnOrderManager.updateSchedulerWithExecutedActionDelay(actionExecutionIntent);
+        battle.turnOrderManager.turnOrderScheduler.buildNewList();
+        currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
 
-      if (replayTreeResult instanceof Error) return replayTreeResult;
-      const { rootReplayNode, endedTurn } = replayTreeResult;
-
-      newActiveCombatantTrackerOption = battle.turnTrackers[0];
-
-      const actionUserId = activeCombatantResult.entityProperties.id;
-      const payload: CombatActionReplayTreePayload = {
-        type: ActionCommandType.CombatActionReplayTree,
-        actionUserId,
-        root: rootReplayNode,
-      };
-
-      const payloads: ActionCommandPayload[] = [payload];
-
-      if (endedTurn || skippedTurn) {
         payloads.push({
-          type: ActionCommandType.EndCombatantTurnIfFirstInTurnOrder,
-          entityId: actionUserId,
+          type: ActionCommandType.AddDelayToFastestActorTurnSchedulerInBattle,
+          delay,
         });
       }
 
@@ -95,14 +97,31 @@ export class BattleProcessor {
     }
   }
 
-  getNextActionIntent() {
+  getNextActionIntentAndUser(): {
+    actionExecutionIntent: null | CombatActionExecutionIntent;
+    user: Combatant;
+  } {
     const { game, party, battle } = this;
     // get action intents for conditions or ai combatants
     const fastestActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
 
     if (fastestActorTurnTracker instanceof ConditionTurnTracker) {
       // @TODO - implement getting action intent from condition
-      return null;
+      const condition = fastestActorTurnTracker.getCondition(this.party);
+      const combatant = fastestActorTurnTracker.getCombatant(this.party);
+      if (condition.tickProperties === undefined)
+        throw new Error("expected condition tick properties were missing");
+      const triggeredActions = condition.tickProperties.onTick();
+
+      CombatantCondition.removeStacks(
+        condition.id,
+        combatant.combatantProperties,
+        triggeredActions.numStacksRemoved
+      );
+      // @TODO - send client stacks removed update
+
+      const { actionExecutionIntent, user } = triggeredActions.triggeredAction;
+      return { actionExecutionIntent, user };
     } else {
       const activeCombatantResult = fastestActorTurnTracker.getCombatant(party);
       if (activeCombatantResult instanceof Error) throw activeCombatantResult;
@@ -111,9 +130,13 @@ export class BattleProcessor {
       const battleGroupsResult = Battle.getAllyAndEnemyBattleGroups(battle, entityProperties.id);
       if (battleGroupsResult instanceof Error) throw battleGroupsResult;
 
-      const actionIntent = AISelectActionAndTarget(game, activeCombatantResult, battleGroupsResult);
-      if (actionIntent instanceof Error) throw actionIntent;
-      return actionIntent;
+      const actionExecutionIntent = AISelectActionAndTarget(
+        game,
+        activeCombatantResult,
+        battleGroupsResult
+      );
+      if (actionExecutionIntent instanceof Error) throw actionExecutionIntent;
+      return { actionExecutionIntent, user: activeCombatantResult };
     }
   }
 

@@ -1,7 +1,6 @@
 import {
   ActionResolutionStepType,
   ActionSequenceManagerRegistry,
-  Battle,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   CombatantContext,
@@ -46,7 +45,7 @@ export function processCombatAction(
 
   InputLock.lockInput(combatantContext.party.inputLock);
 
-  let endedTurn = false;
+  let endedTurn: boolean = false;
 
   while (registry.isNotEmpty()) {
     for (const sequenceManager of registry.getManagers()) {
@@ -184,19 +183,6 @@ export function processCombatAction(
 
     for (const sequenceManager of registry.getManagers())
       sequenceManager.getCurrentTracker()?.currentStep.tick(timeToTick);
-  }
-
-  InputLock.unlockInput(combatantContext.party.inputLock);
-  const { game, party, combatant } = combatantContext;
-  const battleOption = party.battleId ? game.battles[party.battleId] || null : null;
-
-  if (battleOption && endedTurn) {
-    const maybeError = Battle.endCombatantTurnIfInBattle(
-      game,
-      battleOption,
-      combatant.entityProperties.id
-    );
-    if (maybeError instanceof Error) return maybeError;
   }
 
   return { rootReplayNode, endedTurn };
