@@ -7,34 +7,61 @@ import { BASE_ACTION_DELAY_MULTIPLIER } from "./consts.js";
 import { CombatantTurnTracker, ConditionTurnTracker, TurnOrderManager } from "./index.js";
 
 export class TurnOrderScheduler {
-  constructor(public readonly minTrackersCount: number) {}
+  turnSchedulerTrackers: (CombatantTurnSchedulerTracker | TickableConditionTurnSchedulerTracker)[] =
+    [];
 
-  buildNewList(game: SpeedDungeonGame, battle: Battle) {
+  constructor(
+    public readonly minTrackersCount: number,
+    game: SpeedDungeonGame,
+    battle: Battle
+  ) {
     const { combatants, tickableConditions } = Battle.getAllTickableConditionsAndCombatants(
       game,
       battle
     );
-    const turnSchedulerList: (
-      | CombatantTurnSchedulerTracker
-      | TickableConditionTurnSchedulerTracker
-    )[] = [
+
+    this.turnSchedulerTrackers = [
       ...combatants.map((combatant) => new CombatantTurnSchedulerTracker(combatant)),
       ...tickableConditions.map(
         ({ combatantId, condition }) =>
           new TickableConditionTurnSchedulerTracker(combatantId, condition)
       ),
     ];
+  }
+
+  resetTurnSchedulerTrackers() {
+    for (const tracker of this.turnSchedulerTrackers) {
+      // take into account any delay they've accumulated from taking actions in this battle
+      tracker.timeOfNextMove = tracker.accumulatedDelay;
+      // start with an initial delay
+      tracker.timeOfNextMove += TurnOrderManager.getActionDelayCost(
+        tracker.speed,
+        BASE_ACTION_DELAY_MULTIPLIER
+      );
+    }
+  }
+
+  buildNewList() {
+    this.resetTurnSchedulerTrackers();
 
     const turnTrackerList: (CombatantTurnTracker | ConditionTurnTracker)[] = [];
 
     while (turnTrackerList.length < this.minTrackersCount) {
-      turnSchedulerList.sort((a, b) => a.timeOfNextMove - b.timeOfNextMove);
-      const fastestActor = turnSchedulerList[0];
+      this.turnSchedulerTrackers.sort((a, b) => a.timeOfNextMove - b.timeOfNextMove);
+      const fastestActor = this.turnSchedulerTrackers[0];
       if (fastestActor === undefined) throw new Error("turn scheduler list was empty");
       if (fastestActor instanceof CombatantTurnSchedulerTracker)
         turnTrackerList.push(
           new CombatantTurnTracker(
             fastestActor.combatant.entityProperties.id,
+            fastestActor.timeOfNextMove
+          )
+        );
+      else if (fastestActor instanceof TickableConditionTurnSchedulerTracker)
+        turnTrackerList.push(
+          new ConditionTurnTracker(
+            fastestActor.combatantId,
+            fastestActor.combatantId,
             fastestActor.timeOfNextMove
           )
         );
@@ -53,9 +80,8 @@ export class TurnOrderScheduler {
 
 class TurnSchedulerTracker {
   timeOfNextMove: number = 0;
-  constructor(public readonly speed: number) {
-    this.timeOfNextMove = TurnOrderManager.getActionDelayCost(speed, BASE_ACTION_DELAY_MULTIPLIER);
-  }
+  accumulatedDelay: number = 0; // when they take their turn, add to this
+  constructor(public readonly speed: number) {}
 }
 
 class CombatantTurnSchedulerTracker extends TurnSchedulerTracker {

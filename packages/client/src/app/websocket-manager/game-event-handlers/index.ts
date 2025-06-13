@@ -9,7 +9,7 @@ import { Socket } from "socket.io-client";
 import playerToggledReadyToDescendOrExploreHandler from "./player-toggled-ready-to-descend-or-explore-handler";
 import newDungeonRoomTypesOnCurrentFloorHandler from "./new-dungeon-room-types-on-current-floor-handler";
 import newDungeonRoomHandler from "./new-dungeon-room-handler";
-import battleFullUpdateHandler from "./battle-full-update-handler";
+import { battleFullUpdateHandler } from "./battle-full-update-handler";
 import characterDroppedItemHandler from "./character-dropped-item-handler";
 import { characterDroppedEquippedItemHandler } from "./character-dropped-equipped-item-handler";
 import { characterUnequippedSlotHandler } from "./character-unequipped-slot-handler";

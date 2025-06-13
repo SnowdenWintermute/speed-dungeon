@@ -3,7 +3,7 @@ import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { Battle, ERROR_MESSAGES, InputLock } from "@speed-dungeon/common";
 
-export default function battleFullUpdateHandler(battleOption: null | Battle) {
+export function battleFullUpdateHandler(battleOption: null | Battle) {
   useGameStore.getState().mutateState((gameState) => {
     const gameOption = gameState.game;
     if (gameOption === null) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));

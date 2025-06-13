@@ -112,9 +112,6 @@ export async function exploreNextRoom(
     .in(getPartyChannelName(game.name, party.name))
     .emit(ServerToClientEvent.BattleFullUpdate, battle);
 
-  if (battle.turnTrackers[0] === undefined)
-    return new Error(ERROR_MESSAGES.BATTLE.TURN_TRACKERS_EMPTY);
-
   const battleProcessingPayloadsResult = await processBattleUntilPlayerTurnOrConclusion(
     this,
     game,
@@ -167,7 +164,7 @@ function initiateBattle(
 ): Error | string {
   const turnTrackersResult = createCombatTurnTrackers(game, groupA, groupB);
   if (turnTrackersResult instanceof Error) return turnTrackersResult;
-  const battle = new Battle(idGenerator.generate(), groupA, groupB, turnTrackersResult);
+  const battle = new Battle(idGenerator.generate(), groupA, groupB, game);
   game.battles[battle.id] = battle;
   return battle.id;
 }

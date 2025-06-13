@@ -1,5 +1,7 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
+import { Battle } from "../../battle/index.js";
 import { CombatantProperties } from "../../combatants/index.js";
+import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { BASE_ACTION_DELAY, SPEED_DELAY_RECOVERY_WEIGHT } from "./consts.js";
 import { TurnOrderScheduler } from "./turn-order-scheduler.js";
@@ -8,9 +10,11 @@ export * from "./tick-combat-until-next-combatant-is-active.js";
 
 export class TurnOrderManager {
   minTrackersCount: number = 12;
-  turnOrderScheduler = new TurnOrderScheduler(this.minTrackersCount);
+  turnOrderScheduler: TurnOrderScheduler;
   turnTrackers: (CombatantTurnTracker | ConditionTurnTracker)[] = [];
-  constructor() {}
+  constructor(game: SpeedDungeonGame, battle: Battle) {
+    this.turnOrderScheduler = new TurnOrderScheduler(this.minTrackersCount, game, battle);
+  }
 
   static getActionDelayCost(speed: number, actionDelayMultiplier: number) {
     const speedBonus = speed * SPEED_DELAY_RECOVERY_WEIGHT;

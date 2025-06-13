@@ -10,12 +10,15 @@ import {
 } from "./get-ally-ids-and-opponent-ids-option.js";
 
 export class Battle {
+  turnOrderManager: TurnOrderManager;
   constructor(
     public id: EntityId,
     public groupA: BattleGroup,
     public groupB: BattleGroup,
-    public turnOrderManager: TurnOrderManager
-  ) {}
+    game: SpeedDungeonGame
+  ) {
+    this.turnOrderManager = new TurnOrderManager(game, this);
+  }
 
   static getAllCombatants(game: SpeedDungeonGame, battle: Battle) {
     const allCombatantIds = [...battle.groupA.combatantIds, ...battle.groupB.combatantIds];
