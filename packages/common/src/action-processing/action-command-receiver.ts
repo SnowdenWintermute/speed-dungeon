@@ -1,4 +1,4 @@
-import { Milliseconds } from "../primatives/index.js";
+import { CombatActionName } from "../combat/index.js";
 import {
   ActionCommandPayload,
   BattleResultActionCommandPayload,
@@ -17,5 +17,7 @@ export interface ActionCommandReceiver {
     partyChannelToExcludeOption?: string
   ) => Promise<Error | void>;
   removePlayerFromGameCommandHandler: (username: string) => Promise<Error | void>;
-  addDelayToFastestActorTurnSchedulerInBattle: (delay: Milliseconds) => Promise<Error | void>;
+  addDelayToFastestActorTurnSchedulerInBattle: (
+    actionNameOption: null | CombatActionName
+  ) => Promise<Error | void>;
 }

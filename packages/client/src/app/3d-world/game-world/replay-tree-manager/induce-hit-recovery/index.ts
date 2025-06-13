@@ -77,22 +77,13 @@ export function induceHitRecovery(
     if (combatantProperties.hitPoints <= 0) {
       const combatantDiedOnTheirOwnTurn = (() => {
         if (battleOption === null) return false;
-        return Battle.combatantIsFirstInTurnOrder(battleOption, targetId);
+        return battleOption.turnOrderManager.combatantIsFirstInTurnOrder(targetId);
       })();
-
-      const maybeError = SpeedDungeonGame.handleCombatantDeath(game, party.battleId, targetId);
-      if (maybeError instanceof Error) return console.error(maybeError);
 
       if (combatantDiedOnTheirOwnTurn) {
         // if it was the combatant's turn who died and the next active combatant is player controlled, unlock input
 
         if (!battleOption) InputLock.unlockInput(party.inputLock);
-        else {
-          const firstInTurnOrder = Battle.getFirstCombatantInTurnOrder(game, battleOption);
-          if (firstInTurnOrder instanceof Error) throw firstInTurnOrder;
-          if (party.characterPositions.includes(firstInTurnOrder.entityProperties.id))
-            InputLock.unlockInput(party.inputLock);
-        }
 
         // end any motion trackers they might have had
         // this is hacky because we would rather have not given them any but

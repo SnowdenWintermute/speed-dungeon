@@ -1,9 +1,7 @@
 import {
   ActionCommandReceiver,
-  AdventuringParty,
-  Battle,
+  CombatActionName,
   CombatActionReplayTreePayload,
-  EntityId,
   ERROR_MESSAGES,
   InputLock,
 } from "@speed-dungeon/common";
@@ -52,27 +50,22 @@ export class ClientActionCommandReceiver implements ActionCommandReceiver {
       await promise;
     };
 
-  endCombatantTurn: (entityId: EntityId) => Promise<void | Error> = async (entityId) => {
+  addDelayToFastestActorTurnSchedulerInBattle: (
+    actionNameOption: null | CombatActionName
+  ) => Promise<void | Error> = async (actionNameOption) => {
     useGameStore.getState().mutateState((state) => {
       const battleId = state.getCurrentBattleId();
       if (!battleId) return console.error("no battle but tried to end turn");
       const battleOption = state.game?.battles[battleId];
       if (!state.game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
       if (!battleOption) return console.error("no battle but tried to end turn");
-      Battle.endCombatantTurnIfInBattle(state.game, battleOption, entityId);
 
-      const gameOption = state.game;
+      battleOption.turnOrderManager.updateSchedulerWithExecutedActionDelay(actionNameOption);
+
       const partyOption = getCurrentParty(state, state.username || "");
-
-      if (gameOption && partyOption) {
-        const battleOption = AdventuringParty.getBattleOption(partyOption, gameOption);
-        if (!battleOption) InputLock.unlockInput(partyOption.inputLock);
-        else {
-          const firstInTurnOrder = Battle.getFirstCombatantInTurnOrder(gameOption, battleOption);
-          if (firstInTurnOrder instanceof Error) throw firstInTurnOrder;
-          if (partyOption.characterPositions.includes(firstInTurnOrder.entityProperties.id))
-            InputLock.unlockInput(partyOption.inputLock);
-        }
+      if (!partyOption) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
+      if (battleOption.turnOrderManager.currentActorIsPlayerControlled(partyOption)) {
+        InputLock.unlockInput(partyOption.inputLock);
       }
     });
   };

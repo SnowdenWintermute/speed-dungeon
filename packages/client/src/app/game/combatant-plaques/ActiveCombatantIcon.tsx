@@ -8,14 +8,17 @@ interface Props {
 }
 
 export default function ActiveCombatantIcon({ combatantId, battleOption }: Props) {
-  const content =
-    !battleOption || !Battle.combatantIsFirstInTurnOrder(battleOption, combatantId) ? (
-      <></>
-    ) : (
-      <div className="h-full border border-slate-400 bg-slate-700 pr-2 pl-2 text-sm pointer-events-auto w-fit">
+  const shouldDisplay =
+    !battleOption || battleOption.turnOrderManager.combatantIsFirstInTurnOrder(combatantId);
+
+  let content = <></>;
+  if (shouldDisplay) {
+    content = (
+      <div className="h-full border border-slate-400 bg-slate-700 pr-2 pl-2 text-sm pointer-events-auto w-fit text-nowrap">
         {"taking turn..."}
       </div>
     );
+  }
 
   return (
     <div className="pt-2" style={{ height: `${BUTTON_HEIGHT_SMALL}rem` }}>

@@ -158,6 +158,6 @@ function initiateBattle(
 ): Error | string {
   const battle = new Battle(idGenerator.generate(), groupA, groupB, game);
   game.battles[battle.id] = battle;
-  battle.turnOrderManager.turnOrderScheduler.buildNewList();
+  battle.turnOrderManager.updateTrackers();
   return battle.id;
 }

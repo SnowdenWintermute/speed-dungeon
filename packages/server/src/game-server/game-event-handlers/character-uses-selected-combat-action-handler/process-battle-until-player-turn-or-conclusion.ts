@@ -80,14 +80,15 @@ export class BattleProcessor {
       }
 
       if (shouldEndTurn) {
-        const delay =
-          battle.turnOrderManager.updateSchedulerWithExecutedActionDelay(actionExecutionIntent);
-        battle.turnOrderManager.turnOrderScheduler.buildNewList();
+        const actionNameOption =
+          actionExecutionIntent === null ? null : actionExecutionIntent.actionName;
+        battle.turnOrderManager.updateSchedulerWithExecutedActionDelay(actionNameOption);
+        battle.turnOrderManager.updateTrackers();
         currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
 
         payloads.push({
           type: ActionCommandType.AddDelayToFastestActorTurnSchedulerInBattle,
-          delay,
+          actionNameOption,
         });
       }
 

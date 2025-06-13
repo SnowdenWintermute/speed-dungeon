@@ -10,10 +10,11 @@ export * from "./action-sequence-manager-registry.js";
 export * from "./action-steps/combatant-motion.js";
 
 import { BattleConclusion } from "../battle/index.js";
+import { CombatActionName } from "../combat/index.js";
 import { Consumable } from "../items/consumables/index.js";
 import { Equipment } from "../items/equipment/index.js";
 import { GameMessageType } from "../packets/game-message.js";
-import { EntityId, Milliseconds } from "../primatives/index.js";
+import { EntityId } from "../primatives/index.js";
 import { NestedNodeReplayEvent } from "./replay-events.js";
 
 export enum ActionCommandType {
@@ -56,7 +57,7 @@ export type RemovePlayerFromGamePayload = {
 
 export type AddDelayToFastestActorTurnSchedulerInBattlePayload = {
   type: ActionCommandType.AddDelayToFastestActorTurnSchedulerInBattle;
-  delay: Milliseconds;
+  actionNameOption: null | CombatActionName;
 };
 
 export type ActionCommandPayload =

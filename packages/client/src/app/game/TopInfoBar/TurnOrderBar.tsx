@@ -11,8 +11,8 @@ export default function TurnOrderBar(props: Props) {
   return (
     <div className="flex h-full items-center">
       <div className="h-full mr-2 flex items-center">Turn order: </div>
-      {props.battle.turnTrackers.map((tracker) => (
-        <TurnOrderTrackerIcon key={tracker.entityId} tracker={tracker} />
+      {props.battle.turnOrderManager.turnTrackers.map((tracker) => (
+        <TurnOrderTrackerIcon key={tracker.combatantId} tracker={tracker} />
       ))}
     </div>
   );
@@ -29,10 +29,10 @@ function TurnOrderTrackerIcon({ tracker }: { tracker: CombatantTurnTracker }) {
   let [preRemovalClassesState, _setPreRemovalClassesState] = useState(SHOWN_CLASSES);
   let [transitionStyle, _setTransitionStyle] = useState({ transition: "width 1s" });
 
-  const combatantIsAlly = party.characterPositions.includes(tracker.entityId);
-  const combatantResult = SpeedDungeonGame.getCombatantById(game, tracker.entityId);
-  if (combatantResult instanceof Error) return <div>{combatantResult.message}</div>;
-  const { entityProperties, combatantProperties: _ } = combatantResult;
+  const combatantIsAlly = party.characterPositions.includes(tracker.combatantId);
+  const combatant = tracker.getCombatant(party);
+
+  const { entityProperties, combatantProperties: _ } = combatant;
 
   const conditionalClasses = combatantIsAlly ? "bg-emerald-900" : "bg-amber-900";
 

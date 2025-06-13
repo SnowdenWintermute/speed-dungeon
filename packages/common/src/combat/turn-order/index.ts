@@ -3,7 +3,7 @@ import { Battle } from "../../battle/index.js";
 import { CombatantProperties } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId, Milliseconds } from "../../primatives/index.js";
-import { CombatActionExecutionIntent } from "../combat-actions/combat-action-execution-intent.js";
+import { CombatActionName } from "../combat-actions/combat-action-names.js";
 import {
   BASE_ACTION_DELAY,
   BASE_ACTION_DELAY_MULTIPLIER,
@@ -17,6 +17,7 @@ export class TurnOrderManager {
   turnTrackers: (CombatantTurnTracker | ConditionTurnTracker)[] = [];
   constructor(game: SpeedDungeonGame, battle: Battle) {
     this.turnOrderScheduler = new TurnOrderScheduler(this.minTrackersCount, game, battle);
+    this.updateTrackers();
   }
 
   static getActionDelayCost(speed: number, actionDelayMultiplier: number) {
@@ -26,9 +27,7 @@ export class TurnOrderManager {
     return delay;
   }
 
-  updateSchedulerWithExecutedActionDelay(
-    actionExecutionIntentOption: null | CombatActionExecutionIntent
-  ): Milliseconds {
+  updateSchedulerWithExecutedActionDelay(actionNameOption: null | CombatActionName): Milliseconds {
     this.turnOrderScheduler.sortSchedulerTrackers("accumulatedDelay");
     const firstSchedulerTracker = this.turnOrderScheduler.getFirstTracker();
 
@@ -52,6 +51,10 @@ export class TurnOrderManager {
   combatantIsFirstInTurnOrder(combatantId: EntityId) {
     const fastest = this.getFastestActorTurnOrderTracker();
     return fastest instanceof CombatantTurnTracker && fastest.combatantId === combatantId;
+  }
+
+  updateTrackers() {
+    this.turnTrackers = this.turnOrderScheduler.buildNewList();
   }
 
   getFastestActorTurnOrderTracker() {

@@ -70,13 +70,14 @@ export async function useSelectedCombatActionHandler(
     combatantContext.combatant.combatantProperties.hitPoints > 0
   ) {
     const actionExecutionIntent = new CombatActionExecutionIntent(selectedCombatAction, targets);
-    const delay =
-      battleOption.turnOrderManager.updateSchedulerWithExecutedActionDelay(actionExecutionIntent);
-    battleOption.turnOrderManager.turnOrderScheduler.buildNewList();
+    battleOption.turnOrderManager.updateSchedulerWithExecutedActionDelay(
+      actionExecutionIntent.actionName
+    );
+    battleOption.turnOrderManager.updateTrackers();
 
     payloads.push({
       type: ActionCommandType.AddDelayToFastestActorTurnSchedulerInBattle,
-      delay,
+      actionNameOption: actionExecutionIntent.actionName,
     });
   }
 
