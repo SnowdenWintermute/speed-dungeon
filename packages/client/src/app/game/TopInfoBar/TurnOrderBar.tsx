@@ -40,17 +40,28 @@ function TurnOrderTrackerIcon({ tracker }: { tracker: CombatantTurnTracker }) {
     //
   }
 
+  const [hiddenClass, setHiddenClass] = useState("hidden");
+  function onMouseEnter() {
+    setHiddenClass("");
+  }
+  function onMouseLeave() {
+    setHiddenClass("hidden");
+  }
+
   return (
     <button
       className={`border border-slate-400 h-10 w-10 ${conditionalClasses} mr-2 last:mr-0 ${preRemovalClassesState}`}
       style={transitionStyle}
       onClick={handleClick}
+      onMouseLeave={onMouseLeave}
+      onMouseEnter={onMouseEnter}
+      key={tracker.getId()}
     >
       <div className="h-full w-full rounded-full bg-slate-600 border border-slate-400 flex items-center justify-center">
-        <span className="">{entityProperties.name.charAt(0).toUpperCase()}</span>
-        {
-          // <div>{tracker.movement.toFixed(0)}</div>
-        }
+        <span className="">{entityProperties.name.slice(0, 2).toUpperCase()}</span>
+        <div className={`text-2xl absolute top-[160px] ${hiddenClass}`}>
+          {tracker.timeOfNextMove}
+        </div>
       </div>
     </button>
   );

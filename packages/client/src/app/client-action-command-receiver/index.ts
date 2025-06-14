@@ -61,6 +61,7 @@ export class ClientActionCommandReceiver implements ActionCommandReceiver {
       if (!battleOption) return console.error("no battle but tried to end turn");
 
       battleOption.turnOrderManager.updateSchedulerWithExecutedActionDelay(actionNameOption);
+      battleOption.turnOrderManager.updateTrackers();
 
       const partyOption = getCurrentParty(state, state.username || "");
       if (!partyOption) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);

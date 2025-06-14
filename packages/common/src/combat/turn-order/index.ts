@@ -55,6 +55,7 @@ export class TurnOrderManager {
 
   updateTrackers() {
     this.turnTrackers = this.turnOrderScheduler.buildNewList();
+    console.log("new tracker list:", JSON.stringify(this.turnTrackers));
   }
 
   getFastestActorTurnOrderTracker() {
