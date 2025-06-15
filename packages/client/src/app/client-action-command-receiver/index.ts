@@ -60,12 +60,17 @@ export class ClientActionCommandReceiver implements ActionCommandReceiver {
       if (!state.game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
       if (!battleOption) return console.error("no battle but tried to end turn");
 
+      console.log("about to updateSchedulerWithExecutedActionDelay");
       battleOption.turnOrderManager.updateSchedulerWithExecutedActionDelay(actionNameOption);
+      console.log("about to updateTrackers");
       battleOption.turnOrderManager.updateTrackers();
 
+      console.log("about to getCurrentParty");
       const partyOption = getCurrentParty(state, state.username || "");
       if (!partyOption) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
+      console.log("about to currentActorIsPlayerControlled");
       if (battleOption.turnOrderManager.currentActorIsPlayerControlled(partyOption)) {
+        console.log("about to unlockInput");
         InputLock.unlockInput(partyOption.inputLock);
       }
     });

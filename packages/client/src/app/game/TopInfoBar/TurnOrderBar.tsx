@@ -1,6 +1,6 @@
 import { useGameStore } from "@/stores/game-store";
 import getGameAndParty from "@/utils/getGameAndParty";
-import { Battle, CombatantTurnTracker, SpeedDungeonGame } from "@speed-dungeon/common";
+import { Battle, CombatantTurnTracker } from "@speed-dungeon/common";
 import React, { useState } from "react";
 
 interface Props {
@@ -12,7 +12,7 @@ export default function TurnOrderBar(props: Props) {
     <div className="flex h-full items-center">
       <div className="h-full mr-2 flex items-center">Turn order: </div>
       {props.battle.turnOrderManager.turnTrackers.map((tracker) => (
-        <TurnOrderTrackerIcon key={tracker.combatantId} tracker={tracker} />
+        <TurnOrderTrackerIcon key={tracker.getId()} tracker={tracker} />
       ))}
     </div>
   );
@@ -55,12 +55,11 @@ function TurnOrderTrackerIcon({ tracker }: { tracker: CombatantTurnTracker }) {
       onClick={handleClick}
       onMouseLeave={onMouseLeave}
       onMouseEnter={onMouseEnter}
-      key={tracker.getId()}
     >
       <div className="h-full w-full rounded-full bg-slate-600 border border-slate-400 flex items-center justify-center">
         <span className="">{entityProperties.name.slice(0, 2).toUpperCase()}</span>
         <div className={`text-2xl absolute top-[160px] ${hiddenClass}`}>
-          {tracker.timeOfNextMove}
+          <div>{tracker.timeOfNextMove}</div>
         </div>
       </div>
     </button>

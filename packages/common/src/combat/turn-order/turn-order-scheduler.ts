@@ -52,14 +52,19 @@ export class TurnOrderScheduler {
   }
 
   buildNewList() {
+    console.log("resetTurnSchedulerTrackers");
     this.resetTurnSchedulerTrackers();
 
     const turnTrackerList: (CombatantTurnTracker | ConditionTurnTracker)[] = [];
 
+    console.log("starting loop");
     while (turnTrackerList.length < this.minTrackersCount) {
+      console.log("sorting");
       this.sortSchedulerTrackers("timeOfNextMove");
+      console.log("getting fastest");
       const fastestActor = this.getFirstTracker();
       if (fastestActor instanceof CombatantTurnSchedulerTracker) {
+        console.log("accessing combatant");
         const combatant = fastestActor.combatant;
         if (!CombatantProperties.isDead(combatant.combatantProperties)) {
           turnTrackerList.push(
@@ -69,7 +74,8 @@ export class TurnOrderScheduler {
             )
           );
         }
-      } else if (fastestActor instanceof TickableConditionTurnSchedulerTracker)
+      } else if (fastestActor instanceof TickableConditionTurnSchedulerTracker) {
+        console.log("adding tracker to list");
         turnTrackerList.push(
           new ConditionTurnTracker(
             fastestActor.combatantId,
@@ -77,15 +83,19 @@ export class TurnOrderScheduler {
             fastestActor.timeOfNextMove
           )
         );
+      }
 
+      console.log("getting delay");
       const delay = TurnOrderManager.getActionDelayCost(
         fastestActor.speed,
         BASE_ACTION_DELAY_MULTIPLIER
       );
 
+      console.log("adding delay");
       fastestActor.timeOfNextMove += delay;
     }
 
+    console.log("returning list");
     return turnTrackerList;
   }
 }

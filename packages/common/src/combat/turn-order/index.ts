@@ -54,8 +54,10 @@ export class TurnOrderManager {
   }
 
   updateTrackers() {
-    this.turnTrackers = this.turnOrderScheduler.buildNewList();
-    console.log("new tracker list:", JSON.stringify(this.turnTrackers));
+    const newList = this.turnOrderScheduler.buildNewList();
+    console.log("built new list:", newList);
+    this.turnTrackers = newList;
+    console.log("assigned new list:", JSON.stringify(this.turnTrackers));
   }
 
   getFastestActorTurnOrderTracker() {
@@ -118,7 +120,8 @@ export class CombatantTurnTracker {
   }
 
   getId() {
-    return this.timeOfNextMove + this.combatantId;
+    const id = this.timeOfNextMove.toFixed(3) + "--" + this.combatantId;
+    return id;
   }
 }
 
