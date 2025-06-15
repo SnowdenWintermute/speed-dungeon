@@ -185,5 +185,9 @@ export function processCombatAction(
       sequenceManager.getCurrentTracker()?.currentStep.tick(timeToTick);
   }
 
+  setTimeout(() => {
+    InputLock.unlockInput(combatantContext.party.inputLock);
+  }, time.ms);
+
   return { rootReplayNode, endedTurn };
 }

@@ -1,17 +1,17 @@
 import { useGameStore } from "@/stores/game-store";
 import getGameAndParty from "@/utils/getGameAndParty";
-import { Battle, CombatantTurnTracker } from "@speed-dungeon/common";
+import { Battle, CombatantTurnTracker, ConditionTurnTracker } from "@speed-dungeon/common";
 import React, { useState } from "react";
 
 interface Props {
-  battle: Battle;
+  trackers: (CombatantTurnTracker | ConditionTurnTracker)[];
 }
 
 export default function TurnOrderBar(props: Props) {
   return (
     <div className="flex h-full items-center">
       <div className="h-full mr-2 flex items-center">Turn order: </div>
-      {props.battle.turnOrderManager.turnTrackers.map((tracker) => (
+      {props.trackers.map((tracker) => (
         <TurnOrderTrackerIcon key={tracker.getId()} tracker={tracker} />
       ))}
     </div>

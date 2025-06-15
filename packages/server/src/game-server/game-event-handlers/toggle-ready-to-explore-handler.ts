@@ -8,7 +8,6 @@ import {
   updateCombatantHomePosition,
   SpeedDungeonGame,
   Battle,
-  CombatantTurnTracker,
   GameMode,
   InputLock,
 } from "@speed-dungeon/common";
@@ -145,7 +144,7 @@ export function putPartyInNextRoom(
       BattleGroupType.ComputerControlled
     );
 
-    const battleIdResult = initiateBattle(game, battleGroupA, battleGroupB);
+    const battleIdResult = initiateBattle(game, party, battleGroupA, battleGroupB);
     if (battleIdResult instanceof Error) return battleIdResult;
     party.battleId = battleIdResult;
   }
@@ -153,11 +152,12 @@ export function putPartyInNextRoom(
 
 function initiateBattle(
   game: SpeedDungeonGame,
+  party: AdventuringParty,
   groupA: BattleGroup,
   groupB: BattleGroup
 ): Error | string {
-  const battle = new Battle(idGenerator.generate(), groupA, groupB, game);
+  const battle = new Battle(idGenerator.generate(), groupA, groupB, game, party);
   game.battles[battle.id] = battle;
-  battle.turnOrderManager.updateTrackers();
+  battle.turnOrderManager.updateTrackers(party);
   return battle.id;
 }

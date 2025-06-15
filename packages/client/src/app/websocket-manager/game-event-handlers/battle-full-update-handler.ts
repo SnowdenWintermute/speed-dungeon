@@ -16,7 +16,7 @@ export function battleFullUpdateHandler(battleOption: null | Battle) {
         return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY));
       const party = partyOption;
       party.battleId = battle.id;
-      const rehydratedBattle = Battle.rehydrate(battle, game);
+      const rehydratedBattle = Battle.rehydrate(battle, game, party);
       game.battles[battle.id] = rehydratedBattle;
 
       const currentActorIsPlayerControlled =

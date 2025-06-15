@@ -39,33 +39,33 @@ const listening = expressApp.listen(PORT, async () => {
 
   const combatantContext = setUpTestGameWithPartyInBattle(idGenerator);
 
-  const { game, party, combatant } = combatantContext;
-  const combatants = Object.values(party.characters).concat(
-    Object.values(party.currentRoom.monsters)
-  );
-  const combatantPositions = combatants.map((combatant) => [
-    combatant.entityProperties.name,
-    combatant.combatantProperties.position,
-  ]);
+  // const { game, party, combatant } = combatantContext;
+  // const combatants = Object.values(party.characters).concat(
+  //   Object.values(party.currentRoom.monsters)
+  // );
+  // const combatantPositions = combatants.map((combatant) => [
+  //   combatant.entityProperties.name,
+  //   combatant.combatantProperties.position,
+  // ]);
 
-  const opponents = combatantContext.getOpponents();
-  const firstOpponentOption = opponents[0];
-  if (!firstOpponentOption) throw new Error("no targets");
-  const secondOpponentOption = opponents[0];
-  if (!firstOpponentOption) throw new Error("no targets");
+  // const opponents = combatantContext.getOpponents();
+  // const firstOpponentOption = opponents[0];
+  // if (!firstOpponentOption) throw new Error("no targets");
+  // const secondOpponentOption = opponents[0];
+  // if (!firstOpponentOption) throw new Error("no targets");
 
-  const targets: CombatActionTarget = {
-    type: CombatActionTargetType.Single,
-    targetId: firstOpponentOption.entityProperties.id,
-  };
-  const otherTargets: CombatActionTarget = {
-    type: CombatActionTargetType.Single,
-    targetId: firstOpponentOption.entityProperties.id,
-  };
   // const targets: CombatActionTarget = {
-  //   type: CombatActionTargetType.Group,
-  //   friendOrFoe: FriendOrFoe.Hostile
+  //   type: CombatActionTargetType.Single,
+  //   targetId: firstOpponentOption.entityProperties.id,
   // };
-  combatant.combatantProperties.combatActionTarget = targets;
-  // console.log(JSON.stringify(combatantPositions, null, 2));
+  // const otherTargets: CombatActionTarget = {
+  //   type: CombatActionTargetType.Single,
+  //   targetId: firstOpponentOption.entityProperties.id,
+  // };
+  // // const targets: CombatActionTarget = {
+  // //   type: CombatActionTargetType.Group,
+  // //   friendOrFoe: FriendOrFoe.Hostile
+  // // };
+  // combatant.combatantProperties.combatActionTarget = targets;
+  // // console.log(JSON.stringify(combatantPositions, null, 2));
 });

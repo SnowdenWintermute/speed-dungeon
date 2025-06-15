@@ -48,7 +48,7 @@ export default function TopInfoBar() {
         {DUNGEON_ROOM_TYPE_STRINGS[party.currentRoom.roomType]}
       </div>
       {!(battleOptionResult instanceof Error) && battleOptionResult !== null ? (
-        <TurnOrderBar battle={battleOptionResult} />
+        <TurnOrderBar trackers={battleOptionResult.turnOrderManager.turnTrackers} />
       ) : (
         <RoomExplorationTracker />
       )}

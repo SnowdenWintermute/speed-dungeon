@@ -1,3 +1,4 @@
+import { AdventuringParty } from "../adventuring-party/index.js";
 import { FriendOrFoe, TurnOrderManager } from "../combat/index.js";
 import { Combatant, CombatantCondition, ConditionAppliedBy } from "../combatants/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
@@ -14,13 +15,14 @@ export class Battle {
     public id: EntityId,
     public groupA: BattleGroup,
     public groupB: BattleGroup,
-    game: SpeedDungeonGame
+    game: SpeedDungeonGame,
+    party: AdventuringParty
   ) {
-    this.turnOrderManager = new TurnOrderManager(game, this);
+    this.turnOrderManager = new TurnOrderManager(game, party, this);
   }
 
-  static rehydrate(battle: Battle, game: SpeedDungeonGame) {
-    return new Battle(battle.id, battle.groupA, battle.groupB, game);
+  static rehydrate(battle: Battle, game: SpeedDungeonGame, party: AdventuringParty) {
+    return new Battle(battle.id, battle.groupA, battle.groupB, game, party);
   }
 
   static getAllCombatants(game: SpeedDungeonGame, battle: Battle) {

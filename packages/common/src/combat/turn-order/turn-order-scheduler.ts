@@ -1,10 +1,16 @@
+import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Battle } from "../../battle/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
-import { Combatant, CombatantCondition, CombatantProperties } from "../../combatants/index.js";
+import { CombatantProperties } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "./consts.js";
 import { CombatantTurnTracker, ConditionTurnTracker, TurnOrderManager } from "./index.js";
+
+export enum TurnTrackerSortableProperty {
+  TimeOfNextMove,
+  AccumulatedDelay,
+}
 
 export class TurnOrderScheduler {
   turnSchedulerTrackers: (CombatantTurnSchedulerTracker | TickableConditionTurnSchedulerTracker)[] =
@@ -21,28 +27,59 @@ export class TurnOrderScheduler {
     );
 
     this.turnSchedulerTrackers = [
-      ...combatants.map((combatant) => new CombatantTurnSchedulerTracker(combatant)),
+      ...combatants.map(
+        (combatant) => new CombatantTurnSchedulerTracker(combatant.entityProperties.id)
+      ),
       ...tickableConditions.map(
         ({ combatantId, condition }) =>
-          new TickableConditionTurnSchedulerTracker(combatantId, condition)
+          new TickableConditionTurnSchedulerTracker(combatantId, condition.id)
       ),
     ];
   }
 
-  resetTurnSchedulerTrackers() {
+  resetTurnSchedulerTrackers(party: AdventuringParty) {
     for (const tracker of this.turnSchedulerTrackers) {
       // take into account any delay they've accumulated from taking actions in this battle
       tracker.timeOfNextMove = tracker.accumulatedDelay;
-      // start with an initial delay
-      tracker.timeOfNextMove += TurnOrderManager.getActionDelayCost(
-        tracker.speed,
+      console.log(
+        "setting tracker time of next move to accumulated delay:",
+        tracker.timeOfNextMove
+      );
+      const initialDelay = TurnOrderManager.getActionDelayCost(
+        tracker.getSpeed(party),
         BASE_ACTION_DELAY_MULTIPLIER
       );
+      // start with an initial delay
+      tracker.timeOfNextMove += initialDelay;
+      console.log("added initial delay:", tracker.timeOfNextMove);
     }
   }
 
-  sortSchedulerTrackers(key: keyof TurnSchedulerTracker) {
-    this.turnSchedulerTrackers.sort((a, b) => a[key] - b[key]);
+  sortSchedulerTrackers(sortBy: TurnTrackerSortableProperty) {
+    switch (sortBy) {
+      case TurnTrackerSortableProperty.TimeOfNextMove:
+        this.turnSchedulerTrackers.sort((a, b) => {
+          if (a.timeOfNextMove !== b.timeOfNextMove) {
+            console.log(
+              "sorting by timeOfNextMove",
+              "a:",
+              a.timeOfNextMove,
+              "b:",
+              b.timeOfNextMove,
+              a.timeOfNextMove - b.timeOfNextMove
+            );
+            return a.timeOfNextMove - b.timeOfNextMove;
+          } else return a.combatantId.localeCompare(b.combatantId);
+        });
+        break;
+      case TurnTrackerSortableProperty.AccumulatedDelay:
+        this.turnSchedulerTrackers.sort((a, b) => {
+          if (a.accumulatedDelay !== b.accumulatedDelay)
+            return a.accumulatedDelay - b.accumulatedDelay;
+          else return a.combatantId.localeCompare(b.combatantId);
+        });
+        break;
+    }
   }
 
   getFirstTracker() {
@@ -51,31 +88,27 @@ export class TurnOrderScheduler {
     return fastest;
   }
 
-  buildNewList() {
-    console.log("resetTurnSchedulerTrackers");
-    this.resetTurnSchedulerTrackers();
+  buildNewList(party: AdventuringParty) {
+    this.resetTurnSchedulerTrackers(party);
+    console.log("reset scheduler trackers:", JSON.stringify(this.turnSchedulerTrackers, null, 2));
 
     const turnTrackerList: (CombatantTurnTracker | ConditionTurnTracker)[] = [];
 
-    console.log("starting loop");
     while (turnTrackerList.length < this.minTrackersCount) {
-      console.log("sorting");
-      this.sortSchedulerTrackers("timeOfNextMove");
-      console.log("getting fastest");
+      console.log("before sort:", JSON.stringify(this.turnSchedulerTrackers, null, 2));
+      this.sortSchedulerTrackers(TurnTrackerSortableProperty.TimeOfNextMove);
+      console.log("after sort:", JSON.stringify(this.turnSchedulerTrackers, null, 2));
       const fastestActor = this.getFirstTracker();
+      console.log("fastestActor", fastestActor.combatantId);
       if (fastestActor instanceof CombatantTurnSchedulerTracker) {
-        console.log("accessing combatant");
-        const combatant = fastestActor.combatant;
-        if (!CombatantProperties.isDead(combatant.combatantProperties)) {
+        const combatantResult = AdventuringParty.getCombatant(party, fastestActor.combatantId);
+        if (combatantResult instanceof Error) throw combatantResult;
+        if (!CombatantProperties.isDead(combatantResult.combatantProperties)) {
           turnTrackerList.push(
-            new CombatantTurnTracker(
-              fastestActor.combatant.entityProperties.id,
-              fastestActor.timeOfNextMove
-            )
+            new CombatantTurnTracker(fastestActor.combatantId, fastestActor.timeOfNextMove)
           );
         }
       } else if (fastestActor instanceof TickableConditionTurnSchedulerTracker) {
-        console.log("adding tracker to list");
         turnTrackerList.push(
           new ConditionTurnTracker(
             fastestActor.combatantId,
@@ -85,44 +118,57 @@ export class TurnOrderScheduler {
         );
       }
 
-      console.log("getting delay");
       const delay = TurnOrderManager.getActionDelayCost(
-        fastestActor.speed,
+        fastestActor.getSpeed(party),
         BASE_ACTION_DELAY_MULTIPLIER
       );
 
-      console.log("adding delay");
       fastestActor.timeOfNextMove += delay;
+      console.log("added delay:", delay, "now has:", fastestActor.timeOfNextMove);
     }
 
-    console.log("returning list");
+    console.log("returning list", turnTrackerList);
     return turnTrackerList;
   }
 }
 
-class TurnSchedulerTracker {
-  timeOfNextMove: number = 0;
-  accumulatedDelay: number = 0; // when they take their turn, add to this
-  constructor(public readonly speed: number) {}
+interface ITurnSchedulerTracker {
+  timeOfNextMove: number;
+  accumulatedDelay: number; // when they take their turn, add to this
+  getSpeed: (party: AdventuringParty) => number;
 }
 
-class CombatantTurnSchedulerTracker extends TurnSchedulerTracker {
-  constructor(public readonly combatant: Combatant) {
-    const combatantSpeed = CombatantProperties.getTotalAttributes(combatant.combatantProperties)[
-      CombatAttribute.Speed
-    ];
-    super(combatantSpeed);
+class CombatantTurnSchedulerTracker implements ITurnSchedulerTracker {
+  timeOfNextMove: number = 0;
+  accumulatedDelay: number = 0;
+  constructor(public readonly combatantId: EntityId) {}
+  getSpeed(party: AdventuringParty) {
+    const combatantResult = AdventuringParty.getCombatant(party, this.combatantId);
+    if (combatantResult instanceof Error) throw combatantResult;
+    const combatantSpeed = CombatantProperties.getTotalAttributes(
+      combatantResult.combatantProperties
+    )[CombatAttribute.Speed];
+    return combatantSpeed;
   }
 }
 
-class TickableConditionTurnSchedulerTracker extends TurnSchedulerTracker {
+class TickableConditionTurnSchedulerTracker implements ITurnSchedulerTracker {
+  timeOfNextMove: number = 0;
+  accumulatedDelay: number = 0;
   constructor(
     public readonly combatantId: EntityId,
-    public readonly condition: CombatantCondition
-  ) {
-    if (condition.tickProperties === undefined)
+    public readonly conditionId: EntityId
+  ) {}
+  getSpeed(party: AdventuringParty) {
+    const conditionResult = AdventuringParty.getConditionOnCombatant(
+      party,
+      this.combatantId,
+      this.conditionId
+    );
+    if (conditionResult instanceof Error) throw conditionResult;
+
+    if (conditionResult.tickProperties === undefined)
       throw new Error("expected condition to be tickable");
-    const speed = condition.tickProperties.getTickSpeed();
-    super(speed);
+    return conditionResult.tickProperties.getTickSpeed();
   }
 }

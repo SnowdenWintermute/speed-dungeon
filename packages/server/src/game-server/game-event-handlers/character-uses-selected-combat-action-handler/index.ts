@@ -71,9 +71,10 @@ export async function useSelectedCombatActionHandler(
   ) {
     const actionExecutionIntent = new CombatActionExecutionIntent(selectedCombatAction, targets);
     battleOption.turnOrderManager.updateSchedulerWithExecutedActionDelay(
+      party,
       actionExecutionIntent.actionName
     );
-    battleOption.turnOrderManager.updateTrackers();
+    battleOption.turnOrderManager.updateTrackers(party);
 
     payloads.push({
       type: ActionCommandType.AddDelayToFastestActorTurnSchedulerInBattle,

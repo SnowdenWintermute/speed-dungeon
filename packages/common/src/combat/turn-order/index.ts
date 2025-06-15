@@ -9,15 +9,15 @@ import {
   BASE_ACTION_DELAY_MULTIPLIER,
   SPEED_DELAY_RECOVERY_WEIGHT,
 } from "./consts.js";
-import { TurnOrderScheduler } from "./turn-order-scheduler.js";
+import { TurnOrderScheduler, TurnTrackerSortableProperty } from "./turn-order-scheduler.js";
 
 export class TurnOrderManager {
   minTrackersCount: number = 12;
   turnOrderScheduler: TurnOrderScheduler;
   turnTrackers: (CombatantTurnTracker | ConditionTurnTracker)[] = [];
-  constructor(game: SpeedDungeonGame, battle: Battle) {
+  constructor(game: SpeedDungeonGame, party: AdventuringParty, battle: Battle) {
     this.turnOrderScheduler = new TurnOrderScheduler(this.minTrackersCount, game, battle);
-    this.updateTrackers();
+    this.updateTrackers(party);
   }
 
   static getActionDelayCost(speed: number, actionDelayMultiplier: number) {
@@ -27,17 +27,23 @@ export class TurnOrderManager {
     return delay;
   }
 
-  updateSchedulerWithExecutedActionDelay(actionNameOption: null | CombatActionName): Milliseconds {
-    this.turnOrderScheduler.sortSchedulerTrackers("accumulatedDelay");
+  updateSchedulerWithExecutedActionDelay(
+    party: AdventuringParty,
+    actionNameOption: null | CombatActionName
+  ): Milliseconds {
+    this.turnOrderScheduler.sortSchedulerTrackers(TurnTrackerSortableProperty.AccumulatedDelay);
     const firstSchedulerTracker = this.turnOrderScheduler.getFirstTracker();
+    console.log("before delay added:", firstSchedulerTracker);
 
     // @TODO - get delay multiplier from action
-    const delay = BASE_ACTION_DELAY_MULTIPLIER;
-
-    firstSchedulerTracker.accumulatedDelay += TurnOrderManager.getActionDelayCost(
-      firstSchedulerTracker.speed,
-      delay
+    const delay = TurnOrderManager.getActionDelayCost(
+      firstSchedulerTracker.getSpeed(party),
+      BASE_ACTION_DELAY_MULTIPLIER
     );
+
+    firstSchedulerTracker.accumulatedDelay += delay;
+
+    console.log("added", delay, "to tracker for", firstSchedulerTracker);
 
     return delay;
   }
@@ -53,8 +59,8 @@ export class TurnOrderManager {
     return fastest instanceof CombatantTurnTracker && fastest.combatantId === combatantId;
   }
 
-  updateTrackers() {
-    const newList = this.turnOrderScheduler.buildNewList();
+  updateTrackers(party: AdventuringParty) {
+    const newList = this.turnOrderScheduler.buildNewList(party);
     console.log("built new list:", newList);
     this.turnTrackers = newList;
     console.log("assigned new list:", JSON.stringify(this.turnTrackers));
@@ -135,14 +141,13 @@ export class ConditionTurnTracker extends CombatantTurnTracker {
   }
 
   getCondition(party: AdventuringParty) {
-    const combatantResult = this.getCombatant(party);
-    if (combatantResult instanceof Error) throw combatantResult;
-    const conditionOption = CombatantProperties.getConditionById(
-      combatantResult.combatantProperties,
+    const result = AdventuringParty.getConditionOnCombatant(
+      party,
+      this.combatantId,
       this.conditionId
     );
-    if (conditionOption === null) throw new Error("expected condition not found");
-    return conditionOption;
+    if (result instanceof Error) throw result;
+    return result;
   }
 
   getSpeed(): number {

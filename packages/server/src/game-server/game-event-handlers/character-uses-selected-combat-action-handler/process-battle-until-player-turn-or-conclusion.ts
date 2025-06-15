@@ -5,18 +5,15 @@ import {
   ActionCommandType,
   AdventuringParty,
   Battle,
-  COMBATANT_CONDITION_NAME_STRINGS,
   CombatActionExecutionIntent,
   CombatActionReplayTreePayload,
   Combatant,
   CombatantCondition,
   CombatantContext,
-  CombatantTurnTracker,
   ConditionTurnTracker,
   ERROR_MESSAGES,
   ServerToClientEvent,
   SpeedDungeonGame,
-  createShimmedUserOfTriggeredCondition,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
@@ -82,8 +79,8 @@ export class BattleProcessor {
       if (shouldEndTurn) {
         const actionNameOption =
           actionExecutionIntent === null ? null : actionExecutionIntent.actionName;
-        battle.turnOrderManager.updateSchedulerWithExecutedActionDelay(actionNameOption);
-        battle.turnOrderManager.updateTrackers();
+        battle.turnOrderManager.updateSchedulerWithExecutedActionDelay(party, actionNameOption);
+        battle.turnOrderManager.updateTrackers(party);
         currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
 
         payloads.push({
