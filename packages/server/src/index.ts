@@ -37,7 +37,7 @@ const listening = expressApp.listen(PORT, async () => {
 
   gameServer.current = new GameServer(io);
 
-  const combatantContext = setUpTestGameWithPartyInBattle(idGenerator);
+  // const combatantContext = setUpTestGameWithPartyInBattle(idGenerator);
 
   // const { game, party, combatant } = combatantContext;
   // const combatants = Object.values(party.characters).concat(

@@ -40,6 +40,7 @@ export class BattleProcessor {
     const payloads: ActionCommandPayload[] = [];
 
     while (currentActorTurnTracker) {
+      currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
       const partyWipesResult = checkForWipes(game, party.characterPositions[0], party.battleId);
       const battleConcluded = partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated;
 

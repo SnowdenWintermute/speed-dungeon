@@ -41,17 +41,12 @@ export class TurnOrderScheduler {
     for (const tracker of this.turnSchedulerTrackers) {
       // take into account any delay they've accumulated from taking actions in this battle
       tracker.timeOfNextMove = tracker.accumulatedDelay;
-      console.log(
-        "setting tracker time of next move to accumulated delay:",
-        tracker.timeOfNextMove
-      );
       const initialDelay = TurnOrderManager.getActionDelayCost(
         tracker.getSpeed(party),
         BASE_ACTION_DELAY_MULTIPLIER
       );
       // start with an initial delay
       tracker.timeOfNextMove += initialDelay;
-      console.log("added initial delay:", tracker.timeOfNextMove);
     }
   }
 
@@ -60,14 +55,6 @@ export class TurnOrderScheduler {
       case TurnTrackerSortableProperty.TimeOfNextMove:
         this.turnSchedulerTrackers.sort((a, b) => {
           if (a.timeOfNextMove !== b.timeOfNextMove) {
-            console.log(
-              "sorting by timeOfNextMove",
-              "a:",
-              a.timeOfNextMove,
-              "b:",
-              b.timeOfNextMove,
-              a.timeOfNextMove - b.timeOfNextMove
-            );
             return a.timeOfNextMove - b.timeOfNextMove;
           } else return a.combatantId.localeCompare(b.combatantId);
         });
@@ -95,11 +82,8 @@ export class TurnOrderScheduler {
     const turnTrackerList: (CombatantTurnTracker | ConditionTurnTracker)[] = [];
 
     while (turnTrackerList.length < this.minTrackersCount) {
-      console.log("before sort:", JSON.stringify(this.turnSchedulerTrackers, null, 2));
       this.sortSchedulerTrackers(TurnTrackerSortableProperty.TimeOfNextMove);
-      console.log("after sort:", JSON.stringify(this.turnSchedulerTrackers, null, 2));
       const fastestActor = this.getFirstTracker();
-      console.log("fastestActor", fastestActor.combatantId);
       if (fastestActor instanceof CombatantTurnSchedulerTracker) {
         const combatantResult = AdventuringParty.getCombatant(party, fastestActor.combatantId);
         if (combatantResult instanceof Error) throw combatantResult;
@@ -112,7 +96,7 @@ export class TurnOrderScheduler {
         turnTrackerList.push(
           new ConditionTurnTracker(
             fastestActor.combatantId,
-            fastestActor.combatantId,
+            fastestActor.conditionId,
             fastestActor.timeOfNextMove
           )
         );
@@ -124,10 +108,8 @@ export class TurnOrderScheduler {
       );
 
       fastestActor.timeOfNextMove += delay;
-      console.log("added delay:", delay, "now has:", fastestActor.timeOfNextMove);
     }
 
-    console.log("returning list", turnTrackerList);
     return turnTrackerList;
   }
 }
@@ -138,7 +120,7 @@ interface ITurnSchedulerTracker {
   getSpeed: (party: AdventuringParty) => number;
 }
 
-class CombatantTurnSchedulerTracker implements ITurnSchedulerTracker {
+export class CombatantTurnSchedulerTracker implements ITurnSchedulerTracker {
   timeOfNextMove: number = 0;
   accumulatedDelay: number = 0;
   constructor(public readonly combatantId: EntityId) {}
@@ -152,7 +134,7 @@ class CombatantTurnSchedulerTracker implements ITurnSchedulerTracker {
   }
 }
 
-class TickableConditionTurnSchedulerTracker implements ITurnSchedulerTracker {
+export class TickableConditionTurnSchedulerTracker implements ITurnSchedulerTracker {
   timeOfNextMove: number = 0;
   accumulatedDelay: number = 0;
   constructor(

@@ -1,6 +1,5 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Battle } from "../../battle/index.js";
-import { CombatantProperties } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId, Milliseconds } from "../../primatives/index.js";
 import { CombatActionName } from "../combat-actions/combat-action-names.js";
@@ -9,7 +8,11 @@ import {
   BASE_ACTION_DELAY_MULTIPLIER,
   SPEED_DELAY_RECOVERY_WEIGHT,
 } from "./consts.js";
-import { TurnOrderScheduler, TurnTrackerSortableProperty } from "./turn-order-scheduler.js";
+import {
+  TickableConditionTurnSchedulerTracker,
+  TurnOrderScheduler,
+  TurnTrackerSortableProperty,
+} from "./turn-order-scheduler.js";
 
 export class TurnOrderManager {
   minTrackersCount: number = 12;
@@ -31,19 +34,25 @@ export class TurnOrderManager {
     party: AdventuringParty,
     actionNameOption: null | CombatActionName
   ): Milliseconds {
-    this.turnOrderScheduler.sortSchedulerTrackers(TurnTrackerSortableProperty.AccumulatedDelay);
-    const firstSchedulerTracker = this.turnOrderScheduler.getFirstTracker();
-    console.log("before delay added:", firstSchedulerTracker);
+    const fastest = this.getFastestActorTurnOrderTracker();
+    const tracker = this.turnOrderScheduler.turnSchedulerTrackers.find(
+      (item) =>
+        item.combatantId === fastest.combatantId ||
+        (item instanceof TickableConditionTurnSchedulerTracker &&
+          fastest instanceof ConditionTurnTracker &&
+          item.conditionId === fastest.conditionId)
+    );
+    if (tracker === undefined) throw new Error("expected turnSchedulerTracker was missing");
 
     // @TODO - get delay multiplier from action
     const delay = TurnOrderManager.getActionDelayCost(
-      firstSchedulerTracker.getSpeed(party),
+      tracker.getSpeed(party),
       BASE_ACTION_DELAY_MULTIPLIER
     );
 
-    firstSchedulerTracker.accumulatedDelay += delay;
+    tracker.accumulatedDelay += delay;
 
-    console.log("added", delay, "to tracker for", firstSchedulerTracker);
+    console.log("added", delay, "to tracker for", tracker);
 
     return delay;
   }
@@ -61,9 +70,7 @@ export class TurnOrderManager {
 
   updateTrackers(party: AdventuringParty) {
     const newList = this.turnOrderScheduler.buildNewList(party);
-    console.log("built new list:", newList);
     this.turnTrackers = newList;
-    console.log("assigned new list:", JSON.stringify(this.turnTrackers));
   }
 
   getFastestActorTurnOrderTracker() {

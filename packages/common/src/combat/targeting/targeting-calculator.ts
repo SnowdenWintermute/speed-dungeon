@@ -280,7 +280,6 @@ export class TargetingCalculator {
   }
 
   getPrimaryTargetCombatantId(actionExecutionIntent: CombatActionExecutionIntent) {
-    console.log("getting primary target id for actionExecutionIntent: ", actionExecutionIntent);
     switch (actionExecutionIntent.targets.type) {
       case CombatActionTargetType.Single:
         return actionExecutionIntent.targets.targetId;
