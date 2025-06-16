@@ -12,14 +12,14 @@ export default function quickStartGame(socketOption: Socket | undefined) {
     name: "",
     combatantClass: CombatantClass.Warrior,
   });
-  socketOption?.emit(ClientToServerEvent.CreateCharacter, {
-    name: "",
-    combatantClass: CombatantClass.Warrior,
-  });
-  socketOption?.emit(ClientToServerEvent.CreateCharacter, {
-    name: "",
-    combatantClass: CombatantClass.Warrior,
-  });
+  // socketOption?.emit(ClientToServerEvent.CreateCharacter, {
+  //   name: "",
+  //   combatantClass: CombatantClass.Warrior,
+  // });
+  // socketOption?.emit(ClientToServerEvent.CreateCharacter, {
+  //   name: "",
+  //   combatantClass: CombatantClass.Warrior,
+  // });
   socketOption?.emit(ClientToServerEvent.ToggleReadyToStartGame);
   // socketOption?.emit(ClientToServerEvent.ToggleReadyToExplore);
   // socketOption?.emit(ClientToServerEvent.SelectCombatAction, "1", {

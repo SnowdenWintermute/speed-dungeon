@@ -77,7 +77,6 @@ export class TurnOrderScheduler {
 
   buildNewList(party: AdventuringParty) {
     this.resetTurnSchedulerTrackers(party);
-    console.log("reset scheduler trackers:", JSON.stringify(this.turnSchedulerTrackers, null, 2));
 
     const turnTrackerList: (CombatantTurnTracker | ConditionTurnTracker)[] = [];
 

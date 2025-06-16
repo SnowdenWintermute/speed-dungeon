@@ -35,22 +35,30 @@ export class BattleProcessor {
     const { gameServer, game, party, battle } = this;
     if (!party.characterPositions[0]) return new Error(ERROR_MESSAGES.PARTY.MISSING_CHARACTERS);
 
+    battle.turnOrderManager.updateTrackers(party);
     let currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
 
     const payloads: ActionCommandPayload[] = [];
 
     while (currentActorTurnTracker) {
+      battle.turnOrderManager.updateTrackers(party);
       currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
+
       const partyWipesResult = checkForWipes(game, party.characterPositions[0], party.battleId);
       const battleConcluded = partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated;
 
       // battle ended, stop processing
       if (battleConcluded) {
-        await this.handleBattleConclusion(partyWipesResult);
+        const battleConclusionPayloads = await this.handleBattleConclusion(partyWipesResult);
+        if (battleConclusionPayloads instanceof Error) throw battleConclusionPayloads;
+        payloads.push(...battleConclusionPayloads);
         break;
       }
       // it is player's turn, stop processing
-      if (battle.turnOrderManager.currentActorIsPlayerControlled(party)) break;
+      if (battle.turnOrderManager.currentActorIsPlayerControlled(party)) {
+        console.log("reached next player's turn");
+        break;
+      }
 
       // get action intent for fastest actor
       const { actionExecutionIntent, user } = this.getNextActionIntentAndUser();
@@ -77,6 +85,7 @@ export class BattleProcessor {
         payloads.push(payload);
       }
 
+      console.log("AI ended turn:", shouldEndTurn, user.entityProperties.id);
       if (shouldEndTurn) {
         const actionNameOption =
           actionExecutionIntent === null ? null : actionExecutionIntent.actionName;
@@ -89,11 +98,11 @@ export class BattleProcessor {
           actionNameOption,
         });
       }
-
-      gameServer.io
-        .in(getPartyChannelName(game.name, party.name))
-        .emit(ServerToClientEvent.ActionCommandPayloads, payloads);
     }
+
+    gameServer.io
+      .in(getPartyChannelName(game.name, party.name))
+      .emit(ServerToClientEvent.ActionCommandPayloads, payloads);
   }
 
   getNextActionIntentAndUser(): {
@@ -102,6 +111,7 @@ export class BattleProcessor {
   } {
     const { game, party, battle } = this;
     // get action intents for conditions or ai combatants
+    battle.turnOrderManager.updateTrackers(party);
     const fastestActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
 
     if (fastestActorTurnTracker instanceof ConditionTurnTracker) {
@@ -155,8 +165,6 @@ export class BattleProcessor {
     party.actionCommandQueue.enqueueNewCommands(payloadsCommands);
     await party.actionCommandQueue.processCommands();
 
-    gameServer.io
-      .in(getPartyChannelName(game.name, party.name))
-      .emit(ServerToClientEvent.ActionCommandPayloads, actionCommandPayloads);
+    return actionCommandPayloads;
   }
 }
