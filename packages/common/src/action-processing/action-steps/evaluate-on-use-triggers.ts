@@ -9,9 +9,10 @@ import {
   CombatActionExecutionIntent,
 } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
-import { Combatant } from "../../combatants/index.js";
+import { Combatant, CombatantEquipment } from "../../combatants/index.js";
 import { DurabilityLossCondition } from "../../combat/combat-actions/combat-action-durability-loss-condition.js";
 import { DurabilityChangesByEntityId } from "../../durability/index.js";
+import { SpeedDungeonGame } from "../../game/index.js";
 
 const stepType = ActionResolutionStepType.EvalOnUseTriggers;
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
@@ -39,6 +40,7 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
 
     if (!durabilityChanges.isEmpty()) {
       gameUpdateCommand.durabilityChanges = durabilityChanges;
+
       DurabilityChangesByEntityId.ApplyToGame(game, durabilityChanges);
     }
   }

@@ -25,8 +25,9 @@ export function equipItem(
   if (equipmentResult instanceof Error) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   const equipment = equipmentResult;
 
-  if (!CombatantProperties.canUseItem(combatantProperties, equipment))
+  if (!CombatantProperties.combatantHasRequiredAttributesToUseItem(combatantProperties, equipment))
     return new Error(ERROR_MESSAGES.EQUIPMENT.REQUIREMENTS_NOT_MET);
+  if (Equipment.isBroken(equipment)) return new Error(ERROR_MESSAGES.EQUIPMENT.IS_BROKEN);
 
   const { percentOfMaxHitPoints, percentOfMaxMana } =
     getPreEquipmentChangeHpAndManaPercentage(combatantProperties);

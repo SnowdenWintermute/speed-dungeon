@@ -59,25 +59,29 @@ const hitOutcomeDurabilityChangeOnTargetCalculators: Record<
   [HitOutcome.Miss]: () => {},
   [HitOutcome.Evade]: () => {},
   [HitOutcome.Parry]: (durabilityChanges, targetCombatant) => {
+    console.log("durability change for parry:");
     durabilityChanges.updateEquipmentRecord(targetCombatant, {
       type: EquipmentSlotType.Holdable,
       slot: HoldableSlotType.MainHand,
     });
   },
   [HitOutcome.Counterattack]: (durabilityChanges, targetCombatant) => {
+    console.log("durability change for Counterattack");
     durabilityChanges.updateEquipmentRecord(targetCombatant, {
       type: EquipmentSlotType.Holdable,
       slot: HoldableSlotType.MainHand,
     });
   },
   [HitOutcome.ShieldBlock]: (durabilityChanges, targetCombatant, isCrit) => {
+    const extraDurabilityLoss = isCrit ? -1 : 0;
+    console.log("durability change for shield block");
     durabilityChanges.updateEquipmentRecord(
       targetCombatant,
       {
         type: EquipmentSlotType.Holdable,
         slot: HoldableSlotType.OffHand,
       },
-      isCrit ? -1 : 0
+      extraDurabilityLoss
     );
   },
   [HitOutcome.Hit]: (durabilityChanges, targetCombatant, isCrit) => {

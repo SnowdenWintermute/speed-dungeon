@@ -5,6 +5,11 @@ export enum EquipmentSlotType {
   Wearable,
 }
 
+export const EQUIPMENT_SLOT_TYPE_STRINGS: Record<EquipmentSlotType, string> = {
+  [EquipmentSlotType.Holdable]: "Holdable",
+  [EquipmentSlotType.Wearable]: "Wearable",
+};
+
 export enum HoldableSlotType {
   MainHand,
   OffHand,

@@ -63,11 +63,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           hpChangeIsCrit
         );
 
-        if (!durabilityChanges.isEmpty()) {
-          gameUpdateCommand.durabilityChanges = durabilityChanges;
-          DurabilityChangesByEntityId.ApplyToGame(game, durabilityChanges);
-        }
-
         if (flag === HitOutcome.Hit) {
           for (const condition of targetCombatant.combatantProperties.conditions) {
             if (!condition.triggeredWhenHitBy(actionExecutionIntent.actionName)) continue;
@@ -136,7 +131,10 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
       }
     }
 
-    gameUpdateCommand.durabilityChanges = durabilityChanges;
+    if (!durabilityChanges.isEmpty()) {
+      gameUpdateCommand.durabilityChanges = durabilityChanges;
+      DurabilityChangesByEntityId.ApplyToGame(game, durabilityChanges);
+    }
 
     const triggeredHitPointChanges = new HitPointChanges();
     let accumulatedLifeStolenResourceChange: null | ResourceChange = null;

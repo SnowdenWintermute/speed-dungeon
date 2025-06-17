@@ -100,6 +100,8 @@ export class BattleProcessor {
       }
     }
 
+    console.log("payloads:", payloads);
+
     gameServer.io
       .in(getPartyChannelName(game.name, party.name))
       .emit(ServerToClientEvent.ActionCommandPayloads, payloads);

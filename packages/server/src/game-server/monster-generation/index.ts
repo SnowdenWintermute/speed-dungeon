@@ -17,7 +17,7 @@ import { getMonsterStartingAttributes } from "./get-monster-starting-attributes.
 import { addAttributesToAccumulator } from "@speed-dungeon/common";
 import getMonsterPerLevelAttributes from "./get-monster-per-level-attributes.js";
 import getMonsterTraits from "./get-monster-traits.js";
-import getMonsterEquipment from "./get-monster-equipment.js";
+import { getMonsterEquipment } from "./get-monster-equipment.js";
 // import { STOCK_MONSTER } from "../../index.js";
 
 export function generateMonster(level: number, forcedType?: MonsterType) {

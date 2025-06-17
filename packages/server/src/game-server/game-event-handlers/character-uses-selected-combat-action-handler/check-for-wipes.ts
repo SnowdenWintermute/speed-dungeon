@@ -12,6 +12,7 @@ export function checkForWipes(
 ): PartyWipes {
   // IF NOT IN BATTLE AND SOMEHOW WIPED OWN PARTY
   if (battleIdOption === null) {
+    console.log("checking for wipe not in a battle");
     const partyResult = SpeedDungeonGame.getPartyOfCombatant(game, combatantId);
     if (partyResult instanceof Error) throw partyResult;
     const alliesDefeatedResult = SpeedDungeonGame.allCombatantsInGroupAreDead(
@@ -32,12 +33,19 @@ export function checkForWipes(
   const battleGroupResult = Battle.getAllyAndEnemyBattleGroups(battleOption, combatantId);
   if (battleGroupResult instanceof Error) throw battleGroupResult;
   const { allyGroup, enemyGroup } = battleGroupResult;
+  console.log(
+    "checking for wipes, ally group:",
+    allyGroup.combatantIds,
+    "enemy group:",
+    enemyGroup.combatantIds
+  );
   const partyWipesResult = checkForDefeatedCombatantGroups(
     game,
     allyGroup.combatantIds,
     enemyGroup.combatantIds
   );
   if (partyWipesResult instanceof Error) throw partyWipesResult;
+  console.log("party wipes:", partyWipesResult);
 
   return partyWipesResult;
 }

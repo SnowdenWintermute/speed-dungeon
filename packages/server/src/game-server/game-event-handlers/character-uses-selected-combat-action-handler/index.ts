@@ -55,13 +55,13 @@ export async function useSelectedCombatActionHandler(
 
   const battleOption = party.battleId ? game.battles[party.battleId] || null : null;
 
-  const payload: CombatActionReplayTreePayload = {
+  const replayTreePayload: CombatActionReplayTreePayload = {
     type: ActionCommandType.CombatActionReplayTree,
     actionUserId: character.entityProperties.id,
     root: replayTreeResult.rootReplayNode,
   };
 
-  const payloads: ActionCommandPayload[] = [payload];
+  const payloads: ActionCommandPayload[] = [replayTreePayload];
   // if they died on their own turn we should not end the active combatant's turn because
   // we would have already removed their turn tracker on death
   if (
@@ -81,6 +81,8 @@ export async function useSelectedCombatActionHandler(
       actionNameOption: actionExecutionIntent.actionName,
     });
   }
+
+  console.log("payloads: ", payloads);
 
   gameServer.io
     .in(getPartyChannelName(game.name, party.name))

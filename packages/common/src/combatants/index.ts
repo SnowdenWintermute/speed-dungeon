@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { MagicalElement } from "../combat/magical-elements.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
-import combatantCanUseItem from "./can-use-item.js";
+import { combatantHasRequiredAttributesToUseItem } from "./can-use-item.js";
 import changeCombatantMana from "./resources/change-mana.js";
 import changeCombatantHitPoints from "./resources/change-hit-points.js";
 import clampResourcesToMax from "./resources/clamp-resources-to-max.js";
@@ -153,7 +153,7 @@ export class CombatantProperties {
   static unequipSlots = unequipSlots;
   static dropItem = dropItem;
   static dropEquippedItem = dropEquippedItem;
-  static canUseItem = combatantCanUseItem;
+  static combatantHasRequiredAttributesToUseItem = combatantHasRequiredAttributesToUseItem;
   static equipItem = equipItem;
   static awardLevelups = awardLevelups;
   static incrementAttributePoint = incrementAttributePoint;

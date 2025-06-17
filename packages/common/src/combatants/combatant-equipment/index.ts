@@ -194,8 +194,10 @@ export class CombatantEquipment {
     if (!offHandEquipmentOption) return false;
     const { equipmentType } = offHandEquipmentOption.equipmentBaseItemProperties;
     const isShield = equipmentType === EquipmentType.Shield;
+    console.log("is wearing shield", isShield);
     if (!isShield) return false;
     const isUsable = Equipment.isUsable(combatantProperties, offHandEquipmentOption);
+    console.log("shield is usable", isUsable);
 
     return isUsable;
   }

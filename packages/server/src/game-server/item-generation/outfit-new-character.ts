@@ -24,7 +24,7 @@ import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment, { givePlaytestingItems } from "./create-starting-equipment.js";
 import { createConsumableByType } from "./create-consumable-by-type.js";
 import { generateOneOfEachItem, generateSpecificEquipmentType } from "./generate-test-items.js";
-import combatantCanUseItem from "@speed-dungeon/common/src/combatants/can-use-item.js";
+import { combatantHasRequiredAttributesToUseItem } from "@speed-dungeon/common/src/combatants/can-use-item.js";
 
 export function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
@@ -184,7 +184,7 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   combatantProperties.inherentAttributes[CombatAttribute.Strength] = 40;
   combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 40;
   // combatantProperties.inherentAttributes[CombatAttribute.Speed] = 9999;
-  combatantProperties.inherentAttributes[CombatAttribute.Hp] = 100;
+  combatantProperties.inherentAttributes[CombatAttribute.Hp] = 25;
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
   // combatantProperties.inventory.shards = 9999;

@@ -138,12 +138,18 @@ export class Equipment extends Item {
   }
 
   static isBroken(equipment: Equipment) {
-    if (Equipment.isIndestructable(equipment) || equipment.durability === null) return false;
+    const isIndestructable = Equipment.isIndestructable(equipment);
+    if (isIndestructable || equipment.durability === null) return false;
     return equipment.durability.current <= 0;
   }
 
   static isUsable(combatantProperties: CombatantProperties, equipment: Equipment): boolean {
+    const isBroken = Equipment.isBroken(equipment);
+    console.log("isBroken:", isBroken, equipment.durability);
     if (Equipment.isBroken(equipment)) return false;
-    return CombatantProperties.canUseItem(combatantProperties, equipment);
+    return CombatantProperties.combatantHasRequiredAttributesToUseItem(
+      combatantProperties,
+      equipment
+    );
   }
 }

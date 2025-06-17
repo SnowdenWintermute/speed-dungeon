@@ -24,7 +24,14 @@ export function getWeaponsInSlots(
 
     const holdable = equippedSelectedHotswapSlot.holdables[equipmentSlot];
     if (!holdable) continue;
-    if (options.usableWeaponsOnly && !CombatantProperties.canUseItem(combatantProperties, holdable))
+    if (
+      options.usableWeaponsOnly &&
+      (!CombatantProperties.combatantHasRequiredAttributesToUseItem(
+        combatantProperties,
+        holdable
+      ) ||
+        Equipment.isBroken(holdable))
+    )
       continue;
 
     const weaponPropertiesResult = Equipment.getWeaponProperties(holdable);
