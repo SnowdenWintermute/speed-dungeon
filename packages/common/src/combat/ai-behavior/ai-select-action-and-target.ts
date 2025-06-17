@@ -55,21 +55,16 @@ export function AISelectActionAndTarget(
 function getRandomAliveEnemy(
   game: SpeedDungeonGame,
   enemyBattleGroup: BattleGroup
-): Error | null | Combatant {
+): Error | Combatant {
   const idsOfAliveTargets = [];
   for (const enemyId of enemyBattleGroup.combatantIds) {
     let combatantResult = SpeedDungeonGame.getCombatantById(game, enemyId);
     if (combatantResult instanceof Error) return combatantResult;
-    console.log(
-      "checking combatant if alive for getRandomAliveEnemy hit points:",
-      combatantResult.combatantProperties.hitPoints
-    );
     if (!CombatantProperties.isDead(combatantResult.combatantProperties))
       idsOfAliveTargets.push(enemyId);
   }
   if (idsOfAliveTargets.length === 0) {
-    console.log("no alive targets found in getRandomAliveEnemy");
-    return null;
+    throw new Error("no alive targets found in getRandomAliveEnemy");
   }
   const randomTargetIdResult = chooseRandomFromArray(idsOfAliveTargets);
   if (randomTargetIdResult instanceof Error) return randomTargetIdResult;

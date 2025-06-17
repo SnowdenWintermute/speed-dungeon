@@ -27,7 +27,8 @@ export class TurnOrderManager {
     const speedBonus = speed * SPEED_DELAY_RECOVERY_WEIGHT;
     const delayAfterSpeedBonus = BASE_ACTION_DELAY / (BASE_ACTION_DELAY + speedBonus);
     const delay = actionDelayMultiplier * delayAfterSpeedBonus;
-    return delay;
+    const rounded = Math.floor(delay * 10);
+    return rounded;
   }
 
   updateSchedulerWithExecutedActionDelay(
@@ -59,7 +60,10 @@ export class TurnOrderManager {
 
   currentActorIsPlayerControlled(party: AdventuringParty) {
     const fastestTurnOrderTracker = this.getFastestActorTurnOrderTracker();
-    if (fastestTurnOrderTracker instanceof ConditionTurnTracker) return false;
+    if (fastestTurnOrderTracker instanceof ConditionTurnTracker) {
+      console.log("current actor is condition");
+      return false;
+    }
     return party.characterPositions.includes(fastestTurnOrderTracker.combatantId);
   }
 

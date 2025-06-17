@@ -33,19 +33,12 @@ export function checkForWipes(
   const battleGroupResult = Battle.getAllyAndEnemyBattleGroups(battleOption, combatantId);
   if (battleGroupResult instanceof Error) throw battleGroupResult;
   const { allyGroup, enemyGroup } = battleGroupResult;
-  console.log(
-    "checking for wipes, ally group:",
-    allyGroup.combatantIds,
-    "enemy group:",
-    enemyGroup.combatantIds
-  );
   const partyWipesResult = checkForDefeatedCombatantGroups(
     game,
     allyGroup.combatantIds,
     enemyGroup.combatantIds
   );
   if (partyWipesResult instanceof Error) throw partyWipesResult;
-  console.log("party wipes:", partyWipesResult);
 
   return partyWipesResult;
 }

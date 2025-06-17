@@ -4,11 +4,10 @@ import { CombatantProperties } from "../index.js";
 export function setResourcesToMax(combatantProperties: CombatantProperties) {
   const totalAttributes = CombatantProperties.getTotalAttributes(combatantProperties);
   const maxHpOption = totalAttributes[CombatAttribute.Hp];
-  console.log("setting resources to max (hp)", maxHpOption);
-  if (typeof maxHpOption === "number" && !isNaN(maxHpOption))
-    combatantProperties.hitPoints = maxHpOption;
+  if (isNaN(maxHpOption)) throw new Error("unexpected NaN");
+  if (typeof maxHpOption === "number") combatantProperties.hitPoints = maxHpOption;
   const maxMpOption = totalAttributes[CombatAttribute.Mp];
-  if (typeof maxMpOption === "number" && !isNaN(maxMpOption))
-    combatantProperties.mana = maxMpOption;
+  if (isNaN(maxMpOption)) throw new Error("unexpected NaN");
+  if (typeof maxMpOption === "number") combatantProperties.mana = maxMpOption;
   else combatantProperties.mana = 0;
 }

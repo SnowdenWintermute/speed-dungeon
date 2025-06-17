@@ -83,7 +83,6 @@ export function calculateActionHitOutcomes(
   const hitOutcomes = new CombatActionHitOutcomes();
 
   if (incomingHpChangePerTargetOption) {
-    console.log("incomingHpChangePerTargetOption:", incomingHpChangePerTargetOption);
     const record = new HitPointChanges();
     hitOutcomes.hitPointChanges = record;
     resourceChanges.push({
@@ -204,15 +203,9 @@ export function calculateActionHitOutcomes(
       applyElementalAffinities(resourceChange, target);
 
       if (blockDamageReductionNormalizedPercentage) {
-        console.log(
-          "blockDamageReductionNormalizedPercentage:",
-          blockDamageReductionNormalizedPercentage
-        );
-
-        resourceChange.value = Math.max(
-          0,
-          resourceChange.value - resourceChange.value * blockDamageReductionNormalizedPercentage
-        );
+        const damageReduced = resourceChange.value * blockDamageReductionNormalizedPercentage;
+        const damageAdjustedForBlock = resourceChange.value - damageReduced;
+        resourceChange.value = Math.max(0, damageAdjustedForBlock);
       }
 
       convertResourceChangeValueToFinalSign(resourceChange, target);
@@ -250,8 +243,6 @@ export function getIncomingResourceChangePerTarget(
   const resourceChangeRange = resourceChangeProperties.baseValues;
   const { resourceChangeSource } = resourceChangeProperties;
   const rolledResourceChangeValue = randBetween(resourceChangeRange.min, resourceChangeRange.max);
-
-  console.log("rolledResourceChangeValue:", rolledResourceChangeValue);
 
   return {
     value: splitResourceChangeWithMultiTargetBonus(

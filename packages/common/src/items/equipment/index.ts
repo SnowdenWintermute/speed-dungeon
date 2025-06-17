@@ -145,8 +145,7 @@ export class Equipment extends Item {
 
   static isUsable(combatantProperties: CombatantProperties, equipment: Equipment): boolean {
     const isBroken = Equipment.isBroken(equipment);
-    console.log("isBroken:", isBroken, equipment.durability);
-    if (Equipment.isBroken(equipment)) return false;
+    if (isBroken) return false;
     return CombatantProperties.combatantHasRequiredAttributesToUseItem(
       combatantProperties,
       equipment
