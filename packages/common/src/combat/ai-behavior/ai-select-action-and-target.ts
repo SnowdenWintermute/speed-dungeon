@@ -1,6 +1,6 @@
 import { CombatActionName, CombatActionTarget, CombatActionTargetType } from "../index.js";
 import { BattleGroup } from "../../battle/index.js";
-import { Combatant } from "../../combatants/index.js";
+import { Combatant, CombatantProperties } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { chooseRandomFromArray } from "../../utils/index.js";
 import { AIBehaviorContext } from "./ai-context.js";
@@ -14,9 +14,6 @@ export function AISelectActionAndTarget(
   battleGroups: AllyAndEnemyBattleGroups
 ): Error | null | CombatActionExecutionIntent {
   const { allyGroup, enemyGroup } = battleGroups;
-  const randomEnemyTargetResult = getRandomAliveEnemy(game, enemyGroup);
-  if (randomEnemyTargetResult instanceof Error) return randomEnemyTargetResult;
-  const randomEnemyTarget = randomEnemyTargetResult;
 
   const { combatantProperties: userCombatantProperties } = user;
 
@@ -63,9 +60,17 @@ function getRandomAliveEnemy(
   for (const enemyId of enemyBattleGroup.combatantIds) {
     let combatantResult = SpeedDungeonGame.getCombatantById(game, enemyId);
     if (combatantResult instanceof Error) return combatantResult;
-    if (combatantResult.combatantProperties.hitPoints > 0) idsOfAliveTargets.push(enemyId);
+    console.log(
+      "checking combatant if alive for getRandomAliveEnemy hit points:",
+      combatantResult.combatantProperties.hitPoints
+    );
+    if (!CombatantProperties.isDead(combatantResult.combatantProperties))
+      idsOfAliveTargets.push(enemyId);
   }
-  if (idsOfAliveTargets.length === 0) return null;
+  if (idsOfAliveTargets.length === 0) {
+    console.log("no alive targets found in getRandomAliveEnemy");
+    return null;
+  }
   const randomTargetIdResult = chooseRandomFromArray(idsOfAliveTargets);
   if (randomTargetIdResult instanceof Error) return randomTargetIdResult;
 

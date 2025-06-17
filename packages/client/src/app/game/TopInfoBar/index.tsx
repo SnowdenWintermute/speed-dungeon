@@ -10,6 +10,7 @@ import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
+import { HOTKEYS } from "@/hotkeys";
 
 export default function TopInfoBar() {
   const mutateGameState = useGameStore().mutateState;

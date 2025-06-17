@@ -1,7 +1,7 @@
 import cloneDeep from "lodash.clonedeep";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { randBetween } from "../../../utils/index.js";
-import splitResourceChangeWithMultiTargetBonus from "./split-hp-change-with-multi-target-bonus.js";
+import { splitResourceChangeWithMultiTargetBonus } from "./split-hp-change-with-multi-target-bonus.js";
 import { MULTI_TARGET_RESOURCE_CHANGE_BONUS } from "../../../app-consts.js";
 import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
 import { ResourceChange, ResourceChangeSource } from "../../hp-change-source-types.js";
@@ -83,6 +83,7 @@ export function calculateActionHitOutcomes(
   const hitOutcomes = new CombatActionHitOutcomes();
 
   if (incomingHpChangePerTargetOption) {
+    console.log("incomingHpChangePerTargetOption:", incomingHpChangePerTargetOption);
     const record = new HitPointChanges();
     hitOutcomes.hitPointChanges = record;
     resourceChanges.push({
@@ -202,11 +203,17 @@ export function calculateActionHitOutcomes(
       applyKineticAffinities(resourceChange, target);
       applyElementalAffinities(resourceChange, target);
 
-      if (blockDamageReductionNormalizedPercentage)
+      if (blockDamageReductionNormalizedPercentage) {
+        console.log(
+          "blockDamageReductionNormalizedPercentage:",
+          blockDamageReductionNormalizedPercentage
+        );
+
         resourceChange.value = Math.max(
           0,
           resourceChange.value - resourceChange.value * blockDamageReductionNormalizedPercentage
         );
+      }
 
       convertResourceChangeValueToFinalSign(resourceChange, target);
 
@@ -243,6 +250,8 @@ export function getIncomingResourceChangePerTarget(
   const resourceChangeRange = resourceChangeProperties.baseValues;
   const { resourceChangeSource } = resourceChangeProperties;
   const rolledResourceChangeValue = randBetween(resourceChangeRange.min, resourceChangeRange.max);
+
+  console.log("rolledResourceChangeValue:", rolledResourceChangeValue);
 
   return {
     value: splitResourceChangeWithMultiTargetBonus(

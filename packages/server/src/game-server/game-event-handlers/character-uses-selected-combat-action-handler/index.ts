@@ -6,6 +6,7 @@ import {
   CombatActionExecutionIntent,
   CombatActionReplayTreePayload,
   CombatantContext,
+  CombatantProperties,
   ERROR_MESSAGES,
   InputLock,
   ServerToClientEvent,
@@ -67,7 +68,7 @@ export async function useSelectedCombatActionHandler(
   if (
     battleOption &&
     replayTreeResult.endedTurn &&
-    combatantContext.combatant.combatantProperties.hitPoints > 0
+    !CombatantProperties.isDead(combatantContext.combatant.combatantProperties)
   ) {
     const actionExecutionIntent = new CombatActionExecutionIntent(selectedCombatAction, targets);
     battleOption.turnOrderManager.updateSchedulerWithExecutedActionDelay(
@@ -82,6 +83,7 @@ export async function useSelectedCombatActionHandler(
     });
   }
 
+  console.log("useSelectedCombatActionHandler");
   console.log("payloads: ", payloads);
 
   gameServer.io

@@ -64,8 +64,10 @@ export class BattleProcessor {
       const { actionExecutionIntent, user } = this.getNextActionIntentAndUser();
       // process action intents
       let shouldEndTurn = false;
-      if (actionExecutionIntent === null) shouldEndTurn = true;
-      else {
+      if (actionExecutionIntent === null) {
+        console.log("AI action intent was null");
+        shouldEndTurn = true;
+      } else {
         const replayTreeResult = processCombatAction(
           actionExecutionIntent,
           new CombatantContext(game, party, user)

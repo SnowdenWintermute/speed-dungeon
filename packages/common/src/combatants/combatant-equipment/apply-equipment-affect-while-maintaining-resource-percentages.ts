@@ -12,11 +12,14 @@ export function applyEquipmentEffectWhileMaintainingResourcePercentages(
   const { percentOfMaxHitPoints, percentOfMaxMana } =
     getPreEquipmentChangeHpAndManaPercentage(combatantProperties);
 
+  console.log("PERCENTOFMAXHITPOINTS:", percentOfMaxHitPoints);
+
   effect();
 
   const attributesAfter = CombatantProperties.getTotalAttributes(combatantProperties);
   const maxHitPointsAfter = attributesAfter[CombatAttribute.Hp];
   const maxManaAfter = attributesAfter[CombatAttribute.Mp];
+
   combatantProperties.hitPoints = Math.round(maxHitPointsAfter * percentOfMaxHitPoints);
   combatantProperties.mana = Math.round(maxManaAfter * percentOfMaxMana);
 }
