@@ -22,6 +22,7 @@ import {
 } from "../../combat-action-cost-properties.js";
 import { getMeleeAttackBaseStepsConfig } from "./base-melee-attack-steps-config.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
+import { COMBAT_ACTIONS } from "../index.js";
 
 export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   description: "Attack target using equipment in main hand",
@@ -38,6 +39,14 @@ export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
 
       if (CombatantEquipment.isWearingUsableShield(user)) return true;
       if (CombatantEquipment.isWearingUsableTwoHandedMeleeWeapon(user)) return true;
+      if (
+        !COMBAT_ACTIONS[CombatActionName.AttackMeleeOffhand].shouldExecute(
+          context.combatantContext,
+          context.tracker
+        )
+      )
+        return true; // check if offhand should execute, otherwise if we kill an enemy with main hand
+      // we won't end our turn
       if (context.tracker.wasCountered()) return true;
 
       return false;

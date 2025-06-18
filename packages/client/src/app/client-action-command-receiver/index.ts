@@ -67,10 +67,6 @@ export class ClientActionCommandReceiver implements ActionCommandReceiver {
         actionNameOption
       );
       battleOption.turnOrderManager.updateTrackers(partyOption);
-
-      if (battleOption.turnOrderManager.currentActorIsPlayerControlled(partyOption)) {
-        InputLock.unlockInput(partyOption.inputLock);
-      }
     });
   };
   removePlayerFromGameCommandHandler = removeClientPlayerFromGame;

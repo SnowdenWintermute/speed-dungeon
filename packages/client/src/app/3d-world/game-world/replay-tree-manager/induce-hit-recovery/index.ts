@@ -81,10 +81,6 @@ export function induceHitRecovery(
       })();
 
       if (combatantDiedOnTheirOwnTurn) {
-        // if it was the combatant's turn who died and the next active combatant is player controlled, unlock input
-
-        if (!battleOption) InputLock.unlockInput(party.inputLock);
-
         // end any motion trackers they might have had
         // this is hacky because we would rather have not given them any but
         // it was the easiest way to implement dying on combatant's own turn
