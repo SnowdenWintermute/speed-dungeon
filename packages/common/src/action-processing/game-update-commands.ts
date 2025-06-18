@@ -30,6 +30,7 @@ export enum GameUpdateCommandType {
   ResourcesPaid,
   ActivatedTriggers,
   HitOutcomes,
+  InputLock,
 }
 
 export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, string> = {
@@ -39,6 +40,7 @@ export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, str
   [GameUpdateCommandType.ResourcesPaid]: "Resources Paid",
   [GameUpdateCommandType.ActivatedTriggers]: "Activated Triggers",
   [GameUpdateCommandType.HitOutcomes]: "Hit Outcomes",
+  [GameUpdateCommandType.InputLock]: "Input Lock",
 };
 
 export type GameEntity = Combatant | ActionEntity;
@@ -150,10 +152,15 @@ export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {
   outcomes: CombatActionHitOutcomes;
 }
 
+export interface InputLockUpdateCommand extends IGameUpdateCommand {
+  type: GameUpdateCommandType.InputLock;
+}
+
 export type GameUpdateCommand =
   | SpawnEntityGameUpdateCommand
   | CombatantMotionGameUpdateCommand
   | ActionEntityMotionGameUpdateCommand
   | ResourcesPaidGameUpdateCommand
   | ActivatedTriggersGameUpdateCommand
-  | HitOutcomesGameUpdateCommand;
+  | HitOutcomesGameUpdateCommand
+  | InputLockUpdateCommand;

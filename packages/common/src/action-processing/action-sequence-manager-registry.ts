@@ -12,6 +12,7 @@ import { NestedNodeReplayEvent } from "./replay-events.js";
 export class ActionSequenceManagerRegistry {
   private actionManagers: { [id: string]: ActionSequenceManager } = {};
   actionStepIdGenerator = new SequentialIdGenerator();
+  private inputBlockingActionStepsPendingReferenceCount = 0;
   constructor(
     private idGenerator: IdGenerator,
     public readonly animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>
@@ -44,7 +45,17 @@ export class ActionSequenceManagerRegistry {
     const stepTrackerResult = manager.startProcessingNext(time);
     if (stepTrackerResult instanceof Error) return stepTrackerResult;
     const initialGameUpdate = stepTrackerResult.currentStep.getGameUpdateCommandOption();
+    this.incrementInputLockReferenceCount();
     return initialGameUpdate;
+  }
+  incrementInputLockReferenceCount() {
+    this.inputBlockingActionStepsPendingReferenceCount += 1;
+  }
+  decrementInputLockReferenceCount() {
+    this.inputBlockingActionStepsPendingReferenceCount -= 1;
+  }
+  inputBlockingActionStepsArePending() {
+    return this.inputBlockingActionStepsPendingReferenceCount > 0;
   }
   getManager(id: EntityId) {
     return this.actionManagers[id];

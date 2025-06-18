@@ -62,7 +62,8 @@ export const ACTION_STEP_CREATORS: Record<
     new RollIncomingHitOutcomesActionResolutionStep(context),
   [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: (context) =>
     new EvalOnHitOutcomeTriggersActionResolutionStep(context),
-
+  [ActionResolutionStepType.ReleaseInputLockContribution]: (context) =>
+    new EvalOnHitOutcomeTriggersActionResolutionStep(context),
   [ActionResolutionStepType.ActionEntityDissipationMotion]: (context) => {
     const expectedProjectileEntityOption = context.tracker.spawnedEntityOption;
     if (!expectedProjectileEntityOption) throw new Error("expected projectile was missing");

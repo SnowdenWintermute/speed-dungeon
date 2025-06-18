@@ -17,23 +17,24 @@ export interface ActionExecuting {
 }
 
 export enum ActionResolutionStepType {
-  DetermineChildActions,
+  DetermineChildActions, // enqueues sequential actions such as [ "main hand attack", "off hand attack" ]
   DetermineMeleeActionAnimations,
-  InitialPositioning, // motion - start magical glyph CosmeticEffect
+  InitialPositioning,
   PrepMotion,
   PostPrepSpawnEntity,
-  ChamberingMotion, // motion - start frost particle accumulation CosmeticEffect
-  DeliveryMotion, // motion - start frost particle burst CosmeticEffect
+  ChamberingMotion,
+  DeliveryMotion,
   PayResourceCosts,
   EvalOnUseTriggers,
-  StartConcurrentSubActions,
+  StartConcurrentSubActions, // starts actions that happen simultaneously and independently such as ["arrow projectile"]
   OnActivationSpawnEntity,
-  OnActivationActionEntityMotion, // motion
+  OnActivationActionEntityMotion,
   RollIncomingHitOutcomes,
-  EvalOnHitOutcomeTriggers,
-  ActionEntityDissipationMotion, // motion
-  RecoveryMotion, // motion
-  FinalPositioning, // motion
+  EvalOnHitOutcomeTriggers, // may start branching actions if triggered
+  ReleaseInputLockContribution,
+  ActionEntityDissipationMotion,
+  RecoveryMotion,
+  FinalPositioning,
 }
 
 export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepType, string> = {
@@ -51,7 +52,8 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.OnActivationActionEntityMotion]: "onActivationVfxMotion",
   [ActionResolutionStepType.RollIncomingHitOutcomes]: "rollIncomingHitOutcomes",
   [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: "evalOnHitOutcomeTriggers", // lifesteal traits, apply conditions
-  [ActionResolutionStepType.ActionEntityDissipationMotion]: "ActionEntityDissipationMotion",
+  [ActionResolutionStepType.ReleaseInputLockContribution]: "ReleaseInputLockContribution",
+  [ActionResolutionStepType.ActionEntityDissipationMotion]: "actionEntityDissipationMotion",
   [ActionResolutionStepType.RecoveryMotion]: "recoveryMotion",
   [ActionResolutionStepType.FinalPositioning]: "finalPositioning",
 };
