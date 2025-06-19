@@ -47,21 +47,28 @@ export class BattleProcessor {
       const partyWipesResult = checkForWipes(game, party.characterPositions[0], party.battleId);
       const battleConcluded = partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated;
 
+      let shouldBreak = false;
+
       // battle ended, stop processing
       if (battleConcluded) {
         const battleConclusionPayloads = await this.handleBattleConclusion(partyWipesResult);
         if (battleConclusionPayloads instanceof Error) throw battleConclusionPayloads;
         payloads.push(...battleConclusionPayloads);
-        break;
+        shouldBreak = true;
       }
       // it is player's turn, stop processing
       if (battle.turnOrderManager.currentActorIsPlayerControlled(party)) {
         console.log("reached next player's turn");
+        shouldBreak = true;
+      }
+
+      if (shouldBreak) {
         break;
       }
 
       // get action intent for fastest actor
       const { actionExecutionIntent, user } = this.getNextActionIntentAndUser();
+
       // process action intents
       let shouldEndTurn = false;
       if (actionExecutionIntent === null) {

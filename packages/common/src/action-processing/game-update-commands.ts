@@ -154,6 +154,7 @@ export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {
 
 export interface InputLockUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.InputLock;
+  isLocked: boolean;
 }
 
 export type GameUpdateCommand =
