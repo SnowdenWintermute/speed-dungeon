@@ -37,6 +37,21 @@ export class TurnOrderScheduler {
     ];
   }
 
+  getMatchingSchedulerTrackerFromTurnOrderTracker(
+    turnOrderTracker: CombatantTurnTracker | ConditionTurnTracker
+  ) {
+    const schedulerTracker = this.turnSchedulerTrackers.find(
+      (item) =>
+        item.combatantId === turnOrderTracker.combatantId ||
+        (item instanceof TickableConditionTurnSchedulerTracker &&
+          turnOrderTracker instanceof ConditionTurnTracker &&
+          item.conditionId === turnOrderTracker.conditionId)
+    );
+    if (schedulerTracker === undefined)
+      throw new Error("expected turnSchedulerTracker was missing");
+    return schedulerTracker;
+  }
+
   resetTurnSchedulerTrackers(party: AdventuringParty) {
     for (const tracker of this.turnSchedulerTrackers) {
       // take into account any delay they've accumulated from taking actions in this battle

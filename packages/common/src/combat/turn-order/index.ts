@@ -1,3 +1,4 @@
+import cloneDeep from "lodash.clonedeep";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Battle } from "../../battle/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
@@ -11,7 +12,6 @@ import {
 import {
   TickableConditionTurnSchedulerTracker,
   TurnOrderScheduler,
-  TurnTrackerSortableProperty,
 } from "./turn-order-scheduler.js";
 
 export class TurnOrderManager {
@@ -36,14 +36,8 @@ export class TurnOrderManager {
     actionNameOption: null | CombatActionName
   ): Milliseconds {
     const fastest = this.getFastestActorTurnOrderTracker();
-    const tracker = this.turnOrderScheduler.turnSchedulerTrackers.find(
-      (item) =>
-        item.combatantId === fastest.combatantId ||
-        (item instanceof TickableConditionTurnSchedulerTracker &&
-          fastest instanceof ConditionTurnTracker &&
-          item.conditionId === fastest.conditionId)
-    );
-    if (tracker === undefined) throw new Error("expected turnSchedulerTracker was missing");
+    const tracker =
+      this.turnOrderScheduler.getMatchingSchedulerTrackerFromTurnOrderTracker(fastest);
 
     // @TODO - get delay multiplier from action
     const delay = TurnOrderManager.getActionDelayCost(
@@ -56,6 +50,16 @@ export class TurnOrderManager {
     console.log("added", delay, "to tracker for", tracker);
 
     return delay;
+  }
+
+  predictedNextActorTurnTrackerIsPlayerControlled(
+    party: AdventuringParty,
+    actionNameOption: null | CombatActionName
+  ) {
+    const clonedTurnOrderTracker = cloneDeep(this);
+    clonedTurnOrderTracker.updateSchedulerWithExecutedActionDelay(party, actionNameOption);
+    clonedTurnOrderTracker.updateTrackers(party);
+    return clonedTurnOrderTracker.currentActorIsPlayerControlled(party);
   }
 
   currentActorIsPlayerControlled(party: AdventuringParty) {

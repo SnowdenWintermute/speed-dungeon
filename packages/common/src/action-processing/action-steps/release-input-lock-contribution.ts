@@ -1,3 +1,4 @@
+import { AdventuringParty } from "../../adventuring-party/index.js";
 import { CombatActionExecutionIntent } from "../../combat/index.js";
 import { Combatant } from "../../combatants/index.js";
 import {
@@ -27,10 +28,30 @@ export class ReleaseInputLockContributionActionResolutionStep extends ActionReso
     // unlock input if:
     // if no more blocking steps are left and next turn is player
     if (!sequentialActionManagerRegistry.inputBlockingActionStepsArePending()) {
-      // push a game update command to unlock input
-      // set a timeout to unlock input equal to current action accumulated time
-      // plus all previous actions accumulated time in the current
-      gameUpdateCommand.isLocked = false;
+      const { game, party } = context.combatantContext;
+      const battleOption = AdventuringParty.getBattleOption(party, game);
+
+      let shouldUnlockInput = false;
+
+      if (battleOption === null) shouldUnlockInput = true;
+      else {
+        const nextTurnWillBePlayerControlled =
+          battleOption.turnOrderManager.predictedNextActorTurnTrackerIsPlayerControlled(
+            party,
+            this.context.tracker.actionExecutionIntent.actionName
+          );
+        if (nextTurnWillBePlayerControlled) {
+          shouldUnlockInput = true;
+        }
+      }
+
+      if (shouldUnlockInput) {
+        gameUpdateCommand.isLocked = false;
+        // push a game update command to unlock input
+
+        // set a timeout to unlock input equal to current action accumulated time
+        // plus all previous actions accumulated time in the current
+      }
     }
   }
 
