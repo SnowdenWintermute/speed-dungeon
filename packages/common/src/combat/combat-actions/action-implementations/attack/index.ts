@@ -65,6 +65,7 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
   stepsConfig: new ActionResolutionStepsConfig(
     {
       [ActionResolutionStepType.DetermineChildActions]: {},
+      [ActionResolutionStepType.ReleaseInputLockContribution]: {},
     },
     { userShouldMoveHomeOnComplete: false }
   ),

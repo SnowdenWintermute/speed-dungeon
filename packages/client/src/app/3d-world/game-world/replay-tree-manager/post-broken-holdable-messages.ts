@@ -10,8 +10,6 @@ import {
 import { EntityId, Equipment, FLOATING_MESSAGE_DURATION } from "@speed-dungeon/common";
 
 export function postBrokenHoldableMessages(combatantId: EntityId, equipment: Equipment) {
-  console.log("BROKE", equipment.entityProperties.name);
-
   const colorClass = FLOATING_TEXT_COLORS[FloatingMessageTextColor.Damage];
   const elements: FloatingMessageElement[] = [
     {

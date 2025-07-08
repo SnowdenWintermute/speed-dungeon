@@ -91,6 +91,7 @@ export const ATTACK_RANGED_MAIN_HAND_PROJECTILE_CONFIG: CombatActionComponentCon
       },
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+      [ActionResolutionStepType.ReleaseInputLockContribution]: {},
     },
     { userShouldMoveHomeOnComplete: false }
   ),

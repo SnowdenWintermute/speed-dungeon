@@ -3,16 +3,11 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import {
-  COMBAT_ACTION_NAME_STRINGS,
-  COMBAT_ACTIONS,
-  CombatActionExecutionIntent,
-} from "../../combat/index.js";
+import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
-import { Combatant, CombatantEquipment } from "../../combatants/index.js";
+import { Combatant } from "../../combatants/index.js";
 import { DurabilityLossCondition } from "../../combat/combat-actions/combat-action-durability-loss-condition.js";
 import { DurabilityChangesByEntityId } from "../../durability/index.js";
-import { SpeedDungeonGame } from "../../game/index.js";
 
 const stepType = ActionResolutionStepType.EvalOnUseTriggers;
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {

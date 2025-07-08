@@ -64,6 +64,7 @@ const config: CombatActionComponentConfig = {
       },
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+      [ActionResolutionStepType.ReleaseInputLockContribution]: {},
       [ActionResolutionStepType.ActionEntityDissipationMotion]: {
         getAnimation: () => {
           return {

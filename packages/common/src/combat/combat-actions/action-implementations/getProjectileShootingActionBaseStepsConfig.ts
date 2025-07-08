@@ -63,7 +63,7 @@ export function getProjectileShootingActionBaseStepsConfig(
       [ActionResolutionStepType.PayResourceCosts]: {},
       [ActionResolutionStepType.EvalOnUseTriggers]: {},
       [ActionResolutionStepType.StartConcurrentSubActions]: {},
-
+      [ActionResolutionStepType.ReleaseInputLockContribution]: {},
       [ActionResolutionStepType.RecoveryMotion]: {
         getAnimation: (user, animationLengths) =>
           getSpeciesTimedAnimation(

@@ -1,7 +1,4 @@
-import {
-  CosmeticEffect,
-  CosmeticEffectNames,
-} from "../../../../action-entities/cosmetic-effect.js";
+import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import {
   CombatantBaseChildTransformNodeName,

@@ -46,6 +46,7 @@ export const MEDICATION_ACTION_BASE_STEPS_CONFIG = new ActionResolutionStepsConf
     [ActionResolutionStepType.EvalOnUseTriggers]: {},
     [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
     [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+    [ActionResolutionStepType.ReleaseInputLockContribution]: {},
     [ActionResolutionStepType.RecoveryMotion]: {
       getAnimation: (user, animationLengths) =>
         getTimedSkeletalEntityAnimation(

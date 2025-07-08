@@ -129,6 +129,8 @@ const config: CombatActionComponentConfig = {
         },
       },
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+
+      [ActionResolutionStepType.ReleaseInputLockContribution]: {},
     },
     { userShouldMoveHomeOnComplete: false }
   ),

@@ -11,7 +11,6 @@ import {
   EntityId,
   Equipment,
   EquipmentSlotType,
-  FLOATING_MESSAGE_DURATION,
   HitPointChanges,
   SpeedDungeonGame,
   iterateNumericEnumKeyedRecord,
@@ -20,13 +19,6 @@ import { getGameWorld } from "../../SceneManager";
 import { plainToInstance } from "class-transformer";
 import { startOrStopCosmeticEffects } from "./start-or-stop-cosmetic-effect";
 import { induceHitRecovery } from "./induce-hit-recovery";
-import {
-  FLOATING_TEXT_COLORS,
-  FloatingMessageElement,
-  FloatingMessageElementType,
-  FloatingMessageTextColor,
-  startFloatingMessage,
-} from "@/stores/game-store/floating-messages";
 import { postBrokenHoldableMessages } from "./post-broken-holdable-messages";
 
 export async function activatedTriggersGameUpdateHandler(update: {
