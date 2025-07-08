@@ -28,7 +28,8 @@ stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
     ];
   },
 };
-(stepsConfig.steps[ActionResolutionStepType.RecoveryMotion] = {
+
+stepsConfig.steps[ActionResolutionStepType.RecoveryMotion] = {
   ...stepsConfig.steps[ActionResolutionStepType.RecoveryMotion],
   getCosmeticsEffectsToStart: (context) => {
     const { actionExecutionIntent } = context.tracker;
@@ -56,18 +57,19 @@ stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
 
     return toReturn;
   },
-}),
-  (stepsConfig.steps[ActionResolutionStepType.FinalPositioning] = {
-    ...stepsConfig.steps[ActionResolutionStepType.FinalPositioning],
-    getCosmeticsEffectsToStop: (context) => [
-      {
-        name: CosmeticEffectNames.FlameParticleAccumulation,
-        sceneEntityIdentifier: {
-          type: SceneEntityType.CharacterModel,
-          entityId: context.combatantContext.combatant.entityProperties.id,
-        },
+};
+
+stepsConfig.steps[ActionResolutionStepType.FinalPositioning] = {
+  ...stepsConfig.steps[ActionResolutionStepType.FinalPositioning],
+  getCosmeticsEffectsToStop: (context) => [
+    {
+      name: CosmeticEffectNames.FlameParticleAccumulation,
+      sceneEntityIdentifier: {
+        type: SceneEntityType.CharacterModel,
+        entityId: context.combatantContext.combatant.entityProperties.id,
       },
-    ],
-  });
+    },
+  ],
+};
 
 export const FIRE_STEPS_CONFIG = stepsConfig;

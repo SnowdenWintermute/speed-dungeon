@@ -37,6 +37,8 @@ export class ReleaseInputLockContributionActionResolutionStep extends ActionReso
 
     if (!shouldUnlockInput) return;
 
+    console.log("should unlock input");
+
     // push a game update command to unlock input
     this.gameUpdateCommandOption = {
       type: GameUpdateCommandType.InputLock,

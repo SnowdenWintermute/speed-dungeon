@@ -53,6 +53,7 @@ export class ClientActionCommandReceiver implements ActionCommandReceiver {
   addDelayToFastestActorTurnSchedulerInBattle: (
     actionNameOption: null | CombatActionName
   ) => Promise<void | Error> = async (actionNameOption) => {
+    console.log("client addDelayToFastestActorTurnSchedulerInBattle");
     useGameStore.getState().mutateState((state) => {
       const battleId = state.getCurrentBattleId();
       if (!battleId) return console.error("no battle but tried to end turn");

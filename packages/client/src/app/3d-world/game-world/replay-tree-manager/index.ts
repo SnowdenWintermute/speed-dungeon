@@ -10,7 +10,6 @@ import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
 import { startOrStopCosmeticEffects } from "./start-or-stop-cosmetic-effect";
-import getParty from "@/utils/getParty";
 
 export class ReplayTreeManager {
   private queue: { root: NestedNodeReplayEvent; onComplete: () => void }[] = [];
@@ -33,6 +32,8 @@ export class ReplayTreeManager {
 
   async enqueueTree(payload: CombatActionReplayTreePayload, onComplete: () => void) {
     this.queue.push({ root: payload.root, onComplete });
+
+    console.log("got replay tree", payload.root);
 
     useGameStore.getState().mutateState((state) => {
       const partyOption = getCurrentParty(state, state.username || "");

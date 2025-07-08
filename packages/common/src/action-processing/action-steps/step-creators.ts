@@ -14,6 +14,7 @@ import { RollIncomingHitOutcomesActionResolutionStep } from "./roll-incoming-hit
 import { SpawnEntityActionResolutionStep } from "./spawn-entity.js";
 import { StartConcurrentSubActionsActionResolutionStep } from "./start-concurrent-sub-actions.js";
 import { DetermineMeleeActionAnimationsActionResolutionStep } from "./determine-melee-action-animations.js";
+import { ReleaseInputLockContributionActionResolutionStep } from "./release-input-lock-contribution.js";
 
 // right now the idea is to have the action tracker call these creators, which in turn call
 // step class constructors. We don't call the constructors directly because this allows us
@@ -63,7 +64,7 @@ export const ACTION_STEP_CREATORS: Record<
   [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: (context) =>
     new EvalOnHitOutcomeTriggersActionResolutionStep(context),
   [ActionResolutionStepType.ReleaseInputLockContribution]: (context) =>
-    new EvalOnHitOutcomeTriggersActionResolutionStep(context),
+    new ReleaseInputLockContributionActionResolutionStep(context),
   [ActionResolutionStepType.ActionEntityDissipationMotion]: (context) => {
     const expectedProjectileEntityOption = context.tracker.spawnedEntityOption;
     if (!expectedProjectileEntityOption) throw new Error("expected projectile was missing");

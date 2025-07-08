@@ -49,6 +49,9 @@ export function createModelActionHandlers(
       const actionCommands = action.actionCommandPayloads.map(
         (item) => new ActionCommand(gameName, item, actionCommandReceiver)
       );
+
+      console.log("got commands:", actionCommands);
+
       actionCommandQueue.enqueueNewCommands(actionCommands);
       const result = await actionCommandQueue.processCommands();
       if (result instanceof Error) console.error(result);

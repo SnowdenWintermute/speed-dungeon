@@ -21,6 +21,7 @@ export async function useSelectedCombatActionHandler(
   _eventData: { characterId: string },
   characterAssociatedData: CharacterAssociatedData
 ) {
+  console.log("use selectedCombatAction handler");
   const { game, party, character, player } = characterAssociatedData;
   const combatantContext = new CombatantContext(game, party, character);
   const gameServer = getGameServer();
@@ -77,6 +78,7 @@ export async function useSelectedCombatActionHandler(
     );
     battleOption.turnOrderManager.updateTrackers(party);
 
+    console.log("ActionCommandType.AddDelayToFastestActorTurnSchedulerInBattle");
     payloads.push({
       type: ActionCommandType.AddDelayToFastestActorTurnSchedulerInBattle,
       actionNameOption: actionExecutionIntent.actionName,

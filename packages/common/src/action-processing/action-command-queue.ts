@@ -19,6 +19,7 @@ export class ActionCommandQueue {
     this.isProcessing = true;
     let currentCommand = this.commands.shift();
     while (currentCommand) {
+      console.log("currentCommand: ", currentCommand);
       this.timeLastCommandStarted = Date.now();
       const newPayloadOptionResult = await currentCommand.execute();
       if (newPayloadOptionResult instanceof Error) {

@@ -50,11 +50,14 @@ export class ActionSequenceManagerRegistry {
   }
   incrementInputLockReferenceCount() {
     this.inputBlockingActionStepsPendingReferenceCount += 1;
+    console.log("incremented:", this.inputBlockingActionStepsPendingReferenceCount);
   }
   decrementInputLockReferenceCount() {
     this.inputBlockingActionStepsPendingReferenceCount -= 1;
+    console.log("decremented:", this.inputBlockingActionStepsPendingReferenceCount);
   }
   inputBlockingActionStepsArePending() {
+    console.log("pending:", this.inputBlockingActionStepsPendingReferenceCount);
     return this.inputBlockingActionStepsPendingReferenceCount > 0;
   }
   getManager(id: EntityId) {

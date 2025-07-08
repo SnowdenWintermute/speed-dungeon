@@ -80,7 +80,7 @@ export abstract class ActionResolutionStep {
     //
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
     const stepConfig = action.stepsConfig.steps[type];
-    console.log("looking for step config for type", ACTION_RESOLUTION_STEP_TYPE_STRINGS[type]);
+
     if (!stepConfig) throw new Error("expected step config not found");
     if (gameUpdateCommandOption && stepConfig.getCosmeticsEffectsToStop) {
       gameUpdateCommandOption.cosmeticEffectsToStop = stepConfig.getCosmeticsEffectsToStop(context);
