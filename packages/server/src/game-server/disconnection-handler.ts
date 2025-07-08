@@ -16,7 +16,7 @@ export default async function disconnectionHandler(
 ) {
   const gameServer = getGameServer();
 
-  console.log(`-- ${session.username} (${socket.id})  disconnected. Reason - ${reason}`);
+  console.info(`-- ${session.username} (${socket.id})  disconnected. Reason - ${reason}`);
 
   const userCurrentSockets = gameServer.socketIdsByUsername.get(session.username);
 

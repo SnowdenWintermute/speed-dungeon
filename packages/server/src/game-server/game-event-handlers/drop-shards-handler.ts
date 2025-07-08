@@ -48,11 +48,10 @@ export async function dropShardsHandler(
 }
 
 function createShardStack(numShards: number) {
-  const stackName = `${CONSUMABLE_TYPE_STRINGS[ConsumableType.StackOfShards]} (${numShards})`;
-  console.log("creating shard stack of ", numShards, "stackname: ", stackName);
+  const name = `${CONSUMABLE_TYPE_STRINGS[ConsumableType.StackOfShards]} (${numShards})`;
   return new Consumable(
     {
-      name: `${CONSUMABLE_TYPE_STRINGS[ConsumableType.StackOfShards]} (${numShards})`,
+      name,
       id: idGenerator.generate(),
     },
     0,

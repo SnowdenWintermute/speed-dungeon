@@ -6,7 +6,6 @@ import {
   CombatActionExecutionIntent,
   CombatActionReplayTreePayload,
   CombatantContext,
-  CombatantProperties,
   ERROR_MESSAGES,
   InputLock,
   ServerToClientEvent,
@@ -21,7 +20,6 @@ export async function useSelectedCombatActionHandler(
   _eventData: { characterId: string },
   characterAssociatedData: CharacterAssociatedData
 ) {
-  console.log("use selectedCombatAction handler");
   const { game, party, character, player } = characterAssociatedData;
   const combatantContext = new CombatantContext(game, party, character);
   const gameServer = getGameServer();
@@ -64,9 +62,6 @@ export async function useSelectedCombatActionHandler(
   };
 
   const payloads: ActionCommandPayload[] = [replayTreePayload];
-
-  console.log("useSelectedCombatActionHandler");
-  console.log("payloads: ", payloads);
 
   gameServer.io
     .in(getPartyChannelName(game.name, party.name))

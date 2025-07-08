@@ -58,7 +58,6 @@ export class BattleProcessor {
       }
       // it is player's turn, stop processing
       if (battle.turnOrderManager.currentActorIsPlayerControlled(party)) {
-        console.log("reached next player's turn");
         shouldBreak = true;
       }
 
@@ -95,8 +94,6 @@ export class BattleProcessor {
 
       currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
     }
-
-    console.log("payloads:", payloads);
 
     gameServer.io
       .in(getPartyChannelName(game.name, party.name))

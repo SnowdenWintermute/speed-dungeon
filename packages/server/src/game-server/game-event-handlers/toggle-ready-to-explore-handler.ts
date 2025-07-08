@@ -121,7 +121,6 @@ export function putPartyInNextRoom(
   roomTypeToGenerate: DungeonRoomType
 ) {
   const newRoom = generateDungeonRoom(party.currentFloor, roomTypeToGenerate);
-  console.log("generated room");
   party.currentRoom = newRoom;
 
   for (const monster of Object.values(party.currentRoom.monsters))

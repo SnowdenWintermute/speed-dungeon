@@ -12,7 +12,6 @@ export function checkForWipes(
 ): PartyWipes {
   // IF NOT IN BATTLE AND SOMEHOW WIPED OWN PARTY
   if (battleIdOption === null) {
-    console.log("checking for wipe not in a battle");
     const partyResult = SpeedDungeonGame.getPartyOfCombatant(game, combatantId);
     if (partyResult instanceof Error) throw partyResult;
     const alliesDefeatedResult = SpeedDungeonGame.allCombatantsInGroupAreDead(

@@ -51,7 +51,6 @@ export async function collectAnimationLengths() {
   for (const [species, skeletonPath] of iterateNumericEnumKeyedRecord(SKELETON_FILE_PATHS)) {
     const animationLengths = await getAnimationLengths(assetsFolderPath + skeletonPath);
     toReturn[species] = animationLengths;
-    if (species === CombatantSpecies.Velociraptor) console.log(animationLengths);
   }
 
   return toReturn;

@@ -12,5 +12,3 @@ export function getGameServer() {
 }
 
 export const ANIMATION_LENGTHS = await collectAnimationLengths();
-
-console.log(ANIMATION_LENGTHS);

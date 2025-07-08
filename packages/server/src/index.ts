@@ -15,7 +15,7 @@ import { pgPool } from "./singletons/pg-pool.js";
 import { pgOptions } from "./database/config.js";
 import { valkeyManager } from "./kv-store/index.js";
 import { loadLadderIntoKvStore } from "./kv-store/utils.js";
-import runMigrations from "./database/run-migrations.js";
+import { runMigrations } from "./database/run-migrations.js";
 import { setUpTestGameWithPartyInBattle } from "./game-server/utils/testing/index.js";
 import { processCombatAction } from "./game-server/game-event-handlers/character-uses-selected-combat-action-handler/process-combat-action.js";
 
@@ -67,5 +67,4 @@ const listening = expressApp.listen(PORT, async () => {
   // //   friendOrFoe: FriendOrFoe.Hostile
   // // };
   // combatant.combatantProperties.combatActionTarget = targets;
-  // // console.log(JSON.stringify(combatantPositions, null, 2));
 });
