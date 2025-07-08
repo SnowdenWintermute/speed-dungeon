@@ -1,6 +1,6 @@
-import { AdventuringParty } from "../../adventuring-party/index.js";
-import { CombatActionExecutionIntent } from "../../combat/index.js";
-import { Combatant } from "../../combatants/index.js";
+import { AdventuringParty, InputLock } from "../../adventuring-party/index.js";
+import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
+import { Combatant, CombatantProperties } from "../../combatants/index.js";
 import {
   ActionResolutionStep,
   ActionResolutionStepContext,
@@ -8,8 +8,8 @@ import {
   GameUpdateCommandType,
 } from "../index.js";
 
-const stepType = ActionResolutionStepType.ReleaseInputLockContribution;
-export class ReleaseInputLockContributionActionResolutionStep extends ActionResolutionStep {
+const stepType = ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock;
+export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends ActionResolutionStep {
   branchingActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] = [];
   constructor(context: ActionResolutionStepContext) {
     super(stepType, context, null); // this step should produce no game update unless it is unlocking input
@@ -35,18 +35,41 @@ export class ReleaseInputLockContributionActionResolutionStep extends ActionReso
       if (nextTurnWillBePlayerControlled) shouldUnlockInput = true;
     }
 
-    if (!shouldUnlockInput) return;
+    const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
+    const requiredTurn = action.costProperties.requiresCombatTurn(tracker.currentStep.getContext());
 
-    console.log("should unlock input");
+    if (!shouldUnlockInput && !requiredTurn) return;
 
     // push a game update command to unlock input
     this.gameUpdateCommandOption = {
-      type: GameUpdateCommandType.InputLock,
+      type: GameUpdateCommandType.ActionCompletion,
       actionName: context.tracker.actionExecutionIntent.actionName,
       step: stepType,
       completionOrderId: null,
-      isLocked: false,
     };
+
+    if (shouldUnlockInput) {
+      this.gameUpdateCommandOption.unlockInput = true;
+      InputLock.unlockInput(party.inputLock);
+    }
+
+    const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
+    if (requiredTurn && !turnAlreadyEnded && battleOption) {
+      // if they died on their own turn we should not end the active combatant's turn because
+      // we would have already removed their turn tracker on death
+      const { combatantContext } = context;
+      !CombatantProperties.isDead(combatantContext.combatant.combatantProperties);
+      {
+        const { actionName } = tracker.actionExecutionIntent;
+
+        battleOption.turnOrderManager.updateSchedulerWithExecutedActionDelay(party, actionName);
+        battleOption.turnOrderManager.updateTrackers(party);
+      }
+
+      sequentialActionManagerRegistry.markTurnEnded();
+
+      this.gameUpdateCommandOption.endActiveCombatantTurn = true;
+    }
 
     // set a timeout to unlock input equal to current action accumulated time
     // plus all previous actions accumulated time in the current

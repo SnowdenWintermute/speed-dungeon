@@ -56,7 +56,7 @@ export function getMeleeAttackBaseStepsConfig(holdableSlotType: HoldableSlotType
       [ActionResolutionStepType.EvalOnUseTriggers]: {},
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
-      [ActionResolutionStepType.ReleaseInputLockContribution]: {},
+      [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
       [ActionResolutionStepType.RecoveryMotion]: {
         getAnimation: (user, animationLengths, meleeAttackAnimationType) => {
           if (meleeAttackAnimationType === undefined)

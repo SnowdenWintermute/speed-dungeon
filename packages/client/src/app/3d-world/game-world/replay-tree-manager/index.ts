@@ -63,18 +63,6 @@ export class ReplayTreeManager {
     if (this.currentTreeCompleted()) {
       if (this.current !== null) {
         this.current.onComplete();
-
-        // the tree has ended and there are no trees waiting to be processed
-        // so lets unlock their input
-        // @TODO - delete if better method implemented
-        // if (this.queue.length === 0) {
-        //   useGameStore.getState().mutateState((state) => {
-        //     const partyResult = getParty(state.game, state.username);
-        //     if (!(partyResult instanceof Error)) {
-        //       InputLock.unlockInput(partyResult.inputLock);
-        //     }
-        //   });
-        // }
       }
       this.current = null;
       this.startNext();

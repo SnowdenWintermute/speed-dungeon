@@ -19,7 +19,6 @@ import { NestedNodeReplayEvent } from "./replay-events.js";
 
 export enum ActionCommandType {
   CombatActionReplayTree,
-  AddDelayToFastestActorTurnSchedulerInBattle,
   BattleResult,
   GameMessages,
   RemovePlayerFromGame,
@@ -55,23 +54,15 @@ export type RemovePlayerFromGamePayload = {
   username: string;
 };
 
-export type AddDelayToFastestActorTurnSchedulerInBattlePayload = {
-  type: ActionCommandType.AddDelayToFastestActorTurnSchedulerInBattle;
-  actionNameOption: null | CombatActionName;
-};
-
 export type ActionCommandPayload =
   | CombatActionReplayTreePayload
   | BattleResultActionCommandPayload
   | GameMessagesPayload
-  | RemovePlayerFromGamePayload
-  | AddDelayToFastestActorTurnSchedulerInBattlePayload;
+  | RemovePlayerFromGamePayload;
 
 export const ACTION_COMMAND_TYPE_STRINGS: Record<ActionCommandType, string> = {
   [ActionCommandType.CombatActionReplayTree]: "Combat Action Replay Tree",
   [ActionCommandType.BattleResult]: "Battle result",
   [ActionCommandType.GameMessages]: "Game messages",
   [ActionCommandType.RemovePlayerFromGame]: "Remove player from game",
-  [ActionCommandType.AddDelayToFastestActorTurnSchedulerInBattle]:
-    "AddDelayToFastestActorTurnSchedulerInBattle",
 };

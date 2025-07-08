@@ -130,7 +130,7 @@ const config: CombatActionComponentConfig = {
       },
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
 
-      [ActionResolutionStepType.ReleaseInputLockContribution]: {},
+      [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     },
     { userShouldMoveHomeOnComplete: false }
   ),

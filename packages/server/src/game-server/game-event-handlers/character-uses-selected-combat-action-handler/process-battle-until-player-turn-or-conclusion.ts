@@ -81,8 +81,7 @@ export class BattleProcessor {
         );
 
         if (replayTreeResult instanceof Error) return replayTreeResult;
-        const { rootReplayNode, endedTurn } = replayTreeResult;
-        shouldEndTurn = endedTurn;
+        const { rootReplayNode } = replayTreeResult;
 
         const actionUserId = user.entityProperties.id;
         const payload: CombatActionReplayTreePayload = {
@@ -94,19 +93,7 @@ export class BattleProcessor {
         payloads.push(payload);
       }
 
-      console.log("AI ended turn:", shouldEndTurn, user.entityProperties.id);
-      if (shouldEndTurn) {
-        const actionNameOption =
-          actionExecutionIntent === null ? null : actionExecutionIntent.actionName;
-        battle.turnOrderManager.updateSchedulerWithExecutedActionDelay(party, actionNameOption);
-        battle.turnOrderManager.updateTrackers(party);
-        currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
-
-        payloads.push({
-          type: ActionCommandType.AddDelayToFastestActorTurnSchedulerInBattle,
-          actionNameOption,
-        });
-      }
+      currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
     }
 
     console.log("payloads:", payloads);

@@ -3,7 +3,6 @@ import {
   CombatActionName,
   CombatActionReplayTreePayload,
   ERROR_MESSAGES,
-  InputLock,
 } from "@speed-dungeon/common";
 import battleResultActionCommandHandler from "./process-battle-result";
 import gameMessageActionCommandHandler from "./game-message";
@@ -50,26 +49,6 @@ export class ClientActionCommandReceiver implements ActionCommandReceiver {
       await promise;
     };
 
-  addDelayToFastestActorTurnSchedulerInBattle: (
-    actionNameOption: null | CombatActionName
-  ) => Promise<void | Error> = async (actionNameOption) => {
-    console.log("client addDelayToFastestActorTurnSchedulerInBattle");
-    useGameStore.getState().mutateState((state) => {
-      const battleId = state.getCurrentBattleId();
-      if (!battleId) return console.error("no battle but tried to end turn");
-      const battleOption = state.game?.battles[battleId];
-      if (!state.game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-      if (!battleOption) return console.error("no battle but tried to end turn");
-      const partyOption = getCurrentParty(state, state.username || "");
-      if (!partyOption) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
-
-      battleOption.turnOrderManager.updateSchedulerWithExecutedActionDelay(
-        partyOption,
-        actionNameOption
-      );
-      battleOption.turnOrderManager.updateTrackers(partyOption);
-    });
-  };
   removePlayerFromGameCommandHandler = removeClientPlayerFromGame;
   battleResultActionCommandHandler = battleResultActionCommandHandler;
   gameMessageCommandHandler = gameMessageActionCommandHandler;

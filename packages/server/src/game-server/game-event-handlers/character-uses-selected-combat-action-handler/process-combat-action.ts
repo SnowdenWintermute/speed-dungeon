@@ -45,8 +45,6 @@ export function processCombatAction(
 
   InputLock.lockInput(combatantContext.party.inputLock);
 
-  let endedTurn: boolean = false;
-
   while (registry.isNotEmpty()) {
     for (const sequenceManager of registry.getManagers()) {
       let trackerOption = sequenceManager.getCurrentTracker();
@@ -150,9 +148,6 @@ export function processCombatAction(
         // send the user home if the action type necessitates it
         const action = COMBAT_ACTIONS[trackerOption.actionExecutionIntent.actionName];
 
-        if (action.costProperties.requiresCombatTurn(trackerOption.currentStep.getContext()))
-          endedTurn = true;
-
         if (
           action.stepsConfig.options.userShouldMoveHomeOnComplete
           // combatantContext.combatant.combatantProperties.hitPoints > 0
@@ -188,6 +183,8 @@ export function processCombatAction(
   setTimeout(() => {
     InputLock.unlockInput(combatantContext.party.inputLock);
   }, time.ms);
+
+  const endedTurn = registry.getTurnEnded();
 
   return { rootReplayNode, endedTurn };
 }

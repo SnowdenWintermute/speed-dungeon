@@ -18,10 +18,6 @@ export class ActionCommand {
         return this.receiver.gameMessageCommandHandler(this.payload);
       case ActionCommandType.RemovePlayerFromGame:
         return this.receiver.removePlayerFromGameCommandHandler(this.payload.username);
-      case ActionCommandType.AddDelayToFastestActorTurnSchedulerInBattle:
-        return this.receiver.addDelayToFastestActorTurnSchedulerInBattle(
-          this.payload.actionNameOption
-        );
     }
   }
 }

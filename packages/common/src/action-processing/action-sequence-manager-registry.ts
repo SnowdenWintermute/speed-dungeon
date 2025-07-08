@@ -13,16 +13,20 @@ export class ActionSequenceManagerRegistry {
   private actionManagers: { [id: string]: ActionSequenceManager } = {};
   actionStepIdGenerator = new SequentialIdGenerator();
   private inputBlockingActionStepsPendingReferenceCount = 0;
+  private turnEnded = false;
   constructor(
     private idGenerator: IdGenerator,
     public readonly animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>
   ) {}
+
   isEmpty() {
     return !Object.values(this.actionManagers).length;
   }
+
   isNotEmpty() {
     return !this.isEmpty();
   }
+
   registerAction(
     actionExecutionIntent: CombatActionExecutionIntent,
     replayNode: NestedNodeReplayEvent,
@@ -48,27 +52,42 @@ export class ActionSequenceManagerRegistry {
     this.incrementInputLockReferenceCount();
     return initialGameUpdate;
   }
+
   incrementInputLockReferenceCount() {
     this.inputBlockingActionStepsPendingReferenceCount += 1;
     console.log("incremented:", this.inputBlockingActionStepsPendingReferenceCount);
   }
+
   decrementInputLockReferenceCount() {
     this.inputBlockingActionStepsPendingReferenceCount -= 1;
     console.log("decremented:", this.inputBlockingActionStepsPendingReferenceCount);
   }
+
   inputBlockingActionStepsArePending() {
     console.log("pending:", this.inputBlockingActionStepsPendingReferenceCount);
     return this.inputBlockingActionStepsPendingReferenceCount > 0;
   }
+
+  getTurnEnded() {
+    return this.turnEnded;
+  }
+
+  markTurnEnded() {
+    this.turnEnded = true;
+  }
+
   getManager(id: EntityId) {
     return this.actionManagers[id];
   }
+
   unRegisterActionManager(id: string) {
     delete this.actionManagers[id];
   }
+
   getManagers() {
     return Object.values(this.actionManagers);
   }
+
   getShortestTimeToCompletion(): number {
     // @PERF - check if a minHeap has better performance
     let msToTick;

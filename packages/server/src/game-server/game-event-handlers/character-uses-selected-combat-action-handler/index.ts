@@ -64,26 +64,6 @@ export async function useSelectedCombatActionHandler(
   };
 
   const payloads: ActionCommandPayload[] = [replayTreePayload];
-  // if they died on their own turn we should not end the active combatant's turn because
-  // we would have already removed their turn tracker on death
-  if (
-    battleOption &&
-    replayTreeResult.endedTurn &&
-    !CombatantProperties.isDead(combatantContext.combatant.combatantProperties)
-  ) {
-    const actionExecutionIntent = new CombatActionExecutionIntent(selectedCombatAction, targets);
-    battleOption.turnOrderManager.updateSchedulerWithExecutedActionDelay(
-      party,
-      actionExecutionIntent.actionName
-    );
-    battleOption.turnOrderManager.updateTrackers(party);
-
-    console.log("ActionCommandType.AddDelayToFastestActorTurnSchedulerInBattle");
-    payloads.push({
-      type: ActionCommandType.AddDelayToFastestActorTurnSchedulerInBattle,
-      actionNameOption: actionExecutionIntent.actionName,
-    });
-  }
 
   console.log("useSelectedCombatActionHandler");
   console.log("payloads: ", payloads);
