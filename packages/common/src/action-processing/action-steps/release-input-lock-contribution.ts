@@ -6,53 +6,48 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
   GameUpdateCommandType,
-  InputLockUpdateCommand,
 } from "../index.js";
 
 const stepType = ActionResolutionStepType.ReleaseInputLockContribution;
 export class ReleaseInputLockContributionActionResolutionStep extends ActionResolutionStep {
   branchingActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] = [];
   constructor(context: ActionResolutionStepContext) {
-    const gameUpdateCommand: InputLockUpdateCommand = {
-      type: GameUpdateCommandType.InputLock,
-      actionName: context.tracker.actionExecutionIntent.actionName,
-      step: stepType,
-      completionOrderId: null,
-      isLocked: true,
-    };
-    super(stepType, context, gameUpdateCommand);
+    super(stepType, context, null); // this step should produce no game update unless it is unlocking input
     const { tracker } = this.context;
     const { sequentialActionManagerRegistry } = tracker.parentActionManager;
     sequentialActionManagerRegistry.decrementInputLockReferenceCount();
 
-    // unlock input if:
-    // if no more blocking steps are left and next turn is player
-    if (!sequentialActionManagerRegistry.inputBlockingActionStepsArePending()) {
-      const { game, party } = context.combatantContext;
-      const battleOption = AdventuringParty.getBattleOption(party, game);
+    // unlock input if no more blocking steps are left and next turn is player
+    if (sequentialActionManagerRegistry.inputBlockingActionStepsArePending()) return;
 
-      let shouldUnlockInput = false;
+    const { game, party } = context.combatantContext;
+    const battleOption = AdventuringParty.getBattleOption(party, game);
 
-      if (battleOption === null) shouldUnlockInput = true;
-      else {
-        const nextTurnWillBePlayerControlled =
-          battleOption.turnOrderManager.predictedNextActorTurnTrackerIsPlayerControlled(
-            party,
-            this.context.tracker.actionExecutionIntent.actionName
-          );
-        if (nextTurnWillBePlayerControlled) {
-          shouldUnlockInput = true;
-        }
-      }
+    let shouldUnlockInput = false;
 
-      if (shouldUnlockInput) {
-        gameUpdateCommand.isLocked = false;
-        // push a game update command to unlock input
-
-        // set a timeout to unlock input equal to current action accumulated time
-        // plus all previous actions accumulated time in the current
-      }
+    if (battleOption === null) shouldUnlockInput = true;
+    else {
+      const nextTurnWillBePlayerControlled =
+        battleOption.turnOrderManager.predictedNextActorTurnTrackerIsPlayerControlled(
+          party,
+          this.context.tracker.actionExecutionIntent.actionName
+        );
+      if (nextTurnWillBePlayerControlled) shouldUnlockInput = true;
     }
+
+    if (!shouldUnlockInput) return;
+
+    // push a game update command to unlock input
+    this.gameUpdateCommandOption = {
+      type: GameUpdateCommandType.InputLock,
+      actionName: context.tracker.actionExecutionIntent.actionName,
+      step: stepType,
+      completionOrderId: null,
+      isLocked: false,
+    };
+
+    // set a timeout to unlock input equal to current action accumulated time
+    // plus all previous actions accumulated time in the current
   }
 
   protected onTick = () => {};
