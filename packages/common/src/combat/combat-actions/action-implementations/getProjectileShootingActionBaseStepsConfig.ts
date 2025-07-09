@@ -31,6 +31,7 @@ export function getProjectileShootingActionBaseStepsConfig(
 
   return new ActionResolutionStepsConfig(
     {
+      [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
       [ActionResolutionStepType.InitialPositioning]: {
         getDestination: getStepForwardDestination,
         getAnimation: () => {

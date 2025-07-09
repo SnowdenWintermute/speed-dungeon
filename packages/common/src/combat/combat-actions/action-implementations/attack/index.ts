@@ -63,6 +63,7 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
   },
   stepsConfig: new ActionResolutionStepsConfig(
     {
+      [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
       [ActionResolutionStepType.DetermineChildActions]: {},
       [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     },

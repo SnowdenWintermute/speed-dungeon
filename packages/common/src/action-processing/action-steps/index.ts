@@ -1,6 +1,10 @@
 import { Milliseconds } from "../../primatives/index.js";
 import { Combatant } from "../../combatants/index.js";
-import { COMBAT_ACTIONS, CombatActionComponent } from "../../combat/index.js";
+import {
+  COMBAT_ACTION_NAME_STRINGS,
+  COMBAT_ACTIONS,
+  CombatActionComponent,
+} from "../../combat/index.js";
 import { ReplayEventNode } from "../replay-events.js";
 import { GameUpdateCommand } from "../game-update-commands.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
@@ -17,6 +21,7 @@ export interface ActionExecuting {
 }
 
 export enum ActionResolutionStepType {
+  DetermineShouldExecuteOrReleaseTurnLock,
   DetermineChildActions, // enqueues sequential actions such as [ "main hand attack", "off hand attack" ]
   DetermineMeleeActionAnimations,
   InitialPositioning,
@@ -38,6 +43,8 @@ export enum ActionResolutionStepType {
 }
 
 export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepType, string> = {
+  [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]:
+    "determineShouldExecuteOrReleaseLock",
   [ActionResolutionStepType.DetermineChildActions]: "determineChildActions",
   [ActionResolutionStepType.DetermineMeleeActionAnimations]: "determineMeleeActionAnimations",
   [ActionResolutionStepType.InitialPositioning]: "initialPositioning",
@@ -80,6 +87,13 @@ export abstract class ActionResolutionStep {
     //
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
     const stepConfig = action.stepsConfig.steps[type];
+
+    console.log(
+      "constructed step",
+      ACTION_RESOLUTION_STEP_TYPE_STRINGS[type],
+      "for action",
+      COMBAT_ACTION_NAME_STRINGS[action.name]
+    );
 
     if (!stepConfig) throw new Error("expected step config not found");
     if (gameUpdateCommandOption && stepConfig.getCosmeticsEffectsToStop) {

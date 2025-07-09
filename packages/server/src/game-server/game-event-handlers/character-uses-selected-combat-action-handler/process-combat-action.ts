@@ -1,6 +1,7 @@
 import {
   ActionResolutionStepType,
   ActionSequenceManagerRegistry,
+  COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   CombatantContext,
@@ -53,7 +54,7 @@ export function processCombatAction(
 
       let currentStep = trackerOption.currentStep;
 
-      while (currentStep.isComplete()) {
+      while (currentStep.isComplete() && !trackerOption.wasAborted) {
         trackerOption = sequenceManager.getCurrentTracker();
         if (trackerOption === null) throw new Error("expected action tracker was missing");
 
@@ -97,7 +98,7 @@ export function processCombatAction(
         const nextStepOption = trackerOption.initializeNextStep();
 
         // START NEXT STEPS
-        if (nextStepOption !== null) {
+        if (nextStepOption !== null && !trackerOption.wasAborted) {
           trackerOption.currentStep = nextStepOption;
           currentStep = nextStepOption;
           const gameUpdateCommandOption = nextStepOption.getGameUpdateCommandOption();
@@ -120,8 +121,7 @@ export function processCombatAction(
           ? COMBAT_ACTIONS[nextActionIntentInQueueOption.actionName]
           : null;
 
-        // ex: main hand attack killed target, off hand attack should not execute
-        if (nextActionOption && nextActionOption.shouldExecute(combatantContext, trackerOption)) {
+        if (nextActionOption) {
           const stepTrackerResult = sequenceManager.startProcessingNext(time);
           if (stepTrackerResult instanceof Error) return stepTrackerResult;
 

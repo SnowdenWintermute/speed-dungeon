@@ -21,6 +21,7 @@ export class ActionTracker {
   // initiatedByTriggeredCondition: null | CombatantCondition = null;
   hitOutcomes = new CombatActionHitOutcomes();
   meleeAttackAnimationType: MeleeAttackAnimationType | null = null;
+  public wasAborted = false;
 
   constructor(
     public parentActionManager: ActionSequenceManager,

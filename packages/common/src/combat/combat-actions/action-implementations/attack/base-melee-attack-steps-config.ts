@@ -13,6 +13,7 @@ import { getMeleeAttackAnimationFromType } from "../get-entity-animation.js";
 export function getMeleeAttackBaseStepsConfig(holdableSlotType: HoldableSlotType) {
   return new ActionResolutionStepsConfig(
     {
+      [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
       [ActionResolutionStepType.DetermineMeleeActionAnimations]: {},
       [ActionResolutionStepType.InitialPositioning]: {
         getDestination: getMeleeAttackDestination,

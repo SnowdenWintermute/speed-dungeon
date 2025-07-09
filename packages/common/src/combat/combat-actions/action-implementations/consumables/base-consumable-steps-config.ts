@@ -13,6 +13,7 @@ import { getTimedSkeletalEntityAnimation } from "../get-entity-animation.js";
 
 export const MEDICATION_ACTION_BASE_STEPS_CONFIG = new ActionResolutionStepsConfig(
   {
+    [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
     [ActionResolutionStepType.InitialPositioning]: {
       getDestination: getStepForwardDestination,
       getAnimation: () => {

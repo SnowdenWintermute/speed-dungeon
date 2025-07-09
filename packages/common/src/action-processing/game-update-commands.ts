@@ -152,7 +152,7 @@ export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {
   outcomes: CombatActionHitOutcomes;
 }
 
-export interface InputLockUpdateCommand extends IGameUpdateCommand {
+export interface ActionCompletionUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.ActionCompletion;
   unlockInput?: boolean;
   endActiveCombatantTurn?: boolean;
@@ -165,4 +165,4 @@ export type GameUpdateCommand =
   | ResourcesPaidGameUpdateCommand
   | ActivatedTriggersGameUpdateCommand
   | HitOutcomesGameUpdateCommand
-  | InputLockUpdateCommand;
+  | ActionCompletionUpdateCommand;

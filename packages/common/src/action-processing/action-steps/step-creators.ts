@@ -15,6 +15,7 @@ import { SpawnEntityActionResolutionStep } from "./spawn-entity.js";
 import { StartConcurrentSubActionsActionResolutionStep } from "./start-concurrent-sub-actions.js";
 import { DetermineMeleeActionAnimationsActionResolutionStep } from "./determine-melee-action-animations.js";
 import { EvaluatePlayerEndTurnAndInputLockActionResolutionStep } from "./evaluate-player-turn-end-and-input-lock.js";
+import { DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep } from "./determine-should-execute-or-release-turn-and-input-lock.js";
 
 // right now the idea is to have the action tracker call these creators, which in turn call
 // step class constructors. We don't call the constructors directly because this allows us
@@ -26,6 +27,8 @@ export const ACTION_STEP_CREATORS: Record<
   ActionResolutionStepType,
   (context: ActionResolutionStepContext) => ActionResolutionStep
 > = {
+  [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: (context) =>
+    new DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep(context),
   [ActionResolutionStepType.DetermineChildActions]: (context) =>
     new DetermineChildActionsActionResolutionStep(context),
   [ActionResolutionStepType.DetermineMeleeActionAnimations]: (context) =>
