@@ -17,6 +17,11 @@ export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends
   constructor(context: ActionResolutionStepContext) {
     super(stepType, context, null); // this step should produce no game update
 
+    console.log(
+      "DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep tracker current step:",
+      context.tracker.currentStep
+    );
+
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
 
     const shouldExecute = action.shouldExecute(

@@ -104,6 +104,7 @@ export class ActionSequenceManager {
         COMBAT_ACTION_NAME_STRINGS[this.currentTracker.actionExecutionIntent.actionName]
       );
     }
+
     const nextActionExecutionIntentOption = this.remainingActionsToExecute.pop();
     if (!nextActionExecutionIntentOption)
       return new Error("Tried to process next action but there wasn't one");

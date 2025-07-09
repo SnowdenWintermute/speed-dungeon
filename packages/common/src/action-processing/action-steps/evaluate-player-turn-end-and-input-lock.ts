@@ -81,7 +81,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     if (nextTurnWillBePlayerControlled) shouldUnlockInput = true;
   }
 
-  const requiredTurn = action.costProperties.requiresCombatTurn(tracker.currentStep.getContext());
+  const requiredTurn = action.costProperties.requiresCombatTurn(context);
 
   if (!shouldUnlockInput && !requiredTurn) return;
 
