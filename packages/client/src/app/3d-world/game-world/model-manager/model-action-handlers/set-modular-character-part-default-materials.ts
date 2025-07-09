@@ -28,7 +28,6 @@ export function setCharacterModelPartDefaultMaterials(
 
   if (combatantProperties.monsterType === MonsterType.FireElemental)
     for (const mesh of partResult.meshes) {
-      console.log("material: ", mesh.material?.name);
       if (mesh.material?.name === "cube-material") {
         mesh.material.dispose();
         const material = gameWorld.current?.defaultMaterials.elements[MagicalElement.Fire];

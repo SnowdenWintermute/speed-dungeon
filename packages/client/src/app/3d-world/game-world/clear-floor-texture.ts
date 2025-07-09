@@ -88,7 +88,6 @@ export function drawDebugGrid(gameWorld: GameWorld) {
   const rowHeight = pixelsPerUnit;
   const rowCount = textureSize.height / rowHeight;
 
-  console.log(textureSize, columnCount);
   context.strokeStyle = `rgba(100,100,100,.5)`;
 
   for (let column = 0; column < columnCount; column += 1) {

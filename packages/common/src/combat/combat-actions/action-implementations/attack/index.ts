@@ -53,7 +53,6 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
     return toReturn;
   },
   getParent: () => {
-    console.log("tried to get parent for attack");
     return null;
   },
   getRequiredRange: function (

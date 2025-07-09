@@ -47,8 +47,6 @@ export class TurnOrderManager {
 
     tracker.accumulatedDelay += delay;
 
-    console.log("added", delay, "to tracker for", tracker);
-
     return delay;
   }
 
@@ -65,7 +63,6 @@ export class TurnOrderManager {
   currentActorIsPlayerControlled(party: AdventuringParty) {
     const fastestTurnOrderTracker = this.getFastestActorTurnOrderTracker();
     if (fastestTurnOrderTracker instanceof ConditionTurnTracker) {
-      console.log("current actor is condition");
       return false;
     }
     return party.characterPositions.includes(fastestTurnOrderTracker.combatantId);

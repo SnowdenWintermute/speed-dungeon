@@ -39,7 +39,6 @@ export function createModelActionHandlers(
       await modularCharacter.equipmentModelManager.synchronizeCombatantEquipmentModels();
 
       if (modularCharacter.isIdling()) modularCharacter.startIdleAnimation(500);
-      else console.log("wasn't idling");
     },
     [ModelActionType.ProcessActionCommands]: async function (
       action: ProcessActionCommandsModelAction
@@ -49,8 +48,6 @@ export function createModelActionHandlers(
       const actionCommands = action.actionCommandPayloads.map(
         (item) => new ActionCommand(gameName, item, actionCommandReceiver)
       );
-
-      console.log("got commands:", actionCommands);
 
       actionCommandQueue.enqueueNewCommands(actionCommands);
       const result = await actionCommandQueue.processCommands();

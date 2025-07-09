@@ -56,7 +56,8 @@ export class Replayer {
           ) {
             destinationOption = gameUpdate.mainEntityUpdate.translationOption?.destination || null;
           }
-          console.log(
+
+          console.info(
             new Array(depth).fill("-").join(""),
             GAME_UPDATE_COMMAND_TYPE_STRINGS[gameUpdate.type],
             ACTION_RESOLUTION_STEP_TYPE_STRINGS[gameUpdate.step],

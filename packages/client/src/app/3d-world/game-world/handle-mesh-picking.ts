@@ -8,7 +8,6 @@
 
 //   var hit = this.scene.pickWithRay(ray);
 //   if (hit?.pickedMesh) {
-//     console.log("picked ", hit.pickedMesh.name);
 //     mutateNextBabylonMessagingStore((state) => {
 //       state.messages.push(hit?.pickedMesh?.name || "");
 //     });

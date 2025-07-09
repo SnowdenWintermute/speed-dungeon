@@ -156,12 +156,8 @@ export class CharacterModel extends SceneEntity {
 
   startIdleAnimation(transitionMs: number, options?: ManagedAnimationOptions) {
     const idleName = this.getIdleAnimationName();
-    if (
-      this.skeletalAnimationManager.playing?.getName() === SKELETAL_ANIMATION_NAME_STRINGS[idleName]
-    )
-      return console.log(
-        "tried to start or change idle animation but already was idling with same idle animation"
-      );
+    const currentAnimationName = this.skeletalAnimationManager.playing?.getName();
+    if (currentAnimationName === SKELETAL_ANIMATION_NAME_STRINGS[idleName]) return;
 
     this.skeletalAnimationManager.startAnimationWithTransition(idleName, transitionMs, {
       ...options,

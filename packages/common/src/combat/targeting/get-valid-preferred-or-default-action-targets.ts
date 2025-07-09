@@ -33,7 +33,6 @@ export function getValidPreferredOrDefaultActionTargets(
   if (targetingSchemes.includes(targetingSchemePreference)) {
     switch (targetingSchemePreference) {
       case TargetingScheme.Single:
-        console.log("SINGLE");
         // IF PREFERENCE EXISTS SELECT IT IF VALID
         if (preferredCategoryOption !== null) {
           switch (preferredCategoryOption) {
@@ -62,7 +61,6 @@ export function getValidPreferredOrDefaultActionTargets(
         }
         break;
       case TargetingScheme.Area:
-        console.log("AREA");
         if (preferredCategoryOption) {
           newTargets = getGroupTargetsOption(
             allyIdsOption,
@@ -77,7 +75,6 @@ export function getValidPreferredOrDefaultActionTargets(
         }
         break;
       case TargetingScheme.All:
-        console.log("ALL");
         return { type: CombatActionTargetType.All };
     }
   }

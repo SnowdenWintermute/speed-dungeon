@@ -41,6 +41,9 @@ export class ActionSequenceManager {
   isDoneProcessing() {
     return !this.isCurrentlyProcessing() && this.remainingActionsToExecute.length === 0;
   }
+  getRemainingActionsToExecute() {
+    return this.remainingActionsToExecute;
+  }
   // action children may depend on the outcome of their parent so we must process their parent first
   populateSelfWithCurrentActionChildren() {
     const currentActionExecutionIntent = this.currentTracker?.actionExecutionIntent;
@@ -78,6 +81,8 @@ export class ActionSequenceManager {
         console.error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TARGETS_SELECTED);
         continue;
       }
+
+      this.sequentialActionManagerRegistry.incrementInputLockReferenceCount();
 
       childActionIntents.push(
         new CombatActionExecutionIntent(intentResult.actionName, targetsResult)

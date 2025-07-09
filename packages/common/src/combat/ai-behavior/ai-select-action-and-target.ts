@@ -29,7 +29,6 @@ export function AISelectActionAndTarget(
   //   () => 1
   // );
   // const targetSelectionTreeSuccess = targetSelector.execute();
-  // console.log("targetSelectionTreeSuccess:", targetSelectionTreeSuccess);
 
   /// TESTING AI CONTEXT DONE
   const randomTarget = getRandomAliveEnemy(game, enemyGroup);

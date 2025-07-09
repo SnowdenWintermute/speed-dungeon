@@ -38,7 +38,6 @@ export abstract class CosmeticEffect {
   }
 
   cleanup() {
-    console.log("cleaning up CosmeticEffect");
     for (const particleSystem of this.particleSystems) {
       particleSystem.cleanup();
     }

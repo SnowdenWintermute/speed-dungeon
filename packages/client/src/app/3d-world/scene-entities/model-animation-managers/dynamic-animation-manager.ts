@@ -102,7 +102,6 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
   }
 
   stepAnimationTransitionWeights(): Error | void {
-    // if (!this.playing) console.log("no animation played this frame");
     if (!this.playing || this.playing.weight >= 1) return;
 
     const timeSinceStarted = Date.now() - this.playing.timeStarted;

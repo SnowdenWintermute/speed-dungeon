@@ -145,7 +145,5 @@ describe("kinetic damage type selection", () => {
     expect(!(hitOutcomes instanceof Error));
     if (hitOutcomes instanceof Error) return;
     expect(hitOutcomes.outcomeFlags[HitOutcome.Hit]?.includes(testTargetId));
-
-    console.log(JSON.stringify(hitOutcomes, null, 2));
   });
 });

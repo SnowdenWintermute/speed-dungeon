@@ -123,8 +123,8 @@ function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
 
   const mh = generateSpecificEquipmentType(
     {
-      equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: OneHandedMeleeWeapon.ButterKnife,
+      equipmentType: EquipmentType.TwoHandedRangedWeapon,
+      baseItemType: TwoHandedRangedWeapon.RecurveBow,
     },
     true
   );
@@ -132,17 +132,17 @@ function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
     combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
       HoldableSlotType.MainHand
     ] = mh;
-  const oh = generateSpecificEquipmentType(
-    {
-      equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: OneHandedMeleeWeapon.ButterKnife,
-    },
-    true
-  );
-  if (!(oh instanceof Error) && combatantProperties.equipment.inherentHoldableHotswapSlots[1])
-    combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
-      HoldableSlotType.OffHand
-    ] = oh;
+  // const oh = generateSpecificEquipmentType(
+  //   {
+  //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
+  //     baseItemType: OneHandedMeleeWeapon.ButterKnife,
+  //   },
+  //   true
+  // );
+  // if (!(oh instanceof Error) && combatantProperties.equipment.inherentHoldableHotswapSlots[1])
+  //   combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
+  //     HoldableSlotType.OffHand
+  //   ] = oh;
 
   // const oh = generateSpecificEquipmentType({
   //   equipmentType: EquipmentType.Shield,

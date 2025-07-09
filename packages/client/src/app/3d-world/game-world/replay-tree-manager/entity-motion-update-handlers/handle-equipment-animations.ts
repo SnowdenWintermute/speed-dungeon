@@ -13,8 +13,8 @@ export function handleEquipmentAnimations(
 
     const equipmentModel = combatantModelOption.equipmentModelManager.getEquipmentModelInSlot(slot);
 
-    if (!equipmentModel) return console.log("couldn't find equipment");
-    if (animation.name.type !== AnimationType.Skeletal) return console.log("not skeletal");
+    if (!equipmentModel) return console.error("couldn't find equipment");
+    if (animation.name.type !== AnimationType.Skeletal) return console.error("not skeletal");
 
     equipmentModel.skeletalAnimationManager.startAnimationWithTransition(
       animation.name.name,

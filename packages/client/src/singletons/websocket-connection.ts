@@ -15,7 +15,6 @@ import { setUpGameLobbyEventHandlers } from "@/app/websocket-manager/lobby-event
 import setUpGameEventHandlers from "@/app/websocket-manager/game-event-handlers";
 import setUpSavedCharacterEventListeners from "@/app/websocket-manager/saved-character-event-handlers";
 import getCurrentParty from "@/utils/getCurrentParty";
-import { synchronizeCombatantModelsWithAppState } from "@/app/3d-world/game-world/model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
@@ -33,11 +32,11 @@ export const websocketConnection: Socket<ServerToClientEventTypes, ClientToServe
 export function resetWebsocketConnection() {
   websocketConnection.disconnect();
   websocketConnection.connect();
-  console.log("reconnecting");
+  console.info("reconnecting");
 }
 
 websocketConnection.on("connect", () => {
-  console.log("connected");
+  console.info("connected");
   useGameStore.getState().mutateState((state) => {
     state.game = null;
   });
@@ -53,7 +52,7 @@ websocketConnection.on("connect", () => {
 });
 
 websocketConnection.on("disconnect", () => {
-  console.log("disconnected");
+  console.info("disconnected");
   useLobbyStore.getState().mutateState((state) => {
     state.websocketConnected = false;
   });

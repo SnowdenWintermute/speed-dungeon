@@ -43,7 +43,7 @@ export function attachHoldableModelToSkeleton(
 
   const attachmentPoint = combatantModel.childTransformNodes[attachmentPointName];
 
-  if (!attachmentPoint) return console.log("no equipment bone found");
+  if (!attachmentPoint) return console.error("no equipment bone found");
 
   itemTransformNode.setParent(attachmentPoint);
 
@@ -91,7 +91,6 @@ export function attachHoldableModelToHolsteredPosition(
     equipmentTransformNode.setParent(holsterBackBone);
     setTransformNodePositionAndRotationToZero(equipmentTransformNode);
     if (equipmentType === EquipmentType.Shield) {
-      console.log("set parent to back");
       // equipmentTransformNode.rotation.y = Math.PI;
       equipmentTransformNode.rotation.z = Math.PI;
       equipmentTransformNode.position.y = 0.15;

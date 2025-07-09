@@ -1,4 +1,4 @@
-import { CombatActionExecutionIntent } from "../combat/index.js";
+import { COMBAT_ACTION_NAME_STRINGS, CombatActionExecutionIntent } from "../combat/index.js";
 import { CombatantContext } from "../combatant-context/index.js";
 import { CombatantSpecies } from "../combatants/combatant-species.js";
 import { EntityId, Milliseconds } from "../primatives/index.js";
@@ -49,22 +49,20 @@ export class ActionSequenceManagerRegistry {
     const stepTrackerResult = manager.startProcessingNext(time);
     if (stepTrackerResult instanceof Error) return stepTrackerResult;
     const initialGameUpdate = stepTrackerResult.currentStep.getGameUpdateCommandOption();
+    console.log("registered", COMBAT_ACTION_NAME_STRINGS[actionExecutionIntent.actionName]);
     this.incrementInputLockReferenceCount();
     return initialGameUpdate;
   }
 
   incrementInputLockReferenceCount() {
     this.inputBlockingActionStepsPendingReferenceCount += 1;
-    console.log("incremented:", this.inputBlockingActionStepsPendingReferenceCount);
   }
 
   decrementInputLockReferenceCount() {
     this.inputBlockingActionStepsPendingReferenceCount -= 1;
-    console.log("decremented:", this.inputBlockingActionStepsPendingReferenceCount);
   }
 
   inputBlockingActionStepsArePending() {
-    console.log("pending:", this.inputBlockingActionStepsPendingReferenceCount);
     return this.inputBlockingActionStepsPendingReferenceCount > 0;
   }
 
@@ -102,7 +100,7 @@ export class ActionSequenceManagerRegistry {
       }
       stepName = ACTION_RESOLUTION_STEP_TYPE_STRINGS[trackerOption.currentStep.type];
     }
-    // console.log("msToTick", stepName, msToTick);
+
     return msToTick || 0;
   }
 }

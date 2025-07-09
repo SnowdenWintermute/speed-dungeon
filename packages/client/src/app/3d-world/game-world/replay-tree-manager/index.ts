@@ -33,8 +33,6 @@ export class ReplayTreeManager {
   async enqueueTree(payload: CombatActionReplayTreePayload, onComplete: () => void) {
     this.queue.push({ root: payload.root, onComplete });
 
-    console.log("got replay tree", payload.root);
-
     useGameStore.getState().mutateState((state) => {
       const partyOption = getCurrentParty(state, state.username || "");
       if (partyOption) InputLock.lockInput(partyOption.inputLock);

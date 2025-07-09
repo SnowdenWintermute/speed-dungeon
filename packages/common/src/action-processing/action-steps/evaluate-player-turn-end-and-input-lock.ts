@@ -1,5 +1,9 @@
 import { AdventuringParty, InputLock } from "../../adventuring-party/index.js";
-import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
+import {
+  COMBAT_ACTION_NAME_STRINGS,
+  COMBAT_ACTIONS,
+  CombatActionExecutionIntent,
+} from "../../combat/index.js";
 import { Combatant, CombatantProperties } from "../../combatants/index.js";
 import {
   ActionResolutionStep,
@@ -17,25 +21,48 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
     const { sequentialActionManagerRegistry } = tracker.parentActionManager;
     sequentialActionManagerRegistry.decrementInputLockReferenceCount();
 
+    const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
+    const actionName = COMBAT_ACTION_NAME_STRINGS[tracker.actionExecutionIntent.actionName];
+
+    const childrenCount = action.getChildren(context).length;
+    if (childrenCount > 0) {
+      // don't unlock, we need to consider child actions
+      return;
+    }
+
+    if (tracker.parentActionManager.getRemainingActionsToExecute().length > 0) {
+      return;
+    }
+
     // unlock input if no more blocking steps are left and next turn is player
-    if (sequentialActionManagerRegistry.inputBlockingActionStepsArePending()) return;
+    if (sequentialActionManagerRegistry.inputBlockingActionStepsArePending()) {
+      console.log(actionName, "has pending blocking steps");
+      return;
+    }
 
     const { game, party } = context.combatantContext;
     const battleOption = AdventuringParty.getBattleOption(party, game);
 
     let shouldUnlockInput = false;
 
-    if (battleOption === null) shouldUnlockInput = true;
-    else {
+    if (battleOption === null) {
+      console.log(actionName, "unlocking input since no battle");
+      shouldUnlockInput = true;
+    } else {
       const nextTurnWillBePlayerControlled =
         battleOption.turnOrderManager.predictedNextActorTurnTrackerIsPlayerControlled(
           party,
           this.context.tracker.actionExecutionIntent.actionName
         );
+
+      console.log(
+        actionName,
+        "predictedNextActorTurnTrackerIsPlayerControlled",
+        nextTurnWillBePlayerControlled
+      );
       if (nextTurnWillBePlayerControlled) shouldUnlockInput = true;
     }
 
-    const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
     const requiredTurn = action.costProperties.requiresCombatTurn(tracker.currentStep.getContext());
 
     if (!shouldUnlockInput && !requiredTurn) return;
@@ -49,6 +76,7 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
     };
 
     if (shouldUnlockInput) {
+      console.log(actionName, "shouldUnlockInput");
       this.gameUpdateCommandOption.unlockInput = true;
       InputLock.unlockInput(party.inputLock);
     }

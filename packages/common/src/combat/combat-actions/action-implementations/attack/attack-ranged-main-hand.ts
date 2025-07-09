@@ -122,10 +122,8 @@ stepsConfig.steps = {
         type: EquipmentSlotType.Holdable,
         slot: HoldableSlotType.MainHand,
       });
-      if (!bowOption) {
-        console.log("no bow equipped");
-        return [];
-      }
+
+      if (!bowOption) return [];
 
       const actionEntityId = getSpawnableEntityId(actionEntity);
 
