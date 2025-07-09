@@ -155,14 +155,22 @@ export class CharacterModel extends SceneEntity {
   }
 
   startIdleAnimation(transitionMs: number, options?: ManagedAnimationOptions) {
-    const idleName = this.getIdleAnimationName();
-    const currentAnimationName = this.skeletalAnimationManager.playing?.getName();
-    if (currentAnimationName === SKELETAL_ANIMATION_NAME_STRINGS[idleName]) return;
+    try {
+      const idleName = this.getIdleAnimationName();
 
-    this.skeletalAnimationManager.startAnimationWithTransition(idleName, transitionMs, {
-      ...options,
-      shouldLoop: true,
-    });
+      const currentAnimationName = this.skeletalAnimationManager.playing?.getName();
+      if (currentAnimationName === SKELETAL_ANIMATION_NAME_STRINGS[idleName]) return;
+
+      this.skeletalAnimationManager.startAnimationWithTransition(idleName, transitionMs, {
+        ...options,
+        shouldLoop: true,
+      });
+    } catch (error) {
+      console.log(
+        "error attempting to start idle animation - this may be caused when asynchronously scheduling an animation change which triggers after a battle has ended",
+        error
+      );
+    }
   }
 
   getCombatant() {

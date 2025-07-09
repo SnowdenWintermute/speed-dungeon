@@ -11,7 +11,6 @@ import {
   MenuStateType,
 } from ".";
 import {
-  Battle,
   ClientToServerEvent,
   CombatantProperties,
   Inventory,

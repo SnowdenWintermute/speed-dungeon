@@ -36,12 +36,13 @@ export class ReplayTreeManager {
     useGameStore.getState().mutateState((state) => {
       const partyOption = getCurrentParty(state, state.username || "");
       if (partyOption) InputLock.lockInput(partyOption.inputLock);
-      if (
-        state.stackedMenuStates[0] &&
-        state.stackedMenuStates[0].type === MenuStateType.CombatActionSelected
-      ) {
-        state.stackedMenuStates.pop();
-      }
+      state.stackedMenuStates = [];
+      // if (
+      //   state.stackedMenuStates[0] &&
+      //   state.stackedMenuStates[0].type === MenuStateType.CombatActionSelected
+      // ) {
+      //   state.stackedMenuStates.pop();
+      // }
     });
   }
 
