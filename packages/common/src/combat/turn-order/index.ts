@@ -9,10 +9,7 @@ import {
   BASE_ACTION_DELAY_MULTIPLIER,
   SPEED_DELAY_RECOVERY_WEIGHT,
 } from "./consts.js";
-import {
-  TickableConditionTurnSchedulerTracker,
-  TurnOrderScheduler,
-} from "./turn-order-scheduler.js";
+import { TurnOrderScheduler } from "./turn-order-scheduler.js";
 
 export class TurnOrderManager {
   minTrackersCount: number = 12;
@@ -48,16 +45,6 @@ export class TurnOrderManager {
     tracker.accumulatedDelay += delay;
 
     return delay;
-  }
-
-  predictedNextActorTurnTrackerIsPlayerControlled(
-    party: AdventuringParty,
-    actionNameOption: null | CombatActionName
-  ) {
-    const clonedTurnOrderTracker = cloneDeep(this);
-    clonedTurnOrderTracker.updateSchedulerWithExecutedActionDelay(party, actionNameOption);
-    clonedTurnOrderTracker.updateTrackers(party);
-    return clonedTurnOrderTracker.currentActorIsPlayerControlled(party);
   }
 
   currentActorIsPlayerControlled(party: AdventuringParty) {

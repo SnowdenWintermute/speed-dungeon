@@ -50,8 +50,6 @@ export function processCombatAction(
     for (const sequenceManager of registry.getManagers()) {
       let trackerOption = sequenceManager.getCurrentTracker();
 
-      console.log("looping");
-
       if (!trackerOption) break;
 
       let currentStep = trackerOption.currentStep;
@@ -103,7 +101,6 @@ export function processCombatAction(
 
           // START NEXT STEPS
           if (nextStepOption !== null) {
-            console.log("trying to start next step");
             trackerOption.currentStep = nextStepOption;
             currentStep = nextStepOption;
             const gameUpdateCommandOption = nextStepOption.getGameUpdateCommandOption();

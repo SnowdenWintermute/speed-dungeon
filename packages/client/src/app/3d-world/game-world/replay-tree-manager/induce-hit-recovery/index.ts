@@ -3,14 +3,11 @@ import {
   CombatantProperties,
   ERROR_MESSAGES,
   ResourceChange,
-  SpeedDungeonGame,
   ActionPayableResource,
   CombatActionName,
   COMBAT_ACTIONS,
   ActionResolutionStepType,
   CombatActionOrigin,
-  InputLock,
-  Battle,
   AdventuringParty,
   FLOATING_MESSAGE_DURATION,
 } from "@speed-dungeon/common";
@@ -80,6 +77,8 @@ export function induceHitRecovery(
         return battleOption.turnOrderManager.combatantIsFirstInTurnOrder(targetId);
       })();
 
+      battleOption?.turnOrderManager.updateTrackers(party);
+
       if (combatantDiedOnTheirOwnTurn) {
         // end any motion trackers they might have had
         // this is hacky because we would rather have not given them any but
@@ -89,6 +88,7 @@ export function induceHitRecovery(
         for (const [movementType, tracker] of combatantModel.movementManager.getTrackers()) {
           tracker.onComplete();
         }
+        battleOption?.turnOrderManager.updateTrackers(party);
 
         combatantModel.movementManager.activeTrackers = {};
       }

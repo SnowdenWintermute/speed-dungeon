@@ -18,7 +18,7 @@ import { Combatant } from "../../../combatants/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { addHitOutcomeDurabilityChanges } from "./hit-outcome-durability-change-calculators.js";
-import { HitOutcome } from "../../../hit-outcome.js";
+import { HIT_OUTCOME_NAME_STRINGS, HitOutcome } from "../../../hit-outcome.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
 import { CombatantCondition } from "../../../combatants/combatant-conditions/index.js";
 import { addConditionToUpdate } from "./add-condition-to-update.js";
@@ -44,6 +44,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     const durabilityChanges = new DurabilityChangesByEntityId();
 
     for (const flag of iterateNumericEnum(HitOutcome)) {
+      console.log("hit outcome flag found:", HIT_OUTCOME_NAME_STRINGS[flag]);
       for (const combatantId of outcomeFlags[flag] || []) {
         const combatantResult = AdventuringParty.getCombatant(party, combatantId);
         if (combatantResult instanceof Error) throw combatantResult;

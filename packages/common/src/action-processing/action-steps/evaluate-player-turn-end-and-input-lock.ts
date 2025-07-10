@@ -47,60 +47,16 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
   const actionName = COMBAT_ACTION_NAME_STRINGS[tracker.actionExecutionIntent.actionName];
 
-  const childrenCount = action.getChildren(context).length;
-  if (childrenCount > 0) {
-    // don't unlock, we need to consider child actions
-    return;
-  }
-
-  if (tracker.parentActionManager.getRemainingActionsToExecute().length > 0) {
-    return;
-  }
-
-  // unlock input if no more blocking steps are left and next turn is player
-  if (sequentialActionManagerRegistry.inputBlockingActionStepsArePending()) {
-    console.log(actionName, "has pending blocking steps");
-    return;
-  }
-
   const { game, party } = context.combatantContext;
   const battleOption = AdventuringParty.getBattleOption(party, game);
 
-  let shouldUnlockInput = false;
-
-  if (battleOption === null) {
-    console.log(actionName, "unlocking input since no battle");
-    shouldUnlockInput = true;
-  } else {
-    const nextTurnWillBePlayerControlled =
-      battleOption.turnOrderManager.predictedNextActorTurnTrackerIsPlayerControlled(
-        party,
-        context.tracker.actionExecutionIntent.actionName
-      );
-
-    if (nextTurnWillBePlayerControlled) shouldUnlockInput = true;
-  }
+  // unlock input if no more blocking steps are left and next turn is player
 
   const requiredTurn = action.costProperties.requiresCombatTurn(context);
-
-  if (!shouldUnlockInput && !requiredTurn) return;
-
-  // push a game update command to unlock input
-  const gameUpdateCommandOption: ActionCompletionUpdateCommand = {
-    type: GameUpdateCommandType.ActionCompletion,
-    actionName: context.tracker.actionExecutionIntent.actionName,
-    step: stepType,
-    completionOrderId: null,
-  };
-
-  if (shouldUnlockInput) {
-    console.log(actionName, "shouldUnlockInput");
-    gameUpdateCommandOption.unlockInput = true;
-    InputLock.unlockInput(party.inputLock);
-  }
-
   const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
+  let shouldSendEndActiveTurnMessage = false;
   if (requiredTurn && !turnAlreadyEnded && battleOption) {
+    //
     // if they died on their own turn we should not end the active combatant's turn because
     // we would have already removed their turn tracker on death
     const { combatantContext } = context;
@@ -113,8 +69,41 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     }
 
     sequentialActionManagerRegistry.markTurnEnded();
+    shouldSendEndActiveTurnMessage = true;
+  }
 
-    gameUpdateCommandOption.endActiveCombatantTurn = true;
+  const hasUnevaluatedChildren = action.getChildren(context).length > 0;
+  const hasRemainingActions = tracker.parentActionManager.getRemainingActionsToExecute().length > 0;
+  const blockingStepsPending = sequentialActionManagerRegistry.inputBlockingActionStepsArePending();
+  const noBlockingActionsRemain =
+    !hasUnevaluatedChildren && !hasRemainingActions && !blockingStepsPending;
+
+  let shouldUnlockInput = false;
+
+  if (battleOption === null) {
+    if (noBlockingActionsRemain) shouldUnlockInput = true;
+  } else if (noBlockingActionsRemain) {
+    const newlyUpdatedCurrentTurnIsPlayerControlled =
+      battleOption.turnOrderManager.currentActorIsPlayerControlled(party);
+
+    if (newlyUpdatedCurrentTurnIsPlayerControlled) shouldUnlockInput = true;
+  }
+
+  if (!shouldUnlockInput && !requiredTurn) return;
+
+  // push a game update command to unlock input
+  const gameUpdateCommandOption: ActionCompletionUpdateCommand = {
+    type: GameUpdateCommandType.ActionCompletion,
+    actionName: context.tracker.actionExecutionIntent.actionName,
+    step: stepType,
+    completionOrderId: null,
+  };
+
+  if (shouldSendEndActiveTurnMessage) gameUpdateCommandOption.endActiveCombatantTurn = true;
+
+  if (shouldUnlockInput) {
+    gameUpdateCommandOption.unlockInput = true;
+    InputLock.unlockInput(party.inputLock);
   }
 
   return gameUpdateCommandOption;

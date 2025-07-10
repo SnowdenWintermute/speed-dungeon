@@ -10,6 +10,7 @@ import {
   calculateActionHitOutcomes,
 } from "../../combat/index.js";
 import { Combatant } from "../../combatants/index.js";
+import { AdventuringParty } from "../../adventuring-party/index.js";
 
 const stepType = ActionResolutionStepType.RollIncomingHitOutcomes;
 export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutionStep {
@@ -42,6 +43,10 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
     // their target is dead, user is out of mana etc
     hitPointChanges?.applyToGame(this.context.combatantContext);
     manaChanges?.applyToGame(this.context.combatantContext);
+
+    const { game, party } = context.combatantContext;
+    const battleOption = AdventuringParty.getBattleOption(party, game);
+    battleOption?.turnOrderManager.updateTrackers(party);
   }
 
   protected onTick = () => {};
