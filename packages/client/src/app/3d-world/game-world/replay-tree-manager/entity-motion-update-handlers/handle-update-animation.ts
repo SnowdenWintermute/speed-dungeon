@@ -6,6 +6,7 @@ import {
   CombatantMotionGameUpdateCommand,
   DynamicAnimationName,
   EntityAnimation,
+  SKELETAL_ANIMATION_NAME_STRINGS,
   SkeletalAnimationName,
 } from "@speed-dungeon/common";
 import { EntityMotionUpdateCompletionTracker } from "./entity-motion-update-completion-tracker";
@@ -40,6 +41,10 @@ export function handleUpdateAnimation(
   };
 
   if (animationManager instanceof SkeletalAnimationManager) {
+    console.log(
+      "handle update skeletal animation",
+      SKELETAL_ANIMATION_NAME_STRINGS[animation.name.name]
+    );
     animationManager.startAnimationWithTransition(
       animation.name.name as SkeletalAnimationName,
       animation.smoothTransition ? 500 : 200,

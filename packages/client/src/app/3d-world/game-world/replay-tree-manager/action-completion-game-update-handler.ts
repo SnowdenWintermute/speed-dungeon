@@ -27,7 +27,6 @@ export async function actionCompletionGameUpdateHandler(update: {
   }
 
   if (update.command.unlockInput) {
-    console.log("unlocking input due to InputLockUpdateCommand");
     useGameStore.getState().mutateState((state) => {
       const partyOption = getCurrentParty(state, state.username || "");
       if (partyOption) InputLock.unlockInput(partyOption.inputLock);

@@ -132,7 +132,10 @@ export function induceHitRecovery(
       if (shouldAnimate && isIdling)
         targetModel.skeletalAnimationManager.startAnimationWithTransition(animationName, 0, {
           onComplete: () => {
-            if (!combatantWasAliveBeforeResourceChange && combatantProperties.hitPoints > 0) {
+            const wasRevived =
+              !combatantWasAliveBeforeResourceChange && combatantProperties.hitPoints > 0;
+
+            if (wasRevived) {
               // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
             } else {
               targetModel.startIdleAnimation(500);
