@@ -18,9 +18,11 @@ export class BurningCombatantCondition implements CombatantCondition {
     public level: number
   ) {}
 
-  onTick() {}
+  onTick() {
+    // deal fire damage to combatant
+    // remove a stack
+  }
   getTickSpeed = () => this.level * BASE_CONDITION_TICK_MOVEMENT_RECOVERY;
-
   triggeredWhenHitBy(actionName: CombatActionName) {
     // anything that removes burning
     return false;
