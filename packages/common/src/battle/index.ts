@@ -47,6 +47,8 @@ export class Battle {
       }
     }
 
+    console.log("tickableConditions found when updating trackers:", tickableConditions.length);
+
     return { combatants, tickableConditions };
   }
 

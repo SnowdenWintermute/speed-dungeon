@@ -115,7 +115,9 @@ export class BattleProcessor {
       const combatant = fastestActorTurnTracker.getCombatant(this.party);
       if (condition.tickProperties === undefined)
         throw new Error("expected condition tick properties were missing");
-      const triggeredActions = condition.tickProperties.onTick();
+      const triggeredActions = condition.tickProperties.onTick(
+        new CombatantContext(game, party, combatant)
+      );
 
       CombatantCondition.removeStacks(
         condition.id,

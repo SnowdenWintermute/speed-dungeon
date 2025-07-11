@@ -1,3 +1,5 @@
+import { AdventuringParty } from "../../adventuring-party/index.js";
+import { Battle } from "../../battle/index.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionIntent } from "../../combat/combat-actions/combat-action-intent.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
@@ -62,7 +64,7 @@ export interface ConditionAppliedBy {
 
 export interface ConditionTickProperties {
   getTickSpeed(): number;
-  onTick(): {
+  onTick(context: CombatantContext): {
     numStacksRemoved: number;
     triggeredAction: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent };
   };
@@ -145,7 +147,12 @@ export abstract class CombatantCondition {
     combatantProperties.conditions.push(condition);
   }
 
-  static applyToCombatant(condition: CombatantCondition, combatantProperties: CombatantProperties) {
+  static applyToCombatant(
+    condition: CombatantCondition,
+    combatantProperties: CombatantProperties,
+    party: AdventuringParty,
+    battleOption: null | Battle
+  ) {
     let wasExisting = false;
     combatantProperties.conditions.forEach((existingCondition) => {
       if (existingCondition.name !== condition.name) return;
@@ -165,7 +172,15 @@ export abstract class CombatantCondition {
       return CombatantCondition.replaceExisting(condition, combatantProperties);
     });
 
-    if (!wasExisting) combatantProperties.conditions.push(condition);
+    if (wasExisting) return;
+    combatantProperties.conditions.push(condition);
+
+    if (!condition.tickProperties || !battleOption) return;
+    console.log("after applying condition, updating trackers");
+
+    battleOption.turnOrderManager.updateTrackers(party);
+
+    // if in battle, add a turn tracker for this tickable condition
   }
 
   static removeById(

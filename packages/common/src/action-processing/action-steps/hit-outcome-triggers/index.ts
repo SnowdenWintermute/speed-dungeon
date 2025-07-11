@@ -39,6 +39,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     const { actionExecutionIntent } = tracker;
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
     const { game, party, combatant } = combatantContext;
+    const battleOption = AdventuringParty.getBattleOption(party, game);
     const { outcomeFlags, hitPointChanges } = tracker.hitOutcomes;
 
     const durabilityChanges = new DurabilityChangesByEntityId();
@@ -100,9 +101,15 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           }
 
           const conditionsToApply = action.hitOutcomeProperties.getAppliedConditions(context);
+
           if (conditionsToApply)
             for (const condition of conditionsToApply) {
-              CombatantCondition.applyToCombatant(condition, targetCombatant.combatantProperties);
+              CombatantCondition.applyToCombatant(
+                condition,
+                targetCombatant.combatantProperties,
+                party,
+                battleOption
+              );
               addConditionToUpdate(
                 condition,
                 gameUpdateCommand,

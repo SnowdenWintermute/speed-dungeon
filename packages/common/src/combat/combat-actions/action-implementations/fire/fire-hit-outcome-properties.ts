@@ -1,4 +1,6 @@
+import cloneDeep from "lodash.clonedeep";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
+import { BurningCombatantCondition } from "../../../../combatants/combatant-conditions/burning.js";
 import { NumberRange } from "../../../../primatives/number-range.js";
 import { addCombatantLevelScaledAttributeToRange } from "../../../action-results/action-hit-outcome-calculation/add-combatant-level-scaled-attribute-to-range.js";
 import {
@@ -13,6 +15,8 @@ import {
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
+import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
+import { CombatActionName } from "../../combat-action-names.js";
 
 export const FIRE_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {
   ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Spell],
@@ -49,19 +53,18 @@ export const FIRE_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {
   },
 
   getAppliedConditions: (context) => {
-    return [];
-    // const { idGenerator, combatantContext } = context;
-    // const { combatant } = combatantContext;
+    const { idGenerator, combatantContext } = context;
+    const { combatant } = combatantContext;
 
-    // const condition = new PrimedForIceBurstCombatantCondition(
-    //   idGenerator.generate(),
-    //   {
-    //     entityProperties: cloneDeep(combatant.entityProperties),
-    //     friendOrFoe: FriendOrFoe.Hostile,
-    //   },
-    //   combatant.combatantProperties.level
-    // );
+    const condition = new BurningCombatantCondition(
+      idGenerator.generate(),
+      {
+        entityProperties: cloneDeep(combatant.entityProperties),
+        friendOrFoe: FriendOrFoe.Hostile,
+      },
+      combatant.combatantProperties.ownedActions[CombatActionName.Fire]?.level || 0
+    );
 
-    // return [condition];
+    return [condition];
   },
 };

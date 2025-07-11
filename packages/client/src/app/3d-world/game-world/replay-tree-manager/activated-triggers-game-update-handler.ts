@@ -2,6 +2,7 @@ import { useGameStore } from "@/stores/game-store";
 import {
   ActionPayableResource,
   ActivatedTriggersGameUpdateCommand,
+  AdventuringParty,
   COMBATANT_CONDITION_CONSTRUCTORS,
   COMBAT_ACTIONS,
   CombatantCondition,
@@ -81,7 +82,16 @@ export async function activatedTriggersGameUpdateHandler(update: {
                 condition
               );
 
-              CombatantCondition.applyToCombatant(condition, combatantResult.combatantProperties);
+              const partyResult = state.getParty();
+              if (partyResult instanceof Error) throw partyResult;
+
+              const battleOption = AdventuringParty.getBattleOption(partyResult, game);
+              CombatantCondition.applyToCombatant(
+                condition,
+                combatantResult.combatantProperties,
+                partyResult,
+                battleOption
+              );
 
               const targetModelOption = getGameWorld().modelManager.findOne(entityId);
 

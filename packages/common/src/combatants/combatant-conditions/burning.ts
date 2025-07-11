@@ -1,15 +1,47 @@
-import { CombatantCondition, CombatantConditionName, ConditionAppliedBy } from "./index.js";
-import { Combatant } from "../index.js";
+import {
+  COMBATANT_CONDITION_NAME_STRINGS,
+  CombatantCondition,
+  CombatantConditionName,
+  ConditionAppliedBy,
+  ConditionTickProperties,
+} from "./index.js";
+import { Combatant, createShimmedUserOfTriggeredCondition } from "../index.js";
 import { CombatActionIntent, CombatActionName } from "../../combat/combat-actions/index.js";
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { CombatantContext } from "../../combatant-context/index.js";
 import { BASE_CONDITION_TICK_MOVEMENT_RECOVERY } from "../../combat/turn-order/consts.js";
+import { CombatActionTargetType } from "../../combat/targeting/combat-action-targets.js";
 
 export class BurningCombatantCondition implements CombatantCondition {
   name = CombatantConditionName.Burning;
   stacksOption = new MaxAndCurrent(10, 1);
   intent = CombatActionIntent.Malicious;
+  tickProperties: ConditionTickProperties = {
+    onTick: (context) => {
+      const user = createShimmedUserOfTriggeredCondition(
+        COMBATANT_CONDITION_NAME_STRINGS[this.name],
+        this,
+        context.combatant.entityProperties.id
+      );
+
+      return {
+        numStacksRemoved: 1,
+        triggeredAction: {
+          user,
+          actionExecutionIntent: {
+            actionName: CombatActionName.Fire,
+            targets: {
+              type: CombatActionTargetType.Single,
+              targetId: context.combatant.entityProperties.id,
+            },
+            getConsumableType: () => null,
+          },
+        },
+      };
+    },
+    getTickSpeed: () => this.level * BASE_CONDITION_TICK_MOVEMENT_RECOVERY,
+  };
 
   ticks?: MaxAndCurrent | undefined;
   constructor(
@@ -18,11 +50,6 @@ export class BurningCombatantCondition implements CombatantCondition {
     public level: number
   ) {}
 
-  onTick() {
-    // deal fire damage to combatant
-    // remove a stack
-  }
-  getTickSpeed = () => this.level * BASE_CONDITION_TICK_MOVEMENT_RECOVERY;
   triggeredWhenHitBy(actionName: CombatActionName) {
     // anything that removes burning
     return false;

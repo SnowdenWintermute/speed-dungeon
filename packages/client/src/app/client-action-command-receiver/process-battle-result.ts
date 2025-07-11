@@ -4,7 +4,6 @@ import {
   Consumable,
   ERROR_MESSAGES,
   Equipment,
-  InputLock,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { ClientActionCommandReceiver } from ".";
