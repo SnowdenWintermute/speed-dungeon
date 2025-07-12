@@ -16,7 +16,7 @@ import getCombatantTotalElementalAffinities from "./combatant-traits/get-combata
 import getCombatantTotalKineticDamageTypeAffinities from "./combatant-traits/get-combatant-total-kinetic-damage-type-affinities.js";
 import { setResourcesToMax } from "./resources/set-resources-to-max.js";
 import { immerable } from "immer";
-import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
+import { iterateNumericEnum, iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import awardLevelups, { XP_REQUIRED_TO_REACH_LEVEL_2 } from "./experience-points/award-levelups.js";
 import { incrementAttributePoint } from "./attributes/increment-attribute.js";
 import { MonsterType } from "../monsters/monster-types.js";
@@ -236,6 +236,12 @@ export function createShimmedUserOfTriggeredCondition(
       Vector3.Zero()
     )
   );
+  iterateNumericEnum(CombatActionName).forEach((actionName) => {
+    combatant.combatantProperties.ownedActions[actionName] = new CombatantActionState(
+      actionName,
+      1
+    );
+  });
   combatant.combatantProperties.asShimmedUserOfTriggeredCondition = {
     condition,
     entityConditionWasAppliedTo,

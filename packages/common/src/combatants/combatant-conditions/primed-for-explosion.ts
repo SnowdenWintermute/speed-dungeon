@@ -15,8 +15,10 @@ import { CombatActionTargetType } from "../../combat/targeting/combat-action-tar
 import { IdGenerator } from "../../utility-classes/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { CombatantContext } from "../../combatant-context/index.js";
+import { immerable } from "immer";
 
 export class PrimedForExplosionCombatantCondition implements CombatantCondition {
+  [immerable] = true;
   name = CombatantConditionName.PrimedForExplosion;
   stacksOption = new MaxAndCurrent(10, 1);
   intent = CombatActionIntent.Malicious;

@@ -1,6 +1,10 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { FriendOrFoe, TurnOrderManager } from "../combat/index.js";
-import { Combatant, CombatantCondition, ConditionAppliedBy } from "../combatants/index.js";
+import {
+  Combatant,
+  ConditionAppliedBy,
+  ConditionWithCombatantIdAppliedTo,
+} from "../combatants/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { EntityId } from "../primatives/index.js";
 import { getAllyAndEnemyBattleGroups } from "./get-ally-and-enemy-battle-groups.js";
@@ -38,11 +42,11 @@ export class Battle {
 
   static getAllTickableConditionsAndCombatants(game: SpeedDungeonGame, battle: Battle) {
     const combatants = Battle.getAllCombatants(game, battle);
-    const tickableConditions: { condition: CombatantCondition; combatantId: EntityId }[] = [];
+    const tickableConditions: ConditionWithCombatantIdAppliedTo[] = [];
     for (const combatant of combatants) {
       for (const condition of combatant.combatantProperties.conditions) {
         if (condition.tickProperties) {
-          tickableConditions.push({ condition, combatantId: combatant.entityProperties.id });
+          tickableConditions.push({ condition, appliedTo: combatant.entityProperties.id });
         }
       }
     }

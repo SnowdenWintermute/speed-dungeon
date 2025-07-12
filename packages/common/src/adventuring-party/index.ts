@@ -55,6 +55,7 @@ export class AdventuringParty {
   ) {
     const combatantResult = AdventuringParty.getCombatant(party, combatantId);
     if (combatantResult instanceof Error) throw combatantResult;
+    console.log("conditions on thiscombatant:", combatantResult.combatantProperties.conditions);
     const conditionOption = CombatantProperties.getConditionById(
       combatantResult.combatantProperties,
       conditionId

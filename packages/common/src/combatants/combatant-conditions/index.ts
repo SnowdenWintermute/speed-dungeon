@@ -1,4 +1,4 @@
-import { AdventuringParty } from "../../adventuring-party/index.js";
+import { immerable } from "immer";
 import { Battle } from "../../battle/index.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionIntent } from "../../combat/combat-actions/combat-action-intent.js";
@@ -62,15 +62,23 @@ export interface ConditionAppliedBy {
   friendOrFoe: FriendOrFoe;
 }
 
-export interface ConditionTickProperties {
-  getTickSpeed(): number;
-  onTick(context: CombatantContext): {
-    numStacksRemoved: number;
-    triggeredAction: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent };
-  };
+export class ConditionTickProperties {
+  constructor(
+    public getTickSpeed: () => number,
+    public onTick: (context: CombatantContext) => {
+      numStacksRemoved: number;
+      triggeredAction: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent };
+    }
+  ) {}
+}
+
+export interface ConditionWithCombatantIdAppliedTo {
+  condition: CombatantCondition;
+  appliedTo: EntityId;
 }
 
 export abstract class CombatantCondition {
+  [immerable] = true;
   ticks?: MaxAndCurrent;
   level: number = 0;
   intent: CombatActionIntent = CombatActionIntent.Malicious;
@@ -147,13 +155,14 @@ export abstract class CombatantCondition {
     combatantProperties.conditions.push(condition);
   }
 
+  /* returns true if condition was preexisting */
   static applyToCombatant(
     condition: CombatantCondition,
-    combatantProperties: CombatantProperties,
-    party: AdventuringParty,
+    combatant: Combatant,
     battleOption: null | Battle
   ) {
     let wasExisting = false;
+    const { combatantProperties } = combatant;
     combatantProperties.conditions.forEach((existingCondition) => {
       if (existingCondition.name !== condition.name) return;
       wasExisting = true;
@@ -172,13 +181,18 @@ export abstract class CombatantCondition {
       return CombatantCondition.replaceExisting(condition, combatantProperties);
     });
 
-    if (wasExisting) return;
+    if (wasExisting) return true;
     combatantProperties.conditions.push(condition);
+    console.log("applied condition to combatant:", combatant.combatantProperties.conditions);
 
     if (!condition.tickProperties || !battleOption) return;
     console.log("after applying condition, updating trackers");
+    console.log("condition:", condition);
 
-    battleOption.turnOrderManager.updateTrackers(party);
+    battleOption.turnOrderManager.turnOrderScheduler.addNewSchedulerTracker(
+      { appliedTo: combatant.entityProperties.id, condition },
+      7
+    );
 
     // if in battle, add a turn tracker for this tickable condition
   }

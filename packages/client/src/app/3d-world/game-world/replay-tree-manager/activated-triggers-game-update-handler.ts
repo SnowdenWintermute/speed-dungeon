@@ -73,34 +73,30 @@ export async function activatedTriggersGameUpdateHandler(update: {
         command.appliedConditions
       )) {
         for (const [entityId, conditions] of Object.entries(entityAppliedConditions)) {
-          useGameStore.getState().mutateState((state) => {
-            const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
-            if (combatantResult instanceof Error) return combatantResult;
-            for (let condition of conditions) {
-              condition = plainToInstance(
-                COMBATANT_CONDITION_CONSTRUCTORS[condition.name],
-                condition
-              );
+          const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
+          if (combatantResult instanceof Error) return combatantResult;
+          for (let condition of conditions) {
+            condition = plainToInstance(
+              COMBATANT_CONDITION_CONSTRUCTORS[condition.name],
+              condition
+            );
 
-              const partyResult = state.getParty();
-              if (partyResult instanceof Error) throw partyResult;
+            console.log("plainToInstanced condition:", condition);
 
-              const battleOption = AdventuringParty.getBattleOption(partyResult, game);
-              CombatantCondition.applyToCombatant(
-                condition,
-                combatantResult.combatantProperties,
-                partyResult,
-                battleOption
-              );
+            const partyResult = gameState.getParty();
+            if (partyResult instanceof Error) throw partyResult;
 
-              const targetModelOption = getGameWorld().modelManager.findOne(entityId);
+            const battleOption = AdventuringParty.getBattleOption(partyResult, game);
 
-              startOrStopCosmeticEffects(
-                condition.getCosmeticEffectWhileActive(combatantResult.entityProperties.id),
-                []
-              );
-            }
-          });
+            CombatantCondition.applyToCombatant(condition, combatantResult, battleOption);
+
+            const targetModelOption = getGameWorld().modelManager.findOne(entityId);
+
+            startOrStopCosmeticEffects(
+              condition.getCosmeticEffectWhileActive(combatantResult.entityProperties.id),
+              []
+            );
+          }
         }
       }
     }
@@ -110,35 +106,43 @@ export async function activatedTriggersGameUpdateHandler(update: {
         command.removedConditionStacks
       )) {
         for (const { conditionId, numStacks } of conditionIdAndStacks) {
-          useGameStore.getState().mutateState((state) => {
-            const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
-            if (combatantResult instanceof Error) return combatantResult;
+          const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
+          if (combatantResult instanceof Error) return combatantResult;
 
-            const conditionRemovedOption = CombatantCondition.removeStacks(
-              conditionId,
-              combatantResult.combatantProperties,
-              numStacks
+          const conditionRemovedOption = CombatantCondition.removeStacks(
+            conditionId,
+            combatantResult.combatantProperties,
+            numStacks
+          );
+
+          if (conditionRemovedOption) {
+            const targetModelOption = getGameWorld().modelManager.findOne(entityId);
+            startOrStopCosmeticEffects(
+              [],
+              conditionRemovedOption
+                .getCosmeticEffectWhileActive(targetModelOption.entityId)
+                .map((cosmeticEffectOnTransformNode) => {
+                  return {
+                    sceneEntityIdentifier:
+                      cosmeticEffectOnTransformNode.parent.sceneEntityIdentifier,
+                    name: cosmeticEffectOnTransformNode.name,
+                  };
+                })
             );
-
-            if (conditionRemovedOption) {
-              const targetModelOption = getGameWorld().modelManager.findOne(entityId);
-              startOrStopCosmeticEffects(
-                [],
-                conditionRemovedOption
-                  .getCosmeticEffectWhileActive(targetModelOption.entityId)
-                  .map((cosmeticEffectOnTransformNode) => {
-                    return {
-                      sceneEntityIdentifier:
-                        cosmeticEffectOnTransformNode.parent.sceneEntityIdentifier,
-                      name: cosmeticEffectOnTransformNode.name,
-                    };
-                  })
-              );
-            }
-          });
+          }
         }
       }
     }
+  });
+
+  // conditions may have added trackers that we need to account for
+  useGameStore.getState().mutateState((gameState) => {
+    const game = gameState.game;
+    if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+    const partyResult = gameState.getParty();
+    if (partyResult instanceof Error) throw partyResult;
+    const battleOption = AdventuringParty.getBattleOption(partyResult, game);
+    battleOption?.turnOrderManager.updateTrackers(partyResult);
   });
 
   for (const { ownerId, equipment } of brokenHoldablesAndTheirOwnerIds)

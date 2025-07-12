@@ -12,13 +12,16 @@ import { IdGenerator } from "../../utility-classes/index.js";
 import { CombatantContext } from "../../combatant-context/index.js";
 import { BASE_CONDITION_TICK_MOVEMENT_RECOVERY } from "../../combat/turn-order/consts.js";
 import { CombatActionTargetType } from "../../combat/targeting/combat-action-targets.js";
+import { immerable } from "immer";
 
 export class BurningCombatantCondition implements CombatantCondition {
+  [immerable] = true;
   name = CombatantConditionName.Burning;
   stacksOption = new MaxAndCurrent(10, 1);
   intent = CombatActionIntent.Malicious;
-  tickProperties: ConditionTickProperties = {
-    onTick: (context) => {
+  tickProperties = new ConditionTickProperties(
+    () => this.level * BASE_CONDITION_TICK_MOVEMENT_RECOVERY,
+    (context: CombatantContext) => {
       const user = createShimmedUserOfTriggeredCondition(
         COMBATANT_CONDITION_NAME_STRINGS[this.name],
         this,
@@ -39,9 +42,8 @@ export class BurningCombatantCondition implements CombatantCondition {
           },
         },
       };
-    },
-    getTickSpeed: () => this.level * BASE_CONDITION_TICK_MOVEMENT_RECOVERY,
-  };
+    }
+  );
 
   ticks?: MaxAndCurrent | undefined;
   constructor(

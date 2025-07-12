@@ -1,7 +1,11 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Battle } from "../../battle/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
-import { CombatantProperties } from "../../combatants/index.js";
+import {
+  Combatant,
+  CombatantProperties,
+  ConditionWithCombatantIdAppliedTo,
+} from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "./consts.js";
@@ -31,8 +35,8 @@ export class TurnOrderScheduler {
         (combatant) => new CombatantTurnSchedulerTracker(combatant.entityProperties.id)
       ),
       ...tickableConditions.map(
-        ({ combatantId, condition }) =>
-          new TickableConditionTurnSchedulerTracker(combatantId, condition.id)
+        ({ appliedTo, condition }) =>
+          new TickableConditionTurnSchedulerTracker(appliedTo, condition.id)
       ),
     ];
   }
@@ -88,6 +92,23 @@ export class TurnOrderScheduler {
     const fastest = this.turnSchedulerTrackers[0];
     if (fastest === undefined) throw new Error("turn scheduler list was empty");
     return fastest;
+  }
+
+  addNewSchedulerTracker(
+    from: Combatant | ConditionWithCombatantIdAppliedTo,
+    startingDelay: number
+  ) {
+    if (from instanceof Combatant) {
+      throw new Error("adding new combatant turn scheduler tracker not yet implemented");
+    } else {
+      const schedulerTracker = new TickableConditionTurnSchedulerTracker(
+        from.appliedTo,
+        from.condition.id
+      );
+
+      schedulerTracker.accumulatedDelay = startingDelay;
+      this.turnSchedulerTrackers.push(schedulerTracker);
+    }
   }
 
   buildNewList(party: AdventuringParty) {
@@ -156,6 +177,7 @@ export class TickableConditionTurnSchedulerTracker implements ITurnSchedulerTrac
     public readonly conditionId: EntityId
   ) {}
   getSpeed(party: AdventuringParty) {
+    console.log("searching for condition", this.conditionId, "on combatant", this.combatantId);
     const conditionResult = AdventuringParty.getConditionOnCombatant(
       party,
       this.combatantId,

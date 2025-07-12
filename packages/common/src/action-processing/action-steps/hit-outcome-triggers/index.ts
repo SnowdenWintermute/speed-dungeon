@@ -102,14 +102,9 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
           const conditionsToApply = action.hitOutcomeProperties.getAppliedConditions(context);
 
-          if (conditionsToApply)
+          if (conditionsToApply) {
             for (const condition of conditionsToApply) {
-              CombatantCondition.applyToCombatant(
-                condition,
-                targetCombatant.combatantProperties,
-                party,
-                battleOption
-              );
+              CombatantCondition.applyToCombatant(condition, targetCombatant, battleOption);
               addConditionToUpdate(
                 condition,
                 gameUpdateCommand,
@@ -117,6 +112,9 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
                 HitOutcome.Hit
               );
             }
+
+            battleOption?.turnOrderManager.updateTrackers(party);
+          }
         }
 
         if (flag === HitOutcome.Counterattack) {
