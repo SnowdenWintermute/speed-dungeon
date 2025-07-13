@@ -89,16 +89,6 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
       return;
     }
 
-    console.log(
-      "previous:",
-      this.previous?.getName(),
-      "\n",
-      "playing:",
-      this.playing?.getName(),
-      "new:",
-      clonedAnimation.name
-    );
-
     this.previous?.cleanup();
     this.previous = this.playing;
 

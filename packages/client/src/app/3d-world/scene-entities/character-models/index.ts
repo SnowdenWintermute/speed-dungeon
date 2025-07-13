@@ -155,7 +155,6 @@ export class CharacterModel extends SceneEntity {
   }
 
   startIdleAnimation(transitionMs: number, options?: ManagedAnimationOptions) {
-    console.log(this.entityId, "trying to start idle animation", transitionMs);
     try {
       const idleName = this.getIdleAnimationName();
 

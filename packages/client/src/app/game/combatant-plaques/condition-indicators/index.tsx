@@ -27,7 +27,7 @@ export default function ConditionIndicators(props: Props) {
             {CONDITION_INDICATOR_ICONS[condition.name]}
           </HoverableTooltipWrapper>
           {condition.stacksOption && condition.stacksOption.current > 1 && (
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
               {condition.stacksOption.current}
             </div>
           )}

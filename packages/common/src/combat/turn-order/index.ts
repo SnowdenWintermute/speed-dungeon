@@ -1,4 +1,3 @@
-import cloneDeep from "lodash.clonedeep";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Battle } from "../../battle/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
@@ -140,6 +139,7 @@ export class ConditionTurnTracker extends CombatantTurnTracker {
   }
 
   getCondition(party: AdventuringParty) {
+    console.log("condition turn tracker trying to get condition, conditionId", this.conditionId);
     const result = AdventuringParty.getConditionOnCombatant(
       party,
       this.combatantId,

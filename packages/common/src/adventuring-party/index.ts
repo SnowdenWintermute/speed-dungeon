@@ -55,12 +55,14 @@ export class AdventuringParty {
   ) {
     const combatantResult = AdventuringParty.getCombatant(party, combatantId);
     if (combatantResult instanceof Error) throw combatantResult;
-    console.log("conditions on thiscombatant:", combatantResult.combatantProperties.conditions);
     const conditionOption = CombatantProperties.getConditionById(
       combatantResult.combatantProperties,
       conditionId
     );
-    if (conditionOption === null) throw new Error("expected condition not found");
+    if (conditionOption === null)
+      throw new Error(
+        `expected condition not found with id ${conditionId} on combatant id ${combatantId}`
+      );
     return conditionOption;
   }
   static getItem = getItemInAdventuringParty;

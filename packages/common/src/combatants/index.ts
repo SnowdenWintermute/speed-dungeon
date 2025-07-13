@@ -114,6 +114,7 @@ export class CombatantProperties {
   }
 
   static getConditionById(combatantProperties: CombatantProperties, conditionId: EntityId) {
+    console.log("searching for conditions on combatant:", combatantProperties.conditions);
     for (const condition of combatantProperties.conditions) {
       if (condition.id === conditionId) return condition;
     }
@@ -236,12 +237,14 @@ export function createShimmedUserOfTriggeredCondition(
       Vector3.Zero()
     )
   );
+
   iterateNumericEnum(CombatActionName).forEach((actionName) => {
     combatant.combatantProperties.ownedActions[actionName] = new CombatantActionState(
       actionName,
       1
     );
   });
+
   combatant.combatantProperties.asShimmedUserOfTriggeredCondition = {
     condition,
     entityConditionWasAppliedTo,

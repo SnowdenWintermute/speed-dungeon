@@ -3,6 +3,8 @@ import { Battle } from "../../battle/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 import {
   Combatant,
+  COMBATANT_CONDITION_NAME_STRINGS,
+  CombatantCondition,
   CombatantProperties,
   ConditionWithCombatantIdAppliedTo,
 } from "../../combatants/index.js";
@@ -58,6 +60,29 @@ export class TurnOrderScheduler {
 
   resetTurnSchedulerTrackers(party: AdventuringParty) {
     for (const tracker of this.turnSchedulerTrackers) {
+      if (tracker instanceof TickableConditionTurnSchedulerTracker) {
+        let removedStaleConditionTurnScheduler = false;
+
+        try {
+          const conditionExists = AdventuringParty.getConditionOnCombatant(
+            party,
+            tracker.combatantId,
+            tracker.conditionId
+          );
+        } catch (err) {
+          this.turnSchedulerTrackers = this.turnSchedulerTrackers.filter((item) => {
+            const shouldRemove =
+              item instanceof TickableConditionTurnSchedulerTracker &&
+              item.conditionId === tracker.conditionId;
+            if (shouldRemove) {
+              removedStaleConditionTurnScheduler = true;
+            }
+            return !shouldRemove;
+          });
+        }
+        if (removedStaleConditionTurnScheduler) continue;
+      }
+
       // take into account any delay they've accumulated from taking actions in this battle
       tracker.timeOfNextMove = tracker.accumulatedDelay;
       const initialDelay = TurnOrderManager.getActionDelayCost(
@@ -108,6 +133,14 @@ export class TurnOrderScheduler {
 
       schedulerTracker.accumulatedDelay = startingDelay;
       this.turnSchedulerTrackers.push(schedulerTracker);
+      console.log(
+        "created scheduler tracker for",
+        COMBATANT_CONDITION_NAME_STRINGS[from.condition.name],
+        "id",
+        from.condition.id,
+        "with accumulatedDelay",
+        startingDelay
+      );
     }
   }
 
@@ -177,7 +210,6 @@ export class TickableConditionTurnSchedulerTracker implements ITurnSchedulerTrac
     public readonly conditionId: EntityId
   ) {}
   getSpeed(party: AdventuringParty) {
-    console.log("searching for condition", this.conditionId, "on combatant", this.combatantId);
     const conditionResult = AdventuringParty.getConditionOnCombatant(
       party,
       this.combatantId,
@@ -185,8 +217,9 @@ export class TickableConditionTurnSchedulerTracker implements ITurnSchedulerTrac
     );
     if (conditionResult instanceof Error) throw conditionResult;
 
-    if (conditionResult.tickProperties === undefined)
-      throw new Error("expected condition to be tickable");
-    return conditionResult.tickProperties.getTickSpeed();
+    const tickPropertiesOption = CombatantCondition.getTickProperties(conditionResult);
+
+    if (tickPropertiesOption === undefined) throw new Error("expected condition to be tickable");
+    return tickPropertiesOption.getTickSpeed(conditionResult);
   }
 }

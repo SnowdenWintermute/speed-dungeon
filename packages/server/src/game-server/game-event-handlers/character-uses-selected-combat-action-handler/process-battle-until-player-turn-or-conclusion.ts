@@ -113,9 +113,11 @@ export class BattleProcessor {
       // @TODO - implement getting action intent from condition
       const condition = fastestActorTurnTracker.getCondition(this.party);
       const combatant = fastestActorTurnTracker.getCombatant(this.party);
-      if (condition.tickProperties === undefined)
+      const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
+      if (tickPropertiesOption === undefined)
         throw new Error("expected condition tick properties were missing");
-      const triggeredActions = condition.tickProperties.onTick(
+      const triggeredActions = tickPropertiesOption.onTick(
+        condition,
         new CombatantContext(game, party, combatant)
       );
 

@@ -10,7 +10,7 @@ export enum CombatActionTargetType {
   All,
 }
 
-interface CombatActionTargetSingle {
+export interface CombatActionTargetSingle {
   type: CombatActionTargetType.Single;
   targetId: EntityId;
 }

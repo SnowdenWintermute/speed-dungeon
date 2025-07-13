@@ -11,7 +11,10 @@ import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { CombatantContext } from "../../combatant-context/index.js";
 import { BASE_CONDITION_TICK_MOVEMENT_RECOVERY } from "../../combat/turn-order/consts.js";
-import { CombatActionTargetType } from "../../combat/targeting/combat-action-targets.js";
+import {
+  CombatActionTargetSingle,
+  CombatActionTargetType,
+} from "../../combat/targeting/combat-action-targets.js";
 import { immerable } from "immer";
 
 export class BurningCombatantCondition implements CombatantCondition {
@@ -19,38 +22,41 @@ export class BurningCombatantCondition implements CombatantCondition {
   name = CombatantConditionName.Burning;
   stacksOption = new MaxAndCurrent(10, 1);
   intent = CombatActionIntent.Malicious;
-  tickProperties = new ConditionTickProperties(
-    () => this.level * BASE_CONDITION_TICK_MOVEMENT_RECOVERY,
-    (context: CombatantContext) => {
-      const user = createShimmedUserOfTriggeredCondition(
-        COMBATANT_CONDITION_NAME_STRINGS[this.name],
-        this,
-        context.combatant.entityProperties.id
-      );
-
-      return {
-        numStacksRemoved: 1,
-        triggeredAction: {
-          user,
-          actionExecutionIntent: {
-            actionName: CombatActionName.Fire,
-            targets: {
-              type: CombatActionTargetType.Single,
-              targetId: context.combatant.entityProperties.id,
-            },
-            getConsumableType: () => null,
-          },
-        },
-      };
-    }
-  );
-
   ticks?: MaxAndCurrent | undefined;
   constructor(
     public id: EntityId,
     public appliedBy: ConditionAppliedBy,
     public level: number
   ) {}
+
+  getTickSpeed(condition: CombatantCondition) {
+    return condition.level * BASE_CONDITION_TICK_MOVEMENT_RECOVERY;
+  }
+
+  onTick(condition: CombatantCondition, context: CombatantContext) {
+    const user = createShimmedUserOfTriggeredCondition(
+      COMBATANT_CONDITION_NAME_STRINGS[condition.name],
+      condition,
+      context.combatant.entityProperties.id
+    );
+
+    const targets: CombatActionTargetSingle = {
+      type: CombatActionTargetType.Single,
+      targetId: context.combatant.entityProperties.id,
+    };
+
+    return {
+      numStacksRemoved: 1,
+      triggeredAction: {
+        user,
+        actionExecutionIntent: {
+          actionName: CombatActionName.BurningTick,
+          targets,
+          getConsumableType: () => null,
+        },
+      },
+    };
+  }
 
   triggeredWhenHitBy(actionName: CombatActionName) {
     // anything that removes burning

@@ -2,6 +2,7 @@ import { AdventuringParty } from "../adventuring-party/index.js";
 import { FriendOrFoe, TurnOrderManager } from "../combat/index.js";
 import {
   Combatant,
+  CombatantCondition,
   ConditionAppliedBy,
   ConditionWithCombatantIdAppliedTo,
 } from "../combatants/index.js";
@@ -45,7 +46,8 @@ export class Battle {
     const tickableConditions: ConditionWithCombatantIdAppliedTo[] = [];
     for (const combatant of combatants) {
       for (const condition of combatant.combatantProperties.conditions) {
-        if (condition.tickProperties) {
+        const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
+        if (tickPropertiesOption) {
           tickableConditions.push({ condition, appliedTo: combatant.entityProperties.id });
         }
       }

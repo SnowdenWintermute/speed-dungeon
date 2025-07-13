@@ -62,14 +62,19 @@ export interface ConditionAppliedBy {
   friendOrFoe: FriendOrFoe;
 }
 
-export class ConditionTickProperties {
-  constructor(
-    public getTickSpeed: () => number,
-    public onTick: (context: CombatantContext) => {
-      numStacksRemoved: number;
-      triggeredAction: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent };
-    }
-  ) {}
+export abstract class ConditionTickProperties {
+  abstract getTickSpeed: (condition: CombatantCondition) => number;
+  abstract onTick: (
+    condition: CombatantCondition,
+    context: CombatantContext
+  ) => {
+    numStacksRemoved: number;
+    triggeredAction: {
+      user: Combatant;
+      actionExecutionIntent: CombatActionExecutionIntent;
+      getConsumableType?: () => null;
+    };
+  };
 }
 
 export interface ConditionWithCombatantIdAppliedTo {
@@ -89,7 +94,6 @@ export abstract class CombatantCondition {
     public stacksOption: null | MaxAndCurrent
   ) {}
 
-  abstract tickProperties?: ConditionTickProperties;
   // if tracking ticks, increment current
   // examples of action to take here:
   // - cause resource change
@@ -118,6 +122,27 @@ export abstract class CombatantCondition {
   abstract getCosmeticEffectWhileActive: (
     combatantId: EntityId
   ) => CosmeticEffectOnTargetTransformNode[];
+
+  abstract getTickSpeed?: (condition: CombatantCondition) => number;
+  abstract onTick?: (
+    condition: CombatantCondition,
+    context: CombatantContext
+  ) => {
+    numStacksRemoved: number;
+    triggeredAction: {
+      user: Combatant;
+      actionExecutionIntent: CombatActionExecutionIntent;
+      getConsumableType?: () => null;
+    };
+  };
+
+  static getTickProperties(condition: CombatantCondition) {
+    if (!condition.onTick || !condition.getTickSpeed) return undefined;
+    return {
+      getTickSpeed: condition.getTickSpeed,
+      onTick: condition.onTick,
+    };
+  }
   // examples:
   // - perform a composite combat action
   // - remove self - examples:
@@ -183,18 +208,15 @@ export abstract class CombatantCondition {
 
     if (wasExisting) return true;
     combatantProperties.conditions.push(condition);
-    console.log("applied condition to combatant:", combatant.combatantProperties.conditions);
 
-    if (!condition.tickProperties || !battleOption) return;
-    console.log("after applying condition, updating trackers");
-    console.log("condition:", condition);
+    const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
+
+    if (!tickPropertiesOption || !battleOption) return;
 
     battleOption.turnOrderManager.turnOrderScheduler.addNewSchedulerTracker(
       { appliedTo: combatant.entityProperties.id, condition },
-      7
+      3
     );
-
-    // if in battle, add a turn tracker for this tickable condition
   }
 
   static removeById(
