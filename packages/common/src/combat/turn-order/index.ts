@@ -32,6 +32,7 @@ export class TurnOrderManager {
     actionNameOption: null | CombatActionName
   ): Milliseconds {
     const fastest = this.getFastestActorTurnOrderTracker();
+    console.log("fastest turn order tracker:", fastest);
     const tracker =
       this.turnOrderScheduler.getMatchingSchedulerTrackerFromTurnOrderTracker(fastest);
 
@@ -112,7 +113,7 @@ export class TurnOrderManager {
   //
 }
 
-export class CombatantTurnTracker {
+export abstract class TurnTracker {
   constructor(
     public readonly combatantId: string,
     public readonly timeOfNextMove: number
@@ -131,7 +132,13 @@ export class CombatantTurnTracker {
   }
 }
 
-export class ConditionTurnTracker extends CombatantTurnTracker {
+export class CombatantTurnTracker extends TurnTracker {
+  constructor(combatantId: string, timeOfNextMove: number) {
+    super(combatantId, timeOfNextMove);
+  }
+}
+
+export class ConditionTurnTracker extends TurnTracker {
   constructor(
     combatantId: EntityId,
     public readonly conditionId: EntityId,

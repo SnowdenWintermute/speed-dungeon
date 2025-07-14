@@ -50,7 +50,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   sequentialActionManagerRegistry.decrementInputLockReferenceCount();
 
   const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
-  const actionName = COMBAT_ACTION_NAME_STRINGS[tracker.actionExecutionIntent.actionName];
+  const actionNameString = COMBAT_ACTION_NAME_STRINGS[tracker.actionExecutionIntent.actionName];
 
   const { game, party, combatant } = context.combatantContext;
   const battleOption = AdventuringParty.getBattleOption(party, game);
@@ -62,7 +62,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     const { condition } = asShimmedUserOfTriggeredCondition;
     console.log(
       "actionName: ",
-      actionName,
+      actionNameString,
       "used by condition:",
       COMBATANT_CONDITION_NAME_STRINGS[condition.name]
     );
@@ -78,7 +78,13 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
 
   const requiredTurn = action.costProperties.requiresCombatTurn(context);
   const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
-  console.log("turn already ended:", turnAlreadyEnded);
+  console.log(
+    actionNameString,
+    "turn already ended:",
+    turnAlreadyEnded,
+    "requiredTurn:",
+    requiredTurn
+  );
   let shouldSendEndActiveTurnMessage = false;
   if (requiredTurn && !turnAlreadyEnded && battleOption) {
     // if they died on their own turn we should not end the active combatant's turn because

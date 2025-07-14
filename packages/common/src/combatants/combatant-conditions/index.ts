@@ -13,6 +13,7 @@ import { Combatant, CombatantProperties } from "../index.js";
 import { BurningCombatantCondition } from "./burning.js";
 import { PrimedForExplosionCombatantCondition } from "./primed-for-explosion.js";
 import { PrimedForIceBurstCombatantCondition } from "./primed-for-ice-burst.js";
+import { AdventuringParty } from "../../adventuring-party/index.js";
 
 export enum CombatantConditionName {
   // Poison,
@@ -213,9 +214,17 @@ export abstract class CombatantCondition {
 
     if (!tickPropertiesOption || !battleOption) return;
 
+    // add 1 or else when we get to the endTurnAndEvaluateInputLock step
+    // when we search for the fastest scheduler tracker it will find this
+    // condition's tracker instead of the combatant
+    const combatantApplyingAccumulatedDelay =
+      battleOption.turnOrderManager.turnOrderScheduler.getSchedulerTrackerByCombatantId(
+        condition.appliedBy.entityProperties.id
+      ).accumulatedDelay + 1;
+
     battleOption.turnOrderManager.turnOrderScheduler.addNewSchedulerTracker(
       { appliedTo: combatant.entityProperties.id, condition },
-      3
+      combatantApplyingAccumulatedDelay
     );
   }
 

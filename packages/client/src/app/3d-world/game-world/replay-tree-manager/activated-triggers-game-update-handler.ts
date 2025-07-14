@@ -81,8 +81,6 @@ export async function activatedTriggersGameUpdateHandler(update: {
               condition
             );
 
-            console.log("plainToInstanced condition:", condition);
-
             const partyResult = gameState.getParty();
             if (partyResult instanceof Error) throw partyResult;
 

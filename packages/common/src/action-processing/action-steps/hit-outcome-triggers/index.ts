@@ -18,7 +18,7 @@ import { Combatant } from "../../../combatants/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { addHitOutcomeDurabilityChanges } from "./hit-outcome-durability-change-calculators.js";
-import { HIT_OUTCOME_NAME_STRINGS, HitOutcome } from "../../../hit-outcome.js";
+import { HitOutcome } from "../../../hit-outcome.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
 import { CombatantCondition } from "../../../combatants/combatant-conditions/index.js";
 import { addConditionToUpdate } from "./add-condition-to-update.js";
@@ -104,6 +104,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           if (conditionsToApply) {
             for (const condition of conditionsToApply) {
               CombatantCondition.applyToCombatant(condition, targetCombatant, battleOption);
+
               addConditionToUpdate(
                 condition,
                 gameUpdateCommand,

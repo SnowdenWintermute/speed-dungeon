@@ -48,7 +48,7 @@ const genericSpellCostProperties: CombatActionCostPropertiesConfig = {
   getResourceCosts: getStandardActionCost,
   costBases: {
     [ActionPayableResource.Mana]: {
-      base: 3,
+      base: 0.5,
       multipliers: {
         actionLevel: 1.2,
         userCombatantLevel: 1.2,

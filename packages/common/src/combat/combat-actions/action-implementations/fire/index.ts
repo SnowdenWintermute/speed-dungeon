@@ -29,7 +29,7 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
 };
 
 const config: CombatActionComponentConfig = {
-  description: "Inflict magical fire damage on enemies",
+  description: "Inflict magical fire damage on enemies and cause them to start burning",
   origin: CombatActionOrigin.SpellCast,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
   targetingProperties,

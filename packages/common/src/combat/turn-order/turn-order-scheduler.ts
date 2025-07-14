@@ -43,19 +43,36 @@ export class TurnOrderScheduler {
     ];
   }
 
+  getSchedulerTrackerByCombatantId(entityId: EntityId) {
+    const filtered = this.turnSchedulerTrackers.filter(
+      (item) => item instanceof CombatantTurnSchedulerTracker
+    );
+    const found = filtered.find((item) => item.combatantId === entityId);
+    if (found === undefined) throw new Error("Expected combatant turn order scheduler not found");
+    return found;
+  }
+
   getMatchingSchedulerTrackerFromTurnOrderTracker(
     turnOrderTracker: CombatantTurnTracker | ConditionTurnTracker
   ) {
-    const schedulerTracker = this.turnSchedulerTrackers.find(
-      (item) =>
-        item.combatantId === turnOrderTracker.combatantId ||
-        (item instanceof TickableConditionTurnSchedulerTracker &&
-          turnOrderTracker instanceof ConditionTurnTracker &&
-          item.conditionId === turnOrderTracker.conditionId)
-    );
-    if (schedulerTracker === undefined)
+    let schedulerTrackerOption:
+      | undefined
+      | CombatantTurnSchedulerTracker
+      | TickableConditionTurnSchedulerTracker = undefined;
+
+    if (turnOrderTracker instanceof CombatantTurnTracker) {
+      schedulerTrackerOption = this.turnSchedulerTrackers
+        .filter((item) => item instanceof CombatantTurnSchedulerTracker)
+        .find((item) => item.combatantId === turnOrderTracker.combatantId);
+    } else {
+      // condition turn tracker
+      schedulerTrackerOption = this.turnSchedulerTrackers
+        .filter((item) => item instanceof TickableConditionTurnSchedulerTracker)
+        .find((item) => item.conditionId === turnOrderTracker.conditionId);
+    }
+    if (schedulerTrackerOption === undefined)
       throw new Error("expected turnSchedulerTracker was missing");
-    return schedulerTracker;
+    return schedulerTrackerOption;
   }
 
   removeStaleTurnSchedulerTrackers(party: AdventuringParty) {
