@@ -34,6 +34,7 @@ const config: CombatActionComponentConfig = {
   targetingProperties: GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle],
   hitOutcomeProperties: {
     ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Spell],
+    getIsBlockable: () => false,
     getHpChangeProperties: (user, _primaryTarget) => {
       const hpChangeSourceConfig: ResourceChangeSourceConfig = {
         category: ResourceChangeSourceCategory.Physical,

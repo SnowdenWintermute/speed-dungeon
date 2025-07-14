@@ -22,9 +22,9 @@ export default function ConditionIndicators(props: Props) {
         >
           <HoverableTooltipWrapper
             extraStyles="h-full w-full p-0.5"
-            tooltipText={`${COMBATANT_CONDITION_NAME_STRINGS[condition.name]}: ${COMBATANT_CONDITION_DESCRIPTIONS[condition.name]}`}
+            tooltipText={`${COMBATANT_CONDITION_NAME_STRINGS[condition.name]}: ${COMBATANT_CONDITION_DESCRIPTIONS[condition.name]} (rank ${condition.level})`}
           >
-            {CONDITION_INDICATOR_ICONS[condition.name]}
+            {CONDITION_INDICATOR_ICONS[condition.name]}{" "}
           </HoverableTooltipWrapper>
           {condition.stacksOption && condition.stacksOption.current > 1 && (
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">

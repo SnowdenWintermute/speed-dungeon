@@ -1,7 +1,7 @@
 import { ClientToServerEvent, CombatantClass, GameMode } from "@speed-dungeon/common";
 import { Socket } from "socket.io-client";
 
-export default function quickStartGame(socketOption: Socket | undefined) {
+export function quickStartGame(socketOption: Socket | undefined) {
   socketOption?.emit(ClientToServerEvent.CreateGame, { gameName: "", mode: GameMode.Race });
   socketOption?.emit(ClientToServerEvent.CreateParty, "");
   // socketOption?.emit(ClientToServerEvent.CreateCharacter, {

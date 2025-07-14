@@ -153,7 +153,6 @@ export function processCombatAction(
         sequenceManager.markAsFinalized();
         // send the user home if the action type necessitates it
         const action = COMBAT_ACTIONS[trackerOption.actionExecutionIntent.actionName];
-        console.log("marked", COMBAT_ACTION_NAME_STRINGS[action.name], "as ifnalized");
 
         if (
           action.stepsConfig.options.userShouldMoveHomeOnComplete

@@ -4,7 +4,12 @@ import {
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
 } from "../../combat/index.js";
-import { Combatant, CombatantProperties } from "../../combatants/index.js";
+import {
+  Combatant,
+  COMBATANT_CONDITION_NAME_STRINGS,
+  CombatantCondition,
+  CombatantProperties,
+} from "../../combatants/index.js";
 import {
   ActionCompletionUpdateCommand,
   ActionResolutionStep,
@@ -47,26 +52,41 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
   const actionName = COMBAT_ACTION_NAME_STRINGS[tracker.actionExecutionIntent.actionName];
 
-  const { game, party } = context.combatantContext;
+  const { game, party, combatant } = context.combatantContext;
   const battleOption = AdventuringParty.getBattleOption(party, game);
+
+  // handle conditions using actions, which should remove their stacks
+
+  const { asShimmedUserOfTriggeredCondition } = combatant.combatantProperties;
+  if (asShimmedUserOfTriggeredCondition) {
+    const { condition } = asShimmedUserOfTriggeredCondition;
+    console.log(
+      "actionName: ",
+      actionName,
+      "used by condition:",
+      COMBATANT_CONDITION_NAME_STRINGS[condition.name]
+    );
+
+    const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
+    if (tickPropertiesOption) {
+      const { numStacksRemoved } = tickPropertiesOption.onTick(condition, context.combatantContext);
+      console.log("should remove stacks:", numStacksRemoved);
+    }
+  }
 
   // unlock input if no more blocking steps are left and next turn is player
 
   const requiredTurn = action.costProperties.requiresCombatTurn(context);
   const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
+  console.log("turn already ended:", turnAlreadyEnded);
   let shouldSendEndActiveTurnMessage = false;
   if (requiredTurn && !turnAlreadyEnded && battleOption) {
-    //
     // if they died on their own turn we should not end the active combatant's turn because
     // we would have already removed their turn tracker on death
-    const { combatantContext } = context;
-    !CombatantProperties.isDead(combatantContext.combatant.combatantProperties);
-    {
-      const { actionName } = tracker.actionExecutionIntent;
+    const { actionName } = tracker.actionExecutionIntent;
 
-      battleOption.turnOrderManager.updateSchedulerWithExecutedActionDelay(party, actionName);
-      battleOption.turnOrderManager.updateTrackers(party);
-    }
+    battleOption.turnOrderManager.updateSchedulerWithExecutedActionDelay(party, actionName);
+    battleOption.turnOrderManager.updateTrackers(party);
 
     sequentialActionManagerRegistry.markTurnEnded();
     shouldSendEndActiveTurnMessage = true;

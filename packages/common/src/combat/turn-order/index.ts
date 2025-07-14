@@ -41,6 +41,8 @@ export class TurnOrderManager {
       BASE_ACTION_DELAY_MULTIPLIER
     );
 
+    console.log("adding delay:", delay, "to scheduler:", tracker);
+
     tracker.accumulatedDelay += delay;
 
     return delay;

@@ -45,7 +45,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     const durabilityChanges = new DurabilityChangesByEntityId();
 
     for (const flag of iterateNumericEnum(HitOutcome)) {
-      console.log("hit outcome flag found:", HIT_OUTCOME_NAME_STRINGS[flag]);
       for (const combatantId of outcomeFlags[flag] || []) {
         const combatantResult = AdventuringParty.getCombatant(party, combatantId);
         if (combatantResult instanceof Error) throw combatantResult;

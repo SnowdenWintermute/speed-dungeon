@@ -110,7 +110,6 @@ export class BattleProcessor {
     const fastestActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
 
     if (fastestActorTurnTracker instanceof ConditionTurnTracker) {
-      // @TODO - implement getting action intent from condition
       const condition = fastestActorTurnTracker.getCondition(this.party);
       const combatant = fastestActorTurnTracker.getCombatant(this.party);
       const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
@@ -120,13 +119,6 @@ export class BattleProcessor {
         condition,
         new CombatantContext(game, party, combatant)
       );
-
-      CombatantCondition.removeStacks(
-        condition.id,
-        combatant.combatantProperties,
-        triggeredActions.numStacksRemoved
-      );
-      // @TODO - send client stacks removed update
 
       const { actionExecutionIntent, user } = triggeredActions.triggeredAction;
       return { actionExecutionIntent, user };

@@ -12,7 +12,7 @@ export default function CharacterAutofocusManager() {
   const activeCombatantIdOption =
     activeCombatantResult instanceof Error
       ? null
-      : activeCombatantResult?.entityProperties.id ?? null;
+      : (activeCombatantResult?.entityProperties.id ?? null);
   const battleIdOption = useGameStore().getCurrentBattleId();
 
   const [previousRenderBattleId, setPreviousRenderBattleId] = useState<null | string>(null);
@@ -50,7 +50,7 @@ export default function CharacterAutofocusManager() {
 
       if (previousActiveCombatantIdOption !== null && activeCombatantIdOption !== null) {
         const newActiveCombatantId = activeCombatantIdOption;
-        const newlyActiveCombatantIsAPlayerCharacter =
+        const newlyActiveCombatantIsPlayerCharacter =
           party.characterPositions.includes(newActiveCombatantId);
         const previouslyActiveCombatantIsAPlayerCharacter = party.characterPositions.includes(
           previousActiveCombatantIdOption
@@ -59,8 +59,8 @@ export default function CharacterAutofocusManager() {
           focusedCharacterId === previousActiveCombatantIdOption;
 
         if (
-          (newlyActiveCombatantIsAPlayerCharacter && clientWasFocusingPreviouslyActiveCombatant) ||
-          (!previouslyActiveCombatantIsAPlayerCharacter && newlyActiveCombatantIsAPlayerCharacter)
+          (newlyActiveCombatantIsPlayerCharacter && clientWasFocusingPreviouslyActiveCombatant) ||
+          (!previouslyActiveCombatantIsAPlayerCharacter && newlyActiveCombatantIsPlayerCharacter)
         ) {
           gameState.focusedCharacterId = newActiveCombatantId;
         }

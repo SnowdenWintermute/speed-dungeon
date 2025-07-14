@@ -114,7 +114,6 @@ export class CombatantProperties {
   }
 
   static getConditionById(combatantProperties: CombatantProperties, conditionId: EntityId) {
-    console.log("searching for conditions on combatant:", combatantProperties.conditions);
     for (const condition of combatantProperties.conditions) {
       if (condition.id === conditionId) return condition;
     }

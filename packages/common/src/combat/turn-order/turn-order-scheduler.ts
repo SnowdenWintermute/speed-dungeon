@@ -58,31 +58,37 @@ export class TurnOrderScheduler {
     return schedulerTracker;
   }
 
-  resetTurnSchedulerTrackers(party: AdventuringParty) {
-    for (const tracker of this.turnSchedulerTrackers) {
-      if (tracker instanceof TickableConditionTurnSchedulerTracker) {
-        let removedStaleConditionTurnScheduler = false;
+  removeStaleTurnSchedulerTrackers(party: AdventuringParty) {
+    const idsToRemove: EntityId[] = [];
 
-        try {
-          const conditionExists = AdventuringParty.getConditionOnCombatant(
-            party,
-            tracker.combatantId,
-            tracker.conditionId
-          );
-        } catch (err) {
-          this.turnSchedulerTrackers = this.turnSchedulerTrackers.filter((item) => {
-            const shouldRemove =
-              item instanceof TickableConditionTurnSchedulerTracker &&
-              item.conditionId === tracker.conditionId;
-            if (shouldRemove) {
-              removedStaleConditionTurnScheduler = true;
-            }
-            return !shouldRemove;
-          });
-        }
-        if (removedStaleConditionTurnScheduler) continue;
+    for (const tracker of this.turnSchedulerTrackers) {
+      if (!(tracker instanceof TickableConditionTurnSchedulerTracker)) continue;
+
+      try {
+        const conditionExists = AdventuringParty.getConditionOnCombatant(
+          party,
+          tracker.combatantId,
+          tracker.conditionId
+        );
+      } catch (err) {
+        idsToRemove.push(tracker.conditionId);
+      }
+    }
+
+    this.turnSchedulerTrackers = this.turnSchedulerTrackers.filter((tracker) => {
+      if (!(tracker instanceof TickableConditionTurnSchedulerTracker)) {
+        return true;
       }
 
+      if (idsToRemove.includes(tracker.conditionId)) return false;
+      return true;
+    });
+  }
+
+  resetTurnSchedulerTrackers(party: AdventuringParty) {
+    this.removeStaleTurnSchedulerTrackers(party);
+
+    for (const tracker of this.turnSchedulerTrackers) {
       // take into account any delay they've accumulated from taking actions in this battle
       tracker.timeOfNextMove = tracker.accumulatedDelay;
       const initialDelay = TurnOrderManager.getActionDelayCost(
@@ -198,6 +204,7 @@ export class CombatantTurnSchedulerTracker implements ITurnSchedulerTracker {
     const combatantSpeed = CombatantProperties.getTotalAttributes(
       combatantResult.combatantProperties
     )[CombatAttribute.Speed];
+    console.log("got combatant tick speed:", combatantSpeed);
     return combatantSpeed;
   }
 }
