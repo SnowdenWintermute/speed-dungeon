@@ -6,6 +6,7 @@ import { FrostParticleBurst } from "./frost-particle-burst.js";
 import { CombatantIsCold } from "./combatant-is-cold.js";
 import { FlameParticleAccumulation } from "./flame-particle-accumulation.js";
 import { FireParticlesLarge } from "./fire-particles-large.js";
+import { FireParticlesSmall } from "./fire-particles-small.js";
 
 type CosmeticEffectConstructor = new (scene: Scene) => CosmeticEffect;
 
@@ -17,4 +18,5 @@ export const COSMETIC_EFFECT_CONSTRUCTORS: Record<CosmeticEffectNames, CosmeticE
     [CosmeticEffectNames.CombatantIsCold]: CombatantIsCold,
     [CosmeticEffectNames.FlameParticleAccumulation]: FlameParticleAccumulation,
     [CosmeticEffectNames.FireParticlesLarge]: FireParticlesLarge,
+    [CosmeticEffectNames.FireParticlesSmall]: FireParticlesSmall,
   };

@@ -10,24 +10,24 @@ import {
 import { CosmeticEffect } from "./cosmetic-effect.js";
 import { ManagedParticleSystem } from "./managed-particle-system.js";
 
-export class FireParticlesLarge extends CosmeticEffect {
+export class FireParticlesSmall extends CosmeticEffect {
   createAnimatedMeshes(): AbstractMesh[] {
     throw new Error("Method not implemented.");
   }
   createParticleSystems(scene: Scene): ManagedParticleSystem[] {
     const particleSystems = [
-      new GPUParticleSystem("particles", { capacity: 3 }, scene),
-      new GPUParticleSystem("particles", { capacity: 3 }, scene),
-      new GPUParticleSystem("particles", { capacity: 3 }, scene),
-      new GPUParticleSystem("particles", { capacity: 3 }, scene),
+      new GPUParticleSystem("particles", { capacity: 1 }, scene),
+      new GPUParticleSystem("particles", { capacity: 1 }, scene),
+      new GPUParticleSystem("particles", { capacity: 1 }, scene),
+      new GPUParticleSystem("particles", { capacity: 1 }, scene),
     ];
 
     const managedParticleSystems: ManagedParticleSystem[] = [];
 
     particleSystems.forEach((particleSystem, i) => {
       particleSystem.particleTexture = new Texture(`img/particle-textures/explosion-${i + 1}.jpg`);
-      particleSystem.minSize = 0.5;
-      particleSystem.maxSize = 0.6;
+      particleSystem.minSize = 0.3;
+      particleSystem.maxSize = 0.4;
 
       const mesh = new Mesh("");
 
@@ -38,11 +38,11 @@ export class FireParticlesLarge extends CosmeticEffect {
 
       particleSystem.minEmitPower = 0.03;
       particleSystem.maxEmitPower = 0.09;
-      particleSystem.emitRate = 0.5;
+      particleSystem.emitRate = 0.35;
       particleSystem.minLifeTime = 0.6;
       particleSystem.maxLifeTime = 1;
 
-      particleSystem.gravity = new Vector3(0, 0.3, 0);
+      particleSystem.gravity = new Vector3(0, 0.5, 0);
 
       const managed = new ManagedParticleSystem(particleSystem, mesh, scene);
 

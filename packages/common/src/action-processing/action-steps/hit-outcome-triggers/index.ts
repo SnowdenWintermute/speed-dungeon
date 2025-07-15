@@ -103,7 +103,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
           if (conditionsToApply) {
             for (const condition of conditionsToApply) {
-              CombatantCondition.applyToCombatant(condition, targetCombatant, battleOption);
+              CombatantCondition.applyToCombatant(condition, targetCombatant, battleOption, party);
 
               addConditionToUpdate(
                 condition,

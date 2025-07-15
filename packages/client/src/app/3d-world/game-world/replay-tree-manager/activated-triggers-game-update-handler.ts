@@ -86,7 +86,12 @@ export async function activatedTriggersGameUpdateHandler(update: {
 
             const battleOption = AdventuringParty.getBattleOption(partyResult, game);
 
-            CombatantCondition.applyToCombatant(condition, combatantResult, battleOption);
+            CombatantCondition.applyToCombatant(
+              condition,
+              combatantResult,
+              battleOption,
+              partyResult
+            );
 
             const targetModelOption = getGameWorld().modelManager.findOne(entityId);
 

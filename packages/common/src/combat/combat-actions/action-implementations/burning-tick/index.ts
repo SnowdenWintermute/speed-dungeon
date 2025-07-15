@@ -26,6 +26,7 @@ import { MagicalElement } from "../../../magical-elements.js";
 import { NumberRange } from "../../../../primatives/number-range.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { getValueChangeTickActionBasedSpellBaseStepsConfig } from "../value-change-tick-action-base-steps-config.js";
+import { BURNING_TICK_STEPS_CONFIG } from "./burning-tick-steps-config.js";
 
 const config: CombatActionComponentConfig = {
   description: "Inflict magical fire damage on enemies",
@@ -61,7 +62,7 @@ const config: CombatActionComponentConfig = {
     },
   },
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
-  stepsConfig: getValueChangeTickActionBasedSpellBaseStepsConfig(),
+  stepsConfig: BURNING_TICK_STEPS_CONFIG,
   shouldExecute: () => true,
   getConcurrentSubActions: () => [],
   getChildren: () => [],

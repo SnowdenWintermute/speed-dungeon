@@ -14,6 +14,8 @@ import { BurningCombatantCondition } from "./burning.js";
 import { PrimedForExplosionCombatantCondition } from "./primed-for-explosion.js";
 import { PrimedForIceBurstCombatantCondition } from "./primed-for-ice-burst.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
+import { TurnOrderManager } from "../../combat/turn-order/index.js";
+import { BASE_ACTION_DELAY_MULTIPLIER } from "../../combat/turn-order/consts.js";
 
 export enum CombatantConditionName {
   // Poison,
@@ -185,7 +187,8 @@ export abstract class CombatantCondition {
   static applyToCombatant(
     condition: CombatantCondition,
     combatant: Combatant,
-    battleOption: null | Battle
+    battleOption: null | Battle,
+    party: AdventuringParty
   ) {
     let wasExisting = false;
     const { combatantProperties } = combatant;
@@ -214,17 +217,28 @@ export abstract class CombatantCondition {
 
     if (!tickPropertiesOption || !battleOption) return;
 
-    // add 1 or else when we get to the endTurnAndEvaluateInputLock step
+    // add one actions worth + 1 delay or else when we get to the endTurnAndEvaluateInputLock step
     // when we search for the fastest scheduler tracker it will find this
-    // condition's tracker instead of the combatant
-    const combatantApplyingAccumulatedDelay =
+    // condition's tracker instead of the combatant, since we are adding the scheduler now
+    // and the combatant who's action applied this condition won't update their scheduler
+    // until a later step
+    const appliedByScheduler =
       battleOption.turnOrderManager.turnOrderScheduler.getSchedulerTrackerByCombatantId(
         condition.appliedBy.entityProperties.id
-      ).accumulatedDelay + 1;
+      );
+
+    // once we start getting action delay costs that are different per each action
+    // we'll have to calculate this based on the current action
+    const appliedByPredictedAdditionalDelay = TurnOrderManager.getActionDelayCost(
+      appliedByScheduler.getSpeed(party),
+      BASE_ACTION_DELAY_MULTIPLIER
+    );
+
+    const combatantApplyingAccumulatedDelay = appliedByScheduler.accumulatedDelay;
 
     battleOption.turnOrderManager.turnOrderScheduler.addNewSchedulerTracker(
       { appliedTo: combatant.entityProperties.id, condition },
-      combatantApplyingAccumulatedDelay
+      combatantApplyingAccumulatedDelay + appliedByPredictedAdditionalDelay + 1
     );
   }
 
