@@ -269,7 +269,7 @@ export abstract class CombatantCondition {
         );
 
       if (condition.stacksOption === null || condition.stacksOption.current === 0) {
-        removeFromArray(combatantProperties.conditions, condition);
+        CombatantCondition.removeById(condition.id, combatantProperties);
         return condition;
       }
     }

@@ -3,7 +3,11 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "../index.js";
-import { GameUpdateCommand, GameUpdateCommandType } from "../../game-update-commands.js";
+import {
+  ActivatedTriggersGameUpdateCommand,
+  GameUpdateCommand,
+  GameUpdateCommandType,
+} from "../../game-update-commands.js";
 import {
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
@@ -28,7 +32,7 @@ const stepType = ActionResolutionStepType.EvalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
   branchingActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] = [];
   constructor(context: ActionResolutionStepContext) {
-    const gameUpdateCommand: GameUpdateCommand = {
+    const gameUpdateCommand: ActivatedTriggersGameUpdateCommand = {
       type: GameUpdateCommandType.ActivatedTriggers,
       actionName: context.tracker.actionExecutionIntent.actionName,
       step: stepType,

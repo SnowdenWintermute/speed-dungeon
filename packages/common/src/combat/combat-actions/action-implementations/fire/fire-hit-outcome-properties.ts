@@ -56,13 +56,15 @@ export const FIRE_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {
     const { idGenerator, combatantContext } = context;
     const { combatant } = combatantContext;
 
+    const fireLevel = combatant.combatantProperties.ownedActions[CombatActionName.Fire]?.level || 0;
+
     const condition = new BurningCombatantCondition(
       idGenerator.generate(),
       {
         entityProperties: cloneDeep(combatant.entityProperties),
         friendOrFoe: FriendOrFoe.Hostile,
       },
-      combatant.combatantProperties.ownedActions[CombatActionName.Fire]?.level || 0
+      fireLevel
     );
 
     return [condition];

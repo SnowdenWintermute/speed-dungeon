@@ -3,6 +3,7 @@ import {
   ActionCommand,
   ActionCommandPayload,
   ActionCommandType,
+  ActivatedTriggersGameUpdateCommand,
   AdventuringParty,
   Battle,
   CombatActionExecutionIntent,
@@ -12,6 +13,7 @@ import {
   CombatantContext,
   ConditionTurnTracker,
   ERROR_MESSAGES,
+  GameUpdateCommandType,
   ServerToClientEvent,
   SpeedDungeonGame,
   getPartyChannelName,
@@ -115,12 +117,12 @@ export class BattleProcessor {
       const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
       if (tickPropertiesOption === undefined)
         throw new Error("expected condition tick properties were missing");
-      const triggeredActions = tickPropertiesOption.onTick(
+      const onTick = tickPropertiesOption.onTick(
         condition,
         new CombatantContext(game, party, combatant)
       );
 
-      const { actionExecutionIntent, user } = triggeredActions.triggeredAction;
+      const { actionExecutionIntent, user } = onTick.triggeredAction;
       return { actionExecutionIntent, user };
     } else {
       const activeCombatantResult = fastestActorTurnTracker.getCombatant(party);
