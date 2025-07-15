@@ -19,6 +19,7 @@ import {
   CombatantActionState,
   TwoHandedMeleeWeapon,
   Equipment,
+  CombatantContext,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment, { givePlaytestingItems } from "./create-starting-equipment.js";
@@ -37,6 +38,7 @@ export function outfitNewCharacter(character: Combatant) {
     CombatActionName.UseBlueAutoinjector,
     CombatActionName.IceBoltParent,
     CombatActionName.Fire,
+    CombatActionName.PassTurn,
   ];
 
   for (const actionName of ownedActions) {

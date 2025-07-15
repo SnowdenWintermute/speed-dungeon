@@ -35,7 +35,7 @@ export interface CombatActionCostProperties extends CombatActionCostPropertiesCo
   getResourceCosts: (user: CombatantProperties) => null | ActionResourceCosts;
 }
 
-const genericCombatActionCostProperties: CombatActionCostPropertiesConfig = {
+export const genericCombatActionCostProperties: CombatActionCostPropertiesConfig = {
   incursDurabilityLoss: {},
   costBases: {},
   getResourceCosts: () => null,

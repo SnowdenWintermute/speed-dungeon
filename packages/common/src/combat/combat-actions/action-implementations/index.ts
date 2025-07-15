@@ -20,6 +20,7 @@ import { COUNTER_ATTACK_RANGED_MAIN_HAND } from "./counter-attack/counter-attack
 import { COUNTER_ATTACK_RANGED_MAIN_HAND_PROJECTILE } from "./counter-attack/counter-attack-ranged-main-hand-projectile.js";
 import { FIRE } from "./fire/index.js";
 import { BURNING_TICK } from "./burning-tick/index.js";
+import { PASS_TURN } from "./pass-turn/index.js";
 
 export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Attack]: ATTACK,
@@ -44,4 +45,5 @@ export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.IceBurst]: ICE_BURST,
   [CombatActionName.Fire]: FIRE,
   [CombatActionName.BurningTick]: BURNING_TICK,
+  [CombatActionName.PassTurn]: PASS_TURN,
 };
