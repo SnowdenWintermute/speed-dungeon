@@ -1,5 +1,6 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Battle } from "../../battle/index.js";
+import { CombatantContext } from "../../combatant-context/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 import {
   Combatant,
@@ -156,14 +157,6 @@ export class TurnOrderScheduler {
 
       schedulerTracker.accumulatedDelay = startingDelay;
       this.turnSchedulerTrackers.push(schedulerTracker);
-      console.log(
-        "created scheduler tracker for",
-        COMBATANT_CONDITION_NAME_STRINGS[from.condition.name],
-        "id",
-        from.condition.id,
-        "with accumulatedDelay",
-        startingDelay
-      );
     }
   }
 
@@ -171,6 +164,8 @@ export class TurnOrderScheduler {
     this.resetTurnSchedulerTrackers(party);
 
     const turnTrackerList: (CombatantTurnTracker | ConditionTurnTracker)[] = [];
+
+    const predictedConsumedStacksOnTickByConditionId: Record<EntityId, number> = {};
 
     while (turnTrackerList.length < this.minTrackersCount) {
       this.sortSchedulerTrackers(TurnTrackerSortableProperty.TimeOfNextMove);
@@ -184,13 +179,36 @@ export class TurnOrderScheduler {
           );
         }
       } else if (fastestActor instanceof TickableConditionTurnSchedulerTracker) {
-        turnTrackerList.push(
-          new ConditionTurnTracker(
-            fastestActor.combatantId,
-            fastestActor.conditionId,
-            fastestActor.timeOfNextMove
-          )
-        );
+        const { combatantId, conditionId, timeOfNextMove } = fastestActor;
+        const condition = AdventuringParty.getConditionOnCombatant(party, combatantId, conditionId);
+        const stacksRemaining = condition.stacksOption?.current;
+
+        let shouldPush = true;
+
+        if (stacksRemaining) {
+          // check how many previous trackers we've pushed for this condition and how many stacks they would consume
+          // only push if we haven't maxed out yet
+          // record expected stacks consumed for this condition on its turn
+          const predictedConsumedStacks =
+            predictedConsumedStacksOnTickByConditionId[conditionId] ?? 0;
+
+          if (predictedConsumedStacks >= stacksRemaining) {
+            shouldPush = false;
+          } else {
+            const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
+            if (tickPropertiesOption) {
+              // @TODO - get the real value
+              const testingTicksPredicted = 1;
+
+              predictedConsumedStacksOnTickByConditionId[conditionId] =
+                (predictedConsumedStacksOnTickByConditionId[conditionId] ?? 0) +
+                testingTicksPredicted;
+            }
+          }
+        }
+
+        if (shouldPush)
+          turnTrackerList.push(new ConditionTurnTracker(combatantId, conditionId, timeOfNextMove));
       }
 
       const delay = TurnOrderManager.getActionDelayCost(

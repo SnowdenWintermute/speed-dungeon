@@ -43,7 +43,7 @@ export function outfitNewCharacter(character: Combatant) {
 
   for (const actionName of ownedActions) {
     const action = new CombatantActionState(actionName);
-    if (actionName === CombatActionName.Fire) action.level = 2;
+    if (actionName === CombatActionName.Fire) action.level = 1;
     combatantProperties.ownedActions[actionName] = action;
   }
 

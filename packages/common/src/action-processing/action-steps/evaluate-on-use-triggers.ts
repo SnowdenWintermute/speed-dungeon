@@ -44,7 +44,7 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
       DurabilityChangesByEntityId.ApplyToGame(game, durabilityChanges);
     }
 
-    // if it is a condition, remove stacks and send removed stacks update
+    // action was used by a condition, remove stacks and send removed stacks update
     if (combatant.combatantProperties.asShimmedUserOfTriggeredCondition) {
       const { condition } = combatant.combatantProperties.asShimmedUserOfTriggeredCondition;
       const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
@@ -60,7 +60,7 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
           hostEntity.combatantProperties,
           numStacksRemoved
         );
-        // send update
+
         addRemovedConditionStacksToUpdate(
           condition.id,
           numStacksRemoved,

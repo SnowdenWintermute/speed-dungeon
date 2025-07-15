@@ -252,6 +252,9 @@ export abstract class CombatantCondition {
       return condition.id !== conditionId;
     });
 
+    // @PERF - remove the associated turn scheduler
+    // from the battle
+
     return removed;
   }
 
