@@ -1,7 +1,6 @@
 import React from "react";
 import { useGameStore } from "@/stores/game-store";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
-import TurnOrderBar from "./TurnOrderBar";
 import RoomExplorationTracker from "./RoomExplorationTracker";
 import { ClientToServerEvent, DUNGEON_ROOM_TYPE_STRINGS } from "@speed-dungeon/common";
 import getGameAndParty from "@/utils/getGameAndParty";
@@ -10,7 +9,7 @@ import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
-import { HOTKEYS } from "@/hotkeys";
+import TurnOrderPredictionBar from "./turn-order-prediction-bar";
 
 export default function TopInfoBar() {
   const mutateGameState = useGameStore().mutateState;
@@ -22,6 +21,7 @@ export default function TopInfoBar() {
   const [game, party] = result;
 
   const battleOptionResult = getCurrentBattleOption(game, party.name);
+
   function leaveGame() {
     websocketConnection.emit(ClientToServerEvent.LeaveGame);
 
@@ -49,7 +49,7 @@ export default function TopInfoBar() {
         {DUNGEON_ROOM_TYPE_STRINGS[party.currentRoom.roomType]}
       </div>
       {!(battleOptionResult instanceof Error) && battleOptionResult !== null ? (
-        <TurnOrderBar trackers={battleOptionResult.turnOrderManager.turnTrackers} />
+        <TurnOrderPredictionBar trackers={battleOptionResult.turnOrderManager.turnTrackers} />
       ) : (
         <RoomExplorationTracker />
       )}
