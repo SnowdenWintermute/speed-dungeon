@@ -37,6 +37,7 @@ export class BurningCombatantCondition implements CombatantCondition {
   }
 
   getTickSpeed(condition: CombatantCondition) {
+    // return condition.level * BASE_CONDITION_TICK_SPEED;
     return condition.level * BASE_CONDITION_TICK_SPEED;
   }
 

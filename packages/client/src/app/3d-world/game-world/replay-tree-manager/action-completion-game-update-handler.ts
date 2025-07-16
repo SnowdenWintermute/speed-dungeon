@@ -1,9 +1,9 @@
 import getCurrentParty from "@/utils/getCurrentParty";
 import { useGameStore } from "@/stores/game-store";
-import { ERROR_MESSAGES, InputLock, InputLockUpdateCommand } from "@speed-dungeon/common";
+import { ActionCompletionUpdateCommand, ERROR_MESSAGES, InputLock } from "@speed-dungeon/common";
 
 export async function actionCompletionGameUpdateHandler(update: {
-  command: InputLockUpdateCommand;
+  command: ActionCompletionUpdateCommand;
   isComplete: boolean;
 }) {
   if (update.command.endActiveCombatantTurn) {

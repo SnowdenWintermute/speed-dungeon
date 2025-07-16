@@ -46,8 +46,17 @@ export default function CharacterAutofocusManager() {
       previousBattleId = party.battleId;
       const clientIsViewingMenus = gameState.stackedMenuStates.length;
       const currentMenu = getCurrentMenu(gameState);
+
       if (clientIsViewingMenus && currentMenu.type !== MenuStateType.ItemsOnGround) return;
 
+      // On Turn End
+      // if viewing menu other than ItemsOnGround, do nothing
+      // if newly active actor is player character AND is currently focusing the previously most recently active player character
+      // - change focus to newly active
+
+      // on battle end, focus first owned character
+      // on battle start, focus active character if any (not enemy going first)
+      //
       if (previousActiveCombatantIdOption !== null && activeCombatantIdOption !== null) {
         const newActiveCombatantId = activeCombatantIdOption;
         const newlyActiveCombatantIsPlayerCharacter =

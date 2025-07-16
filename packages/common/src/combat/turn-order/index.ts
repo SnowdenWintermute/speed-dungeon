@@ -8,14 +8,14 @@ import {
   BASE_ACTION_DELAY_MULTIPLIER,
   SPEED_DELAY_RECOVERY_WEIGHT,
 } from "./consts.js";
-import { TurnOrderScheduler } from "./turn-order-scheduler.js";
+import { TurnSchedulerManager } from "./turn-scheduler-manager.js";
 
 export class TurnOrderManager {
   minTrackersCount: number = 12;
-  turnOrderScheduler: TurnOrderScheduler;
+  turnSchedulerManager: TurnSchedulerManager;
   turnTrackers: (CombatantTurnTracker | ConditionTurnTracker)[] = [];
   constructor(game: SpeedDungeonGame, party: AdventuringParty, battle: Battle) {
-    this.turnOrderScheduler = new TurnOrderScheduler(this.minTrackersCount, game, battle);
+    this.turnSchedulerManager = new TurnSchedulerManager(this.minTrackersCount, game, battle);
     this.updateTrackers(game, party);
   }
 
@@ -33,8 +33,7 @@ export class TurnOrderManager {
   ): Milliseconds {
     const fastest = this.getFastestActorTurnOrderTracker();
     console.log("fastest turn order tracker:", fastest);
-    const tracker =
-      this.turnOrderScheduler.getMatchingSchedulerTrackerFromTurnOrderTracker(fastest);
+    const tracker = this.turnSchedulerManager.getMatchingSchedulerFromTurnOrderTracker(fastest);
 
     // @TODO - get delay multiplier from action
     const delay = TurnOrderManager.getActionDelayCost(
@@ -63,7 +62,7 @@ export class TurnOrderManager {
   }
 
   updateTrackers(game: SpeedDungeonGame, party: AdventuringParty) {
-    const newList = this.turnOrderScheduler.buildNewList(game, party);
+    const newList = this.turnSchedulerManager.buildNewList(game, party);
     this.turnTrackers = newList;
   }
 

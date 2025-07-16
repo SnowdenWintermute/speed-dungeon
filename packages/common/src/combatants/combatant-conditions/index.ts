@@ -8,7 +8,6 @@ import { FriendOrFoe } from "../../combat/combat-actions/targeting-schemes-and-c
 import { CombatantContext } from "../../combatant-context/index.js";
 import { EntityId, EntityProperties, MaxAndCurrent } from "../../primatives/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
-import { removeFromArray } from "../../utils/index.js";
 import { Combatant, CombatantProperties } from "../index.js";
 import { BurningCombatantCondition } from "./burning.js";
 import { PrimedForExplosionCombatantCondition } from "./primed-for-explosion.js";
@@ -223,7 +222,7 @@ export abstract class CombatantCondition {
     // and the combatant who's action applied this condition won't update their scheduler
     // until a later step
     const appliedByScheduler =
-      battleOption.turnOrderManager.turnOrderScheduler.getSchedulerTrackerByCombatantId(
+      battleOption.turnOrderManager.turnSchedulerManager.getSchedulerByCombatantId(
         condition.appliedBy.entityProperties.id
       );
 
@@ -236,7 +235,7 @@ export abstract class CombatantCondition {
 
     const combatantApplyingAccumulatedDelay = appliedByScheduler.accumulatedDelay;
 
-    battleOption.turnOrderManager.turnOrderScheduler.addNewSchedulerTracker(
+    battleOption.turnOrderManager.turnSchedulerManager.addNewSchedulerTracker(
       { appliedTo: combatant.entityProperties.id, condition },
       combatantApplyingAccumulatedDelay + appliedByPredictedAdditionalDelay + 1
     );
