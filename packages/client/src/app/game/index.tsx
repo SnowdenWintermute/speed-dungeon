@@ -5,7 +5,6 @@ import TopInfoBar from "./TopInfoBar";
 import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
 import MonsterPlaques from "./MonsterPlaques";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
-import CharacterAutofocusManager from "./CharacterAutofocusManager";
 import ReadyUpDisplay from "./ReadyUpDisplay";
 import CombatLog from "./combat-log";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
@@ -38,7 +37,6 @@ export default function Game() {
   if (focusedCharacterResult instanceof Error)
     return (
       <div>
-        <CharacterAutofocusManager />
         <div>Awaiting focused character...</div>
       </div>
     );
@@ -58,7 +56,6 @@ export default function Game() {
           zIndex: viewingLeaveGameModal ? ZIndexLayers.GameModal : ZIndexLayers.MainUI,
         }}
       >
-        <CharacterAutofocusManager />
         <CurrentItemUnmetRequirementsUpdater />
         <PartyWipeModal party={party} />
         {

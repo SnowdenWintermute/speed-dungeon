@@ -202,7 +202,7 @@ export abstract class CombatantCondition {
       // if stackable and of same level, add to stacks
       if (existingCondition.stacksOption) {
         if (existingCondition.stacksOption.max > existingCondition.stacksOption.current)
-          existingCondition.stacksOption.current += 1;
+          existingCondition.stacksOption.current += condition.stacksOption?.current ?? 0;
         return;
       }
       // not stackable, replace or just add it

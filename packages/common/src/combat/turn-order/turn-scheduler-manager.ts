@@ -109,12 +109,14 @@ export class TurnSchedulerManager {
     }
   }
 
-  sortSchedulers(sortBy: TurnTrackerSortableProperty) {
+  sortSchedulers(sortBy: TurnTrackerSortableProperty, party: AdventuringParty) {
     switch (sortBy) {
       case TurnTrackerSortableProperty.TimeOfNextMove:
         this.schedulers.sort((a, b) => {
           if (a.timeOfNextMove !== b.timeOfNextMove) {
             return a.timeOfNextMove - b.timeOfNextMove;
+          } else if (a.getSpeed(party) !== b.getSpeed(party)) {
+            return b.getSpeed(party) - a.getSpeed(party);
           } else return a.combatantId.localeCompare(b.combatantId);
         });
         break;
@@ -122,7 +124,9 @@ export class TurnSchedulerManager {
         this.schedulers.sort((a, b) => {
           if (a.accumulatedDelay !== b.accumulatedDelay)
             return a.accumulatedDelay - b.accumulatedDelay;
-          else return a.combatantId.localeCompare(b.combatantId);
+          else if (a.getSpeed(party) !== b.getSpeed(party)) {
+            return b.getSpeed(party) - a.getSpeed(party);
+          } else return a.combatantId.localeCompare(b.combatantId);
         });
         break;
     }
@@ -156,7 +160,7 @@ export class TurnSchedulerManager {
     const predictedConsumedStacksOnTickByConditionId: Record<EntityId, number> = {};
 
     while (turnTrackerList.length < this.minTurnTrackersCount) {
-      this.sortSchedulers(TurnTrackerSortableProperty.TimeOfNextMove);
+      this.sortSchedulers(TurnTrackerSortableProperty.TimeOfNextMove, party);
       const fastestActor = this.getFirstScheduler();
       if (fastestActor instanceof CombatantTurnScheduler) {
         const combatantResult = AdventuringParty.getCombatant(party, fastestActor.combatantId);

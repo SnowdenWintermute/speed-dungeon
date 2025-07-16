@@ -4,6 +4,7 @@ import {
   Consumable,
   ERROR_MESSAGES,
   Equipment,
+  InputLock,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { ClientActionCommandReceiver } from ".";
@@ -14,8 +15,9 @@ import { gameWorld } from "../3d-world/SceneManager";
 import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
 import { MenuStateType } from "../game/ActionMenu/menu-state";
 import { plainToInstance } from "class-transformer";
+import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 
-export default async function battleResultActionCommandHandler(
+export async function battleResultActionCommandHandler(
   this: ClientActionCommandReceiver,
   _gameName: string,
   payload: BattleResultActionCommandPayload
@@ -57,6 +59,10 @@ export default async function battleResultActionCommandHandler(
         );
         break;
       case BattleConclusion.Victory:
+        characterAutoFocusManager.focusFirstOwnedCharacter();
+
+        InputLock.unlockInput(partyOption.inputLock);
+
         const levelups = SpeedDungeonGame.handleBattleVictory(gameOption, partyOption, payload);
 
         for (const [characterId, expChange] of Object.entries(payload.experiencePointChanges)) {

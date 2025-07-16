@@ -1,6 +1,7 @@
 import getCurrentParty from "@/utils/getCurrentParty";
 import { useGameStore } from "@/stores/game-store";
 import { ActionCompletionUpdateCommand, ERROR_MESSAGES, InputLock } from "@speed-dungeon/common";
+import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 
 export async function actionCompletionGameUpdateHandler(update: {
   command: ActionCompletionUpdateCommand;
@@ -23,6 +24,8 @@ export async function actionCompletionGameUpdateHandler(update: {
         actionNameOption
       );
       battleOption.turnOrderManager.updateTrackers(state.game, partyOption);
+      const newlyActiveTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
+      characterAutoFocusManager.updateFocusedCharacterOnNewTurnOrder(state, newlyActiveTracker);
     });
   }
 

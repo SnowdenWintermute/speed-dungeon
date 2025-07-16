@@ -32,7 +32,6 @@ export class TurnOrderManager {
     actionNameOption: null | CombatActionName
   ): Milliseconds {
     const fastest = this.getFastestActorTurnOrderTracker();
-    console.log("fastest turn order tracker:", fastest);
     const tracker = this.turnSchedulerManager.getMatchingSchedulerFromTurnOrderTracker(fastest);
 
     // @TODO - get delay multiplier from action
@@ -40,8 +39,6 @@ export class TurnOrderManager {
       tracker.getSpeed(party),
       BASE_ACTION_DELAY_MULTIPLIER
     );
-
-    console.log("adding delay:", delay, "to scheduler:", tracker);
 
     tracker.accumulatedDelay += delay;
 

@@ -1,4 +1,5 @@
 import { setAlert } from "@/app/components/alerts";
+import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { Battle, ERROR_MESSAGES, InputLock } from "@speed-dungeon/common";
@@ -21,6 +22,11 @@ export function battleFullUpdateHandler(battleOption: null | Battle) {
 
       const currentActorIsPlayerControlled =
         rehydratedBattle.turnOrderManager.currentActorIsPlayerControlled(party);
+
+      characterAutoFocusManager.handleBattleStart(
+        gameState,
+        rehydratedBattle.turnOrderManager.getFastestActorTurnOrderTracker()
+      );
 
       if (!currentActorIsPlayerControlled) {
         // it is ai controlled so lock input
