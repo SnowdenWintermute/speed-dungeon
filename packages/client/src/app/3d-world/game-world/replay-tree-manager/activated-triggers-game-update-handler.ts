@@ -145,7 +145,7 @@ export async function activatedTriggersGameUpdateHandler(update: {
     const partyResult = gameState.getParty();
     if (partyResult instanceof Error) throw partyResult;
     const battleOption = AdventuringParty.getBattleOption(partyResult, game);
-    battleOption?.turnOrderManager.updateTrackers(partyResult);
+    battleOption?.turnOrderManager.updateTrackers(game, partyResult);
   });
 
   for (const { ownerId, equipment } of brokenHoldablesAndTheirOwnerIds)

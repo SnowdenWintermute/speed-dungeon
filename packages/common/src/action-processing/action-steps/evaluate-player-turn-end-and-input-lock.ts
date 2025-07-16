@@ -92,7 +92,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     const { actionName } = tracker.actionExecutionIntent;
 
     battleOption.turnOrderManager.updateSchedulerWithExecutedActionDelay(party, actionName);
-    battleOption.turnOrderManager.updateTrackers(party);
+    battleOption.turnOrderManager.updateTrackers(game, party);
 
     sequentialActionManagerRegistry.markTurnEnded();
     shouldSendEndActiveTurnMessage = true;

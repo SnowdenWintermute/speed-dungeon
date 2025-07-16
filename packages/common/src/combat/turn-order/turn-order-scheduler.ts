@@ -160,7 +160,7 @@ export class TurnOrderScheduler {
     }
   }
 
-  buildNewList(party: AdventuringParty) {
+  buildNewList(game: SpeedDungeonGame, party: AdventuringParty) {
     this.resetTurnSchedulerTrackers(party);
 
     const turnTrackerList: (CombatantTurnTracker | ConditionTurnTracker)[] = [];
@@ -197,12 +197,16 @@ export class TurnOrderScheduler {
           } else {
             const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
             if (tickPropertiesOption) {
-              // @TODO - get the real value
-              const testingTicksPredicted = 1;
+              const combatantAppliedToResult = AdventuringParty.getCombatant(party, combatantId);
+              if (combatantAppliedToResult instanceof Error) throw combatantAppliedToResult;
+
+              const ticksPredicted = tickPropertiesOption.onTick(
+                condition,
+                new CombatantContext(game, party, combatantAppliedToResult)
+              ).numStacksRemoved;
 
               predictedConsumedStacksOnTickByConditionId[conditionId] =
-                (predictedConsumedStacksOnTickByConditionId[conditionId] ?? 0) +
-                testingTicksPredicted;
+                (predictedConsumedStacksOnTickByConditionId[conditionId] ?? 0) + ticksPredicted;
             }
           }
         }

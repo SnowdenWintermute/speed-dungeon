@@ -117,7 +117,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
               );
             }
 
-            battleOption?.turnOrderManager.updateTrackers(party);
+            battleOption?.turnOrderManager.updateTrackers(game, party);
           }
         }
 

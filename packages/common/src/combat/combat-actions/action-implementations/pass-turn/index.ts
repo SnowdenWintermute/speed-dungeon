@@ -3,6 +3,7 @@ import {
   CombatActionLeaf,
   CombatActionName,
   CombatActionOrigin,
+  CombatActionUsabilityContext,
   TargetCategories,
 } from "../../index.js";
 import {
@@ -24,6 +25,7 @@ const config: CombatActionComponentConfig = {
   targetingProperties: {
     ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle],
     validTargetCategories: TargetCategories.User,
+    usabilityContext: CombatActionUsabilityContext.InCombat,
   },
   hitOutcomeProperties:
     GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Medication],

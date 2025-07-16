@@ -16,7 +16,7 @@ export class TurnOrderManager {
   turnTrackers: (CombatantTurnTracker | ConditionTurnTracker)[] = [];
   constructor(game: SpeedDungeonGame, party: AdventuringParty, battle: Battle) {
     this.turnOrderScheduler = new TurnOrderScheduler(this.minTrackersCount, game, battle);
-    this.updateTrackers(party);
+    this.updateTrackers(game, party);
   }
 
   static getActionDelayCost(speed: number, actionDelayMultiplier: number) {
@@ -62,8 +62,8 @@ export class TurnOrderManager {
     return fastest instanceof CombatantTurnTracker && fastest.combatantId === combatantId;
   }
 
-  updateTrackers(party: AdventuringParty) {
-    const newList = this.turnOrderScheduler.buildNewList(party);
+  updateTrackers(game: SpeedDungeonGame, party: AdventuringParty) {
+    const newList = this.turnOrderScheduler.buildNewList(game, party);
     this.turnTrackers = newList;
   }
 

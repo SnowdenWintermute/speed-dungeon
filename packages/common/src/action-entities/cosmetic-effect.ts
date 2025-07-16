@@ -6,6 +6,7 @@ export enum CosmeticEffectNames {
   FrostParticleStream,
   FrostParticleBurst,
   CombatantIsCold,
+  Burning,
   FlameParticleAccumulation,
   FireParticlesLarge,
   FireParticlesSmall,

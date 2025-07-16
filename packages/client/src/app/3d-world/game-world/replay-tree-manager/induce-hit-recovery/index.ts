@@ -77,7 +77,7 @@ export function induceHitRecovery(
         return battleOption.turnOrderManager.combatantIsFirstInTurnOrder(targetId);
       })();
 
-      battleOption?.turnOrderManager.updateTrackers(party);
+      battleOption?.turnOrderManager.updateTrackers(game, party);
 
       if (combatantDiedOnTheirOwnTurn) {
         // end any motion trackers they might have had
@@ -88,7 +88,7 @@ export function induceHitRecovery(
         for (const [movementType, tracker] of combatantModel.movementManager.getTrackers()) {
           tracker.onComplete();
         }
-        battleOption?.turnOrderManager.updateTrackers(party);
+        battleOption?.turnOrderManager.updateTrackers(game, party);
 
         combatantModel.movementManager.activeTrackers = {};
       }

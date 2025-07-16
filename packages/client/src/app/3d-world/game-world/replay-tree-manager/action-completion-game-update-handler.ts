@@ -22,7 +22,7 @@ export async function actionCompletionGameUpdateHandler(update: {
         partyOption,
         actionNameOption
       );
-      battleOption.turnOrderManager.updateTrackers(partyOption);
+      battleOption.turnOrderManager.updateTrackers(state.game, partyOption);
     });
   }
 

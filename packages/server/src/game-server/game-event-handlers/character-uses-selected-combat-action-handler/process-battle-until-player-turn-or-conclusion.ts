@@ -37,13 +37,13 @@ export class BattleProcessor {
     const { gameServer, game, party, battle } = this;
     if (!party.characterPositions[0]) return new Error(ERROR_MESSAGES.PARTY.MISSING_CHARACTERS);
 
-    battle.turnOrderManager.updateTrackers(party);
+    battle.turnOrderManager.updateTrackers(game, party);
     let currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
 
     const payloads: ActionCommandPayload[] = [];
 
     while (currentActorTurnTracker) {
-      battle.turnOrderManager.updateTrackers(party);
+      battle.turnOrderManager.updateTrackers(game, party);
       currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
 
       const partyWipesResult = checkForWipes(game, party.characterPositions[0], party.battleId);
@@ -108,7 +108,7 @@ export class BattleProcessor {
   } {
     const { game, party, battle } = this;
     // get action intents for conditions or ai combatants
-    battle.turnOrderManager.updateTrackers(party);
+    battle.turnOrderManager.updateTrackers(game, party);
     const fastestActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
 
     if (fastestActorTurnTracker instanceof ConditionTurnTracker) {

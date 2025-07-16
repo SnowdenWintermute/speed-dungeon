@@ -4,10 +4,9 @@ import {
   CombatantConditionName,
   ConditionAppliedBy,
 } from "./index.js";
-import { Combatant, createShimmedUserOfTriggeredCondition } from "../index.js";
+import { createShimmedUserOfTriggeredCondition } from "../index.js";
 import { CombatActionIntent, CombatActionName } from "../../combat/combat-actions/index.js";
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
-import { IdGenerator } from "../../utility-classes/index.js";
 import { CombatantContext } from "../../combatant-context/index.js";
 import { BASE_CONDITION_TICK_SPEED } from "../../combat/turn-order/consts.js";
 import {
@@ -15,6 +14,13 @@ import {
   CombatActionTargetType,
 } from "../../combat/targeting/combat-action-targets.js";
 import { immerable } from "immer";
+import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
+import {
+  CharacterModelIdentifier,
+  CombatantBaseChildTransformNodeIdentifier,
+  CombatantBaseChildTransformNodeName,
+  SceneEntityType,
+} from "../../scene-entities/index.js";
 
 export class BurningCombatantCondition implements CombatantCondition {
   [immerable] = true;
@@ -68,16 +74,28 @@ export class BurningCombatantCondition implements CombatantCondition {
     return false;
   }
 
-  onTriggered(
-    combatantContext: CombatantContext,
-    targetCombatant: Combatant,
-    idGenerator: IdGenerator
-  ) {
+  onTriggered() {
     return {
       numStacksRemoved: this.stacksOption.current,
       triggeredActions: [],
     };
   }
 
-  getCosmeticEffectWhileActive = () => [];
+  getCosmeticEffectWhileActive = (combatantId: EntityId) => {
+    const sceneEntityIdentifier: CharacterModelIdentifier = {
+      type: SceneEntityType.CharacterModel,
+      entityId: combatantId,
+    };
+    const parent: CombatantBaseChildTransformNodeIdentifier = {
+      sceneEntityIdentifier,
+      transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
+    };
+
+    const effect = {
+      name: CosmeticEffectNames.Burning,
+      parent,
+    };
+
+    return [effect];
+  };
 }

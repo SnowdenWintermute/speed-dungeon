@@ -46,7 +46,7 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
 
     const { game, party } = context.combatantContext;
     const battleOption = AdventuringParty.getBattleOption(party, game);
-    battleOption?.turnOrderManager.updateTrackers(party);
+    battleOption?.turnOrderManager.updateTrackers(game, party);
   }
 
   protected onTick = () => {};
