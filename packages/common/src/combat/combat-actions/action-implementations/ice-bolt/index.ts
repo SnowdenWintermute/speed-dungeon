@@ -65,8 +65,11 @@ const config: CombatActionComponentConfig = {
 
   stepsConfig,
 
-  getOnUseMessage: (actionUserName: string, actionLevel: number) => {
-    return `${actionUserName} casts ice bolt (level ${actionLevel}).`;
+  getOnUseMessage: (data) => {
+    return `${data.nameOfActionUser} casts ice bolt (level ${data.actionLevel}).`;
+  },
+  getOnUseMessageData: (context) => {
+    return {};
   },
   shouldExecute: () => true,
   getConcurrentSubActions(context) {

@@ -54,6 +54,7 @@ export function getMeleeAttackBaseStepsConfig(holdableSlotType: HoldableSlotType
         },
       },
       [ActionResolutionStepType.PayResourceCosts]: {},
+      [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
       [ActionResolutionStepType.EvalOnUseTriggers]: {},
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},

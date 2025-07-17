@@ -8,7 +8,6 @@ import {
 import { GAME_UPDATE_COMMAND_HANDLERS } from "./game-update-command-handlers";
 import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
-import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
 import { startOrStopCosmeticEffects } from "./start-or-stop-cosmetic-effect";
 
 export class ReplayTreeManager {

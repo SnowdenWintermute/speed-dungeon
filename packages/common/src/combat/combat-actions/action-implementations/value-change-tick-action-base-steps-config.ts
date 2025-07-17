@@ -7,6 +7,7 @@ export function getValueChangeTickActionBasedSpellBaseStepsConfig() {
       [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
       // [ActionResolutionStepType.OnActivationSpawnEntity]: {},
       [ActionResolutionStepType.PayResourceCosts]: {},
+      [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
       [ActionResolutionStepType.EvalOnUseTriggers]: {},
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},

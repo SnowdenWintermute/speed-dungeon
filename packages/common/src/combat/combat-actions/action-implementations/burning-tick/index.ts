@@ -31,9 +31,11 @@ const config: CombatActionComponentConfig = {
   description: "Inflict magical fire damage on enemies",
   origin: CombatActionOrigin.TriggeredCondition,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
-
-  getOnUseMessage: (actionUserName: string, actionLevel: number) => {
-    return `${actionUserName} burns`;
+  getOnUseMessage: (data) => {
+    return `${data.nameOfTarget} is burning`;
+  },
+  getOnUseMessageData(context) {
+    return {};
   },
   targetingProperties: GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle],
   hitOutcomeProperties: {

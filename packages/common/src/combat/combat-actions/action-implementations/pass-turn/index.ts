@@ -28,8 +28,13 @@ const config: CombatActionComponentConfig = {
     usabilityContext: CombatActionUsabilityContext.InCombat,
   },
 
-  getOnUseMessage: (actionUserName: string, actionLevel: number) => {
-    return `${actionUserName} passes their turn.`;
+  getOnUseMessage: (data) => {
+    return `${data.nameOfActionUser} passes their turn.`;
+  },
+  getOnUseMessageData: (context) => {
+    const { combatantContext } = context;
+    const nameOfActionUser = combatantContext.combatant.entityProperties.name;
+    return { nameOfActionUser };
   },
   hitOutcomeProperties:
     GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Medication],

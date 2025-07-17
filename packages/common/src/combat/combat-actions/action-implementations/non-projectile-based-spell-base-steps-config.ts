@@ -42,6 +42,7 @@ export function getNonProjectileBasedSpellBaseStepsConfig() {
           ),
       },
       [ActionResolutionStepType.PayResourceCosts]: {},
+      [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
       [ActionResolutionStepType.EvalOnUseTriggers]: {},
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},

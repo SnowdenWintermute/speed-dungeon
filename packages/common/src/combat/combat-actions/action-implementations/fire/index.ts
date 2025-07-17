@@ -35,8 +35,11 @@ const config: CombatActionComponentConfig = {
   origin: CombatActionOrigin.SpellCast,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
 
-  getOnUseMessage: (actionUserName: string, actionLevel: number) => {
-    return `${actionUserName} casts fire (level ${actionLevel}).`;
+  getOnUseMessage: (data) => {
+    return `${data.nameOfActionUser} casts fire (level ${data.actionLevel}).`;
+  },
+  getOnUseMessageData(context) {
+    return {};
   },
   targetingProperties,
   hitOutcomeProperties: FIRE_HIT_OUTCOME_PROPERTIES,

@@ -31,7 +31,6 @@ import { TargetingCalculator } from "../../../targeting/targeting-calculator.js"
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { KineticDamageType } from "../../../kinetic-damage-types.js";
 import { PrimedForIceBurstCombatantCondition } from "../../../../combatants/combatant-conditions/primed-for-ice-burst.js";
-import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
 import cloneDeep from "lodash.clonedeep";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { ActionEntityName } from "../../../../action-entities/index.js";
@@ -54,7 +53,6 @@ import {
   ActionEntityBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
-import { ERROR_MESSAGES } from "../../../../errors/index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
@@ -114,8 +112,11 @@ const config: CombatActionComponentConfig = {
   description: "Deals kinetic ice damage in an area around the target",
   origin: CombatActionOrigin.TriggeredCondition,
 
-  getOnUseMessage: (actionUserName: string, actionLevel: number) => {
-    return `${actionUserName} shatters!`;
+  getOnUseMessage: (data) => {
+    return `${data.nameOfTarget} shatters!`;
+  },
+  getOnUseMessageData: (context) => {
+    return {};
   },
   targetingProperties,
   hitOutcomeProperties,

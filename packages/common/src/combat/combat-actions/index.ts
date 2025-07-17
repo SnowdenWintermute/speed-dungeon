@@ -35,6 +35,12 @@ export enum CombatActionOrigin {
   Attack,
 }
 
+export interface ActionUseMessageData {
+  nameOfActionUser?: string;
+  nameOfTarget?: string;
+  actionLevel?: number;
+}
+
 export interface CombatActionComponentConfig {
   description: string;
   /** Used by the combat log to determine how to format messages */
@@ -51,7 +57,8 @@ export interface CombatActionComponentConfig {
     self: CombatActionComponent
   ) => boolean;
 
-  getOnUseMessage: null | ((combatantName: string, actionLevel: number) => string);
+  getOnUseMessage: null | ((messageData: ActionUseMessageData) => string);
+  getOnUseMessageData: null | ((context: ActionResolutionStepContext) => ActionUseMessageData);
 
   getRequiredRange: (
     user: CombatantProperties,
@@ -101,7 +108,8 @@ export abstract class CombatActionComponent {
     combatantContext: CombatantContext,
     previousTrackerOption: undefined | ActionTracker
   ) => boolean;
-  getOnUseMessage: null | ((combatantName: string, actionLevel: number) => string);
+  getOnUseMessage: null | ((messageData: ActionUseMessageData) => string);
+  getOnUseMessageData: null | ((context: ActionResolutionStepContext) => ActionUseMessageData);
   getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
 
@@ -137,6 +145,7 @@ export abstract class CombatActionComponent {
     this.shouldExecute = (combatantContext, previousTrackerOption) =>
       config.shouldExecute(combatantContext, previousTrackerOption, this);
     this.getOnUseMessage = config.getOnUseMessage;
+    this.getOnUseMessageData = config.getOnUseMessageData;
     this.getRequiredRange = (user) => config.getRequiredRange(user, this);
     this.getSpawnableEntity = config.getSpawnableEntity;
     this.stepsConfig = config.stepsConfig;

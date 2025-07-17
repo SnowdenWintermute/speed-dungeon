@@ -62,6 +62,7 @@ export function getProjectileShootingActionBaseStepsConfig(
           ),
       },
       [ActionResolutionStepType.PayResourceCosts]: {},
+      [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
       [ActionResolutionStepType.EvalOnUseTriggers]: {},
       [ActionResolutionStepType.StartConcurrentSubActions]: {},
       [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},

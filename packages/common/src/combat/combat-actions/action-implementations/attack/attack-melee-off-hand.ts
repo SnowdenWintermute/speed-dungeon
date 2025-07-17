@@ -74,6 +74,7 @@ export const ATTACK_MELEE_OFF_HAND_CONFIG: CombatActionComponentConfig = {
   origin: CombatActionOrigin.Attack,
   getRequiredRange: () => CombatActionRequiredRange.Melee,
   getOnUseMessage: null,
+  getOnUseMessageData: null,
   targetingProperties,
   hitOutcomeProperties,
   costProperties: {

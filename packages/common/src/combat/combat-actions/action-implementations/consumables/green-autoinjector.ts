@@ -66,8 +66,11 @@ const config: CombatActionComponentConfig = {
   origin: CombatActionOrigin.Medication,
   targetingProperties,
   hitOutcomeProperties,
-  getOnUseMessage: (actionUserName: string, actionLevel: number) => {
-    return `${actionUserName} uses a green autoinjector.`;
+  getOnUseMessage: (data) => {
+    return `${data.nameOfActionUser} uses a green autoinjector.`;
+  },
+  getOnUseMessageData(context) {
+    return {};
   },
   costProperties: {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Medication],
