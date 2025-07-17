@@ -1,6 +1,7 @@
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
+import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { useGameStore } from "@/stores/game-store";
 import {
   enqueueCharacterItemsForThumbnails,
@@ -47,4 +48,6 @@ export function gameStartedHandler(timeStarted: number) {
   gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.SynchronizeCombatantModels,
   });
+
+  characterAutoFocusManager.focusFirstOwnedCharacter();
 }

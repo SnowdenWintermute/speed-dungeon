@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { EntityId, Milliseconds } from "../primatives/index.js";
+import { ConditionId, EntityId, Milliseconds } from "../primatives/index.js";
 import {
   ActionResourceCosts,
   CombatActionHitOutcomes,
@@ -30,6 +30,7 @@ export enum GameUpdateCommandType {
   ResourcesPaid,
   ActivatedTriggers,
   HitOutcomes,
+  ActionCompletion,
 }
 
 export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, string> = {
@@ -39,6 +40,7 @@ export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, str
   [GameUpdateCommandType.ResourcesPaid]: "Resources Paid",
   [GameUpdateCommandType.ActivatedTriggers]: "Activated Triggers",
   [GameUpdateCommandType.HitOutcomes]: "Hit Outcomes",
+  [GameUpdateCommandType.ActionCompletion]: "Action Completion",
 };
 
 export type GameEntity = Combatant | ActionEntity;
@@ -141,6 +143,7 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   hitPointChanges?: HitPointChanges;
   appliedConditions?: Partial<Record<HitOutcome, Record<EntityId, CombatantCondition[]>>>;
   removedConditionStacks?: Record<EntityId, { conditionId: EntityId; numStacks: number }[]>;
+  removedConditionIds?: Record<EntityId, ConditionId[]>;
 }
 
 export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {
@@ -150,10 +153,17 @@ export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {
   outcomes: CombatActionHitOutcomes;
 }
 
+export interface ActionCompletionUpdateCommand extends IGameUpdateCommand {
+  type: GameUpdateCommandType.ActionCompletion;
+  unlockInput?: boolean;
+  endActiveCombatantTurn?: boolean;
+}
+
 export type GameUpdateCommand =
   | SpawnEntityGameUpdateCommand
   | CombatantMotionGameUpdateCommand
   | ActionEntityMotionGameUpdateCommand
   | ResourcesPaidGameUpdateCommand
   | ActivatedTriggersGameUpdateCommand
-  | HitOutcomesGameUpdateCommand;
+  | HitOutcomesGameUpdateCommand
+  | ActionCompletionUpdateCommand;

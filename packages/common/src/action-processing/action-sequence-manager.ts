@@ -39,12 +39,14 @@ export class ActionSequenceManager {
   getCurrentTracker() {
     return this.currentTracker;
   }
-
   isCurrentlyProcessing() {
     return !!this.getCurrentTracker();
   }
   isDoneProcessing() {
     return !this.isCurrentlyProcessing() && this.remainingActionsToExecute.length === 0;
+  }
+  getRemainingActionsToExecute() {
+    return this.remainingActionsToExecute;
   }
   // action children may depend on the outcome of their parent so we must process their parent first
   populateSelfWithCurrentActionChildren() {
@@ -84,6 +86,8 @@ export class ActionSequenceManager {
         continue;
       }
 
+      this.sequentialActionManagerRegistry.incrementInputLockReferenceCount();
+
       childActionIntents.push(
         new CombatActionExecutionIntent(intentResult.actionName, targetsResult)
       );
@@ -93,7 +97,14 @@ export class ActionSequenceManager {
   }
 
   startProcessingNext(time: { ms: Milliseconds }): Error | ActionTracker {
-    if (this.currentTracker) this.completedTrackers.push(this.currentTracker);
+    if (this.currentTracker) {
+      this.completedTrackers.push(this.currentTracker);
+      console.log(
+        "completed tracker for action",
+        COMBAT_ACTION_NAME_STRINGS[this.currentTracker.actionExecutionIntent.actionName]
+      );
+    }
+
     const nextActionExecutionIntentOption = this.remainingActionsToExecute.pop();
     if (!nextActionExecutionIntentOption)
       return new Error("Tried to process next action but there wasn't one");

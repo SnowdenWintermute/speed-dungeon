@@ -124,6 +124,7 @@ export const ERROR_MESSAGES = {
     IS_FULLY_REPAIRED: "That item is already at full durability",
   },
   EQUIPMENT: {
+    IS_BROKEN: "That equipment is broken",
     INVALID_TYPE: "Invalid equipment type was provided",
     NO_ITEM_EQUIPPED: "No item is equipped in that slot",
     REQUIREMENTS_NOT_MET: "You don't meet the requirements to equip that item",

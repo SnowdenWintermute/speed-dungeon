@@ -141,11 +141,7 @@ export const AUTO_TARGETING_FUNCTIONS: Record<AutoTargetingScheme, AutoTargeting
         return combatActionTarget.targetId;
     })();
 
-    console.log("target id: ", targetId);
-
     if (targetId === undefined) throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
-
-    console.log("target entity for within radius: ", targetId);
 
     // get all combatants within radius of combatant location
     const mainTargetCombatant = AdventuringParty.getCombatant(party, targetId);
@@ -160,15 +156,6 @@ export const AUTO_TARGETING_FUNCTIONS: Record<AutoTargetingScheme, AutoTargeting
       if (potentialTargetCombatant instanceof Error) throw potentialTargetCombatant;
       const { position } = potentialTargetCombatant.combatantProperties;
       const distanceFromMainTarget = Vector3.Distance(mainTargetPosition, position);
-
-      console.log(
-        "distance",
-        mainTargetCombatant.entityProperties.id,
-        "from",
-        potentialTargetCombatant.entityProperties.id,
-        ":",
-        distanceFromMainTarget
-      );
 
       if (distanceFromMainTarget <= radius) validTargetsWithinRadius.push(potentialTargetId);
     }

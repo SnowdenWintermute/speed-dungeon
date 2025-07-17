@@ -3,7 +3,11 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "../index.js";
-import { GameUpdateCommand, GameUpdateCommandType } from "../../game-update-commands.js";
+import {
+  ActivatedTriggersGameUpdateCommand,
+  GameUpdateCommand,
+  GameUpdateCommandType,
+} from "../../game-update-commands.js";
 import {
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
@@ -22,13 +26,16 @@ import { HitOutcome } from "../../../hit-outcome.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
 import { CombatantCondition } from "../../../combatants/combatant-conditions/index.js";
 import { addConditionToUpdate } from "./add-condition-to-update.js";
-import { addRemovedConditionStacksToUpdate } from "./add-triggered-condition-to-update.js";
+import {
+  addRemovedConditionIdToUpdate,
+  addRemovedConditionStacksToUpdate,
+} from "./add-triggered-condition-to-update.js";
 
 const stepType = ActionResolutionStepType.EvalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
   branchingActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] = [];
   constructor(context: ActionResolutionStepContext) {
-    const gameUpdateCommand: GameUpdateCommand = {
+    const gameUpdateCommand: ActivatedTriggersGameUpdateCommand = {
       type: GameUpdateCommandType.ActivatedTriggers,
       actionName: context.tracker.actionExecutionIntent.actionName,
       step: stepType,
@@ -39,6 +46,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     const { actionExecutionIntent } = tracker;
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
     const { game, party, combatant } = combatantContext;
+    const battleOption = AdventuringParty.getBattleOption(party, game);
     const { outcomeFlags, hitPointChanges } = tracker.hitOutcomes;
 
     const durabilityChanges = new DurabilityChangesByEntityId();
@@ -62,11 +70,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           flag,
           hpChangeIsCrit
         );
-
-        if (!durabilityChanges.isEmpty()) {
-          gameUpdateCommand.durabilityChanges = durabilityChanges;
-          DurabilityChangesByEntityId.ApplyToGame(game, durabilityChanges);
-        }
 
         if (flag === HitOutcome.Hit) {
           for (const condition of targetCombatant.combatantProperties.conditions) {
@@ -104,9 +107,11 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           }
 
           const conditionsToApply = action.hitOutcomeProperties.getAppliedConditions(context);
-          if (conditionsToApply)
+
+          if (conditionsToApply) {
             for (const condition of conditionsToApply) {
-              CombatantCondition.applyToCombatant(condition, targetCombatant.combatantProperties);
+              CombatantCondition.applyToCombatant(condition, targetCombatant, battleOption, party);
+
               addConditionToUpdate(
                 condition,
                 gameUpdateCommand,
@@ -114,6 +119,21 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
                 HitOutcome.Hit
               );
             }
+
+            battleOption?.turnOrderManager.updateTrackers(game, party);
+          }
+        }
+
+        if (flag === HitOutcome.Death) {
+          for (const condition of targetCombatant.combatantProperties.conditions) {
+            if (!condition.removedOnDeath) continue;
+            CombatantCondition.removeById(condition.id, combatantResult.combatantProperties);
+            addRemovedConditionIdToUpdate(
+              condition.id,
+              gameUpdateCommand,
+              targetCombatant.entityProperties.id
+            );
+          }
         }
 
         if (flag === HitOutcome.Counterattack) {
@@ -136,7 +156,10 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
       }
     }
 
-    gameUpdateCommand.durabilityChanges = durabilityChanges;
+    if (!durabilityChanges.isEmpty()) {
+      gameUpdateCommand.durabilityChanges = durabilityChanges;
+      DurabilityChangesByEntityId.ApplyToGame(game, durabilityChanges);
+    }
 
     const triggeredHitPointChanges = new HitPointChanges();
     let accumulatedLifeStolenResourceChange: null | ResourceChange = null;

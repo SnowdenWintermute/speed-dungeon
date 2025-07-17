@@ -29,7 +29,6 @@ export async function removeDeadCharactersFromLadder(characters: {
 
 export async function loadLadderIntoKvStore() {
   await valkeyManager.context.del(CHARACTER_LEVEL_LADDER);
-  console.log("loading kv ladder");
   const rows = await playerCharactersRepo.getAllByLevel();
   if (!rows) return console.error("Couldn't load character levels");
   const forValkey: { value: string; score: number }[] = [];
@@ -45,5 +44,4 @@ export async function loadLadderIntoKvStore() {
   const topTen = await valkeyManager.context.zRangeWithScores(CHARACTER_LEVEL_LADDER, 0, 10, {
     REV: true,
   });
-  console.log("Top 10 characters by level: ", topTen);
 }

@@ -10,6 +10,7 @@ export * from "./action-sequence-manager-registry.js";
 export * from "./action-steps/combatant-motion.js";
 
 import { BattleConclusion } from "../battle/index.js";
+import { CombatActionName } from "../combat/index.js";
 import { Consumable } from "../items/consumables/index.js";
 import { Equipment } from "../items/equipment/index.js";
 import { GameMessageType } from "../packets/game-message.js";
@@ -18,7 +19,6 @@ import { NestedNodeReplayEvent } from "./replay-events.js";
 
 export enum ActionCommandType {
   CombatActionReplayTree,
-  EndCombatantTurnIfFirstInTurnOrder,
   BattleResult,
   GameMessages,
   RemovePlayerFromGame,
@@ -54,22 +54,15 @@ export type RemovePlayerFromGamePayload = {
   username: string;
 };
 
-export type EndActiveCombatantTurnPayload = {
-  type: ActionCommandType.EndCombatantTurnIfFirstInTurnOrder;
-  entityId: EntityId;
-};
-
 export type ActionCommandPayload =
   | CombatActionReplayTreePayload
   | BattleResultActionCommandPayload
   | GameMessagesPayload
-  | RemovePlayerFromGamePayload
-  | EndActiveCombatantTurnPayload;
+  | RemovePlayerFromGamePayload;
 
 export const ACTION_COMMAND_TYPE_STRINGS: Record<ActionCommandType, string> = {
   [ActionCommandType.CombatActionReplayTree]: "Combat Action Replay Tree",
   [ActionCommandType.BattleResult]: "Battle result",
   [ActionCommandType.GameMessages]: "Game messages",
   [ActionCommandType.RemovePlayerFromGame]: "Remove player from game",
-  [ActionCommandType.EndCombatantTurnIfFirstInTurnOrder]: "EndCombatantTurnIfFirstInTurnOrder",
 };

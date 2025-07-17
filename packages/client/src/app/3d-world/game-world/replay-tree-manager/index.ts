@@ -10,7 +10,6 @@ import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
 import { startOrStopCosmeticEffects } from "./start-or-stop-cosmetic-effect";
-import getParty from "@/utils/getParty";
 
 export class ReplayTreeManager {
   private queue: { root: NestedNodeReplayEvent; onComplete: () => void }[] = [];
@@ -37,12 +36,13 @@ export class ReplayTreeManager {
     useGameStore.getState().mutateState((state) => {
       const partyOption = getCurrentParty(state, state.username || "");
       if (partyOption) InputLock.lockInput(partyOption.inputLock);
-      if (
-        state.stackedMenuStates[0] &&
-        state.stackedMenuStates[0].type === MenuStateType.CombatActionSelected
-      ) {
-        state.stackedMenuStates.pop();
-      }
+      state.stackedMenuStates = [];
+      // if (
+      //   state.stackedMenuStates[0] &&
+      //   state.stackedMenuStates[0].type === MenuStateType.CombatActionSelected
+      // ) {
+      //   state.stackedMenuStates.pop();
+      // }
     });
   }
 
@@ -62,17 +62,6 @@ export class ReplayTreeManager {
     if (this.currentTreeCompleted()) {
       if (this.current !== null) {
         this.current.onComplete();
-
-        // the tree has ended and there are no trees waiting to be processed
-        // so lets unlock their input
-        if (this.queue.length === 0) {
-          useGameStore.getState().mutateState((state) => {
-            const partyResult = getParty(state.game, state.username);
-            if (!(partyResult instanceof Error)) {
-              InputLock.unlockInput(partyResult.inputLock);
-            }
-          });
-        }
       }
       this.current = null;
       this.startNext();

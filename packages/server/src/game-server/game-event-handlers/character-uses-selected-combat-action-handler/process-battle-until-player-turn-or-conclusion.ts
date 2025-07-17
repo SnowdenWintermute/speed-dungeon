@@ -3,117 +3,161 @@ import {
   ActionCommand,
   ActionCommandPayload,
   ActionCommandType,
+  ActivatedTriggersGameUpdateCommand,
   AdventuringParty,
   Battle,
+  CombatActionExecutionIntent,
   CombatActionReplayTreePayload,
+  Combatant,
+  CombatantCondition,
   CombatantContext,
-  CombatantTurnTracker,
+  ConditionTurnTracker,
   ERROR_MESSAGES,
+  GameUpdateCommandType,
   ServerToClientEvent,
   SpeedDungeonGame,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
-import { checkForWipes } from "./check-for-wipes.js";
+import { checkForWipes, PartyWipes } from "./check-for-wipes.js";
 import { processCombatAction } from "./process-combat-action.js";
 import { getBattleConclusionCommandAndPayload } from "../action-command-handlers/get-battle-conclusion-command-and-payload.js";
 
-export async function processBattleUntilPlayerTurnOrConclusion(
-  gameServer: GameServer,
-  game: SpeedDungeonGame,
-  party: AdventuringParty,
-  battleOption: Battle | null
-) {
-  if (!party.characterPositions[0]) return new Error(ERROR_MESSAGES.PARTY.MISSING_CHARACTERS);
-  let partyWipesResult = checkForWipes(game, party.characterPositions[0], party.battleId);
-  if (partyWipesResult instanceof Error) return partyWipesResult;
-  let battleConcluded = false;
-  let newActiveCombatantTrackerOption: undefined | CombatantTurnTracker =
-    battleOption?.turnTrackers[0];
+export class BattleProcessor {
+  constructor(
+    private gameServer: GameServer,
+    private game: SpeedDungeonGame,
+    private party: AdventuringParty,
+    private battle: Battle
+  ) {
+    //
+  }
 
-  while (battleOption && !battleConcluded && newActiveCombatantTrackerOption) {
-    partyWipesResult = checkForWipes(game, party.characterPositions[0], party.battleId);
-    battleConcluded = partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated;
+  async processBattleUntilPlayerTurnOrConclusion() {
+    const { gameServer, game, party, battle } = this;
+    if (!party.characterPositions[0]) return new Error(ERROR_MESSAGES.PARTY.MISSING_CHARACTERS);
 
-    if (battleConcluded) {
-      let actionCommandPayloads: ActionCommandPayload[] = [];
-      const conclusion = await getBattleConclusionCommandAndPayload(game, party, partyWipesResult);
-      actionCommandPayloads.push(conclusion.payload);
-      party.actionCommandQueue.enqueueNewCommands([conclusion.command]);
-      const payloadsResult = await party.actionCommandQueue.processCommands();
-      if (payloadsResult instanceof Error) return payloadsResult;
-      actionCommandPayloads.push(...payloadsResult);
-      const payloadsCommands = payloadsResult.map(
-        (item) => new ActionCommand(game.name, item, gameServer)
-      );
-      party.actionCommandQueue.enqueueNewCommands(payloadsCommands);
-      await party.actionCommandQueue.processCommands();
+    battle.turnOrderManager.updateTrackers(game, party);
+    let currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
 
-      gameServer.io
-        .in(getPartyChannelName(game.name, party.name))
-        .emit(ServerToClientEvent.ActionCommandPayloads, actionCommandPayloads);
-      break;
-    }
+    const payloads: ActionCommandPayload[] = [];
 
-    const activeCombatantResult = SpeedDungeonGame.getCombatantById(
-      game,
-      newActiveCombatantTrackerOption.entityId
-    );
-    if (activeCombatantResult instanceof Error) return activeCombatantResult;
-    let { combatantProperties, entityProperties } = activeCombatantResult;
-    const activeCombatantIsAiControlled = combatantProperties.controllingPlayer === null;
-    if (!activeCombatantIsAiControlled) {
-      console.log("active combatant not AI controlled");
-      break;
-    }
+    while (currentActorTurnTracker) {
+      battle.turnOrderManager.updateTrackers(game, party);
+      currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
 
-    const battleGroupsResult = Battle.getAllyAndEnemyBattleGroups(
-      battleOption,
-      entityProperties.id
-    );
-    if (battleGroupsResult instanceof Error) throw battleGroupsResult;
+      const partyWipesResult = checkForWipes(game, party.characterPositions[0], party.battleId);
+      const battleConcluded = partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated;
 
-    const actionIntent = AISelectActionAndTarget(game, activeCombatantResult, battleGroupsResult);
-    if (actionIntent instanceof Error) throw actionIntent;
-    let skippedTurn = false;
-    if (actionIntent === null) {
-      // they skipped their turn due to no valid action
-      console.log("ai skipped turn");
-      const maybeError = Battle.endCombatantTurnIfInBattle(game, battleOption, entityProperties.id);
-      skippedTurn = true;
-      if (maybeError instanceof Error) return maybeError;
-      newActiveCombatantTrackerOption = battleOption?.turnTrackers[0];
-      continue;
-    }
+      let shouldBreak = false;
 
-    const replayTreeResult = processCombatAction(
-      actionIntent,
-      new CombatantContext(game, party, activeCombatantResult)
-    );
+      // battle ended, stop processing
+      if (battleConcluded) {
+        const battleConclusionPayloads = await this.handleBattleConclusion(partyWipesResult);
+        if (battleConclusionPayloads instanceof Error) throw battleConclusionPayloads;
+        payloads.push(...battleConclusionPayloads);
+        shouldBreak = true;
+      }
+      // it is player's turn, stop processing
+      if (battle.turnOrderManager.currentActorIsPlayerControlled(party)) {
+        shouldBreak = true;
+      }
 
-    if (replayTreeResult instanceof Error) return replayTreeResult;
-    const { rootReplayNode, endedTurn } = replayTreeResult;
+      if (shouldBreak) {
+        break;
+      }
 
-    newActiveCombatantTrackerOption = battleOption?.turnTrackers[0];
+      // get action intent for fastest actor
+      const { actionExecutionIntent, user } = this.getNextActionIntentAndUser();
 
-    const actionUserId = activeCombatantResult.entityProperties.id;
-    const payload: CombatActionReplayTreePayload = {
-      type: ActionCommandType.CombatActionReplayTree,
-      actionUserId,
-      root: rootReplayNode,
-    };
+      // process action intents
+      let shouldEndTurn = false;
+      if (actionExecutionIntent === null) {
+        console.log("AI action intent was null");
+        shouldEndTurn = true;
+      } else {
+        const replayTreeResult = processCombatAction(
+          actionExecutionIntent,
+          new CombatantContext(game, party, user)
+        );
 
-    const payloads: ActionCommandPayload[] = [payload];
+        if (replayTreeResult instanceof Error) return replayTreeResult;
+        const { rootReplayNode } = replayTreeResult;
 
-    if (endedTurn || skippedTurn) {
-      payloads.push({
-        type: ActionCommandType.EndCombatantTurnIfFirstInTurnOrder,
-        entityId: actionUserId,
-      });
+        const actionUserId = user.entityProperties.id;
+        const payload: CombatActionReplayTreePayload = {
+          type: ActionCommandType.CombatActionReplayTree,
+          actionUserId,
+          root: rootReplayNode,
+        };
+
+        payloads.push(payload);
+      }
+
+      currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
     }
 
     gameServer.io
       .in(getPartyChannelName(game.name, party.name))
       .emit(ServerToClientEvent.ActionCommandPayloads, payloads);
+  }
+
+  getNextActionIntentAndUser(): {
+    actionExecutionIntent: null | CombatActionExecutionIntent;
+    user: Combatant;
+  } {
+    const { game, party, battle } = this;
+    // get action intents for conditions or ai combatants
+    battle.turnOrderManager.updateTrackers(game, party);
+    const fastestActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
+
+    if (fastestActorTurnTracker instanceof ConditionTurnTracker) {
+      const condition = fastestActorTurnTracker.getCondition(this.party);
+      const combatant = fastestActorTurnTracker.getCombatant(this.party);
+      const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
+      if (tickPropertiesOption === undefined)
+        throw new Error("expected condition tick properties were missing");
+      const onTick = tickPropertiesOption.onTick(
+        condition,
+        new CombatantContext(game, party, combatant)
+      );
+
+      const { actionExecutionIntent, user } = onTick.triggeredAction;
+      return { actionExecutionIntent, user };
+    } else {
+      const activeCombatantResult = fastestActorTurnTracker.getCombatant(party);
+      if (activeCombatantResult instanceof Error) throw activeCombatantResult;
+      let { entityProperties } = activeCombatantResult;
+
+      const battleGroupsResult = Battle.getAllyAndEnemyBattleGroups(battle, entityProperties.id);
+      if (battleGroupsResult instanceof Error) throw battleGroupsResult;
+
+      const actionExecutionIntent = AISelectActionAndTarget(
+        game,
+        activeCombatantResult,
+        battleGroupsResult
+      );
+      if (actionExecutionIntent instanceof Error) throw actionExecutionIntent;
+      return { actionExecutionIntent, user: activeCombatantResult };
+    }
+  }
+
+  async handleBattleConclusion(partyWipesResult: PartyWipes) {
+    const { gameServer, game, party } = this;
+    let actionCommandPayloads: ActionCommandPayload[] = [];
+
+    const conclusion = await getBattleConclusionCommandAndPayload(game, party, partyWipesResult);
+    actionCommandPayloads.push(conclusion.payload);
+    party.actionCommandQueue.enqueueNewCommands([conclusion.command]);
+    const payloadsResult = await party.actionCommandQueue.processCommands();
+    if (payloadsResult instanceof Error) return payloadsResult;
+    actionCommandPayloads.push(...payloadsResult);
+    const payloadsCommands = payloadsResult.map(
+      (item) => new ActionCommand(game.name, item, gameServer)
+    );
+    party.actionCommandQueue.enqueueNewCommands(payloadsCommands);
+    await party.actionCommandQueue.processCommands();
+
+    return actionCommandPayloads;
   }
 }

@@ -9,14 +9,14 @@ import {
 } from "@/client_consts";
 import GamesSection from "./games-section";
 import UserList from "./user-list/";
-import quickStartGame from "./games-section/quick-start-game";
+import { quickStartGame } from "./games-section/quick-start-game";
 import HoverableTooltipWrapper from "../components/atoms/HoverableTooltipWrapper";
 import GithubLogo from "../../../public/github-logo.svg";
 import DiscordLogo from "../../../public/discord-logo.svg";
 import Link from "next/link";
 import WithTopBar from "../components/layouts/with-top-bar";
 import { useHttpRequestStore } from "@/stores/http-request-store";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useLobbyStore } from "@/stores/lobby-store";
 import AuthFormContainer from "./auth-forms";
 import { websocketConnection } from "@/singletons/websocket-connection";

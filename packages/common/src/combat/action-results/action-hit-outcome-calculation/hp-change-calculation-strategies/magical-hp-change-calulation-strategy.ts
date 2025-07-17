@@ -20,6 +20,7 @@ export class MagicalResourceChangeCalculationStrategy implements ResourceChangeC
     user: CombatantProperties,
     target: CombatantProperties
   ) {
+    if (hpChange.value === 0) return hpChange;
     if (hpChange.value > 0) {
       // don't apply resilience if being healed
       // instead increase the healing done

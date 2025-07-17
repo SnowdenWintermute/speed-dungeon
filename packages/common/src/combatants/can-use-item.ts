@@ -1,15 +1,13 @@
-import { Equipment } from "../items/equipment/index.js";
 import { Item } from "../items/index.js";
 import { CombatantProperties } from "./index.js";
 
-export default function combatantCanUseItem(
+export function combatantHasRequiredAttributesToUseItem(
   combatantProperties: CombatantProperties,
   item: Item
 ): boolean {
   const totalAttributes = CombatantProperties.getTotalAttributes(combatantProperties);
 
-  return (
-    Item.requirementsMet(item, totalAttributes) &&
-    !(item instanceof Equipment && Equipment.isBroken(item))
-  );
+  const requirementsMet = Item.requirementsMet(item, totalAttributes);
+  if (!requirementsMet) return false;
+  return true;
 }

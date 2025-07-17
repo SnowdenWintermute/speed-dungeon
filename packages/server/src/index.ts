@@ -15,7 +15,7 @@ import { pgPool } from "./singletons/pg-pool.js";
 import { pgOptions } from "./database/config.js";
 import { valkeyManager } from "./kv-store/index.js";
 import { loadLadderIntoKvStore } from "./kv-store/utils.js";
-import runMigrations from "./database/run-migrations.js";
+import { runMigrations } from "./database/run-migrations.js";
 import { setUpTestGameWithPartyInBattle } from "./game-server/utils/testing/index.js";
 import { processCombatAction } from "./game-server/game-event-handlers/character-uses-selected-combat-action-handler/process-combat-action.js";
 
@@ -37,56 +37,34 @@ const listening = expressApp.listen(PORT, async () => {
 
   gameServer.current = new GameServer(io);
 
-  const combatantContext = setUpTestGameWithPartyInBattle(idGenerator);
+  // const combatantContext = setUpTestGameWithPartyInBattle(idGenerator);
 
-  const { game, party, combatant } = combatantContext;
-  const combatants = Object.values(party.characters).concat(
-    Object.values(party.currentRoom.monsters)
-  );
-  const combatantPositions = combatants.map((combatant) => [
-    combatant.entityProperties.name,
-    combatant.combatantProperties.position,
-  ]);
+  // const { game, party, combatant } = combatantContext;
+  // const combatants = Object.values(party.characters).concat(
+  //   Object.values(party.currentRoom.monsters)
+  // );
+  // const combatantPositions = combatants.map((combatant) => [
+  //   combatant.entityProperties.name,
+  //   combatant.combatantProperties.position,
+  // ]);
 
-  const opponents = combatantContext.getOpponents();
-  const firstOpponentOption = opponents[0];
-  if (!firstOpponentOption) throw new Error("no targets");
-  const secondOpponentOption = opponents[0];
-  if (!firstOpponentOption) throw new Error("no targets");
+  // const opponents = combatantContext.getOpponents();
+  // const firstOpponentOption = opponents[0];
+  // if (!firstOpponentOption) throw new Error("no targets");
+  // const secondOpponentOption = opponents[0];
+  // if (!firstOpponentOption) throw new Error("no targets");
 
-  const targets: CombatActionTarget = {
-    type: CombatActionTargetType.Single,
-    targetId: firstOpponentOption.entityProperties.id,
-  };
-  const otherTargets: CombatActionTarget = {
-    type: CombatActionTargetType.Single,
-    targetId: firstOpponentOption.entityProperties.id,
-  };
   // const targets: CombatActionTarget = {
-  //   type: CombatActionTargetType.Group,
-  //   friendOrFoe: FriendOrFoe.Hostile
+  //   type: CombatActionTargetType.Single,
+  //   targetId: firstOpponentOption.entityProperties.id,
   // };
-  combatant.combatantProperties.combatActionTarget = targets;
-  // console.log(JSON.stringify(combatantPositions, null, 2));
-
-  // processCombatAction(
-  //   new CombatActionExecutionIntent(CombatActionName.ExplodingArrowParent, targets),
-  //   combatantContext
-  // );
-  // processCombatAction(
-  //   new CombatActionExecutionIntent(CombatActionName.ExplodingArrowParent, targets),
-  //   combatantContext
-  // );
-  // processCombatAction(
-  //   new CombatActionExecutionIntent(CombatActionName.ExplodingArrowParent, targets),
-  //   combatantContext
-  // );
-  // processCombatAction(
-  //   new CombatActionExecutionIntent(CombatActionName.AttackRangedMainhand, targets),
-  //   combatantContext
-  // );
-  // processCombatAction(
-  //   new CombatActionExecutionIntent(CombatActionName.AttackRangedMainhand, targets),
-  //   combatantContext
-  // );
+  // const otherTargets: CombatActionTarget = {
+  //   type: CombatActionTargetType.Single,
+  //   targetId: firstOpponentOption.entityProperties.id,
+  // };
+  // // const targets: CombatActionTarget = {
+  // //   type: CombatActionTargetType.Group,
+  // //   friendOrFoe: FriendOrFoe.Hostile
+  // // };
+  // combatant.combatantProperties.combatActionTarget = targets;
 });

@@ -18,7 +18,7 @@ export class ModelActionQueue {
   }
 
   async processMessages() {
-    if (this.isProcessing) return console.log("already processing");
+    if (this.isProcessing) return;
     this.isProcessing = true;
 
     let currentAction = this.messages.shift();

@@ -21,7 +21,8 @@ export default function handleBattleVictory(
     const newLevelOption = CombatantProperties.awardLevelups(character.combatantProperties);
     if (newLevelOption !== null) levelUps[character.entityProperties.id] = newLevelOption;
     // until revives are added, res dead characters to 1 hp
-    if (character.combatantProperties.hitPoints <= 0) character.combatantProperties.hitPoints = 1;
+    if (character.combatantProperties.hitPoints <= 0)
+      CombatantProperties.changeHitPoints(character.combatantProperties, 1);
   }
 
   party.currentRoom.monsters = {};

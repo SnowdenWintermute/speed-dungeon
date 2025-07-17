@@ -32,11 +32,6 @@ export function startOrStopCosmeticEffects(
       cosmeticEffectManager.cosmeticEffect[name]?.softCleanup();
       cosmeticEffectManager.cosmeticEffect[name] = effect;
 
-      console.log(
-        "trying to find model to parent cosmetic effect on with id",
-        parent.sceneEntityIdentifier
-      );
-
       const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(parent);
 
       effect.transformNode.setParent(targetTransformNode);

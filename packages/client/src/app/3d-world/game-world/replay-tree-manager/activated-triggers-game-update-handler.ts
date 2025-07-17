@@ -2,6 +2,7 @@ import { useGameStore } from "@/stores/game-store";
 import {
   ActionPayableResource,
   ActivatedTriggersGameUpdateCommand,
+  AdventuringParty,
   COMBATANT_CONDITION_CONSTRUCTORS,
   COMBAT_ACTIONS,
   CombatantCondition,
@@ -11,7 +12,6 @@ import {
   EntityId,
   Equipment,
   EquipmentSlotType,
-  FLOATING_MESSAGE_DURATION,
   HitPointChanges,
   SpeedDungeonGame,
   iterateNumericEnumKeyedRecord,
@@ -20,13 +20,6 @@ import { getGameWorld } from "../../SceneManager";
 import { plainToInstance } from "class-transformer";
 import { startOrStopCosmeticEffects } from "./start-or-stop-cosmetic-effect";
 import { induceHitRecovery } from "./induce-hit-recovery";
-import {
-  FLOATING_TEXT_COLORS,
-  FloatingMessageElement,
-  FloatingMessageElementType,
-  FloatingMessageTextColor,
-  startFloatingMessage,
-} from "@/stores/game-store/floating-messages";
 import { postBrokenHoldableMessages } from "./post-broken-holdable-messages";
 
 export async function activatedTriggersGameUpdateHandler(update: {
@@ -42,6 +35,7 @@ export async function activatedTriggersGameUpdateHandler(update: {
   useGameStore.getState().mutateState((gameState) => {
     const game = gameState.game;
     if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+
     if (command.durabilityChanges) {
       gameState.rerenderForcer += 1; // for some reason it delays updating the durability indicators on bow use without this
       // playBeep();
@@ -80,25 +74,33 @@ export async function activatedTriggersGameUpdateHandler(update: {
         command.appliedConditions
       )) {
         for (const [entityId, conditions] of Object.entries(entityAppliedConditions)) {
-          useGameStore.getState().mutateState((state) => {
-            const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
-            if (combatantResult instanceof Error) return combatantResult;
-            for (let condition of conditions) {
-              condition = plainToInstance(
-                COMBATANT_CONDITION_CONSTRUCTORS[condition.name],
-                condition
-              );
+          const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
+          if (combatantResult instanceof Error) return combatantResult;
+          for (let condition of conditions) {
+            condition = plainToInstance(
+              COMBATANT_CONDITION_CONSTRUCTORS[condition.name],
+              condition
+            );
 
-              CombatantCondition.applyToCombatant(condition, combatantResult.combatantProperties);
+            const partyResult = gameState.getParty();
+            if (partyResult instanceof Error) throw partyResult;
 
-              const targetModelOption = getGameWorld().modelManager.findOne(entityId);
+            const battleOption = AdventuringParty.getBattleOption(partyResult, game);
 
-              startOrStopCosmeticEffects(
-                condition.getCosmeticEffectWhileActive(combatantResult.entityProperties.id),
-                []
-              );
-            }
-          });
+            CombatantCondition.applyToCombatant(
+              condition,
+              combatantResult,
+              battleOption,
+              partyResult
+            );
+
+            const targetModelOption = getGameWorld().modelManager.findOne(entityId);
+
+            startOrStopCosmeticEffects(
+              condition.getCosmeticEffectWhileActive(combatantResult.entityProperties.id),
+              []
+            );
+          }
         }
       }
     }
@@ -108,35 +110,73 @@ export async function activatedTriggersGameUpdateHandler(update: {
         command.removedConditionStacks
       )) {
         for (const { conditionId, numStacks } of conditionIdAndStacks) {
-          useGameStore.getState().mutateState((state) => {
-            const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
-            if (combatantResult instanceof Error) return combatantResult;
+          const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
+          if (combatantResult instanceof Error) return combatantResult;
 
-            const conditionRemovedOption = CombatantCondition.removeStacks(
-              conditionId,
-              combatantResult.combatantProperties,
-              numStacks
+          const conditionRemovedOption = CombatantCondition.removeStacks(
+            conditionId,
+            combatantResult.combatantProperties,
+            numStacks
+          );
+
+          if (conditionRemovedOption) {
+            const targetModelOption = getGameWorld().modelManager.findOne(entityId);
+            startOrStopCosmeticEffects(
+              [],
+              conditionRemovedOption
+                .getCosmeticEffectWhileActive(targetModelOption.entityId)
+                .map((cosmeticEffectOnTransformNode) => {
+                  return {
+                    sceneEntityIdentifier:
+                      cosmeticEffectOnTransformNode.parent.sceneEntityIdentifier,
+                    name: cosmeticEffectOnTransformNode.name,
+                  };
+                })
             );
-
-            if (conditionRemovedOption) {
-              const targetModelOption = getGameWorld().modelManager.findOne(entityId);
-              startOrStopCosmeticEffects(
-                [],
-                conditionRemovedOption
-                  .getCosmeticEffectWhileActive(targetModelOption.entityId)
-                  .map((cosmeticEffectOnTransformNode) => {
-                    return {
-                      sceneEntityIdentifier:
-                        cosmeticEffectOnTransformNode.parent.sceneEntityIdentifier,
-                      name: cosmeticEffectOnTransformNode.name,
-                    };
-                  })
-              );
-            }
-          });
+          }
         }
       }
     }
+
+    if (command.removedConditionIds) {
+      for (const [entityId, conditionIdsRemoved] of Object.entries(command.removedConditionIds)) {
+        for (const conditionId of conditionIdsRemoved) {
+          const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
+          if (combatantResult instanceof Error) return combatantResult;
+
+          const conditionRemovedOption = CombatantCondition.removeById(
+            conditionId,
+            combatantResult.combatantProperties
+          );
+
+          if (conditionRemovedOption) {
+            const targetModelOption = getGameWorld().modelManager.findOne(entityId);
+            startOrStopCosmeticEffects(
+              [],
+              conditionRemovedOption
+                .getCosmeticEffectWhileActive(targetModelOption.entityId)
+                .map((cosmeticEffectOnTransformNode) => {
+                  return {
+                    sceneEntityIdentifier:
+                      cosmeticEffectOnTransformNode.parent.sceneEntityIdentifier,
+                    name: cosmeticEffectOnTransformNode.name,
+                  };
+                })
+            );
+          }
+        }
+      }
+    }
+  });
+
+  // conditions may have added trackers that we need to account for
+  useGameStore.getState().mutateState((gameState) => {
+    const game = gameState.game;
+    if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+    const partyResult = gameState.getParty();
+    if (partyResult instanceof Error) throw partyResult;
+    const battleOption = AdventuringParty.getBattleOption(partyResult, game);
+    battleOption?.turnOrderManager.updateTrackers(game, partyResult);
   });
 
   for (const { ownerId, equipment } of brokenHoldablesAndTheirOwnerIds)

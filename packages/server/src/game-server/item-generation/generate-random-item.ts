@@ -36,7 +36,7 @@ export function generateRandomItem(this: GameServer, itemLevel: number): Error |
     attempts += 1;
   }
   if (randomItemResult instanceof Error) {
-    console.log(
+    console.info(
       `Couldn't find a valid item to generate, giving an autoinjector (${randomItemResult.message})`
     );
     const autoinjectorType =

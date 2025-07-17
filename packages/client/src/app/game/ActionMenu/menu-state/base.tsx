@@ -11,7 +11,6 @@ import {
   MenuStateType,
 } from ".";
 import {
-  Battle,
   ClientToServerEvent,
   CombatantProperties,
   Inventory,
@@ -177,10 +176,8 @@ function disableButtonBecauseNotThisCombatantTurn(combatantId: string) {
   let disableButtonBecauseNotThisCombatantTurn = false;
 
   if (battleOptionResult && !(battleOptionResult instanceof Error)) {
-    disableButtonBecauseNotThisCombatantTurn = !Battle.combatantIsFirstInTurnOrder(
-      battleOptionResult,
-      combatantId
-    );
+    disableButtonBecauseNotThisCombatantTurn =
+      !battleOptionResult.turnOrderManager.combatantIsFirstInTurnOrder(combatantId);
   }
 
   return disableButtonBecauseNotThisCombatantTurn;

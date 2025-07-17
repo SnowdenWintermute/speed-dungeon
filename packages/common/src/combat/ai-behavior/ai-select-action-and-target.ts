@@ -1,6 +1,6 @@
 import { CombatActionName, CombatActionTarget, CombatActionTargetType } from "../index.js";
 import { BattleGroup } from "../../battle/index.js";
-import { Combatant } from "../../combatants/index.js";
+import { Combatant, CombatantProperties } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { chooseRandomFromArray } from "../../utils/index.js";
 import { AIBehaviorContext } from "./ai-context.js";
@@ -14,9 +14,6 @@ export function AISelectActionAndTarget(
   battleGroups: AllyAndEnemyBattleGroups
 ): Error | null | CombatActionExecutionIntent {
   const { allyGroup, enemyGroup } = battleGroups;
-  const randomEnemyTargetResult = getRandomAliveEnemy(game, enemyGroup);
-  if (randomEnemyTargetResult instanceof Error) return randomEnemyTargetResult;
-  const randomEnemyTarget = randomEnemyTargetResult;
 
   const { combatantProperties: userCombatantProperties } = user;
 
@@ -32,7 +29,6 @@ export function AISelectActionAndTarget(
   //   () => 1
   // );
   // const targetSelectionTreeSuccess = targetSelector.execute();
-  // console.log("targetSelectionTreeSuccess:", targetSelectionTreeSuccess);
 
   /// TESTING AI CONTEXT DONE
   const randomTarget = getRandomAliveEnemy(game, enemyGroup);
@@ -58,14 +54,17 @@ export function AISelectActionAndTarget(
 function getRandomAliveEnemy(
   game: SpeedDungeonGame,
   enemyBattleGroup: BattleGroup
-): Error | null | Combatant {
+): Error | Combatant {
   const idsOfAliveTargets = [];
   for (const enemyId of enemyBattleGroup.combatantIds) {
     let combatantResult = SpeedDungeonGame.getCombatantById(game, enemyId);
     if (combatantResult instanceof Error) return combatantResult;
-    if (combatantResult.combatantProperties.hitPoints > 0) idsOfAliveTargets.push(enemyId);
+    if (!CombatantProperties.isDead(combatantResult.combatantProperties))
+      idsOfAliveTargets.push(enemyId);
   }
-  if (idsOfAliveTargets.length === 0) return null;
+  if (idsOfAliveTargets.length === 0) {
+    throw new Error("no alive targets found in getRandomAliveEnemy");
+  }
   const randomTargetIdResult = chooseRandomFromArray(idsOfAliveTargets);
   if (randomTargetIdResult instanceof Error) return randomTargetIdResult;
 

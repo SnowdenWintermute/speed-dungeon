@@ -35,7 +35,7 @@ export interface CombatActionCostProperties extends CombatActionCostPropertiesCo
   getResourceCosts: (user: CombatantProperties) => null | ActionResourceCosts;
 }
 
-const genericCombatActionCostProperties: CombatActionCostPropertiesConfig = {
+export const genericCombatActionCostProperties: CombatActionCostPropertiesConfig = {
   incursDurabilityLoss: {},
   costBases: {},
   getResourceCosts: () => null,
@@ -48,7 +48,7 @@ const genericSpellCostProperties: CombatActionCostPropertiesConfig = {
   getResourceCosts: getStandardActionCost,
   costBases: {
     [ActionPayableResource.Mana]: {
-      base: 3,
+      base: 0.5,
       multipliers: {
         actionLevel: 1.2,
         userCombatantLevel: 1.2,

@@ -11,6 +11,7 @@ import { getSpeciesTimedAnimation } from "./get-species-timed-animation.js";
 export function getNonProjectileBasedSpellBaseStepsConfig() {
   return new ActionResolutionStepsConfig(
     {
+      [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
       [ActionResolutionStepType.InitialPositioning]: {
         getDestination: getStepForwardDestination,
         getAnimation: () => {
@@ -44,7 +45,7 @@ export function getNonProjectileBasedSpellBaseStepsConfig() {
       [ActionResolutionStepType.EvalOnUseTriggers]: {},
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
-
+      [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
       [ActionResolutionStepType.RecoveryMotion]: {
         getAnimation: (user, animationLengths) =>
           getSpeciesTimedAnimation(

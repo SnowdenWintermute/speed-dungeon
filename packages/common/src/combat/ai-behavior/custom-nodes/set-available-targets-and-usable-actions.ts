@@ -50,11 +50,7 @@ export class SetAvailableTargetsAndUsableActions implements BehaviorNode {
           actionUsabilityContext
         );
 
-        console.log("usable before filter: ", usableActions);
-
         listOfUsableActionNames = usableActions.filter(this.isSuitableAction);
-
-        console.log("usable actions: ", listOfUsableActionNames);
 
         if (listOfUsableActionNames.length) {
           this.context.usableActionNames = usableActions;
@@ -73,8 +69,6 @@ export class SetAvailableTargetsAndUsableActions implements BehaviorNode {
         const filteredTargets = combatantsList.filter((combatant) =>
           this.shouldConsiderCombatantAsTarget(this.context, combatant)
         );
-
-        console.log("filtered targets: ", filteredTargets.length);
 
         if (filteredTargets.length) {
           this.context.consideredTargetCombatants = filteredTargets;

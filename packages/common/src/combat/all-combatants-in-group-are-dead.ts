@@ -1,6 +1,7 @@
+import { CombatantProperties } from "../combatants/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 
-export default function allCombatantsInGroupAreDead(
+export function allCombatantsInGroupAreDead(
   game: SpeedDungeonGame,
   combatantIds: string[]
 ): Error | boolean {
@@ -9,7 +10,7 @@ export default function allCombatantsInGroupAreDead(
     const combatantResult = SpeedDungeonGame.getCombatantById(game, id);
     if (combatantResult instanceof Error) return combatantResult;
     const { combatantProperties } = combatantResult;
-    if (combatantProperties.hitPoints > 0) return false;
+    if (!CombatantProperties.isDead(combatantProperties)) return false;
   }
 
   return true;

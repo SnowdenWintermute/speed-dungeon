@@ -1,64 +1,167 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { CombatantProperties } from "../../combatants/index.js";
-import { EntityId } from "../../primatives/index.js";
+import { Battle } from "../../battle/index.js";
+import { SpeedDungeonGame } from "../../game/index.js";
+import { EntityId, Milliseconds } from "../../primatives/index.js";
+import { CombatActionName } from "../combat-actions/combat-action-names.js";
+import {
+  BASE_ACTION_DELAY,
+  BASE_ACTION_DELAY_MULTIPLIER,
+  SPEED_DELAY_RECOVERY_WEIGHT,
+} from "./consts.js";
+import { TurnSchedulerManager } from "./turn-scheduler-manager.js";
 
-export * from "./tick-combat-until-next-combatant-is-active.js";
+export class TurnOrderManager {
+  minTrackersCount: number = 12;
+  turnSchedulerManager: TurnSchedulerManager;
+  turnTrackers: (CombatantTurnTracker | ConditionTurnTracker)[] = [];
+  constructor(game: SpeedDungeonGame, party: AdventuringParty, battle: Battle) {
+    this.turnSchedulerManager = new TurnSchedulerManager(this.minTrackersCount, game, battle);
+    this.updateTrackers(game, party);
+  }
 
-export class CombatantTurnTracker {
-  movement: number = 0;
+  static getActionDelayCost(speed: number, actionDelayMultiplier: number) {
+    const speedBonus = speed * SPEED_DELAY_RECOVERY_WEIGHT;
+    const delayAfterSpeedBonus = BASE_ACTION_DELAY / (BASE_ACTION_DELAY + speedBonus);
+    const delay = actionDelayMultiplier * delayAfterSpeedBonus;
+    const rounded = Math.floor(delay * 10);
+    return rounded;
+  }
+
+  updateSchedulerWithExecutedActionDelay(
+    party: AdventuringParty,
+    actionNameOption: null | CombatActionName
+  ): Milliseconds {
+    const fastest = this.getFastestActorTurnOrderTracker();
+    const tracker = this.turnSchedulerManager.getMatchingSchedulerFromTurnOrderTracker(fastest);
+
+    // @TODO - get delay multiplier from action
+    const delay = TurnOrderManager.getActionDelayCost(
+      tracker.getSpeed(party),
+      BASE_ACTION_DELAY_MULTIPLIER
+    );
+
+    tracker.accumulatedDelay += delay;
+
+    return delay;
+  }
+
+  currentActorIsPlayerControlled(party: AdventuringParty) {
+    const fastestTurnOrderTracker = this.getFastestActorTurnOrderTracker();
+    if (fastestTurnOrderTracker instanceof ConditionTurnTracker) {
+      return false;
+    }
+    return party.characterPositions.includes(fastestTurnOrderTracker.combatantId);
+  }
+
+  combatantIsFirstInTurnOrder(combatantId: EntityId) {
+    const fastest = this.getFastestActorTurnOrderTracker();
+    return fastest instanceof CombatantTurnTracker && fastest.combatantId === combatantId;
+  }
+
+  updateTrackers(game: SpeedDungeonGame, party: AdventuringParty) {
+    const newList = this.turnSchedulerManager.buildNewList(game, party);
+    this.turnTrackers = newList;
+  }
+
+  getFastestActorTurnOrderTracker() {
+    const fastest = this.turnTrackers[0];
+    if (!fastest) throw new Error("turn trackers were empty");
+    return fastest;
+  }
+
+  // on action taken
+  // - remove first turn tracker
+  // - remove any dead combatant trackers and their conditions
+  // - animate fill to left
+  // - predict missing trackers and fill them
+  diffTurnTrackers(newTrackers: (CombatantTurnTracker | ConditionTurnTracker)[]) {
+    const oldTrackers = this.turnTrackers;
+    const oldIds = oldTrackers.map((tracker) => tracker.getId());
+    const newIds = newTrackers.map((tracker) => tracker.getId());
+
+    const removedTrackerIds = oldIds.filter((id) => !newIds.includes(id));
+    const addedTrackers = newTrackers.filter((tracker) => !oldIds.includes(tracker.getId()));
+    const persistedTrackers = newTrackers.filter((tracker) => oldIds.includes(tracker.getId()));
+
+    return { removedTrackerIds, persistedTrackers, addedTrackers };
+  }
+  aggregateConditionTrackersTiedForFirst() {}
+
+  // server ticks combat until next tracker
+  // - if is combatant, take their AI turn or wait for user input
+  // - if is condition
+  //   * aggregate any conditions with the same amount of movement and process their branching actions "simultaneously"
+  //   * push any conditions with no more ticks remaining to list of removed trackers
+  // - accumulate a list of removed trackers
+  // - accumulate list of added trackers
+  // - update trackers list with the accumulated lists
+  // - send lists to client
+  // - client animates any action replays
+  // - client animates removal of trackers and additions of new trackers
+  // - if conditions, client updates their aggregated condition turn markers until no markers are left, then
+  // removes the aggregated condition marker
+  //
+  // Turn Order Update Events
+  // - tracker deletions
+  // - tracker translations toward left (consolidation)
+  // - new tracker fadeins
+  // - first tracker in order scales and translates
+  //
+}
+
+export abstract class TurnTracker {
   constructor(
-    public readonly entityId: string,
-    public readonly tieBreakerId: number
+    public readonly combatantId: string,
+    public readonly timeOfNextMove: number
   ) {}
 
   getCombatant(party: AdventuringParty) {
-    return AdventuringParty.getCombatant(party, this.entityId);
+    const combatantResult = AdventuringParty.getCombatant(party, this.combatantId);
+
+    if (combatantResult instanceof Error) throw combatantResult;
+    return combatantResult;
+  }
+
+  getId() {
+    const id = this.timeOfNextMove.toFixed(3) + "--" + this.combatantId;
+    return id;
   }
 }
 
-export class ConditionTurnTracker extends CombatantTurnTracker {
+export class CombatantTurnTracker extends TurnTracker {
+  constructor(combatantId: string, timeOfNextMove: number) {
+    super(combatantId, timeOfNextMove);
+  }
+}
+
+export class ConditionTurnTracker extends TurnTracker {
   constructor(
     combatantId: EntityId,
     public readonly conditionId: EntityId,
-    tieBreakerId: number
+    public readonly timeOfNextMove: number
   ) {
-    super(combatantId, tieBreakerId);
+    super(combatantId, timeOfNextMove);
   }
 
   getCondition(party: AdventuringParty) {
-    const combatantResult = this.getCombatant(party);
-    if (combatantResult instanceof Error) throw combatantResult;
-    const conditionOption = CombatantProperties.getConditionById(
-      combatantResult.combatantProperties,
+    const result = AdventuringParty.getConditionOnCombatant(
+      party,
+      this.combatantId,
       this.conditionId
     );
-    if (conditionOption === null) throw new Error("expected condition not found");
-    return conditionOption;
+    if (result instanceof Error) throw result;
+    return result;
   }
 
   getSpeed(): number {
     return 0;
   }
+
+  getId() {
+    return this.timeOfNextMove + this.conditionId;
+  }
 }
 
-// server ticks combat until next tracker
-// - if is combatant, take their AI turn or wait for user input
-// - if is condition
-//   * aggregate any conditions with the same amount of movement and process their branching actions "simultaneously"
-// - accumulate a list of removed trackers
-// - accumulate list of added trackers
-// - send lists to client
-// - client animates any action replays
-// - client animates removal of trackers and additions of new trackers
-// - if conditions, client updates their aggregated condition turn markers until no markers are left, then
-// removes the aggregated condition marker
-//
-// Turn Order Update Events
-// - tracker deletions
-// - tracker translations toward left (consolidation)
-// - new tracker fadeins
-// - first tracker in order scales and translates
-//
 // [] () () ()
 //
 // FTK turn trackers behavior

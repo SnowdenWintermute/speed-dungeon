@@ -31,6 +31,7 @@ export function getProjectileShootingActionBaseStepsConfig(
 
   return new ActionResolutionStepsConfig(
     {
+      [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
       [ActionResolutionStepType.InitialPositioning]: {
         getDestination: getStepForwardDestination,
         getAnimation: () => {
@@ -63,7 +64,7 @@ export function getProjectileShootingActionBaseStepsConfig(
       [ActionResolutionStepType.PayResourceCosts]: {},
       [ActionResolutionStepType.EvalOnUseTriggers]: {},
       [ActionResolutionStepType.StartConcurrentSubActions]: {},
-
+      [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
       [ActionResolutionStepType.RecoveryMotion]: {
         getAnimation: (user, animationLengths) =>
           getSpeciesTimedAnimation(

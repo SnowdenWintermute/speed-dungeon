@@ -79,7 +79,6 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     const clonedAnimation = this.getClonedAnimation(newAnimationName);
 
     if (clonedAnimation === undefined) {
-      console.log("cloned animation was undefined", newAnimationName);
       // send message to client with timout duration to remove itself
       setDebugMessage(
         this.sceneEntityId,
@@ -105,7 +104,6 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
   }
 
   stepAnimationTransitionWeights(): Error | void {
-    // if (!this.playing) console.log("no animation played this frame");
     if (!this.playing) return;
 
     const length = this.playing.getLength();

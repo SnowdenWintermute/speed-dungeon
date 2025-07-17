@@ -1,7 +1,7 @@
 import cloneDeep from "lodash.clonedeep";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { randBetween } from "../../../utils/index.js";
-import splitResourceChangeWithMultiTargetBonus from "./split-hp-change-with-multi-target-bonus.js";
+import { splitResourceChangeWithMultiTargetBonus } from "./split-hp-change-with-multi-target-bonus.js";
 import { MULTI_TARGET_RESOURCE_CHANGE_BONUS } from "../../../app-consts.js";
 import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
 import { ResourceChange, ResourceChangeSource } from "../../hp-change-source-types.js";
@@ -157,7 +157,7 @@ export function calculateActionHitOutcomes(
 
     // COUNTERATTACKS
     if (hitOutcomeProperties.getCanTriggerCounterattack(user) && !targetWantsToBeHit) {
-      const percentChanceToCounterAttack = 20; // @TODO - derrive this from various combatant properties
+      const percentChanceToCounterAttack = 5; // @TODO - derrive this from various combatant properties
       // const percentChanceToCounterAttack = 100; // @TODO - derrive this from various combatant properties
       const counterAttackRoll = randBetween(0, 100);
       const isCounterAttacked = counterAttackRoll < percentChanceToCounterAttack;
@@ -202,11 +202,11 @@ export function calculateActionHitOutcomes(
       applyKineticAffinities(resourceChange, target);
       applyElementalAffinities(resourceChange, target);
 
-      if (blockDamageReductionNormalizedPercentage)
-        resourceChange.value = Math.max(
-          0,
-          resourceChange.value - resourceChange.value * blockDamageReductionNormalizedPercentage
-        );
+      if (blockDamageReductionNormalizedPercentage) {
+        const damageReduced = resourceChange.value * blockDamageReductionNormalizedPercentage;
+        const damageAdjustedForBlock = resourceChange.value - damageReduced;
+        resourceChange.value = Math.max(0, damageAdjustedForBlock);
+      }
 
       convertResourceChangeValueToFinalSign(resourceChange, target);
 

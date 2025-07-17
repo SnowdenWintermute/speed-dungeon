@@ -2,14 +2,10 @@ import {
   DURABILITY_LOSS_CONDITION_STRINGS,
   DurabilityLossCondition,
 } from "../combat/combat-actions/combat-action-durability-loss-condition.js";
-import {
-  COMBAT_ACTION_NAME_STRINGS,
-  CombatActionComponent,
-} from "../combat/combat-actions/index.js";
+import { CombatActionComponent } from "../combat/combat-actions/index.js";
 import {
   Combatant,
   CombatantEquipment,
-  CombatantProperties,
   applyEquipmentEffectWhileMaintainingResourcePercentages,
 } from "../combatants/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
@@ -64,6 +60,7 @@ export class DurabilityChangesByEntityId {
       combatant.combatantProperties,
       durabilityChange.taggedSlot
     );
+
     if (durabilityChange.value < 0 && equipment?.durability?.current === 0) return;
 
     let existingChanges = this.records[entityId];
@@ -93,7 +90,7 @@ export class DurabilityChangesByEntityId {
         applyEquipmentEffectWhileMaintainingResourcePercentages(
           combatantResult.combatantProperties,
           () => {
-            if (equipmentOption) Equipment.changeDurability(equipmentOption, value);
+            if (equipmentOption !== undefined) Equipment.changeDurability(equipmentOption, value);
             if (onApply && equipmentOption) onApply(combatantResult, equipmentOption);
           }
         );
@@ -147,7 +144,8 @@ export class DurabilityChangesByEntityId {
           user.combatantProperties,
           taggedSlot
         );
-        if (equipment?.durability?.current === 0) continue;
+        if (equipment === undefined) continue;
+        if (equipment.durability?.current === 0) continue;
 
         this.updateOrCreateDurabilityChangeRecord(user, {
           taggedSlot: { type: EquipmentSlotType.Holdable, slot: holdableSlot },

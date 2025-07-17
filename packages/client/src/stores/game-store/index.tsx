@@ -16,7 +16,7 @@ import {
   TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
 import { MutateState } from "../mutate-state";
-import getActiveCombatant from "@/utils/getActiveCombatant";
+import { getActiveCombatant } from "@/utils/getActiveCombatant";
 import getParty from "@/utils/getParty";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";

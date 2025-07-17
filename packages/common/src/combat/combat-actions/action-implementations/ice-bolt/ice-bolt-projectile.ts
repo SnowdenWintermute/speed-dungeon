@@ -40,6 +40,7 @@ const config: CombatActionComponentConfig = {
   targetingProperties,
   hitOutcomeProperties: iceBoltProjectileHitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
+  getOnUseMessage: null,
   getChildren: (context) => [],
   getParent: () => ICE_BOLT_PARENT,
   getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
@@ -49,6 +50,7 @@ const config: CombatActionComponentConfig = {
 
   stepsConfig: new ActionResolutionStepsConfig(
     {
+      [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
       [ActionResolutionStepType.OnActivationSpawnEntity]: {},
       [ActionResolutionStepType.OnActivationActionEntityMotion]: {
         getDestination: getPrimaryTargetPositionAsDestination,
@@ -129,6 +131,8 @@ const config: CombatActionComponentConfig = {
         },
       },
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+
+      [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     },
     { userShouldMoveHomeOnComplete: false }
   ),

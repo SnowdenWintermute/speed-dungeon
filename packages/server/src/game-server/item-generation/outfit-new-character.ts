@@ -19,12 +19,13 @@ import {
   CombatantActionState,
   TwoHandedMeleeWeapon,
   Equipment,
+  CombatantContext,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment, { givePlaytestingItems } from "./create-starting-equipment.js";
 import { createConsumableByType } from "./create-consumable-by-type.js";
 import { generateOneOfEachItem, generateSpecificEquipmentType } from "./generate-test-items.js";
-import combatantCanUseItem from "@speed-dungeon/common/src/combatants/can-use-item.js";
+import { combatantHasRequiredAttributesToUseItem } from "@speed-dungeon/common/src/combatants/can-use-item.js";
 
 export function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
@@ -37,6 +38,7 @@ export function outfitNewCharacter(character: Combatant) {
     CombatActionName.UseBlueAutoinjector,
     CombatActionName.IceBoltParent,
     CombatActionName.Fire,
+    CombatActionName.PassTurn,
   ];
 
   for (const actionName of ownedActions) {
@@ -123,8 +125,8 @@ function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
 
   const mh = generateSpecificEquipmentType(
     {
-      equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: OneHandedMeleeWeapon.ButterKnife,
+      equipmentType: EquipmentType.TwoHandedRangedWeapon,
+      baseItemType: TwoHandedRangedWeapon.RecurveBow,
     },
     true
   );
@@ -132,17 +134,17 @@ function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
     combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
       HoldableSlotType.MainHand
     ] = mh;
-  const oh = generateSpecificEquipmentType(
-    {
-      equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: OneHandedMeleeWeapon.ButterKnife,
-    },
-    true
-  );
-  if (!(oh instanceof Error) && combatantProperties.equipment.inherentHoldableHotswapSlots[1])
-    combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
-      HoldableSlotType.OffHand
-    ] = oh;
+  // const oh = generateSpecificEquipmentType(
+  //   {
+  //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
+  //     baseItemType: OneHandedMeleeWeapon.ButterKnife,
+  //   },
+  //   true
+  // );
+  // if (!(oh instanceof Error) && combatantProperties.equipment.inherentHoldableHotswapSlots[1])
+  //   combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
+  //     HoldableSlotType.OffHand
+  //   ] = oh;
 
   // const oh = generateSpecificEquipmentType({
   //   equipmentType: EquipmentType.Shield,
@@ -184,7 +186,7 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   combatantProperties.inherentAttributes[CombatAttribute.Strength] = 40;
   combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 40;
   // combatantProperties.inherentAttributes[CombatAttribute.Speed] = 9999;
-  combatantProperties.inherentAttributes[CombatAttribute.Hp] = 100;
+  combatantProperties.inherentAttributes[CombatAttribute.Hp] = 30;
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
   // combatantProperties.inventory.shards = 9999;

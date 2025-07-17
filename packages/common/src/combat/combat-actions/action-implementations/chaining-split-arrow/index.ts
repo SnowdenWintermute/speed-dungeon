@@ -36,6 +36,10 @@ const config: CombatActionComponentConfig = {
   description: "Fire arrows which each bounce to up to two additional targets",
   origin: CombatActionOrigin.Attack,
   targetingProperties,
+
+  getOnUseMessage: (actionUserName: string, actionLevel: number) => {
+    return `${actionUserName} fires a chaining split arrow.`;
+  },
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
   costProperties: {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],

@@ -1,4 +1,4 @@
-import { CombatActionExecutionIntent } from "../combat/index.js";
+import { COMBAT_ACTION_NAME_STRINGS, CombatActionExecutionIntent } from "../combat/index.js";
 import { CombatantContext } from "../combatant-context/index.js";
 import { CombatantSpecies } from "../combatants/combatant-species.js";
 import { EntityId, Milliseconds } from "../primatives/index.js";
@@ -12,16 +12,21 @@ import { NestedNodeReplayEvent } from "./replay-events.js";
 export class ActionSequenceManagerRegistry {
   private actionManagers: { [id: string]: ActionSequenceManager } = {};
   actionStepIdGenerator = new SequentialIdGenerator();
+  private inputBlockingActionStepsPendingReferenceCount = 0;
+  private turnEnded = false;
   constructor(
     private idGenerator: IdGenerator,
     public readonly animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>
   ) {}
+
   isEmpty() {
     return !Object.values(this.actionManagers).length;
   }
+
   isNotEmpty() {
     return !this.isEmpty();
   }
+
   registerAction(
     actionExecutionIntent: CombatActionExecutionIntent,
     replayNode: NestedNodeReplayEvent,
@@ -44,17 +49,43 @@ export class ActionSequenceManagerRegistry {
     const stepTrackerResult = manager.startProcessingNext(time);
     if (stepTrackerResult instanceof Error) return stepTrackerResult;
     const initialGameUpdate = stepTrackerResult.currentStep.getGameUpdateCommandOption();
+    console.log("registered", COMBAT_ACTION_NAME_STRINGS[actionExecutionIntent.actionName]);
+    this.incrementInputLockReferenceCount();
     return initialGameUpdate;
   }
+
+  incrementInputLockReferenceCount() {
+    this.inputBlockingActionStepsPendingReferenceCount += 1;
+  }
+
+  decrementInputLockReferenceCount() {
+    this.inputBlockingActionStepsPendingReferenceCount -= 1;
+  }
+
+  inputBlockingActionStepsArePending() {
+    return this.inputBlockingActionStepsPendingReferenceCount > 0;
+  }
+
+  getTurnEnded() {
+    return this.turnEnded;
+  }
+
+  markTurnEnded() {
+    this.turnEnded = true;
+  }
+
   getManager(id: EntityId) {
     return this.actionManagers[id];
   }
+
   unRegisterActionManager(id: string) {
     delete this.actionManagers[id];
   }
+
   getManagers() {
     return Object.values(this.actionManagers);
   }
+
   getShortestTimeToCompletion(): number {
     // @PERF - check if a minHeap has better performance
     let msToTick;
@@ -69,7 +100,7 @@ export class ActionSequenceManagerRegistry {
       }
       stepName = ACTION_RESOLUTION_STEP_TYPE_STRINGS[trackerOption.currentStep.type];
     }
-    // console.log("msToTick", stepName, msToTick);
+
     return msToTick || 0;
   }
 }

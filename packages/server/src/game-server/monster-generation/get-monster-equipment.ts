@@ -16,7 +16,7 @@ import { idGenerator } from "../../singletons.js";
 import { CombatantEquipment, HoldableHotswapSlot } from "@speed-dungeon/common";
 import { generateSpecificEquipmentType } from "../item-generation/generate-test-items.js";
 
-export default function getMonsterEquipment(monsterType: MonsterType): CombatantEquipment {
+export function getMonsterEquipment(monsterType: MonsterType): CombatantEquipment {
   const equipment = new CombatantEquipment();
   const mainHoldableHotswapSlot = new HoldableHotswapSlot();
 
@@ -127,8 +127,10 @@ export default function getMonsterEquipment(monsterType: MonsterType): Combatant
         equipmentType: EquipmentType.Shield,
         baseItemType: shieldType,
       });
-      if (!(shieldResult instanceof Error))
+      if (!(shieldResult instanceof Error)) {
+        if (shieldResult.durability) shieldResult.durability.current = 2;
         mainHoldableHotswapSlot.holdables[HoldableSlotType.OffHand] = shieldResult;
+      }
       break;
 
     case MonsterType.FireElemental:

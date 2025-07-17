@@ -15,21 +15,20 @@ import { CombatActionTargetType } from "../../combat/targeting/combat-action-tar
 import { IdGenerator } from "../../utility-classes/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { CombatantContext } from "../../combatant-context/index.js";
+import { immerable } from "immer";
 
 export class PrimedForExplosionCombatantCondition implements CombatantCondition {
+  [immerable] = true;
   name = CombatantConditionName.PrimedForExplosion;
   stacksOption = new MaxAndCurrent(10, 1);
   intent = CombatActionIntent.Malicious;
+  removedOnDeath: boolean = true;
   ticks?: MaxAndCurrent | undefined;
   constructor(
     public id: EntityId,
     public appliedBy: ConditionAppliedBy,
     public level: number
   ) {}
-
-  onTick() {}
-
-  getTickSpeed = () => null;
 
   triggeredWhenHitBy(actionName: CombatActionName) {
     const actionsThatDontTrigger = [
@@ -63,11 +62,6 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
       targetId: targetCombatant.entityProperties.id,
     };
 
-    console.log(
-      "primed for explosion sets shimmed user target as:",
-      targetCombatant.entityProperties.id
-    );
-
     const combatantContextFromConditionUserPerspective = new CombatantContext(
       combatantContext.game,
       combatantContext.party,
@@ -80,8 +74,6 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
 
     if (actionTarget instanceof Error) throw actionTarget;
     if (actionTarget === null) throw new Error("failed to get auto target");
-
-    console.log("primed for explosion sets action target as:", actionTarget);
 
     const explosionActionIntent = new CombatActionExecutionIntent(
       CombatActionName.Explosion,

@@ -29,21 +29,33 @@ export class HitPointChanges extends ResourceChanges<ResourceChange> {
   applyToGame(combatantContext: CombatantContext) {
     const { game, party } = combatantContext;
 
+    const combatantsKilled: EntityId[] = [];
+
     for (const [targetId, hpChange] of Object.entries(this.changes)) {
       const targetResult = AdventuringParty.getCombatant(party, targetId);
       if (targetResult instanceof Error) throw targetResult;
       const { combatantProperties: targetCombatantProperties } = targetResult;
-      const combatantWasAliveBeforeResourceChange = targetCombatantProperties.hitPoints > 0;
+      const combatantWasAliveBeforeResourceChange =
+        !CombatantProperties.isDead(targetCombatantProperties);
+
       CombatantProperties.changeHitPoints(targetCombatantProperties, hpChange.value);
 
-      if (targetCombatantProperties.hitPoints <= 0) {
-        SpeedDungeonGame.handleCombatantDeath(game, party.battleId, targetId);
-      }
+      const combatantIsDead = CombatantProperties.isDead(targetCombatantProperties);
 
-      // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
-      if (!combatantWasAliveBeforeResourceChange && targetCombatantProperties.hitPoints > 0) {
+      const wasResurrected = !combatantWasAliveBeforeResourceChange && !combatantIsDead;
+
+      const wasKilled = combatantWasAliveBeforeResourceChange && combatantIsDead;
+      if (wasKilled) combatantsKilled.push(targetId);
+
+      if (wasResurrected) {
+        // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
+        // - well actually in the new system we just need to make sure their turnSchedulerTracker gets updated
+        // with all the delay from the turns they would have taken if they had been alive the whole time
+        // or else they will get many turns in a a row
       }
     }
+
+    return combatantsKilled;
   }
 }
 

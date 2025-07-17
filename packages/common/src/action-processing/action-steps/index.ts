@@ -1,6 +1,10 @@
 import { Milliseconds } from "../../primatives/index.js";
 import { Combatant } from "../../combatants/index.js";
-import { COMBAT_ACTIONS, CombatActionComponent } from "../../combat/index.js";
+import {
+  COMBAT_ACTION_NAME_STRINGS,
+  COMBAT_ACTIONS,
+  CombatActionComponent,
+} from "../../combat/index.js";
 import { ReplayEventNode } from "../replay-events.js";
 import { GameUpdateCommand } from "../game-update-commands.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
@@ -17,26 +21,30 @@ export interface ActionExecuting {
 }
 
 export enum ActionResolutionStepType {
-  DetermineChildActions,
+  DetermineShouldExecuteOrReleaseTurnLock,
+  DetermineChildActions, // enqueues sequential actions such as [ "main hand attack", "off hand attack" ]
   DetermineMeleeActionAnimations,
-  InitialPositioning, // motion - start magical glyph CosmeticEffect
+  InitialPositioning,
   PrepMotion,
   PostPrepSpawnEntity,
-  ChamberingMotion, // motion - start frost particle accumulation CosmeticEffect
-  DeliveryMotion, // motion - start frost particle burst CosmeticEffect
+  ChamberingMotion,
+  DeliveryMotion,
   PayResourceCosts,
   EvalOnUseTriggers,
-  StartConcurrentSubActions,
+  StartConcurrentSubActions, // starts actions that happen simultaneously and independently such as ["arrow projectile"]
   OnActivationSpawnEntity,
-  OnActivationActionEntityMotion, // motion
+  OnActivationActionEntityMotion,
   RollIncomingHitOutcomes,
-  EvalOnHitOutcomeTriggers,
-  ActionEntityDissipationMotion, // motion
-  RecoveryMotion, // motion
-  FinalPositioning, // motion
+  EvalOnHitOutcomeTriggers, // may start branching actions if triggered
+  EvaluatePlayerEndTurnAndInputLock,
+  ActionEntityDissipationMotion,
+  RecoveryMotion,
+  FinalPositioning,
 }
 
 export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepType, string> = {
+  [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]:
+    "determineShouldExecuteOrReleaseLock",
   [ActionResolutionStepType.DetermineChildActions]: "determineChildActions",
   [ActionResolutionStepType.DetermineMeleeActionAnimations]: "determineMeleeActionAnimations",
   [ActionResolutionStepType.InitialPositioning]: "initialPositioning",
@@ -51,7 +59,8 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.OnActivationActionEntityMotion]: "onActivationVfxMotion",
   [ActionResolutionStepType.RollIncomingHitOutcomes]: "rollIncomingHitOutcomes",
   [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: "evalOnHitOutcomeTriggers", // lifesteal traits, apply conditions
-  [ActionResolutionStepType.ActionEntityDissipationMotion]: "ActionEntityDissipationMotion",
+  [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: "EvaluatePlayerEndTurnAndInputLock",
+  [ActionResolutionStepType.ActionEntityDissipationMotion]: "actionEntityDissipationMotion",
   [ActionResolutionStepType.RecoveryMotion]: "recoveryMotion",
   [ActionResolutionStepType.FinalPositioning]: "finalPositioning",
 };
@@ -78,6 +87,14 @@ export abstract class ActionResolutionStep {
     //
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
     const stepConfig = action.stepsConfig.steps[type];
+
+    console.log(
+      "constructed step",
+      ACTION_RESOLUTION_STEP_TYPE_STRINGS[type],
+      "for action",
+      COMBAT_ACTION_NAME_STRINGS[action.name]
+    );
+
     if (!stepConfig) throw new Error("expected step config not found");
     if (gameUpdateCommandOption && stepConfig.getCosmeticsEffectsToStop) {
       gameUpdateCommandOption.cosmeticEffectsToStop = stepConfig.getCosmeticsEffectsToStop(context);

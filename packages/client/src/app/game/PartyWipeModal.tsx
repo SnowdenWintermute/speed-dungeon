@@ -5,6 +5,7 @@ import { AdventuringParty, ClientToServerEvent } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import Divider from "../components/atoms/Divider";
 import { ZIndexLayers } from "../z-index-layers";
+import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 
 export default function PartyWipeModal({ party }: { party: AdventuringParty }) {
   const mutateGameState = useGameStore().mutateState;
@@ -17,6 +18,8 @@ export default function PartyWipeModal({ party }: { party: AdventuringParty }) {
     });
   }
 
+  const leaveGameHotkey = HOTKEYS.SIDE_1;
+
   if (party.timeOfWipe === null) return <></>;
   return (
     <div
@@ -28,8 +31,8 @@ export default function PartyWipeModal({ party }: { party: AdventuringParty }) {
       <div className="text-lg">{party.name} was defeated</div>
       <span className="text-lg mb-2">at {new Date(party.timeOfWipe).toLocaleString()}</span>
       <Divider extraStyles="mb-4" />
-      <ButtonBasic extraStyles="w-full bg-slate-950" onClick={leaveGame}>
-        Leave Game
+      <ButtonBasic extraStyles="w-full bg-slate-950" onClick={leaveGame} hotkey={leaveGameHotkey}>
+        Leave Game ({letterFromKeyCode(leaveGameHotkey)})
       </ButtonBasic>
     </div>
   );

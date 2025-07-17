@@ -6,6 +6,7 @@ import {
   CombatantMotionGameUpdateCommand,
   DynamicAnimationName,
   EntityAnimation,
+  SKELETAL_ANIMATION_NAME_STRINGS,
   SkeletalAnimationName,
 } from "@speed-dungeon/common";
 import { EntityMotionUpdateCompletionTracker } from "./entity-motion-update-completion-tracker";

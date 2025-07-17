@@ -30,8 +30,8 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
     case CombatantClass.Warrior:
       mainhand = generateSpecificEquipmentType(
         {
-          equipmentType: EquipmentType.TwoHandedRangedWeapon,
-          baseItemType: TwoHandedRangedWeapon.ShortBow,
+          equipmentType: EquipmentType.OneHandedMeleeWeapon,
+          baseItemType: OneHandedMeleeWeapon.Dagger,
         },
         true
       );
@@ -118,8 +118,8 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
     },
   };
 
-  mainhand.durability = { current: 1, inherentMax: 4 };
-  repairEquipment(mainhand);
+  mainhand.durability = { current: 3, inherentMax: 15 };
+  // repairEquipment(mainhand);
 
   if (offhand instanceof Error) return offhand;
   if (offhand && offhand.durability) offhand.durability.current = 1;

@@ -58,6 +58,7 @@ const hitOutcomeDurabilityChangeOnTargetCalculators: Record<
 > = {
   [HitOutcome.Miss]: () => {},
   [HitOutcome.Evade]: () => {},
+  [HitOutcome.Death]: () => {},
   [HitOutcome.Parry]: (durabilityChanges, targetCombatant) => {
     durabilityChanges.updateEquipmentRecord(targetCombatant, {
       type: EquipmentSlotType.Holdable,
@@ -71,13 +72,14 @@ const hitOutcomeDurabilityChangeOnTargetCalculators: Record<
     });
   },
   [HitOutcome.ShieldBlock]: (durabilityChanges, targetCombatant, isCrit) => {
+    const extraDurabilityLoss = isCrit ? -1 : 0;
     durabilityChanges.updateEquipmentRecord(
       targetCombatant,
       {
         type: EquipmentSlotType.Holdable,
         slot: HoldableSlotType.OffHand,
       },
-      isCrit ? -1 : 0
+      extraDurabilityLoss
     );
   },
   [HitOutcome.Hit]: (durabilityChanges, targetCombatant, isCrit) => {

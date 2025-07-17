@@ -60,11 +60,14 @@ export const rangedAttackProjectileHitOutcomeProperties: CombatActionHitOutcomeP
 export const ATTACK_RANGED_MAIN_HAND_PROJECTILE_CONFIG: CombatActionComponentConfig = {
   description: "An arrow",
   origin: CombatActionOrigin.Attack,
+
+  getOnUseMessage: null,
   targetingProperties,
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
   stepsConfig: new ActionResolutionStepsConfig(
     {
+      [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
       [ActionResolutionStepType.OnActivationActionEntityMotion]: {
         getDestination: getPrimaryTargetPositionAsDestination,
         shouldDespawnOnComplete: () => true,
@@ -91,6 +94,7 @@ export const ATTACK_RANGED_MAIN_HAND_PROJECTILE_CONFIG: CombatActionComponentCon
       },
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+      [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     },
     { userShouldMoveHomeOnComplete: false }
   ),

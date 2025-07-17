@@ -15,8 +15,9 @@ import { gameWorld } from "../3d-world/SceneManager";
 import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
 import { MenuStateType } from "../game/ActionMenu/menu-state";
 import { plainToInstance } from "class-transformer";
+import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 
-export default async function battleResultActionCommandHandler(
+export async function battleResultActionCommandHandler(
   this: ClientActionCommandReceiver,
   _gameName: string,
   payload: BattleResultActionCommandPayload
@@ -49,7 +50,7 @@ export default async function battleResultActionCommandHandler(
     if (state.username === null) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
     const partyOption = getCurrentParty(state, state.username);
     if (partyOption === undefined) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
-    InputLock.unlockInput(partyOption.inputLock);
+
     switch (payload.conclusion) {
       case BattleConclusion.Defeat:
         partyOption.timeOfWipe = timestamp;
@@ -58,6 +59,10 @@ export default async function battleResultActionCommandHandler(
         );
         break;
       case BattleConclusion.Victory:
+        characterAutoFocusManager.focusFirstOwnedCharacter();
+
+        InputLock.unlockInput(partyOption.inputLock);
+
         const levelups = SpeedDungeonGame.handleBattleVictory(gameOption, partyOption, payload);
 
         for (const [characterId, expChange] of Object.entries(payload.experiencePointChanges)) {

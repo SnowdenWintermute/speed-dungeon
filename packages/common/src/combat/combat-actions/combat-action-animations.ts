@@ -79,7 +79,5 @@ export function getFallbackAnimationWithLength(
       true
     );
 
-  console.log("selected alternative: ", SKELETAL_ANIMATION_NAME_STRINGS[toReturn.name.name]);
-
   return toReturn;
 }

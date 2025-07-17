@@ -15,7 +15,7 @@ export function connectionHandler(this: GameServer) {
 
     let { username, userId } = await getLoggedInUserOrCreateGuest(cookies, socket);
 
-    console.log(`-- ${username} (${socket.id}) connected`);
+    console.info(`-- ${username} (${socket.id}) connected`);
     this.connections.insert(socket.id, new BrowserTabSession(socket.id, username, userId));
 
     if (this.socketIdsByUsername.has(username)) {

@@ -2,12 +2,16 @@ import { ERROR_MESSAGES } from "../../errors/index.js";
 import { EntityId } from "../../primatives/index.js";
 import {
   EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE,
+  EquipableSlots,
   EquipmentSlotType,
   HoldableSlotType,
   TaggedEquipmentSlot,
 } from "../../items/equipment/slots.js";
 import { Equipment } from "../../items/equipment/index.js";
-import { CombatantEquipment } from "./index.js";
+import {
+  applyEquipmentEffectWhileMaintainingResourcePercentages,
+  CombatantEquipment,
+} from "./index.js";
 import { getPreEquipmentChangeHpAndManaPercentage } from "./get-pre-equipment-change-hp-and-mana-percentage.js";
 import { CombatantProperties, Inventory } from "../index.js";
 import { CombatAttribute } from "../attributes/index.js";
@@ -25,87 +29,81 @@ export function equipItem(
   if (equipmentResult instanceof Error) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   const equipment = equipmentResult;
 
-  if (!CombatantProperties.canUseItem(combatantProperties, equipment))
+  if (!CombatantProperties.combatantHasRequiredAttributesToUseItem(combatantProperties, equipment))
     return new Error(ERROR_MESSAGES.EQUIPMENT.REQUIREMENTS_NOT_MET);
+  if (Equipment.isBroken(equipment)) return new Error(ERROR_MESSAGES.EQUIPMENT.IS_BROKEN);
 
-  const { percentOfMaxHitPoints, percentOfMaxMana } =
-    getPreEquipmentChangeHpAndManaPercentage(combatantProperties);
+  const idsOfUnequippedItems: EntityId[] = [];
+  const slotsToUnequip: TaggedEquipmentSlot[] = [];
 
-  const { equipmentType } = equipment.equipmentBaseItemProperties.taggedBaseEquipment;
+  applyEquipmentEffectWhileMaintainingResourcePercentages(combatantProperties, () => {
+    const { equipmentType } = equipment.equipmentBaseItemProperties.taggedBaseEquipment;
 
-  const possibleSlots = EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[equipmentType];
+    const possibleSlots = EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[equipmentType];
 
-  const slot = (() => {
-    if (equipToAltSlot && possibleSlots.alternate !== null) return possibleSlots.alternate;
-    else return possibleSlots.main;
-  })();
+    const slot = (() => {
+      if (equipToAltSlot && possibleSlots.alternate !== null) return possibleSlots.alternate;
+      else return possibleSlots.main;
+    })();
 
-  const slotsToUnequipResult = ((): TaggedEquipmentSlot[] => {
-    switch (slot.type) {
-      case EquipmentSlotType.Holdable:
-        switch (slot.slot) {
-          case HoldableSlotType.MainHand:
-            if (Equipment.isTwoHanded(equipmentType))
-              return [
-                { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand },
-                { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.OffHand },
-              ];
-            else return [slot];
-          case HoldableSlotType.OffHand:
-            const equippedHotswapSlot =
-              CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
-            if (!equippedHotswapSlot) return [];
-
-            const itemInMainHandOption = equippedHotswapSlot.holdables[HoldableSlotType.MainHand];
-
-            if (itemInMainHandOption !== undefined) {
-              if (
-                Equipment.isTwoHanded(equipmentType) ||
-                Equipment.isTwoHanded(
-                  itemInMainHandOption.equipmentBaseItemProperties.equipmentType
-                )
-              ) {
+    const slotsToUnequipResult = ((): TaggedEquipmentSlot[] => {
+      switch (slot.type) {
+        case EquipmentSlotType.Holdable:
+          switch (slot.slot) {
+            case HoldableSlotType.MainHand:
+              if (Equipment.isTwoHanded(equipmentType))
                 return [
                   { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand },
                   { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.OffHand },
                 ];
+              else return [slot];
+            case HoldableSlotType.OffHand:
+              const equippedHotswapSlot =
+                CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+              if (!equippedHotswapSlot) return [];
+
+              const itemInMainHandOption = equippedHotswapSlot.holdables[HoldableSlotType.MainHand];
+
+              if (itemInMainHandOption !== undefined) {
+                if (
+                  Equipment.isTwoHanded(equipmentType) ||
+                  Equipment.isTwoHanded(
+                    itemInMainHandOption.equipmentBaseItemProperties.equipmentType
+                  )
+                ) {
+                  return [
+                    { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand },
+                    { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.OffHand },
+                  ];
+                }
               }
-            }
-            return [slot];
-        }
-      case EquipmentSlotType.Wearable:
-        return [slot];
-    }
-  })();
+              return [slot];
+          }
+        case EquipmentSlotType.Wearable:
+          return [slot];
+      }
+    })();
 
-  if (slotsToUnequipResult instanceof Error) return slotsToUnequipResult;
-  const slotsToUnequip = slotsToUnequipResult;
+    if (slotsToUnequipResult instanceof Error) return slotsToUnequipResult;
+    slotsToUnequip.push(...slotsToUnequipResult);
 
-  const idsOfUnequippedItems = CombatantProperties.unequipSlots(
-    combatantProperties,
-    slotsToUnequip
-  );
+    idsOfUnequippedItems.push(
+      ...CombatantProperties.unequipSlots(combatantProperties, slotsToUnequip)
+    );
 
-  const itemToEquipResult = Inventory.removeEquipment(
-    combatantProperties.inventory,
-    equipment.entityProperties.id
-  );
-  if (itemToEquipResult instanceof Error) return itemToEquipResult;
+    const itemToEquipResult = Inventory.removeEquipment(
+      combatantProperties.inventory,
+      equipment.entityProperties.id
+    );
+    if (itemToEquipResult instanceof Error) return itemToEquipResult;
 
-  const maybeError = CombatantEquipment.putEquipmentInSlot(
-    combatantProperties,
-    itemToEquipResult,
-    slot
-  );
-  if (maybeError instanceof Error) return maybeError;
-
-  const attributesAfter = CombatantProperties.getTotalAttributes(combatantProperties);
-  const maxHitPointsAfter = attributesAfter[CombatAttribute.Hp];
-  const maxManaAfter = attributesAfter[CombatAttribute.Mp];
-
-  combatantProperties.hitPoints = Math.round(maxHitPointsAfter * percentOfMaxHitPoints);
-  combatantProperties.mana = Math.round(maxManaAfter * percentOfMaxMana);
-  // CombatantProperties.clampHpAndMpToMax(combatantProperties);
+    const maybeError = CombatantEquipment.putEquipmentInSlot(
+      combatantProperties,
+      itemToEquipResult,
+      slot
+    );
+    if (maybeError instanceof Error) return maybeError;
+  });
 
   return { idsOfUnequippedItems, unequippedSlots: slotsToUnequip };
 }

@@ -46,11 +46,16 @@ const config: CombatActionComponentConfig = {
   description: "Deals kinetic fire damage in an area around the target",
   origin: CombatActionOrigin.TriggeredCondition,
   targetingProperties,
+
+  getOnUseMessage: (actionUserName: string, actionLevel: number) => {
+    return `${actionUserName} explodes!`;
+  },
   hitOutcomeProperties: explosionHitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
 
   stepsConfig: new ActionResolutionStepsConfig(
     {
+      [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
       [ActionResolutionStepType.OnActivationSpawnEntity]: {},
       [ActionResolutionStepType.OnActivationActionEntityMotion]: {
         getAnimation: () => {
@@ -64,6 +69,7 @@ const config: CombatActionComponentConfig = {
       },
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+      [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
       [ActionResolutionStepType.ActionEntityDissipationMotion]: {
         getAnimation: () => {
           return {

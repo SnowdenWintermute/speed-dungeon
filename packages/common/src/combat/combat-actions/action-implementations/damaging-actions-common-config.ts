@@ -1,8 +1,6 @@
 import { ActionTracker } from "../../../action-processing/index.js";
 import { CombatantContext } from "../../../combatant-context/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
-import { HitOutcome } from "../../../hit-outcome.js";
-import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { CombatActionComponent } from "../index.js";
 

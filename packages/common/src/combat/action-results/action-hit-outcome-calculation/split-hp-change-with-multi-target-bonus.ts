@@ -1,9 +1,11 @@
-export default function splitResourceChangeWithMultiTargetBonus(
+export function splitResourceChangeWithMultiTargetBonus(
   hpChangeValue: number,
-  numTargets: number,
+  targetsCount: number,
   bonus: number
 ): number {
-  const multiTargetBonus = 1 + (numTargets - 1) * bonus;
+  const multiTargetBonus = 1 + (targetsCount - 1) * bonus;
   const valueWithBonus = hpChangeValue * multiTargetBonus;
-  return valueWithBonus / numTargets;
+  const dividedByTargetsCount = valueWithBonus / targetsCount;
+
+  return dividedByTargetsCount;
 }

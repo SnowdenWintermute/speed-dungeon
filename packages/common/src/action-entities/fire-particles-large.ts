@@ -1,9 +1,7 @@
 import {
   AbstractMesh,
-  Color4,
   GPUParticleSystem,
   Mesh,
-  ParticleSystem,
   Quaternion,
   Scene,
   Texture,

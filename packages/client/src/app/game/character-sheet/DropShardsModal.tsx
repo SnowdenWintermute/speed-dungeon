@@ -42,7 +42,7 @@ export default function DropShardsModal({
   function onInputChange(e: ChangeEvent<HTMLInputElement>) {
     if (typeof e.target.value === "string" && isNaN(parseInt(e.target.value))) return;
     if (!stringIsValidNumber(e.target.value) && e.target.value !== "") {
-      console.log("tried to type a non number in a number input");
+      console.error("tried to type a non number in a number input");
     } else {
       let newValue = parseInt(e.target.value);
       if (newValue > max || newValue < min)
@@ -54,7 +54,6 @@ export default function DropShardsModal({
   function handleSubmit(e?: React.FormEvent<HTMLFormElement>) {
     e?.preventDefault();
     if (value <= 0) return;
-    console.log("trying to send shard drop ", value);
     if (focusedCharacterResult instanceof Error) return console.error(focusedCharacterResult);
     websocketConnection.emit(ClientToServerEvent.DropShards, {
       characterId: focusedCharacterResult.entityProperties.id,

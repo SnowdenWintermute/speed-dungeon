@@ -76,11 +76,14 @@ const config: CombatActionComponentConfig = {
   description: "An arrow that bounces to up to two additional targets after the first",
   origin: CombatActionOrigin.Attack,
   targetingProperties,
+
+  getOnUseMessage: null,
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
 
   stepsConfig: new ActionResolutionStepsConfig(
     {
+      [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
       [ActionResolutionStepType.OnActivationSpawnEntity]: {},
       [ActionResolutionStepType.OnActivationActionEntityMotion]: {
         getCosmeticDestinationY: (context) => {
@@ -126,6 +129,7 @@ const config: CombatActionComponentConfig = {
       },
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+      [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     },
     { userShouldMoveHomeOnComplete: false }
   ),

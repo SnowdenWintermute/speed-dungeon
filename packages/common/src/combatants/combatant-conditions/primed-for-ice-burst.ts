@@ -11,10 +11,7 @@ import {
   CombatActionName,
 } from "../../combat/combat-actions/index.js";
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
-import {
-  CombatActionTarget,
-  CombatActionTargetType,
-} from "../../combat/targeting/combat-action-targets.js";
+import { CombatActionTargetType } from "../../combat/targeting/combat-action-targets.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
 import {
@@ -25,20 +22,20 @@ import {
 } from "../../scene-entities/index.js";
 import { CombatantContext } from "../../combatant-context/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
+import { immerable } from "immer";
 
 export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
+  [immerable] = true;
   name = CombatantConditionName.PrimedForIceBurst;
   stacksOption = new MaxAndCurrent(1, 1);
   intent = CombatActionIntent.Malicious;
+  removedOnDeath: boolean = true;
   ticks?: MaxAndCurrent | undefined;
   constructor(
     public id: EntityId,
     public appliedBy: ConditionAppliedBy,
     public level: number
   ) {}
-
-  onTick() {}
-  getTickSpeed = () => null;
 
   triggeredWhenHitBy(actionName: CombatActionName) {
     const actionsThatDontTrigger = [

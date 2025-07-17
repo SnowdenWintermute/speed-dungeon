@@ -1,10 +1,10 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { MagicalElement } from "../combat/magical-elements.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
-import combatantCanUseItem from "./can-use-item.js";
+import { combatantHasRequiredAttributesToUseItem } from "./can-use-item.js";
 import changeCombatantMana from "./resources/change-mana.js";
-import changeCombatantHitPoints from "./resources/change-hit-points.js";
-import clampResourcesToMax from "./resources/clamp-resources-to-max.js";
+import { changeCombatantHitPoints } from "./resources/change-hit-points.js";
+import { clampResourcesToMax } from "./resources/clamp-resources-to-max.js";
 import { CombatantClass } from "./combatant-class/index.js";
 import { CombatantSpecies } from "./combatant-species.js";
 import { CombatantTrait, CombatantTraitType } from "./combatant-traits/index.js";
@@ -14,9 +14,9 @@ import { getCombatActionPropertiesIfOwned } from "./get-combat-action-properties
 import getCombatantTotalAttributes from "./attributes/get-combatant-total-attributes.js";
 import getCombatantTotalElementalAffinities from "./combatant-traits/get-combatant-total-elemental-affinities.js";
 import getCombatantTotalKineticDamageTypeAffinities from "./combatant-traits/get-combatant-total-kinetic-damage-type-affinities.js";
-import setResourcesToMax from "./resources/set-resources-to-max.js";
+import { setResourcesToMax } from "./resources/set-resources-to-max.js";
 import { immerable } from "immer";
-import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
+import { iterateNumericEnum, iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import awardLevelups, { XP_REQUIRED_TO_REACH_LEVEL_2 } from "./experience-points/award-levelups.js";
 import { incrementAttributePoint } from "./attributes/increment-attribute.js";
 import { MonsterType } from "../monsters/monster-types.js";
@@ -147,10 +147,13 @@ export class CombatantProperties {
   static changeMana = changeCombatantMana;
   static clampHpAndMpToMax = clampResourcesToMax;
   static setHpAndMpToMax = setResourcesToMax;
+  static isDead(combatantProperties: CombatantProperties) {
+    return combatantProperties.hitPoints <= 0;
+  }
   static unequipSlots = unequipSlots;
   static dropItem = dropItem;
   static dropEquippedItem = dropEquippedItem;
-  static canUseItem = combatantCanUseItem;
+  static combatantHasRequiredAttributesToUseItem = combatantHasRequiredAttributesToUseItem;
   static equipItem = equipItem;
   static awardLevelups = awardLevelups;
   static incrementAttributePoint = incrementAttributePoint;
@@ -233,6 +236,14 @@ export function createShimmedUserOfTriggeredCondition(
       Vector3.Zero()
     )
   );
+
+  iterateNumericEnum(CombatActionName).forEach((actionName) => {
+    combatant.combatantProperties.ownedActions[actionName] = new CombatantActionState(
+      actionName,
+      1
+    );
+  });
+
   combatant.combatantProperties.asShimmedUserOfTriggeredCondition = {
     condition,
     entityConditionWasAppliedTo,

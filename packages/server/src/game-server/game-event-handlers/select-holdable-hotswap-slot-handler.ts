@@ -23,8 +23,7 @@ export default function selectHoldableHotswapSlotHandler(
   if (party.battleId) {
     const battleOption = AdventuringParty.getBattleOption(party, game);
     if (battleOption) {
-      const isCombatantTurn = Battle.combatantIsFirstInTurnOrder(
-        battleOption,
+      const isCombatantTurn = battleOption.turnOrderManager.combatantIsFirstInTurnOrder(
         character.entityProperties.id
       );
       if (!isCombatantTurn) return new Error(ERROR_MESSAGES.COMBATANT.NOT_ACTIVE);

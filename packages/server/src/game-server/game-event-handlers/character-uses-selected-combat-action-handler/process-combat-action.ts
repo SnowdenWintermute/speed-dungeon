@@ -1,7 +1,7 @@
 import {
   ActionResolutionStepType,
   ActionSequenceManagerRegistry,
-  Battle,
+  COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   CombatantContext,
@@ -45,8 +45,6 @@ export function processCombatAction(
   }
 
   InputLock.lockInput(combatantContext.party.inputLock);
-
-  let endedTurn = false;
 
   while (registry.isNotEmpty()) {
     for (const sequenceManager of registry.getManagers()) {
@@ -97,48 +95,53 @@ export function processCombatAction(
         }
 
         trackerOption.storeCompletedStep();
-        const nextStepOption = trackerOption.initializeNextStep();
 
-        // START NEXT STEPS
-        if (nextStepOption !== null) {
-          trackerOption.currentStep = nextStepOption;
-          currentStep = nextStepOption;
-          const gameUpdateCommandOption = nextStepOption.getGameUpdateCommandOption();
-          if (gameUpdateCommandOption !== null) {
-            sequenceManager.replayNode.events.push({
-              type: ReplayEventType.GameUpdate,
-              gameUpdate: gameUpdateCommandOption,
-            });
-          } else {
-            /* no update for this step */
+        if (!trackerOption.wasAborted) {
+          const nextStepOption = trackerOption.initializeNextStep();
+
+          // START NEXT STEPS
+          if (nextStepOption !== null) {
+            trackerOption.currentStep = nextStepOption;
+            currentStep = nextStepOption;
+            const gameUpdateCommandOption = nextStepOption.getGameUpdateCommandOption();
+            if (gameUpdateCommandOption !== null) {
+              sequenceManager.replayNode.events.push({
+                type: ReplayEventType.GameUpdate,
+                gameUpdate: gameUpdateCommandOption,
+              });
+            } else {
+              /* no update for this step */
+            }
+            continue;
           }
-          continue;
-        }
 
-        // DETERMINE NEXT ACTION IN SEQUENCE IF ANY
-        sequenceManager.populateSelfWithCurrentActionChildren();
+          // DETERMINE NEXT ACTION IN SEQUENCE IF ANY
+          sequenceManager.populateSelfWithCurrentActionChildren();
 
-        const nextActionIntentInQueueOption = sequenceManager.getNextActionInQueue();
-        const nextActionOption = nextActionIntentInQueueOption
-          ? COMBAT_ACTIONS[nextActionIntentInQueueOption.actionName]
-          : null;
+          const nextActionIntentInQueueOption = sequenceManager.getNextActionInQueue();
+          const nextActionOption = nextActionIntentInQueueOption
+            ? COMBAT_ACTIONS[nextActionIntentInQueueOption.actionName]
+            : null;
 
-        // ex: main hand attack killed target, off hand attack should not execute
-        if (nextActionOption && nextActionOption.shouldExecute(combatantContext, trackerOption)) {
-          const stepTrackerResult = sequenceManager.startProcessingNext(time);
-          if (stepTrackerResult instanceof Error) return stepTrackerResult;
+          if (nextActionOption) {
+            const stepTrackerResult = sequenceManager.startProcessingNext(time);
+            if (stepTrackerResult instanceof Error) return stepTrackerResult;
 
-          const initialGameUpdateOptionResult =
-            stepTrackerResult.currentStep.getGameUpdateCommandOption();
-          if (initialGameUpdateOptionResult instanceof Error) return initialGameUpdateOptionResult;
+            const initialGameUpdateOptionResult =
+              stepTrackerResult.currentStep.getGameUpdateCommandOption();
+            if (initialGameUpdateOptionResult instanceof Error)
+              return initialGameUpdateOptionResult;
 
-          if (initialGameUpdateOptionResult)
-            sequenceManager.replayNode.events.push({
-              type: ReplayEventType.GameUpdate,
-              gameUpdate: initialGameUpdateOptionResult,
-            });
-          currentStep = stepTrackerResult.currentStep;
-          continue;
+            if (initialGameUpdateOptionResult) {
+              sequenceManager.replayNode.events.push({
+                type: ReplayEventType.GameUpdate,
+                gameUpdate: initialGameUpdateOptionResult,
+              });
+            }
+
+            currentStep = stepTrackerResult.currentStep;
+            continue;
+          }
         }
 
         if (sequenceManager.getIsFinalized()) {
@@ -150,9 +153,6 @@ export function processCombatAction(
         sequenceManager.markAsFinalized();
         // send the user home if the action type necessitates it
         const action = COMBAT_ACTIONS[trackerOption.actionExecutionIntent.actionName];
-
-        if (action.costProperties.requiresCombatTurn(trackerOption.currentStep.getContext()))
-          endedTurn = true;
 
         if (
           action.stepsConfig.options.userShouldMoveHomeOnComplete
@@ -186,18 +186,11 @@ export function processCombatAction(
       sequenceManager.getCurrentTracker()?.currentStep.tick(timeToTick);
   }
 
-  InputLock.unlockInput(combatantContext.party.inputLock);
-  const { game, party, combatant } = combatantContext;
-  const battleOption = party.battleId ? game.battles[party.battleId] || null : null;
+  setTimeout(() => {
+    InputLock.unlockInput(combatantContext.party.inputLock);
+  }, time.ms);
 
-  if (battleOption && endedTurn) {
-    const maybeError = Battle.endCombatantTurnIfInBattle(
-      game,
-      battleOption,
-      combatant.entityProperties.id
-    );
-    if (maybeError instanceof Error) return maybeError;
-  }
+  const endedTurn = registry.getTurnEnded();
 
   return { rootReplayNode, endedTurn };
 }

@@ -1,14 +1,8 @@
-export const SPEED_MODIFIER = 10;
-export const REQUIRED_MOVEMENT_TO_MOVE = 999;
-export const MAX_TICKS_TO_FILL_MOVEMENT = 10;
-export const MIN_TICKS_TO_FILL_MOVEMENT = 5;
-export const MIN_MOVEMENT_PER_TICK = REQUIRED_MOVEMENT_TO_MOVE / MAX_TICKS_TO_FILL_MOVEMENT;
-export const MAX_MOVEMENT_PER_TICK = REQUIRED_MOVEMENT_TO_MOVE / MIN_TICKS_TO_FILL_MOVEMENT;
-export const MOVEMENT_RANGE = MAX_MOVEMENT_PER_TICK - MIN_MOVEMENT_PER_TICK;
-export const MAX_SPEED = MIN_MOVEMENT_PER_TICK * 10;
-export const MIN_SPEED = ((MIN_MOVEMENT_PER_TICK * 10) / REQUIRED_MOVEMENT_TO_MOVE) * 10;
-export const SPEED_RANGE = MAX_SPEED - MIN_SPEED;
+import { Milliseconds, NormalizedPercentage } from "../../primatives";
 
-export const CONDITION_TICK_TO_COMBATANT_TURNS_RATIO = 3;
-export const BASE_CONDITION_TICK_MOVEMENT_RECOVERY =
-  REQUIRED_MOVEMENT_TO_MOVE / CONDITION_TICK_TO_COMBATANT_TURNS_RATIO;
+// DELAY BASED
+export const SPEED_DELAY_RECOVERY_WEIGHT = 50;
+export const BASE_ACTION_DELAY: Milliseconds = 1000;
+export const BASE_ACTION_DELAY_MULTIPLIER: NormalizedPercentage = 1; // could allow for actions to have greater or lesser delay costs
+
+export const BASE_CONDITION_TICK_SPEED = 10;

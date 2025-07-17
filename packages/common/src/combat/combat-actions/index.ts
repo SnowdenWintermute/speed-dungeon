@@ -26,6 +26,7 @@ import {
   CombatActionCostPropertiesConfig,
 } from "./combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "./combat-action-steps-config.js";
+import { EntityId } from "../../primatives/index.js";
 
 export enum CombatActionOrigin {
   SpellCast,
@@ -49,6 +50,8 @@ export interface CombatActionComponentConfig {
     previousTrackerOption: undefined | ActionTracker,
     self: CombatActionComponent
   ) => boolean;
+
+  getOnUseMessage: null | ((combatantName: string, actionLevel: number) => string);
 
   getRequiredRange: (
     user: CombatantProperties,
@@ -98,6 +101,7 @@ export abstract class CombatActionComponent {
     combatantContext: CombatantContext,
     previousTrackerOption: undefined | ActionTracker
   ) => boolean;
+  getOnUseMessage: null | ((combatantName: string, actionLevel: number) => string);
   getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
 
@@ -132,6 +136,7 @@ export abstract class CombatActionComponent {
 
     this.shouldExecute = (combatantContext, previousTrackerOption) =>
       config.shouldExecute(combatantContext, previousTrackerOption, this);
+    this.getOnUseMessage = config.getOnUseMessage;
     this.getRequiredRange = (user) => config.getRequiredRange(user, this);
     this.getSpawnableEntity = config.getSpawnableEntity;
     this.stepsConfig = config.stepsConfig;

@@ -10,6 +10,7 @@ import {
   ClientToServerEvent,
   CombatActionName,
   CombatantProperties,
+  InputLock,
   NextOrPrevious,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
@@ -17,6 +18,7 @@ import { setAlert } from "@/app/components/alerts";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { createCancelButton } from "./common-buttons/cancel";
+import getCurrentParty from "@/utils/getCurrentParty";
 
 export const executeHotkey = HOTKEYS.MAIN_1;
 export const EXECUTE_BUTTON_TEXT = `Execute (${letterFromKeyCode(executeHotkey)})`;
@@ -87,7 +89,8 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
           state.detailedEntity = null;
           state.hoveredEntity = null;
 
-          // it should theoretically be unlocked after their action resolves
+          const partyOption = getCurrentParty(state, state.username || "");
+          if (partyOption) InputLock.lockInput(partyOption.inputLock);
         });
       }
     );

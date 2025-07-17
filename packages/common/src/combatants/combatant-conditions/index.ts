@@ -1,3 +1,5 @@
+import { immerable } from "immer";
+import { Battle } from "../../battle/index.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionIntent } from "../../combat/combat-actions/combat-action-intent.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
@@ -6,11 +8,13 @@ import { FriendOrFoe } from "../../combat/combat-actions/targeting-schemes-and-c
 import { CombatantContext } from "../../combatant-context/index.js";
 import { EntityId, EntityProperties, MaxAndCurrent } from "../../primatives/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
-import { removeFromArray } from "../../utils/index.js";
 import { Combatant, CombatantProperties } from "../index.js";
 import { BurningCombatantCondition } from "./burning.js";
 import { PrimedForExplosionCombatantCondition } from "./primed-for-explosion.js";
 import { PrimedForIceBurstCombatantCondition } from "./primed-for-ice-burst.js";
+import { AdventuringParty } from "../../adventuring-party/index.js";
+import { TurnOrderManager } from "../../combat/turn-order/index.js";
+import { BASE_ACTION_DELAY_MULTIPLIER } from "../../combat/turn-order/consts.js";
 
 export enum CombatantConditionName {
   // Poison,
@@ -60,10 +64,32 @@ export interface ConditionAppliedBy {
   friendOrFoe: FriendOrFoe;
 }
 
+export abstract class ConditionTickProperties {
+  abstract getTickSpeed: (condition: CombatantCondition) => number;
+  abstract onTick: (
+    condition: CombatantCondition,
+    context: CombatantContext
+  ) => {
+    numStacksRemoved: number;
+    triggeredAction: {
+      user: Combatant;
+      actionExecutionIntent: CombatActionExecutionIntent;
+      getConsumableType?: () => null;
+    };
+  };
+}
+
+export interface ConditionWithCombatantIdAppliedTo {
+  condition: CombatantCondition;
+  appliedTo: EntityId;
+}
+
 export abstract class CombatantCondition {
+  [immerable] = true;
   ticks?: MaxAndCurrent;
   level: number = 0;
   intent: CombatActionIntent = CombatActionIntent.Malicious;
+  removedOnDeath: boolean = true;
   constructor(
     public id: EntityId,
     public appliedBy: ConditionAppliedBy,
@@ -71,12 +97,6 @@ export abstract class CombatantCondition {
     public stacksOption: null | MaxAndCurrent
   ) {}
 
-  abstract getTickSpeed(): null | number;
-
-  abstract onTick(): void | {
-    numStacksRemoved: number;
-    triggeredActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[];
-  };
   // if tracking ticks, increment current
   // examples of action to take here:
   // - cause resource change
@@ -105,6 +125,28 @@ export abstract class CombatantCondition {
   abstract getCosmeticEffectWhileActive: (
     combatantId: EntityId
   ) => CosmeticEffectOnTargetTransformNode[];
+
+  abstract getTickSpeed?: (condition: CombatantCondition) => number;
+  abstract onTick?: (
+    condition: CombatantCondition,
+    context: CombatantContext
+  ) => {
+    numStacksRemoved: number;
+    triggeredAction: {
+      user: Combatant;
+      actionExecutionIntent: CombatActionExecutionIntent;
+      getConsumableType?: () => null;
+    };
+  };
+
+  static getTickProperties(condition: CombatantCondition) {
+    if (!condition.onTick || !condition.getTickSpeed) return undefined;
+    return {
+      getTickSpeed: condition.getTickSpeed,
+      onTick: condition.onTick,
+    };
+  }
+
   // examples:
   // - perform a composite combat action
   // - remove self - examples:
@@ -128,6 +170,7 @@ export abstract class CombatantCondition {
   // attributeModifiers() {
   //   // - may be calculated to include stacks
   // }
+
   static removeByNameFromCombatant(
     name: CombatantConditionName,
     combatantProperties: CombatantProperties
@@ -142,8 +185,15 @@ export abstract class CombatantCondition {
     combatantProperties.conditions.push(condition);
   }
 
-  static applyToCombatant(condition: CombatantCondition, combatantProperties: CombatantProperties) {
+  /* returns true if condition was preexisting */
+  static applyToCombatant(
+    condition: CombatantCondition,
+    combatant: Combatant,
+    battleOption: null | Battle,
+    party: AdventuringParty
+  ) {
     let wasExisting = false;
+    const { combatantProperties } = combatant;
     combatantProperties.conditions.forEach((existingCondition) => {
       if (existingCondition.name !== condition.name) return;
       wasExisting = true;
@@ -155,14 +205,43 @@ export abstract class CombatantCondition {
       // if stackable and of same level, add to stacks
       if (existingCondition.stacksOption) {
         if (existingCondition.stacksOption.max > existingCondition.stacksOption.current)
-          existingCondition.stacksOption.current += 1;
+          existingCondition.stacksOption.current += condition.stacksOption?.current ?? 0;
         return;
       }
       // not stackable, replace or just add it
       return CombatantCondition.replaceExisting(condition, combatantProperties);
     });
 
-    if (!wasExisting) combatantProperties.conditions.push(condition);
+    if (wasExisting) return true;
+    combatantProperties.conditions.push(condition);
+
+    const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
+
+    if (!tickPropertiesOption || !battleOption) return;
+
+    // add one actions worth + 1 delay or else when we get to the endTurnAndEvaluateInputLock step
+    // when we search for the fastest scheduler tracker it will find this
+    // condition's tracker instead of the combatant, since we are adding the scheduler now
+    // and the combatant who's action applied this condition won't update their scheduler
+    // until a later step
+    const appliedByScheduler =
+      battleOption.turnOrderManager.turnSchedulerManager.getSchedulerByCombatantId(
+        condition.appliedBy.entityProperties.id
+      );
+
+    // once we start getting action delay costs that are different per each action
+    // we'll have to calculate this based on the current action
+    const appliedByPredictedAdditionalDelay = TurnOrderManager.getActionDelayCost(
+      appliedByScheduler.getSpeed(party),
+      BASE_ACTION_DELAY_MULTIPLIER
+    );
+
+    const combatantApplyingAccumulatedDelay = appliedByScheduler.accumulatedDelay;
+
+    battleOption.turnOrderManager.turnSchedulerManager.addNewSchedulerTracker(
+      { appliedTo: combatant.entityProperties.id, condition },
+      combatantApplyingAccumulatedDelay + appliedByPredictedAdditionalDelay + 1
+    );
   }
 
   static removeById(
@@ -174,6 +253,9 @@ export abstract class CombatantCondition {
       if (condition.id === conditionId) removed = condition;
       return condition.id !== conditionId;
     });
+
+    // @PERF - remove the associated turn scheduler
+    // from the battle
 
     return removed;
   }
@@ -192,7 +274,7 @@ export abstract class CombatantCondition {
         );
 
       if (condition.stacksOption === null || condition.stacksOption.current === 0) {
-        removeFromArray(combatantProperties.conditions, condition);
+        CombatantCondition.removeById(condition.id, combatantProperties);
         return condition;
       }
     }

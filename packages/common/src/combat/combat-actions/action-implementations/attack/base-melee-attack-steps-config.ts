@@ -13,6 +13,7 @@ import { getMeleeAttackAnimationFromType } from "../get-entity-animation.js";
 export function getMeleeAttackBaseStepsConfig(holdableSlotType: HoldableSlotType) {
   return new ActionResolutionStepsConfig(
     {
+      [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
       [ActionResolutionStepType.DetermineMeleeActionAnimations]: {},
       [ActionResolutionStepType.InitialPositioning]: {
         getDestination: getMeleeAttackDestination,
@@ -56,6 +57,7 @@ export function getMeleeAttackBaseStepsConfig(holdableSlotType: HoldableSlotType
       [ActionResolutionStepType.EvalOnUseTriggers]: {},
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+      [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
       [ActionResolutionStepType.RecoveryMotion]: {
         getAnimation: (user, animationLengths, meleeAttackAnimationType) => {
           if (meleeAttackAnimationType === undefined)

@@ -42,7 +42,7 @@ export class ValkeyManager {
   async disconnect() {
     await this.client.disconnect();
     if (!this.keyPrefix)
-      console.log(
+      console.info(
         `redis client with ${
           this.keyPrefix ? `context ${this.keyPrefix}` : "vanilla context"
         } disconnected`

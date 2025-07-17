@@ -122,10 +122,8 @@ stepsConfig.steps = {
         type: EquipmentSlotType.Holdable,
         slot: HoldableSlotType.MainHand,
       });
-      if (!bowOption) {
-        console.log("no bow equipped");
-        return [];
-      }
+
+      if (!bowOption) return [];
 
       const actionEntityId = getSpawnableEntityId(actionEntity);
 
@@ -186,6 +184,7 @@ export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   stepsConfig,
 
   shouldExecute: () => true,
+  getOnUseMessage: null,
   getConcurrentSubActions(context) {
     return [
       new CombatActionExecutionIntent(

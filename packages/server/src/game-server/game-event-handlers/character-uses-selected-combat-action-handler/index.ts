@@ -1,7 +1,6 @@
 import {
   ActionCommandPayload,
   ActionCommandType,
-  Battle,
   COMBAT_ACTIONS,
   CharacterAssociatedData,
   CombatActionExecutionIntent,
@@ -14,8 +13,8 @@ import {
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../../singletons.js";
 import { processCombatAction } from "./process-combat-action.js";
-import { processBattleUntilPlayerTurnOrConclusion } from "./process-battle-until-player-turn-or-conclusion.js";
 import { actionUseIsValid } from "./action-use-is-valid.js";
+import { BattleProcessor } from "./process-battle-until-player-turn-or-conclusion.js";
 
 export async function useSelectedCombatActionHandler(
   _eventData: { characterId: string },
@@ -56,26 +55,21 @@ export async function useSelectedCombatActionHandler(
 
   const battleOption = party.battleId ? game.battles[party.battleId] || null : null;
 
-  const payload: CombatActionReplayTreePayload = {
+  const replayTreePayload: CombatActionReplayTreePayload = {
     type: ActionCommandType.CombatActionReplayTree,
     actionUserId: character.entityProperties.id,
     root: replayTreeResult.rootReplayNode,
   };
 
-  const payloads: ActionCommandPayload[] = [payload];
-  // if they died on their own turn we should not end the active combatant's turn because
-  // we would have already removed their turn tracker on death
-  if (replayTreeResult.endedTurn && combatantContext.combatant.combatantProperties.hitPoints > 0) {
-    payloads.push({
-      type: ActionCommandType.EndCombatantTurnIfFirstInTurnOrder,
-      entityId: combatantContext.combatant.entityProperties.id,
-    });
-  }
+  const payloads: ActionCommandPayload[] = [replayTreePayload];
 
   gameServer.io
     .in(getPartyChannelName(game.name, party.name))
     .emit(ServerToClientEvent.ActionCommandPayloads, payloads);
 
-  processBattleUntilPlayerTurnOrConclusion(gameServer, game, party, battleOption);
-  console.log("turn trackers: ", battleOption?.turnTrackers);
+  if (battleOption) {
+    const battleProcessor = new BattleProcessor(gameServer, game, party, battleOption);
+    const maybeError = await battleProcessor.processBattleUntilPlayerTurnOrConclusion();
+    if (maybeError instanceof Error) return maybeError;
+  }
 }

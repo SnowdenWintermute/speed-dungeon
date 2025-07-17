@@ -1,13 +1,15 @@
 import { Battle, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
 
+export interface PartyWipes {
+  alliesDefeated: boolean;
+  opponentsDefeated: boolean;
+}
+
 export function checkForWipes(
   game: SpeedDungeonGame,
   combatantId: string,
   battleIdOption: null | string
-): {
-  alliesDefeated: boolean;
-  opponentsDefeated: boolean;
-} {
+): PartyWipes {
   // IF NOT IN BATTLE AND SOMEHOW WIPED OWN PARTY
   if (battleIdOption === null) {
     const partyResult = SpeedDungeonGame.getPartyOfCombatant(game, combatantId);

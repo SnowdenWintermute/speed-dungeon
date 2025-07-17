@@ -88,8 +88,6 @@ export class AIBehaviorContext {
         this.battleOption
       );
 
-      console.log("combatant is valid target: ", shouldEvaluate);
-
       if (!shouldEvaluate) continue;
 
       const targets: CombatActionTarget = {
