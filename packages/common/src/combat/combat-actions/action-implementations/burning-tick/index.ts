@@ -32,7 +32,9 @@ const config: CombatActionComponentConfig = {
   origin: CombatActionOrigin.TriggeredCondition,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
 
-  getOnUseMessage: null,
+  getOnUseMessage: (actionUserName: string, actionLevel: number) => {
+    return `${actionUserName} burns`;
+  },
   targetingProperties: GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle],
   hitOutcomeProperties: {
     ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Spell],
