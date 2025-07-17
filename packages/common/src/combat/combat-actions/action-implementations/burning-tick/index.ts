@@ -29,8 +29,10 @@ import { BURNING_TICK_STEPS_CONFIG } from "./burning-tick-steps-config.js";
 
 const config: CombatActionComponentConfig = {
   description: "Inflict magical fire damage on enemies",
-  origin: CombatActionOrigin.SpellCast,
+  origin: CombatActionOrigin.TriggeredCondition,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
+
+  getOnUseMessage: null,
   targetingProperties: GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle],
   hitOutcomeProperties: {
     ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Spell],

@@ -159,7 +159,9 @@ export class TurnSchedulerManager {
 
     const predictedConsumedStacksOnTickByConditionId: Record<EntityId, number> = {};
 
-    while (turnTrackerList.length < this.minTurnTrackersCount) {
+    let numCombatantTrackersCreated = 0;
+
+    while (numCombatantTrackersCreated < this.minTurnTrackersCount) {
       this.sortSchedulers(TurnTrackerSortableProperty.TimeOfNextMove, party);
       const fastestActor = this.getFirstScheduler();
       if (fastestActor instanceof CombatantTurnScheduler) {
@@ -169,6 +171,8 @@ export class TurnSchedulerManager {
           turnTrackerList.push(
             new CombatantTurnTracker(fastestActor.combatantId, fastestActor.timeOfNextMove)
           );
+
+          numCombatantTrackersCreated += 1;
         }
       } else if (fastestActor instanceof ConditionTurnScheduler) {
         const { combatantId, conditionId, timeOfNextMove } = fastestActor;

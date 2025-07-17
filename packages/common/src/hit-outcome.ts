@@ -5,6 +5,7 @@ export enum HitOutcome {
   Counterattack,
   ShieldBlock,
   Hit,
+  Death,
 }
 
 export const HIT_OUTCOME_NAME_STRINGS: Record<HitOutcome, string> = {
@@ -14,4 +15,5 @@ export const HIT_OUTCOME_NAME_STRINGS: Record<HitOutcome, string> = {
   [HitOutcome.Counterattack]: "Counterattack",
   [HitOutcome.ShieldBlock]: "ShieldBlock",
   [HitOutcome.Hit]: "Hit",
+  [HitOutcome.Death]: "Death",
 };

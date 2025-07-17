@@ -3,6 +3,7 @@ import {
   CombatActionLeaf,
   CombatActionName,
   CombatActionOrigin,
+  TargetCategories,
   TargetingScheme,
 } from "../../index.js";
 import {
@@ -20,6 +21,7 @@ import { FIRE_HIT_OUTCOME_PROPERTIES } from "./fire-hit-outcome-properties.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle],
+  validTargetCategories: TargetCategories.Any,
   getTargetingSchemes: (user) => {
     const toReturn = [TargetingScheme.Single];
     const spellLevel = user.combatantProperties.ownedActions[CombatActionName.Fire]?.level || 0;
@@ -32,6 +34,10 @@ const config: CombatActionComponentConfig = {
   description: "Inflict magical fire damage on enemies and cause them to start burning",
   origin: CombatActionOrigin.SpellCast,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
+
+  getOnUseMessage: (actionUserName: string, actionLevel: number) => {
+    return `${actionUserName} casts fire (level ${actionLevel}).`;
+  },
   targetingProperties,
   hitOutcomeProperties: FIRE_HIT_OUTCOME_PROPERTIES,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],

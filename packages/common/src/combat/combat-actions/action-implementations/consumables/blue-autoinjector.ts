@@ -62,6 +62,9 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
 const config: CombatActionComponentConfig = {
   description: "Refreshes a target's mana reserves",
   origin: CombatActionOrigin.Medication,
+  getOnUseMessage: (actionUserName: string, actionLevel: number) => {
+    return `${actionUserName} uses a blue autoinjector.`;
+  },
   targetingProperties,
   hitOutcomeProperties,
   costProperties: {

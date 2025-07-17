@@ -26,7 +26,10 @@ import { HitOutcome } from "../../../hit-outcome.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
 import { CombatantCondition } from "../../../combatants/combatant-conditions/index.js";
 import { addConditionToUpdate } from "./add-condition-to-update.js";
-import { addRemovedConditionStacksToUpdate } from "./add-triggered-condition-to-update.js";
+import {
+  addRemovedConditionIdToUpdate,
+  addRemovedConditionStacksToUpdate,
+} from "./add-triggered-condition-to-update.js";
 
 const stepType = ActionResolutionStepType.EvalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
@@ -118,6 +121,18 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             }
 
             battleOption?.turnOrderManager.updateTrackers(game, party);
+          }
+        }
+
+        if (flag === HitOutcome.Death) {
+          for (const condition of targetCombatant.combatantProperties.conditions) {
+            if (!condition.removedOnDeath) continue;
+            CombatantCondition.removeById(condition.id, combatantResult.combatantProperties);
+            addRemovedConditionIdToUpdate(
+              condition.id,
+              gameUpdateCommand,
+              targetCombatant.entityProperties.id
+            );
           }
         }
 

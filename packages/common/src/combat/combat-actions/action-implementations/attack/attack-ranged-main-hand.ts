@@ -184,6 +184,7 @@ export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   stepsConfig,
 
   shouldExecute: () => true,
+  getOnUseMessage: null,
   getConcurrentSubActions(context) {
     return [
       new CombatActionExecutionIntent(

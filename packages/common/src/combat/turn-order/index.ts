@@ -144,7 +144,6 @@ export class ConditionTurnTracker extends TurnTracker {
   }
 
   getCondition(party: AdventuringParty) {
-    console.log("condition turn tracker trying to get condition, conditionId", this.conditionId);
     const result = AdventuringParty.getConditionOnCombatant(
       party,
       this.combatantId,

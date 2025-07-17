@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { EntityId, Milliseconds } from "../primatives/index.js";
+import { ConditionId, EntityId, Milliseconds } from "../primatives/index.js";
 import {
   ActionResourceCosts,
   CombatActionHitOutcomes,
@@ -143,6 +143,7 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   hitPointChanges?: HitPointChanges;
   appliedConditions?: Partial<Record<HitOutcome, Record<EntityId, CombatantCondition[]>>>;
   removedConditionStacks?: Record<EntityId, { conditionId: EntityId; numStacks: number }[]>;
+  removedConditionIds?: Record<EntityId, ConditionId[]>;
 }
 
 export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {

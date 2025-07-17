@@ -29,6 +29,7 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
   name = CombatantConditionName.PrimedForIceBurst;
   stacksOption = new MaxAndCurrent(1, 1);
   intent = CombatActionIntent.Malicious;
+  removedOnDeath: boolean = true;
   ticks?: MaxAndCurrent | undefined;
   constructor(
     public id: EntityId,

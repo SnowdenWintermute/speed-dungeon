@@ -5,16 +5,14 @@ export function getValueChangeTickActionBasedSpellBaseStepsConfig() {
   return new ActionResolutionStepsConfig(
     {
       [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
-      [ActionResolutionStepType.InitialPositioning]: {},
-      [ActionResolutionStepType.ChamberingMotion]: {},
-      [ActionResolutionStepType.DeliveryMotion]: {},
+      // [ActionResolutionStepType.OnActivationSpawnEntity]: {},
       [ActionResolutionStepType.PayResourceCosts]: {},
       [ActionResolutionStepType.EvalOnUseTriggers]: {},
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+      // [ActionResolutionStepType.OnActivationActionEntityMotion]: {},
       [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
-      [ActionResolutionStepType.RecoveryMotion]: {},
-      [ActionResolutionStepType.FinalPositioning]: {},
+      // [ActionResolutionStepType.ActionEntityDissipationMotion]: {},
     },
     { userShouldMoveHomeOnComplete: false }
   );

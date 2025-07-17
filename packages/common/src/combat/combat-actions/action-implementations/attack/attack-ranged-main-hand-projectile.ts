@@ -60,6 +60,8 @@ export const rangedAttackProjectileHitOutcomeProperties: CombatActionHitOutcomeP
 export const ATTACK_RANGED_MAIN_HAND_PROJECTILE_CONFIG: CombatActionComponentConfig = {
   description: "An arrow",
   origin: CombatActionOrigin.Attack,
+
+  getOnUseMessage: null,
   targetingProperties,
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],

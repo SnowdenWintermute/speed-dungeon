@@ -113,6 +113,10 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
 const config: CombatActionComponentConfig = {
   description: "Deals kinetic ice damage in an area around the target",
   origin: CombatActionOrigin.TriggeredCondition,
+
+  getOnUseMessage: (actionUserName: string, actionLevel: number) => {
+    return `${actionUserName} shatters!`;
+  },
   targetingProperties,
   hitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],

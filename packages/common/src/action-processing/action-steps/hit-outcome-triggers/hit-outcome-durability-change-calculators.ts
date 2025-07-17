@@ -58,6 +58,7 @@ const hitOutcomeDurabilityChangeOnTargetCalculators: Record<
 > = {
   [HitOutcome.Miss]: () => {},
   [HitOutcome.Evade]: () => {},
+  [HitOutcome.Death]: () => {},
   [HitOutcome.Parry]: (durabilityChanges, targetCombatant) => {
     durabilityChanges.updateEquipmentRecord(targetCombatant, {
       type: EquipmentSlotType.Holdable,

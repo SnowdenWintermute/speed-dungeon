@@ -35,6 +35,7 @@ export async function activatedTriggersGameUpdateHandler(update: {
   useGameStore.getState().mutateState((gameState) => {
     const game = gameState.game;
     if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+
     if (command.durabilityChanges) {
       gameState.rerenderForcer += 1; // for some reason it delays updating the durability indicators on bow use without this
       // playBeep();
@@ -116,6 +117,36 @@ export async function activatedTriggersGameUpdateHandler(update: {
             conditionId,
             combatantResult.combatantProperties,
             numStacks
+          );
+
+          if (conditionRemovedOption) {
+            const targetModelOption = getGameWorld().modelManager.findOne(entityId);
+            startOrStopCosmeticEffects(
+              [],
+              conditionRemovedOption
+                .getCosmeticEffectWhileActive(targetModelOption.entityId)
+                .map((cosmeticEffectOnTransformNode) => {
+                  return {
+                    sceneEntityIdentifier:
+                      cosmeticEffectOnTransformNode.parent.sceneEntityIdentifier,
+                    name: cosmeticEffectOnTransformNode.name,
+                  };
+                })
+            );
+          }
+        }
+      }
+    }
+
+    if (command.removedConditionIds) {
+      for (const [entityId, conditionIdsRemoved] of Object.entries(command.removedConditionIds)) {
+        for (const conditionId of conditionIdsRemoved) {
+          const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
+          if (combatantResult instanceof Error) return combatantResult;
+
+          const conditionRemovedOption = CombatantCondition.removeById(
+            conditionId,
+            combatantResult.combatantProperties
           );
 
           if (conditionRemovedOption) {

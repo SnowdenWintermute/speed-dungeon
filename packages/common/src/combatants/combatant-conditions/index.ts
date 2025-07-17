@@ -89,6 +89,7 @@ export abstract class CombatantCondition {
   ticks?: MaxAndCurrent;
   level: number = 0;
   intent: CombatActionIntent = CombatActionIntent.Malicious;
+  removedOnDeath: boolean = true;
   constructor(
     public id: EntityId,
     public appliedBy: ConditionAppliedBy,
@@ -145,6 +146,7 @@ export abstract class CombatantCondition {
       onTick: condition.onTick,
     };
   }
+
   // examples:
   // - perform a composite combat action
   // - remove self - examples:
@@ -168,6 +170,7 @@ export abstract class CombatantCondition {
   // attributeModifiers() {
   //   // - may be calculated to include stacks
   // }
+
   static removeByNameFromCombatant(
     name: CombatantConditionName,
     combatantProperties: CombatantProperties

@@ -16,3 +16,18 @@ export function addRemovedConditionStacksToUpdate(
 
   update.removedConditionStacks[targetCombatantId] = thisCombatantConditionsRemoved;
 }
+
+export function addRemovedConditionIdToUpdate(
+  conditionId: EntityId,
+  update: ActivatedTriggersGameUpdateCommand,
+  targetCombatantId: EntityId
+) {
+  if (!update.removedConditionIds) update.removedConditionIds = {};
+
+  let thisCombatantConditionsRemoved = update.removedConditionIds[targetCombatantId];
+
+  if (!thisCombatantConditionsRemoved) thisCombatantConditionsRemoved = [];
+  thisCombatantConditionsRemoved.push(conditionId);
+
+  update.removedConditionIds[targetCombatantId] = thisCombatantConditionsRemoved;
+}

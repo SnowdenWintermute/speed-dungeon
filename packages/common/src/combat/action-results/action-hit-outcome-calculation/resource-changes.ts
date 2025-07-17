@@ -29,17 +29,24 @@ export class HitPointChanges extends ResourceChanges<ResourceChange> {
   applyToGame(combatantContext: CombatantContext) {
     const { game, party } = combatantContext;
 
+    const combatantsKilled: EntityId[] = [];
+
     for (const [targetId, hpChange] of Object.entries(this.changes)) {
       const targetResult = AdventuringParty.getCombatant(party, targetId);
       if (targetResult instanceof Error) throw targetResult;
       const { combatantProperties: targetCombatantProperties } = targetResult;
       const combatantWasAliveBeforeResourceChange =
         !CombatantProperties.isDead(targetCombatantProperties);
+
       CombatantProperties.changeHitPoints(targetCombatantProperties, hpChange.value);
 
-      const wasResurrected =
-        !combatantWasAliveBeforeResourceChange &&
-        !CombatantProperties.isDead(targetCombatantProperties);
+      const combatantIsDead = CombatantProperties.isDead(targetCombatantProperties);
+
+      const wasResurrected = !combatantWasAliveBeforeResourceChange && !combatantIsDead;
+
+      const wasKilled = combatantWasAliveBeforeResourceChange && combatantIsDead;
+      if (wasKilled) combatantsKilled.push(targetId);
+
       if (wasResurrected) {
         // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
         // - well actually in the new system we just need to make sure their turnSchedulerTracker gets updated
@@ -47,6 +54,8 @@ export class HitPointChanges extends ResourceChanges<ResourceChange> {
         // or else they will get many turns in a a row
       }
     }
+
+    return combatantsKilled;
   }
 }
 

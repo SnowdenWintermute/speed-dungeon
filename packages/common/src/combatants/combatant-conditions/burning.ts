@@ -27,6 +27,7 @@ export class BurningCombatantCondition implements CombatantCondition {
   name = CombatantConditionName.Burning;
   stacksOption = new MaxAndCurrent(10, 1);
   intent = CombatActionIntent.Malicious;
+  removedOnDeath: boolean = true;
   ticks?: MaxAndCurrent | undefined;
   constructor(
     public id: EntityId,

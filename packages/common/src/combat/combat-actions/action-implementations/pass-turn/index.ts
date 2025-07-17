@@ -27,6 +27,10 @@ const config: CombatActionComponentConfig = {
     validTargetCategories: TargetCategories.User,
     usabilityContext: CombatActionUsabilityContext.InCombat,
   },
+
+  getOnUseMessage: (actionUserName: string, actionLevel: number) => {
+    return `${actionUserName} passes their turn.`;
+  },
   hitOutcomeProperties:
     GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Medication],
   costProperties: genericCombatActionCostProperties,

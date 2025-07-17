@@ -22,6 +22,7 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
   name = CombatantConditionName.PrimedForExplosion;
   stacksOption = new MaxAndCurrent(10, 1);
   intent = CombatActionIntent.Malicious;
+  removedOnDeath: boolean = true;
   ticks?: MaxAndCurrent | undefined;
   constructor(
     public id: EntityId,

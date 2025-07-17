@@ -76,6 +76,8 @@ const config: CombatActionComponentConfig = {
   description: "An arrow that bounces to up to two additional targets after the first",
   origin: CombatActionOrigin.Attack,
   targetingProperties,
+
+  getOnUseMessage: null,
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
 
