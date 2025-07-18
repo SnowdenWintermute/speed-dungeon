@@ -29,7 +29,6 @@ export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   origin: CombatActionOrigin.Attack,
   getRequiredRange: () => CombatActionRequiredRange.Melee,
   getOnUseMessage: null,
-  getOnUseMessageData: null,
   targetingProperties: GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent],
   costProperties: {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],

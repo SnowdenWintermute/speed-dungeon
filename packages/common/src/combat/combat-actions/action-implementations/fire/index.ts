@@ -38,9 +38,6 @@ const config: CombatActionComponentConfig = {
   getOnUseMessage: (data) => {
     return `${data.nameOfActionUser} casts fire (level ${data.actionLevel}).`;
   },
-  getOnUseMessageData(context) {
-    return {};
-  },
   targetingProperties,
   hitOutcomeProperties: FIRE_HIT_OUTCOME_PROPERTIES,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],

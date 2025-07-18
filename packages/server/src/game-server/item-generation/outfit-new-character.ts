@@ -175,8 +175,8 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   // });
   // if (runeSword instanceof Error) return;
   // combatantProperties.inventory.equipment.push(runeSword);
-  const items = generateOneOfEachItem();
-  combatantProperties.inventory.equipment.push(...(items as Equipment[]));
+  // const items = generateOneOfEachItem();
+  // combatantProperties.inventory.equipment.push(...(items as Equipment[]));
 
   // giveTestingCombatAttributes(combatantProperties);
   // combatantProperties.level = 5;

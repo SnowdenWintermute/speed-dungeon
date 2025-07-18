@@ -58,7 +58,7 @@ export interface CombatActionComponentConfig {
   ) => boolean;
 
   getOnUseMessage: null | ((messageData: ActionUseMessageData) => string);
-  getOnUseMessageData: null | ((context: ActionResolutionStepContext) => ActionUseMessageData);
+  getOnUseMessageDataOverride?: (context: ActionResolutionStepContext) => ActionUseMessageData;
 
   getRequiredRange: (
     user: CombatantProperties,
@@ -109,7 +109,6 @@ export abstract class CombatActionComponent {
     previousTrackerOption: undefined | ActionTracker
   ) => boolean;
   getOnUseMessage: null | ((messageData: ActionUseMessageData) => string);
-  getOnUseMessageData: null | ((context: ActionResolutionStepContext) => ActionUseMessageData);
   getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
 
@@ -145,7 +144,8 @@ export abstract class CombatActionComponent {
     this.shouldExecute = (combatantContext, previousTrackerOption) =>
       config.shouldExecute(combatantContext, previousTrackerOption, this);
     this.getOnUseMessage = config.getOnUseMessage;
-    this.getOnUseMessageData = config.getOnUseMessageData;
+    if (config.getOnUseMessageDataOverride)
+      this.getOnUseMessageData = config.getOnUseMessageDataOverride;
     this.getRequiredRange = (user) => config.getRequiredRange(user, this);
     this.getSpawnableEntity = config.getSpawnableEntity;
     this.stepsConfig = config.stepsConfig;
@@ -154,6 +154,17 @@ export abstract class CombatActionComponent {
     if (config.getConcurrentSubActions)
       this.getConcurrentSubActions = config.getConcurrentSubActions;
     this.getParent = config.getParent;
+  }
+
+  getOnUseMessageData(context: ActionResolutionStepContext): ActionUseMessageData {
+    const { combatantContext } = context;
+    const { combatant } = combatantContext;
+    const { actionName } = context.tracker.actionExecutionIntent;
+    const ownedActionOption = combatant.combatantProperties.ownedActions[actionName];
+    return {
+      nameOfActionUser: combatant.entityProperties.name,
+      actionLevel: ownedActionOption?.level ?? 0,
+    };
   }
 
   combatantIsValidTarget(

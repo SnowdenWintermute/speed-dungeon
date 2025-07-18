@@ -32,9 +32,6 @@ export function induceHitRecovery(
   const targetModel = getGameWorld().modelManager.findOneOptional(targetId);
   if (targetModel === undefined) return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
-  const action = COMBAT_ACTIONS[actionName];
-  const wasSpell = action.origin === CombatActionOrigin.SpellCast;
-
   startResourceChangeFloatingMessage(
     targetId,
     resourceChange,
@@ -57,11 +54,12 @@ export function induceHitRecovery(
     if (resourceType === ActionPayableResource.Mana)
       CombatantProperties.changeMana(combatantProperties, resourceChange.value);
 
+    const action = COMBAT_ACTIONS[actionName];
     postResourceChangeToCombatLog(
       gameState,
       resourceChange,
       resourceType,
-      wasSpell,
+      action,
       wasBlocked,
       combatant,
       actionUserName,

@@ -41,8 +41,6 @@ const config: CombatActionComponentConfig = {
   hitOutcomeProperties: iceBoltProjectileHitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
   getOnUseMessage: null,
-
-  getOnUseMessageData: null,
   getChildren: (context) => [],
   getParent: () => ICE_BOLT_PARENT,
   getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,

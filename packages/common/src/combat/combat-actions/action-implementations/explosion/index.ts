@@ -50,15 +50,13 @@ const config: CombatActionComponentConfig = {
   getOnUseMessage: (data) => {
     return `${data.nameOfActionUser} explodes!`;
   },
-  getOnUseMessageData(context) {
-    return {};
-  },
   hitOutcomeProperties: explosionHitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
 
   stepsConfig: new ActionResolutionStepsConfig(
     {
       [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
+      [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
       [ActionResolutionStepType.OnActivationSpawnEntity]: {},
       [ActionResolutionStepType.OnActivationActionEntityMotion]: {
         getAnimation: () => {

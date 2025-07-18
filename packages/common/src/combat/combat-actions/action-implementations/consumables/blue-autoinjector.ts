@@ -65,9 +65,6 @@ const config: CombatActionComponentConfig = {
   getOnUseMessage: (data) => {
     return `${data.nameOfActionUser} uses a blue autoinjector.`;
   },
-  getOnUseMessageData(context) {
-    return {};
-  },
   targetingProperties,
   hitOutcomeProperties,
   costProperties: {

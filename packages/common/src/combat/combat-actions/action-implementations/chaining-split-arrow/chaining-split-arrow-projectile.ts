@@ -78,7 +78,6 @@ const config: CombatActionComponentConfig = {
   targetingProperties,
 
   getOnUseMessage: null,
-  getOnUseMessageData: null,
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
 

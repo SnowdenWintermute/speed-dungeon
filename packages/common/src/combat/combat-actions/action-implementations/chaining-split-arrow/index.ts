@@ -40,9 +40,6 @@ const config: CombatActionComponentConfig = {
   getOnUseMessage: (data) => {
     return `${data.nameOfActionUser} fires a chaining split arrow.`;
   },
-  getOnUseMessageData(context) {
-    return {};
-  },
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
   costProperties: {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],

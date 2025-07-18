@@ -39,7 +39,6 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
   shouldExecute: () => true,
   getOnUseMessage: null,
-  getOnUseMessageData: null,
   getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {
     const toReturn: CombatActionComponent[] = [];
     const user = context.combatantContext.combatant.combatantProperties;

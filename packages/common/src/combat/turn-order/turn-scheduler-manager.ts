@@ -61,7 +61,11 @@ export class TurnSchedulerManager {
       // condition turn tracker
       schedulerOption = this.schedulers
         .filter((item) => item instanceof ConditionTurnScheduler)
-        .find((item) => item.conditionId === turnOrderTracker.conditionId);
+        .find(
+          (item) =>
+            item instanceof ConditionTurnScheduler &&
+            item.conditionId === turnOrderTracker.conditionId
+        );
     }
     if (schedulerOption === undefined) throw new Error("expected turnSchedulerTracker was missing");
     return schedulerOption;
@@ -69,6 +73,7 @@ export class TurnSchedulerManager {
 
   removeStaleTurnSchedulers(party: AdventuringParty) {
     const idsToRemove: EntityId[] = [];
+    console.log("removeStaleTurnSchedulers");
 
     for (const tracker of this.schedulers) {
       if (!(tracker instanceof ConditionTurnScheduler)) continue;
@@ -80,6 +85,7 @@ export class TurnSchedulerManager {
           tracker.conditionId
         );
       } catch (err) {
+        console.log("removing:", tracker.conditionId);
         idsToRemove.push(tracker.conditionId);
       }
     }

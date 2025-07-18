@@ -69,9 +69,6 @@ const config: CombatActionComponentConfig = {
   getOnUseMessage: (data) => {
     return `${data.nameOfActionUser} uses a green autoinjector.`;
   },
-  getOnUseMessageData(context) {
-    return {};
-  },
   costProperties: {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Medication],
     getConsumableCost: () => ConsumableType.HpAutoinjector,

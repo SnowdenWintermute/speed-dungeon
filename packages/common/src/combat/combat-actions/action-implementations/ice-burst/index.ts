@@ -113,10 +113,7 @@ const config: CombatActionComponentConfig = {
   origin: CombatActionOrigin.TriggeredCondition,
 
   getOnUseMessage: (data) => {
-    return `${data.nameOfTarget} shatters!`;
-  },
-  getOnUseMessageData: (context) => {
-    return {};
+    return `${data.nameOfActionUser} shatters!`;
   },
   targetingProperties,
   hitOutcomeProperties,
@@ -126,6 +123,7 @@ const config: CombatActionComponentConfig = {
   stepsConfig: new ActionResolutionStepsConfig(
     {
       [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
+      [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
       [ActionResolutionStepType.OnActivationSpawnEntity]: {},
       [ActionResolutionStepType.OnActivationActionEntityMotion]: {
         getAnimation: () => {
