@@ -43,11 +43,11 @@ export function gameStartedHandler(timeStarted: number) {
       );
       enqueueCharacterItemsForThumbnails(character);
     }
+
+    characterAutoFocusManager.focusFirstOwnedCharacter(gameState);
   });
 
   gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.SynchronizeCombatantModels,
   });
-
-  characterAutoFocusManager.focusFirstOwnedCharacter();
 }

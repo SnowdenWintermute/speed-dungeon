@@ -6,13 +6,14 @@ import {
   AdventuringParty,
   SpeedDungeonGame,
   CombatantProperties,
+  Combatant,
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io-client";
 import characterAddedToPartyHandler from "./character-added-to-party-handler";
 import characterDeletionHandler from "./character-deletion-handler";
 import playerToggledReadyToStartGameHandler from "./player-toggled-ready-to-start-game-handler";
 import { gameStartedHandler } from "../game-event-handlers/game-started-handler";
-import playerLeftGameHandler from "../player-left-game-handler";
+import { playerLeftGameHandler } from "../player-left-game-handler";
 import savedCharacterSelectionInProgressGameHandler from "./saved-character-selection-in-progress-game-handler";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
@@ -30,7 +31,7 @@ export function setUpGameLobbyEventHandlers(
     if (game) {
       for (const party of Object.values(game.adventuringParties)) {
         for (const character of Object.values(party.characters)) {
-          CombatantProperties.instantiateItemClasses(character.combatantProperties);
+          Combatant.rehydrate(character);
         }
       }
     } else {

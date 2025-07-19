@@ -59,7 +59,7 @@ export async function battleResultActionCommandHandler(
         );
         break;
       case BattleConclusion.Victory:
-        characterAutoFocusManager.focusFirstOwnedCharacter();
+        characterAutoFocusManager.focusFirstOwnedCharacter(state);
 
         InputLock.unlockInput(partyOption.inputLock);
 

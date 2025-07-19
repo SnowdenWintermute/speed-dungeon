@@ -75,23 +75,33 @@ export class TurnSchedulerManager {
     const idsToRemove: EntityId[] = [];
     console.log("removeStaleTurnSchedulers");
 
-    for (const tracker of this.schedulers) {
-      if (!(tracker instanceof ConditionTurnScheduler)) continue;
-
-      try {
-        const conditionExists = AdventuringParty.getConditionOnCombatant(
-          party,
-          tracker.combatantId,
-          tracker.conditionId
-        );
-      } catch (err) {
-        console.log("removing:", tracker.conditionId);
-        idsToRemove.push(tracker.conditionId);
+    for (const scheduler of this.schedulers) {
+      if (scheduler instanceof CombatantTurnScheduler) {
+        if (AdventuringParty.getCombatant(party, scheduler.combatantId) instanceof Error) {
+          console.log("combatant not found, removing scheduler:", scheduler.combatantId);
+          idsToRemove.push(scheduler.combatantId);
+        }
+        continue;
+      } else if (scheduler instanceof ConditionTurnScheduler) {
+        if (
+          AdventuringParty.getConditionOnCombatant(
+            party,
+            scheduler.combatantId,
+            scheduler.conditionId
+          ) instanceof Error
+        ) {
+          console.log("removing nonexistant condition scheduer:", scheduler.conditionId);
+          idsToRemove.push(scheduler.conditionId);
+        }
       }
     }
 
     this.schedulers = this.schedulers.filter((scheduler) => {
       if (!(scheduler instanceof ConditionTurnScheduler)) {
+        if (idsToRemove.includes(scheduler.combatantId)) {
+          console.log("removing combatant scheduler:", scheduler.combatantId);
+          return false;
+        }
         return true;
       }
 

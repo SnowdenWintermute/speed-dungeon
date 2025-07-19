@@ -6,7 +6,7 @@ export * from "./combat-action-execution-intent.js";
 export * from "./combat-action-animations.js";
 export * from "./combat-action-intent.js";
 export * from "./combat-action-steps-config.js";
-import { Combatant, CombatantProperties } from "../../combatants/index.js";
+import { Combatant, CombatantEquipment, CombatantProperties } from "../../combatants/index.js";
 import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js";
 import { CombatActionName } from "./combat-action-names.js";
 import { Battle } from "../../battle/index.js";
@@ -26,7 +26,7 @@ import {
   CombatActionCostPropertiesConfig,
 } from "./combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "./combat-action-steps-config.js";
-import { EntityId } from "../../primatives/index.js";
+import { Equipment } from "../../items/equipment/index.js";
 
 export enum CombatActionOrigin {
   SpellCast,
@@ -103,6 +103,21 @@ export abstract class CombatActionComponent {
       : CombatActionUsabilityContext.OutOfCombat;
     return this.isUsableInGivenContext(context);
   };
+
+  combatantIsWearingRequiredEquipment(combatantProperties: CombatantProperties) {
+    const { requiredEquipmentTypeOptions } = this.targetingProperties;
+    if (requiredEquipmentTypeOptions.length === 0) return true;
+
+    const allEquipment = CombatantEquipment.getAllEquippedItems(combatantProperties, {
+      includeUnselectedHotswapSlots: false,
+    });
+    for (const equipment of allEquipment) {
+      const { equipmentType } = equipment.equipmentBaseItemProperties;
+      if (Equipment.isBroken(equipment)) continue;
+      if (requiredEquipmentTypeOptions.includes(equipmentType)) return true;
+    }
+    return false;
+  }
 
   shouldExecute: (
     combatantContext: CombatantContext,

@@ -23,6 +23,8 @@ stepsConfig.steps[ActionResolutionStepType.RecoveryMotion] = {
     );
     if (targetIdsResult instanceof Error) throw targetIdsResult;
 
+    console.log("starting burning particles on", targetIdsResult);
+
     const toReturn: CosmeticEffectOnTargetTransformNode[] = targetIdsResult.map((targetId) => {
       return {
         name: CosmeticEffectNames.FireParticlesSmall,

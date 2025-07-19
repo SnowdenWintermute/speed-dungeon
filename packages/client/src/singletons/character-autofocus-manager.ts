@@ -23,20 +23,18 @@ export class CharacterAutoFocusManager {
     }
   }
 
-  focusFirstOwnedCharacter() {
-    useGameStore.getState().mutateState((gameState) => {
-      // if viewing menu other than ItemsOnGround, do nothing
-      const clientIsViewingMenus = gameState.stackedMenuStates.length;
-      const currentMenu = getCurrentMenu(gameState);
-      if (clientIsViewingMenus && currentMenu.type !== MenuStateType.ItemsOnGround) return;
+  focusFirstOwnedCharacter(gameState: GameState) {
+    // if viewing menu other than ItemsOnGround, do nothing
+    const clientIsViewingMenus = gameState.stackedMenuStates.length;
+    const currentMenu = getCurrentMenu(gameState);
+    if (clientIsViewingMenus && currentMenu.type !== MenuStateType.ItemsOnGround) return;
 
-      const playerResult = gameState.getPlayer();
-      if (playerResult instanceof Error) throw playerResult;
+    const playerResult = gameState.getPlayer();
+    if (playerResult instanceof Error) throw playerResult;
 
-      const firstOwnedCharacterId = playerResult.characterIds[0];
-      if (!firstOwnedCharacterId) return console.error("Player doesn't own any characters");
-      gameState.focusedCharacterId = firstOwnedCharacterId;
-    });
+    const firstOwnedCharacterId = playerResult.characterIds[0];
+    if (!firstOwnedCharacterId) return console.error("Player doesn't own any characters");
+    gameState.focusedCharacterId = firstOwnedCharacterId;
   }
 
   updateFocusedCharacterOnNewTurnOrder(

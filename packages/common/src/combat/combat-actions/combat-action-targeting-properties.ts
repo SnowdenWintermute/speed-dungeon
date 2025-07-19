@@ -12,6 +12,7 @@ import { AUTO_TARGETING_FUNCTIONS } from "../targeting/auto-targeting/mapped-fun
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { CombatActionIntent } from "./combat-action-intent.js";
 import { Combatant } from "../../combatants/index.js";
+import { EquipmentType } from "../../items/equipment/index.js";
 
 export interface CombatActionTargetingPropertiesConfig {
   getTargetingSchemes: (user: Combatant) => TargetingScheme[];
@@ -20,7 +21,10 @@ export interface CombatActionTargetingPropertiesConfig {
   prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
   prohibitedHitCombatantStates: ProhibitedTargetCombatantStates[];
   intent: CombatActionIntent;
+  // usability
   usabilityContext: CombatActionUsabilityContext;
+  requiredEquipmentTypeOptions: EquipmentType[];
+
   getAutoTarget: (
     combatantContext: CombatantContext,
     actionTrackerOption: null | ActionTracker,
@@ -50,6 +54,7 @@ const hostileSingle: CombatActionTargetingPropertiesConfig = {
   prohibitedHitCombatantStates: [],
   intent: CombatActionIntent.Malicious,
   usabilityContext: CombatActionUsabilityContext.InCombat,
+  requiredEquipmentTypeOptions: [],
 
   getAutoTarget: (
     combatantContext: CombatantContext,

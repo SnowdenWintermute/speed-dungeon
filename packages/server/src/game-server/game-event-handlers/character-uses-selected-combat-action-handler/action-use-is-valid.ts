@@ -58,6 +58,11 @@ export function actionUseIsValid(
   const isInUsableContext = action.isUsableInThisContext(battleOption);
   if (!isInUsableContext) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_USABILITY_CONTEXT);
 
+  const isWearingRequiredEquipment =
+    action.combatantIsWearingRequiredEquipment(combatantProperties);
+  if (!isWearingRequiredEquipment)
+    return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_WEARING_REQUIRED_EQUIPMENT);
+
   // @TODO - TARGETS ARE NOT IN A PROHIBITED STATE
   // this would only make sense if we didn't already check valid states when targeting... unless
   // target state could change while they are already targeted, like if someone healed themselves

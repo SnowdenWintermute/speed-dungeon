@@ -6,7 +6,7 @@ import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { Battle } from "../battle/index.js";
 
-export default function removeCharacterFromParty(
+export function removeCharacterFromParty(
   party: AdventuringParty,
   characterId: EntityId,
   player: SpeedDungeonPlayer,

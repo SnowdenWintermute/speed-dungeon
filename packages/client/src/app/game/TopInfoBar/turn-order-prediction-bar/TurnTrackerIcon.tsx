@@ -24,9 +24,6 @@ export default function TurnOrderTrackerIcon({
 
   const isCondition = tracker instanceof ConditionTurnTracker;
   const combatantIsAlly = party.characterPositions.includes(tracker.combatantId);
-  const combatant = tracker.getCombatant(party);
-
-  const { entityProperties, combatantProperties: _ } = combatant;
 
   const conditionalClasses = isCondition
     ? "bg-slate-600"
@@ -40,7 +37,11 @@ export default function TurnOrderTrackerIcon({
         .slice(0, 2)
         .toUpperCase();
     else {
-      return tracker.getCombatant(party).entityProperties.name.slice(0, 2).toUpperCase();
+      try {
+        return tracker.getCombatant(party).entityProperties.name.slice(0, 2).toUpperCase();
+      } catch {
+        return "-";
+      }
     }
   })();
 

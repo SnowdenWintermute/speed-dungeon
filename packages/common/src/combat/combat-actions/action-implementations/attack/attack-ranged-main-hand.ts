@@ -55,7 +55,6 @@ import {
 import { Vector3 } from "@babylonjs/core";
 import { EquipmentType, TwoHandedRangedWeapon } from "../../../../items/equipment/index.js";
 
-const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
 const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Bow);
 
 export const BOW_EQUIPMENT_ANIMATIONS: Record<TwoHandedRangedWeapon, SkeletalAnimationName> = {
@@ -173,7 +172,10 @@ export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   description: "Attack target using ranged weapon",
   origin: CombatActionOrigin.Attack,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
-  targetingProperties,
+  targetingProperties: {
+    ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle],
+    requiredEquipmentTypeOptions: [EquipmentType.TwoHandedRangedWeapon],
+  },
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
   costProperties: {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],

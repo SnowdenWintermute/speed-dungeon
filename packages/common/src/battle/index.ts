@@ -46,6 +46,7 @@ export class Battle {
     const tickableConditions: ConditionWithCombatantIdAppliedTo[] = [];
     for (const combatant of combatants) {
       for (const condition of combatant.combatantProperties.conditions) {
+        console.log("found condition:", condition);
         const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
         if (tickPropertiesOption) {
           tickableConditions.push({ condition, appliedTo: combatant.entityProperties.id });
@@ -59,7 +60,6 @@ export class Battle {
   }
 
   static removeCombatant(battle: Battle, combatantId: string) {
-    // Battle.removeCombatantTurnTrackers(battle, combatantId);
     battle.groupA.combatantIds = battle.groupA.combatantIds.filter((id) => id !== combatantId);
     battle.groupB.combatantIds = battle.groupB.combatantIds.filter((id) => id !== combatantId);
   }

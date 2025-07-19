@@ -27,15 +27,17 @@ import {
 } from "../../../../action-processing/index.js";
 import { ATTACK_RANGED_MAIN_HAND } from "../attack/attack-ranged-main-hand.js";
 import { SpawnableEntityType, getSpawnableEntityId } from "../../../../spawnables/index.js";
-
-const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea];
+import { EquipmentType } from "../../../../items/equipment/index.js";
 
 const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Bow);
 
 const config: CombatActionComponentConfig = {
   description: "Fire arrows which each bounce to up to two additional targets",
   origin: CombatActionOrigin.Attack,
-  targetingProperties,
+  targetingProperties: {
+    ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
+    requiredEquipmentTypeOptions: [EquipmentType.TwoHandedRangedWeapon],
+  },
 
   getOnUseMessage: (data) => {
     return `${data.nameOfActionUser} fires a chaining split arrow.`;

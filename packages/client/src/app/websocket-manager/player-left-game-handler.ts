@@ -3,7 +3,7 @@ import { gameWorld } from "../3d-world/SceneManager";
 import { ModelActionType } from "../3d-world/game-world/model-manager/model-actions";
 import { useGameStore } from "@/stores/game-store";
 
-export default function playerLeftGameHandler(username: string) {
+export function playerLeftGameHandler(username: string) {
   gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.ProcessActionCommands,
     actionCommandPayloads: [{ type: ActionCommandType.RemovePlayerFromGame, username }],

@@ -17,6 +17,7 @@ import { setAlert } from "@/app/components/alerts";
 import cloneDeep from "lodash.clonedeep";
 import { createCombatantPortrait } from "../../image-manager/create-combatant-portrait";
 import { CharacterModel } from "@/app/3d-world/scene-entities/character-models";
+import { startOrStopCosmeticEffects } from "../../replay-tree-manager/start-or-stop-cosmetic-effect";
 
 export async function synchronizeCombatantModelsWithAppState() {
   if (!gameWorld.current) return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
@@ -73,6 +74,14 @@ export async function synchronizeCombatantModelsWithAppState() {
       resultsIncludedError = true;
     } else {
       modelManager.combatantModels[result.entityId] = result;
+
+      const character = result.getCombatant();
+      const { combatantProperties, entityProperties } = character;
+
+      combatantProperties.conditions.forEach((condition) => {
+        startOrStopCosmeticEffects(condition.getCosmeticEffectWhileActive(entityProperties.id), []);
+      });
+
       const portraitResult = await createCombatantPortrait(result.entityId);
       if (portraitResult instanceof Error) setAlert(portraitResult);
 

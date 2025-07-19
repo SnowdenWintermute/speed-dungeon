@@ -8,7 +8,7 @@ import { EntityId } from "../primatives/index.js";
 import { SpeedDungeonPlayer } from "./player.js";
 import putPlayerInParty from "./put-player-in-party.js";
 import removePlayerFromParty from "./remove-player-from-party.js";
-import removePlayerFromGame from "./remove-player-from-game.js";
+import { removePlayerFromGame } from "./remove-player-from-game.js";
 import getCharacterInGame from "./get-character-in-game.js";
 import getCombatantInGameById from "./get-combatant-in-game-by-id.js";
 import getPartyOfCombatant from "./get-party-of-combatant.js";
