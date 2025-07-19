@@ -175,7 +175,6 @@ export abstract class CombatantCondition {
     name: CombatantConditionName,
     combatantProperties: CombatantProperties
   ) {
-    console.log("removeByNameFromCombatant:", COMBATANT_CONDITION_NAME_STRINGS[name]);
     combatantProperties.conditions = combatantProperties.conditions.filter((existingCondition) => {
       existingCondition.name !== name;
     });
@@ -250,7 +249,6 @@ export abstract class CombatantCondition {
     combatantProperties: CombatantProperties
   ): CombatantCondition | undefined {
     let removed: CombatantCondition | undefined = undefined;
-    console.log("removeById:", conditionId);
     combatantProperties.conditions = combatantProperties.conditions.filter((condition) => {
       if (condition.id === conditionId) removed = condition;
       return condition.id !== conditionId;

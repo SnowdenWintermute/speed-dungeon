@@ -60,17 +60,10 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   const { asShimmedUserOfTriggeredCondition } = combatant.combatantProperties;
   if (asShimmedUserOfTriggeredCondition) {
     const { condition } = asShimmedUserOfTriggeredCondition;
-    console.log(
-      "actionName: ",
-      actionNameString,
-      "used by condition:",
-      COMBATANT_CONDITION_NAME_STRINGS[condition.name]
-    );
 
     const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
     if (tickPropertiesOption) {
       const { numStacksRemoved } = tickPropertiesOption.onTick(condition, context.combatantContext);
-      console.log("should remove stacks:", numStacksRemoved);
     }
   }
 
@@ -78,13 +71,6 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
 
   const requiredTurn = action.costProperties.requiresCombatTurn(context);
   const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
-  console.log(
-    actionNameString,
-    "turn already ended:",
-    turnAlreadyEnded,
-    "requiredTurn:",
-    requiredTurn
-  );
   let shouldSendEndActiveTurnMessage = false;
   if (requiredTurn && !turnAlreadyEnded && battleOption) {
     // if they died on their own turn we should not end the active combatant's turn because

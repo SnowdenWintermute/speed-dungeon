@@ -160,14 +160,14 @@ export class CharacterModel extends SceneEntity {
 
       const currentAnimationName = this.skeletalAnimationManager.playing?.getName();
       if (currentAnimationName === SKELETAL_ANIMATION_NAME_STRINGS[idleName])
-        return console.log("was already idling");
+        return console.info("was already idling");
 
       this.skeletalAnimationManager.startAnimationWithTransition(idleName, transitionMs, {
         ...options,
         shouldLoop: true,
       });
     } catch (error) {
-      console.log(
+      console.info(
         "error attempting to start idle animation - this may be caused when asynchronously scheduling an animation change which triggers after a battle has ended",
         error
       );

@@ -37,11 +37,7 @@ export default function TurnOrderTrackerIcon({
         .slice(0, 2)
         .toUpperCase();
     else {
-      try {
-        return tracker.getCombatant(party).entityProperties.name.slice(0, 2).toUpperCase();
-      } catch {
-        return "-";
-      }
+      return tracker.getCombatant(party).entityProperties.name.slice(0, 2).toUpperCase();
     }
   })();
 

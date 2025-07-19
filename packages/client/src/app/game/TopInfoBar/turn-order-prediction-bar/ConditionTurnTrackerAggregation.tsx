@@ -24,25 +24,21 @@ export default function ConditionTurnTrackerAggregation({
       className={`border border-slate-400 h-10 w-4 mr-2 last:mr-0 flex flex-col justify-center p-[2px]`}
     >
       {trackers.map((tracker) => {
-        try {
-          const condition = tracker.getCondition(partyResult);
+        const condition = tracker.getCondition(partyResult);
 
-          return (
-            <button
-              className=""
-              onMouseLeave={onMouseLeave}
-              onMouseEnter={onMouseEnter}
-              key={tracker.conditionId}
-            >
-              {CONDITION_INDICATOR_ICONS[condition.name]}{" "}
-              <div className={`text-2xl absolute top-[160px] ${hiddenClass}`}>
-                <div>{tracker.timeOfNextMove}</div>
-              </div>
-            </button>
-          );
-        } catch {
-          return <div>:D</div>;
-        }
+        return (
+          <button
+            className=""
+            onMouseLeave={onMouseLeave}
+            onMouseEnter={onMouseEnter}
+            key={tracker.conditionId}
+          >
+            {CONDITION_INDICATOR_ICONS[condition.name]}{" "}
+            <div className={`text-2xl absolute top-[160px] ${hiddenClass}`}>
+              <div>{tracker.timeOfNextMove}</div>
+            </div>
+          </button>
+        );
       })}
     </div>
   );

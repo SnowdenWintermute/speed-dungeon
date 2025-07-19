@@ -99,10 +99,6 @@ export class ActionSequenceManager {
   startProcessingNext(time: { ms: Milliseconds }): Error | ActionTracker {
     if (this.currentTracker) {
       this.completedTrackers.push(this.currentTracker);
-      console.log(
-        "completed tracker for action",
-        COMBAT_ACTION_NAME_STRINGS[this.currentTracker.actionExecutionIntent.actionName]
-      );
     }
 
     const nextActionExecutionIntentOption = this.remainingActionsToExecute.pop();

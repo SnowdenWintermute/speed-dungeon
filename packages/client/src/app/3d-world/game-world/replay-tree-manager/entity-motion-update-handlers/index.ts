@@ -8,8 +8,6 @@ export async function entityMotionGameUpdateHandler(update: {
   const { command } = update;
   const { mainEntityUpdate, auxiliaryUpdates } = command;
 
-  console.log("mainEntityUpdate: ", mainEntityUpdate, "auxiliaryUpdates", auxiliaryUpdates);
-
   handleEntityMotionUpdate(update, mainEntityUpdate, true);
 
   if (auxiliaryUpdates) {

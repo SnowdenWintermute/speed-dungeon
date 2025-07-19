@@ -49,7 +49,6 @@ export class ActionSequenceManagerRegistry {
     const stepTrackerResult = manager.startProcessingNext(time);
     if (stepTrackerResult instanceof Error) return stepTrackerResult;
     const initialGameUpdate = stepTrackerResult.currentStep.getGameUpdateCommandOption();
-    console.log("registered", COMBAT_ACTION_NAME_STRINGS[actionExecutionIntent.actionName]);
     this.incrementInputLockReferenceCount();
     return initialGameUpdate;
   }

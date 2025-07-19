@@ -6,7 +6,6 @@ export async function postActionUseCombatLogMessageGameUpdateHandler(update: {
   command: ActionUseCombatLogMessageUpdateCommand;
   isComplete: boolean;
 }) {
-  console.log("about to call postActionUseMessageToCombatLog");
   useGameStore.getState().mutateState((state) => {
     postActionUseMessageToCombatLog(state, update.command);
   });

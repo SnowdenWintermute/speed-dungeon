@@ -73,24 +73,21 @@ export class TurnSchedulerManager {
 
   removeStaleTurnSchedulers(party: AdventuringParty) {
     const idsToRemove: EntityId[] = [];
-    console.log("removeStaleTurnSchedulers");
 
     for (const scheduler of this.schedulers) {
       if (scheduler instanceof CombatantTurnScheduler) {
         if (AdventuringParty.getCombatant(party, scheduler.combatantId) instanceof Error) {
-          console.log("combatant not found, removing scheduler:", scheduler.combatantId);
           idsToRemove.push(scheduler.combatantId);
         }
         continue;
       } else if (scheduler instanceof ConditionTurnScheduler) {
-        if (
+        try {
           AdventuringParty.getConditionOnCombatant(
             party,
             scheduler.combatantId,
             scheduler.conditionId
-          ) instanceof Error
-        ) {
-          console.log("removing nonexistant condition scheduer:", scheduler.conditionId);
+          );
+        } catch {
           idsToRemove.push(scheduler.conditionId);
         }
       }
@@ -99,7 +96,6 @@ export class TurnSchedulerManager {
     this.schedulers = this.schedulers.filter((scheduler) => {
       if (!(scheduler instanceof ConditionTurnScheduler)) {
         if (idsToRemove.includes(scheduler.combatantId)) {
-          console.log("removing combatant scheduler:", scheduler.combatantId);
           return false;
         }
         return true;
@@ -179,7 +175,9 @@ export class TurnSchedulerManager {
 
     while (numCombatantTrackersCreated < this.minTurnTrackersCount) {
       this.sortSchedulers(TurnTrackerSortableProperty.TimeOfNextMove, party);
+
       const fastestActor = this.getFirstScheduler();
+
       if (fastestActor instanceof CombatantTurnScheduler) {
         const combatantResult = AdventuringParty.getCombatant(party, fastestActor.combatantId);
         if (combatantResult instanceof Error) throw combatantResult;

@@ -67,6 +67,7 @@ export default function TopInfoBar() {
             mutateGameState((state) => {
               state.viewingLeaveGameModal = !state.viewingLeaveGameModal;
               state.stackedMenuStates = [];
+              state.baseMenuState.inCombat = false;
             });
           }}
         >

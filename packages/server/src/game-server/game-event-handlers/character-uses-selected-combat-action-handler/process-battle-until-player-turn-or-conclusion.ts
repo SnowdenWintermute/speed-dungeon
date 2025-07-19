@@ -73,7 +73,7 @@ export class BattleProcessor {
       // process action intents
       let shouldEndTurn = false;
       if (actionExecutionIntent === null) {
-        console.log("AI action intent was null");
+        console.info("AI action intent was null");
         shouldEndTurn = true;
       } else {
         const replayTreeResult = processCombatAction(

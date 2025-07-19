@@ -42,12 +42,7 @@ import { getOwnedActionState } from "./owned-actions/get-owned-action-state.js";
 import { getAllCurrentlyUsableActionNames } from "./owned-actions/get-all-currently-usable-action-names.js";
 import { getActionNamesFilteredByUseableContext } from "./owned-actions/get-owned-action-names-filtered-by-usable-context.js";
 import { CombatantCondition, CombatantConditionName } from "./combatant-conditions/index.js";
-import {
-  Equipment,
-  EquipmentSlotType,
-  EquipmentType,
-  HoldableSlotType,
-} from "../items/equipment/index.js";
+import { Equipment, EquipmentType, HoldableSlotType } from "../items/equipment/index.js";
 import { plainToInstance } from "class-transformer";
 import { PrimedForExplosionCombatantCondition } from "./combatant-conditions/primed-for-explosion.js";
 import { PrimedForIceBurstCombatantCondition } from "./combatant-conditions/primed-for-ice-burst.js";
@@ -86,7 +81,6 @@ export class Combatant {
       }
     });
     combatantProperties.conditions = rehydratedConditions;
-    console.log("rehydratedConditions: ", combatantProperties.conditions);
   }
 }
 

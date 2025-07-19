@@ -46,15 +46,12 @@ export class Battle {
     const tickableConditions: ConditionWithCombatantIdAppliedTo[] = [];
     for (const combatant of combatants) {
       for (const condition of combatant.combatantProperties.conditions) {
-        console.log("found condition:", condition);
         const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
         if (tickPropertiesOption) {
           tickableConditions.push({ condition, appliedTo: combatant.entityProperties.id });
         }
       }
     }
-
-    console.log("tickableConditions found when updating trackers:", tickableConditions.length);
 
     return { combatants, tickableConditions };
   }
