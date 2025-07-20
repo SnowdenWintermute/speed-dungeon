@@ -2,8 +2,10 @@ import { Vector3 } from "@babylonjs/core";
 import { idGenerator } from "../../singletons.js";
 import getSpawnableMonsterTypesByFloor from "./get-spawnable-monster-types-by-floor.js";
 import {
+  CombatActionName,
   CombatAttribute,
   Combatant,
+  CombatantActionState,
   CombatantProperties,
   Equipment,
   MONSTER_SPECIES,
@@ -38,6 +40,13 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
     monsterType,
     null,
     Vector3.Zero()
+  );
+
+  combatantProperties.ownedActions[CombatActionName.IceBoltParent] = new CombatantActionState(
+    CombatActionName.IceBoltParent
+  );
+  combatantProperties.ownedActions[CombatActionName.IceBoltProjectile] = new CombatantActionState(
+    CombatActionName.IceBoltProjectile
   );
 
   // const entityProperties = { id: idGenerator.generate(), name: STOCK_MONSTER.name };

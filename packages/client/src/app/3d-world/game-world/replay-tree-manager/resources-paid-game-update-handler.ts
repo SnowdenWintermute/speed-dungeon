@@ -8,13 +8,11 @@ import {
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { useGameStore } from "@/stores/game-store";
-import { postActionUseMessageToCombatLog } from "@/app/game/combat-log/post-action-use-message-to-combat-log";
 
 export async function resourcesPaidGameUpdateHandler(update: {
   command: ResourcesPaidGameUpdateCommand;
   isComplete: boolean;
 }) {
-  console.log("resourcesPaidGameUpdateHandler");
   // deduct the resources
   // enqueue the floating text messages
   const { command } = update;
@@ -24,9 +22,6 @@ export async function resourcesPaidGameUpdateHandler(update: {
     const combatantResult = SpeedDungeonGame.getCombatantById(game, command.combatantId);
     if (combatantResult instanceof Error) return combatantResult;
     const { combatantProperties } = combatantResult;
-
-    console.log("about to call postActionUseMessageToCombatLog");
-    postActionUseMessageToCombatLog(gameState, command);
 
     if (command.itemsConsumed !== undefined)
       for (const itemId of command.itemsConsumed)

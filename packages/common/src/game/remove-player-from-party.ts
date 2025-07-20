@@ -41,6 +41,8 @@ export default function removePlayerFromParty(
     });
   }
 
+  battleOption?.turnOrderManager.updateTrackers(game, partyLeaving);
+
   player.partyName = null;
 
   removeFromArray(partyLeaving.playerUsernames, username);

@@ -107,6 +107,7 @@ export const ERROR_MESSAGES = {
     ALREADY_FULL_HP: "The target already has full hit points",
     ALREADY_FULL_MP: "The target already has full mana",
     NOT_USABLE_IN_COMBAT: "That action can not be performed in combat",
+    NOT_WEARING_REQUIRED_EQUIPMENT: "That action can not be performed without the proper equipment",
     MISSING_EXPECTED_ACTION_IN_CHAIN:
       "Action failed to activate because it depends on a missing expected previous action in the chain",
     INVALID_ACTION_IN_CHAIN:

@@ -17,11 +17,6 @@ export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends
   constructor(context: ActionResolutionStepContext) {
     super(stepType, context, null); // this step should produce no game update
 
-    console.log(
-      "DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep tracker current step:",
-      context.tracker.currentStep
-    );
-
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
 
     const shouldExecute = action.shouldExecute(
@@ -32,10 +27,6 @@ export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends
     if (shouldExecute) return;
 
     context.tracker.wasAborted = true;
-    console.log(
-      "aborted action:",
-      COMBAT_ACTION_NAME_STRINGS[context.tracker.actionExecutionIntent.actionName]
-    );
 
     const gameUpdateCommandOption = evaluatePlayerEndTurnAndInputLock(context);
     if (gameUpdateCommandOption) this.gameUpdateCommandOption = gameUpdateCommandOption;

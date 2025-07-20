@@ -53,13 +53,10 @@ export class Battle {
       }
     }
 
-    console.log("tickableConditions found when updating trackers:", tickableConditions.length);
-
     return { combatants, tickableConditions };
   }
 
   static removeCombatant(battle: Battle, combatantId: string) {
-    // Battle.removeCombatantTurnTrackers(battle, combatantId);
     battle.groupA.combatantIds = battle.groupA.combatantIds.filter((id) => id !== combatantId);
     battle.groupB.combatantIds = battle.groupB.combatantIds.filter((id) => id !== combatantId);
   }

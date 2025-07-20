@@ -150,9 +150,13 @@ export class BaseMenuState implements ActionMenuState {
 
       const userControlsThisCharacter = clientUserControlsCombatant(characterId);
 
+      const isWearingRequiredEquipment =
+        combatAction.combatantIsWearingRequiredEquipment(combatantProperties);
+
       button.shouldBeDisabled =
         (usabilityContext === CombatActionUsabilityContext.InCombat && !this.inCombat) ||
         (usabilityContext === CombatActionUsabilityContext.OutOfCombat && this.inCombat) ||
+        !isWearingRequiredEquipment ||
         unmetCosts.length > 0 ||
         disabledBecauseNotThisCombatantTurnResult ||
         !userControlsThisCharacter;

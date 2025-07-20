@@ -26,14 +26,26 @@ import { MagicalElement } from "../../../magical-elements.js";
 import { NumberRange } from "../../../../primatives/number-range.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { BURNING_TICK_STEPS_CONFIG } from "./burning-tick-steps-config.js";
+import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
+import { AdventuringParty } from "../../../../adventuring-party/index.js";
 
 const config: CombatActionComponentConfig = {
   description: "Inflict magical fire damage on enemies",
   origin: CombatActionOrigin.TriggeredCondition,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
+  getOnUseMessage: (data) => {
+    return `${data.nameOfTarget} is burning`;
+  },
+  getOnUseMessageDataOverride(context) {
+    const { actionExecutionIntent } = context.tracker;
+    const { combatantContext } = context;
+    const targetingCalculator = new TargetingCalculator(combatantContext, null);
+    const primaryTargetId = targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent);
+    const { party } = combatantContext;
+    const targetCombatantResult = AdventuringParty.getCombatant(party, primaryTargetId);
+    if (targetCombatantResult instanceof Error) throw targetCombatantResult;
 
-  getOnUseMessage: (actionUserName: string, actionLevel: number) => {
-    return `${actionUserName} burns`;
+    return { nameOfTarget: targetCombatantResult.entityProperties.name };
   },
   targetingProperties: GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle],
   hitOutcomeProperties: {

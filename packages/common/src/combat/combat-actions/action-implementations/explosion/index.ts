@@ -47,8 +47,8 @@ const config: CombatActionComponentConfig = {
   origin: CombatActionOrigin.TriggeredCondition,
   targetingProperties,
 
-  getOnUseMessage: (actionUserName: string, actionLevel: number) => {
-    return `${actionUserName} explodes!`;
+  getOnUseMessage: (data) => {
+    return `${data.nameOfActionUser} explodes!`;
   },
   hitOutcomeProperties: explosionHitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
@@ -56,6 +56,7 @@ const config: CombatActionComponentConfig = {
   stepsConfig: new ActionResolutionStepsConfig(
     {
       [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
+      [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
       [ActionResolutionStepType.OnActivationSpawnEntity]: {},
       [ActionResolutionStepType.OnActivationActionEntityMotion]: {
         getAnimation: () => {

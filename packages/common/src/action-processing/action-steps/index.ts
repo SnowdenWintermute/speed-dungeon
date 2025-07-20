@@ -30,6 +30,7 @@ export enum ActionResolutionStepType {
   ChamberingMotion,
   DeliveryMotion,
   PayResourceCosts,
+  PostActionUseCombatLogMessage,
   EvalOnUseTriggers,
   StartConcurrentSubActions, // starts actions that happen simultaneously and independently such as ["arrow projectile"]
   OnActivationSpawnEntity,
@@ -54,6 +55,7 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.EvalOnUseTriggers]: "evalOnUseTriggers", // counterspells, branch block/parry/counterattacks, bow durability loss
   [ActionResolutionStepType.DeliveryMotion]: "deliveryMotion",
   [ActionResolutionStepType.PayResourceCosts]: "payResourceCosts",
+  [ActionResolutionStepType.PostActionUseCombatLogMessage]: "postActionUseCombatLogMessage",
   [ActionResolutionStepType.StartConcurrentSubActions]: "StartConcurrentSubActions",
   [ActionResolutionStepType.OnActivationSpawnEntity]: "onActivationSpawnEntity",
   [ActionResolutionStepType.OnActivationActionEntityMotion]: "onActivationVfxMotion",
@@ -84,16 +86,8 @@ export abstract class ActionResolutionStep {
     protected context: ActionResolutionStepContext,
     protected gameUpdateCommandOption: null | GameUpdateCommand
   ) {
-    //
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
     const stepConfig = action.stepsConfig.steps[type];
-
-    console.log(
-      "constructed step",
-      ACTION_RESOLUTION_STEP_TYPE_STRINGS[type],
-      "for action",
-      COMBAT_ACTION_NAME_STRINGS[action.name]
-    );
 
     if (!stepConfig) throw new Error("expected step config not found");
     if (gameUpdateCommandOption && stepConfig.getCosmeticsEffectsToStop) {

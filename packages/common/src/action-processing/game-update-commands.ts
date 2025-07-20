@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ConditionId, EntityId, Milliseconds } from "../primatives/index.js";
 import {
   ActionResourceCosts,
+  ActionUseMessageData,
   CombatActionHitOutcomes,
   CombatActionName,
   HitPointChanges,
@@ -28,6 +29,7 @@ export enum GameUpdateCommandType {
   CombatantMotion,
   ActionEntityMotion,
   ResourcesPaid,
+  ActionUseCombatLogMessage,
   ActivatedTriggers,
   HitOutcomes,
   ActionCompletion,
@@ -38,6 +40,7 @@ export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, str
   [GameUpdateCommandType.CombatantMotion]: "Entity Motion",
   [GameUpdateCommandType.ActionEntityMotion]: "Entity Motion",
   [GameUpdateCommandType.ResourcesPaid]: "Resources Paid",
+  [GameUpdateCommandType.ActionUseCombatLogMessage]: "Action Use Combat Log Message",
   [GameUpdateCommandType.ActivatedTriggers]: "Activated Triggers",
   [GameUpdateCommandType.HitOutcomes]: "Hit Outcomes",
   [GameUpdateCommandType.ActionCompletion]: "Action Completion",
@@ -159,6 +162,11 @@ export interface ActionCompletionUpdateCommand extends IGameUpdateCommand {
   endActiveCombatantTurn?: boolean;
 }
 
+export interface ActionUseCombatLogMessageUpdateCommand extends IGameUpdateCommand {
+  type: GameUpdateCommandType.ActionUseCombatLogMessage;
+  actionUseMessageData: ActionUseMessageData;
+}
+
 export type GameUpdateCommand =
   | SpawnEntityGameUpdateCommand
   | CombatantMotionGameUpdateCommand
@@ -166,4 +174,5 @@ export type GameUpdateCommand =
   | ResourcesPaidGameUpdateCommand
   | ActivatedTriggersGameUpdateCommand
   | HitOutcomesGameUpdateCommand
-  | ActionCompletionUpdateCommand;
+  | ActionCompletionUpdateCommand
+  | ActionUseCombatLogMessageUpdateCommand;

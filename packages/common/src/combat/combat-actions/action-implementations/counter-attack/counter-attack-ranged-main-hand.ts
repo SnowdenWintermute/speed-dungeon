@@ -10,12 +10,6 @@ import { ATTACK_RANGED_MAIN_HAND_CONFIG } from "../attack/attack-ranged-main-han
 import cloneDeep from "lodash.clonedeep";
 import { AutoTargetingScheme } from "../../../targeting/index.js";
 import { getRotateTowardPrimaryTargetDestination } from "../common-destination-getters.js";
-import { getSpeciesTimedAnimation } from "../get-species-timed-animation.js";
-import { ActionExecutionPhase } from "../action-execution-phase.js";
-import {
-  PROJECTILE_SHOOTING_ACTION_ANIMATION_NAMES,
-  ProjectileShootingActionType,
-} from "../projectile-shooting-action-animation-names.js";
 
 const clonedConfig = cloneDeep(ATTACK_RANGED_MAIN_HAND_CONFIG);
 const stepsConfig = clonedConfig.stepsConfig;

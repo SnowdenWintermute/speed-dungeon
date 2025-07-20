@@ -32,6 +32,9 @@ export default function TailwindClassLoader() {
       <div className="bg-ffxipink" />
       <div className="text-ffxipink" />
       <div className="border-ffxipink" />
+      <div className="bg-blue-950" />
+      <div className="bg-blue-900" />
+      <div className="bg-blue-800" />
       <div className="bg-blue-700" />
       <div className="bg-blue-600" />
       <div className="bg-green-700" />
@@ -39,6 +42,9 @@ export default function TailwindClassLoader() {
       <div className="text-yellow-400" />
       <div className="text-sky-300" />
       <div className="border-t-yellow-700" />
+      <div className="border-blue-950" />
+      <div className="border-blue-900" />
+      <div className="border-blue-800" />
       <div className="border-blue-700" />
       <div className="border-t-green-600" />
       <div className="border-green-600" />

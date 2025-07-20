@@ -41,13 +41,12 @@ import { CombatantActionState } from "./owned-actions/combatant-action-state.js"
 import { getOwnedActionState } from "./owned-actions/get-owned-action-state.js";
 import { getAllCurrentlyUsableActionNames } from "./owned-actions/get-all-currently-usable-action-names.js";
 import { getActionNamesFilteredByUseableContext } from "./owned-actions/get-owned-action-names-filtered-by-usable-context.js";
-import { CombatantCondition } from "./combatant-conditions/index.js";
-import {
-  Equipment,
-  EquipmentSlotType,
-  EquipmentType,
-  HoldableSlotType,
-} from "../items/equipment/index.js";
+import { CombatantCondition, CombatantConditionName } from "./combatant-conditions/index.js";
+import { Equipment, EquipmentType, HoldableSlotType } from "../items/equipment/index.js";
+import { plainToInstance } from "class-transformer";
+import { PrimedForExplosionCombatantCondition } from "./combatant-conditions/primed-for-explosion.js";
+import { PrimedForIceBurstCombatantCondition } from "./combatant-conditions/primed-for-ice-burst.js";
+import { BurningCombatantCondition } from "./combatant-conditions/burning.js";
 
 export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
@@ -65,6 +64,24 @@ export class Combatant {
     public entityProperties: EntityProperties,
     public combatantProperties: CombatantProperties
   ) {}
+
+  static rehydrate(combatant: Combatant) {
+    const { combatantProperties } = combatant;
+
+    CombatantProperties.instantiateItemClasses(combatantProperties);
+
+    const rehydratedConditions = combatantProperties.conditions.map((condition) => {
+      switch (condition.name) {
+        case CombatantConditionName.PrimedForExplosion:
+          return plainToInstance(PrimedForExplosionCombatantCondition, condition);
+        case CombatantConditionName.PrimedForIceBurst:
+          return plainToInstance(PrimedForIceBurstCombatantCondition, condition);
+        case CombatantConditionName.Burning:
+          return plainToInstance(BurningCombatantCondition, condition);
+      }
+    });
+    combatantProperties.conditions = rehydratedConditions;
+  }
 }
 
 export class CombatantProperties {
@@ -227,7 +244,7 @@ export function createShimmedUserOfTriggeredCondition(
   entityConditionWasAppliedTo: EntityId
 ) {
   const combatant = new Combatant(
-    { id: condition.appliedBy.entityProperties.id || "0", name },
+    { id: entityConditionWasAppliedTo || "0", name },
     new CombatantProperties(
       CombatantClass.Mage,
       CombatantSpecies.Dragon,

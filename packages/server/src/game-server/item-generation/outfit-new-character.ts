@@ -175,8 +175,8 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   // });
   // if (runeSword instanceof Error) return;
   // combatantProperties.inventory.equipment.push(runeSword);
-  const items = generateOneOfEachItem();
-  combatantProperties.inventory.equipment.push(...(items as Equipment[]));
+  // const items = generateOneOfEachItem();
+  // combatantProperties.inventory.equipment.push(...(items as Equipment[]));
 
   // giveTestingCombatAttributes(combatantProperties);
   // combatantProperties.level = 5;
@@ -186,7 +186,7 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   combatantProperties.inherentAttributes[CombatAttribute.Strength] = 40;
   combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 40;
   // combatantProperties.inherentAttributes[CombatAttribute.Speed] = 9999;
-  combatantProperties.inherentAttributes[CombatAttribute.Hp] = 30;
+  combatantProperties.inherentAttributes[CombatAttribute.Hp] = 600;
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
   // combatantProperties.inventory.shards = 9999;

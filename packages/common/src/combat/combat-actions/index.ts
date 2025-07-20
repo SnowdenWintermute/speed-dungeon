@@ -6,7 +6,7 @@ export * from "./combat-action-execution-intent.js";
 export * from "./combat-action-animations.js";
 export * from "./combat-action-intent.js";
 export * from "./combat-action-steps-config.js";
-import { Combatant, CombatantProperties } from "../../combatants/index.js";
+import { Combatant, CombatantEquipment, CombatantProperties } from "../../combatants/index.js";
 import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js";
 import { CombatActionName } from "./combat-action-names.js";
 import { Battle } from "../../battle/index.js";
@@ -26,13 +26,19 @@ import {
   CombatActionCostPropertiesConfig,
 } from "./combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "./combat-action-steps-config.js";
-import { EntityId } from "../../primatives/index.js";
+import { Equipment } from "../../items/equipment/index.js";
 
 export enum CombatActionOrigin {
   SpellCast,
   TriggeredCondition,
   Medication,
   Attack,
+}
+
+export interface ActionUseMessageData {
+  nameOfActionUser?: string;
+  nameOfTarget?: string;
+  actionLevel?: number;
 }
 
 export interface CombatActionComponentConfig {
@@ -51,7 +57,8 @@ export interface CombatActionComponentConfig {
     self: CombatActionComponent
   ) => boolean;
 
-  getOnUseMessage: null | ((combatantName: string, actionLevel: number) => string);
+  getOnUseMessage: null | ((messageData: ActionUseMessageData) => string);
+  getOnUseMessageDataOverride?: (context: ActionResolutionStepContext) => ActionUseMessageData;
 
   getRequiredRange: (
     user: CombatantProperties,
@@ -97,11 +104,26 @@ export abstract class CombatActionComponent {
     return this.isUsableInGivenContext(context);
   };
 
+  combatantIsWearingRequiredEquipment(combatantProperties: CombatantProperties) {
+    const { requiredEquipmentTypeOptions } = this.targetingProperties;
+    if (requiredEquipmentTypeOptions.length === 0) return true;
+
+    const allEquipment = CombatantEquipment.getAllEquippedItems(combatantProperties, {
+      includeUnselectedHotswapSlots: false,
+    });
+    for (const equipment of allEquipment) {
+      const { equipmentType } = equipment.equipmentBaseItemProperties;
+      if (Equipment.isBroken(equipment)) continue;
+      if (requiredEquipmentTypeOptions.includes(equipmentType)) return true;
+    }
+    return false;
+  }
+
   shouldExecute: (
     combatantContext: CombatantContext,
     previousTrackerOption: undefined | ActionTracker
   ) => boolean;
-  getOnUseMessage: null | ((combatantName: string, actionLevel: number) => string);
+  getOnUseMessage: null | ((messageData: ActionUseMessageData) => string);
   getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
 
@@ -137,6 +159,8 @@ export abstract class CombatActionComponent {
     this.shouldExecute = (combatantContext, previousTrackerOption) =>
       config.shouldExecute(combatantContext, previousTrackerOption, this);
     this.getOnUseMessage = config.getOnUseMessage;
+    if (config.getOnUseMessageDataOverride)
+      this.getOnUseMessageData = config.getOnUseMessageDataOverride;
     this.getRequiredRange = (user) => config.getRequiredRange(user, this);
     this.getSpawnableEntity = config.getSpawnableEntity;
     this.stepsConfig = config.stepsConfig;
@@ -145,6 +169,17 @@ export abstract class CombatActionComponent {
     if (config.getConcurrentSubActions)
       this.getConcurrentSubActions = config.getConcurrentSubActions;
     this.getParent = config.getParent;
+  }
+
+  getOnUseMessageData(context: ActionResolutionStepContext): ActionUseMessageData {
+    const { combatantContext } = context;
+    const { combatant } = combatantContext;
+    const { actionName } = context.tracker.actionExecutionIntent;
+    const ownedActionOption = combatant.combatantProperties.ownedActions[actionName];
+    return {
+      nameOfActionUser: combatant.entityProperties.name,
+      actionLevel: ownedActionOption?.level ?? 0,
+    };
   }
 
   combatantIsValidTarget(

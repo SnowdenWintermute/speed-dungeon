@@ -15,10 +15,12 @@ export async function fetchSavedCharacters(profileId: number) {
         if (character === undefined)
           return console.error("Character slot was holding an id that didn't match any character");
 
-        toReturn[slot.slotNumber] = new Combatant(
+        const combatant = new Combatant(
           { id: character.id, name: character.name },
           character.combatantProperties
         );
+
+        toReturn[slot.slotNumber] = combatant;
       })()
     );
   }

@@ -24,9 +24,6 @@ export default function TurnOrderTrackerIcon({
 
   const isCondition = tracker instanceof ConditionTurnTracker;
   const combatantIsAlly = party.characterPositions.includes(tracker.combatantId);
-  const combatant = tracker.getCombatant(party);
-
-  const { entityProperties, combatantProperties: _ } = combatant;
 
   const conditionalClasses = isCondition
     ? "bg-slate-600"

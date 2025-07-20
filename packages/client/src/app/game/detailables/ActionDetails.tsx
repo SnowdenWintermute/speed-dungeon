@@ -8,13 +8,17 @@ import {
   CombatActionName,
   CombatActionUsabilityContext,
   Combatant,
+  CombatantEquipment,
   CombatantProperties,
+  EQUIPMENT_TYPE_STRINGS,
+  Equipment,
+  EquipmentType,
   TARGETING_SCHEME_STRINGS,
   TARGET_CATEGORY_STRINGS,
   getUnmetCostResourceTypes,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import React from "react";
+import React, { ReactNode } from "react";
 import { useGameStore } from "@/stores/game-store";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 
@@ -59,9 +63,27 @@ export default function ActionDetails({ actionName, hideTitle }: Props) {
               : ""
           }
         >{`Usable ${COMBAT_ACTION_USABLITY_CONTEXT_STRINGS[usabilityContext]}`}</div>
+        <RequiredEquipmentDisplay action={action} user={focusedCharacter.combatantProperties} />
       </div>
     </div>
   );
+}
+
+function RequiredEquipmentDisplay(props: {
+  action: CombatActionComponent;
+  user: CombatantProperties;
+}) {
+  const { action, user } = props;
+  const toDisplay: ReactNode[] = [];
+  const { requiredEquipmentTypeOptions } = action.targetingProperties;
+  if (requiredEquipmentTypeOptions.length === 0) return toDisplay;
+  const isWearingRequiredEquipment = action.combatantIsWearingRequiredEquipment(user);
+
+  for (const equipmentType of requiredEquipmentTypeOptions) {
+    toDisplay.push(EQUIPMENT_TYPE_STRINGS[equipmentType].toLowerCase());
+  }
+  const requirementNotMetClass = isWearingRequiredEquipment ? "" : UNMET_REQUIREMENT_TEXT_COLOR;
+  return <div className={requirementNotMetClass}>Must equip {toDisplay}</div>;
 }
 
 function ActionCostsDisplay(props: {

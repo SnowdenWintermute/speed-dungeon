@@ -61,7 +61,11 @@ export class TurnSchedulerManager {
       // condition turn tracker
       schedulerOption = this.schedulers
         .filter((item) => item instanceof ConditionTurnScheduler)
-        .find((item) => item.conditionId === turnOrderTracker.conditionId);
+        .find(
+          (item) =>
+            item instanceof ConditionTurnScheduler &&
+            item.conditionId === turnOrderTracker.conditionId
+        );
     }
     if (schedulerOption === undefined) throw new Error("expected turnSchedulerTracker was missing");
     return schedulerOption;
@@ -70,22 +74,30 @@ export class TurnSchedulerManager {
   removeStaleTurnSchedulers(party: AdventuringParty) {
     const idsToRemove: EntityId[] = [];
 
-    for (const tracker of this.schedulers) {
-      if (!(tracker instanceof ConditionTurnScheduler)) continue;
-
-      try {
-        const conditionExists = AdventuringParty.getConditionOnCombatant(
-          party,
-          tracker.combatantId,
-          tracker.conditionId
-        );
-      } catch (err) {
-        idsToRemove.push(tracker.conditionId);
+    for (const scheduler of this.schedulers) {
+      if (scheduler instanceof CombatantTurnScheduler) {
+        if (AdventuringParty.getCombatant(party, scheduler.combatantId) instanceof Error) {
+          idsToRemove.push(scheduler.combatantId);
+        }
+        continue;
+      } else if (scheduler instanceof ConditionTurnScheduler) {
+        try {
+          AdventuringParty.getConditionOnCombatant(
+            party,
+            scheduler.combatantId,
+            scheduler.conditionId
+          );
+        } catch {
+          idsToRemove.push(scheduler.conditionId);
+        }
       }
     }
 
     this.schedulers = this.schedulers.filter((scheduler) => {
       if (!(scheduler instanceof ConditionTurnScheduler)) {
+        if (idsToRemove.includes(scheduler.combatantId)) {
+          return false;
+        }
         return true;
       }
 
@@ -163,7 +175,9 @@ export class TurnSchedulerManager {
 
     while (numCombatantTrackersCreated < this.minTurnTrackersCount) {
       this.sortSchedulers(TurnTrackerSortableProperty.TimeOfNextMove, party);
+
       const fastestActor = this.getFirstScheduler();
+
       if (fastestActor instanceof CombatantTurnScheduler) {
         const combatantResult = AdventuringParty.getCombatant(party, fastestActor.combatantId);
         if (combatantResult instanceof Error) throw combatantResult;

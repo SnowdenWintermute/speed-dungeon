@@ -3,6 +3,8 @@ import { GameState } from "@/stores/game-store";
 import {
   ACTION_PAYABLE_RESOURCE_STRINGS,
   ActionPayableResource,
+  CombatActionComponent,
+  CombatActionOrigin,
   Combatant,
   EntityId,
   HP_CHANGE_SOURCE_CATEGORY_STRINGS,
@@ -15,7 +17,7 @@ export function postResourceChangeToCombatLog(
   gameState: GameState,
   resourceChange: ResourceChange,
   resourceType: ActionPayableResource,
-  wasSpell: boolean,
+  action: CombatActionComponent,
   wasBlocked: boolean,
   target: Combatant,
   actionUserName: string,
@@ -53,7 +55,10 @@ export function postResourceChangeToCombatLog(
 
   let messageText = "";
 
-  if (wasSpell) {
+  if (
+    action.origin === CombatActionOrigin.SpellCast ||
+    action.origin === CombatActionOrigin.TriggeredCondition
+  ) {
     const damagedOrHealed = resourceChange.value > 0 ? "recovers" : "takes";
     messageText = `${target.entityProperties.name} ${damagedOrHealed} ${Math.abs(resourceChange.value)} ${resourceTypeOrDamageText}`;
   } else {

@@ -14,13 +14,12 @@ export function addCharacterToParty(
   party: AdventuringParty,
   player: SpeedDungeonPlayer,
   character: Combatant,
-  instantiateItemClasses: boolean
+  rehydrate: boolean
 ): EntityId {
   if (Object.keys(party.characters).length >= MAX_PARTY_SIZE)
     throw new Error(ERROR_MESSAGES.GAME.MAX_PARTY_SIZE);
 
-  if (instantiateItemClasses)
-    CombatantProperties.instantiateItemClasses(character.combatantProperties);
+  if (rehydrate) Combatant.rehydrate(character);
 
   const characterId = character.entityProperties.id;
 

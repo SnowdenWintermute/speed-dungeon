@@ -38,25 +38,6 @@ export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
     requiresCombatTurn: (context) => {
       const user = context.combatantContext.combatant.combatantProperties;
 
-      console.log(
-        "checking if mh attack should end turn",
-        "\n",
-        "isWearingUsableShield:",
-        CombatantEquipment.isWearingUsableShield(user),
-        "\n",
-        "isWearingUsableTwoHandedMeleeWeapon:",
-        CombatantEquipment.isWearingUsableTwoHandedMeleeWeapon(user),
-        "\n",
-        "oh should not execute:",
-        !COMBAT_ACTIONS[CombatActionName.AttackMeleeOffhand].shouldExecute(
-          context.combatantContext,
-          context.tracker
-        ),
-        "\n",
-        "mh was countered:",
-        context.tracker.wasCountered()
-      );
-
       if (CombatantEquipment.isWearingUsableShield(user)) return true;
       if (CombatantEquipment.isWearingUsableTwoHandedMeleeWeapon(user)) return true;
       if (

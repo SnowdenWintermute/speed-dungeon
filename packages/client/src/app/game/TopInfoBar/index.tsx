@@ -11,6 +11,9 @@ import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import TurnOrderPredictionBar from "./turn-order-prediction-bar";
 
+import StairsIcon from "../../../../public/img/game-ui-icons/stairs.svg";
+import DoorIcon from "../../../../public/img/game-ui-icons/door-icon.svg";
+
 export default function TopInfoBar() {
   const mutateGameState = useGameStore().mutateState;
   const viewingLeaveGameModal = useGameStore((state) => state.viewingLeaveGameModal);
@@ -40,10 +43,14 @@ export default function TopInfoBar() {
 
   return (
     <div className="h-10 w-full border-b border-slate-400 bg-slate-700 flex justify-center items-center pointer-events-auto relative">
-      <div className="p-2 absolute left-0">
-        {"Floor "}
-        {party.currentFloor}
-        {", room "}
+      <div className="p-2 absolute left-0 flex items-center text-md">
+        <div className="h-5 my-1 mr-1">
+          <StairsIcon className="fill-slate-400 h-full" />
+        </div>
+        <span className="mr-2">{party.currentFloor}</span>
+        <div className="h-5 my-1 mr-1">
+          <DoorIcon className="fill-slate-400 h-full" />
+        </div>
         {party.roomsExplored.onCurrentFloor}
         {": "}
         {DUNGEON_ROOM_TYPE_STRINGS[party.currentRoom.roomType]}
@@ -55,11 +62,12 @@ export default function TopInfoBar() {
       )}
       <div className="absolute right-0 h-full w-fit border-l border-slate-400 flex items-center justify-center">
         <HotkeyButton
-          className="h-full w-full hover:bg-slate-950 pr-4 pl-4 "
+          className="h-full w-full bg-slate-700 hover:bg-slate-950 pr-4 pl-4 "
           onClick={() => {
             mutateGameState((state) => {
               state.viewingLeaveGameModal = !state.viewingLeaveGameModal;
               state.stackedMenuStates = [];
+              state.baseMenuState.inCombat = false;
             });
           }}
         >

@@ -34,7 +34,7 @@ export class BurningCombatantCondition implements CombatantCondition {
     public appliedBy: ConditionAppliedBy,
     public level: number
   ) {
-    this.stacksOption.current = level;
+    this.stacksOption.current = level * 5;
   }
 
   getTickSpeed(condition: CombatantCondition) {
