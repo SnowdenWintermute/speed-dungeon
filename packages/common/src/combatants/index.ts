@@ -36,7 +36,7 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import { canPickUpItem } from "./inventory/can-pick-up-item.js";
 import { EntityProperties } from "../primatives/index.js";
 import { Inventory } from "./inventory/index.js";
-import { CombatActionName } from "../combat/combat-actions/index.js";
+import { CombatActionName, getUnmetCostResourceTypes } from "../combat/combat-actions/index.js";
 import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
 import { getOwnedActionState } from "./owned-actions/get-owned-action-state.js";
 import { getAllCurrentlyUsableActionNames } from "./owned-actions/get-all-currently-usable-action-names.js";
@@ -47,6 +47,7 @@ import { plainToInstance } from "class-transformer";
 import { PrimedForExplosionCombatantCondition } from "./combatant-conditions/primed-for-explosion.js";
 import { PrimedForIceBurstCombatantCondition } from "./combatant-conditions/primed-for-ice-burst.js";
 import { BurningCombatantCondition } from "./combatant-conditions/burning.js";
+import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 
 export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
@@ -228,14 +229,32 @@ export class CombatantProperties {
     return new Vector3(0, 0, 1);
   }
 
-  static hasRequiredConsumablesToUseAction() {
-    // HAS REQUIRED RESOURCES
+  static hasRequiredConsumablesToUseAction(
+    combatantProperties: CombatantProperties,
+    actionName: CombatActionName
+  ) {
+    const action = COMBAT_ACTIONS[actionName];
     const consumableCost = action.costProperties.getConsumableCost();
     if (consumableCost !== null) {
-      const { inventory } = combatant.combatantProperties;
+      const { inventory } = combatantProperties;
       const consumableOption = Inventory.getConsumableByType(inventory, consumableCost);
-      if (consumableOption === undefined) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
+      if (consumableOption === undefined) return false;
     }
+    return true;
+  }
+
+  static hasRequiredResourcesToUseAction(
+    combatantProperties: CombatantProperties,
+    actionName: CombatActionName
+  ) {
+    const action = COMBAT_ACTIONS[actionName];
+    const costs = action.costProperties.getResourceCosts(combatantProperties);
+
+    if (costs) {
+      const unmetCosts = getUnmetCostResourceTypes(combatantProperties, costs);
+      if (unmetCosts.length) false;
+    }
+    return true;
   }
 }
 

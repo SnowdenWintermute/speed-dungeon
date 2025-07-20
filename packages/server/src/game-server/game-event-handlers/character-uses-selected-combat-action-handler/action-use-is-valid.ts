@@ -3,6 +3,7 @@ import {
   CombatActionComponent,
   CombatActionTarget,
   CombatantContext,
+  CombatantProperties,
   ERROR_MESSAGES,
   Inventory,
   getCombatActionPropertiesIfOwned,
@@ -15,29 +16,26 @@ export function actionUseIsValid(
   combatantContext: CombatantContext
 ): Error | void {
   const { game, party, combatant } = combatantContext;
-  // HAS REQUIRED RESOURCES
-  const consumableCost = action.costProperties.getConsumableCost();
-  if (consumableCost !== null) {
-    const { inventory } = combatant.combatantProperties;
-    const consumableOption = Inventory.getConsumableByType(inventory, consumableCost);
-    if (consumableOption === undefined) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
-  }
-
   const { combatantProperties } = combatant;
 
-  const costs = action.costProperties.getResourceCosts(combatantProperties);
-
-  if (costs) {
-    const unmetCosts = getUnmetCostResourceTypes(combatantProperties, costs);
-    if (unmetCosts.length) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INSUFFICIENT_RESOURCES);
-  }
-
-  // ENSURE OWNERSHIP OF ABILITY
   const combatActionPropertiesResult = getCombatActionPropertiesIfOwned(
     combatant.combatantProperties,
     action.name
   );
   if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
+
+  const hasRequiredConsumables = CombatantProperties.hasRequiredConsumablesToUseAction(
+    combatantProperties,
+    action.name
+  );
+  if (!hasRequiredConsumables) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
+
+  const hasRequiredResources = CombatantProperties.hasRequiredResourcesToUseAction(
+    combatantProperties,
+    action.name
+  );
+
+  if (!hasRequiredResources) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INSUFFICIENT_RESOURCES);
 
   // IF IN BATTLE, ONLY USE IF FIRST IN TURN ORDER
   let battleOption: null | Battle = null;

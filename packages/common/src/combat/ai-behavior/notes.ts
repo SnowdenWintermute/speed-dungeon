@@ -73,6 +73,17 @@ class SelectRandomAction implements BehaviorNode {
               this.combatant,
               this.behaviorContext.currentActionNameConsidering
             ),
+            new CheckIfHasRequiredResourcesForAction(
+              this.behaviorContext,
+              this.combatant,
+              this.behaviorContext.currentActionNameConsidering
+            ),
+            new CheckIfHasRequiredConsumablesForAction(
+              this.behaviorContext,
+              this.combatant,
+              this.behaviorContext.currentActionNameConsidering
+            ),
+            // collect potential targets
           ])
         )
       ),
@@ -123,15 +134,37 @@ class CheckIfActionUsableInCurrentContext implements BehaviorNode {
 class CheckIfHasRequiredResourcesForAction implements BehaviorNode {
   constructor(
     private behaviorContext: AIBehaviorContext,
-    private _combatant: Combatant,
+    private combatant: Combatant,
     private actionNameOption: null | CombatActionName
   ) {}
   execute(): BehaviorNodeState {
     if (this.actionNameOption === null) return BehaviorNodeState.Failure;
-    const action = COMBAT_ACTIONS[this.actionNameOption];
+    const { combatantProperties } = this.combatant;
 
-    // const usable = action.re(this.behaviorContext.battleOption);
-    if (usable) return BehaviorNodeState.Success;
+    const hasResources = CombatantProperties.hasRequiredResourcesToUseAction(
+      combatantProperties,
+      this.actionNameOption
+    );
+    if (hasResources) return BehaviorNodeState.Success;
+    return BehaviorNodeState.Failure;
+  }
+}
+
+class CheckIfHasRequiredConsumablesForAction implements BehaviorNode {
+  constructor(
+    private behaviorContext: AIBehaviorContext,
+    private combatant: Combatant,
+    private actionNameOption: null | CombatActionName
+  ) {}
+  execute(): BehaviorNodeState {
+    if (this.actionNameOption === null) return BehaviorNodeState.Failure;
+    const { combatantProperties } = this.combatant;
+
+    const hasRequiredConsumables = CombatantProperties.hasRequiredConsumablesToUseAction(
+      combatantProperties,
+      this.actionNameOption
+    );
+    if (hasRequiredConsumables) return BehaviorNodeState.Success;
     return BehaviorNodeState.Failure;
   }
 }
