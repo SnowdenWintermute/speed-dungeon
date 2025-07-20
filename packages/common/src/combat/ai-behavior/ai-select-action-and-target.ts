@@ -3,8 +3,6 @@ import { BattleGroup } from "../../battle/index.js";
 import { Combatant, CombatantProperties } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { chooseRandomFromArray } from "../../utils/index.js";
-import { AIBehaviorContext } from "./ai-context.js";
-import { SetAvailableTargetsAndUsableActions } from "./custom-nodes/set-available-targets-and-usable-actions.js";
 import { CombatActionExecutionIntent } from "../combat-actions/combat-action-execution-intent.js";
 import { AllyAndEnemyBattleGroups } from "../../battle/get-ally-and-enemy-battle-groups.js";
 

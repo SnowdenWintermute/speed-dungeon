@@ -14,7 +14,6 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "../index.js";
-import { EvaluatedActionExecutionIntent } from "./custom-nodes/set-available-targets-and-usable-actions.js";
 
 export enum AIActionSelectionScheme {
   Basic,
@@ -44,6 +43,13 @@ export enum AIHostileTargetSelectionScheme {
   Strategist,
 }
 
+export enum AIFriendlyTargetSelectionScheme {
+  // attemts to heal any ally with hp below a defined threshold
+  Healer,
+  // attemts to keep all known buffs active on all allies
+  Buffer,
+}
+
 export class AIBehaviorContext {
   private actionSelectionScheme: AIActionSelectionScheme = AIActionSelectionScheme.Basic;
   private hostileTargetSelectionScheme: AIHostileTargetSelectionScheme =
@@ -52,7 +58,7 @@ export class AIBehaviorContext {
   public usableActionNames: CombatActionName[] = [];
   public consideredTargetCombatants: Combatant[] = [];
   public consideredActionTargetPairs: CombatActionExecutionIntent[] = [];
-  public evaluatedActionTargetPairs: EvaluatedActionExecutionIntent[] = [];
+  // public evaluatedActionTargetPairs: EvaluatedActionExecutionIntent[] = [];
   private selectedActionAndTargets: CombatActionExecutionIntent | null = null;
   constructor(
     public combatant: Combatant,

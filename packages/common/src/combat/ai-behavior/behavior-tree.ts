@@ -1,57 +1,60 @@
-export interface BehaviorNode {
-  execute(): boolean;
+export enum BehaviorNodeState {
+  Failure,
+  Success,
+  Running,
 }
 
-export class BehaviorLeaf implements BehaviorNode {
-  constructor(public execute: (...args: any[]) => boolean) {}
+export abstract class BehaviorNode {
+  abstract execute(): BehaviorNodeState;
 }
 
+/** A behavior tree node that runs each child until reaching a success state.
+ * If no child returns a success state, this node returns a failure state. */
 export class Selector implements BehaviorNode {
   constructor(private children: BehaviorNode[]) {}
 
-  execute(): boolean {
+  execute() {
     for (const child of this.children) {
-      if (child.execute()) return true;
+      if (child.execute()) return BehaviorNodeState.Success;
     }
-    return false;
+    return BehaviorNodeState.Failure;
   }
 }
 
+/** A behavior tree node that runs each child until reaching a failure state.
+ * Returns success if all children return success or running. */
 export class Sequence implements BehaviorNode {
   constructor(private children: BehaviorNode[]) {}
 
-  execute(): boolean {
+  execute() {
     for (const child of this.children) {
-      const childResult = child.execute();
-      if (!childResult) return false;
+      const childState = child.execute();
+      if (childState === BehaviorNodeState.Failure) return childState;
     }
-    return true;
+    return BehaviorNodeState.Success;
   }
 }
 
 export class Inverter implements BehaviorNode {
   constructor(private child: BehaviorNode) {}
 
-  execute(): boolean {
-    return !this.child.execute();
+  execute() {
+    const childState = this.child.execute();
+    switch (childState) {
+      case BehaviorNodeState.Failure:
+        return BehaviorNodeState.Success;
+      case BehaviorNodeState.Success:
+        return BehaviorNodeState.Failure;
+      case BehaviorNodeState.Running:
+        return BehaviorNodeState.Running;
+    }
   }
 }
 
 export class Succeeder implements BehaviorNode {
   constructor(private child: BehaviorNode) {}
-  execute(): boolean {
+  execute() {
     this.child.execute();
-    return true;
-  }
-}
-
-export class RepeatUntilFail implements BehaviorNode {
-  constructor(private children: BehaviorNode[]) {}
-
-  execute(): boolean {
-    for (const child of this.children) {
-      if (!child.execute()) return true;
-    }
-    return true;
+    return BehaviorNodeState.Success;
   }
 }
