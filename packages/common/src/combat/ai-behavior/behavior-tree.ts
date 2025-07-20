@@ -12,7 +12,7 @@ export abstract class BehaviorNode {
 
 /** A behavior tree node that runs each child until reaching a success state.
  * If no child returns a success state, this node returns a failure state. */
-export class Selector implements BehaviorNode {
+export class SelectorNode implements BehaviorNode {
   constructor(private children: BehaviorNode[]) {}
 
   execute() {
@@ -25,7 +25,7 @@ export class Selector implements BehaviorNode {
 
 /** A behavior tree node that runs each child until reaching a failure state.
  * Returns success if all children return success or running. */
-export class Sequence implements BehaviorNode {
+export class SequenceNode implements BehaviorNode {
   constructor(private children: BehaviorNode[]) {}
 
   execute() {
@@ -37,7 +37,7 @@ export class Sequence implements BehaviorNode {
   }
 }
 
-export class Inverter implements BehaviorNode {
+export class InverterNode implements BehaviorNode {
   constructor(private child: BehaviorNode) {}
 
   execute() {
@@ -53,15 +53,28 @@ export class Inverter implements BehaviorNode {
   }
 }
 
-export class Succeeder implements BehaviorNode {
+export class UntilFailNode implements BehaviorNode {
   constructor(private child: BehaviorNode) {}
+  execute(): BehaviorNodeState {
+    let lastExecutedState = BehaviorNodeState.Success;
+    while (lastExecutedState !== BehaviorNodeState.Failure) {
+      lastExecutedState = this.child.execute();
+    }
+    return lastExecutedState;
+  }
+}
+
+export class SucceederNode implements BehaviorNode {
+  constructor(private child?: BehaviorNode) {}
   execute() {
-    this.child.execute();
+    if (this.child) {
+      this.child.execute();
+    }
     return BehaviorNodeState.Success;
   }
 }
 
-export class Randomizer<T> implements BehaviorNode {
+export class RandomizerNode<T> implements BehaviorNode {
   constructor(private array: Array<T>) {}
   execute(): BehaviorNodeState {
     shuffleArray(this.array);
@@ -69,15 +82,16 @@ export class Randomizer<T> implements BehaviorNode {
   }
 }
 
-export class PushToStack<T> implements BehaviorNode {
+export class PopFromStackNode<T> implements BehaviorNode {
   constructor(
-    private item: T,
-    blackboardStackKey: string
+    private stack: T[],
+    private setter: (value: T) => void
   ) {}
   execute(): BehaviorNodeState {
-    // - create the stack at the designated key location in the blackboard
-    //   if it doesn't exist
-    // - push the item to the stack
-    throw new Error("Method not implemented.");
+    const popped = this.stack.pop();
+    if (popped === undefined) return BehaviorNodeState.Failure;
+
+    this.setter(popped);
+    return BehaviorNodeState.Success;
   }
 }

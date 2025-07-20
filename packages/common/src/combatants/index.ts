@@ -227,6 +227,16 @@ export class CombatantProperties {
     // return cloneVector3(new Vector3(x, 0, 0)).subtract(combatantProperties.homeLocation);
     return new Vector3(0, 0, 1);
   }
+
+  static hasRequiredConsumablesToUseAction() {
+    // HAS REQUIRED RESOURCES
+    const consumableCost = action.costProperties.getConsumableCost();
+    if (consumableCost !== null) {
+      const { inventory } = combatant.combatantProperties;
+      const consumableOption = Inventory.getConsumableByType(inventory, consumableCost);
+      if (consumableOption === undefined) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
+    }
+  }
 }
 
 export type ExperiencePoints = {

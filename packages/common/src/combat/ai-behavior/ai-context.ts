@@ -51,10 +51,8 @@ export enum AIFriendlyTargetSelectionScheme {
 }
 
 export class AIBehaviorContext {
-  private actionSelectionScheme: AIActionSelectionScheme = AIActionSelectionScheme.Basic;
-  private hostileTargetSelectionScheme: AIHostileTargetSelectionScheme =
-    AIHostileTargetSelectionScheme.Enmity;
-  private enmityList: { combatantId: EntityId; enmity: number }[] = [];
+  public consideredActionNamesFilteredByIntents: CombatActionName[] = [];
+  public currentActionNameConsidering: CombatActionName | null = null;
   public usableActionNames: CombatActionName[] = [];
   public consideredTargetCombatants: Combatant[] = [];
   public consideredActionTargetPairs: CombatActionExecutionIntent[] = [];
@@ -66,6 +64,10 @@ export class AIBehaviorContext {
     public party: AdventuringParty,
     public battleOption: Battle | null // allow for ally AI controlled combatants doing things outside of combat
   ) {}
+
+  setCurrentActionNameConsidering(actionName: CombatActionName) {
+    this.currentActionNameConsidering = actionName;
+  }
 
   setConsideredActionTargetPairs(user: Combatant, actionName: CombatActionName): Error | void {
     const action = COMBAT_ACTIONS[actionName];
