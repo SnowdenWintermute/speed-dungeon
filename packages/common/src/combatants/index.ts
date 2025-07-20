@@ -256,6 +256,25 @@ export class CombatantProperties {
     }
     return true;
   }
+
+  static isWearingRequiredEquipmentToUseAction(
+    combatantProperties: CombatantProperties,
+    actionName: CombatActionName
+  ) {
+    const action = COMBAT_ACTIONS[actionName];
+    const { requiredEquipmentTypeOptions } = action.targetingProperties;
+    if (requiredEquipmentTypeOptions.length === 0) return true;
+
+    const allEquipment = CombatantEquipment.getAllEquippedItems(combatantProperties, {
+      includeUnselectedHotswapSlots: false,
+    });
+    for (const equipment of allEquipment) {
+      const { equipmentType } = equipment.equipmentBaseItemProperties;
+      if (Equipment.isBroken(equipment)) continue;
+      if (requiredEquipmentTypeOptions.includes(equipmentType)) return true;
+    }
+    return false;
+  }
 }
 
 export type ExperiencePoints = {

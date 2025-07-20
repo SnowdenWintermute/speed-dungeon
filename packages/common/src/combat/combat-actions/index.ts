@@ -104,21 +104,6 @@ export abstract class CombatActionComponent {
     return this.isUsableInGivenContext(context);
   };
 
-  combatantIsWearingRequiredEquipment(combatantProperties: CombatantProperties) {
-    const { requiredEquipmentTypeOptions } = this.targetingProperties;
-    if (requiredEquipmentTypeOptions.length === 0) return true;
-
-    const allEquipment = CombatantEquipment.getAllEquippedItems(combatantProperties, {
-      includeUnselectedHotswapSlots: false,
-    });
-    for (const equipment of allEquipment) {
-      const { equipmentType } = equipment.equipmentBaseItemProperties;
-      if (Equipment.isBroken(equipment)) continue;
-      if (requiredEquipmentTypeOptions.includes(equipmentType)) return true;
-    }
-    return false;
-  }
-
   shouldExecute: (
     combatantContext: CombatantContext,
     previousTrackerOption: undefined | ActionTracker

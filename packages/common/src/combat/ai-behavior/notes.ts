@@ -83,6 +83,11 @@ class SelectRandomAction implements BehaviorNode {
               this.combatant,
               this.behaviorContext.currentActionNameConsidering
             ),
+            new CheckIfWearingProperEquipmentForAction(
+              this.behaviorContext,
+              this.combatant,
+              this.behaviorContext.currentActionNameConsidering
+            ),
             // collect potential targets
           ])
         )
@@ -165,6 +170,25 @@ class CheckIfHasRequiredConsumablesForAction implements BehaviorNode {
       this.actionNameOption
     );
     if (hasRequiredConsumables) return BehaviorNodeState.Success;
+    return BehaviorNodeState.Failure;
+  }
+}
+
+class CheckIfWearingProperEquipmentForAction implements BehaviorNode {
+  constructor(
+    private behaviorContext: AIBehaviorContext,
+    private combatant: Combatant,
+    private actionNameOption: null | CombatActionName
+  ) {}
+  execute(): BehaviorNodeState {
+    if (this.actionNameOption === null) return BehaviorNodeState.Failure;
+    const { combatantProperties } = this.combatant;
+
+    const isWearingProperEquipment = CombatantProperties.isWearingRequiredEquipmentToUseAction(
+      combatantProperties,
+      this.actionNameOption
+    );
+    if (isWearingProperEquipment) return BehaviorNodeState.Success;
     return BehaviorNodeState.Failure;
   }
 }
