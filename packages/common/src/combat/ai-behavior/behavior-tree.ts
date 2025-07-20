@@ -1,3 +1,5 @@
+import { shuffleArray } from "../../utils";
+
 export enum BehaviorNodeState {
   Failure,
   Success,
@@ -56,5 +58,26 @@ export class Succeeder implements BehaviorNode {
   execute() {
     this.child.execute();
     return BehaviorNodeState.Success;
+  }
+}
+
+export class Randomizer<T> implements BehaviorNode {
+  constructor(private array: Array<T>) {}
+  execute(): BehaviorNodeState {
+    shuffleArray(this.array);
+    return BehaviorNodeState.Success;
+  }
+}
+
+export class PushToStack<T> implements BehaviorNode {
+  constructor(
+    private item: T,
+    blackboardStackKey: string
+  ) {}
+  execute(): BehaviorNodeState {
+    // - create the stack at the designated key location in the blackboard
+    //   if it doesn't exist
+    // - push the item to the stack
+    throw new Error("Method not implemented.");
   }
 }
