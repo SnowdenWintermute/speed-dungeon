@@ -84,10 +84,11 @@ export class TargetingCalculator {
     if (targetingSchemes.length < 2)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.ONLY_ONE_TARGETING_SCHEME_AVAILABLE);
 
-    const lastUsedTargetingScheme = this.playerOption.targetPreferences.targetingSchemePreference;
+    const lastUsedTargetingScheme = character.combatantProperties.selectedTargetingScheme;
+
     let newTargetingScheme = lastUsedTargetingScheme;
 
-    if (!targetingSchemes.includes(lastUsedTargetingScheme)) {
+    if (lastUsedTargetingScheme === null || !targetingSchemes.includes(lastUsedTargetingScheme)) {
       const defaultScheme = targetingSchemes[0];
       if (typeof defaultScheme === "undefined")
         return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGETING_SCHEMES);
@@ -102,8 +103,6 @@ export class TargetingCalculator {
           : lastUsedTargetingSchemeIndex + 1;
       newTargetingScheme = targetingSchemes[newSchemeIndex]!;
     }
-
-    this.playerOption.targetPreferences.targetingSchemePreference = newTargetingScheme;
 
     const filteredTargetIdsResult = this.getFilteredPotentialTargetIdsForAction(combatAction);
     if (filteredTargetIdsResult instanceof Error) return filteredTargetIdsResult;
@@ -125,6 +124,8 @@ export class TargetingCalculator {
 
     this.playerOption.targetPreferences = updatedTargetPreferenceResult;
     character.combatantProperties.combatActionTarget = newTargetsResult;
+    this.playerOption.targetPreferences.targetingSchemePreference = newTargetingScheme;
+    character.combatantProperties.selectedTargetingScheme = newTargetingScheme;
   }
 
   getCombatActionTargetIds(
@@ -176,6 +177,9 @@ export class TargetingCalculator {
       if (newTargetPreferencesResult instanceof Error) return newTargetPreferencesResult;
 
       if (this.playerOption) this.playerOption.targetPreferences = newTargetPreferencesResult;
+      combatant.combatantProperties.selectedTargetingScheme =
+        newTargetPreferencesResult.targetingSchemePreference;
+
       combatant.combatantProperties.selectedCombatAction = combatActionOption.name;
       combatant.combatantProperties.combatActionTarget = newTargetsResult;
       return newTargetsResult;

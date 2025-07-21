@@ -1,5 +1,6 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Battle } from "../../battle/index.js";
+import { CombatantContext } from "../../combatant-context/index.js";
 import { Combatant } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../primatives/index.js";
@@ -53,15 +54,14 @@ export enum AIFriendlyTargetSelectionScheme {
 export class AIBehaviorContext {
   public consideredActionNamesFilteredByIntents: CombatActionName[] = [];
   public currentActionNameConsidering: CombatActionName | null = null;
-  public usableActionNames: CombatActionName[] = [];
+  public usableActionsWithPotentialValidTargets: Partial<
+    Record<CombatActionName, CombatActionTarget[]>
+  > = {};
   public consideredTargetCombatants: Combatant[] = [];
   public consideredActionTargetPairs: CombatActionExecutionIntent[] = [];
-  // public evaluatedActionTargetPairs: EvaluatedActionExecutionIntent[] = [];
   private selectedActionAndTargets: CombatActionExecutionIntent | null = null;
   constructor(
-    public combatant: Combatant,
-    public game: SpeedDungeonGame,
-    public party: AdventuringParty,
+    public combatantContext: CombatantContext,
     public battleOption: Battle | null // allow for ally AI controlled combatants doing things outside of combat
   ) {}
 
@@ -91,7 +91,7 @@ export class AIBehaviorContext {
   setConsideredSingleTargets(action: CombatActionComponent) {
     for (const potentialTarget of this.consideredTargetCombatants) {
       const shouldEvaluate = action.combatantIsValidTarget(
-        this.combatant,
+        this.combatantContext.combatant,
         potentialTarget,
         this.battleOption
       );

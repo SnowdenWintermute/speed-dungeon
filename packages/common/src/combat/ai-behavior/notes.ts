@@ -7,7 +7,6 @@
 // - ChooseRandomValidAction(blackboard.consideredActions)
 //   - Randomizer(blackboard.consideredActions)
 //   - UntilFail
-//
 //     - Inverter
 //      - Sequence
 //         - Selector (first successful)
@@ -42,6 +41,7 @@ import {
   SucceederNode,
   UntilFailNode,
 } from "./behavior-tree.js";
+import { CollectPotentialTargetsForAction } from "./custom-nodes/collect-potential-target-for-action.js";
 
 //  - return State.Success
 class SelectRandomAction implements BehaviorNode {
@@ -57,6 +57,8 @@ class SelectRandomAction implements BehaviorNode {
         this.combatant,
         this.permittedIntents
       ),
+      // randomize the possible actions now so we don't calculate all the conditional
+      // stuff for each one, just the first random one
       new RandomizerNode(this.behaviorContext.consideredActionNamesFilteredByIntents),
       new UntilFailNode(
         new InverterNode(
@@ -88,10 +90,15 @@ class SelectRandomAction implements BehaviorNode {
               this.combatant,
               this.behaviorContext.currentActionNameConsidering
             ),
-            // collect potential targets
+            new CollectPotentialTargetsForAction(
+              this.behaviorContext,
+              this.combatant,
+              this.behaviorContext.currentActionNameConsidering
+            ),
           ])
         )
       ),
+      // select the first (only) of potential actions with valid targets
     ]);
   }
   execute(): BehaviorNodeState {

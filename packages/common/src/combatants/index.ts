@@ -36,7 +36,11 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import { canPickUpItem } from "./inventory/can-pick-up-item.js";
 import { EntityProperties } from "../primatives/index.js";
 import { Inventory } from "./inventory/index.js";
-import { CombatActionName, getUnmetCostResourceTypes } from "../combat/combat-actions/index.js";
+import {
+  CombatActionName,
+  getUnmetCostResourceTypes,
+  TargetingScheme,
+} from "../combat/combat-actions/index.js";
 import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
 import { getOwnedActionState } from "./owned-actions/get-owned-action-state.js";
 import { getAllCurrentlyUsableActionNames } from "./owned-actions/get-all-currently-usable-action-names.js";
@@ -106,6 +110,7 @@ export class CombatantProperties {
   inventory: Inventory = new Inventory();
   selectedCombatAction: null | CombatActionName = null;
   combatActionTarget: null | CombatActionTarget = null;
+  selectedTargetingScheme: null | TargetingScheme = null;
   deepestFloorReached: number = 1;
   position: Vector3;
   conditions: CombatantCondition[] = [];

@@ -3,6 +3,7 @@ export * from "./get-progression-game-max-starting-floor.js";
 
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { CONSUMABLE_TYPE_STRINGS, Consumable, ConsumableType } from "../items/consumables/index.js";
+import { Fn } from "oxide.ts";
 
 export function removeFromArray<T>(array: T[], item: T): undefined | T {
   const indexToRemove = array.indexOf(item);
@@ -119,4 +120,9 @@ export function getQuaternionAngleDifference(q1: Quaternion, q2: Quaternion): nu
   const dot = normalized1.dot(normalized2);
   const clampedDot = Math.min(Math.max(dot, -1), 1); // Clamp for numerical safety
   return 2 * Math.acos(clampedDot); // Result is in radians
+}
+
+export function throwIfError<T>(result: T | Error) {
+  if (result instanceof Error) throw result;
+  return result;
 }
