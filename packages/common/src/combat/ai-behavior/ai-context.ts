@@ -57,9 +57,14 @@ export class AIBehaviorContext {
   public usableActionsWithPotentialValidTargets: Partial<
     Record<CombatActionName, CombatActionTarget[]>
   > = {};
-  public consideredTargetCombatants: Combatant[] = [];
-  public consideredActionTargetPairs: CombatActionExecutionIntent[] = [];
-  private selectedActionAndTargets: CombatActionExecutionIntent | null = null;
+  public selectedActionWithPotentialValidTargets: null | {
+    actionName: CombatActionName;
+    potentialValidTargets: CombatActionTarget[];
+  } = null;
+
+  public consideredActionIntents: CombatActionExecutionIntent[] = [];
+  public selectedActionIntent: null | CombatActionExecutionIntent = null;
+
   constructor(
     public combatantContext: CombatantContext,
     public battleOption: Battle | null // allow for ally AI controlled combatants doing things outside of combat
@@ -67,71 +72,5 @@ export class AIBehaviorContext {
 
   setCurrentActionNameConsidering(actionName: CombatActionName) {
     this.currentActionNameConsidering = actionName;
-  }
-
-  setConsideredActionTargetPairs(user: Combatant, actionName: CombatActionName): Error | void {
-    const action = COMBAT_ACTIONS[actionName];
-    for (const targetingScheme of action.targetingProperties.getTargetingSchemes(user)) {
-      switch (targetingScheme) {
-        case TargetingScheme.Single:
-          this.setConsideredSingleTargets(action);
-          break;
-        case TargetingScheme.Area:
-          this.setConsideredGroupTargets(user, action);
-          break;
-        case TargetingScheme.All:
-          const allTarget: CombatActionTarget = { type: CombatActionTargetType.All };
-          this.consideredActionTargetPairs.push(
-            new CombatActionExecutionIntent(actionName, allTarget)
-          );
-      }
-    }
-  }
-
-  setConsideredSingleTargets(action: CombatActionComponent) {
-    for (const potentialTarget of this.consideredTargetCombatants) {
-      const shouldEvaluate = action.combatantIsValidTarget(
-        this.combatantContext.combatant,
-        potentialTarget,
-        this.battleOption
-      );
-
-      if (!shouldEvaluate) continue;
-
-      const targets: CombatActionTarget = {
-        type: CombatActionTargetType.Single,
-        targetId: potentialTarget.entityProperties.id,
-      };
-
-      this.consideredActionTargetPairs.push(new CombatActionExecutionIntent(action.name, targets));
-    }
-  }
-
-  setConsideredGroupTargets(user: Combatant, action: CombatActionComponent) {
-    if (!action.targetingProperties.getTargetingSchemes(user).includes(TargetingScheme.Area))
-      return;
-    const friendlyGroup = new CombatActionExecutionIntent(action.name, {
-      type: CombatActionTargetType.Group,
-      friendOrFoe: FriendOrFoe.Friendly,
-    });
-    const hostileGroup = new CombatActionExecutionIntent(action.name, {
-      type: CombatActionTargetType.Group,
-      friendOrFoe: FriendOrFoe.Hostile,
-    });
-
-    switch (action.targetingProperties.validTargetCategories) {
-      case TargetCategories.Opponent:
-        this.consideredActionTargetPairs.push(hostileGroup);
-        break;
-      case TargetCategories.User:
-        break;
-      case TargetCategories.Friendly:
-        this.consideredActionTargetPairs.push(friendlyGroup);
-        break;
-      case TargetCategories.Any:
-        this.consideredActionTargetPairs.push(hostileGroup);
-        this.consideredActionTargetPairs.push(friendlyGroup);
-        break;
-    }
   }
 }

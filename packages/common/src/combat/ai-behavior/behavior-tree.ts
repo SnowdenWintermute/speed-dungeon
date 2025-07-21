@@ -1,10 +1,16 @@
-import { shuffleArray } from "../../utils";
+import { shuffleArray } from "../../utils/index.js";
 
 export enum BehaviorNodeState {
   Failure,
   Success,
   Running,
 }
+
+export const BEHAVIOR_NODE_STATE_STRINGS: Record<BehaviorNodeState, string> = {
+  [BehaviorNodeState.Failure]: "Failure",
+  [BehaviorNodeState.Success]: "Success",
+  [BehaviorNodeState.Running]: "Running",
+};
 
 export abstract class BehaviorNode {
   abstract execute(): BehaviorNodeState;
@@ -44,8 +50,10 @@ export class InverterNode implements BehaviorNode {
     const childState = this.child.execute();
     switch (childState) {
       case BehaviorNodeState.Failure:
+        console.log("inverter returning success");
         return BehaviorNodeState.Success;
       case BehaviorNodeState.Success:
+        console.log("inverter returning failure");
         return BehaviorNodeState.Failure;
       case BehaviorNodeState.Running:
         return BehaviorNodeState.Running;
@@ -60,7 +68,18 @@ export class UntilFailNode implements BehaviorNode {
     while (lastExecutedState !== BehaviorNodeState.Failure) {
       lastExecutedState = this.child.execute();
     }
-    return lastExecutedState;
+    return BehaviorNodeState.Success;
+  }
+}
+
+export class UntilSuccessNode implements BehaviorNode {
+  constructor(private child: BehaviorNode) {}
+  execute(): BehaviorNodeState {
+    let lastExecutedState = BehaviorNodeState.Failure;
+    while (lastExecutedState !== BehaviorNodeState.Success) {
+      lastExecutedState = this.child.execute();
+    }
+    return BehaviorNodeState.Success;
   }
 }
 
@@ -75,9 +94,10 @@ export class SucceederNode implements BehaviorNode {
 }
 
 export class RandomizerNode<T> implements BehaviorNode {
-  constructor(private array: Array<T>) {}
+  constructor(private arrayOption: undefined | Array<T>) {}
   execute(): BehaviorNodeState {
-    shuffleArray(this.array);
+    if (this.arrayOption === undefined) return BehaviorNodeState.Failure;
+    shuffleArray(this.arrayOption);
     return BehaviorNodeState.Success;
   }
 }
@@ -89,7 +109,11 @@ export class PopFromStackNode<T> implements BehaviorNode {
   ) {}
   execute(): BehaviorNodeState {
     const popped = this.stack.pop();
-    if (popped === undefined) return BehaviorNodeState.Failure;
+    console.log("popped", popped);
+    if (popped === undefined) {
+      console.log("no more in stack");
+      return BehaviorNodeState.Failure;
+    }
 
     this.setter(popped);
     return BehaviorNodeState.Success;

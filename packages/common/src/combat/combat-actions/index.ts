@@ -6,7 +6,12 @@ export * from "./combat-action-execution-intent.js";
 export * from "./combat-action-animations.js";
 export * from "./combat-action-intent.js";
 export * from "./combat-action-steps-config.js";
-import { Combatant, CombatantEquipment, CombatantProperties } from "../../combatants/index.js";
+import {
+  Combatant,
+  CombatantEquipment,
+  CombatantProperties,
+  getCombatActionPropertiesIfOwned,
+} from "../../combatants/index.js";
 import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js";
 import { CombatActionName } from "./combat-action-names.js";
 import { Battle } from "../../battle/index.js";
@@ -27,6 +32,8 @@ import {
 } from "./combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "./combat-action-steps-config.js";
 import { Equipment } from "../../items/equipment/index.js";
+import { CombatActionTarget } from "../targeting/combat-action-targets.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
 
 export enum CombatActionOrigin {
   SpellCast,
@@ -183,6 +190,63 @@ export abstract class CombatActionComponent {
     if (baseAccuracy.type === ActionAccuracyType.Percentage)
       baseAccuracy.value *= this.hitOutcomeProperties.accuracyModifier;
     return baseAccuracy;
+  }
+
+  useIsValid(targets: CombatActionTarget, combatantContext: CombatantContext): Error | void {
+    const { game, party, combatant } = combatantContext;
+    const { combatantProperties } = combatant;
+
+    const combatActionPropertiesResult = getCombatActionPropertiesIfOwned(
+      combatant.combatantProperties,
+      this.name
+    );
+    if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
+
+    const hasRequiredConsumables = CombatantProperties.hasRequiredConsumablesToUseAction(
+      combatantProperties,
+      this.name
+    );
+    if (!hasRequiredConsumables) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
+
+    const hasRequiredResources = CombatantProperties.hasRequiredResourcesToUseAction(
+      combatantProperties,
+      this.name
+    );
+
+    if (!hasRequiredResources)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INSUFFICIENT_RESOURCES);
+
+    const isWearingRequiredEquipment = CombatantProperties.isWearingRequiredEquipmentToUseAction(
+      combatantProperties,
+      this.name
+    );
+    if (!isWearingRequiredEquipment)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_WEARING_REQUIRED_EQUIPMENT);
+
+    // IF IN BATTLE, ONLY USE IF FIRST IN TURN ORDER
+    let battleOption: null | Battle = null;
+    if (party.battleId !== null) {
+      const battle = game.battles[party.battleId];
+      if (battle !== undefined) battleOption = battle;
+      else return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
+    }
+
+    if (battleOption !== null) {
+      const fastestActor = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
+      if (fastestActor.combatantId !== combatant.entityProperties.id) {
+        const message = `${ERROR_MESSAGES.COMBATANT.NOT_ACTIVE} first turn tracker ${JSON.stringify(fastestActor)}`;
+        return new Error(message);
+      }
+    }
+
+    const isInUsableContext = this.isUsableInThisContext(battleOption);
+    if (!isInUsableContext)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_USABILITY_CONTEXT);
+
+    // @TODO - TARGETS ARE NOT IN A PROHIBITED STATE
+    // this would only make sense if we didn't already check valid states when targeting... unless
+    // target state could change while they are already targeted, like if someone healed themselves
+    // to full hp while someone else was targeting them with an autoinjector
   }
 }
 

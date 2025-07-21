@@ -1,10 +1,19 @@
-import { CombatActionName, CombatActionTarget, CombatActionTargetType } from "../index.js";
+import {
+  CombatActionIntent,
+  CombatActionName,
+  CombatActionTarget,
+  CombatActionTargetType,
+} from "../index.js";
 import { BattleGroup } from "../../battle/index.js";
 import { Combatant, CombatantProperties } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { chooseRandomFromArray } from "../../utils/index.js";
 import { CombatActionExecutionIntent } from "../combat-actions/combat-action-execution-intent.js";
 import { AllyAndEnemyBattleGroups } from "../../battle/get-ally-and-enemy-battle-groups.js";
+import { AIBehaviorContext } from "./ai-context.js";
+import { CombatantContext } from "../../combatant-context/index.js";
+import { SelectRandomActionAndTargets } from "./custom-nodes/select-random-action-and-targets.js";
+import { BEHAVIOR_NODE_STATE_STRINGS } from "./behavior-tree.js";
 
 export function AISelectActionAndTarget(
   game: SpeedDungeonGame,
@@ -16,17 +25,24 @@ export function AISelectActionAndTarget(
   const { combatantProperties: userCombatantProperties } = user;
 
   /// TESTING AI CONTEXT
-  // const partyResult = SpeedDungeonGame.getPartyOfCombatant(game, user.entityProperties.id);
-  // if (partyResult instanceof Error) return partyResult;
-  // const battleOption = SpeedDungeonGame.getBattleOption(game, partyResult.battleId) || null;
-  // const aiContext = new AIBehaviorContext(user, game, partyResult, battleOption);
-  // const targetSelector = new SetAvailableTargetsAndUsableActions(
-  //   aiContext,
-  //   () => true,
-  //   () => true,
-  //   () => 1
-  // );
-  // const targetSelectionTreeSuccess = targetSelector.execute();
+  const partyResult = SpeedDungeonGame.getPartyOfCombatant(game, user.entityProperties.id);
+  if (partyResult instanceof Error) return partyResult;
+  const battleOption = SpeedDungeonGame.getBattleOption(game, partyResult.battleId) || null;
+  const aiContext = new AIBehaviorContext(
+    new CombatantContext(game, partyResult, user),
+    battleOption
+  );
+
+  const targetSelectorNode = new SelectRandomActionAndTargets(aiContext, user, [
+    CombatActionIntent.Malicious,
+  ]);
+
+  const targetSelectionTreeSuccess = targetSelectorNode.execute();
+  console.log(
+    "behavior tree execution state:",
+    BEHAVIOR_NODE_STATE_STRINGS[targetSelectionTreeSuccess]
+  );
+  console.log("combat action intent selected from behavior tree:", aiContext.selectedActionIntent);
 
   /// TESTING AI CONTEXT DONE
   const randomTarget = getRandomAliveEnemy(game, enemyGroup);
