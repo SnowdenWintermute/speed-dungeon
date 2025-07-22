@@ -69,6 +69,9 @@ export class AIBehaviorContext {
     public combatantContext: CombatantContext,
     public battleOption: Battle | null // allow for ally AI controlled combatants doing things outside of combat
   ) {}
+  getCurrentActionNameConsidering() {
+    return this.currentActionNameConsidering;
+  }
 
   setCurrentActionNameConsidering(actionName: CombatActionName) {
     this.currentActionNameConsidering = actionName;

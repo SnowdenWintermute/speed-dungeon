@@ -37,6 +37,7 @@ import { canPickUpItem } from "./inventory/can-pick-up-item.js";
 import { EntityProperties } from "../primatives/index.js";
 import { Inventory } from "./inventory/index.js";
 import {
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionName,
   getUnmetCostResourceTypes,
   TargetingScheme,
@@ -255,9 +256,12 @@ export class CombatantProperties {
     const action = COMBAT_ACTIONS[actionName];
     const costs = action.costProperties.getResourceCosts(combatantProperties);
 
+    console.log(COMBAT_ACTION_NAME_STRINGS[actionName], "checking action costs:", costs);
+
     if (costs) {
       const unmetCosts = getUnmetCostResourceTypes(combatantProperties, costs);
-      if (unmetCosts.length) false;
+      console.log("unmet costs:", unmetCosts);
+      if (unmetCosts.length) return false;
     }
     return true;
   }

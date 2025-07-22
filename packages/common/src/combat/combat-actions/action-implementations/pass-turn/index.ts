@@ -1,5 +1,6 @@
 import {
   CombatActionComponentConfig,
+  CombatActionIntent,
   CombatActionLeaf,
   CombatActionName,
   CombatActionOrigin,
@@ -26,6 +27,7 @@ const config: CombatActionComponentConfig = {
     ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle],
     validTargetCategories: TargetCategories.User,
     usabilityContext: CombatActionUsabilityContext.InCombat,
+    intent: CombatActionIntent.Benevolent,
   },
 
   getOnUseMessage: (data) => {

@@ -45,24 +45,28 @@ export function AISelectActionAndTarget(
   console.log("combat action intent selected from behavior tree:", aiContext.selectedActionIntent);
 
   /// TESTING AI CONTEXT DONE
-  const randomTarget = getRandomAliveEnemy(game, enemyGroup);
-  if (randomTarget instanceof Error) {
-    throw randomTarget;
-  }
-  if (randomTarget === null) return null;
+  // const randomTarget = getRandomAliveEnemy(game, enemyGroup);
+  // if (randomTarget instanceof Error) {
+  //   throw randomTarget;
+  // }
+  // if (randomTarget === null) return null;
 
-  // @TODO - use a behavior tree instead
-  const combatActionTarget: CombatActionTarget = {
-    type: CombatActionTargetType.Single,
-    targetId: randomTarget.entityProperties.id,
-  };
-  const actionExecutionIntent = new CombatActionExecutionIntent(
-    CombatActionName.Attack,
-    combatActionTarget
-  );
-  userCombatantProperties.combatActionTarget = combatActionTarget; // must set their target because getAutoTarget may use it
+  // // @TODO - use a behavior tree instead
+  // const combatActionTarget: CombatActionTarget = {
+  //   type: CombatActionTargetType.Single,
+  //   targetId: randomTarget.entityProperties.id,
+  // };
+  // const actionExecutionIntent = new CombatActionExecutionIntent(
+  //   CombatActionName.Attack,
+  //   combatActionTarget
+  // );
 
-  return actionExecutionIntent;
+  const actionExecutionIntentOption = aiContext.selectedActionIntent;
+  if (actionExecutionIntentOption === null)
+    throw new Error("unhandled case - ai context did not have a selected actionExecutionIntent");
+  userCombatantProperties.combatActionTarget = actionExecutionIntentOption.targets; // must set their target because getAutoTarget may use it
+
+  return actionExecutionIntentOption;
 }
 
 function getRandomAliveEnemy(

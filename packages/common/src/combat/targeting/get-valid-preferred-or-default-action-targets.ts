@@ -18,68 +18,68 @@ export function getValidPreferredOrDefaultActionTargets(
 ): Error | CombatActionTarget {
   let newTargets: null | CombatActionTarget = null;
 
-  if (!playerOption) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
-
-  const {
-    targetingSchemePreference,
-    category: preferredCategoryOption,
-    hostileSingle: preferredHostileOption,
-    friendlySingle: preferredFriendlyOption,
-  } = playerOption.targetPreferences;
-
   const targetingSchemes = combatAction.targetingProperties.getTargetingSchemes(combatant);
 
-  // IF SELECTED ACTION CONTAINS PREFERRED TARGETING SCHEME
-  if (targetingSchemes.includes(targetingSchemePreference)) {
-    switch (targetingSchemePreference) {
-      case TargetingScheme.Single:
-        // IF PREFERENCE EXISTS SELECT IT IF VALID
-        if (preferredCategoryOption !== null) {
-          switch (preferredCategoryOption) {
-            case FriendOrFoe.Hostile:
-              newTargets = getPreferredOrDefaultSingleTargetOption(
-                preferredHostileOption,
-                opponentIdsOption
-              );
-              break;
-            case FriendOrFoe.Friendly:
-              newTargets = getPreferredOrDefaultSingleTargetOption(
-                preferredFriendlyOption,
-                allyIdsOption
-              );
-              break;
-          }
-        }
-        // IF NO VALID PREFERRED SINGLE, GET ANY VALID SINGLE
-        for (const category of iterateNumericEnum(FriendOrFoe)) {
-          if (newTargets) return newTargets;
+  if (playerOption) {
+    const {
+      targetingSchemePreference,
+      category: preferredCategoryOption,
+      hostileSingle: preferredHostileOption,
+      friendlySingle: preferredFriendlyOption,
+    } = playerOption.targetPreferences;
 
-          const idsOption = category === FriendOrFoe.Friendly ? allyIdsOption : opponentIdsOption;
-          if (idsOption) {
-            newTargets = getPreferredOrDefaultSingleTargetOption(idsOption[0] || null, idsOption);
+    // IF SELECTED ACTION CONTAINS PREFERRED TARGETING SCHEME
+    if (targetingSchemes.includes(targetingSchemePreference)) {
+      switch (targetingSchemePreference) {
+        case TargetingScheme.Single:
+          // IF PREFERENCE EXISTS SELECT IT IF VALID
+          if (preferredCategoryOption !== null) {
+            switch (preferredCategoryOption) {
+              case FriendOrFoe.Hostile:
+                newTargets = getPreferredOrDefaultSingleTargetOption(
+                  preferredHostileOption,
+                  opponentIdsOption
+                );
+                break;
+              case FriendOrFoe.Friendly:
+                newTargets = getPreferredOrDefaultSingleTargetOption(
+                  preferredFriendlyOption,
+                  allyIdsOption
+                );
+                break;
+            }
           }
-        }
-        break;
-      case TargetingScheme.Area:
-        if (preferredCategoryOption) {
-          newTargets = getGroupTargetsOption(
-            allyIdsOption,
-            opponentIdsOption,
-            preferredCategoryOption
-          );
-        } else {
+          // IF NO VALID PREFERRED SINGLE, GET ANY VALID SINGLE
           for (const category of iterateNumericEnum(FriendOrFoe)) {
             if (newTargets) return newTargets;
-            newTargets = getGroupTargetsOption(allyIdsOption, opponentIdsOption, category);
-          }
-        }
-        break;
-      case TargetingScheme.All:
-        return { type: CombatActionTargetType.All };
-    }
-  }
 
-  if (newTargets) return newTargets;
+            const idsOption = category === FriendOrFoe.Friendly ? allyIdsOption : opponentIdsOption;
+            if (idsOption) {
+              newTargets = getPreferredOrDefaultSingleTargetOption(idsOption[0] || null, idsOption);
+            }
+          }
+          break;
+        case TargetingScheme.Area:
+          if (preferredCategoryOption) {
+            newTargets = getGroupTargetsOption(
+              allyIdsOption,
+              opponentIdsOption,
+              preferredCategoryOption
+            );
+          } else {
+            for (const category of iterateNumericEnum(FriendOrFoe)) {
+              if (newTargets) return newTargets;
+              newTargets = getGroupTargetsOption(allyIdsOption, opponentIdsOption, category);
+            }
+          }
+          break;
+        case TargetingScheme.All:
+          return { type: CombatActionTargetType.All };
+      }
+    }
+
+    if (newTargets) return newTargets;
+  }
 
   // IF NO VALID TARGET IN PREFERRED SCHEME OR PREFERRED SCHEME NOT VALID GET ANY VALID TARGET
   for (const targetingSchemeKey of targetingSchemes) {

@@ -33,31 +33,35 @@ export class SelectRandomActionAndTargets implements BehaviorNode {
       ),
       // randomize the possible actions now so we don't calculate all the conditional
       // stuff for each one, just the first random one
-      new RandomizerNode(this.behaviorContext.consideredActionNamesFilteredByIntents),
+      new RandomizerNode(() => this.behaviorContext.consideredActionNamesFilteredByIntents),
       new UntilSuccessNode(
         new SequenceNode([
           // pop from stack next possible action
           new PopFromStackNode(
-            this.behaviorContext.consideredActionNamesFilteredByIntents,
-            this.behaviorContext.setCurrentActionNameConsidering
+            () => this.behaviorContext.consideredActionNamesFilteredByIntents,
+            (actionName: CombatActionName) =>
+              this.behaviorContext.setCurrentActionNameConsidering(actionName)
           ),
           // check if action is useable
-          new CollectPotentialTargetsForActionIfUsable(this.behaviorContext, this.combatant),
+          new CollectPotentialTargetsForActionIfUsable(this.behaviorContext, this.combatant, () =>
+            this.behaviorContext.getCurrentActionNameConsidering()
+          ),
         ]),
         {
-          maxAttempts: this.behaviorContext.consideredActionNamesFilteredByIntents.length,
+          maxAttemptsGetter: () =>
+            this.behaviorContext.consideredActionNamesFilteredByIntents.length,
         }
       ),
       // the name we're considering should be the one we just picked as the first
       // in the random list of actions that passed all the previous checks
       new SelectActionWithPotentialTargets(this.behaviorContext, this.combatant),
       new RandomizerNode(
-        this.behaviorContext.selectedActionWithPotentialValidTargets?.potentialValidTargets
+        () => this.behaviorContext.selectedActionWithPotentialValidTargets?.potentialValidTargets
       ),
       new SelectActionExecutionIntent(
         this.behaviorContext,
         this.combatant,
-        this.behaviorContext.selectedActionWithPotentialValidTargets?.potentialValidTargets[0]
+        () => this.behaviorContext.selectedActionWithPotentialValidTargets?.potentialValidTargets[0]
       ),
     ]);
   }
@@ -79,6 +83,8 @@ class SelectActionWithPotentialTargets implements BehaviorNode {
     const potentialValidTargets =
       this.behaviorContext.usableActionsWithPotentialValidTargets[actionNameOption];
 
+    console.log("potentialValidTargets", potentialValidTargets);
+
     if (potentialValidTargets === undefined) {
       throw new Error(
         "expected usableActionsWithPotentialValidTargets to contain the action name passed to this node"
@@ -98,29 +104,27 @@ class SelectActionExecutionIntent implements BehaviorNode {
   constructor(
     private behaviorContext: AIBehaviorContext,
     private combatant: Combatant,
-    private targetsOption: undefined | CombatActionTarget
+    private targetsOptionGetter: () => undefined | CombatActionTarget
   ) {}
 
   execute(): BehaviorNodeState {
     const actionNameOption = this.behaviorContext.currentActionNameConsidering;
-    if (actionNameOption === null || this.targetsOption === undefined)
-      return BehaviorNodeState.Failure;
+    const targetsOption = this.targetsOptionGetter();
+    if (actionNameOption === null || targetsOption === undefined) return BehaviorNodeState.Failure;
 
     const action = COMBAT_ACTIONS[actionNameOption];
-    const actionUseIsValid = action.useIsValid(
-      this.targetsOption,
+    const actionUseIsValidResult = action.useIsValid(
+      targetsOption,
       this.behaviorContext.combatantContext
     );
-    if (!actionUseIsValid) {
-      throw new Error("expected to select a valid usable action");
-    }
+    if (actionUseIsValidResult instanceof Error) throw actionUseIsValidResult;
 
     this.behaviorContext.selectedActionIntent = new CombatActionExecutionIntent(
       actionNameOption,
-      this.targetsOption
+      targetsOption
     );
     this.combatant.combatantProperties.selectedCombatAction = actionNameOption;
-    this.combatant.combatantProperties.combatActionTarget = this.targetsOption;
+    this.combatant.combatantProperties.combatActionTarget = targetsOption;
 
     return BehaviorNodeState.Success;
   }

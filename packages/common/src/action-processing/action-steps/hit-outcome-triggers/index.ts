@@ -128,6 +128,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           for (const condition of targetCombatant.combatantProperties.conditions) {
             if (!condition.removedOnDeath) continue;
             CombatantCondition.removeById(condition.id, combatantResult.combatantProperties);
+            battleOption?.turnOrderManager.updateTrackers(game, party);
             addRemovedConditionIdToUpdate(
               condition.id,
               gameUpdateCommand,

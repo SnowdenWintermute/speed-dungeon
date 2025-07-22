@@ -76,20 +76,19 @@ export class UntilSuccessNode implements BehaviorNode {
   private attempts = 0;
   constructor(
     private child: BehaviorNode,
-    private options?: { maxAttempts?: number }
+    private options?: { maxAttemptsGetter?: () => number }
   ) {}
   execute(): BehaviorNodeState {
     let lastExecutedState = BehaviorNodeState.Failure;
+    const maxAttempts = this.options?.maxAttemptsGetter ? this.options?.maxAttemptsGetter() : null;
     while (lastExecutedState !== BehaviorNodeState.Success) {
-      console.log("options.maxAttempts:", this.options?.maxAttempts);
+      console.log("options.maxAttempts:", maxAttempts);
       lastExecutedState = this.child.execute();
-      if (
-        typeof this.options?.maxAttempts === "number" &&
-        this.attempts >= this.options.maxAttempts
-      )
-        break;
+      if (typeof maxAttempts === "number" && this.attempts >= maxAttempts) break;
       this.attempts += 1;
+      console.log("attempts: ", this.attempts);
     }
+
     return BehaviorNodeState.Success;
   }
 }
@@ -105,21 +104,23 @@ export class SucceederNode implements BehaviorNode {
 }
 
 export class RandomizerNode<T> implements BehaviorNode {
-  constructor(private arrayOption: undefined | Array<T>) {}
+  constructor(private arrayOptionGetter: () => undefined | Array<T>) {}
   execute(): BehaviorNodeState {
-    if (this.arrayOption === undefined) return BehaviorNodeState.Failure;
-    shuffleArray(this.arrayOption);
+    const arrayOption = this.arrayOptionGetter();
+    if (arrayOption === undefined) return BehaviorNodeState.Failure;
+    shuffleArray(arrayOption);
+    console.log("shuffleArray:", arrayOption);
     return BehaviorNodeState.Success;
   }
 }
 
 export class PopFromStackNode<T> implements BehaviorNode {
   constructor(
-    private stack: T[],
+    private stackGetter: () => T[],
     private setter: (value: T) => void
   ) {}
   execute(): BehaviorNodeState {
-    const popped = this.stack.pop();
+    const popped = this.stackGetter().pop();
     console.log("popped", popped);
     if (popped === undefined) {
       console.log("no more in stack");

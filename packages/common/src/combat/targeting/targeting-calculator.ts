@@ -15,7 +15,7 @@ import {
 import { getValidPreferredOrDefaultActionTargets } from "./get-valid-preferred-or-default-action-targets.js";
 import { EntityId, NextOrPrevious } from "../../primatives/index.js";
 import { getActionTargetsIfSchemeIsValid } from "./get-targets-if-scheme-is-valid.js";
-import { getOwnedCharacterAndSelectedCombatAction } from "../../utils/get-owned-character-and-selected-combat-action.js";
+import { getCombatantAndSelectedCombatAction } from "../../utils/get-owned-character-and-selected-combat-action.js";
 import getNextOrPreviousTarget from "./get-next-or-previous-target.js";
 import { CombatantContext } from "../../combatant-context/index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
@@ -31,10 +31,9 @@ export class TargetingCalculator {
     characterId: string,
     direction: NextOrPrevious
   ): Error | CombatActionTarget {
-    if (this.playerOption === null) return new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
-    const characterAndActionDataResult = getOwnedCharacterAndSelectedCombatAction(
+    // if (this.playerOption === null) return new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
+    const characterAndActionDataResult = getCombatantAndSelectedCombatAction(
       this.context.party,
-      this.playerOption,
       characterId
     );
 
@@ -55,25 +54,25 @@ export class TargetingCalculator {
     );
     if (newTargetsResult instanceof Error) return newTargetsResult;
 
-    const updatedTargetPreferenceResult = this.getUpdatedTargetPreferences(
-      combatAction,
-      newTargetsResult,
-      allyIdsOption,
-      opponentIdsOption
-    );
-    if (updatedTargetPreferenceResult instanceof Error) return updatedTargetPreferenceResult;
+    if (this.playerOption) {
+      const updatedTargetPreferenceResult = this.getUpdatedTargetPreferences(
+        combatAction,
+        newTargetsResult,
+        allyIdsOption,
+        opponentIdsOption
+      );
+      if (updatedTargetPreferenceResult instanceof Error) return updatedTargetPreferenceResult;
 
-    this.playerOption.targetPreferences = updatedTargetPreferenceResult;
+      this.playerOption.targetPreferences = updatedTargetPreferenceResult;
+    }
     character.combatantProperties.combatActionTarget = newTargetsResult;
 
     return newTargetsResult;
   }
 
   cycleCharacterTargetingSchemes(characterId: string): Error | void {
-    if (this.playerOption === null) return new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
-    const characterAndActionDataResult = getOwnedCharacterAndSelectedCombatAction(
+    const characterAndActionDataResult = getCombatantAndSelectedCombatAction(
       this.context.party,
-      this.playerOption,
       characterId
     );
     if (characterAndActionDataResult instanceof Error) return characterAndActionDataResult;
@@ -114,17 +113,20 @@ export class TargetingCalculator {
     );
     if (newTargetsResult instanceof Error) return newTargetsResult;
 
-    const updatedTargetPreferenceResult = this.getUpdatedTargetPreferences(
-      combatAction,
-      newTargetsResult,
-      allyIdsOption,
-      opponentIdsOption
-    );
-    if (updatedTargetPreferenceResult instanceof Error) return updatedTargetPreferenceResult;
+    if (this.playerOption) {
+      const updatedTargetPreferenceResult = this.getUpdatedTargetPreferences(
+        combatAction,
+        newTargetsResult,
+        allyIdsOption,
+        opponentIdsOption
+      );
+      if (updatedTargetPreferenceResult instanceof Error) return updatedTargetPreferenceResult;
 
-    this.playerOption.targetPreferences = updatedTargetPreferenceResult;
+      this.playerOption.targetPreferences = updatedTargetPreferenceResult;
+      this.playerOption.targetPreferences.targetingSchemePreference = newTargetingScheme;
+    }
+
     character.combatantProperties.combatActionTarget = newTargetsResult;
-    this.playerOption.targetPreferences.targetingSchemePreference = newTargetingScheme;
     character.combatantProperties.selectedTargetingScheme = newTargetingScheme;
   }
 
@@ -168,20 +170,32 @@ export class TargetingCalculator {
 
       if (newTargetsResult instanceof Error) return newTargetsResult;
 
-      const newTargetPreferencesResult = this.getUpdatedTargetPreferences(
-        combatActionOption,
-        newTargetsResult,
-        allyIdsOption,
-        opponentIdsOption
-      );
-      if (newTargetPreferencesResult instanceof Error) return newTargetPreferencesResult;
+      if (this.playerOption) {
+        const newTargetPreferencesResult = this.getUpdatedTargetPreferences(
+          combatActionOption,
+          newTargetsResult,
+          allyIdsOption,
+          opponentIdsOption
+        );
+        if (newTargetPreferencesResult instanceof Error) return newTargetPreferencesResult;
 
-      if (this.playerOption) this.playerOption.targetPreferences = newTargetPreferencesResult;
-      combatant.combatantProperties.selectedTargetingScheme =
-        newTargetPreferencesResult.targetingSchemePreference;
+        this.playerOption.targetPreferences = newTargetPreferencesResult;
+        combatant.combatantProperties.selectedTargetingScheme =
+          newTargetPreferencesResult.targetingSchemePreference;
+      } else {
+        const defaultScheme =
+          combatActionOption.targetingProperties.getTargetingSchemes(combatant)[0];
+        if (defaultScheme === undefined) return new Error("no default targeting scheme found");
+        combatant.combatantProperties.selectedTargetingScheme = defaultScheme;
+      }
 
       combatant.combatantProperties.selectedCombatAction = combatActionOption.name;
       combatant.combatantProperties.combatActionTarget = newTargetsResult;
+      console.log(
+        "assignInitialCombatantActionTargets:",
+        combatant.combatantProperties.selectedCombatAction,
+        combatant.combatantProperties.combatActionTarget
+      );
       return newTargetsResult;
     }
   }

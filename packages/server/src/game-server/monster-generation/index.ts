@@ -42,9 +42,22 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
     Vector3.Zero()
   );
 
-  combatantProperties.ownedActions[CombatActionName.IceBoltParent] = new CombatantActionState(
-    CombatActionName.IceBoltParent
-  );
+  const ownedActions = [
+    CombatActionName.Attack,
+    CombatActionName.ChainingSplitArrowParent,
+    CombatActionName.ExplodingArrowParent,
+    CombatActionName.UseGreenAutoinjector,
+    CombatActionName.UseBlueAutoinjector,
+    CombatActionName.IceBoltParent,
+    CombatActionName.Fire,
+    CombatActionName.PassTurn,
+  ];
+
+  for (const actionName of ownedActions) {
+    const action = new CombatantActionState(actionName);
+    if (actionName === CombatActionName.Fire) action.level = 2;
+    combatantProperties.ownedActions[actionName] = action;
+  }
 
   // const entityProperties = { id: idGenerator.generate(), name: STOCK_MONSTER.name };
   // const combatantProperties = cloneDeep(STOCK_MONSTER.combatantProperties);
