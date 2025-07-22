@@ -2,7 +2,6 @@ import { Combatant } from "../../../combatants/index.js";
 import { NextOrPrevious } from "../../../primatives/index.js";
 import { throwIfError } from "../../../utils/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
-import { CombatActionName } from "../../combat-actions/combat-action-names.js";
 import { CombatActionTarget } from "../../targeting/combat-action-targets.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { AIBehaviorContext } from "../ai-context.js";
@@ -11,14 +10,14 @@ import { BehaviorNode, BehaviorNodeState } from "../behavior-tree.js";
 export class CollectPotentialTargetsForAction implements BehaviorNode {
   constructor(
     private behaviorContext: AIBehaviorContext,
-    private combatant: Combatant,
-    private actionNameOption: null | CombatActionName
+    private combatant: Combatant
   ) {}
   execute(): BehaviorNodeState {
-    if (this.actionNameOption === null) return BehaviorNodeState.Failure;
+    const actionNameOption = this.behaviorContext.currentActionNameConsidering;
+    if (actionNameOption === null) return BehaviorNodeState.Failure;
 
     const { entityProperties, combatantProperties } = this.combatant;
-    const action = COMBAT_ACTIONS[this.actionNameOption];
+    const action = COMBAT_ACTIONS[actionNameOption];
 
     const targetingCalculator = new TargetingCalculator(
       this.behaviorContext.combatantContext,
@@ -26,7 +25,7 @@ export class CollectPotentialTargetsForAction implements BehaviorNode {
     );
 
     // must set it as selected since targetingCalculator will look for it
-    combatantProperties.selectedCombatAction = this.actionNameOption;
+    combatantProperties.selectedCombatAction = actionNameOption;
 
     const defaultTargetsResult: Error | CombatActionTarget =
       targetingCalculator.getPreferredOrDefaultActionTargets(action);
@@ -53,8 +52,7 @@ export class CollectPotentialTargetsForAction implements BehaviorNode {
       targetingCalculator.cycleCharacterTargetingSchemes(entityProperties.id);
     }
 
-    this.behaviorContext.usableActionsWithPotentialValidTargets[this.actionNameOption] =
-      targetOptions;
+    this.behaviorContext.usableActionsWithPotentialValidTargets[actionNameOption] = targetOptions;
 
     return BehaviorNodeState.Success;
   }

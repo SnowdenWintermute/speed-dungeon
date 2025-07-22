@@ -1,4 +1,4 @@
-import { Combatant, CombatantProperties } from "../../../combatants/index.js";
+import { Combatant } from "../../../combatants/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import {
   CombatActionExecutionIntent,
@@ -12,12 +12,10 @@ import {
   BehaviorNodeState,
   PopFromStackNode,
   RandomizerNode,
-  SelectorNode,
   SequenceNode,
-  SucceederNode,
   UntilSuccessNode,
 } from "../behavior-tree.js";
-import { CollectPotentialTargetsForAction } from "../custom-nodes/collect-potential-target-for-action.js";
+import { CollectPotentialTargetsForActionIfUsable } from "./add-to-considered-actions-with-targets-if-usable.js";
 import { CollectAllOwnedActionsByIntent } from "./collect-all-owned-action-by-intent.js";
 
 export class SelectRandomActionAndTargets implements BehaviorNode {
@@ -39,55 +37,26 @@ export class SelectRandomActionAndTargets implements BehaviorNode {
       new UntilSuccessNode(
         new SequenceNode([
           // pop from stack next possible action
-          new SelectorNode([
-            new PopFromStackNode(
-              this.behaviorContext.consideredActionNamesFilteredByIntents,
-              this.behaviorContext.setCurrentActionNameConsidering
-            ),
-            new SucceederNode(),
-          ]),
+          new PopFromStackNode(
+            this.behaviorContext.consideredActionNamesFilteredByIntents,
+            this.behaviorContext.setCurrentActionNameConsidering
+          ),
           // check if action is useable
-          new CheckIfActionUsableInCurrentContext(
-            this.behaviorContext,
-            this.combatant,
-            this.behaviorContext.currentActionNameConsidering
-          ),
-          new CheckIfHasRequiredResourcesForAction(
-            this.behaviorContext,
-            this.combatant,
-            this.behaviorContext.currentActionNameConsidering
-          ),
-          new CheckIfHasRequiredConsumablesForAction(
-            this.behaviorContext,
-            this.combatant,
-            this.behaviorContext.currentActionNameConsidering
-          ),
-          new CheckIfWearingProperEquipmentForAction(
-            this.behaviorContext,
-            this.combatant,
-            this.behaviorContext.currentActionNameConsidering
-          ),
-          new CollectPotentialTargetsForAction(
-            this.behaviorContext,
-            this.combatant,
-            this.behaviorContext.currentActionNameConsidering
-          ),
-        ])
+          new CollectPotentialTargetsForActionIfUsable(this.behaviorContext, this.combatant),
+        ]),
+        {
+          maxAttempts: this.behaviorContext.consideredActionNamesFilteredByIntents.length,
+        }
       ),
       // the name we're considering should be the one we just picked as the first
       // in the random list of actions that passed all the previous checks
-      new SelectActionWithPotentialTargets(
-        this.behaviorContext,
-        this.combatant,
-        this.behaviorContext.currentActionNameConsidering
-      ),
+      new SelectActionWithPotentialTargets(this.behaviorContext, this.combatant),
       new RandomizerNode(
         this.behaviorContext.selectedActionWithPotentialValidTargets?.potentialValidTargets
       ),
       new SelectActionExecutionIntent(
         this.behaviorContext,
         this.combatant,
-        this.behaviorContext.currentActionNameConsidering,
         this.behaviorContext.selectedActionWithPotentialValidTargets?.potentialValidTargets[0]
       ),
     ]);
@@ -97,90 +66,18 @@ export class SelectRandomActionAndTargets implements BehaviorNode {
   }
 }
 
-class CheckIfActionUsableInCurrentContext implements BehaviorNode {
-  constructor(
-    private behaviorContext: AIBehaviorContext,
-    private _combatant: Combatant,
-    private actionNameOption: null | CombatActionName
-  ) {}
-  execute(): BehaviorNodeState {
-    if (this.actionNameOption === null) return BehaviorNodeState.Failure;
-    const action = COMBAT_ACTIONS[this.actionNameOption];
-    const usable = action.isUsableInThisContext(this.behaviorContext.battleOption);
-    if (usable) return BehaviorNodeState.Success;
-    return BehaviorNodeState.Failure;
-  }
-}
-
-class CheckIfHasRequiredResourcesForAction implements BehaviorNode {
-  constructor(
-    private behaviorContext: AIBehaviorContext,
-    private combatant: Combatant,
-    private actionNameOption: null | CombatActionName
-  ) {}
-  execute(): BehaviorNodeState {
-    if (this.actionNameOption === null) return BehaviorNodeState.Failure;
-    const { combatantProperties } = this.combatant;
-
-    const hasResources = CombatantProperties.hasRequiredResourcesToUseAction(
-      combatantProperties,
-      this.actionNameOption
-    );
-    if (hasResources) return BehaviorNodeState.Success;
-    return BehaviorNodeState.Failure;
-  }
-}
-
-class CheckIfHasRequiredConsumablesForAction implements BehaviorNode {
-  constructor(
-    private behaviorContext: AIBehaviorContext,
-    private combatant: Combatant,
-    private actionNameOption: null | CombatActionName
-  ) {}
-  execute(): BehaviorNodeState {
-    if (this.actionNameOption === null) return BehaviorNodeState.Failure;
-    const { combatantProperties } = this.combatant;
-
-    const hasRequiredConsumables = CombatantProperties.hasRequiredConsumablesToUseAction(
-      combatantProperties,
-      this.actionNameOption
-    );
-    if (hasRequiredConsumables) return BehaviorNodeState.Success;
-    return BehaviorNodeState.Failure;
-  }
-}
-
-class CheckIfWearingProperEquipmentForAction implements BehaviorNode {
-  constructor(
-    private behaviorContext: AIBehaviorContext,
-    private combatant: Combatant,
-    private actionNameOption: null | CombatActionName
-  ) {}
-  execute(): BehaviorNodeState {
-    if (this.actionNameOption === null) return BehaviorNodeState.Failure;
-    const { combatantProperties } = this.combatant;
-
-    const isWearingProperEquipment = CombatantProperties.isWearingRequiredEquipmentToUseAction(
-      combatantProperties,
-      this.actionNameOption
-    );
-    if (isWearingProperEquipment) return BehaviorNodeState.Success;
-    return BehaviorNodeState.Failure;
-  }
-}
-
 class SelectActionWithPotentialTargets implements BehaviorNode {
   constructor(
     private behaviorContext: AIBehaviorContext,
-    private combatant: Combatant,
-    private actionNameOption: null | CombatActionName
+    private combatant: Combatant
   ) {}
   execute(): BehaviorNodeState {
-    if (this.actionNameOption === null) return BehaviorNodeState.Failure;
+    const actionNameOption = this.behaviorContext.currentActionNameConsidering;
+    if (actionNameOption === null) return BehaviorNodeState.Failure;
     const { combatantProperties } = this.combatant;
 
     const potentialValidTargets =
-      this.behaviorContext.usableActionsWithPotentialValidTargets[this.actionNameOption];
+      this.behaviorContext.usableActionsWithPotentialValidTargets[actionNameOption];
 
     if (potentialValidTargets === undefined) {
       throw new Error(
@@ -189,7 +86,7 @@ class SelectActionWithPotentialTargets implements BehaviorNode {
     }
 
     this.behaviorContext.selectedActionWithPotentialValidTargets = {
-      actionName: this.actionNameOption,
+      actionName: actionNameOption,
       potentialValidTargets,
     };
 
@@ -201,15 +98,15 @@ class SelectActionExecutionIntent implements BehaviorNode {
   constructor(
     private behaviorContext: AIBehaviorContext,
     private combatant: Combatant,
-    private actionNameOption: null | CombatActionName,
     private targetsOption: undefined | CombatActionTarget
   ) {}
 
   execute(): BehaviorNodeState {
-    if (this.actionNameOption === null || this.targetsOption === undefined)
+    const actionNameOption = this.behaviorContext.currentActionNameConsidering;
+    if (actionNameOption === null || this.targetsOption === undefined)
       return BehaviorNodeState.Failure;
 
-    const action = COMBAT_ACTIONS[this.actionNameOption];
+    const action = COMBAT_ACTIONS[actionNameOption];
     const actionUseIsValid = action.useIsValid(
       this.targetsOption,
       this.behaviorContext.combatantContext
@@ -219,10 +116,10 @@ class SelectActionExecutionIntent implements BehaviorNode {
     }
 
     this.behaviorContext.selectedActionIntent = new CombatActionExecutionIntent(
-      this.actionNameOption,
+      actionNameOption,
       this.targetsOption
     );
-    this.combatant.combatantProperties.selectedCombatAction = this.actionNameOption;
+    this.combatant.combatantProperties.selectedCombatAction = actionNameOption;
     this.combatant.combatantProperties.combatActionTarget = this.targetsOption;
 
     return BehaviorNodeState.Success;

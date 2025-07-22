@@ -45,9 +45,6 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   combatantProperties.ownedActions[CombatActionName.IceBoltParent] = new CombatantActionState(
     CombatActionName.IceBoltParent
   );
-  combatantProperties.ownedActions[CombatActionName.IceBoltProjectile] = new CombatantActionState(
-    CombatActionName.IceBoltProjectile
-  );
 
   // const entityProperties = { id: idGenerator.generate(), name: STOCK_MONSTER.name };
   // const combatantProperties = cloneDeep(STOCK_MONSTER.combatantProperties);

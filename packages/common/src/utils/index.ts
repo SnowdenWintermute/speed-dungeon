@@ -3,7 +3,6 @@ export * from "./get-progression-game-max-starting-floor.js";
 
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { CONSUMABLE_TYPE_STRINGS, Consumable, ConsumableType } from "../items/consumables/index.js";
-import { Fn } from "oxide.ts";
 
 export function removeFromArray<T>(array: T[], item: T): undefined | T {
   const indexToRemove = array.indexOf(item);
@@ -126,3 +125,7 @@ export function throwIfError<T>(result: T | Error) {
   if (result instanceof Error) throw result;
   return result;
 }
+
+export type KeysWithValueOfType<O, T> = {
+  [K in keyof O]: O[K] extends T ? K : never;
+}[keyof O];

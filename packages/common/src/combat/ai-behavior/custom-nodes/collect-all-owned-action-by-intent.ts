@@ -1,7 +1,11 @@
 import { Combatant } from "../../../combatants/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
-import { CombatActionIntent, CombatActionName } from "../../combat-actions/index.js";
+import {
+  COMBAT_ACTION_INTENT_STRINGS,
+  CombatActionIntent,
+  CombatActionName,
+} from "../../combat-actions/index.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import { BehaviorNode, BehaviorNodeState } from "../behavior-tree.js";
 
@@ -22,6 +26,12 @@ export class CollectAllOwnedActionsByIntent implements BehaviorNode {
     if (collected.length === 0) return BehaviorNodeState.Failure;
 
     this.behaviorContext.consideredActionNamesFilteredByIntents = collected;
+
+    for (const intent of this.actionIntents) console.log(COMBAT_ACTION_INTENT_STRINGS[intent]);
+    console.log(
+      "all owned actions by intent",
+      this.behaviorContext.consideredActionNamesFilteredByIntents
+    );
 
     return BehaviorNodeState.Success;
   }

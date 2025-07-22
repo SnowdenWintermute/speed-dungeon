@@ -8,7 +8,6 @@ export * from "./combat-action-intent.js";
 export * from "./combat-action-steps-config.js";
 import {
   Combatant,
-  CombatantEquipment,
   CombatantProperties,
   getCombatActionPropertiesIfOwned,
 } from "../../combatants/index.js";

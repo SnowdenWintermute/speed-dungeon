@@ -73,11 +73,22 @@ export class UntilFailNode implements BehaviorNode {
 }
 
 export class UntilSuccessNode implements BehaviorNode {
-  constructor(private child: BehaviorNode) {}
+  private attempts = 0;
+  constructor(
+    private child: BehaviorNode,
+    private options?: { maxAttempts?: number }
+  ) {}
   execute(): BehaviorNodeState {
     let lastExecutedState = BehaviorNodeState.Failure;
     while (lastExecutedState !== BehaviorNodeState.Success) {
+      console.log("options.maxAttempts:", this.options?.maxAttempts);
       lastExecutedState = this.child.execute();
+      if (
+        typeof this.options?.maxAttempts === "number" &&
+        this.attempts >= this.options.maxAttempts
+      )
+        break;
+      this.attempts += 1;
     }
     return BehaviorNodeState.Success;
   }
