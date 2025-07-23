@@ -37,7 +37,6 @@ import { canPickUpItem } from "./inventory/can-pick-up-item.js";
 import { EntityProperties } from "../primatives/index.js";
 import { Inventory } from "./inventory/index.js";
 import {
-  COMBAT_ACTION_NAME_STRINGS,
   CombatActionName,
   getUnmetCostResourceTypes,
   TargetingScheme,
@@ -53,6 +52,7 @@ import { PrimedForExplosionCombatantCondition } from "./combatant-conditions/pri
 import { PrimedForIceBurstCombatantCondition } from "./combatant-conditions/primed-for-ice-burst.js";
 import { BurningCombatantCondition } from "./combatant-conditions/burning.js";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
+import { ThreatManager } from "./threat-manager/index.js";
 
 export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
@@ -63,6 +63,7 @@ export * from "./inventory/index.js";
 export * from "./update-home-position.js";
 export * from "./combatant-equipment/index.js";
 export * from "./combatant-conditions/index.js";
+export * from "./threat-manager//index.js";
 
 export class Combatant {
   [immerable] = true;
@@ -109,9 +110,13 @@ export class CombatantProperties {
   traits: CombatantTrait[] = [];
   equipment: CombatantEquipment = new CombatantEquipment();
   inventory: Inventory = new Inventory();
+  // targeting
   selectedCombatAction: null | CombatActionName = null;
   combatActionTarget: null | CombatActionTarget = null;
   selectedTargetingScheme: null | TargetingScheme = null;
+  //
+  threatManager?: ThreatManager;
+
   deepestFloorReached: number = 1;
   position: Vector3;
   conditions: CombatantCondition[] = [];

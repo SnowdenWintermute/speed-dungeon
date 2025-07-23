@@ -20,6 +20,7 @@ import { addAttributesToAccumulator } from "@speed-dungeon/common";
 import getMonsterPerLevelAttributes from "./get-monster-per-level-attributes.js";
 import getMonsterTraits from "./get-monster-traits.js";
 import { getMonsterEquipment } from "./get-monster-equipment.js";
+import { ThreatManager } from "@speed-dungeon/common";
 // import { STOCK_MONSTER } from "../../index.js";
 
 export function generateMonster(level: number, forcedType?: MonsterType) {
@@ -64,6 +65,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
 
   // will modify this monster after creation with basic values
   const monster = new Combatant(entityProperties, combatantProperties);
+  monster.combatantProperties.threatManager = new ThreatManager();
   monster.combatantProperties.level = level;
   // assign their "discretionary" attributes
   // assign attributes that would have come from wearing gear

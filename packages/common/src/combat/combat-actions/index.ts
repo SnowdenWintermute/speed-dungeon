@@ -30,7 +30,6 @@ import {
   CombatActionCostPropertiesConfig,
 } from "./combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "./combat-action-steps-config.js";
-import { Equipment } from "../../items/equipment/index.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 

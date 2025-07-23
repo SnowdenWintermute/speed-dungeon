@@ -5,7 +5,6 @@ import {
 } from "../index.js";
 import {
   ActivatedTriggersGameUpdateCommand,
-  GameUpdateCommand,
   GameUpdateCommandType,
 } from "../../game-update-commands.js";
 import {
