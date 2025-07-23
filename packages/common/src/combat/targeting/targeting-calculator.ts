@@ -5,6 +5,7 @@ import {
   CombatActionComponent,
   CombatActionExecutionIntent,
   FriendOrFoe,
+  TARGETING_SCHEME_STRINGS,
   TargetingScheme,
 } from "../combat-actions/index.js";
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
@@ -103,6 +104,9 @@ export class TargetingCalculator {
       newTargetingScheme = targetingSchemes[newSchemeIndex]!;
     }
 
+    // must set targetingScheme here so getValidPreferredOrDefaultActionTargets takes it into account
+    character.combatantProperties.selectedTargetingScheme = newTargetingScheme;
+
     const filteredTargetIdsResult = this.getFilteredPotentialTargetIdsForAction(combatAction);
     if (filteredTargetIdsResult instanceof Error) return filteredTargetIdsResult;
     const [allyIdsOption, opponentIdsOption] = filteredTargetIdsResult;
@@ -127,7 +131,6 @@ export class TargetingCalculator {
     }
 
     character.combatantProperties.combatActionTarget = newTargetsResult;
-    character.combatantProperties.selectedTargetingScheme = newTargetingScheme;
   }
 
   getCombatActionTargetIds(
@@ -191,11 +194,6 @@ export class TargetingCalculator {
 
       combatant.combatantProperties.selectedCombatAction = combatActionOption.name;
       combatant.combatantProperties.combatActionTarget = newTargetsResult;
-      console.log(
-        "assignInitialCombatantActionTargets:",
-        combatant.combatantProperties.selectedCombatAction,
-        combatant.combatantProperties.combatActionTarget
-      );
       return newTargetsResult;
     }
   }

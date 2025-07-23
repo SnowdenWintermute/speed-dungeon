@@ -1,3 +1,4 @@
+import cloneDeep from "lodash.clonedeep";
 import { Combatant } from "../../../combatants/index.js";
 import { NextOrPrevious } from "../../../primatives/index.js";
 import { throwIfError } from "../../../utils/index.js";
@@ -29,19 +30,19 @@ export class CollectPotentialTargetsForAction implements BehaviorNode {
 
     // must set it as selected since targetingCalculator will look for it
     const initialTargetsResult = targetingCalculator.assignInitialCombatantActionTargets(action);
-    if (initialTargetsResult instanceof Error) throw initialTargetsResult;
+    if (initialTargetsResult instanceof Error) {
+      console.error(initialTargetsResult);
+      return BehaviorNodeState.Failure;
+    }
 
-    const defaultTargetsResult: Error | CombatActionTarget =
-      targetingCalculator.getPreferredOrDefaultActionTargets(action);
-    if (defaultTargetsResult instanceof Error) return BehaviorNodeState.Failure;
-
-    const targetOptions: CombatActionTarget[] = [defaultTargetsResult];
+    const targetOptions: CombatActionTarget[] = [];
     const targetOptionsAsStrings: string[] = [];
+
     const targetingSchemeOptions = [
       ...action.targetingProperties.getTargetingSchemes(this.combatant),
     ];
 
-    while (targetingSchemeOptions.length) {
+    for (const currentTargetingSchemeIndex of targetingSchemeOptions) {
       let currentOption = throwIfError(
         targetingCalculator.cycleCharacterTargets(entityProperties.id, NextOrPrevious.Next)
       );
@@ -55,8 +56,10 @@ export class CollectPotentialTargetsForAction implements BehaviorNode {
         );
       }
 
-      targetingSchemeOptions.pop();
       targetingCalculator.cycleCharacterTargetingSchemes(entityProperties.id);
+
+      if (combatantProperties.combatActionTarget !== null)
+        currentOption = cloneDeep(combatantProperties.combatActionTarget);
     }
 
     this.behaviorContext.usableActionsWithPotentialValidTargets[actionNameOption] = targetOptions;

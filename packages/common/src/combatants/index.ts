@@ -256,11 +256,8 @@ export class CombatantProperties {
     const action = COMBAT_ACTIONS[actionName];
     const costs = action.costProperties.getResourceCosts(combatantProperties);
 
-    console.log(COMBAT_ACTION_NAME_STRINGS[actionName], "checking action costs:", costs);
-
     if (costs) {
       const unmetCosts = getUnmetCostResourceTypes(combatantProperties, costs);
-      console.log("unmet costs:", unmetCosts);
       if (unmetCosts.length) return false;
     }
     return true;

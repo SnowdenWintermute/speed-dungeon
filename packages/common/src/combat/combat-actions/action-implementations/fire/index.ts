@@ -1,4 +1,5 @@
 import {
+  ActionPayableResource,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -20,7 +21,7 @@ import { FIRE_STEPS_CONFIG } from "./fire-steps-config.js";
 import { FIRE_HIT_OUTCOME_PROPERTIES } from "./fire-hit-outcome-properties.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
-  ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle],
+  ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
   validTargetCategories: TargetCategories.Any,
   getTargetingSchemes: (user) => {
     const toReturn = [TargetingScheme.Single];
@@ -40,7 +41,15 @@ const config: CombatActionComponentConfig = {
   },
   targetingProperties,
   hitOutcomeProperties: FIRE_HIT_OUTCOME_PROPERTIES,
-  costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
+  costProperties: {
+    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
+    costBases: {
+      ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell].costBases,
+      [ActionPayableResource.Mana]: {
+        base: 0,
+      },
+    },
+  },
   stepsConfig: FIRE_STEPS_CONFIG,
   shouldExecute: () => true,
   getConcurrentSubActions: () => [],

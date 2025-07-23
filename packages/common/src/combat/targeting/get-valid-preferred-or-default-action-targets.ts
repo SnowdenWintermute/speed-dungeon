@@ -82,7 +82,16 @@ export function getValidPreferredOrDefaultActionTargets(
   }
 
   // IF NO VALID TARGET IN PREFERRED SCHEME OR PREFERRED SCHEME NOT VALID GET ANY VALID TARGET
-  for (const targetingSchemeKey of targetingSchemes) {
+  const selectedTargetingSchemeOption = combatant.combatantProperties.selectedTargetingScheme;
+  const targetingSchemesToAttemptGettingDefaultTargets = [...targetingSchemes];
+  // try the selectedTargetingSchemeOption first, this is how ai combatants will have a "preference" to start with
+  if (
+    selectedTargetingSchemeOption &&
+    targetingSchemesToAttemptGettingDefaultTargets.includes(selectedTargetingSchemeOption)
+  ) {
+    targetingSchemesToAttemptGettingDefaultTargets.unshift(selectedTargetingSchemeOption);
+  }
+  for (const targetingSchemeKey of targetingSchemesToAttemptGettingDefaultTargets) {
     const targetingScheme = targetingSchemeKey;
 
     switch (targetingScheme) {
@@ -98,6 +107,7 @@ export function getValidPreferredOrDefaultActionTargets(
       case TargetingScheme.Area:
         for (const category of iterateNumericEnum(FriendOrFoe)) {
           newTargets = getGroupTargetsOption(allyIdsOption, opponentIdsOption, category);
+          if (newTargets) return newTargets;
         }
         break;
       case TargetingScheme.All:

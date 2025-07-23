@@ -50,10 +50,8 @@ export class InverterNode implements BehaviorNode {
     const childState = this.child.execute();
     switch (childState) {
       case BehaviorNodeState.Failure:
-        console.log("inverter returning success");
         return BehaviorNodeState.Success;
       case BehaviorNodeState.Success:
-        console.log("inverter returning failure");
         return BehaviorNodeState.Failure;
       case BehaviorNodeState.Running:
         return BehaviorNodeState.Running;
@@ -82,11 +80,9 @@ export class UntilSuccessNode implements BehaviorNode {
     let lastExecutedState = BehaviorNodeState.Failure;
     const maxAttempts = this.options?.maxAttemptsGetter ? this.options?.maxAttemptsGetter() : null;
     while (lastExecutedState !== BehaviorNodeState.Success) {
-      console.log("options.maxAttempts:", maxAttempts);
       lastExecutedState = this.child.execute();
       if (typeof maxAttempts === "number" && this.attempts >= maxAttempts) break;
       this.attempts += 1;
-      console.log("attempts: ", this.attempts);
     }
 
     return BehaviorNodeState.Success;
@@ -109,7 +105,6 @@ export class RandomizerNode<T> implements BehaviorNode {
     const arrayOption = this.arrayOptionGetter();
     if (arrayOption === undefined) return BehaviorNodeState.Failure;
     shuffleArray(arrayOption);
-    console.log("shuffleArray:", arrayOption);
     return BehaviorNodeState.Success;
   }
 }
@@ -121,11 +116,7 @@ export class PopFromStackNode<T> implements BehaviorNode {
   ) {}
   execute(): BehaviorNodeState {
     const popped = this.stackGetter().pop();
-    console.log("popped", popped);
-    if (popped === undefined) {
-      console.log("no more in stack");
-      return BehaviorNodeState.Failure;
-    }
+    if (popped === undefined) return BehaviorNodeState.Failure;
 
     this.setter(popped);
     return BehaviorNodeState.Success;
