@@ -27,3 +27,4 @@ export class ThreatManager {
 // threatChanges.addToUpdate()
 // on action hit outcomes
 // - action.getThreatGeneratedOnHitOutcomes(actionResolutionStepContext, hitOutcomes);
+//
