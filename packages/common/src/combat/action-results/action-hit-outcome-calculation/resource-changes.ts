@@ -1,7 +1,6 @@
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { CombatantContext } from "../../../combatant-context/index.js";
 import { CombatantProperties } from "../../../combatants/index.js";
-import { SpeedDungeonGame } from "../../../game/index.js";
 import { EntityId } from "../../../primatives/index.js";
 import { ResourceChange } from "../../hp-change-source-types.js";
 
@@ -15,7 +14,7 @@ export abstract class ResourceChanges<T> {
   getRecord(entityId: EntityId) {
     return this.changes[entityId];
   }
-  getRecords() {
+  getRecords(): [EntityId, T][] {
     return Object.entries(this.changes);
   }
 
@@ -79,6 +78,24 @@ export class ManaChanges extends ResourceChanges<ManaChange> {
       if (targetResult instanceof Error) throw targetResult;
       const { combatantProperties: targetCombatantProperties } = targetResult;
       CombatantProperties.changeMana(targetCombatantProperties, change.value);
+    }
+  }
+}
+
+export class ThreatChanges extends ResourceChanges<{ userId: EntityId; value: number }> {
+  constructor() {
+    super();
+  }
+  applyToGame(combatantContext: CombatantContext): void {
+    const { party } = combatantContext;
+    for (const [targetId, change] of Object.entries(this.changes)) {
+      const targetResult = AdventuringParty.getCombatant(party, targetId);
+      if (targetResult instanceof Error) throw targetResult;
+      const { combatantProperties: targetCombatantProperties } = targetResult;
+
+      const { threatManager } = targetCombatantProperties;
+      if (!threatManager) throw new Error("got threat changes on an entity with no threat manager");
+      threatManager.changeThreat(change.userId, change.value);
     }
   }
 }

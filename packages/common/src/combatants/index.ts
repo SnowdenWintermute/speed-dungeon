@@ -88,6 +88,12 @@ export class Combatant {
       }
     });
     combatantProperties.conditions = rehydratedConditions;
+
+    if (combatantProperties.threatManager)
+      combatantProperties.threatManager = plainToInstance(
+        ThreatManager,
+        combatantProperties.threatManager
+      );
   }
 }
 

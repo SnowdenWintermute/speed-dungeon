@@ -15,6 +15,10 @@ export class ThreatManager {
     if (entries.length === 0) return null;
     return entries.reduce((a, b) => (a[1] > b[1] ? a : b))[0];
   }
+
+  getEntries() {
+    return this.threatScoresByCombatantId;
+  }
 }
 
 // on action use

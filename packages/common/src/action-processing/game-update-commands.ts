@@ -6,6 +6,7 @@ import {
   CombatActionHitOutcomes,
   CombatActionName,
   HitPointChanges,
+  ThreatChanges,
 } from "../combat/index.js";
 import { TaggedAnimationName } from "../app-consts.js";
 import { ActionResolutionStepType } from "./action-steps/index.js";
@@ -154,6 +155,7 @@ export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {
   actionUserName: string;
   actionUserId: string;
   outcomes: CombatActionHitOutcomes;
+  threatChanges?: ThreatChanges;
 }
 
 export interface ActionCompletionUpdateCommand extends IGameUpdateCommand {

@@ -4,6 +4,8 @@ import {
   HitOutcomesGameUpdateCommand,
   ActionPayableResource,
   COMBAT_ACTIONS,
+  ThreatChanges,
+  CombatantContext,
 } from "@speed-dungeon/common";
 import { getGameWorld } from "../../SceneManager";
 import { useGameStore } from "@/stores/game-store";
@@ -18,6 +20,7 @@ import {
 import { plainToInstance } from "class-transformer";
 import { HitPointChanges } from "@speed-dungeon/common";
 import { induceHitRecovery } from "./induce-hit-recovery";
+import getGameAndParty from "@/utils/getGameAndParty";
 
 export async function hitOutcomesGameUpdateHandler(update: {
   command: HitOutcomesGameUpdateCommand;
@@ -69,6 +72,20 @@ export async function hitOutcomesGameUpdateHandler(update: {
           !entitiesAlreadyAnimatingHitRecovery.includes(entityId)
       );
     }
+  }
+
+  if (command.threatChanges) {
+    useGameStore.getState().mutateState((gameState) => {
+      const actionUserResult = gameState.getCombatant(command.actionUserId);
+      if (actionUserResult instanceof Error) throw actionUserResult;
+      const gameAndPartyResult = getGameAndParty(gameState.game, gameState.username);
+      if (gameAndPartyResult instanceof Error) throw gameAndPartyResult;
+      const [game, party] = gameAndPartyResult;
+
+      const combatantContext = new CombatantContext(game, party, actionUserResult);
+      const threatChangesRehydrated = plainToInstance(ThreatChanges, command.threatChanges);
+      threatChangesRehydrated.applyToGame(combatantContext);
+    });
   }
 
   outcomeFlags[HitOutcome.Miss]?.forEach((entityId) => {

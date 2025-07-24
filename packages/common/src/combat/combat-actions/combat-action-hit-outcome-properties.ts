@@ -2,9 +2,10 @@ import { ActionResolutionStepContext } from "../../action-processing/index.js";
 import { BASE_CRIT_CHANCE, BASE_CRIT_MULTIPLIER } from "../../app-consts.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 import { CombatantCondition, CombatantProperties } from "../../combatants/index.js";
+import { getStandardThreatGenerationOnHitOutcomes } from "../../combatants/threat-manager/get-standard-threat-generation-on-hit-outcomes.js";
 import { HoldableSlotType } from "../../items/equipment/slots.js";
 import { EntityId, NormalizedPercentage, Percentage } from "../../primatives/index.js";
-import { CombatActionHitOutcomes } from "../action-results/index.js";
+import { CombatActionHitOutcomes, ThreatChanges } from "../action-results/index.js";
 import {
   getStandardActionArmorPenetration,
   getStandardActionCritChance,
@@ -42,7 +43,7 @@ export interface CombatActionHitOutcomeProperties {
   getThreatGeneratedOnHitOutcomes: (
     context: ActionResolutionStepContext,
     hitOutcomes: CombatActionHitOutcomes
-  ) => Record<EntityId, number>;
+  ) => null | ThreatChanges;
 }
 
 export enum ActionHitOutcomePropertiesBaseTypes {
@@ -69,7 +70,7 @@ export const genericActionHitOutcomeProperties: CombatActionHitOutcomeProperties
   getCanTriggerCounterattack: (user) => true,
   getShouldAnimateTargetHitRecovery: () => true,
   getThreatGeneratedOnHitOutcomes: (context, hitOutcomes) => {
-    return {};
+    return getStandardThreatGenerationOnHitOutcomes(context, hitOutcomes);
   },
 };
 

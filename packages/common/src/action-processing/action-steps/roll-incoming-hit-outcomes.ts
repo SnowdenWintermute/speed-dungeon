@@ -5,6 +5,7 @@ import {
 } from "./index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import {
+  COMBAT_ACTIONS,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionExecutionIntent,
   calculateActionHitOutcomes,
@@ -47,7 +48,19 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
       for (const entityId of combatantsKilled)
         gameUpdateCommand.outcomes.insertOutcomeFlag(HitOutcome.Death, entityId);
 
-    manaChanges?.applyToGame(this.context.combatantContext);
+    manaChanges?.applyToGame(context.combatantContext);
+
+    const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
+
+    const threatChangesOption = action.hitOutcomeProperties.getThreatGeneratedOnHitOutcomes(
+      context,
+      hitOutcomesResult
+    );
+
+    if (threatChangesOption) {
+      threatChangesOption.applyToGame(context.combatantContext);
+      gameUpdateCommand.threatChanges = threatChangesOption;
+    }
 
     const { game, party } = context.combatantContext;
     const battleOption = AdventuringParty.getBattleOption(party, game);
