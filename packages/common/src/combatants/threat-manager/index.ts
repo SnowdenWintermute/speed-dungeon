@@ -20,11 +20,3 @@ export class ThreatManager {
     return this.threatScoresByCombatantId;
   }
 }
-
-// on action use
-// const threatChanges =  action.getThreatGeneratedOnUse(actionResolutionStepContext);
-// threatChanges.applyToGame()
-// threatChanges.addToUpdate()
-// on action hit outcomes
-// - action.getThreatGeneratedOnHitOutcomes(actionResolutionStepContext, hitOutcomes);
-//
