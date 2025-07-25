@@ -1,7 +1,8 @@
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { CombatantContext } from "../../../combatant-context/index.js";
-import { Combatant, CombatantProperties, ThreatType } from "../../../combatants/index.js";
+import { CombatantProperties, ThreatType } from "../../../combatants/index.js";
 import { EntityId } from "../../../primatives/index.js";
+import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 import { ResourceChange } from "../../hp-change-source-types.js";
 
 export abstract class ResourceChanges<T> {
@@ -82,24 +83,43 @@ export class ManaChanges extends ResourceChanges<ManaChange> {
   }
 }
 
-export class ThreatChanges extends ResourceChanges<{
-  threatTableEntityId: EntityId;
-  threatType: ThreatType;
-  value: number;
-}> {
-  constructor() {
-    super();
+export class ThreatChanges {
+  private entries: {
+    [entityIdOfThreatTableToUpdate: EntityId]: {
+      [threatTableEntityId: EntityId]: Partial<Record<ThreatType, number>>;
+    };
+  } = {};
+  constructor() {}
+  addOrUpdateEntry(
+    entityIdOfThreatTableToUpdate: EntityId,
+    threatTableEntityId: EntityId,
+    threatType: ThreatType,
+    value: number
+  ) {
+    let existingEntry = this.entries[entityIdOfThreatTableToUpdate];
+    if (existingEntry === undefined)
+      this.entries[entityIdOfThreatTableToUpdate] = existingEntry = {
+        [threatTableEntityId]: { [threatType]: value },
+      };
+
+    let existingEntityThreat = existingEntry[threatTableEntityId];
+    if (existingEntityThreat === undefined) existingEntityThreat = { [threatType]: value };
+    if (existingEntityThreat[threatType] === undefined) existingEntityThreat[threatType] = value;
+    else existingEntityThreat[threatType] += value;
   }
   applyToGame(combatantContext: CombatantContext): void {
     const { party } = combatantContext;
-    for (const [targetId, change] of Object.entries(this.changes)) {
-      const targetResult = AdventuringParty.getCombatant(party, targetId);
+    for (const [entityIdOfThreatTableToUpdate, changes] of Object.entries(this.entries)) {
+      const targetResult = AdventuringParty.getCombatant(party, entityIdOfThreatTableToUpdate);
       if (targetResult instanceof Error) throw targetResult;
       const { combatantProperties: targetCombatantProperties } = targetResult;
 
       const { threatManager } = targetCombatantProperties;
       if (!threatManager) throw new Error("got threat changes on an entity with no threat manager");
-      threatManager.changeThreat(change.threatTableEntityId, change.threatType, change.value);
+
+      for (const [entityId, changesByThreatType] of Object.entries(changes))
+        for (const [threatType, value] of iterateNumericEnumKeyedRecord(changesByThreatType))
+          threatManager.changeThreat(entityId, threatType, value);
     }
   }
 }

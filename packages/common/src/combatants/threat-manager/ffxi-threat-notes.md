@@ -47,3 +47,15 @@ Other notes:
 - It is possible to have the highest TE of any player, yet not be the mob's target.
 - The "Hate List" is not simply a list of players and their TE - it is separate from the TE counter.
 - A mob chooses targets based on who has the highest TE of the players on the hate list.
+
+Thoughts
+
+- The scaling for damage being based on the targets level makes sense philosophically
+  because a high level monster would look at some damage and think "that isn't that much"
+  damage, whereas a low level monster would be more concerned with lower damage numbers.
+- The scaling for damage could be to keep consistancy with the flat threat values of
+  other actions which have no scaling applied.
+- The scaling is also probably linked to the fact that volatile enmity decay is constant
+  and if high damage numbers at high level play were added flatly, the enmity decay
+  would eventually be such a low percentage of the generated enmity that it would
+  become meaningless.

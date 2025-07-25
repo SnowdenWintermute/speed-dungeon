@@ -1,6 +1,7 @@
 import { CombatantProperties } from "../../combatants/index.js";
 import { COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL } from "../../combatants/combatant-class/class-attributes-by-level.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
+import { COMBATANT_MAX_LEVEL } from "../../app-consts.js";
 
 export const XP_REQUIRED_TO_REACH_LEVEL_2 = 100;
 export const XP_REQUIRED_TO_LEVEL_INCREASE_INCREMENT = 25;
@@ -20,6 +21,8 @@ export default function awardLevelups(combatantProperties: CombatantProperties) 
       calculatingNewLevelups = false;
       break;
     }
+
+    if (combatantProperties.level === COMBATANT_MAX_LEVEL) break;
 
     combatantProperties.level += 1;
     toReturn = combatantProperties.level;

@@ -1,8 +1,17 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
+import { COMBATANT_MAX_LEVEL } from "../../app-consts.js";
 import { CombatActionHitOutcomes, ThreatChanges } from "../../combat/action-results/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { Combatant } from "../index.js";
 import { ThreatType } from "./index.js";
+
+export const DAMAGE_DEALT_STABLE_THREAT_MODIFIER = 4;
+export const DAMAGE_DEALT_VOLATILE_THREAT_MODIFIER = DAMAGE_DEALT_STABLE_THREAT_MODIFIER * 3;
+
+const MINIMUM_THREAT_LEVEL_MODIFIER = 1 - (COMBATANT_MAX_LEVEL - 1) / COMBATANT_MAX_LEVEL;
+
+export const HEALING_STABLE_THREAT_MODIFIER = 1;
+export const HEALING_VOLATILE_THREAT_MODIFIER = HEALING_STABLE_THREAT_MODIFIER * 6;
 
 export class ThreatCalculator {
   constructor(
@@ -27,7 +36,11 @@ export class ThreatCalculator {
       const targetIsPlayer = targetCombatantResult.combatantProperties.controllingPlayer;
 
       if (targetCombatantResult.combatantProperties.threatManager) {
-        this.addThreatDamageDealtByPlayerCharacter(entityId, this.actionUser, hitPointChange.value);
+        this.addThreatDamageDealtByPlayerCharacter(
+          targetCombatantResult,
+          this.actionUser,
+          hitPointChange.value
+        );
       } else if (targetIsPlayer) {
         this.addThreatFromHealingPlayerCharacter(
           this.monsters,
@@ -54,24 +67,46 @@ export class ThreatCalculator {
       console.log("target is player:", targetIsPlayer);
       if (!targetIsPlayer) continue;
 
-      this.threatChanges.addRecord(this.actionUser.entityProperties.id, {
-        threatTableEntityId: entityId,
-        threatType: ThreatType.Stable,
-        value: hitPointChange.value,
-      });
+      this.threatChanges.addOrUpdateEntry(
+        this.actionUser.entityProperties.id,
+        entityId,
+        ThreatType.Stable,
+        hitPointChange.value
+      );
     }
   }
 
   addThreatDamageDealtByPlayerCharacter(
-    monsterId: EntityId,
+    monster: Combatant,
     playerCharacter: Combatant,
     hpChangeValue: number
   ) {
-    this.threatChanges.addRecord(monsterId, {
-      threatTableEntityId: playerCharacter.entityProperties.id,
-      threatType: ThreatType.Stable,
-      value: hpChangeValue * -1,
-    });
+    const targetLevelPercentOfMaxLevel = monster.combatantProperties.level / COMBATANT_MAX_LEVEL;
+    const targetLevelThreatModifier = Math.max(
+      MINIMUM_THREAT_LEVEL_MODIFIER,
+      1 - targetLevelPercentOfMaxLevel
+    );
+    const stableThreatModifier = DAMAGE_DEALT_STABLE_THREAT_MODIFIER * targetLevelThreatModifier;
+    const stableThreatGenerated = Math.floor(hpChangeValue * stableThreatModifier * -1);
+
+    this.threatChanges.addOrUpdateEntry(
+      monster.entityProperties.id,
+      playerCharacter.entityProperties.id,
+      ThreatType.Stable,
+      stableThreatGenerated
+    );
+
+    const volatileThreatModifier =
+      DAMAGE_DEALT_VOLATILE_THREAT_MODIFIER * targetLevelThreatModifier;
+
+    const volatileThreatGenerated = Math.floor(hpChangeValue * volatileThreatModifier * -1);
+
+    this.threatChanges.addOrUpdateEntry(
+      monster.entityProperties.id,
+      playerCharacter.entityProperties.id,
+      ThreatType.Volatile,
+      volatileThreatGenerated
+    );
   }
 
   addThreatFromHealingPlayerCharacter(
@@ -83,11 +118,12 @@ export class ThreatCalculator {
   ) {
     for (const [monsterId, monster] of Object.entries(monsters)) {
       if (!monster.combatantProperties.threatManager) continue;
-      this.threatChanges.addRecord(monsterId, {
-        threatTableEntityId: user.entityProperties.id,
-        threatType: ThreatType.Stable,
-        value: hpChangeValue,
-      });
+      this.threatChanges.addOrUpdateEntry(
+        monsterId,
+        user.entityProperties.id,
+        ThreatType.Stable,
+        hpChangeValue
+      );
     }
   }
 }

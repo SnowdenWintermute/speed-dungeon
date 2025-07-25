@@ -27,6 +27,8 @@ export const BASE_XP_PER_MONSTER = 30.0;
 // export const BASE_XP_PER_MONSTER = 100.0;
 export const BASE_XP_LEVEL_DIFF_MULTIPLIER = 0.25;
 
+export const COMBATANT_MAX_LEVEL = 10;
+
 // UI
 export const FLOATING_MESSAGE_DURATION: Milliseconds = 2000;
 
