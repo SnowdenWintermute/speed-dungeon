@@ -1,6 +1,6 @@
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { CombatantContext } from "../../../combatant-context/index.js";
-import { CombatantProperties } from "../../../combatants/index.js";
+import { Combatant, CombatantProperties, ThreatType } from "../../../combatants/index.js";
 import { EntityId } from "../../../primatives/index.js";
 import { ResourceChange } from "../../hp-change-source-types.js";
 
@@ -82,7 +82,11 @@ export class ManaChanges extends ResourceChanges<ManaChange> {
   }
 }
 
-export class ThreatChanges extends ResourceChanges<{ userId: EntityId; value: number }> {
+export class ThreatChanges extends ResourceChanges<{
+  threatTableEntityId: EntityId;
+  threatType: ThreatType;
+  value: number;
+}> {
   constructor() {
     super();
   }
@@ -95,7 +99,7 @@ export class ThreatChanges extends ResourceChanges<{ userId: EntityId; value: nu
 
       const { threatManager } = targetCombatantProperties;
       if (!threatManager) throw new Error("got threat changes on an entity with no threat manager");
-      threatManager.changeThreat(change.userId, change.value);
+      threatManager.changeThreat(change.threatTableEntityId, change.threatType, change.value);
     }
   }
 }

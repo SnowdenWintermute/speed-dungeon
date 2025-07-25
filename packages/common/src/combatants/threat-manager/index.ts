@@ -1,13 +1,31 @@
-import { EntityId } from "../../primatives/index.js";
+import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 
-export class ThreatManager {
-  private threatScoresByCombatantId: Record<EntityId, number> = {};
+export enum ThreatType {
+  Stable,
+  Volatile,
+}
+
+export class ThreatTableEntry {
+  public entries: Record<ThreatType, MaxAndCurrent> = {
+    [ThreatType.Stable]: new MaxAndCurrent(100, 0),
+    [ThreatType.Volatile]: new MaxAndCurrent(100, 0),
+  };
   constructor() {}
 
-  changeThreat(combatantId: EntityId, value: number) {
-    const currentThreat = this.threatScoresByCombatantId[combatantId] || 0;
-    const newThreat = Math.max(0, currentThreat + value);
-    this.threatScoresByCombatantId[combatantId] = newThreat;
+  getTotal() {
+    return this.entries[ThreatType.Stable].current + this.entries[ThreatType.Volatile].current;
+  }
+}
+
+export class ThreatManager {
+  private threatScoresByCombatantId: Record<EntityId, ThreatTableEntry> = {};
+  constructor() {}
+
+  changeThreat(combatantId: EntityId, threatType: ThreatType, value: number) {
+    let existingEntry = this.threatScoresByCombatantId[combatantId];
+    if (existingEntry === undefined)
+      this.threatScoresByCombatantId[combatantId] = existingEntry = new ThreatTableEntry();
+    existingEntry.entries[threatType].addValue(value);
   }
 
   getHighestThreatCombatantId(): EntityId | null {

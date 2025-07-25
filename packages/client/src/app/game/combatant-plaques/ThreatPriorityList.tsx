@@ -1,4 +1,4 @@
-import { ThreatManager } from "@speed-dungeon/common";
+import { ThreatManager, ThreatTableEntry, ThreatType } from "@speed-dungeon/common";
 import React from "react";
 
 interface Props {
@@ -14,10 +14,14 @@ export default function ThreatPriorityList({ threatManager }: Props) {
     <div className="min-h-full w-10 pointer-events-auto">
       <ul>
         {Object.entries(entries)
-          .sort((a, b) => b[1] - a[1])
-          .map(([entityId, value], i) => (
+          .sort((a, b) => b[1].getTotal() - a[1].getTotal())
+          .map(([entityId, threatTableEntry], i) => (
             <li key={entityId} className="mb-1 last:mb-0">
-              <ThreatTrackerIcon extraStyles={""} entityId={entityId} value={value} />
+              <ThreatTrackerIcon
+                extraStyles={""}
+                entityId={entityId}
+                threatTableEntry={threatTableEntry}
+              />
             </li>
           ))}
       </ul>
@@ -25,12 +29,18 @@ export default function ThreatPriorityList({ threatManager }: Props) {
   );
 }
 
-function ThreatTrackerIcon(props: { extraStyles: string; entityId: string; value: number }) {
-  const { extraStyles, entityId } = props;
+function ThreatTrackerIcon(props: {
+  extraStyles: string;
+  entityId: string;
+  threatTableEntry: ThreatTableEntry;
+}) {
+  const { extraStyles, entityId, threatTableEntry } = props;
   return (
-    <button className={`border border-slate-400 h-8 w-8 ${extraStyles} mr-2 last:mr-0 `}>
-      <div className="h-full w-full rounded-full bg-slate-600 border border-slate-400 flex items-center justify-center">
+    <button className={`border border-slate-400 w-8 ${extraStyles} mr-2 last:mr-0 `}>
+      <div className="h-full w-full rounded-full bg-slate-600 border border-slate-400 flex flex-col items-center justify-center">
         <span className="">{entityId.slice(0, 2)}</span>
+        <div>{threatTableEntry.entries[ThreatType.Stable].current}</div>
+        <div>{threatTableEntry.entries[ThreatType.Volatile].current}</div>
       </div>
     </button>
   );
