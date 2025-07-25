@@ -39,8 +39,10 @@ function ThreatTrackerIcon(props: {
     <button className={`border border-slate-400 w-8 ${extraStyles} mr-2 last:mr-0 `}>
       <div className="h-full w-full rounded-full bg-slate-600 border border-slate-400 flex flex-col items-center justify-center">
         <span className="">{entityId.slice(0, 2)}</span>
-        <div>{threatTableEntry.entries[ThreatType.Stable].current}</div>
-        <div>{threatTableEntry.entries[ThreatType.Volatile].current}</div>
+        <div className="text-white">{threatTableEntry.entries[ThreatType.Stable].current}</div>
+        <div className="text-slate-400">
+          {threatTableEntry.entries[ThreatType.Volatile].current}
+        </div>
       </div>
     </button>
   );

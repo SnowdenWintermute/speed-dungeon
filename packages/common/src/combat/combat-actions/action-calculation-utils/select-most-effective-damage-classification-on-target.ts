@@ -42,8 +42,8 @@ export function selectMostEffectiveFromAvailableResourceChangeSourceModifiers(
 
     const hpChangeCalculationContext = HP_CALCLULATION_CONTEXTS[source.category];
 
-    applyKineticAffinities(hpChangeToTest, targetCombatantProperties);
-    applyElementalAffinities(hpChangeToTest, targetCombatantProperties);
+    applyKineticAffinities(hpChangeToTest, targetCombatantProperties, false);
+    applyElementalAffinities(hpChangeToTest, targetCombatantProperties, false);
 
     convertResourceChangeValueToFinalSign(hpChangeToTest, targetCombatantProperties);
 

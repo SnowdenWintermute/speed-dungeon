@@ -98,12 +98,13 @@ export class ThreatChanges {
   ) {
     let existingEntry = this.entries[entityIdOfThreatTableToUpdate];
     if (existingEntry === undefined)
-      this.entries[entityIdOfThreatTableToUpdate] = existingEntry = {
+      existingEntry = this.entries[entityIdOfThreatTableToUpdate] = {
         [threatTableEntityId]: { [threatType]: value },
       };
 
     let existingEntityThreat = existingEntry[threatTableEntityId];
-    if (existingEntityThreat === undefined) existingEntityThreat = { [threatType]: value };
+    if (existingEntityThreat === undefined)
+      existingEntityThreat = existingEntry[threatTableEntityId] = { [threatType]: value };
     if (existingEntityThreat[threatType] === undefined) existingEntityThreat[threatType] = value;
     else existingEntityThreat[threatType] += value;
   }

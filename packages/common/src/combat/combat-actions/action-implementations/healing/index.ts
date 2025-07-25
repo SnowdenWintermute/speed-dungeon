@@ -4,6 +4,7 @@ import {
   CombatActionLeaf,
   CombatActionName,
   CombatActionOrigin,
+  CombatActionUsabilityContext,
   TargetCategories,
   TargetingScheme,
 } from "../../index.js";
@@ -17,31 +18,31 @@ import {
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
-import { FIRE_STEPS_CONFIG } from "./fire-steps-config.js";
-import { FIRE_HIT_OUTCOME_PROPERTIES } from "./fire-hit-outcome-properties.js";
+import { HEALING_HIT_OUTCOME_PROPERTIES } from "./healing-hit-outcome-properties.js";
+import { HEALING_STEPS_CONFIG } from "./healing-steps-config.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
-  validTargetCategories: TargetCategories.Opponent,
+  validTargetCategories: TargetCategories.Any,
+  usabilityContext: CombatActionUsabilityContext.All,
   getTargetingSchemes: (user) => {
-    return [TargetingScheme.Area];
-    // const toReturn = [TargetingScheme.Single];
-    // const spellLevel = user.combatantProperties.ownedActions[CombatActionName.Fire]?.level || 0;
-    // if (spellLevel > 1) toReturn.push(TargetingScheme.Area);
-    // return toReturn;
+    const toReturn = [TargetingScheme.Single];
+    const spellLevel = user.combatantProperties.ownedActions[CombatActionName.Healing]?.level || 0;
+    if (spellLevel > 1) toReturn.push(TargetingScheme.Area);
+    return toReturn;
   },
 };
 
 const config: CombatActionComponentConfig = {
-  description: "Inflict magical fire damage on enemies and cause them to start burning",
+  description: "Restore hit points to target(s)",
   origin: CombatActionOrigin.SpellCast,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
 
   getOnUseMessage: (data) => {
-    return `${data.nameOfActionUser} casts fire (level ${data.actionLevel}).`;
+    return `${data.nameOfActionUser} casts healing (level ${data.actionLevel}).`;
   },
   targetingProperties,
-  hitOutcomeProperties: FIRE_HIT_OUTCOME_PROPERTIES,
+  hitOutcomeProperties: HEALING_HIT_OUTCOME_PROPERTIES,
   costProperties: {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
     costBases: {
@@ -51,11 +52,11 @@ const config: CombatActionComponentConfig = {
       },
     },
   },
-  stepsConfig: FIRE_STEPS_CONFIG,
+  stepsConfig: HEALING_STEPS_CONFIG,
   shouldExecute: () => true,
   getConcurrentSubActions: () => [],
   getChildren: () => [],
   getParent: () => null,
 };
 
-export const FIRE = new CombatActionLeaf(CombatActionName.Fire, config);
+export const HEALING = new CombatActionLeaf(CombatActionName.Healing, config);

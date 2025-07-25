@@ -145,7 +145,7 @@ export class CombatantProperties {
     public homeLocation: Vector3
   ) {
     this.position = homeLocation;
-    this.ownedActions[CombatActionName.Attack] = new CombatantActionState(CombatActionName.Attack);
+    // this.ownedActions[CombatActionName.Attack] = new CombatantActionState(CombatActionName.Attack);
   }
 
   static getConditionById(combatantProperties: CombatantProperties, conditionId: EntityId) {

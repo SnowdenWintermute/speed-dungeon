@@ -37,6 +37,7 @@ import SwordSlashIcon from "../../../../../public/img/game-ui-icons/sword-slash.
 import HealthCrossIcon from "../../../../../public/img/game-ui-icons/health-cross.svg";
 import IceIcon from "../../../../../public/img/game-ui-icons/ice.svg";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
+import createPageButtons from "./create-page-buttons";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -165,6 +166,8 @@ export class BaseMenuState implements ActionMenuState {
 
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
+
+    createPageButtons(this, toReturn);
 
     return toReturn;
   }

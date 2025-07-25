@@ -33,12 +33,13 @@ export function outfitNewCharacter(character: Combatant) {
   const ownedActions = [
     CombatActionName.Attack,
     CombatActionName.ChainingSplitArrowParent,
-    CombatActionName.ExplodingArrowParent,
     CombatActionName.UseGreenAutoinjector,
     CombatActionName.UseBlueAutoinjector,
     CombatActionName.IceBoltParent,
     CombatActionName.Fire,
+    CombatActionName.Healing,
     CombatActionName.PassTurn,
+    CombatActionName.ExplodingArrowParent,
   ];
 
   for (const actionName of ownedActions) {
@@ -175,8 +176,8 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   // });
   // if (runeSword instanceof Error) return;
   // combatantProperties.inventory.equipment.push(runeSword);
-  // const items = generateOneOfEachItem();
-  // combatantProperties.inventory.equipment.push(...(items as Equipment[]));
+  const items = generateOneOfEachItem();
+  combatantProperties.inventory.equipment.push(...(items as Equipment[]));
 
   // giveTestingCombatAttributes(combatantProperties);
   // combatantProperties.level = 5;

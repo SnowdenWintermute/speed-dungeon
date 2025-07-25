@@ -59,3 +59,11 @@ Thoughts
   and if high damage numbers at high level play were added flatly, the enmity decay
   would eventually be such a low percentage of the generated enmity that it would
   become meaningless.
+- Monsters dealing damage to targets reducing threat based on the damage value's percent
+  of the target's max hp philosophically makes sense because the monster's effective retaliation
+  is proportional to the target's strength. Strategically this is not smart for the monster,
+  who would be realistically targeting the lowest HP targets with the highest damage, but that
+  is not what a traditional threat system is simulating.
+- Monsters dealing damage to targets reducing threat based on the damage value's percent
+  of the target's max hp functionally forgives squishy targets that pull aggro once they are
+  hit.

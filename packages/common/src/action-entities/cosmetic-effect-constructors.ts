@@ -8,6 +8,8 @@ import { FlameParticleAccumulation } from "./flame-particle-accumulation.js";
 import { FireParticlesLarge } from "./fire-particles-large.js";
 import { FireParticlesSmall } from "./fire-particles-small.js";
 import { BurningCosmeticEffect } from "./burning-cosmetic-effect.js";
+import { LightParticleBurst } from "./light-particle-burst.js";
+import { LightParticleAccumulation } from "./light-particle-accumulation.js";
 
 type CosmeticEffectConstructor = new (scene: Scene) => CosmeticEffect;
 
@@ -21,4 +23,6 @@ export const COSMETIC_EFFECT_CONSTRUCTORS: Record<CosmeticEffectNames, CosmeticE
     [CosmeticEffectNames.FireParticlesLarge]: FireParticlesLarge,
     [CosmeticEffectNames.FireParticlesSmall]: FireParticlesSmall,
     [CosmeticEffectNames.Burning]: BurningCosmeticEffect,
+    [CosmeticEffectNames.LightParticleAccumulation]: LightParticleAccumulation,
+    [CosmeticEffectNames.LightParticleBurst]: LightParticleBurst,
   };

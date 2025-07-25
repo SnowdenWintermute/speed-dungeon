@@ -199,8 +199,8 @@ export function calculateActionHitOutcomes(
 
       resourceChange.isCrit = randBetween(0, 100) < percentChanceToCrit;
       applyCritMultiplier(resourceChange, action, user, target);
-      applyKineticAffinities(resourceChange, target);
-      applyElementalAffinities(resourceChange, target);
+      applyKineticAffinities(resourceChange, target, targetWantsToBeHit);
+      applyElementalAffinities(resourceChange, target, targetWantsToBeHit);
 
       if (blockDamageReductionNormalizedPercentage) {
         const damageReduced = resourceChange.value * blockDamageReductionNormalizedPercentage;
