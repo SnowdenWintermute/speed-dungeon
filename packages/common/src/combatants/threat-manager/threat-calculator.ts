@@ -15,6 +15,11 @@ const HEALING_VOLATILE_THREAT_MODIFIER = HEALING_STABLE_THREAT_MODIFIER * 6;
 
 const STABLE_THREAT_REDUCTION_ON_MONSTER_HIT_MODIFIER = Math.floor(STABLE_THREAT_CAP / 5.55);
 
+// damageStableThreat = 80 / (FLOOR( 31 * targetLevel / 50 ) + 6)
+// damageVolatileThreat = 240 / (FLOOR( 31 * targetLevel / 50 ) + 6)
+// healingStableThreat = 40 / (FLOOR( 31 * targetLevel / 50 ) + 11)
+// healingVolatileThreat = 240 / (FLOOR( 31 * targetLevel / 50 ) + 11)
+
 export class ThreatCalculator {
   constructor(
     private threatChanges: ThreatChanges,
@@ -31,6 +36,13 @@ export class ThreatCalculator {
 
   updateThreatChangesForPlayerControlledCharacterHitOutcomes() {
     if (!this.hitOutcomes.hitPointChanges) return;
+    const userIsMonster = this.party.currentRoom.monsterPositions.includes(
+      this.actionUser.entityProperties.id
+    );
+    if (userIsMonster)
+      return console.log(
+        "updateThreatChangesForPlayerControlledCharacterHitOutcomes but user was not on player team"
+      );
 
     for (const [entityId, hitPointChange] of this.hitOutcomes.hitPointChanges.getRecords()) {
       const targetCombatantResult = AdventuringParty.getCombatant(this.party, entityId);

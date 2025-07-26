@@ -22,13 +22,13 @@ import { FIRE_HIT_OUTCOME_PROPERTIES } from "./fire-hit-outcome-properties.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
-  validTargetCategories: TargetCategories.Opponent,
+  validTargetCategories: TargetCategories.Any,
   getTargetingSchemes: (user) => {
-    return [TargetingScheme.Area];
-    // const toReturn = [TargetingScheme.Single];
-    // const spellLevel = user.combatantProperties.ownedActions[CombatActionName.Fire]?.level || 0;
-    // if (spellLevel > 1) toReturn.push(TargetingScheme.Area);
-    // return toReturn;
+    // return [TargetingScheme.Area];
+    const toReturn = [TargetingScheme.Single];
+    const spellLevel = user.combatantProperties.ownedActions[CombatActionName.Fire]?.level || 0;
+    if (spellLevel > 1) toReturn.push(TargetingScheme.Area);
+    return toReturn;
   },
 };
 

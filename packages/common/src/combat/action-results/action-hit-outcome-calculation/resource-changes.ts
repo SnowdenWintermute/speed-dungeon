@@ -108,6 +108,7 @@ export class ThreatChanges {
     if (existingEntityThreat[threatType] === undefined) existingEntityThreat[threatType] = value;
     else existingEntityThreat[threatType] += value;
   }
+
   applyToGame(combatantContext: CombatantContext): void {
     const { party } = combatantContext;
     for (const [entityIdOfThreatTableToUpdate, changes] of Object.entries(this.entries)) {

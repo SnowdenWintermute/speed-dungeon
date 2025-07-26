@@ -8,6 +8,11 @@ export enum ThreatType {
   Volatile,
 }
 
+export const THREAT_TYPE_STRINGS: Record<ThreatType, string> = {
+  [ThreatType.Stable]: "Stable",
+  [ThreatType.Volatile]: "Volatile",
+};
+
 export class ThreatTableEntry {
   public entries: Record<ThreatType, MaxAndCurrent> = {
     [ThreatType.Stable]: new MaxAndCurrent(STABLE_THREAT_CAP, 0),

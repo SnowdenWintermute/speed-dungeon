@@ -1,6 +1,7 @@
 import { ActionResolutionStepContext } from "../../action-processing/index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { CombatActionHitOutcomes, ThreatChanges } from "../../combat/action-results/index.js";
+import { COMBAT_ACTION_NAME_STRINGS } from "../../combat/combat-actions/combat-action-names.js";
 import { ThreatCalculator } from "./threat-calculator.js";
 
 export function getStandardThreatGenerationOnHitOutcomes(
@@ -48,7 +49,11 @@ export function getStandardThreatGenerationOnHitOutcomes(
     threatCalculator.updateThreatChangesForMonsterHitOutcomes();
   }
 
-  console.log("threat changes: ", JSON.stringify(threatChanges, null, 2));
+  console.log(
+    COMBAT_ACTION_NAME_STRINGS[context.tracker.actionExecutionIntent.actionName],
+    "threat changes: ",
+    JSON.stringify(threatChanges, null, 2)
+  );
 
   return threatChanges;
 }
