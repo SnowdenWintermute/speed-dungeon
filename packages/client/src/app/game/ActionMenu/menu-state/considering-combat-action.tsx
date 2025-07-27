@@ -89,6 +89,8 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
           state.detailedEntity = null;
           state.hoveredEntity = null;
 
+          state.baseMenuState.page = 1;
+
           const partyOption = getCurrentParty(state, state.username || "");
           if (partyOption) InputLock.lockInput(partyOption.inputLock);
         });

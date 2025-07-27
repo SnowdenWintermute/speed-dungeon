@@ -29,7 +29,18 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
       const isConditionUser =
         context.combatantContext.combatant.combatantProperties.asShimmedUserOfTriggeredCondition !==
         undefined;
-      if (gameUpdateCommandOption.endActiveCombatantTurn && !isConditionUser) {
+
+      const { sequentialActionManagerRegistry } = context.tracker.parentActionManager;
+      const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
+      console.log("turnAlreadyEnded:", turnAlreadyEnded);
+      console.log("gameUpdateCommandOption.unlockInput:", gameUpdateCommandOption.unlockInput);
+      console.log("isConditionUser:", isConditionUser);
+      const actionRequiredTurn = turnAlreadyEnded || gameUpdateCommandOption.endActiveCombatantTurn;
+      if (
+        actionRequiredTurn &&
+        sequentialActionManagerRegistry.noBlockingActionsRemain &&
+        !isConditionUser
+      ) {
         const threatChanges = new ThreatChanges();
         const threatCalculator = new ThreatCalculator(
           threatChanges,
@@ -108,6 +119,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   const blockingStepsPending = sequentialActionManagerRegistry.inputBlockingActionStepsArePending();
   const noBlockingActionsRemain =
     !hasUnevaluatedChildren && !hasRemainingActions && !blockingStepsPending;
+  sequentialActionManagerRegistry.noBlockingActionsRemain = noBlockingActionsRemain;
 
   let shouldUnlockInput = false;
 

@@ -13,6 +13,7 @@ export class ActionSequenceManagerRegistry {
   private actionManagers: { [id: string]: ActionSequenceManager } = {};
   actionStepIdGenerator = new SequentialIdGenerator();
   private inputBlockingActionStepsPendingReferenceCount = 0;
+  public noBlockingActionsRemain = false;
   private turnEnded = false;
   constructor(
     private idGenerator: IdGenerator,
