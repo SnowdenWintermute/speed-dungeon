@@ -1,7 +1,7 @@
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 
-export const STABLE_THREAT_CAP = 1000;
-export const VOLATILE_THREAT_CAP = 1000;
+export const STABLE_THREAT_CAP = 10000;
+export const VOLATILE_THREAT_CAP = 10000;
 
 export enum ThreatType {
   Stable,

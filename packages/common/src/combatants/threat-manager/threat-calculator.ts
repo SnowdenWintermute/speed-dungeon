@@ -5,15 +5,15 @@ import { CombatAttribute } from "../attributes/index.js";
 import { Combatant, CombatantProperties } from "../index.js";
 import { STABLE_THREAT_CAP, ThreatType } from "./index.js";
 
-const DAMAGE_DEALT_STABLE_THREAT_MODIFIER = 4;
-const DAMAGE_DEALT_VOLATILE_THREAT_MODIFIER = DAMAGE_DEALT_STABLE_THREAT_MODIFIER * 3;
+const DAMAGE_STABLE_THREAT_BASE = 80;
+const HEALING_STABLE_THREAT_BASE = DAMAGE_STABLE_THREAT_BASE / 2;
+const VOLATILE_THREAT_BASE = DAMAGE_STABLE_THREAT_BASE * 3;
+const DAMAGE_THREAT_SCALING_OFFSET = 6;
+const HEALING_THREAT_SCALING_OFFSET = 11;
+const THREAT_CURVE_TUNING = 31;
+const CHARACTER_LEVEL_THREAT_SCALING_SOFT_CAP = 50;
 
-const MINIMUM_THREAT_LEVEL_MODIFIER = 1 - (COMBATANT_MAX_LEVEL - 1) / COMBATANT_MAX_LEVEL;
-
-const HEALING_STABLE_THREAT_MODIFIER = 1;
-const HEALING_VOLATILE_THREAT_MODIFIER = HEALING_STABLE_THREAT_MODIFIER * 6;
-
-const STABLE_THREAT_REDUCTION_ON_MONSTER_HIT_MODIFIER = Math.floor(STABLE_THREAT_CAP / 5.55);
+const STABLE_THREAT_REDUCTION_ON_MONSTER_HIT_MODIFIER = 1800;
 
 // damageStableThreat = 80 / (FLOOR( 31 * targetLevel / 50 ) + 6)
 // damageVolatileThreat = 240 / (FLOOR( 31 * targetLevel / 50 ) + 6)
@@ -33,6 +33,15 @@ export class ThreatCalculator {
       [entityId: string]: Combatant;
     }
   ) {}
+
+  static getThreatGenerated(value: number, targetLevel: number, base: number, offset: number) {
+    const modifier =
+      base /
+      (Math.floor((THREAT_CURVE_TUNING * targetLevel) / CHARACTER_LEVEL_THREAT_SCALING_SOFT_CAP) +
+        offset);
+
+    return Math.floor(value * modifier);
+  }
 
   updateThreatChangesForPlayerControlledCharacterHitOutcomes() {
     if (!this.hitOutcomes.hitPointChanges) return;
@@ -59,6 +68,7 @@ export class ThreatCalculator {
         this.addThreatFromHealingPlayerCharacter(
           this.monsters,
           this.actionUser,
+          targetCombatantResult.combatantProperties.level,
           hitPointChange.value
         );
       }
@@ -81,6 +91,7 @@ export class ThreatCalculator {
       const targetMaxHp = CombatantProperties.getTotalAttributes(
         targetCombatantResult.combatantProperties
       )[CombatAttribute.Hp];
+
       const stableThreatChange = Math.floor(
         (STABLE_THREAT_REDUCTION_ON_MONSTER_HIT_MODIFIER * hitPointChange.value) / targetMaxHp
       );
@@ -99,13 +110,13 @@ export class ThreatCalculator {
     playerCharacter: Combatant,
     hpChangeValue: number
   ) {
-    const targetLevelPercentOfMaxLevel = monster.combatantProperties.level / COMBATANT_MAX_LEVEL;
-    const targetLevelThreatModifier = Math.max(
-      MINIMUM_THREAT_LEVEL_MODIFIER,
-      1 - targetLevelPercentOfMaxLevel
-    );
-    const stableThreatModifier = DAMAGE_DEALT_STABLE_THREAT_MODIFIER * targetLevelThreatModifier;
-    const stableThreatGenerated = Math.floor(hpChangeValue * stableThreatModifier * -1);
+    const stableThreatGenerated =
+      ThreatCalculator.getThreatGenerated(
+        hpChangeValue,
+        monster.combatantProperties.level,
+        DAMAGE_STABLE_THREAT_BASE,
+        DAMAGE_THREAT_SCALING_OFFSET
+      ) * -1;
 
     this.threatChanges.addOrUpdateEntry(
       monster.entityProperties.id,
@@ -114,10 +125,13 @@ export class ThreatCalculator {
       stableThreatGenerated
     );
 
-    const volatileThreatModifier =
-      DAMAGE_DEALT_VOLATILE_THREAT_MODIFIER * targetLevelThreatModifier;
-
-    const volatileThreatGenerated = Math.floor(hpChangeValue * volatileThreatModifier * -1);
+    const volatileThreatGenerated =
+      ThreatCalculator.getThreatGenerated(
+        hpChangeValue,
+        monster.combatantProperties.level,
+        VOLATILE_THREAT_BASE,
+        DAMAGE_THREAT_SCALING_OFFSET
+      ) * -1;
 
     this.threatChanges.addOrUpdateEntry(
       monster.entityProperties.id,
@@ -132,17 +146,16 @@ export class ThreatCalculator {
       [entityId: string]: Combatant;
     },
     user: Combatant,
+    targetLevel: number,
     hpChangeValue: number
   ) {
     for (const [monsterId, monster] of Object.entries(monsters)) {
-      if (!monster.combatantProperties.threatManager) continue;
-      const targetLevelPercentOfMaxLevel = monster.combatantProperties.level / COMBATANT_MAX_LEVEL;
-      const targetLevelThreatModifier = Math.max(
-        MINIMUM_THREAT_LEVEL_MODIFIER,
-        1 - targetLevelPercentOfMaxLevel
+      const stableThreatGenerated = ThreatCalculator.getThreatGenerated(
+        hpChangeValue,
+        targetLevel,
+        HEALING_STABLE_THREAT_BASE,
+        HEALING_THREAT_SCALING_OFFSET
       );
-      const stableThreatModifier = HEALING_STABLE_THREAT_MODIFIER * targetLevelThreatModifier;
-      const stableThreatGenerated = Math.floor(hpChangeValue * stableThreatModifier);
 
       this.threatChanges.addOrUpdateEntry(
         monster.entityProperties.id,
@@ -151,9 +164,12 @@ export class ThreatCalculator {
         stableThreatGenerated
       );
 
-      const volatileThreatModifier = HEALING_VOLATILE_THREAT_MODIFIER * targetLevelThreatModifier;
-
-      const volatileThreatGenerated = Math.floor(hpChangeValue * volatileThreatModifier);
+      const volatileThreatGenerated = ThreatCalculator.getThreatGenerated(
+        hpChangeValue,
+        targetLevel,
+        VOLATILE_THREAT_BASE,
+        HEALING_THREAT_SCALING_OFFSET
+      );
 
       this.threatChanges.addOrUpdateEntry(
         monster.entityProperties.id,
