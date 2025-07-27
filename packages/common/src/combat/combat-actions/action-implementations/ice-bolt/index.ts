@@ -61,7 +61,10 @@ const config: CombatActionComponentConfig = {
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
   targetingProperties: GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle],
   hitOutcomeProperties: iceBoltProjectileHitOutcomeProperties,
-  costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
+  costProperties: {
+    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
+    requiresCombatTurn: () => false,
+  },
 
   stepsConfig,
 

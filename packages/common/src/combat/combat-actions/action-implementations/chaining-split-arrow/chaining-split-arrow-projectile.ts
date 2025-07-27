@@ -79,7 +79,10 @@ const config: CombatActionComponentConfig = {
 
   getOnUseMessage: null,
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
-  costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
+  costProperties: {
+    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
+    requiresCombatTurn: () => false,
+  },
 
   stepsConfig: new ActionResolutionStepsConfig(
     {

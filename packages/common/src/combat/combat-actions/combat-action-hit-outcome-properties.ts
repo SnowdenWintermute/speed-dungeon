@@ -12,6 +12,7 @@ import {
   getStandardActionCritMultiplier,
 } from "./action-calculation-utils/standard-action-calculations.js";
 import { getAttackResourceChangeProperties } from "./action-implementations/attack/get-attack-hp-change-properties.js";
+import { COMBAT_ACTIONS } from "./action-implementations/index.js";
 import { ActionAccuracy, ActionAccuracyType } from "./combat-action-accuracy.js";
 import { CombatActionResourceChangeProperties } from "./combat-action-resource-change-properties.js";
 
@@ -44,6 +45,7 @@ export interface CombatActionHitOutcomeProperties {
     context: ActionResolutionStepContext,
     hitOutcomes: CombatActionHitOutcomes
   ) => null | ThreatChanges;
+  getShouldDecayThreatOnUse: (context: ActionResolutionStepContext) => boolean;
 }
 
 export enum ActionHitOutcomePropertiesBaseTypes {
@@ -71,6 +73,13 @@ export const genericActionHitOutcomeProperties: CombatActionHitOutcomeProperties
   getShouldAnimateTargetHitRecovery: () => true,
   getThreatGeneratedOnHitOutcomes: (context, hitOutcomes) => {
     return getStandardThreatGenerationOnHitOutcomes(context, hitOutcomes);
+  },
+  getShouldDecayThreatOnUse: (context: ActionResolutionStepContext) => {
+    const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
+    if (context.combatantContext.combatant.combatantProperties.asShimmedUserOfTriggeredCondition)
+      return false;
+    if (action.costProperties.requiresCombatTurn(context)) return true;
+    return false;
   },
 };
 

@@ -83,7 +83,9 @@ export class ActionResolutionStepsConfig {
     // user will always return home after such an action, but we can say if they
     // should return home if it is the last action in the chain and dynamically
     // add the step
-    public options: { userShouldMoveHomeOnComplete?: boolean }
+    public options: {
+      userShouldMoveHomeOnComplete?: boolean;
+    }
   ) {}
   getStepTypes() {
     const stepTypes = iterateNumericEnumKeyedRecord(this.steps)

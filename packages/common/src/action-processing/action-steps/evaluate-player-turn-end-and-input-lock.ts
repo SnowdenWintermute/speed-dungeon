@@ -25,22 +25,10 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
     const gameUpdateCommandOption = evaluatePlayerEndTurnAndInputLock(context);
     if (gameUpdateCommandOption) {
       this.gameUpdateCommandOption = gameUpdateCommandOption;
-      // let's decay threat if it is not a condition and the turn has ended
-      const isConditionUser =
-        context.combatantContext.combatant.combatantProperties.asShimmedUserOfTriggeredCondition !==
-        undefined;
 
-      const { sequentialActionManagerRegistry } = context.tracker.parentActionManager;
-      const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
-      console.log("turnAlreadyEnded:", turnAlreadyEnded);
-      console.log("gameUpdateCommandOption.unlockInput:", gameUpdateCommandOption.unlockInput);
-      console.log("isConditionUser:", isConditionUser);
-      const actionRequiredTurn = turnAlreadyEnded || gameUpdateCommandOption.endActiveCombatantTurn;
-      if (
-        actionRequiredTurn &&
-        sequentialActionManagerRegistry.noBlockingActionsRemain &&
-        !isConditionUser
-      ) {
+      const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
+
+      if (action.hitOutcomeProperties.getShouldDecayThreatOnUse(context)) {
         const threatChanges = new ThreatChanges();
         const threatCalculator = new ThreatCalculator(
           threatChanges,
@@ -119,7 +107,6 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   const blockingStepsPending = sequentialActionManagerRegistry.inputBlockingActionStepsArePending();
   const noBlockingActionsRemain =
     !hasUnevaluatedChildren && !hasRemainingActions && !blockingStepsPending;
-  sequentialActionManagerRegistry.noBlockingActionsRemain = noBlockingActionsRemain;
 
   let shouldUnlockInput = false;
 
@@ -131,7 +118,6 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
 
     if (newlyUpdatedCurrentTurnIsPlayerControlled) shouldUnlockInput = true;
   }
-
   if (!shouldUnlockInput && !requiredTurn) return;
 
   // push a game update command to unlock input
