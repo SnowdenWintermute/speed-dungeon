@@ -53,6 +53,7 @@ import {
   ActionEntityBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
+import { EntityProperties } from "../../../../primatives/entity-properties.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
@@ -98,9 +99,16 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
     const { idGenerator, combatantContext } = context;
     const { combatant } = combatantContext;
 
+    let userEntityProperties = cloneDeep(combatant.entityProperties);
+    if (combatant.combatantProperties.asShimmedUserOfTriggeredCondition) {
+      userEntityProperties =
+        combatant.combatantProperties.asShimmedUserOfTriggeredCondition.condition.appliedBy
+          .entityProperties;
+    }
+
     const condition = new PrimedForIceBurstCombatantCondition(
       idGenerator.generate(),
-      { entityProperties: cloneDeep(combatant.entityProperties), friendOrFoe: FriendOrFoe.Hostile },
+      { entityProperties: userEntityProperties, friendOrFoe: FriendOrFoe.Hostile },
       combatant.combatantProperties.level
     );
 

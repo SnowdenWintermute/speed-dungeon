@@ -25,7 +25,6 @@ export function characterCycledTargetingSchemesHandler(
       const actionNameOption = character.combatantProperties.selectedCombatAction;
 
       const { selectedCombatAction, combatActionTarget } = character.combatantProperties;
-      console.log("client after cycling scheme target:", combatActionTarget);
       if (selectedCombatAction === null)
         return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
       if (combatActionTarget === null)

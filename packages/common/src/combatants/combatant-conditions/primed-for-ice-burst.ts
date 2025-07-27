@@ -43,6 +43,7 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
       CombatActionName.IceBurst,
       CombatActionName.UseBlueAutoinjector,
       CombatActionName.UseGreenAutoinjector,
+      CombatActionName.PassTurn,
     ];
     return !actionsThatDontTrigger.includes(actionName);
   }

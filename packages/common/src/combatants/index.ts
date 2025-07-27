@@ -309,6 +309,8 @@ export function createShimmedUserOfTriggeredCondition(
   entityConditionWasAppliedTo: EntityId
 ) {
   const combatant = new Combatant(
+    // use the entity id of the condition applied to since the appliedBy entity may
+    // no longer exist
     { id: entityConditionWasAppliedTo || "0", name },
     new CombatantProperties(
       CombatantClass.Mage,

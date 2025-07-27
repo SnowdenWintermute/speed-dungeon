@@ -23,7 +23,7 @@ export default function ConditionTurnTrackerAggregation({
     <div
       className={`border border-slate-400 h-10 w-4 mr-2 last:mr-0 flex flex-col justify-center p-[2px]`}
     >
-      {trackers.map((tracker) => {
+      {trackers.map((tracker, i) => {
         const condition = tracker.getCondition(partyResult);
 
         return (
@@ -31,7 +31,7 @@ export default function ConditionTurnTrackerAggregation({
             className=""
             onMouseLeave={onMouseLeave}
             onMouseEnter={onMouseEnter}
-            key={tracker.conditionId}
+            key={tracker.conditionId + i}
           >
             {CONDITION_INDICATOR_ICONS[condition.name]}{" "}
             <div className={`text-2xl absolute top-[160px] ${hiddenClass}`}>

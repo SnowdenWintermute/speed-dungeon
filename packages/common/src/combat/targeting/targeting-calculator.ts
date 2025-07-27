@@ -88,29 +88,18 @@ export class TargetingCalculator {
 
     let newTargetingScheme = lastUsedTargetingScheme;
 
-    console.log(
-      "cycleCharacterTargetingSchemes:",
-      targetingSchemes,
-      "last used:",
-      lastUsedTargetingScheme
-    );
-
     if (lastUsedTargetingScheme === null || !targetingSchemes.includes(lastUsedTargetingScheme)) {
       const defaultScheme = targetingSchemes[0];
       if (typeof defaultScheme === "undefined")
         return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGETING_SCHEMES);
       newTargetingScheme = defaultScheme;
-      console.log("set defaultScheme:", TARGETING_SCHEME_STRINGS[defaultScheme]);
     } else {
       const lastUsedTargetingSchemeIndex = targetingSchemes.indexOf(lastUsedTargetingScheme);
       if (lastUsedTargetingSchemeIndex < 0)
         return new Error(ERROR_MESSAGES.CHECKED_EXPECTATION_FAILED);
-      console.log("lastUsedTargetingSchemeIndex:", lastUsedTargetingSchemeIndex);
       const isSelectingLastInList = lastUsedTargetingSchemeIndex === targetingSchemes.length - 1;
       const newSchemeIndex = isSelectingLastInList ? 0 : lastUsedTargetingSchemeIndex + 1;
-      console.log("new scheme index:", [newSchemeIndex]);
       newTargetingScheme = targetingSchemes[newSchemeIndex]!;
-      console.log("new scheme:", TARGETING_SCHEME_STRINGS[newTargetingScheme]);
     }
 
     // must set targetingScheme here so getValidPreferredOrDefaultActionTargets takes it into account
@@ -127,7 +116,6 @@ export class TargetingCalculator {
       allyIdsOption,
       opponentIdsOption
     );
-    console.log("new targets result", newTargetsResult);
     if (newTargetsResult instanceof Error) return newTargetsResult;
 
     if (this.playerOption) {
@@ -143,10 +131,6 @@ export class TargetingCalculator {
     }
 
     character.combatantProperties.combatActionTarget = newTargetsResult;
-    console.log(
-      "end of cycleCharacterTargetingSchemes fn",
-      TARGETING_SCHEME_STRINGS[character.combatantProperties.selectedTargetingScheme]
-    );
   }
 
   getCombatActionTargetIds(
@@ -201,10 +185,6 @@ export class TargetingCalculator {
         this.playerOption.targetPreferences = newTargetPreferencesResult;
         combatant.combatantProperties.selectedTargetingScheme =
           newTargetPreferencesResult.targetingSchemePreference;
-        console.log(
-          "set combatant targeting scheme to ",
-          combatant.combatantProperties.selectedTargetingScheme
-        );
       } else {
         const defaultScheme =
           combatActionOption.targetingProperties.getTargetingSchemes(combatant)[0];

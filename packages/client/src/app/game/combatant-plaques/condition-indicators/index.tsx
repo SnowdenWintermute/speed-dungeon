@@ -18,11 +18,13 @@ export default function ConditionIndicators(props: Props) {
   return (
     <ul className="flex">
       {conditions.map((condition, i) => {
-        const hoverableDebugText = isDebug ? ` ${condition.id}` : "";
+        const hoverableDebugText = isDebug
+          ? `\nid: ${condition.id} \nappliedBy: ${condition.appliedBy.entityProperties.id}`
+          : "";
 
         return (
           <li
-            key={i}
+            key={i + condition.id}
             className="h-6 mr-1 border border-slate-400 bg-slate-700 pointer-events-auto cursor-help relative"
           >
             <HoverableTooltipWrapper
