@@ -38,6 +38,7 @@ import HealthCrossIcon from "../../../../../public/img/game-ui-icons/health-cros
 import IceIcon from "../../../../../public/img/game-ui-icons/ice.svg";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 import createPageButtons from "./create-page-buttons";
+import { immerable } from "immer";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -47,6 +48,7 @@ export class BaseMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   type = MenuStateType.Base;
+  [immerable] = true;
   constructor(public inCombat: boolean) {}
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();

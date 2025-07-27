@@ -44,7 +44,8 @@ export function outfitNewCharacter(character: Combatant) {
 
   for (const actionName of ownedActions) {
     const action = new CombatantActionState(actionName);
-    if (actionName === CombatActionName.Fire) action.level = 2;
+    const levelTwoSpells = [CombatActionName.Fire, CombatActionName.Healing];
+    if (levelTwoSpells.includes(actionName)) action.level = 2;
     combatantProperties.ownedActions[actionName] = action;
   }
 

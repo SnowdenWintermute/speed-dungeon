@@ -59,7 +59,7 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
     const user = createShimmedUserOfTriggeredCondition(
       COMBATANT_CONDITION_NAME_STRINGS[this.name],
       this,
-      this.appliedBy.entityProperties.id
+      targetCombatant.entityProperties.id
     );
 
     user.combatantProperties.combatActionTarget = {

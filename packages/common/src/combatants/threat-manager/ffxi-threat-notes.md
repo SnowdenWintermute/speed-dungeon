@@ -50,20 +50,23 @@ Other notes:
 
 Thoughts
 
-- The scaling for damage being based on the targets level makes sense philosophically
-  because a high level monster would look at some damage and think "that isn't that much"
-  damage, whereas a low level monster would be more concerned with lower damage numbers.
-- The scaling for damage could be to keep consistancy with the flat threat values of
-  other actions which have no scaling applied.
-- The scaling is also probably linked to the fact that volatile enmity decay is constant
-  and if high damage numbers at high level play were added flatly, the enmity decay
-  would eventually be such a low percentage of the generated enmity that it would
-  become meaningless.
+- The scaling for damage being based on the targets level:
+    - Makes sense philosophically because a high level monster would look at some
+      damage and think "that isn't that much" damage, whereas a low level monster
+      would be more concerned with lower damage numbers.
+    - Could be to keep consistancy with the flat threat values of other actions which
+      have no scaling applied.
+    - Is also probably linked to the fact that volatile enmity decay is constant
+      and if high damage numbers at high level play were added flatly, the enmity decay
+      would eventually be such a low percentage of the generated enmity that it would
+      become meaningless.
 - Monsters dealing damage to targets reducing threat based on the damage value's percent
-  of the target's max hp philosophically makes sense because the monster's effective retaliation
-  is proportional to the target's strength. Strategically this is not smart for the monster,
-  who would be realistically targeting the lowest HP targets with the highest damage, but that
-  is not what a traditional threat system is simulating.
-- Monsters dealing damage to targets reducing threat based on the damage value's percent
-  of the target's max hp functionally forgives squishy targets that pull aggro once they are
-  hit.
+  of the target's max hp:
+    - Philosophically makes sense because the monster's effective retaliation
+      is proportional to the target's strength. Strategically this is not smart for the monster,
+      who would be realistically targeting the lowest HP targets with the highest damage, but that
+      is not what a traditional threat system is simulating.
+    - Functionally forgives squishy targets that pull aggro once they are
+      hit.
+    - Means that tanks must continue to fight for threat
+    - Means that having a larger hp pool and better mitigation improves tank's ability to retain threat.

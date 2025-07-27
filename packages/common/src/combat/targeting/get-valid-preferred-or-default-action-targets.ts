@@ -78,7 +78,13 @@ export function getValidPreferredOrDefaultActionTargets(
       }
     }
 
-    if (newTargets) return newTargets;
+    if (newTargets) {
+      console.log(
+        "returning new targets from getValidPreferredOrDefaultActionTargets:",
+        newTargets
+      );
+      return newTargets;
+    }
   }
 
   // IF NO VALID TARGET IN PREFERRED SCHEME OR PREFERRED SCHEME NOT VALID GET ANY VALID TARGET

@@ -206,6 +206,10 @@ export abstract class CombatantCondition {
       if (existingCondition.stacksOption) {
         if (existingCondition.stacksOption.max > existingCondition.stacksOption.current)
           existingCondition.stacksOption.current += condition.stacksOption?.current ?? 0;
+        // replacing the appliedBy helps to ensure that threat is applied correctly
+        // when a replaced condition was persisted from a previous battle where it
+        // was applied by a now nonexistant combatant
+        existingCondition.appliedBy = condition.appliedBy;
         return;
       }
       // not stackable, replace or just add it

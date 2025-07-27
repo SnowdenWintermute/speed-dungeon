@@ -19,6 +19,10 @@ export default function NumberedButton({ number, properties }: Props) {
       onClick={alternateClickKeyHeld ? properties.alternateClickHandler : properties.clickHandler}
       disabled={properties.shouldBeDisabled}
       hotkeys={[`Digit${number}`]}
+      onMouseEnter={properties.mouseEnterHandler}
+      onMouseLeave={properties.mouseLeaveHandler}
+      onFocus={properties.focusHandler}
+      onBlur={properties.blurHandler}
     >
       <div
         className="h-full w-10 !min-w-[2.5rem] border-r border-slate-400
