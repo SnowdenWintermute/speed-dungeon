@@ -27,12 +27,6 @@ export class CombatantContext {
       this.combatant.combatantProperties.asShimmedUserOfTriggeredCondition;
 
     if (shimmedConditionUser) {
-      console.log(
-        "getting allyAndOponnentIds of shimmedConditionUser: ",
-        JSON.stringify(shimmedConditionUser.condition, null, 2),
-        "appliedTo:",
-        shimmedConditionUser.entityConditionWasAppliedTo
-      );
       return Battle.getAllyIdsAndOpponentIdsOptionOfShimmedConditionUser(
         battleOption,
         shimmedConditionUser.entityConditionWasAppliedTo,

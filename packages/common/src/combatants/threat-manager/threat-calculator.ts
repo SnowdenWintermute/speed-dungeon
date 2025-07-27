@@ -1,9 +1,8 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { COMBATANT_MAX_LEVEL } from "../../app-consts.js";
 import { CombatActionHitOutcomes, ThreatChanges } from "../../combat/action-results/index.js";
 import { CombatAttribute } from "../attributes/index.js";
 import { Combatant, CombatantProperties } from "../index.js";
-import { STABLE_THREAT_CAP, ThreatType } from "./index.js";
+import { ThreatType } from "./index.js";
 
 const DAMAGE_STABLE_THREAT_BASE = 80;
 const HEALING_STABLE_THREAT_BASE = DAMAGE_STABLE_THREAT_BASE / 2;
@@ -12,27 +11,32 @@ const DAMAGE_THREAT_SCALING_OFFSET = 6;
 const HEALING_THREAT_SCALING_OFFSET = 11;
 const THREAT_CURVE_TUNING = 31;
 const CHARACTER_LEVEL_THREAT_SCALING_SOFT_CAP = 50;
+const VOLATILE_THREAT_DECAY_PER_SECOND = -60;
+const AVERAGE_EXPECTED_TURN_TIME_SECONDS = 1;
+const VOLATILE_THREAT_DECAY_PER_TURN =
+  VOLATILE_THREAT_DECAY_PER_SECOND * AVERAGE_EXPECTED_TURN_TIME_SECONDS;
 
 const STABLE_THREAT_REDUCTION_ON_MONSTER_HIT_MODIFIER = 1800;
 
-// damageStableThreat = 80 / (FLOOR( 31 * targetLevel / 50 ) + 6)
-// damageVolatileThreat = 240 / (FLOOR( 31 * targetLevel / 50 ) + 6)
-// healingStableThreat = 40 / (FLOOR( 31 * targetLevel / 50 ) + 11)
-// healingVolatileThreat = 240 / (FLOOR( 31 * targetLevel / 50 ) + 11)
-
 export class ThreatCalculator {
+  private monsters: {
+    [entityId: string]: Combatant;
+  };
+  private players: {
+    [entityId: string]: Combatant;
+  };
   constructor(
     private threatChanges: ThreatChanges,
     private hitOutcomes: CombatActionHitOutcomes,
     private party: AdventuringParty,
-    private actionUser: Combatant,
-    private monsters: {
-      [entityId: string]: Combatant;
-    },
-    private players: {
-      [entityId: string]: Combatant;
-    }
-  ) {}
+    private actionUser: Combatant
+  ) {
+    const allCombatantsResult = AdventuringParty.getAllCombatants(party);
+    if (allCombatantsResult instanceof Error) throw allCombatantsResult;
+    const { monsters, characters } = allCombatantsResult;
+    this.monsters = monsters;
+    this.players = characters;
+  }
 
   static getThreatGenerated(value: number, targetLevel: number, base: number, offset: number) {
     const modifier =
@@ -177,6 +181,23 @@ export class ThreatCalculator {
         ThreatType.Volatile,
         volatileThreatGenerated
       );
+    }
+  }
+
+  addVolatileThreatDecay() {
+    const monsters = this.party.currentRoom.monsters;
+
+    for (const [monsterId, monster] of Object.entries(monsters)) {
+      const { threatManager } = monster.combatantProperties;
+      if (threatManager === undefined) continue;
+      for (const [combatantId, threatEntry] of Object.entries(threatManager.getEntries())) {
+        this.threatChanges.addOrUpdateEntry(
+          monsterId,
+          combatantId,
+          ThreatType.Volatile,
+          VOLATILE_THREAT_DECAY_PER_TURN
+        );
+      }
     }
   }
 }

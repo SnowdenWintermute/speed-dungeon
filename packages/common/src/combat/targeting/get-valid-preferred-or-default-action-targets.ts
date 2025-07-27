@@ -79,10 +79,6 @@ export function getValidPreferredOrDefaultActionTargets(
     }
 
     if (newTargets) {
-      console.log(
-        "returning new targets from getValidPreferredOrDefaultActionTargets:",
-        newTargets
-      );
       return newTargets;
     }
   }

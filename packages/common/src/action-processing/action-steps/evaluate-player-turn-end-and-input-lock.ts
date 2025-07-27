@@ -3,13 +3,11 @@ import {
   COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
+  CombatActionHitOutcomes,
+  ThreatChanges,
 } from "../../combat/index.js";
-import {
-  Combatant,
-  COMBATANT_CONDITION_NAME_STRINGS,
-  CombatantCondition,
-  CombatantProperties,
-} from "../../combatants/index.js";
+import { Combatant, CombatantCondition } from "../../combatants/index.js";
+import { ThreatCalculator } from "../../combatants/threat-manager/threat-calculator.js";
 import {
   ActionCompletionUpdateCommand,
   ActionResolutionStep,
@@ -25,8 +23,29 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
     super(stepType, context, null); // this step should produce no game update unless it is unlocking input
 
     const gameUpdateCommandOption = evaluatePlayerEndTurnAndInputLock(context);
-    if (gameUpdateCommandOption) this.gameUpdateCommandOption = gameUpdateCommandOption;
+    if (gameUpdateCommandOption) {
+      this.gameUpdateCommandOption = gameUpdateCommandOption;
+      // let's decay threat if it is not a condition and the turn has ended
+      const isConditionUser =
+        context.combatantContext.combatant.combatantProperties.asShimmedUserOfTriggeredCondition !==
+        undefined;
+      if (gameUpdateCommandOption.endActiveCombatantTurn && !isConditionUser) {
+        const threatChanges = new ThreatChanges();
+        const threatCalculator = new ThreatCalculator(
+          threatChanges,
+          this.context.tracker.hitOutcomes,
+          context.combatantContext.party,
+          context.combatantContext.combatant
+        );
+        threatCalculator.addVolatileThreatDecay();
 
+        threatChanges.applyToGame(context.combatantContext);
+        this.gameUpdateCommandOption.threatChanges = threatChanges;
+        console.log("set threat changes for end of turn:", JSON.stringify(threatChanges));
+      }
+    }
+
+    // @TODO
     // set a timeout to unlock input equal to current action accumulated time
     // plus all previous actions accumulated time in the current
   }
@@ -107,6 +126,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   const gameUpdateCommandOption: ActionCompletionUpdateCommand = {
     type: GameUpdateCommandType.ActionCompletion,
     actionName: context.tracker.actionExecutionIntent.actionName,
+    actionUserId: context.combatantContext.combatant.entityProperties.id,
     step: stepType,
     completionOrderId: null,
   };

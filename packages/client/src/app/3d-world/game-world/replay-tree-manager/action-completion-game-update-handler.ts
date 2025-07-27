@@ -2,6 +2,7 @@ import getCurrentParty from "@/utils/getCurrentParty";
 import { useGameStore } from "@/stores/game-store";
 import { ActionCompletionUpdateCommand, ERROR_MESSAGES, InputLock } from "@speed-dungeon/common";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
+import { handleThreatChangesUpdate } from "./handle-threat-changes";
 
 export async function actionCompletionGameUpdateHandler(update: {
   command: ActionCompletionUpdateCommand;
@@ -35,6 +36,8 @@ export async function actionCompletionGameUpdateHandler(update: {
       if (partyOption) InputLock.unlockInput(partyOption.inputLock);
     });
   }
+
+  handleThreatChangesUpdate(update.command);
 
   update.isComplete = true;
 }

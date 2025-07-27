@@ -14,14 +14,17 @@ export const THREAT_TYPE_STRINGS: Record<ThreatType, string> = {
 };
 
 export class ThreatTableEntry {
-  public entries: Record<ThreatType, MaxAndCurrent> = {
+  public threatScoresByType: Record<ThreatType, MaxAndCurrent> = {
     [ThreatType.Stable]: new MaxAndCurrent(STABLE_THREAT_CAP, 0),
     [ThreatType.Volatile]: new MaxAndCurrent(VOLATILE_THREAT_CAP, 0),
   };
   constructor() {}
 
   getTotal() {
-    return this.entries[ThreatType.Stable].current + this.entries[ThreatType.Volatile].current;
+    return (
+      this.threatScoresByType[ThreatType.Stable].current +
+      this.threatScoresByType[ThreatType.Volatile].current
+    );
   }
 }
 
@@ -33,7 +36,7 @@ export class ThreatManager {
     let existingEntry = this.threatScoresByCombatantId[combatantId];
     if (existingEntry === undefined)
       this.threatScoresByCombatantId[combatantId] = existingEntry = new ThreatTableEntry();
-    existingEntry.entries[threatType].addValue(value);
+    existingEntry.threatScoresByType[threatType].addValue(value);
   }
 
   getHighestThreatCombatantId(): EntityId | null {

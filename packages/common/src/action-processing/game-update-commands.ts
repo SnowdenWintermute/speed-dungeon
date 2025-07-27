@@ -160,8 +160,10 @@ export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {
 
 export interface ActionCompletionUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.ActionCompletion;
+  actionUserId: string;
   unlockInput?: boolean;
   endActiveCombatantTurn?: boolean;
+  threatChanges?: ThreatChanges;
 }
 
 export interface ActionUseCombatLogMessageUpdateCommand extends IGameUpdateCommand {

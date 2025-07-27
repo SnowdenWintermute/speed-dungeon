@@ -24,6 +24,11 @@ Gaining Enmity
   1 ....13.333..40.00
   75....1.538...4.62
 
+damageStableThreat = 80 / (FLOOR( 31 x targetLevel / 50 ) + 6)
+damageVolatileThreat = 240 / (FLOOR( 31 x targetLevel / 50 ) + 6)
+healingStableThreat = 40 / (FLOOR( 31 x targetLevel / 50 ) + 11)
+healingVolatileThreat = 240 / (FLOOR( 31 x targetLevel / 50 ) + 11)
+
 Losing Enmity
 
 - The Volatile Enmity Decay Rate is -60 VE per second for all actions
@@ -48,7 +53,7 @@ Other notes:
 - The "Hate List" is not simply a list of players and their TE - it is separate from the TE counter.
 - A mob chooses targets based on who has the highest TE of the players on the hate list.
 
-Thoughts
+Thoughts and Implications
 
 - The scaling for damage being based on the targets level:
     - Makes sense philosophically because a high level monster would look at some

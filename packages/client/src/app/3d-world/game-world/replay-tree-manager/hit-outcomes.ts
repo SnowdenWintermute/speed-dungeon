@@ -21,6 +21,7 @@ import { plainToInstance } from "class-transformer";
 import { HitPointChanges } from "@speed-dungeon/common";
 import { induceHitRecovery } from "./induce-hit-recovery";
 import getGameAndParty from "@/utils/getGameAndParty";
+import { handleThreatChangesUpdate } from "./handle-threat-changes";
 
 export async function hitOutcomesGameUpdateHandler(update: {
   command: HitOutcomesGameUpdateCommand;
@@ -74,19 +75,7 @@ export async function hitOutcomesGameUpdateHandler(update: {
     }
   }
 
-  if (command.threatChanges) {
-    useGameStore.getState().mutateState((gameState) => {
-      const actionUserResult = gameState.getCombatant(command.actionUserId);
-      if (actionUserResult instanceof Error) throw actionUserResult;
-      const gameAndPartyResult = getGameAndParty(gameState.game, gameState.username);
-      if (gameAndPartyResult instanceof Error) throw gameAndPartyResult;
-      const [game, party] = gameAndPartyResult;
-
-      const combatantContext = new CombatantContext(game, party, actionUserResult);
-      const threatChangesRehydrated = plainToInstance(ThreatChanges, command.threatChanges);
-      threatChangesRehydrated.applyToGame(combatantContext);
-    });
-  }
+  handleThreatChangesUpdate(command);
 
   outcomeFlags[HitOutcome.Miss]?.forEach((entityId) => {
     const elements: FloatingMessageElement[] = [

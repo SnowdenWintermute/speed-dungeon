@@ -91,22 +91,24 @@ export class ThreatChanges {
   } = {};
   constructor() {}
   addOrUpdateEntry(
-    entityIdOfThreatTableToUpdate: EntityId,
-    threatTableEntityId: EntityId,
+    monsterIdOwnerOfThreatTable: EntityId,
+    entityIdOfEntryInTable: EntityId,
     threatType: ThreatType,
     value: number
   ) {
-    let existingEntry = this.entries[entityIdOfThreatTableToUpdate];
+    let existingEntry = this.entries[monsterIdOwnerOfThreatTable];
     if (existingEntry === undefined)
-      existingEntry = this.entries[entityIdOfThreatTableToUpdate] = {
-        [threatTableEntityId]: { [threatType]: value },
+      existingEntry = this.entries[monsterIdOwnerOfThreatTable] = {
+        [entityIdOfEntryInTable]: {},
       };
 
-    let existingEntityThreat = existingEntry[threatTableEntityId];
+    let existingEntityThreat = existingEntry[entityIdOfEntryInTable];
     if (existingEntityThreat === undefined)
-      existingEntityThreat = existingEntry[threatTableEntityId] = { [threatType]: value };
+      existingEntityThreat = existingEntry[entityIdOfEntryInTable] = {};
     if (existingEntityThreat[threatType] === undefined) existingEntityThreat[threatType] = value;
     else existingEntityThreat[threatType] += value;
+
+    return existingEntityThreat[threatType];
   }
 
   applyToGame(combatantContext: CombatantContext): void {
