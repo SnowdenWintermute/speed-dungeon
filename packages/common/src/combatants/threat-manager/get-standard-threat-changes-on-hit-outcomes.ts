@@ -4,7 +4,7 @@ import { CombatActionHitOutcomes, ThreatChanges } from "../../combat/action-resu
 import { COMBAT_ACTION_NAME_STRINGS } from "../../combat/combat-actions/combat-action-names.js";
 import { ThreatCalculator } from "./threat-calculator.js";
 
-export function getStandardThreatGenerationOnHitOutcomes(
+export function getStandardThreatChangesOnHitOutcomes(
   context: ActionResolutionStepContext,
   hitOutcomes: CombatActionHitOutcomes
 ) {
@@ -33,7 +33,13 @@ export function getStandardThreatGenerationOnHitOutcomes(
   const userIsOnPlayerTeam = Object.keys(characters).includes(userId);
 
   const threatChanges = new ThreatChanges();
-  const threatCalculator = new ThreatCalculator(threatChanges, hitOutcomes, party, userResult);
+  const threatCalculator = new ThreatCalculator(
+    threatChanges,
+    hitOutcomes,
+    party,
+    userResult,
+    context.tracker.actionExecutionIntent.actionName
+  );
 
   if (userIsOnPlayerTeam) {
     threatCalculator.updateThreatChangesForPlayerControlledCharacterHitOutcomes();

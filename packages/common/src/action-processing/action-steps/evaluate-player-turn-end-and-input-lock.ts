@@ -33,13 +33,14 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
           threatChanges,
           this.context.tracker.hitOutcomes,
           context.combatantContext.party,
-          context.combatantContext.combatant
+          context.combatantContext.combatant,
+          context.tracker.actionExecutionIntent.actionName
         );
         threatCalculator.addVolatileThreatDecay();
 
         threatChanges.applyToGame(context.combatantContext.party);
         this.gameUpdateCommandOption.threatChanges = threatChanges;
-        console.log("set threat changes for end of turn:", JSON.stringify(threatChanges));
+        console.log("set threat changes for end of turn:", JSON.stringify(threatChanges, null, 2));
       }
     }
 

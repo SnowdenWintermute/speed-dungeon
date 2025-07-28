@@ -43,6 +43,7 @@ export function outfitNewCharacter(character: Combatant) {
     CombatActionName.Healing,
     CombatActionName.PassTurn,
     CombatActionName.ExplodingArrowParent,
+    CombatActionName.Blind,
   ];
 
   for (const actionName of ownedActions) {

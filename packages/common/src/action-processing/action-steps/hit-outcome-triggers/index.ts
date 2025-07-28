@@ -215,7 +215,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
       // create an ephemeral one here
       const wrappedLifestealHitPointChanges = new CombatActionHitOutcomes();
       wrappedLifestealHitPointChanges.hitPointChanges = triggeredHitPointChanges;
-      const threatChangesOption = action.hitOutcomeProperties.getThreatGeneratedOnHitOutcomes(
+      const threatChangesOption = action.hitOutcomeProperties.getThreatChangesOnHitOutcomes(
         context,
         wrappedLifestealHitPointChanges
       );

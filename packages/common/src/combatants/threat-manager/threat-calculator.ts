@@ -1,6 +1,9 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { CombatActionHitOutcomes, ThreatChanges } from "../../combat/action-results/index.js";
+import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
+import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { HitOutcome } from "../../hit-outcome.js";
+import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { CombatAttribute } from "../attributes/index.js";
 import { Combatant, CombatantProperties } from "../index.js";
 import { ThreatType } from "./index.js";
@@ -18,7 +21,7 @@ const VOLATILE_THREAT_DECAY_PER_TURN =
   VOLATILE_THREAT_DECAY_PER_SECOND * AVERAGE_EXPECTED_TURN_TIME_SECONDS;
 
 const STABLE_THREAT_REDUCTION_ON_MONSTER_HIT_MODIFIER = 1800;
-const STABLE_THREAT_REDUCTION_ON_MONSTER_DEBUFFING_PLAYER = 80;
+export const STABLE_THREAT_REDUCTION_ON_MONSTER_DEBUFFING_PLAYER = 80;
 
 export class ThreatCalculator {
   private monsters: {
@@ -31,7 +34,8 @@ export class ThreatCalculator {
     private threatChanges: ThreatChanges,
     private hitOutcomes: CombatActionHitOutcomes,
     private party: AdventuringParty,
-    private actionUser: Combatant
+    private actionUser: Combatant,
+    private actionName: CombatActionName
   ) {
     const allCombatantsResult = AdventuringParty.getAllCombatants(party);
     if (allCombatantsResult instanceof Error) throw allCombatantsResult;
@@ -60,22 +64,34 @@ export class ThreatCalculator {
     );
   }
 
-  static getThreatGeneratedOnFailedHit(
-    user: Combatant,
-    target: Combatant,
-    hitOutcomeFlag: HitOutcome
-  ) {
-    const flagsToCheck = [
-      HitOutcome.Miss,
-      HitOutcome.Evade,
-      HitOutcome.Parry,
-      HitOutcome.Counterattack,
-    ];
-    if (!flagsToCheck.includes(hitOutcomeFlag)) return 0;
-  }
-
   updateThreatChangesForPlayerControlledCharacterHitOutcomes() {
-    if (!this.hitOutcomes.hitPointChanges) return;
+    const action = COMBAT_ACTIONS[this.actionName];
+
+    if (action.hitOutcomeProperties.flatThreatGeneratedOnHit) {
+      const entitiesHit = this.hitOutcomes.outcomeFlags[HitOutcome.Hit] || [];
+      for (const entityId of entitiesHit) {
+        const targetCombatantResult = AdventuringParty.getCombatant(this.party, entityId);
+        if (targetCombatantResult instanceof Error) throw targetCombatantResult;
+        const targetIsPlayer = targetCombatantResult.combatantProperties.controllingPlayer;
+
+        if (targetCombatantResult.combatantProperties.threatManager) {
+          // add flat threat to monster for user
+          this.addThreatFromDebuffingMonster(
+            targetCombatantResult,
+            this.actionUser,
+            action.hitOutcomeProperties.flatThreatGeneratedOnHit
+          );
+        } else if (targetIsPlayer) {
+          // add threat to all monsters for user
+          this.addThreatFromBuffingPlayerCharacter(
+            this.monsters,
+            this.actionUser,
+            action.hitOutcomeProperties.flatThreatGeneratedOnHit
+          );
+        }
+      }
+    }
+
     const userIsMonster = this.party.currentRoom.monsterPositions.includes(
       this.actionUser.entityProperties.id
     );
@@ -84,6 +100,7 @@ export class ThreatCalculator {
         "updateThreatChangesForPlayerControlledCharacterHitOutcomes but user was not on player team"
       );
 
+    if (!this.hitOutcomes.hitPointChanges) return;
     for (const [entityId, hitPointChange] of this.hitOutcomes.hitPointChanges.getRecords()) {
       const targetCombatantResult = AdventuringParty.getCombatant(this.party, entityId);
       if (targetCombatantResult instanceof Error) throw targetCombatantResult;
@@ -210,6 +227,50 @@ export class ThreatCalculator {
         volatileThreatGenerated
       );
     }
+  }
+
+  addThreatFromBuffingPlayerCharacter(
+    monsters: {
+      [entityId: string]: Combatant;
+    },
+    user: Combatant,
+    values: Record<ThreatType, number>
+  ) {
+    for (const [monsterId, monster] of Object.entries(monsters)) {
+      this.threatChanges.addOrUpdateEntry(
+        monster.entityProperties.id,
+        user.entityProperties.id,
+        ThreatType.Stable,
+        values[ThreatType.Stable]
+      );
+
+      this.threatChanges.addOrUpdateEntry(
+        monster.entityProperties.id,
+        user.entityProperties.id,
+        ThreatType.Volatile,
+        values[ThreatType.Volatile]
+      );
+    }
+  }
+
+  addThreatFromDebuffingMonster(
+    monster: Combatant,
+    playerCharacter: Combatant,
+    threatToAdd: Record<ThreatType, number>
+  ) {
+    this.threatChanges.addOrUpdateEntry(
+      monster.entityProperties.id,
+      playerCharacter.entityProperties.id,
+      ThreatType.Stable,
+      threatToAdd[ThreatType.Stable]
+    );
+
+    this.threatChanges.addOrUpdateEntry(
+      monster.entityProperties.id,
+      playerCharacter.entityProperties.id,
+      ThreatType.Volatile,
+      threatToAdd[ThreatType.Volatile]
+    );
   }
 
   addVolatileThreatDecay() {

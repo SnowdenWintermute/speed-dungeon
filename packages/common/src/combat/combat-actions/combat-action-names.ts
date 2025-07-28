@@ -23,6 +23,7 @@ export enum CombatActionName {
   UseGreenAutoinjector,
   UseBlueAutoinjector,
   PassTurn,
+  Blind,
 }
 
 export const ACTION_NAMES_TO_HIDE_IN_MENU = [
@@ -58,4 +59,5 @@ export const COMBAT_ACTION_NAME_STRINGS: Record<CombatActionName, string> = {
   [CombatActionName.UseBlueAutoinjector]: "Blue Autoinjector",
   [CombatActionName.BurningTick]: "Burning Tick",
   [CombatActionName.PassTurn]: "Pass Turn",
+  [CombatActionName.Blind]: "Blind",
 };

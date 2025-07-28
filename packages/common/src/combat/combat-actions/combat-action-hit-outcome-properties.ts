@@ -1,8 +1,8 @@
 import { ActionResolutionStepContext } from "../../action-processing/index.js";
 import { BASE_CRIT_CHANCE, BASE_CRIT_MULTIPLIER } from "../../app-consts.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
-import { CombatantCondition, CombatantProperties } from "../../combatants/index.js";
-import { getStandardThreatGenerationOnHitOutcomes } from "../../combatants/threat-manager/get-standard-threat-generation-on-hit-outcomes.js";
+import { CombatantCondition, CombatantProperties, ThreatType } from "../../combatants/index.js";
+import { getStandardThreatChangesOnHitOutcomes } from "../../combatants/threat-manager/get-standard-threat-changes-on-hit-outcomes.js";
 import { HoldableSlotType } from "../../items/equipment/slots.js";
 import { NormalizedPercentage, Percentage } from "../../primatives/index.js";
 import { CombatActionHitOutcomes, ThreatChanges } from "../action-results/index.js";
@@ -41,10 +41,12 @@ export interface CombatActionHitOutcomeProperties {
   getCanTriggerCounterattack: (user: CombatantProperties) => boolean;
   getAppliedConditions: (context: ActionResolutionStepContext) => null | CombatantCondition[];
   getShouldAnimateTargetHitRecovery: () => boolean;
-  getThreatGeneratedOnHitOutcomes: (
+  getThreatChangesOnHitOutcomes: (
     context: ActionResolutionStepContext,
     hitOutcomes: CombatActionHitOutcomes
   ) => null | ThreatChanges;
+  flatThreatGeneratedOnHit?: Record<ThreatType, number>;
+  flatThreatReducedOnMonsterVsPlayerHit?: Record<ThreatType, number>;
   getShouldDecayThreatOnUse: (context: ActionResolutionStepContext) => boolean;
 }
 
@@ -71,8 +73,8 @@ export const genericActionHitOutcomeProperties: CombatActionHitOutcomeProperties
   getIsBlockable: (user) => true,
   getCanTriggerCounterattack: (user) => true,
   getShouldAnimateTargetHitRecovery: () => true,
-  getThreatGeneratedOnHitOutcomes: (context, hitOutcomes) => {
-    return getStandardThreatGenerationOnHitOutcomes(context, hitOutcomes);
+  getThreatChangesOnHitOutcomes: (context, hitOutcomes) => {
+    return getStandardThreatChangesOnHitOutcomes(context, hitOutcomes);
   },
   getShouldDecayThreatOnUse: (context: ActionResolutionStepContext) => {
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];

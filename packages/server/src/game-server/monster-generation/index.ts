@@ -49,8 +49,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
     // CombatActionName.ExplodingArrowParent,
     // CombatActionName.UseGreenAutoinjector,
     // CombatActionName.UseBlueAutoinjector,
-    CombatActionName.IceBoltParent,
-    CombatActionName.Fire,
+    CombatActionName.Blind,
     // CombatActionName.PassTurn,
   ];
 

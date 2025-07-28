@@ -45,7 +45,11 @@ import { CombatantActionState } from "./owned-actions/combatant-action-state.js"
 import { getOwnedActionState } from "./owned-actions/get-owned-action-state.js";
 import { getAllCurrentlyUsableActionNames } from "./owned-actions/get-all-currently-usable-action-names.js";
 import { getActionNamesFilteredByUseableContext } from "./owned-actions/get-owned-action-names-filtered-by-usable-context.js";
-import { CombatantCondition, CombatantConditionName } from "./combatant-conditions/index.js";
+import {
+  COMBATANT_CONDITION_CONSTRUCTORS,
+  CombatantCondition,
+  CombatantConditionName,
+} from "./combatant-conditions/index.js";
 import { Equipment, EquipmentType, HoldableSlotType } from "../items/equipment/index.js";
 import { plainToInstance } from "class-transformer";
 import { PrimedForExplosionCombatantCondition } from "./combatant-conditions/primed-for-explosion.js";
@@ -53,6 +57,7 @@ import { PrimedForIceBurstCombatantCondition } from "./combatant-conditions/prim
 import { BurningCombatantCondition } from "./combatant-conditions/burning.js";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { ThreatManager } from "./threat-manager/index.js";
+import { BlindedCombatantCondition } from "./combatant-conditions/blinded.js";
 
 export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
@@ -78,14 +83,17 @@ export class Combatant {
     CombatantProperties.instantiateItemClasses(combatantProperties);
 
     const rehydratedConditions = combatantProperties.conditions.map((condition) => {
-      switch (condition.name) {
-        case CombatantConditionName.PrimedForExplosion:
-          return plainToInstance(PrimedForExplosionCombatantCondition, condition);
-        case CombatantConditionName.PrimedForIceBurst:
-          return plainToInstance(PrimedForIceBurstCombatantCondition, condition);
-        case CombatantConditionName.Burning:
-          return plainToInstance(BurningCombatantCondition, condition);
-      }
+      const constructor = COMBATANT_CONDITION_CONSTRUCTORS[condition.name];
+      return plainToInstance(constructor, condition);
+      // switch (condition.name) {
+      //   case CombatantConditionName.PrimedForExplosion:
+      //   case CombatantConditionName.PrimedForIceBurst:
+      //     return plainToInstance(PrimedForIceBurstCombatantCondition, condition);
+      //   case CombatantConditionName.Burning:
+      //     return plainToInstance(BurningCombatantCondition, condition);
+      //   case CombatantConditionName.Blinded:
+      //     return plainToInstance(BlindedCombatantCondition, condition);
+      // }
     });
     combatantProperties.conditions = rehydratedConditions;
 

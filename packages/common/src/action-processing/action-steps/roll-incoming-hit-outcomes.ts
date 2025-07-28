@@ -52,7 +52,7 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
 
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
 
-    const threatChangesOption = action.hitOutcomeProperties.getThreatGeneratedOnHitOutcomes(
+    const threatChangesOption = action.hitOutcomeProperties.getThreatChangesOnHitOutcomes(
       context,
       hitOutcomesResult
     );
