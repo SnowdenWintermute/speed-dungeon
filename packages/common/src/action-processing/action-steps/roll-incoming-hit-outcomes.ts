@@ -58,7 +58,7 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
     );
 
     if (threatChangesOption) {
-      threatChangesOption.applyToGame(context.combatantContext);
+      threatChangesOption.applyToGame(context.combatantContext.party);
       gameUpdateCommand.threatChanges = threatChangesOption;
     }
 

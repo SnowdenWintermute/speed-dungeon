@@ -10,6 +10,7 @@ import {
 import {
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
+  CombatActionHitOutcomes,
   CombatActionName,
   CombatActionTargetType,
   HitPointChanges,
@@ -207,8 +208,23 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
     triggeredHitPointChanges.applyToGame(this.context.combatantContext);
 
-    if (triggeredHitPointChanges.getRecords().length > 0)
+    if (triggeredHitPointChanges.getRecords().length > 0) {
       gameUpdateCommand.hitPointChanges = triggeredHitPointChanges;
+
+      // because threat change caluclation takes a hitOutcomeProperties we'll
+      // create an ephemeral one here
+      const wrappedLifestealHitPointChanges = new CombatActionHitOutcomes();
+      wrappedLifestealHitPointChanges.hitPointChanges = triggeredHitPointChanges;
+      const threatChangesOption = action.hitOutcomeProperties.getThreatGeneratedOnHitOutcomes(
+        context,
+        wrappedLifestealHitPointChanges
+      );
+
+      if (threatChangesOption) {
+        threatChangesOption.applyToGame(context.combatantContext.party);
+        gameUpdateCommand.threatChanges = threatChangesOption;
+      }
+    }
   }
 
   protected onTick = () => {};

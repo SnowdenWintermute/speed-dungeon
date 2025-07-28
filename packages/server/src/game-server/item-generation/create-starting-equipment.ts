@@ -113,7 +113,7 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
     equipmentTraits: {
       [EquipmentTraitType.LifeSteal]: {
         equipmentTraitType: EquipmentTraitType.LifeSteal,
-        value: 10,
+        value: 100,
       },
     },
   };

@@ -1,5 +1,6 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { CombatActionHitOutcomes, ThreatChanges } from "../../combat/action-results/index.js";
+import { HitOutcome } from "../../hit-outcome.js";
 import { CombatAttribute } from "../attributes/index.js";
 import { Combatant, CombatantProperties } from "../index.js";
 import { ThreatType } from "./index.js";
@@ -17,6 +18,7 @@ const VOLATILE_THREAT_DECAY_PER_TURN =
   VOLATILE_THREAT_DECAY_PER_SECOND * AVERAGE_EXPECTED_TURN_TIME_SECONDS;
 
 const STABLE_THREAT_REDUCTION_ON_MONSTER_HIT_MODIFIER = 1800;
+const STABLE_THREAT_REDUCTION_ON_MONSTER_DEBUFFING_PLAYER = 80;
 
 export class ThreatCalculator {
   private monsters: {
@@ -38,13 +40,38 @@ export class ThreatCalculator {
     this.players = characters;
   }
 
-  static getThreatGenerated(value: number, targetLevel: number, base: number, offset: number) {
+  static getThreatGeneratedOnHpChange(
+    value: number,
+    targetLevel: number,
+    base: number,
+    offset: number
+  ) {
     const modifier =
       base /
       (Math.floor((THREAT_CURVE_TUNING * targetLevel) / CHARACTER_LEVEL_THREAT_SCALING_SOFT_CAP) +
         offset);
 
     return Math.floor(value * modifier);
+  }
+
+  static getThreatChangeOnDamageTaken(hpChangeValue: number, targetMaxHp: number) {
+    return Math.floor(
+      (STABLE_THREAT_REDUCTION_ON_MONSTER_HIT_MODIFIER * hpChangeValue) / targetMaxHp
+    );
+  }
+
+  static getThreatGeneratedOnFailedHit(
+    user: Combatant,
+    target: Combatant,
+    hitOutcomeFlag: HitOutcome
+  ) {
+    const flagsToCheck = [
+      HitOutcome.Miss,
+      HitOutcome.Evade,
+      HitOutcome.Parry,
+      HitOutcome.Counterattack,
+    ];
+    if (!flagsToCheck.includes(hitOutcomeFlag)) return 0;
   }
 
   updateThreatChangesForPlayerControlledCharacterHitOutcomes() {
@@ -96,8 +123,9 @@ export class ThreatCalculator {
         targetCombatantResult.combatantProperties
       )[CombatAttribute.Hp];
 
-      const stableThreatChange = Math.floor(
-        (STABLE_THREAT_REDUCTION_ON_MONSTER_HIT_MODIFIER * hitPointChange.value) / targetMaxHp
+      const stableThreatChange = ThreatCalculator.getThreatChangeOnDamageTaken(
+        hitPointChange.value,
+        targetMaxHp
       );
 
       this.threatChanges.addOrUpdateEntry(
@@ -115,7 +143,7 @@ export class ThreatCalculator {
     hpChangeValue: number
   ) {
     const stableThreatGenerated =
-      ThreatCalculator.getThreatGenerated(
+      ThreatCalculator.getThreatGeneratedOnHpChange(
         hpChangeValue,
         monster.combatantProperties.level,
         DAMAGE_STABLE_THREAT_BASE,
@@ -130,7 +158,7 @@ export class ThreatCalculator {
     );
 
     const volatileThreatGenerated =
-      ThreatCalculator.getThreatGenerated(
+      ThreatCalculator.getThreatGeneratedOnHpChange(
         hpChangeValue,
         monster.combatantProperties.level,
         VOLATILE_THREAT_BASE,
@@ -154,7 +182,7 @@ export class ThreatCalculator {
     hpChangeValue: number
   ) {
     for (const [monsterId, monster] of Object.entries(monsters)) {
-      const stableThreatGenerated = ThreatCalculator.getThreatGenerated(
+      const stableThreatGenerated = ThreatCalculator.getThreatGeneratedOnHpChange(
         hpChangeValue,
         targetLevel,
         HEALING_STABLE_THREAT_BASE,
@@ -168,7 +196,7 @@ export class ThreatCalculator {
         stableThreatGenerated
       );
 
-      const volatileThreatGenerated = ThreatCalculator.getThreatGenerated(
+      const volatileThreatGenerated = ThreatCalculator.getThreatGeneratedOnHpChange(
         hpChangeValue,
         targetLevel,
         VOLATILE_THREAT_BASE,

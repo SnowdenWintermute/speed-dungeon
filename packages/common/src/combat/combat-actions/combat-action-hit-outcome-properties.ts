@@ -4,7 +4,7 @@ import { CombatAttribute } from "../../combatants/attributes/index.js";
 import { CombatantCondition, CombatantProperties } from "../../combatants/index.js";
 import { getStandardThreatGenerationOnHitOutcomes } from "../../combatants/threat-manager/get-standard-threat-generation-on-hit-outcomes.js";
 import { HoldableSlotType } from "../../items/equipment/slots.js";
-import { EntityId, NormalizedPercentage, Percentage } from "../../primatives/index.js";
+import { NormalizedPercentage, Percentage } from "../../primatives/index.js";
 import { CombatActionHitOutcomes, ThreatChanges } from "../action-results/index.js";
 import {
   getStandardActionArmorPenetration,

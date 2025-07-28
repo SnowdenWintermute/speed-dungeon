@@ -111,8 +111,7 @@ export class ThreatChanges {
     return existingEntityThreat[threatType];
   }
 
-  applyToGame(combatantContext: CombatantContext): void {
-    const { party } = combatantContext;
+  applyToGame(party: AdventuringParty): void {
     for (const [entityIdOfThreatTableToUpdate, changes] of Object.entries(this.entries)) {
       const targetResult = AdventuringParty.getCombatant(party, entityIdOfThreatTableToUpdate);
       if (targetResult instanceof Error) throw targetResult;

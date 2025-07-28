@@ -148,6 +148,7 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   appliedConditions?: Partial<Record<HitOutcome, Record<EntityId, CombatantCondition[]>>>;
   removedConditionStacks?: Record<EntityId, { conditionId: EntityId; numStacks: number }[]>;
   removedConditionIds?: Record<EntityId, ConditionId[]>;
+  threatChanges?: ThreatChanges;
 }
 
 export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {
@@ -160,7 +161,6 @@ export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {
 
 export interface ActionCompletionUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.ActionCompletion;
-  actionUserId: string;
   unlockInput?: boolean;
   endActiveCombatantTurn?: boolean;
   threatChanges?: ThreatChanges;

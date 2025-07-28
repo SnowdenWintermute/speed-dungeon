@@ -28,6 +28,9 @@ export enum CombatActionName {
 export const ACTION_NAMES_TO_HIDE_IN_MENU = [
   CombatActionName.UseGreenAutoinjector,
   CombatActionName.UseBlueAutoinjector,
+  CombatActionName.AttackMeleeMainhand,
+  CombatActionName.AttackMeleeOffhand,
+  CombatActionName.AttackRangedMainhand,
 ];
 
 export const COMBAT_ACTION_NAME_STRINGS: Record<CombatActionName, string> = {

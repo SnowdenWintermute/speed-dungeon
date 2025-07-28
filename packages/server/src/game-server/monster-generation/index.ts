@@ -84,6 +84,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   const randomNumberNormalDistribution = randomNormal();
   const modifiedHp = baseHp * (randomNumberNormalDistribution + 0.5);
   monster.combatantProperties.inherentAttributes[CombatAttribute.Hp] = Math.floor(modifiedHp);
+
   // traits
   monster.combatantProperties.traits = getMonsterTraits(monsterType);
   // equip weapons
