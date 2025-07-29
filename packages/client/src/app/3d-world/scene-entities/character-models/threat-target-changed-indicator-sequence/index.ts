@@ -12,15 +12,18 @@ import {
   VertexData,
 } from "@babylonjs/core";
 import { useGameStore } from "@/stores/game-store";
-import { getGameWorld } from "../../SceneManager";
+import { getGameWorld } from "../../../SceneManager";
 import getGameAndParty from "@/utils/getGameAndParty";
-import { ActionEntityModel } from "../action-entity-models";
+import { ActionEntityModel } from "../../action-entity-models";
 import {
   ActionEntityName,
+  COMBATANT_TIME_TO_MOVE_ONE_METER,
   CombatantBaseChildTransformNodeName,
+  easeOut,
+  NormalizedPercentage,
   SceneEntityType,
 } from "@speed-dungeon/common";
-import { handleLockRotationToFace } from "../../game-world/replay-tree-manager/entity-motion-update-handlers/handle-lock-rotation-to-face";
+import { handleLockRotationToFace } from "../../../game-world/replay-tree-manager/entity-motion-update-handlers/handle-lock-rotation-to-face";
 
 export function threatTargetChangedIndicatorSequence() {
   useGameStore.getState().mutateState((gameState) => {
@@ -29,9 +32,14 @@ export function threatTargetChangedIndicatorSequence() {
     const [game, party] = gameAndPartyResult;
 
     for (const [monsterId, monster] of Object.entries(party.currentRoom.monsters)) {
-      const newThreatTargetIdOption =
-        monster.combatantProperties.threatManager?.getHighestThreatCombatantId();
+      const { threatManager } = monster.combatantProperties;
+      if (!threatManager) continue;
+
+      const newThreatTargetIdOption = threatManager.getHighestThreatCombatantId();
+      if (newThreatTargetIdOption === threatManager.getPreviouslyHighestThreatId()) continue;
+
       if (!newThreatTargetIdOption) continue;
+      threatManager.setPreviouslyHighestThreatId(newThreatTargetIdOption);
 
       const newTargetCharacterModel = getGameWorld().modelManager.findOne(newThreatTargetIdOption);
       const monsterCharacterModel = getGameWorld().modelManager.findOne(monsterId);
@@ -61,6 +69,9 @@ export function threatTargetChangedIndicatorSequence() {
 
       getGameWorld().actionEntityManager.register(indicatorArrow);
 
+      const targetCurrentPosition = newTargetCharacterModel.movementManager.transformNode.position;
+      indicatorArrow.rootTransformNode.lookAt(targetCurrentPosition);
+
       handleLockRotationToFace(indicatorArrow, {
         identifier: {
           sceneEntityIdentifier: {
@@ -81,23 +92,35 @@ export function threatTargetChangedIndicatorSequence() {
         trailHeight
       );
 
-      const targetCurrentPosition = newTargetCharacterModel.movementManager.transformNode.position;
+      const distance = Vector3.Distance(
+        indicatorArrow.rootTransformNode.position,
+        targetCurrentPosition
+      );
+      const duration = distance * COMBATANT_TIME_TO_MOVE_ONE_METER * 0.75;
+
       indicatorArrow.movementManager.startTranslating(
         targetCurrentPosition,
-        600,
+        duration,
         () => {
           getGameWorld().actionEntityManager.unregister(indicatorArrow.entityId);
+          trail.dispose();
         },
-        () => {
+        (percentComplete) => {
+          // arrow head opacity
+          if (indicatorArrow.rootMesh.material?.alpha !== undefined)
+            indicatorArrow.rootMesh.material.alpha = 1 - percentComplete;
+
           updateTargetChangedIndicatorTrail(
             indicatorArrow.movementManager.transformNode,
             monsterCharacterModel.homeLocation.position,
             positions,
             trail,
             trailWidth,
-            trailHeight
+            trailHeight,
+            percentComplete
           );
-        }
+        },
+        easeOut
       );
     }
   });
@@ -114,7 +137,7 @@ function spawnTargetChangedIndicatorArrow(position: Vector3) {
   material.diffuseColor = new Color3(0.9, 0.1, 0.1);
   material.alpha = 0.5;
 
-  // mesh.material = material;
+  mesh.material = material;
   mesh.position.copyFrom(position);
 
   mesh.rotate(Vector3.Left(), -Math.PI / 2);
@@ -136,6 +159,11 @@ function spawnTargetChangedIndicatorArrow(position: Vector3) {
 function spawnTargetChangedIndicatorTrail(startPosition: Vector3, width: number, height: number) {
   const gameWorld = getGameWorld();
   const trail = new Mesh("trail", gameWorld.scene);
+
+  const material = new StandardMaterial("");
+  material.diffuseColor = new Color3(0.9, 0.1, 0.1);
+  material.alpha = 0.5;
+  trail.material = material;
 
   const vertexData = new VertexData();
   const start = startPosition.clone();
@@ -208,8 +236,10 @@ function updateTargetChangedIndicatorTrail(
   positions: number[],
   trail: Mesh,
   width: number,
-  height: number
+  height: number,
+  percentComplete: NormalizedPercentage
 ) {
+  // vertices
   const arrowPos = arrow.position;
   const dir = arrowPos.subtract(startPosition);
   const right = Vector3.Cross(dir.normalize(), Vector3.Up()).normalize().scale(width);
@@ -232,4 +262,7 @@ function updateTargetChangedIndicatorTrail(
   positions[23] = arrowPos.z - right.z;
 
   trail.updateVerticesData(VertexBuffer.PositionKind, positions);
+
+  // material
+  if (trail.material?.alpha !== undefined) trail.material.alpha = 1 - percentComplete;
 }

@@ -30,6 +30,7 @@ export class ThreatTableEntry {
 
 export class ThreatManager {
   private threatScoresByCombatantId: Record<EntityId, ThreatTableEntry> = {};
+  private previouslyHighestThreatId: null | EntityId = null;
   constructor() {}
 
   changeThreat(combatantId: EntityId, threatType: ThreatType, value: number) {
@@ -37,6 +38,13 @@ export class ThreatManager {
     if (existingEntry === undefined)
       this.threatScoresByCombatantId[combatantId] = existingEntry = new ThreatTableEntry();
     existingEntry.threatScoresByType[threatType].addValue(value);
+  }
+
+  getPreviouslyHighestThreatId() {
+    return this.previouslyHighestThreatId;
+  }
+  setPreviouslyHighestThreatId(id: EntityId) {
+    this.previouslyHighestThreatId = id;
   }
 
   getHighestThreatCombatantId(): EntityId | null {

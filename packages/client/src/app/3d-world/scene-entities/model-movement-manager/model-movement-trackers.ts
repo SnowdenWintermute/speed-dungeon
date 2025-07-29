@@ -1,5 +1,5 @@
 import { Quaternion, TransformNode, Vector3 } from "@babylonjs/core";
-import { ERROR_MESSAGES, Milliseconds } from "@speed-dungeon/common";
+import { easeOut, ERROR_MESSAGES, Milliseconds, NormalizedPercentage } from "@speed-dungeon/common";
 
 export enum ModelMovementType {
   Rotation,
@@ -39,14 +39,17 @@ export class TranslationTracker extends ModelMovementTracker {
     private previous: Vector3,
     private destination: Vector3,
     public onComplete: () => void,
-    public onUpdate: () => void
+    public onUpdate: (percentComplete: NormalizedPercentage) => void,
+    public easing?: (percentComplete: NormalizedPercentage) => number
   ) {
     super(movable, duration);
   }
   updateMovable() {
-    const newPosition = Vector3.Lerp(this.previous, this.destination, this.percentComplete());
+    let lerpPercentage = this.percentComplete();
+    if (this.easing) lerpPercentage = this.easing(lerpPercentage);
+    const newPosition = Vector3.Lerp(this.previous, this.destination, lerpPercentage);
     this.movable.position.copyFrom(newPosition);
-    this.onUpdate();
+    this.onUpdate(lerpPercentage);
   }
   getDestination(): Vector3 {
     return this.destination;

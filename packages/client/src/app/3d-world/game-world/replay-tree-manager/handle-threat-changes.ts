@@ -7,7 +7,7 @@ import {
 import { useGameStore } from "@/stores/game-store";
 import getGameAndParty from "@/utils/getGameAndParty";
 import { plainToInstance } from "class-transformer";
-import { threatTargetChangedIndicatorSequence } from "../../scene-entities/character-models/threat-target-changed-indicator-sequence";
+import { threatTargetChangedIndicatorSequence } from "../../scene-entities/character-models/threat-target-changed-indicator-sequence/index";
 import debounce from "lodash.debounce";
 
 const debounceThreatTargetChangeIndicatorSequence = debounce(
