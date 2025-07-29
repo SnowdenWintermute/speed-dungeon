@@ -132,11 +132,17 @@ export class ThreatCalculator {
   updateThreatChangesForMonsterHitOutcomes() {
     const entitiesHit = this.hitOutcomes.outcomeFlags[HitOutcome.Hit] || [];
     console.log("entitiesHit by monster:", entitiesHit);
+    const { threatManager } = this.actionUser.combatantProperties;
+    if (!threatManager) return;
+
     for (const entityId of entitiesHit) {
       const targetCombatantResult = AdventuringParty.getCombatant(this.party, entityId);
       if (targetCombatantResult instanceof Error) throw targetCombatantResult;
       const targetIsPlayer = targetCombatantResult.combatantProperties.controllingPlayer;
       if (!targetIsPlayer) continue;
+
+      const currentThreatForTargetOption = threatManager.getEntries()[entityId];
+      if (!currentThreatForTargetOption || currentThreatForTargetOption.getTotal() === 0) continue;
 
       this.threatChanges.addOrUpdateEntry(
         this.actionUser.entityProperties.id,
@@ -153,6 +159,10 @@ export class ThreatCalculator {
         if (targetCombatantResult instanceof Error) throw targetCombatantResult;
         const targetIsPlayer = targetCombatantResult.combatantProperties.controllingPlayer;
         if (!targetIsPlayer) continue;
+
+        const currentThreatForTargetOption = threatManager.getEntries()[entityId];
+        if (!currentThreatForTargetOption || currentThreatForTargetOption.getTotal() === 0)
+          continue;
 
         const targetMaxHp = CombatantProperties.getTotalAttributes(
           targetCombatantResult.combatantProperties

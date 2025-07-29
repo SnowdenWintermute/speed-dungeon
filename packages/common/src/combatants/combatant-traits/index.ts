@@ -69,7 +69,7 @@ export const TRAIT_DESCRIPTIONS: Record<CombatantTraitType, string> = {
   [CombatantTraitType.Undead]: "Healing magic damages this target",
   [CombatantTraitType.KineticDamageTypeResistance]: "Resistance or weakness to this damage type",
   [CombatantTraitType.ExtraHotswapSlot]:
-    "Adds an additional weapon swap slot - 'You know I keep that mf thang on me'",
+    "Adds an additional weapon swap slot - 'You know I keep that thang on me'",
   [CombatantTraitType.CanConvertToShardsManually]:
     "Allows converting items to shards without the use of machines",
   [CombatantTraitType.ExtraConsumablesStorage]: "Provides extra storage for consumables",

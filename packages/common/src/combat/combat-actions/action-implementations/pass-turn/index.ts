@@ -33,8 +33,11 @@ export const passTurnConfig: CombatActionComponentConfig = {
   getOnUseMessage: (data) => {
     return `${data.nameOfActionUser} passes their turn`;
   },
-  hitOutcomeProperties:
-    GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Medication],
+  hitOutcomeProperties: {
+    ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Medication],
+    getThreatChangesOnHitOutcomes: (context, hitOutcomes) => null,
+    getShouldDecayThreatOnUse: (context) => false,
+  },
   costProperties: genericCombatActionCostProperties,
   stepsConfig: getNonProjectileBasedSpellBaseStepsConfig(),
   shouldExecute: () => true,
