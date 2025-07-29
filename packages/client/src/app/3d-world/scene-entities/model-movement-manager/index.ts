@@ -29,14 +29,20 @@ export class ModelMovementManager {
     this.transformNode.position.copyFrom(newPosition);
   }
 
-  startTranslating(destination: Vector3, duration: number, onComplete: () => void) {
+  startTranslating(
+    destination: Vector3,
+    duration: number,
+    onComplete: () => void,
+    onUpdate?: () => void
+  ) {
     const previous = this.transformNode.position.clone();
     const tracker = new TranslationTracker(
       this.transformNode,
       duration,
       previous,
       destination,
-      onComplete
+      onComplete,
+      onUpdate || (() => {})
     );
     this.activeTrackers[ModelMovementType.Translation] = tracker;
   }

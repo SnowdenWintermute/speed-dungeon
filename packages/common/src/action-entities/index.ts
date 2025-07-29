@@ -12,13 +12,15 @@ export enum ActionEntityName {
   IceBolt,
   Explosion,
   IceBurst,
+  TargetChangedIndicatorArrow,
 }
 
 export const ACTION_ENTITY_STRINGS: Record<ActionEntityName, string> = {
   [ActionEntityName.Arrow]: "Arrow",
   [ActionEntityName.IceBolt]: "Ice Bolt",
   [ActionEntityName.Explosion]: "Explosion",
-  [ActionEntityName.IceBurst]: "IceBurst",
+  [ActionEntityName.IceBurst]: "Ice Burst",
+  [ActionEntityName.TargetChangedIndicatorArrow]: "Target Changed Indicator Arrow",
 };
 
 export type ActionEntityProperties = {

@@ -38,13 +38,15 @@ export class TranslationTracker extends ModelMovementTracker {
     duration: Milliseconds,
     private previous: Vector3,
     private destination: Vector3,
-    public onComplete: () => void
+    public onComplete: () => void,
+    public onUpdate: () => void
   ) {
     super(movable, duration);
   }
   updateMovable() {
     const newPosition = Vector3.Lerp(this.previous, this.destination, this.percentComplete());
     this.movable.position.copyFrom(newPosition);
+    this.onUpdate();
   }
   getDestination(): Vector3 {
     return this.destination;

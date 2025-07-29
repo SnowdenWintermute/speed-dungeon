@@ -123,6 +123,7 @@ export async function spawnActionEntityModel(vfxName: ActionEntityName, position
         break;
       case ActionEntityName.Arrow:
       case ActionEntityName.IceBolt:
+      case ActionEntityName.TargetChangedIndicatorArrow:
       case ActionEntityName.Explosion:
         {
           // @TODO - organize custom mesh creators for self-made vfx
