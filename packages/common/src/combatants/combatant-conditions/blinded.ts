@@ -40,7 +40,7 @@ export class BlindedCombatantCondition implements CombatantCondition {
 
   getTickSpeed(condition: CombatantCondition) {
     // return condition.level * BASE_CONDITION_TICK_SPEED;
-    return condition.level * BASE_CONDITION_TICK_SPEED;
+    return BASE_CONDITION_TICK_SPEED / (condition.level + 5);
   }
 
   onTick(condition: CombatantCondition, context: CombatantContext) {

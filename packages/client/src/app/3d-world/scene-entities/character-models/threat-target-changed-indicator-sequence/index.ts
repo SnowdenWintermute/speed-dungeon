@@ -96,7 +96,8 @@ export function threatTargetChangedIndicatorSequence() {
         indicatorArrow.rootTransformNode.position,
         targetCurrentPosition
       );
-      const duration = distance * COMBATANT_TIME_TO_MOVE_ONE_METER * 0.75;
+      // const duration = distance * COMBATANT_TIME_TO_MOVE_ONE_METER * 0.75;
+      const duration = 900;
 
       indicatorArrow.movementManager.startTranslating(
         targetCurrentPosition,

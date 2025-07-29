@@ -167,13 +167,14 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
             if (buttonTitlesToAccent.includes(button.key)) return "bg-slate-800 border-white";
             return "border-slate-400 bg-slate-700";
           })();
+
           const thisButtonProperties = buttonProperties[ActionButtonCategory.Top][i]!;
           // in the old method we used a more unique key so different cancel buttons would
           // actually update, but cancel buttons tend to do the same thing anyway now
           return (
             <li key={thisButtonProperties.key} style={topButtonLiStyle}>
               <ActionMenuDedicatedButton
-                extraStyles={`border mr-2 last:mr-0 h-10 ${conditionalStyles}`}
+                extraStyles={`border mr-2 last:mr-0 h-10 ${conditionalStyles} `}
                 properties={button}
               />
             </li>
@@ -204,10 +205,14 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
                   key={button.key + i + currentPageNumber}
                   tabIndex={button.shouldBeDisabled ? 0 : undefined} // so you can tab over to get the popups
                   className={`
-                   ${conditionalStyles} pointer-events-auto w-full border-b border-r border-l first:border-t flex hover:bg-slate-950
+                    pointer-events-auto w-full  flex hover:bg-slate-950
                    `}
                 >
-                  <NumberedButton number={i + 1} properties={button} />
+                  <NumberedButton
+                    number={i + 1}
+                    properties={button}
+                    extraStyles={i == 0 ? `${conditionalStyles} border-t` : conditionalStyles}
+                  />
                 </li>
               );
             })}
