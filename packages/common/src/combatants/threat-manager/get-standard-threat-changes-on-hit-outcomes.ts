@@ -8,7 +8,6 @@ export function getStandardThreatChangesOnHitOutcomes(
   context: ActionResolutionStepContext,
   hitOutcomes: CombatActionHitOutcomes
 ) {
-  if (!hitOutcomes.hitPointChanges) return null;
   const { party, combatant } = context.combatantContext;
 
   const allCombatantsResult = AdventuringParty.getAllCombatants(party);
@@ -53,6 +52,8 @@ export function getStandardThreatChangesOnHitOutcomes(
     "threat changes: ",
     JSON.stringify(threatChanges, null, 2)
   );
+
+  if (threatChanges.isEmpty()) return null;
 
   return threatChanges;
 }

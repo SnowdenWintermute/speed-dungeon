@@ -23,6 +23,7 @@ export enum CombatActionName {
   UseGreenAutoinjector,
   UseBlueAutoinjector,
   PassTurn,
+  ConditionPassTurn,
   Blind,
 }
 
@@ -59,5 +60,6 @@ export const COMBAT_ACTION_NAME_STRINGS: Record<CombatActionName, string> = {
   [CombatActionName.UseBlueAutoinjector]: "Blue Autoinjector",
   [CombatActionName.BurningTick]: "Burning Tick",
   [CombatActionName.PassTurn]: "Pass Turn",
+  [CombatActionName.ConditionPassTurn]: "Condition Pass Turn",
   [CombatActionName.Blind]: "Blind",
 };

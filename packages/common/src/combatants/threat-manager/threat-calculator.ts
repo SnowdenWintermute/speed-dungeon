@@ -21,7 +21,7 @@ const VOLATILE_THREAT_DECAY_PER_TURN =
   VOLATILE_THREAT_DECAY_PER_SECOND * AVERAGE_EXPECTED_TURN_TIME_SECONDS;
 
 const STABLE_THREAT_REDUCTION_ON_MONSTER_HIT_MODIFIER = 1800;
-export const STABLE_THREAT_REDUCTION_ON_MONSTER_DEBUFFING_PLAYER = 80;
+export const STABLE_THREAT_REDUCTION_ON_MONSTER_DEBUFFING_PLAYER = -80;
 
 export class ThreatCalculator {
   private monsters: {
@@ -65,16 +65,22 @@ export class ThreatCalculator {
   }
 
   updateThreatChangesForPlayerControlledCharacterHitOutcomes() {
+    console.log("updateThreatChangesForPlayerControlledCharacterHitOutcomes ran");
     const action = COMBAT_ACTIONS[this.actionName];
 
     if (action.hitOutcomeProperties.flatThreatGeneratedOnHit) {
       const entitiesHit = this.hitOutcomes.outcomeFlags[HitOutcome.Hit] || [];
+      console.log("entitiesHit:", entitiesHit);
       for (const entityId of entitiesHit) {
         const targetCombatantResult = AdventuringParty.getCombatant(this.party, entityId);
         if (targetCombatantResult instanceof Error) throw targetCombatantResult;
         const targetIsPlayer = targetCombatantResult.combatantProperties.controllingPlayer;
 
         if (targetCombatantResult.combatantProperties.threatManager) {
+          console.log(
+            "attempting to add threat on debuff cast:",
+            action.hitOutcomeProperties.flatThreatReducedOnMonsterVsPlayerHit
+          );
           // add flat threat to monster for user
           this.addThreatFromDebuffingMonster(
             targetCombatantResult,
@@ -124,34 +130,46 @@ export class ThreatCalculator {
   }
 
   updateThreatChangesForMonsterHitOutcomes() {
-    if (
-      !this.hitOutcomes.hitPointChanges ||
-      Object.values(this.hitOutcomes.hitPointChanges).length === 0
-    )
-      return;
-    for (const [entityId, hitPointChange] of this.hitOutcomes.hitPointChanges.getRecords()) {
-      if (hitPointChange.value > 0) continue; // don't add threat for monsters healing players
+    const entitiesHit = this.hitOutcomes.outcomeFlags[HitOutcome.Hit] || [];
+    console.log("entitiesHit by monster:", entitiesHit);
+    for (const entityId of entitiesHit) {
       const targetCombatantResult = AdventuringParty.getCombatant(this.party, entityId);
       if (targetCombatantResult instanceof Error) throw targetCombatantResult;
       const targetIsPlayer = targetCombatantResult.combatantProperties.controllingPlayer;
       if (!targetIsPlayer) continue;
 
-      const targetMaxHp = CombatantProperties.getTotalAttributes(
-        targetCombatantResult.combatantProperties
-      )[CombatAttribute.Hp];
-
-      const stableThreatChange = ThreatCalculator.getThreatChangeOnDamageTaken(
-        hitPointChange.value,
-        targetMaxHp
-      );
-
       this.threatChanges.addOrUpdateEntry(
         this.actionUser.entityProperties.id,
         entityId,
         ThreatType.Stable,
-        Math.min(-1, stableThreatChange) // all monster actions should at least reduce ST by 1
+        STABLE_THREAT_REDUCTION_ON_MONSTER_DEBUFFING_PLAYER
       );
     }
+
+    if (this.hitOutcomes.hitPointChanges)
+      for (const [entityId, hitPointChange] of this.hitOutcomes.hitPointChanges.getRecords()) {
+        if (hitPointChange.value > 0) continue; // don't add threat for monsters healing players
+        const targetCombatantResult = AdventuringParty.getCombatant(this.party, entityId);
+        if (targetCombatantResult instanceof Error) throw targetCombatantResult;
+        const targetIsPlayer = targetCombatantResult.combatantProperties.controllingPlayer;
+        if (!targetIsPlayer) continue;
+
+        const targetMaxHp = CombatantProperties.getTotalAttributes(
+          targetCombatantResult.combatantProperties
+        )[CombatAttribute.Hp];
+
+        const stableThreatChange = ThreatCalculator.getThreatChangeOnDamageTaken(
+          hitPointChange.value,
+          targetMaxHp
+        );
+
+        this.threatChanges.addOrUpdateEntry(
+          this.actionUser.entityProperties.id,
+          entityId,
+          ThreatType.Stable,
+          Math.min(-1, stableThreatChange) // all monster actions should at least reduce ST by 1
+        );
+      }
   }
 
   addThreatDamageDealtByPlayerCharacter(

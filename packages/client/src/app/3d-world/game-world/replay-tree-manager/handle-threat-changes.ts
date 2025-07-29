@@ -7,6 +7,13 @@ import {
 import { useGameStore } from "@/stores/game-store";
 import getGameAndParty from "@/utils/getGameAndParty";
 import { plainToInstance } from "class-transformer";
+import { threatTargetChangedIndicatorSequence } from "../../scene-entities/character-models/threat-target-changed-indicator-sequence";
+import debounce from "lodash.debounce";
+
+const debounceThreatTargetChangeIndicatorSequence = debounce(
+  threatTargetChangedIndicatorSequence,
+  300
+);
 
 export function handleThreatChangesUpdate(
   command:
@@ -23,5 +30,10 @@ export function handleThreatChangesUpdate(
       const threatChangesRehydrated = plainToInstance(ThreatChanges, command.threatChanges);
       threatChangesRehydrated.applyToGame(party);
     });
+
+    // debouncing this is an easy but perhaps not optimal way to avoid showing many
+    // threat target change events in a row when threat changes rapidly such as several
+    // burning conditions going off in a row
+    debounceThreatTargetChangeIndicatorSequence();
   }
 }

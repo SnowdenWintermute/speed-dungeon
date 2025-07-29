@@ -19,7 +19,7 @@ import {
 } from "../../combat-action-hit-outcome-properties.js";
 import { getNonProjectileBasedSpellBaseStepsConfig } from "../non-projectile-based-spell-base-steps-config.js";
 
-const config: CombatActionComponentConfig = {
+export const passTurnConfig: CombatActionComponentConfig = {
   description: "Skip your own turn",
   origin: CombatActionOrigin.SpellCast,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
@@ -31,7 +31,7 @@ const config: CombatActionComponentConfig = {
   },
 
   getOnUseMessage: (data) => {
-    return `${data.nameOfActionUser} passes their turn.`;
+    return `${data.nameOfActionUser} passes their turn`;
   },
   hitOutcomeProperties:
     GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Medication],
@@ -43,4 +43,4 @@ const config: CombatActionComponentConfig = {
   getParent: () => null,
 };
 
-export const PASS_TURN = new CombatActionLeaf(CombatActionName.PassTurn, config);
+export const PASS_TURN = new CombatActionLeaf(CombatActionName.PassTurn, passTurnConfig);

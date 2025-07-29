@@ -90,6 +90,9 @@ export class ThreatChanges {
     };
   } = {};
   constructor() {}
+  isEmpty() {
+    return Object.keys(this.entries).length === 0;
+  }
   addOrUpdateEntry(
     monsterIdOwnerOfThreatTable: EntityId,
     entityIdOfEntryInTable: EntityId,

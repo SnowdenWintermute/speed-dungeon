@@ -1,5 +1,6 @@
 import {
   ActionPayableResource,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -19,6 +20,7 @@ import {
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { FIRE_STEPS_CONFIG } from "./fire-steps-config.js";
 import { FIRE_HIT_OUTCOME_PROPERTIES } from "./fire-hit-outcome-properties.js";
+import { getSpellCastCombatLogMessage } from "../combat-log-message-getters.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
@@ -36,10 +38,8 @@ const config: CombatActionComponentConfig = {
   description: "Inflict magical fire damage on enemies and cause them to start burning",
   origin: CombatActionOrigin.SpellCast,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
-
-  getOnUseMessage: (data) => {
-    return `${data.nameOfActionUser} casts fire (level ${data.actionLevel}).`;
-  },
+  getOnUseMessage: (data) =>
+    getSpellCastCombatLogMessage(data, COMBAT_ACTION_NAME_STRINGS[CombatActionName.Fire]),
   targetingProperties,
   hitOutcomeProperties: FIRE_HIT_OUTCOME_PROPERTIES,
   costProperties: {

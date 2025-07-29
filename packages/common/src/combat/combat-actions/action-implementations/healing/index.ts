@@ -1,5 +1,6 @@
 import {
   ActionPayableResource,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -20,6 +21,7 @@ import {
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { HEALING_HIT_OUTCOME_PROPERTIES } from "./healing-hit-outcome-properties.js";
 import { HEALING_STEPS_CONFIG } from "./healing-steps-config.js";
+import { getSpellCastCombatLogMessage } from "../combat-log-message-getters.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
@@ -37,10 +39,8 @@ const config: CombatActionComponentConfig = {
   description: "Restore hit points to target(s)",
   origin: CombatActionOrigin.SpellCast,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
-
-  getOnUseMessage: (data) => {
-    return `${data.nameOfActionUser} casts healing (level ${data.actionLevel}).`;
-  },
+  getOnUseMessage: (data) =>
+    getSpellCastCombatLogMessage(data, COMBAT_ACTION_NAME_STRINGS[CombatActionName.Healing]),
   targetingProperties,
   hitOutcomeProperties: HEALING_HIT_OUTCOME_PROPERTIES,
   costProperties: {

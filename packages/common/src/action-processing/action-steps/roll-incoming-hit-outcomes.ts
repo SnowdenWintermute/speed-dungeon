@@ -17,6 +17,8 @@ import { HitOutcome } from "../../hit-outcome.js";
 const stepType = ActionResolutionStepType.RollIncomingHitOutcomes;
 export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
+    console.log("RollIncomingHitOutcomesActionResolutionStep constructed");
+
     const hitOutcomesResult = calculateActionHitOutcomes(context);
     if (hitOutcomesResult instanceof Error) {
       console.error(

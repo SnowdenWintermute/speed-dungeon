@@ -1,5 +1,6 @@
 import {
   ActionPayableResource,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -19,6 +20,7 @@ import {
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { BLIND_STEPS_CONFIG } from "./blind-steps-config.js";
 import { BLIND_HIT_OUTCOME_PROPERTIES } from "./blind-hit-outcome-properties.js";
+import { getSpellCastCombatLogMessage } from "../combat-log-message-getters.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
@@ -36,10 +38,8 @@ const config: CombatActionComponentConfig = {
   description: "Reduce the accuracy of targets",
   origin: CombatActionOrigin.SpellCast,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
-
-  getOnUseMessage: (data) => {
-    return `${data.nameOfActionUser} casts blind (level ${data.actionLevel}).`;
-  },
+  getOnUseMessage: (data) =>
+    getSpellCastCombatLogMessage(data, COMBAT_ACTION_NAME_STRINGS[CombatActionName.Blind]),
   targetingProperties,
   hitOutcomeProperties: BLIND_HIT_OUTCOME_PROPERTIES,
   costProperties: {

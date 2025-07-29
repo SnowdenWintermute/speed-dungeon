@@ -7,7 +7,6 @@ import {
   Vector3,
   StandardMaterial,
   TransformNode,
-  MeshBuilder,
 } from "@babylonjs/core";
 import { getChildMeshByName, getClientRectFromMesh, paintCubesOnNodes } from "../../utils";
 import { GameWorld } from "../../game-world";
