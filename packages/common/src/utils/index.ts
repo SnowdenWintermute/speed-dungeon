@@ -129,3 +129,8 @@ export function throwIfError<T>(result: T | Error) {
 export type KeysWithValueOfType<O, T> = {
   [K in keyof O]: O[K] extends T ? K : never;
 }[keyof O];
+
+export function formatThousandsAsK(value: number): string {
+  if (value < 1000) return value.toString();
+  return (value / 1000).toFixed(2).replace(/\.?0+$/, "") + "k";
+}

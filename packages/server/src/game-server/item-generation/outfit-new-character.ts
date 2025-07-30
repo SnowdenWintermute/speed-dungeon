@@ -186,7 +186,7 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
 
   // giveTestingCombatAttributes(combatantProperties);
   // combatantProperties.level = 5;
-  // combatantProperties.unspentAttributePoints = 100;
+  combatantProperties.unspentAttributePoints = 3;
   combatantProperties.inherentAttributes[CombatAttribute.Speed] = 9;
   combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 45;
   combatantProperties.inherentAttributes[CombatAttribute.Strength] = 40;

@@ -1,9 +1,7 @@
-import { CombatantClass, ProfileCharacterRanks, SanitizedProfile } from "@speed-dungeon/common";
+import { ProfileCharacterRanks, SanitizedProfile } from "@speed-dungeon/common";
 import React from "react";
 import Divider from "../components/atoms/Divider";
-import Axe from "../../../public/img/combatant-class-icons/axe.svg";
-import DualSwords from "../../../public/img/combatant-class-icons/dual-swords.svg";
-import StaffWithSnowflake from "../../../public/img/combatant-class-icons/staff-with-snowflake.svg";
+import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
 
 export default async function ProfileGeneralData({ username }: { username: string }) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_GAME_SERVER_URL}/profiles/${username}`, {
@@ -34,18 +32,11 @@ export default async function ProfileGeneralData({ username }: { username: strin
       <div>
         {characterRanksArr.length === 0 && <div>No saved characters...</div>}
         {characterRanksArr.map(([id, character]) => {
-          const classIcon = (() => {
-            switch (character.class) {
-              case CombatantClass.Warrior:
-                return <Axe className="h-full w-full fill-slate-400" />;
-              case CombatantClass.Mage:
-                return (
-                  <StaffWithSnowflake className="h-full w-full fill-slate-400 stroke-slate-400" />
-                );
-              case CombatantClass.Rogue:
-                return <DualSwords className="h-full w-full stroke-slate-400 fill-slate-400" />;
-            }
-          })();
+          const classIcon = getCombatantClassIcon(
+            character.class,
+            "fill-slate-400",
+            "stroke-slate-400"
+          );
 
           return (
             <li key={id} className="flex items-center mb-2">

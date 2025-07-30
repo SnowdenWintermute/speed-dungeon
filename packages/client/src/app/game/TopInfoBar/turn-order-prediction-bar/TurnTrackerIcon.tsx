@@ -1,6 +1,8 @@
 import { useGameStore } from "@/stores/game-store";
+import { getCombatantUiIdentifierIcon } from "@/utils/get-combatant-class-icon";
 import getGameAndParty from "@/utils/getGameAndParty";
 import {
+  AdventuringParty,
   COMBATANT_CONDITION_NAME_STRINGS,
   CombatantTurnTracker,
   ConditionTurnTracker,
@@ -53,6 +55,9 @@ export default function TurnOrderTrackerIcon({
     setHiddenClass("hidden");
   }
 
+  const combatant = AdventuringParty.getExpectedCombatant(party, tracker.combatantId);
+  const combatantUiIdentifierIcon = getCombatantUiIdentifierIcon(party, combatant);
+
   return (
     <button
       className={`border border-slate-400 h-10 w-10 ${conditionalClasses} mr-2 last:mr-0 ${preRemovalClassesState}`}
@@ -62,7 +67,7 @@ export default function TurnOrderTrackerIcon({
       onMouseEnter={onMouseEnter}
     >
       <div className="h-full w-full rounded-full bg-slate-600 border border-slate-400 flex items-center justify-center">
-        <span className="">{name}</span>
+        <span className="h-full w-full">{combatantUiIdentifierIcon}</span>
         <div className={`text-2xl absolute top-[160px] ${hiddenClass}`}>
           <div>{tracker.timeOfNextMove}</div>
         </div>

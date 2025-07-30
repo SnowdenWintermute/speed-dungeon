@@ -13,6 +13,7 @@ export type UIState = {
   showSettings: boolean;
   hotkeysDisabled: boolean;
   showDebug: boolean;
+  threatTableDetailedDisplayMode: boolean;
   mutateState: (fn: (state: UIState) => void) => void;
   setAuthFormEmailField: (email: string) => void;
 };
@@ -29,6 +30,7 @@ export const useUIStore = create<UIState>()(
         showSettings: false,
         hotkeysDisabled: false,
         showDebug: false,
+        threatTableDetailedDisplayMode: false,
         mutateState: (fn: (state: UIState) => void) => set(produce(fn)),
         setAuthFormEmailField: (email: string) => {
           set((state) => {

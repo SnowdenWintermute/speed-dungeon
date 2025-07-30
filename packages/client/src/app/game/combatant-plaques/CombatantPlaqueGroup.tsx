@@ -10,7 +10,7 @@ interface Props {
 
 export default function CombatantPlaqueGroup(props: Props) {
   return (
-    <ul className="w-full flex list-none">
+    <ul className={`w-full flex list-none ${!props.isPlayerControlled && "justify-center"} `}>
       {props.combatantIds.map((id) => {
         const combatantResult = AdventuringParty.getCombatant(props.party, id);
         if (combatantResult instanceof Error) return <div>{combatantResult.message} </div>;

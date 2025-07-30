@@ -1,15 +1,8 @@
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import {
-  ClientToServerEvent,
-  Combatant,
-  CombatantClass,
-  formatCombatantClassName,
-} from "@speed-dungeon/common";
-import Axe from "../../../../../public/img/combatant-class-icons/axe.svg";
-import DualSwords from "../../../../../public/img/combatant-class-icons/dual-swords.svg";
-import StaffWithSnowflake from "../../../../../public/img/combatant-class-icons/staff-with-snowflake.svg";
+import { ClientToServerEvent, Combatant, formatCombatantClassName } from "@speed-dungeon/common";
 import XShape from "../../../../../public/img/basic-shapes/x-shape.svg";
+import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
 
 export default function CharacterCard({
   character,
@@ -23,17 +16,8 @@ export default function CharacterCard({
     websocketConnection.emit(ClientToServerEvent.DeleteCharacter, character.entityProperties.id);
   }
 
-  let icon;
-  switch (combatantClass) {
-    case CombatantClass.Warrior:
-      icon = <Axe className="h-full w-full fill-slate-400" />;
-      break;
-    case CombatantClass.Mage:
-      icon = <StaffWithSnowflake className="h-full w-full fill-slate-400 stroke-slate-400" />;
-      break;
-    case CombatantClass.Rogue:
-      icon = <DualSwords className="h-full w-full stroke-slate-400 fill-slate-400" />;
-  }
+  const icon = getCombatantClassIcon(combatantClass, "fill-slate-400", "stroke-slate-400");
+
   return (
     <li className="h-20 mb-2 last:mb-0 flex ">
       <div className="h-20 min-w-20 p-2 mr-4 flex justify-center items-center">{icon}</div>

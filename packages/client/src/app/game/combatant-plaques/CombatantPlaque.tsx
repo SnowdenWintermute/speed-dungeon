@@ -22,6 +22,11 @@ import LowDurabilityIndicators from "./LowDurabilityIndicators";
 import ConditionIndicators from "./condition-indicators/";
 import ThreatPriorityList from "./ThreatPriorityList";
 import Portrait from "./Portrait";
+import {
+  getCombatantClassIcon,
+  getCombatantUiIdentifier,
+  getCombatantUiIdentifierIcon,
+} from "@/utils/get-combatant-class-icon";
 
 interface Props {
   combatant: Combatant;
@@ -89,6 +94,10 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
     </div>
   );
 
+  const plaqueWidth = isPartyMember ? "23rem" : "23rem";
+
+  const combatantUiIdentifierIcon = getCombatantUiIdentifierIcon(party, combatant);
+
   return (
     <div className="">
       <CharacterModelDisplay character={combatant}>
@@ -103,7 +112,10 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
         <ThreatPriorityList threatManager={combatantProperties.threatManager || null} />
         <div>
           <div
-            className={`w-[23rem] h-fit bg-slate-700 flex p-2.5 relative box-border outline ${conditionalBorder} ${lockedUiState}`}
+            className={`h-fit bg-slate-700 flex p-2.5 relative box-border outline ${conditionalBorder} ${lockedUiState}`}
+            style={{
+              width: plaqueWidth,
+            }}
             ref={combatantPlaqueRef}
           >
             {isPartyMember && (
@@ -135,7 +147,9 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
             <div className="flex-grow" ref={nameAndBarsRef}>
               <div className="mb-1.5 flex justify-between items-center align-middle leading-5 text-lg ">
                 <span className="flex">
-                  <span className="">{entityProperties.name}</span>
+                  <span className="max-w-44 overflow-hidden text-ellipsis">
+                    {entityProperties.name}
+                  </span>
                   <span>
                     {showDebug ? (
                       <HoverableTooltipWrapper tooltipText={entityId}>
@@ -145,14 +159,20 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
                       ""
                     )}
                   </span>
-                  <UnspentAttributesButton
-                    combatantProperties={combatantProperties}
-                    entityId={entityId}
-                  />
                 </span>
-                <span className="flex items-center">
-                  <CombatantInfoButton combatant={combatant} />
-                </span>
+
+                <div className="flex items-center h-full">
+                  {<div className="h-5 bg-slate-950 mr-2">{combatantUiIdentifierIcon}</div>}
+                  <div className="ml-1">
+                    <UnspentAttributesButton
+                      combatantProperties={combatantProperties}
+                      entityId={entityId}
+                    />
+                  </div>
+                  <div className="ml-1">
+                    <CombatantInfoButton combatant={combatant} />
+                  </div>
+                </div>
               </div>
               <ValueBarsAndFocusButton
                 combatantId={entityId}
