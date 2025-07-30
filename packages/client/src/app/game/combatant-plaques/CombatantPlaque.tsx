@@ -21,6 +21,7 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import LowDurabilityIndicators from "./LowDurabilityIndicators";
 import ConditionIndicators from "./condition-indicators/";
 import ThreatPriorityList from "./ThreatPriorityList";
+import Portrait from "./Portrait";
 
 interface Props {
   combatant: Combatant;
@@ -126,17 +127,11 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
               combatantId={entityId}
               combatantPlaqueRef={combatantPlaqueRef}
             />
-            <div className="relative rounded-full">
-              <div
-                className="h-full aspect-square mr-2 border border-slate-400 bg-slate-600 rounded-full overflow-hidden"
-                style={{ height: `${portraitHeight}px` }}
-              >
-                {portrait && <img className="h-full object-cover" src={portrait} alt="portrait" />}
-              </div>
-              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-5 border border-slate-400 bg-slate-700 pr-2 pl-2 text-sm flex items-center justify-center">
-                {combatantProperties.level}
-              </div>
-            </div>
+            <Portrait
+              portrait={portrait}
+              portraitHeight={portraitHeight}
+              combatantLevel={combatantProperties.level}
+            />
             <div className="flex-grow" ref={nameAndBarsRef}>
               <div className="mb-1.5 flex justify-between items-center align-middle leading-5 text-lg ">
                 <span className="flex">

@@ -20,6 +20,7 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
   branchingActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] = [];
   constructor(context: ActionResolutionStepContext) {
     super(stepType, context, null); // this step should produce no game update unless it is unlocking input
+    const { party } = context.combatantContext;
 
     const gameUpdateCommandOption = evaluatePlayerEndTurnAndInputLock(context);
     if (gameUpdateCommandOption) {
@@ -38,9 +39,21 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
         );
         threatCalculator.addVolatileThreatDecay();
 
-        threatChanges.applyToGame(context.combatantContext.party);
+        threatChanges.applyToGame(party);
         this.gameUpdateCommandOption.threatChanges = threatChanges;
         console.log("set threat changes for end of turn:", JSON.stringify(threatChanges, null, 2));
+      }
+
+      for (const [groupName, combatantGroup] of Object.entries(
+        AdventuringParty.getAllCombatants(party)
+      )) {
+        for (const [entityId, combatant] of Object.entries(combatantGroup)) {
+          if (!combatant.combatantProperties.threatManager) continue;
+          combatant.combatantProperties.threatManager.updateHomeRotationToPointTowardNewTopThreatTarget(
+            party,
+            combatant
+          );
+        }
       }
     }
 

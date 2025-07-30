@@ -1,10 +1,8 @@
 import {
   AssetContainer,
   Color3,
-  Matrix,
   Mesh,
   MeshBuilder,
-  Quaternion,
   StandardMaterial,
   TransformNode,
   Vector3,
@@ -17,7 +15,7 @@ import getGameAndParty from "@/utils/getGameAndParty";
 import { ActionEntityModel } from "../../action-entity-models";
 import {
   ActionEntityName,
-  COMBATANT_TIME_TO_MOVE_ONE_METER,
+  AdventuringParty,
   CombatantBaseChildTransformNodeName,
   easeOut,
   NormalizedPercentage,
@@ -31,98 +29,91 @@ export function threatTargetChangedIndicatorSequence() {
     if (gameAndPartyResult instanceof Error) throw gameAndPartyResult;
     const [game, party] = gameAndPartyResult;
 
-    for (const [monsterId, monster] of Object.entries(party.currentRoom.monsters)) {
-      const { threatManager } = monster.combatantProperties;
-      if (!threatManager) continue;
+    for (const [groupName, combatantGroup] of Object.entries(
+      AdventuringParty.getAllCombatants(party)
+    )) {
+      for (const [entityId, combatant] of Object.entries(combatantGroup)) {
+        const { threatManager } = combatant.combatantProperties;
+        if (!threatManager) continue;
+        const updatedTopThreat = threatManager.updateHomeRotationToPointTowardNewTopThreatTarget(
+          party,
+          combatant
+        );
+        if (!updatedTopThreat) continue;
+        const monsterCharacterModel = getGameWorld().modelManager.findOne(entityId);
+        monsterCharacterModel.homeLocation.rotation = combatant.combatantProperties.homeRotation;
+        monsterCharacterModel.movementManager.startRotatingTowards(
+          monsterCharacterModel.homeLocation.rotation,
+          1000,
+          () => {}
+        );
 
-      const newThreatTargetIdOption = threatManager.getHighestThreatCombatantId();
-      if (newThreatTargetIdOption === threatManager.getPreviouslyHighestThreatId()) continue;
+        const indicatorArrow = spawnTargetChangedIndicatorArrow(
+          monsterCharacterModel.movementManager.transformNode.position
+        );
 
-      if (!newThreatTargetIdOption) continue;
-      threatManager.setPreviouslyHighestThreatId(newThreatTargetIdOption);
+        getGameWorld().actionEntityManager.register(indicatorArrow);
 
-      const newTargetCharacterModel = getGameWorld().modelManager.findOne(newThreatTargetIdOption);
-      const monsterCharacterModel = getGameWorld().modelManager.findOne(monsterId);
+        const newTargetId = threatManager.getHighestThreatCombatantId();
+        if (newTargetId === null) continue;
 
-      const targetPos = newTargetCharacterModel.homeLocation.position;
+        const newTargetCharacterModel = getGameWorld().modelManager.findOne(newTargetId);
+        const targetCurrentPosition =
+          newTargetCharacterModel.movementManager.transformNode.position;
+        indicatorArrow.rootTransformNode.lookAt(targetCurrentPosition);
 
-      const lookAtMatrix = Matrix.LookAtLH(
-        monsterCharacterModel.homeLocation.position,
-        targetPos,
-        Vector3.Up()
-      );
-      // Invert because LookAtLH returns a view matrix
-      const worldRotation = Quaternion.FromRotationMatrix(lookAtMatrix).invert();
-
-      monsterCharacterModel.homeLocation.rotation = worldRotation;
-      monsterCharacterModel.movementManager.startRotatingTowards(
-        monsterCharacterModel.homeLocation.rotation,
-        1000,
-        () => {}
-      );
-
-      const indicatorArrow = spawnTargetChangedIndicatorArrow(
-        monsterCharacterModel.movementManager.transformNode.position
-      );
-
-      // indicatorArrow.createDebugLines()
-
-      getGameWorld().actionEntityManager.register(indicatorArrow);
-
-      const targetCurrentPosition = newTargetCharacterModel.movementManager.transformNode.position;
-      indicatorArrow.rootTransformNode.lookAt(targetCurrentPosition);
-
-      handleLockRotationToFace(indicatorArrow, {
-        identifier: {
-          sceneEntityIdentifier: {
-            type: SceneEntityType.CharacterModel,
-            entityId: newThreatTargetIdOption,
+        handleLockRotationToFace(indicatorArrow, {
+          identifier: {
+            sceneEntityIdentifier: {
+              type: SceneEntityType.CharacterModel,
+              entityId: newTargetId,
+            },
+            transformNodeName: CombatantBaseChildTransformNodeName.EntityRoot,
           },
-          transformNodeName: CombatantBaseChildTransformNodeName.EntityRoot,
-        },
-        duration: 300,
-      });
+          duration: 300,
+        });
 
-      const trailWidth = 0.02;
-      const trailHeight = 0.02;
+        const trailWidth = 0.02;
+        const trailHeight = 0.02;
 
-      const { trail, positions } = spawnTargetChangedIndicatorTrail(
-        monsterCharacterModel.movementManager.transformNode.position,
-        trailWidth,
-        trailHeight
-      );
+        const { trail, positions } = spawnTargetChangedIndicatorTrail(
+          monsterCharacterModel.movementManager.transformNode.position,
+          trailWidth,
+          trailHeight
+        );
 
-      const distance = Vector3.Distance(
-        indicatorArrow.rootTransformNode.position,
-        targetCurrentPosition
-      );
-      // const duration = distance * COMBATANT_TIME_TO_MOVE_ONE_METER * 0.75;
-      const duration = 900;
+        const distance = Vector3.Distance(
+          indicatorArrow.rootTransformNode.position,
+          targetCurrentPosition
+        );
+        // const duration = distance * COMBATANT_TIME_TO_MOVE_ONE_METER * 0.75;
+        const duration = 900;
 
-      indicatorArrow.movementManager.startTranslating(
-        targetCurrentPosition,
-        duration,
-        () => {
-          getGameWorld().actionEntityManager.unregister(indicatorArrow.entityId);
-          trail.dispose();
-        },
-        (percentComplete) => {
-          // arrow head opacity
-          if (indicatorArrow.rootMesh.material?.alpha !== undefined)
-            indicatorArrow.rootMesh.material.alpha = 1 - percentComplete;
+        indicatorArrow.movementManager.startTranslating(
+          targetCurrentPosition,
+          duration,
+          () => {
+            getGameWorld().actionEntityManager.unregister(indicatorArrow.entityId);
+            trail.dispose();
+          },
+          (percentComplete) => {
+            // arrow head opacity
+            if (indicatorArrow.rootMesh.material?.alpha !== undefined)
+              indicatorArrow.rootMesh.material.alpha = 1 - percentComplete;
 
-          updateTargetChangedIndicatorTrail(
-            indicatorArrow.movementManager.transformNode,
-            monsterCharacterModel.homeLocation.position,
-            positions,
-            trail,
-            trailWidth,
-            trailHeight,
-            percentComplete
-          );
-        },
-        easeOut
-      );
+            updateTargetChangedIndicatorTrail(
+              indicatorArrow.movementManager.transformNode,
+              monsterCharacterModel.homeLocation.position,
+              positions,
+              trail,
+              trailWidth,
+              trailHeight,
+              percentComplete
+            );
+          },
+          easeOut
+        );
+      }
     }
   });
 }

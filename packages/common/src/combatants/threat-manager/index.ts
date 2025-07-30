@@ -1,4 +1,7 @@
+import { Matrix, Quaternion, Vector3 } from "@babylonjs/core";
+import { AdventuringParty } from "../../adventuring-party/index.js";
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
+import { Combatant } from "../index.js";
 
 export const STABLE_THREAT_CAP = 10000;
 export const VOLATILE_THREAT_CAP = 10000;
@@ -55,5 +58,29 @@ export class ThreatManager {
 
   getEntries() {
     return this.threatScoresByCombatantId;
+  }
+
+  /** Returns true if updated top target */
+  updateHomeRotationToPointTowardNewTopThreatTarget(party: AdventuringParty, monster: Combatant) {
+    const newThreatTargetIdOption = this.getHighestThreatCombatantId();
+    if (newThreatTargetIdOption === this.getPreviouslyHighestThreatId()) return false;
+
+    if (!newThreatTargetIdOption) return false;
+    this.setPreviouslyHighestThreatId(newThreatTargetIdOption);
+
+    const newTargetCombatant = AdventuringParty.getExpectedCombatant(
+      party,
+      newThreatTargetIdOption
+    );
+    const targetPos = newTargetCombatant.combatantProperties.homeLocation;
+    const monsterPos = monster.combatantProperties.position;
+
+    const lookAtMatrix = Matrix.LookAtLH(monsterPos, targetPos, Vector3.Up());
+    // Invert because LookAtLH returns a view matrix
+    const worldRotation = Quaternion.FromRotationMatrix(lookAtMatrix).invert();
+
+    monster.combatantProperties.homeRotation = worldRotation;
+
+    return true;
   }
 }
