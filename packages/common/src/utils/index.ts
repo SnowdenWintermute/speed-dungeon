@@ -139,27 +139,15 @@ export function getLookRotationFromPositions(
   fromPosition: Vector3,
   toPosition: Vector3
 ): Quaternion {
-  const forward = toPosition.subtract(fromPosition).normalize();
+  const direction = toPosition.subtract(fromPosition);
+  direction.y = 0; // Eliminate vertical component to constrain to XZ plane
 
-  const defaultForward = new Vector3(0, 0, 1); // Babylon.js default forward
-
-  const dot = Vector3.Dot(defaultForward, forward);
-
-  if (dot > 0.999999) {
+  if (direction.lengthSquared() === 0) {
     return Quaternion.Identity();
   }
 
-  if (dot < -0.999999) {
-    // 180 degrees turn
-    const orthogonal = Vector3.Cross(Vector3.Up(), defaultForward);
-    if (orthogonal.lengthSquared() < 0.0001) {
-      orthogonal.copyFrom(Vector3.Cross(Vector3.Right(), defaultForward));
-    }
-    orthogonal.normalize();
-    return Quaternion.RotationAxis(orthogonal, Math.PI);
-  }
+  direction.normalize();
+  const up = Vector3.Up(); // Y axis
 
-  const axis = Vector3.Cross(defaultForward, forward).normalize();
-  const angle = Math.acos(dot);
-  return Quaternion.RotationAxis(axis, angle);
+  return Quaternion.FromLookDirectionRH(direction, up);
 }

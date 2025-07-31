@@ -42,7 +42,7 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
     const actionsThatTrigger = [
       CombatActionName.AttackMeleeMainhand,
       CombatActionName.AttackMeleeOffhand,
-      CombatActionName.AttackRangedMainhand,
+      CombatActionName.AttackRangedMainhandProjectile,
       CombatActionName.ExplodingArrowProjectile,
       CombatActionName.ChainingSplitArrowProjectile,
       CombatActionName.CounterattackMeleeMainhand,
