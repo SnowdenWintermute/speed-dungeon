@@ -14,7 +14,7 @@ import {
   getCombatantClassIcon,
   getCombatantUiIdentifierIcon,
 } from "@/utils/get-combatant-class-icon";
-import { UiDisplayMode, useUIStore } from "@/stores/ui-store";
+import { UI_DISPLAY_MODE_STRINGS, UiDisplayMode, useUIStore } from "@/stores/ui-store";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 
 interface Props {
@@ -128,10 +128,13 @@ function ThreatTrackerIcon(props: {
   return (
     <button className={`${extraStyles} w-full h-8`} onClick={handleClick}>
       <div className="h-full w-full flex items-center justify-center relative">
-        {
-          // <div className=" w-10 absolute border-t border-b border-slate-400 bg-slate-700 h-4 left-full top-1/2 -translate-x-1/2 -translate-y-1/2 " />
-        }
         <div className="bg-slate-700 border border-slate-400 h-8 w-8 rounded-full z-20 absolute right-0 overflow-hidden">
+          <HoverableTooltipWrapper
+            tooltipText={`Toggle Mode: ${UI_DISPLAY_MODE_STRINGS[threatTableDetailedDisplayMode]}`}
+            extraStyles="h-full w-full absolute z-10"
+          >
+            <div></div>
+          </HoverableTooltipWrapper>
           <div
             className={
               "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[50%] flex justify-center items-center"
@@ -144,9 +147,11 @@ function ThreatTrackerIcon(props: {
           </div>
         </div>
         <div className=" bg-slate-700 border border-r-0 border-slate-400 w-fit h-full mr-4 pl-2 pr-5">
-          {threatTableDetailedDisplayMode !== UiDisplayMode.Sparse &&
-            (threatTableDetailedDisplayMode ? detailedThreat : simpleThreat)}
-          {threatTableDetailedDisplayMode === UiDisplayMode.Sparse && (
+          {threatTableDetailedDisplayMode === UiDisplayMode.Detailed ? (
+            detailedThreat
+          ) : threatTableDetailedDisplayMode === UiDisplayMode.Simple ? (
+            simpleThreat
+          ) : (
             <div
               className="bg-slate-500 w-1/2 absolute bottom-0 left-0"
               style={{

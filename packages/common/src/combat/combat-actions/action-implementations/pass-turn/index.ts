@@ -1,4 +1,5 @@
 import {
+  ActionResolutionStepsConfig,
   CombatActionComponentConfig,
   CombatActionIntent,
   CombatActionLeaf,
@@ -18,6 +19,7 @@ import {
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
 import { getNonProjectileBasedSpellBaseStepsConfig } from "../non-projectile-based-spell-base-steps-config.js";
+import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 
 export const passTurnConfig: CombatActionComponentConfig = {
   description: "Skip your own turn",
@@ -39,7 +41,18 @@ export const passTurnConfig: CombatActionComponentConfig = {
     getShouldDecayThreatOnUse: (context) => false,
   },
   costProperties: genericCombatActionCostProperties,
-  stepsConfig: getNonProjectileBasedSpellBaseStepsConfig(),
+  stepsConfig: new ActionResolutionStepsConfig(
+    {
+      [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
+      [ActionResolutionStepType.PayResourceCosts]: {},
+      [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
+      [ActionResolutionStepType.EvalOnUseTriggers]: {},
+      [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
+      [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+      [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
+    },
+    { userShouldMoveHomeOnComplete: false }
+  ),
   shouldExecute: () => true,
   getConcurrentSubActions: () => [],
   getChildren: () => [],

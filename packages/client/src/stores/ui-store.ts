@@ -10,6 +10,12 @@ export enum UiDisplayMode {
   Sparse,
 }
 
+export const UI_DISPLAY_MODE_STRINGS: Record<UiDisplayMode, string> = {
+  [UiDisplayMode.Detailed]: "Detailed",
+  [UiDisplayMode.Simple]: "Simple",
+  [UiDisplayMode.Sparse]: "Sparse",
+};
+
 export type UIState = {
   modKeyHeld: boolean;
   alternateClickKeyHeld: boolean;

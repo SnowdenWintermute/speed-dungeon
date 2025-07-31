@@ -17,6 +17,7 @@ import {
   ActionEntityName,
   AdventuringParty,
   CombatantBaseChildTransformNodeName,
+  CombatantProperties,
   easeOut,
   NormalizedPercentage,
   SceneEntityType,
@@ -35,6 +36,7 @@ export function threatTargetChangedIndicatorSequence() {
       for (const [entityId, combatant] of Object.entries(combatantGroup)) {
         const { threatManager } = combatant.combatantProperties;
         if (!threatManager) continue;
+        if (CombatantProperties.isDead(combatant.combatantProperties)) continue;
         const updatedTopThreat = threatManager.updateHomeRotationToPointTowardNewTopThreatTarget(
           party,
           combatant

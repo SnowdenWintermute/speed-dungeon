@@ -6,6 +6,7 @@ import { AIBehaviorContext } from "./ai-context.js";
 import { CombatantContext } from "../../combatant-context/index.js";
 import { SelectRandomActionAndTargets } from "./custom-nodes/select-random-action-and-targets.js";
 import { BEHAVIOR_NODE_STATE_STRINGS } from "./behavior-tree.js";
+import { SelectTopThreatTargetAndAction } from "./custom-nodes/select-highest-threat-target.js";
 
 export function AISelectActionAndTarget(
   game: SpeedDungeonGame,
@@ -22,7 +23,7 @@ export function AISelectActionAndTarget(
     battleOption
   );
 
-  const targetSelectorNode = new SelectRandomActionAndTargets(behaviorContext, user, [
+  const targetSelectorNode = new SelectTopThreatTargetAndAction(behaviorContext, user, [
     CombatActionIntent.Malicious,
   ]);
 
