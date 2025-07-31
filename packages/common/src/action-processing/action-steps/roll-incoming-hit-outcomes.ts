@@ -69,7 +69,7 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
     battleOption?.turnOrderManager.updateTrackers(game, party);
   }
 
-  protected onTick = () => {};
+  protected onTick = () => { };
   getTimeToCompletion = () => 0;
   isComplete = () => true;
 

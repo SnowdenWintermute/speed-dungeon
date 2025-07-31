@@ -22,6 +22,7 @@ export function getStepForwardDestination(context: ActionResolutionStepContext) 
   const { combatantContext } = context;
   const user = combatantContext.combatant.combatantProperties;
   const direction = CombatantProperties.getForward(user);
+  console.log("step forward direction:", direction);
   return { position: user.homeLocation.add(direction.scale(1)) };
 }
 

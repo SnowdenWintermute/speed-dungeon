@@ -192,7 +192,7 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   combatantProperties.inherentAttributes[CombatAttribute.Strength] = 40;
   combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 40;
   // combatantProperties.inherentAttributes[CombatAttribute.Speed] = 9999;
-  combatantProperties.inherentAttributes[CombatAttribute.Hp] = 600;
+  combatantProperties.inherentAttributes[CombatAttribute.Hp] = 35;
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
   // combatantProperties.inventory.shards = 9999;

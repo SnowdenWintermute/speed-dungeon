@@ -65,28 +65,23 @@ export class ThreatCalculator {
   }
 
   updateThreatChangesForPlayerControlledCharacterHitOutcomes() {
-    console.log("updateThreatChangesForPlayerControlledCharacterHitOutcomes ran");
     const action = COMBAT_ACTIONS[this.actionName];
 
     if (action.hitOutcomeProperties.flatThreatGeneratedOnHit) {
       const entitiesHit = this.hitOutcomes.outcomeFlags[HitOutcome.Hit] || [];
-      console.log("entitiesHit:", entitiesHit);
       for (const entityId of entitiesHit) {
         const targetCombatantResult = AdventuringParty.getCombatant(this.party, entityId);
         if (targetCombatantResult instanceof Error) throw targetCombatantResult;
         const targetIsPlayer = targetCombatantResult.combatantProperties.controllingPlayer;
 
         if (targetCombatantResult.combatantProperties.threatManager) {
-          console.log(
-            "attempting to add threat on debuff cast:",
-            action.hitOutcomeProperties.flatThreatReducedOnMonsterVsPlayerHit
-          );
-          // add flat threat to monster for user
-          this.addThreatFromDebuffingMonster(
-            targetCombatantResult,
-            this.actionUser,
-            action.hitOutcomeProperties.flatThreatGeneratedOnHit
-          );
+          if (!CombatantProperties.isDead(targetCombatantResult.combatantProperties))
+            // add flat threat to monster for user
+            this.addThreatFromDebuffingMonster(
+              targetCombatantResult,
+              this.actionUser,
+              action.hitOutcomeProperties.flatThreatGeneratedOnHit
+            );
         } else if (targetIsPlayer) {
           // add threat to all monsters for user
           this.addThreatFromBuffingPlayerCharacter(
@@ -187,6 +182,8 @@ export class ThreatCalculator {
     playerCharacter: Combatant,
     hpChangeValue: number
   ) {
+    if (CombatantProperties.isDead(monster.combatantProperties)) return;
+
     const stableThreatGenerated =
       ThreatCalculator.getThreatGeneratedOnHpChange(
         hpChangeValue,
@@ -265,6 +262,8 @@ export class ThreatCalculator {
     values: Record<ThreatType, number>
   ) {
     for (const [monsterId, monster] of Object.entries(monsters)) {
+      if (CombatantProperties.isDead(monster.combatantProperties)) continue;
+
       this.threatChanges.addOrUpdateEntry(
         monster.entityProperties.id,
         user.entityProperties.id,
@@ -305,6 +304,7 @@ export class ThreatCalculator {
     const monsters = this.party.currentRoom.monsters;
 
     for (const [monsterId, monster] of Object.entries(monsters)) {
+      if (CombatantProperties.isDead(monster.combatantProperties)) continue;
       const { threatManager } = monster.combatantProperties;
       if (threatManager === undefined) continue;
       for (const [combatantId, threatEntry] of Object.entries(threatManager.getEntries())) {

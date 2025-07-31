@@ -38,6 +38,8 @@ export class ThreatManager {
 
   changeThreat(combatantId: EntityId, threatType: ThreatType, value: number) {
     let existingEntry = this.threatScoresByCombatantId[combatantId];
+    // don't create a new entry if not generating threat
+    if (existingEntry === undefined && value < 1) return;
     if (existingEntry === undefined)
       this.threatScoresByCombatantId[combatantId] = existingEntry = new ThreatTableEntry();
     existingEntry.threatScoresByType[threatType].addValue(value);
@@ -58,6 +60,10 @@ export class ThreatManager {
 
   getEntries() {
     return this.threatScoresByCombatantId;
+  }
+
+  removeEntry(entityId: EntityId) {
+    delete this.threatScoresByCombatantId[entityId];
   }
 
   /** Returns true if updated top target */

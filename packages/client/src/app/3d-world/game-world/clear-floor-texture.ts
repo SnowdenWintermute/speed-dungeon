@@ -46,14 +46,14 @@ export function drawCompass(gameWorld: GameWorld) {
   context.lineTo(centerX, centerY);
   context.strokeStyle = FFIX_COLORS.windgreen;
   context.stroke();
-  context.fillText("N (-Y)", north.x, north.y);
+  context.fillText("N (-Z)", north.x, north.y);
 
   context.beginPath();
   context.moveTo(south.x, south.y);
   context.lineTo(centerX, centerY);
   context.strokeStyle = FFIX_COLORS.waterblue;
   context.stroke();
-  context.fillText("S (+Y)", south.x, south.y);
+  context.fillText("S (+Z)", south.x, south.y);
 
   context.beginPath();
   context.moveTo(east.x, east.y);

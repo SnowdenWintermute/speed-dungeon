@@ -16,7 +16,11 @@ import getCombatantTotalElementalAffinities from "./combatant-traits/get-combata
 import getCombatantTotalKineticDamageTypeAffinities from "./combatant-traits/get-combatant-total-kinetic-damage-type-affinities.js";
 import { setResourcesToMax } from "./resources/set-resources-to-max.js";
 import { immerable } from "immer";
-import { iterateNumericEnum, iterateNumericEnumKeyedRecord } from "../utils/index.js";
+import {
+  formatVector3,
+  iterateNumericEnum,
+  iterateNumericEnumKeyedRecord,
+} from "../utils/index.js";
 import awardLevelups, { XP_REQUIRED_TO_REACH_LEVEL_2 } from "./experience-points/award-levelups.js";
 import { incrementAttributePoint } from "./attributes/increment-attribute.js";
 import { MonsterType } from "../monsters/monster-types.js";
@@ -249,10 +253,16 @@ export class CombatantProperties {
   }
 
   static getForward(combatantProperties: CombatantProperties) {
-    // const { x, y, z } = combatantProperties.homeLocation;
-    // return cloneVector3(new Vector3(x, 0, 0)).subtract(combatantProperties.homeLocation);
-    return new Vector3(0, 0, 1);
+    const z = combatantProperties.homeLocation.z;
+    console.log("Y home position", formatVector3(combatantProperties.homeLocation));
+    const direction = z > 0 ? -1 : 1;
+    return new Vector3(0, 0, direction);
   }
+  // static getForward(combatantProperties: CombatantProperties) {
+  //   // const { x, y, z } = combatantProperties.homeLocation;
+  //   // return cloneVector3(new Vector3(x, 0, 0)).subtract(combatantProperties.homeLocation);
+  //   return new Vector3(0, 0, 1);
+  // }
 
   static hasRequiredConsumablesToUseAction(
     combatantProperties: CombatantProperties,

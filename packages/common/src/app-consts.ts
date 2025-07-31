@@ -21,7 +21,7 @@ export const GAME_CONFIG = {
   MIN_RACE_GAME_PARTIES: 2,
 };
 export const MAX_PARTY_SIZE = 3;
-export const NUM_MONSTERS_PER_ROOM = 3;
+export const NUM_MONSTERS_PER_ROOM = 2;
 // export const NUM_MONSTERS_PER_ROOM = 1;
 export const BASE_XP_PER_MONSTER = 30.0;
 // export const BASE_XP_PER_MONSTER = 100.0;

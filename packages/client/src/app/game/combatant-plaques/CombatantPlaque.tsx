@@ -10,7 +10,13 @@ import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
-import { Combatant, CombatantEquipment, InputLock, Inventory } from "@speed-dungeon/common";
+import {
+  Combatant,
+  CombatantEquipment,
+  CombatantProperties,
+  InputLock,
+  Inventory,
+} from "@speed-dungeon/common";
 import "./floating-text-animation.css";
 import CombatantFloatingMessagesDisplay from "./combatant-floating-messages-display";
 import InventoryIconButton from "./InventoryIconButton";
@@ -109,7 +115,9 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
       {isPartyMember && conditionIndicators("mb-1") /* otherwise put it below */}
 
       <div className="flex">
-        <ThreatPriorityList threatManager={combatantProperties.threatManager || null} />
+        {!CombatantProperties.isDead(combatantProperties) && (
+          <ThreatPriorityList threatManager={combatantProperties.threatManager || null} />
+        )}
         <div>
           <div
             className={`h-fit bg-slate-700 flex p-2.5 relative box-border outline ${conditionalBorder} ${lockedUiState}`}

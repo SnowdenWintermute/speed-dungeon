@@ -1,3 +1,4 @@
+import { immerable } from "immer";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { CombatantContext } from "../../../combatant-context/index.js";
 import { CombatantProperties, ThreatType } from "../../../combatants/index.js";
@@ -84,14 +85,27 @@ export class ManaChanges extends ResourceChanges<ManaChange> {
 }
 
 export class ThreatChanges {
+  [immerable] = true;
   private entries: {
     [entityIdOfThreatTableToUpdate: EntityId]: {
       [threatTableEntityId: EntityId]: Partial<Record<ThreatType, number>>;
     };
   } = {};
+  private entriesToRemove: {
+    [entityIdOfThreatTableToUpdate: EntityId]: EntityId[];
+  } = {};
   constructor() {}
   isEmpty() {
     return Object.keys(this.entries).length === 0;
+  }
+  addEntryToRemove(entityIdOfThreatTableToUpdate: EntityId, threatTableEntityId: EntityId) {
+    let existing = this.entriesToRemove[entityIdOfThreatTableToUpdate];
+    if (existing === undefined) existing = this.entriesToRemove[entityIdOfThreatTableToUpdate] = [];
+    if (existing.includes(threatTableEntityId)) return;
+    existing.push(threatTableEntityId);
+  }
+  getEntriesToRemove() {
+    return this.entriesToRemove;
   }
   addOrUpdateEntry(
     monsterIdOwnerOfThreatTable: EntityId,
@@ -126,6 +140,25 @@ export class ThreatChanges {
       for (const [entityId, changesByThreatType] of Object.entries(changes))
         for (const [threatType, value] of iterateNumericEnumKeyedRecord(changesByThreatType))
           threatManager.changeThreat(entityId, threatType, value);
+    }
+
+    for (const [entityIdOfThreatTableToUpdate, entityIdsToRemove] of Object.entries(
+      this.entriesToRemove
+    )) {
+      console.log(
+        "want to remove threat table entries:",
+        entityIdOfThreatTableToUpdate,
+        entityIdsToRemove
+      );
+      const targetResult = AdventuringParty.getCombatant(party, entityIdOfThreatTableToUpdate);
+      if (targetResult instanceof Error) throw targetResult;
+      const { combatantProperties: targetCombatantProperties } = targetResult;
+
+      const { threatManager } = targetCombatantProperties;
+      if (!threatManager) throw new Error("got threat changes on an entity with no threat manager");
+      for (const entityIdToRemove of entityIdsToRemove) {
+        threatManager.removeEntry(entityIdToRemove);
+      }
     }
   }
 }

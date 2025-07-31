@@ -4,8 +4,6 @@ import {
   HitOutcomesGameUpdateCommand,
   ActionPayableResource,
   COMBAT_ACTIONS,
-  ThreatChanges,
-  CombatantContext,
 } from "@speed-dungeon/common";
 import { getGameWorld } from "../../SceneManager";
 import { useGameStore } from "@/stores/game-store";
@@ -20,7 +18,6 @@ import {
 import { plainToInstance } from "class-transformer";
 import { HitPointChanges } from "@speed-dungeon/common";
 import { induceHitRecovery } from "./induce-hit-recovery";
-import getGameAndParty from "@/utils/getGameAndParty";
 import { handleThreatChangesUpdate } from "./handle-threat-changes";
 
 export async function hitOutcomesGameUpdateHandler(update: {

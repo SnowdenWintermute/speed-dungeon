@@ -134,3 +134,32 @@ export function formatThousandsAsK(value: number): string {
   if (value < 1000) return value.toString();
   return (value / 1000).toFixed(2).replace(/\.?0+$/, "") + "k";
 }
+
+export function getLookRotationFromPositions(
+  fromPosition: Vector3,
+  toPosition: Vector3
+): Quaternion {
+  const forward = toPosition.subtract(fromPosition).normalize();
+
+  const defaultForward = new Vector3(0, 0, 1); // Babylon.js default forward
+
+  const dot = Vector3.Dot(defaultForward, forward);
+
+  if (dot > 0.999999) {
+    return Quaternion.Identity();
+  }
+
+  if (dot < -0.999999) {
+    // 180 degrees turn
+    const orthogonal = Vector3.Cross(Vector3.Up(), defaultForward);
+    if (orthogonal.lengthSquared() < 0.0001) {
+      orthogonal.copyFrom(Vector3.Cross(Vector3.Right(), defaultForward));
+    }
+    orthogonal.normalize();
+    return Quaternion.RotationAxis(orthogonal, Math.PI);
+  }
+
+  const axis = Vector3.Cross(defaultForward, forward).normalize();
+  const angle = Math.acos(dot);
+  return Quaternion.RotationAxis(axis, angle);
+}
