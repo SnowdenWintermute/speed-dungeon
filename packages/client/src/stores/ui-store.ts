@@ -4,6 +4,12 @@ import { immer } from "zustand/middleware/immer";
 import { produce } from "immer";
 import { Point } from "@speed-dungeon/common";
 
+export enum UiDisplayMode {
+  Detailed,
+  Simple,
+  Sparse,
+}
+
 export type UIState = {
   modKeyHeld: boolean;
   alternateClickKeyHeld: boolean;
@@ -13,7 +19,7 @@ export type UIState = {
   showSettings: boolean;
   hotkeysDisabled: boolean;
   showDebug: boolean;
-  threatTableDetailedDisplayMode: boolean;
+  threatTableDetailedDisplayMode: UiDisplayMode;
   mutateState: (fn: (state: UIState) => void) => void;
   setAuthFormEmailField: (email: string) => void;
 };
@@ -30,7 +36,7 @@ export const useUIStore = create<UIState>()(
         showSettings: false,
         hotkeysDisabled: false,
         showDebug: false,
-        threatTableDetailedDisplayMode: false,
+        threatTableDetailedDisplayMode: UiDisplayMode.Simple,
         mutateState: (fn: (state: UIState) => void) => set(produce(fn)),
         setAuthFormEmailField: (email: string) => {
           set((state) => {

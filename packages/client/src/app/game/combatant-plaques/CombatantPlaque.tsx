@@ -162,7 +162,9 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
                 </span>
 
                 <div className="flex items-center h-full">
-                  {<div className="h-5 bg-slate-950 mr-2">{combatantUiIdentifierIcon}</div>}
+                  <HoverableTooltipWrapper tooltipText="This combatant's designation in UI elements such as the turn order bar and threat table displays">
+                    <div className="h-5 bg-slate-950 mr-2">{combatantUiIdentifierIcon}</div>
+                  </HoverableTooltipWrapper>
                   <div className="ml-1">
                     <UnspentAttributesButton
                       combatantProperties={combatantProperties}

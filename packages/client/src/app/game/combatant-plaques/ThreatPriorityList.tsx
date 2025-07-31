@@ -1,4 +1,12 @@
-import { formatThousandsAsK, ThreatManager, ThreatTableEntry } from "@speed-dungeon/common";
+import {
+  formatThousandsAsK,
+  getNextOrPreviousNumber,
+  iterateNumericEnum,
+  NextOrPrevious,
+  ThreatManager,
+  ThreatTableEntry,
+  ThreatType,
+} from "@speed-dungeon/common";
 import React from "react";
 
 import { useGameStore } from "@/stores/game-store";
@@ -6,7 +14,7 @@ import {
   getCombatantClassIcon,
   getCombatantUiIdentifierIcon,
 } from "@/utils/get-combatant-class-icon";
-import { useUIStore } from "@/stores/ui-store";
+import { UiDisplayMode, useUIStore } from "@/stores/ui-store";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 
 interface Props {
@@ -19,10 +27,14 @@ export default function ThreatPriorityList({ threatManager }: Props) {
   const entries = threatManager.getEntries();
 
   const threatTableDetailedDisplayMode = useUIStore().threatTableDetailedDisplayMode;
-  const widthClass = threatTableDetailedDisplayMode ? "w-40" : "w-24";
+  // const widthClass = threatTableDetailedDisplayMode ? "w-40" : "w-24";
+  //${widthClass}
+  const topThreatId = threatManager.getHighestThreatCombatantId();
+  const highestThreat =
+    topThreatId !== null ? threatManager.getEntries()[topThreatId]?.getTotal() : 0;
 
   return (
-    <div className={`min-h-full ${widthClass} pointer-events-auto pr-1`}>
+    <div className={`min-h-full pointer-events-auto pr-1`}>
       <ul>
         {Object.entries(entries)
           .sort((a, b) => b[1].getTotal() - a[1].getTotal())
@@ -32,6 +44,7 @@ export default function ThreatPriorityList({ threatManager }: Props) {
                 extraStyles={""}
                 entityId={entityId}
                 threatTableEntry={threatTableEntry}
+                percentOfTopThreat={threatTableEntry.getTotal() / (highestThreat || 1)}
               />
             </li>
           ))}
@@ -44,6 +57,7 @@ function ThreatTrackerIcon(props: {
   extraStyles: string;
   entityId: string;
   threatTableEntry: ThreatTableEntry;
+  percentOfTopThreat: number;
 }) {
   const threatTableDetailedDisplayMode = useUIStore().threatTableDetailedDisplayMode;
   const debugMode = useUIStore().showDebug;
@@ -59,16 +73,21 @@ function ThreatTrackerIcon(props: {
     "stroke-slate-400"
   );
 
-  // const stableThreat = threatTableEntry.threatScoresByType[ThreatType.Stable].current;
-  const stableThreat = 1039;
-  // const volatileThreat = threatTableEntry.threatScoresByType[ThreatType.Volatile].current;
-  const volatileThreat = 9382;
+  const stableThreat = threatTableEntry.threatScoresByType[ThreatType.Stable].current;
+  // const stableThreat = 1039;
+  const volatileThreat = threatTableEntry.threatScoresByType[ThreatType.Volatile].current;
+  // const volatileThreat = 9382;
 
   const totalThreat = stableThreat + volatileThreat;
 
   function handleClick() {
     mutateUIStore((state) => {
-      state.threatTableDetailedDisplayMode = !state.threatTableDetailedDisplayMode;
+      state.threatTableDetailedDisplayMode = getNextOrPreviousNumber(
+        state.threatTableDetailedDisplayMode,
+        iterateNumericEnum(UiDisplayMode).length - 1,
+        NextOrPrevious.Next,
+        { minNumber: 0 }
+      );
     });
   }
 
@@ -76,7 +95,7 @@ function ThreatTrackerIcon(props: {
 
   const detailedThreat = (
     <div className="flex h-full items-center justify-between ">
-      <div className="text-white w-1/2 flex justify-center" style={{ minWidth: "5ch" }}>
+      <div className="text-zinc-300 w-1/2 flex justify-center" style={{ minWidth: "5ch" }}>
         <HoverableTooltipWrapper tooltipText={`Stable Threat ${hoverableDebugText}`}>
           <span>{formatThousandsAsK(stableThreat)}</span>
         </HoverableTooltipWrapper>
@@ -109,23 +128,32 @@ function ThreatTrackerIcon(props: {
   return (
     <button className={`${extraStyles} w-full h-8`} onClick={handleClick}>
       <div className="h-full w-full flex items-center justify-center relative">
-        <div className=" w-10 absolute border-t border-b border-slate-400 bg-slate-700 h-4 left-full top-1/2 -translate-x-1/2 -translate-y-1/2 " />
+        {
+          // <div className=" w-10 absolute border-t border-b border-slate-400 bg-slate-700 h-4 left-full top-1/2 -translate-x-1/2 -translate-y-1/2 " />
+        }
         <div className="bg-slate-700 border border-slate-400 h-8 w-8 rounded-full z-20 absolute right-0 overflow-hidden">
-          {
-            // <div className="absolute"> {entityId.slice(0, 2)}</div>
-          }
           <div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[40%] flex justify-center items-center"
+            className={
+              "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[50%] flex justify-center items-center"
+            }
             style={{ height: "90%", width: "90%" }}
           >
-            {
-              // classIcon
-            }
-            <div className="h-full">{combatantUiIdentifierIcon}</div>
+            <div className="h-full">
+              {debugMode ? entityId.slice(0, 2) : combatantUiIdentifierIcon}
+            </div>
           </div>
         </div>
-        <div className="absolute z-0 right-0 bg-slate-700 border border-r-0 border-slate-400 w-fit h-full mr-4 pl-2 pr-5">
-          {threatTableDetailedDisplayMode ? detailedThreat : simpleThreat}
+        <div className=" bg-slate-700 border border-r-0 border-slate-400 w-fit h-full mr-4 pl-2 pr-5">
+          {threatTableDetailedDisplayMode !== UiDisplayMode.Sparse &&
+            (threatTableDetailedDisplayMode ? detailedThreat : simpleThreat)}
+          {threatTableDetailedDisplayMode === UiDisplayMode.Sparse && (
+            <div
+              className="bg-slate-500 w-1/2 absolute bottom-0 left-0"
+              style={{
+                height: `${props.percentOfTopThreat * 100}%`,
+              }}
+            />
+          )}
         </div>
       </div>
     </button>

@@ -1,3 +1,4 @@
+import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { useGameStore } from "@/stores/game-store";
 import { getCombatantUiIdentifierIcon } from "@/utils/get-combatant-class-icon";
 import getGameAndParty from "@/utils/getGameAndParty";
@@ -47,14 +48,6 @@ export default function TurnOrderTrackerIcon({
     //
   }
 
-  const [hiddenClass, setHiddenClass] = useState("hidden");
-  function onMouseEnter() {
-    setHiddenClass("");
-  }
-  function onMouseLeave() {
-    setHiddenClass("hidden");
-  }
-
   const combatant = AdventuringParty.getExpectedCombatant(party, tracker.combatantId);
   const combatantUiIdentifierIcon = getCombatantUiIdentifierIcon(party, combatant);
 
@@ -63,15 +56,15 @@ export default function TurnOrderTrackerIcon({
       className={`border border-slate-400 h-10 w-10 ${conditionalClasses} mr-2 last:mr-0 ${preRemovalClassesState}`}
       style={transitionStyle}
       onClick={handleClick}
-      onMouseLeave={onMouseLeave}
-      onMouseEnter={onMouseEnter}
     >
-      <div className="h-full w-full rounded-full bg-slate-600 border border-slate-400 flex items-center justify-center">
-        <span className="h-full w-full">{combatantUiIdentifierIcon}</span>
-        <div className={`text-2xl absolute top-[160px] ${hiddenClass}`}>
-          <div>{tracker.timeOfNextMove}</div>
+      <HoverableTooltipWrapper
+        tooltipText={tracker.timeOfNextMove.toString()}
+        extraStyles="h-full w-full"
+      >
+        <div className="h-full w-full rounded-full bg-slate-600 border border-slate-400 flex items-center justify-center">
+          <span className="h-full w-full">{combatantUiIdentifierIcon}</span>
         </div>
-      </div>
+      </HoverableTooltipWrapper>
     </button>
   );
 }
