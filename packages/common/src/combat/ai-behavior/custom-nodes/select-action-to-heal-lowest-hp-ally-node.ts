@@ -2,27 +2,45 @@ import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { Combatant, CombatantProperties } from "../../../combatants/index.js";
 import { NormalizedPercentage } from "../../../primatives/index.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
-import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionIntent } from "../../combat-actions/combat-action-intent.js";
-import { CombatActionName } from "../../combat-actions/combat-action-names.js";
 import { TargetCategories } from "../../combat-actions/targeting-schemes-and-categories.js";
 import { CombatActionTarget } from "../../targeting/combat-action-targets.js";
-import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { AIBehaviorContext } from "../ai-context.js";
-import {
-  BehaviorNode,
-  BehaviorNodeState,
-  PopFromStackNode,
-  RandomizerNode,
-  SequenceNode,
-  SorterNode,
-  UntilSuccessNode,
-} from "../behavior-tree.js";
-import { CollectPotentialTargetsForActionIfUsable } from "./add-to-considered-actions-with-targets-if-usable.js";
+import { BehaviorNode, BehaviorNodeState, SequenceNode, SorterNode } from "../behavior-tree.js";
 import { CollectAllOwnedActionsByIntent } from "./collect-all-owned-action-by-intent.js";
 import { CollectConsideredCombatants } from "./collect-considered-combatants.js";
-import { SelectActionExecutionIntent } from "./select-action-intent-node.js";
-import { SelectActionWithPotentialTargets } from "./select-action-with-potential-targets-node.js";
+
+// Before executing this tree, if the combined expected average damage of
+// the AI's sequential turns, accounting for forced aggro targets, can wipe the player party, do that instead
+//
+// Healing Action and Target Selection
+// - Determine average expected damage output of player party
+// before the next AI healer's turn, based off of:
+//   - Simple/Omniscient - all known stats and actions of enemy combatants
+//   - Observed damage done so far in the battle by player characters
+//   - If the AI is "Good at assessment", player character's stats and
+//     - known actions taken OR
+//     - common actions that the player's class would have
+// - Collect allies by risk status
+//   - Emergency (could be killed by expected damage)
+//   - MaintenanceOpportunity (missing some HP, but has enough HP and defenses to survive until healer's next turn)
+//   - Unbothered
+// - For targets at Emergency status
+//   - Sort by
+//      - "Is savable" (do we own an action that can remove them from Emergency status)
+//      - "how much we want this ally to live"
+//      - lowest HP
+//   - Collect usable actions
+//   - Collect actions which could bring their HP out of Emergency status
+//   - If no damaging actions are owned, and no MaintenanceOpportunity targets exist, or
+//     "try your best to save them mode " is active,
+//     also collect actions which have any healing effect even if it won't
+//     heal enough to save them. Otherwise we should fail here and just damage
+//     the enemy team or try to heal up a healthier target.
+//   - Sort collected actions by
+//       - Healing done to primary target
+//       - Healing done to entire team
+//       - Resource cost of action
 
 export class SelectActionToHealLowestHpAlly implements BehaviorNode {
   private root: BehaviorNode;
@@ -58,123 +76,17 @@ export class SelectActionToHealLowestHpAlly implements BehaviorNode {
       // - considered "total ally hp healed" and its extra cost vs current MP
       //
 
-      new UntilSuccessNode(
-        new SequenceNode([
-          // pop from stack next possible action
-          new PopFromStackNode(
-            () => this.behaviorContext.consideredCombatants,
-            (combatant: Combatant) => this.behaviorContext.setCurrentCombatantConsidering(combatant)
-          ),
-          // check if action is useable
-          new CollectPotentialTargetsForActionIfUsable(this.behaviorContext, this.combatant, () =>
-            this.behaviorContext.getCurrentActionNameConsidering()
-          ),
-          new SelectActionWithPotentialTargets(this.behaviorContext, this.combatant),
-          // filter selectedActionWithPotentialValidTargets targets by those that include top threat
-          new FilterSelectedActionPotentialTargets(
-            this.behaviorContext,
-            this.combatant,
-            (target, behaviorContext) => {
-              const { threatManager } = this.combatant.combatantProperties;
-              if (threatManager === undefined) return true;
-              const topThreatTarget = threatManager.getHighestThreatCombatantId();
-              if (topThreatTarget === null) return true;
-              const { selectedActionWithPotentialValidTargets } = this.behaviorContext;
-              if (selectedActionWithPotentialValidTargets === null)
-                throw new Error("expected to have an action selected");
-              const { actionName } = selectedActionWithPotentialValidTargets;
-
-              const targetingCalculator = new TargetingCalculator(
-                behaviorContext.combatantContext,
-                null
-              );
-              const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
-                COMBAT_ACTIONS[actionName],
-                target
-              );
-              if (targetIdsResult instanceof Error) throw targetIdsResult;
-              if (targetIdsResult.includes(topThreatTarget)) return true;
-
-              return false;
-            }
-          ),
-        ]),
-        {
-          maxAttemptsGetter: () =>
-            this.behaviorContext.consideredActionNamesFilteredByIntents.length,
-        }
-      ),
-      // - for each action, check if useable
-      // - select the first one usable
-      //
-      //
-      //
       new CollectAllOwnedActionsByIntent(
         this.behaviorContext,
         this.combatant,
         iterateNumericEnum(CombatActionIntent)
       ),
-      // randomize the possible actions now so we don't calculate all the conditional
-      // stuff for each one, just the first random one
-      new RandomizerNode(() => this.behaviorContext.consideredActionNamesFilteredByIntents),
-      new UntilSuccessNode(
-        new SequenceNode([
-          // pop from stack next possible action
-          new PopFromStackNode(
-            () => this.behaviorContext.consideredActionNamesFilteredByIntents,
-            (actionName: CombatActionName) =>
-              this.behaviorContext.setCurrentActionNameConsidering(actionName)
-          ),
-          // check if action is useable
-          new CollectPotentialTargetsForActionIfUsable(this.behaviorContext, this.combatant, () =>
-            this.behaviorContext.getCurrentActionNameConsidering()
-          ),
-          new SelectActionWithPotentialTargets(this.behaviorContext, this.combatant),
-          // filter selectedActionWithPotentialValidTargets targets by those that include top threat
-          new FilterSelectedActionPotentialTargets(
-            this.behaviorContext,
-            this.combatant,
-            (target, behaviorContext) => {
-              const { threatManager } = this.combatant.combatantProperties;
-              if (threatManager === undefined) return true;
-              const topThreatTarget = threatManager.getHighestThreatCombatantId();
-              if (topThreatTarget === null) return true;
-              const { selectedActionWithPotentialValidTargets } = this.behaviorContext;
-              if (selectedActionWithPotentialValidTargets === null)
-                throw new Error("expected to have an action selected");
-              const { actionName } = selectedActionWithPotentialValidTargets;
 
-              const targetingCalculator = new TargetingCalculator(
-                behaviorContext.combatantContext,
-                null
-              );
-              const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
-                COMBAT_ACTIONS[actionName],
-                target
-              );
-              if (targetIdsResult instanceof Error) throw targetIdsResult;
-              if (targetIdsResult.includes(topThreatTarget)) return true;
-
-              return false;
-            }
-          ),
-        ]),
-        {
-          maxAttemptsGetter: () =>
-            this.behaviorContext.consideredActionNamesFilteredByIntents.length,
-        }
-      ),
-
-      // if more than one target option targets the highest threat, then we can randomize the options
-      new RandomizerNode(
-        () => this.behaviorContext.selectedActionWithPotentialValidTargets?.potentialValidTargets
-      ),
-      // now the potentialValidTargets[0] should be the one that remains
-      new SelectActionExecutionIntent(
-        this.behaviorContext,
-        this.combatant,
-        () => this.behaviorContext.selectedActionWithPotentialValidTargets?.potentialValidTargets[0]
-      ),
+      // new SelectActionExecutionIntent(
+      //   this.behaviorContext,
+      //   this.combatant,
+      //   () => this.behaviorContext.selectedActionWithPotentialValidTargets?.potentialValidTargets[0]
+      // ),
     ]);
   }
   execute(): BehaviorNodeState {
