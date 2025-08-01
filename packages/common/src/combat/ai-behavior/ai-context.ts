@@ -52,6 +52,8 @@ export enum AIFriendlyTargetSelectionScheme {
 }
 
 export class AIBehaviorContext {
+  public consideredCombatants: Combatant[] = [];
+  public currentCombatantConsidering: null | Combatant = null;
   public consideredActionNamesFilteredByIntents: CombatActionName[] = [];
   public currentActionNameConsidering: CombatActionName | null = null;
   public usableActionsWithPotentialValidTargets: Partial<
@@ -75,5 +77,12 @@ export class AIBehaviorContext {
 
   setCurrentActionNameConsidering(actionName: CombatActionName) {
     this.currentActionNameConsidering = actionName;
+  }
+  setCurrentCombatantConsidering(combatant: Combatant) {
+    this.currentCombatantConsidering = combatant;
+  }
+
+  getConsideredCombatants() {
+    return this.consideredCombatants;
   }
 }

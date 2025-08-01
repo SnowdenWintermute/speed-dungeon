@@ -1,7 +1,11 @@
-import { Combatant } from "../../../combatants/index.js";
+import { CombatAttribute } from "../../../combatants/attributes/index.js";
+import { Combatant, CombatantProperties } from "../../../combatants/index.js";
+import { NormalizedPercentage } from "../../../primatives/index.js";
+import { iterateNumericEnum } from "../../../utils/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionIntent } from "../../combat-actions/combat-action-intent.js";
 import { CombatActionName } from "../../combat-actions/combat-action-names.js";
+import { TargetCategories } from "../../combat-actions/targeting-schemes-and-categories.js";
 import { CombatActionTarget } from "../../targeting/combat-action-targets.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { AIBehaviorContext } from "../ai-context.js";
@@ -11,25 +15,104 @@ import {
   PopFromStackNode,
   RandomizerNode,
   SequenceNode,
+  SorterNode,
   UntilSuccessNode,
 } from "../behavior-tree.js";
 import { CollectPotentialTargetsForActionIfUsable } from "./add-to-considered-actions-with-targets-if-usable.js";
 import { CollectAllOwnedActionsByIntent } from "./collect-all-owned-action-by-intent.js";
+import { CollectConsideredCombatants } from "./collect-considered-combatants.js";
 import { SelectActionExecutionIntent } from "./select-action-intent-node.js";
 import { SelectActionWithPotentialTargets } from "./select-action-with-potential-targets-node.js";
 
-export class SelectTopThreatTargetAndAction implements BehaviorNode {
+export class SelectActionToHealLowestHpAlly implements BehaviorNode {
   private root: BehaviorNode;
   constructor(
     private behaviorContext: AIBehaviorContext,
     private combatant: Combatant,
-    private permittedIntents: CombatActionIntent[]
+    private hitPointThresholdToWarrantHealing: NormalizedPercentage
   ) {
     this.root = new SequenceNode([
+      // collect all allies that are "low" hp within a threshold
+      new CollectConsideredCombatants(
+        this.behaviorContext,
+        this.combatant,
+        TargetCategories.Friendly,
+        (combatant) =>
+          combatant.combatantProperties.hitPoints /
+            CombatantProperties.getTotalAttributes(combatant.combatantProperties)[
+              CombatAttribute.Hp
+            ] <
+          this.hitPointThresholdToWarrantHealing
+      ),
+      // sort allies by lowest Hp
+      new SorterNode(
+        this.behaviorContext.getConsideredCombatants,
+        (a, b) => b.combatantProperties.hitPoints - a.combatantProperties.hitPoints
+      ),
+      // for each ally
+      // - sort action/target pairs by
+      //   - the actions that will fully heal the target
+      //   - if multiple full heals: lowest price per effective (not overhealed) hp restored
+      //   - if no full heal available: highest healing available
+      // - also record the "total ally hp healed" for these actions
+      // - considered "total ally hp healed" and its extra cost vs current MP
+      //
+
+      new UntilSuccessNode(
+        new SequenceNode([
+          // pop from stack next possible action
+          new PopFromStackNode(
+            () => this.behaviorContext.consideredCombatants,
+            (combatant: Combatant) => this.behaviorContext.setCurrentCombatantConsidering(combatant)
+          ),
+          // check if action is useable
+          new CollectPotentialTargetsForActionIfUsable(this.behaviorContext, this.combatant, () =>
+            this.behaviorContext.getCurrentActionNameConsidering()
+          ),
+          new SelectActionWithPotentialTargets(this.behaviorContext, this.combatant),
+          // filter selectedActionWithPotentialValidTargets targets by those that include top threat
+          new FilterSelectedActionPotentialTargets(
+            this.behaviorContext,
+            this.combatant,
+            (target, behaviorContext) => {
+              const { threatManager } = this.combatant.combatantProperties;
+              if (threatManager === undefined) return true;
+              const topThreatTarget = threatManager.getHighestThreatCombatantId();
+              if (topThreatTarget === null) return true;
+              const { selectedActionWithPotentialValidTargets } = this.behaviorContext;
+              if (selectedActionWithPotentialValidTargets === null)
+                throw new Error("expected to have an action selected");
+              const { actionName } = selectedActionWithPotentialValidTargets;
+
+              const targetingCalculator = new TargetingCalculator(
+                behaviorContext.combatantContext,
+                null
+              );
+              const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
+                COMBAT_ACTIONS[actionName],
+                target
+              );
+              if (targetIdsResult instanceof Error) throw targetIdsResult;
+              if (targetIdsResult.includes(topThreatTarget)) return true;
+
+              return false;
+            }
+          ),
+        ]),
+        {
+          maxAttemptsGetter: () =>
+            this.behaviorContext.consideredActionNamesFilteredByIntents.length,
+        }
+      ),
+      // - for each action, check if useable
+      // - select the first one usable
+      //
+      //
+      //
       new CollectAllOwnedActionsByIntent(
         this.behaviorContext,
         this.combatant,
-        this.permittedIntents
+        iterateNumericEnum(CombatActionIntent)
       ),
       // randomize the possible actions now so we don't calculate all the conditional
       // stuff for each one, just the first random one

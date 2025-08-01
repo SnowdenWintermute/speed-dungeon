@@ -9,6 +9,7 @@ module.exports = [
   {
     rules: {
       "@typescript-eslint/switch-exhaustiveness-check": "error",
+      // extends: "next/core-web-vitals",
     },
   },
 ];

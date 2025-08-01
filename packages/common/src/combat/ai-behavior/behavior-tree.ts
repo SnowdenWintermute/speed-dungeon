@@ -109,6 +109,19 @@ export class RandomizerNode<T> implements BehaviorNode {
   }
 }
 
+export class SorterNode<T> implements BehaviorNode {
+  constructor(
+    private arrayOptionGetter: () => undefined | Array<T>,
+    private sortingFunction: (a: T, b: T) => number
+  ) {}
+  execute(): BehaviorNodeState {
+    const arrayOption = this.arrayOptionGetter();
+    if (arrayOption === undefined) return BehaviorNodeState.Failure;
+    arrayOption.sort(this.sortingFunction);
+    return BehaviorNodeState.Success;
+  }
+}
+
 export class PopFromStackNode<T> implements BehaviorNode {
   constructor(
     private stackGetter: () => T[],
