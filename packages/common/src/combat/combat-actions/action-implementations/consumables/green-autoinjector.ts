@@ -23,6 +23,7 @@ import {
 import {
   GENERIC_HIT_OUTCOME_PROPERTIES,
   ActionHitOutcomePropertiesBaseTypes,
+  CombatActionResource,
 } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
 import {
@@ -30,34 +31,40 @@ import {
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
 import { MEDICATION_ACTION_BASE_STEPS_CONFIG } from "./base-consumable-steps-config.js";
+import { BasicRandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle];
 
 const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
   ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Medication],
-  getHpChangeProperties: (user, primaryTarget) => {
-    const hpChangeSourceConfig: ResourceChangeSourceConfig = {
-      category: ResourceChangeSourceCategory.Medical,
-      isHealing: true,
-    };
+  resourceChangePropertiesGetters: {
+    [CombatActionResource.HitPoints]: (user, primaryTarget) => {
+      const hpChangeSourceConfig: ResourceChangeSourceConfig = {
+        category: ResourceChangeSourceCategory.Medical,
+        isHealing: true,
+      };
 
-    let hpBioavailability = 1;
-    for (const trait of primaryTarget.traits) {
-      if (trait.type === CombatantTraitType.HpBioavailability)
-        hpBioavailability = trait.percent / 100;
-    }
+      let hpBioavailability = 1;
+      for (const trait of primaryTarget.traits) {
+        if (trait.type === CombatantTraitType.HpBioavailability)
+          hpBioavailability = trait.percent / 100;
+      }
 
-    const maxHp = CombatantProperties.getTotalAttributes(primaryTarget)[CombatAttribute.Hp];
-    const minHealing = (hpBioavailability * maxHp) / 8;
-    const maxHealing = (hpBioavailability * 3 * maxHp) / 8;
+      const maxHp = CombatantProperties.getTotalAttributes(primaryTarget)[CombatAttribute.Hp];
+      const minHealing = (hpBioavailability * maxHp) / 8;
+      const maxHealing = (hpBioavailability * 3 * maxHp) / 8;
 
-    const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
-    const hpChangeProperties: CombatActionResourceChangeProperties = {
-      resourceChangeSource,
-      baseValues: new NumberRange(minHealing, randBetween(minHealing, maxHealing)),
-    };
+      const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
+      const hpChangeProperties: CombatActionResourceChangeProperties = {
+        resourceChangeSource,
+        baseValues: new NumberRange(
+          minHealing,
+          randBetween(minHealing, maxHealing, new BasicRandomNumberGenerator())
+        ),
+      };
 
-    return hpChangeProperties;
+      return hpChangeProperties;
+    },
   },
 };
 

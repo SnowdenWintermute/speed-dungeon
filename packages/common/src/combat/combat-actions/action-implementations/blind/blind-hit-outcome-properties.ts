@@ -17,7 +17,7 @@ export const BLIND_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {
     [ThreatType.Stable]: STABLE_THREAT_REDUCTION_ON_MONSTER_DEBUFFING_PLAYER,
     [ThreatType.Volatile]: 0,
   },
-  getHpChangeProperties: (user, _primaryTarget) => null,
+  resourceChangePropertiesGetters: {},
 
   getAppliedConditions: (context) => {
     const { idGenerator, combatantContext } = context;

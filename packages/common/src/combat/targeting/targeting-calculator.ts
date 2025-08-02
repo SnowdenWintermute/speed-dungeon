@@ -5,14 +5,9 @@ import {
   CombatActionComponent,
   CombatActionExecutionIntent,
   FriendOrFoe,
-  TARGETING_SCHEME_STRINGS,
   TargetingScheme,
 } from "../combat-actions/index.js";
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
-import {
-  filterPossibleTargetIdsByActionTargetCategories,
-  filterPossibleTargetIdsByProhibitedCombatantStates,
-} from "./filtering.js";
 import { getValidPreferredOrDefaultActionTargets } from "./get-valid-preferred-or-default-action-targets.js";
 import { EntityId, NextOrPrevious } from "../../primatives/index.js";
 import { getActionTargetsIfSchemeIsValid } from "./get-targets-if-scheme-is-valid.js";
@@ -21,6 +16,7 @@ import getNextOrPreviousTarget from "./get-next-or-previous-target.js";
 import { CombatantContext } from "../../combatant-context/index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { COMBAT_ACTIONS } from "../combat-actions/action-implementations/index.js";
+import { TargetFilterer } from "./filtering.js";
 
 export class TargetingCalculator {
   constructor(
@@ -140,7 +136,7 @@ export class TargetingCalculator {
     const { allyIds, opponentIds } = this.context.getAllyAndOpponentIds();
     const { targetingProperties } = combatAction;
 
-    const filteredTargetsResult = filterPossibleTargetIdsByProhibitedCombatantStates(
+    const filteredTargetsResult = TargetFilterer.filterPossibleTargetIdsByProhibitedCombatantStates(
       this.context.party,
       targetingProperties.prohibitedTargetCombatantStates,
       allyIds,
@@ -209,7 +205,7 @@ export class TargetingCalculator {
 
     const prohibitedTargetCombatantStates = targetingProperties.prohibitedTargetCombatantStates;
 
-    const filteredTargetsResult = filterPossibleTargetIdsByProhibitedCombatantStates(
+    const filteredTargetsResult = TargetFilterer.filterPossibleTargetIdsByProhibitedCombatantStates(
       party,
       prohibitedTargetCombatantStates,
       allyIds,
@@ -219,7 +215,7 @@ export class TargetingCalculator {
 
     [allyIds, opponentIds] = filteredTargetsResult;
 
-    [allyIds, opponentIds] = filterPossibleTargetIdsByActionTargetCategories(
+    [allyIds, opponentIds] = TargetFilterer.filterPossibleTargetIdsByActionTargetCategories(
       targetingProperties.validTargetCategories,
       actionUserId,
       allyIds,

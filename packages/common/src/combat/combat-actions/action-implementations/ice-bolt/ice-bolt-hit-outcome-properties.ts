@@ -1,6 +1,7 @@
 import {
   ActionHitOutcomePropertiesBaseTypes,
   CombatActionHitOutcomeProperties,
+  CombatActionResource,
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
 import {
@@ -19,36 +20,38 @@ import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
 
 export const iceBoltProjectileHitOutcomeProperties: CombatActionHitOutcomeProperties = {
   ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Ranged],
-  getHpChangeProperties: (user, primaryTarget) => {
-    const hpChangeSourceConfig: ResourceChangeSourceConfig = {
-      category: ResourceChangeSourceCategory.Magical,
-      kineticDamageTypeOption: null,
-      elementOption: MagicalElement.Ice,
-      isHealing: false,
-      lifestealPercentage: null,
-    };
+  resourceChangePropertiesGetters: {
+    [CombatActionResource.HitPoints]: (user, primaryTarget) => {
+      const hpChangeSourceConfig: ResourceChangeSourceConfig = {
+        category: ResourceChangeSourceCategory.Magical,
+        kineticDamageTypeOption: null,
+        elementOption: MagicalElement.Ice,
+        isHealing: false,
+        lifestealPercentage: null,
+      };
 
-    const baseValues = new NumberRange(4, 8);
+      const baseValues = new NumberRange(4, 8);
 
-    // just get some extra damage for combatant level
-    baseValues.add(user.level - 1);
-    // get greater benefits from a certain attribute the higher level a combatant is
-    addCombatantLevelScaledAttributeToRange({
-      range: baseValues,
-      combatantProperties: user,
-      attribute: CombatAttribute.Intelligence,
-      normalizedAttributeScalingByCombatantLevel: 1,
-    });
+      // just get some extra damage for combatant level
+      baseValues.add(user.level - 1);
+      // get greater benefits from a certain attribute the higher level a combatant is
+      addCombatantLevelScaledAttributeToRange({
+        range: baseValues,
+        combatantProperties: user,
+        attribute: CombatAttribute.Intelligence,
+        normalizedAttributeScalingByCombatantLevel: 1,
+      });
 
-    const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
-    const hpChangeProperties: CombatActionResourceChangeProperties = {
-      resourceChangeSource,
-      baseValues,
-    };
+      const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
+      const hpChangeProperties: CombatActionResourceChangeProperties = {
+        resourceChangeSource,
+        baseValues,
+      };
 
-    baseValues.floor();
+      baseValues.floor();
 
-    return hpChangeProperties;
+      return hpChangeProperties;
+    },
   },
 
   getAppliedConditions: (context) => {

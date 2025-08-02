@@ -23,6 +23,7 @@ import {
 import {
   ActionHitOutcomePropertiesBaseTypes,
   CombatActionHitOutcomeProperties,
+  CombatActionResource,
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
 import {
@@ -30,32 +31,41 @@ import {
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
 import { MEDICATION_ACTION_BASE_STEPS_CONFIG } from "./base-consumable-steps-config.js";
+import { BasicRandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle];
 
 const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
   ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Medication],
-  getManaChangeProperties: (user: CombatantProperties, primaryTarget: CombatantProperties) => {
-    let mpBioavailability = 1;
-    for (const trait of primaryTarget.traits) {
-      if (trait.type === CombatantTraitType.MpBioavailability)
-        mpBioavailability = trait.percent / 100;
-    }
-    const maxMp = CombatantProperties.getTotalAttributes(primaryTarget)[CombatAttribute.Mp];
-    const minRestored = (mpBioavailability * maxMp) / 8;
-    const maxRestored = (mpBioavailability * 3 * maxMp) / 8;
+  resourceChangePropertiesGetters: {
+    [CombatActionResource.Mana]: (
+      user: CombatantProperties,
+      primaryTarget: CombatantProperties
+    ) => {
+      let mpBioavailability = 1;
+      for (const trait of primaryTarget.traits) {
+        if (trait.type === CombatantTraitType.MpBioavailability)
+          mpBioavailability = trait.percent / 100;
+      }
+      const maxMp = CombatantProperties.getTotalAttributes(primaryTarget)[CombatAttribute.Mp];
+      const minRestored = (mpBioavailability * maxMp) / 8;
+      const maxRestored = (mpBioavailability * 3 * maxMp) / 8;
 
-    const resourceChangeSourceConfig: ResourceChangeSourceConfig = {
-      category: ResourceChangeSourceCategory.Medical,
-      isHealing: true,
-    };
+      const resourceChangeSourceConfig: ResourceChangeSourceConfig = {
+        category: ResourceChangeSourceCategory.Medical,
+        isHealing: true,
+      };
 
-    const resourceChangeSource = new ResourceChangeSource(resourceChangeSourceConfig);
-    const manaChangeProperties: CombatActionResourceChangeProperties = {
-      resourceChangeSource,
-      baseValues: new NumberRange(minRestored, randBetween(minRestored, maxRestored)),
-    };
-    return manaChangeProperties;
+      const resourceChangeSource = new ResourceChangeSource(resourceChangeSourceConfig);
+      const manaChangeProperties: CombatActionResourceChangeProperties = {
+        resourceChangeSource,
+        baseValues: new NumberRange(
+          minRestored,
+          randBetween(minRestored, maxRestored, new BasicRandomNumberGenerator())
+        ),
+      };
+      return manaChangeProperties;
+    },
   },
 };
 

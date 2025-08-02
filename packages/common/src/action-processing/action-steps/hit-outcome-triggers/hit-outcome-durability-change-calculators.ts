@@ -1,5 +1,6 @@
 import { ONE_THIRD_OF_ONE } from "../../../app-consts.js";
 import { DurabilityLossCondition } from "../../../combat/combat-actions/combat-action-durability-loss-condition.js";
+import { CombatActionResource } from "../../../combat/combat-actions/combat-action-hit-outcome-properties.js";
 import { CombatActionComponent } from "../../../combat/index.js";
 import { Combatant, CombatantEquipment } from "../../../combatants/index.js";
 import {
@@ -26,7 +27,10 @@ export function addHitOutcomeDurabilityChanges(
   isCrit?: boolean
 ): Error | { [itemId: EntityId]: number } | undefined {
   // healing magic shouldn't cause durability loss
-  const hpChangeProperties = action.hitOutcomeProperties.getHpChangeProperties(
+  const hpChangePropertiesGetter =
+    action.hitOutcomeProperties.resourceChangePropertiesGetters[CombatActionResource.HitPoints];
+  if (!hpChangePropertiesGetter) return;
+  const hpChangeProperties = hpChangePropertiesGetter(
     actionUser.combatantProperties,
     targetCombatant.combatantProperties
   );

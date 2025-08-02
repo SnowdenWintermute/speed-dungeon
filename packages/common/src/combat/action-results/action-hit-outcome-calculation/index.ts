@@ -1,6 +1,6 @@
 import cloneDeep from "lodash.clonedeep";
 import { SpeedDungeonGame } from "../../../game/index.js";
-import { randBetween } from "../../../utils/index.js";
+import { randBetween, throwIfError } from "../../../utils/index.js";
 import { splitResourceChangeWithMultiTargetBonus } from "./split-hp-change-with-multi-target-bonus.js";
 import { MULTI_TARGET_RESOURCE_CHANGE_BONUS } from "../../../app-consts.js";
 import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
@@ -30,9 +30,12 @@ import { HitOutcome } from "../../../hit-outcome.js";
 import { HitPointChanges, ManaChanges } from "./resource-changes.js";
 import { CombatActionResourceChangeProperties } from "../../combat-actions/combat-action-resource-change-properties.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
-import { filterTargetIdGroupByProhibitedCombatantStates } from "../../targeting/filtering.js";
 import { getShieldBlockChance, getShieldBlockDamageReduction } from "./shield-blocking.js";
 import { getParryChance } from "./get-parry-chance.js";
+import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
+import { IncomingResourceChangesCalculator } from "./incoming-resource-change-calculator.js";
+import { TargetFilterer } from "../../targeting/filtering.js";
+import { CombatActionComponent } from "../../combat-actions/index.js";
 
 export class CombatActionHitOutcomes {
   hitPointChanges?: HitPointChanges;
@@ -41,6 +44,7 @@ export class CombatActionHitOutcomes {
   // distinct from hitPointChanges, "hits" is used to determine triggers for abilities that don't cause
   // hit point changes, but may apply a condition to their target or otherwise change something
   outcomeFlags: Partial<Record<HitOutcome, EntityId[]>> = {};
+
   constructor() {}
   insertOutcomeFlag(flag: HitOutcome, entityId: EntityId) {
     const idsFlagged = this.outcomeFlags[flag];
@@ -49,8 +53,57 @@ export class CombatActionHitOutcomes {
   }
 }
 
+export class HitOutcomeCalculator {
+  targetingCalculator: TargetingCalculator;
+  incomingResourceChangesCalculator: IncomingResourceChangesCalculator;
+  targetIds: EntityId[];
+  action: CombatActionComponent;
+  constructor(
+    private context: ActionResolutionStepContext,
+    private rng: RandomNumberGenerator
+  ) {
+    this.targetingCalculator = new TargetingCalculator(context.combatantContext, null);
+
+    const { actionExecutionIntent } = context.tracker;
+    this.action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
+
+    this.targetIds = throwIfError(
+      this.targetingCalculator.getCombatActionTargetIds(this.action, actionExecutionIntent.targets)
+    );
+
+    this.incomingResourceChangesCalculator = new IncomingResourceChangesCalculator(
+      context,
+      this.targetingCalculator,
+      this.targetIds,
+      rng
+    );
+  }
+
+  calculateHitOutcomes() {
+    const incomingResourceChangesPerTarget =
+      this.incomingResourceChangesCalculator.getBaseIncomingResourceChangesPerTarget();
+
+    const { party } = this.context.combatantContext;
+
+    // while we may have already filtered targets for user selected action while they are targeting,
+    // when doing ice burst we still want to target the side combatants, but actually not damage them
+    const filteredTargetIds = throwIfError(
+      TargetFilterer.filterTargetIdGroupByProhibitedCombatantStates(
+        party,
+        this.targetIds,
+        this.action.targetingProperties.prohibitedHitCombatantStates
+      )
+    );
+
+    for (const id of filteredTargetIds) {
+      //
+    }
+  }
+}
+
 export function calculateActionHitOutcomes(
-  context: ActionResolutionStepContext
+  context: ActionResolutionStepContext,
+  rng: RandomNumberGenerator
 ): Error | CombatActionHitOutcomes {
   const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
   const { actionExecutionIntent } = context.tracker;
@@ -69,7 +122,7 @@ export function calculateActionHitOutcomes(
 
   if (targetIds.length === 0) return new CombatActionHitOutcomes();
 
-  const incomingResourceChangesResult = getIncomingResourceChangesPerTarget(context);
+  const incomingResourceChangesResult = getIncomingResourceChangesPerTarget(context, rng);
 
   if (incomingResourceChangesResult instanceof Error) return incomingResourceChangesResult;
   const { incomingHpChangePerTargetOption, incomingManaChangePerTargetOption } =
@@ -102,7 +155,7 @@ export function calculateActionHitOutcomes(
 
   // while we may have already filtered targets for user selected action while they are targeting,
   // when doing ice burst we still want to target the side combatants, but actually not damage them
-  const filteredIdsResult = filterTargetIdGroupByProhibitedCombatantStates(
+  const filteredIdsResult = TargetFilterer.filterTargetIdGroupByProhibitedCombatantStates(
     party,
     targetIds,
     action.targetingProperties.prohibitedHitCombatantStates
@@ -126,7 +179,7 @@ export function calculateActionHitOutcomes(
       targetWantsToBeHit
     );
 
-    const hitRoll = randBetween(0, 100);
+    const hitRoll = randBetween(0, 100, rng);
     const isMiss = hitRoll > percentChanceToHit.beforeEvasion;
     const isEvaded = !isMiss && hitRoll > percentChanceToHit.afterEvasion;
 
@@ -147,7 +200,7 @@ export function calculateActionHitOutcomes(
     ) {
       const percentChanceToParry = getParryChance(user, target);
       // const percentChanceToParry = 5;
-      const parryRoll = randBetween(0, 100);
+      const parryRoll = randBetween(0, 100, rng);
       const isParried = parryRoll < percentChanceToParry;
       if (isParried) {
         hitOutcomes.insertOutcomeFlag(HitOutcome.Parry, id);
@@ -159,7 +212,7 @@ export function calculateActionHitOutcomes(
     if (hitOutcomeProperties.getCanTriggerCounterattack(user) && !targetWantsToBeHit) {
       const percentChanceToCounterAttack = 5; // @TODO - derrive this from various combatant properties
       // const percentChanceToCounterAttack = 100; // @TODO - derrive this from various combatant properties
-      const counterAttackRoll = randBetween(0, 100);
+      const counterAttackRoll = randBetween(0, 100, rng);
       const isCounterAttacked = counterAttackRoll < percentChanceToCounterAttack;
       if (isCounterAttacked) {
         hitOutcomes.insertOutcomeFlag(HitOutcome.Counterattack, id);
@@ -179,7 +232,7 @@ export function calculateActionHitOutcomes(
         !targetWantsToBeHit // this should be checking if actions with malicious intent are in fact healing the target
       ) {
         const percentChanceToBlock = getShieldBlockChance(user, target);
-        const blockRoll = randBetween(0, 100);
+        const blockRoll = randBetween(0, 100, rng);
         const isBlocked = blockRoll < percentChanceToBlock;
         if (isBlocked) {
           hitOutcomes.insertOutcomeFlag(HitOutcome.ShieldBlock, id);
@@ -197,7 +250,7 @@ export function calculateActionHitOutcomes(
 
       const percentChanceToCrit = getActionCritChance(action, user, target, targetWantsToBeHit);
 
-      resourceChange.isCrit = randBetween(0, 100) < percentChanceToCrit;
+      resourceChange.isCrit = randBetween(0, 100, rng) < percentChanceToCrit;
       applyCritMultiplier(resourceChange, action, user, target);
       applyKineticAffinities(resourceChange, target, targetWantsToBeHit);
       applyElementalAffinities(resourceChange, target, targetWantsToBeHit);
@@ -237,12 +290,17 @@ export interface ResourceChangesPerTarget {
 
 export function getIncomingResourceChangePerTarget(
   targetIds: EntityId[],
-  resourceChangeProperties: CombatActionResourceChangeProperties | null
+  resourceChangeProperties: CombatActionResourceChangeProperties | null,
+  rng: RandomNumberGenerator
 ): null | ResourceChangesPerTarget {
   if (resourceChangeProperties === null) return null;
   const resourceChangeRange = resourceChangeProperties.baseValues;
   const { resourceChangeSource } = resourceChangeProperties;
-  const rolledResourceChangeValue = randBetween(resourceChangeRange.min, resourceChangeRange.max);
+  const rolledResourceChangeValue = randBetween(
+    resourceChangeRange.min,
+    resourceChangeRange.max,
+    rng
+  );
 
   return {
     value: splitResourceChangeWithMultiTargetBonus(
@@ -254,7 +312,10 @@ export function getIncomingResourceChangePerTarget(
   };
 }
 
-export function getIncomingResourceChangesPerTarget(context: ActionResolutionStepContext):
+export function getIncomingResourceChangesPerTarget(
+  context: ActionResolutionStepContext,
+  rng: RandomNumberGenerator
+):
   | Error
   | {
       incomingHpChangePerTargetOption: ResourceChangesPerTarget | null;
@@ -295,12 +356,14 @@ export function getIncomingResourceChangesPerTarget(context: ActionResolutionSte
 
   const incomingHpChangePerTargetOption = getIncomingResourceChangePerTarget(
     targetIds,
-    actionHpChangePropertiesOption
+    actionHpChangePropertiesOption,
+    rng
   );
 
   const incomingManaChangePerTargetOption = getIncomingResourceChangePerTarget(
     targetIds,
-    actionManaChangePropertiesOption
+    actionManaChangePropertiesOption,
+    rng
   );
 
   return { incomingHpChangePerTargetOption, incomingManaChangePerTargetOption };

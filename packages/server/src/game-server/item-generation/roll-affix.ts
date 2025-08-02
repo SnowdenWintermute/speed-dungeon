@@ -9,13 +9,14 @@ import {
   TaggedAffixType,
   randBetween,
 } from "@speed-dungeon/common";
+import { rngSingleton } from "../../singletons.js";
 
 export function rollAffixTier(maxTier: number, itemLevel: number) {
   const maxTierModifier = itemLevel / DEEPEST_FLOOR;
   const minTierModifier = maxTierModifier / 2.0;
   const maxTierOnLevel = maxTier * maxTierModifier;
   const minTierOnLevel = maxTier * minTierModifier;
-  return Math.max(1, Math.round(randBetween(minTierOnLevel, maxTierOnLevel)));
+  return Math.max(1, Math.round(randBetween(minTierOnLevel, maxTierOnLevel, rngSingleton)));
 }
 
 const MIN_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER = 3;
@@ -33,7 +34,11 @@ export function rollAffix(
   };
 
   const rollAttributeValue = (min: number, max: number) =>
-    randBetween(tier * (min * attributeMultiplier), tier * (max * attributeMultiplier));
+    randBetween(
+      tier * (min * attributeMultiplier),
+      tier * (max * attributeMultiplier),
+      rngSingleton
+    );
 
   switch (taggedAffixType.affixType) {
     case AffixType.Prefix:
@@ -56,13 +61,13 @@ export function rollAffix(
         case PrefixType.PercentDamage:
           affix.equipmentTraits[EquipmentTraitType.DamagePercentage] = {
             equipmentTraitType: EquipmentTraitType.DamagePercentage,
-            value: randBetween((tier - 1) * 10 + 1, tier * 10),
+            value: randBetween((tier - 1) * 10 + 1, tier * 10, rngSingleton),
           };
           break;
         case PrefixType.LifeSteal:
           affix.equipmentTraits[EquipmentTraitType.LifeSteal] = {
             equipmentTraitType: EquipmentTraitType.LifeSteal,
-            value: randBetween((tier - 1) * 10 + 1, tier * 10),
+            value: randBetween((tier - 1) * 10 + 1, tier * 10, rngSingleton),
           };
           break;
         case PrefixType.Resilience:
@@ -125,13 +130,13 @@ export function rollAffix(
         case SuffixType.PercentArmorClass:
           affix.equipmentTraits[EquipmentTraitType.ArmorClassPercentage] = {
             equipmentTraitType: EquipmentTraitType.ArmorClassPercentage,
-            value: randBetween((tier - 1) * 10 + 1, tier * 10),
+            value: randBetween((tier - 1) * 10 + 1, tier * 10, rngSingleton),
           };
           break;
         case SuffixType.Durability:
           affix.equipmentTraits[EquipmentTraitType.FlatDurabilityAdditive] = {
             equipmentTraitType: EquipmentTraitType.FlatDurabilityAdditive,
-            value: randBetween(5 * tier, 10 * tier),
+            value: randBetween(5 * tier, 10 * tier, rngSingleton),
           };
           break;
       }

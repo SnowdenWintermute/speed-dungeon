@@ -17,6 +17,7 @@ import {
 import {
   ActionHitOutcomePropertiesBaseTypes,
   CombatActionHitOutcomeProperties,
+  CombatActionResource,
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
 import {
@@ -37,23 +38,25 @@ const targetingProperties =
 
 export const rangedAttackProjectileHitOutcomeProperties: CombatActionHitOutcomeProperties = {
   ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Ranged],
-  getHpChangeProperties: (user, primaryTarget) => {
-    const hpChangeProperties = getAttackResourceChangeProperties(
-      rangedAttackProjectileHitOutcomeProperties,
-      user,
-      primaryTarget,
-      CombatAttribute.Dexterity,
-      HoldableSlotType.MainHand,
-      // allow unusable weapons because it may be the case that the bow breaks
-      // but the projectile has yet to caluclate it's hit, and it should still consider
-      // the bow it was fired from
-      // it should never add weapon properties from an initially broken weapon because the projectile would not
-      // be allowed to be fired from a broken weapon
-      { usableWeaponsOnly: false }
-    );
-    if (hpChangeProperties instanceof Error) return hpChangeProperties;
+  resourceChangePropertiesGetters: {
+    [CombatActionResource.HitPoints]: (user, primaryTarget) => {
+      const hpChangeProperties = getAttackResourceChangeProperties(
+        rangedAttackProjectileHitOutcomeProperties,
+        user,
+        primaryTarget,
+        CombatAttribute.Dexterity,
+        HoldableSlotType.MainHand,
+        // allow unusable weapons because it may be the case that the bow breaks
+        // but the projectile has yet to caluclate it's hit, and it should still consider
+        // the bow it was fired from
+        // it should never add weapon properties from an initially broken weapon because the projectile would not
+        // be allowed to be fired from a broken weapon
+        { usableWeaponsOnly: false }
+      );
+      if (hpChangeProperties instanceof Error) return hpChangeProperties;
 
-    return hpChangeProperties;
+      return hpChangeProperties;
+    },
   },
 };
 

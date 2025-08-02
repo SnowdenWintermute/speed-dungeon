@@ -3,6 +3,7 @@ export * from "./get-progression-game-max-starting-floor.js";
 
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { CONSUMABLE_TYPE_STRINGS, Consumable, ConsumableType } from "../items/consumables/index.js";
+import { RandomNumberGenerator } from "../utility-classes/randomizers.js";
 
 export function removeFromArray<T>(array: T[], item: T): undefined | T {
   const indexToRemove = array.indexOf(item);
@@ -37,13 +38,13 @@ export function randomNormal() {
 }
 
 /** random number between two given numbers, inclusive */
-export function randBetween(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1) + min);
+export function randBetween(min: number, max: number, rng: RandomNumberGenerator) {
+  return Math.floor(rng.roll() * (max - min + 1) + min);
 }
 
-export function chooseRandomFromArray<T>(arr: T[]): Error | T {
+export function chooseRandomFromArray<T>(arr: T[], rng: RandomNumberGenerator): Error | T {
   if (arr.length < 1) return new Error("Array is empty");
-  const randomIndex = randBetween(0, arr.length - 1);
+  const randomIndex = randBetween(0, arr.length - 1, rng);
   const randomMember = arr[randomIndex];
   if (randomMember === undefined) return new Error("Somehow randomly chose undefined from array");
   return randomMember;

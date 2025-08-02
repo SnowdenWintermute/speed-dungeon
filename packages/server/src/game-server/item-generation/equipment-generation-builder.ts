@@ -28,6 +28,7 @@ import { getEquipmentGenerationTemplate } from "./equipment-templates/index.js";
 import { rollAffix, rollAffixTier } from "./roll-affix.js";
 import { ItemNamer } from "./item-names/item-namer.js";
 import { ItemGenerationBuilder, TaggedBaseItem } from "./item-generation-builder.js";
+import { rngSingleton } from "../../singletons.js";
 
 export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
   extends ItemNamer
@@ -54,7 +55,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
       }
     }
 
-    const baseEquipmentItem = chooseRandomFromArray(availableTypesOnThisLevel);
+    const baseEquipmentItem = chooseRandomFromArray(availableTypesOnThisLevel, rngSingleton);
     if (baseEquipmentItem instanceof Error) return baseEquipmentItem;
 
     const toReturn: TaggedBaseItem = {
@@ -87,7 +88,8 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
     if (template.maxDurability === null) return null;
     const startingDurability = randBetween(
       Math.floor(template.maxDurability * FOUND_ITEM_MIN_DURABILITY_MODIFIER),
-      Math.floor(template.maxDurability * FOUND_ITEM_MAX_DURABILITY_MODIFIER)
+      Math.floor(template.maxDurability * FOUND_ITEM_MAX_DURABILITY_MODIFIER),
+      rngSingleton
     );
     let durability = { inherentMax: template.maxDurability, current: startingDurability };
 

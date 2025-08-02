@@ -16,6 +16,11 @@ import { COMBAT_ACTIONS } from "./action-implementations/index.js";
 import { ActionAccuracy, ActionAccuracyType } from "./combat-action-accuracy.js";
 import { CombatActionResourceChangeProperties } from "./combat-action-resource-change-properties.js";
 
+export enum CombatActionResource {
+  HitPoints,
+  Mana,
+}
+
 export interface CombatActionHitOutcomeProperties {
   accuracyModifier: NormalizedPercentage;
   // used for determining melee attack animation types at start of action
@@ -28,14 +33,15 @@ export interface CombatActionHitOutcomeProperties {
     user: CombatantProperties,
     self: CombatActionHitOutcomeProperties
   ) => number;
-  getHpChangeProperties: (
-    user: CombatantProperties,
-    primaryTarget: CombatantProperties
-  ) => null | CombatActionResourceChangeProperties;
-  getManaChangeProperties: (
-    user: CombatantProperties,
-    primaryTarget: CombatantProperties
-  ) => null | CombatActionResourceChangeProperties;
+  resourceChangePropertiesGetters: Partial<
+    Record<
+      CombatActionResource,
+      (
+        user: CombatantProperties,
+        primaryTarget: CombatantProperties
+      ) => null | CombatActionResourceChangeProperties
+    >
+  >;
   getIsParryable: (user: CombatantProperties) => boolean;
   getIsBlockable: (user: CombatantProperties) => boolean;
   getCanTriggerCounterattack: (user: CombatantProperties) => boolean;
@@ -66,8 +72,7 @@ export const genericActionHitOutcomeProperties: CombatActionHitOutcomeProperties
   getCritChance: (user) => BASE_CRIT_CHANCE,
   getCritMultiplier: (user) => BASE_CRIT_MULTIPLIER,
   getArmorPenetration: (user, self) => 0,
-  getHpChangeProperties: (user, primaryTarget) => null,
-  getManaChangeProperties: () => null,
+  resourceChangePropertiesGetters: {},
   getAppliedConditions: (context) => [],
   getIsParryable: (user) => true,
   getIsBlockable: (user) => true,
@@ -125,17 +130,21 @@ const genericMeleeHitOutcomeProperties: CombatActionHitOutcomeProperties = {
   getArmorPenetration: function (user: CombatantProperties): number {
     return getStandardActionArmorPenetration(user, CombatAttribute.Strength);
   },
-  getManaChangeProperties: (user: CombatantProperties, primaryTarget: CombatantProperties) => null,
-  getHpChangeProperties: (user, primaryTarget) => {
-    const hpChangeProperties = getAttackResourceChangeProperties(
-      genericMeleeHitOutcomeProperties,
-      user,
-      primaryTarget,
-      CombatAttribute.Strength,
-      HoldableSlotType.MainHand
-    );
 
-    return hpChangeProperties;
+  resourceChangePropertiesGetters: {
+    [CombatActionResource.Mana]: (user: CombatantProperties, primaryTarget: CombatantProperties) =>
+      null,
+    [CombatActionResource.HitPoints]: (user, primaryTarget) => {
+      const hpChangeProperties = getAttackResourceChangeProperties(
+        genericMeleeHitOutcomeProperties,
+        user,
+        primaryTarget,
+        CombatAttribute.Strength,
+        HoldableSlotType.MainHand
+      );
+
+      return hpChangeProperties;
+    },
   },
   getAppliedConditions: function (user): CombatantCondition[] | null {
     // apply conditions from weapons

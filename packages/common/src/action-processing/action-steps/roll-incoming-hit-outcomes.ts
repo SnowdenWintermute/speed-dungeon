@@ -13,13 +13,17 @@ import {
 import { Combatant } from "../../combatants/index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { HitOutcome } from "../../hit-outcome.js";
+import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
 
 const stepType = ActionResolutionStepType.RollIncomingHitOutcomes;
 export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
     console.log("RollIncomingHitOutcomesActionResolutionStep constructed");
 
-    const hitOutcomesResult = calculateActionHitOutcomes(context);
+    // @PERF - make this a singleton and move these steps to the server
+    const rng = new BasicRandomNumberGenerator();
+
+    const hitOutcomesResult = calculateActionHitOutcomes(context, rng);
     if (hitOutcomesResult instanceof Error) {
       console.error(
         "ERROR WITH ACTION",
@@ -69,7 +73,7 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
     battleOption?.turnOrderManager.updateTrackers(game, party);
   }
 
-  protected onTick = () => { };
+  protected onTick = () => {};
   getTimeToCompletion = () => 0;
   isComplete = () => true;
 

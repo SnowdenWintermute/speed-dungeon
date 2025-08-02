@@ -41,6 +41,7 @@ import {
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
+import { BasicRandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
@@ -58,7 +59,10 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
     if (possibleTargetIds.length === 0)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
 
-    const randomTargetIdResult = chooseRandomFromArray(possibleTargetIds);
+    const randomTargetIdResult = chooseRandomFromArray(
+      possibleTargetIds,
+      new BasicRandomNumberGenerator()
+    );
     if (randomTargetIdResult instanceof Error) return randomTargetIdResult;
 
     const target: CombatActionTarget = {

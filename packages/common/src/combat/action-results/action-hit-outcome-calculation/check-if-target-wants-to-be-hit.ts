@@ -1,4 +1,5 @@
 import { CombatantProperties, CombatantTraitType } from "../../../combatants/index.js";
+import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 import { CombatActionIntent } from "../../combat-actions/combat-action-intent.js";
 import { CombatActionComponent } from "../../combat-actions/index.js";
 
@@ -7,10 +8,11 @@ export function checkIfTargetWantsToBeHit(
   user: CombatantProperties,
   targetCombatantProperties: CombatantProperties
 ) {
-  const hpChangePropertiesOption = action.hitOutcomeProperties.getHpChangeProperties(
-    user,
-    targetCombatantProperties
-  );
+  const hpChangePropertiesGetterOption =
+    action.hitOutcomeProperties.resourceChangePropertiesGetters[CombatActionResource.HitPoints];
+  const hpChangePropertiesOption = hpChangePropertiesGetterOption
+    ? hpChangePropertiesGetterOption(user, targetCombatantProperties)
+    : null;
 
   // regardless of the action intent, don't try to evade if would be healed
   if (hpChangePropertiesOption) {

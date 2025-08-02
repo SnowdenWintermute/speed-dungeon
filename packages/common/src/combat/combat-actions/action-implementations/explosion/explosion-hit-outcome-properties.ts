@@ -9,32 +9,35 @@ import { NumberRange } from "../../../../primatives/number-range.js";
 import {
   ActionHitOutcomePropertiesBaseTypes,
   CombatActionHitOutcomeProperties,
+  CombatActionResource,
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
 
 export const explosionHitOutcomeProperties: CombatActionHitOutcomeProperties = {
   ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Spell],
   getArmorPenetration: (user, self) => 15,
-  getHpChangeProperties: (user) => {
-    const hpChangeSourceConfig: ResourceChangeSourceConfig = {
-      category: ResourceChangeSourceCategory.Physical,
-      kineticDamageTypeOption: null,
-      elementOption: MagicalElement.Fire,
-      isHealing: false,
-      lifestealPercentage: null,
-    };
+  resourceChangePropertiesGetters: {
+    [CombatActionResource.HitPoints]: (user) => {
+      const hpChangeSourceConfig: ResourceChangeSourceConfig = {
+        category: ResourceChangeSourceCategory.Physical,
+        kineticDamageTypeOption: null,
+        elementOption: MagicalElement.Fire,
+        isHealing: false,
+        lifestealPercentage: null,
+      };
 
-    const stacks = user.asShimmedUserOfTriggeredCondition?.condition.stacksOption?.current || 1;
+      const stacks = user.asShimmedUserOfTriggeredCondition?.condition.stacksOption?.current || 1;
 
-    const baseValues = new NumberRange(user.level * stacks, user.level * stacks * 10);
+      const baseValues = new NumberRange(user.level * stacks, user.level * stacks * 10);
 
-    const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
-    const hpChangeProperties: CombatActionResourceChangeProperties = {
-      resourceChangeSource,
-      baseValues,
-    };
+      const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
+      const hpChangeProperties: CombatActionResourceChangeProperties = {
+        resourceChangeSource,
+        baseValues,
+      };
 
-    return hpChangeProperties;
+      return hpChangeProperties;
+    },
   },
   getAppliedConditions: (context) => {
     // @TODO - apply a "burning" condition

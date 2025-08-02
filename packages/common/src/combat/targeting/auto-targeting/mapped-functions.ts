@@ -4,13 +4,11 @@ import { CombatantAssociatedData } from "../../../types.js";
 import { CombatActionComponent } from "../../combat-actions/index.js";
 import { CombatActionTarget, CombatActionTargetType } from "../combat-action-targets.js";
 import { CombatantContext } from "../../../combatant-context/index.js";
-import { TargetingCalculator } from "../targeting-calculator.js";
-import { filterPossibleTargetIdsByActionTargetCategories } from "../filtering.js";
-import { Battle } from "../../../battle/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { EntityId } from "../../../primatives/index.js";
 import { Vector3 } from "@babylonjs/core";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
+import { TargetFilterer } from "../filtering.js";
 
 type AutoTargetingFunction = (
   combatantContext: CombatantContext,
@@ -124,12 +122,13 @@ export const AUTO_TARGETING_FUNCTIONS: Record<AutoTargetingScheme, AutoTargeting
 
     const allyAndOpponentIds = combatantContext.getAllyAndOpponentIds();
 
-    const idsFilteredByTargetCategory = filterPossibleTargetIdsByActionTargetCategories(
-      validTargetCategories,
-      combatant.entityProperties.id,
-      allyAndOpponentIds.allyIds,
-      allyAndOpponentIds.opponentIds
-    );
+    const idsFilteredByTargetCategory =
+      TargetFilterer.filterPossibleTargetIdsByActionTargetCategories(
+        validTargetCategories,
+        combatant.entityProperties.id,
+        allyAndOpponentIds.allyIds,
+        allyAndOpponentIds.opponentIds
+      );
     const idsFilteredByTargetCategoryFlattened = [
       ...idsFilteredByTargetCategory[0],
       ...idsFilteredByTargetCategory[1],
