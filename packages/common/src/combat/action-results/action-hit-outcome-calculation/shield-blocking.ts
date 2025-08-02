@@ -5,20 +5,6 @@ import {
 } from "../../../items/equipment/index.js";
 import { Percentage } from "../../../primatives/index.js";
 
-export function getShieldBlockChance(
-  aggressor: CombatantProperties,
-  defender: CombatantProperties
-): Percentage {
-  const shieldPropertiesOption = CombatantEquipment.getEquippedShieldProperties(defender);
-  if (!shieldPropertiesOption) return 0;
-
-  const baseBlockRate = SHIELD_SIZE_BLOCK_RATE[shieldPropertiesOption.size] * 100;
-
-  return baseBlockRate;
-
-  // FFXI formula: BlockRate = SizeBaseBlockRate + ((ShieldSkill - AttackerCombatSkill) × 0.2325)
-}
-
 /**Should return a normalized percentage*/
 export function getShieldBlockDamageReduction(combatantProperties: CombatantProperties) {
   const shieldPropertiesOption =

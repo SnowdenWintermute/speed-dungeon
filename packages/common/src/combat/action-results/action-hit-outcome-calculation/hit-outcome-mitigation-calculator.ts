@@ -1,0 +1,185 @@
+import { MIN_HIT_CHANCE } from "../../../app-consts.js";
+import { CombatAttribute } from "../../../combatants/attributes/index.js";
+import {
+  Combatant,
+  CombatantEquipment,
+  CombatantProperties,
+  CombatantTraitType,
+} from "../../../combatants/index.js";
+import { HitOutcome } from "../../../hit-outcome.js";
+import { SHIELD_SIZE_BLOCK_RATE } from "../../../items/equipment/index.js";
+import { Percentage } from "../../../primatives/index.js";
+import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
+import { randBetween } from "../../../utils/index.js";
+import { ActionAccuracyType } from "../../combat-actions/combat-action-accuracy.js";
+import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
+import { CombatActionComponent, CombatActionIntent } from "../../combat-actions/index.js";
+import { ResourceChangeSource } from "../../hp-change-source-types.js";
+
+const BASE_PARRY_CHANCE = 5;
+
+export class HitOutcomeMitigationCalculator {
+  constructor(
+    private action: CombatActionComponent,
+    private user: Combatant,
+    private targetCombatant: Combatant,
+    private incomingResourceChangesPerTarget: null | Partial<
+      Record<
+        CombatActionResource,
+        {
+          valuePerTarget: number;
+          source: ResourceChangeSource;
+        }
+      >
+    >,
+    private rng: RandomNumberGenerator
+  ) {
+    //
+  }
+
+  setTargetCombatant(targetCombatant: Combatant) {
+    this.targetCombatant = targetCombatant;
+  }
+
+  rollHitMitigationEvents() {
+    // HITS
+    const targetWillAttemptMitigation = this.targetWillAttemptMitigation();
+    if (!targetWillAttemptMitigation) return [HitOutcome.Hit];
+
+    const user = this.user.combatantProperties;
+    const target = this.targetCombatant.combatantProperties;
+
+    const percentChanceToHit = HitOutcomeMitigationCalculator.getActionHitChance(
+      this.action,
+      user,
+      CombatantProperties.getTotalAttributes(target)[CombatAttribute.Evasion],
+      targetWillAttemptMitigation
+    );
+
+    const hitRoll = randBetween(0, 100, this.rng);
+    const isMiss = hitRoll > percentChanceToHit.beforeEvasion;
+    if (isMiss) return [HitOutcome.Miss];
+
+    const isEvaded = !isMiss && hitRoll > percentChanceToHit.afterEvasion;
+    if (isEvaded) return [HitOutcome.Evade];
+
+    const { hitOutcomeProperties } = this.action;
+
+    const willAttemptParry =
+      hitOutcomeProperties.getIsParryable(user) && CombatantProperties.canParry(target);
+
+    // PARRIES
+    if (willAttemptParry) {
+      const percentChanceToParry = HitOutcomeMitigationCalculator.getParryChance(user, target);
+      // const percentChanceToParry = 5;
+      const parryRoll = randBetween(0, 100, this.rng);
+      const isParried = parryRoll < percentChanceToParry;
+      if (isParried) return [HitOutcome.Parry];
+    }
+
+    // COUNTERATTACKS
+    if (hitOutcomeProperties.getCanTriggerCounterattack(user)) {
+      const percentChanceToCounterAttack = 5; // @TODO - derrive this from various combatant properties
+      // const percentChanceToCounterAttack = 100; // @TODO - derrive this from various combatant properties
+      const counterAttackRoll = randBetween(0, 100, this.rng);
+      const isCounterAttacked = counterAttackRoll < percentChanceToCounterAttack;
+      if (isCounterAttacked) return [HitOutcome.Counterattack];
+    }
+
+    // it is possible that an ability hits, but does not change resource values, ex: a spell that only induces a condition
+    const flagsToReturn: HitOutcome[] = [HitOutcome.Hit];
+
+    // BLOCK
+    const actionHasResourceChanges = this.incomingResourceChangesPerTarget !== null;
+    if (actionHasResourceChanges) {
+      if (hitOutcomeProperties.getIsBlockable(user) && CombatantProperties.canBlock(target)) {
+        const percentChanceToBlock = HitOutcomeMitigationCalculator.getShieldBlockChance(
+          user,
+          target
+        );
+        const blockRoll = randBetween(0, 100, this.rng);
+        const isBlocked = blockRoll < percentChanceToBlock;
+        if (isBlocked) flagsToReturn.push(HitOutcome.ShieldBlock);
+      }
+    }
+
+    return flagsToReturn;
+  }
+
+  targetWillAttemptMitigation() {
+    const targetCombatantProperties = this.targetCombatant.combatantProperties;
+    const hpChangePropertiesGetterOption =
+      this.action.hitOutcomeProperties.resourceChangePropertiesGetters[
+        CombatActionResource.HitPoints
+      ];
+    const hpChangePropertiesOption = hpChangePropertiesGetterOption
+      ? hpChangePropertiesGetterOption(this.user.combatantProperties, targetCombatantProperties)
+      : null;
+
+    // regardless of the action intent, don't try to evade if would be healed
+    if (hpChangePropertiesOption) {
+      const { resourceChangeSource } = hpChangePropertiesOption;
+      const { isHealing } = resourceChangeSource;
+
+      const isUndead = CombatantProperties.hasTraitType(
+        targetCombatantProperties,
+        CombatantTraitType.Undead
+      );
+
+      if (isHealing && isUndead) return false;
+      if (isHealing) return true;
+
+      const { elementOption } = resourceChangeSource;
+      if (elementOption) {
+        const targetAffinities =
+          CombatantProperties.getCombatantTotalElementalAffinities(targetCombatantProperties);
+        const targetAffinity = targetAffinities[elementOption];
+        if (targetAffinity && targetAffinity > 100) return true;
+      }
+    }
+
+    // finally resolve based on action intent
+    if (this.action.targetingProperties.intent === CombatActionIntent.Malicious) return false;
+    else return true;
+  }
+
+  static getActionHitChance(
+    combatAction: CombatActionComponent,
+    userCombatantProperties: CombatantProperties,
+    targetEvasion: number,
+    targetWillAttemptToEvade: boolean
+  ): { beforeEvasion: number; afterEvasion: number } {
+    const actionBaseAccuracy = combatAction.getAccuracy(userCombatantProperties);
+    if (actionBaseAccuracy.type === ActionAccuracyType.Unavoidable)
+      return { beforeEvasion: 100, afterEvasion: 100 };
+
+    const finalTargetEvasion = !targetWillAttemptToEvade ? 0 : targetEvasion;
+    const accComparedToEva = actionBaseAccuracy.value - finalTargetEvasion;
+
+    return {
+      beforeEvasion: actionBaseAccuracy.value,
+      afterEvasion: Math.max(MIN_HIT_CHANCE, accComparedToEva),
+    };
+  }
+
+  static getParryChance(aggressor: CombatantProperties, defender: CombatantProperties): Percentage {
+    // derive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
+    // and probably put it on the action configs
+    return BASE_PARRY_CHANCE;
+  }
+
+  static getShieldBlockChance(
+    aggressor: CombatantProperties,
+    defender: CombatantProperties
+  ): Percentage {
+    const shieldPropertiesOption = CombatantEquipment.getEquippedShieldProperties(defender);
+    if (!shieldPropertiesOption) return 0;
+
+    const baseBlockRate = SHIELD_SIZE_BLOCK_RATE[shieldPropertiesOption.size] * 100;
+
+    return baseBlockRate;
+
+    // note:
+    // FFXI formula: BlockRate = SizeBaseBlockRate + ((ShieldSkill - AttackerCombatSkill) × 0.2325)
+  }
+}

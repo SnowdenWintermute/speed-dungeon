@@ -31,6 +31,7 @@ import {
   addRemovedConditionIdToUpdate,
   addRemovedConditionStacksToUpdate,
 } from "./add-triggered-condition-to-update.js";
+import { CombatActionResource } from "../../../combat/combat-actions/combat-action-hit-outcome-properties.js";
 
 const stepType = ActionResolutionStepType.EvalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
@@ -48,7 +49,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
     const { game, party, combatant } = combatantContext;
     const battleOption = AdventuringParty.getBattleOption(party, game);
-    const { outcomeFlags, hitPointChanges } = tracker.hitOutcomes;
+    const { outcomeFlags, resourceChanges } = tracker.hitOutcomes;
 
     const durabilityChanges = new DurabilityChangesByEntityId();
 
@@ -61,8 +62,9 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
     const triggeredHitPointChanges = new HitPointChanges();
     let accumulatedLifeStolenResourceChange: null | ResourceChange = null;
-    if (tracker.hitOutcomes.hitPointChanges) {
-      for (const [entityId, hpChange] of tracker.hitOutcomes.hitPointChanges.getRecords()) {
+    const hpChanges = resourceChanges && resourceChanges[CombatActionResource.HitPoints];
+    if (hpChanges) {
+      for (const [entityId, hpChange] of hpChanges.getRecords()) {
         if (hpChange.source.lifestealPercentage !== undefined) {
           const lifestealValue = Math.max(
             1,
@@ -112,7 +114,10 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
       // because threat change caluclation takes a hitOutcomeProperties we'll
       // create an ephemeral one here
       const wrappedLifestealHitPointChanges = new CombatActionHitOutcomes();
-      wrappedLifestealHitPointChanges.hitPointChanges = triggeredHitPointChanges;
+      if (!wrappedLifestealHitPointChanges.resourceChanges)
+        wrappedLifestealHitPointChanges.resourceChanges = {};
+      wrappedLifestealHitPointChanges.resourceChanges[CombatActionResource.HitPoints] =
+        triggeredHitPointChanges;
       const threatChangesOption = action.hitOutcomeProperties.getThreatChangesOnHitOutcomes(
         context,
         wrappedLifestealHitPointChanges
@@ -133,8 +138,8 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         const targetCombatant = combatantResult;
 
         const hpChangeIsCrit = (() => {
-          if (!hitPointChanges) return false;
-          return !!hitPointChanges.getRecord(combatantId)?.isCrit;
+          if (!hpChanges) return false;
+          return !!hpChanges.getRecord(combatantId)?.isCrit;
         })();
 
         addHitOutcomeDurabilityChanges(

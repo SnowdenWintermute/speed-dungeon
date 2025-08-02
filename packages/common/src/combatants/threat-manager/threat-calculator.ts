@@ -1,6 +1,7 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { CombatActionHitOutcomes, ThreatChanges } from "../../combat/action-results/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
+import { CombatActionResource } from "../../combat/combat-actions/combat-action-hit-outcome-properties.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { HitOutcome } from "../../hit-outcome.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
@@ -101,8 +102,12 @@ export class ThreatCalculator {
         "updateThreatChangesForPlayerControlledCharacterHitOutcomes but user was not on player team"
       );
 
-    if (!this.hitOutcomes.hitPointChanges) return;
-    for (const [entityId, hitPointChange] of this.hitOutcomes.hitPointChanges.getRecords()) {
+    const resourceChanges = this.hitOutcomes.resourceChanges;
+    if (!resourceChanges) return;
+    const hitPointChanges = resourceChanges[CombatActionResource.HitPoints];
+
+    if (!hitPointChanges) return;
+    for (const [entityId, hitPointChange] of hitPointChanges.getRecords()) {
       const targetCombatantResult = AdventuringParty.getCombatant(this.party, entityId);
       if (targetCombatantResult instanceof Error) throw targetCombatantResult;
       const targetIsPlayer = targetCombatantResult.combatantProperties.controllingPlayer;
@@ -147,8 +152,12 @@ export class ThreatCalculator {
       );
     }
 
-    if (this.hitOutcomes.hitPointChanges)
-      for (const [entityId, hitPointChange] of this.hitOutcomes.hitPointChanges.getRecords()) {
+    const hitPointChanges =
+      this.hitOutcomes.resourceChanges &&
+      this.hitOutcomes.resourceChanges[CombatActionResource.HitPoints];
+
+    if (hitPointChanges)
+      for (const [entityId, hitPointChange] of hitPointChanges.getRecords()) {
         if (hitPointChange.value > 0) continue; // don't add threat for monsters healing players
         const targetCombatantResult = AdventuringParty.getCombatant(this.party, entityId);
         if (targetCombatantResult instanceof Error) throw targetCombatantResult;

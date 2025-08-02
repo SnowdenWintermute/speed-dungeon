@@ -73,6 +73,8 @@ export class IncomingResourceChangesCalculator {
       };
     }
 
+    if (Object.values(incomingResourceChangesPerTarget).length === 0) return null;
+
     return incomingResourceChangesPerTarget;
   }
 
