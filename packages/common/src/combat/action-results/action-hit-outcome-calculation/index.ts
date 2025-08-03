@@ -1,29 +1,19 @@
 import cloneDeep from "lodash.clonedeep";
 import { iterateNumericEnumKeyedRecord, randBetween, throwIfError } from "../../../utils/index.js";
-import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
 import { ResourceChange } from "../../hp-change-source-types.js";
-import { applyCritMultiplier } from "./apply-crit-multiplier-to-hp-change.js";
 import { EntityId } from "../../../primatives/index.js";
-import { convertResourceChangeValueToFinalSign } from "../../combat-actions/action-calculation-utils/convert-hp-change-value-to-final-sign.js";
-import {
-  applyElementalAffinities,
-  applyKineticAffinities,
-} from "../../combat-actions/action-calculation-utils/apply-affinities-to-hp-change.js";
-import { getActionCritChance } from "./get-action-crit-chance.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { ActionResolutionStepContext } from "../../../action-processing/index.js";
 export * from "./hit-outcome-mitigation-calculator.js";
 export * from "./incoming-resource-change-calculator.js";
-export * from "./get-action-crit-chance.js";
 export * from "./hp-change-calculation-strategies/index.js";
-export * from "./check-if-target-wants-to-be-hit.js";
+export * from "./resource-change-modifier.js";
 export * from "./resource-changes.js";
 
 import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
 import { HitPointChanges, ManaChanges, ResourceChanges } from "./resource-changes.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
-import { getShieldBlockDamageReduction } from "./shield-blocking.js";
 import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { IncomingResourceChangesCalculator } from "./incoming-resource-change-calculator.js";
 import { TargetFilterer } from "../../targeting/filtering.js";
@@ -31,6 +21,7 @@ import { CombatActionComponent } from "../../combat-actions/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 import { HitOutcomeMitigationCalculator } from "./hit-outcome-mitigation-calculator.js";
+import { ResourceChangeModifier } from "./resource-change-modifier.js";
 
 export class CombatActionHitOutcomes {
   resourceChanges?: Partial<Record<CombatActionResource, ResourceChanges<ResourceChange>>>;
@@ -44,6 +35,25 @@ export class CombatActionHitOutcomes {
     const idsFlagged = this.outcomeFlags[flag];
     if (!idsFlagged) this.outcomeFlags[flag] = [entityId];
     else idsFlagged.push(entityId);
+  }
+
+  insertResourceChange(
+    resourceType: CombatActionResource,
+    targetId: EntityId,
+    resourceChange: ResourceChange
+  ) {
+    if (this.resourceChanges === undefined) this.resourceChanges = {};
+    if (this.resourceChanges[resourceType] === undefined)
+      this.resourceChanges[resourceType] = (() => {
+        switch (resourceType) {
+          case CombatActionResource.HitPoints:
+            return new HitPointChanges();
+          case CombatActionResource.Mana:
+            return new ManaChanges();
+        }
+      })();
+
+    this.resourceChanges[resourceType].addRecord(targetId, resourceChange);
   }
 }
 
@@ -107,52 +117,52 @@ export class HitOutcomeCalculator {
 
       const hitOutcomeFlags = mitigationCalculator.rollHitMitigationEvents();
       let wasHit = false;
+      let wasBlocked = false;
       for (const flag of hitOutcomeFlags) {
         hitOutcomes.insertOutcomeFlag(flag, targetId);
         if (flag === HitOutcome.Hit) wasHit = true;
+        if (flag === HitOutcome.ShieldBlock) wasBlocked = true;
       }
 
-      if (wasHit && incomingResourceChangesPerTarget !== null) {
-        for (const [resourceType, incomingResourceChangeOption] of iterateNumericEnumKeyedRecord(
-          incomingResourceChangesPerTarget
-        )) {
-          const { valuePerTarget: value, source } = incomingResourceChangeOption;
+      if (!wasHit || incomingResourceChangesPerTarget === null) continue;
 
-          const resourceChange = new ResourceChange(value, cloneDeep(resourceChangeSource));
+      for (const [resourceType, incomingResourceChangeOption] of iterateNumericEnumKeyedRecord(
+        incomingResourceChangesPerTarget
+      )) {
+        const { valuePerTarget: value } = incomingResourceChangeOption;
 
-          const percentChanceToCrit = getActionCritChance(action, user, target, targetWantsToBeHit);
+        const resourceChange = new ResourceChange(
+          value,
+          cloneDeep(incomingResourceChangeOption.source)
+        );
 
-          resourceChange.isCrit = randBetween(0, 100, rng) < percentChanceToCrit;
-          applyCritMultiplier(resourceChange, action, user, target);
-          applyKineticAffinities(resourceChange, target, targetWantsToBeHit);
-          applyElementalAffinities(resourceChange, target, targetWantsToBeHit);
+        const user = combatant.combatantProperties;
+        const target = targetCombatant.combatantProperties;
 
-          // @TODO
-          // apply block mitigation if blocked
-          if (blockDamageReductionNormalizedPercentage) {
-            const damageReduced = resourceChange.value * blockDamageReductionNormalizedPercentage;
-            const damageAdjustedForBlock = resourceChange.value - damageReduced;
-            resourceChange.value = Math.max(0, damageAdjustedForBlock);
-          }
+        const targetWantsToBeHit = !mitigationCalculator.targetWillAttemptMitigation();
 
-          convertResourceChangeValueToFinalSign(resourceChange, target);
+        const percentChanceToCrit = HitOutcomeMitigationCalculator.getActionCritChance(
+          this.action,
+          user,
+          target,
+          targetWantsToBeHit
+        );
 
-          const resourceChangeCalculationContext =
-            HP_CALCLULATION_CONTEXTS[resourceChangeSource.category];
+        resourceChange.isCrit = randBetween(0, 100, this.rng) < percentChanceToCrit;
 
-          resourceChangeCalculationContext.applyArmorClass(
-            hitOutcomeProperties,
-            resourceChange,
-            user,
-            target
-          );
-          resourceChangeCalculationContext.applyResilience(resourceChange, user, target);
+        const resourceChangeModifier = new ResourceChangeModifier(
+          this.action,
+          combatant,
+          targetCombatant,
+          targetWantsToBeHit,
+          resourceChange
+        );
+        resourceChangeModifier.applyPostHitModifiers(wasBlocked);
 
-          resourceChange.value = Math.floor(resourceChange.value);
-
-          incomingResourceChangeOption.record.addRecord(id, resourceChange);
-        }
+        hitOutcomes.insertResourceChange(resourceType, targetId, resourceChange);
       }
     }
+
+    return hitOutcomes;
   }
 }

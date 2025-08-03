@@ -4,7 +4,7 @@ import { CombatantContext } from "../../../combatant-context/index.js";
 import { CombatantProperties, ThreatType } from "../../../combatants/index.js";
 import { EntityId } from "../../../primatives/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
-import { ResourceChange } from "../../hp-change-source-types.js";
+import { ResourceChange, ResourceChangeSource } from "../../hp-change-source-types.js";
 
 export abstract class ResourceChanges<T> {
   protected changes: Record<EntityId, T> = {};
@@ -63,6 +63,7 @@ export class HitPointChanges extends ResourceChanges<ResourceChange> {
 export class ManaChange {
   constructor(
     public value: number,
+    public source: ResourceChangeSource,
     public isCrit?: boolean
   ) {}
 }

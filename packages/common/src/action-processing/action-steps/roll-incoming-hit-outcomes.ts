@@ -8,12 +8,15 @@ import {
   COMBAT_ACTIONS,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionExecutionIntent,
-  calculateActionHitOutcomes,
+  HitOutcomeCalculator,
+  HitPointChanges,
 } from "../../combat/index.js";
 import { Combatant } from "../../combatants/index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { HitOutcome } from "../../hit-outcome.js";
 import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
+import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
+import { CombatActionResource } from "../../combat/combat-actions/combat-action-hit-outcome-properties.js";
 
 const stepType = ActionResolutionStepType.RollIncomingHitOutcomes;
 export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutionStep {
@@ -23,7 +26,9 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
     // @PERF - make this a singleton and move these steps to the server
     const rng = new BasicRandomNumberGenerator();
 
-    const hitOutcomesResult = calculateActionHitOutcomes(context, rng);
+    const hitOutcomeCalculator = new HitOutcomeCalculator(context, rng);
+    const hitOutcomesResult = hitOutcomeCalculator.calculateHitOutcomes();
+
     if (hitOutcomesResult instanceof Error) {
       console.error(
         "ERROR WITH ACTION",
@@ -45,16 +50,21 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
 
     this.context.tracker.hitOutcomes = hitOutcomesResult;
 
-    const { hitPointChanges, manaChanges } = hitOutcomesResult;
-
     // apply hit outcomes to the game state so subsequent action.shouldExecute calls can check if
     // their target is dead, user is out of mana etc
-    const combatantsKilled = hitPointChanges?.applyToGame(this.context.combatantContext);
-    if (combatantsKilled)
-      for (const entityId of combatantsKilled)
-        gameUpdateCommand.outcomes.insertOutcomeFlag(HitOutcome.Death, entityId);
+    if (hitOutcomesResult.resourceChanges) {
+      const hitPointChangesOption =
+        hitOutcomesResult.resourceChanges[CombatActionResource.HitPoints];
+      if (hitPointChangesOption instanceof HitPointChanges) {
+        const combatantsKilled = hitPointChangesOption?.applyToGame(this.context.combatantContext);
+        if (combatantsKilled)
+          for (const entityId of combatantsKilled)
+            gameUpdateCommand.outcomes.insertOutcomeFlag(HitOutcome.Death, entityId);
+      }
 
-    manaChanges?.applyToGame(context.combatantContext);
+      const manaChangesOption = hitOutcomesResult.resourceChanges[CombatActionResource.Mana];
+      manaChangesOption?.applyToGame(context.combatantContext);
+    }
 
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
 

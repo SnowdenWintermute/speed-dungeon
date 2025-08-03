@@ -5,12 +5,7 @@ import {
   ResourceChangeSourceModifiers,
 } from "../../hp-change-source-types.js";
 import { HP_CALCLULATION_CONTEXTS } from "../../action-results/index.js";
-import {
-  applyElementalAffinities,
-  applyKineticAffinities,
-} from "./apply-affinities-to-hp-change.js";
 import { CombatantProperties } from "../../../combatants";
-import { convertResourceChangeValueToFinalSign } from "./convert-hp-change-value-to-final-sign.js";
 import { CombatActionResourceChangeProperties } from "../combat-action-resource-change-properties";
 import { copySelectedModifiersFromResourceChangeSource } from "./copy-selected-modifiers-from-hp-change-source.js";
 import { CombatActionHitOutcomeProperties } from "../combat-action-hit-outcome-properties.js";

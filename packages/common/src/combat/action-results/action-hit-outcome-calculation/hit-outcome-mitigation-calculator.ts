@@ -1,4 +1,4 @@
-import { MIN_HIT_CHANCE } from "../../../app-consts.js";
+import { MAX_CRIT_CHANCE, MIN_HIT_CHANCE } from "../../../app-consts.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import {
   Combatant,
@@ -7,7 +7,10 @@ import {
   CombatantTraitType,
 } from "../../../combatants/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
-import { SHIELD_SIZE_BLOCK_RATE } from "../../../items/equipment/index.js";
+import {
+  SHIELD_SIZE_BLOCK_RATE,
+  SHIELD_SIZE_DAMAGE_REDUCTION,
+} from "../../../items/equipment/index.js";
 import { Percentage } from "../../../primatives/index.js";
 import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { randBetween } from "../../../utils/index.js";
@@ -79,8 +82,12 @@ export class HitOutcomeMitigationCalculator {
 
     // COUNTERATTACKS
     if (hitOutcomeProperties.getCanTriggerCounterattack(user)) {
-      const percentChanceToCounterAttack = 5; // @TODO - derrive this from various combatant properties
-      // const percentChanceToCounterAttack = 100; // @TODO - derrive this from various combatant properties
+      // @TODO - derrive this from various combatant properties
+      const percentChanceToCounterAttack = HitOutcomeMitigationCalculator.getCounterattackChance(
+        user,
+        target
+      );
+      // const percentChanceToCounterAttack = 100;
       const counterAttackRoll = randBetween(0, 100, this.rng);
       const isCounterAttacked = counterAttackRoll < percentChanceToCounterAttack;
       if (isCounterAttacked) return [HitOutcome.Counterattack];
@@ -162,7 +169,33 @@ export class HitOutcomeMitigationCalculator {
     };
   }
 
+  static getActionCritChance(
+    action: CombatActionComponent,
+    user: CombatantProperties,
+    target: CombatantProperties,
+    targetWantsToBeHit: boolean
+  ) {
+    const actionBaseCritChance = action.hitOutcomeProperties.getCritChance(user);
+
+    const targetAttributes = CombatantProperties.getTotalAttributes(target);
+    const targetAvoidaceAttributeValue = targetAttributes[CombatAttribute.Resilience];
+
+    const targetCritAvoidance = targetWantsToBeHit ? 0 : targetAvoidaceAttributeValue;
+    const finalUnroundedCritChance = actionBaseCritChance - targetCritAvoidance;
+
+    return Math.floor(Math.max(0, Math.min(MAX_CRIT_CHANCE, finalUnroundedCritChance)));
+  }
+
   static getParryChance(aggressor: CombatantProperties, defender: CombatantProperties): Percentage {
+    // derive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
+    // and probably put it on the action configs
+    return BASE_PARRY_CHANCE;
+  }
+
+  static getCounterattackChance(
+    aggressor: CombatantProperties,
+    defender: CombatantProperties
+  ): Percentage {
     // derive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
     // and probably put it on the action configs
     return BASE_PARRY_CHANCE;
@@ -181,5 +214,19 @@ export class HitOutcomeMitigationCalculator {
 
     // note:
     // FFXI formula: BlockRate = SizeBaseBlockRate + ((ShieldSkill - AttackerCombatSkill) × 0.2325)
+  }
+
+  /**Should return a normalized percentage*/
+  static getShieldBlockDamageReduction(combatantProperties: CombatantProperties) {
+    const shieldPropertiesOption =
+      CombatantEquipment.getEquippedShieldProperties(combatantProperties);
+    if (!shieldPropertiesOption) return 0;
+
+    const baseDamageReduction = SHIELD_SIZE_DAMAGE_REDUCTION[shieldPropertiesOption.size];
+
+    return baseDamageReduction + shieldPropertiesOption.armorClass / 200;
+
+    // FFXI formula:
+    // PercentDamageBlocked = SizeDamageReduction + (ShieldDEF / ((max(ShieldItemLevel, 99) - 99) / 10 + 2))
   }
 }

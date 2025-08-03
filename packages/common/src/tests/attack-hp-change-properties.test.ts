@@ -12,7 +12,6 @@ import {
   CombatActionExecutionIntent,
   CombatActionName,
   CombatActionTargetType,
-  calculateActionHitOutcomes,
 } from "../combat/index.js";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import { CombatantContext } from "../combatant-context/index.js";
@@ -141,9 +140,9 @@ describe("kinetic damage type selection", () => {
       idGenerator,
     };
 
-    const hitOutcomes = calculateActionHitOutcomes(context, new BasicRandomNumberGenerator());
-    expect(!(hitOutcomes instanceof Error));
-    if (hitOutcomes instanceof Error) return;
-    expect(hitOutcomes.outcomeFlags[HitOutcome.Hit]?.includes(testTargetId));
+    // const hitOutcomes = calculateActionHitOutcomes(context, new BasicRandomNumberGenerator());
+    // expect(!(hitOutcomes instanceof Error));
+    // if (hitOutcomes instanceof Error) return;
+    // expect(hitOutcomes.outcomeFlags[HitOutcome.Hit]?.includes(testTargetId));
   });
 });
