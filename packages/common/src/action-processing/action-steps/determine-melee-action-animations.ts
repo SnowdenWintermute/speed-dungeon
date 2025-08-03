@@ -23,6 +23,7 @@ export class DetermineMeleeActionAnimationsActionResolutionStep extends ActionRe
     const { addsPropertiesFromHoldableSlot } = action.hitOutcomeProperties;
 
     if (addsPropertiesFromHoldableSlot === null) return;
+
     const meleeAttackAnimationType = determineMeleeAttackAnimationType(
       context,
       addsPropertiesFromHoldableSlot

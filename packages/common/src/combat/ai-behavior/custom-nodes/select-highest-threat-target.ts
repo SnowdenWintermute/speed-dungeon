@@ -2,7 +2,6 @@ import { Combatant } from "../../../combatants/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionIntent } from "../../combat-actions/combat-action-intent.js";
 import { CombatActionName } from "../../combat-actions/combat-action-names.js";
-import { CombatActionTarget } from "../../targeting/combat-action-targets.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import {
@@ -15,6 +14,7 @@ import {
 } from "../behavior-tree.js";
 import { CollectPotentialTargetsForActionIfUsable } from "./add-to-considered-actions-with-targets-if-usable.js";
 import { CollectAllOwnedActionsByIntent } from "./collect-all-owned-action-by-intent.js";
+import { FilterSelectedActionPotentialTargets } from "./filter-selected-action-potential-targets.js";
 import { SelectActionExecutionIntent } from "./select-action-intent-node.js";
 import { SelectActionWithPotentialTargets } from "./select-action-with-potential-targets-node.js";
 
@@ -96,42 +96,5 @@ export class SelectTopThreatTargetAndAction implements BehaviorNode {
   }
   execute(): BehaviorNodeState {
     return this.root.execute();
-  }
-}
-
-export class FilterSelectedActionPotentialTargets implements BehaviorNode {
-  constructor(
-    private behaviorContext: AIBehaviorContext,
-    private combatant: Combatant,
-    private filteringFunction: (
-      target: CombatActionTarget,
-      behaviorContext: AIBehaviorContext
-    ) => boolean
-  ) {}
-  execute(): BehaviorNodeState {
-    const actionNameOption = this.behaviorContext.currentActionNameConsidering;
-    if (actionNameOption === null) return BehaviorNodeState.Failure;
-
-    const potentialValidTargets =
-      this.behaviorContext.usableActionsWithPotentialValidTargets[actionNameOption];
-
-    if (potentialValidTargets === undefined) {
-      throw new Error(
-        "expected usableActionsWithPotentialValidTargets to contain the action name passed to this node"
-      );
-    }
-
-    const filteredTargets = potentialValidTargets.filter((target) =>
-      this.filteringFunction(target, this.behaviorContext)
-    );
-
-    if (filteredTargets.length === 0) return BehaviorNodeState.Failure;
-
-    this.behaviorContext.selectedActionWithPotentialValidTargets = {
-      actionName: actionNameOption,
-      potentialValidTargets: filteredTargets,
-    };
-
-    return BehaviorNodeState.Success;
   }
 }
