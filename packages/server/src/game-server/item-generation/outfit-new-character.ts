@@ -20,6 +20,7 @@ import {
   TwoHandedMeleeWeapon,
   Equipment,
   CombatantContext,
+  MagicalElement,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment, { givePlaytestingItems } from "./create-starting-equipment.js";
@@ -193,6 +194,11 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 40;
   // combatantProperties.inherentAttributes[CombatAttribute.Speed] = 9999;
   combatantProperties.inherentAttributes[CombatAttribute.Hp] = 75;
+  combatantProperties.traits.push({
+    type: CombatantTraitType.ElementalAffinity,
+    element: MagicalElement.Fire,
+    percent: 150,
+  });
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
   // combatantProperties.inventory.shards = 9999;

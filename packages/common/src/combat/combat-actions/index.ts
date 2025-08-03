@@ -1,3 +1,4 @@
+export * from "./combat-action-hit-outcome-properties.js";
 export * from "./combat-action-names.js";
 export * from "./targeting-schemes-and-categories.js";
 export * from "./combat-action-usable-cotexts.js";

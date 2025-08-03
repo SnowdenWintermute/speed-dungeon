@@ -151,9 +151,9 @@ export class HitOutcomeCalculator {
         resourceChange.isCrit = randBetween(0, 100, this.rng) < percentChanceToCrit;
 
         const resourceChangeModifier = new ResourceChangeModifier(
-          this.action,
-          combatant,
-          targetCombatant,
+          this.action.hitOutcomeProperties,
+          combatant.combatantProperties,
+          targetCombatant.combatantProperties,
           targetWantsToBeHit,
           resourceChange
         );

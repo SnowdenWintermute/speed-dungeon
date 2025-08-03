@@ -1,23 +1,25 @@
 import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
 import { ResourceChange } from "../../hp-change-source-types.js";
-import { Combatant, CombatantProperties, CombatantTraitType } from "../../../combatants/index.js";
-import { CombatActionComponent } from "../../combat-actions/index.js";
+import { CombatantProperties, CombatantTraitType } from "../../../combatants/index.js";
 import { Percentage } from "../../../primatives/index.js";
 import { HitOutcomeMitigationCalculator } from "./hit-outcome-mitigation-calculator.js";
+import { CombatActionHitOutcomeProperties } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 
 export class ResourceChangeModifier {
   constructor(
-    private action: CombatActionComponent,
-    private user: Combatant,
-    private targetCombatant: Combatant,
+    private hitOutcomeProperties: CombatActionHitOutcomeProperties,
+    private user: CombatantProperties,
+    private target: CombatantProperties,
     private targetWillAttemptMitigation: boolean,
     private resourceChange: ResourceChange
   ) {}
 
+  setResourceChange(resourceChange: ResourceChange) {
+    this.resourceChange = resourceChange;
+  }
+
   applyPostHitModifiers(wasBlocked: boolean) {
-    const { action } = this;
-    const user = this.user.combatantProperties;
-    const target = this.targetCombatant.combatantProperties;
+    const { hitOutcomeProperties, resourceChange, user, target } = this;
 
     this.applyCritMultiplier();
     this.applyKineticAffinities();
@@ -30,29 +32,25 @@ export class ResourceChangeModifier {
       HP_CALCLULATION_CONTEXTS[this.resourceChange.source.category];
 
     resourceChangeCalculationContext.applyArmorClass(
-      action.hitOutcomeProperties,
-      this.resourceChange,
+      hitOutcomeProperties,
+      resourceChange,
       user,
       target
     );
-    resourceChangeCalculationContext.applyResilience(this.resourceChange, user, target);
+    resourceChangeCalculationContext.applyResilience(resourceChange, user, target);
 
-    this.resourceChange.value = Math.floor(this.resourceChange.value);
+    this.resourceChange.value = Math.floor(resourceChange.value);
   }
 
   private applyCritMultiplier() {
     if (!this.resourceChange.isCrit) return;
-    const critMultiplier = this.action.hitOutcomeProperties.getCritMultiplier(
-      this.user.combatantProperties
-    );
+    const critMultiplier = this.hitOutcomeProperties.getCritMultiplier(this.user);
     this.resourceChange.value *= critMultiplier;
   }
 
   private applyShieldBlock() {
     const blockDamageReductionNormalizedPercentage =
-      HitOutcomeMitigationCalculator.getShieldBlockDamageReduction(
-        this.targetCombatant.combatantProperties
-      );
+      HitOutcomeMitigationCalculator.getShieldBlockDamageReduction(this.target);
     const damageReduced = this.resourceChange.value * blockDamageReductionNormalizedPercentage;
     const damageAdjustedForBlock = this.resourceChange.value - damageReduced;
     this.resourceChange.value = Math.max(0, damageAdjustedForBlock);
@@ -61,9 +59,7 @@ export class ResourceChangeModifier {
   private applyElementalAffinities() {
     const hpChangeElement = this.resourceChange.source.elementOption;
     if (hpChangeElement === undefined) return;
-    const targetAffinities = CombatantProperties.getCombatantTotalElementalAffinities(
-      this.targetCombatant.combatantProperties
-    );
+    const targetAffinities = CombatantProperties.getCombatantTotalElementalAffinities(this.target);
     const affinityValue = targetAffinities[hpChangeElement] || 0;
     const afterAffinityApplied = this.applyAffinity(affinityValue);
     // target wanted to be hit, so don't reduce the incoming value
@@ -79,7 +75,7 @@ export class ResourceChangeModifier {
     const kineticDamageType = this.resourceChange.source.kineticDamageTypeOption;
     if (kineticDamageType === undefined) return;
     const targetAffinities = CombatantProperties.getCombatantTotalKineticDamageTypeAffinities(
-      this.targetCombatant.combatantProperties
+      this.target
     );
     const affinityValue: Percentage = targetAffinities[kineticDamageType] || 0;
 
@@ -110,11 +106,8 @@ export class ResourceChangeModifier {
     }
   }
 
-  private convertResourceChangeValueToFinalSign() {
-    const targetIsUndead = CombatantProperties.hasTraitType(
-      this.targetCombatant.combatantProperties,
-      CombatantTraitType.Undead
-    );
+  convertResourceChangeValueToFinalSign() {
+    const targetIsUndead = CombatantProperties.hasTraitType(this.target, CombatantTraitType.Undead);
     // if it wasn't intended as healing, but is actually healing target due to affinities,
     // don't "un healify" the hp change here
     const { resourceChange } = this;

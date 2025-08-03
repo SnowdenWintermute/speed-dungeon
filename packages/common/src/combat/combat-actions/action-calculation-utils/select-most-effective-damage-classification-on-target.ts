@@ -4,7 +4,7 @@ import {
   ResourceChangeSource,
   ResourceChangeSourceModifiers,
 } from "../../hp-change-source-types.js";
-import { HP_CALCLULATION_CONTEXTS } from "../../action-results/index.js";
+import { ResourceChangeModifier } from "../../action-results/index.js";
 import { CombatantProperties } from "../../../combatants";
 import { CombatActionResourceChangeProperties } from "../combat-action-resource-change-properties";
 import { copySelectedModifiersFromResourceChangeSource } from "./copy-selected-modifiers-from-hp-change-source.js";
@@ -17,11 +17,20 @@ export function selectMostEffectiveFromAvailableResourceChangeSourceModifiers(
   modifiers: Set<ResourceChangeSourceModifiers>,
   userCombatantProperties: CombatantProperties,
   targetCombatantProperties: CombatantProperties,
-  expectedRolledValueAverage: number
+  expectedRolledValueAverage: number,
+  targetWillAttemptMitigation: boolean
 ) {
   const hpChangeToModify = new ResourceChange(
     expectedRolledValueAverage,
     hpChangeProperties.resourceChangeSource
+  );
+
+  const resourceChangeModifier = new ResourceChangeModifier(
+    hitOutcomeProperties,
+    userCombatantProperties,
+    targetCombatantProperties,
+    targetWillAttemptMitigation,
+    hpChangeToModify
   );
 
   let mostEffective: null | {
@@ -31,30 +40,13 @@ export function selectMostEffectiveFromAvailableResourceChangeSourceModifiers(
 
   for (const hpChangeSource of toSelectFrom) {
     const hpChangeToTest = cloneDeep(hpChangeToModify);
+    resourceChangeModifier.setResourceChange(hpChangeToTest);
+
     const source = hpChangeToTest.source;
 
     copySelectedModifiersFromResourceChangeSource(source, hpChangeSource, modifiers);
 
-    const hpChangeCalculationContext = HP_CALCLULATION_CONTEXTS[source.category];
-
-    applyKineticAffinities(hpChangeToTest, targetCombatantProperties, false);
-    applyElementalAffinities(hpChangeToTest, targetCombatantProperties, false);
-
-    convertResourceChangeValueToFinalSign(hpChangeToTest, targetCombatantProperties);
-
-    hpChangeCalculationContext.applyResilience(
-      hpChangeToTest,
-      userCombatantProperties,
-      targetCombatantProperties
-    );
-    hpChangeCalculationContext.applyArmorClass(
-      hitOutcomeProperties,
-      hpChangeToTest,
-      userCombatantProperties,
-      targetCombatantProperties
-    );
-
-    hpChangeToTest.value = Math.trunc(hpChangeToTest.value);
+    resourceChangeModifier.applyPostHitModifiers(false);
 
     if (mostEffective !== null) {
       if (
