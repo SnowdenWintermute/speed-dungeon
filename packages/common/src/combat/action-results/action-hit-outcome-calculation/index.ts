@@ -17,11 +17,12 @@ import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/inde
 import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { IncomingResourceChangesCalculator } from "./incoming-resource-change-calculator.js";
 import { TargetFilterer } from "../../targeting/filtering.js";
-import { CombatActionComponent } from "../../combat-actions/index.js";
+import { CombatActionComponent, CombatActionExecutionIntent } from "../../combat-actions/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 import { HitOutcomeMitigationCalculator } from "./hit-outcome-mitigation-calculator.js";
 import { ResourceChangeModifier } from "./resource-change-modifier.js";
+import { CombatantContext } from "../../../combatant-context/index.js";
 
 export class CombatActionHitOutcomes {
   resourceChanges?: Partial<Record<CombatActionResource, ResourceChanges<ResourceChange>>>;
@@ -63,12 +64,12 @@ export class HitOutcomeCalculator {
   targetIds: EntityId[];
   action: CombatActionComponent;
   constructor(
-    private context: ActionResolutionStepContext,
+    private combatantContext: CombatantContext,
+    private actionExecutionIntent: CombatActionExecutionIntent,
     private rng: RandomNumberGenerator
   ) {
-    this.targetingCalculator = new TargetingCalculator(context.combatantContext, null);
+    this.targetingCalculator = new TargetingCalculator(this.combatantContext, null);
 
-    const { actionExecutionIntent } = context.tracker;
     this.action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
 
     this.targetIds = throwIfError(
@@ -76,7 +77,8 @@ export class HitOutcomeCalculator {
     );
 
     this.incomingResourceChangesCalculator = new IncomingResourceChangesCalculator(
-      context,
+      combatantContext,
+      actionExecutionIntent,
       this.targetingCalculator,
       this.targetIds,
       rng
@@ -84,7 +86,7 @@ export class HitOutcomeCalculator {
   }
 
   calculateHitOutcomes() {
-    const { party, combatant } = this.context.combatantContext;
+    const { party, combatant } = this.combatantContext;
 
     // while we may have already filtered targets for user selected action while they are targeting,
     // when doing ice burst we still want to target the side combatants, but actually not damage them

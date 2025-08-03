@@ -15,7 +15,6 @@ import { Combatant } from "../../combatants/index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { HitOutcome } from "../../hit-outcome.js";
 import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
-import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { CombatActionResource } from "../../combat/combat-actions/combat-action-hit-outcome-properties.js";
 
 const stepType = ActionResolutionStepType.RollIncomingHitOutcomes;
@@ -26,7 +25,11 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
     // @PERF - make this a singleton and move these steps to the server
     const rng = new BasicRandomNumberGenerator();
 
-    const hitOutcomeCalculator = new HitOutcomeCalculator(context, rng);
+    const hitOutcomeCalculator = new HitOutcomeCalculator(
+      context.combatantContext,
+      context.tracker.actionExecutionIntent,
+      rng
+    );
     const hitOutcomesResult = hitOutcomeCalculator.calculateHitOutcomes();
 
     if (hitOutcomesResult instanceof Error) {

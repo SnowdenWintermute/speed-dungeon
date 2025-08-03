@@ -62,8 +62,8 @@ export class SelectActionToHealLowestHpAlly implements BehaviorNode {
           new CollectPotentialTargetsForActionIfUsable(this.behaviorContext, this.combatant, () =>
             this.behaviorContext.getCurrentActionNameConsidering()
           ),
+          // record this action's avg, max and per/mp healing on the target and total on the team
         ]),
-
         {
           maxAttemptsGetter: () =>
             this.behaviorContext.consideredActionNamesFilteredByIntents.length,

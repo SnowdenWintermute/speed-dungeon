@@ -9,6 +9,7 @@ export class BasicRandomNumberGenerator implements RandomNumberGenerator {
   roll = (): NormalizedPercentage => Math.random();
 }
 
-export class AverageRandomNumberGenerator implements RandomNumberGenerator {
-  roll = (): NormalizedPercentage => 0.5;
+export class FixedNumberGenerator implements RandomNumberGenerator {
+  constructor(private alwaysRolls: NormalizedPercentage) {}
+  roll = (): NormalizedPercentage => this.alwaysRolls;
 }

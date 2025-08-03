@@ -13,7 +13,7 @@ export function getGameServer() {
 
 export const ANIMATION_LENGTHS = await collectAnimationLengths();
 
-import { AverageRandomNumberGenerator, BasicRandomNumberGenerator } from "@speed-dungeon/common";
+import { FixedNumberGenerator, BasicRandomNumberGenerator } from "@speed-dungeon/common";
 
 export const rngSingleton = new BasicRandomNumberGenerator();
-export const averageRngSingleton = new AverageRandomNumberGenerator();
+export const averageRngSingleton = new FixedNumberGenerator(0.5);

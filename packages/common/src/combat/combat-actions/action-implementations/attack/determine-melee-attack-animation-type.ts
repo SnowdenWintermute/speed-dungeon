@@ -2,7 +2,7 @@ import { ActionResolutionStepContext } from "../../../../action-processing/index
 import { CombatantEquipment } from "../../../../combatants/index.js";
 import { Equipment, EquipmentType } from "../../../../items/equipment/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
-import { AverageRandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
+import { FixedNumberGenerator } from "../../../../utility-classes/randomizers.js";
 import { throwIfError } from "../../../../utils/index.js";
 import { IncomingResourceChangesCalculator } from "../../../action-results/index.js";
 import { KineticDamageType } from "../../../kinetic-damage-types.js";
@@ -47,10 +47,11 @@ export function determineMeleeAttackAnimationType(
   );
 
   const incomingResourceChangesCalculator = new IncomingResourceChangesCalculator(
-    context,
+    context.combatantContext,
+    actionExecutionIntent,
     targetingCalculator,
     targetIds,
-    new AverageRandomNumberGenerator()
+    new FixedNumberGenerator(0.5)
   );
 
   // we need to see what type of damage we want to do to determine the correct animation

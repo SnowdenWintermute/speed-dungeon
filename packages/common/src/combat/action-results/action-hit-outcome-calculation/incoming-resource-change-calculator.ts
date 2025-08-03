@@ -12,6 +12,8 @@ import {
   CombatActionResource,
 } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 import { CombatantProperties } from "../../../combatants/index.js";
+import { CombatantContext } from "../../../combatant-context/index.js";
+import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 
 export interface ResourceChangesPerTarget {
   value: number;
@@ -20,21 +22,21 @@ export interface ResourceChangesPerTarget {
 
 export class IncomingResourceChangesCalculator {
   constructor(
-    private context: ActionResolutionStepContext,
+    private combatantContext: CombatantContext,
+    private actionExecutionIntent: CombatActionExecutionIntent,
     private targetingCalculator: TargetingCalculator,
     private targetIds: EntityId[],
     private rng: RandomNumberGenerator
   ) {}
 
   getBaseIncomingResourceChangesPerTarget() {
-    const { actionExecutionIntent } = this.context.tracker;
-    const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
-    const { party, combatant } = this.context.combatantContext;
+    const action = COMBAT_ACTIONS[this.actionExecutionIntent.actionName];
+    const { party, combatant } = this.combatantContext;
 
     // we need a target to check against to find the best affinity to choose
     // so we'll use the first target for now, until a better system comes to light
     const primaryTargetResult = throwIfError(
-      this.targetingCalculator.getPrimaryTargetCombatant(party, actionExecutionIntent)
+      this.targetingCalculator.getPrimaryTargetCombatant(party, this.actionExecutionIntent)
     );
     const primaryTarget = primaryTargetResult;
 
