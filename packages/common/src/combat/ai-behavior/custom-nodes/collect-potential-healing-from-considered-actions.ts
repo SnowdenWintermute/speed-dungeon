@@ -1,19 +1,12 @@
-import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { Combatant, CombatantProperties } from "../../../combatants/index.js";
-import { HitOutcome } from "../../../hit-outcome.js";
 import { FixedNumberGenerator } from "../../../utility-classes/randomizers.js";
-import { iterateNumericEnumKeyedRecord, throwIfError } from "../../../utils/index.js";
+import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 import { HitOutcomeCalculator } from "../../action-results/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
-import { CombatActionName } from "../../combat-actions/combat-action-names.js";
-import {
-  CombatActionTarget,
-  CombatActionTargetType,
-} from "../../targeting/combat-action-targets.js";
-import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
+import { COMBAT_ACTION_NAME_STRINGS } from "../../combat-actions/combat-action-names.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import { BehaviorNode, BehaviorNodeState } from "../behavior-tree.js";
 
@@ -32,7 +25,7 @@ export class PotentialTotalHealingEvaluation {
     const averageManaPricePerPointHealed = (average = this.manaCost);
     this.onPrimaryTarget = { max, average, averageManaPricePerPointHealed };
   }
-  setOrUpdateTotalAcrossAllies(max: number, average: number, manaCost: number) {
+  setOrUpdateTotalAcrossAllies(max: number, average: number) {
     if (this.totalAcrossAllies === null)
       this.totalAcrossAllies = { max, average, averageManaPricePerPointHealed: 0 };
     else {
@@ -48,32 +41,49 @@ export class CollectPotentialHealingFromConsideredActions implements BehaviorNod
   constructor(
     private behaviorContext: AIBehaviorContext,
     private combatant: Combatant,
-    private mainHealingTarget: Combatant
+    private mainHealingTargetGetter: (behaviorContext: AIBehaviorContext) => undefined | Combatant
   ) {}
   execute(): BehaviorNodeState {
-    const collected: Partial<
-      Record<
-        CombatActionName,
-        {
-          target: CombatActionTarget;
-          potentialHealingEvaluation: PotentialTotalHealingEvaluation;
-        }[]
-      >
-    > = {};
+    const mainHealingTarget = this.mainHealingTargetGetter(this.behaviorContext);
+    if (mainHealingTarget === undefined) return BehaviorNodeState.Failure;
 
-    const targetingCalculator = new TargetingCalculator(
-      this.behaviorContext.combatantContext,
-      null
-    );
+    const collected: {
+      intent: CombatActionExecutionIntent;
+      healingEvaluation: PotentialTotalHealingEvaluation;
+    }[] = [];
 
     for (const [actionName, potentialTargets] of iterateNumericEnumKeyedRecord(
       this.behaviorContext.usableActionsWithPotentialValidTargets
     )) {
+      console.log(
+        "potential targets for",
+        COMBAT_ACTION_NAME_STRINGS[actionName],
+        potentialTargets
+      );
       const action = COMBAT_ACTIONS[actionName];
       for (const target of potentialTargets) {
-        const targetIds = throwIfError(
-          targetingCalculator.getCombatActionTargetIds(action, target)
+        const actionExecutionIntent = new CombatActionExecutionIntent(actionName, target);
+        const averageHitOutcomeCalculator = new HitOutcomeCalculator(
+          this.behaviorContext.combatantContext,
+          actionExecutionIntent,
+          new FixedNumberGenerator(0.5)
         );
+
+        const maxHitOutcomeCalculator = new HitOutcomeCalculator(
+          this.behaviorContext.combatantContext,
+          actionExecutionIntent,
+          new FixedNumberGenerator(1)
+        );
+
+        const averageHitOutcomes = averageHitOutcomeCalculator.calculateHitOutcomes();
+        const maxHitOutcomes = maxHitOutcomeCalculator.calculateHitOutcomes();
+        const averageHitPointChanges =
+          averageHitOutcomes.resourceChanges?.[CombatActionResource.HitPoints];
+        const maxHitPointChanges = maxHitOutcomes.resourceChanges?.[CombatActionResource.HitPoints];
+        if (!averageHitPointChanges || !maxHitPointChanges) {
+          console.log("no hp changes to evaluate");
+          continue;
+        }
 
         const resourceCosts = action.costProperties.getResourceCosts(
           this.combatant.combatantProperties
@@ -81,47 +91,55 @@ export class CollectPotentialHealingFromConsideredActions implements BehaviorNod
         const manaCost = resourceCosts?.[CombatActionResource.Mana] ?? 0;
         const potentialHealingEvaluation = new PotentialTotalHealingEvaluation(manaCost);
 
-        const averageHitOutcomeCalculator = new HitOutcomeCalculator(
-          this.behaviorContext.combatantContext,
-          new CombatActionExecutionIntent(CombatActionName.PassTurn, {
-            type: CombatActionTargetType.Single,
-            targetId: this.combatant.entityProperties.id,
-          }),
-          new FixedNumberGenerator(0.5)
-        );
-
-        const maxHitOutcomeCalculator = new HitOutcomeCalculator(
-          this.behaviorContext.combatantContext,
-          new CombatActionExecutionIntent(CombatActionName.PassTurn, {
-            type: CombatActionTargetType.Single,
-            targetId: this.combatant.entityProperties.id,
-          }),
-          new FixedNumberGenerator(1)
-        );
-
-        const averageHitOutcomes = averageHitOutcomeCalculator.calculateHitOutcomes();
-        const maxHitOutcomes = maxHitOutcomeCalculator.calculateHitOutcomes();
-
-        for (const targetId of averageHitOutcomes.outcomeFlags?.[HitOutcome.Hit] ?? []) {
-          const targetCombatant = AdventuringParty.getExpectedCombatant(
-            this.behaviorContext.combatantContext.party,
-            targetId
-          );
-          const { hitPoints } = targetCombatant.combatantProperties;
+        for (const allyCombatant of this.behaviorContext.consideredCombatants) {
+          const allyId = allyCombatant.entityProperties.id;
+          const { hitPoints } = allyCombatant.combatantProperties;
           const maxHitPoints = CombatantProperties.getTotalAttributes(
-            targetCombatant.combatantProperties
+            allyCombatant.combatantProperties
           )[CombatAttribute.Hp];
           const missingHitPoints = Math.max(0, maxHitPoints - hitPoints);
+          console.log("missing hp:", missingHitPoints);
+          console.log("healing changes:", averageHitPointChanges.getRecords());
 
-          // get average total healing on this target
-          // get max total healing on this target
-          if (targetId === this.mainHealingTarget.entityProperties.id) {
+          console.log(
+            "averageHealingRecord:",
+            console.log("allyId:", allyId),
+            JSON.stringify(averageHitPointChanges.getRecord(allyId))
+          );
+
+          const averageHealing = averageHitPointChanges.getRecord(allyId)?.value || 0;
+          console.log("averageHealing", averageHealing);
+          const averageEffectiveHealing = Math.min(missingHitPoints, averageHealing);
+          const maxHealing = maxHitPointChanges.getRecord(allyId)?.value || 0;
+          console.log("maxHealing", averageHealing);
+          const maxEffectiveHealing = Math.min(missingHitPoints, maxHealing);
+
+          if (allyId === mainHealingTarget.entityProperties.id) {
+            potentialHealingEvaluation.setPrimaryTargetHealing(
+              maxEffectiveHealing,
+              averageEffectiveHealing
+            );
+          } else {
+            potentialHealingEvaluation.setOrUpdateTotalAcrossAllies(
+              maxEffectiveHealing,
+              averageEffectiveHealing
+            );
           }
         }
+
+        const consideredIntent = {
+          intent: actionExecutionIntent,
+          healingEvaluation: potentialHealingEvaluation,
+        };
+        collected.push(consideredIntent);
+        console.log("collected for healing: ", JSON.stringify(collected, null, 2));
       }
     }
 
-    if (Object.values(collected).length > 0) return BehaviorNodeState.Success;
+    if (Object.values(collected).length > 0) {
+      this.behaviorContext.consideredActionIntents.push(...collected);
+      return BehaviorNodeState.Success;
+    }
     return BehaviorNodeState.Failure;
   }
 }

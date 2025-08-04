@@ -116,7 +116,10 @@ export class SorterNode<T> implements BehaviorNode {
   ) {}
   execute(): BehaviorNodeState {
     const arrayOption = this.arrayOptionGetter();
-    if (arrayOption === undefined) return BehaviorNodeState.Failure;
+    if (arrayOption === undefined) {
+      console.log("failed to sort - no array passed");
+      return BehaviorNodeState.Failure;
+    }
     arrayOption.sort(this.sortingFunction);
     return BehaviorNodeState.Success;
   }

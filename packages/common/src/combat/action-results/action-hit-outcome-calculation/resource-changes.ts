@@ -146,11 +146,6 @@ export class ThreatChanges {
     for (const [entityIdOfThreatTableToUpdate, entityIdsToRemove] of Object.entries(
       this.entriesToRemove
     )) {
-      console.log(
-        "want to remove threat table entries:",
-        entityIdOfThreatTableToUpdate,
-        entityIdsToRemove
-      );
       const targetResult = AdventuringParty.getCombatant(party, entityIdOfThreatTableToUpdate);
       if (targetResult instanceof Error) throw targetResult;
       const { combatantProperties: targetCombatantProperties } = targetResult;

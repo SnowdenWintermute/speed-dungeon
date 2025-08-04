@@ -52,16 +52,15 @@ import { getActionNamesFilteredByUseableContext } from "./owned-actions/get-owne
 import {
   COMBATANT_CONDITION_CONSTRUCTORS,
   CombatantCondition,
-  CombatantConditionName,
 } from "./combatant-conditions/index.js";
 import { Equipment, EquipmentType, HoldableSlotType } from "../items/equipment/index.js";
 import { plainToInstance } from "class-transformer";
-import { PrimedForExplosionCombatantCondition } from "./combatant-conditions/primed-for-explosion.js";
-import { PrimedForIceBurstCombatantCondition } from "./combatant-conditions/primed-for-ice-burst.js";
-import { BurningCombatantCondition } from "./combatant-conditions/burning.js";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { ThreatManager } from "./threat-manager/index.js";
-import { BlindedCombatantCondition } from "./combatant-conditions/blinded.js";
+
+export enum AiType {
+  Healer,
+}
 
 export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
@@ -142,6 +141,8 @@ export class CombatantProperties {
     condition: CombatantCondition;
     entityConditionWasAppliedTo: EntityId;
   };
+
+  aiTypes?: AiType[];
 
   public homeRotation: Quaternion = Quaternion.Zero();
   constructor(

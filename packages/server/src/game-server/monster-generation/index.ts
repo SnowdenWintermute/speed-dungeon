@@ -2,6 +2,7 @@ import { Vector3 } from "@babylonjs/core";
 import { idGenerator } from "../../singletons.js";
 import getSpawnableMonsterTypesByFloor from "./get-spawnable-monster-types-by-floor.js";
 import {
+  AiType,
   CombatActionName,
   CombatAttribute,
   Combatant,
@@ -52,6 +53,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
     CombatActionName.UseGreenAutoinjector,
     CombatActionName.UseBlueAutoinjector,
     CombatActionName.Blind,
+    CombatActionName.Healing,
     // CombatActionName.PassTurn,
   ];
 
@@ -98,6 +100,9 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   // set hp and mp to max
   CombatantProperties.setHpAndMpToMax(monster.combatantProperties);
   // @TODO - assign abilities (realistically need to refactor monster creation)
+
+  monster.combatantProperties.aiTypes = [AiType.Healer];
+  monster.combatantProperties.hitPoints = Math.floor(monster.combatantProperties.hitPoints * 0.5);
 
   return monster;
 }

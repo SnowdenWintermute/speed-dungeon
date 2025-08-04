@@ -2,6 +2,7 @@ import {
   ActionPayableResource,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponentConfig,
+  CombatActionIntent,
   CombatActionLeaf,
   CombatActionName,
   CombatActionOrigin,
@@ -27,6 +28,7 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
   validTargetCategories: TargetCategories.Any,
   usabilityContext: CombatActionUsabilityContext.All,
+  intent: CombatActionIntent.Benevolent,
   getTargetingSchemes: (user) => {
     const toReturn = [TargetingScheme.Single];
     const spellLevel = user.combatantProperties.ownedActions[CombatActionName.Healing]?.level || 0;

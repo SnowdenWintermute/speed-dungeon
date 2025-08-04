@@ -41,7 +41,6 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
 
         threatChanges.applyToGame(party);
         this.gameUpdateCommandOption.threatChanges = threatChanges;
-        console.log("set threat changes for end of turn:", JSON.stringify(threatChanges, null, 2));
       }
 
       for (const [groupName, combatantGroup] of Object.entries(

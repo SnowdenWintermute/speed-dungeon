@@ -10,7 +10,8 @@ export class CollectConsideredCombatants implements BehaviorNode {
     private behaviorContext: AIBehaviorContext,
     private combatant: Combatant,
     private combatantRelation: TargetCategories,
-    private filteringFunction: (combatant: Combatant) => boolean
+    private filteringFunction: (combatant: Combatant) => boolean,
+    private consideredCombatantsSetter: (combatants: Combatant[]) => void
   ) {}
   execute(): BehaviorNodeState {
     const combatantsToConsider: Combatant[] = [];
@@ -38,9 +39,18 @@ export class CollectConsideredCombatants implements BehaviorNode {
       if (this.filteringFunction(combatant)) combatantsToConsider.push(combatant);
     }
 
-    if (combatantsToConsider.length === 0) return BehaviorNodeState.Failure;
+    if (combatantsToConsider.length === 0) {
+      console.log("no combatants to consider");
+      return BehaviorNodeState.Failure;
+    }
 
+    // this.consideredCombatantsSetter(combatantsToConsider);
     this.behaviorContext.consideredCombatants = combatantsToConsider;
+
+    console.log(
+      "considering combatants:",
+      this.behaviorContext.consideredCombatants.map((combatant) => combatant.entityProperties.id)
+    );
 
     return BehaviorNodeState.Success;
   }

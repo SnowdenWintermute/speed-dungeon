@@ -131,7 +131,6 @@ export class ThreatCalculator {
 
   updateThreatChangesForMonsterHitOutcomes() {
     const entitiesHit = this.hitOutcomes.outcomeFlags[HitOutcome.Hit] || [];
-    console.log("entitiesHit by monster:", entitiesHit);
     const { threatManager } = this.actionUser.combatantProperties;
     if (!threatManager) return;
 

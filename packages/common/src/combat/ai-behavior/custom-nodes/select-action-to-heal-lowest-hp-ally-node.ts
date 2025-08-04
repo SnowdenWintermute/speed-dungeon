@@ -17,6 +17,7 @@ import {
 import { CollectPotentialTargetsForActionIfUsable } from "./add-to-considered-actions-with-targets-if-usable.js";
 import { CollectAllOwnedActionsByIntent } from "./collect-all-owned-action-by-intent.js";
 import { CollectConsideredCombatants } from "./collect-considered-combatants.js";
+import { CollectPotentialHealingFromConsideredActions } from "./collect-potential-healing-from-considered-actions.js";
 
 export class SelectActionToHealLowestHpAlly implements BehaviorNode {
   private root: BehaviorNode;
@@ -36,17 +37,19 @@ export class SelectActionToHealLowestHpAlly implements BehaviorNode {
             CombatantProperties.getTotalAttributes(combatant.combatantProperties)[
               CombatAttribute.Hp
             ] <
-          this.hitPointThresholdToWarrantHealing
+          this.hitPointThresholdToWarrantHealing,
+        this.behaviorContext.setConsideredCombatants
       ),
       // sort allies by lowest Hp
       new SorterNode(
-        this.behaviorContext.getConsideredCombatants,
+        () => this.behaviorContext.consideredCombatants,
         (a, b) => b.combatantProperties.hitPoints - a.combatantProperties.hitPoints
       ),
       new CollectAllOwnedActionsByIntent(
         this.behaviorContext,
         this.combatant,
-        iterateNumericEnum(CombatActionIntent)
+        // iterateNumericEnum(CombatActionIntent)
+        [CombatActionIntent.Benevolent]
       ),
 
       new UntilSuccessNode(
@@ -63,6 +66,11 @@ export class SelectActionToHealLowestHpAlly implements BehaviorNode {
             this.behaviorContext.getCurrentActionNameConsidering()
           ),
           // record this action's avg, max and per/mp healing on the target and total on the team
+          new CollectPotentialHealingFromConsideredActions(
+            this.behaviorContext,
+            this.combatant,
+            (behaviorContext) => behaviorContext.consideredCombatants[0]
+          ),
         ]),
         {
           maxAttemptsGetter: () =>

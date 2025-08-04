@@ -15,6 +15,7 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "../index.js";
+import { PotentialTotalHealingEvaluation } from "./custom-nodes/collect-potential-healing-from-considered-actions.js";
 
 export enum AIActionSelectionScheme {
   Basic,
@@ -64,7 +65,10 @@ export class AIBehaviorContext {
     potentialValidTargets: CombatActionTarget[];
   } = null;
 
-  public consideredActionIntents: CombatActionExecutionIntent[] = [];
+  public consideredActionIntents: {
+    intent: CombatActionExecutionIntent;
+    healingEvaluation: PotentialTotalHealingEvaluation;
+  }[] = [];
   public selectedActionIntent: null | CombatActionExecutionIntent = null;
 
   constructor(
@@ -82,6 +86,9 @@ export class AIBehaviorContext {
     this.currentCombatantConsidering = combatant;
   }
 
+  setConsideredCombatants(combatants: Combatant[]) {
+    this.consideredCombatants = combatants;
+  }
   getConsideredCombatants() {
     return this.consideredCombatants;
   }
