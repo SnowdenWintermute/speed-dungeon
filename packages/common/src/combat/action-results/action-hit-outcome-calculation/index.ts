@@ -141,13 +141,13 @@ export class HitOutcomeCalculator {
         const user = combatant.combatantProperties;
         const target = targetCombatant.combatantProperties;
 
-        const targetWantsToBeHit = !mitigationCalculator.targetWillAttemptMitigation();
+        const targetWillAttemptMitigation = mitigationCalculator.targetWillAttemptMitigation();
 
         const percentChanceToCrit = HitOutcomeMitigationCalculator.getActionCritChance(
           this.action,
           user,
           target,
-          targetWantsToBeHit
+          targetWillAttemptMitigation
         );
 
         resourceChange.isCrit = randBetween(0, 100, this.rng) < percentChanceToCrit;
@@ -156,7 +156,7 @@ export class HitOutcomeCalculator {
           this.action.hitOutcomeProperties,
           combatant.combatantProperties,
           targetCombatant.combatantProperties,
-          targetWantsToBeHit,
+          targetWillAttemptMitigation,
           resourceChange
         );
         resourceChangeModifier.applyPostHitModifiers(wasBlocked);

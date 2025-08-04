@@ -1,7 +1,6 @@
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { Combatant, CombatantProperties } from "../../../combatants/index.js";
 import { NormalizedPercentage } from "../../../primatives/index.js";
-import { iterateNumericEnum } from "../../../utils/index.js";
 import { CombatActionIntent } from "../../combat-actions/combat-action-intent.js";
 import { CombatActionName } from "../../combat-actions/combat-action-names.js";
 import { TargetCategories } from "../../combat-actions/targeting-schemes-and-categories.js";
@@ -18,6 +17,8 @@ import { CollectPotentialTargetsForActionIfUsable } from "./add-to-considered-ac
 import { CollectAllOwnedActionsByIntent } from "./collect-all-owned-action-by-intent.js";
 import { CollectConsideredCombatants } from "./collect-considered-combatants.js";
 import { CollectPotentialHealingFromConsideredActions } from "./collect-potential-healing-from-considered-actions.js";
+import { SelectActionExecutionIntent } from "./select-action-intent-node.js";
+import { SetConsideredAction } from "./set-considered-action.js";
 
 export class SelectActionToHealLowestHpAlly implements BehaviorNode {
   private root: BehaviorNode;
@@ -43,7 +44,7 @@ export class SelectActionToHealLowestHpAlly implements BehaviorNode {
       // sort allies by lowest Hp
       new SorterNode(
         () => this.behaviorContext.consideredCombatants,
-        (a, b) => b.combatantProperties.hitPoints - a.combatantProperties.hitPoints
+        (a, b) => a.combatantProperties.hitPoints - b.combatantProperties.hitPoints
       ),
       new CollectAllOwnedActionsByIntent(
         this.behaviorContext,
@@ -52,24 +53,16 @@ export class SelectActionToHealLowestHpAlly implements BehaviorNode {
         [CombatActionIntent.Benevolent]
       ),
 
+      // set a list of all valid action/target pairs
       new UntilSuccessNode(
         new SequenceNode([
-          // build a list of action/target pairs along with their average/max healing on target, cost/avg healing,
-          // and avg healing on all allies as well as cost/avg healing on all allies
           new PopFromStackNode(
             () => this.behaviorContext.consideredActionNamesFilteredByIntents,
             (actionName: CombatActionName) =>
               this.behaviorContext.setCurrentActionNameConsidering(actionName)
           ),
-          // check if action is useable
           new CollectPotentialTargetsForActionIfUsable(this.behaviorContext, this.combatant, () =>
             this.behaviorContext.getCurrentActionNameConsidering()
-          ),
-          // record this action's avg, max and per/mp healing on the target and total on the team
-          new CollectPotentialHealingFromConsideredActions(
-            this.behaviorContext,
-            this.combatant,
-            (behaviorContext) => behaviorContext.consideredCombatants[0]
           ),
         ]),
         {
@@ -77,20 +70,33 @@ export class SelectActionToHealLowestHpAlly implements BehaviorNode {
             this.behaviorContext.consideredActionNamesFilteredByIntents.length,
         }
       ),
-      // for each ally
-      // - sort action/target pairs by
-      //   - the actions that could fully heal the target given max roll
-      //   - if no full heal available: highest healing available given average roll
-      //   - if multiple full heals: lowest price per effective (not overhealed) hp restored if rolling the average
-      // - also record the "total ally hp healed" for these actions
-      // - considered "total ally hp healed" and its extra cost vs current MP
-      //
+      // evaluate all valid actions for healing potential
+      new CollectPotentialHealingFromConsideredActions(
+        this.behaviorContext,
+        this.combatant,
+        (behaviorContext) => behaviorContext.consideredCombatants[0]
+      ),
+      // sort consideredActionIntents by evaluated healing potential
+      // returns a negative value if the first argument is less than the second
+      new SorterNode(
+        () => this.behaviorContext.consideredActionIntents,
+        (a, b) => {
+          const scoreA = a.healingEvaluation.getScore();
+          const scoreB = b.healingEvaluation.getScore();
 
-      // new SelectActionExecutionIntent(
-      //   this.behaviorContext,
-      //   this.combatant,
-      //   () => this.behaviorContext.selectedActionWithPotentialValidTargets?.potentialValidTargets[0]
-      // ),
+          return scoreB - scoreA;
+        }
+      ),
+
+      new SetConsideredAction(
+        this.behaviorContext,
+        () => this.behaviorContext.consideredActionIntents?.[0]?.intent.actionName
+      ),
+      new SelectActionExecutionIntent(
+        this.behaviorContext,
+        this.combatant,
+        () => this.behaviorContext.consideredActionIntents?.[0]?.intent.targets
+      ),
     ]);
   }
   execute(): BehaviorNodeState {

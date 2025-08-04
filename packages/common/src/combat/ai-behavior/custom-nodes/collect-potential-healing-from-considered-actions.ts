@@ -6,7 +6,6 @@ import { HitOutcomeCalculator } from "../../action-results/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
-import { COMBAT_ACTION_NAME_STRINGS } from "../../combat-actions/combat-action-names.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import { BehaviorNode, BehaviorNodeState } from "../behavior-tree.js";
 
@@ -16,24 +15,67 @@ export interface HealingEvaluationOnTargets {
   averageManaPricePerPointHealed: number;
 }
 
+export interface HealingEvaluationWeights {
+  avgPrimary: number;
+  maxPrimary: number;
+  avgTotal: number;
+  maxTotal: number;
+  efficiency: number;
+  efficiencyBonusCap: number;
+}
+
+const HEALING_EVALUATION_WEIGHTS: HealingEvaluationWeights = {
+  avgPrimary: 1.0,
+  maxPrimary: 0.5,
+  avgTotal: 0.8,
+  maxTotal: 0.3,
+  efficiency: 0.25,
+  efficiencyBonusCap: 5,
+};
+
 export class PotentialTotalHealingEvaluation {
   onPrimaryTarget: null | HealingEvaluationOnTargets = null;
   totalAcrossAllies: null | HealingEvaluationOnTargets = null;
   constructor(private manaCost: number) {}
 
   setPrimaryTargetHealing(max: number, average: number) {
-    const averageManaPricePerPointHealed = (average = this.manaCost);
+    const averageManaPricePerPointHealed = average / this.manaCost;
     this.onPrimaryTarget = { max, average, averageManaPricePerPointHealed };
   }
   setOrUpdateTotalAcrossAllies(max: number, average: number) {
     if (this.totalAcrossAllies === null)
-      this.totalAcrossAllies = { max, average, averageManaPricePerPointHealed: 0 };
-    else {
-      this.totalAcrossAllies.max += max;
-      this.totalAcrossAllies.max += average;
-    }
+      this.totalAcrossAllies = { max: 0, average: 0, averageManaPricePerPointHealed: 0 };
+
+    this.totalAcrossAllies.average += average;
+    this.totalAcrossAllies.max += max;
+
     this.totalAcrossAllies.averageManaPricePerPointHealed =
       this.manaCost / this.totalAcrossAllies.average;
+  }
+
+  getEvaluations() {
+    return { onPrimaryTarget: this.onPrimaryTarget, totalAcrossAllies: this.totalAcrossAllies };
+  }
+
+  getScore(weights: HealingEvaluationWeights = HEALING_EVALUATION_WEIGHTS) {
+    const { onPrimaryTarget, totalAcrossAllies } = this;
+
+    let score = 0;
+
+    if (onPrimaryTarget) {
+      score += weights.avgPrimary * onPrimaryTarget.average;
+      score += weights.maxPrimary * onPrimaryTarget.max;
+    }
+
+    if (totalAcrossAllies) {
+      score += weights.avgTotal * totalAcrossAllies.average;
+      score += weights.maxTotal * totalAcrossAllies.max;
+      if (totalAcrossAllies.averageManaPricePerPointHealed)
+        score += weights.efficiency * (1 / totalAcrossAllies.averageManaPricePerPointHealed);
+      else score += weights.efficiency * weights.efficiencyBonusCap;
+    }
+
+    return score;
   }
 }
 
@@ -55,11 +97,6 @@ export class CollectPotentialHealingFromConsideredActions implements BehaviorNod
     for (const [actionName, potentialTargets] of iterateNumericEnumKeyedRecord(
       this.behaviorContext.usableActionsWithPotentialValidTargets
     )) {
-      console.log(
-        "potential targets for",
-        COMBAT_ACTION_NAME_STRINGS[actionName],
-        potentialTargets
-      );
       const action = COMBAT_ACTIONS[actionName];
       for (const target of potentialTargets) {
         const actionExecutionIntent = new CombatActionExecutionIntent(actionName, target);
@@ -72,7 +109,7 @@ export class CollectPotentialHealingFromConsideredActions implements BehaviorNod
         const maxHitOutcomeCalculator = new HitOutcomeCalculator(
           this.behaviorContext.combatantContext,
           actionExecutionIntent,
-          new FixedNumberGenerator(1)
+          new FixedNumberGenerator(0.999)
         );
 
         const averageHitOutcomes = averageHitOutcomeCalculator.calculateHitOutcomes();
@@ -98,20 +135,10 @@ export class CollectPotentialHealingFromConsideredActions implements BehaviorNod
             allyCombatant.combatantProperties
           )[CombatAttribute.Hp];
           const missingHitPoints = Math.max(0, maxHitPoints - hitPoints);
-          console.log("missing hp:", missingHitPoints);
-          console.log("healing changes:", averageHitPointChanges.getRecords());
-
-          console.log(
-            "averageHealingRecord:",
-            console.log("allyId:", allyId),
-            JSON.stringify(averageHitPointChanges.getRecord(allyId))
-          );
 
           const averageHealing = averageHitPointChanges.getRecord(allyId)?.value || 0;
-          console.log("averageHealing", averageHealing);
           const averageEffectiveHealing = Math.min(missingHitPoints, averageHealing);
           const maxHealing = maxHitPointChanges.getRecord(allyId)?.value || 0;
-          console.log("maxHealing", averageHealing);
           const maxEffectiveHealing = Math.min(missingHitPoints, maxHealing);
 
           if (allyId === mainHealingTarget.entityProperties.id) {
@@ -119,12 +146,11 @@ export class CollectPotentialHealingFromConsideredActions implements BehaviorNod
               maxEffectiveHealing,
               averageEffectiveHealing
             );
-          } else {
-            potentialHealingEvaluation.setOrUpdateTotalAcrossAllies(
-              maxEffectiveHealing,
-              averageEffectiveHealing
-            );
           }
+          potentialHealingEvaluation.setOrUpdateTotalAcrossAllies(
+            maxEffectiveHealing,
+            averageEffectiveHealing
+          );
         }
 
         const consideredIntent = {
@@ -132,7 +158,6 @@ export class CollectPotentialHealingFromConsideredActions implements BehaviorNod
           healingEvaluation: potentialHealingEvaluation,
         };
         collected.push(consideredIntent);
-        console.log("collected for healing: ", JSON.stringify(collected, null, 2));
       }
     }
 

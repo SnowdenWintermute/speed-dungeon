@@ -112,6 +112,8 @@ export class RandomizerNode<T> implements BehaviorNode {
 export class SorterNode<T> implements BehaviorNode {
   constructor(
     private arrayOptionGetter: () => undefined | Array<T>,
+    /** Provide a function that returns a negative value if the first argument is less than the second argument,
+     * zero if they're equal, and a positive value otherwise. */
     private sortingFunction: (a: T, b: T) => number
   ) {}
   execute(): BehaviorNodeState {

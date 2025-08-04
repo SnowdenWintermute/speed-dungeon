@@ -49,9 +49,6 @@ const config: CombatActionComponentConfig = {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
     costBases: {
       ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell].costBases,
-      [ActionPayableResource.Mana]: {
-        base: 0,
-      },
     },
   },
   stepsConfig: HEALING_STEPS_CONFIG,

@@ -47,7 +47,6 @@ export class HitOutcomeMitigationCalculator {
   rollHitMitigationEvents() {
     // HITS
     const targetWillAttemptMitigation = this.targetWillAttemptMitigation();
-    if (!targetWillAttemptMitigation) return [HitOutcome.Hit];
 
     const user = this.user.combatantProperties;
     const target = this.targetCombatant.combatantProperties;
@@ -59,12 +58,16 @@ export class HitOutcomeMitigationCalculator {
       targetWillAttemptMitigation
     );
 
+    // it is possible to miss a target who is not attempting mitigation if your accuracy
+    // is just that bad
     const hitRoll = randBetween(0, 100, this.rng);
-    const isMiss = hitRoll > percentChanceToHit.beforeEvasion;
+    const isMiss = hitRoll < 100 - percentChanceToHit.beforeEvasion;
     if (isMiss) return [HitOutcome.Miss];
 
-    const isEvaded = !isMiss && hitRoll > percentChanceToHit.afterEvasion;
-    if (isEvaded) return [HitOutcome.Evade];
+    if (targetWillAttemptMitigation) {
+      const isEvaded = !isMiss && hitRoll < 100 - percentChanceToHit.afterEvasion;
+      if (isEvaded) return [HitOutcome.Evade];
+    } else return [HitOutcome.Hit];
 
     const { hitOutcomeProperties } = this.action;
 
@@ -127,27 +130,31 @@ export class HitOutcomeMitigationCalculator {
     if (hpChangePropertiesOption) {
       const { resourceChangeSource } = hpChangePropertiesOption;
       const { isHealing } = resourceChangeSource;
+      console.log("isHealing:", isHealing);
 
       const isUndead = CombatantProperties.hasTraitType(
         targetCombatantProperties,
         CombatantTraitType.Undead
       );
 
-      if (isHealing && isUndead) return false;
-      if (isHealing) return true;
+      if (isHealing && isUndead) return true;
+      if (isHealing) {
+        console.log("not mitigating due to healing");
+        return false;
+      }
 
       const { elementOption } = resourceChangeSource;
       if (elementOption) {
         const targetAffinities =
           CombatantProperties.getCombatantTotalElementalAffinities(targetCombatantProperties);
         const targetAffinity = targetAffinities[elementOption];
-        if (targetAffinity && targetAffinity > 100) return true;
+        if (targetAffinity && targetAffinity > 100) return false;
       }
     }
 
     // finally resolve based on action intent
-    if (this.action.targetingProperties.intent === CombatActionIntent.Malicious) return false;
-    else return true;
+    if (this.action.targetingProperties.intent === CombatActionIntent.Malicious) return true;
+    else return false;
   }
 
   static getActionHitChance(
@@ -173,14 +180,14 @@ export class HitOutcomeMitigationCalculator {
     action: CombatActionComponent,
     user: CombatantProperties,
     target: CombatantProperties,
-    targetWantsToBeHit: boolean
+    targetWillAttemptMitigation: boolean
   ) {
     const actionBaseCritChance = action.hitOutcomeProperties.getCritChance(user);
 
     const targetAttributes = CombatantProperties.getTotalAttributes(target);
     const targetAvoidaceAttributeValue = targetAttributes[CombatAttribute.Resilience];
 
-    const targetCritAvoidance = targetWantsToBeHit ? 0 : targetAvoidaceAttributeValue;
+    const targetCritAvoidance = targetWillAttemptMitigation ? targetAvoidaceAttributeValue : 0;
     const finalUnroundedCritChance = actionBaseCritChance - targetCritAvoidance;
 
     return Math.floor(Math.max(0, Math.min(MAX_CRIT_CHANCE, finalUnroundedCritChance)));
