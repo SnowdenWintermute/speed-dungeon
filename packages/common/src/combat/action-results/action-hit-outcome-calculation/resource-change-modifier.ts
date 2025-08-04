@@ -21,11 +21,6 @@ export class ResourceChangeModifier {
   applyPostHitModifiers(wasBlocked: boolean) {
     const { hitOutcomeProperties, resourceChange, user, target } = this;
 
-    console.log(
-      "post hit modifiers - targetWillAttemptMitigation",
-      this.targetWillAttemptMitigation
-    );
-
     this.applyCritMultiplier();
     this.applyKineticAffinities();
     this.applyElementalAffinities();

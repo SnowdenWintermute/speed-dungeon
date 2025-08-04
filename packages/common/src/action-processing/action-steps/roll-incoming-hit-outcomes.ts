@@ -20,8 +20,6 @@ import { CombatActionResource } from "../../combat/combat-actions/combat-action-
 const stepType = ActionResolutionStepType.RollIncomingHitOutcomes;
 export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
-    console.log("RollIncomingHitOutcomesActionResolutionStep constructed");
-
     // @PERF - make this a singleton and move these steps to the server
     const rng = new BasicRandomNumberGenerator();
 

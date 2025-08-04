@@ -117,10 +117,7 @@ export class CollectPotentialHealingFromConsideredActions implements BehaviorNod
         const averageHitPointChanges =
           averageHitOutcomes.resourceChanges?.[CombatActionResource.HitPoints];
         const maxHitPointChanges = maxHitOutcomes.resourceChanges?.[CombatActionResource.HitPoints];
-        if (!averageHitPointChanges || !maxHitPointChanges) {
-          console.log("no hp changes to evaluate");
-          continue;
-        }
+        if (!averageHitPointChanges || !maxHitPointChanges) continue;
 
         const resourceCosts = action.costProperties.getResourceCosts(
           this.combatant.combatantProperties

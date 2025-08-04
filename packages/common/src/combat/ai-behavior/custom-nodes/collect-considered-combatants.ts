@@ -47,11 +47,6 @@ export class CollectConsideredCombatants implements BehaviorNode {
     // this.consideredCombatantsSetter(combatantsToConsider);
     this.behaviorContext.consideredCombatants = combatantsToConsider;
 
-    console.log(
-      "considering combatants:",
-      this.behaviorContext.consideredCombatants.map((combatant) => combatant.entityProperties.id)
-    );
-
     return BehaviorNodeState.Success;
   }
 }

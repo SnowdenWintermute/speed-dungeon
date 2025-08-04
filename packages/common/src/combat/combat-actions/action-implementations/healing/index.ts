@@ -18,6 +18,7 @@ import {
 import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
+  BASE_SPELL_MANA_COST_BASES,
 } from "../../combat-action-cost-properties.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { HEALING_HIT_OUTCOME_PROPERTIES } from "./healing-hit-outcome-properties.js";
@@ -49,6 +50,10 @@ const config: CombatActionComponentConfig = {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
     costBases: {
       ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell].costBases,
+      [ActionPayableResource.Mana]: {
+        ...BASE_SPELL_MANA_COST_BASES,
+        base: 0.25,
+      },
     },
   },
   stepsConfig: HEALING_STEPS_CONFIG,

@@ -60,7 +60,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   for (const actionName of ownedActions) {
     const action = new CombatantActionState(actionName);
     if (actionName === CombatActionName.Fire) action.level = 2;
-    if (actionName === CombatActionName.Healing) action.level = 2;
+    // if (actionName === CombatActionName.Healing) action.level = 1;
     combatantProperties.ownedActions[actionName] = action;
   }
 

@@ -47,12 +47,6 @@ export function getStandardThreatChangesOnHitOutcomes(
     threatCalculator.updateThreatChangesForMonsterHitOutcomes();
   }
 
-  console.log(
-    COMBAT_ACTION_NAME_STRINGS[context.tracker.actionExecutionIntent.actionName],
-    "threat changes: ",
-    JSON.stringify(threatChanges, null, 2)
-  );
-
   if (threatChanges.isEmpty()) return null;
 
   return threatChanges;

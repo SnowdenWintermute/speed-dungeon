@@ -14,7 +14,6 @@ export class RootAIBehaviorNode implements BehaviorNode {
     const targetSelectionSchemes: BehaviorNode[] = [];
 
     if (combatant.combatantProperties.aiTypes?.includes(AiType.Healer)) {
-      console.log("ai is healer:");
       targetSelectionSchemes.push(
         new SelectActionToHealLowestHpAlly(this.behaviorContext, this.combatant, 0.7)
       );

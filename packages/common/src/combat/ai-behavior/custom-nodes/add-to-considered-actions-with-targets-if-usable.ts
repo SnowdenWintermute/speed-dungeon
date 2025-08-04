@@ -21,10 +21,8 @@ export class CollectPotentialTargetsForActionIfUsable implements BehaviorNode {
   execute(): BehaviorNodeState {
     const actionNameOption = this.actionNameOptionGetter();
     if (actionNameOption === null) {
-      console.log("no action name option to check");
       return BehaviorNodeState.Failure;
     }
-    console.log("checking if", COMBAT_ACTION_NAME_STRINGS[actionNameOption], "is usable");
     const root = new SequenceNode([
       // check if action is useable
       new CheckIfActionUsableInCurrentContext(

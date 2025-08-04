@@ -255,7 +255,6 @@ export class CombatantProperties {
 
   static getForward(combatantProperties: CombatantProperties) {
     const z = combatantProperties.homeLocation.z;
-    console.log("Y home position", formatVector3(combatantProperties.homeLocation));
     const direction = z > 0 ? -1 : 1;
     return new Vector3(0, 0, direction);
   }
