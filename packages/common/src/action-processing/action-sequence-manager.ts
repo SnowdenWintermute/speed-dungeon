@@ -27,6 +27,15 @@ export class ActionSequenceManager {
   ) {
     this.remainingActionsToExecute = [actionExecutionIntent];
   }
+  getTopParent(): ActionSequenceManager {
+    let current: ActionSequenceManager = this;
+    while (current !== null) {
+      const next = this.trackerThatSpawnedThisActionOption?.parentActionManager || null;
+      if (next === null) return current;
+      current = next;
+    }
+    return current;
+  }
   getIsFinalized() {
     return this.isFinalized;
   }

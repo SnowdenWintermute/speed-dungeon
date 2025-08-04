@@ -3,13 +3,10 @@ import {
   COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
+  ThreatChanges,
 } from "../../combat/index.js";
-import {
-  Combatant,
-  COMBATANT_CONDITION_NAME_STRINGS,
-  CombatantCondition,
-  CombatantProperties,
-} from "../../combatants/index.js";
+import { Combatant, CombatantCondition } from "../../combatants/index.js";
+import { ThreatCalculator } from "../../combatants/threat-manager/threat-calculator.js";
 import {
   ActionCompletionUpdateCommand,
   ActionResolutionStep,
@@ -23,10 +20,43 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
   branchingActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] = [];
   constructor(context: ActionResolutionStepContext) {
     super(stepType, context, null); // this step should produce no game update unless it is unlocking input
+    const { party } = context.combatantContext;
 
     const gameUpdateCommandOption = evaluatePlayerEndTurnAndInputLock(context);
-    if (gameUpdateCommandOption) this.gameUpdateCommandOption = gameUpdateCommandOption;
+    if (gameUpdateCommandOption) {
+      this.gameUpdateCommandOption = gameUpdateCommandOption;
 
+      const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
+
+      if (action.hitOutcomeProperties.getShouldDecayThreatOnUse(context)) {
+        const threatChanges = new ThreatChanges();
+        const threatCalculator = new ThreatCalculator(
+          threatChanges,
+          this.context.tracker.hitOutcomes,
+          context.combatantContext.party,
+          context.combatantContext.combatant,
+          context.tracker.actionExecutionIntent.actionName
+        );
+        threatCalculator.addVolatileThreatDecay();
+
+        threatChanges.applyToGame(party);
+        this.gameUpdateCommandOption.threatChanges = threatChanges;
+      }
+
+      for (const [groupName, combatantGroup] of Object.entries(
+        AdventuringParty.getAllCombatants(party)
+      )) {
+        for (const [entityId, combatant] of Object.entries(combatantGroup)) {
+          if (!combatant.combatantProperties.threatManager) continue;
+          combatant.combatantProperties.threatManager.updateHomeRotationToPointTowardNewTopThreatTarget(
+            party,
+            combatant
+          );
+        }
+      }
+    }
+
+    // @TODO
     // set a timeout to unlock input equal to current action accumulated time
     // plus all previous actions accumulated time in the current
   }
@@ -100,7 +130,6 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
 
     if (newlyUpdatedCurrentTurnIsPlayerControlled) shouldUnlockInput = true;
   }
-
   if (!shouldUnlockInput && !requiredTurn) return;
 
   // push a game update command to unlock input

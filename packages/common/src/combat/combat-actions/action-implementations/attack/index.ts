@@ -36,7 +36,10 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
   targetingProperties,
   // placeholder since all this action does is get children
   hitOutcomeProperties: GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],
-  costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
+  costProperties: {
+    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
+    requiresCombatTurn: () => false,
+  },
   shouldExecute: () => true,
   getOnUseMessage: null,
   getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {

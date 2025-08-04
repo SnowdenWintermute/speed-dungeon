@@ -113,6 +113,15 @@ export class CharacterModel extends SceneEntity {
     this.childTransformNodes[CombatantBaseChildTransformNodeName.OffhandEquipment] =
       offHandEquipmentNode;
 
+    const headNode = SceneEntity.createTransformNodeChildOfBone(
+      this.rootMesh,
+      `${this.entityId}-head`,
+      "DEF-head"
+    );
+    this.childTransformNodes[CombatantBaseChildTransformNodeName.Head] = headNode;
+
+    if (!headNode) throw new Error("no head node");
+
     this.childTransformNodes[CombatantBaseChildTransformNodeName.EntityRoot] =
       this.rootTransformNode;
 

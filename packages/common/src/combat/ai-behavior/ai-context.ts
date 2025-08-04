@@ -1,5 +1,6 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Battle } from "../../battle/index.js";
+import { CombatantContext } from "../../combatant-context/index.js";
 import { Combatant } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../primatives/index.js";
@@ -14,7 +15,7 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "../index.js";
-import { EvaluatedActionExecutionIntent } from "./custom-nodes/set-available-targets-and-usable-actions.js";
+import { PotentialTotalHealingEvaluation } from "./custom-nodes/collect-potential-healing-from-considered-actions.js";
 
 export enum AIActionSelectionScheme {
   Basic,
@@ -44,86 +45,51 @@ export enum AIHostileTargetSelectionScheme {
   Strategist,
 }
 
+export enum AIFriendlyTargetSelectionScheme {
+  // attemts to heal any ally with hp below a defined threshold
+  Healer,
+  // attemts to keep all known buffs active on all allies
+  Buffer,
+}
+
 export class AIBehaviorContext {
-  private actionSelectionScheme: AIActionSelectionScheme = AIActionSelectionScheme.Basic;
-  private hostileTargetSelectionScheme: AIHostileTargetSelectionScheme =
-    AIHostileTargetSelectionScheme.Enmity;
-  private enmityList: { combatantId: EntityId; enmity: number }[] = [];
-  public usableActionNames: CombatActionName[] = [];
-  public consideredTargetCombatants: Combatant[] = [];
-  public consideredActionTargetPairs: CombatActionExecutionIntent[] = [];
-  public evaluatedActionTargetPairs: EvaluatedActionExecutionIntent[] = [];
-  private selectedActionAndTargets: CombatActionExecutionIntent | null = null;
+  public consideredCombatants: Combatant[] = [];
+  public currentCombatantConsidering: null | Combatant = null;
+  public consideredActionNamesFilteredByIntents: CombatActionName[] = [];
+  public currentActionNameConsidering: CombatActionName | null = null;
+  public usableActionsWithPotentialValidTargets: Partial<
+    Record<CombatActionName, CombatActionTarget[]>
+  > = {};
+  public selectedActionWithPotentialValidTargets: null | {
+    actionName: CombatActionName;
+    potentialValidTargets: CombatActionTarget[];
+  } = null;
+
+  public consideredActionIntents: {
+    intent: CombatActionExecutionIntent;
+    healingEvaluation: PotentialTotalHealingEvaluation;
+  }[] = [];
+  public selectedActionIntent: null | CombatActionExecutionIntent = null;
+
   constructor(
-    public combatant: Combatant,
-    public game: SpeedDungeonGame,
-    public party: AdventuringParty,
+    public combatantContext: CombatantContext,
     public battleOption: Battle | null // allow for ally AI controlled combatants doing things outside of combat
   ) {}
-
-  setConsideredActionTargetPairs(user: Combatant, actionName: CombatActionName): Error | void {
-    const action = COMBAT_ACTIONS[actionName];
-    for (const targetingScheme of action.targetingProperties.getTargetingSchemes(user)) {
-      switch (targetingScheme) {
-        case TargetingScheme.Single:
-          this.setConsideredSingleTargets(action);
-          break;
-        case TargetingScheme.Area:
-          this.setConsideredGroupTargets(user, action);
-          break;
-        case TargetingScheme.All:
-          const allTarget: CombatActionTarget = { type: CombatActionTargetType.All };
-          this.consideredActionTargetPairs.push(
-            new CombatActionExecutionIntent(actionName, allTarget)
-          );
-      }
-    }
+  getCurrentActionNameConsidering() {
+    return this.currentActionNameConsidering;
   }
 
-  setConsideredSingleTargets(action: CombatActionComponent) {
-    for (const potentialTarget of this.consideredTargetCombatants) {
-      const shouldEvaluate = action.combatantIsValidTarget(
-        this.combatant,
-        potentialTarget,
-        this.battleOption
-      );
-
-      if (!shouldEvaluate) continue;
-
-      const targets: CombatActionTarget = {
-        type: CombatActionTargetType.Single,
-        targetId: potentialTarget.entityProperties.id,
-      };
-
-      this.consideredActionTargetPairs.push(new CombatActionExecutionIntent(action.name, targets));
-    }
+  setCurrentActionNameConsidering(actionName: CombatActionName) {
+    this.currentActionNameConsidering = actionName;
+  }
+  setCurrentCombatantConsidering(combatant: Combatant) {
+    this.currentCombatantConsidering = combatant;
   }
 
-  setConsideredGroupTargets(user: Combatant, action: CombatActionComponent) {
-    if (!action.targetingProperties.getTargetingSchemes(user).includes(TargetingScheme.Area))
-      return;
-    const friendlyGroup = new CombatActionExecutionIntent(action.name, {
-      type: CombatActionTargetType.Group,
-      friendOrFoe: FriendOrFoe.Friendly,
-    });
-    const hostileGroup = new CombatActionExecutionIntent(action.name, {
-      type: CombatActionTargetType.Group,
-      friendOrFoe: FriendOrFoe.Hostile,
-    });
-
-    switch (action.targetingProperties.validTargetCategories) {
-      case TargetCategories.Opponent:
-        this.consideredActionTargetPairs.push(hostileGroup);
-        break;
-      case TargetCategories.User:
-        break;
-      case TargetCategories.Friendly:
-        this.consideredActionTargetPairs.push(friendlyGroup);
-        break;
-      case TargetCategories.Any:
-        this.consideredActionTargetPairs.push(hostileGroup);
-        this.consideredActionTargetPairs.push(friendlyGroup);
-        break;
-    }
+  setConsideredCombatants(combatants: Combatant[]) {
+    this.consideredCombatants = combatants;
+  }
+  getConsideredCombatants() {
+    return this.consideredCombatants;
   }
 }

@@ -16,7 +16,11 @@ import getCombatantTotalElementalAffinities from "./combatant-traits/get-combata
 import getCombatantTotalKineticDamageTypeAffinities from "./combatant-traits/get-combatant-total-kinetic-damage-type-affinities.js";
 import { setResourcesToMax } from "./resources/set-resources-to-max.js";
 import { immerable } from "immer";
-import { iterateNumericEnum, iterateNumericEnumKeyedRecord } from "../utils/index.js";
+import {
+  formatVector3,
+  iterateNumericEnum,
+  iterateNumericEnumKeyedRecord,
+} from "../utils/index.js";
 import awardLevelups, { XP_REQUIRED_TO_REACH_LEVEL_2 } from "./experience-points/award-levelups.js";
 import { incrementAttributePoint } from "./attributes/increment-attribute.js";
 import { MonsterType } from "../monsters/monster-types.js";
@@ -36,17 +40,27 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import { canPickUpItem } from "./inventory/can-pick-up-item.js";
 import { EntityProperties } from "../primatives/index.js";
 import { Inventory } from "./inventory/index.js";
-import { CombatActionName } from "../combat/combat-actions/index.js";
+import {
+  CombatActionName,
+  getUnmetCostResourceTypes,
+  TargetingScheme,
+} from "../combat/combat-actions/index.js";
 import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
 import { getOwnedActionState } from "./owned-actions/get-owned-action-state.js";
 import { getAllCurrentlyUsableActionNames } from "./owned-actions/get-all-currently-usable-action-names.js";
 import { getActionNamesFilteredByUseableContext } from "./owned-actions/get-owned-action-names-filtered-by-usable-context.js";
-import { CombatantCondition, CombatantConditionName } from "./combatant-conditions/index.js";
+import {
+  COMBATANT_CONDITION_CONSTRUCTORS,
+  CombatantCondition,
+} from "./combatant-conditions/index.js";
 import { Equipment, EquipmentType, HoldableSlotType } from "../items/equipment/index.js";
 import { plainToInstance } from "class-transformer";
-import { PrimedForExplosionCombatantCondition } from "./combatant-conditions/primed-for-explosion.js";
-import { PrimedForIceBurstCombatantCondition } from "./combatant-conditions/primed-for-ice-burst.js";
-import { BurningCombatantCondition } from "./combatant-conditions/burning.js";
+import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
+import { ThreatManager } from "./threat-manager/index.js";
+
+export enum AiType {
+  Healer,
+}
 
 export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
@@ -57,6 +71,7 @@ export * from "./inventory/index.js";
 export * from "./update-home-position.js";
 export * from "./combatant-equipment/index.js";
 export * from "./combatant-conditions/index.js";
+export * from "./threat-manager//index.js";
 
 export class Combatant {
   [immerable] = true;
@@ -71,16 +86,25 @@ export class Combatant {
     CombatantProperties.instantiateItemClasses(combatantProperties);
 
     const rehydratedConditions = combatantProperties.conditions.map((condition) => {
-      switch (condition.name) {
-        case CombatantConditionName.PrimedForExplosion:
-          return plainToInstance(PrimedForExplosionCombatantCondition, condition);
-        case CombatantConditionName.PrimedForIceBurst:
-          return plainToInstance(PrimedForIceBurstCombatantCondition, condition);
-        case CombatantConditionName.Burning:
-          return plainToInstance(BurningCombatantCondition, condition);
-      }
+      const constructor = COMBATANT_CONDITION_CONSTRUCTORS[condition.name];
+      return plainToInstance(constructor, condition);
+      // switch (condition.name) {
+      //   case CombatantConditionName.PrimedForExplosion:
+      //   case CombatantConditionName.PrimedForIceBurst:
+      //     return plainToInstance(PrimedForIceBurstCombatantCondition, condition);
+      //   case CombatantConditionName.Burning:
+      //     return plainToInstance(BurningCombatantCondition, condition);
+      //   case CombatantConditionName.Blinded:
+      //     return plainToInstance(BlindedCombatantCondition, condition);
+      // }
     });
     combatantProperties.conditions = rehydratedConditions;
+
+    if (combatantProperties.threatManager)
+      combatantProperties.threatManager = plainToInstance(
+        ThreatManager,
+        combatantProperties.threatManager
+      );
   }
 }
 
@@ -103,8 +127,13 @@ export class CombatantProperties {
   traits: CombatantTrait[] = [];
   equipment: CombatantEquipment = new CombatantEquipment();
   inventory: Inventory = new Inventory();
+  // targeting
   selectedCombatAction: null | CombatActionName = null;
   combatActionTarget: null | CombatActionTarget = null;
+  selectedTargetingScheme: null | TargetingScheme = null;
+  //
+  threatManager?: ThreatManager;
+
   deepestFloorReached: number = 1;
   position: Vector3;
   conditions: CombatantCondition[] = [];
@@ -112,6 +141,8 @@ export class CombatantProperties {
     condition: CombatantCondition;
     entityConditionWasAppliedTo: EntityId;
   };
+
+  aiTypes?: AiType[];
 
   public homeRotation: Quaternion = Quaternion.Zero();
   constructor(
@@ -127,7 +158,7 @@ export class CombatantProperties {
     public homeLocation: Vector3
   ) {
     this.position = homeLocation;
-    this.ownedActions[CombatActionName.Attack] = new CombatantActionState(CombatActionName.Attack);
+    // this.ownedActions[CombatActionName.Attack] = new CombatantActionState(CombatActionName.Attack);
   }
 
   static getConditionById(combatantProperties: CombatantProperties, conditionId: EntityId) {
@@ -223,9 +254,61 @@ export class CombatantProperties {
   }
 
   static getForward(combatantProperties: CombatantProperties) {
-    // const { x, y, z } = combatantProperties.homeLocation;
-    // return cloneVector3(new Vector3(x, 0, 0)).subtract(combatantProperties.homeLocation);
-    return new Vector3(0, 0, 1);
+    const z = combatantProperties.homeLocation.z;
+    const direction = z > 0 ? -1 : 1;
+    return new Vector3(0, 0, direction);
+  }
+  // static getForward(combatantProperties: CombatantProperties) {
+  //   // const { x, y, z } = combatantProperties.homeLocation;
+  //   // return cloneVector3(new Vector3(x, 0, 0)).subtract(combatantProperties.homeLocation);
+  //   return new Vector3(0, 0, 1);
+  // }
+
+  static hasRequiredConsumablesToUseAction(
+    combatantProperties: CombatantProperties,
+    actionName: CombatActionName
+  ) {
+    const action = COMBAT_ACTIONS[actionName];
+    const consumableCost = action.costProperties.getConsumableCost();
+    if (consumableCost !== null) {
+      const { inventory } = combatantProperties;
+      const consumableOption = Inventory.getConsumableByType(inventory, consumableCost);
+      if (consumableOption === undefined) return false;
+    }
+    return true;
+  }
+
+  static hasRequiredResourcesToUseAction(
+    combatantProperties: CombatantProperties,
+    actionName: CombatActionName
+  ) {
+    const action = COMBAT_ACTIONS[actionName];
+    const costs = action.costProperties.getResourceCosts(combatantProperties);
+
+    if (costs) {
+      const unmetCosts = getUnmetCostResourceTypes(combatantProperties, costs);
+      if (unmetCosts.length) return false;
+    }
+    return true;
+  }
+
+  static isWearingRequiredEquipmentToUseAction(
+    combatantProperties: CombatantProperties,
+    actionName: CombatActionName
+  ) {
+    const action = COMBAT_ACTIONS[actionName];
+    const { requiredEquipmentTypeOptions } = action.targetingProperties;
+    if (requiredEquipmentTypeOptions.length === 0) return true;
+
+    const allEquipment = CombatantEquipment.getAllEquippedItems(combatantProperties, {
+      includeUnselectedHotswapSlots: false,
+    });
+    for (const equipment of allEquipment) {
+      const { equipmentType } = equipment.equipmentBaseItemProperties;
+      if (Equipment.isBroken(equipment)) continue;
+      if (requiredEquipmentTypeOptions.includes(equipmentType)) return true;
+    }
+    return false;
   }
 }
 
@@ -244,6 +327,8 @@ export function createShimmedUserOfTriggeredCondition(
   entityConditionWasAppliedTo: EntityId
 ) {
   const combatant = new Combatant(
+    // use the entity id of the condition applied to since the appliedBy entity may
+    // no longer exist
     { id: entityConditionWasAppliedTo || "0", name },
     new CombatantProperties(
       CombatantClass.Mage,

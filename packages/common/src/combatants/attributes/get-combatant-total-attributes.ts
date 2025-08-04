@@ -66,6 +66,13 @@ export default function getCombatantTotalAttributes(
       );
   }
 
+  // CONDITIONS
+  for (const condition of combatantProperties.conditions) {
+    if (!condition.getAttributeModifiers) continue;
+    const attributesFromCondition = condition.getAttributeModifiers(condition, combatantProperties);
+    addAttributesToAccumulator(attributesFromCondition, totalAttributes);
+  }
+
   for (const [mainAttribute, attributeRatios] of iterateNumericEnumKeyedRecord(
     DERIVED_ATTRIBUTE_RATIOS
   )) {

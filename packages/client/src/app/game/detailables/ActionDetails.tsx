@@ -77,7 +77,10 @@ function RequiredEquipmentDisplay(props: {
   const toDisplay: ReactNode[] = [];
   const { requiredEquipmentTypeOptions } = action.targetingProperties;
   if (requiredEquipmentTypeOptions.length === 0) return toDisplay;
-  const isWearingRequiredEquipment = action.combatantIsWearingRequiredEquipment(user);
+  const isWearingRequiredEquipment = CombatantProperties.isWearingRequiredEquipmentToUseAction(
+    user,
+    action.name
+  );
 
   for (const equipmentType of requiredEquipmentTypeOptions) {
     toDisplay.push(EQUIPMENT_TYPE_STRINGS[equipmentType].toLowerCase());

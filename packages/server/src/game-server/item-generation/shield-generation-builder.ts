@@ -9,6 +9,7 @@ import {
 import { ItemGenerationBuilder } from "./item-generation-builder.js";
 import { EquipmentGenerationBuilder } from "./equipment-generation-builder.js";
 import { ShieldGenerationTemplate } from "./equipment-templates/shield-templates.js";
+import { rngSingleton } from "../../singletons.js";
 
 export class ShieldGenerationBuilder<T extends ShieldGenerationTemplate>
   extends EquipmentGenerationBuilder<T>
@@ -26,7 +27,7 @@ export class ShieldGenerationBuilder<T extends ShieldGenerationTemplate>
     if (template.equipmentBaseItem.equipmentType !== EquipmentType.Shield)
       return new Error("invalid template");
 
-    const armorClass = randBetween(template.acRange.min, template.acRange.max);
+    const armorClass = randBetween(template.acRange.min, template.acRange.max, rngSingleton);
 
     const properties: ShieldProperties = {
       taggedBaseEquipment: template.equipmentBaseItem,

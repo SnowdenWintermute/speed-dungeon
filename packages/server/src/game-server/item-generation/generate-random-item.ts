@@ -6,10 +6,14 @@ import {
   randBetween,
 } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
-import { idGenerator } from "../../singletons.js";
+import { idGenerator, rngSingleton } from "../../singletons.js";
 
 export function generateRandomItem(this: GameServer, itemLevel: number): Error | Item {
-  const randomIndex = randBetween(0, Object.keys(this.itemGenerationDirectors).length - 1);
+  const randomIndex = randBetween(
+    0,
+    Object.keys(this.itemGenerationDirectors).length - 1,
+    rngSingleton
+  );
   const randomItemGenerationDirector = Object.values(this.itemGenerationDirectors)[randomIndex];
   // const randomItemGenerationDirector = Object.values(this.itemGenerationDirectors)[
   //   EquipmentType.OneHandedMeleeWeapon

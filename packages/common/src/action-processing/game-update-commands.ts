@@ -6,6 +6,7 @@ import {
   CombatActionHitOutcomes,
   CombatActionName,
   HitPointChanges,
+  ThreatChanges,
 } from "../combat/index.js";
 import { TaggedAnimationName } from "../app-consts.js";
 import { ActionResolutionStepType } from "./action-steps/index.js";
@@ -147,6 +148,7 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   appliedConditions?: Partial<Record<HitOutcome, Record<EntityId, CombatantCondition[]>>>;
   removedConditionStacks?: Record<EntityId, { conditionId: EntityId; numStacks: number }[]>;
   removedConditionIds?: Record<EntityId, ConditionId[]>;
+  threatChanges?: ThreatChanges;
 }
 
 export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {
@@ -154,12 +156,14 @@ export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {
   actionUserName: string;
   actionUserId: string;
   outcomes: CombatActionHitOutcomes;
+  threatChanges?: ThreatChanges;
 }
 
 export interface ActionCompletionUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.ActionCompletion;
   unlockInput?: boolean;
   endActiveCombatantTurn?: boolean;
+  threatChanges?: ThreatChanges;
 }
 
 export interface ActionUseCombatLogMessageUpdateCommand extends IGameUpdateCommand {

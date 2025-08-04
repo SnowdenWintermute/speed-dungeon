@@ -12,18 +12,13 @@ interface CharacterAndSelectedActionData {
   currentTarget: CombatActionTarget;
 }
 
-export function getOwnedCharacterAndSelectedCombatAction(
+export function getCombatantAndSelectedCombatAction(
   party: AdventuringParty,
-  player: SpeedDungeonPlayer,
   characterId: string
 ): Error | CharacterAndSelectedActionData {
-  const characterResult = AdventuringParty.getCharacterIfOwned(
-    party,
-    player.characterIds,
-    characterId
-  );
-  if (characterResult instanceof Error) return characterResult;
-  const character = characterResult;
+  const combatantResult = AdventuringParty.getCombatant(party, characterId);
+  if (combatantResult instanceof Error) return combatantResult;
+  const character = combatantResult;
 
   const selectedAction = character.combatantProperties.selectedCombatAction;
   if (selectedAction === null) return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);

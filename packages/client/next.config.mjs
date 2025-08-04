@@ -10,6 +10,7 @@ const nextConfig = {
     // !! WARN !!
     ignoreBuildErrors: true,
   },
+  transpilePackages: ["common"], // attemptingtospeedbildtimes
 
   webpack: (config) => {
     // this part of the config is from chat-gpt and is supposed to let us import svg as react components

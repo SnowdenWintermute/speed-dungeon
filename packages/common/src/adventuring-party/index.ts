@@ -48,6 +48,11 @@ export class AdventuringParty {
 
   static removeCharacter = removeCharacterFromParty;
   static getCombatant = getCombatant;
+  static getExpectedCombatant(party: AdventuringParty, combatantId: EntityId) {
+    const combatantResult = AdventuringParty.getCombatant(party, combatantId);
+    if (combatantResult instanceof Error) throw combatantResult;
+    return combatantResult;
+  }
   static getConditionOnCombatant(
     party: AdventuringParty,
     combatantId: EntityId,

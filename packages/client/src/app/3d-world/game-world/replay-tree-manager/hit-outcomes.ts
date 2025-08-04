@@ -4,6 +4,7 @@ import {
   HitOutcomesGameUpdateCommand,
   ActionPayableResource,
   COMBAT_ACTIONS,
+  ManaChanges,
 } from "@speed-dungeon/common";
 import { getGameWorld } from "../../SceneManager";
 import { useGameStore } from "@/stores/game-store";
@@ -18,6 +19,8 @@ import {
 import { plainToInstance } from "class-transformer";
 import { HitPointChanges } from "@speed-dungeon/common";
 import { induceHitRecovery } from "./induce-hit-recovery";
+import { handleThreatChangesUpdate } from "./handle-threat-changes";
+import { CombatActionResource } from "@speed-dungeon/common";
 
 export async function hitOutcomesGameUpdateHandler(update: {
   command: HitOutcomesGameUpdateCommand;
@@ -27,8 +30,17 @@ export async function hitOutcomesGameUpdateHandler(update: {
   const { command } = update;
   const { outcomes, actionUserName, actionUserId } = command;
   const { outcomeFlags } = outcomes;
-  const hitPointChanges = plainToInstance(HitPointChanges, outcomes.hitPointChanges);
-  const manaChanges = plainToInstance(HitPointChanges, outcomes.manaChanges);
+  let hitPointChanges: HitPointChanges | null = null;
+  if (outcomes.resourceChanges && outcomes.resourceChanges[CombatActionResource.HitPoints])
+    hitPointChanges = plainToInstance(
+      HitPointChanges,
+      outcomes.resourceChanges[CombatActionResource.HitPoints]
+    );
+
+  let manaChanges: ManaChanges | null = null;
+
+  if (outcomes.resourceChanges && outcomes.resourceChanges[CombatActionResource.Mana])
+    manaChanges = plainToInstance(ManaChanges, outcomes.resourceChanges[CombatActionResource.Mana]);
 
   const entitiesAlreadyAnimatingHitRecovery: string[] = [];
 
@@ -70,6 +82,8 @@ export async function hitOutcomesGameUpdateHandler(update: {
       );
     }
   }
+
+  handleThreatChangesUpdate(command);
 
   outcomeFlags[HitOutcome.Miss]?.forEach((entityId) => {
     const elements: FloatingMessageElement[] = [

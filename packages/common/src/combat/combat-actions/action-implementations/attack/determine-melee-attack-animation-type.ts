@@ -2,8 +2,13 @@ import { ActionResolutionStepContext } from "../../../../action-processing/index
 import { CombatantEquipment } from "../../../../combatants/index.js";
 import { Equipment, EquipmentType } from "../../../../items/equipment/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
-import { getIncomingResourceChangesPerTarget } from "../../../action-results/index.js";
+import { FixedNumberGenerator } from "../../../../utility-classes/randomizers.js";
+import { throwIfError } from "../../../../utils/index.js";
+import { IncomingResourceChangesCalculator } from "../../../action-results/index.js";
 import { KineticDamageType } from "../../../kinetic-damage-types.js";
+import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
+import { CombatActionResource } from "../../combat-action-hit-outcome-properties.js";
+import { COMBAT_ACTIONS } from "../index.js";
 
 export enum MeleeAttackAnimationType {
   Unarmed,
@@ -32,17 +37,40 @@ export function determineMeleeAttackAnimationType(
     equipmentOption.equipmentBaseItemProperties.equipmentType
   );
 
-  // we need to see what type of damage we want to do to determine the correct animation
-  const incomingResourceChangesResult = getIncomingResourceChangesPerTarget(context);
-  if (incomingResourceChangesResult instanceof Error) throw incomingResourceChangesResult;
-  const { incomingHpChangePerTargetOption } = incomingResourceChangesResult;
+  const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
 
-  if (!incomingHpChangePerTargetOption) {
+  const { actionExecutionIntent } = context.tracker;
+  const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
+
+  const targetIds = throwIfError(
+    targetingCalculator.getCombatActionTargetIds(action, actionExecutionIntent.targets)
+  );
+
+  const incomingResourceChangesCalculator = new IncomingResourceChangesCalculator(
+    context.combatantContext,
+    actionExecutionIntent,
+    targetingCalculator,
+    targetIds,
+    new FixedNumberGenerator(0.5)
+  );
+
+  // we need to see what type of damage we want to do to determine the correct animation
+  const incomingResourceChangesOption =
+    incomingResourceChangesCalculator.getBaseIncomingResourceChangesPerTarget();
+
+  if (!incomingResourceChangesOption) {
     if (isTwoHanded) return MeleeAttackAnimationType.TwoHandSwing;
     else return MeleeAttackAnimationType.OneHandSwing;
   }
 
-  const { kineticDamageTypeOption } = incomingHpChangePerTargetOption.resourceChangeSource;
+  const incomingHpChanges = incomingResourceChangesOption[CombatActionResource.HitPoints];
+
+  if (!incomingHpChanges) {
+    if (isTwoHanded) return MeleeAttackAnimationType.TwoHandSwing;
+    else return MeleeAttackAnimationType.OneHandSwing;
+  }
+
+  const { kineticDamageTypeOption } = incomingHpChanges.source;
 
   if (kineticDamageTypeOption === undefined) {
     if (isTwoHanded) return MeleeAttackAnimationType.TwoHandSwing;

@@ -1,17 +1,25 @@
 import { ActionResolutionStepContext } from "../../action-processing/index.js";
 import { BASE_CRIT_CHANCE, BASE_CRIT_MULTIPLIER } from "../../app-consts.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
-import { CombatantCondition, CombatantProperties } from "../../combatants/index.js";
+import { CombatantCondition, CombatantProperties, ThreatType } from "../../combatants/index.js";
+import { getStandardThreatChangesOnHitOutcomes } from "../../combatants/threat-manager/get-standard-threat-changes-on-hit-outcomes.js";
 import { HoldableSlotType } from "../../items/equipment/slots.js";
 import { NormalizedPercentage, Percentage } from "../../primatives/index.js";
+import { CombatActionHitOutcomes, ThreatChanges } from "../action-results/index.js";
 import {
   getStandardActionArmorPenetration,
   getStandardActionCritChance,
   getStandardActionCritMultiplier,
 } from "./action-calculation-utils/standard-action-calculations.js";
 import { getAttackResourceChangeProperties } from "./action-implementations/attack/get-attack-hp-change-properties.js";
+import { COMBAT_ACTIONS } from "./action-implementations/index.js";
 import { ActionAccuracy, ActionAccuracyType } from "./combat-action-accuracy.js";
 import { CombatActionResourceChangeProperties } from "./combat-action-resource-change-properties.js";
+
+export enum CombatActionResource {
+  HitPoints,
+  Mana,
+}
 
 export interface CombatActionHitOutcomeProperties {
   accuracyModifier: NormalizedPercentage;
@@ -25,19 +33,27 @@ export interface CombatActionHitOutcomeProperties {
     user: CombatantProperties,
     self: CombatActionHitOutcomeProperties
   ) => number;
-  getHpChangeProperties: (
-    user: CombatantProperties,
-    primaryTarget: CombatantProperties
-  ) => null | CombatActionResourceChangeProperties;
-  getManaChangeProperties: (
-    user: CombatantProperties,
-    primaryTarget: CombatantProperties
-  ) => null | CombatActionResourceChangeProperties;
+  resourceChangePropertiesGetters: Partial<
+    Record<
+      CombatActionResource,
+      (
+        user: CombatantProperties,
+        primaryTarget: CombatantProperties
+      ) => null | CombatActionResourceChangeProperties
+    >
+  >;
   getIsParryable: (user: CombatantProperties) => boolean;
   getIsBlockable: (user: CombatantProperties) => boolean;
   getCanTriggerCounterattack: (user: CombatantProperties) => boolean;
   getAppliedConditions: (context: ActionResolutionStepContext) => null | CombatantCondition[];
   getShouldAnimateTargetHitRecovery: () => boolean;
+  getThreatChangesOnHitOutcomes: (
+    context: ActionResolutionStepContext,
+    hitOutcomes: CombatActionHitOutcomes
+  ) => null | ThreatChanges;
+  flatThreatGeneratedOnHit?: Record<ThreatType, number>;
+  flatThreatReducedOnMonsterVsPlayerHit?: Record<ThreatType, number>;
+  getShouldDecayThreatOnUse: (context: ActionResolutionStepContext) => boolean;
 }
 
 export enum ActionHitOutcomePropertiesBaseTypes {
@@ -56,13 +72,22 @@ export const genericActionHitOutcomeProperties: CombatActionHitOutcomeProperties
   getCritChance: (user) => BASE_CRIT_CHANCE,
   getCritMultiplier: (user) => BASE_CRIT_MULTIPLIER,
   getArmorPenetration: (user, self) => 0,
-  getHpChangeProperties: (user, primaryTarget) => null,
-  getManaChangeProperties: () => null,
+  resourceChangePropertiesGetters: {},
   getAppliedConditions: (context) => [],
   getIsParryable: (user) => true,
   getIsBlockable: (user) => true,
   getCanTriggerCounterattack: (user) => true,
   getShouldAnimateTargetHitRecovery: () => true,
+  getThreatChangesOnHitOutcomes: (context, hitOutcomes) => {
+    return getStandardThreatChangesOnHitOutcomes(context, hitOutcomes);
+  },
+  getShouldDecayThreatOnUse: (context: ActionResolutionStepContext) => {
+    const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
+    if (context.combatantContext.combatant.combatantProperties.asShimmedUserOfTriggeredCondition)
+      return false;
+    if (action.costProperties.requiresCombatTurn(context)) return true;
+    return false;
+  },
 };
 
 const genericRangedHitOutcomeProperties: CombatActionHitOutcomeProperties = {
@@ -105,17 +130,21 @@ const genericMeleeHitOutcomeProperties: CombatActionHitOutcomeProperties = {
   getArmorPenetration: function (user: CombatantProperties): number {
     return getStandardActionArmorPenetration(user, CombatAttribute.Strength);
   },
-  getManaChangeProperties: (user: CombatantProperties, primaryTarget: CombatantProperties) => null,
-  getHpChangeProperties: (user, primaryTarget) => {
-    const hpChangeProperties = getAttackResourceChangeProperties(
-      genericMeleeHitOutcomeProperties,
-      user,
-      primaryTarget,
-      CombatAttribute.Strength,
-      HoldableSlotType.MainHand
-    );
 
-    return hpChangeProperties;
+  resourceChangePropertiesGetters: {
+    [CombatActionResource.Mana]: (user: CombatantProperties, primaryTarget: CombatantProperties) =>
+      null,
+    [CombatActionResource.HitPoints]: (user, primaryTarget) => {
+      const hpChangeProperties = getAttackResourceChangeProperties(
+        genericMeleeHitOutcomeProperties,
+        user,
+        primaryTarget,
+        CombatAttribute.Strength,
+        HoldableSlotType.MainHand
+      );
+
+      return hpChangeProperties;
+    },
   },
   getAppliedConditions: function (user): CombatantCondition[] | null {
     // apply conditions from weapons

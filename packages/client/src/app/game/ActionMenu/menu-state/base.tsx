@@ -37,6 +37,8 @@ import SwordSlashIcon from "../../../../../public/img/game-ui-icons/sword-slash.
 import HealthCrossIcon from "../../../../../public/img/game-ui-icons/health-cross.svg";
 import IceIcon from "../../../../../public/img/game-ui-icons/ice.svg";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
+import createPageButtons from "./create-page-buttons";
+import { immerable } from "immer";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -46,6 +48,7 @@ export class BaseMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   type = MenuStateType.Base;
+  [immerable] = true;
   constructor(public inCombat: boolean) {}
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
@@ -150,8 +153,10 @@ export class BaseMenuState implements ActionMenuState {
 
       const userControlsThisCharacter = clientUserControlsCombatant(characterId);
 
-      const isWearingRequiredEquipment =
-        combatAction.combatantIsWearingRequiredEquipment(combatantProperties);
+      const isWearingRequiredEquipment = CombatantProperties.isWearingRequiredEquipmentToUseAction(
+        combatantProperties,
+        combatAction.name
+      );
 
       button.shouldBeDisabled =
         (usabilityContext === CombatActionUsabilityContext.InCombat && !this.inCombat) ||
@@ -163,6 +168,8 @@ export class BaseMenuState implements ActionMenuState {
 
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
+
+    createPageButtons(this, toReturn);
 
     return toReturn;
   }

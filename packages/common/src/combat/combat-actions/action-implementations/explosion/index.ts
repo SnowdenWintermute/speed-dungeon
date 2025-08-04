@@ -31,10 +31,12 @@ import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js
 import cloneDeep from "lodash.clonedeep";
 import { AutoTargetingScheme, CombatActionTargetType } from "../../../targeting/index.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
+import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 
-const targetingProperties = cloneDeep(
-  GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]
-);
+const targetingProperties = {
+  ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
+  prohibitedHitCombatantStates: [ProhibitedTargetCombatantStates.Dead],
+};
 targetingProperties.autoTargetSelectionMethod = {
   scheme: AutoTargetingScheme.WithinRadiusOfEntity,
   radius: BASE_EXPLOSION_RADIUS,

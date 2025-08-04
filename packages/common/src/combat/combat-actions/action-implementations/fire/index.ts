@@ -1,4 +1,6 @@
 import {
+  ActionPayableResource,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -18,11 +20,13 @@ import {
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { FIRE_STEPS_CONFIG } from "./fire-steps-config.js";
 import { FIRE_HIT_OUTCOME_PROPERTIES } from "./fire-hit-outcome-properties.js";
+import { getSpellCastCombatLogMessage } from "../combat-log-message-getters.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
-  ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle],
-  validTargetCategories: TargetCategories.Any,
+  ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
+  validTargetCategories: TargetCategories.Opponent,
   getTargetingSchemes: (user) => {
+    // return [TargetingScheme.Area];
     const toReturn = [TargetingScheme.Single];
     const spellLevel = user.combatantProperties.ownedActions[CombatActionName.Fire]?.level || 0;
     if (spellLevel > 1) toReturn.push(TargetingScheme.Area);
@@ -34,13 +38,19 @@ const config: CombatActionComponentConfig = {
   description: "Inflict magical fire damage on enemies and cause them to start burning",
   origin: CombatActionOrigin.SpellCast,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
-
-  getOnUseMessage: (data) => {
-    return `${data.nameOfActionUser} casts fire (level ${data.actionLevel}).`;
-  },
+  getOnUseMessage: (data) =>
+    getSpellCastCombatLogMessage(data, COMBAT_ACTION_NAME_STRINGS[CombatActionName.Fire]),
   targetingProperties,
   hitOutcomeProperties: FIRE_HIT_OUTCOME_PROPERTIES,
-  costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
+  costProperties: {
+    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
+    costBases: {
+      ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell].costBases,
+      [ActionPayableResource.Mana]: {
+        base: 0,
+      },
+    },
+  },
   stepsConfig: FIRE_STEPS_CONFIG,
   shouldExecute: () => true,
   getConcurrentSubActions: () => [],

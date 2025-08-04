@@ -1,4 +1,5 @@
 import {
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponentConfig,
   CombatActionExecutionIntent,
   CombatActionLeaf,
@@ -23,6 +24,7 @@ import {
   CombatantBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
+import { getSpellCastCombatLogMessage } from "../combat-log-message-getters.js";
 
 const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Spell);
 stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
@@ -61,13 +63,13 @@ const config: CombatActionComponentConfig = {
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
   targetingProperties: GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle],
   hitOutcomeProperties: iceBoltProjectileHitOutcomeProperties,
-  costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
-
-  stepsConfig,
-
-  getOnUseMessage: (data) => {
-    return `${data.nameOfActionUser} casts ice bolt (level ${data.actionLevel}).`;
+  costProperties: {
+    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
+    requiresCombatTurn: () => false,
   },
+  stepsConfig,
+  getOnUseMessage: (data) =>
+    getSpellCastCombatLogMessage(data, COMBAT_ACTION_NAME_STRINGS[CombatActionName.IceBoltParent]),
   shouldExecute: () => true,
   getConcurrentSubActions(context) {
     return [

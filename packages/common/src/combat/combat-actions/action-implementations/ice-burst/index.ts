@@ -42,6 +42,7 @@ import {
 import {
   ActionHitOutcomePropertiesBaseTypes,
   CombatActionHitOutcomeProperties,
+  CombatActionResource,
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
 import {
@@ -73,34 +74,43 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
 const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
   ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Spell],
   getArmorPenetration: (user, self) => 15,
-  getHpChangeProperties: (user) => {
-    const hpChangeSourceConfig: ResourceChangeSourceConfig = {
-      category: ResourceChangeSourceCategory.Physical,
-      kineticDamageTypeOption: KineticDamageType.Piercing,
-      elementOption: MagicalElement.Ice,
-      isHealing: false,
-      lifestealPercentage: null,
-    };
+  resourceChangePropertiesGetters: {
+    [CombatActionResource.HitPoints]: (user) => {
+      const hpChangeSourceConfig: ResourceChangeSourceConfig = {
+        category: ResourceChangeSourceCategory.Physical,
+        kineticDamageTypeOption: KineticDamageType.Piercing,
+        elementOption: MagicalElement.Ice,
+        isHealing: false,
+        lifestealPercentage: null,
+      };
 
-    const stacks = user.asShimmedUserOfTriggeredCondition?.condition.stacksOption?.current || 1;
+      const stacks = user.asShimmedUserOfTriggeredCondition?.condition.stacksOption?.current || 1;
 
-    const baseValues = new NumberRange(user.level * stacks, user.level * stacks * 10);
+      const baseValues = new NumberRange(user.level * stacks, user.level * stacks * 10);
 
-    const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
-    const hpChangeProperties: CombatActionResourceChangeProperties = {
-      resourceChangeSource,
-      baseValues,
-    };
+      const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
+      const hpChangeProperties: CombatActionResourceChangeProperties = {
+        resourceChangeSource,
+        baseValues,
+      };
 
-    return hpChangeProperties;
+      return hpChangeProperties;
+    },
   },
   getAppliedConditions: (context) => {
     const { idGenerator, combatantContext } = context;
     const { combatant } = combatantContext;
 
+    let userEntityProperties = cloneDeep(combatant.entityProperties);
+    if (combatant.combatantProperties.asShimmedUserOfTriggeredCondition) {
+      userEntityProperties =
+        combatant.combatantProperties.asShimmedUserOfTriggeredCondition.condition.appliedBy
+          .entityProperties;
+    }
+
     const condition = new PrimedForIceBurstCombatantCondition(
       idGenerator.generate(),
-      { entityProperties: cloneDeep(combatant.entityProperties), friendOrFoe: FriendOrFoe.Hostile },
+      { entityProperties: userEntityProperties, friendOrFoe: FriendOrFoe.Hostile },
       combatant.combatantProperties.level
     );
 

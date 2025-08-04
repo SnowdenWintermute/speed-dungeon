@@ -1,4 +1,3 @@
-import CombatantClassIcon from "@/app/components/atoms/CombatantClassIcon";
 import Divider from "@/app/components/atoms/Divider";
 import {
   Combatant,
@@ -12,6 +11,7 @@ import { AttributeListItem } from "./AttributeListItem";
 import HpAndMp from "./HpAndMp";
 import CharacterSheetWeaponDamage from "./CharacterSheetWeaponDamage";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
+import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
 
 interface Props {
   combatant: Combatant;
@@ -71,7 +71,11 @@ export default function CharacterAttributes({ combatant, showAttributeAssignment
           {` (${formatCombatantClassName(combatantProperties.combatantClass)})`}
         </span>
         <span className="h-10 w-10 flex justify-center rotate-45">
-          <CombatantClassIcon combatantClass={combatantProperties.combatantClass} />
+          {getCombatantClassIcon(
+            combatantProperties.combatantClass,
+            "fill-slate-400",
+            "stroke-slate-400"
+          )}
         </span>
       </div>
       <div className="flex justify-between">

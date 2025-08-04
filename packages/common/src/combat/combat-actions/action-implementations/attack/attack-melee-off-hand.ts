@@ -24,6 +24,7 @@ import {
 import {
   ActionHitOutcomePropertiesBaseTypes,
   CombatActionHitOutcomeProperties,
+  CombatActionResource,
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
 import {
@@ -47,18 +48,20 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
       getStandardActionCritChance(user, CombatAttribute.Dexterity) * OFF_HAND_CRIT_CHANCE_MODIFIER
     );
   },
-  getHpChangeProperties: (user, primaryTarget) => {
-    const hpChangeProperties = getAttackResourceChangeProperties(
-      hitOutcomeProperties,
-      user,
-      primaryTarget,
-      CombatAttribute.Strength,
-      HoldableSlotType.OffHand
-    );
-    if (hpChangeProperties instanceof Error) return hpChangeProperties;
+  resourceChangePropertiesGetters: {
+    [CombatActionResource.HitPoints]: (user, primaryTarget) => {
+      const hpChangeProperties = getAttackResourceChangeProperties(
+        hitOutcomeProperties,
+        user,
+        primaryTarget,
+        CombatAttribute.Strength,
+        HoldableSlotType.OffHand
+      );
+      if (hpChangeProperties instanceof Error) return hpChangeProperties;
 
-    hpChangeProperties.baseValues.mult(OFF_HAND_DAMAGE_MODIFIER);
-    return hpChangeProperties;
+      hpChangeProperties.baseValues.mult(OFF_HAND_DAMAGE_MODIFIER);
+      return hpChangeProperties;
+    },
   },
 };
 

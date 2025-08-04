@@ -5,7 +5,7 @@ import {
   RotationTracker,
   TranslationTracker,
 } from "./model-movement-trackers";
-import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
+import { iterateNumericEnumKeyedRecord, NormalizedPercentage } from "@speed-dungeon/common";
 import { getGameWorld } from "../../SceneManager";
 
 export class ModelMovementManager {
@@ -29,14 +29,22 @@ export class ModelMovementManager {
     this.transformNode.position.copyFrom(newPosition);
   }
 
-  startTranslating(destination: Vector3, duration: number, onComplete: () => void) {
+  startTranslating(
+    destination: Vector3,
+    duration: number,
+    onComplete: () => void,
+    onUpdate?: (percentComplete: NormalizedPercentage) => void,
+    easing?: (percentage: NormalizedPercentage) => number
+  ) {
     const previous = this.transformNode.position.clone();
     const tracker = new TranslationTracker(
       this.transformNode,
       duration,
       previous,
       destination,
-      onComplete
+      onComplete,
+      onUpdate || (() => {}),
+      easing
     );
     this.activeTrackers[ModelMovementType.Translation] = tracker;
   }

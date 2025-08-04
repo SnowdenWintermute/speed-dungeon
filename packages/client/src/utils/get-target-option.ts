@@ -34,7 +34,6 @@ export function getTargetOption(
 
   const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
     combatActionProperties,
-    battleOption,
     combatActionTarget
   );
   if (targetIdsResult instanceof Error) return undefined;

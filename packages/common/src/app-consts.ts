@@ -27,6 +27,8 @@ export const BASE_XP_PER_MONSTER = 30.0;
 // export const BASE_XP_PER_MONSTER = 100.0;
 export const BASE_XP_LEVEL_DIFF_MULTIPLIER = 0.25;
 
+export const COMBATANT_MAX_LEVEL = 10;
+
 // UI
 export const FLOATING_MESSAGE_DURATION: Milliseconds = 2000;
 
@@ -67,10 +69,12 @@ export const ARMOR_CLASS_EQUATION_MODIFIER = 2.5;
 export const MELEE_START_ATTACK_RANGE = 0.5;
 
 // 3D MODELS
+export const GRAVITY = -9.81;
 export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 1; // default is 1, higher is slower;
 
-export const COMBATANT_POSITION_SPACING_SIDE: Meters = 1.4;
-export const BASE_EXPLOSION_RADIUS: Meters = 1.6;
+export const COMBATANT_POSITION_SPACING_SIDE: Meters = 1.6;
+// export const COMBATANT_POSITION_SPACING_SIDE: Meters = 3.4;
+export const BASE_EXPLOSION_RADIUS: Meters = COMBATANT_POSITION_SPACING_SIDE + 0.2;
 export const COMBATANT_POSITION_SPACING_BETWEEN_ROWS: Meters = 5.0;
 export const COMBATANT_TIME_TO_MOVE_ONE_METER = 300 * DEBUG_ANIMATION_SPEED_MULTIPLIER;
 // export const COMBATANT_TIME_TO_MOVE_ONE_METER = 100;

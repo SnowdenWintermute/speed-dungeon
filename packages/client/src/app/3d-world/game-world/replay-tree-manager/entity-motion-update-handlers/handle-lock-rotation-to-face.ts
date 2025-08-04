@@ -34,7 +34,7 @@ export function handleLockRotationToFace(
 
   const angleDifference = getQuaternionAngleDifference(currentRotation, targetRotation);
 
-  const alignmentSpeed = angleDifference / duration;
+  const alignmentSpeed = duration ? angleDifference / duration : 0;
 
   sceneEntity.movementManager.lookingAt = {
     target: targetTransformNode,

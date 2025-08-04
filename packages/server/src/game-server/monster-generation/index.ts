@@ -2,6 +2,7 @@ import { Vector3 } from "@babylonjs/core";
 import { idGenerator } from "../../singletons.js";
 import getSpawnableMonsterTypesByFloor from "./get-spawnable-monster-types-by-floor.js";
 import {
+  AiType,
   CombatActionName,
   CombatAttribute,
   Combatant,
@@ -20,6 +21,7 @@ import { addAttributesToAccumulator } from "@speed-dungeon/common";
 import getMonsterPerLevelAttributes from "./get-monster-per-level-attributes.js";
 import getMonsterTraits from "./get-monster-traits.js";
 import { getMonsterEquipment } from "./get-monster-equipment.js";
+import { ThreatManager } from "@speed-dungeon/common";
 // import { STOCK_MONSTER } from "../../index.js";
 
 export function generateMonster(level: number, forcedType?: MonsterType) {
@@ -42,18 +44,32 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
     Vector3.Zero()
   );
 
-  combatantProperties.ownedActions[CombatActionName.IceBoltParent] = new CombatantActionState(
-    CombatActionName.IceBoltParent
-  );
-  combatantProperties.ownedActions[CombatActionName.IceBoltProjectile] = new CombatantActionState(
-    CombatActionName.IceBoltProjectile
-  );
+  const ownedActions: CombatActionName[] = [
+    CombatActionName.Attack,
+    CombatActionName.Fire,
+    CombatActionName.IceBoltParent,
+    CombatActionName.ChainingSplitArrowParent,
+    CombatActionName.ExplodingArrowParent,
+    CombatActionName.UseGreenAutoinjector,
+    CombatActionName.UseBlueAutoinjector,
+    CombatActionName.Blind,
+    CombatActionName.Healing,
+    // CombatActionName.PassTurn,
+  ];
+
+  for (const actionName of ownedActions) {
+    const action = new CombatantActionState(actionName);
+    if (actionName === CombatActionName.Fire) action.level = 2;
+    // if (actionName === CombatActionName.Healing) action.level = 1;
+    combatantProperties.ownedActions[actionName] = action;
+  }
 
   // const entityProperties = { id: idGenerator.generate(), name: STOCK_MONSTER.name };
   // const combatantProperties = cloneDeep(STOCK_MONSTER.combatantProperties);
 
   // will modify this monster after creation with basic values
   const monster = new Combatant(entityProperties, combatantProperties);
+  monster.combatantProperties.threatManager = new ThreatManager();
   monster.combatantProperties.level = level;
   // assign their "discretionary" attributes
   // assign attributes that would have come from wearing gear
@@ -72,6 +88,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   const randomNumberNormalDistribution = randomNormal();
   const modifiedHp = baseHp * (randomNumberNormalDistribution + 0.5);
   monster.combatantProperties.inherentAttributes[CombatAttribute.Hp] = Math.floor(modifiedHp);
+
   // traits
   monster.combatantProperties.traits = getMonsterTraits(monsterType);
   // equip weapons
@@ -84,6 +101,9 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   // set hp and mp to max
   CombatantProperties.setHpAndMpToMax(monster.combatantProperties);
   // @TODO - assign abilities (realistically need to refactor monster creation)
+
+  monster.combatantProperties.aiTypes = [AiType.Healer];
+  monster.combatantProperties.hitPoints = Math.floor(monster.combatantProperties.hitPoints * 0.5);
 
   return monster;
 }

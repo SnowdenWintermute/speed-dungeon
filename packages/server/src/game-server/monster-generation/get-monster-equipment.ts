@@ -12,7 +12,7 @@ import {
   chooseRandomFromArray,
   generatePreDeterminedItem,
 } from "@speed-dungeon/common";
-import { idGenerator } from "../../singletons.js";
+import { idGenerator, rngSingleton } from "../../singletons.js";
 import { CombatantEquipment, HoldableHotswapSlot } from "@speed-dungeon/common";
 import { generateSpecificEquipmentType } from "../item-generation/generate-test-items.js";
 
@@ -79,7 +79,7 @@ export function getMonsterEquipment(monsterType: MonsterType): CombatantEquipmen
         TwoHandedMeleeWeapon.ElementalStaff,
         TwoHandedMeleeWeapon.BoStaff,
       ];
-      let staffType = chooseRandomFromArray(staffOptions);
+      let staffType = chooseRandomFromArray(staffOptions, rngSingleton);
       if (staffType instanceof Error) staffType = TwoHandedMeleeWeapon.BoStaff;
 
       const mhResult = generateSpecificEquipmentType({
@@ -109,9 +109,9 @@ export function getMonsterEquipment(monsterType: MonsterType): CombatantEquipmen
         OneHandedMeleeWeapon.MapleWand,
       ];
       const shieldOptions = [Shield.Buckler, Shield.CabinetDoor, Shield.PotLid];
-      let wandType = chooseRandomFromArray(wandOptions);
+      let wandType = chooseRandomFromArray(wandOptions, rngSingleton);
       if (wandType instanceof Error) wandType = OneHandedMeleeWeapon.IceBlade;
-      let shieldType = chooseRandomFromArray(shieldOptions);
+      let shieldType = chooseRandomFromArray(shieldOptions, rngSingleton);
       if (shieldType instanceof Error) shieldType = Shield.TowerShield;
       const wandResult = generateSpecificEquipmentType({
         equipmentType: EquipmentType.OneHandedMeleeWeapon,

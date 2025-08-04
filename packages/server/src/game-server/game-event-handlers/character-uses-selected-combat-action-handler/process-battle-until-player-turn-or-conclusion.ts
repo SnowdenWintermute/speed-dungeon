@@ -132,11 +132,7 @@ export class BattleProcessor {
       const battleGroupsResult = Battle.getAllyAndEnemyBattleGroups(battle, entityProperties.id);
       if (battleGroupsResult instanceof Error) throw battleGroupsResult;
 
-      const actionExecutionIntent = AISelectActionAndTarget(
-        game,
-        activeCombatantResult,
-        battleGroupsResult
-      );
+      const actionExecutionIntent = AISelectActionAndTarget(game, activeCombatantResult);
       if (actionExecutionIntent instanceof Error) throw actionExecutionIntent;
       return { actionExecutionIntent, user: activeCombatantResult };
     }

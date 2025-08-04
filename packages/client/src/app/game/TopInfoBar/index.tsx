@@ -13,6 +13,7 @@ import TurnOrderPredictionBar from "./turn-order-prediction-bar";
 
 import StairsIcon from "../../../../public/img/game-ui-icons/stairs.svg";
 import DoorIcon from "../../../../public/img/game-ui-icons/door-icon.svg";
+import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 
 export default function TopInfoBar() {
   const mutateGameState = useGameStore().mutateState;
@@ -44,13 +45,18 @@ export default function TopInfoBar() {
   return (
     <div className="h-10 w-full border-b border-slate-400 bg-slate-700 flex justify-center items-center pointer-events-auto relative">
       <div className="p-2 absolute left-0 flex items-center text-md">
-        <div className="h-5 my-1 mr-1">
-          <StairsIcon className="fill-slate-400 h-full" />
-        </div>
+        <HoverableTooltipWrapper tooltipText="Current floor">
+          <div className="h-5 my-1 mr-1">
+            <StairsIcon className="fill-slate-400 h-full" />
+          </div>
+        </HoverableTooltipWrapper>
         <span className="mr-2">{party.currentFloor}</span>
-        <div className="h-5 my-1 mr-1">
-          <DoorIcon className="fill-slate-400 h-full" />
-        </div>
+
+        <HoverableTooltipWrapper tooltipText="Current room">
+          <div className="h-5 my-1 mr-1">
+            <DoorIcon className="fill-slate-400 h-full" />
+          </div>
+        </HoverableTooltipWrapper>
         {party.roomsExplored.onCurrentFloor}
         {": "}
         {DUNGEON_ROOM_TYPE_STRINGS[party.currentRoom.roomType]}

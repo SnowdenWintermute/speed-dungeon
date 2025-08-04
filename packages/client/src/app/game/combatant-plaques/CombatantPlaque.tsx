@@ -10,7 +10,13 @@ import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
-import { Combatant, CombatantEquipment, InputLock, Inventory } from "@speed-dungeon/common";
+import {
+  Combatant,
+  CombatantEquipment,
+  CombatantProperties,
+  InputLock,
+  Inventory,
+} from "@speed-dungeon/common";
 import "./floating-text-animation.css";
 import CombatantFloatingMessagesDisplay from "./combatant-floating-messages-display";
 import InventoryIconButton from "./InventoryIconButton";
@@ -20,6 +26,13 @@ import { useUIStore } from "@/stores/ui-store";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import LowDurabilityIndicators from "./LowDurabilityIndicators";
 import ConditionIndicators from "./condition-indicators/";
+import ThreatPriorityList from "./ThreatPriorityList";
+import Portrait from "./Portrait";
+import {
+  getCombatantClassIcon,
+  getCombatantUiIdentifier,
+  getCombatantUiIdentifierIcon,
+} from "@/utils/get-combatant-class-icon";
 
 interface Props {
   combatant: Combatant;
@@ -87,6 +100,10 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
     </div>
   );
 
+  const plaqueWidth = isPartyMember ? "23rem" : "23rem";
+
+  const combatantUiIdentifierIcon = getCombatantUiIdentifierIcon(party, combatant);
+
   return (
     <div className="">
       <CharacterModelDisplay character={combatant}>
@@ -96,74 +113,92 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
         </div>
       </CharacterModelDisplay>
       {isPartyMember && conditionIndicators("mb-1") /* otherwise put it below */}
-      <div
-        className={`w-[23rem] h-fit bg-slate-700 flex p-2.5 relative box-border outline ${conditionalBorder} ${lockedUiState}`}
-        ref={combatantPlaqueRef}
-      >
-        {isPartyMember && (
-          <InventoryIconButton
-            entityId={entityId}
-            numItemsInInventory={Inventory.getTotalNumberOfItems(combatantProperties.inventory)}
-          />
-        )}
-        {isPartyMember && (
-          <HotswapSlotButtons
-            className={"absolute -top-2 -left-2 z-10 flex flex-col border border-slate-400"}
-            entityId={entityId}
-            selectedSlotIndex={combatantProperties.equipment.equippedHoldableHotswapSlotIndex}
-            numSlots={CombatantEquipment.getHoldableHotswapSlots(combatantProperties).length}
-            vertical={true}
-            registerKeyEvents={entityId === focusedCharacterId}
-          />
-        )}
-        <TargetingIndicators party={party} entityId={entityId} />
-        <DetailedCombatantInfoCard combatantId={entityId} combatantPlaqueRef={combatantPlaqueRef} />
-        <div className="relative rounded-full">
-          <div
-            className="h-full aspect-square mr-2 border border-slate-400 bg-slate-600 rounded-full overflow-hidden"
-            style={{ height: `${portraitHeight}px` }}
-          >
-            {portrait && <img className="h-full object-cover" src={portrait} alt="portrait" />}
-          </div>
-          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-5 border border-slate-400 bg-slate-700 pr-2 pl-2 text-sm flex items-center justify-center">
-            {combatantProperties.level}
-          </div>
-        </div>
-        <div className="flex-grow" ref={nameAndBarsRef}>
-          <div className="mb-1.5 flex justify-between items-center align-middle leading-5 text-lg ">
-            <span className="flex">
-              <span className="">{entityProperties.name}</span>
-              <span>
-                {showDebug ? (
-                  <HoverableTooltipWrapper tooltipText={entityId}>
-                    _[{entityId.slice(0, 5)}]
-                  </HoverableTooltipWrapper>
-                ) : (
-                  ""
-                )}
-              </span>
-              <UnspentAttributesButton
-                combatantProperties={combatantProperties}
-                entityId={entityId}
-              />
-            </span>
-            <span className="flex items-center">
-              <CombatantInfoButton combatant={combatant} />
-            </span>
-          </div>
-          <ValueBarsAndFocusButton
-            combatantId={entityId}
-            combatantProperties={combatantProperties}
-            isFocused={isFocused}
-            showExperience={showExperience}
-          />
-        </div>
-      </div>
 
       <div className="flex">
-        <ActiveCombatantIcon battleOption={battleOption} combatantId={entityId} />
+        {!CombatantProperties.isDead(combatantProperties) && (
+          <ThreatPriorityList threatManager={combatantProperties.threatManager || null} />
+        )}
+        <div>
+          <div
+            className={`h-fit bg-slate-700 flex p-2.5 relative box-border outline ${conditionalBorder} ${lockedUiState}`}
+            style={{
+              width: plaqueWidth,
+            }}
+            ref={combatantPlaqueRef}
+          >
+            {isPartyMember && (
+              <InventoryIconButton
+                entityId={entityId}
+                numItemsInInventory={Inventory.getTotalNumberOfItems(combatantProperties.inventory)}
+              />
+            )}
+            {isPartyMember && (
+              <HotswapSlotButtons
+                className={"absolute -top-2 -left-2 z-10 flex flex-col border border-slate-400"}
+                entityId={entityId}
+                selectedSlotIndex={combatantProperties.equipment.equippedHoldableHotswapSlotIndex}
+                numSlots={CombatantEquipment.getHoldableHotswapSlots(combatantProperties).length}
+                vertical={true}
+                registerKeyEvents={entityId === focusedCharacterId}
+              />
+            )}
+            <TargetingIndicators party={party} entityId={entityId} />
+            <DetailedCombatantInfoCard
+              combatantId={entityId}
+              combatantPlaqueRef={combatantPlaqueRef}
+            />
+            <Portrait
+              portrait={portrait}
+              portraitHeight={portraitHeight}
+              combatantLevel={combatantProperties.level}
+            />
+            <div className="flex-grow" ref={nameAndBarsRef}>
+              <div className="mb-1.5 flex justify-between items-center align-middle leading-5 text-lg ">
+                <span className="flex">
+                  <span className="max-w-44 overflow-hidden text-ellipsis">
+                    {entityProperties.name}
+                  </span>
+                  <span>
+                    {showDebug ? (
+                      <HoverableTooltipWrapper tooltipText={entityId}>
+                        _[{entityId.slice(0, 5)}]
+                      </HoverableTooltipWrapper>
+                    ) : (
+                      ""
+                    )}
+                  </span>
+                </span>
 
-        {!isPartyMember && conditionIndicators("mt-1") /* otherwise put it above */}
+                <div className="flex items-center h-full">
+                  <HoverableTooltipWrapper tooltipText="This combatant's designation in UI elements such as the turn order bar and threat table displays">
+                    <div className="h-5 bg-slate-950 mr-2">{combatantUiIdentifierIcon}</div>
+                  </HoverableTooltipWrapper>
+                  <div className="ml-1">
+                    <UnspentAttributesButton
+                      combatantProperties={combatantProperties}
+                      entityId={entityId}
+                    />
+                  </div>
+                  <div className="ml-1">
+                    <CombatantInfoButton combatant={combatant} />
+                  </div>
+                </div>
+              </div>
+              <ValueBarsAndFocusButton
+                combatantId={entityId}
+                combatantProperties={combatantProperties}
+                isFocused={isFocused}
+                showExperience={showExperience}
+              />
+            </div>
+          </div>
+
+          <div className="flex">
+            <ActiveCombatantIcon battleOption={battleOption} combatantId={entityId} />
+
+            {!isPartyMember && conditionIndicators("mt-1") /* otherwise put it above */}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -11,11 +11,11 @@ import {
   iterateNumericEnum,
   randBetween,
 } from "@speed-dungeon/common";
-import { getGameServer, idGenerator } from "../../singletons.js";
+import { getGameServer, idGenerator, rngSingleton } from "../../singletons.js";
 
 export default function generateTestItems(combatantProperties: CombatantProperties, num: number) {
   for (let i = 0; i < num; i += 1) {
-    const iLvl = randBetween(1, DEEPEST_FLOOR);
+    const iLvl = randBetween(1, DEEPEST_FLOOR, rngSingleton);
     const randomItem = getGameServer().generateRandomItem(1);
     if (randomItem instanceof Error) return console.error(randomItem);
     Inventory.insertItem(combatantProperties.inventory, randomItem);
@@ -51,10 +51,10 @@ export function generateOneOfEachItem() {
     if (
       ![
         // EquipmentType.BodyArmor,
-        EquipmentType.Shield,
-        EquipmentType.OneHandedMeleeWeapon,
+        // EquipmentType.Shield,
+        // EquipmentType.OneHandedMeleeWeapon,
         EquipmentType.TwoHandedMeleeWeapon,
-        EquipmentType.TwoHandedRangedWeapon,
+        // EquipmentType.TwoHandedRangedWeapon,
       ].includes(equipmentType)
     )
       continue;

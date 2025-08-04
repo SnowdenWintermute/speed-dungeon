@@ -8,18 +8,15 @@ import {
   TargetingScheme,
 } from "../combat-actions/index.js";
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
-import {
-  filterPossibleTargetIdsByActionTargetCategories,
-  filterPossibleTargetIdsByProhibitedCombatantStates,
-} from "./filtering.js";
 import { getValidPreferredOrDefaultActionTargets } from "./get-valid-preferred-or-default-action-targets.js";
 import { EntityId, NextOrPrevious } from "../../primatives/index.js";
 import { getActionTargetsIfSchemeIsValid } from "./get-targets-if-scheme-is-valid.js";
-import { getOwnedCharacterAndSelectedCombatAction } from "../../utils/get-owned-character-and-selected-combat-action.js";
+import { getCombatantAndSelectedCombatAction } from "../../utils/get-owned-character-and-selected-combat-action.js";
 import getNextOrPreviousTarget from "./get-next-or-previous-target.js";
 import { CombatantContext } from "../../combatant-context/index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { COMBAT_ACTIONS } from "../combat-actions/action-implementations/index.js";
+import { TargetFilterer } from "./filtering.js";
 
 export class TargetingCalculator {
   constructor(
@@ -31,10 +28,9 @@ export class TargetingCalculator {
     characterId: string,
     direction: NextOrPrevious
   ): Error | CombatActionTarget {
-    if (this.playerOption === null) return new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
-    const characterAndActionDataResult = getOwnedCharacterAndSelectedCombatAction(
+    // if (this.playerOption === null) return new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
+    const characterAndActionDataResult = getCombatantAndSelectedCombatAction(
       this.context.party,
-      this.playerOption,
       characterId
     );
 
@@ -55,25 +51,25 @@ export class TargetingCalculator {
     );
     if (newTargetsResult instanceof Error) return newTargetsResult;
 
-    const updatedTargetPreferenceResult = this.getUpdatedTargetPreferences(
-      combatAction,
-      newTargetsResult,
-      allyIdsOption,
-      opponentIdsOption
-    );
-    if (updatedTargetPreferenceResult instanceof Error) return updatedTargetPreferenceResult;
+    if (this.playerOption) {
+      const updatedTargetPreferenceResult = this.getUpdatedTargetPreferences(
+        combatAction,
+        newTargetsResult,
+        allyIdsOption,
+        opponentIdsOption
+      );
+      if (updatedTargetPreferenceResult instanceof Error) return updatedTargetPreferenceResult;
 
-    this.playerOption.targetPreferences = updatedTargetPreferenceResult;
+      this.playerOption.targetPreferences = updatedTargetPreferenceResult;
+    }
     character.combatantProperties.combatActionTarget = newTargetsResult;
 
     return newTargetsResult;
   }
 
   cycleCharacterTargetingSchemes(characterId: string): Error | void {
-    if (this.playerOption === null) return new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
-    const characterAndActionDataResult = getOwnedCharacterAndSelectedCombatAction(
+    const characterAndActionDataResult = getCombatantAndSelectedCombatAction(
       this.context.party,
-      this.playerOption,
       characterId
     );
     if (characterAndActionDataResult instanceof Error) return characterAndActionDataResult;
@@ -84,10 +80,11 @@ export class TargetingCalculator {
     if (targetingSchemes.length < 2)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.ONLY_ONE_TARGETING_SCHEME_AVAILABLE);
 
-    const lastUsedTargetingScheme = this.playerOption.targetPreferences.targetingSchemePreference;
+    const lastUsedTargetingScheme = character.combatantProperties.selectedTargetingScheme;
+
     let newTargetingScheme = lastUsedTargetingScheme;
 
-    if (!targetingSchemes.includes(lastUsedTargetingScheme)) {
+    if (lastUsedTargetingScheme === null || !targetingSchemes.includes(lastUsedTargetingScheme)) {
       const defaultScheme = targetingSchemes[0];
       if (typeof defaultScheme === "undefined")
         return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGETING_SCHEMES);
@@ -96,14 +93,16 @@ export class TargetingCalculator {
       const lastUsedTargetingSchemeIndex = targetingSchemes.indexOf(lastUsedTargetingScheme);
       if (lastUsedTargetingSchemeIndex < 0)
         return new Error(ERROR_MESSAGES.CHECKED_EXPECTATION_FAILED);
-      const newSchemeIndex =
-        lastUsedTargetingSchemeIndex === targetingSchemes.length - 1
-          ? 0
-          : lastUsedTargetingSchemeIndex + 1;
+      const isSelectingLastInList = lastUsedTargetingSchemeIndex === targetingSchemes.length - 1;
+      const newSchemeIndex = isSelectingLastInList ? 0 : lastUsedTargetingSchemeIndex + 1;
       newTargetingScheme = targetingSchemes[newSchemeIndex]!;
     }
 
-    this.playerOption.targetPreferences.targetingSchemePreference = newTargetingScheme;
+    // must set targetingScheme here so getValidPreferredOrDefaultActionTargets takes it into account
+    character.combatantProperties.selectedTargetingScheme = newTargetingScheme;
+
+    if (this.playerOption)
+      this.playerOption.targetPreferences.targetingSchemePreference = newTargetingScheme;
 
     const filteredTargetIdsResult = this.getFilteredPotentialTargetIdsForAction(combatAction);
     if (filteredTargetIdsResult instanceof Error) return filteredTargetIdsResult;
@@ -115,15 +114,18 @@ export class TargetingCalculator {
     );
     if (newTargetsResult instanceof Error) return newTargetsResult;
 
-    const updatedTargetPreferenceResult = this.getUpdatedTargetPreferences(
-      combatAction,
-      newTargetsResult,
-      allyIdsOption,
-      opponentIdsOption
-    );
-    if (updatedTargetPreferenceResult instanceof Error) return updatedTargetPreferenceResult;
+    if (this.playerOption) {
+      const updatedTargetPreferenceResult = this.getUpdatedTargetPreferences(
+        combatAction,
+        newTargetsResult,
+        allyIdsOption,
+        opponentIdsOption
+      );
+      if (updatedTargetPreferenceResult instanceof Error) return updatedTargetPreferenceResult;
 
-    this.playerOption.targetPreferences = updatedTargetPreferenceResult;
+      this.playerOption.targetPreferences = updatedTargetPreferenceResult;
+    }
+
     character.combatantProperties.combatActionTarget = newTargetsResult;
   }
 
@@ -134,7 +136,7 @@ export class TargetingCalculator {
     const { allyIds, opponentIds } = this.context.getAllyAndOpponentIds();
     const { targetingProperties } = combatAction;
 
-    const filteredTargetsResult = filterPossibleTargetIdsByProhibitedCombatantStates(
+    const filteredTargetsResult = TargetFilterer.filterPossibleTargetIdsByProhibitedCombatantStates(
       this.context.party,
       targetingProperties.prohibitedTargetCombatantStates,
       allyIds,
@@ -167,15 +169,25 @@ export class TargetingCalculator {
 
       if (newTargetsResult instanceof Error) return newTargetsResult;
 
-      const newTargetPreferencesResult = this.getUpdatedTargetPreferences(
-        combatActionOption,
-        newTargetsResult,
-        allyIdsOption,
-        opponentIdsOption
-      );
-      if (newTargetPreferencesResult instanceof Error) return newTargetPreferencesResult;
+      if (this.playerOption) {
+        const newTargetPreferencesResult = this.getUpdatedTargetPreferences(
+          combatActionOption,
+          newTargetsResult,
+          allyIdsOption,
+          opponentIdsOption
+        );
+        if (newTargetPreferencesResult instanceof Error) return newTargetPreferencesResult;
 
-      if (this.playerOption) this.playerOption.targetPreferences = newTargetPreferencesResult;
+        this.playerOption.targetPreferences = newTargetPreferencesResult;
+        combatant.combatantProperties.selectedTargetingScheme =
+          newTargetPreferencesResult.targetingSchemePreference;
+      } else {
+        const defaultScheme =
+          combatActionOption.targetingProperties.getTargetingSchemes(combatant)[0];
+        if (defaultScheme === undefined) return new Error("no default targeting scheme found");
+        combatant.combatantProperties.selectedTargetingScheme = defaultScheme;
+      }
+
       combatant.combatantProperties.selectedCombatAction = combatActionOption.name;
       combatant.combatantProperties.combatActionTarget = newTargetsResult;
       return newTargetsResult;
@@ -193,7 +205,7 @@ export class TargetingCalculator {
 
     const prohibitedTargetCombatantStates = targetingProperties.prohibitedTargetCombatantStates;
 
-    const filteredTargetsResult = filterPossibleTargetIdsByProhibitedCombatantStates(
+    const filteredTargetsResult = TargetFilterer.filterPossibleTargetIdsByProhibitedCombatantStates(
       party,
       prohibitedTargetCombatantStates,
       allyIds,
@@ -203,7 +215,7 @@ export class TargetingCalculator {
 
     [allyIds, opponentIds] = filteredTargetsResult;
 
-    [allyIds, opponentIds] = filterPossibleTargetIdsByActionTargetCategories(
+    [allyIds, opponentIds] = TargetFilterer.filterPossibleTargetIdsByActionTargetCategories(
       targetingProperties.validTargetCategories,
       actionUserId,
       allyIds,

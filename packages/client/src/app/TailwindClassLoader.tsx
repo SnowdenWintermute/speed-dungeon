@@ -54,6 +54,7 @@ export default function TailwindClassLoader() {
       <div className="border-lime-500" />
       <div className="bg-emerald-900" />
       <div className="bg-amber-900 opacity-50" />
+      <div className="absolute w-40 w-22" />
     </div>
   );
 }

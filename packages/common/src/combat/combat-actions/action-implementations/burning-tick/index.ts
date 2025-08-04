@@ -15,6 +15,7 @@ import {
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import {
   ActionHitOutcomePropertiesBaseTypes,
+  CombatActionResource,
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
 import {
@@ -51,29 +52,31 @@ const config: CombatActionComponentConfig = {
   hitOutcomeProperties: {
     ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Spell],
     getIsBlockable: () => false,
-    getHpChangeProperties: (user, _primaryTarget) => {
-      const hpChangeSourceConfig: ResourceChangeSourceConfig = {
-        category: ResourceChangeSourceCategory.Physical,
-        kineticDamageTypeOption: null,
-        elementOption: MagicalElement.Fire,
-        isHealing: false,
-        lifestealPercentage: null,
-      };
+    resourceChangePropertiesGetters: {
+      [CombatActionResource.HitPoints]: (user, _primaryTarget) => {
+        const hpChangeSourceConfig: ResourceChangeSourceConfig = {
+          category: ResourceChangeSourceCategory.Physical,
+          kineticDamageTypeOption: null,
+          elementOption: MagicalElement.Fire,
+          isHealing: false,
+          lifestealPercentage: null,
+        };
 
-      const baseValues = new NumberRange(2, 5);
+        const baseValues = new NumberRange(2, 5);
 
-      // just get some extra damage for combatant level
-      baseValues.add(user.level - 1);
+        // just get some extra damage for combatant level
+        baseValues.add(user.level - 1);
 
-      const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
-      const hpChangeProperties: CombatActionResourceChangeProperties = {
-        resourceChangeSource,
-        baseValues,
-      };
+        const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
+        const hpChangeProperties: CombatActionResourceChangeProperties = {
+          resourceChangeSource,
+          baseValues,
+        };
 
-      baseValues.floor();
+        baseValues.floor();
 
-      return hpChangeProperties;
+        return hpChangeProperties;
+      },
     },
   },
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],

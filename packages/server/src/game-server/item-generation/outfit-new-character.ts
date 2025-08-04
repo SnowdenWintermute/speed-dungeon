@@ -20,6 +20,7 @@ import {
   TwoHandedMeleeWeapon,
   Equipment,
   CombatantContext,
+  MagicalElement,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment, { givePlaytestingItems } from "./create-starting-equipment.js";
@@ -32,18 +33,24 @@ export function outfitNewCharacter(character: Combatant) {
 
   const ownedActions = [
     CombatActionName.Attack,
+    CombatActionName.AttackMeleeMainhand,
+    CombatActionName.AttackMeleeOffhand,
+    CombatActionName.AttackRangedMainhand,
     CombatActionName.ChainingSplitArrowParent,
-    CombatActionName.ExplodingArrowParent,
     CombatActionName.UseGreenAutoinjector,
     CombatActionName.UseBlueAutoinjector,
     CombatActionName.IceBoltParent,
     CombatActionName.Fire,
+    CombatActionName.Healing,
     CombatActionName.PassTurn,
+    CombatActionName.ExplodingArrowParent,
+    CombatActionName.Blind,
   ];
 
   for (const actionName of ownedActions) {
     const action = new CombatantActionState(actionName);
-    if (actionName === CombatActionName.Fire) action.level = 2;
+    const levelTwoSpells = [CombatActionName.Fire, CombatActionName.Healing];
+    if (levelTwoSpells.includes(actionName)) action.level = 2;
     combatantProperties.ownedActions[actionName] = action;
   }
 
@@ -175,18 +182,23 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   // });
   // if (runeSword instanceof Error) return;
   // combatantProperties.inventory.equipment.push(runeSword);
-  // const items = generateOneOfEachItem();
-  // combatantProperties.inventory.equipment.push(...(items as Equipment[]));
+  const items = generateOneOfEachItem();
+  combatantProperties.inventory.equipment.push(...(items as Equipment[]));
 
   // giveTestingCombatAttributes(combatantProperties);
   // combatantProperties.level = 5;
-  // combatantProperties.unspentAttributePoints = 100;
-  combatantProperties.inherentAttributes[CombatAttribute.Speed] = 9;
+  combatantProperties.unspentAttributePoints = 3;
+  combatantProperties.inherentAttributes[CombatAttribute.Speed] = 3;
   combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 45;
   combatantProperties.inherentAttributes[CombatAttribute.Strength] = 40;
   combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 40;
   // combatantProperties.inherentAttributes[CombatAttribute.Speed] = 9999;
-  combatantProperties.inherentAttributes[CombatAttribute.Hp] = 600;
+  combatantProperties.inherentAttributes[CombatAttribute.Hp] = 75;
+  combatantProperties.traits.push({
+    type: CombatantTraitType.ElementalAffinity,
+    element: MagicalElement.Fire,
+    percent: 150,
+  });
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
   // combatantProperties.inventory.shards = 9999;

@@ -1,72 +1,50 @@
-import { CombatActionName, CombatActionTarget, CombatActionTargetType } from "../index.js";
-import { BattleGroup } from "../../battle/index.js";
-import { Combatant, CombatantProperties } from "../../combatants/index.js";
+import { CombatActionIntent, CombatActionName, CombatActionTargetType } from "../index.js";
+import { Combatant } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
-import { chooseRandomFromArray } from "../../utils/index.js";
-import { AIBehaviorContext } from "./ai-context.js";
-import { SetAvailableTargetsAndUsableActions } from "./custom-nodes/set-available-targets-and-usable-actions.js";
 import { CombatActionExecutionIntent } from "../combat-actions/combat-action-execution-intent.js";
-import { AllyAndEnemyBattleGroups } from "../../battle/get-ally-and-enemy-battle-groups.js";
+import { AIBehaviorContext } from "./ai-context.js";
+import { CombatantContext } from "../../combatant-context/index.js";
+import { SelectRandomActionAndTargets } from "./custom-nodes/select-random-action-and-targets.js";
+import { BEHAVIOR_NODE_STATE_STRINGS } from "./behavior-tree.js";
+import { SelectTopThreatTargetAndAction } from "./custom-nodes/select-highest-threat-target.js";
+import { RootAIBehaviorNode } from "./custom-nodes/root-ai-behavior-node.js";
 
 export function AISelectActionAndTarget(
   game: SpeedDungeonGame,
-  user: Combatant,
-  battleGroups: AllyAndEnemyBattleGroups
+  user: Combatant
 ): Error | null | CombatActionExecutionIntent {
-  const { allyGroup, enemyGroup } = battleGroups;
-
   const { combatantProperties: userCombatantProperties } = user;
 
-  /// TESTING AI CONTEXT
-  // const partyResult = SpeedDungeonGame.getPartyOfCombatant(game, user.entityProperties.id);
-  // if (partyResult instanceof Error) return partyResult;
-  // const battleOption = SpeedDungeonGame.getBattleOption(game, partyResult.battleId) || null;
-  // const aiContext = new AIBehaviorContext(user, game, partyResult, battleOption);
-  // const targetSelector = new SetAvailableTargetsAndUsableActions(
-  //   aiContext,
-  //   () => true,
-  //   () => true,
-  //   () => 1
-  // );
-  // const targetSelectionTreeSuccess = targetSelector.execute();
+  const partyResult = SpeedDungeonGame.getPartyOfCombatant(game, user.entityProperties.id);
+  if (partyResult instanceof Error) return partyResult;
+  const battleOption = SpeedDungeonGame.getBattleOption(game, partyResult.battleId) || null;
 
-  /// TESTING AI CONTEXT DONE
-  const randomTarget = getRandomAliveEnemy(game, enemyGroup);
-  if (randomTarget instanceof Error) {
-    throw randomTarget;
-  }
-  if (randomTarget === null) return null;
-
-  // @TODO - use a behavior tree instead
-  const combatActionTarget: CombatActionTarget = {
-    type: CombatActionTargetType.Single,
-    targetId: randomTarget.entityProperties.id,
-  };
-  const actionExecutionIntent = new CombatActionExecutionIntent(
-    CombatActionName.Attack,
-    combatActionTarget
+  const behaviorContext = new AIBehaviorContext(
+    new CombatantContext(game, partyResult, user),
+    battleOption
   );
-  userCombatantProperties.combatActionTarget = combatActionTarget; // must set their target because getAutoTarget may use it
 
-  return actionExecutionIntent;
-}
+  const targetSelectorNode = new RootAIBehaviorNode(behaviorContext, user);
 
-function getRandomAliveEnemy(
-  game: SpeedDungeonGame,
-  enemyBattleGroup: BattleGroup
-): Error | Combatant {
-  const idsOfAliveTargets = [];
-  for (const enemyId of enemyBattleGroup.combatantIds) {
-    let combatantResult = SpeedDungeonGame.getCombatantById(game, enemyId);
-    if (combatantResult instanceof Error) return combatantResult;
-    if (!CombatantProperties.isDead(combatantResult.combatantProperties))
-      idsOfAliveTargets.push(enemyId);
+  const targetSelectionTreeSuccess = targetSelectorNode.execute();
+  console.log("behavior tree result:", BEHAVIOR_NODE_STATE_STRINGS[targetSelectionTreeSuccess]);
+  console.log(
+    "combat action intent selected from behavior tree:",
+    behaviorContext.selectedActionIntent
+  );
+
+  let actionExecutionIntentOption = behaviorContext.selectedActionIntent;
+  if (actionExecutionIntentOption === null) {
+    console.info("ai context did not have a selected actionExecutionIntent - passing turn");
+    actionExecutionIntentOption = new CombatActionExecutionIntent(CombatActionName.PassTurn, {
+      type: CombatActionTargetType.Single,
+      targetId: user.entityProperties.id,
+    });
   }
-  if (idsOfAliveTargets.length === 0) {
-    throw new Error("no alive targets found in getRandomAliveEnemy");
-  }
-  const randomTargetIdResult = chooseRandomFromArray(idsOfAliveTargets);
-  if (randomTargetIdResult instanceof Error) return randomTargetIdResult;
 
-  return SpeedDungeonGame.getCombatantById(game, randomTargetIdResult);
+  // must set their target because getAutoTarget may use it when creating action children or triggered actions
+  // although I think this is already done by the behavior tree
+  userCombatantProperties.combatActionTarget = actionExecutionIntentOption.targets;
+
+  return actionExecutionIntentOption;
 }

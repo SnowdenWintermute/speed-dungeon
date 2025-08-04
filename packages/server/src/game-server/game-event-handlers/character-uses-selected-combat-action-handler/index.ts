@@ -3,6 +3,7 @@ import {
   ActionCommandType,
   COMBAT_ACTIONS,
   CharacterAssociatedData,
+  CombatActionComponent,
   CombatActionExecutionIntent,
   CombatActionReplayTreePayload,
   CombatantContext,
@@ -13,7 +14,6 @@ import {
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../../singletons.js";
 import { processCombatAction } from "./process-combat-action.js";
-import { actionUseIsValid } from "./action-use-is-valid.js";
 import { BattleProcessor } from "./process-battle-until-player-turn-or-conclusion.js";
 
 export async function useSelectedCombatActionHandler(
@@ -35,7 +35,7 @@ export async function useSelectedCombatActionHandler(
   // ON RECEIPT
   // validate use
   const action = COMBAT_ACTIONS[selectedCombatAction];
-  const actionUseProhibitedMessage = actionUseIsValid(action, targets, combatantContext);
+  const actionUseProhibitedMessage = action.useIsValid(targets, combatantContext);
 
   if (actionUseProhibitedMessage instanceof Error) {
     const playerSocketIdResult = gameServer.getSocketIdOfPlayer(game, player.username);

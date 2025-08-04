@@ -12,11 +12,12 @@ import {
   CombatantEquipment,
   CombatActionName,
   COMBAT_ACTIONS,
+  CombatActionResource,
+  HitOutcomeMitigationCalculator,
 } from "@speed-dungeon/common";
 import { WeaponProperties } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
 import { NumberRange } from "@speed-dungeon/common";
-import { getActionHitChance, getActionCritChance } from "@speed-dungeon/common";
 import React from "react";
 import { getTargetOption } from "@/utils/get-target-option";
 
@@ -153,10 +154,9 @@ function getAttackActionDamageAndAccuracy(
     );
 
   const combatAction = COMBAT_ACTIONS[actionName];
-  const hpChangeProperties = combatAction.hitOutcomeProperties.getHpChangeProperties(
-    combatantProperties,
-    target
-  );
+  const hpChangeProperties = combatAction.hitOutcomeProperties.resourceChangePropertiesGetters![
+    CombatActionResource.HitPoints
+  ]!(combatantProperties, target);
   if (hpChangeProperties === null) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TYPE);
 
   const hpChangeRangeResult = hpChangeProperties.baseValues;
@@ -164,14 +164,19 @@ function getAttackActionDamageAndAccuracy(
   if (hpChangeRangeResult instanceof Error) return hpChangeRangeResult;
 
   const hpChangeRange = hpChangeRangeResult;
-  const hitChance = getActionHitChance(
+  const hitChance = HitOutcomeMitigationCalculator.getActionHitChance(
     combatAction,
     combatantProperties,
     CombatantProperties.getTotalAttributes(target)[CombatAttribute.Evasion],
     false
   );
 
-  const critChance = getActionCritChance(combatAction, combatantProperties, target, false);
+  const critChance = HitOutcomeMitigationCalculator.getActionCritChance(
+    combatAction,
+    combatantProperties,
+    target,
+    false
+  );
 
   return { hpChangeRange, hitChance, critChance };
 }

@@ -4,6 +4,7 @@ import TurnOrderTrackerIcon from "./TurnTrackerIcon";
 import ConditionTurnTrackerAggregation from "./ConditionTurnTrackerAggregation";
 
 import ClockIcon from "../../../../../public/img/game-ui-icons/clock-icon.svg";
+import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 
 interface Props {
   trackers: (CombatantTurnTracker | ConditionTurnTracker)[];
@@ -41,9 +42,11 @@ export default function TurnPredictionOrderBar({ trackers }: Props) {
 
   return (
     <div className="flex h-full items-center">
-      <div className="h-8 py-1 mr-2 flex items-center">
-        <ClockIcon className="fill-slate-400 h-full" />
-      </div>
+      <HoverableTooltipWrapper tooltipText="Predicted turn order">
+        <div className="h-8 py-1 mr-2 flex items-center">
+          <ClockIcon className="fill-slate-400 h-full" />
+        </div>
+      </HoverableTooltipWrapper>
       {listWithAggregatedSequentialConditionTrackers.map((tracker, i) => {
         if (tracker instanceof CombatantTurnTracker)
           return <TurnOrderTrackerIcon key={tracker.getId()} tracker={tracker} />;

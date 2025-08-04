@@ -1,5 +1,7 @@
 import {
+  ActionResolutionStepsConfig,
   CombatActionComponentConfig,
+  CombatActionIntent,
   CombatActionLeaf,
   CombatActionName,
   CombatActionOrigin,
@@ -17,8 +19,9 @@ import {
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
 import { getNonProjectileBasedSpellBaseStepsConfig } from "../non-projectile-based-spell-base-steps-config.js";
+import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 
-const config: CombatActionComponentConfig = {
+export const passTurnConfig: CombatActionComponentConfig = {
   description: "Skip your own turn",
   origin: CombatActionOrigin.SpellCast,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
@@ -26,19 +29,34 @@ const config: CombatActionComponentConfig = {
     ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle],
     validTargetCategories: TargetCategories.User,
     usabilityContext: CombatActionUsabilityContext.InCombat,
+    intent: CombatActionIntent.Benevolent,
   },
 
   getOnUseMessage: (data) => {
-    return `${data.nameOfActionUser} passes their turn.`;
+    return `${data.nameOfActionUser} passes their turn`;
   },
-  hitOutcomeProperties:
-    GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Medication],
+  hitOutcomeProperties: {
+    ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Medication],
+    getThreatChangesOnHitOutcomes: (context, hitOutcomes) => null,
+    getShouldDecayThreatOnUse: (context) => false,
+  },
   costProperties: genericCombatActionCostProperties,
-  stepsConfig: getNonProjectileBasedSpellBaseStepsConfig(),
+  stepsConfig: new ActionResolutionStepsConfig(
+    {
+      [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
+      [ActionResolutionStepType.PayResourceCosts]: {},
+      [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
+      [ActionResolutionStepType.EvalOnUseTriggers]: {},
+      [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
+      [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+      [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
+    },
+    { userShouldMoveHomeOnComplete: false }
+  ),
   shouldExecute: () => true,
   getConcurrentSubActions: () => [],
   getChildren: () => [],
   getParent: () => null,
 };
 
-export const PASS_TURN = new CombatActionLeaf(CombatActionName.PassTurn, config);
+export const PASS_TURN = new CombatActionLeaf(CombatActionName.PassTurn, passTurnConfig);

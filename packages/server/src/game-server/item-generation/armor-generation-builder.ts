@@ -10,6 +10,7 @@ import {
 import { ItemGenerationBuilder } from "./item-generation-builder.js";
 import { ArmorGenerationTemplate } from "./equipment-templates/equipment-generation-template-abstract-classes.js";
 import { EquipmentGenerationBuilder } from "./equipment-generation-builder.js";
+import { rngSingleton } from "../../singletons.js";
 
 export class ArmorGenerationBuilder<T extends ArmorGenerationTemplate>
   extends EquipmentGenerationBuilder<T>
@@ -33,7 +34,7 @@ export class ArmorGenerationBuilder<T extends ArmorGenerationTemplate>
         `missing template for equipment type ${EQUIPMENT_TYPE_STRINGS[baseEquipmentItem.equipmentType]}, specific item ${baseEquipmentItem.baseItemType}`
       );
 
-    const armorClass = randBetween(template.acRange.min, template.acRange.max);
+    const armorClass = randBetween(template.acRange.min, template.acRange.max, rngSingleton);
 
     const properties: ArmorProperties = {
       taggedBaseEquipment: baseEquipmentItem,

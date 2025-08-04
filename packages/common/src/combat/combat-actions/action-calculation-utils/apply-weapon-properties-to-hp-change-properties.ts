@@ -32,7 +32,8 @@ export function applyWeaponPropertiesToResourceChangeProperties(
       weaponModifiersToCopy,
       user,
       primaryTarget,
-      averageRoll
+      averageRoll,
+      true
     );
 
   if (mostEffectiveAvailableResourceChangeSourceOnWeapon === undefined) return hpChangeProperties;

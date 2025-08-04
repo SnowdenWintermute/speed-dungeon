@@ -8,19 +8,21 @@ import { FriendOrFoe } from "../../combat/combat-actions/targeting-schemes-and-c
 import { CombatantContext } from "../../combatant-context/index.js";
 import { EntityId, EntityProperties, MaxAndCurrent } from "../../primatives/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
-import { Combatant, CombatantProperties } from "../index.js";
+import { Combatant, CombatantAttributeRecord, CombatantProperties } from "../index.js";
 import { BurningCombatantCondition } from "./burning.js";
 import { PrimedForExplosionCombatantCondition } from "./primed-for-explosion.js";
 import { PrimedForIceBurstCombatantCondition } from "./primed-for-ice-burst.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { TurnOrderManager } from "../../combat/turn-order/index.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "../../combat/turn-order/consts.js";
+import { BlindedCombatantCondition } from "./blinded.js";
 
 export enum CombatantConditionName {
   // Poison,
   PrimedForExplosion,
   PrimedForIceBurst,
   Burning,
+  Blinded,
 }
 
 export const COMBATANT_CONDITION_NAME_STRINGS: Record<CombatantConditionName, string> = {
@@ -28,6 +30,7 @@ export const COMBATANT_CONDITION_NAME_STRINGS: Record<CombatantConditionName, st
   [CombatantConditionName.PrimedForExplosion]: "Detonatable",
   [CombatantConditionName.PrimedForIceBurst]: "Shatterable",
   [CombatantConditionName.Burning]: "Burning",
+  [CombatantConditionName.Blinded]: "Blinded",
 };
 
 export const COMBATANT_CONDITION_DESCRIPTIONS: Record<CombatantConditionName, string> = {
@@ -35,6 +38,7 @@ export const COMBATANT_CONDITION_DESCRIPTIONS: Record<CombatantConditionName, st
   [CombatantConditionName.PrimedForExplosion]: "Causes an explosion when hit by certain actions",
   [CombatantConditionName.PrimedForIceBurst]: "Causes an ice burst when hit by certain actions",
   [CombatantConditionName.Burning]: "Periodically takes non-magical fire damage",
+  [CombatantConditionName.Blinded]: "Accuracy is reduced",
 };
 
 type CombatantConditionConstructor = new (
@@ -51,6 +55,7 @@ export const COMBATANT_CONDITION_CONSTRUCTORS: Record<
   [CombatantConditionName.PrimedForExplosion]: PrimedForExplosionCombatantCondition,
   [CombatantConditionName.PrimedForIceBurst]: PrimedForIceBurstCombatantCondition,
   [CombatantConditionName.Burning]: BurningCombatantCondition,
+  [CombatantConditionName.Blinded]: BlindedCombatantCondition,
 };
 
 export interface ConditionAppliedBy {
@@ -139,6 +144,11 @@ export abstract class CombatantCondition {
     };
   };
 
+  abstract getAttributeModifiers?(
+    condition: CombatantCondition,
+    appliedTo: CombatantProperties
+  ): CombatantAttributeRecord;
+
   static getTickProperties(condition: CombatantCondition) {
     if (!condition.onTick || !condition.getTickSpeed) return undefined;
     return {
@@ -165,10 +175,6 @@ export abstract class CombatantCondition {
   //   // helpful (buff)
   //   // harmful (debuff)
   //   // neutral (neither)
-  // }
-
-  // attributeModifiers() {
-  //   // - may be calculated to include stacks
   // }
 
   static removeByNameFromCombatant(
@@ -206,6 +212,10 @@ export abstract class CombatantCondition {
       if (existingCondition.stacksOption) {
         if (existingCondition.stacksOption.max > existingCondition.stacksOption.current)
           existingCondition.stacksOption.current += condition.stacksOption?.current ?? 0;
+        // replacing the appliedBy helps to ensure that threat is applied correctly
+        // when a replaced condition was persisted from a previous battle where it
+        // was applied by a now nonexistant combatant
+        existingCondition.appliedBy = condition.appliedBy;
         return;
       }
       // not stackable, replace or just add it

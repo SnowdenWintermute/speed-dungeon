@@ -21,6 +21,7 @@ import { plainToInstance } from "class-transformer";
 import { startOrStopCosmeticEffects } from "./start-or-stop-cosmetic-effect";
 import { induceHitRecovery } from "./induce-hit-recovery";
 import { postBrokenHoldableMessages } from "./post-broken-holdable-messages";
+import { handleThreatChangesUpdate } from "./handle-threat-changes";
 
 export async function activatedTriggersGameUpdateHandler(update: {
   command: ActivatedTriggersGameUpdateCommand;
@@ -167,6 +168,8 @@ export async function activatedTriggersGameUpdateHandler(update: {
         }
       }
     }
+
+    handleThreatChangesUpdate(update.command);
   });
 
   // conditions may have added trackers that we need to account for

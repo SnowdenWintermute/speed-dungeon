@@ -43,21 +43,23 @@ export const genericCombatActionCostProperties: CombatActionCostPropertiesConfig
   requiresCombatTurn: () => true,
 };
 
+export const BASE_SPELL_MANA_COST_BASES = {
+  base: 0.5,
+  multipliers: {
+    actionLevel: 1.2,
+    userCombatantLevel: 1.2,
+  },
+  additives: {
+    actionLevel: 1,
+    userCombatantLevel: 1,
+  },
+};
+
 const genericSpellCostProperties: CombatActionCostPropertiesConfig = {
   ...genericCombatActionCostProperties,
   getResourceCosts: getStandardActionCost,
   costBases: {
-    [ActionPayableResource.Mana]: {
-      base: 0.5,
-      multipliers: {
-        actionLevel: 1.2,
-        userCombatantLevel: 1.2,
-      },
-      additives: {
-        actionLevel: 1,
-        userCombatantLevel: 1,
-      },
-    },
+    [ActionPayableResource.Mana]: BASE_SPELL_MANA_COST_BASES,
   },
 };
 

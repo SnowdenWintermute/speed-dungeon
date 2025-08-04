@@ -1,5 +1,5 @@
 import { BUTTON_HEIGHT, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
-import React, { ReactNode, useEffect } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { getCurrentMenu, useGameStore } from "@/stores/game-store";
 import { ActionButtonCategory, MenuStateType } from "./menu-state";
 import ActionDetails from "../detailables/ActionDetails";
@@ -53,6 +53,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
     state.detailedEntity instanceof Item ? state.detailedEntity : null
   );
   const currentMenu = useGameStore.getState().getCurrentMenu();
+  const currentPageNumber = currentMenu.page;
   const buttonProperties = currentMenu.getButtonProperties();
   const numberOfNumberedButtons = buttonProperties[ActionButtonCategory.Numbered].length;
   const mutateGameState = useGameStore().mutateState;
@@ -82,6 +83,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
     );
     useGameStore.getState().mutateState((state) => {
       getCurrentMenu(state).numPages = numPages;
+      getCurrentMenu(state).page = currentPageNumber;
     });
   }, [buttonProperties[ActionButtonCategory.Numbered].length]);
 
@@ -165,13 +167,14 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
             if (buttonTitlesToAccent.includes(button.key)) return "bg-slate-800 border-white";
             return "border-slate-400 bg-slate-700";
           })();
+
           const thisButtonProperties = buttonProperties[ActionButtonCategory.Top][i]!;
           // in the old method we used a more unique key so different cancel buttons would
           // actually update, but cancel buttons tend to do the same thing anyway now
           return (
             <li key={thisButtonProperties.key} style={topButtonLiStyle}>
               <ActionMenuDedicatedButton
-                extraStyles={`border mr-2 last:mr-0 h-10 ${conditionalStyles}`}
+                extraStyles={`border mr-2 last:mr-0 h-10 ${conditionalStyles} `}
                 properties={button}
               />
             </li>
@@ -199,17 +202,17 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
 
               return (
                 <li
-                  key={button.key + i + currentMenu.page}
+                  key={button.key + i + currentPageNumber}
                   tabIndex={button.shouldBeDisabled ? 0 : undefined} // so you can tab over to get the popups
                   className={`
-                   ${conditionalStyles} pointer-events-auto w-full border-b border-r border-l first:border-t flex hover:bg-slate-950
+                    pointer-events-auto w-full  flex hover:bg-slate-950
                    `}
-                  onMouseEnter={button.mouseEnterHandler}
-                  onMouseLeave={button.mouseLeaveHandler}
-                  onFocus={button.focusHandler}
-                  onBlur={button.blurHandler}
                 >
-                  <NumberedButton number={i + 1} properties={button} />
+                  <NumberedButton
+                    number={i + 1}
+                    properties={button}
+                    extraStyles={i == 0 ? `${conditionalStyles} border-t` : conditionalStyles}
+                  />
                 </li>
               );
             })}
@@ -222,7 +225,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
       <div className="min-w-[25rem] max-w-[25rem]">
         <BottomButtons
           numPages={currentMenu.numPages}
-          currentPageNumber={currentMenu.page}
+          currentPageNumber={currentPageNumber}
           left={buttonProperties[ActionButtonCategory.Bottom][0]}
           right={buttonProperties[ActionButtonCategory.Bottom][1]}
         />

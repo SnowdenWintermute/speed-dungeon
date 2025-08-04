@@ -27,7 +27,6 @@ export class CombatantContext {
       this.combatant.combatantProperties.asShimmedUserOfTriggeredCondition;
 
     if (shimmedConditionUser) {
-      const targets = this.combatant.combatantProperties.combatActionTarget;
       return Battle.getAllyIdsAndOpponentIdsOptionOfShimmedConditionUser(
         battleOption,
         shimmedConditionUser.entityConditionWasAppliedTo,
