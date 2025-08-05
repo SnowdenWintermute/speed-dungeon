@@ -28,18 +28,7 @@ export async function resourcesPaidGameUpdateHandler(update: {
         Inventory.removeItem(combatantProperties.inventory, itemId);
 
     if (command.costsPaid) {
-      for (const [resource, cost] of iterateNumericEnumKeyedRecord(command.costsPaid)) {
-        switch (resource) {
-          case ActionPayableResource.HitPoints:
-            CombatantProperties.changeHitPoints(combatantProperties, cost);
-            break;
-          case ActionPayableResource.Mana:
-            CombatantProperties.changeMana(combatantProperties, cost);
-            break;
-          case ActionPayableResource.Shards:
-          case ActionPayableResource.QuickActions:
-        }
-      }
+      CombatantProperties.payResourceCosts(combatantProperties, command.costsPaid);
     }
   });
 

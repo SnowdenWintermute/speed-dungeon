@@ -24,10 +24,17 @@ export class Battle {
     party: AdventuringParty
   ) {
     this.turnOrderManager = new TurnOrderManager(game, party, this);
+    Battle.refillAllCombatantQuickActions(party);
   }
 
   static rehydrate(battle: Battle, game: SpeedDungeonGame, party: AdventuringParty) {
     return new Battle(battle.id, battle.groupA, battle.groupB, game, party);
+  }
+
+  static refillAllCombatantQuickActions(party: AdventuringParty) {
+    const { characters, monsters } = AdventuringParty.getAllCombatants(party);
+    for (const combatant of [...Object.values(characters), ...Object.values(monsters)])
+      combatant.combatantProperties.quickActions = 1;
   }
 
   static getAllCombatants(game: SpeedDungeonGame, battle: Battle) {

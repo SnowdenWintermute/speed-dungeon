@@ -31,7 +31,11 @@ export type ActionResourceCostBases = Partial<Record<ActionPayableResource, Comb
 
 export type ActionResourceCosts = Partial<Record<ActionPayableResource, number>>;
 
-export function getStandardActionCost(user: CombatantProperties, self: CombatActionComponent) {
+export function getStandardActionCost(
+  user: CombatantProperties,
+  inCombat: boolean,
+  self: CombatActionComponent
+) {
   const actionInstanceOption = user.ownedActions[self.name];
   if (!actionInstanceOption) throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED);
 
@@ -39,6 +43,7 @@ export function getStandardActionCost(user: CombatantProperties, self: CombatAct
   const { costBases } = self.costProperties;
 
   for (const [payableResourceType, costBase] of iterateNumericEnumKeyedRecord(costBases)) {
+    if (payableResourceType === ActionPayableResource.QuickActions && !inCombat) continue;
     let cost = costBase.base;
 
     if (costBase.additives) {
@@ -73,6 +78,7 @@ export function getUnmetCostResourceTypes(
 
   for (const [resourceType, cost] of iterateNumericEnumKeyedRecord(costs)) {
     const absoluteCost = Math.abs(cost); // costs are in negative values
+    console.log("absoluteCost:", absoluteCost);
 
     switch (resourceType) {
       case ActionPayableResource.HitPoints:
@@ -82,7 +88,11 @@ export function getUnmetCostResourceTypes(
         if (absoluteCost > combatantProperties.mana) unmet.push(resourceType);
         break;
       case ActionPayableResource.Shards:
+        if (absoluteCost > combatantProperties.inventory.shards) unmet.push(resourceType);
+        break;
       case ActionPayableResource.QuickActions:
+        if (absoluteCost > combatantProperties.quickActions) unmet.push(resourceType);
+        break;
     }
   }
 

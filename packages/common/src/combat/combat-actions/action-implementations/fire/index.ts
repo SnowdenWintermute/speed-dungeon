@@ -46,9 +46,9 @@ const config: CombatActionComponentConfig = {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
     costBases: {
       ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell].costBases,
-      [ActionPayableResource.Mana]: {
-        base: 0,
-      },
+      // [ActionPayableResource.Mana]: {
+      //   base: 0,
+      // },
     },
   },
   stepsConfig: FIRE_STEPS_CONFIG,

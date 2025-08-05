@@ -120,7 +120,8 @@ export class CollectPotentialHealingFromConsideredActions implements BehaviorNod
         if (!averageHitPointChanges || !maxHitPointChanges) continue;
 
         const resourceCosts = action.costProperties.getResourceCosts(
-          this.combatant.combatantProperties
+          this.combatant.combatantProperties,
+          true
         );
         const manaCost = resourceCosts?.[CombatActionResource.Mana] ?? 0;
         const potentialHealingEvaluation = new PotentialTotalHealingEvaluation(manaCost);

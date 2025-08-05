@@ -47,14 +47,14 @@ const config: CombatActionComponentConfig = {
     costBases: {
       ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell].costBases,
       [ActionPayableResource.Mana]: {
-        base: 0,
+        base: 1,
       },
       [ActionPayableResource.QuickActions]: {
         base: 1,
       },
     },
     requiresCombatTurn: (context) => {
-      if (context.combatantContext.combatant.combatantProperties.quickActions === 0) return true;
+      // if (context.combatantContext.combatant.combatantProperties.quickActions === 0) return true;
       return false;
     },
   },

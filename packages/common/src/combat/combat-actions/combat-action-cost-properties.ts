@@ -23,6 +23,7 @@ export interface CombatActionCostPropertiesConfig {
   costBases: ActionResourceCostBases;
   getResourceCosts: (
     user: CombatantProperties,
+    inCombat: boolean,
     self: CombatActionComponent
   ) => null | ActionResourceCosts;
   getConsumableCost: () => null | ConsumableType;
@@ -32,7 +33,7 @@ export interface CombatActionCostPropertiesConfig {
 // in the constructor of the action we pass "this" to the getResourceCosts function in the config
 // so we can then call .getResourceCosts without passing an action to it
 export interface CombatActionCostProperties extends CombatActionCostPropertiesConfig {
-  getResourceCosts: (user: CombatantProperties) => null | ActionResourceCosts;
+  getResourceCosts: (user: CombatantProperties, inCombat: boolean) => null | ActionResourceCosts;
 }
 
 export const genericCombatActionCostProperties: CombatActionCostPropertiesConfig = {
@@ -65,6 +66,7 @@ const genericSpellCostProperties: CombatActionCostPropertiesConfig = {
 
 const genericMedicationCostProperties: CombatActionCostPropertiesConfig = {
   ...genericCombatActionCostProperties,
+  getResourceCosts: getStandardActionCost,
   costBases: {
     [ActionPayableResource.QuickActions]: {
       base: 1,

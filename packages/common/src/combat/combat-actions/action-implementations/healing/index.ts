@@ -54,7 +54,11 @@ const config: CombatActionComponentConfig = {
         ...BASE_SPELL_MANA_COST_BASES,
         base: 0.25,
       },
+      [ActionPayableResource.QuickActions]: {
+        base: 1,
+      },
     },
+    requiresCombatTurn: () => false,
   },
   stepsConfig: HEALING_STEPS_CONFIG,
   shouldExecute: () => true,

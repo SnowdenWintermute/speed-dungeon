@@ -3,7 +3,6 @@ import {
   ActionCommandType,
   COMBAT_ACTIONS,
   CharacterAssociatedData,
-  CombatActionComponent,
   CombatActionExecutionIntent,
   CombatActionReplayTreePayload,
   CombatantContext,

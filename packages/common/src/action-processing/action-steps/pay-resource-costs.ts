@@ -3,9 +3,8 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { ActionPayableResource, COMBAT_ACTIONS } from "../../combat/index.js";
+import { COMBAT_ACTIONS } from "../../combat/index.js";
 import { GameUpdateCommandType, ResourcesPaidGameUpdateCommand } from "../game-update-commands.js";
-import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { CombatantProperties, Inventory } from "../../combatants/index.js";
 
 const stepType = ActionResolutionStepType.PayResourceCosts;
@@ -14,7 +13,12 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
     const { combatant } = context.combatantContext;
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
 
-    const costsOption = action.costProperties.getResourceCosts(combatant.combatantProperties);
+    const inCombat = !!context.combatantContext.getBattleOption();
+
+    const costsOption = action.costProperties.getResourceCosts(
+      combatant.combatantProperties,
+      inCombat
+    );
 
     const consumableTypeToConsumeOption = action.costProperties.getConsumableCost
       ? action.costProperties.getConsumableCost()
@@ -49,19 +53,7 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
       if (costsOption) {
         gameUpdateCommandOption.costsPaid = costsOption;
         const { combatantProperties } = combatant;
-
-        for (const [resource, cost] of iterateNumericEnumKeyedRecord(costsOption)) {
-          switch (resource) {
-            case ActionPayableResource.HitPoints:
-              CombatantProperties.changeHitPoints(combatantProperties, cost);
-              break;
-            case ActionPayableResource.Mana:
-              CombatantProperties.changeMana(combatantProperties, cost);
-              break;
-            case ActionPayableResource.Shards:
-            case ActionPayableResource.QuickActions:
-          }
-        }
+        CombatantProperties.payResourceCosts(combatantProperties, costsOption);
       }
     }
 

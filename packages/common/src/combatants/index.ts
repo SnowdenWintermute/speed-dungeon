@@ -16,10 +16,7 @@ import getCombatantTotalElementalAffinities from "./combatant-traits/get-combata
 import getCombatantTotalKineticDamageTypeAffinities from "./combatant-traits/get-combatant-total-kinetic-damage-type-affinities.js";
 import { setResourcesToMax } from "./resources/set-resources-to-max.js";
 import { immerable } from "immer";
-import {
-  iterateNumericEnum,
-  iterateNumericEnumKeyedRecord,
-} from "../utils/index.js";
+import { iterateNumericEnum, iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import awardLevelups, { XP_REQUIRED_TO_REACH_LEVEL_2 } from "./experience-points/award-levelups.js";
 import { incrementAttributePoint } from "./attributes/increment-attribute.js";
 import { MonsterType } from "../monsters/monster-types.js";
@@ -40,13 +37,14 @@ import { canPickUpItem } from "./inventory/can-pick-up-item.js";
 import { EntityProperties } from "../primatives/index.js";
 import { Inventory } from "./inventory/index.js";
 import {
+  ACTION_PAYABLE_RESOURCE_STRINGS,
+  ActionPayableResource,
   CombatActionName,
   getUnmetCostResourceTypes,
   TargetingScheme,
 } from "../combat/combat-actions/index.js";
 import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
 import { getOwnedActionState } from "./owned-actions/get-owned-action-state.js";
-import { getAllCurrentlyUsableActionNames } from "./owned-actions/get-all-currently-usable-action-names.js";
 import { getActionNamesFilteredByUseableContext } from "./owned-actions/get-owned-action-names-filtered-by-usable-context.js";
 import {
   COMBATANT_CONDITION_CONSTRUCTORS,
@@ -56,6 +54,7 @@ import { Equipment, EquipmentType, HoldableSlotType } from "../items/equipment/i
 import { plainToInstance } from "class-transformer";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { ThreatManager } from "./threat-manager/index.js";
+import { COMBATANT_MAX_QUICK_ACTIONS } from "../app-consts.js";
 
 export enum AiType {
   Healer,
@@ -187,8 +186,35 @@ export class CombatantProperties {
   static changeMana = changeCombatantMana;
   static clampHpAndMpToMax = clampResourcesToMax;
   static setHpAndMpToMax = setResourcesToMax;
-  static refillQuickActions(combatantProperties:CombatantProperties){
-    combatantProperties.quickActions = 1;
+  static changeQuickActions(combatantProperties: CombatantProperties, value: number) {
+    combatantProperties.quickActions = Math.min(
+      COMBATANT_MAX_QUICK_ACTIONS,
+      Math.max(0, combatantProperties.quickActions + value)
+    );
+  }
+  static refillQuickActions(combatantProperties: CombatantProperties) {
+    combatantProperties.quickActions = COMBATANT_MAX_QUICK_ACTIONS;
+  }
+  static payResourceCosts(
+    combatantProperties: CombatantProperties,
+    costs: Partial<Record<ActionPayableResource, number>>
+  ) {
+    for (const [resource, cost] of iterateNumericEnumKeyedRecord(costs)) {
+      console.log("resource:", ACTION_PAYABLE_RESOURCE_STRINGS[resource], cost);
+      switch (resource) {
+        case ActionPayableResource.HitPoints:
+          CombatantProperties.changeHitPoints(combatantProperties, cost);
+          break;
+        case ActionPayableResource.Mana:
+          CombatantProperties.changeMana(combatantProperties, cost);
+          break;
+        case ActionPayableResource.Shards:
+          break;
+        case ActionPayableResource.QuickActions:
+          CombatantProperties.changeQuickActions(combatantProperties, cost);
+          break;
+      }
+    }
   }
   static isDead(combatantProperties: CombatantProperties) {
     return combatantProperties.hitPoints <= 0;
@@ -205,7 +231,6 @@ export class CombatantProperties {
     Inventory.instantiateItemClasses(combatantProperties.inventory);
     CombatantEquipment.instatiateItemClasses(combatantProperties);
   }
-  static getAllCurrentlyUsableActionNames = getAllCurrentlyUsableActionNames;
 
   static canParry(combatantProperties: CombatantProperties): boolean {
     const holdables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
@@ -275,10 +300,13 @@ export class CombatantProperties {
 
   static hasRequiredResourcesToUseAction(
     combatantProperties: CombatantProperties,
-    actionName: CombatActionName
+    actionName: CombatActionName,
+    isInCombat: boolean
   ) {
     const action = COMBAT_ACTIONS[actionName];
-    const costs = action.costProperties.getResourceCosts(combatantProperties);
+    const costs = action.costProperties.getResourceCosts(combatantProperties, isInCombat);
+
+    console.log("costs:", JSON.stringify(costs, null, 2));
 
     if (costs) {
       const unmetCosts = getUnmetCostResourceTypes(combatantProperties, costs);
