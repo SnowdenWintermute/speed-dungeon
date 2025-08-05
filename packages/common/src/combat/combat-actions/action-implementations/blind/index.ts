@@ -49,6 +49,13 @@ const config: CombatActionComponentConfig = {
       [ActionPayableResource.Mana]: {
         base: 0,
       },
+      [ActionPayableResource.QuickActions]: {
+        base: 1,
+      },
+    },
+    requiresCombatTurn: (context) => {
+      if (context.combatantContext.combatant.combatantProperties.quickActions === 0) return true;
+      return false;
     },
   },
   stepsConfig: BLIND_STEPS_CONFIG,

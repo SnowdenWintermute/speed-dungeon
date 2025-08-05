@@ -5,7 +5,7 @@ import {
   CombatActionExecutionIntent,
   ThreatChanges,
 } from "../../combat/index.js";
-import { Combatant, CombatantCondition } from "../../combatants/index.js";
+import { Combatant, CombatantCondition, CombatantProperties } from "../../combatants/index.js";
 import { ThreatCalculator } from "../../combatants/threat-manager/threat-calculator.js";
 import {
   ActionCompletionUpdateCommand,
@@ -112,6 +112,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
 
     sequentialActionManagerRegistry.markTurnEnded();
     shouldSendEndActiveTurnMessage = true;
+    CombatantProperties.refillQuickActions(combatant.combatantProperties)
   }
 
   const hasUnevaluatedChildren = action.getChildren(context).length > 0;

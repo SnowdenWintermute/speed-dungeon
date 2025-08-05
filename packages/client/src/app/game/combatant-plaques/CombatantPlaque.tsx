@@ -151,6 +151,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
               portrait={portrait}
               portraitHeight={portraitHeight}
               combatantLevel={combatantProperties.level}
+              numQuickActions={combatantProperties.quickActions}
             />
             <div className="flex-grow" ref={nameAndBarsRef}>
               <div className="mb-1.5 flex justify-between items-center align-middle leading-5 text-lg ">

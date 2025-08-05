@@ -103,7 +103,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   // @TODO - assign abilities (realistically need to refactor monster creation)
 
   monster.combatantProperties.aiTypes = [AiType.Healer];
-  monster.combatantProperties.hitPoints = Math.floor(monster.combatantProperties.hitPoints * 0.5);
+  // monster.combatantProperties.hitPoints = Math.floor(monster.combatantProperties.hitPoints * 0.5);
 
   return monster;
 }

@@ -17,7 +17,6 @@ import getCombatantTotalKineticDamageTypeAffinities from "./combatant-traits/get
 import { setResourcesToMax } from "./resources/set-resources-to-max.js";
 import { immerable } from "immer";
 import {
-  formatVector3,
   iterateNumericEnum,
   iterateNumericEnumKeyedRecord,
 } from "../utils/index.js";
@@ -88,16 +87,8 @@ export class Combatant {
     const rehydratedConditions = combatantProperties.conditions.map((condition) => {
       const constructor = COMBATANT_CONDITION_CONSTRUCTORS[condition.name];
       return plainToInstance(constructor, condition);
-      // switch (condition.name) {
-      //   case CombatantConditionName.PrimedForExplosion:
-      //   case CombatantConditionName.PrimedForIceBurst:
-      //     return plainToInstance(PrimedForIceBurstCombatantCondition, condition);
-      //   case CombatantConditionName.Burning:
-      //     return plainToInstance(BurningCombatantCondition, condition);
-      //   case CombatantConditionName.Blinded:
-      //     return plainToInstance(BlindedCombatantCondition, condition);
-      // }
     });
+
     combatantProperties.conditions = rehydratedConditions;
 
     if (combatantProperties.threatManager)
@@ -118,6 +109,7 @@ export class CombatantProperties {
   unspentAbilityPoints: number = 0;
   hitPoints: number = 0;
   mana: number = 0;
+  quickActions: number = 0;
   speccedAttributes: CombatantAttributeRecord = {};
   experiencePoints: ExperiencePoints = {
     current: 0,
@@ -195,6 +187,9 @@ export class CombatantProperties {
   static changeMana = changeCombatantMana;
   static clampHpAndMpToMax = clampResourcesToMax;
   static setHpAndMpToMax = setResourcesToMax;
+  static refillQuickActions(combatantProperties:CombatantProperties){
+    combatantProperties.quickActions = 1;
+  }
   static isDead(combatantProperties: CombatantProperties) {
     return combatantProperties.hitPoints <= 0;
   }
