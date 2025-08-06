@@ -49,7 +49,7 @@ const config: CombatActionComponentConfig = {
       [ActionPayableResource.Mana]: {
         base: 1,
       },
-      [ActionPayableResource.QuickActions]: {
+      [ActionPayableResource.ActionPoints]: {
         base: 1,
       },
     },

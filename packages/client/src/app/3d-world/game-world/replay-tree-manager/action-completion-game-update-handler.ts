@@ -37,7 +37,7 @@ export async function actionCompletionGameUpdateHandler(update: {
       const fastestTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
       if (fastestTracker instanceof CombatantTurnTracker) {
         const { combatantProperties } = fastestTracker.getCombatant(partyOption);
-        CombatantProperties.refillQuickActions(combatantProperties);
+        CombatantProperties.refillActionPoints(combatantProperties);
       }
 
       battleOption.turnOrderManager.updateTrackers(state.game, partyOption);

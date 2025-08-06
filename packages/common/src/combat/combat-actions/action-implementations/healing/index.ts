@@ -54,7 +54,7 @@ const config: CombatActionComponentConfig = {
         ...BASE_SPELL_MANA_COST_BASES,
         base: 0.25,
       },
-      [ActionPayableResource.QuickActions]: {
+      [ActionPayableResource.ActionPoints]: {
         base: 1,
       },
     },

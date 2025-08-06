@@ -19,10 +19,15 @@ export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends
 
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
 
-    const shouldExecute = action.shouldExecute(
-      context.combatantContext,
-      context.tracker.getPreviousTrackerInSequenceOption() || undefined
-    );
+    const turnAlreadyEnded =
+      context.tracker.parentActionManager.sequentialActionManagerRegistry.getTurnEnded();
+    const shouldExecute =
+      action.shouldExecute(
+        context.combatantContext,
+        context.tracker.getPreviousTrackerInSequenceOption() || undefined
+      ) && !turnAlreadyEnded;
+
+    console.log("should execute", COMBAT_ACTION_NAME_STRINGS[action.name], shouldExecute);
 
     if (shouldExecute) return;
 

@@ -28,11 +28,8 @@ import LowDurabilityIndicators from "./LowDurabilityIndicators";
 import ConditionIndicators from "./condition-indicators/";
 import ThreatPriorityList from "./ThreatPriorityList";
 import Portrait from "./Portrait";
-import {
-  getCombatantClassIcon,
-  getCombatantUiIdentifier,
-  getCombatantUiIdentifierIcon,
-} from "@/utils/get-combatant-class-icon";
+import { getCombatantUiIdentifierIcon } from "@/utils/get-combatant-class-icon";
+import ClockIcon from "../../../../public/img/game-ui-icons/clock-icon.svg";
 
 interface Props {
   combatant: Combatant;
@@ -104,6 +101,27 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
 
   const combatantUiIdentifierIcon = getCombatantUiIdentifierIcon(party, combatant);
 
+  const inCombat = party.battleId !== null;
+
+  const actionPointsDisplay = inCombat ? (
+    <HoverableTooltipWrapper
+      extraStyles="absolute top-0 left-2/3 -translate-x-1/2 -translate-y-1/2"
+      tooltipText="Action Points"
+    >
+      <ul className=" flex">
+        {[1, 2].map((item) => (
+          <li
+            className={`h-5 w-5 mr-1 last:mr-0 bg-slate-700 rounded-full ${item > combatantProperties.actionPoints ? "opacity-50" : ""}`}
+          >
+            <ClockIcon className="h-full w-full fill-slate-400" />
+          </li>
+        ))}
+      </ul>
+    </HoverableTooltipWrapper>
+  ) : (
+    <></>
+  );
+
   return (
     <div className="">
       <CharacterModelDisplay character={combatant}>
@@ -126,6 +144,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
             }}
             ref={combatantPlaqueRef}
           >
+            {actionPointsDisplay}
             {isPartyMember && (
               <InventoryIconButton
                 entityId={entityId}
@@ -151,7 +170,6 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
               portrait={portrait}
               portraitHeight={portraitHeight}
               combatantLevel={combatantProperties.level}
-              numQuickActions={combatantProperties.quickActions}
             />
             <div className="flex-grow" ref={nameAndBarsRef}>
               <div className="mb-1.5 flex justify-between items-center align-middle leading-5 text-lg ">

@@ -54,7 +54,7 @@ import { Equipment, EquipmentType, HoldableSlotType } from "../items/equipment/i
 import { plainToInstance } from "class-transformer";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { ThreatManager } from "./threat-manager/index.js";
-import { COMBATANT_MAX_QUICK_ACTIONS } from "../app-consts.js";
+import { COMBATANT_MAX_ACTION_POINTS } from "../app-consts.js";
 
 export enum AiType {
   Healer,
@@ -108,7 +108,7 @@ export class CombatantProperties {
   unspentAbilityPoints: number = 0;
   hitPoints: number = 0;
   mana: number = 0;
-  quickActions: number = 0;
+  actionPoints: number = 0;
   speccedAttributes: CombatantAttributeRecord = {};
   experiencePoints: ExperiencePoints = {
     current: 0,
@@ -184,23 +184,23 @@ export class CombatantProperties {
   static getOwnedActionState = getOwnedActionState;
   static changeHitPoints = changeCombatantHitPoints;
   static changeMana = changeCombatantMana;
-  static clampHpAndMpToMax = clampResourcesToMax;
-  static setHpAndMpToMax = setResourcesToMax;
-  static changeQuickActions(combatantProperties: CombatantProperties, value: number) {
-    combatantProperties.quickActions = Math.min(
-      COMBATANT_MAX_QUICK_ACTIONS,
-      Math.max(0, combatantProperties.quickActions + value)
+  static changeActionPoints(combatantProperties: CombatantProperties, value: number) {
+    combatantProperties.actionPoints = Math.min(
+      COMBATANT_MAX_ACTION_POINTS,
+      Math.max(0, combatantProperties.actionPoints + value)
     );
   }
-  static refillQuickActions(combatantProperties: CombatantProperties) {
-    combatantProperties.quickActions = COMBATANT_MAX_QUICK_ACTIONS;
+  static clampHpAndMpToMax = clampResourcesToMax;
+  static setHpAndMpToMax = setResourcesToMax;
+  static refillActionPoints(combatantProperties: CombatantProperties) {
+    console.log("refilled action points");
+    combatantProperties.actionPoints = COMBATANT_MAX_ACTION_POINTS;
   }
   static payResourceCosts(
     combatantProperties: CombatantProperties,
     costs: Partial<Record<ActionPayableResource, number>>
   ) {
     for (const [resource, cost] of iterateNumericEnumKeyedRecord(costs)) {
-      console.log("resource:", ACTION_PAYABLE_RESOURCE_STRINGS[resource], cost);
       switch (resource) {
         case ActionPayableResource.HitPoints:
           CombatantProperties.changeHitPoints(combatantProperties, cost);
@@ -210,8 +210,8 @@ export class CombatantProperties {
           break;
         case ActionPayableResource.Shards:
           break;
-        case ActionPayableResource.QuickActions:
-          CombatantProperties.changeQuickActions(combatantProperties, cost);
+        case ActionPayableResource.ActionPoints:
+          CombatantProperties.changeActionPoints(combatantProperties, cost);
           break;
       }
     }
@@ -305,8 +305,6 @@ export class CombatantProperties {
   ) {
     const action = COMBAT_ACTIONS[actionName];
     const costs = action.costProperties.getResourceCosts(combatantProperties, isInCombat);
-
-    console.log("costs:", JSON.stringify(costs, null, 2));
 
     if (costs) {
       const unmetCosts = getUnmetCostResourceTypes(combatantProperties, costs);

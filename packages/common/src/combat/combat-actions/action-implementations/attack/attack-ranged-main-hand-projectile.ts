@@ -67,7 +67,10 @@ export const ATTACK_RANGED_MAIN_HAND_PROJECTILE_CONFIG: CombatActionComponentCon
   getOnUseMessage: null,
   targetingProperties,
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
-  costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
+  costProperties: {
+    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
+    costBases: {},
+  },
   stepsConfig: new ActionResolutionStepsConfig(
     {
       [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},

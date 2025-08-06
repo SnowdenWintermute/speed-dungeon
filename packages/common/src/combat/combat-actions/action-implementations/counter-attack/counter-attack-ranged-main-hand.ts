@@ -31,6 +31,7 @@ const config: CombatActionComponentConfig = {
   description: "Respond with a ranged attack target using equipment in main hand",
   costProperties: {
     ...clonedConfig.costProperties,
+    costBases: {},
     requiresCombatTurn: (context) => false,
   },
   stepsConfig,

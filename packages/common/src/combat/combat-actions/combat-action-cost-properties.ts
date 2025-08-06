@@ -38,8 +38,12 @@ export interface CombatActionCostProperties extends CombatActionCostPropertiesCo
 
 export const genericCombatActionCostProperties: CombatActionCostPropertiesConfig = {
   incursDurabilityLoss: {},
-  costBases: {},
-  getResourceCosts: () => null,
+  costBases: {
+    [ActionPayableResource.ActionPoints]: {
+      base: 1,
+    },
+  },
+  getResourceCosts: (user, inCombat, self) => getStandardActionCost(user, inCombat, self),
   getConsumableCost: () => null,
   requiresCombatTurn: () => true,
 };
@@ -67,11 +71,6 @@ const genericSpellCostProperties: CombatActionCostPropertiesConfig = {
 const genericMedicationCostProperties: CombatActionCostPropertiesConfig = {
   ...genericCombatActionCostProperties,
   getResourceCosts: getStandardActionCost,
-  costBases: {
-    [ActionPayableResource.QuickActions]: {
-      base: 1,
-    },
-  },
   requiresCombatTurn: (context) => false,
 };
 

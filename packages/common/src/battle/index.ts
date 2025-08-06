@@ -1,4 +1,5 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
+import { COMBATANT_MAX_ACTION_POINTS } from "../app-consts.js";
 import { FriendOrFoe, TurnOrderManager } from "../combat/index.js";
 import {
   Combatant,
@@ -24,17 +25,17 @@ export class Battle {
     party: AdventuringParty
   ) {
     this.turnOrderManager = new TurnOrderManager(game, party, this);
-    Battle.refillAllCombatantQuickActions(party);
+    Battle.refillAllCombatantActionPoints(party);
   }
 
   static rehydrate(battle: Battle, game: SpeedDungeonGame, party: AdventuringParty) {
     return new Battle(battle.id, battle.groupA, battle.groupB, game, party);
   }
 
-  static refillAllCombatantQuickActions(party: AdventuringParty) {
+  static refillAllCombatantActionPoints(party: AdventuringParty) {
     const { characters, monsters } = AdventuringParty.getAllCombatants(party);
     for (const combatant of [...Object.values(characters), ...Object.values(monsters)])
-      combatant.combatantProperties.quickActions = 1;
+      combatant.combatantProperties.actionPoints = COMBATANT_MAX_ACTION_POINTS;
   }
 
   static getAllCombatants(game: SpeedDungeonGame, battle: Battle) {

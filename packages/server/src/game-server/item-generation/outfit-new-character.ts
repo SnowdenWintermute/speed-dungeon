@@ -33,9 +33,6 @@ export function outfitNewCharacter(character: Combatant) {
 
   const ownedActions = [
     CombatActionName.Attack,
-    CombatActionName.AttackMeleeMainhand,
-    CombatActionName.AttackMeleeOffhand,
-    CombatActionName.AttackRangedMainhand,
     CombatActionName.ChainingSplitArrowParent,
     CombatActionName.UseGreenAutoinjector,
     CombatActionName.UseBlueAutoinjector,

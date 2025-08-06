@@ -3,7 +3,7 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { COMBAT_ACTIONS } from "../../combat/index.js";
+import { COMBAT_ACTION_NAME_STRINGS, COMBAT_ACTIONS } from "../../combat/index.js";
 import { GameUpdateCommandType, ResourcesPaidGameUpdateCommand } from "../game-update-commands.js";
 import { CombatantProperties, Inventory } from "../../combatants/index.js";
 
@@ -56,6 +56,12 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
         CombatantProperties.payResourceCosts(combatantProperties, costsOption);
       }
     }
+
+    console.log(
+      "after payResourceCosts for action",
+      COMBAT_ACTION_NAME_STRINGS[action.name],
+      combatant.combatantProperties.actionPoints
+    );
 
     super(stepType, context, gameUpdateCommandOption);
   }

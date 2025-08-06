@@ -99,7 +99,9 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
 
   // unlock input if no more blocking steps are left and next turn is player
 
-  const requiredTurn = action.costProperties.requiresCombatTurn(context);
+  const requiredTurn =
+    action.costProperties.requiresCombatTurn(context) ||
+    combatant.combatantProperties.actionPoints === 0;
   const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
   let shouldSendEndActiveTurnMessage = false;
   if (requiredTurn && !turnAlreadyEnded && battleOption) {
@@ -116,7 +118,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     // REFILL THE QUICK ACTIONS OF THE CURRENT TURN
     // this way, if we want to remove their quick actions they can be at risk
     // of actions taking them away before they get their turn again
-    CombatantProperties.refillQuickActions(combatant.combatantProperties);
+    CombatantProperties.refillActionPoints(combatant.combatantProperties);
   }
 
   const hasUnevaluatedChildren = action.getChildren(context).length > 0;

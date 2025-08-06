@@ -21,6 +21,7 @@ import {
   COMBAT_ACTIONS,
   ACTION_NAMES_TO_HIDE_IN_MENU,
   getUnmetCostResourceTypes,
+  COMBATANT_MAX_ACTION_POINTS,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -39,6 +40,7 @@ import IceIcon from "../../../../../public/img/game-ui-icons/ice.svg";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
+import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -147,7 +149,10 @@ export class BaseMenuState implements ActionMenuState {
       const combatAction = COMBAT_ACTIONS[actionName];
       const { usabilityContext } = combatAction.targetingProperties;
 
-      const costs = combatAction.costProperties.getResourceCosts(combatantProperties);
+      const costs = combatAction.costProperties.getResourceCosts(
+        combatantProperties,
+        this.inCombat
+      );
       let unmetCosts = [];
       if (costs) unmetCosts = getUnmetCostResourceTypes(combatantProperties, costs);
 

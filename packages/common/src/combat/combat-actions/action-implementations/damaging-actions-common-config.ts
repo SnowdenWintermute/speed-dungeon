@@ -2,7 +2,11 @@ import { ActionTracker } from "../../../action-processing/index.js";
 import { CombatantContext } from "../../../combatant-context/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
-import { CombatActionComponent } from "../index.js";
+import {
+  ActionPayableResource,
+  COMBAT_ACTION_NAME_STRINGS,
+  CombatActionComponent,
+} from "../index.js";
 
 export const DAMAGING_ACTIONS_COMMON_CONFIG = {
   shouldExecute: (
@@ -11,6 +15,23 @@ export const DAMAGING_ACTIONS_COMMON_CONFIG = {
     self: CombatActionComponent
   ) => {
     const { game, party, combatant } = combatantContext;
+
+    const isInCombat = party.battleId !== null;
+    const actionPointCost =
+      self.costProperties.getResourceCosts(
+        combatantContext.combatant.combatantProperties,
+        isInCombat
+      )?.[ActionPayableResource.ActionPoints] ?? 0;
+    const { actionPoints } = combatantContext.combatant.combatantProperties;
+    console.log(
+      "action point cost: ",
+      actionPointCost,
+      "for action",
+      COMBAT_ACTION_NAME_STRINGS[self.name],
+      "curr points:",
+      combatantContext.combatant.combatantProperties.actionPoints
+    );
+    if (actionPoints < Math.abs(actionPointCost)) return false;
 
     const targetsOption = combatant.combatantProperties.combatActionTarget;
     if (!targetsOption) return false;

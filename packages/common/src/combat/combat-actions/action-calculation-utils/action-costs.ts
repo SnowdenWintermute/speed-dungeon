@@ -17,14 +17,14 @@ export enum ActionPayableResource {
   HitPoints,
   Mana,
   Shards,
-  QuickActions,
+  ActionPoints,
 }
 
 export const ACTION_PAYABLE_RESOURCE_STRINGS: Record<ActionPayableResource, string> = {
   [ActionPayableResource.HitPoints]: "Hit Points",
   [ActionPayableResource.Mana]: "Mana",
   [ActionPayableResource.Shards]: "Shards",
-  [ActionPayableResource.QuickActions]: "Quick Actions",
+  [ActionPayableResource.ActionPoints]: "Action Points",
 };
 
 export type ActionResourceCostBases = Partial<Record<ActionPayableResource, CombatActionCostBase>>;
@@ -37,24 +37,26 @@ export function getStandardActionCost(
   self: CombatActionComponent
 ) {
   const actionInstanceOption = user.ownedActions[self.name];
-  if (!actionInstanceOption) throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED);
+  let actionLevel = 0;
+  // we may need to check costs of actions they don't technically own,
+  // such as "attack melee offhand" which is a triggered child action but
+  // not actually an action they can "own" or ask to use independantly
+  if (actionInstanceOption) actionLevel = actionInstanceOption.level;
 
   let toReturn: Partial<Record<ActionPayableResource, number>> | null = {};
   const { costBases } = self.costProperties;
 
   for (const [payableResourceType, costBase] of iterateNumericEnumKeyedRecord(costBases)) {
-    if (payableResourceType === ActionPayableResource.QuickActions && !inCombat) continue;
+    if (payableResourceType === ActionPayableResource.ActionPoints && !inCombat) continue;
     let cost = costBase.base;
 
     if (costBase.additives) {
-      if (costBase.additives.actionLevel)
-        cost += costBase.additives.actionLevel * actionInstanceOption.level;
+      if (costBase.additives.actionLevel) cost += costBase.additives.actionLevel * actionLevel;
       if (costBase.additives.userCombatantLevel)
         cost += costBase.additives.userCombatantLevel * user.level;
     }
     if (costBase.multipliers) {
-      if (costBase.multipliers.actionLevel)
-        cost *= costBase.multipliers.actionLevel * actionInstanceOption.level;
+      if (costBase.multipliers.actionLevel) cost *= costBase.multipliers.actionLevel * actionLevel;
       if (costBase.multipliers.userCombatantLevel)
         cost *= costBase.multipliers.userCombatantLevel * user.level;
     }
@@ -78,7 +80,6 @@ export function getUnmetCostResourceTypes(
 
   for (const [resourceType, cost] of iterateNumericEnumKeyedRecord(costs)) {
     const absoluteCost = Math.abs(cost); // costs are in negative values
-    console.log("absoluteCost:", absoluteCost);
 
     switch (resourceType) {
       case ActionPayableResource.HitPoints:
@@ -90,8 +91,8 @@ export function getUnmetCostResourceTypes(
       case ActionPayableResource.Shards:
         if (absoluteCost > combatantProperties.inventory.shards) unmet.push(resourceType);
         break;
-      case ActionPayableResource.QuickActions:
-        if (absoluteCost > combatantProperties.quickActions) unmet.push(resourceType);
+      case ActionPayableResource.ActionPoints:
+        if (absoluteCost > combatantProperties.actionPoints) unmet.push(resourceType);
         break;
     }
   }
