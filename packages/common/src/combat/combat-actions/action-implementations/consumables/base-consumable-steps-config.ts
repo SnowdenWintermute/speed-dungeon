@@ -14,16 +14,7 @@ import { getTimedSkeletalEntityAnimation } from "../get-entity-animation.js";
 export const MEDICATION_ACTION_BASE_STEPS_CONFIG = new ActionResolutionStepsConfig(
   {
     [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
-    [ActionResolutionStepType.InitialPositioning]: {
-      getDestination: getStepForwardDestination,
-      getAnimation: () => {
-        return {
-          name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },
-          timing: { type: AnimationTimingType.Looping },
-          smoothTransition: true,
-        };
-      },
-    },
+    [ActionResolutionStepType.InitialPositioning]: {},
     [ActionResolutionStepType.ChamberingMotion]: {
       getDestination: getRotateTowardPrimaryTargetDestination,
       getAnimation: (user, animationLengths) =>
@@ -59,14 +50,8 @@ export const MEDICATION_ACTION_BASE_STEPS_CONFIG = new ActionResolutionStepsConf
     },
     [ActionResolutionStepType.FinalPositioning]: {
       isConditionalStep: true,
-      getAnimation: () => {
-        return {
-          name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveBack },
-          timing: { type: AnimationTimingType.Looping },
-          smoothTransition: true,
-        };
-      },
       getDestination: getHomeDestination,
+      shouldIdleOnComplete: true,
     },
   },
   { userShouldMoveHomeOnComplete: true }

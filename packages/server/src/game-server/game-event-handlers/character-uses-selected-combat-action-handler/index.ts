@@ -40,7 +40,7 @@ export async function useSelectedCombatActionHandler(
 
   const actionExecutionIntent = new CombatActionExecutionIntent(selectedCombatAction, targets);
 
-  await executeActionAndSendReplayResult(characterAssociatedData, actionExecutionIntent);
+  await executeActionAndSendReplayResult(characterAssociatedData, actionExecutionIntent, true);
 }
 
 function validateClientActionUseRequest(characterAssociatedData: CharacterAssociatedData) {
@@ -64,7 +64,8 @@ function validateClientActionUseRequest(characterAssociatedData: CharacterAssoci
 
 export async function executeActionAndSendReplayResult(
   characterAssociatedData: CharacterAssociatedData,
-  actionExecutionIntent: CombatActionExecutionIntent
+  actionExecutionIntent: CombatActionExecutionIntent,
+  lockInuptWhileReplaying: boolean
 ) {
   const { game, party, character } = characterAssociatedData;
   const combatantContext = new CombatantContext(game, party, character);
@@ -80,6 +81,8 @@ export async function executeActionAndSendReplayResult(
     actionUserId: character.entityProperties.id,
     root: replayTreeResult.rootReplayNode,
   };
+
+  if (!lockInuptWhileReplaying) replayTreePayload.doNotLockInput = true;
 
   const payloads: ActionCommandPayload[] = [replayTreePayload];
 

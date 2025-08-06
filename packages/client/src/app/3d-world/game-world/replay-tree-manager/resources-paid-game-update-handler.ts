@@ -1,5 +1,6 @@
 import {
   ActionPayableResource,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatantProperties,
   ERROR_MESSAGES,
   Inventory,
@@ -28,6 +29,12 @@ export async function resourcesPaidGameUpdateHandler(update: {
         Inventory.removeItem(combatantProperties.inventory, itemId);
 
     if (command.costsPaid) {
+      console.log(
+        "paying costs for action",
+        COMBAT_ACTION_NAME_STRINGS[command.actionName],
+        command.costsPaid,
+        command.combatantId
+      );
       CombatantProperties.payResourceCosts(combatantProperties, command.costsPaid);
     }
   });

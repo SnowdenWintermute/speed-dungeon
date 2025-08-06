@@ -60,7 +60,8 @@ export default function selectHoldableHotswapSlotHandler(
       new CombatActionExecutionIntent(CombatActionName.PayActionPoint, {
         type: CombatActionTargetType.Single,
         targetId: eventData.characterId,
-      })
+      }),
+      false
     );
   }
 }

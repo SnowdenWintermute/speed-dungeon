@@ -1,4 +1,5 @@
 import {
+  ActionPayableResource,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -79,7 +80,10 @@ const config: CombatActionComponentConfig = {
       },
     },
   },
-  costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
+  costProperties: {
+    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
+    costBases: {},
+  },
   stepsConfig: BURNING_TICK_STEPS_CONFIG,
   shouldExecute: () => true,
   getConcurrentSubActions: () => [],
