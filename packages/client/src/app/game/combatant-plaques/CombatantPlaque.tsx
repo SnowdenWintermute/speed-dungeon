@@ -111,6 +111,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
       <ul className=" flex">
         {[1, 2].map((item) => (
           <li
+            key={item}
             className={`h-5 w-5 mr-1 last:mr-0 bg-slate-700 rounded-full ${item > combatantProperties.actionPoints ? "opacity-50" : ""}`}
           >
             <ClockIcon className="h-full w-full fill-slate-400" />

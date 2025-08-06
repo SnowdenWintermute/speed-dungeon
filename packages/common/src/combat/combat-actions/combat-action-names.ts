@@ -25,6 +25,7 @@ export enum CombatActionName {
   PassTurn,
   ConditionPassTurn,
   Blind,
+  PayActionPoint, // useful for charging action points for swapping weapons and maybe other things
 }
 
 export const ACTION_NAMES_TO_HIDE_IN_MENU = [
@@ -62,4 +63,5 @@ export const COMBAT_ACTION_NAME_STRINGS: Record<CombatActionName, string> = {
   [CombatActionName.PassTurn]: "Pass Turn",
   [CombatActionName.ConditionPassTurn]: "Condition Pass Turn",
   [CombatActionName.Blind]: "Blind",
+  [CombatActionName.PayActionPoint]: "Pay Action Point",
 };

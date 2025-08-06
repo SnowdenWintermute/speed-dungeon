@@ -1,7 +1,11 @@
 import {
+  AdventuringParty,
   CharacterAssociatedData,
+  CombatActionName,
   CombatantEquipment,
+  CombatantProperties,
   ERROR_MESSAGES,
+  HOTSWAP_SLOT_SELECTION_ACTION_POINT_COST,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
@@ -16,7 +20,7 @@ export function characterSelectedHoldableHotswapSlotHandler(
 ) {
   characterAssociatedDataProvider(
     characterId,
-    ({ character }: CharacterAssociatedData, gameState: GameState) => {
+    ({ game, party, character }: CharacterAssociatedData, gameState: GameState) => {
       if (
         slotIndex >=
         CombatantEquipment.getHoldableHotswapSlots(character.combatantProperties).length
