@@ -199,7 +199,8 @@ export class CombatantProperties {
   }
   static payResourceCosts(
     combatantProperties: CombatantProperties,
-    costs: Partial<Record<ActionPayableResource, number>>
+    costs: Partial<Record<ActionPayableResource, number>>,
+    actionLevel: number
   ) {
     for (const [resource, cost] of iterateNumericEnumKeyedRecord(costs)) {
       switch (resource) {
@@ -302,10 +303,15 @@ export class CombatantProperties {
   static hasRequiredResourcesToUseAction(
     combatantProperties: CombatantProperties,
     actionName: CombatActionName,
-    isInCombat: boolean
+    isInCombat: boolean,
+    actionLevel: number
   ) {
     const action = COMBAT_ACTIONS[actionName];
-    const costs = action.costProperties.getResourceCosts(combatantProperties, isInCombat);
+    const costs = action.costProperties.getResourceCosts(
+      combatantProperties,
+      isInCombat,
+      actionLevel
+    );
 
     if (costs) {
       const unmetCosts = getUnmetCostResourceTypes(combatantProperties, costs);

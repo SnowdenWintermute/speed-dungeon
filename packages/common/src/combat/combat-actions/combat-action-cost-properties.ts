@@ -24,6 +24,7 @@ export interface CombatActionCostPropertiesConfig {
   getResourceCosts: (
     user: CombatantProperties,
     inCombat: boolean,
+    selectedActionLevel: number,
     self: CombatActionComponent
   ) => null | ActionResourceCosts;
   getConsumableCost: () => null | ConsumableType;
@@ -33,7 +34,11 @@ export interface CombatActionCostPropertiesConfig {
 // in the constructor of the action we pass "this" to the getResourceCosts function in the config
 // so we can then call .getResourceCosts without passing an action to it
 export interface CombatActionCostProperties extends CombatActionCostPropertiesConfig {
-  getResourceCosts: (user: CombatantProperties, inCombat: boolean) => null | ActionResourceCosts;
+  getResourceCosts: (
+    user: CombatantProperties,
+    inCombat: boolean,
+    actionLevel: number
+  ) => null | ActionResourceCosts;
 }
 
 export const genericCombatActionCostProperties: CombatActionCostPropertiesConfig = {
@@ -43,7 +48,8 @@ export const genericCombatActionCostProperties: CombatActionCostPropertiesConfig
       base: 1,
     },
   },
-  getResourceCosts: (user, inCombat, self) => getStandardActionCost(user, inCombat, self),
+  getResourceCosts: (user, inCombat, selectedActionLevel, self) =>
+    getStandardActionCost(user, inCombat, selectedActionLevel, self),
   getConsumableCost: () => null,
   requiresCombatTurn: () => true,
 };

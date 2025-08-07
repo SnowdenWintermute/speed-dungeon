@@ -13,12 +13,12 @@ import { TargetingCalculator } from "@speed-dungeon/common";
 export function selectCombatActionLevelHandler(
   eventData: {
     characterId: string;
-    combatActionLevel: number;
+    actionLevel: number;
   },
   characterAssociatedData: CharacterAssociatedData
 ) {
   const gameServer = getGameServer();
-  const { combatActionLevel: newSelectedActionLevel } = eventData;
+  const { actionLevel: newSelectedActionLevel } = eventData;
 
   const { character, game, party } = characterAssociatedData;
   const { selectedCombatAction, ownedActions } = character.combatantProperties;
@@ -35,6 +35,8 @@ export function selectCombatActionLevelHandler(
   if (actionStateOption === undefined) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED);
 
   character.combatantProperties.selectedActionLevel = newSelectedActionLevel;
+
+  console.log("selected action level:", newSelectedActionLevel);
 
   // check if current targets are still valid at this level
   // if not, assign initial targets

@@ -20,7 +20,8 @@ export const DAMAGING_ACTIONS_COMMON_CONFIG = {
     const actionPointCost =
       self.costProperties.getResourceCosts(
         combatantContext.combatant.combatantProperties,
-        isInCombat
+        isInCombat,
+        1 // @TODO - actually select the action level
       )?.[ActionPayableResource.ActionPoints] ?? 0;
     const { actionPoints } = combatantContext.combatant.combatantProperties;
     console.log(

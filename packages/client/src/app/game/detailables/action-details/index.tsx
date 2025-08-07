@@ -40,7 +40,8 @@ export default function ActionDetails({ actionName, hideTitle }: Props) {
   const action = COMBAT_ACTIONS[actionName];
   const costs = action.costProperties.getResourceCosts(
     focusedCharacter.combatantProperties,
-    inCombat
+    inCombat,
+    selectedLevelOption || 1
   );
   const { usabilityContext } = action.targetingProperties;
 

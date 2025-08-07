@@ -6,6 +6,7 @@ import {
 import { COMBAT_ACTION_NAME_STRINGS, COMBAT_ACTIONS } from "../../combat/index.js";
 import { GameUpdateCommandType, ResourcesPaidGameUpdateCommand } from "../game-update-commands.js";
 import { CombatantProperties, Inventory } from "../../combatants/index.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
 
 const stepType = ActionResolutionStepType.PayResourceCosts;
 export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
@@ -15,9 +16,15 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
 
     const inCombat = !!context.combatantContext.getBattleOption();
 
+    const { combatantProperties } = combatant;
+    const { selectedActionLevel } = combatantProperties;
+    if (selectedActionLevel === null)
+      throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_LEVEL_SELECTED);
+
     const costsOption = action.costProperties.getResourceCosts(
-      combatant.combatantProperties,
-      inCombat
+      combatantProperties,
+      inCombat,
+      selectedActionLevel
     );
 
     const consumableTypeToConsumeOption = action.costProperties.getConsumableCost
@@ -52,8 +59,8 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
 
       if (costsOption) {
         gameUpdateCommandOption.costsPaid = costsOption;
-        const { combatantProperties } = combatant;
-        CombatantProperties.payResourceCosts(combatantProperties, costsOption);
+
+        CombatantProperties.payResourceCosts(combatantProperties, costsOption, selectedActionLevel);
       }
     }
 

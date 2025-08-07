@@ -34,14 +34,12 @@ export type ActionResourceCosts = Partial<Record<ActionPayableResource, number>>
 export function getStandardActionCost(
   user: CombatantProperties,
   inCombat: boolean,
+  actionLevel: number,
   self: CombatActionComponent
 ) {
-  const actionInstanceOption = user.ownedActions[self.name];
-  let actionLevel = 0;
   // we may need to check costs of actions they don't technically own,
   // such as "attack melee offhand" which is a triggered child action but
   // not actually an action they can "own" or ask to use independantly
-  if (actionInstanceOption) actionLevel = actionInstanceOption.level;
 
   let toReturn: Partial<Record<ActionPayableResource, number>> | null = {};
   const { costBases } = self.costProperties;

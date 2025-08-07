@@ -16,7 +16,8 @@ export class CheckIfHasRequiredResourcesForAction implements BehaviorNode {
     const hasResources = CombatantProperties.hasRequiredResourcesToUseAction(
       combatantProperties,
       this.actionNameOption,
-      true
+      true,
+      1 // @TODO - actually select an action level
     );
     if (hasResources) return BehaviorNodeState.Success;
     return BehaviorNodeState.Failure;

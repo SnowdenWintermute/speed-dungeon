@@ -143,8 +143,8 @@ export abstract class CombatActionComponent {
     this.hitOutcomeProperties = config.hitOutcomeProperties;
     this.costProperties = {
       ...config.costProperties,
-      getResourceCosts: (user: CombatantProperties, inCombat: boolean) =>
-        config.costProperties.getResourceCosts(user, inCombat, this),
+      getResourceCosts: (user: CombatantProperties, inCombat: boolean, actionLevel: number) =>
+        config.costProperties.getResourceCosts(user, inCombat, actionLevel, this),
     };
 
     this.shouldExecute = (combatantContext, previousTrackerOption) =>
@@ -215,7 +215,8 @@ export abstract class CombatActionComponent {
     const hasRequiredResources = CombatantProperties.hasRequiredResourcesToUseAction(
       combatantProperties,
       this.name,
-      !!combatantContext.getBattleOption()
+      !!combatantContext.getBattleOption(),
+      level
     );
 
     if (!hasRequiredResources)
