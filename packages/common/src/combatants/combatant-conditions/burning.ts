@@ -61,6 +61,7 @@ export class BurningCombatantCondition implements CombatantCondition {
         actionExecutionIntent: {
           actionName: CombatActionName.BurningTick,
           targets,
+          level: this.level,
           getConsumableType: () => null,
         },
       },

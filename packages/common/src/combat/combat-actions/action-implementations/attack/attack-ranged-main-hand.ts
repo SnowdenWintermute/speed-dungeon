@@ -192,7 +192,8 @@ export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
     return [
       new CombatActionExecutionIntent(
         CombatActionName.AttackRangedMainhandProjectile,
-        context.tracker.actionExecutionIntent.targets
+        context.tracker.actionExecutionIntent.targets,
+        context.tracker.actionExecutionIntent.level
       ),
     ];
   },

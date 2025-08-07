@@ -7,6 +7,7 @@ export class CombatActionExecutionIntent {
   constructor(
     public actionName: CombatActionName,
     public targets: CombatActionTarget,
+    public level: number,
     public selectedConsumableId?: EntityId
   ) {}
 

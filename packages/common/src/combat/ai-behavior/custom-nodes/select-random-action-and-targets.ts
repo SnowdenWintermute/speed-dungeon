@@ -1,6 +1,9 @@
 import { Combatant } from "../../../combatants/index.js";
-import { CombatActionIntent, CombatActionName } from "../../combat-actions/index.js";
-import { CombatActionTarget } from "../../targeting/combat-action-targets.js";
+import {
+  COMBAT_ACTION_NAME_STRINGS,
+  CombatActionIntent,
+  CombatActionName,
+} from "../../combat-actions/index.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import {
   BehaviorNode,
@@ -36,12 +39,21 @@ export class SelectRandomActionAndTargets implements BehaviorNode {
           // pop from stack next possible action
           new PopFromStackNode(
             () => this.behaviorContext.consideredActionNamesFilteredByIntents,
-            (actionName: CombatActionName) =>
-              this.behaviorContext.setCurrentActionNameConsidering(actionName)
+            (actionName: CombatActionName) => {
+              console.log("popped considered action name:", COMBAT_ACTION_NAME_STRINGS[actionName]);
+              this.behaviorContext.setCurrentActionNameConsidering(actionName);
+              // @TODO -actually select an actionLevel
+              const actionLevel =
+                this.combatant.combatantProperties.ownedActions[actionName]?.level || 1;
+              this.behaviorContext.setCurrentActionLevelConsidering(actionLevel);
+            }
           ),
           // check if action is useable
-          new CollectPotentialTargetsForActionIfUsable(this.behaviorContext, this.combatant, () =>
-            this.behaviorContext.getCurrentActionNameConsidering()
+          new CollectPotentialTargetsForActionIfUsable(
+            this.behaviorContext,
+            this.combatant,
+            () => this.behaviorContext.getCurrentActionNameConsidering(),
+            () => this.behaviorContext.getCurrentActionLevelConsidering()
           ),
         ]),
         {

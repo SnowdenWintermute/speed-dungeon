@@ -43,6 +43,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
       websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
         characterId,
         combatActionNameOption: null,
+        combatActionLevel: null,
       });
     });
     toReturn[ActionButtonCategory.Top].push(cancelButton);

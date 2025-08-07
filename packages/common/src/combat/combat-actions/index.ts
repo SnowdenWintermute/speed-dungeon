@@ -191,13 +191,18 @@ export abstract class CombatActionComponent {
     return baseAccuracy;
   }
 
-  useIsValid(targets: CombatActionTarget, combatantContext: CombatantContext): Error | void {
+  useIsValid(
+    targets: CombatActionTarget,
+    level: number,
+    combatantContext: CombatantContext
+  ): Error | void {
     const { game, party, combatant } = combatantContext;
     const { combatantProperties } = combatant;
 
     const combatActionPropertiesResult = getCombatActionPropertiesIfOwned(
       combatant.combatantProperties,
-      this.name
+      this.name,
+      level
     );
     if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
 

@@ -1,7 +1,6 @@
 import {
   ActionResolutionStepType,
   ActionSequenceManagerRegistry,
-  COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   CombatantContext,

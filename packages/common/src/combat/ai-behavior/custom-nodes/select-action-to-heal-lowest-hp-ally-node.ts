@@ -58,11 +58,21 @@ export class SelectActionToHealLowestHpAlly implements BehaviorNode {
         new SequenceNode([
           new PopFromStackNode(
             () => this.behaviorContext.consideredActionNamesFilteredByIntents,
-            (actionName: CombatActionName) =>
-              this.behaviorContext.setCurrentActionNameConsidering(actionName)
+            (actionName: CombatActionName) => {
+              this.behaviorContext.setCurrentActionNameConsidering(actionName);
+
+              // @TODO -actually select an actionLevel
+              const actionLevel =
+                this.combatant.combatantProperties.ownedActions[actionName]?.level || 1;
+              this.behaviorContext.setCurrentActionLevelConsidering(actionLevel);
+            }
           ),
-          new CollectPotentialTargetsForActionIfUsable(this.behaviorContext, this.combatant, () =>
-            this.behaviorContext.getCurrentActionNameConsidering()
+          new CollectPotentialTargetsForActionIfUsable(
+            this.behaviorContext,
+            this.combatant,
+            () => this.behaviorContext.getCurrentActionNameConsidering(),
+
+            () => this.behaviorContext.getCurrentActionLevelConsidering()
           ),
         ]),
         {
@@ -90,7 +100,8 @@ export class SelectActionToHealLowestHpAlly implements BehaviorNode {
 
       new SetConsideredAction(
         this.behaviorContext,
-        () => this.behaviorContext.consideredActionIntents?.[0]?.intent.actionName
+        () => this.behaviorContext.consideredActionIntents?.[0]?.intent.actionName,
+        () => this.behaviorContext.getCurrentActionLevelConsidering()
       ),
       new SelectActionExecutionIntent(
         this.behaviorContext,

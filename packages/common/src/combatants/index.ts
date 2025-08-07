@@ -122,6 +122,7 @@ export class CombatantProperties {
   selectedCombatAction: null | CombatActionName = null;
   combatActionTarget: null | CombatActionTarget = null;
   selectedTargetingScheme: null | TargetingScheme = null;
+  selectedActionLevel: null | number = null;
   //
   threatManager?: ThreatManager;
 

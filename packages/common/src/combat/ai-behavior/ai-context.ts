@@ -57,6 +57,7 @@ export class AIBehaviorContext {
   public currentCombatantConsidering: null | Combatant = null;
   public consideredActionNamesFilteredByIntents: CombatActionName[] = [];
   public currentActionNameConsidering: CombatActionName | null = null;
+  public currentActionLevelConsidering: null | number = null;
   public usableActionsWithPotentialValidTargets: Partial<
     Record<CombatActionName, CombatActionTarget[]>
   > = {};
@@ -75,13 +76,20 @@ export class AIBehaviorContext {
     public combatantContext: CombatantContext,
     public battleOption: Battle | null // allow for ally AI controlled combatants doing things outside of combat
   ) {}
+  getCurrentActionLevelConsidering() {
+    return this.currentActionLevelConsidering;
+  }
+  setCurrentActionLevelConsidering(level: number) {
+    this.currentActionLevelConsidering = level;
+  }
+
   getCurrentActionNameConsidering() {
     return this.currentActionNameConsidering;
   }
-
   setCurrentActionNameConsidering(actionName: CombatActionName) {
     this.currentActionNameConsidering = actionName;
   }
+
   setCurrentCombatantConsidering(combatant: Combatant) {
     this.currentCombatantConsidering = combatant;
   }

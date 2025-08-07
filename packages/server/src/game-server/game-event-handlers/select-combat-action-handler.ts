@@ -12,18 +12,23 @@ import { CombatActionName } from "@speed-dungeon/common";
 import { TargetingCalculator } from "@speed-dungeon/common";
 
 export function selectCombatActionHandler(
-  eventData: { characterId: string; combatActionNameOption: null | CombatActionName },
+  eventData: {
+    characterId: string;
+    combatActionNameOption: null | CombatActionName;
+    combatActionLevel: null | number;
+  },
   characterAssociatedData: CharacterAssociatedData
 ) {
   const gameServer = getGameServer();
-  const { combatActionNameOption } = eventData;
+  const { combatActionNameOption, combatActionLevel } = eventData;
 
   const { character, game, party, player } = characterAssociatedData;
   let combatActionOption: null | CombatActionComponent = null;
-  if (combatActionNameOption !== null) {
+  if (combatActionNameOption !== null && combatActionLevel !== null) {
     const combatActionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
       character.combatantProperties,
-      combatActionNameOption
+      combatActionNameOption,
+      combatActionLevel
     );
     if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
     combatActionOption = combatActionPropertiesResult;
@@ -38,12 +43,14 @@ export function selectCombatActionHandler(
   if (initialTargetsResult instanceof Error) return initialTargetsResult;
 
   character.combatantProperties.selectedCombatAction = combatActionNameOption;
+  character.combatantProperties.selectedActionLevel = combatActionLevel;
 
   gameServer.io
     .in(getPartyChannelName(game.name, party.name))
     .emit(
       ServerToClientEvent.CharacterSelectedCombatAction,
       character.entityProperties.id,
-      combatActionNameOption
+      combatActionNameOption,
+      combatActionLevel
     );
 }

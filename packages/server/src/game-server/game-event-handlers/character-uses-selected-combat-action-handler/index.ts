@@ -36,9 +36,13 @@ export async function useSelectedCombatActionHandler(
     return;
   }
 
-  const { selectedCombatAction, targets } = validTargetsAndActionNameResult;
+  const { selectedCombatAction, targets, selectedActionLevel } = validTargetsAndActionNameResult;
 
-  const actionExecutionIntent = new CombatActionExecutionIntent(selectedCombatAction, targets);
+  const actionExecutionIntent = new CombatActionExecutionIntent(
+    selectedCombatAction,
+    targets,
+    selectedActionLevel
+  );
 
   await executeActionAndSendReplayResult(characterAssociatedData, actionExecutionIntent, true);
 }
@@ -55,11 +59,15 @@ function validateClientActionUseRequest(characterAssociatedData: CharacterAssoci
   const targets = character.combatantProperties.combatActionTarget;
   if (targets === null) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
 
+  const { selectedActionLevel } = character.combatantProperties;
+  if (selectedActionLevel === null)
+    return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_LEVEL_SELECTED);
+
   const action = COMBAT_ACTIONS[selectedCombatAction];
-  const maybeError = action.useIsValid(targets, combatantContext);
+  const maybeError = action.useIsValid(targets, selectedActionLevel, combatantContext);
   if (maybeError instanceof Error) return maybeError;
 
-  return { selectedCombatAction, targets };
+  return { selectedCombatAction, targets, selectedActionLevel };
 }
 
 export async function executeActionAndSendReplayResult(

@@ -109,7 +109,7 @@ export class BaseMenuState implements ActionMenuState {
       return toReturn;
     }
 
-    for (const [actionName, _actionState] of iterateNumericEnumKeyedRecord(
+    for (const [actionName, actionState] of iterateNumericEnumKeyedRecord(
       combatantProperties.ownedActions
     )) {
       if (ACTION_NAMES_TO_HIDE_IN_MENU.includes(actionName)) continue;
@@ -130,6 +130,7 @@ export class BaseMenuState implements ActionMenuState {
           websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
             characterId,
             combatActionNameOption: actionName,
+            combatActionLevel: actionState.level,
           });
           useGameStore.getState().mutateState((state) => {
             state.hoveredAction = null;

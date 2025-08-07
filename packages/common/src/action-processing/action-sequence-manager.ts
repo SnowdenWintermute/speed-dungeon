@@ -1,8 +1,4 @@
-import {
-  COMBAT_ACTION_NAME_STRINGS,
-  COMBAT_ACTIONS,
-  CombatActionExecutionIntent,
-} from "../combat/index.js";
+import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../combat/index.js";
 import { CombatantContext } from "../combatant-context/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { Milliseconds } from "../primatives/index.js";
@@ -76,9 +72,11 @@ export class ActionSequenceManager {
         this.currentTracker
       );
 
+      const actionLevel = currentActionExecutionIntent.level;
       return {
         actionName: action.name,
         targets,
+        level: actionLevel,
       };
     });
 
@@ -98,7 +96,7 @@ export class ActionSequenceManager {
       this.sequentialActionManagerRegistry.incrementInputLockReferenceCount();
 
       childActionIntents.push(
-        new CombatActionExecutionIntent(intentResult.actionName, targetsResult)
+        new CombatActionExecutionIntent(intentResult.actionName, targetsResult, intentResult.level)
       );
     }
 

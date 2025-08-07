@@ -18,18 +18,25 @@ export class SelectActionExecutionIntent implements BehaviorNode {
     if (actionNameOption === null || targetsOption === undefined) return BehaviorNodeState.Failure;
 
     const action = COMBAT_ACTIONS[actionNameOption];
+    // @TODO - actually consider higher levels and set this value to something
+    const level = this.behaviorContext.currentActionLevelConsidering || 1;
     const actionUseIsValidResult = action.useIsValid(
       targetsOption,
+      level,
       this.behaviorContext.combatantContext
     );
     if (actionUseIsValidResult instanceof Error) throw actionUseIsValidResult;
 
     this.behaviorContext.selectedActionIntent = new CombatActionExecutionIntent(
       actionNameOption,
-      targetsOption
+      targetsOption,
+      level
     );
     this.combatant.combatantProperties.selectedCombatAction = actionNameOption;
     this.combatant.combatantProperties.combatActionTarget = targetsOption;
+    this.combatant.combatantProperties.selectedActionLevel = level;
+
+    console.log("set selectedActionLevel:", this.combatant.combatantProperties.selectedActionLevel);
 
     return BehaviorNodeState.Success;
   }

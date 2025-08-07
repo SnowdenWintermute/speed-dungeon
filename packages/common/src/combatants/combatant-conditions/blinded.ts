@@ -62,6 +62,7 @@ export class BlindedCombatantCondition implements CombatantCondition {
         actionExecutionIntent: {
           actionName: CombatActionName.ConditionPassTurn,
           targets,
+          level: 0,
           getConsumableType: () => null,
         },
       },

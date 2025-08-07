@@ -51,7 +51,8 @@ const config: CombatActionComponentConfig = {
     return [
       new CombatActionExecutionIntent(
         CombatActionName.CounterAttackRangedMainhandProjectile,
-        context.tracker.actionExecutionIntent.targets
+        context.tracker.actionExecutionIntent.targets,
+        context.tracker.actionExecutionIntent.level
       ),
     ];
   },

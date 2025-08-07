@@ -199,9 +199,11 @@ const config: CombatActionComponentConfig = {
 
     const { party } = context.combatantContext;
     const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
+
     const primaryTargetIdResult = targetingCalculator.getPrimaryTargetCombatant(
       party,
-      new CombatActionExecutionIntent(CombatActionName.IceBurst, selectedTarget)
+      // new CombatActionExecutionIntent(CombatActionName.IceBurst, selectedTarget, this.level)
+      context.tracker.actionExecutionIntent
     );
     if (primaryTargetIdResult instanceof Error) throw primaryTargetIdResult;
 

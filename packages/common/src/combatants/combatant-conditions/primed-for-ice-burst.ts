@@ -23,7 +23,6 @@ import {
 import { CombatantContext } from "../../combatant-context/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { immerable } from "immer";
-import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 
 export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
   [immerable] = true;
@@ -88,7 +87,8 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
 
     const actionExecutionIntent = new CombatActionExecutionIntent(
       CombatActionName.IceBurst,
-      actionTarget
+      actionTarget,
+      this.level
     );
 
     return {

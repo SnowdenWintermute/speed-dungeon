@@ -243,10 +243,14 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
           this.branchingActions.push({
             user: targetCombatant,
-            actionExecutionIntent: new CombatActionExecutionIntent(CombatActionName.Counterattack, {
-              type: CombatActionTargetType.Single,
-              targetId: combatant.entityProperties.id,
-            }),
+            actionExecutionIntent: new CombatActionExecutionIntent(
+              CombatActionName.Counterattack,
+              {
+                type: CombatActionTargetType.Single,
+                targetId: combatant.entityProperties.id,
+              },
+              1
+            ),
           });
         }
       }

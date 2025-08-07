@@ -99,7 +99,8 @@ export class CollectPotentialHealingFromConsideredActions implements BehaviorNod
     )) {
       const action = COMBAT_ACTIONS[actionName];
       for (const target of potentialTargets) {
-        const actionExecutionIntent = new CombatActionExecutionIntent(actionName, target);
+        // @TODO - evaluate every owned spell level
+        const actionExecutionIntent = new CombatActionExecutionIntent(actionName, target, 1);
         const averageHitOutcomeCalculator = new HitOutcomeCalculator(
           this.behaviorContext.combatantContext,
           actionExecutionIntent,

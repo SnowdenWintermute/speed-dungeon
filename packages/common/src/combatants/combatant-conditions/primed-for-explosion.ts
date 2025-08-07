@@ -75,9 +75,12 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
     if (actionTarget instanceof Error) throw actionTarget;
     if (actionTarget === null) throw new Error("failed to get auto target");
 
+    const explosionLevel = this.level * this.stacksOption.current;
+
     const explosionActionIntent = new CombatActionExecutionIntent(
       CombatActionName.Explosion,
-      actionTarget
+      actionTarget,
+      explosionLevel
     );
 
     return {

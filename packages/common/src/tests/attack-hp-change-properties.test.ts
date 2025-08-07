@@ -87,10 +87,14 @@ describe("kinetic damage type selection", () => {
     party.currentRoom.monsters[testTargetId] = testTarget;
     party.currentRoom.monsterPositions = [testTargetId];
 
-    const actionExecutionIntent = new CombatActionExecutionIntent(CombatActionName.Attack, {
-      type: CombatActionTargetType.Single,
-      targetId: testTargetId,
-    });
+    const actionExecutionIntent = new CombatActionExecutionIntent(
+      CombatActionName.Attack,
+      {
+        type: CombatActionTargetType.Single,
+        targetId: testTargetId,
+      },
+      1
+    );
 
     const replayNode: NestedNodeReplayEvent = {
       type: ReplayEventType.NestedNode,

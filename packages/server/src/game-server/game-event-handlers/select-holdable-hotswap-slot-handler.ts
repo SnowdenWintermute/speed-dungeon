@@ -57,10 +57,14 @@ export default function selectHoldableHotswapSlotHandler(
   if (battleOption) {
     executeActionAndSendReplayResult(
       characterAssociatedData,
-      new CombatActionExecutionIntent(CombatActionName.PayActionPoint, {
-        type: CombatActionTargetType.Single,
-        targetId: eventData.characterId,
-      }),
+      new CombatActionExecutionIntent(
+        CombatActionName.PayActionPoint,
+        {
+          type: CombatActionTargetType.Single,
+          targetId: eventData.characterId,
+        },
+        1
+      ),
       false
     );
   }

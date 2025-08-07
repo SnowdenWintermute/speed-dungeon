@@ -7,7 +7,6 @@ import { entityIsDetailed } from "@/stores/game-store/detailable-entities";
 import UnspentAttributesButton from "../UnspentAttributesButton";
 import { useShallow } from "zustand/react/shallow";
 import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
-import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
 import {
@@ -30,6 +29,7 @@ import ThreatPriorityList from "./ThreatPriorityList";
 import Portrait from "./Portrait";
 import { getCombatantUiIdentifierIcon } from "@/utils/get-combatant-class-icon";
 import ClockIcon from "../../../../public/img/game-ui-icons/clock-icon.svg";
+import { BUTTON_HEIGHT_SMALL } from "@/client_consts";
 
 interface Props {
   combatant: Combatant;
@@ -101,11 +101,9 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
 
   const combatantUiIdentifierIcon = getCombatantUiIdentifierIcon(party, combatant);
 
-  const inCombat = party.battleId !== null;
-
-  const actionPointsDisplay = inCombat ? (
+  const actionPointsDisplay = (
     <HoverableTooltipWrapper
-      extraStyles="absolute top-0 left-2/3 -translate-x-1/2 -translate-y-1/2"
+      extraStyles="absolute top-0 left-2/3 -translate-x-1/2 -translate-y-1/2 flex items-center"
       tooltipText="Action Points"
     >
       <ul className=" flex">
@@ -119,9 +117,11 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
         ))}
       </ul>
     </HoverableTooltipWrapper>
-  ) : (
-    <></>
   );
+
+  const shouldDisplayActionPoints =
+    battleOption !== null &&
+    battleOption.turnOrderManager.combatantIsFirstInTurnOrder(combatant.entityProperties.id);
 
   return (
     <div className="">
@@ -145,7 +145,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
             }}
             ref={combatantPlaqueRef}
           >
-            {actionPointsDisplay}
+            {shouldDisplayActionPoints && actionPointsDisplay}
             {isPartyMember && (
               <InventoryIconButton
                 entityId={entityId}
@@ -214,8 +214,6 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
           </div>
 
           <div className="flex">
-            <ActiveCombatantIcon battleOption={battleOption} combatantId={entityId} />
-
             {!isPartyMember && conditionIndicators("mt-1") /* otherwise put it above */}
           </div>
         </div>
