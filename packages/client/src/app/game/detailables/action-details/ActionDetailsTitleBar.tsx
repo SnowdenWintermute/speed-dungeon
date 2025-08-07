@@ -1,0 +1,61 @@
+import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import {
+  COMBAT_ACTION_NAME_STRINGS,
+  CombatActionName,
+  CombatantActionState,
+} from "@speed-dungeon/common";
+import React from "react";
+
+interface Props {
+  actionName: CombatActionName;
+  actionStateAndSelectedLevel?: {
+    actionStateOption: undefined | CombatantActionState;
+    selectedLevelOption: null | number;
+  };
+}
+
+export default function ActionDetailsTitleBar(props: Props) {
+  const { actionName, actionStateAndSelectedLevel } = props;
+  const actionStateOption = actionStateAndSelectedLevel?.actionStateOption;
+  const selectedLevelOption = actionStateAndSelectedLevel?.selectedLevelOption;
+
+  function handleSelectActionLevel(level: number) {
+    //
+    console.log("selecting rank", level, "for action", COMBAT_ACTION_NAME_STRINGS[actionName]);
+  }
+
+  return (
+    <div className="flex flex-col w-full">
+      <div className="flex justify-between">
+        <span>{COMBAT_ACTION_NAME_STRINGS[actionName]}</span>
+        <div className="flex">
+          <span className="mr-1">{(actionStateOption?.level ?? 0) > 1 ? "Ranks" : "Rank"}</span>
+          {actionStateAndSelectedLevel && (
+            <ul className="flex">
+              {Array.from({ length: actionStateOption?.level || 0 }, (_, i) => i + 1).map(
+                (item) => (
+                  <li key={actionName + item} className="mr-1 last:mr-0">
+                    <HotkeyButton
+                      hotkeys={[`Digit${item.toString()}`, `Numpad${item.toString()}`]}
+                      disabled={selectedLevelOption === null}
+                      onClick={() => handleSelectActionLevel(item)}
+                    >
+                      <div
+                        className={`h-5 w-5 flex items-center justify-center border border-slate-400 
+                      ${item === selectedLevelOption ? "bg-slate-950" : "bg-slate-700"}`}
+                      >
+                        <span>{item}</span>
+                      </div>
+                    </HotkeyButton>
+                  </li>
+                )
+              )}
+            </ul>
+          )}
+        </div>
+      </div>
+
+      <div className="mb-1 mt-1 h-[1px] bg-slate-400" />
+    </div>
+  );
+}

@@ -1,19 +1,15 @@
 import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import {
-  COMBAT_ACTIONS,
-  COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
   CONSUMABLE_ACTION_NAMES_BY_CONSUMABLE_TYPE,
   CONSUMABLE_TYPE_STRINGS,
-  CombatActionName,
   Consumable,
   ConsumableType,
   EntityProperties,
   Equipment,
-  EquipmentType,
   Item,
 } from "@speed-dungeon/common";
 import React, { useEffect, useRef, useState } from "react";
-import ActionDetails from "./ActionDetails";
+import ActionDetails from "./action-details";
 import EquipmentDetails from "./EquipmentDetails";
 import ModKeyTooltip from "./ModKeyTooltip";
 import { useGameStore } from "@/stores/game-store";

@@ -2,7 +2,7 @@ import { BUTTON_HEIGHT, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import React, { ReactNode, useEffect } from "react";
 import { getCurrentMenu, useGameStore } from "@/stores/game-store";
 import { ActionButtonCategory, MenuStateType } from "./menu-state";
-import ActionDetails from "../detailables/ActionDetails";
+import ActionDetails from "../detailables/action-details";
 import {
   ConsideringCombatActionMenuState,
   EXECUTE_BUTTON_TEXT,

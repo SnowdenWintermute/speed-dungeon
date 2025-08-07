@@ -8,11 +8,8 @@ import {
   CombatActionName,
   CombatActionUsabilityContext,
   Combatant,
-  CombatantEquipment,
   CombatantProperties,
   EQUIPMENT_TYPE_STRINGS,
-  Equipment,
-  EquipmentType,
   TARGETING_SCHEME_STRINGS,
   TARGET_CATEGORY_STRINGS,
   getUnmetCostResourceTypes,
@@ -21,6 +18,7 @@ import {
 import React, { ReactNode } from "react";
 import { useGameStore } from "@/stores/game-store";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import ActionDetailsTitleBar from "./ActionDetailsTitleBar";
 
 interface Props {
   actionName: CombatActionName;
@@ -34,11 +32,16 @@ export default function ActionDetails({ actionName, hideTitle }: Props) {
   const focusedCharacterResult = useGameStore().getFocusedCharacter();
   if (focusedCharacterResult instanceof Error) return <div>{focusedCharacterResult.message}</div>;
   const focusedCharacter = focusedCharacterResult;
+  const actionStateOption = focusedCharacter.combatantProperties.ownedActions[actionName];
+  const selectedLevelOption = focusedCharacter.combatantProperties.selectedActionLevel;
 
-  const inCombat = Object.values(party.currentRoom.monsters).length;
+  const inCombat = !!Object.values(party.currentRoom.monsters).length;
 
   const action = COMBAT_ACTIONS[actionName];
-  const costs = action.costProperties.getResourceCosts(focusedCharacter.combatantProperties);
+  const costs = action.costProperties.getResourceCosts(
+    focusedCharacter.combatantProperties,
+    inCombat
+  );
   const { usabilityContext } = action.targetingProperties;
 
   const targetingSchemesText = formatTargetingSchemes(focusedCharacter, action);
@@ -46,10 +49,10 @@ export default function ActionDetails({ actionName, hideTitle }: Props) {
   return (
     <div className="flex flex-col pointer-events-auto" style={{ flex: `1 1 1px` }}>
       {!hideTitle && (
-        <>
-          <span>{COMBAT_ACTION_NAME_STRINGS[action.name]}</span>
-          <div className="mb-1 mt-1 h-[1px] bg-slate-400" />
-        </>
+        <ActionDetailsTitleBar
+          actionName={actionName}
+          actionStateAndSelectedLevel={{ actionStateOption, selectedLevelOption }}
+        />
       )}
       <div className="flex-grow overflow-auto mr-2">
         <div>{action.description}</div>
