@@ -1,5 +1,4 @@
 import {
-  COMBAT_ACTION_NAME_STRINGS,
   CharacterAssociatedData,
   CombatActionComponent,
   CombatantContext,

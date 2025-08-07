@@ -46,6 +46,7 @@ export enum ClientToServerEvent {
   PurchaseItem = "34",
   PerformCraftingAction = "35",
   PostItemLink = "36",
+  SelectCombatActionLevel = "37",
 }
 
 export interface ClientToServerEventTypes {
@@ -127,4 +128,8 @@ export interface ClientToServerEventTypes {
     craftingAction: CraftingAction;
   }) => void;
   [ClientToServerEvent.PostItemLink]: (itemId: EntityId) => void;
+  [ClientToServerEvent.SelectCombatActionLevel]: (eventData: {
+    characterId: EntityId;
+    actionLevel: number;
+  }) => void;
 }

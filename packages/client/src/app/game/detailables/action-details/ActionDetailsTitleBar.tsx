@@ -1,5 +1,8 @@
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { websocketConnection } from "@/singletons/websocket-connection";
+import { useGameStore } from "@/stores/game-store";
 import {
+  ClientToServerEvent,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionName,
   CombatantActionState,
@@ -19,9 +22,14 @@ export default function ActionDetailsTitleBar(props: Props) {
   const actionStateOption = actionStateAndSelectedLevel?.actionStateOption;
   const selectedLevelOption = actionStateAndSelectedLevel?.selectedLevelOption;
 
+  const focusedCharacterId = useGameStore.getState().focusedCharacterId;
+
   function handleSelectActionLevel(level: number) {
-    //
     console.log("selecting rank", level, "for action", COMBAT_ACTION_NAME_STRINGS[actionName]);
+    websocketConnection.emit(ClientToServerEvent.SelectCombatActionLevel, {
+      characterId: focusedCharacterId,
+      actionLevel: level,
+    });
   }
 
   return (
