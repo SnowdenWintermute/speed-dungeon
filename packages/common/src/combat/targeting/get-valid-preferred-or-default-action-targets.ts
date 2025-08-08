@@ -18,7 +18,12 @@ export function getValidPreferredOrDefaultActionTargets(
 ): Error | CombatActionTarget {
   let newTargets: null | CombatActionTarget = null;
 
-  const targetingSchemes = combatAction.targetingProperties.getTargetingSchemes(combatant);
+  const { selectedActionLevel } = combatant.combatantProperties;
+  if (selectedActionLevel === null)
+    return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_LEVEL_SELECTED);
+
+  const targetingSchemes =
+    combatAction.targetingProperties.getTargetingSchemes(selectedActionLevel);
 
   if (playerOption) {
     const {

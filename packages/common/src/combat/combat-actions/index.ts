@@ -165,11 +165,10 @@ export abstract class CombatActionComponent {
   getOnUseMessageData(context: ActionResolutionStepContext): ActionUseMessageData {
     const { combatantContext } = context;
     const { combatant } = combatantContext;
-    const { actionName } = context.tracker.actionExecutionIntent;
-    const ownedActionOption = combatant.combatantProperties.ownedActions[actionName];
+    const { selectedActionLevel } = combatant.combatantProperties;
     return {
       nameOfActionUser: combatant.entityProperties.name,
-      actionLevel: ownedActionOption?.level ?? 0,
+      actionLevel: selectedActionLevel ?? 0,
     };
   }
 

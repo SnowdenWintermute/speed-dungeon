@@ -117,8 +117,9 @@ function ActionCostsDisplay(props: {
 }
 
 function formatTargetingSchemes(user: Combatant, action: CombatActionComponent) {
+  const { selectedActionLevel } = user.combatantProperties;
   return action.targetingProperties
-    .getTargetingSchemes(user)
+    .getTargetingSchemes(selectedActionLevel || 1)
     .map((targetingScheme, i) => TARGETING_SCHEME_STRINGS[targetingScheme])
     .join(", ");
 }

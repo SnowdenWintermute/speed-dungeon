@@ -152,7 +152,8 @@ export class BaseMenuState implements ActionMenuState {
 
       const costs = combatAction.costProperties.getResourceCosts(
         combatantProperties,
-        this.inCombat
+        this.inCombat,
+        1 // @TODO - calculate the actual level to display based on most expensive they can afford
       );
       let unmetCosts = [];
       if (costs) unmetCosts = getUnmetCostResourceTypes(combatantProperties, costs);

@@ -67,7 +67,7 @@ export class TargetingCalculator {
     return newTargetsResult;
   }
 
-  cycleCharacterTargetingSchemes(characterId: string): Error | void {
+  cycleCharacterTargetingSchemes(characterId: string): Error | CombatActionTarget {
     const characterAndActionDataResult = getCombatantAndSelectedCombatAction(
       this.context.party,
       characterId
@@ -75,12 +75,14 @@ export class TargetingCalculator {
     if (characterAndActionDataResult instanceof Error) return characterAndActionDataResult;
     const { character, combatAction } = characterAndActionDataResult;
     const { targetingProperties } = combatAction;
-    const targetingSchemes = targetingProperties.getTargetingSchemes(character);
 
-    if (targetingSchemes.length < 2)
-      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.ONLY_ONE_TARGETING_SCHEME_AVAILABLE);
+    const { selectedActionLevel } = character.combatantProperties;
+    if (selectedActionLevel === null)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_LEVEL_SELECTED);
+    const targetingSchemes = targetingProperties.getTargetingSchemes(selectedActionLevel);
 
     const lastUsedTargetingScheme = character.combatantProperties.selectedTargetingScheme;
+    console.log("last used scheme:", lastUsedTargetingScheme);
 
     let newTargetingScheme = lastUsedTargetingScheme;
 
@@ -100,9 +102,12 @@ export class TargetingCalculator {
 
     // must set targetingScheme here so getValidPreferredOrDefaultActionTargets takes it into account
     character.combatantProperties.selectedTargetingScheme = newTargetingScheme;
+    console.log("newly selected scheme:", newTargetingScheme);
 
-    if (this.playerOption)
+    if (this.playerOption) {
       this.playerOption.targetPreferences.targetingSchemePreference = newTargetingScheme;
+      console.log("set player preference:", newTargetingScheme);
+    }
 
     const filteredTargetIdsResult = this.getFilteredPotentialTargetIdsForAction(combatAction);
     if (filteredTargetIdsResult instanceof Error) return filteredTargetIdsResult;
@@ -127,6 +132,7 @@ export class TargetingCalculator {
     }
 
     character.combatantProperties.combatActionTarget = newTargetsResult;
+    return newTargetsResult;
   }
 
   getCombatActionTargetIds(
@@ -182,8 +188,11 @@ export class TargetingCalculator {
         combatant.combatantProperties.selectedTargetingScheme =
           newTargetPreferencesResult.targetingSchemePreference;
       } else {
+        const { selectedActionLevel } = combatant.combatantProperties;
+        if (selectedActionLevel === null)
+          return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_LEVEL_SELECTED);
         const defaultScheme =
-          combatActionOption.targetingProperties.getTargetingSchemes(combatant)[0];
+          combatActionOption.targetingProperties.getTargetingSchemes(selectedActionLevel)[0];
         if (defaultScheme === undefined) return new Error("no default targeting scheme found");
         combatant.combatantProperties.selectedTargetingScheme = defaultScheme;
       }
@@ -260,7 +269,12 @@ export class TargetingCalculator {
     if (!this.playerOption) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
     const newPreferences = cloneDeep(this.playerOption.targetPreferences);
     const { targetingProperties } = combatAction;
-    const targetingSchemes = targetingProperties.getTargetingSchemes(this.context.combatant);
+
+    const { selectedActionLevel } = this.context.combatant.combatantProperties;
+    if (selectedActionLevel === null)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_LEVEL_SELECTED);
+
+    const targetingSchemes = targetingProperties.getTargetingSchemes(selectedActionLevel);
 
     switch (newTargets.type) {
       case CombatActionTargetType.Single:
@@ -321,5 +335,40 @@ export class TargetingCalculator {
     const primaryTargetResult = AdventuringParty.getCombatant(party, primaryTargetIdOption);
     if (primaryTargetResult instanceof Error) return primaryTargetResult;
     return primaryTargetResult;
+  }
+
+  // I made this to check if the targeting scheme still matches after changing action level
+  // since changing to a lower action level may limit available schemes
+  selectedTargetingSchemeIsAvailableOnSelectedActionLevel() {
+    const { combatantProperties } = this.context.combatant;
+    const { selectedCombatAction, selectedActionLevel, selectedTargetingScheme } =
+      combatantProperties;
+    if (selectedCombatAction === null) {
+      if (combatantProperties.selectedTargetingScheme !== null) return false;
+      return true;
+    }
+
+    if (selectedActionLevel !== null && selectedTargetingScheme !== null) {
+      const action = COMBAT_ACTIONS[selectedCombatAction];
+      const availableSchemes = action.targetingProperties.getTargetingSchemes(selectedActionLevel);
+      if (availableSchemes.includes(selectedTargetingScheme)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /** If updated, return new targets */
+  updateTargetingSchemeAfterSelectingActionLevel(newSelectedActionLevel: number) {
+    const { combatantProperties } = this.context.combatant;
+    combatantProperties.selectedActionLevel = newSelectedActionLevel;
+
+    // check if current targets are still valid at this level
+    const selectedTargetingSchemeStillValid =
+      this.selectedTargetingSchemeIsAvailableOnSelectedActionLevel();
+    // if not, assign initial targets
+    if (!selectedTargetingSchemeStillValid) {
+      return this.cycleCharacterTargetingSchemes(this.context.combatant.entityProperties.id);
+    }
   }
 }

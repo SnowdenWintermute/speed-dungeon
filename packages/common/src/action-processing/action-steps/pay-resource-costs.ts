@@ -17,9 +17,11 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
     const inCombat = !!context.combatantContext.getBattleOption();
 
     const { combatantProperties } = combatant;
-    const { selectedActionLevel } = combatantProperties;
-    if (selectedActionLevel === null)
-      throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_LEVEL_SELECTED);
+    let { selectedActionLevel } = combatantProperties;
+
+    // for counterattacks, we'll not have a selected action level but we need one
+    // to pass to the resource costst function
+    if (selectedActionLevel === null) selectedActionLevel = 1;
 
     const costsOption = action.costProperties.getResourceCosts(
       combatantProperties,

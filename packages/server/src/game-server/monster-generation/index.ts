@@ -46,13 +46,13 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
 
   const ownedActions: CombatActionName[] = [
     CombatActionName.Attack,
-    CombatActionName.Fire,
-    CombatActionName.IceBoltParent,
-    CombatActionName.ChainingSplitArrowParent,
-    CombatActionName.ExplodingArrowParent,
-    CombatActionName.UseGreenAutoinjector,
-    CombatActionName.UseBlueAutoinjector,
-    CombatActionName.Blind,
+    // CombatActionName.Fire,
+    // CombatActionName.IceBoltParent,
+    // CombatActionName.ChainingSplitArrowParent,
+    // CombatActionName.ExplodingArrowParent,
+    // CombatActionName.UseGreenAutoinjector,
+    // CombatActionName.UseBlueAutoinjector,
+    // CombatActionName.Blind,
     CombatActionName.Healing,
     // CombatActionName.PassTurn,
   ];

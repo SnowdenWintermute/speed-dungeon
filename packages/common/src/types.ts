@@ -4,15 +4,9 @@ import { SpeedDungeonGame, SpeedDungeonPlayer } from "./game/index.js";
 
 export interface CharacterAssociatedData {
   character: Combatant;
+  game: SpeedDungeonGame;
+  party: AdventuringParty;
   player: SpeedDungeonPlayer;
-  game: SpeedDungeonGame;
-  party: AdventuringParty;
-}
-
-export interface CombatantAssociatedData {
-  game: SpeedDungeonGame;
-  party: AdventuringParty;
-  combatant: Combatant;
 }
 
 export interface PlayerAssociatedData {

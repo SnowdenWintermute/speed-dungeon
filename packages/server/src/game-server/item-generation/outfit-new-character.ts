@@ -34,6 +34,7 @@ export function outfitNewCharacter(character: Combatant) {
   const ownedActions = [
     CombatActionName.Attack,
     CombatActionName.ChainingSplitArrowParent,
+    // CombatActionName.Counterattack,
     CombatActionName.UseGreenAutoinjector,
     CombatActionName.UseBlueAutoinjector,
     CombatActionName.IceBoltParent,
@@ -185,10 +186,10 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   // giveTestingCombatAttributes(combatantProperties);
   // combatantProperties.level = 5;
   combatantProperties.unspentAttributePoints = 3;
-  combatantProperties.inherentAttributes[CombatAttribute.Speed] = 3;
+  combatantProperties.inherentAttributes[CombatAttribute.Speed] = 9;
   combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 45;
   combatantProperties.inherentAttributes[CombatAttribute.Strength] = 40;
-  combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 40;
+  combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 7;
   // combatantProperties.inherentAttributes[CombatAttribute.Speed] = 9999;
   combatantProperties.inherentAttributes[CombatAttribute.Hp] = 75;
   combatantProperties.traits.push({

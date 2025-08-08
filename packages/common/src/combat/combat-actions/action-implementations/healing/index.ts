@@ -30,10 +30,9 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
   validTargetCategories: TargetCategories.Any,
   usabilityContext: CombatActionUsabilityContext.All,
   intent: CombatActionIntent.Benevolent,
-  getTargetingSchemes: (user) => {
+  getTargetingSchemes: (actionLevel) => {
     const toReturn = [TargetingScheme.Single];
-    const spellLevel = user.combatantProperties.ownedActions[CombatActionName.Healing]?.level || 0;
-    if (spellLevel > 1) toReturn.push(TargetingScheme.Area);
+    if (actionLevel > 1) toReturn.push(TargetingScheme.Area);
     return toReturn;
   },
 };

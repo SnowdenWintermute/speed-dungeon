@@ -46,7 +46,7 @@ export class CollectPotentialTargetsForAction implements BehaviorNode {
     const targetOptionsAsStrings: string[] = [];
 
     const targetingSchemeOptions = [
-      ...action.targetingProperties.getTargetingSchemes(this.combatant),
+      ...action.targetingProperties.getTargetingSchemes(this.actionLevel),
     ];
 
     for (const currentTargetingSchemeIndex of targetingSchemeOptions) {
