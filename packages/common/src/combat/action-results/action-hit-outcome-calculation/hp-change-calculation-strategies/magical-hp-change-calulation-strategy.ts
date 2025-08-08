@@ -11,6 +11,7 @@ export class MagicalResourceChangeCalculationStrategy implements ResourceChangeC
     hitOutcomeProperties: CombatActionHitOutcomeProperties,
     hpChange: ResourceChange,
     user: CombatantProperties,
+    actionLevel: number,
     target: CombatantProperties
   ) {
     return;

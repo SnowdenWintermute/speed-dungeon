@@ -39,10 +39,11 @@ const targetingProperties =
 export const rangedAttackProjectileHitOutcomeProperties: CombatActionHitOutcomeProperties = {
   ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Ranged],
   resourceChangePropertiesGetters: {
-    [CombatActionResource.HitPoints]: (user, primaryTarget) => {
+    [CombatActionResource.HitPoints]: (user, actionLevel, primaryTarget) => {
       const hpChangeProperties = getAttackResourceChangeProperties(
         rangedAttackProjectileHitOutcomeProperties,
         user,
+        actionLevel,
         primaryTarget,
         CombatAttribute.Dexterity,
         HoldableSlotType.MainHand,

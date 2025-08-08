@@ -16,6 +16,7 @@ import { CombatActionResourceChangeProperties } from "../../combat-action-resour
 export function getAttackResourceChangeProperties(
   hitOutcomeProperties: CombatActionHitOutcomeProperties,
   user: CombatantProperties,
+  actionLevel: number,
   primaryTarget: CombatantProperties,
   scalingAttribute: CombatAttribute,
   weaponSlot: HoldableSlotType,
@@ -61,6 +62,7 @@ export function getAttackResourceChangeProperties(
       weaponOption,
       hpChangeProperties,
       user,
+      1,
       primaryTarget
     );
   } else {

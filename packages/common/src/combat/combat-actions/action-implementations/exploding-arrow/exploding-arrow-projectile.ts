@@ -13,8 +13,7 @@ const config: CombatActionComponentConfig = {
   description: "An arrow that applies a detonatable condition",
 };
 
-config.hitOutcomeProperties.getAppliedConditions = (context) => {
-  const { idGenerator, combatantContext } = context;
+config.hitOutcomeProperties.getAppliedConditions = (combatantContext, idGenerator, actionLevel) => {
   const { combatant } = combatantContext;
 
   const primedForExplosionCondition = new PrimedForExplosionCombatantCondition(

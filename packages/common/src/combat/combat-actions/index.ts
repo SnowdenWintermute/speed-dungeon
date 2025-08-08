@@ -183,8 +183,8 @@ export abstract class CombatActionComponent {
     // - check traits and conditions
     return true;
   }
-  getAccuracy(user: CombatantProperties) {
-    const baseAccuracy = this.hitOutcomeProperties.getUnmodifiedAccuracy(user);
+  getAccuracy(user: CombatantProperties, actionLevel: number) {
+    const baseAccuracy = this.hitOutcomeProperties.getUnmodifiedAccuracy(user, actionLevel);
     if (baseAccuracy.type === ActionAccuracyType.Percentage)
       baseAccuracy.value *= this.hitOutcomeProperties.accuracyModifier;
     return baseAccuracy;

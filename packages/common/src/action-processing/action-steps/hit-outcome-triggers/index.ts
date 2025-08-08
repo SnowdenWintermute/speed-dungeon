@@ -145,6 +145,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         addHitOutcomeDurabilityChanges(
           durabilityChanges,
           combatant,
+          actionExecutionIntent.level,
           targetCombatant,
           action,
           flag,
@@ -186,7 +187,11 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
               );
           }
 
-          const conditionsToApply = action.hitOutcomeProperties.getAppliedConditions(context);
+          const conditionsToApply = action.hitOutcomeProperties.getAppliedConditions(
+            context.combatantContext,
+            context.idGenerator,
+            context.tracker.actionExecutionIntent.level
+          );
 
           if (conditionsToApply) {
             for (const condition of conditionsToApply) {

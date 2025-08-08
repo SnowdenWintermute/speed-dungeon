@@ -97,8 +97,7 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
       return hpChangeProperties;
     },
   },
-  getAppliedConditions: (context) => {
-    const { idGenerator, combatantContext } = context;
+  getAppliedConditions: (combatantContext, idGenerator, actionlevel) => {
     const { combatant } = combatantContext;
 
     let userEntityProperties = cloneDeep(combatant.entityProperties);
@@ -202,7 +201,7 @@ const config: CombatActionComponentConfig = {
 
     const primaryTargetIdResult = targetingCalculator.getPrimaryTargetCombatant(
       party,
-      // new CombatActionExecutionIntent(CombatActionName.IceBurst, selectedTarget, this.level)
+      // new CombatActionExecutionIntent(CombatActionName.IceBurst, selectedTarget)
       context.tracker.actionExecutionIntent
     );
     if (primaryTargetIdResult instanceof Error) throw primaryTargetIdResult;

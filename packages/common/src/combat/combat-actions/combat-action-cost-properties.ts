@@ -55,7 +55,7 @@ export const genericCombatActionCostProperties: CombatActionCostPropertiesConfig
 };
 
 export const BASE_SPELL_MANA_COST_BASES = {
-  base: 0.5,
+  base: 0.25,
   multipliers: {
     actionLevel: 1.2,
     userCombatantLevel: 1.2,

@@ -49,10 +49,7 @@ const config: CombatActionComponentConfig = {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
     costBases: {
       ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell].costBases,
-      [ActionPayableResource.Mana]: {
-        ...BASE_SPELL_MANA_COST_BASES,
-        base: 0.25,
-      },
+      [ActionPayableResource.Mana]: BASE_SPELL_MANA_COST_BASES,
       [ActionPayableResource.ActionPoints]: {
         base: 1,
       },

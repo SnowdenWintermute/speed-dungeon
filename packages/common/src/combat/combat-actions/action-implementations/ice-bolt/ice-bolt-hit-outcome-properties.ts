@@ -54,8 +54,7 @@ export const iceBoltProjectileHitOutcomeProperties: CombatActionHitOutcomeProper
     },
   },
 
-  getAppliedConditions: (context) => {
-    const { idGenerator, combatantContext } = context;
+  getAppliedConditions: (combatantContext, idGenerator, actionLevel) => {
     const { combatant } = combatantContext;
 
     const condition = new PrimedForIceBurstCombatantCondition(

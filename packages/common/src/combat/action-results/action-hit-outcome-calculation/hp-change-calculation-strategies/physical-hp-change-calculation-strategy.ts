@@ -11,11 +11,18 @@ export class PhysicalResourceChangeCalculationStrategy
     hitOutcomeProperties: CombatActionHitOutcomeProperties,
     hpChange: ResourceChange,
     user: CombatantProperties,
+    actionLevel: number,
     target: CombatantProperties
   ) {
     if (hpChange.value > 0) return hpChange; // don't resist being healed
     if (hpChange.value === 0) return hpChange;
-    hpChange.value = getDamageAfterArmorClass(hpChange.value, user, target, hitOutcomeProperties);
+    hpChange.value = getDamageAfterArmorClass(
+      hpChange.value,
+      user,
+      actionLevel,
+      target,
+      hitOutcomeProperties
+    );
   }
   applyResilience(
     _hpChange: ResourceChange,

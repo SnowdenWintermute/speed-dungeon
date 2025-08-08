@@ -189,7 +189,7 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   combatantProperties.inherentAttributes[CombatAttribute.Speed] = 9;
   combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 45;
   combatantProperties.inherentAttributes[CombatAttribute.Strength] = 40;
-  combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 7;
+  combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 25;
   // combatantProperties.inherentAttributes[CombatAttribute.Speed] = 9999;
   combatantProperties.inherentAttributes[CombatAttribute.Hp] = 75;
   combatantProperties.traits.push({

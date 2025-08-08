@@ -12,6 +12,7 @@ import {
   EQUIPMENT_TYPE_STRINGS,
   TARGETING_SCHEME_STRINGS,
   TARGET_CATEGORY_STRINGS,
+  createArrayFilledWithSequentialNumbers,
   getUnmetCostResourceTypes,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
@@ -59,7 +60,13 @@ export default function ActionDetails({ actionName, hideTitle }: Props) {
         <div>{action.description}</div>
         <div>{`Valid targets: ${TARGET_CATEGORY_STRINGS[action.targetingProperties.validTargetCategories]}`}</div>
         <div>{`Targeting schemes: ${targetingSchemesText}`}</div>
-        {costs && <ActionCostsDisplay costs={costs} user={focusedCharacter.combatantProperties} />}
+        {costs && (
+          <ActionCostsDisplay
+            actionName={actionName}
+            user={focusedCharacter.combatantProperties}
+            inCombat={inCombat}
+          />
+        )}
         <div
           className={
             !inCombat && usabilityContext === CombatActionUsabilityContext.InCombat
@@ -95,25 +102,52 @@ function RequiredEquipmentDisplay(props: {
 
 function ActionCostsDisplay(props: {
   user: CombatantProperties;
-  costs: Partial<Record<ActionPayableResource, number>>;
+  actionName: CombatActionName;
+  inCombat: boolean;
 }) {
-  const { user, costs } = props;
-  const unmet = getUnmetCostResourceTypes(user, costs);
+  const { user, actionName, inCombat } = props;
+  const action = COMBAT_ACTIONS[actionName];
+  const actionStateOption = user.ownedActions[actionName];
 
-  return (
-    <ul>
-      {iterateNumericEnumKeyedRecord(costs).map(([resource, cost]) => {
-        let unmetStyles = "";
-        if (unmet.includes(resource)) unmetStyles += UNMET_REQUIREMENT_TEXT_COLOR;
-        return (
-          <li key={resource} className={unmetStyles}>
-            <span>{ACTION_PAYABLE_RESOURCE_STRINGS[resource]}: </span>
-            <span>{Math.abs(cost)}</span>
-          </li>
-        );
-      })}
-    </ul>
-  );
+  const userIsSelectingThisAction = user.selectedCombatAction === actionName;
+  const { selectedActionLevel } = user;
+
+  const costsByLevel: (Partial<Record<ActionPayableResource, number>> | null)[] = [];
+
+  for (const level of createArrayFilledWithSequentialNumbers(actionStateOption?.level || 3, 1)) {
+    const costs = action.costProperties.getResourceCosts(user, inCombat, level);
+    costsByLevel.push(costs);
+  }
+
+  const costsDisplay = costsByLevel.map((costs, i) => {
+    if (costs === null) return;
+    const rank = i + 1;
+
+    const unmet = getUnmetCostResourceTypes(user, costs);
+
+    let userSelectedStyles = "";
+    if (rank === selectedActionLevel && userIsSelectingThisAction)
+      userSelectedStyles = "underline ";
+
+    return (
+      <li className={`flex mr-1 last:mr-0 ${userSelectedStyles} px-1`} key={i}>
+        <ul>
+          {iterateNumericEnumKeyedRecord(costs).map(([resource, cost]) => {
+            let unmetStyles = "";
+            if (unmet.includes(resource)) unmetStyles += UNMET_REQUIREMENT_TEXT_COLOR;
+            return (
+              <li key={resource} className={unmetStyles}>
+                <span>{ACTION_PAYABLE_RESOURCE_STRINGS[resource]}: </span>
+                <span>{Math.abs(cost)}</span>
+              </li>
+            );
+          })}
+        </ul>
+      </li>
+    );
+  });
+
+  return <ul className="flex">{costsDisplay}</ul>;
 }
 
 function formatTargetingSchemes(user: Combatant, action: CombatActionComponent) {

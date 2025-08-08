@@ -21,6 +21,7 @@ import { EntityId } from "../../../primatives/index.js";
 export function addHitOutcomeDurabilityChanges(
   durabilityChanges: DurabilityChangesByEntityId,
   actionUser: Combatant,
+  actionLevel: number,
   targetCombatant: Combatant,
   action: CombatActionComponent,
   hitOutcomeType: HitOutcome,
@@ -32,6 +33,7 @@ export function addHitOutcomeDurabilityChanges(
   if (!hpChangePropertiesGetter) return;
   const hpChangeProperties = hpChangePropertiesGetter(
     actionUser.combatantProperties,
+    actionLevel,
     targetCombatant.combatantProperties
   );
   if (hpChangeProperties?.resourceChangeSource.isHealing) return;
