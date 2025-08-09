@@ -19,6 +19,7 @@ export class CollectPotentialTargetsForActionIfUsable implements BehaviorNode {
   execute(): BehaviorNodeState {
     const actionNameOption = this.actionNameOptionGetter();
     const actionLevelOption = this.actionLevelOptionGetter();
+
     if (actionNameOption === null || actionLevelOption === null) {
       return BehaviorNodeState.Failure;
     }

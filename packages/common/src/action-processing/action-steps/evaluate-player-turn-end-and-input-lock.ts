@@ -102,6 +102,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   const requiredTurn =
     action.costProperties.requiresCombatTurn(context) ||
     combatant.combatantProperties.actionPoints === 0;
+
   const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
   let shouldSendEndActiveTurnMessage = false;
   if (requiredTurn && !turnAlreadyEnded && battleOption) {

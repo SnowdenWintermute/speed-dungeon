@@ -1,10 +1,9 @@
-import { ThreatManager } from "@speed-dungeon/common";
+"use client";
 import React from "react";
 
 interface Props {
   portraitHeight: number;
   combatantLevel: number;
-  threatManager?: ThreatManager;
   portrait?: string;
 }
 

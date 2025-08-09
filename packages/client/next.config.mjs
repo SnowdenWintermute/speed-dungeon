@@ -1,16 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    externalDir: true,
+    // externalDir: true,
   },
   typescript: {
     // !! WARN !!
     // Dangerously allow production builds to successfully complete even if
     // your project has type errors.
     // !! WARN !!
-    ignoreBuildErrors: true,
+    // ignoreBuildErrors: true,
   },
-  transpilePackages: ["common"], // attemptingtospeedbuildtimes
+  // transpilePackages: ["common"], // attemptingtospeedbuildtimes
 
   webpack: (config) => {
     // this part of the config is from chat-gpt and is supposed to let us import svg as react components

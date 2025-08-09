@@ -9,9 +9,11 @@ import {
 } from "@babylonjs/core";
 import { useGameStore } from "@/stores/game-store";
 import { CharacterModel } from ".";
-import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
+import { AdventuringParty, iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import { CharacterModelPartCategory } from "./modular-character-parts-model-manager/modular-character-parts";
+import { actionCommandReceiver } from "@/singletons/action-command-manager";
+import { getGameWorld } from "../../SceneManager";
 
 export class HighlightManager {
   private originalPartMaterialColors: Partial<
@@ -122,9 +124,23 @@ export class HighlightManager {
         .targetingIndicators.filter(
           (indicator) => indicator.targetId === this.modularCharacter.entityId
         );
-      if (indicators.length && !this.isHighlighted) {
+
+      const gameOption = useGameStore.getState().game;
+      if (gameOption === null) return;
+      const battleOption = AdventuringParty.getBattleOption(partyResult, gameOption);
+      if (battleOption === null) return;
+
+      const isTurn =
+        battleOption.turnOrderManager.getFastestActorTurnOrderTracker().combatantId ===
+        this.modularCharacter.getCombatant().entityProperties.id;
+
+      const actionReplayInProgress = !getGameWorld().replayTreeManager.isEmpty();
+
+      // if (indicators.length && !this.isHighlighted) {
+      if (isTurn && !this.isHighlighted && !actionReplayInProgress) {
         this.setHighlighted();
-      } else if (this.isHighlighted && !indicators.length) {
+        // } else if (this.isHighlighted && !indicators.length) {
+      } else if ((this.isHighlighted && !isTurn) || actionReplayInProgress) {
         this.removeHighlight();
       }
     }

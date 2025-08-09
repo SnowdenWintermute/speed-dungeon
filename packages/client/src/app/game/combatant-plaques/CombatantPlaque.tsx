@@ -10,6 +10,8 @@ import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
 import {
+  COMBAT_ACTIONS,
+  CombatActionIntent,
   Combatant,
   CombatantEquipment,
   CombatantProperties,
@@ -30,6 +32,7 @@ import Portrait from "./Portrait";
 import { getCombatantUiIdentifierIcon } from "@/utils/get-combatant-class-icon";
 import ClockIcon from "../../../../public/img/game-ui-icons/clock-icon.svg";
 import { BUTTON_HEIGHT_SMALL } from "@/client_consts";
+import TargetIcon from "../../../../public/img/game-ui-icons/target-icon.svg";
 
 interface Props {
   combatant: Combatant;
@@ -123,11 +126,30 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
     battleOption !== null &&
     battleOption.turnOrderManager.combatantIsFirstInTurnOrder(combatant.entityProperties.id);
 
+  const indicators = useGameStore().targetingIndicators;
+  const targetedBy = indicators.filter((indicator) => indicator.targetId === entityId);
+
   return (
     <div className="">
       <CharacterModelDisplay character={combatant}>
         <CombatantFloatingMessagesDisplay entityId={entityId} />
         <div className="absolute flex flex-col justify-center items-center text-center top-1/2 left-1/2 -translate-x-1/2 w-[400px]">
+          <div>
+            {
+              // targetedBy.map((item) => {
+              // const action = COMBAT_ACTIONS[item.actionName];
+              // const intentStyling =
+              //   action.targetingProperties.intent === CombatActionIntent.Malicious
+              //     ? "fill-red-600"
+              //     : "fill-green-600";
+              // return (
+              //   <div className="h-10 w-10 ">
+              //     <TargetIcon className={`h-full w-full ${intentStyling}`} />
+              //   </div>
+              // );
+              // })
+            }
+          </div>
           {babylonDataOption && babylonDataOption.debugHtml}
         </div>
       </CharacterModelDisplay>

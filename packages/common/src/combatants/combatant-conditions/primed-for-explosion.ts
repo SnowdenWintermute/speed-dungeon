@@ -31,15 +31,17 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
   ) {}
 
   triggeredWhenHitBy(actionName: CombatActionName) {
-    const actionsThatDontTrigger = [
-      CombatActionName.IceBoltProjectile,
-      CombatActionName.IceBurst,
-      CombatActionName.UseBlueAutoinjector,
-      CombatActionName.UseGreenAutoinjector,
-      CombatActionName.ExplodingArrowProjectile,
+    const actionsThatTrigger = [
+      CombatActionName.AttackRangedMainhandProjectile,
+      CombatActionName.CounterAttackRangedMainhandProjectile,
+      CombatActionName.AttackMeleeMainhand,
+      CombatActionName.AttackMeleeOffhand,
+      CombatActionName.BurningTick,
+      CombatActionName.Fire,
+      CombatActionName.ChainingSplitArrowProjectile,
     ];
 
-    return !actionsThatDontTrigger.includes(actionName);
+    return actionsThatTrigger.includes(actionName);
   }
 
   triggeredWhenActionUsed() {

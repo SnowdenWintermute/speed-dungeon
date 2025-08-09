@@ -98,7 +98,6 @@ const config: CombatActionComponentConfig = {
               type: CombatActionTargetType.Single,
               targetId: opponent.entityProperties.id,
             },
-
             context.tracker.actionExecutionIntent.level
           )
       );

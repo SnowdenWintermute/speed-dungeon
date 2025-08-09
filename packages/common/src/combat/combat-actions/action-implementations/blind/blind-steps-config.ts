@@ -1,4 +1,3 @@
-import cloneDeep from "lodash.clonedeep";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import {
@@ -9,7 +8,6 @@ import { TargetingCalculator } from "../../../targeting/targeting-calculator.js"
 import { CosmeticEffectOnTargetTransformNode } from "../../combat-action-steps-config.js";
 import { COMBAT_ACTIONS } from "../index.js";
 import { getNonProjectileBasedSpellBaseStepsConfig } from "../non-projectile-based-spell-base-steps-config.js";
-import { AnimationType, SkeletalAnimationName } from "../../../../app-consts.js";
 
 const stepsConfig = getNonProjectileBasedSpellBaseStepsConfig();
 
