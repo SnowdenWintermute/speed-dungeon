@@ -48,9 +48,11 @@ export class TargetIndicatorBillboard {
     switch (action.targetingProperties.intent) {
       case CombatActionIntent.Benevolent:
         mat.emissiveColor.set(0, 1, 0);
+        mat.diffuseColor.set(0, 1, 0);
         break;
       case CombatActionIntent.Malicious:
         mat.emissiveColor.set(1, 0, 0);
+        mat.diffuseColor.set(1, 0, 0);
         break;
     }
 

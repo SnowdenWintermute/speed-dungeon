@@ -9,7 +9,7 @@ import {
 } from "@babylonjs/core";
 import { useGameStore } from "@/stores/game-store";
 import { CharacterModel } from ".";
-import { AdventuringParty, iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
+import { AdventuringParty, InputLock, iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import { CharacterModelPartCategory } from "./modular-character-parts-model-manager/modular-character-parts";
 import { actionCommandReceiver } from "@/singletons/action-command-manager";
@@ -64,7 +64,7 @@ export class HighlightManager {
     this.targetingIndicator.setParent(this.modularCharacter.rootTransformNode);
     this.targetingIndicator.position.copyFrom(Vector3.Zero());
 
-    const offsetTop = 0.2;
+    const offsetTop = 0.1;
     this.targetingIndicator.position.y =
       this.modularCharacter.rootMesh.getBoundingInfo().boundingBox.maximumWorld.y +
       this.targetingIndicator.getBoundingInfo().boundingBox.maximum.y -
@@ -119,28 +119,36 @@ export class HighlightManager {
   updateHighlight() {
     const partyResult = useGameStore.getState().getParty();
     if (!(partyResult instanceof Error)) {
-      const indicators = useGameStore
-        .getState()
-        .targetingIndicators.filter(
-          (indicator) => indicator.targetId === this.modularCharacter.entityId
-        );
+      // const indicators = useGameStore
+      //   .getState()
+      //   .targetingIndicators.filter(
+      //     (indicator) => indicator.targetId === this.modularCharacter.entityId
+      //   );
+      //
 
       const gameOption = useGameStore.getState().game;
       if (gameOption === null) return;
       const battleOption = AdventuringParty.getBattleOption(partyResult, gameOption);
       if (battleOption === null) return;
 
+      const isMonster = partyResult.currentRoom.monsterPositions.includes(
+        this.modularCharacter.entityId
+      );
+      if (isMonster) return;
+
       const isTurn =
         battleOption.turnOrderManager.getFastestActorTurnOrderTracker().combatantId ===
         this.modularCharacter.getCombatant().entityProperties.id;
 
-      const actionReplayInProgress = !getGameWorld().replayTreeManager.isEmpty();
+      const inputIsLocked = InputLock.isLocked(partyResult.inputLock);
+
+      const isSelectingActionTargets = useGameStore.getState().targetingIndicators.length > 0;
 
       // if (indicators.length && !this.isHighlighted) {
-      if (isTurn && !this.isHighlighted && !actionReplayInProgress) {
+      if (isTurn && !this.isHighlighted && !inputIsLocked && !isSelectingActionTargets) {
         this.setHighlighted();
         // } else if (this.isHighlighted && !indicators.length) {
-      } else if ((this.isHighlighted && !isTurn) || actionReplayInProgress) {
+      } else if ((this.isHighlighted && !isTurn) || inputIsLocked || isSelectingActionTargets) {
         this.removeHighlight();
       }
     }
@@ -156,7 +164,8 @@ export class HighlightManager {
     // spin the targetingIndicator
 
     const rotation = elapsed;
-    const color = updateColor(scale, amplitude, base);
+    const isFocused = this.modularCharacter.entityId === useGameStore.getState().focusedCharacterId;
+    const color = updateColor(scale, amplitude, base, isFocused);
 
     if (this.targetingIndicator) {
       this.targetingIndicator.rotation.y = rotation;
@@ -255,14 +264,20 @@ function create3dTargetingIndicator(scene: Scene) {
   return mesh;
 }
 
-function updateColor(value: number, amplitude: number, base: number) {
+function updateColor(value: number, amplitude: number, base: number, isFocused: boolean) {
   const colorA = DARKER_YELLOW;
   const colorB = LIGHTER_YELLOW;
 
   // Normalize value to [0, 1]
   const normalizedValue = (value - base) / (2 * amplitude);
+  const color = Color3.Lerp(colorA, colorB, normalizedValue);
+  if (!isFocused) {
+    const luminance = 0.299 * color.r + 0.587 * color.g + 0.114 * color.b;
+    const greyScale = new Color3(luminance, luminance, luminance);
+    return greyScale;
+  }
 
-  return Color3.Lerp(colorA, colorB, normalizedValue);
+  return color;
 }
 
 const BEIGE = new Color3(0.918, 0.776, 0.69);

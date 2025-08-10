@@ -66,12 +66,6 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
       }
     }
 
-    console.log(
-      "after payResourceCosts for action",
-      COMBAT_ACTION_NAME_STRINGS[action.name],
-      combatant.combatantProperties.actionPoints
-    );
-
     super(stepType, context, gameUpdateCommandOption);
   }
 

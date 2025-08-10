@@ -43,7 +43,6 @@ export class SelectTopThreatTargetAndAction implements BehaviorNode {
           new PopFromStackNode(
             () => this.behaviorContext.consideredActionNamesFilteredByIntents,
             (actionName: CombatActionName) => {
-              console.log("popped considered action name:", COMBAT_ACTION_NAME_STRINGS[actionName]);
               this.behaviorContext.setCurrentActionNameConsidering(actionName);
               // @TODO -actually select an actionLevel
               const actionLevel =

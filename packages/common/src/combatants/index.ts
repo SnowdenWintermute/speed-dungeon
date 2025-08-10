@@ -194,7 +194,6 @@ export class CombatantProperties {
   static clampHpAndMpToMax = clampResourcesToMax;
   static setHpAndMpToMax = setResourcesToMax;
   static refillActionPoints(combatantProperties: CombatantProperties) {
-    console.log("refilled action points");
     combatantProperties.actionPoints = COMBATANT_MAX_ACTION_POINTS;
   }
   static payResourceCosts(

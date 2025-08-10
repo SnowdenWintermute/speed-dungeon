@@ -82,7 +82,6 @@ export class TargetingCalculator {
     const targetingSchemes = targetingProperties.getTargetingSchemes(selectedActionLevel);
 
     const lastUsedTargetingScheme = character.combatantProperties.selectedTargetingScheme;
-    console.log("last used scheme:", lastUsedTargetingScheme);
 
     let newTargetingScheme = lastUsedTargetingScheme;
 
@@ -102,11 +101,9 @@ export class TargetingCalculator {
 
     // must set targetingScheme here so getValidPreferredOrDefaultActionTargets takes it into account
     character.combatantProperties.selectedTargetingScheme = newTargetingScheme;
-    console.log("newly selected scheme:", newTargetingScheme);
 
     if (this.playerOption) {
       this.playerOption.targetPreferences.targetingSchemePreference = newTargetingScheme;
-      console.log("set player preference:", newTargetingScheme);
     }
 
     const filteredTargetIdsResult = this.getFilteredPotentialTargetIdsForAction(combatAction);

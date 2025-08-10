@@ -24,14 +24,6 @@ export const DAMAGING_ACTIONS_COMMON_CONFIG = {
         1 // @TODO - actually select the action level
       )?.[ActionPayableResource.ActionPoints] ?? 0;
     const { actionPoints } = combatantContext.combatant.combatantProperties;
-    console.log(
-      "action point cost: ",
-      actionPointCost,
-      "for action",
-      COMBAT_ACTION_NAME_STRINGS[self.name],
-      "curr points:",
-      combatantContext.combatant.combatantProperties.actionPoints
-    );
     if (actionPoints < Math.abs(actionPointCost)) return false;
 
     const targetsOption = combatant.combatantProperties.combatActionTarget;

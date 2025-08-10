@@ -25,7 +25,11 @@ import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { addHitOutcomeDurabilityChanges } from "./hit-outcome-durability-change-calculators.js";
 import { HitOutcome } from "../../../hit-outcome.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
-import { CombatantCondition } from "../../../combatants/combatant-conditions/index.js";
+import {
+  COMBATANT_CONDITION_CONSTRUCTORS,
+  COMBATANT_CONDITION_NAME_STRINGS,
+  CombatantCondition,
+} from "../../../combatants/combatant-conditions/index.js";
 import { addConditionToUpdate } from "./add-condition-to-update.js";
 import {
   addRemovedConditionIdToUpdate,
