@@ -23,6 +23,8 @@ export const RESOLUTION_PER_BABYLON_UNIT = 100;
 export const GROUND_TEXTURE_WIDTH = GROUND_WIDTH * RESOLUTION_PER_BABYLON_UNIT;
 export const GROUND_TEXTURE_HEIGHT = GROUND_HEIGHT * RESOLUTION_PER_BABYLON_UNIT;
 
+export const GLOW_LAYER_NAME = "glow";
+
 export function initScene(this: GameWorld): [ArcRotateCamera, Mesh, DynamicTexture, GroundMesh] {
   // this.scene.clearColor = new Color4(0.1, 0.1, 0.15, 1);
 
@@ -60,7 +62,7 @@ export function initScene(this: GameWorld): [ArcRotateCamera, Mesh, DynamicTextu
   pointLight.intensity = 0.2;
   // pointLight.intensity = 0.0;
 
-  const glowLayer = new GlowLayer("glow", this.scene);
+  const glowLayer = new GlowLayer(GLOW_LAYER_NAME, this.scene);
   // Adjust glow intensity
   glowLayer.intensity = 0.5;
 

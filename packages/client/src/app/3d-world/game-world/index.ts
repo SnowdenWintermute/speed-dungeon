@@ -11,10 +11,11 @@ import {
   Camera,
   RenderTargetTexture,
   GroundMesh,
+  Texture,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { initScene } from "./init-scene";
-import { IdGenerator, InputLock } from "@speed-dungeon/common";
+import { IdGenerator } from "@speed-dungeon/common";
 import { updateDebugText } from "./model-manager/update-debug-text";
 import { ModelManager } from "./model-manager";
 import handleGameWorldError from "./handle-error";
@@ -25,8 +26,8 @@ import { ImageManager } from "./image-manager";
 import pixelationShader from "./pixelationNodeMaterial.json";
 import { ReplayTreeManager } from "./replay-tree-manager";
 import { ActionEntityManager } from "../scene-entities/action-entity-models";
-import { useGameStore } from "@/stores/game-store";
 import { testParticleSystem } from "./testing-particle-systems";
+import { fillDynamicTextureWithSvg } from "@/utils";
 
 export const LAYER_MASK_1 = 0x10000000;
 export const LAYER_MASK_ALL = 0xffffffff;
@@ -53,6 +54,7 @@ export class GameWorld {
   idGenerator = new IdGenerator();
   actionEntityManager = new ActionEntityManager();
   tickCounter: number = 0;
+  targetIndicatorTexture: DynamicTexture;
 
   constructor(
     public canvas: HTMLCanvasElement,
@@ -90,6 +92,21 @@ export class GameWorld {
     );
 
     this.portraitCamera.outputRenderTarget = this.portraitRenderTarget;
+
+    const targetIndicatorTexture = new DynamicTexture(
+      "target indicator texture",
+      256,
+      this.scene,
+      false
+    );
+    targetIndicatorTexture.hasAlpha = true;
+
+    const targetImageUrl = "/img/game-ui-icons/target-icon.svg";
+    fillDynamicTextureWithSvg(targetImageUrl, targetIndicatorTexture, {
+      strokeColor: "white",
+      fillColor: "white",
+    });
+    this.targetIndicatorTexture = targetIndicatorTexture;
 
     // PIXELATION FILTER
     // pixelate(this.camera, this.scene);

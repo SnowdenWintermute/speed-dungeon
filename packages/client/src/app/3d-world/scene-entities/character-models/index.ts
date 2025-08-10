@@ -74,7 +74,7 @@ export class CharacterModel extends SceneEntity {
 
     this.targetingIndicatorBillboardManager = new TargetIndicatorBillboardManager(
       world.camera,
-      this
+      this.rootMesh
     );
     // this.initChildTransformNodes();
 
@@ -282,8 +282,6 @@ export class CharacterModel extends SceneEntity {
     this.rootMesh.setBoundingInfo(
       new BoundingInfo(minimum, maximum, this.rootMesh.getWorldMatrix())
     );
-
-    this.targetingIndicatorBillboardManager.radius = this.getBoundingInfo().diagonalLength;
   }
 
   isIdling() {
