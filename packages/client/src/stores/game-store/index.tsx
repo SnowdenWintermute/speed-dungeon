@@ -33,6 +33,7 @@ import { CraftingItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state
 import { RepairItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/repair-item-selection";
 import { ConvertToShardItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/convert-to-shard-item-selection";
 import getCurrentParty from "@/utils/getCurrentParty";
+import { TargetIndicator } from "@/app/3d-world/scene-entities/character-models/target-indicator-manager";
 
 export enum MenuContext {
   InventoryItems,
@@ -71,11 +72,7 @@ export class GameState {
   viewingDropShardsModal: boolean = false;
   combatantsWithPendingCraftActions: Partial<Record<EntityId, boolean>> = {};
   rerenderForcer: number = 0;
-  targetingIndicators: {
-    targetedBy: EntityId;
-    targetId: EntityId;
-    actionName: CombatActionName;
-  }[] = [];
+  targetingIndicators: TargetIndicator[] = [];
 
   getCurrentBattleId: () => null | string = () => {
     const party = this.getParty();

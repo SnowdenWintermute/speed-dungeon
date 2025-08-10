@@ -137,6 +137,7 @@ export class GameWorld {
       combatantModel.skeletalAnimationManager.stepAnimationTransitionWeights();
       combatantModel.skeletalAnimationManager.handleCompletedAnimations();
       combatantModel.updateDomRefPosition();
+      combatantModel.targetingIndicatorBillboardManager.updateBillboardPositions();
     }
   }
 
