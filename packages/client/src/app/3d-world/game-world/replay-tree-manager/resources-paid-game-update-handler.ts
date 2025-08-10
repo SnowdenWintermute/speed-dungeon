@@ -1,12 +1,11 @@
 import {
-  ActionPayableResource,
   COMBAT_ACTION_NAME_STRINGS,
   CombatantProperties,
   ERROR_MESSAGES,
   Inventory,
+  MaxAndCurrent,
   ResourcesPaidGameUpdateCommand,
   SpeedDungeonGame,
-  iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { useGameStore } from "@/stores/game-store";
 
@@ -28,14 +27,13 @@ export async function resourcesPaidGameUpdateHandler(update: {
       for (const itemId of command.itemsConsumed)
         Inventory.removeItem(combatantProperties.inventory, itemId);
 
-    if (command.costsPaid) {
-      console.log(
-        "paying costs for action",
-        COMBAT_ACTION_NAME_STRINGS[command.actionName],
-        command.costsPaid,
-        command.combatantId
-      );
+    if (command.costsPaid)
       CombatantProperties.payResourceCosts(combatantProperties, command.costsPaid);
+
+    if (command.cooldownSet) {
+      const actionState = combatantProperties.ownedActions[command.actionName];
+      if (actionState === undefined) throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED);
+      actionState.cooldown = new MaxAndCurrent(command.cooldownSet, command.cooldownSet);
     }
   });
 

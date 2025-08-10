@@ -7,6 +7,7 @@ import {
   HoldableSlotType,
   WearableSlotType,
 } from "../../items/equipment/index.js";
+import { MaxAndCurrent } from "../../primatives";
 import {
   ActionPayableResource,
   ActionResourceCostBases,
@@ -27,6 +28,7 @@ export interface CombatActionCostPropertiesConfig {
     selectedActionLevel: number,
     self: CombatActionComponent
   ) => null | ActionResourceCosts;
+  getCooldownTurns: (user: CombatantProperties, selectedActionLevel: number) => null | number;
   getConsumableCost: () => null | ConsumableType;
   requiresCombatTurn: (context: ActionResolutionStepContext) => boolean;
 }
@@ -52,6 +54,7 @@ export const genericCombatActionCostProperties: CombatActionCostPropertiesConfig
     getStandardActionCost(user, inCombat, selectedActionLevel, self),
   getConsumableCost: () => null,
   requiresCombatTurn: () => true,
+  getCooldownTurns: () => null,
 };
 
 export const BASE_SPELL_MANA_COST_BASES = {

@@ -97,6 +97,7 @@ export const ERROR_MESSAGES = {
     NO_LEVEL_SELECTED: "No ability level selected",
     INVALID_TYPE: "Invalid ability type",
     INSUFFICIENT_RESOURCES: "Insufficient resources",
+    IS_ON_COOLDOWN: "That action is on cooldown. Wait until the cooldown has elapsed.",
     NO_VALID_TARGETS: "No valid targets were found for the selected action",
     ONLY_ONE_TARGETING_SCHEME_AVAILABLE:
       "There is only one targeting scheme available for that action",

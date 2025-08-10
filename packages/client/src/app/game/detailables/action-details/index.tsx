@@ -75,6 +75,13 @@ export default function ActionDetails({ actionName, hideTitle }: Props) {
           }
         >{`Usable ${COMBAT_ACTION_USABLITY_CONTEXT_STRINGS[usabilityContext]}`}</div>
         <RequiredEquipmentDisplay action={action} user={focusedCharacter.combatantProperties} />
+        {actionStateOption && actionStateOption.cooldown && (
+          <div
+            className={actionStateOption.cooldown.current !== 0 ? UNMET_REQUIREMENT_TEXT_COLOR : ""}
+          >
+            Cooldown {actionStateOption.cooldown.current}/{actionStateOption.cooldown.max}
+          </div>
+        )}
       </div>
     </div>
   );

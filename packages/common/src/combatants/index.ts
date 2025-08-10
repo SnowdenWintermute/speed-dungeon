@@ -37,7 +37,6 @@ import { canPickUpItem } from "./inventory/can-pick-up-item.js";
 import { EntityProperties } from "../primatives/index.js";
 import { Inventory } from "./inventory/index.js";
 import {
-  ACTION_PAYABLE_RESOURCE_STRINGS,
   ActionPayableResource,
   CombatActionName,
   getUnmetCostResourceTypes,
@@ -198,8 +197,7 @@ export class CombatantProperties {
   }
   static payResourceCosts(
     combatantProperties: CombatantProperties,
-    costs: Partial<Record<ActionPayableResource, number>>,
-    actionLevel: number
+    costs: Partial<Record<ActionPayableResource, number>>
   ) {
     for (const [resource, cost] of iterateNumericEnumKeyedRecord(costs)) {
       switch (resource) {

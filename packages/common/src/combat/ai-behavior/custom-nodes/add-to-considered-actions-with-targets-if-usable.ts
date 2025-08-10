@@ -2,6 +2,7 @@ import { Combatant } from "../../../combatants/index.js";
 import { CombatActionName } from "../../combat-actions/combat-action-names.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import { BehaviorNode, BehaviorNodeState, SequenceNode } from "../behavior-tree.js";
+import { CheckIfActionOnCooldown } from "./check-if-action-on-cooldown.js";
 import { CheckIfActionUsableInCurrentContext } from "./check-if-action-usable-in-current-context.js";
 import { CheckIfHasRequiredConsumablesForAction } from "./check-if-has-required-consumable-for-action.js";
 import { CheckIfHasRequiredResourcesForAction } from "./check-if-has-required-resources-for-action.js";
@@ -30,6 +31,7 @@ export class CollectPotentialTargetsForActionIfUsable implements BehaviorNode {
         this.combatant,
         actionNameOption
       ),
+      new CheckIfActionOnCooldown(this.behaviorContext, this.combatant, actionNameOption),
       new CheckIfHasRequiredResourcesForAction(
         this.behaviorContext,
         this.combatant,

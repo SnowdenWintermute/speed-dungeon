@@ -205,6 +205,10 @@ export abstract class CombatActionComponent {
     );
     if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
 
+    const actionStateOption = combatantProperties.ownedActions[this.name];
+    if (actionStateOption && actionStateOption.cooldown && actionStateOption.cooldown.current)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.IS_ON_COOLDOWN);
+
     const hasRequiredConsumables = CombatantProperties.hasRequiredConsumablesToUseAction(
       combatantProperties,
       this.name

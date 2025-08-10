@@ -21,6 +21,8 @@ import {
   Equipment,
   CombatantContext,
   MagicalElement,
+  COMBAT_ACTIONS,
+  MaxAndCurrent,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment, { givePlaytestingItems } from "./create-starting-equipment.js";
@@ -49,6 +51,12 @@ export function outfitNewCharacter(character: Combatant) {
     const action = new CombatantActionState(actionName);
     const levelTwoSpells = [CombatActionName.Fire, CombatActionName.Healing];
     if (levelTwoSpells.includes(actionName)) action.level = 2;
+    const cooldownOption = COMBAT_ACTIONS[actionName].costProperties.getCooldownTurns(
+      combatantProperties,
+      action.level
+    );
+    if (cooldownOption) action.cooldown = new MaxAndCurrent(cooldownOption, 0);
+
     combatantProperties.ownedActions[actionName] = action;
   }
 

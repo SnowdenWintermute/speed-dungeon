@@ -165,9 +165,12 @@ export class BaseMenuState implements ActionMenuState {
         combatAction.name
       );
 
+      const isOnCooldown = (actionState.cooldown?.current || 0) > 0;
+
       button.shouldBeDisabled =
         (usabilityContext === CombatActionUsabilityContext.InCombat && !this.inCombat) ||
         (usabilityContext === CombatActionUsabilityContext.OutOfCombat && this.inCombat) ||
+        isOnCooldown ||
         !isWearingRequiredEquipment ||
         unmetCosts.length > 0 ||
         disabledBecauseNotThisCombatantTurnResult ||

@@ -5,6 +5,6 @@ export class CombatantActionState {
   constructor(
     public actionName: CombatActionName,
     public level = 1,
-    public cooldown: MaxAndCurrent = new MaxAndCurrent(1, 1)
+    public cooldown: null | MaxAndCurrent = null
   ) {}
 }
