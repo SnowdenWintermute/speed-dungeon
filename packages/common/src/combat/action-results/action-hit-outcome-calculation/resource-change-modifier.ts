@@ -18,10 +18,10 @@ export class ResourceChangeModifier {
     this.resourceChange = resourceChange;
   }
 
-  applyPostHitModifiers(wasBlocked: boolean) {
+  applyPostHitModifiers(wasBlocked: boolean, actionLevel: number) {
     const { hitOutcomeProperties, resourceChange, user, target } = this;
 
-    this.applyCritMultiplier();
+    this.applyCritMultiplier(actionLevel);
     this.applyKineticAffinities();
     this.applyElementalAffinities();
     if (wasBlocked) this.applyShieldBlock();
@@ -35,6 +35,7 @@ export class ResourceChangeModifier {
       hitOutcomeProperties,
       resourceChange,
       user,
+      actionLevel,
       target
     );
     resourceChangeCalculationContext.applyResilience(resourceChange, user, target);
@@ -42,9 +43,9 @@ export class ResourceChangeModifier {
     this.resourceChange.value = Math.floor(resourceChange.value);
   }
 
-  private applyCritMultiplier() {
+  private applyCritMultiplier(actionLevel: number) {
     if (!this.resourceChange.isCrit) return;
-    const critMultiplier = this.hitOutcomeProperties.getCritMultiplier(this.user);
+    const critMultiplier = this.hitOutcomeProperties.getCritMultiplier(this.user, actionLevel);
     this.resourceChange.value *= critMultiplier;
   }
 

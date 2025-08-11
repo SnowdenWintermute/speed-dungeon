@@ -16,6 +16,7 @@ export function applyWeaponPropertiesToResourceChangeProperties(
   },
   hpChangeProperties: CombatActionResourceChangeProperties,
   user: CombatantProperties,
+  actionLevel: number,
   primaryTarget: CombatantProperties
 ) {
   const { baseValues } = hpChangeProperties;
@@ -31,6 +32,7 @@ export function applyWeaponPropertiesToResourceChangeProperties(
       weapon.weaponProperties.damageClassification,
       weaponModifiersToCopy,
       user,
+      actionLevel,
       primaryTarget,
       averageRoll,
       true

@@ -5,7 +5,7 @@ import {
   CombatActionExecutionIntent,
   ThreatChanges,
 } from "../../combat/index.js";
-import { Combatant, CombatantCondition } from "../../combatants/index.js";
+import { Combatant, CombatantCondition, CombatantProperties } from "../../combatants/index.js";
 import { ThreatCalculator } from "../../combatants/threat-manager/threat-calculator.js";
 import {
   ActionCompletionUpdateCommand,
@@ -99,7 +99,10 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
 
   // unlock input if no more blocking steps are left and next turn is player
 
-  const requiredTurn = action.costProperties.requiresCombatTurn(context);
+  const requiredTurn =
+    action.costProperties.requiresCombatTurn(context) ||
+    combatant.combatantProperties.actionPoints === 0;
+
   const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
   let shouldSendEndActiveTurnMessage = false;
   if (requiredTurn && !turnAlreadyEnded && battleOption) {
@@ -112,6 +115,12 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
 
     sequentialActionManagerRegistry.markTurnEnded();
     shouldSendEndActiveTurnMessage = true;
+
+    // REFILL THE QUICK ACTIONS OF THE CURRENT TURN
+    // this way, if we want to remove their quick actions they can be at risk
+    // of actions taking them away before they get their turn again
+    CombatantProperties.refillActionPoints(combatant.combatantProperties);
+    CombatantProperties.tickCooldowns(combatant.combatantProperties);
   }
 
   const hasUnevaluatedChildren = action.getChildren(context).length > 0;

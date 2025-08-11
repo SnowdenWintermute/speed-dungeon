@@ -29,6 +29,7 @@ import { characterPerformedCraftingActionHandler } from "./character-performed-c
 import { playerPostedItemLinkHandler } from "./player-posted-item-link-handler";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
+import { characterSelectedActionLevelHandler } from "./character-selected-action-level-handler";
 
 export default function setUpGameEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
@@ -95,4 +96,8 @@ export default function setUpGameEventHandlers(
       actionCommandPayloads: payloads,
     });
   });
+  socket.on(
+    ServerToClientEvent.CharacterSelectedCombatActionLevel,
+    characterSelectedActionLevelHandler
+  );
 }

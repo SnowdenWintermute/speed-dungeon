@@ -18,9 +18,12 @@ export function getIdsAndSelectedActionsOfCharactersTargetingCombatant(
     if (currentTarget === null) continue;
     const selectedAction = character.combatantProperties.selectedCombatAction;
     if (!selectedAction) continue;
+    const selectedActionLevel = character.combatantProperties.selectedActionLevel;
+    if (selectedActionLevel === null) continue;
     const actionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
       character.combatantProperties,
-      selectedAction
+      selectedAction,
+      selectedActionLevel
     );
     if (actionPropertiesResult instanceof Error) {
       error = actionPropertiesResult;

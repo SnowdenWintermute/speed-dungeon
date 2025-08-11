@@ -39,10 +39,11 @@ const targetingProperties =
 export const rangedAttackProjectileHitOutcomeProperties: CombatActionHitOutcomeProperties = {
   ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Ranged],
   resourceChangePropertiesGetters: {
-    [CombatActionResource.HitPoints]: (user, primaryTarget) => {
+    [CombatActionResource.HitPoints]: (user, actionLevel, primaryTarget) => {
       const hpChangeProperties = getAttackResourceChangeProperties(
         rangedAttackProjectileHitOutcomeProperties,
         user,
+        actionLevel,
         primaryTarget,
         CombatAttribute.Dexterity,
         HoldableSlotType.MainHand,
@@ -67,7 +68,10 @@ export const ATTACK_RANGED_MAIN_HAND_PROJECTILE_CONFIG: CombatActionComponentCon
   getOnUseMessage: null,
   targetingProperties,
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
-  costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
+  costProperties: {
+    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
+    costBases: {},
+  },
   stepsConfig: new ActionResolutionStepsConfig(
     {
       [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},

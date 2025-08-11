@@ -11,8 +11,16 @@ import { getNonProjectileBasedSpellBaseStepsConfig } from "../non-projectile-bas
 
 const stepsConfig = getNonProjectileBasedSpellBaseStepsConfig();
 
+const initialPositioning = stepsConfig.steps[ActionResolutionStepType.InitialPositioning];
+delete initialPositioning?.getDestination;
+delete initialPositioning?.getAnimation;
+
+delete stepsConfig.steps[ActionResolutionStepType.FinalPositioning]?.getAnimation;
+stepsConfig.steps[ActionResolutionStepType.FinalPositioning]!.shouldIdleOnComplete = true;
+
 stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
-  ...stepsConfig.steps[ActionResolutionStepType.InitialPositioning],
+  ...initialPositioning,
+  // getDestination:(context) => {},
   getCosmeticsEffectsToStart: (context) => {
     return [
       {

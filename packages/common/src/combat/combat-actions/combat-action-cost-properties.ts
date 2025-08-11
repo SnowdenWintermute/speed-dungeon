@@ -7,6 +7,7 @@ import {
   HoldableSlotType,
   WearableSlotType,
 } from "../../items/equipment/index.js";
+import { MaxAndCurrent } from "../../primatives";
 import {
   ActionPayableResource,
   ActionResourceCostBases,
@@ -23,8 +24,11 @@ export interface CombatActionCostPropertiesConfig {
   costBases: ActionResourceCostBases;
   getResourceCosts: (
     user: CombatantProperties,
+    inCombat: boolean,
+    selectedActionLevel: number,
     self: CombatActionComponent
   ) => null | ActionResourceCosts;
+  getCooldownTurns: (user: CombatantProperties, selectedActionLevel: number) => null | number;
   getConsumableCost: () => null | ConsumableType;
   requiresCombatTurn: (context: ActionResolutionStepContext) => boolean;
 }
@@ -32,19 +36,29 @@ export interface CombatActionCostPropertiesConfig {
 // in the constructor of the action we pass "this" to the getResourceCosts function in the config
 // so we can then call .getResourceCosts without passing an action to it
 export interface CombatActionCostProperties extends CombatActionCostPropertiesConfig {
-  getResourceCosts: (user: CombatantProperties) => null | ActionResourceCosts;
+  getResourceCosts: (
+    user: CombatantProperties,
+    inCombat: boolean,
+    actionLevel: number
+  ) => null | ActionResourceCosts;
 }
 
 export const genericCombatActionCostProperties: CombatActionCostPropertiesConfig = {
   incursDurabilityLoss: {},
-  costBases: {},
-  getResourceCosts: () => null,
+  costBases: {
+    [ActionPayableResource.ActionPoints]: {
+      base: 1,
+    },
+  },
+  getResourceCosts: (user, inCombat, selectedActionLevel, self) =>
+    getStandardActionCost(user, inCombat, selectedActionLevel, self),
   getConsumableCost: () => null,
   requiresCombatTurn: () => true,
+  getCooldownTurns: () => null,
 };
 
 export const BASE_SPELL_MANA_COST_BASES = {
-  base: 0.5,
+  base: 0.25,
   multipliers: {
     actionLevel: 1.2,
     userCombatantLevel: 1.2,
@@ -65,11 +79,7 @@ const genericSpellCostProperties: CombatActionCostPropertiesConfig = {
 
 const genericMedicationCostProperties: CombatActionCostPropertiesConfig = {
   ...genericCombatActionCostProperties,
-  costBases: {
-    [ActionPayableResource.QuickActions]: {
-      base: 1,
-    },
-  },
+  getResourceCosts: getStandardActionCost,
   requiresCombatTurn: (context) => false,
 };
 

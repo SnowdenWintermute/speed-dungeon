@@ -152,3 +152,7 @@ export function getLookRotationFromPositions(
 
   return Quaternion.FromLookDirectionRH(direction, up);
 }
+
+export function createArrayFilledWithSequentialNumbers(length: number, start: number) {
+  return Array.from({ length: length || 0 }, (_, i) => i + start);
+}

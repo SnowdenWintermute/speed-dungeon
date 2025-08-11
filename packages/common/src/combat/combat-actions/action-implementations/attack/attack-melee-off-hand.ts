@@ -49,10 +49,11 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
     );
   },
   resourceChangePropertiesGetters: {
-    [CombatActionResource.HitPoints]: (user, primaryTarget) => {
+    [CombatActionResource.HitPoints]: (user, actionLevel, primaryTarget) => {
       const hpChangeProperties = getAttackResourceChangeProperties(
         hitOutcomeProperties,
         user,
+        actionLevel,
         primaryTarget,
         CombatAttribute.Strength,
         HoldableSlotType.OffHand

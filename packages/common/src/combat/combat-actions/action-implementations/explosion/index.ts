@@ -53,7 +53,10 @@ const config: CombatActionComponentConfig = {
     return `${data.nameOfActionUser} explodes!`;
   },
   hitOutcomeProperties: explosionHitOutcomeProperties,
-  costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
+  costProperties: {
+    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
+    costBases: {},
+  },
 
   stepsConfig: new ActionResolutionStepsConfig(
     {

@@ -105,11 +105,14 @@ export class HitOutcomeCalculator {
 
     let mitigationCalculator: null | HitOutcomeMitigationCalculator = null;
 
+    const actionLevel = this.actionExecutionIntent.level;
+
     for (const targetId of filteredTargetIds) {
       const targetCombatant = AdventuringParty.getExpectedCombatant(party, targetId);
       if (mitigationCalculator === null)
         mitigationCalculator = new HitOutcomeMitigationCalculator(
           this.action,
+          actionLevel,
           combatant,
           targetCombatant,
           incomingResourceChangesPerTarget,
@@ -145,6 +148,7 @@ export class HitOutcomeCalculator {
 
         const percentChanceToCrit = HitOutcomeMitigationCalculator.getActionCritChance(
           this.action,
+          actionLevel,
           user,
           target,
           targetWillAttemptMitigation
@@ -159,7 +163,8 @@ export class HitOutcomeCalculator {
           targetWillAttemptMitigation,
           resourceChange
         );
-        resourceChangeModifier.applyPostHitModifiers(wasBlocked);
+
+        resourceChangeModifier.applyPostHitModifiers(wasBlocked, actionLevel);
 
         hitOutcomes.insertResourceChange(resourceType, targetId, resourceChange);
       }

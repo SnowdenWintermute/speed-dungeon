@@ -11,11 +11,10 @@ import { CombatActionComponent, CombatActionUsabilityContext } from "./index.js"
 import { AUTO_TARGETING_FUNCTIONS } from "../targeting/auto-targeting/mapped-functions.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { CombatActionIntent } from "./combat-action-intent.js";
-import { Combatant } from "../../combatants/index.js";
 import { EquipmentType } from "../../items/equipment/index.js";
 
 export interface CombatActionTargetingPropertiesConfig {
-  getTargetingSchemes: (user: Combatant) => TargetingScheme[];
+  getTargetingSchemes: (actionLevel: number) => TargetingScheme[];
   validTargetCategories: TargetCategories;
   autoTargetSelectionMethod: AutoTargetingSelectionMethod;
   prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];

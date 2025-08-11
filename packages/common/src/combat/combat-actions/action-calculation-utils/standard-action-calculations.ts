@@ -20,11 +20,13 @@ export function getStandardActionCritChance(
 
 export function getStandardActionCritMultiplier(
   actionUser: CombatantProperties,
-  critMultiplierAttribute: CombatAttribute
+  critMultiplierAttribute: null | CombatAttribute
 ) {
   let critMultiplier = BASE_CRIT_MULTIPLIER;
   const userAttributes = CombatantProperties.getTotalAttributes(actionUser);
-  const multiplierAttribute = userAttributes[critMultiplierAttribute] || 0;
+  let multiplierAttribute = 0;
+  if (critMultiplierAttribute !== null)
+    multiplierAttribute = userAttributes[critMultiplierAttribute] || 0;
   return critMultiplier + multiplierAttribute / 100;
 }
 

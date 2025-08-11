@@ -7,10 +7,11 @@ import { entityIsDetailed } from "@/stores/game-store/detailable-entities";
 import UnspentAttributesButton from "../UnspentAttributesButton";
 import { useShallow } from "zustand/react/shallow";
 import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
-import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
 import {
+  COMBAT_ACTIONS,
+  CombatActionIntent,
   Combatant,
   CombatantEquipment,
   CombatantProperties,
@@ -28,11 +29,10 @@ import LowDurabilityIndicators from "./LowDurabilityIndicators";
 import ConditionIndicators from "./condition-indicators/";
 import ThreatPriorityList from "./ThreatPriorityList";
 import Portrait from "./Portrait";
-import {
-  getCombatantClassIcon,
-  getCombatantUiIdentifier,
-  getCombatantUiIdentifierIcon,
-} from "@/utils/get-combatant-class-icon";
+import { getCombatantUiIdentifierIcon } from "@/utils/get-combatant-class-icon";
+import ClockIcon from "../../../../public/img/game-ui-icons/clock-icon.svg";
+import { BUTTON_HEIGHT_SMALL } from "@/client_consts";
+import TargetIcon from "../../../../public/img/game-ui-icons/target-icon.svg";
 
 interface Props {
   combatant: Combatant;
@@ -104,11 +104,52 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
 
   const combatantUiIdentifierIcon = getCombatantUiIdentifierIcon(party, combatant);
 
+  const actionPointsDisplay = (
+    <HoverableTooltipWrapper
+      extraStyles="absolute top-0 left-2/3 -translate-x-1/2 -translate-y-1/2 flex items-center"
+      tooltipText="Action Points"
+    >
+      <ul className=" flex">
+        {[1, 2].map((item) => (
+          <li
+            key={item}
+            className={`h-5 w-5 mr-1 last:mr-0 bg-slate-700 rounded-full ${item > combatantProperties.actionPoints ? "opacity-50" : ""}`}
+          >
+            <ClockIcon className="h-full w-full fill-slate-400" />
+          </li>
+        ))}
+      </ul>
+    </HoverableTooltipWrapper>
+  );
+
+  const shouldDisplayActionPoints =
+    battleOption !== null &&
+    battleOption.turnOrderManager.combatantIsFirstInTurnOrder(combatant.entityProperties.id);
+
+  const indicators = useGameStore().targetingIndicators;
+  const targetedBy = indicators.filter((indicator) => indicator.targetId === entityId);
+
   return (
     <div className="">
       <CharacterModelDisplay character={combatant}>
         <CombatantFloatingMessagesDisplay entityId={entityId} />
         <div className="absolute flex flex-col justify-center items-center text-center top-1/2 left-1/2 -translate-x-1/2 w-[400px]">
+          <div>
+            {
+              // targetedBy.map((item) => {
+              // const action = COMBAT_ACTIONS[item.actionName];
+              // const intentStyling =
+              //   action.targetingProperties.intent === CombatActionIntent.Malicious
+              //     ? "fill-red-600"
+              //     : "fill-green-600";
+              // return (
+              //   <div className="h-10 w-10 ">
+              //     <TargetIcon className={`h-full w-full ${intentStyling}`} />
+              //   </div>
+              // );
+              // })
+            }
+          </div>
           {babylonDataOption && babylonDataOption.debugHtml}
         </div>
       </CharacterModelDisplay>
@@ -126,6 +167,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
             }}
             ref={combatantPlaqueRef}
           >
+            {shouldDisplayActionPoints && actionPointsDisplay}
             {isPartyMember && (
               <InventoryIconButton
                 entityId={entityId}
@@ -194,8 +236,6 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
           </div>
 
           <div className="flex">
-            <ActiveCombatantIcon battleOption={battleOption} combatantId={entityId} />
-
             {!isPartyMember && conditionIndicators("mt-1") /* otherwise put it above */}
           </div>
         </div>

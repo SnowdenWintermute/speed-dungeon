@@ -16,7 +16,6 @@ export enum PrefixType {
   Evasion,
   ArmorPenetration,
   Agility,
-  Focus,
 }
 
 export enum SuffixType {

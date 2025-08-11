@@ -11,6 +11,7 @@ export interface ResourceChangeCalculationStrategy {
     hitOutcomeProperties: CombatActionHitOutcomeProperties,
     hpChange: ResourceChange,
     user: CombatantProperties,
+    actionLevel: number,
     target: CombatantProperties
   ): void;
   applyResilience(
@@ -30,9 +31,10 @@ export class ResourceChangeCalulationContext implements ResourceChangeCalculatio
     hitOutcomeProperties: CombatActionHitOutcomeProperties,
     hpChange: ResourceChange,
     user: CombatantProperties,
+    actionLevel: number,
     target: CombatantProperties
   ) {
-    return this.strategy.applyArmorClass(hitOutcomeProperties, hpChange, user, target);
+    return this.strategy.applyArmorClass(hitOutcomeProperties, hpChange, user, actionLevel, target);
   }
   applyResilience(
     hpChange: ResourceChange,

@@ -21,6 +21,7 @@ import {
   COMBAT_ACTIONS,
   ACTION_NAMES_TO_HIDE_IN_MENU,
   getUnmetCostResourceTypes,
+  COMBATANT_MAX_ACTION_POINTS,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -39,6 +40,7 @@ import IceIcon from "../../../../../public/img/game-ui-icons/ice.svg";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
+import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -107,7 +109,7 @@ export class BaseMenuState implements ActionMenuState {
       return toReturn;
     }
 
-    for (const [actionName, _actionState] of iterateNumericEnumKeyedRecord(
+    for (const [actionName, actionState] of iterateNumericEnumKeyedRecord(
       combatantProperties.ownedActions
     )) {
       if (ACTION_NAMES_TO_HIDE_IN_MENU.includes(actionName)) continue;
@@ -128,6 +130,7 @@ export class BaseMenuState implements ActionMenuState {
           websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
             characterId,
             combatActionNameOption: actionName,
+            combatActionLevel: actionState.level,
           });
           useGameStore.getState().mutateState((state) => {
             state.hoveredAction = null;
@@ -147,7 +150,11 @@ export class BaseMenuState implements ActionMenuState {
       const combatAction = COMBAT_ACTIONS[actionName];
       const { usabilityContext } = combatAction.targetingProperties;
 
-      const costs = combatAction.costProperties.getResourceCosts(combatantProperties);
+      const costs = combatAction.costProperties.getResourceCosts(
+        combatantProperties,
+        this.inCombat,
+        1 // @TODO - calculate the actual level to display based on most expensive they can afford
+      );
       let unmetCosts = [];
       if (costs) unmetCosts = getUnmetCostResourceTypes(combatantProperties, costs);
 
@@ -158,9 +165,12 @@ export class BaseMenuState implements ActionMenuState {
         combatAction.name
       );
 
+      const isOnCooldown = (actionState.cooldown?.current || 0) > 0;
+
       button.shouldBeDisabled =
         (usabilityContext === CombatActionUsabilityContext.InCombat && !this.inCombat) ||
         (usabilityContext === CombatActionUsabilityContext.OutOfCombat && this.inCombat) ||
+        isOnCooldown ||
         !isWearingRequiredEquipment ||
         unmetCosts.length > 0 ||
         disabledBecauseNotThisCombatantTurnResult ||

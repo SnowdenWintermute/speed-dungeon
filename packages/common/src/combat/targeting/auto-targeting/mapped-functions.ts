@@ -1,6 +1,5 @@
 import { AutoTargetingScheme } from "./index.js";
 import { copyTargetFromParent } from "./copy-from-parent.js";
-import { CombatantAssociatedData } from "../../../types.js";
 import { CombatActionComponent } from "../../combat-actions/index.js";
 import { CombatActionTarget, CombatActionTargetType } from "../combat-action-targets.js";
 import { CombatantContext } from "../../../combatant-context/index.js";
@@ -17,7 +16,7 @@ type AutoTargetingFunction = (
 
 export const AUTO_TARGETING_FUNCTIONS: Record<AutoTargetingScheme, AutoTargetingFunction> = {
   [AutoTargetingScheme.UserSelected]: (
-    combatantContext: CombatantAssociatedData,
+    combatantContext: CombatantContext,
     combatAction: CombatActionComponent
   ) => {
     const { combatant } = combatantContext;
@@ -25,7 +24,7 @@ export const AUTO_TARGETING_FUNCTIONS: Record<AutoTargetingScheme, AutoTargeting
   },
   [AutoTargetingScheme.CopyParent]: copyTargetFromParent,
   [AutoTargetingScheme.ActionUser]: function (
-    combatantContext: CombatantAssociatedData,
+    combatantContext: CombatantContext,
     combatAction: CombatActionComponent
   ): CombatActionTarget {
     const target: CombatActionTarget = {
@@ -35,55 +34,55 @@ export const AUTO_TARGETING_FUNCTIONS: Record<AutoTargetingScheme, AutoTargeting
     return target;
   },
   [AutoTargetingScheme.BattleGroup]: function (
-    combatantContext: CombatantAssociatedData,
+    combatantContext: CombatantContext,
     combatAction: CombatActionComponent
   ): CombatActionTarget | Error | null {
     throw new Error("Function not implemented.");
   },
   [AutoTargetingScheme.RandomInGroup]: function (
-    combatantContext: CombatantAssociatedData,
+    combatantContext: CombatantContext,
     combatAction: CombatActionComponent
   ): CombatActionTarget | Error | null {
     throw new Error("Function not implemented.");
   },
   [AutoTargetingScheme.All]: function (
-    combatantContext: CombatantAssociatedData,
+    combatantContext: CombatantContext,
     combatAction: CombatActionComponent
   ): CombatActionTarget | Error | null {
     throw new Error("Function not implemented.");
   },
   [AutoTargetingScheme.RandomCombatant]: function (
-    combatantContext: CombatantAssociatedData,
+    combatantContext: CombatantContext,
     combatAction: CombatActionComponent
   ): CombatActionTarget | Error | null {
     throw new Error("Function not implemented.");
   },
   [AutoTargetingScheme.SpecificSide]: function (
-    combatantContext: CombatantAssociatedData,
+    combatantContext: CombatantContext,
     combatAction: CombatActionComponent
   ): CombatActionTarget | Error | null {
     throw new Error("Function not implemented.");
   },
   [AutoTargetingScheme.RandomSide]: function (
-    combatantContext: CombatantAssociatedData,
+    combatantContext: CombatantContext,
     combatAction: CombatActionComponent
   ): CombatActionTarget | Error | null {
     throw new Error("Function not implemented.");
   },
   [AutoTargetingScheme.AllCombatantsWithCondition]: function (
-    combatantContext: CombatantAssociatedData,
+    combatantContext: CombatantContext,
     combatAction: CombatActionComponent
   ): CombatActionTarget | Error | null {
     throw new Error("Function not implemented.");
   },
   [AutoTargetingScheme.ClosestCombatantWithCondition]: function (
-    combatantContext: CombatantAssociatedData,
+    combatantContext: CombatantContext,
     combatAction: CombatActionComponent
   ): CombatActionTarget | Error | null {
     throw new Error("Function not implemented.");
   },
   [AutoTargetingScheme.CombatantWithHighestLevelCondition]: function (
-    combatantContext: CombatantAssociatedData,
+    combatantContext: CombatantContext,
     combatAction: CombatActionComponent
   ): CombatActionTarget | Error | null {
     throw new Error("Function not implemented.");

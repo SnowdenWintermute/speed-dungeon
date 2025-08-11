@@ -92,10 +92,14 @@ const config: CombatActionComponentConfig = {
       .filter((opponent) => opponent.combatantProperties.hitPoints > 0)
       .map(
         (opponent) =>
-          new CombatActionExecutionIntent(CombatActionName.ChainingSplitArrowProjectile, {
-            type: CombatActionTargetType.Single,
-            targetId: opponent.entityProperties.id,
-          })
+          new CombatActionExecutionIntent(
+            CombatActionName.ChainingSplitArrowProjectile,
+            {
+              type: CombatActionTargetType.Single,
+              targetId: opponent.entityProperties.id,
+            },
+            context.tracker.actionExecutionIntent.level
+          )
       );
   },
 };

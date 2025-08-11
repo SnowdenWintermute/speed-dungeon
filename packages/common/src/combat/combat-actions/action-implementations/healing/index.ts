@@ -30,10 +30,9 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
   validTargetCategories: TargetCategories.Any,
   usabilityContext: CombatActionUsabilityContext.All,
   intent: CombatActionIntent.Benevolent,
-  getTargetingSchemes: (user) => {
+  getTargetingSchemes: (actionLevel) => {
     const toReturn = [TargetingScheme.Single];
-    const spellLevel = user.combatantProperties.ownedActions[CombatActionName.Healing]?.level || 0;
-    if (spellLevel > 1) toReturn.push(TargetingScheme.Area);
+    if (actionLevel > 1) toReturn.push(TargetingScheme.Area);
     return toReturn;
   },
 };
@@ -50,11 +49,12 @@ const config: CombatActionComponentConfig = {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
     costBases: {
       ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell].costBases,
-      [ActionPayableResource.Mana]: {
-        ...BASE_SPELL_MANA_COST_BASES,
-        base: 0.25,
+      [ActionPayableResource.Mana]: BASE_SPELL_MANA_COST_BASES,
+      [ActionPayableResource.ActionPoints]: {
+        base: 1,
       },
     },
+    requiresCombatTurn: () => false,
   },
   stepsConfig: HEALING_STEPS_CONFIG,
   shouldExecute: () => true,

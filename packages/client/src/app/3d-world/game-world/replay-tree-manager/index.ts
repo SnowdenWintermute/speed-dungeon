@@ -34,7 +34,7 @@ export class ReplayTreeManager {
 
     useGameStore.getState().mutateState((state) => {
       const partyOption = getCurrentParty(state, state.username || "");
-      if (partyOption) InputLock.lockInput(partyOption.inputLock);
+      if (partyOption && !payload.doNotLockInput) InputLock.lockInput(partyOption.inputLock);
       state.stackedMenuStates = [];
       // if (
       //   state.stackedMenuStates[0] &&

@@ -1,11 +1,11 @@
 import {
-  ActionPayableResource,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatantProperties,
   ERROR_MESSAGES,
   Inventory,
+  MaxAndCurrent,
   ResourcesPaidGameUpdateCommand,
   SpeedDungeonGame,
-  iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { useGameStore } from "@/stores/game-store";
 
@@ -27,18 +27,15 @@ export async function resourcesPaidGameUpdateHandler(update: {
       for (const itemId of command.itemsConsumed)
         Inventory.removeItem(combatantProperties.inventory, itemId);
 
-    if (command.costsPaid) {
-      for (const [resource, cost] of iterateNumericEnumKeyedRecord(command.costsPaid)) {
-        switch (resource) {
-          case ActionPayableResource.HitPoints:
-            CombatantProperties.changeHitPoints(combatantProperties, cost);
-            break;
-          case ActionPayableResource.Mana:
-            CombatantProperties.changeMana(combatantProperties, cost);
-            break;
-          case ActionPayableResource.Shards:
-          case ActionPayableResource.QuickActions:
-        }
+    if (command.costsPaid)
+      CombatantProperties.payResourceCosts(combatantProperties, command.costsPaid);
+
+    const actionState = combatantProperties.ownedActions[command.actionName];
+    if (actionState !== undefined) {
+      actionState.wasUsedThisTurn = true;
+
+      if (command.cooldownSet) {
+        actionState.cooldown = new MaxAndCurrent(command.cooldownSet, command.cooldownSet);
       }
     }
   });

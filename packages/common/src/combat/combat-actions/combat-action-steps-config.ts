@@ -44,7 +44,7 @@ export interface ActionResolutionStepConfig {
     meleeAttackAnimationType?: MeleeAttackAnimationType,
     successOption?: boolean
   ): EntityAnimation;
-  getDestination?(context: ActionResolutionStepContext): Error | EntityDestination;
+  getDestination?(context: ActionResolutionStepContext): Error | null | EntityDestination;
   // @PERF - client could probably figure this out on their own or with more limited info
   // from server
   shouldDespawnOnComplete?: (context: ActionResolutionStepContext) => boolean;

@@ -40,6 +40,7 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
   resourceChangePropertiesGetters: {
     [CombatActionResource.Mana]: (
       user: CombatantProperties,
+      actionLevel: number,
       primaryTarget: CombatantProperties
     ) => {
       let mpBioavailability = 1;

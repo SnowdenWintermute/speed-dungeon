@@ -45,6 +45,7 @@ export class IncomingResourceChangesCalculator {
 
     return this.rollBaseIncomingResourceChangesPerTarget(
       user,
+      this.actionExecutionIntent.level,
       primaryTarget.combatantProperties,
       hitOutcomeProperties
     );
@@ -52,6 +53,7 @@ export class IncomingResourceChangesCalculator {
 
   rollBaseIncomingResourceChangesPerTarget(
     user: CombatantProperties,
+    actionLevel: number,
     primaryTarget: CombatantProperties,
     hitOutcomeProperties: CombatActionHitOutcomeProperties
   ) {
@@ -64,7 +66,7 @@ export class IncomingResourceChangesCalculator {
     for (const [actionResource, getter] of iterateNumericEnumKeyedRecord(
       resourceChangePropertiesGetters
     )) {
-      const resourceChangeProperties = getter(user, primaryTarget);
+      const resourceChangeProperties = getter(user, actionLevel, primaryTarget);
       if (resourceChangeProperties === null) continue;
       const rolled = this.rollIncomingResourceChangeBaseValue(resourceChangeProperties, this.rng);
       const valuePerTarget = this.getIncomingResourceChangeValuePerTarget(rolled);

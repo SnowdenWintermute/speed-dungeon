@@ -25,11 +25,9 @@ import { getSpellCastCombatLogMessage } from "../combat-log-message-getters.js";
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
   validTargetCategories: TargetCategories.Opponent,
-  getTargetingSchemes: (user) => {
-    // return [TargetingScheme.Area];
+  getTargetingSchemes: (actionLevel) => {
     const toReturn = [TargetingScheme.Single];
-    const spellLevel = user.combatantProperties.ownedActions[CombatActionName.Fire]?.level || 0;
-    if (spellLevel > 1) toReturn.push(TargetingScheme.Area);
+    if (actionLevel > 1) toReturn.push(TargetingScheme.Area);
     return toReturn;
   },
 };
@@ -47,8 +45,15 @@ const config: CombatActionComponentConfig = {
     costBases: {
       ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell].costBases,
       [ActionPayableResource.Mana]: {
-        base: 0,
+        base: 1,
       },
+      [ActionPayableResource.ActionPoints]: {
+        base: 1,
+      },
+    },
+    requiresCombatTurn: (context) => {
+      // if (context.combatantContext.combatant.combatantProperties.quickActions === 0) return true;
+      return false;
     },
   },
   stepsConfig: BLIND_STEPS_CONFIG,

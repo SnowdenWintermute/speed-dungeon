@@ -31,15 +31,17 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
   ) {}
 
   triggeredWhenHitBy(actionName: CombatActionName) {
-    const actionsThatDontTrigger = [
-      CombatActionName.IceBoltProjectile,
-      CombatActionName.IceBurst,
-      CombatActionName.UseBlueAutoinjector,
-      CombatActionName.UseGreenAutoinjector,
-      CombatActionName.ExplodingArrowProjectile,
+    const actionsThatTrigger = [
+      CombatActionName.AttackRangedMainhandProjectile,
+      CombatActionName.CounterAttackRangedMainhandProjectile,
+      CombatActionName.AttackMeleeMainhand,
+      CombatActionName.AttackMeleeOffhand,
+      CombatActionName.BurningTick,
+      CombatActionName.Fire,
+      CombatActionName.ChainingSplitArrowProjectile,
     ];
 
-    return !actionsThatDontTrigger.includes(actionName);
+    return actionsThatTrigger.includes(actionName);
   }
 
   triggeredWhenActionUsed() {
@@ -75,9 +77,12 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
     if (actionTarget instanceof Error) throw actionTarget;
     if (actionTarget === null) throw new Error("failed to get auto target");
 
+    const explosionLevel = this.level * this.stacksOption.current;
+
     const explosionActionIntent = new CombatActionExecutionIntent(
       CombatActionName.Explosion,
-      actionTarget
+      actionTarget,
+      explosionLevel
     );
 
     return {

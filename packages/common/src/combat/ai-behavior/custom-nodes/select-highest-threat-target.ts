@@ -1,7 +1,10 @@
 import { Combatant } from "../../../combatants/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionIntent } from "../../combat-actions/combat-action-intent.js";
-import { CombatActionName } from "../../combat-actions/combat-action-names.js";
+import {
+  COMBAT_ACTION_NAME_STRINGS,
+  CombatActionName,
+} from "../../combat-actions/combat-action-names.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import {
@@ -39,12 +42,20 @@ export class SelectTopThreatTargetAndAction implements BehaviorNode {
           // pop from stack next possible action
           new PopFromStackNode(
             () => this.behaviorContext.consideredActionNamesFilteredByIntents,
-            (actionName: CombatActionName) =>
-              this.behaviorContext.setCurrentActionNameConsidering(actionName)
+            (actionName: CombatActionName) => {
+              this.behaviorContext.setCurrentActionNameConsidering(actionName);
+              // @TODO -actually select an actionLevel
+              const actionLevel =
+                this.combatant.combatantProperties.ownedActions[actionName]?.level || 1;
+              this.behaviorContext.setCurrentActionLevelConsidering(actionLevel);
+            }
           ),
           // check if action is useable
-          new CollectPotentialTargetsForActionIfUsable(this.behaviorContext, this.combatant, () =>
-            this.behaviorContext.getCurrentActionNameConsidering()
+          new CollectPotentialTargetsForActionIfUsable(
+            this.behaviorContext,
+            this.combatant,
+            () => this.behaviorContext.getCurrentActionNameConsidering(),
+            () => this.behaviorContext.getCurrentActionLevelConsidering()
           ),
           new SelectActionWithPotentialTargets(this.behaviorContext, this.combatant),
           // filter selectedActionWithPotentialValidTargets targets by those that include top threat

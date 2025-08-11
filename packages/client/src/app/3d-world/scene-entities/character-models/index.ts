@@ -35,6 +35,7 @@ import { SceneEntity } from "..";
 import { BONE_NAMES, BoneName } from "./skeleton-structure-variables";
 import { EquipmentModelManager } from "./equipment-model-manager";
 import { ModularCharacterPartsModelManager } from "./modular-character-parts-model-manager";
+import { TargetIndicatorBillboardManager } from "./target-indicator-manager";
 
 export class CharacterModel extends SceneEntity {
   childTransformNodes: Partial<Record<CombatantBaseChildTransformNodeName, TransformNode>> = {};
@@ -46,6 +47,7 @@ export class CharacterModel extends SceneEntity {
   modularCharacterPartsManager = new ModularCharacterPartsModelManager(this);
   equipmentModelManager = new EquipmentModelManager(this);
   highlightManager: HighlightManager = new HighlightManager(this);
+  targetingIndicatorBillboardManager: TargetIndicatorBillboardManager;
 
   debugMeshes: Mesh[] | null = null;
 
@@ -70,6 +72,10 @@ export class CharacterModel extends SceneEntity {
       rotation: cloneDeep(rotation),
     };
 
+    this.targetingIndicatorBillboardManager = new TargetIndicatorBillboardManager(
+      world.camera,
+      this.rootMesh
+    );
     // this.initChildTransformNodes();
 
     // for (const [nodeName, transformNode] of iterateNumericEnumKeyedRecord(

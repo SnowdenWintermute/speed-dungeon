@@ -16,6 +16,8 @@ const clonedConfig = cloneDeep(ATTACK_CONFIG);
 const config: CombatActionComponentConfig = {
   ...clonedConfig,
   description: "Cancel an incoming attack and respond with one of your own",
+  costProperties: { ...clonedConfig.costProperties, costBases: {} },
+
   getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {
     const toReturn: CombatActionComponent[] = [];
     const user = context.combatantContext.combatant.combatantProperties;

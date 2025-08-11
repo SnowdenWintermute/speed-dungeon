@@ -25,7 +25,11 @@ import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { addHitOutcomeDurabilityChanges } from "./hit-outcome-durability-change-calculators.js";
 import { HitOutcome } from "../../../hit-outcome.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
-import { CombatantCondition } from "../../../combatants/combatant-conditions/index.js";
+import {
+  COMBATANT_CONDITION_CONSTRUCTORS,
+  COMBATANT_CONDITION_NAME_STRINGS,
+  CombatantCondition,
+} from "../../../combatants/combatant-conditions/index.js";
 import { addConditionToUpdate } from "./add-condition-to-update.js";
 import {
   addRemovedConditionIdToUpdate,
@@ -145,6 +149,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         addHitOutcomeDurabilityChanges(
           durabilityChanges,
           combatant,
+          actionExecutionIntent.level,
           targetCombatant,
           action,
           flag,
@@ -186,7 +191,11 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
               );
           }
 
-          const conditionsToApply = action.hitOutcomeProperties.getAppliedConditions(context);
+          const conditionsToApply = action.hitOutcomeProperties.getAppliedConditions(
+            context.combatantContext,
+            context.idGenerator,
+            context.tracker.actionExecutionIntent.level
+          );
 
           if (conditionsToApply) {
             for (const condition of conditionsToApply) {
@@ -243,10 +252,14 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
           this.branchingActions.push({
             user: targetCombatant,
-            actionExecutionIntent: new CombatActionExecutionIntent(CombatActionName.Counterattack, {
-              type: CombatActionTargetType.Single,
-              targetId: combatant.entityProperties.id,
-            }),
+            actionExecutionIntent: new CombatActionExecutionIntent(
+              CombatActionName.Counterattack,
+              {
+                type: CombatActionTargetType.Single,
+                targetId: combatant.entityProperties.id,
+              },
+              1
+            ),
           });
         }
       }

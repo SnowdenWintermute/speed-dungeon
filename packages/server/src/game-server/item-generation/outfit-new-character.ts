@@ -21,6 +21,8 @@ import {
   Equipment,
   CombatantContext,
   MagicalElement,
+  COMBAT_ACTIONS,
+  MaxAndCurrent,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment, { givePlaytestingItems } from "./create-starting-equipment.js";
@@ -33,10 +35,8 @@ export function outfitNewCharacter(character: Combatant) {
 
   const ownedActions = [
     CombatActionName.Attack,
-    CombatActionName.AttackMeleeMainhand,
-    CombatActionName.AttackMeleeOffhand,
-    CombatActionName.AttackRangedMainhand,
     CombatActionName.ChainingSplitArrowParent,
+    // CombatActionName.Counterattack,
     CombatActionName.UseGreenAutoinjector,
     CombatActionName.UseBlueAutoinjector,
     CombatActionName.IceBoltParent,
@@ -51,6 +51,12 @@ export function outfitNewCharacter(character: Combatant) {
     const action = new CombatantActionState(actionName);
     const levelTwoSpells = [CombatActionName.Fire, CombatActionName.Healing];
     if (levelTwoSpells.includes(actionName)) action.level = 2;
+    const cooldownOption = COMBAT_ACTIONS[actionName].costProperties.getCooldownTurns(
+      combatantProperties,
+      action.level
+    );
+    if (cooldownOption) action.cooldown = new MaxAndCurrent(cooldownOption, 0);
+
     combatantProperties.ownedActions[actionName] = action;
   }
 
@@ -188,10 +194,10 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   // giveTestingCombatAttributes(combatantProperties);
   // combatantProperties.level = 5;
   combatantProperties.unspentAttributePoints = 3;
-  combatantProperties.inherentAttributes[CombatAttribute.Speed] = 3;
+  combatantProperties.inherentAttributes[CombatAttribute.Speed] = 50;
   combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 45;
   combatantProperties.inherentAttributes[CombatAttribute.Strength] = 40;
-  combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 40;
+  combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 25;
   // combatantProperties.inherentAttributes[CombatAttribute.Speed] = 9999;
   combatantProperties.inherentAttributes[CombatAttribute.Hp] = 75;
   combatantProperties.traits.push({

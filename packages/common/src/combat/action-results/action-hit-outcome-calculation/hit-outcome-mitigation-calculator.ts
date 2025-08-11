@@ -24,6 +24,7 @@ const BASE_PARRY_CHANCE = 5;
 export class HitOutcomeMitigationCalculator {
   constructor(
     private action: CombatActionComponent,
+    private actionLevel: number,
     private user: Combatant,
     private targetCombatant: Combatant,
     private incomingResourceChangesPerTarget: null | Partial<
@@ -54,6 +55,7 @@ export class HitOutcomeMitigationCalculator {
     const percentChanceToHit = HitOutcomeMitigationCalculator.getActionHitChance(
       this.action,
       user,
+      this.actionLevel,
       CombatantProperties.getTotalAttributes(target)[CombatAttribute.Evasion],
       targetWillAttemptMitigation
     );
@@ -71,8 +73,11 @@ export class HitOutcomeMitigationCalculator {
 
     const { hitOutcomeProperties } = this.action;
 
+    const { actionLevel } = this;
+
     const willAttemptParry =
-      hitOutcomeProperties.getIsParryable(user) && CombatantProperties.canParry(target);
+      hitOutcomeProperties.getIsParryable(user, actionLevel) &&
+      CombatantProperties.canParry(target);
 
     // PARRIES
     if (willAttemptParry) {
@@ -84,14 +89,14 @@ export class HitOutcomeMitigationCalculator {
     }
 
     // COUNTERATTACKS
-    if (hitOutcomeProperties.getCanTriggerCounterattack(user)) {
+    if (hitOutcomeProperties.getCanTriggerCounterattack(user, actionLevel)) {
       // @TODO - derrive this from various combatant properties
       const percentChanceToCounterAttack = HitOutcomeMitigationCalculator.getCounterattackChance(
         user,
         target
       );
-      // const percentChanceToCounterAttack = 100;
       const counterAttackRoll = randBetween(0, 100, this.rng);
+      // const counterAttackRoll = randBetween(0, 1, this.rng);
       const isCounterAttacked = counterAttackRoll < percentChanceToCounterAttack;
       if (isCounterAttacked) return [HitOutcome.Counterattack];
     }
@@ -102,7 +107,10 @@ export class HitOutcomeMitigationCalculator {
     // BLOCK
     const actionHasResourceChanges = this.incomingResourceChangesPerTarget !== null;
     if (actionHasResourceChanges) {
-      if (hitOutcomeProperties.getIsBlockable(user) && CombatantProperties.canBlock(target)) {
+      if (
+        hitOutcomeProperties.getIsBlockable(user, actionLevel) &&
+        CombatantProperties.canBlock(target)
+      ) {
         const percentChanceToBlock = HitOutcomeMitigationCalculator.getShieldBlockChance(
           user,
           target
@@ -123,7 +131,11 @@ export class HitOutcomeMitigationCalculator {
         CombatActionResource.HitPoints
       ];
     const hpChangePropertiesOption = hpChangePropertiesGetterOption
-      ? hpChangePropertiesGetterOption(this.user.combatantProperties, targetCombatantProperties)
+      ? hpChangePropertiesGetterOption(
+          this.user.combatantProperties,
+          this.actionLevel,
+          targetCombatantProperties
+        )
       : null;
 
     // regardless of the action intent, don't try to evade if would be healed
@@ -156,10 +168,11 @@ export class HitOutcomeMitigationCalculator {
   static getActionHitChance(
     combatAction: CombatActionComponent,
     userCombatantProperties: CombatantProperties,
+    actionLevel: number,
     targetEvasion: number,
     targetWillAttemptToEvade: boolean
   ): { beforeEvasion: number; afterEvasion: number } {
-    const actionBaseAccuracy = combatAction.getAccuracy(userCombatantProperties);
+    const actionBaseAccuracy = combatAction.getAccuracy(userCombatantProperties, actionLevel);
     if (actionBaseAccuracy.type === ActionAccuracyType.Unavoidable)
       return { beforeEvasion: 100, afterEvasion: 100 };
 
@@ -174,11 +187,12 @@ export class HitOutcomeMitigationCalculator {
 
   static getActionCritChance(
     action: CombatActionComponent,
+    actionLevel: number,
     user: CombatantProperties,
     target: CombatantProperties,
     targetWillAttemptMitigation: boolean
   ) {
-    const actionBaseCritChance = action.hitOutcomeProperties.getCritChance(user);
+    const actionBaseCritChance = action.hitOutcomeProperties.getCritChance(user, actionLevel);
 
     const targetAttributes = CombatantProperties.getTotalAttributes(target);
     const targetAvoidaceAttributeValue = targetAttributes[CombatAttribute.Resilience];

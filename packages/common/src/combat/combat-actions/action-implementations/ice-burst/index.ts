@@ -54,6 +54,8 @@ import {
   ActionEntityBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
+import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
+import { AdventuringParty } from "../../../../adventuring-party/index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
@@ -97,8 +99,7 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
       return hpChangeProperties;
     },
   },
-  getAppliedConditions: (context) => {
-    const { idGenerator, combatantContext } = context;
+  getAppliedConditions: (combatantContext, idGenerator, actionlevel) => {
     const { combatant } = combatantContext;
 
     let userEntityProperties = cloneDeep(combatant.entityProperties);
@@ -127,7 +128,10 @@ const config: CombatActionComponentConfig = {
   },
   targetingProperties,
   hitOutcomeProperties,
-  costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
+  costProperties: {
+    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
+    costBases: {},
+  },
   shouldExecute: () => true,
 
   stepsConfig: new ActionResolutionStepsConfig(
@@ -192,20 +196,21 @@ const config: CombatActionComponentConfig = {
     // going to be part of the final targets as calculated by the hit outcomes.
     // to this end, we use the target as set on the triggered action user combatant shim
     // by the action whenTriggered function
-    const selectedTarget =
-      context.combatantContext.combatant.combatantProperties.combatActionTarget;
-    if (selectedTarget === null)
-      throw new Error("expected action user to have a selected single target");
+    // use some symantic coupling "oh no, bad practice!" to
+    // get the target location instead of trying to use auto target
+    // since the action's auto target gives a list of ids and we only
+    // want to spawn the explosion on the one selected by the user
 
-    const { party } = context.combatantContext;
-    const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
-    const primaryTargetIdResult = targetingCalculator.getPrimaryTargetCombatant(
-      party,
-      new CombatActionExecutionIntent(CombatActionName.IceBurst, selectedTarget)
-    );
-    if (primaryTargetIdResult instanceof Error) throw primaryTargetIdResult;
+    const { party, combatant: user } = context.combatantContext;
+    const actionTarget = user.combatantProperties.combatActionTarget;
+    if (!actionTarget)
+      throw new Error("expected shimmed condition action user to have a target set");
+    if (actionTarget.type !== CombatActionTargetType.Single)
+      throw new Error("expected shimmed condition action user to have a single target");
+    const primaryTargetResult = AdventuringParty.getCombatant(party, actionTarget.targetId);
+    if (primaryTargetResult instanceof Error) throw primaryTargetResult;
 
-    const position = primaryTargetIdResult.combatantProperties.position;
+    const position = primaryTargetResult.combatantProperties.position;
 
     return {
       type: SpawnableEntityType.ActionEntity,

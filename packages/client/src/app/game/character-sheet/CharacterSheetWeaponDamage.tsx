@@ -156,7 +156,7 @@ function getAttackActionDamageAndAccuracy(
   const combatAction = COMBAT_ACTIONS[actionName];
   const hpChangeProperties = combatAction.hitOutcomeProperties.resourceChangePropertiesGetters![
     CombatActionResource.HitPoints
-  ]!(combatantProperties, target);
+  ]!(combatantProperties, 1, target);
   if (hpChangeProperties === null) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TYPE);
 
   const hpChangeRangeResult = hpChangeProperties.baseValues;
@@ -167,12 +167,14 @@ function getAttackActionDamageAndAccuracy(
   const hitChance = HitOutcomeMitigationCalculator.getActionHitChance(
     combatAction,
     combatantProperties,
+    1,
     CombatantProperties.getTotalAttributes(target)[CombatAttribute.Evasion],
     false
   );
 
   const critChance = HitOutcomeMitigationCalculator.getActionCritChance(
     combatAction,
+    1,
     combatantProperties,
     target,
     false

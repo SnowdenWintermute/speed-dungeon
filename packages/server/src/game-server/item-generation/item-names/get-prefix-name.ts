@@ -143,21 +143,5 @@ export function getPrefixName(prefixType: PrefixType, tier: number) {
           return "hacked";
       }
     }
-    case PrefixType.Focus: {
-      switch (tier) {
-        case 1:
-          return "Observant";
-        case 2:
-          return "Attentive";
-        case 3:
-          return "Intent";
-        case 4:
-          return "Concentrated";
-        case 5:
-          return "Singular";
-        default:
-          return "hacked";
-      }
-    }
   }
 }

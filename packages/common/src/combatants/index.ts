@@ -16,11 +16,7 @@ import getCombatantTotalElementalAffinities from "./combatant-traits/get-combata
 import getCombatantTotalKineticDamageTypeAffinities from "./combatant-traits/get-combatant-total-kinetic-damage-type-affinities.js";
 import { setResourcesToMax } from "./resources/set-resources-to-max.js";
 import { immerable } from "immer";
-import {
-  formatVector3,
-  iterateNumericEnum,
-  iterateNumericEnumKeyedRecord,
-} from "../utils/index.js";
+import { iterateNumericEnum, iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import awardLevelups, { XP_REQUIRED_TO_REACH_LEVEL_2 } from "./experience-points/award-levelups.js";
 import { incrementAttributePoint } from "./attributes/increment-attribute.js";
 import { MonsterType } from "../monsters/monster-types.js";
@@ -41,13 +37,13 @@ import { canPickUpItem } from "./inventory/can-pick-up-item.js";
 import { EntityProperties } from "../primatives/index.js";
 import { Inventory } from "./inventory/index.js";
 import {
+  ActionPayableResource,
   CombatActionName,
   getUnmetCostResourceTypes,
   TargetingScheme,
 } from "../combat/combat-actions/index.js";
 import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
 import { getOwnedActionState } from "./owned-actions/get-owned-action-state.js";
-import { getAllCurrentlyUsableActionNames } from "./owned-actions/get-all-currently-usable-action-names.js";
 import { getActionNamesFilteredByUseableContext } from "./owned-actions/get-owned-action-names-filtered-by-usable-context.js";
 import {
   COMBATANT_CONDITION_CONSTRUCTORS,
@@ -57,6 +53,7 @@ import { Equipment, EquipmentType, HoldableSlotType } from "../items/equipment/i
 import { plainToInstance } from "class-transformer";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { ThreatManager } from "./threat-manager/index.js";
+import { COMBATANT_MAX_ACTION_POINTS } from "../app-consts.js";
 
 export enum AiType {
   Healer,
@@ -88,16 +85,8 @@ export class Combatant {
     const rehydratedConditions = combatantProperties.conditions.map((condition) => {
       const constructor = COMBATANT_CONDITION_CONSTRUCTORS[condition.name];
       return plainToInstance(constructor, condition);
-      // switch (condition.name) {
-      //   case CombatantConditionName.PrimedForExplosion:
-      //   case CombatantConditionName.PrimedForIceBurst:
-      //     return plainToInstance(PrimedForIceBurstCombatantCondition, condition);
-      //   case CombatantConditionName.Burning:
-      //     return plainToInstance(BurningCombatantCondition, condition);
-      //   case CombatantConditionName.Blinded:
-      //     return plainToInstance(BlindedCombatantCondition, condition);
-      // }
     });
+
     combatantProperties.conditions = rehydratedConditions;
 
     if (combatantProperties.threatManager)
@@ -118,6 +107,7 @@ export class CombatantProperties {
   unspentAbilityPoints: number = 0;
   hitPoints: number = 0;
   mana: number = 0;
+  actionPoints: number = 0;
   speccedAttributes: CombatantAttributeRecord = {};
   experiencePoints: ExperiencePoints = {
     current: 0,
@@ -131,6 +121,7 @@ export class CombatantProperties {
   selectedCombatAction: null | CombatActionName = null;
   combatActionTarget: null | CombatActionTarget = null;
   selectedTargetingScheme: null | TargetingScheme = null;
+  selectedActionLevel: null | number = null;
   //
   threatManager?: ThreatManager;
 
@@ -193,8 +184,48 @@ export class CombatantProperties {
   static getOwnedActionState = getOwnedActionState;
   static changeHitPoints = changeCombatantHitPoints;
   static changeMana = changeCombatantMana;
+  static changeActionPoints(combatantProperties: CombatantProperties, value: number) {
+    combatantProperties.actionPoints = Math.min(
+      COMBATANT_MAX_ACTION_POINTS,
+      Math.max(0, combatantProperties.actionPoints + value)
+    );
+  }
   static clampHpAndMpToMax = clampResourcesToMax;
   static setHpAndMpToMax = setResourcesToMax;
+  static refillActionPoints(combatantProperties: CombatantProperties) {
+    combatantProperties.actionPoints = COMBATANT_MAX_ACTION_POINTS;
+  }
+  static tickCooldowns(combatantProperties: CombatantProperties) {
+    for (const [actionName, actionState] of iterateNumericEnumKeyedRecord(
+      combatantProperties.ownedActions
+    )) {
+      if (actionState.wasUsedThisTurn) {
+        actionState.wasUsedThisTurn = false;
+      } else if (actionState.cooldown && actionState.cooldown.current) {
+        actionState.cooldown.current -= 1;
+      }
+    }
+  }
+  static payResourceCosts(
+    combatantProperties: CombatantProperties,
+    costs: Partial<Record<ActionPayableResource, number>>
+  ) {
+    for (const [resource, cost] of iterateNumericEnumKeyedRecord(costs)) {
+      switch (resource) {
+        case ActionPayableResource.HitPoints:
+          CombatantProperties.changeHitPoints(combatantProperties, cost);
+          break;
+        case ActionPayableResource.Mana:
+          CombatantProperties.changeMana(combatantProperties, cost);
+          break;
+        case ActionPayableResource.Shards:
+          break;
+        case ActionPayableResource.ActionPoints:
+          CombatantProperties.changeActionPoints(combatantProperties, cost);
+          break;
+      }
+    }
+  }
   static isDead(combatantProperties: CombatantProperties) {
     return combatantProperties.hitPoints <= 0;
   }
@@ -210,7 +241,6 @@ export class CombatantProperties {
     Inventory.instantiateItemClasses(combatantProperties.inventory);
     CombatantEquipment.instatiateItemClasses(combatantProperties);
   }
-  static getAllCurrentlyUsableActionNames = getAllCurrentlyUsableActionNames;
 
   static canParry(combatantProperties: CombatantProperties): boolean {
     const holdables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
@@ -280,10 +310,16 @@ export class CombatantProperties {
 
   static hasRequiredResourcesToUseAction(
     combatantProperties: CombatantProperties,
-    actionName: CombatActionName
+    actionName: CombatActionName,
+    isInCombat: boolean,
+    actionLevel: number
   ) {
     const action = COMBAT_ACTIONS[actionName];
-    const costs = action.costProperties.getResourceCosts(combatantProperties);
+    const costs = action.costProperties.getResourceCosts(
+      combatantProperties,
+      isInCombat,
+      actionLevel
+    );
 
     if (costs) {
       const unmetCosts = getUnmetCostResourceTypes(combatantProperties, costs);

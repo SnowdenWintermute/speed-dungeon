@@ -1,6 +1,5 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
-import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
 import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { SpeedDungeonGame } from "../game/index.js";

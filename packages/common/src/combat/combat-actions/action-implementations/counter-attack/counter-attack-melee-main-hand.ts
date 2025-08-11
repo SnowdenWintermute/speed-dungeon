@@ -27,6 +27,7 @@ const config: CombatActionComponentConfig = {
   description: "Respond with a melee attack target using equipment in main hand",
   costProperties: {
     ...clonedConfig.costProperties,
+    costBases: {},
     requiresCombatTurn: (context) => false,
   },
   stepsConfig,

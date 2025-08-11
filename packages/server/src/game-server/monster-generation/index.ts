@@ -46,13 +46,13 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
 
   const ownedActions: CombatActionName[] = [
     CombatActionName.Attack,
-    CombatActionName.Fire,
-    CombatActionName.IceBoltParent,
-    CombatActionName.ChainingSplitArrowParent,
-    CombatActionName.ExplodingArrowParent,
-    CombatActionName.UseGreenAutoinjector,
-    CombatActionName.UseBlueAutoinjector,
-    CombatActionName.Blind,
+    // CombatActionName.Fire,
+    // CombatActionName.IceBoltParent,
+    // CombatActionName.ChainingSplitArrowParent,
+    // CombatActionName.ExplodingArrowParent,
+    // CombatActionName.UseGreenAutoinjector,
+    // CombatActionName.UseBlueAutoinjector,
+    // CombatActionName.Blind,
     CombatActionName.Healing,
     // CombatActionName.PassTurn,
   ];
@@ -103,7 +103,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   // @TODO - assign abilities (realistically need to refactor monster creation)
 
   monster.combatantProperties.aiTypes = [AiType.Healer];
-  monster.combatantProperties.hitPoints = Math.floor(monster.combatantProperties.hitPoints * 0.5);
+  // monster.combatantProperties.hitPoints = Math.floor(monster.combatantProperties.hitPoints * 0.5);
 
   return monster;
 }

@@ -143,8 +143,8 @@ export abstract class CombatActionComponent {
     this.hitOutcomeProperties = config.hitOutcomeProperties;
     this.costProperties = {
       ...config.costProperties,
-      getResourceCosts: (user: CombatantProperties) =>
-        config.costProperties.getResourceCosts(user, this),
+      getResourceCosts: (user: CombatantProperties, inCombat: boolean, actionLevel: number) =>
+        config.costProperties.getResourceCosts(user, inCombat, actionLevel, this),
     };
 
     this.shouldExecute = (combatantContext, previousTrackerOption) =>
@@ -165,11 +165,10 @@ export abstract class CombatActionComponent {
   getOnUseMessageData(context: ActionResolutionStepContext): ActionUseMessageData {
     const { combatantContext } = context;
     const { combatant } = combatantContext;
-    const { actionName } = context.tracker.actionExecutionIntent;
-    const ownedActionOption = combatant.combatantProperties.ownedActions[actionName];
+    const { selectedActionLevel } = combatant.combatantProperties;
     return {
       nameOfActionUser: combatant.entityProperties.name,
-      actionLevel: ownedActionOption?.level ?? 0,
+      actionLevel: selectedActionLevel ?? 0,
     };
   }
 
@@ -184,22 +183,31 @@ export abstract class CombatActionComponent {
     // - check traits and conditions
     return true;
   }
-  getAccuracy(user: CombatantProperties) {
-    const baseAccuracy = this.hitOutcomeProperties.getUnmodifiedAccuracy(user);
+  getAccuracy(user: CombatantProperties, actionLevel: number) {
+    const baseAccuracy = this.hitOutcomeProperties.getUnmodifiedAccuracy(user, actionLevel);
     if (baseAccuracy.type === ActionAccuracyType.Percentage)
       baseAccuracy.value *= this.hitOutcomeProperties.accuracyModifier;
     return baseAccuracy;
   }
 
-  useIsValid(targets: CombatActionTarget, combatantContext: CombatantContext): Error | void {
+  useIsValid(
+    targets: CombatActionTarget,
+    level: number,
+    combatantContext: CombatantContext
+  ): Error | void {
     const { game, party, combatant } = combatantContext;
     const { combatantProperties } = combatant;
 
     const combatActionPropertiesResult = getCombatActionPropertiesIfOwned(
       combatant.combatantProperties,
-      this.name
+      this.name,
+      level
     );
     if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
+
+    const actionStateOption = combatantProperties.ownedActions[this.name];
+    if (actionStateOption && actionStateOption.cooldown && actionStateOption.cooldown.current)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.IS_ON_COOLDOWN);
 
     const hasRequiredConsumables = CombatantProperties.hasRequiredConsumablesToUseAction(
       combatantProperties,
@@ -209,7 +217,9 @@ export abstract class CombatActionComponent {
 
     const hasRequiredResources = CombatantProperties.hasRequiredResourcesToUseAction(
       combatantProperties,
-      this.name
+      this.name,
+      !!combatantContext.getBattleOption(),
+      level
     );
 
     if (!hasRequiredResources)

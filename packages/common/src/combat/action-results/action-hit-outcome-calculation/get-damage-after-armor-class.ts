@@ -7,6 +7,7 @@ import { CombatActionHitOutcomeProperties } from "../../combat-actions/combat-ac
 export default function getDamageAfterArmorClass(
   damageBefore: number,
   user: CombatantProperties,
+  actionLevel: number,
   target: CombatantProperties,
   hitOutcomeProperties: CombatActionHitOutcomeProperties
 ) {
@@ -18,7 +19,11 @@ export default function getDamageAfterArmorClass(
 
   const targetAc = CombatantProperties.getTotalAttributes(target)[CombatAttribute.ArmorClass];
 
-  const userArmorPen = hitOutcomeProperties.getArmorPenetration(user, hitOutcomeProperties);
+  const userArmorPen = hitOutcomeProperties.getArmorPenetration(
+    user,
+    actionLevel,
+    hitOutcomeProperties
+  );
 
   const finalAc = Math.max(0, targetAc - userArmorPen);
   const damageAfterAc =

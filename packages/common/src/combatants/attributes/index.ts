@@ -16,8 +16,6 @@ export enum CombatAttribute {
   Vitality, // hp, and debuff duration
   Resilience, // %magic damage reduction, healing received, debuff duration
 
-  Focus, // negates %magic reduction and increases spell crit chance and crit multiplier
-
   Agility, // movement speed, evasion, physical crit chance reduction
 
   Speed, // determines turn order
@@ -43,7 +41,6 @@ export const ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES = [
   CombatAttribute.Intelligence,
   CombatAttribute.Vitality,
   CombatAttribute.Resilience,
-  CombatAttribute.Focus,
   CombatAttribute.Agility,
 ];
 
@@ -56,7 +53,6 @@ export const COMBAT_ATTRIBUTE_STRINGS: Record<CombatAttribute, string> = {
   [CombatAttribute.Resilience]: "Resilience",
   [CombatAttribute.Agility]: "Agility",
   [CombatAttribute.Accuracy]: "Accuracy",
-  [CombatAttribute.Focus]: "Focus",
   [CombatAttribute.Evasion]: "Evasion",
   [CombatAttribute.Speed]: "Speed",
   [CombatAttribute.Hp]: "HP",
@@ -73,8 +69,6 @@ export const COMBAT_ATTRIBUTE_DESCRIPTIONS: Record<CombatAttribute, string> = {
   [CombatAttribute.Hp]: "If reduced to zero the combatant can no longer take actions",
   [CombatAttribute.Speed]: "Determines turn order",
   [CombatAttribute.Mp]: "The primary resource for using abilities",
-  [CombatAttribute.Focus]:
-    "Negates target magic defense and increases crit chance and crit multiplier for magical effects. Increases crit multiplier for ranged attacks.",
   [CombatAttribute.Dexterity]:
     "Increases accuracy, crit chance with physical attacks, ranged attack damage and ranged attack armor penetration",
   [CombatAttribute.Intelligence]: "Increases mana and spell damage",

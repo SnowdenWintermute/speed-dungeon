@@ -78,6 +78,7 @@ export const ERROR_MESSAGES = {
     NOT_FOUND: "No combatant was found with the provided ID",
     NO_ACTION_SELECTED: "That combatant has no selected combat action",
     NO_TARGET_SELECTED: "That combatant has no selected target",
+    NO_ACTION_LEVEL_SELECTED: "That combatant has no selected action level",
     IS_DEAD: "That combatant is dead",
     NOT_ACTIVE: "It is not that combatant's turn",
     NO_UNSPENT_ATTRIBUTE_POINTS: "That combatant has no unspent attribute points",
@@ -92,8 +93,11 @@ export const ERROR_MESSAGES = {
   },
   COMBAT_ACTIONS: {
     NOT_OWNED: "That ability is not owned by that combatant",
+    NOT_OWNED_AT_THAT_LEVEL: "The combatant's ability is not high enough level",
+    NO_LEVEL_SELECTED: "No ability level selected",
     INVALID_TYPE: "Invalid ability type",
     INSUFFICIENT_RESOURCES: "Insufficient resources",
+    IS_ON_COOLDOWN: "That action is on cooldown. Wait until the cooldown has elapsed.",
     NO_VALID_TARGETS: "No valid targets were found for the selected action",
     ONLY_ONE_TARGETING_SCHEME_AVAILABLE:
       "There is only one targeting scheme available for that action",

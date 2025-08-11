@@ -1,10 +1,8 @@
 import { Combatant } from "../../../combatants/index.js";
-import {
-  COMBAT_ACTION_NAME_STRINGS,
-  CombatActionName,
-} from "../../combat-actions/combat-action-names.js";
+import { CombatActionName } from "../../combat-actions/combat-action-names.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import { BehaviorNode, BehaviorNodeState, SequenceNode } from "../behavior-tree.js";
+import { CheckIfActionOnCooldown } from "./check-if-action-on-cooldown.js";
 import { CheckIfActionUsableInCurrentContext } from "./check-if-action-usable-in-current-context.js";
 import { CheckIfHasRequiredConsumablesForAction } from "./check-if-has-required-consumable-for-action.js";
 import { CheckIfHasRequiredResourcesForAction } from "./check-if-has-required-resources-for-action.js";
@@ -15,12 +13,15 @@ export class CollectPotentialTargetsForActionIfUsable implements BehaviorNode {
   constructor(
     private behaviorContext: AIBehaviorContext,
     private combatant: Combatant,
-    private actionNameOptionGetter: () => CombatActionName | null
+    private actionNameOptionGetter: () => CombatActionName | null,
+    private actionLevelOptionGetter: () => number | null
   ) {}
 
   execute(): BehaviorNodeState {
     const actionNameOption = this.actionNameOptionGetter();
-    if (actionNameOption === null) {
+    const actionLevelOption = this.actionLevelOptionGetter();
+
+    if (actionNameOption === null || actionLevelOption === null) {
       return BehaviorNodeState.Failure;
     }
     const root = new SequenceNode([
@@ -30,6 +31,7 @@ export class CollectPotentialTargetsForActionIfUsable implements BehaviorNode {
         this.combatant,
         actionNameOption
       ),
+      new CheckIfActionOnCooldown(this.behaviorContext, this.combatant, actionNameOption),
       new CheckIfHasRequiredResourcesForAction(
         this.behaviorContext,
         this.combatant,
@@ -45,7 +47,12 @@ export class CollectPotentialTargetsForActionIfUsable implements BehaviorNode {
         this.combatant,
         actionNameOption
       ),
-      new CollectPotentialTargetsForAction(this.behaviorContext, this.combatant, actionNameOption),
+      new CollectPotentialTargetsForAction(
+        this.behaviorContext,
+        this.combatant,
+        actionNameOption,
+        actionLevelOption
+      ),
     ]);
 
     return root.execute();

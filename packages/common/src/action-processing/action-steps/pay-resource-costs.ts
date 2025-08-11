@@ -3,26 +3,44 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { ActionPayableResource, COMBAT_ACTIONS } from "../../combat/index.js";
+import { COMBAT_ACTIONS, COMBAT_ACTION_NAME_STRINGS } from "../../combat/index.js";
 import { GameUpdateCommandType, ResourcesPaidGameUpdateCommand } from "../game-update-commands.js";
-import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { CombatantProperties, Inventory } from "../../combatants/index.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
+import { MaxAndCurrent } from "../../primatives/max-and-current.js";
 
 const stepType = ActionResolutionStepType.PayResourceCosts;
 export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
     const { combatant } = context.combatantContext;
-    const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
+    const { combatantProperties } = combatant;
 
-    const costsOption = action.costProperties.getResourceCosts(combatant.combatantProperties);
+    let { selectedActionLevel } = combatantProperties;
+    // for counterattacks, we'll not have a selected action level but we need one
+    // to pass to the resource costst function
+    if (selectedActionLevel === null) selectedActionLevel = 1;
+
+    const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
+    const inCombat = !!context.combatantContext.getBattleOption();
+
+    const costsOption = action.costProperties.getResourceCosts(
+      combatantProperties,
+      inCombat,
+      selectedActionLevel
+    );
 
     const consumableTypeToConsumeOption = action.costProperties.getConsumableCost
       ? action.costProperties.getConsumableCost()
       : undefined;
 
+    const cooldownOption = action.costProperties.getCooldownTurns(
+      combatantProperties,
+      selectedActionLevel
+    );
+
     let gameUpdateCommandOption: null | ResourcesPaidGameUpdateCommand = null;
 
-    if (costsOption !== null || consumableTypeToConsumeOption !== undefined) {
+    if (costsOption !== null || consumableTypeToConsumeOption !== undefined || cooldownOption) {
       gameUpdateCommandOption = {
         type: GameUpdateCommandType.ResourcesPaid,
         step: stepType,
@@ -48,19 +66,16 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
 
       if (costsOption) {
         gameUpdateCommandOption.costsPaid = costsOption;
-        const { combatantProperties } = combatant;
+        CombatantProperties.payResourceCosts(combatantProperties, costsOption);
+      }
 
-        for (const [resource, cost] of iterateNumericEnumKeyedRecord(costsOption)) {
-          switch (resource) {
-            case ActionPayableResource.HitPoints:
-              CombatantProperties.changeHitPoints(combatantProperties, cost);
-              break;
-            case ActionPayableResource.Mana:
-              CombatantProperties.changeMana(combatantProperties, cost);
-              break;
-            case ActionPayableResource.Shards:
-            case ActionPayableResource.QuickActions:
-          }
+      const actionState = combatantProperties.ownedActions[action.name];
+      if (actionState !== undefined) {
+        actionState.wasUsedThisTurn = true;
+
+        if (cooldownOption) {
+          actionState.cooldown = new MaxAndCurrent(cooldownOption, cooldownOption);
+          gameUpdateCommandOption.cooldownSet = cooldownOption;
         }
       }
     }

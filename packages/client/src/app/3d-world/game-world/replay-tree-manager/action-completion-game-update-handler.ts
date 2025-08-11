@@ -1,6 +1,12 @@
 import getCurrentParty from "@/utils/getCurrentParty";
 import { useGameStore } from "@/stores/game-store";
-import { ActionCompletionUpdateCommand, ERROR_MESSAGES, InputLock } from "@speed-dungeon/common";
+import {
+  ActionCompletionUpdateCommand,
+  CombatantProperties,
+  CombatantTurnTracker,
+  ERROR_MESSAGES,
+  InputLock,
+} from "@speed-dungeon/common";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { handleThreatChangesUpdate } from "./handle-threat-changes";
 
@@ -24,6 +30,17 @@ export async function actionCompletionGameUpdateHandler(update: {
         partyOption,
         actionNameOption
       );
+
+      // REFILL THE QUICK ACTIONS OF THE CURRENT TURN
+      // this way, if we want to remove their quick actions they can be at risk
+      // of actions taking them away before they get their turn again
+      const fastestTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
+      if (fastestTracker instanceof CombatantTurnTracker) {
+        const { combatantProperties } = fastestTracker.getCombatant(partyOption);
+        CombatantProperties.refillActionPoints(combatantProperties);
+        CombatantProperties.tickCooldowns(combatantProperties);
+      }
+
       battleOption.turnOrderManager.updateTrackers(state.game, partyOption);
       const newlyActiveTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
       characterAutoFocusManager.updateFocusedCharacterOnNewTurnOrder(state, newlyActiveTracker);

@@ -37,6 +37,9 @@ export function getRotateTowardPrimaryTargetDestination(context: ActionResolutio
   if (primaryTargetResult instanceof Error) return primaryTargetResult;
   const target = primaryTargetResult;
 
+  if (primaryTargetResult.entityProperties.id === combatantContext.combatant.entityProperties.id)
+    return { rotation: combatantContext.combatant.combatantProperties.homeRotation };
+
   const direction = target.combatantProperties.homeLocation
     .subtract(combatantContext.combatant.combatantProperties.homeLocation)
     .normalize();

@@ -40,7 +40,7 @@ export const passTurnConfig: CombatActionComponentConfig = {
     getThreatChangesOnHitOutcomes: (context, hitOutcomes) => null,
     getShouldDecayThreatOnUse: (context) => false,
   },
-  costProperties: genericCombatActionCostProperties,
+  costProperties: { ...genericCombatActionCostProperties, costBases: {} },
   stepsConfig: new ActionResolutionStepsConfig(
     {
       [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},

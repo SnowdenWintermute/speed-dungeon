@@ -31,6 +31,7 @@ const config: CombatActionComponentConfig = {
   description: "Respond with a ranged attack target using equipment in main hand",
   costProperties: {
     ...clonedConfig.costProperties,
+    costBases: {},
     requiresCombatTurn: (context) => false,
   },
   stepsConfig,
@@ -50,7 +51,8 @@ const config: CombatActionComponentConfig = {
     return [
       new CombatActionExecutionIntent(
         CombatActionName.CounterAttackRangedMainhandProjectile,
-        context.tracker.actionExecutionIntent.targets
+        context.tracker.actionExecutionIntent.targets,
+        context.tracker.actionExecutionIntent.level
       ),
     ];
   },

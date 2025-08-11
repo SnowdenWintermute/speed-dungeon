@@ -1,12 +1,10 @@
-import { CombatActionIntent, CombatActionName, CombatActionTargetType } from "../index.js";
+import { CombatActionName, CombatActionTargetType } from "../index.js";
 import { Combatant } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { CombatActionExecutionIntent } from "../combat-actions/combat-action-execution-intent.js";
 import { AIBehaviorContext } from "./ai-context.js";
 import { CombatantContext } from "../../combatant-context/index.js";
-import { SelectRandomActionAndTargets } from "./custom-nodes/select-random-action-and-targets.js";
 import { BEHAVIOR_NODE_STATE_STRINGS } from "./behavior-tree.js";
-import { SelectTopThreatTargetAndAction } from "./custom-nodes/select-highest-threat-target.js";
 import { RootAIBehaviorNode } from "./custom-nodes/root-ai-behavior-node.js";
 
 export function AISelectActionAndTarget(
@@ -36,10 +34,14 @@ export function AISelectActionAndTarget(
   let actionExecutionIntentOption = behaviorContext.selectedActionIntent;
   if (actionExecutionIntentOption === null) {
     console.info("ai context did not have a selected actionExecutionIntent - passing turn");
-    actionExecutionIntentOption = new CombatActionExecutionIntent(CombatActionName.PassTurn, {
-      type: CombatActionTargetType.Single,
-      targetId: user.entityProperties.id,
-    });
+    actionExecutionIntentOption = new CombatActionExecutionIntent(
+      CombatActionName.PassTurn,
+      {
+        type: CombatActionTargetType.Single,
+        targetId: user.entityProperties.id,
+      },
+      0
+    );
   }
 
   // must set their target because getAutoTarget may use it when creating action children or triggered actions

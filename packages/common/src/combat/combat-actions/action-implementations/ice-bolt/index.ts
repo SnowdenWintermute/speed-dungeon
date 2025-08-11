@@ -75,7 +75,8 @@ const config: CombatActionComponentConfig = {
     return [
       new CombatActionExecutionIntent(
         CombatActionName.IceBoltProjectile,
-        context.tracker.actionExecutionIntent.targets
+        context.tracker.actionExecutionIntent.targets,
+        context.tracker.actionExecutionIntent.level
       ),
     ];
   },

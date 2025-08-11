@@ -13,6 +13,8 @@ const config: CombatActionComponentConfig = {
   description: "An arrow from counterattack",
   costProperties: {
     ...clonedConfig.costProperties,
+
+    costBases: {},
     requiresCombatTurn: () => false,
   },
   hitOutcomeProperties: {

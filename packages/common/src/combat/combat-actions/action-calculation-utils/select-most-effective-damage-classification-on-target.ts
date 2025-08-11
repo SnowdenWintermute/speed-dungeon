@@ -16,6 +16,7 @@ export function selectMostEffectiveFromAvailableResourceChangeSourceModifiers(
   toSelectFrom: ResourceChangeSource[],
   modifiers: Set<ResourceChangeSourceModifiers>,
   userCombatantProperties: CombatantProperties,
+  actionLevel: number,
   targetCombatantProperties: CombatantProperties,
   expectedRolledValueAverage: number,
   targetWillAttemptMitigation: boolean
@@ -46,7 +47,7 @@ export function selectMostEffectiveFromAvailableResourceChangeSourceModifiers(
 
     copySelectedModifiersFromResourceChangeSource(source, hpChangeSource, modifiers);
 
-    resourceChangeModifier.applyPostHitModifiers(false);
+    resourceChangeModifier.applyPostHitModifiers(false, actionLevel);
 
     if (mostEffective !== null) {
       if (

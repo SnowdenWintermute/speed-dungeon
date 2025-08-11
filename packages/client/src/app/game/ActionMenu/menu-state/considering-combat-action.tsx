@@ -7,9 +7,11 @@ import {
   MenuStateType,
 } from ".";
 import {
+  AdventuringParty,
   ClientToServerEvent,
   CombatActionName,
   CombatantProperties,
+  ERROR_MESSAGES,
   InputLock,
   NextOrPrevious,
 } from "@speed-dungeon/common";
@@ -43,6 +45,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
       websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
         characterId,
         combatActionNameOption: null,
+        combatActionLevel: null,
       });
     });
     toReturn[ActionButtonCategory.Top].push(cancelButton);
@@ -90,9 +93,17 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
           state.hoveredEntity = null;
 
           state.baseMenuState.page = 1;
+          state.stackedMenuStates = [];
 
           const partyOption = getCurrentParty(state, state.username || "");
-          if (partyOption) InputLock.lockInput(partyOption.inputLock);
+          if (partyOption) {
+            const focusedCharacter = AdventuringParty.getExpectedCombatant(
+              partyOption,
+              state.focusedCharacterId
+            );
+            focusedCharacter.combatantProperties.selectedActionLevel = null;
+            InputLock.lockInput(partyOption.inputLock);
+          }
         });
       }
     );
@@ -104,18 +115,23 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
     toReturn[ActionButtonCategory.Top].push(executeActionButton);
 
     // CYCLE SCHEMES
+    //
+    const { selectedActionLevel } = focusedCharacterResult.combatantProperties;
+    if (selectedActionLevel === null)
+      throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_LEVEL_SELECTED);
 
     const combatActionProperties = CombatantProperties.getCombatActionPropertiesIfOwned(
       combatantProperties,
-      this.combatActionName
+      this.combatActionName,
+      selectedActionLevel
     );
     if (combatActionProperties instanceof Error) {
       setAlert(combatActionProperties);
       return toReturn;
     }
     if (
-      combatActionProperties.targetingProperties.getTargetingSchemes(focusedCharacterResult)
-        .length <= 1
+      combatActionProperties.targetingProperties.getTargetingSchemes(selectedActionLevel).length <=
+      1
     )
       return toReturn;
 

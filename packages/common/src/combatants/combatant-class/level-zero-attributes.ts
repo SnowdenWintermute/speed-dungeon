@@ -16,7 +16,6 @@ export const BASE_STARTING_ATTRIBUTES: Record<
   },
   [CombatantClass.Mage]: {
     [CombatAttribute.Intelligence]: 3,
-    [CombatAttribute.Focus]: 2,
     [CombatAttribute.Hp]: 15,
     [CombatAttribute.Mp]: 4,
     [CombatAttribute.Accuracy]: 65,

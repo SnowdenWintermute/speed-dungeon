@@ -60,7 +60,6 @@ export function getMonsterStartingAttributes(monsterType: MonsterType): Combatan
       break;
     case MonsterType.FireMage:
       attributes[CombatAttribute.Intelligence] = 4.0;
-      attributes[CombatAttribute.Focus] = 2.0;
       attributes[CombatAttribute.Vitality] = 1.5;
       attributes[CombatAttribute.Hp] = 3.0;
       attributes[CombatAttribute.Resilience] = 2.0;
@@ -82,7 +81,6 @@ export function getMonsterStartingAttributes(monsterType: MonsterType): Combatan
       break;
     case MonsterType.FireElemental:
       attributes[CombatAttribute.Intelligence] = 4.0;
-      attributes[CombatAttribute.Focus] = 2.0;
       attributes[CombatAttribute.Vitality] = 1.0;
       attributes[CombatAttribute.Hp] = 3.0;
       attributes[CombatAttribute.Resilience] = 2.0;
@@ -91,7 +89,6 @@ export function getMonsterStartingAttributes(monsterType: MonsterType): Combatan
       break;
     case MonsterType.IceElemental:
       attributes[CombatAttribute.Intelligence] = 4.0;
-      attributes[CombatAttribute.Focus] = 2.0;
       attributes[CombatAttribute.Vitality] = 1.0;
       attributes[CombatAttribute.Hp] = 3.0;
       attributes[CombatAttribute.Resilience] = 2.0;

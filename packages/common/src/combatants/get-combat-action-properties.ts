@@ -6,9 +6,12 @@ import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/
 
 export function getCombatActionPropertiesIfOwned(
   combatantProperties: CombatantProperties,
-  actionName: CombatActionName
+  actionName: CombatActionName,
+  level: number
 ): Error | CombatActionComponent {
   const actionOption = combatantProperties.ownedActions[actionName];
   if (actionOption === undefined) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED);
+  if (actionOption.level < level)
+    return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED_AT_THAT_LEVEL);
   return COMBAT_ACTIONS[actionName];
 }

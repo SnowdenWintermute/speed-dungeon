@@ -28,6 +28,7 @@ export type CombatActionReplayTreePayload = {
   type: ActionCommandType.CombatActionReplayTree;
   actionUserId: EntityId;
   root: NestedNodeReplayEvent;
+  doNotLockInput?: boolean;
 };
 
 export type BattleResultActionCommandPayload = {

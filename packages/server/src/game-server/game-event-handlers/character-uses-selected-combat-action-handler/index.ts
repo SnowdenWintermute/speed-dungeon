@@ -3,7 +3,6 @@ import {
   ActionCommandType,
   COMBAT_ACTIONS,
   CharacterAssociatedData,
-  CombatActionComponent,
   CombatActionExecutionIntent,
   CombatActionReplayTreePayload,
   CombatantContext,
@@ -20,9 +19,37 @@ export async function useSelectedCombatActionHandler(
   _eventData: { characterId: string },
   characterAssociatedData: CharacterAssociatedData
 ) {
-  const { game, party, character, player } = characterAssociatedData;
-  const combatantContext = new CombatantContext(game, party, character);
+  const { game, player } = characterAssociatedData;
   const gameServer = getGameServer();
+
+  const validTargetsAndActionNameResult = validateClientActionUseRequest(characterAssociatedData);
+  if (validTargetsAndActionNameResult instanceof Error) {
+    const playerSocketIdResult = gameServer.getSocketIdOfPlayer(game, player.username);
+    if (playerSocketIdResult instanceof Error)
+      return console.error(validTargetsAndActionNameResult);
+    const playerSocketOption = gameServer.io.sockets.sockets.get(playerSocketIdResult);
+    if (!playerSocketOption) return console.error("player socket not found");
+    playerSocketOption.emit(
+      ServerToClientEvent.ErrorMessage,
+      validTargetsAndActionNameResult.message
+    );
+    return;
+  }
+
+  const { selectedCombatAction, targets, selectedActionLevel } = validTargetsAndActionNameResult;
+
+  const actionExecutionIntent = new CombatActionExecutionIntent(
+    selectedCombatAction,
+    targets,
+    selectedActionLevel
+  );
+
+  await executeActionAndSendReplayResult(characterAssociatedData, actionExecutionIntent, true);
+}
+
+function validateClientActionUseRequest(characterAssociatedData: CharacterAssociatedData) {
+  const { game, party, character } = characterAssociatedData;
+  const combatantContext = new CombatantContext(game, party, character);
 
   if (InputLock.isLocked(party.inputLock)) return new Error(ERROR_MESSAGES.PARTY.INPUT_IS_LOCKED);
 
@@ -32,24 +59,26 @@ export async function useSelectedCombatActionHandler(
   const targets = character.combatantProperties.combatActionTarget;
   if (targets === null) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
 
-  // ON RECEIPT
-  // validate use
+  const { selectedActionLevel } = character.combatantProperties;
+  if (selectedActionLevel === null)
+    return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_LEVEL_SELECTED);
+
   const action = COMBAT_ACTIONS[selectedCombatAction];
-  const actionUseProhibitedMessage = action.useIsValid(targets, combatantContext);
+  const maybeError = action.useIsValid(targets, selectedActionLevel, combatantContext);
+  if (maybeError instanceof Error) return maybeError;
 
-  if (actionUseProhibitedMessage instanceof Error) {
-    const playerSocketIdResult = gameServer.getSocketIdOfPlayer(game, player.username);
-    if (playerSocketIdResult instanceof Error) return console.error(playerSocketIdResult);
-    const playerSocketOption = gameServer.io.sockets.sockets.get(playerSocketIdResult);
-    if (!playerSocketOption) return console.error("player socket not found");
-    playerSocketOption.emit(ServerToClientEvent.ErrorMessage, actionUseProhibitedMessage.message);
-    return;
-  }
+  return { selectedCombatAction, targets, selectedActionLevel };
+}
 
-  const replayTreeResult = processCombatAction(
-    new CombatActionExecutionIntent(selectedCombatAction, targets),
-    combatantContext
-  );
+export async function executeActionAndSendReplayResult(
+  characterAssociatedData: CharacterAssociatedData,
+  actionExecutionIntent: CombatActionExecutionIntent,
+  lockInuptWhileReplaying: boolean
+) {
+  const { game, party, character } = characterAssociatedData;
+  const combatantContext = new CombatantContext(game, party, character);
+  const gameServer = getGameServer();
+  const replayTreeResult = processCombatAction(actionExecutionIntent, combatantContext);
 
   if (replayTreeResult instanceof Error) return replayTreeResult;
 
@@ -60,6 +89,8 @@ export async function useSelectedCombatActionHandler(
     actionUserId: character.entityProperties.id,
     root: replayTreeResult.rootReplayNode,
   };
+
+  if (!lockInuptWhileReplaying) replayTreePayload.doNotLockInput = true;
 
   const payloads: ActionCommandPayload[] = [replayTreePayload];
 

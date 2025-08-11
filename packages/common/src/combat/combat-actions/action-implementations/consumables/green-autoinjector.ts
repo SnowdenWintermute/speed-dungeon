@@ -38,7 +38,7 @@ const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesType
 const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
   ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Medication],
   resourceChangePropertiesGetters: {
-    [CombatActionResource.HitPoints]: (user, primaryTarget) => {
+    [CombatActionResource.HitPoints]: (user, actionLevel, primaryTarget) => {
       const hpChangeSourceConfig: ResourceChangeSourceConfig = {
         category: ResourceChangeSourceCategory.Medical,
         isHealing: true,

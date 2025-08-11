@@ -28,6 +28,7 @@ import { dropShardsHandler } from "./drop-shards-handler.js";
 import { purchaseItemHandler } from "./purchase-item-handler.js";
 import { craftItemHandler } from "./craft-item-handler/index.js";
 import { postItemLinkHandler } from "./post-item-link-handler.js";
+import { selectCombatActionLevelHandler } from "./select-action-level-handler.js";
 
 export default function initiateGameEventListeners(
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
@@ -134,5 +135,12 @@ export default function initiateGameEventListeners(
   socket.on(
     ClientToServerEvent.PostItemLink,
     applyMiddlewares(playerInGame)(socket, postItemLinkHandler)
+  );
+  socket.on(
+    ClientToServerEvent.SelectCombatActionLevel,
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(
+      socket,
+      selectCombatActionLevelHandler
+    )
   );
 }

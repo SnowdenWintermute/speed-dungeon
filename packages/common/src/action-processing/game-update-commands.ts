@@ -138,6 +138,7 @@ export interface ResourcesPaidGameUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.ResourcesPaid;
   combatantId: EntityId;
   costsPaid?: ActionResourceCosts;
+  cooldownSet?: number;
   itemsConsumed?: [EntityId];
 }
 
