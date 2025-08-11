@@ -112,7 +112,7 @@ const genericRangedHitOutcomeProperties: CombatActionHitOutcomeProperties = {
     return getStandardActionCritChance(user, CombatAttribute.Dexterity);
   },
   getCritMultiplier: function (user: CombatantProperties): number {
-    return getStandardActionCritMultiplier(user, CombatAttribute.Focus);
+    return getStandardActionCritMultiplier(user, null);
   },
   getArmorPenetration: function (user: CombatantProperties): number {
     return getStandardActionArmorPenetration(user, CombatAttribute.Dexterity);

@@ -30,10 +30,13 @@ export async function resourcesPaidGameUpdateHandler(update: {
     if (command.costsPaid)
       CombatantProperties.payResourceCosts(combatantProperties, command.costsPaid);
 
-    if (command.cooldownSet) {
-      const actionState = combatantProperties.ownedActions[command.actionName];
-      if (actionState === undefined) throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED);
-      actionState.cooldown = new MaxAndCurrent(command.cooldownSet, command.cooldownSet);
+    const actionState = combatantProperties.ownedActions[command.actionName];
+    if (actionState !== undefined) {
+      actionState.wasUsedThisTurn = true;
+
+      if (command.cooldownSet) {
+        actionState.cooldown = new MaxAndCurrent(command.cooldownSet, command.cooldownSet);
+      }
     }
   });
 

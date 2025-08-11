@@ -2,6 +2,7 @@ import { CombatActionName } from "../../combat/combat-actions/combat-action-name
 import { MaxAndCurrent } from "../../primatives/max-and-current.js";
 
 export class CombatantActionState {
+  wasUsedThisTurn: boolean = false;
   constructor(
     public actionName: CombatActionName,
     public level = 1,

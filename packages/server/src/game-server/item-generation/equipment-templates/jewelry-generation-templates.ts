@@ -34,7 +34,6 @@ export class JewelryGenerationTemplate extends EquipmentGenerationTemplate {
         case PrefixType.LifeSteal:
         case PrefixType.ArmorPenetration:
         case PrefixType.Agility:
-        case PrefixType.Focus:
           this.possibleAffixes.prefix[prefix] = 5;
       }
     }

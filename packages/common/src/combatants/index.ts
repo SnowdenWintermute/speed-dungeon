@@ -195,6 +195,17 @@ export class CombatantProperties {
   static refillActionPoints(combatantProperties: CombatantProperties) {
     combatantProperties.actionPoints = COMBATANT_MAX_ACTION_POINTS;
   }
+  static tickCooldowns(combatantProperties: CombatantProperties) {
+    for (const [actionName, actionState] of iterateNumericEnumKeyedRecord(
+      combatantProperties.ownedActions
+    )) {
+      if (actionState.wasUsedThisTurn) {
+        actionState.wasUsedThisTurn = false;
+      } else if (actionState.cooldown && actionState.cooldown.current) {
+        actionState.cooldown.current -= 1;
+      }
+    }
+  }
   static payResourceCosts(
     combatantProperties: CombatantProperties,
     costs: Partial<Record<ActionPayableResource, number>>

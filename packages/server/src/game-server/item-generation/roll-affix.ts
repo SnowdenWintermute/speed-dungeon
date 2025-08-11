@@ -88,9 +88,6 @@ export function rollAffix(
         case PrefixType.Agility:
           affix.combatAttributes[CombatAttribute.Agility] = rollAttributeValue(1, 2);
           break;
-        case PrefixType.Focus:
-          affix.combatAttributes[CombatAttribute.Focus] = rollAttributeValue(1, 2);
-          break;
       }
       break;
     case AffixType.Suffix:

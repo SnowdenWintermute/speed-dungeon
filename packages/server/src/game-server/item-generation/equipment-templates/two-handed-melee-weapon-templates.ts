@@ -36,7 +36,6 @@ export class TwoHandedMeleeWeaponGenerationTemplate extends WeaponGenerationTemp
         case PrefixType.Resilience:
         case PrefixType.ArmorPenetration:
         case PrefixType.Agility:
-        case PrefixType.Focus:
           this.possibleAffixes.prefix[prefix] = 5;
       }
     }

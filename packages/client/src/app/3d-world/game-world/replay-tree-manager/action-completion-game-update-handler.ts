@@ -38,6 +38,7 @@ export async function actionCompletionGameUpdateHandler(update: {
       if (fastestTracker instanceof CombatantTurnTracker) {
         const { combatantProperties } = fastestTracker.getCombatant(partyOption);
         CombatantProperties.refillActionPoints(combatantProperties);
+        CombatantProperties.tickCooldowns(combatantProperties);
       }
 
       battleOption.turnOrderManager.updateTrackers(state.game, partyOption);

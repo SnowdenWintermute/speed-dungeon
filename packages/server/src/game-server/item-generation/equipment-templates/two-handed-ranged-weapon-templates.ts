@@ -35,7 +35,6 @@ export class TwoHandedRangedWeaponGenerationTemplate extends WeaponGenerationTem
         case PrefixType.Resilience:
         case PrefixType.ArmorPenetration:
         case PrefixType.Agility:
-        case PrefixType.Focus:
           this.possibleAffixes.prefix[prefix] = 5;
       }
     }

@@ -3,7 +3,7 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { COMBAT_ACTIONS } from "../../combat/index.js";
+import { COMBAT_ACTIONS, COMBAT_ACTION_NAME_STRINGS } from "../../combat/index.js";
 import { GameUpdateCommandType, ResourcesPaidGameUpdateCommand } from "../game-update-commands.js";
 import { CombatantProperties, Inventory } from "../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
@@ -69,11 +69,14 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
         CombatantProperties.payResourceCosts(combatantProperties, costsOption);
       }
 
-      if (cooldownOption) {
-        const actionState = combatantProperties.ownedActions[action.name];
-        if (actionState === undefined) throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED);
-        actionState.cooldown = new MaxAndCurrent(cooldownOption, cooldownOption);
-        gameUpdateCommandOption.cooldownSet = cooldownOption;
+      const actionState = combatantProperties.ownedActions[action.name];
+      if (actionState !== undefined) {
+        actionState.wasUsedThisTurn = true;
+
+        if (cooldownOption) {
+          actionState.cooldown = new MaxAndCurrent(cooldownOption, cooldownOption);
+          gameUpdateCommandOption.cooldownSet = cooldownOption;
+        }
       }
     }
 

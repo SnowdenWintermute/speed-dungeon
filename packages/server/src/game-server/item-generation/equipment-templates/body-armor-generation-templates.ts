@@ -79,7 +79,6 @@ export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
         case PrefixType.Mp:
         case PrefixType.Evasion:
         case PrefixType.Agility:
-        case PrefixType.Focus:
           template.possibleAffixes.prefix[prefix] = 3;
           break;
         case PrefixType.ArmorClass:
