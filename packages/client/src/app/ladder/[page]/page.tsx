@@ -3,7 +3,8 @@ import Ladder from "./ladder";
 import TopBar from "@/app/lobby/TopBar";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 
-export default function LadderPage({ params }: { params: { page: string } }) {
+export default async function LadderPage(props: { params: Promise<{ page: string }> }) {
+  const params = await props.params;
   return (
     <div className="flex flex-col h-screen w-screen">
       <TopBar />

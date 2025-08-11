@@ -1,6 +1,7 @@
 import React from "react";
 import LoadingSpinner from "./components/atoms/LoadingSpinner";
 import { chooseRandomFromArray } from "@speed-dungeon/common";
+import { clientRngSingleton } from "@/singletons/random-number-generator";
 
 export default function Loading() {
   const loadingMessages = [
@@ -11,7 +12,7 @@ export default function Loading() {
     "Collating affixes",
     "Researching loot tables",
   ];
-  let loadingMessage = chooseRandomFromArray(loadingMessages);
+  let loadingMessage = chooseRandomFromArray(loadingMessages, clientRngSingleton);
   if (loadingMessage instanceof Error) loadingMessage = "Loading";
   return (
     <main className="h-screen w-screen pt-10 flex flex-col items-center">
