@@ -29,7 +29,10 @@ import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import getGameAndParty from "@/utils/getGameAndParty";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
-import { setInventoryOpen } from "./common-buttons/open-inventory";
+import {
+  setInventoryOpen,
+  setViewingAbilityTreeAsFreshStack,
+} from "./common-buttons/open-inventory";
 import { ReactNode } from "react";
 
 import FireIcon from "../../../../../public/img/game-ui-icons/fire.svg";
@@ -40,7 +43,6 @@ import IceIcon from "../../../../../public/img/game-ui-icons/ice.svg";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -56,6 +58,7 @@ export class BaseMenuState implements ActionMenuState {
     const toReturn = new ActionButtonsByCategory();
 
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
+    toReturn[ActionButtonCategory.Top].push(setViewingAbilityTreeAsFreshStack);
 
     let focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) {

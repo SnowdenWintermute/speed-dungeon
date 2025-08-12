@@ -7,7 +7,8 @@ import WinLossRecord from "../win-loss-record";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 import ProfileGeneralData from "../profile-general-data";
 
-export default function ProfilePage({ params }: { params: { username: string } }) {
+export default async function ProfilePage(props: { params: Promise<{ username: string }> }) {
+  const params = await props.params;
   const { username } = params;
 
   if (typeof username !== "string") return <div>ERROR: No username provided in url</div>;

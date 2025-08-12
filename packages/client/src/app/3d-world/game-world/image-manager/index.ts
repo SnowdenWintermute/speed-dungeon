@@ -115,7 +115,7 @@ export class ImageManager {
 
     if (equipmentModelResult instanceof Error) {
       this.processNextMessage();
-      return console.error(equipmentModelResult.message);
+      return console.info(equipmentModelResult.message);
     }
 
     equipmentModelResult.setVisibility(1);

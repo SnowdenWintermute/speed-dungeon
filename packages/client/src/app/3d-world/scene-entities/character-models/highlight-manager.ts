@@ -80,7 +80,7 @@ export class HighlightManager {
 
       const originalColors = this.originalPartMaterialColors[partCategory];
       if (!originalColors) {
-        console.error("original colors not found when removing highlight");
+        console.info("original colors not found when removing highlight");
         continue;
       }
 
@@ -96,7 +96,7 @@ export class HighlightManager {
     for (const equipmentModel of this.modularCharacter.equipmentModelManager.getAllModels()) {
       const originalColors = this.originalEquipmentMaterialColors[equipmentModel.entityId];
       if (!originalColors) {
-        console.error("original colors not found when removing highlight");
+        console.info("original colors not found when removing highlight");
         continue;
       }
       for (const mesh of equipmentModel.assetContainer.meshes) {

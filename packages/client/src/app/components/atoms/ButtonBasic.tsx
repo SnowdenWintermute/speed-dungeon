@@ -16,7 +16,7 @@ export default function ButtonBasic(props: Props) {
   const onClick = typeof props.onClick !== "undefined" ? props.onClick : () => {};
   const onFocus = typeof props.onFocus !== "undefined" ? props.onFocus : () => {};
   const onBlur = typeof props.onFocus !== "undefined" ? props.onFocus : () => {};
-  const keypressListenerRef = useRef<(e: KeyboardEvent) => void | null>();
+  const keypressListenerRef = useRef<(e: KeyboardEvent) => void | null>(null);
 
   useEffect(() => {
     if (props.hotkey !== undefined) {

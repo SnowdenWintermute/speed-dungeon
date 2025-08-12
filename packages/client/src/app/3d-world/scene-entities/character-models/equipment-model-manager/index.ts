@@ -156,7 +156,9 @@ export class EquipmentModelManager {
           gameWorld.defaultMaterials,
           true
         );
-        if (equipmentModel instanceof Error) throw equipmentModel;
+        if (equipmentModel instanceof Error) {
+          return console.info(equipmentModel);
+        }
         if (equipmentModel instanceof ConsumableModel) throw new Error("unexpected item type");
 
         if (Equipment.isBroken(equipmentModel.equipment)) equipmentModel.setVisibility(0);

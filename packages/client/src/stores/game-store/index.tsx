@@ -34,6 +34,7 @@ import { RepairItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/r
 import { ConvertToShardItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/convert-to-shard-item-selection";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { TargetIndicator } from "@/app/3d-world/scene-entities/character-models/target-indicator-manager";
+import { AbilityTreeMenuState } from "@/app/game/ActionMenu/menu-state/ability-tree-menu-state";
 
 export enum MenuContext {
   InventoryItems,
@@ -158,6 +159,7 @@ export const purchasingItemsMenuState = new PurchaseItemsMenuState();
 export const craftingItemSelectionMenuState = new CraftingItemSelectionMenuState();
 export const repairItemSelectionMenuState = new RepairItemSelectionMenuState();
 export const convertToShardItemSelectionMenuState = new ConvertToShardItemSelectionMenuState();
+export const abilityTreeMenuState = new AbilityTreeMenuState();
 
 export function getCurrentMenu(state: GameState) {
   const topStackedMenu = state.stackedMenuStates[state.stackedMenuStates.length - 1];

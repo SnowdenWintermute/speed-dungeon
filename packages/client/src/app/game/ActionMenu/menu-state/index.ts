@@ -15,6 +15,7 @@ export enum MenuStateType {
   RepairItemSelection,
   ShardItemSelection,
   ConfimConvertToShards,
+  ViewingAbilityTree,
 }
 
 export const MENU_STATE_TYPE_STRINGS: Record<MenuStateType, string> = {
@@ -32,6 +33,7 @@ export const MENU_STATE_TYPE_STRINGS: Record<MenuStateType, string> = {
   [MenuStateType.RepairItemSelection]: "Selecting item to repair",
   [MenuStateType.ShardItemSelection]: "Converting items to shards",
   [MenuStateType.ConfimConvertToShards]: "Confirm item destruction",
+  [MenuStateType.ViewingAbilityTree]: "Viewing ability tree",
 };
 
 export enum ActionButtonCategory {
