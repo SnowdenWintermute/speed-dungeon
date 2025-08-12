@@ -43,6 +43,7 @@ import IceIcon from "../../../../../public/img/game-ui-icons/ice.svg";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
+import { ACTION_MENU_PAGE_SIZE } from "..";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 

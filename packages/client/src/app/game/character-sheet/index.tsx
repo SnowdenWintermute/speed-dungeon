@@ -8,8 +8,6 @@ import AbilitySelection from "./AbilitySelection";
 import { MenuStateType } from "../ActionMenu/menu-state";
 
 export default function CharacterSheet({ showCharacterSheet }: { showCharacterSheet: boolean }) {
-  const mutateGameState = useGameStore().mutateState;
-  const viewingDropShardsModal = useGameStore((state) => state.viewingDropShardsModal);
   const currentMenu = useGameStore().getCurrentMenu();
   const partyResult = useGameStore().getParty();
   if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
@@ -24,7 +22,9 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
     ? "pointer-events-auto w-fit "
     : "opacity-0 overflow-hidden pointer-events-none";
 
-  const viewingAbilityTree = currentMenu.type === MenuStateType.ViewingAbilityTree;
+  const viewingAbilityTree =
+    currentMenu.type === MenuStateType.ViewingAbilityTree ||
+    currentMenu.type === MenuStateType.ConsideringAbilityTreeColumn;
 
   const paperDollAndAttributesRef = useRef<HTMLDivElement>(null);
   const paperDollAndAttributesHiddenStyles = viewingAbilityTree ? "invisible absolute" : "";

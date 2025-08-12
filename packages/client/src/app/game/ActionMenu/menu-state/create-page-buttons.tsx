@@ -12,12 +12,11 @@ import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 
 export default function createPageButtons(
   menuState: ActionMenuState,
-  buttonsByCategory: ActionButtonsByCategory
-) {
-  const numPages = Math.ceil(
+  buttonsByCategory: ActionButtonsByCategory,
+  numPages: number = Math.ceil(
     buttonsByCategory[ActionButtonCategory.Numbered].length / ACTION_MENU_PAGE_SIZE
-  );
-
+  )
+) {
   if (numPages > 1) {
     const prevButtonHotkey = HOTKEYS.LEFT_MAIN;
     const previousPageButton = new ActionMenuButtonProperties(

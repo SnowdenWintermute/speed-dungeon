@@ -2,7 +2,7 @@ import { Vector2 } from "@babylonjs/core";
 import { CombatantClass } from "../combatant-class/index.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 
-const ABILITY_TREE_DIMENSIONS = new Vector2(5, 4);
+export const ABILITY_TREE_DIMENSIONS = new Vector2(5, 4);
 
 export class AbilityTree {
   columns: (CombatActionName | undefined)[][] = Array.from(

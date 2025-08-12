@@ -30,31 +30,22 @@ export default function AbilitySelection() {
       style={{ width: `calc(100% + 2px)` }}
       className="flex border border-slate-400 bg-slate-700 p-4 absolute top-[-1px] left-0 h-fit ml-[-1px]"
     >
-      <div className="w-fit mr-4">
-        <div className="flex">
-          <div className="mr-4 flex items-center opacity-0 pointer-events-none" id="spacer">
-            <div>{2}</div>
-          </div>
-          <ul className="flex list-none justify-around mb-4  w-full">
-            {createArrayFilledWithSequentialNumbers(abilityTree.columns.length, 1).map(
-              (columnNumber) => (
-                <li key={columnNumber}>{columnNumber}</li>
-              )
-            )}
-          </ul>
-        </div>
-
-        <div className="text-lg mb-4 border-b  flex justify-center">
+      <div className="flex flex-col  mr-4">
+        <div className="text-lg flex justify-center">
           <h3>Warrior (level 6)</h3>
         </div>
-        <AbilityTreeDisplay abilityTree={abilityTree} />
-        <div className="text-lg my-4 border-b flex justify-center">
-          <h3>Rogue (level 3)</h3>
+        <Divider extraStyles="mb-4" />
+        <div className="w-fit">
+          <AbilityTreeDisplay abilityTree={abilityTree} />
+          <div className="text-lg mt-4 flex justify-center">
+            <h3>Rogue (level 3)</h3>
+          </div>
+          <Divider extraStyles="mb-4" />
+          <AbilityTreeDisplay abilityTree={sliced} />
         </div>
-        <AbilityTreeDisplay abilityTree={sliced} />
       </div>
       <div>
-        <h3>Ability Name</h3>
+        <h3 className="text-lg">Ability Name</h3>
         <Divider />
         Information text about all that good damage
       </div>

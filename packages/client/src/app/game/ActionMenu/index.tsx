@@ -79,7 +79,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   // directly in the component
   useEffect(() => {
     const numPages = Math.max(
-      1,
+      currentMenu.numPages,
       Math.ceil(buttonProperties[ActionButtonCategory.Numbered].length / ACTION_MENU_PAGE_SIZE)
     );
     useGameStore.getState().mutateState((state) => {
