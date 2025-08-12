@@ -7,6 +7,7 @@ import {
   COMBAT_ACTIONS,
   COMBAT_ACTION_NAME_STRINGS,
   ERROR_MESSAGES,
+  createArrayFilledWithSequentialNumbers,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import React from "react";
@@ -29,10 +30,26 @@ export default function AbilitySelection() {
       style={{ width: `calc(100% + 2px)` }}
       className="flex border border-slate-400 bg-slate-700 p-4 absolute top-[-1px] left-0 h-fit ml-[-1px]"
     >
-      <div className="w-fit">
+      <div className="w-fit mr-4">
+        <div className="flex">
+          <div className="mr-4 flex items-center opacity-0 pointer-events-none" id="spacer">
+            <div>{2}</div>
+          </div>
+          <ul className="flex list-none justify-around mb-4  w-full">
+            {createArrayFilledWithSequentialNumbers(abilityTree.columns.length, 1).map(
+              (columnNumber) => (
+                <li key={columnNumber}>{columnNumber}</li>
+              )
+            )}
+          </ul>
+        </div>
+
+        <div className="text-lg mb-4 border-b  flex justify-center">
+          <h3>Warrior (level 6)</h3>
+        </div>
         <AbilityTreeDisplay abilityTree={abilityTree} />
-        <div className="my-4">
-          <Divider />
+        <div className="text-lg my-4 border-b flex justify-center">
+          <h3>Rogue (level 3)</h3>
         </div>
         <AbilityTreeDisplay abilityTree={sliced} />
       </div>
@@ -62,8 +79,13 @@ function AbilityTreeDisplay({ abilityTree }: { abilityTree: AbilityTree }) {
               }
 
               return (
-                <li key={"column" + rowIndex + "row" + rowIndex} className="mb-4 last:mb-0">
-                  {cellContent}
+                <li key={"column" + rowIndex + "row" + rowIndex} className="mb-4 last:mb-0 flex">
+                  {columnIndex === 0 && (
+                    <div className="mr-4 flex items-center">
+                      <div>{(rowIndex + 1) * 2}</div>
+                    </div>
+                  )}
+                  <div>{cellContent}</div>
                 </li>
               );
             })}
