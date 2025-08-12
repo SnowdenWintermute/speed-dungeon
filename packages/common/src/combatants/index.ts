@@ -68,7 +68,8 @@ export * from "./inventory/index.js";
 export * from "./update-home-position.js";
 export * from "./combatant-equipment/index.js";
 export * from "./combatant-conditions/index.js";
-export * from "./threat-manager//index.js";
+export * from "./threat-manager/index.js";
+export * from "./ability-tree/index.js";
 
 export class Combatant {
   [immerable] = true;

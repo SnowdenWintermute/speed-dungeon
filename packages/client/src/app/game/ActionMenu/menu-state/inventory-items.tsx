@@ -7,7 +7,7 @@ import { letterFromKeyCode } from "@/hotkeys";
 import selectItem from "@/utils/selectItem";
 import { ConsideringItemMenuState } from "./considering-item";
 import { Inventory, Item } from "@speed-dungeon/common";
-import { toggleInventoryHotkey } from "./common-buttons/open-inventory";
+import { setViewingAbilityTree, toggleInventoryHotkey } from "./common-buttons/open-inventory";
 
 export class InventoryItemsMenuState extends ItemsMenuState {
   [immerable] = true;
@@ -15,8 +15,8 @@ export class InventoryItemsMenuState extends ItemsMenuState {
   numPages = 1;
   constructor() {
     const viewEquipmentButton = new ActionMenuButtonProperties(
-      `View Equipped (${letterFromKeyCode(viewEquipmentHotkey)})`,
-      `View Equipped (${letterFromKeyCode(viewEquipmentHotkey)})`,
+      `Equipped (${letterFromKeyCode(viewEquipmentHotkey)})`,
+      `Equipped (${letterFromKeyCode(viewEquipmentHotkey)})`,
       () => {
         useGameStore.getState().mutateState((state) => {
           state.stackedMenuStates.push(new EquippedItemsMenuState());
@@ -27,7 +27,7 @@ export class InventoryItemsMenuState extends ItemsMenuState {
 
     super(
       MenuStateType.InventoryItems,
-      { text: "Close Inventory", hotkeys: ["KeyI", toggleInventoryHotkey] },
+      { text: "Cancel", hotkeys: ["KeyI", toggleInventoryHotkey] },
       (item: Item) => {
         selectItem(item);
         useGameStore.getState().mutateState((state) => {
@@ -40,7 +40,7 @@ export class InventoryItemsMenuState extends ItemsMenuState {
         return Inventory.getItems(focusedCharacterResult.combatantProperties.inventory);
       },
       {
-        extraButtons: { [ActionButtonCategory.Top]: [viewEquipmentButton] },
+        extraButtons: { [ActionButtonCategory.Top]: [viewEquipmentButton, setViewingAbilityTree] },
       }
     );
   }

@@ -1,19 +1,11 @@
 import { SPACING_REM } from "@/client_consts";
 import { useGameStore } from "@/stores/game-store";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
-import React from "react";
-import CharacterAttributes from "./CharacterAttributes";
-import PaperDoll from "./PaperDoll";
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
-import { HOTKEYS } from "@/hotkeys";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import { MenuStateType } from "../ActionMenu/menu-state";
-import DropShardsModal from "./DropShardsModal";
-import { ShardsDisplay } from "./ShardsDisplay";
-import InventoryCapacityDisplay from "./InventoryCapacityDisplay";
-import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import CharacterSheetTopBar from "./CharacterSheetTopBar";
 import PaperDollAndAttributes from "./PaperDollAndAttributes";
+import AbilitySelection from "./AbilitySelection";
+import { MenuStateType } from "../ActionMenu/menu-state";
 
 export default function CharacterSheet({ showCharacterSheet }: { showCharacterSheet: boolean }) {
   const mutateGameState = useGameStore().mutateState;
@@ -32,6 +24,18 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
     ? "overflow-auto pointer-events-auto w-fit "
     : "opacity-0 overflow-hidden pointer-events-none";
 
+  const viewingAbilityTree = currentMenu.type === MenuStateType.ViewingAbilityTree;
+
+  const paperDollAndAttributesRef = useRef<HTMLDivElement>(null);
+  const paperDollAndAttributesHiddenStyles = viewingAbilityTree ? "invisible absolute" : "";
+
+  const [menuWidth, setMenuWidth] = useState<number>();
+  useLayoutEffect(() => {
+    if (paperDollAndAttributesRef.current) {
+      setMenuWidth(paperDollAndAttributesRef.current.offsetWidth);
+    }
+  }, []);
+
   return (
     <section className={`${conditionalStyles}`}>
       <CharacterSheetTopBar partyCharacterIds={partyCharacterIds} />
@@ -39,12 +43,18 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
         className={`border border-slate-400 bg-slate-700 overflow-y-auto flex h-[400px] ${showCharacterSheet && "pointer-events-auto"}`}
         style={{ padding: `${SPACING_REM}rem` }}
       >
-        <div className="absolute h-[900px] bg-slate-700 border border-slate-400 w-72"></div>
-        {
-          // <div className="flex">
-          // <PaperDollAndAttributes />
-          // </div>
-        }
+        {viewingAbilityTree && (
+          <div style={{ width: `${menuWidth}px` }}>
+            <AbilitySelection />
+          </div>
+        )}
+
+        <div
+          className={`flex ${paperDollAndAttributesHiddenStyles}`}
+          ref={paperDollAndAttributesRef}
+        >
+          <PaperDollAndAttributes />
+        </div>
       </div>
     </section>
   );

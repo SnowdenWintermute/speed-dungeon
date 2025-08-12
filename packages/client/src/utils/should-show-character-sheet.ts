@@ -5,6 +5,7 @@ export default function shouldShowCharacterSheet(currentMenuType: MenuStateType)
     currentMenuType === MenuStateType.InventoryItems ||
     currentMenuType === MenuStateType.ViewingEquipedItems ||
     currentMenuType === MenuStateType.AssignAttributePoints ||
-    currentMenuType === MenuStateType.ItemSelected
+    currentMenuType === MenuStateType.ItemSelected ||
+    currentMenuType === MenuStateType.ViewingAbilityTree
   );
 }
