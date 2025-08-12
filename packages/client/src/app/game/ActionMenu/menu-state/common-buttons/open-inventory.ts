@@ -14,19 +14,32 @@ export const setInventoryOpen = new ActionMenuButtonProperties(
     });
   }
 );
-setInventoryOpen.dedicatedKeys = ["KeyI", toggleInventoryHotkey];
 
-export const setViewingAbilityTreeHotkey = HOTKEYS.BOTTOM_ALT;
-
-export const setViewingAbilityTree = new ActionMenuButtonProperties(
-  `Abilities (${letterFromKeyCode(setViewingAbilityTreeHotkey)})`,
-  `Abilities (${letterFromKeyCode(setViewingAbilityTreeHotkey)})`,
+export const setInventoryAsFreshStack = new ActionMenuButtonProperties(
+  `Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
+  `Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
   () => {
     useGameStore.getState().mutateState((state) => {
-      state.stackedMenuStates.push(abilityTreeMenuState);
+      state.stackedMenuStates = [inventoryItemsMenuState];
       state.hoveredAction = null;
     });
   }
 );
+setInventoryOpen.dedicatedKeys = ["KeyI", toggleInventoryHotkey];
+setInventoryAsFreshStack.dedicatedKeys = ["KeyI", toggleInventoryHotkey];
 
-setViewingAbilityTree.dedicatedKeys = [setViewingAbilityTreeHotkey];
+export const setViewingAbilityTreeHotkey = HOTKEYS.BOTTOM_ALT;
+
+export const setViewingAbilityTreeAsFreshStack = new ActionMenuButtonProperties(
+  `Abilities (${letterFromKeyCode(setViewingAbilityTreeHotkey)})`,
+  `Abilities (${letterFromKeyCode(setViewingAbilityTreeHotkey)})`,
+  () => {
+    useGameStore.getState().mutateState((state) => {
+      state.stackedMenuStates = [abilityTreeMenuState];
+      state.hoveredAction = null;
+      state.hoveredEntity = null;
+    });
+  }
+);
+
+setViewingAbilityTreeAsFreshStack.dedicatedKeys = [setViewingAbilityTreeHotkey];

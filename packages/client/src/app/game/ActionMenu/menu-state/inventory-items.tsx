@@ -7,7 +7,10 @@ import { letterFromKeyCode } from "@/hotkeys";
 import selectItem from "@/utils/selectItem";
 import { ConsideringItemMenuState } from "./considering-item";
 import { Inventory, Item } from "@speed-dungeon/common";
-import { setViewingAbilityTree, toggleInventoryHotkey } from "./common-buttons/open-inventory";
+import {
+  setViewingAbilityTreeAsFreshStack,
+  toggleInventoryHotkey,
+} from "./common-buttons/open-inventory";
 
 export class InventoryItemsMenuState extends ItemsMenuState {
   [immerable] = true;
@@ -40,7 +43,9 @@ export class InventoryItemsMenuState extends ItemsMenuState {
         return Inventory.getItems(focusedCharacterResult.combatantProperties.inventory);
       },
       {
-        extraButtons: { [ActionButtonCategory.Top]: [viewEquipmentButton, setViewingAbilityTree] },
+        extraButtons: {
+          [ActionButtonCategory.Top]: [viewEquipmentButton, setViewingAbilityTreeAsFreshStack],
+        },
       }
     );
   }

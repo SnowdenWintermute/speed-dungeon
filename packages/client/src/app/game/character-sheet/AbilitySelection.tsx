@@ -1,3 +1,4 @@
+import Divider from "@/app/components/atoms/Divider";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import { useGameStore } from "@/stores/game-store";
 import {
@@ -7,6 +8,7 @@ import {
   COMBAT_ACTION_NAME_STRINGS,
   ERROR_MESSAGES,
 } from "@speed-dungeon/common";
+import cloneDeep from "lodash.clonedeep";
 import React from "react";
 
 export default function AbilitySelection() {
@@ -19,9 +21,26 @@ export default function AbilitySelection() {
 
   const abilityTree = ABILITY_TREES[combatantClass];
 
+  const sliced = cloneDeep(abilityTree);
+  sliced.columns = sliced.columns.map((column) => column.slice(0, 2));
+
   return (
-    <div className="flex w-full">
-      <AbilityTreeDisplay abilityTree={abilityTree} />
+    <div
+      style={{ width: `calc(100% + 2px)` }}
+      className="flex border border-slate-400 bg-slate-700 p-4 absolute top-[-1px] left-0 h-fit ml-[-1px]"
+    >
+      <div className="w-fit">
+        <AbilityTreeDisplay abilityTree={abilityTree} />
+        <div className="my-4">
+          <Divider />
+        </div>
+        <AbilityTreeDisplay abilityTree={sliced} />
+      </div>
+      <div>
+        <h3>Ability Name</h3>
+        <Divider />
+        Information text about all that good damage
+      </div>
     </div>
   );
 }

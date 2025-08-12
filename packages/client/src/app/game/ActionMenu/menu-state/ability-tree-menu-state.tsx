@@ -1,7 +1,10 @@
 import { immerable } from "immer";
 import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState, MenuStateType } from ".";
 import { createCancelButton } from "./common-buttons/cancel";
-import { setViewingAbilityTreeHotkey } from "./common-buttons/open-inventory";
+import {
+  setInventoryAsFreshStack,
+  setViewingAbilityTreeHotkey,
+} from "./common-buttons/open-inventory";
 
 export class AbilityTreeMenuState implements ActionMenuState {
   [immerable] = true;
@@ -11,6 +14,7 @@ export class AbilityTreeMenuState implements ActionMenuState {
   getButtonProperties() {
     const toReturn = new ActionButtonsByCategory();
     toReturn[ActionButtonCategory.Top].push(createCancelButton([setViewingAbilityTreeHotkey]));
+    toReturn[ActionButtonCategory.Top].push(setInventoryAsFreshStack);
     return toReturn;
   }
 }

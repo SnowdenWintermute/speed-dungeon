@@ -21,7 +21,7 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
   const partyCharacterIds = partyResult.characterPositions;
 
   let conditionalStyles = showCharacterSheet
-    ? "overflow-auto pointer-events-auto w-fit "
+    ? "pointer-events-auto w-fit "
     : "opacity-0 overflow-hidden pointer-events-none";
 
   const viewingAbilityTree = currentMenu.type === MenuStateType.ViewingAbilityTree;
@@ -40,11 +40,11 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
     <section className={`${conditionalStyles}`}>
       <CharacterSheetTopBar partyCharacterIds={partyCharacterIds} />
       <div
-        className={`border border-slate-400 bg-slate-700 overflow-y-auto flex h-[400px] ${showCharacterSheet && "pointer-events-auto"}`}
+        className={`border border-slate-400 bg-slate-700 flex h-[400px] overflow-y-visible ${showCharacterSheet && "pointer-events-auto"} relative`}
         style={{ padding: `${SPACING_REM}rem` }}
       >
         {viewingAbilityTree && (
-          <div style={{ width: `${menuWidth}px` }}>
+          <div style={{ width: `${menuWidth || 0}px` }} className="h-fit bg-green-50">
             <AbilitySelection />
           </div>
         )}
