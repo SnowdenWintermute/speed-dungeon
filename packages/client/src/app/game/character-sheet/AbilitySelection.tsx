@@ -11,6 +11,7 @@ import {
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import React from "react";
+import { MenuStateType } from "../ActionMenu/menu-state";
 
 export default function AbilitySelection() {
   const focusedCharacterResult = useGameStore().getFocusedCharacter();
@@ -54,35 +55,55 @@ export default function AbilitySelection() {
 }
 
 function AbilityTreeDisplay({ abilityTree }: { abilityTree: AbilityTree }) {
-  return (
-    <ul className="list-none flex">
-      {abilityTree.columns.map((column, columnIndex) => (
-        <li key={"column" + columnIndex} className="mr-4 last:mr-0">
-          <ul className="list-none">
-            {column.map((row, rowIndex) => {
-              let cellContent = <div className="h-20 w-20"></div>;
-              if (row !== undefined) {
-                cellContent = (
-                  <HotkeyButton className="h-20 w-20 border border-slate-400 hover:bg-slate-950">
-                    {COMBAT_ACTION_NAME_STRINGS[row]}
-                  </HotkeyButton>
-                );
-              }
+  const currentMenu = useGameStore.getState().getCurrentMenu();
 
-              return (
-                <li key={"column" + rowIndex + "row" + rowIndex} className="mb-4 last:mb-0 flex">
-                  {columnIndex === 0 && (
-                    <div className="mr-4 flex items-center">
-                      <div>{(rowIndex + 1) * 2}</div>
-                    </div>
-                  )}
-                  <div>{cellContent}</div>
-                </li>
-              );
-            })}
-          </ul>
-        </li>
-      ))}
-    </ul>
+  return (
+    <div className="relative h-fit">
+      <div
+        className="absolute flex w-fit -right-2 -top-2 opacity-50 z-0"
+        style={{ height: `calc(100% + 1rem)` }}
+      >
+        {abilityTree.columns.map((column, columnIndex) => {
+          const shouldHighlight =
+            currentMenu.type === MenuStateType.ConsideringAbilityTreeColumn &&
+            currentMenu.page - 1 === columnIndex;
+          return (
+            <div
+              key={columnIndex}
+              className={`${shouldHighlight ? "bg-slate-800 " : ""} w-24 h-full`}
+            />
+          );
+        })}
+      </div>
+      <ul className="list-none flex relative top-0 left-0 z-10">
+        {abilityTree.columns.map((column, columnIndex) => (
+          <li key={"column" + columnIndex} className="mr-4 last:mr-0">
+            <ul className="list-none">
+              {column.map((row, rowIndex) => {
+                let cellContent = <div className="h-20 w-20"></div>;
+                if (row !== undefined) {
+                  cellContent = (
+                    <HotkeyButton className="h-20 w-20 border border-slate-400 bg-slate-700 hover:bg-slate-950">
+                      {COMBAT_ACTION_NAME_STRINGS[row]}
+                    </HotkeyButton>
+                  );
+                }
+
+                return (
+                  <li key={"column" + rowIndex + "row" + rowIndex} className="mb-4 last:mb-0 flex">
+                    {columnIndex === 0 && (
+                      <div className="mr-4 flex items-center">
+                        <div>{(rowIndex + 1) * 2}</div>
+                      </div>
+                    )}
+                    <div>{cellContent}</div>
+                  </li>
+                );
+              })}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

@@ -12,6 +12,7 @@ export class ConsideringAbilityTreeColumnMenuState implements ActionMenuState {
   type = MenuStateType.ConsideringAbilityTreeColumn;
   constructor(public readonly columnNumber: number) {
     this.numPages = 5;
+    this.page = columnNumber;
   }
 
   getButtonProperties() {
