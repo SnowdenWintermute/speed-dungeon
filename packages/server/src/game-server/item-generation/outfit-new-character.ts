@@ -9,7 +9,6 @@ import {
   iterateNumericEnumKeyedRecord,
   CombatantTraitType,
   HoldableHotswapSlot,
-  CombatantTrait,
   EquipmentType,
   HoldableSlotType,
   TwoHandedRangedWeapon,

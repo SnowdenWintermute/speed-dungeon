@@ -11,12 +11,13 @@ import { createCancelButton } from "./common-buttons/cancel";
 import {
   ABILITY_TREES,
   ABILITY_TREE_DIMENSIONS,
+  COMBATANT_TRAIT_DESCRIPTIONS,
   COMBAT_ACTION_NAME_STRINGS,
   EMPTY_ABILITY_TREE,
 } from "@speed-dungeon/common";
 import createPageButtons from "./create-page-buttons";
 import { setAlert } from "@/app/components/alerts";
-import { getActionIcon } from "../../icons/get-action-icon";
+import { getAbilityIcon } from "../../icons/get-action-icon";
 import { ReactNode } from "react";
 import { ConsideringCombatantAbilityMenuState } from "./considering-tree-ability";
 import { AbilityType } from "@speed-dungeon/common";
@@ -57,11 +58,8 @@ export class ConsideringAbilityTreeColumnMenuState implements ActionMenuState {
         if (ability !== undefined) {
           if (ability.type === AbilityType.Action) {
             nameAsString = COMBAT_ACTION_NAME_STRINGS[ability.actionName];
-            iconOption = getActionIcon(
-              ability.actionName,
-              focusedCharacterResult.combatantProperties
-            );
-          }
+          } else nameAsString = COMBATANT_TRAIT_DESCRIPTIONS[ability.traitType].name;
+          iconOption = getAbilityIcon(ability, focusedCharacterResult.combatantProperties);
         }
 
         const button = new ActionMenuButtonProperties(

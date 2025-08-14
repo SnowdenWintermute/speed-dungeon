@@ -22,6 +22,7 @@ import {
   ACTION_NAMES_TO_HIDE_IN_MENU,
   getUnmetCostResourceTypes,
   COMBATANT_MAX_ACTION_POINTS,
+  AbilityType,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -44,7 +45,7 @@ import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
 import { ACTION_MENU_PAGE_SIZE } from "..";
-import { getActionIcon } from "../../icons/get-action-icon";
+import { getAbilityIcon } from "../../icons/get-action-icon";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -128,7 +129,10 @@ export class BaseMenuState implements ActionMenuState {
               {nameAsString}
             </div>
             <div className="h-full flex items-center">
-              {getActionIcon(actionName, focusedCharacterResult.combatantProperties)}
+              {getAbilityIcon(
+                { type: AbilityType.Action, actionName: actionName },
+                focusedCharacterResult.combatantProperties
+              )}
             </div>
           </div>
         ),

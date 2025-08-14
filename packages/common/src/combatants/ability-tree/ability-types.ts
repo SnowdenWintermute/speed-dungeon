@@ -1,4 +1,4 @@
-import { CombatantTraitType } from "../combatant-traits/index.js";
+import { COMBATANT_TRAIT_DESCRIPTIONS, CombatantTraitType } from "../combatant-traits/index.js";
 import { COMBAT_ACTION_NAME_STRINGS, CombatActionName } from "../../combat/combat-actions/index.js";
 
 export enum AbilityType {
@@ -23,6 +23,6 @@ export function getAbilityTreeAbilityNameString(ability: AbilityTreeAbility) {
     case AbilityType.Action:
       return COMBAT_ACTION_NAME_STRINGS[ability.actionName];
     case AbilityType.Trait:
-      return "unimplemented trait strings";
+      return COMBATANT_TRAIT_DESCRIPTIONS[ability.traitType].name;
   }
 }

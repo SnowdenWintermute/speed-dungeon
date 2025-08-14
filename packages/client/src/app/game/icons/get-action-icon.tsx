@@ -1,8 +1,8 @@
-import { CombatActionName, CombatantProperties } from "@speed-dungeon/common";
+import { AbilityTreeAbility, CombatActionName, CombatantProperties } from "@speed-dungeon/common";
 import { ReactNode } from "react";
 
-export function getActionIcon(
-  actionName: CombatActionName,
+export function getAbilityIcon(
+  ability: AbilityTreeAbility,
   combatantProperties: CombatantProperties
 ): ReactNode {
   return <div>icon</div>;

@@ -2,78 +2,45 @@ export * from "./combatant-trait-properties.js";
 export * from "./get-combatant-total-elemental-affinities.js";
 export * from "./get-combatant-total-kinetic-damage-type-affinities.js";
 
-import { KineticDamageType } from "../../combat/kinetic-damage-types.js";
-import { MagicalElement } from "../../combat/magical-elements.js";
-import { Percentage } from "../../primatives/index.js";
-import { HoldableHotswapSlot } from "../combatant-equipment/index.js";
-
 export enum CombatantTraitType {
   HpBioavailability,
   MpBioavailability,
-  ElementalAffinity,
   Undead,
-  KineticDamageTypeResistance,
   ExtraHotswapSlot,
   CanConvertToShardsManually,
   ExtraConsumablesStorage,
 }
 
-export interface TraitHpBioavailability {
-  type: CombatantTraitType.HpBioavailability;
-  percent: number;
+export interface CombatantTraitDescription {
+  name: string;
+  descriptionsByLevel: string[];
 }
 
-export interface TraitMpBioavailability {
-  type: CombatantTraitType.MpBioavailability;
-  percent: number;
-}
-
-export interface TraitElementalAffinity {
-  type: CombatantTraitType.ElementalAffinity;
-  elements: Partial<Record<MagicalElement, Percentage>>;
-}
-
-export interface TraitPhysicalDamageTypeResistance {
-  type: CombatantTraitType.KineticDamageTypeResistance;
-  kineticTypes: Partial<Record<KineticDamageType, Percentage>>;
-}
-
-export interface TraitUndead {
-  type: CombatantTraitType.Undead;
-}
-
-export interface TraitExtraHotswapSlot {
-  type: CombatantTraitType.ExtraHotswapSlot;
-  hotswapSlot: HoldableHotswapSlot;
-}
-export interface TraitConvertToShardsManually {
-  type: CombatantTraitType.CanConvertToShardsManually;
-}
-export interface TraitExtraConsumablesStorage {
-  type: CombatantTraitType.ExtraConsumablesStorage;
-  capacity: number;
-}
-
-export type CombatantTrait =
-  | TraitHpBioavailability
-  | TraitMpBioavailability
-  | TraitElementalAffinity
-  | TraitPhysicalDamageTypeResistance
-  | TraitUndead
-  | TraitExtraHotswapSlot
-  | TraitConvertToShardsManually
-  | TraitExtraConsumablesStorage;
-
-export const TRAIT_DESCRIPTIONS: Record<CombatantTraitType, string> = {
-  [CombatantTraitType.HpBioavailability]: "Effectiveness of HP Autoinjectors",
-  [CombatantTraitType.MpBioavailability]: "Effectiveness of MP Autoinjectors",
-  [CombatantTraitType.ElementalAffinity]:
-    "Resistance or weakness to this element. If above 100%, actions of this element will cause healing instead of damage.",
-  [CombatantTraitType.Undead]: "Healing magic damages this target",
-  [CombatantTraitType.KineticDamageTypeResistance]: "Resistance or weakness to this damage type",
-  [CombatantTraitType.ExtraHotswapSlot]:
-    "Adds an additional weapon swap slot - 'You know I keep that thang on me'",
-  [CombatantTraitType.CanConvertToShardsManually]:
-    "Allows converting items to shards without the use of machines",
-  [CombatantTraitType.ExtraConsumablesStorage]: "Provides extra storage for consumables",
+export const COMBATANT_TRAIT_DESCRIPTIONS: Record<CombatantTraitType, CombatantTraitDescription> = {
+  [CombatantTraitType.HpBioavailability]: {
+    name: "HP Bioavailability",
+    descriptionsByLevel: ["Effectiveness of MP Autoinjectors"],
+  },
+  [CombatantTraitType.MpBioavailability]: {
+    name: "MP Bioavailability",
+    descriptionsByLevel: ["Effectiveness of MP Autoinjectors"],
+  },
+  [CombatantTraitType.Undead]: {
+    name: "Undead",
+    descriptionsByLevel: ["Healing magic damages this target"],
+  },
+  [CombatantTraitType.ExtraHotswapSlot]: {
+    name: "Stay Strapped",
+    descriptionsByLevel: [
+      "Adds an additional weapon swap slot - 'You know I keep that thang on me'",
+    ],
+  },
+  [CombatantTraitType.CanConvertToShardsManually]: {
+    name: "Disassembler",
+    descriptionsByLevel: ["Allows converting items to shards without the use of machines"],
+  },
+  [CombatantTraitType.ExtraConsumablesStorage]: {
+    name: "Magical Minibag",
+    descriptionsByLevel: ["Provides extra storage for consumables"],
+  },
 };
