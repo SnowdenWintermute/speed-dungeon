@@ -20,6 +20,7 @@ export class AbilityTreeMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   type = MenuStateType.ViewingAbilityTree;
+  alwaysShowPageOne = false;
   getButtonProperties() {
     const toReturn = new ActionButtonsByCategory();
     toReturn[ActionButtonCategory.Top].push(createCancelButton([setViewingAbilityTreeHotkey]));

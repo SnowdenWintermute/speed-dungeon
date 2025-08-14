@@ -44,6 +44,7 @@ import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
 import { ACTION_MENU_PAGE_SIZE } from "..";
+import { getActionIcon } from "../../icons/get-action-icon";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -53,8 +54,10 @@ export class BaseMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   type = MenuStateType.Base;
+  alwaysShowPageOne = false;
   [immerable] = true;
   constructor(public inCombat: boolean) {}
+
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
@@ -206,37 +209,4 @@ function disableButtonBecauseNotThisCombatantTurn(combatantId: string) {
   }
 
   return disableButtonBecauseNotThisCombatantTurn;
-}
-
-function getActionIcon(
-  actionName: CombatActionName,
-  combatantProperties: CombatantProperties
-): ReactNode {
-  return <div>icon</div>;
-  // switch (abilityName) {
-  //   case AbilityName.Attack:
-  //   case AbilityName.AttackMeleeMainhand:
-  //   case AbilityName.AttackMeleeOffhand:
-  //   case AbilityName.AttackRangedMainhand:
-  //     const mhOption = CombatantEquipment.getEquippedHoldable(
-  //       combatantProperties,
-  //       HoldableSlotType.MainHand
-  //     );
-  //     if (
-  //       mhOption &&
-  //       mhOption.equipmentBaseItemProperties.equipmentType === EquipmentType.TwoHandedRangedWeapon
-  //     ) {
-  //       return <RangedIcon className="h-[20px] fill-slate-400 stroke-slate-400" />;
-  //     } else {
-  //       return <SwordSlashIcon className="h-[20px] fill-slate-400" />;
-  //     }
-  //   case AbilityName.Fire:
-  //     return <FireIcon className="h-[20px] fill-slate-400" />;
-  //   case AbilityName.Ice:
-  //     return <IceIcon className="h-[20px] fill-slate-400" />;
-  //   case AbilityName.Healing:
-  //     return <HealthCrossIcon className="h-[20px] fill-slate-400" />;
-  //   case AbilityName.Destruction:
-  //     return <FireIcon className="h-[20px] fill-slate-400" />;
-  // }
 }

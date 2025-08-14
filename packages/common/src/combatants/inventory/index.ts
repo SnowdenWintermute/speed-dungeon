@@ -24,22 +24,19 @@ export class Inventory {
   static getCapacityByItemType = getCapacityByItemType;
 
   static isAtCapacity(combatantProperties: CombatantProperties) {
-    const extraConsumableStorageTraitOption = combatantProperties.traits.find(
-      (trait) => trait.type === CombatantTraitType.ExtraConsumablesStorage
-    );
-
+    const extraConsumableStorageCapacityOption =
+      combatantProperties.traitProperties.inherentTraits[
+        CombatantTraitType.ExtraConsumablesStorage
+      ];
     let numItemsToCountTowardCapacity = Inventory.getTotalNumberOfItems(
       combatantProperties.inventory
     );
 
-    if (
-      extraConsumableStorageTraitOption &&
-      extraConsumableStorageTraitOption.type === CombatantTraitType.ExtraConsumablesStorage
-    ) {
+    if (extraConsumableStorageCapacityOption) {
       const numConsumables = combatantProperties.inventory.consumables.length;
       const numConsumablesToDeductFromCapacityCheck = Math.min(
         numConsumables,
-        extraConsumableStorageTraitOption.capacity
+        extraConsumableStorageCapacityOption
       );
       numItemsToCountTowardCapacity -= numConsumablesToDeductFromCapacityCheck;
     }

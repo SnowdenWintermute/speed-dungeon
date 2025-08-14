@@ -5,7 +5,7 @@ import React, { useLayoutEffect, useRef, useState } from "react";
 import CharacterSheetTopBar from "./CharacterSheetTopBar";
 import PaperDollAndAttributes from "./PaperDollAndAttributes";
 import AbilitySelection from "./AbilitySelection";
-import { MenuStateType } from "../ActionMenu/menu-state";
+import { viewingAbilityTree } from "@/utils/should-show-character-sheet";
 
 export default function CharacterSheet({ showCharacterSheet }: { showCharacterSheet: boolean }) {
   const currentMenu = useGameStore().getCurrentMenu();
@@ -22,12 +22,10 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
     ? "pointer-events-auto w-fit "
     : "opacity-0 overflow-hidden pointer-events-none";
 
-  const viewingAbilityTree =
-    currentMenu.type === MenuStateType.ViewingAbilityTree ||
-    currentMenu.type === MenuStateType.ConsideringAbilityTreeColumn;
+  const shouldShowAbilityTree = viewingAbilityTree(currentMenu.type);
 
   const paperDollAndAttributesRef = useRef<HTMLDivElement>(null);
-  const paperDollAndAttributesHiddenStyles = viewingAbilityTree ? "invisible absolute" : "";
+  const paperDollAndAttributesHiddenStyles = shouldShowAbilityTree ? "invisible absolute" : "";
 
   const [menuWidth, setMenuWidth] = useState<number>();
   useLayoutEffect(() => {
@@ -43,7 +41,7 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
         className={`border border-slate-400 bg-slate-700 flex h-[400px] overflow-y-visible ${showCharacterSheet && "pointer-events-auto"} relative`}
         style={{ padding: `${SPACING_REM}rem` }}
       >
-        {viewingAbilityTree && (
+        {shouldShowAbilityTree && (
           <div style={{ width: `${menuWidth || 0}px` }} className="h-fit bg-green-50">
             <AbilitySelection />
           </div>

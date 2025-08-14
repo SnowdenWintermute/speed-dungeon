@@ -33,6 +33,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   type = MenuStateType.ItemSelected;
+  alwaysShowPageOne = false;
   constructor(public item: Item) {}
   setItem(item: Item) {
     this.item = item;

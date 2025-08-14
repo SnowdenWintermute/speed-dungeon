@@ -21,6 +21,8 @@ export const CONFIRM_SHARD_TEXT = `Convert (${confirmShardLetter})`;
 export class ConfirmConvertToShardsMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
+
+  alwaysShowPageOne = false;
   constructor(
     public item: Item,
     // the reason we take the type as an argument is because of the difference

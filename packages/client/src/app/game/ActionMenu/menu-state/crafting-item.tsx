@@ -36,6 +36,7 @@ export class CraftingItemMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   type = MenuStateType.CraftingActionSelection;
+  alwaysShowPageOne = false;
   constructor(public item: Equipment) {}
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();

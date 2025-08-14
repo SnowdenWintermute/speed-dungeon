@@ -44,10 +44,10 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
       primaryTarget: CombatantProperties
     ) => {
       let mpBioavailability = 1;
-      for (const trait of primaryTarget.traits) {
-        if (trait.type === CombatantTraitType.MpBioavailability)
-          mpBioavailability = trait.percent / 100;
-      }
+      const traitBioavailabilityPercentageModifier =
+        primaryTarget.traitProperties.inherentTraits[CombatantTraitType.MpBioavailability] || 100;
+      mpBioavailability = traitBioavailabilityPercentageModifier / 100;
+
       const maxMp = CombatantProperties.getTotalAttributes(primaryTarget)[CombatAttribute.Mp];
       const minRestored = (mpBioavailability * maxMp) / 8;
       const maxRestored = (mpBioavailability * 3 * maxMp) / 8;

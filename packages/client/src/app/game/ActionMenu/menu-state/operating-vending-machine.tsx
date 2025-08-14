@@ -27,6 +27,7 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   type = MenuStateType.OperatingVendingMachine;
+  alwaysShowPageOne = false;
   constructor() {}
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();

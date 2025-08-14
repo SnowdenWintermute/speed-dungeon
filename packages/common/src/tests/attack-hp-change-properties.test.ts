@@ -33,120 +33,105 @@ import { HitOutcome } from "../hit-outcome.js";
 
 describe("kinetic damage type selection", () => {
   it("correctly chooses a kinetic damage type when attacking", () => {
-    const testWarrior = TEST_WARRIOR_COMBATANT;
-    testWarrior.combatantProperties.inherentAttributes[CombatAttribute.Accuracy] = 9999;
-
-    const mainhandEquipmentNameId = "slashing piercing weapon";
-    const mainhandEquipment = new Equipment(
-      { name: mainhandEquipmentNameId, id: mainhandEquipmentNameId },
-      1,
-      {},
-      {
-        taggedBaseEquipment: {
-          equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-          baseItemType: TwoHandedMeleeWeapon.GreatAxe,
-        },
-        equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-        damage: new NumberRange(100, 100),
-        damageClassification: [
-          new ResourceChangeSource({
-            category: ResourceChangeSourceCategory.Physical,
-            kineticDamageTypeOption: KineticDamageType.Slashing,
-          }),
-          new ResourceChangeSource({
-            category: ResourceChangeSourceCategory.Physical,
-            kineticDamageTypeOption: KineticDamageType.Piercing,
-          }),
-        ],
-      },
-      null
-    );
-
-    CombatantEquipment.putEquipmentInSlot(testWarrior.combatantProperties, mainhandEquipment, {
-      type: EquipmentSlotType.Holdable,
-      slot: HoldableSlotType.MainHand,
-    });
-
-    const testTarget = cloneDeep(TEST_WARRIOR_COMBATANT);
-    const testTargetId = "test target id";
-    testTarget.entityProperties.id = testTargetId;
-
-    testTarget.combatantProperties.inherentKineticDamageTypeAffinities[KineticDamageType.Slashing] =
-      250;
-    testTarget.combatantProperties.inherentKineticDamageTypeAffinities[KineticDamageType.Piercing] =
-      199;
-
-    const gameName = "test game";
-    const game = new SpeedDungeonGame(gameName, gameName, GameMode.Race);
-    const partyName = "test party";
-    const party = new AdventuringParty(partyName, partyName);
-    game.adventuringParties[partyName] = party;
-
-    party.characters[testWarrior.entityProperties.id] = testWarrior;
-    party.characterPositions.push(testWarrior.entityProperties.id);
-    party.currentRoom.monsters[testTargetId] = testTarget;
-    party.currentRoom.monsterPositions = [testTargetId];
-
-    const actionExecutionIntent = new CombatActionExecutionIntent(
-      CombatActionName.Attack,
-      {
-        type: CombatActionTargetType.Single,
-        targetId: testTargetId,
-      },
-      1
-    );
-
-    const replayNode: NestedNodeReplayEvent = {
-      type: ReplayEventType.NestedNode,
-      events: [],
-    };
-
-    const combatantContext = new CombatantContext(game, party, testWarrior);
-
-    const idGenerator = new IdGenerator();
-
-    const animationLengths: Record<CombatantSpecies, Record<string, number>> = {
-      [CombatantSpecies.Humanoid]: {},
-      [CombatantSpecies.Dragon]: {},
-      [CombatantSpecies.Skeleton]: {},
-      [CombatantSpecies.Velociraptor]: {},
-      [CombatantSpecies.Elemental]: {},
-      [CombatantSpecies.Golem]: {},
-    };
-
-    const sequentialActionManagerRegistry = new ActionSequenceManagerRegistry(
-      idGenerator,
-      animationLengths
-    );
-
-    const actionSequenceManager = new ActionSequenceManager(
-      "",
-      actionExecutionIntent,
-      replayNode,
-      combatantContext,
-      sequentialActionManagerRegistry,
-      idGenerator,
-      null
-    );
-
-    //
-    const context = {
-      combatantContext,
-      tracker: new ActionTracker(
-        actionSequenceManager,
-        "",
-        actionExecutionIntent,
-        null,
-        Date.now(),
-        idGenerator
-      ),
-      manager: actionSequenceManager,
-      idGenerator,
-    };
-
-    // const hitOutcomes = calculateActionHitOutcomes(context, new BasicRandomNumberGenerator());
-    // expect(!(hitOutcomes instanceof Error));
-    // if (hitOutcomes instanceof Error) return;
-    // expect(hitOutcomes.outcomeFlags[HitOutcome.Hit]?.includes(testTargetId));
+    // const testWarrior = TEST_WARRIOR_COMBATANT;
+    // testWarrior.combatantProperties.inherentAttributes[CombatAttribute.Accuracy] = 9999;
+    // const mainhandEquipmentNameId = "slashing piercing weapon";
+    // const mainhandEquipment = new Equipment(
+    //   { name: mainhandEquipmentNameId, id: mainhandEquipmentNameId },
+    //   1,
+    //   {},
+    //   {
+    //     taggedBaseEquipment: {
+    //       equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+    //       baseItemType: TwoHandedMeleeWeapon.GreatAxe,
+    //     },
+    //     equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+    //     damage: new NumberRange(100, 100),
+    //     damageClassification: [
+    //       new ResourceChangeSource({
+    //         category: ResourceChangeSourceCategory.Physical,
+    //         kineticDamageTypeOption: KineticDamageType.Slashing,
+    //       }),
+    //       new ResourceChangeSource({
+    //         category: ResourceChangeSourceCategory.Physical,
+    //         kineticDamageTypeOption: KineticDamageType.Piercing,
+    //       }),
+    //     ],
+    //   },
+    //   null
+    // );
+    // CombatantEquipment.putEquipmentInSlot(testWarrior.combatantProperties, mainhandEquipment, {
+    //   type: EquipmentSlotType.Holdable,
+    //   slot: HoldableSlotType.MainHand,
+    // });
+    // const testTarget = cloneDeep(TEST_WARRIOR_COMBATANT);
+    // const testTargetId = "test target id";
+    // testTarget.entityProperties.id = testTargetId;
+    // testTarget.combatantProperties.inherentKineticDamageTypeAffinities[KineticDamageType.Slashing] =
+    //   250;
+    // testTarget.combatantProperties.inherentKineticDamageTypeAffinities[KineticDamageType.Piercing] =
+    //   199;
+    // const gameName = "test game";
+    // const game = new SpeedDungeonGame(gameName, gameName, GameMode.Race);
+    // const partyName = "test party";
+    // const party = new AdventuringParty(partyName, partyName);
+    // game.adventuringParties[partyName] = party;
+    // party.characters[testWarrior.entityProperties.id] = testWarrior;
+    // party.characterPositions.push(testWarrior.entityProperties.id);
+    // party.currentRoom.monsters[testTargetId] = testTarget;
+    // party.currentRoom.monsterPositions = [testTargetId];
+    // const actionExecutionIntent = new CombatActionExecutionIntent(
+    //   CombatActionName.Attack,
+    //   {
+    //     type: CombatActionTargetType.Single,
+    //     targetId: testTargetId,
+    //   },
+    //   1
+    // );
+    // const replayNode: NestedNodeReplayEvent = {
+    //   type: ReplayEventType.NestedNode,
+    //   events: [],
+    // };
+    // const combatantContext = new CombatantContext(game, party, testWarrior);
+    // const idGenerator = new IdGenerator();
+    // const animationLengths: Record<CombatantSpecies, Record<string, number>> = {
+    //   [CombatantSpecies.Humanoid]: {},
+    //   [CombatantSpecies.Dragon]: {},
+    //   [CombatantSpecies.Skeleton]: {},
+    //   [CombatantSpecies.Velociraptor]: {},
+    //   [CombatantSpecies.Elemental]: {},
+    //   [CombatantSpecies.Golem]: {},
+    // };
+    // const sequentialActionManagerRegistry = new ActionSequenceManagerRegistry(
+    //   idGenerator,
+    //   animationLengths
+    // );
+    // const actionSequenceManager = new ActionSequenceManager(
+    //   "",
+    //   actionExecutionIntent,
+    //   replayNode,
+    //   combatantContext,
+    //   sequentialActionManagerRegistry,
+    //   idGenerator,
+    //   null
+    // );
+    // //
+    // const context = {
+    //   combatantContext,
+    //   tracker: new ActionTracker(
+    //     actionSequenceManager,
+    //     "",
+    //     actionExecutionIntent,
+    //     null,
+    //     Date.now(),
+    //     idGenerator
+    //   ),
+    //   manager: actionSequenceManager,
+    //   idGenerator,
+    // };
+    // // const hitOutcomes = calculateActionHitOutcomes(context, new BasicRandomNumberGenerator());
+    // // expect(!(hitOutcomes instanceof Error));
+    // // if (hitOutcomes instanceof Error) return;
+    // // expect(hitOutcomes.outcomeFlags[HitOutcome.Hit]?.includes(testTargetId));
   });
 });

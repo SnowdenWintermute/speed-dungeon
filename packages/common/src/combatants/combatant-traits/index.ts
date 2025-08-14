@@ -1,6 +1,11 @@
+export * from "./combatant-trait-properties.js";
+export * from "./get-combatant-total-elemental-affinities.js";
+export * from "./get-combatant-total-kinetic-damage-type-affinities.js";
+
 import { KineticDamageType } from "../../combat/kinetic-damage-types.js";
 import { MagicalElement } from "../../combat/magical-elements.js";
-import { HoldableHotswapSlot } from "..//combatant-equipment/index.js";
+import { Percentage } from "../../primatives/index.js";
+import { HoldableHotswapSlot } from "../combatant-equipment/index.js";
 
 export enum CombatantTraitType {
   HpBioavailability,
@@ -25,14 +30,12 @@ export interface TraitMpBioavailability {
 
 export interface TraitElementalAffinity {
   type: CombatantTraitType.ElementalAffinity;
-  element: MagicalElement;
-  percent: number;
+  elements: Partial<Record<MagicalElement, Percentage>>;
 }
 
 export interface TraitPhysicalDamageTypeResistance {
   type: CombatantTraitType.KineticDamageTypeResistance;
-  damageType: KineticDamageType;
-  percent: number;
+  kineticTypes: Partial<Record<KineticDamageType, Percentage>>;
 }
 
 export interface TraitUndead {

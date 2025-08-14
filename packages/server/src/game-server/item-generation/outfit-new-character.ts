@@ -28,7 +28,6 @@ import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment, { givePlaytestingItems } from "./create-starting-equipment.js";
 import { createConsumableByType } from "./create-consumable-by-type.js";
 import { generateOneOfEachItem, generateSpecificEquipmentType } from "./generate-test-items.js";
-import { combatantHasRequiredAttributesToUseItem } from "@speed-dungeon/common/src/combatants/can-use-item.js";
 
 export function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
@@ -67,13 +66,15 @@ export function outfitNewCharacter(character: Combatant) {
     }
   }
 
-  const classTraitsOption = STARTING_COMBATANT_TRAITS[combatantProperties.combatantClass];
-  if (classTraitsOption) combatantProperties.traits = cloneDeep(classTraitsOption);
+  const classTraits = STARTING_COMBATANT_TRAITS[combatantProperties.combatantClass];
+  combatantProperties.traitProperties.inherentTraits = cloneDeep(classTraits);
 
-  if (combatantProperties.combatantClass === CombatantClass.Rogue) outfitRogue(combatantProperties);
-  if (combatantProperties.combatantClass === CombatantClass.Mage) outfitMage(combatantProperties);
-  if (combatantProperties.combatantClass === CombatantClass.Warrior)
-    outfitWarrior(combatantProperties);
+  // this is a one-off. as far as I know, no other traits have anything so special as to
+  // require anything other than an arbitrary number to represent either a value or the level
+  // of the trait which would be used in calculations scattered accross the codebase
+  if (classTraits[CombatantTraitType.ExtraHotswapSlot]) {
+    combatantProperties.equipment.inherentHoldableHotswapSlots.push(new HoldableHotswapSlot());
+  }
 
   const hpInjectors = new Array(1)
     .fill(null)
@@ -93,34 +94,6 @@ export function outfitNewCharacter(character: Combatant) {
 
   combatantProperties.hitPoints = Math.floor(combatantProperties.hitPoints * 0.5);
   combatantProperties.mana = Math.floor(combatantProperties.mana * 0.4);
-}
-
-function outfitRogue(combatantProperties: CombatantProperties) {
-  combatantProperties.traits.push({ type: CombatantTraitType.CanConvertToShardsManually });
-
-  // const mh = generateSpecificEquipmentType({
-  //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
-  //   baseItemType: OneHandedMeleeWeapon.BroadSword,
-  // });
-}
-
-function outfitMage(combatantProperties: CombatantProperties) {
-  // SPELLS
-  // TRAITS
-  combatantProperties.traits.push({
-    type: CombatantTraitType.ExtraConsumablesStorage,
-    capacity: 20,
-  });
-}
-
-function outfitWarrior(combatantProperties: CombatantProperties) {
-  const extraSlotTrait: CombatantTrait = {
-    type: CombatantTraitType.ExtraHotswapSlot,
-    hotswapSlot: new HoldableHotswapSlot(),
-  };
-  combatantProperties.traits.push(extraSlotTrait);
-
-  // if (!(oh instanceof Error)) extraSlotTrait.hotswapSlot.holdables[HoldableSlotType.OffHand] = oh;
 }
 
 function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
@@ -200,11 +173,7 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 25;
   // combatantProperties.inherentAttributes[CombatAttribute.Speed] = 9999;
   combatantProperties.inherentAttributes[CombatAttribute.Hp] = 75;
-  combatantProperties.traits.push({
-    type: CombatantTraitType.ElementalAffinity,
-    element: MagicalElement.Fire,
-    percent: 150,
-  });
+  combatantProperties.traitProperties.inherentElementalAffinities[MagicalElement.Fire] = 150;
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
   // combatantProperties.inventory.shards = 9999;

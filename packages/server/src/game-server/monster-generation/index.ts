@@ -19,9 +19,9 @@ import {
 import { getMonsterStartingAttributes } from "./get-monster-starting-attributes.js";
 import { addAttributesToAccumulator } from "@speed-dungeon/common";
 import getMonsterPerLevelAttributes from "./get-monster-per-level-attributes.js";
-import getMonsterTraits from "./get-monster-traits.js";
 import { getMonsterEquipment } from "./get-monster-equipment.js";
 import { ThreatManager } from "@speed-dungeon/common";
+import { MONSTER_INHERENT_TRAIT_GETTERS } from "./monster-trait-getters.js";
 // import { STOCK_MONSTER } from "../../index.js";
 
 export function generateMonster(level: number, forcedType?: MonsterType) {
@@ -90,7 +90,9 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   monster.combatantProperties.inherentAttributes[CombatAttribute.Hp] = Math.floor(modifiedHp);
 
   // traits
-  monster.combatantProperties.traits = getMonsterTraits(monsterType);
+  monster.combatantProperties.traitProperties.inherentTraits = MONSTER_INHERENT_TRAIT_GETTERS[
+    monsterType
+  ](monster.combatantProperties.level);
   // equip weapons
   monster.combatantProperties.equipment = getMonsterEquipment(monsterType);
 

@@ -44,14 +44,7 @@ export class CombatantEquipment {
     new HoldableHotswapSlot(),
   ];
   static getHoldableHotswapSlots(combatantProperties: CombatantProperties): HoldableHotswapSlot[] {
-    const slotsFromTraits = [];
-    for (const trait of combatantProperties.traits) {
-      if (trait.type === CombatantTraitType.ExtraHotswapSlot) {
-        slotsFromTraits.push(trait.hotswapSlot);
-      }
-    }
-
-    return [...combatantProperties.equipment.inherentHoldableHotswapSlots, ...slotsFromTraits];
+    return combatantProperties.equipment.inherentHoldableHotswapSlots;
   }
 
   static getEquippedHoldableSlots(combatantProperties: CombatantProperties) {

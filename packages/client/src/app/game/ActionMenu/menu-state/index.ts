@@ -1,4 +1,5 @@
 import { FocusEventHandler, MouseEventHandler, ReactNode } from "react";
+import { ACTION_MENU_PAGE_SIZE } from "..";
 
 export enum MenuStateType {
   Base,
@@ -17,6 +18,7 @@ export enum MenuStateType {
   ConfimConvertToShards,
   ViewingAbilityTree,
   ConsideringAbilityTreeColumn,
+  ConsideringAbilityTreeAbility,
 }
 
 export const MENU_STATE_TYPE_STRINGS: Record<MenuStateType, string> = {
@@ -36,6 +38,7 @@ export const MENU_STATE_TYPE_STRINGS: Record<MenuStateType, string> = {
   [MenuStateType.ConfimConvertToShards]: "Confirm item destruction",
   [MenuStateType.ViewingAbilityTree]: "Viewing ability tree",
   [MenuStateType.ConsideringAbilityTreeColumn]: "Considering abilities",
+  [MenuStateType.ConsideringAbilityTreeAbility]: "Considering ability",
 };
 
 export enum ActionButtonCategory {
@@ -56,6 +59,7 @@ export class ActionButtonsByCategory {
 
 export abstract class ActionMenuState {
   page: number = 1;
+  alwaysShowPageOne: boolean = false;
   constructor(
     public type: MenuStateType,
     public numPages: number

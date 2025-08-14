@@ -15,13 +15,10 @@ export function canPickUpItem(combatantProperties: CombatantProperties, itemType
 }
 
 export function getCapacityByItemType(combatantProperties: CombatantProperties) {
-  const extraConsumableStorageTraitOption = combatantProperties.traits.find(
-    (trait) => trait.type === CombatantTraitType.ExtraConsumablesStorage
-  );
+  const extraConsumableCapacityOption =
+    combatantProperties.traitProperties.inherentTraits[CombatantTraitType.ExtraConsumablesStorage];
   let minibagCapacity = 0;
-  if (extraConsumableStorageTraitOption?.type === CombatantTraitType.ExtraConsumablesStorage) {
-    minibagCapacity = extraConsumableStorageTraitOption.capacity;
-  }
+  if (extraConsumableCapacityOption) minibagCapacity = extraConsumableCapacityOption;
 
   const { inventory } = combatantProperties;
 

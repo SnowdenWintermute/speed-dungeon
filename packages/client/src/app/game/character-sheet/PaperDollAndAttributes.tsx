@@ -10,7 +10,7 @@ import DropShardsModal from "./DropShardsModal";
 import CharacterAttributes from "./CharacterAttributes";
 import { useGameStore } from "@/stores/game-store";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
-import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
+import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
 
 export default function PaperDollAndAttributes() {
   const mutateGameState = useGameStore().mutateState;

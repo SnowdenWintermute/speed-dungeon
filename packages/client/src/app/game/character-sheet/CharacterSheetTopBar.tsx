@@ -27,6 +27,7 @@ export default function CharacterSheetTopBar({ partyCharacterIds }: Props) {
         onClick={() => {
           mutateGameState((state) => {
             state.stackedMenuStates = [];
+            state.detailedCombatantAbility = null;
           });
         }}
       >

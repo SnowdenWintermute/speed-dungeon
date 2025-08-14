@@ -32,6 +32,7 @@ export class PurchaseItemsMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   type = MenuStateType.PurchasingItems;
+  alwaysShowPageOne = false;
   constructor() {}
 
   getButtonProperties(): ActionButtonsByCategory {
@@ -89,7 +90,10 @@ export class PurchaseItemsMenuState implements ActionMenuState {
               <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
                 {CONSUMABLE_TYPE_STRINGS[consumableType]}
               </div>
-              <PriceDisplay price={price} />
+              <PriceDisplay
+                price={price}
+                shardsOwned={focusedCharacterResult.combatantProperties.inventory.shards}
+              />
             </div>
           </ItemButtonBody>
         ),

@@ -1,27 +1,21 @@
-import { CombatantTrait, CombatantTraitType } from "../combatant-traits/index.js";
+import { CombatantTraitType } from "../combatant-traits/index.js";
 import { CombatantClass } from "./classes.js";
 
-export const STARTING_COMBATANT_TRAITS: Record<CombatantClass, CombatantTrait[]> = {
-  [CombatantClass.Warrior]: [
-    {
-      type: CombatantTraitType.HpBioavailability,
-      percent: 200,
-    },
-  ],
-  [CombatantClass.Mage]: [
-    {
-      type: CombatantTraitType.MpBioavailability,
-      percent: 200,
-    },
-  ],
-  [CombatantClass.Rogue]: [
-    {
-      type: CombatantTraitType.HpBioavailability,
-      percent: 150,
-    },
-    {
-      type: CombatantTraitType.MpBioavailability,
-      percent: 150,
-    },
-  ],
+export const STARTING_COMBATANT_TRAITS: Record<
+  CombatantClass,
+  Partial<Record<CombatantTraitType, number>>
+> = {
+  [CombatantClass.Warrior]: {
+    [CombatantTraitType.HpBioavailability]: 200, // percentage effectiveness of consumables
+    [CombatantTraitType.ExtraHotswapSlot]: 1, // number of extra slots
+  },
+  [CombatantClass.Mage]: {
+    [CombatantTraitType.MpBioavailability]: 200, // percentage effectiveness of consumables
+    [CombatantTraitType.ExtraConsumablesStorage]: 20, // number of consumables
+  },
+  [CombatantClass.Rogue]: {
+    [CombatantTraitType.HpBioavailability]: 150, // percentage effectiveness of consumables
+    [CombatantTraitType.MpBioavailability]: 150, // percentage effectiveness of consumables
+    [CombatantTraitType.CanConvertToShardsManually]: 1, // true
+  },
 };

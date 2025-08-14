@@ -18,7 +18,7 @@ import {
   USE_CONSUMABLE_BUTTON_TEXT,
 } from "./menu-state/considering-item";
 import ItemDetailsWithComparison from "../ItemDetailsWithComparison";
-import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
+import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import {
   CONFIRM_SHARD_TEXT,
@@ -148,6 +148,13 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
     );
   }
 
+  const numberedButtonsOnThisPage = currentMenu.alwaysShowPageOne
+    ? buttonProperties[ActionButtonCategory.Numbered].slice(0, ACTION_MENU_PAGE_SIZE)
+    : buttonProperties[ActionButtonCategory.Numbered].slice(
+        (currentMenu.page - 1) * ACTION_MENU_PAGE_SIZE,
+        (currentMenu.page - 1) * ACTION_MENU_PAGE_SIZE + ACTION_MENU_PAGE_SIZE
+      );
+
   return (
     <section className={`flex flex-col justify-between `}>
       <CharacterFocusingButtons />
@@ -201,33 +208,28 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         }}
       >
         <ul className="list-none relative min-w-[25rem] max-w-[25rem]">
-          {buttonProperties[ActionButtonCategory.Numbered]
-            .slice(
-              (currentMenu.page - 1) * ACTION_MENU_PAGE_SIZE,
-              (currentMenu.page - 1) * ACTION_MENU_PAGE_SIZE + ACTION_MENU_PAGE_SIZE
-            )
-            .map((button, i) => {
-              const conditionalStyles =
-                currentMenu.type === MenuStateType.ItemsOnGround
-                  ? "bg-slate-800 border-white"
-                  : "border-slate-400 bg-slate-700";
+          {numberedButtonsOnThisPage.map((button, i) => {
+            const conditionalStyles =
+              currentMenu.type === MenuStateType.ItemsOnGround
+                ? "bg-slate-800 border-white"
+                : "border-slate-400 bg-slate-700";
 
-              return (
-                <li
-                  key={button.key + i + currentPageNumber}
-                  tabIndex={button.shouldBeDisabled ? 0 : undefined} // so you can tab over to get the popups
-                  className={`
+            return (
+              <li
+                key={button.key + i + currentPageNumber}
+                tabIndex={button.shouldBeDisabled ? 0 : undefined} // so you can tab over to get the popups
+                className={`
                     pointer-events-auto w-full  flex hover:bg-slate-950
                    `}
-                >
-                  <NumberedButton
-                    number={i + 1}
-                    properties={button}
-                    extraStyles={i == 0 ? `${conditionalStyles} border-t` : conditionalStyles}
-                  />
-                </li>
-              );
-            })}
+              >
+                <NumberedButton
+                  number={i + 1}
+                  properties={button}
+                  extraStyles={i == 0 ? `${conditionalStyles} border-t` : conditionalStyles}
+                />
+              </li>
+            );
+          })}
           {selectedActionDisplay}
           {detailedItemDisplay}
         </ul>

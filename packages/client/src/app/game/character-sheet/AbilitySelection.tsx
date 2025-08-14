@@ -1,17 +1,12 @@
 import Divider from "@/app/components/atoms/Divider";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import { useGameStore } from "@/stores/game-store";
-import {
-  ABILITY_TREES,
-  AbilityTree,
-  COMBAT_ACTIONS,
-  COMBAT_ACTION_NAME_STRINGS,
-  ERROR_MESSAGES,
-  createArrayFilledWithSequentialNumbers,
-} from "@speed-dungeon/common";
+import { ABILITY_TREES, AbilityTree, ERROR_MESSAGES } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import React from "react";
 import { MenuStateType } from "../ActionMenu/menu-state";
+import AbilityTreeDetailedAbility from "./AbilityTreeDetailedAbility";
+import { getAbilityTreeAbilityNameString } from "@speed-dungeon/common";
 
 export default function AbilitySelection() {
   const focusedCharacterResult = useGameStore().getFocusedCharacter();
@@ -45,17 +40,14 @@ export default function AbilitySelection() {
           <AbilityTreeDisplay abilityTree={sliced} />
         </div>
       </div>
-      <div>
-        <h3 className="text-lg">Ability Name</h3>
-        <Divider />
-        Information text about all that good damage
-      </div>
+      <AbilityTreeDetailedAbility />
     </div>
   );
 }
 
 function AbilityTreeDisplay({ abilityTree }: { abilityTree: AbilityTree }) {
   const currentMenu = useGameStore.getState().getCurrentMenu();
+  const detailedAbilityOption = useGameStore.getState().detailedCombatantAbility;
 
   return (
     <div className="relative h-fit">
@@ -71,7 +63,17 @@ function AbilityTreeDisplay({ abilityTree }: { abilityTree: AbilityTree }) {
             <div
               key={columnIndex}
               className={`${shouldHighlight ? "bg-slate-800 " : ""} w-24 h-full`}
-            />
+            >
+              {column.map((ability, rowIndex) => {
+                let highlightedStyle = "";
+                if (detailedAbilityOption !== null && detailedAbilityOption === ability)
+                  highlightedStyle = "bg-slate-800";
+
+                return (
+                  <div key={columnIndex + rowIndex} className={`h-24 w-full ${highlightedStyle}`} />
+                );
+              })}
+            </div>
           );
         })}
       </div>
@@ -79,12 +81,27 @@ function AbilityTreeDisplay({ abilityTree }: { abilityTree: AbilityTree }) {
         {abilityTree.columns.map((column, columnIndex) => (
           <li key={"column" + columnIndex} className="mr-4 last:mr-0">
             <ul className="list-none">
-              {column.map((row, rowIndex) => {
+              {column.map((ability, rowIndex) => {
                 let cellContent = <div className="h-20 w-20"></div>;
-                if (row !== undefined) {
+                if (ability !== undefined) {
                   cellContent = (
-                    <HotkeyButton className="h-20 w-20 border border-slate-400 bg-slate-700 hover:bg-slate-950">
-                      {COMBAT_ACTION_NAME_STRINGS[row]}
+                    <HotkeyButton
+                      className="h-20 w-20 border border-slate-400 bg-slate-700 hover:bg-slate-950 relative"
+                      onMouseEnter={() => {
+                        useGameStore.getState().mutateState((state) => {
+                          state.hoveredCombatantAbility = ability;
+                        });
+                      }}
+                      onMouseLeave={() => {
+                        useGameStore.getState().mutateState((state) => {
+                          state.hoveredCombatantAbility = null;
+                        });
+                      }}
+                    >
+                      {getAbilityTreeAbilityNameString(ability)}
+                      <div className="absolute h-5 w-5 -bottom-1 -right-1 border border-zinc-300 bg-slate-700">
+                        1
+                      </div>
                     </HotkeyButton>
                   );
                 }

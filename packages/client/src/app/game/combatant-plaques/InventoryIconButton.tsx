@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import BackpackIcon from "../../../../public/img/game-ui-icons/backpack.svg";
-import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
+import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
 import { getCurrentMenu, inventoryItemsMenuState, useGameStore } from "@/stores/game-store";
 import { INVENTORY_DEFAULT_CAPACITY } from "@speed-dungeon/common";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";

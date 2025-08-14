@@ -45,10 +45,10 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
       };
 
       let hpBioavailability = 1;
-      for (const trait of primaryTarget.traits) {
-        if (trait.type === CombatantTraitType.HpBioavailability)
-          hpBioavailability = trait.percent / 100;
-      }
+
+      const traitBioavailabilityPercentageModifier =
+        primaryTarget.traitProperties.inherentTraits[CombatantTraitType.HpBioavailability] || 100;
+      hpBioavailability = traitBioavailabilityPercentageModifier / 100;
 
       const maxHp = CombatantProperties.getTotalAttributes(primaryTarget)[CombatAttribute.Hp];
       const minHealing = (hpBioavailability * maxHp) / 8;

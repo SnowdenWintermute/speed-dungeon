@@ -1,5 +1,4 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { MagicalElement } from "../combat/magical-elements.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
 import { combatantHasRequiredAttributesToUseItem } from "./can-use-item.js";
 import changeCombatantMana from "./resources/change-mana.js";
@@ -7,7 +6,7 @@ import { changeCombatantHitPoints } from "./resources/change-hit-points.js";
 import { clampResourcesToMax } from "./resources/clamp-resources-to-max.js";
 import { CombatantClass } from "./combatant-class/index.js";
 import { CombatantSpecies } from "./combatant-species.js";
-import { CombatantTrait, CombatantTraitType } from "./combatant-traits/index.js";
+import { CombatantTraitType } from "./combatant-traits/index.js";
 import dropEquippedItem from "./inventory/drop-equipped-item.js";
 import dropItem from "./inventory/drop-item.js";
 import { getCombatActionPropertiesIfOwned } from "./get-combat-action-properties.js";
@@ -20,7 +19,6 @@ import { iterateNumericEnum, iterateNumericEnumKeyedRecord } from "../utils/inde
 import awardLevelups, { XP_REQUIRED_TO_REACH_LEVEL_2 } from "./experience-points/award-levelups.js";
 import { incrementAttributePoint } from "./attributes/increment-attribute.js";
 import { MonsterType } from "../monsters/monster-types.js";
-import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import {
   CombatantEquipment,
   equipItem,
@@ -31,7 +29,7 @@ import {
 } from "./combatant-equipment/index.js";
 import { CombatAttribute } from "./attributes/index.js";
 import { getOwnedEquipment } from "./inventory/get-owned-items.js";
-import { EntityId, Percentage } from "../primatives/index.js";
+import { EntityId } from "../primatives/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { canPickUpItem } from "./inventory/can-pick-up-item.js";
 import { EntityProperties } from "../primatives/index.js";
@@ -54,6 +52,7 @@ import { plainToInstance } from "class-transformer";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { ThreatManager } from "./threat-manager/index.js";
 import { COMBATANT_MAX_ACTION_POINTS } from "../app-consts.js";
+import { CombatantTraitProperties } from "./combatant-traits/combatant-trait-properties.js";
 
 export enum AiType {
   Healer,
@@ -69,6 +68,7 @@ export * from "./update-home-position.js";
 export * from "./combatant-equipment/index.js";
 export * from "./combatant-conditions/index.js";
 export * from "./threat-manager/index.js";
+export * from "./combatant-traits/index.js";
 export * from "./ability-tree/index.js";
 
 export class Combatant {
@@ -101,8 +101,6 @@ export class Combatant {
 export class CombatantProperties {
   [immerable] = true;
   inherentAttributes: CombatantAttributeRecord = {};
-  inherentElementalAffinities: Partial<Record<MagicalElement, Percentage>> = {};
-  inherentKineticDamageTypeAffinities: Partial<Record<KineticDamageType, Percentage>> = {};
   level: number = 1;
   unspentAttributePoints: number = 0;
   unspentAbilityPoints: number = 0;
@@ -115,7 +113,9 @@ export class CombatantProperties {
     requiredForNextLevel: XP_REQUIRED_TO_REACH_LEVEL_2,
   };
   ownedActions: Partial<Record<CombatActionName, CombatantActionState>> = {};
-  traits: CombatantTrait[] = [];
+
+  traitProperties = new CombatantTraitProperties();
+
   equipment: CombatantEquipment = new CombatantEquipment();
   inventory: Inventory = new Inventory();
   // targeting
@@ -274,14 +274,10 @@ export class CombatantProperties {
   }
 
   static hasTraitType(combatantProperties: CombatantProperties, traitType: CombatantTraitType) {
-    let hasTrait = false;
-    for (const trait of combatantProperties.traits) {
-      if (trait.type === traitType) {
-        hasTrait = true;
-        break;
-      }
-    }
-    return hasTrait;
+    const { traitProperties } = combatantProperties;
+    return (
+      !!traitProperties.inherentTraits[traitType] || !!traitProperties.speccedTraits[traitType]
+    );
   }
 
   static getForward(combatantProperties: CombatantProperties) {

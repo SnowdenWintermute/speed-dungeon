@@ -15,7 +15,8 @@ export default function createPageButtons(
   buttonsByCategory: ActionButtonsByCategory,
   numPages: number = Math.ceil(
     buttonsByCategory[ActionButtonCategory.Numbered].length / ACTION_MENU_PAGE_SIZE
-  )
+  ),
+  onPageTurn?: (newPageNumber: number) => void
 ) {
   if (numPages > 1) {
     const prevButtonHotkey = HOTKEYS.LEFT_MAIN;
@@ -23,14 +24,12 @@ export default function createPageButtons(
       `Previous (${letterFromKeyCode(prevButtonHotkey)})`,
       `Previous (${letterFromKeyCode(prevButtonHotkey)})`,
       () => {
+        let newPage = null;
         useGameStore.getState().mutateState((state) => {
-          const newPage = getNextOrPreviousNumber(
-            menuState.page,
-            numPages,
-            NextOrPrevious.Previous
-          );
+          newPage = getNextOrPreviousNumber(menuState.page, numPages, NextOrPrevious.Previous);
           getCurrentMenu(state).page = newPage;
         });
+        if (onPageTurn && newPage !== null) onPageTurn(newPage);
       }
     );
     previousPageButton.dedicatedKeys = [prevButtonHotkey, "ArrowLeft"];
@@ -41,10 +40,13 @@ export default function createPageButtons(
       `Next (${letterFromKeyCode(nextButtonHotkey)})`,
       `Next (${letterFromKeyCode(nextButtonHotkey)})`,
       () => {
+        let newPage = null;
         useGameStore.getState().mutateState((state) => {
-          const newPage = getNextOrPreviousNumber(menuState.page, numPages, NextOrPrevious.Next);
+          newPage = getNextOrPreviousNumber(menuState.page, numPages, NextOrPrevious.Next);
           getCurrentMenu(state).page = newPage;
         });
+
+        if (onPageTurn && newPage !== null) onPageTurn(newPage);
       }
     );
     nextPageButton.dedicatedKeys = [nextButtonHotkey, "ArrowRight"];

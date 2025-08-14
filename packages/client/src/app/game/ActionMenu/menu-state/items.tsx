@@ -45,6 +45,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
   [immerable] = true;
   page = 1;
   numPages: number = 1;
+  alwaysShowPageOne = false;
   constructor(
     public type:
       | MenuStateType.InventoryItems
