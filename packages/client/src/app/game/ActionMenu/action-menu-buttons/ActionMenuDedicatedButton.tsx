@@ -22,7 +22,7 @@ export default function ActionMenuDedicatedButton({ properties, extraStyles }: P
       hotkeys={properties.dedicatedKeys}
     >
       <span className="flex-grow h-full flex items-center justify-center whitespace-nowrap overflow-hidden overflow-ellipsis pr-2 pl-2 ">
-        {properties.jsx}
+        {properties.jsx()}
       </span>
     </HotkeyButton>
   );

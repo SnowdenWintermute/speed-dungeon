@@ -6,8 +6,6 @@ import { CombatantTraitType } from "./index.js";
 export class CombatantTraitProperties {
   inherentElementalAffinities: Partial<Record<MagicalElement, Percentage>> = {};
   inherentKineticDamageTypeAffinities: Partial<Record<KineticDamageType, Percentage>> = {};
-  inherentTraits: Partial<Record<CombatantTraitType, number>> = {};
-  speccedTraits: Partial<Record<CombatantTraitType, number>> = {};
+  inherentTraitLevels: Partial<Record<CombatantTraitType, number>> = {};
+  speccedTraitLevels: Partial<Record<CombatantTraitType, number>> = {};
 }
-
-// TraitDescriptions: Record<TraitType, () => string[]

@@ -6,7 +6,10 @@ import { Consumable, ConsumableType } from "../../items/consumables/index.js";
 import { Equipment } from "../../items/equipment/index.js";
 import { plainToInstance } from "class-transformer";
 import { CombatantProperties } from "../index.js";
-import { CombatantTraitType } from "../combatant-traits/index.js";
+import {
+  CombatantTraitType,
+  EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL,
+} from "../combatant-traits/index.js";
 import { getCapacityByItemType } from "./can-pick-up-item.js";
 
 export class Inventory {
@@ -25,9 +28,10 @@ export class Inventory {
 
   static isAtCapacity(combatantProperties: CombatantProperties) {
     const extraConsumableStorageCapacityOption =
-      combatantProperties.traitProperties.inherentTraits[
+      (combatantProperties.traitProperties.inherentTraitLevels[
         CombatantTraitType.ExtraConsumablesStorage
-      ];
+      ] || 0) * EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL;
+
     let numItemsToCountTowardCapacity = Inventory.getTotalNumberOfItems(
       combatantProperties.inventory
     );

@@ -27,13 +27,13 @@ export function PriceDisplay({
   extraStyles,
 }: {
   price: number;
-  shardsOwned: number;
+  shardsOwned: number | null;
   extraStyles?: string;
 }) {
   return (
     <div
       className={`w-fit flex pr-2 pl-2 h-8 items-center bg-slate-700 border border-slate-400 
-      ${price > shardsOwned ? UNMET_REQUIREMENT_TEXT_COLOR : "text-zinc-300"} ${extraStyles}`}
+      ${shardsOwned && (price > shardsOwned ? UNMET_REQUIREMENT_TEXT_COLOR : "text-zinc-300")} ${extraStyles}`}
     >
       <span className="mr-1">{price}</span>
       <ShardsIcon className="h-[20px] fill-slate-400" />

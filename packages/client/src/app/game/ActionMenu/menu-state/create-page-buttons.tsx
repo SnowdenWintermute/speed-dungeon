@@ -21,7 +21,7 @@ export default function createPageButtons(
   if (numPages > 1) {
     const prevButtonHotkey = HOTKEYS.LEFT_MAIN;
     const previousPageButton = new ActionMenuButtonProperties(
-      `Previous (${letterFromKeyCode(prevButtonHotkey)})`,
+      () => `Previous (${letterFromKeyCode(prevButtonHotkey)})`,
       `Previous (${letterFromKeyCode(prevButtonHotkey)})`,
       () => {
         let newPage = null;
@@ -37,7 +37,7 @@ export default function createPageButtons(
 
     const nextButtonHotkey = HOTKEYS.RIGHT_MAIN;
     const nextPageButton = new ActionMenuButtonProperties(
-      `Next (${letterFromKeyCode(nextButtonHotkey)})`,
+      () => `Next (${letterFromKeyCode(nextButtonHotkey)})`,
       `Next (${letterFromKeyCode(nextButtonHotkey)})`,
       () => {
         let newPage = null;

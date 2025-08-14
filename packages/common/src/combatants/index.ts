@@ -53,6 +53,8 @@ import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/
 import { ThreatManager } from "./threat-manager/index.js";
 import { COMBATANT_MAX_ACTION_POINTS } from "../app-consts.js";
 import { CombatantTraitProperties } from "./combatant-traits/combatant-trait-properties.js";
+import { AbilityTree } from "./ability-tree/ability-tree.js";
+import { AbilityTreeAbility, AbilityType } from "./ability-tree/ability-types.js";
 
 export enum AiType {
   Healer,
@@ -100,32 +102,51 @@ export class Combatant {
 
 export class CombatantProperties {
   [immerable] = true;
-  inherentAttributes: CombatantAttributeRecord = {};
+
   level: number = 1;
-  unspentAttributePoints: number = 0;
-  unspentAbilityPoints: number = 0;
-  hitPoints: number = 0;
-  mana: number = 0;
-  actionPoints: number = 0;
-  speccedAttributes: CombatantAttributeRecord = {};
   experiencePoints: ExperiencePoints = {
     current: 0,
     requiredForNextLevel: XP_REQUIRED_TO_REACH_LEVEL_2,
   };
+
+  // ATTRIBUTES
+  inherentAttributes: CombatantAttributeRecord = {};
+  speccedAttributes: CombatantAttributeRecord = {};
+  unspentAttributePoints: number = 0;
+
+  hitPoints: number = 0;
+  mana: number = 0;
+  actionPoints: number = 0;
+
+  // ABILITIES
   ownedActions: Partial<Record<CombatActionName, CombatantActionState>> = {};
-
+  unspentAbilityPoints: number = 0;
   traitProperties = new CombatantTraitProperties();
+  static getAbilityLevel(combatantProperties: CombatantProperties, ability: AbilityTreeAbility) {
+    switch (ability.type) {
+      case AbilityType.Action:
+        return combatantProperties.ownedActions[ability.actionName]?.level || 0;
+      case AbilityType.Trait:
+        const { speccedTraitLevels, inherentTraitLevels } = combatantProperties.traitProperties;
+        return (
+          (speccedTraitLevels[ability.traitType] || 0) +
+          (inherentTraitLevels[ability.traitType] || 0)
+        );
+    }
+  }
 
+  // ITEMS
   equipment: CombatantEquipment = new CombatantEquipment();
   inventory: Inventory = new Inventory();
-  // targeting
+  // TARGETING
   selectedCombatAction: null | CombatActionName = null;
   combatActionTarget: null | CombatActionTarget = null;
   selectedTargetingScheme: null | TargetingScheme = null;
   selectedActionLevel: null | number = null;
-  //
+  // THREAT
   threatManager?: ThreatManager;
 
+  // UNSORTED
   deepestFloorReached: number = 1;
   position: Vector3;
   conditions: CombatantCondition[] = [];
@@ -276,7 +297,8 @@ export class CombatantProperties {
   static hasTraitType(combatantProperties: CombatantProperties, traitType: CombatantTraitType) {
     const { traitProperties } = combatantProperties;
     return (
-      !!traitProperties.inherentTraits[traitType] || !!traitProperties.speccedTraits[traitType]
+      !!traitProperties.inherentTraitLevels[traitType] ||
+      !!traitProperties.speccedTraitLevels[traitType]
     );
   }
 
@@ -285,11 +307,6 @@ export class CombatantProperties {
     const direction = z > 0 ? -1 : 1;
     return new Vector3(0, 0, direction);
   }
-  // static getForward(combatantProperties: CombatantProperties) {
-  //   // const { x, y, z } = combatantProperties.homeLocation;
-  //   // return cloneVector3(new Vector3(x, 0, 0)).subtract(combatantProperties.homeLocation);
-  //   return new Vector3(0, 0, 1);
-  // }
 
   static hasRequiredConsumablesToUseAction(
     combatantProperties: CombatantProperties,

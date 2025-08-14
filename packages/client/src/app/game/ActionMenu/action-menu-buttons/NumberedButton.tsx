@@ -49,7 +49,7 @@ export default function NumberedButton({ number, properties, extraStyles }: Prop
           ${properties.shouldBeDisabled ? "opacity-50" : ""}
           `}
         >
-          {properties.jsx}
+          {properties.jsx()}
         </div>
       </div>
     </HotkeyButton>

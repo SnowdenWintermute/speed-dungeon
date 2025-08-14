@@ -4,7 +4,11 @@ import {
   CombatActionName,
   CombatActionOrigin,
 } from "../../index.js";
-import { CombatantProperties, CombatantTraitType } from "../../../../combatants/index.js";
+import {
+  BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL,
+  CombatantProperties,
+  CombatantTraitType,
+} from "../../../../combatants/index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import {
   ResourceChangeSource,
@@ -46,8 +50,12 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
 
       let hpBioavailability = 1;
 
+      const { inherentTraitLevels } = primaryTarget.traitProperties;
+
       const traitBioavailabilityPercentageModifier =
-        primaryTarget.traitProperties.inherentTraits[CombatantTraitType.HpBioavailability] || 100;
+        (inherentTraitLevels[CombatantTraitType.HpBioavailability] || 0) *
+          BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL +
+        100;
       hpBioavailability = traitBioavailabilityPercentageModifier / 100;
 
       const maxHp = CombatantProperties.getTotalAttributes(primaryTarget)[CombatAttribute.Hp];

@@ -70,7 +70,7 @@ export class PurchaseItemsMenuState implements ActionMenuState {
       const thumbnailOption = useGameStore.getState().itemThumbnails[thumbnailId];
 
       const purchaseItemButton = new ActionMenuButtonProperties(
-        (
+        () => (
           <ItemButtonBody
             gradientOverride={consumableGradientBg}
             thumbnailOption={thumbnailOption}

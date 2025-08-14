@@ -44,7 +44,7 @@ export class ConsideringCombatantAbilityMenuState implements ActionMenuState {
     }
 
     const button = new ActionMenuButtonProperties(
-      (
+      () => (
         <div className="flex justify-between h-full w-full pr-2">
           <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
             Allocate ability point

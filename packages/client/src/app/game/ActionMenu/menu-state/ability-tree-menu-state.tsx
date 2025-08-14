@@ -23,13 +23,20 @@ export class AbilityTreeMenuState implements ActionMenuState {
   alwaysShowPageOne = false;
   getButtonProperties() {
     const toReturn = new ActionButtonsByCategory();
-    toReturn[ActionButtonCategory.Top].push(createCancelButton([setViewingAbilityTreeHotkey]));
+    toReturn[ActionButtonCategory.Top].push(
+      createCancelButton([setViewingAbilityTreeHotkey], () => {
+        useGameStore.getState().mutateState((state) => {
+          state.hoveredCombatantAbility = null;
+          state.detailedCombatantAbility = null;
+        });
+      })
+    );
     toReturn[ActionButtonCategory.Top].push(setInventoryAsFreshStack);
 
     for (const number of createArrayFilledWithSequentialNumbers(5, 1)) {
       const nameAsString = `Column ${number}`;
       const button = new ActionMenuButtonProperties(
-        (
+        () => (
           <div className="flex justify-between h-full w-full pr-2">
             <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
               {nameAsString}

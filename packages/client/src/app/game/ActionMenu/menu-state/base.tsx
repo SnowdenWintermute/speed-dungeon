@@ -17,11 +17,9 @@ import {
   CombatActionUsabilityContext,
   iterateNumericEnumKeyedRecord,
   COMBAT_ACTION_NAME_STRINGS,
-  CombatActionName,
   COMBAT_ACTIONS,
   ACTION_NAMES_TO_HIDE_IN_MENU,
   getUnmetCostResourceTypes,
-  COMBATANT_MAX_ACTION_POINTS,
   AbilityType,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
@@ -34,7 +32,6 @@ import {
   setInventoryOpen,
   setViewingAbilityTreeAsFreshStack,
 } from "./common-buttons/open-inventory";
-import { ReactNode } from "react";
 
 import FireIcon from "../../../../../public/img/game-ui-icons/fire.svg";
 import RangedIcon from "../../../../../public/img/game-ui-icons/ranged.svg";
@@ -63,7 +60,6 @@ export class BaseMenuState implements ActionMenuState {
     const toReturn = new ActionButtonsByCategory();
 
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
-    toReturn[ActionButtonCategory.Top].push(setViewingAbilityTreeAsFreshStack);
 
     let focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) {
@@ -73,6 +69,8 @@ export class BaseMenuState implements ActionMenuState {
     const { combatantProperties, entityProperties } = focusedCharacterResult;
     const characterId = entityProperties.id;
 
+    toReturn[ActionButtonCategory.Top].push(setViewingAbilityTreeAsFreshStack);
+
     const partyResult = useGameStore.getState().getParty();
     if (partyResult instanceof Error) {
       setAlert(partyResult);
@@ -81,7 +79,7 @@ export class BaseMenuState implements ActionMenuState {
 
     if (combatantProperties.unspentAttributePoints > 0) {
       const hiddenButtonForUnspentAttributesHotkey = new ActionMenuButtonProperties(
-        "Unspent Attributes Hotkey Button",
+        () => "Unspent Attributes Hotkey Button",
         "Unspent Attributes Hotkey Button",
         () => {
           useGameStore.getState().mutateState((state) => {
@@ -96,7 +94,7 @@ export class BaseMenuState implements ActionMenuState {
 
     if (Inventory.getItems(partyResult.currentRoom.inventory).length) {
       const viewItemsOnGroundButton = new ActionMenuButtonProperties(
-        VIEW_LOOT_BUTTON_TEXT,
+        () => VIEW_LOOT_BUTTON_TEXT,
         VIEW_LOOT_BUTTON_TEXT,
         () => {
           useGameStore.getState().mutateState((state) => {
@@ -123,7 +121,7 @@ export class BaseMenuState implements ActionMenuState {
       if (ACTION_NAMES_TO_HIDE_IN_MENU.includes(actionName)) continue;
       const nameAsString = COMBAT_ACTION_NAME_STRINGS[actionName];
       const button = new ActionMenuButtonProperties(
-        (
+        () => (
           <div className="flex justify-between h-full w-full pr-2">
             <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
               {nameAsString}

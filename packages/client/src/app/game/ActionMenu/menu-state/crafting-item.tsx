@@ -63,7 +63,7 @@ export class CraftingItemMenuState implements ActionMenuState {
       const actionPrice = getCraftingActionPrice(craftingAction, this.item);
       const buttonName = `${CRAFTING_ACTION_STRINGS[craftingAction]}`;
       const button = new ActionMenuButtonProperties(
-        (
+        () => (
           <div className="flex justify-between w-full pr-2">
             <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
               <HoverableTooltipWrapper

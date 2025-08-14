@@ -33,11 +33,11 @@ export function outfitNewCharacter(character: Combatant) {
 
   const ownedActions = [
     CombatActionName.Attack,
-    CombatActionName.ChainingSplitArrowParent,
+    // CombatActionName.ChainingSplitArrowParent,
     // CombatActionName.Counterattack,
     CombatActionName.UseGreenAutoinjector,
     CombatActionName.UseBlueAutoinjector,
-    CombatActionName.IceBoltParent,
+    // CombatActionName.IceBoltParent,
     CombatActionName.Fire,
     CombatActionName.Healing,
     CombatActionName.PassTurn,
@@ -65,8 +65,9 @@ export function outfitNewCharacter(character: Combatant) {
     }
   }
 
+  // @PERF - make a lookup table for inherent class traits
   const classTraits = STARTING_COMBATANT_TRAITS[combatantProperties.combatantClass];
-  combatantProperties.traitProperties.inherentTraits = cloneDeep(classTraits);
+  combatantProperties.traitProperties.inherentTraitLevels = cloneDeep(classTraits);
 
   // this is a one-off. as far as I know, no other traits have anything so special as to
   // require anything other than an arbitrary number to represent either a value or the level
@@ -166,6 +167,7 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   // giveTestingCombatAttributes(combatantProperties);
   // combatantProperties.level = 5;
   combatantProperties.unspentAttributePoints = 3;
+  combatantProperties.unspentAbilityPoints = 3;
   combatantProperties.inherentAttributes[CombatAttribute.Speed] = 9;
   combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 45;
   combatantProperties.inherentAttributes[CombatAttribute.Strength] = 40;

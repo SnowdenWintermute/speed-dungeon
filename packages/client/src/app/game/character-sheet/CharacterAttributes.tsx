@@ -64,7 +64,7 @@ export default function CharacterAttributes({ combatant, showAttributeAssignment
   ));
 
   return (
-    <div className="h-full w-[24.25rem] whitespace-nowrap">
+    <div className="h-full w-[25.25rem] whitespace-nowrap">
       <div className="font-bold flex justify-between items-center">
         <span>
           {entityProperties.name}

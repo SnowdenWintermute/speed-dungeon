@@ -15,25 +15,29 @@ export function CharacterFocusingButtons() {
     direction: NextOrPrevious,
     hotkeys: string[]
   ) {
-    const button = new ActionMenuButtonProperties(text, text, () => {
-      const currentFocusedCharacterId = useGameStore.getState().focusedCharacterId;
-      const party = getCurrentParty(
-        useGameStore.getState(),
-        useGameStore.getState().username || ""
-      );
-      if (!party) return;
-      const currCharIndex = party.characterPositions.indexOf(currentFocusedCharacterId);
-      if (currCharIndex === -1) return console.error("Character ID not in position list");
-      const nextIndex = getNextOrPreviousNumber(
-        currCharIndex,
-        party.characterPositions.length - 1,
-        direction,
-        { minNumber: 0 }
-      );
-      const newCharacterId = party.characterPositions[nextIndex];
-      if (newCharacterId === undefined) return console.error("Invalid character position index");
-      setFocusedCharacter(newCharacterId);
-    });
+    const button = new ActionMenuButtonProperties(
+      () => text,
+      text,
+      () => {
+        const currentFocusedCharacterId = useGameStore.getState().focusedCharacterId;
+        const party = getCurrentParty(
+          useGameStore.getState(),
+          useGameStore.getState().username || ""
+        );
+        if (!party) return;
+        const currCharIndex = party.characterPositions.indexOf(currentFocusedCharacterId);
+        if (currCharIndex === -1) return console.error("Character ID not in position list");
+        const nextIndex = getNextOrPreviousNumber(
+          currCharIndex,
+          party.characterPositions.length - 1,
+          direction,
+          { minNumber: 0 }
+        );
+        const newCharacterId = party.characterPositions[nextIndex];
+        if (newCharacterId === undefined) return console.error("Invalid character position index");
+        setFocusedCharacter(newCharacterId);
+      }
+    );
 
     button.dedicatedKeys = hotkeys;
     return button;

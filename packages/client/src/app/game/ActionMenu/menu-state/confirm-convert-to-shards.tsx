@@ -53,7 +53,7 @@ export class ConfirmConvertToShardsMenuState implements ActionMenuState {
     const itemId = this.item.entityProperties.id;
 
     const confirmShardButton = new ActionMenuButtonProperties(
-      `Convert (${confirmShardLetter})`,
+      () => `Convert (${confirmShardLetter})`,
       `Convert (${confirmShardLetter})`,
       () => {
         websocketConnection.emit(ClientToServerEvent.ConvertItemsToShards, {

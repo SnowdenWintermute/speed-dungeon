@@ -89,8 +89,9 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   const modifiedHp = baseHp * (randomNumberNormalDistribution + 0.5);
   monster.combatantProperties.inherentAttributes[CombatAttribute.Hp] = Math.floor(modifiedHp);
 
+  // @PERF - make a lookup table for inherent monster type traits
   // traits
-  monster.combatantProperties.traitProperties.inherentTraits = MONSTER_INHERENT_TRAIT_GETTERS[
+  monster.combatantProperties.traitProperties.inherentTraitLevels = MONSTER_INHERENT_TRAIT_GETTERS[
     monsterType
   ](monster.combatantProperties.level);
   // equip weapons

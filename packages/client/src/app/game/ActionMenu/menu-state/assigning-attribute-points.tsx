@@ -41,7 +41,7 @@ export class AssigningAttributePointsMenuState implements ActionMenuState {
 
     for (const attribute of ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES) {
       const button = new ActionMenuButtonProperties(
-        COMBAT_ATTRIBUTE_STRINGS[attribute],
+        () => COMBAT_ATTRIBUTE_STRINGS[attribute],
         COMBAT_ATTRIBUTE_STRINGS[attribute],
         () => {
           websocketConnection.emit(ClientToServerEvent.IncrementAttribute, {

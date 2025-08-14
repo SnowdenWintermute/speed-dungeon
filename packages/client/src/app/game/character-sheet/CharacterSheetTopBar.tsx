@@ -28,6 +28,7 @@ export default function CharacterSheetTopBar({ partyCharacterIds }: Props) {
           mutateGameState((state) => {
             state.stackedMenuStates = [];
             state.detailedCombatantAbility = null;
+            state.hoveredCombatantAbility = null;
           });
         }}
       >

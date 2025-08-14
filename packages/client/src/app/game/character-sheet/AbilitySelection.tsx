@@ -1,7 +1,12 @@
 import Divider from "@/app/components/atoms/Divider";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import { useGameStore } from "@/stores/game-store";
-import { ABILITY_TREES, AbilityTree, ERROR_MESSAGES } from "@speed-dungeon/common";
+import {
+  ABILITY_TREES,
+  AbilityTree,
+  CombatantProperties,
+  ERROR_MESSAGES,
+} from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import React from "react";
 import { MenuStateType } from "../ActionMenu/menu-state";
@@ -48,6 +53,11 @@ export default function AbilitySelection() {
 function AbilityTreeDisplay({ abilityTree }: { abilityTree: AbilityTree }) {
   const currentMenu = useGameStore.getState().getCurrentMenu();
   const detailedAbilityOption = useGameStore.getState().detailedCombatantAbility;
+
+  const focusedCharacterResult = useGameStore().getFocusedCharacter();
+  const focusedCharacterOption =
+    focusedCharacterResult instanceof Error ? null : focusedCharacterResult;
+  if (!focusedCharacterOption) return <div>{ERROR_MESSAGES.COMBATANT.NOT_FOUND}</div>;
 
   return (
     <div className="relative h-fit">
@@ -99,8 +109,11 @@ function AbilityTreeDisplay({ abilityTree }: { abilityTree: AbilityTree }) {
                       }}
                     >
                       {getAbilityTreeAbilityNameString(ability)}
-                      <div className="absolute h-5 w-5 -bottom-1 -right-1 border border-zinc-300 bg-slate-700">
-                        1
+                      <div className="absolute h-5 w-5 -bottom-1 -right-1 border border-zinc-300 bg-slate-700 text-center align-middle leading-tight">
+                        {CombatantProperties.getAbilityLevel(
+                          focusedCharacterOption.combatantProperties,
+                          ability
+                        )}
                       </div>
                     </HotkeyButton>
                   );

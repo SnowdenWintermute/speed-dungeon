@@ -76,7 +76,7 @@ export class ActionMenuButtonProperties {
   dedicatedKeys: string[] = [];
   shouldDisableMainClickOnly: boolean = false;
   constructor(
-    public jsx: ReactNode,
+    public jsx: () => ReactNode,
     public key: string,
     public clickHandler: MouseEventHandler<HTMLButtonElement>,
     public alternateClickHandler?: MouseEventHandler<HTMLButtonElement>
