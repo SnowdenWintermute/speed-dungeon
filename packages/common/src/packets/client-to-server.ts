@@ -1,6 +1,6 @@
 import { CombatActionName } from "../combat/index.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
-import { CombatantClass } from "../combatants/index.js";
+import { AbilityTreeAbility, CombatantClass } from "../combatants/index.js";
 import { ConsumableType } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
@@ -47,6 +47,7 @@ export enum ClientToServerEvent {
   PerformCraftingAction = "35",
   PostItemLink = "36",
   SelectCombatActionLevel = "37",
+  AllocateAbilityPoint = "38",
 }
 
 export interface ClientToServerEventTypes {
@@ -131,5 +132,9 @@ export interface ClientToServerEventTypes {
   [ClientToServerEvent.SelectCombatActionLevel]: (eventData: {
     characterId: EntityId;
     actionLevel: number;
+  }) => void;
+  [ClientToServerEvent.AllocateAbilityPoint]: (eventData: {
+    characterId: EntityId;
+    ability: AbilityTreeAbility;
   }) => void;
 }

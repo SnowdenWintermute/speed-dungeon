@@ -4,7 +4,7 @@ import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import React, { useLayoutEffect, useRef, useState } from "react";
 import CharacterSheetTopBar from "./CharacterSheetTopBar";
 import PaperDollAndAttributes from "./PaperDollAndAttributes";
-import AbilitySelection from "./AbilitySelection";
+import AbilitySelection from "./ability-tree";
 import { viewingAbilityTree } from "@/utils/should-show-character-sheet";
 
 export default function CharacterSheet({ showCharacterSheet }: { showCharacterSheet: boolean }) {

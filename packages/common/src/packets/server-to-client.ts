@@ -5,7 +5,7 @@ import { ActionCommandPayload } from "../action-processing/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { Item } from "../items/index.js";
 import { EntityId, NextOrPrevious } from "../primatives/index.js";
-import { Combatant } from "../combatants/index.js";
+import { AbilityTreeAbility, Combatant } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
 import { DescendOrExplore } from "../adventuring-party/update-player-readiness.js";
 import { UserChannelDisplayData } from "../users/index.js";
@@ -64,8 +64,9 @@ export enum ServerToClientEvent {
   CharacterPurchasedItem = "43",
   CharacterPerformedCraftingAction = "44",
   PlayerPostedItemLink = "45",
-  CharacterSelectedCombatActionLevel = "47",
   // ActionResultReplayTree = "46",
+  CharacterSelectedCombatActionLevel = "47",
+  CharacterAllocatedAbilityPoint = "48",
 }
 
 export interface ServerToClientEventTypes {
@@ -185,6 +186,10 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.CharacterSelectedCombatActionLevel]: (eventData: {
     characterId: EntityId;
     actionLevel: number;
+  }) => void;
+  [ServerToClientEvent.CharacterAllocatedAbilityPoint]: (eventData: {
+    characterId: EntityId;
+    ability: AbilityTreeAbility;
   }) => void;
 }
 

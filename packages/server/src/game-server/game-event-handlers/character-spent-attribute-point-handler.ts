@@ -9,7 +9,7 @@ import {
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../singletons.js";
 
-export default function characterSpentAttributePointHandler(
+export function characterSpentAttributePointHandler(
   eventData: { characterId: string; attribute: CombatAttribute },
   characterAssociatedData: CharacterAssociatedData
 ) {

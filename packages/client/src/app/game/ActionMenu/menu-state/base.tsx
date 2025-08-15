@@ -32,12 +32,6 @@ import {
   setInventoryOpen,
   setViewingAbilityTreeAsFreshStack,
 } from "./common-buttons/open-inventory";
-
-import FireIcon from "../../../../../public/img/game-ui-icons/fire.svg";
-import RangedIcon from "../../../../../public/img/game-ui-icons/ranged.svg";
-import SwordSlashIcon from "../../../../../public/img/game-ui-icons/sword-slash.svg";
-import HealthCrossIcon from "../../../../../public/img/game-ui-icons/health-cross.svg";
-import IceIcon from "../../../../../public/img/game-ui-icons/ice.svg";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
