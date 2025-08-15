@@ -34,7 +34,9 @@ export default function CombatantDisplay({ combatant }: Props) {
         </div>
         <Divider />
         <ul>
-          <CombatantTraitsDisplay traitProperties={combatantProperties.traitProperties} />
+          <CombatantTraitsDisplay
+            traitProperties={combatantProperties.abilityProperties.traitProperties}
+          />
         </ul>
       </div>
     </div>

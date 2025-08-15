@@ -47,7 +47,7 @@ export function outfitNewCharacter(character: Combatant) {
 
   for (const actionName of ownedActions) {
     const action = new CombatantActionState(actionName);
-    const levelTwoSpells = [CombatActionName.Fire, CombatActionName.Healing];
+    const levelTwoSpells: CombatActionName[] = [];
     if (levelTwoSpells.includes(actionName)) action.level = 2;
     const cooldownOption = COMBAT_ACTIONS[actionName].costProperties.getCooldownTurns(
       combatantProperties,
@@ -55,7 +55,7 @@ export function outfitNewCharacter(character: Combatant) {
     );
     if (cooldownOption) action.cooldown = new MaxAndCurrent(cooldownOption, 0);
 
-    combatantProperties.ownedActions[actionName] = action;
+    combatantProperties.abilityProperties.ownedActions[actionName] = action;
   }
 
   const baseStartingAttributesOption = BASE_STARTING_ATTRIBUTES[combatantProperties.combatantClass];
@@ -67,7 +67,8 @@ export function outfitNewCharacter(character: Combatant) {
 
   // @PERF - make a lookup table for inherent class traits
   const classTraits = STARTING_COMBATANT_TRAITS[combatantProperties.combatantClass];
-  combatantProperties.traitProperties.inherentTraitLevels = cloneDeep(classTraits);
+  combatantProperties.abilityProperties.traitProperties.inherentTraitLevels =
+    cloneDeep(classTraits);
 
   // this is a one-off. as far as I know, no other traits have anything so special as to
   // require anything other than an arbitrary number to represent either a value or the level
@@ -165,16 +166,18 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   combatantProperties.inventory.equipment.push(...(items as Equipment[]));
 
   // giveTestingCombatAttributes(combatantProperties);
-  // combatantProperties.level = 5;
+  combatantProperties.level = 3;
   combatantProperties.unspentAttributePoints = 3;
-  combatantProperties.unspentAbilityPoints = 3;
+  combatantProperties.abilityProperties.unspentAbilityPoints = 3;
   combatantProperties.inherentAttributes[CombatAttribute.Speed] = 9;
   combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 45;
   combatantProperties.inherentAttributes[CombatAttribute.Strength] = 40;
   combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 25;
   // combatantProperties.inherentAttributes[CombatAttribute.Speed] = 9999;
   combatantProperties.inherentAttributes[CombatAttribute.Hp] = 75;
-  combatantProperties.traitProperties.inherentElementalAffinities[MagicalElement.Fire] = 150;
+  combatantProperties.abilityProperties.traitProperties.inherentElementalAffinities[
+    MagicalElement.Fire
+  ] = 150;
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
   // combatantProperties.inventory.shards = 9999;

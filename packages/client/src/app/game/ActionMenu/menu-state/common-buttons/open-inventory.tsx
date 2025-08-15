@@ -36,7 +36,7 @@ export const setViewingAbilityTreeAsFreshStack = new ActionMenuButtonProperties(
     const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
     let unspent = 0;
     if (!(focusedCharacterResult instanceof Error))
-      unspent = focusedCharacterResult.combatantProperties.unspentAbilityPoints;
+      unspent = focusedCharacterResult.combatantProperties.abilityProperties.unspentAbilityPoints;
     const highlightClass = unspent ? "text-yellow-400" : "";
 
     return (

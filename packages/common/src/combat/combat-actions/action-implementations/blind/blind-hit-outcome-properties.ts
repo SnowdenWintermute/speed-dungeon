@@ -23,7 +23,8 @@ export const BLIND_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {
     const { combatant } = combatantContext;
 
     const spellLevel =
-      combatant.combatantProperties.ownedActions[CombatActionName.Blind]?.level || 0;
+      combatant.combatantProperties.abilityProperties.ownedActions[CombatActionName.Blind]?.level ||
+      0;
 
     const condition = new BlindedCombatantCondition(
       idGenerator.generate(),

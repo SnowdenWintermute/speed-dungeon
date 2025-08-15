@@ -6,6 +6,6 @@ export function getAbilityIcon(ability: AbilityTreeAbility) {
     case AbilityType.Action:
       return ACTION_ICONS[ability.actionName];
     case AbilityType.Trait:
-      return () => null;
+      return null;
   }
 }

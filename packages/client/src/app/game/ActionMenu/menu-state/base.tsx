@@ -110,7 +110,7 @@ export class BaseMenuState implements ActionMenuState {
     }
 
     for (const [actionName, actionState] of iterateNumericEnumKeyedRecord(
-      combatantProperties.ownedActions
+      combatantProperties.abilityProperties.ownedActions
     )) {
       if (ACTION_NAMES_TO_HIDE_IN_MENU.includes(actionName)) continue;
       const nameAsString = COMBAT_ACTION_NAME_STRINGS[actionName];

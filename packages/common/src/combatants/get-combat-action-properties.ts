@@ -9,7 +9,7 @@ export function getCombatActionPropertiesIfOwned(
   actionName: CombatActionName,
   level: number
 ): Error | CombatActionComponent {
-  const actionOption = combatantProperties.ownedActions[actionName];
+  const actionOption = combatantProperties.abilityProperties.ownedActions[actionName];
   if (actionOption === undefined) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED);
   if (actionOption.level < level)
     return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED_AT_THAT_LEVEL);

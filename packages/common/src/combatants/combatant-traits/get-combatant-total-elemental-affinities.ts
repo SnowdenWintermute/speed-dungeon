@@ -7,5 +7,7 @@ import { CombatantProperties } from "../index.js";
 export default function getCombatantTotalElementalAffinities(
   combatantProperties: CombatantProperties
 ): Partial<Record<MagicalElement, number>> {
-  return cloneDeep(combatantProperties.traitProperties.inherentElementalAffinities);
+  return cloneDeep(
+    combatantProperties.abilityProperties.traitProperties.inherentElementalAffinities
+  );
 }

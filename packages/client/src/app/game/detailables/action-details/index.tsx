@@ -33,7 +33,8 @@ export default function ActionDetails({ actionName, hideTitle }: Props) {
   const focusedCharacterResult = useGameStore().getFocusedCharacter();
   if (focusedCharacterResult instanceof Error) return <div>{focusedCharacterResult.message}</div>;
   const focusedCharacter = focusedCharacterResult;
-  const actionStateOption = focusedCharacter.combatantProperties.ownedActions[actionName];
+  const actionStateOption =
+    focusedCharacter.combatantProperties.abilityProperties.ownedActions[actionName];
   const selectedLevelOption = focusedCharacter.combatantProperties.selectedActionLevel;
 
   const inCombat = !!Object.values(party.currentRoom.monsters).length;
@@ -114,7 +115,7 @@ function ActionCostsDisplay(props: {
 }) {
   const { user, actionName, inCombat } = props;
   const action = COMBAT_ACTIONS[actionName];
-  const actionStateOption = user.ownedActions[actionName];
+  const actionStateOption = user.abilityProperties.ownedActions[actionName];
 
   const userIsSelectingThisAction = user.selectedCombatAction === actionName;
   const { selectedActionLevel } = user;

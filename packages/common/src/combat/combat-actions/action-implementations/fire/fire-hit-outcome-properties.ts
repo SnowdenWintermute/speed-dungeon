@@ -19,10 +19,12 @@ import { CombatActionResourceChangeProperties } from "../../combat-action-resour
 import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
 import { CombatActionName } from "../../combat-action-names.js";
 
+const spellLevelHpChangeValueModifier = 0.5;
+
 export const FIRE_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {
   ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Spell],
   resourceChangePropertiesGetters: {
-    [CombatActionResource.HitPoints]: (user, _primaryTarget) => {
+    [CombatActionResource.HitPoints]: (user, actionLevel, _primaryTarget) => {
       const hpChangeSourceConfig: ResourceChangeSourceConfig = {
         category: ResourceChangeSourceCategory.Magical,
         kineticDamageTypeOption: null,
@@ -32,6 +34,7 @@ export const FIRE_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {
       };
 
       const baseValues = new NumberRange(4, 8);
+      baseValues.mult(1 + spellLevelHpChangeValueModifier * (actionLevel - 1));
 
       // just get some extra damage for combatant level
       baseValues.add(user.level - 1);

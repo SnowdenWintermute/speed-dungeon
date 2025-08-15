@@ -19,7 +19,7 @@ export function canPickUpItem(combatantProperties: CombatantProperties, itemType
 
 export function getCapacityByItemType(combatantProperties: CombatantProperties) {
   const extraConsumableCapacityOption =
-    (combatantProperties.traitProperties.inherentTraitLevels[
+    (combatantProperties.abilityProperties.traitProperties.inherentTraitLevels[
       CombatantTraitType.ExtraConsumablesStorage
     ] || 0) * EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL;
   let minibagCapacity = 0;

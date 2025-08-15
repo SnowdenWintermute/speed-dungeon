@@ -63,7 +63,8 @@ export class SelectActionToHealLowestHpAlly implements BehaviorNode {
 
               // @TODO -actually select an actionLevel
               const actionLevel =
-                this.combatant.combatantProperties.ownedActions[actionName]?.level || 1;
+                this.combatant.combatantProperties.abilityProperties.ownedActions[actionName]
+                  ?.level || 1;
               this.behaviorContext.setCurrentActionLevelConsidering(actionLevel);
             }
           ),

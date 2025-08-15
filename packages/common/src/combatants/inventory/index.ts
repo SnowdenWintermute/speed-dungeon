@@ -28,7 +28,7 @@ export class Inventory {
 
   static isAtCapacity(combatantProperties: CombatantProperties) {
     const extraConsumableStorageCapacityOption =
-      (combatantProperties.traitProperties.inherentTraitLevels[
+      (combatantProperties.abilityProperties.traitProperties.inherentTraitLevels[
         CombatantTraitType.ExtraConsumablesStorage
       ] || 0) * EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL;
 

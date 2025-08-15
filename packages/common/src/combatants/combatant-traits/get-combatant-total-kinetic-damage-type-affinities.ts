@@ -7,5 +7,7 @@ import { CombatantProperties } from "../index.js";
 export default function getCombatantTotalKineticDamageTypeAffinities(
   combatantProperties: CombatantProperties
 ): Partial<Record<KineticDamageType, number>> {
-  return cloneDeep(combatantProperties.traitProperties.inherentKineticDamageTypeAffinities);
+  return cloneDeep(
+    combatantProperties.abilityProperties.traitProperties.inherentKineticDamageTypeAffinities
+  );
 }

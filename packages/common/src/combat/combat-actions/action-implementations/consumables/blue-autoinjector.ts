@@ -49,7 +49,7 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
     ) => {
       let mpBioavailability = 1;
 
-      const { inherentTraitLevels } = primaryTarget.traitProperties;
+      const { inherentTraitLevels } = primaryTarget.abilityProperties.traitProperties;
 
       const traitBioavailabilityPercentageModifier =
         (inherentTraitLevels[CombatantTraitType.MpBioavailability] || 0) *

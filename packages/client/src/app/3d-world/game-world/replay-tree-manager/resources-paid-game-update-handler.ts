@@ -30,7 +30,7 @@ export async function resourcesPaidGameUpdateHandler(update: {
     if (command.costsPaid)
       CombatantProperties.payResourceCosts(combatantProperties, command.costsPaid);
 
-    const actionState = combatantProperties.ownedActions[command.actionName];
+    const actionState = combatantProperties.abilityProperties.ownedActions[command.actionName];
     if (actionState !== undefined) {
       actionState.wasUsedThisTurn = true;
 

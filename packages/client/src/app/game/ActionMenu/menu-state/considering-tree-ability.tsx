@@ -67,7 +67,8 @@ export class ConsideringCombatantAbilityMenuState implements ActionMenuState {
 
     button.dedicatedKeys = [HOTKEYS.ALT_1];
 
-    button.shouldBeDisabled = focusedCharacterResult.combatantProperties.unspentAbilityPoints <= 0;
+    button.shouldBeDisabled =
+      focusedCharacterResult.combatantProperties.abilityProperties.unspentAbilityPoints <= 0;
 
     toReturn[ActionButtonCategory.Top].push(button);
 

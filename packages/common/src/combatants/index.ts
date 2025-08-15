@@ -41,7 +41,6 @@ import {
   TargetingScheme,
 } from "../combat/combat-actions/index.js";
 import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
-import { getOwnedActionState } from "./owned-actions/get-owned-action-state.js";
 import { getActionNamesFilteredByUseableContext } from "./owned-actions/get-owned-action-names-filtered-by-usable-context.js";
 import {
   COMBATANT_CONDITION_CONSTRUCTORS,
@@ -52,9 +51,7 @@ import { plainToInstance } from "class-transformer";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { ThreatManager } from "./threat-manager/index.js";
 import { COMBATANT_MAX_ACTION_POINTS } from "../app-consts.js";
-import { CombatantTraitProperties } from "./combatant-traits/combatant-trait-properties.js";
-import { AbilityTree } from "./ability-tree/ability-tree.js";
-import { AbilityTreeAbility, AbilityType } from "./ability-tree/ability-types.js";
+import { CombatantAbilityProperties } from "./combatant-abilities/combatant-ability-properties.js";
 
 export enum AiType {
   Healer,
@@ -72,6 +69,7 @@ export * from "./combatant-conditions/index.js";
 export * from "./threat-manager/index.js";
 export * from "./combatant-traits/index.js";
 export * from "./ability-tree/index.js";
+export * from "./combatant-abilities/index.js";
 
 export class Combatant {
   [immerable] = true;
@@ -119,21 +117,7 @@ export class CombatantProperties {
   actionPoints: number = 0;
 
   // ABILITIES
-  ownedActions: Partial<Record<CombatActionName, CombatantActionState>> = {};
-  unspentAbilityPoints: number = 0;
-  traitProperties = new CombatantTraitProperties();
-  static getAbilityLevel(combatantProperties: CombatantProperties, ability: AbilityTreeAbility) {
-    switch (ability.type) {
-      case AbilityType.Action:
-        return combatantProperties.ownedActions[ability.actionName]?.level || 0;
-      case AbilityType.Trait:
-        const { speccedTraitLevels, inherentTraitLevels } = combatantProperties.traitProperties;
-        return (
-          (speccedTraitLevels[ability.traitType] || 0) +
-          (inherentTraitLevels[ability.traitType] || 0)
-        );
-    }
-  }
+  abilityProperties = new CombatantAbilityProperties();
 
   // ITEMS
   equipment: CombatantEquipment = new CombatantEquipment();
@@ -203,7 +187,6 @@ export class CombatantProperties {
     return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 
-  static getOwnedActionState = getOwnedActionState;
   static changeHitPoints = changeCombatantHitPoints;
   static changeMana = changeCombatantMana;
   static changeActionPoints(combatantProperties: CombatantProperties, value: number) {
@@ -219,7 +202,7 @@ export class CombatantProperties {
   }
   static tickCooldowns(combatantProperties: CombatantProperties) {
     for (const [actionName, actionState] of iterateNumericEnumKeyedRecord(
-      combatantProperties.ownedActions
+      combatantProperties.abilityProperties.ownedActions
     )) {
       if (actionState.wasUsedThisTurn) {
         actionState.wasUsedThisTurn = false;
@@ -295,7 +278,7 @@ export class CombatantProperties {
   }
 
   static hasTraitType(combatantProperties: CombatantProperties, traitType: CombatantTraitType) {
-    const { traitProperties } = combatantProperties;
+    const { traitProperties } = combatantProperties.abilityProperties;
     return (
       !!traitProperties.inherentTraitLevels[traitType] ||
       !!traitProperties.speccedTraitLevels[traitType]
@@ -390,10 +373,8 @@ export function createShimmedUserOfTriggeredCondition(
   );
 
   iterateNumericEnum(CombatActionName).forEach((actionName) => {
-    combatant.combatantProperties.ownedActions[actionName] = new CombatantActionState(
-      actionName,
-      1
-    );
+    combatant.combatantProperties.abilityProperties.ownedActions[actionName] =
+      new CombatantActionState(actionName, 1);
   });
 
   combatant.combatantProperties.asShimmedUserOfTriggeredCondition = {

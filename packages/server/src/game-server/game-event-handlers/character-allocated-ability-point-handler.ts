@@ -1,7 +1,7 @@
 import {
   AbilityTreeAbility,
   CharacterAssociatedData,
-  CombatantProperties,
+  CombatantAbilityProperties,
   ERROR_MESSAGES,
   ServerToClientEvent,
   getPartyChannelName,
@@ -15,12 +15,17 @@ export function characterAllocatedAbilityPointHandler(
   const { ability } = eventData;
   const { game, party, character } = characterAssociatedData;
   const { combatantProperties } = character;
-  if (combatantProperties.unspentAbilityPoints <= 0)
+
+  if (combatantProperties.abilityProperties.unspentAbilityPoints <= 0)
     return new Error(ERROR_MESSAGES.COMBATANT.NO_UNSPENT_ABILITY_POINTS);
 
-  // check if required character level to increment this ability
-  // check if this abliity is max level
-  // check if prerequisite abilities are owned
+  const canAllocate = CombatantAbilityProperties.canAllocateAbilityPoint(
+    combatantProperties,
+    ability
+  );
+  if (!canAllocate) return new Error("Can't allocate a point to that ability");
+
+  CombatantAbilityProperties.allocateAbilityPoint(combatantProperties, ability);
 
   getGameServer()
     .io.in(getPartyChannelName(game.name, party.name))

@@ -61,7 +61,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
     const action = new CombatantActionState(actionName);
     if (actionName === CombatActionName.Fire) action.level = 2;
     // if (actionName === CombatActionName.Healing) action.level = 1;
-    combatantProperties.ownedActions[actionName] = action;
+    combatantProperties.abilityProperties.ownedActions[actionName] = action;
   }
 
   // const entityProperties = { id: idGenerator.generate(), name: STOCK_MONSTER.name };
@@ -69,33 +69,32 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
 
   // will modify this monster after creation with basic values
   const monster = new Combatant(entityProperties, combatantProperties);
-  monster.combatantProperties.threatManager = new ThreatManager();
-  monster.combatantProperties.level = level;
+  combatantProperties.threatManager = new ThreatManager();
+  combatantProperties.level = level;
   // assign their "discretionary" attributes
   // assign attributes that would have come from wearing gear
   const startingAttributes = getMonsterStartingAttributes(monsterType);
-  addAttributesToAccumulator(startingAttributes, monster.combatantProperties.inherentAttributes);
+  addAttributesToAccumulator(startingAttributes, combatantProperties.inherentAttributes);
   const attributesPerLevel = getMonsterPerLevelAttributes(monsterType);
   for (const [attribute, value] of iterateNumericEnumKeyedRecord(attributesPerLevel)) {
-    const levelAdjustedValue = value * (monster.combatantProperties.level - 1);
+    const levelAdjustedValue = value * (combatantProperties.level - 1);
 
-    if (!monster.combatantProperties.inherentAttributes[attribute])
-      monster.combatantProperties.inherentAttributes[attribute] = levelAdjustedValue;
-    else monster.combatantProperties.inherentAttributes[attribute]! += levelAdjustedValue;
+    if (!combatantProperties.inherentAttributes[attribute])
+      combatantProperties.inherentAttributes[attribute] = levelAdjustedValue;
+    else combatantProperties.inherentAttributes[attribute]! += levelAdjustedValue;
   }
   // randomize their hp a little
-  const baseHp = monster.combatantProperties.inherentAttributes[CombatAttribute.Hp] || 1;
+  const baseHp = combatantProperties.inherentAttributes[CombatAttribute.Hp] || 1;
   const randomNumberNormalDistribution = randomNormal();
   const modifiedHp = baseHp * (randomNumberNormalDistribution + 0.5);
   monster.combatantProperties.inherentAttributes[CombatAttribute.Hp] = Math.floor(modifiedHp);
 
   // @PERF - make a lookup table for inherent monster type traits
   // traits
-  monster.combatantProperties.traitProperties.inherentTraitLevels = MONSTER_INHERENT_TRAIT_GETTERS[
-    monsterType
-  ](monster.combatantProperties.level);
+  combatantProperties.abilityProperties.traitProperties.inherentTraitLevels =
+    MONSTER_INHERENT_TRAIT_GETTERS[monsterType](monster.combatantProperties.level);
   // equip weapons
-  monster.combatantProperties.equipment = getMonsterEquipment(monsterType);
+  combatantProperties.equipment = getMonsterEquipment(monsterType);
 
   // @TESTING - remove this testing durability
   // for (const equipment of CombatantEquipment.getAllEquippedItems(monster.combatantProperties, {})) {
@@ -105,7 +104,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   CombatantProperties.setHpAndMpToMax(monster.combatantProperties);
   // @TODO - assign abilities (realistically need to refactor monster creation)
 
-  monster.combatantProperties.aiTypes = [AiType.Healer];
+  combatantProperties.aiTypes = [AiType.Healer];
   // monster.combatantProperties.hitPoints = Math.floor(monster.combatantProperties.hitPoints * 0.5);
 
   return monster;
