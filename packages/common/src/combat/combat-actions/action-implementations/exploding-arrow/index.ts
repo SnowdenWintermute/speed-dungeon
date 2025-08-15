@@ -1,3 +1,4 @@
+import { AbilityType } from "../../../../abilities/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import {
   CombatActionComponentConfig,
@@ -9,6 +10,8 @@ import { ATTACK_RANGED_MAIN_HAND } from "../attack/attack-ranged-main-hand.js";
 
 const config: CombatActionComponentConfig = {
   ...ATTACK_RANGED_MAIN_HAND,
+
+  prerequisiteAbilities: [{ type: AbilityType.Action, actionName: CombatActionName.Fire }],
   description: "Fire an arrow that applies a detonatable condition",
   getOnUseMessage(data) {
     return `${data.nameOfActionUser} uses Exploding Arrow (level ${data.actionLevel})`;
