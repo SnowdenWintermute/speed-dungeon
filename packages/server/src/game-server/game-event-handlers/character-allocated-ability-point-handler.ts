@@ -2,7 +2,6 @@ import {
   AbilityTreeAbility,
   CharacterAssociatedData,
   CombatantAbilityProperties,
-  ERROR_MESSAGES,
   ServerToClientEvent,
   getPartyChannelName,
 } from "@speed-dungeon/common";
@@ -16,14 +15,11 @@ export function characterAllocatedAbilityPointHandler(
   const { game, party, character } = characterAssociatedData;
   const { combatantProperties } = character;
 
-  if (combatantProperties.abilityProperties.unspentAbilityPoints <= 0)
-    return new Error(ERROR_MESSAGES.COMBATANT.NO_UNSPENT_ABILITY_POINTS);
-
-  const canAllocate = CombatantAbilityProperties.canAllocateAbilityPoint(
+  const { canAllocate, reasonCanNot } = CombatantAbilityProperties.canAllocateAbilityPoint(
     combatantProperties,
     ability
   );
-  if (!canAllocate) return new Error("Can't allocate a point to that ability");
+  if (!canAllocate) return new Error(reasonCanNot);
 
   CombatantAbilityProperties.allocateAbilityPoint(combatantProperties, ability);
 

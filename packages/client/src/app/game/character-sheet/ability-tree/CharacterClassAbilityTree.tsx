@@ -2,6 +2,7 @@ import { useGameStore } from "@/stores/game-store";
 import {
   AbilityTree,
   CombatantAbilityProperties,
+  CombatantProperties,
   ERROR_MESSAGES,
   getAbilityTreeAbilityNameString,
 } from "@speed-dungeon/common";
@@ -61,8 +62,10 @@ export default function CharacterClassAbilityTree({ abilityTree }: { abilityTree
                     ? abilityIconOption("h-full p-2 fill-slate-400")
                     : abilityName;
 
-                  const isAllocatable =
-                    combatantProperties.abilityProperties.unspentAbilityPoints > 0;
+                  const isAllocatable = CombatantAbilityProperties.canAllocateAbilityPoint(
+                    combatantProperties,
+                    ability
+                  );
 
                   cellContent = (
                     <AbilityTreeButton
@@ -73,7 +76,7 @@ export default function CharacterClassAbilityTree({ abilityTree }: { abilityTree
                         ability
                       )}
                       buttonContent={buttonContent}
-                      isAllocatable={isAllocatable}
+                      isAllocatable={isAllocatable.canAllocate}
                     />
                   );
                 }

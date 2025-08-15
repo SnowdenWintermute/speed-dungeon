@@ -29,9 +29,15 @@ export default function AbilityTreeButton(props: Props) {
     </div>
   );
 
+  const disabled = !isAllocatable && abilityLevel <= 0;
+
   return (
     <HotkeyButton
-      className="h-20 w-20 border border-slate-400 bg-slate-700 hover:bg-slate-950 relative flex items-center justify-center"
+      className={`
+        h-20 w-20 border border-slate-400 bg-slate-700 hover:bg-slate-950 relative flex items-center justify-center
+        ${disabled && "opacity-50 pointer-events-none cursor-pointer"}
+        `}
+      disabled={disabled}
       onClick={() => {
         websocketConnection.emit(ClientToServerEvent.AllocateAbilityPoint, {
           characterId,

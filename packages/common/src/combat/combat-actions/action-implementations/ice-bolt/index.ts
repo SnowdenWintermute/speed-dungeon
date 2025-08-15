@@ -25,6 +25,7 @@ import {
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
 import { getSpellCastCombatLogMessage } from "../combat-log-message-getters.js";
+import { AbilityType } from "../../../../abilities/index.js";
 
 const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Spell);
 stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
@@ -59,6 +60,7 @@ stepsConfig.steps[ActionResolutionStepType.FinalPositioning] = {
 
 const config: CombatActionComponentConfig = {
   description: "Summon an icy projectile",
+  prerequisiteAbilities: [{ type: AbilityType.Action, actionName: CombatActionName.Fire }],
   origin: CombatActionOrigin.SpellCast,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
   targetingProperties: GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle],

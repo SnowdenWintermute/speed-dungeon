@@ -59,6 +59,9 @@ export const FOUND_ITEM_MIN_DURABILITY_MODIFIER = 0.25;
 // CRAFTING
 // go to crafting actions for the related consts
 
+// ABILITIES
+export const MAX_ALLOCATABLE_ACTION_LEVEL = 3;
+
 // COMBAT
 export const BASE_CRIT_CHANCE = 5;
 export const MAX_CRIT_CHANCE = 95;

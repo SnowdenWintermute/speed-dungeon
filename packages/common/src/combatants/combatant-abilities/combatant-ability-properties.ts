@@ -1,13 +1,8 @@
+import { AbilityTreeAbility, AbilityType, AbilityUtils } from "../../abilities/index.js";
 import { CombatActionName } from "../../combat/combat-actions/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { CombatantTraitProperties } from "../combatant-traits/combatant-trait-properties.js";
-import {
-  ABILITY_TREES,
-  AbilityTreeAbility,
-  AbilityType,
-  AbilityUtils,
-  CombatantProperties,
-} from "../index.js";
+import { ABILITY_TREES, CombatantProperties } from "../index.js";
 import { CombatantActionState } from "../owned-actions/combatant-action-state.js";
 
 export class CombatantAbilityProperties {
@@ -39,24 +34,79 @@ export class CombatantAbilityProperties {
     }
   }
 
-  static canAllocateAbilityPoint(
+  static ownedAbilityIsAtMaxAllocatableLevel(
     combatantProperties: CombatantProperties,
     ability: AbilityTreeAbility
   ) {
-    // ability is max level
     const abilityLevel = CombatantAbilityProperties.getAbilityLevel(combatantProperties, ability);
-    // is required character level
+    const maxAllocatableLevel = AbilityUtils.getAbilityMaxAllocatableLevel(ability);
+    if (abilityLevel >= maxAllocatableLevel) return true;
+    return false;
+  }
+
+  static isRequiredCharacterLevelToAllocateToAbility(
+    combatantProperties: CombatantProperties,
+    ability: AbilityTreeAbility
+  ) {
+    const abilityLevel = CombatantAbilityProperties.getAbilityLevel(combatantProperties, ability);
     const characterLevel = combatantProperties.level;
     const mainClassAbilityTree = ABILITY_TREES[combatantProperties.combatantClass];
     const characterLevelRequiredForFirstRank = AbilityUtils.getCharacterLevelRequiredForFirstRank(
       mainClassAbilityTree,
       ability
     );
-    const characterLevelRequired = characterLevelRequiredForFirstRank + abilityLevel - 1;
-    if (characterLevel >= characterLevelRequired) return true;
-    // has prerequisite abilities
+    const characterLevelRequired = characterLevelRequiredForFirstRank + abilityLevel;
+    return characterLevel >= characterLevelRequired;
+  }
 
-    return false;
+  static hasPrerequisiteAbilities(
+    combatantProperties: CombatantProperties,
+    ability: AbilityTreeAbility
+  ) {
+    for (const prerequisite of AbilityUtils.getPrerequisites(ability)) {
+      if (CombatantAbilityProperties.getAbilityLevel(combatantProperties, prerequisite) < 1)
+        return false;
+    }
+    return true;
+  }
+
+  static canAllocateAbilityPoint(
+    combatantProperties: CombatantProperties,
+    ability: AbilityTreeAbility
+  ): { canAllocate: boolean; reasonCanNot?: string } {
+    // has unspent points
+    if (combatantProperties.abilityProperties.unspentAbilityPoints <= 0)
+      return { canAllocate: false, reasonCanNot: "No unspent ability points" };
+    // ability is max level
+    const isAtMaxAllocatableLevel = CombatantAbilityProperties.ownedAbilityIsAtMaxAllocatableLevel(
+      combatantProperties,
+      ability
+    );
+    if (isAtMaxAllocatableLevel)
+      return { canAllocate: false, reasonCanNot: "That ability is at its maximum level" };
+    // is required character level
+    const isAtRequiredCharacterLevel =
+      CombatantAbilityProperties.isRequiredCharacterLevelToAllocateToAbility(
+        combatantProperties,
+        ability
+      );
+    if (!isAtRequiredCharacterLevel)
+      return {
+        canAllocate: false,
+        reasonCanNot: "That character is too low level to allocate to this ability",
+      };
+    // has prerequisite abilities
+    const hasPrerequisiteAbilities = CombatantAbilityProperties.hasPrerequisiteAbilities(
+      combatantProperties,
+      ability
+    );
+    if (!hasPrerequisiteAbilities)
+      return {
+        canAllocate: false,
+        reasonCanNot: "Requires prerequisite",
+      };
+
+    return { canAllocate: true };
   }
 
   static allocateAbilityPoint(

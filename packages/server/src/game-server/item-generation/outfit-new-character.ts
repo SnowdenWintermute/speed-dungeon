@@ -33,16 +33,16 @@ export function outfitNewCharacter(character: Combatant) {
 
   const ownedActions = [
     CombatActionName.Attack,
-    // CombatActionName.ChainingSplitArrowParent,
-    // CombatActionName.Counterattack,
     CombatActionName.UseGreenAutoinjector,
     CombatActionName.UseBlueAutoinjector,
-    // CombatActionName.IceBoltParent,
-    CombatActionName.Fire,
-    CombatActionName.Healing,
     CombatActionName.PassTurn,
-    CombatActionName.ExplodingArrowParent,
-    CombatActionName.Blind,
+    // CombatActionName.ChainingSplitArrowParent,
+    // CombatActionName.Counterattack,
+    // CombatActionName.IceBoltParent,
+    // CombatActionName.Fire,
+    // CombatActionName.Healing,
+    // CombatActionName.ExplodingArrowParent,
+    // CombatActionName.Blind,
   ];
 
   for (const actionName of ownedActions) {
@@ -166,7 +166,7 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   combatantProperties.inventory.equipment.push(...(items as Equipment[]));
 
   // giveTestingCombatAttributes(combatantProperties);
-  combatantProperties.level = 3;
+  combatantProperties.level = 5;
   combatantProperties.unspentAttributePoints = 3;
   combatantProperties.abilityProperties.unspentAbilityPoints = 3;
   combatantProperties.inherentAttributes[CombatAttribute.Speed] = 9;

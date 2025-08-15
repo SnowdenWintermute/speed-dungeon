@@ -1,3 +1,4 @@
+import { AbilityTreeAbility } from "../../abilities/index.js";
 import { Percentage } from "../../primatives/index.js";
 
 export * from "./combatant-trait-properties.js";
@@ -20,6 +21,7 @@ export interface CombatantTraitDescription {
   name: string;
   descriptionsByLevel: string[];
   maxLevel: number;
+  prerequisiteAbilities?: AbilityTreeAbility[];
 }
 
 export const COMBATANT_TRAIT_DESCRIPTIONS: Record<CombatantTraitType, CombatantTraitDescription> = {

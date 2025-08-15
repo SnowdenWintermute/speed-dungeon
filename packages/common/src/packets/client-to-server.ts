@@ -1,6 +1,7 @@
+import { AbilityTreeAbility } from "../abilities/index.js";
 import { CombatActionName } from "../combat/index.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
-import { AbilityTreeAbility, CombatantClass } from "../combatants/index.js";
+import { CombatantClass } from "../combatants/index.js";
 import { ConsumableType } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";

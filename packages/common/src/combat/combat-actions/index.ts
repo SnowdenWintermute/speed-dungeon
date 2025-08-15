@@ -35,6 +35,7 @@ import {
 import { ActionResolutionStepsConfig } from "./combat-action-steps-config.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
+import { AbilityTreeAbility } from "../../abilities/index.js";
 
 export enum CombatActionOrigin {
   SpellCast,
@@ -58,6 +59,8 @@ export interface CombatActionComponentConfig {
   hitOutcomeProperties: CombatActionHitOutcomeProperties;
   costProperties: CombatActionCostPropertiesConfig;
   stepsConfig: ActionResolutionStepsConfig;
+
+  prerequisiteAbilities?: AbilityTreeAbility[];
 
   shouldExecute: (
     combatantContext: CombatantContext,
@@ -84,6 +87,7 @@ export interface CombatActionComponentConfig {
 export abstract class CombatActionComponent {
   public readonly description: string;
   public readonly origin: CombatActionOrigin;
+  public readonly prerequisiteAbilities?: AbilityTreeAbility[];
   public readonly targetingProperties: CombatActionTargetingProperties;
   public readonly hitOutcomeProperties: CombatActionHitOutcomeProperties;
   public readonly costProperties: CombatActionCostProperties;
@@ -137,6 +141,8 @@ export abstract class CombatActionComponent {
   ) {
     this.description = config.description;
     this.origin = config.origin;
+
+    this.prerequisiteAbilities = config.prerequisiteAbilities;
     this.targetingProperties = {
       ...config.targetingProperties,
       getAutoTarget: (combatantContext, trackerOption) =>

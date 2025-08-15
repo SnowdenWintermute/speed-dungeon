@@ -1,5 +1,5 @@
 import { Vector2 } from "@babylonjs/core";
-import { AbilityTreeAbility } from "./ability-types.js";
+import { AbilityTreeAbility } from "../../abilities/index.js";
 
 export const ABILITY_TREE_DIMENSIONS = new Vector2(5, 4);
 
