@@ -33,6 +33,15 @@ export function getAbilityTreeAbilityNameString(ability: AbilityTreeAbility) {
 }
 
 export class AbilityUtils {
+  static getStringName(ability: AbilityTreeAbility) {
+    switch (ability.type) {
+      case AbilityType.Action:
+        return COMBAT_ACTION_NAME_STRINGS[ability.actionName];
+      case AbilityType.Trait:
+        return COMBATANT_TRAIT_DESCRIPTIONS[ability.traitType].name;
+    }
+  }
+
   static abilitiesAreEqual(a: AbilityTreeAbility, b: AbilityTreeAbility) {
     const typesAreEqual = a.type === b.type;
     if (!typesAreEqual) return false;
