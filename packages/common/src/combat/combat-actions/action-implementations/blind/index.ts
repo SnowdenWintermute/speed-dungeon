@@ -21,6 +21,8 @@ import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { BLIND_STEPS_CONFIG } from "./blind-steps-config.js";
 import { BLIND_HIT_OUTCOME_PROPERTIES } from "./blind-hit-outcome-properties.js";
 import { getSpellCastCombatLogMessage } from "../combat-log-message-getters.js";
+import { AbilityType } from "../../../../abilities/index.js";
+import { CombatantTraitType } from "../../../../combatants/index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
@@ -34,6 +36,9 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
 
 const config: CombatActionComponentConfig = {
   description: "Reduce the accuracy of targets",
+  prerequisiteAbilities: [
+    { type: AbilityType.Trait, traitType: CombatantTraitType.ExtraHotswapSlot },
+  ],
   origin: CombatActionOrigin.SpellCast,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
   getOnUseMessage: (data) =>

@@ -72,7 +72,6 @@ export class AbilityUtils {
         if (ability === undefined) continue;
         if (AbilityUtils.abilitiesAreEqual(ability, abilityToCheck)) {
           const requiredLevel = rowIndex * 2;
-          console.log("ability:", ability, requiredLevel);
           return requiredLevel;
         }
       }

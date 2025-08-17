@@ -3,9 +3,7 @@ import {
   AbilityTree,
   AbilityTreeAbility,
   AbilityUtils,
-  CombatActionName,
   CombatantAbilityProperties,
-  CombatantTraitType,
   ERROR_MESSAGES,
   getAbilityTreeAbilityNameString,
 } from "@speed-dungeon/common";
@@ -13,6 +11,7 @@ import { MenuStateType } from "../../ActionMenu/menu-state";
 import { getAbilityIcon } from "./ability-icons";
 import AbilityTreeButton from "./AbilityTreeButton";
 import { useRef } from "react";
+import PrerequisiteArrows from "./PrerequisiteArrows";
 
 export default function CharacterClassAbilityTree({ abilityTree }: { abilityTree: AbilityTree }) {
   const currentMenu = useGameStore.getState().getCurrentMenu();
@@ -31,6 +30,7 @@ export default function CharacterClassAbilityTree({ abilityTree }: { abilityTree
 
   return (
     <div className="relative h-fit">
+      <PrerequisiteArrows cellRefs={cellRefs} />
       <div
         className="absolute flex w-fit -right-2 -top-2 opacity-50 z-0"
         style={{ height: `calc(100% + 1rem)` }}
@@ -79,7 +79,7 @@ export default function CharacterClassAbilityTree({ abilityTree }: { abilityTree
                     <div
                       ref={(element) => {
                         if (element)
-                          cellRefs.current[AbilityUtils.getStringName(ability)] = {
+                          cellRefs.current[JSON.stringify(ability)] = {
                             element,
                             prerequisites: AbilityUtils.getPrerequisites(ability),
                           };
