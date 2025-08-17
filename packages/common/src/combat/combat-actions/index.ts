@@ -200,7 +200,7 @@ export abstract class CombatActionComponent {
 
   useIsValid(
     targets: CombatActionTarget,
-    level: number,
+    actionLevel: number,
     combatantContext: CombatantContext
   ): Error | void {
     const { game, party, combatant } = combatantContext;
@@ -209,7 +209,7 @@ export abstract class CombatActionComponent {
     const combatActionPropertiesResult = getCombatActionPropertiesIfOwned(
       combatant.combatantProperties,
       this.name,
-      level
+      actionLevel
     );
     if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
 
@@ -227,7 +227,7 @@ export abstract class CombatActionComponent {
       combatantProperties,
       this.name,
       !!combatantContext.getBattleOption(),
-      level
+      actionLevel
     );
 
     if (!hasRequiredResources)
@@ -235,7 +235,8 @@ export abstract class CombatActionComponent {
 
     const isWearingRequiredEquipment = CombatantProperties.isWearingRequiredEquipmentToUseAction(
       combatantProperties,
-      this.name
+      this.name,
+      actionLevel
     );
     if (!isWearingRequiredEquipment)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_WEARING_REQUIRED_EQUIPMENT);

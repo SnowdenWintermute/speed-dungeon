@@ -88,4 +88,17 @@ export class AbilityUtils {
         return COMBATANT_TRAIT_DESCRIPTIONS[ability.traitType].prerequisiteAbilities || [];
     }
   }
+
+  static abilityAppearsInTree(ability: AbilityTreeAbility, abilityTree: AbilityTree) {
+    for (const column of abilityTree.columns) {
+      for (const abilityToCompare of column) {
+        if (abilityToCompare === undefined) continue;
+        if (AbilityUtils.abilitiesAreEqual(ability, abilityToCompare)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
 }

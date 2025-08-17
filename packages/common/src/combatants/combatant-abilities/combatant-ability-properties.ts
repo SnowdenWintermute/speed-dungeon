@@ -2,7 +2,7 @@ import { AbilityTreeAbility, AbilityType, AbilityUtils } from "../../abilities/i
 import { CombatActionName } from "../../combat/combat-actions/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { CombatantTraitProperties } from "../combatant-traits/combatant-trait-properties.js";
-import { ABILITY_TREES, CombatantProperties } from "../index.js";
+import { ABILITY_TREES, CombatantClass, CombatantProperties } from "../index.js";
 import { CombatantActionState } from "../owned-actions/combatant-action-state.js";
 
 export class CombatantAbilityProperties {
@@ -46,13 +46,26 @@ export class CombatantAbilityProperties {
 
   static isRequiredCharacterLevelToAllocateToAbility(
     combatantProperties: CombatantProperties,
-    ability: AbilityTreeAbility
+    ability: AbilityTreeAbility,
+    isSupportClass: boolean
   ) {
     const abilityLevel = CombatantAbilityProperties.getAbilityLevel(combatantProperties, ability);
-    const characterLevel = combatantProperties.level;
-    const mainClassAbilityTree = ABILITY_TREES[combatantProperties.combatantClass];
+    // const characterLevel = isSupportClass ? combatantProperties.supportClassProperties?.level || 0: combatantProperties.level;
+    let characterLevel: number = 0;
+    let combatantClass: CombatantClass;
+    if (isSupportClass) {
+      const { supportClassProperties } = combatantProperties;
+      if (supportClassProperties === null) throw new Error("expected support class not found");
+      characterLevel = supportClassProperties.level;
+      combatantClass = supportClassProperties.combatantClass;
+    } else {
+      characterLevel = combatantProperties.level;
+      combatantClass = combatantProperties.combatantClass;
+    }
+
+    const abilityTree = ABILITY_TREES[combatantClass];
     const characterLevelRequiredForFirstRank = AbilityUtils.getCharacterLevelRequiredForFirstRank(
-      mainClassAbilityTree,
+      abilityTree,
       ability
     );
     const characterLevelRequired = characterLevelRequiredForFirstRank + abilityLevel;
@@ -72,7 +85,8 @@ export class CombatantAbilityProperties {
 
   static canAllocateAbilityPoint(
     combatantProperties: CombatantProperties,
-    ability: AbilityTreeAbility
+    ability: AbilityTreeAbility,
+    isSupportClass: boolean
   ): { canAllocate: boolean; reasonCanNot?: string } {
     // has unspent points
     if (combatantProperties.abilityProperties.unspentAbilityPoints <= 0)
@@ -88,7 +102,8 @@ export class CombatantAbilityProperties {
     const isAtRequiredCharacterLevel =
       CombatantAbilityProperties.isRequiredCharacterLevelToAllocateToAbility(
         combatantProperties,
-        ability
+        ability,
+        isSupportClass
       );
     if (!isAtRequiredCharacterLevel)
       return {

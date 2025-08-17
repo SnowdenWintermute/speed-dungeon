@@ -27,7 +27,7 @@ import { getSpellCastCombatLogMessage } from "../combat-log-message-getters.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
-  validTargetCategories: TargetCategories.Any,
+  getValidTargetCategories: () => TargetCategories.Any,
   usabilityContext: CombatActionUsabilityContext.All,
   intent: CombatActionIntent.Benevolent,
   getTargetingSchemes: (actionLevel) => {

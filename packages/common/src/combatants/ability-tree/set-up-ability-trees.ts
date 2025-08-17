@@ -1,12 +1,13 @@
 import { CombatantClass } from "../combatant-class/index.js";
 import { AbilityTree } from "./ability-tree.js";
+import { setUpRogueAbilityTree } from "./rogue-ability-tree.js";
 import { setUpWarriorAbilityTree } from "./warrior-ability-tree.js";
 
 function setUpAbilityTrees() {
   return {
     [CombatantClass.Warrior]: setUpWarriorAbilityTree(),
     [CombatantClass.Mage]: new AbilityTree(),
-    [CombatantClass.Rogue]: new AbilityTree(),
+    [CombatantClass.Rogue]: setUpRogueAbilityTree(),
   };
 }
 

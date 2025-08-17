@@ -7,7 +7,6 @@ import {
   HoldableSlotType,
   WearableSlotType,
 } from "../../items/equipment/index.js";
-import { MaxAndCurrent } from "../../primatives";
 import {
   ActionPayableResource,
   ActionResourceCostBases,
@@ -61,11 +60,11 @@ export const BASE_SPELL_MANA_COST_BASES = {
   base: 0.25,
   multipliers: {
     actionLevel: 1.2,
-    userCombatantLevel: 1.2,
+    userCombatantLevel: 1,
   },
   additives: {
     actionLevel: 1,
-    userCombatantLevel: 1,
+    userCombatantLevel: 0,
   },
 };
 

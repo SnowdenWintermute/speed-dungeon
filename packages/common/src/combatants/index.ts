@@ -98,8 +98,15 @@ export class Combatant {
   }
 }
 
+export interface SupportClassProperties {
+  level: number;
+  combatantClass: CombatantClass;
+}
+
 export class CombatantProperties {
   [immerable] = true;
+
+  supportClassProperties: null | SupportClassProperties = null;
 
   level: number = 1;
   experiencePoints: ExperiencePoints = {
@@ -327,11 +334,12 @@ export class CombatantProperties {
 
   static isWearingRequiredEquipmentToUseAction(
     combatantProperties: CombatantProperties,
-    actionName: CombatActionName
+    actionName: CombatActionName,
+    actionLevel: number
   ) {
     const action = COMBAT_ACTIONS[actionName];
-    const { requiredEquipmentTypeOptions } = action.targetingProperties;
-    if (requiredEquipmentTypeOptions.length === 0) return true;
+    const { getRequiredEquipmentTypeOptions } = action.targetingProperties;
+    if (getRequiredEquipmentTypeOptions(actionLevel).length === 0) return true;
 
     const allEquipment = CombatantEquipment.getAllEquippedItems(combatantProperties, {
       includeUnselectedHotswapSlots: false,
@@ -339,7 +347,7 @@ export class CombatantProperties {
     for (const equipment of allEquipment) {
       const { equipmentType } = equipment.equipmentBaseItemProperties;
       if (Equipment.isBroken(equipment)) continue;
-      if (requiredEquipmentTypeOptions.includes(equipmentType)) return true;
+      if (getRequiredEquipmentTypeOptions(actionLevel).includes(equipmentType)) return true;
     }
     return false;
   }

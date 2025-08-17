@@ -2,9 +2,9 @@ import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import TextInput from "@/app/components/atoms/TextInput";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import {
+  COMBATANT_CLASS_NAME_STRINGS,
   ClientToServerEvent,
   CombatantClass,
-  formatCombatantClassName,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
 import React, { useState } from "react";
@@ -36,7 +36,7 @@ export default function CreateCharacterForm({ currentSlot }: { currentSlot: numb
             className={`${selectedNewCharacterClass === combatantClass ? "bg-slate-950" : "bg-slate-700"} h-10 border border-slate-400 flex items-center pl-2 pr-2`}
             onClick={() => setSelectedNewCharacterClass(combatantClass)}
           >
-            <div>{formatCombatantClassName(combatantClass)}</div>
+            <div>{COMBATANT_CLASS_NAME_STRINGS[combatantClass]}</div>
           </button>
         ))}
       </div>

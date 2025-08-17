@@ -13,7 +13,13 @@ import AbilityTreeButton from "./AbilityTreeButton";
 import { useRef } from "react";
 import PrerequisiteArrows from "./PrerequisiteArrows";
 
-export default function CharacterClassAbilityTree({ abilityTree }: { abilityTree: AbilityTree }) {
+export default function CharacterClassAbilityTree({
+  abilityTree,
+  isSupportClass,
+}: {
+  abilityTree: AbilityTree;
+  isSupportClass: boolean;
+}) {
   const currentMenu = useGameStore.getState().getCurrentMenu();
   const detailedAbilityOption = useGameStore.getState().detailedCombatantAbility;
 
@@ -46,7 +52,11 @@ export default function CharacterClassAbilityTree({ abilityTree }: { abilityTree
             >
               {column.map((ability, rowIndex) => {
                 let highlightedStyle = "";
-                if (detailedAbilityOption !== null && detailedAbilityOption === ability)
+                if (
+                  detailedAbilityOption !== null &&
+                  ability !== undefined &&
+                  AbilityUtils.abilitiesAreEqual(detailedAbilityOption, ability)
+                )
                   highlightedStyle = "bg-slate-800";
 
                 return (
@@ -67,12 +77,13 @@ export default function CharacterClassAbilityTree({ abilityTree }: { abilityTree
                   const abilityIconOption = getAbilityIcon(ability);
                   const abilityName = getAbilityTreeAbilityNameString(ability);
                   const buttonContent = abilityIconOption
-                    ? abilityIconOption("h-full p-2 fill-slate-400")
+                    ? abilityIconOption("h-full p-2 fill-slate-400 stroke-slate-400")
                     : abilityName;
 
                   const isAllocatable = CombatantAbilityProperties.canAllocateAbilityPoint(
                     combatantProperties,
-                    ability
+                    ability,
+                    isSupportClass
                   );
 
                   cellContent = (

@@ -9,6 +9,7 @@ import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targ
 
 export default function getNextOrPreviousTarget(
   combatAction: CombatActionComponent,
+  actionLevel: number,
   currentTargets: CombatActionTarget,
   direction: NextOrPrevious,
   actionUserId: string,
@@ -22,7 +23,7 @@ export default function getNextOrPreviousTarget(
     case CombatActionTargetType.SingleAndSides:
     case CombatActionTargetType.Sides:
     case CombatActionTargetType.Single:
-      switch (combatAction.targetingProperties.validTargetCategories) {
+      switch (combatAction.targetingProperties.getValidTargetCategories(actionLevel)) {
         case TargetCategories.Opponent:
           if (!opponentIdsOption) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
           newTargetResult = getNextOrPrevIdFromOrderedList(
@@ -68,7 +69,7 @@ export default function getNextOrPreviousTarget(
           };
       }
     case CombatActionTargetType.Group:
-      switch (combatAction.targetingProperties.validTargetCategories) {
+      switch (combatAction.targetingProperties.getValidTargetCategories(actionLevel)) {
         case TargetCategories.Opponent:
           return {
             type: CombatActionTargetType.Group,

@@ -36,7 +36,7 @@ const config: CombatActionComponentConfig = {
   origin: CombatActionOrigin.Attack,
   targetingProperties: {
     ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
-    requiredEquipmentTypeOptions: [EquipmentType.TwoHandedRangedWeapon],
+    getRequiredEquipmentTypeOptions: () => [EquipmentType.TwoHandedRangedWeapon],
   },
 
   getOnUseMessage: (data) => {

@@ -57,56 +57,59 @@ export default function ActionDetails({ actionName, hideTitle }: Props) {
           actionStateAndSelectedLevel={{ actionStateOption, selectedLevelOption }}
         />
       )}
-      <div className="flex-grow overflow-auto mr-2">
-        <div>{action.description}</div>
-        <div>{`Valid targets: ${TARGET_CATEGORY_STRINGS[action.targetingProperties.validTargetCategories]}`}</div>
-        <div>{`Targeting schemes: ${targetingSchemesText}`}</div>
-        {costs && (
-          <ActionCostsDisplay
-            actionName={actionName}
-            user={focusedCharacter.combatantProperties}
-            inCombat={inCombat}
-          />
-        )}
-        <div
-          className={
-            !inCombat && usabilityContext === CombatActionUsabilityContext.InCombat
-              ? UNMET_REQUIREMENT_TEXT_COLOR
-              : ""
-          }
-        >{`Usable ${COMBAT_ACTION_USABLITY_CONTEXT_STRINGS[usabilityContext]}`}</div>
-        <RequiredEquipmentDisplay action={action} user={focusedCharacter.combatantProperties} />
-        {actionStateOption && actionStateOption.cooldown && (
-          <div
-            className={actionStateOption.cooldown.current !== 0 ? UNMET_REQUIREMENT_TEXT_COLOR : ""}
-          >
-            Cooldown {actionStateOption.cooldown.current}/{actionStateOption.cooldown.max}
-          </div>
-        )}
-      </div>
+      {
+        // <div className="flex-grow overflow-auto mr-2">
+        // <div>{action.description}</div>
+        // <div>{`Valid targets: ${TARGET_CATEGORY_STRINGS[action.targetingProperties.validTargetCategories]}`}</div>
+        // <div>{`Targeting schemes: ${targetingSchemesText}`}</div>
+        // {costs && (
+        //   <ActionCostsDisplay
+        //   actionName={actionName}
+        //   user={focusedCharacter.combatantProperties}
+        //   inCombat={inCombat}
+        //   />
+        // )}
+        // <div
+        // className={
+        //   !inCombat && usabilityContext === CombatActionUsabilityContext.InCombat
+        //     ? UNMET_REQUIREMENT_TEXT_COLOR
+        //     : ""
+        // }
+        // >{`Usable ${COMBAT_ACTION_USABLITY_CONTEXT_STRINGS[usabilityContext]}`}</div>
+        // <RequiredEquipmentDisplay action={action} user={focusedCharacter.combatantProperties} />
+        // {actionStateOption && actionStateOption.cooldown && (
+        //   <div
+        //   className={actionStateOption.cooldown.current !== 0 ? UNMET_REQUIREMENT_TEXT_COLOR : ""}
+        //   >
+        //   Cooldown {actionStateOption.cooldown.current}/{actionStateOption.cooldown.max}
+        //   </div>
+        // )}
+        // </div>
+      }
     </div>
   );
 }
 
-function RequiredEquipmentDisplay(props: {
-  action: CombatActionComponent;
-  user: CombatantProperties;
-}) {
-  const { action, user } = props;
-  const toDisplay: ReactNode[] = [];
-  const { requiredEquipmentTypeOptions } = action.targetingProperties;
-  if (requiredEquipmentTypeOptions.length === 0) return toDisplay;
-  const isWearingRequiredEquipment = CombatantProperties.isWearingRequiredEquipmentToUseAction(
-    user,
-    action.name
-  );
+// function RequiredEquipmentDisplay(props: {
+//   action: CombatActionComponent;
+//   user: CombatantProperties;
+// }) {
+//   const { action, user } = props;
+//   const toDisplay: ReactNode[] = [];
+//   const { getRequiredEquipmentTypeOptions } = action.targetingProperties;
+//   const
+//   if (getRequiredEquipmentTypeOptions.length === 0) return toDisplay;
+//   const isWearingRequiredEquipment = CombatantProperties.isWearingRequiredEquipmentToUseAction(
+//     user,
+//     action.name
+//   );
 
-  for (const equipmentType of requiredEquipmentTypeOptions) {
-    toDisplay.push(EQUIPMENT_TYPE_STRINGS[equipmentType].toLowerCase());
-  }
-  const requirementNotMetClass = isWearingRequiredEquipment ? "" : UNMET_REQUIREMENT_TEXT_COLOR;
-  return <div className={requirementNotMetClass}>Must equip {toDisplay}</div>;
-}
+//   for (const equipmentType of requiredEquipmentTypeOptions) {
+//     toDisplay.push(EQUIPMENT_TYPE_STRINGS[equipmentType].toLowerCase());
+//   }
+//   const requirementNotMetClass = isWearingRequiredEquipment ? "" : UNMET_REQUIREMENT_TEXT_COLOR;
+//   return <div className={requirementNotMetClass}>Must equip {toDisplay}</div>;
+// }
 
 function ActionCostsDisplay(props: {
   user: CombatantProperties;

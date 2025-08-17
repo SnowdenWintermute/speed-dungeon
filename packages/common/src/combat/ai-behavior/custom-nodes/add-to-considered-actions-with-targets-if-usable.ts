@@ -45,7 +45,8 @@ export class CollectPotentialTargetsForActionIfUsable implements BehaviorNode {
       new CheckIfWearingProperEquipmentForAction(
         this.behaviorContext,
         this.combatant,
-        actionNameOption
+        actionNameOption,
+        actionLevelOption
       ),
       new CollectPotentialTargetsForAction(
         this.behaviorContext,

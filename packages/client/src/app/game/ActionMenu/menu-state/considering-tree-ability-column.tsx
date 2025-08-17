@@ -44,9 +44,12 @@ export class ConsideringAbilityTreeColumnMenuState implements ActionMenuState {
       return toReturn;
     }
 
-    const { combatantClass } = focusedCharacterResult.combatantProperties;
+    const { combatantProperties } = focusedCharacterResult;
+    const { combatantClass } = combatantProperties;
     const abilityTree = ABILITY_TREES[combatantClass];
-    const subjobTree = EMPTY_ABILITY_TREE;
+    const subjobTree = combatantProperties.supportClassProperties
+      ? ABILITY_TREES[combatantProperties.supportClassProperties.combatantClass]
+      : EMPTY_ABILITY_TREE;
 
     abilityTree.columns.forEach((column, columnIndex) => {
       const subjobTreeColumn = subjobTree.columns[columnIndex] || [];

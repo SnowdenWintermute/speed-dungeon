@@ -1,8 +1,8 @@
 import Divider from "@/app/components/atoms/Divider";
 import {
+  COMBATANT_CLASS_NAME_STRINGS,
   Combatant,
   CombatantProperties,
-  formatCombatantClassName,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { CombatAttribute } from "@speed-dungeon/common";
@@ -68,7 +68,7 @@ export default function CharacterAttributes({ combatant, showAttributeAssignment
       <div className="font-bold flex justify-between items-center">
         <span>
           {entityProperties.name}
-          {` (${formatCombatantClassName(combatantProperties.combatantClass)})`}
+          {` (${COMBATANT_CLASS_NAME_STRINGS[combatantProperties.combatantClass]})`}
         </span>
         <span className="h-10 w-10 flex justify-center rotate-45">
           {getCombatantClassIcon(

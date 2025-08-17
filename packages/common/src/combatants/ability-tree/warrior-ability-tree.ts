@@ -12,8 +12,6 @@ export function setUpWarriorAbilityTree() {
     actionName: CombatActionName.ExplodingArrowParent,
   });
   tree.assign(2, 0, { type: AbilityType.Trait, traitType: CombatantTraitType.ExtraHotswapSlot });
-  tree.assign(4, 1, { type: AbilityType.Action, actionName: CombatActionName.Healing });
-  tree.assign(2, 2, { type: AbilityType.Action, actionName: CombatActionName.Blind });
   tree.assign(1, 3, {
     type: AbilityType.Action,
     actionName: CombatActionName.ChainingSplitArrowParent,

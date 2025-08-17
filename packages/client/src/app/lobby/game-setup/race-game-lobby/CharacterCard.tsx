@@ -1,6 +1,10 @@
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { ClientToServerEvent, Combatant, formatCombatantClassName } from "@speed-dungeon/common";
+import {
+  COMBATANT_CLASS_NAME_STRINGS,
+  ClientToServerEvent,
+  Combatant,
+} from "@speed-dungeon/common";
 import XShape from "../../../../../public/img/basic-shapes/x-shape.svg";
 import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
 
@@ -26,7 +30,7 @@ export default function CharacterCard({
           <h5 className="text-lg whitespace-nowrap text-ellipsis overflow-hidden">
             {character.entityProperties.name}
           </h5>
-          <p className="text-slate-400">{formatCombatantClassName(combatantClass)}</p>
+          <p className="text-slate-400">{COMBATANT_CLASS_NAME_STRINGS[combatantClass]}</p>
         </div>
 
         <div className="flex flex-grow w-1/2 justify-end">

@@ -37,12 +37,20 @@ export class TargetingCalculator {
     if (characterAndActionDataResult instanceof Error) return characterAndActionDataResult;
     const { character, combatAction, currentTarget } = characterAndActionDataResult;
 
-    const filteredTargetIdsResult = this.getFilteredPotentialTargetIdsForAction(combatAction);
+    const { selectedActionLevel } = character.combatantProperties;
+    if (selectedActionLevel === null)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_LEVEL_SELECTED);
+
+    const filteredTargetIdsResult = this.getFilteredPotentialTargetIdsForAction(
+      combatAction,
+      selectedActionLevel
+    );
     if (filteredTargetIdsResult instanceof Error) return filteredTargetIdsResult;
     const [allyIdsOption, opponentIdsOption] = filteredTargetIdsResult;
 
     const newTargetsResult = getNextOrPreviousTarget(
       combatAction,
+      selectedActionLevel,
       currentTarget,
       direction,
       characterId,
@@ -106,7 +114,10 @@ export class TargetingCalculator {
       this.playerOption.targetPreferences.targetingSchemePreference = newTargetingScheme;
     }
 
-    const filteredTargetIdsResult = this.getFilteredPotentialTargetIdsForAction(combatAction);
+    const filteredTargetIdsResult = this.getFilteredPotentialTargetIdsForAction(
+      combatAction,
+      selectedActionLevel
+    );
     if (filteredTargetIdsResult instanceof Error) return filteredTargetIdsResult;
     const [allyIdsOption, opponentIdsOption] = filteredTargetIdsResult;
     const newTargetsResult = this.getValidPreferredOrDefaultActionTargets(
@@ -165,10 +176,19 @@ export class TargetingCalculator {
       combatant.combatantProperties.combatActionTarget = null;
       return null;
     } else {
-      const filteredIdsResult = this.getFilteredPotentialTargetIdsForAction(combatActionOption);
+      const { selectedActionLevel } = combatant.combatantProperties;
+      if (selectedActionLevel === null)
+        return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_LEVEL_SELECTED);
+      const filteredIdsResult = this.getFilteredPotentialTargetIdsForAction(
+        combatActionOption,
+        selectedActionLevel
+      );
       if (filteredIdsResult instanceof Error) return filteredIdsResult;
       const [allyIdsOption, opponentIdsOption] = filteredIdsResult;
-      const newTargetsResult = this.getPreferredOrDefaultActionTargets(combatActionOption);
+      const newTargetsResult = this.getPreferredOrDefaultActionTargets(
+        combatActionOption,
+        selectedActionLevel
+      );
 
       if (newTargetsResult instanceof Error) return newTargetsResult;
 
@@ -201,7 +221,8 @@ export class TargetingCalculator {
   }
 
   getFilteredPotentialTargetIdsForAction(
-    combatAction: CombatActionComponent
+    combatAction: CombatActionComponent,
+    actionLevel: number
   ): Error | [null | string[], null | string[]] {
     const { party, combatant } = this.context;
     const actionUserId = combatant.entityProperties.id;
@@ -222,7 +243,7 @@ export class TargetingCalculator {
     [allyIds, opponentIds] = filteredTargetsResult;
 
     [allyIds, opponentIds] = TargetFilterer.filterPossibleTargetIdsByActionTargetCategories(
-      targetingProperties.validTargetCategories,
+      targetingProperties.getValidTargetCategories(actionLevel),
       actionUserId,
       allyIds,
       opponentIds
@@ -244,8 +265,11 @@ export class TargetingCalculator {
       opponentIdsOption
     );
 
-  getPreferredOrDefaultActionTargets(combatAction: CombatActionComponent) {
-    const filteredIdsResult = this.getFilteredPotentialTargetIdsForAction(combatAction);
+  getPreferredOrDefaultActionTargets(combatAction: CombatActionComponent, actionLevel: number) {
+    const filteredIdsResult = this.getFilteredPotentialTargetIdsForAction(
+      combatAction,
+      actionLevel
+    );
     if (filteredIdsResult instanceof Error) return filteredIdsResult;
     const [allyIdsOption, opponentIdsOption] = filteredIdsResult;
     const newTargetsResult = this.getValidPreferredOrDefaultActionTargets(

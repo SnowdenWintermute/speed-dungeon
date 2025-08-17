@@ -27,6 +27,6 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
   [CombatActionName.UseBlueAutoinjector]: null,
   [CombatActionName.PassTurn]: null,
   [CombatActionName.ConditionPassTurn]: null,
-  [CombatActionName.Blind]: null,
+  [CombatActionName.Blind]: (className: string) => SVG_ICONS[IconName.EyeClosed](className),
   [CombatActionName.PayActionPoint]: null,
 };

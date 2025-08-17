@@ -23,45 +23,49 @@ export default function AbilityTreeButton(props: Props) {
     isAllocatable,
   } = props;
 
-  const allocationIndicator = (
-    <div className="absolute top-1 left-1 h-5 w-5 pointer-events-none animate-slide-appear-from-left">
-      {SVG_ICONS[IconName.PlusSign]("h-full fill-zinc-300")}
-    </div>
-  );
+  // const allocationIndicator = (
+  //   <div className="absolute top-1 left-1 h-5 w-5 pointer-events-none animate-slide-appear-from-left">
+  //     {SVG_ICONS[IconName.PlusSign]("h-full fill-zinc-300")}
+  //   </div>
+  // );
 
   const disabled = !isAllocatable && abilityLevel <= 0;
 
   return (
-    <HotkeyButton
-      className={`
-        h-20 w-20 border border-slate-400 bg-slate-700 hover:bg-slate-950 relative flex items-center justify-center
-        ${disabled && "opacity-50 pointer-events-none cursor-pointer"}
+    <div className="bg-slate-700">
+      <HotkeyButton
+        className={`
+        h-20 w-20 border border-slate-400 bg-slate-700  relative flex items-center justify-center
+        ${disabled && "opacity-50 cursor-auto"} ${!isAllocatable ? "cursor-auto hover:border-white" : "cursor-cell hover:bg-slate-950"}
         `}
-      disabled={disabled}
-      onClick={() => {
-        websocketConnection.emit(ClientToServerEvent.AllocateAbilityPoint, {
-          characterId,
-          ability,
-        });
-      }}
-      onMouseEnter={() => {
-        useGameStore.getState().mutateState((state) => {
-          state.hoveredCombatantAbility = ability;
-          setHovered(true);
-        });
-      }}
-      onMouseLeave={() => {
-        useGameStore.getState().mutateState((state) => {
-          state.hoveredCombatantAbility = null;
-          setHovered(false);
-        });
-      }}
-    >
-      {hovered && isAllocatable && allocationIndicator}
-      {buttonContent}
-      <div className="absolute h-5 w-5 -bottom-1 -right-1 border border-zinc-300 bg-slate-700 text-center align-middle leading-tight">
-        {abilityLevel}
-      </div>
-    </HotkeyButton>
+        onClick={() => {
+          if (!isAllocatable) return;
+          websocketConnection.emit(ClientToServerEvent.AllocateAbilityPoint, {
+            characterId,
+            ability,
+          });
+        }}
+        onMouseEnter={() => {
+          useGameStore.getState().mutateState((state) => {
+            state.hoveredCombatantAbility = ability;
+            setHovered(true);
+          });
+        }}
+        onMouseLeave={() => {
+          useGameStore.getState().mutateState((state) => {
+            state.hoveredCombatantAbility = null;
+            setHovered(false);
+          });
+        }}
+      >
+        {
+          // hovered && isAllocatable && allocationIndicator
+        }
+        {buttonContent}
+        <div className="absolute h-5 w-5 -bottom-1 -right-1 border border-zinc-300 bg-slate-700 text-center align-middle leading-tight">
+          {abilityLevel}
+        </div>
+      </HotkeyButton>
+    </div>
   );
 }

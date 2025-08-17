@@ -4,16 +4,11 @@ export enum CombatantClass {
   Rogue,
 }
 
-export function formatCombatantClassName(combatantClass: CombatantClass): string {
-  switch (combatantClass) {
-    case CombatantClass.Rogue:
-      return "Rogue";
-    case CombatantClass.Warrior:
-      return "Warrior";
-    case CombatantClass.Mage:
-      return "Mage";
-  }
-}
+export const COMBATANT_CLASS_NAME_STRINGS: Record<CombatantClass, string> = {
+  [CombatantClass.Warrior]: "Warrior",
+  [CombatantClass.Mage]: "Mage",
+  [CombatantClass.Rogue]: "Rogue",
+};
 
 export const COMBATANT_CLASS_DESCRIPTIONS = {
   [CombatantClass.Warrior]: "A strong and tough fighter specializing in melee combat",

@@ -2,8 +2,8 @@ import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { useLobbyStore } from "@/stores/lobby-store";
 import { Vector3 } from "@babylonjs/core";
 import {
+  COMBATANT_CLASS_NAME_STRINGS,
   DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
-  formatCombatantClassName,
 } from "@speed-dungeon/common";
 import React, { useEffect, useState } from "react";
 import ArrowShape from "../../../../public/img/menu-icons/arrow-button-icon.svg";
@@ -111,9 +111,9 @@ export default function SavedCharacterManager() {
               <div>
                 Level: {selectedCharacterOption.combatantProperties.level}
                 {" " +
-                  formatCombatantClassName(
+                  COMBATANT_CLASS_NAME_STRINGS[
                     selectedCharacterOption.combatantProperties.combatantClass
-                  )}
+                  ]}
               </div>
             )}
           </div>

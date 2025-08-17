@@ -31,6 +31,8 @@ import { generateOneOfEachItem, generateSpecificEquipmentType } from "./generate
 export function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
 
+  combatantProperties.supportClassProperties = { combatantClass: CombatantClass.Rogue, level: 2 };
+
   const ownedActions = [
     CombatActionName.Attack,
     CombatActionName.UseGreenAutoinjector,

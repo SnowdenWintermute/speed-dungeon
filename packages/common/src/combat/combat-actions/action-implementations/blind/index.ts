@@ -26,7 +26,6 @@ import { CombatantTraitType } from "../../../../combatants/index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
-  validTargetCategories: TargetCategories.Opponent,
   getTargetingSchemes: (actionLevel) => {
     const toReturn = [TargetingScheme.Single];
     if (actionLevel > 1) toReturn.push(TargetingScheme.Area);

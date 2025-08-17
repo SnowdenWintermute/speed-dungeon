@@ -9,7 +9,13 @@ import {
 } from ".";
 import { createCancelButton } from "./common-buttons/cancel";
 import { setAlert } from "@/app/components/alerts";
-import { AbilityTreeAbility, ClientToServerEvent } from "@speed-dungeon/common";
+import {
+  ABILITY_TREES,
+  AbilityTreeAbility,
+  AbilityUtils,
+  ClientToServerEvent,
+  CombatantAbilityProperties,
+} from "@speed-dungeon/common";
 import createPageButtons from "./create-page-buttons";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { HOTKEYS } from "@/hotkeys";
@@ -65,10 +71,19 @@ export class ConsideringCombatantAbilityMenuState implements ActionMenuState {
       }
     );
 
-    button.dedicatedKeys = [HOTKEYS.ALT_1];
+    button.dedicatedKeys = [HOTKEYS.MAIN_1];
 
-    button.shouldBeDisabled =
-      focusedCharacterResult.combatantProperties.abilityProperties.unspentAbilityPoints <= 0;
+    const isMainClassAbility = AbilityUtils.abilityAppearsInTree(
+      abilityOption,
+      ABILITY_TREES[focusedCharacterResult.combatantProperties.combatantClass]
+    );
+    const { canAllocate } = CombatantAbilityProperties.canAllocateAbilityPoint(
+      focusedCharacterResult.combatantProperties,
+      abilityOption,
+      !isMainClassAbility
+    );
+
+    button.shouldBeDisabled = !canAllocate;
 
     toReturn[ActionButtonCategory.Top].push(button);
 
