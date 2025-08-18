@@ -1,11 +1,8 @@
 import { useGameStore } from "@/stores/game-store";
-import { Vector3 } from "@babylonjs/core";
 import {
   CombatantProperties,
   ERROR_MESSAGES,
   Combatant,
-  CombatantClass,
-  CombatantSpecies,
   CombatAttribute,
   Equipment,
   HoldableSlotType,
@@ -20,6 +17,7 @@ import { EquipmentType } from "@speed-dungeon/common";
 import { NumberRange } from "@speed-dungeon/common";
 import React from "react";
 import { getTargetOption } from "@/utils/get-target-option";
+import { TARGET_DUMMY_COMBATANT } from "./ability-tree/AbilityDescription";
 
 export default function CharacterSheetWeaponDamage({ combatant }: { combatant: Combatant }) {
   const { combatantProperties } = combatant;
@@ -143,15 +141,7 @@ function getAttackActionDamageAndAccuracy(
 
   const currentlyTargetedCombatantResult = getTargetOption(gameOption, combatant, actionName);
   if (currentlyTargetedCombatantResult instanceof Error) return currentlyTargetedCombatantResult;
-  const target =
-    currentlyTargetedCombatantResult ||
-    new CombatantProperties(
-      CombatantClass.Warrior,
-      CombatantSpecies.Humanoid,
-      null,
-      null,
-      Vector3.Zero()
-    );
+  const target = currentlyTargetedCombatantResult || TARGET_DUMMY_COMBATANT;
 
   const combatAction = COMBAT_ACTIONS[actionName];
   const hpChangeProperties = combatAction.hitOutcomeProperties.resourceChangePropertiesGetters![

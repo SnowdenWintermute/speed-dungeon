@@ -13,16 +13,16 @@ export function getTargetOption(
   user: Combatant,
   actionName: CombatActionName
 ) {
-  const { combatActionTarget } = user.combatantProperties;
-  if (!gameOption || !combatActionTarget) return undefined;
+  const { combatActionTarget, selectedActionLevel } = user.combatantProperties;
+  if (!gameOption || combatActionTarget === null || selectedActionLevel === null) return undefined;
   const game = gameOption;
   const partyResult = useGameStore.getState().getParty();
   if (partyResult instanceof Error) return undefined;
-  const battleOption = partyResult.battleId ? game.battles[partyResult.battleId]!! : null;
 
   const actionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
     user.combatantProperties,
-    actionName
+    actionName,
+    selectedActionLevel
   );
   if (actionPropertiesResult instanceof Error) return actionPropertiesResult;
   const combatActionProperties = actionPropertiesResult;

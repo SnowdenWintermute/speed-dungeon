@@ -1,3 +1,5 @@
+import { Vector3 } from "@babylonjs/core";
+import { CombatantClass, CombatantProperties, CombatantSpecies } from "./combatants/index.js";
 import { Meters, Milliseconds } from "./primatives/index.js";
 
 // remember to update it in package.json as well!
