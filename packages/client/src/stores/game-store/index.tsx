@@ -8,8 +8,6 @@ import {
   CombatAttribute,
   Combatant,
   CombatantContext,
-  CombatantTrait,
-  CombatantTraitType,
   ERROR_MESSAGES,
   EntityId,
   Item,

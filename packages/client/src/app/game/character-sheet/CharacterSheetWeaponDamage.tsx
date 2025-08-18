@@ -17,7 +17,7 @@ import { EquipmentType } from "@speed-dungeon/common";
 import { NumberRange } from "@speed-dungeon/common";
 import React from "react";
 import { getTargetOption } from "@/utils/get-target-option";
-import { TARGET_DUMMY_COMBATANT } from "./ability-tree/AbilityDescription";
+import { TARGET_DUMMY_COMBATANT } from "./ability-tree/ability-description";
 
 export default function CharacterSheetWeaponDamage({ combatant }: { combatant: Combatant }) {
   const { combatantProperties } = combatant;

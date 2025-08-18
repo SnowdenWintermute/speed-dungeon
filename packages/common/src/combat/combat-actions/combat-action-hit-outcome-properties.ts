@@ -93,7 +93,7 @@ export const genericActionHitOutcomeProperties: CombatActionHitOutcomeProperties
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
     if (context.combatantContext.combatant.combatantProperties.asShimmedUserOfTriggeredCondition)
       return false;
-    if (action.costProperties.requiresCombatTurn(context)) return true;
+    if (action.costProperties.requiresCombatTurnInThisContext(context)) return true;
     return false;
   },
 };

@@ -100,7 +100,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   // unlock input if no more blocking steps are left and next turn is player
 
   const requiredTurn =
-    action.costProperties.requiresCombatTurn(context) ||
+    action.costProperties.requiresCombatTurnInThisContext(context) ||
     combatant.combatantProperties.actionPoints === 0;
 
   const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();

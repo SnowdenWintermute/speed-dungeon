@@ -38,7 +38,7 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
 };
 
 const config: CombatActionComponentConfig = {
-  description: "Restore hit points to target(s)",
+  description: "Restore hit points",
   origin: CombatActionOrigin.SpellCast,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
   getOnUseMessage: (data) =>
@@ -54,7 +54,7 @@ const config: CombatActionComponentConfig = {
         base: 1,
       },
     },
-    requiresCombatTurn: () => false,
+    requiresCombatTurnInThisContext: () => false,
   },
   stepsConfig: HEALING_STEPS_CONFIG,
   shouldExecute: () => true,

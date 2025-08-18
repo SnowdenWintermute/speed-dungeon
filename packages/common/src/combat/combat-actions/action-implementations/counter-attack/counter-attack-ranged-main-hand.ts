@@ -32,7 +32,7 @@ const config: CombatActionComponentConfig = {
   costProperties: {
     ...clonedConfig.costProperties,
     costBases: {},
-    requiresCombatTurn: (context) => false,
+    requiresCombatTurnInThisContext: (context) => false,
   },
   stepsConfig,
   targetingProperties: {

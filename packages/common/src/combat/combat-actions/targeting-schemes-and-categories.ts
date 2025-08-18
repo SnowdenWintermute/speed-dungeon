@@ -23,8 +23,8 @@ export enum TargetCategories {
 }
 
 export const TARGET_CATEGORY_STRINGS: Record<TargetCategories, string> = {
-  [TargetCategories.Opponent]: "Opponent",
+  [TargetCategories.Opponent]: "Opponents",
   [TargetCategories.User]: "Self",
-  [TargetCategories.Friendly]: "Teammate",
+  [TargetCategories.Friendly]: "Teammates",
   [TargetCategories.Any]: "Any",
 };

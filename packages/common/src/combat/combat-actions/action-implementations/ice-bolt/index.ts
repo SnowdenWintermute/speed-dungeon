@@ -67,7 +67,7 @@ const config: CombatActionComponentConfig = {
   hitOutcomeProperties: iceBoltProjectileHitOutcomeProperties,
   costProperties: {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
-    requiresCombatTurn: () => false,
+    requiresCombatTurnInThisContext: () => false,
   },
   stepsConfig,
   getOnUseMessage: (data) =>

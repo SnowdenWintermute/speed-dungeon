@@ -182,7 +182,7 @@ export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
     incursDurabilityLoss: {
       [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnUse },
     },
-    requiresCombatTurn: () => false,
+    requiresCombatTurnInThisContext: () => false,
   },
   stepsConfig,
 

@@ -89,7 +89,7 @@ export default function AbilitySelection() {
           </div>
         </div>
       </div>
-      <AbilityTreeDetailedAbility />
+      <AbilityTreeDetailedAbility user={combatantProperties} />
     </div>
   );
 }

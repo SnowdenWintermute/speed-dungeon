@@ -55,7 +55,7 @@ const config: CombatActionComponentConfig = {
         base: 1,
       },
     },
-    requiresCombatTurn: (context) => {
+    requiresCombatTurnInThisContext: (context) => {
       // if (context.combatantContext.combatant.combatantProperties.quickActions === 0) return true;
       return false;
     },

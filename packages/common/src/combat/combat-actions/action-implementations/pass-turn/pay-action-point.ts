@@ -16,7 +16,7 @@ const config: CombatActionComponentConfig = {
   getOnUseMessage: () => "",
   costProperties: {
     ...passTurnConfig.costProperties,
-    requiresCombatTurn: () => false,
+    requiresCombatTurnInThisContext: () => false,
     costBases: { [ActionPayableResource.ActionPoints]: { base: 1 } },
   },
   description: "Pay an action point",

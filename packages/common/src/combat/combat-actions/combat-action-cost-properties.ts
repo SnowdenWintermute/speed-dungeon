@@ -29,7 +29,8 @@ export interface CombatActionCostPropertiesConfig {
   ) => null | ActionResourceCosts;
   getCooldownTurns: (user: CombatantProperties, selectedActionLevel: number) => null | number;
   getConsumableCost: () => null | ConsumableType;
-  requiresCombatTurn: (context: ActionResolutionStepContext) => boolean;
+  getEndsTurnOnUse: (actionLevel: number) => boolean;
+  requiresCombatTurnInThisContext: (context: ActionResolutionStepContext) => boolean;
 }
 
 // in the constructor of the action we pass "this" to the getResourceCosts function in the config
@@ -52,7 +53,8 @@ export const genericCombatActionCostProperties: CombatActionCostPropertiesConfig
   getResourceCosts: (user, inCombat, selectedActionLevel, self) =>
     getStandardActionCost(user, inCombat, selectedActionLevel, self),
   getConsumableCost: () => null,
-  requiresCombatTurn: () => true,
+  getEndsTurnOnUse: () => true,
+  requiresCombatTurnInThisContext: () => true,
   getCooldownTurns: () => null,
 };
 
@@ -79,7 +81,7 @@ const genericSpellCostProperties: CombatActionCostPropertiesConfig = {
 const genericMedicationCostProperties: CombatActionCostPropertiesConfig = {
   ...genericCombatActionCostProperties,
   getResourceCosts: getStandardActionCost,
-  requiresCombatTurn: (context) => false,
+  requiresCombatTurnInThisContext: (context) => false,
 };
 
 export enum ActionCostPropertiesBaseTypes {

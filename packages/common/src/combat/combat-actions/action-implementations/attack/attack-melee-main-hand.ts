@@ -35,7 +35,7 @@ export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
     incursDurabilityLoss: {
       [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnHit },
     },
-    requiresCombatTurn: (context) => {
+    requiresCombatTurnInThisContext: (context) => {
       const user = context.combatantContext.combatant.combatantProperties;
 
       if (CombatantEquipment.isWearingUsableShield(user)) return true;
