@@ -7,6 +7,7 @@ import {
   CombatantClass,
   CombatantProperties,
   CombatantSpecies,
+  createArrayFilledWithSequentialNumbers,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { CombatActionResourceChangeProperties } from "@speed-dungeon/common";
@@ -62,6 +63,9 @@ export class ActionDescription {
 
     const resourceCosts = costProperties.getResourceCosts(user, true, actionLevel);
 
+    const critChanceOption = hitOutcomeProperties.getCritChance(user, actionLevel);
+    const critMultiplierOption = hitOutcomeProperties.getCritMultiplier(user, actionLevel);
+
     return {
       [ActionDescriptionComponent.TargetingSchemes]:
         targetingProperties.getTargetingSchemes(actionLevel),
@@ -82,18 +86,16 @@ export class ActionDescription {
         ? resourceCosts[ActionPayableResource.ActionPoints]
         : null,
       [ActionDescriptionComponent.Accuracy]: this.combatAction.getAccuracy(user, actionLevel),
-      [ActionDescriptionComponent.CritChance]: hitOutcomeProperties.getCritChance(
-        user,
-        actionLevel
-      ),
-      [ActionDescriptionComponent.CritMultiplier]: hitOutcomeProperties.getCritMultiplier(
-        user,
-        actionLevel
-      ),
-      [ActionDescriptionComponent.ArmorPenetration]: hitOutcomeProperties.getArmorPenetration(
-        user,
-        actionLevel,
-        this.combatAction.hitOutcomeProperties
+      [ActionDescriptionComponent.CritChance]:
+        critChanceOption !== null ? Math.floor(critChanceOption) : null,
+      [ActionDescriptionComponent.CritMultiplier]:
+        critMultiplierOption !== null ? Math.floor(critMultiplierOption * 100) : null,
+      [ActionDescriptionComponent.ArmorPenetration]: Math.floor(
+        hitOutcomeProperties.getArmorPenetration(
+          user,
+          actionLevel,
+          this.combatAction.hitOutcomeProperties
+        )
       ),
       [ActionDescriptionComponent.IsParryable]: hitOutcomeProperties.getIsParryable(
         user,

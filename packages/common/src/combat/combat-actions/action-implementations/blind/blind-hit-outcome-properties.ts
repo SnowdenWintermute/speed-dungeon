@@ -19,6 +19,9 @@ export const BLIND_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {
   },
   resourceChangePropertiesGetters: {},
 
+  getCritChance: () => null,
+  getCritMultiplier: () => null,
+
   getAppliedConditions: (combatantContext, idGenerator, actionLevel) => {
     const { combatant } = combatantContext;
 

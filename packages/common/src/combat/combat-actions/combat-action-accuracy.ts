@@ -15,3 +15,12 @@ export type ActionAccuracyUnavoidable = {
 };
 
 export type ActionAccuracy = ActionAccuracyPercentage | ActionAccuracyUnavoidable;
+
+export function formatActionAccuracy(actionAccuracy: ActionAccuracy): string {
+  switch (actionAccuracy.type) {
+    case ActionAccuracyType.Percentage:
+      return `${Math.floor(actionAccuracy.value)}%`;
+    case ActionAccuracyType.Unavoidable:
+      return `unavoidable`;
+  }
+}
