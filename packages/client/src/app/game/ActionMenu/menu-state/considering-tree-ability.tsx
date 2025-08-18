@@ -18,7 +18,9 @@ import {
 } from "@speed-dungeon/common";
 import createPageButtons from "./create-page-buttons";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { HOTKEYS } from "@/hotkeys";
+import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
+
+const allocateAbilityPointHotkey = HOTKEYS.MAIN_1;
 
 export class ConsideringCombatantAbilityMenuState implements ActionMenuState {
   [immerable] = true;
@@ -57,9 +59,8 @@ export class ConsideringCombatantAbilityMenuState implements ActionMenuState {
       () => (
         <div className="flex justify-between h-full w-full pr-2">
           <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
-            Allocate ability point
+            Allocate point ({letterFromKeyCode(allocateAbilityPointHotkey)})
           </div>
-          <div className="h-full flex items-center">+</div>
         </div>
       ),
       "keyname",
@@ -71,7 +72,7 @@ export class ConsideringCombatantAbilityMenuState implements ActionMenuState {
       }
     );
 
-    button.dedicatedKeys = [HOTKEYS.MAIN_1];
+    button.dedicatedKeys = [allocateAbilityPointHotkey];
 
     const isMainClassAbility = AbilityUtils.abilityAppearsInTree(
       abilityOption,
