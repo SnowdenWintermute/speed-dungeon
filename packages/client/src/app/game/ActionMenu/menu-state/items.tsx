@@ -46,6 +46,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   alwaysShowPageOne = false;
+  getCenterInfoDisplayOption = null;
   constructor(
     public type:
       | MenuStateType.InventoryItems

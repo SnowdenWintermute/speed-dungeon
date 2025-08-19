@@ -94,7 +94,7 @@ export const genericActionHitOutcomeProperties: CombatActionHitOutcomeProperties
   getCritMultiplier: (user) => BASE_CRIT_MULTIPLIER,
   getArmorPenetration: (user, self) => 0,
   resourceChangePropertiesGetters: {},
-  getAppliedConditions: (context) => [],
+  getAppliedConditions: (context) => null,
   getIsParryable: (user) => true,
   getIsBlockable: (user) => true,
   getCanTriggerCounterattack: (user) => true,

@@ -155,6 +155,10 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         (currentMenu.page - 1) * ACTION_MENU_PAGE_SIZE + ACTION_MENU_PAGE_SIZE
       );
 
+  const centerInfoDisplayOption = currentMenu.getCenterInfoDisplayOption
+    ? currentMenu.getCenterInfoDisplayOption()
+    : null;
+
   return (
     <section className={`flex flex-col justify-between `}>
       <CharacterFocusingButtons />
@@ -232,6 +236,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
           })}
           {selectedActionDisplay}
           {detailedItemDisplay}
+          {centerInfoDisplayOption || ""}
         </ul>
         {hoveredActionDisplay}
         {hoveredItemDisplay}

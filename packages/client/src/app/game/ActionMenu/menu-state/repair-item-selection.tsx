@@ -1,4 +1,4 @@
-import { ActionButtonCategory, ActionMenuButtonProperties, MenuStateType } from ".";
+import { ActionButtonCategory, MenuStateType } from ".";
 import { immerable } from "immer";
 import { ItemsMenuState } from "./items";
 import {

@@ -1,3 +1,4 @@
+import cloneDeep from "lodash.clonedeep";
 import { AbilityType } from "../../../../abilities/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { CombatantTraitType } from "../../../../combatants/index.js";
@@ -8,9 +9,11 @@ import {
   CombatActionName,
 } from "../../index.js";
 import { ATTACK_RANGED_MAIN_HAND } from "../attack/attack-ranged-main-hand.js";
+import { EXPLODING_ARROW_PROJECTILE } from "./exploding-arrow-projectile.js";
 
 const config: CombatActionComponentConfig = {
   ...ATTACK_RANGED_MAIN_HAND,
+  hitOutcomeProperties: cloneDeep(EXPLODING_ARROW_PROJECTILE.hitOutcomeProperties),
 
   prerequisiteAbilities: [
     { type: AbilityType.Action, actionName: CombatActionName.Fire },

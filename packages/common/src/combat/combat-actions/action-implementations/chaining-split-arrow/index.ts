@@ -28,12 +28,16 @@ import {
 import { ATTACK_RANGED_MAIN_HAND } from "../attack/attack-ranged-main-hand.js";
 import { SpawnableEntityType, getSpawnableEntityId } from "../../../../spawnables/index.js";
 import { EquipmentType } from "../../../../items/equipment/index.js";
+import { AbilityType } from "../../../../abilities/index.js";
 
 const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Bow);
 
 const config: CombatActionComponentConfig = {
   description: "Fire arrows which each bounce to up to two additional targets",
   origin: CombatActionOrigin.Attack,
+  prerequisiteAbilities: [
+    { type: AbilityType.Action, actionName: CombatActionName.ExplodingArrowParent },
+  ],
   targetingProperties: {
     ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
     getRequiredEquipmentTypeOptions: () => [EquipmentType.TwoHandedRangedWeapon],

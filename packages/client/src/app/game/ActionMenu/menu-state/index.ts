@@ -1,5 +1,4 @@
 import { FocusEventHandler, MouseEventHandler, ReactNode } from "react";
-import { ACTION_MENU_PAGE_SIZE } from "..";
 
 export enum MenuStateType {
   Base,
@@ -65,6 +64,7 @@ export abstract class ActionMenuState {
     public numPages: number
   ) {}
   abstract getButtonProperties(): ActionButtonsByCategory;
+  abstract getCenterInfoDisplayOption: null | (() => ReactNode);
 }
 
 export class ActionMenuButtonProperties {

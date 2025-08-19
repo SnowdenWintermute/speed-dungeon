@@ -30,6 +30,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
   numPages: number = 1;
   type = MenuStateType.CombatActionSelected;
   alwaysShowPageOne = false;
+  getCenterInfoDisplayOption = null;
   constructor(public combatActionName: CombatActionName) {}
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();

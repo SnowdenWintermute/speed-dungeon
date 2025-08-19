@@ -21,6 +21,7 @@ export class AbilityTreeMenuState implements ActionMenuState {
   numPages: number = 1;
   type = MenuStateType.ViewingAbilityTree;
   alwaysShowPageOne = false;
+  getCenterInfoDisplayOption = null;
   getButtonProperties() {
     const toReturn = new ActionButtonsByCategory();
     toReturn[ActionButtonCategory.Top].push(

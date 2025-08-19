@@ -33,6 +33,7 @@ export class PurchaseItemsMenuState implements ActionMenuState {
   numPages: number = 1;
   type = MenuStateType.PurchasingItems;
   alwaysShowPageOne = false;
+  getCenterInfoDisplayOption = null;
   constructor() {}
 
   getButtonProperties(): ActionButtonsByCategory {

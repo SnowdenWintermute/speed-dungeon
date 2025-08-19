@@ -47,6 +47,8 @@ export class BaseMenuState implements ActionMenuState {
   numPages: number = 1;
   type = MenuStateType.Base;
   alwaysShowPageOne = false;
+
+  getCenterInfoDisplayOption = null;
   [immerable] = true;
   constructor(public inCombat: boolean) {}
 

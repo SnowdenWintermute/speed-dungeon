@@ -28,6 +28,7 @@ export class ConsideringAbilityTreeColumnMenuState implements ActionMenuState {
   numPages: number = 5;
   type = MenuStateType.ConsideringAbilityTreeColumn;
 
+  getCenterInfoDisplayOption = null;
   alwaysShowPageOne = false;
   constructor(public readonly columnNumber: number) {
     this.numPages = 5;

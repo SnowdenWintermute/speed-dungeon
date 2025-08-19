@@ -25,6 +25,7 @@ export class AssigningAttributePointsMenuState implements ActionMenuState {
   numPages: number = 1;
   type = MenuStateType.AssignAttributePoints;
   alwaysShowPageOne = false;
+  getCenterInfoDisplayOption = null;
   constructor() {}
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();

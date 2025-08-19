@@ -51,13 +51,13 @@ export default function CharacterClassAbilityTree({
               className={`${shouldHighlight ? "bg-slate-800 " : ""} w-24 h-full`}
             >
               {column.map((ability, rowIndex) => {
-                let highlightedStyle = "";
-                if (
+                const isDetailed =
                   detailedAbilityOption !== null &&
                   ability !== undefined &&
-                  AbilityUtils.abilitiesAreEqual(detailedAbilityOption, ability)
-                )
-                  highlightedStyle = "bg-slate-800";
+                  AbilityUtils.abilitiesAreEqual(detailedAbilityOption, ability);
+
+                let highlightedStyle = "";
+                if (isDetailed) highlightedStyle = "bg-slate-800";
 
                 return (
                   <div key={columnIndex + rowIndex} className={`h-24 w-full ${highlightedStyle}`} />
@@ -86,6 +86,11 @@ export default function CharacterClassAbilityTree({
                     isSupportClass
                   );
 
+                  const isDetailed =
+                    detailedAbilityOption !== null &&
+                    ability !== undefined &&
+                    AbilityUtils.abilitiesAreEqual(detailedAbilityOption, ability);
+
                   cellContent = (
                     <div
                       ref={(element) => {
@@ -105,6 +110,7 @@ export default function CharacterClassAbilityTree({
                         )}
                         buttonContent={buttonContent}
                         isAllocatable={isAllocatable.canAllocate}
+                        isDetailed={isDetailed}
                       />
                     </div>
                   );

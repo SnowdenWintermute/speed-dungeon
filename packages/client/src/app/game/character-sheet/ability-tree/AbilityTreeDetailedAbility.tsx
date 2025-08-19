@@ -2,12 +2,12 @@ import Divider from "@/app/components/atoms/Divider";
 import { useGameStore } from "@/stores/game-store";
 import {
   AbilityType,
+  COMBATANT_CONDITION_NAME_STRINGS,
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
   CombatActionResourceChangeProperties,
-  CombatantProperties,
+  Combatant,
   EQUIPMENT_TYPE_STRINGS,
   HOLDABLE_SLOT_STRINGS,
-  ResourceChange,
   TARGETING_SCHEME_STRINGS,
   TARGET_CATEGORY_STRINGS,
   createArrayFilledWithSequentialNumbers,
@@ -19,7 +19,7 @@ import { ActionDescription, ActionDescriptionComponent } from "./ability-descrip
 import { formatActionAccuracy } from "@speed-dungeon/common/src/combat/combat-actions/combat-action-accuracy";
 import DamageTypeBadge from "../../detailables/DamageTypeBadge";
 
-export default function AbilityTreeDetailedAbility({ user }: { user: CombatantProperties }) {
+export default function AbilityTreeDetailedAbility({ user }: { user: Combatant }) {
   const detailedAbility = useGameStore().detailedCombatantAbility;
   const hoveredCombatantAbility = useGameStore().hoveredCombatantAbility;
   const ability = hoveredCombatantAbility || detailedAbility || null;
@@ -52,7 +52,7 @@ function ActionDescriptionDisplay({
   user,
 }: {
   description: ActionDescription;
-  user: CombatantProperties;
+  user: Combatant;
 }) {
   const descriptions = [];
   let prevDescription = {};
@@ -70,11 +70,6 @@ function ActionDescriptionDisplay({
 
   return (
     <div>
-      <div>{description.getSummary()}</div>
-      <div>Usable {COMBAT_ACTION_USABLITY_CONTEXT_STRINGS[description.getUsabilityContext()]}</div>
-
-      <Divider />
-
       {descriptions.map((description, index) => {
         const cooldownOption = description[ActionDescriptionComponent.Cooldown];
         const requiresTurnOption = description[ActionDescriptionComponent.RequiresTurn];
@@ -87,6 +82,9 @@ function ActionDescriptionDisplay({
 
         const addsHotswapPropertiesOption =
           description[ActionDescriptionComponent.AddsPropertiesFromHoldableSlot];
+
+        const appliedConditionsOption =
+          description[ActionDescriptionComponent.AppliesConditions] || null;
 
         const useableWithEquipmentTypesOption =
           description[ActionDescriptionComponent.UsableWithEquipmentTypes];
@@ -124,11 +122,14 @@ function ActionDescriptionDisplay({
               </div>
             )}
             {typeof actionPointCostOption === "number" && (
-              <div>{Math.abs(actionPointCostOption)} action points</div>
+              <div>
+                Uses {Math.abs(actionPointCostOption)} action point
+                {Math.abs(actionPointCostOption) > 1 ? "s" : ""}
+              </div>
             )}
 
             {typeof description[ActionDescriptionComponent.ManaCost] === "number" && (
-              <div>{Math.abs(description[ActionDescriptionComponent.ManaCost])} mana</div>
+              <div>Costs {Math.abs(description[ActionDescriptionComponent.ManaCost])} mana</div>
             )}
             {typeof description[ActionDescriptionComponent.HitPointCost] === "number" && (
               <div>{Math.abs(description[ActionDescriptionComponent.HitPointCost])} hit points</div>
@@ -167,7 +168,15 @@ function ActionDescriptionDisplay({
                 Adds properties from {HOLDABLE_SLOT_STRINGS[addsHotswapPropertiesOption]} equipment
               </div>
             )}
-            {!!useableWithEquipmentTypesOption?.length && <div>Requires {useableWithEquipmentTypesOption.map((item) => EQUIPMENT_TYPE_STRINGS[item]).join(", ").toLowerCase()}</div>}
+            {!!useableWithEquipmentTypesOption?.length && (
+              <div>
+                Requires{" "}
+                {useableWithEquipmentTypesOption
+                  .map((item) => EQUIPMENT_TYPE_STRINGS[item])
+                  .join(", ")
+                  .toLowerCase()}
+              </div>
+            )}
             {resourceChangePropertiesOption && (
               <ul className="mt-1">
                 {resourceChangePropertiesOption
@@ -179,6 +188,18 @@ function ActionDescriptionDisplay({
                     />
                   ))}
               </ul>
+            )}
+            {appliedConditionsOption && (
+              <div>
+                Applies{" "}
+                {appliedConditionsOption.map((condition) => (
+                  <span key={condition.conditionName}>
+                    {condition.stacks > 1 && `${condition.stacks} stacks of `}
+                    {COMBATANT_CONDITION_NAME_STRINGS[condition.conditionName]} rank{" "}
+                    {condition.level}
+                  </span>
+                ))}
+              </div>
             )}
           </div>
         );

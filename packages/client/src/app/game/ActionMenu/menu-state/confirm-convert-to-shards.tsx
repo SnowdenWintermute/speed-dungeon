@@ -22,6 +22,7 @@ export class ConfirmConvertToShardsMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
 
+  getCenterInfoDisplayOption = null;
   alwaysShowPageOne = false;
   constructor(
     public item: Item,
