@@ -40,7 +40,7 @@ export default function AbilitySelection() {
   return (
     <div
       style={{ width: `calc(100% + 2px)` }}
-      className="flex border border-slate-400 bg-slate-700 p-4 absolute top-[-1px] left-0 h-fit ml-[-1px]"
+      className="flex border border-slate-400 bg-slate-700 p-4 absolute top-[-1px] left-0 h-fit ml-[-1px] max-h-[700px]"
     >
       <HoverableTooltipWrapper tooltipText="Unspent ability points">
         <div className="h-5 fill-slate-400 absolute flex items-center">

@@ -18,10 +18,12 @@ import { PrimedForIceBurstCombatantCondition } from "../../../../combatants/comb
 import cloneDeep from "lodash.clonedeep";
 import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
 
+const spellLevelHpChangeValueModifier = 0.75;
+
 export const iceBoltProjectileHitOutcomeProperties: CombatActionHitOutcomeProperties = {
   ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Ranged],
   resourceChangePropertiesGetters: {
-    [CombatActionResource.HitPoints]: (user, primaryTarget) => {
+    [CombatActionResource.HitPoints]: (user, actionLevel, primaryTarget) => {
       const hpChangeSourceConfig: ResourceChangeSourceConfig = {
         category: ResourceChangeSourceCategory.Magical,
         kineticDamageTypeOption: null,
@@ -34,6 +36,9 @@ export const iceBoltProjectileHitOutcomeProperties: CombatActionHitOutcomeProper
 
       // just get some extra damage for combatant level
       baseValues.add(user.level - 1);
+
+      baseValues.mult(1 + spellLevelHpChangeValueModifier * (actionLevel - 1));
+
       // get greater benefits from a certain attribute the higher level a combatant is
       addCombatantLevelScaledAttributeToRange({
         range: baseValues,

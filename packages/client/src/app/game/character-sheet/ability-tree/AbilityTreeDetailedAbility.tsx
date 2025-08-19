@@ -3,7 +3,9 @@ import { useGameStore } from "@/stores/game-store";
 import {
   AbilityType,
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
+  CombatActionResourceChangeProperties,
   CombatantProperties,
+  ResourceChange,
   TARGETING_SCHEME_STRINGS,
   TARGET_CATEGORY_STRINGS,
   createArrayFilledWithSequentialNumbers,
@@ -13,6 +15,7 @@ import React from "react";
 import { COMBAT_ACTION_DESCRIPTIONS } from "./ability-descriptions";
 import { ActionDescription, ActionDescriptionComponent } from "./ability-description";
 import { formatActionAccuracy } from "@speed-dungeon/common/src/combat/combat-actions/combat-action-accuracy";
+import DamageTypeBadge from "../../detailables/DamageTypeBadge";
 
 export default function AbilityTreeDetailedAbility({ user }: { user: CombatantProperties }) {
   const detailedAbility = useGameStore().detailedCombatantAbility;
@@ -32,10 +35,12 @@ export default function AbilityTreeDetailedAbility({ user }: { user: CombatantPr
     descriptionDisplay = <ActionDescriptionDisplay description={description} user={user} />;
 
   return (
-    <div>
-      <h3 className="text-lg">{abilityNameString}</h3>
-      <Divider />
-      <div>{descriptionDisplay}</div>
+    <div className="max-h-full flex flex-col">
+      <div className="flex-grow-0 flex-shrink">
+        <h3 className="text-lg">{abilityNameString}</h3>
+        <Divider />
+      </div>
+      <div className="overflow-y-auto flex-1">{descriptionDisplay}</div>
     </div>
   );
 }
@@ -72,6 +77,26 @@ function ActionDescriptionDisplay({
         const cooldownOption = description[ActionDescriptionComponent.Cooldown];
         const requiresTurnOption = description[ActionDescriptionComponent.RequiresTurn];
         const actionPointCostOption = description[ActionDescriptionComponent.ActionPointCost];
+        const canBeBlocked = description[ActionDescriptionComponent.IsBlockable];
+        const canBeCountered = description[ActionDescriptionComponent.IsCounterable];
+        const canBeParried = description[ActionDescriptionComponent.IsParryable];
+        const resourceChangePropertiesOption =
+          description[ActionDescriptionComponent.ResourceChanges];
+
+        const allowedMitigations = [];
+        const prohibitedMitigations = [];
+        if (typeof canBeBlocked === "boolean") {
+          if (canBeBlocked) allowedMitigations.push("blocked");
+          else prohibitedMitigations.push("blocked");
+        }
+        if (typeof canBeParried === "boolean") {
+          if (canBeParried) allowedMitigations.push("parried");
+          else prohibitedMitigations.push("parried");
+        }
+        if (typeof canBeCountered === "boolean") {
+          if (canBeCountered) allowedMitigations.push("countered");
+          else prohibitedMitigations.push("countered");
+        }
 
         return (
           <div key={"description-" + index} className="mb-2">
@@ -117,14 +142,49 @@ function ActionDescriptionDisplay({
               </div>
             )}
             {typeof description[ActionDescriptionComponent.CritChance] === "number" && (
-              <div>Crit chance: {description[ActionDescriptionComponent.CritChance]}%</div>
+              <div>
+                Crit chance / multiplier: {description[ActionDescriptionComponent.CritChance]}%
+                <span> / </span>
+                {description[ActionDescriptionComponent.CritMultiplier]}%
+              </div>
             )}
-            {typeof description[ActionDescriptionComponent.CritMultiplier] === "number" && (
-              <div>Crit multiplier: {description[ActionDescriptionComponent.CritMultiplier]}%</div>
+            {allowedMitigations.length ? <div>Can be {allowedMitigations.join(", ")}</div> : ""}
+            {prohibitedMitigations.length ? (
+              <div>Can NOT be {prohibitedMitigations.join(", ")}</div>
+            ) : (
+              ""
+            )}
+            {resourceChangePropertiesOption && (
+              <ul className="mt-1">
+                {resourceChangePropertiesOption
+                  .filter((item) => item.changeProperties !== null)
+                  .map((item, i) => (
+                    <ResourceChangeDisplay
+                      key={i}
+                      resourceChangeProperties={item.changeProperties!}
+                    />
+                  ))}
+              </ul>
             )}
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function ResourceChangeDisplay({
+  resourceChangeProperties,
+}: {
+  resourceChangeProperties: CombatActionResourceChangeProperties;
+}) {
+  return (
+    <div className="flex">
+      <span className="mr-1">{`${resourceChangeProperties.baseValues.min}-${resourceChangeProperties.baseValues.max}`}</span>
+      <DamageTypeBadge hpChangeSource={resourceChangeProperties.resourceChangeSource} />
+      <span className="ml-1">
+        {resourceChangeProperties.resourceChangeSource.isHealing ? "healing" : "damage"}
+      </span>
     </div>
   );
 }

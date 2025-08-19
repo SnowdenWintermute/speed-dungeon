@@ -3,14 +3,11 @@ import {
   ActionPayableResource,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponent,
-  CombatActionResource,
   CombatantClass,
   CombatantProperties,
   CombatantSpecies,
-  createArrayFilledWithSequentialNumbers,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import { CombatActionResourceChangeProperties } from "@speed-dungeon/common";
 import isEqual from "lodash.isequal";
 
 export const TARGET_DUMMY_COMBATANT = new CombatantProperties(
@@ -65,6 +62,8 @@ export class ActionDescription {
 
     const critChanceOption = hitOutcomeProperties.getCritChance(user, actionLevel);
     const critMultiplierOption = hitOutcomeProperties.getCritMultiplier(user, actionLevel);
+
+    // const addsPropertiesFromHoldableSlot = hitOutcomeProperties.addsPropertiesFromHoldableSlot
 
     return {
       [ActionDescriptionComponent.TargetingSchemes]:

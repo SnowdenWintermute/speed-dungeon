@@ -55,15 +55,21 @@ export class ConsideringAbilityTreeColumnMenuState implements ActionMenuState {
       const subjobTreeColumn = subjobTree.columns[columnIndex] || [];
       const withSubjobAbilities = [...column, ...subjobTreeColumn.slice(0, 2)];
 
+      let numAbilitiesPushed = -1;
       withSubjobAbilities.forEach((ability, rowIndex) => {
         let nameAsString = undefined;
         let iconOption: ReactNode = <div />;
         if (ability !== undefined) {
           if (ability.type === AbilityType.Action) {
             nameAsString = COMBAT_ACTION_NAME_STRINGS[ability.actionName];
-          } else nameAsString = COMBATANT_TRAIT_DESCRIPTIONS[ability.traitType].name;
+          } else {
+            nameAsString = COMBATANT_TRAIT_DESCRIPTIONS[ability.traitType].name;
+          }
           iconOption = getAbilityIcon(ability, focusedCharacterResult.combatantProperties);
+          numAbilitiesPushed += 1;
         }
+
+        const index = numAbilitiesPushed;
 
         const button = new ActionMenuButtonProperties(
           () => (
@@ -82,7 +88,7 @@ export class ConsideringAbilityTreeColumnMenuState implements ActionMenuState {
                 state.stackedMenuStates.push(
                   new ConsideringCombatantAbilityMenuState(
                     withSubjobAbilities.filter((item) => item !== undefined),
-                    rowIndex
+                    index
                   )
                 );
             });
