@@ -20,15 +20,18 @@ import { immerable } from "immer";
 export class PrimedForExplosionCombatantCondition implements CombatantCondition {
   [immerable] = true;
   name = CombatantConditionName.PrimedForExplosion;
-  stacksOption = new MaxAndCurrent(10, 1);
   intent = CombatActionIntent.Malicious;
+  stacksOption = new MaxAndCurrent(10, 1);
   removedOnDeath: boolean = true;
   ticks?: MaxAndCurrent | undefined;
   constructor(
     public id: EntityId,
     public appliedBy: ConditionAppliedBy,
-    public level: number
-  ) {}
+    public level: number,
+    stacksOption: null | MaxAndCurrent
+  ) {
+    if (stacksOption) this.stacksOption = stacksOption;
+  }
 
   triggeredWhenHitBy(actionName: CombatActionName) {
     const actionsThatTrigger = [

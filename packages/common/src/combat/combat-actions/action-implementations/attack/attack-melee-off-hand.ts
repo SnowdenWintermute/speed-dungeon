@@ -55,8 +55,7 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
         user,
         actionLevel,
         primaryTarget,
-        CombatAttribute.Strength,
-        HoldableSlotType.OffHand
+        CombatAttribute.Strength
       );
       if (hpChangeProperties instanceof Error) return hpChangeProperties;
 

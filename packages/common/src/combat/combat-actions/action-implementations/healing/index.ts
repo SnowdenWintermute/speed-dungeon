@@ -38,7 +38,7 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
 };
 
 const config: CombatActionComponentConfig = {
-  description: "Restore hit points",
+  description: "Restore hit points or damage undead",
   origin: CombatActionOrigin.SpellCast,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
   getOnUseMessage: (data) =>

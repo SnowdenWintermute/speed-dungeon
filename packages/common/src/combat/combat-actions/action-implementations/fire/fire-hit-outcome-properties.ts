@@ -18,6 +18,7 @@ import {
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
 import { CombatActionName } from "../../combat-action-names.js";
+import { CombatantConditionName } from "../../../../combatants/index.js";
 
 const spellLevelHpChangeValueModifier = 0.5;
 
@@ -58,18 +59,14 @@ export const FIRE_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {
     },
   },
 
-  getAppliedConditions: (combatantContext, idGenerator, actionLevel) => {
-    const { combatant } = combatantContext;
-
-    const condition = new BurningCombatantCondition(
-      idGenerator.generate(),
+  getAppliedConditions: (user, actionLevel) => {
+    return [
       {
-        entityProperties: cloneDeep(combatant.entityProperties),
-        friendOrFoe: FriendOrFoe.Hostile,
+        conditionName: CombatantConditionName.Burning,
+        level: actionLevel,
+        stacks: actionLevel * 3,
+        appliedBy: { entityProperties: user.entityProperties, friendOrFoe: FriendOrFoe.Hostile },
       },
-      actionLevel
-    );
-
-    return [condition];
+    ];
   },
 };

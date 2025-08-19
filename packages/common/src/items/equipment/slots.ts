@@ -43,8 +43,8 @@ export const WEARABLE_SLOT_STRINGS: Record<WearableSlotType, string> = {
 };
 
 export const HOLDABLE_SLOT_STRINGS: Record<HoldableSlotType, string> = {
-  [HoldableSlotType.MainHand]: "MainHand",
-  [HoldableSlotType.OffHand]: "OffHand",
+  [HoldableSlotType.MainHand]: "main hand",
+  [HoldableSlotType.OffHand]: "offhand",
 };
 
 export interface EquipableSlots {

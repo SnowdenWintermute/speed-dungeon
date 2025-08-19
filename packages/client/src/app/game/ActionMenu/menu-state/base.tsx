@@ -165,7 +165,8 @@ export class BaseMenuState implements ActionMenuState {
 
       const isWearingRequiredEquipment = CombatantProperties.isWearingRequiredEquipmentToUseAction(
         combatantProperties,
-        combatAction.name
+        combatAction.name,
+        1
       );
 
       const isOnCooldown = (actionState.cooldown?.current || 0) > 0;

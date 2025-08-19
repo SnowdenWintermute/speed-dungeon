@@ -17,6 +17,7 @@ import { CombatActionResourceChangeProperties } from "../../combat-action-resour
 import { PrimedForIceBurstCombatantCondition } from "../../../../combatants/combatant-conditions/primed-for-ice-burst.js";
 import cloneDeep from "lodash.clonedeep";
 import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
+import { CombatantConditionName } from "../../../../combatants/index.js";
 
 const spellLevelHpChangeValueModifier = 0.75;
 
@@ -59,18 +60,14 @@ export const iceBoltProjectileHitOutcomeProperties: CombatActionHitOutcomeProper
     },
   },
 
-  getAppliedConditions: (combatantContext, idGenerator, actionLevel) => {
-    const { combatant } = combatantContext;
-
-    const condition = new PrimedForIceBurstCombatantCondition(
-      idGenerator.generate(),
+  getAppliedConditions: (user, actionLevel) => {
+    return [
       {
-        entityProperties: cloneDeep(combatant.entityProperties),
-        friendOrFoe: FriendOrFoe.Hostile,
+        conditionName: CombatantConditionName.PrimedForIceBurst,
+        level: actionLevel,
+        stacks: 1,
+        appliedBy: { entityProperties: user.entityProperties, friendOrFoe: FriendOrFoe.Hostile },
       },
-      combatant.combatantProperties.level
-    );
-
-    return [condition];
+    ];
   },
 };

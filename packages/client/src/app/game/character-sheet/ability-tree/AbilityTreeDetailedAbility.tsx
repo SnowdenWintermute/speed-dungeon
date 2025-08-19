@@ -5,6 +5,8 @@ import {
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
   CombatActionResourceChangeProperties,
   CombatantProperties,
+  EQUIPMENT_TYPE_STRINGS,
+  HOLDABLE_SLOT_STRINGS,
   ResourceChange,
   TARGETING_SCHEME_STRINGS,
   TARGET_CATEGORY_STRINGS,
@@ -83,6 +85,12 @@ function ActionDescriptionDisplay({
         const resourceChangePropertiesOption =
           description[ActionDescriptionComponent.ResourceChanges];
 
+        const addsHotswapPropertiesOption =
+          description[ActionDescriptionComponent.AddsPropertiesFromHoldableSlot];
+
+        const useableWithEquipmentTypesOption =
+          description[ActionDescriptionComponent.UsableWithEquipmentTypes];
+
         const allowedMitigations = [];
         const prohibitedMitigations = [];
         if (typeof canBeBlocked === "boolean") {
@@ -154,6 +162,12 @@ function ActionDescriptionDisplay({
             ) : (
               ""
             )}
+            {typeof addsHotswapPropertiesOption === "number" && (
+              <div>
+                Adds properties from {HOLDABLE_SLOT_STRINGS[addsHotswapPropertiesOption]} equipment
+              </div>
+            )}
+            {!!useableWithEquipmentTypesOption?.length && <div>Requires {useableWithEquipmentTypesOption.map((item) => EQUIPMENT_TYPE_STRINGS[item]).join(", ").toLowerCase()}</div>}
             {resourceChangePropertiesOption && (
               <ul className="mt-1">
                 {resourceChangePropertiesOption

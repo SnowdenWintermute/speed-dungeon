@@ -58,7 +58,6 @@ export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
     addsPropertiesFromHoldableSlot: HoldableSlotType.MainHand,
   },
   stepsConfig: getMeleeAttackBaseStepsConfig(HoldableSlotType.MainHand),
-
   shouldExecute: () => true,
   getChildren: () => [],
   getParent: () => ATTACK,

@@ -1,12 +1,16 @@
 import { ActionResolutionStepContext } from "../../action-processing/index.js";
 import { BASE_CRIT_CHANCE, BASE_CRIT_MULTIPLIER } from "../../app-consts.js";
-import { CombatantContext } from "../../combatant-context/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
-import { CombatantCondition, CombatantProperties, ThreatType } from "../../combatants/index.js";
+import {
+  Combatant,
+  CombatantConditionName,
+  CombatantProperties,
+  ConditionAppliedBy,
+  ThreatType,
+} from "../../combatants/index.js";
 import { getStandardThreatChangesOnHitOutcomes } from "../../combatants/threat-manager/get-standard-threat-changes-on-hit-outcomes.js";
 import { HoldableSlotType } from "../../items/equipment/slots.js";
 import { NormalizedPercentage, Percentage } from "../../primatives/index.js";
-import { IdGenerator } from "../../utility-classes/index.js";
 import { CombatActionHitOutcomes, ThreatChanges } from "../action-results/index.js";
 import {
   getStandardActionArmorPenetration,
@@ -53,10 +57,16 @@ export interface CombatActionHitOutcomeProperties {
   getIsBlockable: (user: CombatantProperties, actionLevel: number) => boolean;
   getCanTriggerCounterattack: (user: CombatantProperties, actionLevel: number) => boolean;
   getAppliedConditions: (
-    context: CombatantContext,
-    idGenerator: IdGenerator,
+    user: Combatant,
     actionLevel: number
-  ) => null | CombatantCondition[];
+  ) =>
+    | null
+    | {
+        conditionName: CombatantConditionName;
+        level: number;
+        stacks: number;
+        appliedBy: ConditionAppliedBy;
+      }[];
   getShouldAnimateTargetHitRecovery: () => boolean;
   getThreatChangesOnHitOutcomes: (
     context: ActionResolutionStepContext,
@@ -103,6 +113,7 @@ export const genericActionHitOutcomeProperties: CombatActionHitOutcomeProperties
 
 const genericRangedHitOutcomeProperties: CombatActionHitOutcomeProperties = {
   ...genericActionHitOutcomeProperties,
+  addsPropertiesFromHoldableSlot: HoldableSlotType.MainHand,
   accuracyModifier: 0.9,
   getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
     const userCombatAttributes = CombatantProperties.getTotalAttributes(user);
@@ -150,14 +161,23 @@ const genericMeleeHitOutcomeProperties: CombatActionHitOutcomeProperties = {
         user,
         actionLevel,
         primaryTarget,
-        CombatAttribute.Strength,
-        HoldableSlotType.MainHand
+        CombatAttribute.Strength
       );
 
       return hpChangeProperties;
     },
   },
-  getAppliedConditions: function (user): CombatantCondition[] | null {
+  getAppliedConditions: function (
+    user,
+    actionLevel
+  ):
+    | {
+        conditionName: CombatantConditionName;
+        level: number;
+        stacks: number;
+        appliedBy: ConditionAppliedBy;
+      }[]
+    | null {
     // apply conditions from weapons
     // ex: could make a "poison blade" item
     return null;

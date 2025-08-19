@@ -29,6 +29,7 @@ import {
   COMBATANT_CONDITION_CONSTRUCTORS,
   COMBATANT_CONDITION_NAME_STRINGS,
   CombatantCondition,
+  MAX_CONDITION_STACKS,
 } from "../../../combatants/combatant-conditions/index.js";
 import { addConditionToUpdate } from "./add-condition-to-update.js";
 import {
@@ -36,6 +37,7 @@ import {
   addRemovedConditionStacksToUpdate,
 } from "./add-triggered-condition-to-update.js";
 import { CombatActionResource } from "../../../combat/combat-actions/combat-action-hit-outcome-properties.js";
+import { MaxAndCurrent } from "../../../primatives/max-and-current.js";
 
 const stepType = ActionResolutionStepType.EvalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
@@ -192,13 +194,21 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           }
 
           const conditionsToApply = action.hitOutcomeProperties.getAppliedConditions(
-            context.combatantContext,
-            context.idGenerator,
+            context.combatantContext.combatant,
             context.tracker.actionExecutionIntent.level
           );
 
           if (conditionsToApply) {
-            for (const condition of conditionsToApply) {
+            for (const conditionProperties of conditionsToApply) {
+              const condition = new COMBATANT_CONDITION_CONSTRUCTORS[
+                conditionProperties.conditionName
+              ](
+                context.idGenerator.generate(),
+                conditionProperties.appliedBy,
+                conditionProperties.conditionName,
+                new MaxAndCurrent(MAX_CONDITION_STACKS, conditionProperties.stacks)
+              );
+
               CombatantCondition.applyToCombatant(condition, targetCombatant, battleOption, party);
 
               addConditionToUpdate(
