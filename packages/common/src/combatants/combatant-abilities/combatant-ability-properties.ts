@@ -2,7 +2,12 @@ import { AbilityTreeAbility, AbilityType, AbilityUtils } from "../../abilities/i
 import { CombatActionName } from "../../combat/combat-actions/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { CombatantTraitProperties } from "../combatant-traits/combatant-trait-properties.js";
-import { ABILITY_TREES, CombatantClass, CombatantProperties } from "../index.js";
+import {
+  ABILITY_TREES,
+  COMBATANT_TRAIT_DESCRIPTIONS,
+  CombatantClass,
+  CombatantProperties,
+} from "../index.js";
 import { CombatantActionState } from "../owned-actions/combatant-action-state.js";
 
 export class CombatantAbilityProperties {
@@ -88,6 +93,15 @@ export class CombatantAbilityProperties {
     ability: AbilityTreeAbility,
     isSupportClass: boolean
   ): { canAllocate: boolean; reasonCanNot?: string } {
+    if (
+      ability.type === AbilityType.Trait &&
+      !COMBATANT_TRAIT_DESCRIPTIONS[ability.traitType].isAllocatable
+    ) {
+      return {
+        canAllocate: false,
+        reasonCanNot: "That trait is inherent to the combatant and can not be allocated to",
+      };
+    }
     // has unspent points
     if (combatantProperties.abilityProperties.unspentAbilityPoints <= 0)
       return { canAllocate: false, reasonCanNot: "No unspent ability points" };

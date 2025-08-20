@@ -35,9 +35,7 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
 
 const config: CombatActionComponentConfig = {
   description: "Reduce the accuracy of targets",
-  prerequisiteAbilities: [
-    { type: AbilityType.Trait, traitType: CombatantTraitType.ExtraHotswapSlot },
-  ],
+  prerequisiteAbilities: [],
   origin: CombatActionOrigin.SpellCast,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
   getOnUseMessage: (data) =>

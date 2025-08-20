@@ -2,13 +2,14 @@ import { AbilityUtils } from "../../abilities/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { CombatantClass } from "../combatant-class/index.js";
 import { AbilityTree } from "./ability-tree.js";
+import { setUpMageAbilityTree } from "./mage-ability-tree.js";
 import { setUpRogueAbilityTree } from "./rogue-ability-tree.js";
 import { setUpWarriorAbilityTree } from "./warrior-ability-tree.js";
 
 function setUpAbilityTrees() {
   return {
     [CombatantClass.Warrior]: setUpWarriorAbilityTree(),
-    [CombatantClass.Mage]: new AbilityTree(),
+    [CombatantClass.Mage]: setUpMageAbilityTree(),
     [CombatantClass.Rogue]: setUpRogueAbilityTree(),
   };
 }

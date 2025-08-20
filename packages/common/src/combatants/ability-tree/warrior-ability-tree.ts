@@ -16,5 +16,9 @@ export function setUpWarriorAbilityTree() {
     type: AbilityType.Action,
     actionName: CombatActionName.ChainingSplitArrowParent,
   });
+  tree.assign(4, 0, {
+    type: AbilityType.Trait,
+    traitType: CombatantTraitType.HpBioavailability,
+  });
   return tree;
 }

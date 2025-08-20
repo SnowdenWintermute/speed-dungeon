@@ -34,8 +34,9 @@ export default function CharacterClassAbilityTree({
 
   const { combatantProperties } = focusedCharacterOption;
 
+  // @PERF - the way we draw arrows might be worth revisiting
   return (
-    <div className="relative h-fit">
+    <div className="relative h-fit" key={focusedCharacterOption.entityProperties.id}>
       <PrerequisiteArrows cellRefs={cellRefs} />
       <div
         className="absolute flex w-fit -right-2 -top-2 opacity-50 z-0"
@@ -76,9 +77,13 @@ export default function CharacterClassAbilityTree({
                 if (ability !== undefined) {
                   const abilityIconOption = getAbilityIcon(ability);
                   const abilityName = getAbilityTreeAbilityNameString(ability);
-                  const buttonContent = abilityIconOption
-                    ? abilityIconOption("h-full p-2 fill-slate-400 stroke-slate-400")
-                    : abilityName;
+                  const buttonContent = abilityIconOption ? (
+                    abilityIconOption("h-full p-2 fill-slate-400 stroke-slate-400")
+                  ) : (
+                    <div className="text-wrap text-center max-w-full overflow-hidden text-ellipsis p-1">
+                      {abilityName}
+                    </div>
+                  );
 
                   const isAllocatable = CombatantAbilityProperties.canAllocateAbilityPoint(
                     combatantProperties,

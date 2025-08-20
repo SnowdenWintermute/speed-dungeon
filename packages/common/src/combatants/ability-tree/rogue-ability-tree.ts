@@ -13,5 +13,13 @@ export function setUpRogueAbilityTree() {
     type: AbilityType.Action,
     actionName: CombatActionName.Healing,
   });
+  tree.assign(4, 0, {
+    type: AbilityType.Trait,
+    traitType: CombatantTraitType.HpBioavailability,
+  });
+  tree.assign(3, 0, {
+    type: AbilityType.Trait,
+    traitType: CombatantTraitType.MpBioavailability,
+  });
   return tree;
 }
