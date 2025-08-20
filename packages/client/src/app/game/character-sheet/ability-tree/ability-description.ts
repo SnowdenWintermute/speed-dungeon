@@ -1,5 +1,8 @@
 import { Vector3 } from "@babylonjs/core";
 import {
+  ABILITY_CLASS_AND_LEVEL_REQUIREMENTS,
+  AbilityTreeAbility,
+  AbilityType,
   ActionPayableResource,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponent,
@@ -9,6 +12,7 @@ import {
   CombatantSpecies,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
+import cloneDeep from "lodash.clonedeep";
 import isEqual from "lodash.isequal";
 
 export const TARGET_DUMMY_COMBATANT = new CombatantProperties(
@@ -44,7 +48,10 @@ export enum ActionDescriptionComponent {
 }
 
 export class ActionDescription {
-  constructor(private combatAction: CombatActionComponent) {}
+  public ability: AbilityTreeAbility;
+  constructor(private combatAction: CombatActionComponent) {
+    this.ability = { type: AbilityType.Action, actionName: this.combatAction.name };
+  }
 
   getName = () => COMBAT_ACTION_NAME_STRINGS[this.combatAction.name];
   getSummary = () => this.combatAction.description;
@@ -52,7 +59,14 @@ export class ActionDescription {
     return this.combatAction.targetingProperties.usabilityContext;
   }
   getClassAndLevelRequirements(abilityRank: number) {
-    //
+    const requirements = cloneDeep(
+      ABILITY_CLASS_AND_LEVEL_REQUIREMENTS[
+        JSON.stringify({ type: AbilityType.Action, actionName: this.combatAction.name })
+      ]
+    );
+    if (requirements === undefined) throw new Error("ability not found");
+    requirements.level = requirements.level + abilityRank - 1;
+    return requirements;
   }
   getCustomPropertyDescriptions(abilityRank: number) {
     // - chain lightning bounces two times
@@ -142,7 +156,8 @@ export class ActionDescription {
         user,
         actionLevel
       ),
-      [ActionDescriptionComponent.ClassAndLevelRequirements]: "",
+      [ActionDescriptionComponent.ClassAndLevelRequirements]:
+        this.getClassAndLevelRequirements(actionLevel),
       [ActionDescriptionComponent.CustomPropertyDescriptions]: "",
     };
   }

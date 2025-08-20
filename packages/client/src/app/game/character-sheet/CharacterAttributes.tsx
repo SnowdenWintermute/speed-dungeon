@@ -16,9 +16,16 @@ import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
 interface Props {
   combatant: Combatant;
   showAttributeAssignmentButtons: boolean;
+  widthOptionClass?: string;
+  hideHeader?: boolean;
 }
 
-export default function CharacterAttributes({ combatant, showAttributeAssignmentButtons }: Props) {
+export default function CharacterAttributes({
+  combatant,
+  showAttributeAssignmentButtons,
+  widthOptionClass,
+  hideHeader,
+}: Props) {
   const { entityProperties, combatantProperties } = combatant;
   const playerOwnsCharacter = clientUserControlsCombatant(entityProperties.id);
 
@@ -64,28 +71,34 @@ export default function CharacterAttributes({ combatant, showAttributeAssignment
   ));
 
   return (
-    <div className="h-full w-[25.25rem] whitespace-nowrap">
-      <div className="font-bold flex justify-between items-center">
-        <span>
-          {entityProperties.name}
-          {` (${COMBATANT_CLASS_NAME_STRINGS[combatantProperties.combatantClass]})`}
-        </span>
-        <span className="h-10 w-10 flex justify-center rotate-45">
-          {getCombatantClassIcon(
-            combatantProperties.combatantClass,
-            "fill-slate-400",
-            "stroke-slate-400"
-          )}
-        </span>
-      </div>
-      <div className="flex justify-between">
-        <span>
-          {"Level "}
-          {combatantProperties.level}{" "}
-        </span>
-        <span>{experiencePointsText}</span>
-      </div>
-      <Divider extraStyles={"mr-2 ml-2 "} />
+    <div
+      className={`h-full ${widthOptionClass ? `widthOptionClass` : "w-[25.25rem]"} whitespace-nowrap`}
+    >
+      {!hideHeader && (
+        <div>
+          <div className="font-bold flex justify-between items-center">
+            <span>
+              {entityProperties.name}
+              {` (${COMBATANT_CLASS_NAME_STRINGS[combatantProperties.combatantClass]})`}
+            </span>
+            <span className="h-10 w-10 flex justify-center rotate-45">
+              {getCombatantClassIcon(
+                combatantProperties.combatantClass,
+                "fill-slate-400",
+                "stroke-slate-400"
+              )}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span>
+              {"Level "}
+              {combatantProperties.level}{" "}
+            </span>
+            <span>{experiencePointsText}</span>
+          </div>
+          <Divider extraStyles={"mr-2 ml-2 "} />
+        </div>
+      )}
       <div className="flex mb-1">
         {/*LEFT COLUMN*/}
         <ul className="list-none w-1/2 mr-1">

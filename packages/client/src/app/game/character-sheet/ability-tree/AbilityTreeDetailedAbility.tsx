@@ -2,10 +2,12 @@ import Divider from "@/app/components/atoms/Divider";
 import { useGameStore } from "@/stores/game-store";
 import {
   AbilityType,
+  COMBATANT_CLASS_NAME_STRINGS,
   COMBATANT_CONDITION_NAME_STRINGS,
-  COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
   CombatActionResourceChangeProperties,
   Combatant,
+  CombatantAbilityProperties,
+  CombatantProperties,
   EQUIPMENT_TYPE_STRINGS,
   HOLDABLE_SLOT_STRINGS,
   TARGETING_SCHEME_STRINGS,
@@ -18,6 +20,7 @@ import { COMBAT_ACTION_DESCRIPTIONS } from "./ability-descriptions";
 import { ActionDescription, ActionDescriptionComponent } from "./ability-description";
 import { formatActionAccuracy } from "@speed-dungeon/common/src/combat/combat-actions/combat-action-accuracy";
 import DamageTypeBadge from "../../detailables/DamageTypeBadge";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 
 export default function AbilityTreeDetailedAbility({ user }: { user: Combatant }) {
   const detailedAbility = useGameStore().detailedCombatantAbility;
@@ -68,6 +71,11 @@ function ActionDescriptionDisplay({
     prevDescription = rankDescription;
   }
 
+  const ownedAbilityLevel = CombatantAbilityProperties.getAbilityLevel(
+    user.combatantProperties,
+    description.ability
+  );
+
   return (
     <div>
       {descriptions.map((description, index) => {
@@ -89,6 +97,16 @@ function ActionDescriptionDisplay({
         const useableWithEquipmentTypesOption =
           description[ActionDescriptionComponent.UsableWithEquipmentTypes];
 
+        const classAndLevelRequirements =
+          description[ActionDescriptionComponent.ClassAndLevelRequirements];
+        if (
+          classAndLevelRequirements?.combatantClass ===
+            user.combatantProperties.supportClassProperties?.combatantClass &&
+          index > 1
+        ) {
+          return <div key={"support class level skill hidden" + index} />;
+        }
+
         const allowedMitigations = [];
         const prohibitedMitigations = [];
         if (typeof canBeBlocked === "boolean") {
@@ -104,9 +122,33 @@ function ActionDescriptionDisplay({
           else prohibitedMitigations.push("countered");
         }
 
+        const thisRankOwned = ownedAbilityLevel >= index + 1;
+
         return (
-          <div key={"description-" + index} className="mb-2">
-            <div className="text-lg underline-offset-4 underline">Rank {index + 1}</div>
+          <div
+            key={"description-" + index}
+            className={`mb-2 ${thisRankOwned ? "" : "text-gray-400"}`}
+          >
+            <div className={`flex justify-between text-lg `}>
+              <div className=" underline-offset-4 underline">Rank {index + 1}</div>
+              {classAndLevelRequirements && (
+                <div
+                  className={
+                    CombatantProperties.meetsCombatantClassAndLevelRequirements(
+                      user.combatantProperties,
+                      classAndLevelRequirements.combatantClass,
+                      classAndLevelRequirements.level
+                    )
+                      ? ""
+                      : UNMET_REQUIREMENT_TEXT_COLOR
+                  }
+                >
+                  ({COMBATANT_CLASS_NAME_STRINGS[classAndLevelRequirements.combatantClass]}
+                  {" level "}
+                  {classAndLevelRequirements?.level})
+                </div>
+              )}
+            </div>
             {description[ActionDescriptionComponent.TargetingSchemes] && (
               <div>
                 Targeting schemes:{" "}

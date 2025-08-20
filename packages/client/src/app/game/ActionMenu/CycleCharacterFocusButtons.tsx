@@ -1,4 +1,4 @@
-import { useGameStore } from "@/stores/game-store";
+import { abilityTreeMenuState, inventoryItemsMenuState, useGameStore } from "@/stores/game-store";
 import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import React from "react";
 import { ActionMenuButtonProperties } from "./menu-state";
@@ -8,6 +8,7 @@ import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { BUTTON_HEIGHT_SMALL, SPACING_REM_SMALL } from "@/client_consts";
 import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicatedButton";
+import { viewingAbilityTree } from "@/utils/should-show-character-sheet";
 
 export function CharacterFocusingButtons() {
   function createFocusCharacterButtonProperties(
@@ -35,6 +36,14 @@ export function CharacterFocusingButtons() {
         );
         const newCharacterId = party.characterPositions[nextIndex];
         if (newCharacterId === undefined) return console.error("Invalid character position index");
+
+        useGameStore.getState().mutateState((state) => {
+          const currentMenu = state.getCurrentMenu();
+          if (viewingAbilityTree(currentMenu.type)) {
+            state.stackedMenuStates = [abilityTreeMenuState];
+          }
+        });
+
         setFocusedCharacter(newCharacterId);
       }
     );

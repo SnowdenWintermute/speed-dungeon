@@ -165,6 +165,20 @@ export class CombatantProperties {
     // this.ownedActions[CombatActionName.Attack] = new CombatantActionState(CombatActionName.Attack);
   }
 
+  static meetsCombatantClassAndLevelRequirements(
+    combatantProperties: CombatantProperties,
+    combatantClass: CombatantClass,
+    level: number
+  ) {
+    const { supportClassProperties } = combatantProperties;
+    const supportClassMeetsRequirements =
+      supportClassProperties?.combatantClass === combatantClass &&
+      supportClassProperties.level >= level;
+    const mainClassMeetsRequirements =
+      combatantProperties.combatantClass === combatantClass && combatantProperties.level >= level;
+    return supportClassMeetsRequirements || mainClassMeetsRequirements;
+  }
+
   static getConditionById(combatantProperties: CombatantProperties, conditionId: EntityId) {
     for (const condition of combatantProperties.conditions) {
       if (condition.id === conditionId) return condition;

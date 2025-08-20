@@ -10,7 +10,7 @@ import {
 import { MenuStateType } from "../../ActionMenu/menu-state";
 import { getAbilityIcon } from "./ability-icons";
 import AbilityTreeButton from "./AbilityTreeButton";
-import { useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import PrerequisiteArrows from "./PrerequisiteArrows";
 
 export default function CharacterClassAbilityTree({
