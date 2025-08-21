@@ -8,6 +8,7 @@ export * from "./combat-action-animations.js";
 export * from "./combat-action-intent.js";
 export * from "./combat-action-steps-config.js";
 export * from "./combat-action-resource-change-properties.js";
+export * from "./combat-action-accuracy.js";
 
 import {
   Combatant,

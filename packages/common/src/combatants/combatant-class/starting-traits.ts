@@ -6,16 +6,16 @@ export const STARTING_COMBATANT_TRAITS: Record<
   Partial<Record<CombatantTraitType, number>>
 > = {
   [CombatantClass.Warrior]: {
-    [CombatantTraitType.HpBioavailability]: 2, // percentage effectiveness of consumables
-    [CombatantTraitType.ExtraHotswapSlot]: 1, // number of extra slots
+    [CombatantTraitType.HpBioavailability]: 2,
+    [CombatantTraitType.ExtraHotswapSlot]: 1,
   },
   [CombatantClass.Mage]: {
-    [CombatantTraitType.MpBioavailability]: 2, // percentage effectiveness of consumables
-    [CombatantTraitType.ExtraConsumablesStorage]: 20, // number of consumables
+    [CombatantTraitType.MpBioavailability]: 2,
+    [CombatantTraitType.ExtraConsumablesStorage]: 1,
   },
   [CombatantClass.Rogue]: {
-    [CombatantTraitType.HpBioavailability]: 1, // percentage effectiveness of consumables
-    [CombatantTraitType.MpBioavailability]: 1, // percentage effectiveness of consumables
-    [CombatantTraitType.CanConvertToShardsManually]: 1, // true
+    [CombatantTraitType.HpBioavailability]: 1,
+    [CombatantTraitType.MpBioavailability]: 1,
+    [CombatantTraitType.CanConvertToShardsManually]: 1,
   },
 };

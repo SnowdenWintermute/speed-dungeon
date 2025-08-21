@@ -3,6 +3,7 @@ import {
   ABILITY_CLASS_AND_LEVEL_REQUIREMENTS,
   AbilityTreeAbility,
   AbilityType,
+  AbilityUtils,
   ActionPayableResource,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponent,
@@ -45,6 +46,7 @@ export enum ActionDescriptionComponent {
   AddsPropertiesFromHoldableSlot,
   UsableWithEquipmentTypes,
   AppliesConditions,
+  FlatThreatGenerated,
 }
 
 export class ActionDescription {
@@ -59,18 +61,18 @@ export class ActionDescription {
     return this.combatAction.targetingProperties.usabilityContext;
   }
   getClassAndLevelRequirements(abilityRank: number) {
-    const requirements = cloneDeep(
-      ABILITY_CLASS_AND_LEVEL_REQUIREMENTS[
-        JSON.stringify({ type: AbilityType.Action, actionName: this.combatAction.name })
-      ]
+    return AbilityUtils.getClassAndLevelRequirements(
+      { type: AbilityType.Action, actionName: this.combatAction.name },
+      abilityRank
     );
-    if (requirements === undefined) throw new Error("ability not found");
-    requirements.level = requirements.level + abilityRank - 1;
-    return requirements;
   }
   getCustomPropertyDescriptions(abilityRank: number) {
     // - chain lightning bounces two times
     // - applies buffs/debuffs
+  }
+
+  getFlatThreatGenerated(abilityRank: number) {
+    return this.combatAction.hitOutcomeProperties.flatThreatGeneratedOnHit;
   }
 
   getDescriptionByLevel(user: Combatant, actionLevel: number) {
@@ -159,6 +161,7 @@ export class ActionDescription {
       [ActionDescriptionComponent.ClassAndLevelRequirements]:
         this.getClassAndLevelRequirements(actionLevel),
       [ActionDescriptionComponent.CustomPropertyDescriptions]: "",
+      [ActionDescriptionComponent.FlatThreatGenerated]: this.getFlatThreatGenerated(actionLevel),
     };
   }
 

@@ -20,6 +20,7 @@ import {
   Combatant,
   COMBATANT_CONDITION_DESCRIPTIONS,
   COMBATANT_CONDITION_NAME_STRINGS,
+  COMBATANT_TRAIT_DESCRIPTIONS,
   CombatantAbilityProperties,
   CombatantConditionName,
   createArrayFilledWithSequentialNumbers,
@@ -29,8 +30,11 @@ import createPageButtons from "./create-page-buttons";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { COMBAT_ACTION_DESCRIPTIONS } from "../../character-sheet/ability-tree/ability-descriptions";
-import { ActionDescriptionComponent } from "../../character-sheet/ability-tree/ability-description";
+import { ActionDescriptionComponent } from "../../character-sheet/ability-tree/action-description";
 import Divider from "@/app/components/atoms/Divider";
+import { getAbilityIcon } from "../../icons/get-action-icon";
+import { ACTION_ICONS } from "../../character-sheet/ability-tree/action-icons";
+import { TRAIT_ICONS } from "../../character-sheet/ability-tree/trait-icons";
 
 const allocateAbilityPointHotkey = HOTKEYS.MAIN_1;
 
@@ -70,26 +74,42 @@ export class ConsideringCombatantAbilityMenuState implements ActionMenuState {
       </div>
     ));
 
-    if (abilityOption.type !== AbilityType.Action)
-      return <div>Trait descriptions not implemented</div>;
+    let content;
+    let iconGetter;
 
-    const description = COMBAT_ACTION_DESCRIPTIONS[abilityOption.actionName];
+    if (abilityOption.type === AbilityType.Action) {
+      const description = COMBAT_ACTION_DESCRIPTIONS[abilityOption.actionName];
+      iconGetter = ACTION_ICONS[abilityOption.actionName];
+      content = (
+        <div className="">
+          <div>{description.getSummary()}</div>
+          <div>
+            Usable {COMBAT_ACTION_USABLITY_CONTEXT_STRINGS[description.getUsabilityContext()]}
+          </div>
+
+          {!!conditionDescriptions.length && (
+            <div>
+              <Divider />
+              {conditionDescriptions}
+            </div>
+          )}
+        </div>
+      );
+    } else {
+      iconGetter = TRAIT_ICONS[abilityOption.traitType];
+      const description = COMBATANT_TRAIT_DESCRIPTIONS[abilityOption.traitType];
+      content = <div>{description.summary}</div>;
+    }
 
     return (
-      <div className="h-full w-full border border-slate-400 bg-slate-700 p-2 pointer-events-auto">
+      <div className="h-full w-full border border-slate-400 bg-slate-700 p-2 pointer-events-auto flex flex-col relative">
+        {iconGetter &&
+          iconGetter(
+            "absolute h-full p-6 fill-slate-400 stroke-slate-400 opacity-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+          )}
         <div className="text-lg">{getAbilityTreeAbilityNameString(abilityOption)}</div>
         <Divider />
-        <div>{description.getSummary()}</div>
-        <div>
-          Usable {COMBAT_ACTION_USABLITY_CONTEXT_STRINGS[description.getUsabilityContext()]}
-        </div>
-
-        {!!conditionDescriptions.length && (
-          <div>
-            <Divider />
-            {conditionDescriptions}
-          </div>
-        )}
+        {content}
       </div>
     );
   }

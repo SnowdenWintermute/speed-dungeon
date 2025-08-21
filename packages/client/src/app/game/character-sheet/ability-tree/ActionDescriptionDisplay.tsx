@@ -8,12 +8,14 @@ import {
   createArrayFilledWithSequentialNumbers,
   EQUIPMENT_TYPE_STRINGS,
   HOLDABLE_SLOT_STRINGS,
+  iterateNumericEnumKeyedRecord,
   TARGET_CATEGORY_STRINGS,
   TARGETING_SCHEME_STRINGS,
+  THREAT_TYPE_STRINGS,
 } from "@speed-dungeon/common";
-import { ActionDescription, ActionDescriptionComponent } from "./ability-description";
+import { ActionDescription, ActionDescriptionComponent } from "./action-description";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
-import { formatActionAccuracy } from "@speed-dungeon/common/src/combat/combat-actions/combat-action-accuracy";
+import { formatActionAccuracy } from "@speed-dungeon/common";
 import DamageTypeBadge from "../../detailables/DamageTypeBadge";
 
 export default function ActionDescriptionDisplay({
@@ -87,6 +89,8 @@ export default function ActionDescriptionDisplay({
           if (canBeCountered) allowedMitigations.push("countered");
           else prohibitedMitigations.push("countered");
         }
+
+        const flatThreatOption = description[ActionDescriptionComponent.FlatThreatGenerated];
 
         const thisRankOwned = ownedAbilityLevel >= index + 1;
 
@@ -165,7 +169,9 @@ export default function ActionDescriptionDisplay({
                 {description[ActionDescriptionComponent.CritMultiplier]}%
               </div>
             )}
-            {allowedMitigations.length ? <div>Can be {allowedMitigations.join(", ")}</div> : ""}
+            {
+              // allowedMitigations.length ? <div>Can be {allowedMitigations.join(", ")}</div> : ""
+            }
             {prohibitedMitigations.length ? (
               <div>Can NOT be {prohibitedMitigations.join(", ")}</div>
             ) : (
@@ -174,6 +180,18 @@ export default function ActionDescriptionDisplay({
             {typeof addsHotswapPropertiesOption === "number" && (
               <div>
                 Adds properties from {HOLDABLE_SLOT_STRINGS[addsHotswapPropertiesOption]} equipment
+              </div>
+            )}
+            {flatThreatOption && (
+              <div>
+                Generates{" "}
+                {iterateNumericEnumKeyedRecord(flatThreatOption)
+                  .map(
+                    ([threatType, number]) =>
+                      `${number} ${THREAT_TYPE_STRINGS[threatType].toLowerCase()}`
+                  )
+                  .join("/")}{" "}
+                threat
               </div>
             )}
             {!!useableWithEquipmentTypesOption?.length && (

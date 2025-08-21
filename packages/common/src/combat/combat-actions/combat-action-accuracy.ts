@@ -1,4 +1,4 @@
-import { Percentage } from "../../primatives";
+import { Percentage } from "../../primatives/index.js";
 
 export enum ActionAccuracyType {
   Percentage,
