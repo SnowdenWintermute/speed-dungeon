@@ -32,7 +32,7 @@ export default function HoverableTooltipWrapper(props: Props) {
     // measure tooltip after render
     requestAnimationFrame(() => {
       const tooltipElement = document.getElementById("hoverable-tooltip");
-      if (!tooltipElement) return console.error("no tooltip found");
+      if (!tooltipElement) return console.info("no tooltip found");
 
       const tooltipRect = tooltipElement.getBoundingClientRect();
       // const viewportWidth = window.innerWidth;

@@ -12,6 +12,7 @@ import HpAndMp from "./HpAndMp";
 import CharacterSheetWeaponDamage from "./CharacterSheetWeaponDamage";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
+import ElementalAffinitiesDisplay from "./ElementalAffinitiesDisplay";
 
 interface Props {
   combatant: Combatant;
@@ -120,6 +121,9 @@ export default function CharacterAttributes({
       <Divider extraStyles={"mr-2 ml-2 "} />
       <HpAndMp combatantProperties={combatantProperties} totalAttributes={totalAttributes} />
       <CharacterSheetWeaponDamage combatant={combatant} />
+      <ElementalAffinitiesDisplay
+        affinities={CombatantProperties.getCombatantTotalElementalAffinities(combatantProperties)}
+      />
     </div>
   );
 }

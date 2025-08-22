@@ -8,7 +8,7 @@ export default function TailwindClassLoader() {
       <div className="stroke-slate-700" />
       <div className={CONSUMABLE_TEXT_COLOR} />
       <div className={`opacity-50  `} />
-      <div className="pointer-events-none" />
+      <div className="pointer-events-none " />
       <div className="text-beigepaper" />
       <div className="text-zinc-400" />
       <div className="text-green-600" />

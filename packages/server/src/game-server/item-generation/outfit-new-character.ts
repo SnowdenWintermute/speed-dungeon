@@ -188,6 +188,9 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   combatantProperties.abilityProperties.traitProperties.inherentElementalAffinities[
     MagicalElement.Fire
   ] = 150;
+  combatantProperties.abilityProperties.traitProperties.inherentElementalAffinities[
+    MagicalElement.Dark
+  ] = -150;
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
   // combatantProperties.inventory.shards = 9999;
