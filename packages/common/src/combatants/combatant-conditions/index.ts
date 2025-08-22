@@ -46,7 +46,7 @@ export const MAX_CONDITION_STACKS = 99;
 type CombatantConditionConstructor = new (
   id: EntityId,
   appliedBy: ConditionAppliedBy,
-  name: CombatantConditionName,
+  level: number,
   stacksOption: null | MaxAndCurrent
 ) => CombatantCondition;
 

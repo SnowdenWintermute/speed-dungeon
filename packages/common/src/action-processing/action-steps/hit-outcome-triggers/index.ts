@@ -193,6 +193,12 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
               );
           }
 
+          console.log(
+            "before getting conditionsToApply",
+            context.combatantContext.combatant.combatantProperties.selectedActionLevel,
+            context.tracker.actionExecutionIntent.level
+          );
+
           const conditionsToApply = action.hitOutcomeProperties.getAppliedConditions(
             context.combatantContext.combatant,
             context.tracker.actionExecutionIntent.level
@@ -205,7 +211,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
               ](
                 context.idGenerator.generate(),
                 conditionProperties.appliedBy,
-                conditionProperties.conditionName,
+                conditionProperties.level,
                 new MaxAndCurrent(MAX_CONDITION_STACKS, conditionProperties.stacks)
               );
 

@@ -25,6 +25,7 @@ export const BLIND_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {
   getIsBlockable: () => false,
 
   getAppliedConditions: (user, actionLevel) => {
+    console.log("blind action level selected:", actionLevel);
     return [
       {
         conditionName: CombatantConditionName.Blinded,
