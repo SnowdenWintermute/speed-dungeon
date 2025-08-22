@@ -4,6 +4,7 @@ import {
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
   CombatActionName,
   CombatActionUsabilityContext,
+  createArrayFilledWithSequentialNumbers,
   getUnmetCostResourceTypes,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
@@ -17,7 +18,7 @@ interface Props {
   hideTitle?: boolean;
 }
 
-export default function ActionDetails({ actionName, hideTitle }: Props) {
+export default function ActionSelectedDetails({ actionName, hideTitle }: Props) {
   const partyResult = useGameStore().getParty();
   if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
   const party = partyResult;
@@ -54,35 +55,11 @@ export default function ActionDetails({ actionName, hideTitle }: Props) {
           actionStateAndSelectedLevel={{ actionStateOption, selectedLevelOption }}
         />
       )}
-      {
-        <div className="flex-grow overflow-auto mr-2">
-          <div className="mb-2 last:mb-0">{action.description}</div>
-          {actionStateOption && actionStateOption.cooldown && (
-            <div
-              className={
-                actionStateOption.cooldown.current !== 0 ? UNMET_REQUIREMENT_TEXT_COLOR : ""
-              }
-            >
-              Cooldown {actionStateOption.cooldown.current}/{actionStateOption.cooldown.max}
-            </div>
-          )}
-          {notInUsableContext && (
-            <div
-              className={UNMET_REQUIREMENT_TEXT_COLOR}
-            >{`Usable ${COMBAT_ACTION_USABLITY_CONTEXT_STRINGS[usabilityContext]}`}</div>
-          )}
-          {iterateNumericEnumKeyedRecord(costs)
-            .filter(([resource, price]) => unmetCosts.includes(resource))
-            .map(([resource, price]) => (
-              <div
-                className={UNMET_REQUIREMENT_TEXT_COLOR}
-                key={ACTION_PAYABLE_RESOURCE_STRINGS[resource]}
-              >
-                Costs {Math.abs(price)} {ACTION_PAYABLE_RESOURCE_STRINGS[resource]}
-              </div>
-            ))}
-        </div>
-      }
+      <div>
+        {
+          // createArrayFilledWithSequentialNumbers()
+        }
+      </div>
     </div>
   );
 }

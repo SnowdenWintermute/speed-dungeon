@@ -1,6 +1,5 @@
 import { Vector3 } from "@babylonjs/core";
 import {
-  ABILITY_CLASS_AND_LEVEL_REQUIREMENTS,
   AbilityTreeAbility,
   AbilityType,
   AbilityUtils,
@@ -13,7 +12,6 @@ import {
   CombatantSpecies,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import cloneDeep from "lodash.clonedeep";
 import isEqual from "lodash.isequal";
 
 export const TARGET_DUMMY_COMBATANT = new CombatantProperties(

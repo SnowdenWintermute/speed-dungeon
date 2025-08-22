@@ -27,6 +27,7 @@ export default function ActionDescriptionDisplay({
 }) {
   const descriptions = [];
   let prevDescription = {};
+  // @TODO - replace "3" with the action's max rank
   for (const actionRank of createArrayFilledWithSequentialNumbers(3, 1)) {
     const rankDescription = description.getDescriptionByLevel(user, actionRank);
 

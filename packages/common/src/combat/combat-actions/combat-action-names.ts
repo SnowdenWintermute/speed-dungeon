@@ -22,10 +22,10 @@ export enum CombatActionName {
   // Destruction,
   UseGreenAutoinjector,
   UseBlueAutoinjector,
-  PassTurn,
   ConditionPassTurn,
   Blind,
   PayActionPoint, // useful for charging action points for swapping weapons and maybe other things
+  PassTurn,
 }
 
 export const ACTION_NAMES_TO_HIDE_IN_MENU = [

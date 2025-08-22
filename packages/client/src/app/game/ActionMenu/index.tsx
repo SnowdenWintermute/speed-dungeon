@@ -32,6 +32,7 @@ import ConsideringItemDisplay from "./ConsideringItemDisplay";
 import VendingMachineShardDisplay from "./VendingMachineShardDisplay";
 import StackedMenuStateDisplay from "./StackedMenuStateDisplay";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import ActionSelectedDetails from "../detailables/action-details/ActionSelectedDetails";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
@@ -97,7 +98,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex"
         style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}
       >
-        <ActionDetails actionName={currentMenu.combatActionName} />
+        <ActionSelectedDetails actionName={currentMenu.combatActionName} />
       </div>
     );
   }

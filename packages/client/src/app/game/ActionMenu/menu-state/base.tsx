@@ -37,6 +37,7 @@ import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
 import { ACTION_MENU_PAGE_SIZE } from "..";
 import { getAbilityIcon } from "../../icons/get-action-icon";
+import { ACTION_ICONS } from "../../character-sheet/ability-tree/action-icons";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -117,19 +118,19 @@ export class BaseMenuState implements ActionMenuState {
       if (ACTION_NAMES_TO_HIDE_IN_MENU.includes(actionName)) continue;
       const nameAsString = COMBAT_ACTION_NAME_STRINGS[actionName];
       const button = new ActionMenuButtonProperties(
-        () => (
-          <div className="flex justify-between h-full w-full pr-2">
-            <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
-              {nameAsString}
+        () => {
+          const iconOption = ACTION_ICONS[actionName];
+          return (
+            <div className="flex justify-between h-full w-full pr-2">
+              <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
+                {nameAsString}
+              </div>
+              <div className="h-full flex items-center p-2">
+                {iconOption ? iconOption("h-full fill-slate-400 stroke-slate-400") : "icon missing"}
+              </div>
             </div>
-            <div className="h-full flex items-center">
-              {getAbilityIcon(
-                { type: AbilityType.Action, actionName: actionName },
-                focusedCharacterResult.combatantProperties
-              )}
-            </div>
-          </div>
-        ),
+          );
+        },
         nameAsString,
         () => {
           websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {

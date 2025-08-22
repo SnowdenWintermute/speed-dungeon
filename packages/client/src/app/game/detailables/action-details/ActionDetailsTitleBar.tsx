@@ -33,7 +33,6 @@ export default function ActionDetailsTitleBar(props: Props) {
   if (focusedCharacterResult instanceof Error) return <>{focusedCharacterResult}</>;
 
   function handleSelectActionLevel(level: number) {
-    console.log("selecting rank", level, "for action", COMBAT_ACTION_NAME_STRINGS[actionName]);
     websocketConnection.emit(ClientToServerEvent.SelectCombatActionLevel, {
       characterId: focusedCharacterId,
       actionLevel: level,

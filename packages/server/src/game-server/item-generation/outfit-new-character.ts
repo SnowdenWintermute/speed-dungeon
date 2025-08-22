@@ -40,16 +40,23 @@ export function outfitNewCharacter(character: Combatant) {
     CombatActionName.PassTurn,
     // CombatActionName.ChainingSplitArrowParent,
     // CombatActionName.Counterattack,
-    // CombatActionName.IceBoltParent,
-    // CombatActionName.Fire,
-    // CombatActionName.Healing,
-    // CombatActionName.ExplodingArrowParent,
-    // CombatActionName.Blind,
+    CombatActionName.IceBoltParent,
+    CombatActionName.Fire,
+    CombatActionName.Healing,
+    CombatActionName.ExplodingArrowParent,
+    CombatActionName.Blind,
+  ];
+
+  const levelTwoSpells: CombatActionName[] = [
+    CombatActionName.IceBoltParent,
+    CombatActionName.Fire,
+    CombatActionName.Healing,
+    CombatActionName.ExplodingArrowParent,
+    CombatActionName.Blind,
   ];
 
   for (const actionName of ownedActions) {
     const action = new CombatantActionState(actionName);
-    const levelTwoSpells: CombatActionName[] = [];
     if (levelTwoSpells.includes(actionName)) action.level = 2;
     const cooldownOption = COMBAT_ACTIONS[actionName].costProperties.getCooldownTurns(
       combatantProperties,
@@ -97,6 +104,7 @@ export function outfitNewCharacter(character: Combatant) {
 
   combatantProperties.hitPoints = Math.floor(combatantProperties.hitPoints * 0.5);
   combatantProperties.mana = Math.floor(combatantProperties.mana * 0.4);
+  // combatantProperties.mana = 1;
 }
 
 function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
