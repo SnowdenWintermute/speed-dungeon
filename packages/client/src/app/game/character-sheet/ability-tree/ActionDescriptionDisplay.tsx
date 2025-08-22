@@ -27,8 +27,16 @@ export default function ActionDescriptionDisplay({
 }) {
   const descriptions = [];
   let prevDescription = {};
+
+  const { combatantClass } = description.getClassAndLevelRequirements(1);
+
+  const isSupportClassAbility =
+    combatantClass === user.combatantProperties.supportClassProperties?.combatantClass;
+
   // @TODO - replace "3" with the action's max rank
-  for (const actionRank of createArrayFilledWithSequentialNumbers(3, 1)) {
+  const maxRank = isSupportClassAbility ? 2 : 3;
+
+  for (const actionRank of createArrayFilledWithSequentialNumbers(maxRank, 1)) {
     const rankDescription = description.getDescriptionByLevel(user, actionRank);
 
     const diff = ActionDescription.getDiff<Partial<typeof rankDescription>>(
@@ -68,13 +76,6 @@ export default function ActionDescriptionDisplay({
 
         const classAndLevelRequirements =
           description[ActionDescriptionComponent.ClassAndLevelRequirements];
-        if (
-          classAndLevelRequirements?.combatantClass ===
-            user.combatantProperties.supportClassProperties?.combatantClass &&
-          index > 1
-        ) {
-          return <div key={"support class level skill hidden" + index} />;
-        }
 
         const allowedMitigations = [];
         const prohibitedMitigations = [];
@@ -235,7 +236,7 @@ export default function ActionDescriptionDisplay({
   );
 }
 
-function ResourceChangeDisplay({
+export function ResourceChangeDisplay({
   resourceChangeProperties,
 }: {
   resourceChangeProperties: CombatActionResourceChangeProperties;

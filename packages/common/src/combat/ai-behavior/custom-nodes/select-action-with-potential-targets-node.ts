@@ -14,6 +14,8 @@ export class SelectActionWithPotentialTargets implements BehaviorNode {
     const potentialValidTargets =
       this.behaviorContext.usableActionsWithPotentialValidTargets[actionNameOption];
 
+    console.log("potentialValidTargets:", potentialValidTargets);
+
     if (potentialValidTargets === undefined) {
       throw new Error(
         "expected usableActionsWithPotentialValidTargets to contain the action name passed to this node"

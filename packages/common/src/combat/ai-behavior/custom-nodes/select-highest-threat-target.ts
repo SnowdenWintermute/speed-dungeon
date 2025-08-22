@@ -46,6 +46,7 @@ export class SelectTopThreatTargetAndAction implements BehaviorNode {
                 this.combatant.combatantProperties.abilityProperties.ownedActions[actionName]
                   ?.level || 1;
               this.behaviorContext.setCurrentActionLevelConsidering(actionLevel);
+              console.log("set considering:", this.behaviorContext.currentActionNameConsidering);
             }
           ),
           // check if action is useable

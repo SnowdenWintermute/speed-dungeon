@@ -18,6 +18,8 @@ export class CheckIfHasRequiredConsumablesForAction implements BehaviorNode {
       this.actionNameOption
     );
     if (hasRequiredConsumables) return BehaviorNodeState.Success;
+
+    console.log("missing consumables required");
     return BehaviorNodeState.Failure;
   }
 }

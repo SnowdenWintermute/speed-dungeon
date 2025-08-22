@@ -15,10 +15,12 @@ export class CheckIfActionOnCooldown implements BehaviorNode {
 
     const actionStateOption =
       combatantProperties.abilityProperties.ownedActions[this.actionNameOption];
-    if (!this.actionNameOption) return BehaviorNodeState.Failure;
+
+    if (!actionStateOption) return BehaviorNodeState.Failure;
 
     if (!actionStateOption?.cooldown?.current) return BehaviorNodeState.Success;
 
+    console.log("on cooldown");
     return BehaviorNodeState.Failure;
   }
 }

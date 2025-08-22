@@ -12,6 +12,9 @@ import React, { ReactNode } from "react";
 import { useGameStore } from "@/stores/game-store";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import ActionDetailsTitleBar from "./ActionDetailsTitleBar";
+import { COMBAT_ACTION_DESCRIPTIONS } from "../../character-sheet/ability-tree/ability-descriptions";
+import { ActionDescriptionComponent } from "../../character-sheet/ability-tree/action-description";
+import { ResourceChangeDisplay } from "../../character-sheet/ability-tree/ActionDescriptionDisplay";
 
 interface Props {
   actionName: CombatActionName;
@@ -24,11 +27,11 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
   const party = partyResult;
   const focusedCharacterResult = useGameStore().getFocusedCharacter();
   if (focusedCharacterResult instanceof Error) return <div>{focusedCharacterResult.message}</div>;
-  const focusedCharacter = focusedCharacterResult;
   const { combatantProperties } = focusedCharacterResult;
   const { abilityProperties } = combatantProperties;
   const actionStateOption = abilityProperties.ownedActions[actionName];
   const actionState = abilityProperties.ownedActions[actionName];
+  if (actionState === undefined) return <div>Somehow detailing an unowned action</div>;
   const selectedLevelOption = combatantProperties.selectedActionLevel;
 
   const inCombat = !!Object.values(party.currentRoom.monsters).length;
@@ -41,11 +44,8 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
       selectedLevelOption || 1
     ) || {};
   const unmetCosts = costs ? getUnmetCostResourceTypes(combatantProperties, costs) : [];
-  const { usabilityContext } = action.targetingProperties;
 
-  const notInUsableContext =
-    (!inCombat && usabilityContext === CombatActionUsabilityContext.InCombat) ||
-    (inCombat && usabilityContext === CombatActionUsabilityContext.OutOfCombat);
+  const actionDescription = COMBAT_ACTION_DESCRIPTIONS[actionName];
 
   return (
     <div className="flex flex-col pointer-events-auto" style={{ flex: `1 1 1px` }}>
@@ -55,11 +55,57 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
           actionStateAndSelectedLevel={{ actionStateOption, selectedLevelOption }}
         />
       )}
-      <div>
-        {
-          // createArrayFilledWithSequentialNumbers()
-        }
-      </div>
+      <ul className="list-none">
+        {createArrayFilledWithSequentialNumbers(actionState.level, 1).map((rank) => {
+          const rankDescription = actionDescription.getDescriptionByLevel(
+            focusedCharacterResult,
+            rank
+          );
+
+          const resourceChangePropertiesOption =
+            rankDescription[ActionDescriptionComponent.ResourceChanges];
+          const actionPointCostOption = rankDescription[ActionDescriptionComponent.ActionPointCost];
+
+          return (
+            <li
+              key={`${action.name}${rank}`}
+              className={`h-10 w-full flex items-center px-2 ${!!(selectedLevelOption === rank) && "bg-slate-800"}`}
+            >
+              <div className="flex items-center">
+                {typeof actionPointCostOption === "number" && (
+                  <div>AP: {Math.abs(actionPointCostOption)}</div>
+                )}
+
+                {typeof rankDescription[ActionDescriptionComponent.ManaCost] === "number" && (
+                  <div>MP: {Math.abs(rankDescription[ActionDescriptionComponent.ManaCost])} - </div>
+                )}
+                {typeof rankDescription[ActionDescriptionComponent.HitPointCost] === "number" && (
+                  <div>
+                    HP: {Math.abs(rankDescription[ActionDescriptionComponent.HitPointCost])} -{" "}
+                  </div>
+                )}
+                {typeof rankDescription[ActionDescriptionComponent.ShardCost] === "number" && (
+                  <div>
+                    Shards: {Math.abs(rankDescription[ActionDescriptionComponent.ShardCost])} -{" "}
+                  </div>
+                )}
+              </div>
+              {resourceChangePropertiesOption && (
+                <ul className="mt-1">
+                  {resourceChangePropertiesOption
+                    .filter((item) => item.changeProperties !== null)
+                    .map((item, i) => (
+                      <ResourceChangeDisplay
+                        key={i}
+                        resourceChangeProperties={item.changeProperties!}
+                      />
+                    ))}
+                </ul>
+              )}
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }

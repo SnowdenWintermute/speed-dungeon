@@ -24,10 +24,11 @@ export class AbilityUtils {
     if (!ABILITY_CLASS_AND_LEVEL_REQUIREMENTS)
       ABILITY_CLASS_AND_LEVEL_REQUIREMENTS = this.generateClassAndLevelRequirements();
     const requirements = cloneDeep(ABILITY_CLASS_AND_LEVEL_REQUIREMENTS[JSON.stringify(ability)]);
-    if (requirements === undefined) throw new Error("ability not found");
+    if (requirements === undefined) return null;
     requirements.level = requirements.level + abilityRank - 1;
     return requirements;
   }
+
   static getStringName(ability: AbilityTreeAbility) {
     switch (ability.type) {
       case AbilityType.Action:

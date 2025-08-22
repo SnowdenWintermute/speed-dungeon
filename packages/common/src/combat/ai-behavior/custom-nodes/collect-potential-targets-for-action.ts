@@ -22,7 +22,10 @@ export class CollectPotentialTargetsForAction implements BehaviorNode {
   execute(): BehaviorNodeState {
     const actionNameOption = this.actionNameOption;
 
-    if (actionNameOption === null) return BehaviorNodeState.Failure;
+    if (actionNameOption === null) {
+      console.log("no action name passed");
+      return BehaviorNodeState.Failure;
+    }
 
     const { entityProperties, combatantProperties } = this.combatant;
     const action = COMBAT_ACTIONS[actionNameOption];
@@ -70,6 +73,8 @@ export class CollectPotentialTargetsForAction implements BehaviorNode {
     }
 
     this.behaviorContext.usableActionsWithPotentialValidTargets[actionNameOption] = targetOptions;
+
+    console.log("targetOptions:", targetOptions);
 
     return BehaviorNodeState.Success;
   }

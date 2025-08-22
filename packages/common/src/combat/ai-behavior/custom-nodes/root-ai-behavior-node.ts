@@ -4,6 +4,7 @@ import { AIBehaviorContext } from "../ai-context.js";
 import { BehaviorNode, BehaviorNodeState, SelectorNode } from "../behavior-tree.js";
 import { SelectActionToHealLowestHpAlly } from "./select-action-to-heal-lowest-hp-ally-node.js";
 import { SelectTopThreatTargetAndAction } from "./select-highest-threat-target.js";
+import { SelectRandomActionAndTargets } from "./select-random-action-and-targets.js";
 
 export class RootAIBehaviorNode implements BehaviorNode {
   private root: BehaviorNode;
@@ -24,6 +25,12 @@ export class RootAIBehaviorNode implements BehaviorNode {
         CombatActionIntent.Malicious,
       ])
     );
+
+    // targetSelectionSchemes.push(
+    //   new SelectRandomActionAndTargets(this.behaviorContext, this.combatant, [
+    //     CombatActionIntent.Malicious,
+    //   ])
+    // );
 
     this.root = new SelectorNode(targetSelectionSchemes);
   }
