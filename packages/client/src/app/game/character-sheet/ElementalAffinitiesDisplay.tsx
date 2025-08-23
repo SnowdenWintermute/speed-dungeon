@@ -2,7 +2,6 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import { MAGICAL_ELEMENT_ICONS } from "@/app/icons";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import { iterateNumericEnum, MAGICAL_ELEMENT_STRINGS, MagicalElement } from "@speed-dungeon/common";
-import { type } from "os";
 import React from "react";
 
 export default function ElementalAffinitiesDisplay({
@@ -60,7 +59,7 @@ function ElementAffinityDisplay({
     textShadowStyle = { textShadow: "2px 2px 0px #000000" };
   }
   return (
-    <li className="flex items-center w-28">
+    <li className="flex items-center w-24">
       <HoverableTooltipWrapper
         extraStyles="h-fit"
         tooltipText={`${MAGICAL_ELEMENT_STRINGS[element]} affinity. Negative numbers indicate weakness, positive numbers indicate resistance, and numbers above 100% indicate absorbtion.`}

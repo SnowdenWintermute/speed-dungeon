@@ -38,7 +38,7 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
     <section className={`${conditionalStyles}`}>
       <CharacterSheetTopBar partyCharacterIds={partyCharacterIds} />
       <div
-        className={`border border-slate-400 bg-slate-700 flex h-[420px] overflow-y-visible ${showCharacterSheet && "pointer-events-auto"} relative`}
+        className={`border border-slate-400 bg-slate-700 flex h-[450px] overflow-y-visible ${showCharacterSheet && "pointer-events-auto"} relative`}
         style={{ padding: `${SPACING_REM}rem` }}
       >
         {shouldShowAbilityTree && (

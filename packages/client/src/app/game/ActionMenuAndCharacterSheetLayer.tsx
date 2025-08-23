@@ -24,7 +24,7 @@ export default function ActionMenuAndCharacterSheetLayer({ party }: { party: Adv
 
   return (
     <section
-      style={{ zIndex: ZIndexLayers.CharacterSheetAndActionMenu, paddingTop: `calc(100vh / 7)` }}
+      style={{ zIndex: ZIndexLayers.CharacterSheetAndActionMenu, paddingTop: `calc(100vh / 11)` }}
       className={`absolute top-0 h-screen w-screen max-h-screen max-w-screen overflow-auto
       flex
       ${viewingCharacterSheet && "justify-end"}

@@ -1,5 +1,6 @@
 import {
   ACTION_PAYABLE_RESOURCE_STRINGS,
+  ActionPayableResource,
   COMBAT_ACTIONS,
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
   CombatActionName,
@@ -15,6 +16,7 @@ import ActionDetailsTitleBar from "./ActionDetailsTitleBar";
 import { COMBAT_ACTION_DESCRIPTIONS } from "../../character-sheet/ability-tree/ability-descriptions";
 import { ActionDescriptionComponent } from "../../character-sheet/ability-tree/action-description";
 import { ResourceChangeDisplay } from "../../character-sheet/ability-tree/ActionDescriptionDisplay";
+import { PAYABLE_RESOURCE_ICONS } from "@/app/icons";
 
 interface Props {
   actionName: CombatActionName;
@@ -66,29 +68,20 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
             rankDescription[ActionDescriptionComponent.ResourceChanges];
           const actionPointCostOption = rankDescription[ActionDescriptionComponent.ActionPointCost];
 
+          const rankCosts =
+            action.costProperties.getResourceCosts(combatantProperties, inCombat, rank) || {};
+
           return (
             <li
               key={`${action.name}${rank}`}
               className={`h-10 w-full flex items-center px-2 ${!!(selectedLevelOption === rank) && "bg-slate-800"}`}
             >
-              <div className="flex items-center">
-                {typeof actionPointCostOption === "number" && (
-                  <div>AP: {Math.abs(actionPointCostOption)}</div>
-                )}
-
-                {typeof rankDescription[ActionDescriptionComponent.ManaCost] === "number" && (
-                  <div>MP: {Math.abs(rankDescription[ActionDescriptionComponent.ManaCost])} - </div>
-                )}
-                {typeof rankDescription[ActionDescriptionComponent.HitPointCost] === "number" && (
-                  <div>
-                    HP: {Math.abs(rankDescription[ActionDescriptionComponent.HitPointCost])} -{" "}
+              <div className="flex items-center h-full">
+                {iterateNumericEnumKeyedRecord(rankCosts).map(([resourceType, cost]) => (
+                  <div className="mr-3" key={resourceType + cost}>
+                    <PayableResourceCostDisplay resourceType={resourceType} cost={cost} />
                   </div>
-                )}
-                {typeof rankDescription[ActionDescriptionComponent.ShardCost] === "number" && (
-                  <div>
-                    Shards: {Math.abs(rankDescription[ActionDescriptionComponent.ShardCost])} -{" "}
-                  </div>
-                )}
+                ))}
               </div>
               {resourceChangePropertiesOption && (
                 <ul className="mt-1">
@@ -109,3 +102,62 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
     </div>
   );
 }
+
+function PayableResourceCostDisplay({
+  resourceType,
+  cost,
+}: {
+  resourceType: ActionPayableResource;
+  cost: number;
+}) {
+  const iconGetter = PAYABLE_RESOURCE_ICONS[resourceType];
+  let extraStyles = "";
+  switch (resourceType) {
+    case ActionPayableResource.HitPoints:
+      extraStyles = "fill-green-600";
+      break;
+    case ActionPayableResource.Mana:
+      extraStyles = "fill-blue-600";
+      break;
+    case ActionPayableResource.Shards:
+      extraStyles = "fill-slate-600";
+      break;
+    case ActionPayableResource.ActionPoints:
+      extraStyles = "fill-slate-400 stroke-slate-400 rounded-full";
+      break;
+  }
+
+  const costValue = Math.abs(cost);
+
+  return (
+    <div className="relative ">
+      <div className="h-6 flex items-center justify-center">
+        {iconGetter("h-full " + extraStyles)}
+      </div>
+      <div
+        className="absolute text-white h-5 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 "
+        style={{ textShadow: "2px 2px 0px #000000" }}
+      >
+        {!!(costValue > 1) && Math.abs(cost)}
+      </div>
+    </div>
+  );
+}
+
+// {typeof actionPointCostOption === "number" && (
+//   <div>AP: {Math.abs(actionPointCostOption)}</div>
+// )}
+
+// {typeof rankDescription[ActionDescriptionComponent.ManaCost] === "number" && (
+//   <div>MP: {Math.abs(rankDescription[ActionDescriptionComponent.ManaCost])}</div>
+// )}
+// {typeof rankDescription[ActionDescriptionComponent.HitPointCost] === "number" && (
+//   <div>
+//     HP: {Math.abs(rankDescription[ActionDescriptionComponent.HitPointCost])}{" "}
+//   </div>
+// )}
+// {typeof rankDescription[ActionDescriptionComponent.ShardCost] === "number" && (
+//   <div>
+//     Shards: {Math.abs(rankDescription[ActionDescriptionComponent.ShardCost])}{" "}
+//   </div>
+// )}
