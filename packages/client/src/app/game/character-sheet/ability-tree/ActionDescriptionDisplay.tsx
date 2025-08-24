@@ -28,10 +28,12 @@ export default function ActionDescriptionDisplay({
   const descriptions = [];
   let prevDescription = {};
 
-  const { combatantClass } = description.getClassAndLevelRequirements(1);
+  const classAndLevelRequirements = description.getClassAndLevelRequirements(1);
 
   const isSupportClassAbility =
-    combatantClass === user.combatantProperties.supportClassProperties?.combatantClass;
+    classAndLevelRequirements &&
+    classAndLevelRequirements.combatantClass ===
+      user.combatantProperties.supportClassProperties?.combatantClass;
 
   // @TODO - replace "3" with the action's max rank
   const maxRank = isSupportClassAbility ? 2 : 3;

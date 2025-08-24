@@ -1,8 +1,13 @@
 import {
   ActionAccuracyType,
   ActionPayableResource,
+  COMBATANT_CONDITION_CONSTRUCTORS,
   COMBAT_ACTIONS,
+  ClientToServerEvent,
   CombatActionName,
+  CombatantCondition,
+  FriendOrFoe,
+  MaxAndCurrent,
   createArrayFilledWithSequentialNumbers,
   getUnmetCostResourceTypes,
   iterateNumericEnumKeyedRecord,
@@ -13,7 +18,15 @@ import ActionDetailsTitleBar from "./ActionDetailsTitleBar";
 import { COMBAT_ACTION_DESCRIPTIONS } from "../../character-sheet/ability-tree/ability-descriptions";
 import { ActionDescriptionComponent } from "../../character-sheet/ability-tree/action-description";
 import { ResourceChangeDisplay } from "../../character-sheet/ability-tree/ActionDescriptionDisplay";
-import { IconName, PAYABLE_RESOURCE_ICONS, SVG_ICONS } from "@/app/icons";
+import {
+  CONDITION_INDICATOR_ICONS,
+  IconName,
+  PAYABLE_RESOURCE_ICONS,
+  SVG_ICONS,
+} from "@/app/icons";
+import { ConditionIndicator } from "../../combatant-plaques/condition-indicators";
+import { websocketConnection } from "@/singletons/websocket-connection";
+import { UNMET_REQUIREMENT_COLOR, UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 
 interface Props {
   actionName: CombatActionName;
@@ -26,7 +39,7 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
   const party = partyResult;
   const focusedCharacterResult = useGameStore().getFocusedCharacter();
   if (focusedCharacterResult instanceof Error) return <div>{focusedCharacterResult.message}</div>;
-  const { combatantProperties } = focusedCharacterResult;
+  const { combatantProperties, entityProperties } = focusedCharacterResult;
   const { abilityProperties } = combatantProperties;
   const actionStateOption = abilityProperties.ownedActions[actionName];
   const actionState = abilityProperties.ownedActions[actionName];
@@ -42,7 +55,6 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
       inCombat,
       selectedLevelOption || 1
     ) || {};
-  const unmetCosts = costs ? getUnmetCostResourceTypes(combatantProperties, costs) : [];
 
   const actionDescription = COMBAT_ACTION_DESCRIPTIONS[actionName];
 
@@ -66,6 +78,9 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
 
           const rankCosts =
             action.costProperties.getResourceCosts(combatantProperties, inCombat, rank) || {};
+          const unmetCosts = rankCosts
+            ? getUnmetCostResourceTypes(combatantProperties, rankCosts)
+            : [];
 
           const accuracy = rankDescription[ActionDescriptionComponent.Accuracy];
           const percentAccuracyOption =
@@ -74,20 +89,32 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
           const conditionsAppliedOption =
             rankDescription[ActionDescriptionComponent.AppliesConditions];
 
+          function handleSelectActionLevel(level: number) {
+            websocketConnection.emit(ClientToServerEvent.SelectCombatActionLevel, {
+              characterId: entityProperties.id,
+              actionLevel: level,
+            });
+          }
+
           return (
-            <li
+            <button
               key={`${action.name}${rank}`}
-              className={`h-10 w-full flex items-center px-2 ${!!(selectedLevelOption === rank) && "bg-slate-800"} `}
+              className={`h-10 w-full flex items-center px-2 ${!!(unmetCosts.length > 0) && "pointer-events-none"} ${!!(selectedLevelOption === rank) && "bg-slate-800"} `}
+              onClick={() => handleSelectActionLevel(rank)}
             >
               <div className="flex items-center h-full">
                 {iterateNumericEnumKeyedRecord(rankCosts).map(([resourceType, cost]) => (
-                  <div className="mr-3" key={resourceType + cost}>
-                    <PayableResourceCostDisplay resourceType={resourceType} cost={cost} />
+                  <div className="ml-2 first:ml-0" key={resourceType + cost}>
+                    <PayableResourceCostDisplay
+                      resourceType={resourceType}
+                      cost={cost}
+                      unmetCosts={unmetCosts}
+                    />
                   </div>
                 ))}
               </div>
               {resourceChangePropertiesOption && (
-                <ul className="">
+                <ul className="ml-2">
                   {resourceChangePropertiesOption
                     .filter((item) => item.changeProperties !== null)
                     .map((item, i) => (
@@ -110,7 +137,28 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
                   <div className="">{percentAccuracyOption}%</div>
                 </div>
               )}
-            </li>
+              {conditionsAppliedOption && (
+                <ul className="flex items-center list-none ml-2">
+                  {conditionsAppliedOption.map((conditionBlueprint) => {
+                    const condition = new COMBATANT_CONDITION_CONSTRUCTORS[
+                      conditionBlueprint.conditionName
+                    ](
+                      "",
+                      { entityProperties: { id: "", name: "" }, friendOrFoe: FriendOrFoe.Hostile },
+                      conditionBlueprint.level,
+                      new MaxAndCurrent(conditionBlueprint.stacks, conditionBlueprint.stacks)
+                    );
+
+                    return (
+                      <li className="flex items-center" key={conditionBlueprint.conditionName}>
+                        <ConditionIndicator key={condition.name} condition={condition} />
+                        <div>R{conditionBlueprint.level}</div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </button>
           );
         })}
       </ul>
@@ -121,9 +169,11 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
 function PayableResourceCostDisplay({
   resourceType,
   cost,
+  unmetCosts,
 }: {
   resourceType: ActionPayableResource;
   cost: number;
+  unmetCosts: ActionPayableResource[];
 }) {
   const iconGetter = PAYABLE_RESOURCE_ICONS[resourceType];
   let extraStyles = "";
@@ -143,6 +193,7 @@ function PayableResourceCostDisplay({
   }
 
   const costValue = Math.abs(cost);
+  const costUnmet = unmetCosts.includes(resourceType);
 
   return (
     <div className="relative ">
@@ -150,7 +201,7 @@ function PayableResourceCostDisplay({
         {iconGetter("h-full " + extraStyles)}
       </div>
       <div
-        className="absolute text-zinc-300 font-bold h-5 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 "
+        className={`absolute ${costUnmet ? UNMET_REQUIREMENT_TEXT_COLOR : "text-zinc-300"} font-bold h-5 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 `}
         style={{ textShadow: "2px 2px 0px #000000" }}
       >
         {!!(costValue > 1) && Math.abs(cost)}

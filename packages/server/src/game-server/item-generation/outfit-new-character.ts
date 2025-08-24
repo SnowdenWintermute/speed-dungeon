@@ -104,7 +104,7 @@ export function outfitNewCharacter(character: Combatant) {
 
   combatantProperties.hitPoints = Math.floor(combatantProperties.hitPoints * 0.5);
   combatantProperties.mana = Math.floor(combatantProperties.mana * 0.4);
-  // combatantProperties.mana = 1;
+  combatantProperties.mana = 4;
 }
 
 function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {

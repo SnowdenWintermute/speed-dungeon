@@ -1,8 +1,8 @@
 import { useGameStore } from "@/stores/game-store";
 import { ConditionTurnTracker } from "@speed-dungeon/common";
 import React from "react";
-import { CONDITION_INDICATOR_ICONS } from "../../combatant-plaques/condition-indicators/condition-indicator-icons";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import { CONDITION_INDICATOR_ICONS } from "@/app/icons";
 
 export default function ConditionTurnTrackerAggregation({
   trackers,

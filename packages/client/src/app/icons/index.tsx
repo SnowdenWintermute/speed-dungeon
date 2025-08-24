@@ -5,6 +5,7 @@ import HealthCrossIcon from "../../../public/img/game-ui-icons/health-cross.svg"
 import IceIcon from "../../../public/img/game-ui-icons/ice.svg";
 import PlusSign from "../../../public/img/game-ui-icons/plus-sign.svg";
 import EyeClosed from "../../../public/img/game-ui-icons/eye-closed.svg";
+import EyeOpenIcon from "../../../public/img/game-ui-icons/eye-open.svg";
 import BloodWithH from "../../../public/img/game-ui-icons/blood-with-h.svg";
 import Wind from "../../../public/img/game-ui-icons/wind.svg";
 import Water from "../../../public/img/game-ui-icons/water.svg";
@@ -20,9 +21,15 @@ import Heart from "../../../public/img/game-ui-icons/heart.svg";
 import Droplet from "../../../public/img/game-ui-icons/droplet.svg";
 import Shards from "../../../public/img/game-ui-icons/shards.svg";
 import Target from "../../../public/img/game-ui-icons/target-icon.svg";
+import BombIcon from "../../../public/img/game-ui-icons/bomb.svg";
 
 import { ReactNode } from "react";
-import { ActionPayableResource, KineticDamageType, MagicalElement } from "@speed-dungeon/common";
+import {
+  ActionPayableResource,
+  CombatantConditionName,
+  KineticDamageType,
+  MagicalElement,
+} from "@speed-dungeon/common";
 
 export enum IconName {
   Fire,
@@ -99,4 +106,15 @@ export const PAYABLE_RESOURCE_ICONS: Record<
   [ActionPayableResource.Mana]: SVG_ICONS[IconName.Droplet],
   [ActionPayableResource.ActionPoints]: SVG_ICONS[IconName.Clock],
   [ActionPayableResource.Shards]: SVG_ICONS[IconName.Shards],
+};
+
+export const CONDITION_INDICATOR_ICONS: Record<CombatantConditionName, ReactNode> = {
+  [CombatantConditionName.PrimedForExplosion]: <BombIcon className="fill-firered h-full" />,
+  [CombatantConditionName.PrimedForIceBurst]: <IceIcon className="fill-iceblue h-full" />,
+  [CombatantConditionName.Burning]: <FireIcon className="fill-firered h-full" />,
+  [CombatantConditionName.Blinded]: (
+    <div className="h-full bg-darknessblack">
+      <EyeOpenIcon className="fill-lightningpurple stroke-darknessblack h-full" />
+    </div>
+  ),
 };
