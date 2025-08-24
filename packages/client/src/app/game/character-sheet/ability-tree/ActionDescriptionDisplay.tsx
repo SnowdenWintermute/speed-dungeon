@@ -239,13 +239,26 @@ export default function ActionDescriptionDisplay({
 export function ResourceChangeDisplay({
   resourceChangeProperties,
   useIcon,
+  hideHpChangeType,
 }: {
   resourceChangeProperties: CombatActionResourceChangeProperties;
   useIcon?: boolean;
+  hideHpChangeType?: boolean;
 }) {
+  const { isHealing } = resourceChangeProperties.resourceChangeSource;
+
   return (
     <div className="flex items-center">
-      <span className="mr-1">{`${resourceChangeProperties.baseValues.min}-${resourceChangeProperties.baseValues.max}`}</span>
+      <span
+        className={`mr-1 ${isHealing && "text-green-300"}`}
+        style={
+          isHealing
+            ? {
+                textShadow: "2px 2px 0px #000000",
+              }
+            : {}
+        }
+      >{`${resourceChangeProperties.baseValues.min}-${resourceChangeProperties.baseValues.max}`}</span>
 
       <DamageTypeBadgeWithIcon hpChangeSource={resourceChangeProperties.resourceChangeSource} />
       {
@@ -258,9 +271,7 @@ export function ResourceChangeDisplay({
         // />
         // )
       }
-      <span className="ml-1">
-        {resourceChangeProperties.resourceChangeSource.isHealing ? "healing" : "damage"}
-      </span>
+      {!hideHpChangeType && <span className="ml-1">{isHealing ? "healing" : "damage"}</span>}
     </div>
   );
 }

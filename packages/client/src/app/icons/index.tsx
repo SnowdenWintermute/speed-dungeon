@@ -19,6 +19,7 @@ import Clock from "../../../public/img/game-ui-icons/clock-icon.svg";
 import Heart from "../../../public/img/game-ui-icons/heart.svg";
 import Droplet from "../../../public/img/game-ui-icons/droplet.svg";
 import Shards from "../../../public/img/game-ui-icons/shards.svg";
+import Target from "../../../public/img/game-ui-icons/target-icon.svg";
 
 import { ReactNode } from "react";
 import { ActionPayableResource, KineticDamageType, MagicalElement } from "@speed-dungeon/common";
@@ -45,6 +46,7 @@ export enum IconName {
   Heart,
   Droplet,
   Shards,
+  Target,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -69,6 +71,7 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.Droplet]: (className) => <Droplet className={className} />,
   [IconName.Clock]: (className) => <Clock className={className} />,
   [IconName.Shards]: (className) => <Shards className={className} />,
+  [IconName.Target]: (className) => <Target className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {

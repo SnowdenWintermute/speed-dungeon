@@ -53,9 +53,11 @@ export default function WeaponDamage({ equipment }: Props) {
         className={`mb-1 ${damageStyles}`}
       >{`Damage: ${modifiedWeaponDamage.min}-${modifiedWeaponDamage.max}`}</div>
       {damagetypes.length > 0 && (
-        <ul className="list-none p-0 w-fit m-auto flex flex-col items-center">
+        <ul className="list-none p-0 w-fit mx-auto flex flex-col items-center">
           {damagetypes.map((item, i) => (
-            <DamageTypeBadgeWithIcon key={i} hpChangeSource={item} />
+            <div key={i} className="mb-1">
+              <DamageTypeBadgeWithIcon hpChangeSource={item} />
+            </div>
           ))}
         </ul>
       )}

@@ -1,22 +1,19 @@
 import {
-  ACTION_PAYABLE_RESOURCE_STRINGS,
+  ActionAccuracyType,
   ActionPayableResource,
   COMBAT_ACTIONS,
-  COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
   CombatActionName,
-  CombatActionUsabilityContext,
   createArrayFilledWithSequentialNumbers,
   getUnmetCostResourceTypes,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import React, { ReactNode } from "react";
+import React from "react";
 import { useGameStore } from "@/stores/game-store";
-import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import ActionDetailsTitleBar from "./ActionDetailsTitleBar";
 import { COMBAT_ACTION_DESCRIPTIONS } from "../../character-sheet/ability-tree/ability-descriptions";
 import { ActionDescriptionComponent } from "../../character-sheet/ability-tree/action-description";
 import { ResourceChangeDisplay } from "../../character-sheet/ability-tree/ActionDescriptionDisplay";
-import { PAYABLE_RESOURCE_ICONS } from "@/app/icons";
+import { IconName, PAYABLE_RESOURCE_ICONS, SVG_ICONS } from "@/app/icons";
 
 interface Props {
   actionName: CombatActionName;
@@ -66,15 +63,21 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
 
           const resourceChangePropertiesOption =
             rankDescription[ActionDescriptionComponent.ResourceChanges];
-          const actionPointCostOption = rankDescription[ActionDescriptionComponent.ActionPointCost];
 
           const rankCosts =
             action.costProperties.getResourceCosts(combatantProperties, inCombat, rank) || {};
 
+          const accuracy = rankDescription[ActionDescriptionComponent.Accuracy];
+          const percentAccuracyOption =
+            accuracy.type === ActionAccuracyType.Percentage ? Math.floor(accuracy.value) : null;
+
+          const conditionsAppliedOption =
+            rankDescription[ActionDescriptionComponent.AppliesConditions];
+
           return (
             <li
               key={`${action.name}${rank}`}
-              className={`h-10 w-full flex items-center px-2 ${!!(selectedLevelOption === rank) && "bg-slate-800"}`}
+              className={`h-10 w-full flex items-center px-2 ${!!(selectedLevelOption === rank) && "bg-slate-800"} `}
             >
               <div className="flex items-center h-full">
                 {iterateNumericEnumKeyedRecord(rankCosts).map(([resourceType, cost]) => (
@@ -84,7 +87,7 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
                 ))}
               </div>
               {resourceChangePropertiesOption && (
-                <ul className="mt-1">
+                <ul className="">
                   {resourceChangePropertiesOption
                     .filter((item) => item.changeProperties !== null)
                     .map((item, i) => (
@@ -92,9 +95,20 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
                         key={i}
                         resourceChangeProperties={item.changeProperties!}
                         useIcon
+                        hideHpChangeType
                       />
                     ))}
                 </ul>
+              )}
+              {percentAccuracyOption && (
+                <div className="h-full flex items-center ml-2">
+                  {
+                    <div className="h-6 mr-1">
+                      {SVG_ICONS[IconName.Target]("h-full fill-slate-400 stroke-slate-400 ")}
+                    </div>
+                  }{" "}
+                  <div className="">{percentAccuracyOption}%</div>
+                </div>
               )}
             </li>
           );
@@ -136,7 +150,7 @@ function PayableResourceCostDisplay({
         {iconGetter("h-full " + extraStyles)}
       </div>
       <div
-        className="absolute text-white h-5 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 "
+        className="absolute text-zinc-300 font-bold h-5 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 "
         style={{ textShadow: "2px 2px 0px #000000" }}
       >
         {!!(costValue > 1) && Math.abs(cost)}

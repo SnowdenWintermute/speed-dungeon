@@ -90,14 +90,14 @@ function getDamageCategoryBorderColor(hpChangeSourceCategoryType: ResourceChange
 }
 
 export function DamageTypeBadgeWithIcon({ hpChangeSource }: Props) {
-  const { elementOption, kineticDamageTypeOption } = hpChangeSource;
+  const { elementOption, kineticDamageTypeOption, isHealing } = hpChangeSource;
 
   let physicalDamageTypeTextOption: null | string = null;
   let physicalDamageTypeIconOption: null | ReactNode = null;
   if (kineticDamageTypeOption !== undefined) {
     physicalDamageTypeTextOption = KINETIC_DAMAGE_TYPE_STRINGS[kineticDamageTypeOption];
     physicalDamageTypeIconOption = KINETIC_TYPE_ICONS[kineticDamageTypeOption](
-      "h-full py-0.5 w-7 bg-slate-800  fill-slate-400 stroke-slate-400 "
+      "h-full  w-7 bg-slate-800  fill-slate-400 stroke-slate-400 "
     );
   }
 
@@ -116,13 +116,13 @@ export function DamageTypeBadgeWithIcon({ hpChangeSource }: Props) {
 
   return (
     <div
-      className={`border w-fit min-w-fit max-w-fit mb-1 flex items-center ${damageCategoryBorderColor}`}
+      className={`border w-fit min-w-fit max-w-fit flex items-center ${damageCategoryBorderColor}`}
     >
       <span className={`inline-block pl-1 pr-1 h-full`}>
         {HP_CHANGE_SOURCE_CATEGORY_STRINGS[hpChangeSource.category]}
       </span>
       {physicalDamageTypeIconOption && (
-        <div className={`h-6 border-l px-1 ${damageCategoryBorderColor}`}>
+        <div className={`h-6 border-l px-1 bg-slate-800 ${damageCategoryBorderColor}`}>
           {physicalDamageTypeIconOption}
         </div>
       )}

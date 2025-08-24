@@ -106,6 +106,8 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
 
   combatantProperties.aiTypes = [AiType.Healer];
   // monster.combatantProperties.hitPoints = Math.floor(monster.combatantProperties.hitPoints * 0.5);
+  // @TESTING - random evasion
+  combatantProperties.inherentAttributes[CombatAttribute.Evasion] = Math.floor(Math.random() * 20);
 
   return monster;
 }
