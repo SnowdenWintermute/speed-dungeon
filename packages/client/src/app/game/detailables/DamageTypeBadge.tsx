@@ -6,20 +6,10 @@ import {
   ResourceChangeSource,
   ResourceChangeSourceCategory,
   KINETIC_DAMAGE_TYPE_STRINGS,
-  KineticDamageType,
   MAGICAL_ELEMENT_STRINGS,
 } from "@speed-dungeon/common";
-import React, { cloneElement, ReactNode } from "react";
-import BluntIcon from "../../../../public/img/hp-change-source-icons/blunt.svg";
-import PiercingIcon from "../../../../public/img/hp-change-source-icons/piercing.svg";
-import SlashingIcon from "../../../../public/img/hp-change-source-icons/slashing.svg";
+import React, { ReactNode } from "react";
 import { KINETIC_TYPE_ICONS, MAGICAL_ELEMENT_ICONS } from "@/app/icons";
-
-const KINETIC_ICONS: Record<KineticDamageType, ReactNode> = {
-  [KineticDamageType.Blunt]: <BluntIcon />,
-  [KineticDamageType.Slashing]: <PiercingIcon />,
-  [KineticDamageType.Piercing]: <SlashingIcon />,
-};
 
 interface Props {
   hpChangeSource: ResourceChangeSource;

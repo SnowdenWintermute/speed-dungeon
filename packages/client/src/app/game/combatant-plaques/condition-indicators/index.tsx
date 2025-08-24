@@ -17,7 +17,11 @@ export default function ConditionIndicators(props: Props) {
   return (
     <ul className="flex">
       {conditions.map((condition, i) => {
-        return <ConditionIndicator key={condition.name + i} condition={condition} />;
+        return (
+          <li key={COMBATANT_CONDITION_NAME_STRINGS[condition.name] + i}>
+            <ConditionIndicator condition={condition} />
+          </li>
+        );
       })}
     </ul>
   );
@@ -29,7 +33,7 @@ export function ConditionIndicator({ condition }: { condition: CombatantConditio
     ? `\nid: ${condition.id} \nappliedBy: ${condition.appliedBy.entityProperties.id}`
     : "";
   return (
-    <li className="h-6 mr-1 border border-slate-400 bg-slate-700 pointer-events-auto cursor-help relative">
+    <div className="h-6 mr-1 border border-slate-400 bg-slate-700 pointer-events-auto cursor-help relative">
       <HoverableTooltipWrapper
         extraStyles="h-full w-full p-0.5"
         tooltipText={`${COMBATANT_CONDITION_NAME_STRINGS[condition.name]}: ${COMBATANT_CONDITION_DESCRIPTIONS[condition.name]} (rank ${condition.level})${hoverableDebugText}`}
@@ -41,6 +45,6 @@ export function ConditionIndicator({ condition }: { condition: CombatantConditio
           {condition.stacksOption.current}
         </div>
       )}
-    </li>
+    </div>
   );
 }

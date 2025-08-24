@@ -17,6 +17,7 @@ import Slashing from "../../../public/img/game-ui-icons/slashing.svg";
 import Blunt from "../../../public/img/game-ui-icons/blunt.svg";
 import Piercing from "../../../public/img/game-ui-icons/piercing.svg";
 import Clock from "../../../public/img/game-ui-icons/clock-icon.svg";
+import Hourglass from "../../../public/img/game-ui-icons/hourglass.svg";
 import Heart from "../../../public/img/game-ui-icons/heart.svg";
 import Droplet from "../../../public/img/game-ui-icons/droplet.svg";
 import Shards from "../../../public/img/game-ui-icons/shards.svg";
@@ -54,6 +55,7 @@ export enum IconName {
   Droplet,
   Shards,
   Target,
+  Hourglass,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -79,6 +81,7 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.Clock]: (className) => <Clock className={className} />,
   [IconName.Shards]: (className) => <Shards className={className} />,
   [IconName.Target]: (className) => <Target className={className} />,
+  [IconName.Hourglass]: (className) => <Hourglass className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {

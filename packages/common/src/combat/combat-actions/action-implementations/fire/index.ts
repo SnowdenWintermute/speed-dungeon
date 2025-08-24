@@ -1,4 +1,5 @@
 import {
+  ActionPayableResource,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponentConfig,
   CombatActionLeaf,
@@ -41,6 +42,10 @@ const config: CombatActionComponentConfig = {
   hitOutcomeProperties: FIRE_HIT_OUTCOME_PROPERTIES,
   costProperties: {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
+    costBases: {
+      ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell].costBases,
+      [ActionPayableResource.ActionPoints]: { base: 0, additives: { actionLevel: 1 } },
+    },
     getCooldownTurns(user, selectedActionLevel) {
       return 1;
     },

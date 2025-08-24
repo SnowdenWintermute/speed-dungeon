@@ -4,10 +4,16 @@ import {
   COMBATANT_CONDITION_CONSTRUCTORS,
   COMBAT_ACTIONS,
   ClientToServerEvent,
+  CombatActionExecutionIntent,
   CombatActionName,
-  CombatantCondition,
+  CombatAttribute,
+  CombatantContext,
+  CombatantProperties,
+  ERROR_MESSAGES,
   FriendOrFoe,
+  HitOutcomeMitigationCalculator,
   MaxAndCurrent,
+  TargetingCalculator,
   createArrayFilledWithSequentialNumbers,
   getUnmetCostResourceTypes,
   iterateNumericEnumKeyedRecord,
@@ -18,15 +24,11 @@ import ActionDetailsTitleBar from "./ActionDetailsTitleBar";
 import { COMBAT_ACTION_DESCRIPTIONS } from "../../character-sheet/ability-tree/ability-descriptions";
 import { ActionDescriptionComponent } from "../../character-sheet/ability-tree/action-description";
 import { ResourceChangeDisplay } from "../../character-sheet/ability-tree/ActionDescriptionDisplay";
-import {
-  CONDITION_INDICATOR_ICONS,
-  IconName,
-  PAYABLE_RESOURCE_ICONS,
-  SVG_ICONS,
-} from "@/app/icons";
+import { IconName, PAYABLE_RESOURCE_ICONS, SVG_ICONS } from "@/app/icons";
 import { ConditionIndicator } from "../../combatant-plaques/condition-indicators";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { UNMET_REQUIREMENT_COLOR, UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 
 interface Props {
   actionName: CombatActionName;
@@ -34,6 +36,8 @@ interface Props {
 }
 
 export default function ActionSelectedDetails({ actionName, hideTitle }: Props) {
+  const gameOption = useGameStore().game;
+  if (!gameOption) return <div>{ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME}</div>;
   const partyResult = useGameStore().getParty();
   if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
   const party = partyResult;
@@ -47,16 +51,28 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
   const selectedLevelOption = combatantProperties.selectedActionLevel;
 
   const inCombat = !!Object.values(party.currentRoom.monsters).length;
-
   const action = COMBAT_ACTIONS[actionName];
-  const costs =
-    action.costProperties.getResourceCosts(
-      combatantProperties,
-      inCombat,
-      selectedLevelOption || 1
-    ) || {};
-
   const actionDescription = COMBAT_ACTION_DESCRIPTIONS[actionName];
+
+  const targetingCalculator = new TargetingCalculator(
+    new CombatantContext(gameOption, party, focusedCharacterResult),
+    null
+  );
+  const currentTargetsOption = combatantProperties.combatActionTarget;
+  if (!currentTargetsOption) return <div>{ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED}</div>;
+  const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
+    party,
+    new CombatActionExecutionIntent(
+      actionState.actionName,
+      currentTargetsOption,
+      selectedLevelOption || 1
+    )
+  );
+  if (primaryTargetResult instanceof Error) return <div>{primaryTargetResult.message}</div>;
+
+  const targetEvasion = CombatantProperties.getTotalAttributes(
+    primaryTargetResult.combatantProperties
+  )[CombatAttribute.Evasion];
 
   return (
     <div className="flex flex-col pointer-events-auto" style={{ flex: `1 1 1px` }}>
@@ -68,6 +84,14 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
       )}
       <ul className="list-none">
         {createArrayFilledWithSequentialNumbers(actionState.level, 1).map((rank) => {
+          const percentChanceToHit = HitOutcomeMitigationCalculator.getActionHitChance(
+            action,
+            combatantProperties,
+            rank,
+            targetEvasion,
+            true
+          );
+
           const rankDescription = actionDescription.getDescriptionByLevel(
             focusedCharacterResult,
             rank
@@ -89,6 +113,8 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
           const conditionsAppliedOption =
             rankDescription[ActionDescriptionComponent.AppliesConditions];
 
+          const endsTurnOption = rankDescription[ActionDescriptionComponent.RequiresTurn];
+
           function handleSelectActionLevel(level: number) {
             websocketConnection.emit(ClientToServerEvent.SelectCombatActionLevel, {
               characterId: entityProperties.id,
@@ -99,7 +125,7 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
           return (
             <button
               key={`${action.name}${rank}`}
-              className={`h-10 w-full flex items-center px-2 ${!!(unmetCosts.length > 0) && "pointer-events-none"} ${!!(selectedLevelOption === rank) && "bg-slate-800"} `}
+              className={`h-10 w-full flex items-center px-2 ${!!(unmetCosts.length > 0) && " pointer-events-none"} ${!!(selectedLevelOption === rank) && "bg-slate-800"} `}
               onClick={() => handleSelectActionLevel(rank)}
             >
               <div className="flex items-center h-full">
@@ -134,7 +160,7 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
                       {SVG_ICONS[IconName.Target]("h-full fill-slate-400 stroke-slate-400 ")}
                     </div>
                   }{" "}
-                  <div className="">{percentAccuracyOption}%</div>
+                  <div className="">{Math.floor(percentChanceToHit.afterEvasion)}%</div>
                 </div>
               )}
               {conditionsAppliedOption && (
@@ -157,6 +183,13 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
                     );
                   })}
                 </ul>
+              )}
+              {endsTurnOption && (
+                <HoverableTooltipWrapper extraStyles="ml-auto " tooltipText="Ends turn on use">
+                  <div className="h-6">
+                    {SVG_ICONS[IconName.Hourglass]("h-full fill-slate-400")}
+                  </div>
+                </HoverableTooltipWrapper>
               )}
             </button>
           );
