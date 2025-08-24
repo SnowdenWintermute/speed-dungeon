@@ -91,6 +91,7 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
                       <ResourceChangeDisplay
                         key={i}
                         resourceChangeProperties={item.changeProperties!}
+                        useIcon
                       />
                     ))}
                 </ul>

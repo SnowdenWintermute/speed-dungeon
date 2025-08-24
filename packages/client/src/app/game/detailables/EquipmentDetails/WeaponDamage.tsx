@@ -9,7 +9,7 @@ import {
 } from "@speed-dungeon/common";
 import { NumberRange } from "@speed-dungeon/common";
 import React from "react";
-import DamageTypeBadge from "../DamageTypeBadge";
+import DamageTypeBadge, { DamageTypeBadgeWithIcon } from "../DamageTypeBadge";
 
 interface Props {
   equipment: Equipment;
@@ -55,7 +55,7 @@ export default function WeaponDamage({ equipment }: Props) {
       {damagetypes.length > 0 && (
         <ul className="list-none p-0 w-fit m-auto flex flex-col items-center">
           {damagetypes.map((item, i) => (
-            <DamageTypeBadge key={i} hpChangeSource={item} />
+            <DamageTypeBadgeWithIcon key={i} hpChangeSource={item} />
           ))}
         </ul>
       )}

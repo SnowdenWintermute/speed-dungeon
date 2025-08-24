@@ -16,7 +16,7 @@ import {
 import { ActionDescription, ActionDescriptionComponent } from "./action-description";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import { formatActionAccuracy } from "@speed-dungeon/common";
-import DamageTypeBadge from "../../detailables/DamageTypeBadge";
+import DamageTypeBadge, { DamageTypeBadgeWithIcon } from "../../detailables/DamageTypeBadge";
 
 export default function ActionDescriptionDisplay({
   description,
@@ -238,13 +238,26 @@ export default function ActionDescriptionDisplay({
 
 export function ResourceChangeDisplay({
   resourceChangeProperties,
+  useIcon,
 }: {
   resourceChangeProperties: CombatActionResourceChangeProperties;
+  useIcon?: boolean;
 }) {
   return (
-    <div className="flex">
+    <div className="flex items-center">
       <span className="mr-1">{`${resourceChangeProperties.baseValues.min}-${resourceChangeProperties.baseValues.max}`}</span>
-      <DamageTypeBadge hpChangeSource={resourceChangeProperties.resourceChangeSource} />
+
+      <DamageTypeBadgeWithIcon hpChangeSource={resourceChangeProperties.resourceChangeSource} />
+      {
+        // useIcon ? (
+        //   <DamageTypeBadgeWithIcon hpChangeSource={resourceChangeProperties.resourceChangeSource} />
+        // ) : (
+        // <DamageTypeBadge
+        //   hpChangeSource={resourceChangeProperties.resourceChangeSource}
+        //   useIcon={useIcon}
+        // />
+        // )
+      }
       <span className="ml-1">
         {resourceChangeProperties.resourceChangeSource.isHealing ? "healing" : "damage"}
       </span>

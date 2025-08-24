@@ -175,6 +175,20 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   const items = generateOneOfEachItem();
   combatantProperties.inventory.equipment.push(...(items as Equipment[]));
 
+  const elementalStaves = [];
+  for (let i = 0; i < 20; i += 1) {
+    const staff = generateSpecificEquipmentType(
+      {
+        equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+        baseItemType: TwoHandedMeleeWeapon.ElementalStaff,
+      },
+      true
+    );
+    elementalStaves.push(staff);
+  }
+
+  combatantProperties.inventory.equipment.push(...elementalStaves);
+
   // giveTestingCombatAttributes(combatantProperties);
   combatantProperties.level = 5;
   combatantProperties.unspentAttributePoints = 3;
