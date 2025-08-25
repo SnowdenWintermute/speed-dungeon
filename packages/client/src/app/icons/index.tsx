@@ -1,5 +1,4 @@
 import FireIcon from "../../../public/img/game-ui-icons/fire.svg";
-import RangedIcon from "../../../public/img/game-ui-icons/ranged.svg";
 import SwordSlashIcon from "../../../public/img/game-ui-icons/sword-slash.svg";
 import HealthCrossIcon from "../../../public/img/game-ui-icons/health-cross.svg";
 import IceIcon from "../../../public/img/game-ui-icons/ice.svg";
@@ -23,6 +22,7 @@ import Droplet from "../../../public/img/game-ui-icons/droplet.svg";
 import Shards from "../../../public/img/game-ui-icons/shards.svg";
 import Target from "../../../public/img/game-ui-icons/target-icon.svg";
 import BombIcon from "../../../public/img/game-ui-icons/bomb.svg";
+import CrossedArrows from "../../../public/img/game-ui-icons/crossed-arrows.svg";
 
 import { ReactNode } from "react";
 import {
@@ -41,7 +41,7 @@ export enum IconName {
   Mountain,
   Eclipse,
   Sun,
-  Ranged,
+  CrossedArrows,
   SwordSlash,
   HealthCross,
   PlusSign,
@@ -60,7 +60,7 @@ export enum IconName {
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.Fire]: (className) => <FireIcon className={className} />,
-  [IconName.Ranged]: (className) => <RangedIcon className={className} />,
+  [IconName.CrossedArrows]: (className) => <CrossedArrows className={className} />,
   [IconName.SwordSlash]: (className) => <SwordSlashIcon className={className} />,
   [IconName.HealthCross]: (className) => <HealthCrossIcon className={className} />,
   [IconName.Ice]: (className) => <IceIcon className={className} />,

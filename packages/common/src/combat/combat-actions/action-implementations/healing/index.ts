@@ -55,6 +55,7 @@ const config: CombatActionComponentConfig = {
       },
     },
     requiresCombatTurnInThisContext: () => false,
+    getEndsTurnOnUse: () => false,
   },
   stepsConfig: HEALING_STEPS_CONFIG,
   shouldExecute: () => true,

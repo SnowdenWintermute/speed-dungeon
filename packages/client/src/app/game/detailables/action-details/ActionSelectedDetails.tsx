@@ -139,58 +139,65 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
                   </div>
                 ))}
               </div>
-              {resourceChangePropertiesOption && (
-                <ul className="ml-2">
-                  {resourceChangePropertiesOption
-                    .filter((item) => item.changeProperties !== null)
-                    .map((item, i) => (
-                      <ResourceChangeDisplay
-                        key={i}
-                        resourceChangeProperties={item.changeProperties!}
-                        useIcon
-                        hideHpChangeType
-                      />
-                    ))}
-                </ul>
-              )}
-              {percentAccuracyOption && (
-                <div className="h-full flex items-center ml-2">
-                  {
-                    <div className="h-6 mr-1">
-                      {SVG_ICONS[IconName.Target]("h-full fill-slate-400 stroke-slate-400 ")}
-                    </div>
-                  }{" "}
-                  <div className="">{Math.floor(percentChanceToHit.afterEvasion)}%</div>
-                </div>
-              )}
-              {conditionsAppliedOption && (
-                <ul className="flex items-center list-none ml-2">
-                  {conditionsAppliedOption.map((conditionBlueprint) => {
-                    const condition = new COMBATANT_CONDITION_CONSTRUCTORS[
-                      conditionBlueprint.conditionName
-                    ](
-                      "",
-                      { entityProperties: { id: "", name: "" }, friendOrFoe: FriendOrFoe.Hostile },
-                      conditionBlueprint.level,
-                      new MaxAndCurrent(conditionBlueprint.stacks, conditionBlueprint.stacks)
-                    );
-
-                    return (
-                      <li className="flex items-center" key={conditionBlueprint.conditionName}>
-                        <ConditionIndicator key={condition.name} condition={condition} />
-                        <div>R{conditionBlueprint.level}</div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-              {endsTurnOption && (
-                <HoverableTooltipWrapper extraStyles="ml-auto " tooltipText="Ends turn on use">
-                  <div className="h-6">
-                    {SVG_ICONS[IconName.Hourglass]("h-full fill-slate-400")}
+              <div
+                className={`flex items-center w-full ${!!(unmetCosts.length > 0) && " opacity-50"}`}
+              >
+                {resourceChangePropertiesOption && (
+                  <ul className="ml-2">
+                    {resourceChangePropertiesOption
+                      .filter((item) => item.changeProperties !== null)
+                      .map((item, i) => (
+                        <ResourceChangeDisplay
+                          key={i}
+                          resourceChangeProperties={item.changeProperties!}
+                          useIcon
+                          hideHpChangeType
+                        />
+                      ))}
+                  </ul>
+                )}
+                {percentAccuracyOption && (
+                  <div className="h-full flex items-center ml-2">
+                    {
+                      <div className="h-6 mr-1">
+                        {SVG_ICONS[IconName.Target]("h-full fill-slate-400 stroke-slate-400 ")}
+                      </div>
+                    }{" "}
+                    <div className="">{Math.floor(percentChanceToHit.afterEvasion)}%</div>
                   </div>
-                </HoverableTooltipWrapper>
-              )}
+                )}
+                {conditionsAppliedOption && (
+                  <ul className="flex items-center list-none ml-2">
+                    {conditionsAppliedOption.map((conditionBlueprint) => {
+                      const condition = new COMBATANT_CONDITION_CONSTRUCTORS[
+                        conditionBlueprint.conditionName
+                      ](
+                        "",
+                        {
+                          entityProperties: { id: "", name: "" },
+                          friendOrFoe: FriendOrFoe.Hostile,
+                        },
+                        conditionBlueprint.level,
+                        new MaxAndCurrent(conditionBlueprint.stacks, conditionBlueprint.stacks)
+                      );
+
+                      return (
+                        <li className="flex items-center" key={conditionBlueprint.conditionName}>
+                          <ConditionIndicator key={condition.name} condition={condition} />
+                          <div>R{conditionBlueprint.level}</div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+                {endsTurnOption && (
+                  <HoverableTooltipWrapper extraStyles="ml-auto " tooltipText="Ends turn on use">
+                    <div className="h-6">
+                      {SVG_ICONS[IconName.Hourglass]("h-full fill-slate-400")}
+                    </div>
+                  </HoverableTooltipWrapper>
+                )}
+              </div>
             </button>
           );
         })}

@@ -1,5 +1,14 @@
-import { IconName, SVG_ICONS } from "@/app/icons";
-import { CombatActionName } from "@speed-dungeon/common";
+import { IconName, KINETIC_TYPE_ICONS, MAGICAL_ELEMENT_ICONS, SVG_ICONS } from "@/app/icons";
+import {
+  CombatActionName,
+  CombatantEquipment,
+  CombatantProperties,
+  Equipment,
+  EquipmentType,
+  HoldableSlotType,
+  KineticDamageType,
+  throwIfError,
+} from "@speed-dungeon/common";
 import { ReactNode } from "react";
 
 export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) => ReactNode)> = {
@@ -30,3 +39,58 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
   [CombatActionName.Blind]: (className: string) => SVG_ICONS[IconName.EyeClosed](className),
   [CombatActionName.PayActionPoint]: null,
 };
+
+export function getAttackActionIcons(user: CombatantProperties) {
+  const mhIcons = [];
+
+  const { actionPoints } = user;
+  const mainHandEquipmentOption = CombatantEquipment.getEquippedHoldable(
+    user,
+    HoldableSlotType.MainHand
+  );
+  const offHandEquipmentOption = CombatantEquipment.getEquippedHoldable(
+    user,
+    HoldableSlotType.OffHand
+  );
+  const ohIsShield =
+    offHandEquipmentOption?.equipmentBaseItemProperties.equipmentType === EquipmentType.Shield;
+
+  if (
+    mainHandEquipmentOption?.equipmentBaseItemProperties.equipmentType ===
+    EquipmentType.TwoHandedRangedWeapon
+  )
+    mhIcons.push(SVG_ICONS[IconName.CrossedArrows]);
+
+  if (mainHandEquipmentOption === undefined)
+    mhIcons.push(KINETIC_TYPE_ICONS[KineticDamageType.Blunt]);
+  else {
+    const mhWeaponPropertiesOption = throwIfError(
+      Equipment.getWeaponProperties(mainHandEquipmentOption)
+    );
+    mhWeaponPropertiesOption.damageClassification.forEach((classification) => {
+      if (classification.elementOption)
+        mhIcons.push(MAGICAL_ELEMENT_ICONS[classification.elementOption]);
+      if (classification.kineticDamageTypeOption)
+        mhIcons.push(KINETIC_TYPE_ICONS[classification.kineticDamageTypeOption]);
+    });
+  }
+
+  const ohIcons = [];
+  if (!ohIsShield && actionPoints > 1) {
+    if (offHandEquipmentOption === undefined)
+      ohIcons.push(KINETIC_TYPE_ICONS[KineticDamageType.Blunt]);
+    else {
+      const ohWeaponPropertiesOption = throwIfError(
+        Equipment.getWeaponProperties(offHandEquipmentOption)
+      );
+      ohWeaponPropertiesOption.damageClassification.forEach((classification) => {
+        if (classification.elementOption)
+          ohIcons.push(MAGICAL_ELEMENT_ICONS[classification.elementOption]);
+        if (classification.kineticDamageTypeOption)
+          ohIcons.push(KINETIC_TYPE_ICONS[classification.kineticDamageTypeOption]);
+      });
+    }
+  }
+
+  return { mhIcons, ohIcons };
+}

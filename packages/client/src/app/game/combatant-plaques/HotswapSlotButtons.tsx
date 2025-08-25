@@ -9,6 +9,7 @@ import {
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import OpenHandIcon from "../../../../public/img/game-ui-icons/open-hand.svg";
 import { HOTKEYS } from "@/hotkeys";
+import { disableButtonBecauseNotThisCombatantTurn } from "../ActionMenu/menu-state/base";
 
 interface Props {
   entityId: string;
@@ -27,13 +28,16 @@ export default function HotswapSlotButtons({
   vertical,
   registerKeyEvents,
 }: Props) {
-  const listenerRef = useRef<(e: KeyboardEvent) => void | null>();
+  const listenerRef = useRef<(e: KeyboardEvent) => void | null>(null);
   const focusedCharacterId = useGameStore.getState().focusedCharacterId;
   const prevSlotIndexRef = useRef(selectedSlotIndex);
   const [waitingForIndexChange, setWaitingForIndexChange] = useState(false);
+  const disableIfNotTurn = disableButtonBecauseNotThisCombatantTurn(entityId);
 
   function selectNextOrPrevious(nextOrPrevious: NextOrPrevious) {
     if (waitingForIndexChange) return;
+    if (disableIfNotTurn) return;
+
     const newIndex = getNextOrPreviousNumber(selectedSlotIndex, numSlots - 1, nextOrPrevious, {
       minNumber: 0,
     });
@@ -45,13 +49,13 @@ export default function HotswapSlotButtons({
 
     if (newIndex !== selectedSlotIndex) {
       prevSlotIndexRef.current = selectedSlotIndex;
-      setWaitingForIndexChange(true);
+      // setWaitingForIndexChange(true);
     }
   }
 
   useEffect(() => {
     if (selectedSlotIndex !== prevSlotIndexRef.current) {
-      setWaitingForIndexChange(false);
+      // setWaitingForIndexChange(false);
     }
   }, [selectedSlotIndex]);
 
@@ -90,7 +94,7 @@ export default function HotswapSlotButtons({
             entityId={entityId}
             index={i}
             isSelected={selectedSlotIndex === i}
-            disabled={waitingForIndexChange}
+            disabled={waitingForIndexChange || disableIfNotTurn}
           />
         </div>
       ))}

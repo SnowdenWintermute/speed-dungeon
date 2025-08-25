@@ -121,21 +121,7 @@ function getAttackActionDamageAndAccuracy(
   weaponOption: undefined | WeaponProperties,
   isOffHand: boolean
 ) {
-  let actionName = isOffHand
-    ? CombatActionName.AttackMeleeOffhand
-    : CombatActionName.AttackMeleeMainhand;
-  const { combatantProperties } = combatant;
-
-  if (weaponOption) {
-    const weaponProperties = weaponOption;
-    switch (weaponProperties.equipmentType) {
-      case EquipmentType.TwoHandedRangedWeapon:
-        actionName = CombatActionName.AttackRangedMainhand;
-      case EquipmentType.TwoHandedMeleeWeapon:
-        break;
-      case EquipmentType.OneHandedMeleeWeapon:
-    }
-  }
+  const actionName = getAttackActionName(weaponOption, isOffHand);
 
   const gameOption = useGameStore.getState().game;
 
@@ -144,6 +130,7 @@ function getAttackActionDamageAndAccuracy(
   const target = currentlyTargetedCombatantResult || TARGET_DUMMY_COMBATANT;
 
   const combatAction = COMBAT_ACTIONS[actionName];
+  const { combatantProperties } = combatant;
   const hpChangeProperties = combatAction.hitOutcomeProperties.resourceChangePropertiesGetters![
     CombatActionResource.HitPoints
   ]!(combatantProperties, 1, target);
@@ -171,4 +158,18 @@ function getAttackActionDamageAndAccuracy(
   );
 
   return { hpChangeRange, hitChance, critChance };
+}
+
+export function getAttackActionName(
+  weaponOption: WeaponProperties | undefined,
+  isOffHand: boolean
+) {
+  if (isOffHand) return CombatActionName.AttackMeleeOffhand;
+
+  if (weaponOption) {
+    const weaponProperties = weaponOption;
+    if (weaponProperties.equipmentType === EquipmentType.TwoHandedRangedWeapon)
+      return CombatActionName.AttackRangedMainhand;
+  }
+  return CombatActionName.AttackMeleeMainhand;
 }

@@ -1,5 +1,6 @@
 import { useGameStore } from "@/stores/game-store";
 import {
+  COMBAT_ACTIONS,
   CombatActionName,
   Combatant,
   CombatantContext,
@@ -19,11 +20,7 @@ export function getTargetOption(
   const partyResult = useGameStore.getState().getParty();
   if (partyResult instanceof Error) return undefined;
 
-  const actionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
-    user.combatantProperties,
-    actionName,
-    selectedActionLevel
-  );
+  const actionPropertiesResult = COMBAT_ACTIONS[actionName];
   if (actionPropertiesResult instanceof Error) return actionPropertiesResult;
   const combatActionProperties = actionPropertiesResult;
 

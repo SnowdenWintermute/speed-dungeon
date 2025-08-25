@@ -53,8 +53,8 @@ const config: CombatActionComponentConfig = {
         base: 1,
       },
     },
+    getEndsTurnOnUse: () => false,
     requiresCombatTurnInThisContext: (context) => {
-      // if (context.combatantContext.combatant.combatantProperties.quickActions === 0) return true;
       return false;
     },
   },

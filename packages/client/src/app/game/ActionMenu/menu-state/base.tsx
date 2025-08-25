@@ -21,6 +21,7 @@ import {
   ACTION_NAMES_TO_HIDE_IN_MENU,
   getUnmetCostResourceTypes,
   AbilityType,
+  CombatActionName,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -35,9 +36,10 @@ import {
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
-import { ACTION_MENU_PAGE_SIZE } from "..";
-import { getAbilityIcon } from "../../icons/get-action-icon";
-import { ACTION_ICONS } from "../../character-sheet/ability-tree/action-icons";
+import {
+  ACTION_ICONS,
+  getAttackActionIcons,
+} from "../../character-sheet/ability-tree/action-icons";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -107,10 +109,6 @@ export class BaseMenuState implements ActionMenuState {
     // disabled abilities if not their turn in a battle
     const disabledBecauseNotThisCombatantTurnResult =
       disableButtonBecauseNotThisCombatantTurn(characterId);
-    if (disabledBecauseNotThisCombatantTurnResult instanceof Error) {
-      console.trace(disabledBecauseNotThisCombatantTurnResult);
-      return toReturn;
-    }
 
     for (const [actionName, actionState] of iterateNumericEnumKeyedRecord(
       combatantProperties.abilityProperties.ownedActions
@@ -119,14 +117,27 @@ export class BaseMenuState implements ActionMenuState {
       const nameAsString = COMBAT_ACTION_NAME_STRINGS[actionName];
       const button = new ActionMenuButtonProperties(
         () => {
-          const iconOption = ACTION_ICONS[actionName];
+          let icons = [ACTION_ICONS[actionName]];
+
+          if (actionName === CombatActionName.Attack) {
+            const { mhIcons, ohIcons } = getAttackActionIcons(combatantProperties);
+          }
+
           return (
             <div className="flex justify-between h-full w-full pr-2">
               <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
                 {nameAsString}
               </div>
               <div className="h-full flex items-center p-2">
-                {iconOption ? iconOption("h-full fill-slate-400 stroke-slate-400") : "icon missing"}
+                {icons.map((iconGetterOption, i) => {
+                  if (iconGetterOption === null) return "icon missing";
+                  return (
+                    <div className="h-full" key={i}>
+                      {" "}
+                      {iconGetterOption("h-full fill-slate-400 stroke-slate-400")}{" "}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );
@@ -192,11 +203,11 @@ export class BaseMenuState implements ActionMenuState {
   }
 }
 
-function disableButtonBecauseNotThisCombatantTurn(combatantId: string) {
+export function disableButtonBecauseNotThisCombatantTurn(combatantId: string) {
   const gameOption = useGameStore.getState().game;
   const username = useGameStore.getState().username;
   const gameAndPartyResult = getGameAndParty(gameOption, username);
-  if (gameAndPartyResult instanceof Error) return gameAndPartyResult;
+  if (gameAndPartyResult instanceof Error) throw gameAndPartyResult;
 
   const [game, party] = gameAndPartyResult;
 
