@@ -35,12 +35,13 @@ import { ActionResolutionStepType } from "../../../../action-processing/index.js
 import { getMeleeAttackDestination } from "../../combat-action-destination-getters.js";
 import { getMeleeAttackBaseStepsConfig } from "./base-melee-attack-steps-config.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
+import cloneDeep from "lodash.clonedeep";
 
 const targetingProperties =
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
 
 const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
-  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],
+  ...cloneDeep(GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee]),
   accuracyModifier: OFF_HAND_ACCURACY_MODIFIER,
   addsPropertiesFromHoldableSlot: HoldableSlotType.OffHand,
   getCritChance: function (user: CombatantProperties): number {

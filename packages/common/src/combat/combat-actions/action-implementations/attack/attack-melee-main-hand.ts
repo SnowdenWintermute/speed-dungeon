@@ -14,6 +14,8 @@ import {
 } from "../../combat-action-targeting-properties.js";
 import {
   ActionHitOutcomePropertiesBaseTypes,
+  CombatActionHitOutcomeProperties,
+  CombatActionResource,
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
 import {
@@ -23,6 +25,27 @@ import {
 import { getMeleeAttackBaseStepsConfig } from "./base-melee-attack-steps-config.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { COMBAT_ACTIONS } from "../index.js";
+import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
+import { CombatAttribute } from "../../../../combatants/attributes/index.js";
+
+const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
+  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],
+  addsPropertiesFromHoldableSlot: HoldableSlotType.MainHand,
+
+  resourceChangePropertiesGetters: {
+    [CombatActionResource.HitPoints]: (user, actionLevel, primaryTarget) => {
+      const hpChangeProperties = getAttackResourceChangeProperties(
+        hitOutcomeProperties,
+        user,
+        actionLevel,
+        primaryTarget,
+        CombatAttribute.Strength
+      );
+      if (hpChangeProperties instanceof Error) return hpChangeProperties;
+      return hpChangeProperties;
+    },
+  },
+};
 
 export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   description: "Attack target using equipment in main hand",
@@ -53,10 +76,7 @@ export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
       return false;
     },
   },
-  hitOutcomeProperties: {
-    ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],
-    addsPropertiesFromHoldableSlot: HoldableSlotType.MainHand,
-  },
+  hitOutcomeProperties,
   stepsConfig: getMeleeAttackBaseStepsConfig(HoldableSlotType.MainHand),
   shouldExecute: () => true,
   getChildren: () => [],

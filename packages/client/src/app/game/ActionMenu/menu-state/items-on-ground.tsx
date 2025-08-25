@@ -17,7 +17,7 @@ export class ItemsOnGroundMenuState extends ItemsMenuState {
   numPages = 1;
   constructor() {
     const takeAllButton = new ActionMenuButtonProperties(
-      `Take items (${letterFromKeyCode(takeAllItemsHotkey)})`,
+      () => `Take items (${letterFromKeyCode(takeAllItemsHotkey)})`,
       `Take items (${letterFromKeyCode(takeAllItemsHotkey)})`,
       () => {
         let itemIds: string[] = [];

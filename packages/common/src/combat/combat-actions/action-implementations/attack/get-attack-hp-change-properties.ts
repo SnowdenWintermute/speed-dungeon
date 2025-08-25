@@ -57,7 +57,7 @@ export function getAttackResourceChangeProperties(
 
   const weaponOption = weaponSlot !== null ? equippedUsableWeapons[weaponSlot] : null;
 
-  if (weaponOption?.equipment && weaponOption) {
+  if (weaponOption) {
     applyWeaponPropertiesToResourceChangeProperties(
       hitOutcomeProperties,
       weaponOption,

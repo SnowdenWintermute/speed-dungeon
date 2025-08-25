@@ -28,7 +28,6 @@ import {
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { KineticDamageType } from "../../../kinetic-damage-types.js";
-import { PrimedForIceBurstCombatantCondition } from "../../../../combatants/combatant-conditions/primed-for-ice-burst.js";
 import cloneDeep from "lodash.clonedeep";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { ActionEntityName } from "../../../../action-entities/index.js";
