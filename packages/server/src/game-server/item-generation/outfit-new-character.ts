@@ -176,7 +176,8 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   combatantProperties.inventory.equipment.push(...(items as Equipment[]));
 
   const elementalStaves = [];
-  for (let i = 0; i < 20; i += 1) {
+  const runeSwords = [];
+  for (let i = 0; i < 5; i += 1) {
     const staff = generateSpecificEquipmentType(
       {
         equipmentType: EquipmentType.TwoHandedMeleeWeapon,
@@ -185,9 +186,18 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
       true
     );
     elementalStaves.push(staff);
+    const sword = generateSpecificEquipmentType(
+      {
+        equipmentType: EquipmentType.OneHandedMeleeWeapon,
+        baseItemType: OneHandedMeleeWeapon.RuneSword,
+      },
+      true
+    );
+    runeSwords.push(sword);
   }
 
   combatantProperties.inventory.equipment.push(...elementalStaves);
+  combatantProperties.inventory.equipment.push(...runeSwords);
 
   // giveTestingCombatAttributes(combatantProperties);
   combatantProperties.level = 5;

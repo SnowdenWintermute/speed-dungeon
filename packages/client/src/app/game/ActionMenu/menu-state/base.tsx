@@ -117,10 +117,15 @@ export class BaseMenuState implements ActionMenuState {
       const nameAsString = COMBAT_ACTION_NAME_STRINGS[actionName];
       const button = new ActionMenuButtonProperties(
         () => {
-          let icons = [ACTION_ICONS[actionName]];
+          const standardActionIcon = ACTION_ICONS[actionName];
 
-          if (actionName === CombatActionName.Attack) {
-            const { mhIcons, ohIcons } = getAttackActionIcons(combatantProperties);
+          let isAttack = actionName === CombatActionName.Attack;
+          let mainHandIcons = [];
+          let offHandIcons = [];
+          if (isAttack) {
+            const { mhIcons, ohIcons } = getAttackActionIcons(combatantProperties, this.inCombat);
+            mainHandIcons.push(...mhIcons);
+            offHandIcons.push(...ohIcons);
           }
 
           return (
@@ -129,15 +134,32 @@ export class BaseMenuState implements ActionMenuState {
                 {nameAsString}
               </div>
               <div className="h-full flex items-center p-2">
-                {icons.map((iconGetterOption, i) => {
-                  if (iconGetterOption === null) return "icon missing";
-                  return (
-                    <div className="h-full" key={i}>
-                      {" "}
-                      {iconGetterOption("h-full fill-slate-400 stroke-slate-400")}{" "}
+                {isAttack ? (
+                  <div className="h-full flex">
+                    <div className="h-full flex">
+                      {mainHandIcons.map((iconGetter, i) => (
+                        <div key={"mh-" + i} className="h-full mr-1 last:mr-0">
+                          {iconGetter("h-full fill-slate-400 stroke-slate-400")}
+                        </div>
+                      ))}
                     </div>
-                  );
-                })}
+                    {!!(offHandIcons.length > 0) && <div className="mx-1">/</div>}
+
+                    <div className="h-full flex">
+                      {offHandIcons.map((iconGetter, i) => (
+                        <div key={"mh-" + i} className="h-full mr-1 last:mr-0">
+                          {iconGetter("h-full fill-slate-400 stroke-slate-400")}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="h-full">
+                    {standardActionIcon === null
+                      ? "icon missing"
+                      : standardActionIcon("h-full fill-slate-400 stroke-slate-400")}{" "}
+                  </div>
+                )}
               </div>
             </div>
           );

@@ -40,7 +40,7 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
   [CombatActionName.PayActionPoint]: null,
 };
 
-export function getAttackActionIcons(user: CombatantProperties) {
+export function getAttackActionIcons(user: CombatantProperties, inCombat: boolean) {
   const mhIcons = [];
 
   const { actionPoints } = user;
@@ -68,15 +68,19 @@ export function getAttackActionIcons(user: CombatantProperties) {
       Equipment.getWeaponProperties(mainHandEquipmentOption)
     );
     mhWeaponPropertiesOption.damageClassification.forEach((classification) => {
-      if (classification.elementOption)
+      if (classification.elementOption !== undefined)
         mhIcons.push(MAGICAL_ELEMENT_ICONS[classification.elementOption]);
-      if (classification.kineticDamageTypeOption)
+      if (classification.kineticDamageTypeOption !== undefined)
         mhIcons.push(KINETIC_TYPE_ICONS[classification.kineticDamageTypeOption]);
     });
   }
 
+  const mhIsTwoHanded =
+    mainHandEquipmentOption &&
+    Equipment.isTwoHanded(mainHandEquipmentOption.equipmentBaseItemProperties.equipmentType);
+
   const ohIcons = [];
-  if (!ohIsShield && actionPoints > 1) {
+  if (!ohIsShield && (actionPoints > 1 || !inCombat) && !mhIsTwoHanded) {
     if (offHandEquipmentOption === undefined)
       ohIcons.push(KINETIC_TYPE_ICONS[KineticDamageType.Blunt]);
     else {
