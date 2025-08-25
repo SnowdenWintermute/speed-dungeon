@@ -24,7 +24,7 @@ export default function getMagicalElementTailwindColor(element: MagicalElement) 
 export const MAGICAL_ELEMENT_ICON_TAILWIND_STYLES: Record<MagicalElement, string> = {
   [MagicalElement.Fire]: "bg-firered fill-zinc-300",
   [MagicalElement.Ice]: "bg-iceblue fill-zinc-300",
-  [MagicalElement.Lightning]: "bg-lightningpurple stroke-zinc-300",
+  [MagicalElement.Lightning]: "bg-lightningpurple stroke-zinc-300 ",
   [MagicalElement.Water]: "bg-waterblue fill-slate-400",
   [MagicalElement.Earth]: "bg-earthyellow fill-slate-700",
   [MagicalElement.Wind]: "bg-windgreen stroke-zinc-300",

@@ -87,7 +87,7 @@ export function DamageTypeBadgeWithIcon({ hpChangeSource }: Props) {
   if (kineticDamageTypeOption !== undefined) {
     physicalDamageTypeTextOption = KINETIC_DAMAGE_TYPE_STRINGS[kineticDamageTypeOption];
     physicalDamageTypeIconOption = KINETIC_TYPE_ICONS[kineticDamageTypeOption](
-      "h-full  w-7 bg-slate-800  fill-slate-400 stroke-slate-400 "
+      "h-full bg-slate-800 fill-slate-400 stroke-slate-400 "
     );
   }
 
@@ -96,11 +96,10 @@ export function DamageTypeBadgeWithIcon({ hpChangeSource }: Props) {
   if (elementOption !== undefined) {
     elementTextOption = MAGICAL_ELEMENT_STRINGS[elementOption];
     elementIconOption = MAGICAL_ELEMENT_ICONS[elementOption](
-      "h-full py-0.5 w-7  px-1 " + MAGICAL_ELEMENT_ICON_TAILWIND_STYLES[elementOption]
+      "h-full py-0.5 w-7 px-1 " + MAGICAL_ELEMENT_ICON_TAILWIND_STYLES[elementOption]
     );
   }
-  const elementStyle =
-    elementOption !== undefined ? getMagicalElementTailwindColor(elementOption) : "";
+  const elementStyle = elementOption !== undefined ? "" : "";
 
   const damageCategoryBorderColor = getDamageCategoryBorderColor(hpChangeSource.category);
 
@@ -112,7 +111,7 @@ export function DamageTypeBadgeWithIcon({ hpChangeSource }: Props) {
         {HP_CHANGE_SOURCE_CATEGORY_STRINGS[hpChangeSource.category]}
       </span>
       {physicalDamageTypeIconOption && (
-        <div className={`h-6 border-l px-1 bg-slate-800 ${damageCategoryBorderColor}`}>
+        <div className={`h-6 border-l bg-slate-800 ${damageCategoryBorderColor}`}>
           {physicalDamageTypeIconOption}
         </div>
       )}
