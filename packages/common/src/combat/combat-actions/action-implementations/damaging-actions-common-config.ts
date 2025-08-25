@@ -24,10 +24,16 @@ export const DAMAGING_ACTIONS_COMMON_CONFIG = {
         1 // @TODO - actually select the action level
       )?.[ActionPayableResource.ActionPoints] ?? 0;
     const { actionPoints } = combatantContext.combatant.combatantProperties;
-    if (actionPoints < Math.abs(actionPointCost)) return false;
+    if (actionPoints < Math.abs(actionPointCost)) {
+      console.log("not enough AP to execute action");
+      return false;
+    }
 
     const targetsOption = combatant.combatantProperties.combatActionTarget;
-    if (!targetsOption) return false;
+    if (!targetsOption) {
+      console.log("no target found when attempting to execute action");
+      return false;
+    }
 
     const targetingCalculator = new TargetingCalculator(
       new CombatantContext(game, party, combatant),
@@ -40,14 +46,25 @@ export const DAMAGING_ACTIONS_COMMON_CONFIG = {
       return false;
     }
 
-    if (targetIdsResult.length === 0) return false;
+    if (targetIdsResult.length === 0) {
+      console.log("no target ids found when attempting to execute action");
+      return false;
+    }
 
     // if previous was countered, don't continue the queued action sequence
     if (previousTrackerOption) {
       const wasCountered = previousTrackerOption.wasCountered();
 
-      if (wasCountered) return false;
+      if (wasCountered) {
+        console.log("action was countered");
+        return false;
+      }
     }
+
+    console.log(
+      "all combatants in target group are dead: ",
+      SpeedDungeonGame.allCombatantsInGroupAreDead(game, targetIdsResult)
+    );
 
     return !SpeedDungeonGame.allCombatantsInGroupAreDead(game, targetIdsResult);
   },

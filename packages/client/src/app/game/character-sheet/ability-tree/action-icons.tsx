@@ -67,11 +67,16 @@ export function getAttackActionIcons(user: CombatantProperties, inCombat: boolea
     const mhWeaponPropertiesOption = throwIfError(
       Equipment.getWeaponProperties(mainHandEquipmentOption)
     );
-    mhWeaponPropertiesOption.damageClassification.forEach((classification) => {
+    mhWeaponPropertiesOption.damageClassification.forEach((classification, i) => {
       if (classification.elementOption !== undefined)
         mhIcons.push(MAGICAL_ELEMENT_ICONS[classification.elementOption]);
       if (classification.kineticDamageTypeOption !== undefined)
         mhIcons.push(KINETIC_TYPE_ICONS[classification.kineticDamageTypeOption]);
+
+      if (i < mhWeaponPropertiesOption.damageClassification.length - 1) {
+        // push a delimiter
+        mhIcons.push(SVG_ICONS[IconName.VerticalLine]);
+      }
     });
   }
 
@@ -80,21 +85,26 @@ export function getAttackActionIcons(user: CombatantProperties, inCombat: boolea
     Equipment.isTwoHanded(mainHandEquipmentOption.equipmentBaseItemProperties.equipmentType);
 
   const ohIcons = [];
-  if (!ohIsShield && (actionPoints > 1 || !inCombat) && !mhIsTwoHanded) {
+  let ohDisabled = actionPoints < 2 && inCombat;
+  if (!ohIsShield && !mhIsTwoHanded) {
     if (offHandEquipmentOption === undefined)
       ohIcons.push(KINETIC_TYPE_ICONS[KineticDamageType.Blunt]);
     else {
       const ohWeaponPropertiesOption = throwIfError(
         Equipment.getWeaponProperties(offHandEquipmentOption)
       );
-      ohWeaponPropertiesOption.damageClassification.forEach((classification) => {
+      ohWeaponPropertiesOption.damageClassification.forEach((classification, i) => {
         if (classification.elementOption)
           ohIcons.push(MAGICAL_ELEMENT_ICONS[classification.elementOption]);
         if (classification.kineticDamageTypeOption)
           ohIcons.push(KINETIC_TYPE_ICONS[classification.kineticDamageTypeOption]);
+        if (i < ohWeaponPropertiesOption.damageClassification.length - 1) {
+          // push a delimiter
+          ohIcons.push(SVG_ICONS[IconName.VerticalLine]);
+        }
       });
     }
   }
 
-  return { mhIcons, ohIcons };
+  return { mhIcons, ohIcons, ohDisabled };
 }

@@ -23,6 +23,7 @@ import Shards from "../../../public/img/game-ui-icons/shards.svg";
 import Target from "../../../public/img/game-ui-icons/target-icon.svg";
 import BombIcon from "../../../public/img/game-ui-icons/bomb.svg";
 import CrossedArrows from "../../../public/img/game-ui-icons/crossed-arrows.svg";
+import VerticalLine from "../../../public/img/game-ui-icons/vertical-line.svg";
 
 import { ReactNode } from "react";
 import {
@@ -56,6 +57,7 @@ export enum IconName {
   Shards,
   Target,
   Hourglass,
+  VerticalLine,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -82,6 +84,7 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.Shards]: (className) => <Shards className={className} />,
   [IconName.Target]: (className) => <Target className={className} />,
   [IconName.Hourglass]: (className) => <Hourglass className={className} />,
+  [IconName.VerticalLine]: (className) => <VerticalLine className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {

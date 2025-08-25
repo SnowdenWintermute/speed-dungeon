@@ -3,6 +3,7 @@ import {
   COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
+  CombatActionName,
 } from "../../combat/index.js";
 import { Combatant } from "../../combatants/index.js";
 import {
@@ -23,16 +24,17 @@ export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends
     const turnAlreadyEnded =
       context.tracker.parentActionManager.sequentialActionManagerRegistry.getTurnEnded();
 
+    console.log(COMBAT_ACTION_NAME_STRINGS[action.name], "turnAlreadyEnded:", turnAlreadyEnded);
+
     const resourceCosts = action.costProperties.getResourceCosts(
       context.combatantContext.combatant.combatantProperties,
       !!context.combatantContext.getBattleOption(),
       context.tracker.actionExecutionIntent.level
     );
 
-    const actionPointCost = resourceCosts?.[ActionPayableResource.ActionPoints];
+    const actionPointCost = resourceCosts?.[ActionPayableResource.ActionPoints] || 0;
 
-    const actionShouldExecuteEvenIfTurnEnded =
-      turnAlreadyEnded && Math.abs(resourceCosts?.[ActionPayableResource.ActionPoints] || 0) < 1;
+    const actionShouldExecuteEvenIfTurnEnded = turnAlreadyEnded && Math.abs(actionPointCost) < 1;
 
     const shouldExecute =
       action.shouldExecute(

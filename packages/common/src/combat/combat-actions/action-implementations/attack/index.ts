@@ -1,4 +1,5 @@
 import {
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,

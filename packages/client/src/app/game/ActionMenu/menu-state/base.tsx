@@ -122,10 +122,15 @@ export class BaseMenuState implements ActionMenuState {
           let isAttack = actionName === CombatActionName.Attack;
           let mainHandIcons = [];
           let offHandIcons = [];
+          let ohDisabledStyle = "";
           if (isAttack) {
-            const { mhIcons, ohIcons } = getAttackActionIcons(combatantProperties, this.inCombat);
+            const { mhIcons, ohIcons, ohDisabled } = getAttackActionIcons(
+              combatantProperties,
+              this.inCombat
+            );
             mainHandIcons.push(...mhIcons);
             offHandIcons.push(...ohIcons);
+            if (ohDisabled) ohDisabledStyle = "opacity-50";
           }
 
           return (
@@ -145,9 +150,9 @@ export class BaseMenuState implements ActionMenuState {
                     </div>
                     {!!(offHandIcons.length > 0) && <div className="mx-1">/</div>}
 
-                    <div className="h-full flex">
+                    <div className={"h-full flex"}>
                       {offHandIcons.map((iconGetter, i) => (
-                        <div key={"mh-" + i} className="h-full mr-1 last:mr-0">
+                        <div key={"mh-" + i} className={`h-full mr-1 last:mr-0 ${ohDisabledStyle}`}>
                           {iconGetter("h-full fill-slate-400 stroke-slate-400")}
                         </div>
                       ))}

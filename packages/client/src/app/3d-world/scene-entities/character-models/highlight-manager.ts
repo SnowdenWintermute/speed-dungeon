@@ -80,7 +80,7 @@ export class HighlightManager {
 
       const originalColors = this.originalPartMaterialColors[partCategory];
       if (!originalColors) {
-        console.info("original colors not found when removing highlight");
+        // console.info("original colors not found when removing highlight");
         continue;
       }
 

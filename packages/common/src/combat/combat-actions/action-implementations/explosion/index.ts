@@ -56,6 +56,8 @@ const config: CombatActionComponentConfig = {
   costProperties: {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
     costBases: {},
+    getEndsTurnOnUse: () => false,
+    requiresCombatTurnInThisContext: () => false,
   },
 
   stepsConfig: new ActionResolutionStepsConfig(

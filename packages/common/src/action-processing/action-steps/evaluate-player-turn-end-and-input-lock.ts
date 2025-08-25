@@ -99,9 +99,12 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
 
   // unlock input if no more blocking steps are left and next turn is player
 
+  const noActionPointsLeft =
+    combatant.combatantProperties.actionPoints === 0 &&
+    // this is because it was ending our turn when conditions used actions in between mh and oh attacks since the shimmed condition users don't have any action points
+    combatant.combatantProperties.asShimmedUserOfTriggeredCondition === undefined;
   const requiredTurn =
-    action.costProperties.requiresCombatTurnInThisContext(context) ||
-    combatant.combatantProperties.actionPoints === 0;
+    action.costProperties.requiresCombatTurnInThisContext(context) || noActionPointsLeft;
 
   const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
   let shouldSendEndActiveTurnMessage = false;

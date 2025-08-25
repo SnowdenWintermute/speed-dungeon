@@ -126,8 +126,11 @@ const config: CombatActionComponentConfig = {
   targetingProperties,
   hitOutcomeProperties,
   costProperties: {
-    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
+    ...cloneDeep(BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base]),
     costBases: {},
+    getResourceCosts: () => null,
+    getEndsTurnOnUse: () => false,
+    requiresCombatTurnInThisContext: () => false,
   },
   shouldExecute: () => true,
 
