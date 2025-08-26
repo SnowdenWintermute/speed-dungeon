@@ -13,6 +13,7 @@ import cloneDeep from "lodash.clonedeep";
 import { createConsumableByType } from "../item-generation/create-consumable-by-type.js";
 import { giveStartingEquipment } from "./give-starting-equipment.js";
 import { setPlaytestingCombatantProperties } from "./set-playtesting-combatant-properties.js";
+import { givePlaytestingItems } from "./give-playtesting-items.js";
 
 export class CharacterOutfitter {
   constructor() {}
@@ -26,11 +27,16 @@ export class CharacterOutfitter {
     CharacterOutfitter.giveStartingEquipment(combatantProperties);
     CombatantProperties.setHpAndMpToMax(combatantProperties);
     CharacterOutfitter.setPlaytestingCombatantProperties(combatantProperties);
+    CharacterOutfitter.givePlaytestingItems(
+      combatantProperties.equipment,
+      combatantProperties.inventory
+    );
   }
 
   static giveStartingAbilities = giveStartingAbilities;
   static giveStartingEquipment = giveStartingEquipment;
   static setPlaytestingCombatantProperties = setPlaytestingCombatantProperties;
+  static givePlaytestingItems = givePlaytestingItems;
 
   static giveStartingAttributes(combatantProperties: CombatantProperties) {
     const baseStartingAttributesOption =
@@ -55,8 +61,8 @@ export class CharacterOutfitter {
   }
 
   static giveStartingInventoryItems(combatantProperties: CombatantProperties) {
-    const hpInjectorCount = 1;
-    const mpInjectorCount = 1;
+    const hpInjectorCount = 2;
+    const mpInjectorCount = 3;
     const injectors = [];
     for (let i = 0; i < hpInjectorCount; i += 1)
       injectors.push(createConsumableByType(ConsumableType.HpAutoinjector));

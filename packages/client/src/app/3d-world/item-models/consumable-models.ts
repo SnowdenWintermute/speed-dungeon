@@ -8,4 +8,16 @@ export const CONSUMABLE_MODELS: Record<ConsumableType, { path: null | string; ar
     path: null,
     artist: Artist.Snowden,
   },
+  [ConsumableType.WarriorSkillbook]: {
+    path: null,
+    artist: Artist.Snowden,
+  },
+  [ConsumableType.RogueSkillbook]: {
+    path: null,
+    artist: Artist.Snowden,
+  },
+  [ConsumableType.MageSkillbook]: {
+    path: null,
+    artist: Artist.Snowden,
+  },
 };

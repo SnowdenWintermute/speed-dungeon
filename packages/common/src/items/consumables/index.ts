@@ -7,6 +7,9 @@ export enum ConsumableType {
   HpAutoinjector,
   MpAutoinjector,
   StackOfShards,
+  WarriorSkillbook,
+  RogueSkillbook,
+  MageSkillbook,
 }
 
 export class Consumable extends Item {
@@ -29,6 +32,9 @@ export const CONSUMABLE_TYPE_STRINGS: Record<ConsumableType, string> = {
   [ConsumableType.HpAutoinjector]: "Green Autoinjector",
   [ConsumableType.MpAutoinjector]: "Blue Autoinjector",
   [ConsumableType.StackOfShards]: "Stack of Shards",
+  [ConsumableType.WarriorSkillbook]: "Siege's Guide to Tactics",
+  [ConsumableType.RogueSkillbook]: "Nazna's Spreadsheets",
+  [ConsumableType.MageSkillbook]: "Arcane Tome",
 };
 
 export const CONSUMABLE_ACTION_NAMES_BY_CONSUMABLE_TYPE: Record<
@@ -38,4 +44,13 @@ export const CONSUMABLE_ACTION_NAMES_BY_CONSUMABLE_TYPE: Record<
   [ConsumableType.HpAutoinjector]: CombatActionName.UseGreenAutoinjector,
   [ConsumableType.MpAutoinjector]: CombatActionName.UseBlueAutoinjector,
   [ConsumableType.StackOfShards]: null,
+  [ConsumableType.WarriorSkillbook]: null,
+  [ConsumableType.RogueSkillbook]: null,
+  [ConsumableType.MageSkillbook]: null,
 };
+
+export const SKILL_BOOK_CONSUMABLE_TYPES = [
+  ConsumableType.RogueSkillbook,
+  ConsumableType.WarriorSkillbook,
+  ConsumableType.MageSkillbook,
+];

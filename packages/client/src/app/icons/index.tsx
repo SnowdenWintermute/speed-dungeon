@@ -27,11 +27,17 @@ import VerticalLine from "../../../public/img/game-ui-icons/vertical-line.svg";
 import CritChance from "../../../public/img/game-ui-icons/crit-chance.svg";
 import OpenHandIcon from "../../../public/img/game-ui-icons/open-hand.svg";
 import HandHoldingStick from "../../../public/img/game-ui-icons/hand-holding-stick.svg";
+import Book from "../../../public/img/game-ui-icons/book.svg";
+import Sword from "../../../public/img/equipment-icons/1h-sword-a.svg";
+import Camera from "../../../public/img/game-ui-icons/camera-1.svg";
+import XShape from "../../../public/img/basic-shapes/x-shape.svg";
+import Model3DIcon from "../../../public/img/menu-icons/3d-model-icon.svg";
 
 import { ReactNode } from "react";
 import {
   ActionPayableResource,
   CombatantConditionName,
+  EquipmentType,
   KineticDamageType,
   MagicalElement,
 } from "@speed-dungeon/common";
@@ -64,6 +70,11 @@ export enum IconName {
   CritChance,
   OpenHand,
   HandHoldingStick,
+  Book,
+  Sword,
+  Camera,
+  XShape,
+  Model3DIcon,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -94,6 +105,11 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.CritChance]: (className) => <CritChance className={className} />,
   [IconName.OpenHand]: (className) => <OpenHandIcon className={className} />,
   [IconName.HandHoldingStick]: (className) => <HandHoldingStick className={className} />,
+  [IconName.Book]: (className) => <Book className={className} />,
+  [IconName.Sword]: (className) => <Sword className={className} />,
+  [IconName.Camera]: (className) => <Camera className={className} />,
+  [IconName.XShape]: (className) => <XShape className={className} />,
+  [IconName.Model3DIcon]: (className) => <Model3DIcon className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {

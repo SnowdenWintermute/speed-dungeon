@@ -7,6 +7,7 @@ import {
   EntityProperties,
   Equipment,
   Item,
+  SKILL_BOOK_CONSUMABLE_TYPES,
 } from "@speed-dungeon/common";
 import React, { useEffect, useRef, useState } from "react";
 import ActionDetails from "./action-details";
@@ -14,20 +15,14 @@ import EquipmentDetails from "./EquipmentDetails";
 import ModKeyTooltip from "./ModKeyTooltip";
 import { useGameStore } from "@/stores/game-store";
 import Divider from "@/app/components/atoms/Divider";
-import Model3DIcon from "../../../../public/img/menu-icons/3d-model-icon.svg";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { getModelAttribution } from "@/app/3d-world/item-models/get-model-attribution";
-import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
-import SwordIcon from "../../../../public/img/equipment-icons/1h-sword-a.svg";
-import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
-import RingIcon from "../../../../public/img/equipment-icons/ring-flattened.svg";
-import AmuletIcon from "../../../../public/img/equipment-icons/amulet.svg";
 import { HOTKEYS } from "@/hotkeys";
-import CameraIcon1 from "../../../../public/img/game-ui-icons/camera-1.svg";
 import domtoimage from "dom-to-image";
 import { EQUIPMENT_ICONS } from "./EquipmentDetails/equipment-icons";
+import { IconName, SVG_ICONS } from "@/app/icons";
 
 interface Props {
   shouldShowModKeyTooltip: boolean;
@@ -118,9 +113,12 @@ export default function ItemDetails({
       BG_COLOR = "bg-slate-700";
       thumbnailIdOption = CONSUMABLE_TYPE_STRINGS[item.consumableType];
       if (item.consumableType === ConsumableType.StackOfShards) {
-        svgThumbnailOption = <ShardsIcon className="h-full fill-slate-400 m-2" />;
+        svgThumbnailOption = SVG_ICONS[IconName.Shards]("h-full fill-slate-400 m-2");
         itemDetailsDisplay = <div>Could be useful...</div>;
       } else {
+        if (SKILL_BOOK_CONSUMABLE_TYPES.includes(item.consumableType)) {
+          svgThumbnailOption = SVG_ICONS[IconName.Book]("h-full fill-slate-400 m-2");
+        }
         const actionNameOption = CONSUMABLE_ACTION_NAMES_BY_CONSUMABLE_TYPE[item.consumableType];
         if (actionNameOption === null)
           itemDetailsDisplay = (
@@ -140,7 +138,7 @@ export default function ItemDetails({
   const thumbnailOption = useGameStore().itemThumbnails[thumbnailIdOption];
   if (!thumbnailPath && thumbnailOption) thumbnailPath = thumbnailOption;
   if (!thumbnailPath && !svgThumbnailOption)
-    svgThumbnailOption = <SwordIcon className="h-full fill-slate-950" />;
+    svgThumbnailOption = SVG_ICONS[IconName.Sword]("h-full fill-slate-950");
 
   const attribution = itemOption && getModelAttribution(itemOption);
 
@@ -168,7 +166,7 @@ export default function ItemDetails({
               });
             }}
           >
-            <XShape className="h-full fill-slate-400" />
+            {SVG_ICONS[IconName.XShape]("h-full fill-slate-400")}
           </HotkeyButton>
           {itemOption && (
             <HoverableTooltipWrapper tooltipText="Download image" extraStyles="mt-2">
@@ -176,7 +174,7 @@ export default function ItemDetails({
                 onClick={() => downloadItemImage(itemOption.entityProperties, itemOption.itemLevel)}
                 className="border border-slate-400 bg-slate-700 h-6 w-6 p-1"
               >
-                <CameraIcon1 className="h-full max-w-full fill-slate-400" />
+                {SVG_ICONS[IconName.Camera]("h-full max-w-full fill-slate-400")}
               </button>
             </HoverableTooltipWrapper>
           )}
@@ -243,7 +241,7 @@ export default function ItemDetails({
               target="_blank"
               className="text-gray-400 text-sm w-fit text-center align-middle"
             >
-              <Model3DIcon className="inline stroke-gray-400 h-4 w-4 mr-1 align-middle" />
+              {SVG_ICONS[IconName.Model3DIcon]("inline stroke-gray-400 h-4 w-4 mr-1 align-middle")}
               <span className="align-middle">{attribution.name}</span>
             </a>
           </HoverableTooltipWrapper>

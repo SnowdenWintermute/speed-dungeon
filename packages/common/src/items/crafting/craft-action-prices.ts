@@ -12,6 +12,9 @@ export const BASE_CONSUMABLE_PRICES: Record<ConsumableType, number> = {
   [ConsumableType.HpAutoinjector]: 10,
   [ConsumableType.MpAutoinjector]: 10,
   [ConsumableType.StackOfShards]: 0,
+  [ConsumableType.WarriorSkillbook]: 0,
+  [ConsumableType.RogueSkillbook]: 0,
+  [ConsumableType.MageSkillbook]: 0,
 };
 
 export function getConsumableShardPrice(currentFloor: number, consumableType: ConsumableType) {
