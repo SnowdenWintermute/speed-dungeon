@@ -172,43 +172,43 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   // });
   // if (runeSword instanceof Error) return;
   // combatantProperties.inventory.equipment.push(runeSword);
-  const items = generateOneOfEachItem();
-  combatantProperties.inventory.equipment.push(...(items as Equipment[]));
+  // const items = generateOneOfEachItem();
+  // combatantProperties.inventory.equipment.push(...(items as Equipment[]));
 
   const elementalStaves = [];
   const runeSwords = [];
   for (let i = 0; i < 5; i += 1) {
-    const staff = generateSpecificEquipmentType(
-      {
-        equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-        baseItemType: TwoHandedMeleeWeapon.ElementalStaff,
-      },
-      true
-    );
-    elementalStaves.push(staff);
-    const sword = generateSpecificEquipmentType(
-      {
-        equipmentType: EquipmentType.OneHandedMeleeWeapon,
-        baseItemType: OneHandedMeleeWeapon.RuneSword,
-      },
-      true
-    );
-    runeSwords.push(sword);
+    // const staff = generateSpecificEquipmentType(
+    //   {
+    //     equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+    //     baseItemType: TwoHandedMeleeWeapon.ElementalStaff,
+    //   },
+    //   true
+    // );
+    // elementalStaves.push(staff);
+    // const sword = generateSpecificEquipmentType(
+    //   {
+    //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
+    //     baseItemType: OneHandedMeleeWeapon.RuneSword,
+    //   },
+    //   true
+    // );
+    // runeSwords.push(sword);
   }
 
-  combatantProperties.inventory.equipment.push(...elementalStaves);
-  combatantProperties.inventory.equipment.push(...runeSwords);
+  // combatantProperties.inventory.equipment.push(...elementalStaves);
+  // combatantProperties.inventory.equipment.push(...runeSwords);
 
   // giveTestingCombatAttributes(combatantProperties);
   combatantProperties.level = 5;
   combatantProperties.unspentAttributePoints = 3;
   combatantProperties.abilityProperties.unspentAbilityPoints = 3;
-  combatantProperties.inherentAttributes[CombatAttribute.Speed] = 99;
-  combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 45;
-  combatantProperties.inherentAttributes[CombatAttribute.Strength] = 40;
-  combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 25;
+  // combatantProperties.inherentAttributes[CombatAttribute.Speed] = 9;
+  // combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 45;
+  // combatantProperties.inherentAttributes[CombatAttribute.Strength] = 40;
+  // combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 25;
   // combatantProperties.inherentAttributes[CombatAttribute.Speed] = 9999;
-  combatantProperties.inherentAttributes[CombatAttribute.Hp] = 75;
+  // combatantProperties.inherentAttributes[CombatAttribute.Hp] = 75;
   combatantProperties.abilityProperties.traitProperties.inherentElementalAffinities[
     MagicalElement.Fire
   ] = 150;

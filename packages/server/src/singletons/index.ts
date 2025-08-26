@@ -1,6 +1,6 @@
 import { IdGenerator } from "@speed-dungeon/common";
-import { GameServer } from "./game-server/index.js";
-import { collectAnimationLengths } from "./utils/collect-animation-lengths.js";
+import { GameServer } from "../game-server/index.js";
+import { collectAnimationLengths } from "../utils/collect-animation-lengths.js";
 
 export const idGenerator = new IdGenerator();
 
