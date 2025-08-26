@@ -29,6 +29,8 @@ import { ConditionIndicator } from "../../combatant-plaques/condition-indicators
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import CharacterSheetTopBar from "../../character-sheet/CharacterSheetTopBar";
+import CharacterSheetWeaponDamage from "../../character-sheet/CharacterSheetWeaponDamage";
 
 interface Props {
   actionName: CombatActionName;
@@ -51,6 +53,19 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
   const selectedLevelOption = combatantProperties.selectedActionLevel;
 
   const inCombat = !!Object.values(party.currentRoom.monsters).length;
+
+  const disableOh = inCombat && combatantProperties.actionPoints < 2;
+  if (actionName === CombatActionName.Attack)
+    return (
+      <div className="w-full flex flex-col">
+        <div className="mb-2">
+          Attack with equipped weapons. Accuracy and crit chance are updated below based on your
+          target's defenses.
+        </div>
+        <CharacterSheetWeaponDamage combatant={focusedCharacterResult} disableOh={disableOh} />
+      </div>
+    );
+
   const action = COMBAT_ACTIONS[actionName];
   const actionDescription = COMBAT_ACTION_DESCRIPTIONS[actionName];
 
@@ -249,21 +264,3 @@ function PayableResourceCostDisplay({
     </div>
   );
 }
-
-// {typeof actionPointCostOption === "number" && (
-//   <div>AP: {Math.abs(actionPointCostOption)}</div>
-// )}
-
-// {typeof rankDescription[ActionDescriptionComponent.ManaCost] === "number" && (
-//   <div>MP: {Math.abs(rankDescription[ActionDescriptionComponent.ManaCost])}</div>
-// )}
-// {typeof rankDescription[ActionDescriptionComponent.HitPointCost] === "number" && (
-//   <div>
-//     HP: {Math.abs(rankDescription[ActionDescriptionComponent.HitPointCost])}{" "}
-//   </div>
-// )}
-// {typeof rankDescription[ActionDescriptionComponent.ShardCost] === "number" && (
-//   <div>
-//     Shards: {Math.abs(rankDescription[ActionDescriptionComponent.ShardCost])}{" "}
-//   </div>
-// )}

@@ -9,6 +9,7 @@ import {
   CombatantActionState,
   CombatantProperties,
   Equipment,
+  KineticDamageType,
   MONSTER_SPECIES,
   MONSTER_TYPE_STRINGS,
   MonsterType,
@@ -108,6 +109,10 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   // monster.combatantProperties.hitPoints = Math.floor(monster.combatantProperties.hitPoints * 0.5);
   // @TESTING - random evasion
   combatantProperties.inherentAttributes[CombatAttribute.Evasion] = Math.floor(Math.random() * 20);
+
+  combatantProperties.abilityProperties.traitProperties.inherentKineticDamageTypeAffinities[
+    KineticDamageType.Piercing
+  ] = 10;
 
   return monster;
 }

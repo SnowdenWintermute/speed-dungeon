@@ -122,6 +122,7 @@ export default function CharacterAttributes({
       <Divider extraStyles={"mr-2 ml-2 "} />
       <HpAndMp combatantProperties={combatantProperties} totalAttributes={totalAttributes} />
       <CharacterSheetWeaponDamage combatant={combatant} />
+      <Divider extraStyles={"mr-2 ml-2 "} />
       <ElementalAffinitiesDisplay
         affinities={CombatantProperties.getCombatantTotalElementalAffinities(combatantProperties)}
       />

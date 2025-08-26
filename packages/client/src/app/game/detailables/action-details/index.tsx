@@ -7,7 +7,7 @@ import {
   getUnmetCostResourceTypes,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import React, { ReactNode } from "react";
+import React from "react";
 import { useGameStore } from "@/stores/game-store";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import ActionDetailsTitleBar from "./ActionDetailsTitleBar";
@@ -23,11 +23,9 @@ export default function ActionDetails({ actionName, hideTitle }: Props) {
   const party = partyResult;
   const focusedCharacterResult = useGameStore().getFocusedCharacter();
   if (focusedCharacterResult instanceof Error) return <div>{focusedCharacterResult.message}</div>;
-  const focusedCharacter = focusedCharacterResult;
   const { combatantProperties } = focusedCharacterResult;
   const { abilityProperties } = combatantProperties;
   const actionStateOption = abilityProperties.ownedActions[actionName];
-  const actionState = abilityProperties.ownedActions[actionName];
   const selectedLevelOption = combatantProperties.selectedActionLevel;
 
   const inCombat = !!Object.values(party.currentRoom.monsters).length;

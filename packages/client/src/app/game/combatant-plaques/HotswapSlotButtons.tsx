@@ -7,9 +7,9 @@ import {
   getNextOrPreviousNumber,
 } from "@speed-dungeon/common";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import OpenHandIcon from "../../../../public/img/game-ui-icons/open-hand.svg";
 import { HOTKEYS } from "@/hotkeys";
 import { disableButtonBecauseNotThisCombatantTurn } from "../ActionMenu/menu-state/base";
+import { IconName, SVG_ICONS } from "@/app/icons";
 
 interface Props {
   entityId: string;
@@ -82,7 +82,7 @@ export default function HotswapSlotButtons({
         <div
           className={`bg-slate-700 h-6 w-6 p-1 ${vertical ? "border-b" : "border-r"} border-slate-400`}
         >
-          <OpenHandIcon className="h-full w-full fill-slate-400" />
+          {SVG_ICONS[IconName.OpenHand]("h-full w-full fill-slate-400")}
         </div>
       </HoverableTooltipWrapper>
       {new Array(numSlots).fill(null).map((_nullValue, i) => (
