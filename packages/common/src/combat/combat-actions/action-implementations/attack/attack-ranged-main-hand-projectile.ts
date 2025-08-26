@@ -9,7 +9,6 @@ import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
-import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
@@ -46,7 +45,6 @@ export const rangedAttackProjectileHitOutcomeProperties: CombatActionHitOutcomeP
         actionLevel,
         primaryTarget,
         CombatAttribute.Dexterity,
-        HoldableSlotType.MainHand,
         // allow unusable weapons because it may be the case that the bow breaks
         // but the projectile has yet to caluclate it's hit, and it should still consider
         // the bow it was fired from

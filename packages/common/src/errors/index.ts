@@ -83,6 +83,7 @@ export const ERROR_MESSAGES = {
     NOT_ACTIVE: "It is not that combatant's turn",
     NO_UNSPENT_ATTRIBUTE_POINTS: "That combatant has no unspent attribute points",
     ATTRIBUTE_IS_NOT_ASSIGNABLE: "Points may not be spent on that attribute",
+    NO_UNSPENT_ABILITY_POINTS: "That combatant has no unspent ability points",
     EXPECTED_OWNER_ID_MISSING: "Failed to find expected controlling player ID",
     MAX_NAME_LENGTH_EXCEEDED: `Character names must be no longer than ${MAX_CHARACTER_NAME_LENGTH} characters`,
     MAX_INVENTORY_CAPACITY: `Combatants may carry no more than ${INVENTORY_DEFAULT_CAPACITY} items`,

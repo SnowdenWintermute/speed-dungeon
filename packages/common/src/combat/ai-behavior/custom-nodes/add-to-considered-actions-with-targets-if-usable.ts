@@ -22,8 +22,12 @@ export class CollectPotentialTargetsForActionIfUsable implements BehaviorNode {
     const actionLevelOption = this.actionLevelOptionGetter();
 
     if (actionNameOption === null || actionLevelOption === null) {
+      console.log(
+        "can't CollectPotentialTargetsForAction since either the action or rank is not selected"
+      );
       return BehaviorNodeState.Failure;
     }
+    console.log("attempting collect-potential-targets-for-action sequence");
     const root = new SequenceNode([
       // check if action is useable
       new CheckIfActionUsableInCurrentContext(
@@ -45,7 +49,8 @@ export class CollectPotentialTargetsForActionIfUsable implements BehaviorNode {
       new CheckIfWearingProperEquipmentForAction(
         this.behaviorContext,
         this.combatant,
-        actionNameOption
+        actionNameOption,
+        actionLevelOption
       ),
       new CollectPotentialTargetsForAction(
         this.behaviorContext,

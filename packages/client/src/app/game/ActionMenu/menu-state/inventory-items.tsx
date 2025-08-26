@@ -18,7 +18,7 @@ export class InventoryItemsMenuState extends ItemsMenuState {
   numPages = 1;
   constructor() {
     const viewEquipmentButton = new ActionMenuButtonProperties(
-      `Equipped (${letterFromKeyCode(viewEquipmentHotkey)})`,
+      () => `Equipped (${letterFromKeyCode(viewEquipmentHotkey)})`,
       `Equipped (${letterFromKeyCode(viewEquipmentHotkey)})`,
       () => {
         useGameStore.getState().mutateState((state) => {

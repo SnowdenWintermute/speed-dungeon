@@ -5,7 +5,7 @@ import React from "react";
 import { ShardsDisplay } from "../character-sheet/ShardsDisplay";
 import DropShardsModal from "../character-sheet/DropShardsModal";
 import { useGameStore } from "@/stores/game-store";
-import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
+import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
 
 export default function VendingMachineShardDisplay() {
   const mutateGameState = useGameStore().mutateState;

@@ -1,7 +1,10 @@
 import { ItemType } from "../../items/index.js";
 import { INVENTORY_DEFAULT_CAPACITY } from "../../app-consts.js";
 import { CombatantProperties } from "../index.js";
-import { CombatantTraitType } from "../combatant-traits/index.js";
+import {
+  CombatantTraitType,
+  EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL,
+} from "../combatant-traits/index.js";
 import { Inventory } from "./index.js";
 
 export function canPickUpItem(combatantProperties: CombatantProperties, itemType: ItemType) {
@@ -15,13 +18,12 @@ export function canPickUpItem(combatantProperties: CombatantProperties, itemType
 }
 
 export function getCapacityByItemType(combatantProperties: CombatantProperties) {
-  const extraConsumableStorageTraitOption = combatantProperties.traits.find(
-    (trait) => trait.type === CombatantTraitType.ExtraConsumablesStorage
-  );
+  const extraConsumableCapacityOption =
+    (combatantProperties.abilityProperties.traitProperties.inherentTraitLevels[
+      CombatantTraitType.ExtraConsumablesStorage
+    ] || 0) * EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL;
   let minibagCapacity = 0;
-  if (extraConsumableStorageTraitOption?.type === CombatantTraitType.ExtraConsumablesStorage) {
-    minibagCapacity = extraConsumableStorageTraitOption.capacity;
-  }
+  if (extraConsumableCapacityOption) minibagCapacity = extraConsumableCapacityOption;
 
   const { inventory } = combatantProperties;
 

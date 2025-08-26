@@ -17,7 +17,7 @@ export class CollectAllOwnedActionsByIntent implements BehaviorNode {
     private actionIntents: CombatActionIntent[]
   ) {}
   execute(): BehaviorNodeState {
-    const { ownedActions } = this.combatant.combatantProperties;
+    const { ownedActions } = this.combatant.combatantProperties.abilityProperties;
     const collected: CombatActionName[] = [];
     for (const [actionName, _actionState] of iterateNumericEnumKeyedRecord(ownedActions)) {
       const action = COMBAT_ACTIONS[actionName];
@@ -25,6 +25,9 @@ export class CollectAllOwnedActionsByIntent implements BehaviorNode {
         collected.push(actionName);
       }
     }
+
+    console.log("collected actions:", collected);
+
     if (collected.length === 0) return BehaviorNodeState.Failure;
 
     this.behaviorContext.consideredActionNamesFilteredByIntents = collected;

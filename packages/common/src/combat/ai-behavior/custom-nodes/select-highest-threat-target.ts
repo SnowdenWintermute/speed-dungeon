@@ -1,10 +1,7 @@
 import { Combatant } from "../../../combatants/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionIntent } from "../../combat-actions/combat-action-intent.js";
-import {
-  COMBAT_ACTION_NAME_STRINGS,
-  CombatActionName,
-} from "../../combat-actions/combat-action-names.js";
+import { CombatActionName } from "../../combat-actions/combat-action-names.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import {
@@ -46,8 +43,10 @@ export class SelectTopThreatTargetAndAction implements BehaviorNode {
               this.behaviorContext.setCurrentActionNameConsidering(actionName);
               // @TODO -actually select an actionLevel
               const actionLevel =
-                this.combatant.combatantProperties.ownedActions[actionName]?.level || 1;
+                this.combatant.combatantProperties.abilityProperties.ownedActions[actionName]
+                  ?.level || 1;
               this.behaviorContext.setCurrentActionLevelConsidering(actionLevel);
+              console.log("set considering:", this.behaviorContext.currentActionNameConsidering);
             }
           ),
           // check if action is useable

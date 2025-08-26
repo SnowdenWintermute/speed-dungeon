@@ -1,13 +1,13 @@
 import { websocketConnection } from "@/singletons/websocket-connection";
 import {
   BASE_SCREEN_SIZE,
+  COMBATANT_CLASS_NAME_STRINGS,
   ClientToServerEvent,
   Combatant,
   GOLDEN_RATIO,
   MAX_PARTY_SIZE,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
-  formatCombatantClassName,
   getProgressionGameMaxStartingFloor,
   getProgressionGamePartyName,
 } from "@speed-dungeon/common";
@@ -185,5 +185,5 @@ export function formatCharacterTag(combatant: Combatant) {
 }
 
 export function formatCharacterLevelAndClass(combatant: Combatant) {
-  return `level ${combatant.combatantProperties.level} ${formatCombatantClassName(combatant.combatantProperties.combatantClass)}`;
+  return `level ${combatant.combatantProperties.level} ${COMBATANT_CLASS_NAME_STRINGS[combatant.combatantProperties.combatantClass]}`;
 }

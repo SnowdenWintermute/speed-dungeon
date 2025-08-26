@@ -1,3 +1,5 @@
+import { Vector3 } from "@babylonjs/core";
+import { CombatantClass, CombatantProperties, CombatantSpecies } from "./combatants/index.js";
 import { Meters, Milliseconds } from "./primatives/index.js";
 
 // remember to update it in package.json as well!
@@ -58,6 +60,9 @@ export const FOUND_ITEM_MAX_DURABILITY_MODIFIER = 0.75;
 export const FOUND_ITEM_MIN_DURABILITY_MODIFIER = 0.25;
 // CRAFTING
 // go to crafting actions for the related consts
+
+// ABILITIES
+export const MAX_ALLOCATABLE_ACTION_LEVEL = 3;
 
 // COMBAT
 export const BASE_CRIT_CHANCE = 5;

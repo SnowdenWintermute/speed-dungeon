@@ -44,7 +44,8 @@ export class SelectRandomActionAndTargets implements BehaviorNode {
               this.behaviorContext.setCurrentActionNameConsidering(actionName);
               // @TODO -actually select an actionLevel
               const actionLevel =
-                this.combatant.combatantProperties.ownedActions[actionName]?.level || 1;
+                this.combatant.combatantProperties.abilityProperties.ownedActions[actionName]
+                  ?.level || 1;
               this.behaviorContext.setCurrentActionLevelConsidering(actionLevel);
             }
           ),

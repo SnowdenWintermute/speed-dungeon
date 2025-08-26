@@ -98,7 +98,7 @@ export class ThreatCalculator {
       this.actionUser.entityProperties.id
     );
     if (userIsMonster)
-      return console.log(
+      return console.error(
         "updateThreatChangesForPlayerControlledCharacterHitOutcomes but user was not on player team"
       );
 

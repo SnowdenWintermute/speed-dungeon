@@ -16,7 +16,7 @@ export default function setComparedItem(itemId: string, compareAltSlot: boolean)
     if (partyResult instanceof Error) return console.error(partyResult);
     if (partyResult === undefined) return console.error("NO PARTY");
     const itemResult = getItemInAdventuringParty(partyResult, itemId);
-    if (itemResult instanceof Error) return console.error(itemResult);
+    if (itemResult instanceof Error) return console.info(itemResult);
     const focusedCharacterResult = getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) return console.error(focusedCharacterResult);
     const focusedCharacter = focusedCharacterResult;

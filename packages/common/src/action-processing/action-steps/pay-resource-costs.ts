@@ -3,10 +3,9 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { COMBAT_ACTIONS, COMBAT_ACTION_NAME_STRINGS } from "../../combat/index.js";
+import { COMBAT_ACTIONS } from "../../combat/index.js";
 import { GameUpdateCommandType, ResourcesPaidGameUpdateCommand } from "../game-update-commands.js";
 import { CombatantProperties, Inventory } from "../../combatants/index.js";
-import { ERROR_MESSAGES } from "../../errors/index.js";
 import { MaxAndCurrent } from "../../primatives/max-and-current.js";
 
 const stepType = ActionResolutionStepType.PayResourceCosts;
@@ -69,7 +68,7 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
         CombatantProperties.payResourceCosts(combatantProperties, costsOption);
       }
 
-      const actionState = combatantProperties.ownedActions[action.name];
+      const actionState = combatantProperties.abilityProperties.ownedActions[action.name];
       if (actionState !== undefined) {
         actionState.wasUsedThisTurn = true;
 

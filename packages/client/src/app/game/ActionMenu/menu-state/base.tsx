@@ -17,11 +17,11 @@ import {
   CombatActionUsabilityContext,
   iterateNumericEnumKeyedRecord,
   COMBAT_ACTION_NAME_STRINGS,
-  CombatActionName,
   COMBAT_ACTIONS,
   ACTION_NAMES_TO_HIDE_IN_MENU,
   getUnmetCostResourceTypes,
-  COMBATANT_MAX_ACTION_POINTS,
+  AbilityType,
+  CombatActionName,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -33,16 +33,13 @@ import {
   setInventoryOpen,
   setViewingAbilityTreeAsFreshStack,
 } from "./common-buttons/open-inventory";
-import { ReactNode } from "react";
-
-import FireIcon from "../../../../../public/img/game-ui-icons/fire.svg";
-import RangedIcon from "../../../../../public/img/game-ui-icons/ranged.svg";
-import SwordSlashIcon from "../../../../../public/img/game-ui-icons/sword-slash.svg";
-import HealthCrossIcon from "../../../../../public/img/game-ui-icons/health-cross.svg";
-import IceIcon from "../../../../../public/img/game-ui-icons/ice.svg";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
+import {
+  ACTION_ICONS,
+  getAttackActionIcons,
+} from "../../character-sheet/ability-tree/action-icons";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -52,13 +49,16 @@ export class BaseMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   type = MenuStateType.Base;
+  alwaysShowPageOne = false;
+
+  getCenterInfoDisplayOption = null;
   [immerable] = true;
   constructor(public inCombat: boolean) {}
+
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
-    toReturn[ActionButtonCategory.Top].push(setViewingAbilityTreeAsFreshStack);
 
     let focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) {
@@ -68,6 +68,8 @@ export class BaseMenuState implements ActionMenuState {
     const { combatantProperties, entityProperties } = focusedCharacterResult;
     const characterId = entityProperties.id;
 
+    toReturn[ActionButtonCategory.Top].push(setViewingAbilityTreeAsFreshStack);
+
     const partyResult = useGameStore.getState().getParty();
     if (partyResult instanceof Error) {
       setAlert(partyResult);
@@ -76,7 +78,7 @@ export class BaseMenuState implements ActionMenuState {
 
     if (combatantProperties.unspentAttributePoints > 0) {
       const hiddenButtonForUnspentAttributesHotkey = new ActionMenuButtonProperties(
-        "Unspent Attributes Hotkey Button",
+        () => "Unspent Attributes Hotkey Button",
         "Unspent Attributes Hotkey Button",
         () => {
           useGameStore.getState().mutateState((state) => {
@@ -91,7 +93,7 @@ export class BaseMenuState implements ActionMenuState {
 
     if (Inventory.getItems(partyResult.currentRoom.inventory).length) {
       const viewItemsOnGroundButton = new ActionMenuButtonProperties(
-        VIEW_LOOT_BUTTON_TEXT,
+        () => VIEW_LOOT_BUTTON_TEXT,
         VIEW_LOOT_BUTTON_TEXT,
         () => {
           useGameStore.getState().mutateState((state) => {
@@ -107,27 +109,66 @@ export class BaseMenuState implements ActionMenuState {
     // disabled abilities if not their turn in a battle
     const disabledBecauseNotThisCombatantTurnResult =
       disableButtonBecauseNotThisCombatantTurn(characterId);
-    if (disabledBecauseNotThisCombatantTurnResult instanceof Error) {
-      console.trace(disabledBecauseNotThisCombatantTurnResult);
-      return toReturn;
-    }
 
     for (const [actionName, actionState] of iterateNumericEnumKeyedRecord(
-      combatantProperties.ownedActions
+      combatantProperties.abilityProperties.ownedActions
     )) {
       if (ACTION_NAMES_TO_HIDE_IN_MENU.includes(actionName)) continue;
       const nameAsString = COMBAT_ACTION_NAME_STRINGS[actionName];
       const button = new ActionMenuButtonProperties(
-        (
-          <div className="flex justify-between h-full w-full pr-2">
-            <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
-              {nameAsString}
+        () => {
+          const standardActionIcon = ACTION_ICONS[actionName];
+
+          let isAttack = actionName === CombatActionName.Attack;
+          let mainHandIcons = [];
+          let offHandIcons = [];
+          let ohDisabledStyle = "";
+          if (isAttack) {
+            const { mhIcons, ohIcons, ohDisabled } = getAttackActionIcons(
+              combatantProperties,
+              this.inCombat
+            );
+            mainHandIcons.push(...mhIcons);
+            offHandIcons.push(...ohIcons);
+            if (ohDisabled) ohDisabledStyle = "opacity-50";
+          }
+
+          return (
+            <div className="flex justify-between h-full w-full pr-2">
+              <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
+                {nameAsString}
+              </div>
+              <div className="h-full flex items-center p-2">
+                {isAttack ? (
+                  <div className="h-full flex">
+                    <div className="h-full flex">
+                      {mainHandIcons.map((iconGetter, i) => (
+                        <div key={"mh-" + i} className="h-full mr-1 last:mr-0">
+                          {iconGetter("h-full fill-slate-400 stroke-slate-400")}
+                        </div>
+                      ))}
+                    </div>
+                    {!!(offHandIcons.length > 0) && <div className="mx-1">/</div>}
+
+                    <div className={"h-full flex"}>
+                      {offHandIcons.map((iconGetter, i) => (
+                        <div key={"mh-" + i} className={`h-full mr-1 last:mr-0 ${ohDisabledStyle}`}>
+                          {iconGetter("h-full fill-slate-400 stroke-slate-400")}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="h-full">
+                    {standardActionIcon === null
+                      ? "icon missing"
+                      : standardActionIcon("h-full fill-slate-400 stroke-slate-400")}{" "}
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="h-full flex items-center">
-              {getActionIcon(actionName, focusedCharacterResult.combatantProperties)}
-            </div>
-          </div>
-        ),
+          );
+        },
         nameAsString,
         () => {
           websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
@@ -165,7 +206,8 @@ export class BaseMenuState implements ActionMenuState {
 
       const isWearingRequiredEquipment = CombatantProperties.isWearingRequiredEquipmentToUseAction(
         combatantProperties,
-        combatAction.name
+        combatAction.name,
+        1
       );
 
       const isOnCooldown = (actionState.cooldown?.current || 0) > 0;
@@ -188,11 +230,11 @@ export class BaseMenuState implements ActionMenuState {
   }
 }
 
-function disableButtonBecauseNotThisCombatantTurn(combatantId: string) {
+export function disableButtonBecauseNotThisCombatantTurn(combatantId: string) {
   const gameOption = useGameStore.getState().game;
   const username = useGameStore.getState().username;
   const gameAndPartyResult = getGameAndParty(gameOption, username);
-  if (gameAndPartyResult instanceof Error) return gameAndPartyResult;
+  if (gameAndPartyResult instanceof Error) throw gameAndPartyResult;
 
   const [game, party] = gameAndPartyResult;
 
@@ -205,37 +247,4 @@ function disableButtonBecauseNotThisCombatantTurn(combatantId: string) {
   }
 
   return disableButtonBecauseNotThisCombatantTurn;
-}
-
-function getActionIcon(
-  actionName: CombatActionName,
-  combatantProperties: CombatantProperties
-): ReactNode {
-  return <div>icon</div>;
-  // switch (abilityName) {
-  //   case AbilityName.Attack:
-  //   case AbilityName.AttackMeleeMainhand:
-  //   case AbilityName.AttackMeleeOffhand:
-  //   case AbilityName.AttackRangedMainhand:
-  //     const mhOption = CombatantEquipment.getEquippedHoldable(
-  //       combatantProperties,
-  //       HoldableSlotType.MainHand
-  //     );
-  //     if (
-  //       mhOption &&
-  //       mhOption.equipmentBaseItemProperties.equipmentType === EquipmentType.TwoHandedRangedWeapon
-  //     ) {
-  //       return <RangedIcon className="h-[20px] fill-slate-400 stroke-slate-400" />;
-  //     } else {
-  //       return <SwordSlashIcon className="h-[20px] fill-slate-400" />;
-  //     }
-  //   case AbilityName.Fire:
-  //     return <FireIcon className="h-[20px] fill-slate-400" />;
-  //   case AbilityName.Ice:
-  //     return <IceIcon className="h-[20px] fill-slate-400" />;
-  //   case AbilityName.Healing:
-  //     return <HealthCrossIcon className="h-[20px] fill-slate-400" />;
-  //   case AbilityName.Destruction:
-  //     return <FireIcon className="h-[20px] fill-slate-400" />;
-  // }
 }

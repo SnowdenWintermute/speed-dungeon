@@ -17,11 +17,14 @@ import { CombatActionResourceChangeProperties } from "../../combat-action-resour
 import { PrimedForIceBurstCombatantCondition } from "../../../../combatants/combatant-conditions/primed-for-ice-burst.js";
 import cloneDeep from "lodash.clonedeep";
 import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
+import { CombatantConditionName } from "../../../../combatants/index.js";
+
+const spellLevelHpChangeValueModifier = 0.75;
 
 export const iceBoltProjectileHitOutcomeProperties: CombatActionHitOutcomeProperties = {
   ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Ranged],
   resourceChangePropertiesGetters: {
-    [CombatActionResource.HitPoints]: (user, primaryTarget) => {
+    [CombatActionResource.HitPoints]: (user, actionLevel, primaryTarget) => {
       const hpChangeSourceConfig: ResourceChangeSourceConfig = {
         category: ResourceChangeSourceCategory.Magical,
         kineticDamageTypeOption: null,
@@ -34,6 +37,9 @@ export const iceBoltProjectileHitOutcomeProperties: CombatActionHitOutcomeProper
 
       // just get some extra damage for combatant level
       baseValues.add(user.level - 1);
+
+      baseValues.mult(1 + spellLevelHpChangeValueModifier * (actionLevel - 1));
+
       // get greater benefits from a certain attribute the higher level a combatant is
       addCombatantLevelScaledAttributeToRange({
         range: baseValues,
@@ -54,18 +60,14 @@ export const iceBoltProjectileHitOutcomeProperties: CombatActionHitOutcomeProper
     },
   },
 
-  getAppliedConditions: (combatantContext, idGenerator, actionLevel) => {
-    const { combatant } = combatantContext;
-
-    const condition = new PrimedForIceBurstCombatantCondition(
-      idGenerator.generate(),
+  getAppliedConditions: (user, actionLevel) => {
+    return [
       {
-        entityProperties: cloneDeep(combatant.entityProperties),
-        friendOrFoe: FriendOrFoe.Hostile,
+        conditionName: CombatantConditionName.PrimedForIceBurst,
+        level: actionLevel,
+        stacks: 1,
+        appliedBy: { entityProperties: user.entityProperties, friendOrFoe: FriendOrFoe.Hostile },
       },
-      combatant.combatantProperties.level
-    );
-
-    return [condition];
+    ];
   },
 };

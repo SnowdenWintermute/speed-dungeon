@@ -2,7 +2,7 @@ import format from "pg-format";
 import { pgPool } from "../../singletons/pg-pool.js";
 import { RESOURCE_NAMES } from "../db-consts.js";
 import { DatabaseRepository } from "./index.js";
-import { Combatant, formatCombatantClassName } from "@speed-dungeon/common";
+import { COMBATANT_CLASS_NAME_STRINGS, Combatant } from "@speed-dungeon/common";
 
 export type RaceGameCharacterRecord = {
   id: number;
@@ -30,7 +30,7 @@ class RaceGameCharacterRecordRepo extends DatabaseRepository<RaceGameCharacterRe
         partyRecordId,
         character.entityProperties.name,
         character.combatantProperties.level,
-        formatCombatantClassName(character.combatantProperties.combatantClass).toLowerCase(),
+        COMBATANT_CLASS_NAME_STRINGS[character.combatantProperties.combatantClass].toLowerCase(),
         controllingPlayerIdOption || null
       )
     );

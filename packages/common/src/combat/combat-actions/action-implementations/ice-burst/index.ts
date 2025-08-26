@@ -1,7 +1,6 @@
 import {
   CombatActionComponentConfig,
   CombatActionComposite,
-  CombatActionExecutionIntent,
   CombatActionName,
   CombatActionOrigin,
   FriendOrFoe,
@@ -27,10 +26,8 @@ import {
   DynamicAnimationName,
 } from "../../../../app-consts.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { KineticDamageType } from "../../../kinetic-damage-types.js";
-import { PrimedForIceBurstCombatantCondition } from "../../../../combatants/combatant-conditions/primed-for-ice-burst.js";
 import cloneDeep from "lodash.clonedeep";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { ActionEntityName } from "../../../../action-entities/index.js";
@@ -56,6 +53,7 @@ import {
 } from "../../../../scene-entities/index.js";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
+import { CombatantConditionName } from "../../../../combatants/index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
@@ -99,9 +97,7 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
       return hpChangeProperties;
     },
   },
-  getAppliedConditions: (combatantContext, idGenerator, actionlevel) => {
-    const { combatant } = combatantContext;
-
+  getAppliedConditions: (combatant, actionlevel) => {
     let userEntityProperties = cloneDeep(combatant.entityProperties);
     if (combatant.combatantProperties.asShimmedUserOfTriggeredCondition) {
       userEntityProperties =
@@ -109,13 +105,14 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
           .entityProperties;
     }
 
-    const condition = new PrimedForIceBurstCombatantCondition(
-      idGenerator.generate(),
-      { entityProperties: userEntityProperties, friendOrFoe: FriendOrFoe.Hostile },
-      combatant.combatantProperties.level
-    );
-
-    return [condition];
+    return [
+      {
+        conditionName: CombatantConditionName.PrimedForIceBurst,
+        level: combatant.combatantProperties.level,
+        stacks: 1,
+        appliedBy: { entityProperties: userEntityProperties, friendOrFoe: FriendOrFoe.Hostile },
+      },
+    ];
   },
 };
 
@@ -129,8 +126,11 @@ const config: CombatActionComponentConfig = {
   targetingProperties,
   hitOutcomeProperties,
   costProperties: {
-    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
+    ...cloneDeep(BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base]),
     costBases: {},
+    getResourceCosts: () => null,
+    getEndsTurnOnUse: () => false,
+    requiresCombatTurnInThisContext: () => false,
   },
   shouldExecute: () => true,
 

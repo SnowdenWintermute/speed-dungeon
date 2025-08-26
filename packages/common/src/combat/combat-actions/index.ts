@@ -7,11 +7,15 @@ export * from "./combat-action-execution-intent.js";
 export * from "./combat-action-animations.js";
 export * from "./combat-action-intent.js";
 export * from "./combat-action-steps-config.js";
+export * from "./combat-action-resource-change-properties.js";
+export * from "./combat-action-accuracy.js";
+
 import {
   Combatant,
   CombatantProperties,
   getCombatActionPropertiesIfOwned,
 } from "../../combatants/index.js";
+
 import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js";
 import { CombatActionName } from "./combat-action-names.js";
 import { Battle } from "../../battle/index.js";
@@ -33,6 +37,7 @@ import {
 import { ActionResolutionStepsConfig } from "./combat-action-steps-config.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
+import { AbilityTreeAbility } from "../../abilities/index.js";
 
 export enum CombatActionOrigin {
   SpellCast,
@@ -56,6 +61,8 @@ export interface CombatActionComponentConfig {
   hitOutcomeProperties: CombatActionHitOutcomeProperties;
   costProperties: CombatActionCostPropertiesConfig;
   stepsConfig: ActionResolutionStepsConfig;
+
+  prerequisiteAbilities?: AbilityTreeAbility[];
 
   shouldExecute: (
     combatantContext: CombatantContext,
@@ -82,6 +89,7 @@ export interface CombatActionComponentConfig {
 export abstract class CombatActionComponent {
   public readonly description: string;
   public readonly origin: CombatActionOrigin;
+  public readonly prerequisiteAbilities?: AbilityTreeAbility[];
   public readonly targetingProperties: CombatActionTargetingProperties;
   public readonly hitOutcomeProperties: CombatActionHitOutcomeProperties;
   public readonly costProperties: CombatActionCostProperties;
@@ -135,6 +143,8 @@ export abstract class CombatActionComponent {
   ) {
     this.description = config.description;
     this.origin = config.origin;
+
+    this.prerequisiteAbilities = config.prerequisiteAbilities;
     this.targetingProperties = {
       ...config.targetingProperties,
       getAutoTarget: (combatantContext, trackerOption) =>
@@ -192,7 +202,7 @@ export abstract class CombatActionComponent {
 
   useIsValid(
     targets: CombatActionTarget,
-    level: number,
+    actionLevel: number,
     combatantContext: CombatantContext
   ): Error | void {
     const { game, party, combatant } = combatantContext;
@@ -201,11 +211,11 @@ export abstract class CombatActionComponent {
     const combatActionPropertiesResult = getCombatActionPropertiesIfOwned(
       combatant.combatantProperties,
       this.name,
-      level
+      actionLevel
     );
     if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
 
-    const actionStateOption = combatantProperties.ownedActions[this.name];
+    const actionStateOption = combatantProperties.abilityProperties.ownedActions[this.name];
     if (actionStateOption && actionStateOption.cooldown && actionStateOption.cooldown.current)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.IS_ON_COOLDOWN);
 
@@ -219,7 +229,7 @@ export abstract class CombatActionComponent {
       combatantProperties,
       this.name,
       !!combatantContext.getBattleOption(),
-      level
+      actionLevel
     );
 
     if (!hasRequiredResources)
@@ -227,7 +237,8 @@ export abstract class CombatActionComponent {
 
     const isWearingRequiredEquipment = CombatantProperties.isWearingRequiredEquipmentToUseAction(
       combatantProperties,
-      this.name
+      this.name,
+      actionLevel
     );
     if (!isWearingRequiredEquipment)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_WEARING_REQUIRED_EQUIPMENT);

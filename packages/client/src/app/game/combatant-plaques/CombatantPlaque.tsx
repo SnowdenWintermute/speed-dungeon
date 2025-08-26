@@ -31,8 +31,6 @@ import ThreatPriorityList from "./ThreatPriorityList";
 import Portrait from "./Portrait";
 import { getCombatantUiIdentifierIcon } from "@/utils/get-combatant-class-icon";
 import ClockIcon from "../../../../public/img/game-ui-icons/clock-icon.svg";
-import { BUTTON_HEIGHT_SMALL } from "@/client_consts";
-import TargetIcon from "../../../../public/img/game-ui-icons/target-icon.svg";
 
 interface Props {
   combatant: Combatant;

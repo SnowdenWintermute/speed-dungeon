@@ -1,11 +1,8 @@
 import { useGameStore } from "@/stores/game-store";
-import { Vector3 } from "@babylonjs/core";
 import {
   CombatantProperties,
   ERROR_MESSAGES,
   Combatant,
-  CombatantClass,
-  CombatantSpecies,
   CombatAttribute,
   Equipment,
   HoldableSlotType,
@@ -20,8 +17,16 @@ import { EquipmentType } from "@speed-dungeon/common";
 import { NumberRange } from "@speed-dungeon/common";
 import React from "react";
 import { getTargetOption } from "@/utils/get-target-option";
+import { TARGET_DUMMY_COMBATANT } from "./ability-tree/action-description";
+import { IconName, SVG_ICONS } from "@/app/icons";
 
-export default function CharacterSheetWeaponDamage({ combatant }: { combatant: Combatant }) {
+export default function CharacterSheetWeaponDamage({
+  combatant,
+  disableOh,
+}: {
+  combatant: Combatant;
+  disableOh?: boolean;
+}) {
   const { combatantProperties } = combatant;
 
   const mhWeaponOption = CombatantProperties.getEquippedWeapon(
@@ -66,7 +71,7 @@ export default function CharacterSheetWeaponDamage({ combatant }: { combatant: C
     return <div>{ohDamageAndAccuracyResult.message}</div>;
 
   return (
-    <div className="flex">
+    <div className="flex w-full">
       <WeaponDamageEntry
         damageAndAccuracyOption={mhDamageAndAccuracyResult}
         label="Main Hand"
@@ -76,6 +81,8 @@ export default function CharacterSheetWeaponDamage({ combatant }: { combatant: C
         damageAndAccuracyOption={ohDamageAndAccuracyResult}
         label="Off Hand"
         paddingClass="pl-1"
+        isOffHand={true}
+        showDisabled={disableOh}
       />
     </div>
   );
@@ -91,28 +98,38 @@ interface WeaponDamageEntryProps {
           afterEvasion: number;
         };
         critChance: number;
+        critMultiplierOption: null | number;
       };
   label: string;
   paddingClass: string;
+  isOffHand?: boolean;
+  showDisabled?: boolean;
 }
 
 function WeaponDamageEntry(props: WeaponDamageEntryProps) {
   if (!props.damageAndAccuracyOption) return <div className={`w-1/2 mr-1${props.paddingClass}`} />;
-  const { hpChangeRange, hitChance, critChance } = props.damageAndAccuracyOption;
+  const { hpChangeRange, hitChance, critChance, critMultiplierOption } =
+    props.damageAndAccuracyOption;
 
   return (
-    <div className={`w-1/2 min-w-1/2 ${props.paddingClass}`}>
+    <div className={`w-1/2 min-w-1/2 ${props.paddingClass} ${props.showDisabled && "opacity-50"}`}>
       <div className="w-full flex justify-between">
-        <span>{props.label}</span>
-        <span>{`${hpChangeRange.min.toFixed(0)}-${hpChangeRange.max.toFixed(0)}`}</span>
+        <span className="flex">
+          {SVG_ICONS[IconName.OpenHand](
+            `h-5 fill-slate-400 mr-1 ${props.isOffHand && "-scale-x-100"} `
+          )}
+          {`${hpChangeRange.min.toFixed(0)}-${hpChangeRange.max.toFixed(0)}`}
+        </span>
+        <span className="flex">
+          {SVG_ICONS[IconName.Target]("h-6 fill-slate-400 mr-1")}{" "}
+          {hitChance.afterEvasion.toFixed(0)}%
+        </span>
       </div>
-      <div className="w-full flex justify-between items-center">
-        <span>{"Accuracy "}</span>
-        <span>{hitChance.afterEvasion.toFixed(0)}%</span>
-      </div>
-      <div className="w-full flex justify-between items-center">
-        <span>{"Crit chance "}</span>
-        <span>{critChance.toFixed(0)}%</span>
+      <div className="flex justify-between ">
+        <span className=" flex">
+          {SVG_ICONS[IconName.CritChance]("h-6 fill-slate-400 mr-1")} {critChance.toFixed(0)}%
+        </span>
+        <span>↟{((critMultiplierOption || 0) * 100).toFixed(0)}%</span>
       </div>
     </div>
   );
@@ -123,37 +140,18 @@ function getAttackActionDamageAndAccuracy(
   weaponOption: undefined | WeaponProperties,
   isOffHand: boolean
 ) {
-  let actionName = isOffHand
-    ? CombatActionName.AttackMeleeOffhand
-    : CombatActionName.AttackMeleeMainhand;
-  const { combatantProperties } = combatant;
-
-  if (weaponOption) {
-    const weaponProperties = weaponOption;
-    switch (weaponProperties.equipmentType) {
-      case EquipmentType.TwoHandedRangedWeapon:
-        actionName = CombatActionName.AttackRangedMainhand;
-      case EquipmentType.TwoHandedMeleeWeapon:
-        break;
-      case EquipmentType.OneHandedMeleeWeapon:
-    }
-  }
+  const actionName = getAttackActionName(weaponOption, isOffHand);
 
   const gameOption = useGameStore.getState().game;
 
   const currentlyTargetedCombatantResult = getTargetOption(gameOption, combatant, actionName);
   if (currentlyTargetedCombatantResult instanceof Error) return currentlyTargetedCombatantResult;
-  const target =
-    currentlyTargetedCombatantResult ||
-    new CombatantProperties(
-      CombatantClass.Warrior,
-      CombatantSpecies.Humanoid,
-      null,
-      null,
-      Vector3.Zero()
-    );
+  const usingDummy = currentlyTargetedCombatantResult === undefined;
+
+  const target = currentlyTargetedCombatantResult || TARGET_DUMMY_COMBATANT;
 
   const combatAction = COMBAT_ACTIONS[actionName];
+  const { combatantProperties } = combatant;
   const hpChangeProperties = combatAction.hitOutcomeProperties.resourceChangePropertiesGetters![
     CombatActionResource.HitPoints
   ]!(combatantProperties, 1, target);
@@ -163,22 +161,42 @@ function getAttackActionDamageAndAccuracy(
 
   if (hpChangeRangeResult instanceof Error) return hpChangeRangeResult;
 
+  const targetEvasion = CombatantProperties.getTotalAttributes(target)[CombatAttribute.Evasion];
+
   const hpChangeRange = hpChangeRangeResult;
   const hitChance = HitOutcomeMitigationCalculator.getActionHitChance(
     combatAction,
     combatantProperties,
     1,
-    CombatantProperties.getTotalAttributes(target)[CombatAttribute.Evasion],
-    false
+    targetEvasion,
+    !usingDummy
   );
+
+  const { hitOutcomeProperties } = combatAction;
+
+  const critMultiplierOption = hitOutcomeProperties.getCritMultiplier(combatantProperties, 1);
 
   const critChance = HitOutcomeMitigationCalculator.getActionCritChance(
     combatAction,
     1,
     combatantProperties,
     target,
-    false
+    !usingDummy
   );
 
-  return { hpChangeRange, hitChance, critChance };
+  return { hpChangeRange, hitChance, critChance, critMultiplierOption };
+}
+
+export function getAttackActionName(
+  weaponOption: WeaponProperties | undefined,
+  isOffHand: boolean
+) {
+  if (isOffHand) return CombatActionName.AttackMeleeOffhand;
+
+  if (weaponOption) {
+    const weaponProperties = weaponOption;
+    if (weaponProperties.equipmentType === EquipmentType.TwoHandedRangedWeapon)
+      return CombatActionName.AttackRangedMainhand;
+  }
+  return CombatActionName.AttackMeleeMainhand;
 }

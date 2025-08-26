@@ -36,7 +36,7 @@ export function generateSpecificEquipmentType(
     noAffixes,
   });
 
-  if (!(item instanceof Equipment)) return new Error("invalid item type created");
+  if (!(item instanceof Equipment)) throw new Error("invalid item type created");
 
   return item;
 }

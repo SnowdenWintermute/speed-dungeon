@@ -36,7 +36,7 @@ export default function DetailedCombatantInfoCard(props: Props) {
     combatantOption = detailedEntity;
 
   const detailedInfoCard = combatantOption ? (
-    <div className="border border-slate-400 bg-slate-700 p-2.5 w-[600px]">
+    <div className="border border-slate-400 bg-slate-700 p-2.5 w-[650px]">
       <CombatantDisplay combatant={combatantOption} />
     </div>
   ) : (

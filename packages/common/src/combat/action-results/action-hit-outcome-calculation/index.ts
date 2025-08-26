@@ -54,7 +54,9 @@ export class CombatActionHitOutcomes {
         }
       })();
 
-    this.resourceChanges[resourceType].addRecord(targetId, resourceChange);
+    const resourceTypeChange = this.resourceChanges[resourceType];
+    if (resourceTypeChange === undefined) throw new Error("expected to have set this record");
+    resourceTypeChange.addRecord(targetId, resourceChange);
   }
 }
 

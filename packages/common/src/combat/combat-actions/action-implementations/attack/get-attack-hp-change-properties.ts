@@ -19,9 +19,10 @@ export function getAttackResourceChangeProperties(
   actionLevel: number,
   primaryTarget: CombatantProperties,
   scalingAttribute: CombatAttribute,
-  weaponSlot: HoldableSlotType,
   options = { usableWeaponsOnly: true }
 ) {
+  const weaponSlot = hitOutcomeProperties.addsPropertiesFromHoldableSlot;
+
   const hpChangeSourceConfig: ResourceChangeSourceConfig = {
     category: ResourceChangeSourceCategory.Physical,
     kineticDamageTypeOption: null,
@@ -54,9 +55,9 @@ export function getAttackResourceChangeProperties(
     { usableWeaponsOnly: options.usableWeaponsOnly }
   );
 
-  const weaponOption = equippedUsableWeapons[weaponSlot];
+  const weaponOption = weaponSlot !== null ? equippedUsableWeapons[weaponSlot] : null;
 
-  if (weaponOption?.equipment && weaponOption) {
+  if (weaponOption) {
     applyWeaponPropertiesToResourceChangeProperties(
       hitOutcomeProperties,
       weaponOption,

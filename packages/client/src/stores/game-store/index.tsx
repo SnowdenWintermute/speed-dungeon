@@ -7,7 +7,7 @@ import {
   CombatActionName,
   CombatAttribute,
   Combatant,
-  CombatantAssociatedData,
+  CombatantContext,
   ERROR_MESSAGES,
   EntityId,
   Item,
@@ -35,6 +35,7 @@ import { ConvertToShardItemSelectionMenuState } from "@/app/game/ActionMenu/menu
 import getCurrentParty from "@/utils/getCurrentParty";
 import { TargetIndicator } from "@/app/3d-world/scene-entities/character-models/target-indicator-manager";
 import { AbilityTreeMenuState } from "@/app/game/ActionMenu/menu-state/ability-tree-menu-state";
+import { AbilityTreeAbility } from "@speed-dungeon/common";
 
 export enum MenuContext {
   InventoryItems,
@@ -45,35 +46,47 @@ export enum MenuContext {
 
 export class GameState {
   [immerable] = true;
+  gameName: string | null = null;
+  game: null | SpeedDungeonGame = null;
+
   baseMenuState: BaseMenuState;
   stackedMenuStates: ActionMenuState[] = [];
-  game: null | SpeedDungeonGame = null;
-  gameName: string | null = null;
+
   /** Unique name which characters may list as their controller */
   username: null | string = null;
   focusedCharacterId: string = "";
+
   detailedEntity: null | Combatant | Item = null;
   hoveredEntity: null | Combatant | Item = null;
   comparedItem: null | Item = null;
   comparedSlot: null | TaggedEquipmentSlot = null;
+  consideredItemUnmetRequirements: null | CombatAttribute[] = null;
+
   hoveredAction: null | CombatActionName = null;
-  actionMenuCurrentPageNumber: number = 0;
-  actionMenuParentPageNumbers: number[] = [];
+
+  hoveredCombatantAbility: null | AbilityTreeAbility = null;
+  detailedCombatantAbility: null | AbilityTreeAbility = null;
+
   combatLogMessages: CombatLogMessage[] = [];
+  combatantFloatingMessages: { [combatantId: string]: FloatingMessage[] } = {};
+
   lastDebugMessageId: number = 0;
+
   combatantModelLoadingStates: { [combantatId: EntityId]: boolean } = {};
   babylonControlledCombatantDOMData: { [combatantId: string]: BabylonControlledCombatantData } = {};
-  combatantFloatingMessages: { [combatantId: string]: FloatingMessage[] } = {};
-  testVar: boolean = false;
+
   itemThumbnails: { [itemId: string]: string } = {};
+
   combatantPortraits: { [combatantId: EntityId]: string } = {};
-  consideredItemUnmetRequirements: null | CombatAttribute[] = null;
+
   showItemsOnGround: boolean = true;
   viewingLeaveGameModal: boolean = false;
   viewingDropShardsModal: boolean = false;
+
   combatantsWithPendingCraftActions: Partial<Record<EntityId, boolean>> = {};
-  rerenderForcer: number = 0;
   targetingIndicators: TargetIndicator[] = [];
+
+  rerenderForcer: number = 0;
 
   getCurrentBattleId: () => null | string = () => {
     const party = this.getParty();
@@ -170,7 +183,7 @@ export function getCurrentMenu(state: GameState) {
 export function getCombatantContext(
   gameState: GameState,
   combatantId: EntityId
-): Error | CombatantAssociatedData {
+): Error | CombatantContext {
   const gameOption = gameState.game;
 
   if (!gameOption) return new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
@@ -182,5 +195,5 @@ export function getCombatantContext(
   const party = partyOptionResult;
   const combatantResult = SpeedDungeonGame.getCombatantById(game, combatantId);
   if (combatantResult instanceof Error) return combatantResult;
-  return { game, party, combatant: combatantResult };
+  return new CombatantContext(game, party, combatantResult);
 }

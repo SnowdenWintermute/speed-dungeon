@@ -9,6 +9,7 @@ import {
   CombatantActionState,
   CombatantProperties,
   Equipment,
+  KineticDamageType,
   MONSTER_SPECIES,
   MONSTER_TYPE_STRINGS,
   MonsterType,
@@ -19,9 +20,9 @@ import {
 import { getMonsterStartingAttributes } from "./get-monster-starting-attributes.js";
 import { addAttributesToAccumulator } from "@speed-dungeon/common";
 import getMonsterPerLevelAttributes from "./get-monster-per-level-attributes.js";
-import getMonsterTraits from "./get-monster-traits.js";
 import { getMonsterEquipment } from "./get-monster-equipment.js";
 import { ThreatManager } from "@speed-dungeon/common";
+import { MONSTER_INHERENT_TRAIT_GETTERS } from "./monster-trait-getters.js";
 // import { STOCK_MONSTER } from "../../index.js";
 
 export function generateMonster(level: number, forcedType?: MonsterType) {
@@ -61,7 +62,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
     const action = new CombatantActionState(actionName);
     if (actionName === CombatActionName.Fire) action.level = 2;
     // if (actionName === CombatActionName.Healing) action.level = 1;
-    combatantProperties.ownedActions[actionName] = action;
+    combatantProperties.abilityProperties.ownedActions[actionName] = action;
   }
 
   // const entityProperties = { id: idGenerator.generate(), name: STOCK_MONSTER.name };
@@ -69,30 +70,32 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
 
   // will modify this monster after creation with basic values
   const monster = new Combatant(entityProperties, combatantProperties);
-  monster.combatantProperties.threatManager = new ThreatManager();
-  monster.combatantProperties.level = level;
+  combatantProperties.threatManager = new ThreatManager();
+  combatantProperties.level = level;
   // assign their "discretionary" attributes
   // assign attributes that would have come from wearing gear
   const startingAttributes = getMonsterStartingAttributes(monsterType);
-  addAttributesToAccumulator(startingAttributes, monster.combatantProperties.inherentAttributes);
+  addAttributesToAccumulator(startingAttributes, combatantProperties.inherentAttributes);
   const attributesPerLevel = getMonsterPerLevelAttributes(monsterType);
   for (const [attribute, value] of iterateNumericEnumKeyedRecord(attributesPerLevel)) {
-    const levelAdjustedValue = value * (monster.combatantProperties.level - 1);
+    const levelAdjustedValue = value * (combatantProperties.level - 1);
 
-    if (!monster.combatantProperties.inherentAttributes[attribute])
-      monster.combatantProperties.inherentAttributes[attribute] = levelAdjustedValue;
-    else monster.combatantProperties.inherentAttributes[attribute]! += levelAdjustedValue;
+    if (!combatantProperties.inherentAttributes[attribute])
+      combatantProperties.inherentAttributes[attribute] = levelAdjustedValue;
+    else combatantProperties.inherentAttributes[attribute]! += levelAdjustedValue;
   }
   // randomize their hp a little
-  const baseHp = monster.combatantProperties.inherentAttributes[CombatAttribute.Hp] || 1;
+  const baseHp = combatantProperties.inherentAttributes[CombatAttribute.Hp] || 1;
   const randomNumberNormalDistribution = randomNormal();
   const modifiedHp = baseHp * (randomNumberNormalDistribution + 0.5);
   monster.combatantProperties.inherentAttributes[CombatAttribute.Hp] = Math.floor(modifiedHp);
 
+  // @PERF - make a lookup table for inherent monster type traits
   // traits
-  monster.combatantProperties.traits = getMonsterTraits(monsterType);
+  combatantProperties.abilityProperties.traitProperties.inherentTraitLevels =
+    MONSTER_INHERENT_TRAIT_GETTERS[monsterType](monster.combatantProperties.level);
   // equip weapons
-  monster.combatantProperties.equipment = getMonsterEquipment(monsterType);
+  combatantProperties.equipment = getMonsterEquipment(monsterType);
 
   // @TESTING - remove this testing durability
   // for (const equipment of CombatantEquipment.getAllEquippedItems(monster.combatantProperties, {})) {
@@ -102,8 +105,14 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   CombatantProperties.setHpAndMpToMax(monster.combatantProperties);
   // @TODO - assign abilities (realistically need to refactor monster creation)
 
-  monster.combatantProperties.aiTypes = [AiType.Healer];
+  combatantProperties.aiTypes = [AiType.Healer];
   // monster.combatantProperties.hitPoints = Math.floor(monster.combatantProperties.hitPoints * 0.5);
+  // @TESTING - random evasion
+  combatantProperties.inherentAttributes[CombatAttribute.Evasion] = Math.floor(Math.random() * 20);
+
+  combatantProperties.abilityProperties.traitProperties.inherentKineticDamageTypeAffinities[
+    KineticDamageType.Piercing
+  ] = 10;
 
   return monster;
 }

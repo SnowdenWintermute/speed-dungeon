@@ -1,6 +1,5 @@
 import {
   CharacterAssociatedData,
-  CombatActionComponent,
   CombatantContext,
   CombatantProperties,
   ERROR_MESSAGES,
@@ -21,7 +20,8 @@ export function selectCombatActionLevelHandler(
   const { actionLevel: newSelectedActionLevel } = eventData;
 
   const { character, game, party, player } = characterAssociatedData;
-  const { selectedCombatAction, ownedActions } = character.combatantProperties;
+  const { selectedCombatAction } = character.combatantProperties;
+  const { ownedActions } = character.combatantProperties.abilityProperties;
   if (selectedCombatAction === null) return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
 
   const combatActionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(

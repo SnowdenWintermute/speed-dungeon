@@ -7,15 +7,19 @@ export class CheckIfWearingProperEquipmentForAction implements BehaviorNode {
   constructor(
     private behaviorContext: AIBehaviorContext,
     private combatant: Combatant,
-    private actionNameOption: null | CombatActionName
+    private actionNameOption: null | CombatActionName,
+    private actionLevelOption: null | number
   ) {}
   execute(): BehaviorNodeState {
     if (this.actionNameOption === null) return BehaviorNodeState.Failure;
     const { combatantProperties } = this.combatant;
 
+    if (this.actionLevelOption === null) return BehaviorNodeState.Failure;
+
     const isWearingProperEquipment = CombatantProperties.isWearingRequiredEquipmentToUseAction(
       combatantProperties,
-      this.actionNameOption
+      this.actionNameOption,
+      this.actionLevelOption
     );
     if (isWearingProperEquipment) return BehaviorNodeState.Success;
     console.log(COMBAT_ACTION_NAME_STRINGS[this.actionNameOption], "missing proper equipment");

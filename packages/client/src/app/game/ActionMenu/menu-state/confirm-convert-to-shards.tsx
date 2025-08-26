@@ -21,6 +21,9 @@ export const CONFIRM_SHARD_TEXT = `Convert (${confirmShardLetter})`;
 export class ConfirmConvertToShardsMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
+
+  getCenterInfoDisplayOption = null;
+  alwaysShowPageOne = false;
   constructor(
     public item: Item,
     // the reason we take the type as an argument is because of the difference
@@ -51,7 +54,7 @@ export class ConfirmConvertToShardsMenuState implements ActionMenuState {
     const itemId = this.item.entityProperties.id;
 
     const confirmShardButton = new ActionMenuButtonProperties(
-      `Convert (${confirmShardLetter})`,
+      () => `Convert (${confirmShardLetter})`,
       `Convert (${confirmShardLetter})`,
       () => {
         websocketConnection.emit(ClientToServerEvent.ConvertItemsToShards, {

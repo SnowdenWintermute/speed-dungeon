@@ -33,9 +33,10 @@ export class BlindedCombatantCondition implements CombatantCondition {
   constructor(
     public id: EntityId,
     public appliedBy: ConditionAppliedBy,
-    public level: number
+    public level: number,
+    stacksOption: null | MaxAndCurrent
   ) {
-    this.stacksOption.current = level * 2;
+    if (stacksOption) this.stacksOption = stacksOption;
   }
 
   getTickSpeed(condition: CombatantCondition) {

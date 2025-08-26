@@ -20,7 +20,7 @@ import { selectCombatActionHandler } from "./select-combat-action-handler.js";
 import { cycleTargetsHandler } from "./cycle-targets-handler.js";
 import { cycleTargetingSchemesHandler } from "./cycle-targeting-schemes-handler.js";
 import { useSelectedCombatActionHandler } from "./character-uses-selected-combat-action-handler/index.js";
-import characterSpentAttributePointHandler from "./character-spent-attribute-point-handler.js";
+import { characterSpentAttributePointHandler } from "./character-spent-attribute-point-handler.js";
 import selectHoldableHotswapSlotHandler from "./select-holdable-hotswap-slot-handler.js";
 import { prohibitInCombat } from "../event-middleware/prohibit-in-combat.js";
 import { convertItemsToShardsHandler } from "./convert-items-to-shards-handler.js";
@@ -29,6 +29,7 @@ import { purchaseItemHandler } from "./purchase-item-handler.js";
 import { craftItemHandler } from "./craft-item-handler/index.js";
 import { postItemLinkHandler } from "./post-item-link-handler.js";
 import { selectCombatActionLevelHandler } from "./select-action-level-handler.js";
+import { characterAllocatedAbilityPointHandler } from "./character-allocated-ability-point-handler.js";
 
 export default function initiateGameEventListeners(
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
@@ -141,6 +142,13 @@ export default function initiateGameEventListeners(
     applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(
       socket,
       selectCombatActionLevelHandler
+    )
+  );
+  socket.on(
+    ClientToServerEvent.AllocateAbilityPoint,
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(
+      socket,
+      characterAllocatedAbilityPointHandler
     )
   );
 }

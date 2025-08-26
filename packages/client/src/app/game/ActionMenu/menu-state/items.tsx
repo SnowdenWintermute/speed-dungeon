@@ -45,6 +45,8 @@ export abstract class ItemsMenuState implements ActionMenuState {
   [immerable] = true;
   page = 1;
   numPages: number = 1;
+  alwaysShowPageOne = false;
+  getCenterInfoDisplayOption = null;
   constructor(
     public type:
       | MenuStateType.InventoryItems
@@ -67,7 +69,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
     const toReturn = new ActionButtonsByCategory();
 
     const closeInventory = new ActionMenuButtonProperties(
-      this.closeMenuTextAndHotkeys.text,
+      () => this.closeMenuTextAndHotkeys.text,
       this.closeMenuTextAndHotkeys.text,
       () => {
         useGameStore.getState().mutateState((state) => {
@@ -103,7 +105,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
     if (itemsToShow.length === 0 && this.type !== MenuStateType.ItemsOnGround) {
       toReturn[ActionButtonCategory.Numbered].push(
         new ActionMenuButtonProperties(
-          <div>The list of items is empty...</div>,
+          () => <div>The list of items is empty...</div>,
           itemsToShow.length.toString(),
           () => {}
         )
@@ -135,7 +137,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
       let containerExtraStyles = CONSUMABLE_TEXT_COLOR;
 
       const button = new ActionMenuButtonProperties(
-        (
+        () => (
           <ItemButtonBody
             thumbnailOption={thumbnailOption}
             gradientOverride={consumableGradientBg}
@@ -188,7 +190,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
         containerExtraStyles += " text-blue-300";
       }
       const button = new ActionMenuButtonProperties(
-        (
+        () => (
           <ItemButtonBody
             containerExtraStyles={containerExtraStyles}
             imageExtraStyles={imageExtraStyles}

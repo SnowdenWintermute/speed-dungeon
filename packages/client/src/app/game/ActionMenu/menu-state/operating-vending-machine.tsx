@@ -27,6 +27,8 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   type = MenuStateType.OperatingVendingMachine;
+  alwaysShowPageOne = false;
+  getCenterInfoDisplayOption = null;
   constructor() {}
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
@@ -42,7 +44,7 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
     toReturn[ActionButtonCategory.Top].push(createCancelButton([]), setInventoryOpen);
 
     const purchaseItemsButton = new ActionMenuButtonProperties(
-      "Purchase Items",
+      () => "Purchase Items",
       "Purchase Items",
       () => {
         useGameStore.getState().mutateState((state) => {
@@ -52,20 +54,28 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
     );
     purchaseItemsButton.shouldBeDisabled = !userControlsThisCharacter;
 
-    const craftButton = new ActionMenuButtonProperties("Craft", "Craft", () => {
-      useGameStore.getState().mutateState((state) => {
-        state.stackedMenuStates.push(craftingItemSelectionMenuState);
-      });
-    });
+    const craftButton = new ActionMenuButtonProperties(
+      () => "Craft",
+      "Craft",
+      () => {
+        useGameStore.getState().mutateState((state) => {
+          state.stackedMenuStates.push(craftingItemSelectionMenuState);
+        });
+      }
+    );
 
-    const repairButton = new ActionMenuButtonProperties("Repair", "Repair", () => {
-      useGameStore.getState().mutateState((state) => {
-        state.stackedMenuStates.push(repairItemSelectionMenuState);
-      });
-    });
+    const repairButton = new ActionMenuButtonProperties(
+      () => "Repair",
+      "Repair",
+      () => {
+        useGameStore.getState().mutateState((state) => {
+          state.stackedMenuStates.push(repairItemSelectionMenuState);
+        });
+      }
+    );
 
     const convertButton = new ActionMenuButtonProperties(
-      "Convert to Shards",
+      () => "Convert to Shards",
       "Convert to Shards",
       () => {
         useGameStore.getState().mutateState((state) => {

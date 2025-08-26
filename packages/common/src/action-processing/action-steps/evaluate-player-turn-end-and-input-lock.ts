@@ -26,23 +26,6 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
     if (gameUpdateCommandOption) {
       this.gameUpdateCommandOption = gameUpdateCommandOption;
 
-      const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
-
-      if (action.hitOutcomeProperties.getShouldDecayThreatOnUse(context)) {
-        const threatChanges = new ThreatChanges();
-        const threatCalculator = new ThreatCalculator(
-          threatChanges,
-          this.context.tracker.hitOutcomes,
-          context.combatantContext.party,
-          context.combatantContext.combatant,
-          context.tracker.actionExecutionIntent.actionName
-        );
-        threatCalculator.addVolatileThreatDecay();
-
-        threatChanges.applyToGame(party);
-        this.gameUpdateCommandOption.threatChanges = threatChanges;
-      }
-
       for (const [groupName, combatantGroup] of Object.entries(
         AdventuringParty.getAllCombatants(party)
       )) {
@@ -99,12 +82,16 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
 
   // unlock input if no more blocking steps are left and next turn is player
 
+  const noActionPointsLeft =
+    combatant.combatantProperties.actionPoints === 0 &&
+    // this is because it was ending our turn when conditions used actions in between mh and oh attacks since the shimmed condition users don't have any action points
+    combatant.combatantProperties.asShimmedUserOfTriggeredCondition === undefined;
   const requiredTurn =
-    action.costProperties.requiresCombatTurn(context) ||
-    combatant.combatantProperties.actionPoints === 0;
+    action.costProperties.requiresCombatTurnInThisContext(context) || noActionPointsLeft;
 
   const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
   let shouldSendEndActiveTurnMessage = false;
+  const threatChanges = new ThreatChanges();
   if (requiredTurn && !turnAlreadyEnded && battleOption) {
     // if they died on their own turn we should not end the active combatant's turn because
     // we would have already removed their turn tracker on death
@@ -121,6 +108,17 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     // of actions taking them away before they get their turn again
     CombatantProperties.refillActionPoints(combatant.combatantProperties);
     CombatantProperties.tickCooldowns(combatant.combatantProperties);
+
+    const threatCalculator = new ThreatCalculator(
+      threatChanges,
+      context.tracker.hitOutcomes,
+      context.combatantContext.party,
+      context.combatantContext.combatant,
+      context.tracker.actionExecutionIntent.actionName
+    );
+    threatCalculator.addVolatileThreatDecay();
+
+    threatChanges.applyToGame(party);
   }
 
   const hasUnevaluatedChildren = action.getChildren(context).length > 0;
@@ -149,6 +147,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     completionOrderId: null,
   };
 
+  if (!threatChanges.isEmpty()) gameUpdateCommandOption.threatChanges = threatChanges;
   if (shouldSendEndActiveTurnMessage) gameUpdateCommandOption.endActiveCombatantTurn = true;
 
   if (shouldUnlockInput) {

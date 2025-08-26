@@ -25,16 +25,17 @@ import {
 export class BurningCombatantCondition implements CombatantCondition {
   [immerable] = true;
   name = CombatantConditionName.Burning;
-  stacksOption = new MaxAndCurrent(10, 1);
   intent = CombatActionIntent.Malicious;
+  stacksOption = new MaxAndCurrent(1, 10);
   removedOnDeath: boolean = true;
   ticks?: MaxAndCurrent | undefined;
   constructor(
     public id: EntityId,
     public appliedBy: ConditionAppliedBy,
-    public level: number
+    public level: number,
+    stacksOption: null | MaxAndCurrent
   ) {
-    this.stacksOption.current = level * 5;
+    if (stacksOption) this.stacksOption = stacksOption;
   }
 
   getTickSpeed(condition: CombatantCondition) {

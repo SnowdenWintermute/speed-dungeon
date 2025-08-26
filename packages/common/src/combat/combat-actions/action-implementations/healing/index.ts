@@ -27,7 +27,7 @@ import { getSpellCastCombatLogMessage } from "../combat-log-message-getters.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
-  validTargetCategories: TargetCategories.Any,
+  getValidTargetCategories: () => TargetCategories.Any,
   usabilityContext: CombatActionUsabilityContext.All,
   intent: CombatActionIntent.Benevolent,
   getTargetingSchemes: (actionLevel) => {
@@ -38,7 +38,7 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
 };
 
 const config: CombatActionComponentConfig = {
-  description: "Restore hit points to target(s)",
+  description: "Restore hit points or damage undead",
   origin: CombatActionOrigin.SpellCast,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
   getOnUseMessage: (data) =>
@@ -54,7 +54,8 @@ const config: CombatActionComponentConfig = {
         base: 1,
       },
     },
-    requiresCombatTurn: () => false,
+    requiresCombatTurnInThisContext: () => false,
+    getEndsTurnOnUse: () => false,
   },
   stepsConfig: HEALING_STEPS_CONFIG,
   shouldExecute: () => true,

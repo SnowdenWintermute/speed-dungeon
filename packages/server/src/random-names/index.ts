@@ -146,4 +146,13 @@ export const RANDOM_CHARACTER_NAMES_FIRST = [
   "Lisbeth",
   "Yui",
   "Agil",
+  "Senshi",
+  "Kabru",
+  "Falin",
+  "Laios",
+  "Marcille",
+  "Izutsumi",
+  "Chilchuck",
+  "Shuro",
+  "Namari",
 ];

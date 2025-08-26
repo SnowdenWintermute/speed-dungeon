@@ -11,7 +11,7 @@ export function getActionNamesFilteredByUseableContext(
   const toReturn: CombatActionName[] = [];
 
   for (const [actionName, _actionState] of iterateNumericEnumKeyedRecord(
-    combatantProperties.ownedActions
+    combatantProperties.abilityProperties.ownedActions
   )) {
     const action = COMBAT_ACTIONS[actionName];
     if (action.isUsableInGivenContext(currentContext)) toReturn.push(actionName);

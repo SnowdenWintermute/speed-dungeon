@@ -3,7 +3,7 @@ import { getCurrentMenu, useGameStore } from "@/stores/game-store";
 import { ERROR_MESSAGES, ClientToServerEvent } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
-import shouldShowCharacterSheet from "./should-show-character-sheet";
+import { shouldShowCharacterSheet } from "./should-show-character-sheet";
 import getCurrentParty from "./getCurrentParty";
 
 export default function setFocusedCharacter(id: string) {

@@ -24,6 +24,8 @@ export class AssigningAttributePointsMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   type = MenuStateType.AssignAttributePoints;
+  alwaysShowPageOne = false;
+  getCenterInfoDisplayOption = null;
   constructor() {}
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
@@ -40,7 +42,7 @@ export class AssigningAttributePointsMenuState implements ActionMenuState {
 
     for (const attribute of ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES) {
       const button = new ActionMenuButtonProperties(
-        COMBAT_ATTRIBUTE_STRINGS[attribute],
+        () => COMBAT_ATTRIBUTE_STRINGS[attribute],
         COMBAT_ATTRIBUTE_STRINGS[attribute],
         () => {
           websocketConnection.emit(ClientToServerEvent.IncrementAttribute, {

@@ -20,6 +20,8 @@ export class CheckIfHasRequiredResourcesForAction implements BehaviorNode {
       1 // @TODO - actually select an action level
     );
     if (hasResources) return BehaviorNodeState.Success;
+
+    console.log("missing resources required");
     return BehaviorNodeState.Failure;
   }
 }

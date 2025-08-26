@@ -21,10 +21,11 @@ import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { BLIND_STEPS_CONFIG } from "./blind-steps-config.js";
 import { BLIND_HIT_OUTCOME_PROPERTIES } from "./blind-hit-outcome-properties.js";
 import { getSpellCastCombatLogMessage } from "../combat-log-message-getters.js";
+import { AbilityType } from "../../../../abilities/index.js";
+import { CombatantTraitType } from "../../../../combatants/index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
-  validTargetCategories: TargetCategories.Opponent,
   getTargetingSchemes: (actionLevel) => {
     const toReturn = [TargetingScheme.Single];
     if (actionLevel > 1) toReturn.push(TargetingScheme.Area);
@@ -34,6 +35,7 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
 
 const config: CombatActionComponentConfig = {
   description: "Reduce the accuracy of targets",
+  prerequisiteAbilities: [],
   origin: CombatActionOrigin.SpellCast,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
   getOnUseMessage: (data) =>
@@ -51,8 +53,8 @@ const config: CombatActionComponentConfig = {
         base: 1,
       },
     },
-    requiresCombatTurn: (context) => {
-      // if (context.combatantContext.combatant.combatantProperties.quickActions === 0) return true;
+    getEndsTurnOnUse: () => false,
+    requiresCombatTurnInThisContext: (context) => {
       return false;
     },
   },

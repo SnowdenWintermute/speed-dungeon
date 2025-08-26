@@ -16,6 +16,8 @@ export enum MenuStateType {
   ShardItemSelection,
   ConfimConvertToShards,
   ViewingAbilityTree,
+  ConsideringAbilityTreeColumn,
+  ConsideringAbilityTreeAbility,
 }
 
 export const MENU_STATE_TYPE_STRINGS: Record<MenuStateType, string> = {
@@ -34,6 +36,8 @@ export const MENU_STATE_TYPE_STRINGS: Record<MenuStateType, string> = {
   [MenuStateType.ShardItemSelection]: "Converting items to shards",
   [MenuStateType.ConfimConvertToShards]: "Confirm item destruction",
   [MenuStateType.ViewingAbilityTree]: "Viewing ability tree",
+  [MenuStateType.ConsideringAbilityTreeColumn]: "Considering abilities",
+  [MenuStateType.ConsideringAbilityTreeAbility]: "Considering ability",
 };
 
 export enum ActionButtonCategory {
@@ -54,11 +58,13 @@ export class ActionButtonsByCategory {
 
 export abstract class ActionMenuState {
   page: number = 1;
+  alwaysShowPageOne: boolean = false;
   constructor(
     public type: MenuStateType,
     public numPages: number
   ) {}
   abstract getButtonProperties(): ActionButtonsByCategory;
+  abstract getCenterInfoDisplayOption: null | (() => ReactNode);
 }
 
 export class ActionMenuButtonProperties {
@@ -70,7 +76,7 @@ export class ActionMenuButtonProperties {
   dedicatedKeys: string[] = [];
   shouldDisableMainClickOnly: boolean = false;
   constructor(
-    public jsx: ReactNode,
+    public jsx: () => ReactNode,
     public key: string,
     public clickHandler: MouseEventHandler<HTMLButtonElement>,
     public alternateClickHandler?: MouseEventHandler<HTMLButtonElement>

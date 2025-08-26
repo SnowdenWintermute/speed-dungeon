@@ -7,8 +7,9 @@ import {
   getNextOrPreviousNumber,
 } from "@speed-dungeon/common";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import OpenHandIcon from "../../../../public/img/game-ui-icons/open-hand.svg";
 import { HOTKEYS } from "@/hotkeys";
+import { disableButtonBecauseNotThisCombatantTurn } from "../ActionMenu/menu-state/base";
+import { IconName, SVG_ICONS } from "@/app/icons";
 
 interface Props {
   entityId: string;
@@ -27,13 +28,16 @@ export default function HotswapSlotButtons({
   vertical,
   registerKeyEvents,
 }: Props) {
-  const listenerRef = useRef<(e: KeyboardEvent) => void | null>();
+  const listenerRef = useRef<(e: KeyboardEvent) => void | null>(null);
   const focusedCharacterId = useGameStore.getState().focusedCharacterId;
   const prevSlotIndexRef = useRef(selectedSlotIndex);
   const [waitingForIndexChange, setWaitingForIndexChange] = useState(false);
+  const disableIfNotTurn = disableButtonBecauseNotThisCombatantTurn(entityId);
 
   function selectNextOrPrevious(nextOrPrevious: NextOrPrevious) {
     if (waitingForIndexChange) return;
+    if (disableIfNotTurn) return;
+
     const newIndex = getNextOrPreviousNumber(selectedSlotIndex, numSlots - 1, nextOrPrevious, {
       minNumber: 0,
     });
@@ -45,13 +49,13 @@ export default function HotswapSlotButtons({
 
     if (newIndex !== selectedSlotIndex) {
       prevSlotIndexRef.current = selectedSlotIndex;
-      setWaitingForIndexChange(true);
+      // setWaitingForIndexChange(true);
     }
   }
 
   useEffect(() => {
     if (selectedSlotIndex !== prevSlotIndexRef.current) {
-      setWaitingForIndexChange(false);
+      // setWaitingForIndexChange(false);
     }
   }, [selectedSlotIndex]);
 
@@ -78,7 +82,7 @@ export default function HotswapSlotButtons({
         <div
           className={`bg-slate-700 h-6 w-6 p-1 ${vertical ? "border-b" : "border-r"} border-slate-400`}
         >
-          <OpenHandIcon className="h-full w-full fill-slate-400" />
+          {SVG_ICONS[IconName.OpenHand]("h-full w-full fill-slate-400")}
         </div>
       </HoverableTooltipWrapper>
       {new Array(numSlots).fill(null).map((_nullValue, i) => (
@@ -90,7 +94,7 @@ export default function HotswapSlotButtons({
             entityId={entityId}
             index={i}
             isSelected={selectedSlotIndex === i}
-            disabled={waitingForIndexChange}
+            disabled={waitingForIndexChange || disableIfNotTurn}
           />
         </div>
       ))}

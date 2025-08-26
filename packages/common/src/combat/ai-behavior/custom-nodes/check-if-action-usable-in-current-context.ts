@@ -11,10 +11,14 @@ export class CheckIfActionUsableInCurrentContext implements BehaviorNode {
     private actionNameOption: null | CombatActionName
   ) {}
   execute(): BehaviorNodeState {
-    if (this.actionNameOption === null) return BehaviorNodeState.Failure;
+    if (this.actionNameOption === null) {
+      console.log("no action name passed");
+      return BehaviorNodeState.Failure;
+    }
     const action = COMBAT_ACTIONS[this.actionNameOption];
     const usable = action.isUsableInThisContext(this.behaviorContext.battleOption);
     if (usable) return BehaviorNodeState.Success;
+    console.log("not usable in this context");
     return BehaviorNodeState.Failure;
   }
 }

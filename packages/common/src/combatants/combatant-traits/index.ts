@@ -1,76 +1,104 @@
-import { KineticDamageType } from "../../combat/kinetic-damage-types.js";
-import { MagicalElement } from "../../combat/magical-elements.js";
-import { HoldableHotswapSlot } from "..//combatant-equipment/index.js";
+import { AbilityTreeAbility } from "../../abilities/index.js";
+import { Percentage } from "../../primatives/index.js";
+import { createArrayFilledWithSequentialNumbers } from "../../utils/index.js";
+
+export * from "./combatant-trait-properties.js";
+export * from "./get-combatant-total-elemental-affinities.js";
+export * from "./get-combatant-total-kinetic-damage-type-affinities.js";
 
 export enum CombatantTraitType {
   HpBioavailability,
   MpBioavailability,
-  ElementalAffinity,
   Undead,
-  KineticDamageTypeResistance,
   ExtraHotswapSlot,
   CanConvertToShardsManually,
   ExtraConsumablesStorage,
 }
 
-export interface TraitHpBioavailability {
-  type: CombatantTraitType.HpBioavailability;
-  percent: number;
+export const BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL: Percentage = 50;
+export const EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL = 20;
+
+export class CombatantTraitDescription {
+  public readonly descriptionsByLevel: string[];
+  public readonly name: string;
+  public readonly maxLevel: number;
+  public readonly isAllocatable: boolean;
+  public readonly summary: string;
+  public readonly flavorText?: string;
+  public readonly prerequisiteAbilities?: AbilityTreeAbility[];
+  constructor(config: {
+    name: string;
+    maxLevel: number;
+    isAllocatable: boolean;
+    summary: string;
+    createDescriptionsByLevel: (traitDescription: CombatantTraitDescription) => string[];
+    flavorText?: string;
+    prerequisiteAbilities?: AbilityTreeAbility[];
+  }) {
+    this.name = config.name;
+    this.summary = config.summary;
+    this.maxLevel = config.maxLevel;
+    this.isAllocatable = config.isAllocatable;
+    this.flavorText = config.flavorText;
+    this.prerequisiteAbilities = config.prerequisiteAbilities;
+
+    this.descriptionsByLevel = config.createDescriptionsByLevel(this);
+  }
 }
 
-export interface TraitMpBioavailability {
-  type: CombatantTraitType.MpBioavailability;
-  percent: number;
-}
-
-export interface TraitElementalAffinity {
-  type: CombatantTraitType.ElementalAffinity;
-  element: MagicalElement;
-  percent: number;
-}
-
-export interface TraitPhysicalDamageTypeResistance {
-  type: CombatantTraitType.KineticDamageTypeResistance;
-  damageType: KineticDamageType;
-  percent: number;
-}
-
-export interface TraitUndead {
-  type: CombatantTraitType.Undead;
-}
-
-export interface TraitExtraHotswapSlot {
-  type: CombatantTraitType.ExtraHotswapSlot;
-  hotswapSlot: HoldableHotswapSlot;
-}
-export interface TraitConvertToShardsManually {
-  type: CombatantTraitType.CanConvertToShardsManually;
-}
-export interface TraitExtraConsumablesStorage {
-  type: CombatantTraitType.ExtraConsumablesStorage;
-  capacity: number;
-}
-
-export type CombatantTrait =
-  | TraitHpBioavailability
-  | TraitMpBioavailability
-  | TraitElementalAffinity
-  | TraitPhysicalDamageTypeResistance
-  | TraitUndead
-  | TraitExtraHotswapSlot
-  | TraitConvertToShardsManually
-  | TraitExtraConsumablesStorage;
-
-export const TRAIT_DESCRIPTIONS: Record<CombatantTraitType, string> = {
-  [CombatantTraitType.HpBioavailability]: "Effectiveness of HP Autoinjectors",
-  [CombatantTraitType.MpBioavailability]: "Effectiveness of MP Autoinjectors",
-  [CombatantTraitType.ElementalAffinity]:
-    "Resistance or weakness to this element. If above 100%, actions of this element will cause healing instead of damage.",
-  [CombatantTraitType.Undead]: "Healing magic damages this target",
-  [CombatantTraitType.KineticDamageTypeResistance]: "Resistance or weakness to this damage type",
-  [CombatantTraitType.ExtraHotswapSlot]:
-    "Adds an additional weapon swap slot - 'You know I keep that thang on me'",
-  [CombatantTraitType.CanConvertToShardsManually]:
-    "Allows converting items to shards without the use of machines",
-  [CombatantTraitType.ExtraConsumablesStorage]: "Provides extra storage for consumables",
+export const COMBATANT_TRAIT_DESCRIPTIONS: Record<CombatantTraitType, CombatantTraitDescription> = {
+  [CombatantTraitType.HpBioavailability]: new CombatantTraitDescription({
+    name: "HP Bioavailability",
+    maxLevel: 2,
+    isAllocatable: false,
+    summary: "Increases effectiveness of green autoinjectors",
+    createDescriptionsByLevel: (self) => {
+      const toReturn = createArrayFilledWithSequentialNumbers(self.maxLevel, 1).map(
+        (level) =>
+          `Effectiveness increased by ${BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL * level}%`
+      );
+      return toReturn;
+    },
+  }),
+  [CombatantTraitType.MpBioavailability]: new CombatantTraitDescription({
+    name: "MP Bioavailability",
+    maxLevel: 2,
+    isAllocatable: false,
+    summary: "Increases effectiveness of blue autoinjectors",
+    createDescriptionsByLevel: (self) => {
+      const toReturn = createArrayFilledWithSequentialNumbers(self.maxLevel, 1).map(
+        (level) =>
+          `Effectiveness increased by ${BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL * level}%`
+      );
+      return toReturn;
+    },
+  }),
+  [CombatantTraitType.Undead]: new CombatantTraitDescription({
+    name: "Undead",
+    maxLevel: 1,
+    isAllocatable: false,
+    summary: "Takes damage from healing magic",
+    createDescriptionsByLevel: (self) => [],
+  }),
+  [CombatantTraitType.ExtraHotswapSlot]: new CombatantTraitDescription({
+    name: "Stay Strapped",
+    maxLevel: 1,
+    isAllocatable: false,
+    summary: "Adds an additional weapon swap slot",
+    createDescriptionsByLevel: (self) => [],
+  }),
+  [CombatantTraitType.CanConvertToShardsManually]: new CombatantTraitDescription({
+    name: "Disassembler",
+    maxLevel: 1,
+    isAllocatable: false,
+    summary: "Allows converting items to shards without the use of machines",
+    createDescriptionsByLevel: (self) => [],
+  }),
+  [CombatantTraitType.ExtraConsumablesStorage]: new CombatantTraitDescription({
+    name: "Magical Minibag",
+    maxLevel: 1,
+    isAllocatable: false,
+    summary: "Provides extra storage for consumables",
+    createDescriptionsByLevel: (self) => [],
+  }),
 };

@@ -5,10 +5,10 @@ export default function TailwindClassLoader() {
   return (
     <div id="tailwind-conditional-class-loader hidden ">
       <div className="outline-1 outline outline-2 outline-lime-500 outline-slate-400 outline-yellow-500 outline-zinc-300"></div>
-      <div className="stroke-slate-700" />
+      <div className="stroke-slate-700 stroke-zinc-300" />
       <div className={CONSUMABLE_TEXT_COLOR} />
       <div className={`opacity-50  `} />
-      <div className="pointer-events-none" />
+      <div className="pointer-events-none " />
       <div className="text-beigepaper" />
       <div className="text-zinc-400" />
       <div className="text-green-600" />
@@ -18,7 +18,7 @@ export default function TailwindClassLoader() {
       <div className="hidden" />
       <div className="text-purple-400" />
       <div className="bg-green-800" />
-      <div className="bg-beigepaper" />
+      <div className="bg-beigepaper fill-beigepaper fill-lightwhite fill-firered fill-iceblue fill-windgreen fill-lightningpurple fill-darknessblack fill-earthyellow fill-waterblue" />
       <div className="bg-firered" />
       <div className="bg-iceblue" />
       <div className="bg-windgreen" />

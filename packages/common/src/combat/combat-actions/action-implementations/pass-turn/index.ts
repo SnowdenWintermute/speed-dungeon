@@ -18,7 +18,6 @@ import {
   ActionHitOutcomePropertiesBaseTypes,
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
-import { getNonProjectileBasedSpellBaseStepsConfig } from "../non-projectile-based-spell-base-steps-config.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 
 export const passTurnConfig: CombatActionComponentConfig = {
@@ -27,7 +26,7 @@ export const passTurnConfig: CombatActionComponentConfig = {
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
   targetingProperties: {
     ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle],
-    validTargetCategories: TargetCategories.User,
+    getValidTargetCategories: () => TargetCategories.User,
     usabilityContext: CombatActionUsabilityContext.InCombat,
     intent: CombatActionIntent.Benevolent,
   },

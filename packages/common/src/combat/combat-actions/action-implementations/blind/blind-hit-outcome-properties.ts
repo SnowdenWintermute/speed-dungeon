@@ -1,14 +1,12 @@
-import cloneDeep from "lodash.clonedeep";
 import {
   ActionHitOutcomePropertiesBaseTypes,
   CombatActionHitOutcomeProperties,
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
 import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
-import { CombatActionName } from "../../combat-action-names.js";
-import { BlindedCombatantCondition } from "../../../../combatants/combatant-conditions/blinded.js";
 import { ThreatType } from "../../../../combatants/threat-manager/index.js";
 import { STABLE_THREAT_REDUCTION_ON_MONSTER_DEBUFFING_PLAYER } from "../../../../combatants/threat-manager/threat-calculator.js";
+import { CombatantConditionName } from "../../../../combatants/index.js";
 
 export const BLIND_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {
   ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Spell],
@@ -19,21 +17,18 @@ export const BLIND_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {
   },
   resourceChangePropertiesGetters: {},
 
-  getAppliedConditions: (combatantContext, idGenerator, actionLevel) => {
-    const { combatant } = combatantContext;
+  getCritChance: () => null,
+  getCritMultiplier: () => null,
+  getIsBlockable: () => false,
 
-    const spellLevel =
-      combatant.combatantProperties.ownedActions[CombatActionName.Blind]?.level || 0;
-
-    const condition = new BlindedCombatantCondition(
-      idGenerator.generate(),
+  getAppliedConditions: (user, actionLevel) => {
+    return [
       {
-        entityProperties: cloneDeep(combatant.entityProperties),
-        friendOrFoe: FriendOrFoe.Hostile,
+        conditionName: CombatantConditionName.Blinded,
+        level: actionLevel,
+        stacks: 1,
+        appliedBy: { entityProperties: user.entityProperties, friendOrFoe: FriendOrFoe.Hostile },
       },
-      spellLevel
-    );
-
-    return [condition];
+    ];
   },
 };

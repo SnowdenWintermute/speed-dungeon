@@ -41,10 +41,12 @@ export const COMBATANT_CONDITION_DESCRIPTIONS: Record<CombatantConditionName, st
   [CombatantConditionName.Blinded]: "Accuracy is reduced",
 };
 
+export const MAX_CONDITION_STACKS = 99;
+
 type CombatantConditionConstructor = new (
   id: EntityId,
   appliedBy: ConditionAppliedBy,
-  name: CombatantConditionName,
+  level: number,
   stacksOption: null | MaxAndCurrent
 ) => CombatantCondition;
 

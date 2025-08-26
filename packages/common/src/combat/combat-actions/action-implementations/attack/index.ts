@@ -1,4 +1,5 @@
 import {
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
@@ -38,7 +39,7 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
   hitOutcomeProperties: GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],
   costProperties: {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
-    requiresCombatTurn: () => false,
+    requiresCombatTurnInThisContext: () => false,
   },
   shouldExecute: () => true,
   getOnUseMessage: null,
@@ -50,7 +51,7 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
       toReturn.push(ATTACK_RANGED_MAIN_HAND);
     else {
       toReturn.push(ATTACK_MELEE_MAIN_HAND);
-      if (!ATTACK_MELEE_MAIN_HAND.costProperties.requiresCombatTurn(context))
+      if (!ATTACK_MELEE_MAIN_HAND.costProperties.requiresCombatTurnInThisContext(context))
         toReturn.push(ATTACK_MELEE_OFF_HAND);
     }
 

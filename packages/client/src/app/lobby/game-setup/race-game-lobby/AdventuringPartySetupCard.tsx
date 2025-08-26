@@ -1,5 +1,5 @@
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
-import { iterateNumericEnum } from "@speed-dungeon/common";
+import { COMBATANT_CLASS_NAME_STRINGS, iterateNumericEnum } from "@speed-dungeon/common";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import SelectDropdown from "@/app/components/atoms/SelectDropdown";
 import TextInput from "@/app/components/atoms/TextInput";
@@ -14,7 +14,6 @@ import {
   GOLDEN_RATIO,
   MAX_PARTY_SIZE,
   SpeedDungeonPlayer,
-  formatCombatantClassName,
 } from "@speed-dungeon/common";
 import { FormEvent, ReactNode, useState } from "react";
 import CharacterCard from "./CharacterCard";
@@ -167,7 +166,7 @@ function CreateCharacterForm({ i }: { i: number }) {
           setValue={setCombatantClassSelection}
           options={iterateNumericEnum(CombatantClass).map((combatantClass) => {
             return {
-              title: formatCombatantClassName(combatantClass),
+              title: COMBATANT_CLASS_NAME_STRINGS[combatantClass],
               value: combatantClass,
             };
           })}

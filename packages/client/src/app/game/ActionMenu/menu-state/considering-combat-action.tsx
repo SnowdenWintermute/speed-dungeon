@@ -29,6 +29,8 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   type = MenuStateType.CombatActionSelected;
+  alwaysShowPageOne = false;
+  getCenterInfoDisplayOption = null;
   constructor(public combatActionName: CombatActionName) {}
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
@@ -53,7 +55,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
     // CYCLE BACK
     const prevHotkey = HOTKEYS.LEFT_MAIN;
     const previousTargetButton = new ActionMenuButtonProperties(
-      `Previous Target (${letterFromKeyCode(prevHotkey)})`,
+      () => `Previous Target (${letterFromKeyCode(prevHotkey)})`,
       `Previous Target (${letterFromKeyCode(prevHotkey)})`,
       () => {
         websocketConnection.emit(ClientToServerEvent.CycleCombatActionTargets, {
@@ -68,7 +70,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
     // CYCLE FORWARD
     const nextHotkey = HOTKEYS.RIGHT_MAIN;
     const nextTargetButton = new ActionMenuButtonProperties(
-      `Next Target (${letterFromKeyCode(nextHotkey)})`,
+      () => `Next Target (${letterFromKeyCode(nextHotkey)})`,
       `Next Target (${letterFromKeyCode(nextHotkey)})`,
       () => {
         websocketConnection.emit(ClientToServerEvent.CycleCombatActionTargets, {
@@ -82,7 +84,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
 
     // EXECUTE
     const executeActionButton = new ActionMenuButtonProperties(
-      EXECUTE_BUTTON_TEXT,
+      () => EXECUTE_BUTTON_TEXT,
       EXECUTE_BUTTON_TEXT,
       () => {
         websocketConnection.emit(ClientToServerEvent.UseSelectedCombatAction, {
@@ -137,7 +139,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
 
     const targetingSchemeHotkey = HOTKEYS.MAIN_2;
     const cycleTargetingSchemesButton = new ActionMenuButtonProperties(
-      `Targeting Scheme (${letterFromKeyCode(targetingSchemeHotkey)})`,
+      () => `Targeting Scheme (${letterFromKeyCode(targetingSchemeHotkey)})`,
       `Targeting Scheme (${letterFromKeyCode(targetingSchemeHotkey)})`,
       () => {
         websocketConnection.emit(ClientToServerEvent.CycleTargetingSchemes, { characterId });

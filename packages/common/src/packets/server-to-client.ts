@@ -14,6 +14,7 @@ import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { Consumable } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
+import { AbilityTreeAbility } from "../abilities/index.js";
 
 export enum ServerToClientEvent {
   GameList = "0",
@@ -64,8 +65,9 @@ export enum ServerToClientEvent {
   CharacterPurchasedItem = "43",
   CharacterPerformedCraftingAction = "44",
   PlayerPostedItemLink = "45",
-  CharacterSelectedCombatActionLevel = "47",
   // ActionResultReplayTree = "46",
+  CharacterSelectedCombatActionLevel = "47",
+  CharacterAllocatedAbilityPoint = "48",
 }
 
 export interface ServerToClientEventTypes {
@@ -185,6 +187,10 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.CharacterSelectedCombatActionLevel]: (eventData: {
     characterId: EntityId;
     actionLevel: number;
+  }) => void;
+  [ServerToClientEvent.CharacterAllocatedAbilityPoint]: (eventData: {
+    characterId: EntityId;
+    ability: AbilityTreeAbility;
   }) => void;
 }
 

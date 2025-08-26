@@ -18,7 +18,7 @@ import {
   USE_CONSUMABLE_BUTTON_TEXT,
 } from "./menu-state/considering-item";
 import ItemDetailsWithComparison from "../ItemDetailsWithComparison";
-import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
+import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import {
   CONFIRM_SHARD_TEXT,
@@ -32,6 +32,7 @@ import ConsideringItemDisplay from "./ConsideringItemDisplay";
 import VendingMachineShardDisplay from "./VendingMachineShardDisplay";
 import StackedMenuStateDisplay from "./StackedMenuStateDisplay";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import ActionSelectedDetails from "../detailables/action-details/ActionSelectedDetails";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
@@ -79,7 +80,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   // directly in the component
   useEffect(() => {
     const numPages = Math.max(
-      1,
+      currentMenu.numPages,
       Math.ceil(buttonProperties[ActionButtonCategory.Numbered].length / ACTION_MENU_PAGE_SIZE)
     );
     useGameStore.getState().mutateState((state) => {
@@ -97,7 +98,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex"
         style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}
       >
-        <ActionDetails actionName={currentMenu.combatActionName} />
+        <ActionSelectedDetails actionName={currentMenu.combatActionName} />
       </div>
     );
   }
@@ -147,6 +148,17 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
       </div>
     );
   }
+
+  const numberedButtonsOnThisPage = currentMenu.alwaysShowPageOne
+    ? buttonProperties[ActionButtonCategory.Numbered].slice(0, ACTION_MENU_PAGE_SIZE)
+    : buttonProperties[ActionButtonCategory.Numbered].slice(
+        (currentMenu.page - 1) * ACTION_MENU_PAGE_SIZE,
+        (currentMenu.page - 1) * ACTION_MENU_PAGE_SIZE + ACTION_MENU_PAGE_SIZE
+      );
+
+  const centerInfoDisplayOption = currentMenu.getCenterInfoDisplayOption
+    ? currentMenu.getCenterInfoDisplayOption()
+    : null;
 
   return (
     <section className={`flex flex-col justify-between `}>
@@ -201,35 +213,31 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         }}
       >
         <ul className="list-none relative min-w-[25rem] max-w-[25rem]">
-          {buttonProperties[ActionButtonCategory.Numbered]
-            .slice(
-              (currentMenu.page - 1) * ACTION_MENU_PAGE_SIZE,
-              (currentMenu.page - 1) * ACTION_MENU_PAGE_SIZE + ACTION_MENU_PAGE_SIZE
-            )
-            .map((button, i) => {
-              const conditionalStyles =
-                currentMenu.type === MenuStateType.ItemsOnGround
-                  ? "bg-slate-800 border-white"
-                  : "border-slate-400 bg-slate-700";
+          {numberedButtonsOnThisPage.map((button, i) => {
+            const conditionalStyles =
+              currentMenu.type === MenuStateType.ItemsOnGround
+                ? "bg-slate-800 border-white"
+                : "border-slate-400 bg-slate-700";
 
-              return (
-                <li
-                  key={button.key + i + currentPageNumber}
-                  tabIndex={button.shouldBeDisabled ? 0 : undefined} // so you can tab over to get the popups
-                  className={`
+            return (
+              <li
+                key={button.key + i + currentPageNumber}
+                tabIndex={button.shouldBeDisabled ? 0 : undefined} // so you can tab over to get the popups
+                className={`
                     pointer-events-auto w-full  flex hover:bg-slate-950
                    `}
-                >
-                  <NumberedButton
-                    number={i + 1}
-                    properties={button}
-                    extraStyles={i == 0 ? `${conditionalStyles} border-t` : conditionalStyles}
-                  />
-                </li>
-              );
-            })}
+              >
+                <NumberedButton
+                  number={i + 1}
+                  properties={button}
+                  extraStyles={i == 0 ? `${conditionalStyles} border-t` : conditionalStyles}
+                />
+              </li>
+            );
+          })}
           {selectedActionDisplay}
           {detailedItemDisplay}
+          {centerInfoDisplayOption || ""}
         </ul>
         {hoveredActionDisplay}
         {hoveredItemDisplay}

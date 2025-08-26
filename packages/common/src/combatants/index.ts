@@ -1,5 +1,4 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { MagicalElement } from "../combat/magical-elements.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
 import { combatantHasRequiredAttributesToUseItem } from "./can-use-item.js";
 import changeCombatantMana from "./resources/change-mana.js";
@@ -7,7 +6,7 @@ import { changeCombatantHitPoints } from "./resources/change-hit-points.js";
 import { clampResourcesToMax } from "./resources/clamp-resources-to-max.js";
 import { CombatantClass } from "./combatant-class/index.js";
 import { CombatantSpecies } from "./combatant-species.js";
-import { CombatantTrait, CombatantTraitType } from "./combatant-traits/index.js";
+import { CombatantTraitType } from "./combatant-traits/index.js";
 import dropEquippedItem from "./inventory/drop-equipped-item.js";
 import dropItem from "./inventory/drop-item.js";
 import { getCombatActionPropertiesIfOwned } from "./get-combat-action-properties.js";
@@ -20,7 +19,6 @@ import { iterateNumericEnum, iterateNumericEnumKeyedRecord } from "../utils/inde
 import awardLevelups, { XP_REQUIRED_TO_REACH_LEVEL_2 } from "./experience-points/award-levelups.js";
 import { incrementAttributePoint } from "./attributes/increment-attribute.js";
 import { MonsterType } from "../monsters/monster-types.js";
-import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import {
   CombatantEquipment,
   equipItem,
@@ -31,7 +29,7 @@ import {
 } from "./combatant-equipment/index.js";
 import { CombatAttribute } from "./attributes/index.js";
 import { getOwnedEquipment } from "./inventory/get-owned-items.js";
-import { EntityId, Percentage } from "../primatives/index.js";
+import { EntityId } from "../primatives/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { canPickUpItem } from "./inventory/can-pick-up-item.js";
 import { EntityProperties } from "../primatives/index.js";
@@ -43,7 +41,6 @@ import {
   TargetingScheme,
 } from "../combat/combat-actions/index.js";
 import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
-import { getOwnedActionState } from "./owned-actions/get-owned-action-state.js";
 import { getActionNamesFilteredByUseableContext } from "./owned-actions/get-owned-action-names-filtered-by-usable-context.js";
 import {
   COMBATANT_CONDITION_CONSTRUCTORS,
@@ -54,6 +51,7 @@ import { plainToInstance } from "class-transformer";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { ThreatManager } from "./threat-manager/index.js";
 import { COMBATANT_MAX_ACTION_POINTS } from "../app-consts.js";
+import { CombatantAbilityProperties } from "./combatant-abilities/combatant-ability-properties.js";
 
 export enum AiType {
   Healer,
@@ -69,7 +67,9 @@ export * from "./update-home-position.js";
 export * from "./combatant-equipment/index.js";
 export * from "./combatant-conditions/index.js";
 export * from "./threat-manager/index.js";
+export * from "./combatant-traits/index.js";
 export * from "./ability-tree/index.js";
+export * from "./combatant-abilities/index.js";
 
 export class Combatant {
   [immerable] = true;
@@ -98,34 +98,46 @@ export class Combatant {
   }
 }
 
+export interface SupportClassProperties {
+  level: number;
+  combatantClass: CombatantClass;
+}
+
 export class CombatantProperties {
   [immerable] = true;
-  inherentAttributes: CombatantAttributeRecord = {};
-  inherentElementalAffinities: Partial<Record<MagicalElement, Percentage>> = {};
-  inherentKineticDamageTypeAffinities: Partial<Record<KineticDamageType, Percentage>> = {};
+
+  supportClassProperties: null | SupportClassProperties = null;
+
   level: number = 1;
-  unspentAttributePoints: number = 0;
-  unspentAbilityPoints: number = 0;
-  hitPoints: number = 0;
-  mana: number = 0;
-  actionPoints: number = 0;
-  speccedAttributes: CombatantAttributeRecord = {};
   experiencePoints: ExperiencePoints = {
     current: 0,
     requiredForNextLevel: XP_REQUIRED_TO_REACH_LEVEL_2,
   };
-  ownedActions: Partial<Record<CombatActionName, CombatantActionState>> = {};
-  traits: CombatantTrait[] = [];
+
+  // ATTRIBUTES
+  inherentAttributes: CombatantAttributeRecord = {};
+  speccedAttributes: CombatantAttributeRecord = {};
+  unspentAttributePoints: number = 0;
+
+  hitPoints: number = 0;
+  mana: number = 0;
+  actionPoints: number = 0;
+
+  // ABILITIES
+  abilityProperties = new CombatantAbilityProperties();
+
+  // ITEMS
   equipment: CombatantEquipment = new CombatantEquipment();
   inventory: Inventory = new Inventory();
-  // targeting
+  // TARGETING
   selectedCombatAction: null | CombatActionName = null;
   combatActionTarget: null | CombatActionTarget = null;
   selectedTargetingScheme: null | TargetingScheme = null;
   selectedActionLevel: null | number = null;
-  //
+  // THREAT
   threatManager?: ThreatManager;
 
+  // UNSORTED
   deepestFloorReached: number = 1;
   position: Vector3;
   conditions: CombatantCondition[] = [];
@@ -151,6 +163,20 @@ export class CombatantProperties {
   ) {
     this.position = homeLocation;
     // this.ownedActions[CombatActionName.Attack] = new CombatantActionState(CombatActionName.Attack);
+  }
+
+  static meetsCombatantClassAndLevelRequirements(
+    combatantProperties: CombatantProperties,
+    combatantClass: CombatantClass,
+    level: number
+  ) {
+    const { supportClassProperties } = combatantProperties;
+    const supportClassMeetsRequirements =
+      supportClassProperties?.combatantClass === combatantClass &&
+      supportClassProperties.level >= level;
+    const mainClassMeetsRequirements =
+      combatantProperties.combatantClass === combatantClass && combatantProperties.level >= level;
+    return supportClassMeetsRequirements || mainClassMeetsRequirements;
   }
 
   static getConditionById(combatantProperties: CombatantProperties, conditionId: EntityId) {
@@ -182,7 +208,6 @@ export class CombatantProperties {
     return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 
-  static getOwnedActionState = getOwnedActionState;
   static changeHitPoints = changeCombatantHitPoints;
   static changeMana = changeCombatantMana;
   static changeActionPoints(combatantProperties: CombatantProperties, value: number) {
@@ -198,7 +223,7 @@ export class CombatantProperties {
   }
   static tickCooldowns(combatantProperties: CombatantProperties) {
     for (const [actionName, actionState] of iterateNumericEnumKeyedRecord(
-      combatantProperties.ownedActions
+      combatantProperties.abilityProperties.ownedActions
     )) {
       if (actionState.wasUsedThisTurn) {
         actionState.wasUsedThisTurn = false;
@@ -274,14 +299,11 @@ export class CombatantProperties {
   }
 
   static hasTraitType(combatantProperties: CombatantProperties, traitType: CombatantTraitType) {
-    let hasTrait = false;
-    for (const trait of combatantProperties.traits) {
-      if (trait.type === traitType) {
-        hasTrait = true;
-        break;
-      }
-    }
-    return hasTrait;
+    const { traitProperties } = combatantProperties.abilityProperties;
+    return (
+      !!traitProperties.inherentTraitLevels[traitType] ||
+      !!traitProperties.speccedTraitLevels[traitType]
+    );
   }
 
   static getForward(combatantProperties: CombatantProperties) {
@@ -289,11 +311,6 @@ export class CombatantProperties {
     const direction = z > 0 ? -1 : 1;
     return new Vector3(0, 0, direction);
   }
-  // static getForward(combatantProperties: CombatantProperties) {
-  //   // const { x, y, z } = combatantProperties.homeLocation;
-  //   // return cloneVector3(new Vector3(x, 0, 0)).subtract(combatantProperties.homeLocation);
-  //   return new Vector3(0, 0, 1);
-  // }
 
   static hasRequiredConsumablesToUseAction(
     combatantProperties: CombatantProperties,
@@ -331,11 +348,12 @@ export class CombatantProperties {
 
   static isWearingRequiredEquipmentToUseAction(
     combatantProperties: CombatantProperties,
-    actionName: CombatActionName
+    actionName: CombatActionName,
+    actionLevel: number
   ) {
     const action = COMBAT_ACTIONS[actionName];
-    const { requiredEquipmentTypeOptions } = action.targetingProperties;
-    if (requiredEquipmentTypeOptions.length === 0) return true;
+    const { getRequiredEquipmentTypeOptions } = action.targetingProperties;
+    if (getRequiredEquipmentTypeOptions(actionLevel).length === 0) return true;
 
     const allEquipment = CombatantEquipment.getAllEquippedItems(combatantProperties, {
       includeUnselectedHotswapSlots: false,
@@ -343,7 +361,7 @@ export class CombatantProperties {
     for (const equipment of allEquipment) {
       const { equipmentType } = equipment.equipmentBaseItemProperties;
       if (Equipment.isBroken(equipment)) continue;
-      if (requiredEquipmentTypeOptions.includes(equipmentType)) return true;
+      if (getRequiredEquipmentTypeOptions(actionLevel).includes(equipmentType)) return true;
     }
     return false;
   }
@@ -377,10 +395,8 @@ export function createShimmedUserOfTriggeredCondition(
   );
 
   iterateNumericEnum(CombatActionName).forEach((actionName) => {
-    combatant.combatantProperties.ownedActions[actionName] = new CombatantActionState(
-      actionName,
-      1
-    );
+    combatant.combatantProperties.abilityProperties.ownedActions[actionName] =
+      new CombatantActionState(actionName, 1);
   });
 
   combatant.combatantProperties.asShimmedUserOfTriggeredCondition = {

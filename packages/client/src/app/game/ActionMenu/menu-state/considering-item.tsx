@@ -33,6 +33,8 @@ export class ConsideringItemMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   type = MenuStateType.ItemSelected;
+  alwaysShowPageOne = false;
+  getCenterInfoDisplayOption = null;
   constructor(public item: Item) {}
   setItem(item: Item) {
     this.item = item;
@@ -70,7 +72,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
       slotItemIsEquippedTo === null
     ) {
       const equipToAltSlotButton = new ActionMenuButtonProperties(
-        `Equip Alt. (${letterFromKeyCode(equipAltSlotHotkey)})`,
+        () => `Equip Alt. (${letterFromKeyCode(equipAltSlotHotkey)})`,
         `Equip Alt. (${letterFromKeyCode(equipAltSlotHotkey)})`,
         () => {
           websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
@@ -88,7 +90,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
       if (this.item instanceof Equipment) {
         if (slotItemIsEquippedTo !== null)
           return new ActionMenuButtonProperties(
-            `Unequip (${useItemLetter})`,
+            () => `Unequip (${useItemLetter})`,
             `Unequip (${useItemLetter})`,
             () => {
               websocketConnection.emit(ClientToServerEvent.UnequipSlot, {
@@ -99,7 +101,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
           );
         else
           return new ActionMenuButtonProperties(
-            EQUIP_ITEM_BUTTON_TEXT,
+            () => EQUIP_ITEM_BUTTON_TEXT,
             EQUIP_ITEM_BUTTON_TEXT,
             () => {
               websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
@@ -112,12 +114,13 @@ export class ConsideringItemMenuState implements ActionMenuState {
       } else if (this.item instanceof Consumable) {
         const combatActionNameOption = this.item.getActionName();
         return new ActionMenuButtonProperties(
-          USE_CONSUMABLE_BUTTON_TEXT,
+          () => USE_CONSUMABLE_BUTTON_TEXT,
           USE_CONSUMABLE_BUTTON_TEXT,
           () => {
             websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
               characterId,
               combatActionNameOption,
+              combatActionLevel: 1,
             });
           }
         );
@@ -132,7 +135,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
     toReturn[ActionButtonCategory.Top].push(useItemButton);
 
     const dropItemButton = new ActionMenuButtonProperties(
-      `Drop (${letterFromKeyCode(dropItemHotkey)})`,
+      () => `Drop (${letterFromKeyCode(dropItemHotkey)})`,
       `Drop (${letterFromKeyCode(dropItemHotkey)})`,
       () => {
         const slotEquipped = CombatantProperties.getSlotItemIsEquippedTo(

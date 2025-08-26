@@ -4,7 +4,11 @@ import {
   CombatActionName,
   CombatActionOrigin,
 } from "../../index.js";
-import { CombatantProperties, CombatantTraitType } from "../../../../combatants/index.js";
+import {
+  BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL,
+  CombatantProperties,
+  CombatantTraitType,
+} from "../../../../combatants/index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { ConsumableType } from "../../../../items/consumables/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
@@ -44,10 +48,16 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
       primaryTarget: CombatantProperties
     ) => {
       let mpBioavailability = 1;
-      for (const trait of primaryTarget.traits) {
-        if (trait.type === CombatantTraitType.MpBioavailability)
-          mpBioavailability = trait.percent / 100;
-      }
+
+      const { inherentTraitLevels } = primaryTarget.abilityProperties.traitProperties;
+
+      const traitBioavailabilityPercentageModifier =
+        (inherentTraitLevels[CombatantTraitType.MpBioavailability] || 0) *
+          BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL +
+        100;
+
+      mpBioavailability = traitBioavailabilityPercentageModifier / 100;
+
       const maxMp = CombatantProperties.getTotalAttributes(primaryTarget)[CombatAttribute.Mp];
       const minRestored = (mpBioavailability * maxMp) / 8;
       const maxRestored = (mpBioavailability * 3 * maxMp) / 8;

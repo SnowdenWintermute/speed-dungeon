@@ -48,15 +48,16 @@ export function getStandardActionCost(
     if (payableResourceType === ActionPayableResource.ActionPoints && !inCombat) continue;
     let cost = costBase.base;
 
-    if (costBase.additives) {
-      if (costBase.additives.actionLevel) cost += costBase.additives.actionLevel * actionLevel;
-      if (costBase.additives.userCombatantLevel)
-        cost += costBase.additives.userCombatantLevel * user.level;
-    }
     if (costBase.multipliers) {
       if (costBase.multipliers.actionLevel) cost *= costBase.multipliers.actionLevel * actionLevel;
       if (costBase.multipliers.userCombatantLevel)
         cost *= costBase.multipliers.userCombatantLevel * user.level;
+    }
+
+    if (costBase.additives) {
+      if (costBase.additives.actionLevel) cost += costBase.additives.actionLevel * actionLevel;
+      if (costBase.additives.userCombatantLevel)
+        cost += costBase.additives.userCombatantLevel * user.level;
     }
 
     cost = Math.floor(cost);

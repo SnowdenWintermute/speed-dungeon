@@ -1,4 +1,8 @@
-import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../combat/index.js";
+import {
+  COMBAT_ACTIONS,
+  COMBAT_ACTION_NAME_STRINGS,
+  CombatActionExecutionIntent,
+} from "../combat/index.js";
 import { CombatantContext } from "../combatant-context/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { Milliseconds } from "../primatives/index.js";

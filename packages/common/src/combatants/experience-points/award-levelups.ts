@@ -5,7 +5,7 @@ import { COMBATANT_MAX_LEVEL } from "../../app-consts.js";
 
 export const XP_REQUIRED_TO_REACH_LEVEL_2 = 100;
 export const XP_REQUIRED_TO_LEVEL_INCREASE_INCREMENT = 25;
-const ABILITY_POINTS_AWARDED_PER_LEVEL = 2;
+const ABILITY_POINTS_AWARDED_PER_LEVEL = 1;
 const ATTRIBUTE_POINTS_AWARDED_PER_LEVEL = 5;
 
 /** Returns the new level reached for this combatant if any */
@@ -35,7 +35,7 @@ export default function awardLevelups(combatantProperties: CombatantProperties) 
       combatantProperties.inherentAttributes[attribute]! += value;
     }
 
-    combatantProperties.unspentAbilityPoints += ABILITY_POINTS_AWARDED_PER_LEVEL;
+    combatantProperties.abilityProperties.unspentAbilityPoints += ABILITY_POINTS_AWARDED_PER_LEVEL;
     combatantProperties.unspentAttributePoints += ATTRIBUTE_POINTS_AWARDED_PER_LEVEL;
     combatantProperties.experiencePoints.current -= requiredForNextLevel;
 

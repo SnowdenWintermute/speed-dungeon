@@ -21,6 +21,7 @@ export class CollectConsideredCombatants implements BehaviorNode {
     switch (this.combatantRelation) {
       case TargetCategories.Any:
         idsToFetchCombatants.push(...opponentIds, ...allyIds);
+        break;
       case TargetCategories.Opponent:
         idsToFetchCombatants.push(...opponentIds);
         break;
@@ -40,6 +41,7 @@ export class CollectConsideredCombatants implements BehaviorNode {
     }
 
     if (combatantsToConsider.length === 0) {
+      console.log("no combatants to consider");
       return BehaviorNodeState.Failure;
     }
 

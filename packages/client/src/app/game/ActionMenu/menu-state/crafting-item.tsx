@@ -36,6 +36,8 @@ export class CraftingItemMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   type = MenuStateType.CraftingActionSelection;
+  alwaysShowPageOne = false;
+  getCenterInfoDisplayOption = null;
   constructor(public item: Equipment) {}
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
@@ -62,7 +64,7 @@ export class CraftingItemMenuState implements ActionMenuState {
       const actionPrice = getCraftingActionPrice(craftingAction, this.item);
       const buttonName = `${CRAFTING_ACTION_STRINGS[craftingAction]}`;
       const button = new ActionMenuButtonProperties(
-        (
+        () => (
           <div className="flex justify-between w-full pr-2">
             <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
               <HoverableTooltipWrapper

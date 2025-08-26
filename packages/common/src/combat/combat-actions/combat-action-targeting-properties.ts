@@ -15,14 +15,14 @@ import { EquipmentType } from "../../items/equipment/index.js";
 
 export interface CombatActionTargetingPropertiesConfig {
   getTargetingSchemes: (actionLevel: number) => TargetingScheme[];
-  validTargetCategories: TargetCategories;
+  getValidTargetCategories: (actionLevel: number) => TargetCategories;
   autoTargetSelectionMethod: AutoTargetingSelectionMethod;
   prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
   prohibitedHitCombatantStates: ProhibitedTargetCombatantStates[];
   intent: CombatActionIntent;
   // usability
   usabilityContext: CombatActionUsabilityContext;
-  requiredEquipmentTypeOptions: EquipmentType[];
+  getRequiredEquipmentTypeOptions: (actionLevel: number) => EquipmentType[];
 
   getAutoTarget: (
     combatantContext: CombatantContext,
@@ -47,13 +47,13 @@ export enum TargetingPropertiesTypes {
 
 const hostileSingle: CombatActionTargetingPropertiesConfig = {
   getTargetingSchemes: () => [TargetingScheme.Single],
-  validTargetCategories: TargetCategories.Opponent,
+  getValidTargetCategories: () => TargetCategories.Opponent,
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.UserSelected },
   prohibitedTargetCombatantStates: [ProhibitedTargetCombatantStates.Dead],
   prohibitedHitCombatantStates: [],
   intent: CombatActionIntent.Malicious,
   usabilityContext: CombatActionUsabilityContext.InCombat,
-  requiredEquipmentTypeOptions: [],
+  getRequiredEquipmentTypeOptions: () => [],
 
   getAutoTarget: (
     combatantContext: CombatantContext,
@@ -89,6 +89,6 @@ export const GENERIC_TARGETING_PROPERTIES: Record<
     ...hostileSingle,
     intent: CombatActionIntent.Benevolent,
     usabilityContext: CombatActionUsabilityContext.All,
-    validTargetCategories: TargetCategories.Friendly,
+    getValidTargetCategories: () => TargetCategories.Friendly,
   },
 };

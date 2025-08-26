@@ -174,7 +174,7 @@ export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
   targetingProperties: {
     ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle],
-    requiredEquipmentTypeOptions: [EquipmentType.TwoHandedRangedWeapon],
+    getRequiredEquipmentTypeOptions: () => [EquipmentType.TwoHandedRangedWeapon],
   },
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
   costProperties: {
@@ -182,7 +182,7 @@ export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
     incursDurabilityLoss: {
       [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnUse },
     },
-    requiresCombatTurn: () => false,
+    requiresCombatTurnInThisContext: () => false,
   },
   stepsConfig,
 
