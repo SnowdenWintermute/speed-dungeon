@@ -62,11 +62,9 @@ export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
       const user = context.combatantContext.combatant.combatantProperties;
 
       if (CombatantEquipment.isWearingUsableShield(user)) {
-        console.log("ending mh turn due to wearing a shield");
         return true;
       }
       if (CombatantEquipment.isWearingUsableTwoHandedMeleeWeapon(user)) {
-        console.log("ending mh turn due to wearing a 2h weapon in the main hand");
         return true;
       }
       if (
@@ -75,12 +73,10 @@ export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
           context.tracker
         )
       ) {
-        console.log("ending mh turn because oh attack shouldExecute failed");
         return true; // check if offhand should execute, otherwise if we kill an enemy with main hand
       }
       // we won't end our turn
       if (context.tracker.wasCountered()) {
-        console.log("ending mh turn because oh attack was countered");
         return true;
       }
 

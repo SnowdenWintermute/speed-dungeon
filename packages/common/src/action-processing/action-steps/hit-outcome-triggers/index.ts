@@ -27,7 +27,6 @@ import { HitOutcome } from "../../../hit-outcome.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
 import {
   COMBATANT_CONDITION_CONSTRUCTORS,
-  COMBATANT_CONDITION_NAME_STRINGS,
   CombatantCondition,
   MAX_CONDITION_STACKS,
 } from "../../../combatants/combatant-conditions/index.js";
@@ -192,12 +191,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
                 targetCombatant.entityProperties.id
               );
           }
-
-          console.log(
-            "before getting conditionsToApply",
-            context.combatantContext.combatant.combatantProperties.selectedActionLevel,
-            context.tracker.actionExecutionIntent.level
-          );
 
           const conditionsToApply = action.hitOutcomeProperties.getAppliedConditions(
             context.combatantContext.combatant,
