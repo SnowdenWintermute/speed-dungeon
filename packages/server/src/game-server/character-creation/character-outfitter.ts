@@ -20,7 +20,7 @@ export class CharacterOutfitter {
   static outfitNewCharacter(character: Combatant) {
     const combatantProperties = character.combatantProperties;
     CharacterOutfitter.giveStartingAbilities(combatantProperties);
-    CharacterOutfitter.giveStartingAttributes(combatantProperties);
+    // CharacterOutfitter.giveStartingAttributes(combatantProperties);
     CharacterOutfitter.setUpInherentTraits(combatantProperties);
     CharacterOutfitter.giveStartingInventoryItems(combatantProperties);
     CharacterOutfitter.giveStartingEquipment(combatantProperties);

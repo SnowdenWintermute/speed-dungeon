@@ -2,12 +2,17 @@ import { DEX_TO_RANGED_ARMOR_PEN_RATIO, STR_TO_MELEE_ARMOR_PEN_RATIO } from "../
 import { Item } from "../../items/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { EquipmentType } from "../../items/equipment/equipment-types/index.js";
-import { CombatantAttributeRecord, CombatantProperties } from "../index.js";
+import {
+  BASE_STARTING_ATTRIBUTES,
+  CombatantAttributeRecord,
+  CombatantProperties,
+} from "../index.js";
 import { CombatAttribute } from "../attributes/index.js";
 import { Equipment, HoldableSlotType } from "../../items/equipment/index.js";
 import { CombatantEquipment } from "../combatant-equipment/index.js";
 import { DERIVED_ATTRIBUTE_RATIOS } from "./derrived-attribute-ratios.js";
 import { addAttributesToAccumulator } from "./add-attributes-to-accumulator.js";
+import { COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL } from "../combatant-class/class-attributes-by-level.js";
 
 function initializeCombatAttributeRecord() {
   const allAttributesAsZero: CombatantAttributeRecord = {};
@@ -24,6 +29,22 @@ export default function getCombatantTotalAttributes(
   const totalAttributes = initializeCombatAttributeRecord();
   addAttributesToAccumulator(combatantProperties.inherentAttributes, totalAttributes);
   addAttributesToAccumulator(combatantProperties.speccedAttributes, totalAttributes);
+  const { combatantClass } = combatantProperties;
+  const supportClassPropertiesOption = combatantProperties.supportClassProperties;
+
+  const combatantClassStartingAttributes = BASE_STARTING_ATTRIBUTES[combatantClass];
+  addAttributesToAccumulator(combatantClassStartingAttributes, totalAttributes);
+
+  const combatantClassAttributesByLevel = COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL[combatantClass];
+  for (let i = 0; i < combatantProperties.level; i += 1)
+    addAttributesToAccumulator(combatantClassAttributesByLevel, totalAttributes);
+
+  if (supportClassPropertiesOption !== null) {
+    const { combatantClass, level } = supportClassPropertiesOption;
+    const supportClassAttributesByLevel = COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL[combatantClass];
+    for (let i = 0; i < level; i += 1)
+      addAttributesToAccumulator(supportClassAttributesByLevel, totalAttributes);
+  }
 
   const allEquippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties, {
     includeUnselectedHotswapSlots: false,
