@@ -1,6 +1,6 @@
 import { AdventuringParty, Consumable, Equipment, randBetween } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
-import { rngSingleton } from "../../../singletons.js";
+import { rngSingleton } from "../../../singletons/index.js";
 
 export default function generateLoot(this: GameServer, party: AdventuringParty) {
   let equipment: Equipment[] = [];

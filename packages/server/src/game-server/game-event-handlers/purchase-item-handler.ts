@@ -12,7 +12,7 @@ import {
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { createConsumableByType } from "../item-generation/create-consumable-by-type.js";
-import { getGameServer } from "../../singletons.js";
+import { getGameServer } from "../../singletons/index.js";
 
 export function purchaseItemHandler(
   eventData: { characterId: EntityId; consumableType: ConsumableType },

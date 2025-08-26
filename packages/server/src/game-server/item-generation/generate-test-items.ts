@@ -11,7 +11,7 @@ import {
   iterateNumericEnum,
   randBetween,
 } from "@speed-dungeon/common";
-import { getGameServer, idGenerator, rngSingleton } from "../../singletons.js";
+import { getGameServer, idGenerator, rngSingleton } from "../../singletons/index.js";
 
 export default function generateTestItems(combatantProperties: CombatantProperties, num: number) {
   for (let i = 0; i < num; i += 1) {

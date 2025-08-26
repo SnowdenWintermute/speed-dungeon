@@ -10,7 +10,7 @@ import {
 import { ItemGenerationBuilder } from "./item-generation-builder.js";
 import { ArmorGenerationTemplate } from "./equipment-templates/equipment-generation-template-abstract-classes.js";
 import { EquipmentGenerationBuilder } from "./equipment-generation-builder.js";
-import { rngSingleton } from "../../singletons.js";
+import { rngSingleton } from "../../singletons/index.js";
 
 export class ArmorGenerationBuilder<T extends ArmorGenerationTemplate>
   extends EquipmentGenerationBuilder<T>

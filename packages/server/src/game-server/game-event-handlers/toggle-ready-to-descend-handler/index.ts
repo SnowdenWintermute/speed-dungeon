@@ -9,7 +9,7 @@ import {
   SpeedDungeonPlayer,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
-import { getGameServer } from "../../../singletons.js";
+import { getGameServer } from "../../../singletons/index.js";
 import { ServerPlayerAssociatedData } from "../../event-middleware/index.js";
 import emitMessageInGameWithOptionalDelayForParty from "../../utils/emit-message-in-game-with-optional-delay-for-party.js";
 import { checkIfAllowedToDescend } from "./check-if-allowed-to-descend.js";

@@ -7,7 +7,7 @@ import {
 } from "@speed-dungeon/common";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { Socket } from "socket.io";
-import { getGameServer } from "../../singletons.js";
+import { getGameServer } from "../../singletons/index.js";
 
 export function postItemLinkHandler(
   itemId: EntityId,

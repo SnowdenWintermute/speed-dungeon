@@ -9,7 +9,7 @@ import {
   TaggedAffixType,
   randBetween,
 } from "@speed-dungeon/common";
-import { rngSingleton } from "../../singletons.js";
+import { rngSingleton } from "../../singletons/index.js";
 
 export function rollAffixTier(maxTier: number, itemLevel: number) {
   const maxTierModifier = itemLevel / DEEPEST_FLOOR;

@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { getGameServer } from "../../singletons.js";
+import { getGameServer } from "../../singletons/index.js";
 import {
   ClientToServerEventTypes,
   ERROR_MESSAGES,

@@ -1,5 +1,5 @@
 import { Vector3 } from "@babylonjs/core";
-import { idGenerator } from "../../singletons.js";
+import { idGenerator } from "../../singletons/index.js";
 import getSpawnableMonsterTypesByFloor from "./get-spawnable-monster-types-by-floor.js";
 import {
   AiType,

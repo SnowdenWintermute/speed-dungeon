@@ -1,5 +1,5 @@
 import { CONSUMABLE_TYPE_STRINGS, Consumable, ConsumableType } from "@speed-dungeon/common";
-import { idGenerator } from "../../singletons.js";
+import { idGenerator } from "../../singletons/index.js";
 
 export function createConsumableByType(consumableType: ConsumableType) {
   return new Consumable(

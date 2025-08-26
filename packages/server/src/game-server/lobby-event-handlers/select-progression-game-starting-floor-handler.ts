@@ -7,7 +7,7 @@ import {
 import errorHandler from "../error-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware";
 import { Socket } from "socket.io";
-import { getGameServer } from "../../singletons.js";
+import { getGameServer } from "../../singletons/index.js";
 
 const ATTEMPT_TEXT = "A client tried to select a saved character but";
 

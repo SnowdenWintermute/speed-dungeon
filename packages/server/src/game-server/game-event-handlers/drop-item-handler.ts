@@ -11,7 +11,7 @@ import {
 import writePlayerCharactersInGameToDb from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
 import errorHandler from "../error-handler.js";
 import SocketIO from "socket.io";
-import { getGameServer } from "../../singletons.js";
+import { getGameServer } from "../../singletons/index.js";
 
 export default async function dropItemHandler(
   eventData: CharacterAndItem,

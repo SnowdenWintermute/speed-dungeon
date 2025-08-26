@@ -11,7 +11,7 @@ import {
   ServerToClientEvent,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { getGameServer } from "../../../singletons.js";
+import { getGameServer } from "../../../singletons/index.js";
 import { processCombatAction } from "./process-combat-action.js";
 import { BattleProcessor } from "./process-battle-until-player-turn-or-conclusion.js";
 

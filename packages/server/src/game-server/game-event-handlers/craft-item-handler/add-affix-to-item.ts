@@ -6,7 +6,7 @@ import {
   getRandomValidSuffixTypes,
   rollAffixTierAndValue,
 } from "../../item-generation/equipment-generation-builder.js";
-import { getGameServer } from "../../../singletons.js";
+import { getGameServer } from "../../../singletons/index.js";
 
 export function addAffixToItem(equipment: Equipment, itemLevelLimiter: number) {
   const missingPrefix = Equipment.hasSuffix(equipment) && !Equipment.hasPrefix(equipment);

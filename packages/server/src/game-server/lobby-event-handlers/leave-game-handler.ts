@@ -7,7 +7,7 @@ import {
 import leavePartyHandler from "./leave-party-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { Socket } from "socket.io";
-import { getGameServer } from "../../singletons.js";
+import { getGameServer } from "../../singletons/index.js";
 
 export default async function leaveGameHandler(
   _eventData: undefined,
