@@ -6,11 +6,11 @@ import {
 } from "@speed-dungeon/common";
 
 export function setPlaytestingCombatantProperties(combatantProperties: CombatantProperties) {
-  combatantProperties.level = 0;
+  combatantProperties.level = 2;
   combatantProperties.unspentAttributePoints = 3;
   combatantProperties.abilityProperties.unspentAbilityPoints = 3;
 
-  combatantProperties.supportClassProperties = { combatantClass: CombatantClass.Rogue, level: 1 };
+  // combatantProperties.supportClassProperties = { combatantClass: CombatantClass.Rogue, level: 1 };
 
   combatantProperties.inherentAttributes = {
     ...combatantProperties.inherentAttributes,
@@ -26,7 +26,7 @@ export function setPlaytestingCombatantProperties(combatantProperties: Combatant
 
   combatantProperties.hitPoints = Math.floor(combatantProperties.hitPoints * 0.5);
   combatantProperties.mana = Math.floor(combatantProperties.mana * 0.4);
-  combatantProperties.mana = 4;
+  // combatantProperties.mana = 4;
 
   const elementalStaves = [];
   const runeSwords = [];

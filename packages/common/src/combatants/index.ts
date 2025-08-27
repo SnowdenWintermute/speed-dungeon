@@ -21,6 +21,7 @@ import { incrementAttributePoint } from "./attributes/increment-attribute.js";
 import { MonsterType } from "../monsters/monster-types.js";
 import {
   CombatantEquipment,
+  applyEquipmentEffectWhileMaintainingResourcePercentages,
   equipItem,
   getEquippedWeapon,
   getSlotItemIsEquippedTo,
@@ -373,13 +374,15 @@ export class CombatantProperties {
     supportClass: CombatantClass,
     value: number
   ) {
-    const { supportClassProperties } = combatantProperties;
+    applyEquipmentEffectWhileMaintainingResourcePercentages(combatantProperties, () => {
+      const { supportClassProperties } = combatantProperties;
 
-    if (supportClassProperties !== null) {
-      supportClassProperties.level += value;
-    } else {
-      combatantProperties.supportClassProperties = { combatantClass: supportClass, level: value };
-    }
+      if (supportClassProperties !== null) {
+        supportClassProperties.level += value;
+      } else {
+        combatantProperties.supportClassProperties = { combatantClass: supportClass, level: value };
+      }
+    });
   }
 }
 

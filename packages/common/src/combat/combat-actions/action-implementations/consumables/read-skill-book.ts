@@ -9,7 +9,6 @@ import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import {
   COMBATANT_CLASS_TO_SKILL_BOOK_TYPE,
   Consumable,
-  ConsumableType,
   SKILL_BOOK_TYPE_TO_COMBATANT_CLASS,
 } from "../../../../items/consumables/index.js";
 import {
@@ -76,6 +75,28 @@ const config: CombatActionComponentConfig = {
           };
       }
 
+      // don't let them get a support class same as their main class
+      const skillBookClass = SKILL_BOOK_TYPE_TO_COMBATANT_CLASS[skillBookResult.consumableType];
+      if (skillBookClass === undefined)
+        return {
+          meetsRequirements: false,
+          reasonDoesNot: "Somehow tried to read a skill book that wasn't associated with any class",
+        };
+      if (user.combatantClass === skillBookClass)
+        return {
+          meetsRequirements: false,
+          reasonDoesNot: "You could have written this book - reading it won't help you",
+        };
+
+      // don't allow reading a book if their support class is already half the level of their main class
+      const mainClassLevel = user.level;
+      const supportClassLevel = supportClassProperties?.level || 0;
+      const supportClassAtMaxLevel = supportClassLevel >= Math.floor(mainClassLevel / 2);
+      if (supportClassAtMaxLevel)
+        return {
+          meetsRequirements: false,
+          reasonDoesNot: "Support class level can be a maximum of one half your main class level",
+        };
       // check required level of book and character level
 
       return { meetsRequirements: true };

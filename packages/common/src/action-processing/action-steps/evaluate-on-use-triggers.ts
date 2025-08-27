@@ -12,7 +12,7 @@ import {
   ActivatedTriggersGameUpdateCommand,
   GameUpdateCommandType,
 } from "../game-update-commands.js";
-import { Combatant, CombatantClass, CombatantCondition } from "../../combatants/index.js";
+import { Combatant, CombatantCondition } from "../../combatants/index.js";
 import { DurabilityLossCondition } from "../../combat/combat-actions/combat-action-durability-loss-condition.js";
 import { DurabilityChangesByEntityId } from "../../durability/index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
@@ -37,6 +37,10 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     const { actionName } = tracker.actionExecutionIntent;
     const action = COMBAT_ACTIONS[actionName];
 
+    // skill books are unique at the time of this writing ( 8/27/2025 )
+    // as no other action changes class levels so we'll handle them here
+    // see the action.costProperties.getMeetsCustomRequirements of the
+    // skill book action for validation
     if (actionName === CombatActionName.ReadSkillBook) {
       const bookOption = context.tracker.consumableUsed;
       if (bookOption === null) {
