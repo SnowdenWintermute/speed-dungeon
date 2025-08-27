@@ -10,7 +10,7 @@ import {
 } from "../combat/index.js";
 import { TaggedAnimationName } from "../app-consts.js";
 import { ActionResolutionStepType } from "./action-steps/index.js";
-import { Combatant, CombatantCondition } from "../combatants/index.js";
+import { Combatant, CombatantClass, CombatantCondition } from "../combatants/index.js";
 import { SpawnableEntity, SpawnableEntityType } from "../spawnables/index.js";
 import { DurabilityChangesByEntityId } from "../durability/index.js";
 import { HitOutcome } from "../hit-outcome.js";
@@ -150,6 +150,7 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   removedConditionStacks?: Record<EntityId, { conditionId: EntityId; numStacks: number }[]>;
   removedConditionIds?: Record<EntityId, ConditionId[]>;
   threatChanges?: ThreatChanges;
+  supportClassLevelsGained?: Record<EntityId, CombatantClass>;
 }
 
 export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {

@@ -2,6 +2,7 @@ import { EntityProperties } from "../../primatives/entity-properties.js";
 import { Item } from "../index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 import { CombatActionName } from "../../combat/index.js";
+import { CombatantClass } from "../../combatants/index.js";
 
 export enum ConsumableType {
   HpAutoinjector,
@@ -58,3 +59,14 @@ export const SKILL_BOOK_CONSUMABLE_TYPES = [
   ConsumableType.WarriorSkillbook,
   ConsumableType.MageSkillbook,
 ];
+
+export const COMBATANT_CLASS_TO_SKILL_BOOK_TYPE: Record<CombatantClass, ConsumableType> = {
+  [CombatantClass.Warrior]: ConsumableType.WarriorSkillbook,
+  [CombatantClass.Mage]: ConsumableType.MageSkillbook,
+  [CombatantClass.Rogue]: ConsumableType.RogueSkillbook,
+};
+export const SKILL_BOOK_TYPE_TO_COMBATANT_CLASS: Partial<Record<ConsumableType, CombatantClass>> = {
+  [ConsumableType.WarriorSkillbook]: CombatantClass.Warrior,
+  [ConsumableType.MageSkillbook]: CombatantClass.Mage,
+  [ConsumableType.RogueSkillbook]: CombatantClass.Rogue,
+};

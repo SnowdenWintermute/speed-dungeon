@@ -25,6 +25,8 @@ import { HEALING } from "./healing/index.js";
 import { BLIND } from "./blind/index.js";
 import { CONDITION_PASS_TURN } from "./pass-turn/condition-pass-turn.js";
 import { PAY_ACTION_POINT } from "./pass-turn/pay-action-point.js";
+import { ReadFileError } from "@babylonjs/core";
+import { READ_SKILL_BOOK } from "./consumables/read-skill-book.js";
 
 export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Attack]: ATTACK,
@@ -54,5 +56,5 @@ export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.ConditionPassTurn]: CONDITION_PASS_TURN,
   [CombatActionName.Blind]: BLIND,
   [CombatActionName.PayActionPoint]: PAY_ACTION_POINT,
-  [CombatActionName.ReadSkillBook]: PASS_TURN, // @TODO - make it a real action
+  [CombatActionName.ReadSkillBook]: READ_SKILL_BOOK,
 };

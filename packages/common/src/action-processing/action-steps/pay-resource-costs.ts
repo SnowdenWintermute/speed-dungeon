@@ -28,8 +28,8 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
       selectedActionLevel
     );
 
-    const consumableTypeToConsumeOption = action.costProperties.getConsumableCost
-      ? action.costProperties.getConsumableCost()
+    const consumableTypeAndLevelToConsumeOption = action.costProperties.getConsumableCost
+      ? action.costProperties.getConsumableCost(combatantProperties)
       : undefined;
 
     const cooldownOption = action.costProperties.getCooldownTurns(
@@ -39,7 +39,11 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
 
     let gameUpdateCommandOption: null | ResourcesPaidGameUpdateCommand = null;
 
-    if (costsOption !== null || consumableTypeToConsumeOption !== undefined || cooldownOption) {
+    if (
+      costsOption !== null ||
+      consumableTypeAndLevelToConsumeOption !== undefined ||
+      cooldownOption
+    ) {
       gameUpdateCommandOption = {
         type: GameUpdateCommandType.ResourcesPaid,
         step: stepType,
@@ -48,17 +52,20 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
         combatantId: combatant.entityProperties.id,
       };
 
-      if (consumableTypeToConsumeOption !== null && consumableTypeToConsumeOption !== undefined) {
+      if (!!consumableTypeAndLevelToConsumeOption) {
         const { inventory } = combatant.combatantProperties;
-        const consumableOption = Inventory.getConsumableByType(
+        const consumableOption = Inventory.getConsumableByTypeAndLevel(
           inventory,
-          consumableTypeToConsumeOption
+          consumableTypeAndLevelToConsumeOption.type,
+          consumableTypeAndLevelToConsumeOption.level
         );
         if (consumableOption) {
           const removed = Inventory.removeConsumable(
             inventory,
             consumableOption.entityProperties.id
           );
+          if (!(removed instanceof Error)) context.tracker.consumableUsed = removed;
+          else console.error(removed);
           gameUpdateCommandOption.itemsConsumed = [consumableOption.entityProperties.id];
         }
       }

@@ -90,7 +90,9 @@ const config: CombatActionComponentConfig = {
   hitOutcomeProperties,
   costProperties: {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Medication],
-    getConsumableCost: () => ConsumableType.MpAutoinjector,
+    getConsumableCost: () => {
+      return { type: ConsumableType.MpAutoinjector, level: 1 };
+    },
   },
 
   stepsConfig: MEDICATION_ACTION_BASE_STEPS_CONFIG,

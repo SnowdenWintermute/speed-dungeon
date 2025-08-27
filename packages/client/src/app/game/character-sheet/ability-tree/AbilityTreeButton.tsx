@@ -14,13 +14,14 @@ import { IconName, SVG_ICONS } from "@/app/icons";
 import { MenuStateType } from "../../ActionMenu/menu-state";
 import { ConsideringCombatActionMenuState } from "../../ActionMenu/menu-state/considering-combat-action";
 import { ConsideringCombatantAbilityMenuState } from "../../ActionMenu/menu-state/considering-tree-ability";
+import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 
 interface Props {
   focusedCharacterId: EntityId;
   ability: AbilityTreeAbility;
   abilityLevel: number;
   buttonContent: ReactNode;
-  isAllocatable: boolean;
+  isAllocatable: { canAllocate: boolean; reasonCanNot?: string };
   isDetailed: boolean;
 }
 
@@ -42,7 +43,7 @@ export default function AbilityTreeButton(props: Props) {
       <HotkeyButton
         className={`
         h-20 w-20 border border-slate-400 bg-slate-700  relative flex items-center justify-center
-        ${disabled && "opacity-50 cursor-auto"} ${!isAllocatable ? "cursor-auto hover:border-white" : !isDetailed ? "cursor-pointer" : "cursor-cell hover:bg-slate-950"}
+        ${disabled && "opacity-50 cursor-auto"} ${!isAllocatable.canAllocate ? "cursor-auto hover:border-white" : !isDetailed ? "cursor-pointer" : "cursor-cell hover:bg-slate-950"}
         `}
         onClick={() => {
           if (!isDetailed) {
@@ -116,9 +117,6 @@ export default function AbilityTreeButton(props: Props) {
           });
         }}
       >
-        {
-          // hovered && isAllocatable && allocationIndicator
-        }
         {buttonContent}
         <div className="absolute h-5 w-5 -bottom-1 -right-1 border border-zinc-300 bg-slate-700 text-center align-middle leading-tight">
           {abilityLevel}

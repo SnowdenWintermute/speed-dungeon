@@ -24,8 +24,6 @@ export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends
     const turnAlreadyEnded =
       context.tracker.parentActionManager.sequentialActionManagerRegistry.getTurnEnded();
 
-    console.log(COMBAT_ACTION_NAME_STRINGS[action.name], "turnAlreadyEnded:", turnAlreadyEnded);
-
     const resourceCosts = action.costProperties.getResourceCosts(
       context.combatantContext.combatant.combatantProperties,
       !!context.combatantContext.getBattleOption(),

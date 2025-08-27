@@ -14,7 +14,6 @@ import {
   Equipment,
   EquipmentType,
   Item,
-  SKILL_BOOK_CONSUMABLE_TYPES,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -124,7 +123,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
         } = {
           characterId,
           combatActionNameOption,
-          combatActionLevel: this.item.itemLevel,
+          combatActionLevel: 1,
         };
 
         if (Consumable.isSkillBook(this.item.consumableType))

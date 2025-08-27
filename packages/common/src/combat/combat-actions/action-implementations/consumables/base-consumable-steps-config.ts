@@ -1,13 +1,9 @@
-import {
-  ActionResolutionStepType,
-  AnimationTimingType,
-} from "../../../../action-processing/index.js";
-import { AnimationType, SkeletalAnimationName } from "../../../../app-consts.js";
+import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import { SkeletalAnimationName } from "../../../../app-consts.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
 import {
   getHomeDestination,
   getRotateTowardPrimaryTargetDestination,
-  getStepForwardDestination,
 } from "../common-destination-getters.js";
 import { getTimedSkeletalEntityAnimation } from "../get-entity-animation.js";
 

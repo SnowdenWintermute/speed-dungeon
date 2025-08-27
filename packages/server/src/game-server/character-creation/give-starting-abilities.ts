@@ -1,4 +1,5 @@
 import {
+  COMBATANT_MAX_LEVEL,
   COMBAT_ACTIONS,
   CombatActionName,
   CombatantActionState,

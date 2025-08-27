@@ -28,9 +28,13 @@ export interface CombatActionCostPropertiesConfig {
     self: CombatActionComponent
   ) => null | ActionResourceCosts;
   getCooldownTurns: (user: CombatantProperties, selectedActionLevel: number) => null | number;
-  getConsumableCost: () => null | ConsumableType;
+  getConsumableCost: (user: CombatantProperties) => null | { type: ConsumableType; level: number };
   getEndsTurnOnUse: (actionLevel: number) => boolean;
   requiresCombatTurnInThisContext: (context: ActionResolutionStepContext) => boolean;
+  getMeetsCustomRequirements?: (
+    user: CombatantProperties,
+    actionLevel: number
+  ) => { meetsRequirements: boolean; reasonDoesNot?: string };
 }
 
 // in the constructor of the action we pass "this" to the getResourceCosts function in the config

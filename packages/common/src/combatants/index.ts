@@ -318,10 +318,11 @@ export class CombatantProperties {
     actionName: CombatActionName
   ) {
     const action = COMBAT_ACTIONS[actionName];
-    const consumableCost = action.costProperties.getConsumableCost();
+    const consumableCost = action.costProperties.getConsumableCost(combatantProperties);
     if (consumableCost !== null) {
       const { inventory } = combatantProperties;
-      const consumableOption = Inventory.getConsumableByType(inventory, consumableCost);
+      const { type, level } = consumableCost;
+      const consumableOption = Inventory.getConsumableByTypeAndLevel(inventory, type, level);
       if (consumableOption === undefined) return false;
     }
     return true;
@@ -365,6 +366,20 @@ export class CombatantProperties {
       if (getRequiredEquipmentTypeOptions(actionLevel).includes(equipmentType)) return true;
     }
     return false;
+  }
+
+  static changeSupportClassLevel(
+    combatantProperties: CombatantProperties,
+    supportClass: CombatantClass,
+    value: number
+  ) {
+    const { supportClassProperties } = combatantProperties;
+
+    if (supportClassProperties !== null) {
+      supportClassProperties.level += value;
+    } else {
+      combatantProperties.supportClassProperties = { combatantClass: supportClass, level: value };
+    }
   }
 }
 

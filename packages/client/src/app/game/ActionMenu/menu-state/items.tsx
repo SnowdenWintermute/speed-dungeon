@@ -353,19 +353,5 @@ function sortItemsIntoStacks(itemsToShow: Item[]) {
     }
   }
 
-  for (const [consumableType, stacksByLevel] of iterateNumericEnumKeyedRecord(
-    consumablesByTypeAndLevel
-  )) {
-    console.log(CONSUMABLE_TYPE_STRINGS[consumableType]);
-    for (const [level, consumableStack] of Object.entries(stacksByLevel)) {
-      console.log(
-        "level:",
-        level,
-        "stack",
-        consumableStack.map((item) => item.entityProperties.name)
-      );
-    }
-  }
-
   return { equipmentAndShardStacks, consumablesByTypeAndLevel };
 }
