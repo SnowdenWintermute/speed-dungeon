@@ -8,10 +8,12 @@ import {
 
 export function giveStartingAbilities(combatantProperties: CombatantProperties) {
   const ownedActions = [
+    // BASICS
     CombatActionName.Attack,
     CombatActionName.UseGreenAutoinjector,
     CombatActionName.UseBlueAutoinjector,
     CombatActionName.PassTurn,
+    CombatActionName.ReadSkillBook,
     // CombatActionName.ChainingSplitArrowParent,
     // CombatActionName.Counterattack,
     CombatActionName.IceBoltParent,

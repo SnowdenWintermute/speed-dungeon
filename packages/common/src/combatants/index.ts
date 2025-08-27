@@ -134,6 +134,7 @@ export class CombatantProperties {
   combatActionTarget: null | CombatActionTarget = null;
   selectedTargetingScheme: null | TargetingScheme = null;
   selectedActionLevel: null | number = null;
+  selectedItemId: null | string = null;
   // THREAT
   threatManager?: ThreatManager;
 

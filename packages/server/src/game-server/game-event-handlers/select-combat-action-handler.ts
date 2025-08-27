@@ -15,14 +15,12 @@ export function selectCombatActionHandler(
     characterId: string;
     combatActionNameOption: null | CombatActionName;
     combatActionLevel: null | number;
+    itemIdOption?: string;
   },
   characterAssociatedData: CharacterAssociatedData
 ) {
   const gameServer = getGameServer();
-  let { combatActionNameOption, combatActionLevel } = eventData;
-  // @TODO - figure out if we want to allow initial action selection at a higher level than 1, and if
-  // so how does that work if they can't afford it
-  combatActionLevel = 1;
+  let { combatActionNameOption, combatActionLevel, itemIdOption } = eventData;
 
   const { character, game, party, player } = characterAssociatedData;
   let combatActionOption: null | CombatActionComponent = null;
@@ -38,6 +36,7 @@ export function selectCombatActionHandler(
 
   character.combatantProperties.selectedCombatAction = combatActionNameOption;
   character.combatantProperties.selectedActionLevel = combatActionLevel;
+  character.combatantProperties.selectedItemId = itemIdOption || null;
 
   const targetingCalculator = new TargetingCalculator(
     new CombatantContext(game, party, character),
@@ -45,6 +44,7 @@ export function selectCombatActionHandler(
   );
   const initialTargetsResult =
     targetingCalculator.assignInitialCombatantActionTargets(combatActionOption);
+
   if (initialTargetsResult instanceof Error) {
     character.combatantProperties.selectedCombatAction = null;
     character.combatantProperties.selectedActionLevel = null;
@@ -57,6 +57,7 @@ export function selectCombatActionHandler(
       ServerToClientEvent.CharacterSelectedCombatAction,
       character.entityProperties.id,
       combatActionNameOption,
-      combatActionLevel
+      combatActionLevel,
+      itemIdOption
     );
 }

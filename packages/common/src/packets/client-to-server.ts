@@ -74,6 +74,7 @@ export interface ClientToServerEventTypes {
     characterId: string;
     combatActionNameOption: null | CombatActionName;
     combatActionLevel: null | number;
+    itemIdOption?: string;
   }) => void;
   [ClientToServerEvent.IncrementAttribute]: (eventData: {
     characterId: string;

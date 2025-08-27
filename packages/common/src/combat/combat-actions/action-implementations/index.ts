@@ -54,4 +54,5 @@ export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.ConditionPassTurn]: CONDITION_PASS_TURN,
   [CombatActionName.Blind]: BLIND,
   [CombatActionName.PayActionPoint]: PAY_ACTION_POINT,
+  [CombatActionName.ReadSkillBook]: PASS_TURN, // @TODO - make it a real action
 };

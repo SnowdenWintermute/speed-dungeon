@@ -8,11 +8,13 @@ import {
 } from ".";
 import {
   ClientToServerEvent,
+  CombatActionName,
   CombatantProperties,
   Consumable,
   Equipment,
   EquipmentType,
   Item,
+  SKILL_BOOK_CONSUMABLE_TYPES,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -113,15 +115,26 @@ export class ConsideringItemMenuState implements ActionMenuState {
           );
       } else if (this.item instanceof Consumable) {
         const combatActionNameOption = this.item.getActionName();
+
+        const eventData: {
+          characterId: string;
+          combatActionNameOption: null | CombatActionName;
+          combatActionLevel: null | number;
+          itemIdOption?: string;
+        } = {
+          characterId,
+          combatActionNameOption,
+          combatActionLevel: this.item.itemLevel,
+        };
+
+        if (Consumable.isSkillBook(this.item.consumableType))
+          eventData.itemIdOption = this.item.entityProperties.id;
+
         return new ActionMenuButtonProperties(
           () => USE_CONSUMABLE_BUTTON_TEXT,
           USE_CONSUMABLE_BUTTON_TEXT,
           () => {
-            websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
-              characterId,
-              combatActionNameOption,
-              combatActionLevel: 1,
-            });
+            websocketConnection.emit(ClientToServerEvent.SelectCombatAction, eventData);
           }
         );
       } else {

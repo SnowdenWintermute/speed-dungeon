@@ -17,13 +17,16 @@ export enum CombatActionName {
   IceBoltProjectile,
   IceBurst,
   Fire,
-  BurningTick,
   Healing,
-  // Destruction,
+  Blind,
+  // CONDITION TICKS
+  BurningTick,
+  ConditionPassTurn,
+  // CONSUMABLES
   UseGreenAutoinjector,
   UseBlueAutoinjector,
-  ConditionPassTurn,
-  Blind,
+  ReadSkillBook,
+  // UTILITY
   PayActionPoint, // useful for charging action points for swapping weapons and maybe other things
   PassTurn,
 }
@@ -34,6 +37,7 @@ export const ACTION_NAMES_TO_HIDE_IN_MENU = [
   CombatActionName.AttackMeleeMainhand,
   CombatActionName.AttackMeleeOffhand,
   CombatActionName.AttackRangedMainhand,
+  CombatActionName.ReadSkillBook,
 ];
 
 export const COMBAT_ACTION_NAME_STRINGS: Record<CombatActionName, string> = {
@@ -64,4 +68,5 @@ export const COMBAT_ACTION_NAME_STRINGS: Record<CombatActionName, string> = {
   [CombatActionName.ConditionPassTurn]: "Condition Pass Turn",
   [CombatActionName.Blind]: "Blind",
   [CombatActionName.PayActionPoint]: "Pay Action Point",
+  [CombatActionName.ReadSkillBook]: "Read Skill Book",
 };

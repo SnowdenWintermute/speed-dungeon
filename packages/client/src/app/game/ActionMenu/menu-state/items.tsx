@@ -17,7 +17,6 @@ import {
   EquipmentBaseItem,
   EquipmentType,
   Item,
-  SKILL_BOOK_CONSUMABLE_TYPES,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { setAlert } from "@/app/components/alerts";
@@ -123,7 +122,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
         if (!firstConsumableOfThisType) continue;
 
         let bookVolumeName = "";
-        if (SKILL_BOOK_CONSUMABLE_TYPES.includes(consumableType)) {
+        if (Consumable.isSkillBook(consumableType)) {
           bookVolumeName = `, Volume ${itemLevel}`;
         }
 

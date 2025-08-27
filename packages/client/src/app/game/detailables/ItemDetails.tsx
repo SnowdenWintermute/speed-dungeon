@@ -7,7 +7,6 @@ import {
   EntityProperties,
   Equipment,
   Item,
-  SKILL_BOOK_CONSUMABLE_TYPES,
 } from "@speed-dungeon/common";
 import React, { useEffect, useRef, useState } from "react";
 import ActionDetails from "./action-details";
@@ -116,7 +115,7 @@ export default function ItemDetails({
         svgThumbnailOption = SVG_ICONS[IconName.Shards]("h-full fill-slate-400 m-2");
         itemDetailsDisplay = <div>Could be useful...</div>;
       } else {
-        if (SKILL_BOOK_CONSUMABLE_TYPES.includes(item.consumableType)) {
+        if (Consumable.isSkillBook(item.consumableType)) {
           svgThumbnailOption = SVG_ICONS[IconName.Book]("h-full fill-slate-400 m-2");
         }
         const actionNameOption = CONSUMABLE_ACTION_NAMES_BY_CONSUMABLE_TYPE[item.consumableType];

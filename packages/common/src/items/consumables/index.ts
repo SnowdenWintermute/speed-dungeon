@@ -26,6 +26,10 @@ export class Consumable extends Item {
   getActionName() {
     return CONSUMABLE_ACTION_NAMES_BY_CONSUMABLE_TYPE[this.consumableType];
   }
+
+  static isSkillBook(consumableType: ConsumableType) {
+    return SKILL_BOOK_CONSUMABLE_TYPES.includes(consumableType);
+  }
 }
 
 export const CONSUMABLE_TYPE_STRINGS: Record<ConsumableType, string> = {
@@ -44,9 +48,9 @@ export const CONSUMABLE_ACTION_NAMES_BY_CONSUMABLE_TYPE: Record<
   [ConsumableType.HpAutoinjector]: CombatActionName.UseGreenAutoinjector,
   [ConsumableType.MpAutoinjector]: CombatActionName.UseBlueAutoinjector,
   [ConsumableType.StackOfShards]: null,
-  [ConsumableType.WarriorSkillbook]: null,
-  [ConsumableType.RogueSkillbook]: null,
-  [ConsumableType.MageSkillbook]: null,
+  [ConsumableType.WarriorSkillbook]: CombatActionName.ReadSkillBook,
+  [ConsumableType.RogueSkillbook]: CombatActionName.ReadSkillBook,
+  [ConsumableType.MageSkillbook]: CombatActionName.ReadSkillBook,
 };
 
 export const SKILL_BOOK_CONSUMABLE_TYPES = [
