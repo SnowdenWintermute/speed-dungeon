@@ -1,6 +1,7 @@
 import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import {
   CONSUMABLE_ACTION_NAMES_BY_CONSUMABLE_TYPE,
+  CONSUMABLE_DESCRIPTIONS,
   CONSUMABLE_TYPE_STRINGS,
   Consumable,
   ConsumableType,
@@ -126,7 +127,14 @@ export default function ItemDetails({
             </div>
           );
         else {
-          itemDetailsDisplay = <ActionDetails actionName={actionNameOption} hideTitle={true} />;
+          const consumableDescription = CONSUMABLE_DESCRIPTIONS[item.consumableType];
+          itemDetailsDisplay = (
+            <ActionDetails
+              actionName={actionNameOption}
+              hideTitle={true}
+              consumableDescriptionOption={consumableDescription}
+            />
+          );
         }
       }
     } else {

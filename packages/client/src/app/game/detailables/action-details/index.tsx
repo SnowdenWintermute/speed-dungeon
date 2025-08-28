@@ -14,10 +14,15 @@ import ActionDetailsTitleBar from "./ActionDetailsTitleBar";
 
 interface Props {
   actionName: CombatActionName;
+  consumableDescriptionOption?: string;
   hideTitle?: boolean;
 }
 
-export default function ActionDetails({ actionName, hideTitle }: Props) {
+export default function ActionDetails({
+  actionName,
+  consumableDescriptionOption,
+  hideTitle,
+}: Props) {
   const partyResult = useGameStore().getParty();
   if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
   const party = partyResult;
@@ -54,7 +59,12 @@ export default function ActionDetails({ actionName, hideTitle }: Props) {
       )}
       {
         <div className="flex-grow overflow-auto mr-2">
-          <div className="mb-2 last:mb-0">{action.description}</div>
+          {consumableDescriptionOption ? (
+            <div className="mb-2 last:mb-0">{consumableDescriptionOption}</div>
+          ) : (
+            <div className="mb-2 last:mb-0">{action.description}</div>
+          )}
+
           {actionStateOption && actionStateOption.cooldown && (
             <div
               className={

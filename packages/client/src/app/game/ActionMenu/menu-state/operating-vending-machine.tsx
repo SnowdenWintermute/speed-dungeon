@@ -3,6 +3,7 @@ import {
   craftingItemSelectionMenuState,
   purchasingItemsMenuState,
   repairItemSelectionMenuState,
+  selectBooksToTradeForMenuState,
   useGameStore,
 } from "@/stores/game-store";
 import {
@@ -84,10 +85,21 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
       }
     );
 
+    const selectBooksButton = new ActionMenuButtonProperties(
+      () => "Trade for Books",
+      "Trade for Books",
+      () => {
+        useGameStore.getState().mutateState((state) => {
+          state.stackedMenuStates.push(selectBooksToTradeForMenuState);
+        });
+      }
+    );
+
     toReturn[ActionButtonCategory.Numbered].push(purchaseItemsButton);
     toReturn[ActionButtonCategory.Numbered].push(craftButton);
     toReturn[ActionButtonCategory.Numbered].push(repairButton);
     toReturn[ActionButtonCategory.Numbered].push(convertButton);
+    toReturn[ActionButtonCategory.Numbered].push(selectBooksButton);
 
     createPageButtons(this, toReturn);
 

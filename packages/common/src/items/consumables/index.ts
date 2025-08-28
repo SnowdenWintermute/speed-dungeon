@@ -42,6 +42,15 @@ export const CONSUMABLE_TYPE_STRINGS: Record<ConsumableType, string> = {
   [ConsumableType.MageSkillbook]: "Arcane Tome",
 };
 
+export const CONSUMABLE_DESCRIPTIONS: Record<ConsumableType, string> = {
+  [ConsumableType.HpAutoinjector]: "Restores hit points",
+  [ConsumableType.MpAutoinjector]: "Restores mana",
+  [ConsumableType.StackOfShards]: "The raw materials of this world",
+  [ConsumableType.WarriorSkillbook]: "Adds 1 to the level of your Warrior support class",
+  [ConsumableType.RogueSkillbook]: "Adds 1 to the level of your Rogue support class",
+  [ConsumableType.MageSkillbook]: "Adds 1 to the level of your Mage support class",
+};
+
 export const CONSUMABLE_ACTION_NAMES_BY_CONSUMABLE_TYPE: Record<
   ConsumableType,
   null | CombatActionName

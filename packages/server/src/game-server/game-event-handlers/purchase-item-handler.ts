@@ -31,15 +31,20 @@ export function purchaseItemHandler(
   if (consumableType === ConsumableType.StackOfShards)
     return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
 
-  const price = getConsumableShardPrice(party.currentFloor, consumableType);
+  const priceOption = getConsumableShardPrice(party.currentFloor, consumableType);
+  if (priceOption === null) return new Error(ERROR_MESSAGES.ITEM.NOT_PURCHASEABLE);
   const { inventory } = character.combatantProperties;
-  if (price > inventory.shards) return new Error(ERROR_MESSAGES.COMBATANT.NOT_ENOUGH_SHARDS);
+  if (priceOption > inventory.shards) return new Error(ERROR_MESSAGES.COMBATANT.NOT_ENOUGH_SHARDS);
 
-  inventory.shards -= price;
+  inventory.shards -= priceOption;
   const purchasedItem = createConsumableByType(consumableType);
   inventory.consumables.push(purchasedItem);
 
   getGameServer()
     .io.to(getPartyChannelName(game.name, party.name))
-    .emit(ServerToClientEvent.CharacterPurchasedItem, { characterId, item: purchasedItem, price });
+    .emit(ServerToClientEvent.CharacterPurchasedItem, {
+      characterId,
+      item: purchasedItem,
+      price: priceOption,
+    });
 }

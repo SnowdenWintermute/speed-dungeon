@@ -47,7 +47,9 @@ export function getItemSellPrice(item: Item) {
 }
 
 export function getConsumableSellPrice(consumableType: ConsumableType) {
-  return Math.floor(BASE_CONSUMABLE_PRICES[consumableType] * DEPRECIATION);
+  const basePriceOption = BASE_CONSUMABLE_PRICES[consumableType];
+  if (basePriceOption === null) return 0;
+  return Math.floor(basePriceOption * DEPRECIATION);
 }
 
 export function getEquipmentSellPrice(equipment: Equipment) {

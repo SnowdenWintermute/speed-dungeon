@@ -11,6 +11,7 @@ export enum MenuStateType {
   ItemsOnGround,
   OperatingVendingMachine,
   PurchasingItems,
+  SelectingBookType,
   CraftingItemSelection,
   RepairItemSelection,
   ShardItemSelection,
@@ -38,6 +39,7 @@ export const MENU_STATE_TYPE_STRINGS: Record<MenuStateType, string> = {
   [MenuStateType.ViewingAbilityTree]: "Viewing ability tree",
   [MenuStateType.ConsideringAbilityTreeColumn]: "Considering abilities",
   [MenuStateType.ConsideringAbilityTreeAbility]: "Considering ability",
+  [MenuStateType.SelectingBookType]: "Selecting skill book",
 };
 
 export enum ActionButtonCategory {

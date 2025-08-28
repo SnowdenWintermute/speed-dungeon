@@ -15,6 +15,7 @@ import {
   CONSUMABLE_TYPE_STRINGS,
   ClientToServerEvent,
   ConsumableType,
+  SKILL_BOOK_CONSUMABLE_TYPES,
   createDummyConsumable,
   getConsumableShardPrice,
 } from "@speed-dungeon/common";
@@ -24,15 +25,13 @@ import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { createCancelButton } from "./common-buttons/cancel";
 import setItemHovered from "@/utils/set-item-hovered";
 import { PriceDisplay } from "../../character-sheet/ShardsDisplay";
+import { IconName, SVG_ICONS } from "@/app/icons";
 
-// @TODO - this is duplicating items menu, now that we added the extraChildren option we
-// should be able to just implement item state with a list of dummy consumables
-// - also, we copied this to SelectingBookType menu as well so if we ever change this, look at that too
-export class PurchaseItemsMenuState implements ActionMenuState {
+export class SelectBookToTradeForMenuState implements ActionMenuState {
   [immerable] = true;
   page = 1;
   numPages: number = 1;
-  type = MenuStateType.PurchasingItems;
+  type = MenuStateType.SelectingBookType;
   alwaysShowPageOne = false;
   getCenterInfoDisplayOption = null;
   constructor() {}
@@ -64,10 +63,7 @@ export class PurchaseItemsMenuState implements ActionMenuState {
     );
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
 
-    const purchaseableItems = [ConsumableType.HpAutoinjector, ConsumableType.MpAutoinjector];
-    for (const consumableType of purchaseableItems) {
-      const price = getConsumableShardPrice(partyResult.currentFloor, consumableType);
-
+    for (const consumableType of SKILL_BOOK_CONSUMABLE_TYPES) {
       const thumbnailId = CONSUMABLE_TYPE_STRINGS[consumableType];
       const thumbnailOption = useGameStore.getState().itemThumbnails[thumbnailId];
 
@@ -92,24 +88,19 @@ export class PurchaseItemsMenuState implements ActionMenuState {
               <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
                 {CONSUMABLE_TYPE_STRINGS[consumableType]}
               </div>
-              <PriceDisplay
-                price={price}
-                shardsOwned={focusedCharacterResult.combatantProperties.inventory.shards}
-              />
+              <div className="h-full">{SVG_ICONS[IconName.Book]("h-full fill-slate-400")}</div>
             </div>
           </ItemButtonBody>
         ),
-        `${CONSUMABLE_TYPE_STRINGS[consumableType]} (${price} shards)`,
+        `${CONSUMABLE_TYPE_STRINGS[consumableType]}`,
         () => {
-          websocketConnection.emit(ClientToServerEvent.PurchaseItem, {
-            characterId: focusedCharacterResult.entityProperties.id,
-            consumableType,
-          });
+          // @TODO - set menu state trading equipment for book
         }
       );
-      purchaseItemButton.shouldBeDisabled =
-        !userControlsThisCharacter ||
-        focusedCharacterResult.combatantProperties.inventory.shards < price;
+
+      // let them select and then if they don't have the items to trade, explain what is required
+      purchaseItemButton.shouldBeDisabled = false;
+
       toReturn[ActionButtonCategory.Numbered].push(purchaseItemButton);
     }
 

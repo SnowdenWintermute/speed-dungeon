@@ -30,6 +30,7 @@ export const MEDICATION_ACTION_BASE_STEPS_CONFIG = new ActionResolutionStepsConf
           false
         ),
     },
+    [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
     [ActionResolutionStepType.PayResourceCosts]: {},
     [ActionResolutionStepType.EvalOnUseTriggers]: {},
     [ActionResolutionStepType.RollIncomingHitOutcomes]: {},

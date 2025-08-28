@@ -36,6 +36,7 @@ import getCurrentParty from "@/utils/getCurrentParty";
 import { TargetIndicator } from "@/app/3d-world/scene-entities/character-models/target-indicator-manager";
 import { AbilityTreeMenuState } from "@/app/game/ActionMenu/menu-state/ability-tree-menu-state";
 import { AbilityTreeAbility } from "@speed-dungeon/common";
+import { SelectBookToTradeForMenuState } from "@/app/game/ActionMenu/menu-state/select-book-type";
 
 export enum MenuContext {
   InventoryItems,
@@ -172,6 +173,7 @@ export const purchasingItemsMenuState = new PurchaseItemsMenuState();
 export const craftingItemSelectionMenuState = new CraftingItemSelectionMenuState();
 export const repairItemSelectionMenuState = new RepairItemSelectionMenuState();
 export const convertToShardItemSelectionMenuState = new ConvertToShardItemSelectionMenuState();
+export const selectBooksToTradeForMenuState = new SelectBookToTradeForMenuState();
 export const abilityTreeMenuState = new AbilityTreeMenuState();
 
 export function getCurrentMenu(state: GameState) {
