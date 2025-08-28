@@ -29,7 +29,7 @@ export class Consumable extends Item {
   }
 
   static isSkillBook(consumableType: ConsumableType) {
-    return SKILL_BOOK_CONSUMABLE_TYPES.includes(consumableType);
+    return (SKILL_BOOK_CONSUMABLE_TYPES as readonly ConsumableType[]).includes(consumableType);
   }
 }
 
@@ -67,7 +67,9 @@ export const SKILL_BOOK_CONSUMABLE_TYPES = [
   ConsumableType.RogueSkillbook,
   ConsumableType.WarriorSkillbook,
   ConsumableType.MageSkillbook,
-];
+] as const;
+
+export type BookConsumableType = (typeof SKILL_BOOK_CONSUMABLE_TYPES)[number];
 
 export const COMBATANT_CLASS_TO_SKILL_BOOK_TYPE: Record<CombatantClass, ConsumableType> = {
   [CombatantClass.Warrior]: ConsumableType.WarriorSkillbook,

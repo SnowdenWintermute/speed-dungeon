@@ -1,10 +1,11 @@
 import { CombatantEquipment, CombatantProperties } from "../../combatants/index.js";
-import { ConsumableType } from "../consumables/index.js";
+import { BookConsumableType } from "../consumables/index.js";
 import { Equipment } from "../equipment/index.js";
+import { BOOK_TRADE_ACCEPTED_EQUIPMENT_CHECKERS } from "./book-trade-accepted-equipment-checkers.js";
 
 export function getOwnedAcceptedItemsForBookTrade(
   combatantProperties: CombatantProperties,
-  consumableType: ConsumableType,
+  bookType: BookConsumableType,
   vendingMachineLevel: number
 ): { equipment: Equipment; bookLevel: number }[] {
   const toReturn = [];
@@ -14,14 +15,19 @@ export function getOwnedAcceptedItemsForBookTrade(
     includeUnselectedHotswapSlots: true,
   });
 
+  const ownedEquipment = [...equipmentInInventory, ...equippedItems];
+
   // check the affixes / stats on those items to match the consumable type
-  for (const equipment of equipmentInInventory) {
+  for (const equipment of ownedEquipment) {
     // make sure it is broken
     if (!Equipment.isBroken(equipment)) continue;
     // check if it has the properties required for this book trade
+    const equipmentAcceptedChecker = BOOK_TRADE_ACCEPTED_EQUIPMENT_CHECKERS[bookType];
+    const isAccepted = equipmentAcceptedChecker(equipment);
+    if (!isAccepted) continue;
+    const bookLevel = Math.min(vendingMachineLevel, equipment.itemLevel);
+    toReturn.push({ equipment, bookLevel });
   }
 
-  // return list of accepted items and book level to offer
-  // > Math.min(equipment.itemLevel, vendingMachine.level)
-  return [];
+  return toReturn;
 }

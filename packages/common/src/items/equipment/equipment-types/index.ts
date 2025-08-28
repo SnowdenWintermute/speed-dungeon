@@ -108,3 +108,19 @@ export const EQUIPMENT_TYPE_STRINGS: Record<EquipmentType, string> = {
   [EquipmentType.TwoHandedRangedWeapon]: "Two Handed Ranged Weapon",
   [EquipmentType.Shield]: "Shield",
 };
+
+export const WANDS = [
+  OneHandedMeleeWeapon.WillowWand,
+  OneHandedMeleeWeapon.MapleWand,
+  OneHandedMeleeWeapon.RoseWand,
+  OneHandedMeleeWeapon.YewWand,
+];
+
+export const STAVES = [
+  TwoHandedMeleeWeapon.BoStaff,
+  TwoHandedMeleeWeapon.ElmStaff,
+  TwoHandedMeleeWeapon.ElementalStaff,
+  TwoHandedMeleeWeapon.MahoganyStaff,
+  TwoHandedMeleeWeapon.RottingBranch,
+  TwoHandedMeleeWeapon.EbonyStaff,
+];

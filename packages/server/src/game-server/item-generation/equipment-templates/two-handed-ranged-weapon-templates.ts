@@ -27,8 +27,8 @@ export class TwoHandedRangedWeaponGenerationTemplate extends WeaponGenerationTem
       switch (prefix) {
         case PrefixType.Mp:
         case PrefixType.ArmorClass:
-        case PrefixType.Evasion:
           break;
+        case PrefixType.Evasion:
         case PrefixType.Accuracy:
         case PrefixType.PercentDamage:
         case PrefixType.LifeSteal:
