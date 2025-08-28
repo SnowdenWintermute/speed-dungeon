@@ -7,12 +7,12 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inv
     inventory.consumables.push(skillbook);
   }
   for (let i = 0; i < 1; i += 1) {
-    const skillbook = createConsumableByType(ConsumableType.WarriorSkillbook);
+    const skillbook = createConsumableByType(ConsumableType.RogueSkillbook);
     skillbook.itemLevel = 2;
     inventory.consumables.push(skillbook);
   }
   for (let i = 0; i < 2; i += 1) {
-    const skillbook = createConsumableByType(ConsumableType.MageSkillbook);
+    const skillbook = createConsumableByType(ConsumableType.RogueSkillbook);
     skillbook.itemLevel = 3;
     inventory.consumables.push(skillbook);
   }

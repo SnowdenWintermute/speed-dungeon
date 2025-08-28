@@ -6,7 +6,7 @@ import {
 } from "@speed-dungeon/common";
 
 export function setPlaytestingCombatantProperties(combatantProperties: CombatantProperties) {
-  combatantProperties.level = 2;
+  combatantProperties.level = 4;
   combatantProperties.unspentAttributePoints = 3;
   combatantProperties.abilityProperties.unspentAbilityPoints = 3;
 

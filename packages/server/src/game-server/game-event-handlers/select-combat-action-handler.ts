@@ -3,6 +3,7 @@ import {
   CombatActionComponent,
   CombatantContext,
   CombatantProperties,
+  Inventory,
   ServerToClientEvent,
   getPartyChannelName,
 } from "@speed-dungeon/common";
@@ -36,6 +37,18 @@ export function selectCombatActionHandler(
 
   character.combatantProperties.selectedCombatAction = combatActionNameOption;
   character.combatantProperties.selectedActionLevel = combatActionLevel;
+  if (itemIdOption !== undefined) {
+    // @INFO - if we want to allow selecting equipped items or unowned items
+    // change this
+    // also it shouldn't matter if they can select an unowned item since we
+    // check if they own it on reading skill books, which is the only thing
+    // this is currently used for
+    const ownedItemResult = Inventory.getItemById(
+      character.combatantProperties.inventory,
+      itemIdOption
+    );
+    if (ownedItemResult instanceof Error) return ownedItemResult;
+  }
   character.combatantProperties.selectedItemId = itemIdOption || null;
 
   const targetingCalculator = new TargetingCalculator(

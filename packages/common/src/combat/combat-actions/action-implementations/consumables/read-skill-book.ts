@@ -88,16 +88,23 @@ const config: CombatActionComponentConfig = {
           reasonDoesNot: "You could have written this book - reading it won't help you",
         };
 
+      const supportClassLevel = supportClassProperties?.level || 0;
+      // check required level of book
+      const requiredMinimumSkillBookLevel = supportClassLevel + 1;
+      if (skillBookResult.itemLevel < requiredMinimumSkillBookLevel)
+        return {
+          meetsRequirements: false,
+          reasonDoesNot: "You are already familiar with the concepts described in this book",
+        };
+
       // don't allow reading a book if their support class is already half the level of their main class
       const mainClassLevel = user.level;
-      const supportClassLevel = supportClassProperties?.level || 0;
       const supportClassAtMaxLevel = supportClassLevel >= Math.floor(mainClassLevel / 2);
       if (supportClassAtMaxLevel)
         return {
           meetsRequirements: false,
           reasonDoesNot: "Support class level can be a maximum of one half your main class level",
         };
-      // check required level of book and character level
 
       return { meetsRequirements: true };
     },
