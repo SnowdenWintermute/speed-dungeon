@@ -9,7 +9,6 @@ export function setPlaytestingCombatantProperties(combatantProperties: Combatant
   combatantProperties.level = 4;
   // combatantProperties.unspentAttributePoints = 3;
   // combatantProperties.abilityProperties.unspentAbilityPoints = 3;
-
   // combatantProperties.supportClassProperties = { combatantClass: CombatantClass.Rogue, level: 1 };
 
   combatantProperties.inherentAttributes = {
@@ -25,7 +24,8 @@ export function setPlaytestingCombatantProperties(combatantProperties: Combatant
   ] = -150;
 
   combatantProperties.hitPoints = Math.floor(combatantProperties.hitPoints * 0.5);
-  combatantProperties.mana = Math.floor(combatantProperties.mana * 0.4);
+  CombatantProperties.changeMana(combatantProperties, 100);
+  // combatantProperties.mana = Math.floor(combatantProperties.mana * 0.4);
   // combatantProperties.mana = 4;
 
   const elementalStaves = [];
@@ -54,9 +54,10 @@ export function setPlaytestingCombatantProperties(combatantProperties: Combatant
 }
 
 const TESTING_INHERENT_ATTRIBUTES: Partial<Record<CombatAttribute, number>> = {
-  // [CombatAttribute.Speed]: 9,
+  [CombatAttribute.Speed]: 9,
   // [CombatAttribute.Dexterity]: 45,
   // [CombatAttribute.Strength]: 40,
   // [CombatAttribute.Intelligence]: 25,
+  [CombatAttribute.Mp]: 100,
   // [CombatAttribute.Hp]: 75,
 };

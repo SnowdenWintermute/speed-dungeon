@@ -41,11 +41,13 @@ export abstract class CosmeticEffect {
     for (const particleSystem of this.particleSystems) {
       particleSystem.softCleanup();
     }
+    this.transformNode.dispose();
   }
 
   cleanup() {
     for (const particleSystem of this.particleSystems) {
       particleSystem.cleanup();
     }
+    this.transformNode.dispose();
   }
 }

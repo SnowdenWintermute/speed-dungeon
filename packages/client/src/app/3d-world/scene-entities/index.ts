@@ -129,6 +129,7 @@ export abstract class SceneEntity {
   private softCleanup() {
     disposeAsyncLoadedScene(this.assetContainer);
     this.cosmeticEffectManager.softCleanup();
+    this.rootTransformNode.dispose(false);
   }
 
   private dispose() {
