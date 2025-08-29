@@ -11,6 +11,7 @@ import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import {
+  BookConsumableType,
   CONSUMABLE_TEXT_COLOR,
   CONSUMABLE_TYPE_STRINGS,
   ClientToServerEvent,
@@ -26,6 +27,8 @@ import { createCancelButton } from "./common-buttons/cancel";
 import setItemHovered from "@/utils/set-item-hovered";
 import { PriceDisplay } from "../../character-sheet/ShardsDisplay";
 import { IconName, SVG_ICONS } from "@/app/icons";
+import { SelectItemToTradeForBookMenuState } from "./select-item-to-trade-for-book";
+import { ReactNode } from "react";
 
 export class SelectBookToTradeForMenuState implements ActionMenuState {
   [immerable] = true;
@@ -94,7 +97,9 @@ export class SelectBookToTradeForMenuState implements ActionMenuState {
         ),
         `${CONSUMABLE_TYPE_STRINGS[consumableType]}`,
         () => {
-          // @TODO - set menu state trading equipment for book
+          useGameStore.getState().mutateState((state) => {
+            state.stackedMenuStates.push(new SelectItemToTradeForBookMenuState(consumableType));
+          });
         }
       );
 

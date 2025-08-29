@@ -46,7 +46,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   alwaysShowPageOne = false;
-  getCenterInfoDisplayOption = null;
+  getCenterInfoDisplayOption: null | (() => ReactNode) = null;
   constructor(
     public type:
       | MenuStateType.InventoryItems
@@ -55,7 +55,8 @@ export abstract class ItemsMenuState implements ActionMenuState {
       | MenuStateType.CraftingItemSelection
       | MenuStateType.PurchasingItems
       | MenuStateType.RepairItemSelection
-      | MenuStateType.ShardItemSelection,
+      | MenuStateType.ShardItemSelection
+      | MenuStateType.SelectItemToTradeForBook,
     private closeMenuTextAndHotkeys: { text: string; hotkeys: string[] },
     private itemButtonClickHandler: (item: Item) => void,
     private getItemsToShow: () => Item[],
@@ -63,6 +64,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
       getItemButtonCustomChildren?: (item: Item) => ReactNode;
       extraButtons?: Partial<Record<ActionButtonCategory, ActionMenuButtonProperties[]>>;
       shouldBeDisabled?: (item: Item) => boolean;
+      getCenterInfoDisplayOption?: () => ReactNode;
     }
   ) {}
   getButtonProperties(): ActionButtonsByCategory {

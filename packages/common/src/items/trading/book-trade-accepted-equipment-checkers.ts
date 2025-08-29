@@ -9,7 +9,7 @@ export const BOOK_TRADE_ACCEPTED_EQUIPMENT_CHECKERS: Record<
 > = {
   [ConsumableType.WarriorSkillbook]: (equipment) => {
     const { equipmentType } = equipment.equipmentBaseItemProperties;
-    if (equipmentType !== EquipmentType.TwoHandedRangedWeapon) return false;
+    if (equipmentType !== EquipmentType.OneHandedMeleeWeapon) return false;
 
     if (Equipment.hasAffixWithAttributes(equipment, [CombatAttribute.Strength])) return true;
 
