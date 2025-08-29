@@ -1,3 +1,4 @@
+export * from "./combatant-is-allowed-to-trade-for-books.js";
 import { CombatantEquipment, CombatantProperties } from "../../combatants/index.js";
 import { BookConsumableType } from "../consumables/index.js";
 import { Equipment } from "../equipment/index.js";
@@ -5,9 +6,8 @@ import { BOOK_TRADE_ACCEPTED_EQUIPMENT_CHECKERS } from "./book-trade-accepted-eq
 
 export function getOwnedAcceptedItemsForBookTrade(
   combatantProperties: CombatantProperties,
-  bookType: BookConsumableType,
-  vendingMachineLevel: number
-): { equipment: Equipment; bookLevel: number }[] {
+  bookType: BookConsumableType
+): Equipment[] {
   const toReturn = [];
   // look at all broken items equipped and in inventory
   const equipmentInInventory = CombatantProperties.getOwnedEquipment(combatantProperties);
@@ -25,9 +25,14 @@ export function getOwnedAcceptedItemsForBookTrade(
     const equipmentAcceptedChecker = BOOK_TRADE_ACCEPTED_EQUIPMENT_CHECKERS[bookType];
     const isAccepted = equipmentAcceptedChecker(equipment);
     if (!isAccepted) continue;
-    const bookLevel = Math.min(vendingMachineLevel, equipment.itemLevel);
-    toReturn.push({ equipment, bookLevel });
+    toReturn.push(equipment);
   }
 
   return toReturn;
+}
+
+export function getBookLevelForTrade(levelOfItemTrading: number, vendingMachineLevel: number) {
+  const vmLevelLimiter = Math.floor(vendingMachineLevel / 2);
+  const bookLevel = Math.min(levelOfItemTrading, vmLevelLimiter);
+  return bookLevel;
 }

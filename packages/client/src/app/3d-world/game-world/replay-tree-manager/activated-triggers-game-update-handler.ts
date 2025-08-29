@@ -42,11 +42,9 @@ export async function activatedTriggersGameUpdateHandler(update: {
       for (const [entityId, combatantClass] of Object.entries(command.supportClassLevelsGained)) {
         const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
         if (combatantResult instanceof Error) return combatantResult;
-        CombatantProperties.changeSupportClassLevel(
-          combatantResult.combatantProperties,
-          combatantClass,
-          1
-        );
+        const { combatantProperties } = combatantResult;
+        CombatantProperties.changeSupportClassLevel(combatantProperties, combatantClass, 1);
+
         console.log(entityId, "gained a level of", COMBATANT_CLASS_NAME_STRINGS[combatantClass]);
       }
     }

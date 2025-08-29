@@ -103,7 +103,7 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
     const vendingMachineLevel = partyResult.currentFloor;
     const vmLevelLimiter = Math.floor(vendingMachineLevel / 2);
 
-    // selectBooksButton.shouldBeDisabled = vmLevelLimiter < 1;
+    selectBooksButton.shouldBeDisabled = vmLevelLimiter < 1;
 
     toReturn[ActionButtonCategory.Numbered].push(purchaseItemsButton);
     toReturn[ActionButtonCategory.Numbered].push(craftButton);

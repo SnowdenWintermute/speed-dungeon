@@ -210,6 +210,17 @@ export class CombatantProperties {
     return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 
+  static removeOwnedItem(combatantProperties: CombatantProperties, itemId: EntityId) {
+    let removedItemResult = Inventory.removeItem(combatantProperties.inventory, itemId);
+
+    if (removedItemResult instanceof Error) {
+      applyEquipmentEffectWhileMaintainingResourcePercentages(combatantProperties, () => {
+        removedItemResult = CombatantEquipment.removeItem(combatantProperties, itemId);
+      });
+    }
+    return removedItemResult;
+  }
+
   static changeHitPoints = changeCombatantHitPoints;
   static changeMana = changeCombatantMana;
   static changeActionPoints(combatantProperties: CombatantProperties, value: number) {
@@ -382,6 +393,8 @@ export class CombatantProperties {
       } else {
         combatantProperties.supportClassProperties = { combatantClass: supportClass, level: value };
       }
+
+      combatantProperties.abilityProperties.unspentAbilityPoints += 1;
     });
   }
 }

@@ -1,4 +1,4 @@
-import { MenuStateType } from ".";
+import { ActionButtonCategory, MenuStateType } from ".";
 import { immerable } from "immer";
 import { ItemsMenuState } from "./items";
 import {
@@ -12,12 +12,13 @@ import { setAlert } from "@/app/components/alerts";
 import { ReactNode } from "react";
 import { ConfirmTradeForBookMenuState } from "./confirm-trade-for-book";
 import selectItem from "@/utils/selectItem";
+import { setInventoryOpen } from "./common-buttons/open-inventory";
 
 export class SelectItemToTradeForBookMenuState extends ItemsMenuState {
   [immerable] = true;
   page = 1;
   numPages = 1;
-  acceptedItems: { equipment: Item; bookLevel: number }[] = [];
+  acceptedItems: Item[] = [];
   constructor(public bookType: BookConsumableType) {
     super(
       MenuStateType.SelectItemToTradeForBook,
@@ -28,10 +29,8 @@ export class SelectItemToTradeForBookMenuState extends ItemsMenuState {
           state.stackedMenuStates.push(new ConfirmTradeForBookMenuState(item, this.bookType));
         });
       },
-      () => {
-        return Object.values(this.acceptedItems).map((item) => item.equipment);
-      },
-      {}
+      () => Object.values(this.acceptedItems),
+      { extraButtons: { [ActionButtonCategory.Top]: [setInventoryOpen] } }
     );
 
     const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
@@ -42,12 +41,7 @@ export class SelectItemToTradeForBookMenuState extends ItemsMenuState {
       setAlert(partyResult);
       return;
     }
-    const vendingMachineLevel = partyResult.currentFloor;
-    this.acceptedItems = getOwnedAcceptedItemsForBookTrade(
-      combatantProperties,
-      this.bookType,
-      vendingMachineLevel
-    );
+    this.acceptedItems = getOwnedAcceptedItemsForBookTrade(combatantProperties, this.bookType);
 
     if (this.acceptedItems.length < 1)
       this.getCenterInfoDisplayOption = () => {

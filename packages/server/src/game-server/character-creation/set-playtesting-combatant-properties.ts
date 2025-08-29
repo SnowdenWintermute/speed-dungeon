@@ -7,8 +7,8 @@ import {
 
 export function setPlaytestingCombatantProperties(combatantProperties: CombatantProperties) {
   combatantProperties.level = 4;
-  combatantProperties.unspentAttributePoints = 3;
-  combatantProperties.abilityProperties.unspentAbilityPoints = 3;
+  // combatantProperties.unspentAttributePoints = 3;
+  // combatantProperties.abilityProperties.unspentAbilityPoints = 3;
 
   // combatantProperties.supportClassProperties = { combatantClass: CombatantClass.Rogue, level: 1 };
 

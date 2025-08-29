@@ -31,6 +31,7 @@ import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { characterSelectedActionLevelHandler } from "./character-selected-action-level-handler";
 import { characterAllocatedAbilityPointHandler } from "./character-allocated-ability-point-handler";
+import { characterTradedItemForBookHandler } from "./character-traded-item-for-book-handler";
 
 export default function setUpGameEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
@@ -106,4 +107,5 @@ export default function setUpGameEventHandlers(
     ServerToClientEvent.CharacterAllocatedAbilityPoint,
     characterAllocatedAbilityPointHandler
   );
+  socket.on(ServerToClientEvent.CharacterTradedItemForBook, characterTradedItemForBookHandler);
 }

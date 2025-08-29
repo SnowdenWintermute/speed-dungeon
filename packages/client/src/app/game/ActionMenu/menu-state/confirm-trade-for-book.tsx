@@ -13,6 +13,7 @@ import {
   EntityId,
   INFO_UNICODE_SYMBOL,
   Item,
+  getBookLevelForTrade,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -22,6 +23,7 @@ import { createCancelButton } from "./common-buttons/cancel";
 import Divider from "@/app/components/atoms/Divider";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { setInventoryOpen } from "./common-buttons/open-inventory";
 
 const confirmHotkey = HOTKEYS.MAIN_1;
 const confirmLetter = letterFromKeyCode(confirmHotkey);
@@ -34,6 +36,8 @@ function handleConfirmTrade(characterId: EntityId, itemId: EntityId, bookType: B
     bookType,
   });
   useGameStore.getState().mutateState((state) => {
+    state.stackedMenuStates.pop();
+    // need to pop twice so we're not showing the item consideration screen of this item that may no longer exist
     state.stackedMenuStates.pop();
     state.comparedItem = null;
     state.detailedEntity = null;
@@ -60,8 +64,7 @@ export class ConfirmTradeForBookMenuState implements ActionMenuState {
       return;
     }
     const vendingMachineLevel = partyResult.currentFloor;
-    const vmLevelLimiter = Math.floor(vendingMachineLevel / 2);
-    const bookLevel = Math.min(this.item.itemLevel, vmLevelLimiter);
+    const bookLevel = getBookLevelForTrade(this.item.itemLevel, vendingMachineLevel);
 
     return (
       <div className="h-fit bg-slate-700 p-2 border border-slate-400 flex flex-col items-center pointer-events-auto">
@@ -70,7 +73,7 @@ export class ConfirmTradeForBookMenuState implements ActionMenuState {
         <p className="mb-1">
           {INFO_UNICODE_SYMBOL} You will recieve a skill book of item level equal to the lower value
           between the item's level ({this.item.itemLevel}) and HALF your current floor level (
-          {vmLevelLimiter}).{" "}
+          {vendingMachineLevel / 2}).{" "}
         </p>
         <Divider />
         <div className="text-lg bg-slate-700 mb-1 flex justify-center">

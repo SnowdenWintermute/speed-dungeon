@@ -81,10 +81,7 @@ export default function CharacterAttributes({
       {!hideHeader && (
         <div>
           <div className="font-bold flex justify-between items-center">
-            <span>
-              {entityProperties.name}
-              {` (${COMBATANT_CLASS_NAME_STRINGS[combatantProperties.combatantClass]}${supportClassProperties ? `/${COMBATANT_CLASS_NAME_STRINGS[supportClassProperties.combatantClass]}` : ""})`}
-            </span>
+            <span>{entityProperties.name}</span>
             <span className="h-10 w-10 flex justify-center rotate-45">
               {getCombatantClassIcon(
                 combatantProperties.combatantClass,
@@ -97,7 +94,10 @@ export default function CharacterAttributes({
             <span>
               {"Level "}
               {combatantProperties.level}
-              {supportClassProperties ? `/${supportClassProperties.level}` : ""}
+              {` ${COMBATANT_CLASS_NAME_STRINGS[combatantProperties.combatantClass]}`}
+              {supportClassProperties
+                ? ` / ${supportClassProperties.level} ${COMBATANT_CLASS_NAME_STRINGS[supportClassProperties.combatantClass]}`
+                : ""}
             </span>
             <span>{experiencePointsText}</span>
           </div>
