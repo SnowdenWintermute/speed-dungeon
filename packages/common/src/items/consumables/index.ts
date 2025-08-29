@@ -42,6 +42,15 @@ export const CONSUMABLE_TYPE_STRINGS: Record<ConsumableType, string> = {
   [ConsumableType.MageSkillbook]: "Arcane Tome",
 };
 
+export function getSkillBookName(consumableType: ConsumableType, itemLevel: number) {
+  let bookVolumeName = "";
+  if (Consumable.isSkillBook(consumableType)) {
+    bookVolumeName = `, Volume ${itemLevel}`;
+  }
+
+  return CONSUMABLE_TYPE_STRINGS[consumableType] + bookVolumeName;
+}
+
 export const CONSUMABLE_DESCRIPTIONS: Record<ConsumableType, string> = {
   [ConsumableType.HpAutoinjector]: "Restores hit points",
   [ConsumableType.MpAutoinjector]: "Restores mana",

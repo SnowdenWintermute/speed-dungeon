@@ -95,6 +95,16 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
       }
     );
 
+    const partyResult = useGameStore.getState().getParty();
+    if (partyResult instanceof Error) {
+      setAlert(partyResult);
+      return toReturn;
+    }
+    const vendingMachineLevel = partyResult.currentFloor;
+    const vmLevelLimiter = Math.floor(vendingMachineLevel / 2);
+
+    // selectBooksButton.shouldBeDisabled = vmLevelLimiter < 1;
+
     toReturn[ActionButtonCategory.Numbered].push(purchaseItemsButton);
     toReturn[ActionButtonCategory.Numbered].push(craftButton);
     toReturn[ActionButtonCategory.Numbered].push(repairButton);

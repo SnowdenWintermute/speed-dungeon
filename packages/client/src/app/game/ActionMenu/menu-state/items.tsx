@@ -17,6 +17,7 @@ import {
   EquipmentBaseItem,
   EquipmentType,
   Item,
+  getSkillBookName,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { setAlert } from "@/app/components/alerts";
@@ -123,13 +124,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
         const firstConsumableOfThisType = consumableStack[0];
         if (!firstConsumableOfThisType) continue;
 
-        let bookVolumeName = "";
-        if (Consumable.isSkillBook(consumableType)) {
-          bookVolumeName = `, Volume ${itemLevel}`;
-        }
-
-        let consumableName =
-          buttonTextPrefix + CONSUMABLE_TYPE_STRINGS[consumableType] + bookVolumeName;
+        let consumableName = buttonTextPrefix + getSkillBookName(consumableType, itemLevel);
         if (consumableStack.length > 1) consumableName += ` (${consumableStack.length})`;
 
         const thumbnailId = CONSUMABLE_TYPE_STRINGS[consumableType];

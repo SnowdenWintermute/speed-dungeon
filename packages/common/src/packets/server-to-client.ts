@@ -68,6 +68,7 @@ export enum ServerToClientEvent {
   // ActionResultReplayTree = "46",
   CharacterSelectedCombatActionLevel = "47",
   CharacterAllocatedAbilityPoint = "48",
+  CharacterTradedItemForBook = "49",
 }
 
 export interface ServerToClientEventTypes {
@@ -192,6 +193,11 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.CharacterAllocatedAbilityPoint]: (eventData: {
     characterId: EntityId;
     ability: AbilityTreeAbility;
+  }) => void;
+  [ServerToClientEvent.CharacterTradedItemForBook]: (eventData: {
+    characterId: EntityId;
+    itemIdTraded: EntityId;
+    book: Consumable;
   }) => void;
 }
 

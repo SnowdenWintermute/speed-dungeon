@@ -163,7 +163,7 @@ export default function ItemDetails({
       }}
     >
       {isDetailedEntity && !preppedForDownloadPhoto && (
-        <div className="absolute -right-1 -top-1 flex flex-col">
+        <div className="absolute z-20 -right-1 -top-1 flex flex-col">
           <HotkeyButton
             className="z-10 h-6 w-6 p-1 border border-slate-400 bg-slate-700"
             hotkeys={[HOTKEYS.CANCEL]}

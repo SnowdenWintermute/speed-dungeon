@@ -7,12 +7,11 @@ import {
   Item,
   getOwnedAcceptedItemsForBookTrade,
 } from "@speed-dungeon/common";
-import selectItem from "@/utils/selectItem";
-import { ConsideringItemMenuState } from "./considering-item";
 import { useGameStore } from "@/stores/game-store";
 import { setAlert } from "@/app/components/alerts";
 import { ReactNode } from "react";
-import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { ConfirmTradeForBookMenuState } from "./confirm-trade-for-book";
+import selectItem from "@/utils/selectItem";
 
 export class SelectItemToTradeForBookMenuState extends ItemsMenuState {
   [immerable] = true;
@@ -26,7 +25,7 @@ export class SelectItemToTradeForBookMenuState extends ItemsMenuState {
       (item: Item) => {
         selectItem(item);
         useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.push(new ConsideringItemMenuState(item));
+          state.stackedMenuStates.push(new ConfirmTradeForBookMenuState(item, this.bookType));
         });
       },
       () => {
@@ -60,7 +59,7 @@ export class SelectItemToTradeForBookMenuState extends ItemsMenuState {
             </p>
             <p>
               {" "}
-              Items must be <span className={"font-bold"}>completely broken</span> trade for books.
+              Items must be <span className={"font-bold"}>completely broken</span>.
             </p>
           </div>
         );
