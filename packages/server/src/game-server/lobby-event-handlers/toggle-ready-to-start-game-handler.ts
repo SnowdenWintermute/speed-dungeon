@@ -1,9 +1,9 @@
 import {
+  ArrayUtils,
   ERROR_MESSAGES,
   GAME_CONFIG,
   GameMode,
   ServerToClientEvent,
-  removeFromArray,
 } from "@speed-dungeon/common";
 import { toggleReadyToExploreHandler } from "../game-event-handlers/toggle-ready-to-explore-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
@@ -36,7 +36,8 @@ export async function toggleReadyToStartGameHandler(
     // party.currentFloor = 10; // testing
   }
 
-  if (game.playersReadied.includes(username)) removeFromArray(game.playersReadied, username);
+  if (game.playersReadied.includes(username))
+    ArrayUtils.removeElement(game.playersReadied, username);
   else game.playersReadied.push(username);
 
   let allPlayersReadied = true;

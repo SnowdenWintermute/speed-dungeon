@@ -1,6 +1,7 @@
 import {
   AffixType,
   Affixes,
+  ArrayUtils,
   BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL,
   CHANCE_TO_HAVE_DOUBLE_AFFIX,
   CHANCE_TO_HAVE_PREFIX,
@@ -18,10 +19,8 @@ import {
   SuffixType,
   TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER,
   TaggedAffixType,
-  chooseRandomFromArray,
   equipmentIsTwoHandedWeapon,
   randBetween,
-  shuffleArray,
 } from "@speed-dungeon/common";
 import { EquipmentGenerationTemplate } from "./equipment-templates/equipment-generation-template-abstract-classes.js";
 import { getEquipmentGenerationTemplate } from "./equipment-templates/index.js";
@@ -55,7 +54,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
       }
     }
 
-    const baseEquipmentItem = chooseRandomFromArray(availableTypesOnThisLevel, rngSingleton);
+    const baseEquipmentItem = ArrayUtils.chooseRandom(availableTypesOnThisLevel, rngSingleton);
     if (baseEquipmentItem instanceof Error) return baseEquipmentItem;
 
     const toReturn: TaggedBaseItem = {
@@ -203,7 +202,7 @@ export function getRandomValidPrefixTypes(
   const possiblePrefixes = Object.keys(template.possibleAffixes.prefix).map(
     (item) => parseInt(item) as PrefixType
   );
-  const shuffledPrefixes = shuffleArray(possiblePrefixes);
+  const shuffledPrefixes = ArrayUtils.shuffle(possiblePrefixes);
   for (let i = 0; i < numToCreate; i += 1) {
     const randomPrefixOption = shuffledPrefixes.pop();
     if (randomPrefixOption !== undefined) toReturn.push(randomPrefixOption);
@@ -219,7 +218,7 @@ export function getRandomValidSuffixTypes(
   const possibleSuffixes = Object.keys(template.possibleAffixes.suffix).map(
     (item) => parseInt(item) as SuffixType
   );
-  const shuffledSuffixes = shuffleArray(possibleSuffixes);
+  const shuffledSuffixes = ArrayUtils.shuffle(possibleSuffixes);
   for (let i = 0; i < numToCreate; i += 1) {
     const randomSuffixOption = shuffledSuffixes.pop();
     if (randomSuffixOption !== undefined) toReturn.push(randomSuffixOption);

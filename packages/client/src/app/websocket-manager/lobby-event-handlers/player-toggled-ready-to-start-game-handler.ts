@@ -1,5 +1,5 @@
 import { setAlert } from "../../components/alerts";
-import { ERROR_MESSAGES, removeFromArray } from "@speed-dungeon/common";
+import { ArrayUtils, ERROR_MESSAGES } from "@speed-dungeon/common";
 import { useGameStore } from "@/stores/game-store";
 
 export default function playerToggledReadyToStartGameHandler(username: string) {
@@ -7,7 +7,8 @@ export default function playerToggledReadyToStartGameHandler(username: string) {
     const { game } = gameState;
     if (!game) return setAlert(new Error(ERROR_MESSAGES.GAME_DOESNT_EXIST));
 
-    if (game.playersReadied.includes(username)) removeFromArray(game.playersReadied, username);
+    if (game.playersReadied.includes(username))
+      ArrayUtils.removeElement(game.playersReadied, username);
     else game.playersReadied.push(username);
   });
 }

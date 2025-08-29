@@ -1,6 +1,6 @@
-import { AbilityTreeAbility } from "../../abilities/index.js";
 import { Percentage } from "../../primatives/index.js";
-import { createArrayFilledWithSequentialNumbers } from "../../utils/index.js";
+import { ArrayUtils } from "../../utils/array-utils.js";
+import { AbilityTreeAbility } from "../../abilities/index.js";
 
 export * from "./combatant-trait-properties.js";
 export * from "./get-combatant-total-elemental-affinities.js";
@@ -53,7 +53,7 @@ export const COMBATANT_TRAIT_DESCRIPTIONS: Record<CombatantTraitType, CombatantT
     isAllocatable: false,
     summary: "Increases effectiveness of green autoinjectors",
     createDescriptionsByLevel: (self) => {
-      const toReturn = createArrayFilledWithSequentialNumbers(self.maxLevel, 1).map(
+      const toReturn = ArrayUtils.createFilledWithSequentialNumbers(self.maxLevel, 1).map(
         (level) =>
           `Effectiveness increased by ${BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL * level}%`
       );
@@ -66,7 +66,7 @@ export const COMBATANT_TRAIT_DESCRIPTIONS: Record<CombatantTraitType, CombatantT
     isAllocatable: false,
     summary: "Increases effectiveness of blue autoinjectors",
     createDescriptionsByLevel: (self) => {
-      const toReturn = createArrayFilledWithSequentialNumbers(self.maxLevel, 1).map(
+      const toReturn = ArrayUtils.createFilledWithSequentialNumbers(self.maxLevel, 1).map(
         (level) =>
           `Effectiveness increased by ${BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL * level}%`
       );

@@ -1,4 +1,4 @@
-import { shuffleArray } from "../../utils/index.js";
+import { ArrayUtils } from "../../utils/index.js";
 
 export enum BehaviorNodeState {
   Failure,
@@ -104,7 +104,7 @@ export class RandomizerNode<T> implements BehaviorNode {
   execute(): BehaviorNodeState {
     const arrayOption = this.arrayOptionGetter();
     if (arrayOption === undefined) return BehaviorNodeState.Failure;
-    shuffleArray(arrayOption);
+    ArrayUtils.shuffle(arrayOption);
     return BehaviorNodeState.Success;
   }
 }

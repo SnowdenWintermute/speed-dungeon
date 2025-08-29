@@ -1,4 +1,5 @@
 import {
+  ArrayUtils,
   BodyArmor,
   EquipmentType,
   HeadGear,
@@ -9,7 +10,6 @@ import {
   Shield,
   TwoHandedMeleeWeapon,
   WearableSlotType,
-  chooseRandomFromArray,
   generatePreDeterminedItem,
 } from "@speed-dungeon/common";
 import { idGenerator, rngSingleton } from "../../singletons/index.js";
@@ -79,7 +79,7 @@ export function getMonsterEquipment(monsterType: MonsterType): CombatantEquipmen
         TwoHandedMeleeWeapon.ElementalStaff,
         TwoHandedMeleeWeapon.BoStaff,
       ];
-      let staffType = chooseRandomFromArray(staffOptions, rngSingleton);
+      let staffType = ArrayUtils.chooseRandom(staffOptions, rngSingleton);
       if (staffType instanceof Error) staffType = TwoHandedMeleeWeapon.BoStaff;
 
       const mhResult = generateSpecificEquipmentType({
@@ -109,9 +109,9 @@ export function getMonsterEquipment(monsterType: MonsterType): CombatantEquipmen
         OneHandedMeleeWeapon.MapleWand,
       ];
       const shieldOptions = [Shield.Buckler, Shield.CabinetDoor, Shield.PotLid];
-      let wandType = chooseRandomFromArray(wandOptions, rngSingleton);
+      let wandType = ArrayUtils.chooseRandom(wandOptions, rngSingleton);
       if (wandType instanceof Error) wandType = OneHandedMeleeWeapon.IceBlade;
-      let shieldType = chooseRandomFromArray(shieldOptions, rngSingleton);
+      let shieldType = ArrayUtils.chooseRandom(shieldOptions, rngSingleton);
       if (shieldType instanceof Error) shieldType = Shield.TowerShield;
       const wandResult = generateSpecificEquipmentType({
         equipmentType: EquipmentType.OneHandedMeleeWeapon,

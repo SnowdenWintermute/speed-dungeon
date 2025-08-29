@@ -1,6 +1,7 @@
 import {
   ActionAccuracyType,
   ActionPayableResource,
+  ArrayUtils,
   COMBATANT_CONDITION_CONSTRUCTORS,
   COMBAT_ACTIONS,
   ClientToServerEvent,
@@ -14,7 +15,6 @@ import {
   HitOutcomeMitigationCalculator,
   MaxAndCurrent,
   TargetingCalculator,
-  createArrayFilledWithSequentialNumbers,
   getUnmetCostResourceTypes,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
@@ -98,7 +98,7 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
         />
       )}
       <ul className="list-none">
-        {createArrayFilledWithSequentialNumbers(actionState.level, 1).map((rank) => {
+        {ArrayUtils.createFilledWithSequentialNumbers(actionState.level, 1).map((rank) => {
           const percentChanceToHit = HitOutcomeMitigationCalculator.getActionHitChance(
             action,
             combatantProperties,

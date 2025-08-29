@@ -1,8 +1,8 @@
 import {
+  ArrayUtils,
   ServerToClientEvent,
   UserAuthStatus,
   UserChannelDisplayData,
-  removeFromArray,
 } from "@speed-dungeon/common";
 import { Channel, GameServer } from "./index.js";
 
@@ -18,7 +18,7 @@ export default function joinSocketToChannel(
   if (!socket || !session) return;
 
   socket.join(newChannelName);
-  removeFromArray(session.channels, newChannelName);
+  ArrayUtils.removeElement(session.channels, newChannelName);
   session.channels.push(newChannelName);
 
   if (this.channels[newChannelName] === undefined) this.channels[newChannelName] = new Channel();

@@ -13,7 +13,6 @@ import {
   CombatActionTargetType,
 } from "../../../targeting/combat-action-targets.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
-import { chooseRandomFromArray } from "../../../../utils/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { ActionTracker } from "../../../../action-processing/action-tracker.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
@@ -42,6 +41,7 @@ import {
 } from "../../../../scene-entities/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { BasicRandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
+import { ArrayUtils } from "../../../../utils/array-utils.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
@@ -59,7 +59,7 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
     if (possibleTargetIds.length === 0)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
 
-    const randomTargetIdResult = chooseRandomFromArray(
+    const randomTargetIdResult = ArrayUtils.chooseRandom(
       possibleTargetIds,
       new BasicRandomNumberGenerator()
     );

@@ -12,8 +12,8 @@ import {
   setInventoryAsFreshStack,
   setViewingAbilityTreeHotkey,
 } from "./common-buttons/open-inventory";
-import { createArrayFilledWithSequentialNumbers } from "@speed-dungeon/common";
 import { ConsideringAbilityTreeColumnMenuState } from "./considering-tree-ability-column";
+import { ArrayUtils } from "@speed-dungeon/common";
 
 export class AbilityTreeMenuState implements ActionMenuState {
   [immerable] = true;
@@ -34,7 +34,7 @@ export class AbilityTreeMenuState implements ActionMenuState {
     );
     toReturn[ActionButtonCategory.Top].push(setInventoryAsFreshStack);
 
-    for (const number of createArrayFilledWithSequentialNumbers(5, 1)) {
+    for (const number of ArrayUtils.createFilledWithSequentialNumbers(5, 1)) {
       const nameAsString = `Column ${number}`;
       const button = new ActionMenuButtonProperties(
         () => (
