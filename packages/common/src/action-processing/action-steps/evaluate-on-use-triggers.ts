@@ -3,7 +3,11 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
+import {
+  COMBAT_ACTIONS,
+  CombatActionExecutionIntent,
+  CombatActionName,
+} from "../../combat/index.js";
 import {
   ActivatedTriggersGameUpdateCommand,
   GameUpdateCommandType,
@@ -13,6 +17,7 @@ import { DurabilityLossCondition } from "../../combat/combat-actions/combat-acti
 import { DurabilityChangesByEntityId } from "../../durability/index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { addRemovedConditionStacksToUpdate } from "./hit-outcome-triggers/add-triggered-condition-to-update.js";
+import { onSkillBookRead } from "../../combat/combat-actions/action-implementations/consumables/read-skill-book.js";
 
 const stepType = ActionResolutionStepType.EvalOnUseTriggers;
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
@@ -29,7 +34,32 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     const { tracker, combatantContext } = context;
     const { game, party, combatant } = combatantContext;
 
-    const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
+    const { actionName } = tracker.actionExecutionIntent;
+    const action = COMBAT_ACTIONS[actionName];
+
+    // skill books are unique at the time of this writing ( 8/27/2025 )
+    // as no other action changes class levels so we'll handle them here
+    // see the action.costProperties.getMeetsCustomRequirements of the
+    // skill book action for validation
+    if (actionName === CombatActionName.ReadSkillBook) {
+      const bookOption = context.tracker.consumableUsed;
+      if (bookOption === null) {
+        console.error("expected to have paid a book as consumable cost for this action");
+      } else {
+        const supportClassLevelsGainedResult = onSkillBookRead(
+          combatant.combatantProperties,
+          bookOption
+        );
+        if (supportClassLevelsGainedResult instanceof Error)
+          console.error(supportClassLevelsGainedResult);
+        else {
+          gameUpdateCommand.supportClassLevelsGained = {
+            [combatant.entityProperties.id]:
+              supportClassLevelsGainedResult.supportClassLevelIncreased,
+          };
+        }
+      }
+    }
 
     const durabilityChanges = new DurabilityChangesByEntityId();
     durabilityChanges.updateConditionalChangesOnUser(

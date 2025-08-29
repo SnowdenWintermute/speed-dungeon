@@ -21,6 +21,7 @@ import { incrementAttributePoint } from "./attributes/increment-attribute.js";
 import { MonsterType } from "../monsters/monster-types.js";
 import {
   CombatantEquipment,
+  applyEquipmentEffectWhileMaintainingResourcePercentages,
   equipItem,
   getEquippedWeapon,
   getSlotItemIsEquippedTo,
@@ -134,6 +135,7 @@ export class CombatantProperties {
   combatActionTarget: null | CombatActionTarget = null;
   selectedTargetingScheme: null | TargetingScheme = null;
   selectedActionLevel: null | number = null;
+  selectedItemId: null | string = null;
   // THREAT
   threatManager?: ThreatManager;
 
@@ -206,6 +208,17 @@ export class CombatantProperties {
       if (item.entityProperties.id === itemId) return item;
     }
     return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
+  }
+
+  static removeOwnedItem(combatantProperties: CombatantProperties, itemId: EntityId) {
+    let removedItemResult = Inventory.removeItem(combatantProperties.inventory, itemId);
+
+    if (removedItemResult instanceof Error) {
+      applyEquipmentEffectWhileMaintainingResourcePercentages(combatantProperties, () => {
+        removedItemResult = CombatantEquipment.removeItem(combatantProperties, itemId);
+      });
+    }
+    return removedItemResult;
   }
 
   static changeHitPoints = changeCombatantHitPoints;
@@ -317,10 +330,11 @@ export class CombatantProperties {
     actionName: CombatActionName
   ) {
     const action = COMBAT_ACTIONS[actionName];
-    const consumableCost = action.costProperties.getConsumableCost();
+    const consumableCost = action.costProperties.getConsumableCost(combatantProperties);
     if (consumableCost !== null) {
       const { inventory } = combatantProperties;
-      const consumableOption = Inventory.getConsumableByType(inventory, consumableCost);
+      const { type, level } = consumableCost;
+      const consumableOption = Inventory.getConsumableByTypeAndLevel(inventory, type, level);
       if (consumableOption === undefined) return false;
     }
     return true;
@@ -364,6 +378,24 @@ export class CombatantProperties {
       if (getRequiredEquipmentTypeOptions(actionLevel).includes(equipmentType)) return true;
     }
     return false;
+  }
+
+  static changeSupportClassLevel(
+    combatantProperties: CombatantProperties,
+    supportClass: CombatantClass,
+    value: number
+  ) {
+    applyEquipmentEffectWhileMaintainingResourcePercentages(combatantProperties, () => {
+      const { supportClassProperties } = combatantProperties;
+
+      if (supportClassProperties !== null) {
+        supportClassProperties.level += value;
+      } else {
+        combatantProperties.supportClassProperties = { combatantClass: supportClass, level: value };
+      }
+
+      combatantProperties.abilityProperties.unspentAbilityPoints += 1;
+    });
   }
 }
 

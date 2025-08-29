@@ -5,6 +5,7 @@ import {
   CombatActionHitOutcomes,
 } from "../combat/index.js";
 import { HitOutcome } from "../hit-outcome.js";
+import { Consumable } from "../items/consumables/index.js";
 import { Milliseconds } from "../primatives/index.js";
 import { SpawnableEntity, SpawnableEntityType } from "../spawnables/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
@@ -21,6 +22,7 @@ export class ActionTracker {
   // initiatedByTriggeredCondition: null | CombatantCondition = null;
   hitOutcomes = new CombatActionHitOutcomes();
   meleeAttackAnimationType: MeleeAttackAnimationType | null = null;
+  consumableUsed: null | Consumable = null;
   public wasAborted = false;
 
   constructor(

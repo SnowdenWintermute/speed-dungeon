@@ -14,7 +14,7 @@ import {
   ServerToClientEventTypes,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { getGameServer } from "../../singletons.js";
+import { getGameServer } from "../../singletons/index.js";
 import { changeSelectedHotswapSlot } from "@speed-dungeon/common";
 import { executeActionAndSendReplayResult } from "./character-uses-selected-combat-action-handler/index.js";
 

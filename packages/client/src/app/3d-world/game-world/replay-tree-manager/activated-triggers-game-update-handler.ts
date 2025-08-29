@@ -3,6 +3,7 @@ import {
   ActionPayableResource,
   ActivatedTriggersGameUpdateCommand,
   AdventuringParty,
+  COMBATANT_CLASS_NAME_STRINGS,
   COMBATANT_CONDITION_CONSTRUCTORS,
   COMBAT_ACTIONS,
   CombatantCondition,
@@ -36,6 +37,17 @@ export async function activatedTriggersGameUpdateHandler(update: {
   useGameStore.getState().mutateState((gameState) => {
     const game = gameState.game;
     if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+
+    if (command.supportClassLevelsGained) {
+      for (const [entityId, combatantClass] of Object.entries(command.supportClassLevelsGained)) {
+        const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
+        if (combatantResult instanceof Error) return combatantResult;
+        const { combatantProperties } = combatantResult;
+        CombatantProperties.changeSupportClassLevel(combatantProperties, combatantClass, 1);
+
+        console.log(entityId, "gained a level of", COMBATANT_CLASS_NAME_STRINGS[combatantClass]);
+      }
+    }
 
     if (command.durabilityChanges) {
       gameState.rerenderForcer += 1; // for some reason it delays updating the durability indicators on bow use without this

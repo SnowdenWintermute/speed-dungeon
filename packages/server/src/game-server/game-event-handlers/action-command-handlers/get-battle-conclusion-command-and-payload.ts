@@ -10,7 +10,7 @@ import {
   InputLock,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
-import { getGameServer } from "../../../singletons.js";
+import { getGameServer } from "../../../singletons/index.js";
 
 export async function getBattleConclusionCommandAndPayload(
   game: SpeedDungeonGame,

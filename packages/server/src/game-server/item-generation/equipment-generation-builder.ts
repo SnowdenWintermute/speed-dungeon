@@ -28,7 +28,7 @@ import { getEquipmentGenerationTemplate } from "./equipment-templates/index.js";
 import { rollAffix, rollAffixTier } from "./roll-affix.js";
 import { ItemNamer } from "./item-names/item-namer.js";
 import { ItemGenerationBuilder, TaggedBaseItem } from "./item-generation-builder.js";
-import { rngSingleton } from "../../singletons.js";
+import { rngSingleton } from "../../singletons/index.js";
 
 export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
   extends ItemNamer

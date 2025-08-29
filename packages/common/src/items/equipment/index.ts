@@ -15,6 +15,7 @@ import { EquipmentType } from "./equipment-types/index.js";
 import { EquipmentTraitType } from "./equipment-traits/index.js";
 import { CombatantAttributeRecord, CombatantProperties } from "../../combatants/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
+import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 
 export * from "./equipment-properties/index.js";
 export * from "./pre-determined-items/index.js";
@@ -110,6 +111,32 @@ export class Equipment extends Item {
   static hasSuffix(equipment: Equipment) {
     return Object.values(equipment.affixes[AffixType.Suffix]).length > 0;
   }
+  static iterateAffixes(equipment: Equipment) {
+    const affixes = [];
+
+    for (const [prefixType, affix] of iterateNumericEnumKeyedRecord(
+      equipment.affixes[AffixType.Prefix]
+    )) {
+      affixes.push(affix);
+    }
+    for (const [suffixType, affix] of iterateNumericEnumKeyedRecord(
+      equipment.affixes[AffixType.Suffix]
+    )) {
+      affixes.push(affix);
+    }
+
+    return affixes;
+  }
+
+  /** If the equipment has ANY of the passed attributes, returns true */
+  static hasAffixWithAttributes(equipment: Equipment, attributes: CombatAttribute[]) {
+    for (const affix of Equipment.iterateAffixes(equipment)) {
+      for (const [attributeType, value] of iterateNumericEnumKeyedRecord(affix.combatAttributes)) {
+        if (attributes.includes(attributeType)) return true;
+      }
+    }
+  }
+
   static isMagical(equipment: Equipment) {
     return Equipment.hasPrefix(equipment) || Equipment.hasSuffix(equipment);
   }

@@ -8,6 +8,7 @@ import {
 } from ".";
 import {
   ClientToServerEvent,
+  CombatActionName,
   CombatantProperties,
   Consumable,
   Equipment,
@@ -113,15 +114,26 @@ export class ConsideringItemMenuState implements ActionMenuState {
           );
       } else if (this.item instanceof Consumable) {
         const combatActionNameOption = this.item.getActionName();
+
+        const eventData: {
+          characterId: string;
+          combatActionNameOption: null | CombatActionName;
+          combatActionLevel: null | number;
+          itemIdOption?: string;
+        } = {
+          characterId,
+          combatActionNameOption,
+          combatActionLevel: 1,
+        };
+
+        if (Consumable.isSkillBook(this.item.consumableType))
+          eventData.itemIdOption = this.item.entityProperties.id;
+
         return new ActionMenuButtonProperties(
           () => USE_CONSUMABLE_BUTTON_TEXT,
           USE_CONSUMABLE_BUTTON_TEXT,
           () => {
-            websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
-              characterId,
-              combatActionNameOption,
-              combatActionLevel: 1,
-            });
+            websocketConnection.emit(ClientToServerEvent.SelectCombatAction, eventData);
           }
         );
       } else {

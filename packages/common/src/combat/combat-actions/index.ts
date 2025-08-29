@@ -208,6 +208,14 @@ export abstract class CombatActionComponent {
     const { game, party, combatant } = combatantContext;
     const { combatantProperties } = combatant;
 
+    if (this.costProperties.getMeetsCustomRequirements) {
+      const { meetsRequirements, reasonDoesNot } = this.costProperties.getMeetsCustomRequirements(
+        combatant.combatantProperties,
+        actionLevel
+      );
+      if (!meetsRequirements) return new Error(reasonDoesNot);
+    }
+
     const combatActionPropertiesResult = getCombatActionPropertiesIfOwned(
       combatant.combatantProperties,
       this.name,

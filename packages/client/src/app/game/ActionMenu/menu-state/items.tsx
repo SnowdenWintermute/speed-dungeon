@@ -17,6 +17,7 @@ import {
   EquipmentBaseItem,
   EquipmentType,
   Item,
+  getSkillBookName,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { setAlert } from "@/app/components/alerts";
@@ -46,7 +47,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   alwaysShowPageOne = false;
-  getCenterInfoDisplayOption = null;
+  getCenterInfoDisplayOption: null | (() => ReactNode) = null;
   constructor(
     public type:
       | MenuStateType.InventoryItems
@@ -55,7 +56,8 @@ export abstract class ItemsMenuState implements ActionMenuState {
       | MenuStateType.CraftingItemSelection
       | MenuStateType.PurchasingItems
       | MenuStateType.RepairItemSelection
-      | MenuStateType.ShardItemSelection,
+      | MenuStateType.ShardItemSelection
+      | MenuStateType.SelectItemToTradeForBook,
     private closeMenuTextAndHotkeys: { text: string; hotkeys: string[] },
     private itemButtonClickHandler: (item: Item) => void,
     private getItemsToShow: () => Item[],
@@ -63,6 +65,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
       getItemButtonCustomChildren?: (item: Item) => ReactNode;
       extraButtons?: Partial<Record<ActionButtonCategory, ActionMenuButtonProperties[]>>;
       shouldBeDisabled?: (item: Item) => boolean;
+      getCenterInfoDisplayOption?: () => ReactNode;
     }
   ) {}
   getButtonProperties(): ActionButtonsByCategory {
@@ -95,9 +98,6 @@ export abstract class ItemsMenuState implements ActionMenuState {
       return toReturn;
     }
 
-    const equipmentAndShardStacks: Item[] = [];
-    const consumablesByType: Partial<Record<ConsumableType, Consumable[]>> = {};
-
     const buttonTextPrefix = this.type === MenuStateType.ItemsOnGround ? "" : "";
 
     const itemsToShow = this.getItemsToShow();
@@ -112,59 +112,56 @@ export abstract class ItemsMenuState implements ActionMenuState {
       );
     }
 
-    for (const item of itemsToShow) {
-      if (
-        item instanceof Equipment ||
-        (item instanceof Consumable && item.consumableType === ConsumableType.StackOfShards)
-      ) {
-        equipmentAndShardStacks.push(item);
-      } else if (item instanceof Consumable) {
-        const { consumableType } = item;
-        if (!consumablesByType[consumableType]) consumablesByType[consumableType] = [item];
-        else consumablesByType[consumableType]!.push(item);
+    const { equipmentAndShardStacks, consumablesByTypeAndLevel } = sortItemsIntoStacks(itemsToShow);
+
+    for (const [consumableType, consumableStacksByLevel] of iterateNumericEnumKeyedRecord(
+      consumablesByTypeAndLevel
+    )) {
+      const entries = Object.entries(consumableStacksByLevel);
+      for (const [itemLevelString, consumableStack] of entries) {
+        const itemLevel = parseInt(itemLevelString);
+
+        const firstConsumableOfThisType = consumableStack[0];
+        if (!firstConsumableOfThisType) continue;
+
+        let consumableName = buttonTextPrefix + getSkillBookName(consumableType, itemLevel);
+        if (consumableStack.length > 1) consumableName += ` (${consumableStack.length})`;
+
+        const thumbnailId = CONSUMABLE_TYPE_STRINGS[consumableType];
+        const thumbnailOption = useGameStore.getState().itemThumbnails[thumbnailId];
+
+        let containerExtraStyles = CONSUMABLE_TEXT_COLOR;
+
+        const button = new ActionMenuButtonProperties(
+          () => (
+            <ItemButtonBody
+              thumbnailOption={thumbnailOption}
+              gradientOverride={consumableGradientBg}
+              containerExtraStyles={containerExtraStyles}
+              imageExtraStyles="scale-[300%]"
+              imageHoverStyles="-translate-x-[55px]"
+              alternateClickStyle="cursor-alias"
+            >
+              {consumableName}
+              {this.options.getItemButtonCustomChildren &&
+                this.options.getItemButtonCustomChildren(firstConsumableOfThisType)}
+            </ItemButtonBody>
+          ),
+          consumableName,
+          () => {
+            this.itemButtonClickHandler(firstConsumableOfThisType);
+          }
+        );
+        button.mouseEnterHandler = () => itemButtonMouseEnterHandler(firstConsumableOfThisType);
+        button.mouseLeaveHandler = () => itemButtonMouseLeaveHandler();
+        button.focusHandler = () => itemButtonMouseEnterHandler(firstConsumableOfThisType);
+        button.blurHandler = () => itemButtonMouseLeaveHandler();
+        button.alternateClickHandler = () => postItemLink(firstConsumableOfThisType);
+        button.shouldBeDisabled = this.options.shouldBeDisabled
+          ? this.options.shouldBeDisabled(firstConsumableOfThisType)
+          : false;
+        toReturn[ActionButtonCategory.Numbered].push(button);
       }
-    }
-
-    for (const [consumableType, consumables] of iterateNumericEnumKeyedRecord(consumablesByType)) {
-      const firstConsumableOfThisType = consumables[0];
-      if (!firstConsumableOfThisType) continue;
-      let consumableName = buttonTextPrefix + CONSUMABLE_TYPE_STRINGS[consumableType];
-      if (consumables.length > 1) consumableName += ` (${consumables.length})`;
-
-      const thumbnailId = CONSUMABLE_TYPE_STRINGS[consumableType];
-      const thumbnailOption = useGameStore.getState().itemThumbnails[thumbnailId];
-
-      let containerExtraStyles = CONSUMABLE_TEXT_COLOR;
-
-      const button = new ActionMenuButtonProperties(
-        () => (
-          <ItemButtonBody
-            thumbnailOption={thumbnailOption}
-            gradientOverride={consumableGradientBg}
-            containerExtraStyles={containerExtraStyles}
-            imageExtraStyles="scale-[300%]"
-            imageHoverStyles="-translate-x-[55px]"
-            alternateClickStyle="cursor-alias"
-          >
-            {consumableName}
-            {this.options.getItemButtonCustomChildren &&
-              this.options.getItemButtonCustomChildren(firstConsumableOfThisType)}
-          </ItemButtonBody>
-        ),
-        consumableName,
-        () => {
-          this.itemButtonClickHandler(firstConsumableOfThisType);
-        }
-      );
-      button.mouseEnterHandler = () => itemButtonMouseEnterHandler(firstConsumableOfThisType);
-      button.mouseLeaveHandler = () => itemButtonMouseLeaveHandler();
-      button.focusHandler = () => itemButtonMouseEnterHandler(firstConsumableOfThisType);
-      button.blurHandler = () => itemButtonMouseLeaveHandler();
-      button.alternateClickHandler = () => postItemLink(firstConsumableOfThisType);
-      button.shouldBeDisabled = this.options.shouldBeDisabled
-        ? this.options.shouldBeDisabled(firstConsumableOfThisType)
-        : false;
-      toReturn[ActionButtonCategory.Numbered].push(button);
     }
 
     for (const item of equipmentAndShardStacks) {
@@ -325,4 +322,33 @@ export function ItemButtonBody({
       </div>
     </div>
   );
+}
+
+function sortItemsIntoStacks(itemsToShow: Item[]) {
+  const equipmentAndShardStacks: Item[] = [];
+  const consumablesByTypeAndLevel: Partial<Record<ConsumableType, Record<number, Consumable[]>>> =
+    {};
+
+  for (const item of itemsToShow) {
+    const isEquipment = item instanceof Equipment;
+    const isConsumable = item instanceof Consumable;
+    const isShardStack = isConsumable && item.consumableType === ConsumableType.StackOfShards;
+    const shouldNotStack = isEquipment || isShardStack;
+
+    if (shouldNotStack) equipmentAndShardStacks.push(item);
+    else if (isConsumable) {
+      const { consumableType } = item;
+      const existingConsumableTypeLevelStacks = consumablesByTypeAndLevel[consumableType];
+
+      if (!existingConsumableTypeLevelStacks)
+        consumablesByTypeAndLevel[consumableType] = { [item.itemLevel]: [item] };
+      else {
+        const existingLevelStackOption = existingConsumableTypeLevelStacks[item.itemLevel];
+        if (existingLevelStackOption) existingLevelStackOption.push(item);
+        else existingConsumableTypeLevelStacks[item.itemLevel] = [item];
+      }
+    }
+  }
+
+  return { equipmentAndShardStacks, consumablesByTypeAndLevel };
 }

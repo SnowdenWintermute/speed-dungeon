@@ -114,7 +114,7 @@ export default function CharacterClassAbilityTree({
                           ability
                         )}
                         buttonContent={buttonContent}
-                        isAllocatable={isAllocatable.canAllocate}
+                        isAllocatable={isAllocatable}
                         isDetailed={isDetailed}
                       />
                     </div>

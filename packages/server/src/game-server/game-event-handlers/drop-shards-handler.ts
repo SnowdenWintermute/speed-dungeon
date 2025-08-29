@@ -12,7 +12,7 @@ import {
   ServerToClientEventTypes,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { getGameServer, idGenerator } from "../../singletons.js";
+import { getGameServer, idGenerator } from "../../singletons/index.js";
 import writePlayerCharactersInGameToDb from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
 
 export async function dropShardsHandler(

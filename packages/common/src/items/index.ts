@@ -2,6 +2,7 @@ import cloneDeep from "lodash.clonedeep";
 import { EntityProperties } from "../primatives/index.js";
 import itemRequirementsMet from "./requirements-met.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
+import { Consumable } from "./consumables/index.js";
 
 export enum ItemType {
   Consumable,
@@ -41,4 +42,7 @@ export abstract class Item {
   }
 
   static requirementsMet = itemRequirementsMet;
+  static isConsumable(item: Item) {
+    return item instanceof Consumable;
+  }
 }

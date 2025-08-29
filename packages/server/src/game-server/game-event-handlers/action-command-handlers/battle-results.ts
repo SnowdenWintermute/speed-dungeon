@@ -10,7 +10,7 @@ import {
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
-import { getGameServer } from "../../../singletons.js";
+import { getGameServer } from "../../../singletons/index.js";
 
 export async function battleResultActionCommandHandler(
   this: GameServer,

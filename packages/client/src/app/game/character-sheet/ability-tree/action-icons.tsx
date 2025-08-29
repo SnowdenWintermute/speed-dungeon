@@ -34,10 +34,11 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
   [CombatActionName.Healing]: (className: string) => SVG_ICONS[IconName.HealthCross](className),
   [CombatActionName.UseGreenAutoinjector]: null,
   [CombatActionName.UseBlueAutoinjector]: null,
-  [CombatActionName.PassTurn]: null,
+  [CombatActionName.PassTurn]: (className: string) => SVG_ICONS[IconName.Hourglass](className),
   [CombatActionName.ConditionPassTurn]: null,
   [CombatActionName.Blind]: (className: string) => SVG_ICONS[IconName.EyeClosed](className),
   [CombatActionName.PayActionPoint]: null,
+  [CombatActionName.ReadSkillBook]: (className: string) => SVG_ICONS[IconName.Book](className),
 };
 
 export function getAttackActionIcons(user: CombatantProperties, inCombat: boolean) {

@@ -7,7 +7,7 @@ import {
   TargetingCalculator,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { getGameServer } from "../../singletons.js";
+import { getGameServer } from "../../singletons/index.js";
 
 export function cycleTargetsHandler(
   eventData: { characterId: string; direction: NextOrPrevious },

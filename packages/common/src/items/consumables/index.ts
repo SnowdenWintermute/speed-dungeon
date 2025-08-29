@@ -2,11 +2,15 @@ import { EntityProperties } from "../../primatives/entity-properties.js";
 import { Item } from "../index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 import { CombatActionName } from "../../combat/index.js";
+import { CombatantClass } from "../../combatants/index.js";
 
 export enum ConsumableType {
   HpAutoinjector,
   MpAutoinjector,
   StackOfShards,
+  WarriorSkillbook,
+  RogueSkillbook,
+  MageSkillbook,
 }
 
 export class Consumable extends Item {
@@ -23,12 +27,37 @@ export class Consumable extends Item {
   getActionName() {
     return CONSUMABLE_ACTION_NAMES_BY_CONSUMABLE_TYPE[this.consumableType];
   }
+
+  static isSkillBook(consumableType: ConsumableType) {
+    return (SKILL_BOOK_CONSUMABLE_TYPES as readonly ConsumableType[]).includes(consumableType);
+  }
 }
 
 export const CONSUMABLE_TYPE_STRINGS: Record<ConsumableType, string> = {
   [ConsumableType.HpAutoinjector]: "Green Autoinjector",
   [ConsumableType.MpAutoinjector]: "Blue Autoinjector",
   [ConsumableType.StackOfShards]: "Stack of Shards",
+  [ConsumableType.WarriorSkillbook]: "Siege's Guide to Tactics",
+  [ConsumableType.RogueSkillbook]: "Nazna's Spreadsheets",
+  [ConsumableType.MageSkillbook]: "Arcane Tome",
+};
+
+export function getSkillBookName(consumableType: ConsumableType, itemLevel: number) {
+  let bookVolumeName = "";
+  if (Consumable.isSkillBook(consumableType)) {
+    bookVolumeName = `, Volume ${itemLevel}`;
+  }
+
+  return CONSUMABLE_TYPE_STRINGS[consumableType] + bookVolumeName;
+}
+
+export const CONSUMABLE_DESCRIPTIONS: Record<ConsumableType, string> = {
+  [ConsumableType.HpAutoinjector]: "Restores hit points",
+  [ConsumableType.MpAutoinjector]: "Restores mana",
+  [ConsumableType.StackOfShards]: "The raw materials of this world",
+  [ConsumableType.WarriorSkillbook]: "Adds 1 to the level of your Warrior support class",
+  [ConsumableType.RogueSkillbook]: "Adds 1 to the level of your Rogue support class",
+  [ConsumableType.MageSkillbook]: "Adds 1 to the level of your Mage support class",
 };
 
 export const CONSUMABLE_ACTION_NAMES_BY_CONSUMABLE_TYPE: Record<
@@ -38,4 +67,26 @@ export const CONSUMABLE_ACTION_NAMES_BY_CONSUMABLE_TYPE: Record<
   [ConsumableType.HpAutoinjector]: CombatActionName.UseGreenAutoinjector,
   [ConsumableType.MpAutoinjector]: CombatActionName.UseBlueAutoinjector,
   [ConsumableType.StackOfShards]: null,
+  [ConsumableType.WarriorSkillbook]: CombatActionName.ReadSkillBook,
+  [ConsumableType.RogueSkillbook]: CombatActionName.ReadSkillBook,
+  [ConsumableType.MageSkillbook]: CombatActionName.ReadSkillBook,
+};
+
+export const SKILL_BOOK_CONSUMABLE_TYPES = [
+  ConsumableType.RogueSkillbook,
+  ConsumableType.WarriorSkillbook,
+  ConsumableType.MageSkillbook,
+] as const;
+
+export type BookConsumableType = (typeof SKILL_BOOK_CONSUMABLE_TYPES)[number];
+
+export const COMBATANT_CLASS_TO_SKILL_BOOK_TYPE: Record<CombatantClass, ConsumableType> = {
+  [CombatantClass.Warrior]: ConsumableType.WarriorSkillbook,
+  [CombatantClass.Mage]: ConsumableType.MageSkillbook,
+  [CombatantClass.Rogue]: ConsumableType.RogueSkillbook,
+};
+export const SKILL_BOOK_TYPE_TO_COMBATANT_CLASS: Partial<Record<ConsumableType, CombatantClass>> = {
+  [ConsumableType.WarriorSkillbook]: CombatantClass.Warrior,
+  [ConsumableType.MageSkillbook]: CombatantClass.Mage,
+  [ConsumableType.RogueSkillbook]: CombatantClass.Rogue,
 };

@@ -45,15 +45,7 @@ export function convertItemsToShards(itemIds: EntityId[], combatant: Combatant) 
 
 function convertItemToShards(item: Item, combatantProperties: CombatantProperties) {
   const itemId = item.entityProperties.id;
-  const removedItemResult = Inventory.removeItem(combatantProperties.inventory, itemId);
-  if (!(removedItemResult instanceof Error)) return getItemSellPrice(removedItemResult);
-
-  let itemSellPriceResult: Error | number = new Error("not assigned");
-  applyEquipmentEffectWhileMaintainingResourcePercentages(combatantProperties, () => {
-    const removedEquipmentResult = CombatantEquipment.removeItem(combatantProperties, itemId);
-    if (removedEquipmentResult instanceof Error) itemSellPriceResult = removedEquipmentResult;
-    else itemSellPriceResult = getItemSellPrice(removedEquipmentResult);
-  });
-
-  return itemSellPriceResult;
+  const removedItemResult = CombatantProperties.removeOwnedItem(combatantProperties, itemId);
+  if (removedItemResult instanceof Error) return removedItemResult;
+  return getItemSellPrice(removedItemResult);
 }

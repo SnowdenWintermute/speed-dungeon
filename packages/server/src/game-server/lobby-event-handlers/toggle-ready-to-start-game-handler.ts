@@ -7,7 +7,7 @@ import {
 } from "@speed-dungeon/common";
 import { toggleReadyToExploreHandler } from "../game-event-handlers/toggle-ready-to-explore-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
-import { getGameServer } from "../../singletons.js";
+import { getGameServer } from "../../singletons/index.js";
 
 export async function toggleReadyToStartGameHandler(
   _eventData: undefined,

@@ -8,14 +8,19 @@ import { Equipment } from "../equipment/index.js";
 import { CraftingAction } from "./crafting-actions.js";
 import { getEquipmentBaseValue } from "./shard-sell-prices.js";
 
-export const BASE_CONSUMABLE_PRICES: Record<ConsumableType, number> = {
+export const BASE_CONSUMABLE_PRICES: Record<ConsumableType, null | number> = {
   [ConsumableType.HpAutoinjector]: 10,
   [ConsumableType.MpAutoinjector]: 10,
-  [ConsumableType.StackOfShards]: 0,
+  [ConsumableType.StackOfShards]: null,
+  [ConsumableType.WarriorSkillbook]: 10,
+  [ConsumableType.RogueSkillbook]: 10,
+  [ConsumableType.MageSkillbook]: 10,
 };
 
 export function getConsumableShardPrice(currentFloor: number, consumableType: ConsumableType) {
-  return Math.max(0, currentFloor - 1) + BASE_CONSUMABLE_PRICES[consumableType];
+  const basePriceOption = BASE_CONSUMABLE_PRICES[consumableType];
+  if (basePriceOption === null) return null;
+  return Math.max(0, currentFloor - 1) + basePriceOption;
 }
 
 export const EXPONENTIAL_RATE_SELL = 1.2;

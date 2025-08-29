@@ -2,7 +2,7 @@ import { AbilityTreeAbility } from "../abilities/index.js";
 import { CombatActionName } from "../combat/index.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { CombatantClass } from "../combatants/index.js";
-import { ConsumableType } from "../items/consumables/index.js";
+import { BookConsumableType, ConsumableType } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { EntityId, NextOrPrevious } from "../primatives/index.js";
@@ -49,6 +49,7 @@ export enum ClientToServerEvent {
   PostItemLink = "36",
   SelectCombatActionLevel = "37",
   AllocateAbilityPoint = "38",
+  TradeItemForBook = "39",
 }
 
 export interface ClientToServerEventTypes {
@@ -74,6 +75,7 @@ export interface ClientToServerEventTypes {
     characterId: string;
     combatActionNameOption: null | CombatActionName;
     combatActionLevel: null | number;
+    itemIdOption?: string;
   }) => void;
   [ClientToServerEvent.IncrementAttribute]: (eventData: {
     characterId: string;
@@ -137,5 +139,10 @@ export interface ClientToServerEventTypes {
   [ClientToServerEvent.AllocateAbilityPoint]: (eventData: {
     characterId: EntityId;
     ability: AbilityTreeAbility;
+  }) => void;
+  [ClientToServerEvent.TradeItemForBook]: (eventData: {
+    characterId: EntityId;
+    itemId: EntityId;
+    bookType: BookConsumableType;
   }) => void;
 }

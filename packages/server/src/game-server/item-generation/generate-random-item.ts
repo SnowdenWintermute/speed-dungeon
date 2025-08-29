@@ -6,7 +6,7 @@ import {
   randBetween,
 } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
-import { idGenerator, rngSingleton } from "../../singletons.js";
+import { idGenerator, rngSingleton } from "../../singletons/index.js";
 
 export function generateRandomItem(this: GameServer, itemLevel: number): Error | Item {
   const randomIndex = randBetween(

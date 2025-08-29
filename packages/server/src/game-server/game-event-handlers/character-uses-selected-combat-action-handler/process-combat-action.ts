@@ -11,7 +11,7 @@ import {
   ReplayEventType,
   SequentialIdGenerator,
 } from "@speed-dungeon/common";
-import { ANIMATION_LENGTHS, idGenerator } from "../../../singletons.js";
+import { ANIMATION_LENGTHS, idGenerator } from "../../../singletons/index.js";
 
 class TimeKeeper {
   ms: number = 0;

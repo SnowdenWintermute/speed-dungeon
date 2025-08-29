@@ -2,7 +2,7 @@ import { ClientToServerEventTypes, ServerToClientEventTypes } from "@speed-dunge
 import { Socket } from "socket.io";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
 import { SocketEventNextFunction } from ".";
-import { getGameServer } from "../../singletons.js";
+import { getGameServer } from "../../singletons/index.js";
 
 export default function getSession<T>(
   socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>,

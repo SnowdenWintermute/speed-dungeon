@@ -14,7 +14,7 @@ import {
 import { GameServer } from "../index.js";
 import { DungeonRoomType } from "@speed-dungeon/common";
 import { DescendOrExplore } from "@speed-dungeon/common";
-import { idGenerator, getGameServer } from "../../singletons.js";
+import { idGenerator, getGameServer } from "../../singletons/index.js";
 import { generateDungeonRoom } from "../dungeon-room-generation/index.js";
 import { writeAllPlayerCharacterInGameToDb } from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";

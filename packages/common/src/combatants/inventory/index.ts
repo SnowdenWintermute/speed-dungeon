@@ -11,6 +11,7 @@ import {
   EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL,
 } from "../combatant-traits/index.js";
 import { getCapacityByItemType } from "./can-pick-up-item.js";
+import { EntityId } from "../../primatives/index.js";
 
 export class Inventory {
   [immerable] = true;
@@ -83,9 +84,13 @@ export class Inventory {
     else return itemOption;
   }
 
-  static getConsumableByType(inventory: Inventory, consumableType: ConsumableType) {
+  static getConsumableByTypeAndLevel(
+    inventory: Inventory,
+    consumableType: ConsumableType,
+    level: number
+  ) {
     for (const item of Object.values(inventory.consumables)) {
-      if (item.consumableType === consumableType) {
+      if (item.consumableType === consumableType && item.itemLevel === level) {
         return item;
       }
     }
@@ -133,5 +138,19 @@ export class Inventory {
     }
     inventory.consumables = consumables;
     inventory.equipment = equipments;
+  }
+
+  static getSelectedSkillBook(
+    inventory: Inventory,
+    itemIdSelectedOption: null | EntityId
+  ): Error | Consumable {
+    if (!itemIdSelectedOption) return new Error("No item selected");
+    console.log("searching for skill book by id:", itemIdSelectedOption);
+    const itemResult = Inventory.getItemById(inventory, itemIdSelectedOption);
+    if (itemResult instanceof Error) return itemResult;
+    if (!(itemResult instanceof Consumable)) return new Error("Item is not a consumable");
+    if (!Consumable.isSkillBook(itemResult.consumableType))
+      return new Error("Item is not a skill book");
+    return itemResult;
   }
 }

@@ -12,7 +12,7 @@ import {
   chooseRandomFromArray,
   generatePreDeterminedItem,
 } from "@speed-dungeon/common";
-import { idGenerator, rngSingleton } from "../../singletons.js";
+import { idGenerator, rngSingleton } from "../../singletons/index.js";
 import { CombatantEquipment, HoldableHotswapSlot } from "@speed-dungeon/common";
 import { generateSpecificEquipmentType } from "../item-generation/generate-test-items.js";
 

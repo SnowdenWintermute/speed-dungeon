@@ -21,10 +21,10 @@ const SUFFIX_CHANCE_BEFORE_MAGICAL = BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL * CHANCE
 const PREFIX_CHANCE_BEFORE_MAGICAL = BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL * CHANCE_TO_HAVE_PREFIX;
 const BOTH_CHANCE_BEFORE_MAGICAL = BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL * CHANCE_TO_HAVE_DOUBLE_AFFIX;
 
-export function getBaseItemShardValue(item: Item) {
+export function getBaseItemShardValue(itemLevel: number) {
   return Math.floor(
-    LINEAR_STEP_SELL * item.itemLevel +
-      EXPONENTIAL_WEIGHT_SELL * Math.pow(item.itemLevel, EXPONENTIAL_RATE_SELL)
+    LINEAR_STEP_SELL * itemLevel +
+      EXPONENTIAL_WEIGHT_SELL * Math.pow(itemLevel, EXPONENTIAL_RATE_SELL)
   );
 }
 
@@ -37,17 +37,24 @@ export function getEquipmentBaseValue(equipment: Equipment) {
   else if (hasPrefix) modifier = PREFIX_CHANCE_BEFORE_MAGICAL;
   else if (hasSuffix) modifier = SUFFIX_CHANCE_BEFORE_MAGICAL;
 
-  return getBaseItemShardValue(equipment) * (1 + (1 - modifier));
+  return getBaseItemShardValue(equipment.itemLevel) * (1 + (1 - modifier));
 }
 
 export function getItemSellPrice(item: Item) {
   if (item instanceof Equipment) return getEquipmentSellPrice(item);
-  if (item instanceof Consumable) return getConsumableSellPrice(item.consumableType);
+  if (item instanceof Consumable)
+    return getConsumableSellPrice(item.consumableType, item.itemLevel);
   throw new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
 }
 
-export function getConsumableSellPrice(consumableType: ConsumableType) {
-  return Math.floor(BASE_CONSUMABLE_PRICES[consumableType] * DEPRECIATION);
+export function getConsumableSellPrice(consumableType: ConsumableType, itemLevel: number) {
+  const basePriceOption = BASE_CONSUMABLE_PRICES[consumableType];
+  if (basePriceOption === null) return 0;
+
+  const ilvlModifier = 1 + itemLevel * 0.25;
+  const flatDepreciation = 2;
+
+  return Math.floor(basePriceOption * DEPRECIATION * ilvlModifier - flatDepreciation);
 }
 
 export function getEquipmentSellPrice(equipment: Equipment) {

@@ -16,13 +16,16 @@ import { synchronizeTargetingIndicators } from "./synchronize-targeting-indicato
 export function characterSelectedCombatActionHandler(
   characterId: string,
   combatActionNameOption: null | CombatActionName,
-  combatActionLevel: null | number
+  combatActionLevel: null | number,
+  itemIdOption?: null | EntityId
 ) {
   characterAssociatedDataProvider(
     characterId,
     ({ character, game, party }: CharacterAssociatedData, gameState: GameState) => {
       character.combatantProperties.selectedCombatAction = combatActionNameOption;
       character.combatantProperties.selectedActionLevel = combatActionLevel;
+      character.combatantProperties.selectedItemId = itemIdOption || null;
+
       if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
       const combatActionOption =
         combatActionNameOption !== null ? COMBAT_ACTIONS[combatActionNameOption] : null;

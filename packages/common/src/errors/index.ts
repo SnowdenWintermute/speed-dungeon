@@ -128,6 +128,7 @@ export const ERROR_MESSAGES = {
       "How can you acknowledge receipt of an item if it isn't registered yet?",
     INVALID_PROPERTIES: "Item does not have the required properties to perform that action",
     IS_FULLY_REPAIRED: "That item is already at full durability",
+    NOT_PURCHASEABLE: "That item can not be purchased with shards",
   },
   EQUIPMENT: {
     IS_BROKEN: "That equipment is broken",

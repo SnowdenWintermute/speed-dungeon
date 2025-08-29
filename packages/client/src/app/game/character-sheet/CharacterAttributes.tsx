@@ -72,6 +72,8 @@ export default function CharacterAttributes({
     />
   ));
 
+  const { supportClassProperties } = combatantProperties;
+
   return (
     <div
       className={`h-full ${widthOptionClass ? `widthOptionClass` : "w-[25.25rem]"} whitespace-nowrap`}
@@ -79,10 +81,7 @@ export default function CharacterAttributes({
       {!hideHeader && (
         <div>
           <div className="font-bold flex justify-between items-center">
-            <span>
-              {entityProperties.name}
-              {` (${COMBATANT_CLASS_NAME_STRINGS[combatantProperties.combatantClass]})`}
-            </span>
+            <span>{entityProperties.name}</span>
             <span className="h-10 w-10 flex justify-center rotate-45">
               {getCombatantClassIcon(
                 combatantProperties.combatantClass,
@@ -94,7 +93,11 @@ export default function CharacterAttributes({
           <div className="flex justify-between">
             <span>
               {"Level "}
-              {combatantProperties.level}{" "}
+              {combatantProperties.level}
+              {` ${COMBATANT_CLASS_NAME_STRINGS[combatantProperties.combatantClass]}`}
+              {supportClassProperties
+                ? ` / ${supportClassProperties.level} ${COMBATANT_CLASS_NAME_STRINGS[supportClassProperties.combatantClass]}`
+                : ""}
             </span>
             <span>{experiencePointsText}</span>
           </div>

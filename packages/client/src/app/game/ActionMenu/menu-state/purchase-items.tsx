@@ -27,6 +27,7 @@ import { PriceDisplay } from "../../character-sheet/ShardsDisplay";
 
 // @TODO - this is duplicating items menu, now that we added the extraChildren option we
 // should be able to just implement item state with a list of dummy consumables
+// - also, we copied this to SelectingBookType menu as well so if we ever change this, look at that too
 export class PurchaseItemsMenuState implements ActionMenuState {
   [immerable] = true;
   page = 1;

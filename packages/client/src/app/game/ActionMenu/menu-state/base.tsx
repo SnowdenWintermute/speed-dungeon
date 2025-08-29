@@ -20,7 +20,6 @@ import {
   COMBAT_ACTIONS,
   ACTION_NAMES_TO_HIDE_IN_MENU,
   getUnmetCostResourceTypes,
-  AbilityType,
   CombatActionName,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";

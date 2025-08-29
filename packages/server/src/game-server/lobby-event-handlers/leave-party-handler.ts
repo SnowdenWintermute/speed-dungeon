@@ -9,7 +9,7 @@ import {
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
-import { getGameServer } from "../../singletons.js";
+import { getGameServer } from "../../singletons/index.js";
 import errorHandler from "../error-handler.js";
 import emitMessageInGameWithOptionalDelayForParty from "../utils/emit-message-in-game-with-optional-delay-for-party.js";
 

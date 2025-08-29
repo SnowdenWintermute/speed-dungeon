@@ -11,8 +11,8 @@ import createProgressionGameHandler from "./create-progression-game-handler.js";
 import joinGameHandler from "./join-game-handler.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
 import { Socket } from "socket.io";
-import { getGameServer } from "../../singletons.js";
-import { idGenerator } from "../../singletons.js";
+import { getGameServer } from "../../singletons/index.js";
+import { idGenerator } from "../../singletons/index.js";
 
 export default async function createGameHandler(
   eventData: { gameName: string; mode: GameMode; isRanked?: boolean },
