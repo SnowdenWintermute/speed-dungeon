@@ -29,7 +29,6 @@ export class OneHandedMeleeWeaponGenerationTemplate extends WeaponGenerationTemp
       switch (prefix) {
         case PrefixType.Mp:
         case PrefixType.ArmorClass:
-        case PrefixType.Resilience:
         case PrefixType.Evasion:
           break;
         case PrefixType.Accuracy:

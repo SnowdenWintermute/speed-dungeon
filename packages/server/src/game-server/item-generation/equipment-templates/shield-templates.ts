@@ -33,7 +33,6 @@ export class ShieldGenerationTemplate extends EquipmentGenerationTemplate {
           break;
         case PrefixType.Mp:
         case PrefixType.ArmorClass:
-        case PrefixType.Resilience:
         case PrefixType.Evasion:
           this.possibleAffixes.prefix[prefix] = 5;
       }

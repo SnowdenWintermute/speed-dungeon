@@ -14,7 +14,6 @@ export enum CombatAttribute {
   Dexterity, // ranged damage, accuracy, physical crit chance, armor ranged armor pen
   Intelligence, // mp, magic ability damage
   Vitality, // hp, and debuff duration
-  Resilience, // %magic damage reduction, healing received, debuff duration
 
   Agility, // movement speed, evasion, physical crit chance reduction
 
@@ -40,7 +39,6 @@ export const ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES = [
   CombatAttribute.Dexterity,
   CombatAttribute.Intelligence,
   CombatAttribute.Vitality,
-  CombatAttribute.Resilience,
   CombatAttribute.Agility,
 ];
 
@@ -50,7 +48,6 @@ export const COMBAT_ATTRIBUTE_STRINGS: Record<CombatAttribute, string> = {
   [CombatAttribute.Strength]: "Strength",
   [CombatAttribute.Intelligence]: "Intelligence",
   [CombatAttribute.Vitality]: "Vitality",
-  [CombatAttribute.Resilience]: "Resilience",
   [CombatAttribute.Agility]: "Agility",
   [CombatAttribute.Accuracy]: "Accuracy",
   [CombatAttribute.Evasion]: "Evasion",
@@ -75,6 +72,5 @@ export const COMBAT_ATTRIBUTE_DESCRIPTIONS: Record<CombatAttribute, string> = {
   [CombatAttribute.Strength]:
     "Increases attack damage, crit multiplier and armor penetration for melee attacks",
   [CombatAttribute.Vitality]: "Increases hit points and armor class",
-  [CombatAttribute.Resilience]: `Each point reduces magical damage by ${RESILIENCE_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO}%, increases healing received from magical sources by ${RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO}% and reduces the chance of unwanted critical strikes by 1%`,
   [CombatAttribute.Agility]: `Increases evasion and speed`,
 };

@@ -28,7 +28,6 @@ export class JewelryGenerationTemplate extends EquipmentGenerationTemplate {
         case PrefixType.PercentDamage:
           break;
         case PrefixType.Mp:
-        case PrefixType.Resilience:
         case PrefixType.Evasion:
         case PrefixType.Accuracy:
         case PrefixType.LifeSteal:

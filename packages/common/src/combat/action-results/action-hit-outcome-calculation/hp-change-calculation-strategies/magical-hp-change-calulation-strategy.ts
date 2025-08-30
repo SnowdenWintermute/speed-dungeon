@@ -26,7 +26,7 @@ export class MagicalResourceChangeCalculationStrategy implements ResourceChangeC
       // don't apply resilience if being healed
       // instead increase the healing done
       const targetCombatAttributes = CombatantProperties.getTotalAttributes(target);
-      const targetResilience = targetCombatAttributes[CombatAttribute.Resilience];
+      const targetResilience = targetCombatAttributes[CombatAttribute.Intelligence];
       const resilienceMultiplier =
         (targetResilience / 100) * RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO + 1.0;
       hpChange.value *= resilienceMultiplier;

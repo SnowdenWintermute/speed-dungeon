@@ -70,9 +70,6 @@ export function rollAffix(
             value: randBetween((tier - 1) * 10 + 1, tier * 10, rngSingleton),
           };
           break;
-        case PrefixType.Resilience:
-          affix.combatAttributes[CombatAttribute.Resilience] = rollAttributeValue(1, 2);
-          break;
         case PrefixType.Evasion:
           affix.combatAttributes[CombatAttribute.Evasion] = rollAttributeValue(
             MIN_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER,

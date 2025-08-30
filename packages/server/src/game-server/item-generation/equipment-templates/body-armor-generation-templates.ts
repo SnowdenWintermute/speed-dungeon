@@ -82,7 +82,6 @@ export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
           template.possibleAffixes.prefix[prefix] = 3;
           break;
         case PrefixType.ArmorClass:
-        case PrefixType.Resilience:
           template.possibleAffixes.prefix[prefix] = 5;
       }
     }

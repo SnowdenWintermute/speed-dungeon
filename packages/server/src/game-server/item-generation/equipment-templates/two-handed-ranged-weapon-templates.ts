@@ -32,7 +32,6 @@ export class TwoHandedRangedWeaponGenerationTemplate extends WeaponGenerationTem
         case PrefixType.Accuracy:
         case PrefixType.PercentDamage:
         case PrefixType.LifeSteal:
-        case PrefixType.Resilience:
         case PrefixType.ArmorPenetration:
         case PrefixType.Agility:
           this.possibleAffixes.prefix[prefix] = 5;

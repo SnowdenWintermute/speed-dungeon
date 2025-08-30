@@ -79,22 +79,21 @@ export function getPrefixName(prefixType: PrefixType, tier: number) {
           return "hacked";
       }
     }
-    case PrefixType.Resilience: {
-      switch (tier) {
-        case 1:
-          return "Spirited";
-        case 2:
-          return "Hardy";
-        case 3:
-          return "Tenacious";
-        case 4:
-          return "Stalwart";
-        case 5:
-          return "Resolute";
-        default:
-          return "hacked";
-      }
-    }
+    //   switch (tier) {
+    //     case 1:
+    //       return "Spirited";
+    //     case 2:
+    //       return "Hardy";
+    //     case 3:
+    //       return "Tenacious";
+    //     case 4:
+    //       return "Stalwart";
+    //     case 5:
+    //       return "Resolute";
+    //     default:
+    //       return "hacked";
+    //   }
+    // }
     case PrefixType.Evasion: {
       switch (tier) {
         case 1:

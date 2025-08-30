@@ -12,7 +12,6 @@ export enum PrefixType {
   Accuracy,
   PercentDamage,
   LifeSteal,
-  Resilience,
   Evasion,
   ArmorPenetration,
   Agility,
