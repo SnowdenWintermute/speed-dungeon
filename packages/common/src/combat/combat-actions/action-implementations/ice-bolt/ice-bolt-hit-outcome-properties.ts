@@ -44,7 +44,7 @@ export const iceBoltProjectileHitOutcomeProperties: CombatActionHitOutcomeProper
       addCombatantLevelScaledAttributeToRange({
         range: baseValues,
         combatantProperties: user,
-        attribute: CombatAttribute.Intelligence,
+        attribute: CombatAttribute.Spirit,
         normalizedAttributeScalingByCombatantLevel: 1,
       });
 

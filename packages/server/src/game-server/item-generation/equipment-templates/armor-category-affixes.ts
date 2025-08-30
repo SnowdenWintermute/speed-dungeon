@@ -11,7 +11,7 @@ export function modifyPossibleAffixesByArmorCategory(
   switch (armorCategory) {
     case ArmorCategory.Cloth:
       possibleAffixes.prefix[PrefixType.Mp] = 5;
-      possibleAffixes.suffix[SuffixType.Intelligence] = 5;
+      possibleAffixes.suffix[SuffixType.Spirit] = 5;
       break;
     case ArmorCategory.Leather:
       possibleAffixes.prefix[PrefixType.Agility] = 5;
@@ -20,7 +20,7 @@ export function modifyPossibleAffixesByArmorCategory(
       break;
     case ArmorCategory.Mail:
       possibleAffixes.prefix[PrefixType.Mp] = 5;
-      possibleAffixes.suffix[SuffixType.Intelligence] = 5;
+      possibleAffixes.suffix[SuffixType.Spirit] = 5;
       possibleAffixes.prefix[PrefixType.Agility] = 5;
       possibleAffixes.prefix[PrefixType.Evasion] = 5;
       possibleAffixes.suffix[SuffixType.Dexterity] = 5;

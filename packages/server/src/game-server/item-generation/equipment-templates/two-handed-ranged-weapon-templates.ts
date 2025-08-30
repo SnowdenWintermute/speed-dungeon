@@ -45,7 +45,7 @@ export class TwoHandedRangedWeaponGenerationTemplate extends WeaponGenerationTem
           this.possibleAffixes.suffix[suffix] = 4;
           break;
         case SuffixType.Strength:
-        case SuffixType.Intelligence:
+        case SuffixType.Spirit:
         case SuffixType.Dexterity:
         case SuffixType.Vitality:
         case SuffixType.Damage:
@@ -105,7 +105,7 @@ export const TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(7, 10);
         template.damage = new NumberRange(10, 22);
         template.requirements[CombatAttribute.Dexterity] = 7;
-        template.requirements[CombatAttribute.Intelligence] = 13;
+        template.requirements[CombatAttribute.Spirit] = 13;
         mainDamageClassification.category = ResourceChangeSourceCategory.Magical;
         template.maxDurability = 7;
         break;

@@ -17,18 +17,18 @@ export function getSuffixName(suffixType: SuffixType, tier: number) {
         default:
           return "hacked";
       }
-    case SuffixType.Intelligence:
+    case SuffixType.Spirit:
       switch (tier) {
         case 1:
-          return "Intelligence";
+          return "Spirit";
         case 2:
           return "the Mind";
         case 3:
-          return "Brilliance";
+          return "Wisdom";
         case 4:
-          return "Sorcery";
+          return "Attunement";
         case 5:
-          return "Wizardry";
+          return "Enlightenment";
         default:
           return "hacked";
       }

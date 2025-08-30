@@ -47,7 +47,7 @@ export class ShieldGenerationTemplate extends EquipmentGenerationTemplate {
         case SuffixType.Hp:
         case SuffixType.Vitality:
         case SuffixType.Strength:
-        case SuffixType.Intelligence:
+        case SuffixType.Spirit:
         case SuffixType.Dexterity:
         case SuffixType.Durability:
         case SuffixType.PercentArmorClass:
@@ -116,7 +116,7 @@ export const SHIELD_EQUIPMENT_GENERATION_TEMPLATES: Record<Shield, ShieldGenerat
           template.acRange = new NumberRange(50, 55);
           template.size = ShieldSize.Small;
           template.maxDurability = 15;
-          template.requirements[CombatAttribute.Intelligence] = 3;
+          template.requirements[CombatAttribute.Spirit] = 3;
           template.requirements[CombatAttribute.Dexterity] = 7;
           template.possibleAffixes.suffix[SuffixType.Damage] = 5;
           break;

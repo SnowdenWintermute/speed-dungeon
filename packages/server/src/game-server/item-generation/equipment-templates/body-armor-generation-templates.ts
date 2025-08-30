@@ -90,7 +90,7 @@ export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
         case SuffixType.Damage:
           break;
         case SuffixType.AllBase:
-        case SuffixType.Intelligence:
+        case SuffixType.Spirit:
         case SuffixType.Dexterity:
           template.possibleAffixes.suffix[suffix] = 3;
           break;
@@ -123,19 +123,19 @@ export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case BodyArmor.Cloak:
         template.levelRange = new NumberRange(3, 7);
         template.acRange = new NumberRange(10, 14);
-        template.requirements[CombatAttribute.Intelligence] = 5;
+        template.requirements[CombatAttribute.Spirit] = 5;
         template.maxDurability = 16;
         break;
       case BodyArmor.Robe:
         template.levelRange = new NumberRange(6, 9);
         template.acRange = new NumberRange(18, 22);
-        template.requirements[CombatAttribute.Intelligence] = 9;
+        template.requirements[CombatAttribute.Spirit] = 9;
         template.maxDurability = 20;
         break;
       case BodyArmor.Kevlar:
         template.levelRange = new NumberRange(8, 10);
         template.acRange = new NumberRange(30, 40);
-        template.requirements[CombatAttribute.Intelligence] = 19;
+        template.requirements[CombatAttribute.Spirit] = 19;
         template.maxDurability = 40;
         break;
       case BodyArmor.LeatherArmor:
@@ -174,14 +174,14 @@ export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.acRange = new NumberRange(28, 36);
         template.requirements[CombatAttribute.Dexterity] = 5;
         template.requirements[CombatAttribute.Strength] = 5;
-        template.requirements[CombatAttribute.Intelligence] = 3;
+        template.requirements[CombatAttribute.Spirit] = 3;
         template.maxDurability = 21;
         break;
       case BodyArmor.ScaleMail:
         template.levelRange = new NumberRange(5, 7);
         template.acRange = new NumberRange(34, 45);
         template.requirements[CombatAttribute.Dexterity] = 9;
-        template.requirements[CombatAttribute.Intelligence] = 7;
+        template.requirements[CombatAttribute.Spirit] = 7;
         template.maxDurability = 25;
         break;
       case BodyArmor.SplintMail:
@@ -196,7 +196,7 @@ export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.acRange = new NumberRange(65, 80);
         template.requirements[CombatAttribute.Dexterity] = 15;
         template.requirements[CombatAttribute.Strength] = 15;
-        template.requirements[CombatAttribute.Intelligence] = 7;
+        template.requirements[CombatAttribute.Spirit] = 7;
         template.maxDurability = 70;
         break;
       case BodyArmor.BreastPlate:

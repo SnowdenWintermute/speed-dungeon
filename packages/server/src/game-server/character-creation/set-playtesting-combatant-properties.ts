@@ -23,8 +23,8 @@ export function setPlaytestingCombatantProperties(combatantProperties: Combatant
     MagicalElement.Dark
   ] = -150;
 
-  combatantProperties.hitPoints = Math.floor(combatantProperties.hitPoints * 0.5);
-  CombatantProperties.changeMana(combatantProperties, 100);
+  // combatantProperties.hitPoints = Math.floor(combatantProperties.hitPoints * 0.5);
+  // CombatantProperties.changeMana(combatantProperties, 100);
   // combatantProperties.mana = Math.floor(combatantProperties.mana * 0.4);
   // combatantProperties.mana = 4;
 
@@ -54,10 +54,10 @@ export function setPlaytestingCombatantProperties(combatantProperties: Combatant
 }
 
 const TESTING_INHERENT_ATTRIBUTES: Partial<Record<CombatAttribute, number>> = {
-  [CombatAttribute.Speed]: 9,
+  // [CombatAttribute.Speed]: 9,
   // [CombatAttribute.Dexterity]: 45,
   // [CombatAttribute.Strength]: 40,
-  // [CombatAttribute.Intelligence]: 25,
-  [CombatAttribute.Mp]: 100,
+  // [CombatAttribute.Spirit]: 25,
+  // [CombatAttribute.Mp]: 100,
   // [CombatAttribute.Hp]: 75,
 };

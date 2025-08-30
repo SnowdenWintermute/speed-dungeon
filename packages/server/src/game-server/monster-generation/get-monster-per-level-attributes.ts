@@ -43,7 +43,7 @@ export default function getMonsterPerLevelAttributes(
       attributes[CombatAttribute.Evasion] = 14;
       break;
     case MonsterType.FireMage:
-      attributes[CombatAttribute.Intelligence] = 10.0;
+      attributes[CombatAttribute.Spirit] = 10.0;
       attributes[CombatAttribute.Vitality] = 1.5;
       attributes[CombatAttribute.Hp] = 4.5;
       attributes[CombatAttribute.Agility] = 1.5;
@@ -52,7 +52,7 @@ export default function getMonsterPerLevelAttributes(
 
       break;
     case MonsterType.Cultist:
-      attributes[CombatAttribute.Intelligence] = 14.0;
+      attributes[CombatAttribute.Spirit] = 14.0;
       attributes[CombatAttribute.Vitality] = 1.5;
       attributes[CombatAttribute.Hp] = 4.5;
       attributes[CombatAttribute.Agility] = 1.5;
@@ -60,13 +60,13 @@ export default function getMonsterPerLevelAttributes(
       attributes[CombatAttribute.Evasion] = 10;
       break;
     case MonsterType.FireElemental:
-      attributes[CombatAttribute.Intelligence] = 6.0;
+      attributes[CombatAttribute.Spirit] = 6.0;
       attributes[CombatAttribute.Vitality] = 1.0;
       attributes[CombatAttribute.Hp] = 4.0;
       attributes[CombatAttribute.Agility] = 1.5;
       break;
     case MonsterType.IceElemental:
-      attributes[CombatAttribute.Intelligence] = 6.0;
+      attributes[CombatAttribute.Spirit] = 6.0;
       attributes[CombatAttribute.Vitality] = 1.0;
       attributes[CombatAttribute.Hp] = 4.0;
       attributes[CombatAttribute.Agility] = 1.5;

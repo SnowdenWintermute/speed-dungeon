@@ -45,7 +45,7 @@ export class JewelryGenerationTemplate extends EquipmentGenerationTemplate {
         case SuffixType.Vitality:
         case SuffixType.AllBase:
         case SuffixType.Strength:
-        case SuffixType.Intelligence:
+        case SuffixType.Spirit:
         case SuffixType.Dexterity:
         case SuffixType.Damage:
           this.possibleAffixes.suffix[suffix] = 5;

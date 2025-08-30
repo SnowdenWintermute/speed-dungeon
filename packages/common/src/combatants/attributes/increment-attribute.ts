@@ -11,8 +11,8 @@ export function incrementAttributePoint(
     combatantProperties.speccedAttributes[attribute] = 0;
   combatantProperties.speccedAttributes[attribute]! += 1;
 
-  const intToMpRatio = DERIVED_ATTRIBUTE_RATIOS[CombatAttribute.Intelligence]![CombatAttribute.Mp]!;
-  if (attribute === CombatAttribute.Intelligence) combatantProperties.mana += intToMpRatio;
+  const intToMpRatio = DERIVED_ATTRIBUTE_RATIOS[CombatAttribute.Spirit]![CombatAttribute.Mp]!;
+  if (attribute === CombatAttribute.Spirit) combatantProperties.mana += intToMpRatio;
   const vitToHpRatio = DERIVED_ATTRIBUTE_RATIOS[CombatAttribute.Vitality]![CombatAttribute.Hp]!;
   if (attribute === CombatAttribute.Vitality) combatantProperties.hitPoints += vitToHpRatio;
 }

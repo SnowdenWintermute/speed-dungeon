@@ -57,14 +57,14 @@ export const BOOK_TRADE_ACCEPTED_EQUIPMENT_CHECKERS: Record<
       const isWand = WANDS.includes(baseItemType);
       if (!isWand) return false;
 
-      if (Equipment.hasAffixWithAttributes(equipment, [CombatAttribute.Intelligence])) return true;
+      if (Equipment.hasAffixWithAttributes(equipment, [CombatAttribute.Spirit])) return true;
     }
 
     if (equipmentType === EquipmentType.TwoHandedMeleeWeapon) {
       const isStaff = STAVES.includes(baseItemType);
       if (!isStaff) return false;
 
-      if (Equipment.hasAffixWithAttributes(equipment, [CombatAttribute.Intelligence])) return true;
+      if (Equipment.hasAffixWithAttributes(equipment, [CombatAttribute.Spirit])) return true;
     }
 
     return false;

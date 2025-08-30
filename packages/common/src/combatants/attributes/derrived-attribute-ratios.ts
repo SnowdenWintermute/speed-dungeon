@@ -6,7 +6,7 @@ export const DERIVED_ATTRIBUTE_RATIOS: Partial<
   [CombatAttribute.Dexterity]: {
     [CombatAttribute.Accuracy]: 2,
   },
-  [CombatAttribute.Intelligence]: {
+  [CombatAttribute.Spirit]: {
     [CombatAttribute.Mp]: 2,
   },
   [CombatAttribute.Agility]: {

@@ -12,7 +12,7 @@ import {
 export enum CombatAttribute {
   Strength, // damage with melee attacks, melee crit multiplier, melee armor pen
   Dexterity, // ranged damage, accuracy, physical crit chance, armor ranged armor pen
-  Intelligence, // mp, magic ability damage
+  Spirit, // mp, magic ability damage
   Vitality, // hp, and debuff duration
 
   Agility, // movement speed, evasion, physical crit chance reduction
@@ -29,7 +29,7 @@ export enum CombatAttribute {
 
 export const CORE_ATTRIBUTES = [
   CombatAttribute.Dexterity,
-  CombatAttribute.Intelligence,
+  CombatAttribute.Spirit,
   CombatAttribute.Strength,
   CombatAttribute.Vitality,
 ];
@@ -37,7 +37,7 @@ export const CORE_ATTRIBUTES = [
 export const ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES = [
   CombatAttribute.Strength,
   CombatAttribute.Dexterity,
-  CombatAttribute.Intelligence,
+  CombatAttribute.Spirit,
   CombatAttribute.Vitality,
   CombatAttribute.Agility,
 ];
@@ -46,7 +46,7 @@ export const COMBAT_ATTRIBUTE_STRINGS: Record<CombatAttribute, string> = {
   [CombatAttribute.ArmorClass]: "Armor Class",
   [CombatAttribute.Dexterity]: "Dexterity",
   [CombatAttribute.Strength]: "Strength",
-  [CombatAttribute.Intelligence]: "Intelligence",
+  [CombatAttribute.Spirit]: "Spirit",
   [CombatAttribute.Vitality]: "Vitality",
   [CombatAttribute.Agility]: "Agility",
   [CombatAttribute.Accuracy]: "Accuracy",
@@ -68,7 +68,7 @@ export const COMBAT_ATTRIBUTE_DESCRIPTIONS: Record<CombatAttribute, string> = {
   [CombatAttribute.Mp]: "The primary resource for using abilities",
   [CombatAttribute.Dexterity]:
     "Increases accuracy, crit chance with physical attacks, ranged attack damage and ranged attack armor penetration",
-  [CombatAttribute.Intelligence]: "Increases mana and spell damage",
+  [CombatAttribute.Spirit]: "Increases mana and spell damage",
   [CombatAttribute.Strength]:
     "Increases attack damage, crit multiplier and armor penetration for melee attacks",
   [CombatAttribute.Vitality]: "Increases hit points and armor class",

@@ -1,12 +1,12 @@
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 import { EquipmentTrait, EquipmentTraitType } from "./equipment-traits/index.js";
 
-export enum AffixType {
+export enum AffixCategory {
   Prefix,
   Suffix,
 }
 
-export enum PrefixType {
+export enum AffixType {
   Mp,
   ArmorClass,
   Accuracy,
@@ -15,11 +15,8 @@ export enum PrefixType {
   Evasion,
   ArmorPenetration,
   Agility,
-}
-
-export enum SuffixType {
   Strength,
-  Intelligence,
+  Spirit,
   Dexterity,
   Vitality,
   AllBase,
@@ -29,9 +26,36 @@ export enum SuffixType {
   PercentArmorClass,
 }
 
+export const PREFIX_TYPES = [
+  AffixType.Mp,
+  AffixType.ArmorClass,
+  AffixType.Accuracy,
+  AffixType.PercentDamage,
+  AffixType.LifeSteal,
+  AffixType.Evasion,
+  AffixType.ArmorPenetration,
+  AffixType.Agility,
+] as const;
+
+export type PrefixType = (typeof PREFIX_TYPES)[number];
+
+export const SUFFIX_TYPES = [
+  AffixType.Strength,
+  AffixType.Spirit,
+  AffixType.Dexterity,
+  AffixType.Vitality,
+  AffixType.AllBase,
+  AffixType.Hp,
+  AffixType.Damage,
+  AffixType.Durability,
+  AffixType.PercentArmorClass,
+] as const;
+
+export type SuffixType = (typeof SUFFIX_TYPES)[number];
+
 export type TaggedAffixType =
-  | { affixType: AffixType.Prefix; prefixType: PrefixType }
-  | { affixType: AffixType.Suffix; suffixType: SuffixType };
+  | { affixCategory: AffixCategory.Prefix; prefixType: PrefixType }
+  | { affixCategory: AffixCategory.Suffix; suffixType: SuffixType };
 
 export interface Affix {
   combatAttributes: Partial<Record<CombatAttribute, number>>;
@@ -39,7 +63,4 @@ export interface Affix {
   tier: number;
 }
 
-export type Affixes = {
-  [AffixType.Prefix]: Partial<Record<PrefixType, Affix>>;
-  [AffixType.Suffix]: Partial<Record<SuffixType, Affix>>;
-};
+export type Affixes = Record<AffixCategory, Partial<Record<AffixType, Affix>>>;

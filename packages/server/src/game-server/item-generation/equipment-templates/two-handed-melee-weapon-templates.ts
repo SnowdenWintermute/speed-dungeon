@@ -46,7 +46,7 @@ export class TwoHandedMeleeWeaponGenerationTemplate extends WeaponGenerationTemp
           this.possibleAffixes.suffix[suffix] = 4;
           break;
         case SuffixType.Strength:
-        case SuffixType.Intelligence:
+        case SuffixType.Spirit:
         case SuffixType.Dexterity:
         case SuffixType.Vitality:
         case SuffixType.Damage:
@@ -167,7 +167,7 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
                 elementOption: element,
               })
           );
-        template.requirements[CombatAttribute.Intelligence] = 7;
+        template.requirements[CombatAttribute.Spirit] = 7;
         template.requirements[CombatAttribute.Strength] = 7;
         template.maxDurability = 18;
         break;
@@ -186,7 +186,7 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
             kineticDamageTypeOption: KineticDamageType.Piercing,
           }),
         ];
-        template.requirements[CombatAttribute.Intelligence] = 7;
+        template.requirements[CombatAttribute.Spirit] = 7;
         template.requirements[CombatAttribute.Strength] = 7;
         template.maxDurability = 20;
         break;
@@ -207,19 +207,19 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case TwoHandedMeleeWeapon.ElmStaff:
         template.levelRange = new NumberRange(3, 6);
         template.damage = new NumberRange(4, 12);
-        template.requirements[CombatAttribute.Intelligence] = 10;
+        template.requirements[CombatAttribute.Spirit] = 10;
         template.maxDurability = 12;
         break;
       case TwoHandedMeleeWeapon.MahoganyStaff:
         template.levelRange = new NumberRange(5, 8);
         template.damage = new NumberRange(8, 22);
-        template.requirements[CombatAttribute.Intelligence] = 15;
+        template.requirements[CombatAttribute.Spirit] = 15;
         template.maxDurability = 16;
         break;
       case TwoHandedMeleeWeapon.EbonyStaff:
         template.levelRange = new NumberRange(8, 10);
         template.damage = new NumberRange(10, 32);
-        template.requirements[CombatAttribute.Intelligence] = 25;
+        template.requirements[CombatAttribute.Spirit] = 25;
         template.maxDurability = 22;
         break;
     }

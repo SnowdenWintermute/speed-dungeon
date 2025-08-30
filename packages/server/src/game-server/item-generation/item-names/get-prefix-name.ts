@@ -1,8 +1,8 @@
-import { PrefixType } from "@speed-dungeon/common";
+import { AffixType, PrefixType } from "@speed-dungeon/common";
 
 export function getPrefixName(prefixType: PrefixType, tier: number) {
   switch (prefixType) {
-    case PrefixType.Mp:
+    case AffixType.Mp:
       switch (tier) {
         case 1:
           return "Bluejay's";
@@ -17,7 +17,7 @@ export function getPrefixName(prefixType: PrefixType, tier: number) {
         default:
           return "hacked";
       }
-    case PrefixType.ArmorClass:
+    case AffixType.ArmorClass:
       switch (tier) {
         case 1:
           return "Sturdy";
@@ -32,7 +32,7 @@ export function getPrefixName(prefixType: PrefixType, tier: number) {
         default:
           return "hacked";
       }
-    case PrefixType.Accuracy:
+    case AffixType.Accuracy:
       switch (tier) {
         case 1:
           return "Steady";
@@ -47,7 +47,7 @@ export function getPrefixName(prefixType: PrefixType, tier: number) {
         default:
           return "hacked";
       }
-    case PrefixType.PercentDamage: {
+    case AffixType.PercentDamage: {
       switch (tier) {
         case 1:
           return "Jagged";
@@ -63,7 +63,7 @@ export function getPrefixName(prefixType: PrefixType, tier: number) {
           return "hacked";
       }
     }
-    case PrefixType.LifeSteal: {
+    case AffixType.LifeSteal: {
       switch (tier) {
         case 1:
           return "Mosquito's";
@@ -79,22 +79,7 @@ export function getPrefixName(prefixType: PrefixType, tier: number) {
           return "hacked";
       }
     }
-    //   switch (tier) {
-    //     case 1:
-    //       return "Spirited";
-    //     case 2:
-    //       return "Hardy";
-    //     case 3:
-    //       return "Tenacious";
-    //     case 4:
-    //       return "Stalwart";
-    //     case 5:
-    //       return "Resolute";
-    //     default:
-    //       return "hacked";
-    //   }
-    // }
-    case PrefixType.Evasion: {
+    case AffixType.Evasion: {
       switch (tier) {
         case 1:
           return "Monkey's";
@@ -110,7 +95,7 @@ export function getPrefixName(prefixType: PrefixType, tier: number) {
           return "hacked";
       }
     }
-    case PrefixType.ArmorPenetration: {
+    case AffixType.ArmorPenetration: {
       switch (tier) {
         case 1:
           return "Heavy";
@@ -126,7 +111,7 @@ export function getPrefixName(prefixType: PrefixType, tier: number) {
           return "hacked";
       }
     }
-    case PrefixType.Agility: {
+    case AffixType.Agility: {
       switch (tier) {
         case 1:
           return "Maneuverable";

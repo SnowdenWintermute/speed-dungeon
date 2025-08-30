@@ -79,13 +79,13 @@ export const HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case HeadGear.Bandana:
         template.levelRange = new NumberRange(2, 4);
         template.acRange = new NumberRange(2, 4);
-        template.requirements[CombatAttribute.Intelligence] = 3;
+        template.requirements[CombatAttribute.Spirit] = 3;
         template.maxDurability = 5;
         break;
       case HeadGear.PaddedCap:
         template.levelRange = new NumberRange(3, 6);
         template.acRange = new NumberRange(3, 6);
-        template.requirements[CombatAttribute.Intelligence] = 7;
+        template.requirements[CombatAttribute.Spirit] = 7;
         template.maxDurability = 7;
         break;
       case HeadGear.Ribbon:
@@ -94,14 +94,14 @@ export const HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES: Record<
         delete template.possibleAffixes.suffix[SuffixType.Strength];
         delete template.possibleAffixes.suffix[SuffixType.Dexterity];
         delete template.possibleAffixes.suffix[SuffixType.Vitality];
-        delete template.possibleAffixes.suffix[SuffixType.Intelligence];
+        delete template.possibleAffixes.suffix[SuffixType.Spirit];
         template.possibleAffixes.suffix[SuffixType.AllBase] = 5;
         template.maxDurability = 7;
         break;
       case HeadGear.WizardHat:
         template.levelRange = new NumberRange(7, 10);
         template.acRange = new NumberRange(6, 14);
-        template.requirements[CombatAttribute.Intelligence] = 19;
+        template.requirements[CombatAttribute.Spirit] = 19;
         template.maxDurability = 16;
         break;
       case HeadGear.Eyepatch:
@@ -146,7 +146,7 @@ export const HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.acRange = new NumberRange(20, 26);
         template.requirements[CombatAttribute.Strength] = 9;
         template.requirements[CombatAttribute.Dexterity] = 9;
-        template.requirements[CombatAttribute.Intelligence] = 5;
+        template.requirements[CombatAttribute.Spirit] = 5;
         template.maxDurability = 19;
         break;
       case HeadGear.OhmushellMask:
@@ -154,7 +154,7 @@ export const HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.acRange = new NumberRange(30, 38);
         template.requirements[CombatAttribute.Strength] = 15;
         template.requirements[CombatAttribute.Dexterity] = 15;
-        template.requirements[CombatAttribute.Intelligence] = 9;
+        template.requirements[CombatAttribute.Spirit] = 9;
         template.maxDurability = 50;
         break;
       case HeadGear.Circlet:
