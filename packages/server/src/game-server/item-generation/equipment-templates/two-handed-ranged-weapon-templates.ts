@@ -42,9 +42,6 @@ export class TwoHandedRangedWeaponGenerationTemplate extends WeaponGenerationTem
       switch (suffix) {
         case AffixType.Hp:
           break;
-        case AffixType.AllBase:
-          this.possibleAffixes.suffix[suffix] = 4;
-          break;
         case AffixType.Strength:
         case AffixType.Spirit:
         case AffixType.Dexterity:

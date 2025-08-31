@@ -95,7 +95,7 @@ export const HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES: Record<
         delete template.possibleAffixes.suffix[AffixType.Dexterity];
         delete template.possibleAffixes.suffix[AffixType.Vitality];
         delete template.possibleAffixes.suffix[AffixType.Spirit];
-        template.possibleAffixes.suffix[AffixType.AllBase] = 5;
+        // template.possibleAffixes.suffix[AffixType.AllBase] = 5;
         template.maxDurability = 7;
         break;
       case HeadGear.WizardHat:
@@ -131,7 +131,7 @@ export const HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case HeadGear.Hairpin:
         template.levelRange = new NumberRange(3, 4);
         template.acRange = new NumberRange(2, 2);
-        template.possibleAffixes.suffix[AffixType.AllBase] = 5;
+        // template.possibleAffixes.suffix[AffixType.AllBase] = 5;
         template.maxDurability = 10;
         break;
       case HeadGear.Skullcap:

@@ -61,22 +61,22 @@ function formatAffixCombatAttributeBonuses(
 ): Error | string[] {
   const toReturn = [];
 
-  if (affixCategory === AffixCategory.Suffix && prefixOrSuffixType === AffixType.AllBase) {
-    let lastCoreAttributeValue = null;
-    for (const attribute of CORE_ATTRIBUTES) {
-      const coreAttributeValueOnThisAffix = affix.combatAttributes[attribute];
-      if (typeof coreAttributeValueOnThisAffix === undefined)
-        return new Error("invalid use of the AllBase suffix");
-      if (lastCoreAttributeValue === null) lastCoreAttributeValue = coreAttributeValueOnThisAffix;
-      else if (coreAttributeValueOnThisAffix !== lastCoreAttributeValue)
-        new Error("invalid use of the AllBase suffix");
-    }
+  // if (affixCategory === AffixCategory.Suffix && prefixOrSuffixType === AffixType.AllBase) {
+  //   let lastCoreAttributeValue = null;
+  //   for (const attribute of CORE_ATTRIBUTES) {
+  //     const coreAttributeValueOnThisAffix = affix.combatAttributes[attribute];
+  //     if (typeof coreAttributeValueOnThisAffix === undefined)
+  //       return new Error("invalid use of the AllBase suffix");
+  //     if (lastCoreAttributeValue === null) lastCoreAttributeValue = coreAttributeValueOnThisAffix;
+  //     else if (coreAttributeValueOnThisAffix !== lastCoreAttributeValue)
+  //       new Error("invalid use of the AllBase suffix");
+  //   }
 
-    toReturn.push(`+${lastCoreAttributeValue} to core attributes`);
-  } else {
-    for (const [attribute, value] of iterateNumericEnumKeyedRecord(affix.combatAttributes)) {
-      toReturn.push(`+${value} ${COMBAT_ATTRIBUTE_STRINGS[attribute]}`);
-    }
+  //   toReturn.push(`+${lastCoreAttributeValue} to core attributes`);
+  // } else {
+  for (const [attribute, value] of iterateNumericEnumKeyedRecord(affix.combatAttributes)) {
+    toReturn.push(`+${value} ${COMBAT_ATTRIBUTE_STRINGS[attribute]}`);
+    // }
   }
 
   return toReturn;

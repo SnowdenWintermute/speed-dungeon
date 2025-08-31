@@ -43,7 +43,6 @@ export class JewelryGenerationTemplate extends EquipmentGenerationTemplate {
           break;
         case AffixType.Hp:
         case AffixType.Vitality:
-        case AffixType.AllBase:
         case AffixType.Strength:
         case AffixType.Spirit:
         case AffixType.Dexterity:

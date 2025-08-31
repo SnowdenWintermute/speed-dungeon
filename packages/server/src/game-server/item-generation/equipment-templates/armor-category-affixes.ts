@@ -34,7 +34,7 @@ export function modifyPossibleAffixesByArmorCategory(
   if (armorType === EquipmentType.HeadGear) {
     switch (armorCategory) {
       case ArmorCategory.Cloth:
-        possibleAffixes.suffix[AffixType.AllBase] = 4;
+        // possibleAffixes.suffix[AffixType.AllBase] = 4;
         break;
       case ArmorCategory.Leather:
         possibleAffixes.prefix[AffixType.Accuracy] = 5;

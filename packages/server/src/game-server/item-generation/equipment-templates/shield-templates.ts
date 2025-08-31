@@ -42,9 +42,6 @@ export class ShieldGenerationTemplate extends EquipmentGenerationTemplate {
       switch (suffix) {
         case AffixType.FlatDamage:
           break;
-        case AffixType.AllBase:
-          this.possibleAffixes.suffix[suffix] = 4;
-          break;
         case AffixType.Hp:
         case AffixType.Vitality:
         case AffixType.Strength:

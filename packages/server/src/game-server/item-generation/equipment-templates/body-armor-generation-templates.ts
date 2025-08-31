@@ -90,7 +90,6 @@ export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
       switch (suffix) {
         case AffixType.FlatDamage:
           break;
-        case AffixType.AllBase:
         case AffixType.Spirit:
         case AffixType.Dexterity:
           template.possibleAffixes.suffix[suffix] = 3;

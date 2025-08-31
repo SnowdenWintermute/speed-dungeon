@@ -44,9 +44,6 @@ export class OneHandedMeleeWeaponGenerationTemplate extends WeaponGenerationTemp
         case AffixType.Hp:
         case AffixType.Vitality:
           break;
-        case AffixType.AllBase:
-          this.possibleAffixes.suffix[suffix] = 3;
-          break;
         case AffixType.Strength:
         case AffixType.Spirit:
         case AffixType.Dexterity:

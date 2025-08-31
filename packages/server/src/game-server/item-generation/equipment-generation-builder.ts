@@ -144,11 +144,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
     const suffixTypes = getRandomValidSuffixTypes(template, numAffixesToRoll.suffixes);
     affixTypes.suffix.push(...suffixTypes);
 
-    let prohibitAgiPrefix = false;
-    let prohibitAllPrefixes = false;
     for (const suffixType of Object.values(affixTypes.suffix)) {
-      if (suffixType === AffixType.AllBase) prohibitAgiPrefix = true;
-
       const affixResult = rollAffixTierAndValue(
         template,
         { affixCategory: AffixCategory.Suffix, suffixType },
@@ -157,23 +153,9 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
       );
       if (affixResult instanceof Error) return affixResult;
 
-      // otherwise it would be overpowered since AllBase would basically provide as many
-      // +Stats as a fully rolled +AGI prefix and +OTHER suffix
-      if (
-        suffixType === AffixType.AllBase &&
-        affixResult.combatAttributes[CombatAttribute.Agility] === 3
-      )
-        prohibitAllPrefixes = true;
-
       if (affixes[AffixCategory.Suffix] === undefined) affixes[AffixCategory.Suffix] = {};
       affixes[AffixCategory.Suffix][suffixType] = affixResult;
     }
-
-    if (prohibitAllPrefixes) return affixes;
-    if (prohibitAgiPrefix)
-      affixTypes.prefix = affixTypes.prefix.filter(
-        (prefixType) => prefixType !== AffixType.Agility
-      );
 
     for (const prefixType of Object.values(affixTypes.prefix)) {
       const affixResult = rollAffixTierAndValue(
@@ -266,5 +248,5 @@ export function rollAffixTierAndValue(
   let multiplier = 1;
   if (equipmentIsTwoHandedWeapon(equipmentType))
     multiplier = TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER;
-  return rollAffix(taggedAffixType, rolledTier, multiplier);
+  return rollAffix(taggedAffixType, rolledTier, multiplier, template);
 }

@@ -2,6 +2,7 @@ import {
   Affix,
   AffixCategory,
   AffixType,
+  ArrayUtils,
   CORE_ATTRIBUTES,
   CombatAttribute,
   DEEPEST_FLOOR,
@@ -9,8 +10,12 @@ import {
   NumberRange,
   TaggedAffixType,
   randBetween,
+  throwIfError,
 } from "@speed-dungeon/common";
 import { rngSingleton } from "../../singletons/index.js";
+import { EquipmentGenerationTemplate } from "./equipment-templates/equipment-generation-template-abstract-classes.js";
+import { getRandomValidSuffixTypes } from "./equipment-generation-builder.js";
+import { copySelectedModifiersFromResourceChangeSource } from "@speed-dungeon/common/src/combat/combat-actions/action-calculation-utils/copy-selected-modifiers-from-hp-change-source.js";
 
 export function rollAffixTier(maxTier: number, itemLevel: number) {
   const maxTierModifier = itemLevel / DEEPEST_FLOOR;
@@ -23,7 +28,8 @@ export function rollAffixTier(maxTier: number, itemLevel: number) {
 export function rollAffix(
   taggedAffixType: TaggedAffixType,
   tier: number,
-  rangeMultiplier: number = 1.0 // for 2h weapons that need to double their range to be competitive with dual wield
+  rangeMultiplier: number = 1.0, // for 2h weapons that need to double their range to be competitive with dual wield
+  template: EquipmentGenerationTemplate
 ): Affix {
   const affix: Affix = {
     combatAttributes: {},
@@ -31,7 +37,7 @@ export function rollAffix(
     tier,
   };
 
-  let affixType;
+  let affixType: AffixType;
   if (taggedAffixType.affixCategory === AffixCategory.Suffix)
     affixType = taggedAffixType.suffixType;
   else affixType = taggedAffixType.prefixType;
@@ -68,24 +74,8 @@ export function rollAffix(
     };
   }
 
-  // all core attributes handled uniquely
-  if (affixType === AffixType.AllBase) {
-    let range = ALL_CORE_ATTRIBUTES_VALUE_RANGES_BY_TIER[tier];
-    if (range === undefined) range = new NumberRange(0, 0);
-    const value = randBetween(range.min, range.max, rngSingleton);
-    for (const attribute of CORE_ATTRIBUTES) {
-      affix.combatAttributes[attribute] = value;
-    }
-  }
-
   return affix;
 }
-
-const ALL_CORE_ATTRIBUTES_VALUE_RANGES_BY_TIER: Record<number, NumberRange> = {
-  [3]: new NumberRange(1, 1),
-  [4]: new NumberRange(1, 2),
-  [5]: new NumberRange(2, 3),
-};
 
 const ATTRIBUTE_PER_TIER_BASE = 1.25;
 // since core attributes give several derived attributes,

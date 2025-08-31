@@ -35,13 +35,13 @@ const SUFFIX_NAMES: Record<SuffixType, Record<number, string>> = {
     [4]: "of Vigor",
     [5]: "of Life",
   },
-  [AffixType.AllBase]: {
-    [1]: "the Sky",
-    [2]: "the Moon",
-    [3]: "the Stars",
-    [4]: "the Heavens",
-    [5]: "the Zodiac",
-  },
+  // [AffixType.AllBase]: {
+  //   [1]: "the Sky",
+  //   [2]: "the Moon",
+  //   [3]: "the Stars",
+  //   [4]: "the Heavens",
+  //   [5]: "the Zodiac",
+  // },
   [AffixType.Hp]: {
     [1]: "the Fox",
     [2]: "the Wolf",

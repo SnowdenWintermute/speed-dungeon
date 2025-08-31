@@ -64,13 +64,11 @@ export abstract class ItemNamer {
       const prefixes = affixes[AffixCategory.Prefix] as Partial<Record<PrefixType, Affix>>;
       for (const [prefixType, affix] of iterateNumericEnumKeyedRecord(prefixes)) {
         const name = getPrefixName(prefixType, affix.tier);
-        console.log("prefix name: ", name);
         prefixNames.push(name);
       }
       const suffixes = affixes[AffixCategory.Suffix] as Partial<Record<SuffixType, Affix>>;
       for (const [suffixType, affix] of iterateNumericEnumKeyedRecord(suffixes)) {
         const name = getSuffixName(suffixType, affix.tier);
-        console.log("suffix name: ", name);
         suffixNames.push(name);
       }
     }
