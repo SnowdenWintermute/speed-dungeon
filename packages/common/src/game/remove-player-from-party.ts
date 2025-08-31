@@ -1,8 +1,8 @@
 import cloneDeep from "lodash.clonedeep";
 import { SpeedDungeonGame } from "./index.js";
-import { removeFromArray } from "../utils/index.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { Combatant } from "../combatants/index.js";
+import { ArrayUtils } from "../utils/array-utils.js";
 
 export type RemovedPlayerData = {
   partyNameLeft: null | string;
@@ -45,7 +45,7 @@ export default function removePlayerFromParty(
 
   player.partyName = null;
 
-  removeFromArray(partyLeaving.playerUsernames, username);
+  ArrayUtils.removeElement(partyLeaving.playerUsernames, username);
 
   if (partyLeaving.playerUsernames.length < 1) {
     delete game.adventuringParties[partyLeaving.name];

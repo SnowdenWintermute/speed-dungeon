@@ -9,7 +9,6 @@ export default function getMonsterPerLevelAttributes(
       attributes[CombatAttribute.Strength] = 8.0;
       attributes[CombatAttribute.Dexterity] = 2.0;
       attributes[CombatAttribute.Vitality] = 4.0;
-      attributes[CombatAttribute.Resilience] = 3.5;
       attributes[CombatAttribute.Hp] = 7.0;
       attributes[CombatAttribute.Mp] = 0.0;
       attributes[CombatAttribute.Agility] = 0.5;
@@ -19,7 +18,6 @@ export default function getMonsterPerLevelAttributes(
     case MonsterType.SkeletonArcher:
       attributes[CombatAttribute.Dexterity] = 12.0;
       attributes[CombatAttribute.Vitality] = 1.5;
-      attributes[CombatAttribute.Resilience] = 3.5;
       attributes[CombatAttribute.Hp] = 5.5;
       attributes[CombatAttribute.Agility] = 1.5;
       attributes[CombatAttribute.ArmorClass] = 5.0;
@@ -34,7 +32,6 @@ export default function getMonsterPerLevelAttributes(
       attributes[CombatAttribute.Agility] = 2.0;
       attributes[CombatAttribute.ArmorClass] = 7.5;
       attributes[CombatAttribute.Evasion] = 12;
-      attributes[CombatAttribute.Resilience] = 4.5;
       break;
     case MonsterType.Vulture:
       attributes[CombatAttribute.Dexterity] = 8.0;
@@ -44,39 +41,34 @@ export default function getMonsterPerLevelAttributes(
       attributes[CombatAttribute.Agility] = 1.5;
       attributes[CombatAttribute.ArmorClass] = 7.5;
       attributes[CombatAttribute.Evasion] = 14;
-      attributes[CombatAttribute.Resilience] = 4.0;
       break;
     case MonsterType.FireMage:
-      attributes[CombatAttribute.Intelligence] = 10.0;
+      attributes[CombatAttribute.Spirit] = 10.0;
       attributes[CombatAttribute.Vitality] = 1.5;
       attributes[CombatAttribute.Hp] = 4.5;
-      attributes[CombatAttribute.Resilience] = 10.0;
       attributes[CombatAttribute.Agility] = 1.5;
       attributes[CombatAttribute.ArmorClass] = 2.5;
       attributes[CombatAttribute.Evasion] = 1;
 
       break;
     case MonsterType.Cultist:
-      attributes[CombatAttribute.Intelligence] = 14.0;
+      attributes[CombatAttribute.Spirit] = 14.0;
       attributes[CombatAttribute.Vitality] = 1.5;
       attributes[CombatAttribute.Hp] = 4.5;
-      attributes[CombatAttribute.Resilience] = 10.0;
       attributes[CombatAttribute.Agility] = 1.5;
       attributes[CombatAttribute.ArmorClass] = 2.5;
       attributes[CombatAttribute.Evasion] = 10;
       break;
     case MonsterType.FireElemental:
-      attributes[CombatAttribute.Intelligence] = 6.0;
+      attributes[CombatAttribute.Spirit] = 6.0;
       attributes[CombatAttribute.Vitality] = 1.0;
       attributes[CombatAttribute.Hp] = 4.0;
-      attributes[CombatAttribute.Resilience] = 3.0;
       attributes[CombatAttribute.Agility] = 1.5;
       break;
     case MonsterType.IceElemental:
-      attributes[CombatAttribute.Intelligence] = 6.0;
+      attributes[CombatAttribute.Spirit] = 6.0;
       attributes[CombatAttribute.Vitality] = 1.0;
       attributes[CombatAttribute.Hp] = 4.0;
-      attributes[CombatAttribute.Resilience] = 3.0;
       attributes[CombatAttribute.Agility] = 1.5;
       break;
     case MonsterType.MetallicGolem:
@@ -85,7 +77,6 @@ export default function getMonsterPerLevelAttributes(
       attributes[CombatAttribute.Vitality] = 2.0;
       attributes[CombatAttribute.ArmorClass] = 18.0;
       attributes[CombatAttribute.Hp] = 9.5;
-      attributes[CombatAttribute.Resilience] = 5.0;
       attributes[CombatAttribute.Agility] = 1.5;
       break;
   }

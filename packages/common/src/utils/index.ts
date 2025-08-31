@@ -1,16 +1,10 @@
 export * from "./get-next-or-previous-number.js";
 export * from "./get-progression-game-max-starting-floor.js";
+export * from "./array-utils.js";
+export * from "./rand-between.js";
 
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { CONSUMABLE_TYPE_STRINGS, Consumable, ConsumableType } from "../items/consumables/index.js";
-import { RandomNumberGenerator } from "../utility-classes/randomizers.js";
-
-export function removeFromArray<T>(array: T[], item: T): undefined | T {
-  const indexToRemove = array.indexOf(item);
-  if (indexToRemove !== -1) {
-    return array.splice(indexToRemove, 1)[0];
-  }
-}
 
 export function iterateNumericEnum<T extends { [name: string]: string | number }>(
   enumType: T
@@ -35,29 +29,6 @@ export function randomNormal() {
   num = num / 10.0 + 0.5; // Translate to 0 -> 1
   if (num > 1 || num < 0) return randomNormal(); // resample between 0 and 1
   return num;
-}
-
-/** random number between two given numbers, inclusive */
-export function randBetween(min: number, max: number, rng: RandomNumberGenerator) {
-  return Math.floor(rng.roll() * (max - min + 1) + min);
-}
-
-export function chooseRandomFromArray<T>(arr: T[], rng: RandomNumberGenerator): Error | T {
-  if (arr.length < 1) return new Error("Array is empty");
-  const randomIndex = randBetween(0, arr.length - 1, rng);
-  const randomMember = arr[randomIndex];
-  if (randomMember === undefined) return new Error("Somehow randomly chose undefined from array");
-  return randomMember;
-}
-
-export function shuffleArray<T>(array: T[]) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const toSwap = array[j]!;
-    array[j] = array[i]!;
-    array[i] = toSwap;
-  }
-  return array;
 }
 
 export function formatVector3(vec3: Vector3) {
@@ -151,8 +122,4 @@ export function getLookRotationFromPositions(
   const up = Vector3.Up(); // Y axis
 
   return Quaternion.FromLookDirectionRH(direction, up);
-}
-
-export function createArrayFilledWithSequentialNumbers(length: number, start: number) {
-  return Array.from({ length: length || 0 }, (_, i) => i + start);
 }

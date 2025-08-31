@@ -1,10 +1,10 @@
 import {
   AdventuringParty,
+  ArrayUtils,
   ERROR_MESSAGES,
   ServerToClientEvent,
   updateCombatantHomePosition,
 } from "@speed-dungeon/common";
-import { removeFromArray } from "@speed-dungeon/common";
 import errorHandler from "../error-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware";
 import { Socket } from "socket.io";
@@ -39,7 +39,7 @@ export default function deleteCharacterHandler(
     );
 
   const wasReadied = game.playersReadied.includes(session.username);
-  removeFromArray(game.playersReadied, session.username);
+  ArrayUtils.removeElement(game.playersReadied, session.username);
   const gameServer = getGameServer();
 
   if (wasReadied)

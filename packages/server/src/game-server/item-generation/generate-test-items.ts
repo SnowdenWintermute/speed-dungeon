@@ -8,6 +8,7 @@ import {
   Inventory,
   Item,
   ItemType,
+  NumberRange,
   iterateNumericEnum,
   randBetween,
 } from "@speed-dungeon/common";
@@ -24,11 +25,15 @@ export default function generateTestItems(combatantProperties: CombatantProperti
 
 export function generateSpecificEquipmentType(
   equipmentBaseItem: EquipmentBaseItem,
-  noAffixes?: boolean
+  options: {
+    noAffixes?: boolean;
+    itemLevel?: number;
+  }
 ) {
+  const { noAffixes, itemLevel } = options;
   const itemGenerationDirector =
     getGameServer().itemGenerationDirectors[equipmentBaseItem.equipmentType];
-  const item = itemGenerationDirector?.createItem(1, idGenerator, {
+  const item = itemGenerationDirector?.createItem(itemLevel || 1, idGenerator, {
     forcedBaseItemOption: {
       type: ItemType.Equipment,
       taggedBaseEquipment: equipmentBaseItem,
@@ -41,7 +46,7 @@ export function generateSpecificEquipmentType(
   return item;
 }
 
-export function generateOneOfEachItem() {
+export function generateOneOfEachItem(ilvlRange: NumberRange) {
   const items: Item[] = [];
 
   for (const [equipmentTypeString, baseItemEnum] of Object.entries(
@@ -50,21 +55,25 @@ export function generateOneOfEachItem() {
     const equipmentType = parseInt(equipmentTypeString) as EquipmentType;
     if (
       ![
-        // EquipmentType.BodyArmor,
-        // EquipmentType.Shield,
-        // EquipmentType.OneHandedMeleeWeapon,
+        EquipmentType.BodyArmor,
+        EquipmentType.Shield,
+        EquipmentType.OneHandedMeleeWeapon,
         EquipmentType.TwoHandedMeleeWeapon,
-        // EquipmentType.TwoHandedRangedWeapon,
+        EquipmentType.TwoHandedRangedWeapon,
       ].includes(equipmentType)
     )
       continue;
 
     for (const baseItemString of iterateNumericEnum(baseItemEnum)) {
       const baseItem = parseInt(baseItemString);
-      const item = generateSpecificEquipmentType({
-        equipmentType: equipmentType,
-        baseItemType: baseItem,
-      });
+      const ilvl = randBetween(ilvlRange.min, ilvlRange.max, rngSingleton);
+      const item = generateSpecificEquipmentType(
+        {
+          equipmentType: equipmentType,
+          baseItemType: baseItem,
+        },
+        { itemLevel: ilvl }
+      );
       if (item instanceof Error || item === undefined) {
         console.error("forced item type not generated:", item);
         continue;

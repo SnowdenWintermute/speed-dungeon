@@ -1,7 +1,7 @@
 import {
+  ArrayUtils,
   ClientToServerEventTypes,
   ServerToClientEventTypes,
-  removeFromArray,
 } from "@speed-dungeon/common";
 import { DisconnectReason, Socket } from "socket.io";
 import leaveGameHandler from "./lobby-event-handlers/leave-game-handler.js";
@@ -31,7 +31,7 @@ export default async function disconnectionHandler(
     gameServer.removeSocketFromChannel(socket.id, channelName);
   }
 
-  if (userCurrentSockets) removeFromArray(userCurrentSockets, socket.id);
+  if (userCurrentSockets) ArrayUtils.removeElement(userCurrentSockets, socket.id);
   if (userCurrentSockets && Object.keys(userCurrentSockets).length < 1)
     gameServer.socketIdsByUsername.remove(session.username);
 

@@ -1,49 +1,49 @@
-import { ArmorCategory, EquipmentType, PrefixType, SuffixType } from "@speed-dungeon/common";
+import { ArmorCategory, EquipmentType, AffixType } from "@speed-dungeon/common";
 
 export function modifyPossibleAffixesByArmorCategory(
   possibleAffixes: {
-    prefix: Partial<Record<PrefixType, number>>;
-    suffix: Partial<Record<PrefixType, number>>;
+    prefix: Partial<Record<AffixType, number>>;
+    suffix: Partial<Record<AffixType, number>>;
   },
   armorType: EquipmentType.BodyArmor | EquipmentType.HeadGear,
   armorCategory: ArmorCategory
 ) {
   switch (armorCategory) {
     case ArmorCategory.Cloth:
-      possibleAffixes.prefix[PrefixType.Mp] = 5;
-      possibleAffixes.suffix[SuffixType.Intelligence] = 5;
+      possibleAffixes.prefix[AffixType.Mp] = 5;
+      possibleAffixes.suffix[AffixType.Spirit] = 5;
       break;
     case ArmorCategory.Leather:
-      possibleAffixes.prefix[PrefixType.Agility] = 5;
-      possibleAffixes.prefix[PrefixType.Evasion] = 5;
-      possibleAffixes.suffix[SuffixType.Dexterity] = 5;
+      possibleAffixes.prefix[AffixType.Agility] = 5;
+      possibleAffixes.prefix[AffixType.Evasion] = 5;
+      possibleAffixes.suffix[AffixType.Dexterity] = 5;
       break;
     case ArmorCategory.Mail:
-      possibleAffixes.prefix[PrefixType.Mp] = 5;
-      possibleAffixes.suffix[SuffixType.Intelligence] = 5;
-      possibleAffixes.prefix[PrefixType.Agility] = 5;
-      possibleAffixes.prefix[PrefixType.Evasion] = 5;
-      possibleAffixes.suffix[SuffixType.Dexterity] = 5;
+      possibleAffixes.prefix[AffixType.Mp] = 5;
+      possibleAffixes.suffix[AffixType.Spirit] = 5;
+      possibleAffixes.prefix[AffixType.Agility] = 5;
+      possibleAffixes.prefix[AffixType.Evasion] = 5;
+      possibleAffixes.suffix[AffixType.Dexterity] = 5;
       break;
     case ArmorCategory.Plate:
-      delete possibleAffixes.prefix[PrefixType.Agility];
-      delete possibleAffixes.prefix[PrefixType.Evasion];
+      delete possibleAffixes.prefix[AffixType.Agility];
+      delete possibleAffixes.prefix[AffixType.Evasion];
       break;
   }
 
   if (armorType === EquipmentType.HeadGear) {
     switch (armorCategory) {
       case ArmorCategory.Cloth:
-        possibleAffixes.suffix[SuffixType.AllBase] = 4;
+        // possibleAffixes.suffix[AffixType.AllBase] = 4;
         break;
       case ArmorCategory.Leather:
-        possibleAffixes.prefix[PrefixType.Accuracy] = 5;
+        possibleAffixes.prefix[AffixType.Accuracy] = 5;
         break;
       case ArmorCategory.Mail:
-        possibleAffixes.prefix[PrefixType.LifeSteal] = 5;
+        possibleAffixes.prefix[AffixType.LifeSteal] = 5;
         break;
       case ArmorCategory.Plate:
-        possibleAffixes.prefix[PrefixType.ArmorPenetration] = 5;
+        possibleAffixes.prefix[AffixType.ArmorPenetration] = 5;
         break;
     }
   }

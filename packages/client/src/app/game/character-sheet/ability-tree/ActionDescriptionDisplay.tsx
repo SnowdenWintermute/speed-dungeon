@@ -1,11 +1,11 @@
 import {
+  ArrayUtils,
   CombatActionResourceChangeProperties,
   Combatant,
   COMBATANT_CLASS_NAME_STRINGS,
   COMBATANT_CONDITION_NAME_STRINGS,
   CombatantAbilityProperties,
   CombatantProperties,
-  createArrayFilledWithSequentialNumbers,
   EQUIPMENT_TYPE_STRINGS,
   HOLDABLE_SLOT_STRINGS,
   iterateNumericEnumKeyedRecord,
@@ -38,7 +38,7 @@ export default function ActionDescriptionDisplay({
   // @TODO - replace "3" with the action's max rank
   const maxRank = isSupportClassAbility ? 2 : 3;
 
-  for (const actionRank of createArrayFilledWithSequentialNumbers(maxRank, 1)) {
+  for (const actionRank of ArrayUtils.createFilledWithSequentialNumbers(maxRank, 1)) {
     const rankDescription = description.getDescriptionByLevel(user, actionRank);
 
     const diff = ActionDescription.getDiff<Partial<typeof rankDescription>>(

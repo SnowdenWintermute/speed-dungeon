@@ -1,5 +1,5 @@
 import {
-  Affixes,
+  EquipmentAffixes,
   CombatAttribute,
   ConsumableType,
   EquipmentBaseItem,
@@ -38,11 +38,14 @@ export abstract class ItemGenerationBuilder {
       forcedIsMagical?: boolean;
       forcedNumAffixes?: { prefixes: number; suffixes: number };
     }
-  ) => Error | Affixes;
+  ) => Error | EquipmentAffixes;
   abstract buildRequirements: (
     baseItem: TaggedBaseItem,
-    affixes: null | Affixes
+    affixes: null | EquipmentAffixes
   ) => Error | Partial<Record<CombatAttribute, number>>;
 
-  abstract buildItemName: (taggedBaseItem: TaggedBaseItem, affixes: null | Affixes) => string;
+  abstract buildItemName: (
+    taggedBaseItem: TaggedBaseItem,
+    affixes: null | EquipmentAffixes
+  ) => string;
 }

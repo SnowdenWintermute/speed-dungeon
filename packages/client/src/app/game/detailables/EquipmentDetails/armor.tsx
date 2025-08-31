@@ -1,4 +1,4 @@
-import { AffixType, Equipment, PrefixType, SuffixType } from "@speed-dungeon/common";
+import { AffixCategory, AffixType, Equipment } from "@speed-dungeon/common";
 import { formatArmorCategory } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
 
@@ -25,8 +25,8 @@ export function ArmorClassText({ equipment }: { equipment: Equipment }) {
   if (typeof armorClassOption === "number") {
     const modifiedArmorClass = Equipment.getModifiedArmorClass(equipment);
     const acIsModified = !!(
-      equipment.affixes[AffixType.Prefix][PrefixType.ArmorClass] ||
-      equipment.affixes[AffixType.Suffix][SuffixType.PercentArmorClass]
+      equipment.affixes[AffixCategory.Prefix]?.[AffixType.FlatArmorClass] ||
+      equipment.affixes[AffixCategory.Suffix]?.[AffixType.PercentArmorClass]
     );
     let modifiedAcStyle = acIsModified ? "text-blue-300" : "";
 

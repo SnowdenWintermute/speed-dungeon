@@ -15,9 +15,8 @@ export const COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL: Record<
     [CombatAttribute.Mp]: 1.0,
     [CombatAttribute.Strength]: 2.5,
     [CombatAttribute.Dexterity]: 1.5,
-    [CombatAttribute.Intelligence]: 0,
+    [CombatAttribute.Spirit]: 0,
     [CombatAttribute.Vitality]: 2.0,
-    [CombatAttribute.Resilience]: 1.0,
     [CombatAttribute.Agility]: 1.0,
   },
   [CombatantClass.Mage]: {
@@ -30,9 +29,8 @@ export const COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL: Record<
     [CombatAttribute.Mp]: 2.0,
     [CombatAttribute.Strength]: 0.5,
     [CombatAttribute.Dexterity]: 0.5,
-    [CombatAttribute.Intelligence]: 2.5,
+    [CombatAttribute.Spirit]: 2.5,
     [CombatAttribute.Vitality]: 1.0,
-    [CombatAttribute.Resilience]: 1.5,
     [CombatAttribute.Agility]: 0.5,
   },
   [CombatantClass.Rogue]: {
@@ -45,9 +43,8 @@ export const COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL: Record<
     [CombatAttribute.Mp]: 1.5,
     [CombatAttribute.Strength]: 1.5,
     [CombatAttribute.Dexterity]: 2.0,
-    [CombatAttribute.Intelligence]: 1.0,
+    [CombatAttribute.Spirit]: 1.0,
     [CombatAttribute.Vitality]: 1.5,
-    [CombatAttribute.Resilience]: 1.5,
     [CombatAttribute.Agility]: 1.5,
   },
 };

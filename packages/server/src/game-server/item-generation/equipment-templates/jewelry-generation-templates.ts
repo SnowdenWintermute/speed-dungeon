@@ -4,10 +4,10 @@ import {
   EquipmentType,
   Jewelry,
   NumberRange,
-  PrefixType,
+  PREFIX_TYPES,
+  AffixType,
   Ring,
-  SuffixType,
-  iterateNumericEnum,
+  SUFFIX_TYPES,
 } from "@speed-dungeon/common";
 import { EquipmentGenerationTemplate } from "./equipment-generation-template-abstract-classes.js";
 
@@ -22,33 +22,31 @@ export class JewelryGenerationTemplate extends EquipmentGenerationTemplate {
 
     this.levelRange = new NumberRange(3, 10);
 
-    for (const prefix of iterateNumericEnum(PrefixType)) {
+    for (const prefix of PREFIX_TYPES) {
       switch (prefix) {
-        case PrefixType.ArmorClass:
-        case PrefixType.PercentDamage:
+        case AffixType.FlatArmorClass:
+        case AffixType.PercentDamage:
           break;
-        case PrefixType.Mp:
-        case PrefixType.Resilience:
-        case PrefixType.Evasion:
-        case PrefixType.Accuracy:
-        case PrefixType.LifeSteal:
-        case PrefixType.ArmorPenetration:
-        case PrefixType.Agility:
+        case AffixType.Mp:
+        case AffixType.Evasion:
+        case AffixType.Accuracy:
+        case AffixType.LifeSteal:
+        case AffixType.ArmorPenetration:
+        case AffixType.Agility:
           this.possibleAffixes.prefix[prefix] = 5;
       }
     }
 
-    for (const suffix of iterateNumericEnum(SuffixType)) {
+    for (const suffix of SUFFIX_TYPES) {
       switch (suffix) {
-        case SuffixType.Durability:
+        case AffixType.Durability:
           break;
-        case SuffixType.Hp:
-        case SuffixType.Vitality:
-        case SuffixType.AllBase:
-        case SuffixType.Strength:
-        case SuffixType.Intelligence:
-        case SuffixType.Dexterity:
-        case SuffixType.Damage:
+        case AffixType.Hp:
+        case AffixType.Vitality:
+        case AffixType.Strength:
+        case AffixType.Spirit:
+        case AffixType.Dexterity:
+        case AffixType.FlatDamage:
           this.possibleAffixes.suffix[suffix] = 5;
       }
     }

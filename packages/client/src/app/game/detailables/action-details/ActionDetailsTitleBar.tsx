@@ -2,12 +2,12 @@ import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { useGameStore } from "@/stores/game-store";
 import {
+  ArrayUtils,
   ClientToServerEvent,
   COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTIONS,
   CombatActionName,
   CombatantActionState,
-  createArrayFilledWithSequentialNumbers,
   getUnmetCostResourceTypes,
 } from "@speed-dungeon/common";
 import React from "react";
@@ -48,7 +48,7 @@ export default function ActionDetailsTitleBar(props: Props) {
             <span className="mr-1">{(actionStateOption?.level ?? 0) > 1 ? "Ranks" : "Rank"}</span>
             {actionStateAndSelectedLevel && (
               <ul className="flex">
-                {createArrayFilledWithSequentialNumbers(actionStateOption?.level || 0, 1).map(
+                {ArrayUtils.createFilledWithSequentialNumbers(actionStateOption?.level || 0, 1).map(
                   (item) => {
                     const costs = action.costProperties.getResourceCosts(
                       focusedCharacterResult.combatantProperties,

@@ -1,6 +1,4 @@
-import cloneDeep from "lodash.clonedeep";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
-import { BurningCombatantCondition } from "../../../../combatants/combatant-conditions/burning.js";
 import { NumberRange } from "../../../../primatives/number-range.js";
 import { addCombatantLevelScaledAttributeToRange } from "../../../action-results/action-hit-outcome-calculation/add-combatant-level-scaled-attribute-to-range.js";
 import {
@@ -17,7 +15,6 @@ import {
 } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
-import { CombatActionName } from "../../combat-action-names.js";
 import { CombatantConditionName } from "../../../../combatants/index.js";
 
 const spellLevelHpChangeValueModifier = 0.5;
@@ -35,6 +32,7 @@ export const FIRE_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {
       };
 
       const baseValues = new NumberRange(4, 8);
+      // const baseValues = new NumberRange(50, 80); // testing
       baseValues.mult(1 + spellLevelHpChangeValueModifier * (actionLevel - 1));
 
       // just get some extra damage for combatant level
@@ -43,7 +41,7 @@ export const FIRE_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {
       addCombatantLevelScaledAttributeToRange({
         range: baseValues,
         combatantProperties: user,
-        attribute: CombatAttribute.Intelligence,
+        attribute: CombatAttribute.Spirit,
         normalizedAttributeScalingByCombatantLevel: 1,
       });
 

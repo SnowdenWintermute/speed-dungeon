@@ -6,10 +6,11 @@ import {
   ResourceChangeSourceCategory,
   KineticDamageType,
   NumberRange,
-  PrefixType,
-  SuffixType,
+  AffixType,
   TwoHandedRangedWeapon,
   iterateNumericEnum,
+  PREFIX_TYPES,
+  SUFFIX_TYPES,
 } from "@speed-dungeon/common";
 import { WeaponGenerationTemplate } from "./equipment-generation-template-abstract-classes.js";
 
@@ -23,34 +24,30 @@ export class TwoHandedRangedWeaponGenerationTemplate extends WeaponGenerationTem
       throw new Error("invalid base item provided");
 
     super(damage, possibleDamageClassifications, equipmentBaseItem);
-    for (const prefix of iterateNumericEnum(PrefixType)) {
+    for (const prefix of PREFIX_TYPES) {
       switch (prefix) {
-        case PrefixType.Mp:
-        case PrefixType.ArmorClass:
+        case AffixType.Mp:
+        case AffixType.FlatArmorClass:
           break;
-        case PrefixType.Evasion:
-        case PrefixType.Accuracy:
-        case PrefixType.PercentDamage:
-        case PrefixType.LifeSteal:
-        case PrefixType.Resilience:
-        case PrefixType.ArmorPenetration:
-        case PrefixType.Agility:
+        case AffixType.Evasion:
+        case AffixType.Accuracy:
+        case AffixType.PercentDamage:
+        case AffixType.LifeSteal:
+        case AffixType.ArmorPenetration:
+        case AffixType.Agility:
           this.possibleAffixes.prefix[prefix] = 5;
       }
     }
-    for (const suffix of iterateNumericEnum(SuffixType)) {
+    for (const suffix of SUFFIX_TYPES) {
       switch (suffix) {
-        case SuffixType.Hp:
+        case AffixType.Hp:
           break;
-        case SuffixType.AllBase:
-          this.possibleAffixes.suffix[suffix] = 4;
-          break;
-        case SuffixType.Strength:
-        case SuffixType.Intelligence:
-        case SuffixType.Dexterity:
-        case SuffixType.Vitality:
-        case SuffixType.Damage:
-        case SuffixType.Durability:
+        case AffixType.Strength:
+        case AffixType.Spirit:
+        case AffixType.Dexterity:
+        case AffixType.Vitality:
+        case AffixType.FlatDamage:
+        case AffixType.Durability:
           this.possibleAffixes.suffix[suffix] = 5;
       }
     }
@@ -106,7 +103,7 @@ export const TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(7, 10);
         template.damage = new NumberRange(10, 22);
         template.requirements[CombatAttribute.Dexterity] = 7;
-        template.requirements[CombatAttribute.Intelligence] = 13;
+        template.requirements[CombatAttribute.Spirit] = 13;
         mainDamageClassification.category = ResourceChangeSourceCategory.Magical;
         template.maxDurability = 7;
         break;

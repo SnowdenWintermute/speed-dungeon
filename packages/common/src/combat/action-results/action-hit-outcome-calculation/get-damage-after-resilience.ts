@@ -6,7 +6,7 @@ export default function getDamageAfterResilience(
   userCombatAttributes: Record<CombatAttribute, number>,
   targetCombatAttributes: Record<CombatAttribute, number>
 ) {
-  const targetResilience = targetCombatAttributes[CombatAttribute.Resilience];
+  const targetResilience = targetCombatAttributes[CombatAttribute.Spirit];
   const resiliencePen = 0;
   const penetratedResilience = Math.max(0, targetResilience - resiliencePen);
   const damageReductionPercentage = Math.min(

@@ -14,8 +14,8 @@ import {
   AbilityTreeAbility,
   AbilityType,
   AbilityUtils,
+  ArrayUtils,
   ClientToServerEvent,
-  COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
   Combatant,
   COMBATANT_CONDITION_DESCRIPTIONS,
@@ -23,7 +23,6 @@ import {
   COMBATANT_TRAIT_DESCRIPTIONS,
   CombatantAbilityProperties,
   CombatantConditionName,
-  createArrayFilledWithSequentialNumbers,
   getAbilityTreeAbilityNameString,
 } from "@speed-dungeon/common";
 import createPageButtons from "./create-page-buttons";
@@ -32,7 +31,6 @@ import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { COMBAT_ACTION_DESCRIPTIONS } from "../../character-sheet/ability-tree/ability-descriptions";
 import { ActionDescriptionComponent } from "../../character-sheet/ability-tree/action-description";
 import Divider from "@/app/components/atoms/Divider";
-import { getAbilityIcon } from "../../icons/get-action-icon";
 import { ACTION_ICONS } from "../../character-sheet/ability-tree/action-icons";
 import { TRAIT_ICONS } from "../../character-sheet/ability-tree/trait-icons";
 
@@ -181,7 +179,7 @@ function getConditionsToShowDetailButtonsFor(ability: AbilityTreeAbility, user: 
 
   const description = COMBAT_ACTION_DESCRIPTIONS[ability.actionName];
   const conditionsToShowDetailButtonsFor: CombatantConditionName[] = [];
-  for (const actionRank of createArrayFilledWithSequentialNumbers(3, 1)) {
+  for (const actionRank of ArrayUtils.createFilledWithSequentialNumbers(3, 1)) {
     const rankDescription = description.getDescriptionByLevel(user, actionRank);
     const conditionsAppliedOption = rankDescription[ActionDescriptionComponent.AppliesConditions];
     if (!conditionsAppliedOption) continue;

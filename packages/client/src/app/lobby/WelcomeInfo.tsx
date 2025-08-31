@@ -53,7 +53,7 @@ function PatchNotes() {
       <ul className="list-disc list-inside mb-1">
         <li>
           {
-            "Strength, Dexterity and Intelligence now add damage to their respective actions based on a more conservative formula: (attribute * combatant_level / 30)"
+            "Strength, Dexterity and Spirit now add damage to their respective actions based on a more conservative formula: (attribute * combatant_level / 30)"
           }
         </li>
         <li>
@@ -154,7 +154,7 @@ function PatchNotes() {
             "New ability, 'Healing', a magical spell that restores HP to targets, or if they are 'undead', damages them for 1.5x the rolled value"
           }
         </li>
-        <li>{"Intelligence now adds MP and increases spell damage and healing"}</li>
+        <li>{"Spirit now adds MP and increases spell damage and healing"}</li>
         <li>
           {
             "Focus now adds increases spell critical strike chance and damage, and penetrates Resilience"

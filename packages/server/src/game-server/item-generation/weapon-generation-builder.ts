@@ -1,4 +1,5 @@
 import {
+  ArrayUtils,
   EQUIPMENT_TYPE_STRINGS,
   ERROR_MESSAGES,
   EquipmentBaseItem,
@@ -6,7 +7,6 @@ import {
   EquipmentType,
   ResourceChangeSource,
   WeaponProperties,
-  shuffleArray,
 } from "@speed-dungeon/common";
 import { ItemGenerationBuilder } from "./item-generation-builder.js";
 import { WeaponGenerationTemplate } from "./equipment-templates/equipment-generation-template-abstract-classes.js";
@@ -40,7 +40,7 @@ export class WeaponGenerationBuilder<T extends WeaponGenerationTemplate>
       );
     // roll damageClassifications from possible list
     let damageClassifications: ResourceChangeSource[] = [];
-    let shuffledPossibleClassifications = shuffleArray(
+    let shuffledPossibleClassifications = ArrayUtils.shuffle(
       cloneDeep(template.possibleDamageClassifications)
     );
 

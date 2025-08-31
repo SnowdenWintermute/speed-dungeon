@@ -195,7 +195,7 @@ export class HitOutcomeMitigationCalculator {
     const actionBaseCritChance = action.hitOutcomeProperties.getCritChance(user, actionLevel);
 
     const targetAttributes = CombatantProperties.getTotalAttributes(target);
-    const targetAvoidaceAttributeValue = targetAttributes[CombatAttribute.Resilience];
+    const targetAvoidaceAttributeValue = targetAttributes[CombatAttribute.Spirit];
 
     const targetCritAvoidance = targetWillAttemptMitigation ? targetAvoidaceAttributeValue : 0;
     const finalUnroundedCritChance = (actionBaseCritChance || 0) - targetCritAvoidance;

@@ -7,7 +7,6 @@ export function getMonsterStartingAttributes(monsterType: MonsterType): Combatan
       attributes[CombatAttribute.Vitality] = 2.0;
       attributes[CombatAttribute.ArmorClass] = 15.0;
       attributes[CombatAttribute.Hp] = 7.5;
-      attributes[CombatAttribute.Resilience] = 3.0;
       attributes[CombatAttribute.Accuracy] = 70.0;
       attributes[CombatAttribute.Strength] = 10.0;
       attributes[CombatAttribute.Speed] = 1.0;
@@ -16,7 +15,6 @@ export function getMonsterStartingAttributes(monsterType: MonsterType): Combatan
       attributes[CombatAttribute.Strength] = 35.0;
       attributes[CombatAttribute.Dexterity] = 1.0;
       attributes[CombatAttribute.Vitality] = 2.0;
-      attributes[CombatAttribute.Resilience] = 4.0;
       attributes[CombatAttribute.Hp] = 2.0;
       // TESTING
       attributes[CombatAttribute.Hp] = 150.0;
@@ -59,19 +57,17 @@ export function getMonsterStartingAttributes(monsterType: MonsterType): Combatan
       attributes[CombatAttribute.Speed] = 1.0;
       break;
     case MonsterType.FireMage:
-      attributes[CombatAttribute.Intelligence] = 4.0;
+      attributes[CombatAttribute.Spirit] = 4.0;
       attributes[CombatAttribute.Vitality] = 1.5;
       attributes[CombatAttribute.Hp] = 3.0;
-      attributes[CombatAttribute.Resilience] = 2.0;
       attributes[CombatAttribute.Accuracy] = 60.0;
       attributes[CombatAttribute.Speed] = 1.0;
       break;
     case MonsterType.Cultist:
-      attributes[CombatAttribute.Intelligence] = 6.0;
+      attributes[CombatAttribute.Spirit] = 6.0;
       attributes[CombatAttribute.Hp] = 45.0;
       // attributes[CombatAttribute.Hp] = 20.0;
       attributes[CombatAttribute.Vitality] = 1.5;
-      attributes[CombatAttribute.Resilience] = 2.0;
       attributes[CombatAttribute.Strength] = 10; // @TESTING remove
       attributes[CombatAttribute.Dexterity] = 10; // @TESTING remove
       // attributes[CombatAttribute.Accuracy] = 60.0;
@@ -80,18 +76,16 @@ export function getMonsterStartingAttributes(monsterType: MonsterType): Combatan
       attributes[CombatAttribute.Speed] = 7.0;
       break;
     case MonsterType.FireElemental:
-      attributes[CombatAttribute.Intelligence] = 4.0;
+      attributes[CombatAttribute.Spirit] = 4.0;
       attributes[CombatAttribute.Vitality] = 1.0;
       attributes[CombatAttribute.Hp] = 3.0;
-      attributes[CombatAttribute.Resilience] = 2.0;
       attributes[CombatAttribute.Accuracy] = 60.0;
       attributes[CombatAttribute.Speed] = 1.0;
       break;
     case MonsterType.IceElemental:
-      attributes[CombatAttribute.Intelligence] = 4.0;
+      attributes[CombatAttribute.Spirit] = 4.0;
       attributes[CombatAttribute.Vitality] = 1.0;
       attributes[CombatAttribute.Hp] = 3.0;
-      attributes[CombatAttribute.Resilience] = 2.0;
       attributes[CombatAttribute.Accuracy] = 60.0;
       attributes[CombatAttribute.Speed] = 1.0;
       break;

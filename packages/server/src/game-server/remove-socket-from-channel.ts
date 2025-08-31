@@ -1,4 +1,4 @@
-import { ServerToClientEvent, removeFromArray } from "@speed-dungeon/common";
+import { ArrayUtils, ServerToClientEvent } from "@speed-dungeon/common";
 import { GameServer } from "./index.js";
 
 export default function removeSocketFromChannel(
@@ -18,7 +18,7 @@ export default function removeSocketFromChannel(
   const session = this.connections.get(socketId);
   if (!session)
     return console.error("tried to remove a socket from a channel but it wasn't registered");
-  removeFromArray(session.channels, channelLeavingName);
+  ArrayUtils.removeElement(session.channels, channelLeavingName);
 
   const userBrowserSessions = channelLeaving.users[session.username];
   if (!userBrowserSessions)

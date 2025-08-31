@@ -1,147 +1,66 @@
-import { PrefixType } from "@speed-dungeon/common";
+import { AffixType, PrefixType } from "@speed-dungeon/common";
 
 export function getPrefixName(prefixType: PrefixType, tier: number) {
-  switch (prefixType) {
-    case PrefixType.Mp:
-      switch (tier) {
-        case 1:
-          return "Bluejay's";
-        case 2:
-          return "Cockatoo's";
-        case 3:
-          return "Owl's";
-        case 4:
-          return "Kea's";
-        case 5:
-          return "Raven's";
-        default:
-          return "hacked";
-      }
-    case PrefixType.ArmorClass:
-      switch (tier) {
-        case 1:
-          return "Sturdy";
-        case 2:
-          return "Strong";
-        case 3:
-          return "Robust";
-        case 4:
-          return "Reinforced";
-        case 5:
-          return "Unyielding";
-        default:
-          return "hacked";
-      }
-    case PrefixType.Accuracy:
-      switch (tier) {
-        case 1:
-          return "Steady";
-        case 2:
-          return "Stable";
-        case 3:
-          return "Sighted";
-        case 4:
-          return "Guided";
-        case 5:
-          return "Precient";
-        default:
-          return "hacked";
-      }
-    case PrefixType.PercentDamage: {
-      switch (tier) {
-        case 1:
-          return "Jagged";
-        case 2:
-          return "Deadly";
-        case 3:
-          return "Vicious";
-        case 4:
-          return "Brutal";
-        case 5:
-          return "Savage";
-        default:
-          return "hacked";
-      }
-    }
-    case PrefixType.LifeSteal: {
-      switch (tier) {
-        case 1:
-          return "Mosquito's";
-        case 2:
-          return "Tick's";
-        case 3:
-          return "Leech's";
-        case 4:
-          return "Bat's";
-        case 5:
-          return "Lamprey's";
-        default:
-          return "hacked";
-      }
-    }
-    case PrefixType.Resilience: {
-      switch (tier) {
-        case 1:
-          return "Spirited";
-        case 2:
-          return "Hardy";
-        case 3:
-          return "Tenacious";
-        case 4:
-          return "Stalwart";
-        case 5:
-          return "Resolute";
-        default:
-          return "hacked";
-      }
-    }
-    case PrefixType.Evasion: {
-      switch (tier) {
-        case 1:
-          return "Monkey's";
-        case 2:
-          return "Rabbit's";
-        case 3:
-          return "Squirrel's";
-        case 4:
-          return "Chipmonk's";
-        case 5:
-          return "Field Mouse's";
-        default:
-          return "hacked";
-      }
-    }
-    case PrefixType.ArmorPenetration: {
-      switch (tier) {
-        case 1:
-          return "Heavy";
-        case 2:
-          return "Dense";
-        case 3:
-          return "Solid";
-        case 4:
-          return "Puncturing";
-        case 5:
-          return "Penetrating";
-        default:
-          return "hacked";
-      }
-    }
-    case PrefixType.Agility: {
-      switch (tier) {
-        case 1:
-          return "Maneuverable";
-        case 2:
-          return "Lightweight";
-        case 3:
-          return "Ultralight";
-        case 4:
-          return "Featherlight";
-        case 5:
-          return "Weightless";
-        default:
-          return "hacked";
-      }
-    }
-  }
+  const nameOption = PREFIX_NAMES[prefixType][tier];
+  if (nameOption === undefined) return "Hacked";
+  return nameOption;
 }
+
+const PREFIX_NAMES: Record<PrefixType, Record<number, string>> = {
+  [AffixType.Mp]: {
+    [1]: "Bluejay's",
+    [2]: "Cockatoo's",
+    [3]: "Owl's",
+    [4]: "Kea's",
+    [5]: "Raven's",
+  },
+  [AffixType.FlatArmorClass]: {
+    [1]: "Sturdy",
+    [2]: "Strong",
+    [3]: "Robust",
+    [4]: "Reinforced",
+    [5]: "Unyielding",
+  },
+  [AffixType.Accuracy]: {
+    [1]: "Steady",
+    [2]: "Stable",
+    [3]: "Sighted",
+    [4]: "Guided",
+    [5]: "Precient",
+  },
+  [AffixType.PercentDamage]: {
+    [1]: "Jagged",
+    [2]: "Deadly",
+    [3]: "Vicious",
+    [4]: "Brutal",
+    [5]: "Savage",
+  },
+  [AffixType.LifeSteal]: {
+    [1]: "Mosquito's",
+    [2]: "Tick's",
+    [3]: "Leech's",
+    [4]: "Bat's",
+    [5]: "Lamprey's",
+  },
+  [AffixType.Evasion]: {
+    [1]: "Monkey's",
+    [2]: "Rabbit's",
+    [3]: "Squirrel's",
+    [4]: "Chipmonk's",
+    [5]: "Field Mouse's",
+  },
+  [AffixType.ArmorPenetration]: {
+    [1]: "Heavy",
+    [2]: "Dense",
+    [3]: "Solid",
+    [4]: "Puncturing",
+    [5]: "Penetrating",
+  },
+  [AffixType.Agility]: {
+    [1]: "Maneuverable",
+    [2]: "Lightweight",
+    [3]: "Ultralight",
+    [4]: "Featherlight",
+    [5]: "Weightless",
+  },
+};

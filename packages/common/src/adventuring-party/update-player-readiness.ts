@@ -1,5 +1,5 @@
+import { ArrayUtils } from "../utils/array-utils.js";
 import { AdventuringParty } from "./index.js";
-import { removeFromArray } from "../utils/index.js";
 
 export enum DescendOrExplore {
   Explore,
@@ -11,8 +11,8 @@ export default function updatePlayerReadiness(
   username: string,
   descendOrExplore: DescendOrExplore
 ) {
-  const wasReadyToDescend = removeFromArray(party.playersReadyToDescend, username);
-  const wasReadyToExplore = removeFromArray(party.playersReadyToExplore, username);
+  const wasReadyToDescend = ArrayUtils.removeElement(party.playersReadyToDescend, username);
+  const wasReadyToExplore = ArrayUtils.removeElement(party.playersReadyToExplore, username);
 
   switch (descendOrExplore) {
     case DescendOrExplore.Explore:

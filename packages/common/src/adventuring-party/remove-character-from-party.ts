@@ -1,10 +1,10 @@
 import { AdventuringParty } from "./index.js";
 import { EntityId } from "../primatives/index.js";
-import { removeFromArray } from "../utils/index.js";
 import { SpeedDungeonPlayer } from "../game/player.js";
 import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { Battle } from "../battle/index.js";
+import { ArrayUtils } from "../utils/array-utils.js";
 
 export function removeCharacterFromParty(
   party: AdventuringParty,
@@ -14,11 +14,11 @@ export function removeCharacterFromParty(
 ): Error | Combatant {
   if (battleOption) Battle.removeCombatant(battleOption, characterId);
 
-  removeFromArray(player.characterIds, characterId);
+  ArrayUtils.removeElement(player.characterIds, characterId);
   const character = party.characters[characterId];
   delete party.characters[characterId];
 
-  removeFromArray(party.characterPositions, characterId);
+  ArrayUtils.removeElement(party.characterPositions, characterId);
 
   if (character === undefined) return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
 

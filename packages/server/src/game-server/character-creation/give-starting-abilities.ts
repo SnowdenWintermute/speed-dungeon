@@ -16,9 +16,9 @@ export function giveStartingAbilities(combatantProperties: CombatantProperties) 
     CombatActionName.ReadSkillBook,
     // CombatActionName.ChainingSplitArrowParent,
     // CombatActionName.Counterattack,
-    // CombatActionName.IceBoltParent,
-    // CombatActionName.Fire,
-    // CombatActionName.Healing,
+    CombatActionName.IceBoltParent,
+    CombatActionName.Fire,
+    CombatActionName.Healing,
     // CombatActionName.ExplodingArrowParent,
     // CombatActionName.Blind,
   ];

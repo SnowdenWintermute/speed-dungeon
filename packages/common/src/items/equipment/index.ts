@@ -5,7 +5,14 @@ import { applyEquipmentTraitsToResourceChangeSource } from "./equipment-properti
 import getBaseArmorClass from "./equipment-properties/get-base-armor-class.js";
 import getModifiedWeaponDamageRange from "./equipment-properties/get-modified-weapon-damage-range.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { AffixType, Affixes, PrefixType, SuffixType } from "./affixes.js";
+import {
+  Affix,
+  AffixCategory,
+  AffixType,
+  EquipmentAffixes,
+  PrefixType,
+  SuffixType,
+} from "./affixes.js";
 import {
   EquipmentBaseItemProperties,
   WeaponProperties,
@@ -26,7 +33,7 @@ export * from "./affixes.js";
 
 export class Equipment extends Item {
   attributes: CombatantAttributeRecord = {};
-  affixes: Affixes = { [AffixType.Prefix]: {}, [AffixType.Suffix]: {} };
+  affixes: EquipmentAffixes = {};
   constructor(
     public entityProperties: EntityProperties,
     public itemLevel: number,
@@ -56,19 +63,36 @@ export class Equipment extends Item {
     );
   }
 
+  static getAffixAttributeValue(
+    equipment: Equipment,
+    affixTypeToFind: AffixType,
+    attributeToFind: CombatAttribute
+  ) {
+    for (const [category, affixes] of iterateNumericEnumKeyedRecord(equipment.affixes)) {
+      for (const [affixType, affix] of iterateNumericEnumKeyedRecord(affixes)) {
+        if (affixType !== affixTypeToFind) continue;
+        for (const [attribute, value] of iterateNumericEnumKeyedRecord(affix.combatAttributes)) {
+          if (attribute === attributeToFind) return value;
+        }
+      }
+    }
+    return 0;
+  }
+
   static getModifiedArmorClass(equipment: Equipment) {
     const baseArmorClass = Equipment.getBaseArmorClass(equipment);
-    let withFlatAdditive = baseArmorClass;
-    if (equipment.affixes[AffixType.Prefix][PrefixType.ArmorClass]) {
-      withFlatAdditive +=
-        equipment.affixes[AffixType.Prefix][PrefixType.ArmorClass].combatAttributes[
-          CombatAttribute.ArmorClass
-        ] || 0;
-    }
+    const flatArmorClassAffixBonus = Equipment.getAffixAttributeValue(
+      equipment,
+      AffixType.FlatArmorClass,
+      CombatAttribute.ArmorClass
+    );
+    const withFlatAdditive = baseArmorClass + flatArmorClassAffixBonus;
+
     let percentModifier = 1.0;
-    if (equipment.affixes[AffixType.Suffix][SuffixType.PercentArmorClass]) {
+
+    if (equipment.affixes[AffixCategory.Suffix]?.[AffixType.PercentArmorClass]) {
       const traitPercentage =
-        equipment.affixes[AffixType.Suffix][SuffixType.PercentArmorClass].equipmentTraits[
+        equipment.affixes[AffixCategory.Suffix]?.[AffixType.PercentArmorClass].equipmentTraits[
           EquipmentTraitType.ArmorClassPercentage
         ]?.value || 0;
       percentModifier += traitPercentage / 100;
@@ -83,7 +107,7 @@ export class Equipment extends Item {
     const { inherentMax, current } = durability;
     let additive = 0;
     const durabilityTraitOption =
-      equipment.affixes[AffixType.Suffix][SuffixType.Durability]?.equipmentTraits[
+      equipment.affixes[AffixCategory.Suffix]?.[AffixType.Durability]?.equipmentTraits[
         EquipmentTraitType.FlatDurabilityAdditive
       ];
     if (durabilityTraitOption) additive = durabilityTraitOption.value;
@@ -106,24 +130,44 @@ export class Equipment extends Item {
   }
 
   static hasPrefix(equipment: Equipment) {
-    return Object.values(equipment.affixes[AffixType.Prefix]).length > 0;
+    return Equipment.iteratePrefixes(equipment).length > 0;
   }
   static hasSuffix(equipment: Equipment) {
-    return Object.values(equipment.affixes[AffixType.Suffix]).length > 0;
+    return Equipment.iterateSuffixes(equipment).length > 0;
   }
-  static iterateAffixes(equipment: Equipment) {
-    const affixes = [];
 
-    for (const [prefixType, affix] of iterateNumericEnumKeyedRecord(
-      equipment.affixes[AffixType.Prefix]
-    )) {
-      affixes.push(affix);
+  static insertOrReplaceAffix(
+    equipment: Equipment,
+    affixCategory: AffixCategory,
+    affixType: AffixType,
+    affix: Affix
+  ) {
+    const existingCategory = equipment.affixes[affixCategory];
+    if (existingCategory === undefined)
+      equipment.affixes[affixCategory] = {
+        [affixType]: affix,
+      };
+    else {
+      existingCategory[affixType] = affix;
     }
-    for (const [suffixType, affix] of iterateNumericEnumKeyedRecord(
-      equipment.affixes[AffixType.Suffix]
-    )) {
-      affixes.push(affix);
-    }
+  }
+
+  static iteratePrefixes(equipment: Equipment) {
+    const prefixes =
+      equipment.affixes[AffixCategory.Prefix] || ({} as Partial<Record<PrefixType, Affix>>);
+    return iterateNumericEnumKeyedRecord(prefixes);
+  }
+  static iterateSuffixes(equipment: Equipment) {
+    const suffixes =
+      equipment.affixes[AffixCategory.Suffix] || ({} as Partial<Record<SuffixType, Affix>>);
+    return iterateNumericEnumKeyedRecord(suffixes);
+  }
+
+  static iterateAffixes(equipment: Equipment) {
+    const affixes = [
+      ...Equipment.iteratePrefixes(equipment).map(([affixType, affix]) => affix),
+      ...Equipment.iterateSuffixes(equipment).map(([affixType, affix]) => affix),
+    ];
 
     return affixes;
   }

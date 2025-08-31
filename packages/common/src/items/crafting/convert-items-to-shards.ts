@@ -5,12 +5,11 @@ import {
   CombatantProperties,
   CombatantTraitType,
   Inventory,
-  applyEquipmentEffectWhileMaintainingResourcePercentages,
 } from "../../combatants/index.js";
 import { EntityId } from "../../primatives/index.js";
-import { removeFromArray } from "../../utils/index.js";
 import { DungeonRoomType } from "../../adventuring-party/dungeon-room.js";
 import { getItemSellPrice } from "./shard-sell-prices.js";
+import { ArrayUtils } from "../../utils/array-utils.js";
 
 export function combatantIsAllowedToConvertItemsToShards(
   combatantProperties: CombatantProperties,
@@ -38,7 +37,7 @@ export function convertItemsToShards(itemIds: EntityId[], combatant: Combatant) 
     const shardsResult = convertItemToShards(item, combatantProperties);
     if (shardsResult instanceof Error) return shardsResult;
     combatantProperties.inventory.shards += shardsResult;
-    removeFromArray(itemIds, item.entityProperties.id);
+    ArrayUtils.removeElement(itemIds, item.entityProperties.id);
     if (itemIds.length === 0) break;
   }
 }
