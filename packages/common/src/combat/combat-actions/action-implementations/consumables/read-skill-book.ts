@@ -5,7 +5,6 @@ import {
   CombatActionOrigin,
   TargetCategories,
 } from "../../index.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import {
   COMBATANT_CLASS_TO_SKILL_BOOK_TYPE,
   Consumable,
@@ -115,7 +114,6 @@ const config: CombatActionComponentConfig = {
   shouldExecute: () => true,
   getChildren: () => [],
   getParent: () => null,
-  getRequiredRange: () => CombatActionRequiredRange.Melee,
 };
 
 export const READ_SKILL_BOOK = new CombatActionLeaf(CombatActionName.ReadSkillBook, config);

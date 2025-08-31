@@ -5,7 +5,6 @@ import {
   CombatActionOrigin,
   TargetCategories,
 } from "../../index.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import {
   ActionResolutionStepType,
   AnimationTimingType,
@@ -95,7 +94,6 @@ const config: CombatActionComponentConfig = {
   shouldExecute: () => true,
   getChildren: (_user) => [],
   getParent: () => null,
-  getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
   getConcurrentSubActions(combatantContext) {
     return [];
   },

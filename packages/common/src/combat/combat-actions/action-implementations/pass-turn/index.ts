@@ -13,7 +13,6 @@ import {
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
 import { genericCombatActionCostProperties } from "../../combat-action-cost-properties.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import {
   ActionHitOutcomePropertiesBaseTypes,
   GENERIC_HIT_OUTCOME_PROPERTIES,
@@ -23,7 +22,6 @@ import { ActionResolutionStepType } from "../../../../action-processing/index.js
 export const passTurnConfig: CombatActionComponentConfig = {
   description: "Skip your own turn",
   origin: CombatActionOrigin.SpellCast,
-  getRequiredRange: () => CombatActionRequiredRange.Ranged,
   targetingProperties: {
     ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle],
     getValidTargetCategories: () => TargetCategories.User,

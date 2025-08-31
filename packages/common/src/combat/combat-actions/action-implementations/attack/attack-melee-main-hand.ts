@@ -23,7 +23,6 @@ import {
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
 import { getMeleeAttackBaseStepsConfig } from "./base-melee-attack-steps-config.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { COMBAT_ACTIONS } from "../index.js";
 import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
@@ -50,7 +49,6 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
 export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   description: "Attack target using equipment in main hand",
   origin: CombatActionOrigin.Attack,
-  getRequiredRange: () => CombatActionRequiredRange.Melee,
   getOnUseMessage: null,
   targetingProperties: GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent],
   costProperties: {

@@ -4,7 +4,6 @@ import {
   CombatActionName,
   CombatActionOrigin,
 } from "../../index.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CHAINING_SPLIT_ARROW_PARENT } from "./index.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
@@ -166,7 +165,6 @@ const config: CombatActionComponentConfig = {
     return [];
   },
   getParent: () => CHAINING_SPLIT_ARROW_PARENT,
-  getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
   getConcurrentSubActions() {
     return [];
   },

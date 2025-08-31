@@ -43,7 +43,6 @@ const config: CombatActionComponentConfig = {
   getOnUseMessage: null,
   getChildren: (context) => [],
   getParent: () => ICE_BOLT_PARENT,
-  getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
   getConcurrentSubActions() {
     return [];
   },

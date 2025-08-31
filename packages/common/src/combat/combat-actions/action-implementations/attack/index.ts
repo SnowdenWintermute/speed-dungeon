@@ -1,13 +1,11 @@
 import {
-  COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
   CombatActionOrigin,
 } from "../../index.js";
-import { CombatantEquipment, CombatantProperties } from "../../../../combatants/index.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
+import { CombatantEquipment } from "../../../../combatants/index.js";
 import { ATTACK_MELEE_MAIN_HAND } from "./attack-melee-main-hand.js";
 import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
 import { ATTACK_MELEE_OFF_HAND } from "./attack-melee-off-hand.js";
@@ -59,12 +57,6 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
   },
   getParent: () => {
     return null;
-  },
-  getRequiredRange: function (
-    user: CombatantProperties,
-    self: CombatActionComponent
-  ): CombatActionRequiredRange {
-    throw new Error("this action should never be asked for its required range");
   },
   stepsConfig: new ActionResolutionStepsConfig(
     {

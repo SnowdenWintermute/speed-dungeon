@@ -34,7 +34,6 @@ import { AdventuringParty } from "../../../../adventuring-party/index.js";
 const config: CombatActionComponentConfig = {
   description: "Inflict magical fire damage on enemies",
   origin: CombatActionOrigin.TriggeredCondition,
-  getRequiredRange: () => CombatActionRequiredRange.Ranged,
   getOnUseMessage: (data) => {
     return `${data.nameOfTarget} is burning`;
   },

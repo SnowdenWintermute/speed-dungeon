@@ -12,6 +12,8 @@ import { AUTO_TARGETING_FUNCTIONS } from "../targeting/auto-targeting/mapped-fun
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { CombatActionIntent } from "./combat-action-intent.js";
 import { EquipmentType } from "../../items/equipment/index.js";
+import { CombatantProperties } from "../../combatants/index.js";
+import { CombatActionRequiredRange } from "./combat-action-range.js";
 
 export interface CombatActionTargetingPropertiesConfig {
   getTargetingSchemes: (actionLevel: number) => TargetingScheme[];
@@ -23,12 +25,15 @@ export interface CombatActionTargetingPropertiesConfig {
   // usability
   usabilityContext: CombatActionUsabilityContext;
   getRequiredEquipmentTypeOptions: (actionLevel: number) => EquipmentType[];
-
   getAutoTarget: (
     combatantContext: CombatantContext,
     actionTrackerOption: null | ActionTracker,
     self: CombatActionComponent
   ) => Error | null | CombatActionTarget;
+  getRequiredRange: (
+    user: CombatantProperties,
+    self: CombatActionComponent
+  ) => CombatActionRequiredRange;
 }
 
 export interface CombatActionTargetingProperties extends CombatActionTargetingPropertiesConfig {
@@ -54,7 +59,7 @@ const hostileSingle: CombatActionTargetingPropertiesConfig = {
   intent: CombatActionIntent.Malicious,
   usabilityContext: CombatActionUsabilityContext.InCombat,
   getRequiredEquipmentTypeOptions: () => [],
-
+  getRequiredRange: () => CombatActionRequiredRange.Melee,
   getAutoTarget: (
     combatantContext: CombatantContext,
     actionTrackerOption: null | ActionTracker,

@@ -17,7 +17,6 @@ import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { getProjectileShootingActionBaseStepsConfig } from "../getProjectileShootingActionBaseStepsConfig.js";
 import { ProjectileShootingActionType } from "../projectile-shooting-action-animation-names.js";
 import {
@@ -62,7 +61,6 @@ const config: CombatActionComponentConfig = {
   description: "Summon an icy projectile",
   prerequisiteAbilities: [{ type: AbilityType.Action, actionName: CombatActionName.Fire }],
   origin: CombatActionOrigin.SpellCast,
-  getRequiredRange: () => CombatActionRequiredRange.Ranged,
   targetingProperties: GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle],
   hitOutcomeProperties: iceBoltProjectileHitOutcomeProperties,
   costProperties: {

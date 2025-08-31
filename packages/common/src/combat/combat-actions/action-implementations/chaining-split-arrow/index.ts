@@ -6,7 +6,6 @@ import {
   CombatActionName,
   CombatActionOrigin,
 } from "../../index.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
 import {
@@ -89,7 +88,6 @@ const config: CombatActionComponentConfig = {
   shouldExecute: () => true,
   getChildren: (_user) => [],
   getParent: () => null,
-  getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
   getConcurrentSubActions(context) {
     return context.combatantContext
       .getOpponents()

@@ -27,7 +27,6 @@ import {
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { getProjectileShootingActionBaseStepsConfig } from "../getProjectileShootingActionBaseStepsConfig.js";
 import { ProjectileShootingActionType } from "../projectile-shooting-action-animation-names.js";
 import {
@@ -171,7 +170,6 @@ stepsConfig.steps = {
 export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   description: "Attack target using ranged weapon",
   origin: CombatActionOrigin.Attack,
-  getRequiredRange: () => CombatActionRequiredRange.Ranged,
   targetingProperties: {
     ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle],
     getRequiredEquipmentTypeOptions: () => [EquipmentType.TwoHandedRangedWeapon],

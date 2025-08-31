@@ -7,7 +7,6 @@ import {
   TargetCategories,
 } from "../../index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import {
   ActionResolutionStepType,
@@ -186,7 +185,6 @@ const config: CombatActionComponentConfig = {
 
   getChildren: (_user) => [],
   getParent: () => null,
-  getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
   getConcurrentSubActions(combatantContext) {
     return [];
   },

@@ -9,7 +9,6 @@ import {
   CombatantProperties,
   CombatantTraitType,
 } from "../../../../combatants/index.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import {
   ResourceChangeSource,
   ResourceChangeSourceCategory,
@@ -17,7 +16,6 @@ import {
 } from "../../../hp-change-source-types.js";
 import { NumberRange } from "../../../../primatives/number-range.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
-import { randBetween } from "../../../../utils/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { ConsumableType } from "../../../../items/consumables/index.js";
 import {
@@ -36,6 +34,7 @@ import {
 } from "../../combat-action-cost-properties.js";
 import { MEDICATION_ACTION_BASE_STEPS_CONFIG } from "./base-consumable-steps-config.js";
 import { BasicRandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
+import { randBetween } from "../../../../utils/rand-between.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle];
 
@@ -96,8 +95,6 @@ const config: CombatActionComponentConfig = {
 
   getChildren: () => [],
   getParent: () => null,
-
-  getRequiredRange: () => CombatActionRequiredRange.Ranged,
 };
 
 export const USE_GREEN_AUTOINJECTOR = new CombatActionLeaf(

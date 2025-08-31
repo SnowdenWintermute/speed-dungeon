@@ -34,7 +34,6 @@ import {
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { getMeleeAttackDestination } from "../../combat-action-destination-getters.js";
 import { getMeleeAttackBaseStepsConfig } from "./base-melee-attack-steps-config.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import cloneDeep from "lodash.clonedeep";
 
 const targetingProperties =
@@ -76,7 +75,6 @@ export const ATTACK_MELEE_OFF_HAND_CONFIG: CombatActionComponentConfig = {
   ...DAMAGING_ACTIONS_COMMON_CONFIG,
   description: "Attack target using equipment in off hand",
   origin: CombatActionOrigin.Attack,
-  getRequiredRange: () => CombatActionRequiredRange.Melee,
   getOnUseMessage: null,
   targetingProperties,
   hitOutcomeProperties,

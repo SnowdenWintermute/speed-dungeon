@@ -107,7 +107,6 @@ export const ATTACK_RANGED_MAIN_HAND_PROJECTILE_CONFIG: CombatActionComponentCon
   shouldExecute: () => true,
   getChildren: (context) => [],
   getParent: () => ATTACK_RANGED_MAIN_HAND,
-  getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
   getConcurrentSubActions() {
     return [];
   },
