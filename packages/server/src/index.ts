@@ -6,6 +6,7 @@ import {
   CombatActionName,
   CombatActionTarget,
   CombatActionTargetType,
+  NumberRange,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
 import { GameServer } from "./game-server/index.js";
@@ -18,6 +19,7 @@ import { loadLadderIntoKvStore } from "./kv-store/utils.js";
 import { runMigrations } from "./database/run-migrations.js";
 import { setUpTestGameWithPartyInBattle } from "./game-server/utils/testing/index.js";
 import { processCombatAction } from "./game-server/game-event-handlers/character-uses-selected-combat-action-handler/process-combat-action.js";
+import cloneDeep from "lodash.clonedeep";
 
 const PORT = 8080;
 
@@ -67,4 +69,15 @@ const listening = expressApp.listen(PORT, async () => {
   // //   friendOrFoe: FriendOrFoe.Hostile
   // // };
   // combatant.combatantProperties.combatActionTarget = targets;
+
+  // const ATTRIBUTE_PER_TIER_BASE = 1.25;
+  // function getAttributeAffixValueRange(tier: number, rangeMultiplier: number) {
+  //   const min = Math.round(ATTRIBUTE_PER_TIER_BASE * tier - 1) * 2 * rangeMultiplier;
+  //   const max = Math.round(ATTRIBUTE_PER_TIER_BASE * tier) * 2 * rangeMultiplier;
+  //   return new NumberRange(Math.max(1, min), Math.max(1, max));
+  // }
+  // for (let i = 1; i < 6; i += 1) {
+  //   console.log(JSON.stringify(getAttributeAffixValueRange(i, 1)));
+  //   console.log(JSON.stringify(getAttributeAffixValueRange(i, 3)));
+  // }
 });

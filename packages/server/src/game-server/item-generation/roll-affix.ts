@@ -6,6 +6,7 @@ import {
   CombatAttribute,
   DEEPEST_FLOOR,
   EquipmentTraitType,
+  NumberRange,
   TaggedAffixType,
   randBetween,
 } from "@speed-dungeon/common";
@@ -19,13 +20,10 @@ export function rollAffixTier(maxTier: number, itemLevel: number) {
   return Math.max(1, Math.round(randBetween(minTierOnLevel, maxTierOnLevel, rngSingleton)));
 }
 
-const MIN_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER = 3;
-const MAX_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER = 7;
-
 export function rollAffix(
   taggedAffixType: TaggedAffixType,
   tier: number,
-  attributeMultiplier: number = 1.0
+  rangeMultiplier: number = 1.0 // for 2h weapons that need to double their range to be competitive with dual wield
 ): Affix {
   const affix: Affix = {
     combatAttributes: {},
@@ -33,108 +31,124 @@ export function rollAffix(
     tier,
   };
 
-  const rollAttributeValue = (min: number, max: number) =>
-    randBetween(
-      tier * (min * attributeMultiplier),
-      tier * (max * attributeMultiplier),
-      rngSingleton
-    );
+  let affixType;
+  if (taggedAffixType.affixCategory === AffixCategory.Suffix)
+    affixType = taggedAffixType.suffixType;
+  else affixType = taggedAffixType.prefixType;
 
-  switch (taggedAffixType.affixCategory) {
-    case AffixCategory.Prefix:
-      switch (taggedAffixType.prefixType) {
-        case AffixType.Mp:
-          affix.combatAttributes[CombatAttribute.Mp] = rollAttributeValue(
-            MIN_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER,
-            MAX_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER
-          );
-          break;
-        case AffixType.FlatArmorClass:
-          affix.combatAttributes[CombatAttribute.ArmorClass] = rollAttributeValue(1, 3);
-          break;
-        case AffixType.Accuracy:
-          affix.combatAttributes[CombatAttribute.Accuracy] = rollAttributeValue(
-            MIN_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER,
-            MAX_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER
-          );
-          break;
-        case AffixType.PercentDamage:
-          affix.equipmentTraits[EquipmentTraitType.DamagePercentage] = {
-            equipmentTraitType: EquipmentTraitType.DamagePercentage,
-            value: randBetween((tier - 1) * 10 + 1, tier * 10, rngSingleton),
-          };
-          break;
-        case AffixType.LifeSteal:
-          affix.equipmentTraits[EquipmentTraitType.LifeSteal] = {
-            equipmentTraitType: EquipmentTraitType.LifeSteal,
-            value: randBetween((tier - 1) * 10 + 1, tier * 10, rngSingleton),
-          };
-          break;
-        case AffixType.Evasion:
-          affix.combatAttributes[CombatAttribute.Evasion] = rollAttributeValue(
-            MIN_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER,
-            MAX_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER
-          );
-          break;
-        case AffixType.ArmorPenetration:
-          affix.combatAttributes[CombatAttribute.ArmorPenetration] = rollAttributeValue(
-            MIN_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER,
-            MAX_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER
-          );
-          break;
-        case AffixType.Agility:
-          affix.combatAttributes[CombatAttribute.Agility] = rollAttributeValue(1, 2);
-          break;
-      }
-      break;
-    case AffixCategory.Suffix:
-      switch (taggedAffixType.suffixType) {
-        case AffixType.Strength:
-          affix.combatAttributes[CombatAttribute.Strength] = rollAttributeValue(1, 2);
-          break;
-        case AffixType.Spirit:
-          affix.combatAttributes[CombatAttribute.Spirit] = rollAttributeValue(1, 2);
-          break;
-        case AffixType.Dexterity:
-          affix.combatAttributes[CombatAttribute.Dexterity] = rollAttributeValue(1, 2);
-          break;
-        case AffixType.Vitality:
-          affix.combatAttributes[CombatAttribute.Vitality] = rollAttributeValue(1, 2);
-          break;
-        case AffixType.AllBase:
-          const min = 1;
-          const max = 1;
-          const value = rollAttributeValue(min, max);
-          for (const attribute of CORE_ATTRIBUTES) affix.combatAttributes[attribute] = value;
+  const attributeOption = ATTRIBUTE_AFFIX_ATTRIBUTES[affixType];
+  if (attributeOption !== undefined) {
+    const range = getAffixValueRange(affixType, tier, rangeMultiplier);
+    const value = randBetween(range.min, range.max, rngSingleton);
+    affix.combatAttributes[attributeOption] = value;
+  }
 
-          break;
-        case AffixType.Hp:
-          affix.combatAttributes[CombatAttribute.Hp] = rollAttributeValue(
-            MIN_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER,
-            MAX_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER
-          );
-          break;
-        case AffixType.FlatDamage:
-          affix.equipmentTraits[EquipmentTraitType.FlatDamageAdditive] = {
-            equipmentTraitType: EquipmentTraitType.FlatDamageAdditive,
-            value: rollAttributeValue(1, 2),
-          };
-          break;
-        case AffixType.PercentArmorClass:
-          affix.equipmentTraits[EquipmentTraitType.ArmorClassPercentage] = {
-            equipmentTraitType: EquipmentTraitType.ArmorClassPercentage,
-            value: randBetween((tier - 1) * 10 + 1, tier * 10, rngSingleton),
-          };
-          break;
-        case AffixType.Durability:
-          affix.equipmentTraits[EquipmentTraitType.FlatDurabilityAdditive] = {
-            equipmentTraitType: EquipmentTraitType.FlatDurabilityAdditive,
-            value: randBetween(5 * tier, 10 * tier, rngSingleton),
-          };
-          break;
-      }
-      break;
+  const traitTypeOption = TRAIT_AFFIX_TRAITS[affixType];
+  if (traitTypeOption !== undefined) {
+    let min = (tier - 1) * 10 + 1;
+    let max = tier * 10;
+
+    // durability handled uniquely
+    if (traitTypeOption === EquipmentTraitType.FlatDurabilityAdditive) {
+      min = 5 * tier;
+      max = 10 * tier;
+    }
+    // flat damage handled uniquely
+    if (affixType === AffixType.FlatDamage) {
+      const range = getAffixValueRange(affixType, tier, rangeMultiplier);
+      min = range.min;
+      max = range.max;
+    }
+
+    const value = randBetween((tier - 1) * 10 + 1, tier * 10, rngSingleton);
+
+    affix.equipmentTraits[traitTypeOption] = {
+      equipmentTraitType: traitTypeOption,
+      value,
+    };
+  }
+
+  // all core attributes handled uniquely
+  if (affixType === AffixType.AllBase) {
+    let range = ALL_CORE_ATTRIBUTES_VALUE_RANGES_BY_TIER[tier];
+    if (range === undefined) range = new NumberRange(0, 0);
+    const value = randBetween(range.min, range.max, rngSingleton);
+    for (const attribute of CORE_ATTRIBUTES) {
+      affix.combatAttributes[attribute] = value;
+    }
   }
 
   return affix;
 }
+
+const ALL_CORE_ATTRIBUTES_VALUE_RANGES_BY_TIER: Record<number, NumberRange> = {
+  [3]: new NumberRange(1, 1),
+  [4]: new NumberRange(1, 2),
+  [5]: new NumberRange(2, 3),
+};
+
+const ATTRIBUTE_PER_TIER_BASE = 1.25;
+// since core attributes give several derived attributes,
+// we need to give a lot more of a single derived attribute
+// for the affix to be worth considering
+const DERIVED_ATTRIBUTE_MULTIPLIER = 2.5;
+
+function getAffixValueRange(affixType: AffixType, tier: number, rangeMultiplier: number) {
+  const isCoreAttributeAffix = CORE_ATTRIBUTE_AFFIXES.includes(affixType);
+  if (isCoreAttributeAffix) return getAttributeAffixValueRange(tier, [rangeMultiplier]);
+  const isDerivedAttributeAffix = DERIVED_ATTRIBUTE_AFFIXES.includes(affixType);
+  if (isDerivedAttributeAffix)
+    return getAttributeAffixValueRange(tier, [rangeMultiplier, DERIVED_ATTRIBUTE_MULTIPLIER]);
+
+  throw new Error("no number range defined for this affix type");
+}
+
+function getAttributeAffixValueRange(tier: number, rangeMultipliers: number[]) {
+  let min = Math.round(ATTRIBUTE_PER_TIER_BASE * tier - 1) * 2;
+  let max = Math.round(ATTRIBUTE_PER_TIER_BASE * tier) * 2;
+  for (const multiplier of rangeMultipliers) {
+    min *= multiplier;
+    max *= multiplier;
+  }
+  return new NumberRange(Math.max(1, min), Math.max(1, max));
+}
+
+const CORE_ATTRIBUTE_AFFIXES = [
+  AffixType.Strength,
+  AffixType.Dexterity,
+  AffixType.Spirit,
+  AffixType.Vitality,
+  AffixType.Agility,
+  AffixType.FlatDamage, // not a core attribute but we want to roll same values
+];
+
+const DERIVED_ATTRIBUTE_AFFIXES = [
+  AffixType.Mp,
+  AffixType.FlatArmorClass,
+  AffixType.Accuracy,
+  AffixType.Evasion,
+  AffixType.ArmorPenetration,
+  AffixType.Hp,
+];
+
+const ATTRIBUTE_AFFIX_ATTRIBUTES: Partial<Record<AffixType, CombatAttribute>> = {
+  [AffixType.Mp]: CombatAttribute.Mp,
+  [AffixType.FlatArmorClass]: CombatAttribute.ArmorClass,
+  [AffixType.Accuracy]: CombatAttribute.Accuracy,
+  [AffixType.Evasion]: CombatAttribute.Evasion,
+  [AffixType.ArmorPenetration]: CombatAttribute.ArmorPenetration,
+  [AffixType.Agility]: CombatAttribute.Agility,
+  [AffixType.Strength]: CombatAttribute.Strength,
+  [AffixType.Spirit]: CombatAttribute.Spirit,
+  [AffixType.Dexterity]: CombatAttribute.Dexterity,
+  [AffixType.Vitality]: CombatAttribute.Vitality,
+  [AffixType.Hp]: CombatAttribute.Hp,
+};
+
+const TRAIT_AFFIX_TRAITS: Partial<Record<AffixType, EquipmentTraitType>> = {
+  [AffixType.PercentDamage]: EquipmentTraitType.DamagePercentage,
+  [AffixType.FlatDamage]: EquipmentTraitType.FlatDamageAdditive,
+  [AffixType.LifeSteal]: EquipmentTraitType.LifeSteal,
+  [AffixType.Durability]: EquipmentTraitType.FlatDurabilityAdditive,
+  [AffixType.PercentArmorClass]: EquipmentTraitType.ArmorClassPercentage,
+};
