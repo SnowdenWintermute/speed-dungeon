@@ -1,4 +1,5 @@
 import {
+  AffixCategory,
   AffixType,
   CombatantClass,
   CombatantProperties,
@@ -54,14 +55,16 @@ export function giveStartingEquipment(combatantProperties: CombatantProperties) 
   );
 
   for (const [slotType, template] of iterateNumericEnumKeyedRecord(startingHoldables)) {
-    const holdable = generateSpecificEquipmentType(template);
+    const holdable = generateSpecificEquipmentType(template, { noAffixes: true });
     repairEquipment(holdable);
     mainHoldableHotswapSlot.holdables[slotType] = holdable;
 
     if (slotType !== HoldableSlotType.MainHand) continue;
 
     // @TESTING
-    holdable.affixes[AffixType.Prefix][PrefixType.LifeSteal] = {
+    if (holdable.affixes[AffixCategory.Prefix] === undefined)
+      holdable.affixes[AffixCategory.Prefix] = {};
+    holdable.affixes[AffixCategory.Prefix][AffixType.LifeSteal] = {
       combatAttributes: {},
       tier: 1,
       equipmentTraits: {
@@ -82,7 +85,7 @@ function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
       equipmentType: EquipmentType.TwoHandedRangedWeapon,
       baseItemType: TwoHandedRangedWeapon.RecurveBow,
     },
-    true
+    { noAffixes: true }
   );
   if (!(mh instanceof Error) && combatantProperties.equipment.inherentHoldableHotswapSlots[1])
     combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[

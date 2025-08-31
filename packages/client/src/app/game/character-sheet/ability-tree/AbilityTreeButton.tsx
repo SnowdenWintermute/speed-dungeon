@@ -36,7 +36,7 @@ export default function AbilityTreeButton(props: Props) {
     isDetailed,
   } = props;
 
-  const disabled = !isAllocatable && abilityLevel <= 0;
+  const disabled = !isAllocatable.canAllocate && abilityLevel <= 0;
 
   return (
     <div className="bg-slate-700">

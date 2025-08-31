@@ -1,4 +1,4 @@
-import { AffixType, ERROR_MESSAGES, Equipment, ItemType } from "@speed-dungeon/common";
+import { AffixCategory, ERROR_MESSAGES, Equipment, ItemType } from "@speed-dungeon/common";
 
 import { getEquipmentGenerationTemplate } from "../../item-generation/equipment-templates/index.js";
 import {
@@ -23,12 +23,12 @@ export function addAffixToItem(equipment: Equipment, itemLevelLimiter: number) {
     if (prefixType === undefined) return new Error("Couldn't generate affix type");
     const affixResult = rollAffixTierAndValue(
       template,
-      { affixType: AffixType.Prefix, prefixType },
+      { affixCategory: AffixCategory.Prefix, prefixType },
       Math.min(equipment.itemLevel, itemLevelLimiter),
       equipment.equipmentBaseItemProperties.equipmentType
     );
     if (affixResult instanceof Error) return affixResult;
-    equipment.affixes[AffixType.Prefix][prefixType] = affixResult;
+    Equipment.insertOrReplaceAffix(equipment, AffixCategory.Prefix, prefixType, affixResult);
   }
 
   if (missingSuffix) {
@@ -36,12 +36,12 @@ export function addAffixToItem(equipment: Equipment, itemLevelLimiter: number) {
     if (suffixType === undefined) return new Error("Couldn't generate affix type");
     const affixResult = rollAffixTierAndValue(
       template,
-      { affixType: AffixType.Suffix, suffixType },
+      { affixCategory: AffixCategory.Suffix, suffixType },
       Math.min(equipment.itemLevel, itemLevelLimiter),
       equipment.equipmentBaseItemProperties.equipmentType
     );
     if (affixResult instanceof Error) return affixResult;
-    equipment.affixes[AffixType.Suffix][suffixType] = affixResult;
+    Equipment.insertOrReplaceAffix(equipment, AffixCategory.Suffix, suffixType, affixResult);
   }
 
   const { equipmentBaseItemProperties } = equipment;

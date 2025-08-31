@@ -1,10 +1,14 @@
 import {
+  Affix,
+  AffixCategory,
   AffixType,
-  Affixes,
   CONSUMABLE_TYPE_STRINGS,
+  EquipmentAffixes,
   EquipmentType,
   ItemType,
   ONE_HANDED_MELEE_WEAPON_NAMES,
+  PrefixType,
+  SuffixType,
   formatAmulet,
   formatBodyArmor,
   formatHeadGear,
@@ -19,7 +23,7 @@ import { getPrefixName } from "./get-prefix-name.js";
 import { getSuffixName } from "./get-suffix-name.js";
 
 export abstract class ItemNamer {
-  buildItemName(baseItem: TaggedBaseItem, affixes: null | Affixes) {
+  buildItemName(baseItem: TaggedBaseItem, affixes: null | EquipmentAffixes) {
     const prefixNames = [];
     const suffixNames = [];
     let baseItemName = "";
@@ -57,12 +61,16 @@ export abstract class ItemNamer {
     }
 
     if (affixes !== null) {
-      for (const [prefixType, affix] of iterateNumericEnumKeyedRecord(affixes[AffixType.Prefix])) {
+      const prefixes = affixes[AffixCategory.Prefix] as Partial<Record<PrefixType, Affix>>;
+      for (const [prefixType, affix] of iterateNumericEnumKeyedRecord(prefixes)) {
         const name = getPrefixName(prefixType, affix.tier);
+        console.log("prefix name: ", name);
         prefixNames.push(name);
       }
-      for (const [suffixType, affix] of iterateNumericEnumKeyedRecord(affixes[AffixType.Suffix])) {
+      const suffixes = affixes[AffixCategory.Suffix] as Partial<Record<SuffixType, Affix>>;
+      for (const [suffixType, affix] of iterateNumericEnumKeyedRecord(suffixes)) {
         const name = getSuffixName(suffixType, affix.tier);
+        console.log("suffix name: ", name);
         suffixNames.push(name);
       }
     }

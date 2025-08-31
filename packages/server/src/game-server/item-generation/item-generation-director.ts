@@ -1,4 +1,10 @@
-import { Affixes, Consumable, Equipment, IdGenerator, ItemType } from "@speed-dungeon/common";
+import {
+  Consumable,
+  Equipment,
+  EquipmentAffixes,
+  IdGenerator,
+  ItemType,
+} from "@speed-dungeon/common";
 import { ItemGenerationBuilder, TaggedBaseItem } from "./item-generation-builder";
 
 export class ItemGenerationDirector {
@@ -16,7 +22,7 @@ export class ItemGenerationDirector {
     if (baseItemResult instanceof Error) return baseItemResult;
 
     const { type: itemType } = baseItemResult;
-    let affixesResult: Error | Affixes | null = null;
+    let affixesResult: Error | EquipmentAffixes | null = null;
     if (!options?.noAffixes && itemType === ItemType.Equipment) {
       affixesResult = builder.buildAffixes(itemLevel, baseItemResult.taggedBaseEquipment);
     }

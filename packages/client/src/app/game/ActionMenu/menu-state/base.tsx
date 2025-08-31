@@ -173,7 +173,7 @@ export class BaseMenuState implements ActionMenuState {
           websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
             characterId,
             combatActionNameOption: actionName,
-            combatActionLevel: actionState.level,
+            combatActionLevel: 1,
           });
           useGameStore.getState().mutateState((state) => {
             state.hoveredAction = null;

@@ -3,11 +3,12 @@ import {
   EquipmentType,
   NumberRange,
   Shield,
-  PrefixType,
-  SuffixType,
+  AffixType,
   iterateNumericEnum,
   ShieldSize,
   CombatAttribute,
+  PREFIX_TYPES,
+  SUFFIX_TYPES,
 } from "@speed-dungeon/common";
 import { EquipmentGenerationTemplate } from "./equipment-generation-template-abstract-classes.js";
 
@@ -21,36 +22,36 @@ export class ShieldGenerationTemplate extends EquipmentGenerationTemplate {
       throw new Error("invalid base item provided");
 
     super(equipmentBaseItem);
-    for (const prefix of iterateNumericEnum(PrefixType)) {
+    for (const prefix of PREFIX_TYPES) {
       switch (prefix) {
-        case PrefixType.Accuracy:
-        case PrefixType.PercentDamage:
-        case PrefixType.LifeSteal:
-        case PrefixType.ArmorPenetration:
+        case AffixType.Accuracy:
+        case AffixType.PercentDamage:
+        case AffixType.LifeSteal:
+        case AffixType.ArmorPenetration:
           break;
-        case PrefixType.Agility:
+        case AffixType.Agility:
           this.possibleAffixes.prefix[prefix] = 3;
           break;
-        case PrefixType.Mp:
-        case PrefixType.ArmorClass:
-        case PrefixType.Evasion:
+        case AffixType.Mp:
+        case AffixType.FlatArmorClass:
+        case AffixType.Evasion:
           this.possibleAffixes.prefix[prefix] = 5;
       }
     }
-    for (const suffix of iterateNumericEnum(SuffixType)) {
+    for (const suffix of SUFFIX_TYPES) {
       switch (suffix) {
-        case SuffixType.Damage:
+        case AffixType.FlatDamage:
           break;
-        case SuffixType.AllBase:
+        case AffixType.AllBase:
           this.possibleAffixes.suffix[suffix] = 4;
           break;
-        case SuffixType.Hp:
-        case SuffixType.Vitality:
-        case SuffixType.Strength:
-        case SuffixType.Spirit:
-        case SuffixType.Dexterity:
-        case SuffixType.Durability:
-        case SuffixType.PercentArmorClass:
+        case AffixType.Hp:
+        case AffixType.Vitality:
+        case AffixType.Strength:
+        case AffixType.Spirit:
+        case AffixType.Dexterity:
+        case AffixType.Durability:
+        case AffixType.PercentArmorClass:
           this.possibleAffixes.suffix[suffix] = 5;
       }
     }
@@ -118,7 +119,7 @@ export const SHIELD_EQUIPMENT_GENERATION_TEMPLATES: Record<Shield, ShieldGenerat
           template.maxDurability = 15;
           template.requirements[CombatAttribute.Spirit] = 3;
           template.requirements[CombatAttribute.Dexterity] = 7;
-          template.possibleAffixes.suffix[SuffixType.Damage] = 5;
+          template.possibleAffixes.suffix[AffixType.FlatDamage] = 5;
           break;
         case Shield.KiteShield:
           template.levelRange = new NumberRange(6, 8);

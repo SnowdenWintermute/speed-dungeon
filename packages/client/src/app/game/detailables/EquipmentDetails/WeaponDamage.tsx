@@ -6,6 +6,7 @@ import {
   PrefixType,
   SuffixType,
   WeaponProperties,
+  AffixCategory,
 } from "@speed-dungeon/common";
 import { NumberRange } from "@speed-dungeon/common";
 import React from "react";
@@ -42,8 +43,8 @@ export default function WeaponDamage({ equipment }: Props) {
   let damageStyles = "";
 
   if (
-    equipment.affixes[AffixType.Prefix][PrefixType.PercentDamage] !== undefined ||
-    equipment.affixes[AffixType.Suffix][SuffixType.Damage]
+    equipment.affixes[AffixCategory.Prefix]?.[AffixType.PercentDamage] !== undefined ||
+    equipment.affixes[AffixCategory.Suffix]?.[AffixType.FlatDamage]
   )
     damageStyles = "text-blue-300";
 

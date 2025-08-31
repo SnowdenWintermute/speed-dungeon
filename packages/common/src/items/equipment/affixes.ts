@@ -8,7 +8,7 @@ export enum AffixCategory {
 
 export enum AffixType {
   Mp,
-  ArmorClass,
+  FlatArmorClass,
   Accuracy,
   PercentDamage,
   LifeSteal,
@@ -21,14 +21,14 @@ export enum AffixType {
   Vitality,
   AllBase,
   Hp,
-  Damage,
+  FlatDamage,
   Durability,
   PercentArmorClass,
 }
 
 export const PREFIX_TYPES = [
   AffixType.Mp,
-  AffixType.ArmorClass,
+  AffixType.FlatArmorClass,
   AffixType.Accuracy,
   AffixType.PercentDamage,
   AffixType.LifeSteal,
@@ -46,7 +46,7 @@ export const SUFFIX_TYPES = [
   AffixType.Vitality,
   AffixType.AllBase,
   AffixType.Hp,
-  AffixType.Damage,
+  AffixType.FlatDamage,
   AffixType.Durability,
   AffixType.PercentArmorClass,
 ] as const;
@@ -63,4 +63,4 @@ export interface Affix {
   tier: number;
 }
 
-export type Affixes = Record<AffixCategory, Partial<Record<AffixType, Affix>>>;
+export type EquipmentAffixes = Partial<Record<AffixCategory, Partial<Record<AffixType, Affix>>>>;

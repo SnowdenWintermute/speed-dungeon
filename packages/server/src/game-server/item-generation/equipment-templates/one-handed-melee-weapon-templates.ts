@@ -7,11 +7,11 @@ import {
   KineticDamageType,
   MagicalElement,
   NumberRange,
-  ONE_HANDED_MELEE_WEAPON_NAMES,
   OneHandedMeleeWeapon,
-  PrefixType,
-  SuffixType,
+  AffixType,
   iterateNumericEnum,
+  PREFIX_TYPES,
+  SUFFIX_TYPES,
 } from "@speed-dungeon/common";
 import { WeaponGenerationTemplate } from "./equipment-generation-template-abstract-classes.js";
 
@@ -25,33 +25,33 @@ export class OneHandedMeleeWeaponGenerationTemplate extends WeaponGenerationTemp
       throw new Error("invalid base item provided");
 
     super(damage, possibleDamageClassifications, equipmentBaseItem);
-    for (const prefix of iterateNumericEnum(PrefixType)) {
+    for (const prefix of PREFIX_TYPES) {
       switch (prefix) {
-        case PrefixType.Mp:
-        case PrefixType.ArmorClass:
-        case PrefixType.Evasion:
+        case AffixType.Mp:
+        case AffixType.FlatArmorClass:
+        case AffixType.Evasion:
           break;
-        case PrefixType.Accuracy:
-        case PrefixType.PercentDamage:
-        case PrefixType.LifeSteal:
-        case PrefixType.ArmorPenetration:
-        case PrefixType.Agility:
+        case AffixType.Accuracy:
+        case AffixType.PercentDamage:
+        case AffixType.LifeSteal:
+        case AffixType.ArmorPenetration:
+        case AffixType.Agility:
           this.possibleAffixes.prefix[prefix] = 5;
       }
     }
-    for (const suffix of iterateNumericEnum(SuffixType)) {
+    for (const suffix of SUFFIX_TYPES) {
       switch (suffix) {
-        case SuffixType.Hp:
-        case SuffixType.Vitality:
+        case AffixType.Hp:
+        case AffixType.Vitality:
           break;
-        case SuffixType.AllBase:
+        case AffixType.AllBase:
           this.possibleAffixes.suffix[suffix] = 3;
           break;
-        case SuffixType.Strength:
-        case SuffixType.Spirit:
-        case SuffixType.Dexterity:
-        case SuffixType.Damage:
-        case SuffixType.Durability:
+        case AffixType.Strength:
+        case AffixType.Spirit:
+        case AffixType.Dexterity:
+        case AffixType.FlatDamage:
+        case AffixType.Durability:
           this.possibleAffixes.suffix[suffix] = 5;
       }
     }

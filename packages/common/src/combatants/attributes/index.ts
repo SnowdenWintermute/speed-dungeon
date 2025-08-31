@@ -1,14 +1,3 @@
-import {
-  RESILIENCE_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO,
-  RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO,
-} from "../../app-consts.js";
-
-// parry chance
-// shield block chance
-// shield block damage reduction
-// spell crit
-// spell crit multiplier
-
 export enum CombatAttribute {
   Strength, // damage with melee attacks, melee crit multiplier, melee armor pen
   Dexterity, // ranged damage, accuracy, physical crit chance, armor ranged armor pen
@@ -32,6 +21,7 @@ export const CORE_ATTRIBUTES = [
   CombatAttribute.Spirit,
   CombatAttribute.Strength,
   CombatAttribute.Vitality,
+  CombatAttribute.Agility,
 ];
 
 export const ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES = [

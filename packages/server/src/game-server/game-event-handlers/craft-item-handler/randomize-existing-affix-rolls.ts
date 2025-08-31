@@ -1,12 +1,11 @@
 import {
-  AffixType,
+  AffixCategory,
   CRAFTING_ACTION_DISABLED_CONDITIONS,
   CraftingAction,
   ERROR_MESSAGES,
   Equipment,
   TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER,
   equipmentIsTwoHandedWeapon,
-  iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { rollAffix } from "../../item-generation/roll-affix.js";
 
@@ -15,9 +14,7 @@ export function randomizeExistingAffixRolls(equipment: Equipment, itemLevelLimit
   if (shouldBeDisabled(equipment, itemLevelLimiter))
     return new Error(ERROR_MESSAGES.ITEM.INVALID_PROPERTIES);
 
-  for (const [prefixType, prefix] of iterateNumericEnumKeyedRecord(
-    equipment.affixes[AffixType.Prefix]
-  )) {
+  for (const [prefixType, prefix] of Equipment.iteratePrefixes(equipment)) {
     let multiplier = 1;
     if (
       equipmentIsTwoHandedWeapon(
@@ -25,13 +22,15 @@ export function randomizeExistingAffixRolls(equipment: Equipment, itemLevelLimit
       )
     )
       multiplier = TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER;
-    const affix = rollAffix({ affixType: AffixType.Prefix, prefixType }, prefix.tier, multiplier);
-    equipment.affixes[AffixType.Prefix][prefixType] = affix;
+    const affix = rollAffix(
+      { affixCategory: AffixCategory.Prefix, prefixType },
+      prefix.tier,
+      multiplier
+    );
+    Equipment.insertOrReplaceAffix(equipment, AffixCategory.Prefix, prefixType, affix);
   }
 
-  for (const [suffixType, suffix] of iterateNumericEnumKeyedRecord(
-    equipment.affixes[AffixType.Suffix]
-  )) {
+  for (const [suffixType, suffix] of Equipment.iterateSuffixes(equipment)) {
     let multiplier = 1;
     if (
       equipmentIsTwoHandedWeapon(
@@ -39,7 +38,11 @@ export function randomizeExistingAffixRolls(equipment: Equipment, itemLevelLimit
       )
     )
       multiplier = TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER;
-    const affix = rollAffix({ affixType: AffixType.Suffix, suffixType }, suffix.tier, multiplier);
-    equipment.affixes[AffixType.Suffix][suffixType] = affix;
+    const affix = rollAffix(
+      { affixCategory: AffixCategory.Suffix, suffixType },
+      suffix.tier,
+      multiplier
+    );
+    Equipment.insertOrReplaceAffix(equipment, AffixCategory.Suffix, suffixType, affix);
   }
 }

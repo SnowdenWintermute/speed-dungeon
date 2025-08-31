@@ -82,22 +82,31 @@ export function getMonsterEquipment(monsterType: MonsterType): CombatantEquipmen
       let staffType = ArrayUtils.chooseRandom(staffOptions, rngSingleton);
       if (staffType instanceof Error) staffType = TwoHandedMeleeWeapon.BoStaff;
 
-      const mhResult = generateSpecificEquipmentType({
-        equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-        baseItemType: staffType,
-      });
+      const mhResult = generateSpecificEquipmentType(
+        {
+          equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+          baseItemType: staffType,
+        },
+        {}
+      );
       if (!(mhResult instanceof Error))
         mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = mhResult;
       break;
     case MonsterType.Cultist:
-      const head = generateSpecificEquipmentType({
-        equipmentType: EquipmentType.HeadGear,
-        baseItemType: HeadGear.Cap,
-      });
-      const chest = generateSpecificEquipmentType({
-        equipmentType: EquipmentType.BodyArmor,
-        baseItemType: BodyArmor.Robe,
-      });
+      const head = generateSpecificEquipmentType(
+        {
+          equipmentType: EquipmentType.HeadGear,
+          baseItemType: HeadGear.Cap,
+        },
+        {}
+      );
+      const chest = generateSpecificEquipmentType(
+        {
+          equipmentType: EquipmentType.BodyArmor,
+          baseItemType: BodyArmor.Robe,
+        },
+        {}
+      );
       if (!(chest instanceof Error) && !(head instanceof Error)) {
         equipment.wearables[WearableSlotType.Head] = head;
         equipment.wearables[WearableSlotType.Body] = chest;
@@ -113,20 +122,26 @@ export function getMonsterEquipment(monsterType: MonsterType): CombatantEquipmen
       if (wandType instanceof Error) wandType = OneHandedMeleeWeapon.IceBlade;
       let shieldType = ArrayUtils.chooseRandom(shieldOptions, rngSingleton);
       if (shieldType instanceof Error) shieldType = Shield.TowerShield;
-      const wandResult = generateSpecificEquipmentType({
-        equipmentType: EquipmentType.OneHandedMeleeWeapon,
-        baseItemType: wandType,
-      });
+      const wandResult = generateSpecificEquipmentType(
+        {
+          equipmentType: EquipmentType.OneHandedMeleeWeapon,
+          baseItemType: wandType,
+        },
+        {}
+      );
       // const wandResult = generateSpecificEquipmentType({
       //   equipmentType: EquipmentType.TwoHandedMeleeWeapon,
       //   baseItemType: TwoHandedMeleeWeapon.Spear,
       // });
       if (!(wandResult instanceof Error))
         mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = wandResult;
-      const shieldResult = generateSpecificEquipmentType({
-        equipmentType: EquipmentType.Shield,
-        baseItemType: shieldType,
-      });
+      const shieldResult = generateSpecificEquipmentType(
+        {
+          equipmentType: EquipmentType.Shield,
+          baseItemType: shieldType,
+        },
+        {}
+      );
       if (!(shieldResult instanceof Error)) {
         if (shieldResult.durability) shieldResult.durability.current = 2;
         mainHoldableHotswapSlot.holdables[HoldableSlotType.OffHand] = shieldResult;

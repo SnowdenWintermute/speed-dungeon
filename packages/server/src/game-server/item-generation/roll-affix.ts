@@ -2,6 +2,7 @@ import {
   Affix,
   AffixCategory,
   AffixType,
+  CORE_ATTRIBUTES,
   CombatAttribute,
   DEEPEST_FLOOR,
   EquipmentTraitType,
@@ -48,7 +49,7 @@ export function rollAffix(
             MAX_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER
           );
           break;
-        case AffixType.ArmorClass:
+        case AffixType.FlatArmorClass:
           affix.combatAttributes[CombatAttribute.ArmorClass] = rollAttributeValue(1, 3);
           break;
         case AffixType.Accuracy:
@@ -103,10 +104,9 @@ export function rollAffix(
         case AffixType.AllBase:
           const min = 1;
           const max = 1;
-          affix.combatAttributes[CombatAttribute.Vitality] = rollAttributeValue(min, max);
-          affix.combatAttributes[CombatAttribute.Dexterity] = rollAttributeValue(min, max);
-          affix.combatAttributes[CombatAttribute.Strength] = rollAttributeValue(min, max);
-          affix.combatAttributes[CombatAttribute.Spirit] = rollAttributeValue(min, max);
+          const value = rollAttributeValue(min, max);
+          for (const attribute of CORE_ATTRIBUTES) affix.combatAttributes[attribute] = value;
+
           break;
         case AffixType.Hp:
           affix.combatAttributes[CombatAttribute.Hp] = rollAttributeValue(
@@ -114,7 +114,7 @@ export function rollAffix(
             MAX_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER
           );
           break;
-        case AffixType.Damage:
+        case AffixType.FlatDamage:
           affix.equipmentTraits[EquipmentTraitType.FlatDamageAdditive] = {
             equipmentTraitType: EquipmentTraitType.FlatDamageAdditive,
             value: rollAttributeValue(1, 2),

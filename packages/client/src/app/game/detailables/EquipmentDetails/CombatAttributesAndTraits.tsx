@@ -1,4 +1,5 @@
 import {
+  AffixCategory,
   COMBAT_ATTRIBUTE_STRINGS,
   CORE_ATTRIBUTES,
   Equipment,
@@ -14,12 +15,12 @@ interface Props {
 
 export default function CombatAttributesAndTraits({ equipment }: Props) {
   let equipmentModDisplaysInPrefixSuffixOrder: string[] = [];
-  const affixBonusText: Record<AffixType, { attributes: string[]; traits: string[] }> = {
-    [AffixType.Prefix]: {
+  const affixBonusText: Record<AffixCategory, { attributes: string[]; traits: string[] }> = {
+    [AffixCategory.Prefix]: {
       attributes: [],
       traits: [],
     },
-    [AffixType.Suffix]: {
+    [AffixCategory.Suffix]: {
       attributes: [],
       traits: [],
     },
@@ -39,10 +40,10 @@ export default function CombatAttributesAndTraits({ equipment }: Props) {
     }
   }
 
-  equipmentModDisplaysInPrefixSuffixOrder.push(...affixBonusText[AffixType.Prefix].attributes);
-  equipmentModDisplaysInPrefixSuffixOrder.push(...affixBonusText[AffixType.Suffix].attributes);
-  equipmentModDisplaysInPrefixSuffixOrder.push(...affixBonusText[AffixType.Prefix].traits);
-  equipmentModDisplaysInPrefixSuffixOrder.push(...affixBonusText[AffixType.Suffix].traits);
+  equipmentModDisplaysInPrefixSuffixOrder.push(...affixBonusText[AffixCategory.Prefix].attributes);
+  equipmentModDisplaysInPrefixSuffixOrder.push(...affixBonusText[AffixCategory.Suffix].attributes);
+  equipmentModDisplaysInPrefixSuffixOrder.push(...affixBonusText[AffixCategory.Prefix].traits);
+  equipmentModDisplaysInPrefixSuffixOrder.push(...affixBonusText[AffixCategory.Suffix].traits);
 
   return (
     <div className="text-blue-300">
@@ -55,12 +56,12 @@ export default function CombatAttributesAndTraits({ equipment }: Props) {
 
 function formatAffixCombatAttributeBonuses(
   affix: Affix,
-  affixCategory: AffixType,
+  affixCategory: AffixCategory,
   prefixOrSuffixType: PrefixType | SuffixType
 ): Error | string[] {
   const toReturn = [];
 
-  if (affixCategory === AffixType.Suffix && prefixOrSuffixType === SuffixType.AllBase) {
+  if (affixCategory === AffixCategory.Suffix && prefixOrSuffixType === AffixType.AllBase) {
     let lastCoreAttributeValue = null;
     for (const attribute of CORE_ATTRIBUTES) {
       const coreAttributeValueOnThisAffix = affix.combatAttributes[attribute];
