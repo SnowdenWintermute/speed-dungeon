@@ -26,6 +26,7 @@ import { getMeleeAttackBaseStepsConfig } from "./base-melee-attack-steps-config.
 import { COMBAT_ACTIONS } from "../index.js";
 import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 
 const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
   ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],
@@ -84,8 +85,8 @@ export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   hitOutcomeProperties,
   stepsConfig: getMeleeAttackBaseStepsConfig(HoldableSlotType.MainHand),
   shouldExecute: () => true,
-  getChildren: () => [],
-  getParent: () => ATTACK,
+
+  hierarchyProperties: { ...BASE_ACTION_HIERARCHY_PROPERTIES, getParent: () => ATTACK },
 };
 
 export const ATTACK_MELEE_MAIN_HAND = new CombatActionLeaf(

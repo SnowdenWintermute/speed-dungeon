@@ -28,6 +28,7 @@ import { ATTACK_RANGED_MAIN_HAND } from "../attack/attack-ranged-main-hand.js";
 import { SpawnableEntityType, getSpawnableEntityId } from "../../../../spawnables/index.js";
 import { EquipmentType } from "../../../../items/equipment/index.js";
 import { AbilityType } from "../../../../abilities/index.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 
 const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Bow);
 
@@ -86,23 +87,25 @@ const config: CombatActionComponentConfig = {
 
   getSpawnableEntity: ATTACK_RANGED_MAIN_HAND.getSpawnableEntity,
   shouldExecute: () => true,
-  getChildren: (_user) => [],
-  getParent: () => null,
-  getConcurrentSubActions(context) {
-    return context.combatantContext
-      .getOpponents()
-      .filter((opponent) => opponent.combatantProperties.hitPoints > 0)
-      .map(
-        (opponent) =>
-          new CombatActionExecutionIntent(
-            CombatActionName.ChainingSplitArrowProjectile,
-            {
-              type: CombatActionTargetType.Single,
-              targetId: opponent.entityProperties.id,
-            },
-            context.tracker.actionExecutionIntent.level
-          )
-      );
+  hierarchyProperties: {
+    ...BASE_ACTION_HIERARCHY_PROPERTIES,
+
+    getConcurrentSubActions(context) {
+      return context.combatantContext
+        .getOpponents()
+        .filter((opponent) => opponent.combatantProperties.hitPoints > 0)
+        .map(
+          (opponent) =>
+            new CombatActionExecutionIntent(
+              CombatActionName.ChainingSplitArrowProjectile,
+              {
+                type: CombatActionTargetType.Single,
+                targetId: opponent.entityProperties.id,
+              },
+              context.tracker.actionExecutionIntent.level
+            )
+        );
+    },
   },
 };
 

@@ -31,6 +31,7 @@ import cloneDeep from "lodash.clonedeep";
 import { AutoTargetingScheme, CombatActionTargetType } from "../../../targeting/index.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 
 const targetingProperties = {
   ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
@@ -92,11 +93,7 @@ const config: CombatActionComponentConfig = {
     { userShouldMoveHomeOnComplete: false }
   ),
   shouldExecute: () => true,
-  getChildren: (_user) => [],
-  getParent: () => null,
-  getConcurrentSubActions(combatantContext) {
-    return [];
-  },
+  hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 
   getSpawnableEntity: (context) => {
     const { party, combatant: user } = context.combatantContext;

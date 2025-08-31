@@ -1,4 +1,5 @@
 import {
+  BASE_ACTION_HIERARCHY_PROPERTIES,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponentConfig,
   CombatActionExecutionIntent,
@@ -71,17 +72,19 @@ const config: CombatActionComponentConfig = {
   getOnUseMessage: (data) =>
     getSpellCastCombatLogMessage(data, COMBAT_ACTION_NAME_STRINGS[CombatActionName.IceBoltParent]),
   shouldExecute: () => true,
-  getConcurrentSubActions(context) {
-    return [
-      new CombatActionExecutionIntent(
-        CombatActionName.IceBoltProjectile,
-        context.tracker.actionExecutionIntent.targets,
-        context.tracker.actionExecutionIntent.level
-      ),
-    ];
+
+  hierarchyProperties: {
+    ...BASE_ACTION_HIERARCHY_PROPERTIES,
+    getConcurrentSubActions(context) {
+      return [
+        new CombatActionExecutionIntent(
+          CombatActionName.IceBoltProjectile,
+          context.tracker.actionExecutionIntent.targets,
+          context.tracker.actionExecutionIntent.level
+        ),
+      ];
+    },
   },
-  getChildren: () => [],
-  getParent: () => null,
 };
 
 export const ICE_BOLT_PARENT = new CombatActionLeaf(CombatActionName.IceBoltParent, config);

@@ -20,7 +20,10 @@ export class StartConcurrentSubActionsActionResolutionStep extends ActionResolut
     | Error
     | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
     const action = COMBAT_ACTIONS[this.context.tracker.actionExecutionIntent.actionName];
-    const subActions = action.getConcurrentSubActions(this.context);
+
+    if (!action.hierarchyProperties.getConcurrentSubActions) return [];
+
+    const subActions = action.hierarchyProperties.getConcurrentSubActions(this.context);
     const branchingActions = subActions.map((actionExecutionIntent) => {
       return {
         user: this.context.combatantContext.combatant,

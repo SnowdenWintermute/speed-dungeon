@@ -121,7 +121,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     threatChanges.applyToGame(party);
   }
 
-  const hasUnevaluatedChildren = action.getChildren(context).length > 0;
+  const hasUnevaluatedChildren = action.hierarchyProperties.getChildren(context).length > 0;
   const hasRemainingActions = tracker.parentActionManager.getRemainingActionsToExecute().length > 0;
   const blockingStepsPending = sequentialActionManagerRegistry.inputBlockingActionStepsArePending();
   const noBlockingActionsRemain =

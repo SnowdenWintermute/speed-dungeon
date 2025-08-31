@@ -31,6 +31,7 @@ import {
   CombatantBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 
 const targetingProperties =
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
@@ -105,10 +106,9 @@ export const ATTACK_RANGED_MAIN_HAND_PROJECTILE_CONFIG: CombatActionComponentCon
   ),
 
   shouldExecute: () => true,
-  getChildren: (context) => [],
-  getParent: () => ATTACK_RANGED_MAIN_HAND,
-  getConcurrentSubActions() {
-    return [];
+  hierarchyProperties: {
+    ...BASE_ACTION_HIERARCHY_PROPERTIES,
+    getParent: () => ATTACK_RANGED_MAIN_HAND,
   },
 };
 

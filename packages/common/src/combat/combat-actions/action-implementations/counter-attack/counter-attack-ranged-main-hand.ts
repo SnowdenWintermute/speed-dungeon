@@ -47,19 +47,21 @@ const config: CombatActionComponentConfig = {
     getIsParryable: () => false,
   },
 
-  getConcurrentSubActions(context) {
-    return [
-      new CombatActionExecutionIntent(
-        CombatActionName.CounterAttackRangedMainhandProjectile,
-        context.tracker.actionExecutionIntent.targets,
-        context.tracker.actionExecutionIntent.level
-      ),
-    ];
+  hierarchyProperties: {
+    ...clonedConfig.hierarchyProperties,
+    getParent: () => COUNTER_ATTACK,
+    getConcurrentSubActions(context) {
+      return [
+        new CombatActionExecutionIntent(
+          CombatActionName.CounterAttackRangedMainhandProjectile,
+          context.tracker.actionExecutionIntent.targets,
+          context.tracker.actionExecutionIntent.level
+        ),
+      ];
+    },
   },
 
   shouldExecute: () => true,
-  getChildren: () => [],
-  getParent: () => COUNTER_ATTACK,
 };
 
 export const COUNTER_ATTACK_RANGED_MAIN_HAND = new CombatActionLeaf(

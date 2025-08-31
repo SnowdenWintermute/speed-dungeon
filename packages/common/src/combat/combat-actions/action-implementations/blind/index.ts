@@ -19,6 +19,7 @@ import {
 import { BLIND_STEPS_CONFIG } from "./blind-steps-config.js";
 import { BLIND_HIT_OUTCOME_PROPERTIES } from "./blind-hit-outcome-properties.js";
 import { getSpellCastCombatLogMessage } from "../combat-log-message-getters.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
@@ -55,9 +56,7 @@ const config: CombatActionComponentConfig = {
   },
   stepsConfig: BLIND_STEPS_CONFIG,
   shouldExecute: () => true,
-  getConcurrentSubActions: () => [],
-  getChildren: () => [],
-  getParent: () => null,
+  hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };
 
 export const BLIND = new CombatActionLeaf(CombatActionName.Blind, config);

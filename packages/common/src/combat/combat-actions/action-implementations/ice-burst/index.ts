@@ -1,4 +1,5 @@
 import {
+  BASE_ACTION_HIERARCHY_PROPERTIES,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
@@ -183,11 +184,7 @@ const config: CombatActionComponentConfig = {
     { userShouldMoveHomeOnComplete: false }
   ),
 
-  getChildren: (_user) => [],
-  getParent: () => null,
-  getConcurrentSubActions(combatantContext) {
-    return [];
-  },
+  hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 
   getSpawnableEntity: (context) => {
     // we just want to get the position of the primary target, even though they aren't

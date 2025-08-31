@@ -14,8 +14,6 @@ import { NumberRange } from "../../../../primatives/number-range.js";
 import { addCombatantLevelScaledAttributeToRange } from "../../../action-results/action-hit-outcome-calculation/add-combatant-level-scaled-attribute-to-range.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
-import { PrimedForIceBurstCombatantCondition } from "../../../../combatants/combatant-conditions/primed-for-ice-burst.js";
-import cloneDeep from "lodash.clonedeep";
 import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
 import { CombatantConditionName } from "../../../../combatants/index.js";
 

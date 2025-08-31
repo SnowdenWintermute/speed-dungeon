@@ -23,6 +23,7 @@ import {
 import { HEALING_HIT_OUTCOME_PROPERTIES } from "./healing-hit-outcome-properties.js";
 import { HEALING_STEPS_CONFIG } from "./healing-steps-config.js";
 import { getSpellCastCombatLogMessage } from "../combat-log-message-getters.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
@@ -57,9 +58,7 @@ const config: CombatActionComponentConfig = {
   },
   stepsConfig: HEALING_STEPS_CONFIG,
   shouldExecute: () => true,
-  getConcurrentSubActions: () => [],
-  getChildren: () => [],
-  getParent: () => null,
+  hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };
 
 export const HEALING = new CombatActionLeaf(CombatActionName.Healing, config);

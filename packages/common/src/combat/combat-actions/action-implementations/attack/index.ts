@@ -26,6 +26,7 @@ import {
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
 
@@ -41,22 +42,22 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
   },
   shouldExecute: () => true,
   getOnUseMessage: null,
-  getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {
-    const toReturn: CombatActionComponent[] = [];
-    const user = context.combatantContext.combatant.combatantProperties;
+  hierarchyProperties: {
+    ...BASE_ACTION_HIERARCHY_PROPERTIES,
+    getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {
+      const toReturn: CombatActionComponent[] = [];
+      const user = context.combatantContext.combatant.combatantProperties;
 
-    if (CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(user))
-      toReturn.push(ATTACK_RANGED_MAIN_HAND);
-    else {
-      toReturn.push(ATTACK_MELEE_MAIN_HAND);
-      if (!ATTACK_MELEE_MAIN_HAND.costProperties.requiresCombatTurnInThisContext(context))
-        toReturn.push(ATTACK_MELEE_OFF_HAND);
-    }
+      if (CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(user))
+        toReturn.push(ATTACK_RANGED_MAIN_HAND);
+      else {
+        toReturn.push(ATTACK_MELEE_MAIN_HAND);
+        if (!ATTACK_MELEE_MAIN_HAND.costProperties.requiresCombatTurnInThisContext(context))
+          toReturn.push(ATTACK_MELEE_OFF_HAND);
+      }
 
-    return toReturn;
-  },
-  getParent: () => {
-    return null;
+      return toReturn;
+    },
   },
   stepsConfig: new ActionResolutionStepsConfig(
     {

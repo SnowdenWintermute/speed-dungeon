@@ -53,6 +53,7 @@ import {
 } from "../../../../scene-entities/index.js";
 import { Vector3 } from "@babylonjs/core";
 import { EquipmentType, TwoHandedRangedWeapon } from "../../../../items/equipment/index.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 
 const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Bow);
 
@@ -186,17 +187,20 @@ export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
 
   shouldExecute: () => true,
   getOnUseMessage: null,
-  getConcurrentSubActions(context) {
-    return [
-      new CombatActionExecutionIntent(
-        CombatActionName.AttackRangedMainhandProjectile,
-        context.tracker.actionExecutionIntent.targets,
-        context.tracker.actionExecutionIntent.level
-      ),
-    ];
+
+  hierarchyProperties: {
+    ...BASE_ACTION_HIERARCHY_PROPERTIES,
+    getParent: () => ATTACK,
+    getConcurrentSubActions(context) {
+      return [
+        new CombatActionExecutionIntent(
+          CombatActionName.AttackRangedMainhandProjectile,
+          context.tracker.actionExecutionIntent.targets,
+          context.tracker.actionExecutionIntent.level
+        ),
+      ];
+    },
   },
-  getChildren: () => [],
-  getParent: () => ATTACK,
   getSpawnableEntity: (context) => {
     const { combatantContext } = context;
     const position = combatantContext.combatant.combatantProperties.position.clone();

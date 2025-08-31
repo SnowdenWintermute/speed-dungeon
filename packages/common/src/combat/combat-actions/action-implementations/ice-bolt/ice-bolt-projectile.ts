@@ -29,6 +29,7 @@ import {
   SceneEntityChildTransformNodeIdentifier,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 
 const targetingProperties =
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
@@ -41,10 +42,9 @@ const config: CombatActionComponentConfig = {
   hitOutcomeProperties: iceBoltProjectileHitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
   getOnUseMessage: null,
-  getChildren: (context) => [],
-  getParent: () => ICE_BOLT_PARENT,
-  getConcurrentSubActions() {
-    return [];
+  hierarchyProperties: {
+    ...BASE_ACTION_HIERARCHY_PROPERTIES,
+    getParent: () => ICE_BOLT_PARENT,
   },
 
   stepsConfig: new ActionResolutionStepsConfig(

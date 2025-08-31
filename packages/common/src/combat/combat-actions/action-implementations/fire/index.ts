@@ -20,6 +20,7 @@ import {
 import { FIRE_STEPS_CONFIG } from "./fire-steps-config.js";
 import { FIRE_HIT_OUTCOME_PROPERTIES } from "./fire-hit-outcome-properties.js";
 import { getSpellCastCombatLogMessage } from "../combat-log-message-getters.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
@@ -50,9 +51,7 @@ const config: CombatActionComponentConfig = {
   },
   stepsConfig: FIRE_STEPS_CONFIG,
   shouldExecute: () => true,
-  getConcurrentSubActions: () => [],
-  getChildren: () => [],
-  getParent: () => null,
+  hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };
 
 export const FIRE = new CombatActionLeaf(CombatActionName.Fire, config);

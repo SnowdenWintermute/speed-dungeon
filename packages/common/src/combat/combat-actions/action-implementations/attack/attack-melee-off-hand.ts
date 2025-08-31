@@ -35,6 +35,7 @@ import { ActionResolutionStepType } from "../../../../action-processing/index.js
 import { getMeleeAttackDestination } from "../../combat-action-destination-getters.js";
 import { getMeleeAttackBaseStepsConfig } from "./base-melee-attack-steps-config.js";
 import cloneDeep from "lodash.clonedeep";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 
 const targetingProperties =
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
@@ -85,9 +86,7 @@ export const ATTACK_MELEE_OFF_HAND_CONFIG: CombatActionComponentConfig = {
     },
   },
   stepsConfig,
-
-  getChildren: () => [],
-  getParent: () => ATTACK,
+  hierarchyProperties: { ...BASE_ACTION_HIERARCHY_PROPERTIES, getParent: () => ATTACK },
 };
 
 export const ATTACK_MELEE_OFF_HAND = new CombatActionLeaf(

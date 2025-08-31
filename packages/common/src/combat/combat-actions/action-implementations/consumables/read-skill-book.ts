@@ -27,6 +27,7 @@ import {
 import { MEDICATION_ACTION_BASE_STEPS_CONFIG } from "./base-consumable-steps-config.js";
 import { CombatantProperties, Inventory } from "../../../../combatants/index.js";
 import { throwIfError } from "../../../../utils/index.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle],
@@ -108,12 +109,9 @@ const config: CombatActionComponentConfig = {
       return { meetsRequirements: true };
     },
   },
-
-  stepsConfig: MEDICATION_ACTION_BASE_STEPS_CONFIG,
-
   shouldExecute: () => true,
-  getChildren: () => [],
-  getParent: () => null,
+  stepsConfig: MEDICATION_ACTION_BASE_STEPS_CONFIG,
+  hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };
 
 export const READ_SKILL_BOOK = new CombatActionLeaf(CombatActionName.ReadSkillBook, config);

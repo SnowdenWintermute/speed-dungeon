@@ -32,7 +32,6 @@ import { ActionResolutionStepsConfig } from "./combat-action-steps-config.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { AbilityTreeAbility } from "../../abilities/index.js";
-import { CombatActionHierarchyProperties } from "./combat-action-hierarchy-properties.js";
 
 export enum CombatActionOrigin {
   SpellCast,
@@ -83,7 +82,7 @@ export abstract class CombatActionComponent {
   public readonly origin: CombatActionOrigin;
   public readonly prerequisiteAbilities?: AbilityTreeAbility[];
   public readonly targetingProperties: CombatActionTargetingProperties;
-  public readonly hitOutcomeProperties: CombatActionHitOutcomeProperties;
+  public hitOutcomeProperties: CombatActionHitOutcomeProperties;
   public readonly costProperties: CombatActionCostProperties;
   public readonly stepsConfig: ActionResolutionStepsConfig;
   protected children?: CombatActionComponent[];
@@ -156,6 +155,7 @@ export abstract class CombatActionComponent {
     this.stepsConfig = config.stepsConfig;
 
     this.hierarchyProperties = config.hierarchyProperties;
+    //
     // this.getChildren = config.getChildren;
     // if (config.getConcurrentSubActions)
     //   this.getConcurrentSubActions = config.getConcurrentSubActions;
@@ -266,3 +266,18 @@ export class CombatActionComposite extends CombatActionComponent {
     this.children.push(childAction);
   };
 }
+
+export interface CombatActionHierarchyProperties {
+  getChildren: (context: ActionResolutionStepContext) => CombatActionComponent[];
+  getParent: () => CombatActionComponent | null;
+  getConcurrentSubActions?: (context: ActionResolutionStepContext) => CombatActionExecutionIntent[];
+}
+
+export const BASE_ACTION_HIERARCHY_PROPERTIES: CombatActionHierarchyProperties = {
+  getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {
+    return [];
+  },
+  getParent: function (): CombatActionComponent | null {
+    return null;
+  },
+};

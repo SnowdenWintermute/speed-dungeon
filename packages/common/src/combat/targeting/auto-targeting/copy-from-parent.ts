@@ -5,7 +5,7 @@ export function copyTargetFromParent(
   combatantContext: CombatantContext,
   combatAction: CombatActionComponent
 ) {
-  const parent = combatAction.getParent();
+  const parent = combatAction.hierarchyProperties.getParent();
   if (parent) return parent.targetingProperties.getAutoTarget(combatantContext, null);
   return null;
 }

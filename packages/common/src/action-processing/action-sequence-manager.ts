@@ -63,7 +63,7 @@ export class ActionSequenceManager {
     if (!currentActionExecutionIntent || !this.currentTracker) return;
     const currentAction = COMBAT_ACTIONS[currentActionExecutionIntent.actionName];
 
-    const children = currentAction.getChildren({
+    const children = currentAction.hierarchyProperties.getChildren({
       combatantContext: this.combatantContext,
       tracker: this.currentTracker,
       manager: this,

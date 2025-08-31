@@ -30,6 +30,7 @@ import { CombatActionResourceChangeProperties } from "../../combat-action-resour
 import { BURNING_TICK_STEPS_CONFIG } from "./burning-tick-steps-config.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 
 const config: CombatActionComponentConfig = {
   description: "Inflict magical fire damage on enemies",
@@ -85,9 +86,7 @@ const config: CombatActionComponentConfig = {
   },
   stepsConfig: BURNING_TICK_STEPS_CONFIG,
   shouldExecute: () => true,
-  getConcurrentSubActions: () => [],
-  getChildren: () => [],
-  getParent: () => null,
+  hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };
 
 export const BURNING_TICK = new CombatActionLeaf(CombatActionName.BurningTick, config);

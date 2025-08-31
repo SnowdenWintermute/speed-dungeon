@@ -35,6 +35,7 @@ import {
 import { MEDICATION_ACTION_BASE_STEPS_CONFIG } from "./base-consumable-steps-config.js";
 import { BasicRandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
 import { randBetween } from "../../../../utils/rand-between.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle];
 
@@ -93,12 +94,10 @@ const config: CombatActionComponentConfig = {
       return { type: ConsumableType.MpAutoinjector, level: 1 };
     },
   },
+  shouldExecute: () => true,
 
   stepsConfig: MEDICATION_ACTION_BASE_STEPS_CONFIG,
-
-  shouldExecute: () => true,
-  getChildren: () => [],
-  getParent: () => null,
+  hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };
 
 export const USE_BLUE_AUTOINJECTOR = new CombatActionLeaf(

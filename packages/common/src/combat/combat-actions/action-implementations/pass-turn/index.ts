@@ -1,5 +1,6 @@
 import {
   ActionResolutionStepsConfig,
+  BASE_ACTION_HIERARCHY_PROPERTIES,
   CombatActionComponentConfig,
   CombatActionIntent,
   CombatActionLeaf,
@@ -51,9 +52,7 @@ export const passTurnConfig: CombatActionComponentConfig = {
     { userShouldMoveHomeOnComplete: false }
   ),
   shouldExecute: () => true,
-  getConcurrentSubActions: () => [],
-  getChildren: () => [],
-  getParent: () => null,
+  hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };
 
 export const PASS_TURN = new CombatActionLeaf(CombatActionName.PassTurn, passTurnConfig);

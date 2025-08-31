@@ -17,17 +17,19 @@ const config: CombatActionComponentConfig = {
   ...clonedConfig,
   description: "Cancel an incoming attack and respond with one of your own",
   costProperties: { ...clonedConfig.costProperties, costBases: {} },
+  hierarchyProperties: {
+    ...clonedConfig.hierarchyProperties,
+    getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {
+      const toReturn: CombatActionComponent[] = [];
+      const user = context.combatantContext.combatant.combatantProperties;
 
-  getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {
-    const toReturn: CombatActionComponent[] = [];
-    const user = context.combatantContext.combatant.combatantProperties;
-
-    if (CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(user)) {
-      toReturn.push(COUNTER_ATTACK_RANGED_MAIN_HAND);
-    } else {
-      toReturn.push(COUNTER_ATTACK_MELEE_MAIN_HAND);
-    }
-    return toReturn;
+      if (CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(user)) {
+        toReturn.push(COUNTER_ATTACK_RANGED_MAIN_HAND);
+      } else {
+        toReturn.push(COUNTER_ATTACK_MELEE_MAIN_HAND);
+      }
+      return toReturn;
+    },
   },
 };
 

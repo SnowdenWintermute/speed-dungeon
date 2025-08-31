@@ -41,6 +41,7 @@ import {
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { BasicRandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
 import { ArrayUtils } from "../../../../utils/array-utils.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
@@ -141,33 +142,37 @@ const config: CombatActionComponentConfig = {
     { userShouldMoveHomeOnComplete: false }
   ),
 
-  getChildren: (context) => {
-    let cursor = context.tracker.getPreviousTrackerInSequenceOption();
-    let numBouncesSoFar = 0;
-    while (cursor) {
-      if (cursor.actionExecutionIntent.actionName === CombatActionName.ChainingSplitArrowProjectile)
-        numBouncesSoFar += 1;
-      cursor = cursor.getPreviousTrackerInSequenceOption();
-    }
+  hierarchyProperties: {
+    ...BASE_ACTION_HIERARCHY_PROPERTIES,
 
-    const previousTrackerInSequenceOption = context.tracker.getPreviousTrackerInSequenceOption();
-    if (!previousTrackerInSequenceOption) return [];
+    getChildren: (context) => {
+      let cursor = context.tracker.getPreviousTrackerInSequenceOption();
+      let numBouncesSoFar = 0;
+      while (cursor) {
+        if (
+          cursor.actionExecutionIntent.actionName === CombatActionName.ChainingSplitArrowProjectile
+        )
+          numBouncesSoFar += 1;
+        cursor = cursor.getPreviousTrackerInSequenceOption();
+      }
 
-    const filteredPossibleTargetIdsResult = getBouncableTargets(
-      context.combatantContext,
-      context.tracker
-    );
-    if (filteredPossibleTargetIdsResult instanceof Error) return [];
+      const previousTrackerInSequenceOption = context.tracker.getPreviousTrackerInSequenceOption();
+      if (!previousTrackerInSequenceOption) return [];
 
-    if (numBouncesSoFar < MAX_BOUNCES && filteredPossibleTargetIdsResult.possibleTargetIds.length)
-      return [COMBAT_ACTIONS[CombatActionName.ChainingSplitArrowProjectile]];
+      const filteredPossibleTargetIdsResult = getBouncableTargets(
+        context.combatantContext,
+        context.tracker
+      );
+      if (filteredPossibleTargetIdsResult instanceof Error) return [];
 
-    return [];
+      if (numBouncesSoFar < MAX_BOUNCES && filteredPossibleTargetIdsResult.possibleTargetIds.length)
+        return [COMBAT_ACTIONS[CombatActionName.ChainingSplitArrowProjectile]];
+
+      return [];
+    },
+    getParent: () => CHAINING_SPLIT_ARROW_PARENT,
   },
-  getParent: () => CHAINING_SPLIT_ARROW_PARENT,
-  getConcurrentSubActions() {
-    return [];
-  },
+
   getSpawnableEntity: (context) => {
     const { combatantContext, tracker } = context;
     const previousTrackerOption = tracker.getPreviousTrackerInSequenceOption();

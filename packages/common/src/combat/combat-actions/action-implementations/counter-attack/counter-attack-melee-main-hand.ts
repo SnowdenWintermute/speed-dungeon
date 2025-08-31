@@ -40,8 +40,7 @@ const config: CombatActionComponentConfig = {
   },
 
   shouldExecute: () => true,
-  getChildren: () => [],
-  getParent: () => COUNTER_ATTACK,
+  hierarchyProperties: { ...clonedConfig.hierarchyProperties, getParent: () => COUNTER_ATTACK },
 };
 
 export const COUNTER_ATTACK_MELEE_MAIN_HAND = new CombatActionLeaf(
