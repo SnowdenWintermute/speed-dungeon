@@ -47,14 +47,15 @@ export interface ActionUseMessageData {
 }
 
 export interface CombatActionComponentConfig {
+  // unique to each action
   description: string;
   prerequisiteAbilities?: AbilityTreeAbility[];
-
-  // PROPERTIES OBJECTS
+  // properties objects
   targetingProperties: CombatActionTargetingPropertiesConfig;
   hitOutcomeProperties: CombatActionHitOutcomeProperties;
   costProperties: CombatActionCostPropertiesConfig;
   stepsConfig: ActionResolutionStepsConfig;
+  hierarchyProperties: CombatActionHierarchyProperties;
 
   shouldExecute: (
     combatantContext: CombatantContext,
@@ -69,12 +70,6 @@ export interface CombatActionComponentConfig {
   getOnUseMessageDataOverride?: (context: ActionResolutionStepContext) => ActionUseMessageData;
 
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
-
-  hierarchyProperties: CombatActionHierarchyProperties;
-  // // ACTION HEIRARCHY PROPERTIES
-  // getChildren: (context: ActionResolutionStepContext) => CombatActionComponent[];
-  // getConcurrentSubActions?: (context: ActionResolutionStepContext) => CombatActionExecutionIntent[];
-  // getParent: () => CombatActionComponent | null;
 }
 
 export abstract class CombatActionComponent {
@@ -116,14 +111,6 @@ export abstract class CombatActionComponent {
   getOnUseMessage: null | ((messageData: ActionUseMessageData) => string);
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
 
-  // if we take in the combatant we can determine the children based on their equipped weapons (melee attack mh, melee attack oh etc)
-  // spell levels (level 1 chain lightning only gets 1 ChainLightningArc child) or other status
-  // (energetic swings could do multiple attacks based on user's current percent of max hp)
-  // could also create random children such as a chaining random elemental damage
-  // getChildren: (context: ActionResolutionStepContext) => CombatActionComponent[];
-  // getConcurrentSubActions: (context: ActionResolutionStepContext) => CombatActionExecutionIntent[] =
-  //   () => [];
-  // getParent: () => CombatActionComponent | null;
   hierarchyProperties: CombatActionHierarchyProperties;
 
   constructor(
@@ -155,11 +142,6 @@ export abstract class CombatActionComponent {
     this.stepsConfig = config.stepsConfig;
 
     this.hierarchyProperties = config.hierarchyProperties;
-    //
-    // this.getChildren = config.getChildren;
-    // if (config.getConcurrentSubActions)
-    //   this.getConcurrentSubActions = config.getConcurrentSubActions;
-    // this.getParent = config.getParent;
   }
 
   getOnUseMessageData(context: ActionResolutionStepContext): ActionUseMessageData {
@@ -267,6 +249,14 @@ export class CombatActionComposite extends CombatActionComponent {
   };
 }
 
+// if we take in the combatant we can determine the children based on their equipped weapons (melee attack mh, melee attack oh etc)
+// spell levels (level 1 chain lightning only gets 1 ChainLightningArc child) or other status
+// (energetic swings could do multiple attacks based on user's current percent of max hp)
+// could also create random children such as a chaining random elemental damage
+// getChildren: (context: ActionResolutionStepContext) => CombatActionComponent[];
+// getConcurrentSubActions: (context: ActionResolutionStepContext) => CombatActionExecutionIntent[] =
+//   () => [];
+// getParent: () => CombatActionComponent | null;
 export interface CombatActionHierarchyProperties {
   getChildren: (context: ActionResolutionStepContext) => CombatActionComponent[];
   getParent: () => CombatActionComponent | null;
