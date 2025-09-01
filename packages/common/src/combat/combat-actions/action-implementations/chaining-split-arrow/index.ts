@@ -82,7 +82,6 @@ const config: CombatActionComponentConfig = {
     { userShouldMoveHomeOnComplete: true }
   ),
 
-  getSpawnableEntity: ATTACK_RANGED_MAIN_HAND.getSpawnableEntity,
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
 

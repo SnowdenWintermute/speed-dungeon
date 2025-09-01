@@ -19,7 +19,6 @@ import { ActionAccuracyType } from "./combat-action-accuracy.js";
 import { CombatantContext } from "../../combatant-context/index.js";
 import { ActionResolutionStepContext } from "../../action-processing/index.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
-import { SpawnableEntity } from "../../spawnables/index.js";
 import {
   CombatActionTargetingProperties,
   CombatActionTargetingPropertiesConfig,
@@ -46,8 +45,6 @@ export interface CombatActionComponentConfig {
   stepsConfig: ActionResolutionStepsConfig;
   hierarchyProperties: CombatActionHierarchyProperties;
   combatLogMessageProperties: CombatActionCombatLogProperties;
-
-  getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
 }
 
 export abstract class CombatActionComponent {
@@ -58,33 +55,8 @@ export abstract class CombatActionComponent {
   public readonly combatLogMessageProperties: CombatActionCombatLogProperties;
   public readonly costProperties: CombatActionCostProperties;
   public readonly stepsConfig: ActionResolutionStepsConfig;
-  protected children?: CombatActionComponent[];
-
-  isUsableInGivenContext(context: CombatActionUsabilityContext) {
-    switch (context) {
-      case CombatActionUsabilityContext.All:
-        return true;
-      case CombatActionUsabilityContext.InCombat:
-        return (
-          this.targetingProperties.usabilityContext !== CombatActionUsabilityContext.OutOfCombat
-        );
-      case CombatActionUsabilityContext.OutOfCombat:
-        return this.targetingProperties.usabilityContext !== CombatActionUsabilityContext.InCombat;
-    }
-  }
-
-  isUsableInThisContext: (battleOption: Battle | null) => boolean = (
-    battleOption: Battle | null
-  ) => {
-    const context = battleOption
-      ? CombatActionUsabilityContext.InCombat
-      : CombatActionUsabilityContext.OutOfCombat;
-    return this.isUsableInGivenContext(context);
-  };
-
-  getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
-
   hierarchyProperties: CombatActionHierarchyProperties;
+  protected children?: CombatActionComponent[];
 
   constructor(
     public name: CombatActionName,
@@ -107,7 +79,6 @@ export abstract class CombatActionComponent {
         config.costProperties.getResourceCosts(user, inCombat, actionLevel, this),
     };
 
-    this.getSpawnableEntity = config.getSpawnableEntity;
     this.stepsConfig = config.stepsConfig;
 
     this.hierarchyProperties = config.hierarchyProperties;
@@ -119,6 +90,28 @@ export abstract class CombatActionComponent {
       baseAccuracy.value *= this.hitOutcomeProperties.accuracyModifier;
     return baseAccuracy;
   }
+
+  isUsableInGivenContext(context: CombatActionUsabilityContext) {
+    switch (context) {
+      case CombatActionUsabilityContext.All:
+        return true;
+      case CombatActionUsabilityContext.InCombat:
+        return (
+          this.targetingProperties.usabilityContext !== CombatActionUsabilityContext.OutOfCombat
+        );
+      case CombatActionUsabilityContext.OutOfCombat:
+        return this.targetingProperties.usabilityContext !== CombatActionUsabilityContext.InCombat;
+    }
+  }
+
+  isUsableInThisContext: (battleOption: Battle | null) => boolean = (
+    battleOption: Battle | null
+  ) => {
+    const context = battleOption
+      ? CombatActionUsabilityContext.InCombat
+      : CombatActionUsabilityContext.OutOfCombat;
+    return this.isUsableInGivenContext(context);
+  };
 
   useIsValid(
     targets: CombatActionTarget,

@@ -1,13 +1,12 @@
 import { CombatActionComponentConfig, CombatActionLeaf, CombatActionName } from "../../index.js";
 import { COUNTER_ATTACK } from "./index.js";
-import { HoldableSlotType } from "../../../../items/equipment/slots.js";
-import { getMeleeAttackBaseStepsConfig } from "../attack/base-melee-attack-steps-config.js";
 import { ATTACK_MELEE_MAIN_HAND_CONFIG } from "../attack/attack-melee-main-hand.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import cloneDeep from "lodash.clonedeep";
 import { getRotateTowardPrimaryTargetDestination } from "../common-destination-getters.js";
+import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
 
-const stepsConfig = getMeleeAttackBaseStepsConfig(HoldableSlotType.MainHand);
+const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.MAIN_HAND_MELEE_ATTACK();
 delete stepsConfig.steps[ActionResolutionStepType.InitialPositioning];
 delete stepsConfig.steps[ActionResolutionStepType.ChamberingMotion];
 

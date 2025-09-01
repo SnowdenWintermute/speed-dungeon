@@ -32,11 +32,9 @@ import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
-import { getMeleeAttackDestination } from "../../combat-action-destination-getters.js";
-import { getMeleeAttackBaseStepsConfig } from "./base-melee-attack-steps-config.js";
 import cloneDeep from "lodash.clonedeep";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
+import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
 
 const targetingProperties = cloneDeep(
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent]
@@ -70,11 +68,7 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
   },
 };
 
-const stepsConfig = getMeleeAttackBaseStepsConfig(HoldableSlotType.OffHand);
-// don't show a movement animation here
-stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
-  getDestination: getMeleeAttackDestination,
-};
+const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.OFF_HAND_MELEE_ATTACK();
 
 export const ATTACK_MELEE_OFF_HAND_CONFIG: CombatActionComponentConfig = {
   description: "Attack target using equipment in off hand",

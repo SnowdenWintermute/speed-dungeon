@@ -17,6 +17,7 @@ config.steps[ActionResolutionStepType.ChamberingMotion] = {
     ),
 };
 config.steps[ActionResolutionStepType.RollIncomingHitOutcomes] = {};
+config.steps[ActionResolutionStepType.EvalOnHitOutcomeTriggers] = {};
 config.steps[ActionResolutionStepType.DeliveryMotion] = {
   ...config.steps[ActionResolutionStepType.DeliveryMotion],
   getAnimation: (user, animationLengths) =>
