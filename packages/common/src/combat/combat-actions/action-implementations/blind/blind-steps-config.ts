@@ -7,13 +7,13 @@ import {
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { CosmeticEffectOnTargetTransformNode } from "../../combat-action-steps-config.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
+import { ActionStepConfigUtils } from "../generic-action-templates/step-config-templates/utils.js";
 import { COMBAT_ACTIONS } from "../index.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
+ActionStepConfigUtils.removeMoveForwardSteps(stepsConfig);
 
 const initialPositioning = stepsConfig.steps[ActionResolutionStepType.InitialPositioning];
-delete initialPositioning?.getDestination;
-delete initialPositioning?.getAnimation;
 
 delete stepsConfig.steps[ActionResolutionStepType.FinalPositioning]?.getAnimation;
 stepsConfig.steps[ActionResolutionStepType.FinalPositioning]!.shouldIdleOnComplete = true;

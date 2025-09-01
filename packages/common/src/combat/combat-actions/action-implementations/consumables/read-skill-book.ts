@@ -25,10 +25,10 @@ import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
-import { MEDICATION_ACTION_BASE_STEPS_CONFIG } from "./base-consumable-steps-config.js";
 import { CombatantProperties, Inventory } from "../../../../combatants/index.js";
 import { throwIfError } from "../../../../utils/index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
+import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle],
@@ -112,7 +112,7 @@ const config: CombatActionComponentConfig = {
       return { meetsRequirements: true };
     },
   },
-  stepsConfig: MEDICATION_ACTION_BASE_STEPS_CONFIG,
+  stepsConfig: ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.CONSUMABLE_USE(),
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };
 

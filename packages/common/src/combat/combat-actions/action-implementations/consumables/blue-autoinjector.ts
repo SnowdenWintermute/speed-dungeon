@@ -33,10 +33,10 @@ import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
-import { MEDICATION_ACTION_BASE_STEPS_CONFIG } from "./base-consumable-steps-config.js";
 import { BasicRandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
 import { randBetween } from "../../../../utils/rand-between.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
+import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle];
 
@@ -98,7 +98,7 @@ const config: CombatActionComponentConfig = {
     },
   },
 
-  stepsConfig: MEDICATION_ACTION_BASE_STEPS_CONFIG,
+  stepsConfig: ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.CONSUMABLE_USE(),
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };
 
