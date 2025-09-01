@@ -8,6 +8,7 @@ import { CONSUMABLE_USE_BASE_STEPS_CONFIG } from "./consumable-use.js";
 import { MELEE_SKILL_STEPS_CONFIG } from "./melee-skill.js";
 import { MAIN_HAND_MELEE_ATTACK_STEPS_CONFIG } from "./main-hand-melee-attack.js";
 import { OFF_HAND_MELEE_ATTACK_STEPS_CONFIG } from "./off-hand-melee-attack.js";
+import { EXPLOSION_ENTITY_STEPS_CONFIG } from "./explosion-entity.js";
 
 export const ACTION_STEPS_CONFIG_TEMPLATE_GETTERS = {
   BASIC_SPELL: () => cloneDeep(BASIC_SPELL_STEPS_CONFIG),
@@ -19,4 +20,6 @@ export const ACTION_STEPS_CONFIG_TEMPLATE_GETTERS = {
   MELEE_SKILL: () => cloneDeep(MELEE_SKILL_STEPS_CONFIG),
   MAIN_HAND_MELEE_ATTACK: () => cloneDeep(MAIN_HAND_MELEE_ATTACK_STEPS_CONFIG),
   OFF_HAND_MELEE_ATTACK: () => cloneDeep(OFF_HAND_MELEE_ATTACK_STEPS_CONFIG),
+  EXPLOSION_ENTITY: () => cloneDeep(EXPLOSION_ENTITY_STEPS_CONFIG),
+  // PROJECTILE_ENTITY
 };

@@ -57,6 +57,7 @@ import {
   CombatActionCombatLogProperties,
   CombatActionOrigin,
 } from "../../combat-action-combat-log-properties.js";
+import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
@@ -119,6 +120,84 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
   },
 };
 
+const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.EXPLOSION_ENTITY();
+stepsConfig.steps[ActionResolutionStepType.OnActivationSpawnEntity] = {
+  ...stepsConfig.steps[ActionResolutionStepType.OnActivationSpawnEntity],
+  getSpawnableEntity: (context) => {
+    // we just want to get the position of the primary target, even though they aren't
+    // going to be part of the final targets as calculated by the hit outcomes.
+    // to this end, we use the target as set on the triggered action user combatant shim
+    // by the action whenTriggered function
+    // use some symantic coupling "oh no, bad practice!" to
+    // get the target location instead of trying to use auto target
+    // since the action's auto target gives a list of ids and we only
+    // want to spawn the explosion on the one selected by the user
+
+    const { party, combatant: user } = context.combatantContext;
+    const actionTarget = user.combatantProperties.combatActionTarget;
+    if (!actionTarget)
+      throw new Error("expected shimmed condition action user to have a target set");
+    if (actionTarget.type !== CombatActionTargetType.Single)
+      throw new Error("expected shimmed condition action user to have a single target");
+    const primaryTargetResult = AdventuringParty.getCombatant(party, actionTarget.targetId);
+    if (primaryTargetResult instanceof Error) throw primaryTargetResult;
+
+    const position = primaryTargetResult.combatantProperties.position;
+
+    return {
+      type: SpawnableEntityType.ActionEntity,
+      actionEntity: {
+        entityProperties: { id: context.idGenerator.generate(), name: "ice burst" },
+        actionEntityProperties: {
+          position,
+          name: ActionEntityName.IceBurst,
+        },
+      },
+    };
+  },
+};
+
+stepsConfig.steps[ActionResolutionStepType.OnActivationActionEntityMotion] = {
+  ...stepsConfig.steps[ActionResolutionStepType.OnActivationActionEntityMotion],
+  getAnimation: () => {
+    return {
+      name: { type: AnimationType.Dynamic, name: DynamicAnimationName.IceBurstDelivery },
+      timing: { type: AnimationTimingType.Timed, duration: 200 },
+      smoothTransition: false,
+      // timing: { type: AnimationTimingType.Timed, duration: 1000 },
+    };
+  },
+  getCosmeticsEffectsToStart: (context) => {
+    const iceBurstEntity = context.tracker.getExpectedSpawnedActionEntity();
+    return [
+      {
+        name: CosmeticEffectNames.FrostParticleBurst,
+        parent: {
+          sceneEntityIdentifier: {
+            type: SceneEntityType.ActionEntityModel,
+            entityId: iceBurstEntity.actionEntity.entityProperties.id,
+          },
+          transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
+        },
+        lifetime: 300,
+      },
+    ];
+  },
+};
+
+stepsConfig.steps[ActionResolutionStepType.ActionEntityDissipationMotion] = {
+  ...stepsConfig.steps[ActionResolutionStepType.ActionEntityDissipationMotion],
+  getAnimation: () => {
+    return {
+      name: { type: AnimationType.Dynamic, name: DynamicAnimationName.IceBurstDissipation },
+      timing: { type: AnimationTimingType.Timed, duration: 200 },
+      // timing: { type: AnimationTimingType.Timed, duration: 1000 },
+      //
+      smoothTransition: false,
+    };
+  },
+};
+
 const config: CombatActionComponentConfig = {
   description: "Deals kinetic ice damage in an area around the target",
   combatLogMessageProperties: new CombatActionCombatLogProperties({
@@ -135,89 +214,7 @@ const config: CombatActionComponentConfig = {
     requiresCombatTurnInThisContext: () => false,
   },
 
-  stepsConfig: new ActionResolutionStepsConfig(
-    {
-      [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
-      [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
-      [ActionResolutionStepType.OnActivationSpawnEntity]: {
-        getSpawnableEntity: (context) => {
-          // we just want to get the position of the primary target, even though they aren't
-          // going to be part of the final targets as calculated by the hit outcomes.
-          // to this end, we use the target as set on the triggered action user combatant shim
-          // by the action whenTriggered function
-          // use some symantic coupling "oh no, bad practice!" to
-          // get the target location instead of trying to use auto target
-          // since the action's auto target gives a list of ids and we only
-          // want to spawn the explosion on the one selected by the user
-
-          const { party, combatant: user } = context.combatantContext;
-          const actionTarget = user.combatantProperties.combatActionTarget;
-          if (!actionTarget)
-            throw new Error("expected shimmed condition action user to have a target set");
-          if (actionTarget.type !== CombatActionTargetType.Single)
-            throw new Error("expected shimmed condition action user to have a single target");
-          const primaryTargetResult = AdventuringParty.getCombatant(party, actionTarget.targetId);
-          if (primaryTargetResult instanceof Error) throw primaryTargetResult;
-
-          const position = primaryTargetResult.combatantProperties.position;
-
-          return {
-            type: SpawnableEntityType.ActionEntity,
-            actionEntity: {
-              entityProperties: { id: context.idGenerator.generate(), name: "ice burst" },
-              actionEntityProperties: {
-                position,
-                name: ActionEntityName.IceBurst,
-              },
-            },
-          };
-        },
-      },
-      [ActionResolutionStepType.OnActivationActionEntityMotion]: {
-        getAnimation: () => {
-          return {
-            name: { type: AnimationType.Dynamic, name: DynamicAnimationName.IceBurstDelivery },
-            timing: { type: AnimationTimingType.Timed, duration: 200 },
-            smoothTransition: false,
-            // timing: { type: AnimationTimingType.Timed, duration: 1000 },
-          };
-        },
-        getCosmeticsEffectsToStart: (context) => {
-          const iceBurstEntity = context.tracker.getExpectedSpawnedActionEntity();
-          return [
-            {
-              name: CosmeticEffectNames.FrostParticleBurst,
-              parent: {
-                sceneEntityIdentifier: {
-                  type: SceneEntityType.ActionEntityModel,
-                  entityId: iceBurstEntity.actionEntity.entityProperties.id,
-                },
-                transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
-              },
-              lifetime: 300,
-            },
-          ];
-        },
-      },
-      [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
-      [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
-      [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
-      [ActionResolutionStepType.ActionEntityDissipationMotion]: {
-        getAnimation: () => {
-          return {
-            name: { type: AnimationType.Dynamic, name: DynamicAnimationName.IceBurstDissipation },
-            timing: { type: AnimationTimingType.Timed, duration: 200 },
-            // timing: { type: AnimationTimingType.Timed, duration: 1000 },
-            //
-            smoothTransition: false,
-          };
-        },
-        shouldDespawnOnComplete: () => true,
-      },
-    },
-    { userShouldMoveHomeOnComplete: false }
-  ),
-
+  stepsConfig,
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };
 
