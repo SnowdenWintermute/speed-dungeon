@@ -1,4 +1,5 @@
 import {
+  CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -78,12 +79,14 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
 
 const config: CombatActionComponentConfig = {
   description: "Restore hit points to a target",
-  origin: CombatActionOrigin.Medication,
   targetingProperties,
   hitOutcomeProperties,
-  getOnUseMessage: (data) => {
-    return `${data.nameOfActionUser} uses a green autoinjector.`;
-  },
+  combatLogMessageProperties: new CombatActionCombatLogProperties({
+    origin: CombatActionOrigin.Medication,
+    getOnUseMessage: (data) => {
+      return `${data.nameOfActionUser} uses a green autoinjector.`;
+    },
+  }),
   costProperties: {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Medication],
     getConsumableCost: () => {

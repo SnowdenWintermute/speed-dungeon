@@ -1,4 +1,5 @@
 import {
+  CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -82,10 +83,12 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
 
 const config: CombatActionComponentConfig = {
   description: "Refreshes a target's mana reserves",
-  origin: CombatActionOrigin.Medication,
-  getOnUseMessage: (data) => {
-    return `${data.nameOfActionUser} uses a blue autoinjector.`;
-  },
+  combatLogMessageProperties: new CombatActionCombatLogProperties({
+    origin: CombatActionOrigin.Medication,
+    getOnUseMessage: (data) => {
+      return `${data.nameOfActionUser} uses a blue autoinjector.`;
+    },
+  }),
   targetingProperties,
   hitOutcomeProperties,
   costProperties: {

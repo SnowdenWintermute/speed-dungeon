@@ -9,6 +9,7 @@ export * from "./combat-action-intent.js";
 export * from "./combat-action-steps-config.js";
 export * from "./combat-action-resource-change-properties.js";
 export * from "./combat-action-accuracy.js";
+export * from "./combat-action-combat-log-properties.js";
 
 import { CombatantProperties, getCombatActionPropertiesIfOwned } from "../../combatants/index.js";
 import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js";
@@ -16,7 +17,7 @@ import { CombatActionName } from "./combat-action-names.js";
 import { Battle } from "../../battle/index.js";
 import { ActionAccuracyType } from "./combat-action-accuracy.js";
 import { CombatantContext } from "../../combatant-context/index.js";
-import { ActionResolutionStepContext, ActionTracker } from "../../action-processing/index.js";
+import { ActionResolutionStepContext } from "../../action-processing/index.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
 import { SpawnableEntity } from "../../spawnables/index.js";
 import {
@@ -32,19 +33,7 @@ import { ActionResolutionStepsConfig } from "./combat-action-steps-config.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { AbilityTreeAbility } from "../../abilities/index.js";
-
-export enum CombatActionOrigin {
-  SpellCast,
-  TriggeredCondition,
-  Medication,
-  Attack,
-}
-
-export interface ActionUseMessageData {
-  nameOfActionUser?: string;
-  nameOfTarget?: string;
-  actionLevel?: number;
-}
+import { CombatActionCombatLogProperties } from "./combat-action-combat-log-properties.js";
 
 export interface CombatActionComponentConfig {
   // unique to each action
@@ -56,22 +45,17 @@ export interface CombatActionComponentConfig {
   costProperties: CombatActionCostPropertiesConfig;
   stepsConfig: ActionResolutionStepsConfig;
   hierarchyProperties: CombatActionHierarchyProperties;
-
-  // COMBAT LOG STUFF
-  /** Used by the combat log to determine how to format messages */
-  origin: CombatActionOrigin;
-  getOnUseMessage: null | ((messageData: ActionUseMessageData) => string);
-  getOnUseMessageDataOverride?: (context: ActionResolutionStepContext) => ActionUseMessageData;
+  combatLogMessageProperties: CombatActionCombatLogProperties;
 
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
 }
 
 export abstract class CombatActionComponent {
   public readonly description: string;
-  public readonly origin: CombatActionOrigin;
   public readonly prerequisiteAbilities?: AbilityTreeAbility[];
   public readonly targetingProperties: CombatActionTargetingProperties;
   public hitOutcomeProperties: CombatActionHitOutcomeProperties;
+  public readonly combatLogMessageProperties: CombatActionCombatLogProperties;
   public readonly costProperties: CombatActionCostProperties;
   public readonly stepsConfig: ActionResolutionStepsConfig;
   protected children?: CombatActionComponent[];
@@ -98,7 +82,6 @@ export abstract class CombatActionComponent {
     return this.isUsableInGivenContext(context);
   };
 
-  getOnUseMessage: null | ((messageData: ActionUseMessageData) => string);
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
 
   hierarchyProperties: CombatActionHierarchyProperties;
@@ -108,7 +91,8 @@ export abstract class CombatActionComponent {
     config: CombatActionComponentConfig
   ) {
     this.description = config.description;
-    this.origin = config.origin;
+
+    this.combatLogMessageProperties = config.combatLogMessageProperties;
 
     this.prerequisiteAbilities = config.prerequisiteAbilities;
     this.targetingProperties = {
@@ -123,23 +107,10 @@ export abstract class CombatActionComponent {
         config.costProperties.getResourceCosts(user, inCombat, actionLevel, this),
     };
 
-    this.getOnUseMessage = config.getOnUseMessage;
-    if (config.getOnUseMessageDataOverride)
-      this.getOnUseMessageData = config.getOnUseMessageDataOverride;
     this.getSpawnableEntity = config.getSpawnableEntity;
     this.stepsConfig = config.stepsConfig;
 
     this.hierarchyProperties = config.hierarchyProperties;
-  }
-
-  getOnUseMessageData(context: ActionResolutionStepContext): ActionUseMessageData {
-    const { combatantContext } = context;
-    const { combatant } = combatantContext;
-    const { selectedActionLevel } = combatant.combatantProperties;
-    return {
-      nameOfActionUser: combatant.entityProperties.name,
-      actionLevel: selectedActionLevel ?? 0,
-    };
   }
 
   getAccuracy(user: CombatantProperties, actionLevel: number) {

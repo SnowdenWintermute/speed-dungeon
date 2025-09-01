@@ -1,14 +1,13 @@
 import {
   ActionPayableResource,
-  COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponentConfig,
   CombatActionIntent,
   CombatActionLeaf,
   CombatActionName,
-  CombatActionOrigin,
   CombatActionUsabilityContext,
   TargetCategories,
   TargetingScheme,
+  createGenericSpellCastMessageProperties,
 } from "../../index.js";
 import {
   CombatActionTargetingPropertiesConfig,
@@ -22,7 +21,6 @@ import {
 } from "../../combat-action-cost-properties.js";
 import { HEALING_HIT_OUTCOME_PROPERTIES } from "./healing-hit-outcome-properties.js";
 import { HEALING_STEPS_CONFIG } from "./healing-steps-config.js";
-import { getSpellCastCombatLogMessage } from "../combat-log-message-getters.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
@@ -39,9 +37,7 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
 
 const config: CombatActionComponentConfig = {
   description: "Restore hit points or damage undead",
-  origin: CombatActionOrigin.SpellCast,
-  getOnUseMessage: (data) =>
-    getSpellCastCombatLogMessage(data, COMBAT_ACTION_NAME_STRINGS[CombatActionName.Healing]),
+  combatLogMessageProperties: createGenericSpellCastMessageProperties(CombatActionName.Healing),
   targetingProperties,
   hitOutcomeProperties: HEALING_HIT_OUTCOME_PROPERTIES,
   costProperties: {

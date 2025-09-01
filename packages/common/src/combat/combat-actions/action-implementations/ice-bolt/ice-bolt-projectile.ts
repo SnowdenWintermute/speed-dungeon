@@ -1,8 +1,10 @@
 import {
+  CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
   CombatActionOrigin,
+  createGenericSpellCastMessageProperties,
 } from "../../index.js";
 import { ICE_BOLT_PARENT } from "./index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
@@ -40,11 +42,12 @@ targetingProperties.shouldExecute = DAMAGING_ACTIONS_COMMON_CONFIG.shouldExecute
 
 const config: CombatActionComponentConfig = {
   description: "An icy projectile",
-  origin: CombatActionOrigin.SpellCast,
   targetingProperties,
   hitOutcomeProperties: iceBoltProjectileHitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
-  getOnUseMessage: null,
+  combatLogMessageProperties: new CombatActionCombatLogProperties({
+    origin: CombatActionOrigin.SpellCast,
+  }),
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
     getParent: () => ICE_BOLT_PARENT,

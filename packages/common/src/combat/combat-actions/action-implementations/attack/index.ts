@@ -1,4 +1,5 @@
 import {
+  CombatActionCombatLogProperties,
   CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
@@ -32,7 +33,9 @@ const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesType
 
 export const ATTACK_CONFIG: CombatActionComponentConfig = {
   description: "Attack with equipped weapons or fists",
-  origin: CombatActionOrigin.Attack,
+  combatLogMessageProperties: new CombatActionCombatLogProperties({
+    origin: CombatActionOrigin.Attack,
+  }),
   targetingProperties,
   // placeholder since all this action does is get children
   hitOutcomeProperties: GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],
@@ -40,7 +43,6 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
     requiresCombatTurnInThisContext: () => false,
   },
-  getOnUseMessage: null,
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
     getChildren: function (

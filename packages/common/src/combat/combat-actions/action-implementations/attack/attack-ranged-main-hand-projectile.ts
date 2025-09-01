@@ -1,4 +1,5 @@
 import {
+  CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
@@ -62,9 +63,9 @@ export const rangedAttackProjectileHitOutcomeProperties: CombatActionHitOutcomeP
 
 export const ATTACK_RANGED_MAIN_HAND_PROJECTILE_CONFIG: CombatActionComponentConfig = {
   description: "An arrow",
-  origin: CombatActionOrigin.Attack,
-
-  getOnUseMessage: null,
+  combatLogMessageProperties: new CombatActionCombatLogProperties({
+    origin: CombatActionOrigin.Attack,
+  }),
   targetingProperties,
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
   costProperties: {

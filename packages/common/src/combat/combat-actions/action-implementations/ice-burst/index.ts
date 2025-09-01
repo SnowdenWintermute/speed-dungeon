@@ -3,7 +3,6 @@ import {
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
-  CombatActionOrigin,
   FriendOrFoe,
   TargetCategories,
 } from "../../index.js";
@@ -54,6 +53,10 @@ import {
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { CombatantConditionName } from "../../../../combatants/index.js";
+import {
+  CombatActionCombatLogProperties,
+  CombatActionOrigin,
+} from "../../combat-action-combat-log-properties.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
@@ -118,11 +121,10 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
 
 const config: CombatActionComponentConfig = {
   description: "Deals kinetic ice damage in an area around the target",
-  origin: CombatActionOrigin.TriggeredCondition,
-
-  getOnUseMessage: (data) => {
-    return `${data.nameOfActionUser} shatters!`;
-  },
+  combatLogMessageProperties: new CombatActionCombatLogProperties({
+    origin: CombatActionOrigin.TriggeredCondition,
+    getOnUseMessage: (data) => `${data.nameOfActionUser} shatters!`,
+  }),
   targetingProperties,
   hitOutcomeProperties,
   costProperties: {

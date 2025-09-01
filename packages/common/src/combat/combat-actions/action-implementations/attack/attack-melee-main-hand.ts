@@ -1,4 +1,5 @@
 import {
+  CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -49,8 +50,9 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
 
 export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   description: "Attack target using equipment in main hand",
-  origin: CombatActionOrigin.Attack,
-  getOnUseMessage: null,
+  combatLogMessageProperties: new CombatActionCombatLogProperties({
+    origin: CombatActionOrigin.Attack,
+  }),
   targetingProperties: GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent],
   costProperties: {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],

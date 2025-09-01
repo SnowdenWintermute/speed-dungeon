@@ -8,12 +8,21 @@ import {
   CombatActionName,
 } from "../../index.js";
 import { passTurnConfig } from "./index.js";
+import {
+  CombatActionCombatLogProperties,
+  CombatActionOrigin,
+} from "../../combat-action-combat-log-properties.js";
 
 const clonedConfig = cloneDeep(passTurnConfig);
 
 const config: CombatActionComponentConfig = {
   ...clonedConfig,
-  getOnUseMessage: () => "",
+  combatLogMessageProperties: new CombatActionCombatLogProperties({
+    origin: CombatActionOrigin.SpellCast,
+    getOnUseMessage: (data) => {
+      return "";
+    },
+  }),
   costProperties: {
     ...passTurnConfig.costProperties,
     requiresCombatTurnInThisContext: () => false,

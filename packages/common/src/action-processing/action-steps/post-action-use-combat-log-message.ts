@@ -12,10 +12,9 @@ import {
 const stepType = ActionResolutionStepType.PostActionUseCombatLogMessage;
 export class PostActionUseCombatLogMessageActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
-    const { combatant } = context.combatantContext;
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
 
-    const { getOnUseMessage, getOnUseMessageData } = action;
+    const { getOnUseMessage, getOnUseMessageData } = action.combatLogMessageProperties;
 
     let gameUpdateCommandOption: null | ActionUseCombatLogMessageUpdateCommand = null;
 

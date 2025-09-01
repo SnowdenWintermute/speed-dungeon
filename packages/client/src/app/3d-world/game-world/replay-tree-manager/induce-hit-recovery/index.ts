@@ -7,7 +7,6 @@ import {
   CombatActionName,
   COMBAT_ACTIONS,
   ActionResolutionStepType,
-  CombatActionOrigin,
   AdventuringParty,
   FLOATING_MESSAGE_DURATION,
 } from "@speed-dungeon/common";

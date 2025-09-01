@@ -1,5 +1,6 @@
 import {
   ActionPayableResource,
+  CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -34,21 +35,25 @@ import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 
 const config: CombatActionComponentConfig = {
   description: "Inflict magical fire damage on enemies",
-  origin: CombatActionOrigin.TriggeredCondition,
-  getOnUseMessage: (data) => {
-    return `${data.nameOfTarget} is burning`;
-  },
-  getOnUseMessageDataOverride(context) {
-    const { actionExecutionIntent } = context.tracker;
-    const { combatantContext } = context;
-    const targetingCalculator = new TargetingCalculator(combatantContext, null);
-    const primaryTargetId = targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent);
-    const { party } = combatantContext;
-    const targetCombatantResult = AdventuringParty.getCombatant(party, primaryTargetId);
-    if (targetCombatantResult instanceof Error) throw targetCombatantResult;
 
-    return { nameOfTarget: targetCombatantResult.entityProperties.name };
-  },
+  combatLogMessageProperties: new CombatActionCombatLogProperties({
+    origin: CombatActionOrigin.TriggeredCondition,
+    getOnUseMessage: (data) => {
+      return `${data.nameOfTarget} is burning`;
+    },
+    getOnUseMessageDataOverride(context) {
+      const { actionExecutionIntent } = context.tracker;
+      const { combatantContext } = context;
+      const targetingCalculator = new TargetingCalculator(combatantContext, null);
+      const primaryTargetId =
+        targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent);
+      const { party } = combatantContext;
+      const targetCombatantResult = AdventuringParty.getCombatant(party, primaryTargetId);
+      if (targetCombatantResult instanceof Error) throw targetCombatantResult;
+
+      return { nameOfTarget: targetCombatantResult.entityProperties.name };
+    },
+  }),
   targetingProperties: GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle],
   hitOutcomeProperties: {
     ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Spell],

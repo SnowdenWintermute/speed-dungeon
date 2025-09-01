@@ -1,5 +1,6 @@
 import {
   ActionResolutionStepsConfig,
+  CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionExecutionIntent,
@@ -34,7 +35,13 @@ const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootin
 
 const config: CombatActionComponentConfig = {
   description: "Fire arrows which each bounce to up to two additional targets",
-  origin: CombatActionOrigin.Attack,
+
+  combatLogMessageProperties: new CombatActionCombatLogProperties({
+    origin: CombatActionOrigin.Attack,
+    getOnUseMessage: (data) => {
+      return `${data.nameOfActionUser} fires a chaining split arrow.`;
+    },
+  }),
   prerequisiteAbilities: [
     { type: AbilityType.Action, actionName: CombatActionName.ExplodingArrowParent },
   ],
@@ -43,9 +50,6 @@ const config: CombatActionComponentConfig = {
     getRequiredEquipmentTypeOptions: () => [EquipmentType.TwoHandedRangedWeapon],
   },
 
-  getOnUseMessage: (data) => {
-    return `${data.nameOfActionUser} fires a chaining split arrow.`;
-  },
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
   costProperties: {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],

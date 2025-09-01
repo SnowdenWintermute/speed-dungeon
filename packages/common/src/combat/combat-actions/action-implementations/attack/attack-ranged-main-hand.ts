@@ -1,4 +1,5 @@
 import {
+  CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionExecutionIntent,
   CombatActionLeaf,
@@ -170,7 +171,9 @@ stepsConfig.steps = {
 
 export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   description: "Attack target using ranged weapon",
-  origin: CombatActionOrigin.Attack,
+  combatLogMessageProperties: new CombatActionCombatLogProperties({
+    origin: CombatActionOrigin.Attack,
+  }),
   targetingProperties: {
     ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle],
     getRequiredEquipmentTypeOptions: () => [EquipmentType.TwoHandedRangedWeapon],
@@ -184,7 +187,6 @@ export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
     requiresCombatTurnInThisContext: () => false,
   },
   stepsConfig,
-  getOnUseMessage: null,
 
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,

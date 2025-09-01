@@ -3,6 +3,7 @@ import { GameState } from "@/stores/game-store";
 import {
   ACTION_PAYABLE_RESOURCE_STRINGS,
   ActionPayableResource,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponent,
   CombatActionOrigin,
   Combatant,
@@ -12,6 +13,12 @@ import {
   MAGICAL_ELEMENT_STRINGS,
   ResourceChange,
 } from "@speed-dungeon/common";
+
+const spellLikeOrigins = [
+  CombatActionOrigin.SpellCast,
+  CombatActionOrigin.Medication,
+  CombatActionOrigin.TriggeredCondition,
+];
 
 export function postResourceChangeToCombatLog(
   gameState: GameState,
@@ -42,7 +49,8 @@ export function postResourceChangeToCombatLog(
 
   const resourceTypeString = ACTION_PAYABLE_RESOURCE_STRINGS[resourceType].toLowerCase();
 
-  const damageText = `points of ${resourceChangeSourceCategoryText + kineticOptionString + elementOptionString}${manaDamage} damage`;
+  const sOption = Math.abs(resourceChange.value) > 1 ? "s" : "";
+  const damageText = `point${sOption} of ${resourceChangeSourceCategoryText + kineticOptionString + elementOptionString}${manaDamage} damage`;
 
   const resourceTypeOrDamageText = resourceChange.value > 0 ? resourceTypeString : damageText;
 
@@ -55,10 +63,11 @@ export function postResourceChangeToCombatLog(
 
   let messageText = "";
 
-  if (
-    action.origin === CombatActionOrigin.SpellCast ||
-    action.origin === CombatActionOrigin.TriggeredCondition
-  ) {
+  const { combatLogMessageProperties } = action;
+  const { origin } = combatLogMessageProperties;
+  console.log(COMBAT_ACTION_NAME_STRINGS[action.name], origin);
+
+  if (spellLikeOrigins.includes(origin)) {
     const damagedOrHealed = resourceChange.value > 0 ? "recovers" : "takes";
     messageText = `${target.entityProperties.name} ${damagedOrHealed} ${Math.abs(resourceChange.value)} ${resourceTypeOrDamageText}`;
   } else {

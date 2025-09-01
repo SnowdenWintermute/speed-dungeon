@@ -1,5 +1,9 @@
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import {
+  CombatActionCombatLogProperties,
+  CombatActionOrigin,
+} from "../../combat-action-combat-log-properties.js";
+import {
   ActionResolutionStepsConfig,
   CombatActionComponentConfig,
   CombatActionLeaf,
@@ -10,9 +14,12 @@ import { passTurnConfig } from "./index.js";
 const config: CombatActionComponentConfig = {
   ...passTurnConfig,
   description: "For combatant conditions ending their turn on tick",
-  getOnUseMessage: (data) => {
-    return `${data.nameOfActionUser} ticks`;
-  },
+  combatLogMessageProperties: new CombatActionCombatLogProperties({
+    origin: CombatActionOrigin.SpellCast,
+    getOnUseMessage: (data) => {
+      return `${data.nameOfActionUser} ticks`;
+    },
+  }),
   stepsConfig: new ActionResolutionStepsConfig(
     {
       [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},

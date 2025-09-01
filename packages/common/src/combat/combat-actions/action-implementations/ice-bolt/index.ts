@@ -1,11 +1,14 @@
 import {
   BASE_ACTION_HIERARCHY_PROPERTIES,
   COMBAT_ACTION_NAME_STRINGS,
+  CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionExecutionIntent,
   CombatActionLeaf,
   CombatActionName,
   CombatActionOrigin,
+  createGenericSpellCastMessageProperties,
+  getSpellCastCombatLogMessage,
 } from "../../index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
@@ -24,7 +27,6 @@ import {
   CombatantBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
-import { getSpellCastCombatLogMessage } from "../combat-log-message-getters.js";
 import { AbilityType } from "../../../../abilities/index.js";
 
 const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Spell);
@@ -61,7 +63,9 @@ stepsConfig.steps[ActionResolutionStepType.FinalPositioning] = {
 const config: CombatActionComponentConfig = {
   description: "Summon an icy projectile",
   prerequisiteAbilities: [{ type: AbilityType.Action, actionName: CombatActionName.Fire }],
-  origin: CombatActionOrigin.SpellCast,
+  combatLogMessageProperties: createGenericSpellCastMessageProperties(
+    CombatActionName.IceBoltProjectile
+  ),
   targetingProperties: GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle],
   hitOutcomeProperties: iceBoltProjectileHitOutcomeProperties,
   costProperties: {
@@ -69,8 +73,6 @@ const config: CombatActionComponentConfig = {
     requiresCombatTurnInThisContext: () => false,
   },
   stepsConfig,
-  getOnUseMessage: (data) =>
-    getSpellCastCombatLogMessage(data, COMBAT_ACTION_NAME_STRINGS[CombatActionName.IceBoltParent]),
 
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,

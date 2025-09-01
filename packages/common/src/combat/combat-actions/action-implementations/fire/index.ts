@@ -1,12 +1,11 @@
 import {
   ActionPayableResource,
-  COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
-  CombatActionOrigin,
   TargetCategories,
   TargetingScheme,
+  createGenericSpellCastMessageProperties,
 } from "../../index.js";
 import {
   CombatActionTargetingPropertiesConfig,
@@ -19,7 +18,6 @@ import {
 } from "../../combat-action-cost-properties.js";
 import { FIRE_STEPS_CONFIG } from "./fire-steps-config.js";
 import { FIRE_HIT_OUTCOME_PROPERTIES } from "./fire-hit-outcome-properties.js";
-import { getSpellCastCombatLogMessage } from "../combat-log-message-getters.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
@@ -34,9 +32,7 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
 
 const config: CombatActionComponentConfig = {
   description: "Inflict magical fire damage on enemies and cause them to start burning",
-  origin: CombatActionOrigin.SpellCast,
-  getOnUseMessage: (data) =>
-    getSpellCastCombatLogMessage(data, COMBAT_ACTION_NAME_STRINGS[CombatActionName.Fire]),
+  combatLogMessageProperties: createGenericSpellCastMessageProperties(CombatActionName.Fire),
   targetingProperties,
   hitOutcomeProperties: FIRE_HIT_OUTCOME_PROPERTIES,
   costProperties: {

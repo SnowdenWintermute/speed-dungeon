@@ -1,4 +1,5 @@
 import {
+  CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -40,10 +41,12 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
 
 const config: CombatActionComponentConfig = {
   description: "Increases the level of the corresponding support class",
-  origin: CombatActionOrigin.Medication,
-  getOnUseMessage: (data) => {
-    return `${data.nameOfActionUser} reads a skill book.`;
-  },
+  combatLogMessageProperties: new CombatActionCombatLogProperties({
+    origin: CombatActionOrigin.Medication,
+    getOnUseMessage: (data) => {
+      return `${data.nameOfActionUser} reads a skill book.`;
+    },
+  }),
   targetingProperties,
   hitOutcomeProperties,
   costProperties: {

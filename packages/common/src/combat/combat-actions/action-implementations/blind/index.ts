@@ -1,11 +1,10 @@
 import {
   ActionPayableResource,
-  COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
-  CombatActionOrigin,
   TargetingScheme,
+  createGenericSpellCastMessageProperties,
 } from "../../index.js";
 import {
   CombatActionTargetingPropertiesConfig,
@@ -18,7 +17,6 @@ import {
 } from "../../combat-action-cost-properties.js";
 import { BLIND_STEPS_CONFIG } from "./blind-steps-config.js";
 import { BLIND_HIT_OUTCOME_PROPERTIES } from "./blind-hit-outcome-properties.js";
-import { getSpellCastCombatLogMessage } from "../combat-log-message-getters.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
@@ -33,9 +31,7 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
 const config: CombatActionComponentConfig = {
   description: "Reduce the accuracy of targets",
   prerequisiteAbilities: [],
-  origin: CombatActionOrigin.SpellCast,
-  getOnUseMessage: (data) =>
-    getSpellCastCombatLogMessage(data, COMBAT_ACTION_NAME_STRINGS[CombatActionName.Blind]),
+  combatLogMessageProperties: createGenericSpellCastMessageProperties(CombatActionName.Blind),
   targetingProperties,
   hitOutcomeProperties: BLIND_HIT_OUTCOME_PROPERTIES,
   costProperties: {

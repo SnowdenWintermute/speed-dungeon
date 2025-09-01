@@ -1,4 +1,5 @@
 import {
+  CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
@@ -47,12 +48,14 @@ targetingProperties.shouldExecute = DAMAGING_ACTIONS_COMMON_CONFIG.shouldExecute
 
 const config: CombatActionComponentConfig = {
   description: "Deals kinetic fire damage in an area around the target",
-  origin: CombatActionOrigin.TriggeredCondition,
   targetingProperties,
+  combatLogMessageProperties: new CombatActionCombatLogProperties({
+    origin: CombatActionOrigin.TriggeredCondition,
+    getOnUseMessage: (data) => {
+      return `${data.nameOfActionUser} explodes!`;
+    },
+  }),
 
-  getOnUseMessage: (data) => {
-    return `${data.nameOfActionUser} explodes!`;
-  },
   hitOutcomeProperties: explosionHitOutcomeProperties,
   costProperties: {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],

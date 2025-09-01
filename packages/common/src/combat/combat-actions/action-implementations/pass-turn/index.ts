@@ -5,7 +5,6 @@ import {
   CombatActionIntent,
   CombatActionLeaf,
   CombatActionName,
-  CombatActionOrigin,
   CombatActionUsabilityContext,
   TargetCategories,
 } from "../../index.js";
@@ -19,20 +18,26 @@ import {
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import {
+  CombatActionCombatLogProperties,
+  CombatActionOrigin,
+} from "../../combat-action-combat-log-properties.js";
 
 export const passTurnConfig: CombatActionComponentConfig = {
   description: "Skip your own turn",
-  origin: CombatActionOrigin.SpellCast,
   targetingProperties: {
     ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle],
     getValidTargetCategories: () => TargetCategories.User,
     usabilityContext: CombatActionUsabilityContext.InCombat,
     intent: CombatActionIntent.Benevolent,
   },
+  combatLogMessageProperties: new CombatActionCombatLogProperties({
+    origin: CombatActionOrigin.SpellCast,
+    getOnUseMessage: (data) => {
+      return `${data.nameOfActionUser} passes their turn`;
+    },
+  }),
 
-  getOnUseMessage: (data) => {
-    return `${data.nameOfActionUser} passes their turn`;
-  },
   hitOutcomeProperties: {
     ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Medication],
     getThreatChangesOnHitOutcomes: (context, hitOutcomes) => null,

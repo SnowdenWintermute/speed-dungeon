@@ -9,9 +9,9 @@ export function postActionUseMessageToCombatLog(
   const { actionUseMessageData, actionName } = command;
 
   const action = COMBAT_ACTIONS[actionName];
-  if (!action.getOnUseMessage) return;
+  if (!action.combatLogMessageProperties.getOnUseMessage) return;
 
-  const message = action.getOnUseMessage(actionUseMessageData);
+  const message = action.combatLogMessageProperties.getOnUseMessage(actionUseMessageData);
 
   gameState.combatLogMessages.push(new CombatLogMessage(message, CombatLogMessageStyle.Basic));
 }
