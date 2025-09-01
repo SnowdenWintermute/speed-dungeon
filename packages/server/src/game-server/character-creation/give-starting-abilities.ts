@@ -14,13 +14,13 @@ export function giveStartingAbilities(combatantProperties: CombatantProperties) 
     CombatActionName.UseBlueAutoinjector,
     CombatActionName.PassTurn,
     CombatActionName.ReadSkillBook,
-    // CombatActionName.ChainingSplitArrowParent,
+    CombatActionName.ChainingSplitArrowParent,
     // CombatActionName.Counterattack,
     CombatActionName.IceBoltParent,
     CombatActionName.Fire,
     CombatActionName.Healing,
-    // CombatActionName.ExplodingArrowParent,
-    // CombatActionName.Blind,
+    CombatActionName.ExplodingArrowParent,
+    CombatActionName.Blind,
   ];
 
   const levelTwoSpells: CombatActionName[] = [

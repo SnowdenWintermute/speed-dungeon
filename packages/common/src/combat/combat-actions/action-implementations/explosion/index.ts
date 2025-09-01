@@ -68,7 +68,36 @@ const config: CombatActionComponentConfig = {
     {
       [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
       [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
-      [ActionResolutionStepType.OnActivationSpawnEntity]: {},
+      [ActionResolutionStepType.OnActivationSpawnEntity]: {
+        getSpawnableEntity: (context) => {
+          const { party, combatant: user } = context.combatantContext;
+
+          // use some symantic coupling "oh no, bad practice!" to
+          // get the target location instead of trying to use auto target
+          // since the action's auto target gives a list of ids and we only
+          // want to spawn the explosion on the one selected by the user
+          const actionTarget = user.combatantProperties.combatActionTarget;
+          if (!actionTarget)
+            throw new Error("expected shimmed condition action user to have a target set");
+          if (actionTarget.type !== CombatActionTargetType.Single)
+            throw new Error("expected shimmed condition action user to have a single target");
+          const primaryTargetResult = AdventuringParty.getCombatant(party, actionTarget.targetId);
+          if (primaryTargetResult instanceof Error) throw primaryTargetResult;
+
+          const position = primaryTargetResult.combatantProperties.position;
+
+          return {
+            type: SpawnableEntityType.ActionEntity,
+            actionEntity: {
+              entityProperties: { id: context.idGenerator.generate(), name: "explosion" },
+              actionEntityProperties: {
+                position,
+                name: ActionEntityName.Explosion,
+              },
+            },
+          };
+        },
+      },
       [ActionResolutionStepType.OnActivationActionEntityMotion]: {
         getAnimation: () => {
           return {
@@ -97,35 +126,6 @@ const config: CombatActionComponentConfig = {
     { userShouldMoveHomeOnComplete: false }
   ),
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
-
-  getSpawnableEntity: (context) => {
-    const { party, combatant: user } = context.combatantContext;
-
-    // use some symantic coupling "oh no, bad practice!" to
-    // get the target location instead of trying to use auto target
-    // since the action's auto target gives a list of ids and we only
-    // want to spawn the explosion on the one selected by the user
-    const actionTarget = user.combatantProperties.combatActionTarget;
-    if (!actionTarget)
-      throw new Error("expected shimmed condition action user to have a target set");
-    if (actionTarget.type !== CombatActionTargetType.Single)
-      throw new Error("expected shimmed condition action user to have a single target");
-    const primaryTargetResult = AdventuringParty.getCombatant(party, actionTarget.targetId);
-    if (primaryTargetResult instanceof Error) throw primaryTargetResult;
-
-    const position = primaryTargetResult.combatantProperties.position;
-
-    return {
-      type: SpawnableEntityType.ActionEntity,
-      actionEntity: {
-        entityProperties: { id: context.idGenerator.generate(), name: "explosion" },
-        actionEntityProperties: {
-          position,
-          name: ActionEntityName.Explosion,
-        },
-      },
-    };
-  },
 };
 
 export const EXPLOSION = new CombatActionComposite(CombatActionName.Explosion, config);

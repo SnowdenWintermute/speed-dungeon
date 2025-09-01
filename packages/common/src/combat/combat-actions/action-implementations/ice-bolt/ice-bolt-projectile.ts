@@ -4,10 +4,8 @@ import {
   CombatActionComposite,
   CombatActionName,
   CombatActionOrigin,
-  createGenericSpellCastMessageProperties,
 } from "../../index.js";
 import { ICE_BOLT_PARENT } from "./index.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
@@ -56,7 +54,43 @@ const config: CombatActionComponentConfig = {
   stepsConfig: new ActionResolutionStepsConfig(
     {
       [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
-      [ActionResolutionStepType.OnActivationSpawnEntity]: {},
+      [ActionResolutionStepType.OnActivationSpawnEntity]: {
+        getSpawnableEntity: (context) => {
+          const { combatantContext } = context;
+          const { actionExecutionIntent } = context.tracker;
+          const { party, combatant } = combatantContext;
+          const position = combatantContext.combatant.combatantProperties.position.clone();
+
+          const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
+
+          const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
+            party,
+            actionExecutionIntent
+          );
+          if (primaryTargetResult instanceof Error) throw primaryTargetResult;
+          const target = primaryTargetResult;
+
+          return {
+            type: SpawnableEntityType.ActionEntity,
+            actionEntity: {
+              entityProperties: { id: context.idGenerator.generate(), name: "" },
+              actionEntityProperties: {
+                position,
+                name: ActionEntityName.IceBolt,
+                initialRotation: new Vector3(Math.PI / 2, 0, 0),
+                parentOption: {
+                  sceneEntityIdentifier: {
+                    type: SceneEntityType.CharacterModel,
+                    entityId: combatant.entityProperties.id,
+                  },
+                  transformNodeName: CombatantBaseChildTransformNodeName.OffhandEquipment,
+                },
+                pointTowardEntityOption: target.entityProperties.id,
+              },
+            },
+          };
+        },
+      },
       [ActionResolutionStepType.OnActivationActionEntityMotion]: {
         getDestination: getPrimaryTargetPositionAsDestination,
         getNewParent: () => null,
@@ -141,42 +175,6 @@ const config: CombatActionComponentConfig = {
     },
     { userShouldMoveHomeOnComplete: false }
   ),
-
-  getSpawnableEntity: (context) => {
-    const { combatantContext } = context;
-    const { actionExecutionIntent } = context.tracker;
-    const { party, combatant } = combatantContext;
-    const position = combatantContext.combatant.combatantProperties.position.clone();
-
-    const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
-
-    const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
-      party,
-      actionExecutionIntent
-    );
-    if (primaryTargetResult instanceof Error) throw primaryTargetResult;
-    const target = primaryTargetResult;
-
-    return {
-      type: SpawnableEntityType.ActionEntity,
-      actionEntity: {
-        entityProperties: { id: context.idGenerator.generate(), name: "" },
-        actionEntityProperties: {
-          position,
-          name: ActionEntityName.IceBolt,
-          initialRotation: new Vector3(Math.PI / 2, 0, 0),
-          parentOption: {
-            sceneEntityIdentifier: {
-              type: SceneEntityType.CharacterModel,
-              entityId: combatant.entityProperties.id,
-            },
-            transformNodeName: CombatantBaseChildTransformNodeName.OffhandEquipment,
-          },
-          pointTowardEntityOption: target.entityProperties.id,
-        },
-      },
-    };
-  },
 };
 
 export const ICE_BOLT_PROJECTILE = new CombatActionComposite(

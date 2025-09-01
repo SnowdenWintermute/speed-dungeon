@@ -9,29 +9,32 @@ import { COMBAT_ACTIONS, COMBAT_ACTION_NAME_STRINGS } from "../../combat/index.j
 import cloneDeep from "lodash.clonedeep";
 
 export class SpawnEntityActionResolutionStep extends ActionResolutionStep {
-  constructor(context: ActionResolutionStepContext, step: ActionResolutionStepType) {
+  constructor(context: ActionResolutionStepContext, stepType: ActionResolutionStepType) {
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
-    if (!action.getSpawnableEntity) {
+    const stepConfig = action.stepsConfig.steps[stepType];
+    if (!stepConfig) throw new Error("expected step config not found");
+    const { getSpawnableEntity } = stepConfig;
+    if (!getSpawnableEntity) {
       throw new Error(
         "no spawnable entity for this step" +
           COMBAT_ACTION_NAME_STRINGS[action.name] +
-          ACTION_RESOLUTION_STEP_TYPE_STRINGS[step]
+          ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepType]
       );
     }
 
-    const entity = action.getSpawnableEntity(context);
+    const entity = getSpawnableEntity(context);
 
     context.tracker.spawnedEntityOption = entity;
 
     const gameUpdateCommand: SpawnEntityGameUpdateCommand = {
       type: GameUpdateCommandType.SpawnEntity,
-      step,
+      step: stepType,
       actionName: context.tracker.actionExecutionIntent.actionName,
       completionOrderId: null,
       entity: cloneDeep(entity),
     };
 
-    super(step, context, gameUpdateCommand);
+    super(stepType, context, gameUpdateCommand);
   }
 
   protected onTick(): void {}

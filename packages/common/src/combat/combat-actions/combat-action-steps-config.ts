@@ -15,6 +15,7 @@ import {
   SceneEntityChildTransformNodeIdentifierWithDuration,
   SceneEntityIdentifier,
 } from "../../scene-entities/index.js";
+import { SpawnableEntity } from "../../spawnables/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { MeleeAttackAnimationType } from "./action-implementations/attack/determine-melee-attack-animation-type.js";
 
@@ -64,8 +65,8 @@ export interface ActionResolutionStepConfig {
     user: CombatantProperties,
     animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>
   ): EquipmentAnimation[];
-  //
-
+  //an arrow to have been spawned
+  getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
   getAuxiliaryEntityMotions?(context: ActionResolutionStepContext): EntityMotionUpdate[];
 
   // don't include this step in the initial list, it may be added later such as in the case

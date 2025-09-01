@@ -19,8 +19,6 @@ import {
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
-import { getProjectileShootingActionBaseStepsConfig } from "../getProjectileShootingActionBaseStepsConfig.js";
-import { ProjectileShootingActionType } from "../projectile-shooting-action-animation-names.js";
 import {
   ActionResolutionStepType,
   EntityMotionUpdate,
@@ -30,8 +28,9 @@ import { SpawnableEntityType, getSpawnableEntityId } from "../../../../spawnable
 import { EquipmentType } from "../../../../items/equipment/index.js";
 import { AbilityType } from "../../../../abilities/index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
+import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
 
-const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Bow);
+const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BOW_SKILL();
 
 const config: CombatActionComponentConfig = {
   description: "Fire arrows which each bounce to up to two additional targets",
@@ -60,12 +59,6 @@ const config: CombatActionComponentConfig = {
   stepsConfig: new ActionResolutionStepsConfig(
     {
       ...stepsConfig.steps,
-      [ActionResolutionStepType.PrepMotion]:
-        ATTACK_RANGED_MAIN_HAND.stepsConfig.steps[ActionResolutionStepType.PrepMotion],
-
-      [ActionResolutionStepType.PostPrepSpawnEntity]: {},
-      [ActionResolutionStepType.DeliveryMotion]:
-        ATTACK_RANGED_MAIN_HAND.stepsConfig.steps[ActionResolutionStepType.DeliveryMotion],
       [ActionResolutionStepType.RecoveryMotion]: {
         ...stepsConfig.steps[ActionResolutionStepType.RecoveryMotion],
         getAuxiliaryEntityMotions: (context) => {

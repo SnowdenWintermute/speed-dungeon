@@ -139,7 +139,40 @@ const config: CombatActionComponentConfig = {
     {
       [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
       [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
-      [ActionResolutionStepType.OnActivationSpawnEntity]: {},
+      [ActionResolutionStepType.OnActivationSpawnEntity]: {
+        getSpawnableEntity: (context) => {
+          // we just want to get the position of the primary target, even though they aren't
+          // going to be part of the final targets as calculated by the hit outcomes.
+          // to this end, we use the target as set on the triggered action user combatant shim
+          // by the action whenTriggered function
+          // use some symantic coupling "oh no, bad practice!" to
+          // get the target location instead of trying to use auto target
+          // since the action's auto target gives a list of ids and we only
+          // want to spawn the explosion on the one selected by the user
+
+          const { party, combatant: user } = context.combatantContext;
+          const actionTarget = user.combatantProperties.combatActionTarget;
+          if (!actionTarget)
+            throw new Error("expected shimmed condition action user to have a target set");
+          if (actionTarget.type !== CombatActionTargetType.Single)
+            throw new Error("expected shimmed condition action user to have a single target");
+          const primaryTargetResult = AdventuringParty.getCombatant(party, actionTarget.targetId);
+          if (primaryTargetResult instanceof Error) throw primaryTargetResult;
+
+          const position = primaryTargetResult.combatantProperties.position;
+
+          return {
+            type: SpawnableEntityType.ActionEntity,
+            actionEntity: {
+              entityProperties: { id: context.idGenerator.generate(), name: "ice burst" },
+              actionEntityProperties: {
+                position,
+                name: ActionEntityName.IceBurst,
+              },
+            },
+          };
+        },
+      },
       [ActionResolutionStepType.OnActivationActionEntityMotion]: {
         getAnimation: () => {
           return {
@@ -186,39 +219,6 @@ const config: CombatActionComponentConfig = {
   ),
 
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
-
-  getSpawnableEntity: (context) => {
-    // we just want to get the position of the primary target, even though they aren't
-    // going to be part of the final targets as calculated by the hit outcomes.
-    // to this end, we use the target as set on the triggered action user combatant shim
-    // by the action whenTriggered function
-    // use some symantic coupling "oh no, bad practice!" to
-    // get the target location instead of trying to use auto target
-    // since the action's auto target gives a list of ids and we only
-    // want to spawn the explosion on the one selected by the user
-
-    const { party, combatant: user } = context.combatantContext;
-    const actionTarget = user.combatantProperties.combatActionTarget;
-    if (!actionTarget)
-      throw new Error("expected shimmed condition action user to have a target set");
-    if (actionTarget.type !== CombatActionTargetType.Single)
-      throw new Error("expected shimmed condition action user to have a single target");
-    const primaryTargetResult = AdventuringParty.getCombatant(party, actionTarget.targetId);
-    if (primaryTargetResult instanceof Error) throw primaryTargetResult;
-
-    const position = primaryTargetResult.combatantProperties.position;
-
-    return {
-      type: SpawnableEntityType.ActionEntity,
-      actionEntity: {
-        entityProperties: { id: context.idGenerator.generate(), name: "ice burst" },
-        actionEntityProperties: {
-          position,
-          name: ActionEntityName.IceBurst,
-        },
-      },
-    };
-  },
 };
 
 export const ICE_BURST = new CombatActionComposite(CombatActionName.IceBurst, config);

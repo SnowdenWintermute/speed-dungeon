@@ -1,14 +1,10 @@
 import {
   BASE_ACTION_HIERARCHY_PROPERTIES,
-  COMBAT_ACTION_NAME_STRINGS,
-  CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionExecutionIntent,
   CombatActionLeaf,
   CombatActionName,
-  CombatActionOrigin,
   createGenericSpellCastMessageProperties,
-  getSpellCastCombatLogMessage,
 } from "../../index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
@@ -21,8 +17,6 @@ import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
-import { getProjectileShootingActionBaseStepsConfig } from "../getProjectileShootingActionBaseStepsConfig.js";
-import { ProjectileShootingActionType } from "../projectile-shooting-action-animation-names.js";
 import {
   CombatantBaseChildTransformNodeName,
   SceneEntityType,
