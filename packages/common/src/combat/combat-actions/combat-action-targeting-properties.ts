@@ -34,6 +34,11 @@ export interface CombatActionTargetingPropertiesConfig {
     user: CombatantProperties,
     self: CombatActionComponent
   ) => CombatActionRequiredRange;
+  shouldExecute: (
+    combatantContext: CombatantContext,
+    previousTrackerOption: undefined | ActionTracker,
+    self: CombatActionComponent
+  ) => boolean;
 }
 
 export interface CombatActionTargetingProperties extends CombatActionTargetingPropertiesConfig {
@@ -68,6 +73,7 @@ const hostileSingle: CombatActionTargetingPropertiesConfig = {
     const { scheme } = self.targetingProperties.autoTargetSelectionMethod;
     return AUTO_TARGETING_FUNCTIONS[scheme](combatantContext, self);
   },
+  shouldExecute: () => true,
 };
 
 export const GENERIC_TARGETING_PROPERTIES: Record<

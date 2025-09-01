@@ -37,8 +37,11 @@ import { getMeleeAttackBaseStepsConfig } from "./base-melee-attack-steps-config.
 import cloneDeep from "lodash.clonedeep";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 
-const targetingProperties =
-  GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
+const targetingProperties = cloneDeep(
+  GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent]
+);
+
+targetingProperties.shouldExecute = DAMAGING_ACTIONS_COMMON_CONFIG.shouldExecute;
 
 const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
   ...cloneDeep(GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee]),
@@ -73,7 +76,6 @@ stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
 };
 
 export const ATTACK_MELEE_OFF_HAND_CONFIG: CombatActionComponentConfig = {
-  ...DAMAGING_ACTIONS_COMMON_CONFIG,
   description: "Attack target using equipment in off hand",
   origin: CombatActionOrigin.Attack,
   getOnUseMessage: null,

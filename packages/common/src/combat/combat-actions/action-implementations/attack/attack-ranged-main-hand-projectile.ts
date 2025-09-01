@@ -105,7 +105,6 @@ export const ATTACK_RANGED_MAIN_HAND_PROJECTILE_CONFIG: CombatActionComponentCon
     { userShouldMoveHomeOnComplete: false }
   ),
 
-  shouldExecute: () => true,
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
     getParent: () => ATTACK_RANGED_MAIN_HAND,

@@ -94,7 +94,6 @@ const config: CombatActionComponentConfig = {
       return { type: ConsumableType.MpAutoinjector, level: 1 };
     },
   },
-  shouldExecute: () => true,
 
   stepsConfig: MEDICATION_ACTION_BASE_STEPS_CONFIG,
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,

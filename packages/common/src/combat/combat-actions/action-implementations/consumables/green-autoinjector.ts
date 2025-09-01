@@ -92,7 +92,6 @@ const config: CombatActionComponentConfig = {
   },
   stepsConfig: MEDICATION_ACTION_BASE_STEPS_CONFIG,
 
-  shouldExecute: () => true,
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };
 

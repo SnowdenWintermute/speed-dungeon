@@ -71,7 +71,6 @@ const config: CombatActionComponentConfig = {
   stepsConfig,
   getOnUseMessage: (data) =>
     getSpellCastCombatLogMessage(data, COMBAT_ACTION_NAME_STRINGS[CombatActionName.IceBoltParent]),
-  shouldExecute: () => true,
 
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,

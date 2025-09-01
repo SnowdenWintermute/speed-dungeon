@@ -184,8 +184,6 @@ export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
     requiresCombatTurnInThisContext: () => false,
   },
   stepsConfig,
-
-  shouldExecute: () => true,
   getOnUseMessage: null,
 
   hierarchyProperties: {

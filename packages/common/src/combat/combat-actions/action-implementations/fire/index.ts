@@ -50,7 +50,6 @@ const config: CombatActionComponentConfig = {
     },
   },
   stepsConfig: FIRE_STEPS_CONFIG,
-  shouldExecute: () => true,
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };
 

@@ -43,8 +43,9 @@ targetingProperties.autoTargetSelectionMethod = {
   validTargetCategories: TargetCategories.Any,
 };
 
+targetingProperties.shouldExecute = DAMAGING_ACTIONS_COMMON_CONFIG.shouldExecute;
+
 const config: CombatActionComponentConfig = {
-  ...DAMAGING_ACTIONS_COMMON_CONFIG,
   description: "Deals kinetic fire damage in an area around the target",
   origin: CombatActionOrigin.TriggeredCondition,
   targetingProperties,
@@ -92,7 +93,6 @@ const config: CombatActionComponentConfig = {
     },
     { userShouldMoveHomeOnComplete: false }
   ),
-  shouldExecute: () => true,
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 
   getSpawnableEntity: (context) => {

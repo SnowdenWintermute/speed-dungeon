@@ -86,7 +86,6 @@ const config: CombatActionComponentConfig = {
   ),
 
   getSpawnableEntity: ATTACK_RANGED_MAIN_HAND.getSpawnableEntity,
-  shouldExecute: () => true,
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
 

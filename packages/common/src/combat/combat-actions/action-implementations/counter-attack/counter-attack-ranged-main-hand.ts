@@ -60,8 +60,6 @@ const config: CombatActionComponentConfig = {
       ];
     },
   },
-
-  shouldExecute: () => true,
 };
 
 export const COUNTER_ATTACK_RANGED_MAIN_HAND = new CombatActionLeaf(

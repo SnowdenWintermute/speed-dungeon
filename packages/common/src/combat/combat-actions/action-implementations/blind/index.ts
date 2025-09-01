@@ -55,7 +55,6 @@ const config: CombatActionComponentConfig = {
     },
   },
   stepsConfig: BLIND_STEPS_CONFIG,
-  shouldExecute: () => true,
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };
 

@@ -30,7 +30,10 @@ export interface CombatActionCostPropertiesConfig {
   getCooldownTurns: (user: CombatantProperties, selectedActionLevel: number) => null | number;
   getConsumableCost: (user: CombatantProperties) => null | { type: ConsumableType; level: number };
   getEndsTurnOnUse: (actionLevel: number) => boolean;
-  requiresCombatTurnInThisContext: (context: ActionResolutionStepContext) => boolean;
+  requiresCombatTurnInThisContext: (
+    context: ActionResolutionStepContext,
+    self: CombatActionComponent
+  ) => boolean;
   getMeetsCustomRequirements?: (
     user: CombatantProperties,
     actionLevel: number

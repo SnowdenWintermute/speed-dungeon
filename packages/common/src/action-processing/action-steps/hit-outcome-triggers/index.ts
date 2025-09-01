@@ -175,9 +175,12 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
             this.branchingActions.push(
               ...triggeredActions.filter((actionIntent) =>
-                COMBAT_ACTIONS[actionIntent.actionExecutionIntent.actionName].shouldExecute(
+                COMBAT_ACTIONS[
+                  actionIntent.actionExecutionIntent.actionName
+                ].targetingProperties.shouldExecute(
                   context.combatantContext,
-                  tracker.getPreviousTrackerInSequenceOption() || undefined
+                  tracker.getPreviousTrackerInSequenceOption() || undefined,
+                  COMBAT_ACTIONS[actionIntent.actionExecutionIntent.actionName]
                 )
               )
             );

@@ -30,12 +30,15 @@ import {
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
+import cloneDeep from "lodash.clonedeep";
 
-const targetingProperties =
-  GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
+const targetingProperties = cloneDeep(
+  GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent]
+);
+
+targetingProperties.shouldExecute = DAMAGING_ACTIONS_COMMON_CONFIG.shouldExecute;
 
 const config: CombatActionComponentConfig = {
-  ...DAMAGING_ACTIONS_COMMON_CONFIG,
   description: "An icy projectile",
   origin: CombatActionOrigin.SpellCast,
   targetingProperties,

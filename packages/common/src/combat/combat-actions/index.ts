@@ -57,12 +57,6 @@ export interface CombatActionComponentConfig {
   stepsConfig: ActionResolutionStepsConfig;
   hierarchyProperties: CombatActionHierarchyProperties;
 
-  shouldExecute: (
-    combatantContext: CombatantContext,
-    previousTrackerOption: undefined | ActionTracker,
-    self: CombatActionComponent
-  ) => boolean;
-
   // COMBAT LOG STUFF
   /** Used by the combat log to determine how to format messages */
   origin: CombatActionOrigin;
@@ -104,10 +98,6 @@ export abstract class CombatActionComponent {
     return this.isUsableInGivenContext(context);
   };
 
-  shouldExecute: (
-    combatantContext: CombatantContext,
-    previousTrackerOption: undefined | ActionTracker
-  ) => boolean;
   getOnUseMessage: null | ((messageData: ActionUseMessageData) => string);
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
 
@@ -133,8 +123,6 @@ export abstract class CombatActionComponent {
         config.costProperties.getResourceCosts(user, inCombat, actionLevel, this),
     };
 
-    this.shouldExecute = (combatantContext, previousTrackerOption) =>
-      config.shouldExecute(combatantContext, previousTrackerOption, this);
     this.getOnUseMessage = config.getOnUseMessage;
     if (config.getOnUseMessageDataOverride)
       this.getOnUseMessageData = config.getOnUseMessageDataOverride;
@@ -258,7 +246,10 @@ export class CombatActionComposite extends CombatActionComponent {
 //   () => [];
 // getParent: () => CombatActionComponent | null;
 export interface CombatActionHierarchyProperties {
-  getChildren: (context: ActionResolutionStepContext) => CombatActionComponent[];
+  getChildren: (
+    context: ActionResolutionStepContext,
+    self: CombatActionComponent
+  ) => CombatActionComponent[];
   getParent: () => CombatActionComponent | null;
   getConcurrentSubActions?: (context: ActionResolutionStepContext) => CombatActionExecutionIntent[];
 }

@@ -85,7 +85,6 @@ const config: CombatActionComponentConfig = {
     costBases: {},
   },
   stepsConfig: BURNING_TICK_STEPS_CONFIG,
-  shouldExecute: () => true,
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };
 

@@ -38,8 +38,6 @@ const config: CombatActionComponentConfig = {
     getIsBlockable: () => false,
     getIsParryable: () => false,
   },
-
-  shouldExecute: () => true,
   hierarchyProperties: { ...clonedConfig.hierarchyProperties, getParent: () => COUNTER_ATTACK },
 };
 

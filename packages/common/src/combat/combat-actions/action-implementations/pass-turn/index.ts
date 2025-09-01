@@ -51,7 +51,6 @@ export const passTurnConfig: CombatActionComponentConfig = {
     },
     { userShouldMoveHomeOnComplete: false }
   ),
-  shouldExecute: () => true,
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };
 

@@ -73,10 +73,11 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
   },
 };
 
+targetingProperties.shouldExecute = DAMAGING_ACTIONS_COMMON_CONFIG.shouldExecute;
+
 const MAX_BOUNCES = 2;
 
 const config: CombatActionComponentConfig = {
-  ...DAMAGING_ACTIONS_COMMON_CONFIG,
   description: "An arrow that bounces to up to two additional targets after the first",
   origin: CombatActionOrigin.Attack,
   targetingProperties,

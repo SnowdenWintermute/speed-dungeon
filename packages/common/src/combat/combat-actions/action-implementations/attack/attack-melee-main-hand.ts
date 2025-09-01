@@ -57,7 +57,7 @@ export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
     incursDurabilityLoss: {
       [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnHit },
     },
-    requiresCombatTurnInThisContext: (context) => {
+    requiresCombatTurnInThisContext: (context, self) => {
       const user = context.combatantContext.combatant.combatantProperties;
 
       if (CombatantEquipment.isWearingUsableShield(user)) {
@@ -67,9 +67,10 @@ export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
         return true;
       }
       if (
-        !COMBAT_ACTIONS[CombatActionName.AttackMeleeOffhand].shouldExecute(
+        !COMBAT_ACTIONS[CombatActionName.AttackMeleeOffhand].targetingProperties.shouldExecute(
           context.combatantContext,
-          context.tracker
+          context.tracker,
+          self
         )
       ) {
         return true; // check if offhand should execute, otherwise if we kill an enemy with main hand
@@ -84,7 +85,6 @@ export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   },
   hitOutcomeProperties,
   stepsConfig: getMeleeAttackBaseStepsConfig(HoldableSlotType.MainHand),
-  shouldExecute: () => true,
 
   hierarchyProperties: { ...BASE_ACTION_HIERARCHY_PROPERTIES, getParent: () => ATTACK },
 };

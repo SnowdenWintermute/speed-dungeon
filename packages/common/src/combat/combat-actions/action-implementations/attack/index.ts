@@ -40,11 +40,13 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
     requiresCombatTurnInThisContext: () => false,
   },
-  shouldExecute: () => true,
   getOnUseMessage: null,
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
-    getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {
+    getChildren: function (
+      context: ActionResolutionStepContext,
+      self: CombatActionComponent
+    ): CombatActionComponent[] {
       const toReturn: CombatActionComponent[] = [];
       const user = context.combatantContext.combatant.combatantProperties;
 
@@ -52,7 +54,7 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
         toReturn.push(ATTACK_RANGED_MAIN_HAND);
       else {
         toReturn.push(ATTACK_MELEE_MAIN_HAND);
-        if (!ATTACK_MELEE_MAIN_HAND.costProperties.requiresCombatTurnInThisContext(context))
+        if (!ATTACK_MELEE_MAIN_HAND.costProperties.requiresCombatTurnInThisContext(context, self))
           toReturn.push(ATTACK_MELEE_OFF_HAND);
       }
 

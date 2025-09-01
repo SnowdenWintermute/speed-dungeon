@@ -21,6 +21,7 @@ import { getAttackResourceChangeProperties } from "./action-implementations/atta
 import { COMBAT_ACTIONS } from "./action-implementations/index.js";
 import { ActionAccuracy, ActionAccuracyType } from "./combat-action-accuracy.js";
 import { CombatActionResourceChangeProperties } from "./combat-action-resource-change-properties.js";
+import { CombatActionComponent } from "./index.js";
 
 export enum CombatActionResource {
   HitPoints,
@@ -74,7 +75,10 @@ export interface CombatActionHitOutcomeProperties {
   ) => null | ThreatChanges;
   flatThreatGeneratedOnHit?: Record<ThreatType, number>;
   flatThreatReducedOnMonsterVsPlayerHit?: Record<ThreatType, number>;
-  getShouldDecayThreatOnUse: (context: ActionResolutionStepContext) => boolean;
+  getShouldDecayThreatOnUse: (
+    context: ActionResolutionStepContext,
+    self: CombatActionComponent
+  ) => boolean;
 }
 
 export enum ActionHitOutcomePropertiesBaseTypes {
@@ -102,11 +106,14 @@ export const genericActionHitOutcomeProperties: CombatActionHitOutcomeProperties
   getThreatChangesOnHitOutcomes: (context, hitOutcomes) => {
     return getStandardThreatChangesOnHitOutcomes(context, hitOutcomes);
   },
-  getShouldDecayThreatOnUse: (context: ActionResolutionStepContext) => {
+  getShouldDecayThreatOnUse: (
+    context: ActionResolutionStepContext,
+    self: CombatActionComponent
+  ) => {
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
     if (context.combatantContext.combatant.combatantProperties.asShimmedUserOfTriggeredCondition)
       return false;
-    if (action.costProperties.requiresCombatTurnInThisContext(context)) return true;
+    if (action.costProperties.requiresCombatTurnInThisContext(context, self)) return true;
     return false;
   },
 };

@@ -1,9 +1,7 @@
 import {
   ActionPayableResource,
-  COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
-  CombatActionName,
 } from "../../combat/index.js";
 import { Combatant } from "../../combatants/index.js";
 import {
@@ -35,9 +33,10 @@ export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends
     const actionShouldExecuteEvenIfTurnEnded = turnAlreadyEnded && Math.abs(actionPointCost) < 1;
 
     const shouldExecute =
-      action.shouldExecute(
+      action.targetingProperties.shouldExecute(
         context.combatantContext,
-        context.tracker.getPreviousTrackerInSequenceOption() || undefined
+        context.tracker.getPreviousTrackerInSequenceOption() || undefined,
+        action
       ) &&
       (!turnAlreadyEnded || actionShouldExecuteEvenIfTurnEnded);
 

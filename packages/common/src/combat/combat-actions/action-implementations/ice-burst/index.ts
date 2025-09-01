@@ -132,7 +132,6 @@ const config: CombatActionComponentConfig = {
     getEndsTurnOnUse: () => false,
     requiresCombatTurnInThisContext: () => false,
   },
-  shouldExecute: () => true,
 
   stepsConfig: new ActionResolutionStepsConfig(
     {

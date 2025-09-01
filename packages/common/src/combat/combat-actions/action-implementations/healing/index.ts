@@ -57,7 +57,6 @@ const config: CombatActionComponentConfig = {
     getEndsTurnOnUse: () => false,
   },
   stepsConfig: HEALING_STEPS_CONFIG,
-  shouldExecute: () => true,
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };
 

@@ -87,7 +87,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     // this is because it was ending our turn when conditions used actions in between mh and oh attacks since the shimmed condition users don't have any action points
     combatant.combatantProperties.asShimmedUserOfTriggeredCondition === undefined;
   const requiredTurn =
-    action.costProperties.requiresCombatTurnInThisContext(context) || noActionPointsLeft;
+    action.costProperties.requiresCombatTurnInThisContext(context, action) || noActionPointsLeft;
 
   const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
   let shouldSendEndActiveTurnMessage = false;
@@ -121,7 +121,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     threatChanges.applyToGame(party);
   }
 
-  const hasUnevaluatedChildren = action.hierarchyProperties.getChildren(context).length > 0;
+  const hasUnevaluatedChildren = action.hierarchyProperties.getChildren(context, action).length > 0;
   const hasRemainingActions = tracker.parentActionManager.getRemainingActionsToExecute().length > 0;
   const blockingStepsPending = sequentialActionManagerRegistry.inputBlockingActionStepsArePending();
   const noBlockingActionsRemain =
