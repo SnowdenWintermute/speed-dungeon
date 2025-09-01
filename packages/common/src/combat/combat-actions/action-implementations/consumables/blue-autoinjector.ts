@@ -60,8 +60,8 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
       mpBioavailability = traitBioavailabilityPercentageModifier / 100;
 
       const maxMp = CombatantProperties.getTotalAttributes(primaryTarget)[CombatAttribute.Mp];
-      const minRestored = (mpBioavailability * maxMp) / 8;
-      const maxRestored = (mpBioavailability * 3 * maxMp) / 8;
+      const minRestored = Math.max(1, (mpBioavailability * maxMp) / 8);
+      const maxRestored = Math.max(1, (mpBioavailability * 3 * maxMp) / 8);
 
       const resourceChangeSourceConfig: ResourceChangeSourceConfig = {
         category: ResourceChangeSourceCategory.Medical,
