@@ -17,7 +17,7 @@ import { DurabilityLossCondition } from "../../combat/combat-actions/combat-acti
 import { DurabilityChangesByEntityId } from "../../durability/index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { addRemovedConditionStacksToUpdate } from "./hit-outcome-triggers/add-triggered-condition-to-update.js";
-import { onSkillBookRead } from "../../combat/combat-actions/action-implementations/consumables/read-skill-book.js";
+import { onSkillBookRead } from "../../combat/combat-actions/action-implementations/consumables/on-skill-book-read.js";
 
 const stepType = ActionResolutionStepType.EvalOnUseTriggers;
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {

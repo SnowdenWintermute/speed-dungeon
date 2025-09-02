@@ -5,9 +5,7 @@ import {
   CombatActionName,
   CombatActionOrigin,
 } from "../../index.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import {
@@ -24,15 +22,8 @@ import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
-import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
-import { getPrimaryTargetPositionAsDestination } from "../common-destination-getters.js";
-import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
-import {
-  CombatantBaseChildTransformNodeIdentifier,
-  CombatantBaseChildTransformNodeName,
-  SceneEntityType,
-} from "../../../../scene-entities/index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
+import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
 
 const targetingProperties =
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
@@ -72,39 +63,7 @@ export const ATTACK_RANGED_MAIN_HAND_PROJECTILE_CONFIG: CombatActionComponentCon
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
     costBases: {},
   },
-  stepsConfig: new ActionResolutionStepsConfig(
-    {
-      [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
-      [ActionResolutionStepType.OnActivationActionEntityMotion]: {
-        getDestination: getPrimaryTargetPositionAsDestination,
-        shouldDespawnOnComplete: () => true,
-
-        getNewParent: () => null,
-        getEntityToLockOnTo: () => null,
-        getCosmeticDestinationY: (context) => {
-          const { combatantContext, tracker } = context;
-          const { actionExecutionIntent } = tracker;
-
-          const targetingCalculator = new TargetingCalculator(combatantContext, null);
-          const primaryTargetId =
-            targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent);
-
-          const entityPart: CombatantBaseChildTransformNodeIdentifier = {
-            sceneEntityIdentifier: {
-              type: SceneEntityType.CharacterModel,
-              entityId: primaryTargetId,
-            },
-            transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
-          };
-          return entityPart;
-        },
-      },
-      [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
-      [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
-      [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
-    },
-    { userShouldMoveHomeOnComplete: false }
-  ),
+  stepsConfig: ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.PROJECTILE_ENTITY(),
 
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,

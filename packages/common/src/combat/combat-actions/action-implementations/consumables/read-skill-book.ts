@@ -117,12 +117,3 @@ const config: CombatActionComponentConfig = {
 };
 
 export const READ_SKILL_BOOK = new CombatActionLeaf(CombatActionName.ReadSkillBook, config);
-
-export function onSkillBookRead(user: CombatantProperties, book: Consumable) {
-  const skillBookClass = SKILL_BOOK_TYPE_TO_COMBATANT_CLASS[book.consumableType];
-  if (skillBookClass === undefined)
-    return new Error("Somehow tried to read a skill book that wasn't associated with any class");
-
-  CombatantProperties.changeSupportClassLevel(user, skillBookClass, 1);
-  return { supportClassLevelIncreased: skillBookClass };
-}

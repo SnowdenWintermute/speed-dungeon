@@ -9,9 +9,11 @@ import { MELEE_SKILL_STEPS_CONFIG } from "./melee-skill.js";
 import { MAIN_HAND_MELEE_ATTACK_STEPS_CONFIG } from "./main-hand-melee-attack.js";
 import { OFF_HAND_MELEE_ATTACK_STEPS_CONFIG } from "./off-hand-melee-attack.js";
 import { EXPLOSION_ENTITY_STEPS_CONFIG } from "./explosion-entity.js";
+import { PROJECTILE_ENTITY_STEPS_CONFIG } from "./projectile-entity.js";
 import {
   ActionResolutionStepConfig,
   ActionResolutionStepsConfig,
+  ActionResolutionStepsConfigOptions,
 } from "../../../combat-action-steps-config.js";
 import { ActionResolutionStepType } from "../../../../../action-processing/action-steps/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../../../../utils/index.js";
@@ -27,13 +29,14 @@ export const ACTION_STEPS_CONFIG_TEMPLATE_GETTERS = {
   MAIN_HAND_MELEE_ATTACK: () => cloneDeep(MAIN_HAND_MELEE_ATTACK_STEPS_CONFIG),
   OFF_HAND_MELEE_ATTACK: () => cloneDeep(OFF_HAND_MELEE_ATTACK_STEPS_CONFIG),
   EXPLOSION_ENTITY: () => cloneDeep(EXPLOSION_ENTITY_STEPS_CONFIG),
-  // PROJECTILE_ENTITY
+  PROJECTILE_ENTITY: () => cloneDeep(PROJECTILE_ENTITY_STEPS_CONFIG),
 };
 
 export function createStepsConfig(
   templateGetter: () => ActionResolutionStepsConfig,
   overrides: {
     steps: Partial<Record<ActionResolutionStepType, Partial<ActionResolutionStepConfig>>>;
+    options?: ActionResolutionStepsConfigOptions;
   }
 ): ActionResolutionStepsConfig {
   const base = templateGetter();
@@ -44,6 +47,12 @@ export function createStepsConfig(
       ...stepOverrides,
     };
   }
+
+  if (overrides.options)
+    base.options = {
+      ...base.options,
+      ...overrides.options,
+    };
 
   return base;
 }

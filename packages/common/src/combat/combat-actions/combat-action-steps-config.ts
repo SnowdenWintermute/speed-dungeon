@@ -76,6 +76,10 @@ export interface ActionResolutionStepConfig {
   shouldIdleOnComplete?: boolean;
 }
 
+export interface ActionResolutionStepsConfigOptions {
+  userShouldMoveHomeOnComplete?: boolean;
+}
+
 export class ActionResolutionStepsConfig {
   constructor(
     public steps: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>>,
@@ -84,9 +88,7 @@ export class ActionResolutionStepsConfig {
     // user will always return home after such an action, but we can say if they
     // should return home if it is the last action in the chain and dynamically
     // add the step
-    public options: {
-      userShouldMoveHomeOnComplete?: boolean;
-    }
+    public options: ActionResolutionStepsConfigOptions
   ) {}
   getStepTypes() {
     const stepTypes = iterateNumericEnumKeyedRecord(this.steps)
