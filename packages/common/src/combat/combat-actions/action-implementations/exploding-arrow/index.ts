@@ -3,7 +3,6 @@ import { AbilityType } from "../../../../abilities/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { CombatantConditionName, CombatantTraitType } from "../../../../combatants/index.js";
 import {
-  ActionHitOutcomePropertiesBaseTypes,
   CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
@@ -11,7 +10,6 @@ import {
   CombatActionName,
   CombatActionOrigin,
   FriendOrFoe,
-  GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../index.js";
 import { ATTACK_RANGED_MAIN_HAND } from "../attack/attack-ranged-main-hand.js";
 import { ATTACK_RANGED_MAIN_HAND_PROJECTILE } from "../attack/attack-ranged-main-hand-projectile.js";
@@ -35,7 +33,7 @@ EXPLODING_ARROW_PROJECTILE_HIT_OUTCOME_PROPERTIES.getAppliedConditions = (user, 
 
 const config: CombatActionComponentConfig = {
   ...ATTACK_RANGED_MAIN_HAND,
-  hitOutcomeProperties: GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Ranged],
+  hitOutcomeProperties: EXPLODING_ARROW_PROJECTILE_HIT_OUTCOME_PROPERTIES,
 
   prerequisiteAbilities: [
     { type: AbilityType.Action, actionName: CombatActionName.Fire },

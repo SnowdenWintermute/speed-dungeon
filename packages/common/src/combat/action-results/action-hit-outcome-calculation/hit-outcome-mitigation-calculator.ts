@@ -133,6 +133,7 @@ export class HitOutcomeMitigationCalculator {
     const hpChangePropertiesOption = hpChangePropertiesGetterOption
       ? hpChangePropertiesGetterOption(
           this.user.combatantProperties,
+          this.action.hitOutcomeProperties,
           this.actionLevel,
           targetCombatantProperties
         )
@@ -192,7 +193,7 @@ export class HitOutcomeMitigationCalculator {
     target: CombatantProperties,
     targetWillAttemptMitigation: boolean
   ) {
-    const actionBaseCritChance = action.hitOutcomeProperties.getCritChance(user, actionLevel);
+    const actionBaseCritChance = action.getCritChance(user, actionLevel);
 
     const targetAttributes = CombatantProperties.getTotalAttributes(target);
     const targetAvoidaceAttributeValue = targetAttributes[CombatAttribute.Spirit];

@@ -17,27 +17,25 @@ import {
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
 import {
-  ActionHitOutcomePropertiesBaseTypes,
-  CombatActionHitOutcomeProperties,
-  GENERIC_HIT_OUTCOME_PROPERTIES,
-} from "../../combat-action-hit-outcome-properties.js";
-import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
-import { CombatantProperties, Inventory } from "../../../../combatants/index.js";
+import { Inventory } from "../../../../combatants/index.js";
 import { throwIfError } from "../../../../utils/index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
+import {
+  createHitOutcomeProperties,
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
+} from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle],
   getValidTargetCategories: () => TargetCategories.User,
 };
 
-const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
-  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Medication],
-};
+const base = HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BENEVOLENT_CONSUMABLE;
+const hitOutcomeProperties = createHitOutcomeProperties(base, {});
 
 const config: CombatActionComponentConfig = {
   description: "Increases the level of the corresponding support class",

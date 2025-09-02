@@ -53,10 +53,10 @@ export default function getMonsterPerLevelAttributes(
       break;
     case MonsterType.Cultist:
       attributes[CombatAttribute.Spirit] = 14.0;
-      attributes[CombatAttribute.Vitality] = 1.5;
+      // attributes[CombatAttribute.Vitality] = 1.5;
       attributes[CombatAttribute.Hp] = 4.5;
       attributes[CombatAttribute.Agility] = 1.5;
-      attributes[CombatAttribute.ArmorClass] = 2.5;
+      // attributes[CombatAttribute.ArmorClass] = 2.5;
       attributes[CombatAttribute.Evasion] = 10;
       break;
     case MonsterType.FireElemental:

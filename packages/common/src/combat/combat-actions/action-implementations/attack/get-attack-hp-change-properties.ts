@@ -14,8 +14,8 @@ import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcom
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 
 export function getAttackResourceChangeProperties(
-  hitOutcomeProperties: CombatActionHitOutcomeProperties,
   user: CombatantProperties,
+  hitOutcomeProperties: CombatActionHitOutcomeProperties,
   actionLevel: number,
   primaryTarget: CombatantProperties,
   scalingAttribute: CombatAttribute,

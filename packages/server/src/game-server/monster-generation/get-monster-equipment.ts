@@ -93,24 +93,24 @@ export function getMonsterEquipment(monsterType: MonsterType): CombatantEquipmen
         mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = mhResult;
       break;
     case MonsterType.Cultist:
-      const head = generateSpecificEquipmentType(
-        {
-          equipmentType: EquipmentType.HeadGear,
-          baseItemType: HeadGear.Cap,
-        },
-        {}
-      );
-      const chest = generateSpecificEquipmentType(
-        {
-          equipmentType: EquipmentType.BodyArmor,
-          baseItemType: BodyArmor.Robe,
-        },
-        {}
-      );
-      if (!(chest instanceof Error) && !(head instanceof Error)) {
-        equipment.wearables[WearableSlotType.Head] = head;
-        equipment.wearables[WearableSlotType.Body] = chest;
-      }
+      // const head = generateSpecificEquipmentType(
+      //   {
+      //     equipmentType: EquipmentType.HeadGear,
+      //     baseItemType: HeadGear.Cap,
+      //   },
+      //   {}
+      // );
+      // const chest = generateSpecificEquipmentType(
+      //   {
+      //     equipmentType: EquipmentType.BodyArmor,
+      //     baseItemType: BodyArmor.Robe,
+      //   },
+      //   {}
+      // );
+      // if (!(chest instanceof Error) && !(head instanceof Error)) {
+      //   equipment.wearables[WearableSlotType.Head] = head;
+      //   equipment.wearables[WearableSlotType.Body] = chest;
+      // }
 
       const wandOptions = [
         OneHandedMeleeWeapon.RoseWand,
@@ -137,8 +137,8 @@ export function getMonsterEquipment(monsterType: MonsterType): CombatantEquipmen
         mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = wandResult;
       const shieldResult = generateSpecificEquipmentType(
         {
-          equipmentType: EquipmentType.Shield,
-          baseItemType: shieldType,
+          equipmentType: EquipmentType.OneHandedMeleeWeapon,
+          baseItemType: OneHandedMeleeWeapon.Dagger,
         },
         {}
       );

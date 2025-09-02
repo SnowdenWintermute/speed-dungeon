@@ -13,40 +13,26 @@ import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
-import {
-  ActionHitOutcomePropertiesBaseTypes,
-  CombatActionHitOutcomeProperties,
-  CombatActionResource,
-  GENERIC_HIT_OUTCOME_PROPERTIES,
-} from "../../combat-action-hit-outcome-properties.js";
+import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
 import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
 import { COMBAT_ACTIONS } from "../index.js";
-import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
-import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
+import {
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
+  createHitOutcomeProperties,
+} from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 
-const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
-  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],
-  addsPropertiesFromHoldableSlot: HoldableSlotType.MainHand,
+const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
+hitOutcomeOverrides.addsPropertiesFromHoldableSlot = HoldableSlotType.MainHand;
 
-  resourceChangePropertiesGetters: {
-    [CombatActionResource.HitPoints]: (user, actionLevel, primaryTarget) => {
-      const hpChangeProperties = getAttackResourceChangeProperties(
-        hitOutcomeProperties,
-        user,
-        actionLevel,
-        primaryTarget,
-        CombatAttribute.Strength
-      );
-      if (hpChangeProperties instanceof Error) return hpChangeProperties;
-      return hpChangeProperties;
-    },
-  },
-};
+const hitOutcomeProperties = createHitOutcomeProperties(
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.MELEE_ATTACK,
+  hitOutcomeOverrides
+);
 
 export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   description: "Attack target using equipment in main hand",

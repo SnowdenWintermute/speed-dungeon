@@ -13,15 +13,20 @@ import {
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
 import { genericCombatActionCostProperties } from "../../combat-action-cost-properties.js";
-import {
-  ActionHitOutcomePropertiesBaseTypes,
-  GENERIC_HIT_OUTCOME_PROPERTIES,
-} from "../../combat-action-hit-outcome-properties.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import {
   CombatActionCombatLogProperties,
   CombatActionOrigin,
 } from "../../combat-action-combat-log-properties.js";
+import {
+  createHitOutcomeProperties,
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
+} from "../generic-action-templates/hit-outcome-properties-templates/index.js";
+
+const hitOutcomeProperties = createHitOutcomeProperties(
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BENEVOLENT_CONSUMABLE,
+  { getThreatChangesOnHitOutcomes: () => null }
+);
 
 export const passTurnConfig: CombatActionComponentConfig = {
   description: "Skip your own turn",
@@ -38,11 +43,7 @@ export const passTurnConfig: CombatActionComponentConfig = {
     },
   }),
 
-  hitOutcomeProperties: {
-    ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Medication],
-    getThreatChangesOnHitOutcomes: (context, hitOutcomes) => null,
-    getShouldDecayThreatOnUse: (context) => false,
-  },
+  hitOutcomeProperties,
   costProperties: { ...genericCombatActionCostProperties, costBases: {} },
   stepsConfig: new ActionResolutionStepsConfig(
     {

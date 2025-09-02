@@ -5,14 +5,19 @@ import {
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
-import { CosmeticEffectOnTargetTransformNode } from "../../combat-action-steps-config.js";
+import {
+  ActionResolutionStepConfig,
+  CosmeticEffectOnTargetTransformNode,
+} from "../../combat-action-steps-config.js";
+import {
+  ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
+  createStepsConfig,
+} from "../generic-action-templates/step-config-templates/index.js";
 import { COMBAT_ACTIONS } from "../index.js";
-import { getValueChangeTickActionBasedSpellBaseStepsConfig } from "../value-change-tick-action-base-steps-config.js";
 
-const stepsConfig = getValueChangeTickActionBasedSpellBaseStepsConfig();
+const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
-stepsConfig.steps[ActionResolutionStepType.RecoveryMotion] = {
-  ...stepsConfig.steps[ActionResolutionStepType.RecoveryMotion],
+stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
   getCosmeticsEffectsToStart: (context) => {
     const { actionExecutionIntent } = context.tracker;
     const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
@@ -41,4 +46,5 @@ stepsConfig.steps[ActionResolutionStepType.RecoveryMotion] = {
   },
 };
 
-export const BURNING_TICK_STEPS_CONFIG = stepsConfig;
+const base = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.VALUE_CHANGE_TICK;
+export const BURNING_TICK_STEPS_CONFIG = createStepsConfig(base, { steps: stepOverrides });

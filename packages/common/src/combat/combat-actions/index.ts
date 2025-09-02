@@ -91,6 +91,14 @@ export abstract class CombatActionComponent {
     return baseAccuracy;
   }
 
+  getCritChance(user: CombatantProperties, actionLevel: number) {
+    const base = this.hitOutcomeProperties.getUnmodifiedCritChance(user, actionLevel);
+    if (base === null) return base;
+    const modified = base * this.hitOutcomeProperties.critChanceModifier;
+
+    return modified;
+  }
+
   isUsableInGivenContext(context: CombatActionUsabilityContext) {
     switch (context) {
       case CombatActionUsabilityContext.All:

@@ -23,11 +23,7 @@ import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
-import {
-  GENERIC_HIT_OUTCOME_PROPERTIES,
-  ActionHitOutcomePropertiesBaseTypes,
-  CombatActionResource,
-} from "../../combat-action-hit-outcome-properties.js";
+import { CombatActionResource } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
 import {
   ActionCostPropertiesBaseTypes,
@@ -37,45 +33,51 @@ import { BasicRandomNumberGenerator } from "../../../../utility-classes/randomiz
 import { randBetween } from "../../../../utils/rand-between.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
+import {
+  createHitOutcomeProperties,
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
+} from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle];
 
-const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
-  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Medication],
-  resourceChangePropertiesGetters: {
-    [CombatActionResource.HitPoints]: (user, actionLevel, primaryTarget) => {
-      const hpChangeSourceConfig: ResourceChangeSourceConfig = {
-        category: ResourceChangeSourceCategory.Medical,
-        isHealing: true,
-      };
+const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 
-      let hpBioavailability = 1;
+hitOutcomeOverrides.resourceChangePropertiesGetters = {
+  [CombatActionResource.HitPoints]: (user, hitOutcomeProperties, actionLevel, primaryTarget) => {
+    const hpChangeSourceConfig: ResourceChangeSourceConfig = {
+      category: ResourceChangeSourceCategory.Medical,
+      isHealing: true,
+    };
 
-      const { inherentTraitLevels } = primaryTarget.abilityProperties.traitProperties;
+    let hpBioavailability = 1;
 
-      const traitBioavailabilityPercentageModifier =
-        (inherentTraitLevels[CombatantTraitType.HpBioavailability] || 0) *
-          BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL +
-        100;
-      hpBioavailability = traitBioavailabilityPercentageModifier / 100;
+    const { inherentTraitLevels } = primaryTarget.abilityProperties.traitProperties;
 
-      const maxHp = CombatantProperties.getTotalAttributes(primaryTarget)[CombatAttribute.Hp];
-      const minHealing = (hpBioavailability * maxHp) / 8;
-      const maxHealing = (hpBioavailability * 3 * maxHp) / 8;
+    const traitBioavailabilityPercentageModifier =
+      (inherentTraitLevels[CombatantTraitType.HpBioavailability] || 0) *
+        BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL +
+      100;
+    hpBioavailability = traitBioavailabilityPercentageModifier / 100;
 
-      const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
-      const hpChangeProperties: CombatActionResourceChangeProperties = {
-        resourceChangeSource,
-        baseValues: new NumberRange(
-          minHealing,
-          randBetween(minHealing, maxHealing, new BasicRandomNumberGenerator())
-        ),
-      };
+    const maxHp = CombatantProperties.getTotalAttributes(primaryTarget)[CombatAttribute.Hp];
+    const minHealing = (hpBioavailability * maxHp) / 8;
+    const maxHealing = (hpBioavailability * 3 * maxHp) / 8;
 
-      return hpChangeProperties;
-    },
+    const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
+    const hpChangeProperties: CombatActionResourceChangeProperties = {
+      resourceChangeSource,
+      baseValues: new NumberRange(
+        minHealing,
+        randBetween(minHealing, maxHealing, new BasicRandomNumberGenerator())
+      ),
+    };
+
+    return hpChangeProperties;
   },
 };
+
+const base = HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BENEVOLENT_CONSUMABLE;
+const hitOutcomeProperties = createHitOutcomeProperties(base, hitOutcomeOverrides);
 
 const config: CombatActionComponentConfig = {
   description: "Restore hit points to a target",

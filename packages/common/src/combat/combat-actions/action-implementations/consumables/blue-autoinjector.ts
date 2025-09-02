@@ -24,10 +24,8 @@ import {
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
 import {
-  ActionHitOutcomePropertiesBaseTypes,
   CombatActionHitOutcomeProperties,
   CombatActionResource,
-  GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
 import {
   ActionCostPropertiesBaseTypes,
@@ -37,49 +35,56 @@ import { BasicRandomNumberGenerator } from "../../../../utility-classes/randomiz
 import { randBetween } from "../../../../utils/rand-between.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
+import {
+  createHitOutcomeProperties,
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
+} from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle];
 
-const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
-  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Medication],
-  resourceChangePropertiesGetters: {
-    [CombatActionResource.Mana]: (
-      user: CombatantProperties,
-      actionLevel: number,
-      primaryTarget: CombatantProperties
-    ) => {
-      let mpBioavailability = 1;
+const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 
-      const { inherentTraitLevels } = primaryTarget.abilityProperties.traitProperties;
+hitOutcomeOverrides.resourceChangePropertiesGetters = {
+  [CombatActionResource.Mana]: (
+    user: CombatantProperties,
+    hitOutcomeProperties,
+    actionLevel: number,
+    primaryTarget: CombatantProperties
+  ) => {
+    let mpBioavailability = 1;
 
-      const traitBioavailabilityPercentageModifier =
-        (inherentTraitLevels[CombatantTraitType.MpBioavailability] || 0) *
-          BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL +
-        100;
+    const { inherentTraitLevels } = primaryTarget.abilityProperties.traitProperties;
 
-      mpBioavailability = traitBioavailabilityPercentageModifier / 100;
+    const traitBioavailabilityPercentageModifier =
+      (inherentTraitLevels[CombatantTraitType.MpBioavailability] || 0) *
+        BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL +
+      100;
 
-      const maxMp = CombatantProperties.getTotalAttributes(primaryTarget)[CombatAttribute.Mp];
-      const minRestored = Math.max(1, (mpBioavailability * maxMp) / 8);
-      const maxRestored = Math.max(1, (mpBioavailability * 3 * maxMp) / 8);
+    mpBioavailability = traitBioavailabilityPercentageModifier / 100;
 
-      const resourceChangeSourceConfig: ResourceChangeSourceConfig = {
-        category: ResourceChangeSourceCategory.Medical,
-        isHealing: true,
-      };
+    const maxMp = CombatantProperties.getTotalAttributes(primaryTarget)[CombatAttribute.Mp];
+    const minRestored = Math.max(1, (mpBioavailability * maxMp) / 8);
+    const maxRestored = Math.max(1, (mpBioavailability * 3 * maxMp) / 8);
 
-      const resourceChangeSource = new ResourceChangeSource(resourceChangeSourceConfig);
-      const manaChangeProperties: CombatActionResourceChangeProperties = {
-        resourceChangeSource,
-        baseValues: new NumberRange(
-          minRestored,
-          randBetween(minRestored, maxRestored, new BasicRandomNumberGenerator())
-        ),
-      };
-      return manaChangeProperties;
-    },
+    const resourceChangeSourceConfig: ResourceChangeSourceConfig = {
+      category: ResourceChangeSourceCategory.Medical,
+      isHealing: true,
+    };
+
+    const resourceChangeSource = new ResourceChangeSource(resourceChangeSourceConfig);
+    const manaChangeProperties: CombatActionResourceChangeProperties = {
+      resourceChangeSource,
+      baseValues: new NumberRange(
+        minRestored,
+        randBetween(minRestored, maxRestored, new BasicRandomNumberGenerator())
+      ),
+    };
+    return manaChangeProperties;
   },
 };
+
+const base = HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BENEVOLENT_CONSUMABLE;
+const hitOutcomeProperties = createHitOutcomeProperties(base, hitOutcomeOverrides);
 
 const config: CombatActionComponentConfig = {
   description: "Refreshes a target's mana reserves",

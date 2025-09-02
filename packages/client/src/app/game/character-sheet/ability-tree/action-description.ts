@@ -79,7 +79,7 @@ export class ActionDescription {
 
     const resourceCosts = costProperties.getResourceCosts(combatantProperties, true, actionLevel);
 
-    const critChanceOption = hitOutcomeProperties.getCritChance(combatantProperties, actionLevel);
+    const critChanceOption = this.combatAction.getCritChance(combatantProperties, actionLevel);
     const critMultiplierOption = hitOutcomeProperties.getCritMultiplier(
       combatantProperties,
       actionLevel
@@ -143,6 +143,7 @@ export class ActionDescription {
           resource,
           changeProperties: resourceChangePropertiesGetter(
             combatantProperties,
+            hitOutcomeProperties,
             actionLevel,
             TARGET_DUMMY_COMBATANT
           ),

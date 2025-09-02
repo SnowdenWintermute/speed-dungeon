@@ -12,7 +12,6 @@ import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
-import { rangedAttackProjectileHitOutcomeProperties } from "./attack-ranged-main-hand-projectile.js";
 import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
@@ -21,8 +20,16 @@ import { DurabilityLossCondition } from "../../combat-action-durability-loss-con
 import { EquipmentType } from "../../../../items/equipment/index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
+import {
+  createHitOutcomeProperties,
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
+} from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BOW_SKILL();
+const hitOutcomeProperties = createHitOutcomeProperties(
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BOW_ATTACK,
+  {}
+);
 
 export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   description: "Attack target using ranged weapon",
@@ -33,7 +40,7 @@ export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
     ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle],
     getRequiredEquipmentTypeOptions: () => [EquipmentType.TwoHandedRangedWeapon],
   },
-  hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
+  hitOutcomeProperties,
   costProperties: {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
     incursDurabilityLoss: {

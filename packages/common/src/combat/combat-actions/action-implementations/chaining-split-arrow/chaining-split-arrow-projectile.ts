@@ -22,7 +22,6 @@ import {
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
 import cloneDeep from "lodash.clonedeep";
-import { rangedAttackProjectileHitOutcomeProperties } from "../attack/attack-ranged-main-hand-projectile.js";
 import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
@@ -31,6 +30,10 @@ import { BasicRandomNumberGenerator } from "../../../../utility-classes/randomiz
 import { ArrayUtils } from "../../../../utils/array-utils.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { CHAINING_SPLIT_ARROW_PROJECTILE_STEPS_CONFIG } from "./chaining-split-arrow-projectile-steps-config.js";
+import {
+  createHitOutcomeProperties,
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
+} from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
@@ -66,6 +69,11 @@ targetingProperties.shouldExecute = DAMAGING_ACTIONS_COMMON_CONFIG.shouldExecute
 
 const MAX_BOUNCES = 2;
 
+const hitOutcomeProperties = createHitOutcomeProperties(
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BOW_ATTACK,
+  {}
+);
+
 const config: CombatActionComponentConfig = {
   description: "An arrow that bounces to up to two additional targets after the first",
   targetingProperties,
@@ -74,7 +82,7 @@ const config: CombatActionComponentConfig = {
     origin: CombatActionOrigin.Attack,
   }),
 
-  hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
+  hitOutcomeProperties,
   costProperties: {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
     costBases: {},

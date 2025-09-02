@@ -33,6 +33,7 @@ export function addHitOutcomeDurabilityChanges(
   if (!hpChangePropertiesGetter) return;
   const hpChangeProperties = hpChangePropertiesGetter(
     actionUser.combatantProperties,
+    action.hitOutcomeProperties,
     actionLevel,
     targetCombatant.combatantProperties
   );

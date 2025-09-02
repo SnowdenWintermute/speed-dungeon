@@ -1,0 +1,33 @@
+import { CombatAttribute } from "../../../../../combatants/attributes/index.js";
+import { HoldableSlotType } from "../../../../../items/equipment/slots.js";
+import {
+  CombatActionHitOutcomeProperties,
+  CombatActionResource,
+} from "../../../combat-action-hit-outcome-properties.js";
+import { getAttackResourceChangeProperties } from "../../attack/get-attack-hp-change-properties.js";
+import { RANGED_ACTION_HIT_OUTCOME_PROPERTIES } from "./ranged-action.js";
+
+export const BOW_ATTACK_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {
+  ...RANGED_ACTION_HIT_OUTCOME_PROPERTIES,
+  addsPropertiesFromHoldableSlot: HoldableSlotType.MainHand,
+  resourceChangePropertiesGetters: {
+    [CombatActionResource.HitPoints]: (user, hitOutcomeProperties, actionLevel, primaryTarget) => {
+      const hpChangeProperties = getAttackResourceChangeProperties(
+        user,
+        hitOutcomeProperties,
+        actionLevel,
+        primaryTarget,
+        CombatAttribute.Dexterity,
+        // allow unusable weapons because it may be the case that the bow breaks
+        // but the projectile has yet to caluclate it's hit, and it should still consider
+        // the bow it was fired from
+        // it should never add weapon properties from an initially broken weapon because the projectile would not
+        // be allowed to be fired from a broken weapon
+        { usableWeaponsOnly: false }
+      );
+      if (hpChangeProperties instanceof Error) return hpChangeProperties;
+
+      return hpChangeProperties;
+    },
+  },
+};

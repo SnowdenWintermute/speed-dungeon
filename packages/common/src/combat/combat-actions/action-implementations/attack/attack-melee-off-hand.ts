@@ -11,23 +11,14 @@ import {
   OFF_HAND_DAMAGE_MODIFIER,
 } from "../../../../app-consts.js";
 import { ATTACK } from "./index.js";
-import { CombatantProperties } from "../../../../combatants/index.js";
-import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
-import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
-import { getStandardActionCritChance } from "../../action-calculation-utils/standard-action-calculations.js";
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
 import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
-import {
-  ActionHitOutcomePropertiesBaseTypes,
-  CombatActionHitOutcomeProperties,
-  CombatActionResource,
-  GENERIC_HIT_OUTCOME_PROPERTIES,
-} from "../../combat-action-hit-outcome-properties.js";
+import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
 import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
@@ -35,6 +26,10 @@ import {
 import cloneDeep from "lodash.clonedeep";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
+import {
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
+  createHitOutcomeProperties,
+} from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 
 const targetingProperties = cloneDeep(
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent]
@@ -42,31 +37,16 @@ const targetingProperties = cloneDeep(
 
 targetingProperties.shouldExecute = DAMAGING_ACTIONS_COMMON_CONFIG.shouldExecute;
 
-const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
-  ...cloneDeep(GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee]),
-  accuracyModifier: OFF_HAND_ACCURACY_MODIFIER,
-  addsPropertiesFromHoldableSlot: HoldableSlotType.OffHand,
-  getCritChance: function (user: CombatantProperties): number {
-    return (
-      getStandardActionCritChance(user, CombatAttribute.Dexterity) * OFF_HAND_CRIT_CHANCE_MODIFIER
-    );
-  },
-  resourceChangePropertiesGetters: {
-    [CombatActionResource.HitPoints]: (user, actionLevel, primaryTarget) => {
-      const hpChangeProperties = getAttackResourceChangeProperties(
-        hitOutcomeProperties,
-        user,
-        actionLevel,
-        primaryTarget,
-        CombatAttribute.Strength
-      );
-      if (hpChangeProperties instanceof Error) return hpChangeProperties;
+const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
+hitOutcomeOverrides.addsPropertiesFromHoldableSlot = HoldableSlotType.OffHand;
+hitOutcomeOverrides.accuracyModifier = OFF_HAND_ACCURACY_MODIFIER;
+hitOutcomeOverrides.critChanceModifier = OFF_HAND_CRIT_CHANCE_MODIFIER;
+hitOutcomeOverrides.resourceChangeValuesModifier = OFF_HAND_DAMAGE_MODIFIER;
 
-      hpChangeProperties.baseValues.mult(OFF_HAND_DAMAGE_MODIFIER);
-      return hpChangeProperties;
-    },
-  },
-};
+const hitOutcomeProperties = createHitOutcomeProperties(
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.MELEE_ATTACK,
+  hitOutcomeOverrides
+);
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.OFF_HAND_MELEE_ATTACK();
 

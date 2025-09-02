@@ -13,7 +13,6 @@ import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
-import { rangedAttackProjectileHitOutcomeProperties } from "../attack/attack-ranged-main-hand-projectile.js";
 import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
@@ -31,6 +30,10 @@ import {
   ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
   createStepsConfig,
 } from "../generic-action-templates/step-config-templates/index.js";
+import {
+  createHitOutcomeProperties,
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
+} from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 
 const base = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BOW_SKILL;
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
@@ -56,6 +59,11 @@ stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
 
 const stepsConfig = createStepsConfig(base, { steps: stepOverrides });
 
+const hitOutcomeProperties = createHitOutcomeProperties(
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BOW_ATTACK,
+  {}
+);
+
 const config: CombatActionComponentConfig = {
   description: "Fire arrows which each bounce to up to two additional targets",
 
@@ -73,7 +81,7 @@ const config: CombatActionComponentConfig = {
     getRequiredEquipmentTypeOptions: () => [EquipmentType.TwoHandedRangedWeapon],
   },
 
-  hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
+  hitOutcomeProperties,
   costProperties: {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
     incursDurabilityLoss: {

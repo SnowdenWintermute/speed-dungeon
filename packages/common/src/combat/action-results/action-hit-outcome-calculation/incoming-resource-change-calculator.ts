@@ -14,6 +14,7 @@ import {
 import { CombatantProperties } from "../../../combatants/index.js";
 import { CombatantContext } from "../../../combatant-context/index.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
+import cloneDeep from "lodash.clonedeep";
 
 export interface ResourceChangesPerTarget {
   value: number;
@@ -66,9 +67,19 @@ export class IncomingResourceChangesCalculator {
     for (const [actionResource, getter] of iterateNumericEnumKeyedRecord(
       resourceChangePropertiesGetters
     )) {
-      const resourceChangeProperties = getter(user, actionLevel, primaryTarget);
+      const resourceChangeProperties = getter(
+        user,
+        hitOutcomeProperties,
+        actionLevel,
+        primaryTarget
+      );
       if (resourceChangeProperties === null) continue;
-      const rolled = this.rollIncomingResourceChangeBaseValue(resourceChangeProperties, this.rng);
+
+      // some actions have a base multiplier, such as offhand attack
+      const modified = cloneDeep(resourceChangeProperties);
+      modified.baseValues.mult(hitOutcomeProperties.resourceChangeValuesModifier);
+
+      const rolled = this.rollIncomingResourceChangeBaseValue(modified, this.rng);
       const valuePerTarget = this.getIncomingResourceChangeValuePerTarget(rolled);
 
       incomingResourceChangesPerTarget[actionResource] = {

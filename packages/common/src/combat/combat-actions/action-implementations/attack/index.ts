@@ -19,17 +19,23 @@ import {
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
 import {
-  ActionHitOutcomePropertiesBaseTypes,
-  GENERIC_HIT_OUTCOME_PROPERTIES,
-} from "../../combat-action-hit-outcome-properties.js";
-import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
+import {
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
+  createHitOutcomeProperties,
+} from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
+
+// placeholder since all this action does is get children
+const hitOutcomeProperties = createHitOutcomeProperties(
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.MELEE_ATTACK,
+  {}
+);
 
 export const ATTACK_CONFIG: CombatActionComponentConfig = {
   description: "Attack with equipped weapons or fists",
@@ -37,8 +43,7 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
     origin: CombatActionOrigin.Attack,
   }),
   targetingProperties,
-  // placeholder since all this action does is get children
-  hitOutcomeProperties: GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],
+  hitOutcomeProperties,
   costProperties: {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
     requiresCombatTurnInThisContext: () => false,

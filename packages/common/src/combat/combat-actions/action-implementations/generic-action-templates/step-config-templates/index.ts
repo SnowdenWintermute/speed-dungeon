@@ -17,6 +17,7 @@ import {
 } from "../../../combat-action-steps-config.js";
 import { ActionResolutionStepType } from "../../../../../action-processing/action-steps/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../../../../utils/index.js";
+import { VALUE_CHANGE_TICK_ACTION_STEPS_CONFIG } from "./value-change-tick.js";
 
 export const ACTION_STEPS_CONFIG_TEMPLATE_GETTERS = {
   BASIC_SPELL: () => cloneDeep(BASIC_SPELL_STEPS_CONFIG),
@@ -30,6 +31,7 @@ export const ACTION_STEPS_CONFIG_TEMPLATE_GETTERS = {
   OFF_HAND_MELEE_ATTACK: () => cloneDeep(OFF_HAND_MELEE_ATTACK_STEPS_CONFIG),
   EXPLOSION_ENTITY: () => cloneDeep(EXPLOSION_ENTITY_STEPS_CONFIG),
   PROJECTILE_ENTITY: () => cloneDeep(PROJECTILE_ENTITY_STEPS_CONFIG),
+  VALUE_CHANGE_TICK: () => cloneDeep(VALUE_CHANGE_TICK_ACTION_STEPS_CONFIG),
 };
 
 export function createStepsConfig(
