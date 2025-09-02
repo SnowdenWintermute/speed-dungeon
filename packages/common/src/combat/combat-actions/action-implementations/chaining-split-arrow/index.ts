@@ -1,5 +1,5 @@
 import {
-  ActionResolutionStepsConfig,
+  ActionResolutionStepConfig,
   CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
@@ -23,14 +23,38 @@ import {
   ActionResolutionStepType,
   EntityMotionUpdate,
 } from "../../../../action-processing/index.js";
-import { ATTACK_RANGED_MAIN_HAND } from "../attack/attack-ranged-main-hand.js";
 import { SpawnableEntityType, getSpawnableEntityId } from "../../../../spawnables/index.js";
 import { EquipmentType } from "../../../../items/equipment/index.js";
 import { AbilityType } from "../../../../abilities/index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
-import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
+import {
+  ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
+  createStepsConfig,
+} from "../generic-action-templates/step-config-templates/index.js";
 
-const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BOW_SKILL();
+const base = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BOW_SKILL;
+const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
+
+stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
+  getAuxiliaryEntityMotions: (context) => {
+    const dummyArrowOption = context.tracker.spawnedEntityOption;
+    if (!dummyArrowOption) return [];
+
+    const actionEntityId = getSpawnableEntityId(dummyArrowOption);
+    //
+    const toReturn: EntityMotionUpdate[] = [];
+
+    toReturn.push({
+      entityId: actionEntityId,
+      entityType: SpawnableEntityType.ActionEntity,
+      despawn: true,
+    });
+
+    return toReturn;
+  },
+};
+
+const stepsConfig = createStepsConfig(base, { steps: stepOverrides });
 
 const config: CombatActionComponentConfig = {
   description: "Fire arrows which each bounce to up to two additional targets",
@@ -56,32 +80,7 @@ const config: CombatActionComponentConfig = {
       [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnUse },
     },
   },
-  stepsConfig: new ActionResolutionStepsConfig(
-    {
-      ...stepsConfig.steps,
-      [ActionResolutionStepType.RecoveryMotion]: {
-        ...stepsConfig.steps[ActionResolutionStepType.RecoveryMotion],
-        getAuxiliaryEntityMotions: (context) => {
-          const dummyArrowOption = context.tracker.spawnedEntityOption;
-          if (!dummyArrowOption) return [];
-
-          const actionEntityId = getSpawnableEntityId(dummyArrowOption);
-          //
-          const toReturn: EntityMotionUpdate[] = [];
-
-          toReturn.push({
-            entityId: actionEntityId,
-            entityType: SpawnableEntityType.ActionEntity,
-            despawn: true,
-          });
-
-          return toReturn;
-        },
-      },
-    },
-    { userShouldMoveHomeOnComplete: true }
-  ),
-
+  stepsConfig,
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
 
