@@ -12,13 +12,10 @@ import {
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
 import { iceBoltProjectileHitOutcomeProperties } from "./ice-bolt-hit-outcome-properties.js";
-import {
-  ActionCostPropertiesBaseTypes,
-  BASE_ACTION_COST_PROPERTIES,
-} from "../../combat-action-cost-properties.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import cloneDeep from "lodash.clonedeep";
 import { ICE_BOLT_PROJECTILE_STEPS_CONFIG } from "./ice-bolt-projectile-steps-config.js";
+import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 
 const targetingProperties = cloneDeep(
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent]
@@ -30,7 +27,7 @@ const config: CombatActionComponentConfig = {
   description: "An icy projectile",
   targetingProperties,
   hitOutcomeProperties: iceBoltProjectileHitOutcomeProperties,
-  costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
+  costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL(),
   combatLogMessageProperties: new CombatActionCombatLogProperties({
     origin: CombatActionOrigin.SpellCast,
   }),

@@ -37,7 +37,6 @@ import { ReactNode } from "react";
 import {
   ActionPayableResource,
   CombatantConditionName,
-  EquipmentType,
   KineticDamageType,
   MagicalElement,
 } from "@speed-dungeon/common";

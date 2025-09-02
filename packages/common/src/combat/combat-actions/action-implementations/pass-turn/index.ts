@@ -12,7 +12,6 @@ import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
-import { genericCombatActionCostProperties } from "../../combat-action-cost-properties.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import {
   CombatActionCombatLogProperties,
@@ -22,6 +21,7 @@ import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
+import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BENEVOLENT_CONSUMABLE,
@@ -44,7 +44,7 @@ export const passTurnConfig: CombatActionComponentConfig = {
   }),
 
   hitOutcomeProperties,
-  costProperties: { ...genericCombatActionCostProperties, costBases: {} },
+  costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_ACTION(),
   stepsConfig: new ActionResolutionStepsConfig(
     {
       [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},

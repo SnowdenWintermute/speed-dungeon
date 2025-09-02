@@ -29,7 +29,6 @@ import { ConditionIndicator } from "../../combatant-plaques/condition-indicators
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import CharacterSheetTopBar from "../../character-sheet/CharacterSheetTopBar";
 import CharacterSheetWeaponDamage from "../../character-sheet/CharacterSheetWeaponDamage";
 
 interface Props {
@@ -230,6 +229,7 @@ function PayableResourceCostDisplay({
   cost: number;
   unmetCosts: ActionPayableResource[];
 }) {
+  console.log("PayableResourceCostDisplay resourceType:", resourceType);
   const iconGetter = PAYABLE_RESOURCE_ICONS[resourceType];
   let extraStyles = "";
   switch (resourceType) {

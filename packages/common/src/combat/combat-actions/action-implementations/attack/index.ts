@@ -18,16 +18,13 @@ import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
-import {
-  ActionCostPropertiesBaseTypes,
-  BASE_ACTION_COST_PROPERTIES,
-} from "../../combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import {
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
   createHitOutcomeProperties,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
+import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
 
@@ -44,10 +41,7 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
   }),
   targetingProperties,
   hitOutcomeProperties,
-  costProperties: {
-    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
-    requiresCombatTurnInThisContext: () => false,
-  },
+  costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.FREE_ACTION(),
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
     getChildren: function (

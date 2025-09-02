@@ -13,16 +13,17 @@ import {
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
 import { iceBoltProjectileHitOutcomeProperties } from "./ice-bolt-hit-outcome-properties.js";
-import {
-  ActionCostPropertiesBaseTypes,
-  BASE_ACTION_COST_PROPERTIES,
-} from "../../combat-action-cost-properties.js";
+import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import {
   CombatantBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
 import { AbilityType } from "../../../../abilities/index.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
+import {
+  COST_PROPERTIES_TEMPLATE_GETTERS,
+  createCostPropertiesConfig,
+} from "../generic-action-templates/cost-properties-templates/index.js";
 
 // const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Spell);
 
@@ -58,6 +59,13 @@ stepsConfig.steps[ActionResolutionStepType.FinalPositioning] = {
   ],
 };
 
+const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
+  requiresCombatTurnInThisContext: () => false,
+};
+
+const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL;
+const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
+
 const config: CombatActionComponentConfig = {
   description: "Summon an icy projectile",
   prerequisiteAbilities: [{ type: AbilityType.Action, actionName: CombatActionName.Fire }],
@@ -66,10 +74,7 @@ const config: CombatActionComponentConfig = {
   ),
   targetingProperties: GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle],
   hitOutcomeProperties: iceBoltProjectileHitOutcomeProperties,
-  costProperties: {
-    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
-    requiresCombatTurnInThisContext: () => false,
-  },
+  costProperties,
   stepsConfig,
 
   hierarchyProperties: {

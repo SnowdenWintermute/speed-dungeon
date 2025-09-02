@@ -15,15 +15,12 @@ import {
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
 import {
-  ActionCostPropertiesBaseTypes,
-  BASE_ACTION_COST_PROPERTIES,
-} from "../../combat-action-cost-properties.js";
-import {
   CombatActionCombatLogProperties,
   CombatActionOrigin,
 } from "../../combat-action-combat-log-properties.js";
 import { ICE_BURST_HIT_OUTCOME_PROPERTIES } from "./ice-burst-hit-outcome-properties.js";
 import { ICE_BURST_STEPS_CONFIG } from "./ice-burst-steps-config.js";
+import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
@@ -49,14 +46,7 @@ const config: CombatActionComponentConfig = {
   }),
   targetingProperties,
   hitOutcomeProperties: ICE_BURST_HIT_OUTCOME_PROPERTIES,
-  costProperties: {
-    ...cloneDeep(BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base]),
-    costBases: {},
-    getResourceCosts: () => null,
-    getEndsTurnOnUse: () => false,
-    requiresCombatTurnInThisContext: () => false,
-  },
-
+  costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.FREE_ACTION(),
   stepsConfig: ICE_BURST_STEPS_CONFIG,
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };

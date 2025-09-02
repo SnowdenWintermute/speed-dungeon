@@ -11,18 +11,13 @@ import {
   OFF_HAND_DAMAGE_MODIFIER,
 } from "../../../../app-consts.js";
 import { ATTACK } from "./index.js";
-import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
-import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
+import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
 import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
 import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
-import {
-  ActionCostPropertiesBaseTypes,
-  BASE_ACTION_COST_PROPERTIES,
-} from "../../combat-action-cost-properties.js";
 import cloneDeep from "lodash.clonedeep";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
@@ -30,6 +25,7 @@ import {
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
   createHitOutcomeProperties,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
+import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 
 const targetingProperties = cloneDeep(
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent]
@@ -57,12 +53,7 @@ export const ATTACK_MELEE_OFF_HAND_CONFIG: CombatActionComponentConfig = {
   }),
   targetingProperties,
   hitOutcomeProperties,
-  costProperties: {
-    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
-    incursDurabilityLoss: {
-      [EquipmentSlotType.Holdable]: { [HoldableSlotType.OffHand]: DurabilityLossCondition.OnHit },
-    },
-  },
+  costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_MELEE_OFF_HAND_ATTACK(),
   stepsConfig,
   hierarchyProperties: { ...BASE_ACTION_HIERARCHY_PROPERTIES, getParent: () => ATTACK },
 };

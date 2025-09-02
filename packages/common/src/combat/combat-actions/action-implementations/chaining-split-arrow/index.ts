@@ -1,4 +1,5 @@
 import {
+  ActionPayableResource,
   ActionResolutionStepConfig,
   CombatActionCombatLogProperties,
   CombatActionComponentConfig,
@@ -13,10 +14,6 @@ import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
-import {
-  ActionCostPropertiesBaseTypes,
-  BASE_ACTION_COST_PROPERTIES,
-} from "../../combat-action-cost-properties.js";
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
 import {
   ActionResolutionStepType,
@@ -34,6 +31,11 @@ import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
+import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
+import {
+  COST_PROPERTIES_TEMPLATE_GETTERS,
+  createCostPropertiesConfig,
+} from "../generic-action-templates/cost-properties-templates/index.js";
 
 const base = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BOW_SKILL;
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
@@ -64,6 +66,14 @@ const hitOutcomeProperties = createHitOutcomeProperties(
   {}
 );
 
+const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
+  costBases: {
+    [ActionPayableResource.Mana]: { base: 1, additives: { actionLevel: 1 } },
+  },
+};
+const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_RANGED_MAIN_HAND_ATTACK;
+const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
+
 const config: CombatActionComponentConfig = {
   description: "Fire arrows which each bounce to up to two additional targets",
 
@@ -82,12 +92,7 @@ const config: CombatActionComponentConfig = {
   },
 
   hitOutcomeProperties,
-  costProperties: {
-    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
-    incursDurabilityLoss: {
-      [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnUse },
-    },
-  },
+  costProperties,
   stepsConfig,
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,

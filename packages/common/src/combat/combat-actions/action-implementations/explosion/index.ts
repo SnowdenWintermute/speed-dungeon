@@ -12,16 +12,13 @@ import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
-import {
-  ActionCostPropertiesBaseTypes,
-  BASE_ACTION_COST_PROPERTIES,
-} from "../../combat-action-cost-properties.js";
 import cloneDeep from "lodash.clonedeep";
 import { AutoTargetingScheme } from "../../../targeting/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { EXPLOSION_HIT_OUTCOME_PROPERTIES } from "./explosion-hit-outcome-properties.js";
 import { EXPLOSION_STEPS_CONFIG } from "./explosion-steps-config.js";
+import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 
 const targetingProperties = {
   ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
@@ -46,12 +43,7 @@ const config: CombatActionComponentConfig = {
   }),
 
   hitOutcomeProperties: EXPLOSION_HIT_OUTCOME_PROPERTIES,
-  costProperties: {
-    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
-    costBases: {},
-    getEndsTurnOnUse: () => false,
-    requiresCombatTurnInThisContext: () => false,
-  },
+  costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.FREE_ACTION(),
   stepsConfig: EXPLOSION_STEPS_CONFIG,
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };

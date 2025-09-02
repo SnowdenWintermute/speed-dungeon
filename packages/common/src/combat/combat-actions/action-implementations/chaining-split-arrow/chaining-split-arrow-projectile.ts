@@ -22,10 +22,6 @@ import {
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
 import cloneDeep from "lodash.clonedeep";
-import {
-  ActionCostPropertiesBaseTypes,
-  BASE_ACTION_COST_PROPERTIES,
-} from "../../combat-action-cost-properties.js";
 import { BasicRandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
 import { ArrayUtils } from "../../../../utils/array-utils.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
@@ -34,6 +30,7 @@ import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
+import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
@@ -77,20 +74,12 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 const config: CombatActionComponentConfig = {
   description: "An arrow that bounces to up to two additional targets after the first",
   targetingProperties,
-
   combatLogMessageProperties: new CombatActionCombatLogProperties({
     origin: CombatActionOrigin.Attack,
   }),
-
   hitOutcomeProperties,
-  costProperties: {
-    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
-    costBases: {},
-    requiresCombatTurnInThisContext: () => false,
-  },
-
+  costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.FREE_ACTION(),
   stepsConfig: CHAINING_SPLIT_ARROW_PROJECTILE_STEPS_CONFIG,
-
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
 

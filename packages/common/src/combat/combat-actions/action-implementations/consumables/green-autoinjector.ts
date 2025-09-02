@@ -25,10 +25,7 @@ import {
 } from "../../combat-action-targeting-properties.js";
 import { CombatActionResource } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
-import {
-  ActionCostPropertiesBaseTypes,
-  BASE_ACTION_COST_PROPERTIES,
-} from "../../combat-action-cost-properties.js";
+import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { BasicRandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
 import { randBetween } from "../../../../utils/rand-between.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
@@ -37,6 +34,10 @@ import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
+import {
+  COST_PROPERTIES_TEMPLATE_GETTERS,
+  createCostPropertiesConfig,
+} from "../generic-action-templates/cost-properties-templates/index.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle];
 
@@ -79,6 +80,14 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
 const base = HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BENEVOLENT_CONSUMABLE;
 const hitOutcomeProperties = createHitOutcomeProperties(base, hitOutcomeOverrides);
 
+const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
+  getConsumableCost: () => {
+    return { type: ConsumableType.HpAutoinjector, level: 1 };
+  },
+};
+const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.FAST_ACTION;
+const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
+
 const config: CombatActionComponentConfig = {
   description: "Restore hit points to a target",
   targetingProperties,
@@ -89,12 +98,7 @@ const config: CombatActionComponentConfig = {
       return `${data.nameOfActionUser} uses a green autoinjector.`;
     },
   }),
-  costProperties: {
-    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Medication],
-    getConsumableCost: () => {
-      return { type: ConsumableType.HpAutoinjector, level: 1 };
-    },
-  },
+  costProperties,
   stepsConfig: ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.CONSUMABLE_USE(),
 
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
