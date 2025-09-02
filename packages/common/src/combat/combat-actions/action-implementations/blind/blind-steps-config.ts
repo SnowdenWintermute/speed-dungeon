@@ -80,4 +80,5 @@ stepsConfig.steps[ActionResolutionStepType.FinalPositioning] = {
   ],
 };
 
+// 84
 export const BLIND_STEPS_CONFIG = stepsConfig;

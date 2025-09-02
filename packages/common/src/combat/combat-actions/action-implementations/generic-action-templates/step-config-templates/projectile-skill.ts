@@ -45,7 +45,7 @@ config.steps[ActionResolutionStepType.RecoveryMotion] = {
     toReturn.push({
       entityId: actionEntityId,
       entityType: SpawnableEntityType.ActionEntity,
-      // startPointingToward,
+      startPointingToward,
       setParent: null,
     });
 

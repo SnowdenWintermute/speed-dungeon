@@ -5,14 +5,19 @@ import {
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
-import { CosmeticEffectOnTargetTransformNode } from "../../combat-action-steps-config.js";
-import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
+import {
+  ActionResolutionStepConfig,
+  CosmeticEffectOnTargetTransformNode,
+} from "../../combat-action-steps-config.js";
+import {
+  ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
+  createStepsConfig,
+} from "../generic-action-templates/step-config-templates/index.js";
 import { COMBAT_ACTIONS } from "../index.js";
 
-const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
+const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
-stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
-  ...stepsConfig.steps[ActionResolutionStepType.InitialPositioning],
+stepOverrides[ActionResolutionStepType.InitialPositioning] = {
   getCosmeticsEffectsToStart: (context) => {
     return [
       {
@@ -29,8 +34,7 @@ stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
   },
 };
 
-stepsConfig.steps[ActionResolutionStepType.RecoveryMotion] = {
-  ...stepsConfig.steps[ActionResolutionStepType.RecoveryMotion],
+stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
   getCosmeticsEffectsToStart: (context) => {
     const { actionExecutionIntent } = context.tracker;
     const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
@@ -59,8 +63,7 @@ stepsConfig.steps[ActionResolutionStepType.RecoveryMotion] = {
   },
 };
 
-stepsConfig.steps[ActionResolutionStepType.FinalPositioning] = {
-  ...stepsConfig.steps[ActionResolutionStepType.FinalPositioning],
+stepOverrides[ActionResolutionStepType.FinalPositioning] = {
   getCosmeticsEffectsToStop: (context) => [
     {
       name: CosmeticEffectNames.FlameParticleAccumulation,
@@ -71,5 +74,9 @@ stepsConfig.steps[ActionResolutionStepType.FinalPositioning] = {
     },
   ],
 };
+
+const stepsConfig = createStepsConfig(ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL, {
+  steps: stepOverrides,
+});
 
 export const FIRE_STEPS_CONFIG = stepsConfig;

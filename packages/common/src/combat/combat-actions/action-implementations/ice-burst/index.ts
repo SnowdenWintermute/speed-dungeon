@@ -45,7 +45,6 @@ import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
-import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
 import {
   ActionEntityBaseChildTransformNodeName,
   SceneEntityType,
@@ -192,7 +191,6 @@ stepsConfig.steps[ActionResolutionStepType.ActionEntityDissipationMotion] = {
       name: { type: AnimationType.Dynamic, name: DynamicAnimationName.IceBurstDissipation },
       timing: { type: AnimationTimingType.Timed, duration: 200 },
       // timing: { type: AnimationTimingType.Timed, duration: 1000 },
-      //
       smoothTransition: false,
     };
   },
