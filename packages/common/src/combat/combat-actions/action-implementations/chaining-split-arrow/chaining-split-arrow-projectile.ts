@@ -14,14 +14,8 @@ import {
 } from "../../../targeting/combat-action-targets.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
 import { ActionTracker } from "../../../../action-processing/action-tracker.js";
-import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
 import { COMBAT_ACTIONS } from "../index.js";
-import {
-  CombatActionTargetingPropertiesConfig,
-  GENERIC_TARGETING_PROPERTIES,
-  TargetingPropertiesTypes,
-} from "../../combat-action-targeting-properties.js";
-import cloneDeep from "lodash.clonedeep";
+import { CombatActionTargetingPropertiesConfig } from "../../combat-action-targeting-properties.js";
 import { BasicRandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
 import { ArrayUtils } from "../../../../utils/array-utils.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
@@ -31,11 +25,13 @@ import {
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
+import {
+  createTargetingPropertiesConfig,
+  TARGETING_PROPERTIES_TEMPLATE_GETTERS,
+} from "../generic-action-templates/targeting-properties-config-templates/index.js";
 
-const targetingProperties: CombatActionTargetingPropertiesConfig = {
-  ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
+const targetingPropertiesOverrides: Partial<CombatActionTargetingPropertiesConfig> = {
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.RandomCombatant },
-
   getAutoTarget(combatantContext, previousTrackerOption, self) {
     // const previousTrackerInSequenceOption = trackerOption?.getPreviousTrackerInSequenceOption();
     if (!previousTrackerOption)
@@ -62,7 +58,10 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
   },
 };
 
-targetingProperties.shouldExecute = DAMAGING_ACTIONS_COMMON_CONFIG.shouldExecute;
+const targetingProperties = createTargetingPropertiesConfig(
+  TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE,
+  targetingPropertiesOverrides
+);
 
 const MAX_BOUNCES = 2;
 

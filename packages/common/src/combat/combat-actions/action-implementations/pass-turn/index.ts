@@ -2,16 +2,9 @@ import {
   ActionResolutionStepsConfig,
   BASE_ACTION_HIERARCHY_PROPERTIES,
   CombatActionComponentConfig,
-  CombatActionIntent,
   CombatActionLeaf,
   CombatActionName,
-  CombatActionUsabilityContext,
-  TargetCategories,
 } from "../../index.js";
-import {
-  GENERIC_TARGETING_PROPERTIES,
-  TargetingPropertiesTypes,
-} from "../../combat-action-targeting-properties.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import {
   CombatActionCombatLogProperties,
@@ -22,6 +15,7 @@ import {
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
+import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BENEVOLENT_CONSUMABLE,
@@ -30,12 +24,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 
 export const passTurnConfig: CombatActionComponentConfig = {
   description: "Skip your own turn",
-  targetingProperties: {
-    ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle],
-    getValidTargetCategories: () => TargetCategories.User,
-    usabilityContext: CombatActionUsabilityContext.InCombat,
-    intent: CombatActionIntent.Benevolent,
-  },
+  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_IN_COMBAT(),
   combatLogMessageProperties: new CombatActionCombatLogProperties({
     origin: CombatActionOrigin.SpellCast,
     getOnUseMessage: (data) => {

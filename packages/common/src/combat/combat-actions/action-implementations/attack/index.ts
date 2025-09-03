@@ -14,10 +14,6 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "../../../../action-processing/index.js";
-import {
-  GENERIC_TARGETING_PROPERTIES,
-  TargetingPropertiesTypes,
-} from "../../combat-action-targeting-properties.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import {
@@ -25,8 +21,7 @@ import {
   createHitOutcomeProperties,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
-
-const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
+import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 
 // placeholder since all this action does is get children
 const hitOutcomeProperties = createHitOutcomeProperties(
@@ -39,7 +34,7 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
   combatLogMessageProperties: new CombatActionCombatLogProperties({
     origin: CombatActionOrigin.Attack,
   }),
-  targetingProperties,
+  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE(),
   hitOutcomeProperties,
   costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.FREE_ACTION(),
   hierarchyProperties: {

@@ -3,15 +3,10 @@ import {
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
-  TargetCategories,
   TargetingScheme,
   createGenericSpellCastMessageProperties,
 } from "../../index.js";
-import {
-  CombatActionTargetingPropertiesConfig,
-  GENERIC_TARGETING_PROPERTIES,
-  TargetingPropertiesTypes,
-} from "../../combat-action-targeting-properties.js";
+import { CombatActionTargetingPropertiesConfig } from "../../combat-action-targeting-properties.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { FIRE_STEPS_CONFIG } from "./fire-steps-config.js";
 import { FIRE_HIT_OUTCOME_PROPERTIES } from "./fire-hit-outcome-properties.js";
@@ -20,11 +15,11 @@ import {
   COST_PROPERTIES_TEMPLATE_GETTERS,
   createCostPropertiesConfig,
 } from "../generic-action-templates/cost-properties-templates/index.js";
+import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
-  ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
-  getValidTargetCategories: () => TargetCategories.Opponent,
-  getTargetingSchemes: (actionLevel: number) => {
+  ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.AREA_HOSTILE(),
+  getTargetingSchemes: (actionLevel) => {
     const toReturn = [TargetingScheme.Single];
     if (actionLevel > 1) toReturn.push(TargetingScheme.Area);
     return toReturn;

@@ -12,13 +12,7 @@ import {
 } from "../../../../app-consts.js";
 import { ATTACK } from "./index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
-import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
-import {
-  GENERIC_TARGETING_PROPERTIES,
-  TargetingPropertiesTypes,
-} from "../../combat-action-targeting-properties.js";
 import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
-import cloneDeep from "lodash.clonedeep";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
 import {
@@ -26,12 +20,7 @@ import {
   createHitOutcomeProperties,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
-
-const targetingProperties = cloneDeep(
-  GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent]
-);
-
-targetingProperties.shouldExecute = DAMAGING_ACTIONS_COMMON_CONFIG.shouldExecute;
+import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 hitOutcomeOverrides.addsPropertiesFromHoldableSlot = HoldableSlotType.OffHand;
@@ -51,7 +40,7 @@ export const ATTACK_MELEE_OFF_HAND_CONFIG: CombatActionComponentConfig = {
   combatLogMessageProperties: new CombatActionCombatLogProperties({
     origin: CombatActionOrigin.Attack,
   }),
-  targetingProperties,
+  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.COPY_PARENT_HOSTILE(),
   hitOutcomeProperties,
   costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_MELEE_OFF_HAND_ATTACK(),
   stepsConfig,

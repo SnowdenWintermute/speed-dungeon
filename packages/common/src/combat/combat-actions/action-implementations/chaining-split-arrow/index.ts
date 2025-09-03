@@ -9,12 +9,6 @@ import {
   CombatActionOrigin,
 } from "../../index.js";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
-import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
-import {
-  GENERIC_TARGETING_PROPERTIES,
-  TargetingPropertiesTypes,
-} from "../../combat-action-targeting-properties.js";
-import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
 import {
   ActionResolutionStepType,
   EntityMotionUpdate,
@@ -36,6 +30,10 @@ import {
   COST_PROPERTIES_TEMPLATE_GETTERS,
   createCostPropertiesConfig,
 } from "../generic-action-templates/cost-properties-templates/index.js";
+import {
+  createTargetingPropertiesConfig,
+  TARGETING_PROPERTIES_TEMPLATE_GETTERS,
+} from "../generic-action-templates/targeting-properties-config-templates/index.js";
 
 const base = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BOW_SKILL;
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
@@ -74,6 +72,13 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_RANGED_MAIN_HAND_ATTACK;
 const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
 
+const targetingProperties = createTargetingPropertiesConfig(
+  TARGETING_PROPERTIES_TEMPLATE_GETTERS.AREA_HOSTILE,
+  {
+    getRequiredEquipmentTypeOptions: () => [EquipmentType.TwoHandedRangedWeapon],
+  }
+);
+
 const config: CombatActionComponentConfig = {
   description: "Fire arrows which each bounce to up to two additional targets",
 
@@ -86,11 +91,7 @@ const config: CombatActionComponentConfig = {
   prerequisiteAbilities: [
     { type: AbilityType.Action, actionName: CombatActionName.ExplodingArrowParent },
   ],
-  targetingProperties: {
-    ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
-    getRequiredEquipmentTypeOptions: () => [EquipmentType.TwoHandedRangedWeapon],
-  },
-
+  targetingProperties,
   hitOutcomeProperties,
   costProperties,
   stepsConfig,

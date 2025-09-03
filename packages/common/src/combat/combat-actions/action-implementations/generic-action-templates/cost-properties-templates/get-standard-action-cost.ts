@@ -34,8 +34,6 @@ export function getStandardActionCost(
     cost = Math.floor(cost);
     cost *= -1;
 
-    console.log("calculated cost: ", cost);
-
     toReturn[payableResourceType] = cost;
   }
 

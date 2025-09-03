@@ -4,18 +4,12 @@ import {
   CombatActionLeaf,
   CombatActionName,
   CombatActionOrigin,
-  TargetCategories,
 } from "../../index.js";
 import {
   COMBATANT_CLASS_TO_SKILL_BOOK_TYPE,
   Consumable,
   SKILL_BOOK_TYPE_TO_COMBATANT_CLASS,
 } from "../../../../items/consumables/index.js";
-import {
-  CombatActionTargetingPropertiesConfig,
-  GENERIC_TARGETING_PROPERTIES,
-  TargetingPropertiesTypes,
-} from "../../combat-action-targeting-properties.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { Inventory } from "../../../../combatants/index.js";
 import { throwIfError } from "../../../../utils/index.js";
@@ -29,11 +23,7 @@ import {
   COST_PROPERTIES_TEMPLATE_GETTERS,
   createCostPropertiesConfig,
 } from "../generic-action-templates/cost-properties-templates/index.js";
-
-const targetingProperties: CombatActionTargetingPropertiesConfig = {
-  ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle],
-  getValidTargetCategories: () => TargetCategories.User,
-};
+import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 
 const base = HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BENEVOLENT_CONSUMABLE;
 const hitOutcomeProperties = createHitOutcomeProperties(base, {});
@@ -111,7 +101,7 @@ const config: CombatActionComponentConfig = {
       return `${data.nameOfActionUser} reads a skill book.`;
     },
   }),
-  targetingProperties,
+  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME(),
   hitOutcomeProperties,
   costProperties,
   stepsConfig: ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.CONSUMABLE_USE(),

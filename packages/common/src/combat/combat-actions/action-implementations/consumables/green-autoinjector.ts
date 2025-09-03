@@ -19,10 +19,6 @@ import { NumberRange } from "../../../../primatives/number-range.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { ConsumableType } from "../../../../items/consumables/index.js";
-import {
-  GENERIC_TARGETING_PROPERTIES,
-  TargetingPropertiesTypes,
-} from "../../combat-action-targeting-properties.js";
 import { CombatActionResource } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
@@ -38,8 +34,7 @@ import {
   COST_PROPERTIES_TEMPLATE_GETTERS,
   createCostPropertiesConfig,
 } from "../generic-action-templates/cost-properties-templates/index.js";
-
-const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle];
+import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 
@@ -90,7 +85,7 @@ const costProperties = createCostPropertiesConfig(costPropertiesBase, costProper
 
 const config: CombatActionComponentConfig = {
   description: "Restore hit points to a target",
-  targetingProperties,
+  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME(),
   hitOutcomeProperties,
   combatLogMessageProperties: new CombatActionCombatLogProperties({
     origin: CombatActionOrigin.Medication,
