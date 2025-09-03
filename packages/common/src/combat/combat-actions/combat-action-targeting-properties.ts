@@ -18,11 +18,14 @@ import { CombatActionRequiredRange } from "./combat-action-range.js";
 export interface CombatActionTargetingPropertiesConfig {
   getTargetingSchemes: (actionLevel: number) => TargetingScheme[];
   getValidTargetCategories: (actionLevel: number) => TargetCategories;
+  /** Some actions are not targeted by the user and must automatically choose, such as projeciles and triggered explosions. */
   autoTargetSelectionMethod: AutoTargetingSelectionMethod;
+  /** Example: don't allow attacking a dead target */
   prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
+  /** Used when an action has already be used and we need to separately determine if it should hit the target */
   prohibitedHitCombatantStates: ProhibitedTargetCombatantStates[];
+  /** Used for determining if a target should attempt mitigation */
   intent: CombatActionIntent;
-  // usability
   usabilityContext: CombatActionUsabilityContext;
   getRequiredEquipmentTypeOptions: (actionLevel: number) => EquipmentType[];
   getAutoTarget: (
