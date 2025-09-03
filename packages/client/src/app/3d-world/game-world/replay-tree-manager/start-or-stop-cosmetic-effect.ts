@@ -2,7 +2,6 @@ import {
   ERROR_MESSAGES,
   COSMETIC_EFFECT_CONSTRUCTORS,
   CosmeticEffectOnTargetTransformNode,
-  CosmeticEffectOnEntity,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
 import { Vector3 } from "@babylonjs/core";
@@ -10,44 +9,53 @@ import { SceneEntity } from "../../scene-entities";
 
 export function startOrStopCosmeticEffects(
   cosmeticEffectsToStart?: CosmeticEffectOnTargetTransformNode[],
-  cosmeticEffectsToStop?: CosmeticEffectOnEntity[]
+  cosmeticEffectsToStop?: CosmeticEffectOnTargetTransformNode[]
 ) {
   if (cosmeticEffectsToStart?.length) {
     const sceneOption = gameWorld.current?.scene;
     if (!sceneOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
 
     for (const { name, parent, lifetime } of cosmeticEffectsToStart) {
-      const effect = new COSMETIC_EFFECT_CONSTRUCTORS[name](sceneOption);
-
-      if (lifetime !== undefined) {
-        effect.lifetimeTimeout = setTimeout(() => {
-          effect.softCleanup();
-        }, lifetime);
-      }
-
       const cosmeticEffectManager = SceneEntity.getFromIdentifier(
         parent.sceneEntityIdentifier
       ).cosmeticEffectManager;
 
-      cosmeticEffectManager.cosmeticEffect[name]?.softCleanup();
-      cosmeticEffectManager.cosmeticEffect[name] = effect;
+      const existingEffectOption = cosmeticEffectManager.cosmeticEffects[name];
 
-      const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(parent);
+      if (existingEffectOption) existingEffectOption.referenceCount += 1;
+      else {
+        const effect = new COSMETIC_EFFECT_CONSTRUCTORS[name](sceneOption);
 
-      effect.transformNode.setParent(targetTransformNode);
-      effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
+        if (lifetime !== undefined) {
+          effect.lifetimeTimeout = setTimeout(() => {
+            effect.softCleanup();
+          }, lifetime);
+        }
+
+        cosmeticEffectManager.cosmeticEffects[name] = { effect, referenceCount: 1 };
+        const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(parent);
+        effect.transformNode.setParent(targetTransformNode);
+        effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
+      }
     }
   }
 
-  if (cosmeticEffectsToStop?.length) {
-    for (const cosmeticEffectOnEntity of cosmeticEffectsToStop) {
-      const { sceneEntityIdentifier, name } = cosmeticEffectOnEntity;
+  if (cosmeticEffectsToStop === undefined) return;
 
-      const sceneEntity = SceneEntity.getFromIdentifier(sceneEntityIdentifier);
-      const { cosmeticEffectManager } = sceneEntity;
+  for (const cosmeticEffectOnEntity of cosmeticEffectsToStop) {
+    const { sceneEntityIdentifier, name } = cosmeticEffectOnEntity;
 
-      cosmeticEffectManager.cosmeticEffect[name]?.softCleanup();
-      delete cosmeticEffectManager.cosmeticEffect[name];
+    const sceneEntity = SceneEntity.getFromIdentifier(sceneEntityIdentifier);
+    const { cosmeticEffectManager } = sceneEntity;
+
+    const existingEffectOption = cosmeticEffectManager.cosmeticEffects[name];
+    if (!existingEffectOption)
+      return console.info("tried to end a cosmetic effect but couldn't find it");
+    existingEffectOption.referenceCount -= 1;
+
+    if (existingEffectOption.referenceCount <= 0) {
+      existingEffectOption.effect.softCleanup();
+      delete cosmeticEffectManager.cosmeticEffects[name];
     }
   }
 }

@@ -9,6 +9,7 @@ import {
   ActionResolutionStepConfig,
   CosmeticEffectOnTargetTransformNode,
 } from "../../combat-action-steps-config.js";
+import { CosmeticEffectInstructionFactory } from "../generic-action-templates/cosmetic-effect-factories/index.js";
 import {
   ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
   createStepsConfig,
@@ -18,24 +19,16 @@ import { COMBAT_ACTIONS } from "../index.js";
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
 stepOverrides[ActionResolutionStepType.InitialPositioning] = {
-  getCosmeticsEffectsToStart: (context) => {
-    return [
-      {
-        name: CosmeticEffectNames.FlameParticleAccumulation,
-        parent: {
-          sceneEntityIdentifier: {
-            type: SceneEntityType.CharacterModel,
-            entityId: context.combatantContext.combatant.entityProperties.id,
-          },
-          transformNodeName: CombatantBaseChildTransformNodeName.OffhandEquipment,
-        },
-      },
-    ];
-  },
+  getCosmeticEffectsToStart: (context) => [
+    CosmeticEffectInstructionFactory.createParticlesOnOffhand(
+      CosmeticEffectNames.FlameParticleAccumulation,
+      context
+    ),
+  ],
 };
 
 stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
-  getCosmeticsEffectsToStart: (context) => {
+  getCosmeticEffectsToStart: (context) => {
     const { actionExecutionIntent } = context.tracker;
     const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
 
@@ -64,14 +57,11 @@ stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
 };
 
 stepOverrides[ActionResolutionStepType.FinalPositioning] = {
-  getCosmeticsEffectsToStop: (context) => [
-    {
-      name: CosmeticEffectNames.FlameParticleAccumulation,
-      sceneEntityIdentifier: {
-        type: SceneEntityType.CharacterModel,
-        entityId: context.combatantContext.combatant.entityProperties.id,
-      },
-    },
+  getCosmeticEffectsToStop: (context) => [
+    CosmeticEffectInstructionFactory.createParticlesOnOffhand(
+      CosmeticEffectNames.FlameParticleAccumulation,
+      context
+    ),
   ],
 };
 

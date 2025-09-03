@@ -1,13 +1,15 @@
 import { CosmeticEffect, CosmeticEffectNames } from "@speed-dungeon/common";
 
 export class CosmeticEffectManager {
-  cosmeticEffect: Partial<Record<CosmeticEffectNames, CosmeticEffect>> = {};
+  cosmeticEffects: Partial<
+    Record<CosmeticEffectNames, { effect: CosmeticEffect; referenceCount: number }>
+  > = {};
   constructor() {}
 
   softCleanup() {
-    for (const effect of Object.values(this.cosmeticEffect)) effect.softCleanup();
+    for (const effectRc of Object.values(this.cosmeticEffects)) effectRc.effect.softCleanup();
   }
   cleanup() {
-    for (const effect of Object.values(this.cosmeticEffect)) effect.cleanup();
+    for (const effectRc of Object.values(this.cosmeticEffects)) effectRc.effect.cleanup();
   }
 }

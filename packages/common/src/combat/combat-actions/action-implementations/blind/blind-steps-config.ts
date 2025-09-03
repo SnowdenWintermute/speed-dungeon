@@ -9,6 +9,7 @@ import {
   ActionResolutionStepConfig,
   CosmeticEffectOnTargetTransformNode,
 } from "../../combat-action-steps-config.js";
+import { CosmeticEffectInstructionFactory } from "../generic-action-templates/cosmetic-effect-factories/index.js";
 import {
   ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
   createStepsConfig,
@@ -19,24 +20,18 @@ import { COMBAT_ACTIONS } from "../index.js";
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
 stepOverrides[ActionResolutionStepType.InitialPositioning] = {
-  getCosmeticsEffectsToStart: (context) => {
+  getCosmeticEffectsToStart: (context) => {
     return [
-      {
-        name: CosmeticEffectNames.DarkParticleAccumulation,
-        parent: {
-          sceneEntityIdentifier: {
-            type: SceneEntityType.CharacterModel,
-            entityId: context.combatantContext.combatant.entityProperties.id,
-          },
-          transformNodeName: CombatantBaseChildTransformNodeName.OffhandEquipment,
-        },
-      },
+      CosmeticEffectInstructionFactory.createParticlesOnOffhand(
+        CosmeticEffectNames.DarkParticleAccumulation,
+        context
+      ),
     ];
   },
 };
 
 stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
-  getCosmeticsEffectsToStart: (context) => {
+  getCosmeticEffectsToStart: (context) => {
     const { actionExecutionIntent } = context.tracker;
     const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
 
@@ -65,14 +60,11 @@ stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
 };
 
 stepOverrides[ActionResolutionStepType.FinalPositioning] = {
-  getCosmeticsEffectsToStop: (context) => [
-    {
-      name: CosmeticEffectNames.DarkParticleAccumulation,
-      sceneEntityIdentifier: {
-        type: SceneEntityType.CharacterModel,
-        entityId: context.combatantContext.combatant.entityProperties.id,
-      },
-    },
+  getCosmeticEffectsToStop: (context) => [
+    CosmeticEffectInstructionFactory.createParticlesOnOffhand(
+      CosmeticEffectNames.DarkParticleAccumulation,
+      context
+    ),
   ],
 };
 

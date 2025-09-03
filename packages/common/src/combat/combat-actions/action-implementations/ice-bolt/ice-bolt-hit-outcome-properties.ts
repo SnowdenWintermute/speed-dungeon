@@ -21,9 +21,7 @@ import {
 
 const spellLevelHpChangeValueModifier = 0.75;
 
-const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {
-  resourceChangeValuesModifier: 0.01,
-};
+const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 
 hitOutcomeOverrides.resourceChangePropertiesGetters = {
   [CombatActionResource.HitPoints]: (user, hitOutcomeProperties, actionLevel, primaryTarget) => {

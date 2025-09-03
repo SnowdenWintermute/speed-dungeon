@@ -93,7 +93,7 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
     };
     return entityPart;
   },
-  getCosmeticsEffectsToStart: (context) => {
+  getCosmeticEffectsToStart: (context) => {
     const iceBoltProjectile = context.tracker.getExpectedSpawnedActionEntity();
     return [
       {
@@ -112,7 +112,7 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
 };
 
 stepOverrides[ActionResolutionStepType.RollIncomingHitOutcomes] = {
-  getCosmeticsEffectsToStart: (context) => {
+  getCosmeticEffectsToStart: (context) => {
     const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
     const targetId = targetingCalculator.getPrimaryTargetCombatantId(
       context.tracker.actionExecutionIntent

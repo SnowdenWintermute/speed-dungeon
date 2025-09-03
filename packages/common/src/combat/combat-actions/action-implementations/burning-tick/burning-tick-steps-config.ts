@@ -18,7 +18,7 @@ import { COMBAT_ACTIONS } from "../index.js";
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
 stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
-  getCosmeticsEffectsToStart: (context) => {
+  getCosmeticEffectsToStart: (context) => {
     const { actionExecutionIntent } = context.tracker;
     const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
 

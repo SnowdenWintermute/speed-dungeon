@@ -115,7 +115,7 @@ export interface IGameUpdateCommand {
   step: ActionResolutionStepType;
   completionOrderId: null | number;
   cosmeticEffectsToStart?: CosmeticEffectOnTargetTransformNode[];
-  cosmeticEffectsToStop?: CosmeticEffectOnEntity[];
+  cosmeticEffectsToStop?: CosmeticEffectOnTargetTransformNode[];
 }
 
 export interface CombatantMotionGameUpdateCommand extends IGameUpdateCommand {

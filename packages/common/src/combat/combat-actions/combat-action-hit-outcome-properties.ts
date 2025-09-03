@@ -18,9 +18,10 @@ export enum CombatActionResource {
 }
 
 export interface CombatActionHitOutcomeProperties {
+  /** Easily modify an action to be a weaker version of another such as an offhand attack */
+  resourceChangeValuesModifier: NormalizedPercentage;
   accuracyModifier: NormalizedPercentage;
   critChanceModifier: NormalizedPercentage;
-  resourceChangeValuesModifier: NormalizedPercentage;
   // used for determining melee attack animation types at start of action
   // @TODO - could be used for generically adding weapon damage and kinetic types to hit outcomes
   addsPropertiesFromHoldableSlot: null | HoldableSlotType;

@@ -8,7 +8,7 @@ export class ManagedParticleSystem {
     public scene: Scene
   ) {}
 
-  softCleanup() {
+  softCleanup(onComplete: () => void) {
     const { particleSystem } = this;
     particleSystem.stop();
 
@@ -18,7 +18,7 @@ export class ManagedParticleSystem {
         if (particleSystem.isStopped()) {
           this.softCleanupTimeout = setTimeout(
             () => {
-              this.cleanup();
+              this.cleanup(onComplete);
               this.scene.onBeforeRenderObservable.remove(obs);
             },
             particleSystem.maxLifeTime * 1000 + 1000
@@ -30,18 +30,19 @@ export class ManagedParticleSystem {
       const remainingParticles = particleSystem.getActiveCount();
       if (remainingParticles > 0) {
         this.softCleanupTimeout = setTimeout(() => {
-          this.softCleanup();
+          this.softCleanup(onComplete);
         }, 100);
       } else {
-        this.cleanup();
+        this.cleanup(onComplete);
       }
     }
   }
 
-  cleanup() {
+  cleanup(onComplete: () => void) {
     if (this.softCleanupTimeout !== null) clearTimeout(this.softCleanupTimeout);
     this.particleSystem.stop();
     this.mesh.dispose();
     this.particleSystem.dispose();
+    onComplete();
   }
 }

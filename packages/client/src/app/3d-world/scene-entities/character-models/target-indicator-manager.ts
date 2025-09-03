@@ -34,6 +34,7 @@ export class TargetIndicator {
 
 export class TargetIndicatorBillboard {
   plane: Mesh;
+  material: StandardMaterial;
   constructor(
     public readonly targetIndicator: TargetIndicator,
     scene: Scene
@@ -41,8 +42,9 @@ export class TargetIndicatorBillboard {
     this.plane = MeshBuilder.CreatePlane("billboard", { size: 0.25 }, scene);
     this.plane.billboardMode = Mesh.BILLBOARDMODE_ALL;
     // Optional: ensure it's not affected by scene lighting
-    const mat = new StandardMaterial("billboardMat", scene);
-    mat.diffuseTexture = getGameWorld().targetIndicatorTexture;
+    this.material = new StandardMaterial("billboardMat", scene);
+    this.material.diffuseTexture = getGameWorld().targetIndicatorTexture;
+    const mat = this.material;
 
     const action = COMBAT_ACTIONS[this.targetIndicator.actionName];
     switch (action.targetingProperties.intent) {
@@ -62,7 +64,8 @@ export class TargetIndicatorBillboard {
   }
 
   cleanup() {
-    this.plane.dispose();
+    this.plane.dispose(false);
+    this.material.dispose();
   }
 }
 

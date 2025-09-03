@@ -35,10 +35,12 @@ export interface CosmeticEffectOnEntity {
 }
 
 export interface ActionResolutionStepConfig {
-  getCosmeticsEffectsToStart?(
+  getCosmeticEffectsToStart?(
     context: ActionResolutionStepContext
   ): CosmeticEffectOnTargetTransformNode[];
-  getCosmeticsEffectsToStop?(context: ActionResolutionStepContext): CosmeticEffectOnEntity[];
+  getCosmeticEffectsToStop?(
+    context: ActionResolutionStepContext
+  ): CosmeticEffectOnTargetTransformNode[];
   getAnimation?(
     user: CombatantProperties,
     animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>,

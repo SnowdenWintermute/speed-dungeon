@@ -63,7 +63,7 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
       // timing: { type: AnimationTimingType.Timed, duration: 1000 },
     };
   },
-  getCosmeticsEffectsToStart: (context) => {
+  getCosmeticEffectsToStart: (context) => {
     const iceBurstEntity = context.tracker.getExpectedSpawnedActionEntity();
     return [
       {

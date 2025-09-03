@@ -136,15 +136,7 @@ export async function activatedTriggersGameUpdateHandler(update: {
             const targetModelOption = getGameWorld().modelManager.findOne(entityId);
             startOrStopCosmeticEffects(
               [],
-              conditionRemovedOption
-                .getCosmeticEffectWhileActive(targetModelOption.entityId)
-                .map((cosmeticEffectOnTransformNode) => {
-                  return {
-                    sceneEntityIdentifier:
-                      cosmeticEffectOnTransformNode.parent.sceneEntityIdentifier,
-                    name: cosmeticEffectOnTransformNode.name,
-                  };
-                })
+              conditionRemovedOption.getCosmeticEffectWhileActive(targetModelOption.entityId)
             );
           }
         }
@@ -166,15 +158,7 @@ export async function activatedTriggersGameUpdateHandler(update: {
             const targetModelOption = getGameWorld().modelManager.findOne(entityId);
             startOrStopCosmeticEffects(
               [],
-              conditionRemovedOption
-                .getCosmeticEffectWhileActive(targetModelOption.entityId)
-                .map((cosmeticEffectOnTransformNode) => {
-                  return {
-                    sceneEntityIdentifier:
-                      cosmeticEffectOnTransformNode.parent.sceneEntityIdentifier,
-                    name: cosmeticEffectOnTransformNode.name,
-                  };
-                })
+              conditionRemovedOption.getCosmeticEffectWhileActive(targetModelOption.entityId)
             );
           }
         }
