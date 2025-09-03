@@ -43,9 +43,9 @@ export function startOrStopCosmeticEffects(
   if (cosmeticEffectsToStop === undefined) return;
 
   for (const cosmeticEffectOnEntity of cosmeticEffectsToStop) {
-    const { sceneEntityIdentifier, name } = cosmeticEffectOnEntity;
+    const { name, parent } = cosmeticEffectOnEntity;
 
-    const sceneEntity = SceneEntity.getFromIdentifier(sceneEntityIdentifier);
+    const sceneEntity = SceneEntity.getFromIdentifier(parent.sceneEntityIdentifier);
     const { cosmeticEffectManager } = sceneEntity;
 
     const existingEffectOption = cosmeticEffectManager.cosmeticEffects[name];

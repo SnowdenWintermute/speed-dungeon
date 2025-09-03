@@ -15,6 +15,7 @@ import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { getPrimaryTargetPositionAsDestination } from "../common-destination-getters.js";
 import { ActionResolutionStepConfig } from "../../combat-action-steps-config.js";
+import { CosmeticEffectInstructionFactory } from "../generic-action-templates/cosmetic-effect-factories/index.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
@@ -119,17 +120,11 @@ stepOverrides[ActionResolutionStepType.RollIncomingHitOutcomes] = {
     );
 
     return [
-      {
-        name: CosmeticEffectNames.FrostParticleBurst,
-        parent: {
-          sceneEntityIdentifier: {
-            type: SceneEntityType.CharacterModel,
-            entityId: targetId,
-          },
-          transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
-        },
-        lifetime: 300,
-      },
+      CosmeticEffectInstructionFactory.createParticlesOnTargetBody(
+        CosmeticEffectNames.FrostParticleBurst,
+        300,
+        targetId
+      ),
     ];
   },
 };

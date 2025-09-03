@@ -1,14 +1,11 @@
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
-import {
-  CombatantBaseChildTransformNodeName,
-  SceneEntityType,
-} from "../../../../scene-entities/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import {
   ActionResolutionStepConfig,
   CosmeticEffectOnTargetTransformNode,
 } from "../../combat-action-steps-config.js";
+import { CosmeticEffectInstructionFactory } from "../generic-action-templates/cosmetic-effect-factories/index.js";
 import {
   ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
   createStepsConfig,
@@ -28,19 +25,13 @@ stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
     );
     if (targetIdsResult instanceof Error) throw targetIdsResult;
 
-    const toReturn: CosmeticEffectOnTargetTransformNode[] = targetIdsResult.map((targetId) => {
-      return {
-        name: CosmeticEffectNames.FireParticlesSmall,
-        lifetime: 700,
-        parent: {
-          sceneEntityIdentifier: {
-            type: SceneEntityType.CharacterModel,
-            entityId: targetId,
-          },
-          transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
-        },
-      };
-    });
+    const toReturn: CosmeticEffectOnTargetTransformNode[] = targetIdsResult.map((targetId) =>
+      CosmeticEffectInstructionFactory.createParticlesOnTargetBody(
+        CosmeticEffectNames.FireParticlesSmall,
+        700,
+        targetId
+      )
+    );
 
     return toReturn;
   },
