@@ -71,7 +71,7 @@ export function getAttackResourceChangeProperties(
     hpChangeProperties.resourceChangeSource.kineticDamageTypeOption = KineticDamageType.Blunt;
   }
 
-  baseValues.floor();
+  baseValues.floor(1);
 
   return hpChangeProperties;
 }

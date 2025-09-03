@@ -16,7 +16,7 @@ import {
 import { ActionDescription, ActionDescriptionComponent } from "./action-description";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import { formatActionAccuracy } from "@speed-dungeon/common";
-import DamageTypeBadge, { DamageTypeBadgeWithIcon } from "../../detailables/DamageTypeBadge";
+import { DamageTypeBadgeWithIcon } from "../../detailables/DamageTypeBadge";
 
 export default function ActionDescriptionDisplay({
   description,

@@ -20,7 +20,12 @@ import {
   createHitOutcomeProperties,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
-import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import {
+  createTargetingPropertiesConfig,
+  TARGETING_PROPERTIES_TEMPLATE_GETTERS,
+} from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import { actionShouldExecute } from "../generic-action-templates/targeting-properties-config-templates/action-should-execute.js";
+import { CombatActionTargetingPropertiesConfig } from "../../combat-action-targeting-properties.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 hitOutcomeOverrides.addsPropertiesFromHoldableSlot = HoldableSlotType.OffHand;
@@ -35,12 +40,21 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.OFF_HAND_MELEE_ATTACK();
 
+const targetingPropertiesOverrides: Partial<CombatActionTargetingPropertiesConfig> = {
+  shouldExecute: actionShouldExecute,
+};
+
+const targetingProperties = createTargetingPropertiesConfig(
+  TARGETING_PROPERTIES_TEMPLATE_GETTERS.COPY_PARENT_HOSTILE,
+  targetingPropertiesOverrides
+);
+
 export const ATTACK_MELEE_OFF_HAND_CONFIG: CombatActionComponentConfig = {
   description: "Attack target using equipment in off hand",
   combatLogMessageProperties: new CombatActionCombatLogProperties({
     origin: CombatActionOrigin.Attack,
   }),
-  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.COPY_PARENT_HOSTILE(),
+  targetingProperties,
   hitOutcomeProperties,
   costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_MELEE_OFF_HAND_ATTACK(),
   stepsConfig,

@@ -12,6 +12,7 @@ import {
   CombatantSpecies,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
+import cloneDeep from "lodash.clonedeep";
 import isEqual from "lodash.isequal";
 
 export const TARGET_DUMMY_COMBATANT = new CombatantProperties(
@@ -139,14 +140,23 @@ export class ActionDescription {
       [ActionDescriptionComponent.ResourceChanges]: iterateNumericEnumKeyedRecord(
         hitOutcomeProperties.resourceChangePropertiesGetters
       ).map(([resource, resourceChangePropertiesGetter]) => {
-        return {
-          resource,
-          changeProperties: resourceChangePropertiesGetter(
+        const changeProperties = cloneDeep(
+          resourceChangePropertiesGetter(
             combatantProperties,
             hitOutcomeProperties,
             actionLevel,
             TARGET_DUMMY_COMBATANT
-          ),
+          )
+        );
+
+        if (changeProperties?.baseValues) {
+          changeProperties.baseValues.mult(hitOutcomeProperties.resourceChangeValuesModifier);
+          changeProperties.baseValues.floor(0);
+        }
+
+        return {
+          resource,
+          changeProperties,
         };
       }),
       [ActionDescriptionComponent.AddsPropertiesFromHoldableSlot]:

@@ -39,7 +39,7 @@ overrides.resourceChangePropertiesGetters = {
       baseValues,
     };
 
-    baseValues.floor();
+    baseValues.floor(1);
 
     return hpChangeProperties;
   },

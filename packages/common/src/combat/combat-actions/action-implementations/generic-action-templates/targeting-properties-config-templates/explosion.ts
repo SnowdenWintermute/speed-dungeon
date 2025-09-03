@@ -17,6 +17,6 @@ export const EXPLOSION_TARGETING_PROPERTIES_CONFIG: CombatActionTargetingPropert
     scheme: AutoTargetingScheme.WithinRadiusOfEntity,
     radius: BASE_EXPLOSION_RADIUS,
     validTargetCategories: TargetCategories.Any,
-    excludePrimaryTarget: true,
+    excludePrimaryTarget: false,
   },
 };

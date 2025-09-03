@@ -1,7 +1,6 @@
 import cloneDeep from "lodash.clonedeep";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import {
-  ActionPayableResource,
   ActionResolutionStepsConfig,
   CombatActionComponentConfig,
   CombatActionLeaf,
@@ -12,8 +11,17 @@ import {
   CombatActionCombatLogProperties,
   CombatActionOrigin,
 } from "../../combat-action-combat-log-properties.js";
+import {
+  COST_PROPERTIES_TEMPLATE_GETTERS,
+  createCostPropertiesConfig,
+} from "../generic-action-templates/cost-properties-templates/index.js";
 
 const clonedConfig = cloneDeep(passTurnConfig);
+
+const costProperties = createCostPropertiesConfig(COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_ACTION, {
+  requiresCombatTurnInThisContext: () => false,
+  getEndsTurnOnUse: () => false,
+});
 
 const config: CombatActionComponentConfig = {
   ...clonedConfig,
@@ -23,11 +31,7 @@ const config: CombatActionComponentConfig = {
       return "";
     },
   }),
-  costProperties: {
-    ...passTurnConfig.costProperties,
-    requiresCombatTurnInThisContext: () => false,
-    costBases: { [ActionPayableResource.ActionPoints]: { base: 1 } },
-  },
+  costProperties,
   description: "Pay an action point",
   stepsConfig: new ActionResolutionStepsConfig(
     {
