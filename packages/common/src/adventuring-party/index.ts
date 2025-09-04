@@ -14,6 +14,7 @@ import { Combatant, CombatantProperties } from "../combatants/index.js";
 import { ActionCommandQueue } from "../action-processing/action-command-queue.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
+import { ActionEntity } from "../action-entities/index.js";
 export * from "./get-item-in-party.js";
 export * from "./dungeon-room.js";
 export * from "./update-player-readiness.js";
@@ -29,6 +30,7 @@ export class AdventuringParty {
   playersReadyToDescend: string[] = [];
   characters: { [id: string]: Combatant } = {};
   characterPositions: string[] = [];
+  actionEntities: Record<EntityId, ActionEntity> = {};
   currentFloor: number = 1;
   roomsExplored: RoomsExploredTracker = { total: 0, onCurrentFloor: 1 };
   currentRoom: DungeonRoom = new DungeonRoom(DungeonRoomType.Empty, {}, []);
@@ -87,5 +89,16 @@ export class AdventuringParty {
     const battleOption = game.battles[battleIdOption];
     if (!battleOption) throw new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
     return battleOption;
+  }
+
+  static registerActionEntity(party: AdventuringParty, entity: ActionEntity) {
+    const { entityProperties } = entity;
+    console.log("registered", entity);
+    party.actionEntities[entityProperties.id] = entity;
+  }
+  static unregisterActionEntity(party: AdventuringParty, entityId: EntityId) {
+    console.log("unregistered", entityId);
+    delete party.actionEntities[entityId];
+    console.log(JSON.stringify(party.actionEntities));
   }
 }

@@ -1,13 +1,10 @@
 import {
-  Color3,
   AssetContainer,
   MeshBuilder,
-  StandardMaterial,
   TransformNode,
   Vector3,
   Quaternion,
   AbstractMesh,
-  Scene,
 } from "@babylonjs/core";
 import {
   ActionEntityBaseChildTransformNodeName,
@@ -15,10 +12,9 @@ import {
   ERROR_MESSAGES,
   EntityId,
 } from "@speed-dungeon/common";
-import { importMesh } from "../../utils";
-import { gameWorld } from "../../SceneManager";
-import { ACTION_ENTITY_NAME_TO_MODEL_PATH } from "./action-entity-model-paths";
+import { getGameWorld } from "../../SceneManager";
 import { SceneEntity } from "..";
+import { ACTION_ENTITY_MODEL_FACTORIES } from "./action-entity-model-factories";
 
 export class ActionEntityManager {
   models: { [id: EntityId]: ActionEntityModel } = {};
@@ -53,9 +49,7 @@ export class ActionEntityModel extends SceneEntity {
   ) {
     super(id, assetContainer, startPosition, new Quaternion());
 
-    const sceneOption = gameWorld.current?.scene;
     this.initChildTransformNodes();
-    // this.createDebugLines(startPosition, sceneOption);
   }
 
   initChildTransformNodes(): void {
@@ -63,7 +57,8 @@ export class ActionEntityModel extends SceneEntity {
       this.rootTransformNode;
   }
 
-  createDebugLines(startPosition: Vector3, sceneOption: undefined | Scene) {
+  createDebugLines(startPosition: Vector3) {
+    const sceneOption = getGameWorld().scene;
     const start = startPosition;
     const positiveZ = startPosition.add(new Vector3(0, 0, 1));
 
@@ -102,48 +97,11 @@ export class ActionEntityModel extends SceneEntity {
   customCleanup(): void {}
 }
 
-export async function spawnActionEntityModel(vfxName: ActionEntityName, position: Vector3) {
-  const modelPath = ACTION_ENTITY_NAME_TO_MODEL_PATH[vfxName];
-
-  let model: AssetContainer;
-  if (!modelPath) {
-    switch (vfxName) {
-      case ActionEntityName.IceBurst:
-        {
-          const mesh = MeshBuilder.CreateGoldberg("", { size: 0.35 });
-          const material = new StandardMaterial("");
-          material.diffuseColor = new Color3(0.2, 0.3, 0.7);
-          material.alpha = 0.5;
-
-          mesh.material = material;
-          mesh.position.copyFrom(position);
-          model = new AssetContainer();
-          model.meshes = [mesh];
-        }
-        break;
-      case ActionEntityName.Arrow:
-      case ActionEntityName.IceBolt:
-      case ActionEntityName.TargetChangedIndicatorArrow:
-      case ActionEntityName.Explosion:
-        {
-          // @TODO - organize custom mesh creators for self-made vfx
-          const mesh = MeshBuilder.CreateIcoSphere("", { radius: 0.5 });
-          const material = new StandardMaterial("");
-          material.diffuseColor = new Color3(0.7, 0.3, 0.2);
-          material.alpha = 0.5;
-
-          mesh.material = material;
-          mesh.position.copyFrom(position);
-          model = new AssetContainer();
-          model.meshes = [mesh];
-        }
-        break;
-    }
-  } else {
-    const scene = gameWorld.current?.scene;
-    if (!scene) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
-    model = await importMesh(modelPath, scene);
-  }
+export async function spawnActionEntityModel(
+  actionEntityName: ActionEntityName,
+  position: Vector3
+) {
+  const model = await ACTION_ENTITY_MODEL_FACTORIES[actionEntityName](position);
 
   const parentMesh = model.meshes[0];
   if (!parentMesh) throw new Error("expected mesh was missing in imported scene");

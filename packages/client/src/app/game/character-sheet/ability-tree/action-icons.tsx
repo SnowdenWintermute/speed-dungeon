@@ -39,6 +39,15 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
   [CombatActionName.Blind]: (className: string) => SVG_ICONS[IconName.EyeClosed](className),
   [CombatActionName.PayActionPoint]: null,
   [CombatActionName.ReadSkillBook]: (className: string) => SVG_ICONS[IconName.Book](className),
+  [CombatActionName.Firewall]: (className: string) => {
+    return (
+      <div className={className + " flex translate-x-2"}>
+        <div className="h-full translate-x-2">{SVG_ICONS[IconName.Fire](className)}</div>
+        <div className="h-full ">{SVG_ICONS[IconName.Fire](className)}</div>
+        <div className="h-full -translate-x-2">{SVG_ICONS[IconName.Fire](className)}</div>
+      </div>
+    );
+  },
 };
 
 export function getAttackActionIcons(user: CombatantProperties, inCombat: boolean) {

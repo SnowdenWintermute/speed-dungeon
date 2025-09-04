@@ -6,6 +6,8 @@ import {
   SceneEntityChildTransformNodeIdentifier,
   SceneEntityChildTransformNodeIdentifierWithDuration,
 } from "../scene-entities/index.js";
+import { TaggedShape3DDimensions } from "../utils/shape-utils.js";
+import { CombatantAttributeRecord } from "../combatants/index.js";
 
 export enum ActionEntityName {
   Arrow,
@@ -13,6 +15,7 @@ export enum ActionEntityName {
   Explosion,
   IceBurst,
   TargetChangedIndicatorArrow,
+  Firewall,
 }
 
 export const ACTION_ENTITY_STRINGS: Record<ActionEntityName, string> = {
@@ -21,11 +24,21 @@ export const ACTION_ENTITY_STRINGS: Record<ActionEntityName, string> = {
   [ActionEntityName.Explosion]: "Explosion",
   [ActionEntityName.IceBurst]: "Ice Burst",
   [ActionEntityName.TargetChangedIndicatorArrow]: "Target Changed Indicator Arrow",
+  [ActionEntityName.Firewall]: "Firewall",
 };
+
+// for when things pass through firewall, we can know
+// what the caster's +bonus to fire damage was when they cast it
+export interface ActionEntityActionOriginData {
+  actionLevel?: number;
+  userCombatantAttributes?: CombatantAttributeRecord;
+}
 
 export type ActionEntityProperties = {
   position: Vector3;
   name: ActionEntityName;
+  dimensions?: TaggedShape3DDimensions;
+  actionOriginData?: ActionEntityActionOriginData;
   initialCosmeticYPosition?: SceneEntityChildTransformNodeIdentifier;
   parentOption?: SceneEntityChildTransformNodeIdentifier;
   initialRotation?: Vector3;

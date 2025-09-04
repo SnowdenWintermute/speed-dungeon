@@ -22,6 +22,7 @@ import { SkeletalAnimationManager } from "./model-animation-managers/skeletal-an
 import { DynamicAnimationManager } from "./model-animation-managers/dynamic-animation-manager";
 import { getGameWorld } from "../SceneManager";
 
+/** The base class for ActionEntityModel and CharacterModel */
 export abstract class SceneEntity {
   public skeletalAnimationManager: SkeletalAnimationManager;
   public dynamicAnimationManager: DynamicAnimationManager;

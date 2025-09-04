@@ -1,4 +1,8 @@
-import { ActionEntityName, CosmeticEffectNames } from "../../../../action-entities/index.js";
+import {
+  ActionEntity,
+  ActionEntityName,
+  CosmeticEffectNames,
+} from "../../../../action-entities/index.js";
 import {
   ActionResolutionStepType,
   AnimationTimingType,
@@ -41,15 +45,15 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
 
     const position = primaryTargetResult.combatantProperties.position;
 
+    const entityProperties = { id: context.idGenerator.generate(), name: "ice burst" };
+    const actionEntityProperties = {
+      position,
+      name: ActionEntityName.IceBurst,
+    };
+
     return {
       type: SpawnableEntityType.ActionEntity,
-      actionEntity: {
-        entityProperties: { id: context.idGenerator.generate(), name: "ice burst" },
-        actionEntityProperties: {
-          position,
-          name: ActionEntityName.IceBurst,
-        },
-      },
+      actionEntity: new ActionEntity(entityProperties, actionEntityProperties),
     };
   },
 };

@@ -8,13 +8,15 @@ import { SpawnableEntityType } from "../../spawnables/index.js";
 import { ARROW_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { ActionEntity } from "../../action-entities/index.js";
-import { COMBAT_ACTIONS } from "../../combat/index.js";
+import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
+import { Combatant } from "../../combatants/index.js";
+import { AdventuringParty } from "../../adventuring-party/index.js";
 
 export class ActionEntityMotionActionResolutionStep extends EntityMotionActionResolutionStep {
   constructor(
     context: ActionResolutionStepContext,
     stepType: ActionResolutionStepType,
-    actionEntity: ActionEntity
+    private actionEntity: ActionEntity
   ) {
     const update: ActionEntityMotionUpdate = {
       entityType: SpawnableEntityType.ActionEntity,
@@ -57,4 +59,21 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
     );
   }
   protected getBranchingActions = () => [];
+
+  onComplete() {
+    const { context } = this;
+
+    const { actionName } = context.tracker.actionExecutionIntent;
+    const action = COMBAT_ACTIONS[actionName];
+    const stepConfig = action.stepsConfig.steps[this.type];
+    if (!stepConfig) throw new Error("expected step config not found");
+    if (!stepConfig.shouldDespawnOnComplete) return [];
+    const despawnOnComplete = stepConfig.shouldDespawnOnComplete(context);
+    if (!despawnOnComplete) return [];
+    const { party } = context.combatantContext;
+
+    AdventuringParty.unregisterActionEntity(party, this.actionEntity.entityProperties.id);
+
+    return [];
+  }
 }

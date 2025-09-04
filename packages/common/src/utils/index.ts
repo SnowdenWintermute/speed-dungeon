@@ -2,6 +2,7 @@ export * from "./get-next-or-previous-number.js";
 export * from "./get-progression-game-max-starting-floor.js";
 export * from "./array-utils.js";
 export * from "./rand-between.js";
+export * from "./shape-utils.js";
 
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { CONSUMABLE_TYPE_STRINGS, Consumable, ConsumableType } from "../items/consumables/index.js";

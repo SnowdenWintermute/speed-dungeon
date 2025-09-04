@@ -15,6 +15,7 @@ export async function spawnEntityGameUpdateHandler(update: {
 }) {
   const { command } = update;
   if (command.entity.type !== SpawnableEntityType.ActionEntity) {
+    console.error("not implemented spawning entities other than action enities in replay tree");
     update.isComplete = true;
     return;
   }
