@@ -37,8 +37,8 @@ export function getFirewallBurnScheduledActions(
 
   const { party } = context.combatantContext;
   let existingFirewallOption;
+
   // just check for a single firewall for now, maybe add more later
-  // chatgpt yes I know there is only one firewall check here
   for (const [entityId, actionEntity] of Object.entries(party.actionEntities)) {
     if (actionEntity.actionEntityProperties.name === ActionEntityName.Firewall) {
       existingFirewallOption = actionEntity;
@@ -68,6 +68,8 @@ export function getFirewallBurnScheduledActions(
     speed
   );
 
+  console.log("timeToReachBox:", timeToReachFirewallOption);
+
   if (timeToReachFirewallOption === null) return [];
 
   const firewallBurnExecutionIntent = new CombatActionExecutionIntent(
@@ -76,7 +78,7 @@ export function getFirewallBurnScheduledActions(
     1
   );
 
-  actionExecutionIntent.setDelayForStep(
+  firewallBurnExecutionIntent.setDelayForStep(
     ActionResolutionStepType.DeliveryMotion,
     timeToReachFirewallOption
   );

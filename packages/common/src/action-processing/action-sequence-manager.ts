@@ -5,7 +5,6 @@ import {
 } from "../combat/index.js";
 import { CombatantContext } from "../combatant-context/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { Milliseconds } from "../primatives/index.js";
 import { ActionSequenceManagerRegistry } from "./action-sequence-manager-registry.js";
 import { NestedNodeReplayEvent } from "./replay-events.js";
 import { ActionTracker } from "./action-tracker.js";
@@ -25,6 +24,11 @@ export class ActionSequenceManager {
     private idGenerator: IdGenerator,
     private trackerThatSpawnedThisActionOption: null | ActionTracker
   ) {
+    console.log(
+      "created sequence manager with initial actionExecutionIntent",
+      COMBAT_ACTION_NAME_STRINGS[actionExecutionIntent.actionName],
+      actionExecutionIntent.id
+    );
     this.remainingActionsToExecute = [actionExecutionIntent];
   }
   getTopParent(): ActionSequenceManager {
@@ -73,37 +77,26 @@ export class ActionSequenceManager {
       currentAction
     );
 
-    const childActionIntentResults = children.map((action) => {
-      const targets = action.targetingProperties.getAutoTarget(
+    const childActionIntents = [];
+    for (const action of children) {
+      const targetsResult = action.targetingProperties.getAutoTarget(
         this.combatantContext,
         this.currentTracker
       );
-
-      const actionLevel = currentActionExecutionIntent.level;
-      return {
-        actionName: action.name,
-        targets,
-        level: actionLevel,
-      };
-    });
-
-    const childActionIntents: CombatActionExecutionIntent[] = [];
-    for (const intentResult of childActionIntentResults) {
-      const targetsResult = intentResult.targets;
       if (targetsResult instanceof Error) {
-        console.error(intentResult.targets);
+        console.error(targetsResult);
         continue;
       }
-
       if (targetsResult === null) {
         console.error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TARGETS_SELECTED);
         continue;
       }
 
-      this.sequentialActionManagerRegistry.incrementInputLockReferenceCount();
+      const actionLevel = currentActionExecutionIntent.level;
 
+      this.sequentialActionManagerRegistry.incrementInputLockReferenceCount();
       childActionIntents.push(
-        new CombatActionExecutionIntent(intentResult.actionName, targetsResult, intentResult.level)
+        new CombatActionExecutionIntent(action.name, targetsResult, actionLevel)
       );
     }
 

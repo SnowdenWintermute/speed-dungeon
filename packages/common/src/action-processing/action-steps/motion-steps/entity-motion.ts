@@ -1,5 +1,6 @@
 import { Vector3 } from "@babylonjs/core";
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
@@ -11,7 +12,11 @@ import {
   EntityAnimation,
   EntityTranslation,
 } from "../../game-update-commands.js";
-import { COMBAT_ACTIONS, CombatActionComponent } from "../../../combat/index.js";
+import {
+  COMBAT_ACTIONS,
+  COMBAT_ACTION_NAME_STRINGS,
+  CombatActionComponent,
+} from "../../../combat/index.js";
 import { getTranslationTime } from "../../../combat/combat-actions/action-implementations/get-translation-time.js";
 import { Milliseconds } from "../../../primatives/index.js";
 
@@ -100,10 +105,24 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   protected getDelay() {
     const { actionExecutionIntent } = this.context.tracker;
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
+    console.log("action", COMBAT_ACTION_NAME_STRINGS[action.name]);
+    const externallySetDelayOption = actionExecutionIntent.getDelayForStep(this.type);
+    console.log(
+      "externallySetDelayOption:",
+      externallySetDelayOption,
+      "for step",
+      ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type]
+    );
+    // if(delayOption)
 
     const delayGetterOption = action.stepsConfig.steps[this.type]?.getDelay;
-    if (!delayGetterOption) return null;
-    return delayGetterOption();
+    if (!delayGetterOption) {
+      console.log("no delay getter option");
+      return null;
+    }
+    const delayOption = delayGetterOption(externallySetDelayOption || undefined);
+    console.log("returning delay", delayOption);
+    return delayOption;
   }
 
   protected getAnimation() {

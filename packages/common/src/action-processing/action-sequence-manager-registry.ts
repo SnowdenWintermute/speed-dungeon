@@ -40,6 +40,11 @@ export class ActionSequenceManagerRegistry {
     combatantContext: CombatantContext,
     previousTrackerInSequenceOption: null | ActionTracker
   ) {
+    console.log(
+      "registered actionExecutionIntent:",
+      COMBAT_ACTION_NAME_STRINGS[actionExecutionIntent.actionName],
+      actionExecutionIntent.id
+    );
     const id = this.idGenerator.generate();
     const manager = new ActionSequenceManager(
       id,
@@ -87,6 +92,7 @@ export class ActionSequenceManagerRegistry {
         modifiedContextWithActionUser,
         trackerOption
       );
+
       if (initialGameUpdateOptionResult instanceof Error) return initialGameUpdateOptionResult;
 
       if (initialGameUpdateOptionResult) {

@@ -6,8 +6,11 @@ import { BURNING_TICK_STEPS_CONFIG } from "../burning-tick/burning-tick-steps-co
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
-stepOverrides[ActionResolutionStepType.ChamberingMotion] = {
-  getDelay: (externallySetDelayOption = 0) => externallySetDelayOption,
+stepOverrides[ActionResolutionStepType.DeliveryMotion] = {
+  getDelay: (externallySetDelayOption) => {
+    console.log("got externallySetDelayOption: ", externallySetDelayOption);
+    return externallySetDelayOption || 0;
+  },
 };
 
 const base = cloneDeep(BURNING_TICK_STEPS_CONFIG);
