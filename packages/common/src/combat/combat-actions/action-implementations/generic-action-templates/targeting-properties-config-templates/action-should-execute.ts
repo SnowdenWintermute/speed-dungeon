@@ -17,8 +17,6 @@ export function actionShouldExecute(
   const { game, party, combatant } = combatantContext;
   const { combatantProperties } = combatant;
 
-  console.log("action name: ", COMBAT_ACTION_NAME_STRINGS[self.name]);
-
   // @TODO - actually select the action level since some action level might cost more
   const isInCombat = party.battleId !== null;
   const apCostMet = hasEnoughActionPoints(combatantProperties, self, isInCombat);
@@ -26,7 +24,6 @@ export function actionShouldExecute(
 
   const targetsOption = combatant.combatantProperties.combatActionTarget;
   if (!targetsOption) {
-    console.log("not executing - no targets");
     return false;
   }
 
@@ -42,14 +39,12 @@ export function actionShouldExecute(
   }
 
   if (targetIdsResult.length === 0) {
-    console.log("not executing - no target ids");
     return false;
   }
 
   // if previous was countered, don't continue the queued action sequence
   if (previousTrackerOption) {
     const wasCountered = previousTrackerOption.wasCountered();
-    console.log("not executing - previous tracker in sequence was countered");
     if (wasCountered) return false;
   }
 
@@ -74,6 +69,6 @@ function hasEnoughActionPoints(
 
   if (actionPoints >= Math.abs(actionPointCost)) return true;
 
-  console.log("not executing - not enough AP");
+  console.info("not executing - not enough AP");
   return false;
 }

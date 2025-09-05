@@ -105,23 +105,13 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   protected getDelay() {
     const { actionExecutionIntent } = this.context.tracker;
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
-    console.log("action", COMBAT_ACTION_NAME_STRINGS[action.name]);
     const externallySetDelayOption = actionExecutionIntent.getDelayForStep(this.type);
-    console.log(
-      "externallySetDelayOption:",
-      externallySetDelayOption,
-      "for step",
-      ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type]
-    );
-    // if(delayOption)
 
     const delayGetterOption = action.stepsConfig.steps[this.type]?.getDelay;
     if (!delayGetterOption) {
-      console.log("no delay getter option");
       return null;
     }
     const delayOption = delayGetterOption(externallySetDelayOption || undefined);
-    console.log("returning delay", delayOption);
     return delayOption;
   }
 

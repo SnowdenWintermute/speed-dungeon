@@ -145,7 +145,6 @@ export class Inventory {
     itemIdSelectedOption: null | EntityId
   ): Error | Consumable {
     if (!itemIdSelectedOption) return new Error("No item selected");
-    console.log("searching for skill book by id:", itemIdSelectedOption);
     const itemResult = Inventory.getItemById(inventory, itemIdSelectedOption);
     if (itemResult instanceof Error) return itemResult;
     if (!(itemResult instanceof Consumable)) return new Error("Item is not a consumable");

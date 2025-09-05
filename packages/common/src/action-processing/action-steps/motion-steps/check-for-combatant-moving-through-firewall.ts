@@ -68,8 +68,6 @@ export function getFirewallBurnScheduledActions(
     speed
   );
 
-  console.log("timeToReachBox:", timeToReachFirewallOption);
-
   if (timeToReachFirewallOption === null) return [];
 
   const firewallBurnExecutionIntent = new CombatActionExecutionIntent(

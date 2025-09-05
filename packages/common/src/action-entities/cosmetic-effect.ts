@@ -37,7 +37,6 @@ export abstract class CosmeticEffect {
   }
 
   softCleanup() {
-    console.log("cleaned up ", this);
     if (this.lifetimeTimeout !== null) clearTimeout(this.lifetimeTimeout);
     for (const particleSystem of this.particleSystems) {
       particleSystem.softCleanup(() => {

@@ -44,8 +44,6 @@ export async function activatedTriggersGameUpdateHandler(update: {
         if (combatantResult instanceof Error) return combatantResult;
         const { combatantProperties } = combatantResult;
         CombatantProperties.changeSupportClassLevel(combatantProperties, combatantClass, 1);
-
-        console.log(entityId, "gained a level of", COMBATANT_CLASS_NAME_STRINGS[combatantClass]);
       }
     }
 
