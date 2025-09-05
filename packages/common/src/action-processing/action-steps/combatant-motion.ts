@@ -7,7 +7,13 @@ import {
 import { SpawnableEntityType } from "../../spawnables/index.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
-import { COMBAT_ACTIONS } from "../../combat/index.js";
+import {
+  COMBAT_ACTIONS,
+  CombatActionExecutionIntent,
+  CombatActionName,
+  CombatActionTargetType,
+} from "../../combat/index.js";
+import { Combatant } from "../../combatants/index.js";
 
 export class CombatantMotionActionResolutionStep extends EntityMotionActionResolutionStep {
   constructor(context: ActionResolutionStepContext, step: ActionResolutionStepType) {
@@ -45,5 +51,33 @@ export class CombatantMotionActionResolutionStep extends EntityMotionActionResol
       context.combatantContext.combatant.combatantProperties.position,
       COMBATANT_TIME_TO_MOVE_ONE_METER
     );
+  }
+
+  onInitialize():
+    | Error
+    | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
+    const action = COMBAT_ACTIONS[this.context.tracker.actionExecutionIntent.actionName];
+    const stepConfig = action.stepsConfig.steps[this.type];
+    if (!stepConfig) throw new Error("expected step config not found");
+
+    if (
+      action.name !== CombatActionName.UseBlueAutoinjector ||
+      this.type !== ActionResolutionStepType.ChamberingMotion
+    )
+      return [];
+
+    console.log("initialize push action");
+
+    const user = this.context.combatantContext.combatant;
+
+    const testAction = {
+      user,
+      actionExecutionIntent: new CombatActionExecutionIntent(
+        CombatActionName.FirewallBurn,
+        { type: CombatActionTargetType.Single, targetId: user.entityProperties.id },
+        1
+      ),
+    };
+    return [testAction];
   }
 }

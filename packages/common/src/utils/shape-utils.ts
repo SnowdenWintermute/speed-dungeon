@@ -14,12 +14,12 @@ export enum ShapeType3D {
 }
 
 export interface TaggedBoxDimensions {
-  type: ShapeType3D;
+  type: ShapeType3D.Box;
   dimensions: BoxDimensions;
 }
 
 export interface TaggedSphereDimensions {
-  type: ShapeType3D;
+  type: ShapeType3D.Sphere;
   dimensions: SphereDimensions;
 }
 

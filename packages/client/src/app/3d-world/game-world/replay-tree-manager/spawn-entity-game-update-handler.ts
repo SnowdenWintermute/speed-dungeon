@@ -30,7 +30,11 @@ export async function spawnEntityGameUpdateHandler(update: {
     actionEntityProperties.position._z
   );
 
-  const assetContainer = await spawnActionEntityModel(actionEntityProperties.name, position);
+  const assetContainer = await spawnActionEntityModel(
+    actionEntityProperties.name,
+    position,
+    actionEntityProperties.dimensions
+  );
 
   const model = new ActionEntityModel(
     actionEntity.entityProperties.id,

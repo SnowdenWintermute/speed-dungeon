@@ -11,7 +11,7 @@ import { handleUpdateTranslation } from "./handle-update-translation";
 import { plainToInstance } from "class-transformer";
 import { Quaternion } from "@babylonjs/core";
 import { handleUpdateAnimation } from "./handle-update-animation";
-import { gameWorld, getGameWorld } from "@/app/3d-world/SceneManager";
+import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { DynamicAnimationManager } from "@/app/3d-world/scene-entities/model-animation-managers/dynamic-animation-manager";
 import { SkeletalAnimationManager } from "@/app/3d-world/scene-entities/model-animation-managers/skeletal-animation-manager";
 import { handleEntityMotionSetNewParentUpdate } from "./handle-entity-motion-set-new-parent-update";
@@ -27,7 +27,7 @@ export function handleEntityMotionUpdate(
   motionUpdate: EntityMotionUpdate,
   isMainUpdate: boolean
 ) {
-  const { translationOption, rotationOption, animationOption } = motionUpdate;
+  const { translationOption, rotationOption, animationOption, delayOption } = motionUpdate;
 
   const toUpdate = getSceneEntityToUpdate(motionUpdate);
   const { movementManager, skeletalAnimationManager, dynamicAnimationManager } = toUpdate;
@@ -61,7 +61,7 @@ export function handleEntityMotionUpdate(
     if (isMainUpdate) {
       onTranslationComplete = () => {
         if (motionUpdate.despawnOnComplete)
-          gameWorld.current?.actionEntityManager.unregister(motionUpdate.entityId);
+          getGameWorld().actionEntityManager.unregister(motionUpdate.entityId);
       };
       onAnimationComplete = () => {};
     }
@@ -96,7 +96,9 @@ export function handleEntityMotionUpdate(
 
   const updateCompletionTracker = new EntityMotionUpdateCompletionTracker(
     animationOption,
-    !!translationOption
+    !!translationOption,
+    delayOption || 0,
+    update
   );
 
   handleUpdateTranslation(

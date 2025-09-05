@@ -6,12 +6,7 @@ import { createStepsConfig } from "../generic-action-templates/step-config-templ
 import { Vector3 } from "@babylonjs/core";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { ActionEntityName } from "../../../../action-entities/index.js";
-import {
-  BoxDimensions,
-  ShapeType3D,
-  TaggedBoxDimensions,
-  TaggedShape3DDimensions,
-} from "../../../../utils/shape-utils.js";
+import { BoxDimensions, ShapeType3D, TaggedBoxDimensions } from "../../../../utils/shape-utils.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
@@ -21,13 +16,17 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
 
     const position = Vector3.Zero();
 
-    const dimensions: TaggedBoxDimensions = {
+    const dimensions: BoxDimensions = {
+      width: 7,
+      height: 1.5,
+      depth: 0.75,
+    };
+
+    position.y += dimensions.height / 2;
+
+    const taggedDimensions: TaggedBoxDimensions = {
       type: ShapeType3D.Box,
-      dimensions: {
-        width: 7,
-        height: 1.5,
-        depth: 0.75,
-      },
+      dimensions,
     };
 
     return {
@@ -37,7 +36,7 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
         actionEntityProperties: {
           position,
           name: ActionEntityName.Firewall,
-          dimensions,
+          dimensions: taggedDimensions,
         },
       },
     };

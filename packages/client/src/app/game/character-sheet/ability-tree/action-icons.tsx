@@ -48,6 +48,7 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
       </div>
     );
   },
+  [CombatActionName.FirewallBurn]: null,
 };
 
 export function getAttackActionIcons(user: CombatantProperties, inCombat: boolean) {

@@ -1,3 +1,4 @@
+import cloneDeep from "lodash.clonedeep";
 import {
   CombatActionCombatLogProperties,
   CombatActionComponentConfig,
@@ -9,19 +10,21 @@ import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 import { HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
-import { FIREWALL_STEPS_CONFIG } from "./firewall-steps-config.js";
+import { FIREWALL_BURN_STEPS_CONFIG } from "./firewall-burn-steps-config.js";
+import { BURNING_TICK_HIT_OUTCOME_PROPERTIES } from "../burning-tick/burning-tick-hit-outcome-properties.js";
 
 const config: CombatActionComponentConfig = {
-  description: "Deals kinetic fire damage in an area around the target",
+  description: "Entities burn when moving through a firewall",
   targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.AREA_FRIENDLY(),
   combatLogMessageProperties: new CombatActionCombatLogProperties({
-    ...createGenericSpellCastMessageProperties(CombatActionName.Firewall),
+    ...createGenericSpellCastMessageProperties(CombatActionName.FirewallBurn),
+    getOnUseMessage: (data) => `${data.nameOfActionUser} traverses the firewall`,
   }),
 
-  hitOutcomeProperties: HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BENEVOLENT_CONSUMABLE(),
-  costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL(),
-  stepsConfig: FIREWALL_STEPS_CONFIG,
+  hitOutcomeProperties: cloneDeep(BURNING_TICK_HIT_OUTCOME_PROPERTIES),
+  costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.FREE_ACTION(),
+  stepsConfig: FIREWALL_BURN_STEPS_CONFIG,
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };
 
-export const FIREWALL = new CombatActionComposite(CombatActionName.Firewall, config);
+export const FIREWALL_BURN = new CombatActionComposite(CombatActionName.FirewallBurn, config);

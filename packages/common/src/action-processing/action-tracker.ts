@@ -56,6 +56,15 @@ export class ActionTracker {
     const stepCreator = ACTION_STEP_CREATORS[stepOption];
     const newStep = stepCreator(context);
     this.currentStep = newStep;
+
+    const branchingActionsResult = newStep.onInitialize();
+    if (branchingActionsResult instanceof Error) throw branchingActionsResult;
+    const branchingActions = branchingActionsResult;
+
+    const registry = this.parentActionManager.sequentialActionManagerRegistry;
+    const sequenceManager = this.parentActionManager;
+    registry.registerActions(sequenceManager, this, context.combatantContext, branchingActions);
+
     return newStep;
   }
 

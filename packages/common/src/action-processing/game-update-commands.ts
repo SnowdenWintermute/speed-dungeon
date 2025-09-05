@@ -85,6 +85,7 @@ export interface IEntityMotionUpdate {
   animationOption?: EntityAnimation;
   translationOption?: EntityTranslation;
   rotationOption?: EntityRotation;
+  delayOption?: Milliseconds;
 }
 
 export interface TargetCombatantChildTransformNodeWithDuration {

@@ -20,6 +20,7 @@ export enum CombatActionName {
   Healing,
   Blind,
   Firewall,
+  FirewallBurn,
   // CONDITION TICKS
   BurningTick,
   ConditionPassTurn,
@@ -71,4 +72,5 @@ export const COMBAT_ACTION_NAME_STRINGS: Record<CombatActionName, string> = {
   [CombatActionName.PayActionPoint]: "Pay Action Point",
   [CombatActionName.ReadSkillBook]: "Read Skill Book",
   [CombatActionName.Firewall]: "Firewall",
+  [CombatActionName.FirewallBurn]: "Firewall Burn",
 };

@@ -13,10 +13,12 @@ import {
 } from "../game-update-commands.js";
 import { COMBAT_ACTIONS, CombatActionComponent } from "../../combat/index.js";
 import { getTranslationTime } from "../../combat/combat-actions/action-implementations/get-translation-time.js";
+import { Milliseconds } from "../../primatives/index.js";
 
 export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   private translationOption: null | EntityTranslation = null;
   private animationOption: null | EntityAnimation = null;
+  private delayOption: null | Milliseconds = null;
   constructor(
     stepType: ActionResolutionStepType,
     context: ActionResolutionStepContext,
@@ -32,11 +34,16 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
 
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
 
+    const { mainEntityUpdate } = this.gameUpdateCommand;
+
+    const delayOption = this.getDelay();
+    if (delayOption !== null) mainEntityUpdate.delayOption = delayOption;
+
     const animationOption = this.getAnimation();
 
     if (animationOption) {
       this.animationOption = animationOption;
-      this.gameUpdateCommand.mainEntityUpdate.animationOption = animationOption;
+      mainEntityUpdate.animationOption = animationOption;
     }
 
     const destinationsOption = this.getDestinations(action);
@@ -44,9 +51,9 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
       const { translationOption, rotationOption } = destinationsOption;
       if (translationOption) {
         this.translationOption = translationOption;
-        gameUpdateCommand.mainEntityUpdate.translationOption = translationOption;
+        mainEntityUpdate.translationOption = translationOption;
       }
-      if (rotationOption) gameUpdateCommand.mainEntityUpdate.rotationOption = rotationOption;
+      if (rotationOption) mainEntityUpdate.rotationOption = rotationOption;
     }
 
     // this is for when we need to tweak positions/parents of projectiles based on steps of
@@ -90,6 +97,15 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     return { translationOption, rotationOption };
   }
 
+  protected getDelay() {
+    const { actionExecutionIntent } = this.context.tracker;
+    const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
+
+    const delayGetterOption = action.stepsConfig.steps[this.type]?.getDelay;
+    if (!delayGetterOption) return null;
+    return delayGetterOption();
+  }
+
   protected getAnimation() {
     const { actionExecutionIntent } = this.context.tracker;
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
@@ -129,13 +145,22 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   getTimeToCompletion(): number {
     let translationTimeRemaining = 0;
     let animationTimeRemaining = 0;
+    let delayTimeRemaining = 0;
+
+    if (this.delayOption !== null)
+      delayTimeRemaining = Math.max(0, this.delayOption - this.elapsed);
+
     if (this.translationOption)
       translationTimeRemaining = Math.max(0, this.translationOption.duration - this.elapsed);
 
     if (this.animationOption && this.animationOption.timing.type === AnimationTimingType.Timed)
       animationTimeRemaining = Math.max(0, this.animationOption.timing.duration - this.elapsed);
 
-    const timeToCompletion = Math.max(animationTimeRemaining, translationTimeRemaining);
+    const timeToCompletion = Math.max(
+      animationTimeRemaining,
+      translationTimeRemaining,
+      delayTimeRemaining
+    );
 
     return timeToCompletion;
   }

@@ -129,6 +129,12 @@ export abstract class ActionResolutionStep {
     return this.gameUpdateCommandOption;
   }
 
+  onInitialize():
+    | Error
+    | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
+    return [];
+  }
+
   onComplete(): Error | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
     const branchingActionsResult = this.getBranchingActions();
     if (branchingActionsResult instanceof Error) return branchingActionsResult;

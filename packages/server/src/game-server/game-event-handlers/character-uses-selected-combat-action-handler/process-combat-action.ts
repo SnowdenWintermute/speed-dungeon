@@ -13,28 +13,20 @@ import {
 } from "@speed-dungeon/common";
 import { ANIMATION_LENGTHS, idGenerator } from "../../../singletons/index.js";
 
-class TimeKeeper {
-  ms: number = 0;
-  constructor() {}
-}
-
 export function processCombatAction(
   actionExecutionIntent: CombatActionExecutionIntent,
   combatantContext: CombatantContext
 ) {
   const registry = new ActionSequenceManagerRegistry(idGenerator, ANIMATION_LENGTHS);
   const rootReplayNode: NestedNodeReplayEvent = { type: ReplayEventType.NestedNode, events: [] };
-  const time = new TimeKeeper();
   const completionOrderIdGenerator = new SequentialIdGenerator();
 
   const initialGameUpdateOptionResult = registry.registerAction(
     actionExecutionIntent,
     rootReplayNode,
     combatantContext,
-    null,
-    time
+    null
   );
-  //
 
   if (initialGameUpdateOptionResult instanceof Error) return initialGameUpdateOptionResult;
   if (initialGameUpdateOptionResult) {
@@ -64,35 +56,12 @@ export function processCombatAction(
         const branchingActions = branchingActionsResult;
 
         // REGISTER BRANCHING ACTIONS
-        for (const action of branchingActions) {
-          const nestedReplayNode: NestedNodeReplayEvent = {
-            type: ReplayEventType.NestedNode,
-            events: [],
-          };
-          sequenceManager.replayNode.events.push(nestedReplayNode);
-
-          const modifiedContextWithActionUser = new CombatantContext(
-            combatantContext.game,
-            combatantContext.party,
-            action.user
-          );
-
-          const initialGameUpdateOptionResult = registry.registerAction(
-            action.actionExecutionIntent,
-            nestedReplayNode,
-            modifiedContextWithActionUser,
-            trackerOption,
-            time
-          );
-          if (initialGameUpdateOptionResult instanceof Error) return initialGameUpdateOptionResult;
-
-          if (initialGameUpdateOptionResult) {
-            nestedReplayNode.events.push({
-              type: ReplayEventType.GameUpdate,
-              gameUpdate: initialGameUpdateOptionResult,
-            });
-          }
-        }
+        registry.registerActions(
+          sequenceManager,
+          trackerOption,
+          combatantContext,
+          branchingActions
+        );
 
         trackerOption.storeCompletedStep();
 
@@ -124,7 +93,7 @@ export function processCombatAction(
             : null;
 
           if (nextActionOption) {
-            const stepTrackerResult = sequenceManager.startProcessingNext(time);
+            const stepTrackerResult = sequenceManager.startProcessingNext();
             if (stepTrackerResult instanceof Error) return stepTrackerResult;
 
             const initialGameUpdateOptionResult =
@@ -180,7 +149,7 @@ export function processCombatAction(
     }
 
     const timeToTick = registry.getShortestTimeToCompletion();
-    time.ms += timeToTick;
+    registry.time.ms += timeToTick;
 
     for (const sequenceManager of registry.getManagers())
       sequenceManager.getCurrentTracker()?.currentStep.tick(timeToTick);
@@ -188,7 +157,7 @@ export function processCombatAction(
 
   setTimeout(() => {
     InputLock.unlockInput(combatantContext.party.inputLock);
-  }, time.ms);
+  }, registry.time.ms);
 
   const endedTurn = registry.getTurnEnded();
 

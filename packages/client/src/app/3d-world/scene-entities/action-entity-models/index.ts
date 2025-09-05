@@ -11,6 +11,7 @@ import {
   ActionEntityName,
   ERROR_MESSAGES,
   EntityId,
+  TaggedShape3DDimensions,
 } from "@speed-dungeon/common";
 import { getGameWorld } from "../../SceneManager";
 import { SceneEntity } from "..";
@@ -99,9 +100,13 @@ export class ActionEntityModel extends SceneEntity {
 
 export async function spawnActionEntityModel(
   actionEntityName: ActionEntityName,
-  position: Vector3
+  position: Vector3,
+  taggedDimensionsOption?: TaggedShape3DDimensions
 ) {
-  const model = await ACTION_ENTITY_MODEL_FACTORIES[actionEntityName](position);
+  const model = await ACTION_ENTITY_MODEL_FACTORIES[actionEntityName](
+    position,
+    taggedDimensionsOption
+  );
 
   const parentMesh = model.meshes[0];
   if (!parentMesh) throw new Error("expected mesh was missing in imported scene");

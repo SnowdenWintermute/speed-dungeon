@@ -1,19 +1,26 @@
 import { COMBAT_ACTION_NAME_STRINGS, CombatActionExecutionIntent } from "../combat/index.js";
 import { CombatantContext } from "../combatant-context/index.js";
 import { CombatantSpecies } from "../combatants/combatant-species.js";
+import { Combatant } from "../combatants/index.js";
 import { EntityId, Milliseconds } from "../primatives/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { SequentialIdGenerator } from "../utils/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
 import { ACTION_RESOLUTION_STEP_TYPE_STRINGS } from "./action-steps/index.js";
 import { ActionTracker } from "./action-tracker.js";
-import { NestedNodeReplayEvent } from "./replay-events.js";
+import { NestedNodeReplayEvent, ReplayEventType } from "./replay-events.js";
+
+export class TimeKeeper {
+  ms: number = 0;
+  constructor() {}
+}
 
 export class ActionSequenceManagerRegistry {
   private actionManagers: { [id: string]: ActionSequenceManager } = {};
   actionStepIdGenerator = new SequentialIdGenerator();
   private inputBlockingActionStepsPendingReferenceCount = 0;
   private turnEnded = false;
+  public time = new TimeKeeper();
   constructor(
     private idGenerator: IdGenerator,
     public readonly animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>
@@ -31,8 +38,7 @@ export class ActionSequenceManagerRegistry {
     actionExecutionIntent: CombatActionExecutionIntent,
     replayNode: NestedNodeReplayEvent,
     combatantContext: CombatantContext,
-    previousTrackerInSequenceOption: null | ActionTracker,
-    time: { ms: Milliseconds }
+    previousTrackerInSequenceOption: null | ActionTracker
   ) {
     const id = this.idGenerator.generate();
     const manager = new ActionSequenceManager(
@@ -46,11 +52,50 @@ export class ActionSequenceManagerRegistry {
     );
     this.actionManagers[id] = manager;
 
-    const stepTrackerResult = manager.startProcessingNext(time);
+    const stepTrackerResult = manager.startProcessingNext();
     if (stepTrackerResult instanceof Error) return stepTrackerResult;
     const initialGameUpdate = stepTrackerResult.currentStep.getGameUpdateCommandOption();
     this.incrementInputLockReferenceCount();
     return initialGameUpdate;
+  }
+
+  registerActions(
+    sequenceManager: ActionSequenceManager,
+    trackerOption: null | ActionTracker,
+    combatantContext: CombatantContext,
+    branchingActions: {
+      user: Combatant;
+      actionExecutionIntent: CombatActionExecutionIntent;
+    }[]
+  ) {
+    for (const action of branchingActions) {
+      const nestedReplayNode: NestedNodeReplayEvent = {
+        type: ReplayEventType.NestedNode,
+        events: [],
+      };
+      sequenceManager.replayNode.events.push(nestedReplayNode);
+
+      const modifiedContextWithActionUser = new CombatantContext(
+        combatantContext.game,
+        combatantContext.party,
+        action.user
+      );
+
+      const initialGameUpdateOptionResult = this.registerAction(
+        action.actionExecutionIntent,
+        nestedReplayNode,
+        modifiedContextWithActionUser,
+        trackerOption
+      );
+      if (initialGameUpdateOptionResult instanceof Error) return initialGameUpdateOptionResult;
+
+      if (initialGameUpdateOptionResult) {
+        nestedReplayNode.events.push({
+          type: ReplayEventType.GameUpdate,
+          gameUpdate: initialGameUpdateOptionResult,
+        });
+      }
+    }
   }
 
   incrementInputLockReferenceCount() {

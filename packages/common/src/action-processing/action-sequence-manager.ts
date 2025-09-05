@@ -110,7 +110,7 @@ export class ActionSequenceManager {
     this.remainingActionsToExecute.push(...childActionIntents.reverse());
   }
 
-  startProcessingNext(time: { ms: Milliseconds }): Error | ActionTracker {
+  startProcessingNext(): Error | ActionTracker {
     if (this.currentTracker) {
       this.completedTrackers.push(this.currentTracker);
     }
@@ -133,7 +133,7 @@ export class ActionSequenceManager {
         this.sequentialActionManagerRegistry.actionStepIdGenerator.getNextId(),
         nextActionExecutionIntentOption,
         previousTrackerOption || null,
-        time.ms,
+        this.sequentialActionManagerRegistry.time.ms,
         this.idGenerator,
         previousTrackerOption?.spawnedEntityOption
       );
