@@ -85,7 +85,7 @@ const costProperties = createCostPropertiesConfig(costPropertiesBase, costProper
 
 const config: CombatActionComponentConfig = {
   description: "Restore hit points to a target",
-  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME(),
+  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_FRIENDLY(),
   hitOutcomeProperties,
   combatLogMessageProperties: new CombatActionCombatLogProperties({
     origin: CombatActionOrigin.Medication,

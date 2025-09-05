@@ -7,7 +7,7 @@ export * from "./replay-events.js";
 export * from "./action-tracker.js";
 export * from "./action-sequence-manager.js";
 export * from "./action-sequence-manager-registry.js";
-export * from "./action-steps/combatant-motion.js";
+export * from "./action-steps/motion-steps/combatant-motion.js";
 
 import { BattleConclusion } from "../battle/index.js";
 import { Consumable } from "../items/consumables/index.js";

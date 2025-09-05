@@ -3,17 +3,17 @@ import {
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
-} from "./index.js";
+} from "../index.js";
 import {
   ActionEntityMotionGameUpdateCommand,
   AnimationTimingType,
   CombatantMotionGameUpdateCommand,
   EntityAnimation,
   EntityTranslation,
-} from "../game-update-commands.js";
-import { COMBAT_ACTIONS, CombatActionComponent } from "../../combat/index.js";
-import { getTranslationTime } from "../../combat/combat-actions/action-implementations/get-translation-time.js";
-import { Milliseconds } from "../../primatives/index.js";
+} from "../../game-update-commands.js";
+import { COMBAT_ACTIONS, CombatActionComponent } from "../../../combat/index.js";
+import { getTranslationTime } from "../../../combat/combat-actions/action-implementations/get-translation-time.js";
+import { Milliseconds } from "../../../primatives/index.js";
 
 export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   private translationOption: null | EntityTranslation = null;
@@ -66,7 +66,7 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     }
   }
 
-  protected getDestinations(action: CombatActionComponent) {
+  public getDestinations(action: CombatActionComponent) {
     const destinationGetterOption = action.stepsConfig.steps[this.type]?.getDestination;
     if (!destinationGetterOption) return null;
 

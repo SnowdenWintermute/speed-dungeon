@@ -47,7 +47,7 @@ export interface ActionResolutionStepConfig {
     meleeAttackAnimationType?: MeleeAttackAnimationType,
     successOption?: boolean
   ): EntityAnimation;
-  getDelay?(): Milliseconds;
+  getDelay?(externallySetDelayOption?: Milliseconds): Milliseconds;
   getDestination?(context: ActionResolutionStepContext): Error | null | EntityDestination;
   // @PERF - client could probably figure this out on their own or with more limited info
   // from server

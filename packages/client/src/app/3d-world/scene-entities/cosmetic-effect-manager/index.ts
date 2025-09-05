@@ -12,4 +12,16 @@ export class CosmeticEffectManager {
   cleanup() {
     for (const effectRc of Object.values(this.cosmeticEffects)) effectRc.effect.cleanup();
   }
+
+  stopEffect(name: CosmeticEffectNames) {
+    const existingEffectOption = this.cosmeticEffects[name];
+    if (!existingEffectOption)
+      return console.info("tried to end a cosmetic effect but couldn't find it");
+    existingEffectOption.referenceCount -= 1;
+
+    if (existingEffectOption.referenceCount <= 0) {
+      existingEffectOption.effect.softCleanup();
+      delete this.cosmeticEffects[name];
+    }
+  }
 }

@@ -1,0 +1,134 @@
+import { Vector3 } from "@babylonjs/core";
+import { ActionEntityName } from "../../../action-entities/index.js";
+import {
+  COMBAT_ACTIONS,
+  CombatActionExecutionIntent,
+  CombatActionName,
+  CombatActionTargetType,
+} from "../../../combat/index.js";
+import { BoxDimensions, ShapeType3D } from "../../../utils/shape-utils.js";
+import { ActionResolutionStepContext, ActionResolutionStepType } from "../index.js";
+import { EntityMotionActionResolutionStep } from "./entity-motion.js";
+
+const TRAVERSAL_STEP_TYPES = [
+  ActionResolutionStepType.InitialPositioning,
+  ActionResolutionStepType.FinalPositioning,
+];
+function isTraversalStep(stepType: ActionResolutionStepType) {
+  return TRAVERSAL_STEP_TYPES.includes(stepType);
+}
+
+export function getFirewallBurnScheduledActions(
+  context: ActionResolutionStepContext,
+  step: EntityMotionActionResolutionStep
+) {
+  if (!isTraversalStep(step.type)) return [];
+
+  // @TODO - change to shimmed user based off firewall action entity properties
+  const user = context.combatantContext.combatant;
+
+  const { actionExecutionIntent } = context.tracker;
+  const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
+  const destinationsOption = step.getDestinations(action);
+  if (!destinationsOption) return [];
+
+  const { translationOption } = destinationsOption;
+  if (!translationOption) return [];
+
+  const { party } = context.combatantContext;
+  let existingFirewallOption;
+  // just check for a single firewall for now, maybe add more later
+  // chatgpt yes I know there is only one firewall check here
+  for (const [entityId, actionEntity] of Object.entries(party.actionEntities)) {
+    if (actionEntity.actionEntityProperties.name === ActionEntityName.Firewall) {
+      existingFirewallOption = actionEntity;
+      break;
+    }
+  }
+
+  if (existingFirewallOption === undefined) return [];
+
+  const { destination, duration } = translationOption;
+  const { position: firewallPosition, dimensions: taggedDimensions } =
+    existingFirewallOption.actionEntityProperties;
+  if (taggedDimensions === undefined) throw new Error("expected firewall to have dimensions");
+  if (taggedDimensions.type !== ShapeType3D.Box)
+    throw new Error("expected firewall to be box shaped");
+
+  const userPosition = user.combatantProperties.position;
+
+  const movementVector = destination.subtract(userPosition);
+  const distance = movementVector.length();
+  const speed = distance / duration;
+  const timeToReachFirewallOption = timeToReachBox(
+    userPosition,
+    destination,
+    firewallPosition,
+    taggedDimensions.dimensions,
+    speed
+  );
+
+  if (timeToReachFirewallOption === null) return [];
+
+  const firewallBurnExecutionIntent = new CombatActionExecutionIntent(
+    CombatActionName.FirewallBurn,
+    { type: CombatActionTargetType.Single, targetId: user.entityProperties.id },
+    1
+  );
+
+  actionExecutionIntent.setDelayForStep(
+    ActionResolutionStepType.DeliveryMotion,
+    timeToReachFirewallOption
+  );
+
+  const firewallBurnActionIntentWithUser = {
+    user,
+    actionExecutionIntent: firewallBurnExecutionIntent,
+  };
+  return [firewallBurnActionIntentWithUser];
+}
+
+const EPSILON = 1e-8; // tiny value to prevent division by zero in ray-AABB calculations
+
+export function timeToReachBox(
+  userPosition: Vector3,
+  destination: Vector3,
+  boxCenter: Vector3,
+  boxDimensions: BoxDimensions,
+  movementSpeed: number // units per ms
+): number | null {
+  // Compute min/max of AABB
+  const half = (value: number) => value / 2;
+  const min = boxCenter.subtract(
+    new Vector3(half(boxDimensions.width), half(boxDimensions.height), half(boxDimensions.depth))
+  );
+  const max = boxCenter.add(
+    new Vector3(half(boxDimensions.width), half(boxDimensions.height), half(boxDimensions.depth))
+  );
+
+  const dir = destination.subtract(userPosition);
+  const dirFrac = new Vector3(
+    1 / (dir.x || EPSILON),
+    1 / (dir.y || EPSILON),
+    1 / (dir.z || EPSILON)
+  );
+
+  // Using "slab method" for line-segment vs AABB intersection
+  const t1 = (min.x - userPosition.x) * dirFrac.x;
+  const t2 = (max.x - userPosition.x) * dirFrac.x;
+  const t3 = (min.y - userPosition.y) * dirFrac.y;
+  const t4 = (max.y - userPosition.y) * dirFrac.y;
+  const t5 = (min.z - userPosition.z) * dirFrac.z;
+  const t6 = (max.z - userPosition.z) * dirFrac.z;
+
+  const tMin = Math.max(Math.min(t1, t2), Math.min(t3, t4), Math.min(t5, t6));
+  const tMax = Math.min(Math.max(t1, t2), Math.max(t3, t4), Math.max(t5, t6));
+
+  // No intersection if tMax < 0 (behind start) or tMin > tMax (misses)
+  if (tMax < 0 || tMin > tMax || tMin > 1 || tMin < 0) return null;
+
+  const distanceToFirewall = dir.length() * tMin;
+  const timeToFirewall = distanceToFirewall / movementSpeed;
+
+  return timeToFirewall;
+}

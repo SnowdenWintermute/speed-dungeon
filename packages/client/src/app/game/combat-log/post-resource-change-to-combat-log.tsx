@@ -65,7 +65,6 @@ export function postResourceChangeToCombatLog(
 
   const { combatLogMessageProperties } = action;
   const { origin } = combatLogMessageProperties;
-  console.log(COMBAT_ACTION_NAME_STRINGS[action.name], origin);
 
   if (spellLikeOrigins.includes(origin)) {
     const damagedOrHealed = resourceChange.value > 0 ? "recovers" : "takes";

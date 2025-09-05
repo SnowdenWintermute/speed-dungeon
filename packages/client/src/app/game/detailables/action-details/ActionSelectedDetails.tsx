@@ -229,7 +229,6 @@ function PayableResourceCostDisplay({
   cost: number;
   unmetCosts: ActionPayableResource[];
 }) {
-  console.log("PayableResourceCostDisplay resourceType:", resourceType);
   const iconGetter = PAYABLE_RESOURCE_ICONS[resourceType];
   let extraStyles = "";
   switch (resourceType) {

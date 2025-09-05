@@ -28,7 +28,7 @@ export function startOrStopCosmeticEffects(
 
         if (lifetime !== undefined) {
           effect.lifetimeTimeout = setTimeout(() => {
-            effect.softCleanup();
+            cosmeticEffectManager.stopEffect(name);
           }, lifetime);
         }
 
@@ -44,18 +44,8 @@ export function startOrStopCosmeticEffects(
 
   for (const cosmeticEffectOnEntity of cosmeticEffectsToStop) {
     const { name, parent } = cosmeticEffectOnEntity;
-
     const sceneEntity = SceneEntity.getFromIdentifier(parent.sceneEntityIdentifier);
     const { cosmeticEffectManager } = sceneEntity;
-
-    const existingEffectOption = cosmeticEffectManager.cosmeticEffects[name];
-    if (!existingEffectOption)
-      return console.info("tried to end a cosmetic effect but couldn't find it");
-    existingEffectOption.referenceCount -= 1;
-
-    if (existingEffectOption.referenceCount <= 0) {
-      existingEffectOption.effect.softCleanup();
-      delete cosmeticEffectManager.cosmeticEffects[name];
-    }
+    cosmeticEffectManager.stopEffect(name);
   }
 }

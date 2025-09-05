@@ -1,5 +1,4 @@
 import { SpawnableEntityType } from "../../spawnables/index.js";
-import { CombatantMotionActionResolutionStep } from "./combatant-motion.js";
 import { DetermineChildActionsActionResolutionStep } from "./determine-child-actions.js";
 import { EvalOnHitOutcomeTriggersActionResolutionStep } from "./hit-outcome-triggers/index.js";
 import { EvalOnUseTriggersActionResolutionStep } from "./evaluate-on-use-triggers.js";
@@ -8,7 +7,6 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { ActionEntityMotionActionResolutionStep } from "./action-entity-motion.js";
 import { PayResourceCostsActionResolutionStep } from "./pay-resource-costs.js";
 import { RollIncomingHitOutcomesActionResolutionStep } from "./roll-incoming-hit-outcomes.js";
 import { SpawnEntityActionResolutionStep } from "./spawn-entity.js";
@@ -17,6 +15,8 @@ import { DetermineMeleeActionAnimationsActionResolutionStep } from "./determine-
 import { EvaluatePlayerEndTurnAndInputLockActionResolutionStep } from "./evaluate-player-turn-end-and-input-lock.js";
 import { DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep } from "./determine-should-execute-or-release-turn-and-input-lock.js";
 import { PostActionUseCombatLogMessageActionResolutionStep } from "./post-action-use-combat-log-message.js";
+import { CombatantMotionActionResolutionStep } from "./motion-steps/combatant-motion.js";
+import { ActionEntityMotionActionResolutionStep } from "./motion-steps/action-entity-motion.js";
 
 // right now the idea is to have the action tracker call these creators, which in turn call
 // step class constructors. We don't call the constructors directly because this allows us

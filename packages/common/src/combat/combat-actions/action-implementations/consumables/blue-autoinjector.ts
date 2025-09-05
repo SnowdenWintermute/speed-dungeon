@@ -98,7 +98,7 @@ const config: CombatActionComponentConfig = {
       return `${data.nameOfActionUser} uses a blue autoinjector.`;
     },
   }),
-  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME(),
+  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_FRIENDLY(),
   hitOutcomeProperties,
   costProperties,
   stepsConfig: ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.CONSUMABLE_USE(),

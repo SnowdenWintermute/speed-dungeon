@@ -1,19 +1,19 @@
-import { ActionResolutionStepContext, ActionResolutionStepType } from "./index.js";
+import { ActionResolutionStepContext, ActionResolutionStepType } from "../index.js";
 import {
   CombatantMotionGameUpdateCommand,
   CombatantMotionUpdate,
   GameUpdateCommandType,
-} from "../game-update-commands.js";
-import { SpawnableEntityType } from "../../spawnables/index.js";
+} from "../../game-update-commands.js";
+import { SpawnableEntityType } from "../../../spawnables/index.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
-import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
+import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../../app-consts.js";
 import {
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   CombatActionName,
   CombatActionTargetType,
-} from "../../combat/index.js";
-import { Combatant } from "../../combatants/index.js";
+} from "../../../combat/index.js";
+import { Combatant } from "../../../combatants/index.js";
 
 export class CombatantMotionActionResolutionStep extends EntityMotionActionResolutionStep {
   constructor(context: ActionResolutionStepContext, step: ActionResolutionStepType) {

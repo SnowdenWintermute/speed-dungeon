@@ -5,7 +5,11 @@ import {
   ConditionAppliedBy,
 } from "./index.js";
 import { CombatantProperties, createShimmedUserOfTriggeredCondition } from "../index.js";
-import { CombatActionIntent, CombatActionName } from "../../combat/combat-actions/index.js";
+import {
+  CombatActionExecutionIntent,
+  CombatActionIntent,
+  CombatActionName,
+} from "../../combat/combat-actions/index.js";
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 import { CombatantContext } from "../../combatant-context/index.js";
 import { BASE_CONDITION_TICK_SPEED } from "../../combat/turn-order/consts.js";
@@ -60,12 +64,11 @@ export class BlindedCombatantCondition implements CombatantCondition {
       numStacksRemoved: 1,
       triggeredAction: {
         user,
-        actionExecutionIntent: {
-          actionName: CombatActionName.ConditionPassTurn,
+        actionExecutionIntent: new CombatActionExecutionIntent(
+          CombatActionName.ConditionPassTurn,
           targets,
-          level: 0,
-          getConsumableType: () => null,
-        },
+          0
+        ),
       },
     };
   }
