@@ -2,13 +2,14 @@ import { Vector3 } from "@babylonjs/core";
 import { ActionEntityName } from "../../../action-entities/index.js";
 import {
   COMBAT_ACTIONS,
+  CombatActionComponent,
   CombatActionExecutionIntent,
   CombatActionName,
   CombatActionTargetType,
 } from "../../../combat/index.js";
 import { BoxDimensions, ShapeType3D } from "../../../utils/shape-utils.js";
 import { ActionResolutionStepContext, ActionResolutionStepType } from "../index.js";
-import { EntityMotionActionResolutionStep } from "./entity-motion.js";
+import { EntityDestinations } from "./destinations.js";
 
 const TRAVERSAL_STEP_TYPES = [
   ActionResolutionStepType.InitialPositioning,
@@ -20,16 +21,18 @@ function isTraversalStep(stepType: ActionResolutionStepType) {
 
 export function getFirewallBurnScheduledActions(
   context: ActionResolutionStepContext,
-  step: EntityMotionActionResolutionStep
+  stepType: ActionResolutionStepType,
+  isCombatant: boolean,
+  destinationsOption: EntityDestinations | null
 ) {
-  if (!isTraversalStep(step.type)) return [];
+  console.log("is traversal:", isTraversalStep(stepType), "is combatant: ", isCombatant);
+  if (!isTraversalStep(stepType)) return [];
+  if (!isCombatant) return [];
 
   // @TODO - change to shimmed user based off firewall action entity properties
   const user = context.combatantContext.combatant;
 
-  const { actionExecutionIntent } = context.tracker;
-  const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
-  const destinationsOption = step.getDestinations(action);
+  console.log("destinationsOption:", destinationsOption);
   if (!destinationsOption) return [];
 
   const { translationOption } = destinationsOption;

@@ -16,9 +16,14 @@ import {
   COMBAT_ACTIONS,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponent,
+  CombatActionExecutionIntent,
 } from "../../../combat/index.js";
 import { getTranslationTime } from "../../../combat/combat-actions/action-implementations/get-translation-time.js";
 import { Milliseconds } from "../../../primatives/index.js";
+import { Combatant } from "../../../combatants/index.js";
+import { getFirewallBurnScheduledActions } from "./check-for-combatant-moving-through-firewall.js";
+import { EntityDestinations } from "./destinations.js";
+import { CombatantMotionActionResolutionStep } from "./combatant-motion.js";
 
 export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   private translationOption: null | EntityTranslation = null;
@@ -71,7 +76,28 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     }
   }
 
-  public getDestinations(action: CombatActionComponent) {
+  onInitialize():
+    | Error
+    | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
+    const { actionExecutionIntent } = this.context.tracker;
+    const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
+    const destinations = this.getDestinations(action);
+    const firewallBurns = getFirewallBurnScheduledActions(
+      this.context,
+      this.type,
+      this instanceof CombatantMotionActionResolutionStep,
+      destinations
+    );
+
+    if (this.type === ActionResolutionStepType.FinalPositioning) {
+      // evaluate turn end input unlocks
+    }
+
+    return firewallBurns;
+  }
+
+  public getDestinations(action: CombatActionComponent): EntityDestinations | null {
+    if (this === undefined) return null;
     const destinationGetterOption = action.stepsConfig.steps[this.type]?.getDestination;
     if (!destinationGetterOption) return null;
 

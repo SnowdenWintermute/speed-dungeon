@@ -86,6 +86,17 @@ export interface IEntityMotionUpdate {
   translationOption?: EntityTranslation;
   rotationOption?: EntityRotation;
   delayOption?: Milliseconds;
+  actionCompletionProperties?: ActionCompletionUpdateProperties;
+}
+
+/** Currently including in motion updates since it is in the final positioning step where we schedule a firewall
+ * burn action to hit us on the way back, so we can't say that we should unlock input until we calculate that.
+ * Previously when unlock input was in its own step, we unlocked, then went to final positioning, then scheduled
+ * the burn and input was already unlocked*/
+export interface ActionCompletionUpdateProperties {
+  unlockInput?: boolean;
+  endActiveCombatantTurn?: boolean;
+  threatChanges?: ThreatChanges;
 }
 
 export interface TargetCombatantChildTransformNodeWithDuration {
