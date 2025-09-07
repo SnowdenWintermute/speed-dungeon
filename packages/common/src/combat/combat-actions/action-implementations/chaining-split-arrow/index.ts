@@ -57,7 +57,7 @@ stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
   },
 };
 
-const stepsConfig = createStepsConfig(base, { steps: stepOverrides });
+const stepsConfig = createStepsConfig(base, { steps: {}, finalSteps: stepOverrides });
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BOW_ATTACK,

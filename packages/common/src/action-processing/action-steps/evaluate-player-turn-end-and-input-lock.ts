@@ -129,14 +129,13 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     threatChanges.applyToGame(party);
   }
 
-  const hasUnevaluatedChildren = action.hierarchyProperties.getChildren(context, action).length > 0;
-  console.log("hasUnevaluatedChildren", hasUnevaluatedChildren);
+  // const hasUnevaluatedChildren = tracker.;
+  // console.log("hasUnevaluatedChildren", hasUnevaluatedChildren);
   const hasRemainingActions = tracker.parentActionManager.getRemainingActionsToExecute().length > 0;
   console.log("hasRemainingActions", hasRemainingActions);
   const blockingStepsPending = sequentialActionManagerRegistry.inputBlockingActionStepsArePending();
   console.log("blockingStepsPending", blockingStepsPending);
-  const noBlockingActionsRemain =
-    !hasUnevaluatedChildren && !hasRemainingActions && !blockingStepsPending;
+  const noBlockingActionsRemain = !hasRemainingActions && !blockingStepsPending;
 
   let shouldUnlockInput = false;
 

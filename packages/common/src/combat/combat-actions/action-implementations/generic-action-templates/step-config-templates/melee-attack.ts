@@ -7,4 +7,6 @@ config.steps[ActionResolutionStepType.DetermineMeleeActionAnimations] = {};
 config.steps[ActionResolutionStepType.RollIncomingHitOutcomes] = {};
 config.steps[ActionResolutionStepType.EvalOnHitOutcomeTriggers] = {};
 
+config.steps[ActionResolutionStepType.DetermineChildActions] = {};
+
 export const MELEE_ATTACK_STEPS_CONFIG = config;

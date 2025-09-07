@@ -18,10 +18,9 @@ export interface ActionExecuting {
 
 export enum ActionResolutionStepType {
   DetermineShouldExecuteOrReleaseTurnLock,
-  DetermineChildActions, // enqueues sequential actions such as [ "main hand attack", "off hand attack" ]
-  DetermineMeleeActionAnimations,
   PreInitialPositioningCheckEnvironmentalHazardTriggers,
   InitialPositioning,
+  DetermineMeleeActionAnimations,
   PrepMotion,
   PostPrepSpawnEntity,
   ChamberingMotion,
@@ -34,6 +33,7 @@ export enum ActionResolutionStepType {
   OnActivationActionEntityMotion,
   RollIncomingHitOutcomes,
   EvalOnHitOutcomeTriggers, // may start branching actions if triggered
+  DetermineChildActions, // enqueues sequential actions such as [ "main hand attack", "off hand attack" ]
   // FINAL STEPS - conditionally obtained. example - may skip PreInitialPositioningCheckEnvironmentalHazardTriggers
   // and FinalPositioning and just do RecoveryMotion
   // if doing offhand attack instead of return home directly after mainhand attack

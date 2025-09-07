@@ -154,6 +154,8 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
   shouldDespawnOnComplete: () => true,
 };
 
+stepOverrides[ActionResolutionStepType.DetermineChildActions] = {};
+
 const base = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.PROJECTILE_ENTITY;
 export const CHAINING_SPLIT_ARROW_PROJECTILE_STEPS_CONFIG = createStepsConfig(base, {
   steps: stepOverrides,

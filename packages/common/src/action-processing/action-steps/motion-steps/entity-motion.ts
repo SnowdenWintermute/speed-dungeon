@@ -16,6 +16,7 @@ import {
   COMBAT_ACTIONS,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponent,
+  CombatActionName,
 } from "../../../combat/index.js";
 import { getTranslationTime } from "../../../combat/combat-actions/action-implementations/get-translation-time.js";
 import { Milliseconds } from "../../../primatives/index.js";
@@ -44,7 +45,11 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     const delayOption = this.getDelay();
     if (delayOption !== null) mainEntityUpdate.delayOption = delayOption;
 
-    const animationOption = this.getAnimation();
+    const animationOption = EntityMotionActionResolutionStep.getAnimation(
+      this.context,
+      action.name,
+      this.type
+    );
 
     if (animationOption) {
       this.animationOption = animationOption;
@@ -128,22 +133,25 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     return delayOption;
   }
 
-  protected getAnimation() {
-    const { actionExecutionIntent } = this.context.tracker;
-    const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
+  static getAnimation(
+    context: ActionResolutionStepContext,
+    actionName: CombatActionName,
+    stepType: ActionResolutionStepType
+  ) {
+    const action = COMBAT_ACTIONS[actionName];
 
-    let animationGetterOption = action.stepsConfig.steps[this.type]?.getAnimation;
+    let animationGetterOption = action.stepsConfig.steps[stepType]?.getAnimation;
     if (!animationGetterOption)
-      animationGetterOption = action.stepsConfig.finalSteps[this.type]?.getAnimation;
+      animationGetterOption = action.stepsConfig.finalSteps[stepType]?.getAnimation;
     if (!animationGetterOption) return null;
 
     let animationType;
-    animationType = this.context.tracker.meleeAttackAnimationType;
+    animationType = context.tracker.meleeAttackAnimationType;
     if (animationType === null) animationType = undefined;
 
     const animation = animationGetterOption(
-      this.context.combatantContext.combatant.combatantProperties,
-      this.context.manager.sequentialActionManagerRegistry.animationLengths,
+      context.combatantContext.combatant.combatantProperties,
+      context.manager.sequentialActionManagerRegistry.animationLengths,
       animationType
     );
     return animation;

@@ -50,8 +50,6 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
         toReturn.push(ATTACK_RANGED_MAIN_HAND);
       else {
         toReturn.push(ATTACK_MELEE_MAIN_HAND);
-        if (!ATTACK_MELEE_MAIN_HAND.costProperties.requiresCombatTurnInThisContext(context, self))
-          toReturn.push(ATTACK_MELEE_OFF_HAND);
       }
 
       return toReturn;

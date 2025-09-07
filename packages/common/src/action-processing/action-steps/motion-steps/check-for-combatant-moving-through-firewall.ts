@@ -11,6 +11,7 @@ import { ActionResolutionStepContext, ActionResolutionStepType } from "../index.
 import { TriggerEnvironmentalHazardsActionResolutionStep } from "./determine-environmental-hazard-triggers.js";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../../app-consts.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
+import { AnimationTimingType } from "../../game-update-commands.js";
 
 export function getFirewallBurnScheduledActions(
   context: ActionResolutionStepContext,
@@ -26,6 +27,8 @@ export function getFirewallBurnScheduledActions(
     step.type === ActionResolutionStepType.PreInitialPositioningCheckEnvironmentalHazardTriggers
       ? ActionResolutionStepType.InitialPositioning
       : ActionResolutionStepType.FinalPositioning;
+
+  const addRecoveryAnimationTime = motionStepType === ActionResolutionStepType.FinalPositioning;
 
   const combatant = context.combatantContext.combatant;
   const entityPosition = combatant.combatantProperties.position;
@@ -68,7 +71,7 @@ export function getFirewallBurnScheduledActions(
   const movementVector = destination.subtract(userPosition);
   const distance = movementVector.length();
   const speed = distance / duration;
-  const timeToReachFirewallOption = timeToReachBox(
+  let timeToReachFirewallOption = timeToReachBox(
     userPosition,
     destination,
     firewallPosition,
@@ -84,8 +87,30 @@ export function getFirewallBurnScheduledActions(
     1
   );
 
+  const recoveryAnimationTime = (() => {
+    let toReturn = 0;
+    try {
+      const animationOption = EntityMotionActionResolutionStep.getAnimation(
+        context,
+        action.name,
+        ActionResolutionStepType.RecoveryMotion
+      );
+
+      if (animationOption && animationOption.timing.type === AnimationTimingType.Timed)
+        toReturn = animationOption.timing.duration;
+    } catch {
+      console.log("couldn't get recoveryAnimationTime");
+    }
+    return toReturn;
+  })();
+
+  if (addRecoveryAnimationTime) {
+    console.log("ADDED TIME:", recoveryAnimationTime);
+    timeToReachFirewallOption += recoveryAnimationTime;
+  }
+
   firewallBurnExecutionIntent.setDelayForStep(
-    ActionResolutionStepType.DeliveryMotion,
+    ActionResolutionStepType.DeliveryMotion, // firewall burn's delivery motion, an arbitrary place to delay before hit outcomes
     timeToReachFirewallOption
   );
 

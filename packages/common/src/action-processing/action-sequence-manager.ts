@@ -9,6 +9,7 @@ import { ActionSequenceManagerRegistry } from "./action-sequence-manager-registr
 import { NestedNodeReplayEvent, NestedNodeReplayEventUtls } from "./replay-events.js";
 import { ActionTracker } from "./action-tracker.js";
 import { IdGenerator } from "../utility-classes/index.js";
+import { ActionResolutionStepType } from "./action-steps/index.js";
 
 export class ActionSequenceManager {
   private remainingActionsToExecute: CombatActionExecutionIntent[];
@@ -97,6 +98,10 @@ export class ActionSequenceManager {
     this.remainingActionsToExecute.push(...childActionIntents.reverse());
   }
 
+  enqueueActionIntents(actionIntents: CombatActionExecutionIntent[]) {
+    this.remainingActionsToExecute.push(...actionIntents);
+  }
+
   startProcessingNext(): Error | ActionTracker {
     if (this.currentTracker) {
       this.completedTrackers.push(this.currentTracker);
@@ -180,7 +185,8 @@ export class ActionSequenceManager {
         }
 
         // DETERMINE NEXT ACTION IN SEQUENCE IF ANY
-        this.populateSelfWithCurrentActionChildren();
+        // if (currentStep.type === ActionResolutionStepType.DetermineChildActions)
+        // this.populateSelfWithCurrentActionChildren();
 
         const nextActionIntentInQueueOption = this.getNextActionInQueue();
         const nextActionOption = nextActionIntentInQueueOption

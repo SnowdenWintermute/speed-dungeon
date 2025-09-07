@@ -22,6 +22,7 @@ import {
   createCostPropertiesConfig,
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import { ATTACK_MELEE_OFF_HAND } from "./attack-melee-off-hand.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 hitOutcomeOverrides.addsPropertiesFromHoldableSlot = HoldableSlotType.MainHand;
@@ -71,7 +72,16 @@ export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   hitOutcomeProperties,
   stepsConfig: ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.MAIN_HAND_MELEE_ATTACK(),
 
-  hierarchyProperties: { ...BASE_ACTION_HIERARCHY_PROPERTIES, getParent: () => ATTACK },
+  hierarchyProperties: {
+    ...BASE_ACTION_HIERARCHY_PROPERTIES,
+    getParent: () => ATTACK,
+    getChildren: (context, self) => {
+      const toReturn = [];
+      if (!ATTACK_MELEE_MAIN_HAND.costProperties.requiresCombatTurnInThisContext(context, self))
+        toReturn.push(ATTACK_MELEE_OFF_HAND);
+      return toReturn;
+    },
+  },
 };
 
 export const ATTACK_MELEE_MAIN_HAND = new CombatActionLeaf(
