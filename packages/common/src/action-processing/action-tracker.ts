@@ -23,7 +23,11 @@ export class ActionTracker {
   hitOutcomes = new CombatActionHitOutcomes();
   meleeAttackAnimationType: MeleeAttackAnimationType | null = null;
   consumableUsed: null | Consumable = null;
+  /** Set by checking shouldExecute in DetermineShouldExecuteOrReleaseInputLock step */
   public wasAborted = false;
+  /** Idea here is to have final steps such as DetermineEnvironmentalHazardTriggers,
+   * DetermineEndTurnAndReleaseInputLock, RecoveryMotion conditionally queue themselves only once*/
+  public hasQueuedUpFinalSteps = false;
 
   constructor(
     public parentActionManager: ActionSequenceManager,
@@ -56,14 +60,6 @@ export class ActionTracker {
     const stepCreator = ACTION_STEP_CREATORS[stepOption];
     const newStep = stepCreator(context);
     this.currentStep = newStep;
-
-    const branchingActionsResult = newStep.onInitialize();
-    if (branchingActionsResult instanceof Error) throw branchingActionsResult;
-    const branchingActions = branchingActionsResult;
-
-    const registry = this.parentActionManager.sequentialActionManagerRegistry;
-    const sequenceManager = this.parentActionManager;
-    registry.registerActions(sequenceManager, this, context.combatantContext, branchingActions);
 
     return newStep;
   }

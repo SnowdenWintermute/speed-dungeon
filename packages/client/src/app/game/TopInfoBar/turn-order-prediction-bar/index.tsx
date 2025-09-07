@@ -49,7 +49,7 @@ export default function TurnPredictionOrderBar({ trackers }: Props) {
       </HoverableTooltipWrapper>
       {listWithAggregatedSequentialConditionTrackers.map((tracker, i) => {
         if (tracker instanceof CombatantTurnTracker)
-          return <TurnOrderTrackerIcon key={tracker.getId()} tracker={tracker} />;
+          return <TurnOrderTrackerIcon key={tracker.getId() + i} tracker={tracker} />;
         else return <ConditionTurnTrackerAggregation key={i} trackers={tracker} />;
       })}
     </div>

@@ -9,6 +9,7 @@ import {
   Inventory,
   NumberRange,
   OneHandedMeleeWeapon,
+  TwoHandedMeleeWeapon,
 } from "@speed-dungeon/common";
 import { createConsumableByType } from "../item-generation/create-consumable-by-type.js";
 import {
@@ -34,13 +35,13 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inv
 
   const tradeableItemResult = generateSpecificEquipmentType(
     {
-      equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: OneHandedMeleeWeapon.YewWand,
+      equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+      baseItemType: TwoHandedMeleeWeapon.RottingBranch,
     },
     {}
   );
   if (tradeableItemResult instanceof Error) return;
-  tradeableItemResult.durability = { current: 0, inherentMax: 6 };
+  // tradeableItemResult.durability = { current: 0, inherentMax: 6 };
 
   Equipment.insertOrReplaceAffix(tradeableItemResult, AffixCategory.Suffix, AffixType.Strength, {
     combatAttributes: { [CombatAttribute.Strength]: 1 },

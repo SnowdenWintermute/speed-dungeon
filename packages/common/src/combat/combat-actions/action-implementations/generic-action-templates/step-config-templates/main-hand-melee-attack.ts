@@ -53,6 +53,10 @@ config.steps[ActionResolutionStepType.RecoveryMotion] = {
   },
 };
 
+config.steps[ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers] = {
+  ...config.steps[ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers],
+  isConditionalStep: true,
+};
 config.steps[ActionResolutionStepType.FinalPositioning] = {
   ...config.steps[ActionResolutionStepType.FinalPositioning],
   isConditionalStep: true,

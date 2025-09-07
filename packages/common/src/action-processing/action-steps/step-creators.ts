@@ -17,6 +17,7 @@ import { DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep } from "./d
 import { PostActionUseCombatLogMessageActionResolutionStep } from "./post-action-use-combat-log-message.js";
 import { CombatantMotionActionResolutionStep } from "./motion-steps/combatant-motion.js";
 import { ActionEntityMotionActionResolutionStep } from "./motion-steps/action-entity-motion.js";
+import { TriggerEnvironmentalHazardsActionResolutionStep } from "./motion-steps/determine-environmental-hazard-triggers.js";
 
 // right now the idea is to have the action tracker call these creators, which in turn call
 // step class constructors. We don't call the constructors directly because this allows us
@@ -34,6 +35,11 @@ export const ACTION_STEP_CREATORS: Record<
     new DetermineChildActionsActionResolutionStep(context),
   [ActionResolutionStepType.DetermineMeleeActionAnimations]: (context) =>
     new DetermineMeleeActionAnimationsActionResolutionStep(context),
+  [ActionResolutionStepType.PreInitialPositioningCheckEnvironmentalHazardTriggers]: (context) =>
+    new TriggerEnvironmentalHazardsActionResolutionStep(
+      context,
+      ActionResolutionStepType.PreInitialPositioningCheckEnvironmentalHazardTriggers
+    ),
   [ActionResolutionStepType.InitialPositioning]: (context) =>
     new CombatantMotionActionResolutionStep(context, ActionResolutionStepType.InitialPositioning),
   [ActionResolutionStepType.PrepMotion]: (context) =>
@@ -69,6 +75,11 @@ export const ACTION_STEP_CREATORS: Record<
     new RollIncomingHitOutcomesActionResolutionStep(context),
   [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: (context) =>
     new EvalOnHitOutcomeTriggersActionResolutionStep(context),
+  [ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers]: (context) =>
+    new TriggerEnvironmentalHazardsActionResolutionStep(
+      context,
+      ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers
+    ),
   [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: (context) =>
     new EvaluatePlayerEndTurnAndInputLockActionResolutionStep(context),
   [ActionResolutionStepType.ActionEntityDissipationMotion]: (context) => {

@@ -20,6 +20,7 @@ export enum ActionResolutionStepType {
   DetermineShouldExecuteOrReleaseTurnLock,
   DetermineChildActions, // enqueues sequential actions such as [ "main hand attack", "off hand attack" ]
   DetermineMeleeActionAnimations,
+  PreInitialPositioningCheckEnvironmentalHazardTriggers,
   InitialPositioning,
   PrepMotion,
   PostPrepSpawnEntity,
@@ -33,6 +34,7 @@ export enum ActionResolutionStepType {
   OnActivationActionEntityMotion,
   RollIncomingHitOutcomes,
   EvalOnHitOutcomeTriggers, // may start branching actions if triggered
+  PreFinalPositioningCheckEnvironmentalHazardTriggers,
   EvaluatePlayerEndTurnAndInputLock,
   ActionEntityDissipationMotion,
   RecoveryMotion,
@@ -61,6 +63,10 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.ActionEntityDissipationMotion]: "actionEntityDissipationMotion",
   [ActionResolutionStepType.RecoveryMotion]: "recoveryMotion",
   [ActionResolutionStepType.FinalPositioning]: "finalPositioning",
+  [ActionResolutionStepType.PreInitialPositioningCheckEnvironmentalHazardTriggers]:
+    "preInitialPositioningCheckEnvironmentalHazardTriggers",
+  [ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers]:
+    "preFinalPositioningCheckEnvironmentalHazardTriggers",
 };
 
 export type ActionResolutionStepResult = {
@@ -127,12 +133,6 @@ export abstract class ActionResolutionStep {
 
   getGameUpdateCommandOption(): null | GameUpdateCommand {
     return this.gameUpdateCommandOption;
-  }
-
-  onInitialize():
-    | Error
-    | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
-    return [];
   }
 
   onComplete(): Error | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {

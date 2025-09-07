@@ -28,6 +28,15 @@ export type NestedNodeReplayEvent = {
   events: ReplayEventNode[];
 };
 
+export class NestedNodeReplayEventUtls {
+  static appendGameUpdate(node: NestedNodeReplayEvent, gameUpdate: GameUpdateCommand) {
+    node.events.push({
+      type: ReplayEventType.GameUpdate,
+      gameUpdate,
+    });
+  }
+}
+
 export type ReplayEventNode = GameUpdateReplayEvent | NestedNodeReplayEvent;
 
 export class Replayer {

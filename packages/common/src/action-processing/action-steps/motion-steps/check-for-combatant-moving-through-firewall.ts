@@ -8,28 +8,36 @@ import {
 } from "../../../combat/index.js";
 import { BoxDimensions, ShapeType3D } from "../../../utils/shape-utils.js";
 import { ActionResolutionStepContext, ActionResolutionStepType } from "../index.js";
+import { TriggerEnvironmentalHazardsActionResolutionStep } from "./determine-environmental-hazard-triggers.js";
+import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../../app-consts.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
-
-const TRAVERSAL_STEP_TYPES = [
-  ActionResolutionStepType.InitialPositioning,
-  ActionResolutionStepType.FinalPositioning,
-];
-function isTraversalStep(stepType: ActionResolutionStepType) {
-  return TRAVERSAL_STEP_TYPES.includes(stepType);
-}
 
 export function getFirewallBurnScheduledActions(
   context: ActionResolutionStepContext,
-  step: EntityMotionActionResolutionStep
+  step: TriggerEnvironmentalHazardsActionResolutionStep
 ) {
-  if (!isTraversalStep(step.type)) return [];
-
   // @TODO - change to shimmed user based off firewall action entity properties
   const user = context.combatantContext.combatant;
 
   const { actionExecutionIntent } = context.tracker;
   const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
-  const destinationsOption = step.getDestinations(action);
+
+  const motionStepType =
+    step.type === ActionResolutionStepType.PreInitialPositioningCheckEnvironmentalHazardTriggers
+      ? ActionResolutionStepType.InitialPositioning
+      : ActionResolutionStepType.FinalPositioning;
+
+  const combatant = context.combatantContext.combatant;
+  const entityPosition = combatant.combatantProperties.position;
+
+  const destinationsOption = EntityMotionActionResolutionStep.getDestinations(
+    context,
+    action,
+    motionStepType,
+    entityPosition,
+    COMBATANT_TIME_TO_MOVE_ONE_METER
+  );
+
   if (!destinationsOption) return [];
 
   const { translationOption } = destinationsOption;

@@ -27,6 +27,10 @@ const STARTING_EQUIPMENT_BY_COMBATANT_CLASS: Record<
       equipmentType: EquipmentType.OneHandedMeleeWeapon,
       baseItemType: OneHandedMeleeWeapon.Dagger,
     },
+    [HoldableSlotType.OffHand]: {
+      equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      baseItemType: OneHandedMeleeWeapon.Dagger,
+    },
   },
   [CombatantClass.Mage]: {
     [HoldableSlotType.MainHand]: {

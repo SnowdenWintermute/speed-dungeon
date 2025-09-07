@@ -1,4 +1,4 @@
-import { CombatActionExecutionIntent } from "../combat/index.js";
+import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../combat/index.js";
 import { CombatantContext } from "../combatant-context/index.js";
 import { CombatantSpecies } from "../combatants/combatant-species.js";
 import { Combatant } from "../combatants/index.js";
@@ -6,9 +6,17 @@ import { EntityId, Milliseconds } from "../primatives/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { SequentialIdGenerator } from "../utils/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
-import { ACTION_RESOLUTION_STEP_TYPE_STRINGS } from "./action-steps/index.js";
+import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
+  ActionResolutionStepType,
+} from "./action-steps/index.js";
+import { CombatantMotionActionResolutionStep } from "./action-steps/motion-steps/combatant-motion.js";
 import { ActionTracker } from "./action-tracker.js";
-import { NestedNodeReplayEvent, ReplayEventType } from "./replay-events.js";
+import {
+  NestedNodeReplayEvent,
+  NestedNodeReplayEventUtls,
+  ReplayEventType,
+} from "./replay-events.js";
 
 export class TimeKeeper {
   ms: number = 0;
@@ -18,6 +26,7 @@ export class TimeKeeper {
 export class ActionSequenceManagerRegistry {
   private actionManagers: { [id: string]: ActionSequenceManager } = {};
   actionStepIdGenerator = new SequentialIdGenerator();
+  completionOrderIdGenerator = new SequentialIdGenerator();
   private inputBlockingActionStepsPendingReferenceCount = 0;
   private turnEnded = false;
   public time = new TimeKeeper();
@@ -147,5 +156,16 @@ export class ActionSequenceManagerRegistry {
     }
 
     return msToTick || 0;
+  }
+
+  processActiveActionSequences(combatantContext: CombatantContext) {
+    for (const sequenceManager of this.getManagers())
+      sequenceManager.processCurrentStep(combatantContext);
+
+    const timeToTick = this.getShortestTimeToCompletion();
+    this.time.ms += timeToTick;
+
+    for (const sequenceManager of this.getManagers())
+      sequenceManager.getCurrentTracker()?.currentStep.tick(timeToTick);
   }
 }

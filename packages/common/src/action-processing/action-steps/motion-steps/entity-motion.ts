@@ -51,7 +51,14 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
       mainEntityUpdate.animationOption = animationOption;
     }
 
-    const destinationsOption = this.getDestinations(action);
+    const destinationsOption = EntityMotionActionResolutionStep.getDestinations(
+      this.context,
+      action,
+      this.type,
+      this.entityPosition,
+      this.entitySpeed
+    );
+
     if (destinationsOption) {
       const { translationOption, rotationOption } = destinationsOption;
       if (translationOption) {
@@ -71,22 +78,24 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     }
   }
 
-  public getDestinations(action: CombatActionComponent) {
-    const destinationGetterOption = action.stepsConfig.steps[this.type]?.getDestination;
+  static getDestinations(
+    context: ActionResolutionStepContext,
+    action: CombatActionComponent,
+    stepType: ActionResolutionStepType,
+    entityPosition: Vector3,
+    entitySpeed: number
+  ) {
+    const destinationGetterOption = action.stepsConfig.steps[stepType]?.getDestination;
     if (!destinationGetterOption) return null;
 
     let destinationResult = null;
     let translationOption;
-    if (destinationGetterOption) destinationResult = destinationGetterOption(this.context);
+    if (destinationGetterOption) destinationResult = destinationGetterOption(context);
     if (destinationResult instanceof Error) throw destinationResult;
     if (destinationResult?.position) {
       const translation = {
         destination: destinationResult.position,
-        duration: getTranslationTime(
-          this.entityPosition,
-          destinationResult.position,
-          this.entitySpeed
-        ),
+        duration: getTranslationTime(entityPosition, destinationResult.position, entitySpeed),
       };
       translationOption = translation;
     }
@@ -102,6 +111,8 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     return { translationOption, rotationOption };
   }
 
+  /** Used for executing firewall burning action at a predicted time in the future based on time it will
+   * take the entity to get to the firewall's hitbox */
   protected getDelay() {
     const { actionExecutionIntent } = this.context.tracker;
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
