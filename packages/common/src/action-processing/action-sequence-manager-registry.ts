@@ -1,8 +1,4 @@
-import {
-  COMBAT_ACTION_NAME_STRINGS,
-  CombatActionExecutionIntent,
-  CombatActionName,
-} from "../combat/index.js";
+import { CombatActionExecutionIntent } from "../combat/index.js";
 import { CombatantContext } from "../combatant-context/index.js";
 import { CombatantSpecies } from "../combatants/combatant-species.js";
 import { Combatant } from "../combatants/index.js";
@@ -59,7 +55,7 @@ export class ActionSequenceManagerRegistry {
     const stepTrackerResult = manager.startProcessingNext();
     if (stepTrackerResult instanceof Error) return stepTrackerResult;
     const initialGameUpdate = stepTrackerResult.currentStep.getGameUpdateCommandOption();
-    this.incrementInputLockReferenceCount(actionExecutionIntent.actionName);
+    this.incrementInputLockReferenceCount();
     return initialGameUpdate;
   }
 
@@ -103,22 +99,16 @@ export class ActionSequenceManagerRegistry {
     }
   }
 
-  incrementInputLockReferenceCount(actionName: CombatActionName) {
-    console.log("INCREMENT", COMBAT_ACTION_NAME_STRINGS[actionName]);
+  incrementInputLockReferenceCount() {
     this.inputBlockingActionStepsPendingReferenceCount += 1;
   }
 
-  decrementInputLockReferenceCount(actionName: CombatActionName) {
-    console.log("DECREMENT", COMBAT_ACTION_NAME_STRINGS[actionName]);
+  decrementInputLockReferenceCount() {
     this.inputBlockingActionStepsPendingReferenceCount -= 1;
   }
 
   inputBlockingActionStepsArePending() {
     return this.inputBlockingActionStepsPendingReferenceCount > 0;
-  }
-
-  getInputBlockingActionReferenceCount() {
-    return this.inputBlockingActionStepsPendingReferenceCount;
   }
 
   getTurnEnded() {

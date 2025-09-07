@@ -61,7 +61,7 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
     {
       [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
       [ActionResolutionStepType.DetermineChildActions]: {},
-      // [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
+      [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     },
     { userShouldMoveHomeOnComplete: false }
   ),

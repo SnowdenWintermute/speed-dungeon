@@ -54,7 +54,7 @@ export async function actionCompletionGameUpdateHandler(update: {
     });
   }
 
-  handleThreatChangesUpdate(update.command.threatChanges);
+  handleThreatChangesUpdate(update.command);
 
   update.isComplete = true;
 }

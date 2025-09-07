@@ -8,7 +8,6 @@ import {
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
-  GameUpdateCommandType,
 } from "../index.js";
 import { evaluatePlayerEndTurnAndInputLock } from "./evaluate-player-turn-end-and-input-lock.js";
 
@@ -46,15 +45,7 @@ export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends
     context.tracker.wasAborted = true;
 
     const gameUpdateCommandOption = evaluatePlayerEndTurnAndInputLock(context);
-    if (gameUpdateCommandOption) {
-      this.gameUpdateCommandOption = {
-        type: GameUpdateCommandType.ActionCompletion,
-        actionName: context.tracker.actionExecutionIntent.actionName,
-        step: stepType,
-        completionOrderId: null,
-        ...gameUpdateCommandOption,
-      };
-    }
+    if (gameUpdateCommandOption) this.gameUpdateCommandOption = gameUpdateCommandOption;
 
     // set a timeout to unlock input equal to current action accumulated time
     // plus all previous actions accumulated time in the current

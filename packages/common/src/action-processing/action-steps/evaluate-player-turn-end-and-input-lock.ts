@@ -8,70 +8,62 @@ import {
 import { Combatant, CombatantCondition, CombatantProperties } from "../../combatants/index.js";
 import { ThreatCalculator } from "../../combatants/threat-manager/threat-calculator.js";
 import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionCompletionUpdateCommand,
-  ActionCompletionUpdateProperties,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
   GameUpdateCommandType,
 } from "../index.js";
 
-// const stepType = ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock;
-// export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends ActionResolutionStep {
-//   branchingActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] = [];
-//   constructor(context: ActionResolutionStepContext) {
-//     super(stepType, context, null); // this step should produce no game update unless it is unlocking input
-//     const { party } = context.combatantContext;
+const stepType = ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock;
+export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends ActionResolutionStep {
+  branchingActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] = [];
+  constructor(context: ActionResolutionStepContext) {
+    super(stepType, context, null); // this step should produce no game update unless it is unlocking input
+    const { party } = context.combatantContext;
 
-//     // const gameUpdateCommandOption = evaluatePlayerEndTurnAndInputLock(context);
-//     // if (gameUpdateCommandOption) {
-//     //   this.gameUpdateCommandOption = gameUpdateCommandOption;
+    const gameUpdateCommandOption = evaluatePlayerEndTurnAndInputLock(context);
+    if (gameUpdateCommandOption) {
+      this.gameUpdateCommandOption = gameUpdateCommandOption;
 
-//     //   for (const [groupName, combatantGroup] of Object.entries(
-//     //     AdventuringParty.getAllCombatants(party)
-//     //   )) {
-//     //     for (const [entityId, combatant] of Object.entries(combatantGroup)) {
-//     //       if (!combatant.combatantProperties.threatManager) continue;
-//     //       combatant.combatantProperties.threatManager.updateHomeRotationToPointTowardNewTopThreatTarget(
-//     //         party,
-//     //         combatant
-//     //       );
-//     //     }
-//     //   }
-//     // }
+      for (const [groupName, combatantGroup] of Object.entries(
+        AdventuringParty.getAllCombatants(party)
+      )) {
+        for (const [entityId, combatant] of Object.entries(combatantGroup)) {
+          if (!combatant.combatantProperties.threatManager) continue;
+          combatant.combatantProperties.threatManager.updateHomeRotationToPointTowardNewTopThreatTarget(
+            party,
+            combatant
+          );
+        }
+      }
+    }
 
-//     // @TODO
-//     // set a timeout to unlock input equal to current action accumulated time
-//     // plus all previous actions accumulated time in the current
-//   }
+    // @TODO
+    // set a timeout to unlock input equal to current action accumulated time
+    // plus all previous actions accumulated time in the current
+  }
 
-//   protected onTick = () => {};
-//   getTimeToCompletion = () => 0;
-//   isComplete = () => true;
+  protected onTick = () => {};
+  getTimeToCompletion = () => 0;
+  isComplete = () => true;
 
-//   getBranchingActions():
-//     | Error
-//     | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
-//     const toReturn = this.branchingActions;
-//     return toReturn;
-//   }
-// }
+  getBranchingActions():
+    | Error
+    | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
+    const toReturn = this.branchingActions;
+    return toReturn;
+  }
+}
 
 export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepContext) {
   const { tracker } = context;
   const { sequentialActionManagerRegistry } = tracker.parentActionManager;
 
+  sequentialActionManagerRegistry.decrementInputLockReferenceCount();
+
   const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
   const actionNameString = COMBAT_ACTION_NAME_STRINGS[tracker.actionExecutionIntent.actionName];
-
-  sequentialActionManagerRegistry.decrementInputLockReferenceCount(action.name);
-  console.log(
-    "decrementing for",
-    actionNameString,
-    "step",
-    ACTION_RESOLUTION_STEP_TYPE_STRINGS[context.tracker.currentStep.type]
-  );
 
   const { game, party, combatant } = context.combatantContext;
   const battleOption = AdventuringParty.getBattleOption(party, game);
@@ -130,15 +122,8 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   }
 
   const hasUnevaluatedChildren = action.hierarchyProperties.getChildren(context, action).length > 0;
-  console.log("hasUnevaluatedChildren:", hasUnevaluatedChildren);
   const hasRemainingActions = tracker.parentActionManager.getRemainingActionsToExecute().length > 0;
-  console.log("hasRemainingActions:", hasRemainingActions);
   const blockingStepsPending = sequentialActionManagerRegistry.inputBlockingActionStepsArePending();
-  console.log(
-    "blockingStepsPending:",
-    blockingStepsPending,
-    sequentialActionManagerRegistry.getInputBlockingActionReferenceCount()
-  );
   const noBlockingActionsRemain =
     !hasUnevaluatedChildren && !hasRemainingActions && !blockingStepsPending;
 
@@ -155,7 +140,12 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   if (!shouldUnlockInput && !requiredTurn) return;
 
   // push a game update command to unlock input
-  const gameUpdateCommandOption: ActionCompletionUpdateProperties = {};
+  const gameUpdateCommandOption: ActionCompletionUpdateCommand = {
+    type: GameUpdateCommandType.ActionCompletion,
+    actionName: context.tracker.actionExecutionIntent.actionName,
+    step: stepType,
+    completionOrderId: null,
+  };
 
   if (!threatChanges.isEmpty()) gameUpdateCommandOption.threatChanges = threatChanges;
   if (shouldSendEndActiveTurnMessage) gameUpdateCommandOption.endActiveCombatantTurn = true;

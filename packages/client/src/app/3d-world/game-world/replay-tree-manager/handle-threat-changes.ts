@@ -15,20 +15,25 @@ const debounceThreatTargetChangeIndicatorSequence = debounce(
   300
 );
 
-export function handleThreatChangesUpdate(threatChanges: ThreatChanges | undefined) {
-  if (!threatChanges) return;
+export function handleThreatChangesUpdate(
+  command:
+    | HitOutcomesGameUpdateCommand
+    | ActionCompletionUpdateCommand
+    | ActivatedTriggersGameUpdateCommand
+) {
+  if (command.threatChanges) {
+    useGameStore.getState().mutateState((gameState) => {
+      const gameAndPartyResult = getGameAndParty(gameState.game, gameState.username);
+      if (gameAndPartyResult instanceof Error) throw gameAndPartyResult;
+      const [game, party] = gameAndPartyResult;
 
-  useGameStore.getState().mutateState((gameState) => {
-    const gameAndPartyResult = getGameAndParty(gameState.game, gameState.username);
-    if (gameAndPartyResult instanceof Error) throw gameAndPartyResult;
-    const [game, party] = gameAndPartyResult;
+      const threatChangesRehydrated = plainToInstance(ThreatChanges, command.threatChanges);
+      threatChangesRehydrated.applyToGame(party);
+    });
 
-    const threatChangesRehydrated = plainToInstance(ThreatChanges, threatChanges);
-    threatChangesRehydrated.applyToGame(party);
-  });
-
-  // debouncing this is an easy but perhaps not optimal way to avoid showing many
-  // threat target change events in a row when threat changes rapidly such as several
-  // burning conditions going off in a row
-  debounceThreatTargetChangeIndicatorSequence();
+    // debouncing this is an easy but perhaps not optimal way to avoid showing many
+    // threat target change events in a row when threat changes rapidly such as several
+    // burning conditions going off in a row
+    debounceThreatTargetChangeIndicatorSequence();
+  }
 }
