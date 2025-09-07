@@ -65,6 +65,12 @@ export class ActionSequenceManager {
       currentAction
     );
 
+    console.log(
+      "action children for",
+      COMBAT_ACTION_NAME_STRINGS[currentActionExecutionIntent.actionName],
+      children.map((childaction) => COMBAT_ACTION_NAME_STRINGS[childaction.name])
+    );
+
     const childActionIntents = [];
     for (const action of children) {
       const targetsResult = action.targetingProperties.getAutoTarget(

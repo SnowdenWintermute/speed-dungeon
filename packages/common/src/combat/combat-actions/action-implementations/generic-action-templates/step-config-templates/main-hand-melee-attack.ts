@@ -6,6 +6,8 @@ import { ActionExecutionPhase } from "../../action-execution-phase.js";
 import { HoldableSlotType } from "../../../../../items/equipment/slots.js";
 import { COMBAT_ACTIONS } from "../../index.js";
 import { CombatActionName } from "../../../combat-action-names.js";
+import { ATTACK_MELEE_MAIN_HAND } from "../../attack/attack-melee-main-hand.js";
+import { ATTACK_MELEE_OFF_HAND } from "../../attack/attack-melee-off-hand.js";
 
 const expectedMeleeAttackAnimationType = "Expected meleeAttackAnimationType was undefined";
 
@@ -40,6 +42,7 @@ config.steps[ActionResolutionStepType.DeliveryMotion] = {
     );
   },
 };
+
 config.finalSteps[ActionResolutionStepType.RecoveryMotion] = {
   ...config.finalSteps[ActionResolutionStepType.RecoveryMotion],
   getAnimation: (user, animationLengths, meleeAttackAnimationType) => {

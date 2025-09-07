@@ -69,6 +69,5 @@ function hasEnoughActionPoints(
 
   if (actionPoints >= Math.abs(actionPointCost)) return true;
 
-  console.info("not executing - not enough AP");
   return false;
 }

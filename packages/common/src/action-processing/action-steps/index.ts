@@ -34,6 +34,9 @@ export enum ActionResolutionStepType {
   OnActivationActionEntityMotion,
   RollIncomingHitOutcomes,
   EvalOnHitOutcomeTriggers, // may start branching actions if triggered
+  // FINAL STEPS - conditionally obtained. example - may skip PreInitialPositioningCheckEnvironmentalHazardTriggers
+  // and FinalPositioning and just do RecoveryMotion
+  // if doing offhand attack instead of return home directly after mainhand attack
   PreFinalPositioningCheckEnvironmentalHazardTriggers,
   EvaluatePlayerEndTurnAndInputLock,
   ActionEntityDissipationMotion,

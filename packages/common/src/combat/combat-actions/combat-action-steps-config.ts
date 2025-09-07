@@ -7,7 +7,7 @@ import {
   EntityMotionUpdate,
 } from "../../action-processing/index.js";
 import { CombatantSpecies } from "../../combatants/combatant-species.js";
-import { CombatantProperties } from "../../combatants/index.js";
+import { Combatant, CombatantProperties } from "../../combatants/index.js";
 import { TaggedEquipmentSlot } from "../../items/equipment/slots.js";
 import { Milliseconds } from "../../primatives/index.js";
 import {
@@ -18,6 +18,7 @@ import {
 import { SpawnableEntity } from "../../spawnables/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { MeleeAttackAnimationType } from "./action-implementations/attack/determine-melee-attack-animation-type.js";
+import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
 
 export interface EquipmentAnimation {
   slot: TaggedEquipmentSlot;
@@ -71,6 +72,10 @@ export interface ActionResolutionStepConfig {
   //an arrow to have been spawned
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
   getAuxiliaryEntityMotions?(context: ActionResolutionStepContext): EntityMotionUpdate[];
+  getFollowupActions?: (context: ActionResolutionStepContext) => {
+    user: Combatant;
+    actionExecutionIntent: CombatActionExecutionIntent;
+  }[];
 
   shouldIdleOnComplete?: boolean;
 }
