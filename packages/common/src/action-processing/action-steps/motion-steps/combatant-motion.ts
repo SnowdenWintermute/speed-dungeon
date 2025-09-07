@@ -7,7 +7,9 @@ import {
 import { SpawnableEntityType } from "../../../spawnables/index.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../../app-consts.js";
-import { COMBAT_ACTIONS } from "../../../combat/index.js";
+import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../../combat/index.js";
+import { Combatant } from "../../../combatants/index.js";
+import { getFirewallBurnScheduledActions } from "./check-for-combatant-moving-through-firewall.js";
 
 export class CombatantMotionActionResolutionStep extends EntityMotionActionResolutionStep {
   constructor(context: ActionResolutionStepContext, step: ActionResolutionStepType) {
@@ -46,5 +48,11 @@ export class CombatantMotionActionResolutionStep extends EntityMotionActionResol
       context.combatantContext.combatant.combatantProperties.position,
       COMBATANT_TIME_TO_MOVE_ONE_METER
     );
+  }
+
+  onInitialize():
+    | Error
+    | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
+    return getFirewallBurnScheduledActions(this.context, this);
   }
 }
