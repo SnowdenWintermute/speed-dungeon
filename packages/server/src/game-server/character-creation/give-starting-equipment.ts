@@ -1,6 +1,7 @@
 import {
   AffixCategory,
   AffixType,
+  CombatAttribute,
   CombatantClass,
   CombatantProperties,
   EquipmentBaseItem,

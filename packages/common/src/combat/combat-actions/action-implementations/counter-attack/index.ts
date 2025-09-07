@@ -1,4 +1,5 @@
 import {
+  ActionAccuracyType,
   CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
@@ -15,6 +16,15 @@ const clonedConfig = cloneDeep(ATTACK_CONFIG);
 
 const config: CombatActionComponentConfig = {
   ...clonedConfig,
+  hitOutcomeProperties: {
+    ...clonedConfig.hitOutcomeProperties,
+    getIsBlockable: () => false,
+    getIsParryable: () => false,
+    getCanTriggerCounterattack: () => false,
+    getUnmodifiedAccuracy: () => {
+      return { type: ActionAccuracyType.Unavoidable };
+    },
+  },
   description: "Cancel an incoming attack and respond with one of your own",
   costProperties: { ...clonedConfig.costProperties, costBases: {} },
   hierarchyProperties: {

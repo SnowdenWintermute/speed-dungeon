@@ -1,4 +1,9 @@
-import { CombatActionComponentConfig, CombatActionLeaf, CombatActionName } from "../../index.js";
+import {
+  ActionAccuracyType,
+  CombatActionComponentConfig,
+  CombatActionLeaf,
+  CombatActionName,
+} from "../../index.js";
 import { COUNTER_ATTACK } from "./index.js";
 import { ATTACK_MELEE_MAIN_HAND_CONFIG } from "../attack/attack-melee-main-hand.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
@@ -16,7 +21,11 @@ const deliveryStep = stepsConfig.steps[ActionResolutionStepType.DeliveryMotion];
 if (!deliveryStep) throw new Error("expected delivery step not present");
 deliveryStep.getDestination = getRotateTowardPrimaryTargetDestination;
 
-const finalStep = stepsConfig.steps[ActionResolutionStepType.FinalPositioning];
+const recoveryMotion = stepsConfig.finalSteps[ActionResolutionStepType.RecoveryMotion];
+if (!recoveryMotion) throw new Error("expected to have recoveryMotion step configured");
+recoveryMotion.shouldIdleOnComplete = true;
+
+const finalStep = stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning];
 if (!finalStep) throw new Error("expected to have return home step configured");
 delete finalStep.getAnimation; // because we don't want them running back
 
@@ -33,6 +42,9 @@ const config: CombatActionComponentConfig = {
     getShouldAnimateTargetHitRecovery: () => false,
     getIsBlockable: () => false,
     getIsParryable: () => false,
+    getUnmodifiedAccuracy: () => {
+      return { type: ActionAccuracyType.Unavoidable };
+    },
   },
   hierarchyProperties: { ...clonedConfig.hierarchyProperties, getParent: () => COUNTER_ATTACK },
 };

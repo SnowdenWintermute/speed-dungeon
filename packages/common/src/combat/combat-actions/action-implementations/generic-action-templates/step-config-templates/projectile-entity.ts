@@ -37,9 +37,15 @@ const config = new ActionResolutionStepsConfig(
     },
     [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
     [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+  },
+  {
     [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
   },
-  { userShouldMoveHomeOnComplete: false }
+  {
+    getFinalSteps: (self) => {
+      return self.finalSteps;
+    },
+  }
 );
 
 export const PROJECTILE_ENTITY_STEPS_CONFIG = config;

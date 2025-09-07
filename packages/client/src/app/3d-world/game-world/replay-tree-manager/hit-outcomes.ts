@@ -123,7 +123,9 @@ export async function hitOutcomesGameUpdateHandler(update: {
     targetModel.skeletalAnimationManager.startAnimationWithTransition(
       SkeletalAnimationName.Evade,
       0,
-      {}
+      {
+        // onComplete: () => targetModel.startIdleAnimation(0)
+      }
     );
 
     useGameStore.getState().mutateState((gameState) => {

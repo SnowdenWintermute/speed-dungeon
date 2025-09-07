@@ -23,7 +23,7 @@ const deliveryStep = stepsConfig.steps[ActionResolutionStepType.DeliveryMotion];
 if (!deliveryStep) throw new Error("expected delivery step not present");
 deliveryStep.getDestination = getRotateTowardPrimaryTargetDestination;
 
-const finalStep = stepsConfig.steps[ActionResolutionStepType.FinalPositioning];
+const finalStep = stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning];
 if (!finalStep) throw new Error("expected to have return home step configured");
 delete finalStep.getAnimation; // because we don't want them running back
 

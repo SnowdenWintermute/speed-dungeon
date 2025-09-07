@@ -17,9 +17,11 @@ import {
 import { ActionStepConfigUtils } from "../generic-action-templates/step-config-templates/utils.js";
 import { COMBAT_ACTIONS } from "../index.js";
 
-const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
+const mainStepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
+const finalStepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> =
+  {};
 
-stepOverrides[ActionResolutionStepType.InitialPositioning] = {
+mainStepOverrides[ActionResolutionStepType.InitialPositioning] = {
   getCosmeticEffectsToStart: (context) => {
     return [
       CosmeticEffectInstructionFactory.createParticlesOnOffhand(
@@ -30,7 +32,7 @@ stepOverrides[ActionResolutionStepType.InitialPositioning] = {
   },
 };
 
-stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
+finalStepOverrides[ActionResolutionStepType.RecoveryMotion] = {
   getCosmeticEffectsToStart: (context) => {
     const { actionExecutionIntent } = context.tracker;
     const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
@@ -59,7 +61,7 @@ stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
   },
 };
 
-stepOverrides[ActionResolutionStepType.FinalPositioning] = {
+finalStepOverrides[ActionResolutionStepType.FinalPositioning] = {
   getCosmeticEffectsToStop: (context) => [
     CosmeticEffectInstructionFactory.createParticlesOnOffhand(
       CosmeticEffectNames.DarkParticleAccumulation,
@@ -69,10 +71,13 @@ stepOverrides[ActionResolutionStepType.FinalPositioning] = {
 };
 
 const base = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL;
-const stepsConfig = createStepsConfig(base, { steps: stepOverrides });
+const stepsConfig = createStepsConfig(base, {
+  steps: mainStepOverrides,
+  finalSteps: finalStepOverrides,
+});
 
 ActionStepConfigUtils.removeMoveForwardSteps(stepsConfig);
-delete stepsConfig.steps[ActionResolutionStepType.FinalPositioning]?.getAnimation;
-stepsConfig.steps[ActionResolutionStepType.FinalPositioning]!.shouldIdleOnComplete = true;
+delete stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning]?.getAnimation;
+stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning]!.shouldIdleOnComplete = true;
 
 export const BLIND_STEPS_CONFIG = stepsConfig;

@@ -13,16 +13,22 @@ delete config.steps[ActionResolutionStepType.RollIncomingHitOutcomes];
 const projectileSkillConfig = PROJECTILE_SKILL_STEPS_CONFIG;
 
 const recoveryMotionStepConfig: ActionResolutionStepConfig = {
-  ...config.steps[ActionResolutionStepType.RecoveryMotion],
-  ...projectileSkillConfig.steps[ActionResolutionStepType.RecoveryMotion],
+  ...config.finalSteps[ActionResolutionStepType.RecoveryMotion],
+  ...projectileSkillConfig.finalSteps[ActionResolutionStepType.RecoveryMotion],
 };
 
 const stepsConfig = {
   ...config.steps,
   [ActionResolutionStepType.StartConcurrentSubActions]: {},
+};
+
+const finalStepsConfig = {
+  ...config.finalSteps,
   [ActionResolutionStepType.RecoveryMotion]: recoveryMotionStepConfig,
 };
 
-export const PROJECTILE_SPELL_STEPS_CONFIG = new ActionResolutionStepsConfig(stepsConfig, {
-  userShouldMoveHomeOnComplete: true,
-});
+export const PROJECTILE_SPELL_STEPS_CONFIG = new ActionResolutionStepsConfig(
+  stepsConfig,
+  finalStepsConfig,
+  config.options
+);

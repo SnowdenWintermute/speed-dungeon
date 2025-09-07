@@ -10,6 +10,7 @@ export function setPlaytestingCombatantProperties(combatantProperties: Combatant
   combatantProperties.unspentAttributePoints = 30;
   combatantProperties.abilityProperties.unspentAbilityPoints = 1;
   // combatantProperties.supportClassProperties = { combatantClass: CombatantClass.Rogue, level: 1 };
+  //
 
   combatantProperties.inherentAttributes = {
     ...combatantProperties.inherentAttributes,
@@ -59,5 +60,6 @@ const TESTING_INHERENT_ATTRIBUTES: Partial<Record<CombatAttribute, number>> = {
   // [CombatAttribute.Strength]: 40,
   // [CombatAttribute.Spirit]: 25,
   [CombatAttribute.Mp]: 100,
+  [CombatAttribute.Evasion]: 100,
   // [CombatAttribute.Hp]: 75,
 };

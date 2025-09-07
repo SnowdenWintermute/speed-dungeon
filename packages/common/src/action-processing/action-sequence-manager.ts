@@ -6,21 +6,14 @@ import {
 import { CombatantContext } from "../combatant-context/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ActionSequenceManagerRegistry } from "./action-sequence-manager-registry.js";
-import {
-  NestedNodeReplayEvent,
-  NestedNodeReplayEventUtls,
-  ReplayEventType,
-} from "./replay-events.js";
+import { NestedNodeReplayEvent, NestedNodeReplayEventUtls } from "./replay-events.js";
 import { ActionTracker } from "./action-tracker.js";
 import { IdGenerator } from "../utility-classes/index.js";
-import { CombatantMotionActionResolutionStep } from "./action-steps/motion-steps/combatant-motion.js";
-import { ActionResolutionStepType } from "./action-steps/index.js";
 
 export class ActionSequenceManager {
   private remainingActionsToExecute: CombatActionExecutionIntent[];
   private currentTracker: null | ActionTracker = null;
   private completedTrackers: ActionTracker[] = [];
-  private isFinalized: boolean = false;
   constructor(
     public id: string,
     actionExecutionIntent: CombatActionExecutionIntent,
@@ -30,11 +23,6 @@ export class ActionSequenceManager {
     private idGenerator: IdGenerator,
     private trackerThatSpawnedThisActionOption: null | ActionTracker
   ) {
-    console.log(
-      "created sequence manager with initial actionExecutionIntent",
-      COMBAT_ACTION_NAME_STRINGS[actionExecutionIntent.actionName],
-      actionExecutionIntent.id
-    );
     this.remainingActionsToExecute = [actionExecutionIntent];
   }
   getTopParent(): ActionSequenceManager {
@@ -45,12 +33,6 @@ export class ActionSequenceManager {
       current = next;
     }
     return current;
-  }
-  getIsFinalized() {
-    return this.isFinalized;
-  }
-  markAsFinalized() {
-    this.isFinalized = true;
   }
   getNextActionInQueue() {
     return this.remainingActionsToExecute[this.remainingActionsToExecute.length - 1];
@@ -175,10 +157,6 @@ export class ActionSequenceManager {
       if (!trackerOption.wasAborted) {
         let nextStepOption = trackerOption.initializeNextStep();
 
-        if (nextStepOption === null && !trackerOption.hasQueuedUpFinalSteps) {
-          // get final steps and set nextStepOption
-        }
-
         // START NEXT STEPS
         if (nextStepOption !== null) {
           trackerOption.currentStep = nextStepOption;
@@ -221,38 +199,8 @@ export class ActionSequenceManager {
         }
       }
 
-      if (this.getIsFinalized()) {
-        sequentialActionManagerRegistry.unRegisterActionManager(this.id);
-        break;
-      }
-
-      // if we got this far, this action sequence is done,
-      this.markAsFinalized();
-      // send the user home if the action type necessitates it
-      const action = COMBAT_ACTIONS[trackerOption.actionExecutionIntent.actionName];
-
-      if (
-        action.stepsConfig.options.userShouldMoveHomeOnComplete
-        // combatantContext.combatant.combatantProperties.hitPoints > 0
-      ) {
-        const returnHomeStep = new CombatantMotionActionResolutionStep(
-          trackerOption.currentStep.getContext(),
-          ActionResolutionStepType.FinalPositioning
-        );
-
-        trackerOption.currentStep = returnHomeStep;
-        currentStep = returnHomeStep;
-
-        const returnHomeUpdate = returnHomeStep.getGameUpdateCommandOption();
-        if (returnHomeUpdate)
-          this.replayNode.events.push({
-            type: ReplayEventType.GameUpdate,
-            gameUpdate: returnHomeUpdate,
-          });
-      } else {
-        sequentialActionManagerRegistry.unRegisterActionManager(this.id);
-        break;
-      }
+      sequentialActionManagerRegistry.unRegisterActionManager(this.id);
+      break;
     }
   }
 }

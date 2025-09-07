@@ -1,4 +1,5 @@
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
@@ -21,8 +22,14 @@ export class TriggerEnvironmentalHazardsActionResolutionStep extends ActionResol
   constructor(context: ActionResolutionStepContext, step: ActionResolutionStepType) {
     const { actionName } = context.tracker.actionExecutionIntent;
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
-    const stepConfig = action.stepsConfig.steps[step];
-    if (!stepConfig) throw new Error("expected step config not found");
+    let stepConfig;
+    if (step === ActionResolutionStepType.PreInitialPositioningCheckEnvironmentalHazardTriggers) {
+      stepConfig = action.stepsConfig.steps[step];
+    } else {
+      stepConfig = action.stepsConfig.finalSteps[step];
+    }
+
+    if (stepConfig === undefined) throw new Error("expected step config not found");
 
     super(step, context, null);
   }

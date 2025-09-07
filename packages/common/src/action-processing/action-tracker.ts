@@ -11,7 +11,12 @@ import { SpawnableEntity, SpawnableEntityType } from "../spawnables/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
-import { ActionResolutionStep, ActionResolutionStepContext } from "./action-steps/index.js";
+import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
+  ActionResolutionStep,
+  ActionResolutionStepContext,
+  ActionResolutionStepType,
+} from "./action-steps/index.js";
 import { ACTION_STEP_CREATORS } from "./action-steps/step-creators.js";
 
 export class ActionTracker {
@@ -28,6 +33,7 @@ export class ActionTracker {
   /** Idea here is to have final steps such as DetermineEnvironmentalHazardTriggers,
    * DetermineEndTurnAndReleaseInputLock, RecoveryMotion conditionally queue themselves only once*/
   public hasQueuedUpFinalSteps = false;
+  public queuedStepTypes: ActionResolutionStepType[] = [];
 
   constructor(
     public parentActionManager: ActionSequenceManager,
@@ -39,6 +45,10 @@ export class ActionTracker {
     private spawnedEntityFromParent?: null | SpawnableEntity
   ) {
     if (spawnedEntityFromParent) this.spawnedEntityOption = spawnedEntityFromParent;
+
+    const action = COMBAT_ACTIONS[this.actionExecutionIntent.actionName];
+    this.queuedStepTypes = action.stepsConfig.getStepTypes();
+
     const firstStepOption = this.initializeNextStep();
     if (firstStepOption === null) throw new Error("expected first action step missing");
     this.currentStep = firstStepOption;
@@ -46,15 +56,31 @@ export class ActionTracker {
 
   initializeNextStep() {
     this.stepIndex += 1;
-    const action = COMBAT_ACTIONS[this.actionExecutionIntent.actionName];
     const context: ActionResolutionStepContext = {
       combatantContext: this.parentActionManager.combatantContext,
       tracker: this,
       manager: this.parentActionManager,
       idGenerator: this.idGenerator,
     };
-    const stepTypes = action.stepsConfig.getStepTypes();
-    const stepOption = stepTypes[this.stepIndex];
+    const stepTypes = this.queuedStepTypes;
+    let stepOption = stepTypes[this.stepIndex];
+
+    if (stepOption === undefined && this.hasQueuedUpFinalSteps) return null;
+    else if (stepOption === undefined) {
+      // get final steps and set nextStepOption
+      const action = COMBAT_ACTIONS[this.actionExecutionIntent.actionName];
+      const finalSteps = action.stepsConfig.options.getFinalSteps(action.stepsConfig, context);
+
+      this.queuedStepTypes.push(
+        ...iterateNumericEnumKeyedRecord(finalSteps)
+          .sort(([aKey, aValue], [bKey, bValue]) => aKey - bKey)
+          .map(([key, value]) => key)
+      );
+
+      this.hasQueuedUpFinalSteps = true;
+      stepOption = stepTypes[this.stepIndex];
+    }
+
     if (stepOption === undefined) return null;
 
     const stepCreator = ACTION_STEP_CREATORS[stepOption];

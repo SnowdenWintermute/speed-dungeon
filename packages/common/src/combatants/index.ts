@@ -71,6 +71,7 @@ export * from "./threat-manager/index.js";
 export * from "./combatant-traits/index.js";
 export * from "./ability-tree/index.js";
 export * from "./combatant-abilities/index.js";
+export * from "./attributes/index.js";
 
 export class Combatant {
   [immerable] = true;

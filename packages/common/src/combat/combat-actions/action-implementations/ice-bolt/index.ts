@@ -32,8 +32,8 @@ stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
     ];
   },
 };
-stepsConfig.steps[ActionResolutionStepType.FinalPositioning] = {
-  ...stepsConfig.steps[ActionResolutionStepType.FinalPositioning],
+stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning] = {
+  ...stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning],
   getCosmeticEffectsToStop: (context) => [
     CosmeticEffectInstructionFactory.createParticlesOnOffhand(
       CosmeticEffectNames.FrostParticleAccumulation,

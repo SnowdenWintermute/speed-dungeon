@@ -1,3 +1,4 @@
+import cloneDeep from "lodash.clonedeep";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import {
   CombatActionCombatLogProperties,
@@ -20,18 +21,7 @@ const config: CombatActionComponentConfig = {
       return `${data.nameOfActionUser} ticks`;
     },
   }),
-  stepsConfig: new ActionResolutionStepsConfig(
-    {
-      [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
-      [ActionResolutionStepType.PayResourceCosts]: {},
-      [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
-      [ActionResolutionStepType.EvalOnUseTriggers]: {},
-      [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
-      [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
-      [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
-    },
-    { userShouldMoveHomeOnComplete: false }
-  ),
+  stepsConfig: cloneDeep(passTurnConfig.stepsConfig),
 };
 
 export const CONDITION_PASS_TURN = new CombatActionLeaf(CombatActionName.ConditionPassTurn, config);

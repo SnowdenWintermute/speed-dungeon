@@ -61,9 +61,11 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
     {
       [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
       [ActionResolutionStepType.DetermineChildActions]: {},
+    },
+    {
       [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     },
-    { userShouldMoveHomeOnComplete: false }
+    { getFinalSteps: (self) => self.finalSteps }
   ),
 };
 

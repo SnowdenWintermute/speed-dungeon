@@ -20,8 +20,8 @@ stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
   },
 };
 
-stepsConfig.steps[ActionResolutionStepType.RecoveryMotion] = {
-  ...stepsConfig.steps[ActionResolutionStepType.RecoveryMotion],
+stepsConfig.finalSteps[ActionResolutionStepType.RecoveryMotion] = {
+  ...stepsConfig.finalSteps[ActionResolutionStepType.RecoveryMotion],
   getCosmeticEffectsToStart: (context) => {
     const { actionExecutionIntent } = context.tracker;
     const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
@@ -44,8 +44,8 @@ stepsConfig.steps[ActionResolutionStepType.RecoveryMotion] = {
   },
 };
 
-stepsConfig.steps[ActionResolutionStepType.FinalPositioning] = {
-  ...stepsConfig.steps[ActionResolutionStepType.FinalPositioning],
+stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning] = {
+  ...stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning],
   getCosmeticEffectsToStop: (context) => [
     CosmeticEffectInstructionFactory.createParticlesOnOffhand(
       CosmeticEffectNames.LightParticleAccumulation,

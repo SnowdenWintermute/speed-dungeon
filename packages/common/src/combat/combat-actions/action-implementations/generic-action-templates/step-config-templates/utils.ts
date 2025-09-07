@@ -8,7 +8,10 @@ export class ActionStepConfigUtils {
     delete initialPositioning?.getDestination;
     delete initialPositioning?.getAnimation;
 
-    delete stepsConfig.steps[ActionResolutionStepType.FinalPositioning]?.getAnimation;
-    stepsConfig.steps[ActionResolutionStepType.FinalPositioning]!.shouldIdleOnComplete = true;
+    delete stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning]?.getAnimation;
+
+    const finalPositioningStepOption =
+      stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning];
+    if (finalPositioningStepOption) finalPositioningStepOption.shouldIdleOnComplete = true;
   }
 }

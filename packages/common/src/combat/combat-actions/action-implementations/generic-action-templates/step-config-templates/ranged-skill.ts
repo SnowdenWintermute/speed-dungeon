@@ -31,6 +31,8 @@ export const RANGED_SKILL_STEPS_CONFIG = new ActionResolutionStepsConfig(
     [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
     [ActionResolutionStepType.EvalOnUseTriggers]: {},
     [ActionResolutionStepType.StartConcurrentSubActions]: {},
+  },
+  {
     [ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers]: {},
     [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     [ActionResolutionStepType.FinalPositioning]: {
@@ -44,5 +46,9 @@ export const RANGED_SKILL_STEPS_CONFIG = new ActionResolutionStepsConfig(
       },
     },
   },
-  { userShouldMoveHomeOnComplete: true }
+  {
+    getFinalSteps: (self) => {
+      return self.finalSteps;
+    },
+  }
 );

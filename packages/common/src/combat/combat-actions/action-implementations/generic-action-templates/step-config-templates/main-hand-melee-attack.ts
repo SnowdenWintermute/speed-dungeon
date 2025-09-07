@@ -4,6 +4,8 @@ import { ActionResolutionStepType } from "../../../../../action-processing/index
 import { getMeleeAttackAnimationFromType } from "../../get-entity-animation.js";
 import { ActionExecutionPhase } from "../../action-execution-phase.js";
 import { HoldableSlotType } from "../../../../../items/equipment/slots.js";
+import { COMBAT_ACTIONS } from "../../index.js";
+import { CombatActionName } from "../../../combat-action-names.js";
 
 const expectedMeleeAttackAnimationType = "Expected meleeAttackAnimationType was undefined";
 
@@ -38,8 +40,8 @@ config.steps[ActionResolutionStepType.DeliveryMotion] = {
     );
   },
 };
-config.steps[ActionResolutionStepType.RecoveryMotion] = {
-  ...config.steps[ActionResolutionStepType.RecoveryMotion],
+config.finalSteps[ActionResolutionStepType.RecoveryMotion] = {
+  ...config.finalSteps[ActionResolutionStepType.RecoveryMotion],
   getAnimation: (user, animationLengths, meleeAttackAnimationType) => {
     if (meleeAttackAnimationType === undefined) throw new Error(expectedMeleeAttackAnimationType);
     return getMeleeAttackAnimationFromType(
@@ -53,13 +55,30 @@ config.steps[ActionResolutionStepType.RecoveryMotion] = {
   },
 };
 
-config.steps[ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers] = {
-  ...config.steps[ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers],
-  isConditionalStep: true,
+config.finalSteps[ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers] = {
+  ...config.finalSteps[
+    ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers
+  ],
 };
-config.steps[ActionResolutionStepType.FinalPositioning] = {
-  ...config.steps[ActionResolutionStepType.FinalPositioning],
-  isConditionalStep: true,
+config.finalSteps[ActionResolutionStepType.FinalPositioning] = {
+  ...config.finalSteps[ActionResolutionStepType.FinalPositioning],
+};
+
+config.options.getFinalSteps = (self, context) => {
+  const offhandAttack = COMBAT_ACTIONS[CombatActionName.AttackMeleeOffhand];
+  const offhandShouldExecute = offhandAttack.targetingProperties.shouldExecute(
+    context.combatantContext,
+    context.tracker,
+    offhandAttack
+  );
+
+  if (!offhandShouldExecute) return config.finalSteps;
+
+  return {
+    [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
+    [ActionResolutionStepType.RecoveryMotion]:
+      config.finalSteps[ActionResolutionStepType.RecoveryMotion],
+  };
 };
 
 export const MAIN_HAND_MELEE_ATTACK_STEPS_CONFIG = config;

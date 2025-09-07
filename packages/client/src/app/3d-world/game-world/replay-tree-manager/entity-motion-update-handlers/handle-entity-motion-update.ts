@@ -1,4 +1,5 @@
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionEntityMotionGameUpdateCommand,
   AnimationType,
   CombatantMotionGameUpdateCommand,
@@ -28,6 +29,15 @@ export function handleEntityMotionUpdate(
   isMainUpdate: boolean
 ) {
   const { translationOption, rotationOption, animationOption, delayOption } = motionUpdate;
+
+  console.log(
+    "handling motion update",
+    ACTION_RESOLUTION_STEP_TYPE_STRINGS[update.command.step],
+    "animationOption:",
+    animationOption,
+    "translationOption: ",
+    translationOption
+  );
 
   const toUpdate = getSceneEntityToUpdate(motionUpdate);
   const { movementManager, skeletalAnimationManager, dynamicAnimationManager } = toUpdate;
@@ -81,11 +91,13 @@ export function handleEntityMotionUpdate(
     onTranslationComplete = () => {
       if (!motionUpdate.idleOnComplete) return;
       const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
+      console.log("idling on translation complete");
       combatantModelOption.startIdleAnimation(500);
     };
 
     onAnimationComplete = () => {
       if (!motionUpdate.idleOnComplete) return;
+      console.log("idling on animation complete");
       const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
       combatantModelOption.startIdleAnimation(500);
     };

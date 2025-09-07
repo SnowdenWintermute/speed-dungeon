@@ -85,7 +85,9 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     entityPosition: Vector3,
     entitySpeed: number
   ) {
-    const destinationGetterOption = action.stepsConfig.steps[stepType]?.getDestination;
+    let destinationGetterOption = action.stepsConfig.steps[stepType]?.getDestination;
+    if (!destinationGetterOption)
+      destinationGetterOption = action.stepsConfig.finalSteps[stepType]?.getDestination;
     if (!destinationGetterOption) return null;
 
     let destinationResult = null;
@@ -130,7 +132,9 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     const { actionExecutionIntent } = this.context.tracker;
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
 
-    const animationGetterOption = action.stepsConfig.steps[this.type]?.getAnimation;
+    let animationGetterOption = action.stepsConfig.steps[this.type]?.getAnimation;
+    if (!animationGetterOption)
+      animationGetterOption = action.stepsConfig.finalSteps[this.type]?.getAnimation;
     if (!animationGetterOption) return null;
 
     let animationType;

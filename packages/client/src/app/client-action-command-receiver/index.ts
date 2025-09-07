@@ -2,7 +2,7 @@ import { ActionCommandReceiver, CombatActionReplayTreePayload } from "@speed-dun
 import { battleResultActionCommandHandler } from "./process-battle-result";
 import gameMessageActionCommandHandler from "./game-message";
 import { removeClientPlayerFromGame } from "./remove-client-player-from-game";
-import { gameWorld } from "../3d-world/SceneManager";
+import { getGameWorld } from "../3d-world/SceneManager";
 import { baseMenuState, useGameStore } from "@/stores/game-store";
 import { synchronizeTargetingIndicators } from "../websocket-manager/game-event-handlers/synchronize-targeting-indicators";
 import { MenuStateType } from "../game/ActionMenu/menu-state";
@@ -38,7 +38,9 @@ export class ClientActionCommandReceiver implements ActionCommandReceiver {
           }
         });
 
-        gameWorld.current?.replayTreeManager.enqueueTree(payload, () => resolve(true));
+        console.log("GOT TREE:", payload);
+
+        getGameWorld().replayTreeManager.enqueueTree(payload, () => resolve(true));
       });
       await promise;
     };

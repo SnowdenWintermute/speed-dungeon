@@ -38,6 +38,7 @@ export function createStepsConfig(
   templateGetter: () => ActionResolutionStepsConfig,
   overrides: {
     steps: Partial<Record<ActionResolutionStepType, Partial<ActionResolutionStepConfig>>>;
+    finalSteps?: Partial<Record<ActionResolutionStepType, Partial<ActionResolutionStepConfig>>>;
     options?: ActionResolutionStepsConfigOptions;
   }
 ): ActionResolutionStepsConfig {
@@ -49,6 +50,14 @@ export function createStepsConfig(
       ...stepOverrides,
     };
   }
+
+  if (overrides.finalSteps)
+    for (const [stepType, stepOverrides] of iterateNumericEnumKeyedRecord(overrides.finalSteps)) {
+      base.finalSteps[stepType] = {
+        ...base.finalSteps[stepType],
+        ...stepOverrides,
+      };
+    }
 
   if (overrides.options)
     base.options = {

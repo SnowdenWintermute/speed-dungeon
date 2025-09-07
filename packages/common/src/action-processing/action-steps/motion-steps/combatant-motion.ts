@@ -20,8 +20,11 @@ export class CombatantMotionActionResolutionStep extends EntityMotionActionResol
     };
 
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
-    const stepConfig = action.stepsConfig.steps[step];
+    let stepConfig = action.stepsConfig.steps[step];
+    if (stepConfig === undefined) stepConfig = action.stepsConfig.finalSteps[step];
     if (!stepConfig) throw new Error("expected step config not found");
+
+    if (stepConfig.shouldIdleOnComplete) update.idleOnComplete = true;
 
     if (stepConfig.getEquipmentAnimations)
       update.equipmentAnimations = stepConfig.getEquipmentAnimations(

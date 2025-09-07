@@ -9,12 +9,18 @@ const config = new ActionResolutionStepsConfig(
     [ActionResolutionStepType.OnActivationActionEntityMotion]: {},
     [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
     [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+  },
+  {
     [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     [ActionResolutionStepType.ActionEntityDissipationMotion]: {
       shouldDespawnOnComplete: () => true,
     },
   },
-  { userShouldMoveHomeOnComplete: false }
+  {
+    getFinalSteps: (self: ActionResolutionStepsConfig) => {
+      return self.finalSteps;
+    },
+  }
 );
 
 export const EXPLOSION_ENTITY_STEPS_CONFIG = config;

@@ -6,6 +6,7 @@ import { getSpeciesTimedAnimation } from "../../get-species-timed-animation.js";
 import { RANGED_SKILL_STEPS_CONFIG } from "./ranged-skill.js";
 
 const config = cloneDeep(RANGED_SKILL_STEPS_CONFIG);
+
 config.steps[ActionResolutionStepType.ChamberingMotion] = {
   ...config.steps[ActionResolutionStepType.ChamberingMotion],
   getAnimation: (user, animationLengths) =>
@@ -28,8 +29,9 @@ config.steps[ActionResolutionStepType.DeliveryMotion] = {
       false
     ),
 };
-config.steps[ActionResolutionStepType.RecoveryMotion] = {
-  ...config.steps[ActionResolutionStepType.RecoveryMotion],
+
+config.finalSteps[ActionResolutionStepType.RecoveryMotion] = {
+  ...config.finalSteps[ActionResolutionStepType.RecoveryMotion],
   getAnimation: (user, animationLengths) =>
     getSpeciesTimedAnimation(
       user,
@@ -41,5 +43,6 @@ config.steps[ActionResolutionStepType.RecoveryMotion] = {
 
 export const BASIC_SPELL_STEPS_CONFIG = new ActionResolutionStepsConfig(
   config.steps,
+  config.finalSteps,
   config.options
 );

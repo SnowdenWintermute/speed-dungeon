@@ -69,11 +69,6 @@ config.steps[ActionResolutionStepType.DeliveryMotion] = {
   getEquipmentAnimations: getBowEquipmentAnimation,
   getAuxiliaryEntityMotions: lockArrowToFaceArrowRest,
 };
-config.steps[ActionResolutionStepType.RecoveryMotion] = {
-  ...config.steps[ActionResolutionStepType.RecoveryMotion],
-  getAnimation: (user, animationLengths) =>
-    getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.BowRecovery, false),
-};
 
 config.steps = {
   ...config.steps,
@@ -113,7 +108,17 @@ config.steps = {
   [ActionResolutionStepType.StartConcurrentSubActions]: {},
 };
 
-export const BOW_SKILL_STEPS_CONFIG = new ActionResolutionStepsConfig(config.steps, config.options);
+config.finalSteps[ActionResolutionStepType.RecoveryMotion] = {
+  ...config.finalSteps[ActionResolutionStepType.RecoveryMotion],
+  getAnimation: (user, animationLengths) =>
+    getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.BowRecovery, false),
+};
+
+export const BOW_SKILL_STEPS_CONFIG = new ActionResolutionStepsConfig(
+  config.steps,
+  config.finalSteps,
+  config.options
+);
 
 function getBowEquipmentAnimation(
   user: CombatantProperties,

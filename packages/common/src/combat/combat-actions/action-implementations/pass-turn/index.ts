@@ -40,11 +40,11 @@ export const passTurnConfig: CombatActionComponentConfig = {
       [ActionResolutionStepType.PayResourceCosts]: {},
       [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
       [ActionResolutionStepType.EvalOnUseTriggers]: {},
-      [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
-      [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+    },
+    {
       [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     },
-    { userShouldMoveHomeOnComplete: false }
+    { getFinalSteps: (self) => self.finalSteps }
   ),
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };

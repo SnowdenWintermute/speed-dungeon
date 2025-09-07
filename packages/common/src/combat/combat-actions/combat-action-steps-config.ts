@@ -72,20 +72,20 @@ export interface ActionResolutionStepConfig {
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
   getAuxiliaryEntityMotions?(context: ActionResolutionStepContext): EntityMotionUpdate[];
 
-  // don't include this step in the initial list, it may be added later such as in the case
-  // of return home step for a melee main hand attack that killed its target, thus not needing
-  // to do the offhand attack
-  isConditionalStep?: boolean;
   shouldIdleOnComplete?: boolean;
 }
 
 export interface ActionResolutionStepsConfigOptions {
-  userShouldMoveHomeOnComplete?: boolean;
+  getFinalSteps: (
+    self: ActionResolutionStepsConfig,
+    context: ActionResolutionStepContext
+  ) => Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>>;
 }
 
 export class ActionResolutionStepsConfig {
   constructor(
     public steps: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>>,
+    public finalSteps: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>>,
     // some actions may or may not be the last action in a chain, such as main hand
     // attack while wielding an offhand. In this case we can't difinitively say that
     // user will always return home after such an action, but we can say if they
@@ -96,7 +96,6 @@ export class ActionResolutionStepsConfig {
   getStepTypes() {
     const stepTypes = iterateNumericEnumKeyedRecord(this.steps)
       .sort(([aKey, aValue], [bKey, bValue]) => aKey - bKey)
-      .filter(([key, value]) => !value.isConditionalStep)
       .map(([key, value]) => key);
     return stepTypes;
   }

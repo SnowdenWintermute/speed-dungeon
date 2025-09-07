@@ -28,8 +28,9 @@ config.steps[ActionResolutionStepType.DeliveryMotion] = {
       false
     ),
 };
-config.steps[ActionResolutionStepType.RecoveryMotion] = {
-  ...config.steps[ActionResolutionStepType.RecoveryMotion],
+
+config.finalSteps[ActionResolutionStepType.RecoveryMotion] = {
+  ...config.finalSteps[ActionResolutionStepType.RecoveryMotion],
   getAnimation: (user, animationLengths) =>
     getSpeciesTimedAnimation(
       user,

@@ -9,7 +9,9 @@ export const VALUE_CHANGE_TICK_ACTION_STEPS_CONFIG = new ActionResolutionStepsCo
     [ActionResolutionStepType.EvalOnUseTriggers]: {},
     [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
     [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+  },
+  {
     [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
   },
-  { userShouldMoveHomeOnComplete: false }
+  { getFinalSteps: (self) => self.finalSteps }
 );

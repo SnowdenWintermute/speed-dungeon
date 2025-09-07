@@ -37,13 +37,12 @@ const config: CombatActionComponentConfig = {
     {
       [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
       [ActionResolutionStepType.PayResourceCosts]: {},
-      [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
-      [ActionResolutionStepType.EvalOnUseTriggers]: {},
-      [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
-      [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
       [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     },
-    { userShouldMoveHomeOnComplete: false }
+    {
+      [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
+    },
+    { getFinalSteps: (self) => self.finalSteps }
   ),
 };
 

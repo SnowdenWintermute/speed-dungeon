@@ -14,8 +14,8 @@ import { ActionResolutionStepsConfig } from "../../../combat-action-steps-config
 import { RANGED_SKILL_STEPS_CONFIG } from "./ranged-skill.js";
 
 const config = cloneDeep(RANGED_SKILL_STEPS_CONFIG);
-config.steps[ActionResolutionStepType.RecoveryMotion] = {
-  ...config.steps[ActionResolutionStepType.RecoveryMotion],
+config.finalSteps[ActionResolutionStepType.RecoveryMotion] = {
+  ...config.finalSteps[ActionResolutionStepType.RecoveryMotion],
   getAuxiliaryEntityMotions: (context) => {
     const { party } = context.combatantContext;
     const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
@@ -55,5 +55,6 @@ config.steps[ActionResolutionStepType.RecoveryMotion] = {
 
 export const PROJECTILE_SKILL_STEPS_CONFIG = new ActionResolutionStepsConfig(
   config.steps,
+  config.finalSteps,
   config.options
 );

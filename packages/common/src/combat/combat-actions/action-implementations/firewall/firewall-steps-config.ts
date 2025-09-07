@@ -45,7 +45,7 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
 
 const base = cloneDeep(FIRE_STEPS_CONFIG);
 delete base.steps[ActionResolutionStepType.RollIncomingHitOutcomes];
-delete base.steps[ActionResolutionStepType.RecoveryMotion]?.getCosmeticEffectsToStart;
+delete base.finalSteps[ActionResolutionStepType.RecoveryMotion]?.getCosmeticEffectsToStart;
 
 const stepsConfig = createStepsConfig(() => base, {
   steps: stepOverrides,
