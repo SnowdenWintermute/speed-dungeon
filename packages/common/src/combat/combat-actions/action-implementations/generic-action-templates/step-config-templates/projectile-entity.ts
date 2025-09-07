@@ -37,7 +37,8 @@ const config = new ActionResolutionStepsConfig(
     },
     [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
     [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
-    [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
+    [ActionResolutionStepType.FinalPositioning]: {},
+    // [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
   },
   { userShouldMoveHomeOnComplete: false }
 );

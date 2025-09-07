@@ -9,7 +9,8 @@ const config = new ActionResolutionStepsConfig(
     [ActionResolutionStepType.OnActivationActionEntityMotion]: {},
     [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
     [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
-    [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
+    [ActionResolutionStepType.FinalPositioning]: {},
+    // [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     [ActionResolutionStepType.ActionEntityDissipationMotion]: {
       shouldDespawnOnComplete: () => true,
     },

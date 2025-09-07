@@ -30,7 +30,7 @@ export const RANGED_SKILL_STEPS_CONFIG = new ActionResolutionStepsConfig(
     [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
     [ActionResolutionStepType.EvalOnUseTriggers]: {},
     [ActionResolutionStepType.StartConcurrentSubActions]: {},
-    [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
+    // [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     [ActionResolutionStepType.FinalPositioning]: {
       getDestination: getHomeDestination,
       getAnimation: () => {

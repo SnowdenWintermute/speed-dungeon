@@ -94,7 +94,7 @@ export class ActionSequenceManager {
 
       const actionLevel = currentActionExecutionIntent.level;
 
-      this.sequentialActionManagerRegistry.incrementInputLockReferenceCount();
+      this.sequentialActionManagerRegistry.incrementInputLockReferenceCount(action.name);
       childActionIntents.push(
         new CombatActionExecutionIntent(action.name, targetsResult, actionLevel)
       );

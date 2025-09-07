@@ -41,7 +41,8 @@ const config: CombatActionComponentConfig = {
       [ActionResolutionStepType.EvalOnUseTriggers]: {},
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
-      [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
+      [ActionResolutionStepType.FinalPositioning]: {},
+      // [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     },
     { userShouldMoveHomeOnComplete: false }
   ),

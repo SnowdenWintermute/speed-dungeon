@@ -12,7 +12,6 @@ import { RollIncomingHitOutcomesActionResolutionStep } from "./roll-incoming-hit
 import { SpawnEntityActionResolutionStep } from "./spawn-entity.js";
 import { StartConcurrentSubActionsActionResolutionStep } from "./start-concurrent-sub-actions.js";
 import { DetermineMeleeActionAnimationsActionResolutionStep } from "./determine-melee-action-animations.js";
-import { EvaluatePlayerEndTurnAndInputLockActionResolutionStep } from "./evaluate-player-turn-end-and-input-lock.js";
 import { DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep } from "./determine-should-execute-or-release-turn-and-input-lock.js";
 import { PostActionUseCombatLogMessageActionResolutionStep } from "./post-action-use-combat-log-message.js";
 import { CombatantMotionActionResolutionStep } from "./motion-steps/combatant-motion.js";
@@ -69,8 +68,8 @@ export const ACTION_STEP_CREATORS: Record<
     new RollIncomingHitOutcomesActionResolutionStep(context),
   [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: (context) =>
     new EvalOnHitOutcomeTriggersActionResolutionStep(context),
-  [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: (context) =>
-    new EvaluatePlayerEndTurnAndInputLockActionResolutionStep(context),
+  // [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: (context) =>
+  //   new EvaluatePlayerEndTurnAndInputLockActionResolutionStep(context),
   [ActionResolutionStepType.ActionEntityDissipationMotion]: (context) => {
     const expectedProjectileEntityOption = context.tracker.spawnedEntityOption;
     if (!expectedProjectileEntityOption) throw new Error("expected projectile was missing");

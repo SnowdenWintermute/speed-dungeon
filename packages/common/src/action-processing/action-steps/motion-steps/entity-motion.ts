@@ -10,6 +10,7 @@ import {
   AnimationTimingType,
   CombatantMotionGameUpdateCommand,
   EntityAnimation,
+  EntityMotionUpdateCommand,
   EntityTranslation,
 } from "../../game-update-commands.js";
 import {
@@ -24,6 +25,8 @@ import { Combatant } from "../../../combatants/index.js";
 import { getFirewallBurnScheduledActions } from "./check-for-combatant-moving-through-firewall.js";
 import { EntityDestinations } from "./destinations.js";
 import { CombatantMotionActionResolutionStep } from "./combatant-motion.js";
+import { evaluatePlayerEndTurnAndInputLock } from "../evaluate-player-turn-end-and-input-lock.js";
+import { AdventuringParty } from "../../../adventuring-party/index.js";
 
 export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   private translationOption: null | EntityTranslation = null;
@@ -32,9 +35,7 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   constructor(
     stepType: ActionResolutionStepType,
     context: ActionResolutionStepContext,
-    private gameUpdateCommand:
-      | CombatantMotionGameUpdateCommand
-      | ActionEntityMotionGameUpdateCommand,
+    private gameUpdateCommand: EntityMotionUpdateCommand,
     private entityPosition: Vector3,
     private entitySpeed: number
   ) {
@@ -90,8 +91,50 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     );
 
     if (this.type === ActionResolutionStepType.FinalPositioning) {
-      // evaluate turn end input unlocks
+      const actionCompletionPropertiesOption = evaluatePlayerEndTurnAndInputLock(this.context);
+      console.log(
+        "action:",
+        COMBAT_ACTION_NAME_STRINGS[action.name],
+        "step:",
+        ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type],
+
+        "actionCompletionPropertiesOption:",
+        actionCompletionPropertiesOption
+      );
+
+      if (firewallBurns.length === 0) {
+        // evaluate turn end input unlocks
+        if (actionCompletionPropertiesOption) {
+          const party = this.context.combatantContext.party;
+
+          this.gameUpdateCommand.mainEntityUpdate.actionCompletionProperties =
+            actionCompletionPropertiesOption;
+
+          for (const [groupName, combatantGroup] of Object.entries(
+            AdventuringParty.getAllCombatants(party)
+          )) {
+            for (const [entityId, combatant] of Object.entries(combatantGroup)) {
+              if (!combatant.combatantProperties.threatManager) continue;
+              combatant.combatantProperties.threatManager.updateHomeRotationToPointTowardNewTopThreatTarget(
+                party,
+                combatant
+              );
+            }
+          }
+        }
+      }
     }
+
+    console.log(
+      "action:",
+      COMBAT_ACTION_NAME_STRINGS[action.name],
+      "step:",
+      ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type],
+      "burns:",
+      firewallBurns.length,
+      "unlocks:",
+      this.gameUpdateCommand.mainEntityUpdate.actionCompletionProperties
+    );
 
     return firewallBurns;
   }
