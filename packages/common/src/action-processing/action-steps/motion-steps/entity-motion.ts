@@ -77,8 +77,18 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     // their parent action, like pointing an arrow at a target or releasing from the string
     const auxiliaryEntityMotionsGetter =
       action.stepsConfig.steps[this.type]?.getAuxiliaryEntityMotions;
+
+    console.log(
+      "STEP:",
+      ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type].toUpperCase(),
+      "ACTION HAS AUXILIARYENTITYMOTIONS:",
+      COMBAT_ACTION_NAME_STRINGS[action.name].toUpperCase(),
+      !!auxiliaryEntityMotionsGetter
+    );
+
     if (auxiliaryEntityMotionsGetter) {
       const auxiliaryEntityMotions = auxiliaryEntityMotionsGetter(context);
+      console.log("AUXILIARYENTITYMOTIONS", auxiliaryEntityMotions);
       gameUpdateCommand.auxiliaryUpdates = auxiliaryEntityMotions;
     }
   }

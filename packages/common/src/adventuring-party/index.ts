@@ -93,12 +93,9 @@ export class AdventuringParty {
 
   static registerActionEntity(party: AdventuringParty, entity: ActionEntity) {
     const { entityProperties } = entity;
-    console.log("registered", entity);
     party.actionEntities[entityProperties.id] = entity;
   }
   static unregisterActionEntity(party: AdventuringParty, entityId: EntityId) {
-    console.log("unregistered", entityId);
     delete party.actionEntities[entityId];
-    console.log(JSON.stringify(party.actionEntities));
   }
 }

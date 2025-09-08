@@ -85,7 +85,10 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
   },
 };
 
-stepOverrides[ActionResolutionStepType.ActionEntityDissipationMotion] = {
+const finalStepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> =
+  {};
+
+finalStepOverrides[ActionResolutionStepType.ActionEntityDissipationMotion] = {
   getAnimation: () => {
     return {
       name: { type: AnimationType.Dynamic, name: DynamicAnimationName.IceBurstDissipation },
@@ -97,4 +100,7 @@ stepOverrides[ActionResolutionStepType.ActionEntityDissipationMotion] = {
 };
 
 const base = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.EXPLOSION_ENTITY;
-export const ICE_BURST_STEPS_CONFIG = createStepsConfig(base, { steps: stepOverrides });
+export const ICE_BURST_STEPS_CONFIG = createStepsConfig(base, {
+  steps: stepOverrides,
+  finalSteps: finalStepOverrides,
+});

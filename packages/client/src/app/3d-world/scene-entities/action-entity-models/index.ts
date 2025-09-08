@@ -103,17 +103,17 @@ export async function spawnActionEntityModel(
   position: Vector3,
   taggedDimensionsOption?: TaggedShape3DDimensions
 ) {
-  const model = await ACTION_ENTITY_MODEL_FACTORIES[actionEntityName](
+  const assetContainer = await ACTION_ENTITY_MODEL_FACTORIES[actionEntityName](
     position,
     taggedDimensionsOption
   );
 
-  const parentMesh = model.meshes[0];
+  const parentMesh = assetContainer.meshes[0];
   if (!parentMesh) throw new Error("expected mesh was missing in imported scene");
 
   const transformNode = new TransformNode("");
   transformNode.position.copyFrom(parentMesh.position);
   parentMesh.setParent(transformNode);
-  model.transformNodes.push(transformNode);
-  return model;
+  assetContainer.transformNodes.push(transformNode);
+  return assetContainer;
 }

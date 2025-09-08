@@ -115,8 +115,10 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
   cleanUpFinishedAnimation(managedAnimation: ManagedDynamicAnimation) {
     const { onComplete } = managedAnimation.options;
     if (onComplete) onComplete();
-    if (managedAnimation.animationGroup.despawnOnComplete)
+    if (managedAnimation.animationGroup.despawnOnComplete) {
+      console.log("DESPAWNING MANAGED ANIMATION: ", managedAnimation.animationGroup.name);
       disposeAsyncLoadedScene(this.assetContainer);
+    }
   }
 
   handleCompletedAnimations() {
@@ -151,15 +153,16 @@ export class ExplosionDeliveryAnimation extends DynamicAnimation {
   name = DYNAMIC_ANIMATION_NAME_STRINGS[DynamicAnimationName.ExplosionDelivery];
   duration = 200;
   originalScale: Vector3 = Vector3.One();
-  constructor(scene: AssetContainer) {
+  constructor(assetContainer: AssetContainer) {
     super(false);
-    const parentMesh = scene.meshes[0];
+    const parentMesh = assetContainer.meshes[0];
     if (parentMesh) {
       this.originalScale = parentMesh.scaling;
     }
   }
-  animateScene(scene: AssetContainer) {
-    const parentMesh = scene.meshes[0];
+  animateScene(assetContainer: AssetContainer) {
+    console.log("attempting animate dynamic scene:", assetContainer);
+    const parentMesh = assetContainer.meshes[0];
     if (!parentMesh) {
       return console.error("expected mesh not found in dynamic animation");
     }
@@ -181,6 +184,7 @@ export class ExplosionDissipationAnimation extends DynamicAnimation {
     }
   }
   animateScene(scene: AssetContainer) {
+    console.log("attempting animate dynamic scene:", scene);
     const parentMesh = scene.meshes[0];
     if (!parentMesh) return console.error("expected mesh not found in dynamic animation");
 

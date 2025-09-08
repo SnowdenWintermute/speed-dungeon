@@ -1,6 +1,5 @@
 import {
   ActionPayableResource,
-  ActionResolutionStepConfig,
   CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
@@ -9,18 +8,9 @@ import {
   CombatActionOrigin,
 } from "../../index.js";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
-import {
-  ActionResolutionStepType,
-  EntityMotionUpdate,
-} from "../../../../action-processing/index.js";
-import { SpawnableEntityType, getSpawnableEntityId } from "../../../../spawnables/index.js";
 import { EquipmentType } from "../../../../items/equipment/index.js";
 import { AbilityType } from "../../../../abilities/index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
-import {
-  ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
-  createStepsConfig,
-} from "../generic-action-templates/step-config-templates/index.js";
 import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
@@ -34,30 +24,7 @@ import {
   createTargetingPropertiesConfig,
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
-
-const base = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BOW_SKILL;
-const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
-
-stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
-  getAuxiliaryEntityMotions: (context) => {
-    const dummyArrowOption = context.tracker.spawnedEntityOption;
-    if (!dummyArrowOption) return [];
-
-    const actionEntityId = getSpawnableEntityId(dummyArrowOption);
-    //
-    const toReturn: EntityMotionUpdate[] = [];
-
-    toReturn.push({
-      entityId: actionEntityId,
-      entityType: SpawnableEntityType.ActionEntity,
-      despawn: true,
-    });
-
-    return toReturn;
-  },
-};
-
-const stepsConfig = createStepsConfig(base, { steps: {}, finalSteps: stepOverrides });
+import { CHAINING_SPLIT_ARROW_PARENT_STEPS_CONFIG } from "./chaining-split-arrow-parent-steps-config.js";
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BOW_ATTACK,
@@ -94,7 +61,7 @@ const config: CombatActionComponentConfig = {
   targetingProperties,
   hitOutcomeProperties,
   costProperties,
-  stepsConfig,
+  stepsConfig: CHAINING_SPLIT_ARROW_PARENT_STEPS_CONFIG,
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
 

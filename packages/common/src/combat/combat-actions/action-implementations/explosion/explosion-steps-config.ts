@@ -57,7 +57,10 @@ stepsOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
   },
 };
 
-stepsOverrides[ActionResolutionStepType.ActionEntityDissipationMotion] = {
+const finalStepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> =
+  {};
+
+finalStepOverrides[ActionResolutionStepType.ActionEntityDissipationMotion] = {
   getAnimation: () => {
     return {
       name: { type: AnimationType.Dynamic, name: DynamicAnimationName.ExplosionDissipation },
@@ -69,4 +72,7 @@ stepsOverrides[ActionResolutionStepType.ActionEntityDissipationMotion] = {
 };
 
 const base = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.EXPLOSION_ENTITY;
-export const EXPLOSION_STEPS_CONFIG = createStepsConfig(base, { steps: stepsOverrides });
+export const EXPLOSION_STEPS_CONFIG = createStepsConfig(base, {
+  steps: stepsOverrides,
+  finalSteps: finalStepOverrides,
+});
