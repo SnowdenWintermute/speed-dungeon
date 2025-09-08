@@ -25,7 +25,7 @@ export function setPlaytestingCombatantProperties(combatantProperties: Combatant
   ] = -150;
 
   // combatantProperties.hitPoints = Math.floor(combatantProperties.hitPoints * 0.5);
-  combatantProperties.hitPoints = 2;
+  combatantProperties.hitPoints = 4;
   // CombatantProperties.changeMana(combatantProperties, 100);
   // combatantProperties.mana = Math.floor(combatantProperties.mana * 0.4);
   // combatantProperties.mana = 4;
@@ -57,7 +57,7 @@ export function setPlaytestingCombatantProperties(combatantProperties: Combatant
 
 const TESTING_INHERENT_ATTRIBUTES: Partial<Record<CombatAttribute, number>> = {
   [CombatAttribute.Speed]: 200,
-  // [CombatAttribute.Dexterity]: 45,
+  [CombatAttribute.Accuracy]: 200,
   // [CombatAttribute.Strength]: 40,
   // [CombatAttribute.Spirit]: 25,
   [CombatAttribute.Mp]: 100,

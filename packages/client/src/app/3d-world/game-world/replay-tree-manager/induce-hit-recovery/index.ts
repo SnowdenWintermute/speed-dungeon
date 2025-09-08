@@ -16,6 +16,7 @@ import { useUIStore } from "@/stores/ui-store";
 import { startResourceChangeFloatingMessage } from "./start-resource-change-floating-message";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { postResourceChangeToCombatLog } from "@/app/game/combat-log/post-resource-change-to-combat-log";
+import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 
 export function induceHitRecovery(
   actionUserName: string,
@@ -74,6 +75,8 @@ export function induceHitRecovery(
         return battleOption.turnOrderManager.combatantIsFirstInTurnOrder(targetId);
       })();
 
+      console.log("COMBATANTDIEDONTHEIROWNTURN", combatantDiedOnTheirOwnTurn);
+
       battleOption?.turnOrderManager.updateTrackers(game, party);
 
       if (combatantDiedOnTheirOwnTurn) {
@@ -89,6 +92,13 @@ export function induceHitRecovery(
 
         combatantModel.movementManager.activeTrackers = {};
       }
+
+      const newlyActiveTracker = battleOption?.turnOrderManager.getFastestActorTurnOrderTracker();
+      if (newlyActiveTracker !== undefined)
+        characterAutoFocusManager.updateFocusedCharacterOnNewTurnOrder(
+          gameState,
+          newlyActiveTracker
+        );
 
       gameState.combatLogMessages.push(
         new CombatLogMessage(

@@ -19,4 +19,6 @@ export const EXPLOSION_TARGETING_PROPERTIES_CONFIG: CombatActionTargetingPropert
     validTargetCategories: TargetCategories.Any,
     excludePrimaryTarget: false,
   },
+
+  executionPreconditions: [],
 };

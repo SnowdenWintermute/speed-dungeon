@@ -176,7 +176,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             this.branchingActions.push(
               ...triggeredActions.filter((actionIntent) => {
                 const action = COMBAT_ACTIONS[actionIntent.actionExecutionIntent.actionName];
-                action.shouldExecute(
+                return action.shouldExecute(
                   context.combatantContext,
                   tracker.getPreviousTrackerInSequenceOption() || undefined
                 );
@@ -227,13 +227,15 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           for (const condition of targetCombatant.combatantProperties.conditions) {
             if (!condition.removedOnDeath) continue;
             CombatantCondition.removeById(condition.id, combatantResult.combatantProperties);
-            battleOption?.turnOrderManager.updateTrackers(game, party);
             addRemovedConditionIdToUpdate(
               condition.id,
               gameUpdateCommand,
               targetCombatant.entityProperties.id
             );
           }
+
+          console.log("UPDATING TRACKERS ON DEATH OUTCOME");
+          battleOption?.turnOrderManager.updateTrackers(game, party);
 
           let { threatChanges } = gameUpdateCommand;
           if (threatChanges === undefined) threatChanges = new ThreatChanges();

@@ -35,12 +35,12 @@ export class CombatActionExecutionIntent {
   getDelayForStep(stepType: ActionResolutionStepType) {
     const toReturn = this.delaysByStep[stepType] || null;
 
-    console.log(
-      "getting delay for step:",
-      ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepType],
-      toReturn,
-      this.id
-    );
+    // console.log(
+    //   "getting delay for step:",
+    //   ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepType],
+    //   toReturn,
+    //   this.id
+    // );
 
     return toReturn;
   }

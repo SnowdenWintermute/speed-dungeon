@@ -76,7 +76,11 @@ export class TurnSchedulerManager {
 
     for (const scheduler of this.schedulers) {
       if (scheduler instanceof CombatantTurnScheduler) {
-        if (AdventuringParty.getCombatant(party, scheduler.combatantId) instanceof Error) {
+        const combatantResult = AdventuringParty.getCombatant(party, scheduler.combatantId);
+        if (
+          combatantResult instanceof Error ||
+          CombatantProperties.isDead(combatantResult.combatantProperties)
+        ) {
           idsToRemove.push(scheduler.combatantId);
         }
         continue;
@@ -239,7 +243,7 @@ export class TurnSchedulerManager {
       fastestActor.timeOfNextMove += delay;
     }
 
-    console.log("new tracker list:", turnTrackerList[0], "iterated:", iterationLimit);
+    // console.log("new tracker list:", turnTrackerList[0], "iterated:", iterationLimit);
 
     return turnTrackerList;
   }
