@@ -31,12 +31,14 @@ export interface CombatActionTargetingPropertiesConfig {
     user: CombatantProperties,
     self: CombatActionComponent
   ) => CombatActionRequiredRange;
-  shouldExecute: (
-    combatantContext: CombatantContext,
-    previousTrackerOption: undefined | ActionTracker,
-    self: CombatActionComponent
-  ) => boolean;
+  executionPreconditions: ActionExecutionPrecondition[];
 }
+
+export type ActionExecutionPrecondition = (
+  combatantContext: CombatantContext,
+  previousTrackerOption: undefined | ActionTracker,
+  self: CombatActionComponent
+) => boolean;
 
 export interface CombatActionTargetingProperties extends CombatActionTargetingPropertiesConfig {
   getAutoTarget: (

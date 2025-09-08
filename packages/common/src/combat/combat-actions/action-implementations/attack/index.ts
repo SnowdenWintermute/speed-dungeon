@@ -9,7 +9,6 @@ import {
 import { CombatantEquipment } from "../../../../combatants/index.js";
 import { ATTACK_MELEE_MAIN_HAND } from "./attack-melee-main-hand.js";
 import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
-import { ATTACK_MELEE_OFF_HAND } from "./attack-melee-off-hand.js";
 import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
@@ -57,7 +56,7 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
   },
   stepsConfig: new ActionResolutionStepsConfig(
     {
-      [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
+      [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
       [ActionResolutionStepType.DetermineChildActions]: {},
     },
     {

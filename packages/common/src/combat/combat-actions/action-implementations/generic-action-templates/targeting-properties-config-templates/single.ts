@@ -6,6 +6,10 @@ import { CombatActionTargetingPropertiesConfig } from "../../../combat-action-ta
 import { CombatActionUsabilityContext } from "../../../combat-action-usable-cotexts.js";
 import { ProhibitedTargetCombatantStates } from "../../../prohibited-target-combatant-states.js";
 import { TargetCategories, TargetingScheme } from "../../../targeting-schemes-and-categories.js";
+import {
+  ACTION_EXECUTION_PRECONDITIONS,
+  ActionExecutionPreconditions,
+} from "./action-execution-preconditions.js";
 
 export const SINGLE_HOSTILE_TARGETING_PROPERTIES: CombatActionTargetingPropertiesConfig = {
   getTargetingSchemes: () => [TargetingScheme.Single],
@@ -21,7 +25,10 @@ export const SINGLE_HOSTILE_TARGETING_PROPERTIES: CombatActionTargetingPropertie
     const { scheme } = self.targetingProperties.autoTargetSelectionMethod;
     return AUTO_TARGETING_FUNCTIONS[scheme](combatantContext, self);
   },
-  shouldExecute: () => true,
+  executionPreconditions: [
+    ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.UserIsAlive],
+    ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.TargetsAreAlive],
+  ],
 };
 
 export const SINGLE_FRIENDLY_TARGETING_PROPERTIES: CombatActionTargetingPropertiesConfig = {

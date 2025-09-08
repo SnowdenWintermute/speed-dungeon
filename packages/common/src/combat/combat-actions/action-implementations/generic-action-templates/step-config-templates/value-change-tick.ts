@@ -3,7 +3,7 @@ import { ActionResolutionStepsConfig } from "../../../combat-action-steps-config
 
 export const VALUE_CHANGE_TICK_ACTION_STEPS_CONFIG = new ActionResolutionStepsConfig(
   {
-    [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
+    [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
     [ActionResolutionStepType.PayResourceCosts]: {},
     [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
     [ActionResolutionStepType.EvalOnUseTriggers]: {},

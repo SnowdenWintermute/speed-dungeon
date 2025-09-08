@@ -96,8 +96,9 @@ export class HitOutcomeMitigationCalculator {
         target
       );
       const counterAttackRoll = randBetween(0, 100, this.rng);
-      const isCounterAttacked = counterAttackRoll < percentChanceToCounterAttack;
-      // const isCounterAttacked = true;
+      // const isCounterAttacked = counterAttackRoll < percentChanceToCounterAttack;
+      // const isCounterAttacked = percentChanceToCounterAttack !== 0;
+      const isCounterAttacked = false;
       if (isCounterAttacked) return [HitOutcome.Counterattack];
     }
 
@@ -214,6 +215,7 @@ export class HitOutcomeMitigationCalculator {
     aggressor: CombatantProperties,
     defender: CombatantProperties
   ): Percentage {
+    if (CombatantProperties.isDead(defender)) return 0;
     // derive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
     // and probably put it on the action configs
     return BASE_PARRY_CHANCE;

@@ -67,10 +67,9 @@ config.finalSteps[ActionResolutionStepType.FinalPositioning] = {
 
 config.options.getFinalSteps = (self, context) => {
   const offhandAttack = COMBAT_ACTIONS[CombatActionName.AttackMeleeOffhand];
-  const offhandShouldExecute = offhandAttack.targetingProperties.shouldExecute(
+  const offhandShouldExecute = offhandAttack.shouldExecute(
     context.combatantContext,
-    context.tracker,
-    offhandAttack
+    context.tracker
   );
 
   if (!offhandShouldExecute) return config.finalSteps;

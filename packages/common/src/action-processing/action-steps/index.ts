@@ -17,9 +17,10 @@ export interface ActionExecuting {
 }
 
 export enum ActionResolutionStepType {
-  DetermineShouldExecuteOrReleaseTurnLock,
+  PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock,
   PreInitialPositioningCheckEnvironmentalHazardTriggers,
   InitialPositioning,
+  PostInitialPositioningDetermineShouldExecuteOrReleaseTurnLock,
   DetermineMeleeActionAnimations,
   PrepMotion,
   PostPrepSpawnEntity,
@@ -45,11 +46,13 @@ export enum ActionResolutionStepType {
 }
 
 export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepType, string> = {
-  [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]:
-    "determineShouldExecuteOrReleaseLock",
+  [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]:
+    "preInitialPositioningDetermineShouldExecuteOrReleaseTurnLock",
   [ActionResolutionStepType.DetermineChildActions]: "determineChildActions",
   [ActionResolutionStepType.DetermineMeleeActionAnimations]: "determineMeleeActionAnimations",
   [ActionResolutionStepType.InitialPositioning]: "initialPositioning",
+  [ActionResolutionStepType.PostInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]:
+    "postInitialPositioningDetermineShouldExecuteOrReleaseTurnLock",
   [ActionResolutionStepType.PrepMotion]: "chamberingMotion",
   [ActionResolutionStepType.PostPrepSpawnEntity]: "postPrepSpawnEntity",
   [ActionResolutionStepType.ChamberingMotion]: "chamberingMotion",

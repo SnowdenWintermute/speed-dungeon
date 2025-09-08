@@ -29,8 +29,13 @@ export const ACTION_STEP_CREATORS: Record<
   ActionResolutionStepType,
   (context: ActionResolutionStepContext) => ActionResolutionStep
 > = {
-  [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: (context) =>
-    new DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep(context),
+  [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: (
+    context
+  ) =>
+    new DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep(
+      context,
+      ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock
+    ),
   [ActionResolutionStepType.DetermineChildActions]: (context) =>
     new DetermineChildActionsActionResolutionStep(context),
   [ActionResolutionStepType.DetermineMeleeActionAnimations]: (context) =>
@@ -42,6 +47,13 @@ export const ACTION_STEP_CREATORS: Record<
     ),
   [ActionResolutionStepType.InitialPositioning]: (context) =>
     new CombatantMotionActionResolutionStep(context, ActionResolutionStepType.InitialPositioning),
+  [ActionResolutionStepType.PostInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: (
+    context
+  ) =>
+    new DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep(
+      context,
+      ActionResolutionStepType.PostInitialPositioningDetermineShouldExecuteOrReleaseTurnLock
+    ),
   [ActionResolutionStepType.PrepMotion]: (context) =>
     new CombatantMotionActionResolutionStep(context, ActionResolutionStepType.PrepMotion),
   [ActionResolutionStepType.PostPrepSpawnEntity]: (context) =>

@@ -9,7 +9,10 @@ import { ActionSequenceManagerRegistry } from "./action-sequence-manager-registr
 import { NestedNodeReplayEvent, NestedNodeReplayEventUtls } from "./replay-events.js";
 import { ActionTracker } from "./action-tracker.js";
 import { IdGenerator } from "../utility-classes/index.js";
-import { ActionResolutionStepType } from "./action-steps/index.js";
+import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
+  ActionResolutionStepType,
+} from "./action-steps/index.js";
 
 export class ActionSequenceManager {
   private remainingActionsToExecute: CombatActionExecutionIntent[];

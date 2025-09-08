@@ -3,7 +3,7 @@ import { ActionResolutionStepsConfig } from "../../../combat-action-steps-config
 
 const config = new ActionResolutionStepsConfig(
   {
-    [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
+    [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
     [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
     [ActionResolutionStepType.OnActivationSpawnEntity]: {},
     [ActionResolutionStepType.OnActivationActionEntityMotion]: {},

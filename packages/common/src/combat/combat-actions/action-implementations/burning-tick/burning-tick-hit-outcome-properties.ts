@@ -24,11 +24,12 @@ overrides.resourceChangePropertiesGetters = {
       category: ResourceChangeSourceCategory.Physical,
       kineticDamageTypeOption: null,
       elementOption: MagicalElement.Fire,
-      isHealing: false,
+      // isHealing: false,
       lifestealPercentage: null,
     };
 
-    const baseValues = new NumberRange(2, 5);
+    // const baseValues = new NumberRange(2, 5);
+    const baseValues = new NumberRange(1, 1);
 
     // just get some extra damage for combatant level
     baseValues.add(user.level - 1);

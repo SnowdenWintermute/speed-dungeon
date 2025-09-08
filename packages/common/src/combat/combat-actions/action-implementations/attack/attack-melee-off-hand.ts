@@ -24,8 +24,11 @@ import {
   createTargetingPropertiesConfig,
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
-import { actionShouldExecute } from "../generic-action-templates/targeting-properties-config-templates/action-should-execute.js";
 import { CombatActionTargetingPropertiesConfig } from "../../combat-action-targeting-properties.js";
+import {
+  ACTION_EXECUTION_PRECONDITIONS,
+  ActionExecutionPreconditions,
+} from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 hitOutcomeOverrides.addsPropertiesFromHoldableSlot = HoldableSlotType.OffHand;
@@ -41,7 +44,11 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.OFF_HAND_MELEE_ATTACK();
 
 const targetingPropertiesOverrides: Partial<CombatActionTargetingPropertiesConfig> = {
-  shouldExecute: actionShouldExecute,
+  executionPreconditions: [
+    ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.UserIsAlive],
+    ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.TargetsAreAlive],
+    ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.HasEnoughActionPoints],
+  ],
 };
 
 const targetingProperties = createTargetingPropertiesConfig(

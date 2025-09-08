@@ -173,7 +173,10 @@ export class TurnSchedulerManager {
 
     let numCombatantTrackersCreated = 0;
 
-    while (numCombatantTrackersCreated < this.minTurnTrackersCount) {
+    let iterationLimit = 0;
+
+    while (numCombatantTrackersCreated < this.minTurnTrackersCount && iterationLimit < 20) {
+      iterationLimit += 1;
       this.sortSchedulers(TurnTrackerSortableProperty.TimeOfNextMove, party);
 
       const fastestActor = this.getFirstScheduler();
@@ -181,12 +184,15 @@ export class TurnSchedulerManager {
       if (fastestActor instanceof CombatantTurnScheduler) {
         const combatantResult = AdventuringParty.getCombatant(party, fastestActor.combatantId);
         if (combatantResult instanceof Error) throw combatantResult;
-        if (!CombatantProperties.isDead(combatantResult.combatantProperties)) {
+        const isDead = CombatantProperties.isDead(combatantResult.combatantProperties);
+        if (!isDead) {
           turnTrackerList.push(
             new CombatantTurnTracker(fastestActor.combatantId, fastestActor.timeOfNextMove)
           );
-
           numCombatantTrackersCreated += 1;
+        } else {
+          fastestActor.timeOfNextMove += 1; // trying this since a combatant dying with too much speed caused infinite loop
+          fastestActor.accumulatedDelay += 1;
         }
       } else if (fastestActor instanceof ConditionTurnScheduler) {
         const { combatantId, conditionId, timeOfNextMove } = fastestActor;
@@ -232,6 +238,8 @@ export class TurnSchedulerManager {
 
       fastestActor.timeOfNextMove += delay;
     }
+
+    console.log("new tracker list:", turnTrackerList[0], "iterated:", iterationLimit);
 
     return turnTrackerList;
   }

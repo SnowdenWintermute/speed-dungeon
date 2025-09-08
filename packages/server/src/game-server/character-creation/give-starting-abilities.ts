@@ -19,7 +19,7 @@ export function giveStartingAbilities(combatantProperties: CombatantProperties) 
     CombatActionName.IceBoltParent,
     // CombatActionName.Fire,
     CombatActionName.Healing,
-    // CombatActionName.ExplodingArrowParent,
+    CombatActionName.ExplodingArrowParent,
     // CombatActionName.Blind,
     CombatActionName.Firewall,
   ];

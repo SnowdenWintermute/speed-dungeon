@@ -36,7 +36,7 @@ export const passTurnConfig: CombatActionComponentConfig = {
   costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_ACTION(),
   stepsConfig: new ActionResolutionStepsConfig(
     {
-      [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
+      [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
       [ActionResolutionStepType.PayResourceCosts]: {},
       [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
       [ActionResolutionStepType.EvalOnUseTriggers]: {},

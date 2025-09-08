@@ -12,7 +12,7 @@ import {
 
 export const RANGED_SKILL_STEPS_CONFIG = new ActionResolutionStepsConfig(
   {
-    [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
+    [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
     [ActionResolutionStepType.PreInitialPositioningCheckEnvironmentalHazardTriggers]: {},
     [ActionResolutionStepType.InitialPositioning]: {
       getDestination: getStepForwardDestination,
@@ -24,6 +24,7 @@ export const RANGED_SKILL_STEPS_CONFIG = new ActionResolutionStepsConfig(
         };
       },
     },
+    [ActionResolutionStepType.PostInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
     [ActionResolutionStepType.ChamberingMotion]: {
       getDestination: getRotateTowardPrimaryTargetDestination,
     },

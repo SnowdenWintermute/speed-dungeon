@@ -17,7 +17,7 @@ import { CombatActionName } from "./combat-action-names.js";
 import { Battle } from "../../battle/index.js";
 import { ActionAccuracyType } from "./combat-action-accuracy.js";
 import { CombatantContext } from "../../combatant-context/index.js";
-import { ActionResolutionStepContext } from "../../action-processing/index.js";
+import { ActionResolutionStepContext, ActionTracker } from "../../action-processing/index.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
 import {
   CombatActionTargetingProperties,
@@ -82,6 +82,15 @@ export abstract class CombatActionComponent {
     this.stepsConfig = config.stepsConfig;
 
     this.hierarchyProperties = config.hierarchyProperties;
+  }
+
+  shouldExecute(
+    combatantContext: CombatantContext,
+    previousTrackerOption: undefined | ActionTracker
+  ) {
+    const { executionPreconditions } = this.targetingProperties;
+    if (executionPreconditions.length === 0) return true;
+    return executionPreconditions.every((fn) => fn(combatantContext, previousTrackerOption, this));
   }
 
   getAccuracy(user: CombatantProperties, actionLevel: number) {

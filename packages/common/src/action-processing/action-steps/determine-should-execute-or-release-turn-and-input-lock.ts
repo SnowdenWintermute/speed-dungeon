@@ -1,5 +1,6 @@
 import {
   ActionPayableResource,
+  COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
 } from "../../combat/index.js";
@@ -11,10 +12,9 @@ import {
 } from "../index.js";
 import { evaluatePlayerEndTurnAndInputLock } from "./evaluate-player-turn-end-and-input-lock.js";
 
-const stepType = ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock;
 export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends ActionResolutionStep {
   branchingActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] = [];
-  constructor(context: ActionResolutionStepContext) {
+  constructor(context: ActionResolutionStepContext, stepType: ActionResolutionStepType) {
     super(stepType, context, null); // this step should produce no game update
 
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
@@ -32,17 +32,26 @@ export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends
 
     const actionShouldExecuteEvenIfTurnEnded = turnAlreadyEnded && Math.abs(actionPointCost) < 1;
 
+    const executionPreconditionsPassed = action.shouldExecute(
+      context.combatantContext,
+      context.tracker.getPreviousTrackerInSequenceOption() || undefined
+    );
+
+    console.log(
+      COMBAT_ACTION_NAME_STRINGS[action.name],
+      "PRECONDITIONS PASSED: ",
+      executionPreconditionsPassed,
+      "actionShouldExecuteEvenIfTurnEnded",
+      actionShouldExecuteEvenIfTurnEnded
+    );
+
     const shouldExecute =
-      action.targetingProperties.shouldExecute(
-        context.combatantContext,
-        context.tracker.getPreviousTrackerInSequenceOption() || undefined,
-        action
-      ) &&
-      (!turnAlreadyEnded || actionShouldExecuteEvenIfTurnEnded);
+      executionPreconditionsPassed && (!turnAlreadyEnded || actionShouldExecuteEvenIfTurnEnded);
 
     if (shouldExecute) return;
 
     context.tracker.wasAborted = true;
+    console.log(COMBAT_ACTION_NAME_STRINGS[action.name], "WAS ABORTED");
 
     const gameUpdateCommandOption = evaluatePlayerEndTurnAndInputLock(context);
     if (gameUpdateCommandOption) this.gameUpdateCommandOption = gameUpdateCommandOption;

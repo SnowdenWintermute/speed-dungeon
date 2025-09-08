@@ -10,7 +10,7 @@ import { getPrimaryTargetPositionAsDestination } from "../../common-destination-
 
 const config = new ActionResolutionStepsConfig(
   {
-    [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
+    [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
     [ActionResolutionStepType.OnActivationActionEntityMotion]: {
       getDestination: getPrimaryTargetPositionAsDestination,
       shouldDespawnOnComplete: () => true,

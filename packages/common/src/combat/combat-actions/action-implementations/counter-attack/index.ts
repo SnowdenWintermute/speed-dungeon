@@ -11,11 +11,18 @@ import { COUNTER_ATTACK_MELEE_MAIN_HAND } from "./counter-attack-melee-main-hand
 import { COUNTER_ATTACK_RANGED_MAIN_HAND } from "./counter-attack-ranged-main-hand.js";
 import cloneDeep from "lodash.clonedeep";
 import { ATTACK_CONFIG } from "../attack/index.js";
+import { createTargetingPropertiesConfig } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 
 const clonedConfig = cloneDeep(ATTACK_CONFIG);
 
+const targetingProperties = createTargetingPropertiesConfig(
+  () => clonedConfig.targetingProperties,
+  {}
+);
+
 const config: CombatActionComponentConfig = {
   ...clonedConfig,
+  targetingProperties,
   hitOutcomeProperties: {
     ...clonedConfig.hitOutcomeProperties,
     getIsBlockable: () => false,

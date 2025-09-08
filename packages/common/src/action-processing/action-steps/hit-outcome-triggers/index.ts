@@ -174,15 +174,13 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             );
 
             this.branchingActions.push(
-              ...triggeredActions.filter((actionIntent) =>
-                COMBAT_ACTIONS[
-                  actionIntent.actionExecutionIntent.actionName
-                ].targetingProperties.shouldExecute(
+              ...triggeredActions.filter((actionIntent) => {
+                const action = COMBAT_ACTIONS[actionIntent.actionExecutionIntent.actionName];
+                action.shouldExecute(
                   context.combatantContext,
-                  tracker.getPreviousTrackerInSequenceOption() || undefined,
-                  COMBAT_ACTIONS[actionIntent.actionExecutionIntent.actionName]
-                )
-              )
+                  tracker.getPreviousTrackerInSequenceOption() || undefined
+                );
+              })
             );
 
             // add it to the update so the client can remove the triggered conditions if required

@@ -35,7 +35,7 @@ const config: CombatActionComponentConfig = {
   description: "Pay an action point",
   stepsConfig: new ActionResolutionStepsConfig(
     {
-      [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
+      [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
       [ActionResolutionStepType.PayResourceCosts]: {},
       [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     },
