@@ -42,9 +42,9 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
   [CombatActionName.Firewall]: (className: string) => {
     return (
       <div className={className + " flex translate-x-2"}>
-        <div className="h-full translate-x-2">{SVG_ICONS[IconName.Fire](className)}</div>
+        <div className="h-full translate-x-1/3">{SVG_ICONS[IconName.Fire](className)}</div>
         <div className="h-full ">{SVG_ICONS[IconName.Fire](className)}</div>
-        <div className="h-full -translate-x-2">{SVG_ICONS[IconName.Fire](className)}</div>
+        <div className="h-full -translate-x-1/3">{SVG_ICONS[IconName.Fire](className)}</div>
       </div>
     );
   },

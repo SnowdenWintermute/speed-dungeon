@@ -6,7 +6,8 @@ import { AbilityType } from "../../abilities/ability-types.js";
 export function setUpWarriorAbilityTree() {
   const tree = new AbilityTree();
   tree.assign(0, 0, { type: AbilityType.Action, actionName: CombatActionName.Fire });
-  tree.assign(0, 1, { type: AbilityType.Action, actionName: CombatActionName.IceBoltParent });
+  tree.assign(0, 1, { type: AbilityType.Action, actionName: CombatActionName.Firewall });
+  tree.assign(0, 2, { type: AbilityType.Action, actionName: CombatActionName.IceBoltParent });
   tree.assign(1, 1, {
     type: AbilityType.Action,
     actionName: CombatActionName.ExplodingArrowParent,

@@ -1,3 +1,4 @@
+import { AbilityType } from "../../../../abilities/ability-types.js";
 import {
   CombatActionCombatLogProperties,
   CombatActionComponentConfig,
@@ -12,7 +13,8 @@ import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templat
 import { FIREWALL_STEPS_CONFIG } from "./firewall-steps-config.js";
 
 const config: CombatActionComponentConfig = {
-  description: "Deals kinetic fire damage in an area around the target",
+  description: "Deals kinetic fire damage to any combatant that passes through the area",
+  prerequisiteAbilities: [{ type: AbilityType.Action, actionName: CombatActionName.Fire }],
   targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.AREA_FRIENDLY(),
   combatLogMessageProperties: new CombatActionCombatLogProperties({
     ...createGenericSpellCastMessageProperties(CombatActionName.Firewall),

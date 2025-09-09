@@ -5,8 +5,12 @@ import { FIRE_STEPS_CONFIG } from "../fire/fire-steps-config.js";
 import { createStepsConfig } from "../generic-action-templates/step-config-templates/index.js";
 import { Vector3 } from "@babylonjs/core";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import { ActionEntityName } from "../../../../action-entities/index.js";
+import { ActionEntityName, CosmeticEffectNames } from "../../../../action-entities/index.js";
 import { BoxDimensions, ShapeType3D, TaggedBoxDimensions } from "../../../../utils/shape-utils.js";
+import {
+  ActionEntityBaseChildTransformNodeName,
+  SceneEntityType,
+} from "../../../../scene-entities/index.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
@@ -40,6 +44,28 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
         },
       },
     };
+  },
+};
+
+stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
+  getCosmeticEffectsToStart: (context) => {
+    const expectedFirewallEntity = context.tracker.spawnedEntityOption;
+    if (expectedFirewallEntity === null)
+      throw new Error("expected to have spawned firewall entity");
+    if (expectedFirewallEntity.type != SpawnableEntityType.ActionEntity)
+      throw new Error("expected firewall entity to be action enity");
+    return [
+      {
+        name: CosmeticEffectNames.FirewallParticles,
+        parent: {
+          sceneEntityIdentifier: {
+            type: SceneEntityType.ActionEntityModel,
+            entityId: expectedFirewallEntity.actionEntity.entityProperties.id,
+          },
+          transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
+        },
+      },
+    ];
   },
 };
 

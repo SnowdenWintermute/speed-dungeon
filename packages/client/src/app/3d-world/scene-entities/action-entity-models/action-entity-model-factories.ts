@@ -49,15 +49,16 @@ export const ACTION_ENTITY_MODEL_FACTORIES: Record<
     const { width, height, depth } = taggedDimensions.dimensions;
     const mesh = MeshBuilder.CreateBox("", { width, height, depth });
     const material = new StandardMaterial("");
+    material.alpha = 0;
 
-    material.diffuseColor = new Color3(0.7, 0.3, 0.2);
-    material.alpha = 0.5;
+    // material.diffuseColor = new Color3(0.7, 0.3, 0.2);
+    // material.alpha = 0.5;
 
     mesh.material = material;
     mesh.position.copyFrom(position);
-    const model = new AssetContainer();
-    model.meshes = [mesh];
-    return model;
+    const assetContainer = new AssetContainer();
+    assetContainer.meshes = [mesh];
+    return assetContainer;
   },
 };
 

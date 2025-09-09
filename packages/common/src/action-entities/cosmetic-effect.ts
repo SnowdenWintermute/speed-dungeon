@@ -14,6 +14,7 @@ export enum CosmeticEffectNames {
   LightParticleBurst,
   DarkParticleAccumulation,
   BlindnessCast,
+  FirewallParticles,
 }
 
 export abstract class CosmeticEffect {

@@ -51,7 +51,7 @@ const costProperties = createCostPropertiesConfig(costPropertiesBase, costProper
 
 const config: CombatActionComponentConfig = {
   description: "Summon an icy projectile",
-  prerequisiteAbilities: [{ type: AbilityType.Action, actionName: CombatActionName.Fire }],
+  prerequisiteAbilities: [{ type: AbilityType.Action, actionName: CombatActionName.Firewall }],
   combatLogMessageProperties: createGenericSpellCastMessageProperties(
     CombatActionName.IceBoltProjectile
   ),
