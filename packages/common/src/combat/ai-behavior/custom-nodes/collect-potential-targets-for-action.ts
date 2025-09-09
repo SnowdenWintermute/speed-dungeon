@@ -23,7 +23,6 @@ export class CollectPotentialTargetsForAction implements BehaviorNode {
     const actionNameOption = this.actionNameOption;
 
     if (actionNameOption === null) {
-      console.log("no action name passed");
       return BehaviorNodeState.Failure;
     }
 
@@ -73,8 +72,6 @@ export class CollectPotentialTargetsForAction implements BehaviorNode {
     }
 
     this.behaviorContext.usableActionsWithPotentialValidTargets[actionNameOption] = targetOptions;
-
-    console.log("targetOptions:", targetOptions);
 
     return BehaviorNodeState.Success;
   }

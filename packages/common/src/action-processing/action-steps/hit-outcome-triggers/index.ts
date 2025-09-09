@@ -234,7 +234,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             );
           }
 
-          console.log("UPDATING TRACKERS ON DEATH OUTCOME");
           battleOption?.turnOrderManager.updateTrackers(game, party);
 
           let { threatChanges } = gameUpdateCommand;

@@ -36,6 +36,7 @@ export const RANGED_SKILL_STEPS_CONFIG = new ActionResolutionStepsConfig(
   {
     [ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers]: {},
     [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
+    [ActionResolutionStepType.RecoveryMotion]: {},
     [ActionResolutionStepType.FinalPositioning]: {
       getDestination: getHomeDestination,
       getAnimation: () => {

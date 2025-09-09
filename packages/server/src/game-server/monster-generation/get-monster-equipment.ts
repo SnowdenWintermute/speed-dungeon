@@ -9,6 +9,7 @@ import {
   PreDeterminedItemType,
   Shield,
   TwoHandedMeleeWeapon,
+  TwoHandedRangedWeapon,
   WearableSlotType,
   generatePreDeterminedItem,
 } from "@speed-dungeon/common";
@@ -124,8 +125,11 @@ export function getMonsterEquipment(monsterType: MonsterType): CombatantEquipmen
       if (shieldType instanceof Error) shieldType = Shield.TowerShield;
       const wandResult = generateSpecificEquipmentType(
         {
-          equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: wandType,
+          equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+          // equipmentType: EquipmentType.TwoHandedRangedWeapon,
+          // equipmentType: EquipmentType.OneHandedMeleeWeapon,
+          baseItemType: TwoHandedMeleeWeapon.RottingBranch,
+          // baseItemType: TwoHandedRangedWeapon.CompositeBow,
         },
         {}
       );
@@ -135,17 +139,17 @@ export function getMonsterEquipment(monsterType: MonsterType): CombatantEquipmen
       // });
       if (!(wandResult instanceof Error))
         mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = wandResult;
-      const shieldResult = generateSpecificEquipmentType(
-        {
-          equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.Dagger,
-        },
-        {}
-      );
-      if (!(shieldResult instanceof Error)) {
-        if (shieldResult.durability) shieldResult.durability.current = 2;
-        mainHoldableHotswapSlot.holdables[HoldableSlotType.OffHand] = shieldResult;
-      }
+      // const shieldResult = generateSpecificEquipmentType(
+      //   {
+      //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      //     baseItemType: OneHandedMeleeWeapon.Dagger,
+      //   },
+      //   {}
+      // );
+      // if (!(shieldResult instanceof Error)) {
+      //   if (shieldResult.durability) shieldResult.durability.current = 2;
+      //   mainHoldableHotswapSlot.holdables[HoldableSlotType.OffHand] = shieldResult;
+      // }
       break;
 
     case MonsterType.FireElemental:

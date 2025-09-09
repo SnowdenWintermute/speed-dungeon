@@ -76,8 +76,4 @@ const listening = expressApp.listen(PORT, async () => {
   //   const max = Math.round(ATTRIBUTE_PER_TIER_BASE * tier) * 2 * rangeMultiplier;
   //   return new NumberRange(Math.max(1, min), Math.max(1, max));
   // }
-  // for (let i = 1; i < 6; i += 1) {
-  //   console.log(JSON.stringify(getAttributeAffixValueRange(i, 1)));
-  //   console.log(JSON.stringify(getAttributeAffixValueRange(i, 3)));
-  // }
 });

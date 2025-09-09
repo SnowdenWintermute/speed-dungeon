@@ -48,6 +48,7 @@ const targetingPropertiesOverrides: Partial<CombatActionTargetingPropertiesConfi
     ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.UserIsAlive],
     ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.TargetsAreAlive],
     ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.HasEnoughActionPoints],
+    ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.WasNotCounterattacked],
   ],
 };
 

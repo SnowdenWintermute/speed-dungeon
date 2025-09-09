@@ -1,5 +1,6 @@
 import { MeleeAttackAnimationType } from "../combat/combat-actions/action-implementations/attack/determine-melee-attack-animation-type.js";
 import {
+  COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   CombatActionHitOutcomes,
@@ -71,11 +72,14 @@ export class ActionTracker {
       const action = COMBAT_ACTIONS[this.actionExecutionIntent.actionName];
       const finalSteps = action.stepsConfig.options.getFinalSteps(action.stepsConfig, context);
 
-      this.queuedStepTypes.push(
-        ...iterateNumericEnumKeyedRecord(finalSteps)
-          .sort(([aKey, aValue], [bKey, bValue]) => aKey - bKey)
-          .map(([key, value]) => key)
-      );
+      const toQueue = iterateNumericEnumKeyedRecord(finalSteps)
+        .sort(([aKey, aValue], [bKey, bValue]) => aKey - bKey)
+        .map(([key, value]) => key);
+
+      console.log(COMBAT_ACTION_NAME_STRINGS[action.name], "final steps: ", finalSteps);
+      console.log(COMBAT_ACTION_NAME_STRINGS[action.name], "to queue: ", toQueue);
+
+      this.queuedStepTypes.push(...toQueue);
 
       this.hasQueuedUpFinalSteps = true;
       stepOption = stepTypes[this.stepIndex];

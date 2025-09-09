@@ -26,13 +26,9 @@ export class CollectAllOwnedActionsByIntent implements BehaviorNode {
       }
     }
 
-    console.log("collected actions:", collected);
-
     if (collected.length === 0) return BehaviorNodeState.Failure;
 
     this.behaviorContext.consideredActionNamesFilteredByIntents = collected;
-
-    for (const intent of this.actionIntents) console.log(COMBAT_ACTION_INTENT_STRINGS[intent]);
 
     return BehaviorNodeState.Success;
   }

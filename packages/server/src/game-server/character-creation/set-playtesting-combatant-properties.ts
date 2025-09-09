@@ -25,7 +25,7 @@ export function setPlaytestingCombatantProperties(combatantProperties: Combatant
   ] = -150;
 
   // combatantProperties.hitPoints = Math.floor(combatantProperties.hitPoints * 0.5);
-  combatantProperties.hitPoints = 4;
+  // combatantProperties.hitPoints = 4;
   // CombatantProperties.changeMana(combatantProperties, 100);
   // combatantProperties.mana = Math.floor(combatantProperties.mana * 0.4);
   // combatantProperties.mana = 4;

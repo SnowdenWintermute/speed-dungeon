@@ -21,26 +21,11 @@ export class CombatActionExecutionIntent {
 
   /** Should only be set by actions triggered by the server, such as setting timing for firewall burn */
   setDelayForStep(stepType: ActionResolutionStepType, delay: Milliseconds) {
-    console.log(
-      "assigning step type delay for step",
-      COMBAT_ACTION_NAME_STRINGS[this.actionName],
-      ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepType],
-      delay,
-      this.id
-    );
     this.delaysByStep[stepType] = delay;
-    console.log("delays by step:", this.delaysByStep, this.id);
   }
 
   getDelayForStep(stepType: ActionResolutionStepType) {
     const toReturn = this.delaysByStep[stepType] || null;
-
-    // console.log(
-    //   "getting delay for step:",
-    //   ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepType],
-    //   toReturn,
-    //   this.id
-    // );
 
     return toReturn;
   }

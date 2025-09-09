@@ -90,6 +90,7 @@ export abstract class CombatActionComponent {
   ) {
     const { executionPreconditions } = this.targetingProperties;
     if (executionPreconditions.length === 0) return true;
+
     return executionPreconditions.every((fn) => fn(combatantContext, previousTrackerOption, this));
   }
 

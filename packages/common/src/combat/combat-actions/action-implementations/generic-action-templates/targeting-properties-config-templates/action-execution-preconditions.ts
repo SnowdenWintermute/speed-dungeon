@@ -14,6 +14,7 @@ export enum ActionExecutionPreconditions {
   HasEnoughActionPoints,
   UserIsAlive,
   TargetsAreAlive,
+  WasNotCounterattacked,
 }
 
 export const ACTION_EXECUTION_PRECONDITIONS: Record<
@@ -23,7 +24,16 @@ export const ACTION_EXECUTION_PRECONDITIONS: Record<
   [ActionExecutionPreconditions.HasEnoughActionPoints]: hasEnoughActionPoints,
   [ActionExecutionPreconditions.UserIsAlive]: userIsAlive,
   [ActionExecutionPreconditions.TargetsAreAlive]: targetsAreAlive,
+  [ActionExecutionPreconditions.WasNotCounterattacked]: wasNotCounterattacked,
 };
+
+function wasNotCounterattacked(
+  combatantContext: CombatantContext,
+  previousTrackerOption: undefined | ActionTracker,
+  self: CombatActionComponent
+) {
+  return !previousTrackerOption?.wasCountered();
+}
 
 function hasEnoughActionPoints(
   combatantContext: CombatantContext,
@@ -35,9 +45,12 @@ function hasEnoughActionPoints(
 
   // @TODO - actually select the action level since some action level might cost more
   const isInCombat = party.battleId !== null;
-  const { selectedActionLevel } = combatantProperties;
+  let { selectedActionLevel } = combatantProperties;
 
-  if (selectedActionLevel === null) throw new Error("expected to have a selectedActionLevel");
+  if (selectedActionLevel === null) {
+    console.info("selectedActionLevel was null, setting to 1");
+    combatantProperties.selectedActionLevel = selectedActionLevel = 1;
+  }
 
   const { costProperties } = self;
   const resourceCosts = costProperties.getResourceCosts(
@@ -72,7 +85,6 @@ function targetsAreAlive(
 
   const targetsOption = combatant.combatantProperties.combatActionTarget;
   if (!targetsOption) {
-    console.log(COMBAT_ACTION_NAME_STRINGS[self.name], "noTargets");
     return false;
   }
 
@@ -88,7 +100,6 @@ function targetsAreAlive(
   }
 
   if (targetIdsResult.length === 0) {
-    console.log(COMBAT_ACTION_NAME_STRINGS[self.name], "noTargets length");
     return false;
   }
 

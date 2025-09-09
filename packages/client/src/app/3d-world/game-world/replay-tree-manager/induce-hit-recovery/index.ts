@@ -75,8 +75,6 @@ export function induceHitRecovery(
         return battleOption.turnOrderManager.combatantIsFirstInTurnOrder(targetId);
       })();
 
-      console.log("COMBATANTDIEDONTHEIROWNTURN", combatantDiedOnTheirOwnTurn);
-
       battleOption?.turnOrderManager.updateTrackers(game, party);
 
       if (combatantDiedOnTheirOwnTurn) {

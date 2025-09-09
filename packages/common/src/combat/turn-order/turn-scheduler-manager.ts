@@ -243,8 +243,6 @@ export class TurnSchedulerManager {
       fastestActor.timeOfNextMove += delay;
     }
 
-    // console.log("new tracker list:", turnTrackerList[0], "iterated:", iterationLimit);
-
     return turnTrackerList;
   }
 }

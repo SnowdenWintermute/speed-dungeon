@@ -33,13 +33,6 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
     if (stepConfig.shouldDespawnOnComplete)
       update.despawnOnComplete = stepConfig.shouldDespawnOnComplete(context);
 
-    console.log(
-      "STEP",
-      ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepType],
-      "SHOULD DESPAWNONCOMPLETE",
-      update.despawnOnComplete
-    );
-
     if (stepConfig.getNewParent) update.setParent = stepConfig.getNewParent(context);
 
     if (stepConfig.getCosmeticDestinationY)

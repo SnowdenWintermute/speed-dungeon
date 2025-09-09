@@ -99,18 +99,18 @@ export function getFirewallBurnScheduledActions(
       if (animationOption && animationOption.timing.type === AnimationTimingType.Timed)
         toReturn = animationOption.timing.duration;
     } catch {
-      console.log("couldn't get recoveryAnimationTime");
+      console.info("couldn't get recoveryAnimationTime");
     }
     return toReturn;
   })();
 
   if (addRecoveryAnimationTime) {
-    console.log("ADDED TIME:", recoveryAnimationTime);
     timeToReachFirewallOption += recoveryAnimationTime;
   }
 
   firewallBurnExecutionIntent.setDelayForStep(
-    ActionResolutionStepType.DeliveryMotion, // firewall burn's delivery motion, an arbitrary place to delay before hit outcomes
+    // firewall burn's InitialPositioning motion, so that the delay happens before the post initial positioning check if should still execute
+    ActionResolutionStepType.DeliveryMotion,
     timeToReachFirewallOption
   );
 

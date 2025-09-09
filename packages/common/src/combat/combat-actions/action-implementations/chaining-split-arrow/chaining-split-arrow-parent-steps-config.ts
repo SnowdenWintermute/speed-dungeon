@@ -19,12 +19,6 @@ finalStepOverrides[ActionResolutionStepType.RecoveryMotion] = {
   getAuxiliaryEntityMotions: (context) => {
     const dummyArrowOption = context.tracker.spawnedEntityOption;
 
-    console.log("DUMMYARROWOPTION:");
-    console.log("DUMMYARROWOPTION:");
-    console.log("DUMMYARROWOPTION:");
-    console.log("DUMMYARROWOPTION:");
-    console.log("DUMMYARROWOPTION:");
-    console.log("DUMMYARROWOPTION:", !!dummyArrowOption);
     if (!dummyArrowOption) return [];
 
     const actionEntityId = getSpawnableEntityId(dummyArrowOption);
@@ -44,14 +38,3 @@ export const CHAINING_SPLIT_ARROW_PARENT_STEPS_CONFIG = createStepsConfig(base, 
   steps: {},
   finalSteps: finalStepOverrides,
 });
-
-console.log(
-  iterateNumericEnumKeyedRecord(CHAINING_SPLIT_ARROW_PARENT_STEPS_CONFIG.finalSteps).map(
-    ([type, config]) => {
-      return {
-        step: ACTION_RESOLUTION_STEP_TYPE_STRINGS[type],
-        config,
-      };
-    }
-  )
-);

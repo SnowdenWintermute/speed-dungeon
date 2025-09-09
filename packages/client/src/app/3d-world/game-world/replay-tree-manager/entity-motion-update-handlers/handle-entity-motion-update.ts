@@ -46,7 +46,6 @@ export function handleEntityMotionUpdate(
     );
 
     if (motionUpdate.despawn) {
-      console.log("MOTIONUPDATE.DESPAWN", actionEntityModelOption);
       actionEntityModelOption.cleanup({ softCleanup: true });
       return;
     }

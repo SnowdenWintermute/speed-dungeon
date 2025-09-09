@@ -57,10 +57,6 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
 }
 
 export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepContext) {
-  console.log(
-    "evaluating for",
-    COMBAT_ACTION_NAME_STRINGS[context.tracker.actionExecutionIntent.actionName]
-  );
   const { tracker } = context;
   const { sequentialActionManagerRegistry } = tracker.parentActionManager;
 
@@ -93,10 +89,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   const requiredTurn =
     action.costProperties.requiresCombatTurnInThisContext(context, action) || noActionPointsLeft;
 
-  console.log("requiresCombatTurnInThisContext: ", requiredTurn);
-
   const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
-  console.log("turnAlreadyEnded: ", turnAlreadyEnded);
 
   let shouldSendEndActiveTurnMessage = false;
   const threatChanges = new ThreatChanges();
@@ -129,12 +122,8 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     threatChanges.applyToGame(party);
   }
 
-  // const hasUnevaluatedChildren = tracker.;
-  // console.log("hasUnevaluatedChildren", hasUnevaluatedChildren);
   const hasRemainingActions = tracker.parentActionManager.getRemainingActionsToExecute().length > 0;
-  // console.log("hasRemainingActions", hasRemainingActions);
   const blockingStepsPending = sequentialActionManagerRegistry.inputBlockingActionStepsArePending();
-  // console.log("blockingStepsPending", blockingStepsPending);
   const noBlockingActionsRemain = !hasRemainingActions && !blockingStepsPending;
 
   let shouldUnlockInput = false;

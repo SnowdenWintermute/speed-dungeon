@@ -68,8 +68,8 @@ export function getMonsterStartingAttributes(monsterType: MonsterType): Combatan
       attributes[CombatAttribute.Hp] = 45.0;
       // attributes[CombatAttribute.Hp] = 20.0;
       // attributes[CombatAttribute.Vitality] = 1.5;
-      attributes[CombatAttribute.Strength] = 10; // @TESTING remove
-      attributes[CombatAttribute.Dexterity] = 10; // @TESTING remove
+      attributes[CombatAttribute.Strength] = 20; // @TESTING remove
+      attributes[CombatAttribute.Dexterity] = 20; // @TESTING remove
       attributes[CombatAttribute.Accuracy] = 0.0;
       // attributes[CombatAttribute.Accuracy] = 600.0;
       attributes[CombatAttribute.Evasion] = 10.0;

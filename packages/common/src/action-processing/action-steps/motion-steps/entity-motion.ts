@@ -1,4 +1,4 @@
-import { Vector3 } from "@babylonjs/core";
+import { clipPlaneFragmentDeclaration, Vector3 } from "@babylonjs/core";
 import {
   ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionResolutionStep,
@@ -80,7 +80,6 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
 
     if (auxiliaryEntityMotionsGetter) {
       const auxiliaryEntityMotions = auxiliaryEntityMotionsGetter(context);
-      console.log("AUXILIARYENTITYMOTIONS", auxiliaryEntityMotions);
       gameUpdateCommand.auxiliaryUpdates = auxiliaryEntityMotions;
     }
   }
@@ -105,6 +104,12 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
         destination: destinationResult.position,
         duration: getTranslationTime(entityPosition, destinationResult.position, entitySpeed),
       };
+      console.log(
+        COMBAT_ACTION_NAME_STRINGS[action.name],
+        ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepType],
+        "destinationResult.position:",
+        destinationResult.position
+      );
       translationOption = translation;
     }
 

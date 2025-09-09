@@ -37,21 +37,12 @@ export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends
       context.tracker.getPreviousTrackerInSequenceOption() || undefined
     );
 
-    console.log(
-      COMBAT_ACTION_NAME_STRINGS[action.name],
-      "PRECONDITIONS PASSED: ",
-      executionPreconditionsPassed,
-      "actionShouldExecuteEvenIfTurnEnded",
-      actionShouldExecuteEvenIfTurnEnded
-    );
-
     const shouldExecute =
       executionPreconditionsPassed && (!turnAlreadyEnded || actionShouldExecuteEvenIfTurnEnded);
 
     if (shouldExecute) return;
 
     context.tracker.wasAborted = true;
-    console.log(COMBAT_ACTION_NAME_STRINGS[action.name], "WAS ABORTED");
 
     const gameUpdateCommandOption = evaluatePlayerEndTurnAndInputLock(context);
     if (gameUpdateCommandOption) this.gameUpdateCommandOption = gameUpdateCommandOption;

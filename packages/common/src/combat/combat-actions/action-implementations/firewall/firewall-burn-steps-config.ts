@@ -8,7 +8,6 @@ const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionSt
 
 stepOverrides[ActionResolutionStepType.DeliveryMotion] = {
   getDelay: (externallySetDelayOption) => {
-    console.log("got externallySetDelayOption: ", externallySetDelayOption);
     return externallySetDelayOption || 0;
   },
 };

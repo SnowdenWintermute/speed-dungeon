@@ -39,7 +39,6 @@ export const ACTION_ENTITY_MODEL_FACTORIES: Record<
     mesh.position.copyFrom(position);
     const assetContainer = new AssetContainer();
     assetContainer.meshes = [mesh];
-    console.log("ice burst scene created: ", assetContainer);
     return assetContainer;
   },
   [ActionEntityName.TargetChangedIndicatorArrow]: function () {

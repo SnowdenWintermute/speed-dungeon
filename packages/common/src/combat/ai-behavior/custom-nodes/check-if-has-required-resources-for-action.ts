@@ -21,7 +21,6 @@ export class CheckIfHasRequiredResourcesForAction implements BehaviorNode {
     );
     if (hasResources) return BehaviorNodeState.Success;
 
-    console.log("missing resources required");
     return BehaviorNodeState.Failure;
   }
 }

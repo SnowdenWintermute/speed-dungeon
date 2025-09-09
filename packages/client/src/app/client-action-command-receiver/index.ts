@@ -38,8 +38,6 @@ export class ClientActionCommandReceiver implements ActionCommandReceiver {
           }
         });
 
-        console.log("GOT TREE:", payload);
-
         getGameWorld().replayTreeManager.enqueueTree(payload, () => resolve(true));
       });
       await promise;
