@@ -15,7 +15,10 @@ import {
   ActionResolutionStepsConfig,
   ActionResolutionStepsConfigOptions,
 } from "../../../combat-action-steps-config.js";
-import { ActionResolutionStepType } from "../../../../../action-processing/action-steps/index.js";
+import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
+  ActionResolutionStepType,
+} from "../../../../../action-processing/action-steps/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../../../../utils/index.js";
 import { VALUE_CHANGE_TICK_ACTION_STEPS_CONFIG } from "./value-change-tick.js";
 
@@ -51,13 +54,14 @@ export function createStepsConfig(
     };
   }
 
-  if (overrides.finalSteps)
+  if (overrides.finalSteps) {
     for (const [stepType, stepOverrides] of iterateNumericEnumKeyedRecord(overrides.finalSteps)) {
       base.finalSteps[stepType] = {
         ...base.finalSteps[stepType],
         ...stepOverrides,
       };
     }
+  }
 
   if (overrides.options)
     base.options = {

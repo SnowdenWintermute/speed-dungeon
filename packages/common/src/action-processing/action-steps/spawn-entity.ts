@@ -13,7 +13,8 @@ import { AdventuringParty } from "../../adventuring-party/index.js";
 export class SpawnEntityActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext, stepType: ActionResolutionStepType) {
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
-    const stepConfig = action.stepsConfig.steps[stepType];
+
+    const stepConfig = action.stepsConfig.getStepConfigOption(stepType);
     if (!stepConfig) throw new Error("expected step config not found");
     const { getSpawnableEntity } = stepConfig;
     if (!getSpawnableEntity) {

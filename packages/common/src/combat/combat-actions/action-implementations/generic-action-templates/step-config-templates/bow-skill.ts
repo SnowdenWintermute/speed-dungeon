@@ -45,8 +45,8 @@ import {
 import { ActionEntityName } from "../../../../../action-entities/index.js";
 import { Vector3 } from "@babylonjs/core";
 
-const config = cloneDeep(PROJECTILE_SKILL_STEPS_CONFIG);
-delete config.steps[ActionResolutionStepType.RollIncomingHitOutcomes];
+const base = cloneDeep(PROJECTILE_SKILL_STEPS_CONFIG);
+delete base.steps[ActionResolutionStepType.RollIncomingHitOutcomes];
 
 export const BOW_EQUIPMENT_ANIMATIONS: Record<TwoHandedRangedWeapon, SkeletalAnimationName> = {
   [TwoHandedRangedWeapon.ShortBow]: SkeletalAnimationName.EquipmentShortBowShoot,
@@ -56,13 +56,14 @@ export const BOW_EQUIPMENT_ANIMATIONS: Record<TwoHandedRangedWeapon, SkeletalAni
   [TwoHandedRangedWeapon.EtherBow]: SkeletalAnimationName.EquipmentEtherBowShoot,
 };
 
-config.steps[ActionResolutionStepType.ChamberingMotion] = {
-  ...config.steps[ActionResolutionStepType.ChamberingMotion],
+base.steps[ActionResolutionStepType.ChamberingMotion] = {
+  ...base.steps[ActionResolutionStepType.ChamberingMotion],
   getAnimation: (user, animationLengths) =>
     getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.BowChambering, false),
 };
-config.steps[ActionResolutionStepType.DeliveryMotion] = {
-  ...config.steps[ActionResolutionStepType.DeliveryMotion],
+
+base.steps[ActionResolutionStepType.DeliveryMotion] = {
+  ...base.steps[ActionResolutionStepType.DeliveryMotion],
   getAnimation: (user, animationLengths) =>
     getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.BowDelivery, false),
 
@@ -70,8 +71,8 @@ config.steps[ActionResolutionStepType.DeliveryMotion] = {
   getAuxiliaryEntityMotions: lockArrowToFaceArrowRest,
 };
 
-config.steps = {
-  ...config.steps,
+base.steps = {
+  ...base.steps,
   [ActionResolutionStepType.PrepMotion]: {
     getDestination: getRotateTowardPrimaryTargetDestination,
     getAnimation: (user, animationLengths) =>
@@ -108,16 +109,16 @@ config.steps = {
   [ActionResolutionStepType.StartConcurrentSubActions]: {},
 };
 
-config.finalSteps[ActionResolutionStepType.RecoveryMotion] = {
-  ...config.finalSteps[ActionResolutionStepType.RecoveryMotion],
+base.finalSteps[ActionResolutionStepType.RecoveryMotion] = {
+  ...base.finalSteps[ActionResolutionStepType.RecoveryMotion],
   getAnimation: (user, animationLengths) =>
     getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.BowRecovery, false),
 };
 
 export const BOW_SKILL_STEPS_CONFIG = new ActionResolutionStepsConfig(
-  config.steps,
-  config.finalSteps,
-  config.options
+  base.steps,
+  base.finalSteps,
+  base.options
 );
 
 function getBowEquipmentAnimation(

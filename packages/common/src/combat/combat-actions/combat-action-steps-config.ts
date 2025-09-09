@@ -104,4 +104,10 @@ export class ActionResolutionStepsConfig {
       .map(([key, value]) => key);
     return stepTypes;
   }
+
+  getStepConfigOption(stepType: ActionResolutionStepType) {
+    const mainStepOption = this.steps[stepType];
+    const finalStepOption = this.finalSteps[stepType];
+    return mainStepOption || finalStepOption;
+  }
 }

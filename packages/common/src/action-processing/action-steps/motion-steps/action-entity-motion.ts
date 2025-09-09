@@ -27,8 +27,8 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
     };
 
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
-    let stepConfig = action.stepsConfig.steps[stepType];
-    if (stepConfig === undefined) stepConfig = action.stepsConfig.finalSteps[stepType];
+
+    const stepConfig = action.stepsConfig.getStepConfigOption(stepType);
     if (!stepConfig) throw new Error("expected step config not found");
     if (stepConfig.shouldDespawnOnComplete)
       update.despawnOnComplete = stepConfig.shouldDespawnOnComplete(context);
@@ -76,8 +76,8 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
 
     const { actionName } = context.tracker.actionExecutionIntent;
     const action = COMBAT_ACTIONS[actionName];
-    let stepConfig = action.stepsConfig.steps[this.type];
-    if (stepConfig === undefined) stepConfig = action.stepsConfig.finalSteps[this.type];
+
+    const stepConfig = action.stepsConfig.getStepConfigOption(this.type);
 
     if (!stepConfig) throw new Error("expected step config not found");
     if (!stepConfig.shouldDespawnOnComplete) return [];

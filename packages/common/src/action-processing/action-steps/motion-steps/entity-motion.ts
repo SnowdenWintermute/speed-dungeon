@@ -75,16 +75,8 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
 
     // this is for when we need to tweak positions/parents of projectiles based on steps of
     // their parent action, like pointing an arrow at a target or releasing from the string
-    const auxiliaryEntityMotionsGetter =
-      action.stepsConfig.steps[this.type]?.getAuxiliaryEntityMotions;
-
-    console.log(
-      "STEP:",
-      ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type].toUpperCase(),
-      "ACTION HAS AUXILIARYENTITYMOTIONS:",
-      COMBAT_ACTION_NAME_STRINGS[action.name].toUpperCase(),
-      !!auxiliaryEntityMotionsGetter
-    );
+    const stepConfigOption = action.stepsConfig.getStepConfigOption(this.type);
+    let auxiliaryEntityMotionsGetter = stepConfigOption?.getAuxiliaryEntityMotions;
 
     if (auxiliaryEntityMotionsGetter) {
       const auxiliaryEntityMotions = auxiliaryEntityMotionsGetter(context);
@@ -100,9 +92,8 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     entityPosition: Vector3,
     entitySpeed: number
   ) {
-    let destinationGetterOption = action.stepsConfig.steps[stepType]?.getDestination;
-    if (!destinationGetterOption)
-      destinationGetterOption = action.stepsConfig.finalSteps[stepType]?.getDestination;
+    const stepConfigOption = action.stepsConfig.getStepConfigOption(stepType);
+    const destinationGetterOption = stepConfigOption?.getDestination;
     if (!destinationGetterOption) return null;
 
     let destinationResult = null;
@@ -135,7 +126,8 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
     const externallySetDelayOption = actionExecutionIntent.getDelayForStep(this.type);
 
-    const delayGetterOption = action.stepsConfig.steps[this.type]?.getDelay;
+    const stepConfig = action.stepsConfig.getStepConfigOption(this.type);
+    const delayGetterOption = stepConfig?.getDelay;
     if (!delayGetterOption) {
       return null;
     }
@@ -149,10 +141,9 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     stepType: ActionResolutionStepType
   ) {
     const action = COMBAT_ACTIONS[actionName];
+    const stepConfigOption = action.stepsConfig.getStepConfigOption(stepType);
 
-    let animationGetterOption = action.stepsConfig.steps[stepType]?.getAnimation;
-    if (!animationGetterOption)
-      animationGetterOption = action.stepsConfig.finalSteps[stepType]?.getAnimation;
+    const animationGetterOption = stepConfigOption?.getAnimation;
     if (!animationGetterOption) return null;
 
     let animationType;

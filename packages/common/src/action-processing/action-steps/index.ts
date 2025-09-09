@@ -95,8 +95,8 @@ export abstract class ActionResolutionStep {
     protected gameUpdateCommandOption: null | GameUpdateCommand
   ) {
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
-    let stepConfig = action.stepsConfig.steps[type];
-    if (stepConfig === undefined) stepConfig = action.stepsConfig.finalSteps[type];
+
+    const stepConfig = action.stepsConfig.getStepConfigOption(type);
 
     if (stepConfig === undefined) throw new Error("expected step config not found");
     if (gameUpdateCommandOption && stepConfig.getCosmeticEffectsToStop) {
