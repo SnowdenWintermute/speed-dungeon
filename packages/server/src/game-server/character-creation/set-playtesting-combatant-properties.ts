@@ -6,7 +6,7 @@ import {
 } from "@speed-dungeon/common";
 
 export function setPlaytestingCombatantProperties(combatantProperties: CombatantProperties) {
-  combatantProperties.level = 4;
+  combatantProperties.level = 6;
   combatantProperties.unspentAttributePoints = 30;
   combatantProperties.abilityProperties.unspentAbilityPoints = 1;
   // combatantProperties.supportClassProperties = { combatantClass: CombatantClass.Rogue, level: 1 };
@@ -56,11 +56,11 @@ export function setPlaytestingCombatantProperties(combatantProperties: Combatant
 }
 
 const TESTING_INHERENT_ATTRIBUTES: Partial<Record<CombatAttribute, number>> = {
-  [CombatAttribute.Speed]: 200,
-  [CombatAttribute.Accuracy]: 200,
+  [CombatAttribute.Speed]: 9,
+  // [CombatAttribute.Accuracy]: 200,
   // [CombatAttribute.Strength]: 40,
   // [CombatAttribute.Spirit]: 25,
-  [CombatAttribute.Mp]: 100,
-  [CombatAttribute.Evasion]: 100,
+  // [CombatAttribute.Mp]: 100,
+  // [CombatAttribute.Evasion]: 100,
   // [CombatAttribute.Hp]: 75,
 };

@@ -72,6 +72,8 @@ config.options.getFinalSteps = (self, context) => {
     context.tracker
   );
 
+  console.log("offhandShouldExecute:", offhandShouldExecute);
+
   if (!offhandShouldExecute) {
     return config.finalSteps;
   }

@@ -9,12 +9,14 @@ import {
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponent,
 } from "../../../index.js";
+import { MeleeAttackAnimationType } from "../../attack/determine-melee-attack-animation-type.js";
 
 export enum ActionExecutionPreconditions {
   HasEnoughActionPoints,
   UserIsAlive,
   TargetsAreAlive,
   WasNotCounterattacked,
+  WasNotWearing2HWeaponOnPreviousAction,
 }
 
 export const ACTION_EXECUTION_PRECONDITIONS: Record<
@@ -25,7 +27,20 @@ export const ACTION_EXECUTION_PRECONDITIONS: Record<
   [ActionExecutionPreconditions.UserIsAlive]: userIsAlive,
   [ActionExecutionPreconditions.TargetsAreAlive]: targetsAreAlive,
   [ActionExecutionPreconditions.WasNotCounterattacked]: wasNotCounterattacked,
+  [ActionExecutionPreconditions.WasNotWearing2HWeaponOnPreviousAction]:
+    wasWearing2HWeaponOnPreviousAction,
 };
+
+function wasWearing2HWeaponOnPreviousAction(
+  combatantContext: CombatantContext,
+  previousTrackerOption: undefined | ActionTracker,
+  self: CombatActionComponent
+) {
+  return !(
+    previousTrackerOption?.meleeAttackAnimationType === MeleeAttackAnimationType.TwoHandStab ||
+    previousTrackerOption?.meleeAttackAnimationType === MeleeAttackAnimationType.TwoHandSwing
+  );
+}
 
 function wasNotCounterattacked(
   combatantContext: CombatantContext,

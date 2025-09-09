@@ -146,12 +146,6 @@ export class ActionSequenceManager {
       trackerOption = this.getCurrentTracker();
       if (trackerOption === null) throw new Error("expected action tracker was missing");
 
-      console.log(
-        COMBAT_ACTION_NAME_STRINGS[trackerOption.actionExecutionIntent.actionName],
-        "isComplete:",
-        ACTION_RESOLUTION_STEP_TYPE_STRINGS[currentStep.type]
-      );
-
       const { completionOrderIdGenerator } = sequentialActionManagerRegistry;
       const completionOrderId = completionOrderIdGenerator.getNextIdNumeric();
       const branchingActionsResult = trackerOption.currentStep.finalize(completionOrderId);

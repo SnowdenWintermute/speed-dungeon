@@ -8,10 +8,6 @@ const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionSt
 
 stepOverrides[ActionResolutionStepType.InitialPositioning] = {
   getDelay: (externallySetDelayOption) => {
-    console.log(
-      "getting delay for InitialPositioning firewall burn:",
-      externallySetDelayOption || 0
-    );
     return externallySetDelayOption || 0;
   },
 };
