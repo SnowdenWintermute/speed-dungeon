@@ -110,7 +110,7 @@ export function getFirewallBurnScheduledActions(
 
   firewallBurnExecutionIntent.setDelayForStep(
     // firewall burn's InitialPositioning motion, so that the delay happens before the post initial positioning check if should still execute
-    ActionResolutionStepType.DeliveryMotion,
+    ActionResolutionStepType.InitialPositioning,
     timeToReachFirewallOption
   );
 

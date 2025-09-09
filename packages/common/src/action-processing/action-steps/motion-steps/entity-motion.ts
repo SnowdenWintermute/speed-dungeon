@@ -43,6 +43,7 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     const { mainEntityUpdate } = this.gameUpdateCommand;
 
     const delayOption = this.getDelay();
+    this.delayOption = delayOption;
     if (delayOption !== null) mainEntityUpdate.delayOption = delayOption;
 
     const animationOption = EntityMotionActionResolutionStep.getAnimation(
@@ -104,12 +105,7 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
         destination: destinationResult.position,
         duration: getTranslationTime(entityPosition, destinationResult.position, entitySpeed),
       };
-      console.log(
-        COMBAT_ACTION_NAME_STRINGS[action.name],
-        ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepType],
-        "destinationResult.position:",
-        destinationResult.position
-      );
+
       translationOption = translation;
     }
 
@@ -133,10 +129,24 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
 
     const stepConfig = action.stepsConfig.getStepConfigOption(this.type);
     const delayGetterOption = stepConfig?.getDelay;
+    console.log(
+      "delay getter option for",
+      COMBAT_ACTION_NAME_STRINGS[this.context.tracker.actionExecutionIntent.actionName],
+      "step",
+      ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type],
+      delayGetterOption
+    );
     if (!delayGetterOption) {
       return null;
     }
     const delayOption = delayGetterOption(externallySetDelayOption || undefined);
+    console.log(
+      "GOT DELAY for",
+      COMBAT_ACTION_NAME_STRINGS[this.context.tracker.actionExecutionIntent.actionName],
+      "step",
+      ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type],
+      delayGetterOption(externallySetDelayOption || undefined)
+    );
     return delayOption;
   }
 
@@ -185,8 +195,23 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     let animationTimeRemaining = 0;
     let delayTimeRemaining = 0;
 
-    if (this.delayOption !== null)
+    console.log(
+      "getting timeToCompletion: ",
+
+      COMBAT_ACTION_NAME_STRINGS[this.context.tracker.actionExecutionIntent.actionName],
+      ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type],
+      this.delayOption,
+      this.elapsed
+    );
+
+    if (this.delayOption !== null) {
       delayTimeRemaining = Math.max(0, this.delayOption - this.elapsed);
+      console.log(
+        COMBAT_ACTION_NAME_STRINGS[this.context.tracker.actionExecutionIntent.actionName],
+        ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type],
+        delayTimeRemaining
+      );
+    }
 
     if (this.translationOption)
       translationTimeRemaining = Math.max(0, this.translationOption.duration - this.elapsed);

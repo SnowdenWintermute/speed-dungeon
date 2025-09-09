@@ -6,8 +6,12 @@ import { BURNING_TICK_STEPS_CONFIG } from "../burning-tick/burning-tick-steps-co
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
-stepOverrides[ActionResolutionStepType.DeliveryMotion] = {
+stepOverrides[ActionResolutionStepType.InitialPositioning] = {
   getDelay: (externallySetDelayOption) => {
+    console.log(
+      "getting delay for InitialPositioning firewall burn:",
+      externallySetDelayOption || 0
+    );
     return externallySetDelayOption || 0;
   },
 };

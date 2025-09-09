@@ -66,18 +66,16 @@ export class ActionTracker {
     const stepTypes = this.queuedStepTypes;
     let stepOption = stepTypes[this.stepIndex];
 
+    const action = COMBAT_ACTIONS[this.actionExecutionIntent.actionName];
+
     if (stepOption === undefined && this.hasQueuedUpFinalSteps) return null;
     else if (stepOption === undefined) {
       // get final steps and set nextStepOption
-      const action = COMBAT_ACTIONS[this.actionExecutionIntent.actionName];
       const finalSteps = action.stepsConfig.options.getFinalSteps(action.stepsConfig, context);
 
       const toQueue = iterateNumericEnumKeyedRecord(finalSteps)
         .sort(([aKey, aValue], [bKey, bValue]) => aKey - bKey)
         .map(([key, value]) => key);
-
-      console.log(COMBAT_ACTION_NAME_STRINGS[action.name], "final steps: ", finalSteps);
-      console.log(COMBAT_ACTION_NAME_STRINGS[action.name], "to queue: ", toQueue);
 
       this.queuedStepTypes.push(...toQueue);
 

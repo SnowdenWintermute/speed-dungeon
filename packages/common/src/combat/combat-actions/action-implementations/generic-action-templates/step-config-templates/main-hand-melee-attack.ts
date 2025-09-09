@@ -66,7 +66,6 @@ config.finalSteps[ActionResolutionStepType.FinalPositioning] = {
 };
 
 config.options.getFinalSteps = (self, context) => {
-  console.log("getting final steps for mh melee", config.finalSteps);
   const offhandAttack = COMBAT_ACTIONS[CombatActionName.AttackMeleeOffhand];
   const offhandShouldExecute = offhandAttack.shouldExecute(
     context.combatantContext,
@@ -74,7 +73,6 @@ config.options.getFinalSteps = (self, context) => {
   );
 
   if (!offhandShouldExecute) {
-    console.log("should not offhand, final steps:");
     return config.finalSteps;
   }
 

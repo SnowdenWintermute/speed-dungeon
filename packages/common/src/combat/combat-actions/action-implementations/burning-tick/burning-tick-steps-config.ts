@@ -38,4 +38,7 @@ stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
 };
 
 const base = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.VALUE_CHANGE_TICK;
-export const BURNING_TICK_STEPS_CONFIG = createStepsConfig(base, { steps: stepOverrides });
+export const BURNING_TICK_STEPS_CONFIG = createStepsConfig(base, {
+  steps: {},
+  finalSteps: stepOverrides,
+});
