@@ -65,14 +65,6 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
       this.entitySpeed
     );
 
-    console.log(
-      "destination for",
-      COMBAT_ACTION_NAME_STRINGS[this.context.tracker.actionExecutionIntent.actionName],
-      "step",
-      ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type],
-      JSON.stringify(destinationsOption, null, 2)
-    );
-
     if (destinationsOption) {
       const { translationOption, rotationOption } = destinationsOption;
       if (translationOption) {

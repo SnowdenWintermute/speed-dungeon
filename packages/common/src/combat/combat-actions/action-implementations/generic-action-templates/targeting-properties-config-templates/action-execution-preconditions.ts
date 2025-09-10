@@ -88,6 +88,7 @@ function userIsAlive(
   self: CombatActionComponent
 ) {
   const { combatant } = combatantContext;
+  console.log("userIsAlive: ", !CombatantProperties.isDead(combatant.combatantProperties));
   return !CombatantProperties.isDead(combatant.combatantProperties);
 }
 
@@ -99,7 +100,15 @@ function targetsAreAlive(
   const { game, party, combatant } = combatantContext;
 
   const targetsOption = combatant.combatantProperties.combatActionTarget;
+
+  console.log(
+    COMBAT_ACTION_NAME_STRINGS[self.name],
+    "targetsOption in targetsAreAlive:",
+    targetsOption
+  );
+
   if (!targetsOption) {
+    console.log("NO TARGETS, RETURNING FALSE");
     return false;
   }
 
@@ -115,6 +124,7 @@ function targetsAreAlive(
   }
 
   if (targetIdsResult.length === 0) {
+    console.log("TARGET IDS ARE LENGTH 0, RETURNING FALSE");
     return false;
   }
 

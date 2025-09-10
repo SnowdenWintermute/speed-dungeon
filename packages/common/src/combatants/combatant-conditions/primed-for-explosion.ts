@@ -40,6 +40,7 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
       CombatActionName.AttackMeleeMainhand,
       CombatActionName.AttackMeleeOffhand,
       CombatActionName.BurningTick,
+      CombatActionName.FirewallBurn,
       CombatActionName.Fire,
       CombatActionName.ChainingSplitArrowProjectile,
     ];

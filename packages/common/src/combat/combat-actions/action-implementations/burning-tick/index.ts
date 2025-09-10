@@ -11,7 +11,23 @@ import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { BURNING_TICK_HIT_OUTCOME_PROPERTIES } from "./burning-tick-hit-outcome-properties.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
-import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import {
+  createTargetingPropertiesConfig,
+  TARGETING_PROPERTIES_TEMPLATE_GETTERS,
+} from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import {
+  ACTION_EXECUTION_PRECONDITIONS,
+  ActionExecutionPreconditions,
+} from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
+
+const targetingProperties = createTargetingPropertiesConfig(
+  TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE,
+  {
+    executionPreconditions: [
+      ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.TargetsAreAlive],
+    ],
+  }
+);
 
 const config: CombatActionComponentConfig = {
   description: "Inflict magical fire damage on enemies",
@@ -34,7 +50,7 @@ const config: CombatActionComponentConfig = {
       return { nameOfTarget: targetCombatantResult.entityProperties.name };
     },
   }),
-  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE(),
+  targetingProperties,
   hitOutcomeProperties: BURNING_TICK_HIT_OUTCOME_PROPERTIES,
   costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_ACTION(),
   stepsConfig: BURNING_TICK_STEPS_CONFIG,

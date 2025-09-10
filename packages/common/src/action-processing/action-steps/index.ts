@@ -1,6 +1,10 @@
 import { Milliseconds } from "../../primatives/index.js";
 import { Combatant } from "../../combatants/index.js";
-import { COMBAT_ACTIONS, CombatActionComponent } from "../../combat/index.js";
+import {
+  COMBAT_ACTION_NAME_STRINGS,
+  COMBAT_ACTIONS,
+  CombatActionComponent,
+} from "../../combat/index.js";
 import { ReplayEventNode } from "../replay-events.js";
 import { GameUpdateCommand } from "../game-update-commands.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
@@ -95,6 +99,11 @@ export abstract class ActionResolutionStep {
     protected gameUpdateCommandOption: null | GameUpdateCommand
   ) {
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
+
+    console.log(
+      COMBAT_ACTION_NAME_STRINGS[action.name],
+      ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type]
+    );
 
     const stepConfig = action.stepsConfig.getStepConfigOption(type);
 

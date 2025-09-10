@@ -1,4 +1,8 @@
-import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../combat/index.js";
+import {
+  COMBAT_ACTION_NAME_STRINGS,
+  COMBAT_ACTIONS,
+  CombatActionExecutionIntent,
+} from "../combat/index.js";
 import { CombatantContext } from "../combatant-context/index.js";
 import { CombatantSpecies } from "../combatants/combatant-species.js";
 import { Combatant } from "../combatants/index.js";
@@ -49,6 +53,7 @@ export class ActionSequenceManagerRegistry {
     combatantContext: CombatantContext,
     previousTrackerInSequenceOption: null | ActionTracker
   ) {
+    console.log("registered:", COMBAT_ACTION_NAME_STRINGS[actionExecutionIntent.actionName]);
     const id = this.idGenerator.generate();
     const manager = new ActionSequenceManager(
       id,

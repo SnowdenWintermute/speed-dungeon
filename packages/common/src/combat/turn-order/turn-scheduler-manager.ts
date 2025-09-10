@@ -85,15 +85,12 @@ export class TurnSchedulerManager {
         }
         continue;
       } else if (scheduler instanceof ConditionTurnScheduler) {
-        try {
-          AdventuringParty.getConditionOnCombatant(
-            party,
-            scheduler.combatantId,
-            scheduler.conditionId
-          );
-        } catch {
-          idsToRemove.push(scheduler.conditionId);
-        }
+        const conditionResult = AdventuringParty.getConditionOnCombatant(
+          party,
+          scheduler.combatantId,
+          scheduler.conditionId
+        );
+        if (conditionResult instanceof Error) idsToRemove.push(scheduler.conditionId);
       }
     }
 
@@ -179,7 +176,7 @@ export class TurnSchedulerManager {
 
     let iterationLimit = 0;
 
-    while (numCombatantTrackersCreated < this.minTurnTrackersCount && iterationLimit < 20) {
+    while (numCombatantTrackersCreated < this.minTurnTrackersCount && iterationLimit < 40) {
       iterationLimit += 1;
       this.sortSchedulers(TurnTrackerSortableProperty.TimeOfNextMove, party);
 
@@ -200,7 +197,13 @@ export class TurnSchedulerManager {
         }
       } else if (fastestActor instanceof ConditionTurnScheduler) {
         const { combatantId, conditionId, timeOfNextMove } = fastestActor;
-        const condition = AdventuringParty.getConditionOnCombatant(party, combatantId, conditionId);
+        const conditionResult = AdventuringParty.getConditionOnCombatant(
+          party,
+          combatantId,
+          conditionId
+        );
+        if (conditionResult instanceof Error) throw conditionResult;
+        const condition = conditionResult;
         const stacksRemaining = condition.stacksOption?.current;
 
         let shouldPush = true;
@@ -280,7 +283,9 @@ export class ConditionTurnScheduler implements ITurnScheduler {
       this.combatantId,
       this.conditionId
     );
-    if (conditionResult instanceof Error) throw conditionResult;
+    if (conditionResult instanceof Error) {
+      throw conditionResult;
+    }
 
     const tickPropertiesOption = CombatantCondition.getTickProperties(conditionResult);
 

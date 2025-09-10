@@ -18,6 +18,7 @@ export class CosmeticEffectManager {
     if (!existingEffectOption)
       return console.info("tried to end a cosmetic effect but couldn't find it");
     existingEffectOption.referenceCount -= 1;
+    console.log("stopped effect:", name, "RC:", existingEffectOption.referenceCount);
 
     if (existingEffectOption.referenceCount <= 0) {
       existingEffectOption.effect.softCleanup();

@@ -18,7 +18,7 @@ export enum CosmeticEffectNames {
 }
 
 export abstract class CosmeticEffect {
-  public lifetimeTimeout: null | NodeJS.Timeout = null;
+  public lifetimeTimeouts: null | NodeJS.Timeout[] = null;
   particleSystems: ManagedParticleSystem[] = [];
   public transformNode = new TransformNode("");
   constructor(public scene: Scene) {
@@ -37,8 +37,15 @@ export abstract class CosmeticEffect {
     }
   }
 
+  addLifetimeTimeout(timeout: NodeJS.Timeout) {
+    if (this.lifetimeTimeouts === null) this.lifetimeTimeouts = [];
+    this.lifetimeTimeouts.push(timeout);
+  }
+
   softCleanup() {
-    if (this.lifetimeTimeout !== null) clearTimeout(this.lifetimeTimeout);
+    if (this.lifetimeTimeouts !== null) {
+      for (const timeout of this.lifetimeTimeouts) clearTimeout(timeout);
+    }
     for (const particleSystem of this.particleSystems) {
       particleSystem.softCleanup(() => {
         this.cleanup();

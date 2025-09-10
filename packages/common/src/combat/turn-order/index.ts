@@ -3,7 +3,10 @@ import { Battle } from "../../battle/index.js";
 import { Combatant } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId, Milliseconds } from "../../primatives/index.js";
-import { CombatActionName } from "../combat-actions/combat-action-names.js";
+import {
+  COMBAT_ACTION_NAME_STRINGS,
+  CombatActionName,
+} from "../combat-actions/combat-action-names.js";
 import {
   BASE_ACTION_DELAY,
   BASE_ACTION_DELAY_MULTIPLIER,
@@ -40,6 +43,15 @@ export class TurnOrderManager {
       tracker.getSpeed(party),
       BASE_ACTION_DELAY_MULTIPLIER
     );
+
+    if (actionNameOption)
+      console.log(
+        "added delay for action name:",
+        COMBAT_ACTION_NAME_STRINGS[actionNameOption],
+        delay,
+        "to tracker",
+        tracker.combatantId
+      );
 
     tracker.accumulatedDelay += delay;
 

@@ -68,20 +68,17 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   const { game, party, combatant } = context.combatantContext;
   const battleOption = AdventuringParty.getBattleOption(party, game);
 
-  // handle conditions using actions, which should remove their stacks
-
   const { asShimmedUserOfTriggeredCondition } = combatant.combatantProperties;
-  if (asShimmedUserOfTriggeredCondition) {
-    const { condition } = asShimmedUserOfTriggeredCondition;
-
-    const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
-    if (tickPropertiesOption) {
-      const { numStacksRemoved } = tickPropertiesOption.onTick(condition, context.combatantContext);
-    }
-  }
+  const userWasConditionThatRemovedItself =
+    battleOption &&
+    asShimmedUserOfTriggeredCondition &&
+    AdventuringParty.getConditionOnCombatant(
+      party,
+      asShimmedUserOfTriggeredCondition.entityConditionWasAppliedTo,
+      asShimmedUserOfTriggeredCondition.condition.id
+    ) instanceof Error;
 
   // unlock input if no more blocking steps are left and next turn is player
-
   const noActionPointsLeft =
     combatant.combatantProperties.actionPoints === 0 &&
     // this is because it was ending our turn when conditions used actions in between mh and oh attacks since the shimmed condition users don't have any action points
@@ -94,13 +91,17 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   let shouldSendEndActiveTurnMessage = false;
   const threatChanges = new ThreatChanges();
   if (requiredTurn && !turnAlreadyEnded && battleOption) {
+    console.log("required turn");
     // if they died on their own turn we should not end the active combatant's turn because
     // we would have already removed their turn tracker on death
     const { actionName } = tracker.actionExecutionIntent;
 
-    battleOption.turnOrderManager.updateSchedulerWithExecutedActionDelay(party, actionName);
+    if (!userWasConditionThatRemovedItself) {
+      battleOption.turnOrderManager.updateSchedulerWithExecutedActionDelay(party, actionName);
+    }
     battleOption.turnOrderManager.updateTrackers(game, party);
 
+    console.log("marked turn ended", COMBAT_ACTION_NAME_STRINGS[actionName]);
     sequentialActionManagerRegistry.markTurnEnded();
     shouldSendEndActiveTurnMessage = true;
 

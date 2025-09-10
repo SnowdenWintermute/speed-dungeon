@@ -268,6 +268,8 @@ export abstract class CombatantCondition {
 
     // @PERF - remove the associated turn scheduler
     // from the battle
+    //
+    console.log("removed condition", conditionId, "from combatant");
 
     return removed;
   }

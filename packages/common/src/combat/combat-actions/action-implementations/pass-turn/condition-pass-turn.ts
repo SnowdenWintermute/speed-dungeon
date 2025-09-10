@@ -1,27 +1,37 @@
 import cloneDeep from "lodash.clonedeep";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import {
   CombatActionCombatLogProperties,
   CombatActionOrigin,
 } from "../../combat-action-combat-log-properties.js";
-import {
-  ActionResolutionStepsConfig,
-  CombatActionComponentConfig,
-  CombatActionLeaf,
-  CombatActionName,
-} from "../../index.js";
+import { CombatActionComponentConfig, CombatActionLeaf, CombatActionName } from "../../index.js";
 import { passTurnConfig } from "./index.js";
+import {
+  createTargetingPropertiesConfig,
+  TARGETING_PROPERTIES_TEMPLATE_GETTERS,
+} from "../generic-action-templates/targeting-properties-config-templates/index.js";
+
+const cloned = cloneDeep(passTurnConfig);
+
+const targetingProperties = createTargetingPropertiesConfig(
+  TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE,
+  {
+    executionPreconditions: [
+      // ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.TargetsAreAlive],
+    ],
+  }
+);
 
 const config: CombatActionComponentConfig = {
-  ...passTurnConfig,
+  ...cloned,
   description: "For combatant conditions ending their turn on tick",
+  targetingProperties,
   combatLogMessageProperties: new CombatActionCombatLogProperties({
     origin: CombatActionOrigin.SpellCast,
     getOnUseMessage: (data) => {
       return `${data.nameOfActionUser} ticks`;
     },
   }),
-  stepsConfig: cloneDeep(passTurnConfig.stepsConfig),
+  stepsConfig: cloneDeep(cloned.stepsConfig),
 };
 
 export const CONDITION_PASS_TURN = new CombatActionLeaf(CombatActionName.ConditionPassTurn, config);

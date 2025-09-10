@@ -47,6 +47,7 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
       CombatActionName.CounterattackMeleeMainhand,
       CombatActionName.CounterAttackRangedMainhandProjectile,
       CombatActionName.Explosion,
+      CombatActionName.FirewallBurn,
       CombatActionName.Fire,
     ];
     return actionsThatTrigger.includes(actionName);

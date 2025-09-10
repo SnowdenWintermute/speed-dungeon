@@ -10,7 +10,7 @@ import { generateUnexploredRoomsQueue } from "./generate-unexplored-rooms-queue.
 import updatePlayerReadiness from "./update-player-readiness.js";
 import playerOwnsCharacter from "./player-owns-character.js";
 import { InputLock } from "./input-lock.js";
-import { Combatant, CombatantProperties } from "../combatants/index.js";
+import { Combatant, CombatantCondition, CombatantProperties } from "../combatants/index.js";
 import { ActionCommandQueue } from "../action-processing/action-command-queue.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
@@ -59,15 +59,15 @@ export class AdventuringParty {
     party: AdventuringParty,
     combatantId: EntityId,
     conditionId: EntityId
-  ) {
+  ): Error | CombatantCondition {
     const combatantResult = AdventuringParty.getCombatant(party, combatantId);
-    if (combatantResult instanceof Error) throw combatantResult;
+    if (combatantResult instanceof Error) return combatantResult;
     const conditionOption = CombatantProperties.getConditionById(
       combatantResult.combatantProperties,
       conditionId
     );
     if (conditionOption === null)
-      throw new Error(
+      return new Error(
         `expected condition not found with id ${conditionId} on combatant id ${combatantId}`
       );
     return conditionOption;

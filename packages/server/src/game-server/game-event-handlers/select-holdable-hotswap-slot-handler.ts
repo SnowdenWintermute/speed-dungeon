@@ -7,7 +7,6 @@ import {
   CombatActionName,
   CombatActionTargetType,
   CombatantEquipment,
-  CombatantProperties,
   ERROR_MESSAGES,
   HOTSWAP_SLOT_SELECTION_ACTION_POINT_COST,
   ServerToClientEvent,

@@ -43,11 +43,11 @@ export class BurningCombatantCondition implements CombatantCondition {
   }
 
   getTickSpeed(condition: CombatantCondition) {
-    // return condition.level * BASE_CONDITION_TICK_SPEED;
     return condition.level * BASE_CONDITION_TICK_SPEED;
   }
 
   onTick(condition: CombatantCondition, context: CombatantContext) {
+    console.log("BURNING CONDITION ON TICK");
     const user = createShimmedUserOfTriggeredCondition(
       COMBATANT_CONDITION_NAME_STRINGS[condition.name],
       condition,
@@ -58,6 +58,8 @@ export class BurningCombatantCondition implements CombatantCondition {
       type: CombatActionTargetType.Single,
       targetId: context.combatant.entityProperties.id,
     };
+
+    user.combatantProperties.combatActionTarget = targets;
 
     return {
       numStacksRemoved: 1,

@@ -15,16 +15,24 @@ import {
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
-import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import {
+  createTargetingPropertiesConfig,
+  TARGETING_PROPERTIES_TEMPLATE_GETTERS,
+} from "../generic-action-templates/targeting-properties-config-templates/index.js";
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BENEVOLENT_CONSUMABLE,
   { getThreatChangesOnHitOutcomes: () => null }
 );
 
+const targetingProperties = createTargetingPropertiesConfig(
+  TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_IN_COMBAT,
+  { executionPreconditions: [] }
+);
+
 export const passTurnConfig: CombatActionComponentConfig = {
   description: "Skip your own turn",
-  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_IN_COMBAT(),
+  targetingProperties,
   combatLogMessageProperties: new CombatActionCombatLogProperties({
     origin: CombatActionOrigin.SpellCast,
     getOnUseMessage: (data) => {

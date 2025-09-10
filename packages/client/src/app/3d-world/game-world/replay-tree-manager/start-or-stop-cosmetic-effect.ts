@@ -15,6 +15,8 @@ export function startOrStopCosmeticEffects(
     const sceneOption = gameWorld.current?.scene;
     if (!sceneOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
 
+    let effectToStartLifetimeTimeout;
+
     for (const { name, parent, lifetime } of cosmeticEffectsToStart) {
       const cosmeticEffectManager = SceneEntity.getFromIdentifier(
         parent.sceneEntityIdentifier
@@ -22,20 +24,25 @@ export function startOrStopCosmeticEffects(
 
       const existingEffectOption = cosmeticEffectManager.cosmeticEffects[name];
 
-      if (existingEffectOption) existingEffectOption.referenceCount += 1;
-      else {
+      if (existingEffectOption) {
+        existingEffectOption.referenceCount += 1;
+        effectToStartLifetimeTimeout = existingEffectOption.effect;
+      } else {
         const effect = new COSMETIC_EFFECT_CONSTRUCTORS[name](sceneOption);
-
-        if (lifetime !== undefined) {
-          effect.lifetimeTimeout = setTimeout(() => {
-            cosmeticEffectManager.stopEffect(name);
-          }, lifetime);
-        }
 
         cosmeticEffectManager.cosmeticEffects[name] = { effect, referenceCount: 1 };
         const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(parent);
         effect.transformNode.setParent(targetTransformNode);
         effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
+        effectToStartLifetimeTimeout = effect;
+      }
+
+      if (lifetime !== undefined) {
+        effectToStartLifetimeTimeout.addLifetimeTimeout(
+          setTimeout(() => {
+            cosmeticEffectManager.stopEffect(name);
+          }, lifetime)
+        );
       }
     }
   }
