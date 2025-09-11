@@ -91,14 +91,15 @@ export class HitOutcomeMitigationCalculator {
     // COUNTERATTACKS
     if (hitOutcomeProperties.getCanTriggerCounterattack(user, actionLevel)) {
       // @TODO - derrive this from various combatant properties
-      const percentChanceToCounterAttack = HitOutcomeMitigationCalculator.getCounterattackChance(
-        user,
-        target
-      );
+      // const percentChanceToCounterAttack = HitOutcomeMitigationCalculator.getCounterattackChance(
+      //   user,
+      //   target
+      // );
+      const percentChanceToCounterAttack = 100;
       const counterAttackRoll = randBetween(0, 100, this.rng);
-      // const isCounterAttacked = counterAttackRoll < percentChanceToCounterAttack;
+      const isCounterAttacked = counterAttackRoll < percentChanceToCounterAttack;
       // const isCounterAttacked = percentChanceToCounterAttack !== 0;
-      const isCounterAttacked = false;
+      // const isCounterAttacked = false;
       if (isCounterAttacked) return [HitOutcome.Counterattack];
     }
 

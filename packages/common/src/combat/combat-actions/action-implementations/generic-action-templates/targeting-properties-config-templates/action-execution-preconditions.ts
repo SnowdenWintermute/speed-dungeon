@@ -1,4 +1,5 @@
 import { ActionTracker } from "../../../../../action-processing/action-tracker.js";
+import { ActionResolutionStepContext } from "../../../../../action-processing/index.js";
 import { CombatantContext } from "../../../../../combatant-context/index.js";
 import { CombatantProperties } from "../../../../../combatants/index.js";
 import { SpeedDungeonGame } from "../../../../../game/index.js";
@@ -32,7 +33,7 @@ export const ACTION_EXECUTION_PRECONDITIONS: Record<
 };
 
 function wasWearing2HWeaponOnPreviousAction(
-  combatantContext: CombatantContext,
+  context: ActionResolutionStepContext,
   previousTrackerOption: undefined | ActionTracker,
   self: CombatActionComponent
 ) {
@@ -43,7 +44,7 @@ function wasWearing2HWeaponOnPreviousAction(
 }
 
 function wasNotCounterattacked(
-  combatantContext: CombatantContext,
+  context: ActionResolutionStepContext,
   previousTrackerOption: undefined | ActionTracker,
   self: CombatActionComponent
 ) {
@@ -51,11 +52,11 @@ function wasNotCounterattacked(
 }
 
 function hasEnoughActionPoints(
-  combatantContext: CombatantContext,
+  context: ActionResolutionStepContext,
   previousTrackerOption: undefined | ActionTracker,
   self: CombatActionComponent
 ) {
-  const { party, combatant } = combatantContext;
+  const { party, combatant } = context.combatantContext;
   const { combatantProperties } = combatant;
 
   // @TODO - actually select the action level since some action level might cost more
@@ -83,23 +84,23 @@ function hasEnoughActionPoints(
 }
 
 function userIsAlive(
-  combatantContext: CombatantContext,
+  context: ActionResolutionStepContext,
   previousTrackerOption: undefined | ActionTracker,
   self: CombatActionComponent
 ) {
-  const { combatant } = combatantContext;
+  const { combatant } = context.combatantContext;
   console.log("userIsAlive: ", !CombatantProperties.isDead(combatant.combatantProperties));
   return !CombatantProperties.isDead(combatant.combatantProperties);
 }
 
 function targetsAreAlive(
-  combatantContext: CombatantContext,
+  context: ActionResolutionStepContext,
   previousTrackerOption: undefined | ActionTracker,
   self: CombatActionComponent
 ) {
-  const { game, party, combatant } = combatantContext;
+  const { game, party, combatant } = context.combatantContext;
 
-  const targetsOption = combatant.combatantProperties.combatActionTarget;
+  const targetsOption = context.tracker.actionExecutionIntent.targets;
 
   console.log(
     COMBAT_ACTION_NAME_STRINGS[self.name],

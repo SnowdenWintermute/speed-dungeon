@@ -33,7 +33,7 @@ export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends
     const actionShouldExecuteEvenIfTurnEnded = turnAlreadyEnded && Math.abs(actionPointCost) < 1;
 
     const executionPreconditionsPassed = action.shouldExecute(
-      context.combatantContext,
+      context,
       context.tracker.getPreviousTrackerInSequenceOption() || undefined
     );
 

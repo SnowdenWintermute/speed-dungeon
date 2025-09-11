@@ -8,6 +8,7 @@ import { CombatActionIntent } from "./combat-action-intent.js";
 import { EquipmentType } from "../../items/equipment/index.js";
 import { CombatantProperties } from "../../combatants/index.js";
 import { CombatActionRequiredRange } from "./combat-action-range.js";
+import { ActionResolutionStepContext } from "../../action-processing/index.js";
 
 export interface CombatActionTargetingPropertiesConfig {
   getTargetingSchemes: (actionLevel: number) => TargetingScheme[];
@@ -35,7 +36,7 @@ export interface CombatActionTargetingPropertiesConfig {
 }
 
 export type ActionExecutionPrecondition = (
-  combatantContext: CombatantContext,
+  context: ActionResolutionStepContext,
   previousTrackerOption: undefined | ActionTracker,
   self: CombatActionComponent
 ) => boolean;

@@ -177,7 +177,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
               ...triggeredActions.filter((actionIntent) => {
                 const action = COMBAT_ACTIONS[actionIntent.actionExecutionIntent.actionName];
                 return action.shouldExecute(
-                  context.combatantContext,
+                  context,
                   tracker.getPreviousTrackerInSequenceOption() || undefined
                 );
               })

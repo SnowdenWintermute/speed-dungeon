@@ -6,6 +6,7 @@ import { ActionExecutionPhase } from "../../action-execution-phase.js";
 import { HoldableSlotType } from "../../../../../items/equipment/slots.js";
 import { COMBAT_ACTIONS } from "../../index.js";
 import { CombatActionName } from "../../../combat-action-names.js";
+import { CombatantProperties } from "../../../../../combatants/index.js";
 
 const expectedMeleeAttackAnimationType = "Expected meleeAttackAnimationType was undefined";
 
@@ -67,12 +68,16 @@ config.finalSteps[ActionResolutionStepType.FinalPositioning] = {
 
 config.options.getFinalSteps = (self, context) => {
   const offhandAttack = COMBAT_ACTIONS[CombatActionName.AttackMeleeOffhand];
-  const offhandShouldExecute = offhandAttack.shouldExecute(
-    context.combatantContext,
-    context.tracker
-  );
+  const offhandShouldExecute = offhandAttack.shouldExecute(context, context.tracker);
 
   console.log("offhandShouldExecute:", offhandShouldExecute);
+
+  const { combatant } = context.combatantContext;
+  if (CombatantProperties.isDead(combatant.combatantProperties)) {
+    return {
+      [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
+    };
+  }
 
   if (!offhandShouldExecute) {
     return config.finalSteps;

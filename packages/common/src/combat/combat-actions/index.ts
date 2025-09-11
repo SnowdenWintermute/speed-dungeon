@@ -85,13 +85,13 @@ export abstract class CombatActionComponent {
   }
 
   shouldExecute(
-    combatantContext: CombatantContext,
+    context: ActionResolutionStepContext,
     previousTrackerOption: undefined | ActionTracker
   ) {
     const { executionPreconditions } = this.targetingProperties;
     if (executionPreconditions.length === 0) return true;
 
-    return executionPreconditions.every((fn) => fn(combatantContext, previousTrackerOption, this));
+    return executionPreconditions.every((fn) => fn(context, previousTrackerOption, this));
   }
 
   getAccuracy(user: CombatantProperties, actionLevel: number) {
