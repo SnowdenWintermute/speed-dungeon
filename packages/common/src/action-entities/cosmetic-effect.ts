@@ -42,13 +42,16 @@ export abstract class CosmeticEffect {
     this.lifetimeTimeouts.push(timeout);
   }
 
-  softCleanup() {
+  softCleanup(onComplete: () => void) {
     if (this.lifetimeTimeouts !== null) {
       for (const timeout of this.lifetimeTimeouts) clearTimeout(timeout);
     }
+    let particleSystemsCleaningUpCount = this.particleSystems.length;
     for (const particleSystem of this.particleSystems) {
       particleSystem.softCleanup(() => {
         this.cleanup();
+        particleSystemsCleaningUpCount -= 1;
+        if (particleSystemsCleaningUpCount === 0) onComplete();
       });
     }
   }

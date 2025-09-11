@@ -6,14 +6,15 @@ export class CosmeticEffectManager {
   > = {};
   constructor() {}
 
-  softCleanup() {
-    for (const effectRc of Object.values(this.cosmeticEffects)) effectRc.effect.softCleanup();
+  softCleanup(onComplete: () => void) {
+    for (const effectRc of Object.values(this.cosmeticEffects))
+      effectRc.effect.softCleanup(onComplete);
   }
   cleanup() {
     for (const effectRc of Object.values(this.cosmeticEffects)) effectRc.effect.cleanup();
   }
 
-  stopEffect(name: CosmeticEffectNames) {
+  stopEffect(name: CosmeticEffectNames, onComplete: () => void) {
     const existingEffectOption = this.cosmeticEffects[name];
     if (!existingEffectOption)
       return console.info("tried to end a cosmetic effect but couldn't find it");
@@ -21,7 +22,7 @@ export class CosmeticEffectManager {
     console.log("stopped effect:", name, "RC:", existingEffectOption.referenceCount);
 
     if (existingEffectOption.referenceCount <= 0) {
-      existingEffectOption.effect.softCleanup();
+      existingEffectOption.effect.softCleanup(onComplete);
       delete this.cosmeticEffects[name];
     }
   }
