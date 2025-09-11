@@ -3,7 +3,7 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
+import { CombatActionExecutionIntent } from "../../combat/index.js";
 import {
   ActivatedTriggersGameUpdateCommand,
   GameUpdateCommandType,
@@ -12,6 +12,9 @@ import { Combatant, CombatantCondition } from "../../combatants/index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { addRemovedConditionStacksToUpdate } from "./hit-outcome-triggers/add-triggered-condition-to-update.js";
 
+// Made this its own step because conditions were being removed by ticking, then the end turn step
+// was trying to sort their turn order tracker but it couldn't get their speed since they no longer
+// existed
 const stepType = ActionResolutionStepType.RemoveTickedConditionStacks;
 export class RemoveTickedConditionStacksActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
@@ -24,11 +27,8 @@ export class RemoveTickedConditionStacksActionResolutionStep extends ActionResol
 
     super(stepType, context, gameUpdateCommand);
 
-    const { tracker, combatantContext } = context;
-    const { game, party, combatant } = combatantContext;
-
-    const { actionName } = tracker.actionExecutionIntent;
-    const action = COMBAT_ACTIONS[actionName];
+    const { combatantContext } = context;
+    const { party, combatant } = combatantContext;
 
     // action was used by a condition, remove stacks and send removed stacks update
     if (combatant.combatantProperties.asShimmedUserOfTriggeredCondition) {

@@ -16,6 +16,7 @@ import { TargetingCalculator } from "../../../targeting/targeting-calculator.js"
 import { getPrimaryTargetPositionAsDestination } from "../common-destination-getters.js";
 import { ActionResolutionStepConfig } from "../../combat-action-steps-config.js";
 import { CosmeticEffectInstructionFactory } from "../generic-action-templates/cosmetic-effect-factories/index.js";
+import { throwIfError } from "../../../../utils/index.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
@@ -66,7 +67,9 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
     // @PERF - can probably combine all these individual targetingCalculator creations
     // and pass the targetId to getStartPointingTowardEntityOption and getCosmeticDestinationY et al
     const targetingCalculator = new TargetingCalculator(combatantContext, null);
-    const primaryTargetId = targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent);
+    let primaryTargetId = throwIfError(
+      targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent)
+    );
     return {
       identifier: {
         sceneEntityIdentifier: {
@@ -83,7 +86,9 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
     const { actionExecutionIntent } = tracker;
 
     const targetingCalculator = new TargetingCalculator(combatantContext, null);
-    const primaryTargetId = targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent);
+    const primaryTargetId = throwIfError(
+      targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent)
+    );
 
     const entityPart: SceneEntityChildTransformNodeIdentifier = {
       sceneEntityIdentifier: {
@@ -115,8 +120,8 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
 stepOverrides[ActionResolutionStepType.RollIncomingHitOutcomes] = {
   getCosmeticEffectsToStart: (context) => {
     const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
-    const targetId = targetingCalculator.getPrimaryTargetCombatantId(
-      context.tracker.actionExecutionIntent
+    const targetId = throwIfError(
+      targetingCalculator.getPrimaryTargetCombatantId(context.tracker.actionExecutionIntent)
     );
 
     return [

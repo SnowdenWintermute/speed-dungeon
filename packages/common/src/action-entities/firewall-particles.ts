@@ -13,67 +13,81 @@ import { ManagedParticleSystem } from "./managed-particle-system.js";
 import { CosmeticEffect } from "./cosmetic-effect.js";
 import { BoxDimensions } from "../utils/shape-utils.js";
 
+const particleSystemCount = 4;
+const totalParticlesCapacity = 5000;
+const capacity = totalParticlesCapacity / particleSystemCount;
+
 export class FirewallParticles extends CosmeticEffect {
   createAnimatedMeshes(): AbstractMesh[] {
     throw new Error("Method not implemented.");
   }
   createParticleSystems(scene: Scene): ManagedParticleSystem[] {
-    const particleSystem = new GPUParticleSystem("firewallParticles", { capacity: 5000 }, scene);
-    // particleSystem.particleTexture = new Texture("img/particle-textures/flare.png");
-    particleSystem.particleTexture = new Texture(`img/particle-textures/explosion-${1}.jpg`);
+    const particleSystems: GPUParticleSystem[] = [];
+    for (let i = particleSystemCount; i > 0; i -= 1) {
+      particleSystems.push(new GPUParticleSystem("firewall particles", { capacity }, scene));
+    }
 
-    const dimensions: BoxDimensions = {
-      width: 7,
-      height: 0.5,
-      depth: 0.75,
-    };
+    const managedParticleSystems: ManagedParticleSystem[] = [];
 
-    // Box emitter: particles spawn within a box and move upward
-    const boxEmitter = new BoxParticleEmitter();
-    // Particles spawn inside this box
-    boxEmitter.minEmitBox = new Vector3(
-      -dimensions.width / 2,
-      -dimensions.height / 2,
-      -dimensions.depth / 2
-    );
-    boxEmitter.maxEmitBox = new Vector3(
-      dimensions.width / 2,
-      dimensions.height / 2,
-      dimensions.depth / 2
-    );
+    particleSystems.forEach((particleSystem, i) => {
+      // particleSystem.particleTexture = new Texture("img/particle-textures/flare.png");
+      particleSystem.particleTexture = new Texture(`img/particle-textures/explosion-${i + 1}.jpg`);
 
-    // Push them mostly upward with a little flicker
-    boxEmitter.direction1 = new Vector3(-0.2, 1, -0.2);
-    boxEmitter.direction2 = new Vector3(0.2, 1, 0.2);
-    particleSystem.particleEmitterType = boxEmitter;
+      const dimensions: BoxDimensions = {
+        width: 7,
+        height: 0.5,
+        depth: 0.75,
+      };
 
-    // Emitter mesh (placeholder for positioning)
-    const mesh = new Mesh("");
+      // Box emitter: particles spawn within a box and move upward
+      const boxEmitter = new BoxParticleEmitter();
+      // Particles spawn inside this box
+      boxEmitter.minEmitBox = new Vector3(
+        -dimensions.width / 2,
+        -dimensions.height / 2,
+        -dimensions.depth / 2
+      );
+      boxEmitter.maxEmitBox = new Vector3(
+        dimensions.width / 2,
+        dimensions.height / 2,
+        dimensions.depth / 2
+      );
 
-    mesh.position.y = -dimensions.height - 0.2;
+      // Push them mostly upward with a little flicker
+      boxEmitter.direction1 = new Vector3(-0.2, 1, -0.2);
+      boxEmitter.direction2 = new Vector3(0.2, 1, 0.2);
+      particleSystem.particleEmitterType = boxEmitter;
 
-    mesh.rotationQuaternion = Quaternion.FromEulerVector(mesh.rotation);
-    particleSystem.emitter = mesh;
+      // Emitter mesh (placeholder for positioning)
+      const mesh = new Mesh("");
 
-    // Size and lifetime
-    particleSystem.minSize = 0.05;
-    particleSystem.maxSize = 0.2;
-    particleSystem.minLifeTime = 0.5;
-    particleSystem.maxLifeTime = 1.5;
+      mesh.position.y = -dimensions.height - 0.2;
 
-    // Coloring (warm firewall colors)
-    particleSystem.addColorGradient(0, new Color4(1.0, 0.4, 0.0, 0.6)); // orange
-    particleSystem.addColorGradient(0.5, new Color4(1.0, 0.1, 0.0, 0.4)); // red
-    particleSystem.addColorGradient(1, new Color4(0, 0, 0, 0)); // fade to transparent
+      mesh.rotationQuaternion = Quaternion.FromEulerVector(mesh.rotation);
+      particleSystem.emitter = mesh;
 
-    // Emit power and rate
-    particleSystem.minEmitPower = 0.5;
-    particleSystem.maxEmitPower = 1.5;
-    particleSystem.emitRate = 600;
+      // Size and lifetime
+      particleSystem.minSize = 0.05;
+      particleSystem.maxSize = 0.2;
+      particleSystem.minLifeTime = 0.5;
+      particleSystem.maxLifeTime = 1.5;
 
-    // Let flames rise (slight upward pull)
-    particleSystem.gravity = new Vector3(0, 0.5, 0);
+      // Coloring (warm firewall colors)
+      particleSystem.addColorGradient(0, new Color4(1.0, 0.4, 0.0, 0.6)); // orange
+      particleSystem.addColorGradient(0.5, new Color4(1.0, 0.1, 0.0, 0.4)); // red
+      particleSystem.addColorGradient(1, new Color4(0, 0, 0, 0)); // fade to transparent
 
-    return [new ManagedParticleSystem(particleSystem, mesh, scene)];
+      // Emit power and rate
+      particleSystem.minEmitPower = 0.5;
+      particleSystem.maxEmitPower = 1.5;
+      particleSystem.emitRate = 600;
+
+      // Let flames rise (slight upward pull)
+      particleSystem.gravity = new Vector3(0, 0.5, 0);
+
+      managedParticleSystems.push(new ManagedParticleSystem(particleSystem, mesh, scene));
+    });
+
+    return managedParticleSystems;
   }
 }

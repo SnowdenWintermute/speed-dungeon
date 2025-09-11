@@ -102,7 +102,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     CombatantProperties.tickCooldowns(combatant.combatantProperties);
 
     // don't decay threat for every ticking condition
-    if (!asShimmedUserOfTriggeredCondition) {
+    if (asShimmedUserOfTriggeredCondition) {
       const threatCalculator = new ThreatCalculator(
         threatChanges,
         context.tracker.hitOutcomes,

@@ -7,6 +7,7 @@ import { BURNING_TICK_STEPS_CONFIG } from "../burning-tick/burning-tick-steps-co
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
 stepOverrides[ActionResolutionStepType.InitialPositioning] = {
+  // will be set by environmental hazard checking step
   getDelay: (externallySetDelayOption) => {
     return externallySetDelayOption || 0;
   },

@@ -47,7 +47,6 @@ export class BurningCombatantCondition implements CombatantCondition {
   }
 
   onTick(condition: CombatantCondition, context: CombatantContext) {
-    console.log("BURNING CONDITION ON TICK");
     const user = createShimmedUserOfTriggeredCondition(
       COMBATANT_CONDITION_NAME_STRINGS[condition.name],
       condition,

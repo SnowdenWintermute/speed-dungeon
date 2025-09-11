@@ -1,6 +1,5 @@
-import { ActionResolutionStepContext } from "../../../action-processing/index.js";
 import { EntityId } from "../../../primatives/index.js";
-import { iterateNumericEnumKeyedRecord, randBetween, throwIfError } from "../../../utils/index.js";
+import { iterateNumericEnumKeyedRecord, randBetween } from "../../../utils/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
@@ -36,9 +35,13 @@ export class IncomingResourceChangesCalculator {
 
     // we need a target to check against to find the best affinity to choose
     // so we'll use the first target for now, until a better system comes to light
-    const primaryTargetResult = throwIfError(
-      this.targetingCalculator.getPrimaryTargetCombatant(party, this.actionExecutionIntent)
+    const primaryTargetResult = this.targetingCalculator.getPrimaryTargetCombatant(
+      party,
+      this.actionExecutionIntent
     );
+    // it is possible no target will be found, such as an ice burst with no side targets like when they run
+    // through a firewall or are killed by ranged while under shatterable condition with no one nearby to hit
+    if (primaryTargetResult instanceof Error) return {};
     const primaryTarget = primaryTargetResult;
 
     const { hitOutcomeProperties } = action;

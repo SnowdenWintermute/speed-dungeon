@@ -67,7 +67,7 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.PostActionUseCombatLogMessage]: "postActionUseCombatLogMessage",
   [ActionResolutionStepType.StartConcurrentSubActions]: "StartConcurrentSubActions",
   [ActionResolutionStepType.OnActivationSpawnEntity]: "onActivationSpawnEntity",
-  [ActionResolutionStepType.OnActivationActionEntityMotion]: "onActivationVfxMotion",
+  [ActionResolutionStepType.OnActivationActionEntityMotion]: "onActivationActionEntityMotion",
   [ActionResolutionStepType.RollIncomingHitOutcomes]: "rollIncomingHitOutcomes",
   [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: "evalOnHitOutcomeTriggers", // lifesteal traits, apply conditions
   [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: "EvaluatePlayerEndTurnAndInputLock",

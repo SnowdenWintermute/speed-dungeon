@@ -12,6 +12,8 @@ import {
   KineticDamageType,
   MONSTER_SPECIES,
   MONSTER_TYPE_STRINGS,
+  MagicalElement,
+  MagicalResourceChangeCalculationStrategy,
   MonsterType,
   getMonsterCombatantClass,
   iterateNumericEnumKeyedRecord,
@@ -118,7 +120,11 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
 
   combatantProperties.abilityProperties.traitProperties.inherentKineticDamageTypeAffinities[
     KineticDamageType.Piercing
-  ] = 10;
+  ] = 100;
+
+  combatantProperties.abilityProperties.traitProperties.inherentElementalAffinities[
+    MagicalElement.Fire
+  ] = 110;
 
   return monster;
 }

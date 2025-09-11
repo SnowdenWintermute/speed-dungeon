@@ -19,6 +19,7 @@ import {
   ACTION_EXECUTION_PRECONDITIONS,
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
+import { throwIfError } from "../../../../utils/index.js";
 
 const targetingProperties = createTargetingPropertiesConfig(
   TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE,
@@ -41,8 +42,9 @@ const config: CombatActionComponentConfig = {
       const { actionExecutionIntent } = context.tracker;
       const { combatantContext } = context;
       const targetingCalculator = new TargetingCalculator(combatantContext, null);
-      const primaryTargetId =
-        targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent);
+      const primaryTargetId = throwIfError(
+        targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent)
+      );
       const { party } = combatantContext;
       const targetCombatantResult = AdventuringParty.getCombatant(party, primaryTargetId);
       if (targetCombatantResult instanceof Error) throw targetCombatantResult;

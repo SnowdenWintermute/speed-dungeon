@@ -4,6 +4,7 @@ import {
   CombatantBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../../scene-entities/index.js";
+import { throwIfError } from "../../../../../utils/index.js";
 import { TargetingCalculator } from "../../../../targeting/targeting-calculator.js";
 import { ActionResolutionStepsConfig } from "../../../combat-action-steps-config.js";
 import { getPrimaryTargetPositionAsDestination } from "../../common-destination-getters.js";
@@ -22,8 +23,9 @@ const config = new ActionResolutionStepsConfig(
         const { actionExecutionIntent } = tracker;
 
         const targetingCalculator = new TargetingCalculator(combatantContext, null);
-        const primaryTargetId =
-          targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent);
+        const primaryTargetId = throwIfError(
+          targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent)
+        );
 
         const entityPart: CombatantBaseChildTransformNodeIdentifier = {
           sceneEntityIdentifier: {

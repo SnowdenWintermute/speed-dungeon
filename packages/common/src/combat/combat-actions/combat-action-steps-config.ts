@@ -48,6 +48,7 @@ export interface ActionResolutionStepConfig {
     meleeAttackAnimationType?: MeleeAttackAnimationType,
     successOption?: boolean
   ): EntityAnimation;
+  /** Firewall burn is using this to schedule a perfectly timed burning effect when a combatant walks over the firewall */
   getDelay?(externallySetDelayOption?: Milliseconds): Milliseconds;
   getDestination?(context: ActionResolutionStepContext): Error | null | EntityDestination;
   // @PERF - client could probably figure this out on their own or with more limited info

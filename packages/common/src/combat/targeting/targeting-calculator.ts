@@ -340,10 +340,10 @@ export class TargetingCalculator {
           action,
           actionExecutionIntent.targets
         );
-        if (targetIdsResult instanceof Error) throw targetIdsResult;
+        if (targetIdsResult instanceof Error) return targetIdsResult;
         const primaryTargetIdOption = targetIdsResult[0];
         if (primaryTargetIdOption === undefined)
-          throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
+          return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
         return primaryTargetIdOption;
     }
   }
@@ -352,8 +352,9 @@ export class TargetingCalculator {
     party: AdventuringParty,
     actionExecutionIntent: CombatActionExecutionIntent
   ) {
-    const primaryTargetIdOption = this.getPrimaryTargetCombatantId(actionExecutionIntent);
-    const primaryTargetResult = AdventuringParty.getCombatant(party, primaryTargetIdOption);
+    const primaryTargetIdResult = this.getPrimaryTargetCombatantId(actionExecutionIntent);
+    if (primaryTargetIdResult instanceof Error) return primaryTargetIdResult;
+    const primaryTargetResult = AdventuringParty.getCombatant(party, primaryTargetIdResult);
     if (primaryTargetResult instanceof Error) return primaryTargetResult;
     return primaryTargetResult;
   }

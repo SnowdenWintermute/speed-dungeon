@@ -9,6 +9,7 @@ import {
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
+import { throwIfError } from "../../../../utils/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { CombatActionName } from "../../combat-action-names.js";
 import { ActionResolutionStepConfig } from "../../combat-action-steps-config.js";
@@ -29,8 +30,8 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
     let parentOption: undefined | SceneEntityChildTransformNodeIdentifier;
 
     const targetingCalculator = new TargetingCalculator(combatantContext, null);
-    const primaryTargetId = targetingCalculator.getPrimaryTargetCombatantId(
-      tracker.actionExecutionIntent
+    const primaryTargetId = throwIfError(
+      targetingCalculator.getPrimaryTargetCombatantId(tracker.actionExecutionIntent)
     );
 
     const targetModelHitboxIdentifier: SceneEntityChildTransformNodeIdentifier = {
@@ -63,8 +64,8 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
         previousTrackerOption.parentActionManager.combatantContext,
         null
       );
-      const previousActionTargetId = targetingCalculator.getPrimaryTargetCombatantId(
-        previousTrackerOption.actionExecutionIntent
+      const previousActionTargetId = throwIfError(
+        targetingCalculator.getPrimaryTargetCombatantId(previousTrackerOption.actionExecutionIntent)
       );
 
       position =
@@ -116,8 +117,8 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
     const { tracker } = context;
     const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
 
-    const primaryTargetId = targetingCalculator.getPrimaryTargetCombatantId(
-      tracker.actionExecutionIntent
+    const primaryTargetId = throwIfError(
+      targetingCalculator.getPrimaryTargetCombatantId(tracker.actionExecutionIntent)
     );
 
     const toReturn: SceneEntityChildTransformNodeIdentifier = {

@@ -35,12 +35,12 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
     // want to spawn the explosion on the one selected by the user
 
     const { party, combatant: user } = context.combatantContext;
-    const actionTarget = user.combatantProperties.combatActionTarget;
-    if (!actionTarget)
-      throw new Error("expected shimmed condition action user to have a target set");
-    if (actionTarget.type !== CombatActionTargetType.Single)
-      throw new Error("expected shimmed condition action user to have a single target");
-    const primaryTargetResult = AdventuringParty.getCombatant(party, actionTarget.targetId);
+    const { asShimmedUserOfTriggeredCondition } = user.combatantProperties;
+    if (!asShimmedUserOfTriggeredCondition) {
+      throw new Error("expected ice burst to be used by a condition");
+    }
+    const actionTarget = asShimmedUserOfTriggeredCondition.entityConditionWasAppliedTo;
+    const primaryTargetResult = AdventuringParty.getCombatant(party, actionTarget);
     if (primaryTargetResult instanceof Error) throw primaryTargetResult;
 
     const position = primaryTargetResult.combatantProperties.position;
