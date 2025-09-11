@@ -119,17 +119,13 @@ export class HighlightManager {
   updateHighlight() {
     const partyResult = useGameStore.getState().getParty();
     if (!(partyResult instanceof Error)) {
-      // const indicators = useGameStore
-      //   .getState()
-      //   .targetingIndicators.filter(
-      //     (indicator) => indicator.targetId === this.modularCharacter.entityId
-      //   );
-      //
-
       const gameOption = useGameStore.getState().game;
       if (gameOption === null) return;
       const battleOption = AdventuringParty.getBattleOption(partyResult, gameOption);
-      if (battleOption === null) return;
+      if (battleOption === null) {
+        this.removeHighlight();
+        return;
+      }
 
       const isMonster = partyResult.currentRoom.monsterPositions.includes(
         this.modularCharacter.entityId

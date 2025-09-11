@@ -17,6 +17,7 @@ import { randBetween } from "../../../utils/index.js";
 import { ActionAccuracyType } from "../../combat-actions/combat-action-accuracy.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 import { CombatActionComponent, CombatActionIntent } from "../../combat-actions/index.js";
+import { ProhibitedTargetCombatantStates } from "../../combat-actions/prohibited-target-combatant-states.js";
 import { ResourceChangeSource } from "../../hp-change-source-types.js";
 
 const BASE_PARRY_CHANCE = 5;
@@ -57,7 +58,8 @@ export class HitOutcomeMitigationCalculator {
       user,
       this.actionLevel,
       CombatantProperties.getTotalAttributes(target)[CombatAttribute.Evasion],
-      targetWillAttemptMitigation
+      targetWillAttemptMitigation,
+      target
     );
 
     // it is possible to miss a target who is not attempting mitigation if your accuracy
@@ -173,8 +175,21 @@ export class HitOutcomeMitigationCalculator {
     userCombatantProperties: CombatantProperties,
     actionLevel: number,
     targetEvasion: number,
-    targetWillAttemptToEvade: boolean
+    targetWillAttemptToEvade: boolean,
+    target: CombatantProperties
   ): { beforeEvasion: number; afterEvasion: number } {
+    const canTargetDeadCombatants =
+      !combatAction.targetingProperties.prohibitedHitCombatantStates.includes(
+        ProhibitedTargetCombatantStates.Dead
+      );
+    const targetIsDead = CombatantProperties.isDead(target);
+    if (targetIsDead && !canTargetDeadCombatants) {
+      console.log("target dead, 0 hit chance");
+      return { beforeEvasion: 0, afterEvasion: 0 };
+    } else {
+      console.log("target is alive");
+    }
+
     const actionBaseAccuracy = combatAction.getAccuracy(userCombatantProperties, actionLevel);
     if (actionBaseAccuracy.type === ActionAccuracyType.Unavoidable)
       return { beforeEvasion: 100, afterEvasion: 100 };

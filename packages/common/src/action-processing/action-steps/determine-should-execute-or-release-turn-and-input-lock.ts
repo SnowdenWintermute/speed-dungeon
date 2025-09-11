@@ -37,18 +37,8 @@ export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends
       context.tracker.getPreviousTrackerInSequenceOption() || undefined
     );
 
-    console.log("executionPreconditionsPassed: ", executionPreconditionsPassed);
-    console.log(
-      "!turnAlreadyEnded: ",
-      !turnAlreadyEnded,
-      "actionShouldExecuteEvenIfTurnEnded:",
-      actionShouldExecuteEvenIfTurnEnded
-    );
-
     const shouldExecute =
       executionPreconditionsPassed && (!turnAlreadyEnded || actionShouldExecuteEvenIfTurnEnded);
-
-    console.log("SHOULD EXECUTE: ", shouldExecute);
 
     if (shouldExecute) return;
 

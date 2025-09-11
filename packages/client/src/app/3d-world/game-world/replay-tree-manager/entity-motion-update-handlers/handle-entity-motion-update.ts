@@ -61,8 +61,10 @@ export function handleEntityMotionUpdate(
 
     if (isMainUpdate) {
       onTranslationComplete = () => {
-        if (motionUpdate.despawnOnComplete)
+        if (motionUpdate.despawnOnComplete) {
+          console.log("despawn on complete motion update completed: ", motionUpdate.entityId);
           getGameWorld().actionEntityManager.unregister(motionUpdate.entityId);
+        }
       };
       onAnimationComplete = () => {};
     }

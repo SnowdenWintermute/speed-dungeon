@@ -103,7 +103,8 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
             combatantProperties,
             rank,
             targetEvasion,
-            true
+            true,
+            primaryTargetResult.combatantProperties
           );
 
           const rankDescription = actionDescription.getDescriptionByLevel(

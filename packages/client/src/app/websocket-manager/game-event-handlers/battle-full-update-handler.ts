@@ -32,6 +32,8 @@ export function battleFullUpdateHandler(battleOption: null | Battle) {
         // it is ai controlled so lock input
         InputLock.lockInput(party.inputLock);
       }
-    } else game.battles = {};
+    } else {
+      game.battles = {};
+    }
   });
 }

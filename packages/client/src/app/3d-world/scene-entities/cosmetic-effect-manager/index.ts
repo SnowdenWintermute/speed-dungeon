@@ -6,6 +6,10 @@ export class CosmeticEffectManager {
   > = {};
   constructor() {}
 
+  hasActiveEffects() {
+    return Object.entries(this.cosmeticEffects).length > 0;
+  }
+
   softCleanup(onComplete: () => void) {
     for (const effectRc of Object.values(this.cosmeticEffects))
       effectRc.effect.softCleanup(onComplete);

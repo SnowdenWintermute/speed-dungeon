@@ -172,7 +172,8 @@ function getAttackActionDamageAndAccuracy(
     combatantProperties,
     1,
     targetEvasion,
-    !usingDummy
+    !usingDummy,
+    target
   );
 
   const { hitOutcomeProperties } = combatAction;

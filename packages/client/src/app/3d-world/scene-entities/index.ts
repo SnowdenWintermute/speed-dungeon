@@ -128,10 +128,15 @@ export abstract class SceneEntity {
   }
 
   private softCleanup() {
-    this.cosmeticEffectManager.softCleanup(() => {
+    if (this.cosmeticEffectManager.hasActiveEffects())
+      this.cosmeticEffectManager.softCleanup(() => {
+        disposeAsyncLoadedScene(this.assetContainer);
+        this.rootTransformNode.dispose(false);
+      });
+    else {
       disposeAsyncLoadedScene(this.assetContainer);
       this.rootTransformNode.dispose(false);
-    });
+    }
   }
 
   private dispose() {

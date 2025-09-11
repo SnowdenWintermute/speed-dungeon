@@ -118,9 +118,9 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   // @TESTING - random evasion
   // combatantProperties.inherentAttributes[CombatAttribute.Evasion] = Math.floor(Math.random() * 20);
 
-  combatantProperties.abilityProperties.traitProperties.inherentKineticDamageTypeAffinities[
-    KineticDamageType.Piercing
-  ] = 100;
+  // combatantProperties.abilityProperties.traitProperties.inherentKineticDamageTypeAffinities[
+  //   KineticDamageType.Piercing
+  // ] = 100;
 
   // combatantProperties.abilityProperties.traitProperties.inherentElementalAffinities[
   //   MagicalElement.Fire
