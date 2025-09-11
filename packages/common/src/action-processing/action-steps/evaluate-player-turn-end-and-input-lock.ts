@@ -69,14 +69,6 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   const battleOption = AdventuringParty.getBattleOption(party, game);
 
   const { asShimmedUserOfTriggeredCondition } = combatant.combatantProperties;
-  const userWasConditionThatRemovedItself =
-    battleOption &&
-    asShimmedUserOfTriggeredCondition &&
-    AdventuringParty.getConditionOnCombatant(
-      party,
-      asShimmedUserOfTriggeredCondition.entityConditionWasAppliedTo,
-      asShimmedUserOfTriggeredCondition.condition.id
-    ) instanceof Error;
 
   // unlock input if no more blocking steps are left and next turn is player
   const noActionPointsLeft =
@@ -96,9 +88,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     // we would have already removed their turn tracker on death
     const { actionName } = tracker.actionExecutionIntent;
 
-    if (!userWasConditionThatRemovedItself) {
-      battleOption.turnOrderManager.updateSchedulerWithExecutedActionDelay(party, actionName);
-    }
+    battleOption.turnOrderManager.updateSchedulerWithExecutedActionDelay(party, actionName);
     battleOption.turnOrderManager.updateTrackers(game, party);
 
     console.log("marked turn ended", COMBAT_ACTION_NAME_STRINGS[actionName]);
@@ -111,16 +101,19 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     CombatantProperties.refillActionPoints(combatant.combatantProperties);
     CombatantProperties.tickCooldowns(combatant.combatantProperties);
 
-    const threatCalculator = new ThreatCalculator(
-      threatChanges,
-      context.tracker.hitOutcomes,
-      context.combatantContext.party,
-      context.combatantContext.combatant,
-      context.tracker.actionExecutionIntent.actionName
-    );
-    threatCalculator.addVolatileThreatDecay();
+    // don't decay threat for every ticking condition
+    if (!asShimmedUserOfTriggeredCondition) {
+      const threatCalculator = new ThreatCalculator(
+        threatChanges,
+        context.tracker.hitOutcomes,
+        context.combatantContext.party,
+        context.combatantContext.combatant,
+        context.tracker.actionExecutionIntent.actionName
+      );
+      threatCalculator.addVolatileThreatDecay();
 
-    threatChanges.applyToGame(party);
+      threatChanges.applyToGame(party);
+    }
   }
 
   const hasRemainingActions = tracker.parentActionManager.getRemainingActionsToExecute().length > 0;

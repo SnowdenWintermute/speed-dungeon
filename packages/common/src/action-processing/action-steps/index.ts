@@ -44,6 +44,7 @@ export enum ActionResolutionStepType {
   // if doing offhand attack instead of return home directly after mainhand attack
   PreFinalPositioningCheckEnvironmentalHazardTriggers,
   EvaluatePlayerEndTurnAndInputLock,
+  RemoveTickedConditionStacks,
   ActionEntityDissipationMotion,
   RecoveryMotion,
   FinalPositioning,
@@ -77,6 +78,7 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
     "preInitialPositioningCheckEnvironmentalHazardTriggers",
   [ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers]:
     "preFinalPositioningCheckEnvironmentalHazardTriggers",
+  [ActionResolutionStepType.RemoveTickedConditionStacks]: "removeTickedConditionStacks",
 };
 
 export type ActionResolutionStepResult = {

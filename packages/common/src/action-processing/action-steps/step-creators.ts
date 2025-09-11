@@ -18,6 +18,7 @@ import { PostActionUseCombatLogMessageActionResolutionStep } from "./post-action
 import { CombatantMotionActionResolutionStep } from "./motion-steps/combatant-motion.js";
 import { ActionEntityMotionActionResolutionStep } from "./motion-steps/action-entity-motion.js";
 import { TriggerEnvironmentalHazardsActionResolutionStep } from "./motion-steps/determine-environmental-hazard-triggers.js";
+import { RemoveTickedConditionStacksActionResolutionStep } from "./remove-ticked-condition-stacks.js";
 
 // right now the idea is to have the action tracker call these creators, which in turn call
 // step class constructors. We don't call the constructors directly because this allows us
@@ -94,6 +95,8 @@ export const ACTION_STEP_CREATORS: Record<
     ),
   [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: (context) =>
     new EvaluatePlayerEndTurnAndInputLockActionResolutionStep(context),
+  [ActionResolutionStepType.RemoveTickedConditionStacks]: (context) =>
+    new RemoveTickedConditionStacksActionResolutionStep(context),
   [ActionResolutionStepType.ActionEntityDissipationMotion]: (context) => {
     const expectedProjectileEntityOption = context.tracker.spawnedEntityOption;
     if (!expectedProjectileEntityOption) throw new Error("expected projectile was missing");

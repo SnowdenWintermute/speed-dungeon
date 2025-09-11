@@ -9,6 +9,7 @@ import {
   createTargetingPropertiesConfig,
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
 
 const cloned = cloneDeep(passTurnConfig);
 
@@ -31,7 +32,7 @@ const config: CombatActionComponentConfig = {
       return `${data.nameOfActionUser} ticks`;
     },
   }),
-  stepsConfig: cloneDeep(cloned.stepsConfig),
+  stepsConfig: ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.VALUE_CHANGE_TICK(),
 };
 
 export const CONDITION_PASS_TURN = new CombatActionLeaf(CombatActionName.ConditionPassTurn, config);

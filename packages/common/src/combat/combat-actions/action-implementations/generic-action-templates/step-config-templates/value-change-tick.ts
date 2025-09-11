@@ -14,6 +14,7 @@ export const VALUE_CHANGE_TICK_ACTION_STEPS_CONFIG = new ActionResolutionStepsCo
   },
   {
     [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
+    [ActionResolutionStepType.RemoveTickedConditionStacks]: {},
   },
   { getFinalSteps: (self) => self.finalSteps }
 );
