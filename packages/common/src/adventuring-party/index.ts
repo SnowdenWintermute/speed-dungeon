@@ -92,10 +92,22 @@ export class AdventuringParty {
   }
 
   static registerActionEntity(party: AdventuringParty, entity: ActionEntity) {
+    console.log("registerActionEntity: ", entity);
     const { entityProperties } = entity;
     party.actionEntities[entityProperties.id] = entity;
   }
   static unregisterActionEntity(party: AdventuringParty, entityId: EntityId) {
+    console.log("unregistering", entityId);
     delete party.actionEntities[entityId];
+  }
+  static unregisterActionEntitiesOnBattleEndOrNewRoom(party: AdventuringParty) {
+    const removed = [];
+    for (const [key, entity] of Object.entries(party.actionEntities)) {
+      removed.push(entity.entityProperties.id);
+
+      delete party.actionEntities[key];
+    }
+
+    return removed;
   }
 }

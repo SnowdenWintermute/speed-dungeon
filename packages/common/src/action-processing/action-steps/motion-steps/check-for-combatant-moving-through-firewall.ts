@@ -1,5 +1,5 @@
 import { Vector3 } from "@babylonjs/core";
-import { ActionEntityName } from "../../../action-entities/index.js";
+import { ActionEntity, ActionEntityName } from "../../../action-entities/index.js";
 import {
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
@@ -12,6 +12,8 @@ import { TriggerEnvironmentalHazardsActionResolutionStep } from "./determine-env
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../../app-consts.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { AnimationTimingType } from "../../game-update-commands.js";
+import { CombatantProperties } from "../../../combatants/index.js";
+import cloneDeep from "lodash.clonedeep";
 
 export function getFirewallBurnScheduledActions(
   context: ActionResolutionStepContext,
@@ -47,7 +49,7 @@ export function getFirewallBurnScheduledActions(
   if (!translationOption) return [];
 
   const { party } = context.combatantContext;
-  let existingFirewallOption;
+  let existingFirewallOption: undefined | ActionEntity;
 
   // just check for a single firewall for now, maybe add more later
   for (const [entityId, actionEntity] of Object.entries(party.actionEntities)) {
@@ -114,8 +116,16 @@ export function getFirewallBurnScheduledActions(
     timeToReachFirewallOption
   );
 
+  const firewallUser = cloneDeep(user);
+
+  firewallUser.combatantProperties.asShimmedUserOfTriggeredEnvironmentalHazard = {
+    hazardEntity: existingFirewallOption,
+  };
+  firewallBurnExecutionIntent.level =
+    existingFirewallOption.actionEntityProperties.actionOriginData?.actionLevel || 1;
+
   const firewallBurnActionIntentWithUser = {
-    user,
+    user: firewallUser,
     actionExecutionIntent: firewallBurnExecutionIntent,
   };
   return [firewallBurnActionIntentWithUser];

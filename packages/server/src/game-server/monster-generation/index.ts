@@ -122,9 +122,9 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
     KineticDamageType.Piercing
   ] = 100;
 
-  combatantProperties.abilityProperties.traitProperties.inherentElementalAffinities[
-    MagicalElement.Fire
-  ] = 110;
+  // combatantProperties.abilityProperties.traitProperties.inherentElementalAffinities[
+  //   MagicalElement.Fire
+  // ] = 200;
 
   return monster;
 }

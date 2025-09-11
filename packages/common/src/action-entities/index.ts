@@ -8,6 +8,8 @@ import {
 } from "../scene-entities/index.js";
 import { TaggedShape3DDimensions } from "../utils/shape-utils.js";
 import { CombatantAttributeRecord } from "../combatants/index.js";
+import { KineticDamageType } from "../combat/kinetic-damage-types.js";
+import { MagicalElement } from "../combat/magical-elements.js";
 
 export enum ActionEntityName {
   Arrow,
@@ -32,18 +34,20 @@ export const ACTION_ENTITY_STRINGS: Record<ActionEntityName, string> = {
 export interface ActionEntityActionOriginData {
   actionLevel?: number;
   userCombatantAttributes?: CombatantAttributeRecord;
+  userElementalAffinities?: Partial<Record<MagicalElement, number>>;
+  userKineticAffinities?: Partial<Record<KineticDamageType, number>>;
 }
 
 export type ActionEntityProperties = {
   position: Vector3;
   name: ActionEntityName;
   dimensions?: TaggedShape3DDimensions;
-  actionOriginData?: ActionEntityActionOriginData;
   initialCosmeticYPosition?: SceneEntityChildTransformNodeIdentifier;
   parentOption?: SceneEntityChildTransformNodeIdentifier;
   initialRotation?: Vector3;
   initialPointToward?: SceneEntityChildTransformNodeIdentifier;
   initialLockRotationToFace?: SceneEntityChildTransformNodeIdentifierWithDuration;
+  actionOriginData?: ActionEntityActionOriginData;
 };
 
 export class ActionEntity {

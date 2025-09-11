@@ -13,7 +13,7 @@ import { addCombatantLevelScaledAttributeToRange } from "../../../action-results
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
-import { CombatantConditionName } from "../../../../combatants/index.js";
+import { CombatantConditionName, CombatantProperties } from "../../../../combatants/index.js";
 import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
@@ -43,7 +43,8 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
     // get greater benefits from a certain attribute the higher level a combatant is
     addCombatantLevelScaledAttributeToRange({
       range: baseValues,
-      combatantProperties: user,
+      userTotalAttributes: CombatantProperties.getTotalAttributes(user),
+      userLevel: user.level,
       attribute: CombatAttribute.Spirit,
       normalizedAttributeScalingByCombatantLevel: 1,
     });
@@ -71,7 +72,7 @@ hitOutcomeOverrides.getAppliedConditions = (user, actionLevel) => {
   ];
 };
 
-export const iceBoltProjectileHitOutcomeProperties = createHitOutcomeProperties(
+export const ICE_BOLT_PROJECTILE_HIT_OUTCOME_PROPERTIES = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.RANGED_ACTION,
   hitOutcomeOverrides
 );

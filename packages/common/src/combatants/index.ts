@@ -53,6 +53,7 @@ import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/
 import { ThreatManager } from "./threat-manager/index.js";
 import { COMBATANT_MAX_ACTION_POINTS } from "../app-consts.js";
 import { CombatantAbilityProperties } from "./combatant-abilities/combatant-ability-properties.js";
+import { ActionEntity } from "../action-entities/index.js";
 
 export enum AiType {
   Healer,
@@ -147,6 +148,9 @@ export class CombatantProperties {
   asShimmedUserOfTriggeredCondition?: {
     condition: CombatantCondition;
     entityConditionWasAppliedTo: EntityId;
+  };
+  asShimmedUserOfTriggeredEnvironmentalHazard?: {
+    hazardEntity: ActionEntity;
   };
 
   aiTypes?: AiType[];
@@ -436,5 +440,34 @@ export function createShimmedUserOfTriggeredCondition(
     condition,
     entityConditionWasAppliedTo,
   };
+  return combatant;
+}
+
+/* see createShimmedUserOfTriggeredCondition */
+export function createShimmedUserOfTriggeredEnvironmentalHazard(
+  name: string,
+  hazardEntity: ActionEntity,
+  primaryTargetId: EntityId
+) {
+  const combatant = new Combatant(
+    { id: primaryTargetId || "0", name },
+    new CombatantProperties(
+      CombatantClass.Mage,
+      CombatantSpecies.Dragon,
+      null,
+      null,
+      Vector3.Zero()
+    )
+  );
+
+  iterateNumericEnum(CombatActionName).forEach((actionName) => {
+    combatant.combatantProperties.abilityProperties.ownedActions[actionName] =
+      new CombatantActionState(actionName, 1);
+  });
+
+  combatant.combatantProperties.asShimmedUserOfTriggeredEnvironmentalHazard = {
+    hazardEntity,
+  };
+
   return combatant;
 }

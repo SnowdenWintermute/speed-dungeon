@@ -6,7 +6,7 @@ import {
   CombatActionOrigin,
 } from "../../index.js";
 import { ICE_BOLT_PARENT } from "./index.js";
-import { iceBoltProjectileHitOutcomeProperties } from "./ice-bolt-hit-outcome-properties.js";
+import { ICE_BOLT_PROJECTILE_HIT_OUTCOME_PROPERTIES } from "./ice-bolt-hit-outcome-properties.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { ICE_BOLT_PROJECTILE_STEPS_CONFIG } from "./ice-bolt-projectile-steps-config.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
@@ -15,7 +15,7 @@ import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templat
 const config: CombatActionComponentConfig = {
   description: "An icy projectile",
   targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.COPY_PARENT_HOSTILE(),
-  hitOutcomeProperties: iceBoltProjectileHitOutcomeProperties,
+  hitOutcomeProperties: ICE_BOLT_PROJECTILE_HIT_OUTCOME_PROPERTIES,
   costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL(),
   combatLogMessageProperties: new CombatActionCombatLogProperties({
     origin: CombatActionOrigin.SpellCast,

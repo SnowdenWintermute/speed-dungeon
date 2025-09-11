@@ -37,6 +37,7 @@ export type BattleResultActionCommandPayload = {
   partyName: string;
   experiencePointChanges: { [combatantId: string]: number };
   timestamp: number;
+  actionEntitiesRemoved: EntityId[];
   loot?: undefined | { equipment: Equipment[]; consumables: Consumable[] };
 };
 

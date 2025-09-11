@@ -40,12 +40,16 @@ export async function getBattleConclusionCommandAndPayload(
     InputLock.unlockInput(party.inputLock);
   }
 
+  const actionEntitiesRemoved =
+    AdventuringParty.unregisterActionEntitiesOnBattleEndOrNewRoom(party);
+
   const payload: BattleResultActionCommandPayload = {
     type: ActionCommandType.BattleResult,
     conclusion,
     loot: loot,
     partyName: party.name,
     experiencePointChanges,
+    actionEntitiesRemoved,
     timestamp: Date.now(),
   };
 

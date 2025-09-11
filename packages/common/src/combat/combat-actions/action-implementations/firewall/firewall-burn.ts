@@ -1,4 +1,3 @@
-import cloneDeep from "lodash.clonedeep";
 import {
   CombatActionCombatLogProperties,
   CombatActionComponentConfig,
@@ -13,8 +12,8 @@ import {
   createTargetingPropertiesConfig,
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import { FIREWALL_BURN_HIT_OUTCOME_PROPERTIES } from "./firewall-burn-hit-outcome-properties.js";
 import { FIREWALL_BURN_STEPS_CONFIG } from "./firewall-burn-steps-config.js";
-import { BURNING_TICK_HIT_OUTCOME_PROPERTIES } from "../burning-tick/burning-tick-hit-outcome-properties.js";
 
 const targetingProperties = createTargetingPropertiesConfig(
   TARGETING_PROPERTIES_TEMPLATE_GETTERS.AREA_HOSTILE,
@@ -29,7 +28,7 @@ const config: CombatActionComponentConfig = {
     getOnUseMessage: (data) => `${data.nameOfActionUser} traverses the firewall`,
   }),
 
-  hitOutcomeProperties: cloneDeep(BURNING_TICK_HIT_OUTCOME_PROPERTIES),
+  hitOutcomeProperties: FIREWALL_BURN_HIT_OUTCOME_PROPERTIES,
   costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.FREE_ACTION(),
   stepsConfig: FIREWALL_BURN_STEPS_CONFIG,
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,

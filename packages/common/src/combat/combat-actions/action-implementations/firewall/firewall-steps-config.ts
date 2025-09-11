@@ -5,12 +5,17 @@ import { FIRE_STEPS_CONFIG } from "../fire/fire-steps-config.js";
 import { createStepsConfig } from "../generic-action-templates/step-config-templates/index.js";
 import { Vector3 } from "@babylonjs/core";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import { ActionEntityName, CosmeticEffectNames } from "../../../../action-entities/index.js";
+import {
+  ActionEntityActionOriginData,
+  ActionEntityName,
+  CosmeticEffectNames,
+} from "../../../../action-entities/index.js";
 import { BoxDimensions, ShapeType3D, TaggedBoxDimensions } from "../../../../utils/shape-utils.js";
 import {
   ActionEntityBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
+import { CombatantProperties } from "../../../../combatants/index.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
@@ -33,6 +38,18 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
       dimensions,
     };
 
+    const actionLevel = user.combatantProperties.selectedActionLevel || 1;
+
+    console.log("USER SELECTEDACTIONLEVEL AT TIME OF FIREWALL CAST", actionLevel);
+
+    const actionOriginData = {
+      actionLevel,
+      userCombatantAttributes: CombatantProperties.getTotalAttributes(user.combatantProperties),
+      userElementalAffinities: CombatantProperties.getCombatantTotalElementalAffinities(
+        user.combatantProperties
+      ),
+    };
+
     return {
       type: SpawnableEntityType.ActionEntity,
       actionEntity: {
@@ -41,6 +58,7 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
           position,
           name: ActionEntityName.Firewall,
           dimensions: taggedDimensions,
+          actionOriginData,
         },
       },
     };

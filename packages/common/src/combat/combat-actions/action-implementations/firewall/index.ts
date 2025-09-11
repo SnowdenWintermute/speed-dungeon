@@ -8,8 +8,8 @@ import {
 } from "../../index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
-import { HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import { FIREWALL_BURN_HIT_OUTCOME_PROPERTIES } from "./firewall-burn-hit-outcome-properties.js";
 import { FIREWALL_STEPS_CONFIG } from "./firewall-steps-config.js";
 
 const config: CombatActionComponentConfig = {
@@ -20,7 +20,7 @@ const config: CombatActionComponentConfig = {
     ...createGenericSpellCastMessageProperties(CombatActionName.Firewall),
   }),
 
-  hitOutcomeProperties: HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BENEVOLENT_CONSUMABLE(),
+  hitOutcomeProperties: FIREWALL_BURN_HIT_OUTCOME_PROPERTIES, // just for the description, there's no hit outcome step for this action
   costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL(),
   stepsConfig: FIREWALL_STEPS_CONFIG,
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,

@@ -1,4 +1,5 @@
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
+import { CombatantProperties } from "../../../../combatants/index.js";
 import { NumberRange } from "../../../../primatives/number-range.js";
 import { addCombatantLevelScaledAttributeToRange } from "../../../action-results/action-hit-outcome-calculation/add-combatant-level-scaled-attribute-to-range.js";
 import {
@@ -39,7 +40,8 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
     // get greater benefits from a certain attribute the higher level a combatant is
     addCombatantLevelScaledAttributeToRange({
       range: baseValues,
-      combatantProperties: user,
+      userTotalAttributes: CombatantProperties.getTotalAttributes(user),
+      userLevel: user.level,
       attribute: CombatAttribute.Spirit,
       normalizedAttributeScalingByCombatantLevel: 1,
     });

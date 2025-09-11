@@ -2,7 +2,11 @@ import React from "react";
 import { useGameStore } from "@/stores/game-store";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import RoomExplorationTracker from "./RoomExplorationTracker";
-import { ClientToServerEvent, DUNGEON_ROOM_TYPE_STRINGS } from "@speed-dungeon/common";
+import {
+  AdventuringParty,
+  ClientToServerEvent,
+  DUNGEON_ROOM_TYPE_STRINGS,
+} from "@speed-dungeon/common";
 import getGameAndParty from "@/utils/getGameAndParty";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
@@ -14,6 +18,7 @@ import TurnOrderPredictionBar from "./turn-order-prediction-bar";
 import StairsIcon from "../../../../public/img/game-ui-icons/stairs.svg";
 import DoorIcon from "../../../../public/img/game-ui-icons/door-icon.svg";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import getParty from "@/utils/getParty";
 
 export default function TopInfoBar() {
   const mutateGameState = useGameStore().mutateState;
@@ -27,15 +32,27 @@ export default function TopInfoBar() {
   const battleOptionResult = getCurrentBattleOption(game, party.name);
 
   function leaveGame() {
+    mutateGameState((state) => {
+      console.log("null game");
+      const partyResult = getParty(state.game, state.username);
+      console.log("party result:", partyResult);
+      if (!(partyResult instanceof Error)) {
+        console.log("cleaning action entities on null game");
+        console.log(JSON.stringify(partyResult.actionEntities));
+        for (const [entityId, entity] of Object.entries(partyResult.actionEntities)) {
+          AdventuringParty.unregisterActionEntity(partyResult, entity.entityProperties.id);
+          getGameWorld().actionEntityManager.unregister(entity.entityProperties.id);
+        }
+      }
+
+      state.viewingLeaveGameModal = false;
+      state.game = null;
+    });
+
     websocketConnection.emit(ClientToServerEvent.LeaveGame);
 
     getGameWorld().replayTreeManager.clear();
     getGameWorld().modelManager.modelActionQueue.clear();
-
-    mutateGameState((state) => {
-      state.viewingLeaveGameModal = false;
-      state.game = null;
-    });
 
     getGameWorld().modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,

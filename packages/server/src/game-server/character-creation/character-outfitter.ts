@@ -20,17 +20,18 @@ export class CharacterOutfitter {
 
   static outfitNewCharacter(character: Combatant) {
     const combatantProperties = character.combatantProperties;
+    CharacterOutfitter.setPlaytestingCombatantProperties(combatantProperties);
+    CharacterOutfitter.givePlaytestingItems(
+      combatantProperties.equipment,
+      combatantProperties.inventory
+    );
+
     CharacterOutfitter.giveStartingAbilities(combatantProperties);
     // CharacterOutfitter.giveStartingAttributes(combatantProperties);
     CharacterOutfitter.setUpInherentTraits(combatantProperties);
     CharacterOutfitter.giveStartingInventoryItems(combatantProperties);
     CharacterOutfitter.giveStartingEquipment(combatantProperties);
     CombatantProperties.setHpAndMpToMax(combatantProperties);
-    CharacterOutfitter.setPlaytestingCombatantProperties(combatantProperties);
-    CharacterOutfitter.givePlaytestingItems(
-      combatantProperties.equipment,
-      combatantProperties.inventory
-    );
   }
 
   static giveStartingAbilities = giveStartingAbilities;

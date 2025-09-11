@@ -27,6 +27,7 @@ export function giveStartingAbilities(combatantProperties: CombatantProperties) 
   const levelTwoSpells: CombatActionName[] = [
     CombatActionName.IceBoltParent,
     CombatActionName.Fire,
+    CombatActionName.Firewall,
     CombatActionName.Healing,
     CombatActionName.ExplodingArrowParent,
     CombatActionName.Blind,

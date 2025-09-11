@@ -112,7 +112,10 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.DungeonRoomTypesOnCurrentFloor]: (
     roomTypes: (DungeonRoomType | null)[]
   ) => void;
-  [ServerToClientEvent.DungeonRoomUpdate]: (dungeonRoom: DungeonRoom) => void;
+  [ServerToClientEvent.DungeonRoomUpdate]: (eventData: {
+    dungeonRoom: DungeonRoom;
+    actionEntitiesToRemove: EntityId[];
+  }) => void;
   [ServerToClientEvent.BattleFullUpdate]: (battleOption: null | Battle) => void;
   [ServerToClientEvent.ActionCommandPayloads]: (payloads: ActionCommandPayload[]) => void;
   [ServerToClientEvent.GameMessage]: (message: GameMessage) => void;

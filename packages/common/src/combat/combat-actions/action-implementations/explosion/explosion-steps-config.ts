@@ -23,6 +23,7 @@ stepsOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
     // get the target location instead of trying to use auto target
     // since the action's auto target gives a list of ids and we only
     // want to spawn the explosion on the one selected by the user
+
     const actionTarget = user.combatantProperties.combatActionTarget;
     if (!actionTarget)
       throw new Error("expected shimmed condition action user to have a target set");

@@ -38,7 +38,8 @@ export function getAttackResourceChangeProperties(
   // get greater benefits from a certain attribute the higher level a combatant is
   addCombatantLevelScaledAttributeToRange({
     range: baseValues,
-    combatantProperties: user,
+    userTotalAttributes: CombatantProperties.getTotalAttributes(user),
+    userLevel: user.level,
     attribute: scalingAttribute,
     normalizedAttributeScalingByCombatantLevel: 1,
   });

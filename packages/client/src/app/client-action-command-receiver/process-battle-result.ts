@@ -1,4 +1,5 @@
 import {
+  AdventuringParty,
   BattleConclusion,
   BattleResultActionCommandPayload,
   Consumable,
@@ -11,7 +12,7 @@ import { ClientActionCommandReceiver } from ".";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/combat-log-message";
 import { itemsOnGroundMenuState, useGameStore } from "@/stores/game-store";
-import { gameWorld } from "../3d-world/SceneManager";
+import { gameWorld, getGameWorld } from "../3d-world/SceneManager";
 import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
 import { MenuStateType } from "../game/ActionMenu/menu-state";
 import { plainToInstance } from "class-transformer";
@@ -22,7 +23,7 @@ export async function battleResultActionCommandHandler(
   _gameName: string,
   payload: BattleResultActionCommandPayload
 ) {
-  const { timestamp } = payload;
+  const { timestamp, actionEntitiesRemoved } = payload;
 
   if (payload.loot) {
     payload.loot.equipment = payload.loot.equipment.map((item) => plainToInstance(Equipment, item));
@@ -86,6 +87,11 @@ export async function battleResultActionCommandHandler(
           );
         }
         break;
+    }
+
+    for (const entityId of actionEntitiesRemoved) {
+      AdventuringParty.unregisterActionEntity(partyOption, entityId);
+      getGameWorld().actionEntityManager.unregister(entityId);
     }
 
     state.baseMenuState.inCombat = false;

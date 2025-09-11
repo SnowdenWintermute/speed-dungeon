@@ -8,7 +8,7 @@ import {
 } from "../../index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
-import { iceBoltProjectileHitOutcomeProperties } from "./ice-bolt-hit-outcome-properties.js";
+import { ICE_BOLT_PROJECTILE_HIT_OUTCOME_PROPERTIES } from "./ice-bolt-hit-outcome-properties.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { AbilityType } from "../../../../abilities/index.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
@@ -56,7 +56,7 @@ const config: CombatActionComponentConfig = {
     CombatActionName.IceBoltProjectile
   ),
   targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE(),
-  hitOutcomeProperties: iceBoltProjectileHitOutcomeProperties,
+  hitOutcomeProperties: ICE_BOLT_PROJECTILE_HIT_OUTCOME_PROPERTIES,
   costProperties,
   stepsConfig,
 

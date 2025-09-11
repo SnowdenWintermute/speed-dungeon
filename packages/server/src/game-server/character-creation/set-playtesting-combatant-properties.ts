@@ -19,7 +19,7 @@ export function setPlaytestingCombatantProperties(combatantProperties: Combatant
 
   combatantProperties.abilityProperties.traitProperties.inherentElementalAffinities[
     MagicalElement.Fire
-  ] = 150;
+  ] = 200;
   combatantProperties.abilityProperties.traitProperties.inherentElementalAffinities[
     MagicalElement.Dark
   ] = -150;
@@ -59,7 +59,7 @@ const TESTING_INHERENT_ATTRIBUTES: Partial<Record<CombatAttribute, number>> = {
   [CombatAttribute.Speed]: 9,
   // [CombatAttribute.Accuracy]: 200,
   // [CombatAttribute.Strength]: 40,
-  // [CombatAttribute.Spirit]: 25,
+  [CombatAttribute.Spirit]: 250,
   // [CombatAttribute.Mp]: 100,
   // [CombatAttribute.Evasion]: 100,
   // [CombatAttribute.Hp]: 75,

@@ -25,15 +25,6 @@ const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionSt
 
 stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
   getSpawnableEntity: (context) => {
-    // we just want to get the position of the primary target, even though they aren't
-    // going to be part of the final targets as calculated by the hit outcomes.
-    // to this end, we use the target as set on the triggered action user combatant shim
-    // by the action whenTriggered function
-    // use some symantic coupling "oh no, bad practice!" to
-    // get the target location instead of trying to use auto target
-    // since the action's auto target gives a list of ids and we only
-    // want to spawn the explosion on the one selected by the user
-
     const { party, combatant: user } = context.combatantContext;
     const { asShimmedUserOfTriggeredCondition } = user.combatantProperties;
     if (!asShimmedUserOfTriggeredCondition) {
