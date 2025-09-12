@@ -16,7 +16,7 @@ export const SINGLE_HOSTILE_TARGETING_PROPERTIES: CombatActionTargetingPropertie
   getValidTargetCategories: () => TargetCategories.Opponent,
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.UserSelected },
   prohibitedTargetCombatantStates: [ProhibitedTargetCombatantStates.Dead],
-  prohibitedHitCombatantStates: [],
+  prohibitedHitCombatantStates: [ProhibitedTargetCombatantStates.Dead],
   intent: CombatActionIntent.Malicious,
   usabilityContext: CombatActionUsabilityContext.InCombat,
   getRequiredEquipmentTypeOptions: () => [],

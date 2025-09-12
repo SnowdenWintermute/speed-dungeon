@@ -16,7 +16,11 @@ import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { randBetween } from "../../../utils/index.js";
 import { ActionAccuracyType } from "../../combat-actions/combat-action-accuracy.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
-import { CombatActionComponent, CombatActionIntent } from "../../combat-actions/index.js";
+import {
+  COMBAT_ACTION_NAME_STRINGS,
+  CombatActionComponent,
+  CombatActionIntent,
+} from "../../combat-actions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../combat-actions/prohibited-target-combatant-states.js";
 import { ResourceChangeSource } from "../../hp-change-source-types.js";
 
@@ -53,6 +57,12 @@ export class HitOutcomeMitigationCalculator {
     const user = this.user.combatantProperties;
     const target = this.targetCombatant.combatantProperties;
 
+    console.log(
+      COMBAT_ACTION_NAME_STRINGS[this.action.name],
+      "getting hit chance on target:",
+      this.targetCombatant.entityProperties.id,
+      this.targetCombatant.combatantProperties.hitPoints
+    );
     const percentChanceToHit = HitOutcomeMitigationCalculator.getActionHitChance(
       this.action,
       user,
@@ -178,12 +188,12 @@ export class HitOutcomeMitigationCalculator {
     targetWillAttemptToEvade: boolean,
     target: CombatantProperties
   ): { beforeEvasion: number; afterEvasion: number } {
-    const canTargetDeadCombatants =
+    const canHitDeadCombatants =
       !combatAction.targetingProperties.prohibitedHitCombatantStates.includes(
         ProhibitedTargetCombatantStates.Dead
       );
     const targetIsDead = CombatantProperties.isDead(target);
-    if (targetIsDead && !canTargetDeadCombatants) {
+    if (targetIsDead && !canHitDeadCombatants) {
       console.log("target dead, 0 hit chance");
       return { beforeEvasion: 0, afterEvasion: 0 };
     } else {

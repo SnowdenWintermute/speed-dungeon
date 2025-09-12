@@ -61,6 +61,7 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
         hitOutcomesResult.resourceChanges[CombatActionResource.HitPoints];
       if (hitPointChangesOption instanceof HitPointChanges) {
         const combatantsKilled = hitPointChangesOption?.applyToGame(this.context.combatantContext);
+        console.log(COMBAT_ACTION_NAME_STRINGS[actionName], "combatants killed:", combatantsKilled);
         if (combatantsKilled)
           for (const entityId of combatantsKilled) {
             gameUpdateCommand.outcomes.insertOutcomeFlag(HitOutcome.Death, entityId);

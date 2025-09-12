@@ -31,13 +31,6 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
 
     const { userTotalAttributes } = getFirewallBurnUserLevelAndAttributes(user);
 
-    console.log(
-      "USER LEVEL: ",
-      actionLevel,
-      "USER SPIRIT:",
-      userTotalAttributes[CombatAttribute.Spirit]
-    );
-
     baseValues.add((actionLevel || 1) - 1);
 
     addCombatantLevelScaledAttributeToRange({
@@ -53,8 +46,6 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
       resourceChangeSource,
       baseValues,
     };
-
-    console.log("HPCHANGEPROPERTIES:", hpChangeProperties);
 
     baseValues.floor(1);
 
