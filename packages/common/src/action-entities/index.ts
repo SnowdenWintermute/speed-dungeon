@@ -33,6 +33,7 @@ export const ACTION_ENTITY_STRINGS: Record<ActionEntityName, string> = {
 // what the caster's +bonus to fire damage was when they cast it
 export interface ActionEntityActionOriginData {
   actionLevel?: number;
+  turnOrderSpeed?: number;
   userCombatantAttributes?: CombatantAttributeRecord;
   userElementalAffinities?: Partial<Record<MagicalElement, number>>;
   userKineticAffinities?: Partial<Record<KineticDamageType, number>>;

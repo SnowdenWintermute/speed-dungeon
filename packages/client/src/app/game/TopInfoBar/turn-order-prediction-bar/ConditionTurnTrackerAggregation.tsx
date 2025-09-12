@@ -20,7 +20,7 @@ export default function ConditionTurnTrackerAggregation({
         const condition = tracker.getCondition(partyResult);
 
         return (
-          <button className="" key={tracker.conditionId + i}>
+          <button className="" key={tracker.getTaggedIdOfTrackedEntity().conditionId + i}>
             <HoverableTooltipWrapper
               tooltipText={tracker.timeOfNextMove.toString()}
               extraStyles="h-full w-full"

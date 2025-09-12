@@ -59,7 +59,7 @@ const TESTING_INHERENT_ATTRIBUTES: Partial<Record<CombatAttribute, number>> = {
   [CombatAttribute.Speed]: 9,
   // [CombatAttribute.Accuracy]: 200,
   // [CombatAttribute.Strength]: 40,
-  [CombatAttribute.Spirit]: 250,
+  [CombatAttribute.Spirit]: 10,
   // [CombatAttribute.Mp]: 100,
   // [CombatAttribute.Evasion]: 100,
   // [CombatAttribute.Hp]: 75,

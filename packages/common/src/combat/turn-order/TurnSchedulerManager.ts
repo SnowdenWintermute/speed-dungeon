@@ -1,28 +1,28 @@
+import {
+  TurnTracker,
+  CombatantTurnTracker,
+  ConditionTurnTracker,
+  TurnOrderManager,
+  TurnTrackerEntityType,
+} from "../index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Battle } from "../../battle/index.js";
 import { CombatantContext } from "../../combatant-context/index.js";
-import { CombatAttribute } from "../../combatants/attributes/index.js";
 import {
-  Combatant,
-  CombatantCondition,
   CombatantProperties,
+  Combatant,
   ConditionWithCombatantIdAppliedTo,
+  CombatantCondition,
 } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "./consts.js";
 import {
-  CombatantTurnTracker,
-  ConditionTurnTracker,
-  TurnOrderManager,
-  TurnTracker,
-  TurnTrackerEntityType,
-} from "./index.js";
-
-export enum TurnTrackerSortableProperty {
-  TimeOfNextMove,
-  AccumulatedDelay,
-}
+  ActionEntityTurnScheduler,
+  CombatantTurnScheduler,
+  ConditionTurnScheduler,
+  TurnTrackerSortableProperty,
+} from "./turn-scheduler-manager.js";
 
 export class TurnSchedulerManager {
   schedulers: (CombatantTurnScheduler | ConditionTurnScheduler)[] = [];
@@ -68,20 +68,12 @@ export class TurnSchedulerManager {
       case TurnTrackerEntityType.Condition:
         schedulerOption = this.schedulers
           .filter((item) => item instanceof ConditionTurnScheduler)
-          .find(
-            (item) =>
-              item instanceof ConditionTurnScheduler &&
-              item.conditionId === taggedIdOfTrackedEntity.conditionId
-          );
+          .find((item) => item.conditionId === taggedIdOfTrackedEntity.conditionId);
         break;
       case TurnTrackerEntityType.ActionEntity:
         schedulerOption = this.schedulers
           .filter((item) => item instanceof ActionEntityTurnScheduler)
-          .find(
-            (item) =>
-              item instanceof ActionEntityTurnScheduler &&
-              item.actionEntityId === taggedIdOfTrackedEntity.actionEntityId
-          );
+          .find((item) => item.actionEntityId === taggedIdOfTrackedEntity.actionEntityId);
         break;
     }
 
@@ -265,65 +257,5 @@ export class TurnSchedulerManager {
     }
 
     return turnTrackerList;
-  }
-}
-
-interface ITurnScheduler {
-  timeOfNextMove: number;
-  accumulatedDelay: number; // when they take their turn, add to this
-  getSpeed: (party: AdventuringParty) => number;
-}
-
-export class CombatantTurnScheduler implements ITurnScheduler {
-  timeOfNextMove: number = 0;
-  accumulatedDelay: number = 0;
-  constructor(public readonly combatantId: EntityId) {}
-  getSpeed(party: AdventuringParty) {
-    const combatantResult = AdventuringParty.getCombatant(party, this.combatantId);
-    if (combatantResult instanceof Error) throw combatantResult;
-    const combatantSpeed = CombatantProperties.getTotalAttributes(
-      combatantResult.combatantProperties
-    )[CombatAttribute.Speed];
-    return combatantSpeed;
-  }
-}
-
-export class ConditionTurnScheduler implements ITurnScheduler {
-  timeOfNextMove: number = 0;
-  accumulatedDelay: number = 0;
-  constructor(
-    public readonly combatantId: EntityId,
-    public readonly conditionId: EntityId
-  ) {}
-  getSpeed(party: AdventuringParty) {
-    const conditionResult = AdventuringParty.getConditionOnCombatant(
-      party,
-      this.combatantId,
-      this.conditionId
-    );
-    if (conditionResult instanceof Error) {
-      throw conditionResult;
-    }
-
-    const tickPropertiesOption = CombatantCondition.getTickProperties(conditionResult);
-
-    if (tickPropertiesOption === undefined) throw new Error("expected condition to be tickable");
-    return tickPropertiesOption.getTickSpeed(conditionResult);
-  }
-}
-
-export class ActionEntityTurnScheduler implements ITurnScheduler {
-  timeOfNextMove: number = 0;
-  accumulatedDelay: number = 0;
-  constructor(public readonly actionEntityId: EntityId) {}
-  getSpeed(party: AdventuringParty) {
-    const entityOption = party.actionEntities[this.actionEntityId];
-    if (entityOption === undefined) throw new Error("no action entity found");
-    const { actionEntityProperties } = entityOption;
-    const { actionOriginData } = actionEntityProperties;
-    if (actionOriginData === undefined)
-      throw new Error("expected action entity to have origin data");
-
-    return actionOriginData.turnOrderSpeed || 0;
   }
 }

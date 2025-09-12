@@ -2,6 +2,7 @@ import getCurrentParty from "@/utils/getCurrentParty";
 import { useGameStore } from "@/stores/game-store";
 import {
   ActionCompletionUpdateCommand,
+  AdventuringParty,
   CombatantProperties,
   CombatantTurnTracker,
   ERROR_MESSAGES,
@@ -36,7 +37,10 @@ export async function actionCompletionGameUpdateHandler(update: {
       // of actions taking them away before they get their turn again
       const fastestTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
       if (fastestTracker instanceof CombatantTurnTracker) {
-        const { combatantProperties } = fastestTracker.getCombatant(partyOption);
+        const { combatantProperties } = AdventuringParty.getExpectedCombatant(
+          partyOption,
+          fastestTracker.getTaggedIdOfTrackedEntity().combatantId
+        );
         CombatantProperties.refillActionPoints(combatantProperties);
         CombatantProperties.tickCooldowns(combatantProperties);
       }

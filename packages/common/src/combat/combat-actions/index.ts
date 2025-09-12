@@ -33,6 +33,7 @@ import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { AbilityTreeAbility } from "../../abilities/index.js";
 import { CombatActionCombatLogProperties } from "./combat-action-combat-log-properties.js";
+import { TurnTrackerEntityType } from "../turn-order/index.js";
 
 export interface CombatActionComponentConfig {
   // unique to each action
@@ -192,7 +193,10 @@ export abstract class CombatActionComponent {
 
     if (battleOption !== null) {
       const fastestActor = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
-      if (fastestActor.combatantId !== combatant.entityProperties.id) {
+      const taggedTrackedEntityId = fastestActor.getTaggedIdOfTrackedEntity();
+      if (taggedTrackedEntityId.type !== TurnTrackerEntityType.Combatant)
+        return new Error("expected a combatant to be first in turn order");
+      if (taggedTrackedEntityId.combatantId !== combatant.entityProperties.id) {
         const message = `${ERROR_MESSAGES.COMBATANT.NOT_ACTIVE} first turn tracker ${JSON.stringify(fastestActor)}`;
         return new Error(message);
       }
