@@ -226,6 +226,8 @@ function getNextActionIntentAndUserForActionEntity(
     actionEntityOption.entityProperties.id
   );
 
+  console.log("trying to pass turn as action entity");
+
   // const { actionExecutionIntent, user } = onTick.triggeredAction;
   return {
     actionExecutionIntent: new CombatActionExecutionIntent(

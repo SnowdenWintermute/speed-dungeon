@@ -4,6 +4,8 @@ import {
   ConditionTurnTracker,
   TurnOrderManager,
   TurnTrackerEntityType,
+  TaggedTurnTrackerTrackedEntityId,
+  ActionEntityTurnTracker,
 } from "../index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Battle } from "../../battle/index.js";
@@ -21,11 +23,13 @@ import {
   ActionEntityTurnScheduler,
   CombatantTurnScheduler,
   ConditionTurnScheduler,
+  ITurnScheduler,
   TurnTrackerSortableProperty,
 } from "./turn-scheduler-manager.js";
+import { ActionEntityActionOriginData } from "../../action-entities/index.js";
 
 export class TurnSchedulerManager {
-  schedulers: (CombatantTurnScheduler | ConditionTurnScheduler)[] = [];
+  schedulers: ITurnScheduler[] = [];
 
   constructor(
     public readonly minTurnTrackersCount: number,
@@ -55,7 +59,7 @@ export class TurnSchedulerManager {
   }
 
   getMatchingSchedulerFromTurnOrderTracker(turnOrderTracker: TurnTracker) {
-    let schedulerOption: undefined | CombatantTurnScheduler | ConditionTurnScheduler = undefined;
+    let schedulerOption: undefined | ITurnScheduler = undefined;
 
     const taggedIdOfTrackedEntity = turnOrderTracker.getTaggedIdOfTrackedEntity();
 
@@ -82,7 +86,7 @@ export class TurnSchedulerManager {
   }
 
   removeStaleTurnSchedulers(party: AdventuringParty) {
-    const idsToRemove: EntityId[] = [];
+    const idsToRemove: TaggedTurnTrackerTrackedEntityId[] = [];
 
     for (const scheduler of this.schedulers) {
       if (scheduler instanceof CombatantTurnScheduler) {
@@ -91,7 +95,10 @@ export class TurnSchedulerManager {
           combatantResult instanceof Error ||
           CombatantProperties.isDead(combatantResult.combatantProperties)
         ) {
-          idsToRemove.push(scheduler.combatantId);
+          idsToRemove.push({
+            type: TurnTrackerEntityType.Combatant,
+            combatantId: scheduler.combatantId,
+          });
         }
         continue;
       } else if (scheduler instanceof ConditionTurnScheduler) {
@@ -100,19 +107,54 @@ export class TurnSchedulerManager {
           scheduler.combatantId,
           scheduler.conditionId
         );
-        if (conditionResult instanceof Error) idsToRemove.push(scheduler.conditionId);
+        if (conditionResult instanceof Error)
+          idsToRemove.push({
+            type: TurnTrackerEntityType.Condition,
+            conditionId: scheduler.conditionId,
+            combatantId: scheduler.combatantId,
+          });
+      } else if (scheduler instanceof ActionEntityTurnScheduler) {
+        const actionEntity = AdventuringParty.getActionEntity(party, scheduler.actionEntityId);
+        if (actionEntity instanceof Error) {
+          console.log("removeStaleTurnSchedulers action entity:", scheduler.actionEntityId);
+          idsToRemove.push({
+            type: TurnTrackerEntityType.ActionEntity,
+            actionEntityId: scheduler.actionEntityId,
+          });
+        }
       }
     }
 
     this.schedulers = this.schedulers.filter((scheduler) => {
-      if (!(scheduler instanceof ConditionTurnScheduler)) {
-        if (idsToRemove.includes(scheduler.combatantId)) {
-          return false;
+      if (scheduler instanceof CombatantTurnScheduler) {
+        for (const taggedId of idsToRemove) {
+          if (
+            taggedId.type === TurnTrackerEntityType.Combatant &&
+            scheduler.combatantId === taggedId.combatantId
+          )
+            return false;
+        }
+        return true;
+      } else if (scheduler instanceof ConditionTurnScheduler) {
+        for (const taggedId of idsToRemove) {
+          if (
+            taggedId.type === TurnTrackerEntityType.Condition &&
+            scheduler.conditionId === taggedId.conditionId
+          )
+            return false;
+        }
+        return true;
+      } else if (scheduler instanceof ActionEntityTurnScheduler) {
+        for (const taggedId of idsToRemove) {
+          if (
+            taggedId.type === TurnTrackerEntityType.ActionEntity &&
+            scheduler.actionEntityId === taggedId.actionEntityId
+          )
+            return false;
         }
         return true;
       }
 
-      if (idsToRemove.includes(scheduler.conditionId)) return false;
       return true;
     });
   }
@@ -140,7 +182,7 @@ export class TurnSchedulerManager {
             return a.timeOfNextMove - b.timeOfNextMove;
           } else if (a.getSpeed(party) !== b.getSpeed(party)) {
             return b.getSpeed(party) - a.getSpeed(party);
-          } else return a.combatantId.localeCompare(b.combatantId);
+          } else return a.getTiebreakerId().localeCompare(b.getTiebreakerId());
         });
         break;
       case TurnTrackerSortableProperty.AccumulatedDelay:
@@ -149,7 +191,7 @@ export class TurnSchedulerManager {
             return a.accumulatedDelay - b.accumulatedDelay;
           else if (a.getSpeed(party) !== b.getSpeed(party)) {
             return b.getSpeed(party) - a.getSpeed(party);
-          } else return a.combatantId.localeCompare(b.combatantId);
+          } else return a.getTiebreakerId().localeCompare(b.getTiebreakerId());
         });
         break;
     }
@@ -161,15 +203,16 @@ export class TurnSchedulerManager {
     return fastest;
   }
 
-  addNewSchedulerTracker(
-    from: Combatant | ConditionWithCombatantIdAppliedTo,
-    startingDelay: number
-  ) {
-    if (from instanceof Combatant) {
+  addNewSchedulerTracker(from: TaggedTurnTrackerTrackedEntityId, startingDelay: number) {
+    if (from.type === TurnTrackerEntityType.Combatant) {
       throw new Error("adding new combatant turn scheduler tracker not yet implemented");
-    } else {
-      const scheduler = new ConditionTurnScheduler(from.appliedTo, from.condition.id);
+    } else if (from.type === TurnTrackerEntityType.Condition) {
+      const scheduler = new ConditionTurnScheduler(from.combatantId, from.conditionId);
 
+      scheduler.accumulatedDelay = startingDelay;
+      this.schedulers.push(scheduler);
+    } else if (from.type === TurnTrackerEntityType.ActionEntity) {
+      const scheduler = new ActionEntityTurnScheduler(from.actionEntityId);
       scheduler.accumulatedDelay = startingDelay;
       this.schedulers.push(scheduler);
     }
@@ -178,9 +221,10 @@ export class TurnSchedulerManager {
   buildNewList(game: SpeedDungeonGame, party: AdventuringParty) {
     this.resetTurnSchedulers(party);
 
-    const turnTrackerList: (CombatantTurnTracker | ConditionTurnTracker)[] = [];
+    const turnTrackerList: TurnTracker[] = [];
 
     const predictedConsumedStacksOnTickByConditionId: Record<EntityId, number> = {};
+    const predictedConsumedTurnsOnTickByActionEntityId: Record<EntityId, number> = {};
 
     let numCombatantTrackersCreated = 0;
 
@@ -246,6 +290,42 @@ export class TurnSchedulerManager {
 
         if (shouldPush)
           turnTrackerList.push(new ConditionTurnTracker(combatantId, conditionId, timeOfNextMove));
+      } else if (fastestActor instanceof ActionEntityTurnScheduler) {
+        console.log("action entity turn scheduler");
+        const { actionEntityId, timeOfNextMove } = fastestActor;
+        const actionEntityResult = AdventuringParty.getActionEntity(party, actionEntityId);
+        if (actionEntityResult instanceof Error) throw actionEntityResult;
+        const actionEntity = actionEntityResult;
+
+        const { actionOriginData } = actionEntity.actionEntityProperties;
+        if (actionOriginData === undefined)
+          throw new Error("expected actionOriginData for an action entity with a turn scheduler");
+
+        const turnsRemaining = actionOriginData.turnsRemaining || 0;
+
+        console.log("action entity turns remaining:", turnsRemaining);
+
+        let shouldPush = !!turnsRemaining;
+        if (turnsRemaining) {
+          // see how it's done for conditions, similar reasoning about how to not show trackers for turns that
+          // won't happen since they'll have run out of turns
+          const predictedConsumedTurns =
+            predictedConsumedTurnsOnTickByActionEntityId[actionEntityId] ?? 0;
+
+          if (predictedConsumedTurns >= turnsRemaining) {
+            shouldPush = false;
+          } else {
+            const numberOfTurnsConsumed = 1;
+            predictedConsumedTurnsOnTickByActionEntityId[actionEntityId] =
+              (predictedConsumedTurnsOnTickByActionEntityId[actionEntityId] ?? 0) +
+              numberOfTurnsConsumed;
+          }
+        }
+
+        console.log("action entity:", actionEntityId, "should push tracker:", shouldPush);
+
+        if (shouldPush)
+          turnTrackerList.push(new ActionEntityTurnTracker(actionEntityId, timeOfNextMove));
       }
 
       const delay = TurnOrderManager.getActionDelayCost(

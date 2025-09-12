@@ -1,18 +1,16 @@
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { useGameStore } from "@/stores/game-store";
-import { getCombatantUiIdentifierIcon } from "@/utils/get-combatant-class-icon";
 import getGameAndParty from "@/utils/getGameAndParty";
-import {
-  AdventuringParty,
-  CombatantTurnTracker,
-  ConditionTurnTracker,
-  TurnTrackerEntityType,
-} from "@speed-dungeon/common";
+import { ActionEntityTurnTracker } from "@speed-dungeon/common";
 import React, { useState } from "react";
 
 const SHOWN_CLASSES = "mr-2 last:mr-0";
 
-export default function TurnOrderTrackerIcon({ tracker }: { tracker: CombatantTurnTracker }) {
+export default function ActionEntityTurnOrderTrackerIcon({
+  tracker,
+}: {
+  tracker: ActionEntityTurnTracker;
+}) {
   const gameOption = useGameStore().game;
   const usernameOption = useGameStore().username;
   const result = getGameAndParty(gameOption, usernameOption);
@@ -23,34 +21,13 @@ export default function TurnOrderTrackerIcon({ tracker }: { tracker: CombatantTu
 
   const taggedTrackedEntityId = tracker.getTaggedIdOfTrackedEntity();
 
-  const isCondition = tracker instanceof ConditionTurnTracker;
-
-  const combatantIsAlly =
-    taggedTrackedEntityId.type === TurnTrackerEntityType.Combatant &&
-    party.characterPositions.includes(taggedTrackedEntityId.combatantId);
-
-  const conditionalClasses = isCondition
-    ? "bg-slate-600"
-    : combatantIsAlly
-      ? "bg-emerald-900"
-      : "bg-amber-900";
-
-  let combatantOption;
-
-  const name: string = (() => {
-    const combatant = AdventuringParty.getExpectedCombatant(
-      party,
-      taggedTrackedEntityId.combatantId
-    );
-    combatantOption = combatant;
-    return combatant.entityProperties.name.slice(0, 2).toUpperCase();
-  })();
-
   function handleClick() {
     //
   }
 
-  const combatantUiIdentifierIcon = getCombatantUiIdentifierIcon(party, combatantOption);
+  const conditionalClasses = "";
+
+  const icon = <div>{taggedTrackedEntityId.actionEntityId.slice(0, 2).toUpperCase()}</div>;
 
   return (
     <button
@@ -63,7 +40,7 @@ export default function TurnOrderTrackerIcon({ tracker }: { tracker: CombatantTu
         extraStyles="h-full w-full"
       >
         <div className="h-full w-full rounded-full bg-slate-600 border border-slate-400 flex items-center justify-center">
-          <span className="h-full w-full">{combatantUiIdentifierIcon}</span>
+          <span className="h-full w-full">{icon}</span>
         </div>
       </HoverableTooltipWrapper>
     </button>

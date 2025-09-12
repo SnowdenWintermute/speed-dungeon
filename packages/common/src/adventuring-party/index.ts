@@ -15,6 +15,8 @@ import { ActionCommandQueue } from "../action-processing/action-command-queue.js
 import { SpeedDungeonGame } from "../game/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ActionEntity } from "../action-entities/index.js";
+import { Battle } from "../battle/index.js";
+import { TurnTrackerEntityType } from "../combat/index.js";
 export * from "./get-item-in-party.js";
 export * from "./dungeon-room.js";
 export * from "./update-player-readiness.js";
@@ -91,21 +93,61 @@ export class AdventuringParty {
     return battleOption;
   }
 
-  static registerActionEntity(party: AdventuringParty, entity: ActionEntity) {
+  static registerActionEntity(
+    party: AdventuringParty,
+    entity: ActionEntity,
+    battleOption: null | Battle
+  ) {
     console.log("registerActionEntity: ", entity);
     const { entityProperties } = entity;
     party.actionEntities[entityProperties.id] = entity;
+
+    const turnOrderSpeedOption = entity.actionEntityProperties.actionOriginData?.turnOrderSpeed;
+    if (battleOption && turnOrderSpeedOption !== undefined) {
+      // account for how long the battle has been going for
+      const fastestSchedulerDelay =
+        battleOption.turnOrderManager.turnSchedulerManager.getFirstScheduler().accumulatedDelay;
+
+      const startingDelay = turnOrderSpeedOption + fastestSchedulerDelay;
+
+      battleOption.turnOrderManager.turnSchedulerManager.addNewSchedulerTracker(
+        { type: TurnTrackerEntityType.ActionEntity, actionEntityId: entity.entityProperties.id },
+        startingDelay
+      );
+      console.log(
+        "added scheduler for action entity",
+        entity.entityProperties.name,
+        " with starting delay",
+        startingDelay
+      );
+    }
   }
-  static unregisterActionEntity(party: AdventuringParty, entityId: EntityId) {
+  static unregisterActionEntity(
+    party: AdventuringParty,
+    entityId: EntityId,
+    battleOption: null | Battle
+  ) {
     console.log("unregistering", entityId);
     delete party.actionEntities[entityId];
+    if (battleOption) {
+      battleOption.turnOrderManager.turnSchedulerManager.removeStaleTurnSchedulers(party);
+    }
   }
-  static unregisterActionEntitiesOnBattleEndOrNewRoom(party: AdventuringParty) {
+
+  static getActionEntity(party: AdventuringParty, entityId: EntityId) {
+    const entityOption = party.actionEntities[entityId];
+    if (entityOption === undefined) return new Error(ERROR_MESSAGES.ACTION_ENTITIES.NOT_FOUND);
+    return entityOption;
+  }
+
+  static unregisterActionEntitiesOnBattleEndOrNewRoom(
+    party: AdventuringParty,
+    battleOption: null | Battle
+  ) {
     const removed = [];
     for (const [key, entity] of Object.entries(party.actionEntities)) {
       removed.push(entity.entityProperties.id);
-
-      delete party.actionEntities[key];
+      AdventuringParty.unregisterActionEntity(party, key, battleOption);
     }
 
     return removed;

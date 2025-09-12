@@ -42,7 +42,7 @@ export default function newDungeonRoomHandler({
     console.log("got unregistered:", actionEntitiesToRemove);
 
     for (const actionEntityId of actionEntitiesToRemove) {
-      AdventuringParty.unregisterActionEntity(party, actionEntityId);
+      AdventuringParty.unregisterActionEntity(party, actionEntityId, null);
       getGameWorld().actionEntityManager.unregister(actionEntityId);
     }
 

@@ -101,18 +101,19 @@ export async function exploreNextRoom(
 
   const partyChannelName = getPartyChannelName(game.name, party.name);
 
-  const actionEntitiesRemoved =
-    AdventuringParty.unregisterActionEntitiesOnBattleEndOrNewRoom(party);
+  const battleOption = AdventuringParty.getBattleOption(party, game);
+  const actionEntitiesRemoved = AdventuringParty.unregisterActionEntitiesOnBattleEndOrNewRoom(
+    party,
+    battleOption
+  );
 
   this.io.to(partyChannelName).emit(ServerToClientEvent.DungeonRoomUpdate, {
     dungeonRoom: party.currentRoom,
     actionEntitiesToRemove: actionEntitiesRemoved,
   });
 
-  if (party.battleId === null) return;
+  if (battleOption === null) return;
 
-  const battleOption = game.battles[party.battleId];
-  if (!battleOption) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
   const battle = battleOption;
   this.io
     .in(getPartyChannelName(game.name, party.name))

@@ -268,16 +268,18 @@ export class TurnSchedulerManager {
   }
 }
 
-interface ITurnScheduler {
+export interface ITurnScheduler {
   timeOfNextMove: number;
   accumulatedDelay: number; // when they take their turn, add to this
   getSpeed: (party: AdventuringParty) => number;
+  getTiebreakerId: () => string;
 }
 
 export class CombatantTurnScheduler implements ITurnScheduler {
   timeOfNextMove: number = 0;
   accumulatedDelay: number = 0;
   constructor(public readonly combatantId: EntityId) {}
+  getTiebreakerId = () => this.combatantId;
   getSpeed(party: AdventuringParty) {
     const combatantResult = AdventuringParty.getCombatant(party, this.combatantId);
     if (combatantResult instanceof Error) throw combatantResult;
@@ -295,6 +297,7 @@ export class ConditionTurnScheduler implements ITurnScheduler {
     public readonly combatantId: EntityId,
     public readonly conditionId: EntityId
   ) {}
+  getTiebreakerId = () => this.conditionId;
   getSpeed(party: AdventuringParty) {
     const conditionResult = AdventuringParty.getConditionOnCombatant(
       party,
@@ -316,6 +319,7 @@ export class ActionEntityTurnScheduler implements ITurnScheduler {
   timeOfNextMove: number = 0;
   accumulatedDelay: number = 0;
   constructor(public readonly actionEntityId: EntityId) {}
+  getTiebreakerId = () => this.actionEntityId;
   getSpeed(party: AdventuringParty) {
     const entityOption = party.actionEntities[this.actionEntityId];
     if (entityOption === undefined) throw new Error("no action entity found");

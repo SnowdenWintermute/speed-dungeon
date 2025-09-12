@@ -1,5 +1,6 @@
 import {
   AdventuringParty,
+  ERROR_MESSAGES,
   SpawnEntityGameUpdateCommand,
   SpawnableEntityType,
 } from "@speed-dungeon/common";
@@ -56,7 +57,10 @@ export async function spawnEntityGameUpdateHandler(update: {
   useGameStore.getState().mutateState((state) => {
     const partyResult = getParty(state.game, state.username);
     if (!(partyResult instanceof Error)) {
-      AdventuringParty.registerActionEntity(partyResult, actionEntity);
+      if (state.game === null) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+      const battleOption = AdventuringParty.getBattleOption(partyResult, state.game);
+      AdventuringParty.registerActionEntity(partyResult, actionEntity, battleOption);
+      battleOption?.turnOrderManager.updateTrackers(state.game, partyResult);
     }
   });
 

@@ -24,13 +24,19 @@ export class SpawnEntityActionResolutionStep extends ActionResolutionStep {
 
     const taggedSpawnableEntity = getSpawnableEntity(context);
 
-    const { party } = context.combatantContext;
+    const { game, party } = context.combatantContext;
+    const battleOption = context.combatantContext.getBattleOption();
 
     switch (taggedSpawnableEntity.type) {
       case SpawnableEntityType.Combatant:
         throw new Error("not yet implemeneted");
       case SpawnableEntityType.ActionEntity:
-        AdventuringParty.registerActionEntity(party, taggedSpawnableEntity.actionEntity);
+        AdventuringParty.registerActionEntity(
+          party,
+          taggedSpawnableEntity.actionEntity,
+          battleOption
+        );
+        battleOption?.turnOrderManager.updateTrackers(game, party);
     }
 
     context.tracker.spawnedEntityOption = taggedSpawnableEntity;

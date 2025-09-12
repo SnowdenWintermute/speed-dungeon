@@ -51,7 +51,7 @@ export class TurnOrderManager {
         COMBAT_ACTION_NAME_STRINGS[actionNameOption],
         delay,
         "to tracker",
-        tracker.combatantId
+        tracker.getTiebreakerId()
       );
 
     tracker.accumulatedDelay += delay;

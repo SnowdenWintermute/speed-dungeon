@@ -16,6 +16,7 @@ import {
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
+import { BASE_PERSISTENT_ACTION_ENTITY_TICK_SPEED } from "../../../turn-order/consts.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
@@ -39,15 +40,19 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
     };
 
     const actionLevel = user.combatantProperties.selectedActionLevel || 1;
+    const baseFirewallLifetime = 1;
+    const lifetime = actionLevel + baseFirewallLifetime;
 
     console.log("USER SELECTEDACTIONLEVEL AT TIME OF FIREWALL CAST", actionLevel);
 
-    const actionOriginData = {
+    const actionOriginData: ActionEntityActionOriginData = {
       actionLevel,
       userCombatantAttributes: CombatantProperties.getTotalAttributes(user.combatantProperties),
       userElementalAffinities: CombatantProperties.getCombatantTotalElementalAffinities(
         user.combatantProperties
       ),
+      turnOrderSpeed: BASE_PERSISTENT_ACTION_ENTITY_TICK_SPEED,
+      turnsRemaining: lifetime,
     };
 
     return {

@@ -1,4 +1,4 @@
-import { clipPlaneFragmentDeclaration, Vector3 } from "@babylonjs/core";
+import { Vector3 } from "@babylonjs/core";
 import {
   ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionResolutionStep,

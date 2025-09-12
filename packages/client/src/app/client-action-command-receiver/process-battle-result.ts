@@ -90,7 +90,7 @@ export async function battleResultActionCommandHandler(
     }
 
     for (const entityId of actionEntitiesRemoved) {
-      AdventuringParty.unregisterActionEntity(partyOption, entityId);
+      AdventuringParty.unregisterActionEntity(partyOption, entityId, null);
       getGameWorld().actionEntityManager.unregister(entityId);
     }
 

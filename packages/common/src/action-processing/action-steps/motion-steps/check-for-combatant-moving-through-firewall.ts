@@ -12,8 +12,8 @@ import { TriggerEnvironmentalHazardsActionResolutionStep } from "./determine-env
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../../app-consts.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { AnimationTimingType } from "../../game-update-commands.js";
-import { CombatantProperties } from "../../../combatants/index.js";
 import cloneDeep from "lodash.clonedeep";
+import { timeToReachBox } from "../../../utils/index.js";
 
 export function getFirewallBurnScheduledActions(
   context: ActionResolutionStepContext,
@@ -129,49 +129,4 @@ export function getFirewallBurnScheduledActions(
     actionExecutionIntent: firewallBurnExecutionIntent,
   };
   return [firewallBurnActionIntentWithUser];
-}
-
-const EPSILON = 1e-8; // tiny value to prevent division by zero in ray-AABB calculations
-
-export function timeToReachBox(
-  userPosition: Vector3,
-  destination: Vector3,
-  boxCenter: Vector3,
-  boxDimensions: BoxDimensions,
-  movementSpeed: number // units per ms
-): number | null {
-  // Compute min/max of AABB
-  const half = (value: number) => value / 2;
-  const min = boxCenter.subtract(
-    new Vector3(half(boxDimensions.width), half(boxDimensions.height), half(boxDimensions.depth))
-  );
-  const max = boxCenter.add(
-    new Vector3(half(boxDimensions.width), half(boxDimensions.height), half(boxDimensions.depth))
-  );
-
-  const dir = destination.subtract(userPosition);
-  const dirFrac = new Vector3(
-    1 / (dir.x || EPSILON),
-    1 / (dir.y || EPSILON),
-    1 / (dir.z || EPSILON)
-  );
-
-  // Using "slab method" for line-segment vs AABB intersection
-  const t1 = (min.x - userPosition.x) * dirFrac.x;
-  const t2 = (max.x - userPosition.x) * dirFrac.x;
-  const t3 = (min.y - userPosition.y) * dirFrac.y;
-  const t4 = (max.y - userPosition.y) * dirFrac.y;
-  const t5 = (min.z - userPosition.z) * dirFrac.z;
-  const t6 = (max.z - userPosition.z) * dirFrac.z;
-
-  const tMin = Math.max(Math.min(t1, t2), Math.min(t3, t4), Math.min(t5, t6));
-  const tMax = Math.min(Math.max(t1, t2), Math.max(t3, t4), Math.max(t5, t6));
-
-  // No intersection if tMax < 0 (behind start) or tMin > tMax (misses)
-  if (tMax < 0 || tMin > tMax || tMin > 1 || tMin < 0) return null;
-
-  const distanceToFirewall = dir.length() * tMin;
-  const timeToFirewall = distanceToFirewall / movementSpeed;
-
-  return timeToFirewall;
 }

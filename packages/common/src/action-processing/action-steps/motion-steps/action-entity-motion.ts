@@ -78,7 +78,11 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
     if (!despawnOnComplete) return [];
     const { party } = context.combatantContext;
 
-    AdventuringParty.unregisterActionEntity(party, this.actionEntity.entityProperties.id);
+    AdventuringParty.unregisterActionEntity(
+      party,
+      this.actionEntity.entityProperties.id,
+      AdventuringParty.getBattleOption(party, context.combatantContext.game)
+    );
 
     return [];
   }

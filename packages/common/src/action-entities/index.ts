@@ -34,6 +34,7 @@ export const ACTION_ENTITY_STRINGS: Record<ActionEntityName, string> = {
 export interface ActionEntityActionOriginData {
   actionLevel?: number;
   turnOrderSpeed?: number;
+  turnsRemaining?: number;
   userCombatantAttributes?: CombatantAttributeRecord;
   userElementalAffinities?: Partial<Record<MagicalElement, number>>;
   userKineticAffinities?: Partial<Record<KineticDamageType, number>>;
