@@ -10,6 +10,12 @@ import { TaggedShape3DDimensions } from "../utils/shape-utils.js";
 import { CombatantAttributeRecord } from "../combatants/index.js";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import { MagicalElement } from "../combat/magical-elements.js";
+import {
+  CombatActionExecutionIntent,
+  CombatActionName,
+  CombatActionTargetType,
+} from "../combat/index.js";
+import { taaPixelShader } from "@babylonjs/core/Shaders/taa.fragment.js";
 
 export enum ActionEntityName {
   Arrow,
@@ -58,3 +64,15 @@ export class ActionEntity {
     public actionEntityProperties: ActionEntityProperties
   ) {}
 }
+
+export const ACTION_ENTITY_ACTION_INTENT_GETTERS: Partial<
+  Record<ActionEntityName, () => CombatActionExecutionIntent>
+> = {
+  [ActionEntityName.Firewall]: () => {
+    return new CombatActionExecutionIntent(
+      CombatActionName.PassTurn,
+      { type: CombatActionTargetType.Single, targetId: "" },
+      1
+    );
+  },
+};

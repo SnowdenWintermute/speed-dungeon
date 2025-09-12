@@ -1,4 +1,5 @@
 import {
+  ACTION_ENTITY_ACTION_INTENT_GETTERS,
   AISelectActionAndTarget,
   ActionCommand,
   ActionCommandPayload,
@@ -217,27 +218,26 @@ function getNextActionIntentAndUserForActionEntity(
   user: Combatant;
 } {
   const { actionEntityId } = taggedTurnTrackerEntityId;
-  const actionEntityOption = party.actionEntities[actionEntityId];
-  if (actionEntityOption === undefined) throw new Error("expected action entity not found");
+  const actionEntityResult = AdventuringParty.getActionEntity(party, actionEntityId);
+  if (actionEntityResult instanceof Error) throw actionEntityResult;
+
+  const actionIntentGetterOption =
+    ACTION_ENTITY_ACTION_INTENT_GETTERS[actionEntityResult.actionEntityProperties.name];
+  if (actionIntentGetterOption === undefined)
+    throw new Error(
+      "expected an action entity with a turn tracker to have an actionIntentGetterOption"
+    );
+
+  const actionExecutionIntent = actionIntentGetterOption();
 
   const dummyUser = createShimmedUserOfTriggeredEnvironmentalHazard(
-    "",
-    actionEntityOption,
-    actionEntityOption.entityProperties.id
+    actionEntityResult.entityProperties.name,
+    actionEntityResult,
+    actionEntityResult.entityProperties.id
   );
 
-  console.log("trying to pass turn as action entity");
-
-  // const { actionExecutionIntent, user } = onTick.triggeredAction;
   return {
-    actionExecutionIntent: new CombatActionExecutionIntent(
-      CombatActionName.PassTurn,
-      {
-        type: CombatActionTargetType.Single,
-        targetId: actionEntityOption.entityProperties.id,
-      },
-      1
-    ),
+    actionExecutionIntent,
     user: dummyUser,
   };
 }

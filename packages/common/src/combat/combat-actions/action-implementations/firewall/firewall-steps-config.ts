@@ -6,6 +6,7 @@ import { createStepsConfig } from "../generic-action-templates/step-config-templ
 import { Vector3 } from "@babylonjs/core";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import {
+  ActionEntity,
   ActionEntityActionOriginData,
   ActionEntityName,
   CosmeticEffectNames,
@@ -43,8 +44,6 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
     const baseFirewallLifetime = 1;
     const lifetime = actionLevel + baseFirewallLifetime;
 
-    console.log("USER SELECTEDACTIONLEVEL AT TIME OF FIREWALL CAST", actionLevel);
-
     const actionOriginData: ActionEntityActionOriginData = {
       actionLevel,
       userCombatantAttributes: CombatantProperties.getTotalAttributes(user.combatantProperties),
@@ -57,15 +56,15 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
 
     return {
       type: SpawnableEntityType.ActionEntity,
-      actionEntity: {
-        entityProperties: { id: context.idGenerator.generate(), name: "firewall" },
-        actionEntityProperties: {
+      actionEntity: new ActionEntity(
+        { id: context.idGenerator.generate(), name: "firewall" },
+        {
           position,
           name: ActionEntityName.Firewall,
           dimensions: taggedDimensions,
           actionOriginData,
-        },
-      },
+        }
+      ),
     };
   },
 };
