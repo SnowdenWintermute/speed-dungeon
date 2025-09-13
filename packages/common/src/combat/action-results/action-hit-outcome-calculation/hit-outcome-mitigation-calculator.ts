@@ -194,10 +194,8 @@ export class HitOutcomeMitigationCalculator {
       );
     const targetIsDead = CombatantProperties.isDead(target);
     if (targetIsDead && !canHitDeadCombatants) {
-      console.log("target dead, 0 hit chance");
       return { beforeEvasion: 0, afterEvasion: 0 };
     } else {
-      console.log("target is alive");
     }
 
     const actionBaseAccuracy = combatAction.getAccuracy(userCombatantProperties, actionLevel);

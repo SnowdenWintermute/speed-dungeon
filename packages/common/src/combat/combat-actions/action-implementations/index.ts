@@ -28,6 +28,7 @@ import { PAY_ACTION_POINT } from "./pass-turn/pay-action-point.js";
 import { READ_SKILL_BOOK } from "./consumables/read-skill-book.js";
 import { FIREWALL } from "./firewall/index.js";
 import { FIREWALL_BURN } from "./firewall/firewall-burn.js";
+import { FIREWALL_PASS_TURN } from "./firewall/firewall-pass-turn.js";
 
 export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Attack]: ATTACK,
@@ -60,4 +61,5 @@ export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.ReadSkillBook]: READ_SKILL_BOOK,
   [CombatActionName.Firewall]: FIREWALL,
   [CombatActionName.FirewallBurn]: FIREWALL_BURN,
+  [CombatActionName.FirewallPassTurn]: FIREWALL_PASS_TURN,
 };

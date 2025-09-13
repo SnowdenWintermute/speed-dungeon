@@ -98,14 +98,14 @@ export const ACTION_STEP_CREATORS: Record<
   [ActionResolutionStepType.RemoveTickedConditionStacks]: (context) =>
     new RemoveTickedConditionStacksActionResolutionStep(context),
   [ActionResolutionStepType.ActionEntityDissipationMotion]: (context) => {
-    const expectedProjectileEntityOption = context.tracker.spawnedEntityOption;
-    if (!expectedProjectileEntityOption) throw new Error("expected projectile was missing");
-    if (expectedProjectileEntityOption.type !== SpawnableEntityType.ActionEntity)
+    const { spawnedEntityOption } = context.tracker;
+    if (!spawnedEntityOption) throw new Error("expected projectile was missing");
+    if (spawnedEntityOption.type !== SpawnableEntityType.ActionEntity)
       throw new Error("expected entity was of invalid type");
     return new ActionEntityMotionActionResolutionStep(
       context,
       ActionResolutionStepType.ActionEntityDissipationMotion,
-      expectedProjectileEntityOption.actionEntity
+      spawnedEntityOption.actionEntity
     );
   },
   [ActionResolutionStepType.RecoveryMotion]: (context) => {

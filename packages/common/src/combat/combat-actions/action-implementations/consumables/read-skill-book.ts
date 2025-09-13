@@ -24,9 +24,38 @@ import {
   createCostPropertiesConfig,
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import { onSkillBookRead } from "./on-skill-book-read.js";
 
 const base = HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BENEVOLENT_CONSUMABLE;
-const hitOutcomeProperties = createHitOutcomeProperties(base, {});
+const hitOutcomeProperties = createHitOutcomeProperties(base, {
+  getOnUseTriggers: (context) => {
+    // see the action.costProperties.getMeetsCustomRequirements of the
+    // skill book action for validation
+    const { combatant } = context.combatantContext;
+    const bookOption = context.tracker.consumableUsed;
+
+    if (bookOption === null) {
+      console.error("expected to have paid a book as consumable cost for this action");
+      return {};
+    }
+
+    const supportClassLevelsGainedResult = onSkillBookRead(
+      combatant.combatantProperties,
+      bookOption
+    );
+
+    if (supportClassLevelsGainedResult instanceof Error) {
+      console.error(supportClassLevelsGainedResult);
+      return {};
+    }
+
+    return {
+      supportClassLevelsGained: {
+        [combatant.entityProperties.id]: supportClassLevelsGainedResult.supportClassLevelIncreased,
+      },
+    };
+  },
+});
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   getConsumableCost: (user) => {

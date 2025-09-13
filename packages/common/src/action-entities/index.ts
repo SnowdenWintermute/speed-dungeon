@@ -15,7 +15,6 @@ import {
   CombatActionName,
   CombatActionTargetType,
 } from "../combat/index.js";
-import { taaPixelShader } from "@babylonjs/core/Shaders/taa.fragment.js";
 
 export enum ActionEntityName {
   Arrow,
@@ -70,7 +69,7 @@ export const ACTION_ENTITY_ACTION_INTENT_GETTERS: Partial<
 > = {
   [ActionEntityName.Firewall]: () => {
     return new CombatActionExecutionIntent(
-      CombatActionName.PassTurn,
+      CombatActionName.FirewallPassTurn,
       { type: CombatActionTargetType.Single, targetId: "" },
       1
     );

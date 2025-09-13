@@ -27,4 +27,7 @@ export const BASIC_ATTACK_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperti
   getCanTriggerCounterattack: (user) => true,
   getShouldAnimateTargetHitRecovery: () => true,
   getThreatChangesOnHitOutcomes: getStandardThreatChangesOnHitOutcomes,
+  getOnUseTriggers: () => {
+    return {};
+  },
 };

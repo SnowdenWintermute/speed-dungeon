@@ -121,6 +121,7 @@ export class BattleProcessor {
 
     const taggedTurnTrackerEntityId = fastestActorTurnTracker.getTaggedIdOfTrackedEntity();
 
+    // @REFACTOR
     switch (taggedTurnTrackerEntityId.type) {
       case TurnTrackerEntityType.Condition:
         return getNextActionIntentAndUserForCondition(
@@ -165,6 +166,8 @@ export class BattleProcessor {
     return actionCommandPayloads;
   }
 }
+
+// @REFACTOR
 
 function getNextActionIntentAndUserForCombatant(
   game: SpeedDungeonGame,

@@ -29,6 +29,7 @@ export async function activatedTriggersGameUpdateHandler(update: {
   isComplete: boolean;
 }) {
   const { command } = update;
+  console.log("COMMAND: ", command, JSON.stringify(command));
 
   // keep track outside of the mutateState so we can post messages after mutating state
   // because posting messages also needs to mutate state and looks cleaner if it separately handles that
@@ -38,7 +39,8 @@ export async function activatedTriggersGameUpdateHandler(update: {
     const game = gameState.game;
     if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
 
-    if (command.supportClassLevelsGained) {
+    if (command.supportClassLevelsGained !== undefined) {
+      console.log("got supportClassLevelsGained:", command.supportClassLevelsGained);
       for (const [entityId, combatantClass] of Object.entries(command.supportClassLevelsGained)) {
         const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
         if (combatantResult instanceof Error) return combatantResult;

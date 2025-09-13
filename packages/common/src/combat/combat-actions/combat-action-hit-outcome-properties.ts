@@ -1,4 +1,7 @@
-import { ActionResolutionStepContext } from "../../action-processing/index.js";
+import {
+  ActionResolutionStepContext,
+  ActivatedTriggersGameUpdateCommand,
+} from "../../action-processing/index.js";
 import {
   Combatant,
   CombatantConditionName,
@@ -66,6 +69,9 @@ export interface CombatActionHitOutcomeProperties {
     context: ActionResolutionStepContext,
     hitOutcomes: CombatActionHitOutcomes
   ) => null | ThreatChanges;
+  getOnUseTriggers: (
+    context: ActionResolutionStepContext
+  ) => Partial<ActivatedTriggersGameUpdateCommand>;
   flatThreatGeneratedOnHit?: Record<ThreatType, number>;
   flatThreatReducedOnMonsterVsPlayerHit?: Record<ThreatType, number>;
 }

@@ -1,6 +1,4 @@
 import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
-  ActionResolutionStepType,
   CombatActionReplayTreePayload,
   GameUpdateCommand,
   InputLock,
