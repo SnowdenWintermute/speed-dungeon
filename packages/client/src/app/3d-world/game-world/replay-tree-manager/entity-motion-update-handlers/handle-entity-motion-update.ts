@@ -1,8 +1,10 @@
 import {
   ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionEntityMotionGameUpdateCommand,
+  AdventuringParty,
   AnimationType,
   CombatantMotionGameUpdateCommand,
+  ERROR_MESSAGES,
   EntityMotionUpdate,
   SpawnableEntityType,
 } from "@speed-dungeon/common";
@@ -19,6 +21,8 @@ import { handleEntityMotionSetNewParentUpdate } from "./handle-entity-motion-set
 import { handleLockRotationToFace } from "./handle-lock-rotation-to-face";
 import { handleStartPointingTowardEntity } from "./handle-start-pointing-toward";
 import { handleEquipmentAnimations } from "./handle-equipment-animations";
+import { useGameStore } from "@/stores/game-store";
+import getParty from "@/utils/getParty";
 
 export function handleEntityMotionUpdate(
   update: {
@@ -64,6 +68,21 @@ export function handleEntityMotionUpdate(
         if (motionUpdate.despawnOnComplete) {
           console.log("despawn on complete motion update completed: ", motionUpdate.entityId);
           getGameWorld().actionEntityManager.unregister(motionUpdate.entityId);
+          useGameStore.getState().mutateState((state) => {
+            const partyResult = getParty(state.game, state.username);
+            if (partyResult instanceof Error) {
+              return console.error(partyResult);
+            } else {
+              if (!state.game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+
+              const battleOption = AdventuringParty.getBattleOption(partyResult, state.game);
+              AdventuringParty.unregisterActionEntity(
+                partyResult,
+                motionUpdate.entityId,
+                battleOption
+              );
+            }
+          });
         }
       };
       onAnimationComplete = () => {};

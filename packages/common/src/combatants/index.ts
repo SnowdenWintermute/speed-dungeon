@@ -442,7 +442,7 @@ export function createShimmedUserOfTriggeredCondition(
 }
 
 /* see createShimmedUserOfTriggeredCondition */
-export function createShimmedUserOfTriggeredEnvironmentalHazard(
+export function createShimmedUserOfActionEntityAction(
   name: string,
   hazardEntity: ActionEntity,
   primaryTargetId: EntityId

@@ -92,7 +92,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     battleOption.turnOrderManager.updateTrackers(game, party);
 
     console.log("marked turn ended", COMBAT_ACTION_NAME_STRINGS[actionName]);
-    sequentialActionManagerRegistry.markTurnEnded();
+    sequentialActionManagerRegistry.setTurnEnded();
     shouldSendEndActiveTurnMessage = true;
 
     // REFILL THE QUICK ACTIONS OF THE CURRENT TURN

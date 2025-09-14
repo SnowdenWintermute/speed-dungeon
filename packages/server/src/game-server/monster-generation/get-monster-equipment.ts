@@ -125,12 +125,12 @@ export function getMonsterEquipment(monsterType: MonsterType): CombatantEquipmen
       if (shieldType instanceof Error) shieldType = Shield.TowerShield;
       const wandResult = generateSpecificEquipmentType(
         {
+          equipmentType: EquipmentType.TwoHandedRangedWeapon,
+          baseItemType: TwoHandedRangedWeapon.CompositeBow,
+          // equipmentType: EquipmentType.OneHandedMeleeWeapon,
+          // baseItemType: OneHandedMeleeWeapon.Blade,
           // equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-          // equipmentType: EquipmentType.TwoHandedRangedWeapon,
-          equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.Blade,
           // baseItemType: TwoHandedMeleeWeapon.RottingBranch,
-          // baseItemType: TwoHandedRangedWeapon.CompositeBow,
         },
         {}
       );

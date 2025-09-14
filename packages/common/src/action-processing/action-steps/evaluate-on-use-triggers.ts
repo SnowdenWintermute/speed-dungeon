@@ -31,6 +31,7 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     const action = COMBAT_ACTIONS[actionName];
 
     const onUseTriggers = action.hitOutcomeProperties.getOnUseTriggers(context);
+    console.log("on use triggers:", onUseTriggers);
     Object.assign(gameUpdateCommand, onUseTriggers);
 
     const durabilityChanges = new DurabilityChangesByEntityId();

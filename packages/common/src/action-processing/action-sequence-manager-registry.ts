@@ -129,7 +129,7 @@ export class ActionSequenceManagerRegistry {
     return this.turnEnded;
   }
 
-  markTurnEnded() {
+  setTurnEnded() {
     this.turnEnded = true;
   }
 

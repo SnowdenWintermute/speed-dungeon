@@ -23,7 +23,9 @@ import { startOrStopCosmeticEffects } from "./start-or-stop-cosmetic-effect";
 import { induceHitRecovery } from "./induce-hit-recovery";
 import { postBrokenHoldableMessages } from "./post-broken-holdable-messages";
 import { handleThreatChangesUpdate } from "./handle-threat-changes";
+import getParty from "@/utils/getParty";
 
+// @REFACTOR
 export async function activatedTriggersGameUpdateHandler(update: {
   command: ActivatedTriggersGameUpdateCommand;
   isComplete: boolean;
@@ -38,6 +40,16 @@ export async function activatedTriggersGameUpdateHandler(update: {
   useGameStore.getState().mutateState((gameState) => {
     const game = gameState.game;
     if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+    const partyResult = getParty(game, gameState.username);
+    if (partyResult instanceof Error) throw partyResult;
+    const battleOption = AdventuringParty.getBattleOption(partyResult, game);
+
+    if (command.actionEntityIdsDespawned) {
+      for (const id of command.actionEntityIdsDespawned) {
+        AdventuringParty.unregisterActionEntity(partyResult, id, battleOption);
+        getGameWorld().actionEntityManager.unregister(id);
+      }
+    }
 
     if (command.supportClassLevelsGained !== undefined) {
       console.log("got supportClassLevelsGained:", command.supportClassLevelsGained);
@@ -94,11 +106,6 @@ export async function activatedTriggersGameUpdateHandler(update: {
               COMBATANT_CONDITION_CONSTRUCTORS[condition.name],
               condition
             );
-
-            const partyResult = gameState.getParty();
-            if (partyResult instanceof Error) throw partyResult;
-
-            const battleOption = AdventuringParty.getBattleOption(partyResult, game);
 
             CombatantCondition.applyToCombatant(
               condition,

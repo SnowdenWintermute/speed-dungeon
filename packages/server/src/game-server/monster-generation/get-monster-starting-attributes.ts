@@ -65,7 +65,7 @@ export function getMonsterStartingAttributes(monsterType: MonsterType): Combatan
       break;
     case MonsterType.Cultist:
       attributes[CombatAttribute.Spirit] = 6.0;
-      attributes[CombatAttribute.Hp] = 7.0;
+      attributes[CombatAttribute.Hp] = 70.0;
       // attributes[CombatAttribute.Hp] = 20.0;
       // attributes[CombatAttribute.Vitality] = 1.5;
       attributes[CombatAttribute.Strength] = 20; // @TESTING remove

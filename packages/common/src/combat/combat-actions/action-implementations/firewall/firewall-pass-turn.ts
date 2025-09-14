@@ -15,7 +15,10 @@ import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
-import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import {
+  createTargetingPropertiesConfig,
+  TARGETING_PROPERTIES_TEMPLATE_GETTERS,
+} from "../generic-action-templates/targeting-properties-config-templates/index.js";
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BENEVOLENT_CONSUMABLE,
@@ -29,9 +32,9 @@ const hitOutcomeProperties = createHitOutcomeProperties(
         throw new Error("expected user to have action entity shim properties");
       }
 
-      const existingFirewall = throwIfError(
-        AdventuringParty.getActionEntity(party, asShimmedActionEntity.entityProperties.id)
-      );
+      const firewallId = asShimmedActionEntity.entityProperties.id;
+
+      const existingFirewall = throwIfError(AdventuringParty.getActionEntity(party, firewallId));
 
       // reduce stacks
       const currentStacks =
@@ -50,36 +53,36 @@ const hitOutcomeProperties = createHitOutcomeProperties(
       if (newStacks === 0) {
         despawned = true;
         const battleOption = AdventuringParty.getBattleOption(party, game);
-        AdventuringParty.unregisterActionEntity(
-          party,
-          existingFirewall.entityProperties.id,
-          battleOption
-        );
+        AdventuringParty.unregisterActionEntity(party, firewallId, battleOption);
       }
 
       if (despawned) {
+        return { actionEntityIdsDespawned: [firewallId] };
+      } else {
+        return {
+          actionEntityChanges: { [firewallId]: { newStacks, newLevel: newActionLevel } },
+        };
       }
-      // send action entities updated []
-      // - action entity id
-      // - stack change
-      // - level change
-      // OR
-      // - action entity ids despawned []
-
-      return {};
     },
+  }
+);
+
+const targetingProperties = createTargetingPropertiesConfig(
+  TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME,
+  {
+    executionPreconditions: [],
   }
 );
 
 const config: CombatActionComponentConfig = {
   description: "Firewall consumes its fuel",
   prerequisiteAbilities: [],
-  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME(),
+  targetingProperties,
   combatLogMessageProperties: new CombatActionCombatLogProperties({
     getOnUseMessage: (data) => `${data.nameOfActionUser} burns down`,
   }),
 
-  hitOutcomeProperties: HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BENEVOLENT_CONSUMABLE(),
+  hitOutcomeProperties,
   costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_ACTION(),
   stepsConfig: new ActionResolutionStepsConfig(
     {

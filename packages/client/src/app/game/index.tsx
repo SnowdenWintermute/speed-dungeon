@@ -12,6 +12,7 @@ import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
 import CurrentItemUnmetRequirementsUpdater from "./CurrentItemUnmetRequirementsUpdater";
 import ActionMenuAndCharacterSheetLayer from "./ActionMenuAndCharacterSheetLayer";
 import { ZIndexLayers } from "../z-index-layers";
+import PersistentActionEntityDisplay from "./persistent-action-entity-display";
 
 export default function Game() {
   const game = useGameStore().game;
@@ -69,6 +70,9 @@ export default function Game() {
             <div className="flex justify-end">
               <div className="w-full">
                 <MonsterPlaques game={game} party={party} />
+              </div>
+              <div>
+                <PersistentActionEntityDisplay />
               </div>
             </div>
             <div className="flex flex-wrap justify-between">

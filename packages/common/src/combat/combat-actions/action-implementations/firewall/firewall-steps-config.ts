@@ -53,7 +53,8 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
     const baseFirewallLifetime = 1;
     const lifetime = new MaxAndCurrent(
       BASE_PERSISTENT_ACTION_ENTITY_MAX_STACKS,
-      actionLevel.current + baseFirewallLifetime
+      // actionLevel.current + baseFirewallLifetime
+      1
     );
 
     const actionOriginData: ActionEntityActionOriginData = {

@@ -6,14 +6,12 @@ import {
   ActionCommandType,
   AdventuringParty,
   Battle,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionExecutionIntent,
-  CombatActionName,
   CombatActionReplayTreePayload,
-  CombatActionTargetType,
   Combatant,
   CombatantCondition,
   CombatantContext,
-  ConditionTurnTracker,
   ERROR_MESSAGES,
   ServerToClientEvent,
   SpeedDungeonGame,
@@ -21,8 +19,7 @@ import {
   TaggedCombatantTurnTrackerCombatantId,
   TaggedConditionTurnTrackerConditionAndCombatantId,
   TurnTrackerEntityType,
-  createShimmedUserOfTriggeredCondition,
-  createShimmedUserOfTriggeredEnvironmentalHazard,
+  createShimmedUserOfActionEntityAction,
   getPartyChannelName,
   throwIfError,
 } from "@speed-dungeon/common";
@@ -233,7 +230,9 @@ function getNextActionIntentAndUserForActionEntity(
 
   const actionExecutionIntent = actionIntentGetterOption();
 
-  const dummyUser = createShimmedUserOfTriggeredEnvironmentalHazard(
+  console.log("got intent: ", COMBAT_ACTION_NAME_STRINGS[actionExecutionIntent.actionName]);
+
+  const dummyUser = createShimmedUserOfActionEntityAction(
     actionEntityResult.entityProperties.name,
     actionEntityResult,
     actionEntityResult.entityProperties.id

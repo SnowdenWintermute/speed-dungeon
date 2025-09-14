@@ -37,11 +37,15 @@ export class TurnOrderManager {
     const fastest = this.getFastestActorTurnOrderTracker();
     const tracker = this.turnSchedulerManager.getMatchingSchedulerFromTurnOrderTracker(fastest);
 
+    let speedResult = 0;
+    try {
+      speedResult = tracker.getSpeed(party);
+    } catch (err) {
+      console.error("couldn't get tracker speed, maybe its associated entity was already removed");
+    }
+
     // @TODO - get delay multiplier from action
-    const delay = TurnOrderManager.getActionDelayCost(
-      tracker.getSpeed(party),
-      BASE_ACTION_DELAY_MULTIPLIER
-    );
+    const delay = TurnOrderManager.getActionDelayCost(speedResult, BASE_ACTION_DELAY_MULTIPLIER);
 
     if (actionNameOption)
       console.log(

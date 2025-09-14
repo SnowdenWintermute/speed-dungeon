@@ -129,9 +129,6 @@ export class AdventuringParty {
   ) {
     console.log("unregistering", entityId);
     delete party.actionEntities[entityId];
-    if (battleOption) {
-      battleOption.turnOrderManager.turnSchedulerManager.removeStaleTurnSchedulers(party);
-    }
   }
 
   static getActionEntity(party: AdventuringParty, entityId: EntityId) {

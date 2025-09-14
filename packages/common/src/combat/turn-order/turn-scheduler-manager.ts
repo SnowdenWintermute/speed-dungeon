@@ -356,7 +356,6 @@ export class TurnSchedulerManager {
         if (shouldPush)
           turnTrackerList.push(new ConditionTurnTracker(combatantId, conditionId, timeOfNextMove));
       } else if (fastestActor instanceof ActionEntityTurnScheduler) {
-        console.log("action entity turn scheduler");
         const { actionEntityId, timeOfNextMove } = fastestActor;
         const actionEntityResult = AdventuringParty.getActionEntity(party, actionEntityId);
         if (actionEntityResult instanceof Error) throw actionEntityResult;
@@ -368,8 +367,6 @@ export class TurnSchedulerManager {
         if (actionOriginData.stacks === undefined) throw new Error("expected action entity stacks");
 
         const turnsRemaining = actionOriginData.stacks.current || 0;
-
-        console.log("action entity turns remaining:", turnsRemaining);
 
         let shouldPush = !!turnsRemaining;
         if (turnsRemaining) {
@@ -387,8 +384,6 @@ export class TurnSchedulerManager {
               numberOfTurnsConsumed;
           }
         }
-
-        console.log("action entity:", actionEntityId, "should push tracker:", shouldPush);
 
         if (shouldPush)
           turnTrackerList.push(new ActionEntityTurnTracker(actionEntityId, timeOfNextMove));
