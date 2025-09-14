@@ -149,9 +149,7 @@ export class CombatantProperties {
     condition: CombatantCondition;
     entityConditionWasAppliedTo: EntityId;
   };
-  asShimmedUserOfTriggeredEnvironmentalHazard?: {
-    hazardEntity: ActionEntity;
-  };
+  asShimmedActionEntity?: ActionEntity;
 
   aiTypes?: AiType[];
 
@@ -465,9 +463,7 @@ export function createShimmedUserOfTriggeredEnvironmentalHazard(
       new CombatantActionState(actionName, 1);
   });
 
-  combatant.combatantProperties.asShimmedUserOfTriggeredEnvironmentalHazard = {
-    hazardEntity,
-  };
+  combatant.combatantProperties.asShimmedActionEntity = hazardEntity;
 
   return combatant;
 }

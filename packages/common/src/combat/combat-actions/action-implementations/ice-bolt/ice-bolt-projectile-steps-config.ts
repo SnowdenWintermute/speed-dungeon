@@ -1,5 +1,9 @@
 import { Vector3 } from "@babylonjs/core";
-import { ActionEntityName, CosmeticEffectNames } from "../../../../action-entities/index.js";
+import {
+  ActionEntity,
+  ActionEntityName,
+  CosmeticEffectNames,
+} from "../../../../action-entities/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import {
   ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
@@ -38,9 +42,9 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
 
     return {
       type: SpawnableEntityType.ActionEntity,
-      actionEntity: {
-        entityProperties: { id: context.idGenerator.generate(), name: "" },
-        actionEntityProperties: {
+      actionEntity: new ActionEntity(
+        { id: context.idGenerator.generate(), name: "" },
+        {
           position,
           name: ActionEntityName.IceBolt,
           initialRotation: new Vector3(Math.PI / 2, 0, 0),
@@ -51,9 +55,15 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
             },
             transformNodeName: CombatantBaseChildTransformNodeName.OffhandEquipment,
           },
-          pointTowardEntityOption: target.entityProperties.id,
-        },
-      },
+          initialPointToward: {
+            sceneEntityIdentifier: {
+              type: SceneEntityType.CharacterModel,
+              entityId: target.entityProperties.id,
+            },
+            transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
+          },
+        }
+      ),
     };
   },
 };

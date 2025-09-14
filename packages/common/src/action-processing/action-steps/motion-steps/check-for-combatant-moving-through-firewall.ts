@@ -1,4 +1,3 @@
-import { Vector3 } from "@babylonjs/core";
 import { ActionEntity, ActionEntityName } from "../../../action-entities/index.js";
 import {
   COMBAT_ACTIONS,
@@ -6,7 +5,7 @@ import {
   CombatActionName,
   CombatActionTargetType,
 } from "../../../combat/index.js";
-import { BoxDimensions, ShapeType3D } from "../../../utils/shape-utils.js";
+import { ShapeType3D } from "../../../utils/shape-utils.js";
 import { ActionResolutionStepContext, ActionResolutionStepType } from "../index.js";
 import { TriggerEnvironmentalHazardsActionResolutionStep } from "./determine-environmental-hazard-triggers.js";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../../app-consts.js";
@@ -118,11 +117,9 @@ export function getFirewallBurnScheduledActions(
 
   const firewallUser = cloneDeep(user);
 
-  firewallUser.combatantProperties.asShimmedUserOfTriggeredEnvironmentalHazard = {
-    hazardEntity: existingFirewallOption,
-  };
+  firewallUser.combatantProperties.asShimmedActionEntity = existingFirewallOption;
   firewallBurnExecutionIntent.level =
-    existingFirewallOption.actionEntityProperties.actionOriginData?.actionLevel || 1;
+    existingFirewallOption.actionEntityProperties.actionOriginData?.actionLevel?.current || 1;
 
   const firewallBurnActionIntentWithUser = {
     user: firewallUser,

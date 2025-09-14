@@ -1,4 +1,4 @@
-import { ActionEntityName } from "../../../../action-entities/index.js";
+import { ActionEntity, ActionEntityName } from "../../../../action-entities/index.js";
 import {
   ActionResolutionStepType,
   AnimationTimingType,
@@ -36,13 +36,13 @@ stepsOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
 
     return {
       type: SpawnableEntityType.ActionEntity,
-      actionEntity: {
-        entityProperties: { id: context.idGenerator.generate(), name: "explosion" },
-        actionEntityProperties: {
+      actionEntity: new ActionEntity(
+        { id: context.idGenerator.generate(), name: "explosion" },
+        {
           position,
           name: ActionEntityName.Explosion,
-        },
-      },
+        }
+      ),
     };
   },
 };

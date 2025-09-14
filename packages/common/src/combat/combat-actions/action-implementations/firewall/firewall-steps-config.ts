@@ -18,6 +18,12 @@ import {
 } from "../../../../scene-entities/index.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
 import { BASE_PERSISTENT_ACTION_ENTITY_TICK_SPEED } from "../../../turn-order/consts.js";
+import { MaxAndCurrent } from "../../../../primatives/max-and-current.js";
+import {
+  BASE_PERSISTENT_ACTION_ENTITY_MAX_STACKS,
+  COMBAT_ACTION_MAX_LEVEL,
+  COMBATANT_MAX_LEVEL,
+} from "../../../../app-consts.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
@@ -40,9 +46,15 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
       dimensions,
     };
 
-    const actionLevel = user.combatantProperties.selectedActionLevel || 1;
+    const actionLevel = new MaxAndCurrent(
+      COMBAT_ACTION_MAX_LEVEL,
+      user.combatantProperties.selectedActionLevel || 1
+    );
     const baseFirewallLifetime = 1;
-    const lifetime = actionLevel + baseFirewallLifetime;
+    const lifetime = new MaxAndCurrent(
+      BASE_PERSISTENT_ACTION_ENTITY_MAX_STACKS,
+      actionLevel.current + baseFirewallLifetime
+    );
 
     const actionOriginData: ActionEntityActionOriginData = {
       actionLevel,
@@ -51,7 +63,7 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
         user.combatantProperties
       ),
       turnOrderSpeed: BASE_PERSISTENT_ACTION_ENTITY_TICK_SPEED,
-      turnsRemaining: lifetime,
+      stacks: lifetime,
     };
 
     return {

@@ -15,7 +15,6 @@ import { addCombatantLevelScaledAttributeToRange } from "../../../action-results
 import { CombatantProperties, CombatAttribute } from "../../../../combatants/index.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { createHitOutcomeProperties } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
-import { CombatActionName } from "../../combat-action-names.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 hitOutcomeOverrides.resourceChangePropertiesGetters = {
@@ -59,10 +58,9 @@ export const FIREWALL_BURN_HIT_OUTCOME_PROPERTIES = createHitOutcomeProperties(
 );
 
 function getFirewallBurnUserLevelAndAttributes(user: CombatantProperties) {
-  const { asShimmedUserOfTriggeredEnvironmentalHazard } = user;
-  if (asShimmedUserOfTriggeredEnvironmentalHazard) {
-    const { hazardEntity } = asShimmedUserOfTriggeredEnvironmentalHazard;
-    const { actionEntityProperties } = hazardEntity;
+  const { asShimmedActionEntity } = user;
+  if (asShimmedActionEntity) {
+    const { actionEntityProperties } = asShimmedActionEntity;
     const { actionOriginData } = actionEntityProperties;
     if (!actionOriginData) throw new Error("expected action origin data on firewall action entity");
     const { actionLevel, userCombatantAttributes, userElementalAffinities } = actionOriginData;

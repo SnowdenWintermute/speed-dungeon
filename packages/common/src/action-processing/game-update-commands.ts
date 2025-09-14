@@ -152,6 +152,8 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   removedConditionIds?: Record<EntityId, ConditionId[]>;
   threatChanges?: ThreatChanges;
   supportClassLevelsGained?: Record<EntityId, CombatantClass>;
+  actionEntityIdsDespawned?: EntityId[];
+  actionEntityChanges?: Record<EntityId, { newLevel: number; newStacks: number }>;
 }
 
 export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {

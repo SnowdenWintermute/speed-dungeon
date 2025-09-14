@@ -1,7 +1,7 @@
 export * from "./cosmetic-effect.js";
 export * from "./cosmetic-effect-constructors.js";
 import { Vector3 } from "@babylonjs/core";
-import { EntityProperties } from "../primatives/index.js";
+import { EntityProperties, MaxAndCurrent } from "../primatives/index.js";
 import {
   SceneEntityChildTransformNodeIdentifier,
   SceneEntityChildTransformNodeIdentifierWithDuration,
@@ -37,9 +37,9 @@ export const ACTION_ENTITY_STRINGS: Record<ActionEntityName, string> = {
 // for when things pass through firewall, we can know
 // what the caster's +bonus to fire damage was when they cast it
 export interface ActionEntityActionOriginData {
-  actionLevel?: number;
+  actionLevel?: MaxAndCurrent;
   turnOrderSpeed?: number;
-  turnsRemaining?: number;
+  stacks?: MaxAndCurrent;
   userCombatantAttributes?: CombatantAttributeRecord;
   userElementalAffinities?: Partial<Record<MagicalElement, number>>;
   userKineticAffinities?: Partial<Record<KineticDamageType, number>>;
@@ -62,6 +62,19 @@ export class ActionEntity {
     public entityProperties: EntityProperties,
     public actionEntityProperties: ActionEntityProperties
   ) {}
+
+  static setStacks(actionEnity: ActionEntity, value: number) {
+    const { actionOriginData } = actionEnity.actionEntityProperties;
+    if (!actionOriginData) throw new Error("expected actionOriginData on action entity");
+    if (actionOriginData.stacks === undefined) throw new Error("expected action entity stacks");
+    actionOriginData.stacks.setCurrent(value);
+  }
+  static setLevel(actionEnity: ActionEntity, value: number) {
+    const { actionOriginData } = actionEnity.actionEntityProperties;
+    if (!actionOriginData) throw new Error("expected actionOriginData on action entity");
+    if (actionOriginData.actionLevel === undefined) throw new Error("expected action entity level");
+    actionOriginData.actionLevel.setCurrent(value);
+  }
 }
 
 export const ACTION_ENTITY_ACTION_INTENT_GETTERS: Partial<

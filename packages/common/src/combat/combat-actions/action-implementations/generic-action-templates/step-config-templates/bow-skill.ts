@@ -42,7 +42,7 @@ import {
   SceneEntityChildTransformNodeIdentifierWithDuration,
   SceneEntityType,
 } from "../../../../../scene-entities/index.js";
-import { ActionEntityName } from "../../../../../action-entities/index.js";
+import { ActionEntity, ActionEntityName } from "../../../../../action-entities/index.js";
 import { Vector3 } from "@babylonjs/core";
 
 const base = cloneDeep(PROJECTILE_SKILL_STEPS_CONFIG);
@@ -86,9 +86,9 @@ base.steps = {
 
       const spawnableEntity: SpawnableEntity = {
         type: SpawnableEntityType.ActionEntity,
-        actionEntity: {
-          entityProperties: { id: context.idGenerator.generate(), name: "" },
-          actionEntityProperties: {
+        actionEntity: new ActionEntity(
+          { id: context.idGenerator.generate(), name: "" },
+          {
             position,
             name: ActionEntityName.Arrow,
             initialRotation: new Vector3(Math.PI / 2, 0, 0),
@@ -99,8 +99,8 @@ base.steps = {
               },
               transformNodeName: CombatantBaseChildTransformNodeName.MainHandEquipment,
             },
-          },
-        },
+          }
+        ),
       };
 
       return spawnableEntity;

@@ -365,8 +365,9 @@ export class TurnSchedulerManager {
         const { actionOriginData } = actionEntity.actionEntityProperties;
         if (actionOriginData === undefined)
           throw new Error("expected actionOriginData for an action entity with a turn scheduler");
+        if (actionOriginData.stacks === undefined) throw new Error("expected action entity stacks");
 
-        const turnsRemaining = actionOriginData.turnsRemaining || 0;
+        const turnsRemaining = actionOriginData.stacks.current || 0;
 
         console.log("action entity turns remaining:", turnsRemaining);
 

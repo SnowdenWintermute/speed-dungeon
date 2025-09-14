@@ -1,4 +1,8 @@
-import { ActionEntityName, ActionEntityProperties } from "../../../../action-entities/index.js";
+import {
+  ActionEntity,
+  ActionEntityName,
+  ActionEntityProperties,
+} from "../../../../action-entities/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import {
@@ -104,10 +108,10 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
 
     return {
       type: SpawnableEntityType.ActionEntity,
-      actionEntity: {
-        entityProperties: { id: context.idGenerator.generate(), name: "" },
-        actionEntityProperties,
-      },
+      actionEntity: new ActionEntity(
+        { id: context.idGenerator.generate(), name: "chaining split arrow projectile" },
+        actionEntityProperties
+      ),
     };
   },
 };
