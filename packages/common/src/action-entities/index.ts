@@ -63,6 +63,16 @@ export class ActionEntity {
     public actionEntityProperties: ActionEntityProperties
   ) {}
 
+  static hydrate(actionEntity: ActionEntity) {
+    const { actionOriginData } = actionEntity.actionEntityProperties;
+    if (actionOriginData) {
+      const { actionLevel, stacks } = actionOriginData;
+      if (actionLevel)
+        actionOriginData.actionLevel = new MaxAndCurrent(actionLevel.max, actionLevel.current);
+      if (stacks) actionOriginData.stacks = new MaxAndCurrent(stacks.max, stacks.current);
+    }
+  }
+
   static setStacks(actionEnity: ActionEntity, value: number) {
     const { actionOriginData } = actionEnity.actionEntityProperties;
     if (!actionOriginData) throw new Error("expected actionOriginData on action entity");

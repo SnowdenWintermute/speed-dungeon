@@ -1,5 +1,6 @@
 import { useGameStore } from "@/stores/game-store";
 import {
+  ActionEntity,
   ActionPayableResource,
   ActivatedTriggersGameUpdateCommand,
   AdventuringParty,
@@ -16,6 +17,7 @@ import {
   HitPointChanges,
   SpeedDungeonGame,
   iterateNumericEnumKeyedRecord,
+  throwIfError,
 } from "@speed-dungeon/common";
 import { getGameWorld } from "../../SceneManager";
 import { plainToInstance } from "class-transformer";
@@ -47,6 +49,15 @@ export async function activatedTriggersGameUpdateHandler(update: {
       for (const id of command.actionEntityIdsDespawned) {
         AdventuringParty.unregisterActionEntity(partyResult, id, battleOption);
         getGameWorld().actionEntityManager.unregister(id);
+      }
+    }
+
+    if (command.actionEntityChanges) {
+      for (const [id, changes] of Object.entries(command.actionEntityChanges)) {
+        const { newStacks, newLevel } = changes;
+        const actionEntity = throwIfError(AdventuringParty.getActionEntity(partyResult, id));
+        ActionEntity.setLevel(actionEntity, newLevel);
+        ActionEntity.setStacks(actionEntity, newStacks);
       }
     }
 

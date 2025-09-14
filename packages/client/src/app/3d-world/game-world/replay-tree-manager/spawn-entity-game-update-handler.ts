@@ -1,4 +1,5 @@
 import {
+  ActionEntity,
   AdventuringParty,
   ERROR_MESSAGES,
   SpawnEntityGameUpdateCommand,
@@ -15,6 +16,7 @@ import { handleStartPointingTowardEntity } from "./entity-motion-update-handlers
 import { handleLockRotationToFace } from "./entity-motion-update-handlers/handle-lock-rotation-to-face";
 import { useGameStore } from "@/stores/game-store";
 import getParty from "@/utils/getParty";
+import { plainToInstance } from "class-transformer";
 
 export async function spawnEntityGameUpdateHandler(update: {
   command: SpawnEntityGameUpdateCommand;
@@ -59,6 +61,9 @@ export async function spawnEntityGameUpdateHandler(update: {
     if (!(partyResult instanceof Error)) {
       if (state.game === null) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
       const battleOption = AdventuringParty.getBattleOption(partyResult, state.game);
+
+      ActionEntity.hydrate(actionEntity);
+
       AdventuringParty.registerActionEntity(partyResult, actionEntity, battleOption);
     }
   });

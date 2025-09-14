@@ -398,8 +398,6 @@ export class TurnSchedulerManager {
       fastestActor.timeOfNextMove += delay;
     }
 
-    console.log("built new list:", turnTrackerList);
-
     return turnTrackerList;
   }
 }

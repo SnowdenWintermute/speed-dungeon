@@ -45,6 +45,9 @@ const hitOutcomeProperties = createHitOutcomeProperties(
       // set level of existingFirewall to min(existingFirewall.level, existingFirewall.stacks)
       const currentFirewallLevel =
         existingFirewall.actionEntityProperties.actionOriginData?.actionLevel?.current || 0;
+
+      console.log("currentFirewallLevel:", currentFirewallLevel);
+
       const newActionLevel = Math.min(currentFirewallLevel, newStacks);
       ActionEntity.setLevel(existingFirewall, newActionLevel);
 
