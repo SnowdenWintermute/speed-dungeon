@@ -11,8 +11,8 @@ export function allCombatantsInGroupAreDead(
     if (combatantResult instanceof Error) return combatantResult;
     const { combatantProperties } = combatantResult;
     const isDead = CombatantProperties.isDead(combatantProperties);
-    console.log("id:", id, "isDead:", isDead, combatantProperties.hitPoints);
-    if (!CombatantProperties.isDead(combatantProperties)) return false;
+    const isAlive = !isDead;
+    if (isAlive) return false;
   }
 
   return true;
