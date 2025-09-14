@@ -36,7 +36,6 @@ export class SpawnEntityActionResolutionStep extends ActionResolutionStep {
           taggedSpawnableEntity.actionEntity,
           battleOption
         );
-        battleOption?.turnOrderManager.updateTrackers(game, party);
     }
 
     context.tracker.spawnedEntityOption = taggedSpawnableEntity;

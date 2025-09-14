@@ -144,7 +144,7 @@ export class TurnSchedulerManager {
     return schedulerOption;
   }
 
-  removeStaleTurnSchedulers(party: AdventuringParty) {
+  private removeStaleTurnSchedulers(party: AdventuringParty) {
     const idsToRemove: TaggedTurnTrackerTrackedEntityId[] = [];
 
     // @REFACTOR
@@ -178,6 +178,7 @@ export class TurnSchedulerManager {
         const actionEntity = AdventuringParty.getActionEntity(party, scheduler.actionEntityId);
         if (actionEntity instanceof Error) {
           console.log("removeStaleTurnSchedulers action entity:", scheduler.actionEntityId);
+
           idsToRemove.push({
             type: TurnTrackerEntityType.ActionEntity,
             actionEntityId: scheduler.actionEntityId,
@@ -222,7 +223,7 @@ export class TurnSchedulerManager {
     });
   }
 
-  resetTurnSchedulers(party: AdventuringParty) {
+  private resetTurnSchedulers(party: AdventuringParty) {
     this.removeStaleTurnSchedulers(party);
 
     for (const scheduler of this.schedulers) {
@@ -237,7 +238,7 @@ export class TurnSchedulerManager {
     }
   }
 
-  sortSchedulers(sortBy: TurnTrackerSortableProperty, party: AdventuringParty) {
+  private sortSchedulers(sortBy: TurnTrackerSortableProperty, party: AdventuringParty) {
     switch (sortBy) {
       case TurnTrackerSortableProperty.TimeOfNextMove:
         this.schedulers.sort((a, b) => {
@@ -396,6 +397,8 @@ export class TurnSchedulerManager {
 
       fastestActor.timeOfNextMove += delay;
     }
+
+    console.log("built new list:", turnTrackerList);
 
     return turnTrackerList;
   }

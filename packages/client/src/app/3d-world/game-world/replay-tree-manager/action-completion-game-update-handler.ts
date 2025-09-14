@@ -1,8 +1,10 @@
 import getCurrentParty from "@/utils/getCurrentParty";
 import { useGameStore } from "@/stores/game-store";
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionCompletionUpdateCommand,
   AdventuringParty,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatantProperties,
   CombatantTurnTracker,
   ERROR_MESSAGES,
@@ -46,6 +48,12 @@ export async function actionCompletionGameUpdateHandler(update: {
       }
 
       battleOption.turnOrderManager.updateTrackers(state.game, partyOption);
+      console.log(
+        "updated trackers after update from",
+        COMBAT_ACTION_NAME_STRINGS[update.command.actionName],
+        "step",
+        ACTION_RESOLUTION_STEP_TYPE_STRINGS[update.command.step]
+      );
       const newlyActiveTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
       characterAutoFocusManager.updateFocusedCharacterOnNewTurnOrder(state, newlyActiveTracker);
     });

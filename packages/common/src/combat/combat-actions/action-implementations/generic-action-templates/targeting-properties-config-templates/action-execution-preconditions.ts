@@ -89,7 +89,6 @@ function userIsAlive(
   self: CombatActionComponent
 ) {
   const { combatant } = context.combatantContext;
-  console.log("userIsAlive: ", !CombatantProperties.isDead(combatant.combatantProperties));
   return !CombatantProperties.isDead(combatant.combatantProperties);
 }
 
@@ -102,14 +101,7 @@ function targetsAreAlive(
 
   const targetsOption = context.tracker.actionExecutionIntent.targets;
 
-  console.log(
-    COMBAT_ACTION_NAME_STRINGS[self.name],
-    "targetsOption in targetsAreAlive:",
-    targetsOption
-  );
-
   if (!targetsOption) {
-    console.log("NO TARGETS, RETURNING FALSE");
     return false;
   }
 
@@ -125,7 +117,6 @@ function targetsAreAlive(
   }
 
   if (targetIdsResult.length === 0) {
-    console.log("TARGET IDS ARE LENGTH 0, RETURNING FALSE");
     return false;
   }
 

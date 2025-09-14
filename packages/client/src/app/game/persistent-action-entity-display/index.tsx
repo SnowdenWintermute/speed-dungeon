@@ -1,5 +1,5 @@
 import { useGameStore } from "@/stores/game-store";
-import { ACTION_ENTITY_STRINGS, ActionEntity } from "@speed-dungeon/common";
+import { ACTION_ENTITY_STRINGS, ActionEntity, AdventuringParty } from "@speed-dungeon/common";
 import React from "react";
 
 interface Props {}
@@ -8,6 +8,10 @@ export default function PersistentActionEntityDisplay(props: Props) {
   const partyResult = useGameStore().getParty();
   if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
   const party = partyResult;
+
+  const game = useGameStore().game;
+  if (game === null) return <div>no game</div>;
+  const battleOption = AdventuringParty.getBattleOption(party, game);
 
   return (
     <ul className="h-10 border list-none">

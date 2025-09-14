@@ -83,7 +83,6 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   let shouldSendEndActiveTurnMessage = false;
   const threatChanges = new ThreatChanges();
   if (requiredTurn && !turnAlreadyEnded && battleOption) {
-    console.log("required turn");
     // if they died on their own turn we should not end the active combatant's turn because
     // we would have already removed their turn tracker on death
     const { actionName } = tracker.actionExecutionIntent;
@@ -91,7 +90,6 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     battleOption.turnOrderManager.updateSchedulerWithExecutedActionDelay(party, actionName);
     battleOption.turnOrderManager.updateTrackers(game, party);
 
-    console.log("marked turn ended", COMBAT_ACTION_NAME_STRINGS[actionName]);
     sequentialActionManagerRegistry.setTurnEnded();
     shouldSendEndActiveTurnMessage = true;
 
@@ -141,8 +139,15 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   };
 
   if (!threatChanges.isEmpty()) gameUpdateCommandOption.threatChanges = threatChanges;
-  if (shouldSendEndActiveTurnMessage) gameUpdateCommandOption.endActiveCombatantTurn = true;
-
+  if (shouldSendEndActiveTurnMessage) {
+    console.log("sending shouldSendEndActiveTurnMessage", COMBAT_ACTION_NAME_STRINGS[action.name]);
+    gameUpdateCommandOption.endActiveCombatantTurn = true;
+  } else {
+    console.log(
+      "NOT sending shouldSendEndActiveTurnMessage",
+      COMBAT_ACTION_NAME_STRINGS[action.name]
+    );
+  }
   if (shouldUnlockInput) {
     gameUpdateCommandOption.unlockInput = true;
     InputLock.unlockInput(party.inputLock);

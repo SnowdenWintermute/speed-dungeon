@@ -70,8 +70,6 @@ config.options.getFinalSteps = (self, context) => {
   const offhandAttack = COMBAT_ACTIONS[CombatActionName.AttackMeleeOffhand];
   const offhandShouldExecute = offhandAttack.shouldExecute(context, context.tracker);
 
-  console.log("offhandShouldExecute:", offhandShouldExecute);
-
   const { combatant } = context.combatantContext;
   if (CombatantProperties.isDead(combatant.combatantProperties)) {
     return {

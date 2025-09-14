@@ -43,8 +43,8 @@ export enum ActionResolutionStepType {
   // and FinalPositioning and just do RecoveryMotion
   // if doing offhand attack instead of return home directly after mainhand attack
   PreFinalPositioningCheckEnvironmentalHazardTriggers,
-  EvaluatePlayerEndTurnAndInputLock,
   RemoveTickedConditionStacks,
+  EvaluatePlayerEndTurnAndInputLock,
   ActionEntityDissipationMotion,
   RecoveryMotion,
   FinalPositioning,

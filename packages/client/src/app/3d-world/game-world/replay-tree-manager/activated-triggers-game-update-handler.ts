@@ -31,7 +31,6 @@ export async function activatedTriggersGameUpdateHandler(update: {
   isComplete: boolean;
 }) {
   const { command } = update;
-  console.log("COMMAND: ", command, JSON.stringify(command));
 
   // keep track outside of the mutateState so we can post messages after mutating state
   // because posting messages also needs to mutate state and looks cleaner if it separately handles that
@@ -52,7 +51,6 @@ export async function activatedTriggersGameUpdateHandler(update: {
     }
 
     if (command.supportClassLevelsGained !== undefined) {
-      console.log("got supportClassLevelsGained:", command.supportClassLevelsGained);
       for (const [entityId, combatantClass] of Object.entries(command.supportClassLevelsGained)) {
         const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
         if (combatantResult instanceof Error) return combatantResult;
@@ -126,6 +124,7 @@ export async function activatedTriggersGameUpdateHandler(update: {
     }
 
     if (command.removedConditionStacks) {
+      console.log("removedConditionStacks:", command.removedConditionStacks);
       for (const [entityId, conditionIdAndStacks] of Object.entries(
         command.removedConditionStacks
       )) {
@@ -151,6 +150,7 @@ export async function activatedTriggersGameUpdateHandler(update: {
     }
 
     if (command.removedConditionIds) {
+      console.log("removedConditionIds:", command.removedConditionIds);
       for (const [entityId, conditionIdsRemoved] of Object.entries(command.removedConditionIds)) {
         for (const conditionId of conditionIdsRemoved) {
           const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
@@ -175,15 +175,15 @@ export async function activatedTriggersGameUpdateHandler(update: {
     handleThreatChangesUpdate(update.command);
   });
 
-  // conditions may have added trackers that we need to account for
-  useGameStore.getState().mutateState((gameState) => {
-    const game = gameState.game;
-    if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-    const partyResult = gameState.getParty();
-    if (partyResult instanceof Error) throw partyResult;
-    const battleOption = AdventuringParty.getBattleOption(partyResult, game);
-    battleOption?.turnOrderManager.updateTrackers(game, partyResult);
-  });
+  // // conditions or action entities may have added or removed trackers that we need to account for
+  // useGameStore.getState().mutateState((gameState) => {
+  //   const game = gameState.game;
+  //   if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+  //   const partyResult = gameState.getParty();
+  //   if (partyResult instanceof Error) throw partyResult;
+  //   const battleOption = AdventuringParty.getBattleOption(partyResult, game);
+  //   battleOption?.turnOrderManager.updateTrackers(game, partyResult);
+  // });
 
   for (const { ownerId, equipment } of brokenHoldablesAndTheirOwnerIds)
     postBrokenHoldableMessages(ownerId, equipment);

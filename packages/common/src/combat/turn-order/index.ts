@@ -41,7 +41,7 @@ export class TurnOrderManager {
     try {
       speedResult = tracker.getSpeed(party);
     } catch (err) {
-      console.error("couldn't get tracker speed, maybe its associated entity was already removed");
+      console.info("couldn't get tracker speed, maybe its associated entity was already removed");
     }
 
     // @TODO - get delay multiplier from action

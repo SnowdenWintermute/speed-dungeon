@@ -57,12 +57,6 @@ export class HitOutcomeMitigationCalculator {
     const user = this.user.combatantProperties;
     const target = this.targetCombatant.combatantProperties;
 
-    console.log(
-      COMBAT_ACTION_NAME_STRINGS[this.action.name],
-      "getting hit chance on target:",
-      this.targetCombatant.entityProperties.id,
-      this.targetCombatant.combatantProperties.hitPoints
-    );
     const percentChanceToHit = HitOutcomeMitigationCalculator.getActionHitChance(
       this.action,
       user,

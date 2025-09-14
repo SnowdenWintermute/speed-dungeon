@@ -60,7 +60,6 @@ export async function spawnEntityGameUpdateHandler(update: {
       if (state.game === null) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
       const battleOption = AdventuringParty.getBattleOption(partyResult, state.game);
       AdventuringParty.registerActionEntity(partyResult, actionEntity, battleOption);
-      battleOption?.turnOrderManager.updateTrackers(state.game, partyResult);
     }
   });
 

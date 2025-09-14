@@ -39,8 +39,6 @@ export default function newDungeonRoomHandler({
     const party = getCurrentParty(gameState, gameState.username || "");
     if (party === undefined) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY));
 
-    console.log("got unregistered:", actionEntitiesToRemove);
-
     for (const actionEntityId of actionEntitiesToRemove) {
       AdventuringParty.unregisterActionEntity(party, actionEntityId, null);
       getGameWorld().actionEntityManager.unregister(actionEntityId);

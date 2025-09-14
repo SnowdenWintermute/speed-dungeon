@@ -33,12 +33,8 @@ export default function TopInfoBar() {
 
   function leaveGame() {
     mutateGameState((state) => {
-      console.log("null game");
       const partyResult = getParty(state.game, state.username);
-      console.log("party result:", partyResult);
       if (!(partyResult instanceof Error)) {
-        console.log("cleaning action entities on null game");
-        console.log(JSON.stringify(partyResult.actionEntities));
         for (const [entityId, entity] of Object.entries(partyResult.actionEntities)) {
           AdventuringParty.unregisterActionEntity(partyResult, entity.entityProperties.id, null);
           getGameWorld().actionEntityManager.unregister(entity.entityProperties.id);

@@ -230,8 +230,6 @@ function getNextActionIntentAndUserForActionEntity(
 
   const actionExecutionIntent = actionIntentGetterOption();
 
-  console.log("got intent: ", COMBAT_ACTION_NAME_STRINGS[actionExecutionIntent.actionName]);
-
   const dummyUser = createShimmedUserOfActionEntityAction(
     actionEntityResult.entityProperties.name,
     actionEntityResult,
