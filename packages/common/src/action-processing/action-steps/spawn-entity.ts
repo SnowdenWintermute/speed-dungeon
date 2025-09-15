@@ -18,35 +18,40 @@ export class SpawnEntityActionResolutionStep extends ActionResolutionStep {
     if (!stepConfig) throw new Error("expected step config not found");
     const { getSpawnableEntity } = stepConfig;
     if (!getSpawnableEntity) {
-      const message = `no spawnable entity for this step ${COMBAT_ACTION_NAME_STRINGS[action.name]} ${ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepType]}`;
+      const message = `no spawnable entity getter for this step ${COMBAT_ACTION_NAME_STRINGS[action.name]} ${ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepType]}`;
       throw new Error(message);
     }
 
-    const taggedSpawnableEntity = getSpawnableEntity(context);
+    let gameUpdateCommand: SpawnEntityGameUpdateCommand | null = null;
 
-    const { game, party } = context.combatantContext;
-    const battleOption = context.combatantContext.getBattleOption();
+    const taggedSpawnableEntityOption = getSpawnableEntity(context);
+    if (taggedSpawnableEntityOption !== null) {
+      const taggedSpawnableEntity = taggedSpawnableEntityOption;
 
-    switch (taggedSpawnableEntity.type) {
-      case SpawnableEntityType.Combatant:
-        throw new Error("not yet implemeneted");
-      case SpawnableEntityType.ActionEntity:
-        AdventuringParty.registerActionEntity(
-          party,
-          taggedSpawnableEntity.actionEntity,
-          battleOption
-        );
+      const { game, party } = context.combatantContext;
+      const battleOption = context.combatantContext.getBattleOption();
+
+      switch (taggedSpawnableEntity.type) {
+        case SpawnableEntityType.Combatant:
+          throw new Error("not yet implemeneted");
+        case SpawnableEntityType.ActionEntity:
+          AdventuringParty.registerActionEntity(
+            party,
+            taggedSpawnableEntity.actionEntity,
+            battleOption
+          );
+      }
+
+      context.tracker.spawnedEntityOption = taggedSpawnableEntity;
+
+      gameUpdateCommand = {
+        type: GameUpdateCommandType.SpawnEntity,
+        step: stepType,
+        actionName: context.tracker.actionExecutionIntent.actionName,
+        completionOrderId: null,
+        entity: cloneDeep(taggedSpawnableEntity),
+      };
     }
-
-    context.tracker.spawnedEntityOption = taggedSpawnableEntity;
-
-    const gameUpdateCommand: SpawnEntityGameUpdateCommand = {
-      type: GameUpdateCommandType.SpawnEntity,
-      step: stepType,
-      actionName: context.tracker.actionExecutionIntent.actionName,
-      completionOrderId: null,
-      entity: cloneDeep(taggedSpawnableEntity),
-    };
 
     super(stepType, context, gameUpdateCommand);
   }

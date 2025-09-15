@@ -71,7 +71,7 @@ export interface ActionResolutionStepConfig {
     animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>
   ): EquipmentAnimation[];
   //an arrow to have been spawned
-  getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
+  getSpawnableEntity?: (context: ActionResolutionStepContext) => null | SpawnableEntity;
   getAuxiliaryEntityMotions?(context: ActionResolutionStepContext): EntityMotionUpdate[];
   getFollowupActions?: (context: ActionResolutionStepContext) => {
     user: Combatant;

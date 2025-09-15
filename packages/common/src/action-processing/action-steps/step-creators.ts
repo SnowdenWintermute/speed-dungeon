@@ -74,14 +74,14 @@ export const ACTION_STEP_CREATORS: Record<
   [ActionResolutionStepType.OnActivationSpawnEntity]: (context) =>
     new SpawnEntityActionResolutionStep(context, ActionResolutionStepType.OnActivationSpawnEntity),
   [ActionResolutionStepType.OnActivationActionEntityMotion]: (context) => {
-    const expectedProjectileEntityOption = context.tracker.spawnedEntityOption;
-    if (!expectedProjectileEntityOption) throw new Error("expected projectile was missing");
-    if (expectedProjectileEntityOption.type !== SpawnableEntityType.ActionEntity)
+    const expectedActionEntityEntityOption = context.tracker.spawnedEntityOption;
+    if (!expectedActionEntityEntityOption) throw new Error("expected action entity was missing");
+    if (expectedActionEntityEntityOption.type !== SpawnableEntityType.ActionEntity)
       throw new Error("expected entity was of invalid type");
     return new ActionEntityMotionActionResolutionStep(
       context,
       ActionResolutionStepType.OnActivationActionEntityMotion,
-      expectedProjectileEntityOption.actionEntity
+      expectedActionEntityEntityOption.actionEntity
     );
   },
   [ActionResolutionStepType.RollIncomingHitOutcomes]: (context) =>

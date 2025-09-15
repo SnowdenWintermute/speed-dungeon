@@ -36,17 +36,17 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 
       const existingFirewall = throwIfError(AdventuringParty.getActionEntity(party, firewallId));
 
+      const { actionOriginData } = existingFirewall.actionEntityProperties;
+      if (actionOriginData === undefined)
+        throw new Error("expected firewall to have action origin data");
+
       // reduce stacks
-      const currentStacks =
-        existingFirewall.actionEntityProperties.actionOriginData?.stacks?.current || 0;
+      const currentStacks = actionOriginData.stacks?.current || 0;
       const newStacks = Math.max(0, currentStacks - 1);
       ActionEntity.setStacks(existingFirewall, newStacks);
 
       // set level of existingFirewall to min(existingFirewall.level, existingFirewall.stacks)
-      const currentFirewallLevel =
-        existingFirewall.actionEntityProperties.actionOriginData?.actionLevel?.current || 0;
-
-      console.log("currentFirewallLevel:", currentFirewallLevel);
+      const currentFirewallLevel = actionOriginData.actionLevel?.current || 0;
 
       const newActionLevel = Math.min(currentFirewallLevel, newStacks);
       ActionEntity.setLevel(existingFirewall, newActionLevel);
@@ -63,7 +63,12 @@ const hitOutcomeProperties = createHitOutcomeProperties(
         return { actionEntityIdsDespawned: [firewallId] };
       } else {
         return {
-          actionEntityChanges: { [firewallId]: { newStacks, newLevel: newActionLevel } },
+          actionEntityChanges: {
+            [firewallId]: {
+              stacks: actionOriginData.stacks,
+              actionLevel: actionOriginData.actionLevel,
+            },
+          },
         };
       }
     },

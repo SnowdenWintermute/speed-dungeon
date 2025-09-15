@@ -22,14 +22,29 @@ import { MaxAndCurrent } from "../../../../primatives/max-and-current.js";
 import {
   BASE_PERSISTENT_ACTION_ENTITY_MAX_STACKS,
   COMBAT_ACTION_MAX_LEVEL,
-  COMBATANT_MAX_LEVEL,
 } from "../../../../app-consts.js";
+import { AdventuringParty } from "../../../../adventuring-party/index.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
 stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
   getSpawnableEntity: (context) => {
     const { party, combatant: user } = context.combatantContext;
+
+    const existingFirewallOption = AdventuringParty.getExistingActionEntityOfType(
+      party,
+      ActionEntityName.Firewall
+    );
+
+    if (existingFirewallOption !== null) {
+      // so it can be targeted by the on activation motion step
+      context.tracker.spawnedEntityOption = {
+        type: SpawnableEntityType.ActionEntity,
+        actionEntity: existingFirewallOption,
+      };
+      // don't spawn it again
+      return null;
+    }
 
     const position = Vector3.Zero();
 
@@ -50,10 +65,10 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
       COMBAT_ACTION_MAX_LEVEL,
       user.combatantProperties.selectedActionLevel || 1
     );
-    const baseFirewallLifetime = 1;
+
     const lifetime = new MaxAndCurrent(
       BASE_PERSISTENT_ACTION_ENTITY_MAX_STACKS,
-      actionLevel.current + baseFirewallLifetime
+      getFirewallStacksByLevel(actionLevel.current)
     );
 
     const actionOriginData: ActionEntityActionOriginData = {
@@ -82,10 +97,27 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
 };
 
 stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
+  getCosmeticEffectsToStop(context) {
+    const expectedFirewallEntity = context.tracker.spawnedEntityOption;
+    if (expectedFirewallEntity === null) throw new Error("expected firewall entity not found");
+    if (expectedFirewallEntity.type != SpawnableEntityType.ActionEntity)
+      throw new Error("expected firewall entity to be action enity");
+    return [
+      {
+        name: CosmeticEffectNames.FirewallParticles,
+        parent: {
+          sceneEntityIdentifier: {
+            type: SceneEntityType.ActionEntityModel,
+            entityId: expectedFirewallEntity.actionEntity.entityProperties.id,
+          },
+          transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
+        },
+      },
+    ];
+  },
   getCosmeticEffectsToStart: (context) => {
     const expectedFirewallEntity = context.tracker.spawnedEntityOption;
-    if (expectedFirewallEntity === null)
-      throw new Error("expected to have spawned firewall entity");
+    if (expectedFirewallEntity === null) throw new Error("expected firewall entity not found");
     if (expectedFirewallEntity.type != SpawnableEntityType.ActionEntity)
       throw new Error("expected firewall entity to be action enity");
     return [
@@ -112,3 +144,8 @@ const stepsConfig = createStepsConfig(() => base, {
 });
 
 export const FIREWALL_STEPS_CONFIG = stepsConfig;
+
+export function getFirewallStacksByLevel(actionLevel: number) {
+  const baseFirewallLifetime = 1;
+  return actionLevel + baseFirewallLifetime;
+}

@@ -54,10 +54,10 @@ export async function activatedTriggersGameUpdateHandler(update: {
 
     if (command.actionEntityChanges) {
       for (const [id, changes] of Object.entries(command.actionEntityChanges)) {
-        const { newStacks, newLevel } = changes;
+        const { actionLevel, stacks } = changes;
         const actionEntity = throwIfError(AdventuringParty.getActionEntity(partyResult, id));
-        ActionEntity.setLevel(actionEntity, newLevel);
-        ActionEntity.setStacks(actionEntity, newStacks);
+        if (actionLevel !== undefined) ActionEntity.setLevel(actionEntity, actionLevel.current);
+        if (stacks !== undefined) ActionEntity.setStacks(actionEntity, stacks.current);
       }
     }
 

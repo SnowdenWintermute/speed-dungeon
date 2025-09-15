@@ -14,7 +14,7 @@ import { Combatant, CombatantCondition, CombatantProperties } from "../combatant
 import { ActionCommandQueue } from "../action-processing/action-command-queue.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { ActionEntity } from "../action-entities/index.js";
+import { ActionEntity, ActionEntityName } from "../action-entities/index.js";
 import { Battle } from "../battle/index.js";
 import { TurnTrackerEntityType } from "../combat/index.js";
 export * from "./get-item-in-party.js";
@@ -135,6 +135,16 @@ export class AdventuringParty {
     const entityOption = party.actionEntities[entityId];
     if (entityOption === undefined) return new Error(ERROR_MESSAGES.ACTION_ENTITIES.NOT_FOUND);
     return entityOption;
+  }
+
+  static getExistingActionEntityOfType(
+    party: AdventuringParty,
+    actionEntityType: ActionEntityName
+  ) {
+    for (const actionEntity of Object.values(party.actionEntities)) {
+      if (actionEntity.actionEntityProperties.name === actionEntityType) return actionEntity;
+    }
+    return null;
   }
 
   static unregisterActionEntitiesOnBattleEndOrNewRoom(

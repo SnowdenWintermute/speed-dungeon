@@ -14,7 +14,7 @@ import { Combatant, CombatantClass, CombatantCondition } from "../combatants/ind
 import { SpawnableEntity, SpawnableEntityType } from "../spawnables/index.js";
 import { DurabilityChangesByEntityId } from "../durability/index.js";
 import { HitOutcome } from "../hit-outcome.js";
-import { ActionEntity } from "../action-entities/index.js";
+import { ActionEntity, ActionEntityActionOriginData } from "../action-entities/index.js";
 import {
   SceneEntityChildTransformNodeIdentifier,
   SceneEntityChildTransformNodeIdentifierWithDuration,
@@ -153,7 +153,7 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   threatChanges?: ThreatChanges;
   supportClassLevelsGained?: Record<EntityId, CombatantClass>;
   actionEntityIdsDespawned?: EntityId[];
-  actionEntityChanges?: Record<EntityId, { newLevel: number; newStacks: number }>;
+  actionEntityChanges?: Record<EntityId, Partial<ActionEntityActionOriginData>>;
 }
 
 export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {

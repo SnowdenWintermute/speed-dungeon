@@ -11,6 +11,13 @@ export function startOrStopCosmeticEffects(
   cosmeticEffectsToStart?: CosmeticEffectOnTargetTransformNode[],
   cosmeticEffectsToStop?: CosmeticEffectOnTargetTransformNode[]
 ) {
+  for (const cosmeticEffectOnEntity of cosmeticEffectsToStop || []) {
+    const { name, parent } = cosmeticEffectOnEntity;
+    const sceneEntity = SceneEntity.getFromIdentifier(parent.sceneEntityIdentifier);
+    const { cosmeticEffectManager } = sceneEntity;
+    cosmeticEffectManager.stopEffect(name, () => {});
+  }
+
   if (cosmeticEffectsToStart?.length) {
     const sceneOption = gameWorld.current?.scene;
     if (!sceneOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
@@ -45,14 +52,5 @@ export function startOrStopCosmeticEffects(
         );
       }
     }
-  }
-
-  if (cosmeticEffectsToStop === undefined) return;
-
-  for (const cosmeticEffectOnEntity of cosmeticEffectsToStop) {
-    const { name, parent } = cosmeticEffectOnEntity;
-    const sceneEntity = SceneEntity.getFromIdentifier(parent.sceneEntityIdentifier);
-    const { cosmeticEffectManager } = sceneEntity;
-    cosmeticEffectManager.stopEffect(name, () => {});
   }
 }
