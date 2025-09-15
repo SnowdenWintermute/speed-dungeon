@@ -5,6 +5,7 @@ import {
   AnimationType,
   CombatantMotionGameUpdateCommand,
   ERROR_MESSAGES,
+  EntityId,
   EntityMotionUpdate,
   SpawnableEntityType,
 } from "@speed-dungeon/common";
@@ -63,29 +64,12 @@ export function handleEntityMotionUpdate(
     if (motionUpdate.startPointingToward !== undefined)
       handleStartPointingTowardEntity(toUpdate, motionUpdate.startPointingToward);
 
-    if (isMainUpdate) {
-      onTranslationComplete = () => {
-        if (motionUpdate.despawnOnComplete) {
-          getGameWorld().actionEntityManager.unregister(motionUpdate.entityId);
-          useGameStore.getState().mutateState((state) => {
-            const partyResult = getParty(state.game, state.username);
-            if (partyResult instanceof Error) {
-              return console.error(partyResult);
-            } else {
-              if (!state.game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-
-              const battleOption = AdventuringParty.getBattleOption(partyResult, state.game);
-              AdventuringParty.unregisterActionEntity(
-                partyResult,
-                motionUpdate.entityId,
-                battleOption
-              );
-            }
-          });
-        }
-      };
-      onAnimationComplete = () => {};
-    }
+    onTranslationComplete = () => {
+      if (motionUpdate.despawnOnComplete) despawnAndUnregisterActionEntity(motionUpdate.entityId);
+    };
+    onAnimationComplete = () => {
+      if (motionUpdate.despawnOnComplete) despawnAndUnregisterActionEntity(motionUpdate.entityId);
+    };
   }
 
   if (motionUpdate.entityType === SpawnableEntityType.Combatant) {
@@ -156,5 +140,22 @@ export function handleEntityMotionUpdate(
 
   if (isMainUpdate && updateCompletionTracker.isComplete()) {
     update.isComplete = true;
+  }
+}
+
+function despawnAndUnregisterActionEntity(entityId: EntityId) {
+  {
+    getGameWorld().actionEntityManager.unregister(entityId);
+    useGameStore.getState().mutateState((state) => {
+      const partyResult = getParty(state.game, state.username);
+      if (partyResult instanceof Error) {
+        return console.error(partyResult);
+      } else {
+        if (!state.game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+
+        const battleOption = AdventuringParty.getBattleOption(partyResult, state.game);
+        AdventuringParty.unregisterActionEntity(partyResult, entityId, battleOption);
+      }
+    });
   }
 }

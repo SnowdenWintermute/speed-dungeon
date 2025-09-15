@@ -87,6 +87,9 @@ export class ActionEntity {
   }
 }
 
+// @REFACTOR - it is strange to get the action entity intents like this
+// more natural to find it on their class in a getActionIntent method
+
 export const ACTION_ENTITY_ACTION_INTENT_GETTERS: Partial<
   Record<ActionEntityName, () => CombatActionExecutionIntent>
 > = {

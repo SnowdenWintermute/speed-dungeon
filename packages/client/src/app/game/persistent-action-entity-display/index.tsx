@@ -35,6 +35,7 @@ function PersistentActionEntity({ actionEntity }: { actionEntity: ActionEntity }
   return (
     <div>
       <div>{ACTION_ENTITY_STRINGS[name]}</div>
+      <div>{actionEntity.entityProperties.name}</div>
       <div>Level: {actionLevel?.current || 0}</div>
       <div>Stacks: {stacks?.current || 0}</div>
     </div>
