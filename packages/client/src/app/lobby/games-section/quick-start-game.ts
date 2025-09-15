@@ -14,7 +14,7 @@ export function quickStartGame(socketOption: Socket | undefined) {
   });
   socketOption?.emit(ClientToServerEvent.CreateCharacter, {
     name: "",
-    combatantClass: CombatantClass.Warrior,
+    combatantClass: CombatantClass.Mage,
   });
   socketOption?.emit(ClientToServerEvent.ToggleReadyToStartGame);
   // socketOption?.emit(ClientToServerEvent.ToggleReadyToExplore);

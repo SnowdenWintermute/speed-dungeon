@@ -36,6 +36,7 @@ const costProperties = createCostPropertiesConfig(costPropertiesBase, costProper
 
 const config: CombatActionComponentConfig = {
   description: "Inflict magical fire damage on enemies and cause them to start burning",
+  prerequisiteAbilities: [],
   combatLogMessageProperties: createGenericSpellCastMessageProperties(CombatActionName.Fire),
   targetingProperties,
   hitOutcomeProperties: FIRE_HIT_OUTCOME_PROPERTIES,

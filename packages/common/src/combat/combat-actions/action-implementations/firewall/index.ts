@@ -19,6 +19,7 @@ import {
   ActionEntityActionOriginData,
   ActionEntityName,
 } from "../../../../action-entities/index.js";
+import { CombatantProperties } from "../../../../combatants/index.js";
 
 // clone burn hit outcomes for the action description
 // and add an on use trigger to change the stacks/level of an existing firewall
@@ -65,7 +66,10 @@ const hitOutcomeProperties = createHitOutcomeProperties(
         const newActionLevel = castedLevel;
         ActionEntity.setLevel(existingFirewall, newActionLevel);
         actionEntityChanges.actionLevel = actionOriginData.actionLevel;
-        // @TODO replace combat attributes
+
+        const newAttributes = CombatantProperties.getTotalAttributes(combatant.combatantProperties);
+        actionOriginData.userCombatantAttributes = newAttributes;
+        actionEntityChanges.userCombatantAttributes = newAttributes;
       }
 
       return {
