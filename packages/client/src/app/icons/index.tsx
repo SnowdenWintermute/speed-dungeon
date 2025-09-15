@@ -1,4 +1,5 @@
 import FireIcon from "../../../public/img/game-ui-icons/fire.svg";
+import Firewall from "../../../public/img/game-ui-icons/firewall.svg";
 import SwordSlashIcon from "../../../public/img/game-ui-icons/sword-slash.svg";
 import HealthCrossIcon from "../../../public/img/game-ui-icons/health-cross.svg";
 import IceIcon from "../../../public/img/game-ui-icons/ice.svg";
@@ -74,6 +75,7 @@ export enum IconName {
   Camera,
   XShape,
   Model3DIcon,
+  Firewall,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -109,6 +111,7 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.Camera]: (className) => <Camera className={className} />,
   [IconName.XShape]: (className) => <XShape className={className} />,
   [IconName.Model3DIcon]: (className) => <Model3DIcon className={className} />,
+  [IconName.Firewall]: (className) => <Firewall className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {

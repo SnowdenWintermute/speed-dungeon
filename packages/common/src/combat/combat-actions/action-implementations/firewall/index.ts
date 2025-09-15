@@ -58,11 +58,15 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 
       // if casting same or higher level, replace the entity's level and combat attributes
       const existingFirewallLevel = actionOriginData.actionLevel;
+      const unexpectedUndefinedFirewallLevel = existingFirewallLevel === undefined;
+      if (unexpectedUndefinedFirewallLevel) console.warn("unexpectedUndefinedFirewallLevel");
 
-      // if (castedLevel >= existingFirewallLevel) {
-      //   const newActionLevel = Math.min(currentFirewallLevel, newStacks);
-      //   ActionEntity.setLevel(existingFirewall, newActionLevel);
-      // }
+      if (unexpectedUndefinedFirewallLevel || castedLevel >= existingFirewallLevel.current) {
+        const newActionLevel = castedLevel;
+        ActionEntity.setLevel(existingFirewall, newActionLevel);
+        actionEntityChanges.actionLevel = actionOriginData.actionLevel;
+        // @TODO replace combat attributes
+      }
 
       return {
         actionEntityChanges: { [existingFirewall.entityProperties.id]: actionEntityChanges },

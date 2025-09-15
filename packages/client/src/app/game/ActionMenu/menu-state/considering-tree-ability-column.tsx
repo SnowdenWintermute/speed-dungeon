@@ -17,10 +17,10 @@ import {
 } from "@speed-dungeon/common";
 import createPageButtons from "./create-page-buttons";
 import { setAlert } from "@/app/components/alerts";
-import { getAbilityIcon } from "../../icons/get-action-icon";
 import { ReactNode } from "react";
 import { ConsideringCombatantAbilityMenuState } from "./considering-tree-ability";
 import { AbilityType } from "@speed-dungeon/common";
+import { getAbilityIcon } from "../../character-sheet/ability-tree/ability-icons";
 
 export class ConsideringAbilityTreeColumnMenuState implements ActionMenuState {
   [immerable] = true;
@@ -66,7 +66,8 @@ export class ConsideringAbilityTreeColumnMenuState implements ActionMenuState {
           } else {
             nameAsString = COMBATANT_TRAIT_DESCRIPTIONS[ability.traitType].name;
           }
-          iconOption = getAbilityIcon(ability, focusedCharacterResult.combatantProperties);
+          const iconGetter = getAbilityIcon(ability);
+          iconOption = iconGetter ? iconGetter("h-full p-2 fill-slate-400") : "icon";
           numAbilitiesPushed += 1;
         }
 
