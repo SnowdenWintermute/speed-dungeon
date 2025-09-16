@@ -42,7 +42,7 @@ export class FirewallParticles extends CosmeticEffect {
       particleSystem.particleTexture = new Texture(`img/particle-textures/explosion-${i + 1}.jpg`);
 
       const maxDepth = 0.75;
-      const depth = percentOfMaxRank * maxDepth;
+      const depth = Math.max(percentOfMaxRank, 0.45) * maxDepth;
 
       const maxHeight = 0.5;
       const height = percentOfMaxRank * maxHeight;

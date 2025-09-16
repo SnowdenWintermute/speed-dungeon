@@ -119,7 +119,12 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
     if (expectedFirewallEntity.type != SpawnableEntityType.ActionEntity)
       throw new Error("expected firewall entity to be action enity");
 
-    const rankOption = context.tracker.actionExecutionIntent.level;
+    const rankOption =
+      expectedFirewallEntity.actionEntity.actionEntityProperties.actionOriginData?.actionLevel
+        ?.current;
+    if (rankOption === undefined) throw new Error("expected firewall to have a rank");
+
+    console.log("rank option for firewall:", rankOption);
 
     return [
       {

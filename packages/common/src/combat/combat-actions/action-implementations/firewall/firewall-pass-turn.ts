@@ -1,6 +1,10 @@
 import { ActionEntity } from "../../../../action-entities/index.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import {
+  ActionResolutionStepType,
+  ActivatedTriggersGameUpdateCommand,
+} from "../../../../action-processing/index.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
+import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { throwIfError } from "../../../../utils/index.js";
 import {
   ActionResolutionStepsConfig,
@@ -19,6 +23,7 @@ import {
   createTargetingPropertiesConfig,
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import { FIREWALL_STEPS_CONFIG } from "./firewall-steps-config.js";
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BENEVOLENT_CONSUMABLE,
@@ -51,6 +56,8 @@ const hitOutcomeProperties = createHitOutcomeProperties(
       const newActionLevel = Math.min(currentFirewallLevel, newStacks);
       ActionEntity.setLevel(existingFirewall, newActionLevel);
 
+      const toReturn: Partial<ActivatedTriggersGameUpdateCommand> = {};
+
       // if stacks === 0, despawn firewall
       let despawned = false;
       if (newStacks === 0) {
@@ -60,17 +67,49 @@ const hitOutcomeProperties = createHitOutcomeProperties(
       }
 
       if (despawned) {
-        return { actionEntityIdsDespawned: [firewallId] };
+        toReturn.actionEntityIdsDespawned = [firewallId];
       } else {
-        return {
-          actionEntityChanges: {
-            [firewallId]: {
-              stacks: actionOriginData.stacks,
-              actionLevel: actionOriginData.actionLevel,
-            },
+        toReturn.actionEntityChanges = {
+          [firewallId]: {
+            stacks: actionOriginData.stacks,
+            actionLevel: actionOriginData.actionLevel,
           },
         };
+
+        // change the cosmetic effect if firewall has deleveled
+        if (newActionLevel < currentFirewallLevel) {
+          const firewallCosmeticsStepOption =
+            FIREWALL_STEPS_CONFIG.steps[ActionResolutionStepType.OnActivationActionEntityMotion];
+          if (!firewallCosmeticsStepOption)
+            throw new Error(
+              "expected to have configured OnActivationActionEntityMotion for Firewall"
+            );
+
+          // @BADPRACTICE
+          // some symantec coupling - we just want to reuse the cosmetic effect
+          // creators from firewall action, which expects its tracker to have a
+          // spawned firewall
+          context.tracker.spawnedEntityOption = {
+            type: SpawnableEntityType.ActionEntity,
+            actionEntity: existingFirewall,
+          };
+
+          console.log(
+            "existing firewall level:",
+            existingFirewall.actionEntityProperties.actionOriginData?.actionLevel
+          );
+
+          const toStopGetter = firewallCosmeticsStepOption.getCosmeticEffectsToStop;
+          const toStartGetter = firewallCosmeticsStepOption.getCosmeticEffectsToStart;
+          if (!toStartGetter || !toStopGetter)
+            throw new Error("expected Firewall to have cosmetic effects configured");
+
+          toReturn.cosmeticEffectsToStop = toStopGetter(context);
+          toReturn.cosmeticEffectsToStart = toStartGetter(context);
+        }
       }
+
+      return toReturn;
     },
   }
 );

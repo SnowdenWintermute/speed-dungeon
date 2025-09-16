@@ -12,15 +12,21 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
   const showDebug = useUIStore((state) => state.showDebug);
   const hotkeysDisabled = useUIStore((state) => state.hotkeysDisabled);
   const headerRef = useRef<HTMLDivElement>(null);
-  const keydownListenerRef = useRef<(e: KeyboardEvent) => void>();
-  const mouseDownListenerRef = useRef<(e: MouseEvent) => void>();
-  const mouseUpListenerRef = useRef<(e: MouseEvent) => void>();
-  const mouseMoveListenerRef = useRef<(e: MouseEvent) => void>();
+  const keydownListenerRef = useRef<(e: KeyboardEvent) => void>(null);
+  const mouseDownListenerRef = useRef<(e: MouseEvent) => void>(null);
+  const mouseUpListenerRef = useRef<(e: MouseEvent) => void>(null);
+  const mouseMoveListenerRef = useRef<(e: MouseEvent) => void>(null);
   const mousePressedRef = useRef<null | { offsetX: number; offsetY: number }>(null);
   const [x, setX] = useState(10);
   const [y, setY] = useState(10);
 
   useEffect(() => {
+    // const webglContext = document.createElement("canvas").getContext("webgl");
+    // const webgpuContext = document.createElement("canvas").getContext("webgpu");
+    // const debugInfo = webglContext?.getExtension("WEBGL_debug_renderer_info");
+    // const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+    // console.log(renderer);
+
     keydownListenerRef.current = function (e: KeyboardEvent) {
       if (e.code !== "KeyP" || hotkeysDisabled) return;
 

@@ -126,7 +126,7 @@ export function getMonsterEquipment(monsterType: MonsterType): CombatantEquipmen
       const wandResult = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.TwoHandedRangedWeapon,
-          baseItemType: TwoHandedRangedWeapon.CompositeBow,
+          baseItemType: TwoHandedRangedWeapon.ShortBow,
           // equipmentType: EquipmentType.OneHandedMeleeWeapon,
           // baseItemType: OneHandedMeleeWeapon.Blade,
           // equipmentType: EquipmentType.TwoHandedMeleeWeapon,
