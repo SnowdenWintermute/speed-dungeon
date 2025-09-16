@@ -82,7 +82,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 const config: CombatActionComponentConfig = {
   description: "Deals kinetic fire damage to any combatant that passes through the area",
   prerequisiteAbilities: [{ type: AbilityType.Action, actionName: CombatActionName.Fire }],
-  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.AREA_FRIENDLY(),
+  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME(),
   combatLogMessageProperties: new CombatActionCombatLogProperties({
     ...createGenericSpellCastMessageProperties(CombatActionName.Firewall),
   }),

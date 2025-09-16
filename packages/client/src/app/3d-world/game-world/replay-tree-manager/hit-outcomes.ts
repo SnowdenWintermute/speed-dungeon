@@ -124,7 +124,7 @@ export async function hitOutcomesGameUpdateHandler(update: {
       SkeletalAnimationName.Evade,
       0,
       {
-        // onComplete: () => targetModel.startIdleAnimation(0)
+        onComplete: () => targetModel.startIdleAnimation(100),
       }
     );
 

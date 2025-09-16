@@ -94,11 +94,6 @@ const hitOutcomeProperties = createHitOutcomeProperties(
             actionEntity: existingFirewall,
           };
 
-          console.log(
-            "existing firewall level:",
-            existingFirewall.actionEntityProperties.actionOriginData?.actionLevel
-          );
-
           const toStopGetter = firewallCosmeticsStepOption.getCosmeticEffectsToStop;
           const toStartGetter = firewallCosmeticsStepOption.getCosmeticEffectsToStart;
           if (!toStartGetter || !toStopGetter)

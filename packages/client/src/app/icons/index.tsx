@@ -36,8 +36,11 @@ import Model3DIcon from "../../../public/img/menu-icons/3d-model-icon.svg";
 
 import { ReactNode } from "react";
 import {
+  ActionEntityName,
   ActionPayableResource,
+  CombatActionName,
   CombatantConditionName,
+  CombatantTraitType,
   KineticDamageType,
   MagicalElement,
 } from "@speed-dungeon/common";
@@ -150,4 +153,60 @@ export const CONDITION_INDICATOR_ICONS: Record<CombatantConditionName, ReactNode
       <EyeOpenIcon className="fill-lightningpurple stroke-darknessblack h-full" />
     </div>
   ),
+};
+
+export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) => ReactNode)> = {
+  [CombatActionName.Attack]: null,
+  [CombatActionName.AttackMeleeMainhand]: null,
+  [CombatActionName.AttackMeleeOffhand]: null,
+  [CombatActionName.AttackRangedMainhand]: null,
+  [CombatActionName.AttackRangedMainhandProjectile]: null,
+  [CombatActionName.CounterAttackRangedMainhandProjectile]: null,
+  [CombatActionName.Counterattack]: null,
+  [CombatActionName.CounterattackMeleeMainhand]: null,
+  [CombatActionName.CounterattackRangedMainhand]: null,
+  [CombatActionName.ChainingSplitArrowParent]: null,
+  [CombatActionName.ChainingSplitArrowProjectile]: null,
+  [CombatActionName.ExplodingArrowParent]: null,
+  [CombatActionName.ExplodingArrowProjectile]: null,
+  [CombatActionName.Explosion]: null,
+  [CombatActionName.IceBoltParent]: (className: string) => SVG_ICONS[IconName.Ice](className),
+  [CombatActionName.IceBoltProjectile]: null,
+  [CombatActionName.IceBurst]: null,
+  [CombatActionName.Fire]: (className: string) => SVG_ICONS[IconName.Fire](className),
+  [CombatActionName.BurningTick]: null,
+  [CombatActionName.Healing]: (className: string) => SVG_ICONS[IconName.HealthCross](className),
+  [CombatActionName.UseGreenAutoinjector]: null,
+  [CombatActionName.UseBlueAutoinjector]: null,
+  [CombatActionName.PassTurn]: (className: string) => SVG_ICONS[IconName.Hourglass](className),
+  [CombatActionName.ConditionPassTurn]: null,
+  [CombatActionName.Blind]: (className: string) => SVG_ICONS[IconName.EyeClosed](className),
+  [CombatActionName.PayActionPoint]: null,
+  [CombatActionName.ReadSkillBook]: (className: string) => SVG_ICONS[IconName.Book](className),
+  [CombatActionName.Firewall]: (className: string) => SVG_ICONS[IconName.Firewall](className),
+  [CombatActionName.FirewallBurn]: null,
+  [CombatActionName.FirewallPassTurn]: null,
+};
+
+export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string) => ReactNode)> = {
+  [CombatantTraitType.HpBioavailability]: (className: string) =>
+    SVG_ICONS[IconName.BloodWithH](className),
+  [CombatantTraitType.MpBioavailability]: null,
+  [CombatantTraitType.Undead]: null,
+  [CombatantTraitType.ExtraHotswapSlot]: null,
+  [CombatantTraitType.CanConvertToShardsManually]: null,
+  [CombatantTraitType.ExtraConsumablesStorage]: null,
+};
+
+export const ACTION_ENTITY_ICONS: Record<
+  ActionEntityName,
+  null | ((className: string) => ReactNode)
+> = {
+  [ActionEntityName.Arrow]: null,
+  [ActionEntityName.IceBolt]: null,
+  [ActionEntityName.Explosion]: null,
+  [ActionEntityName.IceBurst]: null,
+  [ActionEntityName.TargetChangedIndicatorArrow]: null,
+  [ActionEntityName.Firewall]: (className: string) =>
+    SVG_ICONS[IconName.Firewall](className + " fill-firered"),
 };

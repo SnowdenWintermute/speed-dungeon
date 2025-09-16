@@ -1,23 +1,11 @@
-import {
-  AbstractMesh,
-  BoundingInfo,
-  Camera,
-  DynamicTexture,
-  Mesh,
-  MeshBuilder,
-  Scene,
-  StandardMaterial,
-  TransformNode,
-} from "@babylonjs/core";
+import { AbstractMesh, Camera, Mesh, MeshBuilder, Scene, StandardMaterial } from "@babylonjs/core";
 import {
   COMBAT_ACTIONS,
   CombatActionIntent,
   CombatActionName,
   EntityId,
-  Meters,
 } from "@speed-dungeon/common";
 import { getGameWorld } from "../../SceneManager";
-import { CharacterModel } from ".";
 import { GLOW_LAYER_NAME } from "../../game-world/init-scene";
 
 export class TargetIndicator {

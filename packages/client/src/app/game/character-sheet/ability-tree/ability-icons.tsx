@@ -1,6 +1,5 @@
 import { AbilityTreeAbility, AbilityType } from "@speed-dungeon/common";
-import { ACTION_ICONS } from "./action-icons";
-import { TRAIT_ICONS } from "./trait-icons";
+import { ACTION_ICONS, TRAIT_ICONS } from "@/app/icons";
 
 export function getAbilityIcon(ability: AbilityTreeAbility) {
   switch (ability.type) {

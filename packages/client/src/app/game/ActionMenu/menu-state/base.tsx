@@ -35,10 +35,8 @@ import {
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
-import {
-  ACTION_ICONS,
-  getAttackActionIcons,
-} from "../../character-sheet/ability-tree/action-icons";
+import { getAttackActionIcons } from "../../character-sheet/ability-tree/action-icons";
+import { ACTION_ICONS } from "@/app/icons";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 

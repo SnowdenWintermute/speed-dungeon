@@ -124,8 +124,6 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
         ?.current;
     if (rankOption === undefined) throw new Error("expected firewall to have a rank");
 
-    console.log("rank option for firewall:", rankOption);
-
     return [
       {
         name: CosmeticEffectNames.FirewallParticles,

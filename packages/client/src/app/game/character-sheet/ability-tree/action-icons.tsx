@@ -1,6 +1,5 @@
 import { IconName, KINETIC_TYPE_ICONS, MAGICAL_ELEMENT_ICONS, SVG_ICONS } from "@/app/icons";
 import {
-  CombatActionName,
   CombatantEquipment,
   CombatantProperties,
   Equipment,
@@ -9,40 +8,6 @@ import {
   KineticDamageType,
   throwIfError,
 } from "@speed-dungeon/common";
-import { ReactNode } from "react";
-
-export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) => ReactNode)> = {
-  [CombatActionName.Attack]: null,
-  [CombatActionName.AttackMeleeMainhand]: null,
-  [CombatActionName.AttackMeleeOffhand]: null,
-  [CombatActionName.AttackRangedMainhand]: null,
-  [CombatActionName.AttackRangedMainhandProjectile]: null,
-  [CombatActionName.CounterAttackRangedMainhandProjectile]: null,
-  [CombatActionName.Counterattack]: null,
-  [CombatActionName.CounterattackMeleeMainhand]: null,
-  [CombatActionName.CounterattackRangedMainhand]: null,
-  [CombatActionName.ChainingSplitArrowParent]: null,
-  [CombatActionName.ChainingSplitArrowProjectile]: null,
-  [CombatActionName.ExplodingArrowParent]: null,
-  [CombatActionName.ExplodingArrowProjectile]: null,
-  [CombatActionName.Explosion]: null,
-  [CombatActionName.IceBoltParent]: (className: string) => SVG_ICONS[IconName.Ice](className),
-  [CombatActionName.IceBoltProjectile]: null,
-  [CombatActionName.IceBurst]: null,
-  [CombatActionName.Fire]: (className: string) => SVG_ICONS[IconName.Fire](className),
-  [CombatActionName.BurningTick]: null,
-  [CombatActionName.Healing]: (className: string) => SVG_ICONS[IconName.HealthCross](className),
-  [CombatActionName.UseGreenAutoinjector]: null,
-  [CombatActionName.UseBlueAutoinjector]: null,
-  [CombatActionName.PassTurn]: (className: string) => SVG_ICONS[IconName.Hourglass](className),
-  [CombatActionName.ConditionPassTurn]: null,
-  [CombatActionName.Blind]: (className: string) => SVG_ICONS[IconName.EyeClosed](className),
-  [CombatActionName.PayActionPoint]: null,
-  [CombatActionName.ReadSkillBook]: (className: string) => SVG_ICONS[IconName.Book](className),
-  [CombatActionName.Firewall]: (className: string) => SVG_ICONS[IconName.Firewall](className),
-  [CombatActionName.FirewallBurn]: null,
-  [CombatActionName.FirewallPassTurn]: null,
-};
 
 export function getAttackActionIcons(user: CombatantProperties, inCombat: boolean) {
   const mhIcons = [];
