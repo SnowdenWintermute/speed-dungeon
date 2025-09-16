@@ -12,13 +12,13 @@ export function getGameWorld() {
 
 export default function SceneManager() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const debugRef = useRef<HTMLUListElement>(null);
-  const resizeHandlerRef = useRef<(e: UIEvent) => void | null>();
+  const debugRef = useRef<HTMLUListElement>();
+  const resizeHandlerRef = useRef<(e: UIEvent) => void | null>(null);
 
   useEffect(() => {}, []);
 
   useEffect(() => {
-    if (canvasRef.current) {
+    if (canvasRef.current && debugRef.current !== null) {
       gameWorld.current = new GameWorld(canvasRef.current, debugRef);
     }
     resizeHandlerRef.current = function () {

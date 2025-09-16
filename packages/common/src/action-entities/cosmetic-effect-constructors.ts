@@ -14,7 +14,7 @@ import { DarkParticleAccumulation } from "./dark-particle-accumulation.js";
 import { BlindnessParticlesLarge } from "./blindness-particles-large.js";
 import { FirewallParticles } from "./firewall-particles.js";
 
-type CosmeticEffectConstructor = new (scene: Scene) => CosmeticEffect;
+type CosmeticEffectConstructor = new (scene: Scene, rank: number) => CosmeticEffect;
 
 export const COSMETIC_EFFECT_CONSTRUCTORS: Record<CosmeticEffectNames, CosmeticEffectConstructor> =
   {

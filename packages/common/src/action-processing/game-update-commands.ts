@@ -20,7 +20,6 @@ import {
   SceneEntityChildTransformNodeIdentifierWithDuration,
 } from "../scene-entities/index.js";
 import {
-  CosmeticEffectOnEntity,
   CosmeticEffectOnTargetTransformNode,
   EquipmentAnimation,
 } from "../combat/combat-actions/combat-action-steps-config.js";

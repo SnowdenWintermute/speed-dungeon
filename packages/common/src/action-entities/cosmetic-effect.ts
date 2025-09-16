@@ -21,7 +21,10 @@ export abstract class CosmeticEffect {
   public lifetimeTimeouts: null | NodeJS.Timeout[] = null;
   particleSystems: ManagedParticleSystem[] = [];
   public transformNode = new TransformNode("");
-  constructor(public scene: Scene) {
+  constructor(
+    public scene: Scene,
+    public rank: number
+  ) {
     this.initialize(scene);
   }
   createParticleSystems?(scene: Scene): ManagedParticleSystem[];

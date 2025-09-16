@@ -35,7 +35,7 @@ export function giveStartingAbilities(combatantProperties: CombatantProperties) 
 
   for (const actionName of ownedActions) {
     const action = new CombatantActionState(actionName);
-    if (levelTwoSpells.includes(actionName)) action.level = 2;
+    if (levelTwoSpells.includes(actionName)) action.level = 3;
     const cooldownOption = COMBAT_ACTIONS[actionName].costProperties.getCooldownTurns(
       combatantProperties,
       action.level

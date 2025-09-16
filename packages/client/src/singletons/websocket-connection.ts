@@ -18,7 +18,6 @@ import setUpSavedCharacterEventListeners from "@/app/websocket-manager/saved-cha
 import getCurrentParty from "@/utils/getCurrentParty";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
-import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { synchronizeTargetingIndicators } from "@/app/websocket-manager/game-event-handlers/synchronize-targeting-indicators";
 
 const socketAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
@@ -52,6 +51,10 @@ websocketConnection.on("connect", () => {
   getGameWorld().modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.SynchronizeCombatantModels,
   });
+
+  getGameWorld()
+    .actionEntityManager.getAll()
+    .forEach((entity) => entity.cleanup({ softCleanup: false }));
 });
 
 websocketConnection.on("disconnect", () => {

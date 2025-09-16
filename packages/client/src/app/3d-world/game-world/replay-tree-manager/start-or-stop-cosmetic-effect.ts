@@ -24,7 +24,7 @@ export function startOrStopCosmeticEffects(
 
     let effectToStartLifetimeTimeout;
 
-    for (const { name, parent, lifetime } of cosmeticEffectsToStart) {
+    for (const { name, parent, lifetime, rankOption } of cosmeticEffectsToStart) {
       const cosmeticEffectManager = SceneEntity.getFromIdentifier(
         parent.sceneEntityIdentifier
       ).cosmeticEffectManager;
@@ -35,7 +35,7 @@ export function startOrStopCosmeticEffects(
         existingEffectOption.referenceCount += 1;
         effectToStartLifetimeTimeout = existingEffectOption.effect;
       } else {
-        const effect = new COSMETIC_EFFECT_CONSTRUCTORS[name](sceneOption);
+        const effect = new COSMETIC_EFFECT_CONSTRUCTORS[name](sceneOption, rankOption || 1);
 
         cosmeticEffectManager.cosmeticEffects[name] = { effect, referenceCount: 1 };
         const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(parent);

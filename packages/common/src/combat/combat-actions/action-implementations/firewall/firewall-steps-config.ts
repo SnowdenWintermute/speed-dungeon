@@ -54,8 +54,6 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
       depth: 0.75,
     };
 
-    position.y += dimensions.height / 2;
-
     const taggedDimensions: TaggedBoxDimensions = {
       type: ShapeType3D.Box,
       dimensions,
@@ -120,9 +118,13 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
     if (expectedFirewallEntity === null) throw new Error("expected firewall entity not found");
     if (expectedFirewallEntity.type != SpawnableEntityType.ActionEntity)
       throw new Error("expected firewall entity to be action enity");
+
+    const rankOption = context.tracker.actionExecutionIntent.level;
+
     return [
       {
         name: CosmeticEffectNames.FirewallParticles,
+        rankOption,
         parent: {
           sceneEntityIdentifier: {
             type: SceneEntityType.ActionEntityModel,

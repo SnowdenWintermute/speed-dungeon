@@ -13,7 +13,6 @@ import { Milliseconds } from "../../primatives/index.js";
 import {
   SceneEntityChildTransformNodeIdentifier,
   SceneEntityChildTransformNodeIdentifierWithDuration,
-  SceneEntityIdentifier,
 } from "../../scene-entities/index.js";
 import { SpawnableEntity } from "../../spawnables/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
@@ -28,11 +27,8 @@ export interface EquipmentAnimation {
 export interface CosmeticEffectOnTargetTransformNode {
   name: CosmeticEffectNames;
   parent: SceneEntityChildTransformNodeIdentifier;
+  rankOption?: number;
   lifetime?: Milliseconds;
-}
-export interface CosmeticEffectOnEntity {
-  name: CosmeticEffectNames;
-  sceneEntityIdentifier: SceneEntityIdentifier;
 }
 
 export interface ActionResolutionStepConfig {
