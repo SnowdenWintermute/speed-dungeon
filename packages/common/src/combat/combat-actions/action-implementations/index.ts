@@ -29,6 +29,7 @@ import { READ_SKILL_BOOK } from "./consumables/read-skill-book.js";
 import { FIREWALL } from "./firewall/index.js";
 import { FIREWALL_BURN } from "./firewall/firewall-burn.js";
 import { FIREWALL_PASS_TURN } from "./firewall/firewall-pass-turn.js";
+import { IGNITE_PROJECTILE } from "./ignite-projectile/index.js";
 
 export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Attack]: ATTACK,
@@ -62,4 +63,5 @@ export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Firewall]: FIREWALL,
   [CombatActionName.FirewallBurn]: FIREWALL_BURN,
   [CombatActionName.FirewallPassTurn]: FIREWALL_PASS_TURN,
+  [CombatActionName.IgniteProjectile]: IGNITE_PROJECTILE,
 };

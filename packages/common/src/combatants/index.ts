@@ -446,7 +446,7 @@ export function createShimmedUserOfTriggeredCondition(
 export function createShimmedUserOfActionEntityAction(
   name: string,
   actionEntity: ActionEntity,
-  primaryTargetId: EntityId
+  primaryTargetId: EntityId // not sure why we're making shimmed user ids their target id
 ) {
   const combatant = new Combatant(
     { id: primaryTargetId || "0", name },

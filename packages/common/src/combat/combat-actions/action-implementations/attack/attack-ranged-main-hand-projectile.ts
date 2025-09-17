@@ -7,7 +7,10 @@ import {
 } from "../../index.js";
 import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
-import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
+import {
+  ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
+  createStepsConfig,
+} from "../generic-action-templates/step-config-templates/index.js";
 import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
@@ -21,6 +24,7 @@ import {
   ACTION_EXECUTION_PRECONDITIONS,
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
+import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BOW_ATTACK,
@@ -38,6 +42,10 @@ const targetingProperties = createTargetingPropertiesConfig(
   }
 );
 
+const stepsConfig = createStepsConfig(ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.PROJECTILE_ENTITY, {
+  steps: { [ActionResolutionStepType.PreInitialPositioningCheckEnvironmentalHazardTriggers]: {} },
+});
+
 export const ATTACK_RANGED_MAIN_HAND_PROJECTILE_CONFIG: CombatActionComponentConfig = {
   description: "An arrow",
   combatLogMessageProperties: new CombatActionCombatLogProperties({
@@ -46,7 +54,7 @@ export const ATTACK_RANGED_MAIN_HAND_PROJECTILE_CONFIG: CombatActionComponentCon
   targetingProperties,
   hitOutcomeProperties,
   costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.FREE_ACTION(),
-  stepsConfig: ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.PROJECTILE_ENTITY(),
+  stepsConfig,
 
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,

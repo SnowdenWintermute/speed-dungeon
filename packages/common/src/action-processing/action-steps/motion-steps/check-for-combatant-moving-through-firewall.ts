@@ -13,12 +13,12 @@ import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { AnimationTimingType } from "../../game-update-commands.js";
 import cloneDeep from "lodash.clonedeep";
 import { timeToReachBox } from "../../../utils/index.js";
+import { AdventuringParty } from "../../../adventuring-party/index.js";
 
 export function getFirewallBurnScheduledActions(
   context: ActionResolutionStepContext,
   step: TriggerEnvironmentalHazardsActionResolutionStep
 ) {
-  // @TODO - change to shimmed user based off firewall action entity properties
   const user = context.combatantContext.combatant;
 
   const { actionExecutionIntent } = context.tracker;
@@ -48,17 +48,13 @@ export function getFirewallBurnScheduledActions(
   if (!translationOption) return [];
 
   const { party } = context.combatantContext;
-  let existingFirewallOption: undefined | ActionEntity;
 
-  // just check for a single firewall for now, maybe add more later
-  for (const [entityId, actionEntity] of Object.entries(party.actionEntities)) {
-    if (actionEntity.actionEntityProperties.name === ActionEntityName.Firewall) {
-      existingFirewallOption = actionEntity;
-      break;
-    }
-  }
+  const existingFirewallOption = AdventuringParty.getExistingActionEntityOfType(
+    party,
+    ActionEntityName.Firewall
+  );
 
-  if (existingFirewallOption === undefined) return [];
+  if (existingFirewallOption === null) return [];
 
   const { destination, duration } = translationOption;
   const { position: firewallPosition, dimensions: taggedDimensions } =
@@ -88,24 +84,24 @@ export function getFirewallBurnScheduledActions(
     1
   );
 
-  const recoveryAnimationTime = (() => {
-    let toReturn = 0;
-    try {
-      const animationOption = EntityMotionActionResolutionStep.getAnimation(
-        context,
-        action.name,
-        ActionResolutionStepType.RecoveryMotion
-      );
-
-      if (animationOption && animationOption.timing.type === AnimationTimingType.Timed)
-        toReturn = animationOption.timing.duration;
-    } catch {
-      console.info("couldn't get recoveryAnimationTime");
-    }
-    return toReturn;
-  })();
-
   if (addRecoveryAnimationTime) {
+    const recoveryAnimationTime = (() => {
+      let toReturn = 0;
+      try {
+        const animationOption = EntityMotionActionResolutionStep.getAnimation(
+          context,
+          action.name,
+          ActionResolutionStepType.RecoveryMotion
+        );
+
+        if (animationOption && animationOption.timing.type === AnimationTimingType.Timed)
+          toReturn = animationOption.timing.duration;
+      } catch {
+        console.info("couldn't get recoveryAnimationTime");
+      }
+      return toReturn;
+    })();
+
     timeToReachFirewallOption += recoveryAnimationTime;
   }
 
