@@ -46,11 +46,14 @@ const config: CombatActionComponentConfig = {
     getParent: () => COUNTER_ATTACK,
     getConcurrentSubActions(context) {
       return [
-        new CombatActionExecutionIntent(
-          CombatActionName.CounterAttackRangedMainhandProjectile,
-          context.tracker.actionExecutionIntent.targets,
-          context.tracker.actionExecutionIntent.level
-        ),
+        {
+          user: context.combatantContext.combatant,
+          actionExecutionIntent: new CombatActionExecutionIntent(
+            CombatActionName.CounterAttackRangedMainhandProjectile,
+            context.tracker.actionExecutionIntent.targets,
+            context.tracker.actionExecutionIntent.level
+          ),
+        },
       ];
     },
   },

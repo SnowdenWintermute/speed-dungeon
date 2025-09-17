@@ -56,21 +56,6 @@ export const BOW_EQUIPMENT_ANIMATIONS: Record<TwoHandedRangedWeapon, SkeletalAni
   [TwoHandedRangedWeapon.EtherBow]: SkeletalAnimationName.EquipmentEtherBowShoot,
 };
 
-base.steps[ActionResolutionStepType.ChamberingMotion] = {
-  ...base.steps[ActionResolutionStepType.ChamberingMotion],
-  getAnimation: (user, animationLengths) =>
-    getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.BowChambering, false),
-};
-
-base.steps[ActionResolutionStepType.DeliveryMotion] = {
-  ...base.steps[ActionResolutionStepType.DeliveryMotion],
-  getAnimation: (user, animationLengths) =>
-    getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.BowDelivery, false),
-
-  getEquipmentAnimations: getBowEquipmentAnimation,
-  getAuxiliaryEntityMotions: lockArrowToFaceArrowRest,
-};
-
 base.steps = {
   ...base.steps,
   [ActionResolutionStepType.PrepMotion]: {
@@ -107,6 +92,21 @@ base.steps = {
     },
   },
   [ActionResolutionStepType.StartConcurrentSubActions]: {},
+};
+
+base.steps[ActionResolutionStepType.ChamberingMotion] = {
+  ...base.steps[ActionResolutionStepType.ChamberingMotion],
+  getAnimation: (user, animationLengths) =>
+    getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.BowChambering, false),
+};
+
+base.steps[ActionResolutionStepType.DeliveryMotion] = {
+  ...base.steps[ActionResolutionStepType.DeliveryMotion],
+  getAnimation: (user, animationLengths) =>
+    getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.BowDelivery, false),
+
+  getEquipmentAnimations: getBowEquipmentAnimation,
+  getAuxiliaryEntityMotions: lockArrowToFaceArrowRest,
 };
 
 base.finalSteps[ActionResolutionStepType.RecoveryMotion] = {

@@ -93,6 +93,11 @@ export interface ActionResolutionStepContext {
   idGenerator: IdGenerator;
 }
 
+export interface ActionIntentAndUser {
+  user: Combatant;
+  actionExecutionIntent: CombatActionExecutionIntent;
+}
+
 export abstract class ActionResolutionStep {
   protected elapsed: Milliseconds = 0;
   constructor(

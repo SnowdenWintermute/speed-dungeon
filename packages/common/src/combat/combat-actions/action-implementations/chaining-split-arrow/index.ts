@@ -69,17 +69,19 @@ const config: CombatActionComponentConfig = {
       return context.combatantContext
         .getOpponents()
         .filter((opponent) => opponent.combatantProperties.hitPoints > 0)
-        .map(
-          (opponent) =>
-            new CombatActionExecutionIntent(
+        .map((opponent) => {
+          return {
+            user: context.combatantContext.combatant,
+            actionExecutionIntent: new CombatActionExecutionIntent(
               CombatActionName.ChainingSplitArrowProjectile,
               {
                 type: CombatActionTargetType.Single,
                 targetId: opponent.entityProperties.id,
               },
               context.tracker.actionExecutionIntent.level
-            )
-        );
+            ),
+          };
+        });
     },
   },
 };

@@ -64,11 +64,14 @@ const config: CombatActionComponentConfig = {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
     getConcurrentSubActions(context) {
       return [
-        new CombatActionExecutionIntent(
-          CombatActionName.IceBoltProjectile,
-          context.tracker.actionExecutionIntent.targets,
-          context.tracker.actionExecutionIntent.level
-        ),
+        {
+          user: context.combatantContext.combatant,
+          actionExecutionIntent: new CombatActionExecutionIntent(
+            CombatActionName.IceBoltProjectile,
+            context.tracker.actionExecutionIntent.targets,
+            context.tracker.actionExecutionIntent.level
+          ),
+        },
       ];
     },
   },

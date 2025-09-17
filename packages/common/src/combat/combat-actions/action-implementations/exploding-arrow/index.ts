@@ -52,11 +52,14 @@ const config: CombatActionComponentConfig = {
     ...ATTACK_RANGED_MAIN_HAND.hierarchyProperties,
     getConcurrentSubActions(context) {
       return [
-        new CombatActionExecutionIntent(
-          CombatActionName.ExplodingArrowProjectile,
-          context.tracker.actionExecutionIntent.targets,
-          context.tracker.actionExecutionIntent.level
-        ),
+        {
+          user: context.combatantContext.combatant,
+          actionExecutionIntent: new CombatActionExecutionIntent(
+            CombatActionName.ExplodingArrowProjectile,
+            context.tracker.actionExecutionIntent.targets,
+            context.tracker.actionExecutionIntent.level
+          ),
+        },
       ];
     },
   },

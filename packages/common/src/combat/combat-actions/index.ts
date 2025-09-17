@@ -17,7 +17,11 @@ import { CombatActionName } from "./combat-action-names.js";
 import { Battle } from "../../battle/index.js";
 import { ActionAccuracyType } from "./combat-action-accuracy.js";
 import { CombatantContext } from "../../combatant-context/index.js";
-import { ActionResolutionStepContext, ActionTracker } from "../../action-processing/index.js";
+import {
+  ActionIntentAndUser,
+  ActionResolutionStepContext,
+  ActionTracker,
+} from "../../action-processing/index.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
 import {
   CombatActionTargetingProperties,
@@ -237,7 +241,7 @@ export interface CombatActionHierarchyProperties {
     self: CombatActionComponent
   ) => CombatActionComponent[];
   getParent: () => CombatActionComponent | null;
-  getConcurrentSubActions?: (context: ActionResolutionStepContext) => CombatActionExecutionIntent[];
+  getConcurrentSubActions?: (context: ActionResolutionStepContext) => ActionIntentAndUser[];
 }
 
 export const BASE_ACTION_HIERARCHY_PROPERTIES: CombatActionHierarchyProperties = {

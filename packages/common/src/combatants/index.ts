@@ -54,6 +54,7 @@ import { ThreatManager } from "./threat-manager/index.js";
 import { COMBATANT_MAX_ACTION_POINTS } from "../app-consts.js";
 import { CombatantAbilityProperties } from "./combatant-abilities/combatant-ability-properties.js";
 import { ActionEntity } from "../action-entities/index.js";
+import cloneDeep from "lodash.clonedeep";
 
 export enum AiType {
   Healer,
@@ -444,7 +445,7 @@ export function createShimmedUserOfTriggeredCondition(
 /* see createShimmedUserOfTriggeredCondition */
 export function createShimmedUserOfActionEntityAction(
   name: string,
-  hazardEntity: ActionEntity,
+  actionEntity: ActionEntity,
   primaryTargetId: EntityId
 ) {
   const combatant = new Combatant(
@@ -463,7 +464,20 @@ export function createShimmedUserOfActionEntityAction(
       new CombatantActionState(actionName, 1);
   });
 
-  combatant.combatantProperties.asShimmedActionEntity = hazardEntity;
+  combatant.combatantProperties.asShimmedActionEntity = actionEntity;
 
   return combatant;
+}
+
+// Take a snapshot of the projectile user's status at the moment of use
+// so we can modify their hit outcome relevant stats if the projectile goes
+// through a firewall on the way
+export function createCopyOfProjectileUser(combatant: Combatant, actionEntity: ActionEntity) {
+  // @PERF - don't need to clone their entire inventory, just hotswap slots, equipped items
+  // and attributes and traits
+  const copied = cloneDeep(combatant);
+
+  copied.combatantProperties.asShimmedActionEntity = actionEntity;
+
+  return copied;
 }
