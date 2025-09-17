@@ -1,3 +1,10 @@
+import { Vector3 } from "@babylonjs/core";
+import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
+import { ActivatedTriggersGameUpdateCommand } from "../../../../action-processing/game-update-commands.js";
+import {
+  ActionEntityBaseChildTransformNodeName,
+  SceneEntityType,
+} from "../../../../scene-entities/index.js";
 import {
   ResourceChangeSource,
   ResourceChangeSourceCategory,
@@ -9,18 +16,14 @@ import {
   CombatActionComposite,
   CombatActionName,
   createGenericSpellCastMessageProperties,
-  TargetCategories,
 } from "../../index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
+import { CosmeticEffectInstructionFactory } from "../generic-action-templates/cosmetic-effect-factories/index.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
-import {
-  ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
-  createStepsConfig,
-} from "../generic-action-templates/step-config-templates/index.js";
 import {
   createTargetingPropertiesConfig,
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
@@ -43,8 +46,8 @@ const config: CombatActionComponentConfig = {
   hitOutcomeProperties: createHitOutcomeProperties(
     HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BENEVOLENT_CONSUMABLE,
     {
-      getOnUseTriggers: (context) => {
-        const toReturn = {};
+      getHitOutcomeTriggers: (context) => {
+        const toReturn: Partial<ActivatedTriggersGameUpdateCommand> = {};
 
         // modify cloned user of projectile
         const { asShimmedActionEntity } = context.combatantContext.combatant.combatantProperties;
@@ -61,6 +64,19 @@ const config: CombatActionComponentConfig = {
           });
 
         console.log("context projectile", asShimmedActionEntity);
+
+        toReturn.cosmeticEffectsToStart = [
+          {
+            name: CosmeticEffectNames.SmokeParticleStream,
+            parent: {
+              sceneEntityIdentifier: {
+                type: SceneEntityType.ActionEntityModel,
+                entityId: asShimmedActionEntity.entityProperties.id,
+              },
+              transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
+            },
+          },
+        ];
 
         return toReturn;
       },

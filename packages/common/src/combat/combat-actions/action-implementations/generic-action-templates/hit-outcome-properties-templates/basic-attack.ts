@@ -30,4 +30,7 @@ export const BASIC_ATTACK_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperti
   getOnUseTriggers: () => {
     return {};
   },
+  getHitOutcomeTriggers: () => {
+    return {};
+  },
 };

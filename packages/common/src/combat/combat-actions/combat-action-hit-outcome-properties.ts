@@ -74,6 +74,9 @@ export interface CombatActionHitOutcomeProperties {
   getOnUseTriggers: (
     context: ActionResolutionStepContext
   ) => Partial<ActivatedTriggersGameUpdateCommand>;
+  getHitOutcomeTriggers: (
+    context: ActionResolutionStepContext
+  ) => Partial<ActivatedTriggersGameUpdateCommand>;
   flatThreatGeneratedOnHit?: Record<ThreatType, number>;
   flatThreatReducedOnMonsterVsPlayerHit?: Record<ThreatType, number>;
 }

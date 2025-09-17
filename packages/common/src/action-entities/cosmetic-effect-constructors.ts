@@ -13,6 +13,7 @@ import { LightParticleAccumulation } from "./light-particle-accumulation.js";
 import { DarkParticleAccumulation } from "./dark-particle-accumulation.js";
 import { BlindnessParticlesLarge } from "./blindness-particles-large.js";
 import { FirewallParticles } from "./firewall-particles.js";
+import { SmokeParticleStream } from "./smoke-particle-stream.js";
 
 type CosmeticEffectConstructor = new (scene: Scene, rank: number) => CosmeticEffect;
 
@@ -31,4 +32,5 @@ export const COSMETIC_EFFECT_CONSTRUCTORS: Record<CosmeticEffectNames, CosmeticE
     [CosmeticEffectNames.DarkParticleAccumulation]: DarkParticleAccumulation,
     [CosmeticEffectNames.BlindnessCast]: BlindnessParticlesLarge,
     [CosmeticEffectNames.FirewallParticles]: FirewallParticles,
+    [CosmeticEffectNames.SmokeParticleStream]: SmokeParticleStream,
   };

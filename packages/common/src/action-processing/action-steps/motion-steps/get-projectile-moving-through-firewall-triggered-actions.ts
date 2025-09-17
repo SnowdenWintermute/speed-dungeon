@@ -16,6 +16,8 @@ import { SpawnableEntityType } from "../../../spawnables/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { createShimmedUserOfActionEntityAction } from "../../../combatants/index.js";
 
+const requiredFirewallLevelForIgnitingProjectiles = 2;
+
 export function getProjectileMovingThroughFirewallTriggeredActions(
   context: ActionResolutionStepContext,
   step: TriggerEnvironmentalHazardsActionResolutionStep
@@ -67,6 +69,11 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
   );
 
   if (existingFirewallOption === null) return [];
+  if (
+    existingFirewallOption.actionEntityProperties.actionOriginData?.actionLevel?.current !==
+    requiredFirewallLevelForIgnitingProjectiles
+  )
+    return [];
 
   const { destination, duration } = translationOption;
   const { position: firewallPosition, dimensions: taggedDimensions } =

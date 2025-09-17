@@ -31,11 +31,11 @@ export enum ActionResolutionStepType {
   ChamberingMotion,
   DeliveryMotion,
   PayResourceCosts,
-  OnActivationSpawnEntity,
-  OnActivationActionEntityMotion,
   PostActionUseCombatLogMessage,
   EvalOnUseTriggers,
   StartConcurrentSubActions, // starts actions that happen simultaneously and independently such as ["arrow projectile"]
+  OnActivationSpawnEntity,
+  OnActivationActionEntityMotion,
   RollIncomingHitOutcomes,
   EvalOnHitOutcomeTriggers, // may start branching actions if triggered
   DetermineChildActions, // enqueues sequential actions such as [ "main hand attack", "off hand attack" ]

@@ -1,3 +1,4 @@
+import { Vector3 } from "@babylonjs/core";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
 import {
   ActionResolutionStepContext,
@@ -27,6 +28,7 @@ export interface EquipmentAnimation {
 export interface CosmeticEffectOnTargetTransformNode {
   name: CosmeticEffectNames;
   parent: SceneEntityChildTransformNodeIdentifier;
+  offsetOption?: Vector3;
   rankOption?: number;
   lifetime?: Milliseconds;
 }
