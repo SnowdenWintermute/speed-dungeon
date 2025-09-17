@@ -11,7 +11,13 @@ export const BOW_ATTACK_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties
   ...RANGED_ACTION_HIT_OUTCOME_PROPERTIES,
   addsPropertiesFromHoldableSlot: HoldableSlotType.MainHand,
   resourceChangePropertiesGetters: {
-    [CombatActionResource.HitPoints]: (user, hitOutcomeProperties, actionLevel, primaryTarget) => {
+    [CombatActionResource.HitPoints]: (
+      user,
+      hitOutcomeProperties,
+      actionLevel,
+      primaryTarget,
+      actionEntityOption
+    ) => {
       const hpChangeProperties = getAttackResourceChangeProperties(
         user,
         hitOutcomeProperties,
@@ -25,6 +31,17 @@ export const BOW_ATTACK_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties
         // be allowed to be fired from a broken weapon
         { usableWeaponsOnly: false }
       );
+
+      console.log("bow attack hit outcome properties projectile", actionEntityOption);
+      const actionEntityResourceChangeSourceOption =
+        actionEntityOption?.actionEntityProperties.actionOriginData?.resourceChangeSource;
+      if (actionEntityResourceChangeSourceOption) {
+        const toModify = hpChangeProperties.resourceChangeSource;
+        const { category, elementOption } = actionEntityResourceChangeSourceOption;
+        if (category !== undefined) toModify.category = category;
+        if (elementOption !== undefined) toModify.elementOption = elementOption;
+      }
+
       if (hpChangeProperties instanceof Error) return hpChangeProperties;
 
       return hpChangeProperties;

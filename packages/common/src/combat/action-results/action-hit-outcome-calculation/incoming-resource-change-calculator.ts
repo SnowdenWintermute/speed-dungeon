@@ -14,6 +14,7 @@ import { CombatantProperties } from "../../../combatants/index.js";
 import { CombatantContext } from "../../../combatant-context/index.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 import cloneDeep from "lodash.clonedeep";
+import { ActionEntity } from "../../../action-entities/index.js";
 
 export interface ResourceChangesPerTarget {
   value: number;
@@ -74,7 +75,8 @@ export class IncomingResourceChangesCalculator {
         user,
         hitOutcomeProperties,
         actionLevel,
-        primaryTarget
+        primaryTarget,
+        user.asShimmedActionEntity
       );
       if (resourceChangeProperties === null) continue;
 

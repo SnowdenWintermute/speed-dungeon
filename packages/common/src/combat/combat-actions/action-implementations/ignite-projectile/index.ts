@@ -1,4 +1,9 @@
 import {
+  ResourceChangeSource,
+  ResourceChangeSourceCategory,
+} from "../../../hp-change-source-types.js";
+import { MagicalElement } from "../../../magical-elements.js";
+import {
   CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
@@ -42,7 +47,20 @@ const config: CombatActionComponentConfig = {
         const toReturn = {};
 
         // modify cloned user of projectile
-        context.combatantContext.combatant.combatantProperties.level = 30;
+        const { asShimmedActionEntity } = context.combatantContext.combatant.combatantProperties;
+        if (asShimmedActionEntity === undefined)
+          throw new Error("expected user to have asShimmedActionEntity");
+
+        if (!asShimmedActionEntity.actionEntityProperties.actionOriginData)
+          asShimmedActionEntity.actionEntityProperties.actionOriginData = {};
+
+        asShimmedActionEntity.actionEntityProperties.actionOriginData.resourceChangeSource =
+          new ResourceChangeSource({
+            category: ResourceChangeSourceCategory.Physical,
+            elementOption: MagicalElement.Fire,
+          });
+
+        console.log("context projectile", asShimmedActionEntity);
 
         return toReturn;
       },

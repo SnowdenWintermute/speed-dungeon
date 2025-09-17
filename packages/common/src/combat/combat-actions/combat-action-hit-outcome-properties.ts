@@ -1,3 +1,4 @@
+import { ActionEntity } from "../../action-entities/index.js";
 import {
   ActionResolutionStepContext,
   ActivatedTriggersGameUpdateCommand,
@@ -46,7 +47,8 @@ export interface CombatActionHitOutcomeProperties {
         user: CombatantProperties,
         hitOutcomeProperties: CombatActionHitOutcomeProperties,
         actionLevel: number,
-        primaryTarget: CombatantProperties
+        primaryTarget: CombatantProperties,
+        actionEntityOption?: ActionEntity
       ) => null | CombatActionResourceChangeProperties
     >
   >;

@@ -14,6 +14,7 @@ import {
   CombatActionExecutionIntent,
   CombatActionName,
   CombatActionTargetType,
+  ResourceChangeSource,
 } from "../combat/index.js";
 
 export enum ActionEntityName {
@@ -43,6 +44,7 @@ export interface ActionEntityActionOriginData {
   userCombatantAttributes?: CombatantAttributeRecord;
   userElementalAffinities?: Partial<Record<MagicalElement, number>>;
   userKineticAffinities?: Partial<Record<KineticDamageType, number>>;
+  resourceChangeSource?: ResourceChangeSource;
 }
 
 export type ActionEntityProperties = {

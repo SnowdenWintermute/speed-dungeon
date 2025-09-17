@@ -36,6 +36,7 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
   }
   if (spawnedEntityOption.type !== SpawnableEntityType.ActionEntity) return [];
   const projectileEntity = spawnedEntityOption.actionEntity;
+  console.log("PROJECTILEENTITY", projectileEntity);
 
   // @TODO - check if this projectile should be affected
 
@@ -108,8 +109,10 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
   // this should be the cloned user of the projectile as set when the projectile
   // was fired. by having access to it we can modify it
   const igniteProjectileUser = context.combatantContext.combatant;
+  // for the combat log
+  igniteProjectileUser.entityProperties.name = projectileEntity.entityProperties.name;
 
-  igniteProjectileUser.combatantProperties.asShimmedActionEntity = existingFirewallOption;
+  igniteProjectileUser.combatantProperties.asShimmedActionEntity = cloneDeep(projectileEntity);
 
   const intentWithUser = {
     user: igniteProjectileUser,
