@@ -55,6 +55,7 @@ export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
         context.combatantContext.combatant,
         expectedProjectile.actionEntity
       );
+
       return [
         {
           user: projectileUser,

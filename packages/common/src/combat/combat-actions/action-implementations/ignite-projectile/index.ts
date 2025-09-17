@@ -23,21 +23,30 @@ import {
 import { IGNITE_PROJECTILE_STEPS_CONFIG } from "./ignite-projectile-steps-config.js";
 
 const targetingProperties = createTargetingPropertiesConfig(
-  TARGETING_PROPERTIES_TEMPLATE_GETTERS.AREA_HOSTILE,
-  { getValidTargetCategories: () => TargetCategories.Any }
+  TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME,
+  { executionPreconditions: [] }
 );
 
 const config: CombatActionComponentConfig = {
   description: "Add physical fire element to a projectile",
   targetingProperties,
   combatLogMessageProperties: new CombatActionCombatLogProperties({
-    ...createGenericSpellCastMessageProperties(CombatActionName.FirewallBurn),
+    ...createGenericSpellCastMessageProperties(CombatActionName.IgniteProjectile),
     getOnUseMessage: (data) => `The firewall ignites ${data.nameOfActionUser}`,
   }),
 
   hitOutcomeProperties: createHitOutcomeProperties(
     HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BENEVOLENT_CONSUMABLE,
-    {}
+    {
+      getOnUseTriggers: (context) => {
+        const toReturn = {};
+
+        // modify cloned user of projectile
+        context.combatantContext.combatant.combatantProperties.level = 30;
+
+        return toReturn;
+      },
+    }
   ),
   costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.FREE_ACTION(),
   stepsConfig: IGNITE_PROJECTILE_STEPS_CONFIG,

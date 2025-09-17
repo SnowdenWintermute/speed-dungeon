@@ -44,6 +44,7 @@ import {
 } from "../../../../../scene-entities/index.js";
 import { ActionEntity, ActionEntityName } from "../../../../../action-entities/index.js";
 import { Vector3 } from "@babylonjs/core";
+import { nameToPossessive } from "../../../../../utils/index.js";
 
 const base = cloneDeep(PROJECTILE_SKILL_STEPS_CONFIG);
 delete base.steps[ActionResolutionStepType.RollIncomingHitOutcomes];
@@ -69,10 +70,15 @@ base.steps = {
       const { combatantContext } = context;
       const position = combatantContext.combatant.combatantProperties.position.clone();
 
+      const firedByCombatantName = combatantContext.combatant.entityProperties.name;
+
       const spawnableEntity: SpawnableEntity = {
         type: SpawnableEntityType.ActionEntity,
         actionEntity: new ActionEntity(
-          { id: context.idGenerator.generate(), name: "" },
+          {
+            id: context.idGenerator.generate(),
+            name: `${nameToPossessive(firedByCombatantName)} arrow`,
+          },
           {
             position,
             name: ActionEntityName.Arrow,

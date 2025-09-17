@@ -27,6 +27,8 @@ export class PostActionUseCombatLogMessageActionResolutionStep extends ActionRes
         completionOrderId: null,
         actionUseMessageData,
       };
+
+      console.log("sending actionUseMessageData:", actionUseMessageData);
     }
 
     super(stepType, context, gameUpdateCommandOption);

@@ -3,6 +3,7 @@ import {
   ActionEntityMotionGameUpdateCommand,
   AdventuringParty,
   AnimationType,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatantMotionGameUpdateCommand,
   ERROR_MESSAGES,
   EntityId,
@@ -34,6 +35,13 @@ export function handleEntityMotionUpdate(
   isMainUpdate: boolean
 ) {
   const { translationOption, rotationOption, animationOption, delayOption } = motionUpdate;
+
+  console.log(
+    COMBAT_ACTION_NAME_STRINGS[update.command.actionName],
+    "motion update:",
+    ACTION_RESOLUTION_STEP_TYPE_STRINGS[update.command.step],
+    motionUpdate
+  );
 
   const toUpdate = getSceneEntityToUpdate(motionUpdate);
   const { movementManager, skeletalAnimationManager, dynamicAnimationManager } = toUpdate;

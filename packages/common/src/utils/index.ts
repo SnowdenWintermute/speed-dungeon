@@ -170,3 +170,8 @@ export function timeToReachBox(
 
   return timeToFirewall;
 }
+
+export function nameToPossessive(name: string): string {
+  if (!name) return name;
+  return name.endsWith("s") ? `${name}'` : `${name}'s`;
+}

@@ -101,19 +101,15 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
   // use InitialPositioning motion, so that the delay happens before the post initial positioning
   // shouldExecute check in case some reason not to execute happens while it is delaying
   igniteProjectileIntent.setDelayForStep(
-    ActionResolutionStepType.InitialPositioning,
+    ActionResolutionStepType.OnActivationActionEntityMotion,
     timeToReachFirewallOption
   );
 
-  const igniteProjectileUser = createShimmedUserOfActionEntityAction(
-    "firewall igniting projectile",
-    existingFirewallOption,
-    projectileEntity.entityProperties.id
-  );
+  // this should be the cloned user of the projectile as set when the projectile
+  // was fired. by having access to it we can modify it
+  const igniteProjectileUser = context.combatantContext.combatant;
 
   igniteProjectileUser.combatantProperties.asShimmedActionEntity = existingFirewallOption;
-  igniteProjectileIntent.level =
-    existingFirewallOption.actionEntityProperties.actionOriginData?.actionLevel?.current || 1;
 
   const intentWithUser = {
     user: igniteProjectileUser,

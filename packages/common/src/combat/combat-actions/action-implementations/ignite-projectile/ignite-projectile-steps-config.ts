@@ -8,10 +8,15 @@ import {
 const stepOverrides: Partial<
   Record<ActionResolutionStepType, Partial<ActionResolutionStepConfig>>
 > = {};
+stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
+  // will be set by environmental hazard checking step
+  getDelay: (externallySetDelayOption) => {
+    return externallySetDelayOption || 0;
+  },
+};
 
-export const IGNITE_PROJECTILE_STEPS_CONFIG = createStepsConfig(
-  ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.VALUE_CHANGE_TICK,
-  {
-    steps: stepOverrides,
-  }
-);
+const stepsConfig = createStepsConfig(ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.MODIFY_ACTION_ENTITY, {
+  steps: stepOverrides,
+});
+
+export const IGNITE_PROJECTILE_STEPS_CONFIG = stepsConfig;
