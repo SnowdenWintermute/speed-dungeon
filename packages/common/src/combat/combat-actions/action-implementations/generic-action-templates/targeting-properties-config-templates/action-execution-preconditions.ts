@@ -18,6 +18,7 @@ export enum ActionExecutionPreconditions {
   TargetsAreAlive,
   WasNotCounterattacked,
   WasNotWearing2HWeaponOnPreviousAction,
+  ProjectileWasNotIncinerated,
 }
 
 export const ACTION_EXECUTION_PRECONDITIONS: Record<
@@ -30,6 +31,7 @@ export const ACTION_EXECUTION_PRECONDITIONS: Record<
   [ActionExecutionPreconditions.WasNotCounterattacked]: wasNotCounterattacked,
   [ActionExecutionPreconditions.WasNotWearing2HWeaponOnPreviousAction]:
     wasWearing2HWeaponOnPreviousAction,
+  [ActionExecutionPreconditions.ProjectileWasNotIncinerated]: projectileWasNotIncinerated,
 };
 
 function wasWearing2HWeaponOnPreviousAction(
@@ -49,6 +51,14 @@ function wasNotCounterattacked(
   self: CombatActionComponent
 ) {
   return !previousTrackerOption?.wasCountered();
+}
+
+function projectileWasNotIncinerated(
+  context: ActionResolutionStepContext,
+  previousTrackerOption: undefined | ActionTracker,
+  self: CombatActionComponent
+) {
+  return !context.tracker.projectileWasIncinerated;
 }
 
 function hasEnoughActionPoints(

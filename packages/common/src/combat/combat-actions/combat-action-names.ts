@@ -23,6 +23,7 @@ export enum CombatActionName {
   FirewallBurn,
   FirewallPassTurn,
   IgniteProjectile,
+  IncinerateProjectile,
   // CONDITION TICKS
   BurningTick,
   ConditionPassTurn,
@@ -77,4 +78,5 @@ export const COMBAT_ACTION_NAME_STRINGS: Record<CombatActionName, string> = {
   [CombatActionName.FirewallBurn]: "Firewall Burn",
   [CombatActionName.FirewallPassTurn]: "Firewall Pass Turn",
   [CombatActionName.IgniteProjectile]: "Ignite Projectile",
+  [CombatActionName.IncinerateProjectile]: "Incinerate Projectile",
 };

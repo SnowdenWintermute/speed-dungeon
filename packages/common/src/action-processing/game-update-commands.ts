@@ -152,7 +152,8 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   removedConditionIds?: Record<EntityId, ConditionId[]>;
   threatChanges?: ThreatChanges;
   supportClassLevelsGained?: Record<EntityId, CombatantClass>;
-  actionEntityIdsDespawned?: EntityId[];
+  actionEntityIdsDespawned?: { id: EntityId; cleanupMode: CleanupMode }[];
+  actionEntityIdsToHide?: EntityId[];
   actionEntityChanges?: Record<EntityId, Partial<ActionEntityActionOriginData>>;
 }
 

@@ -1,5 +1,6 @@
 import {
   AbstractMesh,
+  Color4,
   GPUParticleSystem,
   Mesh,
   ParticleSystem,
@@ -46,10 +47,14 @@ export class SmokePuff extends CosmeticEffect {
       particleSystem.minEmitPower = 0.5;
       particleSystem.maxEmitPower = 1;
       particleSystem.emitRate = 15;
-      particleSystem.minLifeTime = 0.2;
-      particleSystem.maxLifeTime = 0.5;
+      particleSystem.minLifeTime = 0.3;
+      particleSystem.maxLifeTime = 0.7;
 
       particleSystem.gravity = new Vector3(0, 0.25, 0);
+
+      particleSystem.addColorGradient(0, new Color4(0.25, 0.25, 0.25, 1));
+      particleSystem.addColorGradient(0.3, new Color4(0, 0, 0, 0.7));
+      particleSystem.addColorGradient(1, new Color4(0, 0, 0, 0.0));
 
       const managed = new ManagedParticleSystem(particleSystem, mesh, scene);
 

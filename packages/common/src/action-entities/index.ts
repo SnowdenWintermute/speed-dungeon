@@ -47,6 +47,7 @@ export interface ActionEntityActionOriginData {
   userElementalAffinities?: Partial<Record<MagicalElement, number>>;
   userKineticAffinities?: Partial<Record<KineticDamageType, number>>;
   resourceChangeSource?: ResourceChangeSource;
+  wasIncinerated?: boolean;
 }
 
 export type ActionEntityProperties = {

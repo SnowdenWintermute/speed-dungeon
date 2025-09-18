@@ -1,4 +1,4 @@
-import { ActionEntityName } from "../../../action-entities/index.js";
+import { ActionEntity, ActionEntityName } from "../../../action-entities/index.js";
 import {
   COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTIONS,
@@ -15,12 +15,22 @@ import cloneDeep from "lodash.clonedeep";
 import { timeToReachBox } from "../../../utils/index.js";
 import { SpawnableEntityType } from "../../../spawnables/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
+import { Milliseconds } from "../../../primatives/index.js";
 
 const requiredFirewallLevelForIgnitingProjectiles = 2;
+const requiredFirewallLevelForIncineratingProjectiles = 3;
 
 const IGNITABLE_PROJECTILE_TYPES: ActionEntityName[] = [ActionEntityName.Arrow];
 function projectileTypeShouldBeIgnited(type: ActionEntityName) {
   return IGNITABLE_PROJECTILE_TYPES.includes(type);
+}
+
+const INCINERATABLE_PROJECTILE_TYPES: ActionEntityName[] = [
+  ActionEntityName.Arrow,
+  ActionEntityName.IceBolt,
+];
+function projectileTypeShouldBeIncinerated(type: ActionEntityName) {
+  return INCINERATABLE_PROJECTILE_TYPES.includes(type);
 }
 
 export function getProjectileMovingThroughFirewallTriggeredActions(
@@ -53,8 +63,6 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
 
   console.log("PROJECTILEENTITY", projectileEntity);
 
-  if (!projectileTypeShouldBeIgnited(projectileEntity.actionEntityProperties.name)) return [];
-
   const { actionExecutionIntent } = context.tracker;
   const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
 
@@ -82,11 +90,10 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
   );
 
   if (existingFirewallOption === null) return [];
-  if (
-    existingFirewallOption.actionEntityProperties.actionOriginData?.actionLevel?.current !==
-    requiredFirewallLevelForIgnitingProjectiles
-  )
-    return [];
+
+  const firewallActionLevel =
+    existingFirewallOption.actionEntityProperties.actionOriginData?.actionLevel?.current || 0;
+  if (firewallActionLevel < requiredFirewallLevelForIgnitingProjectiles) return [];
 
   const { destination, duration } = translationOption;
   const { position: firewallPosition, dimensions: taggedDimensions } =
@@ -110,6 +117,60 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
   );
 
   if (timeToReachFirewallOption === null) return [];
+
+  if (firewallActionLevel === requiredFirewallLevelForIgnitingProjectiles)
+    return triggerIngiteProjectile(context, projectileEntity, timeToReachFirewallOption);
+  if (firewallActionLevel === requiredFirewallLevelForIncineratingProjectiles)
+    return triggerIncinerateProjectile(context, projectileEntity, timeToReachFirewallOption);
+
+  console.error("should have gotten a triggered action by now");
+  return [];
+}
+
+function triggerIncinerateProjectile(
+  context: ActionResolutionStepContext,
+  projectileEntity: ActionEntity,
+  timeToReachFirewallOption: Milliseconds
+) {
+  if (!projectileTypeShouldBeIncinerated(projectileEntity.actionEntityProperties.name)) return [];
+
+  context.tracker.projectileWasIncinerated = true;
+
+  const intent = new CombatActionExecutionIntent(
+    CombatActionName.IncinerateProjectile,
+    { type: CombatActionTargetType.Single, targetId: projectileEntity.entityProperties.id },
+    1
+  );
+
+  // use InitialPositioning motion, so that the delay happens before the post initial positioning
+  // shouldExecute check in case some reason not to execute happens while it is delaying
+  intent.setDelayForStep(
+    ActionResolutionStepType.OnActivationActionEntityMotion,
+    timeToReachFirewallOption
+  );
+
+  // this should be the cloned user of the projectile as set when the projectile
+  // was fired. by having access to it we can modify it
+  const user = context.combatantContext.combatant;
+  // for the combat log
+  user.entityProperties.name = projectileEntity.entityProperties.name;
+
+  user.combatantProperties.asShimmedActionEntity = projectileEntity;
+
+  const intentWithUser = {
+    user,
+    actionExecutionIntent: intent,
+  };
+
+  return [intentWithUser];
+}
+
+function triggerIngiteProjectile(
+  context: ActionResolutionStepContext,
+  projectileEntity: ActionEntity,
+  timeToReachFirewallOption: Milliseconds
+) {
+  if (!projectileTypeShouldBeIgnited(projectileEntity.actionEntityProperties.name)) return [];
 
   const igniteProjectileIntent = new CombatActionExecutionIntent(
     CombatActionName.IgniteProjectile,

@@ -1,15 +1,10 @@
-import { Vector3 } from "@babylonjs/core";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { ActivatedTriggersGameUpdateCommand } from "../../../../action-processing/game-update-commands.js";
 import {
   ActionEntityBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
-import {
-  ResourceChangeSource,
-  ResourceChangeSourceCategory,
-} from "../../../hp-change-source-types.js";
-import { MagicalElement } from "../../../magical-elements.js";
+import { CleanupMode } from "../../../../types.js";
 import {
   CombatActionCombatLogProperties,
   CombatActionComponentConfig,
@@ -27,7 +22,7 @@ import {
   createTargetingPropertiesConfig,
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
-import { IGNITE_PROJECTILE_STEPS_CONFIG } from "./ignite-projectile-steps-config.js";
+import { INCINERATE_PROJECTILE_STEPS_CONFIG } from "./incinerate-projectile-steps-config.js";
 
 const targetingProperties = createTargetingPropertiesConfig(
   TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME,
@@ -35,11 +30,11 @@ const targetingProperties = createTargetingPropertiesConfig(
 );
 
 const config: CombatActionComponentConfig = {
-  description: "Add physical fire element to a projectile",
+  description: "Removes projectile from play",
   targetingProperties,
   combatLogMessageProperties: new CombatActionCombatLogProperties({
-    ...createGenericSpellCastMessageProperties(CombatActionName.IgniteProjectile),
-    getOnUseMessage: (data) => `The firewall ignites ${data.nameOfActionUser}`,
+    ...createGenericSpellCastMessageProperties(CombatActionName.IncinerateProjectile),
+    getOnUseMessage: (data) => `The firewall incinerates ${data.nameOfActionUser}`,
   }),
 
   hitOutcomeProperties: createHitOutcomeProperties(
@@ -48,32 +43,20 @@ const config: CombatActionComponentConfig = {
       getHitOutcomeTriggers: (context) => {
         const toReturn: Partial<ActivatedTriggersGameUpdateCommand> = {};
 
-        // modify cloned user of projectile
         const { asShimmedActionEntity } = context.combatantContext.combatant.combatantProperties;
         if (asShimmedActionEntity === undefined)
           throw new Error("expected user to have asShimmedActionEntity");
 
+        console.log("trying to send hide for entitiy:", asShimmedActionEntity.entityProperties.id);
+
         if (!asShimmedActionEntity.actionEntityProperties.actionOriginData)
           asShimmedActionEntity.actionEntityProperties.actionOriginData = {};
 
-        asShimmedActionEntity.actionEntityProperties.actionOriginData.resourceChangeSource =
-          new ResourceChangeSource({
-            category: ResourceChangeSourceCategory.Physical,
-            elementOption: MagicalElement.Fire,
-          });
+        asShimmedActionEntity.actionEntityProperties.actionOriginData.wasIncinerated = true;
 
-        // @PERF - combine when starting multiple cosmeticEffectsToStart on same entity
+        toReturn.actionEntityIdsToHide = [asShimmedActionEntity.entityProperties.id];
+
         toReturn.cosmeticEffectsToStart = [
-          {
-            name: CosmeticEffectNames.SmokeParticleStream,
-            parent: {
-              sceneEntityIdentifier: {
-                type: SceneEntityType.ActionEntityModel,
-                entityId: asShimmedActionEntity.entityProperties.id,
-              },
-              transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
-            },
-          },
           {
             name: CosmeticEffectNames.SmokePuff,
             parent: {
@@ -93,11 +76,11 @@ const config: CombatActionComponentConfig = {
     }
   ),
   costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.FREE_ACTION(),
-  stepsConfig: IGNITE_PROJECTILE_STEPS_CONFIG,
+  stepsConfig: INCINERATE_PROJECTILE_STEPS_CONFIG,
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };
 
-export const IGNITE_PROJECTILE = new CombatActionComposite(
-  CombatActionName.IgniteProjectile,
+export const INCINERATE_PROJECTILE = new CombatActionComposite(
+  CombatActionName.IncinerateProjectile,
   config
 );

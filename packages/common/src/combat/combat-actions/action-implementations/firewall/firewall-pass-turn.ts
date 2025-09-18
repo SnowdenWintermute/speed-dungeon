@@ -5,6 +5,7 @@ import {
 } from "../../../../action-processing/index.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
+import { CleanupMode } from "../../../../types.js";
 import { throwIfError } from "../../../../utils/index.js";
 import {
   ActionResolutionStepsConfig,
@@ -67,7 +68,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(
       }
 
       if (despawned) {
-        toReturn.actionEntityIdsDespawned = [firewallId];
+        toReturn.actionEntityIdsDespawned = [{ id: firewallId, cleanupMode: CleanupMode.Soft }];
       } else {
         toReturn.actionEntityChanges = {
           [firewallId]: {

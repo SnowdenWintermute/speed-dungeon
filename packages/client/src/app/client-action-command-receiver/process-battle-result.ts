@@ -2,6 +2,7 @@ import {
   AdventuringParty,
   BattleConclusion,
   BattleResultActionCommandPayload,
+  CleanupMode,
   Consumable,
   ERROR_MESSAGES,
   Equipment,
@@ -91,7 +92,7 @@ export async function battleResultActionCommandHandler(
 
     for (const entityId of actionEntitiesRemoved) {
       AdventuringParty.unregisterActionEntity(partyOption, entityId, null);
-      getGameWorld().actionEntityManager.unregister(entityId);
+      getGameWorld().actionEntityManager.unregister(entityId, CleanupMode.Soft);
     }
 
     state.baseMenuState.inCombat = false;

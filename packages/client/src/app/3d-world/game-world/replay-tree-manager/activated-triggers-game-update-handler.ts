@@ -1,12 +1,14 @@
 import { useGameStore } from "@/stores/game-store";
 import {
   ActionEntity,
+  ActionEntityName,
   ActionPayableResource,
   ActivatedTriggersGameUpdateCommand,
   AdventuringParty,
   COMBATANT_CLASS_NAME_STRINGS,
   COMBATANT_CONDITION_CONSTRUCTORS,
   COMBAT_ACTIONS,
+  CleanupMode,
   CombatantCondition,
   CombatantProperties,
   DurabilityChangesByEntityId,
@@ -32,6 +34,7 @@ export async function activatedTriggersGameUpdateHandler(update: {
   command: ActivatedTriggersGameUpdateCommand;
   isComplete: boolean;
 }) {
+  console.log("STARTED ActivatedTriggersGameUpdateCommand");
   const { command } = update;
 
   // keep track outside of the mutateState so we can post messages after mutating state
@@ -44,13 +47,6 @@ export async function activatedTriggersGameUpdateHandler(update: {
     const partyResult = getParty(game, gameState.username);
     if (partyResult instanceof Error) throw partyResult;
     const battleOption = AdventuringParty.getBattleOption(partyResult, game);
-
-    if (command.actionEntityIdsDespawned) {
-      for (const id of command.actionEntityIdsDespawned) {
-        AdventuringParty.unregisterActionEntity(partyResult, id, battleOption);
-        getGameWorld().actionEntityManager.unregister(id);
-      }
-    }
 
     if (command.actionEntityChanges) {
       for (const [id, changes] of Object.entries(command.actionEntityChanges)) {
@@ -197,17 +193,28 @@ export async function activatedTriggersGameUpdateHandler(update: {
     }
 
     handleThreatChangesUpdate(update.command);
-  });
 
-  // // conditions or action entities may have added or removed trackers that we need to account for
-  // useGameStore.getState().mutateState((gameState) => {
-  //   const game = gameState.game;
-  //   if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-  //   const partyResult = gameState.getParty();
-  //   if (partyResult instanceof Error) throw partyResult;
-  //   const battleOption = AdventuringParty.getBattleOption(partyResult, game);
-  //   battleOption?.turnOrderManager.updateTrackers(game, partyResult);
-  // });
+    console.log("command.actionEntityIdsDespawned:", command.actionEntityIdsDespawned);
+    // must despawn AFTER startOrStopCosmeticEffects so we can do a little puff of smoke
+    // on an entity right before we despawn it
+    if (command.actionEntityIdsDespawned) {
+      for (const { id, cleanupMode } of command.actionEntityIdsDespawned) {
+        console.log("trying to clean up", id, "mode:", cleanupMode);
+        AdventuringParty.unregisterActionEntity(partyResult, id, battleOption);
+        getGameWorld().actionEntityManager.unregister(id, cleanupMode);
+      }
+    }
+
+    if (command.actionEntityIdsToHide) {
+      for (const id of command.actionEntityIdsToHide) {
+        const actionEntity = getGameWorld().actionEntityManager.findOne(id);
+        actionEntity.setVisibility(0);
+
+        if (actionEntity.name === ActionEntityName.IceBolt)
+          actionEntity.cosmeticEffectManager.softCleanup(() => {});
+      }
+    }
+  });
 
   for (const { ownerId, equipment } of brokenHoldablesAndTheirOwnerIds)
     postBrokenHoldableMessages(ownerId, equipment);
@@ -235,6 +242,7 @@ export async function activatedTriggersGameUpdateHandler(update: {
     }
   }
 
+  console.log("set update as complete");
+
   update.isComplete = true;
-  // or show floating text for counterspell, "triggered tech burst" "psionic explosion"
 }

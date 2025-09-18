@@ -8,10 +8,10 @@ export function quickStartGame(socketOption: Socket | undefined) {
     name: "",
     combatantClass: CombatantClass.Mage,
   });
-  socketOption?.emit(ClientToServerEvent.CreateCharacter, {
-    name: "",
-    combatantClass: CombatantClass.Warrior,
-  });
+  // socketOption?.emit(ClientToServerEvent.CreateCharacter, {
+  //   name: "",
+  //   combatantClass: CombatantClass.Warrior,
+  // });
   socketOption?.emit(ClientToServerEvent.CreateCharacter, {
     name: "",
     combatantClass: CombatantClass.Mage,

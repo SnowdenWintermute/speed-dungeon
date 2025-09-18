@@ -12,6 +12,7 @@ import getCurrentParty from "@/utils/getCurrentParty";
 import { Vector3 } from "@babylonjs/core";
 import {
   AdventuringParty,
+  CleanupMode,
   Combatant,
   CombatantProperties,
   Consumable,
@@ -41,7 +42,7 @@ export default function newDungeonRoomHandler({
 
     for (const actionEntityId of actionEntitiesToRemove) {
       AdventuringParty.unregisterActionEntity(party, actionEntityId, null);
-      getGameWorld().actionEntityManager.unregister(actionEntityId);
+      getGameWorld().actionEntityManager.unregister(actionEntityId, CleanupMode.Soft);
     }
 
     itemIdsOnGroundInPreviousRoom.push(

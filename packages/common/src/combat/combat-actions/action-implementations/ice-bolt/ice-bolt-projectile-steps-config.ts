@@ -20,7 +20,7 @@ import { TargetingCalculator } from "../../../targeting/targeting-calculator.js"
 import { getPrimaryTargetPositionAsDestination } from "../common-destination-getters.js";
 import { ActionResolutionStepConfig } from "../../combat-action-steps-config.js";
 import { CosmeticEffectInstructionFactory } from "../generic-action-templates/cosmetic-effect-factories/index.js";
-import { throwIfError } from "../../../../utils/index.js";
+import { nameToPossessive, throwIfError } from "../../../../utils/index.js";
 import { CleanupMode } from "../../../../types.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
@@ -41,10 +41,15 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
     if (primaryTargetResult instanceof Error) throw primaryTargetResult;
     const target = primaryTargetResult;
 
+    const firedByCombatantName = combatantContext.combatant.entityProperties.name;
+
     return {
       type: SpawnableEntityType.ActionEntity,
       actionEntity: new ActionEntity(
-        { id: context.idGenerator.generate(), name: "" },
+        {
+          id: context.idGenerator.generate(),
+          name: `${nameToPossessive(firedByCombatantName)} ice bolt`,
+        },
         {
           position,
           name: ActionEntityName.IceBolt,
@@ -130,6 +135,8 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
 
 stepOverrides[ActionResolutionStepType.RollIncomingHitOutcomes] = {
   getCosmeticEffectsToStart: (context) => {
+    if (context.tracker.projectileWasIncinerated) return [];
+
     const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
     const targetId = throwIfError(
       targetingCalculator.getPrimaryTargetCombatantId(context.tracker.actionExecutionIntent)

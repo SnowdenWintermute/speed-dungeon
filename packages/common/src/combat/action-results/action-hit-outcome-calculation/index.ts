@@ -93,13 +93,19 @@ export class HitOutcomeCalculator {
     // while we may have already filtered targets for user selected action while they are targeting,
     // when doing ice burst we still want to target the side combatants, but actually not damage them
     // this may be vestigial from before explosion targets were chosen by distance
-    const filteredTargetIds = throwIfError(
+    let filteredTargetIds = throwIfError(
       TargetFilterer.filterTargetIdGroupByProhibitedCombatantStates(
         party,
         this.targetIds,
         this.action.targetingProperties.prohibitedHitCombatantStates
       )
     );
+
+    if (
+      combatant.combatantProperties.asShimmedActionEntity?.actionEntityProperties.actionOriginData
+        ?.wasIncinerated
+    )
+      filteredTargetIds = [];
 
     const hitOutcomes = new CombatActionHitOutcomes();
 
