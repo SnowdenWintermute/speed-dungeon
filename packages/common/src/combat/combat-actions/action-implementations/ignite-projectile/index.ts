@@ -63,7 +63,7 @@ const config: CombatActionComponentConfig = {
             elementOption: MagicalElement.Fire,
           });
 
-        console.log("IGNITING context projectile", asShimmedActionEntity);
+        console.log("IGNITING context projectile", JSON.stringify(asShimmedActionEntity, null, 2));
 
         // @PERF - combine when starting multiple cosmeticEffectsToStart on same entity
         toReturn.cosmeticEffectsToStart = [

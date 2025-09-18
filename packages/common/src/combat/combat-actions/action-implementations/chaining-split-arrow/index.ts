@@ -25,6 +25,8 @@ import {
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { CHAINING_SPLIT_ARROW_PARENT_STEPS_CONFIG } from "./chaining-split-arrow-parent-steps-config.js";
+import { SpawnableEntityType } from "../../../../spawnables/index.js";
+import { createCopyOfProjectileUser } from "../../../../combatants/index.js";
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BOW_ATTACK,
@@ -70,8 +72,18 @@ const config: CombatActionComponentConfig = {
         .getOpponents()
         .filter((opponent) => opponent.combatantProperties.hitPoints > 0)
         .map((opponent) => {
+          const expectedProjectile = context.tracker.spawnedEntityOption;
+          if (expectedProjectile === null)
+            throw new Error("expected to have spawned the arrow by now");
+          if (expectedProjectile.type !== SpawnableEntityType.ActionEntity)
+            throw new Error("expected to have spawned an action entity");
+          const projectileUser = createCopyOfProjectileUser(
+            context.combatantContext.combatant,
+            expectedProjectile.actionEntity
+          );
+
           return {
-            user: context.combatantContext.combatant,
+            user: projectileUser,
             actionExecutionIntent: new CombatActionExecutionIntent(
               CombatActionName.ChainingSplitArrowProjectile,
               {

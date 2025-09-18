@@ -27,7 +27,7 @@ export abstract class SceneEntity {
   public skeletalAnimationManager: SkeletalAnimationManager;
   public dynamicAnimationManager: DynamicAnimationManager;
   public movementManager: ModelMovementManager;
-  public cosmeticEffectManager = new CosmeticEffectManager();
+  public cosmeticEffectManager = new CosmeticEffectManager(this);
   public rootMesh: AbstractMesh;
   public rootTransformNode: TransformNode;
 
@@ -62,7 +62,11 @@ export abstract class SceneEntity {
 
   setVisibility(visibility: NormalizedPercentage) {
     this.visibility = visibility;
-    this.assetContainer.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
+    this.iterMeshes().forEach((mesh) => (mesh.visibility = this.visibility));
+  }
+
+  iterMeshes() {
+    return this.assetContainer.meshes;
   }
 
   getVisibility = () => this.visibility;

@@ -126,7 +126,7 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
 
   // this should be the cloned user of the projectile as set when the projectile
   // was fired. by having access to it we can modify it
-  const igniteProjectileUser = cloneDeep(context.combatantContext.combatant);
+  const igniteProjectileUser = context.combatantContext.combatant;
   // for the combat log
   igniteProjectileUser.entityProperties.name = projectileEntity.entityProperties.name;
 
@@ -134,7 +134,7 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
     "setting cloned asShimmedActionEntity for igniteProjectileUser:",
     projectileEntity.entityProperties.id
   );
-  igniteProjectileUser.combatantProperties.asShimmedActionEntity = cloneDeep(projectileEntity);
+  igniteProjectileUser.combatantProperties.asShimmedActionEntity = projectileEntity;
 
   const intentWithUser = {
     user: igniteProjectileUser,

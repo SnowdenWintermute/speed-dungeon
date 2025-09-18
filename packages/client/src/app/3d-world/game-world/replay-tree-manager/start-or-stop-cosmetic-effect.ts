@@ -44,6 +44,11 @@ export function startOrStopCosmeticEffects(
       } else {
         const effect = new COSMETIC_EFFECT_CONSTRUCTORS[name](sceneOption, rankOption || 1);
 
+        if (effect.setsMaterial) {
+          const material = effect.setsMaterial(sceneOption);
+          cosmeticEffectManager.setMaterial(material);
+        }
+
         cosmeticEffectManager.cosmeticEffects[name] = { effect, referenceCount: 1 };
         const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(parent);
 

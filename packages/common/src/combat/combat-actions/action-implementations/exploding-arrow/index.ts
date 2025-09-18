@@ -1,7 +1,11 @@
 import cloneDeep from "lodash.clonedeep";
 import { AbilityType } from "../../../../abilities/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
-import { CombatantConditionName, CombatantTraitType } from "../../../../combatants/index.js";
+import {
+  CombatantConditionName,
+  CombatantTraitType,
+  createCopyOfProjectileUser,
+} from "../../../../combatants/index.js";
 import {
   CombatActionCombatLogProperties,
   CombatActionComponentConfig,
@@ -13,6 +17,7 @@ import {
 } from "../../index.js";
 import { ATTACK_RANGED_MAIN_HAND } from "../attack/attack-ranged-main-hand.js";
 import { ATTACK_RANGED_MAIN_HAND_PROJECTILE } from "../attack/attack-ranged-main-hand-projectile.js";
+import { SpawnableEntityType } from "../../../../spawnables/index.js";
 
 // declaring the projectile properties in the parent action since doing the reverse
 // caused a circular dependency bug
@@ -51,9 +56,18 @@ const config: CombatActionComponentConfig = {
   hierarchyProperties: {
     ...ATTACK_RANGED_MAIN_HAND.hierarchyProperties,
     getConcurrentSubActions(context) {
+      const expectedProjectile = context.tracker.spawnedEntityOption;
+      if (expectedProjectile === null) throw new Error("expected to have spawned the arrow by now");
+      if (expectedProjectile.type !== SpawnableEntityType.ActionEntity)
+        throw new Error("expected to have spawned an action entity");
+      const projectileUser = createCopyOfProjectileUser(
+        context.combatantContext.combatant,
+        expectedProjectile.actionEntity
+      );
+
       return [
         {
-          user: context.combatantContext.combatant,
+          user: projectileUser,
           actionExecutionIntent: new CombatActionExecutionIntent(
             CombatActionName.ExplodingArrowProjectile,
             context.tracker.actionExecutionIntent.targets,

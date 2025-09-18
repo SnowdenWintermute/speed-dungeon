@@ -1,13 +1,23 @@
 import { CosmeticEffect, CosmeticEffectNames } from "@speed-dungeon/common";
+import { SceneEntity } from "..";
+import { StandardMaterial } from "@babylonjs/core";
 
 export class CosmeticEffectManager {
   cosmeticEffects: Partial<
     Record<CosmeticEffectNames, { effect: CosmeticEffect; referenceCount: number }>
   > = {};
-  constructor() {}
+  constructor(private parent: SceneEntity) {}
 
   hasActiveEffects() {
     return Object.entries(this.cosmeticEffects).length > 0;
+  }
+
+  setMaterial(material: StandardMaterial) {
+    this.parent.iterMeshes().forEach((mesh) => {
+      const oldMaterial = mesh.material;
+      mesh.material = material;
+      oldMaterial?.dispose();
+    });
   }
 
   softCleanup(onComplete: () => void) {

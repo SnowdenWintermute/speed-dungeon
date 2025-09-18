@@ -24,7 +24,6 @@ import {
   ACTION_EXECUTION_PRECONDITIONS,
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BOW_ATTACK,

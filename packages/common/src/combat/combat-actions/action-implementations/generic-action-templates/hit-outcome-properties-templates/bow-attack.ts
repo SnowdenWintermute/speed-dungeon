@@ -34,6 +34,12 @@ export const BOW_ATTACK_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties
 
       const actionEntityResourceChangeSourceOption =
         actionEntityOption?.actionEntityProperties.actionOriginData?.resourceChangeSource;
+      console.log(
+        "actionEntityResourceChangeSourceOption",
+        actionEntityOption,
+        actionEntityOption?.actionEntityProperties.actionOriginData,
+        actionEntityOption?.actionEntityProperties.actionOriginData?.resourceChangeSource
+      );
       if (actionEntityResourceChangeSourceOption) {
         const toModify = hpChangeProperties.resourceChangeSource;
         const { category, elementOption } = actionEntityResourceChangeSourceOption;

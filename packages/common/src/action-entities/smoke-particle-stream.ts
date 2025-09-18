@@ -1,4 +1,12 @@
-import { AbstractMesh, Color4, ParticleSystem, Scene, Texture } from "@babylonjs/core";
+import {
+  AbstractMesh,
+  Color3,
+  Color4,
+  ParticleSystem,
+  Scene,
+  StandardMaterial,
+  Texture,
+} from "@babylonjs/core";
 import { ManagedParticleSystem } from "./managed-particle-system.js";
 import { CosmeticEffect } from "./cosmetic-effect.js";
 import { createParticleStream } from "./frost-particle-stream.js";
@@ -16,5 +24,10 @@ export class SmokeParticleStream extends CosmeticEffect {
     particleSystem.addColorGradient(1, new Color4(0, 0, 0, 0.0));
 
     return [new ManagedParticleSystem(particleSystem, mesh, scene)];
+  }
+  setsMaterial(scene: Scene) {
+    const material = new StandardMaterial("hot");
+    material.emissiveColor = new Color3(1, 0.443, 0.137);
+    return material;
   }
 }

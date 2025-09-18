@@ -1,4 +1,4 @@
-import { AbstractMesh, Scene, TransformNode } from "@babylonjs/core";
+import { AbstractMesh, Scene, StandardMaterial, TransformNode } from "@babylonjs/core";
 import { ManagedParticleSystem } from "./managed-particle-system.js";
 
 export enum CosmeticEffectNames {
@@ -31,6 +31,7 @@ export abstract class CosmeticEffect {
   }
   createParticleSystems?(scene: Scene): ManagedParticleSystem[];
   createAnimatedMeshes?(scene: Scene): AbstractMesh[];
+  setsMaterial?(scene: Scene): StandardMaterial;
   initialize(scene: Scene) {
     if (this.createParticleSystems) {
       this.particleSystems = this.createParticleSystems(scene);

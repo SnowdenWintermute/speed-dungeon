@@ -28,7 +28,7 @@ export default function PersistentActionEntityDisplay(props: Props) {
 
 function PersistentActionEntity({ actionEntity }: { actionEntity: ActionEntity }) {
   const { actionOriginData } = actionEntity.actionEntityProperties;
-  if (actionOriginData === undefined) return <div>no persistent entity properties</div>;
+  if (actionOriginData === undefined) return <div></div>;
 
   const { actionLevel, stacks } = actionOriginData;
 
