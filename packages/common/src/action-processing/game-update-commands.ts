@@ -23,6 +23,7 @@ import {
   CosmeticEffectOnTargetTransformNode,
   EquipmentAnimation,
 } from "../combat/combat-actions/combat-action-steps-config.js";
+import { CleanupMode } from "../types.js";
 
 export enum GameUpdateCommandType {
   SpawnEntity,
@@ -95,8 +96,8 @@ export interface TargetCombatantChildTransformNodeWithDuration {
 export interface ActionEntityMotionUpdate extends IEntityMotionUpdate {
   entityType: SpawnableEntityType.ActionEntity;
   cosmeticDestinationY?: SceneEntityChildTransformNodeIdentifier;
-  despawn?: boolean;
-  despawnOnComplete?: boolean;
+  despawnMode?: CleanupMode;
+  despawnOnCompleteMode?: CleanupMode;
   setParent?: SceneEntityChildTransformNodeIdentifierWithDuration | null;
   lockRotationToFace?: SceneEntityChildTransformNodeIdentifierWithDuration | null;
   startPointingToward?: SceneEntityChildTransformNodeIdentifierWithDuration | null;

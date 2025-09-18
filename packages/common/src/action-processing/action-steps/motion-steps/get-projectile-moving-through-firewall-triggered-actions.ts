@@ -1,5 +1,6 @@
 import { ActionEntityName } from "../../../action-entities/index.js";
 import {
+  COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   CombatActionName,
@@ -14,19 +15,30 @@ import cloneDeep from "lodash.clonedeep";
 import { timeToReachBox } from "../../../utils/index.js";
 import { SpawnableEntityType } from "../../../spawnables/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
-import { createShimmedUserOfActionEntityAction } from "../../../combatants/index.js";
 
 const requiredFirewallLevelForIgnitingProjectiles = 2;
+
+const IGNITABLE_PROJECTILE_TYPES: ActionEntityName[] = [ActionEntityName.Arrow];
+function projectileTypeShouldBeIgnited(type: ActionEntityName) {
+  return IGNITABLE_PROJECTILE_TYPES.includes(type);
+}
 
 export function getProjectileMovingThroughFirewallTriggeredActions(
   context: ActionResolutionStepContext,
   step: TriggerEnvironmentalHazardsActionResolutionStep
 ) {
+  console.log(
+    "GETPROJECTILEMOVINGTHROUGHFIREWALLTRIGGEREDACTIONS",
+    COMBAT_ACTION_NAME_STRINGS[context.tracker.actionExecutionIntent.actionName]
+  );
+
   if (step.type === ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers) {
     console.log("don't check for return motion triggers on projectile");
     return [];
   }
+
   let { spawnedEntityOption } = context.tracker;
+  console.log("spawnedEntityOption from tracker:", spawnedEntityOption);
   if (spawnedEntityOption === null) {
     console.log("no spawned entity, checking previous tracker");
     spawnedEntityOption =
@@ -38,9 +50,10 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
   }
   if (spawnedEntityOption.type !== SpawnableEntityType.ActionEntity) return [];
   const projectileEntity = spawnedEntityOption.actionEntity;
+
   console.log("PROJECTILEENTITY", projectileEntity);
 
-  // @TODO - check if this projectile should be affected
+  if (!projectileTypeShouldBeIgnited(projectileEntity.actionEntityProperties.name)) return [];
 
   const { actionExecutionIntent } = context.tracker;
   const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];

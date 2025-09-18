@@ -43,7 +43,7 @@ const targetingProperties = createTargetingPropertiesConfig(
 );
 
 const stepsConfig = createStepsConfig(ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.PROJECTILE_ENTITY, {
-  steps: { [ActionResolutionStepType.PreInitialPositioningCheckEnvironmentalHazardTriggers]: {} },
+  steps: {},
 });
 
 export const ATTACK_RANGED_MAIN_HAND_PROJECTILE_CONFIG: CombatActionComponentConfig = {

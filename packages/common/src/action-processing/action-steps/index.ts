@@ -35,6 +35,7 @@ export enum ActionResolutionStepType {
   EvalOnUseTriggers,
   StartConcurrentSubActions, // starts actions that happen simultaneously and independently such as ["arrow projectile"]
   OnActivationSpawnEntity,
+  PreActionEntityMotionCheckEnvironmentalHazardTriggers,
   OnActivationActionEntityMotion,
   RollIncomingHitOutcomes,
   EvalOnHitOutcomeTriggers, // may start branching actions if triggered
@@ -67,6 +68,8 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.PostActionUseCombatLogMessage]: "postActionUseCombatLogMessage",
   [ActionResolutionStepType.StartConcurrentSubActions]: "StartConcurrentSubActions",
   [ActionResolutionStepType.OnActivationSpawnEntity]: "onActivationSpawnEntity",
+  [ActionResolutionStepType.PreActionEntityMotionCheckEnvironmentalHazardTriggers]:
+    "preActionEntityMotionCheckEnvironmentalHazardTriggers",
   [ActionResolutionStepType.OnActivationActionEntityMotion]: "onActivationActionEntityMotion",
   [ActionResolutionStepType.RollIncomingHitOutcomes]: "rollIncomingHitOutcomes",
   [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: "evalOnHitOutcomeTriggers", // lifesteal traits, apply conditions

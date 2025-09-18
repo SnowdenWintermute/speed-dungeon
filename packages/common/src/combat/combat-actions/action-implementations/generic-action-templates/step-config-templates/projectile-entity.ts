@@ -4,6 +4,7 @@ import {
   CombatantBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../../scene-entities/index.js";
+import { CleanupMode } from "../../../../../types.js";
 import { throwIfError } from "../../../../../utils/index.js";
 import { TargetingCalculator } from "../../../../targeting/targeting-calculator.js";
 import { ActionResolutionStepsConfig } from "../../../combat-action-steps-config.js";
@@ -12,9 +13,10 @@ import { getPrimaryTargetPositionAsDestination } from "../../common-destination-
 const config = new ActionResolutionStepsConfig(
   {
     [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
+    [ActionResolutionStepType.PreActionEntityMotionCheckEnvironmentalHazardTriggers]: {},
     [ActionResolutionStepType.OnActivationActionEntityMotion]: {
       getDestination: getPrimaryTargetPositionAsDestination,
-      shouldDespawnOnComplete: () => true,
+      getDespawnOnCompleteCleanupModeOption: () => CleanupMode.Soft,
 
       getNewParent: () => null,
       getEntityToLockOnTo: () => null,

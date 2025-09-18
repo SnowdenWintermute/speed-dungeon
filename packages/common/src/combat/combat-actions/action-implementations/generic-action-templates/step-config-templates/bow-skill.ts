@@ -97,6 +97,7 @@ base.steps = {
       return spawnableEntity;
     },
   },
+
   [ActionResolutionStepType.StartConcurrentSubActions]: {},
 };
 

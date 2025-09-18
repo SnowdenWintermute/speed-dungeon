@@ -30,8 +30,8 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
 
     const stepConfig = action.stepsConfig.getStepConfigOption(stepType);
     if (!stepConfig) throw new Error("expected step config not found");
-    if (stepConfig.shouldDespawnOnComplete)
-      update.despawnOnComplete = stepConfig.shouldDespawnOnComplete(context);
+    if (stepConfig.getDespawnOnCompleteCleanupModeOption)
+      update.despawnOnCompleteMode = stepConfig.getDespawnOnCompleteCleanupModeOption(context);
 
     if (stepConfig.getNewParent) update.setParent = stepConfig.getNewParent(context);
 
@@ -73,8 +73,8 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
     const stepConfig = action.stepsConfig.getStepConfigOption(this.type);
 
     if (!stepConfig) throw new Error("expected step config not found");
-    if (!stepConfig.shouldDespawnOnComplete) return [];
-    const despawnOnComplete = stepConfig.shouldDespawnOnComplete(context);
+    if (!stepConfig.getDespawnOnCompleteCleanupModeOption) return [];
+    const despawnOnComplete = stepConfig.getDespawnOnCompleteCleanupModeOption(context);
     if (!despawnOnComplete) return [];
     const { party } = context.combatantContext;
 

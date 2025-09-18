@@ -26,13 +26,8 @@ export class TriggerEnvironmentalHazardsActionResolutionStep extends ActionResol
   constructor(context: ActionResolutionStepContext, step: ActionResolutionStepType) {
     const { actionName } = context.tracker.actionExecutionIntent;
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
-    let stepConfig;
-    if (step === ActionResolutionStepType.PreInitialPositioningCheckEnvironmentalHazardTriggers) {
-      stepConfig = action.stepsConfig.steps[step];
-    } else {
-      stepConfig = action.stepsConfig.finalSteps[step];
-    }
 
+    const stepConfig = action.stepsConfig.getStepConfigOption(step);
     if (stepConfig === undefined) throw new Error("expected step config not found");
 
     super(step, context, null);

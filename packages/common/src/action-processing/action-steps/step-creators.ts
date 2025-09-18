@@ -73,6 +73,11 @@ export const ACTION_STEP_CREATORS: Record<
     new StartConcurrentSubActionsActionResolutionStep(context),
   [ActionResolutionStepType.OnActivationSpawnEntity]: (context) =>
     new SpawnEntityActionResolutionStep(context, ActionResolutionStepType.OnActivationSpawnEntity),
+  [ActionResolutionStepType.PreActionEntityMotionCheckEnvironmentalHazardTriggers]: (context) =>
+    new TriggerEnvironmentalHazardsActionResolutionStep(
+      context,
+      ActionResolutionStepType.PreActionEntityMotionCheckEnvironmentalHazardTriggers
+    ),
   [ActionResolutionStepType.OnActivationActionEntityMotion]: (context) => {
     const expectedActionEntityEntityOption = context.tracker.spawnedEntityOption;
     if (!expectedActionEntityEntityOption) throw new Error("expected action entity was missing");

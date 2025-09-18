@@ -1,4 +1,5 @@
 import { ActionResolutionStepType } from "../../../../../action-processing/index.js";
+import { CleanupMode } from "../../../../../types.js";
 import { ActionResolutionStepsConfig } from "../../../combat-action-steps-config.js";
 
 const config = new ActionResolutionStepsConfig(
@@ -13,7 +14,7 @@ const config = new ActionResolutionStepsConfig(
   {
     [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     [ActionResolutionStepType.ActionEntityDissipationMotion]: {
-      shouldDespawnOnComplete: () => true,
+      getDespawnOnCompleteCleanupModeOption: () => CleanupMode.Soft,
     },
   },
   {

@@ -4,6 +4,7 @@ import {
   AdventuringParty,
   AnimationType,
   COMBAT_ACTION_NAME_STRINGS,
+  CleanupMode,
   CombatantMotionGameUpdateCommand,
   ERROR_MESSAGES,
   EntityId,
@@ -35,6 +36,7 @@ export function handleEntityMotionUpdate(
   isMainUpdate: boolean
 ) {
   const { translationOption, rotationOption, animationOption, delayOption } = motionUpdate;
+  console.log("entity motion update: ", motionUpdate);
 
   const toUpdate = getSceneEntityToUpdate(motionUpdate);
   const { movementManager, skeletalAnimationManager, dynamicAnimationManager } = toUpdate;
@@ -48,11 +50,12 @@ export function handleEntityMotionUpdate(
     cosmeticDestinationYOption = motionUpdate.cosmeticDestinationY;
 
     const actionEntityModelOption = getGameWorld().actionEntityManager.findOne(
-      motionUpdate.entityId
+      motionUpdate.entityId,
+      motionUpdate
     );
 
-    if (motionUpdate.despawn) {
-      actionEntityModelOption.cleanup({ softCleanup: true });
+    if (motionUpdate.despawnMode !== undefined) {
+      despawnAndUnregisterActionEntity(motionUpdate.entityId, motionUpdate.despawnMode);
       return;
     }
 
@@ -65,11 +68,15 @@ export function handleEntityMotionUpdate(
     if (motionUpdate.startPointingToward !== undefined)
       handleStartPointingTowardEntity(toUpdate, motionUpdate.startPointingToward);
 
+    const { despawnOnCompleteMode } = motionUpdate;
+
     onTranslationComplete = () => {
-      if (motionUpdate.despawnOnComplete) despawnAndUnregisterActionEntity(motionUpdate.entityId);
+      if (despawnOnCompleteMode !== undefined)
+        despawnAndUnregisterActionEntity(motionUpdate.entityId, despawnOnCompleteMode);
     };
     onAnimationComplete = () => {
-      if (motionUpdate.despawnOnComplete) despawnAndUnregisterActionEntity(motionUpdate.entityId);
+      if (despawnOnCompleteMode !== undefined)
+        despawnAndUnregisterActionEntity(motionUpdate.entityId, despawnOnCompleteMode);
     };
   }
 
@@ -144,9 +151,9 @@ export function handleEntityMotionUpdate(
   }
 }
 
-function despawnAndUnregisterActionEntity(entityId: EntityId) {
+function despawnAndUnregisterActionEntity(entityId: EntityId, cleanupMode: CleanupMode) {
   {
-    getGameWorld().actionEntityManager.unregister(entityId);
+    getGameWorld().actionEntityManager.unregister(entityId, cleanupMode);
     useGameStore.getState().mutateState((state) => {
       const partyResult = getParty(state.game, state.username);
       if (partyResult instanceof Error) {

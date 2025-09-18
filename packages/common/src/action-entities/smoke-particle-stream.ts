@@ -11,8 +11,8 @@ export class SmokeParticleStream extends CosmeticEffect {
     const { particleSystem, mesh } = createParticleStream(scene);
     particleSystem.blendMode = ParticleSystem.BLENDMODE_STANDARD;
     particleSystem.particleTexture = new Texture("img/particle-textures/smoke_01.png");
-    particleSystem.addColorGradient(0, new Color4(1, 1, 1, 1));
-    particleSystem.addColorGradient(0.5, new Color4(0, 0, 0, 0.7));
+    particleSystem.addColorGradient(0, new Color4(0.6, 0.2, 0.2, 1));
+    particleSystem.addColorGradient(0.5, new Color4(1, 1, 1, 0.7));
     particleSystem.addColorGradient(1, new Color4(0, 0, 0, 0.0));
 
     return [new ManagedParticleSystem(particleSystem, mesh, scene)];

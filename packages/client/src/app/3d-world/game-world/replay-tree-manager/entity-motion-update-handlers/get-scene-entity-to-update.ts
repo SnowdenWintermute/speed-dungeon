@@ -30,6 +30,10 @@ export function getSceneEntityToUpdate(entityMotionUpdate: EntityMotionUpdate) {
     return combatantModelOption;
   } else {
     console.log("finding action entity");
-    return getGameWorld().actionEntityManager.findOne(entityId);
+    return getGameWorld().actionEntityManager.findOne(
+      entityId,
+
+      entityMotionUpdate
+    );
   }
 }

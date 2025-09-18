@@ -13,6 +13,7 @@ import {
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
+import { CleanupMode } from "../../../../types.js";
 import { throwIfError } from "../../../../utils/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { CombatActionName } from "../../combat-action-names.js";
@@ -156,7 +157,8 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
     return { position: target.combatantProperties.homeLocation.clone() };
   },
   getNewParent: () => null,
-  shouldDespawnOnComplete: () => true,
+
+  getDespawnOnCompleteCleanupModeOption: () => CleanupMode.Soft,
 };
 
 stepOverrides[ActionResolutionStepType.DetermineChildActions] = {};

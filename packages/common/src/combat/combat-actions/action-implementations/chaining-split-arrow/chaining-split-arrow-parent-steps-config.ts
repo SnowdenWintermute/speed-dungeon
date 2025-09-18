@@ -3,6 +3,7 @@ import {
   EntityMotionUpdate,
 } from "../../../../action-processing/index.js";
 import { getSpawnableEntityId, SpawnableEntityType } from "../../../../spawnables/index.js";
+import { CleanupMode } from "../../../../types.js";
 import { ActionResolutionStepConfig } from "../../combat-action-steps-config.js";
 import {
   ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
@@ -25,14 +26,20 @@ finalStepOverrides[ActionResolutionStepType.RecoveryMotion] = {
     toReturn.push({
       entityId: actionEntityId,
       entityType: SpawnableEntityType.ActionEntity,
-      despawn: true,
+      despawnMode: CleanupMode.Immediate,
     });
 
     return toReturn;
   },
 };
 
-export const CHAINING_SPLIT_ARROW_PARENT_STEPS_CONFIG = createStepsConfig(base, {
+const config = createStepsConfig(base, {
   steps: {},
   finalSteps: finalStepOverrides,
 });
+
+// @BADPRACTICE not really great, but this is to avoid igniting the dummy arrow. Not like we're ever going to walk in
+// an hazard right in front of us anyway, but if ever we implement that we'll have to change this
+delete config.steps[ActionResolutionStepType.PreInitialPositioningCheckEnvironmentalHazardTriggers];
+
+export const CHAINING_SPLIT_ARROW_PARENT_STEPS_CONFIG = config;

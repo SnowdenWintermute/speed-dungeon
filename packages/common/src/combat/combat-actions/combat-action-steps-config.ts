@@ -19,6 +19,7 @@ import { SpawnableEntity } from "../../spawnables/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { MeleeAttackAnimationType } from "./action-implementations/attack/determine-melee-attack-animation-type.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
+import { CleanupMode } from "../../types.js";
 
 export interface EquipmentAnimation {
   slot: TaggedEquipmentSlot;
@@ -51,7 +52,7 @@ export interface ActionResolutionStepConfig {
   getDestination?(context: ActionResolutionStepContext): Error | null | EntityDestination;
   // @PERF - client could probably figure this out on their own or with more limited info
   // from server
-  shouldDespawnOnComplete?: (context: ActionResolutionStepContext) => boolean;
+  getDespawnOnCompleteCleanupModeOption?: (context: ActionResolutionStepContext) => CleanupMode;
   getNewParent?: (
     context: ActionResolutionStepContext
   ) => SceneEntityChildTransformNodeIdentifierWithDuration | null;

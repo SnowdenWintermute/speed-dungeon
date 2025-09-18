@@ -9,8 +9,10 @@ import {
 import {
   ActionEntityBaseChildTransformNodeName,
   ActionEntityName,
+  CleanupMode,
   ERROR_MESSAGES,
   EntityId,
+  EntityMotionUpdate,
   TaggedShape3DDimensions,
 } from "@speed-dungeon/common";
 import { getGameWorld } from "../../SceneManager";
@@ -24,14 +26,20 @@ export class ActionEntityManager {
     if (model instanceof ActionEntityModel) this.models[model.id] = model;
   }
 
-  unregister(id: EntityId) {
-    this.models[id]?.cleanup({ softCleanup: true });
+  unregister(id: EntityId, cleanupMode: CleanupMode) {
+    this.models[id]?.cleanup({ softCleanup: cleanupMode === CleanupMode.Soft });
     delete this.models[id];
   }
 
-  findOne(entityId: EntityId): ActionEntityModel {
+  findOne(entityId: EntityId, updateOption?: EntityMotionUpdate): ActionEntityModel {
     const modelOption = this.models[entityId];
-    if (!modelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_ACTION_ENTITY_MODEL);
+    if (!modelOption)
+      throw new Error(
+        ERROR_MESSAGES.GAME_WORLD.NO_ACTION_ENTITY_MODEL +
+          ": " +
+          entityId +
+          JSON.stringify(updateOption)
+      );
     return modelOption;
   }
 

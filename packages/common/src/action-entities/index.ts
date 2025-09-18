@@ -19,6 +19,7 @@ import {
 
 export enum ActionEntityName {
   Arrow,
+  DummyArrow,
   IceBolt,
   Explosion,
   IceBurst,
@@ -28,6 +29,7 @@ export enum ActionEntityName {
 
 export const ACTION_ENTITY_STRINGS: Record<ActionEntityName, string> = {
   [ActionEntityName.Arrow]: "Arrow",
+  [ActionEntityName.DummyArrow]: "Dummy Arrow", // for chaining split arrow, make a separate type so it isn't ignited
   [ActionEntityName.IceBolt]: "Ice Bolt",
   [ActionEntityName.Explosion]: "Explosion",
   [ActionEntityName.IceBurst]: "Ice Burst",

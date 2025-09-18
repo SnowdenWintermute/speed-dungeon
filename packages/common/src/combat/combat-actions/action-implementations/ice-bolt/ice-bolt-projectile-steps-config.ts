@@ -21,6 +21,7 @@ import { getPrimaryTargetPositionAsDestination } from "../common-destination-get
 import { ActionResolutionStepConfig } from "../../combat-action-steps-config.js";
 import { CosmeticEffectInstructionFactory } from "../generic-action-templates/cosmetic-effect-factories/index.js";
 import { throwIfError } from "../../../../utils/index.js";
+import { CleanupMode } from "../../../../types.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
@@ -124,7 +125,7 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
       },
     ];
   },
-  shouldDespawnOnComplete: () => true,
+  getDespawnOnCompleteCleanupModeOption: () => CleanupMode.Soft,
 };
 
 stepOverrides[ActionResolutionStepType.RollIncomingHitOutcomes] = {
