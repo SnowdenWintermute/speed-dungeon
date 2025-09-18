@@ -51,6 +51,11 @@ export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
       if (expectedProjectile === null) throw new Error("expected to have spawned the arrow by now");
       if (expectedProjectile.type !== SpawnableEntityType.ActionEntity)
         throw new Error("expected to have spawned an action entity");
+
+      // without this cloning we'll be modifying the actual user when incinerating projectiles
+      // or adding resource change source categories to the .asShimmedActionEntity
+      // or otherwise polluting our original user
+      // @REFACTOR - put this cloning into the projectile template
       const projectileUser = createCopyOfProjectileUser(
         context.combatantContext.combatant,
         expectedProjectile.actionEntity

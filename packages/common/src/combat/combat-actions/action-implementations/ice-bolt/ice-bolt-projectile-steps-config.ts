@@ -22,6 +22,7 @@ import { ActionResolutionStepConfig } from "../../combat-action-steps-config.js"
 import { CosmeticEffectInstructionFactory } from "../generic-action-templates/cosmetic-effect-factories/index.js";
 import { nameToPossessive, throwIfError } from "../../../../utils/index.js";
 import { CleanupMode } from "../../../../types.js";
+import { createCopyOfProjectileUser } from "../../../../combatants/index.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
@@ -43,33 +44,50 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
 
     const firedByCombatantName = combatantContext.combatant.entityProperties.name;
 
+    const actionEntity = new ActionEntity(
+      {
+        id: context.idGenerator.generate(),
+        name: `${nameToPossessive(firedByCombatantName)} ice bolt`,
+      },
+      {
+        position,
+        name: ActionEntityName.IceBolt,
+        initialRotation: new Vector3(Math.PI / 2, 0, 0),
+        parentOption: {
+          sceneEntityIdentifier: {
+            type: SceneEntityType.CharacterModel,
+            entityId: combatant.entityProperties.id,
+          },
+          transformNodeName: CombatantBaseChildTransformNodeName.OffhandEquipment,
+        },
+        initialPointToward: {
+          sceneEntityIdentifier: {
+            type: SceneEntityType.CharacterModel,
+            entityId: target.entityProperties.id,
+          },
+          transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
+        },
+      }
+    );
+
+    const expectedProjectile = actionEntity;
+    // without this cloning we'll be modifying the actual user when incinerating projectiles
+    // or adding resource change source categories to the .asShimmedActionEntity
+    // or otherwise polluting our original user
+    // @REFACTOR - put this cloning into the projectile template
+    const projectileUser = createCopyOfProjectileUser(
+      context.combatantContext.combatant,
+      actionEntity
+    );
+    // replace the user here. unlike arrows which are spawned by the parent action
+    // and only moved by the projectile action, we spawn and move the projectile
+    // all in the same projectile action in spells, and we must modify the user
+    // after the projectile has spawned
+    context.combatantContext.combatant = projectileUser;
+
     return {
       type: SpawnableEntityType.ActionEntity,
-      actionEntity: new ActionEntity(
-        {
-          id: context.idGenerator.generate(),
-          name: `${nameToPossessive(firedByCombatantName)} ice bolt`,
-        },
-        {
-          position,
-          name: ActionEntityName.IceBolt,
-          initialRotation: new Vector3(Math.PI / 2, 0, 0),
-          parentOption: {
-            sceneEntityIdentifier: {
-              type: SceneEntityType.CharacterModel,
-              entityId: combatant.entityProperties.id,
-            },
-            transformNodeName: CombatantBaseChildTransformNodeName.OffhandEquipment,
-          },
-          initialPointToward: {
-            sceneEntityIdentifier: {
-              type: SceneEntityType.CharacterModel,
-              entityId: target.entityProperties.id,
-            },
-            transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
-          },
-        }
-      ),
+      actionEntity,
     };
   },
 };
