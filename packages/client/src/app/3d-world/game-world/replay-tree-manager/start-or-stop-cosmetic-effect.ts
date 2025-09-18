@@ -24,7 +24,14 @@ export function startOrStopCosmeticEffects(
 
     let effectToStartLifetimeTimeout;
 
-    for (const { name, parent, lifetime, rankOption, offsetOption } of cosmeticEffectsToStart) {
+    for (const {
+      name,
+      parent,
+      lifetime,
+      rankOption,
+      offsetOption,
+      unattached,
+    } of cosmeticEffectsToStart) {
       const cosmeticEffectManager = SceneEntity.getFromIdentifier(
         parent.sceneEntityIdentifier
       ).cosmeticEffectManager;
@@ -39,9 +46,15 @@ export function startOrStopCosmeticEffects(
 
         cosmeticEffectManager.cosmeticEffects[name] = { effect, referenceCount: 1 };
         const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(parent);
-        effect.transformNode.setParent(targetTransformNode);
-        const offset = offsetOption || Vector3.Zero();
-        effect.transformNode.setPositionWithLocalVector(offset);
+
+        if (!unattached) {
+          effect.transformNode.setParent(targetTransformNode);
+          const offset = offsetOption || Vector3.Zero();
+          effect.transformNode.setPositionWithLocalVector(offset);
+        } else {
+          effect.transformNode.setAbsolutePosition(targetTransformNode.position);
+        }
+
         effectToStartLifetimeTimeout = effect;
       }
 

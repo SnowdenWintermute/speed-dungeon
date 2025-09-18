@@ -150,7 +150,6 @@ export async function activatedTriggersGameUpdateHandler(update: {
     }
 
     if (command.removedConditionStacks) {
-      console.log("removedConditionStacks:", command.removedConditionStacks);
       for (const [entityId, conditionIdAndStacks] of Object.entries(
         command.removedConditionStacks
       )) {
@@ -176,7 +175,6 @@ export async function activatedTriggersGameUpdateHandler(update: {
     }
 
     if (command.removedConditionIds) {
-      console.log("removedConditionIds:", command.removedConditionIds);
       for (const [entityId, conditionIdsRemoved] of Object.entries(command.removedConditionIds)) {
         for (const conditionId of conditionIdsRemoved) {
           const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);

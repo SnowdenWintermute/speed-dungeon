@@ -25,7 +25,7 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
     // const webgpuContext = document.createElement("canvas").getContext("webgpu");
     // const debugInfo = webglContext?.getExtension("WEBGL_debug_renderer_info");
     // const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-    // console.log(renderer);
+    //
 
     keydownListenerRef.current = function (e: KeyboardEvent) {
       if (e.code !== "KeyP" || hotkeysDisabled) return;

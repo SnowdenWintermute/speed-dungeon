@@ -32,7 +32,6 @@ export const BOW_ATTACK_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties
         { usableWeaponsOnly: false }
       );
 
-      console.log("bow attack hit outcome properties projectile", actionEntityOption);
       const actionEntityResourceChangeSourceOption =
         actionEntityOption?.actionEntityProperties.actionOriginData?.resourceChangeSource;
       if (actionEntityResourceChangeSourceOption) {

@@ -98,7 +98,6 @@ export class AdventuringParty {
     entity: ActionEntity,
     battleOption: null | Battle
   ) {
-    console.log("registerActionEntity: ", entity);
     const { entityProperties } = entity;
     party.actionEntities[entityProperties.id] = entity;
 
@@ -114,12 +113,6 @@ export class AdventuringParty {
         { type: TurnTrackerEntityType.ActionEntity, actionEntityId: entity.entityProperties.id },
         startingDelay
       );
-      console.log(
-        "added scheduler for action entity",
-        entity.entityProperties.name,
-        " with starting delay",
-        startingDelay
-      );
     }
   }
   static unregisterActionEntity(
@@ -127,7 +120,6 @@ export class AdventuringParty {
     entityId: EntityId,
     battleOption: null | Battle
   ) {
-    console.log("unregistering", entityId);
     delete party.actionEntities[entityId];
   }
 

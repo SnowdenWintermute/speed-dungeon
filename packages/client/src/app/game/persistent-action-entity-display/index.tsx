@@ -1,5 +1,6 @@
 import { ACTION_ENTITY_ICONS } from "@/app/icons";
 import { useGameStore } from "@/stores/game-store";
+import { useUIStore } from "@/stores/ui-store";
 import { ACTION_ENTITY_STRINGS, ActionEntity, AdventuringParty } from "@speed-dungeon/common";
 import React from "react";
 
@@ -43,6 +44,8 @@ function PersistentActionEntity({ actionEntity }: { actionEntity: ActionEntity }
     );
   }
 
+  const showDebug = useUIStore().showDebug;
+
   return (
     <div className="h-20 w-20 border-2 border-slate-400 relative bg-slate-800 text-zinc-300 pointer-events-auto">
       <div className="absolute h-full p-1">{icon}</div>
@@ -56,6 +59,11 @@ function PersistentActionEntity({ actionEntity }: { actionEntity: ActionEntity }
         <div className="w-full text-center">
           R:{actionLevel?.current || 0} S:{stacks?.current || 0}
         </div>
+        {showDebug && (
+          <div className="absolute top-full left-1/2 -translate-x-1/2">
+            {actionEntity.entityProperties.id}
+          </div>
+        )}
       </div>
     </div>
   );

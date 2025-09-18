@@ -110,11 +110,6 @@ export abstract class ActionResolutionStep {
   ) {
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
 
-    console.log(
-      COMBAT_ACTION_NAME_STRINGS[action.name],
-      ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type]
-    );
-
     const stepConfig = action.stepsConfig.getStepConfigOption(type);
 
     if (stepConfig === undefined) throw new Error("expected step config not found");

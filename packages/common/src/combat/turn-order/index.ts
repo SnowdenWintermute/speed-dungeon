@@ -47,16 +47,7 @@ export class TurnOrderManager {
     // @TODO - get delay multiplier from action
     const delay = TurnOrderManager.getActionDelayCost(speedResult, BASE_ACTION_DELAY_MULTIPLIER);
 
-    if (actionNameOption)
-      console.log(
-        "added delay for action name:",
-        COMBAT_ACTION_NAME_STRINGS[actionNameOption],
-        delay,
-        "to tracker",
-        tracker.getTiebreakerId()
-      );
-
-    tracker.accumulatedDelay += delay;
+    if (actionNameOption) tracker.accumulatedDelay += delay;
 
     return delay;
   }

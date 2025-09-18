@@ -140,13 +140,8 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
 
   if (!threatChanges.isEmpty()) gameUpdateCommandOption.threatChanges = threatChanges;
   if (shouldSendEndActiveTurnMessage) {
-    console.log("sending shouldSendEndActiveTurnMessage", COMBAT_ACTION_NAME_STRINGS[action.name]);
     gameUpdateCommandOption.endActiveCombatantTurn = true;
   } else {
-    console.log(
-      "NOT sending shouldSendEndActiveTurnMessage",
-      COMBAT_ACTION_NAME_STRINGS[action.name]
-    );
   }
   if (shouldUnlockInput) {
     gameUpdateCommandOption.unlockInput = true;

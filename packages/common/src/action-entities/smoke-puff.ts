@@ -2,6 +2,7 @@ import {
   AbstractMesh,
   GPUParticleSystem,
   Mesh,
+  ParticleSystem,
   Quaternion,
   Scene,
   Texture,
@@ -10,7 +11,7 @@ import {
 import { CosmeticEffect } from "./cosmetic-effect.js";
 import { ManagedParticleSystem } from "./managed-particle-system.js";
 
-export class FireParticlesLarge extends CosmeticEffect {
+export class SmokePuff extends CosmeticEffect {
   createAnimatedMeshes(): AbstractMesh[] {
     throw new Error("Method not implemented.");
   }
@@ -25,26 +26,33 @@ export class FireParticlesLarge extends CosmeticEffect {
     const managedParticleSystems: ManagedParticleSystem[] = [];
 
     particleSystems.forEach((particleSystem, i) => {
-      particleSystem.particleTexture = new Texture(`img/particle-textures/explosion-${i + 1}.jpg`);
-      particleSystem.minSize = 0.5;
-      particleSystem.maxSize = 0.6;
+      particleSystem.blendMode = ParticleSystem.BLENDMODE_STANDARD;
+      particleSystem.particleTexture = new Texture(`img/particle-textures/smoke-${i + 1}.png`);
+
+      particleSystem.createConeEmitter(0.1, 0.3);
 
       const mesh = new Mesh("");
 
-      mesh.rotationQuaternion = Quaternion.FromEulerVector(mesh.rotation);
+      mesh.rotationQuaternion = Quaternion.FromEulerVector(Vector3.Up());
+
       particleSystem.emitter = mesh;
 
-      particleSystem.preWarmCycles = 1000;
+      particleSystem.preWarmStepOffset = 2;
+      particleSystem.preWarmCycles = 350;
 
-      particleSystem.minEmitPower = 0.03;
-      particleSystem.maxEmitPower = 0.09;
-      particleSystem.emitRate = 0.5;
-      particleSystem.minLifeTime = 0.6;
-      particleSystem.maxLifeTime = 1;
+      particleSystem.minSize = 0.1;
+      particleSystem.maxSize = 0.3;
 
-      particleSystem.gravity = new Vector3(0, 0.3, 0);
+      particleSystem.minEmitPower = 0.5;
+      particleSystem.maxEmitPower = 1;
+      particleSystem.emitRate = 15;
+      particleSystem.minLifeTime = 0.2;
+      particleSystem.maxLifeTime = 0.5;
+
+      particleSystem.gravity = new Vector3(0, 0.25, 0);
 
       const managed = new ManagedParticleSystem(particleSystem, mesh, scene);
+
       managedParticleSystems.push(managed);
     });
 

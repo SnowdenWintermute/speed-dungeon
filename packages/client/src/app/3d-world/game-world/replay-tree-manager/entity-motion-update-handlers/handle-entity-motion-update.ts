@@ -36,7 +36,6 @@ export function handleEntityMotionUpdate(
   isMainUpdate: boolean
 ) {
   const { translationOption, rotationOption, animationOption, delayOption } = motionUpdate;
-  console.log("entity motion update: ", motionUpdate);
 
   const toUpdate = getSceneEntityToUpdate(motionUpdate);
   const { movementManager, skeletalAnimationManager, dynamicAnimationManager } = toUpdate;

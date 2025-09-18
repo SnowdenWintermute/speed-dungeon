@@ -177,8 +177,6 @@ export class TurnSchedulerManager {
       } else if (scheduler instanceof ActionEntityTurnScheduler) {
         const actionEntity = AdventuringParty.getActionEntity(party, scheduler.actionEntityId);
         if (actionEntity instanceof Error) {
-          console.log("removeStaleTurnSchedulers action entity:", scheduler.actionEntityId);
-
           idsToRemove.push({
             type: TurnTrackerEntityType.ActionEntity,
             actionEntityId: scheduler.actionEntityId,

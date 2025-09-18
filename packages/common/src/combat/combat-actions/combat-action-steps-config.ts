@@ -29,6 +29,7 @@ export interface EquipmentAnimation {
 export interface CosmeticEffectOnTargetTransformNode {
   name: CosmeticEffectNames;
   parent: SceneEntityChildTransformNodeIdentifier;
+  unattached?: boolean;
   offsetOption?: Vector3;
   rankOption?: number;
   lifetime?: Milliseconds;

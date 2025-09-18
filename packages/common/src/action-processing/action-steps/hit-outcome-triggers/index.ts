@@ -57,7 +57,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     const { outcomeFlags, resourceChanges } = tracker.hitOutcomes;
 
     const customTriggers = action.hitOutcomeProperties.getHitOutcomeTriggers(context);
-    console.log("on use triggers:", customTriggers);
     Object.assign(gameUpdateCommand, customTriggers);
 
     const durabilityChanges = new DurabilityChangesByEntityId();

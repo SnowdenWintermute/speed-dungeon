@@ -40,8 +40,6 @@ export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends
     const shouldExecute =
       executionPreconditionsPassed && (!turnAlreadyEnded || actionShouldExecuteEvenIfTurnEnded);
 
-    console.log(COMBAT_ACTION_NAME_STRINGS[action.name], "shouldExecute:", shouldExecute);
-
     if (shouldExecute) return;
 
     context.tracker.wasAborted = true;

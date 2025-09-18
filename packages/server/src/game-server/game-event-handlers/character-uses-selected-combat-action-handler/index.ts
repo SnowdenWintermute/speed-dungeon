@@ -22,6 +22,8 @@ export async function useSelectedCombatActionHandler(
   const { game, player } = characterAssociatedData;
   const gameServer = getGameServer();
 
+  console.log("PLAYER SUBMITTED COMBAT ACTION");
+
   const validTargetsAndActionNameResult = validateClientActionUseRequest(characterAssociatedData);
   if (validTargetsAndActionNameResult instanceof Error) {
     const playerSocketIdResult = gameServer.getSocketIdOfPlayer(game, player.username);

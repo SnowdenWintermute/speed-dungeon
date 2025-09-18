@@ -38,7 +38,7 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
   }
 
   let { spawnedEntityOption } = context.tracker;
-  console.log("spawnedEntityOption from tracker:", spawnedEntityOption);
+  console.log("spawnedEntityOption from tracker:", !!spawnedEntityOption);
   if (spawnedEntityOption === null) {
     console.log("no spawned entity, checking previous tracker");
     spawnedEntityOption =
@@ -109,8 +109,6 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
     speed
   );
 
-  console.log("projectile time to reach box:", timeToReachFirewallOption);
-
   if (timeToReachFirewallOption === null) return [];
 
   const igniteProjectileIntent = new CombatActionExecutionIntent(
@@ -128,10 +126,14 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
 
   // this should be the cloned user of the projectile as set when the projectile
   // was fired. by having access to it we can modify it
-  const igniteProjectileUser = context.combatantContext.combatant;
+  const igniteProjectileUser = cloneDeep(context.combatantContext.combatant);
   // for the combat log
   igniteProjectileUser.entityProperties.name = projectileEntity.entityProperties.name;
 
+  console.log(
+    "setting cloned asShimmedActionEntity for igniteProjectileUser:",
+    projectileEntity.entityProperties.id
+  );
   igniteProjectileUser.combatantProperties.asShimmedActionEntity = cloneDeep(projectileEntity);
 
   const intentWithUser = {

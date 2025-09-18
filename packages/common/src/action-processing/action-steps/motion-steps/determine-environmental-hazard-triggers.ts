@@ -13,10 +13,6 @@ export class TriggerEnvironmentalHazardsActionResolutionStep extends ActionResol
   isComplete = () => true;
 
   protected getBranchingActions() {
-    console.log(
-      "TRIGGERED PROJEC",
-      getProjectileMovingThroughFirewallTriggeredActions(this.context, this)
-    );
     return [
       ...getFirewallBurnScheduledActions(this.context, this),
       ...getProjectileMovingThroughFirewallTriggeredActions(this.context, this),

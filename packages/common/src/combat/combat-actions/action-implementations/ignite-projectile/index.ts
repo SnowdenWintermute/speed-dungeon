@@ -63,8 +63,9 @@ const config: CombatActionComponentConfig = {
             elementOption: MagicalElement.Fire,
           });
 
-        console.log("context projectile", asShimmedActionEntity);
+        console.log("IGNITING context projectile", asShimmedActionEntity);
 
+        // @PERF - combine when starting multiple cosmeticEffectsToStart on same entity
         toReturn.cosmeticEffectsToStart = [
           {
             name: CosmeticEffectNames.SmokeParticleStream,
@@ -75,6 +76,18 @@ const config: CombatActionComponentConfig = {
               },
               transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
             },
+          },
+          {
+            name: CosmeticEffectNames.SmokePuff,
+            parent: {
+              sceneEntityIdentifier: {
+                type: SceneEntityType.ActionEntityModel,
+                entityId: asShimmedActionEntity.entityProperties.id,
+              },
+              transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
+            },
+            unattached: true,
+            lifetime: 500,
           },
         ];
 

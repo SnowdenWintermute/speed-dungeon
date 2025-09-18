@@ -43,7 +43,6 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     const { mainEntityUpdate } = this.gameUpdateCommand;
 
     const delayOption = this.getDelay();
-    console.log("delay for step", ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepType], delayOption);
     this.delayOption = delayOption;
     if (delayOption !== null) mainEntityUpdate.delayOption = delayOption;
 
@@ -130,11 +129,6 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
 
     const stepConfig = action.stepsConfig.getStepConfigOption(this.type);
     const delayGetterOption = stepConfig?.getDelay;
-    console.log(
-      "delayGetterOption",
-      ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type],
-      delayGetterOption
-    );
     if (!delayGetterOption) {
       return null;
     }
