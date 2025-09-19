@@ -41,7 +41,7 @@ export class GameWorld {
   ground: GroundMesh;
   // shadowGenerator: null | ShadowGenerator = null;
   mouse: Vector3 = new Vector3(0, 1, 0);
-  debug: { debugRef: React.RefObject<HTMLUListElement> | null } = { debugRef: null };
+  debug: { debugRef: React.RefObject<HTMLUListElement | null> | null } = { debugRef: null };
   useShadows: boolean = false;
   modelManager: ModelManager = new ModelManager(this);
   groundTexture: DynamicTexture;
@@ -58,7 +58,7 @@ export class GameWorld {
 
   constructor(
     public canvas: HTMLCanvasElement,
-    debugRef: React.RefObject<HTMLUListElement>
+    debugRef: React.RefObject<HTMLUListElement | null>
   ) {
     // this.imageCreatorEngine = new Engine(imageCreatorCanvas, false);
     // this.imageCreatorScene = createImageCreatorScene(this.imageCreatorEngine);

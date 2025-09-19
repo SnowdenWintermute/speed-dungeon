@@ -42,6 +42,7 @@ import { TurnTrackerEntityType } from "../turn-order/index.js";
 export interface CombatActionComponentConfig {
   // unique to each action
   description: string;
+  byRankDescriptions?: { [rank: number]: string | null };
   prerequisiteAbilities?: AbilityTreeAbility[];
   // properties objects
   targetingProperties: CombatActionTargetingPropertiesConfig;
@@ -54,6 +55,7 @@ export interface CombatActionComponentConfig {
 
 export abstract class CombatActionComponent {
   public readonly description: string;
+  public readonly byRankDescriptions: { [rank: number]: string | null } = {};
   public readonly prerequisiteAbilities?: AbilityTreeAbility[];
   public readonly targetingProperties: CombatActionTargetingProperties;
   public hitOutcomeProperties: CombatActionHitOutcomeProperties;
@@ -68,6 +70,7 @@ export abstract class CombatActionComponent {
     config: CombatActionComponentConfig
   ) {
     this.description = config.description;
+    if (config.byRankDescriptions) this.byRankDescriptions = config.byRankDescriptions;
 
     this.combatLogMessageProperties = config.combatLogMessageProperties;
 

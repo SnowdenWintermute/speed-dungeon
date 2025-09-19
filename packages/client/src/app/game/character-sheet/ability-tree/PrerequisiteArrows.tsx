@@ -31,6 +31,14 @@ export default function PrerequisiteArrows(props: Props) {
   const [positions, setPositions] = useState<Map<string, DOMRect>>(new Map());
 
   const { cellRefs } = props;
+
+  const focusedCharacterResult = useGameStore().getFocusedCharacter();
+  const focusedCharacterOption =
+    focusedCharacterResult instanceof Error ? null : focusedCharacterResult;
+  if (!focusedCharacterOption) return <div>{ERROR_MESSAGES.COMBATANT.NOT_FOUND}</div>;
+
+  const { combatantProperties } = focusedCharacterOption;
+
   useLayoutEffect(() => {
     const measurePositions = () => {
       const newPositions = new Map<string, DOMRect>();
@@ -46,14 +54,7 @@ export default function PrerequisiteArrows(props: Props) {
 
     window.addEventListener("resize", measurePositions);
     return () => window.removeEventListener("resize", measurePositions);
-  }, []);
-
-  const focusedCharacterResult = useGameStore().getFocusedCharacter();
-  const focusedCharacterOption =
-    focusedCharacterResult instanceof Error ? null : focusedCharacterResult;
-  if (!focusedCharacterOption) return <div>{ERROR_MESSAGES.COMBATANT.NOT_FOUND}</div>;
-
-  const { combatantProperties } = focusedCharacterOption;
+  }, [focusedCharacterOption.entityProperties.id]);
 
   return (
     <svg ref={svgRef} className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">

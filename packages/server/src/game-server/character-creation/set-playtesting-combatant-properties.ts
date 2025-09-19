@@ -8,7 +8,7 @@ import {
 export function setPlaytestingCombatantProperties(combatantProperties: CombatantProperties) {
   combatantProperties.level = 6;
   combatantProperties.unspentAttributePoints = 30;
-  combatantProperties.abilityProperties.unspentAbilityPoints = 1;
+  combatantProperties.abilityProperties.unspentAbilityPoints = 6;
   // combatantProperties.supportClassProperties = { combatantClass: CombatantClass.Rogue, level: 1 };
 
   if (combatantProperties.combatantClass === CombatantClass.Mage)
@@ -65,5 +65,5 @@ const TESTING_INHERENT_ATTRIBUTES: Partial<Record<CombatAttribute, number>> = {
   // [CombatAttribute.Spirit]: 10,
   // [CombatAttribute.Mp]: 100,
   // [CombatAttribute.Evasion]: 100,
-  [CombatAttribute.Hp]: 759,
+  // [CombatAttribute.Hp]: 759,
 };

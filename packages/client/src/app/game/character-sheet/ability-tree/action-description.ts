@@ -29,7 +29,7 @@ export enum ActionDescriptionComponent {
   Cooldown,
   RequiresTurn,
   ClassAndLevelRequirements,
-  CustomPropertyDescriptions,
+  ByRankDescriptions,
   ShardCost,
   ManaCost,
   HitPointCost,
@@ -65,9 +65,8 @@ export class ActionDescription {
       abilityRank
     );
   }
-  getCustomPropertyDescriptions(abilityRank: number) {
-    // - chain lightning bounces two times
-    // - applies buffs/debuffs
+  getByRankDescriptions(abilityRank: number) {
+    return this.combatAction.byRankDescriptions[abilityRank] || null;
   }
 
   getFlatThreatGenerated(abilityRank: number) {
@@ -169,7 +168,7 @@ export class ActionDescription {
       ),
       [ActionDescriptionComponent.ClassAndLevelRequirements]:
         this.getClassAndLevelRequirements(actionLevel),
-      [ActionDescriptionComponent.CustomPropertyDescriptions]: "",
+      [ActionDescriptionComponent.ByRankDescriptions]: this.getByRankDescriptions(actionLevel),
       [ActionDescriptionComponent.FlatThreatGenerated]: this.getFlatThreatGenerated(actionLevel),
     };
   }

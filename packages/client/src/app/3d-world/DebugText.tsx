@@ -5,9 +5,25 @@ import { ZIndexLayers } from "../z-index-layers";
 import { gameWorld } from "./SceneManager";
 import { InputLock } from "@speed-dungeon/common";
 import { drawCompass, drawDebugGrid } from "./game-world/clear-floor-texture";
-import { GameWorld } from "./game-world";
 
-export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTMLUListElement> }) {
+function getGpuName() {
+  if (gameWorld.current === null) return;
+  const babylonGl = gameWorld.current.engine._gl;
+
+  const debugInfo = babylonGl?.getExtension("WEBGL_debug_renderer_info");
+  if (debugInfo) {
+    const renderer = babylonGl?.getParameter(debugInfo?.UNMASKED_RENDERER_WEBGL);
+    return renderer;
+  } else {
+    return "Unable to get GPU name";
+  }
+}
+
+export default function DebugText({
+  debugRef,
+}: {
+  debugRef: React.RefObject<HTMLUListElement | null>;
+}) {
   const thumbnails = useGameStore((state) => state.itemThumbnails);
   const showDebug = useUIStore((state) => state.showDebug);
   const hotkeysDisabled = useUIStore((state) => state.hotkeysDisabled);
@@ -20,13 +36,14 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
   const [x, setX] = useState(10);
   const [y, setY] = useState(10);
 
-  useEffect(() => {
-    // const webglContext = document.createElement("canvas").getContext("webgl");
-    // const webgpuContext = document.createElement("canvas").getContext("webgpu");
-    // const debugInfo = webglContext?.getExtension("WEBGL_debug_renderer_info");
-    // const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-    //
+  const [gpuName, setGpuName] = useState("getting GPU name...");
 
+  useEffect(() => {
+    const gpuName = getGpuName();
+    setGpuName(gpuName);
+  }, [gameWorld.current]);
+
+  useEffect(() => {
     keydownListenerRef.current = function (e: KeyboardEvent) {
       if (e.code !== "KeyP" || hotkeysDisabled) return;
 
@@ -121,8 +138,10 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
           Hide
         </button>
       </div>
-      <ul ref={debugRef} className="p-2"></ul>
+      <div className="p-2">Renderer: {gpuName}</div>
+
       {/* to be populated in the babylon render loop*/}
+      <ul ref={debugRef} className="p-2"></ul>
 
       <ul className="p-2">
         <li>Alternate Click Function Key Held: {JSON.stringify(alternateClickKeyHeld)}</li>
@@ -138,7 +157,7 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
         <li key="ayy" className="border p-2 w-full mb-2">
           Num thumbnails: {Object.keys(thumbnails).length}
         </li>
-        <li className="p-2 flex">
+        <li className="p-2 flex max-w-40 overflow-auto">
           {Object.entries(thumbnails).map(([id, data], i) => (
             <div className="relative w-fit" key={id}>
               <div className="absolute top-0 left-0 border bg-slate-800">{i}</div>

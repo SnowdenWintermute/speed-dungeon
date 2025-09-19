@@ -8,6 +8,7 @@ import {
   CombatantProperties,
   EQUIPMENT_TYPE_STRINGS,
   HOLDABLE_SLOT_STRINGS,
+  INFO_UNICODE_SYMBOL,
   iterateNumericEnumKeyedRecord,
   TARGET_CATEGORY_STRINGS,
   TARGETING_SCHEME_STRINGS,
@@ -95,6 +96,8 @@ export default function ActionDescriptionDisplay({
         }
 
         const flatThreatOption = description[ActionDescriptionComponent.FlatThreatGenerated];
+
+        const byRankDescription = description[ActionDescriptionComponent.ByRankDescriptions];
 
         const thisRankOwned = ownedAbilityLevel >= index + 1;
 
@@ -229,6 +232,11 @@ export default function ActionDescriptionDisplay({
                     {condition.level}
                   </span>
                 ))}
+              </div>
+            )}
+            {byRankDescription && (
+              <div className="mt-1">
+                {INFO_UNICODE_SYMBOL} {byRankDescription}
               </div>
             )}
           </div>

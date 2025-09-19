@@ -81,6 +81,11 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 
 const config: CombatActionComponentConfig = {
   description: "Deals kinetic fire damage to any combatant that passes through the area",
+  byRankDescriptions: {
+    [1]: "",
+    [2]: "Ignites certain projectiles that pass through the firewall, changing their element to fire",
+    [3]: "Incinerates certain projectiles that pass through the firewall, stopping them from hitting their targets",
+  },
   prerequisiteAbilities: [{ type: AbilityType.Action, actionName: CombatActionName.Fire }],
   targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME(),
   combatLogMessageProperties: new CombatActionCombatLogProperties({
