@@ -34,7 +34,6 @@ export async function activatedTriggersGameUpdateHandler(update: {
   command: ActivatedTriggersGameUpdateCommand;
   isComplete: boolean;
 }) {
-  console.log("STARTED ActivatedTriggersGameUpdateCommand");
   const { command } = update;
 
   // keep track outside of the mutateState so we can post messages after mutating state
@@ -194,12 +193,10 @@ export async function activatedTriggersGameUpdateHandler(update: {
 
     handleThreatChangesUpdate(update.command);
 
-    console.log("command.actionEntityIdsDespawned:", command.actionEntityIdsDespawned);
     // must despawn AFTER startOrStopCosmeticEffects so we can do a little puff of smoke
     // on an entity right before we despawn it
     if (command.actionEntityIdsDespawned) {
       for (const { id, cleanupMode } of command.actionEntityIdsDespawned) {
-        console.log("trying to clean up", id, "mode:", cleanupMode);
         AdventuringParty.unregisterActionEntity(partyResult, id, battleOption);
         getGameWorld().actionEntityManager.unregister(id, cleanupMode);
       }
@@ -241,8 +238,6 @@ export async function activatedTriggersGameUpdateHandler(update: {
       }
     }
   }
-
-  console.log("set update as complete");
 
   update.isComplete = true;
 }

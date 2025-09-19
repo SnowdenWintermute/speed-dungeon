@@ -105,7 +105,6 @@ export class HitOutcomeCalculator {
       combatant.combatantProperties.asShimmedActionEntity?.actionEntityProperties.actionOriginData
         ?.wasIncinerated
     ) {
-      console.log("FILTERED TARGETS DUE TO INCINERATED PROJECTILE");
       filteredTargetIds = [];
     }
 

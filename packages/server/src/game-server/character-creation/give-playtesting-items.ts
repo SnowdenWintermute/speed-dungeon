@@ -27,6 +27,16 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inv
     skillbook.itemLevel = 2;
     inventory.consumables.push(skillbook);
   }
+  for (let i = 0; i < 1; i += 1) {
+    const skillbook = createConsumableByType(ConsumableType.MageSkillbook);
+    skillbook.itemLevel = 2;
+    inventory.consumables.push(skillbook);
+  }
+  for (let i = 0; i < 1; i += 1) {
+    const skillbook = createConsumableByType(ConsumableType.WarriorSkillbook);
+    skillbook.itemLevel = 2;
+    inventory.consumables.push(skillbook);
+  }
   for (let i = 0; i < 2; i += 1) {
     const skillbook = createConsumableByType(ConsumableType.RogueSkillbook);
     skillbook.itemLevel = 3;
@@ -41,7 +51,7 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inv
     {}
   );
   if (tradeableItemResult instanceof Error) return;
-  // tradeableItemResult.durability = { current: 0, inherentMax: 6 };
+  tradeableItemResult.durability = { current: 0, inherentMax: 6 };
 
   Equipment.insertOrReplaceAffix(tradeableItemResult, AffixCategory.Suffix, AffixType.Strength, {
     combatAttributes: { [CombatAttribute.Strength]: 1 },

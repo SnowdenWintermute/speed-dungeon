@@ -37,31 +37,20 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
   context: ActionResolutionStepContext,
   step: TriggerEnvironmentalHazardsActionResolutionStep
 ) {
-  console.log(
-    "GETPROJECTILEMOVINGTHROUGHFIREWALLTRIGGEREDACTIONS",
-    COMBAT_ACTION_NAME_STRINGS[context.tracker.actionExecutionIntent.actionName]
-  );
-
   if (step.type === ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers) {
-    console.log("don't check for return motion triggers on projectile");
     return [];
   }
 
   let { spawnedEntityOption } = context.tracker;
-  console.log("spawnedEntityOption from tracker:", !!spawnedEntityOption);
   if (spawnedEntityOption === null) {
-    console.log("no spawned entity, checking previous tracker");
     spawnedEntityOption =
       context.tracker.getPreviousTrackerInSequenceOption()?.spawnedEntityOption || null;
     if (spawnedEntityOption === null) {
-      console.log("previous tracker no spawned entity ");
       return [];
     }
   }
   if (spawnedEntityOption.type !== SpawnableEntityType.ActionEntity) return [];
   const projectileEntity = spawnedEntityOption.actionEntity;
-
-  console.log("PROJECTILEENTITY", projectileEntity);
 
   const { actionExecutionIntent } = context.tracker;
   const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
@@ -191,10 +180,6 @@ function triggerIngiteProjectile(
   // for the combat log
   igniteProjectileUser.entityProperties.name = projectileEntity.entityProperties.name;
 
-  console.log(
-    "setting cloned asShimmedActionEntity for igniteProjectileUser:",
-    projectileEntity.entityProperties.id
-  );
   igniteProjectileUser.combatantProperties.asShimmedActionEntity = projectileEntity;
 
   const intentWithUser = {

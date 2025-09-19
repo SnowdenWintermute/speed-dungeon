@@ -75,8 +75,6 @@ export class BattleProcessor {
       // get action intent for fastest actor
       const { actionExecutionIntent, user } = this.getNextActionIntentAndUser();
 
-      console.log("AI SELECTED:", actionExecutionIntent);
-
       // process action intents
       let shouldEndTurn = false;
       if (actionExecutionIntent === null) {

@@ -47,8 +47,6 @@ const config: CombatActionComponentConfig = {
         if (asShimmedActionEntity === undefined)
           throw new Error("expected user to have asShimmedActionEntity");
 
-        console.log("trying to send hide for entitiy:", asShimmedActionEntity.entityProperties.id);
-
         if (!asShimmedActionEntity.actionEntityProperties.actionOriginData)
           asShimmedActionEntity.actionEntityProperties.actionOriginData = {};
 
