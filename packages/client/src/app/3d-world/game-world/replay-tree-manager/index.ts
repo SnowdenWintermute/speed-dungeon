@@ -36,12 +36,6 @@ export class ReplayTreeManager {
       const partyOption = getCurrentParty(state, state.username || "");
       if (partyOption && !payload.doNotLockInput) InputLock.lockInput(partyOption.inputLock);
       state.stackedMenuStates = [];
-      // if (
-      //   state.stackedMenuStates[0] &&
-      //   state.stackedMenuStates[0].type === MenuStateType.CombatActionSelected
-      // ) {
-      //   state.stackedMenuStates.pop();
-      // }
     });
   }
 
@@ -134,7 +128,10 @@ export class ReplayBranchProcessor {
   startProcessingNext() {
     this.currentIndex += 1;
     const node = this.node.events[this.currentIndex];
-    if (node === undefined) return (this.isComplete = true);
+    if (node === undefined) {
+      this.isComplete = true;
+      return;
+    }
     if (node.type === ReplayEventType.NestedNode) {
       const newBranch = new ReplayBranchProcessor(node, this.branchProcessors);
       newBranch.startProcessingNext();
@@ -144,12 +141,12 @@ export class ReplayBranchProcessor {
 
     this.currentGameUpdateOption = { command: node.gameUpdate, isComplete: false };
 
-    GAME_UPDATE_COMMAND_HANDLERS[node.gameUpdate.type](this.currentGameUpdateOption);
-
     // Any update may include cosmetic effect updates
     const cosmeticEffectsToStartOption =
       this.currentGameUpdateOption.command.cosmeticEffectsToStart;
     const cosmeticEffectsToStopOption = this.currentGameUpdateOption.command.cosmeticEffectsToStop;
     startOrStopCosmeticEffects(cosmeticEffectsToStartOption, cosmeticEffectsToStopOption);
+
+    GAME_UPDATE_COMMAND_HANDLERS[node.gameUpdate.type](this.currentGameUpdateOption);
   }
 }

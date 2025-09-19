@@ -1,4 +1,10 @@
-import { SpawnEntityGameUpdateCommand, SpawnableEntityType } from "@speed-dungeon/common";
+import {
+  ActionEntity,
+  AdventuringParty,
+  ERROR_MESSAGES,
+  SpawnEntityGameUpdateCommand,
+  SpawnableEntityType,
+} from "@speed-dungeon/common";
 import {
   ActionEntityModel,
   spawnActionEntityModel,
@@ -8,6 +14,9 @@ import { getGameWorld } from "../../SceneManager";
 import { SceneEntity } from "../../scene-entities";
 import { handleStartPointingTowardEntity } from "./entity-motion-update-handlers/handle-start-pointing-toward";
 import { handleLockRotationToFace } from "./entity-motion-update-handlers/handle-lock-rotation-to-face";
+import { useGameStore } from "@/stores/game-store";
+import getParty from "@/utils/getParty";
+import { plainToInstance } from "class-transformer";
 
 export async function spawnEntityGameUpdateHandler(update: {
   command: SpawnEntityGameUpdateCommand;
@@ -15,6 +24,7 @@ export async function spawnEntityGameUpdateHandler(update: {
 }) {
   const { command } = update;
   if (command.entity.type !== SpawnableEntityType.ActionEntity) {
+    console.error("not implemented spawning entities other than action enities in replay tree");
     update.isComplete = true;
     return;
   }
@@ -29,7 +39,11 @@ export async function spawnEntityGameUpdateHandler(update: {
     actionEntityProperties.position._z
   );
 
-  const assetContainer = await spawnActionEntityModel(actionEntityProperties.name, position);
+  const assetContainer = await spawnActionEntityModel(
+    actionEntityProperties.name,
+    position,
+    actionEntityProperties.dimensions
+  );
 
   const model = new ActionEntityModel(
     actionEntity.entityProperties.id,
@@ -41,6 +55,18 @@ export async function spawnEntityGameUpdateHandler(update: {
   update.isComplete = true;
 
   getGameWorld().actionEntityManager.register(model);
+
+  useGameStore.getState().mutateState((state) => {
+    const partyResult = getParty(state.game, state.username);
+    if (!(partyResult instanceof Error)) {
+      if (state.game === null) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+      const battleOption = AdventuringParty.getBattleOption(partyResult, state.game);
+
+      ActionEntity.hydrate(actionEntity);
+
+      AdventuringParty.registerActionEntity(partyResult, actionEntity, battleOption);
+    }
+  });
 
   if (actionEntityProperties.parentOption) {
     const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(

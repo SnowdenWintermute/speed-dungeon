@@ -1,7 +1,13 @@
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionEntityMotionGameUpdateCommand,
+  AdventuringParty,
   AnimationType,
+  COMBAT_ACTION_NAME_STRINGS,
+  CleanupMode,
   CombatantMotionGameUpdateCommand,
+  ERROR_MESSAGES,
+  EntityId,
   EntityMotionUpdate,
   SpawnableEntityType,
 } from "@speed-dungeon/common";
@@ -11,13 +17,15 @@ import { handleUpdateTranslation } from "./handle-update-translation";
 import { plainToInstance } from "class-transformer";
 import { Quaternion } from "@babylonjs/core";
 import { handleUpdateAnimation } from "./handle-update-animation";
-import { gameWorld, getGameWorld } from "@/app/3d-world/SceneManager";
+import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { DynamicAnimationManager } from "@/app/3d-world/scene-entities/model-animation-managers/dynamic-animation-manager";
 import { SkeletalAnimationManager } from "@/app/3d-world/scene-entities/model-animation-managers/skeletal-animation-manager";
 import { handleEntityMotionSetNewParentUpdate } from "./handle-entity-motion-set-new-parent-update";
 import { handleLockRotationToFace } from "./handle-lock-rotation-to-face";
 import { handleStartPointingTowardEntity } from "./handle-start-pointing-toward";
 import { handleEquipmentAnimations } from "./handle-equipment-animations";
+import { useGameStore } from "@/stores/game-store";
+import getParty from "@/utils/getParty";
 
 export function handleEntityMotionUpdate(
   update: {
@@ -27,7 +35,7 @@ export function handleEntityMotionUpdate(
   motionUpdate: EntityMotionUpdate,
   isMainUpdate: boolean
 ) {
-  const { translationOption, rotationOption, animationOption } = motionUpdate;
+  const { translationOption, rotationOption, animationOption, delayOption } = motionUpdate;
 
   const toUpdate = getSceneEntityToUpdate(motionUpdate);
   const { movementManager, skeletalAnimationManager, dynamicAnimationManager } = toUpdate;
@@ -41,11 +49,12 @@ export function handleEntityMotionUpdate(
     cosmeticDestinationYOption = motionUpdate.cosmeticDestinationY;
 
     const actionEntityModelOption = getGameWorld().actionEntityManager.findOne(
-      motionUpdate.entityId
+      motionUpdate.entityId,
+      motionUpdate
     );
 
-    if (motionUpdate.despawn) {
-      actionEntityModelOption.cleanup({ softCleanup: true });
+    if (motionUpdate.despawnMode !== undefined) {
+      despawnAndUnregisterActionEntity(motionUpdate.entityId, motionUpdate.despawnMode);
       return;
     }
 
@@ -58,13 +67,16 @@ export function handleEntityMotionUpdate(
     if (motionUpdate.startPointingToward !== undefined)
       handleStartPointingTowardEntity(toUpdate, motionUpdate.startPointingToward);
 
-    if (isMainUpdate) {
-      onTranslationComplete = () => {
-        if (motionUpdate.despawnOnComplete)
-          gameWorld.current?.actionEntityManager.unregister(motionUpdate.entityId);
-      };
-      onAnimationComplete = () => {};
-    }
+    const { despawnOnCompleteMode } = motionUpdate;
+
+    onTranslationComplete = () => {
+      if (despawnOnCompleteMode !== undefined)
+        despawnAndUnregisterActionEntity(motionUpdate.entityId, despawnOnCompleteMode);
+    };
+    onAnimationComplete = () => {
+      if (despawnOnCompleteMode !== undefined)
+        despawnAndUnregisterActionEntity(motionUpdate.entityId, despawnOnCompleteMode);
+    };
   }
 
   if (motionUpdate.entityType === SpawnableEntityType.Combatant) {
@@ -96,7 +108,9 @@ export function handleEntityMotionUpdate(
 
   const updateCompletionTracker = new EntityMotionUpdateCompletionTracker(
     animationOption,
-    !!translationOption
+    !!translationOption,
+    delayOption || 0,
+    update
   );
 
   handleUpdateTranslation(
@@ -133,5 +147,22 @@ export function handleEntityMotionUpdate(
 
   if (isMainUpdate && updateCompletionTracker.isComplete()) {
     update.isComplete = true;
+  }
+}
+
+function despawnAndUnregisterActionEntity(entityId: EntityId, cleanupMode: CleanupMode) {
+  {
+    getGameWorld().actionEntityManager.unregister(entityId, cleanupMode);
+    useGameStore.getState().mutateState((state) => {
+      const partyResult = getParty(state.game, state.username);
+      if (partyResult instanceof Error) {
+        return console.error(partyResult);
+      } else {
+        if (!state.game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+
+        const battleOption = AdventuringParty.getBattleOption(partyResult, state.game);
+        AdventuringParty.unregisterActionEntity(partyResult, entityId, battleOption);
+      }
+    });
   }
 }

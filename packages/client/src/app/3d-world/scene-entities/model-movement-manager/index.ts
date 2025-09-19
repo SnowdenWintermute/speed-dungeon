@@ -1,4 +1,4 @@
-import { AbstractMesh, Matrix, Quaternion, TransformNode, Vector3 } from "@babylonjs/core";
+import { Matrix, Quaternion, TransformNode, Vector3 } from "@babylonjs/core";
 import {
   ModelMovementTracker,
   ModelMovementType,

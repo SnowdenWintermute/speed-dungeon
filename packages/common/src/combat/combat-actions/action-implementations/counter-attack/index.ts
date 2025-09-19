@@ -1,4 +1,5 @@
 import {
+  ActionAccuracyType,
   CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
@@ -10,24 +11,42 @@ import { COUNTER_ATTACK_MELEE_MAIN_HAND } from "./counter-attack-melee-main-hand
 import { COUNTER_ATTACK_RANGED_MAIN_HAND } from "./counter-attack-ranged-main-hand.js";
 import cloneDeep from "lodash.clonedeep";
 import { ATTACK_CONFIG } from "../attack/index.js";
+import { createTargetingPropertiesConfig } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 
 const clonedConfig = cloneDeep(ATTACK_CONFIG);
 
+const targetingProperties = createTargetingPropertiesConfig(
+  () => clonedConfig.targetingProperties,
+  {}
+);
+
 const config: CombatActionComponentConfig = {
   ...clonedConfig,
+  targetingProperties,
+  hitOutcomeProperties: {
+    ...clonedConfig.hitOutcomeProperties,
+    getIsBlockable: () => false,
+    getIsParryable: () => false,
+    getCanTriggerCounterattack: () => false,
+    getUnmodifiedAccuracy: () => {
+      return { type: ActionAccuracyType.Unavoidable };
+    },
+  },
   description: "Cancel an incoming attack and respond with one of your own",
   costProperties: { ...clonedConfig.costProperties, costBases: {} },
+  hierarchyProperties: {
+    ...clonedConfig.hierarchyProperties,
+    getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {
+      const toReturn: CombatActionComponent[] = [];
+      const user = context.combatantContext.combatant.combatantProperties;
 
-  getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {
-    const toReturn: CombatActionComponent[] = [];
-    const user = context.combatantContext.combatant.combatantProperties;
-
-    if (CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(user)) {
-      toReturn.push(COUNTER_ATTACK_RANGED_MAIN_HAND);
-    } else {
-      toReturn.push(COUNTER_ATTACK_MELEE_MAIN_HAND);
-    }
-    return toReturn;
+      if (CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(user)) {
+        toReturn.push(COUNTER_ATTACK_RANGED_MAIN_HAND);
+      } else {
+        toReturn.push(COUNTER_ATTACK_MELEE_MAIN_HAND);
+      }
+      return toReturn;
+    },
   },
 };
 

@@ -2,24 +2,91 @@ import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Battle } from "../../battle/index.js";
 import { CombatantContext } from "../../combatant-context/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
-import {
-  Combatant,
-  CombatantCondition,
-  CombatantProperties,
-  ConditionWithCombatantIdAppliedTo,
-} from "../../combatants/index.js";
+import { CombatantCondition, CombatantProperties } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "./consts.js";
-import { CombatantTurnTracker, ConditionTurnTracker, TurnOrderManager } from "./index.js";
+import {
+  ActionEntityTurnTracker,
+  CombatantTurnTracker,
+  ConditionTurnTracker,
+  TaggedTurnTrackerTrackedEntityId,
+  TurnOrderManager,
+  TurnTracker,
+  TurnTrackerEntityType,
+} from "./index.js";
 
 export enum TurnTrackerSortableProperty {
   TimeOfNextMove,
   AccumulatedDelay,
 }
 
+export interface ITurnScheduler {
+  timeOfNextMove: number;
+  accumulatedDelay: number; // when they take their turn, add to this
+  getSpeed: (party: AdventuringParty) => number;
+  getTiebreakerId: () => string;
+}
+
+export class CombatantTurnScheduler implements ITurnScheduler {
+  timeOfNextMove: number = 0;
+  accumulatedDelay: number = 0;
+  constructor(public readonly combatantId: EntityId) {}
+  getTiebreakerId = () => this.combatantId;
+  getSpeed(party: AdventuringParty) {
+    const combatantResult = AdventuringParty.getCombatant(party, this.combatantId);
+    if (combatantResult instanceof Error) throw combatantResult;
+    const combatantSpeed = CombatantProperties.getTotalAttributes(
+      combatantResult.combatantProperties
+    )[CombatAttribute.Speed];
+    return combatantSpeed;
+  }
+}
+
+export class ConditionTurnScheduler implements ITurnScheduler {
+  timeOfNextMove: number = 0;
+  accumulatedDelay: number = 0;
+  constructor(
+    public readonly combatantId: EntityId,
+    public readonly conditionId: EntityId
+  ) {}
+  getTiebreakerId = () => this.conditionId;
+  getSpeed(party: AdventuringParty) {
+    const conditionResult = AdventuringParty.getConditionOnCombatant(
+      party,
+      this.combatantId,
+      this.conditionId
+    );
+    if (conditionResult instanceof Error) {
+      throw conditionResult;
+    }
+
+    const tickPropertiesOption = CombatantCondition.getTickProperties(conditionResult);
+
+    if (tickPropertiesOption === undefined) throw new Error("expected condition to be tickable");
+    return tickPropertiesOption.getTickSpeed(conditionResult);
+  }
+}
+
+export class ActionEntityTurnScheduler implements ITurnScheduler {
+  timeOfNextMove: number = 0;
+  accumulatedDelay: number = 0;
+  constructor(public readonly actionEntityId: EntityId) {}
+  getTiebreakerId = () => this.actionEntityId;
+  getSpeed(party: AdventuringParty) {
+    const entityOption = party.actionEntities[this.actionEntityId];
+    if (entityOption === undefined) throw new Error("no action entity found");
+    const { actionEntityProperties } = entityOption;
+    const { actionOriginData } = actionEntityProperties;
+    if (actionOriginData === undefined)
+      throw new Error("expected action entity to have origin data");
+
+    return actionOriginData.turnOrderSpeed || 0;
+  }
+}
+
 export class TurnSchedulerManager {
-  schedulers: (CombatantTurnScheduler | ConditionTurnScheduler)[] = [];
+  schedulers: ITurnScheduler[] = [];
 
   constructor(
     public readonly minTurnTrackersCount: number,
@@ -48,65 +115,113 @@ export class TurnSchedulerManager {
     return found;
   }
 
-  getMatchingSchedulerFromTurnOrderTracker(
-    turnOrderTracker: CombatantTurnTracker | ConditionTurnTracker
-  ) {
-    let schedulerOption: undefined | CombatantTurnScheduler | ConditionTurnScheduler = undefined;
+  getMatchingSchedulerFromTurnOrderTracker(turnOrderTracker: TurnTracker) {
+    let schedulerOption: undefined | ITurnScheduler = undefined;
 
-    if (turnOrderTracker instanceof CombatantTurnTracker) {
-      schedulerOption = this.schedulers
-        .filter((item) => item instanceof CombatantTurnScheduler)
-        .find((item) => item.combatantId === turnOrderTracker.combatantId);
-    } else {
-      // condition turn tracker
-      schedulerOption = this.schedulers
-        .filter((item) => item instanceof ConditionTurnScheduler)
-        .find(
-          (item) =>
-            item instanceof ConditionTurnScheduler &&
-            item.conditionId === turnOrderTracker.conditionId
-        );
+    const taggedIdOfTrackedEntity = turnOrderTracker.getTaggedIdOfTrackedEntity();
+
+    // @REFACTOR
+
+    switch (taggedIdOfTrackedEntity.type) {
+      case TurnTrackerEntityType.Combatant:
+        schedulerOption = this.schedulers
+          .filter((item) => item instanceof CombatantTurnScheduler)
+          .find((item) => item.combatantId === taggedIdOfTrackedEntity.combatantId);
+        break;
+      case TurnTrackerEntityType.Condition:
+        schedulerOption = this.schedulers
+          .filter((item) => item instanceof ConditionTurnScheduler)
+          .find((item) => item.conditionId === taggedIdOfTrackedEntity.conditionId);
+        break;
+      case TurnTrackerEntityType.ActionEntity:
+        schedulerOption = this.schedulers
+          .filter((item) => item instanceof ActionEntityTurnScheduler)
+          .find((item) => item.actionEntityId === taggedIdOfTrackedEntity.actionEntityId);
+        break;
     }
+
     if (schedulerOption === undefined) throw new Error("expected turnSchedulerTracker was missing");
     return schedulerOption;
   }
 
-  removeStaleTurnSchedulers(party: AdventuringParty) {
-    const idsToRemove: EntityId[] = [];
+  private removeStaleTurnSchedulers(party: AdventuringParty) {
+    const idsToRemove: TaggedTurnTrackerTrackedEntityId[] = [];
+
+    // @REFACTOR
 
     for (const scheduler of this.schedulers) {
       if (scheduler instanceof CombatantTurnScheduler) {
-        if (AdventuringParty.getCombatant(party, scheduler.combatantId) instanceof Error) {
-          idsToRemove.push(scheduler.combatantId);
+        const combatantResult = AdventuringParty.getCombatant(party, scheduler.combatantId);
+        if (
+          combatantResult instanceof Error ||
+          CombatantProperties.isDead(combatantResult.combatantProperties)
+        ) {
+          idsToRemove.push({
+            type: TurnTrackerEntityType.Combatant,
+            combatantId: scheduler.combatantId,
+          });
         }
         continue;
       } else if (scheduler instanceof ConditionTurnScheduler) {
-        try {
-          AdventuringParty.getConditionOnCombatant(
-            party,
-            scheduler.combatantId,
-            scheduler.conditionId
-          );
-        } catch {
-          idsToRemove.push(scheduler.conditionId);
+        const conditionResult = AdventuringParty.getConditionOnCombatant(
+          party,
+          scheduler.combatantId,
+          scheduler.conditionId
+        );
+        if (conditionResult instanceof Error)
+          idsToRemove.push({
+            type: TurnTrackerEntityType.Condition,
+            conditionId: scheduler.conditionId,
+            combatantId: scheduler.combatantId,
+          });
+      } else if (scheduler instanceof ActionEntityTurnScheduler) {
+        const actionEntity = AdventuringParty.getActionEntity(party, scheduler.actionEntityId);
+        if (actionEntity instanceof Error) {
+          idsToRemove.push({
+            type: TurnTrackerEntityType.ActionEntity,
+            actionEntityId: scheduler.actionEntityId,
+          });
         }
       }
     }
 
+    // @REFACTOR
+
     this.schedulers = this.schedulers.filter((scheduler) => {
-      if (!(scheduler instanceof ConditionTurnScheduler)) {
-        if (idsToRemove.includes(scheduler.combatantId)) {
-          return false;
+      if (scheduler instanceof CombatantTurnScheduler) {
+        for (const taggedId of idsToRemove) {
+          if (
+            taggedId.type === TurnTrackerEntityType.Combatant &&
+            scheduler.combatantId === taggedId.combatantId
+          )
+            return false;
+        }
+        return true;
+      } else if (scheduler instanceof ConditionTurnScheduler) {
+        for (const taggedId of idsToRemove) {
+          if (
+            taggedId.type === TurnTrackerEntityType.Condition &&
+            scheduler.conditionId === taggedId.conditionId
+          )
+            return false;
+        }
+        return true;
+      } else if (scheduler instanceof ActionEntityTurnScheduler) {
+        for (const taggedId of idsToRemove) {
+          if (
+            taggedId.type === TurnTrackerEntityType.ActionEntity &&
+            scheduler.actionEntityId === taggedId.actionEntityId
+          )
+            return false;
         }
         return true;
       }
 
-      if (idsToRemove.includes(scheduler.conditionId)) return false;
       return true;
     });
   }
 
-  resetTurnSchedulers(party: AdventuringParty) {
+  private resetTurnSchedulers(party: AdventuringParty) {
     this.removeStaleTurnSchedulers(party);
 
     for (const scheduler of this.schedulers) {
@@ -121,7 +236,7 @@ export class TurnSchedulerManager {
     }
   }
 
-  sortSchedulers(sortBy: TurnTrackerSortableProperty, party: AdventuringParty) {
+  private sortSchedulers(sortBy: TurnTrackerSortableProperty, party: AdventuringParty) {
     switch (sortBy) {
       case TurnTrackerSortableProperty.TimeOfNextMove:
         this.schedulers.sort((a, b) => {
@@ -129,7 +244,7 @@ export class TurnSchedulerManager {
             return a.timeOfNextMove - b.timeOfNextMove;
           } else if (a.getSpeed(party) !== b.getSpeed(party)) {
             return b.getSpeed(party) - a.getSpeed(party);
-          } else return a.combatantId.localeCompare(b.combatantId);
+          } else return a.getTiebreakerId().localeCompare(b.getTiebreakerId());
         });
         break;
       case TurnTrackerSortableProperty.AccumulatedDelay:
@@ -138,7 +253,7 @@ export class TurnSchedulerManager {
             return a.accumulatedDelay - b.accumulatedDelay;
           else if (a.getSpeed(party) !== b.getSpeed(party)) {
             return b.getSpeed(party) - a.getSpeed(party);
-          } else return a.combatantId.localeCompare(b.combatantId);
+          } else return a.getTiebreakerId().localeCompare(b.getTiebreakerId());
         });
         break;
     }
@@ -150,15 +265,16 @@ export class TurnSchedulerManager {
     return fastest;
   }
 
-  addNewSchedulerTracker(
-    from: Combatant | ConditionWithCombatantIdAppliedTo,
-    startingDelay: number
-  ) {
-    if (from instanceof Combatant) {
+  addNewSchedulerTracker(from: TaggedTurnTrackerTrackedEntityId, startingDelay: number) {
+    if (from.type === TurnTrackerEntityType.Combatant) {
       throw new Error("adding new combatant turn scheduler tracker not yet implemented");
-    } else {
-      const scheduler = new ConditionTurnScheduler(from.appliedTo, from.condition.id);
+    } else if (from.type === TurnTrackerEntityType.Condition) {
+      const scheduler = new ConditionTurnScheduler(from.combatantId, from.conditionId);
 
+      scheduler.accumulatedDelay = startingDelay;
+      this.schedulers.push(scheduler);
+    } else if (from.type === TurnTrackerEntityType.ActionEntity) {
+      const scheduler = new ActionEntityTurnScheduler(from.actionEntityId);
       scheduler.accumulatedDelay = startingDelay;
       this.schedulers.push(scheduler);
     }
@@ -167,30 +283,45 @@ export class TurnSchedulerManager {
   buildNewList(game: SpeedDungeonGame, party: AdventuringParty) {
     this.resetTurnSchedulers(party);
 
-    const turnTrackerList: (CombatantTurnTracker | ConditionTurnTracker)[] = [];
+    const turnTrackerList: TurnTracker[] = [];
 
     const predictedConsumedStacksOnTickByConditionId: Record<EntityId, number> = {};
+    const predictedConsumedTurnsOnTickByActionEntityId: Record<EntityId, number> = {};
 
     let numCombatantTrackersCreated = 0;
 
-    while (numCombatantTrackersCreated < this.minTurnTrackersCount) {
+    let iterationLimit = 0;
+
+    while (numCombatantTrackersCreated < this.minTurnTrackersCount && iterationLimit < 40) {
+      iterationLimit += 1;
       this.sortSchedulers(TurnTrackerSortableProperty.TimeOfNextMove, party);
 
       const fastestActor = this.getFirstScheduler();
 
+      // @REFACTOR
+
       if (fastestActor instanceof CombatantTurnScheduler) {
         const combatantResult = AdventuringParty.getCombatant(party, fastestActor.combatantId);
         if (combatantResult instanceof Error) throw combatantResult;
-        if (!CombatantProperties.isDead(combatantResult.combatantProperties)) {
+        const isDead = CombatantProperties.isDead(combatantResult.combatantProperties);
+        if (!isDead) {
           turnTrackerList.push(
             new CombatantTurnTracker(fastestActor.combatantId, fastestActor.timeOfNextMove)
           );
-
           numCombatantTrackersCreated += 1;
+        } else {
+          fastestActor.timeOfNextMove += 1; // trying this since a combatant dying with too much speed caused infinite loop
+          fastestActor.accumulatedDelay += 1;
         }
       } else if (fastestActor instanceof ConditionTurnScheduler) {
         const { combatantId, conditionId, timeOfNextMove } = fastestActor;
-        const condition = AdventuringParty.getConditionOnCombatant(party, combatantId, conditionId);
+        const conditionResult = AdventuringParty.getConditionOnCombatant(
+          party,
+          combatantId,
+          conditionId
+        );
+        if (conditionResult instanceof Error) throw conditionResult;
+        const condition = conditionResult;
         const stacksRemaining = condition.stacksOption?.current;
 
         let shouldPush = true;
@@ -223,6 +354,38 @@ export class TurnSchedulerManager {
 
         if (shouldPush)
           turnTrackerList.push(new ConditionTurnTracker(combatantId, conditionId, timeOfNextMove));
+      } else if (fastestActor instanceof ActionEntityTurnScheduler) {
+        const { actionEntityId, timeOfNextMove } = fastestActor;
+        const actionEntityResult = AdventuringParty.getActionEntity(party, actionEntityId);
+        if (actionEntityResult instanceof Error) throw actionEntityResult;
+        const actionEntity = actionEntityResult;
+
+        const { actionOriginData } = actionEntity.actionEntityProperties;
+        if (actionOriginData === undefined)
+          throw new Error("expected actionOriginData for an action entity with a turn scheduler");
+        if (actionOriginData.stacks === undefined) throw new Error("expected action entity stacks");
+
+        const turnsRemaining = actionOriginData.stacks.current || 0;
+
+        let shouldPush = !!turnsRemaining;
+        if (turnsRemaining) {
+          // see how it's done for conditions, similar reasoning about how to not show trackers for turns that
+          // won't happen since they'll have run out of turns
+          const predictedConsumedTurns =
+            predictedConsumedTurnsOnTickByActionEntityId[actionEntityId] ?? 0;
+
+          if (predictedConsumedTurns >= turnsRemaining) {
+            shouldPush = false;
+          } else {
+            const numberOfTurnsConsumed = 1;
+            predictedConsumedTurnsOnTickByActionEntityId[actionEntityId] =
+              (predictedConsumedTurnsOnTickByActionEntityId[actionEntityId] ?? 0) +
+              numberOfTurnsConsumed;
+          }
+        }
+
+        if (shouldPush)
+          turnTrackerList.push(new ActionEntityTurnTracker(actionEntityId, timeOfNextMove));
       }
 
       const delay = TurnOrderManager.getActionDelayCost(
@@ -234,47 +397,5 @@ export class TurnSchedulerManager {
     }
 
     return turnTrackerList;
-  }
-}
-
-interface ITurnScheduler {
-  timeOfNextMove: number;
-  accumulatedDelay: number; // when they take their turn, add to this
-  getSpeed: (party: AdventuringParty) => number;
-}
-
-export class CombatantTurnScheduler implements ITurnScheduler {
-  timeOfNextMove: number = 0;
-  accumulatedDelay: number = 0;
-  constructor(public readonly combatantId: EntityId) {}
-  getSpeed(party: AdventuringParty) {
-    const combatantResult = AdventuringParty.getCombatant(party, this.combatantId);
-    if (combatantResult instanceof Error) throw combatantResult;
-    const combatantSpeed = CombatantProperties.getTotalAttributes(
-      combatantResult.combatantProperties
-    )[CombatAttribute.Speed];
-    return combatantSpeed;
-  }
-}
-
-export class ConditionTurnScheduler implements ITurnScheduler {
-  timeOfNextMove: number = 0;
-  accumulatedDelay: number = 0;
-  constructor(
-    public readonly combatantId: EntityId,
-    public readonly conditionId: EntityId
-  ) {}
-  getSpeed(party: AdventuringParty) {
-    const conditionResult = AdventuringParty.getConditionOnCombatant(
-      party,
-      this.combatantId,
-      this.conditionId
-    );
-    if (conditionResult instanceof Error) throw conditionResult;
-
-    const tickPropertiesOption = CombatantCondition.getTickProperties(conditionResult);
-
-    if (tickPropertiesOption === undefined) throw new Error("expected condition to be tickable");
-    return tickPropertiesOption.getTickSpeed(conditionResult);
   }
 }

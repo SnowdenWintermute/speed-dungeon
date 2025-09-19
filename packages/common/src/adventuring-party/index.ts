@@ -10,10 +10,13 @@ import { generateUnexploredRoomsQueue } from "./generate-unexplored-rooms-queue.
 import updatePlayerReadiness from "./update-player-readiness.js";
 import playerOwnsCharacter from "./player-owns-character.js";
 import { InputLock } from "./input-lock.js";
-import { Combatant, CombatantProperties } from "../combatants/index.js";
+import { Combatant, CombatantCondition, CombatantProperties } from "../combatants/index.js";
 import { ActionCommandQueue } from "../action-processing/action-command-queue.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
+import { ActionEntity, ActionEntityName } from "../action-entities/index.js";
+import { Battle } from "../battle/index.js";
+import { TurnTrackerEntityType } from "../combat/index.js";
 export * from "./get-item-in-party.js";
 export * from "./dungeon-room.js";
 export * from "./update-player-readiness.js";
@@ -29,6 +32,7 @@ export class AdventuringParty {
   playersReadyToDescend: string[] = [];
   characters: { [id: string]: Combatant } = {};
   characterPositions: string[] = [];
+  actionEntities: Record<EntityId, ActionEntity> = {};
   currentFloor: number = 1;
   roomsExplored: RoomsExploredTracker = { total: 0, onCurrentFloor: 1 };
   currentRoom: DungeonRoom = new DungeonRoom(DungeonRoomType.Empty, {}, []);
@@ -57,15 +61,15 @@ export class AdventuringParty {
     party: AdventuringParty,
     combatantId: EntityId,
     conditionId: EntityId
-  ) {
+  ): Error | CombatantCondition {
     const combatantResult = AdventuringParty.getCombatant(party, combatantId);
-    if (combatantResult instanceof Error) throw combatantResult;
+    if (combatantResult instanceof Error) return combatantResult;
     const conditionOption = CombatantProperties.getConditionById(
       combatantResult.combatantProperties,
       conditionId
     );
     if (conditionOption === null)
-      throw new Error(
+      return new Error(
         `expected condition not found with id ${conditionId} on combatant id ${combatantId}`
       );
     return conditionOption;
@@ -87,5 +91,64 @@ export class AdventuringParty {
     const battleOption = game.battles[battleIdOption];
     if (!battleOption) throw new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
     return battleOption;
+  }
+
+  static registerActionEntity(
+    party: AdventuringParty,
+    entity: ActionEntity,
+    battleOption: null | Battle
+  ) {
+    const { entityProperties } = entity;
+    party.actionEntities[entityProperties.id] = entity;
+
+    const turnOrderSpeedOption = entity.actionEntityProperties.actionOriginData?.turnOrderSpeed;
+    if (battleOption && turnOrderSpeedOption !== undefined) {
+      // account for how long the battle has been going for
+      const fastestSchedulerDelay =
+        battleOption.turnOrderManager.turnSchedulerManager.getFirstScheduler().accumulatedDelay;
+
+      const startingDelay = turnOrderSpeedOption + fastestSchedulerDelay;
+
+      battleOption.turnOrderManager.turnSchedulerManager.addNewSchedulerTracker(
+        { type: TurnTrackerEntityType.ActionEntity, actionEntityId: entity.entityProperties.id },
+        startingDelay
+      );
+    }
+  }
+  static unregisterActionEntity(
+    party: AdventuringParty,
+    entityId: EntityId,
+    battleOption: null | Battle
+  ) {
+    delete party.actionEntities[entityId];
+  }
+
+  static getActionEntity(party: AdventuringParty, entityId: EntityId) {
+    const entityOption = party.actionEntities[entityId];
+    if (entityOption === undefined) return new Error(ERROR_MESSAGES.ACTION_ENTITIES.NOT_FOUND);
+    return entityOption;
+  }
+
+  static getExistingActionEntityOfType(
+    party: AdventuringParty,
+    actionEntityType: ActionEntityName
+  ) {
+    for (const actionEntity of Object.values(party.actionEntities)) {
+      if (actionEntity.actionEntityProperties.name === actionEntityType) return actionEntity;
+    }
+    return null;
+  }
+
+  static unregisterActionEntitiesOnBattleEndOrNewRoom(
+    party: AdventuringParty,
+    battleOption: null | Battle
+  ) {
+    const removed = [];
+    for (const [key, entity] of Object.entries(party.actionEntities)) {
+      removed.push(entity.entityProperties.id);
+      AdventuringParty.unregisterActionEntity(party, key, battleOption);
+    }
+
+    return removed;
   }
 }

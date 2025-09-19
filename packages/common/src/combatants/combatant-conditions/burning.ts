@@ -5,7 +5,11 @@ import {
   ConditionAppliedBy,
 } from "./index.js";
 import { createShimmedUserOfTriggeredCondition } from "../index.js";
-import { CombatActionIntent, CombatActionName } from "../../combat/combat-actions/index.js";
+import {
+  CombatActionExecutionIntent,
+  CombatActionIntent,
+  CombatActionName,
+} from "../../combat/combat-actions/index.js";
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 import { CombatantContext } from "../../combatant-context/index.js";
 import { BASE_CONDITION_TICK_SPEED } from "../../combat/turn-order/consts.js";
@@ -39,7 +43,6 @@ export class BurningCombatantCondition implements CombatantCondition {
   }
 
   getTickSpeed(condition: CombatantCondition) {
-    // return condition.level * BASE_CONDITION_TICK_SPEED;
     return condition.level * BASE_CONDITION_TICK_SPEED;
   }
 
@@ -55,16 +58,17 @@ export class BurningCombatantCondition implements CombatantCondition {
       targetId: context.combatant.entityProperties.id,
     };
 
+    user.combatantProperties.combatActionTarget = targets;
+
     return {
       numStacksRemoved: 1,
       triggeredAction: {
         user,
-        actionExecutionIntent: {
-          actionName: CombatActionName.BurningTick,
+        actionExecutionIntent: new CombatActionExecutionIntent(
+          CombatActionName.BurningTick,
           targets,
-          level: this.level,
-          getConsumableType: () => null,
-        },
+          this.level
+        ),
       },
     };
   }

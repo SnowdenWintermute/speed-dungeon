@@ -14,16 +14,16 @@ import { Combatant, CombatantClass, CombatantCondition } from "../combatants/ind
 import { SpawnableEntity, SpawnableEntityType } from "../spawnables/index.js";
 import { DurabilityChangesByEntityId } from "../durability/index.js";
 import { HitOutcome } from "../hit-outcome.js";
-import { ActionEntity } from "../action-entities/index.js";
+import { ActionEntity, ActionEntityActionOriginData } from "../action-entities/index.js";
 import {
   SceneEntityChildTransformNodeIdentifier,
   SceneEntityChildTransformNodeIdentifierWithDuration,
 } from "../scene-entities/index.js";
 import {
-  CosmeticEffectOnEntity,
   CosmeticEffectOnTargetTransformNode,
   EquipmentAnimation,
 } from "../combat/combat-actions/combat-action-steps-config.js";
+import { CleanupMode } from "../types.js";
 
 export enum GameUpdateCommandType {
   SpawnEntity,
@@ -85,6 +85,7 @@ export interface IEntityMotionUpdate {
   animationOption?: EntityAnimation;
   translationOption?: EntityTranslation;
   rotationOption?: EntityRotation;
+  delayOption?: Milliseconds;
 }
 
 export interface TargetCombatantChildTransformNodeWithDuration {
@@ -95,8 +96,8 @@ export interface TargetCombatantChildTransformNodeWithDuration {
 export interface ActionEntityMotionUpdate extends IEntityMotionUpdate {
   entityType: SpawnableEntityType.ActionEntity;
   cosmeticDestinationY?: SceneEntityChildTransformNodeIdentifier;
-  despawn?: boolean;
-  despawnOnComplete?: boolean;
+  despawnMode?: CleanupMode;
+  despawnOnCompleteMode?: CleanupMode;
   setParent?: SceneEntityChildTransformNodeIdentifierWithDuration | null;
   lockRotationToFace?: SceneEntityChildTransformNodeIdentifierWithDuration | null;
   startPointingToward?: SceneEntityChildTransformNodeIdentifierWithDuration | null;
@@ -115,7 +116,7 @@ export interface IGameUpdateCommand {
   step: ActionResolutionStepType;
   completionOrderId: null | number;
   cosmeticEffectsToStart?: CosmeticEffectOnTargetTransformNode[];
-  cosmeticEffectsToStop?: CosmeticEffectOnEntity[];
+  cosmeticEffectsToStop?: CosmeticEffectOnTargetTransformNode[];
 }
 
 export interface CombatantMotionGameUpdateCommand extends IGameUpdateCommand {
@@ -151,6 +152,9 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   removedConditionIds?: Record<EntityId, ConditionId[]>;
   threatChanges?: ThreatChanges;
   supportClassLevelsGained?: Record<EntityId, CombatantClass>;
+  actionEntityIdsDespawned?: { id: EntityId; cleanupMode: CleanupMode }[];
+  actionEntityIdsToHide?: EntityId[];
+  actionEntityChanges?: Record<EntityId, Partial<ActionEntityActionOriginData>>;
 }
 
 export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {

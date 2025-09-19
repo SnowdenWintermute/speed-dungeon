@@ -12,6 +12,7 @@ import {
   CombatantSpecies,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
+import cloneDeep from "lodash.clonedeep";
 import isEqual from "lodash.isequal";
 
 export const TARGET_DUMMY_COMBATANT = new CombatantProperties(
@@ -28,7 +29,7 @@ export enum ActionDescriptionComponent {
   Cooldown,
   RequiresTurn,
   ClassAndLevelRequirements,
-  CustomPropertyDescriptions,
+  ByRankDescriptions,
   ShardCost,
   ManaCost,
   HitPointCost,
@@ -64,9 +65,8 @@ export class ActionDescription {
       abilityRank
     );
   }
-  getCustomPropertyDescriptions(abilityRank: number) {
-    // - chain lightning bounces two times
-    // - applies buffs/debuffs
+  getByRankDescriptions(abilityRank: number) {
+    return this.combatAction.byRankDescriptions[abilityRank] || null;
   }
 
   getFlatThreatGenerated(abilityRank: number) {
@@ -79,7 +79,7 @@ export class ActionDescription {
 
     const resourceCosts = costProperties.getResourceCosts(combatantProperties, true, actionLevel);
 
-    const critChanceOption = hitOutcomeProperties.getCritChance(combatantProperties, actionLevel);
+    const critChanceOption = this.combatAction.getCritChance(combatantProperties, actionLevel);
     const critMultiplierOption = hitOutcomeProperties.getCritMultiplier(
       combatantProperties,
       actionLevel
@@ -139,13 +139,23 @@ export class ActionDescription {
       [ActionDescriptionComponent.ResourceChanges]: iterateNumericEnumKeyedRecord(
         hitOutcomeProperties.resourceChangePropertiesGetters
       ).map(([resource, resourceChangePropertiesGetter]) => {
-        return {
-          resource,
-          changeProperties: resourceChangePropertiesGetter(
+        const changeProperties = cloneDeep(
+          resourceChangePropertiesGetter(
             combatantProperties,
+            hitOutcomeProperties,
             actionLevel,
             TARGET_DUMMY_COMBATANT
-          ),
+          )
+        );
+
+        if (changeProperties?.baseValues) {
+          changeProperties.baseValues.mult(hitOutcomeProperties.resourceChangeValuesModifier);
+          changeProperties.baseValues.floor(0);
+        }
+
+        return {
+          resource,
+          changeProperties,
         };
       }),
       [ActionDescriptionComponent.AddsPropertiesFromHoldableSlot]:
@@ -158,7 +168,7 @@ export class ActionDescription {
       ),
       [ActionDescriptionComponent.ClassAndLevelRequirements]:
         this.getClassAndLevelRequirements(actionLevel),
-      [ActionDescriptionComponent.CustomPropertyDescriptions]: "",
+      [ActionDescriptionComponent.ByRankDescriptions]: this.getByRankDescriptions(actionLevel),
       [ActionDescriptionComponent.FlatThreatGenerated]: this.getFlatThreatGenerated(actionLevel),
     };
   }

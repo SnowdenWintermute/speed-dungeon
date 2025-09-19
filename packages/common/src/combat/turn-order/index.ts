@@ -1,9 +1,11 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Battle } from "../../battle/index.js";
-import { Combatant } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId, Milliseconds } from "../../primatives/index.js";
-import { CombatActionName } from "../combat-actions/combat-action-names.js";
+import {
+  COMBAT_ACTION_NAME_STRINGS,
+  CombatActionName,
+} from "../combat-actions/combat-action-names.js";
 import {
   BASE_ACTION_DELAY,
   BASE_ACTION_DELAY_MULTIPLIER,
@@ -14,7 +16,7 @@ import { TurnSchedulerManager } from "./turn-scheduler-manager.js";
 export class TurnOrderManager {
   minTrackersCount: number = 12;
   turnSchedulerManager: TurnSchedulerManager;
-  turnTrackers: (CombatantTurnTracker | ConditionTurnTracker)[] = [];
+  turnTrackers: TurnTracker[] = [];
   constructor(game: SpeedDungeonGame, party: AdventuringParty, battle: Battle) {
     this.turnSchedulerManager = new TurnSchedulerManager(this.minTrackersCount, game, battle);
     this.updateTrackers(game, party);
@@ -35,28 +37,42 @@ export class TurnOrderManager {
     const fastest = this.getFastestActorTurnOrderTracker();
     const tracker = this.turnSchedulerManager.getMatchingSchedulerFromTurnOrderTracker(fastest);
 
-    // @TODO - get delay multiplier from action
-    const delay = TurnOrderManager.getActionDelayCost(
-      tracker.getSpeed(party),
-      BASE_ACTION_DELAY_MULTIPLIER
-    );
+    let speedResult = 0;
+    try {
+      speedResult = tracker.getSpeed(party);
+    } catch (err) {
+      console.info("couldn't get tracker speed, maybe its associated entity was already removed");
+    }
 
-    tracker.accumulatedDelay += delay;
+    // @TODO - get delay multiplier from action
+    const delay = TurnOrderManager.getActionDelayCost(speedResult, BASE_ACTION_DELAY_MULTIPLIER);
+
+    if (actionNameOption) tracker.accumulatedDelay += delay;
 
     return delay;
   }
 
   currentActorIsPlayerControlled(party: AdventuringParty) {
     const fastestTurnOrderTracker = this.getFastestActorTurnOrderTracker();
-    if (fastestTurnOrderTracker instanceof ConditionTurnTracker) {
+    const taggedIdOfTrackedEntity = fastestTurnOrderTracker.getTaggedIdOfTrackedEntity();
+
+    if (
+      taggedIdOfTrackedEntity.type === TurnTrackerEntityType.ActionEntity ||
+      taggedIdOfTrackedEntity.type === TurnTrackerEntityType.Condition
+    ) {
       return false;
     }
-    return party.characterPositions.includes(fastestTurnOrderTracker.combatantId);
+
+    return party.characterPositions.includes(taggedIdOfTrackedEntity.combatantId);
   }
 
   combatantIsFirstInTurnOrder(combatantId: EntityId) {
     const fastest = this.getFastestActorTurnOrderTracker();
-    return fastest instanceof CombatantTurnTracker && fastest.combatantId === combatantId;
+    const taggedIdOfTrackedEntity = fastest.getTaggedIdOfTrackedEntity();
+    return (
+      taggedIdOfTrackedEntity.type === TurnTrackerEntityType.Combatant &&
+      taggedIdOfTrackedEntity.combatantId === combatantId
+    );
   }
 
   updateTrackers(game: SpeedDungeonGame, party: AdventuringParty) {
@@ -110,38 +126,73 @@ export class TurnOrderManager {
   //
 }
 
+export enum TurnTrackerEntityType {
+  Combatant,
+  Condition,
+  ActionEntity,
+}
+
+export interface TaggedCombatantTurnTrackerCombatantId {
+  type: TurnTrackerEntityType.Combatant;
+  combatantId: EntityId;
+}
+
+export interface TaggedConditionTurnTrackerConditionAndCombatantId {
+  type: TurnTrackerEntityType.Condition;
+  combatantId: EntityId;
+  conditionId: EntityId;
+}
+
+export interface TaggedActionEntityTurnTrackerActionEntityId {
+  type: TurnTrackerEntityType.ActionEntity;
+  actionEntityId: EntityId;
+}
+
+export type TaggedTurnTrackerTrackedEntityId =
+  | TaggedCombatantTurnTrackerCombatantId
+  | TaggedActionEntityTurnTrackerActionEntityId
+  | TaggedConditionTurnTrackerConditionAndCombatantId;
+
 export abstract class TurnTracker {
-  constructor(
-    public readonly combatantId: string,
-    public readonly timeOfNextMove: number
-  ) {}
+  constructor(public readonly timeOfNextMove: number) {}
 
-  getCombatant(party: AdventuringParty) {
-    const combatantResult = AdventuringParty.getCombatant(party, this.combatantId);
-
-    if (combatantResult instanceof Error) throw combatantResult;
-    return combatantResult;
-  }
+  abstract getTaggedIdOfTrackedEntity(): TaggedTurnTrackerTrackedEntityId;
 
   getId() {
-    const id = this.timeOfNextMove.toFixed(3) + "--" + this.combatantId;
+    const id =
+      this.timeOfNextMove.toFixed(3) + "--" + JSON.stringify(this.getTaggedIdOfTrackedEntity());
     return id;
   }
 }
 
 export class CombatantTurnTracker extends TurnTracker {
-  constructor(combatantId: string, timeOfNextMove: number) {
-    super(combatantId, timeOfNextMove);
+  constructor(
+    private combatantId: string,
+    timeOfNextMove: number
+  ) {
+    super(timeOfNextMove);
+  }
+
+  getTaggedIdOfTrackedEntity(): TaggedCombatantTurnTrackerCombatantId {
+    return { type: TurnTrackerEntityType.Combatant, combatantId: this.combatantId };
   }
 }
 
 export class ConditionTurnTracker extends TurnTracker {
   constructor(
-    combatantId: EntityId,
-    public readonly conditionId: EntityId,
+    private combatantId: EntityId,
+    private conditionId: EntityId,
     public readonly timeOfNextMove: number
   ) {
-    super(combatantId, timeOfNextMove);
+    super(timeOfNextMove);
+  }
+
+  getTaggedIdOfTrackedEntity(): TaggedConditionTurnTrackerConditionAndCombatantId {
+    return {
+      type: TurnTrackerEntityType.Condition,
+      combatantId: this.combatantId,
+      conditionId: this.conditionId,
+    };
   }
 
   getCondition(party: AdventuringParty) {
@@ -160,6 +211,36 @@ export class ConditionTurnTracker extends TurnTracker {
 
   getId() {
     return this.timeOfNextMove + this.conditionId;
+  }
+}
+
+export class ActionEntityTurnTracker extends TurnTracker {
+  constructor(
+    private actionEntityId: EntityId,
+    public readonly timeOfNextMove: number
+  ) {
+    super(timeOfNextMove);
+  }
+
+  getActionEntity(party: AdventuringParty) {
+    const result = party.actionEntities[this.actionEntityId];
+    if (result === undefined) throw new Error("no action entity by that id was registered");
+    return result;
+  }
+
+  getTaggedIdOfTrackedEntity(): TaggedActionEntityTurnTrackerActionEntityId {
+    return {
+      type: TurnTrackerEntityType.ActionEntity,
+      actionEntityId: this.actionEntityId,
+    };
+  }
+
+  getSpeed(): number {
+    return 0;
+  }
+
+  getId() {
+    return this.timeOfNextMove + this.actionEntityId;
   }
 }
 

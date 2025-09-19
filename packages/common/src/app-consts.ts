@@ -1,5 +1,3 @@
-import { Vector3 } from "@babylonjs/core";
-import { CombatantClass, CombatantProperties, CombatantSpecies } from "./combatants/index.js";
 import { Meters, Milliseconds } from "./primatives/index.js";
 
 // remember to update it in package.json as well!
@@ -18,7 +16,7 @@ export const DEEPEST_FLOOR = 10;
 export const EMPTY_ROOMS_PER_FLOOR = 0;
 export const DEFAULT_LEVEL_TO_REACH_FOR_ESCAPE = 4;
 export const GAME_CONFIG = {
-  MONSTER_LAIRS_PER_FLOOR: 2,
+  MONSTER_LAIRS_PER_FLOOR: 1,
   LEVEL_TO_REACH_FOR_ESCAPE: DEFAULT_LEVEL_TO_REACH_FOR_ESCAPE,
   MIN_RACE_GAME_PARTIES: 2,
 };
@@ -30,6 +28,8 @@ export const BASE_XP_PER_MONSTER = 30.0;
 export const BASE_XP_LEVEL_DIFF_MULTIPLIER = 0.25;
 
 export const COMBATANT_MAX_LEVEL = 10;
+export const COMBAT_ACTION_MAX_LEVEL = 3;
+export const BASE_PERSISTENT_ACTION_ENTITY_MAX_STACKS = 10;
 export const COMBATANT_MAX_ACTION_POINTS = 2;
 export const HOTSWAP_SLOT_SELECTION_ACTION_POINT_COST = 1;
 
@@ -83,10 +83,13 @@ export const COMBATANT_POSITION_SPACING_SIDE: Meters = 1.6;
 // export const COMBATANT_POSITION_SPACING_SIDE: Meters = 3.4;
 export const BASE_EXPLOSION_RADIUS: Meters = COMBATANT_POSITION_SPACING_SIDE + 0.2;
 export const COMBATANT_POSITION_SPACING_BETWEEN_ROWS: Meters = 5.0;
+// export const COMBATANT_POSITION_SPACING_BETWEEN_ROWS: Meters = 9;
 export const COMBATANT_TIME_TO_MOVE_ONE_METER = 300 * DEBUG_ANIMATION_SPEED_MULTIPLIER;
 // export const COMBATANT_TIME_TO_MOVE_ONE_METER = 100;
-// export const ARROW_TIME_TO_MOVE_ONE_METER = 800;
-export const ARROW_TIME_TO_MOVE_ONE_METER = 65 * DEBUG_ANIMATION_SPEED_MULTIPLIER;
+// const arrowMoveSpeedBase = 65;
+const arrowMoveSpeedBase = 130;
+// export const ARROW_TIME_TO_MOVE_ONE_METER = 600;
+export const ARROW_TIME_TO_MOVE_ONE_METER = arrowMoveSpeedBase * DEBUG_ANIMATION_SPEED_MULTIPLIER;
 export const COMBATANT_TIME_TO_ROTATE_360 = 1000 * DEBUG_ANIMATION_SPEED_MULTIPLIER;
 export const MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME =
   1000 * DEBUG_ANIMATION_SPEED_MULTIPLIER;

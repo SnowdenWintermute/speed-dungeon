@@ -8,6 +8,7 @@ import {
   CombatantProperties,
   EQUIPMENT_TYPE_STRINGS,
   HOLDABLE_SLOT_STRINGS,
+  INFO_UNICODE_SYMBOL,
   iterateNumericEnumKeyedRecord,
   TARGET_CATEGORY_STRINGS,
   TARGETING_SCHEME_STRINGS,
@@ -16,7 +17,7 @@ import {
 import { ActionDescription, ActionDescriptionComponent } from "./action-description";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import { formatActionAccuracy } from "@speed-dungeon/common";
-import DamageTypeBadge, { DamageTypeBadgeWithIcon } from "../../detailables/DamageTypeBadge";
+import { DamageTypeBadgeWithIcon } from "../../detailables/DamageTypeBadge";
 
 export default function ActionDescriptionDisplay({
   description,
@@ -95,6 +96,8 @@ export default function ActionDescriptionDisplay({
         }
 
         const flatThreatOption = description[ActionDescriptionComponent.FlatThreatGenerated];
+
+        const byRankDescription = description[ActionDescriptionComponent.ByRankDescriptions];
 
         const thisRankOwned = ownedAbilityLevel >= index + 1;
 
@@ -229,6 +232,11 @@ export default function ActionDescriptionDisplay({
                     {condition.level}
                   </span>
                 ))}
+              </div>
+            )}
+            {byRankDescription && (
+              <div className="mt-1">
+                {INFO_UNICODE_SYMBOL} {byRankDescription}
               </div>
             )}
           </div>

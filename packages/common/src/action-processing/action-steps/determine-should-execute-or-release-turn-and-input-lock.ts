@@ -3,7 +3,6 @@ import {
   COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
-  CombatActionName,
 } from "../../combat/index.js";
 import { Combatant } from "../../combatants/index.js";
 import {
@@ -13,10 +12,9 @@ import {
 } from "../index.js";
 import { evaluatePlayerEndTurnAndInputLock } from "./evaluate-player-turn-end-and-input-lock.js";
 
-const stepType = ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock;
 export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends ActionResolutionStep {
   branchingActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] = [];
-  constructor(context: ActionResolutionStepContext) {
+  constructor(context: ActionResolutionStepContext, stepType: ActionResolutionStepType) {
     super(stepType, context, null); // this step should produce no game update
 
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
@@ -34,12 +32,13 @@ export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends
 
     const actionShouldExecuteEvenIfTurnEnded = turnAlreadyEnded && Math.abs(actionPointCost) < 1;
 
+    const executionPreconditionsPassed = action.shouldExecute(
+      context,
+      context.tracker.getPreviousTrackerInSequenceOption() || undefined
+    );
+
     const shouldExecute =
-      action.shouldExecute(
-        context.combatantContext,
-        context.tracker.getPreviousTrackerInSequenceOption() || undefined
-      ) &&
-      (!turnAlreadyEnded || actionShouldExecuteEvenIfTurnEnded);
+      executionPreconditionsPassed && (!turnAlreadyEnded || actionShouldExecuteEvenIfTurnEnded);
 
     if (shouldExecute) return;
 

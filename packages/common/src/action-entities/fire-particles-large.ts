@@ -45,7 +45,6 @@ export class FireParticlesLarge extends CosmeticEffect {
       particleSystem.gravity = new Vector3(0, 0.3, 0);
 
       const managed = new ManagedParticleSystem(particleSystem, mesh, scene);
-
       managedParticleSystems.push(managed);
     });
 

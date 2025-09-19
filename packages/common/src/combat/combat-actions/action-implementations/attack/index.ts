@@ -1,78 +1,68 @@
 import {
-  COMBAT_ACTION_NAME_STRINGS,
+  CombatActionCombatLogProperties,
   CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
   CombatActionOrigin,
 } from "../../index.js";
-import { CombatantEquipment, CombatantProperties } from "../../../../combatants/index.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
+import { CombatantEquipment } from "../../../../combatants/index.js";
 import { ATTACK_MELEE_MAIN_HAND } from "./attack-melee-main-hand.js";
 import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
-import { ATTACK_MELEE_OFF_HAND } from "./attack-melee-off-hand.js";
 import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "../../../../action-processing/index.js";
-import {
-  GENERIC_TARGETING_PROPERTIES,
-  TargetingPropertiesTypes,
-} from "../../combat-action-targeting-properties.js";
-import {
-  ActionHitOutcomePropertiesBaseTypes,
-  GENERIC_HIT_OUTCOME_PROPERTIES,
-} from "../../combat-action-hit-outcome-properties.js";
-import {
-  ActionCostPropertiesBaseTypes,
-  BASE_ACTION_COST_PROPERTIES,
-} from "../../combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
+import {
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
+  createHitOutcomeProperties,
+} from "../generic-action-templates/hit-outcome-properties-templates/index.js";
+import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
+import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 
-const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
+// placeholder since all this action does is get children
+const hitOutcomeProperties = createHitOutcomeProperties(
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.MELEE_ATTACK,
+  {}
+);
 
 export const ATTACK_CONFIG: CombatActionComponentConfig = {
   description: "Attack with equipped weapons or fists",
-  origin: CombatActionOrigin.Attack,
-  targetingProperties,
-  // placeholder since all this action does is get children
-  hitOutcomeProperties: GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],
-  costProperties: {
-    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
-    requiresCombatTurnInThisContext: () => false,
-  },
-  shouldExecute: () => true,
-  getOnUseMessage: null,
-  getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {
-    const toReturn: CombatActionComponent[] = [];
-    const user = context.combatantContext.combatant.combatantProperties;
+  combatLogMessageProperties: new CombatActionCombatLogProperties({
+    origin: CombatActionOrigin.Attack,
+  }),
+  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE(),
+  hitOutcomeProperties,
+  costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.FREE_ACTION(),
+  hierarchyProperties: {
+    ...BASE_ACTION_HIERARCHY_PROPERTIES,
+    getChildren: function (
+      context: ActionResolutionStepContext,
+      self: CombatActionComponent
+    ): CombatActionComponent[] {
+      const toReturn: CombatActionComponent[] = [];
+      const user = context.combatantContext.combatant.combatantProperties;
 
-    if (CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(user))
-      toReturn.push(ATTACK_RANGED_MAIN_HAND);
-    else {
-      toReturn.push(ATTACK_MELEE_MAIN_HAND);
-      if (!ATTACK_MELEE_MAIN_HAND.costProperties.requiresCombatTurnInThisContext(context))
-        toReturn.push(ATTACK_MELEE_OFF_HAND);
-    }
+      if (CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(user))
+        toReturn.push(ATTACK_RANGED_MAIN_HAND);
+      else {
+        toReturn.push(ATTACK_MELEE_MAIN_HAND);
+      }
 
-    return toReturn;
-  },
-  getParent: () => {
-    return null;
-  },
-  getRequiredRange: function (
-    user: CombatantProperties,
-    self: CombatActionComponent
-  ): CombatActionRequiredRange {
-    throw new Error("this action should never be asked for its required range");
+      return toReturn;
+    },
   },
   stepsConfig: new ActionResolutionStepsConfig(
     {
-      [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: {},
+      [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
       [ActionResolutionStepType.DetermineChildActions]: {},
+    },
+    {
       [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     },
-    { userShouldMoveHomeOnComplete: false }
+    { getFinalSteps: (self) => self.finalSteps }
   ),
 };
 

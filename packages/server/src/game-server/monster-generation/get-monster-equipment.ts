@@ -9,6 +9,7 @@ import {
   PreDeterminedItemType,
   Shield,
   TwoHandedMeleeWeapon,
+  TwoHandedRangedWeapon,
   WearableSlotType,
   generatePreDeterminedItem,
 } from "@speed-dungeon/common";
@@ -93,24 +94,24 @@ export function getMonsterEquipment(monsterType: MonsterType): CombatantEquipmen
         mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = mhResult;
       break;
     case MonsterType.Cultist:
-      const head = generateSpecificEquipmentType(
-        {
-          equipmentType: EquipmentType.HeadGear,
-          baseItemType: HeadGear.Cap,
-        },
-        {}
-      );
-      const chest = generateSpecificEquipmentType(
-        {
-          equipmentType: EquipmentType.BodyArmor,
-          baseItemType: BodyArmor.Robe,
-        },
-        {}
-      );
-      if (!(chest instanceof Error) && !(head instanceof Error)) {
-        equipment.wearables[WearableSlotType.Head] = head;
-        equipment.wearables[WearableSlotType.Body] = chest;
-      }
+      // const head = generateSpecificEquipmentType(
+      //   {
+      //     equipmentType: EquipmentType.HeadGear,
+      //     baseItemType: HeadGear.Cap,
+      //   },
+      //   {}
+      // );
+      // const chest = generateSpecificEquipmentType(
+      //   {
+      //     equipmentType: EquipmentType.BodyArmor,
+      //     baseItemType: BodyArmor.Robe,
+      //   },
+      //   {}
+      // );
+      // if (!(chest instanceof Error) && !(head instanceof Error)) {
+      //   equipment.wearables[WearableSlotType.Head] = head;
+      //   equipment.wearables[WearableSlotType.Body] = chest;
+      // }
 
       const wandOptions = [
         OneHandedMeleeWeapon.RoseWand,
@@ -124,8 +125,12 @@ export function getMonsterEquipment(monsterType: MonsterType): CombatantEquipmen
       if (shieldType instanceof Error) shieldType = Shield.TowerShield;
       const wandResult = generateSpecificEquipmentType(
         {
-          equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: wandType,
+          equipmentType: EquipmentType.TwoHandedRangedWeapon,
+          baseItemType: TwoHandedRangedWeapon.ShortBow,
+          // equipmentType: EquipmentType.OneHandedMeleeWeapon,
+          // baseItemType: OneHandedMeleeWeapon.Blade,
+          // equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+          // baseItemType: TwoHandedMeleeWeapon.RottingBranch,
         },
         {}
       );
@@ -135,17 +140,17 @@ export function getMonsterEquipment(monsterType: MonsterType): CombatantEquipmen
       // });
       if (!(wandResult instanceof Error))
         mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = wandResult;
-      const shieldResult = generateSpecificEquipmentType(
-        {
-          equipmentType: EquipmentType.Shield,
-          baseItemType: shieldType,
-        },
-        {}
-      );
-      if (!(shieldResult instanceof Error)) {
-        if (shieldResult.durability) shieldResult.durability.current = 2;
-        mainHoldableHotswapSlot.holdables[HoldableSlotType.OffHand] = shieldResult;
-      }
+      // const shieldResult = generateSpecificEquipmentType(
+      //   {
+      //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      //     baseItemType: OneHandedMeleeWeapon.Dagger,
+      //   },
+      //   {}
+      // );
+      // if (!(shieldResult instanceof Error)) {
+      //   if (shieldResult.durability) shieldResult.durability.current = 2;
+      //   mainHoldableHotswapSlot.holdables[HoldableSlotType.OffHand] = shieldResult;
+      // }
       break;
 
     case MonsterType.FireElemental:

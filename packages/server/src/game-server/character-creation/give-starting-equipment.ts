@@ -1,6 +1,7 @@
 import {
   AffixCategory,
   AffixType,
+  CombatAttribute,
   CombatantClass,
   CombatantProperties,
   EquipmentBaseItem,
@@ -24,6 +25,10 @@ const STARTING_EQUIPMENT_BY_COMBATANT_CLASS: Record<
 > = {
   [CombatantClass.Warrior]: {
     [HoldableSlotType.MainHand]: {
+      equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      baseItemType: OneHandedMeleeWeapon.Dagger,
+    },
+    [HoldableSlotType.OffHand]: {
       equipmentType: EquipmentType.OneHandedMeleeWeapon,
       baseItemType: OneHandedMeleeWeapon.Dagger,
     },

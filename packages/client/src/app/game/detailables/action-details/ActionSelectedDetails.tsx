@@ -29,7 +29,6 @@ import { ConditionIndicator } from "../../combatant-plaques/condition-indicators
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import CharacterSheetTopBar from "../../character-sheet/CharacterSheetTopBar";
 import CharacterSheetWeaponDamage from "../../character-sheet/CharacterSheetWeaponDamage";
 
 interface Props {
@@ -104,7 +103,8 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
             combatantProperties,
             rank,
             targetEvasion,
-            true
+            true,
+            primaryTargetResult.combatantProperties
           );
 
           const rankDescription = actionDescription.getDescriptionByLevel(

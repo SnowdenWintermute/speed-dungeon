@@ -1,20 +1,27 @@
 import { COMBATANT_LEVEL_ACTION_VALUE_LEVEL_MODIFIER } from "../../../app-consts.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
-import { CombatantProperties } from "../../../combatants/index.js";
+import { CombatantAttributeRecord } from "../../../combatants/index.js";
 import { NumberRange } from "../../../primatives/index.js";
 
 /** Like in Diablo 1 where higher level combatants get greater benefits from attributes such as Strength -> Damage */
 export function addCombatantLevelScaledAttributeToRange(config: {
   range: NumberRange;
-  combatantProperties: CombatantProperties;
+  userTotalAttributes: CombatantAttributeRecord;
+  userLevel: number;
   attribute: CombatAttribute;
   normalizedAttributeScalingByCombatantLevel: number;
 }) {
-  const { range, combatantProperties, attribute, normalizedAttributeScalingByCombatantLevel } =
-    config;
-  const combatAttributes = CombatantProperties.getTotalAttributes(combatantProperties);
-  const combatantLevel = combatantProperties.level;
-  const attributeValue = combatAttributes[attribute];
+  const {
+    range,
+    attribute,
+    userLevel,
+    userTotalAttributes,
+    normalizedAttributeScalingByCombatantLevel,
+  } = config;
+
+  const combatAttributes = userTotalAttributes;
+  const combatantLevel = userLevel;
+  const attributeValue = combatAttributes[attribute] || 0;
   const scaledAttributeValue = attributeValue * normalizedAttributeScalingByCombatantLevel;
 
   // higher combatant levels gain larger benefit from scaling attributes

@@ -8,6 +8,7 @@ export enum CombatActionTargetType {
   SingleAndSides,
   Group,
   All,
+  Environment,
 }
 
 export interface CombatActionTargetSingle {

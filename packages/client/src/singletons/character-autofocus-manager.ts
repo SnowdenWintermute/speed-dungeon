@@ -1,4 +1,4 @@
-import { CombatantTurnTracker, ConditionTurnTracker } from "@speed-dungeon/common";
+import { CombatantTurnTracker, ConditionTurnTracker, TurnTracker } from "@speed-dungeon/common";
 import { GameState, getCurrentMenu, useGameStore } from "@/stores/game-store";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
 
@@ -15,11 +15,11 @@ export class CharacterAutoFocusManager {
       const party = partyResult;
 
       const newlyActiveTrackerIsPlayerControlled = party.characterPositions.includes(
-        firstActiveTracker.combatantId
+        firstActiveTracker.getTaggedIdOfTrackedEntity().combatantId
       );
 
       if (newlyActiveTrackerIsPlayerControlled)
-        gameState.focusedCharacterId = firstActiveTracker.combatantId;
+        gameState.focusedCharacterId = firstActiveTracker.getTaggedIdOfTrackedEntity().combatantId;
     }
   }
 
@@ -37,10 +37,7 @@ export class CharacterAutoFocusManager {
     gameState.focusedCharacterId = firstOwnedCharacterId;
   }
 
-  updateFocusedCharacterOnNewTurnOrder(
-    gameState: GameState,
-    newlyActiveTracker: CombatantTurnTracker | ConditionTurnTracker
-  ) {
+  updateFocusedCharacterOnNewTurnOrder(gameState: GameState, newlyActiveTracker: TurnTracker) {
     const partyResult = gameState.getParty();
     if (partyResult instanceof Error) return console.error(partyResult.message);
     const party = partyResult;
@@ -54,12 +51,12 @@ export class CharacterAutoFocusManager {
 
     if (newlyActiveTracker instanceof CombatantTurnTracker) {
       newlyActiveTrackerIsPlayerControlled = party.characterPositions.includes(
-        newlyActiveTracker.combatantId
+        newlyActiveTracker.getTaggedIdOfTrackedEntity().combatantId
       );
-    }
 
-    if (newlyActiveTrackerIsPlayerControlled)
-      gameState.focusedCharacterId = newlyActiveTracker.combatantId;
+      if (newlyActiveTrackerIsPlayerControlled)
+        gameState.focusedCharacterId = newlyActiveTracker.getTaggedIdOfTrackedEntity().combatantId;
+    }
   }
 }
 

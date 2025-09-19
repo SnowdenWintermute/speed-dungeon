@@ -11,13 +11,11 @@ export class SetConsideredAction implements BehaviorNode {
   execute(): BehaviorNodeState {
     const actionName = this.actionNameGetter();
     if (actionName === undefined) {
-      console.log("no action name to set as considered");
       return BehaviorNodeState.Failure;
     }
     this.behaviorContext.setCurrentActionNameConsidering(actionName);
     const level = this.actionLevelGetter();
     if (level === null) {
-      console.log("no action level set as considered");
       return BehaviorNodeState.Failure;
     }
     this.behaviorContext.setCurrentActionLevelConsidering(level);

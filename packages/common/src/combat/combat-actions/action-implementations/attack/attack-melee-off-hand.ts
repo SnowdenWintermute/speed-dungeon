@@ -1,4 +1,5 @@
 import {
+  CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -10,86 +11,65 @@ import {
   OFF_HAND_DAMAGE_MODIFIER,
 } from "../../../../app-consts.js";
 import { ATTACK } from "./index.js";
-import { CombatantProperties } from "../../../../combatants/index.js";
-import { CombatAttribute } from "../../../../combatants/attributes/index.js";
-import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
-import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
-import { getStandardActionCritChance } from "../../action-calculation-utils/standard-action-calculations.js";
-import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
-import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
+import { HoldableSlotType } from "../../../../items/equipment/slots.js";
+import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
+import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
 import {
-  GENERIC_TARGETING_PROPERTIES,
-  TargetingPropertiesTypes,
-} from "../../combat-action-targeting-properties.js";
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
+  createHitOutcomeProperties,
+} from "../generic-action-templates/hit-outcome-properties-templates/index.js";
+import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 import {
-  ActionHitOutcomePropertiesBaseTypes,
-  CombatActionHitOutcomeProperties,
-  CombatActionResource,
-  GENERIC_HIT_OUTCOME_PROPERTIES,
-} from "../../combat-action-hit-outcome-properties.js";
+  createTargetingPropertiesConfig,
+  TARGETING_PROPERTIES_TEMPLATE_GETTERS,
+} from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import { CombatActionTargetingPropertiesConfig } from "../../combat-action-targeting-properties.js";
 import {
-  ActionCostPropertiesBaseTypes,
-  BASE_ACTION_COST_PROPERTIES,
-} from "../../combat-action-cost-properties.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
-import { getMeleeAttackDestination } from "../../combat-action-destination-getters.js";
-import { getMeleeAttackBaseStepsConfig } from "./base-melee-attack-steps-config.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
-import cloneDeep from "lodash.clonedeep";
+  ACTION_EXECUTION_PRECONDITIONS,
+  ActionExecutionPreconditions,
+} from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
 
-const targetingProperties =
-  GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
+const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
+hitOutcomeOverrides.addsPropertiesFromHoldableSlot = HoldableSlotType.OffHand;
+hitOutcomeOverrides.accuracyModifier = OFF_HAND_ACCURACY_MODIFIER;
+hitOutcomeOverrides.critChanceModifier = OFF_HAND_CRIT_CHANCE_MODIFIER;
+hitOutcomeOverrides.resourceChangeValuesModifier = OFF_HAND_DAMAGE_MODIFIER;
 
-const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
-  ...cloneDeep(GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee]),
-  accuracyModifier: OFF_HAND_ACCURACY_MODIFIER,
-  addsPropertiesFromHoldableSlot: HoldableSlotType.OffHand,
-  getCritChance: function (user: CombatantProperties): number {
-    return (
-      getStandardActionCritChance(user, CombatAttribute.Dexterity) * OFF_HAND_CRIT_CHANCE_MODIFIER
-    );
-  },
-  resourceChangePropertiesGetters: {
-    [CombatActionResource.HitPoints]: (user, actionLevel, primaryTarget) => {
-      const hpChangeProperties = getAttackResourceChangeProperties(
-        hitOutcomeProperties,
-        user,
-        actionLevel,
-        primaryTarget,
-        CombatAttribute.Strength
-      );
-      if (hpChangeProperties instanceof Error) return hpChangeProperties;
+const hitOutcomeProperties = createHitOutcomeProperties(
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.MELEE_ATTACK,
+  hitOutcomeOverrides
+);
 
-      hpChangeProperties.baseValues.mult(OFF_HAND_DAMAGE_MODIFIER);
-      return hpChangeProperties;
-    },
-  },
+const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.OFF_HAND_MELEE_ATTACK();
+
+const targetingPropertiesOverrides: Partial<CombatActionTargetingPropertiesConfig> = {
+  executionPreconditions: [
+    ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.UserIsAlive],
+    ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.TargetsAreAlive],
+    ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.HasEnoughActionPoints],
+    ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.WasNotCounterattacked],
+    ACTION_EXECUTION_PRECONDITIONS[
+      ActionExecutionPreconditions.WasNotWearing2HWeaponOnPreviousAction
+    ],
+  ],
 };
 
-const stepsConfig = getMeleeAttackBaseStepsConfig(HoldableSlotType.OffHand);
-// don't show a movement animation here
-stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
-  getDestination: getMeleeAttackDestination,
-};
+const targetingProperties = createTargetingPropertiesConfig(
+  TARGETING_PROPERTIES_TEMPLATE_GETTERS.COPY_PARENT_HOSTILE,
+  targetingPropertiesOverrides
+);
 
 export const ATTACK_MELEE_OFF_HAND_CONFIG: CombatActionComponentConfig = {
-  ...DAMAGING_ACTIONS_COMMON_CONFIG,
   description: "Attack target using equipment in off hand",
-  origin: CombatActionOrigin.Attack,
-  getRequiredRange: () => CombatActionRequiredRange.Melee,
-  getOnUseMessage: null,
+  combatLogMessageProperties: new CombatActionCombatLogProperties({
+    origin: CombatActionOrigin.Attack,
+  }),
   targetingProperties,
   hitOutcomeProperties,
-  costProperties: {
-    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
-    incursDurabilityLoss: {
-      [EquipmentSlotType.Holdable]: { [HoldableSlotType.OffHand]: DurabilityLossCondition.OnHit },
-    },
-  },
+  costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_MELEE_OFF_HAND_ATTACK(),
   stepsConfig,
-
-  getChildren: () => [],
-  getParent: () => ATTACK,
+  hierarchyProperties: { ...BASE_ACTION_HIERARCHY_PROPERTIES, getParent: () => ATTACK },
 };
 
 export const ATTACK_MELEE_OFF_HAND = new CombatActionLeaf(

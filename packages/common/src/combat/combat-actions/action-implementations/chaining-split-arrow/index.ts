@@ -1,110 +1,100 @@
 import {
-  ActionResolutionStepsConfig,
+  ActionPayableResource,
+  CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionExecutionIntent,
   CombatActionName,
   CombatActionOrigin,
 } from "../../index.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
-import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
-import {
-  GENERIC_TARGETING_PROPERTIES,
-  TargetingPropertiesTypes,
-} from "../../combat-action-targeting-properties.js";
-import { rangedAttackProjectileHitOutcomeProperties } from "../attack/attack-ranged-main-hand-projectile.js";
-import {
-  ActionCostPropertiesBaseTypes,
-  BASE_ACTION_COST_PROPERTIES,
-} from "../../combat-action-cost-properties.js";
-import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
-import { getProjectileShootingActionBaseStepsConfig } from "../getProjectileShootingActionBaseStepsConfig.js";
-import { ProjectileShootingActionType } from "../projectile-shooting-action-animation-names.js";
-import {
-  ActionResolutionStepType,
-  EntityMotionUpdate,
-} from "../../../../action-processing/index.js";
-import { ATTACK_RANGED_MAIN_HAND } from "../attack/attack-ranged-main-hand.js";
-import { SpawnableEntityType, getSpawnableEntityId } from "../../../../spawnables/index.js";
 import { EquipmentType } from "../../../../items/equipment/index.js";
 import { AbilityType } from "../../../../abilities/index.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
+import {
+  createHitOutcomeProperties,
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
+} from "../generic-action-templates/hit-outcome-properties-templates/index.js";
+import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
+import {
+  COST_PROPERTIES_TEMPLATE_GETTERS,
+  createCostPropertiesConfig,
+} from "../generic-action-templates/cost-properties-templates/index.js";
+import {
+  createTargetingPropertiesConfig,
+  TARGETING_PROPERTIES_TEMPLATE_GETTERS,
+} from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import { CHAINING_SPLIT_ARROW_PARENT_STEPS_CONFIG } from "./chaining-split-arrow-parent-steps-config.js";
+import { SpawnableEntityType } from "../../../../spawnables/index.js";
+import { createCopyOfProjectileUser } from "../../../../combatants/index.js";
 
-const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Bow);
+const hitOutcomeProperties = createHitOutcomeProperties(
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BOW_ATTACK,
+  {}
+);
+
+const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
+  costBases: {
+    [ActionPayableResource.Mana]: { base: 1, additives: { actionLevel: 1 } },
+  },
+};
+const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_RANGED_MAIN_HAND_ATTACK;
+const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
+
+const targetingProperties = createTargetingPropertiesConfig(
+  TARGETING_PROPERTIES_TEMPLATE_GETTERS.AREA_HOSTILE,
+  {
+    getRequiredEquipmentTypeOptions: () => [EquipmentType.TwoHandedRangedWeapon],
+  }
+);
 
 const config: CombatActionComponentConfig = {
   description: "Fire arrows which each bounce to up to two additional targets",
-  origin: CombatActionOrigin.Attack,
+
+  combatLogMessageProperties: new CombatActionCombatLogProperties({
+    origin: CombatActionOrigin.Attack,
+    getOnUseMessage: (data) => {
+      return `${data.nameOfActionUser} fires a chaining split arrow.`;
+    },
+  }),
   prerequisiteAbilities: [
     { type: AbilityType.Action, actionName: CombatActionName.ExplodingArrowParent },
   ],
-  targetingProperties: {
-    ...GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea],
-    getRequiredEquipmentTypeOptions: () => [EquipmentType.TwoHandedRangedWeapon],
-  },
+  targetingProperties,
+  hitOutcomeProperties,
+  costProperties,
+  stepsConfig: CHAINING_SPLIT_ARROW_PARENT_STEPS_CONFIG,
+  hierarchyProperties: {
+    ...BASE_ACTION_HIERARCHY_PROPERTIES,
 
-  getOnUseMessage: (data) => {
-    return `${data.nameOfActionUser} fires a chaining split arrow.`;
-  },
-  hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
-  costProperties: {
-    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
-    incursDurabilityLoss: {
-      [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnUse },
+    getConcurrentSubActions(context) {
+      return context.combatantContext
+        .getOpponents()
+        .filter((opponent) => opponent.combatantProperties.hitPoints > 0)
+        .map((opponent) => {
+          const expectedProjectile = context.tracker.spawnedEntityOption;
+          if (expectedProjectile === null)
+            throw new Error("expected to have spawned the arrow by now");
+          if (expectedProjectile.type !== SpawnableEntityType.ActionEntity)
+            throw new Error("expected to have spawned an action entity");
+          const projectileUser = createCopyOfProjectileUser(
+            context.combatantContext.combatant,
+            expectedProjectile.actionEntity
+          );
+
+          return {
+            user: projectileUser,
+            actionExecutionIntent: new CombatActionExecutionIntent(
+              CombatActionName.ChainingSplitArrowProjectile,
+              {
+                type: CombatActionTargetType.Single,
+                targetId: opponent.entityProperties.id,
+              },
+              context.tracker.actionExecutionIntent.level
+            ),
+          };
+        });
     },
-  },
-  stepsConfig: new ActionResolutionStepsConfig(
-    {
-      ...stepsConfig.steps,
-      [ActionResolutionStepType.PrepMotion]:
-        ATTACK_RANGED_MAIN_HAND.stepsConfig.steps[ActionResolutionStepType.PrepMotion],
-
-      [ActionResolutionStepType.PostPrepSpawnEntity]: {},
-      [ActionResolutionStepType.DeliveryMotion]:
-        ATTACK_RANGED_MAIN_HAND.stepsConfig.steps[ActionResolutionStepType.DeliveryMotion],
-      [ActionResolutionStepType.RecoveryMotion]: {
-        ...stepsConfig.steps[ActionResolutionStepType.RecoveryMotion],
-        getAuxiliaryEntityMotions: (context) => {
-          const dummyArrowOption = context.tracker.spawnedEntityOption;
-          if (!dummyArrowOption) return [];
-
-          const actionEntityId = getSpawnableEntityId(dummyArrowOption);
-          //
-          const toReturn: EntityMotionUpdate[] = [];
-
-          toReturn.push({
-            entityId: actionEntityId,
-            entityType: SpawnableEntityType.ActionEntity,
-            despawn: true,
-          });
-
-          return toReturn;
-        },
-      },
-    },
-    { userShouldMoveHomeOnComplete: true }
-  ),
-
-  getSpawnableEntity: ATTACK_RANGED_MAIN_HAND.getSpawnableEntity,
-  shouldExecute: () => true,
-  getChildren: (_user) => [],
-  getParent: () => null,
-  getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
-  getConcurrentSubActions(context) {
-    return context.combatantContext
-      .getOpponents()
-      .filter((opponent) => opponent.combatantProperties.hitPoints > 0)
-      .map(
-        (opponent) =>
-          new CombatActionExecutionIntent(
-            CombatActionName.ChainingSplitArrowProjectile,
-            {
-              type: CombatActionTargetType.Single,
-              targetId: opponent.entityProperties.id,
-            },
-            context.tracker.actionExecutionIntent.level
-          )
-      );
   },
 };
 

@@ -16,24 +16,26 @@ export function giveStartingAbilities(combatantProperties: CombatantProperties) 
     CombatActionName.ReadSkillBook,
     // CombatActionName.ChainingSplitArrowParent,
     // CombatActionName.Counterattack,
-    CombatActionName.IceBoltParent,
-    CombatActionName.Fire,
-    CombatActionName.Healing,
+    // CombatActionName.IceBoltParent,
+    // CombatActionName.Fire,
+    // CombatActionName.Healing,
+    // CombatActionName.ExplodingArrowParent,
+    // CombatActionName.Blind,
+    // CombatActionName.Firewall,
+  ];
+
+  const levelTwoSpells: CombatActionName[] = [
+    // CombatActionName.IceBoltParent,
+    // CombatActionName.Fire,
+    // CombatActionName.Firewall,
+    // CombatActionName.Healing,
     // CombatActionName.ExplodingArrowParent,
     // CombatActionName.Blind,
   ];
 
-  const levelTwoSpells: CombatActionName[] = [
-    CombatActionName.IceBoltParent,
-    CombatActionName.Fire,
-    CombatActionName.Healing,
-    CombatActionName.ExplodingArrowParent,
-    CombatActionName.Blind,
-  ];
-
   for (const actionName of ownedActions) {
     const action = new CombatantActionState(actionName);
-    if (levelTwoSpells.includes(actionName)) action.level = 2;
+    if (levelTwoSpells.includes(actionName)) action.level = 3;
     const cooldownOption = COMBAT_ACTIONS[actionName].costProperties.getCooldownTurns(
       combatantProperties,
       action.level

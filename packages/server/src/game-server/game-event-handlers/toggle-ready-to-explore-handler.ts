@@ -10,6 +10,7 @@ import {
   Battle,
   GameMode,
   InputLock,
+  EntityId,
 } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
 import { DungeonRoomType } from "@speed-dungeon/common";
@@ -99,12 +100,20 @@ export async function exploreNextRoom(
   putPartyInNextRoom(game, party, roomTypeToGenerate);
 
   const partyChannelName = getPartyChannelName(game.name, party.name);
-  this.io.to(partyChannelName).emit(ServerToClientEvent.DungeonRoomUpdate, party.currentRoom);
 
-  if (party.battleId === null) return;
+  const battleOption = AdventuringParty.getBattleOption(party, game);
+  const actionEntitiesRemoved = AdventuringParty.unregisterActionEntitiesOnBattleEndOrNewRoom(
+    party,
+    battleOption
+  );
 
-  const battleOption = game.battles[party.battleId];
-  if (!battleOption) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
+  this.io.to(partyChannelName).emit(ServerToClientEvent.DungeonRoomUpdate, {
+    dungeonRoom: party.currentRoom,
+    actionEntitiesToRemove: actionEntitiesRemoved,
+  });
+
+  if (battleOption === null) return;
+
   const battle = battleOption;
   this.io
     .in(getPartyChannelName(game.name, party.name))

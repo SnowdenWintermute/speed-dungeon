@@ -1,4 +1,4 @@
-import { AbstractMesh, Scene, TransformNode } from "@babylonjs/core";
+import { AbstractMesh, Scene, StandardMaterial, TransformNode } from "@babylonjs/core";
 import { ManagedParticleSystem } from "./managed-particle-system.js";
 
 export enum CosmeticEffectNames {
@@ -14,17 +14,24 @@ export enum CosmeticEffectNames {
   LightParticleBurst,
   DarkParticleAccumulation,
   BlindnessCast,
+  FirewallParticles,
+  SmokeParticleStream,
+  SmokePuff,
 }
 
 export abstract class CosmeticEffect {
-  public lifetimeTimeout: null | NodeJS.Timeout = null;
+  public lifetimeTimeouts: null | NodeJS.Timeout[] = null;
   particleSystems: ManagedParticleSystem[] = [];
   public transformNode = new TransformNode("");
-  constructor(public scene: Scene) {
+  constructor(
+    public scene: Scene,
+    public rank: number
+  ) {
     this.initialize(scene);
   }
   createParticleSystems?(scene: Scene): ManagedParticleSystem[];
   createAnimatedMeshes?(scene: Scene): AbstractMesh[];
+  setsMaterial?(scene: Scene): StandardMaterial;
   initialize(scene: Scene) {
     if (this.createParticleSystems) {
       this.particleSystems = this.createParticleSystems(scene);
@@ -36,18 +43,30 @@ export abstract class CosmeticEffect {
     }
   }
 
-  softCleanup() {
-    if (this.lifetimeTimeout !== null) clearTimeout(this.lifetimeTimeout);
-    for (const particleSystem of this.particleSystems) {
-      particleSystem.softCleanup();
+  addLifetimeTimeout(timeout: NodeJS.Timeout) {
+    if (this.lifetimeTimeouts === null) this.lifetimeTimeouts = [];
+    this.lifetimeTimeouts.push(timeout);
+  }
+
+  softCleanup(onComplete: () => void) {
+    if (this.lifetimeTimeouts !== null) {
+      for (const timeout of this.lifetimeTimeouts) clearTimeout(timeout);
     }
-    this.transformNode.dispose();
+    let particleSystemsCleaningUpCount = this.particleSystems.length;
+    for (const particleSystem of this.particleSystems) {
+      particleSystem.softCleanup(() => {
+        this.cleanup();
+        particleSystemsCleaningUpCount -= 1;
+        if (particleSystemsCleaningUpCount === 0) onComplete();
+      });
+    }
   }
 
   cleanup() {
     for (const particleSystem of this.particleSystems) {
-      particleSystem.cleanup();
+      particleSystem.cleanup(() => {
+        this.transformNode.dispose();
+      });
     }
-    this.transformNode.dispose();
   }
 }

@@ -1,6 +1,5 @@
-import { ActionResolutionStepContext } from "../../../action-processing/index.js";
 import { EntityId } from "../../../primatives/index.js";
-import { iterateNumericEnumKeyedRecord, randBetween, throwIfError } from "../../../utils/index.js";
+import { iterateNumericEnumKeyedRecord, randBetween } from "../../../utils/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
@@ -14,6 +13,8 @@ import {
 import { CombatantProperties } from "../../../combatants/index.js";
 import { CombatantContext } from "../../../combatant-context/index.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
+import cloneDeep from "lodash.clonedeep";
+import { ActionEntity } from "../../../action-entities/index.js";
 
 export interface ResourceChangesPerTarget {
   value: number;
@@ -35,9 +36,13 @@ export class IncomingResourceChangesCalculator {
 
     // we need a target to check against to find the best affinity to choose
     // so we'll use the first target for now, until a better system comes to light
-    const primaryTargetResult = throwIfError(
-      this.targetingCalculator.getPrimaryTargetCombatant(party, this.actionExecutionIntent)
+    const primaryTargetResult = this.targetingCalculator.getPrimaryTargetCombatant(
+      party,
+      this.actionExecutionIntent
     );
+    // it is possible no target will be found, such as an ice burst with no side targets like when they run
+    // through a firewall or are killed by ranged while under shatterable condition with no one nearby to hit
+    if (primaryTargetResult instanceof Error) return {};
     const primaryTarget = primaryTargetResult;
 
     const { hitOutcomeProperties } = action;
@@ -66,9 +71,20 @@ export class IncomingResourceChangesCalculator {
     for (const [actionResource, getter] of iterateNumericEnumKeyedRecord(
       resourceChangePropertiesGetters
     )) {
-      const resourceChangeProperties = getter(user, actionLevel, primaryTarget);
+      const resourceChangeProperties = getter(
+        user,
+        hitOutcomeProperties,
+        actionLevel,
+        primaryTarget,
+        user.asShimmedActionEntity
+      );
       if (resourceChangeProperties === null) continue;
-      const rolled = this.rollIncomingResourceChangeBaseValue(resourceChangeProperties, this.rng);
+
+      // some actions have a base multiplier, such as offhand attack
+      const modified = cloneDeep(resourceChangeProperties);
+      modified.baseValues.mult(hitOutcomeProperties.resourceChangeValuesModifier);
+
+      const rolled = this.rollIncomingResourceChangeBaseValue(modified, this.rng);
       const valuePerTarget = this.getIncomingResourceChangeValuePerTarget(rolled);
 
       incomingResourceChangesPerTarget[actionResource] = {

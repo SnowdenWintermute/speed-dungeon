@@ -9,6 +9,7 @@ import {
   Inventory,
   NumberRange,
   OneHandedMeleeWeapon,
+  TwoHandedMeleeWeapon,
 } from "@speed-dungeon/common";
 import { createConsumableByType } from "../item-generation/create-consumable-by-type.js";
 import {
@@ -26,6 +27,16 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inv
     skillbook.itemLevel = 2;
     inventory.consumables.push(skillbook);
   }
+  for (let i = 0; i < 1; i += 1) {
+    const skillbook = createConsumableByType(ConsumableType.MageSkillbook);
+    skillbook.itemLevel = 2;
+    inventory.consumables.push(skillbook);
+  }
+  for (let i = 0; i < 1; i += 1) {
+    const skillbook = createConsumableByType(ConsumableType.WarriorSkillbook);
+    skillbook.itemLevel = 2;
+    inventory.consumables.push(skillbook);
+  }
   for (let i = 0; i < 2; i += 1) {
     const skillbook = createConsumableByType(ConsumableType.RogueSkillbook);
     skillbook.itemLevel = 3;
@@ -34,8 +45,8 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inv
 
   const tradeableItemResult = generateSpecificEquipmentType(
     {
-      equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: OneHandedMeleeWeapon.YewWand,
+      equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+      baseItemType: TwoHandedMeleeWeapon.RottingBranch,
     },
     {}
   );
@@ -50,6 +61,6 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inv
 
   inventory.equipment.push(tradeableItemResult);
 
-  const items = generateOneOfEachItem(new NumberRange(1, 10));
-  for (const item of items) Inventory.insertItem(inventory, item);
+  // const items = generateOneOfEachItem(new NumberRange(1, 10));
+  // for (const item of items) Inventory.insertItem(inventory, item);
 }

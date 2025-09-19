@@ -1,7 +1,6 @@
-import { Quaternion, Vector3 } from "@babylonjs/core";
+import { Vector3 } from "@babylonjs/core";
 import { ActionResolutionStepContext } from "../../action-processing/index.js";
 import { TargetingCalculator } from "../targeting/targeting-calculator.js";
-import { CombatantProperties } from "../../combatants/index.js";
 import { getLookRotationFromPositions } from "../../utils/index.js";
 
 const meleeRange = 1.5;
@@ -37,13 +36,6 @@ export function getMeleeAttackDestination(context: ActionResolutionStepContext) 
       user.homeLocation,
       target.combatantProperties.homeLocation
     );
-
-    // const destinationRotation = Quaternion.FromUnitVectorsToRef(
-    //   // CombatantProperties.getForward(user),
-    //   user.homeLocation,
-    //   direction,
-    //   new Quaternion()
-    // );
 
     return {
       position: destination,

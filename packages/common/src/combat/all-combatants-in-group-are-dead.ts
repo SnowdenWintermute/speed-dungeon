@@ -10,7 +10,9 @@ export function allCombatantsInGroupAreDead(
     const combatantResult = SpeedDungeonGame.getCombatantById(game, id);
     if (combatantResult instanceof Error) return combatantResult;
     const { combatantProperties } = combatantResult;
-    if (!CombatantProperties.isDead(combatantProperties)) return false;
+    const isDead = CombatantProperties.isDead(combatantProperties);
+    const isAlive = !isDead;
+    if (isAlive) return false;
   }
 
   return true;

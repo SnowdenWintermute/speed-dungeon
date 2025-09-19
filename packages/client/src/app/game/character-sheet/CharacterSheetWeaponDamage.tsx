@@ -19,6 +19,7 @@ import React from "react";
 import { getTargetOption } from "@/utils/get-target-option";
 import { TARGET_DUMMY_COMBATANT } from "./ability-tree/action-description";
 import { IconName, SVG_ICONS } from "@/app/icons";
+import cloneDeep from "lodash.clonedeep";
 
 export default function CharacterSheetWeaponDamage({
   combatant,
@@ -154,10 +155,12 @@ function getAttackActionDamageAndAccuracy(
   const { combatantProperties } = combatant;
   const hpChangeProperties = combatAction.hitOutcomeProperties.resourceChangePropertiesGetters![
     CombatActionResource.HitPoints
-  ]!(combatantProperties, 1, target);
+  ]!(combatantProperties, combatAction.hitOutcomeProperties, 1, target);
   if (hpChangeProperties === null) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TYPE);
+  const modified = cloneDeep(hpChangeProperties);
+  modified.baseValues.mult(combatAction.hitOutcomeProperties.resourceChangeValuesModifier);
 
-  const hpChangeRangeResult = hpChangeProperties.baseValues;
+  const hpChangeRangeResult = modified.baseValues;
 
   if (hpChangeRangeResult instanceof Error) return hpChangeRangeResult;
 
@@ -169,7 +172,8 @@ function getAttackActionDamageAndAccuracy(
     combatantProperties,
     1,
     targetEvasion,
-    !usingDummy
+    !usingDummy,
+    target
   );
 
   const { hitOutcomeProperties } = combatAction;

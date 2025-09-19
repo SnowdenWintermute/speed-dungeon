@@ -20,6 +20,11 @@ export enum GameMode {
   Progression,
 }
 
+export enum CleanupMode {
+  Immediate,
+  Soft,
+}
+
 export function formatGameMode(gameMode: GameMode) {
   switch (gameMode) {
     case GameMode.Race:

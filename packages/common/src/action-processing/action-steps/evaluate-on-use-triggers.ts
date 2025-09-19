@@ -3,26 +3,19 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import {
-  COMBAT_ACTIONS,
-  CombatActionExecutionIntent,
-  CombatActionName,
-} from "../../combat/index.js";
+import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
 import {
   ActivatedTriggersGameUpdateCommand,
   GameUpdateCommandType,
 } from "../game-update-commands.js";
-import { Combatant, CombatantCondition } from "../../combatants/index.js";
+import { Combatant } from "../../combatants/index.js";
 import { DurabilityLossCondition } from "../../combat/combat-actions/combat-action-durability-loss-condition.js";
 import { DurabilityChangesByEntityId } from "../../durability/index.js";
-import { AdventuringParty } from "../../adventuring-party/index.js";
-import { addRemovedConditionStacksToUpdate } from "./hit-outcome-triggers/add-triggered-condition-to-update.js";
-import { onSkillBookRead } from "../../combat/combat-actions/action-implementations/consumables/read-skill-book.js";
 
 const stepType = ActionResolutionStepType.EvalOnUseTriggers;
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
-    const gameUpdateCommand: ActivatedTriggersGameUpdateCommand = {
+    let gameUpdateCommand: ActivatedTriggersGameUpdateCommand = {
       type: GameUpdateCommandType.ActivatedTriggers,
       actionName: context.tracker.actionExecutionIntent.actionName,
       step: stepType,
@@ -37,29 +30,8 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     const { actionName } = tracker.actionExecutionIntent;
     const action = COMBAT_ACTIONS[actionName];
 
-    // skill books are unique at the time of this writing ( 8/27/2025 )
-    // as no other action changes class levels so we'll handle them here
-    // see the action.costProperties.getMeetsCustomRequirements of the
-    // skill book action for validation
-    if (actionName === CombatActionName.ReadSkillBook) {
-      const bookOption = context.tracker.consumableUsed;
-      if (bookOption === null) {
-        console.error("expected to have paid a book as consumable cost for this action");
-      } else {
-        const supportClassLevelsGainedResult = onSkillBookRead(
-          combatant.combatantProperties,
-          bookOption
-        );
-        if (supportClassLevelsGainedResult instanceof Error)
-          console.error(supportClassLevelsGainedResult);
-        else {
-          gameUpdateCommand.supportClassLevelsGained = {
-            [combatant.entityProperties.id]:
-              supportClassLevelsGainedResult.supportClassLevelIncreased,
-          };
-        }
-      }
-    }
+    const onUseTriggers = action.hitOutcomeProperties.getOnUseTriggers(context);
+    Object.assign(gameUpdateCommand, onUseTriggers);
 
     const durabilityChanges = new DurabilityChangesByEntityId();
     durabilityChanges.updateConditionalChangesOnUser(
@@ -72,32 +44,6 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
       gameUpdateCommand.durabilityChanges = durabilityChanges;
 
       DurabilityChangesByEntityId.ApplyToGame(game, durabilityChanges);
-    }
-
-    // action was used by a condition, remove stacks and send removed stacks update
-    if (combatant.combatantProperties.asShimmedUserOfTriggeredCondition) {
-      const { condition } = combatant.combatantProperties.asShimmedUserOfTriggeredCondition;
-      const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
-      if (tickPropertiesOption) {
-        const onTick = tickPropertiesOption.onTick(condition, context.combatantContext);
-        const { numStacksRemoved } = onTick;
-        const { entityConditionWasAppliedTo } =
-          combatant.combatantProperties.asShimmedUserOfTriggeredCondition;
-        const hostEntity = AdventuringParty.getCombatant(party, entityConditionWasAppliedTo);
-        if (hostEntity instanceof Error) throw hostEntity;
-        CombatantCondition.removeStacks(
-          condition.id,
-          hostEntity.combatantProperties,
-          numStacksRemoved
-        );
-
-        addRemovedConditionStacksToUpdate(
-          condition.id,
-          numStacksRemoved,
-          gameUpdateCommand,
-          hostEntity.entityProperties.id
-        );
-      }
     }
   }
 

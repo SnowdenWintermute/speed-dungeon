@@ -16,7 +16,12 @@ import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { randBetween } from "../../../utils/index.js";
 import { ActionAccuracyType } from "../../combat-actions/combat-action-accuracy.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
-import { CombatActionComponent, CombatActionIntent } from "../../combat-actions/index.js";
+import {
+  COMBAT_ACTION_NAME_STRINGS,
+  CombatActionComponent,
+  CombatActionIntent,
+} from "../../combat-actions/index.js";
+import { ProhibitedTargetCombatantStates } from "../../combat-actions/prohibited-target-combatant-states.js";
 import { ResourceChangeSource } from "../../hp-change-source-types.js";
 
 const BASE_PARRY_CHANCE = 5;
@@ -57,7 +62,8 @@ export class HitOutcomeMitigationCalculator {
       user,
       this.actionLevel,
       CombatantProperties.getTotalAttributes(target)[CombatAttribute.Evasion],
-      targetWillAttemptMitigation
+      targetWillAttemptMitigation,
+      target
     );
 
     // it is possible to miss a target who is not attempting mitigation if your accuracy
@@ -95,9 +101,10 @@ export class HitOutcomeMitigationCalculator {
         user,
         target
       );
+      // const percentChanceToCounterAttack = 100;
       const counterAttackRoll = randBetween(0, 100, this.rng);
-      // const counterAttackRoll = randBetween(0, 1, this.rng);
       const isCounterAttacked = counterAttackRoll < percentChanceToCounterAttack;
+      // const isCounterAttacked = percentChanceToCounterAttack !== 0;
       if (isCounterAttacked) return [HitOutcome.Counterattack];
     }
 
@@ -133,6 +140,7 @@ export class HitOutcomeMitigationCalculator {
     const hpChangePropertiesOption = hpChangePropertiesGetterOption
       ? hpChangePropertiesGetterOption(
           this.user.combatantProperties,
+          this.action.hitOutcomeProperties,
           this.actionLevel,
           targetCombatantProperties
         )
@@ -170,8 +178,19 @@ export class HitOutcomeMitigationCalculator {
     userCombatantProperties: CombatantProperties,
     actionLevel: number,
     targetEvasion: number,
-    targetWillAttemptToEvade: boolean
+    targetWillAttemptToEvade: boolean,
+    target: CombatantProperties
   ): { beforeEvasion: number; afterEvasion: number } {
+    const canHitDeadCombatants =
+      !combatAction.targetingProperties.prohibitedHitCombatantStates.includes(
+        ProhibitedTargetCombatantStates.Dead
+      );
+    const targetIsDead = CombatantProperties.isDead(target);
+    if (targetIsDead && !canHitDeadCombatants) {
+      return { beforeEvasion: 0, afterEvasion: 0 };
+    } else {
+    }
+
     const actionBaseAccuracy = combatAction.getAccuracy(userCombatantProperties, actionLevel);
     if (actionBaseAccuracy.type === ActionAccuracyType.Unavoidable)
       return { beforeEvasion: 100, afterEvasion: 100 };
@@ -192,7 +211,7 @@ export class HitOutcomeMitigationCalculator {
     target: CombatantProperties,
     targetWillAttemptMitigation: boolean
   ) {
-    const actionBaseCritChance = action.hitOutcomeProperties.getCritChance(user, actionLevel);
+    const actionBaseCritChance = action.getCritChance(user, actionLevel);
 
     const targetAttributes = CombatantProperties.getTotalAttributes(target);
     const targetAvoidaceAttributeValue = targetAttributes[CombatAttribute.Spirit];
@@ -213,6 +232,7 @@ export class HitOutcomeMitigationCalculator {
     aggressor: CombatantProperties,
     defender: CombatantProperties
   ): Percentage {
+    if (CombatantProperties.isDead(defender)) return 0;
     // derive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
     // and probably put it on the action configs
     return BASE_PARRY_CHANCE;

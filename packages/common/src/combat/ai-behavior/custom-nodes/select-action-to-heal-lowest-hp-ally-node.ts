@@ -114,7 +114,6 @@ export class SelectActionToHealLowestHpAlly implements BehaviorNode {
   }
   execute(): BehaviorNodeState {
     const status = this.root.execute();
-    console.log("result of SelectActionToHealLowestHpAlly", BEHAVIOR_NODE_STATE_STRINGS[status]);
     return status;
   }
 }

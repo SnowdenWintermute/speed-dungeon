@@ -7,21 +7,12 @@ import {
   CombatantAttributeRecord,
   CombatantProperties,
 } from "../index.js";
-import { CombatAttribute } from "../attributes/index.js";
+import { CombatAttribute, initializeCombatAttributeRecord } from "../attributes/index.js";
 import { Equipment, HoldableSlotType } from "../../items/equipment/index.js";
 import { CombatantEquipment } from "../combatant-equipment/index.js";
 import { DERIVED_ATTRIBUTE_RATIOS } from "./derrived-attribute-ratios.js";
 import { addAttributesToAccumulator } from "./add-attributes-to-accumulator.js";
 import { COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL } from "../combatant-class/class-attributes-by-level.js";
-
-function initializeCombatAttributeRecord() {
-  const allAttributesAsZero: CombatantAttributeRecord = {};
-  for (const value of Object.values(CombatAttribute)) {
-    if (typeof value === "string") continue;
-    allAttributesAsZero[value] = 0;
-  }
-  return allAttributesAsZero as Record<CombatAttribute, number>;
-}
 
 export default function getCombatantTotalAttributes(
   combatantProperties: CombatantProperties
@@ -29,7 +20,7 @@ export default function getCombatantTotalAttributes(
   const totalAttributes = initializeCombatAttributeRecord();
   addAttributesToAccumulator(combatantProperties.inherentAttributes, totalAttributes);
   addAttributesToAccumulator(combatantProperties.speccedAttributes, totalAttributes);
-  const { combatantClass } = combatantProperties;
+  const { combatantClass, monsterType } = combatantProperties;
   const supportClassPropertiesOption = combatantProperties.supportClassProperties;
 
   const combatantClassStartingAttributes = BASE_STARTING_ATTRIBUTES[combatantClass];

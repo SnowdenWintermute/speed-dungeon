@@ -19,7 +19,6 @@ export class CheckIfHasRequiredConsumablesForAction implements BehaviorNode {
     );
     if (hasRequiredConsumables) return BehaviorNodeState.Success;
 
-    console.log("missing consumables required");
     return BehaviorNodeState.Failure;
   }
 }

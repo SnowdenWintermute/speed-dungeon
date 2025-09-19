@@ -1,5 +1,4 @@
 import { SpawnableEntityType } from "../../spawnables/index.js";
-import { CombatantMotionActionResolutionStep } from "./combatant-motion.js";
 import { DetermineChildActionsActionResolutionStep } from "./determine-child-actions.js";
 import { EvalOnHitOutcomeTriggersActionResolutionStep } from "./hit-outcome-triggers/index.js";
 import { EvalOnUseTriggersActionResolutionStep } from "./evaluate-on-use-triggers.js";
@@ -8,7 +7,6 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { ActionEntityMotionActionResolutionStep } from "./action-entity-motion.js";
 import { PayResourceCostsActionResolutionStep } from "./pay-resource-costs.js";
 import { RollIncomingHitOutcomesActionResolutionStep } from "./roll-incoming-hit-outcomes.js";
 import { SpawnEntityActionResolutionStep } from "./spawn-entity.js";
@@ -17,6 +15,10 @@ import { DetermineMeleeActionAnimationsActionResolutionStep } from "./determine-
 import { EvaluatePlayerEndTurnAndInputLockActionResolutionStep } from "./evaluate-player-turn-end-and-input-lock.js";
 import { DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep } from "./determine-should-execute-or-release-turn-and-input-lock.js";
 import { PostActionUseCombatLogMessageActionResolutionStep } from "./post-action-use-combat-log-message.js";
+import { CombatantMotionActionResolutionStep } from "./motion-steps/combatant-motion.js";
+import { ActionEntityMotionActionResolutionStep } from "./motion-steps/action-entity-motion.js";
+import { TriggerEnvironmentalHazardsActionResolutionStep } from "./motion-steps/determine-environmental-hazard-triggers.js";
+import { RemoveTickedConditionStacksActionResolutionStep } from "./remove-ticked-condition-stacks.js";
 
 // right now the idea is to have the action tracker call these creators, which in turn call
 // step class constructors. We don't call the constructors directly because this allows us
@@ -28,14 +30,31 @@ export const ACTION_STEP_CREATORS: Record<
   ActionResolutionStepType,
   (context: ActionResolutionStepContext) => ActionResolutionStep
 > = {
-  [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]: (context) =>
-    new DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep(context),
+  [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: (
+    context
+  ) =>
+    new DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep(
+      context,
+      ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock
+    ),
   [ActionResolutionStepType.DetermineChildActions]: (context) =>
     new DetermineChildActionsActionResolutionStep(context),
   [ActionResolutionStepType.DetermineMeleeActionAnimations]: (context) =>
     new DetermineMeleeActionAnimationsActionResolutionStep(context),
+  [ActionResolutionStepType.PreInitialPositioningCheckEnvironmentalHazardTriggers]: (context) =>
+    new TriggerEnvironmentalHazardsActionResolutionStep(
+      context,
+      ActionResolutionStepType.PreInitialPositioningCheckEnvironmentalHazardTriggers
+    ),
   [ActionResolutionStepType.InitialPositioning]: (context) =>
     new CombatantMotionActionResolutionStep(context, ActionResolutionStepType.InitialPositioning),
+  [ActionResolutionStepType.PostInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: (
+    context
+  ) =>
+    new DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep(
+      context,
+      ActionResolutionStepType.PostInitialPositioningDetermineShouldExecuteOrReleaseTurnLock
+    ),
   [ActionResolutionStepType.PrepMotion]: (context) =>
     new CombatantMotionActionResolutionStep(context, ActionResolutionStepType.PrepMotion),
   [ActionResolutionStepType.PostPrepSpawnEntity]: (context) =>
@@ -54,32 +73,44 @@ export const ACTION_STEP_CREATORS: Record<
     new StartConcurrentSubActionsActionResolutionStep(context),
   [ActionResolutionStepType.OnActivationSpawnEntity]: (context) =>
     new SpawnEntityActionResolutionStep(context, ActionResolutionStepType.OnActivationSpawnEntity),
+  [ActionResolutionStepType.PreActionEntityMotionCheckEnvironmentalHazardTriggers]: (context) =>
+    new TriggerEnvironmentalHazardsActionResolutionStep(
+      context,
+      ActionResolutionStepType.PreActionEntityMotionCheckEnvironmentalHazardTriggers
+    ),
   [ActionResolutionStepType.OnActivationActionEntityMotion]: (context) => {
-    const expectedProjectileEntityOption = context.tracker.spawnedEntityOption;
-    if (!expectedProjectileEntityOption) throw new Error("expected projectile was missing");
-    if (expectedProjectileEntityOption.type !== SpawnableEntityType.ActionEntity)
+    const expectedActionEntityEntityOption = context.tracker.spawnedEntityOption;
+    if (!expectedActionEntityEntityOption) throw new Error("expected action entity was missing");
+    if (expectedActionEntityEntityOption.type !== SpawnableEntityType.ActionEntity)
       throw new Error("expected entity was of invalid type");
     return new ActionEntityMotionActionResolutionStep(
       context,
       ActionResolutionStepType.OnActivationActionEntityMotion,
-      expectedProjectileEntityOption.actionEntity
+      expectedActionEntityEntityOption.actionEntity
     );
   },
   [ActionResolutionStepType.RollIncomingHitOutcomes]: (context) =>
     new RollIncomingHitOutcomesActionResolutionStep(context),
   [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: (context) =>
     new EvalOnHitOutcomeTriggersActionResolutionStep(context),
+  [ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers]: (context) =>
+    new TriggerEnvironmentalHazardsActionResolutionStep(
+      context,
+      ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers
+    ),
   [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: (context) =>
     new EvaluatePlayerEndTurnAndInputLockActionResolutionStep(context),
+  [ActionResolutionStepType.RemoveTickedConditionStacks]: (context) =>
+    new RemoveTickedConditionStacksActionResolutionStep(context),
   [ActionResolutionStepType.ActionEntityDissipationMotion]: (context) => {
-    const expectedProjectileEntityOption = context.tracker.spawnedEntityOption;
-    if (!expectedProjectileEntityOption) throw new Error("expected projectile was missing");
-    if (expectedProjectileEntityOption.type !== SpawnableEntityType.ActionEntity)
+    const { spawnedEntityOption } = context.tracker;
+    if (!spawnedEntityOption) throw new Error("expected projectile was missing");
+    if (spawnedEntityOption.type !== SpawnableEntityType.ActionEntity)
       throw new Error("expected entity was of invalid type");
     return new ActionEntityMotionActionResolutionStep(
       context,
       ActionResolutionStepType.ActionEntityDissipationMotion,
-      expectedProjectileEntityOption.actionEntity
+      spawnedEntityOption.actionEntity
     );
   },
   [ActionResolutionStepType.RecoveryMotion]: (context) => {

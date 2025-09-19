@@ -1,4 +1,4 @@
-import { gameWorld } from "@/app/3d-world/SceneManager";
+import { gameWorld, getGameWorld } from "@/app/3d-world/SceneManager";
 import {
   ENVIRONMENT_MODELS_FOLDER,
   ENVIRONMENT_MODEL_PATHS,
@@ -11,18 +11,27 @@ import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { Vector3 } from "@babylonjs/core";
 import {
+  AdventuringParty,
+  CleanupMode,
   Combatant,
   CombatantProperties,
   Consumable,
   DungeonRoom,
   DungeonRoomType,
+  EntityId,
   ERROR_MESSAGES,
   Inventory,
   Item,
   updateCombatantHomePosition,
 } from "@speed-dungeon/common";
 
-export default function newDungeonRoomHandler(room: DungeonRoom) {
+export default function newDungeonRoomHandler({
+  dungeonRoom: room,
+  actionEntitiesToRemove,
+}: {
+  dungeonRoom: DungeonRoom;
+  actionEntitiesToRemove: EntityId[];
+}) {
   const itemIdsOnGroundInPreviousRoom: string[] = [];
   const newItemsOnGround: Item[] = [];
   let previousRoomType;
@@ -30,6 +39,11 @@ export default function newDungeonRoomHandler(room: DungeonRoom) {
   useGameStore.getState().mutateState((gameState) => {
     const party = getCurrentParty(gameState, gameState.username || "");
     if (party === undefined) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY));
+
+    for (const actionEntityId of actionEntitiesToRemove) {
+      AdventuringParty.unregisterActionEntity(party, actionEntityId, null);
+      getGameWorld().actionEntityManager.unregister(actionEntityId, CleanupMode.Soft);
+    }
 
     itemIdsOnGroundInPreviousRoom.push(
       ...Inventory.getItems(party.currentRoom.inventory).map((item) => item.entityProperties.id)

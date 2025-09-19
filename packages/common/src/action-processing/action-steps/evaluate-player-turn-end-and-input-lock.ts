@@ -68,28 +68,18 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   const { game, party, combatant } = context.combatantContext;
   const battleOption = AdventuringParty.getBattleOption(party, game);
 
-  // handle conditions using actions, which should remove their stacks
-
   const { asShimmedUserOfTriggeredCondition } = combatant.combatantProperties;
-  if (asShimmedUserOfTriggeredCondition) {
-    const { condition } = asShimmedUserOfTriggeredCondition;
-
-    const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
-    if (tickPropertiesOption) {
-      const { numStacksRemoved } = tickPropertiesOption.onTick(condition, context.combatantContext);
-    }
-  }
 
   // unlock input if no more blocking steps are left and next turn is player
-
   const noActionPointsLeft =
     combatant.combatantProperties.actionPoints === 0 &&
     // this is because it was ending our turn when conditions used actions in between mh and oh attacks since the shimmed condition users don't have any action points
     combatant.combatantProperties.asShimmedUserOfTriggeredCondition === undefined;
   const requiredTurn =
-    action.costProperties.requiresCombatTurnInThisContext(context) || noActionPointsLeft;
+    action.costProperties.requiresCombatTurnInThisContext(context, action) || noActionPointsLeft;
 
   const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
+
   let shouldSendEndActiveTurnMessage = false;
   const threatChanges = new ThreatChanges();
   if (requiredTurn && !turnAlreadyEnded && battleOption) {
@@ -100,7 +90,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     battleOption.turnOrderManager.updateSchedulerWithExecutedActionDelay(party, actionName);
     battleOption.turnOrderManager.updateTrackers(game, party);
 
-    sequentialActionManagerRegistry.markTurnEnded();
+    sequentialActionManagerRegistry.setTurnEnded();
     shouldSendEndActiveTurnMessage = true;
 
     // REFILL THE QUICK ACTIONS OF THE CURRENT TURN
@@ -109,23 +99,24 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     CombatantProperties.refillActionPoints(combatant.combatantProperties);
     CombatantProperties.tickCooldowns(combatant.combatantProperties);
 
-    const threatCalculator = new ThreatCalculator(
-      threatChanges,
-      context.tracker.hitOutcomes,
-      context.combatantContext.party,
-      context.combatantContext.combatant,
-      context.tracker.actionExecutionIntent.actionName
-    );
-    threatCalculator.addVolatileThreatDecay();
+    // don't decay threat for every ticking condition
+    if (!asShimmedUserOfTriggeredCondition) {
+      const threatCalculator = new ThreatCalculator(
+        threatChanges,
+        context.tracker.hitOutcomes,
+        context.combatantContext.party,
+        context.combatantContext.combatant,
+        context.tracker.actionExecutionIntent.actionName
+      );
+      threatCalculator.addVolatileThreatDecay();
 
-    threatChanges.applyToGame(party);
+      threatChanges.applyToGame(party);
+    }
   }
 
-  const hasUnevaluatedChildren = action.getChildren(context).length > 0;
   const hasRemainingActions = tracker.parentActionManager.getRemainingActionsToExecute().length > 0;
   const blockingStepsPending = sequentialActionManagerRegistry.inputBlockingActionStepsArePending();
-  const noBlockingActionsRemain =
-    !hasUnevaluatedChildren && !hasRemainingActions && !blockingStepsPending;
+  const noBlockingActionsRemain = !hasRemainingActions && !blockingStepsPending;
 
   let shouldUnlockInput = false;
 
@@ -148,8 +139,10 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   };
 
   if (!threatChanges.isEmpty()) gameUpdateCommandOption.threatChanges = threatChanges;
-  if (shouldSendEndActiveTurnMessage) gameUpdateCommandOption.endActiveCombatantTurn = true;
-
+  if (shouldSendEndActiveTurnMessage) {
+    gameUpdateCommandOption.endActiveCombatantTurn = true;
+  } else {
+  }
   if (shouldUnlockInput) {
     gameUpdateCommandOption.unlockInput = true;
     InputLock.unlockInput(party.inputLock);

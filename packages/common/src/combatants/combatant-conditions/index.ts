@@ -13,7 +13,7 @@ import { BurningCombatantCondition } from "./burning.js";
 import { PrimedForExplosionCombatantCondition } from "./primed-for-explosion.js";
 import { PrimedForIceBurstCombatantCondition } from "./primed-for-ice-burst.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { TurnOrderManager } from "../../combat/turn-order/index.js";
+import { TurnOrderManager, TurnTrackerEntityType } from "../../combat/turn-order/index.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "../../combat/turn-order/consts.js";
 import { BlindedCombatantCondition } from "./blinded.js";
 
@@ -251,7 +251,11 @@ export abstract class CombatantCondition {
     const combatantApplyingAccumulatedDelay = appliedByScheduler.accumulatedDelay;
 
     battleOption.turnOrderManager.turnSchedulerManager.addNewSchedulerTracker(
-      { appliedTo: combatant.entityProperties.id, condition },
+      {
+        type: TurnTrackerEntityType.Condition,
+        combatantId: combatant.entityProperties.id,
+        conditionId: condition.id,
+      },
       combatantApplyingAccumulatedDelay + appliedByPredictedAdditionalDelay + 1
     );
   }

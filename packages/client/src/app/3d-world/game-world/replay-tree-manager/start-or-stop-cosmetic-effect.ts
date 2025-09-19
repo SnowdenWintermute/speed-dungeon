@@ -2,7 +2,6 @@ import {
   ERROR_MESSAGES,
   COSMETIC_EFFECT_CONSTRUCTORS,
   CosmeticEffectOnTargetTransformNode,
-  CosmeticEffectOnEntity,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
 import { Vector3 } from "@babylonjs/core";
@@ -10,44 +9,67 @@ import { SceneEntity } from "../../scene-entities";
 
 export function startOrStopCosmeticEffects(
   cosmeticEffectsToStart?: CosmeticEffectOnTargetTransformNode[],
-  cosmeticEffectsToStop?: CosmeticEffectOnEntity[]
+  cosmeticEffectsToStop?: CosmeticEffectOnTargetTransformNode[]
 ) {
+  for (const cosmeticEffectOnEntity of cosmeticEffectsToStop || []) {
+    const { name, parent } = cosmeticEffectOnEntity;
+    const sceneEntity = SceneEntity.getFromIdentifier(parent.sceneEntityIdentifier);
+    const { cosmeticEffectManager } = sceneEntity;
+    cosmeticEffectManager.stopEffect(name, () => {});
+  }
+
   if (cosmeticEffectsToStart?.length) {
     const sceneOption = gameWorld.current?.scene;
     if (!sceneOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
 
-    for (const { name, parent, lifetime } of cosmeticEffectsToStart) {
-      const effect = new COSMETIC_EFFECT_CONSTRUCTORS[name](sceneOption);
+    let effectToStartLifetimeTimeout;
 
-      if (lifetime !== undefined) {
-        effect.lifetimeTimeout = setTimeout(() => {
-          effect.softCleanup();
-        }, lifetime);
-      }
-
+    for (const {
+      name,
+      parent,
+      lifetime,
+      rankOption,
+      offsetOption,
+      unattached,
+    } of cosmeticEffectsToStart) {
       const cosmeticEffectManager = SceneEntity.getFromIdentifier(
         parent.sceneEntityIdentifier
       ).cosmeticEffectManager;
 
-      cosmeticEffectManager.cosmeticEffect[name]?.softCleanup();
-      cosmeticEffectManager.cosmeticEffect[name] = effect;
+      const existingEffectOption = cosmeticEffectManager.cosmeticEffects[name];
 
-      const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(parent);
+      if (existingEffectOption) {
+        existingEffectOption.referenceCount += 1;
+        effectToStartLifetimeTimeout = existingEffectOption.effect;
+      } else {
+        const effect = new COSMETIC_EFFECT_CONSTRUCTORS[name](sceneOption, rankOption || 1);
 
-      effect.transformNode.setParent(targetTransformNode);
-      effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
-    }
-  }
+        if (effect.setsMaterial) {
+          const material = effect.setsMaterial(sceneOption);
+          cosmeticEffectManager.setMaterial(material);
+        }
 
-  if (cosmeticEffectsToStop?.length) {
-    for (const cosmeticEffectOnEntity of cosmeticEffectsToStop) {
-      const { sceneEntityIdentifier, name } = cosmeticEffectOnEntity;
+        cosmeticEffectManager.cosmeticEffects[name] = { effect, referenceCount: 1 };
+        const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(parent);
 
-      const sceneEntity = SceneEntity.getFromIdentifier(sceneEntityIdentifier);
-      const { cosmeticEffectManager } = sceneEntity;
+        if (!unattached) {
+          effect.transformNode.setParent(targetTransformNode);
+          const offset = offsetOption || Vector3.Zero();
+          effect.transformNode.setPositionWithLocalVector(offset);
+        } else {
+          effect.transformNode.setAbsolutePosition(targetTransformNode.position);
+        }
 
-      cosmeticEffectManager.cosmeticEffect[name]?.softCleanup();
-      delete cosmeticEffectManager.cosmeticEffect[name];
+        effectToStartLifetimeTimeout = effect;
+      }
+
+      if (lifetime !== undefined) {
+        effectToStartLifetimeTimeout.addLifetimeTimeout(
+          setTimeout(() => {
+            cosmeticEffectManager.stopEffect(name, () => {});
+          }, lifetime)
+        );
+      }
     }
   }
 }

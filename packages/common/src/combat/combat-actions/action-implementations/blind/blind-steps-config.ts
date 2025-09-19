@@ -5,41 +5,35 @@ import {
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
-import { CosmeticEffectOnTargetTransformNode } from "../../combat-action-steps-config.js";
+import {
+  ActionResolutionStepConfig,
+  CosmeticEffectOnTargetTransformNode,
+} from "../../combat-action-steps-config.js";
+import { CosmeticEffectInstructionFactory } from "../generic-action-templates/cosmetic-effect-factories/index.js";
+import {
+  ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
+  createStepsConfig,
+} from "../generic-action-templates/step-config-templates/index.js";
+import { ActionStepConfigUtils } from "../generic-action-templates/step-config-templates/utils.js";
 import { COMBAT_ACTIONS } from "../index.js";
-import { getNonProjectileBasedSpellBaseStepsConfig } from "../non-projectile-based-spell-base-steps-config.js";
 
-const stepsConfig = getNonProjectileBasedSpellBaseStepsConfig();
+const mainStepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
+const finalStepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> =
+  {};
 
-const initialPositioning = stepsConfig.steps[ActionResolutionStepType.InitialPositioning];
-delete initialPositioning?.getDestination;
-delete initialPositioning?.getAnimation;
-
-delete stepsConfig.steps[ActionResolutionStepType.FinalPositioning]?.getAnimation;
-stepsConfig.steps[ActionResolutionStepType.FinalPositioning]!.shouldIdleOnComplete = true;
-
-stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
-  ...initialPositioning,
-  // getDestination:(context) => {},
-  getCosmeticsEffectsToStart: (context) => {
+mainStepOverrides[ActionResolutionStepType.InitialPositioning] = {
+  getCosmeticEffectsToStart: (context) => {
     return [
-      {
-        name: CosmeticEffectNames.DarkParticleAccumulation,
-        parent: {
-          sceneEntityIdentifier: {
-            type: SceneEntityType.CharacterModel,
-            entityId: context.combatantContext.combatant.entityProperties.id,
-          },
-          transformNodeName: CombatantBaseChildTransformNodeName.OffhandEquipment,
-        },
-      },
+      CosmeticEffectInstructionFactory.createParticlesOnOffhand(
+        CosmeticEffectNames.DarkParticleAccumulation,
+        context
+      ),
     ];
   },
 };
 
-stepsConfig.steps[ActionResolutionStepType.RecoveryMotion] = {
-  ...stepsConfig.steps[ActionResolutionStepType.RecoveryMotion],
-  getCosmeticsEffectsToStart: (context) => {
+finalStepOverrides[ActionResolutionStepType.RecoveryMotion] = {
+  getCosmeticEffectsToStart: (context) => {
     const { actionExecutionIntent } = context.tracker;
     const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
 
@@ -67,17 +61,23 @@ stepsConfig.steps[ActionResolutionStepType.RecoveryMotion] = {
   },
 };
 
-stepsConfig.steps[ActionResolutionStepType.FinalPositioning] = {
-  ...stepsConfig.steps[ActionResolutionStepType.FinalPositioning],
-  getCosmeticsEffectsToStop: (context) => [
-    {
-      name: CosmeticEffectNames.DarkParticleAccumulation,
-      sceneEntityIdentifier: {
-        type: SceneEntityType.CharacterModel,
-        entityId: context.combatantContext.combatant.entityProperties.id,
-      },
-    },
+finalStepOverrides[ActionResolutionStepType.FinalPositioning] = {
+  getCosmeticEffectsToStop: (context) => [
+    CosmeticEffectInstructionFactory.createParticlesOnOffhand(
+      CosmeticEffectNames.DarkParticleAccumulation,
+      context
+    ),
   ],
 };
+
+const base = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL;
+const stepsConfig = createStepsConfig(base, {
+  steps: mainStepOverrides,
+  finalSteps: finalStepOverrides,
+});
+
+ActionStepConfigUtils.removeMoveForwardSteps(stepsConfig);
+delete stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning]?.getAnimation;
+stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning]!.shouldIdleOnComplete = true;
 
 export const BLIND_STEPS_CONFIG = stepsConfig;

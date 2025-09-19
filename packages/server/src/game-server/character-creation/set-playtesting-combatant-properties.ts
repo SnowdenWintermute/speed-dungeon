@@ -6,10 +6,13 @@ import {
 } from "@speed-dungeon/common";
 
 export function setPlaytestingCombatantProperties(combatantProperties: CombatantProperties) {
-  combatantProperties.level = 4;
-  combatantProperties.unspentAttributePoints = 3;
-  combatantProperties.abilityProperties.unspentAbilityPoints = 1;
+  combatantProperties.level = 10;
+  combatantProperties.unspentAttributePoints = 30;
+  combatantProperties.abilityProperties.unspentAbilityPoints = 6;
   // combatantProperties.supportClassProperties = { combatantClass: CombatantClass.Rogue, level: 1 };
+
+  if (combatantProperties.combatantClass === CombatantClass.Mage)
+    combatantProperties.inherentAttributes[CombatAttribute.Spirit] = 200;
 
   combatantProperties.inherentAttributes = {
     ...combatantProperties.inherentAttributes,
@@ -18,12 +21,13 @@ export function setPlaytestingCombatantProperties(combatantProperties: Combatant
 
   combatantProperties.abilityProperties.traitProperties.inherentElementalAffinities[
     MagicalElement.Fire
-  ] = 150;
+  ] = 200;
   combatantProperties.abilityProperties.traitProperties.inherentElementalAffinities[
     MagicalElement.Dark
   ] = -150;
 
   // combatantProperties.hitPoints = Math.floor(combatantProperties.hitPoints * 0.5);
+  // combatantProperties.hitPoints = 4;
   // CombatantProperties.changeMana(combatantProperties, 100);
   // combatantProperties.mana = Math.floor(combatantProperties.mana * 0.4);
   // combatantProperties.mana = 4;
@@ -54,10 +58,12 @@ export function setPlaytestingCombatantProperties(combatantProperties: Combatant
 }
 
 const TESTING_INHERENT_ATTRIBUTES: Partial<Record<CombatAttribute, number>> = {
-  // [CombatAttribute.Speed]: 9,
-  // [CombatAttribute.Dexterity]: 45,
+  [CombatAttribute.Speed]: 9,
+  [CombatAttribute.Dexterity]: 9,
+  // [CombatAttribute.Accuracy]: 200,
   // [CombatAttribute.Strength]: 40,
-  // [CombatAttribute.Spirit]: 25,
+  // [CombatAttribute.Spirit]: 10,
   // [CombatAttribute.Mp]: 100,
-  // [CombatAttribute.Hp]: 75,
+  // [CombatAttribute.Evasion]: 100,
+  // [CombatAttribute.Hp]: 759,
 };

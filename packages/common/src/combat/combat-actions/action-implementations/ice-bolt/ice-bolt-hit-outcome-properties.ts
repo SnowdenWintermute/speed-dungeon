@@ -1,8 +1,6 @@
 import {
-  ActionHitOutcomePropertiesBaseTypes,
   CombatActionHitOutcomeProperties,
   CombatActionResource,
-  GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
 import {
   ResourceChangeSource,
@@ -14,60 +12,67 @@ import { NumberRange } from "../../../../primatives/number-range.js";
 import { addCombatantLevelScaledAttributeToRange } from "../../../action-results/action-hit-outcome-calculation/add-combatant-level-scaled-attribute-to-range.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
-import { PrimedForIceBurstCombatantCondition } from "../../../../combatants/combatant-conditions/primed-for-ice-burst.js";
-import cloneDeep from "lodash.clonedeep";
 import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
-import { CombatantConditionName } from "../../../../combatants/index.js";
+import { CombatantConditionName, CombatantProperties } from "../../../../combatants/index.js";
+import {
+  createHitOutcomeProperties,
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
+} from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 
 const spellLevelHpChangeValueModifier = 0.75;
 
-export const iceBoltProjectileHitOutcomeProperties: CombatActionHitOutcomeProperties = {
-  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Ranged],
-  resourceChangePropertiesGetters: {
-    [CombatActionResource.HitPoints]: (user, actionLevel, primaryTarget) => {
-      const hpChangeSourceConfig: ResourceChangeSourceConfig = {
-        category: ResourceChangeSourceCategory.Magical,
-        kineticDamageTypeOption: null,
-        elementOption: MagicalElement.Ice,
-        isHealing: false,
-        lifestealPercentage: null,
-      };
+const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 
-      const baseValues = new NumberRange(4, 8);
+hitOutcomeOverrides.resourceChangePropertiesGetters = {
+  [CombatActionResource.HitPoints]: (user, hitOutcomeProperties, actionLevel, primaryTarget) => {
+    const hpChangeSourceConfig: ResourceChangeSourceConfig = {
+      category: ResourceChangeSourceCategory.Magical,
+      kineticDamageTypeOption: null,
+      elementOption: MagicalElement.Ice,
+      isHealing: false,
+      lifestealPercentage: null,
+    };
 
-      // just get some extra damage for combatant level
-      baseValues.add(user.level - 1);
+    const baseValues = new NumberRange(4, 8);
 
-      baseValues.mult(1 + spellLevelHpChangeValueModifier * (actionLevel - 1));
+    // just get some extra damage for combatant level
+    baseValues.add(user.level - 1);
 
-      // get greater benefits from a certain attribute the higher level a combatant is
-      addCombatantLevelScaledAttributeToRange({
-        range: baseValues,
-        combatantProperties: user,
-        attribute: CombatAttribute.Spirit,
-        normalizedAttributeScalingByCombatantLevel: 1,
-      });
+    baseValues.mult(1 + spellLevelHpChangeValueModifier * (actionLevel - 1));
 
-      const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
-      const hpChangeProperties: CombatActionResourceChangeProperties = {
-        resourceChangeSource,
-        baseValues,
-      };
+    // get greater benefits from a certain attribute the higher level a combatant is
+    addCombatantLevelScaledAttributeToRange({
+      range: baseValues,
+      userTotalAttributes: CombatantProperties.getTotalAttributes(user),
+      userLevel: user.level,
+      attribute: CombatAttribute.Spirit,
+      normalizedAttributeScalingByCombatantLevel: 1,
+    });
 
-      baseValues.floor();
+    const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
+    const hpChangeProperties: CombatActionResourceChangeProperties = {
+      resourceChangeSource,
+      baseValues,
+    };
 
-      return hpChangeProperties;
-    },
-  },
+    baseValues.floor(1);
 
-  getAppliedConditions: (user, actionLevel) => {
-    return [
-      {
-        conditionName: CombatantConditionName.PrimedForIceBurst,
-        level: actionLevel,
-        stacks: 1,
-        appliedBy: { entityProperties: user.entityProperties, friendOrFoe: FriendOrFoe.Hostile },
-      },
-    ];
+    return hpChangeProperties;
   },
 };
+
+hitOutcomeOverrides.getAppliedConditions = (user, actionLevel) => {
+  return [
+    {
+      conditionName: CombatantConditionName.PrimedForIceBurst,
+      level: actionLevel,
+      stacks: 1,
+      appliedBy: { entityProperties: user.entityProperties, friendOrFoe: FriendOrFoe.Hostile },
+    },
+  ];
+};
+
+export const ICE_BOLT_PROJECTILE_HIT_OUTCOME_PROPERTIES = createHitOutcomeProperties(
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.RANGED_ACTION,
+  hitOutcomeOverrides
+);

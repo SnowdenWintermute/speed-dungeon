@@ -8,10 +8,8 @@ import {
   WearableSlotType,
 } from "../../items/equipment/index.js";
 import {
-  ActionPayableResource,
   ActionResourceCostBases,
   ActionResourceCosts,
-  getStandardActionCost,
 } from "./action-calculation-utils/action-costs.js";
 import { DurabilityLossCondition } from "./combat-action-durability-loss-condition.js";
 
@@ -30,7 +28,10 @@ export interface CombatActionCostPropertiesConfig {
   getCooldownTurns: (user: CombatantProperties, selectedActionLevel: number) => null | number;
   getConsumableCost: (user: CombatantProperties) => null | { type: ConsumableType; level: number };
   getEndsTurnOnUse: (actionLevel: number) => boolean;
-  requiresCombatTurnInThisContext: (context: ActionResolutionStepContext) => boolean;
+  requiresCombatTurnInThisContext: (
+    context: ActionResolutionStepContext,
+    self: CombatActionComponent
+  ) => boolean;
   getMeetsCustomRequirements?: (
     user: CombatantProperties,
     actionLevel: number
@@ -46,59 +47,3 @@ export interface CombatActionCostProperties extends CombatActionCostPropertiesCo
     actionLevel: number
   ) => null | ActionResourceCosts;
 }
-
-export const genericCombatActionCostProperties: CombatActionCostPropertiesConfig = {
-  incursDurabilityLoss: {},
-  costBases: {
-    [ActionPayableResource.ActionPoints]: {
-      base: 1,
-    },
-  },
-  getResourceCosts: (user, inCombat, selectedActionLevel, self) =>
-    getStandardActionCost(user, inCombat, selectedActionLevel, self),
-  getConsumableCost: () => null,
-  getEndsTurnOnUse: () => true,
-  requiresCombatTurnInThisContext: () => true,
-  getCooldownTurns: () => null,
-};
-
-export const BASE_SPELL_MANA_COST_BASES = {
-  base: 0.25,
-  multipliers: {
-    actionLevel: 1.2,
-    userCombatantLevel: 1,
-  },
-  additives: {
-    actionLevel: 1,
-    userCombatantLevel: 0,
-  },
-};
-
-const genericSpellCostProperties: CombatActionCostPropertiesConfig = {
-  ...genericCombatActionCostProperties,
-  getResourceCosts: getStandardActionCost,
-  costBases: {
-    [ActionPayableResource.Mana]: BASE_SPELL_MANA_COST_BASES,
-  },
-};
-
-const genericMedicationCostProperties: CombatActionCostPropertiesConfig = {
-  ...genericCombatActionCostProperties,
-  getResourceCosts: getStandardActionCost,
-  requiresCombatTurnInThisContext: (context) => false,
-};
-
-export enum ActionCostPropertiesBaseTypes {
-  Base,
-  Spell,
-  Medication,
-}
-
-export const BASE_ACTION_COST_PROPERTIES: Record<
-  ActionCostPropertiesBaseTypes,
-  CombatActionCostPropertiesConfig
-> = {
-  [ActionCostPropertiesBaseTypes.Base]: genericCombatActionCostProperties,
-  [ActionCostPropertiesBaseTypes.Spell]: genericSpellCostProperties,
-  [ActionCostPropertiesBaseTypes.Medication]: genericMedicationCostProperties,
-};

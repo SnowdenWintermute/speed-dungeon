@@ -31,8 +31,7 @@ import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { COMBAT_ACTION_DESCRIPTIONS } from "../../character-sheet/ability-tree/ability-descriptions";
 import { ActionDescriptionComponent } from "../../character-sheet/ability-tree/action-description";
 import Divider from "@/app/components/atoms/Divider";
-import { ACTION_ICONS } from "../../character-sheet/ability-tree/action-icons";
-import { TRAIT_ICONS } from "../../character-sheet/ability-tree/trait-icons";
+import { ACTION_ICONS, TRAIT_ICONS } from "@/app/icons";
 
 const allocateAbilityPointHotkey = HOTKEYS.MAIN_1;
 

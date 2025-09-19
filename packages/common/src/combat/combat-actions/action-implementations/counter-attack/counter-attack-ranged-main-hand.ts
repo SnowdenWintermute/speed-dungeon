@@ -8,8 +8,9 @@ import { COUNTER_ATTACK } from "./index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { ATTACK_RANGED_MAIN_HAND_CONFIG } from "../attack/attack-ranged-main-hand.js";
 import cloneDeep from "lodash.clonedeep";
-import { AutoTargetingScheme } from "../../../targeting/index.js";
 import { getRotateTowardPrimaryTargetDestination } from "../common-destination-getters.js";
+import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
+import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 
 const clonedConfig = cloneDeep(ATTACK_RANGED_MAIN_HAND_CONFIG);
 const stepsConfig = clonedConfig.stepsConfig;
@@ -22,23 +23,16 @@ const deliveryStep = stepsConfig.steps[ActionResolutionStepType.DeliveryMotion];
 if (!deliveryStep) throw new Error("expected delivery step not present");
 deliveryStep.getDestination = getRotateTowardPrimaryTargetDestination;
 
-const finalStep = stepsConfig.steps[ActionResolutionStepType.FinalPositioning];
+const finalStep = stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning];
 if (!finalStep) throw new Error("expected to have return home step configured");
 delete finalStep.getAnimation; // because we don't want them running back
 
 const config: CombatActionComponentConfig = {
   ...clonedConfig,
   description: "Respond with a ranged attack target using equipment in main hand",
-  costProperties: {
-    ...clonedConfig.costProperties,
-    costBases: {},
-    requiresCombatTurnInThisContext: (context) => false,
-  },
+  costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.FREE_ACTION(),
   stepsConfig,
-  targetingProperties: {
-    ...clonedConfig.targetingProperties,
-    autoTargetSelectionMethod: { scheme: AutoTargetingScheme.CopyParent },
-  },
+  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.COPY_PARENT_HOSTILE(),
   hitOutcomeProperties: {
     ...clonedConfig.hitOutcomeProperties,
     getCanTriggerCounterattack: () => false,
@@ -47,19 +41,22 @@ const config: CombatActionComponentConfig = {
     getIsParryable: () => false,
   },
 
-  getConcurrentSubActions(context) {
-    return [
-      new CombatActionExecutionIntent(
-        CombatActionName.CounterAttackRangedMainhandProjectile,
-        context.tracker.actionExecutionIntent.targets,
-        context.tracker.actionExecutionIntent.level
-      ),
-    ];
+  hierarchyProperties: {
+    ...clonedConfig.hierarchyProperties,
+    getParent: () => COUNTER_ATTACK,
+    getConcurrentSubActions(context) {
+      return [
+        {
+          user: context.combatantContext.combatant,
+          actionExecutionIntent: new CombatActionExecutionIntent(
+            CombatActionName.CounterAttackRangedMainhandProjectile,
+            context.tracker.actionExecutionIntent.targets,
+            context.tracker.actionExecutionIntent.level
+          ),
+        },
+      ];
+    },
   },
-
-  shouldExecute: () => true,
-  getChildren: () => [],
-  getParent: () => COUNTER_ATTACK,
 };
 
 export const COUNTER_ATTACK_RANGED_MAIN_HAND = new CombatActionLeaf(

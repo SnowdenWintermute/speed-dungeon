@@ -5,17 +5,19 @@ import {
 } from "../combat/index.js";
 import { CombatantContext } from "../combatant-context/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { Milliseconds } from "../primatives/index.js";
 import { ActionSequenceManagerRegistry } from "./action-sequence-manager-registry.js";
-import { NestedNodeReplayEvent } from "./replay-events.js";
+import { NestedNodeReplayEvent, NestedNodeReplayEventUtls } from "./replay-events.js";
 import { ActionTracker } from "./action-tracker.js";
 import { IdGenerator } from "../utility-classes/index.js";
+import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
+  ActionResolutionStepType,
+} from "./action-steps/index.js";
 
 export class ActionSequenceManager {
   private remainingActionsToExecute: CombatActionExecutionIntent[];
   private currentTracker: null | ActionTracker = null;
   private completedTrackers: ActionTracker[] = [];
-  private isFinalized: boolean = false;
   constructor(
     public id: string,
     actionExecutionIntent: CombatActionExecutionIntent,
@@ -35,12 +37,6 @@ export class ActionSequenceManager {
       current = next;
     }
     return current;
-  }
-  getIsFinalized() {
-    return this.isFinalized;
-  }
-  markAsFinalized() {
-    this.isFinalized = true;
   }
   getNextActionInQueue() {
     return this.remainingActionsToExecute[this.remainingActionsToExecute.length - 1];
@@ -63,51 +59,47 @@ export class ActionSequenceManager {
     if (!currentActionExecutionIntent || !this.currentTracker) return;
     const currentAction = COMBAT_ACTIONS[currentActionExecutionIntent.actionName];
 
-    const children = currentAction.getChildren({
-      combatantContext: this.combatantContext,
-      tracker: this.currentTracker,
-      manager: this,
-      idGenerator: this.idGenerator,
-    });
+    const children = currentAction.hierarchyProperties.getChildren(
+      {
+        combatantContext: this.combatantContext,
+        tracker: this.currentTracker,
+        manager: this,
+        idGenerator: this.idGenerator,
+      },
+      currentAction
+    );
 
-    const childActionIntentResults = children.map((action) => {
-      const targets = action.targetingProperties.getAutoTarget(
+    const childActionIntents = [];
+    for (const action of children) {
+      const targetsResult = action.targetingProperties.getAutoTarget(
         this.combatantContext,
         this.currentTracker
       );
-
-      const actionLevel = currentActionExecutionIntent.level;
-      return {
-        actionName: action.name,
-        targets,
-        level: actionLevel,
-      };
-    });
-
-    const childActionIntents: CombatActionExecutionIntent[] = [];
-    for (const intentResult of childActionIntentResults) {
-      const targetsResult = intentResult.targets;
       if (targetsResult instanceof Error) {
-        console.error(intentResult.targets);
+        console.error(targetsResult);
         continue;
       }
-
       if (targetsResult === null) {
         console.error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TARGETS_SELECTED);
         continue;
       }
 
-      this.sequentialActionManagerRegistry.incrementInputLockReferenceCount();
+      const actionLevel = currentActionExecutionIntent.level;
 
+      this.sequentialActionManagerRegistry.incrementInputLockReferenceCount();
       childActionIntents.push(
-        new CombatActionExecutionIntent(intentResult.actionName, targetsResult, intentResult.level)
+        new CombatActionExecutionIntent(action.name, targetsResult, actionLevel)
       );
     }
 
     this.remainingActionsToExecute.push(...childActionIntents.reverse());
   }
 
-  startProcessingNext(time: { ms: Milliseconds }): Error | ActionTracker {
+  enqueueActionIntents(actionIntents: CombatActionExecutionIntent[]) {
+    this.remainingActionsToExecute.push(...actionIntents);
+  }
+
+  startProcessingNext(): Error | ActionTracker {
     if (this.currentTracker) {
       this.completedTrackers.push(this.currentTracker);
     }
@@ -130,7 +122,7 @@ export class ActionSequenceManager {
         this.sequentialActionManagerRegistry.actionStepIdGenerator.getNextId(),
         nextActionExecutionIntentOption,
         previousTrackerOption || null,
-        time.ms,
+        this.sequentialActionManagerRegistry.time.ms,
         this.idGenerator,
         previousTrackerOption?.spawnedEntityOption
       );
@@ -140,6 +132,84 @@ export class ActionSequenceManager {
       return tracker;
     } catch (err) {
       return err as unknown as Error;
+    }
+  }
+
+  processCurrentStep(combatantContext: CombatantContext) {
+    let trackerOption = this.getCurrentTracker();
+    if (!trackerOption) return;
+    let currentStep = trackerOption.currentStep;
+
+    const { sequentialActionManagerRegistry } = this;
+
+    while (currentStep.isComplete()) {
+      trackerOption = this.getCurrentTracker();
+      if (trackerOption === null) throw new Error("expected action tracker was missing");
+
+      const { completionOrderIdGenerator } = sequentialActionManagerRegistry;
+      const completionOrderId = completionOrderIdGenerator.getNextIdNumeric();
+      const branchingActionsResult = trackerOption.currentStep.finalize(completionOrderId);
+      if (branchingActionsResult instanceof Error) return branchingActionsResult;
+      const branchingActions = branchingActionsResult;
+
+      // REGISTER BRANCHING ACTIONS
+      sequentialActionManagerRegistry.registerActions(
+        this,
+        trackerOption,
+        combatantContext,
+        branchingActions
+      );
+
+      trackerOption.storeCompletedStep();
+
+      if (!trackerOption.wasAborted) {
+        let nextStepOption = trackerOption.initializeNextStep();
+
+        // START NEXT STEPS
+        if (nextStepOption !== null) {
+          trackerOption.currentStep = nextStepOption;
+          currentStep = nextStepOption;
+          const gameUpdateCommandOption = nextStepOption.getGameUpdateCommandOption();
+
+          if (gameUpdateCommandOption !== null) {
+            const { replayNode } = this;
+            NestedNodeReplayEventUtls.appendGameUpdate(replayNode, gameUpdateCommandOption);
+          } else {
+            /* no update for this step */
+          }
+
+          continue;
+        }
+
+        // DETERMINE NEXT ACTION IN SEQUENCE IF ANY
+        // if (currentStep.type === ActionResolutionStepType.DetermineChildActions)
+        // this.populateSelfWithCurrentActionChildren();
+
+        const nextActionIntentInQueueOption = this.getNextActionInQueue();
+        const nextActionOption = nextActionIntentInQueueOption
+          ? COMBAT_ACTIONS[nextActionIntentInQueueOption.actionName]
+          : null;
+
+        if (nextActionOption) {
+          const stepTrackerResult = this.startProcessingNext();
+          if (stepTrackerResult instanceof Error) return stepTrackerResult;
+
+          const initialGameUpdateOptionResult =
+            stepTrackerResult.currentStep.getGameUpdateCommandOption();
+          if (initialGameUpdateOptionResult instanceof Error) return initialGameUpdateOptionResult;
+
+          if (initialGameUpdateOptionResult) {
+            const { replayNode } = this;
+            NestedNodeReplayEventUtls.appendGameUpdate(replayNode, initialGameUpdateOptionResult);
+          }
+
+          currentStep = stepTrackerResult.currentStep;
+          continue;
+        }
+      }
+
+      sequentialActionManagerRegistry.unRegisterActionManager(this.id);
+      break;
     }
   }
 }

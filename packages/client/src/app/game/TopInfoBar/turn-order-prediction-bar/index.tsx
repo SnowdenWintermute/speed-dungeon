@@ -1,10 +1,15 @@
-import { CombatantTurnTracker, ConditionTurnTracker } from "@speed-dungeon/common";
+import {
+  ActionEntityTurnTracker,
+  CombatantTurnTracker,
+  ConditionTurnTracker,
+} from "@speed-dungeon/common";
 import React from "react";
 import TurnOrderTrackerIcon from "./TurnTrackerIcon";
 import ConditionTurnTrackerAggregation from "./ConditionTurnTrackerAggregation";
 
 import ClockIcon from "../../../../../public/img/game-ui-icons/clock-icon.svg";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import ActionEntityTurnOrderTrackerIcon from "./ActionEntityTurnOrderIcon";
 
 interface Props {
   trackers: (CombatantTurnTracker | ConditionTurnTracker)[];
@@ -14,13 +19,17 @@ export default function TurnPredictionOrderBar({ trackers }: Props) {
   // aggregate here
   const listWithAggregatedSequentialConditionTrackers: (
     | CombatantTurnTracker
+    | ActionEntityTurnTracker
     | ConditionTurnTracker[]
   )[] = [];
 
   let trackerIndex = 0;
   let currentTracker = trackers[trackerIndex];
   while (trackerIndex < trackers.length) {
-    if (currentTracker instanceof CombatantTurnTracker) {
+    if (
+      currentTracker instanceof CombatantTurnTracker ||
+      currentTracker instanceof ActionEntityTurnTracker
+    ) {
       listWithAggregatedSequentialConditionTrackers.push(currentTracker);
       trackerIndex += 1;
       currentTracker = trackers[trackerIndex];
@@ -49,8 +58,10 @@ export default function TurnPredictionOrderBar({ trackers }: Props) {
       </HoverableTooltipWrapper>
       {listWithAggregatedSequentialConditionTrackers.map((tracker, i) => {
         if (tracker instanceof CombatantTurnTracker)
-          return <TurnOrderTrackerIcon key={tracker.getId()} tracker={tracker} />;
-        else return <ConditionTurnTrackerAggregation key={i} trackers={tracker} />;
+          return <TurnOrderTrackerIcon key={tracker.getId() + i} tracker={tracker} />;
+        else if (tracker instanceof ActionEntityTurnTracker) {
+          return <ActionEntityTurnOrderTrackerIcon key={tracker.getId()} tracker={tracker} />;
+        } else return <ConditionTurnTrackerAggregation key={i} trackers={tracker} />;
       })}
     </div>
   );

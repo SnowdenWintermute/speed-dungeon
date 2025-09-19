@@ -53,6 +53,8 @@ import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/
 import { ThreatManager } from "./threat-manager/index.js";
 import { COMBATANT_MAX_ACTION_POINTS } from "../app-consts.js";
 import { CombatantAbilityProperties } from "./combatant-abilities/combatant-ability-properties.js";
+import { ActionEntity } from "../action-entities/index.js";
+import cloneDeep from "lodash.clonedeep";
 
 export enum AiType {
   Healer,
@@ -71,6 +73,7 @@ export * from "./threat-manager/index.js";
 export * from "./combatant-traits/index.js";
 export * from "./ability-tree/index.js";
 export * from "./combatant-abilities/index.js";
+export * from "./attributes/index.js";
 
 export class Combatant {
   [immerable] = true;
@@ -147,6 +150,7 @@ export class CombatantProperties {
     condition: CombatantCondition;
     entityConditionWasAppliedTo: EntityId;
   };
+  asShimmedActionEntity?: ActionEntity;
 
   aiTypes?: AiType[];
 
@@ -436,4 +440,44 @@ export function createShimmedUserOfTriggeredCondition(
     entityConditionWasAppliedTo,
   };
   return combatant;
+}
+
+/* see createShimmedUserOfTriggeredCondition */
+export function createShimmedUserOfActionEntityAction(
+  name: string,
+  actionEntity: ActionEntity,
+  primaryTargetId: EntityId // not sure why we're making shimmed user ids their target id
+) {
+  const combatant = new Combatant(
+    { id: primaryTargetId || "0", name },
+    new CombatantProperties(
+      CombatantClass.Mage,
+      CombatantSpecies.Dragon,
+      null,
+      null,
+      Vector3.Zero()
+    )
+  );
+
+  iterateNumericEnum(CombatActionName).forEach((actionName) => {
+    combatant.combatantProperties.abilityProperties.ownedActions[actionName] =
+      new CombatantActionState(actionName, 1);
+  });
+
+  combatant.combatantProperties.asShimmedActionEntity = actionEntity;
+
+  return combatant;
+}
+
+// Take a snapshot of the projectile user's status at the moment of use
+// so we can modify their hit outcome relevant stats if the projectile goes
+// through a firewall on the way
+export function createCopyOfProjectileUser(combatant: Combatant, actionEntity: ActionEntity) {
+  // @PERF - don't need to clone their entire inventory, just hotswap slots, equipped items
+  // and attributes and traits
+  const copied = cloneDeep(combatant);
+
+  copied.combatantProperties.asShimmedActionEntity = actionEntity;
+
+  return copied;
 }

@@ -1,37 +1,28 @@
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
-import {
-  CombatantBaseChildTransformNodeName,
-  SceneEntityType,
-} from "../../../../scene-entities/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { CosmeticEffectOnTargetTransformNode } from "../../combat-action-steps-config.js";
+import { CosmeticEffectInstructionFactory } from "../generic-action-templates/cosmetic-effect-factories/index.js";
+import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
 import { COMBAT_ACTIONS } from "../index.js";
-import { getNonProjectileBasedSpellBaseStepsConfig } from "../non-projectile-based-spell-base-steps-config.js";
 
-const stepsConfig = getNonProjectileBasedSpellBaseStepsConfig();
+const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
 
 stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
   ...stepsConfig.steps[ActionResolutionStepType.InitialPositioning],
-  getCosmeticsEffectsToStart: (context) => {
+  getCosmeticEffectsToStart: (context) => {
     return [
-      {
-        name: CosmeticEffectNames.LightParticleAccumulation,
-        parent: {
-          sceneEntityIdentifier: {
-            type: SceneEntityType.CharacterModel,
-            entityId: context.combatantContext.combatant.entityProperties.id,
-          },
-          transformNodeName: CombatantBaseChildTransformNodeName.OffhandEquipment,
-        },
-      },
+      CosmeticEffectInstructionFactory.createParticlesOnOffhand(
+        CosmeticEffectNames.LightParticleAccumulation,
+        context
+      ),
     ];
   },
 };
 
-stepsConfig.steps[ActionResolutionStepType.RecoveryMotion] = {
-  ...stepsConfig.steps[ActionResolutionStepType.RecoveryMotion],
-  getCosmeticsEffectsToStart: (context) => {
+stepsConfig.finalSteps[ActionResolutionStepType.RecoveryMotion] = {
+  ...stepsConfig.finalSteps[ActionResolutionStepType.RecoveryMotion],
+  getCosmeticEffectsToStart: (context) => {
     const { actionExecutionIntent } = context.tracker;
     const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
 
@@ -41,34 +32,25 @@ stepsConfig.steps[ActionResolutionStepType.RecoveryMotion] = {
     );
     if (targetIdsResult instanceof Error) throw targetIdsResult;
 
-    const toReturn: CosmeticEffectOnTargetTransformNode[] = targetIdsResult.map((targetId) => {
-      return {
-        name: CosmeticEffectNames.LightParticleBurst,
-        lifetime: 700,
-        parent: {
-          sceneEntityIdentifier: {
-            type: SceneEntityType.CharacterModel,
-            entityId: targetId,
-          },
-          transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
-        },
-      };
-    });
+    const toReturn: CosmeticEffectOnTargetTransformNode[] = targetIdsResult.map((targetId) =>
+      CosmeticEffectInstructionFactory.createParticlesOnTargetBody(
+        CosmeticEffectNames.LightParticleBurst,
+        700,
+        targetId
+      )
+    );
 
     return toReturn;
   },
 };
 
-stepsConfig.steps[ActionResolutionStepType.FinalPositioning] = {
-  ...stepsConfig.steps[ActionResolutionStepType.FinalPositioning],
-  getCosmeticsEffectsToStop: (context) => [
-    {
-      name: CosmeticEffectNames.LightParticleAccumulation,
-      sceneEntityIdentifier: {
-        type: SceneEntityType.CharacterModel,
-        entityId: context.combatantContext.combatant.entityProperties.id,
-      },
-    },
+stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning] = {
+  ...stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning],
+  getCosmeticEffectsToStop: (context) => [
+    CosmeticEffectInstructionFactory.createParticlesOnOffhand(
+      CosmeticEffectNames.LightParticleAccumulation,
+      context
+    ),
   ],
 };
 

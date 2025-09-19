@@ -20,6 +20,9 @@ import { CombatActionResource } from "../../combat/combat-actions/combat-action-
 const stepType = ActionResolutionStepType.RollIncomingHitOutcomes;
 export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
+    const { actionName } = context.tracker.actionExecutionIntent;
+    const action = COMBAT_ACTIONS[actionName];
+
     // @PERF - make this a singleton and move these steps to the server
     const rng = new BasicRandomNumberGenerator();
 
@@ -59,15 +62,14 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
       if (hitPointChangesOption instanceof HitPointChanges) {
         const combatantsKilled = hitPointChangesOption?.applyToGame(this.context.combatantContext);
         if (combatantsKilled)
-          for (const entityId of combatantsKilled)
+          for (const entityId of combatantsKilled) {
             gameUpdateCommand.outcomes.insertOutcomeFlag(HitOutcome.Death, entityId);
+          }
       }
 
       const manaChangesOption = hitOutcomesResult.resourceChanges[CombatActionResource.Mana];
       manaChangesOption?.applyToGame(context.combatantContext);
     }
-
-    const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
 
     const threatChangesOption = action.hitOutcomeProperties.getThreatChangesOnHitOutcomes(
       context,

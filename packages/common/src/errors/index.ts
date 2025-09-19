@@ -119,6 +119,9 @@ export const ERROR_MESSAGES = {
       "Action failed to activate because the previous action in the chain was invalid",
     MISSING_COST_BASES: "Expected action cost bases not found",
   },
+  ACTION_ENTITIES: {
+    NOT_FOUND: "Expected action entity was not found",
+  },
   ITEM: {
     NOT_FOUND: "No item was found with the provided ID",
     NOT_OWNED: "An item with the provided ID was not found in this inventory",

@@ -20,7 +20,6 @@ export class CheckIfActionOnCooldown implements BehaviorNode {
 
     if (!actionStateOption?.cooldown?.current) return BehaviorNodeState.Success;
 
-    console.log("on cooldown");
     return BehaviorNodeState.Failure;
   }
 }

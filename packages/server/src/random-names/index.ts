@@ -155,4 +155,6 @@ export const RANDOM_CHARACTER_NAMES_FIRST = [
   "Chilchuck",
   "Shuro",
   "Namari",
+  // originals
+  "Klazpr",
 ];

@@ -14,8 +14,8 @@ import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcom
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 
 export function getAttackResourceChangeProperties(
-  hitOutcomeProperties: CombatActionHitOutcomeProperties,
   user: CombatantProperties,
+  hitOutcomeProperties: CombatActionHitOutcomeProperties,
   actionLevel: number,
   primaryTarget: CombatantProperties,
   scalingAttribute: CombatAttribute,
@@ -38,7 +38,8 @@ export function getAttackResourceChangeProperties(
   // get greater benefits from a certain attribute the higher level a combatant is
   addCombatantLevelScaledAttributeToRange({
     range: baseValues,
-    combatantProperties: user,
+    userTotalAttributes: CombatantProperties.getTotalAttributes(user),
+    userLevel: user.level,
     attribute: scalingAttribute,
     normalizedAttributeScalingByCombatantLevel: 1,
   });
@@ -71,7 +72,7 @@ export function getAttackResourceChangeProperties(
     hpChangeProperties.resourceChangeSource.kineticDamageTypeOption = KineticDamageType.Blunt;
   }
 
-  baseValues.floor();
+  baseValues.floor(1);
 
   return hpChangeProperties;
 }

@@ -3,8 +3,7 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
-import { Combatant } from "../../combatants/index.js";
+import { COMBAT_ACTIONS } from "../../combat/index.js";
 
 const stepType = ActionResolutionStepType.StartConcurrentSubActions;
 export class StartConcurrentSubActionsActionResolutionStep extends ActionResolutionStep {
@@ -16,17 +15,11 @@ export class StartConcurrentSubActionsActionResolutionStep extends ActionResolut
   getTimeToCompletion = () => 0;
   isComplete = () => true;
 
-  protected getBranchingActions():
-    | Error
-    | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
+  protected getBranchingActions() {
     const action = COMBAT_ACTIONS[this.context.tracker.actionExecutionIntent.actionName];
-    const subActions = action.getConcurrentSubActions(this.context);
-    const branchingActions = subActions.map((actionExecutionIntent) => {
-      return {
-        user: this.context.combatantContext.combatant,
-        actionExecutionIntent,
-      };
-    });
-    return branchingActions;
+
+    if (!action.hierarchyProperties.getConcurrentSubActions) return [];
+
+    return action.hierarchyProperties.getConcurrentSubActions(this.context);
   }
 }

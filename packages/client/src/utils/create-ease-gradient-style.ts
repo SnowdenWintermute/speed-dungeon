@@ -32,24 +32,3 @@ export function createEaseGradient(
 
   return `linear-gradient(to right, ${stops.join(", ")})`;
 }
-// const interpolate = (start: number, end: number, t: number): number => {
-//   return start + (end - start) * t;
-// };
-
-// const stops: string[] = [];
-// for (let i = 0; i <= steps; i++) {
-//   // Calculate logarithmic position
-//   const t = Math.log(rangeStart + (i * (rangeEnd - rangeStart)) / steps) / Math.log(rangeEnd);
-
-//   // Interpolate RGBA values
-//   const r = Math.round(interpolate(color1.r, color2.r, t));
-//   const g = Math.round(interpolate(color1.g, color2.g, t));
-//   const b = Math.round(interpolate(color1.b, color2.b, t));
-//   const a = interpolate(color1.a, color2.a, t).toFixed(2);
-
-//   // Add stop to the gradient
-//   const position = (t * 100).toFixed(2);
-//   stops.push(`rgba(${r}, ${g}, ${b}, ${a}) ${position}%`);
-// }
-
-// return `linear-gradient(to right, ${stops.join(", ")})`;

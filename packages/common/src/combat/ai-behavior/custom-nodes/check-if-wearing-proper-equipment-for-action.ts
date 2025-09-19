@@ -22,7 +22,6 @@ export class CheckIfWearingProperEquipmentForAction implements BehaviorNode {
       this.actionLevelOption
     );
     if (isWearingProperEquipment) return BehaviorNodeState.Success;
-    console.log(COMBAT_ACTION_NAME_STRINGS[this.actionNameOption], "missing proper equipment");
     return BehaviorNodeState.Failure;
   }
 }

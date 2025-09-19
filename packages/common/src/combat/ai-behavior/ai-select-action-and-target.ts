@@ -25,11 +25,6 @@ export function AISelectActionAndTarget(
   const targetSelectorNode = new RootAIBehaviorNode(behaviorContext, user);
 
   const targetSelectionTreeSuccess = targetSelectorNode.execute();
-  console.log("behavior tree result:", BEHAVIOR_NODE_STATE_STRINGS[targetSelectionTreeSuccess]);
-  console.log(
-    "combat action intent selected from behavior tree:",
-    behaviorContext.selectedActionIntent
-  );
 
   let actionExecutionIntentOption = behaviorContext.selectedActionIntent;
   if (actionExecutionIntentOption === null) {

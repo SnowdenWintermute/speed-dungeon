@@ -12,6 +12,8 @@ import {
   KineticDamageType,
   MONSTER_SPECIES,
   MONSTER_TYPE_STRINGS,
+  MagicalElement,
+  MagicalResourceChangeCalculationStrategy,
   MonsterType,
   getMonsterCombatantClass,
   iterateNumericEnumKeyedRecord,
@@ -23,6 +25,7 @@ import getMonsterPerLevelAttributes from "./get-monster-per-level-attributes.js"
 import { getMonsterEquipment } from "./get-monster-equipment.js";
 import { ThreatManager } from "@speed-dungeon/common";
 import { MONSTER_INHERENT_TRAIT_GETTERS } from "./monster-trait-getters.js";
+import { initializeCombatAttributeRecord } from "@speed-dungeon/common";
 // import { STOCK_MONSTER } from "../../index.js";
 
 export function generateMonster(level: number, forcedType?: MonsterType) {
@@ -54,7 +57,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
     // CombatActionName.UseGreenAutoinjector,
     // CombatActionName.UseBlueAutoinjector,
     // CombatActionName.Blind,
-    CombatActionName.Healing,
+    // CombatActionName.Healing,
     // CombatActionName.PassTurn,
   ];
 
@@ -74,8 +77,13 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   combatantProperties.level = level;
   // assign their "discretionary" attributes
   // assign attributes that would have come from wearing gear
+  const inherentAttributes = initializeCombatAttributeRecord();
   const startingAttributes = getMonsterStartingAttributes(monsterType);
-  addAttributesToAccumulator(startingAttributes, combatantProperties.inherentAttributes);
+
+  addAttributesToAccumulator(startingAttributes, inherentAttributes);
+
+  monster.combatantProperties.inherentAttributes = inherentAttributes;
+
   const attributesPerLevel = getMonsterPerLevelAttributes(monsterType);
   for (const [attribute, value] of iterateNumericEnumKeyedRecord(attributesPerLevel)) {
     const levelAdjustedValue = value * (combatantProperties.level - 1);
@@ -108,11 +116,15 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   combatantProperties.aiTypes = [AiType.Healer];
   // monster.combatantProperties.hitPoints = Math.floor(monster.combatantProperties.hitPoints * 0.5);
   // @TESTING - random evasion
-  combatantProperties.inherentAttributes[CombatAttribute.Evasion] = Math.floor(Math.random() * 20);
+  // combatantProperties.inherentAttributes[CombatAttribute.Evasion] = Math.floor(Math.random() * 20);
 
-  combatantProperties.abilityProperties.traitProperties.inherentKineticDamageTypeAffinities[
-    KineticDamageType.Piercing
-  ] = 10;
+  // combatantProperties.abilityProperties.traitProperties.inherentKineticDamageTypeAffinities[
+  //   KineticDamageType.Piercing
+  // ] = 100;
+
+  // combatantProperties.abilityProperties.traitProperties.inherentElementalAffinities[
+  //   MagicalElement.Fire
+  // ] = 200;
 
   return monster;
 }

@@ -21,6 +21,7 @@ export * from "./items/crafting/index.js";
 export * from "./combatants/attributes/index.js";
 export * from "./combatants/experience-points/index.js";
 export * from "./combatants/attributes/add-attributes-to-accumulator.js";
+export * from "./combatants/attributes/index.js";
 export * from "./combatants/inventory/index.js";
 export * from "./combat/combat-actions/index.js";
 export * from "./combat/targeting/targeting-calculator.js";

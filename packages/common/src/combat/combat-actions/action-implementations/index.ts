@@ -25,8 +25,12 @@ import { HEALING } from "./healing/index.js";
 import { BLIND } from "./blind/index.js";
 import { CONDITION_PASS_TURN } from "./pass-turn/condition-pass-turn.js";
 import { PAY_ACTION_POINT } from "./pass-turn/pay-action-point.js";
-import { ReadFileError } from "@babylonjs/core";
 import { READ_SKILL_BOOK } from "./consumables/read-skill-book.js";
+import { FIREWALL } from "./firewall/index.js";
+import { FIREWALL_BURN } from "./firewall/firewall-burn.js";
+import { FIREWALL_PASS_TURN } from "./firewall/firewall-pass-turn.js";
+import { IGNITE_PROJECTILE } from "./ignite-projectile/index.js";
+import { INCINERATE_PROJECTILE } from "./incinerate-projectile/index.js";
 
 export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Attack]: ATTACK,
@@ -57,4 +61,9 @@ export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Blind]: BLIND,
   [CombatActionName.PayActionPoint]: PAY_ACTION_POINT,
   [CombatActionName.ReadSkillBook]: READ_SKILL_BOOK,
+  [CombatActionName.Firewall]: FIREWALL,
+  [CombatActionName.FirewallBurn]: FIREWALL_BURN,
+  [CombatActionName.FirewallPassTurn]: FIREWALL_PASS_TURN,
+  [CombatActionName.IgniteProjectile]: IGNITE_PROJECTILE,
+  [CombatActionName.IncinerateProjectile]: INCINERATE_PROJECTILE,
 };

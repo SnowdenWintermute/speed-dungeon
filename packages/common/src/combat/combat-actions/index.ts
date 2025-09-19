@@ -9,22 +9,20 @@ export * from "./combat-action-intent.js";
 export * from "./combat-action-steps-config.js";
 export * from "./combat-action-resource-change-properties.js";
 export * from "./combat-action-accuracy.js";
+export * from "./combat-action-combat-log-properties.js";
 
-import {
-  Combatant,
-  CombatantProperties,
-  getCombatActionPropertiesIfOwned,
-} from "../../combatants/index.js";
-
+import { CombatantProperties, getCombatActionPropertiesIfOwned } from "../../combatants/index.js";
 import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js";
 import { CombatActionName } from "./combat-action-names.js";
 import { Battle } from "../../battle/index.js";
 import { ActionAccuracyType } from "./combat-action-accuracy.js";
-import { CombatActionRequiredRange } from "./combat-action-range.js";
 import { CombatantContext } from "../../combatant-context/index.js";
-import { ActionResolutionStepContext, ActionTracker } from "../../action-processing/index.js";
+import {
+  ActionIntentAndUser,
+  ActionResolutionStepContext,
+  ActionTracker,
+} from "../../action-processing/index.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
-import { SpawnableEntity } from "../../spawnables/index.js";
 import {
   CombatActionTargetingProperties,
   CombatActionTargetingPropertiesConfig,
@@ -38,63 +36,86 @@ import { ActionResolutionStepsConfig } from "./combat-action-steps-config.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { AbilityTreeAbility } from "../../abilities/index.js";
-
-export enum CombatActionOrigin {
-  SpellCast,
-  TriggeredCondition,
-  Medication,
-  Attack,
-}
-
-export interface ActionUseMessageData {
-  nameOfActionUser?: string;
-  nameOfTarget?: string;
-  actionLevel?: number;
-}
+import { CombatActionCombatLogProperties } from "./combat-action-combat-log-properties.js";
+import { TurnTrackerEntityType } from "../turn-order/index.js";
 
 export interface CombatActionComponentConfig {
+  // unique to each action
   description: string;
-  /** Used by the combat log to determine how to format messages */
-  origin: CombatActionOrigin;
-
+  byRankDescriptions?: { [rank: number]: string | null };
+  prerequisiteAbilities?: AbilityTreeAbility[];
+  // properties objects
   targetingProperties: CombatActionTargetingPropertiesConfig;
   hitOutcomeProperties: CombatActionHitOutcomeProperties;
   costProperties: CombatActionCostPropertiesConfig;
   stepsConfig: ActionResolutionStepsConfig;
-
-  prerequisiteAbilities?: AbilityTreeAbility[];
-
-  shouldExecute: (
-    combatantContext: CombatantContext,
-    previousTrackerOption: undefined | ActionTracker,
-    self: CombatActionComponent
-  ) => boolean;
-
-  getOnUseMessage: null | ((messageData: ActionUseMessageData) => string);
-  getOnUseMessageDataOverride?: (context: ActionResolutionStepContext) => ActionUseMessageData;
-
-  getRequiredRange: (
-    user: CombatantProperties,
-    self: CombatActionComponent
-  ) => CombatActionRequiredRange;
-
-  getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
-
-  // ACTION HEIRARCHY PROPERTIES
-  getChildren: (context: ActionResolutionStepContext) => CombatActionComponent[];
-  getConcurrentSubActions?: (context: ActionResolutionStepContext) => CombatActionExecutionIntent[];
-  getParent: () => CombatActionComponent | null;
+  hierarchyProperties: CombatActionHierarchyProperties;
+  combatLogMessageProperties: CombatActionCombatLogProperties;
 }
 
 export abstract class CombatActionComponent {
   public readonly description: string;
-  public readonly origin: CombatActionOrigin;
+  public readonly byRankDescriptions: { [rank: number]: string | null } = {};
   public readonly prerequisiteAbilities?: AbilityTreeAbility[];
   public readonly targetingProperties: CombatActionTargetingProperties;
-  public readonly hitOutcomeProperties: CombatActionHitOutcomeProperties;
+  public hitOutcomeProperties: CombatActionHitOutcomeProperties;
+  public readonly combatLogMessageProperties: CombatActionCombatLogProperties;
   public readonly costProperties: CombatActionCostProperties;
   public readonly stepsConfig: ActionResolutionStepsConfig;
+  hierarchyProperties: CombatActionHierarchyProperties;
   protected children?: CombatActionComponent[];
+
+  constructor(
+    public name: CombatActionName,
+    config: CombatActionComponentConfig
+  ) {
+    this.description = config.description;
+    if (config.byRankDescriptions) this.byRankDescriptions = config.byRankDescriptions;
+
+    this.combatLogMessageProperties = config.combatLogMessageProperties;
+
+    this.prerequisiteAbilities = config.prerequisiteAbilities;
+    this.targetingProperties = {
+      ...config.targetingProperties,
+      getAutoTarget: (combatantContext, trackerOption) =>
+        config.targetingProperties.getAutoTarget(combatantContext, trackerOption, this),
+    };
+    this.hitOutcomeProperties = config.hitOutcomeProperties;
+    this.costProperties = {
+      ...config.costProperties,
+      getResourceCosts: (user: CombatantProperties, inCombat: boolean, actionLevel: number) =>
+        config.costProperties.getResourceCosts(user, inCombat, actionLevel, this),
+    };
+
+    this.stepsConfig = config.stepsConfig;
+
+    this.hierarchyProperties = config.hierarchyProperties;
+  }
+
+  shouldExecute(
+    context: ActionResolutionStepContext,
+    previousTrackerOption: undefined | ActionTracker
+  ) {
+    const { executionPreconditions } = this.targetingProperties;
+    if (executionPreconditions.length === 0) return true;
+
+    return executionPreconditions.every((fn) => fn(context, previousTrackerOption, this));
+  }
+
+  getAccuracy(user: CombatantProperties, actionLevel: number) {
+    const baseAccuracy = this.hitOutcomeProperties.getUnmodifiedAccuracy(user, actionLevel);
+    if (baseAccuracy.type === ActionAccuracyType.Percentage)
+      baseAccuracy.value *= this.hitOutcomeProperties.accuracyModifier;
+    return baseAccuracy;
+  }
+
+  getCritChance(user: CombatantProperties, actionLevel: number) {
+    const base = this.hitOutcomeProperties.getUnmodifiedCritChance(user, actionLevel);
+    if (base === null) return base;
+    const modified = base * this.hitOutcomeProperties.critChanceModifier;
+
+    return modified;
+  }
 
   isUsableInGivenContext(context: CombatActionUsabilityContext) {
     switch (context) {
@@ -117,88 +138,6 @@ export abstract class CombatActionComponent {
       : CombatActionUsabilityContext.OutOfCombat;
     return this.isUsableInGivenContext(context);
   };
-
-  shouldExecute: (
-    combatantContext: CombatantContext,
-    previousTrackerOption: undefined | ActionTracker
-  ) => boolean;
-  getOnUseMessage: null | ((messageData: ActionUseMessageData) => string);
-  getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
-  getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
-
-  // if we take in the combatant we can determine the children based on their equipped weapons (melee attack mh, melee attack oh etc)
-  // spell levels (level 1 chain lightning only gets 1 ChainLightningArc child) or other status
-  // (energetic swings could do multiple attacks based on user's current percent of max hp)
-  // could also create random children such as a chaining random elemental damage
-  getChildren: (context: ActionResolutionStepContext) => CombatActionComponent[];
-  getConcurrentSubActions: (context: ActionResolutionStepContext) => CombatActionExecutionIntent[] =
-    () => [];
-  getParent: () => CombatActionComponent | null;
-  addChild: (childAction: CombatActionComponent) => Error | void = () =>
-    new Error("Can't add a child to this component");
-
-  constructor(
-    public name: CombatActionName,
-    config: CombatActionComponentConfig
-  ) {
-    this.description = config.description;
-    this.origin = config.origin;
-
-    this.prerequisiteAbilities = config.prerequisiteAbilities;
-    this.targetingProperties = {
-      ...config.targetingProperties,
-      getAutoTarget: (combatantContext, trackerOption) =>
-        config.targetingProperties.getAutoTarget(combatantContext, trackerOption, this),
-    };
-    this.hitOutcomeProperties = config.hitOutcomeProperties;
-    this.costProperties = {
-      ...config.costProperties,
-      getResourceCosts: (user: CombatantProperties, inCombat: boolean, actionLevel: number) =>
-        config.costProperties.getResourceCosts(user, inCombat, actionLevel, this),
-    };
-
-    this.shouldExecute = (combatantContext, previousTrackerOption) =>
-      config.shouldExecute(combatantContext, previousTrackerOption, this);
-    this.getOnUseMessage = config.getOnUseMessage;
-    if (config.getOnUseMessageDataOverride)
-      this.getOnUseMessageData = config.getOnUseMessageDataOverride;
-    this.getRequiredRange = (user) => config.getRequiredRange(user, this);
-    this.getSpawnableEntity = config.getSpawnableEntity;
-    this.stepsConfig = config.stepsConfig;
-
-    this.getChildren = config.getChildren;
-    if (config.getConcurrentSubActions)
-      this.getConcurrentSubActions = config.getConcurrentSubActions;
-    this.getParent = config.getParent;
-  }
-
-  getOnUseMessageData(context: ActionResolutionStepContext): ActionUseMessageData {
-    const { combatantContext } = context;
-    const { combatant } = combatantContext;
-    const { selectedActionLevel } = combatant.combatantProperties;
-    return {
-      nameOfActionUser: combatant.entityProperties.name,
-      actionLevel: selectedActionLevel ?? 0,
-    };
-  }
-
-  combatantIsValidTarget(
-    user: Combatant, // to check who their allies are
-    combatant: Combatant, // to check their conditions, traits and other state like current hp
-    battleOption: null | Battle // finding out allies/enemies
-  ): boolean {
-    // for AI behavior
-    // - check targetable groups (friend or foe)
-    // - check prohibited combatant state
-    // - check traits and conditions
-    return true;
-  }
-  getAccuracy(user: CombatantProperties, actionLevel: number) {
-    const baseAccuracy = this.hitOutcomeProperties.getUnmodifiedAccuracy(user, actionLevel);
-    if (baseAccuracy.type === ActionAccuracyType.Percentage)
-      baseAccuracy.value *= this.hitOutcomeProperties.accuracyModifier;
-    return baseAccuracy;
-  }
 
   useIsValid(
     targets: CombatActionTarget,
@@ -261,7 +200,10 @@ export abstract class CombatActionComponent {
 
     if (battleOption !== null) {
       const fastestActor = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
-      if (fastestActor.combatantId !== combatant.entityProperties.id) {
+      const taggedTrackedEntityId = fastestActor.getTaggedIdOfTrackedEntity();
+      if (taggedTrackedEntityId.type !== TurnTrackerEntityType.Combatant)
+        return new Error("expected a combatant to be first in turn order");
+      if (taggedTrackedEntityId.combatantId !== combatant.entityProperties.id) {
         const message = `${ERROR_MESSAGES.COMBATANT.NOT_ACTIVE} first turn tracker ${JSON.stringify(fastestActor)}`;
         return new Error(message);
       }
@@ -287,3 +229,29 @@ export class CombatActionComposite extends CombatActionComponent {
     this.children.push(childAction);
   };
 }
+
+// if we take in the combatant we can determine the children based on their equipped weapons (melee attack mh, melee attack oh etc)
+// spell levels (level 1 chain lightning only gets 1 ChainLightningArc child) or other status
+// (energetic swings could do multiple attacks based on user's current percent of max hp)
+// could also create random children such as a chaining random elemental damage
+// getChildren: (context: ActionResolutionStepContext) => CombatActionComponent[];
+// getConcurrentSubActions: (context: ActionResolutionStepContext) => CombatActionExecutionIntent[] =
+//   () => [];
+// getParent: () => CombatActionComponent | null;
+export interface CombatActionHierarchyProperties {
+  getChildren: (
+    context: ActionResolutionStepContext,
+    self: CombatActionComponent
+  ) => CombatActionComponent[];
+  getParent: () => CombatActionComponent | null;
+  getConcurrentSubActions?: (context: ActionResolutionStepContext) => ActionIntentAndUser[];
+}
+
+export const BASE_ACTION_HIERARCHY_PROPERTIES: CombatActionHierarchyProperties = {
+  getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {
+    return [];
+  },
+  getParent: function (): CombatActionComponent | null {
+    return null;
+  },
+};

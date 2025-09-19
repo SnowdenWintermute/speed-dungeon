@@ -41,7 +41,6 @@ export class CollectConsideredCombatants implements BehaviorNode {
     }
 
     if (combatantsToConsider.length === 0) {
-      console.log("no combatants to consider");
       return BehaviorNodeState.Failure;
     }
 

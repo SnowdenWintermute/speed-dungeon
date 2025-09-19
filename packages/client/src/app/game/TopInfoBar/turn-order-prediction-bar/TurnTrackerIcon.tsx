@@ -4,19 +4,15 @@ import { getCombatantUiIdentifierIcon } from "@/utils/get-combatant-class-icon";
 import getGameAndParty from "@/utils/getGameAndParty";
 import {
   AdventuringParty,
-  COMBATANT_CONDITION_NAME_STRINGS,
   CombatantTurnTracker,
   ConditionTurnTracker,
+  TurnTrackerEntityType,
 } from "@speed-dungeon/common";
 import React, { useState } from "react";
 
 const SHOWN_CLASSES = "mr-2 last:mr-0";
 
-export default function TurnOrderTrackerIcon({
-  tracker,
-}: {
-  tracker: CombatantTurnTracker | ConditionTurnTracker;
-}) {
+export default function TurnOrderTrackerIcon({ tracker }: { tracker: CombatantTurnTracker }) {
   const gameOption = useGameStore().game;
   const usernameOption = useGameStore().username;
   const result = getGameAndParty(gameOption, usernameOption);
@@ -25,8 +21,13 @@ export default function TurnOrderTrackerIcon({
   let [preRemovalClassesState, _setPreRemovalClassesState] = useState(SHOWN_CLASSES);
   let [transitionStyle, _setTransitionStyle] = useState({ transition: "width 1s" });
 
+  const taggedTrackedEntityId = tracker.getTaggedIdOfTrackedEntity();
+
   const isCondition = tracker instanceof ConditionTurnTracker;
-  const combatantIsAlly = party.characterPositions.includes(tracker.combatantId);
+
+  const combatantIsAlly =
+    taggedTrackedEntityId.type === TurnTrackerEntityType.Combatant &&
+    party.characterPositions.includes(taggedTrackedEntityId.combatantId);
 
   const conditionalClasses = isCondition
     ? "bg-slate-600"
@@ -34,22 +35,22 @@ export default function TurnOrderTrackerIcon({
       ? "bg-emerald-900"
       : "bg-amber-900";
 
+  let combatantOption;
+
   const name: string = (() => {
-    if (tracker instanceof ConditionTurnTracker)
-      return COMBATANT_CONDITION_NAME_STRINGS[tracker.getCondition(party).name]
-        .slice(0, 2)
-        .toUpperCase();
-    else {
-      return tracker.getCombatant(party).entityProperties.name.slice(0, 2).toUpperCase();
-    }
+    const combatant = AdventuringParty.getExpectedCombatant(
+      party,
+      taggedTrackedEntityId.combatantId
+    );
+    combatantOption = combatant;
+    return combatant.entityProperties.name.slice(0, 2).toUpperCase();
   })();
 
   function handleClick() {
     //
   }
 
-  const combatant = AdventuringParty.getExpectedCombatant(party, tracker.combatantId);
-  const combatantUiIdentifierIcon = getCombatantUiIdentifierIcon(party, combatant);
+  const combatantUiIdentifierIcon = getCombatantUiIdentifierIcon(party, combatantOption);
 
   return (
     <button

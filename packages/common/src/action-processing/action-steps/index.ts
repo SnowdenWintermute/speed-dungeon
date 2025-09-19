@@ -21,10 +21,11 @@ export interface ActionExecuting {
 }
 
 export enum ActionResolutionStepType {
-  DetermineShouldExecuteOrReleaseTurnLock,
-  DetermineChildActions, // enqueues sequential actions such as [ "main hand attack", "off hand attack" ]
-  DetermineMeleeActionAnimations,
+  PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock,
+  PreInitialPositioningCheckEnvironmentalHazardTriggers,
   InitialPositioning,
+  PostInitialPositioningDetermineShouldExecuteOrReleaseTurnLock,
+  DetermineMeleeActionAnimations,
   PrepMotion,
   PostPrepSpawnEntity,
   ChamberingMotion,
@@ -34,9 +35,16 @@ export enum ActionResolutionStepType {
   EvalOnUseTriggers,
   StartConcurrentSubActions, // starts actions that happen simultaneously and independently such as ["arrow projectile"]
   OnActivationSpawnEntity,
+  PreActionEntityMotionCheckEnvironmentalHazardTriggers,
   OnActivationActionEntityMotion,
   RollIncomingHitOutcomes,
   EvalOnHitOutcomeTriggers, // may start branching actions if triggered
+  DetermineChildActions, // enqueues sequential actions such as [ "main hand attack", "off hand attack" ]
+  // FINAL STEPS - conditionally obtained. example - may skip PreInitialPositioningCheckEnvironmentalHazardTriggers
+  // and FinalPositioning and just do RecoveryMotion
+  // if doing offhand attack instead of return home directly after mainhand attack
+  PreFinalPositioningCheckEnvironmentalHazardTriggers,
+  RemoveTickedConditionStacks,
   EvaluatePlayerEndTurnAndInputLock,
   ActionEntityDissipationMotion,
   RecoveryMotion,
@@ -44,11 +52,13 @@ export enum ActionResolutionStepType {
 }
 
 export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepType, string> = {
-  [ActionResolutionStepType.DetermineShouldExecuteOrReleaseTurnLock]:
-    "determineShouldExecuteOrReleaseLock",
+  [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]:
+    "preInitialPositioningDetermineShouldExecuteOrReleaseTurnLock",
   [ActionResolutionStepType.DetermineChildActions]: "determineChildActions",
   [ActionResolutionStepType.DetermineMeleeActionAnimations]: "determineMeleeActionAnimations",
   [ActionResolutionStepType.InitialPositioning]: "initialPositioning",
+  [ActionResolutionStepType.PostInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]:
+    "postInitialPositioningDetermineShouldExecuteOrReleaseTurnLock",
   [ActionResolutionStepType.PrepMotion]: "chamberingMotion",
   [ActionResolutionStepType.PostPrepSpawnEntity]: "postPrepSpawnEntity",
   [ActionResolutionStepType.ChamberingMotion]: "chamberingMotion",
@@ -58,13 +68,20 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.PostActionUseCombatLogMessage]: "postActionUseCombatLogMessage",
   [ActionResolutionStepType.StartConcurrentSubActions]: "StartConcurrentSubActions",
   [ActionResolutionStepType.OnActivationSpawnEntity]: "onActivationSpawnEntity",
-  [ActionResolutionStepType.OnActivationActionEntityMotion]: "onActivationVfxMotion",
+  [ActionResolutionStepType.PreActionEntityMotionCheckEnvironmentalHazardTriggers]:
+    "preActionEntityMotionCheckEnvironmentalHazardTriggers",
+  [ActionResolutionStepType.OnActivationActionEntityMotion]: "onActivationActionEntityMotion",
   [ActionResolutionStepType.RollIncomingHitOutcomes]: "rollIncomingHitOutcomes",
   [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: "evalOnHitOutcomeTriggers", // lifesteal traits, apply conditions
   [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: "EvaluatePlayerEndTurnAndInputLock",
   [ActionResolutionStepType.ActionEntityDissipationMotion]: "actionEntityDissipationMotion",
   [ActionResolutionStepType.RecoveryMotion]: "recoveryMotion",
   [ActionResolutionStepType.FinalPositioning]: "finalPositioning",
+  [ActionResolutionStepType.PreInitialPositioningCheckEnvironmentalHazardTriggers]:
+    "preInitialPositioningCheckEnvironmentalHazardTriggers",
+  [ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers]:
+    "preFinalPositioningCheckEnvironmentalHazardTriggers",
+  [ActionResolutionStepType.RemoveTickedConditionStacks]: "removeTickedConditionStacks",
 };
 
 export type ActionResolutionStepResult = {
@@ -79,6 +96,11 @@ export interface ActionResolutionStepContext {
   idGenerator: IdGenerator;
 }
 
+export interface ActionIntentAndUser {
+  user: Combatant;
+  actionExecutionIntent: CombatActionExecutionIntent;
+}
+
 export abstract class ActionResolutionStep {
   protected elapsed: Milliseconds = 0;
   constructor(
@@ -87,15 +109,16 @@ export abstract class ActionResolutionStep {
     protected gameUpdateCommandOption: null | GameUpdateCommand
   ) {
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
-    const stepConfig = action.stepsConfig.steps[type];
 
-    if (!stepConfig) throw new Error("expected step config not found");
-    if (gameUpdateCommandOption && stepConfig.getCosmeticsEffectsToStop) {
-      gameUpdateCommandOption.cosmeticEffectsToStop = stepConfig.getCosmeticsEffectsToStop(context);
+    const stepConfig = action.stepsConfig.getStepConfigOption(type);
+
+    if (stepConfig === undefined) throw new Error("expected step config not found");
+    if (gameUpdateCommandOption && stepConfig.getCosmeticEffectsToStop) {
+      gameUpdateCommandOption.cosmeticEffectsToStop = stepConfig.getCosmeticEffectsToStop(context);
     }
-    if (gameUpdateCommandOption && stepConfig.getCosmeticsEffectsToStart) {
+    if (gameUpdateCommandOption && stepConfig.getCosmeticEffectsToStart) {
       gameUpdateCommandOption.cosmeticEffectsToStart =
-        stepConfig.getCosmeticsEffectsToStart(context);
+        stepConfig.getCosmeticEffectsToStart(context);
     }
   }
 

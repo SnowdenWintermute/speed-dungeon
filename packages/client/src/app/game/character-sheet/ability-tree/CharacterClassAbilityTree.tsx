@@ -78,7 +78,9 @@ export default function CharacterClassAbilityTree({
                   const abilityIconOption = getAbilityIcon(ability);
                   const abilityName = getAbilityTreeAbilityNameString(ability);
                   const buttonContent = abilityIconOption ? (
-                    abilityIconOption("h-full p-2 fill-slate-400 stroke-slate-400")
+                    <div className="h-full p-2 max-w-full overflow-hidden flex justify-center">
+                      {abilityIconOption("h-full fill-slate-400 stroke-slate-400")}
+                    </div>
                   ) : (
                     <div className="text-wrap text-center max-w-full overflow-hidden text-ellipsis p-1">
                       {abilityName}

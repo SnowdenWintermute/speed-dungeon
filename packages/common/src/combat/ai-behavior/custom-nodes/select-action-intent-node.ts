@@ -36,8 +36,6 @@ export class SelectActionExecutionIntent implements BehaviorNode {
     this.combatant.combatantProperties.combatActionTarget = targetsOption;
     this.combatant.combatantProperties.selectedActionLevel = level;
 
-    console.log("set selectedActionLevel:", this.combatant.combatantProperties.selectedActionLevel);
-
     return BehaviorNodeState.Success;
   }
 }

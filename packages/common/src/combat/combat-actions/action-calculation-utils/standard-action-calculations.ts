@@ -32,7 +32,7 @@ export function getStandardActionCritMultiplier(
 
 export function getStandardActionArmorPenetration(
   user: CombatantProperties,
-  bonusAttribute: CombatAttribute
+  bonusAttribute: null | CombatAttribute
 ) {
   const userAttributes = CombatantProperties.getTotalAttributes(user);
   let userArmorPen = userAttributes[CombatAttribute.ArmorPenetration];

@@ -56,6 +56,9 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     const battleOption = AdventuringParty.getBattleOption(party, game);
     const { outcomeFlags, resourceChanges } = tracker.hitOutcomes;
 
+    const customTriggers = action.hitOutcomeProperties.getHitOutcomeTriggers(context);
+    Object.assign(gameUpdateCommand, customTriggers);
+
     const durabilityChanges = new DurabilityChangesByEntityId();
 
     if (!durabilityChanges.isEmpty()) {
@@ -174,12 +177,13 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             );
 
             this.branchingActions.push(
-              ...triggeredActions.filter((actionIntent) =>
-                COMBAT_ACTIONS[actionIntent.actionExecutionIntent.actionName].shouldExecute(
-                  context.combatantContext,
+              ...triggeredActions.filter((actionIntent) => {
+                const action = COMBAT_ACTIONS[actionIntent.actionExecutionIntent.actionName];
+                return action.shouldExecute(
+                  context,
                   tracker.getPreviousTrackerInSequenceOption() || undefined
-                )
-              )
+                );
+              })
             );
 
             // add it to the update so the client can remove the triggered conditions if required
@@ -226,13 +230,14 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           for (const condition of targetCombatant.combatantProperties.conditions) {
             if (!condition.removedOnDeath) continue;
             CombatantCondition.removeById(condition.id, combatantResult.combatantProperties);
-            battleOption?.turnOrderManager.updateTrackers(game, party);
             addRemovedConditionIdToUpdate(
               condition.id,
               gameUpdateCommand,
               targetCombatant.entityProperties.id
             );
           }
+
+          battleOption?.turnOrderManager.updateTrackers(game, party);
 
           let { threatChanges } = gameUpdateCommand;
           if (threatChanges === undefined) threatChanges = new ThreatChanges();

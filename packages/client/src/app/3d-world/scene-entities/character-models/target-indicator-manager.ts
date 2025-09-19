@@ -1,23 +1,11 @@
-import {
-  AbstractMesh,
-  BoundingInfo,
-  Camera,
-  DynamicTexture,
-  Mesh,
-  MeshBuilder,
-  Scene,
-  StandardMaterial,
-  TransformNode,
-} from "@babylonjs/core";
+import { AbstractMesh, Camera, Mesh, MeshBuilder, Scene, StandardMaterial } from "@babylonjs/core";
 import {
   COMBAT_ACTIONS,
   CombatActionIntent,
   CombatActionName,
   EntityId,
-  Meters,
 } from "@speed-dungeon/common";
 import { getGameWorld } from "../../SceneManager";
-import { CharacterModel } from ".";
 import { GLOW_LAYER_NAME } from "../../game-world/init-scene";
 
 export class TargetIndicator {
@@ -34,6 +22,7 @@ export class TargetIndicator {
 
 export class TargetIndicatorBillboard {
   plane: Mesh;
+  material: StandardMaterial;
   constructor(
     public readonly targetIndicator: TargetIndicator,
     scene: Scene
@@ -41,8 +30,9 @@ export class TargetIndicatorBillboard {
     this.plane = MeshBuilder.CreatePlane("billboard", { size: 0.25 }, scene);
     this.plane.billboardMode = Mesh.BILLBOARDMODE_ALL;
     // Optional: ensure it's not affected by scene lighting
-    const mat = new StandardMaterial("billboardMat", scene);
-    mat.diffuseTexture = getGameWorld().targetIndicatorTexture;
+    this.material = new StandardMaterial("billboardMat", scene);
+    this.material.diffuseTexture = getGameWorld().targetIndicatorTexture;
+    const mat = this.material;
 
     const action = COMBAT_ACTIONS[this.targetIndicator.actionName];
     switch (action.targetingProperties.intent) {
@@ -62,7 +52,8 @@ export class TargetIndicatorBillboard {
   }
 
   cleanup() {
-    this.plane.dispose();
+    this.plane.dispose(false);
+    this.material.dispose();
   }
 }
 

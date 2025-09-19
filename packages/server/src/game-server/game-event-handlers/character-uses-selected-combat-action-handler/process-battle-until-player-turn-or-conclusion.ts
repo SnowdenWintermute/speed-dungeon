@@ -1,22 +1,27 @@
 import {
+  ACTION_ENTITY_ACTION_INTENT_GETTERS,
   AISelectActionAndTarget,
   ActionCommand,
   ActionCommandPayload,
   ActionCommandType,
-  ActivatedTriggersGameUpdateCommand,
   AdventuringParty,
   Battle,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionExecutionIntent,
   CombatActionReplayTreePayload,
   Combatant,
   CombatantCondition,
   CombatantContext,
-  ConditionTurnTracker,
   ERROR_MESSAGES,
-  GameUpdateCommandType,
   ServerToClientEvent,
   SpeedDungeonGame,
+  TaggedActionEntityTurnTrackerActionEntityId,
+  TaggedCombatantTurnTrackerCombatantId,
+  TaggedConditionTurnTrackerConditionAndCombatantId,
+  TurnTrackerEntityType,
+  createShimmedUserOfActionEntityAction,
   getPartyChannelName,
+  throwIfError,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
 import { checkForWipes, PartyWipes } from "./check-for-wipes.js";
@@ -111,30 +116,31 @@ export class BattleProcessor {
     battle.turnOrderManager.updateTrackers(game, party);
     const fastestActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
 
-    if (fastestActorTurnTracker instanceof ConditionTurnTracker) {
-      const condition = fastestActorTurnTracker.getCondition(this.party);
-      const combatant = fastestActorTurnTracker.getCombatant(this.party);
-      const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
-      if (tickPropertiesOption === undefined)
-        throw new Error("expected condition tick properties were missing");
-      const onTick = tickPropertiesOption.onTick(
-        condition,
-        new CombatantContext(game, party, combatant)
-      );
+    const taggedTurnTrackerEntityId = fastestActorTurnTracker.getTaggedIdOfTrackedEntity();
 
-      const { actionExecutionIntent, user } = onTick.triggeredAction;
-      return { actionExecutionIntent, user };
-    } else {
-      const activeCombatantResult = fastestActorTurnTracker.getCombatant(party);
-      if (activeCombatantResult instanceof Error) throw activeCombatantResult;
-      let { entityProperties } = activeCombatantResult;
-
-      const battleGroupsResult = Battle.getAllyAndEnemyBattleGroups(battle, entityProperties.id);
-      if (battleGroupsResult instanceof Error) throw battleGroupsResult;
-
-      const actionExecutionIntent = AISelectActionAndTarget(game, activeCombatantResult);
-      if (actionExecutionIntent instanceof Error) throw actionExecutionIntent;
-      return { actionExecutionIntent, user: activeCombatantResult };
+    // @REFACTOR
+    switch (taggedTurnTrackerEntityId.type) {
+      case TurnTrackerEntityType.Condition:
+        return getNextActionIntentAndUserForCondition(
+          game,
+          party,
+          battle,
+          taggedTurnTrackerEntityId
+        );
+      case TurnTrackerEntityType.Combatant:
+        return getNextActionIntentAndUserForCombatant(
+          game,
+          party,
+          battle,
+          taggedTurnTrackerEntityId
+        );
+      case TurnTrackerEntityType.ActionEntity:
+        return getNextActionIntentAndUserForActionEntity(
+          game,
+          party,
+          battle,
+          taggedTurnTrackerEntityId
+        );
     }
   }
 
@@ -156,4 +162,82 @@ export class BattleProcessor {
 
     return actionCommandPayloads;
   }
+}
+
+// @REFACTOR
+
+function getNextActionIntentAndUserForCombatant(
+  game: SpeedDungeonGame,
+  party: AdventuringParty,
+  battle: Battle,
+  taggedTurnTrackerEntityId: TaggedCombatantTurnTrackerCombatantId
+) {
+  const { combatantId } = taggedTurnTrackerEntityId;
+  const activeCombatantResult = AdventuringParty.getExpectedCombatant(party, combatantId);
+  if (activeCombatantResult instanceof Error) throw activeCombatantResult;
+  let { entityProperties } = activeCombatantResult;
+
+  const battleGroupsResult = Battle.getAllyAndEnemyBattleGroups(battle, entityProperties.id);
+  if (battleGroupsResult instanceof Error) throw battleGroupsResult;
+
+  const actionExecutionIntent = AISelectActionAndTarget(game, activeCombatantResult);
+  if (actionExecutionIntent instanceof Error) throw actionExecutionIntent;
+  return { actionExecutionIntent, user: activeCombatantResult };
+}
+
+function getNextActionIntentAndUserForCondition(
+  game: SpeedDungeonGame,
+  party: AdventuringParty,
+  battle: Battle,
+  taggedTurnTrackerEntityId: TaggedConditionTurnTrackerConditionAndCombatantId
+) {
+  const { combatantId, conditionId } = taggedTurnTrackerEntityId;
+  const condition = throwIfError(
+    AdventuringParty.getConditionOnCombatant(party, combatantId, conditionId)
+  );
+  const combatant = AdventuringParty.getExpectedCombatant(party, combatantId);
+  const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
+  if (tickPropertiesOption === undefined)
+    throw new Error("expected condition tick properties were missing");
+  const onTick = tickPropertiesOption.onTick(
+    condition,
+    new CombatantContext(game, party, combatant)
+  );
+
+  const { actionExecutionIntent, user } = onTick.triggeredAction;
+  return { actionExecutionIntent, user };
+}
+
+function getNextActionIntentAndUserForActionEntity(
+  game: SpeedDungeonGame,
+  party: AdventuringParty,
+  battle: Battle,
+  taggedTurnTrackerEntityId: TaggedActionEntityTurnTrackerActionEntityId
+): {
+  actionExecutionIntent: CombatActionExecutionIntent;
+  user: Combatant;
+} {
+  const { actionEntityId } = taggedTurnTrackerEntityId;
+  const actionEntityResult = AdventuringParty.getActionEntity(party, actionEntityId);
+  if (actionEntityResult instanceof Error) throw actionEntityResult;
+
+  const actionIntentGetterOption =
+    ACTION_ENTITY_ACTION_INTENT_GETTERS[actionEntityResult.actionEntityProperties.name];
+  if (actionIntentGetterOption === undefined)
+    throw new Error(
+      "expected an action entity with a turn tracker to have an actionIntentGetterOption"
+    );
+
+  const actionExecutionIntent = actionIntentGetterOption();
+
+  const dummyUser = createShimmedUserOfActionEntityAction(
+    actionEntityResult.entityProperties.name,
+    actionEntityResult,
+    actionEntityResult.entityProperties.id
+  );
+
+  return {
+    actionExecutionIntent,
+    user: dummyUser,
+  };
 }

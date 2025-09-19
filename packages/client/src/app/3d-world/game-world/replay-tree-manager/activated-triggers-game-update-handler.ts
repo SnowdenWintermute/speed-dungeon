@@ -1,11 +1,14 @@
 import { useGameStore } from "@/stores/game-store";
 import {
+  ActionEntity,
+  ActionEntityName,
   ActionPayableResource,
   ActivatedTriggersGameUpdateCommand,
   AdventuringParty,
   COMBATANT_CLASS_NAME_STRINGS,
   COMBATANT_CONDITION_CONSTRUCTORS,
   COMBAT_ACTIONS,
+  CleanupMode,
   CombatantCondition,
   CombatantProperties,
   DurabilityChangesByEntityId,
@@ -16,6 +19,7 @@ import {
   HitPointChanges,
   SpeedDungeonGame,
   iterateNumericEnumKeyedRecord,
+  throwIfError,
 } from "@speed-dungeon/common";
 import { getGameWorld } from "../../SceneManager";
 import { plainToInstance } from "class-transformer";
@@ -23,7 +27,9 @@ import { startOrStopCosmeticEffects } from "./start-or-stop-cosmetic-effect";
 import { induceHitRecovery } from "./induce-hit-recovery";
 import { postBrokenHoldableMessages } from "./post-broken-holdable-messages";
 import { handleThreatChangesUpdate } from "./handle-threat-changes";
+import getParty from "@/utils/getParty";
 
+// @REFACTOR
 export async function activatedTriggersGameUpdateHandler(update: {
   command: ActivatedTriggersGameUpdateCommand;
   isComplete: boolean;
@@ -37,15 +43,40 @@ export async function activatedTriggersGameUpdateHandler(update: {
   useGameStore.getState().mutateState((gameState) => {
     const game = gameState.game;
     if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+    const partyResult = getParty(game, gameState.username);
+    if (partyResult instanceof Error) throw partyResult;
+    const battleOption = AdventuringParty.getBattleOption(partyResult, game);
 
-    if (command.supportClassLevelsGained) {
+    if (command.actionEntityChanges) {
+      for (const [id, changes] of Object.entries(command.actionEntityChanges)) {
+        const {
+          actionLevel,
+          stacks,
+          userElementalAffinities,
+          userKineticAffinities,
+          userCombatantAttributes,
+        } = changes;
+        const actionEntity = throwIfError(AdventuringParty.getActionEntity(partyResult, id));
+        let { actionOriginData } = actionEntity.actionEntityProperties;
+        if (!actionOriginData)
+          actionOriginData = actionEntity.actionEntityProperties.actionOriginData = {};
+        // @PERF - probably don't need to send the whole MaxAndCurrent for level and stacks unless
+        // we one day want to change the max, but it is simpler this way since we get to use a Partial of
+        // the action entity's action origin properties
+        // @REFACTOR create a merging factory to combine the changes with existing
+        if (actionLevel !== undefined) ActionEntity.setLevel(actionEntity, actionLevel.current);
+        if (stacks !== undefined) ActionEntity.setStacks(actionEntity, stacks.current);
+        if (userCombatantAttributes)
+          actionOriginData.userCombatantAttributes = userCombatantAttributes;
+      }
+    }
+
+    if (command.supportClassLevelsGained !== undefined) {
       for (const [entityId, combatantClass] of Object.entries(command.supportClassLevelsGained)) {
         const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
         if (combatantResult instanceof Error) return combatantResult;
         const { combatantProperties } = combatantResult;
         CombatantProperties.changeSupportClassLevel(combatantProperties, combatantClass, 1);
-
-        console.log(entityId, "gained a level of", COMBATANT_CLASS_NAME_STRINGS[combatantClass]);
       }
     }
 
@@ -95,11 +126,6 @@ export async function activatedTriggersGameUpdateHandler(update: {
               condition
             );
 
-            const partyResult = gameState.getParty();
-            if (partyResult instanceof Error) throw partyResult;
-
-            const battleOption = AdventuringParty.getBattleOption(partyResult, game);
-
             CombatantCondition.applyToCombatant(
               condition,
               combatantResult,
@@ -136,15 +162,7 @@ export async function activatedTriggersGameUpdateHandler(update: {
             const targetModelOption = getGameWorld().modelManager.findOne(entityId);
             startOrStopCosmeticEffects(
               [],
-              conditionRemovedOption
-                .getCosmeticEffectWhileActive(targetModelOption.entityId)
-                .map((cosmeticEffectOnTransformNode) => {
-                  return {
-                    sceneEntityIdentifier:
-                      cosmeticEffectOnTransformNode.parent.sceneEntityIdentifier,
-                    name: cosmeticEffectOnTransformNode.name,
-                  };
-                })
+              conditionRemovedOption.getCosmeticEffectWhileActive(targetModelOption.entityId)
             );
           }
         }
@@ -166,15 +184,7 @@ export async function activatedTriggersGameUpdateHandler(update: {
             const targetModelOption = getGameWorld().modelManager.findOne(entityId);
             startOrStopCosmeticEffects(
               [],
-              conditionRemovedOption
-                .getCosmeticEffectWhileActive(targetModelOption.entityId)
-                .map((cosmeticEffectOnTransformNode) => {
-                  return {
-                    sceneEntityIdentifier:
-                      cosmeticEffectOnTransformNode.parent.sceneEntityIdentifier,
-                    name: cosmeticEffectOnTransformNode.name,
-                  };
-                })
+              conditionRemovedOption.getCosmeticEffectWhileActive(targetModelOption.entityId)
             );
           }
         }
@@ -182,16 +192,25 @@ export async function activatedTriggersGameUpdateHandler(update: {
     }
 
     handleThreatChangesUpdate(update.command);
-  });
 
-  // conditions may have added trackers that we need to account for
-  useGameStore.getState().mutateState((gameState) => {
-    const game = gameState.game;
-    if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-    const partyResult = gameState.getParty();
-    if (partyResult instanceof Error) throw partyResult;
-    const battleOption = AdventuringParty.getBattleOption(partyResult, game);
-    battleOption?.turnOrderManager.updateTrackers(game, partyResult);
+    // must despawn AFTER startOrStopCosmeticEffects so we can do a little puff of smoke
+    // on an entity right before we despawn it
+    if (command.actionEntityIdsDespawned) {
+      for (const { id, cleanupMode } of command.actionEntityIdsDespawned) {
+        AdventuringParty.unregisterActionEntity(partyResult, id, battleOption);
+        getGameWorld().actionEntityManager.unregister(id, cleanupMode);
+      }
+    }
+
+    if (command.actionEntityIdsToHide) {
+      for (const id of command.actionEntityIdsToHide) {
+        const actionEntity = getGameWorld().actionEntityManager.findOne(id);
+        actionEntity.setVisibility(0);
+
+        if (actionEntity.name === ActionEntityName.IceBolt)
+          actionEntity.cosmeticEffectManager.softCleanup(() => {});
+      }
+    }
   });
 
   for (const { ownerId, equipment } of brokenHoldablesAndTheirOwnerIds)
@@ -221,5 +240,4 @@ export async function activatedTriggersGameUpdateHandler(update: {
   }
 
   update.isComplete = true;
-  // or show floating text for counterspell, "triggered tech burst" "psionic explosion"
 }

@@ -2,20 +2,15 @@ import {
   Affix,
   AffixCategory,
   AffixType,
-  ArrayUtils,
-  CORE_ATTRIBUTES,
   CombatAttribute,
   DEEPEST_FLOOR,
   EquipmentTraitType,
   NumberRange,
   TaggedAffixType,
   randBetween,
-  throwIfError,
 } from "@speed-dungeon/common";
 import { rngSingleton } from "../../singletons/index.js";
 import { EquipmentGenerationTemplate } from "./equipment-templates/equipment-generation-template-abstract-classes.js";
-import { getRandomValidSuffixTypes } from "./equipment-generation-builder.js";
-import { copySelectedModifiersFromResourceChangeSource } from "@speed-dungeon/common/src/combat/combat-actions/action-calculation-utils/copy-selected-modifiers-from-hp-change-source.js";
 
 export function rollAffixTier(maxTier: number, itemLevel: number) {
   const maxTierModifier = itemLevel / DEEPEST_FLOOR;

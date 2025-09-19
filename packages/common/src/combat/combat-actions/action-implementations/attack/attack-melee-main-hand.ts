@@ -1,4 +1,5 @@
 import {
+  CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -6,88 +7,77 @@ import {
 } from "../../index.js";
 import { ATTACK } from "./index.js";
 import { CombatantEquipment } from "../../../../combatants/index.js";
-import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
-import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
-import {
-  GENERIC_TARGETING_PROPERTIES,
-  TargetingPropertiesTypes,
-} from "../../combat-action-targeting-properties.js";
-import {
-  ActionHitOutcomePropertiesBaseTypes,
-  CombatActionHitOutcomeProperties,
-  CombatActionResource,
-  GENERIC_HIT_OUTCOME_PROPERTIES,
-} from "../../combat-action-hit-outcome-properties.js";
-import {
-  ActionCostPropertiesBaseTypes,
-  BASE_ACTION_COST_PROPERTIES,
-} from "../../combat-action-cost-properties.js";
-import { getMeleeAttackBaseStepsConfig } from "./base-melee-attack-steps-config.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
+import { HoldableSlotType } from "../../../../items/equipment/slots.js";
+import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
+import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { COMBAT_ACTIONS } from "../index.js";
-import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
-import { CombatAttribute } from "../../../../combatants/attributes/index.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
+import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
+import {
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
+  createHitOutcomeProperties,
+} from "../generic-action-templates/hit-outcome-properties-templates/index.js";
+import {
+  COST_PROPERTIES_TEMPLATE_GETTERS,
+  createCostPropertiesConfig,
+} from "../generic-action-templates/cost-properties-templates/index.js";
+import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import { ATTACK_MELEE_OFF_HAND } from "./attack-melee-off-hand.js";
 
-const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
-  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],
-  addsPropertiesFromHoldableSlot: HoldableSlotType.MainHand,
+const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
+hitOutcomeOverrides.addsPropertiesFromHoldableSlot = HoldableSlotType.MainHand;
 
-  resourceChangePropertiesGetters: {
-    [CombatActionResource.HitPoints]: (user, actionLevel, primaryTarget) => {
-      const hpChangeProperties = getAttackResourceChangeProperties(
-        hitOutcomeProperties,
-        user,
-        actionLevel,
-        primaryTarget,
-        CombatAttribute.Strength
-      );
-      if (hpChangeProperties instanceof Error) return hpChangeProperties;
-      return hpChangeProperties;
-    },
+const hitOutcomeProperties = createHitOutcomeProperties(
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.MELEE_ATTACK,
+  hitOutcomeOverrides
+);
+
+const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
+  requiresCombatTurnInThisContext: (context, self) => {
+    const user = context.combatantContext.combatant.combatantProperties;
+
+    if (CombatantEquipment.isWearingUsableShield(user)) {
+      return true;
+    }
+    if (CombatantEquipment.isWearingUsableTwoHandedMeleeWeapon(user)) {
+      return true;
+    }
+    if (
+      !COMBAT_ACTIONS[CombatActionName.AttackMeleeOffhand].shouldExecute(context, context.tracker)
+    ) {
+      return true; // check if offhand should execute, otherwise if we kill an enemy with main hand
+    }
+    // we won't end our turn
+    if (context.tracker.wasCountered()) {
+      return true;
+    }
+
+    return false;
   },
 };
+const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_RANGED_MAIN_HAND_ATTACK;
+const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
 
 export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   description: "Attack target using equipment in main hand",
-  origin: CombatActionOrigin.Attack,
-  getRequiredRange: () => CombatActionRequiredRange.Melee,
-  getOnUseMessage: null,
-  targetingProperties: GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent],
-  costProperties: {
-    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
-    incursDurabilityLoss: {
-      [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnHit },
-    },
-    requiresCombatTurnInThisContext: (context) => {
-      const user = context.combatantContext.combatant.combatantProperties;
+  combatLogMessageProperties: new CombatActionCombatLogProperties({
+    origin: CombatActionOrigin.Attack,
+  }),
+  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.COPY_PARENT_HOSTILE(),
+  costProperties,
+  hitOutcomeProperties,
+  stepsConfig: ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.MAIN_HAND_MELEE_ATTACK(),
 
-      if (CombatantEquipment.isWearingUsableShield(user)) {
-        return true;
-      }
-      if (CombatantEquipment.isWearingUsableTwoHandedMeleeWeapon(user)) {
-        return true;
-      }
-      if (
-        !COMBAT_ACTIONS[CombatActionName.AttackMeleeOffhand].shouldExecute(
-          context.combatantContext,
-          context.tracker
-        )
-      ) {
-        return true; // check if offhand should execute, otherwise if we kill an enemy with main hand
-      }
-      // we won't end our turn
-      if (context.tracker.wasCountered()) {
-        return true;
-      }
-
-      return false;
+  hierarchyProperties: {
+    ...BASE_ACTION_HIERARCHY_PROPERTIES,
+    getParent: () => ATTACK,
+    getChildren: (context, self) => {
+      const toReturn = [];
+      if (!ATTACK_MELEE_MAIN_HAND.costProperties.requiresCombatTurnInThisContext(context, self))
+        toReturn.push(ATTACK_MELEE_OFF_HAND);
+      return toReturn;
     },
   },
-  hitOutcomeProperties,
-  stepsConfig: getMeleeAttackBaseStepsConfig(HoldableSlotType.MainHand),
-  shouldExecute: () => true,
-  getChildren: () => [],
-  getParent: () => ATTACK,
 };
 
 export const ATTACK_MELEE_MAIN_HAND = new CombatActionLeaf(
