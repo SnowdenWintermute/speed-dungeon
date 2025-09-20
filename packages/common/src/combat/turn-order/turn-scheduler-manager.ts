@@ -85,6 +85,12 @@ export class ConditionTurnScheduler implements ITurnScheduler {
   }
 
   isStale(party: AdventuringParty) {
+    const combatantResult = AdventuringParty.getCombatant(party, this.combatantId);
+    const combatantIsDeadOrMissing =
+      combatantResult instanceof Error ||
+      CombatantProperties.isDead(combatantResult.combatantProperties);
+    if (combatantIsDeadOrMissing) return true;
+
     const conditionResult = AdventuringParty.getConditionOnCombatant(
       party,
       this.combatantId,
@@ -159,30 +165,7 @@ export class TurnSchedulerManager {
   }
 
   getMatchingSchedulerFromTurnOrderTracker(turnOrderTracker: TurnTracker) {
-    let schedulerOption: undefined | ITurnScheduler = undefined;
-
-    const taggedIdOfTrackedEntity = turnOrderTracker.getTaggedIdOfTrackedEntity();
-
-    // @REFACTOR to Tracker.findMatchingScheduler(schedulers)
-
-    switch (taggedIdOfTrackedEntity.type) {
-      case TurnTrackerEntityType.Combatant:
-        schedulerOption = this.schedulers
-          .filter((item) => item instanceof CombatantTurnScheduler)
-          .find((item) => item.combatantId === taggedIdOfTrackedEntity.combatantId);
-        break;
-      case TurnTrackerEntityType.Condition:
-        schedulerOption = this.schedulers
-          .filter((item) => item instanceof ConditionTurnScheduler)
-          .find((item) => item.conditionId === taggedIdOfTrackedEntity.conditionId);
-        break;
-      case TurnTrackerEntityType.ActionEntity:
-        schedulerOption = this.schedulers
-          .filter((item) => item instanceof ActionEntityTurnScheduler)
-          .find((item) => item.actionEntityId === taggedIdOfTrackedEntity.actionEntityId);
-        break;
-    }
-
+    const schedulerOption = turnOrderTracker.getMatchingScheduler(this.schedulers);
     if (schedulerOption === undefined) throw new Error("expected turnSchedulerTracker was missing");
     return schedulerOption;
   }
@@ -191,11 +174,10 @@ export class TurnSchedulerManager {
     const toRemove: ITurnScheduler[] = [];
 
     for (const scheduler of this.schedulers) {
-      if (scheduler.isStale(party)) {
-        toRemove.push(scheduler);
-      }
+      if (scheduler.isStale(party)) toRemove.push(scheduler);
     }
 
+    // @PERF - probably a faster way to do this
     this.schedulers = this.schedulers.filter((scheduler) => {
       for (const schedulerToRemove of toRemove) {
         if (scheduler.isMatch(schedulerToRemove)) return false;

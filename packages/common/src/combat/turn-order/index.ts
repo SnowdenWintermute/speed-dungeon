@@ -1,3 +1,4 @@
+import { IVolumeAudioOptions } from "@babylonjs/core/AudioV2/abstractAudio/subNodes/volumeAudioSubNode.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Battle } from "../../battle/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
@@ -11,7 +12,13 @@ import {
   BASE_ACTION_DELAY_MULTIPLIER,
   SPEED_DELAY_RECOVERY_WEIGHT,
 } from "./consts.js";
-import { TurnSchedulerManager } from "./turn-scheduler-manager.js";
+import {
+  ActionEntityTurnScheduler,
+  CombatantTurnScheduler,
+  ConditionTurnScheduler,
+  ITurnScheduler,
+  TurnSchedulerManager,
+} from "./turn-scheduler-manager.js";
 
 export class TurnOrderManager {
   minTrackersCount: number = 12;
@@ -35,11 +42,11 @@ export class TurnOrderManager {
     actionNameOption: null | CombatActionName
   ): Milliseconds {
     const fastest = this.getFastestActorTurnOrderTracker();
-    const tracker = this.turnSchedulerManager.getMatchingSchedulerFromTurnOrderTracker(fastest);
+    const scheduler = this.turnSchedulerManager.getMatchingSchedulerFromTurnOrderTracker(fastest);
 
     let speedResult = 0;
     try {
-      speedResult = tracker.getSpeed(party);
+      speedResult = scheduler.getSpeed(party);
     } catch (err) {
       console.info("couldn't get tracker speed, maybe its associated entity was already removed");
     }
@@ -47,7 +54,7 @@ export class TurnOrderManager {
     // @TODO - get delay multiplier from action
     const delay = TurnOrderManager.getActionDelayCost(speedResult, BASE_ACTION_DELAY_MULTIPLIER);
 
-    if (actionNameOption) tracker.accumulatedDelay += delay;
+    if (actionNameOption) scheduler.accumulatedDelay += delay;
 
     return delay;
   }
@@ -157,6 +164,7 @@ export abstract class TurnTracker {
   constructor(public readonly timeOfNextMove: number) {}
 
   abstract getTaggedIdOfTrackedEntity(): TaggedTurnTrackerTrackedEntityId;
+  abstract getMatchingScheduler(schedulers: ITurnScheduler[]): undefined | ITurnScheduler;
 
   getId() {
     const id =
@@ -175,6 +183,12 @@ export class CombatantTurnTracker extends TurnTracker {
 
   getTaggedIdOfTrackedEntity(): TaggedCombatantTurnTrackerCombatantId {
     return { type: TurnTrackerEntityType.Combatant, combatantId: this.combatantId };
+  }
+
+  getMatchingScheduler(schedulers: ITurnScheduler[]) {
+    return schedulers
+      .filter((item) => item instanceof CombatantTurnScheduler)
+      .find((item) => item.combatantId === this.combatantId);
   }
 }
 
@@ -212,6 +226,12 @@ export class ConditionTurnTracker extends TurnTracker {
   getId() {
     return this.timeOfNextMove + this.conditionId;
   }
+
+  getMatchingScheduler(schedulers: ITurnScheduler[]) {
+    return schedulers
+      .filter((item) => item instanceof ConditionTurnScheduler)
+      .find((item) => item.conditionId === this.conditionId);
+  }
 }
 
 export class ActionEntityTurnTracker extends TurnTracker {
@@ -241,6 +261,12 @@ export class ActionEntityTurnTracker extends TurnTracker {
 
   getId() {
     return this.timeOfNextMove + this.actionEntityId;
+  }
+
+  getMatchingScheduler(schedulers: ITurnScheduler[]) {
+    return schedulers
+      .filter((item) => item instanceof ActionEntityTurnScheduler)
+      .find((item) => item.actionEntityId === this.actionEntityId);
   }
 }
 
