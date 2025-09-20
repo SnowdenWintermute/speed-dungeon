@@ -12,7 +12,7 @@ export function getGameWorld() {
 
 export default function SceneManager() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const debugRef = useRef<HTMLUListElement>();
+  const debugRef = useRef<HTMLUListElement>(null);
   const resizeHandlerRef = useRef<(e: UIEvent) => void | null>(null);
 
   useEffect(() => {}, []);
