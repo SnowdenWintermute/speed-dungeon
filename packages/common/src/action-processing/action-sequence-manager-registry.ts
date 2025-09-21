@@ -1,8 +1,4 @@
-import {
-  COMBAT_ACTION_NAME_STRINGS,
-  COMBAT_ACTIONS,
-  CombatActionExecutionIntent,
-} from "../combat/index.js";
+import { CombatActionExecutionIntent } from "../combat/index.js";
 import { CombatantContext } from "../combatant-context/index.js";
 import { CombatantSpecies } from "../combatants/combatant-species.js";
 import { Combatant } from "../combatants/index.js";
@@ -10,17 +6,9 @@ import { EntityId, Milliseconds } from "../primatives/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { SequentialIdGenerator } from "../utils/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
-import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
-  ActionResolutionStepType,
-} from "./action-steps/index.js";
-import { CombatantMotionActionResolutionStep } from "./action-steps/motion-steps/combatant-motion.js";
+import { ACTION_RESOLUTION_STEP_TYPE_STRINGS } from "./action-steps/index.js";
 import { ActionTracker } from "./action-tracker.js";
-import {
-  NestedNodeReplayEvent,
-  NestedNodeReplayEventUtls,
-  ReplayEventType,
-} from "./replay-events.js";
+import { NestedNodeReplayEvent, ReplayEventType } from "./replay-events.js";
 
 export class TimeKeeper {
   ms: number = 0;

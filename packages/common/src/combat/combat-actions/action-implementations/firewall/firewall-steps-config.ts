@@ -151,6 +151,7 @@ const stepsConfig = createStepsConfig(() => base, {
 export const FIREWALL_STEPS_CONFIG = stepsConfig;
 
 export function getFirewallStacksByLevel(actionLevel: number) {
-  const baseFirewallLifetime = 1;
+  const baseFirewallLifetime = 0;
+  if (actionLevel === 1) return 2;
   return actionLevel + baseFirewallLifetime;
 }

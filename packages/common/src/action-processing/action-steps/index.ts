@@ -101,6 +101,11 @@ export interface ActionIntentAndUser {
   actionExecutionIntent: CombatActionExecutionIntent;
 }
 
+export interface ActionIntentOptionAndUser {
+  user: Combatant;
+  actionExecutionIntent: null | CombatActionExecutionIntent;
+}
+
 export abstract class ActionResolutionStep {
   protected elapsed: Milliseconds = 0;
   constructor(

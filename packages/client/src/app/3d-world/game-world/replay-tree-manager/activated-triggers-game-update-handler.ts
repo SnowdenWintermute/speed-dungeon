@@ -5,10 +5,8 @@ import {
   ActionPayableResource,
   ActivatedTriggersGameUpdateCommand,
   AdventuringParty,
-  COMBATANT_CLASS_NAME_STRINGS,
   COMBATANT_CONDITION_CONSTRUCTORS,
   COMBAT_ACTIONS,
-  CleanupMode,
   CombatantCondition,
   CombatantProperties,
   DurabilityChangesByEntityId,
@@ -29,7 +27,7 @@ import { postBrokenHoldableMessages } from "./post-broken-holdable-messages";
 import { handleThreatChangesUpdate } from "./handle-threat-changes";
 import getParty from "@/utils/getParty";
 
-// @REFACTOR
+// @REFACTOR - break into smaller functions
 export async function activatedTriggersGameUpdateHandler(update: {
   command: ActivatedTriggersGameUpdateCommand;
   isComplete: boolean;

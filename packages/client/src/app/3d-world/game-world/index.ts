@@ -64,9 +64,9 @@ export class GameWorld {
     // this.imageCreatorScene = createImageCreatorScene(this.imageCreatorEngine);
 
     this.engine = new Engine(canvas, true);
-    // this.engine.setHardwareScalingLevel(10); // renders at lower resolutions
     this.scene = new Scene(this.engine);
 
+    // this.engine.setHardwareScalingLevel(10); // renders at lower resolutions
     this.debug.debugRef = debugRef;
     [this.camera, this.sun, this.groundTexture, this.ground] = this.initScene();
     this.camera.layerMask = LAYER_MASK_ALL;

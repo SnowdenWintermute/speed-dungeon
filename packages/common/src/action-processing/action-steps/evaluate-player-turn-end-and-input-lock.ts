@@ -87,7 +87,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     // we would have already removed their turn tracker on death
     const { actionName } = tracker.actionExecutionIntent;
 
-    battleOption.turnOrderManager.updateSchedulerWithExecutedActionDelay(party, actionName);
+    battleOption.turnOrderManager.updateFastestSchedulerWithExecutedActionDelay(party, actionName);
     battleOption.turnOrderManager.updateTrackers(game, party);
 
     sequentialActionManagerRegistry.setTurnEnded();

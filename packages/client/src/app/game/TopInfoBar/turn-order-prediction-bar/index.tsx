@@ -2,6 +2,7 @@ import {
   ActionEntityTurnTracker,
   CombatantTurnTracker,
   ConditionTurnTracker,
+  TurnTracker,
 } from "@speed-dungeon/common";
 import React from "react";
 import TurnOrderTrackerIcon from "./TurnTrackerIcon";
@@ -12,7 +13,7 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import ActionEntityTurnOrderTrackerIcon from "./ActionEntityTurnOrderIcon";
 
 interface Props {
-  trackers: (CombatantTurnTracker | ConditionTurnTracker)[];
+  trackers: TurnTracker[];
 }
 
 export default function TurnPredictionOrderBar({ trackers }: Props) {
