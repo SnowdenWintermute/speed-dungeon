@@ -6,14 +6,10 @@ import { ActionEntityTurnScheduler } from "./action-entity-turn-scheduler.js";
 import { CombatantTurnScheduler } from "./combatant-turn-scheduler.js";
 import { ConditionTurnScheduler } from "./condition-turn-scheduler.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "./consts.js";
-import {
-  CombatantTurnTracker,
-  TaggedTurnTrackerTrackedEntityId,
-  TurnOrderManager,
-  TurnTracker,
-  TurnTrackerEntityType,
-} from "./index.js";
+import { TurnOrderManager } from "./turn-order-manager.js";
 import { ITurnScheduler } from "./turn-schedulers.js";
+import { TaggedTurnTrackerTrackedEntityId, TurnTrackerEntityType } from "./turn-tracker-factory.js";
+import { CombatantTurnTracker, TurnTracker } from "./turn-trackers.js";
 
 export enum TurnTrackerSortableProperty {
   TimeOfNextMove,
@@ -39,6 +35,41 @@ export class TurnSchedulerManager {
         ({ appliedTo, condition }) => new ConditionTurnScheduler(appliedTo, condition.id)
       ),
     ];
+  }
+
+  buildNewList(game: SpeedDungeonGame, party: AdventuringParty) {
+    this.removeStaleTurnSchedulers(party);
+    for (const scheduler of this.schedulers) scheduler.reset(party);
+
+    const turnTrackerList: TurnTracker[] = [];
+
+    let numCombatantTrackersCreated = 0;
+
+    const ITERATION_LIMIT = 40;
+    let iterationLimiter = 0;
+
+    while (
+      numCombatantTrackersCreated < this.minTurnTrackersCount &&
+      iterationLimiter < ITERATION_LIMIT
+    ) {
+      iterationLimiter += 1;
+      this.sortSchedulers(TurnTrackerSortableProperty.TimeOfNextMove, party);
+
+      const fastestActor = this.getFirstScheduler();
+
+      const trackerOption = fastestActor.createTurnTrackerOption(game, party);
+      if (trackerOption instanceof CombatantTurnTracker) numCombatantTrackersCreated += 1;
+
+      if (trackerOption) turnTrackerList.push(trackerOption);
+      const delay = TurnOrderManager.getActionDelayCost(
+        fastestActor.getSpeed(party),
+        BASE_ACTION_DELAY_MULTIPLIER
+      );
+
+      fastestActor.timeOfNextMove += delay;
+    }
+
+    return turnTrackerList;
   }
 
   getSchedulerByCombatantId(entityId: EntityId) {
@@ -114,40 +145,5 @@ export class TurnSchedulerManager {
       scheduler.accumulatedDelay = startingDelay;
       this.schedulers.push(scheduler);
     }
-  }
-
-  buildNewList(game: SpeedDungeonGame, party: AdventuringParty) {
-    this.removeStaleTurnSchedulers(party);
-    for (const scheduler of this.schedulers) scheduler.reset(party);
-
-    const turnTrackerList: TurnTracker[] = [];
-
-    let numCombatantTrackersCreated = 0;
-
-    const ITERATION_LIMIT = 40;
-    let iterationLimiter = 0;
-
-    while (
-      numCombatantTrackersCreated < this.minTurnTrackersCount &&
-      iterationLimiter < ITERATION_LIMIT
-    ) {
-      iterationLimiter += 1;
-      this.sortSchedulers(TurnTrackerSortableProperty.TimeOfNextMove, party);
-
-      const fastestActor = this.getFirstScheduler();
-
-      const trackerOption = fastestActor.createTurnTrackerOption(game, party);
-      if (trackerOption instanceof CombatantTurnTracker) numCombatantTrackersCreated += 1;
-
-      if (trackerOption) turnTrackerList.push(trackerOption);
-      const delay = TurnOrderManager.getActionDelayCost(
-        fastestActor.getSpeed(party),
-        BASE_ACTION_DELAY_MULTIPLIER
-      );
-
-      fastestActor.timeOfNextMove += delay;
-    }
-
-    return turnTrackerList;
   }
 }

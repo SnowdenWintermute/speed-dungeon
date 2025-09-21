@@ -37,7 +37,7 @@ import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { AbilityTreeAbility } from "../../abilities/index.js";
 import { CombatActionCombatLogProperties } from "./combat-action-combat-log-properties.js";
-import { TurnTrackerEntityType } from "../turn-order/index.js";
+import { TurnTrackerEntityType } from "../turn-order/turn-tracker-factory.js";
 
 export interface CombatActionComponentConfig {
   // unique to each action

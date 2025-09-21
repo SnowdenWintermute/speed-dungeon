@@ -13,7 +13,7 @@ import { BurningCombatantCondition } from "./burning.js";
 import { PrimedForExplosionCombatantCondition } from "./primed-for-explosion.js";
 import { PrimedForIceBurstCombatantCondition } from "./primed-for-ice-burst.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { TurnOrderManager, TurnTrackerEntityType } from "../../combat/turn-order/index.js";
+import { TurnOrderManager, TurnTrackerEntityType } from "../../combat/index.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "../../combat/turn-order/consts.js";
 import { BlindedCombatantCondition } from "./blinded.js";
 

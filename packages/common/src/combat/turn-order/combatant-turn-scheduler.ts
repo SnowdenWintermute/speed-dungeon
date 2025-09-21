@@ -3,7 +3,7 @@ import { EntityId } from "../../primatives/index.js";
 import { CombatantProperties, CombatAttribute } from "../../combatants/index.js";
 import { ITurnScheduler, TurnScheduler } from "./turn-schedulers.js";
 import { SpeedDungeonGame } from "../../game/index.js";
-import { CombatantTurnTracker } from "./index.js";
+import { CombatantTurnTracker } from "./turn-trackers.js";
 
 export class CombatantTurnScheduler extends TurnScheduler implements ITurnScheduler {
   constructor(public readonly combatantId: EntityId) {

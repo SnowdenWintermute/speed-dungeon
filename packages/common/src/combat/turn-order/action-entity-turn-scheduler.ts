@@ -1,8 +1,8 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../primatives/index.js";
-import { ActionEntityTurnTracker } from "./index.js";
 import { ITurnScheduler, TurnScheduler } from "./turn-schedulers.js";
+import { ActionEntityTurnTracker } from "./turn-trackers.js";
 
 export class ActionEntityTurnScheduler extends TurnScheduler implements ITurnScheduler {
   constructor(public readonly actionEntityId: EntityId) {

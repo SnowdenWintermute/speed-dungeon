@@ -1,7 +1,8 @@
-import { TurnOrderManager, TurnTracker } from "./index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "./consts.js";
 import { SpeedDungeonGame } from "../../game/index.js";
+import { TurnTracker } from "./turn-trackers.js";
+import { TurnOrderManager } from "./turn-order-manager.js";
 
 export interface ITurnScheduler {
   timeOfNextMove: number;

@@ -29,7 +29,7 @@ export async function actionCompletionGameUpdateHandler(update: {
 
       const actionNameOption = update.command.actionName;
 
-      battleOption.turnOrderManager.updateSchedulerWithExecutedActionDelay(
+      battleOption.turnOrderManager.updateFastestSchedulerWithExecutedActionDelay(
         partyOption,
         actionNameOption
       );
