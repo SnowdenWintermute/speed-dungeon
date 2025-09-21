@@ -2,13 +2,13 @@ import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Battle } from "../../battle/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../primatives/index.js";
-import { ActionEntityTurnScheduler } from "./action-entity-turn-scheduler.js";
 import { CombatantTurnScheduler } from "./combatant-turn-scheduler.js";
 import { ConditionTurnScheduler } from "./condition-turn-scheduler.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "./consts.js";
 import { TurnOrderManager } from "./turn-order-manager.js";
+import { TurnSchedulerFactory } from "./turn-scheduler-factory.js";
 import { ITurnScheduler } from "./turn-schedulers.js";
-import { TaggedTurnTrackerTrackedEntityId, TurnTrackerEntityType } from "./turn-tracker-factory.js";
+import { TaggedTurnTrackerTrackedEntityId } from "./turn-tracker-tagged-tracked-entity-ids.js";
 import { CombatantTurnTracker, TurnTracker } from "./turn-trackers.js";
 
 export enum TurnTrackerSortableProperty {
@@ -132,18 +132,8 @@ export class TurnSchedulerManager {
     return fastest;
   }
 
-  addNewSchedulerTracker(from: TaggedTurnTrackerTrackedEntityId, startingDelay: number) {
-    if (from.type === TurnTrackerEntityType.Combatant) {
-      throw new Error("adding new combatant turn scheduler tracker not yet implemented");
-    } else if (from.type === TurnTrackerEntityType.Condition) {
-      const scheduler = new ConditionTurnScheduler(from.combatantId, from.conditionId);
-
-      scheduler.accumulatedDelay = startingDelay;
-      this.schedulers.push(scheduler);
-    } else if (from.type === TurnTrackerEntityType.ActionEntity) {
-      const scheduler = new ActionEntityTurnScheduler(from.actionEntityId);
-      scheduler.accumulatedDelay = startingDelay;
-      this.schedulers.push(scheduler);
-    }
+  addNewScheduler(from: TaggedTurnTrackerTrackedEntityId, startingDelay: number) {
+    const scheduler = TurnSchedulerFactory.create(from, startingDelay);
+    this.schedulers.push(scheduler);
   }
 }

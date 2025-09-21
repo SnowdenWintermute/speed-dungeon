@@ -8,7 +8,7 @@ import {
   BASE_ACTION_DELAY_MULTIPLIER,
   SPEED_DELAY_RECOVERY_WEIGHT,
 } from "./consts.js";
-import { TurnTrackerEntityType } from "./turn-tracker-factory.js";
+import { TurnTrackerEntityType } from "./turn-tracker-tagged-tracked-entity-ids.js";
 import { TurnSchedulerManager } from "./turn-scheduler-manager.js";
 import { TurnTracker } from "./turn-trackers.js";
 

@@ -22,7 +22,6 @@ import {
   ActionResolutionStepContext,
   ActionTracker,
 } from "../../action-processing/index.js";
-import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
 import {
   CombatActionTargetingProperties,
   CombatActionTargetingPropertiesConfig,
@@ -37,7 +36,7 @@ import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { AbilityTreeAbility } from "../../abilities/index.js";
 import { CombatActionCombatLogProperties } from "./combat-action-combat-log-properties.js";
-import { TurnTrackerEntityType } from "../turn-order/turn-tracker-factory.js";
+import { TurnTrackerEntityType } from "../turn-order/turn-tracker-tagged-tracked-entity-ids.js";
 
 export interface CombatActionComponentConfig {
   // unique to each action

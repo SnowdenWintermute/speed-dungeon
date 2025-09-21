@@ -250,7 +250,7 @@ export abstract class CombatantCondition {
 
     const combatantApplyingAccumulatedDelay = appliedByScheduler.accumulatedDelay;
 
-    battleOption.turnOrderManager.turnSchedulerManager.addNewSchedulerTracker(
+    battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
       {
         type: TurnTrackerEntityType.Condition,
         combatantId: combatant.entityProperties.id,

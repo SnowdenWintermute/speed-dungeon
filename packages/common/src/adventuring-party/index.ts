@@ -109,7 +109,7 @@ export class AdventuringParty {
 
       const startingDelay = turnOrderSpeedOption + fastestSchedulerDelay;
 
-      battleOption.turnOrderManager.turnSchedulerManager.addNewSchedulerTracker(
+      battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
         { type: TurnTrackerEntityType.ActionEntity, actionEntityId: entity.entityProperties.id },
         startingDelay
       );
