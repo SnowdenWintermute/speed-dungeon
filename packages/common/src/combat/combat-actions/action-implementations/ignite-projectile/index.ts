@@ -1,4 +1,3 @@
-import { Vector3 } from "@babylonjs/core";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { ActivatedTriggersGameUpdateCommand } from "../../../../action-processing/game-update-commands.js";
 import {
