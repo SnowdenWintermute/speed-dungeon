@@ -13,9 +13,9 @@ import { TurnSchedulerManager } from "./turn-scheduler-manager.js";
 import { TurnTracker } from "./turn-trackers.js";
 
 export class TurnOrderManager {
-  minTrackersCount: number = 12;
+  private minTrackersCount: number = 12;
   turnSchedulerManager: TurnSchedulerManager;
-  turnTrackers: TurnTracker[] = [];
+  private turnTrackers: TurnTracker[] = [];
   constructor(game: SpeedDungeonGame, party: AdventuringParty, battle: Battle) {
     this.turnSchedulerManager = new TurnSchedulerManager(this.minTrackersCount, game, battle);
     this.updateTrackers(game, party);
@@ -27,6 +27,10 @@ export class TurnOrderManager {
     const delay = actionDelayMultiplier * delayAfterSpeedBonus;
     const rounded = Math.floor(delay * 10);
     return rounded;
+  }
+
+  getTrackers() {
+    return this.turnTrackers;
   }
 
   updateFastestSchedulerWithExecutedActionDelay(

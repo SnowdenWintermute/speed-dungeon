@@ -23,9 +23,7 @@ export class BattleProcessor {
     private game: SpeedDungeonGame,
     private party: AdventuringParty,
     private battle: Battle
-  ) {
-    //
-  }
+  ) {}
 
   async processBattleUntilPlayerTurnOrConclusion() {
     const { gameServer, game, party, battle } = this;

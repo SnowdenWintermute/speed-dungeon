@@ -17,10 +17,10 @@ export enum TurnTrackerSortableProperty {
 }
 
 export class TurnSchedulerManager {
-  schedulers: ITurnScheduler[] = [];
+  private schedulers: ITurnScheduler[] = [];
 
   constructor(
-    public readonly minTurnTrackersCount: number,
+    private minTurnTrackersCount: number,
     game: SpeedDungeonGame,
     battle: Battle
   ) {
