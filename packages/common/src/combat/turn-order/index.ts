@@ -1,24 +1,18 @@
-import { IVolumeAudioOptions } from "@babylonjs/core/AudioV2/abstractAudio/subNodes/volumeAudioSubNode.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Battle } from "../../battle/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId, Milliseconds } from "../../primatives/index.js";
-import {
-  COMBAT_ACTION_NAME_STRINGS,
-  CombatActionName,
-} from "../combat-actions/combat-action-names.js";
+import { CombatActionName } from "../combat-actions/combat-action-names.js";
+import { ActionEntityTurnScheduler } from "./action-entity-turn-scheduler.js";
+import { CombatantTurnScheduler } from "./combatant-turn-scheduler.js";
+import { ConditionTurnScheduler } from "./condition-turn-scheduler.js";
 import {
   BASE_ACTION_DELAY,
   BASE_ACTION_DELAY_MULTIPLIER,
   SPEED_DELAY_RECOVERY_WEIGHT,
 } from "./consts.js";
-import {
-  ActionEntityTurnScheduler,
-  CombatantTurnScheduler,
-  ConditionTurnScheduler,
-  ITurnScheduler,
-  TurnSchedulerManager,
-} from "./turn-scheduler-manager.js";
+import { TurnSchedulerManager } from "./turn-scheduler-manager.js";
+import { ITurnScheduler } from "./turn-schedulers.js";
 
 export class TurnOrderManager {
   minTrackersCount: number = 12;
@@ -186,9 +180,9 @@ export class CombatantTurnTracker extends TurnTracker {
   }
 
   getMatchingScheduler(schedulers: ITurnScheduler[]) {
-    return schedulers
-      .filter((item) => item instanceof CombatantTurnScheduler)
-      .find((item) => item.combatantId === this.combatantId);
+    return schedulers.find(
+      (item) => item instanceof CombatantTurnScheduler && item.combatantId === this.combatantId
+    );
   }
 }
 
@@ -228,9 +222,9 @@ export class ConditionTurnTracker extends TurnTracker {
   }
 
   getMatchingScheduler(schedulers: ITurnScheduler[]) {
-    return schedulers
-      .filter((item) => item instanceof ConditionTurnScheduler)
-      .find((item) => item.conditionId === this.conditionId);
+    return schedulers.find(
+      (item) => item instanceof ConditionTurnScheduler && item.conditionId === this.conditionId
+    );
   }
 }
 
@@ -264,9 +258,10 @@ export class ActionEntityTurnTracker extends TurnTracker {
   }
 
   getMatchingScheduler(schedulers: ITurnScheduler[]) {
-    return schedulers
-      .filter((item) => item instanceof ActionEntityTurnScheduler)
-      .find((item) => item.actionEntityId === this.actionEntityId);
+    return schedulers.find(
+      (item) =>
+        item instanceof ActionEntityTurnScheduler && item.actionEntityId === this.actionEntityId
+    );
   }
 }
 
