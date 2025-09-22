@@ -1,18 +1,8 @@
-import {
-  COMBAT_ACTIONS,
-  COMBAT_ACTION_NAME_STRINGS,
-  CombatActionExecutionIntent,
-} from "../combat/index.js";
-import { CombatantContext } from "../combatant-context/index.js";
-import { ERROR_MESSAGES } from "../errors/index.js";
+import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../combat/index.js";
 import { ActionSequenceManagerRegistry } from "./action-sequence-manager-registry.js";
 import { NestedNodeReplayEvent, NestedNodeReplayEventUtls } from "./replay-events.js";
 import { ActionTracker } from "./action-tracker.js";
 import { IdGenerator } from "../utility-classes/index.js";
-import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
-  ActionResolutionStepType,
-} from "./action-steps/index.js";
 import { ActionUserContext } from "../combatant-context/action-user.js";
 
 export class ActionSequenceManager {
@@ -95,7 +85,7 @@ export class ActionSequenceManager {
     }
   }
 
-  processCurrentStep(combatantContext: CombatantContext) {
+  processCurrentStep(actionUserContext: ActionUserContext) {
     let trackerOption = this.getCurrentTracker();
     if (!trackerOption) return;
     let currentStep = trackerOption.currentStep;
@@ -116,7 +106,7 @@ export class ActionSequenceManager {
       sequentialActionManagerRegistry.registerActions(
         this,
         trackerOption,
-        combatantContext,
+        actionUserContext,
         branchingActions
       );
 

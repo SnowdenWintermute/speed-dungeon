@@ -37,7 +37,7 @@ export default function getCombatantTotalAttributes(
       addAttributesToAccumulator(supportClassAttributesByLevel, totalAttributes);
   }
 
-  const allEquippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties, {
+  const allEquippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties.equipment, {
     includeUnselectedHotswapSlots: false,
   });
   // you have to add the attributes first, then subtract them later if item is unusable

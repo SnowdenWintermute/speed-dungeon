@@ -20,8 +20,8 @@ import {
   CombatantCondition,
   createShimmedUserOfActionEntityAction,
 } from "../../combatants/index.js";
-import { CombatantContext } from "../../combatant-context/index.js";
 import { ACTION_ENTITY_ACTION_INTENT_GETTERS } from "../../action-entities/index.js";
+import { ActionUserContext } from "../../combatant-context/action-user.js";
 
 export abstract class TurnTracker {
   constructor(public readonly timeOfNextMove: number) {}
@@ -121,16 +121,14 @@ export class ConditionTurnTracker extends TurnTracker {
     const condition = throwIfError(
       AdventuringParty.getConditionOnCombatant(party, combatantId, conditionId)
     );
-    const combatant = AdventuringParty.getExpectedCombatant(party, combatantId);
-    const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
-    if (tickPropertiesOption === undefined)
-      throw new Error("expected condition tick properties were missing");
-    const onTick = tickPropertiesOption.onTick(
-      condition,
-      new CombatantContext(game, party, combatant)
-    );
 
-    const { actionExecutionIntent, user } = onTick.triggeredAction;
+    const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
+    if (tickPropertiesOption === null)
+      throw new Error("expected condition tick properties were missing");
+
+    const onTick = tickPropertiesOption.onTick(new ActionUserContext(game, party, condition));
+
+    const { actionExecutionIntent, user } = onTick.triggeredAction.actionIntentAndUser;
     return { actionExecutionIntent, user };
   }
 }

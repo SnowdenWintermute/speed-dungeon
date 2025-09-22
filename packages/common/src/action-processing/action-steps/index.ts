@@ -103,7 +103,7 @@ export interface ActionIntentAndUser {
 }
 
 export interface ActionIntentOptionAndUser {
-  user: Combatant;
+  user: IActionUser;
   actionExecutionIntent: null | CombatActionExecutionIntent;
 }
 

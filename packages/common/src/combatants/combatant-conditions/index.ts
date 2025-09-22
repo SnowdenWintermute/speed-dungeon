@@ -1,4 +1,5 @@
 import { immerable } from "immer";
+import { Option } from "../../primatives/index.js";
 import { Battle } from "../../battle/index.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionIntent } from "../../combat/combat-actions/combat-action-intent.js";
@@ -8,14 +9,7 @@ import { FriendOrFoe } from "../../combat/combat-actions/targeting-schemes-and-c
 import { CombatantContext } from "../../combatant-context/index.js";
 import { EntityId, EntityProperties, MaxAndCurrent } from "../../primatives/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
-import {
-  Combatant,
-  CombatantActionState,
-  CombatantAttributeRecord,
-  CombatantEquipment,
-  CombatantProperties,
-  Inventory,
-} from "../index.js";
+import { Combatant, CombatantAttributeRecord, CombatantProperties } from "../index.js";
 import { BurningCombatantCondition } from "./burning.js";
 import { PrimedForExplosionCombatantCondition } from "./primed-for-explosion.js";
 import { PrimedForIceBurstCombatantCondition } from "./primed-for-ice-burst.js";
@@ -24,7 +18,7 @@ import { TurnOrderManager, TurnTrackerEntityType } from "../../combat/index.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "../../combat/turn-order/consts.js";
 import { BlindedCombatantCondition } from "./blinded.js";
 import { ActionUserContext, IActionUser } from "../../combatant-context/action-user.js";
-import { ActionIntentAndUser, ActionIntentOptionAndUser } from "../../action-processing/index.js";
+import { ActionIntentAndUser } from "../../action-processing/index.js";
 import { ActionUserTargetingProperties } from "../../combatant-context/action-user-targeting-properties.js";
 
 export enum CombatantConditionName {
@@ -81,16 +75,12 @@ export interface ConditionAppliedBy {
   friendOrFoe: FriendOrFoe;
 }
 
-export abstract class ConditionTickProperties {
-  abstract getTickSpeed: (condition: CombatantCondition) => number;
-  abstract onTick: (
-    condition: CombatantCondition,
-    context: CombatantContext
-  ) => {
+export interface ConditionTickProperties {
+  getTickSpeed(condition: CombatantCondition): number;
+  onTick(context: ActionUserContext): {
     numStacksRemoved: number;
     triggeredAction: {
-      user: Combatant;
-      actionExecutionIntent: CombatActionExecutionIntent;
+      actionIntentAndUser: ActionIntentAndUser;
       getConsumableType?: () => null;
     };
   };
@@ -107,7 +97,8 @@ export abstract class CombatantCondition implements IActionUser {
   level: number = 0;
   intent: CombatActionIntent = CombatActionIntent.Malicious;
   removedOnDeath: boolean = true;
-  combatAttributes: CombatantAttributeRecord = {};
+  combatAttributes?: CombatantAttributeRecord = {};
+  targetingProperties?: ActionUserTargetingProperties;
   constructor(
     public id: EntityId,
     public appliedBy: ConditionAppliedBy,
@@ -115,13 +106,14 @@ export abstract class CombatantCondition implements IActionUser {
     public stacksOption: null | MaxAndCurrent
   ) {}
   getTargetingProperties(): ActionUserTargetingProperties {
-    throw new Error("Method not implemented.");
+    if (this.targetingProperties) return this.targetingProperties;
+    throw new Error("Condition was not configured with targetingProperties");
   }
   payResourceCosts = () => {};
   handleTurnEnded = () => {};
   getEntityId = () => this.id;
   getLevel = () => this.level;
-  getTotalAttributes = () => this.combatAttributes;
+  getTotalAttributes = () => this.combatAttributes || {};
   getOwnedAbilities() {
     return {};
   }
@@ -158,18 +150,7 @@ export abstract class CombatantCondition implements IActionUser {
     combatantId: EntityId
   ) => CosmeticEffectOnTargetTransformNode[];
 
-  abstract getTickSpeed?: (condition: CombatantCondition) => number;
-  abstract onTick?: (
-    condition: CombatantCondition,
-    actionUserContext: ActionUserContext
-  ) => {
-    numStacksRemoved: number;
-    triggeredAction: {
-      user: Combatant;
-      actionExecutionIntent: CombatActionExecutionIntent;
-      getConsumableType?: () => null;
-    };
-  };
+  abstract tickPropertiesOption: Option<ConditionTickProperties>;
 
   abstract getAttributeModifiers?(
     condition: CombatantCondition,
@@ -177,11 +158,7 @@ export abstract class CombatantCondition implements IActionUser {
   ): CombatantAttributeRecord;
 
   static getTickProperties(condition: CombatantCondition) {
-    if (!condition.onTick || !condition.getTickSpeed) return undefined;
-    return {
-      getTickSpeed: condition.getTickSpeed,
-      onTick: condition.onTick,
-    };
+    return condition.tickPropertiesOption;
   }
 
   static removeByNameFromCombatant(

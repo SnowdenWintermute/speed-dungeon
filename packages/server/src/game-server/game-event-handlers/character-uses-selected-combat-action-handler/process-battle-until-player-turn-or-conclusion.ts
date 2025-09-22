@@ -16,6 +16,7 @@ import { GameServer } from "../../index.js";
 import { checkForWipes, PartyWipes } from "./check-for-wipes.js";
 import { processCombatAction } from "./process-combat-action.js";
 import { getBattleConclusionCommandAndPayload } from "../action-command-handlers/get-battle-conclusion-command-and-payload.js";
+import { ActionUserContext } from "@speed-dungeon/common/src/combatant-context/action-user.js";
 
 export class BattleProcessor {
   constructor(
@@ -70,13 +71,13 @@ export class BattleProcessor {
       } else {
         const replayTreeResult = processCombatAction(
           actionExecutionIntent,
-          new CombatantContext(game, party, user)
+          new ActionUserContext(game, party, user)
         );
 
         if (replayTreeResult instanceof Error) return replayTreeResult;
         const { rootReplayNode } = replayTreeResult;
 
-        const actionUserId = user.entityProperties.id;
+        const actionUserId = user.getEntityId();
         const payload: CombatActionReplayTreePayload = {
           type: ActionCommandType.CombatActionReplayTree,
           actionUserId,

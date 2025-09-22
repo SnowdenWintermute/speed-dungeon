@@ -3,6 +3,7 @@ import {
   CombatantCondition,
   CombatantConditionName,
   ConditionAppliedBy,
+  ConditionTickProperties,
 } from "./index.js";
 import {
   Combatant,
@@ -37,8 +38,7 @@ export class PrimedForExplosionCombatantCondition extends CombatantCondition {
     if (stacksOption) this.stacksOption = stacksOption;
   }
 
-  getTickSpeed = undefined;
-  onTick = undefined;
+  tickPropertiesOption = null;
   getAttributeModifiers = undefined;
 
   triggeredWhenHitBy(actionName: CombatActionName) {

@@ -1,17 +1,11 @@
-import {
-  COMBATANT_CONDITION_NAME_STRINGS,
-  CombatantCondition,
-  CombatantConditionName,
-  ConditionAppliedBy,
-} from "./index.js";
-import { CombatantProperties, createShimmedUserOfTriggeredCondition } from "../index.js";
+import { CombatantCondition, CombatantConditionName, ConditionAppliedBy } from "./index.js";
+import { CombatantProperties } from "../index.js";
 import {
   CombatActionExecutionIntent,
   CombatActionIntent,
   CombatActionName,
 } from "../../combat/combat-actions/index.js";
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
-import { CombatantContext } from "../../combatant-context/index.js";
 import { BASE_CONDITION_TICK_SPEED } from "../../combat/turn-order/consts.js";
 import {
   CombatActionTargetSingle,
@@ -26,52 +20,50 @@ import {
   SceneEntityType,
 } from "../../scene-entities/index.js";
 import { CombatAttribute } from "../attributes/index.js";
+import { ActionUserContext } from "../../combatant-context/action-user.js";
 
-export class BlindedCombatantCondition implements CombatantCondition {
+export class BlindedCombatantCondition extends CombatantCondition {
   [immerable] = true;
-  name = CombatantConditionName.Blinded;
-  stacksOption = new MaxAndCurrent(10, 1);
   intent = CombatActionIntent.Malicious;
   removedOnDeath: boolean = true;
   ticks?: MaxAndCurrent | undefined;
   constructor(
-    public id: EntityId,
-    public appliedBy: ConditionAppliedBy,
+    id: EntityId,
+    appliedBy: ConditionAppliedBy,
     public level: number,
     stacksOption: null | MaxAndCurrent
   ) {
-    if (stacksOption) this.stacksOption = stacksOption;
+    super(id, appliedBy, CombatantConditionName.Blinded, stacksOption);
   }
 
-  getTickSpeed(condition: CombatantCondition) {
-    // return condition.level * BASE_CONDITION_TICK_SPEED;
-    return BASE_CONDITION_TICK_SPEED / (condition.level + 5);
-  }
+  tickPropertiesOption = {
+    getTickSpeed(condition: CombatantCondition) {
+      // return condition.level * BASE_CONDITION_TICK_SPEED;
+      return BASE_CONDITION_TICK_SPEED / (condition.level + 5);
+    },
+    onTick(actionUserContext: ActionUserContext) {
+      const user = actionUserContext.actionUser;
 
-  onTick(condition: CombatantCondition, context: CombatantContext) {
-    const user = createShimmedUserOfTriggeredCondition(
-      COMBATANT_CONDITION_NAME_STRINGS[condition.name],
-      condition,
-      context.combatant.entityProperties.id
-    );
+      const targets: CombatActionTargetSingle = {
+        type: CombatActionTargetType.Single,
+        targetId: user.getEntityId(),
+      };
 
-    const targets: CombatActionTargetSingle = {
-      type: CombatActionTargetType.Single,
-      targetId: context.combatant.entityProperties.id,
-    };
-
-    return {
-      numStacksRemoved: 1,
-      triggeredAction: {
-        user,
-        actionExecutionIntent: new CombatActionExecutionIntent(
-          CombatActionName.ConditionPassTurn,
-          targets,
-          0
-        ),
-      },
-    };
-  }
+      return {
+        numStacksRemoved: 1,
+        triggeredAction: {
+          actionIntentAndUser: {
+            user,
+            actionExecutionIntent: new CombatActionExecutionIntent(
+              CombatActionName.ConditionPassTurn,
+              0,
+              targets
+            ),
+          },
+        },
+      };
+    },
+  };
 
   getAttributeModifiers(self: CombatantCondition, appliedTo: CombatantProperties) {
     return { [CombatAttribute.Accuracy]: -10 * (this.level + 1) };
@@ -88,7 +80,7 @@ export class BlindedCombatantCondition implements CombatantCondition {
 
   onTriggered() {
     return {
-      numStacksRemoved: this.stacksOption.current,
+      numStacksRemoved: this.stacksOption?.current || 0,
       triggeredActions: [],
     };
   }

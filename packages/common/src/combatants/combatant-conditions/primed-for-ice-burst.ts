@@ -1,11 +1,16 @@
-import { CombatantCondition, CombatantConditionName, ConditionAppliedBy } from "./index.js";
+import {
+  CombatantCondition,
+  CombatantConditionName,
+  ConditionAppliedBy,
+  ConditionTickProperties,
+} from "./index.js";
 import { Combatant } from "../index.js";
 import {
   CombatActionExecutionIntent,
   CombatActionIntent,
   CombatActionName,
 } from "../../combat/combat-actions/index.js";
-import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
+import { EntityId, MaxAndCurrent, Option } from "../../primatives/index.js";
 import { CombatActionTargetType } from "../../combat/targeting/combat-action-targets.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
@@ -34,8 +39,7 @@ export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
     super(id, appliedBy, CombatantConditionName.PrimedForIceBurst, new MaxAndCurrent(1, 1));
   }
 
-  getTickSpeed? = undefined;
-  onTick? = undefined;
+  tickPropertiesOption: Option<ConditionTickProperties> = null;
 
   triggeredWhenHitBy(actionName: CombatActionName) {
     const actionsThatTrigger = [
