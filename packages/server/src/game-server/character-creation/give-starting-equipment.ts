@@ -56,7 +56,7 @@ export function giveStartingEquipment(combatantProperties: CombatantProperties) 
     STARTING_EQUIPMENT_BY_COMBATANT_CLASS[combatantProperties.combatantClass];
 
   const mainHoldableHotswapSlot = throwIfError(
-    CombatantEquipment.getEquippedHoldableSlots(combatantProperties)
+    CombatantEquipment.getEquippedHoldableSlots(combatantProperties.equipment)
   );
 
   for (const [slotType, template] of iterateNumericEnumKeyedRecord(startingHoldables)) {

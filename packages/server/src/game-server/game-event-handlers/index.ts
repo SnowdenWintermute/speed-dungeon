@@ -13,7 +13,7 @@ import { prohibitIfDead } from "../event-middleware/prohibit-if-dead.js";
 import dropItemHandler from "./drop-item-handler.js";
 import dropEquippedItemHandler from "./drop-equipped-item-handler.js";
 import unequipSlotHandler from "./unequip-slot-handler.js";
-import equipItemHandler from "./equip-item-handler.js";
+import { equipItemHandler } from "./equip-item-handler.js";
 import { pickUpItemsHandler } from "./pick-up-items-handler.js";
 import acknowledgeReceiptOfItemOnGroundHandler from "./acknowledge-receipt-of-item-on-ground-handler.js";
 import { selectCombatActionHandler } from "./select-combat-action-handler.js";

@@ -55,6 +55,7 @@ import { COMBATANT_MAX_ACTION_POINTS } from "../app-consts.js";
 import { CombatantAbilityProperties } from "./combatant-abilities/combatant-ability-properties.js";
 import { ActionEntity } from "../action-entities/index.js";
 import cloneDeep from "lodash.clonedeep";
+import { IActionUser } from "../combatant-context/action-user.js";
 
 export enum AiType {
   Healer,
@@ -75,12 +76,39 @@ export * from "./ability-tree/index.js";
 export * from "./combatant-abilities/index.js";
 export * from "./attributes/index.js";
 
-export class Combatant {
+export class Combatant implements IActionUser {
   [immerable] = true;
   constructor(
     public entityProperties: EntityProperties,
     public combatantProperties: CombatantProperties
   ) {}
+  payResourceCosts(): void {
+    throw new Error("Method not implemented.");
+  }
+  handleTurnEnded(): void {
+    throw new Error("Method not implemented.");
+  }
+  getEntityId(): EntityId {
+    return this.entityProperties.id;
+  }
+  getLevel(): number {
+    throw new Error("Method not implemented.");
+  }
+  getTotalAttributes(): CombatantAttributeRecord {
+    throw new Error("Method not implemented.");
+  }
+  getOwnedAbilities(): Partial<Record<CombatActionName, CombatantActionState>> {
+    throw new Error("Method not implemented.");
+  }
+  getEquipmentOption() {
+    return this.combatantProperties.equipment;
+  }
+  getInventoryOption(): null | Inventory {
+    throw new Error("Method not implemented.");
+  }
+  getIdOfEntityToCreditWithThreat(): EntityId {
+    throw new Error("Method not implemented.");
+  }
 
   static rehydrate(combatant: Combatant) {
     const { combatantProperties } = combatant;
@@ -219,7 +247,7 @@ export class CombatantProperties {
 
     if (removedItemResult instanceof Error) {
       applyEquipmentEffectWhileMaintainingResourcePercentages(combatantProperties, () => {
-        removedItemResult = CombatantEquipment.removeItem(combatantProperties, itemId);
+        removedItemResult = CombatantEquipment.removeItem(combatantProperties.equipment, itemId);
       });
     }
     return removedItemResult;
@@ -282,11 +310,11 @@ export class CombatantProperties {
   static canPickUpItem = canPickUpItem;
   static instantiateItemClasses(combatantProperties: CombatantProperties) {
     Inventory.instantiateItemClasses(combatantProperties.inventory);
-    CombatantEquipment.instatiateItemClasses(combatantProperties);
+    CombatantEquipment.instatiateItemClasses(combatantProperties.equipment);
   }
 
   static canParry(combatantProperties: CombatantProperties): boolean {
-    const holdables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+    const holdables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties.equipment);
     if (!holdables) return false;
     for (const [slot, equipment] of iterateNumericEnumKeyedRecord(holdables.holdables)) {
       if (slot === HoldableSlotType.OffHand) continue;
@@ -305,7 +333,7 @@ export class CombatantProperties {
   }
 
   static canBlock(combatantProperties: CombatantProperties): boolean {
-    const holdables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+    const holdables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties.equipment);
     if (!holdables) return false;
     for (const [slot, equipment] of iterateNumericEnumKeyedRecord(holdables.holdables)) {
       if (slot === HoldableSlotType.MainHand) continue;
@@ -373,7 +401,7 @@ export class CombatantProperties {
     const { getRequiredEquipmentTypeOptions } = action.targetingProperties;
     if (getRequiredEquipmentTypeOptions(actionLevel).length === 0) return true;
 
-    const allEquipment = CombatantEquipment.getAllEquippedItems(combatantProperties, {
+    const allEquipment = CombatantEquipment.getAllEquippedItems(combatantProperties.equipment, {
       includeUnselectedHotswapSlots: false,
     });
     for (const equipment of allEquipment) {

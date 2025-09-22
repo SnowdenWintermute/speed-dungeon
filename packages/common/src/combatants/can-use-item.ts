@@ -1,11 +1,11 @@
+import { IActionUser } from "../combatant-context/action-user.js";
 import { Item } from "../items/index.js";
-import { CombatantProperties } from "./index.js";
 
 export function combatantHasRequiredAttributesToUseItem(
-  combatantProperties: CombatantProperties,
+  actionUser: IActionUser,
   item: Item
 ): boolean {
-  const totalAttributes = CombatantProperties.getTotalAttributes(combatantProperties);
+  const totalAttributes = actionUser.getTotalAttributes();
 
   const requirementsMet = Item.requirementsMet(item, totalAttributes);
   if (!requirementsMet) return false;

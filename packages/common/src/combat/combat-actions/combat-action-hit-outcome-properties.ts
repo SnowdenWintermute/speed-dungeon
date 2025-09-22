@@ -3,6 +3,7 @@ import {
   ActionResolutionStepContext,
   ActivatedTriggersGameUpdateCommand,
 } from "../../action-processing/index.js";
+import { IActionUser } from "../../combatant-context/action-user.js";
 import {
   Combatant,
   CombatantConditionName,
@@ -44,7 +45,7 @@ export interface CombatActionHitOutcomeProperties {
     Record<
       CombatActionResource,
       (
-        user: CombatantProperties,
+        user: IActionUser,
         hitOutcomeProperties: CombatActionHitOutcomeProperties,
         actionLevel: number,
         primaryTarget: CombatantProperties,
@@ -56,7 +57,7 @@ export interface CombatActionHitOutcomeProperties {
   getIsBlockable: (user: CombatantProperties, actionLevel: number) => boolean;
   getCanTriggerCounterattack: (user: CombatantProperties, actionLevel: number) => boolean;
   getAppliedConditions: (
-    user: Combatant,
+    user: IActionUser,
     actionLevel: number
   ) =>
     | null

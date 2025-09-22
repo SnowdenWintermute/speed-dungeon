@@ -27,7 +27,7 @@ export function combatantIsAllowedToConvertItemsToShards(
 export function convertItemsToShards(itemIds: EntityId[], combatant: Combatant) {
   const { combatantProperties } = combatant;
   const itemsInInventory = Inventory.getItems(combatantProperties.inventory);
-  const equippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties, {
+  const equippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties.equipment, {
     includeUnselectedHotswapSlots: true,
   });
 

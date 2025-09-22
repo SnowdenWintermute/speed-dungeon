@@ -13,6 +13,7 @@ import {
   ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionResolutionStepType,
 } from "./action-steps/index.js";
+import { ActionUserContext } from "../combatant-context/action-user.js";
 
 export class ActionSequenceManager {
   private remainingActionsToExecute: CombatActionExecutionIntent[];
@@ -22,7 +23,7 @@ export class ActionSequenceManager {
     public id: string,
     actionExecutionIntent: CombatActionExecutionIntent,
     public replayNode: NestedNodeReplayEvent,
-    public combatantContext: CombatantContext,
+    public actionUserContext: ActionUserContext,
     public sequentialActionManagerRegistry: ActionSequenceManagerRegistry,
     private idGenerator: IdGenerator,
     private trackerThatSpawnedThisActionOption: null | ActionTracker
@@ -52,47 +53,6 @@ export class ActionSequenceManager {
   }
   getRemainingActionsToExecute() {
     return this.remainingActionsToExecute;
-  }
-  // action children may depend on the outcome of their parent so we must process their parent first
-  populateSelfWithCurrentActionChildren() {
-    const currentActionExecutionIntent = this.currentTracker?.actionExecutionIntent;
-    if (!currentActionExecutionIntent || !this.currentTracker) return;
-    const currentAction = COMBAT_ACTIONS[currentActionExecutionIntent.actionName];
-
-    const children = currentAction.hierarchyProperties.getChildren(
-      {
-        combatantContext: this.combatantContext,
-        tracker: this.currentTracker,
-        manager: this,
-        idGenerator: this.idGenerator,
-      },
-      currentAction
-    );
-
-    const childActionIntents = [];
-    for (const action of children) {
-      const targetsResult = action.targetingProperties.getAutoTarget(
-        this.combatantContext,
-        this.currentTracker
-      );
-      if (targetsResult instanceof Error) {
-        console.error(targetsResult);
-        continue;
-      }
-      if (targetsResult === null) {
-        console.error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TARGETS_SELECTED);
-        continue;
-      }
-
-      const actionLevel = currentActionExecutionIntent.level;
-
-      this.sequentialActionManagerRegistry.incrementInputLockReferenceCount();
-      childActionIntents.push(
-        new CombatActionExecutionIntent(action.name, targetsResult, actionLevel)
-      );
-    }
-
-    this.remainingActionsToExecute.push(...childActionIntents.reverse());
   }
 
   enqueueActionIntents(actionIntents: CombatActionExecutionIntent[]) {
@@ -180,10 +140,6 @@ export class ActionSequenceManager {
 
           continue;
         }
-
-        // DETERMINE NEXT ACTION IN SEQUENCE IF ANY
-        // if (currentStep.type === ActionResolutionStepType.DetermineChildActions)
-        // this.populateSelfWithCurrentActionChildren();
 
         const nextActionIntentInQueueOption = this.getNextActionInQueue();
         const nextActionOption = nextActionIntentInQueueOption

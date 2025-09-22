@@ -13,7 +13,9 @@ export function getSlotItemIsEquippedTo(
     if (item.entityProperties.id === itemId) return { type: EquipmentSlotType.Wearable, slot };
   }
 
-  const holdableSlotsOption = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+  const holdableSlotsOption = CombatantEquipment.getEquippedHoldableSlots(
+    combatantProperties.equipment
+  );
   if (!holdableSlotsOption) return null;
 
   for (const [slot, item] of iterateNumericEnumKeyedRecord(holdableSlotsOption.holdables)) {

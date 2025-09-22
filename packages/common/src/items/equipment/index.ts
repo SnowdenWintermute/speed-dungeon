@@ -23,6 +23,7 @@ import { EquipmentTraitType } from "./equipment-traits/index.js";
 import { CombatantAttributeRecord, CombatantProperties } from "../../combatants/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
+import { IActionUser } from "../../combatant-context/action-user.js";
 
 export * from "./equipment-properties/index.js";
 export * from "./pre-determined-items/index.js";
@@ -214,12 +215,10 @@ export class Equipment extends Item {
     return equipment.durability.current <= 0;
   }
 
-  static isUsable(combatantProperties: CombatantProperties, equipment: Equipment): boolean {
+  static isUsable(actionUser: IActionUser, equipment: Equipment): boolean {
     const isBroken = Equipment.isBroken(equipment);
     if (isBroken) return false;
-    return CombatantProperties.combatantHasRequiredAttributesToUseItem(
-      combatantProperties,
-      equipment
-    );
+    // @REFACTOR - move this function off of combatant since it is now generalized to IActionUser
+    return CombatantProperties.combatantHasRequiredAttributesToUseItem(actionUser, equipment);
   }
 }

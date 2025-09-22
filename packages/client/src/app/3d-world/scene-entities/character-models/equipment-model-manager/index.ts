@@ -102,7 +102,7 @@ export class EquipmentModelManager {
 
         const indexAndHoldableSlotIfEquipped =
           CombatantEquipment.getHotswapSlotIndexAndHoldableSlotOfPotentiallyEquippedHoldable(
-            combatantProperties,
+            combatantProperties.equipment,
             equipmentModelId
           );
 

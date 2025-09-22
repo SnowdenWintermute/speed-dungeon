@@ -8,7 +8,14 @@ import { FriendOrFoe } from "../../combat/combat-actions/targeting-schemes-and-c
 import { CombatantContext } from "../../combatant-context/index.js";
 import { EntityId, EntityProperties, MaxAndCurrent } from "../../primatives/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
-import { Combatant, CombatantAttributeRecord, CombatantProperties } from "../index.js";
+import {
+  Combatant,
+  CombatantActionState,
+  CombatantAttributeRecord,
+  CombatantEquipment,
+  CombatantProperties,
+  Inventory,
+} from "../index.js";
 import { BurningCombatantCondition } from "./burning.js";
 import { PrimedForExplosionCombatantCondition } from "./primed-for-explosion.js";
 import { PrimedForIceBurstCombatantCondition } from "./primed-for-ice-burst.js";
@@ -16,6 +23,7 @@ import { AdventuringParty } from "../../adventuring-party/index.js";
 import { TurnOrderManager, TurnTrackerEntityType } from "../../combat/index.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "../../combat/turn-order/consts.js";
 import { BlindedCombatantCondition } from "./blinded.js";
+import { ActionUserContext, IActionUser } from "../../combatant-context/action-user.js";
 
 export enum CombatantConditionName {
   // Poison,
@@ -91,18 +99,30 @@ export interface ConditionWithCombatantIdAppliedTo {
   appliedTo: EntityId;
 }
 
-export abstract class CombatantCondition {
+export abstract class CombatantCondition implements IActionUser {
   [immerable] = true;
   ticks?: MaxAndCurrent;
   level: number = 0;
   intent: CombatActionIntent = CombatActionIntent.Malicious;
   removedOnDeath: boolean = true;
+  combatAttributes: CombatantAttributeRecord = {};
   constructor(
     public id: EntityId,
     public appliedBy: ConditionAppliedBy,
     public name: CombatantConditionName,
     public stacksOption: null | MaxAndCurrent
   ) {}
+  payResourceCosts = () => {};
+  handleTurnEnded = () => {};
+  getEntityId = () => this.id;
+  getLevel = () => this.level;
+  getTotalAttributes = () => this.combatAttributes;
+  getOwnedAbilities() {
+    return {};
+  }
+  getEquipmentOption = () => null;
+  getInventoryOption = () => null;
+  getIdOfEntityToCreditWithThreat = () => this.appliedBy.entityProperties.id;
 
   // if tracking ticks, increment current
   // examples of action to take here:
@@ -121,7 +141,7 @@ export abstract class CombatantCondition {
   //
 
   abstract onTriggered(
-    combatantContext: CombatantContext,
+    actionUserContext: ActionUserContext,
     targetCombatant: Combatant,
     idGenerator: IdGenerator
   ): {
@@ -136,7 +156,7 @@ export abstract class CombatantCondition {
   abstract getTickSpeed?: (condition: CombatantCondition) => number;
   abstract onTick?: (
     condition: CombatantCondition,
-    context: CombatantContext
+    actionUserContext: ActionUserContext
   ) => {
     numStacksRemoved: number;
     triggeredAction: {
@@ -158,26 +178,6 @@ export abstract class CombatantCondition {
       onTick: condition.onTick,
     };
   }
-
-  // examples:
-  // - perform a composite combat action
-  // - remove self - examples:
-  // - ex: Poisona for a poison condition
-  // - ex: Esuna for all negative conditions
-  // - ex: Dispell for all positive conditions
-
-  // getAvailableActionModifications() {
-  //   // examples:
-  //   // - can't cast spells
-  //   // - allows attacking while dead
-  //   // - restricts certain targets
-  // }
-
-  // getIntent() {
-  //   // helpful (buff)
-  //   // harmful (debuff)
-  //   // neutral (neither)
-  // }
 
   static removeByNameFromCombatant(
     name: CombatantConditionName,

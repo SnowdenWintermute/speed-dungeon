@@ -59,7 +59,7 @@ export class ActionTracker {
   initializeNextStep() {
     this.stepIndex += 1;
     const context: ActionResolutionStepContext = {
-      combatantContext: this.parentActionManager.combatantContext,
+      actionUserContext: this.parentActionManager.actionUserContext,
       tracker: this,
       manager: this.parentActionManager,
       idGenerator: this.idGenerator,

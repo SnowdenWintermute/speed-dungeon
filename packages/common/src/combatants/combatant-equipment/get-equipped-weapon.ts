@@ -8,7 +8,10 @@ export function getEquippedWeapon(
   combatantProperties: CombatantProperties,
   holdableSlot: HoldableSlotType
 ): undefined | Error | WeaponProperties {
-  const itemOption = CombatantEquipment.getEquippedHoldable(combatantProperties, holdableSlot);
+  const itemOption = CombatantEquipment.getEquippedHoldable(
+    combatantProperties.equipment,
+    holdableSlot
+  );
   if (itemOption === undefined) return undefined;
 
   return Equipment.getWeaponProperties(itemOption);

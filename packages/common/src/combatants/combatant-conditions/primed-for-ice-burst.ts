@@ -4,7 +4,13 @@ import {
   CombatantConditionName,
   ConditionAppliedBy,
 } from "./index.js";
-import { Combatant, createShimmedUserOfTriggeredCondition } from "../index.js";
+import {
+  Combatant,
+  CombatantActionState,
+  CombatantAttributeRecord,
+  CombatantProperties,
+  createShimmedUserOfTriggeredCondition,
+} from "../index.js";
 import {
   CombatActionExecutionIntent,
   CombatActionIntent,
@@ -23,8 +29,15 @@ import {
 import { CombatantContext } from "../../combatant-context/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { immerable } from "immer";
+import { ActionUserContext } from "../../combatant-context/action-user.js";
 
-export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
+export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
+  getAttributeModifiers?(
+    condition: CombatantCondition,
+    appliedTo: CombatantProperties
+  ): CombatantAttributeRecord {
+    throw new Error("Method not implemented.");
+  }
   [immerable] = true;
   name = CombatantConditionName.PrimedForIceBurst;
   stacksOption = new MaxAndCurrent(1, 1);
@@ -35,7 +48,12 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
     public id: EntityId,
     public appliedBy: ConditionAppliedBy,
     public level: number
-  ) {}
+  ) {
+    super(id, appliedBy, CombatantConditionName.PrimedForIceBurst, new MaxAndCurrent(1, 1));
+  }
+
+  getTickSpeed? = undefined;
+  onTick? = undefined;
 
   triggeredWhenHitBy(actionName: CombatActionName) {
     const actionsThatTrigger = [
@@ -58,7 +76,7 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
   }
 
   onTriggered(
-    combatantContext: CombatantContext,
+    actionUserContext: ActionUserContext,
     targetCombatant: Combatant,
     idGenerator: IdGenerator
   ) {

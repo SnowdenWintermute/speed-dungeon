@@ -20,16 +20,14 @@ export abstract class ResourceChanges<T> {
     return Object.entries(this.changes);
   }
 
-  abstract applyToGame(combatantContext: CombatantContext): void;
+  abstract applyToGame(party: AdventuringParty): void;
 }
 
 export class HitPointChanges extends ResourceChanges<ResourceChange> {
   constructor() {
     super();
   }
-  applyToGame(combatantContext: CombatantContext) {
-    const { game, party } = combatantContext;
-
+  applyToGame(party: AdventuringParty) {
     const combatantsKilled: EntityId[] = [];
 
     for (const [targetId, hpChange] of Object.entries(this.changes)) {

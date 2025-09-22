@@ -49,10 +49,10 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
       completionOrderId: null,
     };
     super(stepType, context, gameUpdateCommand);
-    const { tracker, combatantContext } = this.context;
+    const { tracker, actionUserContext } = this.context;
     const { actionExecutionIntent } = tracker;
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
-    const { game, party, combatant } = combatantContext;
+    const { game, party, actionUser } = actionUserContext;
     const battleOption = AdventuringParty.getBattleOption(party, game);
     const { outcomeFlags, resourceChanges } = tracker.hitOutcomes;
 
@@ -65,6 +65,8 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
       gameUpdateCommand.durabilityChanges = durabilityChanges;
       DurabilityChangesByEntityId.ApplyToGame(game, durabilityChanges);
     }
+
+    // @REFACTOR - split into smaller functions and make the step just orchestrate
 
     // HANDLE TRIGGERED HIT POINT CHANGES
 
@@ -102,19 +104,19 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         accumulatedLifeStolenResourceChange.value
       );
       const existingHitPointChangeOption = triggeredHitPointChanges.getRecord(
-        combatant.entityProperties.id
+        actionUser.getEntityId()
       );
       if (existingHitPointChangeOption)
         existingHitPointChangeOption.value += accumulatedLifeStolenResourceChange.value;
       else
         triggeredHitPointChanges.addRecord(
-          combatant.entityProperties.id,
+          actionUser.getEntityId(),
           accumulatedLifeStolenResourceChange
         );
     }
 
     // @TODO - calculate Death flags for these hp changes
-    triggeredHitPointChanges.applyToGame(this.context.combatantContext);
+    triggeredHitPointChanges.applyToGame(party);
 
     if (triggeredHitPointChanges.getRecords().length > 0) {
       gameUpdateCommand.hitPointChanges = triggeredHitPointChanges;
@@ -132,7 +134,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
       );
 
       if (threatChangesOption) {
-        threatChangesOption.applyToGame(context.combatantContext.party);
+        threatChangesOption.applyToGame(party);
         gameUpdateCommand.threatChanges = threatChangesOption;
       }
     }
@@ -152,7 +154,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
         addHitOutcomeDurabilityChanges(
           durabilityChanges,
-          combatant,
+          actionUser,
           actionExecutionIntent.level,
           targetCombatant,
           action,
@@ -165,7 +167,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             if (!condition.triggeredWhenHitBy(actionExecutionIntent.actionName)) continue;
 
             const { numStacksRemoved, triggeredActions } = condition.onTriggered(
-              combatantContext,
+              actionUserContext,
               targetCombatant,
               context.idGenerator
             );
@@ -197,7 +199,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           }
 
           const conditionsToApply = action.hitOutcomeProperties.getAppliedConditions(
-            context.combatantContext.combatant,
+            actionUser,
             context.tracker.actionExecutionIntent.level
           );
 
@@ -261,7 +263,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           // since maybe there would be a bunch of counterattacks queued up. For now though, there isn't.
           targetCombatant.combatantProperties.combatActionTarget = {
             type: CombatActionTargetType.Single,
-            targetId: combatant.entityProperties.id,
+            targetId: actionUser.getEntityId(),
           };
 
           this.branchingActions.push({
@@ -270,7 +272,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
               CombatActionName.Counterattack,
               {
                 type: CombatActionTargetType.Single,
-                targetId: combatant.entityProperties.id,
+                targetId: actionUser.getEntityId(),
               },
               1
             ),
