@@ -1,16 +1,5 @@
-import {
-  COMBATANT_CONDITION_NAME_STRINGS,
-  CombatantCondition,
-  CombatantConditionName,
-  ConditionAppliedBy,
-} from "./index.js";
-import {
-  Combatant,
-  CombatantActionState,
-  CombatantAttributeRecord,
-  CombatantProperties,
-  createShimmedUserOfTriggeredCondition,
-} from "../index.js";
+import { CombatantCondition, CombatantConditionName, ConditionAppliedBy } from "./index.js";
+import { Combatant } from "../index.js";
 import {
   CombatActionExecutionIntent,
   CombatActionIntent,
@@ -26,18 +15,11 @@ import {
   CombatantBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../scene-entities/index.js";
-import { CombatantContext } from "../../combatant-context/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { immerable } from "immer";
 import { ActionUserContext } from "../../combatant-context/action-user.js";
 
 export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
-  getAttributeModifiers?(
-    condition: CombatantCondition,
-    appliedTo: CombatantProperties
-  ): CombatantAttributeRecord {
-    throw new Error("Method not implemented.");
-  }
   [immerable] = true;
   name = CombatantConditionName.PrimedForIceBurst;
   stacksOption = new MaxAndCurrent(1, 1);
@@ -75,44 +57,42 @@ export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
     return false;
   }
 
+  getAttributeModifiers = undefined;
+
   onTriggered(
     actionUserContext: ActionUserContext,
     targetCombatant: Combatant,
     idGenerator: IdGenerator
   ) {
-    const user = createShimmedUserOfTriggeredCondition(
-      COMBATANT_CONDITION_NAME_STRINGS[this.name],
-      this,
-      targetCombatant.entityProperties.id
-    );
+    const { actionUser } = actionUserContext;
 
-    user.combatantProperties.combatActionTarget = {
+    actionUser.getTargetingProperties().setSelectedTarget({
       type: CombatActionTargetType.Single,
       targetId: targetCombatant.entityProperties.id,
-    };
+    });
 
-    const combatantContextFromConditionUserPerspective = new CombatantContext(
-      combatantContext.game,
-      combatantContext.party,
-      user
+    const conditionUserContext = new ActionUserContext(
+      actionUserContext.game,
+      actionUserContext.party,
+      actionUser
     );
 
     const actionTarget = COMBAT_ACTIONS[
       CombatActionName.IceBurst
-    ].targetingProperties.getAutoTarget(combatantContextFromConditionUserPerspective, null);
+    ].targetingProperties.getAutoTarget(conditionUserContext, null);
 
     if (actionTarget instanceof Error) throw actionTarget;
     if (actionTarget === null) throw new Error("failed to get auto target");
 
     const actionExecutionIntent = new CombatActionExecutionIntent(
       CombatActionName.IceBurst,
-      actionTarget,
-      this.level
+      actionUser.getLevel(),
+      actionTarget
     );
 
     return {
       numStacksRemoved: this.stacksOption.current,
-      triggeredActions: [{ user, actionExecutionIntent }],
+      triggeredActions: [{ user: actionUser, actionExecutionIntent }],
     };
   }
 

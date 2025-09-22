@@ -56,6 +56,10 @@ import { CombatantAbilityProperties } from "./combatant-abilities/combatant-abil
 import { ActionEntity } from "../action-entities/index.js";
 import cloneDeep from "lodash.clonedeep";
 import { IActionUser } from "../combatant-context/action-user.js";
+import {
+  ActionAndRank,
+  ActionUserTargetingProperties,
+} from "../combatant-context/action-user-targeting-properties.js";
 
 export enum AiType {
   Healer,
@@ -82,6 +86,7 @@ export class Combatant implements IActionUser {
     public entityProperties: EntityProperties,
     public combatantProperties: CombatantProperties
   ) {}
+  getTargetingProperties = () => this.combatantProperties.targetingProperties;
   payResourceCosts(): void {
     throw new Error("Method not implemented.");
   }
@@ -162,14 +167,9 @@ export class CombatantProperties {
   equipment: CombatantEquipment = new CombatantEquipment();
   inventory: Inventory = new Inventory();
   // TARGETING
-  selectedCombatAction: null | CombatActionName = null;
-  combatActionTarget: null | CombatActionTarget = null;
-  selectedTargetingScheme: null | TargetingScheme = null;
-  selectedActionLevel: null | number = null;
-  selectedItemId: null | string = null;
+  targetingProperties: ActionUserTargetingProperties = new ActionUserTargetingProperties();
   // THREAT
   threatManager?: ThreatManager;
-
   // UNSORTED
   deepestFloorReached: number = 1;
   position: Vector3;
@@ -374,16 +374,13 @@ export class CombatantProperties {
 
   static hasRequiredResourcesToUseAction(
     combatantProperties: CombatantProperties,
-    actionName: CombatActionName,
-    isInCombat: boolean,
-    actionLevel: number
+    actionAndRank: ActionAndRank,
+    isInCombat: boolean
   ) {
+    const { actionName, rank } = actionAndRank;
+
     const action = COMBAT_ACTIONS[actionName];
-    const costs = action.costProperties.getResourceCosts(
-      combatantProperties,
-      isInCombat,
-      actionLevel
-    );
+    const costs = action.costProperties.getResourceCosts(combatantProperties, isInCombat, rank);
 
     if (costs) {
       const unmetCosts = getUnmetCostResourceTypes(combatantProperties, costs);

@@ -12,7 +12,7 @@ import { CombatantContext } from "../../combatant-context/index.js";
 import { ActionSequenceManager } from "../action-sequence-manager.js";
 import { ActionTracker } from "../action-tracker.js";
 import { IdGenerator } from "../../utility-classes/index.js";
-import { ActionUserContext } from "../../combatant-context/action-user.js";
+import { ActionUserContext, IActionUser } from "../../combatant-context/action-user.js";
 
 export interface ActionExecuting {
   timeStarted: Milliseconds;
@@ -98,7 +98,7 @@ export interface ActionResolutionStepContext {
 }
 
 export interface ActionIntentAndUser {
-  user: Combatant;
+  user: IActionUser;
   actionExecutionIntent: CombatActionExecutionIntent;
 }
 

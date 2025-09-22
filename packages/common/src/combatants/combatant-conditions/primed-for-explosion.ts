@@ -4,7 +4,12 @@ import {
   CombatantConditionName,
   ConditionAppliedBy,
 } from "./index.js";
-import { Combatant, createShimmedUserOfTriggeredCondition } from "../index.js";
+import {
+  Combatant,
+  CombatantAttributeRecord,
+  CombatantProperties,
+  createShimmedUserOfTriggeredCondition,
+} from "../index.js";
 import {
   CombatActionExecutionIntent,
   CombatActionIntent,
@@ -14,24 +19,27 @@ import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 import { CombatActionTargetType } from "../../combat/targeting/combat-action-targets.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
-import { CombatantContext } from "../../combatant-context/index.js";
 import { immerable } from "immer";
+import { ActionUserContext } from "../../combatant-context/action-user.js";
 
-export class PrimedForExplosionCombatantCondition implements CombatantCondition {
+export class PrimedForExplosionCombatantCondition extends CombatantCondition {
   [immerable] = true;
-  name = CombatantConditionName.PrimedForExplosion;
   intent = CombatActionIntent.Malicious;
-  stacksOption = new MaxAndCurrent(10, 1);
   removedOnDeath: boolean = true;
   ticks?: MaxAndCurrent | undefined;
   constructor(
-    public id: EntityId,
-    public appliedBy: ConditionAppliedBy,
+    id: EntityId,
+    appliedBy: ConditionAppliedBy,
     public level: number,
     stacksOption: null | MaxAndCurrent
   ) {
+    super(id, appliedBy, CombatantConditionName.PrimedForIceBurst, new MaxAndCurrent(10, 1));
     if (stacksOption) this.stacksOption = stacksOption;
   }
+
+  getTickSpeed = undefined;
+  onTick = undefined;
+  getAttributeModifiers = undefined;
 
   triggeredWhenHitBy(actionName: CombatActionName) {
     const actionsThatTrigger = [
@@ -53,45 +61,41 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
   }
 
   onTriggered(
-    combatantContext: CombatantContext,
+    actionUserContext: ActionUserContext,
     targetCombatant: Combatant,
     idGenerator: IdGenerator
   ) {
-    const user = createShimmedUserOfTriggeredCondition(
-      COMBATANT_CONDITION_NAME_STRINGS[this.name],
-      this,
-      targetCombatant.entityProperties.id
-    );
+    const { actionUser } = actionUserContext;
 
-    user.combatantProperties.combatActionTarget = {
+    actionUser.getTargetingProperties().setSelectedTarget({
       type: CombatActionTargetType.Single,
       targetId: targetCombatant.entityProperties.id,
-    };
+    });
 
-    const combatantContextFromConditionUserPerspective = new CombatantContext(
-      combatantContext.game,
-      combatantContext.party,
-      user
+    const conditionUserContext = new ActionUserContext(
+      actionUserContext.game,
+      actionUserContext.party,
+      actionUser
     );
 
     const actionTarget = COMBAT_ACTIONS[
-      CombatActionName.Explosion
-    ].targetingProperties.getAutoTarget(combatantContextFromConditionUserPerspective, null);
+      CombatActionName.IceBurst
+    ].targetingProperties.getAutoTarget(conditionUserContext, null);
 
     if (actionTarget instanceof Error) throw actionTarget;
     if (actionTarget === null) throw new Error("failed to get auto target");
 
-    const explosionLevel = this.level * this.stacksOption.current;
+    const explosionLevel = actionUser.getLevel() * (this.stacksOption?.current || 1);
 
-    const explosionActionIntent = new CombatActionExecutionIntent(
+    const actionExecutionIntent = new CombatActionExecutionIntent(
       CombatActionName.Explosion,
-      actionTarget,
-      explosionLevel
+      explosionLevel,
+      actionTarget
     );
 
     return {
       numStacksRemoved: 1,
-      triggeredActions: [{ user, actionExecutionIntent: explosionActionIntent }],
+      triggeredActions: [{ user: actionUser, actionExecutionIntent }],
     };
   }
 

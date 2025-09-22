@@ -24,8 +24,7 @@ export default async function writePlayerCharactersInGameToDb(
       );
       if (!existingCharacter)
         throw new Error("Tried to update character but it didn't exist in the database");
-      characterResult.combatantProperties.selectedCombatAction = null;
-      characterResult.combatantProperties.combatActionTarget = null;
+      characterResult.getTargetingProperties().clear();
       const partyOption = game.adventuringParties[getProgressionGamePartyName(game.name)];
       if (partyOption === undefined) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
       if (partyOption.currentFloor > existingCharacter.combatantProperties.deepestFloorReached) {

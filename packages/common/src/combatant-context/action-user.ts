@@ -11,6 +11,7 @@ import {
 } from "../combatants/index.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
 import { EntityId } from "../primatives/index.js";
+import { ActionUserTargetingProperties } from "./action-user-targeting-properties.js";
 
 export interface IActionUser {
   payResourceCosts(): void;
@@ -23,6 +24,7 @@ export interface IActionUser {
   getOwnedAbilities(): Partial<Record<CombatActionName, CombatantActionState>>;
   getEquipmentOption: () => null | CombatantEquipment;
   getInventoryOption(): null | Inventory;
+  getTargetingProperties(): ActionUserTargetingProperties;
 
   // ex: a condition should give threat caused by it's burning ticks to the caster of the spell that caused the condition
   getIdOfEntityToCreditWithThreat(): EntityId;

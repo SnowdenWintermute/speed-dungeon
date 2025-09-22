@@ -4,39 +4,40 @@ import {
   CombatantContext,
   CombatantProperties,
   Inventory,
+  Option,
   ServerToClientEvent,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../singletons/index.js";
-import { CombatActionName } from "@speed-dungeon/common";
 import { TargetingCalculator } from "@speed-dungeon/common";
+import { ActionAndRank } from "@speed-dungeon/common/src/combatant-context/action-user-targeting-properties.js";
 
 export function selectCombatActionHandler(
   eventData: {
     characterId: string;
-    combatActionNameOption: null | CombatActionName;
-    combatActionLevel: null | number;
+    actionAndRankOption: Option<ActionAndRank>;
     itemIdOption?: string;
   },
   characterAssociatedData: CharacterAssociatedData
 ) {
   const gameServer = getGameServer();
-  let { combatActionNameOption, combatActionLevel, itemIdOption } = eventData;
+  let { actionAndRankOption, itemIdOption } = eventData;
 
   const { character, game, party, player } = characterAssociatedData;
   let combatActionOption: null | CombatActionComponent = null;
-  if (combatActionNameOption !== null && combatActionLevel !== null) {
+
+  if (actionAndRankOption !== null) {
     const combatActionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
       character.combatantProperties,
-      combatActionNameOption,
-      combatActionLevel
+      actionAndRankOption
     );
     if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
     combatActionOption = combatActionPropertiesResult;
   }
 
-  character.combatantProperties.selectedCombatAction = combatActionNameOption;
-  character.combatantProperties.selectedActionLevel = combatActionLevel;
+  const targetingProperties = character.getTargetingProperties();
+  targetingProperties.setSelectedActionAndRank(actionAndRankOption);
+
   if (itemIdOption !== undefined) {
     // @INFO - if we want to allow selecting equipped items or unowned items
     // change this
@@ -49,7 +50,8 @@ export function selectCombatActionHandler(
     );
     if (ownedItemResult instanceof Error) return ownedItemResult;
   }
-  character.combatantProperties.selectedItemId = itemIdOption || null;
+
+  targetingProperties.setSelectedItemId(itemIdOption || null);
 
   const targetingCalculator = new TargetingCalculator(
     new CombatantContext(game, party, character),
@@ -59,8 +61,7 @@ export function selectCombatActionHandler(
     targetingCalculator.assignInitialCombatantActionTargets(combatActionOption);
 
   if (initialTargetsResult instanceof Error) {
-    character.combatantProperties.selectedCombatAction = null;
-    character.combatantProperties.selectedActionLevel = null;
+    targetingProperties.clear();
     return initialTargetsResult;
   }
 
@@ -69,8 +70,7 @@ export function selectCombatActionHandler(
     .emit(
       ServerToClientEvent.CharacterSelectedCombatAction,
       character.entityProperties.id,
-      combatActionNameOption,
-      combatActionLevel,
+      actionAndRankOption,
       itemIdOption
     );
 }

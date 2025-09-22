@@ -2,13 +2,12 @@ import { TargetCategories, TargetingScheme } from "./targeting-schemes-and-categ
 import { AutoTargetingSelectionMethod, CombatActionTarget } from "../targeting/index.js";
 import { ProhibitedTargetCombatantStates } from "./prohibited-target-combatant-states.js";
 import { ActionTracker } from "../../action-processing/action-tracker.js";
-import { CombatantContext } from "../../combatant-context/index.js";
 import { CombatActionComponent, CombatActionUsabilityContext } from "./index.js";
 import { CombatActionIntent } from "./combat-action-intent.js";
 import { EquipmentType } from "../../items/equipment/index.js";
-import { CombatantProperties } from "../../combatants/index.js";
 import { CombatActionRequiredRange } from "./combat-action-range.js";
 import { ActionResolutionStepContext } from "../../action-processing/index.js";
+import { ActionUserContext, IActionUser } from "../../combatant-context/action-user.js";
 
 export interface CombatActionTargetingPropertiesConfig {
   getTargetingSchemes: (actionLevel: number) => TargetingScheme[];
@@ -24,14 +23,11 @@ export interface CombatActionTargetingPropertiesConfig {
   usabilityContext: CombatActionUsabilityContext;
   getRequiredEquipmentTypeOptions: (actionLevel: number) => EquipmentType[];
   getAutoTarget: (
-    combatantContext: CombatantContext,
+    actionUserContext: ActionUserContext,
     actionTrackerOption: null | ActionTracker,
     self: CombatActionComponent
   ) => Error | null | CombatActionTarget;
-  getRequiredRange: (
-    user: CombatantProperties,
-    self: CombatActionComponent
-  ) => CombatActionRequiredRange;
+  getRequiredRange: (user: IActionUser, self: CombatActionComponent) => CombatActionRequiredRange;
   executionPreconditions: ActionExecutionPrecondition[];
 }
 
@@ -43,7 +39,7 @@ export type ActionExecutionPrecondition = (
 
 export interface CombatActionTargetingProperties extends CombatActionTargetingPropertiesConfig {
   getAutoTarget: (
-    combatantContext: CombatantContext,
+    actionUserContext: ActionUserContext,
     actionTrackerOption: null | ActionTracker
   ) => Error | null | CombatActionTarget;
 }

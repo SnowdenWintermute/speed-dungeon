@@ -36,13 +36,11 @@ export async function useSelectedCombatActionHandler(
     return;
   }
 
-  const { selectedCombatAction, targets, selectedActionLevel } = validTargetsAndActionNameResult;
+  const { actionAndRank, targets } = validTargetsAndActionNameResult;
 
-  const actionExecutionIntent = new CombatActionExecutionIntent(
-    selectedCombatAction,
-    targets,
-    selectedActionLevel
-  );
+  const { actionName, rank } = actionAndRank;
+
+  const actionExecutionIntent = new CombatActionExecutionIntent(actionName, rank, targets);
 
   await executeActionAndSendReplayResult(characterAssociatedData, actionExecutionIntent, true);
 }
@@ -53,21 +51,22 @@ function validateClientActionUseRequest(characterAssociatedData: CharacterAssoci
 
   if (InputLock.isLocked(party.inputLock)) return new Error(ERROR_MESSAGES.PARTY.INPUT_IS_LOCKED);
 
-  const { selectedCombatAction } = character.combatantProperties;
-  if (selectedCombatAction === null) return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
+  const targetingProperties = character.getTargetingProperties();
 
-  const targets = character.combatantProperties.combatActionTarget;
+  const targets = targetingProperties.getSelectedTarget();
   if (targets === null) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
 
-  const { selectedActionLevel } = character.combatantProperties;
-  if (selectedActionLevel === null)
-    return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_LEVEL_SELECTED);
+  const selectedActionAndRankOption = targetingProperties.getSelectedActionAndRank();
+  if (selectedActionAndRankOption === null)
+    return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
 
-  const action = COMBAT_ACTIONS[selectedCombatAction];
-  const maybeError = action.useIsValid(targets, selectedActionLevel, combatantContext);
+  const { actionName, rank } = selectedActionAndRankOption;
+
+  const action = COMBAT_ACTIONS[actionName];
+  const maybeError = action.useIsValid(targets, rank, combatantContext);
   if (maybeError instanceof Error) return maybeError;
 
-  return { selectedCombatAction, targets, selectedActionLevel };
+  return { actionAndRank: selectedActionAndRankOption, targets };
 }
 
 export async function executeActionAndSendReplayResult(

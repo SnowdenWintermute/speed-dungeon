@@ -20,30 +20,34 @@ export function selectCombatActionLevelHandler(
   const { actionLevel: newSelectedActionLevel } = eventData;
 
   const { character, game, party, player } = characterAssociatedData;
-  const { selectedCombatAction } = character.combatantProperties;
+  const targetingProperties = character.getTargetingProperties();
+  const selectedActionAndRankOption = targetingProperties.getSelectedActionAndRank();
   const { ownedActions } = character.combatantProperties.abilityProperties;
-  if (selectedCombatAction === null) return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
+  if (selectedActionAndRankOption === null)
+    return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
 
   const combatActionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
     character.combatantProperties,
-    selectedCombatAction,
-    newSelectedActionLevel
+    selectedActionAndRankOption
   );
   if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
 
-  const actionStateOption = ownedActions[selectedCombatAction];
+  const { actionName } = selectedActionAndRankOption;
+
+  const actionStateOption = ownedActions[actionName];
   if (actionStateOption === undefined) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED);
+
+  const actionAndNewlySelectedRank = { actionName, rank: newSelectedActionLevel };
 
   const hasRequiredResources = CombatantProperties.hasRequiredResourcesToUseAction(
     character.combatantProperties,
-    selectedCombatAction,
-    !!party.battleId,
-    newSelectedActionLevel
+    actionAndNewlySelectedRank,
+    !!party.battleId
   );
 
   if (!hasRequiredResources) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INSUFFICIENT_RESOURCES);
 
-  character.combatantProperties.selectedActionLevel = newSelectedActionLevel;
+  targetingProperties.setSelectedActionAndRank(actionAndNewlySelectedRank);
 
   // check if current targets are still valid at this level
   const combatantContext = new CombatantContext(game, party, character);

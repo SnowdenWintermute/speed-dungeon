@@ -24,6 +24,8 @@ import { TurnOrderManager, TurnTrackerEntityType } from "../../combat/index.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "../../combat/turn-order/consts.js";
 import { BlindedCombatantCondition } from "./blinded.js";
 import { ActionUserContext, IActionUser } from "../../combatant-context/action-user.js";
+import { ActionIntentAndUser, ActionIntentOptionAndUser } from "../../action-processing/index.js";
+import { ActionUserTargetingProperties } from "../../combatant-context/action-user-targeting-properties.js";
 
 export enum CombatantConditionName {
   // Poison,
@@ -112,6 +114,9 @@ export abstract class CombatantCondition implements IActionUser {
     public name: CombatantConditionName,
     public stacksOption: null | MaxAndCurrent
   ) {}
+  getTargetingProperties(): ActionUserTargetingProperties {
+    throw new Error("Method not implemented.");
+  }
   payResourceCosts = () => {};
   handleTurnEnded = () => {};
   getEntityId = () => this.id;
@@ -146,7 +151,7 @@ export abstract class CombatantCondition implements IActionUser {
     idGenerator: IdGenerator
   ): {
     numStacksRemoved: number;
-    triggeredActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[];
+    triggeredActions: ActionIntentAndUser[];
   };
 
   abstract getCosmeticEffectWhileActive: (

@@ -14,8 +14,8 @@ export class CombatActionExecutionIntent {
 
   constructor(
     public actionName: CombatActionName,
+    public rank: number,
     public targets: CombatActionTarget,
-    public level: number,
     public selectedConsumableId?: EntityId
   ) {}
 
