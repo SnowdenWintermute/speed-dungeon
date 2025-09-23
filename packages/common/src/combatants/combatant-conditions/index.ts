@@ -104,6 +104,17 @@ export abstract class CombatantCondition implements IActionUser {
     public name: CombatantConditionName,
     public stacksOption: null | MaxAndCurrent
   ) {}
+
+  getCombatantProperties(): CombatantProperties {
+    throw new Error("Conditions do not have combatantProperties");
+  }
+
+  getConditionStacks(): MaxAndCurrent {
+    return this.stacksOption || new MaxAndCurrent(0, 0);
+  }
+  getEntityProperties(): EntityProperties {
+    return { id: this.id, name: this.getName() };
+  }
   getName(): string {
     return COMBATANT_CONDITION_NAME_STRINGS[this.name];
   }

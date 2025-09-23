@@ -3,7 +3,6 @@ import { iterateNumericEnumKeyedRecord, randBetween, throwIfError } from "../../
 import { ResourceChange } from "../../hp-change-source-types.js";
 import { EntityId } from "../../../primatives/index.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
-import { ActionResolutionStepContext } from "../../../action-processing/index.js";
 export * from "./hit-outcome-mitigation-calculator.js";
 export * from "./incoming-resource-change-calculator.js";
 export * from "./hp-change-calculation-strategies/index.js";
@@ -22,7 +21,7 @@ import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 import { HitOutcomeMitigationCalculator } from "./hit-outcome-mitigation-calculator.js";
 import { ResourceChangeModifier } from "./resource-change-modifier.js";
-import { CombatantContext } from "../../../combatant-context/index.js";
+import { ActionUserContext } from "../../../combatant-context/action-user.js";
 
 export class CombatActionHitOutcomes {
   resourceChanges?: Partial<Record<CombatActionResource, ResourceChanges<ResourceChange>>>;
@@ -66,11 +65,11 @@ export class HitOutcomeCalculator {
   targetIds: EntityId[];
   action: CombatActionComponent;
   constructor(
-    private combatantContext: CombatantContext,
+    private actionUserContext: ActionUserContext,
     private actionExecutionIntent: CombatActionExecutionIntent,
     private rng: RandomNumberGenerator
   ) {
-    this.targetingCalculator = new TargetingCalculator(this.combatantContext, null);
+    this.targetingCalculator = new TargetingCalculator(this.actionUserContext, null);
 
     this.action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
 
@@ -79,7 +78,7 @@ export class HitOutcomeCalculator {
     );
 
     this.incomingResourceChangesCalculator = new IncomingResourceChangesCalculator(
-      combatantContext,
+      actionUserContext,
       actionExecutionIntent,
       this.targetingCalculator,
       this.targetIds,
@@ -88,7 +87,7 @@ export class HitOutcomeCalculator {
   }
 
   calculateHitOutcomes() {
-    const { party, combatant } = this.combatantContext;
+    const { party, actionUser } = this.actionUserContext;
 
     // while we may have already filtered targets for user selected action while they are targeting,
     // when doing ice burst we still want to target the side combatants, but actually not damage them
@@ -102,7 +101,7 @@ export class HitOutcomeCalculator {
     );
 
     if (
-      combatant.combatantProperties.asShimmedActionEntity?.actionEntityProperties.actionOriginData
+      actionUser.combatantProperties.asShimmedActionEntity?.actionEntityProperties.actionOriginData
         ?.wasIncinerated
     ) {
       filteredTargetIds = [];
@@ -115,7 +114,7 @@ export class HitOutcomeCalculator {
 
     let mitigationCalculator: null | HitOutcomeMitigationCalculator = null;
 
-    const actionLevel = this.actionExecutionIntent.level;
+    const actionLevel = this.actionExecutionIntent.rank;
 
     for (const targetId of filteredTargetIds) {
       const targetCombatant = AdventuringParty.getExpectedCombatant(party, targetId);
@@ -123,7 +122,7 @@ export class HitOutcomeCalculator {
         mitigationCalculator = new HitOutcomeMitigationCalculator(
           this.action,
           actionLevel,
-          combatant,
+          actionUser,
           targetCombatant,
           incomingResourceChangesPerTarget,
           this.rng
@@ -151,7 +150,6 @@ export class HitOutcomeCalculator {
           cloneDeep(incomingResourceChangeOption.source)
         );
 
-        const user = combatant.combatantProperties;
         const target = targetCombatant.combatantProperties;
 
         const targetWillAttemptMitigation = mitigationCalculator.targetWillAttemptMitigation();
@@ -159,7 +157,7 @@ export class HitOutcomeCalculator {
         const percentChanceToCrit = HitOutcomeMitigationCalculator.getActionCritChance(
           this.action,
           actionLevel,
-          user,
+          actionUser,
           target,
           targetWillAttemptMitigation
         );
@@ -168,7 +166,7 @@ export class HitOutcomeCalculator {
 
         const resourceChangeModifier = new ResourceChangeModifier(
           this.action.hitOutcomeProperties,
-          combatant.combatantProperties,
+          actionUser,
           targetCombatant.combatantProperties,
           targetWillAttemptMitigation,
           resourceChange

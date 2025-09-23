@@ -27,7 +27,7 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
     const rng = new BasicRandomNumberGenerator();
 
     const hitOutcomeCalculator = new HitOutcomeCalculator(
-      context.combatantContext,
+      context.actionUserContext,
       context.tracker.actionExecutionIntent,
       rng
     );

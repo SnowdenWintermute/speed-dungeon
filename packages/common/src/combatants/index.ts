@@ -29,7 +29,7 @@ import {
 } from "./combatant-equipment/index.js";
 import { CombatAttribute } from "./attributes/index.js";
 import { getOwnedEquipment } from "./inventory/get-owned-items.js";
-import { EntityId } from "../primatives/index.js";
+import { EntityId, MaxAndCurrent } from "../primatives/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { canPickUpItem } from "./inventory/can-pick-up-item.js";
 import { EntityProperties } from "../primatives/index.js";
@@ -39,7 +39,6 @@ import {
   CombatActionName,
   FriendOrFoe,
   getUnmetCostResourceTypes,
-  TargetingScheme,
 } from "../combat/combat-actions/index.js";
 import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
 import { getActionNamesFilteredByUseableContext } from "./owned-actions/get-owned-action-names-filtered-by-usable-context.js";
@@ -92,6 +91,17 @@ export class Combatant implements IActionUser {
     public entityProperties: EntityProperties,
     public combatantProperties: CombatantProperties
   ) {}
+
+  getCombatantProperties(): CombatantProperties {
+    return this.combatantProperties;
+  }
+
+  getConditionStacks(): MaxAndCurrent {
+    throw new Error("Only conditions have stacks");
+  }
+  getEntityProperties(): EntityProperties {
+    return this.entityProperties;
+  }
   getName(): string {
     return this.entityProperties.name;
   }
@@ -121,22 +131,22 @@ export class Combatant implements IActionUser {
     return this.entityProperties.id;
   }
   getLevel(): number {
-    throw new Error("Method not implemented.");
+    return this.combatantProperties.level;
   }
   getTotalAttributes(): CombatantAttributeRecord {
-    throw new Error("Method not implemented.");
+    return CombatantProperties.getTotalAttributes(this.combatantProperties);
   }
   getOwnedAbilities(): Partial<Record<CombatActionName, CombatantActionState>> {
-    throw new Error("Method not implemented.");
+    return this.combatantProperties.abilityProperties.ownedActions;
   }
   getEquipmentOption() {
     return this.combatantProperties.equipment;
   }
   getInventoryOption(): null | Inventory {
-    throw new Error("Method not implemented.");
+    return this.combatantProperties.inventory;
   }
   getIdOfEntityToCreditWithThreat(): EntityId {
-    throw new Error("Method not implemented.");
+    return this.entityProperties.id;
   }
 
   static rehydrate(combatant: Combatant) {
@@ -170,7 +180,7 @@ export class Combatant implements IActionUser {
 
     if (action.costProperties.getMeetsCustomRequirements) {
       const { meetsRequirements, reasonDoesNot } = action.costProperties.getMeetsCustomRequirements(
-        this.combatantProperties,
+        this,
         rank
       );
       if (!meetsRequirements) return new Error(reasonDoesNot);
@@ -187,13 +197,13 @@ export class Combatant implements IActionUser {
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.IS_ON_COOLDOWN);
 
     const hasRequiredConsumables = CombatantProperties.hasRequiredConsumablesToUseAction(
-      combatantProperties,
+      this,
       action.name
     );
     if (!hasRequiredConsumables) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
 
     const hasRequiredResources = CombatantProperties.hasRequiredResourcesToUseAction(
-      combatantProperties,
+      this,
       actionAndRank,
       !!AdventuringParty.getBattleOption(party, game)
     );
@@ -454,20 +464,12 @@ export class CombatantProperties {
     );
   }
 
-  static getForward(combatantProperties: CombatantProperties) {
-    const z = combatantProperties.homeLocation.z;
-    const direction = z > 0 ? -1 : 1;
-    return new Vector3(0, 0, direction);
-  }
-
-  static hasRequiredConsumablesToUseAction(
-    combatantProperties: CombatantProperties,
-    actionName: CombatActionName
-  ) {
+  static hasRequiredConsumablesToUseAction(actionUser: IActionUser, actionName: CombatActionName) {
     const action = COMBAT_ACTIONS[actionName];
-    const consumableCost = action.costProperties.getConsumableCost(combatantProperties);
+    const consumableCost = action.costProperties.getConsumableCost(actionUser);
     if (consumableCost !== null) {
-      const { inventory } = combatantProperties;
+      const inventory = actionUser.getInventoryOption();
+      if (inventory === null) throw new Error("expected user to have an inventory");
       const { type, level } = consumableCost;
       const consumableOption = Inventory.getConsumableByTypeAndLevel(inventory, type, level);
       if (consumableOption === undefined) return false;
@@ -476,17 +478,17 @@ export class CombatantProperties {
   }
 
   static hasRequiredResourcesToUseAction(
-    combatantProperties: CombatantProperties,
+    actionUser: IActionUser,
     actionAndRank: ActionAndRank,
     isInCombat: boolean
   ) {
     const { actionName, rank } = actionAndRank;
 
     const action = COMBAT_ACTIONS[actionName];
-    const costs = action.costProperties.getResourceCosts(combatantProperties, isInCombat, rank);
+    const costs = action.costProperties.getResourceCosts(actionUser, isInCombat, rank);
 
     if (costs) {
-      const unmetCosts = getUnmetCostResourceTypes(combatantProperties, costs);
+      const unmetCosts = getUnmetCostResourceTypes(actionUser.getCombatantProperties(), costs);
       if (unmetCosts.length) return false;
     }
     return true;

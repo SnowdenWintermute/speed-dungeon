@@ -26,7 +26,7 @@ export class CharacterOutfitter {
       combatantProperties.inventory
     );
 
-    CharacterOutfitter.giveStartingAbilities(combatantProperties);
+    CharacterOutfitter.giveStartingAbilities(character);
     // CharacterOutfitter.giveStartingAttributes(combatantProperties);
     CharacterOutfitter.setUpInherentTraits(combatantProperties);
     CharacterOutfitter.giveStartingInventoryItems(combatantProperties);

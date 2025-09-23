@@ -1,4 +1,5 @@
 import { ARMOR_CLASS_EQUATION_MODIFIER } from "../../../app-consts.js";
+import { IActionUser } from "../../../combatant-context/action-user.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { CombatantProperties } from "../../../combatants/index.js";
 import { CombatActionHitOutcomeProperties } from "../../combat-actions/combat-action-hit-outcome-properties.js";
@@ -6,7 +7,7 @@ import { CombatActionHitOutcomeProperties } from "../../combat-actions/combat-ac
 /** Expects a negative hp change value */
 export default function getDamageAfterArmorClass(
   damageBefore: number,
-  user: CombatantProperties,
+  user: IActionUser,
   actionLevel: number,
   target: CombatantProperties,
   hitOutcomeProperties: CombatActionHitOutcomeProperties

@@ -1,6 +1,5 @@
 import {
   CharacterAssociatedData,
-  CombatantContext,
   CombatantProperties,
   ERROR_MESSAGES,
   ServerToClientEvent,
@@ -41,7 +40,7 @@ export function selectCombatActionLevelHandler(
   const actionAndNewlySelectedRank = { actionName, rank: newSelectedActionLevel };
 
   const hasRequiredResources = CombatantProperties.hasRequiredResourcesToUseAction(
-    character.combatantProperties,
+    character,
     actionAndNewlySelectedRank,
     !!party.battleId
   );

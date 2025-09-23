@@ -1,4 +1,5 @@
 import { RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO } from "../../../../app-consts.js";
+import { IActionUser } from "../../../../combatant-context/action-user.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
 import { CombatActionHitOutcomeProperties } from "../../../combat-actions/combat-action-hit-outcome-properties.js";
@@ -10,17 +11,13 @@ export class MagicalResourceChangeCalculationStrategy implements ResourceChangeC
   applyArmorClass(
     hitOutcomeProperties: CombatActionHitOutcomeProperties,
     hpChange: ResourceChange,
-    user: CombatantProperties,
+    user: IActionUser,
     actionLevel: number,
     target: CombatantProperties
   ) {
     return;
   }
-  applyResilience(
-    hpChange: ResourceChange,
-    user: CombatantProperties,
-    target: CombatantProperties
-  ) {
+  applyResilience(hpChange: ResourceChange, user: IActionUser, target: CombatantProperties) {
     if (hpChange.value === 0) return hpChange;
     if (hpChange.value > 0) {
       // don't apply resilience if being healed
@@ -31,7 +28,7 @@ export class MagicalResourceChangeCalculationStrategy implements ResourceChangeC
         (targetResilience / 100) * RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO + 1.0;
       hpChange.value *= resilienceMultiplier;
     } else {
-      const userAttributes = CombatantProperties.getTotalAttributes(user);
+      const userAttributes = user.getTotalAttributes();
       const targetAttributes = CombatantProperties.getTotalAttributes(target);
       hpChange.value = getDamageAfterResilience(hpChange.value, userAttributes, targetAttributes);
     }

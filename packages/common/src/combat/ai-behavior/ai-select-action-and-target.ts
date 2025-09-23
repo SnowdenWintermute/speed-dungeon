@@ -29,19 +29,17 @@ export function AISelectActionAndTarget(
   let actionExecutionIntentOption = behaviorContext.selectedActionIntent;
   if (actionExecutionIntentOption === null) {
     console.info("ai context did not have a selected actionExecutionIntent - passing turn");
-    actionExecutionIntentOption = new CombatActionExecutionIntent(
-      CombatActionName.PassTurn,
-      {
-        type: CombatActionTargetType.Single,
-        targetId: user.entityProperties.id,
-      },
-      0
-    );
+    actionExecutionIntentOption = new CombatActionExecutionIntent(CombatActionName.PassTurn, 0, {
+      type: CombatActionTargetType.Single,
+      targetId: user.entityProperties.id,
+    });
   }
 
   // must set their target because getAutoTarget may use it when creating action children or triggered actions
   // although I think this is already done by the behavior tree
-  userCombatantProperties.combatActionTarget = actionExecutionIntentOption.targets;
+  userCombatantProperties.targetingProperties.setSelectedTarget(
+    actionExecutionIntentOption.targets
+  );
 
   return actionExecutionIntentOption;
 }

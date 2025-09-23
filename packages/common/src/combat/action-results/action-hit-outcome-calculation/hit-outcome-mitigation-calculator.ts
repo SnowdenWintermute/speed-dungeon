@@ -27,7 +27,7 @@ export class HitOutcomeMitigationCalculator {
   constructor(
     private action: CombatActionComponent,
     private actionLevel: number,
-    private user: Combatant,
+    private user: IActionUser,
     private targetCombatant: Combatant,
     private incomingResourceChangesPerTarget: null | Partial<
       Record<

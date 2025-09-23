@@ -11,7 +11,6 @@ export * from "./combat-action-resource-change-properties.js";
 export * from "./combat-action-accuracy.js";
 export * from "./combat-action-combat-log-properties.js";
 
-import { CombatantProperties } from "../../combatants/index.js";
 import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js";
 import { CombatActionName } from "./combat-action-names.js";
 import { Battle } from "../../battle/index.js";
@@ -79,7 +78,7 @@ export abstract class CombatActionComponent {
     this.hitOutcomeProperties = config.hitOutcomeProperties;
     this.costProperties = {
       ...config.costProperties,
-      getResourceCosts: (user: CombatantProperties, inCombat: boolean, actionLevel: number) =>
+      getResourceCosts: (user: IActionUser, inCombat: boolean, actionLevel: number) =>
         config.costProperties.getResourceCosts(user, inCombat, actionLevel, this),
     };
 

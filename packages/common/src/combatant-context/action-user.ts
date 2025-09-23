@@ -1,5 +1,5 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
-import { Combatant, ConditionAppliedBy } from "../combatants/index.js";
+import { Combatant, CombatantProperties, ConditionAppliedBy } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import {
@@ -9,7 +9,7 @@ import {
   Inventory,
 } from "../combatants/index.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
-import { EntityId } from "../primatives/index.js";
+import { EntityId, EntityProperties, MaxAndCurrent } from "../primatives/index.js";
 import { ActionUserTargetingProperties } from "./action-user-targeting-properties.js";
 import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
@@ -21,6 +21,7 @@ export interface IActionUser {
   // GETTERS
   getEntityId(): EntityId;
   getName(): string;
+  getEntityProperties(): EntityProperties;
   getLevel(): number;
   getTotalAttributes(): CombatantAttributeRecord;
   getOwnedAbilities(): Partial<Record<CombatActionName, CombatantActionState>>;
@@ -28,7 +29,15 @@ export interface IActionUser {
   getInventoryOption(): null | Inventory;
   getTargetingProperties(): ActionUserTargetingProperties;
   getAllyAndOpponentIds(): Record<FriendOrFoe, EntityId[]>;
+
+  // COMBATANTS
+  getCombatantProperties(): CombatantProperties;
+
+  // CONDITIONS
   getConditionAppliedBy(): ConditionAppliedBy;
+  getConditionStacks(): MaxAndCurrent;
+
+  // POSITION HAVERS
   getPosition(): Vector3;
   getHomePosition(): Vector3;
   getHomeRotation(): Quaternion;

@@ -2,11 +2,11 @@ import {
   COMBAT_ACTIONS,
   CombatActionName,
   CombatantActionState,
-  CombatantProperties,
   MaxAndCurrent,
 } from "@speed-dungeon/common";
+import { IActionUser } from "@speed-dungeon/common/src/combatant-context/action-user";
 
-export function giveStartingAbilities(combatantProperties: CombatantProperties) {
+export function giveStartingAbilities(actionUser: IActionUser) {
   const ownedActions = [
     // BASICS
     CombatActionName.Attack,
@@ -37,11 +37,11 @@ export function giveStartingAbilities(combatantProperties: CombatantProperties) 
     const action = new CombatantActionState(actionName);
     if (levelTwoSpells.includes(actionName)) action.level = 3;
     const cooldownOption = COMBAT_ACTIONS[actionName].costProperties.getCooldownTurns(
-      combatantProperties,
+      actionUser,
       action.level
     );
     if (cooldownOption) action.cooldown = new MaxAndCurrent(cooldownOption, 0);
 
-    combatantProperties.abilityProperties.ownedActions[actionName] = action;
+    actionUser.getCombatantProperties().abilityProperties.ownedActions[actionName] = action;
   }
 }
