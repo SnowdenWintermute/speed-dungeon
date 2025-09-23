@@ -1,6 +1,9 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import getCombatantInParty from "../../adventuring-party/get-combatant-in-party.js";
-import { TargetCategories } from "../combat-actions/targeting-schemes-and-categories.js";
+import {
+  FriendOrFoe,
+  TargetCategories,
+} from "../combat-actions/targeting-schemes-and-categories.js";
 import {
   PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS,
   ProhibitedTargetCombatantStates,
@@ -13,33 +16,32 @@ export class TargetFilterer {
   static filterPossibleTargetIdsByProhibitedCombatantStates(
     party: AdventuringParty,
     prohibitedStates: null | ProhibitedTargetCombatantStates[],
-    allyIds: string[],
-    opponentIdsOption: string[]
-  ): Error | [string[], string[]] {
+    allyAndOpponentIds: Record<FriendOrFoe, EntityId[]>
+  ): Record<FriendOrFoe, EntityId[]> {
     if (prohibitedStates === null) {
-      return [allyIds, opponentIdsOption];
+      return allyAndOpponentIds;
     }
-    const filteredAllyIdsResult = TargetFilterer.filterTargetIdGroupByProhibitedCombatantStates(
+    const filteredAllyIds = TargetFilterer.filterTargetIdGroupByProhibitedCombatantStates(
       party,
-      allyIds,
+      allyAndOpponentIds[FriendOrFoe.Friendly],
       prohibitedStates
     );
-    if (filteredAllyIdsResult instanceof Error) return filteredAllyIdsResult;
 
     let filteredOpponentIdsOption: EntityId[] = [];
 
-    if (opponentIdsOption.length) {
-      const filteredOpponentIdsResult =
-        TargetFilterer.filterTargetIdGroupByProhibitedCombatantStates(
-          party,
-          opponentIdsOption,
-          prohibitedStates
-        );
-      if (filteredOpponentIdsResult instanceof Error) return filteredOpponentIdsResult;
-      filteredOpponentIdsOption = filteredOpponentIdsResult;
+    if (allyAndOpponentIds[FriendOrFoe.Hostile].length) {
+      const filteredOpponentIds = TargetFilterer.filterTargetIdGroupByProhibitedCombatantStates(
+        party,
+        allyAndOpponentIds[FriendOrFoe.Hostile],
+        prohibitedStates
+      );
+      filteredOpponentIdsOption = filteredOpponentIds;
     }
 
-    return [filteredAllyIdsResult, filteredOpponentIdsOption];
+    return {
+      [FriendOrFoe.Friendly]: filteredAllyIds,
+      [FriendOrFoe.Hostile]: filteredOpponentIdsOption,
+    };
   }
 
   static filterTargetIdGroupByProhibitedCombatantStates(
@@ -51,7 +53,7 @@ export class TargetFilterer {
 
     for (let targetId of potentialIds) {
       const combatantResult = getCombatantInParty(party, targetId);
-      if (combatantResult instanceof Error) return combatantResult;
+      if (combatantResult instanceof Error) throw combatantResult;
       const { entityProperties: _, combatantProperties: combatantProperties } = combatantResult;
       let targetIsInProhibitedState = false;
 
@@ -71,18 +73,18 @@ export class TargetFilterer {
   static filterPossibleTargetIdsByActionTargetCategories(
     targetCategories: TargetCategories,
     actionUserId: string,
-    allyIds: string[],
-    opponentIdsOption: string[]
-  ): [string[], string[]] {
+    allyAndOpponentIds: Record<FriendOrFoe, EntityId[]>
+  ) {
     switch (targetCategories) {
       case TargetCategories.Opponent:
-        return [[], opponentIdsOption];
+        allyAndOpponentIds[FriendOrFoe.Friendly] = [];
       case TargetCategories.User:
-        return [[actionUserId], []];
+        allyAndOpponentIds[FriendOrFoe.Hostile] = [];
+        allyAndOpponentIds[FriendOrFoe.Friendly] = [actionUserId];
       case TargetCategories.Friendly:
-        return [allyIds, []];
+        allyAndOpponentIds[FriendOrFoe.Hostile] = [];
       case TargetCategories.Any:
-        return [allyIds, opponentIdsOption];
+        return;
     }
   }
 }

@@ -12,7 +12,7 @@ import {
   CombatActionResource,
 } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
-import { CombatantConditionName } from "../../../../combatants/index.js";
+import { CombatantCondition, CombatantConditionName } from "../../../../combatants/index.js";
 import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
@@ -31,9 +31,12 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
       lifestealPercentage: null,
     };
 
-    const stacks = user.asShimmedUserOfTriggeredCondition?.condition.stacksOption?.current || 1;
+    let stacks = 1;
+    if (user instanceof CombatantCondition) stacks = user.stacksOption?.current || 1;
 
-    const baseValues = new NumberRange(user.level * stacks, user.level * stacks * 10);
+    const userLevel = user.getLevel();
+
+    const baseValues = new NumberRange(userLevel * stacks, userLevel * stacks * 10);
 
     const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
     const hpChangeProperties: CombatActionResourceChangeProperties = {

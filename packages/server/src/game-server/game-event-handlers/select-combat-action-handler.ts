@@ -11,6 +11,7 @@ import {
 import { getGameServer } from "../../singletons/index.js";
 import { TargetingCalculator } from "@speed-dungeon/common";
 import { ActionAndRank } from "@speed-dungeon/common/src/combatant-context/action-user-targeting-properties.js";
+import { ActionUserContext } from "@speed-dungeon/common/src/combatant-context/action-user.js";
 
 export function selectCombatActionHandler(
   eventData: {
@@ -24,7 +25,6 @@ export function selectCombatActionHandler(
   let { actionAndRankOption, itemIdOption } = eventData;
 
   const { character, game, party, player } = characterAssociatedData;
-  let combatActionOption: null | CombatActionComponent = null;
 
   if (actionAndRankOption !== null) {
     const combatActionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
@@ -32,7 +32,6 @@ export function selectCombatActionHandler(
       actionAndRankOption
     );
     if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
-    combatActionOption = combatActionPropertiesResult;
   }
 
   const targetingProperties = character.getTargetingProperties();
@@ -54,11 +53,11 @@ export function selectCombatActionHandler(
   targetingProperties.setSelectedItemId(itemIdOption || null);
 
   const targetingCalculator = new TargetingCalculator(
-    new CombatantContext(game, party, character),
+    new ActionUserContext(game, party, character),
     player
   );
   const initialTargetsResult =
-    targetingCalculator.assignInitialCombatantActionTargets(combatActionOption);
+    targetingProperties.assignInitialTargetsForSelectedAction(targetingCalculator);
 
   if (initialTargetsResult instanceof Error) {
     targetingProperties.clear();

@@ -1,8 +1,10 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
+import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
 import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
+import { EntityId } from "../primatives/index.js";
 
 export class CombatantContext {
   constructor(
@@ -18,9 +20,10 @@ export class CombatantContext {
     return expectedBattle;
   }
 
-  getAllyAndOpponentIds() {
+  getAllyAndOpponentIds(): Record<FriendOrFoe, EntityId[]> {
     const battleOption = this.getBattleOption();
-    if (battleOption === null) return { allyIds: this.party.characterPositions, opponentIds: [] };
+    if (battleOption === null)
+      return { [FriendOrFoe.Friendly]: this.party.characterPositions, [FriendOrFoe.Hostile]: [] };
 
     const shimmedConditionUser =
       this.combatant.combatantProperties.asShimmedUserOfTriggeredCondition;
@@ -44,19 +47,12 @@ export class CombatantContext {
     const toReturn: Combatant[] = [];
     const battleOption = SpeedDungeonGame.getBattleOption(this.game, this.party.battleId);
     if (!battleOption) return toReturn;
-    const result = Battle.getAllyIdsAndOpponentIdsOption(
+    const idsByDisposition = Battle.getAllyIdsAndOpponentIdsOption(
       battleOption,
       this.combatant.entityProperties.id
     );
-    if (result instanceof Error) {
-      console.error(result);
-      return toReturn;
-    }
 
-    const { allyIds, opponentIds } = result;
-    if (!opponentIds) return toReturn;
-
-    for (const id of opponentIds) {
+    for (const id of idsByDisposition[FriendOrFoe.Hostile]) {
       const opponentCombatantResult = AdventuringParty.getCombatant(this.party, id);
       if (opponentCombatantResult instanceof Error) {
         console.error(opponentCombatantResult);

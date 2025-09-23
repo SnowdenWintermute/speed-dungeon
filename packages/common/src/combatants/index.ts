@@ -38,6 +38,7 @@ import { Inventory } from "./inventory/index.js";
 import {
   ActionPayableResource,
   CombatActionName,
+  FriendOrFoe,
   getUnmetCostResourceTypes,
   TargetingScheme,
 } from "../combat/combat-actions/index.js";
@@ -86,6 +87,9 @@ export class Combatant implements IActionUser {
     public entityProperties: EntityProperties,
     public combatantProperties: CombatantProperties
   ) {}
+  getAllyAndOpponentIds(): Record<FriendOrFoe, EntityId[]> {
+    throw new Error("Method not implemented.");
+  }
   getTargetingProperties = () => this.combatantProperties.targetingProperties;
   payResourceCosts(): void {
     throw new Error("Method not implemented.");

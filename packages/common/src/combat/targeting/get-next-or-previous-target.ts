@@ -15,7 +15,7 @@ export default function getNextOrPreviousTarget(
   currentTargets: CombatActionTarget,
   direction: NextOrPrevious,
   validTargetIds: Record<FriendOrFoe, EntityId[]>
-): Error | CombatActionTarget {
+): CombatActionTarget {
   const allyIdsOption = validTargetIds[FriendOrFoe.Friendly];
   const opponentIdsOption = validTargetIds[FriendOrFoe.Hostile];
 
@@ -28,7 +28,7 @@ export default function getNextOrPreviousTarget(
     case CombatActionTargetType.Single:
       switch (combatAction.targetingProperties.getValidTargetCategories(actionLevel)) {
         case TargetCategories.Opponent:
-          if (!opponentIdsOption) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
+          if (!opponentIdsOption) throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
           newTarget = cycleListGivenCurrentValue(
             opponentIdsOption,
             currentTargets.targetId,
@@ -41,7 +41,7 @@ export default function getNextOrPreviousTarget(
         case TargetCategories.User:
           return currentTargets;
         case TargetCategories.Friendly:
-          if (!allyIdsOption) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
+          if (!allyIdsOption) throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
           newTarget = cycleListGivenCurrentValue(allyIdsOption, currentTargets.targetId, direction);
           return {
             type: currentTargets.type,

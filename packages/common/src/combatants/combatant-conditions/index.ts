@@ -105,6 +105,9 @@ export abstract class CombatantCondition implements IActionUser {
     public name: CombatantConditionName,
     public stacksOption: null | MaxAndCurrent
   ) {}
+  getAllyAndOpponentIds(): Record<FriendOrFoe, EntityId[]> {
+    throw new Error("Method not implemented.");
+  }
   getTargetingProperties(): ActionUserTargetingProperties {
     if (this.targetingProperties) return this.targetingProperties;
     throw new Error("Condition was not configured with targetingProperties");

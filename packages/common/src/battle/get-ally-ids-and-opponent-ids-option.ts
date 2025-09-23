@@ -1,15 +1,12 @@
 import { Battle } from "./index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
-
-export interface CombatantIdsByDisposition {
-  allyIds: string[];
-  opponentIds: string[];
-}
+import { FriendOrFoe } from "../combat/index.js";
+import { EntityId } from "../primatives/index.js";
 
 export function getAllyIdsAndOpponentIdsOption(
   battle: Battle,
   combatantId: string
-): CombatantIdsByDisposition {
+): Record<FriendOrFoe, EntityId[]> {
   const opponentIds = battle.groupA.combatantIds.includes(combatantId)
     ? battle.groupB.combatantIds
     : battle.groupB.combatantIds.includes(combatantId)
@@ -23,7 +20,5 @@ export function getAllyIdsAndOpponentIdsOption(
       : undefined;
   if (!allyIds) throw new Error(ERROR_MESSAGES.BATTLE.COMBATANT_NOT_IN_BATTLE);
 
-  return { allyIds, opponentIds };
+  return { [FriendOrFoe.Friendly]: allyIds, [FriendOrFoe.Hostile]: opponentIds };
 }
-
-// export function getAllyIdsAndOpponentIdsOptionByFriendOrFoe

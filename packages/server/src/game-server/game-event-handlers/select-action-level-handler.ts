@@ -8,6 +8,7 @@ import {
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../singletons/index.js";
 import { TargetingCalculator } from "@speed-dungeon/common";
+import { ActionUserContext } from "@speed-dungeon/common/src/combatant-context/action-user.js";
 
 export function selectCombatActionLevelHandler(
   eventData: {
@@ -50,9 +51,9 @@ export function selectCombatActionLevelHandler(
   targetingProperties.setSelectedActionAndRank(actionAndNewlySelectedRank);
 
   // check if current targets are still valid at this level
-  const combatantContext = new CombatantContext(game, party, character);
-  const targetingCalculator = new TargetingCalculator(combatantContext, player);
-  targetingCalculator.updateTargetingSchemeAfterSelectingActionLevel(newSelectedActionLevel);
+  const actionUserContext = new ActionUserContext(game, party, character);
+  const targetingCalculator = new TargetingCalculator(actionUserContext, player);
+  targetingCalculator.updateTargetingSchemeAfterSelectingActionLevel();
 
   gameServer.io
     .in(getPartyChannelName(game.name, party.name))

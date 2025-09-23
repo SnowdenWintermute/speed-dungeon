@@ -1,6 +1,5 @@
 import {
   CharacterAssociatedData,
-  CombatantContext,
   ERROR_MESSAGES,
   NextOrPrevious,
   ServerToClientEvent,
@@ -8,6 +7,7 @@ import {
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../singletons/index.js";
+import { ActionUserContext } from "@speed-dungeon/common/src/combatant-context/action-user.js";
 
 export function cycleTargetsHandler(
   eventData: { characterId: string; direction: NextOrPrevious },
@@ -20,15 +20,18 @@ export function cycleTargetsHandler(
   if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
 
   const targetingCalculator = new TargetingCalculator(
-    new CombatantContext(game, party, character),
+    new ActionUserContext(game, party, character),
     playerOption
   );
-  const result = targetingCalculator.cycleCharacterTargets(
-    character.entityProperties.id,
-    eventData.direction
-  );
 
-  if (result instanceof Error) return result;
+  const targetingProperties = character.getTargetingProperties();
+  const selectedActionAndRank = targetingProperties.getSelectedActionAndRank();
+  if (selectedActionAndRank === null)
+    return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
+
+  const validTargetsByDisposition =
+    targetingCalculator.getFilteredPotentialTargetIdsForAction(selectedActionAndRank);
+  targetingProperties.cycleTargets(eventData.direction, playerOption, validTargetsByDisposition);
 
   getGameServer()
     .io.to(getPartyChannelName(game.name, party.name))

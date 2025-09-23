@@ -12,6 +12,7 @@ import {
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
 import { EntityId } from "../primatives/index.js";
 import { ActionUserTargetingProperties } from "./action-user-targeting-properties.js";
+import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
 
 export interface IActionUser {
   payResourceCosts(): void;
@@ -25,6 +26,7 @@ export interface IActionUser {
   getEquipmentOption: () => null | CombatantEquipment;
   getInventoryOption(): null | Inventory;
   getTargetingProperties(): ActionUserTargetingProperties;
+  getAllyAndOpponentIds(): Record<FriendOrFoe, EntityId[]>;
 
   // ex: a condition should give threat caused by it's burning ticks to the caster of the spell that caused the condition
   getIdOfEntityToCreditWithThreat(): EntityId;
@@ -45,8 +47,9 @@ export class ActionUserContext {
   }
 
   getAllyAndOpponentIds() {
+    throw new Error("not implemented");
     const battleOption = this.getBattleOption();
-    return { allyIds: this.party.characterPositions, opponentIds: [] };
+    return { [FriendOrFoe.Friendly]: this.party.characterPositions, [FriendOrFoe.Hostile]: [] };
   }
 
   getOpponents(): Combatant[] {
