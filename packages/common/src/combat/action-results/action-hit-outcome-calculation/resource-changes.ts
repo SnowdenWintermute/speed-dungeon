@@ -71,9 +71,7 @@ export class ManaChanges extends ResourceChanges<ManaChange> {
     super();
   }
 
-  applyToGame(combatantContext: CombatantContext) {
-    const { party } = combatantContext;
-
+  applyToGame(party: AdventuringParty) {
     for (const [targetId, change] of Object.entries(this.changes)) {
       const targetResult = AdventuringParty.getCombatant(party, targetId);
       if (targetResult instanceof Error) throw targetResult;

@@ -1,4 +1,5 @@
 import {
+  ActionIntentAndUser,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
@@ -40,7 +41,7 @@ import { MaxAndCurrent } from "../../../primatives/max-and-current.js";
 
 const stepType = ActionResolutionStepType.EvalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
-  branchingActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] = [];
+  branchingActions: ActionIntentAndUser[] = [];
   constructor(context: ActionResolutionStepContext) {
     const gameUpdateCommand: ActivatedTriggersGameUpdateCommand = {
       type: GameUpdateCommandType.ActivatedTriggers,
@@ -155,7 +156,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         addHitOutcomeDurabilityChanges(
           durabilityChanges,
           actionUser,
-          actionExecutionIntent.level,
+          actionExecutionIntent.rank,
           targetCombatant,
           action,
           flag,
@@ -200,7 +201,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
           const conditionsToApply = action.hitOutcomeProperties.getAppliedConditions(
             actionUser,
-            context.tracker.actionExecutionIntent.level
+            context.tracker.actionExecutionIntent.rank
           );
 
           if (conditionsToApply) {
@@ -261,20 +262,20 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           // We set their target because of how auto targeting works by checking their selected target
           // but it would be nicer if we could force a certain targetId from the actionExecutionIntent
           // since maybe there would be a bunch of counterattacks queued up. For now though, there isn't.
-          targetCombatant.combatantProperties.combatActionTarget = {
+          targetCombatant.combatantProperties.targetingProperties.setSelectedTarget({
             type: CombatActionTargetType.Single,
             targetId: actionUser.getEntityId(),
-          };
+          });
 
           this.branchingActions.push({
             user: targetCombatant,
             actionExecutionIntent: new CombatActionExecutionIntent(
               CombatActionName.Counterattack,
+              1,
               {
                 type: CombatActionTargetType.Single,
                 targetId: actionUser.getEntityId(),
-              },
-              1
+              }
             ),
           });
         }
@@ -286,9 +287,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
   getTimeToCompletion = () => 0;
   isComplete = () => true;
 
-  getBranchingActions():
-    | Error
-    | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
+  getBranchingActions(): Error | ActionIntentAndUser[] {
     const toReturn = this.branchingActions;
     return toReturn;
   }

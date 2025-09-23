@@ -3,7 +3,6 @@ import { EntityId } from "../primatives/index.js";
 import { DungeonRoom, DungeonRoomType } from "./dungeon-room.js";
 import getCombatant from "./get-combatant-in-party.js";
 import { getItemInAdventuringParty } from "./get-item-in-party.js";
-import { getIdsAndSelectedActionsOfCharactersTargetingCombatant } from "./get-ids-and-selected-actions-of-characters-targeting-combatant.js";
 import getCharacterIfOwned from "./get-character-if-owned.js";
 import { removeCharacterFromParty } from "./remove-character-from-party.js";
 import { generateUnexploredRoomsQueue } from "./generate-unexplored-rooms-queue.js";
@@ -52,6 +51,20 @@ export class AdventuringParty {
 
   static removeCharacter = removeCharacterFromParty;
   static getCombatant = getCombatant;
+  static getCombatants(party: AdventuringParty, entityIds: EntityId[]) {
+    const toReturn: Combatant[] = [];
+
+    for (const id of entityIds) {
+      const opponentCombatantResult = AdventuringParty.getCombatant(party, id);
+      if (opponentCombatantResult instanceof Error) {
+        console.error(opponentCombatantResult);
+        break;
+      }
+      toReturn.push(opponentCombatantResult);
+    }
+
+    return toReturn;
+  }
   static getExpectedCombatant(party: AdventuringParty, combatantId: EntityId) {
     const combatantResult = AdventuringParty.getCombatant(party, combatantId);
     if (combatantResult instanceof Error) throw combatantResult;
@@ -75,8 +88,6 @@ export class AdventuringParty {
     return conditionOption;
   }
   static getItem = getItemInAdventuringParty;
-  static getIdsAndSelectedActionsOfCharactersTargetingCombatant =
-    getIdsAndSelectedActionsOfCharactersTargetingCombatant;
   static getCharacterIfOwned = getCharacterIfOwned;
   generateUnexploredRoomsQueue = generateUnexploredRoomsQueue;
   static updatePlayerReadiness = updatePlayerReadiness;

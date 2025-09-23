@@ -42,10 +42,11 @@ export class BurningCombatantCondition extends CombatantCondition {
   constructor(
     id: EntityId,
     appliedBy: ConditionAppliedBy,
+    appliedTo: EntityId,
     public level: number,
     stacksOption: null | MaxAndCurrent
   ) {
-    super(id, appliedBy, CombatantConditionName.Burning, stacksOption);
+    super(id, appliedBy, appliedTo, CombatantConditionName.Burning, stacksOption);
   }
 
   getAttributeModifiers = undefined;

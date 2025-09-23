@@ -99,10 +99,9 @@ export const ACTION_ENTITY_ACTION_INTENT_GETTERS: Partial<
   Record<ActionEntityName, () => CombatActionExecutionIntent>
 > = {
   [ActionEntityName.Firewall]: () => {
-    return new CombatActionExecutionIntent(
-      CombatActionName.FirewallPassTurn,
-      { type: CombatActionTargetType.Single, targetId: "" },
-      1
-    );
+    return new CombatActionExecutionIntent(CombatActionName.FirewallPassTurn, 1, {
+      type: CombatActionTargetType.Single,
+      targetId: "",
+    });
   },
 };

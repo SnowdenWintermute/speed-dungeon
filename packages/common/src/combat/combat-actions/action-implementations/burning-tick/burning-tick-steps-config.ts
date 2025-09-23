@@ -17,7 +17,7 @@ const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionSt
 stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
   getCosmeticEffectsToStart: (context) => {
     const { actionExecutionIntent } = context.tracker;
-    const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
+    const targetingCalculator = new TargetingCalculator(context.actionUserContext, null);
 
     const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
       COMBAT_ACTIONS[actionExecutionIntent.actionName],

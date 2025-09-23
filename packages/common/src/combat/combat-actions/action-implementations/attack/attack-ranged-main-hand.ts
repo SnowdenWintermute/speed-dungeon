@@ -61,13 +61,15 @@ export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
         expectedProjectile.actionEntity
       );
 
+      const { rank, targets } = context.tracker.actionExecutionIntent;
+
       return [
         {
           user: projectileUser,
           actionExecutionIntent: new CombatActionExecutionIntent(
             CombatActionName.AttackRangedMainhandProjectile,
-            context.tracker.actionExecutionIntent.targets,
-            context.tracker.actionExecutionIntent.level
+            rank,
+            targets
           ),
         },
       ];

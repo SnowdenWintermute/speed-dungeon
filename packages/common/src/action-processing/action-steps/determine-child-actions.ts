@@ -1,11 +1,7 @@
-import {
-  COMBAT_ACTIONS,
-  COMBAT_ACTION_NAME_STRINGS,
-  CombatActionExecutionIntent,
-} from "../../combat/index.js";
-import { Combatant } from "../../combatants/index.js";
+import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import {
+  ActionIntentAndUser,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
@@ -24,7 +20,7 @@ export class DetermineChildActionsActionResolutionStep extends ActionResolutionS
     const childActionIntents = [];
     for (const action of children) {
       const targetsResult = action.targetingProperties.getAutoTarget(
-        context.combatantContext,
+        context.actionUserContext,
         context.tracker
       );
       if (targetsResult instanceof Error) {
@@ -36,11 +32,11 @@ export class DetermineChildActionsActionResolutionStep extends ActionResolutionS
         continue;
       }
 
-      const actionLevel = currentActionExecutionIntent.level;
+      const actionLevel = currentActionExecutionIntent.rank;
 
       context.tracker.parentActionManager.sequentialActionManagerRegistry.incrementInputLockReferenceCount();
       childActionIntents.push(
-        new CombatActionExecutionIntent(action.name, targetsResult, actionLevel)
+        new CombatActionExecutionIntent(action.name, actionLevel, targetsResult)
       );
     }
 
@@ -50,7 +46,7 @@ export class DetermineChildActionsActionResolutionStep extends ActionResolutionS
   protected onTick = () => {};
   getTimeToCompletion = () => 0;
   isComplete = () => true;
-  getBranchingActions(): { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
+  getBranchingActions(): ActionIntentAndUser[] {
     // this step really does nothing, which allows the step tracker to use that loop to get the action's children
     // as determined by the action in that moment, which is the default behavior of the loop, we just needed
     // a "null step" to do this

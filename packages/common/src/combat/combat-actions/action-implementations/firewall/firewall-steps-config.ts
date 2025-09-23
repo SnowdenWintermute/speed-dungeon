@@ -29,7 +29,7 @@ const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionSt
 
 stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
   getSpawnableEntity: (context) => {
-    const { party, combatant: user } = context.combatantContext;
+    const { party, actionUser } = context.actionUserContext;
 
     const existingFirewallOption = AdventuringParty.getExistingActionEntityOfType(
       party,
@@ -59,9 +59,11 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
       dimensions,
     };
 
+    const selectedActionAndRank = actionUser.getTargetingProperties().getSelectedActionAndRank();
+
     const actionLevel = new MaxAndCurrent(
       COMBAT_ACTION_MAX_LEVEL,
-      user.combatantProperties.selectedActionLevel || 1
+      selectedActionAndRank?.rank || 1
     );
 
     const lifetime = new MaxAndCurrent(
@@ -71,7 +73,7 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
 
     const actionOriginData: ActionEntityActionOriginData = {
       actionLevel,
-      userCombatantAttributes: CombatantProperties.getTotalAttributes(user.combatantProperties),
+      userCombatantAttributes: actionUser.getTotalAttributes(),
       userElementalAffinities: CombatantProperties.getCombatantTotalElementalAffinities(
         user.combatantProperties
       ),

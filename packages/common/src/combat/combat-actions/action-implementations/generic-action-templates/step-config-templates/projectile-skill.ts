@@ -17,8 +17,9 @@ const config = cloneDeep(RANGED_SKILL_STEPS_CONFIG);
 config.finalSteps[ActionResolutionStepType.RecoveryMotion] = {
   ...config.finalSteps[ActionResolutionStepType.RecoveryMotion],
   getAuxiliaryEntityMotions: (context) => {
-    const { party } = context.combatantContext;
-    const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
+    const { actionUserContext } = context;
+    const { party } = actionUserContext;
+    const targetingCalculator = new TargetingCalculator(actionUserContext, null);
     const primaryTarget = targetingCalculator.getPrimaryTargetCombatant(
       party,
       context.tracker.actionExecutionIntent

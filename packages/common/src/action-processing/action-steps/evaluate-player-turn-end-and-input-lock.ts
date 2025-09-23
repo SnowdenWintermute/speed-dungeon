@@ -5,10 +5,11 @@ import {
   CombatActionExecutionIntent,
   ThreatChanges,
 } from "../../combat/index.js";
-import { Combatant, CombatantCondition, CombatantProperties } from "../../combatants/index.js";
+import { Combatant, CombatantProperties } from "../../combatants/index.js";
 import { ThreatCalculator } from "../../combatants/threat-manager/threat-calculator.js";
 import {
   ActionCompletionUpdateCommand,
+  ActionIntentAndUser,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
@@ -17,10 +18,10 @@ import {
 
 const stepType = ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock;
 export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends ActionResolutionStep {
-  branchingActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] = [];
+  branchingActions: ActionIntentAndUser[] = [];
   constructor(context: ActionResolutionStepContext) {
     super(stepType, context, null); // this step should produce no game update unless it is unlocking input
-    const { party } = context.combatantContext;
+    const { party } = context.actionUserContext;
 
     const gameUpdateCommandOption = evaluatePlayerEndTurnAndInputLock(context);
     if (gameUpdateCommandOption) {
@@ -48,9 +49,7 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
   getTimeToCompletion = () => 0;
   isComplete = () => true;
 
-  getBranchingActions():
-    | Error
-    | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
+  getBranchingActions(): Error | ActionIntentAndUser[] {
     const toReturn = this.branchingActions;
     return toReturn;
   }
@@ -65,7 +64,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
   const actionNameString = COMBAT_ACTION_NAME_STRINGS[tracker.actionExecutionIntent.actionName];
 
-  const { game, party, combatant } = context.combatantContext;
+  const { game, party, actionUser } = context.actionUserContext;
   const battleOption = AdventuringParty.getBattleOption(party, game);
 
   const { asShimmedUserOfTriggeredCondition } = combatant.combatantProperties;
@@ -104,8 +103,8 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
       const threatCalculator = new ThreatCalculator(
         threatChanges,
         context.tracker.hitOutcomes,
-        context.combatantContext.party,
-        context.combatantContext.combatant,
+        context.actionUserContext.party,
+        context.actionUserContext.actionUser,
         context.tracker.actionExecutionIntent.actionName
       );
       threatCalculator.addVolatileThreatDecay();

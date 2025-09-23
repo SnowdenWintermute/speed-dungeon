@@ -43,9 +43,9 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
       self: CombatActionComponent
     ): CombatActionComponent[] {
       const toReturn: CombatActionComponent[] = [];
-      const user = context.combatantContext.combatant.combatantProperties;
+      const { actionUser } = context.actionUserContext;
 
-      if (CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(user))
+      if (CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(actionUser))
         toReturn.push(ATTACK_RANGED_MAIN_HAND);
       else {
         toReturn.push(ATTACK_MELEE_MAIN_HAND);

@@ -14,10 +14,10 @@ export class CheckIfHasRequiredResourcesForAction implements BehaviorNode {
     const { combatantProperties } = this.combatant;
 
     const hasResources = CombatantProperties.hasRequiredResourcesToUseAction(
-      combatantProperties,
-      this.actionNameOption,
-      true,
-      1 // @TODO - actually select an action level
+      this.combatant,
+      // @TODO - actually select an action level
+      { actionName: this.actionNameOption, rank: 1 },
+      true
     );
     if (hasResources) return BehaviorNodeState.Success;
 

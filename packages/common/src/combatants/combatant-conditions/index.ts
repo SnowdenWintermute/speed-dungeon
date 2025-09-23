@@ -49,6 +49,7 @@ export const MAX_CONDITION_STACKS = 99;
 type CombatantConditionConstructor = new (
   id: EntityId,
   appliedBy: ConditionAppliedBy,
+  appliedTo: EntityId,
   level: number,
   stacksOption: null | MaxAndCurrent
 ) => CombatantCondition;
@@ -101,9 +102,16 @@ export abstract class CombatantCondition implements IActionUser {
   constructor(
     public id: EntityId,
     private appliedBy: ConditionAppliedBy,
+    public appliedTo: EntityId,
     public name: CombatantConditionName,
     public stacksOption: null | MaxAndCurrent
   ) {}
+  getConditionTickPropertiesOption() {
+    return this.tickPropertiesOption;
+  }
+  getConditionAppliedTo(): EntityId {
+    return this.appliedTo;
+  }
 
   getCombatantProperties(): CombatantProperties {
     throw new Error("Conditions do not have combatantProperties");

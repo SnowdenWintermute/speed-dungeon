@@ -13,9 +13,11 @@ export class CombatantMotionActionResolutionStep extends EntityMotionActionResol
   constructor(context: ActionResolutionStepContext, step: ActionResolutionStepType) {
     const { actionName } = context.tracker.actionExecutionIntent;
 
+    const { actionUser } = context.actionUserContext;
+
     const update: CombatantMotionUpdate = {
       entityType: SpawnableEntityType.Combatant,
-      entityId: context.combatantContext.combatant.entityProperties.id,
+      entityId: actionUser.getEntityId(),
       idleOnComplete: step === ActionResolutionStepType.FinalPositioning,
     };
 
@@ -28,7 +30,7 @@ export class CombatantMotionActionResolutionStep extends EntityMotionActionResol
 
     if (stepConfig.getEquipmentAnimations)
       update.equipmentAnimations = stepConfig.getEquipmentAnimations(
-        context.combatantContext.combatant.combatantProperties,
+        actionUser.getCombatantProperties(),
         context.manager.sequentialActionManagerRegistry.animationLengths
       );
 
@@ -46,7 +48,7 @@ export class CombatantMotionActionResolutionStep extends EntityMotionActionResol
       step,
       context,
       gameUpdateCommand,
-      context.combatantContext.combatant.combatantProperties.position,
+      actionUser.getPosition(),
       COMBATANT_TIME_TO_MOVE_ONE_METER
     );
   }

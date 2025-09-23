@@ -120,7 +120,7 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
 stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
   getCosmeticDestinationY: (context) => {
     const { tracker } = context;
-    const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
+    const targetingCalculator = new TargetingCalculator(context.actionUserContext, null);
 
     const primaryTargetId = throwIfError(
       targetingCalculator.getPrimaryTargetCombatantId(tracker.actionExecutionIntent)

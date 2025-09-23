@@ -22,9 +22,13 @@ export function determineMeleeAttackAnimationType(
   context: ActionResolutionStepContext,
   holdableSlot: HoldableSlotType
 ): MeleeAttackAnimationType {
-  const { combatantProperties } = context.combatantContext.combatant;
+  const { actionUser } = context.actionUserContext;
+  const combatantProperties = actionUser.getCombatantProperties();
 
-  const equipmentOption = CombatantEquipment.getEquippedHoldable(combatantProperties, holdableSlot);
+  const equipmentOption = CombatantEquipment.getEquippedHoldable(
+    combatantProperties.equipment,
+    holdableSlot
+  );
 
   const noUseableEquipmentInSlot =
     !equipmentOption ||
@@ -37,7 +41,7 @@ export function determineMeleeAttackAnimationType(
     equipmentOption.equipmentBaseItemProperties.equipmentType
   );
 
-  const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
+  const targetingCalculator = new TargetingCalculator(context.actionUserContext, null);
 
   const { actionExecutionIntent } = context.tracker;
   const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
@@ -47,7 +51,7 @@ export function determineMeleeAttackAnimationType(
   );
 
   const incomingResourceChangesCalculator = new IncomingResourceChangesCalculator(
-    context.combatantContext,
+    context.actionUserContext,
     actionExecutionIntent,
     targetingCalculator,
     targetIds,

@@ -28,12 +28,12 @@ const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionSt
 
 stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
   getSpawnableEntity: (context) => {
-    const { combatantContext } = context;
+    const { actionUserContext } = context;
     const { actionExecutionIntent } = context.tracker;
-    const { party, combatant } = combatantContext;
-    const position = combatantContext.combatant.combatantProperties.position.clone();
+    const { party, actionUser } = actionUserContext;
+    const position = actionUser.getPosition().clone();
 
-    const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
+    const targetingCalculator = new TargetingCalculator(actionUserContext, null);
 
     const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
       party,
@@ -42,7 +42,7 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
     if (primaryTargetResult instanceof Error) throw primaryTargetResult;
     const target = primaryTargetResult;
 
-    const firedByCombatantName = combatantContext.combatant.entityProperties.name;
+    const firedByCombatantName = actionUser.getName();
 
     const actionEntity = new ActionEntity(
       {
@@ -56,7 +56,7 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
         parentOption: {
           sceneEntityIdentifier: {
             type: SceneEntityType.CharacterModel,
-            entityId: combatant.entityProperties.id,
+            entityId: actionUser.getEntityId(),
           },
           transformNodeName: CombatantBaseChildTransformNodeName.OffhandEquipment,
         },
@@ -70,6 +70,7 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
       }
     );
 
+    // @REFACTOR - action entity as IActionUser
     const expectedProjectile = actionEntity;
     // without this cloning we'll be modifying the actual user when incinerating projectiles
     // or adding resource change source categories to the .asShimmedActionEntity
@@ -96,11 +97,11 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
   getDestination: getPrimaryTargetPositionAsDestination,
   getNewParent: () => null,
   getStartPointingToward: (context) => {
-    const { combatantContext, tracker } = context;
+    const { actionUserContext, tracker } = context;
     const { actionExecutionIntent } = tracker;
     // @PERF - can probably combine all these individual targetingCalculator creations
     // and pass the targetId to getStartPointingTowardEntityOption and getCosmeticDestinationY et al
-    const targetingCalculator = new TargetingCalculator(combatantContext, null);
+    const targetingCalculator = new TargetingCalculator(actionUserContext, null);
     let primaryTargetId = throwIfError(
       targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent)
     );
@@ -116,10 +117,10 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
     };
   },
   getCosmeticDestinationY: (context) => {
-    const { combatantContext, tracker } = context;
+    const { actionUserContext, tracker } = context;
     const { actionExecutionIntent } = tracker;
 
-    const targetingCalculator = new TargetingCalculator(combatantContext, null);
+    const targetingCalculator = new TargetingCalculator(actionUserContext, null);
     const primaryTargetId = throwIfError(
       targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent)
     );
@@ -155,7 +156,7 @@ stepOverrides[ActionResolutionStepType.RollIncomingHitOutcomes] = {
   getCosmeticEffectsToStart: (context) => {
     if (context.tracker.projectileWasIncinerated) return [];
 
-    const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
+    const targetingCalculator = new TargetingCalculator(context.actionUserContext, null);
     const targetId = throwIfError(
       targetingCalculator.getPrimaryTargetCombatantId(context.tracker.actionExecutionIntent)
     );

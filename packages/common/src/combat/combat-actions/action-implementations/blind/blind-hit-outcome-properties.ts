@@ -23,7 +23,7 @@ overrides.getAppliedConditions = (user, actionLevel) => {
       conditionName: CombatantConditionName.Blinded,
       level: actionLevel,
       stacks: 1,
-      appliedBy: { entityProperties: user.entityProperties, friendOrFoe: FriendOrFoe.Hostile },
+      appliedBy: { entityProperties: user.getEntityProperties(), friendOrFoe: FriendOrFoe.Hostile },
     },
   ];
 };

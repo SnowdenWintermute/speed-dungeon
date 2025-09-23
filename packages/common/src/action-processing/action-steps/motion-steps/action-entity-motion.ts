@@ -1,8 +1,4 @@
-import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
-  ActionResolutionStepContext,
-  ActionResolutionStepType,
-} from "../index.js";
+import { ActionResolutionStepContext, ActionResolutionStepType } from "../index.js";
 import {
   ActionEntityMotionGameUpdateCommand,
   ActionEntityMotionUpdate,
@@ -76,12 +72,12 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
     if (!stepConfig.getDespawnOnCompleteCleanupModeOption) return [];
     const despawnOnComplete = stepConfig.getDespawnOnCompleteCleanupModeOption(context);
     if (!despawnOnComplete) return [];
-    const { party } = context.combatantContext;
+    const { party } = context.actionUserContext;
 
     AdventuringParty.unregisterActionEntity(
       party,
       this.actionEntity.entityProperties.id,
-      AdventuringParty.getBattleOption(party, context.combatantContext.game)
+      AdventuringParty.getBattleOption(party, context.actionUserContext.game)
     );
 
     return [];

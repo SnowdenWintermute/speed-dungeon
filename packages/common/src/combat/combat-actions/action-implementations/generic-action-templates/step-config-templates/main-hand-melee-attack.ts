@@ -70,8 +70,10 @@ config.options.getFinalSteps = (self, context) => {
   const offhandAttack = COMBAT_ACTIONS[CombatActionName.AttackMeleeOffhand];
   const offhandShouldExecute = offhandAttack.shouldExecute(context, context.tracker);
 
-  const { combatant } = context.combatantContext;
-  if (CombatantProperties.isDead(combatant.combatantProperties)) {
+  const { actionUser } = context.actionUserContext;
+  const combatantProperties = actionUser.getCombatantProperties();
+
+  if (CombatantProperties.isDead(combatantProperties)) {
     return {
       [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     };

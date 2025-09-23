@@ -7,7 +7,7 @@ import { EntityId, Milliseconds } from "../primatives/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { SequentialIdGenerator } from "../utils/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
-import { ACTION_RESOLUTION_STEP_TYPE_STRINGS } from "./action-steps/index.js";
+import { ACTION_RESOLUTION_STEP_TYPE_STRINGS, ActionIntentAndUser } from "./action-steps/index.js";
 import { ActionTracker } from "./action-tracker.js";
 import { NestedNodeReplayEvent, ReplayEventType } from "./replay-events.js";
 
@@ -65,10 +65,7 @@ export class ActionSequenceManagerRegistry {
     sequenceManager: ActionSequenceManager,
     trackerOption: null | ActionTracker,
     actionUserContext: ActionUserContext,
-    branchingActions: {
-      user: Combatant;
-      actionExecutionIntent: CombatActionExecutionIntent;
-    }[]
+    branchingActions: ActionIntentAndUser[]
   ) {
     for (const action of branchingActions) {
       const nestedReplayNode: NestedNodeReplayEvent = {

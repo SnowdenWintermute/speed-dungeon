@@ -20,12 +20,13 @@ export class SelectActionExecutionIntent implements BehaviorNode {
     const level = this.behaviorContext.currentActionLevelConsidering || 1;
 
     const actionAndRank = { actionName: actionNameOption, rank: level };
+    const { game, party } = this.behaviorContext.actionUserContext;
 
     const actionUseIsValidResult = this.combatant.canUseAction(
       targetsOption,
       actionAndRank,
-      this.behaviorContext.combatantContext.game,
-      this.behaviorContext.combatantContext.party
+      game,
+      party
     );
     if (actionUseIsValidResult instanceof Error) throw actionUseIsValidResult;
 

@@ -1,5 +1,10 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
-import { Combatant, CombatantProperties, ConditionAppliedBy } from "../combatants/index.js";
+import {
+  Combatant,
+  CombatantProperties,
+  ConditionAppliedBy,
+  ConditionTickProperties,
+} from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import {
@@ -15,8 +20,8 @@ import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-cate
 import { Quaternion, Vector3 } from "@babylonjs/core";
 
 export interface IActionUser {
-  payResourceCosts(): void;
-  handleTurnEnded(): void;
+  payResourceCosts(): void; // @REFACTOR - remove if unused
+  handleTurnEnded(): void; // @REFACTOR - remove if unused
 
   // GETTERS
   getEntityId(): EntityId;
@@ -35,7 +40,9 @@ export interface IActionUser {
 
   // CONDITIONS
   getConditionAppliedBy(): ConditionAppliedBy;
+  getConditionAppliedTo(): EntityId;
   getConditionStacks(): MaxAndCurrent;
+  getConditionTickPropertiesOption(): null | ConditionTickProperties;
 
   // POSITION HAVERS
   getPosition(): Vector3;

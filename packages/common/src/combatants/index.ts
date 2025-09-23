@@ -46,6 +46,7 @@ import {
   COMBATANT_CONDITION_CONSTRUCTORS,
   CombatantCondition,
   ConditionAppliedBy,
+  ConditionTickProperties,
 } from "./combatant-conditions/index.js";
 import { Equipment, EquipmentType, HoldableSlotType } from "../items/equipment/index.js";
 import { plainToInstance } from "class-transformer";
@@ -91,6 +92,12 @@ export class Combatant implements IActionUser {
     public entityProperties: EntityProperties,
     public combatantProperties: CombatantProperties
   ) {}
+  getConditionTickPropertiesOption(): null | ConditionTickProperties {
+    throw new Error("getCombatantPropertiesOption() is invalid on Combatants.");
+  }
+  getConditionAppliedTo(): EntityId {
+    throw new Error("getConditionAppliedTo() not valid on a combatant");
+  }
 
   getCombatantProperties(): CombatantProperties {
     return this.combatantProperties;

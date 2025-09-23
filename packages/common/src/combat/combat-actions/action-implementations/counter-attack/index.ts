@@ -38,7 +38,7 @@ const config: CombatActionComponentConfig = {
     ...clonedConfig.hierarchyProperties,
     getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {
       const toReturn: CombatActionComponent[] = [];
-      const user = context.combatantContext.combatant.combatantProperties;
+      const user = context.actionUserContext.actionUser;
 
       if (CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(user)) {
         toReturn.push(COUNTER_ATTACK_RANGED_MAIN_HAND);

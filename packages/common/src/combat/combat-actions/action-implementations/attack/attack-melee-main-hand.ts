@@ -34,7 +34,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: (context, self) => {
-    const user = context.combatantContext.combatant.combatantProperties;
+    const user = context.actionUserContext.actionUser;
 
     if (CombatantEquipment.isWearingUsableShield(user)) {
       return true;

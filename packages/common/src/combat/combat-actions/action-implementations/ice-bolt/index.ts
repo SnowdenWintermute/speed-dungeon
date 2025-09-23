@@ -67,11 +67,11 @@ const config: CombatActionComponentConfig = {
     getConcurrentSubActions(context) {
       return [
         {
-          user: context.combatantContext.combatant,
+          user: context.actionUserContext.actionUser,
           actionExecutionIntent: new CombatActionExecutionIntent(
             CombatActionName.IceBoltProjectile,
-            context.tracker.actionExecutionIntent.targets,
-            context.tracker.actionExecutionIntent.level
+            context.tracker.actionExecutionIntent.rank,
+            context.tracker.actionExecutionIntent.targets
           ),
         },
       ];

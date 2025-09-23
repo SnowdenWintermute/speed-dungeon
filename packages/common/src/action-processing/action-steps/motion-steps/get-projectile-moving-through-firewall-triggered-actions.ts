@@ -70,7 +70,7 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
   const { translationOption } = destinationsOption;
   if (!translationOption) return [];
 
-  const { party } = context.combatantContext;
+  const { party } = context.actionUserContext;
 
   // we only expect one firewall to exist
   const existingFirewallOption = AdventuringParty.getExistingActionEntityOfType(
@@ -125,11 +125,10 @@ function triggerIncinerateProjectile(
 
   context.tracker.projectileWasIncinerated = true;
 
-  const intent = new CombatActionExecutionIntent(
-    CombatActionName.IncinerateProjectile,
-    { type: CombatActionTargetType.Single, targetId: projectileEntity.entityProperties.id },
-    1
-  );
+  const intent = new CombatActionExecutionIntent(CombatActionName.IncinerateProjectile, 1, {
+    type: CombatActionTargetType.Single,
+    targetId: projectileEntity.entityProperties.id,
+  });
 
   // use InitialPositioning motion, so that the delay happens before the post initial positioning
   // shouldExecute check in case some reason not to execute happens while it is delaying
@@ -138,6 +137,8 @@ function triggerIncinerateProjectile(
     timeToReachFirewallOption
   );
 
+  // @REFACTOR - action entity as IActionUser
+  //
   // this should be the cloned user of the projectile as set when the projectile
   // was fired. by having access to it we can modify it
   const user = context.combatantContext.combatant;
@@ -163,8 +164,8 @@ function triggerIngiteProjectile(
 
   const igniteProjectileIntent = new CombatActionExecutionIntent(
     CombatActionName.IgniteProjectile,
-    { type: CombatActionTargetType.Single, targetId: projectileEntity.entityProperties.id },
-    1
+    1,
+    { type: CombatActionTargetType.Single, targetId: projectileEntity.entityProperties.id }
   );
 
   // use InitialPositioning motion, so that the delay happens before the post initial positioning
@@ -173,6 +174,8 @@ function triggerIngiteProjectile(
     ActionResolutionStepType.OnActivationActionEntityMotion,
     timeToReachFirewallOption
   );
+
+  // @REFACTOR - action entity as IActionUser
 
   // this should be the cloned user of the projectile as set when the projectile
   // was fired. by having access to it we can modify it

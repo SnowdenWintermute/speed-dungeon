@@ -17,14 +17,14 @@ const stepsOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionS
 
 stepsOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
   getSpawnableEntity: (context) => {
-    const { party, combatant: user } = context.combatantContext;
+    const { party, actionUser } = context.actionUserContext;
 
     // use some symantic coupling "oh no, bad practice!" to
     // get the target location instead of trying to use auto target
     // since the action's auto target gives a list of ids and we only
     // want to spawn the explosion on the one selected by the user
 
-    const actionTarget = user.combatantProperties.combatActionTarget;
+    const actionTarget = actionUser.getTargetingProperties().getSelectedTarget();
     if (!actionTarget)
       throw new Error("expected shimmed condition action user to have a target set");
     if (actionTarget.type !== CombatActionTargetType.Single)

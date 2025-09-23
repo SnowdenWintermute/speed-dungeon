@@ -1,14 +1,9 @@
 import { Milliseconds } from "../../primatives/index.js";
 import { Combatant } from "../../combatants/index.js";
-import {
-  COMBAT_ACTION_NAME_STRINGS,
-  COMBAT_ACTIONS,
-  CombatActionComponent,
-} from "../../combat/index.js";
+import { COMBAT_ACTIONS, CombatActionComponent } from "../../combat/index.js";
 import { ReplayEventNode } from "../replay-events.js";
 import { GameUpdateCommand } from "../game-update-commands.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
-import { CombatantContext } from "../../combatant-context/index.js";
 import { ActionSequenceManager } from "../action-sequence-manager.js";
 import { ActionTracker } from "../action-tracker.js";
 import { IdGenerator } from "../../utility-classes/index.js";
@@ -86,7 +81,7 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
 };
 
 export type ActionResolutionStepResult = {
-  branchingActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[];
+  branchingActions: ActionIntentAndUser[];
   nextStepOption: ActionResolutionStep | null;
 };
 
@@ -142,17 +137,10 @@ export abstract class ActionResolutionStep {
   isComplete = () => this.getTimeToCompletion() <= 0;
 
   /**Return branching actions and next step */
-  protected abstract getBranchingActions():
-    | Error
-    | {
-        user: Combatant;
-        actionExecutionIntent: CombatActionExecutionIntent;
-      }[];
+  protected abstract getBranchingActions(): Error | ActionIntentAndUser[];
 
   /**Mark the gameUpdateCommand's completionOrderId and get branching actions*/
-  finalize(
-    completionOrderId: number
-  ): Error | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
+  finalize(completionOrderId: number): Error | ActionIntentAndUser[] {
     if (this.gameUpdateCommandOption)
       this.gameUpdateCommandOption.completionOrderId = completionOrderId;
     return this.onComplete();
@@ -162,7 +150,7 @@ export abstract class ActionResolutionStep {
     return this.gameUpdateCommandOption;
   }
 
-  onComplete(): Error | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
+  onComplete(): Error | ActionIntentAndUser[] {
     const branchingActionsResult = this.getBranchingActions();
     if (branchingActionsResult instanceof Error) return branchingActionsResult;
     return branchingActionsResult;

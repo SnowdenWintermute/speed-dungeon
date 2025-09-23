@@ -19,7 +19,7 @@ export function getFirewallBurnScheduledActions(
   context: ActionResolutionStepContext,
   step: TriggerEnvironmentalHazardsActionResolutionStep
 ) {
-  const user = context.combatantContext.combatant;
+  const { actionUser } = context.actionUserContext;
 
   const { actionExecutionIntent } = context.tracker;
   const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
@@ -31,8 +31,7 @@ export function getFirewallBurnScheduledActions(
 
   const addRecoveryAnimationTime = motionStepType === ActionResolutionStepType.FinalPositioning;
 
-  const combatant = context.combatantContext.combatant;
-  const entityPosition = combatant.combatantProperties.position;
+  const entityPosition = actionUser.getPosition();
 
   const destinationsOption = EntityMotionActionResolutionStep.getDestinations(
     context,
@@ -47,7 +46,7 @@ export function getFirewallBurnScheduledActions(
   const { translationOption } = destinationsOption;
   if (!translationOption) return [];
 
-  const { party } = context.combatantContext;
+  const { party } = context.actionUserContext;
 
   const existingFirewallOption = AdventuringParty.getExistingActionEntityOfType(
     party,
@@ -63,13 +62,11 @@ export function getFirewallBurnScheduledActions(
   if (taggedDimensions.type !== ShapeType3D.Box)
     throw new Error("expected firewall to be box shaped");
 
-  const userPosition = user.combatantProperties.position;
-
-  const movementVector = destination.subtract(userPosition);
+  const movementVector = destination.subtract(entityPosition);
   const distance = movementVector.length();
   const speed = distance / duration;
   let timeToReachFirewallOption = timeToReachBox(
-    userPosition,
+    entityPosition,
     destination,
     firewallPosition,
     taggedDimensions.dimensions,
@@ -80,8 +77,8 @@ export function getFirewallBurnScheduledActions(
 
   const firewallBurnExecutionIntent = new CombatActionExecutionIntent(
     CombatActionName.FirewallBurn,
-    { type: CombatActionTargetType.Single, targetId: user.entityProperties.id },
-    1
+    1,
+    { type: CombatActionTargetType.Single, targetId: actionUser.getEntityId() }
   );
 
   if (addRecoveryAnimationTime) {
@@ -111,6 +108,7 @@ export function getFirewallBurnScheduledActions(
     timeToReachFirewallOption
   );
 
+  // @REFACTOR - action entity as IActionUser
   const firewallUser = cloneDeep(user);
 
   firewallUser.combatantProperties.asShimmedActionEntity = existingFirewallOption;

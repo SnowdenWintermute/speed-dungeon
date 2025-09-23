@@ -18,8 +18,10 @@ export class CheckIfWearingProperEquipmentForAction implements BehaviorNode {
 
     const isWearingProperEquipment = CombatantProperties.isWearingRequiredEquipmentToUseAction(
       combatantProperties,
-      this.actionNameOption,
-      this.actionLevelOption
+      {
+        actionName: this.actionNameOption,
+        rank: this.actionLevelOption,
+      }
     );
     if (isWearingProperEquipment) return BehaviorNodeState.Success;
     return BehaviorNodeState.Failure;

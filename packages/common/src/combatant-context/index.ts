@@ -43,6 +43,7 @@ export class CombatantContext {
     return allyAndOponnentIds;
   }
 
+  //@REFACTOR - remove if not used
   getOpponents(): Combatant[] {
     const toReturn: Combatant[] = [];
     const battleOption = SpeedDungeonGame.getBattleOption(this.game, this.party.battleId);

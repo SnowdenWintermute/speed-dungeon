@@ -13,7 +13,7 @@ import { addCombatantLevelScaledAttributeToRange } from "../../../action-results
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
-import { CombatantConditionName, CombatantProperties } from "../../../../combatants/index.js";
+import { CombatantConditionName } from "../../../../combatants/index.js";
 import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
@@ -24,6 +24,7 @@ const spellLevelHpChangeValueModifier = 0.75;
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 
 hitOutcomeOverrides.resourceChangePropertiesGetters = {
+  // @REFACTOR - combine with common spell hit outcome properties or "projectile spell" properties
   [CombatActionResource.HitPoints]: (user, hitOutcomeProperties, actionLevel, primaryTarget) => {
     const hpChangeSourceConfig: ResourceChangeSourceConfig = {
       category: ResourceChangeSourceCategory.Magical,
@@ -36,15 +37,15 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
     const baseValues = new NumberRange(4, 8);
 
     // just get some extra damage for combatant level
-    baseValues.add(user.level - 1);
+    baseValues.add(user.getLevel() - 1);
 
     baseValues.mult(1 + spellLevelHpChangeValueModifier * (actionLevel - 1));
 
     // get greater benefits from a certain attribute the higher level a combatant is
     addCombatantLevelScaledAttributeToRange({
       range: baseValues,
-      userTotalAttributes: CombatantProperties.getTotalAttributes(user),
-      userLevel: user.level,
+      userTotalAttributes: user.getTotalAttributes(),
+      userLevel: user.getLevel(),
       attribute: CombatAttribute.Spirit,
       normalizedAttributeScalingByCombatantLevel: 1,
     });
@@ -67,7 +68,7 @@ hitOutcomeOverrides.getAppliedConditions = (user, actionLevel) => {
       conditionName: CombatantConditionName.PrimedForIceBurst,
       level: actionLevel,
       stacks: 1,
-      appliedBy: { entityProperties: user.entityProperties, friendOrFoe: FriendOrFoe.Hostile },
+      appliedBy: { entityProperties: user.getEntityProperties(), friendOrFoe: FriendOrFoe.Hostile },
     },
   ];
 };

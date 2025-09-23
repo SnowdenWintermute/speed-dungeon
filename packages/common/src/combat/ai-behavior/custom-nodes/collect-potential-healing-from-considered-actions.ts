@@ -100,15 +100,15 @@ export class CollectPotentialHealingFromConsideredActions implements BehaviorNod
       const action = COMBAT_ACTIONS[actionName];
       for (const target of potentialTargets) {
         // @TODO - evaluate every owned spell level
-        const actionExecutionIntent = new CombatActionExecutionIntent(actionName, target, 1);
+        const actionExecutionIntent = new CombatActionExecutionIntent(actionName, 1, target);
         const averageHitOutcomeCalculator = new HitOutcomeCalculator(
-          this.behaviorContext.combatantContext,
+          this.behaviorContext.actionUserContext,
           actionExecutionIntent,
           new FixedNumberGenerator(0.5)
         );
 
         const maxHitOutcomeCalculator = new HitOutcomeCalculator(
-          this.behaviorContext.combatantContext,
+          this.behaviorContext.actionUserContext,
           actionExecutionIntent,
           new FixedNumberGenerator(0.999)
         );
@@ -121,11 +121,7 @@ export class CollectPotentialHealingFromConsideredActions implements BehaviorNod
         if (!averageHitPointChanges || !maxHitPointChanges) continue;
 
         // @TODO - actually select an action level
-        const resourceCosts = action.costProperties.getResourceCosts(
-          this.combatant.combatantProperties,
-          true,
-          1
-        );
+        const resourceCosts = action.costProperties.getResourceCosts(this.combatant, true, 1);
         const manaCost = resourceCosts?.[CombatActionResource.Mana] ?? 0;
         const potentialHealingEvaluation = new PotentialTotalHealingEvaluation(manaCost);
 

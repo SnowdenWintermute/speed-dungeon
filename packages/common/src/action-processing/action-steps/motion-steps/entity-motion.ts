@@ -152,7 +152,7 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     if (animationType === null) animationType = undefined;
 
     const animation = animationGetterOption(
-      context.combatantContext.combatant.combatantProperties,
+      context.actionUserContext.actionUser,
       context.manager.sequentialActionManagerRegistry.animationLengths,
       animationType
     );

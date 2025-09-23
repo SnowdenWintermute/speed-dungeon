@@ -34,9 +34,16 @@ export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
   constructor(
     public id: EntityId,
     appliedBy: ConditionAppliedBy,
+    appliedTo: EntityId,
     public level: number
   ) {
-    super(id, appliedBy, CombatantConditionName.PrimedForIceBurst, new MaxAndCurrent(1, 1));
+    super(
+      id,
+      appliedBy,
+      appliedTo,
+      CombatantConditionName.PrimedForIceBurst,
+      new MaxAndCurrent(1, 1)
+    );
   }
 
   tickPropertiesOption: Option<ConditionTickProperties> = null;

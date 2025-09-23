@@ -25,11 +25,7 @@ import {
   TwoHandedRangedWeapon,
 } from "../../../../../items/equipment/index.js";
 import { getRotateTowardPrimaryTargetDestination } from "../../common-destination-getters.js";
-import {
-  CombatantEquipment,
-  CombatantProperties,
-  CombatantSpecies,
-} from "../../../../../combatants/index.js";
+import { CombatantEquipment, CombatantSpecies } from "../../../../../combatants/index.js";
 import {
   SpawnableEntity,
   SpawnableEntityType,
@@ -45,6 +41,7 @@ import {
 import { ActionEntity, ActionEntityName } from "../../../../../action-entities/index.js";
 import { Vector3 } from "@babylonjs/core";
 import { nameToPossessive } from "../../../../../utils/index.js";
+import { IActionUser } from "../../../../../combatant-context/action-user.js";
 
 const base = cloneDeep(PROJECTILE_SKILL_STEPS_CONFIG);
 delete base.steps[ActionResolutionStepType.RollIncomingHitOutcomes];
@@ -67,10 +64,11 @@ base.steps = {
   },
   [ActionResolutionStepType.PostPrepSpawnEntity]: {
     getSpawnableEntity: (context) => {
-      const { combatantContext } = context;
-      const position = combatantContext.combatant.combatantProperties.position.clone();
+      const { actionUserContext } = context;
+      const { actionUser } = actionUserContext;
+      const position = actionUser.getPosition().clone();
 
-      const firedByCombatantName = combatantContext.combatant.entityProperties.name;
+      const firedByCombatantName = actionUser.getName();
 
       const spawnableEntity: SpawnableEntity = {
         type: SpawnableEntityType.ActionEntity,
@@ -86,7 +84,7 @@ base.steps = {
             parentOption: {
               sceneEntityIdentifier: {
                 type: SceneEntityType.CharacterModel,
-                entityId: context.combatantContext.combatant.entityProperties.id,
+                entityId: actionUser.getEntityId(),
               },
               transformNodeName: CombatantBaseChildTransformNodeName.MainHandEquipment,
             },
@@ -129,7 +127,7 @@ export const BOW_SKILL_STEPS_CONFIG = new ActionResolutionStepsConfig(
 );
 
 function getBowEquipmentAnimation(
-  user: CombatantProperties,
+  user: IActionUser,
   animationLengths: Record<CombatantSpecies, Record<string, number>>
 ) {
   const slot: TaggedEquipmentSlot = {
@@ -137,14 +135,17 @@ function getBowEquipmentAnimation(
     slot: HoldableSlotType.MainHand,
   };
 
-  const equippedBowOption = CombatantEquipment.getEquipmentInSlot(user, slot);
+  const equipmentOption = user.getEquipmentOption();
+  if (equipmentOption === null) throw new Error("expected user to have equipment");
+
+  const equippedBowOption = CombatantEquipment.getEquipmentInSlot(equipmentOption, slot);
   if (
     equippedBowOption?.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType !==
     EquipmentType.TwoHandedRangedWeapon
   )
     return [];
 
-  const speciesLengths = animationLengths[user.combatantSpecies];
+  const speciesLengths = animationLengths[user.getCombatantProperties().combatantSpecies];
   const animationName =
     BOW_EQUIPMENT_ANIMATIONS[
       equippedBowOption.equipmentBaseItemProperties.taggedBaseEquipment.baseItemType
@@ -170,8 +171,8 @@ function lockArrowToFaceArrowRest(context: ActionResolutionStepContext) {
     return [];
   }
 
-  const { combatantProperties } = context.combatantContext.combatant;
-  const bowOption = CombatantEquipment.getEquipmentInSlot(combatantProperties, {
+  const combatantProperties = context.actionUserContext.actionUser.getCombatantProperties();
+  const bowOption = CombatantEquipment.getEquipmentInSlot(combatantProperties.equipment, {
     type: EquipmentSlotType.Holdable,
     slot: HoldableSlotType.MainHand,
   });
@@ -183,10 +184,12 @@ function lockArrowToFaceArrowRest(context: ActionResolutionStepContext) {
 
   const actionEntityId = getSpawnableEntityId(actionEntity);
 
+  const characterModelId = context.actionUserContext.actionUser.getEntityId();
+
   const parent: SceneEntityChildTransformNodeIdentifier = {
     sceneEntityIdentifier: {
       type: SceneEntityType.CharacterEquipmentModel,
-      characterModelId: context.combatantContext.combatant.entityProperties.id,
+      characterModelId,
       slot: HoldableSlotType.MainHand,
     },
     transformNodeName: CombatantHoldableChildTransformNodeName.NockBone,
@@ -200,7 +203,7 @@ function lockArrowToFaceArrowRest(context: ActionResolutionStepContext) {
   const arrowRestIdentifier: SceneEntityChildTransformNodeIdentifier = {
     sceneEntityIdentifier: {
       type: SceneEntityType.CharacterEquipmentModel,
-      characterModelId: context.combatantContext.combatant.entityProperties.id,
+      characterModelId,
       slot: HoldableSlotType.MainHand,
     },
     transformNodeName: CombatantHoldableChildTransformNodeName.ArrowRest,

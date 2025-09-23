@@ -20,10 +20,17 @@ export class PrimedForExplosionCombatantCondition extends CombatantCondition {
   constructor(
     id: EntityId,
     appliedBy: ConditionAppliedBy,
+    appliedTo: EntityId,
     public level: number,
     stacksOption: null | MaxAndCurrent
   ) {
-    super(id, appliedBy, CombatantConditionName.PrimedForIceBurst, new MaxAndCurrent(10, 1));
+    super(
+      id,
+      appliedBy,
+      appliedTo,
+      CombatantConditionName.PrimedForIceBurst,
+      new MaxAndCurrent(10, 1)
+    );
     if (stacksOption) this.stacksOption = stacksOption;
   }
 

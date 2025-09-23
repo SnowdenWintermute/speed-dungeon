@@ -31,7 +31,7 @@ EXPLODING_ARROW_PROJECTILE_HIT_OUTCOME_PROPERTIES.getAppliedConditions = (user, 
       conditionName: CombatantConditionName.PrimedForExplosion,
       level: actionLevel,
       stacks: 1,
-      appliedBy: { entityProperties: user.entityProperties, friendOrFoe: FriendOrFoe.Hostile },
+      appliedBy: { entityProperties: user.getEntityProperties(), friendOrFoe: FriendOrFoe.Hostile },
     },
   ];
 };
@@ -60,6 +60,7 @@ const config: CombatActionComponentConfig = {
       if (expectedProjectile === null) throw new Error("expected to have spawned the arrow by now");
       if (expectedProjectile.type !== SpawnableEntityType.ActionEntity)
         throw new Error("expected to have spawned an action entity");
+      // @REFACTOR - action entity as IActionUser
       const projectileUser = createCopyOfProjectileUser(
         context.combatantContext.combatant,
         expectedProjectile.actionEntity

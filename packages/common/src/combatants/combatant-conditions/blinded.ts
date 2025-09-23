@@ -5,7 +5,7 @@ import {
   CombatActionIntent,
   CombatActionName,
 } from "../../combat/combat-actions/index.js";
-import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
+import { EntityId, EntityProperties, MaxAndCurrent } from "../../primatives/index.js";
 import { BASE_CONDITION_TICK_SPEED } from "../../combat/turn-order/consts.js";
 import {
   CombatActionTargetSingle,
@@ -30,10 +30,11 @@ export class BlindedCombatantCondition extends CombatantCondition {
   constructor(
     id: EntityId,
     appliedBy: ConditionAppliedBy,
+    appliedTo: EntityId,
     public level: number,
     stacksOption: null | MaxAndCurrent
   ) {
-    super(id, appliedBy, CombatantConditionName.Blinded, stacksOption);
+    super(id, appliedBy, appliedTo, CombatantConditionName.Blinded, stacksOption);
   }
 
   tickPropertiesOption = {

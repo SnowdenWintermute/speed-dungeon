@@ -14,7 +14,6 @@ import {
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
 import { ActionResolutionStepConfig } from "../../combat-action-steps-config.js";
 import {
   ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
@@ -25,12 +24,9 @@ const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionSt
 
 stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
   getSpawnableEntity: (context) => {
-    const { party, combatant: user } = context.combatantContext;
-    const { asShimmedUserOfTriggeredCondition } = user.combatantProperties;
-    if (!asShimmedUserOfTriggeredCondition) {
-      throw new Error("expected ice burst to be used by a condition");
-    }
-    const actionTarget = asShimmedUserOfTriggeredCondition.entityConditionWasAppliedTo;
+    const { party, actionUser } = context.actionUserContext;
+
+    const actionTarget = actionUser.getConditionAppliedTo();
     const primaryTargetResult = AdventuringParty.getCombatant(party, actionTarget);
     if (primaryTargetResult instanceof Error) throw primaryTargetResult;
 

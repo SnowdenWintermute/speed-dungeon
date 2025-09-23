@@ -2,7 +2,10 @@ import { Combatant } from "../../../combatants/index.js";
 import { EntityId } from "../../../primatives/index.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import { BehaviorNode, BehaviorNodeState } from "../behavior-tree.js";
-import { TargetCategories } from "../../combat-actions/targeting-schemes-and-categories.js";
+import {
+  FriendOrFoe,
+  TargetCategories,
+} from "../../combat-actions/targeting-schemes-and-categories.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 
 export class CollectConsideredCombatants implements BehaviorNode {
@@ -16,7 +19,11 @@ export class CollectConsideredCombatants implements BehaviorNode {
   execute(): BehaviorNodeState {
     const combatantsToConsider: Combatant[] = [];
 
-    const { allyIds, opponentIds } = this.behaviorContext.combatantContext.getAllyAndOpponentIds();
+    const combatantIdsByDisposition =
+      this.behaviorContext.actionUserContext.actionUser.getAllyAndOpponentIds();
+    const allyIds = combatantIdsByDisposition[FriendOrFoe.Friendly];
+    const opponentIds = combatantIdsByDisposition[FriendOrFoe.Hostile];
+
     const idsToFetchCombatants: EntityId[] = [];
     switch (this.combatantRelation) {
       case TargetCategories.Any:
@@ -33,7 +40,7 @@ export class CollectConsideredCombatants implements BehaviorNode {
         break;
     }
 
-    const { party } = this.behaviorContext.combatantContext;
+    const { party } = this.behaviorContext.actionUserContext;
 
     for (const combatantId of idsToFetchCombatants) {
       const combatant = AdventuringParty.getExpectedCombatant(party, combatantId);

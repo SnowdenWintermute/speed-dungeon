@@ -4,6 +4,7 @@ import {
   CombatActionComposite,
   CombatActionName,
   CombatActionOrigin,
+  FriendOrFoe,
 } from "../../index.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CHAINING_SPLIT_ARROW_PARENT } from "./index.js";
@@ -29,6 +30,8 @@ import {
   createTargetingPropertiesConfig,
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import { ActionUserContext } from "../../../../combatant-context/action-user.js";
+import { AdventuringParty } from "../../../../adventuring-party/index.js";
 
 const targetingPropertiesOverrides: Partial<CombatActionTargetingPropertiesConfig> = {
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.RandomCombatant },
@@ -97,7 +100,7 @@ const config: CombatActionComponentConfig = {
       if (!previousTrackerInSequenceOption) return [];
 
       const filteredPossibleTargetIdsResult = getBouncableTargets(
-        context.combatantContext,
+        context.actionUserContext,
         context.tracker
       );
       if (filteredPossibleTargetIdsResult instanceof Error) return [];
@@ -117,7 +120,7 @@ export const CHAINING_SPLIT_ARROW_PROJECTILE = new CombatActionComposite(
 );
 
 function getBouncableTargets(
-  combatantContext: CombatantContext,
+  actionUserContext: ActionUserContext,
   previousTrackerInSequenceOption: ActionTracker
 ) {
   const previousTargetInChain = previousTrackerInSequenceOption.actionExecutionIntent.targets;
@@ -128,7 +131,12 @@ function getBouncableTargets(
   })();
   if (previousTargetIdResult instanceof Error) return previousTargetIdResult;
 
-  const opponents = combatantContext.getOpponents();
+  const { actionUser, party } = actionUserContext;
+  const entityIdsByDisposition = actionUser.getAllyAndOpponentIds();
+
+  const opponentIds = entityIdsByDisposition[FriendOrFoe.Hostile];
+  const opponents = AdventuringParty.getCombatants(party, opponentIds);
+
   return {
     possibleTargetIds: opponents
       .filter((combatant) => combatant.combatantProperties.hitPoints > 0)

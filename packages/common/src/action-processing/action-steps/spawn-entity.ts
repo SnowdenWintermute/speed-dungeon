@@ -28,8 +28,8 @@ export class SpawnEntityActionResolutionStep extends ActionResolutionStep {
     if (taggedSpawnableEntityOption !== null) {
       const taggedSpawnableEntity = taggedSpawnableEntityOption;
 
-      const { game, party } = context.combatantContext;
-      const battleOption = context.combatantContext.getBattleOption();
+      const { game, party } = context.actionUserContext;
+      const battleOption = AdventuringParty.getBattleOption(party, game);
 
       switch (taggedSpawnableEntity.type) {
         case SpawnableEntityType.Combatant:

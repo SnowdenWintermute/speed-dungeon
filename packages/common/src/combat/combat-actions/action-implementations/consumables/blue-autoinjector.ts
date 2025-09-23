@@ -41,12 +41,7 @@ import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templat
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 
 hitOutcomeOverrides.resourceChangePropertiesGetters = {
-  [CombatActionResource.Mana]: (
-    user: CombatantProperties,
-    hitOutcomeProperties,
-    actionLevel: number,
-    primaryTarget: CombatantProperties
-  ) => {
+  [CombatActionResource.Mana]: (user, hitOutcomeProperties, actionLevel, primaryTarget) => {
     let mpBioavailability = 1;
 
     const { inherentTraitLevels } = primaryTarget.abilityProperties.traitProperties;

@@ -1,5 +1,6 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Battle } from "../../battle/index.js";
+import { ActionUserContext } from "../../combatant-context/action-user.js";
 import { CombatantContext } from "../../combatant-context/index.js";
 import { Combatant } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
@@ -73,7 +74,7 @@ export class AIBehaviorContext {
   public selectedActionIntent: null | CombatActionExecutionIntent = null;
 
   constructor(
-    public combatantContext: CombatantContext,
+    public actionUserContext: ActionUserContext,
     public battleOption: Battle | null // allow for ally AI controlled combatants doing things outside of combat
   ) {}
   getCurrentActionLevelConsidering() {

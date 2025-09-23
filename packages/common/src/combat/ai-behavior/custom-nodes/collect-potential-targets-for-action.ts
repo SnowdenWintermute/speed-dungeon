@@ -1,12 +1,8 @@
 import cloneDeep from "lodash.clonedeep";
 import { Combatant } from "../../../combatants/index.js";
 import { NextOrPrevious } from "../../../primatives/index.js";
-import { throwIfError } from "../../../utils/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
-import {
-  COMBAT_ACTION_NAME_STRINGS,
-  CombatActionName,
-} from "../../combat-actions/combat-action-names.js";
+import { CombatActionName } from "../../combat-actions/combat-action-names.js";
 import { CombatActionTarget } from "../../targeting/combat-action-targets.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { AIBehaviorContext } from "../ai-context.js";
@@ -30,15 +26,21 @@ export class CollectPotentialTargetsForAction implements BehaviorNode {
     const action = COMBAT_ACTIONS[actionNameOption];
 
     // combatantProperties.selectedCombatAction = actionNameOption;
-    combatantProperties.selectedActionLevel = this.actionLevel;
+    const targetingProperties = this.combatant.getTargetingProperties();
+    const actionAndRank = {
+      actionName: actionNameOption,
+      rank: this.actionLevel,
+    };
+    targetingProperties.setSelectedActionAndRank(actionAndRank);
 
     const targetingCalculator = new TargetingCalculator(
-      this.behaviorContext.combatantContext,
+      this.behaviorContext.actionUserContext,
       null
     );
 
     // must set it as selected since targetingCalculator will look for it
-    const initialTargetsResult = targetingCalculator.assignInitialCombatantActionTargets(action);
+    const initialTargetsResult =
+      targetingProperties.assignInitialTargetsForSelectedAction(targetingCalculator);
     if (initialTargetsResult instanceof Error) {
       console.error(initialTargetsResult);
       return BehaviorNodeState.Failure;
@@ -51,24 +53,31 @@ export class CollectPotentialTargetsForAction implements BehaviorNode {
       ...action.targetingProperties.getTargetingSchemes(this.actionLevel),
     ];
 
+    const validTargetsByDisposition =
+      targetingCalculator.getFilteredPotentialTargetIdsForAction(actionAndRank);
+
     for (const currentTargetingSchemeIndex of targetingSchemeOptions) {
-      let currentOption = throwIfError(
-        targetingCalculator.cycleCharacterTargets(entityProperties.id, NextOrPrevious.Next)
+      let currentOption = targetingProperties.cycleTargets(
+        NextOrPrevious.Next,
+        null,
+        validTargetsByDisposition
       );
 
       while (!targetOptionsAsStrings.includes(JSON.stringify(currentOption))) {
         targetOptions.push(currentOption);
         targetOptionsAsStrings.push(JSON.stringify(currentOption));
 
-        currentOption = throwIfError(
-          targetingCalculator.cycleCharacterTargets(entityProperties.id, NextOrPrevious.Next)
+        currentOption = targetingProperties.cycleTargets(
+          NextOrPrevious.Next,
+          null,
+          validTargetsByDisposition
         );
       }
 
-      targetingCalculator.cycleCharacterTargetingSchemes(entityProperties.id);
+      targetingProperties.cycleTargetingSchemes(targetingCalculator);
 
-      if (combatantProperties.combatActionTarget !== null)
-        currentOption = cloneDeep(combatantProperties.combatActionTarget);
+      const selectedTarget = targetingProperties.getSelectedTarget();
+      if (selectedTarget !== null) currentOption = cloneDeep(selectedTarget);
     }
 
     this.behaviorContext.usableActionsWithPotentialValidTargets[actionNameOption] = targetOptions;
