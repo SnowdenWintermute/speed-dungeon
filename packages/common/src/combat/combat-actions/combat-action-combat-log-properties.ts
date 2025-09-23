@@ -32,12 +32,15 @@ export class CombatActionCombatLogProperties {
   }
 
   getOnUseMessageData(context: ActionResolutionStepContext): ActionUseMessageData {
-    const { combatantContext } = context;
-    const { combatant } = combatantContext;
-    const { selectedActionLevel } = combatant.combatantProperties;
+    const { actionUserContext } = context;
+    const { actionUser } = actionUserContext;
+    const selectedActionAndRankOption = actionUser
+      .getTargetingProperties()
+      .getSelectedActionAndRank();
+    const actionLevel = selectedActionAndRankOption?.rank || 0;
     return {
-      nameOfActionUser: combatant.entityProperties.name,
-      actionLevel: selectedActionLevel ?? 0,
+      nameOfActionUser: actionUser.getName(),
+      actionLevel,
     };
   }
 }

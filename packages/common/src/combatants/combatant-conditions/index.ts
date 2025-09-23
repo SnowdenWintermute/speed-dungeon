@@ -1,12 +1,10 @@
 import { immerable } from "immer";
 import { Option } from "../../primatives/index.js";
 import { Battle } from "../../battle/index.js";
-import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionIntent } from "../../combat/combat-actions/combat-action-intent.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { CosmeticEffectOnTargetTransformNode } from "../../combat/combat-actions/combat-action-steps-config.js";
 import { FriendOrFoe } from "../../combat/combat-actions/targeting-schemes-and-categories.js";
-import { CombatantContext } from "../../combatant-context/index.js";
 import { EntityId, EntityProperties, MaxAndCurrent } from "../../primatives/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { Combatant, CombatantAttributeRecord, CombatantProperties } from "../index.js";
@@ -20,6 +18,7 @@ import { BlindedCombatantCondition } from "./blinded.js";
 import { ActionUserContext, IActionUser } from "../../combatant-context/action-user.js";
 import { ActionIntentAndUser } from "../../action-processing/index.js";
 import { ActionUserTargetingProperties } from "../../combatant-context/action-user-targeting-properties.js";
+import { Vector3, Quaternion } from "@babylonjs/core";
 
 export enum CombatantConditionName {
   // Poison,
@@ -101,10 +100,25 @@ export abstract class CombatantCondition implements IActionUser {
   targetingProperties?: ActionUserTargetingProperties;
   constructor(
     public id: EntityId,
-    public appliedBy: ConditionAppliedBy,
+    private appliedBy: ConditionAppliedBy,
     public name: CombatantConditionName,
     public stacksOption: null | MaxAndCurrent
   ) {}
+  getName(): string {
+    return COMBATANT_CONDITION_NAME_STRINGS[this.name];
+  }
+  getPosition(): Vector3 {
+    throw new Error("Conditions do not have a position");
+  }
+  getHomePosition(): Vector3 {
+    throw new Error("Conditions do not have a home position");
+  }
+  getHomeRotation(): Quaternion {
+    throw new Error("Conditions do not have a home rotation");
+  }
+  getConditionAppliedBy(): ConditionAppliedBy {
+    return this.appliedBy;
+  }
   getAllyAndOpponentIds(): Record<FriendOrFoe, EntityId[]> {
     throw new Error("Method not implemented.");
   }

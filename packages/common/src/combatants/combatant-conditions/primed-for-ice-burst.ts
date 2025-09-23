@@ -33,7 +33,7 @@ export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
   ticks?: MaxAndCurrent | undefined;
   constructor(
     public id: EntityId,
-    public appliedBy: ConditionAppliedBy,
+    appliedBy: ConditionAppliedBy,
     public level: number
   ) {
     super(id, appliedBy, CombatantConditionName.PrimedForIceBurst, new MaxAndCurrent(1, 1));

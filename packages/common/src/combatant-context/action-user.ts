@@ -1,6 +1,5 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
-import { Battle } from "../battle/index.js";
-import { Combatant } from "../combatants/index.js";
+import { Combatant, ConditionAppliedBy } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import {
@@ -13,6 +12,7 @@ import { CombatActionName } from "../combat/combat-actions/combat-action-names.j
 import { EntityId } from "../primatives/index.js";
 import { ActionUserTargetingProperties } from "./action-user-targeting-properties.js";
 import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
+import { Quaternion, Vector3 } from "@babylonjs/core";
 
 export interface IActionUser {
   payResourceCosts(): void;
@@ -20,6 +20,7 @@ export interface IActionUser {
 
   // GETTERS
   getEntityId(): EntityId;
+  getName(): string;
   getLevel(): number;
   getTotalAttributes(): CombatantAttributeRecord;
   getOwnedAbilities(): Partial<Record<CombatActionName, CombatantActionState>>;
@@ -27,6 +28,10 @@ export interface IActionUser {
   getInventoryOption(): null | Inventory;
   getTargetingProperties(): ActionUserTargetingProperties;
   getAllyAndOpponentIds(): Record<FriendOrFoe, EntityId[]>;
+  getConditionAppliedBy(): ConditionAppliedBy;
+  getPosition(): Vector3;
+  getHomePosition(): Vector3;
+  getHomeRotation(): Quaternion;
 
   // ex: a condition should give threat caused by it's burning ticks to the caster of the spell that caused the condition
   getIdOfEntityToCreditWithThreat(): EntityId;
@@ -46,7 +51,7 @@ export class ActionUserContext {
     return expectedBattle;
   }
 
-  getAllyAndOpponentIds() {
+  getAllyAndOpponentIds(): Record<FriendOrFoe, EntityId[]> {
     throw new Error("not implemented");
     const battleOption = this.getBattleOption();
     return { [FriendOrFoe.Friendly]: this.party.characterPositions, [FriendOrFoe.Hostile]: [] };

@@ -1,6 +1,5 @@
 import { BASE_CRIT_CHANCE, BASE_CRIT_MULTIPLIER } from "../../../../../app-consts.js";
 import { CombatAttribute } from "../../../../../combatants/attributes/index.js";
-import { CombatantProperties } from "../../../../../combatants/index.js";
 import { getStandardThreatChangesOnHitOutcomes } from "../../../../../combatants/threat-manager/get-standard-threat-changes-on-hit-outcomes.js";
 import { ActionAccuracyType } from "../../../combat-action-accuracy.js";
 import { CombatActionHitOutcomeProperties } from "../../../combat-action-hit-outcome-properties.js";
@@ -11,10 +10,10 @@ export const BASIC_ATTACK_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperti
   resourceChangeValuesModifier: 1,
   addsPropertiesFromHoldableSlot: null,
   getUnmodifiedAccuracy: (user) => {
-    const userCombatAttributes = CombatantProperties.getTotalAttributes(user);
+    const userCombatAttributes = user.getTotalAttributes();
     return {
       type: ActionAccuracyType.Percentage,
-      value: userCombatAttributes[CombatAttribute.Accuracy],
+      value: userCombatAttributes[CombatAttribute.Accuracy] || 0,
     };
   },
   getUnmodifiedCritChance: (user) => BASE_CRIT_CHANCE,

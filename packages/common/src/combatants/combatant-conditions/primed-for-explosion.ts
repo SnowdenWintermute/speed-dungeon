@@ -1,16 +1,5 @@
-import {
-  COMBATANT_CONDITION_NAME_STRINGS,
-  CombatantCondition,
-  CombatantConditionName,
-  ConditionAppliedBy,
-  ConditionTickProperties,
-} from "./index.js";
-import {
-  Combatant,
-  CombatantAttributeRecord,
-  CombatantProperties,
-  createShimmedUserOfTriggeredCondition,
-} from "../index.js";
+import { CombatantCondition, CombatantConditionName, ConditionAppliedBy } from "./index.js";
+import { Combatant } from "../index.js";
 import {
   CombatActionExecutionIntent,
   CombatActionIntent,

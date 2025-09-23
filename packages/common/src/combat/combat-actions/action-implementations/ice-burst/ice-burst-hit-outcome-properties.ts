@@ -48,20 +48,13 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
   },
 };
 
-hitOutcomeOverrides.getAppliedConditions = (combatant, actionlevel) => {
-  let userEntityProperties = cloneDeep(combatant.entityProperties);
-  if (combatant.combatantProperties.asShimmedUserOfTriggeredCondition) {
-    userEntityProperties =
-      combatant.combatantProperties.asShimmedUserOfTriggeredCondition.condition.appliedBy
-        .entityProperties;
-  }
-
+hitOutcomeOverrides.getAppliedConditions = (actionUser, actionlevel) => {
   return [
     {
       conditionName: CombatantConditionName.PrimedForIceBurst,
-      level: combatant.combatantProperties.level,
+      level: actionUser.getLevel(),
       stacks: 1,
-      appliedBy: { entityProperties: userEntityProperties, friendOrFoe: FriendOrFoe.Hostile },
+      appliedBy: actionUser.getConditionAppliedBy(),
     },
   ];
 };

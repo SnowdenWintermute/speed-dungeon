@@ -1,5 +1,4 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
 import { combatantHasRequiredAttributesToUseItem } from "./can-use-item.js";
 import changeCombatantMana from "./resources/change-mana.js";
 import { changeCombatantHitPoints } from "./resources/change-hit-points.js";
@@ -47,6 +46,7 @@ import { getActionNamesFilteredByUseableContext } from "./owned-actions/get-owne
 import {
   COMBATANT_CONDITION_CONSTRUCTORS,
   CombatantCondition,
+  ConditionAppliedBy,
 } from "./combatant-conditions/index.js";
 import { Equipment, EquipmentType, HoldableSlotType } from "../items/equipment/index.js";
 import { plainToInstance } from "class-transformer";
@@ -61,6 +61,11 @@ import {
   ActionAndRank,
   ActionUserTargetingProperties,
 } from "../combatant-context/action-user-targeting-properties.js";
+import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
+import { AdventuringParty } from "../adventuring-party/index.js";
+import { SpeedDungeonGame } from "../game/index.js";
+import { Battle } from "../battle/index.js";
+import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
 
 export enum AiType {
   Healer,
@@ -87,6 +92,21 @@ export class Combatant implements IActionUser {
     public entityProperties: EntityProperties,
     public combatantProperties: CombatantProperties
   ) {}
+  getName(): string {
+    return this.entityProperties.name;
+  }
+  getPosition() {
+    return this.combatantProperties.position;
+  }
+  getHomePosition() {
+    return this.combatantProperties.homeLocation;
+  }
+  getHomeRotation() {
+    return this.combatantProperties.homeRotation;
+  }
+  getConditionAppliedBy(): ConditionAppliedBy {
+    throw new Error("getConditionAppliedBy() is only valid on CombatantCondition");
+  }
   getAllyAndOpponentIds(): Record<FriendOrFoe, EntityId[]> {
     throw new Error("Method not implemented.");
   }
@@ -136,6 +156,85 @@ export class Combatant implements IActionUser {
         ThreatManager,
         combatantProperties.threatManager
       );
+  }
+
+  canUseAction(
+    targets: CombatActionTarget,
+    actionAndRank: ActionAndRank,
+    game: SpeedDungeonGame,
+    party: AdventuringParty
+  ): Error | void {
+    const { combatantProperties } = this;
+    const { actionName, rank } = actionAndRank;
+    const action = COMBAT_ACTIONS[actionName];
+
+    if (action.costProperties.getMeetsCustomRequirements) {
+      const { meetsRequirements, reasonDoesNot } = action.costProperties.getMeetsCustomRequirements(
+        this.combatantProperties,
+        rank
+      );
+      if (!meetsRequirements) return new Error(reasonDoesNot);
+    }
+
+    const combatActionPropertiesResult = getCombatActionPropertiesIfOwned(
+      this.combatantProperties,
+      actionAndRank
+    );
+    if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
+
+    const actionStateOption = combatantProperties.abilityProperties.ownedActions[action.name];
+    if (actionStateOption && actionStateOption.cooldown && actionStateOption.cooldown.current)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.IS_ON_COOLDOWN);
+
+    const hasRequiredConsumables = CombatantProperties.hasRequiredConsumablesToUseAction(
+      combatantProperties,
+      action.name
+    );
+    if (!hasRequiredConsumables) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
+
+    const hasRequiredResources = CombatantProperties.hasRequiredResourcesToUseAction(
+      combatantProperties,
+      actionAndRank,
+      !!AdventuringParty.getBattleOption(party, game)
+    );
+
+    if (!hasRequiredResources)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INSUFFICIENT_RESOURCES);
+
+    const isWearingRequiredEquipment = CombatantProperties.isWearingRequiredEquipmentToUseAction(
+      combatantProperties,
+      actionAndRank
+    );
+    if (!isWearingRequiredEquipment)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_WEARING_REQUIRED_EQUIPMENT);
+
+    // IF IN BATTLE, ONLY USE IF FIRST IN TURN ORDER
+    let battleOption: null | Battle = null;
+    if (party.battleId !== null) {
+      const battle = game.battles[party.battleId];
+      if (battle !== undefined) battleOption = battle;
+      else return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
+    }
+
+    if (battleOption !== null) {
+      const fastestActor = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
+      const taggedTrackedEntityId = fastestActor.getTaggedIdOfTrackedEntity();
+      if (taggedTrackedEntityId.type !== TurnTrackerEntityType.Combatant)
+        return new Error("expected a combatant to be first in turn order");
+      if (taggedTrackedEntityId.combatantId !== this.entityProperties.id) {
+        const message = `${ERROR_MESSAGES.COMBATANT.NOT_ACTIVE} first turn tracker ${JSON.stringify(fastestActor)}`;
+        return new Error(message);
+      }
+    }
+
+    const isInUsableContext = action.isUsableInThisContext(battleOption);
+    if (!isInUsableContext)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_USABILITY_CONTEXT);
+
+    // @TODO - TARGETS ARE NOT IN A PROHIBITED STATE
+    // action would only make sense if we didn't already check valid states when targeting... unless
+    // target state could change while they are already targeted, like if someone healed themselves
+    // to full hp while someone else was targeting them with an autoinjector
   }
 }
 
@@ -395,12 +494,12 @@ export class CombatantProperties {
 
   static isWearingRequiredEquipmentToUseAction(
     combatantProperties: CombatantProperties,
-    actionName: CombatActionName,
-    actionLevel: number
+    actionAndRank: ActionAndRank
   ) {
+    const { actionName, rank } = actionAndRank;
     const action = COMBAT_ACTIONS[actionName];
     const { getRequiredEquipmentTypeOptions } = action.targetingProperties;
-    if (getRequiredEquipmentTypeOptions(actionLevel).length === 0) return true;
+    if (getRequiredEquipmentTypeOptions(rank).length === 0) return true;
 
     const allEquipment = CombatantEquipment.getAllEquippedItems(combatantProperties.equipment, {
       includeUnselectedHotswapSlots: false,
@@ -408,7 +507,7 @@ export class CombatantProperties {
     for (const equipment of allEquipment) {
       const { equipmentType } = equipment.equipmentBaseItemProperties;
       if (Equipment.isBroken(equipment)) continue;
-      if (getRequiredEquipmentTypeOptions(actionLevel).includes(equipmentType)) return true;
+      if (getRequiredEquipmentTypeOptions(rank).includes(equipmentType)) return true;
     }
     return false;
   }

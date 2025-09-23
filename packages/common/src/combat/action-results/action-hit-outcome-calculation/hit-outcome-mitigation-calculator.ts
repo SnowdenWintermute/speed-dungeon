@@ -1,4 +1,5 @@
 import { MAX_CRIT_CHANCE, MIN_HIT_CHANCE } from "../../../app-consts.js";
+import { IActionUser } from "../../../combatant-context/action-user.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import {
   Combatant,
@@ -16,11 +17,7 @@ import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { randBetween } from "../../../utils/index.js";
 import { ActionAccuracyType } from "../../combat-actions/combat-action-accuracy.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
-import {
-  COMBAT_ACTION_NAME_STRINGS,
-  CombatActionComponent,
-  CombatActionIntent,
-} from "../../combat-actions/index.js";
+import { CombatActionComponent, CombatActionIntent } from "../../combat-actions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../combat-actions/prohibited-target-combatant-states.js";
 import { ResourceChangeSource } from "../../hp-change-source-types.js";
 
@@ -54,16 +51,16 @@ export class HitOutcomeMitigationCalculator {
     // HITS
     const targetWillAttemptMitigation = this.targetWillAttemptMitigation();
 
-    const user = this.user.combatantProperties;
-    const target = this.targetCombatant.combatantProperties;
+    const user = this.user;
+    const target = this.targetCombatant;
 
     const percentChanceToHit = HitOutcomeMitigationCalculator.getActionHitChance(
       this.action,
       user,
       this.actionLevel,
-      CombatantProperties.getTotalAttributes(target)[CombatAttribute.Evasion],
+      CombatantProperties.getTotalAttributes(target.combatantProperties)[CombatAttribute.Evasion],
       targetWillAttemptMitigation,
-      target
+      target.combatantProperties
     );
 
     // it is possible to miss a target who is not attempting mitigation if your accuracy
@@ -83,7 +80,7 @@ export class HitOutcomeMitigationCalculator {
 
     const willAttemptParry =
       hitOutcomeProperties.getIsParryable(user, actionLevel) &&
-      CombatantProperties.canParry(target);
+      CombatantProperties.canParry(target.combatantProperties);
 
     // PARRIES
     if (willAttemptParry) {
@@ -116,7 +113,7 @@ export class HitOutcomeMitigationCalculator {
     if (actionHasResourceChanges) {
       if (
         hitOutcomeProperties.getIsBlockable(user, actionLevel) &&
-        CombatantProperties.canBlock(target)
+        CombatantProperties.canBlock(target.combatantProperties)
       ) {
         const percentChanceToBlock = HitOutcomeMitigationCalculator.getShieldBlockChance(
           user,
@@ -139,7 +136,7 @@ export class HitOutcomeMitigationCalculator {
       ];
     const hpChangePropertiesOption = hpChangePropertiesGetterOption
       ? hpChangePropertiesGetterOption(
-          this.user.combatantProperties,
+          this.user,
           this.action.hitOutcomeProperties,
           this.actionLevel,
           targetCombatantProperties
@@ -175,7 +172,7 @@ export class HitOutcomeMitigationCalculator {
 
   static getActionHitChance(
     combatAction: CombatActionComponent,
-    userCombatantProperties: CombatantProperties,
+    user: IActionUser,
     actionLevel: number,
     targetEvasion: number,
     targetWillAttemptToEvade: boolean,
@@ -191,7 +188,7 @@ export class HitOutcomeMitigationCalculator {
     } else {
     }
 
-    const actionBaseAccuracy = combatAction.getAccuracy(userCombatantProperties, actionLevel);
+    const actionBaseAccuracy = combatAction.getAccuracy(user, actionLevel);
     if (actionBaseAccuracy.type === ActionAccuracyType.Unavoidable)
       return { beforeEvasion: 100, afterEvasion: 100 };
 
@@ -207,7 +204,7 @@ export class HitOutcomeMitigationCalculator {
   static getActionCritChance(
     action: CombatActionComponent,
     actionLevel: number,
-    user: CombatantProperties,
+    user: IActionUser,
     target: CombatantProperties,
     targetWillAttemptMitigation: boolean
   ) {
@@ -222,27 +219,23 @@ export class HitOutcomeMitigationCalculator {
     return Math.floor(Math.max(0, Math.min(MAX_CRIT_CHANCE, finalUnroundedCritChance)));
   }
 
-  static getParryChance(aggressor: CombatantProperties, defender: CombatantProperties): Percentage {
+  static getParryChance(aggressor: IActionUser, defender: Combatant): Percentage {
     // derive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
     // and probably put it on the action configs
     return BASE_PARRY_CHANCE;
   }
 
-  static getCounterattackChance(
-    aggressor: CombatantProperties,
-    defender: CombatantProperties
-  ): Percentage {
-    if (CombatantProperties.isDead(defender)) return 0;
+  static getCounterattackChance(aggressor: IActionUser, defender: Combatant): Percentage {
+    if (CombatantProperties.isDead(defender.combatantProperties)) return 0;
     // derive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
     // and probably put it on the action configs
     return BASE_PARRY_CHANCE;
   }
 
-  static getShieldBlockChance(
-    aggressor: CombatantProperties,
-    defender: CombatantProperties
-  ): Percentage {
-    const shieldPropertiesOption = CombatantEquipment.getEquippedShieldProperties(defender);
+  static getShieldBlockChance(aggressor: IActionUser, defender: Combatant): Percentage {
+    const shieldPropertiesOption = CombatantEquipment.getEquippedShieldProperties(
+      defender.getEquipmentOption()
+    );
     if (!shieldPropertiesOption) return 0;
 
     const baseBlockRate = SHIELD_SIZE_BLOCK_RATE[shieldPropertiesOption.size] * 100;
@@ -255,8 +248,9 @@ export class HitOutcomeMitigationCalculator {
 
   /**Should return a normalized percentage*/
   static getShieldBlockDamageReduction(combatantProperties: CombatantProperties) {
-    const shieldPropertiesOption =
-      CombatantEquipment.getEquippedShieldProperties(combatantProperties);
+    const shieldPropertiesOption = CombatantEquipment.getEquippedShieldProperties(
+      combatantProperties.equipment
+    );
     if (!shieldPropertiesOption) return 0;
 
     const baseDamageReduction = SHIELD_SIZE_DAMAGE_REDUCTION[shieldPropertiesOption.size];

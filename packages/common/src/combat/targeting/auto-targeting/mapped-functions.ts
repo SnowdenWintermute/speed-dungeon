@@ -1,110 +1,58 @@
 import { AutoTargetingScheme } from "./index.js";
-import { copyTargetFromParent } from "./copy-from-parent.js";
-import { CombatActionComponent } from "../../combat-actions/index.js";
+import { CombatActionComponent, FriendOrFoe } from "../../combat-actions/index.js";
 import { CombatActionTarget, CombatActionTargetType } from "../combat-action-targets.js";
-import { CombatantContext } from "../../../combatant-context/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { EntityId } from "../../../primatives/index.js";
 import { Vector3 } from "@babylonjs/core";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { TargetFilterer } from "../filtering.js";
+import { ActionUserContext } from "../../../combatant-context/action-user.js";
 
 type AutoTargetingFunction = (
-  combatantContext: CombatantContext,
+  actionUserContext: ActionUserContext,
   combatAction: CombatActionComponent
 ) => Error | null | CombatActionTarget;
 
 export const AUTO_TARGETING_FUNCTIONS: Record<AutoTargetingScheme, AutoTargetingFunction> = {
   [AutoTargetingScheme.UserSelected]: (
-    combatantContext: CombatantContext,
+    actionUserContext: ActionUserContext,
     combatAction: CombatActionComponent
   ) => {
-    const { combatant } = combatantContext;
-    return combatant.combatantProperties.combatActionTarget;
+    const { actionUser } = actionUserContext;
+    return actionUser.getTargetingProperties().getSelectedTarget();
   },
-  [AutoTargetingScheme.CopyParent]: copyTargetFromParent,
+  [AutoTargetingScheme.CopyParent]: (
+    actionUserContext: ActionUserContext,
+    combatAction: CombatActionComponent
+  ) => {
+    const parent = combatAction.hierarchyProperties.getParent();
+    if (parent) return parent.targetingProperties.getAutoTarget(actionUserContext, null);
+    return null;
+  },
   [AutoTargetingScheme.ActionUser]: function (
-    combatantContext: CombatantContext,
+    actionUserContext: ActionUserContext,
     combatAction: CombatActionComponent
   ): CombatActionTarget {
     const target: CombatActionTarget = {
       type: CombatActionTargetType.Single,
-      targetId: combatantContext.combatant.entityProperties.id,
+      targetId: actionUserContext.actionUser.getEntityId(),
     };
     return target;
   },
-  [AutoTargetingScheme.BattleGroup]: function (
-    combatantContext: CombatantContext,
-    combatAction: CombatActionComponent
-  ): CombatActionTarget | Error | null {
-    throw new Error("Function not implemented.");
-  },
-  [AutoTargetingScheme.RandomInGroup]: function (
-    combatantContext: CombatantContext,
-    combatAction: CombatActionComponent
-  ): CombatActionTarget | Error | null {
-    throw new Error("Function not implemented.");
-  },
   [AutoTargetingScheme.All]: function (
-    combatantContext: CombatantContext,
+    actionUserContext: ActionUserContext,
     combatAction: CombatActionComponent
   ): CombatActionTarget | Error | null {
     throw new Error("Function not implemented.");
   },
   [AutoTargetingScheme.RandomCombatant]: function (
-    combatantContext: CombatantContext,
+    actionUserContext: ActionUserContext,
     combatAction: CombatActionComponent
   ): CombatActionTarget | Error | null {
-    throw new Error("Function not implemented.");
-  },
-  [AutoTargetingScheme.SpecificSide]: function (
-    combatantContext: CombatantContext,
-    combatAction: CombatActionComponent
-  ): CombatActionTarget | Error | null {
-    throw new Error("Function not implemented.");
-  },
-  [AutoTargetingScheme.RandomSide]: function (
-    combatantContext: CombatantContext,
-    combatAction: CombatActionComponent
-  ): CombatActionTarget | Error | null {
-    throw new Error("Function not implemented.");
-  },
-  [AutoTargetingScheme.AllCombatantsWithCondition]: function (
-    combatantContext: CombatantContext,
-    combatAction: CombatActionComponent
-  ): CombatActionTarget | Error | null {
-    throw new Error("Function not implemented.");
-  },
-  [AutoTargetingScheme.ClosestCombatantWithCondition]: function (
-    combatantContext: CombatantContext,
-    combatAction: CombatActionComponent
-  ): CombatActionTarget | Error | null {
-    throw new Error("Function not implemented.");
-  },
-  [AutoTargetingScheme.CombatantWithHighestLevelCondition]: function (
-    combatantContext: CombatantContext,
-    combatAction: CombatActionComponent
-  ): CombatActionTarget | Error | null {
-    throw new Error("Function not implemented.");
-  },
-  [AutoTargetingScheme.SelfAndSides]: function (
-    combatantContext: CombatantContext,
-    combatAction: CombatActionComponent
-  ): CombatActionTarget | Error | null {
-    const target: CombatActionTarget = {
-      type: CombatActionTargetType.SingleAndSides,
-      targetId: combatantContext.combatant.entityProperties.id,
-    };
-    return target;
-  },
-  [AutoTargetingScheme.Sides]: function (
-    combatantContext: CombatantContext,
-    combatAction: CombatActionComponent
-  ): Error | CombatActionTarget | null {
     throw new Error("Function not implemented.");
   },
   [AutoTargetingScheme.WithinRadiusOfEntity]: function (
-    combatantContext: CombatantContext,
+    actionUserContext: ActionUserContext,
     combatAction: CombatActionComponent
   ): Error | null | CombatActionTarget {
     const { scheme } = combatAction.targetingProperties.autoTargetSelectionMethod;
@@ -117,23 +65,24 @@ export const AUTO_TARGETING_FUNCTIONS: Record<AutoTargetingScheme, AutoTargeting
 
     // get all combatants in area
     // filter by valid categories (they will be filtered by valid combatant states at execution time)
-    const { party, combatant } = combatantContext;
+    const { party, actionUser } = actionUserContext;
 
-    const allyAndOpponentIds = combatantContext.getAllyAndOpponentIds();
+    const targetIdsByDisposition = actionUserContext.getAllyAndOpponentIds();
 
-    const idsFilteredByTargetCategory =
-      TargetFilterer.filterPossibleTargetIdsByActionTargetCategories(
-        validTargetCategories,
-        combatant.entityProperties.id,
-        allyAndOpponentIds.allyIds,
-        allyAndOpponentIds.opponentIds
-      );
+    TargetFilterer.filterPossibleTargetIdsByActionTargetCategories(
+      validTargetCategories,
+      actionUser.getEntityId(),
+      targetIdsByDisposition
+    );
+
     const idsFilteredByTargetCategoryFlattened = [
-      ...idsFilteredByTargetCategory[0],
-      ...idsFilteredByTargetCategory[1],
+      ...targetIdsByDisposition[FriendOrFoe.Hostile],
+      ...targetIdsByDisposition[FriendOrFoe.Friendly],
     ];
 
-    const { combatActionTarget } = combatant.combatantProperties;
+    const targetingProperties = actionUser.getTargetingProperties();
+
+    const combatActionTarget = targetingProperties.getSelectedTarget();
     const targetId = (() => {
       if (combatActionTarget?.type === CombatActionTargetType.Single)
         return combatActionTarget.targetId;

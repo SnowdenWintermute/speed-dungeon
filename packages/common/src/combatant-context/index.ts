@@ -32,7 +32,7 @@ export class CombatantContext {
       return Battle.getAllyIdsAndOpponentIdsOptionOfShimmedConditionUser(
         battleOption,
         shimmedConditionUser.entityConditionWasAppliedTo,
-        shimmedConditionUser.condition.appliedBy
+        shimmedConditionUser.condition.getConditionAppliedBy()
       );
     }
 

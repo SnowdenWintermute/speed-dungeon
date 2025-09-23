@@ -5,7 +5,6 @@ import {
 } from "../../action-processing/index.js";
 import { IActionUser } from "../../combatant-context/action-user.js";
 import {
-  Combatant,
   CombatantConditionName,
   CombatantProperties,
   ConditionAppliedBy,
@@ -30,14 +29,11 @@ export interface CombatActionHitOutcomeProperties {
   // used for determining melee attack animation types at start of action
   // @TODO - could be used for generically adding weapon damage and kinetic types to hit outcomes
   addsPropertiesFromHoldableSlot: null | HoldableSlotType;
-  getUnmodifiedAccuracy: (user: CombatantProperties, actionLevel: number) => ActionAccuracy;
-  getUnmodifiedCritChance: (user: CombatantProperties, actionLevel: number) => Percentage | null;
-  getCritMultiplier: (
-    user: CombatantProperties,
-    actionLevel: number
-  ) => NormalizedPercentage | null;
+  getUnmodifiedAccuracy: (user: IActionUser, actionLevel: number) => ActionAccuracy;
+  getUnmodifiedCritChance: (user: IActionUser, actionLevel: number) => Percentage | null;
+  getCritMultiplier: (user: IActionUser, actionLevel: number) => NormalizedPercentage | null;
   getArmorPenetration: (
-    user: CombatantProperties,
+    user: IActionUser,
     actionLevel: number,
     self: CombatActionHitOutcomeProperties
   ) => number;
@@ -53,9 +49,9 @@ export interface CombatActionHitOutcomeProperties {
       ) => null | CombatActionResourceChangeProperties
     >
   >;
-  getIsParryable: (user: CombatantProperties, actionLevel: number) => boolean;
-  getIsBlockable: (user: CombatantProperties, actionLevel: number) => boolean;
-  getCanTriggerCounterattack: (user: CombatantProperties, actionLevel: number) => boolean;
+  getIsParryable: (user: IActionUser, actionLevel: number) => boolean;
+  getIsBlockable: (user: IActionUser, actionLevel: number) => boolean;
+  getCanTriggerCounterattack: (user: IActionUser, actionLevel: number) => boolean;
   getAppliedConditions: (
     user: IActionUser,
     actionLevel: number

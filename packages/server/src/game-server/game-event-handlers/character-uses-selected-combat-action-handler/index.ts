@@ -48,7 +48,6 @@ export async function useSelectedCombatActionHandler(
 
 function validateClientActionUseRequest(characterAssociatedData: CharacterAssociatedData) {
   const { game, party, character } = characterAssociatedData;
-  const combatantContext = new CombatantContext(game, party, character);
 
   if (InputLock.isLocked(party.inputLock)) return new Error(ERROR_MESSAGES.PARTY.INPUT_IS_LOCKED);
 
@@ -61,10 +60,7 @@ function validateClientActionUseRequest(characterAssociatedData: CharacterAssoci
   if (selectedActionAndRankOption === null)
     return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
 
-  const { actionName, rank } = selectedActionAndRankOption;
-
-  const action = COMBAT_ACTIONS[actionName];
-  const maybeError = action.useIsValid(targets, rank, combatantContext);
+  const maybeError = character.canUseAction(targets, selectedActionAndRankOption, game, party);
   if (maybeError instanceof Error) return maybeError;
 
   return { actionAndRank: selectedActionAndRankOption, targets };
