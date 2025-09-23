@@ -1,9 +1,9 @@
-import { CombatantProperties } from "../../../../../combatants/index.js";
+import { IActionUser } from "../../../../../combatant-context/action-user.js";
 import { iterateNumericEnumKeyedRecord } from "../../../../../utils/index.js";
 import { ActionPayableResource, CombatActionComponent } from "../../../index.js";
 
 export function getStandardActionCost(
-  user: CombatantProperties,
+  user: IActionUser,
   inCombat: boolean,
   actionLevel: number,
   self: CombatActionComponent
@@ -22,13 +22,13 @@ export function getStandardActionCost(
     if (costBase.multipliers) {
       if (costBase.multipliers.actionLevel) cost *= costBase.multipliers.actionLevel * actionLevel;
       if (costBase.multipliers.userCombatantLevel)
-        cost *= costBase.multipliers.userCombatantLevel * user.level;
+        cost *= costBase.multipliers.userCombatantLevel * user.getLevel();
     }
 
     if (costBase.additives) {
       if (costBase.additives.actionLevel) cost += costBase.additives.actionLevel * actionLevel;
       if (costBase.additives.userCombatantLevel)
-        cost += costBase.additives.userCombatantLevel * user.level;
+        cost += costBase.additives.userCombatantLevel * user.getLevel();
     }
 
     cost = Math.floor(cost);

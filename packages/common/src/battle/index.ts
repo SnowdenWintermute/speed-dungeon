@@ -10,10 +10,7 @@ import {
 import { SpeedDungeonGame } from "../game/index.js";
 import { EntityId } from "../primatives/index.js";
 import { getAllyAndEnemyBattleGroups } from "./get-ally-and-enemy-battle-groups.js";
-import {
-  CombatantIdsByDisposition,
-  getAllyIdsAndOpponentIdsOption,
-} from "./get-ally-ids-and-opponent-ids-option.js";
+import { getAllyIdsAndOpponentIdsOption } from "./get-ally-ids-and-opponent-ids-option.js";
 
 export class Battle {
   turnOrderManager: TurnOrderManager;
@@ -80,11 +77,12 @@ export class Battle {
     );
   }
 
+  //@REFACTOR -move this onto conditions
   static getAllyIdsAndOpponentIdsOptionOfShimmedConditionUser(
     battle: Battle,
     conditionAppliedTo: EntityId,
     conditionAppliedBy: ConditionAppliedBy
-  ): CombatantIdsByDisposition {
+  ): Record<FriendOrFoe, EntityId[]> {
     const idsByDispositionOfConditionHolder = Battle.getAllyIdsAndOpponentIdsOption(
       battle,
       conditionAppliedTo
@@ -100,11 +98,11 @@ export class Battle {
   }
 
   static invertAllyAndOpponentIds(
-    idsByDisposition: CombatantIdsByDisposition
-  ): CombatantIdsByDisposition {
+    idsByDisposition: Record<FriendOrFoe, EntityId[]>
+  ): Record<FriendOrFoe, EntityId[]> {
     return {
-      allyIds: idsByDisposition.opponentIds,
-      opponentIds: idsByDisposition.allyIds,
+      [FriendOrFoe.Hostile]: idsByDisposition[FriendOrFoe.Friendly],
+      [FriendOrFoe.Friendly]: idsByDisposition[FriendOrFoe.Hostile],
     };
   }
 }

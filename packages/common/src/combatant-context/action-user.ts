@@ -1,6 +1,5 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
 import {
-  Combatant,
   CombatantProperties,
   ConditionAppliedBy,
   ConditionTickProperties,
@@ -71,10 +70,5 @@ export class ActionUserContext {
     throw new Error("not implemented");
     const battleOption = this.getBattleOption();
     return { [FriendOrFoe.Friendly]: this.party.characterPositions, [FriendOrFoe.Hostile]: [] };
-  }
-
-  getOpponents(): Combatant[] {
-    const toReturn: Combatant[] = [];
-    return toReturn;
   }
 }

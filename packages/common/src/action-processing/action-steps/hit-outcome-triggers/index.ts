@@ -211,6 +211,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
               ](
                 context.idGenerator.generate(),
                 conditionProperties.appliedBy,
+                targetCombatant.getEntityId(),
                 conditionProperties.level,
                 new MaxAndCurrent(MAX_CONDITION_STACKS, conditionProperties.stacks)
               );

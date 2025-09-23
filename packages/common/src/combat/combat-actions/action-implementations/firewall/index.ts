@@ -19,7 +19,6 @@ import {
   ActionEntityActionOriginData,
   ActionEntityName,
 } from "../../../../action-entities/index.js";
-import { CombatantProperties } from "../../../../combatants/index.js";
 
 // clone burn hit outcomes for the action description
 // and add an on use trigger to change the stacks/level of an existing firewall
@@ -27,8 +26,8 @@ const hitOutcomeProperties = createHitOutcomeProperties(
   () => cloneDeep(FIREWALL_BURN_HIT_OUTCOME_PROPERTIES),
   {
     getOnUseTriggers: (context) => {
-      const { combatantContext } = context;
-      const { game, party, combatant } = combatantContext;
+      const { actionUserContext } = context;
+      const { game, party, actionUser } = actionUserContext;
       // check for existing firewall
       const existingFirewallOption = AdventuringParty.getExistingActionEntityOfType(
         party,
@@ -46,7 +45,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 
       const actionEntityChanges: Partial<ActionEntityActionOriginData> = {};
 
-      const castedLevel = context.tracker.actionExecutionIntent.level;
+      const castedLevel = context.tracker.actionExecutionIntent.rank;
 
       // add stacks equal to the casted level's stacks
       const stacksToAdd = getFirewallStacksByLevel(castedLevel);
@@ -67,7 +66,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(
         ActionEntity.setLevel(existingFirewall, newActionLevel);
         actionEntityChanges.actionLevel = actionOriginData.actionLevel;
 
-        const newAttributes = CombatantProperties.getTotalAttributes(combatant.combatantProperties);
+        const newAttributes = actionUser.getTotalAttributes();
         actionOriginData.userCombatantAttributes = newAttributes;
         actionEntityChanges.userCombatantAttributes = newAttributes;
       }

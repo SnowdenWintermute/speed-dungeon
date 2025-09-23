@@ -1,3 +1,4 @@
+import { IActionUser } from "../../../combatant-context/action-user.js";
 import { CombatantProperties } from "../../../combatants/index.js";
 import { Equipment, WeaponProperties } from "../../../items/equipment/index.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
@@ -15,7 +16,7 @@ export function applyWeaponPropertiesToResourceChangeProperties(
     weaponProperties: WeaponProperties;
   },
   hpChangeProperties: CombatActionResourceChangeProperties,
-  user: CombatantProperties,
+  user: IActionUser,
   actionLevel: number,
   primaryTarget: CombatantProperties
 ) {

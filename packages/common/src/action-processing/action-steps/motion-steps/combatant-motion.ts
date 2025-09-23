@@ -30,7 +30,7 @@ export class CombatantMotionActionResolutionStep extends EntityMotionActionResol
 
     if (stepConfig.getEquipmentAnimations)
       update.equipmentAnimations = stepConfig.getEquipmentAnimations(
-        actionUser.getCombatantProperties(),
+        actionUser,
         context.manager.sequentialActionManagerRegistry.animationLengths
       );
 

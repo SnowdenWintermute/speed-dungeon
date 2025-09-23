@@ -1,4 +1,5 @@
 import {
+  ActionIntentAndUser,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
@@ -12,7 +13,7 @@ export class TriggerEnvironmentalHazardsActionResolutionStep extends ActionResol
   getTimeToCompletion = () => 0;
   isComplete = () => true;
 
-  protected getBranchingActions() {
+  protected getBranchingActions(): ActionIntentAndUser[] {
     return [
       ...getFirewallBurnScheduledActions(this.context, this),
       ...getProjectileMovingThroughFirewallTriggeredActions(this.context, this),

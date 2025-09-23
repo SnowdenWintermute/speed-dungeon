@@ -52,7 +52,7 @@ export function getAttackResourceChangeProperties(
   };
 
   const equippedUsableWeapons = CombatantProperties.getWeaponsInSlots(
-    user,
+    user.getCombatantProperties(),
     [HoldableSlotType.MainHand, HoldableSlotType.OffHand],
     { usableWeaponsOnly: options.usableWeaponsOnly }
   );

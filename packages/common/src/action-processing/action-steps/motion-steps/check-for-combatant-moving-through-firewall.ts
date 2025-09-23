@@ -6,19 +6,22 @@ import {
   CombatActionTargetType,
 } from "../../../combat/index.js";
 import { ShapeType3D } from "../../../utils/shape-utils.js";
-import { ActionResolutionStepContext, ActionResolutionStepType } from "../index.js";
+import {
+  ActionIntentAndUser,
+  ActionResolutionStepContext,
+  ActionResolutionStepType,
+} from "../index.js";
 import { TriggerEnvironmentalHazardsActionResolutionStep } from "./determine-environmental-hazard-triggers.js";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../../app-consts.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { AnimationTimingType } from "../../game-update-commands.js";
-import cloneDeep from "lodash.clonedeep";
 import { timeToReachBox } from "../../../utils/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 
 export function getFirewallBurnScheduledActions(
   context: ActionResolutionStepContext,
   step: TriggerEnvironmentalHazardsActionResolutionStep
-) {
+): ActionIntentAndUser[] {
   const { actionUser } = context.actionUserContext;
 
   const { actionExecutionIntent } = context.tracker;
@@ -109,15 +112,14 @@ export function getFirewallBurnScheduledActions(
   );
 
   // @REFACTOR - action entity as IActionUser
-  const firewallUser = cloneDeep(user);
 
-  firewallUser.combatantProperties.asShimmedActionEntity = existingFirewallOption;
-  firewallBurnExecutionIntent.level =
+  firewallBurnExecutionIntent.rank =
     existingFirewallOption.actionEntityProperties.actionOriginData?.actionLevel?.current || 1;
 
   const firewallBurnActionIntentWithUser = {
-    user: firewallUser,
+    user: existingFirewallOption,
     actionExecutionIntent: firewallBurnExecutionIntent,
   };
+
   return [firewallBurnActionIntentWithUser];
 }

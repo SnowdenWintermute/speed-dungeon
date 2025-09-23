@@ -7,7 +7,11 @@ import {
   CombatActionTargetType,
 } from "../../../combat/index.js";
 import { ShapeType3D } from "../../../utils/shape-utils.js";
-import { ActionResolutionStepContext, ActionResolutionStepType } from "../index.js";
+import {
+  ActionIntentAndUser,
+  ActionResolutionStepContext,
+  ActionResolutionStepType,
+} from "../index.js";
 import { TriggerEnvironmentalHazardsActionResolutionStep } from "./determine-environmental-hazard-triggers.js";
 import { ARROW_TIME_TO_MOVE_ONE_METER } from "../../../app-consts.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
@@ -36,7 +40,7 @@ function projectileTypeShouldBeIncinerated(type: ActionEntityName) {
 export function getProjectileMovingThroughFirewallTriggeredActions(
   context: ActionResolutionStepContext,
   step: TriggerEnvironmentalHazardsActionResolutionStep
-) {
+): ActionIntentAndUser[] {
   if (step.type === ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers) {
     return [];
   }

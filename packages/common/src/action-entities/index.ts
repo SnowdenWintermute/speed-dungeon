@@ -1,21 +1,32 @@
 export * from "./cosmetic-effect.js";
 export * from "./cosmetic-effect-constructors.js";
-import { Vector3 } from "@babylonjs/core";
-import { EntityProperties, MaxAndCurrent } from "../primatives/index.js";
+import { Quaternion, Vector3 } from "@babylonjs/core";
+import { EntityId, EntityProperties, MaxAndCurrent } from "../primatives/index.js";
 import {
   SceneEntityChildTransformNodeIdentifier,
   SceneEntityChildTransformNodeIdentifierWithDuration,
 } from "../scene-entities/index.js";
 import { TaggedShape3DDimensions } from "../utils/shape-utils.js";
-import { CombatantAttributeRecord } from "../combatants/index.js";
+import {
+  CombatantActionState,
+  CombatantAttributeRecord,
+  CombatantEquipment,
+  CombatantProperties,
+  ConditionAppliedBy,
+  ConditionTickProperties,
+  Inventory,
+} from "../combatants/index.js";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import { MagicalElement } from "../combat/magical-elements.js";
 import {
   CombatActionExecutionIntent,
   CombatActionName,
   CombatActionTargetType,
+  FriendOrFoe,
   ResourceChangeSource,
 } from "../combat/index.js";
+import { IActionUser } from "../combatant-context/action-user.js";
+import { ActionUserTargetingProperties } from "../combatant-context/action-user-targeting-properties.js";
 
 export enum ActionEntityName {
   Arrow,
@@ -62,11 +73,72 @@ export type ActionEntityProperties = {
   actionOriginData?: ActionEntityActionOriginData;
 };
 
-export class ActionEntity {
+export class ActionEntity implements IActionUser {
   constructor(
     public entityProperties: EntityProperties,
     public actionEntityProperties: ActionEntityProperties
   ) {}
+  payResourceCosts(): void {
+    throw new Error("Method not implemented.");
+  }
+  handleTurnEnded(): void {
+    throw new Error("Method not implemented.");
+  }
+  getEntityId(): EntityId {
+    throw new Error("Method not implemented.");
+  }
+  getName(): string {
+    throw new Error("Method not implemented.");
+  }
+  getEntityProperties(): EntityProperties {
+    throw new Error("Method not implemented.");
+  }
+  getLevel(): number {
+    throw new Error("Method not implemented.");
+  }
+  getTotalAttributes(): CombatantAttributeRecord {
+    throw new Error("Method not implemented.");
+  }
+  getOwnedAbilities(): Partial<Record<CombatActionName, CombatantActionState>> {
+    throw new Error("Method not implemented.");
+  }
+  getEquipmentOption = () => null;
+  getInventoryOption(): null | Inventory {
+    throw new Error("Method not implemented.");
+  }
+  getTargetingProperties(): ActionUserTargetingProperties {
+    throw new Error("Method not implemented.");
+  }
+  getAllyAndOpponentIds(): Record<FriendOrFoe, EntityId[]> {
+    throw new Error("Method not implemented.");
+  }
+  getCombatantProperties(): CombatantProperties {
+    throw new Error("Method not implemented.");
+  }
+  getConditionAppliedBy(): ConditionAppliedBy {
+    throw new Error("Method not implemented.");
+  }
+  getConditionAppliedTo(): EntityId {
+    throw new Error("Method not implemented.");
+  }
+  getConditionStacks(): MaxAndCurrent {
+    throw new Error("Method not implemented.");
+  }
+  getConditionTickPropertiesOption(): null | ConditionTickProperties {
+    throw new Error("Method not implemented.");
+  }
+  getPosition(): Vector3 {
+    throw new Error("Method not implemented.");
+  }
+  getHomePosition(): Vector3 {
+    throw new Error("Method not implemented.");
+  }
+  getHomeRotation(): Quaternion {
+    throw new Error("Method not implemented.");
+  }
+  getIdOfEntityToCreditWithThreat(): EntityId {
+    throw new Error("Method not implemented.");
+  }
 
   static hydrate(actionEntity: ActionEntity) {
     const { actionOriginData } = actionEntity.actionEntityProperties;

@@ -4,7 +4,7 @@ import { Combatant, CombatantProperties } from "../index.js";
 import { CombatantEquipment } from "./index.js";
 
 export function getWeaponsInSlots(
-  combatant: Combatant,
+  combatantProperties: CombatantProperties,
   weaponSlots: HoldableSlotType[],
   options: { usableWeaponsOnly: boolean }
 ) {
@@ -13,7 +13,7 @@ export function getWeaponsInSlots(
   > = {};
 
   const equippedSelectedHotswapSlot = CombatantEquipment.getEquippedHoldableSlots(
-    combatant.getEquipmentOption()
+    combatantProperties.equipment
   );
   if (!equippedSelectedHotswapSlot) return toReturn;
 
@@ -27,7 +27,10 @@ export function getWeaponsInSlots(
     if (!holdable) continue;
     if (
       options.usableWeaponsOnly &&
-      (!CombatantProperties.combatantHasRequiredAttributesToUseItem(combatant, holdable) ||
+      (!CombatantProperties.combatantHasRequiredAttributesToUseItem(
+        CombatantProperties.getTotalAttributes(combatantProperties),
+        holdable
+      ) ||
         Equipment.isBroken(holdable))
     )
       continue;

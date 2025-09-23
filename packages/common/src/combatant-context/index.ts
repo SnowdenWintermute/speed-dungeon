@@ -24,7 +24,7 @@ export class CombatantContext {
     const battleOption = this.getBattleOption();
     if (battleOption === null)
       return { [FriendOrFoe.Friendly]: this.party.characterPositions, [FriendOrFoe.Hostile]: [] };
-
+    //@REFACTOR - move this on to each IActionUser
     const shimmedConditionUser =
       this.combatant.combatantProperties.asShimmedUserOfTriggeredCondition;
 
@@ -41,27 +41,5 @@ export class CombatantContext {
       this.combatant.entityProperties.id
     );
     return allyAndOponnentIds;
-  }
-
-  //@REFACTOR - remove if not used
-  getOpponents(): Combatant[] {
-    const toReturn: Combatant[] = [];
-    const battleOption = SpeedDungeonGame.getBattleOption(this.game, this.party.battleId);
-    if (!battleOption) return toReturn;
-    const idsByDisposition = Battle.getAllyIdsAndOpponentIdsOption(
-      battleOption,
-      this.combatant.entityProperties.id
-    );
-
-    for (const id of idsByDisposition[FriendOrFoe.Hostile]) {
-      const opponentCombatantResult = AdventuringParty.getCombatant(this.party, id);
-      if (opponentCombatantResult instanceof Error) {
-        console.error(opponentCombatantResult);
-        return toReturn;
-      }
-      toReturn.push(opponentCombatantResult);
-    }
-
-    return toReturn;
   }
 }

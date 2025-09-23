@@ -71,8 +71,8 @@ const config: CombatActionComponentConfig = {
           user: projectileUser,
           actionExecutionIntent: new CombatActionExecutionIntent(
             CombatActionName.ExplodingArrowProjectile,
-            context.tracker.actionExecutionIntent.targets,
-            context.tracker.actionExecutionIntent.level
+            context.tracker.actionExecutionIntent.rank,
+            context.tracker.actionExecutionIntent.targets
           ),
         },
       ];

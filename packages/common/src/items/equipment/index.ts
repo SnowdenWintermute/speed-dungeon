@@ -219,6 +219,9 @@ export class Equipment extends Item {
     const isBroken = Equipment.isBroken(equipment);
     if (isBroken) return false;
     // @REFACTOR - move this function off of combatant since it is now generalized to IActionUser
-    return CombatantProperties.combatantHasRequiredAttributesToUseItem(actionUser, equipment);
+    return CombatantProperties.combatantHasRequiredAttributesToUseItem(
+      actionUser.getTotalAttributes(),
+      equipment
+    );
   }
 }
