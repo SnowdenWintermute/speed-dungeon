@@ -11,15 +11,13 @@ import {
   updateCombatantHomePosition,
 } from "@speed-dungeon/common";
 
-export default function savedCharacterSelectionInProgressGameHandler(
+export function savedCharacterSelectionInProgressGameHandler(
   username: string,
   character: Combatant
 ) {
   useGameStore.getState().mutateState((gameState) => {
     const game = gameState.game;
     if (!game) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
-
-    Combatant.rehydrate(character);
 
     game.lowestStartingFloorOptionsBySavedCharacter[character.entityProperties.id] =
       character.combatantProperties.deepestFloorReached;
@@ -52,7 +50,8 @@ export default function savedCharacterSelectionInProgressGameHandler(
         );
     }
 
-    addCharacterToParty(game, party, player, character, true);
+    const deserialized = Combatant.getDeserialized(character);
+    addCharacterToParty(game, party, player, deserialized);
 
     gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,

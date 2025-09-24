@@ -36,8 +36,7 @@ export default async function getDefaultSavedCharacterForProgressionGame(
 
   for (const character of Object.values(charactersResult)) {
     if (character.combatantProperties.hitPoints > 0) {
-      defaultSavedCharacter = character;
-      Combatant.rehydrate(defaultSavedCharacter);
+      defaultSavedCharacter = Combatant.getDeserialized(character);
       break;
     }
   }

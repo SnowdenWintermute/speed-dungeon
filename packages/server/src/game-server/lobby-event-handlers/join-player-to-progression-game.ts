@@ -35,8 +35,8 @@ export async function joinPlayerToProgressionGame(
   if (playerOption === undefined)
     return errorHandler(socket, new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST));
 
-  Combatant.rehydrate(character);
-  addCharacterToParty(game, partyOption, playerOption, character);
+  const deserialized = Combatant.getDeserialized(character);
+  addCharacterToParty(game, partyOption, playerOption, deserialized);
 
   game.lowestStartingFloorOptionsBySavedCharacter[character.entityProperties.id] =
     character.combatantProperties.deepestFloorReached;

@@ -14,7 +14,7 @@ import getCombatantTotalElementalAffinities from "./combatant-traits/get-combata
 import getCombatantTotalKineticDamageTypeAffinities from "./combatant-traits/get-combatant-total-kinetic-damage-type-affinities.js";
 import { setResourcesToMax } from "./resources/set-resources-to-max.js";
 import { immerable } from "immer";
-import { iterateNumericEnum, iterateNumericEnumKeyedRecord } from "../utils/index.js";
+import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import awardLevelups, { XP_REQUIRED_TO_REACH_LEVEL_2 } from "./experience-points/award-levelups.js";
 import { incrementAttributePoint } from "./attributes/increment-attribute.js";
 import { MonsterType } from "../monsters/monster-types.js";
@@ -53,7 +53,7 @@ import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/
 import { ThreatManager } from "./threat-manager/index.js";
 import { COMBATANT_MAX_ACTION_POINTS } from "../app-consts.js";
 import { CombatantAbilityProperties } from "./combatant-abilities/combatant-ability-properties.js";
-import { ActionEntity, ActionEntityProperties } from "../action-entities/index.js";
+import { ActionEntityProperties } from "../action-entities/index.js";
 import { IActionUser } from "../action-user-context/action-user.js";
 import {
   ActionAndRank,
@@ -130,12 +130,25 @@ export class Combatant implements IActionUser {
   getConditionAppliedBy(): ConditionAppliedBy {
     throw new Error("getConditionAppliedBy() is only valid on CombatantCondition");
   }
+
   getAllyAndOpponentIds(
     party: AdventuringParty,
     battleOption: null | Battle
   ): Record<FriendOrFoe, EntityId[]> {
-    throw new Error("Method not implemented.");
+    const isMonster = this.combatantProperties.monsterType !== undefined;
+    if (isMonster) {
+      return {
+        [FriendOrFoe.Hostile]: party.characterPositions,
+        [FriendOrFoe.Friendly]: party.currentRoom.monsterPositions,
+      };
+    }
+
+    return {
+      [FriendOrFoe.Hostile]: party.currentRoom.monsterPositions,
+      [FriendOrFoe.Friendly]: party.characterPositions,
+    };
   }
+
   getTargetingProperties = () => this.combatantProperties.targetingProperties;
   payResourceCosts(): void {
     throw new Error("Method not implemented.");
@@ -169,7 +182,7 @@ export class Combatant implements IActionUser {
     return this.entityProperties.id;
   }
 
-  static rehydrate(combatant: Combatant) {
+  static getDeserialized(combatant: Combatant) {
     const { combatantProperties } = combatant;
 
     CombatantProperties.instantiateItemClasses(combatantProperties);

@@ -57,8 +57,8 @@ export async function selectProgressionGameCharacterHandler(
   if (removeCharacterResult instanceof Error) return removeCharacterResult;
 
   delete game.lowestStartingFloorOptionsBySavedCharacter[removeCharacterResult.entityProperties.id];
+  savedCharacterOption = Combatant.getDeserialized(savedCharacterOption);
 
-  Combatant.rehydrate(savedCharacterOption);
   addCharacterToParty(game, partyOption, player, savedCharacterOption);
 
   game.lowestStartingFloorOptionsBySavedCharacter[savedCharacterOption.entityProperties.id] =

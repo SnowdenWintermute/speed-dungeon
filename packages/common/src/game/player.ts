@@ -6,6 +6,7 @@ import {
 } from "../combat/combat-actions/targeting-schemes-and-categories.js";
 import { COMBAT_ACTIONS, CombatActionTarget, CombatActionTargetType } from "../combat/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
+import { plainToInstance } from "class-transformer";
 
 export class SpeedDungeonPlayer {
   [immerable] = true;
@@ -13,6 +14,12 @@ export class SpeedDungeonPlayer {
   characterIds: string[] = [];
   targetPreferences: CombatActionTargetPreferences = new CombatActionTargetPreferences();
   constructor(public username: string) {}
+
+  static deserialize(player: SpeedDungeonPlayer) {
+    player.targetPreferences = CombatActionTargetPreferences.getDeserialized(
+      player.targetPreferences
+    );
+  }
 }
 
 export class CombatActionTargetPreferences {
@@ -22,6 +29,10 @@ export class CombatActionTargetPreferences {
   category: null | FriendOrFoe = null;
   targetingSchemePreference: TargetingScheme = TargetingScheme.Single;
   constructor() {}
+
+  static getDeserialized(targetPreferences: CombatActionTargetPreferences) {
+    return plainToInstance(CombatActionTargetPreferences, targetPreferences);
+  }
 
   update(
     selectedActionAndRank: ActionAndRank,

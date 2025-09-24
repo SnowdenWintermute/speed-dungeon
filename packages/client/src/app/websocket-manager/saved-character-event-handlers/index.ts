@@ -14,8 +14,9 @@ export default function setUpSavedCharacterEventListeners(
 ) {
   const mutateLobbyState = useLobbyStore.getState().mutateState;
   socket.on(ServerToClientEvent.SavedCharacterList, (characters) => {
-    for (const character of Object.values(characters)) {
-      if (character !== null) Combatant.rehydrate(character);
+    for (const [slotNumber, character] of Object.entries(characters)) {
+      if (character !== null)
+        characters[parseInt(slotNumber)] = Combatant.getDeserialized(character);
     }
 
     gameWorld.current?.drawCharacterSlots();
@@ -41,9 +42,8 @@ export default function setUpSavedCharacterEventListeners(
   });
 
   socket.on(ServerToClientEvent.SavedCharacter, (character, slot) => {
-    Combatant.rehydrate(character);
     mutateLobbyState((state) => {
-      state.savedCharacters[slot] = character;
+      state.savedCharacters[slot] = Combatant.getDeserialized(character);
     });
   });
 }

@@ -20,8 +20,7 @@ export class ActionUserContext {
   }
 
   getAllyAndOpponentIds(): Record<FriendOrFoe, EntityId[]> {
-    throw new Error("not implemented");
     const battleOption = this.getBattleOption();
-    return { [FriendOrFoe.Friendly]: this.party.characterPositions, [FriendOrFoe.Hostile]: [] };
+    return this.actionUser.getAllyAndOpponentIds(this.party, battleOption);
   }
 }

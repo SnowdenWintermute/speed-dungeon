@@ -17,10 +17,9 @@ export async function characterAddedToPartyHandler(
     const player = game.players[username];
     if (!player) return setAlert(new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST));
 
-    const rehydrated = Combatant.rehydrate(character);
-
     try {
-      addCharacterToParty(game, party, player, rehydrated);
+      const deserialized = Combatant.getDeserialized(character);
+      addCharacterToParty(game, party, player, deserialized);
     } catch (error) {
       if (error instanceof Error) setAlert(error.message);
       else console.error(error);
