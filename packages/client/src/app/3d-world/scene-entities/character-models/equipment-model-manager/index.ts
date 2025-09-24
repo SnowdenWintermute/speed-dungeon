@@ -131,7 +131,7 @@ export class EquipmentModelManager {
     newState: HoldableHotswapSlotsModels,
     combatantProperties: CombatantProperties
   ) {
-    const holdableSlots = CombatantEquipment.getHoldableHotswapSlots(combatantProperties);
+    const holdableSlots = CombatantEquipment.getHoldableHotswapSlots(combatantProperties.equipment);
 
     let slotIndex = -1;
     for (const hotswapSlot of holdableSlots) {
@@ -175,7 +175,7 @@ export class EquipmentModelManager {
     this.holdableHotswapSlots = newState;
     // attach to correct positions
 
-    const hotswapSlots = CombatantEquipment.getHoldableHotswapSlots(combatantProperties);
+    const hotswapSlots = CombatantEquipment.getHoldableHotswapSlots(combatantProperties.equipment);
     const equippedSlotIndex = combatantProperties.equipment.equippedHoldableHotswapSlotIndex;
     const holsteredSlotIndex = this.getIndexForDisplayedHolsteredSlot(
       hotswapSlots,

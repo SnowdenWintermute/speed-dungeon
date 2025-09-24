@@ -18,7 +18,9 @@ interface Props {
 
 export default function PaperDoll({ combatant }: Props) {
   const { combatantProperties, entityProperties } = combatant;
-  const equippedHoldables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+  const equippedHoldables = CombatantEquipment.getEquippedHoldableSlots(
+    combatantProperties.equipment
+  );
   const viewingDropShardsModal = useGameStore((state) => state.viewingDropShardsModal);
   const { equipment } = combatantProperties;
 
@@ -46,7 +48,7 @@ export default function PaperDoll({ combatant }: Props) {
         className={"absolute h-fit flex border border-slate-400"}
         entityId={entityProperties.id}
         selectedSlotIndex={combatantProperties.equipment.equippedHoldableHotswapSlotIndex}
-        numSlots={CombatantEquipment.getHoldableHotswapSlots(combatantProperties).length}
+        numSlots={CombatantEquipment.getHoldableHotswapSlots(combatantProperties.equipment).length}
       />
       <div className="w-[7.5rem] mr-2.5">
         <div className="h-[6.25rem] mb-2.5 flex justify-between items-end">
@@ -99,7 +101,7 @@ export default function PaperDoll({ combatant }: Props) {
           itemOption={
             mainHandIs2h
               ? mainhandOption!
-              : equippedHoldables?.holdables[HoldableSlotType.OffHand] ?? null
+              : (equippedHoldables?.holdables[HoldableSlotType.OffHand] ?? null)
           }
           characterAttributes={totalAttributes}
           slot={{ type: EquipmentSlotType.Holdable, slot: HoldableSlotType.OffHand }}

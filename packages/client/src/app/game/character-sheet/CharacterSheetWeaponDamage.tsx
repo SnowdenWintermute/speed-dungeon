@@ -46,7 +46,7 @@ export default function CharacterSheetWeaponDamage({
     : false;
 
   const ohEquipmentOption = CombatantEquipment.getEquippedHoldable(
-    combatantProperties,
+    combatant.combatantProperties.equipment,
     HoldableSlotType.OffHand
   );
 
@@ -152,10 +152,10 @@ function getAttackActionDamageAndAccuracy(
   const target = currentlyTargetedCombatantResult || TARGET_DUMMY_COMBATANT;
 
   const combatAction = COMBAT_ACTIONS[actionName];
-  const { combatantProperties } = combatant;
+
   const hpChangeProperties = combatAction.hitOutcomeProperties.resourceChangePropertiesGetters![
     CombatActionResource.HitPoints
-  ]!(combatantProperties, combatAction.hitOutcomeProperties, 1, target);
+  ]!(combatant, combatAction.hitOutcomeProperties, 1, target);
   if (hpChangeProperties === null) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TYPE);
   const modified = cloneDeep(hpChangeProperties);
   modified.baseValues.mult(combatAction.hitOutcomeProperties.resourceChangeValuesModifier);
@@ -169,7 +169,7 @@ function getAttackActionDamageAndAccuracy(
   const hpChangeRange = hpChangeRangeResult;
   const hitChance = HitOutcomeMitigationCalculator.getActionHitChance(
     combatAction,
-    combatantProperties,
+    combatant,
     1,
     targetEvasion,
     !usingDummy,
@@ -178,12 +178,12 @@ function getAttackActionDamageAndAccuracy(
 
   const { hitOutcomeProperties } = combatAction;
 
-  const critMultiplierOption = hitOutcomeProperties.getCritMultiplier(combatantProperties, 1);
+  const critMultiplierOption = hitOutcomeProperties.getCritMultiplier(combatant, 1);
 
   const critChance = HitOutcomeMitigationCalculator.getActionCritChance(
     combatAction,
     1,
-    combatantProperties,
+    combatant,
     target,
     !usingDummy
   );

@@ -10,8 +10,6 @@ import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
 import {
-  COMBAT_ACTIONS,
-  CombatActionIntent,
   Combatant,
   CombatantEquipment,
   CombatantProperties,
@@ -89,7 +87,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
     ? "opacity-50 pointer-events-none "
     : "pointer-events-auto ";
 
-  const equippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties, {});
+  const equippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties.equipment, {});
 
   const conditionIndicators = (styles: string) => (
     <div className={`w-full h-6 py-0.5 ${styles}`}>
@@ -177,7 +175,9 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
                 className={"absolute -top-2 -left-2 z-10 flex flex-col border border-slate-400"}
                 entityId={entityId}
                 selectedSlotIndex={combatantProperties.equipment.equippedHoldableHotswapSlotIndex}
-                numSlots={CombatantEquipment.getHoldableHotswapSlots(combatantProperties).length}
+                numSlots={
+                  CombatantEquipment.getHoldableHotswapSlots(combatantProperties.equipment).length
+                }
                 vertical={true}
                 registerKeyEvents={entityId === focusedCharacterId}
               />

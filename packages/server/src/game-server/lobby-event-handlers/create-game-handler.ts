@@ -7,7 +7,7 @@ import {
 } from "@speed-dungeon/common";
 import { generateRandomGameName } from "../../utils/index.js";
 import errorHandler from "../error-handler.js";
-import createProgressionGameHandler from "./create-progression-game-handler.js";
+import { createProgressionGameHandler } from "./create-progression-game-handler.js";
 import joinGameHandler from "./join-game-handler.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
 import { Socket } from "socket.io";

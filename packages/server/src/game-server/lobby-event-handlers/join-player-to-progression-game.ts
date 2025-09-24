@@ -16,7 +16,7 @@ import SocketIO from "socket.io";
 import joinPlayerToGame from "./join-player-to-game.js";
 import joinPartyHandler from "./join-party-handler.js";
 
-export default async function joinPlayerToProgressionGame(
+export async function joinPlayerToProgressionGame(
   gameServer: GameServer,
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
   session: BrowserTabSession,
@@ -34,7 +34,9 @@ export default async function joinPlayerToProgressionGame(
   const playerOption = game.players[session.username];
   if (playerOption === undefined)
     return errorHandler(socket, new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST));
-  addCharacterToParty(game, partyOption, playerOption, character, true);
+
+  Combatant.rehydrate(character);
+  addCharacterToParty(game, partyOption, playerOption, character);
 
   game.lowestStartingFloorOptionsBySavedCharacter[character.entityProperties.id] =
     character.combatantProperties.deepestFloorReached;

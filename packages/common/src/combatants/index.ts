@@ -186,6 +186,13 @@ export class Combatant implements IActionUser {
         ThreatManager,
         combatantProperties.threatManager
       );
+
+    combatantProperties.targetingProperties = plainToInstance(
+      ActionUserTargetingProperties,
+      combatantProperties.targetingProperties
+    );
+
+    return plainToInstance(Combatant, combatant);
   }
 
   canUseAction(

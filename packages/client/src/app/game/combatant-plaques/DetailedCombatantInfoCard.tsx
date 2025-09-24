@@ -7,7 +7,7 @@ import { ZIndexLayers } from "@/app/z-index-layers";
 
 interface Props {
   combatantId: string;
-  combatantPlaqueRef: React.RefObject<HTMLDivElement>;
+  combatantPlaqueRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export default function DetailedCombatantInfoCard(props: Props) {
