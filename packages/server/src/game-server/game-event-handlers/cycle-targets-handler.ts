@@ -7,7 +7,7 @@ import {
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../singletons/index.js";
-import { ActionUserContext } from "@speed-dungeon/common/src/combatant-context/action-user.js";
+import { ActionUserContext } from "@speed-dungeon/common";
 
 export function cycleTargetsHandler(
   eventData: { characterId: string; direction: NextOrPrevious },

@@ -3,7 +3,7 @@ import {
   ActionResolutionStepContext,
   ActivatedTriggersGameUpdateCommand,
 } from "../../action-processing/index.js";
-import { IActionUser } from "../../combatant-context/action-user.js";
+import { IActionUser } from "../../action-user-context/action-user.js";
 import {
   CombatantConditionName,
   CombatantProperties,

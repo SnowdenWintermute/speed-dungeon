@@ -10,7 +10,7 @@ import { ERROR_MESSAGES } from "../../errors/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { CombatantProperties } from "../index.js";
 import { EntityId } from "../../primatives/index.js";
-import { IActionUser } from "../../combatant-context/action-user.js";
+import { IActionUser } from "../../action-user-context/action-user.js";
 
 export * from "./equip-item.js";
 export * from "./unequip-slots.js";

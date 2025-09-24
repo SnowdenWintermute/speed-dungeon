@@ -15,7 +15,7 @@ import { GameServer } from "../../index.js";
 import { checkForWipes, PartyWipes } from "./check-for-wipes.js";
 import { processCombatAction } from "./process-combat-action.js";
 import { getBattleConclusionCommandAndPayload } from "../action-command-handlers/get-battle-conclusion-command-and-payload.js";
-import { ActionUserContext } from "@speed-dungeon/common/src/combatant-context/action-user.js";
+import { ActionUserContext } from "@speed-dungeon/common";
 
 export class BattleProcessor {
   constructor(

@@ -8,18 +8,15 @@ import { FriendOrFoe } from "../../combat/combat-actions/targeting-schemes-and-c
 import { EntityId, EntityProperties, MaxAndCurrent } from "../../primatives/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { Combatant, CombatantAttributeRecord, CombatantProperties } from "../index.js";
-import { BurningCombatantCondition } from "./burning.js";
-import { PrimedForExplosionCombatantCondition } from "./primed-for-explosion.js";
-import { PrimedForIceBurstCombatantCondition } from "./primed-for-ice-burst.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { TurnOrderManager, TurnTrackerEntityType } from "../../combat/index.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "../../combat/turn-order/consts.js";
-import { BlindedCombatantCondition } from "./blinded.js";
-import { ActionUserContext, IActionUser } from "../../combatant-context/action-user.js";
+import { IActionUser } from "../../action-user-context/action-user.js";
 import { ActionIntentAndUser } from "../../action-processing/index.js";
-import { ActionUserTargetingProperties } from "../../combatant-context/action-user-targeting-properties.js";
+import { ActionUserTargetingProperties } from "../../action-user-context/action-user-targeting-properties.js";
 import { Vector3, Quaternion } from "@babylonjs/core";
 import { ActionEntityProperties } from "../../action-entities/index.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
 
 export enum CombatantConditionName {
   // Poison,
@@ -46,24 +43,6 @@ export const COMBATANT_CONDITION_DESCRIPTIONS: Record<CombatantConditionName, st
 };
 
 export const MAX_CONDITION_STACKS = 99;
-
-type CombatantConditionConstructor = new (
-  id: EntityId,
-  appliedBy: ConditionAppliedBy,
-  appliedTo: EntityId,
-  level: number,
-  stacksOption: null | MaxAndCurrent
-) => CombatantCondition;
-
-export const COMBATANT_CONDITION_CONSTRUCTORS: Record<
-  CombatantConditionName,
-  CombatantConditionConstructor
-> = {
-  [CombatantConditionName.PrimedForExplosion]: PrimedForExplosionCombatantCondition,
-  [CombatantConditionName.PrimedForIceBurst]: PrimedForIceBurstCombatantCondition,
-  [CombatantConditionName.Burning]: BurningCombatantCondition,
-  [CombatantConditionName.Blinded]: BlindedCombatantCondition,
-};
 
 export interface ConditionAppliedBy {
   entityProperties: EntityProperties;

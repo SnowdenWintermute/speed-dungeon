@@ -1,5 +1,5 @@
 import { Battle } from "../../battle/index.js";
-import { ActionUserContext } from "../../combatant-context/action-user.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
 import { Combatant } from "../../combatants/index.js";
 import { CombatActionExecutionIntent } from "../combat-actions/combat-action-execution-intent.js";
 import { CombatActionName, CombatActionTarget } from "../index.js";

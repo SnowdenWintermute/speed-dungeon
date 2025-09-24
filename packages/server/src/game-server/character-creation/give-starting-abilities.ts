@@ -4,7 +4,7 @@ import {
   CombatantActionState,
   MaxAndCurrent,
 } from "@speed-dungeon/common";
-import { IActionUser } from "@speed-dungeon/common/src/combatant-context/action-user";
+import { IActionUser } from "@speed-dungeon/common/src/action-user-context/action-user";
 
 export function giveStartingAbilities(actionUser: IActionUser) {
   const ownedActions = [

@@ -18,7 +18,7 @@ import { ActionIntentOptionAndUser } from "../../action-processing/index.js";
 import { throwIfError } from "../../utils/index.js";
 import { CombatantCondition } from "../../combatants/index.js";
 import { ACTION_ENTITY_ACTION_INTENT_GETTERS } from "../../action-entities/index.js";
-import { ActionUserContext } from "../../combatant-context/action-user.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
 
 export abstract class TurnTracker {
   constructor(public readonly timeOfNextMove: number) {}

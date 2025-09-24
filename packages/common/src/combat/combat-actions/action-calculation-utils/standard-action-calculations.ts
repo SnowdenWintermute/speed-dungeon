@@ -6,7 +6,7 @@ import {
   STR_TO_MELEE_ARMOR_PEN_RATIO,
 } from "../../../app-consts.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
-import { IActionUser } from "../../../combatant-context/action-user.js";
+import { IActionUser } from "../../../action-user-context/action-user.js";
 
 export function getStandardActionCritChance(
   actionUser: IActionUser,

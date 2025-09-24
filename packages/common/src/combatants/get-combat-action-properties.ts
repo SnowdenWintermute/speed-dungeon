@@ -2,7 +2,7 @@ import { CombatantProperties } from "./index.js";
 import { CombatActionComponent } from "../combat/combat-actions/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
-import { ActionAndRank } from "../combatant-context/action-user-targeting-properties.js";
+import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
 
 export function getCombatActionPropertiesIfOwned(
   combatantProperties: CombatantProperties,

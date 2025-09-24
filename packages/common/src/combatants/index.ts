@@ -43,7 +43,6 @@ import {
 import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
 import { getActionNamesFilteredByUseableContext } from "./owned-actions/get-owned-action-names-filtered-by-usable-context.js";
 import {
-  COMBATANT_CONDITION_CONSTRUCTORS,
   CombatantCondition,
   ConditionAppliedBy,
   ConditionTickProperties,
@@ -55,16 +54,17 @@ import { ThreatManager } from "./threat-manager/index.js";
 import { COMBATANT_MAX_ACTION_POINTS } from "../app-consts.js";
 import { CombatantAbilityProperties } from "./combatant-abilities/combatant-ability-properties.js";
 import { ActionEntity, ActionEntityProperties } from "../action-entities/index.js";
-import { IActionUser } from "../combatant-context/action-user.js";
+import { IActionUser } from "../action-user-context/action-user.js";
 import {
   ActionAndRank,
   ActionUserTargetingProperties,
-} from "../combatant-context/action-user-targeting-properties.js";
+} from "../action-user-context/action-user-targeting-properties.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { Battle } from "../battle/index.js";
 import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
+import { COMBATANT_CONDITION_CONSTRUCTORS } from "./combatant-conditions/condition-constructors.js";
 
 export enum AiType {
   Healer,
@@ -130,7 +130,10 @@ export class Combatant implements IActionUser {
   getConditionAppliedBy(): ConditionAppliedBy {
     throw new Error("getConditionAppliedBy() is only valid on CombatantCondition");
   }
-  getAllyAndOpponentIds(): Record<FriendOrFoe, EntityId[]> {
+  getAllyAndOpponentIds(
+    party: AdventuringParty,
+    battleOption: null | Battle
+  ): Record<FriendOrFoe, EntityId[]> {
     throw new Error("Method not implemented.");
   }
   getTargetingProperties = () => this.combatantProperties.targetingProperties;

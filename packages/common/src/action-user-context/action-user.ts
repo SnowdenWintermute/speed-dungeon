@@ -4,8 +4,6 @@ import {
   ConditionAppliedBy,
   ConditionTickProperties,
 } from "../combatants/index.js";
-import { ERROR_MESSAGES } from "../errors/index.js";
-import { SpeedDungeonGame } from "../game/index.js";
 import {
   CombatantActionState,
   CombatantAttributeRecord,

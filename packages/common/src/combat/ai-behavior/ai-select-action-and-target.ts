@@ -4,7 +4,7 @@ import { SpeedDungeonGame } from "../../game/index.js";
 import { CombatActionExecutionIntent } from "../combat-actions/combat-action-execution-intent.js";
 import { AIBehaviorContext } from "./ai-context.js";
 import { RootAIBehaviorNode } from "./custom-nodes/root-ai-behavior-node.js";
-import { ActionUserContext } from "../../combatant-context/action-user.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
 
 export function AISelectActionAndTarget(
   game: SpeedDungeonGame,

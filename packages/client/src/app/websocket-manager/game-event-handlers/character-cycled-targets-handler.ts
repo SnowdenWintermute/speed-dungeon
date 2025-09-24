@@ -1,8 +1,9 @@
 import { GameState } from "@/stores/game-store";
 import {
+  ActionUserContext,
+  AdventuringParty,
   COMBAT_ACTIONS,
   CharacterAssociatedData,
-  CombatantContext,
   ERROR_MESSAGES,
   NextOrPrevious,
   TargetingCalculator,
@@ -22,26 +23,37 @@ export function characterCycledTargetsHandler(
       const playerOption = game.players[playerUsername];
       if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
       const targetingCalculator = new TargetingCalculator(
-        new CombatantContext(game, party, character),
+        new ActionUserContext(game, party, character),
         playerOption
       );
-      const maybeError = targetingCalculator.cycleCharacterTargets(characterId, direction);
-      if (maybeError instanceof Error) return maybeError;
-      const { selectedCombatAction, combatActionTarget } = character.combatantProperties;
-      if (selectedCombatAction === null)
+
+      const targetingProperties = character.getTargetingProperties();
+      // @REFACTOR - just pass the targeting calculator for this pattern
+      const idsByDisposition = character.getAllyAndOpponentIds(
+        party,
+        AdventuringParty.getBattleOption(party, game)
+      );
+      targetingProperties.cycleTargets(direction, playerOption, idsByDisposition);
+
+      const selectedActionAndRank = targetingProperties.getSelectedActionAndRank();
+      const combatActionTarget = targetingProperties.getSelectedTarget();
+
+      if (selectedActionAndRank === null)
         return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
       if (combatActionTarget === null)
         return new Error(ERROR_MESSAGES.COMBATANT.NO_TARGET_SELECTED);
 
+      const { actionName } = selectedActionAndRank;
+
       const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
-        COMBAT_ACTIONS[selectedCombatAction],
+        COMBAT_ACTIONS[actionName],
         combatActionTarget
       );
       if (targetIdsResult instanceof Error) return targetIdsResult;
 
       synchronizeTargetingIndicators(
         gameState,
-        character.combatantProperties.selectedCombatAction,
+        actionName,
         character.entityProperties.id,
         targetIdsResult || []
       );

@@ -7,7 +7,7 @@ import {
   ReplayEventType,
 } from "@speed-dungeon/common";
 import { ANIMATION_LENGTHS, idGenerator } from "../../../singletons/index.js";
-import { ActionUserContext } from "@speed-dungeon/common/src/combatant-context/action-user.js";
+import { ActionUserContext } from "@speed-dungeon/common";
 
 export function processCombatAction(
   actionExecutionIntent: CombatActionExecutionIntent,

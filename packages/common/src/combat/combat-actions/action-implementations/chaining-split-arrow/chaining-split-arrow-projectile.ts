@@ -29,7 +29,7 @@ import {
   createTargetingPropertiesConfig,
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
-import { ActionUserContext } from "../../../../combatant-context/action-user.js";
+import { ActionUserContext } from "../../../../action-user-context/index.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
 
 const targetingPropertiesOverrides: Partial<CombatActionTargetingPropertiesConfig> = {

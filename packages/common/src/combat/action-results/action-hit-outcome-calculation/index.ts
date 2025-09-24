@@ -21,7 +21,7 @@ import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 import { HitOutcomeMitigationCalculator } from "./hit-outcome-mitigation-calculator.js";
 import { ResourceChangeModifier } from "./resource-change-modifier.js";
-import { ActionUserContext } from "../../../combatant-context/action-user.js";
+import { ActionUserContext } from "../../../action-user-context/index.js";
 
 export class CombatActionHitOutcomes {
   resourceChanges?: Partial<Record<CombatActionResource, ResourceChanges<ResourceChange>>>;

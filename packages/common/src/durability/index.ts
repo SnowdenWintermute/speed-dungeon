@@ -3,7 +3,7 @@ import {
   DurabilityLossCondition,
 } from "../combat/combat-actions/combat-action-durability-loss-condition.js";
 import { CombatActionComponent } from "../combat/combat-actions/index.js";
-import { IActionUser } from "../combatant-context/action-user.js";
+import { IActionUser } from "../action-user-context/action-user.js";
 import {
   Combatant,
   CombatantEquipment,

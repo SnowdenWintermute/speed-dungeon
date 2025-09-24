@@ -3,16 +3,15 @@ import { GameState } from "@/stores/game-store";
 import {
   ACTION_PAYABLE_RESOURCE_STRINGS,
   ActionPayableResource,
-  COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponent,
   CombatActionOrigin,
-  Combatant,
   EntityId,
   HP_CHANGE_SOURCE_CATEGORY_STRINGS,
   KINETIC_DAMAGE_TYPE_STRINGS,
   MAGICAL_ELEMENT_STRINGS,
   ResourceChange,
 } from "@speed-dungeon/common";
+import { IActionUser } from "@speed-dungeon/common";
 
 const spellLikeOrigins = [
   CombatActionOrigin.SpellCast,
@@ -26,7 +25,7 @@ export function postResourceChangeToCombatLog(
   resourceType: ActionPayableResource,
   action: CombatActionComponent,
   wasBlocked: boolean,
-  target: Combatant,
+  target: IActionUser,
   actionUserName: string,
   actionUserId: EntityId,
   showDebug: boolean
@@ -74,10 +73,12 @@ export function postResourceChangeToCombatLog(
     if (resourceType === ActionPayableResource.Mana) recoveryWord = "refreshed";
     const damagedOrHealed = resourceChange.value > 0 ? recoveryWord : "hit";
 
-    const isTargetingSelf = actionUserId === target.entityProperties.id;
-    const targetNameText = isTargetingSelf ? "themselves" : target.entityProperties.name;
+    const targetId = target.getEntityId();
 
-    const debugTargetId = showDebug ? target.entityProperties.id : "";
+    const isTargetingSelf = actionUserId === targetId;
+    const targetNameText = isTargetingSelf ? "themselves" : targetId;
+
+    const debugTargetId = showDebug ? targetId : "";
     messageText = `${actionUserName} ${damagedOrHealed} ${targetNameText} ${debugTargetId} for ${Math.abs(resourceChange.value)} ${resourceTypeOrDamageText}`;
   }
 

@@ -15,7 +15,7 @@ import { Consumable } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { AbilityTreeAbility } from "../abilities/index.js";
-import { ActionAndRank } from "../combatant-context/action-user-targeting-properties.js";
+import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
 
 export enum ServerToClientEvent {
   GameList = "0",

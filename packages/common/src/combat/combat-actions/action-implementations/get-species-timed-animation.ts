@@ -7,7 +7,7 @@ import {
   SKELETAL_ANIMATION_NAME_STRINGS,
   SkeletalAnimationName,
 } from "../../../app-consts.js";
-import { IActionUser } from "../../../combatant-context/action-user.js";
+import { IActionUser } from "../../../action-user-context/action-user.js";
 import { CombatantProperties, CombatantSpecies } from "../../../combatants/index.js";
 
 export function getSpeciesTimedAnimation(

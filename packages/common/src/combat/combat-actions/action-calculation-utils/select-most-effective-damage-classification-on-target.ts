@@ -9,7 +9,7 @@ import { CombatantProperties } from "../../../combatants";
 import { CombatActionResourceChangeProperties } from "../combat-action-resource-change-properties";
 import { copySelectedModifiersFromResourceChangeSource } from "./copy-selected-modifiers-from-hp-change-source.js";
 import { CombatActionHitOutcomeProperties } from "../combat-action-hit-outcome-properties.js";
-import { IActionUser } from "../../../combatant-context/action-user.js";
+import { IActionUser } from "../../../action-user-context/action-user.js";
 
 export function selectMostEffectiveFromAvailableResourceChangeSourceModifiers(
   hitOutcomeProperties: CombatActionHitOutcomeProperties,

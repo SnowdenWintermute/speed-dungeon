@@ -1,5 +1,4 @@
 import { Milliseconds } from "../../primatives/index.js";
-import { Combatant } from "../../combatants/index.js";
 import { COMBAT_ACTIONS, CombatActionComponent } from "../../combat/index.js";
 import { ReplayEventNode } from "../replay-events.js";
 import { GameUpdateCommand } from "../game-update-commands.js";
@@ -7,7 +6,8 @@ import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-
 import { ActionSequenceManager } from "../action-sequence-manager.js";
 import { ActionTracker } from "../action-tracker.js";
 import { IdGenerator } from "../../utility-classes/index.js";
-import { ActionUserContext, IActionUser } from "../../combatant-context/action-user.js";
+import { IActionUser } from "../../action-user-context/action-user.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
 
 export interface ActionExecuting {
   timeStarted: Milliseconds;

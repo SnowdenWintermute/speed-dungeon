@@ -25,8 +25,8 @@ import {
   FriendOrFoe,
   ResourceChangeSource,
 } from "../combat/index.js";
-import { IActionUser } from "../combatant-context/action-user.js";
-import { ActionUserTargetingProperties } from "../combatant-context/action-user-targeting-properties.js";
+import { IActionUser } from "../action-user-context/action-user.js";
+import { ActionUserTargetingProperties } from "../action-user-context/action-user-targeting-properties.js";
 
 export enum ActionEntityName {
   Arrow,

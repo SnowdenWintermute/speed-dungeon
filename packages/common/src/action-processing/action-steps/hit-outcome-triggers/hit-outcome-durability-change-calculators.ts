@@ -2,7 +2,7 @@ import { ONE_THIRD_OF_ONE } from "../../../app-consts.js";
 import { DurabilityLossCondition } from "../../../combat/combat-actions/combat-action-durability-loss-condition.js";
 import { CombatActionResource } from "../../../combat/combat-actions/combat-action-hit-outcome-properties.js";
 import { CombatActionComponent } from "../../../combat/index.js";
-import { IActionUser } from "../../../combatant-context/action-user.js";
+import { IActionUser } from "../../../action-user-context/action-user.js";
 import { Combatant, CombatantEquipment } from "../../../combatants/index.js";
 import {
   BASE_DURABILITY_LOSS,

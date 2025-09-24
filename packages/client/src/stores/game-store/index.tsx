@@ -3,11 +3,11 @@ import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { immerable, produce } from "immer";
 import {
+  ActionUserContext,
   AdventuringParty,
   CombatActionName,
   CombatAttribute,
   Combatant,
-  CombatantContext,
   ERROR_MESSAGES,
   EntityId,
   Item,
@@ -182,10 +182,10 @@ export function getCurrentMenu(state: GameState) {
   else return state.baseMenuState;
 }
 
-export function getCombatantContext(
+export function getActionUserContext(
   gameState: GameState,
   combatantId: EntityId
-): Error | CombatantContext {
+): Error | ActionUserContext {
   const gameOption = gameState.game;
 
   if (!gameOption) return new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
@@ -197,5 +197,5 @@ export function getCombatantContext(
   const party = partyOptionResult;
   const combatantResult = SpeedDungeonGame.getCombatantById(game, combatantId);
   if (combatantResult instanceof Error) return combatantResult;
-  return new CombatantContext(game, party, combatantResult);
+  return new ActionUserContext(game, party, combatantResult);
 }

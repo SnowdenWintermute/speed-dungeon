@@ -12,7 +12,7 @@ import {
 import { getGameServer } from "../../../singletons/index.js";
 import { processCombatAction } from "./process-combat-action.js";
 import { BattleProcessor } from "./process-battle-until-player-turn-or-conclusion.js";
-import { ActionUserContext } from "@speed-dungeon/common/src/combatant-context/action-user.js";
+import { ActionUserContext } from "@speed-dungeon/common";
 
 export async function useSelectedCombatActionHandler(
   _eventData: { characterId: string },

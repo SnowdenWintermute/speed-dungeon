@@ -1,4 +1,4 @@
-import { IActionUser } from "../../../../../combatant-context/action-user.js";
+import { IActionUser } from "../../../../../action-user-context/action-user.js";
 import { CombatAttribute } from "../../../../../combatants/attributes/index.js";
 import {
   getStandardActionArmorPenetration,

@@ -22,7 +22,7 @@ import {
 } from "../../scene-entities/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { immerable } from "immer";
-import { ActionUserContext } from "../../combatant-context/action-user.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
 
 export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
   [immerable] = true;

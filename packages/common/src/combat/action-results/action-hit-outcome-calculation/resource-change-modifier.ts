@@ -4,7 +4,7 @@ import { CombatantProperties, CombatantTraitType } from "../../../combatants/ind
 import { Percentage } from "../../../primatives/index.js";
 import { HitOutcomeMitigationCalculator } from "./hit-outcome-mitigation-calculator.js";
 import { CombatActionHitOutcomeProperties } from "../../combat-actions/combat-action-hit-outcome-properties.js";
-import { IActionUser } from "../../../combatant-context/action-user.js";
+import { IActionUser } from "../../../action-user-context/action-user.js";
 
 export class ResourceChangeModifier {
   constructor(

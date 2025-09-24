@@ -3,7 +3,7 @@ import { ActionSequenceManagerRegistry } from "./action-sequence-manager-registr
 import { NestedNodeReplayEvent, NestedNodeReplayEventUtls } from "./replay-events.js";
 import { ActionTracker } from "./action-tracker.js";
 import { IdGenerator } from "../utility-classes/index.js";
-import { ActionUserContext } from "../combatant-context/action-user.js";
+import { ActionUserContext } from "../action-user-context/index.js";
 
 export class ActionSequenceManager {
   private remainingActionsToExecute: CombatActionExecutionIntent[];

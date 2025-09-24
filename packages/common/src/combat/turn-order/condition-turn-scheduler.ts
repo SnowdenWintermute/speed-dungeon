@@ -4,7 +4,7 @@ import { CombatantCondition, CombatantProperties } from "../../combatants/index.
 import { SpeedDungeonGame } from "../../game/index.js";
 import { ITurnScheduler, TurnScheduler } from "./turn-schedulers.js";
 import { ConditionTurnTracker } from "./turn-trackers.js";
-import { ActionUserContext } from "../../combatant-context/action-user.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
 
 export class ConditionTurnScheduler extends TurnScheduler implements ITurnScheduler {
   constructor(

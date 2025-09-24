@@ -1,4 +1,4 @@
-import { IActionUser } from "../../../../combatant-context/action-user.js";
+import { IActionUser } from "../../../../action-user-context/action-user.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
 import { CombatActionHitOutcomeProperties } from "../../../combat-actions/combat-action-hit-outcome-properties.js";
 import { ResourceChange } from "../../../hp-change-source-types.js";

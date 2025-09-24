@@ -18,7 +18,7 @@ import { SpawnableEntity } from "../../spawnables/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { MeleeAttackAnimationType } from "./action-implementations/attack/determine-melee-attack-animation-type.js";
 import { CleanupMode } from "../../types.js";
-import { IActionUser } from "../../combatant-context/action-user.js";
+import { IActionUser } from "../../action-user-context/action-user.js";
 
 export interface EquipmentAnimation {
   slot: TaggedEquipmentSlot;

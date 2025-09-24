@@ -6,7 +6,7 @@ import { EntityId } from "../../../primatives/index.js";
 import { Vector3 } from "@babylonjs/core";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { TargetFilterer } from "../filtering.js";
-import { ActionUserContext } from "../../../combatant-context/action-user.js";
+import { ActionUserContext } from "../../../action-user-context/index.js";
 
 type AutoTargetingFunction = (
   actionUserContext: ActionUserContext,

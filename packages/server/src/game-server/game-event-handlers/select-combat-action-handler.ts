@@ -8,8 +8,8 @@ import {
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../singletons/index.js";
 import { TargetingCalculator } from "@speed-dungeon/common";
-import { ActionAndRank } from "@speed-dungeon/common/src/combatant-context/action-user-targeting-properties.js";
-import { ActionUserContext } from "@speed-dungeon/common/src/combatant-context/action-user.js";
+import { ActionAndRank } from "@speed-dungeon/common/src/action-user-context/action-user-targeting-properties.js";
+import { ActionUserContext } from "@speed-dungeon/common";
 
 export function selectCombatActionHandler(
   eventData: {

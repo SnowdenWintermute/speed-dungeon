@@ -1,6 +1,6 @@
 import { EntityAnimation } from "../../../action-processing/game-update-commands.js";
 import { SkeletalAnimationName } from "../../../app-consts.js";
-import { IActionUser } from "../../../combatant-context/action-user.js";
+import { IActionUser } from "../../../action-user-context/action-user.js";
 import { CombatantProperties, CombatantSpecies } from "../../../combatants/index.js";
 import { HoldableSlotType } from "../../../items/equipment/slots.js";
 import { getFallbackAnimationWithLength } from "../combat-action-animations.js";

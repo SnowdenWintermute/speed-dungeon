@@ -1,8 +1,8 @@
 import { GameState } from "@/stores/game-store";
 import {
+  ActionUserContext,
   CharacterAssociatedData,
   COMBAT_ACTIONS,
-  CombatantContext,
   EntityId,
   ERROR_MESSAGES,
   TargetingCalculator,
@@ -18,25 +18,33 @@ export function characterSelectedActionLevelHandler(eventData: {
     eventData.characterId,
     ({ character, game, party }: CharacterAssociatedData, gameState: GameState) => {
       const { actionLevel } = eventData;
-      character.combatantProperties.selectedActionLevel = actionLevel;
+
+      const targetingProperties = character.getTargetingProperties();
+
+      const selectedActionAndRank = targetingProperties.getSelectedActionAndRank();
+      if (selectedActionAndRank === null)
+        return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
+
+      const { actionName } = selectedActionAndRank;
+
+      targetingProperties.setSelectedActionAndRank({
+        actionName,
+        rank: actionLevel,
+      });
+
       if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
       if (character.combatantProperties.controllingPlayer === null)
         return new Error(ERROR_MESSAGES.COMBATANT.EXPECTED_OWNER_ID_MISSING);
-
-      if (character.combatantProperties.selectedCombatAction === null)
-        return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
 
       const playerOption = game.players[character.combatantProperties.controllingPlayer];
       if (playerOption === undefined) return new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
 
       const targetingCalculator = new TargetingCalculator(
-        new CombatantContext(game, party, character),
+        new ActionUserContext(game, party, character),
         playerOption
       );
-      const newTargetsResult =
-        targetingCalculator.updateTargetingSchemeAfterSelectingActionLevel(actionLevel);
+      const newTargetsResult = targetingCalculator.updateTargetingSchemeAfterSelectingActionLevel();
 
-      const { selectedCombatAction: actionName } = character.combatantProperties;
       const action = COMBAT_ACTIONS[actionName];
 
       if (newTargetsResult instanceof Error) return newTargetsResult;
@@ -54,7 +62,7 @@ export function characterSelectedActionLevelHandler(eventData: {
 
       synchronizeTargetingIndicators(
         gameState,
-        character.combatantProperties.selectedCombatAction,
+        actionName,
         character.entityProperties.id,
         targetIds || []
       );

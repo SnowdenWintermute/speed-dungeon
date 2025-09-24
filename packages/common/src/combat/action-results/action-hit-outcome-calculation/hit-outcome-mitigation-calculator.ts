@@ -1,5 +1,5 @@
 import { MAX_CRIT_CHANCE, MIN_HIT_CHANCE } from "../../../app-consts.js";
-import { IActionUser } from "../../../combatant-context/action-user.js";
+import { IActionUser } from "../../../action-user-context/action-user.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import {
   Combatant,

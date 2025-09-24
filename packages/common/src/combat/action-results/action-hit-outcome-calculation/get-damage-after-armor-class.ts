@@ -1,5 +1,5 @@
 import { ARMOR_CLASS_EQUATION_MODIFIER } from "../../../app-consts.js";
-import { IActionUser } from "../../../combatant-context/action-user.js";
+import { IActionUser } from "../../../action-user-context/action-user.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { CombatantProperties } from "../../../combatants/index.js";
 import { CombatActionHitOutcomeProperties } from "../../combat-actions/combat-action-hit-outcome-properties.js";

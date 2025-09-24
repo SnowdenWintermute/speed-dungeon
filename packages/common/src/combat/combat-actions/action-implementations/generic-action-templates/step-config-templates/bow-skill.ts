@@ -41,7 +41,7 @@ import {
 import { ActionEntity, ActionEntityName } from "../../../../../action-entities/index.js";
 import { Vector3 } from "@babylonjs/core";
 import { nameToPossessive } from "../../../../../utils/index.js";
-import { IActionUser } from "../../../../../combatant-context/action-user.js";
+import { IActionUser } from "../../../../../action-user-context/action-user.js";
 
 const base = cloneDeep(PROJECTILE_SKILL_STEPS_CONFIG);
 delete base.steps[ActionResolutionStepType.RollIncomingHitOutcomes];

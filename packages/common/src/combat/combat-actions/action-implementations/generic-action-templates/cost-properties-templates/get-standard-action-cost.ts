@@ -1,4 +1,4 @@
-import { IActionUser } from "../../../../../combatant-context/action-user.js";
+import { IActionUser } from "../../../../../action-user-context/action-user.js";
 import { iterateNumericEnumKeyedRecord } from "../../../../../utils/index.js";
 import { ActionPayableResource, CombatActionComponent } from "../../../index.js";
 

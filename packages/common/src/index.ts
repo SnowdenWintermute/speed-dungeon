@@ -25,7 +25,7 @@ export * from "./combatants/attributes/index.js";
 export * from "./combatants/inventory/index.js";
 export * from "./combat/combat-actions/index.js";
 export * from "./combat/targeting/targeting-calculator.js";
-export * from "./combatant-context/index.js";
+export * from "./action-user-context/index.js";
 export * from "./action-entities/index.js";
 export * from "./spawnables/index.js";
 export * from "./action-processing/index.js";
@@ -35,3 +35,7 @@ export * from "./assets/skeleton-file-paths.js";
 export * from "./scene-entities/index.js";
 export * from "./abilities/index.js";
 export * from "./items/trading/index.js";
+
+export * from "./action-user-context/action-user.js";
+export * from "./combatants/combatant-conditions/condition-constructors.js";
+export * from "./action-user-context/action-user-targeting-properties.js";

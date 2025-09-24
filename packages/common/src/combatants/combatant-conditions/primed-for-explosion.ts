@@ -10,7 +10,7 @@ import { CombatActionTargetType } from "../../combat/targeting/combat-action-tar
 import { IdGenerator } from "../../utility-classes/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { immerable } from "immer";
-import { ActionUserContext } from "../../combatant-context/action-user.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
 
 export class PrimedForExplosionCombatantCondition extends CombatantCondition {
   [immerable] = true;

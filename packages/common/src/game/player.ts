@@ -5,7 +5,7 @@ import {
   TargetingScheme,
 } from "../combat/combat-actions/targeting-schemes-and-categories.js";
 import { COMBAT_ACTIONS, CombatActionTarget, CombatActionTargetType } from "../combat/index.js";
-import { ActionAndRank } from "../combatant-context/action-user-targeting-properties.js";
+import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
 
 export class SpeedDungeonPlayer {
   [immerable] = true;

@@ -8,8 +8,8 @@ import { getActionTargetsIfSchemeIsValid } from "./get-targets-if-scheme-is-vali
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { COMBAT_ACTIONS } from "../combat-actions/action-implementations/index.js";
 import { TargetFilterer } from "./filtering.js";
-import { ActionAndRank } from "../../combatant-context/action-user-targeting-properties.js";
-import { ActionUserContext } from "../../combatant-context/action-user.js";
+import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
 
 export class TargetingCalculator {
   constructor(

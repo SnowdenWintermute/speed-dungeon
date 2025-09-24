@@ -20,14 +20,12 @@ import {
   ResourceChangeSourceCategory,
   ThreatChanges,
 } from "../../../combat/index.js";
-import { Combatant } from "../../../combatants/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { addHitOutcomeDurabilityChanges } from "./hit-outcome-durability-change-calculators.js";
 import { HitOutcome } from "../../../hit-outcome.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
 import {
-  COMBATANT_CONDITION_CONSTRUCTORS,
   CombatantCondition,
   MAX_CONDITION_STACKS,
 } from "../../../combatants/combatant-conditions/index.js";
@@ -38,6 +36,7 @@ import {
 } from "./add-triggered-condition-to-update.js";
 import { CombatActionResource } from "../../../combat/combat-actions/combat-action-hit-outcome-properties.js";
 import { MaxAndCurrent } from "../../../primatives/max-and-current.js";
+import { COMBATANT_CONDITION_CONSTRUCTORS } from "../../../combatants/combatant-conditions/condition-constructors.js";
 
 const stepType = ActionResolutionStepType.EvalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {

@@ -6,8 +6,8 @@ import {
   FriendOrFoe,
   TargetingScheme,
 } from "../combat-actions/targeting-schemes-and-categories.js";
-import { IActionUser } from "../../combatant-context/action-user.js";
-import { ActionAndRank } from "../../combatant-context/action-user-targeting-properties.js";
+import { IActionUser } from "../../action-user-context/action-user.js";
+import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
 import { EntityId } from "../../primatives/index.js";
 import { COMBAT_ACTIONS } from "../combat-actions/action-implementations/index.js";
 

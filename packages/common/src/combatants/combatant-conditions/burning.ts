@@ -18,7 +18,7 @@ import {
   CombatantBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../scene-entities/index.js";
-import { ActionUserContext } from "../../combatant-context/action-user.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
 
 export class BurningCombatantCondition extends CombatantCondition {
   [immerable] = true;
@@ -70,7 +70,7 @@ export class BurningCombatantCondition extends CombatantCondition {
   };
 
   triggeredWhenHitBy(actionName: CombatActionName) {
-    // anything that removes burning
+    // anything that removes burning like a water element attack
     return false;
   }
 

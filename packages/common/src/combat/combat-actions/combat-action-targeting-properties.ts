@@ -7,7 +7,8 @@ import { CombatActionIntent } from "./combat-action-intent.js";
 import { EquipmentType } from "../../items/equipment/index.js";
 import { CombatActionRequiredRange } from "./combat-action-range.js";
 import { ActionResolutionStepContext } from "../../action-processing/index.js";
-import { ActionUserContext, IActionUser } from "../../combatant-context/action-user.js";
+import { IActionUser } from "../../action-user-context/action-user.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
 
 export interface CombatActionTargetingPropertiesConfig {
   getTargetingSchemes: (actionLevel: number) => TargetingScheme[];

@@ -10,7 +10,7 @@ import {
   AdventuringParty,
   FLOATING_MESSAGE_DURATION,
 } from "@speed-dungeon/common";
-import { getCombatantContext, useGameStore } from "@/stores/game-store";
+import { getActionUserContext, useGameStore } from "@/stores/game-store";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import { useUIStore } from "@/stores/ui-store";
 import { startResourceChangeFloatingMessage } from "./start-resource-change-floating-message";
@@ -43,10 +43,10 @@ export function induceHitRecovery(
   const showDebug = useUIStore.getState().showDebug;
 
   useGameStore.getState().mutateState((gameState) => {
-    const combatantContextResult = getCombatantContext(gameState, targetId);
+    const combatantContextResult = getActionUserContext(gameState, targetId);
     if (combatantContextResult instanceof Error) throw combatantContextResult;
-    const { game, party, combatant } = combatantContextResult;
-    const { combatantProperties } = combatant;
+    const { game, party, actionUser: targetCombatant } = combatantContextResult;
+    const combatantProperties = targetCombatant.getCombatantProperties();
 
     const combatantWasAliveBeforeResourceChange = combatantProperties.hitPoints > 0;
     if (resourceType === ActionPayableResource.HitPoints)
@@ -61,7 +61,7 @@ export function induceHitRecovery(
       resourceType,
       action,
       wasBlocked,
-      combatant,
+      targetCombatant,
       actionUserName,
       actionUserId,
       showDebug

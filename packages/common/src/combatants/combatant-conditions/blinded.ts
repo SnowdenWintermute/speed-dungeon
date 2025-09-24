@@ -20,7 +20,7 @@ import {
   SceneEntityType,
 } from "../../scene-entities/index.js";
 import { CombatAttribute } from "../attributes/index.js";
-import { ActionUserContext } from "../../combatant-context/action-user.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
 
 export class BlindedCombatantCondition extends CombatantCondition {
   [immerable] = true;
