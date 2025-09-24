@@ -19,6 +19,7 @@ import { ActionUserContext, IActionUser } from "../../combatant-context/action-u
 import { ActionIntentAndUser } from "../../action-processing/index.js";
 import { ActionUserTargetingProperties } from "../../combatant-context/action-user-targeting-properties.js";
 import { Vector3, Quaternion } from "@babylonjs/core";
+import { ActionEntityProperties } from "../../action-entities/index.js";
 
 export enum CombatantConditionName {
   // Poison,
@@ -106,6 +107,14 @@ export abstract class CombatantCondition implements IActionUser {
     public name: CombatantConditionName,
     public stacksOption: null | MaxAndCurrent
   ) {}
+  getActionEntityProperties(): ActionEntityProperties {
+    throw new Error("Conditions do not have ActionEntityProperties.");
+  }
+  wasRemovedBeforeHitOutcomes(): boolean {
+    return false;
+  }
+
+  setWasRemovedBeforeHitOutcomes(): void {}
   getConditionTickPropertiesOption() {
     return this.tickPropertiesOption;
   }
@@ -138,9 +147,29 @@ export abstract class CombatantCondition implements IActionUser {
   getConditionAppliedBy(): ConditionAppliedBy {
     return this.appliedBy;
   }
-  getAllyAndOpponentIds(): Record<FriendOrFoe, EntityId[]> {
-    throw new Error("Method not implemented.");
+  getAllyAndOpponentIds(
+    party: AdventuringParty,
+    battleOption: null | Battle
+  ): Record<FriendOrFoe, EntityId[]> {
+    // @TODO - replace this placeholder
+    if (!battleOption) {
+      return { [FriendOrFoe.Hostile]: [], [FriendOrFoe.Friendly]: [] };
+    }
+
+    const idsByDispositionOfConditionHolder = Battle.getAllyIdsAndOpponentIdsOption(
+      battleOption,
+      this.appliedTo
+    );
+    switch (this.appliedBy.friendOrFoe) {
+      case FriendOrFoe.Friendly:
+        // if applied by a friendly combatant, "ally ids" would be the allies of conditionAppliedTo
+        return idsByDispositionOfConditionHolder;
+      case FriendOrFoe.Hostile:
+        // if applied by a hostile combatant, "ally ids" would be the opponents of conditionAppliedTo
+        return Battle.invertAllyAndOpponentIds(idsByDispositionOfConditionHolder);
+    }
   }
+
   getTargetingProperties(): ActionUserTargetingProperties {
     if (this.targetingProperties) return this.targetingProperties;
     throw new Error("Condition was not configured with targetingProperties");

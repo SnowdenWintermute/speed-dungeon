@@ -47,19 +47,15 @@ const config: CombatActionComponentConfig = {
       getHitOutcomeTriggers: (context) => {
         const toReturn: Partial<ActivatedTriggersGameUpdateCommand> = {};
 
-        // modify cloned user of projectile
-        const { asShimmedActionEntity } = context.combatantContext.combatant.combatantProperties;
-        if (asShimmedActionEntity === undefined)
-          throw new Error("expected user to have asShimmedActionEntity");
+        const { actionUser } = context.actionUserContext;
+        const actionEntityProperties = actionUser.getActionEntityProperties();
 
-        if (!asShimmedActionEntity.actionEntityProperties.actionOriginData)
-          asShimmedActionEntity.actionEntityProperties.actionOriginData = {};
+        if (!actionEntityProperties.actionOriginData) actionEntityProperties.actionOriginData = {};
 
-        asShimmedActionEntity.actionEntityProperties.actionOriginData.resourceChangeSource =
-          new ResourceChangeSource({
-            category: ResourceChangeSourceCategory.Physical,
-            elementOption: MagicalElement.Fire,
-          });
+        actionEntityProperties.actionOriginData.resourceChangeSource = new ResourceChangeSource({
+          category: ResourceChangeSourceCategory.Physical,
+          elementOption: MagicalElement.Fire,
+        });
 
         // @PERF - combine when starting multiple cosmeticEffectsToStart on same entity
         toReturn.cosmeticEffectsToStart = [
@@ -68,7 +64,7 @@ const config: CombatActionComponentConfig = {
             parent: {
               sceneEntityIdentifier: {
                 type: SceneEntityType.ActionEntityModel,
-                entityId: asShimmedActionEntity.entityProperties.id,
+                entityId: actionUser.getEntityId(),
               },
               transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
             },
@@ -78,7 +74,7 @@ const config: CombatActionComponentConfig = {
             parent: {
               sceneEntityIdentifier: {
                 type: SceneEntityType.ActionEntityModel,
-                entityId: asShimmedActionEntity.entityProperties.id,
+                entityId: actionUser.getEntityId(),
               },
               transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
             },

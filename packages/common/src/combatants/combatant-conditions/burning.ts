@@ -1,22 +1,10 @@
-import {
-  COMBATANT_CONDITION_NAME_STRINGS,
-  CombatantCondition,
-  CombatantConditionName,
-  ConditionAppliedBy,
-  ConditionTickProperties,
-} from "./index.js";
-import {
-  CombatantAttributeRecord,
-  CombatantProperties,
-  createShimmedUserOfTriggeredCondition,
-} from "../index.js";
+import { CombatantCondition, CombatantConditionName, ConditionAppliedBy } from "./index.js";
 import {
   CombatActionExecutionIntent,
   CombatActionIntent,
   CombatActionName,
 } from "../../combat/combat-actions/index.js";
-import { EntityId, MaxAndCurrent, Option } from "../../primatives/index.js";
-import { CombatantContext } from "../../combatant-context/index.js";
+import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 import { BASE_CONDITION_TICK_SPEED } from "../../combat/turn-order/consts.js";
 import {
   CombatActionTargetSingle,

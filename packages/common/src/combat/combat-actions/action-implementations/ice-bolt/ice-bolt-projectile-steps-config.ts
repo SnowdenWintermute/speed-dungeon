@@ -22,7 +22,6 @@ import { ActionResolutionStepConfig } from "../../combat-action-steps-config.js"
 import { CosmeticEffectInstructionFactory } from "../generic-action-templates/cosmetic-effect-factories/index.js";
 import { nameToPossessive, throwIfError } from "../../../../utils/index.js";
 import { CleanupMode } from "../../../../types.js";
-import { createCopyOfProjectileUser } from "../../../../combatants/index.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
@@ -70,21 +69,13 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
       }
     );
 
-    // @REFACTOR - action entity as IActionUser
-    const expectedProjectile = actionEntity;
-    // without this cloning we'll be modifying the actual user when incinerating projectiles
-    // or adding resource change source categories to the .asShimmedActionEntity
-    // or otherwise polluting our original user
-    // @REFACTOR - put this cloning into the projectile template
-    const projectileUser = createCopyOfProjectileUser(
-      context.combatantContext.combatant,
-      actionEntity
-    );
+    // @REFACTOR - spawn the projectile in the parent and make the user of this action
+    // be the entity from the beginning so that is a consistent pattern for all projectile actions
     // replace the user here. unlike arrows which are spawned by the parent action
     // and only moved by the projectile action, we spawn and move the projectile
     // all in the same projectile action in spells, and we must modify the user
     // after the projectile has spawned
-    context.combatantContext.combatant = projectileUser;
+    context.actionUserContext.actionUser = actionEntity;
 
     return {
       type: SpawnableEntityType.ActionEntity,

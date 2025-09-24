@@ -30,15 +30,11 @@ const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BENEVOLENT_CONSUMABLE,
   {
     getOnUseTriggers: (context) => {
-      const { combatantContext } = context;
-      const { game, party, combatant } = combatantContext;
+      const { actionUserContext } = context;
+      const { game, party, actionUser } = actionUserContext;
       // check for existing firewall
-      const { asShimmedActionEntity } = combatant.combatantProperties;
-      if (asShimmedActionEntity === undefined) {
-        throw new Error("expected user to have action entity shim properties");
-      }
 
-      const firewallId = asShimmedActionEntity.entityProperties.id;
+      const firewallId = actionUser.getEntityId();
 
       const existingFirewall = throwIfError(AdventuringParty.getActionEntity(party, firewallId));
 

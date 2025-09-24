@@ -1,6 +1,5 @@
 import { immerable } from "immer";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
-import { CombatantContext } from "../../../combatant-context/index.js";
 import { CombatantProperties, ThreatType } from "../../../combatants/index.js";
 import { EntityId } from "../../../primatives/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";

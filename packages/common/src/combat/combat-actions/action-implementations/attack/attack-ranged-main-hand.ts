@@ -19,7 +19,6 @@ import {
   createTargetingPropertiesConfig,
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
-import { createCopyOfProjectileUser } from "../../../../combatants/index.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BOW_SKILL();
@@ -52,20 +51,11 @@ export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
       if (expectedProjectile.type !== SpawnableEntityType.ActionEntity)
         throw new Error("expected to have spawned an action entity");
 
-      // without this cloning we'll be modifying the actual user when incinerating projectiles
-      // or adding resource change source categories to the .asShimmedActionEntity
-      // or otherwise polluting our original user
-      // @REFACTOR - put this cloning into the projectile template
-      const projectileUser = createCopyOfProjectileUser(
-        context.combatantContext.combatant,
-        expectedProjectile.actionEntity
-      );
-
       const { rank, targets } = context.tracker.actionExecutionIntent;
 
       return [
         {
-          user: projectileUser,
+          user: expectedProjectile.actionEntity,
           actionExecutionIntent: new CombatActionExecutionIntent(
             CombatActionName.AttackRangedMainhandProjectile,
             rank,

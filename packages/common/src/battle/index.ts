@@ -77,26 +77,6 @@ export class Battle {
     );
   }
 
-  //@REFACTOR -move this onto conditions
-  static getAllyIdsAndOpponentIdsOptionOfShimmedConditionUser(
-    battle: Battle,
-    conditionAppliedTo: EntityId,
-    conditionAppliedBy: ConditionAppliedBy
-  ): Record<FriendOrFoe, EntityId[]> {
-    const idsByDispositionOfConditionHolder = Battle.getAllyIdsAndOpponentIdsOption(
-      battle,
-      conditionAppliedTo
-    );
-    switch (conditionAppliedBy.friendOrFoe) {
-      case FriendOrFoe.Friendly:
-        // if applied by a friendly combatant, "ally ids" would be the allies of conditionAppliedTo
-        return idsByDispositionOfConditionHolder;
-      case FriendOrFoe.Hostile:
-        // if applied by a hostile combatant, "ally ids" would be the opponents of conditionAppliedTo
-        return Battle.invertAllyAndOpponentIds(idsByDispositionOfConditionHolder);
-    }
-  }
-
   static invertAllyAndOpponentIds(
     idsByDisposition: Record<FriendOrFoe, EntityId[]>
   ): Record<FriendOrFoe, EntityId[]> {

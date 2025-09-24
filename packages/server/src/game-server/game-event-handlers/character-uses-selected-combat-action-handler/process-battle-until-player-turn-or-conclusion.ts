@@ -6,7 +6,6 @@ import {
   AdventuringParty,
   Battle,
   CombatActionReplayTreePayload,
-  CombatantContext,
   ERROR_MESSAGES,
   ServerToClientEvent,
   SpeedDungeonGame,

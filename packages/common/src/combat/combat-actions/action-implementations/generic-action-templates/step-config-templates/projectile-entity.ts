@@ -21,10 +21,10 @@ const config = new ActionResolutionStepsConfig(
       getNewParent: () => null,
       getEntityToLockOnTo: () => null,
       getCosmeticDestinationY: (context) => {
-        const { combatantContext, tracker } = context;
+        const { actionUserContext, tracker } = context;
         const { actionExecutionIntent } = tracker;
 
-        const targetingCalculator = new TargetingCalculator(combatantContext, null);
+        const targetingCalculator = new TargetingCalculator(actionUserContext, null);
         const primaryTargetId = throwIfError(
           targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent)
         );

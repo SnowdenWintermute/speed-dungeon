@@ -28,13 +28,12 @@ const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionSt
 
 stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
   getSpawnableEntity: (context) => {
-    const { combatantContext, tracker } = context;
-    const previousTrackerOption = tracker.getPreviousTrackerInSequenceOption();
-    let position = combatantContext.combatant.combatantProperties.position.clone();
+    const { actionUserContext, tracker } = context;
+    let position = actionUserContext.actionUser.getPosition().clone();
 
     let parentOption: undefined | SceneEntityChildTransformNodeIdentifier;
 
-    const targetingCalculator = new TargetingCalculator(combatantContext, null);
+    const targetingCalculator = new TargetingCalculator(actionUserContext, null);
     const primaryTargetId = throwIfError(
       targetingCalculator.getPrimaryTargetCombatantId(tracker.actionExecutionIntent)
     );
@@ -56,6 +55,7 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
 
     let initialCosmeticYPosition: undefined | SceneEntityChildTransformNodeIdentifier;
 
+    const previousTrackerOption = tracker.getPreviousTrackerInSequenceOption();
     if (
       previousTrackerOption &&
       previousTrackerOption.actionExecutionIntent.actionName ===
@@ -66,7 +66,7 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
       // was spawned by previous arrow action in chain
       //
       const targetingCalculator = new TargetingCalculator(
-        previousTrackerOption.parentActionManager.combatantContext,
+        previousTrackerOption.parentActionManager.actionUserContext,
         null
       );
       const previousActionTargetId = throwIfError(
@@ -85,10 +85,11 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
       };
     } else {
       // was spawned by initial parent action
+
       parentOption = {
         sceneEntityIdentifier: {
           type: SceneEntityType.CharacterEquipmentModel,
-          characterModelId: combatantContext.combatant.entityProperties.id,
+          characterModelId: actionUserContext.actionUser.getEntityId(),
           slot: HoldableSlotType.MainHand,
         },
         transformNodeName: CombatantHoldableChildTransformNodeName.NockBone,
@@ -137,18 +138,18 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
     return toReturn;
   },
   getDestination: (context) => {
-    const { combatantContext, tracker } = context;
+    const { actionUserContext, tracker } = context;
     const { actionExecutionIntent } = tracker;
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
-    const targetingCalculator = new TargetingCalculator(combatantContext, null);
+    const targetingCalculator = new TargetingCalculator(actionUserContext, null);
 
     action.targetingProperties.getAutoTarget(
-      combatantContext,
+      actionUserContext,
       context.tracker.getPreviousTrackerInSequenceOption()
     );
 
     const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
-      combatantContext.party,
+      actionUserContext.party,
       actionExecutionIntent
     );
     if (primaryTargetResult instanceof Error) return primaryTargetResult;

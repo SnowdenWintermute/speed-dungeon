@@ -1,11 +1,6 @@
 import { AdventuringParty, InputLock } from "../../adventuring-party/index.js";
-import {
-  COMBAT_ACTION_NAME_STRINGS,
-  COMBAT_ACTIONS,
-  CombatActionExecutionIntent,
-  ThreatChanges,
-} from "../../combat/index.js";
-import { Combatant, CombatantProperties } from "../../combatants/index.js";
+import { COMBAT_ACTION_NAME_STRINGS, COMBAT_ACTIONS, ThreatChanges } from "../../combat/index.js";
+import { Combatant } from "../../combatants/index.js";
 import { ThreatCalculator } from "../../combatants/threat-manager/threat-calculator.js";
 import {
   ActionCompletionUpdateCommand,
@@ -67,13 +62,9 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   const { game, party, actionUser } = context.actionUserContext;
   const battleOption = AdventuringParty.getBattleOption(party, game);
 
-  const { asShimmedUserOfTriggeredCondition } = combatant.combatantProperties;
+  const userIsCombatant = actionUser instanceof Combatant;
 
-  // unlock input if no more blocking steps are left and next turn is player
-  const noActionPointsLeft =
-    combatant.combatantProperties.actionPoints === 0 &&
-    // this is because it was ending our turn when conditions used actions in between mh and oh attacks since the shimmed condition users don't have any action points
-    combatant.combatantProperties.asShimmedUserOfTriggeredCondition === undefined;
+  const noActionPointsLeft = userIsCombatant && actionUser.combatantProperties.actionPoints === 0;
   const requiredTurn =
     action.costProperties.requiresCombatTurnInThisContext(context, action) || noActionPointsLeft;
 
@@ -92,14 +83,11 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     sequentialActionManagerRegistry.setTurnEnded();
     shouldSendEndActiveTurnMessage = true;
 
-    // REFILL THE QUICK ACTIONS OF THE CURRENT TURN
-    // this way, if we want to remove their quick actions they can be at risk
-    // of actions taking them away before they get their turn again
-    CombatantProperties.refillActionPoints(combatant.combatantProperties);
-    CombatantProperties.tickCooldowns(combatant.combatantProperties);
+    actionUser.handleTurnEnded();
 
-    // don't decay threat for every ticking condition
-    if (!asShimmedUserOfTriggeredCondition) {
+    // only decay threat for combatant turns ending
+    // not for conditions or action entities
+    if (userIsCombatant) {
       const threatCalculator = new ThreatCalculator(
         threatChanges,
         context.tracker.hitOutcomes,

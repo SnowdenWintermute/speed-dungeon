@@ -25,10 +25,9 @@ stepsOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
     // want to spawn the explosion on the one selected by the user
 
     const actionTarget = actionUser.getTargetingProperties().getSelectedTarget();
-    if (!actionTarget)
-      throw new Error("expected shimmed condition action user to have a target set");
+    if (!actionTarget) throw new Error("expected condition action user to have a target set");
     if (actionTarget.type !== CombatActionTargetType.Single)
-      throw new Error("expected shimmed condition action user to have a single target");
+      throw new Error("expected condition action user to have a single target");
     const primaryTargetResult = AdventuringParty.getCombatant(party, actionTarget.targetId);
     if (primaryTargetResult instanceof Error) throw primaryTargetResult;
 

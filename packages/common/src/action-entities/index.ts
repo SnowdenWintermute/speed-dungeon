@@ -78,6 +78,17 @@ export class ActionEntity implements IActionUser {
     public entityProperties: EntityProperties,
     public actionEntityProperties: ActionEntityProperties
   ) {}
+  getActionEntityProperties(): ActionEntityProperties {
+    return this.actionEntityProperties;
+  }
+  setWasRemovedBeforeHitOutcomes() {
+    if (this.actionEntityProperties.actionOriginData === undefined)
+      this.actionEntityProperties.actionOriginData = {};
+    this.actionEntityProperties.actionOriginData.wasIncinerated = true;
+  }
+  wasRemovedBeforeHitOutcomes(): boolean {
+    return !!this.actionEntityProperties.actionOriginData?.wasIncinerated;
+  }
   payResourceCosts(): void {
     throw new Error("Method not implemented.");
   }

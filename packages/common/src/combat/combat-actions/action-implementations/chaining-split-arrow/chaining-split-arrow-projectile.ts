@@ -13,7 +13,6 @@ import {
   CombatActionTarget,
   CombatActionTargetType,
 } from "../../../targeting/combat-action-targets.js";
-import { CombatantContext } from "../../../../combatant-context/index.js";
 import { ActionTracker } from "../../../../action-processing/action-tracker.js";
 import { COMBAT_ACTIONS } from "../index.js";
 import { CombatActionTargetingPropertiesConfig } from "../../combat-action-targeting-properties.js";
@@ -131,8 +130,8 @@ function getBouncableTargets(
   })();
   if (previousTargetIdResult instanceof Error) return previousTargetIdResult;
 
-  const { actionUser, party } = actionUserContext;
-  const entityIdsByDisposition = actionUser.getAllyAndOpponentIds();
+  const { actionUser, party, getBattleOption } = actionUserContext;
+  const entityIdsByDisposition = actionUser.getAllyAndOpponentIds(party, getBattleOption());
 
   const opponentIds = entityIdsByDisposition[FriendOrFoe.Hostile];
   const opponents = AdventuringParty.getCombatants(party, opponentIds);

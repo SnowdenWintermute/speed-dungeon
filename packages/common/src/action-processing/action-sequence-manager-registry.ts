@@ -1,8 +1,6 @@
 import { CombatActionExecutionIntent } from "../combat/index.js";
 import { ActionUserContext } from "../combatant-context/action-user.js";
-import { CombatantContext } from "../combatant-context/index.js";
 import { CombatantSpecies } from "../combatants/combatant-species.js";
-import { Combatant } from "../combatants/index.js";
 import { EntityId, Milliseconds } from "../primatives/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { SequentialIdGenerator } from "../utils/index.js";

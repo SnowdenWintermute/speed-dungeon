@@ -75,7 +75,7 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
       actionLevel,
       userCombatantAttributes: actionUser.getTotalAttributes(),
       userElementalAffinities: CombatantProperties.getCombatantTotalElementalAffinities(
-        user.combatantProperties
+        actionUser.getCombatantProperties()
       ),
       turnOrderSpeed: BASE_PERSISTENT_ACTION_ENTITY_TICK_SPEED,
       stacks: lifetime,

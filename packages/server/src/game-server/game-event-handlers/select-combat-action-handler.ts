@@ -1,7 +1,5 @@
 import {
   CharacterAssociatedData,
-  CombatActionComponent,
-  CombatantContext,
   CombatantProperties,
   Inventory,
   Option,

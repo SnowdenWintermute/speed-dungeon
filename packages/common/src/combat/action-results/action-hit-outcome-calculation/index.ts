@@ -100,11 +100,7 @@ export class HitOutcomeCalculator {
       )
     );
 
-    // @REFACTOR - actionUser.wasRemovedBeforeResolution()
-    if (
-      actionUser.combatantProperties.asShimmedActionEntity?.actionEntityProperties.actionOriginData
-        ?.wasIncinerated
-    ) {
+    if (actionUser.wasRemovedBeforeHitOutcomes()) {
       filteredTargetIds = [];
     }
 

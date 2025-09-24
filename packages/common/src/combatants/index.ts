@@ -54,8 +54,7 @@ import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/
 import { ThreatManager } from "./threat-manager/index.js";
 import { COMBATANT_MAX_ACTION_POINTS } from "../app-consts.js";
 import { CombatantAbilityProperties } from "./combatant-abilities/combatant-ability-properties.js";
-import { ActionEntity } from "../action-entities/index.js";
-import cloneDeep from "lodash.clonedeep";
+import { ActionEntity, ActionEntityProperties } from "../action-entities/index.js";
 import { IActionUser } from "../combatant-context/action-user.js";
 import {
   ActionAndRank,
@@ -92,6 +91,13 @@ export class Combatant implements IActionUser {
     public entityProperties: EntityProperties,
     public combatantProperties: CombatantProperties
   ) {}
+  getActionEntityProperties(): ActionEntityProperties {
+    throw new Error("Combatants do not have ActionEntityProperties.");
+  }
+  wasRemovedBeforeHitOutcomes(): boolean {
+    return false;
+  }
+  setWasRemovedBeforeHitOutcomes(): void {}
   getConditionTickPropertiesOption(): null | ConditionTickProperties {
     throw new Error("getCombatantPropertiesOption() is invalid on Combatants.");
   }
@@ -132,7 +138,11 @@ export class Combatant implements IActionUser {
     throw new Error("Method not implemented.");
   }
   handleTurnEnded(): void {
-    throw new Error("Method not implemented.");
+    // REFILL THE QUICK ACTIONS OF THE CURRENT TURN
+    // this way, if we want to remove their quick actions they can be at risk
+    // of actions taking them away before they get their turn again
+    CombatantProperties.refillActionPoints(this.combatantProperties);
+    CombatantProperties.tickCooldowns(this.combatantProperties);
   }
   getEntityId(): EntityId {
     return this.entityProperties.id;
@@ -294,11 +304,6 @@ export class CombatantProperties {
   deepestFloorReached: number = 1;
   position: Vector3;
   conditions: CombatantCondition[] = [];
-  asShimmedUserOfTriggeredCondition?: {
-    condition: CombatantCondition;
-    entityConditionWasAppliedTo: EntityId;
-  };
-  asShimmedActionEntity?: ActionEntity;
 
   aiTypes?: AiType[];
 
@@ -546,75 +551,3 @@ export type ExperiencePoints = {
 };
 
 export type CombatantAttributeRecord = Partial<Record<CombatAttribute, number>>;
-
-/* Since combat actions must have a user, and the user of an action triggered by
- * a condition is not well defined, we'll create a placeholder */
-export function createShimmedUserOfTriggeredCondition(
-  name: string,
-  condition: CombatantCondition,
-  entityConditionWasAppliedTo: EntityId
-) {
-  const combatant = new Combatant(
-    // use the entity id of the condition applied to since the appliedBy entity may
-    // no longer exist
-    { id: entityConditionWasAppliedTo || "0", name },
-    new CombatantProperties(
-      CombatantClass.Mage,
-      CombatantSpecies.Dragon,
-      null,
-      null,
-      Vector3.Zero()
-    )
-  );
-
-  iterateNumericEnum(CombatActionName).forEach((actionName) => {
-    combatant.combatantProperties.abilityProperties.ownedActions[actionName] =
-      new CombatantActionState(actionName, 1);
-  });
-
-  combatant.combatantProperties.asShimmedUserOfTriggeredCondition = {
-    condition,
-    entityConditionWasAppliedTo,
-  };
-  return combatant;
-}
-
-/* see createShimmedUserOfTriggeredCondition */
-export function createShimmedUserOfActionEntityAction(
-  name: string,
-  actionEntity: ActionEntity,
-  primaryTargetId: EntityId // not sure why we're making shimmed user ids their target id
-) {
-  const combatant = new Combatant(
-    { id: primaryTargetId || "0", name },
-    new CombatantProperties(
-      CombatantClass.Mage,
-      CombatantSpecies.Dragon,
-      null,
-      null,
-      Vector3.Zero()
-    )
-  );
-
-  iterateNumericEnum(CombatActionName).forEach((actionName) => {
-    combatant.combatantProperties.abilityProperties.ownedActions[actionName] =
-      new CombatantActionState(actionName, 1);
-  });
-
-  combatant.combatantProperties.asShimmedActionEntity = actionEntity;
-
-  return combatant;
-}
-
-// Take a snapshot of the projectile user's status at the moment of use
-// so we can modify their hit outcome relevant stats if the projectile goes
-// through a firewall on the way
-export function createCopyOfProjectileUser(combatant: Combatant, actionEntity: ActionEntity) {
-  // @PERF - don't need to clone their entire inventory, just hotswap slots, equipped items
-  // and attributes and traits
-  const copied = cloneDeep(combatant);
-
-  copied.combatantProperties.asShimmedActionEntity = actionEntity;
-
-  return copied;
-}

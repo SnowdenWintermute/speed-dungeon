@@ -1,11 +1,7 @@
 import cloneDeep from "lodash.clonedeep";
 import { AbilityType } from "../../../../abilities/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
-import {
-  CombatantConditionName,
-  CombatantTraitType,
-  createCopyOfProjectileUser,
-} from "../../../../combatants/index.js";
+import { CombatantConditionName, CombatantTraitType } from "../../../../combatants/index.js";
 import {
   CombatActionCombatLogProperties,
   CombatActionComponentConfig,
@@ -60,15 +56,10 @@ const config: CombatActionComponentConfig = {
       if (expectedProjectile === null) throw new Error("expected to have spawned the arrow by now");
       if (expectedProjectile.type !== SpawnableEntityType.ActionEntity)
         throw new Error("expected to have spawned an action entity");
-      // @REFACTOR - action entity as IActionUser
-      const projectileUser = createCopyOfProjectileUser(
-        context.combatantContext.combatant,
-        expectedProjectile.actionEntity
-      );
 
       return [
         {
-          user: projectileUser,
+          user: expectedProjectile.actionEntity,
           actionExecutionIntent: new CombatActionExecutionIntent(
             CombatActionName.ExplodingArrowProjectile,
             context.tracker.actionExecutionIntent.rank,

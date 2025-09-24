@@ -17,6 +17,8 @@ import { EntityId, EntityProperties, MaxAndCurrent } from "../primatives/index.j
 import { ActionUserTargetingProperties } from "./action-user-targeting-properties.js";
 import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
+import { ActionEntityProperties } from "../action-entities/index.js";
+import { Battle } from "../battle/index.js";
 
 export interface IActionUser {
   payResourceCosts(): void; // @REFACTOR - remove if unused
@@ -32,7 +34,13 @@ export interface IActionUser {
   getEquipmentOption: () => null | CombatantEquipment;
   getInventoryOption(): null | Inventory;
   getTargetingProperties(): ActionUserTargetingProperties;
-  getAllyAndOpponentIds(): Record<FriendOrFoe, EntityId[]>;
+  getAllyAndOpponentIds(
+    party: AdventuringParty,
+    battleOption: null | Battle
+  ): Record<FriendOrFoe, EntityId[]>;
+
+  // ex: a condition should give threat caused by it's burning ticks to the caster of the spell that caused the condition
+  getIdOfEntityToCreditWithThreat(): EntityId;
 
   // COMBATANTS
   getCombatantProperties(): CombatantProperties;
@@ -48,27 +56,8 @@ export interface IActionUser {
   getHomePosition(): Vector3;
   getHomeRotation(): Quaternion;
 
-  // ex: a condition should give threat caused by it's burning ticks to the caster of the spell that caused the condition
-  getIdOfEntityToCreditWithThreat(): EntityId;
-}
-
-export class ActionUserContext {
-  constructor(
-    public game: SpeedDungeonGame,
-    public party: AdventuringParty,
-    public actionUser: IActionUser
-  ) {}
-
-  getBattleOption() {
-    if (this.party.battleId === null) return null;
-    const expectedBattle = this.game.battles[this.party.battleId];
-    if (!expectedBattle) throw new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
-    return expectedBattle;
-  }
-
-  getAllyAndOpponentIds(): Record<FriendOrFoe, EntityId[]> {
-    throw new Error("not implemented");
-    const battleOption = this.getBattleOption();
-    return { [FriendOrFoe.Friendly]: this.party.characterPositions, [FriendOrFoe.Hostile]: [] };
-  }
+  // ACTION ENTITIES
+  getActionEntityProperties(): ActionEntityProperties;
+  setWasRemovedBeforeHitOutcomes(): void;
+  wasRemovedBeforeHitOutcomes(): boolean;
 }

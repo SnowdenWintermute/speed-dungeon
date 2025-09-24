@@ -16,10 +16,7 @@ import { Battle } from "../../battle/index.js";
 import { AISelectActionAndTarget } from "../ai-behavior/ai-select-action-and-target.js";
 import { ActionIntentOptionAndUser } from "../../action-processing/index.js";
 import { throwIfError } from "../../utils/index.js";
-import {
-  CombatantCondition,
-  createShimmedUserOfActionEntityAction,
-} from "../../combatants/index.js";
+import { CombatantCondition } from "../../combatants/index.js";
 import { ACTION_ENTITY_ACTION_INTENT_GETTERS } from "../../action-entities/index.js";
 import { ActionUserContext } from "../../combatant-context/action-user.js";
 
@@ -172,10 +169,12 @@ export class ActionEntityTurnTracker extends TurnTracker {
   getNextActionIntentAndUser(game: SpeedDungeonGame, party: AdventuringParty, battle: Battle) {
     const { actionEntityId } = this;
     const actionEntityResult = AdventuringParty.getActionEntity(party, actionEntityId);
+
     if (actionEntityResult instanceof Error) throw actionEntityResult;
 
     const actionIntentGetterOption =
       ACTION_ENTITY_ACTION_INTENT_GETTERS[actionEntityResult.actionEntityProperties.name];
+
     if (actionIntentGetterOption === undefined)
       throw new Error(
         "expected an action entity with a turn tracker to have an actionIntentGetterOption"
@@ -183,15 +182,9 @@ export class ActionEntityTurnTracker extends TurnTracker {
 
     const actionExecutionIntent = actionIntentGetterOption();
 
-    const dummyUser = createShimmedUserOfActionEntityAction(
-      actionEntityResult.entityProperties.name,
-      actionEntityResult,
-      actionEntityResult.entityProperties.id
-    );
-
     return {
       actionExecutionIntent,
-      user: dummyUser,
+      user: actionEntityResult,
     };
   }
 }

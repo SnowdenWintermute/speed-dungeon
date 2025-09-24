@@ -1,4 +1,4 @@
-import { ActionEntity, ActionEntityName } from "../../../action-entities/index.js";
+import { ActionEntityName } from "../../../action-entities/index.js";
 import {
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
@@ -111,10 +111,7 @@ export function getFirewallBurnScheduledActions(
     timeToReachFirewallOption
   );
 
-  // @REFACTOR - action entity as IActionUser
-
-  firewallBurnExecutionIntent.rank =
-    existingFirewallOption.actionEntityProperties.actionOriginData?.actionLevel?.current || 1;
+  firewallBurnExecutionIntent.rank = existingFirewallOption.getLevel();
 
   const firewallBurnActionIntentWithUser = {
     user: existingFirewallOption,

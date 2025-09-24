@@ -1,6 +1,5 @@
 import { ActionEntity, ActionEntityName } from "../../../action-entities/index.js";
 import {
-  COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   CombatActionName,
@@ -141,15 +140,9 @@ function triggerIncinerateProjectile(
     timeToReachFirewallOption
   );
 
-  // @REFACTOR - action entity as IActionUser
-  //
-  // this should be the cloned user of the projectile as set when the projectile
-  // was fired. by having access to it we can modify it
-  const user = context.combatantContext.combatant;
-  // for the combat log
-  user.entityProperties.name = projectileEntity.entityProperties.name;
-
-  user.combatantProperties.asShimmedActionEntity = projectileEntity;
+  // Setting the user as the projectile is how we've sent the projectile
+  // to the action. Looks like an anti-pattern to me
+  const user = context.actionUserContext.actionUser;
 
   const intentWithUser = {
     user,
@@ -179,15 +172,7 @@ function triggerIngiteProjectile(
     timeToReachFirewallOption
   );
 
-  // @REFACTOR - action entity as IActionUser
-
-  // this should be the cloned user of the projectile as set when the projectile
-  // was fired. by having access to it we can modify it
-  const igniteProjectileUser = context.combatantContext.combatant;
-  // for the combat log
-  igniteProjectileUser.entityProperties.name = projectileEntity.entityProperties.name;
-
-  igniteProjectileUser.combatantProperties.asShimmedActionEntity = projectileEntity;
+  const igniteProjectileUser = context.actionUserContext.actionUser;
 
   const intentWithUser = {
     user: igniteProjectileUser,

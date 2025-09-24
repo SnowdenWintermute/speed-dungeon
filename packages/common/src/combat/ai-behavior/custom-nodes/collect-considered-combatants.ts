@@ -19,8 +19,11 @@ export class CollectConsideredCombatants implements BehaviorNode {
   execute(): BehaviorNodeState {
     const combatantsToConsider: Combatant[] = [];
 
+    const { party } = this.behaviorContext.actionUserContext;
+    const battle = this.behaviorContext.actionUserContext.getBattleOption();
+
     const combatantIdsByDisposition =
-      this.behaviorContext.actionUserContext.actionUser.getAllyAndOpponentIds();
+      this.behaviorContext.actionUserContext.actionUser.getAllyAndOpponentIds(party, battle);
     const allyIds = combatantIdsByDisposition[FriendOrFoe.Friendly];
     const opponentIds = combatantIdsByDisposition[FriendOrFoe.Hostile];
 
@@ -39,8 +42,6 @@ export class CollectConsideredCombatants implements BehaviorNode {
         combatantsToConsider.push(this.combatant);
         break;
     }
-
-    const { party } = this.behaviorContext.actionUserContext;
 
     for (const combatantId of idsToFetchCombatants) {
       const combatant = AdventuringParty.getExpectedCombatant(party, combatantId);
