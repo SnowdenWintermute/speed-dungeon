@@ -198,8 +198,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
               );
           }
 
-          console.log("applied condition action rank:", context.tracker.actionExecutionIntent.rank);
-
           const conditionsToApply = action.hitOutcomeProperties.getAppliedConditions(
             actionUser,
             context.tracker.actionExecutionIntent.rank
@@ -207,15 +205,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
           if (conditionsToApply) {
             for (const conditionProperties of conditionsToApply) {
-              console.log(
-                "to apply condition properties:",
-                conditionProperties,
-                "appliedBy:",
-                conditionProperties.appliedBy,
-                "appliedTo:",
-                targetCombatant.getEntityId()
-              );
-
               const condition = new COMBATANT_CONDITION_CONSTRUCTORS[
                 conditionProperties.conditionName
               ](
@@ -228,10 +217,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
               CombatantCondition.applyToCombatant(condition, targetCombatant, battleOption, party);
 
-              console.log(
-                "added condition to update with stacksCount:",
-                condition.stacksOption?.current
-              );
               addConditionToUpdate(
                 condition,
                 gameUpdateCommand,

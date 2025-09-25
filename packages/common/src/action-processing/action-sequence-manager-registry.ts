@@ -135,7 +135,10 @@ export class ActionSequenceManagerRegistry {
     for (const manager of this.getManagers()) {
       const trackerOption = manager.getCurrentTracker();
       if (!trackerOption) {
-        console.log("no tracker, returning 0 ms to tick");
+        console.log(
+          "no tracker, returning 0 ms to tick, completed trackers count:",
+          manager.getCompletedTrackers().length
+        );
         return 0;
       } else {
         console.log(
@@ -144,7 +147,6 @@ export class ActionSequenceManagerRegistry {
         );
       }
       const timeToCompletion = trackerOption.currentStep.getTimeToCompletion();
-      console.log("timeToCompletion in ActionSequenceManagerRegistry", timeToCompletion);
 
       if (msToTick === undefined) msToTick = timeToCompletion;
       else if (msToTick > timeToCompletion) {
@@ -152,8 +154,6 @@ export class ActionSequenceManagerRegistry {
       }
       stepName = ACTION_RESOLUTION_STEP_TYPE_STRINGS[trackerOption.currentStep.type];
     }
-
-    console.log("toReturn in Ac:", msToTick || 0);
 
     return msToTick || 0;
   }

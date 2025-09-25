@@ -8,7 +8,7 @@ import {
   SkeletalAnimationName,
 } from "../../../app-consts.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
-import { CombatantProperties, CombatantSpecies } from "../../../combatants/index.js";
+import { CombatantSpecies } from "../../../combatants/index.js";
 
 export function getSpeciesTimedAnimation(
   user: IActionUser,
@@ -19,8 +19,6 @@ export function getSpeciesTimedAnimation(
   const speciesLengths = animationLengths[user.getCombatantProperties().combatantSpecies];
   const animationNameString = SKELETAL_ANIMATION_NAME_STRINGS[animationName];
   const duration = speciesLengths[animationNameString] || 0;
-
-  console.log("got animation", animationNameString, "duration:", duration);
 
   return {
     name: { type: AnimationType.Skeletal, name: animationName },

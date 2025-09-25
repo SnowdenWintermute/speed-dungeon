@@ -21,8 +21,6 @@ export function handleAppliedConditions(
       for (let condition of conditions) {
         const deserializedCondition = deserializeCondition(condition);
 
-        console.log("applying condition to combatant:", deserializedCondition.getName());
-
         CombatantCondition.applyToCombatant(
           deserializedCondition,
           combatantResult,

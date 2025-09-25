@@ -9,7 +9,7 @@ import {
   CombatActionHitOutcomeProperties,
   CombatActionResource,
 } from "../../../combat-action-hit-outcome-properties.js";
-import { getAttackResourceChangeProperties } from "../../attack/get-attack-hp-change-properties.js";
+import { getAttackResourceChangeProperties } from "../../attack/get-attack-resource-change-properties.js";
 import { BASIC_ATTACK_HIT_OUTCOME_PROPERTIES } from "./basic-attack.js";
 
 // @TODO

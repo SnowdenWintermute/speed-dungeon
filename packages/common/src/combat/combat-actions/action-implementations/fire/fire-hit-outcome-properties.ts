@@ -60,8 +60,6 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
 };
 
 hitOutcomeOverrides.getAppliedConditions = (user, actionLevel) => {
-  console.log("action level:", 3);
-  console.log("stacks to apply:", actionLevel * 3);
   return [
     {
       conditionName: CombatantConditionName.Burning,

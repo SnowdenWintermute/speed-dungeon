@@ -31,6 +31,10 @@ import {
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { ActionUserContext } from "../../../../action-user-context/index.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
+import {
+  ACTION_EXECUTION_PRECONDITIONS,
+  ActionExecutionPreconditions,
+} from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
 
 const targetingPropertiesOverrides: Partial<CombatActionTargetingPropertiesConfig> = {
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.RandomCombatant },
@@ -59,6 +63,11 @@ const targetingPropertiesOverrides: Partial<CombatActionTargetingPropertiesConfi
     return target;
   },
 };
+
+// a projectile can't be alive so don't check if it is
+targetingPropertiesOverrides.executionPreconditions = [
+  ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.TargetsAreAlive],
+];
 
 const targetingProperties = createTargetingPropertiesConfig(
   TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE,
@@ -130,8 +139,11 @@ function getBouncableTargets(
   })();
   if (previousTargetIdResult instanceof Error) return previousTargetIdResult;
 
-  const { actionUser, party, getBattleOption } = actionUserContext;
-  const entityIdsByDisposition = actionUser.getAllyAndOpponentIds(party, getBattleOption());
+  const { actionUser, party } = actionUserContext;
+  const entityIdsByDisposition = actionUser.getAllyAndOpponentIds(
+    party,
+    actionUserContext.getBattleOption()
+  );
 
   const opponentIds = entityIdsByDisposition[FriendOrFoe.Hostile];
   const opponents = AdventuringParty.getCombatants(party, opponentIds);

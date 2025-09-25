@@ -4,7 +4,7 @@ import {
   CombatActionHitOutcomeProperties,
   CombatActionResource,
 } from "../../../combat-action-hit-outcome-properties.js";
-import { getAttackResourceChangeProperties } from "../../attack/get-attack-hp-change-properties.js";
+import { getAttackResourceChangeProperties } from "../../attack/get-attack-resource-change-properties.js";
 import { RANGED_ACTION_HIT_OUTCOME_PROPERTIES } from "./ranged-action.js";
 
 export const BOW_ATTACK_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {

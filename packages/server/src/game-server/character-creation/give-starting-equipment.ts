@@ -25,13 +25,17 @@ const STARTING_EQUIPMENT_BY_COMBATANT_CLASS: Record<
 > = {
   [CombatantClass.Warrior]: {
     [HoldableSlotType.MainHand]: {
-      equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: OneHandedMeleeWeapon.Dagger,
+      equipmentType: EquipmentType.TwoHandedRangedWeapon,
+      baseItemType: TwoHandedRangedWeapon.CompositeBow,
     },
-    [HoldableSlotType.OffHand]: {
-      equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: OneHandedMeleeWeapon.Dagger,
-    },
+    // [HoldableSlotType.MainHand]: {
+    //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
+    //   baseItemType: OneHandedMeleeWeapon.Dagger,
+    // },
+    // [HoldableSlotType.OffHand]: {
+    //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
+    //   baseItemType: OneHandedMeleeWeapon.Dagger,
+    // },
   },
   [CombatantClass.Mage]: {
     [HoldableSlotType.MainHand]: {
@@ -41,13 +45,17 @@ const STARTING_EQUIPMENT_BY_COMBATANT_CLASS: Record<
   },
   [CombatantClass.Rogue]: {
     [HoldableSlotType.MainHand]: {
-      equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: OneHandedMeleeWeapon.ButterKnife,
+      equipmentType: EquipmentType.TwoHandedRangedWeapon,
+      baseItemType: TwoHandedRangedWeapon.CompositeBow,
     },
-    [HoldableSlotType.OffHand]: {
-      equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: OneHandedMeleeWeapon.ButterKnife,
-    },
+    // [HoldableSlotType.MainHand]: {
+    //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
+    //   baseItemType: OneHandedMeleeWeapon.ButterKnife,
+    // },
+    // [HoldableSlotType.OffHand]: {
+    //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
+    //   baseItemType: OneHandedMeleeWeapon.ButterKnife,
+    // },
   },
 };
 

@@ -71,7 +71,8 @@ const config: CombatActionComponentConfig = {
 
     getConcurrentSubActions(context) {
       const { actionUser, party, getBattleOption } = context.actionUserContext;
-      const entityIdsByDisposition = actionUser.getAllyAndOpponentIds(party, getBattleOption());
+      const battleOption = context.actionUserContext.getBattleOption();
+      const entityIdsByDisposition = actionUser.getAllyAndOpponentIds(party, battleOption);
 
       const opponentIds = entityIdsByDisposition[FriendOrFoe.Hostile];
       const opponents = AdventuringParty.getCombatants(party, opponentIds);

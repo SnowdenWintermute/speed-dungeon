@@ -29,7 +29,7 @@ overrides.resourceChangePropertiesGetters = {
       lifestealPercentage: null,
     };
 
-    const baseValues = new NumberRange(20, 50);
+    const baseValues = new NumberRange(2, 5);
 
     // just get some extra damage for combatant level
     baseValues.add(user.getLevel() - 1);

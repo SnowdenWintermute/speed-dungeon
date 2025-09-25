@@ -41,8 +41,10 @@ export function processCombatAction(
       const currentTracker = manager.getCurrentTracker();
       const currentStep = currentTracker?.currentStep;
       const actionName = currentTracker?.actionExecutionIntent.actionName;
-      if (actionName !== undefined) console.log(COMBAT_ACTION_NAME_STRINGS[actionName]);
-      if (currentStep) console.log(ACTION_RESOLUTION_STEP_TYPE_STRINGS[currentStep.type]);
+      if (actionName !== undefined)
+        console.log("manager for: ", COMBAT_ACTION_NAME_STRINGS[actionName]);
+      if (currentStep)
+        console.log("current step: ", ACTION_RESOLUTION_STEP_TYPE_STRINGS[currentStep.type]);
     });
     if (safetyCounter > LOOP_SAFETY_ITERATION_LIMIT) {
       console.error(

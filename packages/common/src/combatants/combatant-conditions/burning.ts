@@ -40,13 +40,10 @@ export class BurningCombatantCondition extends CombatantCondition {
 
   tickPropertiesOption = {
     getTickSpeed(condition: CombatantCondition) {
-      return condition.level * 99; //@TESTING
       return condition.level * BASE_CONDITION_TICK_SPEED;
     },
     onTick(context: ActionUserContext) {
       const user = context.actionUser;
-
-      console.log("burning user:", user.getName());
 
       const targets: CombatActionTargetSingle = {
         type: CombatActionTargetType.Single,

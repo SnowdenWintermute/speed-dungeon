@@ -27,6 +27,9 @@ export class ActionSequenceManager {
   ) {
     this.remainingActionsToExecute = [actionExecutionIntent];
   }
+  getCompletedTrackers() {
+    return this.completedTrackers;
+  }
   getTopParent(): ActionSequenceManager {
     let current: ActionSequenceManager = this;
     while (current !== null) {
@@ -56,14 +59,25 @@ export class ActionSequenceManager {
     this.remainingActionsToExecute.push(...actionIntents);
   }
 
-  startProcessingNext(): Error | ActionTracker {
-    if (this.currentTracker) {
+  startProcessingNext(): ActionTracker {
+    if (this.currentTracker !== null) {
+      console.log(
+        "storing completed tracker:",
+        COMBAT_ACTION_NAME_STRINGS[this.currentTracker.actionExecutionIntent.actionName]
+      );
       this.completedTrackers.push(this.currentTracker);
     }
 
     const nextActionExecutionIntentOption = this.remainingActionsToExecute.pop();
+
+    console.log(
+      "started processing next tracker for",
+      nextActionExecutionIntentOption?.actionName
+        ? COMBAT_ACTION_NAME_STRINGS[nextActionExecutionIntentOption?.actionName]
+        : null
+    );
     if (!nextActionExecutionIntentOption)
-      return new Error("Tried to process next action but there wasn't one");
+      throw new Error("Tried to process next action but there wasn't one");
 
     let previousTrackerOption: null | ActionTracker = null;
     if (this.trackerThatSpawnedThisActionOption) {
@@ -73,27 +87,24 @@ export class ActionSequenceManager {
       previousTrackerOption = this.completedTrackers[this.completedTrackers.length - 1] || null;
     }
 
-    try {
-      const tracker = new ActionTracker(
-        this,
-        this.sequentialActionManagerRegistry.actionStepIdGenerator.getNextId(),
-        nextActionExecutionIntentOption,
-        previousTrackerOption || null,
-        this.sequentialActionManagerRegistry.time.ms,
-        this.idGenerator,
-        previousTrackerOption?.spawnedEntityOption
-      );
+    const tracker = new ActionTracker(
+      this,
+      this.sequentialActionManagerRegistry.actionStepIdGenerator.getNextId(),
+      nextActionExecutionIntentOption,
+      previousTrackerOption || null,
+      this.sequentialActionManagerRegistry.time.ms,
+      this.idGenerator,
+      previousTrackerOption?.spawnedEntityOption
+    );
 
-      console.log(
-        "SET TRACKER TO:",
-        COMBAT_ACTION_NAME_STRINGS[tracker.actionExecutionIntent.actionName]
-      );
-      this.currentTracker = tracker;
+    console.log(
+      "SET TRACKER TO:",
+      COMBAT_ACTION_NAME_STRINGS[tracker.actionExecutionIntent.actionName]
+    );
 
-      return tracker;
-    } catch (err) {
-      return err as unknown as Error;
-    }
+    this.currentTracker = tracker;
+
+    return tracker;
   }
 
   processCurrentStep(actionUserContext: ActionUserContext) {
@@ -160,11 +171,10 @@ export class ActionSequenceManager {
           : null;
 
         if (nextActionOption) {
-          const stepTrackerResult = this.startProcessingNext();
-          if (stepTrackerResult instanceof Error) return stepTrackerResult;
+          const stepTracker = this.startProcessingNext();
 
           const initialGameUpdateOptionResult =
-            stepTrackerResult.currentStep.getGameUpdateCommandOption();
+            stepTracker.currentStep.getGameUpdateCommandOption();
           if (initialGameUpdateOptionResult instanceof Error) return initialGameUpdateOptionResult;
 
           if (initialGameUpdateOptionResult) {
@@ -172,7 +182,7 @@ export class ActionSequenceManager {
             NestedNodeReplayEventUtls.appendGameUpdate(replayNode, initialGameUpdateOptionResult);
           }
 
-          currentStep = stepTrackerResult.currentStep;
+          currentStep = stepTracker.currentStep;
           continue;
         }
       }

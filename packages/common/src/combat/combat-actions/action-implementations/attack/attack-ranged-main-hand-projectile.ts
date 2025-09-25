@@ -36,7 +36,7 @@ const targetingProperties = createTargetingPropertiesConfig(
   TARGETING_PROPERTIES_TEMPLATE_GETTERS.COPY_PARENT_HOSTILE,
   {
     executionPreconditions: [
-      ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.UserIsAlive],
+      ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.TargetsAreAlive],
     ],
   }
 );

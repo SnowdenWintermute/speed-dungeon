@@ -126,7 +126,6 @@ export class ConditionTurnTracker extends TurnTracker {
     const onTick = tickPropertiesOption.onTick(new ActionUserContext(game, party, condition));
 
     const { actionExecutionIntent, user } = onTick.triggeredAction.actionIntentAndUser;
-    console.log("condition actionExecutionIntent", actionExecutionIntent, user);
     return { actionExecutionIntent, user };
   }
 }

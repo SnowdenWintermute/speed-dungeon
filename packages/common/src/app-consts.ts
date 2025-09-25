@@ -1,6 +1,6 @@
 import { Meters, Milliseconds } from "./primatives/index.js";
 
-export const LOOP_SAFETY_ITERATION_LIMIT = 10;
+export const LOOP_SAFETY_ITERATION_LIMIT = 40;
 
 // remember to update it in package.json as well!
 export const APP_VERSION_NUMBER = "0.11.0";
