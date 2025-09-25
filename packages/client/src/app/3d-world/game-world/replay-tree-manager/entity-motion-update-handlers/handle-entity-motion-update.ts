@@ -6,10 +6,12 @@ import {
   COMBAT_ACTION_NAME_STRINGS,
   CleanupMode,
   CombatantMotionGameUpdateCommand,
+  CombatantProperties,
   ERROR_MESSAGES,
   EntityId,
   EntityMotionUpdate,
   SpawnableEntityType,
+  throwIfError,
 } from "@speed-dungeon/common";
 import { EntityMotionUpdateCompletionTracker } from "./entity-motion-update-completion-tracker";
 import { getSceneEntityToUpdate } from "./get-scene-entity-to-update";
@@ -37,9 +39,6 @@ export function handleEntityMotionUpdate(
 ) {
   const { translationOption, rotationOption, animationOption, delayOption } = motionUpdate;
 
-  const toUpdate = getSceneEntityToUpdate(motionUpdate);
-  const { movementManager, skeletalAnimationManager, dynamicAnimationManager } = toUpdate;
-
   let onAnimationComplete = () => {};
   let onTranslationComplete = () => {};
 
@@ -61,11 +60,15 @@ export function handleEntityMotionUpdate(
     if (motionUpdate.setParent !== undefined)
       handleEntityMotionSetNewParentUpdate(actionEntityModelOption, motionUpdate.setParent);
 
-    if (motionUpdate.lockRotationToFace !== undefined)
+    if (motionUpdate.lockRotationToFace !== undefined) {
+      const toUpdate = getSceneEntityToUpdate(motionUpdate);
       handleLockRotationToFace(toUpdate, motionUpdate.lockRotationToFace);
+    }
 
-    if (motionUpdate.startPointingToward !== undefined)
+    if (motionUpdate.startPointingToward !== undefined) {
+      const toUpdate = getSceneEntityToUpdate(motionUpdate);
       handleStartPointingTowardEntity(toUpdate, motionUpdate.startPointingToward);
+    }
 
     const { despawnOnCompleteMode } = motionUpdate;
 
@@ -80,12 +83,12 @@ export function handleEntityMotionUpdate(
   }
 
   if (motionUpdate.entityType === SpawnableEntityType.Combatant) {
-    const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
+    const combatant = throwIfError(useGameStore.getState().getCombatant(motionUpdate.entityId));
 
     // they are already dead, so don't animate them
     // this happens if a combatant dies from getting counterattacked and the server
     // tells them to "return home"
-    if (combatantModelOption.getCombatant().combatantProperties.hitPoints <= 0) {
+    if (CombatantProperties.isDead(combatant.combatantProperties)) {
       update.isComplete = true;
       return;
     }
@@ -114,7 +117,7 @@ export function handleEntityMotionUpdate(
   );
 
   handleUpdateTranslation(
-    movementManager,
+    motionUpdate,
     translationOption,
     cosmeticDestinationYOption,
     updateCompletionTracker,
@@ -122,19 +125,22 @@ export function handleEntityMotionUpdate(
     onTranslationComplete
   );
 
-  if (rotationOption)
-    movementManager.startRotatingTowards(
+  if (rotationOption) {
+    const toUpdate = getSceneEntityToUpdate(motionUpdate);
+    toUpdate.movementManager.startRotatingTowards(
       plainToInstance(Quaternion, rotationOption.rotation),
       rotationOption.duration,
       () => {}
     );
+  }
 
   if (animationOption) {
+    const toUpdate = getSceneEntityToUpdate(motionUpdate);
     let animationManager: DynamicAnimationManager | SkeletalAnimationManager =
-      skeletalAnimationManager;
+      toUpdate.skeletalAnimationManager;
 
     if (animationOption.name.type === AnimationType.Dynamic)
-      animationManager = dynamicAnimationManager;
+      animationManager = toUpdate.dynamicAnimationManager;
 
     handleUpdateAnimation(
       animationManager,

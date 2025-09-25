@@ -19,4 +19,6 @@ const stepsConfig = createStepsConfig(() => base, {
   steps: stepOverrides,
 });
 
+delete stepsConfig.finalSteps[ActionResolutionStepType.RemoveTickedConditionStacks];
+
 export const FIREWALL_BURN_STEPS_CONFIG = stepsConfig;

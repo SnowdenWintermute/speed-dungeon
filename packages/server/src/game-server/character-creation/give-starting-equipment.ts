@@ -24,18 +24,18 @@ const STARTING_EQUIPMENT_BY_COMBATANT_CLASS: Record<
   Partial<Record<HoldableSlotType, EquipmentBaseItem>>
 > = {
   [CombatantClass.Warrior]: {
-    [HoldableSlotType.MainHand]: {
-      equipmentType: EquipmentType.TwoHandedRangedWeapon,
-      baseItemType: TwoHandedRangedWeapon.CompositeBow,
-    },
     // [HoldableSlotType.MainHand]: {
-    //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
-    //   baseItemType: OneHandedMeleeWeapon.Dagger,
+    //   equipmentType: EquipmentType.TwoHandedRangedWeapon,
+    //   baseItemType: TwoHandedRangedWeapon.CompositeBow,
     // },
-    // [HoldableSlotType.OffHand]: {
-    //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
-    //   baseItemType: OneHandedMeleeWeapon.Dagger,
-    // },
+    [HoldableSlotType.MainHand]: {
+      equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      baseItemType: OneHandedMeleeWeapon.Dagger,
+    },
+    [HoldableSlotType.OffHand]: {
+      equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      baseItemType: OneHandedMeleeWeapon.Dagger,
+    },
   },
   [CombatantClass.Mage]: {
     [HoldableSlotType.MainHand]: {

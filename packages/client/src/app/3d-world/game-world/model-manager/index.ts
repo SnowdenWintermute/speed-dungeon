@@ -21,7 +21,8 @@ export class ModelManager {
 
   findOne(entityId: EntityId) {
     const modelOption = this.combatantModels[entityId];
-    if (!modelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+    if (!modelOption)
+      throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL + " " + entityId);
     return modelOption;
   }
 

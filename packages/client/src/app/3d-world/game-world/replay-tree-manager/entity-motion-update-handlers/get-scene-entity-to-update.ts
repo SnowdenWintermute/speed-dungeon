@@ -7,7 +7,7 @@ export function getSceneEntityToUpdate(entityMotionUpdate: EntityMotionUpdate) {
   if (entityMotionUpdate.entityType === SpawnableEntityType.Combatant) {
     const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
     if (!combatantModelOption) {
-      throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+      throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL + " " + entityId);
     }
     return combatantModelOption;
   } else {

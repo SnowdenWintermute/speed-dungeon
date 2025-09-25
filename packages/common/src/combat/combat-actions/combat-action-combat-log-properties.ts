@@ -37,6 +37,7 @@ export class CombatActionCombatLogProperties {
     const selectedActionAndRankOption = actionUser
       .getTargetingProperties()
       .getSelectedActionAndRank();
+
     const actionLevel = selectedActionAndRankOption?.rank || 0;
     return {
       nameOfActionUser: actionUser.getName(),

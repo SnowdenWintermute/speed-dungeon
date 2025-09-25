@@ -9,6 +9,10 @@ import {
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 import {
+  ACTION_EXECUTION_PRECONDITIONS,
+  ActionExecutionPreconditions,
+} from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
+import {
   createTargetingPropertiesConfig,
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
@@ -17,7 +21,12 @@ import { FIREWALL_BURN_STEPS_CONFIG } from "./firewall-burn-steps-config.js";
 
 const targetingProperties = createTargetingPropertiesConfig(
   TARGETING_PROPERTIES_TEMPLATE_GETTERS.AREA_HOSTILE,
-  { getValidTargetCategories: () => TargetCategories.Any }
+  {
+    getValidTargetCategories: () => TargetCategories.Any,
+    executionPreconditions: [
+      ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.TargetsAreAlive],
+    ],
+  }
 );
 
 const config: CombatActionComponentConfig = {

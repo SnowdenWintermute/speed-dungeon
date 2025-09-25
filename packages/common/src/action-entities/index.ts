@@ -51,9 +51,8 @@ export const ACTION_ENTITY_STRINGS: Record<ActionEntityName, string> = {
   [ActionEntityName.Firewall]: "Firewall",
 };
 
-// for when things pass through firewall, we can know
-// what the caster's +bonus to fire damage was when they cast it
 export interface ActionEntityActionOriginData {
+  targetingProperties?: ActionUserTargetingProperties;
   actionLevel?: MaxAndCurrent;
   turnOrderSpeed?: number;
   stacks?: MaxAndCurrent;
@@ -62,7 +61,7 @@ export interface ActionEntityActionOriginData {
   userKineticAffinities?: Partial<Record<KineticDamageType, number>>;
   resourceChangeSource?: ResourceChangeSource;
   wasIncinerated?: boolean;
-  spawnedBy?: EntityId;
+  spawnedBy: EntityId;
 }
 
 export type ActionEntityProperties = {
@@ -90,7 +89,7 @@ export class ActionEntity implements IActionUser {
   }
   setWasRemovedBeforeHitOutcomes() {
     if (this.actionEntityProperties.actionOriginData === undefined)
-      this.actionEntityProperties.actionOriginData = {};
+      this.actionEntityProperties.actionOriginData = { spawnedBy: "" };
     this.actionEntityProperties.actionOriginData.wasIncinerated = true;
   }
   wasRemovedBeforeHitOutcomes(): boolean {
@@ -122,7 +121,10 @@ export class ActionEntity implements IActionUser {
   getInventoryOption = () => null;
 
   getTargetingProperties(): ActionUserTargetingProperties {
-    throw new Error("Method not implemented.");
+    const targetingPropertiesOption =
+      this.actionEntityProperties.actionOriginData?.targetingProperties;
+    if (targetingPropertiesOption !== undefined) return targetingPropertiesOption;
+    else throw new Error("no targeting properties exist on this action entity");
   }
   getAllyAndOpponentIds(party: AdventuringParty): Record<FriendOrFoe, EntityId[]> {
     const allCombatantIds = AdventuringParty.getAllCombatantIds(party);

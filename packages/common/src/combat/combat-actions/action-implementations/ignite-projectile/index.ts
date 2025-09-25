@@ -50,7 +50,8 @@ const config: CombatActionComponentConfig = {
         const { actionUser } = context.actionUserContext;
         const actionEntityProperties = actionUser.getActionEntityProperties();
 
-        if (!actionEntityProperties.actionOriginData) actionEntityProperties.actionOriginData = {};
+        if (!actionEntityProperties.actionOriginData)
+          actionEntityProperties.actionOriginData = { spawnedBy: "" };
 
         actionEntityProperties.actionOriginData.resourceChangeSource = new ResourceChangeSource({
           category: ResourceChangeSourceCategory.Physical,

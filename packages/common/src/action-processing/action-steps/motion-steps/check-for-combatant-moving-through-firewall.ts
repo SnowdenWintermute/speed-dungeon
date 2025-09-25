@@ -79,6 +79,8 @@ export function getFirewallBurnScheduledActions(
 
   if (timeToReachFirewallOption === null) return [];
 
+  console.log("firewallBurnExecutionIntent: user id", actionUser.getEntityId());
+
   const firewallBurnExecutionIntent = new CombatActionExecutionIntent(
     CombatActionName.FirewallBurn,
     1,

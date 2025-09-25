@@ -12,7 +12,10 @@ import {
 } from "../combatants/index.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
 import { EntityId, EntityProperties, MaxAndCurrent } from "../primatives/index.js";
-import { ActionUserTargetingProperties } from "./action-user-targeting-properties.js";
+import {
+  ActionAndRank,
+  ActionUserTargetingProperties,
+} from "./action-user-targeting-properties.js";
 import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ActionEntityProperties } from "../action-entities/index.js";
