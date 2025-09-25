@@ -51,7 +51,7 @@ export default function ActionDetailsTitleBar(props: Props) {
                 {ArrayUtils.createFilledWithSequentialNumbers(actionStateOption?.level || 0, 1).map(
                   (item) => {
                     const costs = action.costProperties.getResourceCosts(
-                      focusedCharacterResult.combatantProperties,
+                      focusedCharacterResult,
                       !!inBattle,
                       item
                     );

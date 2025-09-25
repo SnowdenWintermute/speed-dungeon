@@ -23,10 +23,8 @@ export function battleFullUpdateHandler(battleOption: null | Battle) {
       const currentActorIsPlayerControlled =
         rehydratedBattle.turnOrderManager.currentActorIsPlayerControlled(party);
 
-      characterAutoFocusManager.handleBattleStart(
-        gameState,
-        rehydratedBattle.turnOrderManager.getFastestActorTurnOrderTracker()
-      );
+      const turnTracker = rehydratedBattle.turnOrderManager.getFastestActorTurnOrderTracker();
+      characterAutoFocusManager.handleBattleStart(gameState, turnTracker);
 
       if (!currentActorIsPlayerControlled) {
         // it is ai controlled so lock input

@@ -31,17 +31,15 @@ export default function ActionDetails({
   const { combatantProperties } = focusedCharacterResult;
   const { abilityProperties } = combatantProperties;
   const actionStateOption = abilityProperties.ownedActions[actionName];
-  const selectedLevelOption = combatantProperties.selectedActionLevel;
+  const selectedLevelOption =
+    focusedCharacterResult.getTargetingProperties().getSelectedActionAndRank()?.rank || 1;
 
   const inCombat = !!Object.values(party.currentRoom.monsters).length;
 
   const action = COMBAT_ACTIONS[actionName];
   const costs =
-    action.costProperties.getResourceCosts(
-      combatantProperties,
-      inCombat,
-      selectedLevelOption || 1
-    ) || {};
+    action.costProperties.getResourceCosts(focusedCharacterResult, inCombat, selectedLevelOption) ||
+    {};
   const unmetCosts = costs ? getUnmetCostResourceTypes(combatantProperties, costs) : [];
   const { usabilityContext } = action.targetingProperties;
 

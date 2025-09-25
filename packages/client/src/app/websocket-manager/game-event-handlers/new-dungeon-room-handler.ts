@@ -14,7 +14,6 @@ import {
   AdventuringParty,
   CleanupMode,
   Combatant,
-  CombatantProperties,
   Consumable,
   DungeonRoom,
   DungeonRoomType,

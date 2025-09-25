@@ -1,14 +1,11 @@
-import { CombatantTurnTracker, ConditionTurnTracker, TurnTracker } from "@speed-dungeon/common";
-import { GameState, getCurrentMenu, useGameStore } from "@/stores/game-store";
+import { CombatantTurnTracker, TurnTracker } from "@speed-dungeon/common";
+import { GameState, getCurrentMenu } from "@/stores/game-store";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
 
 export class CharacterAutoFocusManager {
   constructor() {}
 
-  handleBattleStart(
-    gameState: GameState,
-    firstActiveTracker: CombatantTurnTracker | ConditionTurnTracker
-  ) {
+  handleBattleStart(gameState: GameState, firstActiveTracker: TurnTracker) {
     if (firstActiveTracker instanceof CombatantTurnTracker) {
       const partyResult = gameState.getParty();
       if (partyResult instanceof Error) return console.error(partyResult.message);
