@@ -1,3 +1,4 @@
+import { plainToInstance } from "class-transformer";
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 import { BlindedCombatantCondition } from "./blinded.js";
 import { BurningCombatantCondition } from "./burning.js";

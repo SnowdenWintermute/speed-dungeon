@@ -1,6 +1,7 @@
 import {
   ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionSequenceManagerRegistry,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionExecutionIntent,
   ERROR_MESSAGES,
   InputLock,
@@ -37,7 +38,10 @@ export function processCombatAction(
     safetyCounter += 1;
 
     registry.getManagers().forEach((manager) => {
-      const currentStep = manager.getCurrentTracker()?.currentStep;
+      const currentTracker = manager.getCurrentTracker();
+      const currentStep = currentTracker?.currentStep;
+      const actionName = currentTracker?.actionExecutionIntent.actionName;
+      if (actionName !== undefined) console.log(COMBAT_ACTION_NAME_STRINGS[actionName]);
       if (currentStep) console.log(ACTION_RESOLUTION_STEP_TYPE_STRINGS[currentStep.type]);
     });
     if (safetyCounter > LOOP_SAFETY_ITERATION_LIMIT) {

@@ -4,7 +4,6 @@ import { FriendOrFoe, TurnOrderManager } from "../combat/index.js";
 import {
   Combatant,
   CombatantCondition,
-  ConditionAppliedBy,
   ConditionWithCombatantIdAppliedTo,
 } from "../combatants/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
@@ -25,7 +24,7 @@ export class Battle {
     Battle.refillAllCombatantActionPoints(party);
   }
 
-  static rehydrate(battle: Battle, game: SpeedDungeonGame, party: AdventuringParty) {
+  static getDeserialized(battle: Battle, game: SpeedDungeonGame, party: AdventuringParty) {
     return new Battle(battle.id, battle.groupA, battle.groupB, game, party);
   }
 

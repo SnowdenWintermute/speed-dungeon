@@ -66,6 +66,10 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
           },
           transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
         },
+        actionOriginData: {
+          spawnedBy: actionUser.getEntityId(),
+          userCombatantAttributes: actionUser.getTotalAttributes(),
+        },
       }
     );
 

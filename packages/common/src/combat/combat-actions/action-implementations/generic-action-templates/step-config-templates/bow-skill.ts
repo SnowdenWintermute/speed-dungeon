@@ -88,6 +88,10 @@ base.steps = {
               },
               transformNodeName: CombatantBaseChildTransformNodeName.MainHandEquipment,
             },
+            actionOriginData: {
+              spawnedBy: actionUser.getEntityId(),
+              userCombatantAttributes: actionUser.getTotalAttributes(),
+            },
           }
         ),
       };

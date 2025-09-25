@@ -51,6 +51,9 @@ export class AdventuringParty {
 
   static removeCharacter = removeCharacterFromParty;
   static getCombatant = getCombatant;
+  static getAllCombatantIds(party: AdventuringParty) {
+    return [...party.characterPositions, ...party.currentRoom.monsterPositions];
+  }
   static getCombatants(party: AdventuringParty, entityIds: EntityId[]) {
     const toReturn: Combatant[] = [];
 

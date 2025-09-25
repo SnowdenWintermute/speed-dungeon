@@ -27,6 +27,8 @@ import {
 } from "../combat/index.js";
 import { IActionUser } from "../action-user-context/action-user.js";
 import { ActionUserTargetingProperties } from "../action-user-context/action-user-targeting-properties.js";
+import { plainToInstance } from "class-transformer";
+import { AdventuringParty } from "../adventuring-party/index.js";
 
 export enum ActionEntityName {
   Arrow,
@@ -59,6 +61,7 @@ export interface ActionEntityActionOriginData {
   userKineticAffinities?: Partial<Record<KineticDamageType, number>>;
   resourceChangeSource?: ResourceChangeSource;
   wasIncinerated?: boolean;
+  spawnedBy?: EntityId;
 }
 
 export type ActionEntityProperties = {
@@ -92,54 +95,52 @@ export class ActionEntity implements IActionUser {
   payResourceCosts(): void {
     throw new Error("Method not implemented.");
   }
-  handleTurnEnded(): void {
-    throw new Error("Method not implemented.");
-  }
+  handleTurnEnded(): void {}
   getEntityId(): EntityId {
-    throw new Error("Method not implemented.");
+    return this.entityProperties.id;
   }
   getName(): string {
-    throw new Error("Method not implemented.");
+    return this.entityProperties.name;
   }
   getEntityProperties(): EntityProperties {
-    throw new Error("Method not implemented.");
+    return this.entityProperties;
   }
   getLevel(): number {
-    throw new Error("Method not implemented.");
+    return this.actionEntityProperties.actionOriginData?.actionLevel?.current || 1;
   }
   getTotalAttributes(): CombatantAttributeRecord {
-    throw new Error("Method not implemented.");
+    return this.actionEntityProperties.actionOriginData?.userCombatantAttributes || {};
   }
   getOwnedAbilities(): Partial<Record<CombatActionName, CombatantActionState>> {
     throw new Error("Method not implemented.");
   }
   getEquipmentOption = () => null;
-  getInventoryOption(): null | Inventory {
-    throw new Error("Method not implemented.");
-  }
+  getInventoryOption = () => null;
+
   getTargetingProperties(): ActionUserTargetingProperties {
     throw new Error("Method not implemented.");
   }
-  getAllyAndOpponentIds(): Record<FriendOrFoe, EntityId[]> {
-    throw new Error("Method not implemented.");
+  getAllyAndOpponentIds(party: AdventuringParty): Record<FriendOrFoe, EntityId[]> {
+    const allCombatantIds = AdventuringParty.getAllCombatantIds(party);
+    return { [FriendOrFoe.Hostile]: allCombatantIds, [FriendOrFoe.Friendly]: allCombatantIds };
   }
   getCombatantProperties(): CombatantProperties {
-    throw new Error("Method not implemented.");
+    throw new Error("invalid on ActionEntity.");
   }
   getConditionAppliedBy(): ConditionAppliedBy {
-    throw new Error("Method not implemented.");
+    throw new Error("invalid on ActionEntity.");
   }
   getConditionAppliedTo(): EntityId {
-    throw new Error("Method not implemented.");
+    throw new Error("invalid on ActionEntity.");
   }
   getConditionStacks(): MaxAndCurrent {
-    throw new Error("Method not implemented.");
+    throw new Error("invalid on ActionEntity.");
   }
   getConditionTickPropertiesOption(): null | ConditionTickProperties {
-    throw new Error("Method not implemented.");
+    throw new Error("invalid on ActionEntity.");
   }
   getPosition(): Vector3 {
-    throw new Error("Method not implemented.");
+    return this.actionEntityProperties.position;
   }
   getHomePosition(): Vector3 {
     throw new Error("Method not implemented.");
@@ -148,17 +149,23 @@ export class ActionEntity implements IActionUser {
     throw new Error("Method not implemented.");
   }
   getIdOfEntityToCreditWithThreat(): EntityId {
-    throw new Error("Method not implemented.");
+    const spawnedByOption = this.actionEntityProperties.actionOriginData?.spawnedBy;
+    if (spawnedByOption === undefined)
+      throw new Error("No entity to credit threat could be found for this action entity");
+    return spawnedByOption;
   }
 
-  static hydrate(actionEntity: ActionEntity) {
-    const { actionOriginData } = actionEntity.actionEntityProperties;
+  static getDeserialized(actionEntity: ActionEntity) {
+    const deserialized = plainToInstance(ActionEntity, actionEntity);
+    const { actionOriginData } = deserialized.actionEntityProperties;
     if (actionOriginData) {
       const { actionLevel, stacks } = actionOriginData;
       if (actionLevel)
         actionOriginData.actionLevel = new MaxAndCurrent(actionLevel.max, actionLevel.current);
       if (stacks) actionOriginData.stacks = new MaxAndCurrent(stacks.max, stacks.current);
     }
+
+    return deserialized;
   }
 
   static setStacks(actionEnity: ActionEntity, value: number) {

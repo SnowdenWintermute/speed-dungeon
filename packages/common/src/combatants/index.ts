@@ -65,6 +65,7 @@ import { SpeedDungeonGame } from "../game/index.js";
 import { Battle } from "../battle/index.js";
 import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
 import { COMBATANT_CONDITION_CONSTRUCTORS } from "./combatant-conditions/condition-constructors.js";
+import { deserializeCondition } from "./combatant-conditions/deserialize-condition.js";
 
 export enum AiType {
   Healer,
@@ -188,12 +189,11 @@ export class Combatant implements IActionUser {
 
     CombatantProperties.instantiateItemClasses(combatantProperties);
 
-    const rehydratedConditions = combatantProperties.conditions.map((condition) => {
-      const constructor = COMBATANT_CONDITION_CONSTRUCTORS[condition.name];
-      return plainToInstance(constructor, condition);
-    });
+    const deserializedConditions = combatantProperties.conditions.map((condition) =>
+      deserializeCondition(condition)
+    );
 
-    combatantProperties.conditions = rehydratedConditions;
+    combatantProperties.conditions = deserializedConditions;
 
     if (combatantProperties.threatManager)
       combatantProperties.threatManager = plainToInstance(

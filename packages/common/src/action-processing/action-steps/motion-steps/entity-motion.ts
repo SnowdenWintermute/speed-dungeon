@@ -185,17 +185,21 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
       delayTimeRemaining = Math.max(0, this.delayOption - this.elapsed);
     }
 
-    if (this.translationOption)
+    if (this.translationOption) {
       translationTimeRemaining = Math.max(0, this.translationOption.duration - this.elapsed);
+    }
 
-    if (this.animationOption && this.animationOption.timing.type === AnimationTimingType.Timed)
+    if (this.animationOption && this.animationOption.timing.type === AnimationTimingType.Timed) {
       animationTimeRemaining = Math.max(0, this.animationOption.timing.duration - this.elapsed);
+    }
 
     const timeToCompletion = Math.max(
       animationTimeRemaining,
       translationTimeRemaining,
       delayTimeRemaining
     );
+
+    console.log("time to completion:", timeToCompletion);
 
     return timeToCompletion;
   }

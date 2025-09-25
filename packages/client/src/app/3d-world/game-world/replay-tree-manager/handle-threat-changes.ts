@@ -27,8 +27,8 @@ export function handleThreatChangesUpdate(
       if (gameAndPartyResult instanceof Error) throw gameAndPartyResult;
       const [game, party] = gameAndPartyResult;
 
-      const threatChangesRehydrated = plainToInstance(ThreatChanges, command.threatChanges);
-      threatChangesRehydrated.applyToGame(party);
+      const threatChangesDeserialized = plainToInstance(ThreatChanges, command.threatChanges);
+      threatChangesDeserialized.applyToGame(party);
     });
 
     // debouncing this is an easy but perhaps not optimal way to avoid showing many

@@ -17,6 +17,7 @@ import { ActionUserTargetingProperties } from "../../action-user-context/action-
 import { Vector3, Quaternion } from "@babylonjs/core";
 import { ActionEntityProperties } from "../../action-entities/index.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
+import { deserializeCondition } from "./deserialize-condition.js";
 
 export enum CombatantConditionName {
   // Poison,

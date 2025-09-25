@@ -1,4 +1,4 @@
-import { CombatActionExecutionIntent } from "../combat/index.js";
+import { COMBAT_ACTION_NAME_STRINGS, CombatActionExecutionIntent } from "../combat/index.js";
 import { ActionUserContext } from "../action-user-context/index.js";
 import { CombatantSpecies } from "../combatants/combatant-species.js";
 import { EntityId, Milliseconds } from "../primatives/index.js";
@@ -134,14 +134,26 @@ export class ActionSequenceManagerRegistry {
     let stepName;
     for (const manager of this.getManagers()) {
       const trackerOption = manager.getCurrentTracker();
-      if (!trackerOption) return 0;
-      const timeToCompletion = trackerOption.currentStep.getTimeToCompletion() || 0;
+      if (!trackerOption) {
+        console.log("no tracker, returning 0 ms to tick");
+        return 0;
+      } else {
+        console.log(
+          "tracker found:",
+          COMBAT_ACTION_NAME_STRINGS[trackerOption.actionExecutionIntent.actionName]
+        );
+      }
+      const timeToCompletion = trackerOption.currentStep.getTimeToCompletion();
+      console.log("timeToCompletion in ActionSequenceManagerRegistry", timeToCompletion);
+
       if (msToTick === undefined) msToTick = timeToCompletion;
       else if (msToTick > timeToCompletion) {
         msToTick = timeToCompletion;
       }
       stepName = ACTION_RESOLUTION_STEP_TYPE_STRINGS[trackerOption.currentStep.type];
     }
+
+    console.log("toReturn in Ac:", msToTick || 0);
 
     return msToTick || 0;
   }

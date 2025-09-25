@@ -20,6 +20,8 @@ export function getSpeciesTimedAnimation(
   const animationNameString = SKELETAL_ANIMATION_NAME_STRINGS[animationName];
   const duration = speciesLengths[animationNameString] || 0;
 
+  console.log("got animation", animationNameString, "duration:", duration);
+
   return {
     name: { type: AnimationType.Skeletal, name: animationName },
     timing: {
