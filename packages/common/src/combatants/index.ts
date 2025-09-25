@@ -135,7 +135,8 @@ export class Combatant implements IActionUser {
     party: AdventuringParty,
     battleOption: null | Battle
   ): Record<FriendOrFoe, EntityId[]> {
-    const isMonster = this.combatantProperties.monsterType !== undefined;
+    const isMonster = this.combatantProperties.monsterType !== null;
+
     if (isMonster) {
       return {
         [FriendOrFoe.Hostile]: party.characterPositions,

@@ -1,7 +1,9 @@
 import {
   CombatActionReplayTreePayload,
+  ERROR_MESSAGES,
   GameUpdateCommand,
   InputLock,
+  LOOP_SAFETY_ITERATION_LIMIT,
   NestedNodeReplayEvent,
   ReplayEventType,
 } from "@speed-dungeon/common";
@@ -88,7 +90,18 @@ export class ReplayTreeProcessor {
       if (branch.isDoneProcessing()) this.activeBranches.splice(i, 1);
       let branchComplete = branch.isDoneProcessing();
       let currentStepComplete = branch.currentStepIsComplete();
+
+      let safetyCounter = -1;
       while (currentStepComplete && !branchComplete) {
+        safetyCounter += 1;
+        if (safetyCounter > LOOP_SAFETY_ITERATION_LIMIT) {
+          console.error(
+            ERROR_MESSAGES.LOOP_SAFETY_ITERATION_LIMIT_REACHED(LOOP_SAFETY_ITERATION_LIMIT),
+            "in replay tree manager"
+          );
+          break;
+        }
+
         const _completedUpdateOption = branch.getCurrentGameUpdate();
 
         branch.startProcessingNext();

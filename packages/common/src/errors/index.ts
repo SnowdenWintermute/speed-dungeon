@@ -8,6 +8,8 @@ export const ERROR_MESSAGES = {
   NOT_IMPLEMENTED: "This feature is not yet implemented",
   GAME_DOESNT_EXIST: "No game by that name exists",
   NOT_PERMITTED: "That action is not permitted",
+  LOOP_SAFETY_ITERATION_LIMIT_REACHED: (limit: number) =>
+    `Loop reached the safety limit of ${limit}`,
   SERVER: {
     USERNAME_HAS_NO_SOCKET_IDS: "No socket IDs were found by that username",
     BROWSER_SESSION_NOT_FOUND: "No browser session was found associated with that socked ID",

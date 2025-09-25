@@ -33,6 +33,7 @@ export function getAttackResourceChangeProperties(
   };
 
   const baseValues = new NumberRange(1, 1);
+  baseValues.min = baseValues.max = 50; //@TESTING
 
   // just get some extra damage for combatant level
   baseValues.add(user.getLevel() - 1);

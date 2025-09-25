@@ -3,6 +3,7 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import { FriendOrFoe } from "../combat/index.js";
 import { EntityId } from "../primatives/index.js";
 
+// @REFACTOR move this on to the action users interface
 export function getAllyIdsAndOpponentIdsOption(
   battle: Battle,
   combatantId: string

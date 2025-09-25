@@ -5,7 +5,6 @@ import {
   SpeedDungeonPlayer,
   AdventuringParty,
   SpeedDungeonGame,
-  Combatant,
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io-client";
 import { characterAddedToPartyHandler } from "./character-added-to-party-handler";
@@ -27,8 +26,6 @@ export function setUpGameLobbyEventHandlers(
   const mutateGameStore = useGameStore.getState().mutateState;
 
   socket.on(ServerToClientEvent.GameFullUpdate, (game) => {
-    console.log("got game full update");
-
     if (game) {
       SpeedDungeonGame.deserialize(game);
     } else {

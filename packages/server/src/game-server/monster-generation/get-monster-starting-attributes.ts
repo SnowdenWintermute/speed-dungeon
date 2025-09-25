@@ -73,7 +73,7 @@ export function getMonsterStartingAttributes(monsterType: MonsterType): Combatan
       attributes[CombatAttribute.Accuracy] = 0.0;
       // attributes[CombatAttribute.Accuracy] = 600.0;
       attributes[CombatAttribute.Evasion] = 20.0;
-      attributes[CombatAttribute.Speed] = 1.0;
+      attributes[CombatAttribute.Speed] = 20.0;
       // attributes[CombatAttribute.Speed] = 7.0;
       break;
     case MonsterType.FireElemental:

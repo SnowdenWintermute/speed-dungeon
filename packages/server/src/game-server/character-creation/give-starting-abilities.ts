@@ -15,7 +15,7 @@ export function giveStartingAbilities(actionUser: IActionUser) {
     CombatActionName.PassTurn,
     CombatActionName.ReadSkillBook,
     CombatActionName.ChainingSplitArrowParent,
-    CombatActionName.Counterattack,
+    // CombatActionName.Counterattack,
     CombatActionName.IceBoltParent,
     CombatActionName.Fire,
     CombatActionName.Healing,

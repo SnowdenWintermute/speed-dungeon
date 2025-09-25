@@ -1,7 +1,10 @@
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionSequenceManagerRegistry,
   CombatActionExecutionIntent,
+  ERROR_MESSAGES,
   InputLock,
+  LOOP_SAFETY_ITERATION_LIMIT,
   NestedNodeReplayEvent,
   NestedNodeReplayEventUtls,
   ReplayEventType,
@@ -29,7 +32,21 @@ export function processCombatAction(
 
   InputLock.lockInput(actionUserContext.party.inputLock);
 
+  let safetyCounter = -1;
   while (registry.isNotEmpty()) {
+    safetyCounter += 1;
+
+    registry.getManagers().forEach((manager) => {
+      const currentStep = manager.getCurrentTracker()?.currentStep;
+      if (currentStep) console.log(ACTION_RESOLUTION_STEP_TYPE_STRINGS[currentStep.type]);
+    });
+    if (safetyCounter > LOOP_SAFETY_ITERATION_LIMIT) {
+      console.error(
+        ERROR_MESSAGES.LOOP_SAFETY_ITERATION_LIMIT_REACHED(LOOP_SAFETY_ITERATION_LIMIT),
+        "in process-combat-action"
+      );
+      break;
+    }
     registry.processActiveActionSequences(actionUserContext);
   }
 

@@ -4,6 +4,9 @@ import { NestedNodeReplayEvent, NestedNodeReplayEventUtls } from "./replay-event
 import { ActionTracker } from "./action-tracker.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { ActionUserContext } from "../action-user-context/index.js";
+import { LOOP_SAFETY_ITERATION_LIMIT } from "../app-consts.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
+import { ACTION_RESOLUTION_STEP_TYPE_STRINGS } from "./action-steps/index.js";
 
 export class ActionSequenceManager {
   private remainingActionsToExecute: CombatActionExecutionIntent[];
@@ -92,7 +95,19 @@ export class ActionSequenceManager {
 
     const { sequentialActionManagerRegistry } = this;
 
+    let safetyCounter = -1;
     while (currentStep.isComplete()) {
+      safetyCounter += 1;
+      if (safetyCounter > LOOP_SAFETY_ITERATION_LIMIT) {
+        console.error(
+          ERROR_MESSAGES.LOOP_SAFETY_ITERATION_LIMIT_REACHED(LOOP_SAFETY_ITERATION_LIMIT),
+          "in action-sequence-manager",
+          "currentStep:",
+          ACTION_RESOLUTION_STEP_TYPE_STRINGS[currentStep.type]
+        );
+        break;
+      }
+
       trackerOption = this.getCurrentTracker();
       if (trackerOption === null) throw new Error("expected action tracker was missing");
 

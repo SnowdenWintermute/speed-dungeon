@@ -24,13 +24,10 @@ export function cycleTargetsHandler(
     playerOption
   );
 
-  const targetingProperties = character.getTargetingProperties();
-  const selectedActionAndRank = targetingProperties.getSelectedActionAndRank();
-  if (selectedActionAndRank === null)
-    return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
+  const validTargetsByDisposition = targetingCalculator.getValidTargetsByDisposition();
 
-  const validTargetsByDisposition =
-    targetingCalculator.getFilteredPotentialTargetIdsForAction(selectedActionAndRank);
+  const targetingProperties = character.getTargetingProperties();
+
   targetingProperties.cycleTargets(eventData.direction, playerOption, validTargetsByDisposition);
 
   getGameServer()

@@ -24,6 +24,7 @@ export function characterSelectedCombatActionHandler(
       const targetingProperties = character.getTargetingProperties();
 
       targetingProperties.setSelectedActionAndRank(selectedActionAndRank);
+
       const itemId = itemIdOption === undefined ? null : itemIdOption;
       targetingProperties.setSelectedItemId(itemId);
 

@@ -35,10 +35,12 @@ export function generateRandomItem(this: GameServer, itemLevel: number): Error |
   //     },
   //   },
   // });
+
   while (attempts < 2 && randomItemResult instanceof Error) {
     randomItemResult = randomItemGenerationDirector.createItem(itemLevel, idGenerator);
     attempts += 1;
   }
+
   if (randomItemResult instanceof Error) {
     console.info(
       `Couldn't find a valid item to generate, giving an autoinjector (${randomItemResult.message})`

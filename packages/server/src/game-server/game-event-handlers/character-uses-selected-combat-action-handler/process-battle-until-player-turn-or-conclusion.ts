@@ -7,6 +7,7 @@ import {
   Battle,
   CombatActionReplayTreePayload,
   ERROR_MESSAGES,
+  LOOP_SAFETY_ITERATION_LIMIT,
   ServerToClientEvent,
   SpeedDungeonGame,
   getPartyChannelName,
@@ -34,7 +35,17 @@ export class BattleProcessor {
 
     const payloads: ActionCommandPayload[] = [];
 
+    let safetyCounter = -1;
     while (currentActorTurnTracker) {
+      safetyCounter += 1;
+      if (safetyCounter > LOOP_SAFETY_ITERATION_LIMIT) {
+        console.error(
+          ERROR_MESSAGES.LOOP_SAFETY_ITERATION_LIMIT_REACHED(LOOP_SAFETY_ITERATION_LIMIT),
+          "in process-battle-until-player-turn-or-conclusion"
+        );
+        break;
+      }
+
       battle.turnOrderManager.updateTrackers(game, party);
       currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
 

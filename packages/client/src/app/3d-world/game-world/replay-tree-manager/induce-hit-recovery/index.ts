@@ -100,7 +100,7 @@ export function induceHitRecovery(
 
       gameState.combatLogMessages.push(
         new CombatLogMessage(
-          `${combatant.entityProperties.name}'s hp was reduced to zero`,
+          `${targetCombatant.getName()}'s hp was reduced to zero`,
           CombatLogMessageStyle.Basic
         )
       );

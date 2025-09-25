@@ -6,6 +6,7 @@ import {
 } from "../combat-actions/targeting-schemes-and-categories.js";
 import {
   PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS,
+  PROHIBITED_TARGET_COMBATANT_STATE_STRINGS,
   ProhibitedTargetCombatantStates,
 } from "../combat-actions/prohibited-target-combatant-states.js";
 import { EntityId } from "../../primatives/index.js";
@@ -21,26 +22,22 @@ export class TargetFilterer {
     if (prohibitedStates === null) {
       return allyAndOpponentIds;
     }
+
     const filteredAllyIds = TargetFilterer.filterTargetIdGroupByProhibitedCombatantStates(
       party,
       allyAndOpponentIds[FriendOrFoe.Friendly],
       prohibitedStates
     );
 
-    let filteredOpponentIdsOption: EntityId[] = [];
-
-    if (allyAndOpponentIds[FriendOrFoe.Hostile].length) {
-      const filteredOpponentIds = TargetFilterer.filterTargetIdGroupByProhibitedCombatantStates(
-        party,
-        allyAndOpponentIds[FriendOrFoe.Hostile],
-        prohibitedStates
-      );
-      filteredOpponentIdsOption = filteredOpponentIds;
-    }
+    const filteredOpponentIds = TargetFilterer.filterTargetIdGroupByProhibitedCombatantStates(
+      party,
+      allyAndOpponentIds[FriendOrFoe.Hostile],
+      prohibitedStates
+    );
 
     return {
       [FriendOrFoe.Friendly]: filteredAllyIds,
-      [FriendOrFoe.Hostile]: filteredOpponentIdsOption,
+      [FriendOrFoe.Hostile]: filteredOpponentIds,
     };
   }
 
@@ -54,13 +51,14 @@ export class TargetFilterer {
     for (let targetId of potentialIds) {
       const combatantResult = getCombatantInParty(party, targetId);
       if (combatantResult instanceof Error) throw combatantResult;
-      const { entityProperties: _, combatantProperties: combatantProperties } = combatantResult;
       let targetIsInProhibitedState = false;
 
       for (const combatantState of prohibitedStates) {
         targetIsInProhibitedState =
           PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS[combatantState](combatantResult);
-        if (targetIsInProhibitedState) break;
+        if (targetIsInProhibitedState) {
+          break;
+        }
       }
 
       if (targetIsInProhibitedState) continue;
@@ -78,11 +76,14 @@ export class TargetFilterer {
     switch (targetCategories) {
       case TargetCategories.Opponent:
         allyAndOpponentIds[FriendOrFoe.Friendly] = [];
+        break;
       case TargetCategories.User:
         allyAndOpponentIds[FriendOrFoe.Hostile] = [];
         allyAndOpponentIds[FriendOrFoe.Friendly] = [actionUserId];
+        break;
       case TargetCategories.Friendly:
         allyAndOpponentIds[FriendOrFoe.Hostile] = [];
+        break;
       case TargetCategories.Any:
         return;
     }

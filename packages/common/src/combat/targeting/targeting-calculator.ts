@@ -39,6 +39,15 @@ export class TargetingCalculator {
     return targetEntityIdsResult;
   }
 
+  getValidTargetsByDisposition() {
+    const targetingProperties = this.context.actionUser.getTargetingProperties();
+    const selectedActionAndRank = targetingProperties.getSelectedActionAndRank();
+    if (selectedActionAndRank === null)
+      throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
+
+    return this.getFilteredPotentialTargetIdsForAction(selectedActionAndRank);
+  }
+
   getFilteredPotentialTargetIdsForAction(actionAndRank: ActionAndRank) {
     const { party, actionUser } = this.context;
     const actionUserId = actionUser.getEntityId();

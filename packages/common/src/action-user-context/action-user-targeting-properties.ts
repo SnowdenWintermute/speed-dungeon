@@ -7,10 +7,13 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import getNextOrPreviousTarget from "../combat/targeting/get-next-or-previous-target.js";
 import { TargetingCalculator } from "../combat/targeting/targeting-calculator.js";
+import { immerable } from "immer";
 
-export interface ActionAndRank {
-  actionName: CombatActionName;
-  rank: number;
+export class ActionAndRank {
+  constructor(
+    public actionName: CombatActionName,
+    public rank: number
+  ) {}
 }
 
 export class ActionUserTargetingProperties {
