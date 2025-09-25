@@ -50,13 +50,7 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
       mainEntityUpdate: update,
     };
 
-    super(
-      stepType,
-      context,
-      gameUpdateCommand,
-      actionEntity.actionEntityProperties.position,
-      ARROW_TIME_TO_MOVE_ONE_METER
-    );
+    super(stepType, context, gameUpdateCommand, actionEntity);
   }
   protected getBranchingActions = () => [];
 

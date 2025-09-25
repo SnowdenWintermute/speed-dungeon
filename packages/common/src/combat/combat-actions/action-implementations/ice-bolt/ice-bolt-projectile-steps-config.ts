@@ -30,7 +30,10 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
     const { actionUserContext } = context;
     const { actionExecutionIntent } = context.tracker;
     const { party, actionUser } = actionUserContext;
-    const position = actionUser.getPosition().clone();
+
+    const userPositionOption = actionUser.getPositionOption();
+    if (userPositionOption === null) throw new Error("expected position");
+    const position = userPositionOption.clone();
 
     const targetingCalculator = new TargetingCalculator(actionUserContext, null);
 

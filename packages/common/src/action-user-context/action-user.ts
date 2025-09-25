@@ -50,9 +50,11 @@ export interface IActionUser {
   getConditionTickPropertiesOption(): null | ConditionTickProperties;
 
   // POSITION HAVERS
-  getPosition(): Vector3;
+  getPositionOption(): null | Vector3;
   getHomePosition(): Vector3;
   getHomeRotation(): Quaternion;
+  /**milliseconds per meter*/
+  getMovementSpeedOption(): null | number;
 
   // ACTION ENTITIES
   getActionEntityProperties(): ActionEntityProperties;

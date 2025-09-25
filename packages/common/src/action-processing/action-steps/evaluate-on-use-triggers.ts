@@ -44,7 +44,7 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     if (!durabilityChanges.isEmpty()) {
       gameUpdateCommand.durabilityChanges = durabilityChanges;
 
-      DurabilityChangesByEntityId.ApplyToGame(game, durabilityChanges);
+      DurabilityChangesByEntityId.ApplyToGame(party, durabilityChanges);
     }
   }
 

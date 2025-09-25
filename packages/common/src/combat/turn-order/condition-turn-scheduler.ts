@@ -71,12 +71,13 @@ export class ConditionTurnScheduler extends TurnScheduler implements ITurnSchedu
 
     if (this.predictedConsumedStacks < stacksRemaining) {
       const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
+
       if (tickPropertiesOption) {
         const combatantAppliedToResult = AdventuringParty.getCombatant(party, combatantId);
         if (combatantAppliedToResult instanceof Error) throw combatantAppliedToResult;
 
         const ticksPredicted = tickPropertiesOption.onTick(
-          new ActionUserContext(game, party, combatantAppliedToResult)
+          new ActionUserContext(game, party, condition)
         ).numStacksRemoved;
 
         this.predictedConsumedStacks += ticksPredicted;

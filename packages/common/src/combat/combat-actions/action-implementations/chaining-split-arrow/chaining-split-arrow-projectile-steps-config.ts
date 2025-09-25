@@ -29,7 +29,9 @@ const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionSt
 stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
   getSpawnableEntity: (context) => {
     const { actionUserContext, tracker } = context;
-    let position = actionUserContext.actionUser.getPosition().clone();
+    const userPositionOption = actionUserContext.actionUser.getPositionOption();
+    if (userPositionOption === null) throw new Error("expected a position here");
+    let position = userPositionOption.clone();
 
     let parentOption: undefined | SceneEntityChildTransformNodeIdentifier;
 

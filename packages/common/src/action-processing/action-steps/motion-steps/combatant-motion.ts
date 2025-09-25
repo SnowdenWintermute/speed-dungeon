@@ -6,7 +6,6 @@ import {
 } from "../../game-update-commands.js";
 import { SpawnableEntityType } from "../../../spawnables/index.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
-import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../../app-consts.js";
 import { COMBAT_ACTIONS } from "../../../combat/index.js";
 
 export class CombatantMotionActionResolutionStep extends EntityMotionActionResolutionStep {
@@ -44,12 +43,6 @@ export class CombatantMotionActionResolutionStep extends EntityMotionActionResol
       mainEntityUpdate: update,
     };
 
-    super(
-      step,
-      context,
-      gameUpdateCommand,
-      actionUser.getPosition(),
-      COMBATANT_TIME_TO_MOVE_ONE_METER
-    );
+    super(step, context, gameUpdateCommand, actionUser);
   }
 }

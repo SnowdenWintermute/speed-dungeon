@@ -34,14 +34,15 @@ export function getFirewallBurnScheduledActions(
 
   const addRecoveryAnimationTime = motionStepType === ActionResolutionStepType.FinalPositioning;
 
-  const entityPosition = actionUser.getPosition();
+  const entityPosition = actionUser.getPositionOption();
+
+  if (entityPosition === null) return [];
 
   const destinationsOption = EntityMotionActionResolutionStep.getDestinations(
     context,
     action,
     motionStepType,
-    entityPosition,
-    COMBATANT_TIME_TO_MOVE_ONE_METER
+    actionUser
   );
 
   if (!destinationsOption) return [];

@@ -51,7 +51,7 @@ import { Equipment, EquipmentType, HoldableSlotType } from "../items/equipment/i
 import { plainToInstance } from "class-transformer";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { ThreatManager } from "./threat-manager/index.js";
-import { COMBATANT_MAX_ACTION_POINTS } from "../app-consts.js";
+import { COMBATANT_MAX_ACTION_POINTS, COMBATANT_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
 import { CombatantAbilityProperties } from "./combatant-abilities/combatant-ability-properties.js";
 import { ActionEntityProperties } from "../action-entities/index.js";
 import { IActionUser } from "../action-user-context/action-user.js";
@@ -64,7 +64,6 @@ import { AdventuringParty } from "../adventuring-party/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { Battle } from "../battle/index.js";
 import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
-import { COMBATANT_CONDITION_CONSTRUCTORS } from "./combatant-conditions/condition-constructors.js";
 import { deserializeCondition } from "./combatant-conditions/deserialize-condition.js";
 
 export enum AiType {
@@ -92,6 +91,9 @@ export class Combatant implements IActionUser {
     public entityProperties: EntityProperties,
     public combatantProperties: CombatantProperties
   ) {}
+  getMovementSpeedOption(): null | number {
+    return COMBATANT_TIME_TO_MOVE_ONE_METER;
+  }
   getActionEntityProperties(): ActionEntityProperties {
     throw new Error("Combatants do not have ActionEntityProperties.");
   }
@@ -119,7 +121,7 @@ export class Combatant implements IActionUser {
   getName(): string {
     return this.entityProperties.name;
   }
-  getPosition() {
+  getPositionOption() {
     return this.combatantProperties.position;
   }
   getHomePosition() {

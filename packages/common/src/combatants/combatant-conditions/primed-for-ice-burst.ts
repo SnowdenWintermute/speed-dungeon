@@ -107,7 +107,7 @@ export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
     };
   }
 
-  getCosmeticEffectWhileActive = (combatantId: EntityId) => {
+  getCosmeticEffectWhileActive(combatantId: EntityId) {
     const sceneEntityIdentifier: CharacterModelIdentifier = {
       type: SceneEntityType.CharacterModel,
       entityId: combatantId,
@@ -123,5 +123,5 @@ export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
     };
 
     return [effect];
-  };
+  }
 }

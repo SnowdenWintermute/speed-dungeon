@@ -66,7 +66,9 @@ base.steps = {
     getSpawnableEntity: (context) => {
       const { actionUserContext } = context;
       const { actionUser } = actionUserContext;
-      const position = actionUser.getPosition().clone();
+      const userPositionOption = actionUser.getPositionOption();
+      if (userPositionOption === null) throw new Error("expected position");
+      const position = userPositionOption.clone();
 
       const firedByCombatantName = actionUser.getName();
 

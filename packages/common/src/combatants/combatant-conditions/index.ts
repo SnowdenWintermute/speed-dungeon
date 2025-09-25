@@ -7,7 +7,12 @@ import { CosmeticEffectOnTargetTransformNode } from "../../combat/combat-actions
 import { FriendOrFoe } from "../../combat/combat-actions/targeting-schemes-and-categories.js";
 import { EntityId, EntityProperties, MaxAndCurrent } from "../../primatives/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
-import { Combatant, CombatantAttributeRecord, CombatantProperties } from "../index.js";
+import {
+  Combatant,
+  CombatantAttributeRecord,
+  CombatantProperties,
+  ConditionTickProperties,
+} from "../index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { TurnOrderManager, TurnTrackerEntityType } from "../../combat/index.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "../../combat/turn-order/consts.js";
@@ -17,7 +22,7 @@ import { ActionUserTargetingProperties } from "../../action-user-context/action-
 import { Vector3, Quaternion } from "@babylonjs/core";
 import { ActionEntityProperties } from "../../action-entities/index.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
-import { deserializeCondition } from "./deserialize-condition.js";
+export * from "./condition-tick-properties.js";
 
 export enum CombatantConditionName {
   // Poison,
@@ -56,17 +61,6 @@ export interface ConditionAppliedBy {
   friendOrFoe: FriendOrFoe;
 }
 
-export interface ConditionTickProperties {
-  getTickSpeed(condition: CombatantCondition): number;
-  onTick(context: ActionUserContext): {
-    numStacksRemoved: number;
-    triggeredAction: {
-      actionIntentAndUser: ActionIntentAndUser;
-      getConsumableType?: () => null;
-    };
-  };
-}
-
 export interface ConditionWithCombatantIdAppliedTo {
   condition: CombatantCondition;
   appliedTo: EntityId;
@@ -79,10 +73,11 @@ export abstract class CombatantCondition implements IActionUser {
   intent: CombatActionIntent = CombatActionIntent.Malicious;
   removedOnDeath: boolean = true;
   combatAttributes?: CombatantAttributeRecord = {};
-  targetingProperties?: ActionUserTargetingProperties;
+  // @PERF - don't use targeting properties on conditions that don't have targets
+  targetingProperties: ActionUserTargetingProperties = new ActionUserTargetingProperties();
   constructor(
     public id: EntityId,
-    private appliedBy: ConditionAppliedBy,
+    public appliedBy: ConditionAppliedBy,
     public appliedTo: EntityId,
     public name: CombatantConditionName,
     public stacksOption: null | MaxAndCurrent
@@ -115,9 +110,13 @@ export abstract class CombatantCondition implements IActionUser {
   getName(): string {
     return COMBATANT_CONDITION_NAME_STRINGS[this.name];
   }
-  getPosition(): Vector3 {
-    throw new Error("Conditions do not have a position");
+  getPositionOption() {
+    return null;
   }
+  getMovementSpeedOption(): null | number {
+    return null;
+  }
+
   getHomePosition(): Vector3 {
     throw new Error("Conditions do not have a home position");
   }
@@ -191,9 +190,9 @@ export abstract class CombatantCondition implements IActionUser {
     triggeredActions: ActionIntentAndUser[];
   };
 
-  abstract getCosmeticEffectWhileActive: (
+  abstract getCosmeticEffectWhileActive(
     combatantId: EntityId
-  ) => CosmeticEffectOnTargetTransformNode[];
+  ): CosmeticEffectOnTargetTransformNode[];
 
   abstract tickPropertiesOption: Option<ConditionTickProperties>;
 

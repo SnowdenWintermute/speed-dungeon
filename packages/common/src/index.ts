@@ -39,3 +39,4 @@ export * from "./items/trading/index.js";
 export * from "./action-user-context/action-user.js";
 export * from "./combatants/combatant-conditions/condition-constructors.js";
 export * from "./action-user-context/action-user-targeting-properties.js";
+export * from "./combatants/combatant-conditions/deserialize-condition.js";

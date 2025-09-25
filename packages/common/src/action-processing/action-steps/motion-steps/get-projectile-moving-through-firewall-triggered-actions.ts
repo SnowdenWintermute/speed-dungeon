@@ -64,8 +64,7 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
     context,
     action,
     ActionResolutionStepType.OnActivationActionEntityMotion,
-    entityPosition,
-    ARROW_TIME_TO_MOVE_ONE_METER
+    projectileEntity
   );
 
   if (!destinationsOption) return [];

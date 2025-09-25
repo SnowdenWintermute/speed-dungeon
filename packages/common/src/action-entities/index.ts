@@ -29,6 +29,7 @@ import { IActionUser } from "../action-user-context/action-user.js";
 import { ActionUserTargetingProperties } from "../action-user-context/action-user-targeting-properties.js";
 import { plainToInstance } from "class-transformer";
 import { AdventuringParty } from "../adventuring-party/index.js";
+import { ARROW_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
 
 export enum ActionEntityName {
   Arrow,
@@ -81,6 +82,9 @@ export class ActionEntity implements IActionUser {
     public entityProperties: EntityProperties,
     public actionEntityProperties: ActionEntityProperties
   ) {}
+  getMovementSpeedOption(): null | number {
+    return ARROW_TIME_TO_MOVE_ONE_METER;
+  }
   getActionEntityProperties(): ActionEntityProperties {
     return this.actionEntityProperties;
   }
@@ -139,7 +143,7 @@ export class ActionEntity implements IActionUser {
   getConditionTickPropertiesOption(): null | ConditionTickProperties {
     throw new Error("invalid on ActionEntity.");
   }
-  getPosition(): Vector3 {
+  getPositionOption(): Vector3 {
     return this.actionEntityProperties.position;
   }
   getHomePosition(): Vector3 {

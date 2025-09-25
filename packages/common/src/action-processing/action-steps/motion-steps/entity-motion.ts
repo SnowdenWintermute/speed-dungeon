@@ -20,6 +20,7 @@ import {
 } from "../../../combat/index.js";
 import { getTranslationTime } from "../../../combat/combat-actions/action-implementations/get-translation-time.js";
 import { Milliseconds } from "../../../primatives/index.js";
+import { IActionUser } from "../../../action-user-context/action-user.js";
 
 export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   private translationOption: null | EntityTranslation = null;
@@ -31,8 +32,7 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     private gameUpdateCommand:
       | CombatantMotionGameUpdateCommand
       | ActionEntityMotionGameUpdateCommand,
-    private entityPosition: Vector3,
-    private entitySpeed: number
+    private actionUser: IActionUser
   ) {
     super(stepType, context, gameUpdateCommand);
 
@@ -61,8 +61,7 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
       this.context,
       action,
       this.type,
-      this.entityPosition,
-      this.entitySpeed
+      this.actionUser
     );
 
     if (destinationsOption) {
@@ -89,12 +88,15 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     context: ActionResolutionStepContext,
     action: CombatActionComponent,
     stepType: ActionResolutionStepType,
-    entityPosition: Vector3,
-    entitySpeed: number
+    actionUser: IActionUser
   ) {
     const stepConfigOption = action.stepsConfig.getStepConfigOption(stepType);
     const destinationGetterOption = stepConfigOption?.getDestination;
     if (!destinationGetterOption) return null;
+
+    const entitySpeedOption = actionUser.getMovementSpeedOption();
+    const positionOption = actionUser.getPositionOption();
+    if (entitySpeedOption === null || positionOption === null) return null;
 
     let destinationResult = null;
     let translationOption;
@@ -103,7 +105,7 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     if (destinationResult?.position) {
       const translation = {
         destination: destinationResult.position,
-        duration: getTranslationTime(entityPosition, destinationResult.position, entitySpeed),
+        duration: getTranslationTime(positionOption, destinationResult.position, entitySpeedOption),
       };
 
       translationOption = translation;
@@ -167,13 +169,16 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
         ? 1
         : Math.min(1, this.elapsed / this.translationOption.duration);
 
+    const positionOption = this.actionUser.getPositionOption();
+    if (positionOption === null) return;
+
     const newPosition = Vector3.Lerp(
-      this.entityPosition,
+      positionOption,
       this.translationOption.destination,
       normalizedPercentTravelled
     );
 
-    this.entityPosition.copyFrom(newPosition);
+    positionOption.copyFrom(newPosition);
   }
 
   getTimeToCompletion(): number {

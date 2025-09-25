@@ -14,6 +14,7 @@ import { HitOutcome } from "../hit-outcome.js";
 import { Equipment, EquipmentSlotType, TaggedEquipmentSlot } from "../items/equipment/index.js";
 import { EntityId } from "../primatives/index.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
+import { AdventuringParty } from "../adventuring-party/index.js";
 
 export interface EquipmentDurabilityChange {
   taggedSlot: TaggedEquipmentSlot;
@@ -76,13 +77,13 @@ export class DurabilityChangesByEntityId {
   }
 
   static ApplyToGame(
-    game: SpeedDungeonGame,
+    party: AdventuringParty,
     durabilityChanges: DurabilityChangesByEntityId,
     onApply?: (combatant: Combatant, equipment: Equipment) => void
   ) {
     for (const [entityId, durabilitychanges] of Object.entries(durabilityChanges.records)) {
-      const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
-      if (combatantResult instanceof Error) return combatantResult;
+      const combatantResult = AdventuringParty.getExpectedCombatant(party, entityId);
+
       for (const change of durabilitychanges.changes) {
         const { taggedSlot, value } = change;
         const equipmentOption = CombatantEquipment.getEquipmentInSlot(

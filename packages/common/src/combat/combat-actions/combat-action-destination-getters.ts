@@ -19,7 +19,10 @@ export function getMeleeAttackDestination(context: ActionResolutionStepContext) 
     const target = primaryTargetResult;
 
     const { actionUser } = actionUserContext;
-    const userPosition = actionUser.getPosition();
+
+    const userPositionOption = actionUser.getPositionOption();
+    if (userPositionOption === null) throw new Error("expected position");
+    const userPosition = userPositionOption;
 
     const distance = Vector3.Distance(target.combatantProperties.position, userPosition);
     if (distance <= meleeRange || isNaN(distance) || Math.abs(meleeRange - distance) < threshold) {

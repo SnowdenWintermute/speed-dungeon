@@ -73,6 +73,8 @@ export class BattleProcessor {
       // get action intent for fastest actor
       const { actionExecutionIntent, user } = this.getNextActionIntentAndUser();
 
+      console.log("actionExecutionIntent:", actionExecutionIntent, "user:", user.getName());
+
       // process action intents
       let shouldEndTurn = false;
       if (actionExecutionIntent === null) {

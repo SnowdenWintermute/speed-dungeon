@@ -24,7 +24,6 @@ export class BurningCombatantCondition extends CombatantCondition {
   [immerable] = true;
   name = CombatantConditionName.Burning;
   intent = CombatActionIntent.Malicious;
-  stacksOption = new MaxAndCurrent(1, 10);
   removedOnDeath: boolean = true;
   ticks?: MaxAndCurrent | undefined;
   constructor(
@@ -41,14 +40,17 @@ export class BurningCombatantCondition extends CombatantCondition {
 
   tickPropertiesOption = {
     getTickSpeed(condition: CombatantCondition) {
+      return condition.level * 99; //@TESTING
       return condition.level * BASE_CONDITION_TICK_SPEED;
     },
     onTick(context: ActionUserContext) {
       const user = context.actionUser;
 
+      console.log("burning user:", user.getName());
+
       const targets: CombatActionTargetSingle = {
         type: CombatActionTargetType.Single,
-        targetId: user.getEntityId(),
+        targetId: user.getConditionAppliedTo(),
       };
 
       user.getTargetingProperties().setSelectedTarget(targets);
@@ -80,12 +82,12 @@ export class BurningCombatantCondition extends CombatantCondition {
 
   onTriggered() {
     return {
-      numStacksRemoved: this.stacksOption.current,
+      numStacksRemoved: this.stacksOption?.current || 0,
       triggeredActions: [],
     };
   }
 
-  getCosmeticEffectWhileActive = (combatantId: EntityId) => {
+  getCosmeticEffectWhileActive(combatantId: EntityId) {
     const sceneEntityIdentifier: CharacterModelIdentifier = {
       type: SceneEntityType.CharacterModel,
       entityId: combatantId,
@@ -101,5 +103,5 @@ export class BurningCombatantCondition extends CombatantCondition {
     };
 
     return [effect];
-  };
+  }
 }
