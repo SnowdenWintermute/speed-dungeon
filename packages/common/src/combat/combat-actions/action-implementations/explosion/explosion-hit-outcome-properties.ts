@@ -18,7 +18,7 @@ import {
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 hitOutcomeOverrides.getArmorPenetration = (user, self) => 15;
 hitOutcomeOverrides.resourceChangePropertiesGetters = {
-  [CombatActionResource.HitPoints]: (user) => {
+  [CombatActionResource.HitPoints]: (user, hitOutcomeProperties, actionLevel) => {
     const hpChangeSourceConfig: ResourceChangeSourceConfig = {
       category: ResourceChangeSourceCategory.Physical,
       kineticDamageTypeOption: null,
@@ -27,11 +27,8 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
       lifestealPercentage: null,
     };
 
-    const stacks = user.getConditionStacks().current;
-
-    const userLevel = user.getLevel();
-
-    const baseValues = new NumberRange(userLevel * stacks, userLevel * stacks * 10);
+    const baseValues = new NumberRange(actionLevel, actionLevel * 10);
+    console.log("explosion base values:", baseValues);
 
     const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
     const hpChangeProperties: CombatActionResourceChangeProperties = {

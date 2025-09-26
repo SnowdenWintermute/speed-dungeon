@@ -14,6 +14,7 @@ import {
 import { ATTACK_RANGED_MAIN_HAND } from "../attack/attack-ranged-main-hand.js";
 import { ATTACK_RANGED_MAIN_HAND_PROJECTILE } from "../attack/attack-ranged-main-hand-projectile.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
+import { ActionEntity } from "../../../../action-entities/index.js";
 
 // declaring the projectile properties in the parent action since doing the reverse
 // caused a circular dependency bug
@@ -22,18 +23,31 @@ export const EXPLODING_ARROW_PROJECTILE_HIT_OUTCOME_PROPERTIES = cloneDeep(
 );
 
 EXPLODING_ARROW_PROJECTILE_HIT_OUTCOME_PROPERTIES.getAppliedConditions = (user, actionLevel) => {
+  // on the client when we get descriptions we need an appliedBy so we'll just take it
+  // from the combatant
+  let appliedBy;
+  if (user instanceof ActionEntity) {
+    const appliedByOption = user.getActionEntityProperties().actionOriginData?.spawnedBy;
+    if (appliedByOption === undefined)
+      throw new Error("expected ice bolt to have a spawnedBy field");
+    appliedBy = appliedByOption;
+  }
+
   return [
     {
       conditionName: CombatantConditionName.PrimedForExplosion,
       level: actionLevel,
       stacks: 1,
-      appliedBy: { entityProperties: user.getEntityProperties(), friendOrFoe: FriendOrFoe.Hostile },
+      appliedBy: {
+        entityProperties: appliedBy || user.getEntityProperties(),
+        friendOrFoe: FriendOrFoe.Hostile,
+      },
     },
   ];
 };
 
 const config: CombatActionComponentConfig = {
-  ...ATTACK_RANGED_MAIN_HAND,
+  ...cloneDeep(ATTACK_RANGED_MAIN_HAND),
   hitOutcomeProperties: EXPLODING_ARROW_PROJECTILE_HIT_OUTCOME_PROPERTIES,
 
   prerequisiteAbilities: [

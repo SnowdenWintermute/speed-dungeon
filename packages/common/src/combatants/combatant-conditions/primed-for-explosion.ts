@@ -28,7 +28,7 @@ export class PrimedForExplosionCombatantCondition extends CombatantCondition {
       id,
       appliedBy,
       appliedTo,
-      CombatantConditionName.PrimedForIceBurst,
+      CombatantConditionName.PrimedForExplosion,
       new MaxAndCurrent(10, 1)
     );
     if (stacksOption) this.stacksOption = stacksOption;
@@ -57,11 +57,12 @@ export class PrimedForExplosionCombatantCondition extends CombatantCondition {
   }
 
   onTriggered(
+    this: PrimedForExplosionCombatantCondition,
     actionUserContext: ActionUserContext,
     targetCombatant: Combatant,
     idGenerator: IdGenerator
   ) {
-    const { actionUser } = actionUserContext;
+    const actionUser = this;
 
     actionUser.getTargetingProperties().setSelectedTarget({
       type: CombatActionTargetType.Single,
@@ -75,13 +76,13 @@ export class PrimedForExplosionCombatantCondition extends CombatantCondition {
     );
 
     const actionTarget = COMBAT_ACTIONS[
-      CombatActionName.IceBurst
+      CombatActionName.Explosion
     ].targetingProperties.getAutoTarget(conditionUserContext, null);
 
     if (actionTarget instanceof Error) throw actionTarget;
     if (actionTarget === null) throw new Error("failed to get auto target");
 
-    const explosionLevel = actionUser.getLevel() * (this.stacksOption?.current || 1);
+    const explosionLevel = this.stacksOption?.current || 0;
 
     const actionExecutionIntent = new CombatActionExecutionIntent(
       CombatActionName.Explosion,
@@ -90,7 +91,7 @@ export class PrimedForExplosionCombatantCondition extends CombatantCondition {
     );
 
     return {
-      numStacksRemoved: 1,
+      numStacksRemoved: this.stacksOption?.current || 0,
       triggeredActions: [{ user: actionUser, actionExecutionIntent }],
     };
   }

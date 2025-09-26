@@ -72,7 +72,7 @@ export interface ConditionWithCombatantIdAppliedTo {
 export abstract class CombatantCondition implements IActionUser {
   [immerable] = true;
   ticks?: MaxAndCurrent;
-  level: number = 0;
+  level: number = 1;
   intent: CombatActionIntent = CombatActionIntent.Malicious;
   removedOnDeath: boolean = true;
   combatAttributes?: CombatantAttributeRecord = {};
