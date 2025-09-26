@@ -23,6 +23,7 @@ import {
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { immerable } from "immer";
 import { ActionUserContext } from "../../action-user-context/index.js";
+import { ActionUserTargetingProperties } from "../../action-user-context/action-user-targeting-properties.js";
 
 export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
   [immerable] = true;
@@ -44,6 +45,7 @@ export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
       CombatantConditionName.PrimedForIceBurst,
       new MaxAndCurrent(1, 1)
     );
+    this.targetingProperties = new ActionUserTargetingProperties();
   }
 
   tickPropertiesOption: Option<ConditionTickProperties> = null;
@@ -71,11 +73,12 @@ export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
   getAttributeModifiers = undefined;
 
   onTriggered(
+    this: PrimedForIceBurstCombatantCondition,
     actionUserContext: ActionUserContext,
     targetCombatant: Combatant,
     idGenerator: IdGenerator
   ) {
-    const { actionUser } = actionUserContext;
+    const actionUser = this;
 
     actionUser.getTargetingProperties().setSelectedTarget({
       type: CombatActionTargetType.Single,

@@ -51,12 +51,18 @@ const config: CombatActionComponentConfig = {
         const actionEntityProperties = actionUser.getActionEntityProperties();
 
         if (!actionEntityProperties.actionOriginData)
-          actionEntityProperties.actionOriginData = { spawnedBy: "" };
+          actionEntityProperties.actionOriginData = { spawnedBy: { id: "", name: "" } };
 
         actionEntityProperties.actionOriginData.resourceChangeSource = new ResourceChangeSource({
           category: ResourceChangeSourceCategory.Physical,
           elementOption: MagicalElement.Fire,
         });
+
+        console.log(
+          "action user for ignite projectile",
+          actionUser.getName(),
+          actionUser.getEntityId()
+        );
 
         // @PERF - combine when starting multiple cosmeticEffectsToStart on same entity
         toReturn.cosmeticEffectsToStart = [

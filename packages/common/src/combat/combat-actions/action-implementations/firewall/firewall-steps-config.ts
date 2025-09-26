@@ -81,7 +81,7 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
       turnOrderSpeed: BASE_PERSISTENT_ACTION_ENTITY_TICK_SPEED,
       stacks: lifetime,
       targetingProperties: new ActionUserTargetingProperties(),
-      spawnedBy: actionUser.getEntityId(),
+      spawnedBy: actionUser.getEntityProperties(),
     };
 
     return {

@@ -61,7 +61,7 @@ export interface ActionEntityActionOriginData {
   userKineticAffinities?: Partial<Record<KineticDamageType, number>>;
   resourceChangeSource?: ResourceChangeSource;
   wasIncinerated?: boolean;
-  spawnedBy: EntityId;
+  spawnedBy: EntityProperties;
 }
 
 export type ActionEntityProperties = {
@@ -90,7 +90,7 @@ export class ActionEntity implements IActionUser {
   }
   setWasRemovedBeforeHitOutcomes() {
     if (this.actionEntityProperties.actionOriginData === undefined)
-      this.actionEntityProperties.actionOriginData = { spawnedBy: "" };
+      this.actionEntityProperties.actionOriginData = { spawnedBy: { id: "", name: "" } };
     this.actionEntityProperties.actionOriginData.wasIncinerated = true;
   }
   wasRemovedBeforeHitOutcomes(): boolean {
@@ -132,7 +132,7 @@ export class ActionEntity implements IActionUser {
     if (spawnedBy !== undefined) {
       const idsByDisposition = AdventuringParty.getCombatantIdsByDispositionTowardsCombatantId(
         party,
-        spawnedBy
+        spawnedBy.id
       );
       return idsByDisposition;
     } else {
@@ -168,7 +168,7 @@ export class ActionEntity implements IActionUser {
     const spawnedByOption = this.actionEntityProperties.actionOriginData?.spawnedBy;
     if (spawnedByOption === undefined)
       throw new Error("No entity to credit threat could be found for this action entity");
-    return spawnedByOption;
+    return spawnedByOption.id;
   }
 
   static getDeserialized(actionEntity: ActionEntity) {

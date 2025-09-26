@@ -70,7 +70,7 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
           transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
         },
         actionOriginData: {
-          spawnedBy: actionUser.getEntityId(),
+          spawnedBy: actionUser.getEntityProperties(),
           userCombatantAttributes: actionUser.getTotalAttributes(),
         },
       }

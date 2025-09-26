@@ -15,6 +15,9 @@ export function getStandardThreatChangesOnHitOutcomes(
   const { characters } = allCombatantsResult;
 
   const userIdToCredit = actionUser.getIdOfEntityToCreditWithThreat();
+
+  console.log("userIdToCredit:", userIdToCredit);
+
   const userResult = AdventuringParty.getCombatant(party, userIdToCredit);
 
   if (userResult instanceof Error) {

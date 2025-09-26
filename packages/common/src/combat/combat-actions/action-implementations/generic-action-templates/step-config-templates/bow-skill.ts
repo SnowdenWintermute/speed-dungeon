@@ -92,7 +92,7 @@ base.steps = {
               transformNodeName: CombatantBaseChildTransformNodeName.MainHandEquipment,
             },
             actionOriginData: {
-              spawnedBy: actionUser.getEntityId(),
+              spawnedBy: actionUser.getEntityProperties(),
               userCombatantAttributes: actionUser.getTotalAttributes(),
             },
           }

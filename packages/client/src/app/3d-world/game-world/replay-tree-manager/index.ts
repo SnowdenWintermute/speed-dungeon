@@ -158,7 +158,12 @@ export class ReplayBranchProcessor {
     const cosmeticEffectsToStartOption =
       this.currentGameUpdateOption.command.cosmeticEffectsToStart;
     const cosmeticEffectsToStopOption = this.currentGameUpdateOption.command.cosmeticEffectsToStop;
-    startOrStopCosmeticEffects(cosmeticEffectsToStartOption, cosmeticEffectsToStopOption);
+
+    try {
+      startOrStopCosmeticEffects(cosmeticEffectsToStartOption, cosmeticEffectsToStopOption);
+    } catch (err) {
+      console.log("error with cosmetic effects", this.currentGameUpdateOption.command, err);
+    }
 
     GAME_UPDATE_COMMAND_HANDLERS[node.gameUpdate.type](this.currentGameUpdateOption);
   }
