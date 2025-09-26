@@ -39,6 +39,8 @@ export function handleEntityMotionUpdate(
 ) {
   const { translationOption, rotationOption, animationOption, delayOption } = motionUpdate;
 
+  console.log(JSON.stringify(motionUpdate));
+
   let onAnimationComplete = () => {};
   let onTranslationComplete = () => {};
 

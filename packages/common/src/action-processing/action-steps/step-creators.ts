@@ -19,6 +19,7 @@ import { CombatantMotionActionResolutionStep } from "./motion-steps/combatant-mo
 import { ActionEntityMotionActionResolutionStep } from "./motion-steps/action-entity-motion.js";
 import { TriggerEnvironmentalHazardsActionResolutionStep } from "./motion-steps/determine-environmental-hazard-triggers.js";
 import { RemoveTickedConditionStacksActionResolutionStep } from "./remove-ticked-condition-stacks.js";
+import { WaitForDelayActionResolutionStep } from "./motion-steps/wait-for-delay.js";
 
 // right now the idea is to have the action tracker call these creators, which in turn call
 // step class constructors. We don't call the constructors directly because this allows us
@@ -48,6 +49,8 @@ export const ACTION_STEP_CREATORS: Record<
     ),
   [ActionResolutionStepType.InitialPositioning]: (context) =>
     new CombatantMotionActionResolutionStep(context, ActionResolutionStepType.InitialPositioning),
+  [ActionResolutionStepType.WaitForInitialDelay]: (context) =>
+    new WaitForDelayActionResolutionStep(context, ActionResolutionStepType.WaitForInitialDelay),
   [ActionResolutionStepType.PostInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: (
     context
   ) =>

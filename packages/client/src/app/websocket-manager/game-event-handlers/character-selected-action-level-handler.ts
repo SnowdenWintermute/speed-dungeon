@@ -1,5 +1,6 @@
 import { GameState } from "@/stores/game-store";
 import {
+  ActionAndRank,
   ActionUserContext,
   CharacterAssociatedData,
   COMBAT_ACTIONS,
@@ -9,6 +10,7 @@ import {
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { synchronizeTargetingIndicators } from "./synchronize-targeting-indicators";
+import cloneDeep from "lodash.clonedeep";
 
 export function characterSelectedActionLevelHandler(eventData: {
   characterId: string;
@@ -27,10 +29,12 @@ export function characterSelectedActionLevelHandler(eventData: {
 
       const { actionName } = selectedActionAndRank;
 
-      targetingProperties.setSelectedActionAndRank({
-        actionName,
-        rank: actionLevel,
-      });
+      targetingProperties.setSelectedActionAndRank(new ActionAndRank(actionName, actionLevel));
+
+      // @PERF
+      // we're not using [immerable] on the targetingProperties because then we can't self-modify
+      // it with the .setters(), so we have to replace the whole object
+      character.combatantProperties.targetingProperties = targetingProperties.clone();
 
       if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
       if (character.combatantProperties.controllingPlayer === null)

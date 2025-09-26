@@ -20,6 +20,7 @@ export enum ActionResolutionStepType {
   PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock,
   PreInitialPositioningCheckEnvironmentalHazardTriggers,
   InitialPositioning,
+  WaitForInitialDelay,
   PostInitialPositioningDetermineShouldExecuteOrReleaseTurnLock,
   DetermineMeleeActionAnimations,
   PrepMotion,
@@ -53,6 +54,7 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.DetermineChildActions]: "determineChildActions",
   [ActionResolutionStepType.DetermineMeleeActionAnimations]: "determineMeleeActionAnimations",
   [ActionResolutionStepType.InitialPositioning]: "initialPositioning",
+  [ActionResolutionStepType.WaitForInitialDelay]: "waitForInitialDelay",
   [ActionResolutionStepType.PostInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]:
     "postInitialPositioningDetermineShouldExecuteOrReleaseTurnLock",
   [ActionResolutionStepType.PrepMotion]: "chamberingMotion",

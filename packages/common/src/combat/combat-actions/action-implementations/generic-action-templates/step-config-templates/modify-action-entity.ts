@@ -6,7 +6,6 @@ export const MODIFY_ACTION_ENTITY_ACTION_STEPS_CONFIG = new ActionResolutionStep
     [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
     [ActionResolutionStepType.OnActivationActionEntityMotion]: {},
     [ActionResolutionStepType.PostInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
-    [ActionResolutionStepType.PayResourceCosts]: {},
     [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
     [ActionResolutionStepType.EvalOnUseTriggers]: {},
     [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},

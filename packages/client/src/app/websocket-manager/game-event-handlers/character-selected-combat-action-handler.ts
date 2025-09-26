@@ -12,6 +12,7 @@ import { characterAssociatedDataProvider } from "../combatant-associated-details
 import { ConsideringCombatActionMenuState } from "@/app/game/ActionMenu/menu-state/considering-combat-action";
 import { synchronizeTargetingIndicators } from "./synchronize-targeting-indicators";
 import { ActionAndRank } from "@speed-dungeon/common";
+import cloneDeep from "lodash.clonedeep";
 
 export function characterSelectedCombatActionHandler(
   characterId: string,
@@ -54,6 +55,11 @@ export function characterSelectedCombatActionHandler(
         if (targetIdsResult instanceof Error) return targetIdsResult;
         targetIds = targetIdsResult;
       }
+
+      // @PERF
+      // we're not using [immerable] on the targetingProperties because then we can't self-modify
+      // it with the .setters(), so we have to replace the whole object
+      character.combatantProperties.targetingProperties = targetingProperties.clone();
 
       const actionName =
         selectedActionAndRank?.actionName === undefined ? null : selectedActionAndRank.actionName;

@@ -16,7 +16,7 @@ import {
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { TurnOrderManager, TurnTrackerEntityType } from "../../combat/index.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "../../combat/turn-order/consts.js";
-import { IActionUser } from "../../action-user-context/action-user.js";
+import { ActionUserType, IActionUser } from "../../action-user-context/action-user.js";
 import { ActionIntentAndUser } from "../../action-processing/index.js";
 import {
   ActionAndRank,
@@ -85,6 +85,7 @@ export abstract class CombatantCondition implements IActionUser {
     public name: CombatantConditionName,
     public stacksOption: null | MaxAndCurrent
   ) {}
+  getType = () => ActionUserType.Condition;
   getActionEntityProperties(): ActionEntityProperties {
     throw new Error("Conditions do not have ActionEntityProperties.");
   }

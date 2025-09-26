@@ -54,7 +54,7 @@ import { ThreatManager } from "./threat-manager/index.js";
 import { COMBATANT_MAX_ACTION_POINTS, COMBATANT_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
 import { CombatantAbilityProperties } from "./combatant-abilities/combatant-ability-properties.js";
 import { ActionEntityProperties } from "../action-entities/index.js";
-import { IActionUser } from "../action-user-context/action-user.js";
+import { ActionUserType, IActionUser } from "../action-user-context/action-user.js";
 import {
   ActionAndRank,
   ActionUserTargetingProperties,
@@ -91,6 +91,7 @@ export class Combatant implements IActionUser {
     public entityProperties: EntityProperties,
     public combatantProperties: CombatantProperties
   ) {}
+  getType = () => ActionUserType.Combatant;
   getMovementSpeedOption(): null | number {
     return COMBATANT_TIME_TO_MOVE_ONE_METER;
   }

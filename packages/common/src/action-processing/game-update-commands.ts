@@ -38,8 +38,8 @@ export enum GameUpdateCommandType {
 
 export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, string> = {
   [GameUpdateCommandType.SpawnEntity]: "Spawn Entity",
-  [GameUpdateCommandType.CombatantMotion]: "Entity Motion",
-  [GameUpdateCommandType.ActionEntityMotion]: "Entity Motion",
+  [GameUpdateCommandType.CombatantMotion]: "Combatant Entity Motion",
+  [GameUpdateCommandType.ActionEntityMotion]: "Combatant Entity Motion",
   [GameUpdateCommandType.ResourcesPaid]: "Resources Paid",
   [GameUpdateCommandType.ActionUseCombatLogMessage]: "Action Use Combat Log Message",
   [GameUpdateCommandType.ActivatedTriggers]: "Activated Triggers",
@@ -82,6 +82,7 @@ export interface IEntityMotionUpdate {
   // @PERF - could rely on the main update command entityId and only supply this if the motion update is for another entity
   // such as when a combatant motion update has to tell a projectile to point somewhere or change its parent
   entityId: EntityId;
+  entityType: SpawnableEntityType;
   animationOption?: EntityAnimation;
   translationOption?: EntityTranslation;
   rotationOption?: EntityRotation;

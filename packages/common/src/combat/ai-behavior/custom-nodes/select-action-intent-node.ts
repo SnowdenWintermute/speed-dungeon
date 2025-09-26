@@ -1,3 +1,4 @@
+import { ActionAndRank } from "../../../action-user-context/action-user-targeting-properties.js";
 import { Combatant } from "../../../combatants/index.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 import { CombatActionTarget } from "../../targeting/combat-action-targets.js";
@@ -19,7 +20,7 @@ export class SelectActionExecutionIntent implements BehaviorNode {
     // @TODO - actually consider higher levels and set this value to something
     const level = this.behaviorContext.currentActionLevelConsidering || 1;
 
-    const actionAndRank = { actionName: actionNameOption, rank: level };
+    const actionAndRank = new ActionAndRank(actionNameOption, level);
     const { game, party } = this.behaviorContext.actionUserContext;
 
     const actionUseIsValidResult = this.combatant.canUseAction(

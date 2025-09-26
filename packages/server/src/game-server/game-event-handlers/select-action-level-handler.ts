@@ -1,4 +1,5 @@
 import {
+  ActionAndRank,
   CharacterAssociatedData,
   CombatantProperties,
   ERROR_MESSAGES,
@@ -37,7 +38,7 @@ export function selectCombatActionLevelHandler(
   const actionStateOption = ownedActions[actionName];
   if (actionStateOption === undefined) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED);
 
-  const actionAndNewlySelectedRank = { actionName, rank: newSelectedActionLevel };
+  const actionAndNewlySelectedRank = new ActionAndRank(actionName, newSelectedActionLevel);
 
   const hasRequiredResources = CombatantProperties.hasRequiredResourcesToUseAction(
     character,

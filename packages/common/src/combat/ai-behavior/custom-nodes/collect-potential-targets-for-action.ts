@@ -7,6 +7,7 @@ import { CombatActionTarget } from "../../targeting/combat-action-targets.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import { BehaviorNode, BehaviorNodeState } from "../behavior-tree.js";
+import { ActionAndRank } from "../../../action-user-context/action-user-targeting-properties.js";
 
 export class CollectPotentialTargetsForAction implements BehaviorNode {
   constructor(
@@ -22,15 +23,11 @@ export class CollectPotentialTargetsForAction implements BehaviorNode {
       return BehaviorNodeState.Failure;
     }
 
-    const { entityProperties, combatantProperties } = this.combatant;
     const action = COMBAT_ACTIONS[actionNameOption];
 
     // combatantProperties.selectedCombatAction = actionNameOption;
     const targetingProperties = this.combatant.getTargetingProperties();
-    const actionAndRank = {
-      actionName: actionNameOption,
-      rank: this.actionLevel,
-    };
+    const actionAndRank = new ActionAndRank(actionNameOption, this.actionLevel);
     targetingProperties.setSelectedActionAndRank(actionAndRank);
 
     const targetingCalculator = new TargetingCalculator(

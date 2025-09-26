@@ -21,11 +21,18 @@ import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ActionEntityProperties } from "../action-entities/index.js";
 import { Battle } from "../battle/index.js";
 
+export enum ActionUserType {
+  Combatant,
+  Condition,
+  ActionEntity,
+}
+
 export interface IActionUser {
   payResourceCosts(): void; // @REFACTOR - remove if unused
   handleTurnEnded(): void; // @REFACTOR - remove if unused
 
   // GETTERS
+  getType(): ActionUserType;
   getEntityId(): EntityId;
   getName(): string;
   getEntityProperties(): EntityProperties;

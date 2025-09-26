@@ -25,7 +25,7 @@ import {
   FriendOrFoe,
   ResourceChangeSource,
 } from "../combat/index.js";
-import { IActionUser } from "../action-user-context/action-user.js";
+import { ActionUserType, IActionUser } from "../action-user-context/action-user.js";
 import { ActionUserTargetingProperties } from "../action-user-context/action-user-targeting-properties.js";
 import { plainToInstance } from "class-transformer";
 import { AdventuringParty } from "../adventuring-party/index.js";
@@ -81,6 +81,7 @@ export class ActionEntity implements IActionUser {
     public entityProperties: EntityProperties,
     public actionEntityProperties: ActionEntityProperties
   ) {}
+  getType = () => ActionUserType.ActionEntity;
   getMovementSpeedOption(): null | number {
     return ARROW_TIME_TO_MOVE_ONE_METER;
   }

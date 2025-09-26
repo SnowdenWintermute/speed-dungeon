@@ -31,6 +31,15 @@ export class ActionUserTargetingProperties {
     this.selectedItemId = null;
   }
 
+  // Useful for working with immer/zustand. Allows us to use setters
+  // to modify and object and then replace the whole object so react can
+  // rerender its properties
+  clone(): ActionUserTargetingProperties {
+    const copy = new ActionUserTargetingProperties();
+    Object.assign(copy, this);
+    return copy;
+  }
+
   getSelectedActionAndRank() {
     return this.selectedActionAndRank;
   }
@@ -47,6 +56,7 @@ export class ActionUserTargetingProperties {
   setSelectedActionAndRank(actionAndRank: Option<ActionAndRank>) {
     this.selectedActionAndRank = actionAndRank;
   }
+
   setSelectedTarget(targetOption: Option<CombatActionTarget>) {
     this.selectedTarget = targetOption;
   }

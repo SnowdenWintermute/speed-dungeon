@@ -47,6 +47,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     Object.assign(gameUpdateCommand, customTriggers);
 
     // @REFACTOR - split into smaller functions and make the step just orchestrate
+    // maybe use flag -> handler lookup table
 
     const hpChanges = handleTriggeredLifesteals(this.context, gameUpdateCommand);
 
