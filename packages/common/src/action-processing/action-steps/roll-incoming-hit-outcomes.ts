@@ -29,6 +29,11 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
 
     const { actionUserContext, tracker } = context;
 
+    console.log(
+      COMBAT_ACTION_NAME_STRINGS[context.tracker.actionExecutionIntent.actionName],
+      actionUserContext.actionUser.getEntityProperties()
+    );
+
     const hitOutcomeCalculator = new HitOutcomeCalculator(
       actionUserContext,
       tracker.actionExecutionIntent,

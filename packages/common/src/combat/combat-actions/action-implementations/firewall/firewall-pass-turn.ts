@@ -126,7 +126,6 @@ const config: CombatActionComponentConfig = {
   stepsConfig: new ActionResolutionStepsConfig(
     {
       [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
-      [ActionResolutionStepType.PayResourceCosts]: {},
       [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
       [ActionResolutionStepType.EvalOnUseTriggers]: {},
     },

@@ -94,6 +94,9 @@ const config: CombatActionComponentConfig = {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
 
     getChildren: (context) => {
+      // ex: if its parent was incinerated by firewall
+      if (context.actionUserContext.actionUser.wasRemovedBeforeHitOutcomes()) return [];
+
       let cursor = context.tracker.getPreviousTrackerInSequenceOption();
       let numBouncesSoFar = 0;
       while (cursor) {

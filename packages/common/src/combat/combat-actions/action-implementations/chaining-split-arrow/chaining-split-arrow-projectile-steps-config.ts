@@ -105,6 +105,7 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
       name: ActionEntityName.Arrow,
       initialPointToward,
       initialLockRotationToFace,
+      actionOriginData: { spawnedBy: actionUserContext.actionUser.getEntityProperties() },
     };
 
     if (parentOption) {
@@ -114,12 +115,19 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
     if (initialCosmeticYPosition)
       actionEntityProperties.initialCosmeticYPosition = initialCosmeticYPosition;
 
+    const spawnedEntity = new ActionEntity(
+      { id: context.idGenerator.generate(), name: "chaining split arrow projectile" },
+      actionEntityProperties
+    );
+
+    // since it was just spawned, we set it as the user. would maybe like to see a consistent pattern
+    // of spawning entities in the parent actions and then we can directly set those as the users
+    // of the concurrent sub actions
+    actionUserContext.actionUser = spawnedEntity;
+
     return {
       type: SpawnableEntityType.ActionEntity,
-      actionEntity: new ActionEntity(
-        { id: context.idGenerator.generate(), name: "chaining split arrow projectile" },
-        actionEntityProperties
-      ),
+      actionEntity: spawnedEntity,
     };
   },
 };

@@ -67,7 +67,7 @@ export function postResourceChangeToCombatLog(
 
   if (spellLikeOrigins.includes(origin)) {
     const damagedOrHealed = resourceChange.value > 0 ? "recovers" : "takes";
-    messageText = `${target.entityProperties.name} ${damagedOrHealed} ${Math.abs(resourceChange.value)} ${resourceTypeOrDamageText}`;
+    messageText = `${target.getName()} ${damagedOrHealed} ${Math.abs(resourceChange.value)} ${resourceTypeOrDamageText}`;
   } else {
     let recoveryWord = "healed";
     if (resourceType === ActionPayableResource.Mana) recoveryWord = "refreshed";
@@ -76,7 +76,7 @@ export function postResourceChangeToCombatLog(
     const targetId = target.getEntityId();
 
     const isTargetingSelf = actionUserId === targetId;
-    const targetNameText = isTargetingSelf ? "themselves" : targetId;
+    const targetNameText = isTargetingSelf ? "themselves" : target.getName();
 
     const debugTargetId = showDebug ? targetId : "";
     messageText = `${actionUserName} ${damagedOrHealed} ${targetNameText} ${debugTargetId} for ${Math.abs(resourceChange.value)} ${resourceTypeOrDamageText}`;

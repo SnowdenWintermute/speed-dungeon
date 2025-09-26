@@ -87,7 +87,7 @@ const config: CombatActionComponentConfig = {
             throw new Error("expected to have spawned an action entity");
 
           return {
-            user: cloneDeep(expectedProjectile.actionEntity),
+            user: actionUser, // will be replaced by the spawned projectile - @REFACTOR - fix this antipattern
             actionExecutionIntent: new CombatActionExecutionIntent(
               CombatActionName.ChainingSplitArrowProjectile,
               context.tracker.actionExecutionIntent.rank,
