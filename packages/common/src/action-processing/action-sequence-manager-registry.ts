@@ -135,16 +135,9 @@ export class ActionSequenceManagerRegistry {
     for (const manager of this.getManagers()) {
       const trackerOption = manager.getCurrentTracker();
       if (!trackerOption) {
-        console.log(
-          "no tracker, returning 0 ms to tick, completed trackers count:",
-          manager.getCompletedTrackers().length
-        );
         return 0;
       } else {
-        console.log(
-          "tracker found:",
-          COMBAT_ACTION_NAME_STRINGS[trackerOption.actionExecutionIntent.actionName]
-        );
+        //
       }
       const timeToCompletion = trackerOption.currentStep.getTimeToCompletion();
 

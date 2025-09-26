@@ -61,21 +61,11 @@ export class ActionSequenceManager {
 
   startProcessingNext(): ActionTracker {
     if (this.currentTracker !== null) {
-      console.log(
-        "storing completed tracker:",
-        COMBAT_ACTION_NAME_STRINGS[this.currentTracker.actionExecutionIntent.actionName]
-      );
       this.completedTrackers.push(this.currentTracker);
     }
 
     const nextActionExecutionIntentOption = this.remainingActionsToExecute.pop();
 
-    console.log(
-      "started processing next tracker for",
-      nextActionExecutionIntentOption?.actionName
-        ? COMBAT_ACTION_NAME_STRINGS[nextActionExecutionIntentOption?.actionName]
-        : null
-    );
     if (!nextActionExecutionIntentOption)
       throw new Error("Tried to process next action but there wasn't one");
 
@@ -91,15 +81,11 @@ export class ActionSequenceManager {
       this,
       this.sequentialActionManagerRegistry.actionStepIdGenerator.getNextId(),
       nextActionExecutionIntentOption,
+      this.actionUserContext.actionUser,
       previousTrackerOption || null,
       this.sequentialActionManagerRegistry.time.ms,
       this.idGenerator,
       previousTrackerOption?.spawnedEntityOption
-    );
-
-    console.log(
-      "SET TRACKER TO:",
-      COMBAT_ACTION_NAME_STRINGS[tracker.actionExecutionIntent.actionName]
     );
 
     this.currentTracker = tracker;

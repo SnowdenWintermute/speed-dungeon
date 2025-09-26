@@ -139,10 +139,8 @@ export abstract class CombatantCondition implements IActionUser {
       return { [FriendOrFoe.Hostile]: [], [FriendOrFoe.Friendly]: [] };
     }
 
-    const idsByDispositionOfConditionHolder = Battle.getAllyIdsAndOpponentIdsOption(
-      battleOption,
-      this.appliedTo
-    );
+    const idsByDispositionOfConditionHolder =
+      AdventuringParty.getCombatantIdsByDispositionTowardsCombatantId(party, this.appliedTo);
     switch (this.appliedBy.friendOrFoe) {
       case FriendOrFoe.Friendly:
         // if applied by a friendly combatant, "ally ids" would be the allies of conditionAppliedTo

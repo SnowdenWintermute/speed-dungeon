@@ -16,7 +16,6 @@ import { handleStartPointingTowardEntity } from "./entity-motion-update-handlers
 import { handleLockRotationToFace } from "./entity-motion-update-handlers/handle-lock-rotation-to-face";
 import { useGameStore } from "@/stores/game-store";
 import getParty from "@/utils/getParty";
-import { plainToInstance } from "class-transformer";
 
 export async function spawnEntityGameUpdateHandler(update: {
   command: SpawnEntityGameUpdateCommand;
@@ -69,6 +68,7 @@ export async function spawnEntityGameUpdateHandler(update: {
   });
 
   if (actionEntityProperties.parentOption) {
+    console.log("PARENT OPTION:", actionEntityProperties.parentOption, update.command);
     const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(
       actionEntityProperties.parentOption
     );

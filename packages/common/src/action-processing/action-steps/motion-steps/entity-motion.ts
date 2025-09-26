@@ -204,8 +204,6 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
       delayTimeRemaining
     );
 
-    console.log("time to completion:", timeToCompletion);
-
     return timeToCompletion;
   }
 

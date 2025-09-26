@@ -85,13 +85,15 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
         },
         transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
       };
-    } else {
+    } else if (previousTrackerOption) {
       // was spawned by initial parent action
+      // previousTrackerOption.
+      const combatantUserOfParentAction = previousTrackerOption.user;
 
       parentOption = {
         sceneEntityIdentifier: {
           type: SceneEntityType.CharacterEquipmentModel,
-          characterModelId: actionUserContext.actionUser.getEntityId(),
+          characterModelId: combatantUserOfParentAction.getEntityId(),
           slot: HoldableSlotType.MainHand,
         },
         transformNodeName: CombatantHoldableChildTransformNodeName.NockBone,
@@ -105,7 +107,9 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
       initialLockRotationToFace,
     };
 
-    if (parentOption) actionEntityProperties.parentOption = parentOption;
+    if (parentOption) {
+      actionEntityProperties.parentOption = parentOption;
+    }
 
     if (initialCosmeticYPosition)
       actionEntityProperties.initialCosmeticYPosition = initialCosmeticYPosition;

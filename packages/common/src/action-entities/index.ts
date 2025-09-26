@@ -128,8 +128,17 @@ export class ActionEntity implements IActionUser {
     else throw new Error("no targeting properties exist on this action entity");
   }
   getAllyAndOpponentIds(party: AdventuringParty): Record<FriendOrFoe, EntityId[]> {
-    const allCombatantIds = AdventuringParty.getAllCombatantIds(party);
-    return { [FriendOrFoe.Hostile]: allCombatantIds, [FriendOrFoe.Friendly]: allCombatantIds };
+    const spawnedBy = this.actionEntityProperties.actionOriginData?.spawnedBy;
+    if (spawnedBy !== undefined) {
+      const idsByDisposition = AdventuringParty.getCombatantIdsByDispositionTowardsCombatantId(
+        party,
+        spawnedBy
+      );
+      return idsByDisposition;
+    } else {
+      const allCombatantIds = AdventuringParty.getAllCombatantIds(party);
+      return { [FriendOrFoe.Hostile]: allCombatantIds, [FriendOrFoe.Friendly]: allCombatantIds };
+    }
   }
   getCombatantProperties(): CombatantProperties {
     throw new Error("invalid on ActionEntity.");

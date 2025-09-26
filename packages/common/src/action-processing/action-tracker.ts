@@ -1,3 +1,4 @@
+import { IActionUser } from "../action-user-context/action-user.js";
 import { MeleeAttackAnimationType } from "../combat/combat-actions/action-implementations/attack/determine-melee-attack-animation-type.js";
 import {
   COMBAT_ACTION_NAME_STRINGS,
@@ -41,6 +42,7 @@ export class ActionTracker {
     public parentActionManager: ActionSequenceManager,
     public id: string,
     public readonly actionExecutionIntent: CombatActionExecutionIntent,
+    public user: IActionUser,
     private previousTrackerInSequenceOption: null | ActionTracker,
     private timeStarted: Milliseconds,
     private idGenerator: IdGenerator,

@@ -34,11 +34,8 @@ export class CombatActionCombatLogProperties {
   getOnUseMessageData(context: ActionResolutionStepContext): ActionUseMessageData {
     const { actionUserContext } = context;
     const { actionUser } = actionUserContext;
-    const selectedActionAndRankOption = actionUser
-      .getTargetingProperties()
-      .getSelectedActionAndRank();
+    const actionLevel = context.tracker.actionExecutionIntent.rank;
 
-    const actionLevel = selectedActionAndRankOption?.rank || 0;
     return {
       nameOfActionUser: actionUser.getName(),
       actionLevel,

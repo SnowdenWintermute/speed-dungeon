@@ -15,7 +15,7 @@ import { SpeedDungeonGame } from "../game/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ActionEntity, ActionEntityName } from "../action-entities/index.js";
 import { Battle } from "../battle/index.js";
-import { TurnTrackerEntityType } from "../combat/index.js";
+import { FriendOrFoe, TurnTrackerEntityType } from "../combat/index.js";
 export * from "./get-item-in-party.js";
 export * from "./dungeon-room.js";
 export * from "./update-player-readiness.js";
@@ -105,6 +105,25 @@ export class AdventuringParty {
     const battleOption = game.battles[battleIdOption];
     if (!battleOption) throw new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
     return battleOption;
+  }
+
+  static getCombatantIdsByDispositionTowardsCombatantId(
+    party: AdventuringParty,
+    combatantId: string
+  ): Record<FriendOrFoe, EntityId[]> {
+    if (party.characterPositions.includes(combatantId)) {
+      return {
+        [FriendOrFoe.Friendly]: party.characterPositions,
+        [FriendOrFoe.Hostile]: party.currentRoom.monsterPositions,
+      };
+    } else if (party.currentRoom.monsterPositions.includes(combatantId)) {
+      return {
+        [FriendOrFoe.Friendly]: party.currentRoom.monsterPositions,
+        [FriendOrFoe.Hostile]: party.characterPositions,
+      };
+    } else {
+      throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
+    }
   }
 
   static registerActionEntity(

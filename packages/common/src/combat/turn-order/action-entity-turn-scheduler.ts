@@ -33,7 +33,6 @@ export class ActionEntityTurnScheduler extends TurnScheduler implements ITurnSch
     const { actionEntityId, timeOfNextMove } = this;
     const actionEntityResult = AdventuringParty.getActionEntity(party, actionEntityId);
     if (actionEntityResult instanceof Error) throw actionEntityResult;
-    console.log("created turn tracker for ActionEntity", actionEntityResult.getName());
     const actionEntity = actionEntityResult;
 
     const { actionOriginData } = actionEntity.actionEntityProperties;

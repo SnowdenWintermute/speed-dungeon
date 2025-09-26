@@ -37,15 +37,6 @@ export function processCombatAction(
   while (registry.isNotEmpty()) {
     safetyCounter += 1;
 
-    registry.getManagers().forEach((manager) => {
-      const currentTracker = manager.getCurrentTracker();
-      const currentStep = currentTracker?.currentStep;
-      const actionName = currentTracker?.actionExecutionIntent.actionName;
-      if (actionName !== undefined)
-        console.log("manager for: ", COMBAT_ACTION_NAME_STRINGS[actionName]);
-      if (currentStep)
-        console.log("current step: ", ACTION_RESOLUTION_STEP_TYPE_STRINGS[currentStep.type]);
-    });
     if (safetyCounter > LOOP_SAFETY_ITERATION_LIMIT) {
       console.error(
         ERROR_MESSAGES.LOOP_SAFETY_ITERATION_LIMIT_REACHED(LOOP_SAFETY_ITERATION_LIMIT),

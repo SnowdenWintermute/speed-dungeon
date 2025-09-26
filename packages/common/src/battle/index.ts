@@ -9,7 +9,6 @@ import {
 import { SpeedDungeonGame } from "../game/index.js";
 import { EntityId } from "../primatives/index.js";
 import { getAllyAndEnemyBattleGroups } from "./get-ally-and-enemy-battle-groups.js";
-import { getAllyIdsAndOpponentIdsOption } from "./get-ally-ids-and-opponent-ids-option.js";
 
 export class Battle {
   turnOrderManager: TurnOrderManager;
@@ -65,7 +64,6 @@ export class Battle {
     battle.groupB.combatantIds = battle.groupB.combatantIds.filter((id) => id !== combatantId);
   }
 
-  static getAllyIdsAndOpponentIdsOption = getAllyIdsAndOpponentIdsOption;
   static getAllyAndEnemyBattleGroups = getAllyAndEnemyBattleGroups;
   static combatantsAreAllies(a: Combatant, b: Combatant, battle: Battle) {
     return (

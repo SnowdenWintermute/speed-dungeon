@@ -6,6 +6,7 @@ import {
   COMBAT_ACTION_NAME_STRINGS,
   CleanupMode,
   CombatantMotionGameUpdateCommand,
+  CombatantMotionUpdate,
   CombatantProperties,
   ERROR_MESSAGES,
   EntityId,
@@ -85,30 +86,9 @@ export function handleEntityMotionUpdate(
   }
 
   if (motionUpdate.entityType === SpawnableEntityType.Combatant) {
-    const combatant = throwIfError(useGameStore.getState().getCombatant(motionUpdate.entityId));
-
-    // they are already dead, so don't animate them
-    // this happens if a combatant dies from getting counterattacked and the server
-    // tells them to "return home"
-    if (CombatantProperties.isDead(combatant.combatantProperties)) {
-      update.isComplete = true;
-      return;
-    }
-
-    onTranslationComplete = () => {
-      if (!motionUpdate.idleOnComplete) return;
-      const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
-      combatantModelOption.startIdleAnimation(500);
-    };
-
-    onAnimationComplete = () => {
-      if (!motionUpdate.idleOnComplete) return;
-      const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
-      combatantModelOption.startIdleAnimation(500);
-    };
-
-    if (motionUpdate.equipmentAnimations)
-      handleEquipmentAnimations(motionUpdate.entityId, motionUpdate.equipmentAnimations);
+    const completionHandlers = handleCombatantMotionUpdate(motionUpdate, update);
+    onAnimationComplete = completionHandlers.onAnimationComplete;
+    onTranslationComplete = completionHandlers.onTranslationComplete;
   }
 
   const updateCompletionTracker = new EntityMotionUpdateCompletionTracker(
@@ -173,4 +153,49 @@ function despawnAndUnregisterActionEntity(entityId: EntityId, cleanupMode: Clean
       }
     });
   }
+}
+
+function handleCombatantMotionUpdate(
+  motionUpdate: CombatantMotionUpdate,
+  parentUpdate: {
+    command: ActionEntityMotionGameUpdateCommand | CombatantMotionGameUpdateCommand;
+    isComplete: boolean;
+  }
+): { onTranslationComplete: () => void; onAnimationComplete: () => void } {
+  const toReturn = {
+    onAnimationComplete: () => {},
+    onTranslationComplete: () => {},
+  };
+
+  try {
+    const combatantResult = useGameStore.getState().getCombatant(motionUpdate.entityId);
+  } catch {
+    console.log("error motionUpdate:", motionUpdate);
+  }
+
+  const combatant = throwIfError(useGameStore.getState().getCombatant(motionUpdate.entityId));
+  // they are already dead, so don't animate them
+  // this happens if a combatant dies from getting counterattacked and the server
+  // tells them to "return home"
+  if (CombatantProperties.isDead(combatant.combatantProperties)) {
+    parentUpdate.isComplete = true;
+    return toReturn;
+  }
+
+  toReturn.onTranslationComplete = () => {
+    if (!motionUpdate.idleOnComplete) return;
+    const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
+    combatantModelOption.startIdleAnimation(500);
+  };
+
+  toReturn.onAnimationComplete = () => {
+    if (!motionUpdate.idleOnComplete) return;
+    const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
+    combatantModelOption.startIdleAnimation(500);
+  };
+
+  if (motionUpdate.equipmentAnimations)
+    handleEquipmentAnimations(motionUpdate.entityId, motionUpdate.equipmentAnimations);
+
+  return toReturn;
 }
