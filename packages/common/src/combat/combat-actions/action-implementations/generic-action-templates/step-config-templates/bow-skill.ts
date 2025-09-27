@@ -25,7 +25,12 @@ import {
   TwoHandedRangedWeapon,
 } from "../../../../../items/equipment/index.js";
 import { getRotateTowardPrimaryTargetDestination } from "../../common-destination-getters.js";
-import { CombatantEquipment, CombatantSpecies } from "../../../../../combatants/index.js";
+import {
+  CombatantEquipment,
+  CombatantProperties,
+  CombatantSpecies,
+  CombatAttribute,
+} from "../../../../../combatants/index.js";
 import {
   SpawnableEntity,
   SpawnableEntityType,
@@ -40,8 +45,16 @@ import {
 } from "../../../../../scene-entities/index.js";
 import { ActionEntity, ActionEntityName } from "../../../../../action-entities/index.js";
 import { Vector3 } from "@babylonjs/core";
-import { nameToPossessive } from "../../../../../utils/index.js";
+import { nameToPossessive, throwIfError } from "../../../../../utils/index.js";
 import { IActionUser } from "../../../../../action-user-context/action-user.js";
+import { getAttackResourceChangeProperties } from "../../attack/get-attack-resource-change-properties.js";
+import { COMBAT_ACTIONS } from "../../index.js";
+import {
+  CombatActionHitOutcomeProperties,
+  CombatActionResource,
+} from "../../../combat-action-hit-outcome-properties.js";
+import { CombatActionResourceChangeProperties } from "../../../combat-action-resource-change-properties.js";
+import { TargetingCalculator } from "../../../../targeting/targeting-calculator.js";
 
 const base = cloneDeep(PROJECTILE_SKILL_STEPS_CONFIG);
 delete base.steps[ActionResolutionStepType.RollIncomingHitOutcomes];
@@ -65,12 +78,28 @@ base.steps = {
   [ActionResolutionStepType.PostPrepSpawnEntity]: {
     getSpawnableEntity: (context) => {
       const { actionUserContext } = context;
-      const { actionUser } = actionUserContext;
+      const { actionUser, party, game } = actionUserContext;
       const userPositionOption = actionUser.getPositionOption();
       if (userPositionOption === null) throw new Error("expected position");
       const position = userPositionOption.clone();
 
       const firedByCombatantName = actionUser.getName();
+
+      const { actionExecutionIntent } = context.tracker;
+      const { actionName, rank } = actionExecutionIntent;
+      const action = COMBAT_ACTIONS[actionName];
+
+      const targetingCalculator = new TargetingCalculator(actionUserContext, null);
+      const primaryTarget = throwIfError(
+        targetingCalculator.getPrimaryTargetCombatant(party, actionExecutionIntent)
+      );
+
+      const resourceChangeProperties = getBowAttackHitOutcomeProperties(
+        actionUser,
+        action.hitOutcomeProperties,
+        rank,
+        primaryTarget.combatantProperties
+      );
 
       const spawnableEntity: SpawnableEntity = {
         type: SpawnableEntityType.ActionEntity,
@@ -93,10 +122,13 @@ base.steps = {
             actionOriginData: {
               spawnedBy: actionUser.getEntityProperties(),
               userCombatantAttributes: actionUser.getTotalAttributes(),
+              resourceChangeProperties,
             },
           }
         ),
       };
+
+      console.log("spawned entitiy:", JSON.stringify(spawnableEntity, null, 2));
 
       return spawnableEntity;
     },
@@ -230,4 +262,32 @@ function lockArrowToFaceArrowRest(context: ActionResolutionStepContext) {
   });
 
   return toReturn;
+}
+
+export function getBowAttackHitOutcomeProperties(
+  user: IActionUser,
+  hitOutcomeProperties: CombatActionHitOutcomeProperties,
+  actionRank: number,
+  primaryTargetCombatantProperties: CombatantProperties
+) {
+  // Get the resource change properties now and store them on the projectile. This way
+  // we can modify it in flight.
+  const resourceChangeProperties: Partial<
+    Record<CombatActionResource, CombatActionResourceChangeProperties>
+  > = {};
+  resourceChangeProperties[CombatActionResource.HitPoints] = getAttackResourceChangeProperties(
+    user,
+    hitOutcomeProperties,
+    actionRank,
+    primaryTargetCombatantProperties,
+    CombatAttribute.Dexterity,
+    // allow unusable weapons because it may be the case that the bow breaks
+    // but the projectile has yet to caluclate it's hit, and it should still consider
+    // the bow it was fired from
+    // it should never add weapon properties from an initially broken weapon because the projectile would not
+    // be allowed to be fired from a broken weapon
+    { usableWeaponsOnly: false }
+  );
+
+  return resourceChangeProperties;
 }

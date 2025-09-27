@@ -10,17 +10,17 @@ import { TaggedShape3DDimensions } from "../utils/shape-utils.js";
 import {
   CombatantActionState,
   CombatantAttributeRecord,
-  CombatantEquipment,
   CombatantProperties,
   ConditionAppliedBy,
   ConditionTickProperties,
-  Inventory,
 } from "../combatants/index.js";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import { MagicalElement } from "../combat/magical-elements.js";
 import {
   CombatActionExecutionIntent,
   CombatActionName,
+  CombatActionResource,
+  CombatActionResourceChangeProperties,
   CombatActionTargetType,
   FriendOrFoe,
   ResourceChangeSource,
@@ -59,7 +59,9 @@ export interface ActionEntityActionOriginData {
   userCombatantAttributes?: CombatantAttributeRecord;
   userElementalAffinities?: Partial<Record<MagicalElement, number>>;
   userKineticAffinities?: Partial<Record<KineticDamageType, number>>;
-  resourceChangeSource?: ResourceChangeSource;
+  resourceChangeProperties?: Partial<
+    Record<CombatActionResource, CombatActionResourceChangeProperties>
+  >;
   wasIncinerated?: boolean;
   spawnedBy: EntityProperties;
 }

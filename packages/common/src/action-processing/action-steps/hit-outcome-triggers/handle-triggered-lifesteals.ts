@@ -50,22 +50,19 @@ export function handleTriggeredLifesteals(
 
   const triggeredHitPointChanges = new HitPointChanges();
 
+  const idToCreditLifesteal = actionUser.getIdOfEntityToCreditWithThreat();
+
   // @TODO - change triggered hp changes to an array since the same action might damage the user
   // but also result in a separate lifesteal on the user
   if (accumulatedLifeStolenResourceChange) {
     accumulatedLifeStolenResourceChange.value = Math.floor(
       accumulatedLifeStolenResourceChange.value
     );
-    const existingHitPointChangeOption = triggeredHitPointChanges.getRecord(
-      actionUser.getEntityId()
-    );
+    const existingHitPointChangeOption = triggeredHitPointChanges.getRecord(idToCreditLifesteal);
     if (existingHitPointChangeOption)
       existingHitPointChangeOption.value += accumulatedLifeStolenResourceChange.value;
     else
-      triggeredHitPointChanges.addRecord(
-        actionUser.getEntityId(),
-        accumulatedLifeStolenResourceChange
-      );
+      triggeredHitPointChanges.addRecord(idToCreditLifesteal, accumulatedLifeStolenResourceChange);
   }
 
   // @TODO - calculate Death flags for these hp changes

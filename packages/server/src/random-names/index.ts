@@ -164,7 +164,10 @@ export const RANDOM_CHARACTER_NAMES_FIRST = [
   "Eisen",
   "Fern",
   "Stark",
+  "Sein",
+  "Kraft",
 ];
 
 // originals
 // "Klazpr",
+// "Clea"

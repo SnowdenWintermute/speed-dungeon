@@ -14,6 +14,7 @@ import {
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
+  CombatActionResource,
   createGenericSpellCastMessageProperties,
 } from "../../index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
@@ -53,10 +54,17 @@ const config: CombatActionComponentConfig = {
         if (!actionEntityProperties.actionOriginData)
           actionEntityProperties.actionOriginData = { spawnedBy: { id: "", name: "" } };
 
-        actionEntityProperties.actionOriginData.resourceChangeSource = new ResourceChangeSource({
-          category: ResourceChangeSourceCategory.Physical,
-          elementOption: MagicalElement.Fire,
-        });
+        const { actionOriginData } = actionEntityProperties;
+        if (!actionOriginData.resourceChangeProperties)
+          actionOriginData.resourceChangeProperties = {};
+
+        const hpChangePropertiesOption =
+          actionOriginData.resourceChangeProperties[CombatActionResource.HitPoints];
+
+        if (hpChangePropertiesOption) {
+          if (hpChangePropertiesOption)
+            hpChangePropertiesOption.resourceChangeSource.elementOption = MagicalElement.Fire;
+        }
 
         console.log(
           "action user for ignite projectile",
