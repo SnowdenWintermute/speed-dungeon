@@ -128,8 +128,6 @@ base.steps = {
         ),
       };
 
-      console.log("spawned entitiy:", JSON.stringify(spawnableEntity, null, 2));
-
       return spawnableEntity;
     },
   },

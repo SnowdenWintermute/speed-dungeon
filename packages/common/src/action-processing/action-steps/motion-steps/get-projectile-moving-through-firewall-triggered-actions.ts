@@ -125,12 +125,6 @@ function triggerIncinerateProjectile(
   if (!projectileTypeShouldBeIncinerated(projectileEntity.actionEntityProperties.name)) return [];
 
   const actionOriginDataOption = projectileEntity.getActionEntityProperties().actionOriginData;
-  console.log(
-    "action origin data option:",
-    actionOriginDataOption,
-    "for projectileEntity:",
-    projectileEntity
-  );
   if (actionOriginDataOption === undefined)
     throw new Error("expected incinerated projectile to have actionOriginData");
   actionOriginDataOption.wasIncinerated = true;
@@ -180,18 +174,10 @@ function triggerIngiteProjectile(
     timeToReachFirewallOption
   );
 
-  const igniteProjectileUser = context.actionUserContext.actionUser;
-
   const intentWithUser = {
     user: projectileEntity, // kinda weird that the projectile ignites itself
     actionExecutionIntent: igniteProjectileIntent,
   };
-
-  console.log(
-    "intentWithUser for ignite projectile: ",
-    igniteProjectileIntent,
-    igniteProjectileUser.getEntityProperties()
-  );
 
   return [intentWithUser];
 }

@@ -28,7 +28,6 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
     };
 
     const baseValues = new NumberRange(actionLevel, actionLevel * 10);
-    console.log("explosion base values:", baseValues);
 
     const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
     const hpChangeProperties: CombatActionResourceChangeProperties = {

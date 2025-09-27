@@ -40,8 +40,6 @@ export function handleEntityMotionUpdate(
 ) {
   const { translationOption, rotationOption, animationOption, delayOption } = motionUpdate;
 
-  console.log(JSON.stringify(motionUpdate));
-
   let onAnimationComplete = () => {};
   let onTranslationComplete = () => {};
 
@@ -170,7 +168,7 @@ function handleCombatantMotionUpdate(
   try {
     const combatantResult = useGameStore.getState().getCombatant(motionUpdate.entityId);
   } catch {
-    console.log("error motionUpdate:", motionUpdate);
+    console.error("error motionUpdate:", motionUpdate);
   }
 
   const combatant = throwIfError(useGameStore.getState().getCombatant(motionUpdate.entityId));

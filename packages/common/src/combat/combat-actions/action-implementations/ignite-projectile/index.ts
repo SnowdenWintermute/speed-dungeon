@@ -66,12 +66,6 @@ const config: CombatActionComponentConfig = {
             hpChangePropertiesOption.resourceChangeSource.elementOption = MagicalElement.Fire;
         }
 
-        console.log(
-          "action user for ignite projectile",
-          actionUser.getName(),
-          actionUser.getEntityId()
-        );
-
         // @PERF - combine when starting multiple cosmeticEffectsToStart on same entity
         toReturn.cosmeticEffectsToStart = [
           {

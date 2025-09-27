@@ -1,7 +1,6 @@
 import { IActionUser } from "../action-user-context/action-user.js";
 import { MeleeAttackAnimationType } from "../combat/combat-actions/action-implementations/attack/determine-melee-attack-animation-type.js";
 import {
-  COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   CombatActionHitOutcomes,
@@ -14,7 +13,6 @@ import { IdGenerator } from "../utility-classes/index.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
 import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,

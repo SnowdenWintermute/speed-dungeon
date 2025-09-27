@@ -93,12 +93,10 @@ export class ActionEntity implements IActionUser {
   setWasRemovedBeforeHitOutcomes() {
     if (this.actionEntityProperties.actionOriginData === undefined)
       this.actionEntityProperties.actionOriginData = { spawnedBy: { id: "", name: "" } };
-    console.log("set ", this.entityProperties.id, "as incinerated");
     this.actionEntityProperties.actionOriginData.wasIncinerated = true;
   }
   wasRemovedBeforeHitOutcomes(): boolean {
     const wasRemoved = !!this.actionEntityProperties.actionOriginData?.wasIncinerated;
-    console.log(this.entityProperties.id, "got wasRemovedBeforeHitOutcomes:", wasRemoved);
     return wasRemoved;
   }
   payResourceCosts(): void {

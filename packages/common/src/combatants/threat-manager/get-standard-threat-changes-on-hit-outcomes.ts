@@ -1,7 +1,6 @@
 import { ActionResolutionStepContext } from "../../action-processing/index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { CombatActionHitOutcomes, ThreatChanges } from "../../combat/action-results/index.js";
-import { COMBAT_ACTION_NAME_STRINGS } from "../../combat/combat-actions/combat-action-names.js";
 import { ThreatCalculator } from "./threat-calculator.js";
 
 export function getStandardThreatChangesOnHitOutcomes(
@@ -15,8 +14,6 @@ export function getStandardThreatChangesOnHitOutcomes(
   const { characters } = allCombatantsResult;
 
   const userIdToCredit = actionUser.getIdOfEntityToCreditWithThreat();
-
-  console.log("userIdToCredit:", userIdToCredit);
 
   const userResult = AdventuringParty.getCombatant(party, userIdToCredit);
 

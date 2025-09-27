@@ -68,7 +68,6 @@ export async function spawnEntityGameUpdateHandler(update: {
   });
 
   if (actionEntityProperties.parentOption) {
-    console.log("PARENT OPTION:", actionEntityProperties.parentOption, update.command);
     const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(
       actionEntityProperties.parentOption
     );
