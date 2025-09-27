@@ -26,6 +26,7 @@ import {
 } from "../../../../../items/equipment/index.js";
 import { getRotateTowardPrimaryTargetDestination } from "../../common-destination-getters.js";
 import {
+  Combatant,
   CombatantEquipment,
   CombatantProperties,
   CombatantSpecies,
@@ -76,59 +77,21 @@ base.steps = {
       getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.BowPrep, true),
   },
   [ActionResolutionStepType.PostPrepSpawnEntity]: {
-    getSpawnableEntity: (context) => {
+    getSpawnableEntities: (context) => {
       const { actionUserContext } = context;
-      const { actionUser, party, game } = actionUserContext;
-      const userPositionOption = actionUser.getPositionOption();
-      if (userPositionOption === null) throw new Error("expected position");
-      const position = userPositionOption.clone();
-
-      const firedByCombatantName = actionUser.getName();
-
+      const { party } = actionUserContext;
       const { actionExecutionIntent } = context.tracker;
-      const { actionName, rank } = actionExecutionIntent;
-      const action = COMBAT_ACTIONS[actionName];
 
       const targetingCalculator = new TargetingCalculator(actionUserContext, null);
       const primaryTarget = throwIfError(
         targetingCalculator.getPrimaryTargetCombatant(party, actionExecutionIntent)
       );
 
-      const resourceChangeProperties = getBowAttackHitOutcomeProperties(
-        actionUser,
-        action.hitOutcomeProperties,
-        rank,
-        primaryTarget.combatantProperties
-      );
+      const spawnableEntity = createBowAttackArrowProjectile(context, primaryTarget);
 
-      const spawnableEntity: SpawnableEntity = {
-        type: SpawnableEntityType.ActionEntity,
-        actionEntity: new ActionEntity(
-          {
-            id: context.idGenerator.generate(),
-            name: `${nameToPossessive(firedByCombatantName)} arrow`,
-          },
-          {
-            position,
-            name: ActionEntityName.Arrow,
-            initialRotation: new Vector3(Math.PI / 2, 0, 0),
-            parentOption: {
-              sceneEntityIdentifier: {
-                type: SceneEntityType.CharacterModel,
-                entityId: actionUser.getEntityId(),
-              },
-              transformNodeName: CombatantBaseChildTransformNodeName.MainHandEquipment,
-            },
-            actionOriginData: {
-              spawnedBy: actionUser.getEntityProperties(),
-              userCombatantAttributes: actionUser.getTotalAttributes(),
-              resourceChangeProperties,
-            },
-          }
-        ),
-      };
+      console.log("post prep spawned entity:", spawnableEntity);
 
-      return spawnableEntity;
+      return [spawnableEntity];
     },
   },
 
@@ -201,11 +164,7 @@ function getBowEquipmentAnimation(
 }
 
 function lockArrowToFaceArrowRest(context: ActionResolutionStepContext) {
-  const actionEntity = context.tracker.spawnedEntityOption;
-  if (!actionEntity) {
-    console.error("expected an arrow to have been spawned");
-    return [];
-  }
+  const actionEntity = context.tracker.getFirstExpectedSpawnedActionEntity();
 
   const combatantProperties = context.actionUserContext.actionUser.getCombatantProperties();
   const bowOption = CombatantEquipment.getEquipmentInSlot(combatantProperties.equipment, {
@@ -288,4 +247,55 @@ export function getBowAttackHitOutcomeProperties(
   );
 
   return resourceChangeProperties;
+}
+
+export function createBowAttackArrowProjectile(
+  context: ActionResolutionStepContext,
+  target: Combatant
+): SpawnableEntity {
+  const { actionUserContext } = context;
+  const { actionUser } = actionUserContext;
+  const userPositionOption = actionUser.getPositionOption();
+  if (userPositionOption === null) throw new Error("expected position");
+  const position = userPositionOption.clone();
+
+  const firedByCombatantName = actionUser.getName();
+
+  const { actionExecutionIntent } = context.tracker;
+  const { actionName, rank } = actionExecutionIntent;
+  const action = COMBAT_ACTIONS[actionName];
+
+  const resourceChangeProperties = getBowAttackHitOutcomeProperties(
+    actionUser,
+    action.hitOutcomeProperties,
+    rank,
+    target.combatantProperties
+  );
+
+  return {
+    type: SpawnableEntityType.ActionEntity,
+    actionEntity: new ActionEntity(
+      {
+        id: context.idGenerator.generate(),
+        name: `${nameToPossessive(firedByCombatantName)} arrow`,
+      },
+      {
+        position,
+        name: ActionEntityName.Arrow,
+        initialRotation: new Vector3(Math.PI / 2, 0, 0),
+        parentOption: {
+          sceneEntityIdentifier: {
+            type: SceneEntityType.CharacterModel,
+            entityId: actionUser.getEntityId(),
+          },
+          transformNodeName: CombatantBaseChildTransformNodeName.MainHandEquipment,
+        },
+        actionOriginData: {
+          spawnedBy: actionUser.getEntityProperties(),
+          userCombatantAttributes: actionUser.getTotalAttributes(),
+          resourceChangeProperties,
+        },
+      }
+    ),
+  };
 }

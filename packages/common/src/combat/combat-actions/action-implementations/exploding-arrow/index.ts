@@ -66,10 +66,7 @@ const config: CombatActionComponentConfig = {
   hierarchyProperties: {
     ...ATTACK_RANGED_MAIN_HAND.hierarchyProperties,
     getConcurrentSubActions(context) {
-      const expectedProjectile = context.tracker.spawnedEntityOption;
-      if (expectedProjectile === null) throw new Error("expected to have spawned the arrow by now");
-      if (expectedProjectile.type !== SpawnableEntityType.ActionEntity)
-        throw new Error("expected to have spawned an action entity");
+      const expectedProjectile = context.tracker.getFirstExpectedSpawnedActionEntity();
 
       return [
         {

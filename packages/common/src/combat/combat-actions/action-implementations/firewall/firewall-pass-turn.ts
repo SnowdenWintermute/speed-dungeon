@@ -82,14 +82,17 @@ const hitOutcomeProperties = createHitOutcomeProperties(
               "expected to have configured OnActivationActionEntityMotion for Firewall"
             );
 
+          // @REFACTOR
           // @BADPRACTICE
           // some symantec coupling - we just want to reuse the cosmetic effect
           // creators from firewall action, which expects its tracker to have a
           // spawned firewall
-          context.tracker.spawnedEntityOption = {
-            type: SpawnableEntityType.ActionEntity,
-            actionEntity: existingFirewall,
-          };
+          context.tracker.spawnedEntities = [
+            {
+              type: SpawnableEntityType.ActionEntity,
+              actionEntity: existingFirewall,
+            },
+          ];
 
           const toStopGetter = firewallCosmeticsStepOption.getCosmeticEffectsToStop;
           const toStartGetter = firewallCosmeticsStepOption.getCosmeticEffectsToStart;

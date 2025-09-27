@@ -23,7 +23,7 @@ import {
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
 stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
-  getSpawnableEntity: (context) => {
+  getSpawnableEntities: (context) => {
     const { party, actionUser } = context.actionUserContext;
 
     const actionTarget = actionUser.getConditionAppliedTo();
@@ -38,10 +38,12 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
       name: ActionEntityName.IceBurst,
     };
 
-    return {
-      type: SpawnableEntityType.ActionEntity,
-      actionEntity: new ActionEntity(entityProperties, actionEntityProperties),
-    };
+    return [
+      {
+        type: SpawnableEntityType.ActionEntity,
+        actionEntity: new ActionEntity(entityProperties, actionEntityProperties),
+      },
+    ];
   },
 };
 
@@ -55,7 +57,7 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
     };
   },
   getCosmeticEffectsToStart: (context) => {
-    const iceBurstEntity = context.tracker.getExpectedSpawnedActionEntity();
+    const iceBurstEntity = context.tracker.getFirstExpectedSpawnedActionEntity();
     return [
       {
         name: CosmeticEffectNames.FrostParticleBurst,

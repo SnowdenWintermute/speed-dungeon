@@ -28,7 +28,6 @@ import {
 import { CHAINING_SPLIT_ARROW_PARENT_STEPS_CONFIG } from "./chaining-split-arrow-parent-steps-config.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
-import cloneDeep from "lodash.clonedeep";
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BOW_ATTACK,
@@ -70,7 +69,7 @@ const config: CombatActionComponentConfig = {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
 
     getConcurrentSubActions(context) {
-      const { actionUser, party, getBattleOption } = context.actionUserContext;
+      const { actionUser, party } = context.actionUserContext;
       const battleOption = context.actionUserContext.getBattleOption();
       const entityIdsByDisposition = actionUser.getAllyAndOpponentIds(party, battleOption);
 
@@ -79,15 +78,15 @@ const config: CombatActionComponentConfig = {
 
       return opponents
         .filter((opponent) => opponent.combatantProperties.hitPoints > 0)
-        .map((opponent) => {
-          const expectedProjectile = context.tracker.spawnedEntityOption;
-          if (expectedProjectile === null)
+        .map((opponent, i) => {
+          const expectedProjectile = context.tracker.spawnedEntities[i];
+          if (expectedProjectile === undefined)
             throw new Error("expected to have spawned the arrow by now");
           if (expectedProjectile.type !== SpawnableEntityType.ActionEntity)
             throw new Error("expected to have spawned an action entity");
 
           return {
-            user: actionUser, // will be replaced by the spawned projectile - @REFACTOR - fix this antipattern
+            user: expectedProjectile.actionEntity,
             actionExecutionIntent: new CombatActionExecutionIntent(
               CombatActionName.ChainingSplitArrowProjectile,
               context.tracker.actionExecutionIntent.rank,

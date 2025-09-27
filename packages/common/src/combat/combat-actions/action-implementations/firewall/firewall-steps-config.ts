@@ -29,7 +29,7 @@ import { ActionUserTargetingProperties } from "../../../../action-user-context/a
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
 stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
-  getSpawnableEntity: (context) => {
+  getSpawnableEntities: (context) => {
     const { party, actionUser } = context.actionUserContext;
 
     const existingFirewallOption = AdventuringParty.getExistingActionEntityOfType(
@@ -39,10 +39,10 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
 
     if (existingFirewallOption !== null) {
       // so it can be targeted by the on activation motion step
-      context.tracker.spawnedEntityOption = {
+      context.tracker.spawnedEntities.push({
         type: SpawnableEntityType.ActionEntity,
         actionEntity: existingFirewallOption,
-      };
+      });
       // don't spawn it again
       return null;
     }
@@ -84,27 +84,27 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
       spawnedBy: actionUser.getEntityProperties(),
     };
 
-    return {
-      type: SpawnableEntityType.ActionEntity,
-      actionEntity: new ActionEntity(
-        { id: context.idGenerator.generate(), name: "firewall" },
-        {
-          position,
-          name: ActionEntityName.Firewall,
-          dimensions: taggedDimensions,
-          actionOriginData,
-        }
-      ),
-    };
+    return [
+      {
+        type: SpawnableEntityType.ActionEntity,
+        actionEntity: new ActionEntity(
+          { id: context.idGenerator.generate(), name: "firewall" },
+          {
+            position,
+            name: ActionEntityName.Firewall,
+            dimensions: taggedDimensions,
+            actionOriginData,
+          }
+        ),
+      },
+    ];
   },
 };
 
 stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
   getCosmeticEffectsToStop(context) {
-    const expectedFirewallEntity = context.tracker.spawnedEntityOption;
-    if (expectedFirewallEntity === null) throw new Error("expected firewall entity not found");
-    if (expectedFirewallEntity.type != SpawnableEntityType.ActionEntity)
-      throw new Error("expected firewall entity to be action enity");
+    const expectedFirewallEntity = context.tracker.getFirstExpectedSpawnedActionEntity();
+
     return [
       {
         name: CosmeticEffectNames.FirewallParticles,
@@ -119,10 +119,7 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
     ];
   },
   getCosmeticEffectsToStart: (context) => {
-    const expectedFirewallEntity = context.tracker.spawnedEntityOption;
-    if (expectedFirewallEntity === null) throw new Error("expected firewall entity not found");
-    if (expectedFirewallEntity.type != SpawnableEntityType.ActionEntity)
-      throw new Error("expected firewall entity to be action enity");
+    const expectedFirewallEntity = context.tracker.getFirstExpectedSpawnedActionEntity();
 
     const rankOption =
       expectedFirewallEntity.actionEntity.actionEntityProperties.actionOriginData?.actionLevel

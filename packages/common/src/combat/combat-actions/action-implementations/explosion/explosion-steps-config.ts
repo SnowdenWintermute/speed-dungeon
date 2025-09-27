@@ -16,7 +16,7 @@ import {
 const stepsOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
 stepsOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
-  getSpawnableEntity: (context) => {
+  getSpawnableEntities: (context) => {
     const { party, actionUser } = context.actionUserContext;
 
     // use some symantic coupling "oh no, bad practice!" to
@@ -33,16 +33,18 @@ stepsOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
 
     const position = primaryTargetResult.combatantProperties.position;
 
-    return {
-      type: SpawnableEntityType.ActionEntity,
-      actionEntity: new ActionEntity(
-        { id: context.idGenerator.generate(), name: "explosion" },
-        {
-          position,
-          name: ActionEntityName.Explosion,
-        }
-      ),
-    };
+    return [
+      {
+        type: SpawnableEntityType.ActionEntity,
+        actionEntity: new ActionEntity(
+          { id: context.idGenerator.generate(), name: "explosion" },
+          {
+            position,
+            name: ActionEntityName.Explosion,
+          }
+        ),
+      },
+    ];
   },
 };
 

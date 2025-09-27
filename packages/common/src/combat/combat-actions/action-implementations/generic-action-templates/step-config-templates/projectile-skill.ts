@@ -26,9 +26,7 @@ config.finalSteps[ActionResolutionStepType.RecoveryMotion] = {
     );
     if (primaryTarget instanceof Error) throw primaryTarget;
 
-    const actionEntity = context.tracker.spawnedEntityOption;
-    if (!actionEntity) return [];
-    // if (!actionEntity) throw new Error("expected action entity was missing");
+    const actionEntity = context.tracker.getFirstExpectedSpawnedActionEntity();
     const actionEntityId = getSpawnableEntityId(actionEntity);
 
     const startPointingToward: SceneEntityChildTransformNodeIdentifierWithDuration = {

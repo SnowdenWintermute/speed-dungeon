@@ -65,20 +65,6 @@ export class Replayer {
           ) {
             destinationOption = gameUpdate.mainEntityUpdate.translationOption?.destination || null;
           }
-
-          console.info(
-            new Array(depth).fill("-").join(""),
-            GAME_UPDATE_COMMAND_TYPE_STRINGS[gameUpdate.type],
-            ACTION_RESOLUTION_STEP_TYPE_STRINGS[gameUpdate.step],
-            gameUpdate.completionOrderId,
-            gameUpdate.type === GameUpdateCommandType.SpawnEntity
-              ? gameUpdate.entity.type === SpawnableEntityType.ActionEntity
-                ? "ENTITY POSTIION PACKET: " +
-                  gameUpdate.entity.actionEntity.actionEntityProperties.position
-                : ""
-              : ""
-            // destinationOption || ""
-          );
         } else {
           this.printReplayTree(node, depth + 1);
         }

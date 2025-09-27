@@ -1,8 +1,4 @@
-import {
-  COMBAT_ACTION_NAME_STRINGS,
-  COMBAT_ACTIONS,
-  CombatActionExecutionIntent,
-} from "../combat/index.js";
+import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../combat/index.js";
 import { ActionSequenceManagerRegistry } from "./action-sequence-manager-registry.js";
 import { NestedNodeReplayEvent, NestedNodeReplayEventUtls } from "./replay-events.js";
 import { ActionTracker } from "./action-tracker.js";
@@ -84,8 +80,7 @@ export class ActionSequenceManager {
       this.actionUserContext.actionUser,
       previousTrackerOption || null,
       this.sequentialActionManagerRegistry.time.ms,
-      this.idGenerator,
-      previousTrackerOption?.spawnedEntityOption
+      this.idGenerator
     );
 
     this.currentTracker = tracker;

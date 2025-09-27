@@ -26,7 +26,7 @@ import {
 import { CleanupMode } from "../types.js";
 
 export enum GameUpdateCommandType {
-  SpawnEntity,
+  SpawnEntities,
   CombatantMotion,
   ActionEntityMotion,
   ResourcesPaid,
@@ -37,7 +37,7 @@ export enum GameUpdateCommandType {
 }
 
 export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, string> = {
-  [GameUpdateCommandType.SpawnEntity]: "Spawn Entity",
+  [GameUpdateCommandType.SpawnEntities]: "Spawn Entities",
   [GameUpdateCommandType.CombatantMotion]: "Combatant Entity Motion",
   [GameUpdateCommandType.ActionEntityMotion]: "Combatant Entity Motion",
   [GameUpdateCommandType.ResourcesPaid]: "Resources Paid",
@@ -73,9 +73,9 @@ export type EntityAnimation = {
   smoothTransition: boolean;
 };
 
-export interface SpawnEntityGameUpdateCommand extends IGameUpdateCommand {
-  type: GameUpdateCommandType.SpawnEntity;
-  entity: SpawnableEntity;
+export interface SpawnEntitiesGameUpdateCommand extends IGameUpdateCommand {
+  type: GameUpdateCommandType.SpawnEntities;
+  entities: SpawnableEntity[];
 }
 
 export interface IEntityMotionUpdate {
@@ -179,7 +179,7 @@ export interface ActionUseCombatLogMessageUpdateCommand extends IGameUpdateComma
 }
 
 export type GameUpdateCommand =
-  | SpawnEntityGameUpdateCommand
+  | SpawnEntitiesGameUpdateCommand
   | CombatantMotionGameUpdateCommand
   | ActionEntityMotionGameUpdateCommand
   | ResourcesPaidGameUpdateCommand

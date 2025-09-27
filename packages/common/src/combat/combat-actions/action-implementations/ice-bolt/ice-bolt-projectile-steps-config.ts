@@ -26,7 +26,7 @@ import { CleanupMode } from "../../../../types.js";
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
 stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
-  getSpawnableEntity: (context) => {
+  getSpawnableEntities: (context) => {
     const { actionUserContext } = context;
     const { actionExecutionIntent } = context.tracker;
     const { party, actionUser } = actionUserContext;
@@ -84,10 +84,12 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
     // after the projectile has spawned
     context.actionUserContext.actionUser = actionEntity;
 
-    return {
-      type: SpawnableEntityType.ActionEntity,
-      actionEntity,
-    };
+    return [
+      {
+        type: SpawnableEntityType.ActionEntity,
+        actionEntity,
+      },
+    ];
   },
 };
 
@@ -133,7 +135,7 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
     return entityPart;
   },
   getCosmeticEffectsToStart: (context) => {
-    const iceBoltProjectile = context.tracker.getExpectedSpawnedActionEntity();
+    const iceBoltProjectile = context.tracker.getFirstExpectedSpawnedActionEntity();
     return [
       {
         name: CosmeticEffectNames.FrostParticleStream,

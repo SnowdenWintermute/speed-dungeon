@@ -5,18 +5,20 @@ import {
   GameUpdateCommandType,
 } from "../../game-update-commands.js";
 import { SpawnableEntityType } from "../../../spawnables/index.js";
-import { ARROW_TIME_TO_MOVE_ONE_METER } from "../../../app-consts.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { ActionEntity } from "../../../action-entities/index.js";
 import { COMBAT_ACTIONS } from "../../../combat/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 
 export class ActionEntityMotionActionResolutionStep extends EntityMotionActionResolutionStep {
-  constructor(
-    context: ActionResolutionStepContext,
-    stepType: ActionResolutionStepType,
-    private actionEntity: ActionEntity
-  ) {
+  constructor(context: ActionResolutionStepContext, stepType: ActionResolutionStepType) {
+    const { actionUser } = context.actionUserContext;
+
+    if (!(actionUser instanceof ActionEntity))
+      throw new Error("expected only actions used action entities to have this step");
+
+    const actionEntity = actionUser;
+
     const update: ActionEntityMotionUpdate = {
       entityType: SpawnableEntityType.ActionEntity,
       entityId: actionEntity.entityProperties.id,
@@ -56,6 +58,10 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
 
   onComplete() {
     const { context } = this;
+    const { actionUser } = context.actionUserContext;
+
+    if (!(actionUser instanceof ActionEntity))
+      throw new Error("expected only actions used action entities to have this step");
 
     const { actionName } = context.tracker.actionExecutionIntent;
     const action = COMBAT_ACTIONS[actionName];
@@ -70,7 +76,7 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
 
     AdventuringParty.unregisterActionEntity(
       party,
-      this.actionEntity.entityProperties.id,
+      actionUser.entityProperties.id,
       AdventuringParty.getBattleOption(party, context.actionUserContext.game)
     );
 

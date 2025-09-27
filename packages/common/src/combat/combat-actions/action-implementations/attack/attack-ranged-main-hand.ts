@@ -19,7 +19,6 @@ import {
   createTargetingPropertiesConfig,
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
-import { SpawnableEntityType } from "../../../../spawnables/index.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BOW_SKILL();
 const hitOutcomeProperties = createHitOutcomeProperties(
@@ -46,10 +45,7 @@ export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
     getParent: () => ATTACK,
     getConcurrentSubActions(context) {
-      const expectedProjectile = context.tracker.spawnedEntityOption;
-      if (expectedProjectile === null) throw new Error("expected to have spawned the arrow by now");
-      if (expectedProjectile.type !== SpawnableEntityType.ActionEntity)
-        throw new Error("expected to have spawned an action entity");
+      const expectedProjectile = context.tracker.getFirstExpectedSpawnedActionEntity();
 
       const { rank, targets } = context.tracker.actionExecutionIntent;
 

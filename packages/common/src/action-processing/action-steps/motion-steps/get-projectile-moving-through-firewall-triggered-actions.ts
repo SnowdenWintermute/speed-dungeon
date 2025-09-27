@@ -37,22 +37,12 @@ function projectileTypeShouldBeIncinerated(type: ActionEntityName) {
 
 export function getProjectileMovingThroughFirewallTriggeredActions(
   context: ActionResolutionStepContext,
-  step: TriggerEnvironmentalHazardsActionResolutionStep
+  step: TriggerEnvironmentalHazardsActionResolutionStep,
+  projectileEntity: ActionEntity
 ): ActionIntentAndUser[] {
   if (step.type === ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers) {
     return [];
   }
-
-  let { spawnedEntityOption } = context.tracker;
-  if (spawnedEntityOption === null) {
-    spawnedEntityOption =
-      context.tracker.getPreviousTrackerInSequenceOption()?.spawnedEntityOption || null;
-    if (spawnedEntityOption === null) {
-      return [];
-    }
-  }
-  if (spawnedEntityOption.type !== SpawnableEntityType.ActionEntity) return [];
-  const projectileEntity = spawnedEntityOption.actionEntity;
 
   const { actionExecutionIntent } = context.tracker;
   const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];

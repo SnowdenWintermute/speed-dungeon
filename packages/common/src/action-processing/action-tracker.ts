@@ -1,6 +1,7 @@
 import { IActionUser } from "../action-user-context/action-user.js";
 import { MeleeAttackAnimationType } from "../combat/combat-actions/action-implementations/attack/determine-melee-attack-animation-type.js";
 import {
+  COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   CombatActionHitOutcomes,
@@ -13,6 +14,7 @@ import { IdGenerator } from "../utility-classes/index.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
@@ -23,7 +25,7 @@ export class ActionTracker {
   currentStep: ActionResolutionStep;
   stepIndex: number = -1;
   completedSteps: ActionResolutionStep[] = [];
-  spawnedEntityOption: null | SpawnableEntity = null;
+  spawnedEntities: SpawnableEntity[] = [];
   // initiatedByTriggeredCondition: null | CombatantCondition = null;
   hitOutcomes = new CombatActionHitOutcomes();
   meleeAttackAnimationType: MeleeAttackAnimationType | null = null;
@@ -43,11 +45,8 @@ export class ActionTracker {
     public user: IActionUser,
     private previousTrackerInSequenceOption: null | ActionTracker,
     private timeStarted: Milliseconds,
-    private idGenerator: IdGenerator,
-    private spawnedEntityFromParent?: null | SpawnableEntity
+    private idGenerator: IdGenerator
   ) {
-    if (spawnedEntityFromParent) this.spawnedEntityOption = spawnedEntityFromParent;
-
     const action = COMBAT_ACTIONS[this.actionExecutionIntent.actionName];
     this.queuedStepTypes = action.stepsConfig.getStepTypes();
 
@@ -86,6 +85,13 @@ export class ActionTracker {
 
     if (stepOption === undefined) return null;
 
+    console.log(
+      "action:",
+      COMBAT_ACTION_NAME_STRINGS[this.actionExecutionIntent.actionName],
+      "initializeNextStep:",
+      ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepOption]
+    );
+
     const stepCreator = ACTION_STEP_CREATORS[stepOption];
     const newStep = stepCreator(context);
     this.currentStep = newStep;
@@ -104,9 +110,9 @@ export class ActionTracker {
     return this.completedSteps;
   }
 
-  getExpectedSpawnedActionEntity() {
-    if (this.spawnedEntityOption?.type === SpawnableEntityType.ActionEntity)
-      return this.spawnedEntityOption;
+  getFirstExpectedSpawnedActionEntity() {
+    const firstOption = this.spawnedEntities[0];
+    if (firstOption?.type === SpawnableEntityType.ActionEntity) return firstOption;
     else throw new Error("expected spawned action entity not found");
   }
 

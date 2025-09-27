@@ -27,7 +27,7 @@ import { COMBAT_ACTIONS } from "../index.js";
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
 stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
-  getSpawnableEntity: (context) => {
+  getSpawnableEntities: (context) => {
     const { actionUserContext, tracker } = context;
     const userPositionOption = actionUserContext.actionUser.getPositionOption();
     if (userPositionOption === null) throw new Error("expected a position here");
@@ -58,15 +58,18 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
     let initialCosmeticYPosition: undefined | SceneEntityChildTransformNodeIdentifier;
 
     const previousTrackerOption = tracker.getPreviousTrackerInSequenceOption();
-    if (
-      previousTrackerOption &&
+
+    if (previousTrackerOption === null) throw new Error("expected to be a child action");
+
+    const projectile = actionUserContext.actionUser;
+
+    const wasSpawnedByAnotherArrow =
       previousTrackerOption.actionExecutionIntent.actionName ===
-        CombatActionName.ChainingSplitArrowProjectile &&
-      previousTrackerOption.spawnedEntityOption &&
-      previousTrackerOption.spawnedEntityOption.type === SpawnableEntityType.ActionEntity
-    ) {
+      CombatActionName.ChainingSplitArrowProjectile;
+
+    if (wasSpawnedByAnotherArrow) {
       // was spawned by previous arrow action in chain
-      //
+
       const targetingCalculator = new TargetingCalculator(
         previousTrackerOption.parentActionManager.actionUserContext,
         null
@@ -75,8 +78,7 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
         targetingCalculator.getPrimaryTargetCombatantId(previousTrackerOption.actionExecutionIntent)
       );
 
-      position =
-        previousTrackerOption.spawnedEntityOption.actionEntity.actionEntityProperties.position.clone();
+      position = projectile.getActionEntityProperties().position.clone();
 
       initialCosmeticYPosition = {
         sceneEntityIdentifier: {
@@ -85,9 +87,8 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
         },
         transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
       };
-    } else if (previousTrackerOption) {
+    } else {
       // was spawned by initial parent action
-      // previousTrackerOption.
       const combatantUserOfParentAction = previousTrackerOption.user;
 
       parentOption = {
@@ -120,15 +121,12 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
       actionEntityProperties
     );
 
-    // since it was just spawned, we set it as the user. would maybe like to see a consistent pattern
-    // of spawning entities in the parent actions and then we can directly set those as the users
-    // of the concurrent sub actions
-    actionUserContext.actionUser = spawnedEntity;
-
-    return {
-      type: SpawnableEntityType.ActionEntity,
-      actionEntity: spawnedEntity,
-    };
+    return [
+      {
+        type: SpawnableEntityType.ActionEntity,
+        actionEntity: spawnedEntity,
+      },
+    ];
   },
 };
 
