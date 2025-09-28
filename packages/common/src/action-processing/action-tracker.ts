@@ -32,7 +32,6 @@ export class ActionTracker {
   consumableUsed: null | Consumable = null;
   /** Set by checking shouldExecute in DetermineShouldExecuteOrReleaseInputLock step */
   public wasAborted = false;
-  public projectileWasIncinerated = false;
   /** Idea here is to have final steps such as DetermineEnvironmentalHazardTriggers,
    * DetermineEndTurnAndReleaseInputLock, RecoveryMotion conditionally queue themselves only once*/
   public hasQueuedUpFinalSteps = false;

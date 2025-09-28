@@ -119,8 +119,6 @@ function triggerIncinerateProjectile(
     throw new Error("expected incinerated projectile to have actionOriginData");
   actionOriginDataOption.wasIncinerated = true;
 
-  context.tracker.projectileWasIncinerated = true;
-
   const intent = new CombatActionExecutionIntent(CombatActionName.IncinerateProjectile, 1, {
     type: CombatActionTargetType.Single,
     targetId: projectileEntity.entityProperties.id,

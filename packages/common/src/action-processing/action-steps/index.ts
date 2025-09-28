@@ -30,8 +30,8 @@ export enum ActionResolutionStepType {
   PayResourceCosts,
   PostActionUseCombatLogMessage,
   EvalOnUseTriggers,
-  StartConcurrentSubActions, // starts actions that happen simultaneously and independently such as ["arrow projectile"]
   OnActivationSpawnEntity,
+  StartConcurrentSubActions, // starts actions that happen simultaneously and independently such as ["arrow projectile"]
   PreActionEntityMotionCheckEnvironmentalHazardTriggers,
   OnActivationActionEntityMotion,
   RollIncomingHitOutcomes,

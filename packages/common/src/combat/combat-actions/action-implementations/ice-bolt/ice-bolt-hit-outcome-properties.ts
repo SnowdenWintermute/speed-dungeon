@@ -88,6 +88,6 @@ hitOutcomeOverrides.getAppliedConditions = (user, actionLevel) => {
 };
 
 export const ICE_BOLT_PROJECTILE_HIT_OUTCOME_PROPERTIES = createHitOutcomeProperties(
-  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.RANGED_ACTION,
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.PROJECTILE,
   hitOutcomeOverrides
 );

@@ -16,7 +16,7 @@ import { AdventuringParty } from "../../../adventuring-party/index.js";
 
 export class ActionEntityMotionActionResolutionStep extends EntityMotionActionResolutionStep {
   constructor(context: ActionResolutionStepContext, stepType: ActionResolutionStepType) {
-    const { actionUser } = context.actionUserContext;
+    const { party, actionUser } = context.actionUserContext;
 
     if (!(actionUser instanceof ActionEntity))
       throw new Error("expected only actions used action entities to have this step");
@@ -35,7 +35,10 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
 
     if (stepConfig.getDespawnOnCompleteCleanupModeOption) {
       const cleanupModeOption = stepConfig.getDespawnOnCompleteCleanupModeOption(context);
-      if (cleanupModeOption !== null) {
+      const entityIsStillRegistered = !(
+        AdventuringParty.getActionEntity(party, actionUser.getEntityId()) instanceof Error
+      );
+      if (cleanupModeOption !== null && entityIsStillRegistered) {
         update.despawnOnCompleteMode = cleanupModeOption;
         console.log(
           "set despawn mode for action:",

@@ -18,6 +18,15 @@ import {
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { CosmeticEffectInstructionFactory } from "../generic-action-templates/cosmetic-effect-factories/index.js";
+import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
+import { ActionEntity, ActionEntityName } from "../../../../action-entities/index.js";
+import { nameToPossessive } from "../../../../utils/index.js";
+import { Vector3 } from "@babylonjs/core";
+import {
+  CombatantBaseChildTransformNodeName,
+  SceneEntityType,
+} from "../../../../scene-entities/index.js";
+import { SpawnableEntityType } from "../../../../spawnables/index.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.PROJECTILE_SPELL();
 
@@ -32,15 +41,75 @@ stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
     ];
   },
 };
-stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning] = {
-  ...stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning],
-  getCosmeticEffectsToStop: (context) => [
-    CosmeticEffectInstructionFactory.createParticlesOnOffhand(
-      CosmeticEffectNames.FrostParticleAccumulation,
-      context
-    ),
-  ],
-};
+
+(stepsConfig.steps[ActionResolutionStepType.OnActivationSpawnEntity] = {
+  getSpawnableEntities: (context) => {
+    const { actionUserContext } = context;
+    const { actionExecutionIntent } = context.tracker;
+    const { party, actionUser } = actionUserContext;
+
+    const userPositionOption = actionUser.getPositionOption();
+    if (userPositionOption === null) throw new Error("expected position");
+    const position = userPositionOption.clone();
+
+    const targetingCalculator = new TargetingCalculator(actionUserContext, null);
+
+    const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
+      party,
+      actionExecutionIntent
+    );
+    if (primaryTargetResult instanceof Error) throw primaryTargetResult;
+    const target = primaryTargetResult;
+
+    const firedByCombatantName = actionUser.getName();
+
+    const actionEntity = new ActionEntity(
+      {
+        id: context.idGenerator.generate(),
+        name: `${nameToPossessive(firedByCombatantName)} ice bolt`,
+      },
+      {
+        position,
+        name: ActionEntityName.IceBolt,
+        initialRotation: new Vector3(Math.PI / 2, 0, 0),
+        parentOption: {
+          sceneEntityIdentifier: {
+            type: SceneEntityType.CharacterModel,
+            entityId: actionUser.getEntityId(),
+          },
+          transformNodeName: CombatantBaseChildTransformNodeName.OffhandEquipment,
+        },
+        initialPointToward: {
+          sceneEntityIdentifier: {
+            type: SceneEntityType.CharacterModel,
+            entityId: target.entityProperties.id,
+          },
+          transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
+        },
+        actionOriginData: {
+          spawnedBy: actionUser.getEntityProperties(),
+          userCombatantAttributes: actionUser.getTotalAttributes(),
+        },
+      }
+    );
+
+    return [
+      {
+        type: SpawnableEntityType.ActionEntity,
+        actionEntity,
+      },
+    ];
+  },
+}),
+  (stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning] = {
+    ...stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning],
+    getCosmeticEffectsToStop: (context) => [
+      CosmeticEffectInstructionFactory.createParticlesOnOffhand(
+        CosmeticEffectNames.FrostParticleAccumulation,
+        context
+      ),
+    ],
+  });
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,
@@ -63,9 +132,10 @@ const config: CombatActionComponentConfig = {
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
     getConcurrentSubActions(context) {
+      const user = context.tracker.getFirstExpectedSpawnedActionEntity().actionEntity;
       return [
         {
-          user: context.actionUserContext.actionUser,
+          user,
           actionExecutionIntent: new CombatActionExecutionIntent(
             CombatActionName.IceBoltProjectile,
             context.tracker.actionExecutionIntent.rank,
