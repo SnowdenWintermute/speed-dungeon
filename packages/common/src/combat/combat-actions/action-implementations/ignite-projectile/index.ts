@@ -55,6 +55,7 @@ const config: CombatActionComponentConfig = {
           actionEntityProperties.actionOriginData = { spawnedBy: { id: "", name: "" } };
 
         const { actionOriginData } = actionEntityProperties;
+
         if (!actionOriginData.resourceChangeProperties)
           actionOriginData.resourceChangeProperties = {};
 

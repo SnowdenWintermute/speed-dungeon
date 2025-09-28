@@ -101,7 +101,7 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
   },
 };
 
-stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
+stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
   getCosmeticEffectsToStop(context) {
     const expectedFirewallEntity = context.tracker.getFirstExpectedSpawnedActionEntity();
 

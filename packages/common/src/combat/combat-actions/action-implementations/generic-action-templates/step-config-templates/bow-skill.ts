@@ -10,7 +10,6 @@ import {
   ActionResolutionStepsConfig,
   EquipmentAnimation,
 } from "../../../combat-action-steps-config.js";
-import { PROJECTILE_SKILL_STEPS_CONFIG } from "./projectile-skill.js";
 import { getSpeciesTimedAnimation } from "../../get-species-timed-animation.js";
 import {
   AnimationType,
@@ -56,8 +55,9 @@ import {
 } from "../../../combat-action-hit-outcome-properties.js";
 import { CombatActionResourceChangeProperties } from "../../../combat-action-resource-change-properties.js";
 import { TargetingCalculator } from "../../../../targeting/targeting-calculator.js";
+import { RANGED_SKILL_STEPS_CONFIG } from "./ranged-skill.js";
 
-const base = cloneDeep(PROJECTILE_SKILL_STEPS_CONFIG);
+const base = cloneDeep(RANGED_SKILL_STEPS_CONFIG);
 delete base.steps[ActionResolutionStepType.RollIncomingHitOutcomes];
 
 export const BOW_EQUIPMENT_ANIMATIONS: Record<TwoHandedRangedWeapon, SkeletalAnimationName> = {
@@ -88,8 +88,6 @@ base.steps = {
       );
 
       const spawnableEntity = createBowAttackArrowProjectile(context, primaryTarget);
-
-      console.log("post prep spawned entity:", spawnableEntity);
 
       return [spawnableEntity];
     },

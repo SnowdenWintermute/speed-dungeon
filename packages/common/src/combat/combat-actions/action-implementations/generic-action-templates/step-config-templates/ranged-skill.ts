@@ -24,7 +24,7 @@ export const RANGED_SKILL_STEPS_CONFIG = new ActionResolutionStepsConfig(
         };
       },
     },
-    [ActionResolutionStepType.PostInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
+    // [ActionResolutionStepType.PostInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
     [ActionResolutionStepType.ChamberingMotion]: {
       getDestination: getRotateTowardPrimaryTargetDestination,
     },

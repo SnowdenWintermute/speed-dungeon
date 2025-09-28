@@ -3,7 +3,6 @@ import { BASIC_SPELL_STEPS_CONFIG } from "./basic-spell.js";
 import { PROJECTILE_SPELL_STEPS_CONFIG } from "./projectile-spell.js";
 import { BOW_SKILL_STEPS_CONFIG } from "./bow-skill.js";
 import { RANGED_SKILL_STEPS_CONFIG } from "./ranged-skill.js";
-import { PROJECTILE_SKILL_STEPS_CONFIG } from "./projectile-skill.js";
 import { CONSUMABLE_USE_BASE_STEPS_CONFIG } from "./consumable-use.js";
 import { MELEE_SKILL_STEPS_CONFIG } from "./melee-skill.js";
 import { MAIN_HAND_MELEE_ATTACK_STEPS_CONFIG } from "./main-hand-melee-attack.js";
@@ -15,10 +14,7 @@ import {
   ActionResolutionStepsConfig,
   ActionResolutionStepsConfigOptions,
 } from "../../../combat-action-steps-config.js";
-import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
-  ActionResolutionStepType,
-} from "../../../../../action-processing/action-steps/index.js";
+import { ActionResolutionStepType } from "../../../../../action-processing/action-steps/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../../../../utils/index.js";
 import { VALUE_CHANGE_TICK_ACTION_STEPS_CONFIG } from "./value-change-tick.js";
 import { MODIFY_ACTION_ENTITY_ACTION_STEPS_CONFIG } from "./modify-action-entity.js";
@@ -26,7 +22,6 @@ import { MODIFY_ACTION_ENTITY_ACTION_STEPS_CONFIG } from "./modify-action-entity
 export const ACTION_STEPS_CONFIG_TEMPLATE_GETTERS = {
   BASIC_SPELL: () => cloneDeep(BASIC_SPELL_STEPS_CONFIG),
   RANGED_SKILL: () => cloneDeep(RANGED_SKILL_STEPS_CONFIG), // Base template
-  PROJECTILE_SKILL: () => cloneDeep(PROJECTILE_SKILL_STEPS_CONFIG),
   PROJECTILE_SPELL: () => cloneDeep(PROJECTILE_SPELL_STEPS_CONFIG),
   BOW_SKILL: () => cloneDeep(BOW_SKILL_STEPS_CONFIG),
   CONSUMABLE_USE: () => cloneDeep(CONSUMABLE_USE_BASE_STEPS_CONFIG),

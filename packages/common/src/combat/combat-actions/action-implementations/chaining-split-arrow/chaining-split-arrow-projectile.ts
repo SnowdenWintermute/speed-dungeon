@@ -15,7 +15,6 @@ import {
   CombatActionTargetType,
 } from "../../../targeting/combat-action-targets.js";
 import { ActionTracker } from "../../../../action-processing/action-tracker.js";
-import { COMBAT_ACTIONS } from "../index.js";
 import { CombatActionTargetingPropertiesConfig } from "../../combat-action-targeting-properties.js";
 import { BasicRandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
 import { ArrayUtils } from "../../../../utils/array-utils.js";
@@ -80,7 +79,7 @@ const targetingProperties = createTargetingPropertiesConfig(
 const MAX_BOUNCES = 2;
 
 const hitOutcomeProperties = createHitOutcomeProperties(
-  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BOW_ATTACK,
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.PROJECTILE,
   {}
 );
 
@@ -107,6 +106,7 @@ const config: CombatActionComponentConfig = {
 
       const filteredPossibleTargetIdsResult = getBouncableTargets(actionUserContext, tracker);
       if (filteredPossibleTargetIdsResult instanceof Error) return [];
+      if (filteredPossibleTargetIdsResult.possibleTargetIds.length === 0) return [];
 
       const noValidTargetsRemain = !filteredPossibleTargetIdsResult.possibleTargetIds.length;
       const bounceLimitReached = bounceCount >= MAX_BOUNCES;
@@ -124,14 +124,10 @@ const config: CombatActionComponentConfig = {
       const { rank } = actionExecutionIntent;
 
       return [
-        {
-          actionExecutionIntent: new CombatActionExecutionIntent(
-            CombatActionName.ChainingSplitArrowProjectile,
-            rank,
-            { type: CombatActionTargetType.Single, targetId }
-          ),
-          user: actionUser,
-        },
+        new CombatActionExecutionIntent(CombatActionName.ChainingSplitArrowProjectile, rank, {
+          type: CombatActionTargetType.Single,
+          targetId,
+        }),
       ];
     },
     getParent: () => CHAINING_SPLIT_ARROW_PARENT,

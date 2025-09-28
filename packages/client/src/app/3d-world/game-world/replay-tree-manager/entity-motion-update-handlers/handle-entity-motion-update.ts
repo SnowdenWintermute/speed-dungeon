@@ -53,6 +53,15 @@ export function handleEntityMotionUpdate(
       motionUpdate
     );
 
+    console.log(
+      "entity motion command:",
+      ACTION_RESOLUTION_STEP_TYPE_STRINGS[update.command.type],
+      "despawn mode:",
+      motionUpdate.despawnMode,
+      "despawnOnCompleteMode",
+      motionUpdate.despawnOnCompleteMode
+    );
+
     if (motionUpdate.despawnMode !== undefined) {
       despawnAndUnregisterActionEntity(motionUpdate.entityId, motionUpdate.despawnMode);
       return;

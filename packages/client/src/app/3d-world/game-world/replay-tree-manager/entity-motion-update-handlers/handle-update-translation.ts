@@ -23,7 +23,10 @@ export function handleUpdateTranslation(
   },
   onComplete: () => void
 ) {
-  if (!translationOption) return;
+  if (!translationOption) {
+    onComplete();
+    return;
+  }
 
   const toUpdate = getSceneEntityToUpdate(motionUpdate);
   const { movementManager, skeletalAnimationManager, dynamicAnimationManager } = toUpdate;

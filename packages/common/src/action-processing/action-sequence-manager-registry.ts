@@ -55,7 +55,7 @@ export class ActionSequenceManagerRegistry {
     const stepTrackerResult = manager.startProcessingNext();
     if (stepTrackerResult instanceof Error) return stepTrackerResult;
     const initialGameUpdate = stepTrackerResult.currentStep.getGameUpdateCommandOption();
-    this.incrementInputLockReferenceCount();
+
     return initialGameUpdate;
   }
 
@@ -94,6 +94,10 @@ export class ActionSequenceManagerRegistry {
         });
       }
     }
+  }
+
+  getInputLockReferenceCount() {
+    return this.inputBlockingActionStepsPendingReferenceCount;
   }
 
   incrementInputLockReferenceCount() {

@@ -17,9 +17,7 @@ export class DetermineChildActionsActionResolutionStep extends ActionResolutionS
 
     const children = currentAction.hierarchyProperties.getChildren(context, currentAction);
 
-    context.tracker.parentActionManager.enqueueActionIntents(
-      children.reverse().map((actionIntentAndUser) => actionIntentAndUser.actionExecutionIntent)
-    );
+    context.tracker.parentActionManager.enqueueActionIntents(children.reverse());
   }
 
   protected onTick = () => {};

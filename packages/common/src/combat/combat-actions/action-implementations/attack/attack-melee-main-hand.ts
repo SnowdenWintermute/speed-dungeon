@@ -81,16 +81,7 @@ export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
       const { actionExecutionIntent } = context.tracker;
       const { targets } = actionExecutionIntent;
 
-      return [
-        {
-          actionExecutionIntent: new CombatActionExecutionIntent(
-            CombatActionName.AttackMeleeOffhand,
-            1,
-            targets
-          ),
-          user: context.actionUserContext.actionUser,
-        },
-      ];
+      return [new CombatActionExecutionIntent(CombatActionName.AttackMeleeOffhand, 1, targets)];
     },
   },
 };

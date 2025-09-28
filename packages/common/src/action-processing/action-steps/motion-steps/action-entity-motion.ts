@@ -1,4 +1,8 @@
-import { ActionResolutionStepContext, ActionResolutionStepType } from "../index.js";
+import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
+  ActionResolutionStepContext,
+  ActionResolutionStepType,
+} from "../index.js";
 import {
   ActionEntityMotionGameUpdateCommand,
   ActionEntityMotionUpdate,
@@ -7,7 +11,7 @@ import {
 import { SpawnableEntityType } from "../../../spawnables/index.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { ActionEntity } from "../../../action-entities/index.js";
-import { COMBAT_ACTIONS } from "../../../combat/index.js";
+import { COMBAT_ACTION_NAME_STRINGS, COMBAT_ACTIONS } from "../../../combat/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 
 export class ActionEntityMotionActionResolutionStep extends EntityMotionActionResolutionStep {
@@ -28,8 +32,22 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
 
     const stepConfig = action.stepsConfig.getStepConfigOption(stepType);
     if (!stepConfig) throw new Error("expected step config not found");
-    if (stepConfig.getDespawnOnCompleteCleanupModeOption)
-      update.despawnOnCompleteMode = stepConfig.getDespawnOnCompleteCleanupModeOption(context);
+
+    if (stepConfig.getDespawnOnCompleteCleanupModeOption) {
+      const cleanupModeOption = stepConfig.getDespawnOnCompleteCleanupModeOption(context);
+      if (cleanupModeOption !== null) {
+        update.despawnOnCompleteMode = cleanupModeOption;
+        console.log(
+          "set despawn mode for action:",
+          COMBAT_ACTION_NAME_STRINGS[action.name],
+          cleanupModeOption,
+          "in step:",
+          ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepType],
+          "for entity",
+          actionEntity.getEntityId()
+        );
+      }
+    }
 
     if (stepConfig.getNewParent) update.setParent = stepConfig.getNewParent(context);
 
@@ -63,22 +81,22 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
     if (!(actionUser instanceof ActionEntity))
       throw new Error("expected only actions used action entities to have this step");
 
-    const { actionName } = context.tracker.actionExecutionIntent;
-    const action = COMBAT_ACTIONS[actionName];
+    const gameUpdateCommand = context.tracker.currentStep.getGameUpdateCommandOption();
 
-    const stepConfig = action.stepsConfig.getStepConfigOption(this.type);
+    if (
+      gameUpdateCommand &&
+      gameUpdateCommand.type === GameUpdateCommandType.ActionEntityMotion &&
+      gameUpdateCommand.mainEntityUpdate.despawnOnCompleteMode !== undefined
+    ) {
+      console.log("!!!unregisterActionEntity because it was set to despawn");
+      const { party } = context.actionUserContext;
 
-    if (!stepConfig) throw new Error("expected step config not found");
-    if (!stepConfig.getDespawnOnCompleteCleanupModeOption) return [];
-    const despawnOnComplete = stepConfig.getDespawnOnCompleteCleanupModeOption(context);
-    if (!despawnOnComplete) return [];
-    const { party } = context.actionUserContext;
-
-    AdventuringParty.unregisterActionEntity(
-      party,
-      actionUser.entityProperties.id,
-      AdventuringParty.getBattleOption(party, context.actionUserContext.game)
-    );
+      AdventuringParty.unregisterActionEntity(
+        party,
+        actionUser.entityProperties.id,
+        AdventuringParty.getBattleOption(party, context.actionUserContext.game)
+      );
+    }
 
     return [];
   }

@@ -45,12 +45,7 @@ const config: CombatActionComponentConfig = {
         actionName = CombatActionName.CounterattackRangedMainhand;
       }
 
-      return [
-        {
-          actionExecutionIntent: new CombatActionExecutionIntent(actionName, rank, targets),
-          user: actionUser,
-        },
-      ];
+      return [new CombatActionExecutionIntent(actionName, rank, targets)];
     },
   },
 };

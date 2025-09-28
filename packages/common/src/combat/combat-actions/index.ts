@@ -33,6 +33,7 @@ import { ActionResolutionStepsConfig } from "./combat-action-steps-config.js";
 import { AbilityTreeAbility } from "../../abilities/index.js";
 import { CombatActionCombatLogProperties } from "./combat-action-combat-log-properties.js";
 import { IActionUser } from "../../action-user-context/action-user.js";
+import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
 
 export interface CombatActionComponentConfig {
   // unique to each action
@@ -157,13 +158,13 @@ export interface CombatActionHierarchyProperties {
   getChildren: (
     context: ActionResolutionStepContext,
     self: CombatActionComponent
-  ) => ActionIntentAndUser[];
+  ) => CombatActionExecutionIntent[];
   getParent: () => CombatActionComponent | null;
   getConcurrentSubActions?: (context: ActionResolutionStepContext) => ActionIntentAndUser[];
 }
 
 export const BASE_ACTION_HIERARCHY_PROPERTIES: CombatActionHierarchyProperties = {
-  getChildren: function (context: ActionResolutionStepContext): ActionIntentAndUser[] {
+  getChildren: function (context: ActionResolutionStepContext): CombatActionExecutionIntent[] {
     return [];
   },
   getParent: function (): CombatActionComponent | null {

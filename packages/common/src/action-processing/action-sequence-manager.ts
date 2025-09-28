@@ -1,4 +1,8 @@
-import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../combat/index.js";
+import {
+  COMBAT_ACTION_NAME_STRINGS,
+  COMBAT_ACTIONS,
+  CombatActionExecutionIntent,
+} from "../combat/index.js";
 import { ActionSequenceManagerRegistry } from "./action-sequence-manager-registry.js";
 import { NestedNodeReplayEvent, NestedNodeReplayEventUtls } from "./replay-events.js";
 import { ActionTracker } from "./action-tracker.js";
@@ -64,6 +68,8 @@ export class ActionSequenceManager {
 
     if (!nextActionExecutionIntentOption)
       throw new Error("Tried to process next action but there wasn't one");
+
+    this.sequentialActionManagerRegistry.incrementInputLockReferenceCount();
 
     let previousTrackerOption: null | ActionTracker = null;
     if (this.trackerThatSpawnedThisActionOption) {

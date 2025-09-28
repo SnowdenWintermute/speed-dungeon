@@ -43,7 +43,6 @@ export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
         }
 
         context.tracker.spawnedEntities.push(spawnableEntity);
-        console.log("pushed spawnableEntity to tracker");
       }
 
       gameUpdateCommand = {

@@ -1,18 +1,10 @@
-import {
-  ActionEntity,
-  ActionEntityName,
-  ActionEntityProperties,
-} from "../../../../action-entities/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
-import { HoldableSlotType } from "../../../../items/equipment/slots.js";
+import { CombatantProperties } from "../../../../combatants/index.js";
 import {
   CombatantBaseChildTransformNodeName,
-  CombatantHoldableChildTransformNodeName,
   SceneEntityChildTransformNodeIdentifier,
-  SceneEntityChildTransformNodeIdentifierWithDuration,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
-import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { CleanupMode } from "../../../../types.js";
 import { throwIfError } from "../../../../utils/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
@@ -27,109 +19,37 @@ import { COMBAT_ACTIONS } from "../index.js";
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
 stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {};
-// const { actionUserContext, tracker } = context;
-// const {actionUser}=actionUserContext
 
-// const userPositionOption = actionUser.getPositionOption();
-// if (userPositionOption === null) throw new Error("expected a position here");
-// let position = userPositionOption.clone();
-
-// let parentOption: undefined | SceneEntityChildTransformNodeIdentifier;
-
-// const targetingCalculator = new TargetingCalculator(actionUserContext, null);
-// const primaryTargetId = throwIfError(
-//   targetingCalculator.getPrimaryTargetCombatantId(tracker.actionExecutionIntent)
-// );
-
-// const targetModelHitboxIdentifier: SceneEntityChildTransformNodeIdentifier = {
-//   sceneEntityIdentifier: {
-//     type: SceneEntityType.CharacterModel,
-//     entityId: primaryTargetId,
-//   },
-//   transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
-// };
-
-// const initialPointToward: SceneEntityChildTransformNodeIdentifier = targetModelHitboxIdentifier;
-
-// const initialLockRotationToFace: SceneEntityChildTransformNodeIdentifierWithDuration = {
-//   identifier: targetModelHitboxIdentifier,
-//   duration: 1,
-// };
-
-// let initialCosmeticYPosition: undefined | SceneEntityChildTransformNodeIdentifier;
-
-// const previousTrackerOption = tracker.getPreviousTrackerInSequenceOption();
-
-// if (previousTrackerOption === null) throw new Error("expected to be a child action");
-
-// const projectile = actionUserContext.actionUser;
-
-// const wasSpawnedByAnotherArrow =
-//   previousTrackerOption.actionExecutionIntent.actionName ===
-//   CombatActionName.ChainingSplitArrowProjectile;
-
-// if (wasSpawnedByAnotherArrow) {
-//   // was spawned by previous arrow action in chain
-
-//   const targetingCalculator = new TargetingCalculator(
-//     previousTrackerOption.parentActionManager.actionUserContext,
-//     null
-//   );
-//   const previousActionTargetId = throwIfError(
-//     targetingCalculator.getPrimaryTargetCombatantId(previousTrackerOption.actionExecutionIntent)
-//   );
-
-//   position = projectile.getActionEntityProperties().position.clone();
-
-//   initialCosmeticYPosition = {
-//     sceneEntityIdentifier: {
-//       type: SceneEntityType.CharacterModel,
-//       entityId: previousActionTargetId,
-//     },
-//     transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
-//   };
-// } else {
-//   // was spawned by initial parent action
-//   const combatantUserOfParentAction = previousTrackerOption.user;
-
-//   parentOption = {
-//     sceneEntityIdentifier: {
-//       type: SceneEntityType.CharacterEquipmentModel,
-//       characterModelId: combatantUserOfParentAction.getEntityId(),
-//       slot: HoldableSlotType.MainHand,
-//     },
-//     transformNodeName: CombatantHoldableChildTransformNodeName.NockBone,
-//   };
-// }
-
-// const actionEntityProperties: ActionEntityProperties = {
-//   position,
-//   name: ActionEntityName.Arrow,
-//   initialPointToward,
-//   initialLockRotationToFace,
-//   actionOriginData: { spawnedBy: actionUserContext.actionUser.getEntityProperties() },
-// };
-
-// if (parentOption) {
-//   actionEntityProperties.parentOption = parentOption;
-// }
-
-// if (initialCosmeticYPosition)
-//   actionEntityProperties.initialCosmeticYPosition = initialCosmeticYPosition;
-
-// const spawnedEntity = new ActionEntity(
-//   { id: context.idGenerator.generate(), name: "chaining split arrow projectile" },
-//   actionEntityProperties
-// );
-
-// return [
-//   {
-//     type: SpawnableEntityType.ActionEntity,
-//     actionEntity: spawnedEntity,
-//   },
-// ];
+const millisecondsDurationForInitialSplitArrowsToFaceTarget = 200;
 
 stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
+  getStartPointingToward: (context) => {
+    const { actionUserContext, tracker } = context;
+
+    const targetingCalculator = new TargetingCalculator(actionUserContext, null);
+    const primaryTargetId = throwIfError(
+      targetingCalculator.getPrimaryTargetCombatantId(tracker.actionExecutionIntent)
+    );
+
+    const targetModelHitboxIdentifier: SceneEntityChildTransformNodeIdentifier = {
+      sceneEntityIdentifier: {
+        type: SceneEntityType.CharacterModel,
+        entityId: primaryTargetId,
+      },
+      transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
+    };
+
+    const previousTrackerOption = tracker.getPreviousTrackerInSequenceOption();
+
+    const wasSpawnedByAnotherArrow =
+      previousTrackerOption?.actionExecutionIntent.actionName ===
+      CombatActionName.ChainingSplitArrowProjectile;
+
+    let durationToPoint = millisecondsDurationForInitialSplitArrowsToFaceTarget;
+    if (wasSpawnedByAnotherArrow) durationToPoint = 0;
+
+    return { identifier: targetModelHitboxIdentifier, duration: durationToPoint };
+  },
   getCosmeticDestinationY: (context) => {
     const { tracker } = context;
     const targetingCalculator = new TargetingCalculator(context.actionUserContext, null);
@@ -166,13 +86,50 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
     if (primaryTargetResult instanceof Error) return primaryTargetResult;
     const target = primaryTargetResult;
 
-    console.log("got projectile destination for user", actionUserContext.actionUser.getName());
-
     return { position: target.combatantProperties.homeLocation.clone() };
   },
   getNewParent: () => null,
+};
 
-  getDespawnOnCompleteCleanupModeOption: undefined,
+const finalStepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> =
+  {};
+
+finalStepOverrides[ActionResolutionStepType.ActionEntityDissipationMotion] = {
+  getDespawnOnCompleteCleanupModeOption: (context) => {
+    console.log("CHECK TO DESPAWN CHAINING_SPLIT_ARROW_PROJECTILE");
+    const action = COMBAT_ACTIONS[CombatActionName.ChainingSplitArrowProjectile];
+    const children = action.hierarchyProperties.getChildren(context, action);
+    if (children.length === 0) {
+      console.log("no child actions, despawn ChainingSplitArrowProjectile");
+      return CleanupMode.Soft;
+    }
+
+    const { actionUserContext, tracker } = context;
+    const { actionExecutionIntent } = tracker;
+
+    const targetingCalculator = new TargetingCalculator(actionUserContext, null);
+
+    const { party } = actionUserContext;
+    const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
+      party,
+      actionExecutionIntent
+    );
+
+    const combatantNotFound = primaryTargetResult instanceof Error;
+    if (combatantNotFound) {
+      console.log("combatant not found, despawn ChainingSplitArrowProjectile");
+      return CleanupMode.Soft;
+    }
+    const targetIsDead = CombatantProperties.isDead(primaryTargetResult.combatantProperties);
+    if (targetIsDead) {
+      console.log("target is dead, despawn ChainingSplitArrowProjectile");
+      return CleanupMode.Soft;
+    }
+
+    console.log("not despawning ChainingSplitArrowProjectile");
+
+    return null;
+  },
 };
 
 stepOverrides[ActionResolutionStepType.DetermineChildActions] = {};
@@ -180,4 +137,5 @@ stepOverrides[ActionResolutionStepType.DetermineChildActions] = {};
 const base = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.PROJECTILE_ENTITY;
 export const CHAINING_SPLIT_ARROW_PROJECTILE_STEPS_CONFIG = createStepsConfig(base, {
   steps: stepOverrides,
+  finalSteps: finalStepOverrides,
 });

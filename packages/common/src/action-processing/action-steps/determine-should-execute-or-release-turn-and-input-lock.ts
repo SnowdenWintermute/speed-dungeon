@@ -1,5 +1,9 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { ActionPayableResource, COMBAT_ACTIONS } from "../../combat/index.js";
+import {
+  ActionPayableResource,
+  COMBAT_ACTION_NAME_STRINGS,
+  COMBAT_ACTIONS,
+} from "../../combat/index.js";
 import {
   ActionIntentAndUser,
   ActionResolutionStep,
@@ -41,6 +45,8 @@ export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends
     if (shouldExecute) return;
 
     context.tracker.wasAborted = true;
+
+    console.log("not executing action:", COMBAT_ACTION_NAME_STRINGS[action.name]);
 
     const gameUpdateCommandOption = evaluatePlayerEndTurnAndInputLock(context);
     if (gameUpdateCommandOption) this.gameUpdateCommandOption = gameUpdateCommandOption;

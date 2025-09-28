@@ -2,6 +2,7 @@ import { ActionResolutionStepType } from "../../../../../action-processing/index
 import {
   CombatantBaseChildTransformNodeIdentifier,
   CombatantBaseChildTransformNodeName,
+  SceneEntityChildTransformNodeIdentifierWithDuration,
   SceneEntityType,
 } from "../../../../../scene-entities/index.js";
 import { CleanupMode } from "../../../../../types.js";
@@ -16,10 +17,31 @@ const config = new ActionResolutionStepsConfig(
     [ActionResolutionStepType.PreActionEntityMotionCheckEnvironmentalHazardTriggers]: {},
     [ActionResolutionStepType.OnActivationActionEntityMotion]: {
       getDestination: getPrimaryTargetPositionAsDestination,
-      getDespawnOnCompleteCleanupModeOption: () => CleanupMode.Soft,
-
       getNewParent: () => null,
       getEntityToLockOnTo: () => null,
+      getStartPointingToward: (context) => {
+        const { actionUserContext } = context;
+        const { party } = actionUserContext;
+        const targetingCalculator = new TargetingCalculator(actionUserContext, null);
+        const primaryTarget = targetingCalculator.getPrimaryTargetCombatant(
+          party,
+          context.tracker.actionExecutionIntent
+        );
+        if (primaryTarget instanceof Error) throw primaryTarget;
+
+        const startPointingToward: SceneEntityChildTransformNodeIdentifierWithDuration = {
+          identifier: {
+            sceneEntityIdentifier: {
+              type: SceneEntityType.CharacterModel,
+              entityId: primaryTarget.entityProperties.id,
+            },
+            transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
+          },
+          duration: 400,
+        };
+
+        return startPointingToward;
+      },
       getCosmeticDestinationY: (context) => {
         const { actionUserContext, tracker } = context;
         const { actionExecutionIntent } = tracker;
@@ -43,6 +65,9 @@ const config = new ActionResolutionStepsConfig(
     [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
   },
   {
+    [ActionResolutionStepType.ActionEntityDissipationMotion]: {
+      getDespawnOnCompleteCleanupModeOption: () => CleanupMode.Soft,
+    },
     [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
   },
   {

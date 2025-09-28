@@ -52,7 +52,9 @@ export interface ActionResolutionStepConfig {
   getDestination?(context: ActionResolutionStepContext): Error | null | EntityDestination;
   // @PERF - client could probably figure this out on their own or with more limited info
   // from server
-  getDespawnOnCompleteCleanupModeOption?: (context: ActionResolutionStepContext) => CleanupMode;
+  getDespawnOnCompleteCleanupModeOption?: (
+    context: ActionResolutionStepContext
+  ) => CleanupMode | null;
   getNewParent?: (
     context: ActionResolutionStepContext
   ) => SceneEntityChildTransformNodeIdentifierWithDuration | null;

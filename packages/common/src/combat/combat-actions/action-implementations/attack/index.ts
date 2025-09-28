@@ -48,12 +48,7 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
         actionName = CombatActionName.AttackRangedMainhand;
       }
 
-      return [
-        {
-          actionExecutionIntent: new CombatActionExecutionIntent(actionName, rank, targets),
-          user: actionUser,
-        },
-      ];
+      return [new CombatActionExecutionIntent(actionName, rank, targets)];
     },
   },
   stepsConfig: new ActionResolutionStepsConfig(
