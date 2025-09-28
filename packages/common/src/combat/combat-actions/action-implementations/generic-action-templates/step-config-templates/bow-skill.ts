@@ -110,7 +110,7 @@ base.steps[ActionResolutionStepType.DeliveryMotion] = {
     getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.BowDelivery, false),
 
   getEquipmentAnimations: getBowEquipmentAnimation,
-  getAuxiliaryEntityMotions: lockArrowToFaceArrowRest,
+  getAuxiliaryEntityMotions: lockArrowsToFaceArrowRest,
 };
 
 base.finalSteps[ActionResolutionStepType.RecoveryMotion] = {
@@ -163,60 +163,63 @@ function getBowEquipmentAnimation(
   return [equipmentAnimation];
 }
 
-function lockArrowToFaceArrowRest(context: ActionResolutionStepContext) {
-  const actionEntity = context.tracker.getFirstExpectedSpawnedActionEntity();
-
-  const combatantProperties = context.actionUserContext.actionUser.getCombatantProperties();
-  const bowOption = CombatantEquipment.getEquipmentInSlot(combatantProperties.equipment, {
-    type: EquipmentSlotType.Holdable,
-    slot: HoldableSlotType.MainHand,
-  });
-
-  if (!bowOption) {
-    console.error("expected combatant to be wearing a bow");
-    return [];
-  }
-
-  const actionEntityId = getSpawnableEntityId(actionEntity);
-
-  const characterModelId = context.actionUserContext.actionUser.getEntityId();
-
-  const parent: SceneEntityChildTransformNodeIdentifier = {
-    sceneEntityIdentifier: {
-      type: SceneEntityType.CharacterEquipmentModel,
-      characterModelId,
-      slot: HoldableSlotType.MainHand,
-    },
-    transformNodeName: CombatantHoldableChildTransformNodeName.NockBone,
-  };
-
-  const setParent: SceneEntityChildTransformNodeIdentifierWithDuration = {
-    identifier: parent,
-    duration: 400,
-  };
-
-  const arrowRestIdentifier: SceneEntityChildTransformNodeIdentifier = {
-    sceneEntityIdentifier: {
-      type: SceneEntityType.CharacterEquipmentModel,
-      characterModelId,
-      slot: HoldableSlotType.MainHand,
-    },
-    transformNodeName: CombatantHoldableChildTransformNodeName.ArrowRest,
-  };
-
-  const lockRotationToFace: SceneEntityChildTransformNodeIdentifierWithDuration = {
-    identifier: arrowRestIdentifier,
-    duration: 400,
-  };
-
+function lockArrowsToFaceArrowRest(context: ActionResolutionStepContext) {
   const toReturn: EntityMotionUpdate[] = [];
+  for (const spawnedEnity of context.tracker.spawnedEntities) {
+    if (spawnedEnity.type !== SpawnableEntityType.ActionEntity)
+      throw new Error("only expected action entities in lockArrowToFaceArrowRest");
+    const actionEntity = spawnedEnity;
 
-  toReturn.push({
-    entityId: actionEntityId,
-    entityType: SpawnableEntityType.ActionEntity,
-    setParent,
-    lockRotationToFace,
-  });
+    const combatantProperties = context.actionUserContext.actionUser.getCombatantProperties();
+    const bowOption = CombatantEquipment.getEquipmentInSlot(combatantProperties.equipment, {
+      type: EquipmentSlotType.Holdable,
+      slot: HoldableSlotType.MainHand,
+    });
+
+    if (!bowOption) {
+      console.error("expected combatant to be wearing a bow");
+      return [];
+    }
+
+    const actionEntityId = getSpawnableEntityId(actionEntity);
+
+    const characterModelId = context.actionUserContext.actionUser.getEntityId();
+
+    const parent: SceneEntityChildTransformNodeIdentifier = {
+      sceneEntityIdentifier: {
+        type: SceneEntityType.CharacterEquipmentModel,
+        characterModelId,
+        slot: HoldableSlotType.MainHand,
+      },
+      transformNodeName: CombatantHoldableChildTransformNodeName.NockBone,
+    };
+
+    const setParent: SceneEntityChildTransformNodeIdentifierWithDuration = {
+      identifier: parent,
+      duration: 400,
+    };
+
+    const arrowRestIdentifier: SceneEntityChildTransformNodeIdentifier = {
+      sceneEntityIdentifier: {
+        type: SceneEntityType.CharacterEquipmentModel,
+        characterModelId,
+        slot: HoldableSlotType.MainHand,
+      },
+      transformNodeName: CombatantHoldableChildTransformNodeName.ArrowRest,
+    };
+
+    const lockRotationToFace: SceneEntityChildTransformNodeIdentifierWithDuration = {
+      identifier: arrowRestIdentifier,
+      duration: 400,
+    };
+
+    toReturn.push({
+      entityId: actionEntityId,
+      entityType: SpawnableEntityType.ActionEntity,
+      setParent,
+      lockRotationToFace,
+    });
+  }
 
   return toReturn;
 }

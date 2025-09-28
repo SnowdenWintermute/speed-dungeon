@@ -26,109 +26,108 @@ import { COMBAT_ACTIONS } from "../index.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
-stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
-  getSpawnableEntities: (context) => {
-    const { actionUserContext, tracker } = context;
-    const userPositionOption = actionUserContext.actionUser.getPositionOption();
-    if (userPositionOption === null) throw new Error("expected a position here");
-    let position = userPositionOption.clone();
+stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {};
+// const { actionUserContext, tracker } = context;
+// const {actionUser}=actionUserContext
 
-    let parentOption: undefined | SceneEntityChildTransformNodeIdentifier;
+// const userPositionOption = actionUser.getPositionOption();
+// if (userPositionOption === null) throw new Error("expected a position here");
+// let position = userPositionOption.clone();
 
-    const targetingCalculator = new TargetingCalculator(actionUserContext, null);
-    const primaryTargetId = throwIfError(
-      targetingCalculator.getPrimaryTargetCombatantId(tracker.actionExecutionIntent)
-    );
+// let parentOption: undefined | SceneEntityChildTransformNodeIdentifier;
 
-    const targetModelHitboxIdentifier: SceneEntityChildTransformNodeIdentifier = {
-      sceneEntityIdentifier: {
-        type: SceneEntityType.CharacterModel,
-        entityId: primaryTargetId,
-      },
-      transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
-    };
+// const targetingCalculator = new TargetingCalculator(actionUserContext, null);
+// const primaryTargetId = throwIfError(
+//   targetingCalculator.getPrimaryTargetCombatantId(tracker.actionExecutionIntent)
+// );
 
-    const initialPointToward: SceneEntityChildTransformNodeIdentifier = targetModelHitboxIdentifier;
+// const targetModelHitboxIdentifier: SceneEntityChildTransformNodeIdentifier = {
+//   sceneEntityIdentifier: {
+//     type: SceneEntityType.CharacterModel,
+//     entityId: primaryTargetId,
+//   },
+//   transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
+// };
 
-    const initialLockRotationToFace: SceneEntityChildTransformNodeIdentifierWithDuration = {
-      identifier: targetModelHitboxIdentifier,
-      duration: 1,
-    };
+// const initialPointToward: SceneEntityChildTransformNodeIdentifier = targetModelHitboxIdentifier;
 
-    let initialCosmeticYPosition: undefined | SceneEntityChildTransformNodeIdentifier;
+// const initialLockRotationToFace: SceneEntityChildTransformNodeIdentifierWithDuration = {
+//   identifier: targetModelHitboxIdentifier,
+//   duration: 1,
+// };
 
-    const previousTrackerOption = tracker.getPreviousTrackerInSequenceOption();
+// let initialCosmeticYPosition: undefined | SceneEntityChildTransformNodeIdentifier;
 
-    if (previousTrackerOption === null) throw new Error("expected to be a child action");
+// const previousTrackerOption = tracker.getPreviousTrackerInSequenceOption();
 
-    const projectile = actionUserContext.actionUser;
+// if (previousTrackerOption === null) throw new Error("expected to be a child action");
 
-    const wasSpawnedByAnotherArrow =
-      previousTrackerOption.actionExecutionIntent.actionName ===
-      CombatActionName.ChainingSplitArrowProjectile;
+// const projectile = actionUserContext.actionUser;
 
-    if (wasSpawnedByAnotherArrow) {
-      // was spawned by previous arrow action in chain
+// const wasSpawnedByAnotherArrow =
+//   previousTrackerOption.actionExecutionIntent.actionName ===
+//   CombatActionName.ChainingSplitArrowProjectile;
 
-      const targetingCalculator = new TargetingCalculator(
-        previousTrackerOption.parentActionManager.actionUserContext,
-        null
-      );
-      const previousActionTargetId = throwIfError(
-        targetingCalculator.getPrimaryTargetCombatantId(previousTrackerOption.actionExecutionIntent)
-      );
+// if (wasSpawnedByAnotherArrow) {
+//   // was spawned by previous arrow action in chain
 
-      position = projectile.getActionEntityProperties().position.clone();
+//   const targetingCalculator = new TargetingCalculator(
+//     previousTrackerOption.parentActionManager.actionUserContext,
+//     null
+//   );
+//   const previousActionTargetId = throwIfError(
+//     targetingCalculator.getPrimaryTargetCombatantId(previousTrackerOption.actionExecutionIntent)
+//   );
 
-      initialCosmeticYPosition = {
-        sceneEntityIdentifier: {
-          type: SceneEntityType.CharacterModel,
-          entityId: previousActionTargetId,
-        },
-        transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
-      };
-    } else {
-      // was spawned by initial parent action
-      const combatantUserOfParentAction = previousTrackerOption.user;
+//   position = projectile.getActionEntityProperties().position.clone();
 
-      parentOption = {
-        sceneEntityIdentifier: {
-          type: SceneEntityType.CharacterEquipmentModel,
-          characterModelId: combatantUserOfParentAction.getEntityId(),
-          slot: HoldableSlotType.MainHand,
-        },
-        transformNodeName: CombatantHoldableChildTransformNodeName.NockBone,
-      };
-    }
+//   initialCosmeticYPosition = {
+//     sceneEntityIdentifier: {
+//       type: SceneEntityType.CharacterModel,
+//       entityId: previousActionTargetId,
+//     },
+//     transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
+//   };
+// } else {
+//   // was spawned by initial parent action
+//   const combatantUserOfParentAction = previousTrackerOption.user;
 
-    const actionEntityProperties: ActionEntityProperties = {
-      position,
-      name: ActionEntityName.Arrow,
-      initialPointToward,
-      initialLockRotationToFace,
-      actionOriginData: { spawnedBy: actionUserContext.actionUser.getEntityProperties() },
-    };
+//   parentOption = {
+//     sceneEntityIdentifier: {
+//       type: SceneEntityType.CharacterEquipmentModel,
+//       characterModelId: combatantUserOfParentAction.getEntityId(),
+//       slot: HoldableSlotType.MainHand,
+//     },
+//     transformNodeName: CombatantHoldableChildTransformNodeName.NockBone,
+//   };
+// }
 
-    if (parentOption) {
-      actionEntityProperties.parentOption = parentOption;
-    }
+// const actionEntityProperties: ActionEntityProperties = {
+//   position,
+//   name: ActionEntityName.Arrow,
+//   initialPointToward,
+//   initialLockRotationToFace,
+//   actionOriginData: { spawnedBy: actionUserContext.actionUser.getEntityProperties() },
+// };
 
-    if (initialCosmeticYPosition)
-      actionEntityProperties.initialCosmeticYPosition = initialCosmeticYPosition;
+// if (parentOption) {
+//   actionEntityProperties.parentOption = parentOption;
+// }
 
-    const spawnedEntity = new ActionEntity(
-      { id: context.idGenerator.generate(), name: "chaining split arrow projectile" },
-      actionEntityProperties
-    );
+// if (initialCosmeticYPosition)
+//   actionEntityProperties.initialCosmeticYPosition = initialCosmeticYPosition;
 
-    return [
-      {
-        type: SpawnableEntityType.ActionEntity,
-        actionEntity: spawnedEntity,
-      },
-    ];
-  },
-};
+// const spawnedEntity = new ActionEntity(
+//   { id: context.idGenerator.generate(), name: "chaining split arrow projectile" },
+//   actionEntityProperties
+// );
+
+// return [
+//   {
+//     type: SpawnableEntityType.ActionEntity,
+//     actionEntity: spawnedEntity,
+//   },
+// ];
 
 stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
   getCosmeticDestinationY: (context) => {
@@ -167,11 +166,13 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
     if (primaryTargetResult instanceof Error) return primaryTargetResult;
     const target = primaryTargetResult;
 
+    console.log("got projectile destination for user", actionUserContext.actionUser.getName());
+
     return { position: target.combatantProperties.homeLocation.clone() };
   },
   getNewParent: () => null,
 
-  getDespawnOnCompleteCleanupModeOption: () => CleanupMode.Soft,
+  getDespawnOnCompleteCleanupModeOption: undefined,
 };
 
 stepOverrides[ActionResolutionStepType.DetermineChildActions] = {};

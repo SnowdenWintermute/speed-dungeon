@@ -85,13 +85,6 @@ export class ActionTracker {
 
     if (stepOption === undefined) return null;
 
-    console.log(
-      "action:",
-      COMBAT_ACTION_NAME_STRINGS[this.actionExecutionIntent.actionName],
-      "initializeNextStep:",
-      ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepOption]
-    );
-
     const stepCreator = ACTION_STEP_CREATORS[stepOption];
     const newStep = stepCreator(context);
     this.currentStep = newStep;

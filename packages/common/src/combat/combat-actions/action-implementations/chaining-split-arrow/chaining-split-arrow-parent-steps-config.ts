@@ -37,7 +37,7 @@ const config = createStepsConfig(base, {
   finalSteps: finalStepOverrides,
 });
 
-// @REFACTOR
+// @REFACTOR - can probably remove this
 // @BADPRACTICE not really great, but this is to avoid igniting the dummy arrow. Not like we're ever going to walk in
 // an environmental hazard right in front of us anyway, but if ever we implement that we'll have to change this
 // delete config.steps[ActionResolutionStepType.PreInitialPositioningCheckEnvironmentalHazardTriggers];

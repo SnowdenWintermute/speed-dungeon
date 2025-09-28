@@ -81,7 +81,7 @@ const config: CombatActionComponentConfig = {
         .map((opponent, i) => {
           const expectedProjectile = context.tracker.spawnedEntities[i];
           if (expectedProjectile === undefined)
-            throw new Error("expected to have spawned the arrow by now");
+            throw new Error("expected to have spawned an arrow for each opponent");
           if (expectedProjectile.type !== SpawnableEntityType.ActionEntity)
             throw new Error("expected to have spawned an action entity");
 

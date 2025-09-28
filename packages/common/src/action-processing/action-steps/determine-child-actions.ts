@@ -17,30 +17,9 @@ export class DetermineChildActionsActionResolutionStep extends ActionResolutionS
 
     const children = currentAction.hierarchyProperties.getChildren(context, currentAction);
 
-    const childActionIntents = [];
-    for (const action of children) {
-      const targetsResult = action.targetingProperties.getAutoTarget(
-        context.actionUserContext,
-        context.tracker
-      );
-      if (targetsResult instanceof Error) {
-        console.error(targetsResult);
-        continue;
-      }
-      if (targetsResult === null) {
-        console.error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TARGETS_SELECTED);
-        continue;
-      }
-
-      const actionLevel = currentActionExecutionIntent.rank;
-
-      context.tracker.parentActionManager.sequentialActionManagerRegistry.incrementInputLockReferenceCount();
-      childActionIntents.push(
-        new CombatActionExecutionIntent(action.name, actionLevel, targetsResult)
-      );
-    }
-
-    context.tracker.parentActionManager.enqueueActionIntents(childActionIntents.reverse());
+    context.tracker.parentActionManager.enqueueActionIntents(
+      children.reverse().map((actionIntentAndUser) => actionIntentAndUser.actionExecutionIntent)
+    );
   }
 
   protected onTick = () => {};

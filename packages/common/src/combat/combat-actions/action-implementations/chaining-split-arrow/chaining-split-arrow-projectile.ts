@@ -2,6 +2,7 @@ import {
   CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
+  CombatActionExecutionIntent,
   CombatActionName,
   CombatActionOrigin,
   FriendOrFoe,
@@ -35,6 +36,8 @@ import {
   ACTION_EXECUTION_PRECONDITIONS,
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
+import { ActionResolutionStepContext } from "../../../../action-processing/index.js";
+import { Combatant, CombatantProperties } from "../../../../combatants/index.js";
 
 const targetingPropertiesOverrides: Partial<CombatActionTargetingPropertiesConfig> = {
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.RandomCombatant },
@@ -45,7 +48,7 @@ const targetingPropertiesOverrides: Partial<CombatActionTargetingPropertiesConfi
 
     const filteredPossibleTargetIds = getBouncableTargets(combatantContext, previousTrackerOption);
     if (filteredPossibleTargetIds instanceof Error) return filteredPossibleTargetIds;
-    const { possibleTargetIds, previousTargetId } = filteredPossibleTargetIds;
+    const { possibleTargetIds } = filteredPossibleTargetIds;
 
     if (possibleTargetIds.length === 0)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
@@ -94,32 +97,42 @@ const config: CombatActionComponentConfig = {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
 
     getChildren: (context) => {
+      const { actionUserContext, tracker } = context;
+      const { actionUser } = actionUserContext;
+
       // ex: if its parent was incinerated by firewall
-      if (context.actionUserContext.actionUser.wasRemovedBeforeHitOutcomes()) return [];
+      if (actionUser.wasRemovedBeforeHitOutcomes()) return [];
 
-      let cursor = context.tracker.getPreviousTrackerInSequenceOption();
-      let numBouncesSoFar = 0;
-      while (cursor) {
-        if (
-          cursor.actionExecutionIntent.actionName === CombatActionName.ChainingSplitArrowProjectile
-        )
-          numBouncesSoFar += 1;
-        cursor = cursor.getPreviousTrackerInSequenceOption();
-      }
+      const bounceCount = getPreviousBouncesCount(context);
 
-      const previousTrackerInSequenceOption = context.tracker.getPreviousTrackerInSequenceOption();
-      if (!previousTrackerInSequenceOption) return [];
-
-      const filteredPossibleTargetIdsResult = getBouncableTargets(
-        context.actionUserContext,
-        context.tracker
-      );
+      const filteredPossibleTargetIdsResult = getBouncableTargets(actionUserContext, tracker);
       if (filteredPossibleTargetIdsResult instanceof Error) return [];
 
-      if (numBouncesSoFar < MAX_BOUNCES && filteredPossibleTargetIdsResult.possibleTargetIds.length)
-        return [COMBAT_ACTIONS[CombatActionName.ChainingSplitArrowProjectile]];
+      const noValidTargetsRemain = !filteredPossibleTargetIdsResult.possibleTargetIds.length;
+      const bounceLimitReached = bounceCount >= MAX_BOUNCES;
 
-      return [];
+      const randomTargetIdResult = ArrayUtils.chooseRandom(
+        filteredPossibleTargetIdsResult.possibleTargetIds,
+        new BasicRandomNumberGenerator()
+      );
+      if (randomTargetIdResult instanceof Error) throw randomTargetIdResult;
+      const targetId = randomTargetIdResult;
+
+      if (bounceLimitReached || noValidTargetsRemain) return [];
+
+      const { actionExecutionIntent } = tracker;
+      const { rank } = actionExecutionIntent;
+
+      return [
+        {
+          actionExecutionIntent: new CombatActionExecutionIntent(
+            CombatActionName.ChainingSplitArrowProjectile,
+            rank,
+            { type: CombatActionTargetType.Single, targetId }
+          ),
+          user: actionUser,
+        },
+      ];
     },
     getParent: () => CHAINING_SPLIT_ARROW_PARENT,
   },
@@ -151,11 +164,29 @@ function getBouncableTargets(
   const opponentIds = entityIdsByDisposition[FriendOrFoe.Hostile];
   const opponents = AdventuringParty.getCombatants(party, opponentIds);
 
+  const isValidTarget = (combatant: Combatant) =>
+    !CombatantProperties.isDead(combatant.combatantProperties) &&
+    combatant.entityProperties.id !== previousTargetIdResult;
+
+  const possibleTargetIds = opponents
+    .filter(isValidTarget)
+    .map((combatant) => combatant.entityProperties.id);
+
   return {
-    possibleTargetIds: opponents
-      .filter((combatant) => combatant.combatantProperties.hitPoints > 0)
-      .map((combatant) => combatant.entityProperties.id)
-      .filter((id) => id !== previousTargetIdResult),
+    possibleTargetIds,
     previousTargetId: previousTargetIdResult,
   };
+}
+
+function getPreviousBouncesCount(context: ActionResolutionStepContext) {
+  let cursor = context.tracker.getPreviousTrackerInSequenceOption();
+  let bounceCount = 0;
+  while (cursor) {
+    const lookingAtProjectileActionTracker =
+      cursor.actionExecutionIntent.actionName === CombatActionName.ChainingSplitArrowProjectile;
+    if (lookingAtProjectileActionTracker) bounceCount += 1;
+    cursor = cursor.getPreviousTrackerInSequenceOption();
+  }
+
+  return bounceCount;
 }

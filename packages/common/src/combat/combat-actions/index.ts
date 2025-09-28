@@ -157,13 +157,13 @@ export interface CombatActionHierarchyProperties {
   getChildren: (
     context: ActionResolutionStepContext,
     self: CombatActionComponent
-  ) => CombatActionComponent[];
+  ) => ActionIntentAndUser[];
   getParent: () => CombatActionComponent | null;
   getConcurrentSubActions?: (context: ActionResolutionStepContext) => ActionIntentAndUser[];
 }
 
 export const BASE_ACTION_HIERARCHY_PROPERTIES: CombatActionHierarchyProperties = {
-  getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {
+  getChildren: function (context: ActionResolutionStepContext): ActionIntentAndUser[] {
     return [];
   },
   getParent: function (): CombatActionComponent | null {
