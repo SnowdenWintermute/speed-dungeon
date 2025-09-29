@@ -1,93 +1,18 @@
-import {
-  CombatActionHitOutcomeProperties,
-  CombatActionResource,
-} from "../../combat-action-hit-outcome-properties.js";
-import {
-  ResourceChangeSource,
-  ResourceChangeSourceCategory,
-  ResourceChangeSourceConfig,
-} from "../../../hp-change-source-types.js";
+import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
 import { MagicalElement } from "../../../magical-elements.js";
-import { NumberRange } from "../../../../primatives/number-range.js";
-import { addCombatantLevelScaledAttributeToRange } from "../../../action-results/action-hit-outcome-calculation/add-combatant-level-scaled-attribute-to-range.js";
-import { CombatAttribute } from "../../../../combatants/attributes/index.js";
-import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
-import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
-import { CombatantConditionName } from "../../../../combatants/index.js";
-import {
-  createHitOutcomeProperties,
-  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
-} from "../generic-action-templates/hit-outcome-properties-templates/index.js";
-import { ActionEntity } from "../../../../action-entities/index.js";
-
-const spellLevelHpChangeValueModifier = 0.75;
+import { createHitOutcomeProperties } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
+import { projectileSpellResourceChangeCalculatorFactory } from "../generic-action-templates/resource-change-calculation-templates/projectile-spell.js";
+import cloneDeep from "lodash.clonedeep";
+import { ICE_BOLT_PROJECTILE_HIT_OUTCOME_PROPERTIES } from "./ice-bolt-projectile-hit-outcome-properties.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 
-hitOutcomeOverrides.resourceChangePropertiesGetters = {
-  // @REFACTOR - combine with common spell hit outcome properties or "projectile spell" properties
-  [CombatActionResource.HitPoints]: (user, hitOutcomeProperties, actionLevel, primaryTarget) => {
-    const hpChangeSourceConfig: ResourceChangeSourceConfig = {
-      category: ResourceChangeSourceCategory.Magical,
-      kineticDamageTypeOption: null,
-      elementOption: MagicalElement.Ice,
-      isHealing: false,
-      lifestealPercentage: null,
-    };
+const base = cloneDeep(ICE_BOLT_PROJECTILE_HIT_OUTCOME_PROPERTIES);
 
-    const baseValues = new NumberRange(4, 8);
+hitOutcomeOverrides.resourceChangePropertiesGetters =
+  projectileSpellResourceChangeCalculatorFactory(MagicalElement.Ice);
 
-    // just get some extra damage for combatant level
-    baseValues.add(user.getLevel() - 1);
-
-    baseValues.mult(1 + spellLevelHpChangeValueModifier * (actionLevel - 1));
-
-    // get greater benefits from a certain attribute the higher level a combatant is
-    addCombatantLevelScaledAttributeToRange({
-      range: baseValues,
-      userTotalAttributes: user.getTotalAttributes(),
-      userLevel: user.getLevel(),
-      attribute: CombatAttribute.Spirit,
-      normalizedAttributeScalingByCombatantLevel: 1,
-    });
-
-    const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
-    const hpChangeProperties: CombatActionResourceChangeProperties = {
-      resourceChangeSource,
-      baseValues,
-    };
-
-    baseValues.floor(1);
-
-    return hpChangeProperties;
-  },
-};
-
-hitOutcomeOverrides.getAppliedConditions = (user, actionLevel) => {
-  // on the client when we get descriptions we need an appliedBy so we'll just take it
-  // from the combatant
-  let appliedBy;
-  if (user instanceof ActionEntity) {
-    const appliedByOption = user.getActionEntityProperties().actionOriginData?.spawnedBy;
-    if (appliedByOption === undefined)
-      throw new Error("expected ice bolt to have a spawnedBy field");
-    appliedBy = appliedByOption;
-  }
-
-  return [
-    {
-      conditionName: CombatantConditionName.PrimedForIceBurst,
-      level: actionLevel,
-      stacks: 1,
-      appliedBy: {
-        entityProperties: appliedBy || user.getEntityProperties(),
-        friendOrFoe: FriendOrFoe.Hostile,
-      },
-    },
-  ];
-};
-
-export const ICE_BOLT_PROJECTILE_HIT_OUTCOME_PROPERTIES = createHitOutcomeProperties(
-  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.PROJECTILE,
+export const ICE_BOLT_HIT_OUTCOME_PROPERTIES = createHitOutcomeProperties(
+  () => base,
   hitOutcomeOverrides
 );

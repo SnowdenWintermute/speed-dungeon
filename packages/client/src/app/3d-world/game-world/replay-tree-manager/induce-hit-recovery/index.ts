@@ -69,7 +69,9 @@ export function induceHitRecovery(
 
     const battleOption = AdventuringParty.getBattleOption(party, game);
 
-    if (combatantProperties.hitPoints <= 0) {
+    if (CombatantProperties.isDead(combatantProperties)) {
+      targetModel.cosmeticEffectManager.softCleanup(() => {});
+
       const combatantDiedOnTheirOwnTurn = (() => {
         if (battleOption === null) return false;
         return battleOption.turnOrderManager.combatantIsFirstInTurnOrder(targetId);

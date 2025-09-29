@@ -23,8 +23,6 @@ import {
   createCostPropertiesConfig,
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
-import { ATTACK_MELEE_OFF_HAND } from "./attack-melee-off-hand.js";
-import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 hitOutcomeOverrides.addsPropertiesFromHoldableSlot = HoldableSlotType.MainHand;

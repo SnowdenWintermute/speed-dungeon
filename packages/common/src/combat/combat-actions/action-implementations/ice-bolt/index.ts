@@ -8,7 +8,7 @@ import {
 } from "../../index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
-import { ICE_BOLT_PROJECTILE_HIT_OUTCOME_PROPERTIES } from "./ice-bolt-hit-outcome-properties.js";
+import { ICE_BOLT_HIT_OUTCOME_PROPERTIES } from "./ice-bolt-hit-outcome-properties.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { AbilityType } from "../../../../abilities/index.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
@@ -18,15 +18,8 @@ import {
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { CosmeticEffectInstructionFactory } from "../generic-action-templates/cosmetic-effect-factories/index.js";
-import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
-import { ActionEntity, ActionEntityName } from "../../../../action-entities/index.js";
-import { nameToPossessive } from "../../../../utils/index.js";
-import { Vector3 } from "@babylonjs/core";
-import {
-  CombatantBaseChildTransformNodeName,
-  SceneEntityType,
-} from "../../../../scene-entities/index.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
+import { ProjectileFactory } from "../generic-action-templates/projectile-factory.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.PROJECTILE_SPELL();
 
@@ -42,56 +35,13 @@ stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
   },
 };
 
-(stepsConfig.steps[ActionResolutionStepType.OnActivationSpawnEntity] = {
+stepsConfig.steps[ActionResolutionStepType.OnActivationSpawnEntity] = {
   getSpawnableEntities: (context) => {
-    const { actionUserContext } = context;
-    const { actionExecutionIntent } = context.tracker;
-    const { party, actionUser } = actionUserContext;
+    const projectileFactory = new ProjectileFactory(context, {});
 
-    const userPositionOption = actionUser.getPositionOption();
-    if (userPositionOption === null) throw new Error("expected position");
-    const position = userPositionOption.clone();
+    const actionEntity = projectileFactory.createIceBoltOnHand();
 
-    const targetingCalculator = new TargetingCalculator(actionUserContext, null);
-
-    const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
-      party,
-      actionExecutionIntent
-    );
-    if (primaryTargetResult instanceof Error) throw primaryTargetResult;
-    const target = primaryTargetResult;
-
-    const firedByCombatantName = actionUser.getName();
-
-    const actionEntity = new ActionEntity(
-      {
-        id: context.idGenerator.generate(),
-        name: `${nameToPossessive(firedByCombatantName)} ice bolt`,
-      },
-      {
-        position,
-        name: ActionEntityName.IceBolt,
-        initialRotation: new Vector3(Math.PI / 2, 0, 0),
-        parentOption: {
-          sceneEntityIdentifier: {
-            type: SceneEntityType.CharacterModel,
-            entityId: actionUser.getEntityId(),
-          },
-          transformNodeName: CombatantBaseChildTransformNodeName.OffhandEquipment,
-        },
-        initialPointToward: {
-          sceneEntityIdentifier: {
-            type: SceneEntityType.CharacterModel,
-            entityId: target.entityProperties.id,
-          },
-          transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
-        },
-        actionOriginData: {
-          spawnedBy: actionUser.getEntityProperties(),
-          userCombatantAttributes: actionUser.getTotalAttributes(),
-        },
-      }
-    );
+    console.log("ice bolt projectile created:", JSON.stringify(actionEntity, null, 2));
 
     return [
       {
@@ -100,16 +50,17 @@ stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
       },
     ];
   },
-}),
-  (stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning] = {
-    ...stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning],
-    getCosmeticEffectsToStop: (context) => [
-      CosmeticEffectInstructionFactory.createParticlesOnOffhand(
-        CosmeticEffectNames.FrostParticleAccumulation,
-        context
-      ),
-    ],
-  });
+};
+
+stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning] = {
+  ...stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning],
+  getCosmeticEffectsToStop: (context) => [
+    CosmeticEffectInstructionFactory.createParticlesOnOffhand(
+      CosmeticEffectNames.FrostParticleAccumulation,
+      context
+    ),
+  ],
+};
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,
@@ -125,7 +76,7 @@ const config: CombatActionComponentConfig = {
     CombatActionName.IceBoltProjectile
   ),
   targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE(),
-  hitOutcomeProperties: ICE_BOLT_PROJECTILE_HIT_OUTCOME_PROPERTIES,
+  hitOutcomeProperties: ICE_BOLT_HIT_OUTCOME_PROPERTIES,
   costProperties,
   stepsConfig,
 

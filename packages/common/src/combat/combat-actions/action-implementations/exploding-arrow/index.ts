@@ -1,55 +1,34 @@
 import cloneDeep from "lodash.clonedeep";
 import { AbilityType } from "../../../../abilities/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
-import { CombatantConditionName, CombatantTraitType } from "../../../../combatants/index.js";
+import { CombatantTraitType } from "../../../../combatants/index.js";
 import {
   CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionExecutionIntent,
+  CombatActionHitOutcomeProperties,
   CombatActionName,
   CombatActionOrigin,
-  FriendOrFoe,
 } from "../../index.js";
 import { ATTACK_RANGED_MAIN_HAND } from "../attack/attack-ranged-main-hand.js";
-import { ATTACK_RANGED_MAIN_HAND_PROJECTILE } from "../attack/attack-ranged-main-hand-projectile.js";
-import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import { ActionEntity } from "../../../../action-entities/index.js";
+import { EXPLODING_ARROW_PROJECTILE_HIT_OUTCOME_PROPERTIES } from "./exploding-arrow-projectile-hit-outcome-properties.js";
+import { createHitOutcomeProperties } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
+import { ARROW_RESOURCE_CHANGE_CALCULATORS } from "../generic-action-templates/resource-change-calculation-templates/arrow.js";
 
-// declaring the projectile properties in the parent action since doing the reverse
-// caused a circular dependency bug
-export const EXPLODING_ARROW_PROJECTILE_HIT_OUTCOME_PROPERTIES = cloneDeep(
-  ATTACK_RANGED_MAIN_HAND_PROJECTILE.hitOutcomeProperties
-);
-
-EXPLODING_ARROW_PROJECTILE_HIT_OUTCOME_PROPERTIES.getAppliedConditions = (user, actionLevel) => {
-  // on the client when we get descriptions we need an appliedBy so we'll just take it
-  // from the combatant
-  let appliedBy;
-  if (user instanceof ActionEntity) {
-    const appliedByOption = user.getActionEntityProperties().actionOriginData?.spawnedBy;
-    if (appliedByOption === undefined)
-      throw new Error("expected ice bolt to have a spawnedBy field");
-    appliedBy = appliedByOption;
-  }
-
-  return [
-    {
-      conditionName: CombatantConditionName.PrimedForExplosion,
-      level: actionLevel,
-      stacks: 1,
-      appliedBy: {
-        entityProperties: appliedBy || user.getEntityProperties(),
-        friendOrFoe: FriendOrFoe.Hostile,
-      },
-    },
-  ];
-};
+// the purpose of projectile parent hit outcome properties is to show a description
+// we'll clone the projectile's hit outcome properties so we can show the applied effects
+// then we'll replace the resource change getters with the equation used to roll the
+// values when the projectile is created since that takes a combatant which is what we'll
+// have when asking for a description
+const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
+const base = cloneDeep(EXPLODING_ARROW_PROJECTILE_HIT_OUTCOME_PROPERTIES);
+hitOutcomeOverrides.resourceChangePropertiesGetters = ARROW_RESOURCE_CHANGE_CALCULATORS;
+const hitOutcomeProperties = createHitOutcomeProperties(() => base, hitOutcomeOverrides);
 
 const config: CombatActionComponentConfig = {
   ...cloneDeep(ATTACK_RANGED_MAIN_HAND),
-  hitOutcomeProperties: EXPLODING_ARROW_PROJECTILE_HIT_OUTCOME_PROPERTIES,
-
+  hitOutcomeProperties,
   prerequisiteAbilities: [
     { type: AbilityType.Action, actionName: CombatActionName.Fire },
     { type: AbilityType.Trait, traitType: CombatantTraitType.ExtraHotswapSlot },
@@ -87,8 +66,4 @@ config.stepsConfig.steps[ActionResolutionStepType.PostActionUseCombatLogMessage]
 export const EXPLODING_ARROW_PARENT = new CombatActionComposite(
   CombatActionName.ExplodingArrowParent,
   config
-);
-
-EXPLODING_ARROW_PARENT.hitOutcomeProperties = cloneDeep(
-  EXPLODING_ARROW_PROJECTILE_HIT_OUTCOME_PROPERTIES
 );

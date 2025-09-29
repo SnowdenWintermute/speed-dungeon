@@ -56,6 +56,7 @@ import {
 import { CombatActionResourceChangeProperties } from "../../../combat-action-resource-change-properties.js";
 import { TargetingCalculator } from "../../../../targeting/targeting-calculator.js";
 import { RANGED_SKILL_STEPS_CONFIG } from "./ranged-skill.js";
+import { ProjectileFactory } from "../projectile-factory.js";
 
 const base = cloneDeep(RANGED_SKILL_STEPS_CONFIG);
 delete base.steps[ActionResolutionStepType.RollIncomingHitOutcomes];
@@ -78,16 +79,9 @@ base.steps = {
   },
   [ActionResolutionStepType.PostPrepSpawnEntity]: {
     getSpawnableEntities: (context) => {
-      const { actionUserContext } = context;
-      const { party } = actionUserContext;
-      const { actionExecutionIntent } = context.tracker;
+      const projectileFactory = new ProjectileFactory(context, {});
 
-      const targetingCalculator = new TargetingCalculator(actionUserContext, null);
-      const primaryTarget = throwIfError(
-        targetingCalculator.getPrimaryTargetCombatant(party, actionExecutionIntent)
-      );
-
-      const spawnableEntity = createBowAttackArrowProjectile(context, primaryTarget);
+      const spawnableEntity = projectileFactory.createArrowInHand();
 
       return [spawnableEntity];
     },
@@ -220,83 +214,4 @@ function lockArrowsToFaceArrowRest(context: ActionResolutionStepContext) {
   }
 
   return toReturn;
-}
-
-export function getBowAttackHitOutcomeProperties(
-  user: IActionUser,
-  hitOutcomeProperties: CombatActionHitOutcomeProperties,
-  actionRank: number,
-  primaryTargetCombatantProperties: CombatantProperties
-) {
-  // Get the resource change properties now and store them on the projectile. This way
-  // we can modify it in flight.
-  const resourceChangeProperties: Partial<
-    Record<CombatActionResource, CombatActionResourceChangeProperties>
-  > = {};
-  resourceChangeProperties[CombatActionResource.HitPoints] = getAttackResourceChangeProperties(
-    user,
-    hitOutcomeProperties,
-    actionRank,
-    primaryTargetCombatantProperties,
-    CombatAttribute.Dexterity,
-    // allow unusable weapons because it may be the case that the bow breaks
-    // but the projectile has yet to caluclate it's hit, and it should still consider
-    // the bow it was fired from
-    // it should never add weapon properties from an initially broken weapon because the projectile would not
-    // be allowed to be fired from a broken weapon
-    { usableWeaponsOnly: false }
-  );
-
-  return resourceChangeProperties;
-}
-
-export function createBowAttackArrowProjectile(
-  context: ActionResolutionStepContext,
-  target: Combatant
-): SpawnableEntity {
-  const { actionUserContext } = context;
-  const { actionUser } = actionUserContext;
-  const userPositionOption = actionUser.getPositionOption();
-  if (userPositionOption === null) throw new Error("expected position");
-  const position = userPositionOption.clone();
-
-  const firedByCombatantName = actionUser.getName();
-
-  const { actionExecutionIntent } = context.tracker;
-  const { actionName, rank } = actionExecutionIntent;
-  const action = COMBAT_ACTIONS[actionName];
-
-  const resourceChangeProperties = getBowAttackHitOutcomeProperties(
-    actionUser,
-    action.hitOutcomeProperties,
-    rank,
-    target.combatantProperties
-  );
-
-  return {
-    type: SpawnableEntityType.ActionEntity,
-    actionEntity: new ActionEntity(
-      {
-        id: context.idGenerator.generate(),
-        name: `${nameToPossessive(firedByCombatantName)} arrow`,
-      },
-      {
-        position,
-        name: ActionEntityName.Arrow,
-        initialRotation: new Vector3(Math.PI / 2, 0, 0),
-        parentOption: {
-          sceneEntityIdentifier: {
-            type: SceneEntityType.CharacterModel,
-            entityId: actionUser.getEntityId(),
-          },
-          transformNodeName: CombatantBaseChildTransformNodeName.MainHandEquipment,
-        },
-        actionOriginData: {
-          spawnedBy: actionUser.getEntityProperties(),
-          userCombatantAttributes: actionUser.getTotalAttributes(),
-          resourceChangeProperties,
-        },
-      }
-    ),
-  };
 }

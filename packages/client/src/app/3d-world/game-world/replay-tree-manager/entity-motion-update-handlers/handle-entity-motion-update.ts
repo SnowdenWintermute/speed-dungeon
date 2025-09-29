@@ -48,21 +48,26 @@ export function handleEntityMotionUpdate(
   if (motionUpdate.entityType === SpawnableEntityType.ActionEntity) {
     cosmeticDestinationYOption = motionUpdate.cosmeticDestinationY;
 
+    console.log(
+      "entity motion command:",
+      JSON.stringify(motionUpdate),
+      JSON.stringify(update),
+      ACTION_RESOLUTION_STEP_TYPE_STRINGS[update.command.step],
+      COMBAT_ACTION_NAME_STRINGS[update.command.actionName]
+    );
+
     const actionEntityModelOption = getGameWorld().actionEntityManager.findOne(
       motionUpdate.entityId,
       motionUpdate
     );
 
-    console.log(
-      "entity motion command:",
-      ACTION_RESOLUTION_STEP_TYPE_STRINGS[update.command.type],
-      "despawn mode:",
-      motionUpdate.despawnMode,
-      "despawnOnCompleteMode",
-      motionUpdate.despawnOnCompleteMode
-    );
-
     if (motionUpdate.despawnMode !== undefined) {
+      console.log(
+        ACTION_RESOLUTION_STEP_TYPE_STRINGS[update.command.step],
+        COMBAT_ACTION_NAME_STRINGS[update.command.actionName],
+        "DESPAWN ACTION ENTITY:",
+        motionUpdate.entityId
+      );
       despawnAndUnregisterActionEntity(motionUpdate.entityId, motionUpdate.despawnMode);
       return;
     }
@@ -83,12 +88,27 @@ export function handleEntityMotionUpdate(
     const { despawnOnCompleteMode } = motionUpdate;
 
     onTranslationComplete = () => {
-      if (despawnOnCompleteMode !== undefined)
+      if (despawnOnCompleteMode !== undefined) {
+        console.log(
+          ACTION_RESOLUTION_STEP_TYPE_STRINGS[update.command.step],
+          COMBAT_ACTION_NAME_STRINGS[update.command.actionName],
+          "DESPAWN ACTION ENTITY ON TRANSLATION COMPLETE:",
+          motionUpdate.entityId
+        );
+
         despawnAndUnregisterActionEntity(motionUpdate.entityId, despawnOnCompleteMode);
+      }
     };
     onAnimationComplete = () => {
-      if (despawnOnCompleteMode !== undefined)
+      if (despawnOnCompleteMode !== undefined) {
+        console.log(
+          ACTION_RESOLUTION_STEP_TYPE_STRINGS[update.command.step],
+          COMBAT_ACTION_NAME_STRINGS[update.command.actionName],
+          "DESPAWN ACTION ENTITY ON ANIMATION COMPLETE:",
+          motionUpdate.entityId
+        );
         despawnAndUnregisterActionEntity(motionUpdate.entityId, despawnOnCompleteMode);
+      }
     };
   }
 

@@ -6,7 +6,8 @@ import {
   ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
   createStepsConfig,
 } from "../generic-action-templates/step-config-templates/index.js";
-import { createBowAttackArrowProjectile } from "../generic-action-templates/step-config-templates/bow-skill.js";
+import { ProjectileFactory } from "../generic-action-templates/projectile-factory.js";
+import { COMBAT_ACTIONS } from "../index.js";
 
 const base = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BOW_SKILL;
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
@@ -26,7 +27,13 @@ stepOverrides[ActionResolutionStepType.PostPrepSpawnEntity] = {
 
     const projectileEntitiesToSpawn = opponents
       .filter((opponent) => opponent.combatantProperties.hitPoints > 0)
-      .map((opponent) => createBowAttackArrowProjectile(context, opponent));
+      .map((opponent) => {
+        const projectileFactory = new ProjectileFactory(context, {
+          defaultTargetOverride: opponent,
+        });
+
+        return projectileFactory.createArrowInHand();
+      });
 
     return projectileEntitiesToSpawn;
   },

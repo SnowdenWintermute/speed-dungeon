@@ -18,14 +18,14 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
   constructor(context: ActionResolutionStepContext, stepType: ActionResolutionStepType) {
     const { party, actionUser } = context.actionUserContext;
 
+    let actionEntity = actionUser; // try to act on the user first
     if (!(actionUser instanceof ActionEntity))
-      throw new Error("expected only actions used action entities to have this step");
-
-    const actionEntity = actionUser;
+      // otherwise check if the action has a spawned action entity
+      actionEntity = context.tracker.getFirstExpectedSpawnedActionEntity().actionEntity;
 
     const update: ActionEntityMotionUpdate = {
       entityType: SpawnableEntityType.ActionEntity,
-      entityId: actionEntity.entityProperties.id,
+      entityId: actionEntity.getEntityId(),
     };
 
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];

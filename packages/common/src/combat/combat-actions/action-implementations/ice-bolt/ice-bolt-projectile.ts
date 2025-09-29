@@ -6,7 +6,7 @@ import {
   CombatActionOrigin,
 } from "../../index.js";
 import { ICE_BOLT_PARENT } from "./index.js";
-import { ICE_BOLT_PROJECTILE_HIT_OUTCOME_PROPERTIES } from "./ice-bolt-hit-outcome-properties.js";
+import { ICE_BOLT_PROJECTILE_HIT_OUTCOME_PROPERTIES } from "./ice-bolt-projectile-hit-outcome-properties.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { ICE_BOLT_PROJECTILE_STEPS_CONFIG } from "./ice-bolt-projectile-steps-config.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
