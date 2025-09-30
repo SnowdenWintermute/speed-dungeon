@@ -18,11 +18,6 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
     super(stepType, context, null); // this step should produce no game update unless it is unlocking input
     const { party } = context.actionUserContext;
 
-    console.log(
-      "EvaluatePlayerEndTurnAndInputLockActionResolutionStep:",
-      COMBAT_ACTION_NAME_STRINGS[context.tracker.actionExecutionIntent.actionName]
-    );
-
     const gameUpdateCommandOption = evaluatePlayerEndTurnAndInputLock(context);
     if (gameUpdateCommandOption) {
       this.gameUpdateCommandOption = gameUpdateCommandOption;

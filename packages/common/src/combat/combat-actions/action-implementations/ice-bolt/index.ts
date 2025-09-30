@@ -41,8 +41,6 @@ stepsConfig.steps[ActionResolutionStepType.OnActivationSpawnEntity] = {
 
     const actionEntity = projectileFactory.createIceBoltOnHand();
 
-    console.log("ice bolt projectile created:", JSON.stringify(actionEntity, null, 2));
-
     return [
       {
         type: SpawnableEntityType.ActionEntity,

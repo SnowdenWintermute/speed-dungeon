@@ -153,12 +153,6 @@ export class ReplayBranchProcessor {
       return;
     }
 
-    console.log(
-      "processing replay node:",
-      ACTION_RESOLUTION_STEP_TYPE_STRINGS[node.gameUpdate.step],
-      JSON.stringify(node, null, 2)
-    );
-
     this.currentGameUpdateOption = { command: node.gameUpdate, isComplete: false };
 
     // Any update may include cosmetic effect updates

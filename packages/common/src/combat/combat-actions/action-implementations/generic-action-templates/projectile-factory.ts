@@ -68,8 +68,6 @@ export class ProjectileFactory {
     if (userPositionOption === null) throw new Error("expected position");
     this.startPosition = userPositionOption.clone();
 
-    console.log("creating projectile with action rank", rank);
-
     for (const [resource, changePropertiesGetter] of iterateNumericEnumKeyedRecord(
       this.resourceChangeCalculators
     )) {
@@ -79,8 +77,6 @@ export class ProjectileFactory {
         rank,
         this.target.combatantProperties
       );
-
-      console.log("change properties:", JSON.stringify(changeProperties, null, 2));
 
       if (changeProperties === null) continue;
       this.resourceChangeProperties[resource] = changeProperties;

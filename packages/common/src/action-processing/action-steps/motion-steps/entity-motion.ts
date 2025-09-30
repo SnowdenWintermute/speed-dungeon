@@ -29,18 +29,21 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   constructor(
     stepType: ActionResolutionStepType,
     context: ActionResolutionStepContext,
-    private gameUpdateCommand:
+    gameUpdateCommand:
+      | null
       | CombatantMotionGameUpdateCommand
       | ActionEntityMotionGameUpdateCommand,
     private actionUser: IActionUser
   ) {
     super(stepType, context, gameUpdateCommand);
 
+    if (gameUpdateCommand === null) return;
+
     const { actionExecutionIntent } = context.tracker;
 
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
 
-    const { mainEntityUpdate } = this.gameUpdateCommand;
+    const { mainEntityUpdate } = gameUpdateCommand;
 
     const delayOption = this.getDelay();
     this.delayOption = delayOption;

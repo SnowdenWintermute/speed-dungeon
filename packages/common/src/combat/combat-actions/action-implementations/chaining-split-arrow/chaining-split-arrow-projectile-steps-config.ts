@@ -18,8 +18,6 @@ import { COMBAT_ACTIONS } from "../index.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
-stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {};
-
 const millisecondsDurationForInitialSplitArrowsToFaceTarget = 200;
 
 stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
@@ -135,7 +133,9 @@ finalStepOverrides[ActionResolutionStepType.ActionEntityDissipationMotion] = {
 stepOverrides[ActionResolutionStepType.DetermineChildActions] = {};
 
 const base = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.PROJECTILE_ENTITY;
-export const CHAINING_SPLIT_ARROW_PROJECTILE_STEPS_CONFIG = createStepsConfig(base, {
+const config = createStepsConfig(base, {
   steps: stepOverrides,
   finalSteps: finalStepOverrides,
 });
+
+export const CHAINING_SPLIT_ARROW_PROJECTILE_STEPS_CONFIG = config;

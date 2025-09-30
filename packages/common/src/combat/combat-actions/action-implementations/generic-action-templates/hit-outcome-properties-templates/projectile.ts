@@ -13,11 +13,6 @@ export const PROJECTILE_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties
           CombatActionResource.HitPoints
         ];
 
-      console.log(
-        "projectile hp change properties:",
-        JSON.stringify(resourceChangeProperties, null, 2)
-      );
-
       if (resourceChangeProperties === undefined)
         throw new Error("expected projectile to have stored a resource change properties object");
       return resourceChangeProperties;
