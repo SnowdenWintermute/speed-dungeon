@@ -12,7 +12,7 @@ export * from "./combat-action-accuracy.js";
 export * from "./combat-action-combat-log-properties.js";
 
 import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js";
-import { CombatActionName } from "./combat-action-names.js";
+import { COMBAT_ACTION_NAME_STRINGS, CombatActionName } from "./combat-action-names.js";
 import { Battle } from "../../battle/index.js";
 import { ActionAccuracyType } from "./combat-action-accuracy.js";
 import {
@@ -86,6 +86,10 @@ export abstract class CombatActionComponent {
     this.stepsConfig = config.stepsConfig;
 
     this.hierarchyProperties = config.hierarchyProperties;
+  }
+
+  getStringName() {
+    return COMBAT_ACTION_NAME_STRINGS[this.name];
   }
 
   shouldExecute(

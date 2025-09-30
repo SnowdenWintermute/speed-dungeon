@@ -50,8 +50,8 @@ export function handleEntityMotionUpdate(
 
     console.log(
       "entity motion command:",
-      JSON.stringify(motionUpdate),
-      JSON.stringify(update),
+      JSON.stringify(motionUpdate, null, 2),
+      JSON.stringify(update, null, 2),
       ACTION_RESOLUTION_STEP_TYPE_STRINGS[update.command.step],
       COMBAT_ACTION_NAME_STRINGS[update.command.actionName]
     );
@@ -61,16 +61,7 @@ export function handleEntityMotionUpdate(
       motionUpdate
     );
 
-    if (motionUpdate.despawnMode !== undefined) {
-      console.log(
-        ACTION_RESOLUTION_STEP_TYPE_STRINGS[update.command.step],
-        COMBAT_ACTION_NAME_STRINGS[update.command.actionName],
-        "DESPAWN ACTION ENTITY:",
-        motionUpdate.entityId
-      );
-      despawnAndUnregisterActionEntity(motionUpdate.entityId, motionUpdate.despawnMode);
-      return;
-    }
+    let alreadyDespawned = false;
 
     if (motionUpdate.setParent !== undefined)
       handleEntityMotionSetNewParentUpdate(actionEntityModelOption, motionUpdate.setParent);
@@ -88,7 +79,7 @@ export function handleEntityMotionUpdate(
     const { despawnOnCompleteMode } = motionUpdate;
 
     onTranslationComplete = () => {
-      if (despawnOnCompleteMode !== undefined) {
+      if (despawnOnCompleteMode !== undefined && !alreadyDespawned) {
         console.log(
           ACTION_RESOLUTION_STEP_TYPE_STRINGS[update.command.step],
           COMBAT_ACTION_NAME_STRINGS[update.command.actionName],
@@ -97,10 +88,11 @@ export function handleEntityMotionUpdate(
         );
 
         despawnAndUnregisterActionEntity(motionUpdate.entityId, despawnOnCompleteMode);
+        alreadyDespawned = true;
       }
     };
     onAnimationComplete = () => {
-      if (despawnOnCompleteMode !== undefined) {
+      if (despawnOnCompleteMode !== undefined && !alreadyDespawned) {
         console.log(
           ACTION_RESOLUTION_STEP_TYPE_STRINGS[update.command.step],
           COMBAT_ACTION_NAME_STRINGS[update.command.actionName],
@@ -108,8 +100,13 @@ export function handleEntityMotionUpdate(
           motionUpdate.entityId
         );
         despawnAndUnregisterActionEntity(motionUpdate.entityId, despawnOnCompleteMode);
+        alreadyDespawned = true;
       }
     };
+
+    if (!translationOption && !animationOption && despawnOnCompleteMode !== undefined) {
+      despawnAndUnregisterActionEntity(motionUpdate.entityId, despawnOnCompleteMode);
+    }
   }
 
   if (motionUpdate.entityType === SpawnableEntityType.Combatant) {
@@ -125,14 +122,16 @@ export function handleEntityMotionUpdate(
     update
   );
 
-  handleUpdateTranslation(
-    motionUpdate,
-    translationOption,
-    cosmeticDestinationYOption,
-    updateCompletionTracker,
-    update,
-    onTranslationComplete
-  );
+  if (translationOption) {
+    handleUpdateTranslation(
+      motionUpdate,
+      translationOption,
+      cosmeticDestinationYOption,
+      updateCompletionTracker,
+      update,
+      onTranslationComplete
+    );
+  }
 
   if (rotationOption) {
     const toUpdate = getSceneEntityToUpdate(motionUpdate);

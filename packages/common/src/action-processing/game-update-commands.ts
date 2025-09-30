@@ -97,7 +97,6 @@ export interface TargetCombatantChildTransformNodeWithDuration {
 export interface ActionEntityMotionUpdate extends IEntityMotionUpdate {
   entityType: SpawnableEntityType.ActionEntity;
   cosmeticDestinationY?: SceneEntityChildTransformNodeIdentifier;
-  despawnMode?: CleanupMode;
   despawnOnCompleteMode?: CleanupMode;
   setParent?: SceneEntityChildTransformNodeIdentifierWithDuration | null;
   lockRotationToFace?: SceneEntityChildTransformNodeIdentifierWithDuration | null;

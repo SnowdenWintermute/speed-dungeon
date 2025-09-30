@@ -24,37 +24,15 @@ import {
   TwoHandedRangedWeapon,
 } from "../../../../../items/equipment/index.js";
 import { getRotateTowardPrimaryTargetDestination } from "../../common-destination-getters.js";
+import { CombatantEquipment, CombatantSpecies } from "../../../../../combatants/index.js";
+import { SpawnableEntityType, getSpawnableEntityId } from "../../../../../spawnables/index.js";
 import {
-  Combatant,
-  CombatantEquipment,
-  CombatantProperties,
-  CombatantSpecies,
-  CombatAttribute,
-} from "../../../../../combatants/index.js";
-import {
-  SpawnableEntity,
-  SpawnableEntityType,
-  getSpawnableEntityId,
-} from "../../../../../spawnables/index.js";
-import {
-  CombatantBaseChildTransformNodeName,
   CombatantHoldableChildTransformNodeName,
   SceneEntityChildTransformNodeIdentifier,
   SceneEntityChildTransformNodeIdentifierWithDuration,
   SceneEntityType,
 } from "../../../../../scene-entities/index.js";
-import { ActionEntity, ActionEntityName } from "../../../../../action-entities/index.js";
-import { Vector3 } from "@babylonjs/core";
-import { nameToPossessive, throwIfError } from "../../../../../utils/index.js";
 import { IActionUser } from "../../../../../action-user-context/action-user.js";
-import { getAttackResourceChangeProperties } from "../../attack/get-attack-resource-change-properties.js";
-import { COMBAT_ACTIONS } from "../../index.js";
-import {
-  CombatActionHitOutcomeProperties,
-  CombatActionResource,
-} from "../../../combat-action-hit-outcome-properties.js";
-import { CombatActionResourceChangeProperties } from "../../../combat-action-resource-change-properties.js";
-import { TargetingCalculator } from "../../../../targeting/targeting-calculator.js";
 import { RANGED_SKILL_STEPS_CONFIG } from "./ranged-skill.js";
 import { ProjectileFactory } from "../projectile-factory.js";
 

@@ -1,4 +1,3 @@
-import cloneDeep from "lodash.clonedeep";
 import { NumberRange } from "../../../../primatives/number-range.js";
 import {
   ResourceChangeSource,
@@ -49,17 +48,26 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
 };
 
 hitOutcomeOverrides.getAppliedConditions = (actionUser, actionlevel) => {
+  const originalActionUserCombatant =
+    actionUser.getActionEntityProperties().actionOriginData?.spawnedBy;
+  if (originalActionUserCombatant === undefined)
+    throw new Error("expected original ice bolt user here");
+
+  const appliedBy = {
+    entityProperties: originalActionUserCombatant,
+    friendOrFoe: FriendOrFoe.Hostile, // debatable that we should say they are always hostile for purposes of threat calculation
+  };
   return [
     {
       conditionName: CombatantConditionName.PrimedForIceBurst,
       level: actionUser.getLevel(),
       stacks: 1,
-      appliedBy: actionUser.getConditionAppliedBy(),
+      appliedBy,
     },
   ];
 };
 
-export const ICE_BURST_HIT_OUTCOME_PROPERTIES = createHitOutcomeProperties(
+export const ICE_BURST_EXPLOSION_HIT_OUTCOME_PROPERTIES = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL,
   hitOutcomeOverrides
 );

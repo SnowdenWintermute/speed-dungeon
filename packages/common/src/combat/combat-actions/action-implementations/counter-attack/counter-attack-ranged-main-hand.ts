@@ -11,6 +11,10 @@ import cloneDeep from "lodash.clonedeep";
 import { getRotateTowardPrimaryTargetDestination } from "../common-destination-getters.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import {
+  ACTION_EXECUTION_PRECONDITIONS,
+  ActionExecutionPreconditions,
+} from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
 
 const clonedConfig = cloneDeep(ATTACK_RANGED_MAIN_HAND_CONFIG);
 const stepsConfig = clonedConfig.stepsConfig;
@@ -45,19 +49,28 @@ const config: CombatActionComponentConfig = {
     ...clonedConfig.hierarchyProperties,
     getParent: () => COUNTER_ATTACK,
     getConcurrentSubActions(context) {
+      const expectedProjectile = context.tracker.getFirstExpectedSpawnedActionEntity();
+
+      const { rank, targets } = context.tracker.actionExecutionIntent;
+
       return [
         {
-          user: context.actionUserContext.actionUser,
+          user: expectedProjectile.actionEntity,
           actionExecutionIntent: new CombatActionExecutionIntent(
             CombatActionName.CounterAttackRangedMainhandProjectile,
-            context.tracker.actionExecutionIntent.rank,
-            context.tracker.actionExecutionIntent.targets
+            rank,
+            targets
           ),
         },
       ];
     },
   },
 };
+
+config.targetingProperties.executionPreconditions = [
+  ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.UserIsAlive],
+  ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.TargetsAreAlive],
+];
 
 export const COUNTER_ATTACK_RANGED_MAIN_HAND = new CombatActionLeaf(
   CombatActionName.CounterattackRangedMainhand,

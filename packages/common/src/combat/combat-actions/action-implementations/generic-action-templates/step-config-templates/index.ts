@@ -18,6 +18,7 @@ import { ActionResolutionStepType } from "../../../../../action-processing/actio
 import { iterateNumericEnumKeyedRecord } from "../../../../../utils/index.js";
 import { VALUE_CHANGE_TICK_ACTION_STEPS_CONFIG } from "./value-change-tick.js";
 import { MODIFY_ACTION_ENTITY_ACTION_STEPS_CONFIG } from "./modify-action-entity.js";
+import { EXPLOSION_PARENT_STEPS_CONFIG } from "./explosion-parent.js";
 
 export const ACTION_STEPS_CONFIG_TEMPLATE_GETTERS = {
   BASIC_SPELL: () => cloneDeep(BASIC_SPELL_STEPS_CONFIG),
@@ -28,6 +29,7 @@ export const ACTION_STEPS_CONFIG_TEMPLATE_GETTERS = {
   MELEE_SKILL: () => cloneDeep(MELEE_SKILL_STEPS_CONFIG),
   MAIN_HAND_MELEE_ATTACK: () => cloneDeep(MAIN_HAND_MELEE_ATTACK_STEPS_CONFIG),
   OFF_HAND_MELEE_ATTACK: () => cloneDeep(OFF_HAND_MELEE_ATTACK_STEPS_CONFIG),
+  EXPLOSION_PARENT: () => cloneDeep(EXPLOSION_PARENT_STEPS_CONFIG),
   EXPLOSION_ENTITY: () => cloneDeep(EXPLOSION_ENTITY_STEPS_CONFIG),
   PROJECTILE_ENTITY: () => cloneDeep(PROJECTILE_ENTITY_STEPS_CONFIG),
   VALUE_CHANGE_TICK: () => cloneDeep(VALUE_CHANGE_TICK_ACTION_STEPS_CONFIG),

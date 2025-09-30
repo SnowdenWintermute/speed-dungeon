@@ -8,13 +8,12 @@ import {
 } from "@speed-dungeon/common";
 import { plainToInstance } from "class-transformer";
 import { EntityMotionUpdateCompletionTracker } from "./entity-motion-update-completion-tracker";
-import { ModelMovementManager } from "@/app/3d-world/scene-entities/model-movement-manager";
 import { SceneEntity } from "@/app/3d-world/scene-entities";
 import { getSceneEntityToUpdate } from "./get-scene-entity-to-update";
 
 export function handleUpdateTranslation(
   motionUpdate: EntityMotionUpdate,
-  translationOption: EntityTranslation | undefined,
+  translation: EntityTranslation,
   cosmeticDestinationYOption: SceneEntityChildTransformNodeIdentifier | undefined,
   updateCompletionTracker: EntityMotionUpdateCompletionTracker,
   gameUpdate: {
@@ -23,14 +22,9 @@ export function handleUpdateTranslation(
   },
   onComplete: () => void
 ) {
-  if (!translationOption) {
-    onComplete();
-    return;
-  }
-
   const toUpdate = getSceneEntityToUpdate(motionUpdate);
   const { movementManager, skeletalAnimationManager, dynamicAnimationManager } = toUpdate;
-  const destination = plainToInstance(Vector3, translationOption.destination);
+  const destination = plainToInstance(Vector3, translation.destination);
 
   // don't consider the y from the server since the server only calculates 2d positions
   if (cosmeticDestinationYOption) {
@@ -40,7 +34,7 @@ export function handleUpdateTranslation(
     destination.y = transformNode.getAbsolutePosition().y;
   }
 
-  movementManager.startTranslating(destination, translationOption.duration, () => {
+  movementManager.startTranslating(destination, translation.duration, () => {
     updateCompletionTracker.setTranslationComplete();
 
     if (updateCompletionTracker.isComplete()) {

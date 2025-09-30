@@ -7,6 +7,7 @@ import {
   MenuStateType,
 } from ".";
 import {
+  ActionAndRank,
   ClientToServerEvent,
   CombatActionName,
   CombatantProperties,
@@ -14,6 +15,7 @@ import {
   Equipment,
   EquipmentType,
   Item,
+  Option,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -113,17 +115,20 @@ export class ConsideringItemMenuState implements ActionMenuState {
             }
           );
       } else if (this.item instanceof Consumable) {
-        const combatActionNameOption = this.item.getActionName();
+        const actionName = this.item.getActionName();
+        if (actionName === null)
+          throw new Error("expected consumable to have an associated action name");
 
         const eventData: {
           characterId: string;
-          combatActionNameOption: null | CombatActionName;
-          combatActionLevel: null | number;
+          actionAndRankOption: Option<ActionAndRank>;
           itemIdOption?: string;
         } = {
           characterId,
-          combatActionNameOption,
-          combatActionLevel: 1,
+          actionAndRankOption: {
+            actionName,
+            rank: 1,
+          },
         };
 
         if (Consumable.isSkillBook(this.item.consumableType))

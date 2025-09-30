@@ -27,6 +27,8 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
       AdventuringParty.getActionEntity(party, actionUser.getEntityId()) instanceof Error
     );
 
+    console.log(actionEntity.getName(), "entityIsStillRegistered:", entityIsStillRegistered);
+
     let gameUpdateCommand: null | ActionEntityMotionGameUpdateCommand = null;
     // don't send update if the entity was previously removed
     // which might happen to chaining arrows that despawn before this step
@@ -44,6 +46,7 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
 
       if (stepConfig.getDespawnOnCompleteCleanupModeOption) {
         const cleanupModeOption = stepConfig.getDespawnOnCompleteCleanupModeOption(context);
+
         if (cleanupModeOption !== null) {
           update.despawnOnCompleteMode = cleanupModeOption;
           console.log(

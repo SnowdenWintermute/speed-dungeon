@@ -98,7 +98,7 @@ export class HitOutcomeMitigationCalculator {
         user,
         target
       );
-      // const percentChanceToCounterAttack = 100;
+      // const percentChanceToCounterAttack = 50;
       const counterAttackRoll = randBetween(0, 100, this.rng);
       const isCounterAttacked = counterAttackRoll < percentChanceToCounterAttack;
       // const isCounterAttacked = percentChanceToCounterAttack !== 0;

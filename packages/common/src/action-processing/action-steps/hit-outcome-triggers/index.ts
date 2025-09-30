@@ -117,6 +117,15 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             type: CombatActionTargetType.Single,
             targetId: actionUser.getEntityId(),
           });
+          targetCombatant.combatantProperties.targetingProperties.setSelectedActionAndRank({
+            actionName: CombatActionName.Counterattack,
+            rank: 1,
+          });
+          console.log(
+            "set target to counterattack's target",
+            targetCombatant.getName(),
+            targetCombatant.getTargetingProperties().getSelectedTarget()
+          );
 
           this.branchingActions.push({
             user: targetCombatant,

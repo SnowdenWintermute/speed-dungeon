@@ -92,14 +92,14 @@ export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
     );
 
     const actionTarget = COMBAT_ACTIONS[
-      CombatActionName.IceBurst
+      CombatActionName.IceBurstParent
     ].targetingProperties.getAutoTarget(conditionUserContext, null);
 
     if (actionTarget instanceof Error) throw actionTarget;
     if (actionTarget === null) throw new Error("failed to get auto target");
 
     const actionExecutionIntent = new CombatActionExecutionIntent(
-      CombatActionName.IceBurst,
+      CombatActionName.IceBurstParent,
       actionUser.getLevel(),
       actionTarget
     );

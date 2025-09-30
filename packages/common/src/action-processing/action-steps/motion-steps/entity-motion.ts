@@ -12,12 +12,7 @@ import {
   EntityAnimation,
   EntityTranslation,
 } from "../../game-update-commands.js";
-import {
-  COMBAT_ACTIONS,
-  COMBAT_ACTION_NAME_STRINGS,
-  CombatActionComponent,
-  CombatActionName,
-} from "../../../combat/index.js";
+import { COMBAT_ACTIONS, CombatActionComponent, CombatActionName } from "../../../combat/index.js";
 import { getTranslationTime } from "../../../combat/combat-actions/action-implementations/get-translation-time.js";
 import { Milliseconds } from "../../../primatives/index.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";

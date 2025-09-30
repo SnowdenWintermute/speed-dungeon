@@ -1,19 +1,14 @@
 import { ActionResolutionStepType } from "../../../../../action-processing/index.js";
-import { CleanupMode } from "../../../../../types.js";
 import { ActionResolutionStepsConfig } from "../../../combat-action-steps-config.js";
 
 const config = new ActionResolutionStepsConfig(
   {
     [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
-    [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
-    // [ActionResolutionStepType.OnActivationSpawnEntity]: {},
-    [ActionResolutionStepType.OnActivationActionEntityMotion]: {},
-    [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
-    [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+    [ActionResolutionStepType.OnActivationSpawnEntity]: {},
+    [ActionResolutionStepType.StartConcurrentSubActions]: {},
   },
   {
     [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
-    [ActionResolutionStepType.ActionEntityDissipationMotion]: {},
   },
   {
     getFinalSteps: (self: ActionResolutionStepsConfig) => {
@@ -22,4 +17,4 @@ const config = new ActionResolutionStepsConfig(
   }
 );
 
-export const EXPLOSION_ENTITY_STEPS_CONFIG = config;
+export const EXPLOSION_PARENT_STEPS_CONFIG = config;

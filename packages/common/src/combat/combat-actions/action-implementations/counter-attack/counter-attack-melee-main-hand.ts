@@ -11,6 +11,10 @@ import cloneDeep from "lodash.clonedeep";
 import { getRotateTowardPrimaryTargetDestination } from "../common-destination-getters.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
+import {
+  ACTION_EXECUTION_PRECONDITIONS,
+  ActionExecutionPreconditions,
+} from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.MAIN_HAND_MELEE_ATTACK();
 delete stepsConfig.steps[ActionResolutionStepType.InitialPositioning];
@@ -48,6 +52,11 @@ const config: CombatActionComponentConfig = {
   },
   hierarchyProperties: { ...clonedConfig.hierarchyProperties, getParent: () => COUNTER_ATTACK },
 };
+
+config.targetingProperties.executionPreconditions = [
+  ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.UserIsAlive],
+  ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.TargetsAreAlive],
+];
 
 export const COUNTER_ATTACK_MELEE_MAIN_HAND = new CombatActionLeaf(
   CombatActionName.CounterattackMeleeMainhand,
