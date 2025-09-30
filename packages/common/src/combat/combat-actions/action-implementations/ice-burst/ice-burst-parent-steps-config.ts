@@ -23,7 +23,9 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
     const primaryTargetResult = AdventuringParty.getCombatant(party, actionTarget);
     if (primaryTargetResult instanceof Error) throw primaryTargetResult;
 
-    const position = primaryTargetResult.combatantProperties.position;
+    const position = primaryTargetResult.combatantProperties.position.clone();
+
+    console.log("position spawned:", position);
 
     const entityProperties = { id: context.idGenerator.generate(), name: "ice burst" };
     const actionEntityProperties: ActionEntityProperties = {

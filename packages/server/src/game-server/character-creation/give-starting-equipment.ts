@@ -44,14 +44,14 @@ const STARTING_EQUIPMENT_BY_COMBATANT_CLASS: Record<
     },
   },
   [CombatantClass.Rogue]: {
-    [HoldableSlotType.MainHand]: {
-      equipmentType: EquipmentType.TwoHandedRangedWeapon,
-      baseItemType: TwoHandedRangedWeapon.CompositeBow,
-    },
     // [HoldableSlotType.MainHand]: {
-    //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
-    //   baseItemType: OneHandedMeleeWeapon.ButterKnife,
+    //   equipmentType: EquipmentType.TwoHandedRangedWeapon,
+    //   baseItemType: TwoHandedRangedWeapon.CompositeBow,
     // },
+    [HoldableSlotType.MainHand]: {
+      equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      baseItemType: OneHandedMeleeWeapon.ButterKnife,
+    },
     // [HoldableSlotType.OffHand]: {
     //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
     //   baseItemType: OneHandedMeleeWeapon.ButterKnife,
