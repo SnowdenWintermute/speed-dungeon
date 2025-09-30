@@ -39,8 +39,10 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
   },
 };
 
+hitOutcomeOverrides.getShouldAnimateTargetHitRecovery = () => false;
+
 const base = HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL;
-export const EXPLOSION_HIT_OUTCOME_PROPERTIES = createHitOutcomeProperties(
+export const EXECUTE_EXPLOSION_HIT_OUTCOME_PROPERTIES = createHitOutcomeProperties(
   base,
   hitOutcomeOverrides
 );

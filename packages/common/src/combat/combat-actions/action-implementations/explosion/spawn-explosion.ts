@@ -1,53 +1,40 @@
 import {
+  CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionExecutionIntent,
   CombatActionName,
-  TargetCategories,
-} from "../../index.js";
-import {
-  CombatActionCombatLogProperties,
   CombatActionOrigin,
-} from "../../combat-action-combat-log-properties.js";
+} from "../../index.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
-import {
-  createTargetingPropertiesConfig,
-  TARGETING_PROPERTIES_TEMPLATE_GETTERS,
-} from "../generic-action-templates/targeting-properties-config-templates/index.js";
-import {
-  AutoTargetingScheme,
-  CombatActionTarget,
-  CombatActionTargetType,
-} from "../../../targeting/index.js";
-import { BASE_EXPLOSION_RADIUS } from "../../../../app-consts.js";
+import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import { SPAWN_EXPLOSION_STEPS_CONFIG } from "./spawn-explosion-steps-config.js";
 import { HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
-import { ICE_BURST_PARENT_STEPS_CONFIG } from "./ice-burst-parent-steps-config.js";
-import { ActionIntentAndUser } from "../../../../action-processing/index.js";
 import { COMBAT_ACTIONS } from "../index.js";
 import { EntityId } from "../../../../primatives/index.js";
+import {
+  CombatActionTarget,
+  CombatActionTargetType,
+} from "../../../targeting/combat-action-targets.js";
+import { ActionIntentAndUser } from "../../../../action-processing/index.js";
 
-const targetingProperties = createTargetingPropertiesConfig(
-  TARGETING_PROPERTIES_TEMPLATE_GETTERS.EXPLOSION,
-  {
-    autoTargetSelectionMethod: {
-      scheme: AutoTargetingScheme.WithinRadiusOfEntity,
-      radius: BASE_EXPLOSION_RADIUS,
-      validTargetCategories: TargetCategories.Any,
-      excludePrimaryTarget: true,
-    },
-  }
-);
+const targetingProperties = TARGETING_PROPERTIES_TEMPLATE_GETTERS.EXPLOSION();
 
 const config: CombatActionComponentConfig = {
-  description: "Deals kinetic ice damage in an area around the target",
+  description: "Deals kinetic fire damage in an area around the target",
+  targetingProperties,
   combatLogMessageProperties: new CombatActionCombatLogProperties({
     origin: CombatActionOrigin.TriggeredCondition,
-    getOnUseMessage: (data) => `${data.nameOfActionUser} shatters!`,
+    getOnUseMessage: (data) => {
+      return `${data.nameOfActionUser} explodes!`;
+    },
   }),
-  targetingProperties,
+
   hitOutcomeProperties: HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.THREATLESS_ACTION(),
   costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.FREE_ACTION(),
-  stepsConfig: ICE_BURST_PARENT_STEPS_CONFIG,
+  stepsConfig: SPAWN_EXPLOSION_STEPS_CONFIG,
+
   hierarchyProperties: {
     getChildren: () => [],
     getParent: () => null,
@@ -57,7 +44,7 @@ const config: CombatActionComponentConfig = {
       const targets = targetingProperties.getAutoTarget(
         context.actionUserContext,
         context.tracker,
-        COMBAT_ACTIONS[CombatActionName.IceBurstParent]
+        COMBAT_ACTIONS[CombatActionName.SpawnExplosion]
       );
 
       const targetIds: EntityId[] = [];
@@ -72,7 +59,7 @@ const config: CombatActionComponentConfig = {
 
       const actionIntentAndUser: ActionIntentAndUser = {
         actionExecutionIntent: new CombatActionExecutionIntent(
-          CombatActionName.IceBurstExplosion,
+          CombatActionName.ExecuteExplosion,
           explosionEntity.actionEntity.getLevel(),
           targetsToSend
         ),
@@ -84,4 +71,4 @@ const config: CombatActionComponentConfig = {
   },
 };
 
-export const ICE_BURST_PARENT = new CombatActionComposite(CombatActionName.IceBurstParent, config);
+export const SPAWN_EXPLOSION = new CombatActionComposite(CombatActionName.SpawnExplosion, config);

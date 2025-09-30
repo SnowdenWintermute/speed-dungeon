@@ -1,5 +1,4 @@
 import { ActionResolutionStepType } from "../../../../../action-processing/index.js";
-import { CleanupMode } from "../../../../../types.js";
 import { ActionResolutionStepsConfig } from "../../../combat-action-steps-config.js";
 
 const config = new ActionResolutionStepsConfig(

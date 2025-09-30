@@ -1,12 +1,16 @@
 import cloneDeep from "lodash.clonedeep";
 import { MELEE_ATTACK_STEPS_CONFIG } from "./melee-attack.js";
-import { ActionResolutionStepType } from "../../../../../action-processing/index.js";
+import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
+  ActionResolutionStepType,
+} from "../../../../../action-processing/index.js";
 import { getMeleeAttackAnimationFromType } from "../../get-entity-animation.js";
 import { ActionExecutionPhase } from "../../action-execution-phase.js";
 import { HoldableSlotType } from "../../../../../items/equipment/slots.js";
 import { COMBAT_ACTIONS } from "../../index.js";
 import { CombatActionName } from "../../../combat-action-names.js";
 import { CombatantProperties } from "../../../../../combatants/index.js";
+import { iterateNumericEnumKeyedRecord } from "../../../../../utils/index.js";
 
 const expectedMeleeAttackAnimationType = "Expected meleeAttackAnimationType was undefined";
 
@@ -91,3 +95,9 @@ config.options.getFinalSteps = (self, context) => {
 };
 
 export const MAIN_HAND_MELEE_ATTACK_STEPS_CONFIG = config;
+
+console.log(
+  iterateNumericEnumKeyedRecord(MAIN_HAND_MELEE_ATTACK_STEPS_CONFIG.steps).map(
+    ([stepType, step]) => ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepType]
+  )
+);

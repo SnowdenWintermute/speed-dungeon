@@ -12,26 +12,21 @@ import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementatio
 import { immerable } from "immer";
 import { ActionUserContext } from "../../action-user-context/index.js";
 
+const getNewStacks = () => new MaxAndCurrent(10, 1);
+
 export class PrimedForExplosionCombatantCondition extends CombatantCondition {
   [immerable] = true;
   intent = CombatActionIntent.Malicious;
   removedOnDeath: boolean = true;
   ticks?: MaxAndCurrent | undefined;
+  stacksOption = getNewStacks();
   constructor(
     id: EntityId,
     appliedBy: ConditionAppliedBy,
     appliedTo: EntityId,
-    public level: number,
-    stacksOption: null | MaxAndCurrent
+    public level: number
   ) {
-    super(
-      id,
-      appliedBy,
-      appliedTo,
-      CombatantConditionName.PrimedForExplosion,
-      new MaxAndCurrent(10, 1)
-    );
-    if (stacksOption) this.stacksOption = stacksOption;
+    super(id, appliedBy, appliedTo, CombatantConditionName.PrimedForExplosion, getNewStacks());
   }
 
   tickPropertiesOption = null;
@@ -45,6 +40,7 @@ export class PrimedForExplosionCombatantCondition extends CombatantCondition {
       CombatActionName.AttackMeleeOffhand,
       CombatActionName.BurningTick,
       CombatActionName.FirewallBurn,
+      CombatActionName.ExecuteExplosion,
       CombatActionName.Fire,
       CombatActionName.ChainingSplitArrowProjectile,
     ];
@@ -76,22 +72,20 @@ export class PrimedForExplosionCombatantCondition extends CombatantCondition {
     );
 
     const actionTarget = COMBAT_ACTIONS[
-      CombatActionName.Explosion
+      CombatActionName.SpawnExplosion
     ].targetingProperties.getAutoTarget(conditionUserContext, null);
 
     if (actionTarget instanceof Error) throw actionTarget;
     if (actionTarget === null) throw new Error("failed to get auto target");
 
-    const explosionLevel = this.stacksOption?.current || 0;
-
     const actionExecutionIntent = new CombatActionExecutionIntent(
-      CombatActionName.Explosion,
-      explosionLevel,
+      CombatActionName.SpawnExplosion,
+      actionUser.getLevel(),
       actionTarget
     );
 
     return {
-      numStacksRemoved: this.stacksOption?.current || 0,
+      numStacksRemoved: this.stacksOption.current,
       triggeredActions: [{ user: actionUser, actionExecutionIntent }],
     };
   }

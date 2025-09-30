@@ -25,10 +25,12 @@ import { immerable } from "immer";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import { ActionUserTargetingProperties } from "../../action-user-context/action-user-targeting-properties.js";
 
+const getNewStacks = () => new MaxAndCurrent(1, 1);
+
 export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
   [immerable] = true;
   name = CombatantConditionName.PrimedForIceBurst;
-  stacksOption = new MaxAndCurrent(1, 1);
+  stacksOption = getNewStacks();
   intent = CombatActionIntent.Malicious;
   removedOnDeath: boolean = true;
   ticks?: MaxAndCurrent | undefined;
@@ -38,13 +40,7 @@ export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
     appliedTo: EntityId,
     public level: number
   ) {
-    super(
-      id,
-      appliedBy,
-      appliedTo,
-      CombatantConditionName.PrimedForIceBurst,
-      new MaxAndCurrent(1, 1)
-    );
+    super(id, appliedBy, appliedTo, CombatantConditionName.PrimedForIceBurst, getNewStacks());
     this.targetingProperties = new ActionUserTargetingProperties();
   }
 
@@ -59,7 +55,7 @@ export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
       CombatActionName.ChainingSplitArrowProjectile,
       CombatActionName.CounterattackMeleeMainhand,
       CombatActionName.CounterAttackRangedMainhandProjectile,
-      CombatActionName.Explosion,
+      CombatActionName.ExecuteExplosion,
       CombatActionName.FirewallBurn,
       CombatActionName.Fire,
     ];
