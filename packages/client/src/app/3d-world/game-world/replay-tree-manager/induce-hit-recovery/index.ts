@@ -70,7 +70,6 @@ export function induceHitRecovery(
     const battleOption = AdventuringParty.getBattleOption(party, game);
 
     if (CombatantProperties.isDead(combatantProperties)) {
-      console.log("combatant died:", targetCombatant.getEntityId());
       targetModel.cosmeticEffectManager.softCleanup(() => {});
 
       const combatantDiedOnTheirOwnTurn = (() => {
@@ -91,7 +90,6 @@ export function induceHitRecovery(
       combatantModel.movementManager.activeTrackers = {};
 
       if (combatantDiedOnTheirOwnTurn) {
-        console.log("combatant died on their own turn", targetCombatant.getEntityId());
         battleOption?.turnOrderManager.updateTrackers(game, party);
       }
 
@@ -114,7 +112,6 @@ export function induceHitRecovery(
           targetModel.skeletalAnimationManager.playing.options.onComplete();
       }
 
-      console.log("starting death animation", targetCombatant.getEntityId());
       // if (shouldAnimate) // we kind of need to animate this
       targetModel.skeletalAnimationManager.startAnimationWithTransition(
         SkeletalAnimationName.DeathBack,

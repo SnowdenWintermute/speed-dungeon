@@ -4,6 +4,7 @@ import {
   DEBUG_ANIMATION_SPEED_MULTIPLIER,
   EntityId,
   MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME,
+  ONE_SECOND,
   SKELETAL_ANIMATION_NAME_STRINGS,
   SkeletalAnimationName,
 } from "@speed-dungeon/common";
@@ -78,14 +79,6 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
   ): Error | void {
     const clonedAnimation = this.getClonedAnimation(newAnimationName);
 
-    console.log(
-      this.sceneEntityId,
-      "starting animation",
-      SKELETAL_ANIMATION_NAME_STRINGS[newAnimationName],
-      "with transition:",
-      transitionDuration
-    );
-
     if (clonedAnimation === undefined) {
       // send message to client with timout duration to remove itself
       setDebugMessage(
@@ -98,7 +91,6 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     }
 
     if (this.previous) {
-      console.log("removing previous animation:", this.previous.getName());
       this.previous.cleanup();
     }
 
@@ -106,7 +98,7 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
 
     this.playing = new ManagedSkeletalAnimation(clonedAnimation, transitionDuration, options);
 
-    const animationStockDuration = clonedAnimation.getLength() * 1000;
+    const animationStockDuration = clonedAnimation.getLength() * ONE_SECOND;
     let speedModifier =
       animationStockDuration / (options.animationDurationOverrideOption || animationStockDuration);
 

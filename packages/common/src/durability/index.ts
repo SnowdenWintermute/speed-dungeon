@@ -25,7 +25,7 @@ export const BASE_DURABILITY_LOSS = -1;
 export const HIT_OUTCOMES_THAT_CONTACT_TARGET = [
   HitOutcome.Parry,
   HitOutcome.Hit,
-  HitOutcome.ShieldBlock,
+  // HitOutcome.ShieldBlock, since a hit flag will already be registered, we don't need to charge them twice
   HitOutcome.Counterattack,
 ];
 

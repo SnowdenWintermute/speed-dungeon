@@ -94,11 +94,9 @@ const finalStepOverrides: Partial<Record<ActionResolutionStepType, ActionResolut
 
 finalStepOverrides[ActionResolutionStepType.ActionEntityDissipationMotion] = {
   getDespawnOnCompleteCleanupModeOption: (context) => {
-    console.log("CHECK TO DESPAWN CHAINING_SPLIT_ARROW_PROJECTILE");
     const action = COMBAT_ACTIONS[CombatActionName.ChainingSplitArrowProjectile];
     const children = action.hierarchyProperties.getChildren(context, action);
     if (children.length === 0) {
-      console.log("no child actions, despawn ChainingSplitArrowProjectile");
       return CleanupMode.Soft;
     }
 
@@ -115,16 +113,12 @@ finalStepOverrides[ActionResolutionStepType.ActionEntityDissipationMotion] = {
 
     const combatantNotFound = primaryTargetResult instanceof Error;
     if (combatantNotFound) {
-      console.log("combatant not found, despawn ChainingSplitArrowProjectile");
       return CleanupMode.Soft;
     }
     const targetIsDead = CombatantProperties.isDead(primaryTargetResult.combatantProperties);
     if (targetIsDead) {
-      console.log("target is dead, despawn ChainingSplitArrowProjectile");
       return CleanupMode.Soft;
     }
-
-    console.log("not despawning ChainingSplitArrowProjectile");
 
     return null;
   },

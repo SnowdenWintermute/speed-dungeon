@@ -3,7 +3,7 @@ import { DurabilityLossCondition } from "../../../combat/combat-actions/combat-a
 import { CombatActionResource } from "../../../combat/combat-actions/combat-action-hit-outcome-properties.js";
 import { CombatActionComponent } from "../../../combat/index.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
-import { Combatant, CombatantEquipment } from "../../../combatants/index.js";
+import { Combatant, CombatantEquipment, CombatantProperties } from "../../../combatants/index.js";
 import {
   BASE_DURABILITY_LOSS,
   DurabilityChangesByEntityId,
@@ -41,7 +41,7 @@ export function addHitOutcomeDurabilityChanges(
   );
   if (hpChangeProperties?.resourceChangeSource.isHealing) return;
 
-  hitOutcomeDurabilityChangeOnTargetCalculators[hitOutcomeType](
+  HIT_OUTCOME_DURABILITY_CHANGE_ON_TARGET_CALCULATORS[hitOutcomeType](
     durabilityChanges,
     targetCombatant,
     isCrit
@@ -57,7 +57,7 @@ export function addHitOutcomeDurabilityChanges(
   }
 }
 
-const hitOutcomeDurabilityChangeOnTargetCalculators: Record<
+const HIT_OUTCOME_DURABILITY_CHANGE_ON_TARGET_CALCULATORS: Record<
   HitOutcome,
   (
     durabilityChanges: DurabilityChangesByEntityId,
@@ -75,6 +75,12 @@ const hitOutcomeDurabilityChangeOnTargetCalculators: Record<
     });
   },
   [HitOutcome.Counterattack]: (durabilityChanges, targetCombatant) => {
+    // don't charge durability for counterattack with bow since we'll break the bow before
+    // we get to fire our shot if on the last durability
+    const targetWearingBow =
+      CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(targetCombatant);
+    if (targetWearingBow) return;
+
     durabilityChanges.updateEquipmentRecord(targetCombatant, {
       type: EquipmentSlotType.Holdable,
       slot: HoldableSlotType.MainHand,

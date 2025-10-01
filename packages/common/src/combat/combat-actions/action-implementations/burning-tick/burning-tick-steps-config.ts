@@ -23,7 +23,12 @@ stepOverrides[ActionResolutionStepType.EvalOnHitOutcomeTriggers] = {
       COMBAT_ACTIONS[actionExecutionIntent.actionName],
       actionExecutionIntent.targets
     );
+
+    console.log("actionExecutionIntent targetes:", actionExecutionIntent.targets);
+
     if (targetIdsResult instanceof Error) throw targetIdsResult;
+
+    console.log("targets for particles:", targetIdsResult);
 
     const toReturn: CosmeticEffectOnTargetTransformNode[] = targetIdsResult.map((targetId) =>
       CosmeticEffectInstructionFactory.createParticlesOnTargetBody(
@@ -39,6 +44,5 @@ stepOverrides[ActionResolutionStepType.EvalOnHitOutcomeTriggers] = {
 
 const base = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.VALUE_CHANGE_TICK;
 export const BURNING_TICK_STEPS_CONFIG = createStepsConfig(base, {
-  steps: {},
-  finalSteps: stepOverrides,
+  steps: stepOverrides,
 });

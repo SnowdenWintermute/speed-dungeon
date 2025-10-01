@@ -121,11 +121,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             actionName: CombatActionName.Counterattack,
             rank: 1,
           });
-          console.log(
-            "set target to counterattack's target",
-            targetCombatant.getName(),
-            targetCombatant.getTargetingProperties().getSelectedTarget()
-          );
 
           this.branchingActions.push({
             user: targetCombatant,

@@ -27,8 +27,6 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
       AdventuringParty.getActionEntity(party, actionUser.getEntityId()) instanceof Error
     );
 
-    console.log(actionEntity.getName(), "entityIsStillRegistered:", entityIsStillRegistered);
-
     let gameUpdateCommand: null | ActionEntityMotionGameUpdateCommand = null;
     // don't send update if the entity was previously removed
     // which might happen to chaining arrows that despawn before this step
@@ -49,15 +47,6 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
 
         if (cleanupModeOption !== null) {
           update.despawnOnCompleteMode = cleanupModeOption;
-          console.log(
-            "set despawn mode for action:",
-            COMBAT_ACTION_NAME_STRINGS[action.name],
-            cleanupModeOption,
-            "in step:",
-            ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepType],
-            "for entity",
-            actionEntity.getEntityId()
-          );
         }
       }
 
@@ -101,7 +90,6 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
       gameUpdateCommand.type === GameUpdateCommandType.ActionEntityMotion &&
       gameUpdateCommand.mainEntityUpdate.despawnOnCompleteMode !== undefined
     ) {
-      console.log("UNREGISTERACTIONENTITY BECAUSE IT WAS SET TO DESPAWN", actionUser.getEntityId());
       const { party } = context.actionUserContext;
 
       const battleOption = AdventuringParty.getBattleOption(party, context.actionUserContext.game);

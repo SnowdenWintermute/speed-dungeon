@@ -41,6 +41,12 @@ export class ProjectileFactory {
     >
   >;
 
+  /**
+   * @param options Additional configuration options
+   * @property [options.defaultTargetOverride] Most projectiles can just auto calculate their target
+   *           from the context, but some (like chaining split arrow) need to have
+   *           their target assigned directly.
+   */
   constructor(
     private context: ActionResolutionStepContext,
     options: { defaultTargetOverride?: Combatant }

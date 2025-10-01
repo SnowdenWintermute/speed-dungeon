@@ -34,7 +34,7 @@ const config: CombatActionComponentConfig = {
   targetingProperties,
   combatLogMessageProperties: new CombatActionCombatLogProperties({
     ...createGenericSpellCastMessageProperties(CombatActionName.FirewallBurn),
-    getOnUseMessage: (data) => `${data.nameOfActionUser} traverses the firewall`,
+    getOnUseMessage: (data) => `${data.nameOfTarget} traverses the firewall`,
   }),
 
   hitOutcomeProperties: FIREWALL_BURN_HIT_OUTCOME_PROPERTIES,

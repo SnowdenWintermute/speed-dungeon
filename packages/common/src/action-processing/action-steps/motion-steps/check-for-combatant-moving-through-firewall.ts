@@ -12,7 +12,6 @@ import {
   ActionResolutionStepType,
 } from "../index.js";
 import { TriggerEnvironmentalHazardsActionResolutionStep } from "./determine-environmental-hazard-triggers.js";
-import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../../app-consts.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { AnimationTimingType } from "../../game-update-commands.js";
 import { timeToReachBox } from "../../../utils/index.js";

@@ -95,9 +95,3 @@ config.options.getFinalSteps = (self, context) => {
 };
 
 export const MAIN_HAND_MELEE_ATTACK_STEPS_CONFIG = config;
-
-console.log(
-  iterateNumericEnumKeyedRecord(MAIN_HAND_MELEE_ATTACK_STEPS_CONFIG.steps).map(
-    ([stepType, step]) => ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepType]
-  )
-);

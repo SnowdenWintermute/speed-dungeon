@@ -46,8 +46,6 @@ export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends
 
     context.tracker.wasAborted = true;
 
-    console.log("not executing action:", COMBAT_ACTION_NAME_STRINGS[action.name]);
-
     const gameUpdateCommandOption = evaluatePlayerEndTurnAndInputLock(context);
     if (gameUpdateCommandOption) this.gameUpdateCommandOption = gameUpdateCommandOption;
 

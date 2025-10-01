@@ -48,14 +48,6 @@ export function handleEntityMotionUpdate(
   if (motionUpdate.entityType === SpawnableEntityType.ActionEntity) {
     cosmeticDestinationYOption = motionUpdate.cosmeticDestinationY;
 
-    console.log(
-      "entity motion command:",
-      JSON.stringify(motionUpdate, null, 2),
-      JSON.stringify(update, null, 2),
-      ACTION_RESOLUTION_STEP_TYPE_STRINGS[update.command.step],
-      COMBAT_ACTION_NAME_STRINGS[update.command.actionName]
-    );
-
     const actionEntityModelOption = getGameWorld().actionEntityManager.findOne(
       motionUpdate.entityId,
       motionUpdate
@@ -80,25 +72,12 @@ export function handleEntityMotionUpdate(
 
     onTranslationComplete = () => {
       if (despawnOnCompleteMode !== undefined && !alreadyDespawned) {
-        console.log(
-          ACTION_RESOLUTION_STEP_TYPE_STRINGS[update.command.step],
-          COMBAT_ACTION_NAME_STRINGS[update.command.actionName],
-          "DESPAWN ACTION ENTITY ON TRANSLATION COMPLETE:",
-          motionUpdate.entityId
-        );
-
         despawnAndUnregisterActionEntity(motionUpdate.entityId, despawnOnCompleteMode);
         alreadyDespawned = true;
       }
     };
     onAnimationComplete = () => {
       if (despawnOnCompleteMode !== undefined && !alreadyDespawned) {
-        console.log(
-          ACTION_RESOLUTION_STEP_TYPE_STRINGS[update.command.step],
-          COMBAT_ACTION_NAME_STRINGS[update.command.actionName],
-          "DESPAWN ACTION ENTITY ON ANIMATION COMPLETE:",
-          motionUpdate.entityId
-        );
         despawnAndUnregisterActionEntity(motionUpdate.entityId, despawnOnCompleteMode);
         alreadyDespawned = true;
       }

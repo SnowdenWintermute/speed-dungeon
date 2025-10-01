@@ -25,8 +25,6 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
 
     const position = primaryTargetResult.combatantProperties.position.clone();
 
-    console.log("position spawned:", position);
-
     const entityProperties = { id: context.idGenerator.generate(), name: "ice burst" };
     const actionEntityProperties: ActionEntityProperties = {
       position,

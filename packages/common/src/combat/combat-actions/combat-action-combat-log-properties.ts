@@ -1,4 +1,6 @@
 import { ActionResolutionStepContext } from "../../action-processing/index.js";
+import { AdventuringParty } from "../../adventuring-party/index.js";
+import { TargetingCalculator } from "../targeting/targeting-calculator.js";
 import { COMBAT_ACTION_NAME_STRINGS, CombatActionName } from "./combat-action-names.js";
 
 export enum CombatActionOrigin {
@@ -33,12 +35,22 @@ export class CombatActionCombatLogProperties {
 
   getOnUseMessageData(context: ActionResolutionStepContext): ActionUseMessageData {
     const { actionUserContext } = context;
-    const { actionUser } = actionUserContext;
-    const actionLevel = context.tracker.actionExecutionIntent.rank;
+    const { actionUser, party } = actionUserContext;
+    const { actionExecutionIntent } = context.tracker;
+    const { rank, actionName, targets } = actionExecutionIntent;
+
+    const targetingCalculator = new TargetingCalculator(actionUserContext, null);
+    const primaryTarget = targetingCalculator.getPrimaryTargetCombatant(
+      party,
+      actionExecutionIntent
+    );
+    let nameOfTarget = "A missing target with the following identifier " + JSON.stringify(targets);
+    if (!(primaryTarget instanceof Error)) nameOfTarget = primaryTarget.getName();
 
     return {
       nameOfActionUser: actionUser.getName(),
-      actionLevel,
+      nameOfTarget,
+      actionLevel: rank,
     };
   }
 }
