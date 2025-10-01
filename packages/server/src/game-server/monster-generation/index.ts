@@ -90,10 +90,10 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
     else combatantProperties.inherentAttributes[attribute]! += levelAdjustedValue;
   }
   // randomize their hp a little
-  const baseHp = combatantProperties.inherentAttributes[CombatAttribute.Hp] || 1;
-  const randomNumberNormalDistribution = randomNormal();
-  const modifiedHp = baseHp * (randomNumberNormalDistribution + 0.5);
-  monster.combatantProperties.inherentAttributes[CombatAttribute.Hp] = Math.floor(modifiedHp);
+  // const baseHp = combatantProperties.inherentAttributes[CombatAttribute.Hp] || 1;
+  // const randomNumberNormalDistribution = randomNormal();
+  // const modifiedHp = baseHp * (randomNumberNormalDistribution + 0.5);
+  // monster.combatantProperties.inherentAttributes[CombatAttribute.Hp] = Math.floor(modifiedHp);
 
   // @PERF - make a lookup table for inherent monster type traits
   // traits

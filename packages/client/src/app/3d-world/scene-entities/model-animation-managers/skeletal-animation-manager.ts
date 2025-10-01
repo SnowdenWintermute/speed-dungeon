@@ -78,6 +78,14 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
   ): Error | void {
     const clonedAnimation = this.getClonedAnimation(newAnimationName);
 
+    console.log(
+      this.sceneEntityId,
+      "starting animation",
+      SKELETAL_ANIMATION_NAME_STRINGS[newAnimationName],
+      "with transition:",
+      transitionDuration
+    );
+
     if (clonedAnimation === undefined) {
       // send message to client with timout duration to remove itself
       setDebugMessage(
@@ -89,7 +97,11 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
       return;
     }
 
-    this.previous?.cleanup();
+    if (this.previous) {
+      console.log("removing previous animation:", this.previous.getName());
+      this.previous.cleanup();
+    }
+
     this.previous = this.playing;
 
     this.playing = new ManagedSkeletalAnimation(clonedAnimation, transitionDuration, options);

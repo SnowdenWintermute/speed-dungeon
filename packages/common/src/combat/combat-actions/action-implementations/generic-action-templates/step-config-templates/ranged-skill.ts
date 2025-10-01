@@ -3,6 +3,7 @@ import {
   AnimationTimingType,
 } from "../../../../../action-processing/index.js";
 import { AnimationType, SkeletalAnimationName } from "../../../../../app-consts.js";
+import { Combatant, CombatantProperties } from "../../../../../combatants/index.js";
 import { ActionResolutionStepsConfig } from "../../../combat-action-steps-config.js";
 import {
   getHomeDestination,
@@ -39,7 +40,11 @@ export const RANGED_SKILL_STEPS_CONFIG = new ActionResolutionStepsConfig(
     [ActionResolutionStepType.RecoveryMotion]: {},
     [ActionResolutionStepType.FinalPositioning]: {
       getDestination: getHomeDestination,
-      getAnimation: () => {
+      getAnimation: (user) => {
+        if (user instanceof Combatant && CombatantProperties.isDead(user.combatantProperties)) {
+          return null;
+        }
+
         return {
           name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveBack },
           timing: { type: AnimationTimingType.Looping },

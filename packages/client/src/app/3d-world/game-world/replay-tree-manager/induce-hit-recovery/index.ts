@@ -70,6 +70,7 @@ export function induceHitRecovery(
     const battleOption = AdventuringParty.getBattleOption(party, game);
 
     if (CombatantProperties.isDead(combatantProperties)) {
+      console.log("combatant died:", targetCombatant.getEntityId());
       targetModel.cosmeticEffectManager.softCleanup(() => {});
 
       const combatantDiedOnTheirOwnTurn = (() => {
@@ -79,18 +80,19 @@ export function induceHitRecovery(
 
       battleOption?.turnOrderManager.updateTrackers(game, party);
 
+      // end any motion trackers they might have had
+      // this is hacky because we would rather have not given them any but
+      // it was the easiest way to implement dying on combatant's own turn
+      const combatantModel = getGameWorld().modelManager.findOne(targetId);
+
+      for (const [movementType, tracker] of combatantModel.movementManager.getTrackers()) {
+        tracker.onComplete();
+      }
+      combatantModel.movementManager.activeTrackers = {};
+
       if (combatantDiedOnTheirOwnTurn) {
-        // end any motion trackers they might have had
-        // this is hacky because we would rather have not given them any but
-        // it was the easiest way to implement dying on combatant's own turn
-        const combatantModel = getGameWorld().modelManager.findOne(targetId);
-
-        for (const [movementType, tracker] of combatantModel.movementManager.getTrackers()) {
-          tracker.onComplete();
-        }
+        console.log("combatant died on their own turn", targetCombatant.getEntityId());
         battleOption?.turnOrderManager.updateTrackers(game, party);
-
-        combatantModel.movementManager.activeTrackers = {};
       }
 
       const newlyActiveTracker = battleOption?.turnOrderManager.getFastestActorTurnOrderTracker();
@@ -112,6 +114,7 @@ export function induceHitRecovery(
           targetModel.skeletalAnimationManager.playing.options.onComplete();
       }
 
+      console.log("starting death animation", targetCombatant.getEntityId());
       // if (shouldAnimate) // we kind of need to animate this
       targetModel.skeletalAnimationManager.startAnimationWithTransition(
         SkeletalAnimationName.DeathBack,

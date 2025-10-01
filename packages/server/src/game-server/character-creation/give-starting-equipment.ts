@@ -100,8 +100,10 @@ function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
     },
     { noAffixes: true }
   );
-  if (!(mh instanceof Error) && combatantProperties.equipment.inherentHoldableHotswapSlots[1])
+  if (!(mh instanceof Error) && combatantProperties.equipment.inherentHoldableHotswapSlots[1]) {
+    mh.durability!.current = 1;
     combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
       HoldableSlotType.MainHand
     ] = mh;
+  }
 }
