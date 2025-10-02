@@ -8,8 +8,6 @@ export function handleRemovedConditionIds(
 ) {
   for (const [entityId, conditionIdsRemoved] of Object.entries(removedConditionIds)) {
     for (const conditionId of conditionIdsRemoved) {
-      console.log("trying to remove condition by id:", conditionId, "from", entityId);
-
       const combatantResult = AdventuringParty.getExpectedCombatant(party, entityId);
       if (combatantResult instanceof Error) return combatantResult;
 

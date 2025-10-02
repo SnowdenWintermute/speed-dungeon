@@ -12,10 +12,7 @@ import {
 } from "../combatants/index.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
 import { EntityId, EntityProperties, MaxAndCurrent } from "../primatives/index.js";
-import {
-  ActionAndRank,
-  ActionUserTargetingProperties,
-} from "./action-user-targeting-properties.js";
+import { ActionUserTargetingProperties } from "./action-user-targeting-properties.js";
 import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ActionEntityProperties } from "../action-entities/index.js";
@@ -29,7 +26,7 @@ export enum ActionUserType {
 
 export interface IActionUser {
   payResourceCosts(): void; // @REFACTOR - remove if unused
-  handleTurnEnded(): void; // @REFACTOR - remove if unused
+  handleTurnEnded(): void;
 
   // GETTERS
   getType(): ActionUserType;

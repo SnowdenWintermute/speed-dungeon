@@ -148,12 +148,6 @@ export abstract class ActionResolutionStep {
 
   /**Mark the gameUpdateCommand's completionOrderId and get branching actions*/
   finalize(completionOrderId: number): Error | ActionIntentAndUser[] {
-    console.log(
-      "assigning completionOrderId:",
-      completionOrderId,
-      this.getStringName(),
-      this.action.getStringName()
-    );
     if (this.gameUpdateCommandOption)
       this.gameUpdateCommandOption.completionOrderId = completionOrderId;
     return this.onComplete();

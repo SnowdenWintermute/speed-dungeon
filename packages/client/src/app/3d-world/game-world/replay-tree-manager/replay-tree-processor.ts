@@ -24,7 +24,6 @@ export class ReplayTreeProcessor {
     this.expectedCompletionOrderIds = this.collectCompletionOrderIds(root);
 
     this.activeBranches.push(new ReplayBranchProcessor(this, root, this.activeBranches));
-    console.log("constructed replay tree", this.sequenceId);
   }
 
   getActiveBranches() {
