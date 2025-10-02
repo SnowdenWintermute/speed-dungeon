@@ -106,14 +106,15 @@ export interface ActionIntentOptionAndUser {
 
 export abstract class ActionResolutionStep {
   protected elapsed: Milliseconds = 0;
+  public readonly action: CombatActionComponent;
   constructor(
     public readonly type: ActionResolutionStepType,
     protected context: ActionResolutionStepContext,
     protected gameUpdateCommandOption: null | GameUpdateCommand
   ) {
-    const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
+    this.action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
 
-    const stepConfig = action.stepsConfig.getStepConfigOption(type);
+    const stepConfig = this.action.stepsConfig.getStepConfigOption(type);
 
     if (stepConfig === undefined) throw new Error("expected step config not found");
     if (gameUpdateCommandOption && stepConfig.getCosmeticEffectsToStop) {
@@ -147,6 +148,12 @@ export abstract class ActionResolutionStep {
 
   /**Mark the gameUpdateCommand's completionOrderId and get branching actions*/
   finalize(completionOrderId: number): Error | ActionIntentAndUser[] {
+    console.log(
+      "assigning completionOrderId:",
+      completionOrderId,
+      this.getStringName(),
+      this.action.getStringName()
+    );
     if (this.gameUpdateCommandOption)
       this.gameUpdateCommandOption.completionOrderId = completionOrderId;
     return this.onComplete();
