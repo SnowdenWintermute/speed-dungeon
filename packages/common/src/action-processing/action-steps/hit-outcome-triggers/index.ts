@@ -83,7 +83,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         if (flag === HitOutcome.Death) {
           for (const condition of targetCombatant.combatantProperties.conditions) {
             if (!condition.removedOnDeath) continue;
-            CombatantCondition.removeById(condition.id, combatantResult.combatantProperties);
+            CombatantCondition.removeById(condition.id, combatantResult);
             addRemovedConditionIdToUpdate(
               condition.id,
               gameUpdateCommand,

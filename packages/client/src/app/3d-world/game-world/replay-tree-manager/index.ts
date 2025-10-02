@@ -1,5 +1,4 @@
 import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   CombatActionReplayTreePayload,
   ERROR_MESSAGES,
   GameUpdateCommand,
@@ -7,13 +6,14 @@ import {
   LOOP_SAFETY_ITERATION_LIMIT,
   NestedNodeReplayEvent,
   ReplayEventType,
+  SequentialIdGenerator,
 } from "@speed-dungeon/common";
 import { GAME_UPDATE_COMMAND_HANDLERS } from "./game-update-command-handlers";
 import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { startOrStopCosmeticEffects } from "./start-or-stop-cosmetic-effect";
 
-export class ReplayTreeManager {
+export class ReplayTreeProcessorManager {
   private queue: { root: NestedNodeReplayEvent; onComplete: () => void }[] = [];
   private current: null | ReplayTreeProcessor = null;
   constructor() {}
@@ -66,13 +66,19 @@ export class ReplayTreeManager {
 }
 
 export class ReplayTreeProcessor {
+  static sequentialIdGenerator = new SequentialIdGenerator();
+  sequenceId: number;
+
   activeBranches: ReplayBranchProcessor[] = [];
+  private lastCompletedBranchId: number = -1;
 
   constructor(
     root: NestedNodeReplayEvent,
     public onComplete: () => void
   ) {
-    this.activeBranches.push(new ReplayBranchProcessor(root, this.activeBranches));
+    this.sequenceId = ReplayTreeProcessor.sequentialIdGenerator.getNextIdNumeric();
+    this.activeBranches.push(new ReplayBranchProcessor(this, root, this.activeBranches));
+    console.log("constructed replay tree", this.sequenceId);
   }
 
   getActiveBranches() {
@@ -103,7 +109,7 @@ export class ReplayTreeProcessor {
           break;
         }
 
-        const _completedUpdateOption = branch.getCurrentGameUpdate();
+        const completedUpdateOption = branch.getCurrentGameUpdate();
 
         branch.startProcessingNext();
         if (branch.getCurrentGameUpdate() === null) break;
@@ -114,16 +120,26 @@ export class ReplayTreeProcessor {
   }
 }
 
-export interface GameUpdate {
-  command: GameUpdateCommand;
-  isComplete: boolean;
+export class GameUpdateTracker<T extends GameUpdateCommand> {
+  private isComplete: boolean = false;
+  private shouldCompleteInSequence: boolean = false;
+  constructor(public readonly command: T) {}
+
+  getIsComplete() {
+    return this.isComplete;
+  }
+
+  setAsQueuedToComplete() {
+    this.shouldCompleteInSequence = true;
+  }
 }
 
 export class ReplayBranchProcessor {
   private currentIndex = -1;
   private isComplete = false;
-  private currentGameUpdateOption: null | GameUpdate = null;
+  private currentGameUpdateOption: null | GameUpdateTracker<GameUpdateCommand> = null;
   constructor(
+    private parentReplayTreeProcessor: ReplayTreeProcessor,
     private node: NestedNodeReplayEvent,
     private branchProcessors: ReplayBranchProcessor[]
   ) {}
@@ -134,20 +150,28 @@ export class ReplayBranchProcessor {
 
   currentStepIsComplete(): boolean {
     if (this.currentGameUpdateOption === null) return true;
-    else return this.currentGameUpdateOption.isComplete;
+    else return this.currentGameUpdateOption.getIsComplete();
   }
+
   isDoneProcessing() {
     return this.isComplete;
   }
+
   startProcessingNext() {
     this.currentIndex += 1;
     const node = this.node.events[this.currentIndex];
+
     if (node === undefined) {
       this.isComplete = true;
       return;
     }
+
     if (node.type === ReplayEventType.NestedNode) {
-      const newBranch = new ReplayBranchProcessor(node, this.branchProcessors);
+      const newBranch = new ReplayBranchProcessor(
+        this.parentReplayTreeProcessor,
+        node,
+        this.branchProcessors
+      );
       newBranch.startProcessingNext();
       this.branchProcessors.push(newBranch);
       return;

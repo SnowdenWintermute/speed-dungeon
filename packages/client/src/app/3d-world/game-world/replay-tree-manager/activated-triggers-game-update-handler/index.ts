@@ -1,19 +1,16 @@
 import { useGameStore } from "@/stores/game-store";
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionEntityName,
-  ActionPayableResource,
   ActivatedTriggersGameUpdateCommand,
   AdventuringParty,
-  COMBAT_ACTIONS,
+  COMBAT_ACTION_NAME_STRINGS,
   ERROR_MESSAGES,
   EntityId,
   Equipment,
-  HitPointChanges,
   throwIfError,
 } from "@speed-dungeon/common";
 import { getGameWorld } from "../../../SceneManager";
-import { plainToInstance } from "class-transformer";
-import { induceHitRecovery } from "../induce-hit-recovery";
 import { postBrokenHoldableMessages } from "../post-broken-holdable-messages";
 import { handleThreatChangesUpdate } from "../handle-threat-changes";
 import getParty from "@/utils/getParty";
@@ -64,14 +61,37 @@ export async function activatedTriggersGameUpdateHandler(update: {
     }
 
     if (appliedConditions) {
+      console.log(
+        COMBAT_ACTION_NAME_STRINGS[command.actionName],
+        "step",
+        ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step],
+        "appliedConditions:",
+        Object.entries(appliedConditions).map(([combatantId, conditions]) =>
+          Object.values(conditions)
+        )
+      );
       handleAppliedConditions(appliedConditions, party, battleOption);
     }
 
     if (removedConditionStacks) {
+      console.log(
+        COMBAT_ACTION_NAME_STRINGS[command.actionName],
+        "step",
+        ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step],
+        "removedConditionStacks:",
+        Object.keys(removedConditionStacks)
+      );
       handleRemovedConditionStacks(removedConditionStacks, party);
     }
 
     if (removedConditionIds) {
+      console.log(
+        COMBAT_ACTION_NAME_STRINGS[command.actionName],
+        "step",
+        ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step],
+        "removedConditionIds:",
+        JSON.stringify(removedConditionIds)
+      );
       handleRemovedConditionIds(removedConditionIds, party);
     }
 

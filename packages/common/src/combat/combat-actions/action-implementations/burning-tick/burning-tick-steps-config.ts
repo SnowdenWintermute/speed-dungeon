@@ -24,11 +24,7 @@ stepOverrides[ActionResolutionStepType.EvalOnHitOutcomeTriggers] = {
       actionExecutionIntent.targets
     );
 
-    console.log("actionExecutionIntent targetes:", actionExecutionIntent.targets);
-
     if (targetIdsResult instanceof Error) throw targetIdsResult;
-
-    console.log("targets for particles:", targetIdsResult);
 
     const toReturn: CosmeticEffectOnTargetTransformNode[] = targetIdsResult.map((targetId) =>
       CosmeticEffectInstructionFactory.createParticlesOnTargetBody(

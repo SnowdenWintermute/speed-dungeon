@@ -23,7 +23,10 @@ export function handleHit(
   const branchingActions: ActionIntentAndUser[] = [];
 
   for (const condition of targetCombatant.combatantProperties.conditions) {
-    if (!condition.triggeredWhenHitBy(actionExecutionIntent.actionName)) continue;
+    const conditionHasNoHitTrigger = !condition.triggeredWhenHitBy(
+      actionExecutionIntent.actionName
+    );
+    if (conditionHasNoHitTrigger) continue;
 
     const { numStacksRemoved, triggeredActions } = condition.onTriggered(
       actionUserContext,
@@ -31,11 +34,7 @@ export function handleHit(
       context.idGenerator
     );
 
-    CombatantCondition.removeStacks(
-      condition.id,
-      targetCombatant.combatantProperties,
-      numStacksRemoved
-    );
+    CombatantCondition.removeStacks(condition.id, targetCombatant, numStacksRemoved);
 
     branchingActions.push(
       ...triggeredActions.filter((actionIntent) => {

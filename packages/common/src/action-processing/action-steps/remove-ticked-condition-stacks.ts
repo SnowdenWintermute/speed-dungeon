@@ -43,11 +43,7 @@ export class RemoveTickedConditionStacksActionResolutionStep extends ActionResol
       const hostEntity = AdventuringParty.getCombatant(party, entityConditionWasAppliedTo);
       if (hostEntity instanceof Error) throw hostEntity;
 
-      CombatantCondition.removeStacks(
-        condition.getEntityId(),
-        hostEntity.combatantProperties,
-        numStacksRemoved
-      );
+      CombatantCondition.removeStacks(condition.getEntityId(), hostEntity, numStacksRemoved);
 
       addRemovedConditionStacksToUpdate(
         condition.getEntityId(),

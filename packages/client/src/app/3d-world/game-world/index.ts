@@ -24,7 +24,7 @@ import drawCharacterSlots from "./draw-character-slots";
 import { SavedMaterials, createDefaultMaterials } from "./materials/create-default-materials";
 import { ImageManager } from "./image-manager";
 import pixelationShader from "./pixelationNodeMaterial.json";
-import { ReplayTreeManager } from "./replay-tree-manager";
+import { ReplayTreeProcessorManager } from "./replay-tree-manager";
 import { ActionEntityManager } from "../scene-entities/action-entity-models";
 import { testParticleSystem } from "./testing-particle-systems";
 import { fillDynamicTextureWithSvg } from "@/utils";
@@ -50,7 +50,7 @@ export class GameWorld {
   numImagesBeingCreated: number = 0;
   imageManager: ImageManager = new ImageManager();
   portraitRenderTarget: RenderTargetTexture;
-  replayTreeManager = new ReplayTreeManager();
+  replayTreeManager = new ReplayTreeProcessorManager();
   idGenerator = new IdGenerator();
   actionEntityManager = new ActionEntityManager();
   tickCounter: number = 0;

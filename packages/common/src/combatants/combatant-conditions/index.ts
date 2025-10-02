@@ -207,18 +207,32 @@ export abstract class CombatantCondition implements IActionUser {
     return condition.tickPropertiesOption;
   }
 
-  static removeByNameFromCombatant(
-    name: CombatantConditionName,
-    combatantProperties: CombatantProperties
-  ) {
+  static removeByNameFromCombatant(name: CombatantConditionName, combatant: Combatant) {
+    const { combatantProperties } = combatant;
+    console.log(
+      "trying to remove condition by name from combatant",
+      COMBATANT_CONDITION_NAME_STRINGS[name],
+      combatant.getEntityId()
+    );
     combatantProperties.conditions = combatantProperties.conditions.filter((existingCondition) => {
+      if (existingCondition.name !== name) console.log("removed it");
       existingCondition.name !== name;
     });
+    console.log(
+      "after removal attempt:",
+      combatantProperties.conditions.map((condition) => condition.getName())
+    );
   }
 
-  static replaceExisting(condition: CombatantCondition, combatantProperties: CombatantProperties) {
-    CombatantCondition.removeByNameFromCombatant(condition.name, combatantProperties);
+  static replaceExisting(condition: CombatantCondition, combatant: Combatant) {
+    CombatantCondition.removeByNameFromCombatant(condition.name, combatant);
+    const { combatantProperties } = combatant;
     combatantProperties.conditions.push(condition);
+    console.log(
+      "after condition replacement:",
+      combatantProperties.conditions.map((condition) => condition.getName()),
+      combatant.getEntityId()
+    );
   }
 
   /* returns true if condition was preexisting */
@@ -228,28 +242,50 @@ export abstract class CombatantCondition implements IActionUser {
     battleOption: null | Battle,
     party: AdventuringParty
   ) {
+    console.log(
+      "attempting to apply condition:",
+      condition.getEntityId(),
+      condition.getName(),
+      "to combatant:",
+      combatant.getEntityId()
+    );
+
     let wasExisting = false;
     const { combatantProperties } = combatant;
     combatantProperties.conditions.forEach((existingCondition) => {
-      if (existingCondition.name !== condition.name) return;
+      if (existingCondition.name !== condition.name) {
+        return;
+      }
+
       wasExisting = true;
+
       // don't replace an existing condition of higher level
-      if (existingCondition.level > condition.level) return;
+      if (existingCondition.level > condition.level) {
+        return;
+      }
+
       // if higher level, replace it
-      if (existingCondition.level < condition.level)
-        return CombatantCondition.replaceExisting(condition, combatantProperties);
+      if (existingCondition.level < condition.level) {
+        return CombatantCondition.replaceExisting(condition, combatant);
+      }
+
       // if stackable and of same level, add to stacks
       if (existingCondition.stacksOption) {
-        if (existingCondition.stacksOption.max > existingCondition.stacksOption.current)
+        console.log("existing condition of same name, adding stacks");
+        const canHoldMoreStacks =
+          existingCondition.stacksOption.max > existingCondition.stacksOption.current;
+        if (canHoldMoreStacks) {
           existingCondition.stacksOption.current += condition.stacksOption?.current ?? 0;
+        }
         // replacing the appliedBy helps to ensure that threat is applied correctly
         // when a replaced condition was persisted from a previous battle where it
         // was applied by a now nonexistant combatant
         existingCondition.appliedBy = condition.appliedBy;
         return;
       }
+
       // not stackable, replace or just add it
-      return CombatantCondition.replaceExisting(condition, combatantProperties);
+      return CombatantCondition.replaceExisting(condition, combatant);
     });
 
     if (wasExisting) return true;
@@ -288,37 +324,39 @@ export abstract class CombatantCondition implements IActionUser {
     );
   }
 
-  static removeById(
-    conditionId: EntityId,
-    combatantProperties: CombatantProperties
-  ): CombatantCondition | undefined {
+  static removeById(conditionId: EntityId, combatant: Combatant): CombatantCondition | undefined {
+    const { combatantProperties } = combatant;
+
     let removed: CombatantCondition | undefined = undefined;
     combatantProperties.conditions = combatantProperties.conditions.filter((condition) => {
-      if (condition.id === conditionId) removed = condition;
+      if (condition.id === conditionId) {
+        console.log("removing condition by id:", conditionId, combatant.getEntityId());
+        removed = condition;
+      }
       return condition.id !== conditionId;
     });
-
-    // @PERF - remove the associated turn scheduler
-    // from the battle
 
     return removed;
   }
 
   static removeStacks(
     conditionId: EntityId,
-    combatantProperties: CombatantProperties,
+    combatant: Combatant,
     numberToRemove: number
   ): CombatantCondition | undefined {
-    for (const condition of Object.values(combatantProperties.conditions)) {
+    const { combatantProperties } = combatant;
+
+    console.log("removing stacks for conditionId:", conditionId);
+
+    for (const condition of combatantProperties.conditions) {
       if (condition.id !== conditionId) continue;
-      if (condition.stacksOption)
-        condition.stacksOption.current = Math.max(
-          0,
-          condition.stacksOption.current - numberToRemove
-        );
+      if (condition.stacksOption) {
+        const newStacksCount = condition.stacksOption.current - numberToRemove;
+        condition.stacksOption.current = Math.max(0, newStacksCount);
+      }
 
       if (condition.stacksOption === null || condition.stacksOption.current === 0) {
-        CombatantCondition.removeById(condition.id, combatantProperties);
+        CombatantCondition.removeById(condition.id, combatant);
         return condition;
       }
     }
