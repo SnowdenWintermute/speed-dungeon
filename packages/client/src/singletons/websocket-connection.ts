@@ -75,11 +75,7 @@ websocketConnection.on(ServerToClientEvent.ErrorMessage, (message) => {
       InputLock.unlockInput(partyOption.inputLock);
       const focusedCharacter = AdventuringParty.getCombatant(partyOption, state.focusedCharacterId);
       if (!(focusedCharacter instanceof Error)) {
-        focusedCharacter.combatantProperties.selectedItemId = null;
-        focusedCharacter.combatantProperties.selectedTargetingScheme = null;
-        focusedCharacter.combatantProperties.selectedCombatAction = null;
-        focusedCharacter.combatantProperties.selectedCombatAction = null;
-        focusedCharacter.combatantProperties.combatActionTarget = null;
+        focusedCharacter.combatantProperties.targetingProperties.clear();
         synchronizeTargetingIndicators(state, null, state.focusedCharacterId, []);
       }
     }

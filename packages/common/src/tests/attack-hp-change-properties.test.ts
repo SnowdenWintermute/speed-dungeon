@@ -14,7 +14,6 @@ import {
   CombatActionTargetType,
 } from "../combat/index.js";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
-import { CombatantContext } from "../combatant-context/index.js";
 import { CombatantEquipment, CombatantSpecies } from "../combatants/index.js";
 import { TEST_WARRIOR_COMBATANT } from "../combatants/test-combatants/test-humanoid-warrior-combatant.js";
 import { SpeedDungeonGame } from "../game/index.js";
@@ -92,7 +91,6 @@ describe("kinetic damage type selection", () => {
     //   type: ReplayEventType.NestedNode,
     //   events: [],
     // };
-    // const combatantContext = new CombatantContext(game, party, testWarrior);
     // const idGenerator = new IdGenerator();
     // const animationLengths: Record<CombatantSpecies, Record<string, number>> = {
     //   [CombatantSpecies.Humanoid]: {},

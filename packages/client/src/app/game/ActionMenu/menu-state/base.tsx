@@ -170,8 +170,10 @@ export class BaseMenuState implements ActionMenuState {
         () => {
           websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
             characterId,
-            combatActionNameOption: actionName,
-            combatActionLevel: 1,
+            actionAndRankOption: {
+              actionName,
+              rank: 1,
+            },
           });
           useGameStore.getState().mutateState((state) => {
             state.hoveredAction = null;
@@ -192,7 +194,7 @@ export class BaseMenuState implements ActionMenuState {
       const { usabilityContext } = combatAction.targetingProperties;
 
       const costs = combatAction.costProperties.getResourceCosts(
-        combatantProperties,
+        focusedCharacterResult,
         this.inCombat,
         1 // @TODO - calculate the actual level to display based on most expensive they can afford
       );
@@ -203,8 +205,10 @@ export class BaseMenuState implements ActionMenuState {
 
       const isWearingRequiredEquipment = CombatantProperties.isWearingRequiredEquipmentToUseAction(
         combatantProperties,
-        combatAction.name,
-        1
+        {
+          actionName: combatAction.name,
+          rank: 1,
+        }
       );
 
       const isOnCooldown = (actionState.cooldown?.current || 0) > 0;

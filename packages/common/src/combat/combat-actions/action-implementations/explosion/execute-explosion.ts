@@ -1,15 +1,23 @@
+import { ActionIntentAndUser } from "../../../../action-processing/index.js";
+import { EntityId } from "../../../../primatives/index.js";
+import {
+  CombatActionTarget,
+  CombatActionTargetType,
+} from "../../../targeting/combat-action-targets.js";
 import {
   CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
+  CombatActionExecutionIntent,
   CombatActionName,
   CombatActionOrigin,
 } from "../../index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
-import { EXPLOSION_HIT_OUTCOME_PROPERTIES } from "./explosion-hit-outcome-properties.js";
-import { EXPLOSION_STEPS_CONFIG } from "./explosion-steps-config.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import { COMBAT_ACTIONS } from "../index.js";
+import { EXECUTE_EXPLOSION_STEPS_CONFIG } from "./execute-explosion-steps-config.js";
+import { EXECUTE_EXPLOSION_HIT_OUTCOME_PROPERTIES } from "./explosion-hit-outcome-properties.js";
 
 const config: CombatActionComponentConfig = {
   description: "Deals kinetic fire damage in an area around the target",
@@ -21,10 +29,13 @@ const config: CombatActionComponentConfig = {
     },
   }),
 
-  hitOutcomeProperties: EXPLOSION_HIT_OUTCOME_PROPERTIES,
+  hitOutcomeProperties: EXECUTE_EXPLOSION_HIT_OUTCOME_PROPERTIES,
   costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.FREE_ACTION(),
-  stepsConfig: EXPLOSION_STEPS_CONFIG,
+  stepsConfig: EXECUTE_EXPLOSION_STEPS_CONFIG,
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };
 
-export const EXPLOSION = new CombatActionComposite(CombatActionName.Explosion, config);
+export const EXECUTE_EXPLOSION = new CombatActionComposite(
+  CombatActionName.ExecuteExplosion,
+  config
+);

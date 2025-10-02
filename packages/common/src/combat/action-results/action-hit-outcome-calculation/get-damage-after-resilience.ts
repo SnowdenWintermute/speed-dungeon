@@ -3,7 +3,7 @@ import { CombatAttribute } from "../../../combatants/attributes/index.js";
 
 export default function getDamageAfterResilience(
   baseValue: number,
-  userCombatAttributes: Record<CombatAttribute, number>,
+  userCombatAttributes: Partial<Record<CombatAttribute, number>>,
   targetCombatAttributes: Record<CombatAttribute, number>
 ) {
   const targetResilience = targetCombatAttributes[CombatAttribute.Spirit];

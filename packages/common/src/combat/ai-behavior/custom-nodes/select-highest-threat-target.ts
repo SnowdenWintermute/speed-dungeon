@@ -71,7 +71,7 @@ export class SelectTopThreatTargetAndAction implements BehaviorNode {
               const { actionName } = selectedActionWithPotentialValidTargets;
 
               const targetingCalculator = new TargetingCalculator(
-                behaviorContext.combatantContext,
+                behaviorContext.actionUserContext,
                 null
               );
               const targetIdsResult = targetingCalculator.getCombatActionTargetIds(

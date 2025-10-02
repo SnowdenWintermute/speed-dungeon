@@ -1,21 +1,31 @@
 import { immerable } from "immer";
+import { Option } from "../../primatives/index.js";
 import { Battle } from "../../battle/index.js";
-import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionIntent } from "../../combat/combat-actions/combat-action-intent.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { CosmeticEffectOnTargetTransformNode } from "../../combat/combat-actions/combat-action-steps-config.js";
 import { FriendOrFoe } from "../../combat/combat-actions/targeting-schemes-and-categories.js";
-import { CombatantContext } from "../../combatant-context/index.js";
 import { EntityId, EntityProperties, MaxAndCurrent } from "../../primatives/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
-import { Combatant, CombatantAttributeRecord, CombatantProperties } from "../index.js";
-import { BurningCombatantCondition } from "./burning.js";
-import { PrimedForExplosionCombatantCondition } from "./primed-for-explosion.js";
-import { PrimedForIceBurstCombatantCondition } from "./primed-for-ice-burst.js";
+import {
+  Combatant,
+  CombatantAttributeRecord,
+  CombatantProperties,
+  ConditionTickProperties,
+} from "../index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { TurnOrderManager, TurnTrackerEntityType } from "../../combat/index.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "../../combat/turn-order/consts.js";
-import { BlindedCombatantCondition } from "./blinded.js";
+import { ActionUserType, IActionUser } from "../../action-user-context/action-user.js";
+import { ActionIntentAndUser } from "../../action-processing/index.js";
+import {
+  ActionAndRank,
+  ActionUserTargetingProperties,
+} from "../../action-user-context/action-user-targeting-properties.js";
+import { Vector3, Quaternion } from "@babylonjs/core";
+import { ActionEntityProperties } from "../../action-entities/index.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
+export * from "./condition-tick-properties.js";
 
 export enum CombatantConditionName {
   // Poison,
@@ -43,23 +53,6 @@ export const COMBATANT_CONDITION_DESCRIPTIONS: Record<CombatantConditionName, st
 
 export const MAX_CONDITION_STACKS = 99;
 
-type CombatantConditionConstructor = new (
-  id: EntityId,
-  appliedBy: ConditionAppliedBy,
-  level: number,
-  stacksOption: null | MaxAndCurrent
-) => CombatantCondition;
-
-export const COMBATANT_CONDITION_CONSTRUCTORS: Record<
-  CombatantConditionName,
-  CombatantConditionConstructor
-> = {
-  [CombatantConditionName.PrimedForExplosion]: PrimedForExplosionCombatantCondition,
-  [CombatantConditionName.PrimedForIceBurst]: PrimedForIceBurstCombatantCondition,
-  [CombatantConditionName.Burning]: BurningCombatantCondition,
-  [CombatantConditionName.Blinded]: BlindedCombatantCondition,
-};
-
 export interface ConditionAppliedBy {
   entityProperties: EntityProperties;
   // we store this because at the time a condition is triggered,
@@ -71,38 +64,108 @@ export interface ConditionAppliedBy {
   friendOrFoe: FriendOrFoe;
 }
 
-export abstract class ConditionTickProperties {
-  abstract getTickSpeed: (condition: CombatantCondition) => number;
-  abstract onTick: (
-    condition: CombatantCondition,
-    context: CombatantContext
-  ) => {
-    numStacksRemoved: number;
-    triggeredAction: {
-      user: Combatant;
-      actionExecutionIntent: CombatActionExecutionIntent;
-      getConsumableType?: () => null;
-    };
-  };
-}
-
 export interface ConditionWithCombatantIdAppliedTo {
   condition: CombatantCondition;
   appliedTo: EntityId;
 }
 
-export abstract class CombatantCondition {
+export abstract class CombatantCondition implements IActionUser {
   [immerable] = true;
   ticks?: MaxAndCurrent;
-  level: number = 0;
+  level: number = 1;
   intent: CombatActionIntent = CombatActionIntent.Malicious;
   removedOnDeath: boolean = true;
+  combatAttributes?: CombatantAttributeRecord = {};
+  // @PERF - don't use targeting properties on conditions that don't have targets
+  targetingProperties: ActionUserTargetingProperties = new ActionUserTargetingProperties();
   constructor(
     public id: EntityId,
     public appliedBy: ConditionAppliedBy,
+    public appliedTo: EntityId,
     public name: CombatantConditionName,
     public stacksOption: null | MaxAndCurrent
   ) {}
+  getType = () => ActionUserType.Condition;
+  getActionEntityProperties(): ActionEntityProperties {
+    throw new Error("Conditions do not have ActionEntityProperties.");
+  }
+  wasRemovedBeforeHitOutcomes(): boolean {
+    return false;
+  }
+
+  setWasRemovedBeforeHitOutcomes(): void {}
+  getConditionTickPropertiesOption() {
+    return this.tickPropertiesOption;
+  }
+  getConditionAppliedTo(): EntityId {
+    return this.appliedTo;
+  }
+
+  getCombatantProperties(): CombatantProperties {
+    throw new Error("Conditions do not have combatantProperties");
+  }
+
+  getConditionStacks(): MaxAndCurrent {
+    return this.stacksOption || new MaxAndCurrent(0, 0);
+  }
+  getEntityProperties(): EntityProperties {
+    return { id: this.id, name: this.getName() };
+  }
+  getName(): string {
+    return COMBATANT_CONDITION_NAME_STRINGS[this.name];
+  }
+  getPositionOption() {
+    return null;
+  }
+  getMovementSpeedOption(): null | number {
+    return null;
+  }
+
+  getHomePosition(): Vector3 {
+    throw new Error("Conditions do not have a home position");
+  }
+  getHomeRotation(): Quaternion {
+    throw new Error("Conditions do not have a home rotation");
+  }
+  getConditionAppliedBy(): ConditionAppliedBy {
+    return this.appliedBy;
+  }
+  getAllyAndOpponentIds(
+    party: AdventuringParty,
+    battleOption: null | Battle
+  ): Record<FriendOrFoe, EntityId[]> {
+    // @TODO - replace this placeholder
+    if (!battleOption) {
+      return { [FriendOrFoe.Hostile]: [], [FriendOrFoe.Friendly]: [] };
+    }
+
+    const idsByDispositionOfConditionHolder =
+      AdventuringParty.getCombatantIdsByDispositionTowardsCombatantId(party, this.appliedTo);
+    switch (this.appliedBy.friendOrFoe) {
+      case FriendOrFoe.Friendly:
+        // if applied by a friendly combatant, "ally ids" would be the allies of conditionAppliedTo
+        return idsByDispositionOfConditionHolder;
+      case FriendOrFoe.Hostile:
+        // if applied by a hostile combatant, "ally ids" would be the opponents of conditionAppliedTo
+        return Battle.invertAllyAndOpponentIds(idsByDispositionOfConditionHolder);
+    }
+  }
+
+  getTargetingProperties(): ActionUserTargetingProperties {
+    if (this.targetingProperties) return this.targetingProperties;
+    throw new Error("Condition was not configured with targetingProperties");
+  }
+  payResourceCosts = () => {};
+  handleTurnEnded = () => {};
+  getEntityId = () => this.id;
+  getLevel = () => this.level;
+  getTotalAttributes = () => this.combatAttributes || {};
+  getOwnedAbilities() {
+    return {};
+  }
+  getEquipmentOption = () => null;
+  getInventoryOption = () => null;
+  getIdOfEntityToCreditWithThreat = () => this.appliedBy.entityProperties.id;
 
   // if tracking ticks, increment current
   // examples of action to take here:
@@ -121,30 +184,19 @@ export abstract class CombatantCondition {
   //
 
   abstract onTriggered(
-    combatantContext: CombatantContext,
+    actionUserContext: ActionUserContext,
     targetCombatant: Combatant,
     idGenerator: IdGenerator
   ): {
     numStacksRemoved: number;
-    triggeredActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[];
+    triggeredActions: ActionIntentAndUser[];
   };
 
-  abstract getCosmeticEffectWhileActive: (
+  abstract getCosmeticEffectWhileActive(
     combatantId: EntityId
-  ) => CosmeticEffectOnTargetTransformNode[];
+  ): CosmeticEffectOnTargetTransformNode[];
 
-  abstract getTickSpeed?: (condition: CombatantCondition) => number;
-  abstract onTick?: (
-    condition: CombatantCondition,
-    context: CombatantContext
-  ) => {
-    numStacksRemoved: number;
-    triggeredAction: {
-      user: Combatant;
-      actionExecutionIntent: CombatActionExecutionIntent;
-      getConsumableType?: () => null;
-    };
-  };
+  abstract tickPropertiesOption: Option<ConditionTickProperties>;
 
   abstract getAttributeModifiers?(
     condition: CombatantCondition,
@@ -152,45 +204,35 @@ export abstract class CombatantCondition {
   ): CombatantAttributeRecord;
 
   static getTickProperties(condition: CombatantCondition) {
-    if (!condition.onTick || !condition.getTickSpeed) return undefined;
-    return {
-      getTickSpeed: condition.getTickSpeed,
-      onTick: condition.onTick,
-    };
+    return condition.tickPropertiesOption;
   }
 
-  // examples:
-  // - perform a composite combat action
-  // - remove self - examples:
-  // - ex: Poisona for a poison condition
-  // - ex: Esuna for all negative conditions
-  // - ex: Dispell for all positive conditions
-
-  // getAvailableActionModifications() {
-  //   // examples:
-  //   // - can't cast spells
-  //   // - allows attacking while dead
-  //   // - restricts certain targets
-  // }
-
-  // getIntent() {
-  //   // helpful (buff)
-  //   // harmful (debuff)
-  //   // neutral (neither)
-  // }
-
-  static removeByNameFromCombatant(
-    name: CombatantConditionName,
-    combatantProperties: CombatantProperties
-  ) {
+  static removeByNameFromCombatant(name: CombatantConditionName, combatant: Combatant) {
+    const { combatantProperties } = combatant;
+    console.log(
+      "trying to remove condition by name from combatant",
+      COMBATANT_CONDITION_NAME_STRINGS[name],
+      combatant.getEntityId()
+    );
     combatantProperties.conditions = combatantProperties.conditions.filter((existingCondition) => {
+      if (existingCondition.name !== name) console.log("removed it");
       existingCondition.name !== name;
     });
+    console.log(
+      "after removal attempt:",
+      combatantProperties.conditions.map((condition) => condition.getName())
+    );
   }
 
-  static replaceExisting(condition: CombatantCondition, combatantProperties: CombatantProperties) {
-    CombatantCondition.removeByNameFromCombatant(condition.name, combatantProperties);
+  static replaceExisting(condition: CombatantCondition, combatant: Combatant) {
+    CombatantCondition.removeByNameFromCombatant(condition.name, combatant);
+    const { combatantProperties } = combatant;
     combatantProperties.conditions.push(condition);
+    console.log(
+      "after condition replacement:",
+      combatantProperties.conditions.map((condition) => condition.getName()),
+      combatant.getEntityId()
+    );
   }
 
   /* returns true if condition was preexisting */
@@ -200,28 +242,50 @@ export abstract class CombatantCondition {
     battleOption: null | Battle,
     party: AdventuringParty
   ) {
+    console.log(
+      "attempting to apply condition:",
+      condition.getEntityId(),
+      condition.getName(),
+      "to combatant:",
+      combatant.getEntityId()
+    );
+
     let wasExisting = false;
     const { combatantProperties } = combatant;
     combatantProperties.conditions.forEach((existingCondition) => {
-      if (existingCondition.name !== condition.name) return;
+      if (existingCondition.name !== condition.name) {
+        return;
+      }
+
       wasExisting = true;
+
       // don't replace an existing condition of higher level
-      if (existingCondition.level > condition.level) return;
+      if (existingCondition.level > condition.level) {
+        return;
+      }
+
       // if higher level, replace it
-      if (existingCondition.level < condition.level)
-        return CombatantCondition.replaceExisting(condition, combatantProperties);
+      if (existingCondition.level < condition.level) {
+        return CombatantCondition.replaceExisting(condition, combatant);
+      }
+
       // if stackable and of same level, add to stacks
       if (existingCondition.stacksOption) {
-        if (existingCondition.stacksOption.max > existingCondition.stacksOption.current)
+        console.log("existing condition of same name, adding stacks");
+        const canHoldMoreStacks =
+          existingCondition.stacksOption.max > existingCondition.stacksOption.current;
+        if (canHoldMoreStacks) {
           existingCondition.stacksOption.current += condition.stacksOption?.current ?? 0;
+        }
         // replacing the appliedBy helps to ensure that threat is applied correctly
         // when a replaced condition was persisted from a previous battle where it
         // was applied by a now nonexistant combatant
         existingCondition.appliedBy = condition.appliedBy;
         return;
       }
+
       // not stackable, replace or just add it
-      return CombatantCondition.replaceExisting(condition, combatantProperties);
+      return CombatantCondition.replaceExisting(condition, combatant);
     });
 
     if (wasExisting) return true;
@@ -260,37 +324,39 @@ export abstract class CombatantCondition {
     );
   }
 
-  static removeById(
-    conditionId: EntityId,
-    combatantProperties: CombatantProperties
-  ): CombatantCondition | undefined {
+  static removeById(conditionId: EntityId, combatant: Combatant): CombatantCondition | undefined {
+    const { combatantProperties } = combatant;
+
     let removed: CombatantCondition | undefined = undefined;
     combatantProperties.conditions = combatantProperties.conditions.filter((condition) => {
-      if (condition.id === conditionId) removed = condition;
+      if (condition.id === conditionId) {
+        console.log("removing condition by id:", conditionId, combatant.getEntityId());
+        removed = condition;
+      }
       return condition.id !== conditionId;
     });
-
-    // @PERF - remove the associated turn scheduler
-    // from the battle
 
     return removed;
   }
 
   static removeStacks(
     conditionId: EntityId,
-    combatantProperties: CombatantProperties,
+    combatant: Combatant,
     numberToRemove: number
   ): CombatantCondition | undefined {
-    for (const condition of Object.values(combatantProperties.conditions)) {
+    const { combatantProperties } = combatant;
+
+    console.log("removing stacks for conditionId:", conditionId);
+
+    for (const condition of combatantProperties.conditions) {
       if (condition.id !== conditionId) continue;
-      if (condition.stacksOption)
-        condition.stacksOption.current = Math.max(
-          0,
-          condition.stacksOption.current - numberToRemove
-        );
+      if (condition.stacksOption) {
+        const newStacksCount = condition.stacksOption.current - numberToRemove;
+        condition.stacksOption.current = Math.max(0, newStacksCount);
+      }
 
       if (condition.stacksOption === null || condition.stacksOption.current === 0) {
-        CombatantCondition.removeById(condition.id, combatantProperties);
+        CombatantCondition.removeById(condition.id, combatant);
         return condition;
       }
     }

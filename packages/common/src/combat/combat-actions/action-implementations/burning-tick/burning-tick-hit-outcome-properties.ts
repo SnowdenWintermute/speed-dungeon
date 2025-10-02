@@ -32,7 +32,7 @@ overrides.resourceChangePropertiesGetters = {
     const baseValues = new NumberRange(2, 5);
 
     // just get some extra damage for combatant level
-    baseValues.add(user.level - 1);
+    baseValues.add(user.getLevel() - 1);
 
     const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
     const hpChangeProperties: CombatActionResourceChangeProperties = {

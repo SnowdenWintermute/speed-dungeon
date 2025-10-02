@@ -1,4 +1,4 @@
-import { ActionEntity, ActionEntityName } from "../../../action-entities/index.js";
+import { ActionEntityName } from "../../../action-entities/index.js";
 import {
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
@@ -6,20 +6,22 @@ import {
   CombatActionTargetType,
 } from "../../../combat/index.js";
 import { ShapeType3D } from "../../../utils/shape-utils.js";
-import { ActionResolutionStepContext, ActionResolutionStepType } from "../index.js";
+import {
+  ActionIntentAndUser,
+  ActionResolutionStepContext,
+  ActionResolutionStepType,
+} from "../index.js";
 import { TriggerEnvironmentalHazardsActionResolutionStep } from "./determine-environmental-hazard-triggers.js";
-import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../../app-consts.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { AnimationTimingType } from "../../game-update-commands.js";
-import cloneDeep from "lodash.clonedeep";
 import { timeToReachBox } from "../../../utils/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 
 export function getFirewallBurnScheduledActions(
   context: ActionResolutionStepContext,
   step: TriggerEnvironmentalHazardsActionResolutionStep
-) {
-  const user = context.combatantContext.combatant;
+): ActionIntentAndUser[] {
+  const { actionUser } = context.actionUserContext;
 
   const { actionExecutionIntent } = context.tracker;
   const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
@@ -31,15 +33,15 @@ export function getFirewallBurnScheduledActions(
 
   const addRecoveryAnimationTime = motionStepType === ActionResolutionStepType.FinalPositioning;
 
-  const combatant = context.combatantContext.combatant;
-  const entityPosition = combatant.combatantProperties.position;
+  const entityPosition = actionUser.getPositionOption();
+
+  if (entityPosition === null) return [];
 
   const destinationsOption = EntityMotionActionResolutionStep.getDestinations(
     context,
     action,
     motionStepType,
-    entityPosition,
-    COMBATANT_TIME_TO_MOVE_ONE_METER
+    actionUser
   );
 
   if (!destinationsOption) return [];
@@ -47,7 +49,7 @@ export function getFirewallBurnScheduledActions(
   const { translationOption } = destinationsOption;
   if (!translationOption) return [];
 
-  const { party } = context.combatantContext;
+  const { party } = context.actionUserContext;
 
   const existingFirewallOption = AdventuringParty.getExistingActionEntityOfType(
     party,
@@ -63,13 +65,11 @@ export function getFirewallBurnScheduledActions(
   if (taggedDimensions.type !== ShapeType3D.Box)
     throw new Error("expected firewall to be box shaped");
 
-  const userPosition = user.combatantProperties.position;
-
-  const movementVector = destination.subtract(userPosition);
+  const movementVector = destination.subtract(entityPosition);
   const distance = movementVector.length();
   const speed = distance / duration;
   let timeToReachFirewallOption = timeToReachBox(
-    userPosition,
+    entityPosition,
     destination,
     firewallPosition,
     taggedDimensions.dimensions,
@@ -80,8 +80,8 @@ export function getFirewallBurnScheduledActions(
 
   const firewallBurnExecutionIntent = new CombatActionExecutionIntent(
     CombatActionName.FirewallBurn,
-    { type: CombatActionTargetType.Single, targetId: user.entityProperties.id },
-    1
+    1,
+    { type: CombatActionTargetType.Single, targetId: actionUser.getEntityId() }
   );
 
   if (addRecoveryAnimationTime) {
@@ -107,19 +107,16 @@ export function getFirewallBurnScheduledActions(
 
   firewallBurnExecutionIntent.setDelayForStep(
     // firewall burn's InitialPositioning motion, so that the delay happens before the post initial positioning check if should still execute
-    ActionResolutionStepType.InitialPositioning,
+    ActionResolutionStepType.WaitForInitialDelay,
     timeToReachFirewallOption
   );
 
-  const firewallUser = cloneDeep(user);
-
-  firewallUser.combatantProperties.asShimmedActionEntity = existingFirewallOption;
-  firewallBurnExecutionIntent.level =
-    existingFirewallOption.actionEntityProperties.actionOriginData?.actionLevel?.current || 1;
+  firewallBurnExecutionIntent.rank = existingFirewallOption.getLevel();
 
   const firewallBurnActionIntentWithUser = {
-    user: firewallUser,
+    user: existingFirewallOption,
     actionExecutionIntent: firewallBurnExecutionIntent,
   };
+
   return [firewallBurnActionIntentWithUser];
 }

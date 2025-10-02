@@ -19,10 +19,9 @@ import {
   createTargetingPropertiesConfig,
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
-import { createCopyOfProjectileUser } from "../../../../combatants/index.js";
-import { SpawnableEntityType } from "../../../../spawnables/index.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BOW_SKILL();
+
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BOW_ATTACK,
   {}
@@ -47,27 +46,17 @@ export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
     getParent: () => ATTACK,
     getConcurrentSubActions(context) {
-      const expectedProjectile = context.tracker.spawnedEntityOption;
-      if (expectedProjectile === null) throw new Error("expected to have spawned the arrow by now");
-      if (expectedProjectile.type !== SpawnableEntityType.ActionEntity)
-        throw new Error("expected to have spawned an action entity");
+      const expectedProjectile = context.tracker.getFirstExpectedSpawnedActionEntity();
 
-      // without this cloning we'll be modifying the actual user when incinerating projectiles
-      // or adding resource change source categories to the .asShimmedActionEntity
-      // or otherwise polluting our original user
-      // @REFACTOR - put this cloning into the projectile template
-      const projectileUser = createCopyOfProjectileUser(
-        context.combatantContext.combatant,
-        expectedProjectile.actionEntity
-      );
+      const { rank, targets } = context.tracker.actionExecutionIntent;
 
       return [
         {
-          user: projectileUser,
+          user: expectedProjectile.actionEntity,
           actionExecutionIntent: new CombatActionExecutionIntent(
             CombatActionName.AttackRangedMainhandProjectile,
-            context.tracker.actionExecutionIntent.targets,
-            context.tracker.actionExecutionIntent.level
+            rank,
+            targets
           ),
         },
       ];

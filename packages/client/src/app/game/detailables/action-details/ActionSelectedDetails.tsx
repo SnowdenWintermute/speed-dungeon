@@ -1,6 +1,7 @@
 import {
   ActionAccuracyType,
   ActionPayableResource,
+  ActionUserContext,
   ArrayUtils,
   COMBATANT_CONDITION_CONSTRUCTORS,
   COMBAT_ACTIONS,
@@ -8,7 +9,6 @@ import {
   CombatActionExecutionIntent,
   CombatActionName,
   CombatAttribute,
-  CombatantContext,
   CombatantProperties,
   ERROR_MESSAGES,
   FriendOrFoe,
@@ -49,7 +49,9 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
   const actionStateOption = abilityProperties.ownedActions[actionName];
   const actionState = abilityProperties.ownedActions[actionName];
   if (actionState === undefined) return <div>Somehow detailing an unowned action</div>;
-  const selectedLevelOption = combatantProperties.selectedActionLevel;
+
+  const targetingProperties = focusedCharacterResult.getTargetingProperties();
+  const selectedActionAndRankOption = targetingProperties.getSelectedActionAndRank();
 
   const inCombat = !!Object.values(party.currentRoom.monsters).length;
 
@@ -69,17 +71,17 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
   const actionDescription = COMBAT_ACTION_DESCRIPTIONS[actionName];
 
   const targetingCalculator = new TargetingCalculator(
-    new CombatantContext(gameOption, party, focusedCharacterResult),
+    new ActionUserContext(gameOption, party, focusedCharacterResult),
     null
   );
-  const currentTargetsOption = combatantProperties.combatActionTarget;
+  const currentTargetsOption = targetingProperties.getSelectedTarget();
   if (!currentTargetsOption) return <div>{ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED}</div>;
   const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
     party,
     new CombatActionExecutionIntent(
       actionState.actionName,
-      currentTargetsOption,
-      selectedLevelOption || 1
+      selectedActionAndRankOption?.rank || 1,
+      currentTargetsOption
     )
   );
   if (primaryTargetResult instanceof Error) return <div>{primaryTargetResult.message}</div>;
@@ -93,14 +95,17 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
       {!hideTitle && (
         <ActionDetailsTitleBar
           actionName={actionName}
-          actionStateAndSelectedLevel={{ actionStateOption, selectedLevelOption }}
+          actionStateAndSelectedLevel={{
+            actionStateOption,
+            selectedLevelOption: selectedActionAndRankOption?.rank || null,
+          }}
         />
       )}
       <ul className="list-none">
         {ArrayUtils.createFilledWithSequentialNumbers(actionState.level, 1).map((rank) => {
           const percentChanceToHit = HitOutcomeMitigationCalculator.getActionHitChance(
             action,
-            combatantProperties,
+            focusedCharacterResult,
             rank,
             targetEvasion,
             true,
@@ -116,7 +121,7 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
             rankDescription[ActionDescriptionComponent.ResourceChanges];
 
           const rankCosts =
-            action.costProperties.getResourceCosts(combatantProperties, inCombat, rank) || {};
+            action.costProperties.getResourceCosts(focusedCharacterResult, inCombat, rank) || {};
           const unmetCosts = rankCosts
             ? getUnmetCostResourceTypes(combatantProperties, rankCosts)
             : [];
@@ -140,7 +145,7 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
           return (
             <button
               key={`${action.name}${rank}`}
-              className={`h-10 w-full flex items-center px-2 ${!!(unmetCosts.length > 0) && " pointer-events-none"} ${!!(selectedLevelOption === rank) && "bg-slate-800"} `}
+              className={`h-10 w-full flex items-center px-2 ${!!(unmetCosts.length > 0) && " pointer-events-none"} ${!!(selectedActionAndRankOption?.rank === rank) && "bg-slate-800"} `}
               onClick={() => handleSelectActionLevel(rank)}
             >
               <div className="flex items-center h-full">
@@ -187,11 +192,12 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
                       const condition = new COMBATANT_CONDITION_CONSTRUCTORS[
                         conditionBlueprint.conditionName
                       ](
-                        "",
+                        "condition name",
                         {
                           entityProperties: { id: "", name: "" },
                           friendOrFoe: FriendOrFoe.Hostile,
                         },
+                        "applied to dummy id",
                         conditionBlueprint.level,
                         new MaxAndCurrent(conditionBlueprint.stacks, conditionBlueprint.stacks)
                       );

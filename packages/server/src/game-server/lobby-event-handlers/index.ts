@@ -16,9 +16,9 @@ import joinGameHandler from "./join-game-handler.js";
 import getSession from "../event-middleware/get-session.js";
 import createGameHandler from "./create-game-handler.js";
 import requestGameListHandler from "./request-game-list-handler.js";
-import createCharacterHandler from "./create-character-handler.js";
+import { createCharacterHandler } from "./create-character-handler.js";
 import deleteCharacterHandler from "./delete-character-handler.js";
-import selectProgressionGameCharacterHandler from "./select-progression-game-character-handler.js";
+import { selectProgressionGameCharacterHandler } from "./select-progression-game-character-handler.js";
 import selectProgressionGameStartingFloorHandler from "./select-progression-game-starting-floor-handler.js";
 
 export default function initiateLobbyEventListeners(

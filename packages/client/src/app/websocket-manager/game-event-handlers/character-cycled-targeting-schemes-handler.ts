@@ -1,8 +1,8 @@
 import { GameState } from "@/stores/game-store";
 import {
+  ActionUserContext,
   CharacterAssociatedData,
   COMBAT_ACTIONS,
-  CombatantContext,
   ERROR_MESSAGES,
   TargetingCalculator,
 } from "@speed-dungeon/common";
@@ -19,19 +19,22 @@ export function characterCycledTargetingSchemesHandler(
       if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
       const playerOption = game.players[playerUsername];
       if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
-      const combatantContext = new CombatantContext(game, party, character);
+      const combatantContext = new ActionUserContext(game, party, character);
       const targetingCalculator = new TargetingCalculator(combatantContext, playerOption);
-      targetingCalculator.cycleCharacterTargetingSchemes(characterId);
-      const actionNameOption = character.combatantProperties.selectedCombatAction;
+      const targetingProperties = character.getTargetingProperties();
+      targetingProperties.cycleTargetingSchemes(targetingCalculator);
 
-      const { selectedCombatAction, combatActionTarget } = character.combatantProperties;
-      if (selectedCombatAction === null)
+      const selectedActionAndRank = targetingProperties.getSelectedActionAndRank();
+      const combatActionTarget = targetingProperties.getSelectedTarget();
+
+      if (selectedActionAndRank === null)
         return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
       if (combatActionTarget === null)
         return new Error(ERROR_MESSAGES.COMBATANT.NO_TARGET_SELECTED);
 
+      const actionNameOption = selectedActionAndRank.actionName;
       const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
-        COMBAT_ACTIONS[selectedCombatAction],
+        COMBAT_ACTIONS[actionNameOption],
         combatActionTarget
       );
       if (targetIdsResult instanceof Error) return targetIdsResult;

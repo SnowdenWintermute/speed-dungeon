@@ -1,17 +1,21 @@
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionSequenceManagerRegistry,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionExecutionIntent,
-  CombatantContext,
+  ERROR_MESSAGES,
   InputLock,
+  LOOP_SAFETY_ITERATION_LIMIT,
   NestedNodeReplayEvent,
   NestedNodeReplayEventUtls,
   ReplayEventType,
 } from "@speed-dungeon/common";
 import { ANIMATION_LENGTHS, idGenerator } from "../../../singletons/index.js";
+import { ActionUserContext } from "@speed-dungeon/common";
 
 export function processCombatAction(
   actionExecutionIntent: CombatActionExecutionIntent,
-  combatantContext: CombatantContext
+  actionUserContext: ActionUserContext
 ) {
   const registry = new ActionSequenceManagerRegistry(idGenerator, ANIMATION_LENGTHS);
   const rootReplayNode: NestedNodeReplayEvent = { type: ReplayEventType.NestedNode, events: [] };
@@ -19,7 +23,7 @@ export function processCombatAction(
   const initialGameUpdateOptionResult = registry.registerAction(
     actionExecutionIntent,
     rootReplayNode,
-    combatantContext,
+    actionUserContext,
     null
   );
 
@@ -27,14 +31,24 @@ export function processCombatAction(
   if (initialGameUpdateOptionResult)
     NestedNodeReplayEventUtls.appendGameUpdate(rootReplayNode, initialGameUpdateOptionResult);
 
-  InputLock.lockInput(combatantContext.party.inputLock);
+  InputLock.lockInput(actionUserContext.party.inputLock);
 
+  let safetyCounter = -1;
   while (registry.isNotEmpty()) {
-    registry.processActiveActionSequences(combatantContext);
+    safetyCounter += 1;
+
+    if (safetyCounter > LOOP_SAFETY_ITERATION_LIMIT) {
+      console.error(
+        ERROR_MESSAGES.LOOP_SAFETY_ITERATION_LIMIT_REACHED(LOOP_SAFETY_ITERATION_LIMIT),
+        "in process-combat-action"
+      );
+      break;
+    }
+    registry.processActiveActionSequences(actionUserContext);
   }
 
   setTimeout(() => {
-    InputLock.unlockInput(combatantContext.party.inputLock);
+    InputLock.unlockInput(actionUserContext.party.inputLock);
   }, registry.time.ms);
 
   const endedTurn = registry.getTurnEnded();

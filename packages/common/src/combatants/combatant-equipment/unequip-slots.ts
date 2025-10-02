@@ -16,8 +16,9 @@ export function unequipSlots(
 
       switch (slot.type) {
         case EquipmentSlotType.Holdable:
-          const equippedHoldableHotswapSlot =
-            CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+          const equippedHoldableHotswapSlot = CombatantEquipment.getEquippedHoldableSlots(
+            combatantProperties.equipment
+          );
           if (!equippedHoldableHotswapSlot) continue;
           itemOption = equippedHoldableHotswapSlot.holdables[slot.slot];
           delete equippedHoldableHotswapSlot.holdables[slot.slot];

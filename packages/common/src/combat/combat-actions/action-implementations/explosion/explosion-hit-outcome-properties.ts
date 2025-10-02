@@ -18,7 +18,7 @@ import {
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 hitOutcomeOverrides.getArmorPenetration = (user, self) => 15;
 hitOutcomeOverrides.resourceChangePropertiesGetters = {
-  [CombatActionResource.HitPoints]: (user) => {
+  [CombatActionResource.HitPoints]: (user, hitOutcomeProperties, actionLevel) => {
     const hpChangeSourceConfig: ResourceChangeSourceConfig = {
       category: ResourceChangeSourceCategory.Physical,
       kineticDamageTypeOption: null,
@@ -27,9 +27,7 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
       lifestealPercentage: null,
     };
 
-    const stacks = user.asShimmedUserOfTriggeredCondition?.condition.stacksOption?.current || 1;
-
-    const baseValues = new NumberRange(user.level * stacks, user.level * stacks * 10);
+    const baseValues = new NumberRange(actionLevel, actionLevel * 10);
 
     const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
     const hpChangeProperties: CombatActionResourceChangeProperties = {
@@ -41,8 +39,10 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
   },
 };
 
+hitOutcomeOverrides.getShouldAnimateTargetHitRecovery = () => false;
+
 const base = HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL;
-export const EXPLOSION_HIT_OUTCOME_PROPERTIES = createHitOutcomeProperties(
+export const EXECUTE_EXPLOSION_HIT_OUTCOME_PROPERTIES = createHitOutcomeProperties(
   base,
   hitOutcomeOverrides
 );

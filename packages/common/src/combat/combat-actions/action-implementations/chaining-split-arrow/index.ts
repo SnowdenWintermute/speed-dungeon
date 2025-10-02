@@ -6,6 +6,7 @@ import {
   CombatActionExecutionIntent,
   CombatActionName,
   CombatActionOrigin,
+  FriendOrFoe,
 } from "../../index.js";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
 import { EquipmentType } from "../../../../items/equipment/index.js";
@@ -26,7 +27,7 @@ import {
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { CHAINING_SPLIT_ARROW_PARENT_STEPS_CONFIG } from "./chaining-split-arrow-parent-steps-config.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import { createCopyOfProjectileUser } from "../../../../combatants/index.js";
+import { AdventuringParty } from "../../../../adventuring-party/index.js";
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BOW_ATTACK,
@@ -68,29 +69,31 @@ const config: CombatActionComponentConfig = {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
 
     getConcurrentSubActions(context) {
-      return context.combatantContext
-        .getOpponents()
+      const { actionUser, party } = context.actionUserContext;
+      const battleOption = context.actionUserContext.getBattleOption();
+      const entityIdsByDisposition = actionUser.getAllyAndOpponentIds(party, battleOption);
+
+      const opponentIds = entityIdsByDisposition[FriendOrFoe.Hostile];
+      const opponents = AdventuringParty.getCombatants(party, opponentIds);
+
+      return opponents
         .filter((opponent) => opponent.combatantProperties.hitPoints > 0)
-        .map((opponent) => {
-          const expectedProjectile = context.tracker.spawnedEntityOption;
-          if (expectedProjectile === null)
-            throw new Error("expected to have spawned the arrow by now");
+        .map((opponent, i) => {
+          const expectedProjectile = context.tracker.spawnedEntities[i];
+          if (expectedProjectile === undefined)
+            throw new Error("expected to have spawned an arrow for each opponent");
           if (expectedProjectile.type !== SpawnableEntityType.ActionEntity)
             throw new Error("expected to have spawned an action entity");
-          const projectileUser = createCopyOfProjectileUser(
-            context.combatantContext.combatant,
-            expectedProjectile.actionEntity
-          );
 
           return {
-            user: projectileUser,
+            user: expectedProjectile.actionEntity,
             actionExecutionIntent: new CombatActionExecutionIntent(
               CombatActionName.ChainingSplitArrowProjectile,
+              context.tracker.actionExecutionIntent.rank,
               {
                 type: CombatActionTargetType.Single,
                 targetId: opponent.entityProperties.id,
-              },
-              context.tracker.actionExecutionIntent.level
+              }
             ),
           };
         });

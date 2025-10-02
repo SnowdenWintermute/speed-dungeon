@@ -1,21 +1,35 @@
 export * from "./cosmetic-effect.js";
 export * from "./cosmetic-effect-constructors.js";
-import { Vector3 } from "@babylonjs/core";
-import { EntityProperties, MaxAndCurrent } from "../primatives/index.js";
+import { Quaternion, Vector3 } from "@babylonjs/core";
+import { EntityId, EntityProperties, MaxAndCurrent } from "../primatives/index.js";
 import {
   SceneEntityChildTransformNodeIdentifier,
   SceneEntityChildTransformNodeIdentifierWithDuration,
 } from "../scene-entities/index.js";
 import { TaggedShape3DDimensions } from "../utils/shape-utils.js";
-import { CombatantAttributeRecord } from "../combatants/index.js";
+import {
+  CombatantActionState,
+  CombatantAttributeRecord,
+  CombatantProperties,
+  ConditionAppliedBy,
+  ConditionTickProperties,
+} from "../combatants/index.js";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import { MagicalElement } from "../combat/magical-elements.js";
 import {
   CombatActionExecutionIntent,
   CombatActionName,
+  CombatActionResource,
+  CombatActionResourceChangeProperties,
   CombatActionTargetType,
+  FriendOrFoe,
   ResourceChangeSource,
 } from "../combat/index.js";
+import { ActionUserType, IActionUser } from "../action-user-context/action-user.js";
+import { ActionUserTargetingProperties } from "../action-user-context/action-user-targeting-properties.js";
+import { plainToInstance } from "class-transformer";
+import { AdventuringParty } from "../adventuring-party/index.js";
+import { ARROW_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
 
 export enum ActionEntityName {
   Arrow,
@@ -37,17 +51,19 @@ export const ACTION_ENTITY_STRINGS: Record<ActionEntityName, string> = {
   [ActionEntityName.Firewall]: "Firewall",
 };
 
-// for when things pass through firewall, we can know
-// what the caster's +bonus to fire damage was when they cast it
 export interface ActionEntityActionOriginData {
+  targetingProperties?: ActionUserTargetingProperties;
   actionLevel?: MaxAndCurrent;
   turnOrderSpeed?: number;
   stacks?: MaxAndCurrent;
   userCombatantAttributes?: CombatantAttributeRecord;
   userElementalAffinities?: Partial<Record<MagicalElement, number>>;
   userKineticAffinities?: Partial<Record<KineticDamageType, number>>;
-  resourceChangeSource?: ResourceChangeSource;
+  resourceChangeProperties?: Partial<
+    Record<CombatActionResource, CombatActionResourceChangeProperties>
+  >;
   wasIncinerated?: boolean;
+  spawnedBy: EntityProperties;
 }
 
 export type ActionEntityProperties = {
@@ -62,20 +78,113 @@ export type ActionEntityProperties = {
   actionOriginData?: ActionEntityActionOriginData;
 };
 
-export class ActionEntity {
+export class ActionEntity implements IActionUser {
   constructor(
     public entityProperties: EntityProperties,
     public actionEntityProperties: ActionEntityProperties
   ) {}
+  getType = () => ActionUserType.ActionEntity;
+  getMovementSpeedOption(): null | number {
+    return ARROW_TIME_TO_MOVE_ONE_METER;
+  }
+  getActionEntityProperties(): ActionEntityProperties {
+    return this.actionEntityProperties;
+  }
+  setWasRemovedBeforeHitOutcomes() {
+    if (this.actionEntityProperties.actionOriginData === undefined)
+      this.actionEntityProperties.actionOriginData = { spawnedBy: { id: "", name: "" } };
+    this.actionEntityProperties.actionOriginData.wasIncinerated = true;
+  }
+  wasRemovedBeforeHitOutcomes(): boolean {
+    const wasRemoved = !!this.actionEntityProperties.actionOriginData?.wasIncinerated;
+    return wasRemoved;
+  }
+  payResourceCosts(): void {
+    throw new Error("Method not implemented.");
+  }
+  handleTurnEnded(): void {}
+  getEntityId(): EntityId {
+    return this.entityProperties.id;
+  }
+  getName(): string {
+    return this.entityProperties.name;
+  }
+  getEntityProperties(): EntityProperties {
+    return this.entityProperties;
+  }
+  getLevel(): number {
+    return this.actionEntityProperties.actionOriginData?.actionLevel?.current || 1;
+  }
+  getTotalAttributes(): CombatantAttributeRecord {
+    return this.actionEntityProperties.actionOriginData?.userCombatantAttributes || {};
+  }
+  getOwnedAbilities(): Partial<Record<CombatActionName, CombatantActionState>> {
+    throw new Error("Method not implemented.");
+  }
+  getEquipmentOption = () => null;
+  getInventoryOption = () => null;
 
-  static hydrate(actionEntity: ActionEntity) {
-    const { actionOriginData } = actionEntity.actionEntityProperties;
+  getTargetingProperties(): ActionUserTargetingProperties {
+    const targetingPropertiesOption =
+      this.actionEntityProperties.actionOriginData?.targetingProperties;
+    if (targetingPropertiesOption !== undefined) return targetingPropertiesOption;
+    else throw new Error("no targeting properties exist on this action entity");
+  }
+  getAllyAndOpponentIds(party: AdventuringParty): Record<FriendOrFoe, EntityId[]> {
+    const spawnedBy = this.actionEntityProperties.actionOriginData?.spawnedBy;
+    if (spawnedBy !== undefined) {
+      const idsByDisposition = AdventuringParty.getCombatantIdsByDispositionTowardsCombatantId(
+        party,
+        spawnedBy.id
+      );
+      return idsByDisposition;
+    } else {
+      const allCombatantIds = AdventuringParty.getAllCombatantIds(party);
+      return { [FriendOrFoe.Hostile]: allCombatantIds, [FriendOrFoe.Friendly]: allCombatantIds };
+    }
+  }
+  getCombatantProperties(): CombatantProperties {
+    throw new Error("invalid on ActionEntity.");
+  }
+  getConditionAppliedBy(): ConditionAppliedBy {
+    throw new Error("invalid on ActionEntity.");
+  }
+  getConditionAppliedTo(): EntityId {
+    throw new Error("invalid on ActionEntity.");
+  }
+  getConditionStacks(): MaxAndCurrent {
+    throw new Error("invalid on ActionEntity.");
+  }
+  getConditionTickPropertiesOption(): null | ConditionTickProperties {
+    throw new Error("invalid on ActionEntity.");
+  }
+  getPositionOption(): Vector3 {
+    return this.actionEntityProperties.position;
+  }
+  getHomePosition(): Vector3 {
+    throw new Error("Method not implemented.");
+  }
+  getHomeRotation(): Quaternion {
+    throw new Error("Method not implemented.");
+  }
+  getIdOfEntityToCreditWithThreat(): EntityId {
+    const spawnedByOption = this.actionEntityProperties.actionOriginData?.spawnedBy;
+    if (spawnedByOption === undefined)
+      throw new Error("No entity to credit threat could be found for this action entity");
+    return spawnedByOption.id;
+  }
+
+  static getDeserialized(actionEntity: ActionEntity) {
+    const deserialized = plainToInstance(ActionEntity, actionEntity);
+    const { actionOriginData } = deserialized.actionEntityProperties;
     if (actionOriginData) {
       const { actionLevel, stacks } = actionOriginData;
       if (actionLevel)
         actionOriginData.actionLevel = new MaxAndCurrent(actionLevel.max, actionLevel.current);
       if (stacks) actionOriginData.stacks = new MaxAndCurrent(stacks.max, stacks.current);
     }
+
+    return deserialized;
   }
 
   static setStacks(actionEnity: ActionEntity, value: number) {
@@ -99,10 +208,9 @@ export const ACTION_ENTITY_ACTION_INTENT_GETTERS: Partial<
   Record<ActionEntityName, () => CombatActionExecutionIntent>
 > = {
   [ActionEntityName.Firewall]: () => {
-    return new CombatActionExecutionIntent(
-      CombatActionName.FirewallPassTurn,
-      { type: CombatActionTargetType.Single, targetId: "" },
-      1
-    );
+    return new CombatActionExecutionIntent(CombatActionName.FirewallPassTurn, 1, {
+      type: CombatActionTargetType.Single,
+      targetId: "",
+    });
   },
 };

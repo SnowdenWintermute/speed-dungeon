@@ -1,13 +1,11 @@
 import { Item } from "../items/index.js";
-import { CombatantProperties } from "./index.js";
+import { CombatantAttributeRecord } from "./index.js";
 
 export function combatantHasRequiredAttributesToUseItem(
-  combatantProperties: CombatantProperties,
+  attributes: CombatantAttributeRecord,
   item: Item
 ): boolean {
-  const totalAttributes = CombatantProperties.getTotalAttributes(combatantProperties);
-
-  const requirementsMet = Item.requirementsMet(item, totalAttributes);
+  const requirementsMet = Item.requirementsMet(item, attributes);
   if (!requirementsMet) return false;
   return true;
 }

@@ -5,22 +5,20 @@ import {
   SpeedDungeonPlayer,
   AdventuringParty,
   SpeedDungeonGame,
-  Combatant,
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io-client";
-import characterAddedToPartyHandler from "./character-added-to-party-handler";
+import { characterAddedToPartyHandler } from "./character-added-to-party-handler";
 import characterDeletionHandler from "./character-deletion-handler";
 import playerToggledReadyToStartGameHandler from "./player-toggled-ready-to-start-game-handler";
 import { gameStartedHandler } from "../game-event-handlers/game-started-handler";
 import { playerLeftGameHandler } from "../player-left-game-handler";
-import savedCharacterSelectionInProgressGameHandler from "./saved-character-selection-in-progress-game-handler";
-import { gameWorld, getGameWorld } from "@/app/3d-world/SceneManager";
+import { savedCharacterSelectionInProgressGameHandler } from "./saved-character-selection-in-progress-game-handler";
+import { gameWorld } from "@/app/3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
 import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
-import getParty from "@/utils/getParty";
 
 export function setUpGameLobbyEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
@@ -29,11 +27,7 @@ export function setUpGameLobbyEventHandlers(
 
   socket.on(ServerToClientEvent.GameFullUpdate, (game) => {
     if (game) {
-      for (const party of Object.values(game.adventuringParties)) {
-        for (const character of Object.values(party.characters)) {
-          Combatant.rehydrate(character);
-        }
-      }
+      SpeedDungeonGame.deserialize(game);
     } else {
       gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
         type: ModelActionType.ClearAllModels,
@@ -62,11 +56,14 @@ export function setUpGameLobbyEventHandlers(
       state.stackedMenuStates = [];
     });
   });
+
   socket.on(ServerToClientEvent.PlayerJoinedGame, (username) => {
     mutateGameStore((state) => {
-      if (state.game) state.game.players[username] = new SpeedDungeonPlayer(username);
+      const player = new SpeedDungeonPlayer(username);
+      if (state.game) state.game.players[username] = player;
     });
   });
+
   socket.on(ServerToClientEvent.PlayerLeftGame, playerLeftGameHandler);
   socket.on(ServerToClientEvent.PartyCreated, (partyId, partyName) => {
     mutateGameStore((state) => {

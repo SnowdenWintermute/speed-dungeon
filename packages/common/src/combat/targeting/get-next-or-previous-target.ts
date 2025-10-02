@@ -1,5 +1,6 @@
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { NextOrPrevious } from "../../primatives/index.js";
+import { EntityId, NextOrPrevious } from "../../primatives/index.js";
+import { cycleListGivenCurrentValue } from "../../utils/index.js";
 import { CombatActionComponent } from "../combat-actions/index.js";
 import {
   FriendOrFoe,
@@ -7,16 +8,18 @@ import {
 } from "../combat-actions/targeting-schemes-and-categories.js";
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
 
+// @REFACTOR
 export default function getNextOrPreviousTarget(
   combatAction: CombatActionComponent,
   actionLevel: number,
   currentTargets: CombatActionTarget,
   direction: NextOrPrevious,
-  actionUserId: string,
-  allyIdsOption: null | string[],
-  opponentIdsOption: null | string[]
-): Error | CombatActionTarget {
-  let newTargetResult: Error | string = new Error("No target was calculated");
+  validTargetIds: Record<FriendOrFoe, EntityId[]>
+): CombatActionTarget {
+  const allyIdsOption = validTargetIds[FriendOrFoe.Friendly];
+  const opponentIdsOption = validTargetIds[FriendOrFoe.Hostile];
+
+  let newTarget: Error | string = new Error("No target was calculated");
   switch (currentTargets.type) {
     case CombatActionTargetType.DistinctIds:
       throw new Error("user should not be selecting this targeting type");
@@ -25,47 +28,37 @@ export default function getNextOrPreviousTarget(
     case CombatActionTargetType.Single:
       switch (combatAction.targetingProperties.getValidTargetCategories(actionLevel)) {
         case TargetCategories.Opponent:
-          if (!opponentIdsOption) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
-          newTargetResult = getNextOrPrevIdFromOrderedList(
+          if (!opponentIdsOption) throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
+          newTarget = cycleListGivenCurrentValue(
             opponentIdsOption,
             currentTargets.targetId,
             direction
           );
-          if (newTargetResult instanceof Error) return newTargetResult;
           return {
             type: currentTargets.type,
-            targetId: newTargetResult,
+            targetId: newTarget,
           };
         case TargetCategories.User:
-          return {
-            type: currentTargets.type,
-            targetId: actionUserId,
-          };
+          return currentTargets;
         case TargetCategories.Friendly:
-          if (!allyIdsOption) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
-          newTargetResult = getNextOrPrevIdFromOrderedList(
-            allyIdsOption,
-            currentTargets.targetId,
-            direction
-          );
-          if (newTargetResult instanceof Error) return newTargetResult;
+          if (!allyIdsOption) throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
+          newTarget = cycleListGivenCurrentValue(allyIdsOption, currentTargets.targetId, direction);
           return {
             type: currentTargets.type,
-            targetId: newTargetResult,
+            targetId: newTarget,
           };
         case TargetCategories.Any:
           const possibleTargetIds: string[] = [];
           if (opponentIdsOption) possibleTargetIds.push(...opponentIdsOption);
           if (allyIdsOption) possibleTargetIds.push(...allyIdsOption);
-          newTargetResult = getNextOrPrevIdFromOrderedList(
+          newTarget = cycleListGivenCurrentValue(
             possibleTargetIds,
             currentTargets.targetId,
             direction
           );
-          if (newTargetResult instanceof Error) return newTargetResult;
           return {
             type: currentTargets.type,
-            targetId: newTargetResult,
+            targetId: newTarget,
           };
       }
     case CombatActionTargetType.Group:
@@ -76,10 +69,7 @@ export default function getNextOrPreviousTarget(
             friendOrFoe: FriendOrFoe.Hostile,
           };
         case TargetCategories.User:
-          return {
-            type: CombatActionTargetType.Single,
-            targetId: actionUserId,
-          };
+          return currentTargets;
         case TargetCategories.Friendly:
           return {
             type: CombatActionTargetType.Group,
@@ -110,31 +100,4 @@ export default function getNextOrPreviousTarget(
         type: CombatActionTargetType.All,
       };
   }
-}
-
-function getNextOrPrevIdFromOrderedList(
-  possibleTargetIds: string[],
-  currentTargetId: string,
-  direction: NextOrPrevious
-): Error | string {
-  let currentPositionIndex = possibleTargetIds.indexOf(currentTargetId);
-  if (currentPositionIndex === -1)
-    return new Error("Tried to get next target but wasn't targeting anything in the provided list");
-  if (possibleTargetIds.length < 1) return new Error("Tried to get next target in an empty list");
-
-  let newIndex;
-  switch (direction) {
-    case NextOrPrevious.Next:
-      if (currentPositionIndex < possibleTargetIds.length - 1) newIndex = currentPositionIndex + 1;
-      else newIndex = 0;
-      break;
-    case NextOrPrevious.Previous:
-      if (currentPositionIndex > 0) newIndex = currentPositionIndex - 1;
-      else newIndex = possibleTargetIds.length - 1;
-  }
-
-  const newTarget = possibleTargetIds[newIndex];
-
-  if (newTarget === undefined) return new Error("Target not found in list");
-  else return newTarget;
 }

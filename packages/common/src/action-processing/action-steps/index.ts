@@ -1,17 +1,13 @@
 import { Milliseconds } from "../../primatives/index.js";
-import { Combatant } from "../../combatants/index.js";
-import {
-  COMBAT_ACTION_NAME_STRINGS,
-  COMBAT_ACTIONS,
-  CombatActionComponent,
-} from "../../combat/index.js";
+import { COMBAT_ACTIONS, CombatActionComponent } from "../../combat/index.js";
 import { ReplayEventNode } from "../replay-events.js";
 import { GameUpdateCommand } from "../game-update-commands.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
-import { CombatantContext } from "../../combatant-context/index.js";
 import { ActionSequenceManager } from "../action-sequence-manager.js";
 import { ActionTracker } from "../action-tracker.js";
 import { IdGenerator } from "../../utility-classes/index.js";
+import { IActionUser } from "../../action-user-context/action-user.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
 
 export interface ActionExecuting {
   timeStarted: Milliseconds;
@@ -24,6 +20,7 @@ export enum ActionResolutionStepType {
   PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock,
   PreInitialPositioningCheckEnvironmentalHazardTriggers,
   InitialPositioning,
+  WaitForInitialDelay,
   PostInitialPositioningDetermineShouldExecuteOrReleaseTurnLock,
   DetermineMeleeActionAnimations,
   PrepMotion,
@@ -33,8 +30,8 @@ export enum ActionResolutionStepType {
   PayResourceCosts,
   PostActionUseCombatLogMessage,
   EvalOnUseTriggers,
-  StartConcurrentSubActions, // starts actions that happen simultaneously and independently such as ["arrow projectile"]
   OnActivationSpawnEntity,
+  StartConcurrentSubActions, // starts actions that happen simultaneously and independently such as ["arrow projectile"]
   PreActionEntityMotionCheckEnvironmentalHazardTriggers,
   OnActivationActionEntityMotion,
   RollIncomingHitOutcomes,
@@ -57,6 +54,7 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.DetermineChildActions]: "determineChildActions",
   [ActionResolutionStepType.DetermineMeleeActionAnimations]: "determineMeleeActionAnimations",
   [ActionResolutionStepType.InitialPositioning]: "initialPositioning",
+  [ActionResolutionStepType.WaitForInitialDelay]: "waitForInitialDelay",
   [ActionResolutionStepType.PostInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]:
     "postInitialPositioningDetermineShouldExecuteOrReleaseTurnLock",
   [ActionResolutionStepType.PrepMotion]: "chamberingMotion",
@@ -85,37 +83,38 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
 };
 
 export type ActionResolutionStepResult = {
-  branchingActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[];
+  branchingActions: ActionIntentAndUser[];
   nextStepOption: ActionResolutionStep | null;
 };
 
 export interface ActionResolutionStepContext {
-  combatantContext: CombatantContext;
+  actionUserContext: ActionUserContext;
   tracker: ActionTracker;
   manager: ActionSequenceManager;
   idGenerator: IdGenerator;
 }
 
 export interface ActionIntentAndUser {
-  user: Combatant;
+  user: IActionUser;
   actionExecutionIntent: CombatActionExecutionIntent;
 }
 
 export interface ActionIntentOptionAndUser {
-  user: Combatant;
+  user: IActionUser;
   actionExecutionIntent: null | CombatActionExecutionIntent;
 }
 
 export abstract class ActionResolutionStep {
   protected elapsed: Milliseconds = 0;
+  public readonly action: CombatActionComponent;
   constructor(
     public readonly type: ActionResolutionStepType,
     protected context: ActionResolutionStepContext,
     protected gameUpdateCommandOption: null | GameUpdateCommand
   ) {
-    const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
+    this.action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
 
-    const stepConfig = action.stepsConfig.getStepConfigOption(type);
+    const stepConfig = this.action.stepsConfig.getStepConfigOption(type);
 
     if (stepConfig === undefined) throw new Error("expected step config not found");
     if (gameUpdateCommandOption && stepConfig.getCosmeticEffectsToStop) {
@@ -125,6 +124,10 @@ export abstract class ActionResolutionStep {
       gameUpdateCommandOption.cosmeticEffectsToStart =
         stepConfig.getCosmeticEffectsToStart(context);
     }
+  }
+
+  getStringName() {
+    return ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type];
   }
 
   getContext() {
@@ -141,17 +144,16 @@ export abstract class ActionResolutionStep {
   isComplete = () => this.getTimeToCompletion() <= 0;
 
   /**Return branching actions and next step */
-  protected abstract getBranchingActions():
-    | Error
-    | {
-        user: Combatant;
-        actionExecutionIntent: CombatActionExecutionIntent;
-      }[];
+  protected abstract getBranchingActions(): Error | ActionIntentAndUser[];
 
   /**Mark the gameUpdateCommand's completionOrderId and get branching actions*/
-  finalize(
-    completionOrderId: number
-  ): Error | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
+  finalize(completionOrderId: number): Error | ActionIntentAndUser[] {
+    console.log(
+      "assigning completionOrderId:",
+      completionOrderId,
+      this.getStringName(),
+      this.action.getStringName()
+    );
     if (this.gameUpdateCommandOption)
       this.gameUpdateCommandOption.completionOrderId = completionOrderId;
     return this.onComplete();
@@ -161,7 +163,7 @@ export abstract class ActionResolutionStep {
     return this.gameUpdateCommandOption;
   }
 
-  onComplete(): Error | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
+  onComplete(): Error | ActionIntentAndUser[] {
     const branchingActionsResult = this.getBranchingActions();
     if (branchingActionsResult instanceof Error) return branchingActionsResult;
     return branchingActionsResult;

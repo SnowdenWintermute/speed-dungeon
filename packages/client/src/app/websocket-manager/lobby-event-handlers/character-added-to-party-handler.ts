@@ -4,7 +4,7 @@ import { useGameStore } from "@/stores/game-store";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
-export default async function characterAddedToPartyHandler(
+export async function characterAddedToPartyHandler(
   partyName: string,
   username: string,
   character: Combatant
@@ -16,8 +16,10 @@ export default async function characterAddedToPartyHandler(
     if (!party) return setAlert(new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST));
     const player = game.players[username];
     if (!player) return setAlert(new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST));
+
     try {
-      addCharacterToParty(game, party, player, character, true);
+      const deserialized = Combatant.getDeserialized(character);
+      addCharacterToParty(game, party, player, deserialized);
     } catch (error) {
       if (error instanceof Error) setAlert(error.message);
       else console.error(error);

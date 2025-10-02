@@ -14,7 +14,7 @@ export class CosmeticEffectInstructionFactory {
       parent: {
         sceneEntityIdentifier: {
           type: SceneEntityType.CharacterModel,
-          entityId: context.combatantContext.combatant.entityProperties.id,
+          entityId: context.actionUserContext.actionUser.getEntityId(),
         },
         transformNodeName: CombatantBaseChildTransformNodeName.OffhandEquipment,
       },

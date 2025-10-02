@@ -1,35 +1,28 @@
 import { ActionResolutionStepContext } from "../../action-processing/index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { CombatActionHitOutcomes, ThreatChanges } from "../../combat/action-results/index.js";
-import { COMBAT_ACTION_NAME_STRINGS } from "../../combat/combat-actions/combat-action-names.js";
 import { ThreatCalculator } from "./threat-calculator.js";
 
 export function getStandardThreatChangesOnHitOutcomes(
   context: ActionResolutionStepContext,
   hitOutcomes: CombatActionHitOutcomes
 ) {
-  const { party, combatant } = context.combatantContext;
+  const { party, actionUser } = context.actionUserContext;
 
   const allCombatantsResult = AdventuringParty.getAllCombatants(party);
   if (allCombatantsResult instanceof Error) throw allCombatantsResult;
-  const { monsters, characters } = allCombatantsResult;
+  const { characters } = allCombatantsResult;
 
-  const userId = (() => {
-    const { asShimmedUserOfTriggeredCondition } = combatant.combatantProperties;
-    if (asShimmedUserOfTriggeredCondition) {
-      return asShimmedUserOfTriggeredCondition.condition.appliedBy.entityProperties.id;
-    } else return combatant.entityProperties.id;
-  })();
+  const userIdToCredit = actionUser.getIdOfEntityToCreditWithThreat();
 
-  const userResult = AdventuringParty.getCombatant(party, userId);
-  const { asShimmedUserOfTriggeredCondition } = combatant.combatantProperties;
+  const userResult = AdventuringParty.getCombatant(party, userIdToCredit);
+
   if (userResult instanceof Error) {
     // the combatant that applied this condition is no longer in the battle
-    if (asShimmedUserOfTriggeredCondition) return null;
     throw userResult;
   }
 
-  const userIsOnPlayerTeam = Object.keys(characters).includes(userId);
+  const userIsOnPlayerTeam = Object.keys(characters).includes(userIdToCredit);
 
   const threatChanges = new ThreatChanges();
   const threatCalculator = new ThreatCalculator(

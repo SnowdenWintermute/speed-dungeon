@@ -1,5 +1,5 @@
+import { IActionUser } from "../../../../../action-user-context/action-user.js";
 import { CombatAttribute } from "../../../../../combatants/attributes/index.js";
-import { CombatantProperties } from "../../../../../combatants/index.js";
 import {
   getStandardActionArmorPenetration,
   getStandardActionCritChance,
@@ -9,7 +9,7 @@ import {
   CombatActionHitOutcomeProperties,
   CombatActionResource,
 } from "../../../combat-action-hit-outcome-properties.js";
-import { getAttackResourceChangeProperties } from "../../attack/get-attack-hp-change-properties.js";
+import { getAttackResourceChangeProperties } from "../../attack/get-attack-resource-change-properties.js";
 import { BASIC_ATTACK_HIT_OUTCOME_PROPERTIES } from "./basic-attack.js";
 
 // @TODO
@@ -18,13 +18,13 @@ import { BASIC_ATTACK_HIT_OUTCOME_PROPERTIES } from "./basic-attack.js";
 
 export const MELEE_ATTACK_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {
   ...BASIC_ATTACK_HIT_OUTCOME_PROPERTIES,
-  getUnmodifiedCritChance: function (user: CombatantProperties): number {
+  getUnmodifiedCritChance: function (user: IActionUser): number {
     return getStandardActionCritChance(user, CombatAttribute.Strength);
   },
-  getCritMultiplier: function (user: CombatantProperties): number {
+  getCritMultiplier: function (user: IActionUser): number {
     return getStandardActionCritMultiplier(user, CombatAttribute.Strength);
   },
-  getArmorPenetration: function (user: CombatantProperties): number {
+  getArmorPenetration: function (user: IActionUser): number {
     return getStandardActionArmorPenetration(user, CombatAttribute.Strength);
   },
   resourceChangePropertiesGetters: {

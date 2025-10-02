@@ -1,9 +1,5 @@
 import { MAX_PARTY_SIZE } from "../app-consts.js";
-import {
-  Combatant,
-  CombatantProperties,
-  updateCombatantHomePosition,
-} from "../combatants/index.js";
+import { Combatant, updateCombatantHomePosition } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { SpeedDungeonGame, SpeedDungeonPlayer } from "../game/index.js";
 import { EntityId } from "../primatives/index.js";
@@ -13,13 +9,10 @@ export function addCharacterToParty(
   game: SpeedDungeonGame,
   party: AdventuringParty,
   player: SpeedDungeonPlayer,
-  character: Combatant,
-  rehydrate: boolean
+  character: Combatant
 ): EntityId {
   if (Object.keys(party.characters).length >= MAX_PARTY_SIZE)
     throw new Error(ERROR_MESSAGES.GAME.MAX_PARTY_SIZE);
-
-  if (rehydrate) Combatant.rehydrate(character);
 
   const characterId = character.entityProperties.id;
 

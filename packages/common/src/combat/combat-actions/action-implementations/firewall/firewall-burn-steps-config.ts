@@ -6,7 +6,7 @@ import { BURNING_TICK_STEPS_CONFIG } from "../burning-tick/burning-tick-steps-co
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
-stepOverrides[ActionResolutionStepType.InitialPositioning] = {
+stepOverrides[ActionResolutionStepType.WaitForInitialDelay] = {
   // will be set by environmental hazard checking step
   getDelay: (externallySetDelayOption) => {
     return externallySetDelayOption || 0;
@@ -18,5 +18,7 @@ const base = cloneDeep(BURNING_TICK_STEPS_CONFIG);
 const stepsConfig = createStepsConfig(() => base, {
   steps: stepOverrides,
 });
+
+delete stepsConfig.finalSteps[ActionResolutionStepType.RemoveTickedConditionStacks];
 
 export const FIREWALL_BURN_STEPS_CONFIG = stepsConfig;

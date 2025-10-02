@@ -21,12 +21,11 @@ import { HitPointChanges } from "@speed-dungeon/common";
 import { induceHitRecovery } from "./induce-hit-recovery";
 import { handleThreatChangesUpdate } from "./handle-threat-changes";
 import { CombatActionResource } from "@speed-dungeon/common";
+import { GameUpdateTracker } from ".";
 
-export async function hitOutcomesGameUpdateHandler(update: {
-  command: HitOutcomesGameUpdateCommand;
-  isComplete: boolean;
-}) {
-  update.isComplete = true;
+export async function hitOutcomesGameUpdateHandler(
+  update: GameUpdateTracker<HitOutcomesGameUpdateCommand>
+) {
   const { command } = update;
   const { outcomes, actionUserName, actionUserId } = command;
   const { outcomeFlags } = outcomes;
@@ -201,4 +200,6 @@ export async function hitOutcomesGameUpdateHandler(update: {
       gameState.combatLogMessages.push(new CombatLogMessage(messageText, style));
     });
   });
+
+  update.setAsQueuedToComplete();
 }

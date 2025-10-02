@@ -10,7 +10,6 @@ import {
   ActionResolutionStepsConfig,
   EquipmentAnimation,
 } from "../../../combat-action-steps-config.js";
-import { PROJECTILE_SKILL_STEPS_CONFIG } from "./projectile-skill.js";
 import { getSpeciesTimedAnimation } from "../../get-species-timed-animation.js";
 import {
   AnimationType,
@@ -25,28 +24,19 @@ import {
   TwoHandedRangedWeapon,
 } from "../../../../../items/equipment/index.js";
 import { getRotateTowardPrimaryTargetDestination } from "../../common-destination-getters.js";
+import { CombatantEquipment, CombatantSpecies } from "../../../../../combatants/index.js";
+import { SpawnableEntityType, getSpawnableEntityId } from "../../../../../spawnables/index.js";
 import {
-  CombatantEquipment,
-  CombatantProperties,
-  CombatantSpecies,
-} from "../../../../../combatants/index.js";
-import {
-  SpawnableEntity,
-  SpawnableEntityType,
-  getSpawnableEntityId,
-} from "../../../../../spawnables/index.js";
-import {
-  CombatantBaseChildTransformNodeName,
   CombatantHoldableChildTransformNodeName,
   SceneEntityChildTransformNodeIdentifier,
   SceneEntityChildTransformNodeIdentifierWithDuration,
   SceneEntityType,
 } from "../../../../../scene-entities/index.js";
-import { ActionEntity, ActionEntityName } from "../../../../../action-entities/index.js";
-import { Vector3 } from "@babylonjs/core";
-import { nameToPossessive } from "../../../../../utils/index.js";
+import { IActionUser } from "../../../../../action-user-context/action-user.js";
+import { RANGED_SKILL_STEPS_CONFIG } from "./ranged-skill.js";
+import { ProjectileFactory } from "../projectile-factory.js";
 
-const base = cloneDeep(PROJECTILE_SKILL_STEPS_CONFIG);
+const base = cloneDeep(RANGED_SKILL_STEPS_CONFIG);
 delete base.steps[ActionResolutionStepType.RollIncomingHitOutcomes];
 
 export const BOW_EQUIPMENT_ANIMATIONS: Record<TwoHandedRangedWeapon, SkeletalAnimationName> = {
@@ -66,35 +56,12 @@ base.steps = {
       getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.BowPrep, true),
   },
   [ActionResolutionStepType.PostPrepSpawnEntity]: {
-    getSpawnableEntity: (context) => {
-      const { combatantContext } = context;
-      const position = combatantContext.combatant.combatantProperties.position.clone();
+    getSpawnableEntities: (context) => {
+      const projectileFactory = new ProjectileFactory(context, {});
 
-      const firedByCombatantName = combatantContext.combatant.entityProperties.name;
+      const spawnableEntity = projectileFactory.createArrowInHand();
 
-      const spawnableEntity: SpawnableEntity = {
-        type: SpawnableEntityType.ActionEntity,
-        actionEntity: new ActionEntity(
-          {
-            id: context.idGenerator.generate(),
-            name: `${nameToPossessive(firedByCombatantName)} arrow`,
-          },
-          {
-            position,
-            name: ActionEntityName.Arrow,
-            initialRotation: new Vector3(Math.PI / 2, 0, 0),
-            parentOption: {
-              sceneEntityIdentifier: {
-                type: SceneEntityType.CharacterModel,
-                entityId: context.combatantContext.combatant.entityProperties.id,
-              },
-              transformNodeName: CombatantBaseChildTransformNodeName.MainHandEquipment,
-            },
-          }
-        ),
-      };
-
-      return spawnableEntity;
+      return [spawnableEntity];
     },
   },
 
@@ -113,7 +80,7 @@ base.steps[ActionResolutionStepType.DeliveryMotion] = {
     getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.BowDelivery, false),
 
   getEquipmentAnimations: getBowEquipmentAnimation,
-  getAuxiliaryEntityMotions: lockArrowToFaceArrowRest,
+  getAuxiliaryEntityMotions: lockArrowsToFaceArrowRest,
 };
 
 base.finalSteps[ActionResolutionStepType.RecoveryMotion] = {
@@ -129,7 +96,7 @@ export const BOW_SKILL_STEPS_CONFIG = new ActionResolutionStepsConfig(
 );
 
 function getBowEquipmentAnimation(
-  user: CombatantProperties,
+  user: IActionUser,
   animationLengths: Record<CombatantSpecies, Record<string, number>>
 ) {
   const slot: TaggedEquipmentSlot = {
@@ -137,14 +104,17 @@ function getBowEquipmentAnimation(
     slot: HoldableSlotType.MainHand,
   };
 
-  const equippedBowOption = CombatantEquipment.getEquipmentInSlot(user, slot);
+  const equipmentOption = user.getEquipmentOption();
+  if (equipmentOption === null) throw new Error("expected user to have equipment");
+
+  const equippedBowOption = CombatantEquipment.getEquipmentInSlot(equipmentOption, slot);
   if (
     equippedBowOption?.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType !==
     EquipmentType.TwoHandedRangedWeapon
   )
     return [];
 
-  const speciesLengths = animationLengths[user.combatantSpecies];
+  const speciesLengths = animationLengths[user.getCombatantProperties().combatantSpecies];
   const animationName =
     BOW_EQUIPMENT_ANIMATIONS[
       equippedBowOption.equipmentBaseItemProperties.taggedBaseEquipment.baseItemType
@@ -163,62 +133,63 @@ function getBowEquipmentAnimation(
   return [equipmentAnimation];
 }
 
-function lockArrowToFaceArrowRest(context: ActionResolutionStepContext) {
-  const actionEntity = context.tracker.spawnedEntityOption;
-  if (!actionEntity) {
-    console.error("expected an arrow to have been spawned");
-    return [];
-  }
-
-  const { combatantProperties } = context.combatantContext.combatant;
-  const bowOption = CombatantEquipment.getEquipmentInSlot(combatantProperties, {
-    type: EquipmentSlotType.Holdable,
-    slot: HoldableSlotType.MainHand,
-  });
-
-  if (!bowOption) {
-    console.error("expected combatant to be wearing a bow");
-    return [];
-  }
-
-  const actionEntityId = getSpawnableEntityId(actionEntity);
-
-  const parent: SceneEntityChildTransformNodeIdentifier = {
-    sceneEntityIdentifier: {
-      type: SceneEntityType.CharacterEquipmentModel,
-      characterModelId: context.combatantContext.combatant.entityProperties.id,
-      slot: HoldableSlotType.MainHand,
-    },
-    transformNodeName: CombatantHoldableChildTransformNodeName.NockBone,
-  };
-
-  const setParent: SceneEntityChildTransformNodeIdentifierWithDuration = {
-    identifier: parent,
-    duration: 400,
-  };
-
-  const arrowRestIdentifier: SceneEntityChildTransformNodeIdentifier = {
-    sceneEntityIdentifier: {
-      type: SceneEntityType.CharacterEquipmentModel,
-      characterModelId: context.combatantContext.combatant.entityProperties.id,
-      slot: HoldableSlotType.MainHand,
-    },
-    transformNodeName: CombatantHoldableChildTransformNodeName.ArrowRest,
-  };
-
-  const lockRotationToFace: SceneEntityChildTransformNodeIdentifierWithDuration = {
-    identifier: arrowRestIdentifier,
-    duration: 400,
-  };
-
+function lockArrowsToFaceArrowRest(context: ActionResolutionStepContext) {
   const toReturn: EntityMotionUpdate[] = [];
+  for (const spawnedEnity of context.tracker.spawnedEntities) {
+    if (spawnedEnity.type !== SpawnableEntityType.ActionEntity)
+      throw new Error("only expected action entities in lockArrowToFaceArrowRest");
+    const actionEntity = spawnedEnity;
 
-  toReturn.push({
-    entityId: actionEntityId,
-    entityType: SpawnableEntityType.ActionEntity,
-    setParent,
-    lockRotationToFace,
-  });
+    const combatantProperties = context.actionUserContext.actionUser.getCombatantProperties();
+    const bowOption = CombatantEquipment.getEquipmentInSlot(combatantProperties.equipment, {
+      type: EquipmentSlotType.Holdable,
+      slot: HoldableSlotType.MainHand,
+    });
+
+    if (!bowOption) {
+      console.error("expected combatant to be wearing a bow");
+      return [];
+    }
+
+    const actionEntityId = getSpawnableEntityId(actionEntity);
+
+    const characterModelId = context.actionUserContext.actionUser.getEntityId();
+
+    const parent: SceneEntityChildTransformNodeIdentifier = {
+      sceneEntityIdentifier: {
+        type: SceneEntityType.CharacterEquipmentModel,
+        characterModelId,
+        slot: HoldableSlotType.MainHand,
+      },
+      transformNodeName: CombatantHoldableChildTransformNodeName.NockBone,
+    };
+
+    const setParent: SceneEntityChildTransformNodeIdentifierWithDuration = {
+      identifier: parent,
+      duration: 400,
+    };
+
+    const arrowRestIdentifier: SceneEntityChildTransformNodeIdentifier = {
+      sceneEntityIdentifier: {
+        type: SceneEntityType.CharacterEquipmentModel,
+        characterModelId,
+        slot: HoldableSlotType.MainHand,
+      },
+      transformNodeName: CombatantHoldableChildTransformNodeName.ArrowRest,
+    };
+
+    const lockRotationToFace: SceneEntityChildTransformNodeIdentifierWithDuration = {
+      identifier: arrowRestIdentifier,
+      duration: 400,
+    };
+
+    toReturn.push({
+      entityId: actionEntityId,
+      entityType: SpawnableEntityType.ActionEntity,
+      setParent,
+      lockRotationToFace,
+    });
+  }
 
   return toReturn;
 }

@@ -3,9 +3,8 @@ import { Combatant } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { CombatActionExecutionIntent } from "../combat-actions/combat-action-execution-intent.js";
 import { AIBehaviorContext } from "./ai-context.js";
-import { CombatantContext } from "../../combatant-context/index.js";
-import { BEHAVIOR_NODE_STATE_STRINGS } from "./behavior-tree.js";
 import { RootAIBehaviorNode } from "./custom-nodes/root-ai-behavior-node.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
 
 export function AISelectActionAndTarget(
   game: SpeedDungeonGame,
@@ -18,7 +17,7 @@ export function AISelectActionAndTarget(
   const battleOption = SpeedDungeonGame.getBattleOption(game, partyResult.battleId) || null;
 
   const behaviorContext = new AIBehaviorContext(
-    new CombatantContext(game, partyResult, user),
+    new ActionUserContext(game, partyResult, user),
     battleOption
   );
 
@@ -29,19 +28,17 @@ export function AISelectActionAndTarget(
   let actionExecutionIntentOption = behaviorContext.selectedActionIntent;
   if (actionExecutionIntentOption === null) {
     console.info("ai context did not have a selected actionExecutionIntent - passing turn");
-    actionExecutionIntentOption = new CombatActionExecutionIntent(
-      CombatActionName.PassTurn,
-      {
-        type: CombatActionTargetType.Single,
-        targetId: user.entityProperties.id,
-      },
-      0
-    );
+    actionExecutionIntentOption = new CombatActionExecutionIntent(CombatActionName.PassTurn, 0, {
+      type: CombatActionTargetType.Single,
+      targetId: user.entityProperties.id,
+    });
   }
 
   // must set their target because getAutoTarget may use it when creating action children or triggered actions
   // although I think this is already done by the behavior tree
-  userCombatantProperties.combatActionTarget = actionExecutionIntentOption.targets;
+  userCombatantProperties.targetingProperties.setSelectedTarget(
+    actionExecutionIntentOption.targets
+  );
 
   return actionExecutionIntentOption;
 }

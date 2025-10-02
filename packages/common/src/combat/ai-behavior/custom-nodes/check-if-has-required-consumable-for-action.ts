@@ -11,10 +11,9 @@ export class CheckIfHasRequiredConsumablesForAction implements BehaviorNode {
   ) {}
   execute(): BehaviorNodeState {
     if (this.actionNameOption === null) return BehaviorNodeState.Failure;
-    const { combatantProperties } = this.combatant;
 
     const hasRequiredConsumables = CombatantProperties.hasRequiredConsumablesToUseAction(
-      combatantProperties,
+      this.combatant,
       this.actionNameOption
     );
     if (hasRequiredConsumables) return BehaviorNodeState.Success;

@@ -4,6 +4,7 @@ import {
   DEBUG_ANIMATION_SPEED_MULTIPLIER,
   EntityId,
   MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME,
+  ONE_SECOND,
   SKELETAL_ANIMATION_NAME_STRINGS,
   SkeletalAnimationName,
 } from "@speed-dungeon/common";
@@ -89,12 +90,15 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
       return;
     }
 
-    this.previous?.cleanup();
+    if (this.previous) {
+      this.previous.cleanup();
+    }
+
     this.previous = this.playing;
 
     this.playing = new ManagedSkeletalAnimation(clonedAnimation, transitionDuration, options);
 
-    const animationStockDuration = clonedAnimation.getLength() * 1000;
+    const animationStockDuration = clonedAnimation.getLength() * ONE_SECOND;
     let speedModifier =
       animationStockDuration / (options.animationDurationOverrideOption || animationStockDuration);
 

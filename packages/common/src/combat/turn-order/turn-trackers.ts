@@ -16,12 +16,9 @@ import { Battle } from "../../battle/index.js";
 import { AISelectActionAndTarget } from "../ai-behavior/ai-select-action-and-target.js";
 import { ActionIntentOptionAndUser } from "../../action-processing/index.js";
 import { throwIfError } from "../../utils/index.js";
-import {
-  CombatantCondition,
-  createShimmedUserOfActionEntityAction,
-} from "../../combatants/index.js";
-import { CombatantContext } from "../../combatant-context/index.js";
+import { CombatantCondition } from "../../combatants/index.js";
 import { ACTION_ENTITY_ACTION_INTENT_GETTERS } from "../../action-entities/index.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
 
 export abstract class TurnTracker {
   constructor(public readonly timeOfNextMove: number) {}
@@ -121,16 +118,14 @@ export class ConditionTurnTracker extends TurnTracker {
     const condition = throwIfError(
       AdventuringParty.getConditionOnCombatant(party, combatantId, conditionId)
     );
-    const combatant = AdventuringParty.getExpectedCombatant(party, combatantId);
-    const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
-    if (tickPropertiesOption === undefined)
-      throw new Error("expected condition tick properties were missing");
-    const onTick = tickPropertiesOption.onTick(
-      condition,
-      new CombatantContext(game, party, combatant)
-    );
 
-    const { actionExecutionIntent, user } = onTick.triggeredAction;
+    const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
+    if (tickPropertiesOption === null)
+      throw new Error("expected condition tick properties were missing");
+
+    const onTick = tickPropertiesOption.onTick(new ActionUserContext(game, party, condition));
+
+    const { actionExecutionIntent, user } = onTick.triggeredAction.actionIntentAndUser;
     return { actionExecutionIntent, user };
   }
 }
@@ -174,10 +169,12 @@ export class ActionEntityTurnTracker extends TurnTracker {
   getNextActionIntentAndUser(game: SpeedDungeonGame, party: AdventuringParty, battle: Battle) {
     const { actionEntityId } = this;
     const actionEntityResult = AdventuringParty.getActionEntity(party, actionEntityId);
+
     if (actionEntityResult instanceof Error) throw actionEntityResult;
 
     const actionIntentGetterOption =
       ACTION_ENTITY_ACTION_INTENT_GETTERS[actionEntityResult.actionEntityProperties.name];
+
     if (actionIntentGetterOption === undefined)
       throw new Error(
         "expected an action entity with a turn tracker to have an actionIntentGetterOption"
@@ -185,15 +182,9 @@ export class ActionEntityTurnTracker extends TurnTracker {
 
     const actionExecutionIntent = actionIntentGetterOption();
 
-    const dummyUser = createShimmedUserOfActionEntityAction(
-      actionEntityResult.entityProperties.name,
-      actionEntityResult,
-      actionEntityResult.entityProperties.id
-    );
-
     return {
       actionExecutionIntent,
-      user: dummyUser,
+      user: actionEntityResult,
     };
   }
 }

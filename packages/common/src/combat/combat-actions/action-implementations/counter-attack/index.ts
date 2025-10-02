@@ -1,14 +1,12 @@
 import {
   ActionAccuracyType,
-  CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
+  CombatActionExecutionIntent,
   CombatActionName,
 } from "../../index.js";
 import { CombatantEquipment } from "../../../../combatants/index.js";
 import { ActionResolutionStepContext } from "../../../../action-processing/index.js";
-import { COUNTER_ATTACK_MELEE_MAIN_HAND } from "./counter-attack-melee-main-hand.js";
-import { COUNTER_ATTACK_RANGED_MAIN_HAND } from "./counter-attack-ranged-main-hand.js";
 import cloneDeep from "lodash.clonedeep";
 import { ATTACK_CONFIG } from "../attack/index.js";
 import { createTargetingPropertiesConfig } from "../generic-action-templates/targeting-properties-config-templates/index.js";
@@ -36,16 +34,18 @@ const config: CombatActionComponentConfig = {
   costProperties: { ...clonedConfig.costProperties, costBases: {} },
   hierarchyProperties: {
     ...clonedConfig.hierarchyProperties,
-    getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {
-      const toReturn: CombatActionComponent[] = [];
-      const user = context.combatantContext.combatant.combatantProperties;
+    getChildren: function (context: ActionResolutionStepContext) {
+      const { actionUser } = context.actionUserContext;
+      const { actionExecutionIntent } = context.tracker;
+      const { targets, rank } = actionExecutionIntent;
 
-      if (CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(user)) {
-        toReturn.push(COUNTER_ATTACK_RANGED_MAIN_HAND);
-      } else {
-        toReturn.push(COUNTER_ATTACK_MELEE_MAIN_HAND);
+      let actionName = CombatActionName.CounterattackMeleeMainhand;
+
+      if (CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(actionUser)) {
+        actionName = CombatActionName.CounterattackRangedMainhand;
       }
-      return toReturn;
+
+      return [new CombatActionExecutionIntent(actionName, rank, targets)];
     },
   },
 };

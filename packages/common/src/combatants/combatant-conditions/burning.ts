@@ -1,17 +1,10 @@
-import {
-  COMBATANT_CONDITION_NAME_STRINGS,
-  CombatantCondition,
-  CombatantConditionName,
-  ConditionAppliedBy,
-} from "./index.js";
-import { createShimmedUserOfTriggeredCondition } from "../index.js";
+import { CombatantCondition, CombatantConditionName, ConditionAppliedBy } from "./index.js";
 import {
   CombatActionExecutionIntent,
   CombatActionIntent,
   CombatActionName,
 } from "../../combat/combat-actions/index.js";
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
-import { CombatantContext } from "../../combatant-context/index.js";
 import { BASE_CONDITION_TICK_SPEED } from "../../combat/turn-order/consts.js";
 import {
   CombatActionTargetSingle,
@@ -25,56 +18,58 @@ import {
   CombatantBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../scene-entities/index.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
 
-export class BurningCombatantCondition implements CombatantCondition {
+export class BurningCombatantCondition extends CombatantCondition {
   [immerable] = true;
   name = CombatantConditionName.Burning;
   intent = CombatActionIntent.Malicious;
-  stacksOption = new MaxAndCurrent(1, 10);
   removedOnDeath: boolean = true;
   ticks?: MaxAndCurrent | undefined;
   constructor(
-    public id: EntityId,
-    public appliedBy: ConditionAppliedBy,
+    id: EntityId,
+    appliedBy: ConditionAppliedBy,
+    appliedTo: EntityId,
     public level: number,
     stacksOption: null | MaxAndCurrent
   ) {
-    if (stacksOption) this.stacksOption = stacksOption;
+    super(id, appliedBy, appliedTo, CombatantConditionName.Burning, stacksOption);
   }
 
-  getTickSpeed(condition: CombatantCondition) {
-    return condition.level * BASE_CONDITION_TICK_SPEED;
-  }
+  getAttributeModifiers = undefined;
 
-  onTick(condition: CombatantCondition, context: CombatantContext) {
-    const user = createShimmedUserOfTriggeredCondition(
-      COMBATANT_CONDITION_NAME_STRINGS[condition.name],
-      condition,
-      context.combatant.entityProperties.id
-    );
+  tickPropertiesOption = {
+    getTickSpeed(condition: CombatantCondition) {
+      return condition.level * BASE_CONDITION_TICK_SPEED;
+    },
+    onTick(context: ActionUserContext) {
+      const user = context.actionUser;
 
-    const targets: CombatActionTargetSingle = {
-      type: CombatActionTargetType.Single,
-      targetId: context.combatant.entityProperties.id,
-    };
+      const targets: CombatActionTargetSingle = {
+        type: CombatActionTargetType.Single,
+        targetId: user.getConditionAppliedTo(),
+      };
 
-    user.combatantProperties.combatActionTarget = targets;
+      user.getTargetingProperties().setSelectedTarget(targets);
 
-    return {
-      numStacksRemoved: 1,
-      triggeredAction: {
-        user,
-        actionExecutionIntent: new CombatActionExecutionIntent(
-          CombatActionName.BurningTick,
-          targets,
-          this.level
-        ),
-      },
-    };
-  }
+      return {
+        numStacksRemoved: 1,
+        triggeredAction: {
+          actionIntentAndUser: {
+            user,
+            actionExecutionIntent: new CombatActionExecutionIntent(
+              CombatActionName.BurningTick,
+              user.getLevel(),
+              targets
+            ),
+          },
+        },
+      };
+    },
+  };
 
   triggeredWhenHitBy(actionName: CombatActionName) {
-    // anything that removes burning
+    // anything that removes burning like a water element attack
     return false;
   }
 
@@ -84,12 +79,12 @@ export class BurningCombatantCondition implements CombatantCondition {
 
   onTriggered() {
     return {
-      numStacksRemoved: this.stacksOption.current,
+      numStacksRemoved: this.stacksOption?.current || 0,
       triggeredActions: [],
     };
   }
 
-  getCosmeticEffectWhileActive = (combatantId: EntityId) => {
+  getCosmeticEffectWhileActive(combatantId: EntityId) {
     const sceneEntityIdentifier: CharacterModelIdentifier = {
       type: SceneEntityType.CharacterModel,
       entityId: combatantId,
@@ -105,5 +100,5 @@ export class BurningCombatantCondition implements CombatantCondition {
     };
 
     return [effect];
-  };
+  }
 }

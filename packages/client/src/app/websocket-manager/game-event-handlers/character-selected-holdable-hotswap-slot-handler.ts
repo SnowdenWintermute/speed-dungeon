@@ -17,16 +17,12 @@ export function characterSelectedHoldableHotswapSlotHandler(
   characterAssociatedDataProvider(
     characterId,
     ({ game, party, character }: CharacterAssociatedData, gameState: GameState) => {
-      if (
-        slotIndex >=
-        CombatantEquipment.getHoldableHotswapSlots(character.combatantProperties).length
-      )
+      const { equipment } = character.combatantProperties;
+
+      if (slotIndex >= CombatantEquipment.getHoldableHotswapSlots(equipment).length)
         return new Error(ERROR_MESSAGES.EQUIPMENT.SELECTED_SLOT_OUT_OF_BOUNDS);
 
-      const { combatantProperties } = character;
-
-      const slotSwitchingAwayFrom =
-        CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+      const slotSwitchingAwayFrom = CombatantEquipment.getEquippedHoldableSlots(equipment);
       if (!slotSwitchingAwayFrom)
         return new Error(ERROR_MESSAGES.EQUIPMENT.SELECTED_SLOT_OUT_OF_BOUNDS);
 
@@ -44,9 +40,7 @@ export function characterSelectedHoldableHotswapSlotHandler(
 
       if (previouslyHoveredSlotTypeOption !== null) {
         gameState.hoveredEntity = null;
-        const newlyEquippedSlotOption = CombatantEquipment.getEquippedHoldableSlots(
-          character.combatantProperties
-        );
+        const newlyEquippedSlotOption = CombatantEquipment.getEquippedHoldableSlots(equipment);
         if (newlyEquippedSlotOption) {
           for (const [slotType, holdable] of iterateNumericEnumKeyedRecord(
             newlyEquippedSlotOption.holdables

@@ -1,5 +1,6 @@
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { CombatActionName } from "../combat/index.js";
+import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { CombatantClass } from "../combatants/index.js";
 import { BookConsumableType, ConsumableType } from "../items/consumables/index.js";
@@ -73,8 +74,7 @@ export interface ClientToServerEventTypes {
   [ClientToServerEvent.DeleteCharacter]: (characterId: string) => void;
   [ClientToServerEvent.SelectCombatAction]: (eventData: {
     characterId: string;
-    combatActionNameOption: null | CombatActionName;
-    combatActionLevel: null | number;
+    actionAndRankOption: null | ActionAndRank;
     itemIdOption?: string;
   }) => void;
   [ClientToServerEvent.IncrementAttribute]: (eventData: {

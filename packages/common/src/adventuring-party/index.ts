@@ -3,7 +3,6 @@ import { EntityId } from "../primatives/index.js";
 import { DungeonRoom, DungeonRoomType } from "./dungeon-room.js";
 import getCombatant from "./get-combatant-in-party.js";
 import { getItemInAdventuringParty } from "./get-item-in-party.js";
-import { getIdsAndSelectedActionsOfCharactersTargetingCombatant } from "./get-ids-and-selected-actions-of-characters-targeting-combatant.js";
 import getCharacterIfOwned from "./get-character-if-owned.js";
 import { removeCharacterFromParty } from "./remove-character-from-party.js";
 import { generateUnexploredRoomsQueue } from "./generate-unexplored-rooms-queue.js";
@@ -16,7 +15,7 @@ import { SpeedDungeonGame } from "../game/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ActionEntity, ActionEntityName } from "../action-entities/index.js";
 import { Battle } from "../battle/index.js";
-import { TurnTrackerEntityType } from "../combat/index.js";
+import { FriendOrFoe, TurnTrackerEntityType } from "../combat/index.js";
 export * from "./get-item-in-party.js";
 export * from "./dungeon-room.js";
 export * from "./update-player-readiness.js";
@@ -52,6 +51,23 @@ export class AdventuringParty {
 
   static removeCharacter = removeCharacterFromParty;
   static getCombatant = getCombatant;
+  static getAllCombatantIds(party: AdventuringParty) {
+    return [...party.characterPositions, ...party.currentRoom.monsterPositions];
+  }
+  static getCombatants(party: AdventuringParty, entityIds: EntityId[]) {
+    const toReturn: Combatant[] = [];
+
+    for (const id of entityIds) {
+      const opponentCombatantResult = AdventuringParty.getCombatant(party, id);
+      if (opponentCombatantResult instanceof Error) {
+        console.error(opponentCombatantResult);
+        break;
+      }
+      toReturn.push(opponentCombatantResult);
+    }
+
+    return toReturn;
+  }
   static getExpectedCombatant(party: AdventuringParty, combatantId: EntityId) {
     const combatantResult = AdventuringParty.getCombatant(party, combatantId);
     if (combatantResult instanceof Error) throw combatantResult;
@@ -75,8 +91,6 @@ export class AdventuringParty {
     return conditionOption;
   }
   static getItem = getItemInAdventuringParty;
-  static getIdsAndSelectedActionsOfCharactersTargetingCombatant =
-    getIdsAndSelectedActionsOfCharactersTargetingCombatant;
   static getCharacterIfOwned = getCharacterIfOwned;
   generateUnexploredRoomsQueue = generateUnexploredRoomsQueue;
   static updatePlayerReadiness = updatePlayerReadiness;
@@ -91,6 +105,25 @@ export class AdventuringParty {
     const battleOption = game.battles[battleIdOption];
     if (!battleOption) throw new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
     return battleOption;
+  }
+
+  static getCombatantIdsByDispositionTowardsCombatantId(
+    party: AdventuringParty,
+    combatantId: string
+  ): Record<FriendOrFoe, EntityId[]> {
+    if (party.characterPositions.includes(combatantId)) {
+      return {
+        [FriendOrFoe.Friendly]: party.characterPositions,
+        [FriendOrFoe.Hostile]: party.currentRoom.monsterPositions,
+      };
+    } else if (party.currentRoom.monsterPositions.includes(combatantId)) {
+      return {
+        [FriendOrFoe.Friendly]: party.currentRoom.monsterPositions,
+        [FriendOrFoe.Hostile]: party.characterPositions,
+      };
+    } else {
+      throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
+    }
   }
 
   static registerActionEntity(

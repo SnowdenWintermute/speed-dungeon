@@ -1,16 +1,16 @@
 import {
-  COMBATANT_CONDITION_NAME_STRINGS,
   CombatantCondition,
   CombatantConditionName,
   ConditionAppliedBy,
+  ConditionTickProperties,
 } from "./index.js";
-import { Combatant, createShimmedUserOfTriggeredCondition } from "../index.js";
+import { Combatant } from "../index.js";
 import {
   CombatActionExecutionIntent,
   CombatActionIntent,
   CombatActionName,
 } from "../../combat/combat-actions/index.js";
-import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
+import { EntityId, MaxAndCurrent, Option } from "../../primatives/index.js";
 import { CombatActionTargetType } from "../../combat/targeting/combat-action-targets.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
@@ -20,22 +20,31 @@ import {
   CombatantBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../scene-entities/index.js";
-import { CombatantContext } from "../../combatant-context/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { immerable } from "immer";
+import { ActionUserContext } from "../../action-user-context/index.js";
+import { ActionUserTargetingProperties } from "../../action-user-context/action-user-targeting-properties.js";
 
-export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
+const getNewStacks = () => new MaxAndCurrent(1, 1);
+
+export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
   [immerable] = true;
   name = CombatantConditionName.PrimedForIceBurst;
-  stacksOption = new MaxAndCurrent(1, 1);
+  stacksOption = getNewStacks();
   intent = CombatActionIntent.Malicious;
   removedOnDeath: boolean = true;
   ticks?: MaxAndCurrent | undefined;
   constructor(
     public id: EntityId,
-    public appliedBy: ConditionAppliedBy,
+    appliedBy: ConditionAppliedBy,
+    appliedTo: EntityId,
     public level: number
-  ) {}
+  ) {
+    super(id, appliedBy, appliedTo, CombatantConditionName.PrimedForIceBurst, getNewStacks());
+    this.targetingProperties = new ActionUserTargetingProperties();
+  }
+
+  tickPropertiesOption: Option<ConditionTickProperties> = null;
 
   triggeredWhenHitBy(actionName: CombatActionName) {
     const actionsThatTrigger = [
@@ -46,7 +55,7 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
       CombatActionName.ChainingSplitArrowProjectile,
       CombatActionName.CounterattackMeleeMainhand,
       CombatActionName.CounterAttackRangedMainhandProjectile,
-      CombatActionName.Explosion,
+      CombatActionName.ExecuteExplosion,
       CombatActionName.FirewallBurn,
       CombatActionName.Fire,
     ];
@@ -57,48 +66,47 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
     return false;
   }
 
+  getAttributeModifiers = undefined;
+
   onTriggered(
-    combatantContext: CombatantContext,
+    this: PrimedForIceBurstCombatantCondition,
+    actionUserContext: ActionUserContext,
     targetCombatant: Combatant,
     idGenerator: IdGenerator
   ) {
-    const user = createShimmedUserOfTriggeredCondition(
-      COMBATANT_CONDITION_NAME_STRINGS[this.name],
-      this,
-      targetCombatant.entityProperties.id
-    );
+    const actionUser = this;
 
-    user.combatantProperties.combatActionTarget = {
+    actionUser.getTargetingProperties().setSelectedTarget({
       type: CombatActionTargetType.Single,
       targetId: targetCombatant.entityProperties.id,
-    };
+    });
 
-    const combatantContextFromConditionUserPerspective = new CombatantContext(
-      combatantContext.game,
-      combatantContext.party,
-      user
+    const conditionUserContext = new ActionUserContext(
+      actionUserContext.game,
+      actionUserContext.party,
+      actionUser
     );
 
     const actionTarget = COMBAT_ACTIONS[
-      CombatActionName.IceBurst
-    ].targetingProperties.getAutoTarget(combatantContextFromConditionUserPerspective, null);
+      CombatActionName.IceBurstParent
+    ].targetingProperties.getAutoTarget(conditionUserContext, null);
 
     if (actionTarget instanceof Error) throw actionTarget;
     if (actionTarget === null) throw new Error("failed to get auto target");
 
     const actionExecutionIntent = new CombatActionExecutionIntent(
-      CombatActionName.IceBurst,
-      actionTarget,
-      this.level
+      CombatActionName.IceBurstParent,
+      actionUser.getLevel(),
+      actionTarget
     );
 
     return {
       numStacksRemoved: this.stacksOption.current,
-      triggeredActions: [{ user, actionExecutionIntent }],
+      triggeredActions: [{ user: actionUser, actionExecutionIntent }],
     };
   }
 
-  getCosmeticEffectWhileActive = (combatantId: EntityId) => {
+  getCosmeticEffectWhileActive(combatantId: EntityId) {
     const sceneEntityIdentifier: CharacterModelIdentifier = {
       type: SceneEntityType.CharacterModel,
       entityId: combatantId,
@@ -114,5 +122,5 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
     };
 
     return [effect];
-  };
+  }
 }

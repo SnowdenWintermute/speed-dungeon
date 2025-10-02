@@ -3,45 +3,52 @@ import {
   ActionResolutionStepContext,
   EntityDestination,
 } from "../../../action-processing/index.js";
-import { CombatantProperties } from "../../../combatants/index.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 
 export function getHomeDestination(context: ActionResolutionStepContext) {
-  const { combatantContext } = context;
-  const { combatantProperties } = combatantContext.combatant;
+  const { actionUserContext } = context;
+  const { actionUser } = actionUserContext;
 
   const toReturn: EntityDestination = {
-    position: combatantProperties.homeLocation.clone(),
-    rotation: combatantProperties.homeRotation.clone(),
+    position: actionUser.getHomePosition().clone(),
+    rotation: actionUser.getHomeRotation().clone(),
   };
 
   return toReturn;
 }
 
 export function getStepForwardDestination(context: ActionResolutionStepContext) {
-  const { combatantContext } = context;
-  const user = combatantContext.combatant.combatantProperties;
-  const direction = CombatantProperties.getForward(user);
-  return { position: user.homeLocation.add(direction.scale(1)) };
+  const { actionUserContext } = context;
+  const { actionUser } = actionUserContext;
+
+  // @REFACTOR - just get the "direction of their home vector towards center line"
+
+  const z = actionUser.getHomePosition().z;
+  const direction = z > 0 ? -1 : 1;
+  const directionVector = new Vector3(0, 0, direction);
+
+  return { position: actionUser.getHomePosition().add(directionVector.scale(1)) };
 }
 
 export function getRotateTowardPrimaryTargetDestination(context: ActionResolutionStepContext) {
-  const { combatantContext, tracker } = context;
+  const { actionUserContext, tracker } = context;
   const { actionExecutionIntent } = tracker;
-  const targetingCalculator = new TargetingCalculator(combatantContext, null);
+  const targetingCalculator = new TargetingCalculator(actionUserContext, null);
   const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
-    combatantContext.party,
+    actionUserContext.party,
     actionExecutionIntent
   );
 
   if (primaryTargetResult instanceof Error) return primaryTargetResult;
   const target = primaryTargetResult;
 
-  if (primaryTargetResult.entityProperties.id === combatantContext.combatant.entityProperties.id)
-    return { rotation: combatantContext.combatant.combatantProperties.homeRotation };
+  const { actionUser } = actionUserContext;
+
+  if (primaryTargetResult.entityProperties.id === actionUser.getEntityId())
+    return { rotation: actionUser.getHomeRotation() };
 
   const direction = target.combatantProperties.homeLocation
-    .subtract(combatantContext.combatant.combatantProperties.homeLocation)
+    .subtract(actionUser.getHomePosition())
     .normalize();
 
   const destinationRotation = Quaternion.FromUnitVectorsToRef(
@@ -58,12 +65,12 @@ export function getRotateTowardPrimaryTargetDestination(context: ActionResolutio
 export function getPrimaryTargetPositionAsDestination(
   context: ActionResolutionStepContext
 ): Error | EntityDestination {
-  const { combatantContext, tracker } = context;
+  const { actionUserContext, tracker } = context;
   const { actionExecutionIntent } = tracker;
 
-  const targetingCalculator = new TargetingCalculator(combatantContext, null);
+  const targetingCalculator = new TargetingCalculator(actionUserContext, null);
   const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
-    combatantContext.party,
+    actionUserContext.party,
     actionExecutionIntent
   );
   if (primaryTargetResult instanceof Error) return primaryTargetResult;

@@ -17,6 +17,7 @@ import { getPlayerPartyOption } from "./get-player-party.js";
 import handleBattleVictory from "./handle-battle-victory.js";
 import { GameMode } from "../types.js";
 import { MAX_PARTY_SIZE } from "../app-consts.js";
+import { Combatant } from "../combatants/index.js";
 
 export class SpeedDungeonGame {
   [immerable] = true;
@@ -36,6 +37,17 @@ export class SpeedDungeonGame {
     public isRanked: boolean = false
   ) {
     if (mode === GameMode.Progression) this.playerCapacity = MAX_PARTY_SIZE;
+  }
+
+  static deserialize(game: SpeedDungeonGame) {
+    for (const party of Object.values(game.adventuringParties)) {
+      for (const [entityId, character] of Object.entries(party.characters)) {
+        party.characters[entityId] = Combatant.getDeserialized(character);
+      }
+    }
+
+    for (const [username, player] of Object.entries(game.players))
+      SpeedDungeonPlayer.deserialize(player);
   }
 
   static removePlayerFromParty = removePlayerFromParty;

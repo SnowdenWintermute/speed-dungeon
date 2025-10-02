@@ -26,7 +26,7 @@ import {
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
 
 const hitOutcomeProperties = createHitOutcomeProperties(
-  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BOW_ATTACK,
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.PROJECTILE,
   {}
 );
 
@@ -36,7 +36,7 @@ const targetingProperties = createTargetingPropertiesConfig(
   TARGETING_PROPERTIES_TEMPLATE_GETTERS.COPY_PARENT_HOSTILE,
   {
     executionPreconditions: [
-      ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.UserIsAlive],
+      ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.TargetsAreAlive],
     ],
   }
 );

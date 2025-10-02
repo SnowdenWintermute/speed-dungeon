@@ -14,7 +14,6 @@ import {
   AdventuringParty,
   CleanupMode,
   Combatant,
-  CombatantProperties,
   Consumable,
   DungeonRoom,
   DungeonRoomType,
@@ -61,9 +60,9 @@ export default function newDungeonRoomHandler({
 
     gameState.hoveredEntity = null;
 
-    for (const monster of Object.values(party.currentRoom.monsters)) {
+    for (const [entityId, monster] of Object.entries(party.currentRoom.monsters)) {
       updateCombatantHomePosition(monster.entityProperties.id, monster.combatantProperties, party);
-      Combatant.rehydrate(monster);
+      party.currentRoom.monsters[entityId] = Combatant.getDeserialized(monster);
     }
 
     party.roomsExplored.onCurrentFloor += 1;

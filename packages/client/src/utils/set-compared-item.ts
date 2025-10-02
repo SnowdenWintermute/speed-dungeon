@@ -38,7 +38,7 @@ export default function setComparedItem(itemId: string, compareAltSlot: boolean)
     gameState.comparedSlot = slotToCompare;
 
     const equippedItemOption = CombatantEquipment.getEquipmentInSlot(
-      focusedCharacter.combatantProperties,
+      focusedCharacter.getEquipmentOption(),
       slotToCompare
     );
 

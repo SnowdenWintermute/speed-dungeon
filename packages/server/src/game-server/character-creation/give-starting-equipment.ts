@@ -24,6 +24,10 @@ const STARTING_EQUIPMENT_BY_COMBATANT_CLASS: Record<
   Partial<Record<HoldableSlotType, EquipmentBaseItem>>
 > = {
   [CombatantClass.Warrior]: {
+    // [HoldableSlotType.MainHand]: {
+    //   equipmentType: EquipmentType.TwoHandedRangedWeapon,
+    //   baseItemType: TwoHandedRangedWeapon.CompositeBow,
+    // },
     [HoldableSlotType.MainHand]: {
       equipmentType: EquipmentType.OneHandedMeleeWeapon,
       baseItemType: OneHandedMeleeWeapon.Dagger,
@@ -40,14 +44,18 @@ const STARTING_EQUIPMENT_BY_COMBATANT_CLASS: Record<
     },
   },
   [CombatantClass.Rogue]: {
+    // [HoldableSlotType.MainHand]: {
+    //   equipmentType: EquipmentType.TwoHandedRangedWeapon,
+    //   baseItemType: TwoHandedRangedWeapon.CompositeBow,
+    // },
     [HoldableSlotType.MainHand]: {
       equipmentType: EquipmentType.OneHandedMeleeWeapon,
       baseItemType: OneHandedMeleeWeapon.ButterKnife,
     },
-    [HoldableSlotType.OffHand]: {
-      equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: OneHandedMeleeWeapon.ButterKnife,
-    },
+    // [HoldableSlotType.OffHand]: {
+    //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
+    //   baseItemType: OneHandedMeleeWeapon.ButterKnife,
+    // },
   },
 };
 
@@ -56,7 +64,7 @@ export function giveStartingEquipment(combatantProperties: CombatantProperties) 
     STARTING_EQUIPMENT_BY_COMBATANT_CLASS[combatantProperties.combatantClass];
 
   const mainHoldableHotswapSlot = throwIfError(
-    CombatantEquipment.getEquippedHoldableSlots(combatantProperties)
+    CombatantEquipment.getEquippedHoldableSlots(combatantProperties.equipment)
   );
 
   for (const [slotType, template] of iterateNumericEnumKeyedRecord(startingHoldables)) {
@@ -92,8 +100,9 @@ function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
     },
     { noAffixes: true }
   );
-  if (!(mh instanceof Error) && combatantProperties.equipment.inherentHoldableHotswapSlots[1])
+  if (!(mh instanceof Error) && combatantProperties.equipment.inherentHoldableHotswapSlots[1]) {
     combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
       HoldableSlotType.MainHand
     ] = mh;
+  }
 }

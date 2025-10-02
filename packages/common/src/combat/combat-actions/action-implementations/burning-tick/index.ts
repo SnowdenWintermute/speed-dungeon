@@ -40,12 +40,12 @@ const config: CombatActionComponentConfig = {
     },
     getOnUseMessageDataOverride(context) {
       const { actionExecutionIntent } = context.tracker;
-      const { combatantContext } = context;
-      const targetingCalculator = new TargetingCalculator(combatantContext, null);
+      const { actionUserContext } = context;
+      const targetingCalculator = new TargetingCalculator(actionUserContext, null);
       const primaryTargetId = throwIfError(
         targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent)
       );
-      const { party } = combatantContext;
+      const { party } = actionUserContext;
       const targetCombatantResult = AdventuringParty.getCombatant(party, primaryTargetId);
       if (targetCombatantResult instanceof Error) throw targetCombatantResult;
 

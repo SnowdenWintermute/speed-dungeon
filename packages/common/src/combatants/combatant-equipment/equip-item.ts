@@ -2,7 +2,6 @@ import { ERROR_MESSAGES } from "../../errors/index.js";
 import { EntityId } from "../../primatives/index.js";
 import {
   EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE,
-  EquipableSlots,
   EquipmentSlotType,
   HoldableSlotType,
   TaggedEquipmentSlot,
@@ -12,24 +11,29 @@ import {
   applyEquipmentEffectWhileMaintainingResourcePercentages,
   CombatantEquipment,
 } from "./index.js";
-import { getPreEquipmentChangeHpAndManaPercentage } from "./get-pre-equipment-change-hp-and-mana-percentage.js";
-import { CombatantProperties, Inventory } from "../index.js";
-import { CombatAttribute } from "../attributes/index.js";
+import { Combatant, CombatantProperties, Inventory } from "../index.js";
 
 /** 
   
   returns list of item ids unequipped
 */
 export function equipItem(
-  combatantProperties: CombatantProperties,
+  combatant: Combatant,
   itemId: string,
   equipToAltSlot: boolean
 ): Error | { idsOfUnequippedItems: EntityId[]; unequippedSlots: TaggedEquipmentSlot[] } {
+  const { combatantProperties } = combatant;
+
   const equipmentResult = Inventory.getEquipmentById(combatantProperties.inventory, itemId);
   if (equipmentResult instanceof Error) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   const equipment = equipmentResult;
 
-  if (!CombatantProperties.combatantHasRequiredAttributesToUseItem(combatantProperties, equipment))
+  if (
+    !CombatantProperties.combatantHasRequiredAttributesToUseItem(
+      combatant.getTotalAttributes(),
+      equipment
+    )
+  )
     return new Error(ERROR_MESSAGES.EQUIPMENT.REQUIREMENTS_NOT_MET);
   if (Equipment.isBroken(equipment)) return new Error(ERROR_MESSAGES.EQUIPMENT.IS_BROKEN);
 
@@ -46,6 +50,7 @@ export function equipItem(
       else return possibleSlots.main;
     })();
 
+    // @REFACTOR
     const slotsToUnequipResult = ((): TaggedEquipmentSlot[] => {
       switch (slot.type) {
         case EquipmentSlotType.Holdable:
@@ -58,8 +63,9 @@ export function equipItem(
                 ];
               else return [slot];
             case HoldableSlotType.OffHand:
-              const equippedHotswapSlot =
-                CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+              const equippedHotswapSlot = CombatantEquipment.getEquippedHoldableSlots(
+                combatantProperties.equipment
+              );
               if (!equippedHotswapSlot) return [];
 
               const itemInMainHandOption = equippedHotswapSlot.holdables[HoldableSlotType.MainHand];
@@ -98,7 +104,7 @@ export function equipItem(
     if (itemToEquipResult instanceof Error) return itemToEquipResult;
 
     const maybeError = CombatantEquipment.putEquipmentInSlot(
-      combatantProperties,
+      combatantProperties.equipment,
       itemToEquipResult,
       slot
     );

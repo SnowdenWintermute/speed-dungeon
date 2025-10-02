@@ -8,32 +8,37 @@ const threshold = 0.01;
 
 export function getMeleeAttackDestination(context: ActionResolutionStepContext) {
   {
-    const { combatantContext, tracker } = context;
+    const { actionUserContext, tracker } = context;
     const { actionExecutionIntent } = tracker;
-    const targetingCalculator = new TargetingCalculator(combatantContext, null);
+    const targetingCalculator = new TargetingCalculator(actionUserContext, null);
     const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
-      combatantContext.party,
+      actionUserContext.party,
       actionExecutionIntent
     );
     if (primaryTargetResult instanceof Error) return primaryTargetResult;
     const target = primaryTargetResult;
-    const user = combatantContext.combatant.combatantProperties;
 
-    const distance = Vector3.Distance(target.combatantProperties.position, user.position);
+    const { actionUser } = actionUserContext;
+
+    const userPositionOption = actionUser.getPositionOption();
+    if (userPositionOption === null) throw new Error("expected position");
+    const userPosition = userPositionOption;
+
+    const distance = Vector3.Distance(target.combatantProperties.position, userPosition);
     if (distance <= meleeRange || isNaN(distance) || Math.abs(meleeRange - distance) < threshold) {
-      return { position: user.position.clone() };
+      return { position: userPosition.clone() };
     }
 
-    const direction = target.combatantProperties.homeLocation
-      .subtract(combatantContext.combatant.combatantProperties.homeLocation)
-      .normalize();
+    const homePosition = actionUser.getHomePosition();
+
+    const direction = target.combatantProperties.homeLocation.subtract(homePosition).normalize();
 
     const destination = target.combatantProperties.homeLocation.subtract(
       direction.scale(meleeRange)
     );
 
     const destinationRotation = getLookRotationFromPositions(
-      user.homeLocation,
+      homePosition,
       target.combatantProperties.homeLocation
     );
 

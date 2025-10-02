@@ -11,7 +11,7 @@ import {
   SKILL_BOOK_TYPE_TO_COMBATANT_CLASS,
 } from "../../../../items/consumables/index.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
-import { Inventory } from "../../../../combatants/index.js";
+import { Combatant, Inventory } from "../../../../combatants/index.js";
 import { throwIfError } from "../../../../utils/index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
@@ -31,7 +31,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(base, {
   getOnUseTriggers: (context) => {
     // see the action.costProperties.getMeetsCustomRequirements of the
     // skill book action for validation
-    const { combatant } = context.combatantContext;
+    const { actionUser } = context.actionUserContext;
     const bookOption = context.tracker.consumableUsed;
 
     if (bookOption === null) {
@@ -40,7 +40,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(base, {
     }
 
     const supportClassLevelsGainedResult = onSkillBookRead(
-      combatant.combatantProperties,
+      actionUser.getCombatantProperties(),
       bookOption
     );
 
@@ -51,7 +51,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(base, {
 
     return {
       supportClassLevelsGained: {
-        [combatant.entityProperties.id]: supportClassLevelsGainedResult.supportClassLevelIncreased,
+        [actionUser.getEntityId()]: supportClassLevelsGainedResult.supportClassLevelIncreased,
       },
     };
   },
@@ -59,21 +59,28 @@ const hitOutcomeProperties = createHitOutcomeProperties(base, {
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   getConsumableCost: (user) => {
-    const itemId = user.selectedItemId;
+    const itemId = user.getTargetingProperties().getSelectedItemId();
     if (itemId === null) throw new Error("expected to have a book selected");
-    const selectedItem = throwIfError(Inventory.getItemById(user.inventory, itemId));
+    const inventoryOption = user.getInventoryOption();
+    if (inventoryOption === null) throw new Error("expected user to have an inventory");
+    const selectedItem = throwIfError(Inventory.getItemById(inventoryOption, itemId));
     if (!(selectedItem instanceof Consumable)) throw new Error("expected to select a consumable");
     return { type: selectedItem.consumableType, level: selectedItem.itemLevel };
   },
   getMeetsCustomRequirements: (user, actionLevel) => {
     // check what book they are selecting
     // if it isn't a skill book, error
-    const skillBookResult = Inventory.getSelectedSkillBook(user.inventory, user.selectedItemId);
+    const inventoryOption = user.getInventoryOption();
+    if (inventoryOption === null) throw new Error("expected user to have an inventory");
+    const skillBookResult = Inventory.getSelectedSkillBook(
+      inventoryOption,
+      user.getTargetingProperties().getSelectedItemId()
+    );
     if (skillBookResult instanceof Error)
       return { meetsRequirements: false, reasonDoesNot: skillBookResult.message };
 
     // if they have no support class it is allowed
-    const { supportClassProperties } = user;
+    const { supportClassProperties } = user.getCombatantProperties();
     if (supportClassProperties !== null) {
       const { combatantClass } = supportClassProperties;
       // if they already have a support class that isn't matching, return error
@@ -92,7 +99,7 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
         meetsRequirements: false,
         reasonDoesNot: "Somehow tried to read a skill book that wasn't associated with any class",
       };
-    if (user.combatantClass === skillBookClass)
+    if (user.getCombatantProperties().combatantClass === skillBookClass)
       return {
         meetsRequirements: false,
         reasonDoesNot: "You could have written this book - reading it won't help you",
@@ -108,7 +115,7 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
       };
 
     // don't allow reading a book if their support class is already half the level of their main class
-    const mainClassLevel = user.level;
+    const mainClassLevel = user.getLevel();
     const supportClassAtMaxLevel = supportClassLevel >= Math.floor(mainClassLevel / 2);
     if (supportClassAtMaxLevel)
       return {

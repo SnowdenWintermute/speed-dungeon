@@ -1,5 +1,6 @@
 export * from "./magical-hp-change-calulation-strategy.js";
 export * from "./physical-hp-change-calculation-strategy.js";
+import { IActionUser } from "../../../../action-user-context/action-user.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
 import { CombatActionHitOutcomeProperties } from "../../../combat-actions/combat-action-hit-outcome-properties.js";
 import { ResourceChange, ResourceChangeSourceCategory } from "../../../hp-change-source-types.js";
@@ -10,15 +11,11 @@ export interface ResourceChangeCalculationStrategy {
   applyArmorClass(
     hitOutcomeProperties: CombatActionHitOutcomeProperties,
     hpChange: ResourceChange,
-    user: CombatantProperties,
+    user: IActionUser,
     actionLevel: number,
     target: CombatantProperties
   ): void;
-  applyResilience(
-    hpChange: ResourceChange,
-    user: CombatantProperties,
-    target: CombatantProperties
-  ): void;
+  applyResilience(hpChange: ResourceChange, user: IActionUser, target: CombatantProperties): void;
 }
 
 export class ResourceChangeCalulationContext implements ResourceChangeCalculationStrategy {
@@ -30,17 +27,13 @@ export class ResourceChangeCalulationContext implements ResourceChangeCalculatio
   applyArmorClass(
     hitOutcomeProperties: CombatActionHitOutcomeProperties,
     hpChange: ResourceChange,
-    user: CombatantProperties,
+    user: IActionUser,
     actionLevel: number,
     target: CombatantProperties
   ) {
     return this.strategy.applyArmorClass(hitOutcomeProperties, hpChange, user, actionLevel, target);
   }
-  applyResilience(
-    hpChange: ResourceChange,
-    user: CombatantProperties,
-    target: CombatantProperties
-  ) {
+  applyResilience(hpChange: ResourceChange, user: IActionUser, target: CombatantProperties) {
     return this.strategy.applyResilience(hpChange, user, target);
   }
 

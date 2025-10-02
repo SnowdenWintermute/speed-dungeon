@@ -1,6 +1,6 @@
 import { CombatActionComponent } from ".";
 import { ActionResolutionStepContext } from "../../action-processing/index.js";
-import { CombatantProperties } from "../../combatants/index.js";
+import { IActionUser } from "../../action-user-context/action-user";
 import { ConsumableType } from "../../items/consumables/index.js";
 import {
   EquipmentSlotType,
@@ -20,20 +20,20 @@ export interface CombatActionCostPropertiesConfig {
   };
   costBases: ActionResourceCostBases;
   getResourceCosts: (
-    user: CombatantProperties,
+    user: IActionUser,
     inCombat: boolean,
     selectedActionLevel: number,
     self: CombatActionComponent
   ) => null | ActionResourceCosts;
-  getCooldownTurns: (user: CombatantProperties, selectedActionLevel: number) => null | number;
-  getConsumableCost: (user: CombatantProperties) => null | { type: ConsumableType; level: number };
+  getCooldownTurns: (user: IActionUser, selectedActionLevel: number) => null | number;
+  getConsumableCost: (user: IActionUser) => null | { type: ConsumableType; level: number };
   getEndsTurnOnUse: (actionLevel: number) => boolean;
   requiresCombatTurnInThisContext: (
     context: ActionResolutionStepContext,
     self: CombatActionComponent
   ) => boolean;
   getMeetsCustomRequirements?: (
-    user: CombatantProperties,
+    user: IActionUser,
     actionLevel: number
   ) => { meetsRequirements: boolean; reasonDoesNot?: string };
 }
@@ -42,7 +42,7 @@ export interface CombatActionCostPropertiesConfig {
 // so we can then call .getResourceCosts without passing an action to it
 export interface CombatActionCostProperties extends CombatActionCostPropertiesConfig {
   getResourceCosts: (
-    user: CombatantProperties,
+    user: IActionUser,
     inCombat: boolean,
     actionLevel: number
   ) => null | ActionResourceCosts;

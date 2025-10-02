@@ -134,6 +134,7 @@ export const RANDOM_PARTY_NAMES = [
 // ];
 
 export const RANDOM_CHARACTER_NAMES_FIRST = [
+  // Sword Art Online
   "Kirito",
   "Asuna",
   "Klein",
@@ -146,6 +147,7 @@ export const RANDOM_CHARACTER_NAMES_FIRST = [
   "Lisbeth",
   "Yui",
   "Agil",
+  // Dungeon Meshi
   "Senshi",
   "Kabru",
   "Falin",
@@ -155,6 +157,17 @@ export const RANDOM_CHARACTER_NAMES_FIRST = [
   "Chilchuck",
   "Shuro",
   "Namari",
-  // originals
-  "Klazpr",
+  // Frieren
+  "Frieren",
+  "Himmel",
+  "Heiter",
+  "Eisen",
+  "Fern",
+  "Stark",
+  "Sein",
+  "Kraft",
 ];
+
+// originals
+// "Klazpr",
+// "Clea"

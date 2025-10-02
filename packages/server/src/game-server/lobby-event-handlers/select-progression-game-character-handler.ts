@@ -1,5 +1,6 @@
 import {
   AdventuringParty,
+  Combatant,
   ERROR_MESSAGES,
   GameMode,
   ServerToClientEvent,
@@ -13,7 +14,7 @@ import { Socket } from "socket.io";
 import { fetchSavedCharacters } from "../saved-character-event-handlers/fetch-saved-characters.js";
 import { getLoggedInUserFromSocket } from "../event-middleware/get-logged-in-user-from-socket.js";
 
-export default async function selectProgressionGameCharacterHandler(
+export async function selectProgressionGameCharacterHandler(
   entityId: string,
   playerAssociatedData: ServerPlayerAssociatedData,
   socket: Socket
@@ -56,8 +57,9 @@ export default async function selectProgressionGameCharacterHandler(
   if (removeCharacterResult instanceof Error) return removeCharacterResult;
 
   delete game.lowestStartingFloorOptionsBySavedCharacter[removeCharacterResult.entityProperties.id];
+  savedCharacterOption = Combatant.getDeserialized(savedCharacterOption);
 
-  addCharacterToParty(game, partyOption, player, savedCharacterOption, true);
+  addCharacterToParty(game, partyOption, player, savedCharacterOption);
 
   game.lowestStartingFloorOptionsBySavedCharacter[savedCharacterOption.entityProperties.id] =
     savedCharacterOption.combatantProperties.deepestFloorReached;

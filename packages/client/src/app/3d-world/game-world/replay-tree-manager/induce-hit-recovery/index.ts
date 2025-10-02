@@ -10,7 +10,7 @@ import {
   AdventuringParty,
   FLOATING_MESSAGE_DURATION,
 } from "@speed-dungeon/common";
-import { getCombatantContext, useGameStore } from "@/stores/game-store";
+import { getActionUserContext, useGameStore } from "@/stores/game-store";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import { useUIStore } from "@/stores/ui-store";
 import { startResourceChangeFloatingMessage } from "./start-resource-change-floating-message";
@@ -43,10 +43,10 @@ export function induceHitRecovery(
   const showDebug = useUIStore.getState().showDebug;
 
   useGameStore.getState().mutateState((gameState) => {
-    const combatantContextResult = getCombatantContext(gameState, targetId);
+    const combatantContextResult = getActionUserContext(gameState, targetId);
     if (combatantContextResult instanceof Error) throw combatantContextResult;
-    const { game, party, combatant } = combatantContextResult;
-    const { combatantProperties } = combatant;
+    const { game, party, actionUser: targetCombatant } = combatantContextResult;
+    const combatantProperties = targetCombatant.getCombatantProperties();
 
     const combatantWasAliveBeforeResourceChange = combatantProperties.hitPoints > 0;
     if (resourceType === ActionPayableResource.HitPoints)
@@ -61,7 +61,7 @@ export function induceHitRecovery(
       resourceType,
       action,
       wasBlocked,
-      combatant,
+      targetCombatant,
       actionUserName,
       actionUserId,
       showDebug
@@ -69,7 +69,9 @@ export function induceHitRecovery(
 
     const battleOption = AdventuringParty.getBattleOption(party, game);
 
-    if (combatantProperties.hitPoints <= 0) {
+    if (CombatantProperties.isDead(combatantProperties)) {
+      targetModel.cosmeticEffectManager.softCleanup(() => {});
+
       const combatantDiedOnTheirOwnTurn = (() => {
         if (battleOption === null) return false;
         return battleOption.turnOrderManager.combatantIsFirstInTurnOrder(targetId);
@@ -77,18 +79,18 @@ export function induceHitRecovery(
 
       battleOption?.turnOrderManager.updateTrackers(game, party);
 
+      // end any motion trackers they might have had
+      // this is hacky because we would rather have not given them any but
+      // it was the easiest way to implement dying on combatant's own turn
+      const combatantModel = getGameWorld().modelManager.findOne(targetId);
+
+      for (const [movementType, tracker] of combatantModel.movementManager.getTrackers()) {
+        tracker.onComplete();
+      }
+      combatantModel.movementManager.activeTrackers = {};
+
       if (combatantDiedOnTheirOwnTurn) {
-        // end any motion trackers they might have had
-        // this is hacky because we would rather have not given them any but
-        // it was the easiest way to implement dying on combatant's own turn
-        const combatantModel = getGameWorld().modelManager.findOne(targetId);
-
-        for (const [movementType, tracker] of combatantModel.movementManager.getTrackers()) {
-          tracker.onComplete();
-        }
         battleOption?.turnOrderManager.updateTrackers(game, party);
-
-        combatantModel.movementManager.activeTrackers = {};
       }
 
       const newlyActiveTracker = battleOption?.turnOrderManager.getFastestActorTurnOrderTracker();
@@ -100,7 +102,7 @@ export function induceHitRecovery(
 
       gameState.combatLogMessages.push(
         new CombatLogMessage(
-          `${combatant.entityProperties.name}'s hp was reduced to zero`,
+          `${targetCombatant.getName()}'s hp was reduced to zero`,
           CombatLogMessageStyle.Basic
         )
       );

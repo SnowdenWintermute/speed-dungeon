@@ -1,15 +1,16 @@
 import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionEntityMotionGameUpdateCommand,
   AdventuringParty,
   AnimationType,
-  COMBAT_ACTION_NAME_STRINGS,
   CleanupMode,
   CombatantMotionGameUpdateCommand,
+  CombatantMotionUpdate,
+  CombatantProperties,
   ERROR_MESSAGES,
   EntityId,
   EntityMotionUpdate,
   SpawnableEntityType,
+  throwIfError,
 } from "@speed-dungeon/common";
 import { EntityMotionUpdateCompletionTracker } from "./entity-motion-update-completion-tracker";
 import { getSceneEntityToUpdate } from "./get-scene-entity-to-update";
@@ -26,19 +27,14 @@ import { handleStartPointingTowardEntity } from "./handle-start-pointing-toward"
 import { handleEquipmentAnimations } from "./handle-equipment-animations";
 import { useGameStore } from "@/stores/game-store";
 import getParty from "@/utils/getParty";
+import { GameUpdateTracker } from "..";
 
 export function handleEntityMotionUpdate(
-  update: {
-    command: ActionEntityMotionGameUpdateCommand | CombatantMotionGameUpdateCommand;
-    isComplete: boolean;
-  },
+  update: GameUpdateTracker<ActionEntityMotionGameUpdateCommand | CombatantMotionGameUpdateCommand>,
   motionUpdate: EntityMotionUpdate,
   isMainUpdate: boolean
 ) {
   const { translationOption, rotationOption, animationOption, delayOption } = motionUpdate;
-
-  const toUpdate = getSceneEntityToUpdate(motionUpdate);
-  const { movementManager, skeletalAnimationManager, dynamicAnimationManager } = toUpdate;
 
   let onAnimationComplete = () => {};
   let onTranslationComplete = () => {};
@@ -53,57 +49,45 @@ export function handleEntityMotionUpdate(
       motionUpdate
     );
 
-    if (motionUpdate.despawnMode !== undefined) {
-      despawnAndUnregisterActionEntity(motionUpdate.entityId, motionUpdate.despawnMode);
-      return;
-    }
+    let alreadyDespawned = false;
 
     if (motionUpdate.setParent !== undefined)
       handleEntityMotionSetNewParentUpdate(actionEntityModelOption, motionUpdate.setParent);
 
-    if (motionUpdate.lockRotationToFace !== undefined)
+    if (motionUpdate.lockRotationToFace !== undefined) {
+      const toUpdate = getSceneEntityToUpdate(motionUpdate);
       handleLockRotationToFace(toUpdate, motionUpdate.lockRotationToFace);
+    }
 
-    if (motionUpdate.startPointingToward !== undefined)
+    if (motionUpdate.startPointingToward !== undefined) {
+      const toUpdate = getSceneEntityToUpdate(motionUpdate);
       handleStartPointingTowardEntity(toUpdate, motionUpdate.startPointingToward);
+    }
 
     const { despawnOnCompleteMode } = motionUpdate;
 
     onTranslationComplete = () => {
-      if (despawnOnCompleteMode !== undefined)
+      if (despawnOnCompleteMode !== undefined && !alreadyDespawned) {
         despawnAndUnregisterActionEntity(motionUpdate.entityId, despawnOnCompleteMode);
+        alreadyDespawned = true;
+      }
     };
     onAnimationComplete = () => {
-      if (despawnOnCompleteMode !== undefined)
+      if (despawnOnCompleteMode !== undefined && !alreadyDespawned) {
         despawnAndUnregisterActionEntity(motionUpdate.entityId, despawnOnCompleteMode);
+        alreadyDespawned = true;
+      }
     };
+
+    if (!translationOption && !animationOption && despawnOnCompleteMode !== undefined) {
+      despawnAndUnregisterActionEntity(motionUpdate.entityId, despawnOnCompleteMode);
+    }
   }
 
   if (motionUpdate.entityType === SpawnableEntityType.Combatant) {
-    const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
-
-    // they are already dead, so don't animate them
-    // this happens if a combatant dies from getting counterattacked and the server
-    // tells them to "return home"
-    if (combatantModelOption.getCombatant().combatantProperties.hitPoints <= 0) {
-      update.isComplete = true;
-      return;
-    }
-
-    onTranslationComplete = () => {
-      if (!motionUpdate.idleOnComplete) return;
-      const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
-      combatantModelOption.startIdleAnimation(500);
-    };
-
-    onAnimationComplete = () => {
-      if (!motionUpdate.idleOnComplete) return;
-      const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
-      combatantModelOption.startIdleAnimation(500);
-    };
-
-    if (motionUpdate.equipmentAnimations)
-      handleEquipmentAnimations(motionUpdate.entityId, motionUpdate.equipmentAnimations);
+    const completionHandlers = handleCombatantMotionUpdate(motionUpdate, update);
+    onAnimationComplete = completionHandlers.onAnimationComplete;
+    onTranslationComplete = completionHandlers.onTranslationComplete;
   }
 
   const updateCompletionTracker = new EntityMotionUpdateCompletionTracker(
@@ -113,28 +97,33 @@ export function handleEntityMotionUpdate(
     update
   );
 
-  handleUpdateTranslation(
-    movementManager,
-    translationOption,
-    cosmeticDestinationYOption,
-    updateCompletionTracker,
-    update,
-    onTranslationComplete
-  );
+  if (translationOption) {
+    handleUpdateTranslation(
+      motionUpdate,
+      translationOption,
+      cosmeticDestinationYOption,
+      updateCompletionTracker,
+      update,
+      onTranslationComplete
+    );
+  }
 
-  if (rotationOption)
-    movementManager.startRotatingTowards(
+  if (rotationOption) {
+    const toUpdate = getSceneEntityToUpdate(motionUpdate);
+    toUpdate.movementManager.startRotatingTowards(
       plainToInstance(Quaternion, rotationOption.rotation),
       rotationOption.duration,
       () => {}
     );
+  }
 
   if (animationOption) {
+    const toUpdate = getSceneEntityToUpdate(motionUpdate);
     let animationManager: DynamicAnimationManager | SkeletalAnimationManager =
-      skeletalAnimationManager;
+      toUpdate.skeletalAnimationManager;
 
     if (animationOption.name.type === AnimationType.Dynamic)
-      animationManager = dynamicAnimationManager;
+      animationManager = toUpdate.dynamicAnimationManager;
 
     handleUpdateAnimation(
       animationManager,
@@ -146,7 +135,7 @@ export function handleEntityMotionUpdate(
   }
 
   if (isMainUpdate && updateCompletionTracker.isComplete()) {
-    update.isComplete = true;
+    update.setAsQueuedToComplete();
   }
 }
 
@@ -165,4 +154,48 @@ function despawnAndUnregisterActionEntity(entityId: EntityId, cleanupMode: Clean
       }
     });
   }
+}
+
+function handleCombatantMotionUpdate(
+  motionUpdate: CombatantMotionUpdate,
+  parentUpdate: GameUpdateTracker<
+    ActionEntityMotionGameUpdateCommand | CombatantMotionGameUpdateCommand
+  >
+): { onTranslationComplete: () => void; onAnimationComplete: () => void } {
+  const toReturn = {
+    onAnimationComplete: () => {},
+    onTranslationComplete: () => {},
+  };
+
+  try {
+    const combatantResult = useGameStore.getState().getCombatant(motionUpdate.entityId);
+  } catch {
+    console.error("error motionUpdate:", motionUpdate);
+  }
+
+  const combatant = throwIfError(useGameStore.getState().getCombatant(motionUpdate.entityId));
+  // they are already dead, so don't animate them
+  // this happens if a combatant dies from getting counterattacked and the server
+  // tells them to "return home"
+  if (CombatantProperties.isDead(combatant.combatantProperties)) {
+    parentUpdate.setAsQueuedToComplete();
+    return toReturn;
+  }
+
+  toReturn.onTranslationComplete = () => {
+    if (!motionUpdate.idleOnComplete) return;
+    const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
+    combatantModelOption.startIdleAnimation(500);
+  };
+
+  toReturn.onAnimationComplete = () => {
+    if (!motionUpdate.idleOnComplete) return;
+    const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
+    combatantModelOption.startIdleAnimation(500);
+  };
+
+  if (motionUpdate.equipmentAnimations)
+    handleEquipmentAnimations(motionUpdate.entityId, motionUpdate.equipmentAnimations);
+
+  return toReturn;
 }

@@ -3,12 +3,11 @@ import {
   CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
+  CombatActionExecutionIntent,
   CombatActionName,
   CombatActionOrigin,
 } from "../../index.js";
 import { CombatantEquipment } from "../../../../combatants/index.js";
-import { ATTACK_MELEE_MAIN_HAND } from "./attack-melee-main-hand.js";
-import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
 import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
@@ -38,20 +37,18 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
   costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.FREE_ACTION(),
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
-    getChildren: function (
-      context: ActionResolutionStepContext,
-      self: CombatActionComponent
-    ): CombatActionComponent[] {
-      const toReturn: CombatActionComponent[] = [];
-      const user = context.combatantContext.combatant.combatantProperties;
+    getChildren: function (context: ActionResolutionStepContext, self: CombatActionComponent) {
+      const { actionUser } = context.actionUserContext;
+      const { actionExecutionIntent } = context.tracker;
+      const { targets, rank } = actionExecutionIntent;
 
-      if (CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(user))
-        toReturn.push(ATTACK_RANGED_MAIN_HAND);
-      else {
-        toReturn.push(ATTACK_MELEE_MAIN_HAND);
+      let actionName = CombatActionName.AttackMeleeMainhand;
+
+      if (CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(actionUser)) {
+        actionName = CombatActionName.AttackRangedMainhand;
       }
 
-      return toReturn;
+      return [new CombatActionExecutionIntent(actionName, rank, targets)];
     },
   },
   stepsConfig: new ActionResolutionStepsConfig(

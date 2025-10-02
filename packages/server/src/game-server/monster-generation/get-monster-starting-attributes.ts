@@ -65,7 +65,7 @@ export function getMonsterStartingAttributes(monsterType: MonsterType): Combatan
       break;
     case MonsterType.Cultist:
       attributes[CombatAttribute.Spirit] = 6.0;
-      attributes[CombatAttribute.Hp] = 60.0;
+      attributes[CombatAttribute.Hp] = 400.0;
       // attributes[CombatAttribute.Hp] = 20.0;
       // attributes[CombatAttribute.Vitality] = 1.5;
       attributes[CombatAttribute.Strength] = 20; // @TESTING remove
@@ -73,7 +73,7 @@ export function getMonsterStartingAttributes(monsterType: MonsterType): Combatan
       attributes[CombatAttribute.Accuracy] = 0.0;
       // attributes[CombatAttribute.Accuracy] = 600.0;
       attributes[CombatAttribute.Evasion] = 20.0;
-      attributes[CombatAttribute.Speed] = 1.0;
+      attributes[CombatAttribute.Speed] = 5.0;
       // attributes[CombatAttribute.Speed] = 7.0;
       break;
     case MonsterType.FireElemental:

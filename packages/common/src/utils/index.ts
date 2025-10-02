@@ -7,6 +7,7 @@ export * from "./shape-utils.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { CONSUMABLE_TYPE_STRINGS, Consumable, ConsumableType } from "../items/consumables/index.js";
 import { BoxDimensions } from "./shape-utils.js";
+import { NextOrPrevious } from "../primatives/index.js";
 
 export function iterateNumericEnum<T extends { [name: string]: string | number }>(
   enumType: T
@@ -174,4 +175,30 @@ export function timeToReachBox(
 export function nameToPossessive(name: string): string {
   if (!name) return name;
   return name.endsWith("s") ? `${name}'` : `${name}'s`;
+}
+
+export function cycleListGivenCurrentValue<T>(
+  list: Array<T>,
+  current: T,
+  direction: NextOrPrevious
+): T {
+  if (list.length < 1) throw new Error("Tried to cycle an empty list");
+  let currentIndex = list.indexOf(current);
+  if (currentIndex === -1) throw new Error("Current value was not found in provided list");
+
+  let newIndex;
+  switch (direction) {
+    case NextOrPrevious.Next:
+      if (currentIndex < list.length - 1) newIndex = currentIndex + 1;
+      else newIndex = 0;
+      break;
+    case NextOrPrevious.Previous:
+      if (currentIndex > 0) newIndex = currentIndex - 1;
+      else newIndex = list.length - 1;
+  }
+
+  const cycledTo = list[newIndex];
+
+  if (cycledTo === undefined) throw new Error("Target not found in list");
+  return cycledTo;
 }

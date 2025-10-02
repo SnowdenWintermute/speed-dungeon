@@ -9,80 +9,92 @@ import {
   GameUpdateCommandType,
 } from "../../game-update-commands.js";
 import { SpawnableEntityType } from "../../../spawnables/index.js";
-import { ARROW_TIME_TO_MOVE_ONE_METER } from "../../../app-consts.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { ActionEntity } from "../../../action-entities/index.js";
-import { COMBAT_ACTIONS } from "../../../combat/index.js";
+import { COMBAT_ACTION_NAME_STRINGS, COMBAT_ACTIONS } from "../../../combat/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 
 export class ActionEntityMotionActionResolutionStep extends EntityMotionActionResolutionStep {
-  constructor(
-    context: ActionResolutionStepContext,
-    stepType: ActionResolutionStepType,
-    private actionEntity: ActionEntity
-  ) {
-    const update: ActionEntityMotionUpdate = {
-      entityType: SpawnableEntityType.ActionEntity,
-      entityId: actionEntity.entityProperties.id,
-    };
+  constructor(context: ActionResolutionStepContext, stepType: ActionResolutionStepType) {
+    const { party, actionUser } = context.actionUserContext;
 
-    const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
+    let actionEntity = actionUser; // try to act on the user first
+    if (!(actionUser instanceof ActionEntity))
+      // otherwise check if the action has a spawned action entity
+      actionEntity = context.tracker.getFirstExpectedSpawnedActionEntity().actionEntity;
 
-    const stepConfig = action.stepsConfig.getStepConfigOption(stepType);
-    if (!stepConfig) throw new Error("expected step config not found");
-    if (stepConfig.getDespawnOnCompleteCleanupModeOption)
-      update.despawnOnCompleteMode = stepConfig.getDespawnOnCompleteCleanupModeOption(context);
-
-    if (stepConfig.getNewParent) update.setParent = stepConfig.getNewParent(context);
-
-    if (stepConfig.getCosmeticDestinationY)
-      update.cosmeticDestinationY = stepConfig.getCosmeticDestinationY(context);
-
-    if (stepConfig.getEntityToLockOnTo)
-      update.lockRotationToFace = stepConfig.getEntityToLockOnTo(context);
-
-    if (stepConfig.getStartPointingToward)
-      update.startPointingToward = stepConfig.getStartPointingToward(context);
-
-    const { actionName } = context.tracker.actionExecutionIntent;
-
-    const gameUpdateCommand: ActionEntityMotionGameUpdateCommand = {
-      type: GameUpdateCommandType.ActionEntityMotion,
-      step: stepType,
-      actionName,
-      completionOrderId: null,
-      mainEntityUpdate: update,
-    };
-
-    super(
-      stepType,
-      context,
-      gameUpdateCommand,
-      actionEntity.actionEntityProperties.position,
-      ARROW_TIME_TO_MOVE_ONE_METER
+    const entityIsStillRegistered = !(
+      AdventuringParty.getActionEntity(party, actionUser.getEntityId()) instanceof Error
     );
+
+    let gameUpdateCommand: null | ActionEntityMotionGameUpdateCommand = null;
+    // don't send update if the entity was previously removed
+    // which might happen to chaining arrows that despawn before this step
+    // if they couldn't find a target
+    if (entityIsStillRegistered) {
+      const update: ActionEntityMotionUpdate = {
+        entityType: SpawnableEntityType.ActionEntity,
+        entityId: actionEntity.getEntityId(),
+      };
+
+      const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
+
+      const stepConfig = action.stepsConfig.getStepConfigOption(stepType);
+      if (!stepConfig) throw new Error("expected step config not found");
+
+      if (stepConfig.getDespawnOnCompleteCleanupModeOption) {
+        const cleanupModeOption = stepConfig.getDespawnOnCompleteCleanupModeOption(context);
+
+        if (cleanupModeOption !== null) {
+          update.despawnOnCompleteMode = cleanupModeOption;
+        }
+      }
+
+      if (stepConfig.getNewParent) update.setParent = stepConfig.getNewParent(context);
+
+      if (stepConfig.getCosmeticDestinationY)
+        update.cosmeticDestinationY = stepConfig.getCosmeticDestinationY(context);
+
+      if (stepConfig.getEntityToLockOnTo)
+        update.lockRotationToFace = stepConfig.getEntityToLockOnTo(context);
+
+      if (stepConfig.getStartPointingToward)
+        update.startPointingToward = stepConfig.getStartPointingToward(context);
+
+      const { actionName } = context.tracker.actionExecutionIntent;
+
+      gameUpdateCommand = {
+        type: GameUpdateCommandType.ActionEntityMotion,
+        step: stepType,
+        actionName,
+        completionOrderId: null,
+        mainEntityUpdate: update,
+      };
+    }
+
+    super(stepType, context, gameUpdateCommand, actionEntity);
   }
   protected getBranchingActions = () => [];
 
   onComplete() {
     const { context } = this;
+    const { actionUser } = context.actionUserContext;
 
-    const { actionName } = context.tracker.actionExecutionIntent;
-    const action = COMBAT_ACTIONS[actionName];
+    if (!(actionUser instanceof ActionEntity))
+      throw new Error("expected only actions used action entities to have this step");
 
-    const stepConfig = action.stepsConfig.getStepConfigOption(this.type);
+    const gameUpdateCommand = context.tracker.currentStep.getGameUpdateCommandOption();
 
-    if (!stepConfig) throw new Error("expected step config not found");
-    if (!stepConfig.getDespawnOnCompleteCleanupModeOption) return [];
-    const despawnOnComplete = stepConfig.getDespawnOnCompleteCleanupModeOption(context);
-    if (!despawnOnComplete) return [];
-    const { party } = context.combatantContext;
+    if (
+      gameUpdateCommand &&
+      gameUpdateCommand.type === GameUpdateCommandType.ActionEntityMotion &&
+      gameUpdateCommand.mainEntityUpdate.despawnOnCompleteMode !== undefined
+    ) {
+      const { party } = context.actionUserContext;
 
-    AdventuringParty.unregisterActionEntity(
-      party,
-      this.actionEntity.entityProperties.id,
-      AdventuringParty.getBattleOption(party, context.combatantContext.game)
-    );
+      const battleOption = AdventuringParty.getBattleOption(party, context.actionUserContext.game);
+      AdventuringParty.unregisterActionEntity(party, actionUser.getEntityId(), battleOption);
+    }
 
     return [];
   }

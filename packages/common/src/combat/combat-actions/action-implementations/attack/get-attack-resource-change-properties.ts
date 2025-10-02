@@ -1,3 +1,4 @@
+import { IActionUser } from "../../../../action-user-context/action-user.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
@@ -14,7 +15,7 @@ import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcom
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 
 export function getAttackResourceChangeProperties(
-  user: CombatantProperties,
+  user: IActionUser,
   hitOutcomeProperties: CombatActionHitOutcomeProperties,
   actionLevel: number,
   primaryTarget: CombatantProperties,
@@ -34,12 +35,12 @@ export function getAttackResourceChangeProperties(
   const baseValues = new NumberRange(1, 1);
 
   // just get some extra damage for combatant level
-  baseValues.add(user.level - 1);
+  baseValues.add(user.getLevel() - 1);
   // get greater benefits from a certain attribute the higher level a combatant is
   addCombatantLevelScaledAttributeToRange({
     range: baseValues,
-    userTotalAttributes: CombatantProperties.getTotalAttributes(user),
-    userLevel: user.level,
+    userTotalAttributes: user.getTotalAttributes(),
+    userLevel: user.getLevel(),
     attribute: scalingAttribute,
     normalizedAttributeScalingByCombatantLevel: 1,
   });

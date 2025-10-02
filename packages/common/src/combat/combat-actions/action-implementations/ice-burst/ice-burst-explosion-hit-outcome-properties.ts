@@ -1,4 +1,3 @@
-import cloneDeep from "lodash.clonedeep";
 import { NumberRange } from "../../../../primatives/number-range.js";
 import {
   ResourceChangeSource,
@@ -12,7 +11,7 @@ import {
   CombatActionResource,
 } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
-import { CombatantConditionName } from "../../../../combatants/index.js";
+import { CombatantCondition, CombatantConditionName } from "../../../../combatants/index.js";
 import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
@@ -31,9 +30,12 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
       lifestealPercentage: null,
     };
 
-    const stacks = user.asShimmedUserOfTriggeredCondition?.condition.stacksOption?.current || 1;
+    let stacks = 1;
+    if (user instanceof CombatantCondition) stacks = user.stacksOption?.current || 1;
 
-    const baseValues = new NumberRange(user.level * stacks, user.level * stacks * 10);
+    const userLevel = user.getLevel();
+
+    const baseValues = new NumberRange(userLevel * stacks, userLevel * stacks * 10);
 
     const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
     const hpChangeProperties: CombatActionResourceChangeProperties = {
@@ -45,25 +47,27 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
   },
 };
 
-hitOutcomeOverrides.getAppliedConditions = (combatant, actionlevel) => {
-  let userEntityProperties = cloneDeep(combatant.entityProperties);
-  if (combatant.combatantProperties.asShimmedUserOfTriggeredCondition) {
-    userEntityProperties =
-      combatant.combatantProperties.asShimmedUserOfTriggeredCondition.condition.appliedBy
-        .entityProperties;
-  }
+hitOutcomeOverrides.getAppliedConditions = (actionUser, actionlevel) => {
+  const originalActionUserCombatant =
+    actionUser.getActionEntityProperties().actionOriginData?.spawnedBy;
+  if (originalActionUserCombatant === undefined)
+    throw new Error("expected original ice bolt user here");
 
+  const appliedBy = {
+    entityProperties: originalActionUserCombatant,
+    friendOrFoe: FriendOrFoe.Hostile, // debatable that we should say they are always hostile for purposes of threat calculation
+  };
   return [
     {
       conditionName: CombatantConditionName.PrimedForIceBurst,
-      level: combatant.combatantProperties.level,
+      level: actionUser.getLevel(),
       stacks: 1,
-      appliedBy: { entityProperties: userEntityProperties, friendOrFoe: FriendOrFoe.Hostile },
+      appliedBy,
     },
   ];
 };
 
-export const ICE_BURST_HIT_OUTCOME_PROPERTIES = createHitOutcomeProperties(
+export const ICE_BURST_EXPLOSION_HIT_OUTCOME_PROPERTIES = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL,
   hitOutcomeOverrides
 );

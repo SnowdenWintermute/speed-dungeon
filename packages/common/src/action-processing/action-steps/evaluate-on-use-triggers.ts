@@ -1,4 +1,5 @@
 import {
+  ActionIntentAndUser,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
@@ -24,8 +25,8 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
 
     super(stepType, context, gameUpdateCommand);
 
-    const { tracker, combatantContext } = context;
-    const { game, party, combatant } = combatantContext;
+    const { tracker, actionUserContext } = context;
+    const { game, party, actionUser } = actionUserContext;
 
     const { actionName } = tracker.actionExecutionIntent;
     const action = COMBAT_ACTIONS[actionName];
@@ -35,7 +36,7 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
 
     const durabilityChanges = new DurabilityChangesByEntityId();
     durabilityChanges.updateConditionalChangesOnUser(
-      combatant,
+      actionUser,
       action,
       DurabilityLossCondition.OnUse
     );
@@ -43,7 +44,7 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     if (!durabilityChanges.isEmpty()) {
       gameUpdateCommand.durabilityChanges = durabilityChanges;
 
-      DurabilityChangesByEntityId.ApplyToGame(game, durabilityChanges);
+      DurabilityChangesByEntityId.ApplyToGame(party, durabilityChanges);
     }
   }
 
@@ -51,9 +52,7 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
   getTimeToCompletion = () => 0;
   isComplete = () => true;
 
-  protected getBranchingActions():
-    | Error
-    | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
+  protected getBranchingActions(): Error | ActionIntentAndUser[] {
     const branchingActions: {
       user: Combatant;
       actionExecutionIntent: CombatActionExecutionIntent;

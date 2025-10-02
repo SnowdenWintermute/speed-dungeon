@@ -1,3 +1,4 @@
+import { IActionUser } from "../action-user-context/action-user.js";
 import { MeleeAttackAnimationType } from "../combat/combat-actions/action-implementations/attack/determine-melee-attack-animation-type.js";
 import {
   COMBAT_ACTION_NAME_STRINGS,
@@ -24,14 +25,13 @@ export class ActionTracker {
   currentStep: ActionResolutionStep;
   stepIndex: number = -1;
   completedSteps: ActionResolutionStep[] = [];
-  spawnedEntityOption: null | SpawnableEntity = null;
+  spawnedEntities: SpawnableEntity[] = [];
   // initiatedByTriggeredCondition: null | CombatantCondition = null;
   hitOutcomes = new CombatActionHitOutcomes();
   meleeAttackAnimationType: MeleeAttackAnimationType | null = null;
   consumableUsed: null | Consumable = null;
   /** Set by checking shouldExecute in DetermineShouldExecuteOrReleaseInputLock step */
   public wasAborted = false;
-  public projectileWasIncinerated = false;
   /** Idea here is to have final steps such as DetermineEnvironmentalHazardTriggers,
    * DetermineEndTurnAndReleaseInputLock, RecoveryMotion conditionally queue themselves only once*/
   public hasQueuedUpFinalSteps = false;
@@ -41,13 +41,11 @@ export class ActionTracker {
     public parentActionManager: ActionSequenceManager,
     public id: string,
     public readonly actionExecutionIntent: CombatActionExecutionIntent,
+    public user: IActionUser,
     private previousTrackerInSequenceOption: null | ActionTracker,
     private timeStarted: Milliseconds,
-    private idGenerator: IdGenerator,
-    private spawnedEntityFromParent?: null | SpawnableEntity
+    private idGenerator: IdGenerator
   ) {
-    if (spawnedEntityFromParent) this.spawnedEntityOption = spawnedEntityFromParent;
-
     const action = COMBAT_ACTIONS[this.actionExecutionIntent.actionName];
     this.queuedStepTypes = action.stepsConfig.getStepTypes();
 
@@ -59,7 +57,7 @@ export class ActionTracker {
   initializeNextStep() {
     this.stepIndex += 1;
     const context: ActionResolutionStepContext = {
-      combatantContext: this.parentActionManager.combatantContext,
+      actionUserContext: this.parentActionManager.actionUserContext,
       tracker: this,
       manager: this.parentActionManager,
       idGenerator: this.idGenerator,
@@ -104,9 +102,9 @@ export class ActionTracker {
     return this.completedSteps;
   }
 
-  getExpectedSpawnedActionEntity() {
-    if (this.spawnedEntityOption?.type === SpawnableEntityType.ActionEntity)
-      return this.spawnedEntityOption;
+  getFirstExpectedSpawnedActionEntity() {
+    const firstOption = this.spawnedEntities[0];
+    if (firstOption?.type === SpawnableEntityType.ActionEntity) return firstOption;
     else throw new Error("expected spawned action entity not found");
   }
 

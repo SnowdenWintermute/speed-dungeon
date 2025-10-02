@@ -77,13 +77,10 @@ export class ActionDescription {
     const { combatantProperties } = user;
     const { hitOutcomeProperties, targetingProperties, costProperties } = this.combatAction;
 
-    const resourceCosts = costProperties.getResourceCosts(combatantProperties, true, actionLevel);
+    const resourceCosts = costProperties.getResourceCosts(user, true, actionLevel);
 
-    const critChanceOption = this.combatAction.getCritChance(combatantProperties, actionLevel);
-    const critMultiplierOption = hitOutcomeProperties.getCritMultiplier(
-      combatantProperties,
-      actionLevel
-    );
+    const critChanceOption = this.combatAction.getCritChance(user, actionLevel);
+    const critMultiplierOption = hitOutcomeProperties.getCritMultiplier(user, actionLevel);
 
     // const addsPropertiesFromHoldableSlot = hitOutcomeProperties.addsPropertiesFromHoldableSlot
 
@@ -92,10 +89,7 @@ export class ActionDescription {
         targetingProperties.getTargetingSchemes(actionLevel),
       [ActionDescriptionComponent.TargetableGroups]:
         targetingProperties.getValidTargetCategories(actionLevel),
-      [ActionDescriptionComponent.Cooldown]: costProperties.getCooldownTurns(
-        combatantProperties,
-        actionLevel
-      ),
+      [ActionDescriptionComponent.Cooldown]: costProperties.getCooldownTurns(user, actionLevel),
       [ActionDescriptionComponent.RequiresTurn]: costProperties.getEndsTurnOnUse(actionLevel),
       [ActionDescriptionComponent.ShardCost]: resourceCosts
         ? resourceCosts[ActionPayableResource.Shards]
@@ -109,31 +103,28 @@ export class ActionDescription {
       [ActionDescriptionComponent.ActionPointCost]: resourceCosts
         ? resourceCosts[ActionPayableResource.ActionPoints]
         : null,
-      [ActionDescriptionComponent.Accuracy]: this.combatAction.getAccuracy(
-        combatantProperties,
-        actionLevel
-      ),
+      [ActionDescriptionComponent.Accuracy]: this.combatAction.getAccuracy(user, actionLevel),
       [ActionDescriptionComponent.CritChance]:
         critChanceOption !== null ? Math.floor(critChanceOption) : null,
       [ActionDescriptionComponent.CritMultiplier]:
         critMultiplierOption !== null ? Math.floor(critMultiplierOption * 100) : null,
       [ActionDescriptionComponent.ArmorPenetration]: Math.floor(
         hitOutcomeProperties.getArmorPenetration(
-          combatantProperties,
+          user,
           actionLevel,
           this.combatAction.hitOutcomeProperties
         )
       ),
       [ActionDescriptionComponent.IsParryable]: hitOutcomeProperties.getIsParryable(
-        combatantProperties,
+        user,
         actionLevel
       ),
       [ActionDescriptionComponent.IsBlockable]: hitOutcomeProperties.getIsBlockable(
-        combatantProperties,
+        user,
         actionLevel
       ),
       [ActionDescriptionComponent.IsCounterable]: hitOutcomeProperties.getCanTriggerCounterattack(
-        combatantProperties,
+        user,
         actionLevel
       ),
       [ActionDescriptionComponent.ResourceChanges]: iterateNumericEnumKeyedRecord(
@@ -141,7 +132,7 @@ export class ActionDescription {
       ).map(([resource, resourceChangePropertiesGetter]) => {
         const changeProperties = cloneDeep(
           resourceChangePropertiesGetter(
-            combatantProperties,
+            user,
             hitOutcomeProperties,
             actionLevel,
             TARGET_DUMMY_COMBATANT

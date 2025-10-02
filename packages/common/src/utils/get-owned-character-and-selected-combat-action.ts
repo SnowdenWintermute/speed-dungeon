@@ -19,20 +19,17 @@ export function getCombatantAndSelectedCombatAction(
   if (combatantResult instanceof Error) return combatantResult;
   const character = combatantResult;
 
-  const selectedAction = character.combatantProperties.selectedCombatAction;
-  if (selectedAction === null) return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
+  const targetingProperties = character.getTargetingProperties();
 
-  const currentTarget = character.combatantProperties.combatActionTarget;
+  const selectedActionAndRank = targetingProperties.getSelectedActionAndRank();
+  if (selectedActionAndRank === null) return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
+
+  const currentTarget = targetingProperties.getSelectedTarget();
   if (!currentTarget) return new Error(ERROR_MESSAGES.COMBATANT.NO_TARGET_SELECTED);
-
-  const { selectedActionLevel } = character.combatantProperties;
-  if (selectedActionLevel === null)
-    return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_LEVEL_SELECTED);
 
   const combatActionResult = getCombatActionPropertiesIfOwned(
     character.combatantProperties,
-    selectedAction,
-    selectedActionLevel
+    selectedActionAndRank
   );
   if (combatActionResult instanceof Error) return combatActionResult;
   const combatAction = combatActionResult;

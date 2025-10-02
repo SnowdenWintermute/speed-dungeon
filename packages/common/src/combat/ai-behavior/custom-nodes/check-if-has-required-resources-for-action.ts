@@ -1,3 +1,4 @@
+import { ActionAndRank } from "../../../action-user-context/action-user-targeting-properties.js";
 import { Combatant, CombatantProperties } from "../../../combatants/index.js";
 import { CombatActionName } from "../../combat-actions/index.js";
 import { AIBehaviorContext } from "../ai-context.js";
@@ -14,10 +15,10 @@ export class CheckIfHasRequiredResourcesForAction implements BehaviorNode {
     const { combatantProperties } = this.combatant;
 
     const hasResources = CombatantProperties.hasRequiredResourcesToUseAction(
-      combatantProperties,
-      this.actionNameOption,
-      true,
-      1 // @TODO - actually select an action level
+      this.combatant,
+      // @TODO - actually select an action level
+      new ActionAndRank(this.actionNameOption, 1),
+      true
     );
     if (hasResources) return BehaviorNodeState.Success;
 

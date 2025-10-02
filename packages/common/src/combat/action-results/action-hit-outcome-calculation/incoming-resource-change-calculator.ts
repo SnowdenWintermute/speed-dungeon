@@ -11,10 +11,10 @@ import {
   CombatActionResource,
 } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 import { CombatantProperties } from "../../../combatants/index.js";
-import { CombatantContext } from "../../../combatant-context/index.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 import cloneDeep from "lodash.clonedeep";
-import { ActionEntity } from "../../../action-entities/index.js";
+import { IActionUser } from "../../../action-user-context/action-user.js";
+import { ActionUserContext } from "../../../action-user-context/index.js";
 
 export interface ResourceChangesPerTarget {
   value: number;
@@ -23,7 +23,7 @@ export interface ResourceChangesPerTarget {
 
 export class IncomingResourceChangesCalculator {
   constructor(
-    private combatantContext: CombatantContext,
+    private actionUserContext: ActionUserContext,
     private actionExecutionIntent: CombatActionExecutionIntent,
     private targetingCalculator: TargetingCalculator,
     private targetIds: EntityId[],
@@ -32,7 +32,7 @@ export class IncomingResourceChangesCalculator {
 
   getBaseIncomingResourceChangesPerTarget() {
     const action = COMBAT_ACTIONS[this.actionExecutionIntent.actionName];
-    const { party, combatant } = this.combatantContext;
+    const { party, actionUser } = this.actionUserContext;
 
     // we need a target to check against to find the best affinity to choose
     // so we'll use the first target for now, until a better system comes to light
@@ -46,18 +46,17 @@ export class IncomingResourceChangesCalculator {
     const primaryTarget = primaryTargetResult;
 
     const { hitOutcomeProperties } = action;
-    const { combatantProperties: user } = combatant;
 
     return this.rollBaseIncomingResourceChangesPerTarget(
-      user,
-      this.actionExecutionIntent.level,
+      actionUser,
+      this.actionExecutionIntent.rank,
       primaryTarget.combatantProperties,
       hitOutcomeProperties
     );
   }
 
   rollBaseIncomingResourceChangesPerTarget(
-    user: CombatantProperties,
+    user: IActionUser,
     actionLevel: number,
     primaryTarget: CombatantProperties,
     hitOutcomeProperties: CombatActionHitOutcomeProperties
@@ -75,8 +74,7 @@ export class IncomingResourceChangesCalculator {
         user,
         hitOutcomeProperties,
         actionLevel,
-        primaryTarget,
-        user.asShimmedActionEntity
+        primaryTarget
       );
       if (resourceChangeProperties === null) continue;
 

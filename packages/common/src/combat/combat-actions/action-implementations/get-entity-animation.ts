@@ -1,5 +1,6 @@
 import { EntityAnimation } from "../../../action-processing/game-update-commands.js";
 import { SkeletalAnimationName } from "../../../app-consts.js";
+import { IActionUser } from "../../../action-user-context/action-user.js";
 import { CombatantProperties, CombatantSpecies } from "../../../combatants/index.js";
 import { HoldableSlotType } from "../../../items/equipment/slots.js";
 import { getFallbackAnimationWithLength } from "../combat-action-animations.js";
@@ -8,7 +9,7 @@ import { MeleeAttackAnimationType } from "./attack/determine-melee-attack-animat
 import { MELEE_ATTACK_ANIMATION_NAMES } from "./attack/melee-attack-animation-names.js";
 
 export function getMeleeAttackAnimationFromType(
-  user: CombatantProperties,
+  user: IActionUser,
   animationLengths: Record<CombatantSpecies, Record<string, number>>,
   meleeAttackAnimationType: MeleeAttackAnimationType,
   executionPhase: ActionExecutionPhase,
@@ -21,11 +22,11 @@ export function getMeleeAttackAnimationFromType(
 }
 
 export function getTimedSkeletalEntityAnimation(
-  user: CombatantProperties,
+  user: IActionUser,
   animationLengths: Record<CombatantSpecies, Record<string, number>>,
   animationName: SkeletalAnimationName,
   smoothTransition: boolean
 ) {
-  const speciesLengths = animationLengths[user.combatantSpecies];
+  const speciesLengths = animationLengths[user.getCombatantProperties().combatantSpecies];
   return getFallbackAnimationWithLength(animationName, speciesLengths, smoothTransition);
 }

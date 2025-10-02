@@ -1,20 +1,8 @@
-import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Battle } from "../../battle/index.js";
-import { CombatantContext } from "../../combatant-context/index.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
 import { Combatant } from "../../combatants/index.js";
-import { SpeedDungeonGame } from "../../game/index.js";
-import { EntityId } from "../../primatives/index.js";
 import { CombatActionExecutionIntent } from "../combat-actions/combat-action-execution-intent.js";
-import {
-  COMBAT_ACTIONS,
-  CombatActionComponent,
-  CombatActionName,
-  CombatActionTarget,
-  CombatActionTargetType,
-  FriendOrFoe,
-  TargetCategories,
-  TargetingScheme,
-} from "../index.js";
+import { CombatActionName, CombatActionTarget } from "../index.js";
 import { PotentialTotalHealingEvaluation } from "./custom-nodes/collect-potential-healing-from-considered-actions.js";
 
 export enum AIActionSelectionScheme {
@@ -73,7 +61,7 @@ export class AIBehaviorContext {
   public selectedActionIntent: null | CombatActionExecutionIntent = null;
 
   constructor(
-    public combatantContext: CombatantContext,
+    public actionUserContext: ActionUserContext,
     public battleOption: Battle | null // allow for ally AI controlled combatants doing things outside of combat
   ) {}
   getCurrentActionLevelConsidering() {

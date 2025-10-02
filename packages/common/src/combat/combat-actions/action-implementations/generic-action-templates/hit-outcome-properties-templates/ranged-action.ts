@@ -1,5 +1,6 @@
+import cloneDeep from "lodash.clonedeep";
+import { IActionUser } from "../../../../../action-user-context/action-user.js";
 import { CombatAttribute } from "../../../../../combatants/attributes/index.js";
-import { CombatantProperties } from "../../../../../combatants/index.js";
 import {
   getStandardActionArmorPenetration,
   getStandardActionCritChance,
@@ -9,16 +10,16 @@ import { CombatActionHitOutcomeProperties } from "../../../combat-action-hit-out
 import { BASIC_ATTACK_HIT_OUTCOME_PROPERTIES } from "./basic-attack.js";
 
 export const RANGED_ACTION_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {
-  ...BASIC_ATTACK_HIT_OUTCOME_PROPERTIES,
+  ...cloneDeep(BASIC_ATTACK_HIT_OUTCOME_PROPERTIES),
   accuracyModifier: 0.9,
-  getUnmodifiedCritChance: function (user: CombatantProperties): number {
+  getUnmodifiedCritChance: function (user: IActionUser): number {
     return getStandardActionCritChance(user, CombatAttribute.Dexterity);
   },
-  getCritMultiplier: function (user: CombatantProperties): number {
+  getCritMultiplier: function (user: IActionUser): number {
     return getStandardActionCritMultiplier(user, null);
   },
-  getArmorPenetration: function (user: CombatantProperties): number {
+  getArmorPenetration: function (user: IActionUser): number {
     return getStandardActionArmorPenetration(user, null);
   },
-  getCanTriggerCounterattack: (user: CombatantProperties) => false,
+  getCanTriggerCounterattack: (user: IActionUser) => false,
 };

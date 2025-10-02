@@ -1,11 +1,9 @@
 import {
   ActionCommandPayload,
   ActionCommandType,
-  COMBAT_ACTIONS,
   CharacterAssociatedData,
   CombatActionExecutionIntent,
   CombatActionReplayTreePayload,
-  CombatantContext,
   ERROR_MESSAGES,
   InputLock,
   ServerToClientEvent,
@@ -14,6 +12,7 @@ import {
 import { getGameServer } from "../../../singletons/index.js";
 import { processCombatAction } from "./process-combat-action.js";
 import { BattleProcessor } from "./process-battle-until-player-turn-or-conclusion.js";
+import { ActionUserContext } from "@speed-dungeon/common";
 
 export async function useSelectedCombatActionHandler(
   _eventData: { characterId: string },
@@ -36,38 +35,33 @@ export async function useSelectedCombatActionHandler(
     return;
   }
 
-  const { selectedCombatAction, targets, selectedActionLevel } = validTargetsAndActionNameResult;
+  const { actionAndRank, targets } = validTargetsAndActionNameResult;
 
-  const actionExecutionIntent = new CombatActionExecutionIntent(
-    selectedCombatAction,
-    targets,
-    selectedActionLevel
-  );
+  const { actionName, rank } = actionAndRank;
+
+  const actionExecutionIntent = new CombatActionExecutionIntent(actionName, rank, targets);
 
   await executeActionAndSendReplayResult(characterAssociatedData, actionExecutionIntent, true);
 }
 
 function validateClientActionUseRequest(characterAssociatedData: CharacterAssociatedData) {
   const { game, party, character } = characterAssociatedData;
-  const combatantContext = new CombatantContext(game, party, character);
 
   if (InputLock.isLocked(party.inputLock)) return new Error(ERROR_MESSAGES.PARTY.INPUT_IS_LOCKED);
 
-  const { selectedCombatAction } = character.combatantProperties;
-  if (selectedCombatAction === null) return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
+  const targetingProperties = character.getTargetingProperties();
 
-  const targets = character.combatantProperties.combatActionTarget;
+  const targets = targetingProperties.getSelectedTarget();
   if (targets === null) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
 
-  const { selectedActionLevel } = character.combatantProperties;
-  if (selectedActionLevel === null)
-    return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_LEVEL_SELECTED);
+  const selectedActionAndRankOption = targetingProperties.getSelectedActionAndRank();
+  if (selectedActionAndRankOption === null)
+    return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
 
-  const action = COMBAT_ACTIONS[selectedCombatAction];
-  const maybeError = action.useIsValid(targets, selectedActionLevel, combatantContext);
+  const maybeError = character.canUseAction(targets, selectedActionAndRankOption, game, party);
   if (maybeError instanceof Error) return maybeError;
 
-  return { selectedCombatAction, targets, selectedActionLevel };
+  return { actionAndRank: selectedActionAndRankOption, targets };
 }
 
 export async function executeActionAndSendReplayResult(
@@ -76,9 +70,9 @@ export async function executeActionAndSendReplayResult(
   lockInuptWhileReplaying: boolean
 ) {
   const { game, party, character } = characterAssociatedData;
-  const combatantContext = new CombatantContext(game, party, character);
+  const actionUserContext = new ActionUserContext(game, party, character);
   const gameServer = getGameServer();
-  const replayTreeResult = processCombatAction(actionExecutionIntent, combatantContext);
+  const replayTreeResult = processCombatAction(actionExecutionIntent, actionUserContext);
 
   if (replayTreeResult instanceof Error) return replayTreeResult;
 

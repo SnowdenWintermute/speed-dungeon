@@ -6,16 +6,17 @@ import {
 } from "../../game-update-commands.js";
 import { SpawnableEntityType } from "../../../spawnables/index.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
-import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../../app-consts.js";
 import { COMBAT_ACTIONS } from "../../../combat/index.js";
 
 export class CombatantMotionActionResolutionStep extends EntityMotionActionResolutionStep {
   constructor(context: ActionResolutionStepContext, step: ActionResolutionStepType) {
     const { actionName } = context.tracker.actionExecutionIntent;
 
+    const { actionUser } = context.actionUserContext;
+
     const update: CombatantMotionUpdate = {
       entityType: SpawnableEntityType.Combatant,
-      entityId: context.combatantContext.combatant.entityProperties.id,
+      entityId: actionUser.getEntityId(),
       idleOnComplete: step === ActionResolutionStepType.FinalPositioning,
     };
 
@@ -28,7 +29,7 @@ export class CombatantMotionActionResolutionStep extends EntityMotionActionResol
 
     if (stepConfig.getEquipmentAnimations)
       update.equipmentAnimations = stepConfig.getEquipmentAnimations(
-        context.combatantContext.combatant.combatantProperties,
+        actionUser,
         context.manager.sequentialActionManagerRegistry.animationLengths
       );
 
@@ -42,12 +43,6 @@ export class CombatantMotionActionResolutionStep extends EntityMotionActionResol
       mainEntityUpdate: update,
     };
 
-    super(
-      step,
-      context,
-      gameUpdateCommand,
-      context.combatantContext.combatant.combatantProperties.position,
-      COMBATANT_TIME_TO_MOVE_ONE_METER
-    );
+    super(step, context, gameUpdateCommand, actionUser);
   }
 }

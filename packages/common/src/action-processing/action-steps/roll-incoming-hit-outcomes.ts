@@ -1,4 +1,5 @@
 import {
+  ActionIntentAndUser,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
@@ -26,9 +27,11 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
     // @PERF - make this a singleton and move these steps to the server
     const rng = new BasicRandomNumberGenerator();
 
+    const { actionUserContext, tracker } = context;
+
     const hitOutcomeCalculator = new HitOutcomeCalculator(
-      context.combatantContext,
-      context.tracker.actionExecutionIntent,
+      actionUserContext,
+      tracker.actionExecutionIntent,
       rng
     );
     const hitOutcomesResult = hitOutcomeCalculator.calculateHitOutcomes();
@@ -41,18 +44,22 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
       throw hitOutcomesResult;
     }
 
+    const { actionUser } = actionUserContext;
+
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.HitOutcomes,
-      actionUserName: context.combatantContext.combatant.entityProperties.name,
+      actionUserName: actionUser.getName(),
       step: stepType,
       completionOrderId: null,
       actionName: context.tracker.actionExecutionIntent.actionName,
-      actionUserId: context.combatantContext.combatant.entityProperties.id,
+      actionUserId: actionUser.getEntityId(),
       outcomes: hitOutcomesResult,
     };
     super(stepType, context, gameUpdateCommand);
 
     this.context.tracker.hitOutcomes = hitOutcomesResult;
+
+    const { game, party } = actionUserContext;
 
     // apply hit outcomes to the game state so subsequent action.shouldExecute calls can check if
     // their target is dead, user is out of mana etc
@@ -60,7 +67,7 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
       const hitPointChangesOption =
         hitOutcomesResult.resourceChanges[CombatActionResource.HitPoints];
       if (hitPointChangesOption instanceof HitPointChanges) {
-        const combatantsKilled = hitPointChangesOption?.applyToGame(this.context.combatantContext);
+        const combatantsKilled = hitPointChangesOption?.applyToGame(party);
         if (combatantsKilled)
           for (const entityId of combatantsKilled) {
             gameUpdateCommand.outcomes.insertOutcomeFlag(HitOutcome.Death, entityId);
@@ -68,7 +75,7 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
       }
 
       const manaChangesOption = hitOutcomesResult.resourceChanges[CombatActionResource.Mana];
-      manaChangesOption?.applyToGame(context.combatantContext);
+      manaChangesOption?.applyToGame(party);
     }
 
     const threatChangesOption = action.hitOutcomeProperties.getThreatChangesOnHitOutcomes(
@@ -77,11 +84,10 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
     );
 
     if (threatChangesOption) {
-      threatChangesOption.applyToGame(context.combatantContext.party);
+      threatChangesOption.applyToGame(party);
       gameUpdateCommand.threatChanges = threatChangesOption;
     }
 
-    const { game, party } = context.combatantContext;
     const battleOption = AdventuringParty.getBattleOption(party, game);
     battleOption?.turnOrderManager.updateTrackers(game, party);
   }
@@ -90,9 +96,7 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
   getTimeToCompletion = () => 0;
   isComplete = () => true;
 
-  protected getBranchingActions():
-    | Error
-    | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
+  protected getBranchingActions(): Error | ActionIntentAndUser[] {
     return [];
   }
 }

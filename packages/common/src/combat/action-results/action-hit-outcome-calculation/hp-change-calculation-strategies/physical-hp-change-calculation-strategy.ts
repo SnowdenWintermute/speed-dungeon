@@ -1,3 +1,4 @@
+import { IActionUser } from "../../../../action-user-context/action-user.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
 import { CombatActionHitOutcomeProperties } from "../../../combat-actions/combat-action-hit-outcome-properties.js";
 import { ResourceChange } from "../../../hp-change-source-types.js";
@@ -10,7 +11,7 @@ export class PhysicalResourceChangeCalculationStrategy
   applyArmorClass(
     hitOutcomeProperties: CombatActionHitOutcomeProperties,
     hpChange: ResourceChange,
-    user: CombatantProperties,
+    user: IActionUser,
     actionLevel: number,
     target: CombatantProperties
   ) {
@@ -24,11 +25,7 @@ export class PhysicalResourceChangeCalculationStrategy
       hitOutcomeProperties
     );
   }
-  applyResilience(
-    _hpChange: ResourceChange,
-    _user: CombatantProperties,
-    _target: CombatantProperties
-  ) {
+  applyResilience(_hpChange: ResourceChange, user: IActionUser, _target: CombatantProperties) {
     return;
   }
 }

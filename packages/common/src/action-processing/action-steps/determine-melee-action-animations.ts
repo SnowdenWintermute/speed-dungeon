@@ -2,6 +2,7 @@ import { determineMeleeAttackAnimationType } from "../../combat/combat-actions/a
 import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
 import { Combatant } from "../../combatants/index.js";
 import {
+  ActionIntentAndUser,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
@@ -35,7 +36,7 @@ export class DetermineMeleeActionAnimationsActionResolutionStep extends ActionRe
   protected onTick = () => {};
   getTimeToCompletion = () => 0;
   isComplete = () => true;
-  getBranchingActions(): { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
+  getBranchingActions(): ActionIntentAndUser[] {
     return [];
   }
 }

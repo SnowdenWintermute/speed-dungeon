@@ -17,16 +17,14 @@ export function battleFullUpdateHandler(battleOption: null | Battle) {
         return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY));
       const party = partyOption;
       party.battleId = battle.id;
-      const rehydratedBattle = Battle.rehydrate(battle, game, party);
-      game.battles[battle.id] = rehydratedBattle;
+      const deserializedBattle = Battle.getDeserialized(battle, game, party);
+      game.battles[battle.id] = deserializedBattle;
 
       const currentActorIsPlayerControlled =
-        rehydratedBattle.turnOrderManager.currentActorIsPlayerControlled(party);
+        deserializedBattle.turnOrderManager.currentActorIsPlayerControlled(party);
 
-      characterAutoFocusManager.handleBattleStart(
-        gameState,
-        rehydratedBattle.turnOrderManager.getFastestActorTurnOrderTracker()
-      );
+      const turnTracker = deserializedBattle.turnOrderManager.getFastestActorTurnOrderTracker();
+      characterAutoFocusManager.handleBattleStart(gameState, turnTracker);
 
       if (!currentActorIsPlayerControlled) {
         // it is ai controlled so lock input

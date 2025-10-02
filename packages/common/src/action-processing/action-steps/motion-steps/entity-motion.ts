@@ -12,14 +12,11 @@ import {
   EntityAnimation,
   EntityTranslation,
 } from "../../game-update-commands.js";
-import {
-  COMBAT_ACTIONS,
-  COMBAT_ACTION_NAME_STRINGS,
-  CombatActionComponent,
-  CombatActionName,
-} from "../../../combat/index.js";
+import { COMBAT_ACTIONS, CombatActionComponent, CombatActionName } from "../../../combat/index.js";
 import { getTranslationTime } from "../../../combat/combat-actions/action-implementations/get-translation-time.js";
 import { Milliseconds } from "../../../primatives/index.js";
+import { IActionUser } from "../../../action-user-context/action-user.js";
+import { Combatant, CombatantProperties } from "../../../combatants/index.js";
 
 export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   private translationOption: null | EntityTranslation = null;
@@ -28,19 +25,21 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   constructor(
     stepType: ActionResolutionStepType,
     context: ActionResolutionStepContext,
-    private gameUpdateCommand:
+    gameUpdateCommand:
+      | null
       | CombatantMotionGameUpdateCommand
       | ActionEntityMotionGameUpdateCommand,
-    private entityPosition: Vector3,
-    private entitySpeed: number
+    private actionUser: IActionUser
   ) {
     super(stepType, context, gameUpdateCommand);
+
+    if (gameUpdateCommand === null) return;
 
     const { actionExecutionIntent } = context.tracker;
 
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
 
-    const { mainEntityUpdate } = this.gameUpdateCommand;
+    const { mainEntityUpdate } = gameUpdateCommand;
 
     const delayOption = this.getDelay();
     this.delayOption = delayOption;
@@ -61,8 +60,7 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
       this.context,
       action,
       this.type,
-      this.entityPosition,
-      this.entitySpeed
+      this.actionUser
     );
 
     if (destinationsOption) {
@@ -89,12 +87,15 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     context: ActionResolutionStepContext,
     action: CombatActionComponent,
     stepType: ActionResolutionStepType,
-    entityPosition: Vector3,
-    entitySpeed: number
+    actionUser: IActionUser
   ) {
     const stepConfigOption = action.stepsConfig.getStepConfigOption(stepType);
     const destinationGetterOption = stepConfigOption?.getDestination;
     if (!destinationGetterOption) return null;
+
+    const entitySpeedOption = actionUser.getMovementSpeedOption();
+    const positionOption = actionUser.getPositionOption();
+    if (entitySpeedOption === null || positionOption === null) return null;
 
     let destinationResult = null;
     let translationOption;
@@ -103,7 +104,7 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     if (destinationResult?.position) {
       const translation = {
         destination: destinationResult.position,
-        duration: getTranslationTime(entityPosition, destinationResult.position, entitySpeed),
+        duration: getTranslationTime(positionOption, destinationResult.position, entitySpeedOption),
       };
 
       translationOption = translation;
@@ -152,7 +153,7 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     if (animationType === null) animationType = undefined;
 
     const animation = animationGetterOption(
-      context.combatantContext.combatant.combatantProperties,
+      context.actionUserContext.actionUser,
       context.manager.sequentialActionManagerRegistry.animationLengths,
       animationType
     );
@@ -162,18 +163,29 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   protected onTick(): void {
     if (!this.translationOption) return;
 
+    if (
+      this.actionUser instanceof Combatant &&
+      CombatantProperties.isDead(this.actionUser.combatantProperties)
+    ) {
+      this.translationOption.destination = this.actionUser.getPositionOption();
+      this.translationOption.duration = this.elapsed;
+    }
+
     const normalizedPercentTravelled =
       this.translationOption.duration === 0
         ? 1
         : Math.min(1, this.elapsed / this.translationOption.duration);
 
+    const positionOption = this.actionUser.getPositionOption();
+    if (positionOption === null) return;
+
     const newPosition = Vector3.Lerp(
-      this.entityPosition,
+      positionOption,
       this.translationOption.destination,
       normalizedPercentTravelled
     );
 
-    this.entityPosition.copyFrom(newPosition);
+    positionOption.copyFrom(newPosition);
   }
 
   getTimeToCompletion(): number {
@@ -185,11 +197,13 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
       delayTimeRemaining = Math.max(0, this.delayOption - this.elapsed);
     }
 
-    if (this.translationOption)
+    if (this.translationOption) {
       translationTimeRemaining = Math.max(0, this.translationOption.duration - this.elapsed);
+    }
 
-    if (this.animationOption && this.animationOption.timing.type === AnimationTimingType.Timed)
+    if (this.animationOption && this.animationOption.timing.type === AnimationTimingType.Timed) {
       animationTimeRemaining = Math.max(0, this.animationOption.timing.duration - this.elapsed);
+    }
 
     const timeToCompletion = Math.max(
       animationTimeRemaining,

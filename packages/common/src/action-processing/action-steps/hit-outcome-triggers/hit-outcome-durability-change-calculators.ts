@@ -2,7 +2,8 @@ import { ONE_THIRD_OF_ONE } from "../../../app-consts.js";
 import { DurabilityLossCondition } from "../../../combat/combat-actions/combat-action-durability-loss-condition.js";
 import { CombatActionResource } from "../../../combat/combat-actions/combat-action-hit-outcome-properties.js";
 import { CombatActionComponent } from "../../../combat/index.js";
-import { Combatant, CombatantEquipment } from "../../../combatants/index.js";
+import { IActionUser } from "../../../action-user-context/action-user.js";
+import { Combatant, CombatantEquipment, CombatantProperties } from "../../../combatants/index.js";
 import {
   BASE_DURABILITY_LOSS,
   DurabilityChangesByEntityId,
@@ -20,7 +21,7 @@ import { EntityId } from "../../../primatives/index.js";
 
 export function addHitOutcomeDurabilityChanges(
   durabilityChanges: DurabilityChangesByEntityId,
-  actionUser: Combatant,
+  actionUser: IActionUser,
   actionLevel: number,
   targetCombatant: Combatant,
   action: CombatActionComponent,
@@ -31,15 +32,16 @@ export function addHitOutcomeDurabilityChanges(
   const hpChangePropertiesGetter =
     action.hitOutcomeProperties.resourceChangePropertiesGetters[CombatActionResource.HitPoints];
   if (!hpChangePropertiesGetter) return;
+
   const hpChangeProperties = hpChangePropertiesGetter(
-    actionUser.combatantProperties,
+    actionUser,
     action.hitOutcomeProperties,
     actionLevel,
     targetCombatant.combatantProperties
   );
   if (hpChangeProperties?.resourceChangeSource.isHealing) return;
 
-  hitOutcomeDurabilityChangeOnTargetCalculators[hitOutcomeType](
+  HIT_OUTCOME_DURABILITY_CHANGE_ON_TARGET_CALCULATORS[hitOutcomeType](
     durabilityChanges,
     targetCombatant,
     isCrit
@@ -55,7 +57,7 @@ export function addHitOutcomeDurabilityChanges(
   }
 }
 
-const hitOutcomeDurabilityChangeOnTargetCalculators: Record<
+const HIT_OUTCOME_DURABILITY_CHANGE_ON_TARGET_CALCULATORS: Record<
   HitOutcome,
   (
     durabilityChanges: DurabilityChangesByEntityId,
@@ -73,6 +75,12 @@ const hitOutcomeDurabilityChangeOnTargetCalculators: Record<
     });
   },
   [HitOutcome.Counterattack]: (durabilityChanges, targetCombatant) => {
+    // don't charge durability for counterattack with bow since we'll break the bow before
+    // we get to fire our shot if on the last durability
+    const targetWearingBow =
+      CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(targetCombatant);
+    if (targetWearingBow) return;
+
     durabilityChanges.updateEquipmentRecord(targetCombatant, {
       type: EquipmentSlotType.Holdable,
       slot: HoldableSlotType.MainHand,
@@ -103,11 +111,11 @@ const hitOutcomeDurabilityChangeOnTargetCalculators: Record<
 
     // hits damage a random wearable
     const equippedHelmOption = CombatantEquipment.getEquipmentInSlot(
-      targetCombatantProperties,
+      targetCombatantProperties.equipment,
       headSlot
     );
     const equippedBodyOption = CombatantEquipment.getEquipmentInSlot(
-      targetCombatantProperties,
+      targetCombatantProperties.equipment,
       bodySlot
     );
 

@@ -28,7 +28,7 @@ export function characterTradedItemForBookHandler(eventData: {
     ({ character }: CharacterAssociatedData, _gameState: GameState) => {
       const { combatantProperties } = character;
       // unequip it if is equipped
-      const equippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties, {
+      const equippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties.equipment, {
         includeUnselectedHotswapSlots: true,
       });
 

@@ -30,15 +30,11 @@ const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BENEVOLENT_CONSUMABLE,
   {
     getOnUseTriggers: (context) => {
-      const { combatantContext } = context;
-      const { game, party, combatant } = combatantContext;
+      const { actionUserContext } = context;
+      const { game, party, actionUser } = actionUserContext;
       // check for existing firewall
-      const { asShimmedActionEntity } = combatant.combatantProperties;
-      if (asShimmedActionEntity === undefined) {
-        throw new Error("expected user to have action entity shim properties");
-      }
 
-      const firewallId = asShimmedActionEntity.entityProperties.id;
+      const firewallId = actionUser.getEntityId();
 
       const existingFirewall = throwIfError(AdventuringParty.getActionEntity(party, firewallId));
 
@@ -80,20 +76,21 @@ const hitOutcomeProperties = createHitOutcomeProperties(
         // change the cosmetic effect if firewall has deleveled
         if (newActionLevel < currentFirewallLevel) {
           const firewallCosmeticsStepOption =
-            FIREWALL_STEPS_CONFIG.steps[ActionResolutionStepType.OnActivationActionEntityMotion];
+            FIREWALL_STEPS_CONFIG.steps[ActionResolutionStepType.RecoveryMotion];
           if (!firewallCosmeticsStepOption)
-            throw new Error(
-              "expected to have configured OnActivationActionEntityMotion for Firewall"
-            );
+            throw new Error("expected to have configured RecoveryMotion for Firewall");
 
+          // @REFACTOR
           // @BADPRACTICE
           // some symantec coupling - we just want to reuse the cosmetic effect
           // creators from firewall action, which expects its tracker to have a
           // spawned firewall
-          context.tracker.spawnedEntityOption = {
-            type: SpawnableEntityType.ActionEntity,
-            actionEntity: existingFirewall,
-          };
+          context.tracker.spawnedEntities = [
+            {
+              type: SpawnableEntityType.ActionEntity,
+              actionEntity: existingFirewall,
+            },
+          ];
 
           const toStopGetter = firewallCosmeticsStepOption.getCosmeticEffectsToStop;
           const toStartGetter = firewallCosmeticsStepOption.getCosmeticEffectsToStart;
@@ -130,7 +127,6 @@ const config: CombatActionComponentConfig = {
   stepsConfig: new ActionResolutionStepsConfig(
     {
       [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
-      [ActionResolutionStepType.PayResourceCosts]: {},
       [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
       [ActionResolutionStepType.EvalOnUseTriggers]: {},
     },

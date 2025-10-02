@@ -6,7 +6,7 @@ import {
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../singletons/index.js";
 
-export default function equipItemHandler(
+export function equipItemHandler(
   eventData: {
     characterId: string;
     itemId: string;
@@ -18,11 +18,7 @@ export default function equipItemHandler(
   const { itemId, equipToAltSlot } = eventData;
   const gameServer = getGameServer();
 
-  const equipItemResult = CombatantProperties.equipItem(
-    character.combatantProperties,
-    itemId,
-    equipToAltSlot
-  );
+  const equipItemResult = CombatantProperties.equipItem(character, itemId, equipToAltSlot);
   if (equipItemResult instanceof Error) return equipItemResult;
 
   const partyChannelName = getPartyChannelName(game.name, party.name);

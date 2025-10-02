@@ -11,10 +11,10 @@ import { GameServer } from "..";
 import errorHandler from "../error-handler.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
 import getDefaultSavedCharacterForProgressionGame from "./get-default-saved-character-for-progression-game.js";
-import joinPlayerToProgressionGame from "./join-player-to-progression-game.js";
+import { joinPlayerToProgressionGame } from "./join-player-to-progression-game.js";
 import { idGenerator } from "../../singletons/index.js";
 
-export default async function createProgressionGameHandler(
+export async function createProgressionGameHandler(
   gameServer: GameServer,
   socketMeta: BrowserTabSession,
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>,

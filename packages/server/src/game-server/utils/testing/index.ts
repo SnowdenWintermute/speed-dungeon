@@ -1,45 +1,43 @@
-import {
-  AdventuringParty,
-  Combatant,
-  CombatantClass,
-  CombatantContext,
-  CombatantProperties,
-  CombatantSpecies,
-  DungeonRoomType,
-  GameMode,
-  IdGenerator,
-  SpeedDungeonGame,
-  SpeedDungeonPlayer,
-  addCharacterToParty,
-  updateCombatantHomePosition,
-} from "@speed-dungeon/common";
-import { putPartyInNextRoom } from "../../game-event-handlers/toggle-ready-to-explore-handler.js";
-import { Vector3 } from "@babylonjs/core";
-import { CharacterOutfitter } from "../../character-creation/character-outfitter.js";
+// import {
+//   AdventuringParty,
+//   Combatant,
+//   CombatantClass,
+//   CombatantProperties,
+//   CombatantSpecies,
+//   DungeonRoomType,
+//   GameMode,
+//   IdGenerator,
+//   SpeedDungeonGame,
+//   SpeedDungeonPlayer,
+//   addCharacterToParty,
+//   updateCombatantHomePosition,
+// } from "@speed-dungeon/common";
+// import { putPartyInNextRoom } from "../../game-event-handlers/toggle-ready-to-explore-handler.js";
+// import { Vector3 } from "@babylonjs/core";
+// import { CharacterOutfitter } from "../../character-creation/character-outfitter.js";
 
-export function setUpTestGameWithPartyInBattle(idGenerator: IdGenerator) {
-  const game = new SpeedDungeonGame(idGenerator.generate(), "A Game", GameMode.Race);
-  const partyId = idGenerator.generate();
-  const partyName = "A Party";
-  const party = new AdventuringParty(partyId, partyName);
-  game.adventuringParties[partyName] = party;
+// export function setUpTestGameWithPartyInBattle(idGenerator: IdGenerator) {
+//   const game = new SpeedDungeonGame(idGenerator.generate(), "A Game", GameMode.Race);
+//   const partyId = idGenerator.generate();
+//   const partyName = "A Party";
+//   const party = new AdventuringParty(partyId, partyName);
+//   game.adventuringParties[partyName] = party;
 
-  const playerName = "Player Name";
-  const player = new SpeedDungeonPlayer(playerName);
+//   const playerName = "Player Name";
+//   const player = new SpeedDungeonPlayer(playerName);
 
-  const character = new Combatant(
-    { id: idGenerator.generate(), name: "R. Chambers" },
-    new CombatantProperties(
-      CombatantClass.Rogue,
-      CombatantSpecies.Humanoid,
-      null,
-      player.username,
-      Vector3.Zero()
-    )
-  );
-  CharacterOutfitter.outfitNewCharacter(character);
-  addCharacterToParty(game, party, player, character, false);
-  updateCombatantHomePosition(character.entityProperties.id, character.combatantProperties, party);
-  putPartyInNextRoom(game, party, DungeonRoomType.MonsterLair);
-  return new CombatantContext(game, party, character);
-}
+//   const character = new Combatant(
+//     { id: idGenerator.generate(), name: "R. Chambers" },
+//     new CombatantProperties(
+//       CombatantClass.Rogue,
+//       CombatantSpecies.Humanoid,
+//       null,
+//       player.username,
+//       Vector3.Zero()
+//     )
+//   );
+//   CharacterOutfitter.outfitNewCharacter(character);
+//   addCharacterToParty(game, party, player, character, false);
+//   updateCombatantHomePosition(character.entityProperties.id, character.combatantProperties, party);
+//   putPartyInNextRoom(game, party, DungeonRoomType.MonsterLair);
+// }

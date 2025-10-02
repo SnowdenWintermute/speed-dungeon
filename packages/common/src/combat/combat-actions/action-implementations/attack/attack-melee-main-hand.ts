@@ -1,6 +1,7 @@
 import {
   CombatActionCombatLogProperties,
   CombatActionComponentConfig,
+  CombatActionExecutionIntent,
   CombatActionLeaf,
   CombatActionName,
   CombatActionOrigin,
@@ -22,7 +23,6 @@ import {
   createCostPropertiesConfig,
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
-import { ATTACK_MELEE_OFF_HAND } from "./attack-melee-off-hand.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 hitOutcomeOverrides.addsPropertiesFromHoldableSlot = HoldableSlotType.MainHand;
@@ -34,7 +34,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: (context, self) => {
-    const user = context.combatantContext.combatant.combatantProperties;
+    const user = context.actionUserContext.actionUser;
 
     if (CombatantEquipment.isWearingUsableShield(user)) {
       return true;
@@ -72,10 +72,14 @@ export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
     getParent: () => ATTACK,
     getChildren: (context, self) => {
-      const toReturn = [];
-      if (!ATTACK_MELEE_MAIN_HAND.costProperties.requiresCombatTurnInThisContext(context, self))
-        toReturn.push(ATTACK_MELEE_OFF_HAND);
-      return toReturn;
+      const mainHandAttackUsedTurn =
+        ATTACK_MELEE_MAIN_HAND.costProperties.requiresCombatTurnInThisContext(context, self);
+      if (mainHandAttackUsedTurn) return [];
+
+      const { actionExecutionIntent } = context.tracker;
+      const { targets } = actionExecutionIntent;
+
+      return [new CombatActionExecutionIntent(CombatActionName.AttackMeleeOffhand, 1, targets)];
     },
   },
 };

@@ -13,7 +13,7 @@ import {
 } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
-import { CombatantConditionName, CombatantProperties } from "../../../../combatants/index.js";
+import { CombatantConditionName } from "../../../../combatants/index.js";
 import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
@@ -37,12 +37,12 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
     baseValues.mult(1 + spellLevelHpChangeValueModifier * (actionLevel - 1));
 
     // just get some extra damage for combatant level
-    baseValues.add(user.level - 1);
+    baseValues.add(user.getLevel() - 1);
     // get greater benefits from a certain attribute the higher level a combatant is
     addCombatantLevelScaledAttributeToRange({
       range: baseValues,
-      userTotalAttributes: CombatantProperties.getTotalAttributes(user),
-      userLevel: user.level,
+      userTotalAttributes: user.getTotalAttributes(),
+      userLevel: user.getLevel(),
       attribute: CombatAttribute.Spirit,
       normalizedAttributeScalingByCombatantLevel: 1,
     });
@@ -65,7 +65,7 @@ hitOutcomeOverrides.getAppliedConditions = (user, actionLevel) => {
       conditionName: CombatantConditionName.Burning,
       level: actionLevel,
       stacks: actionLevel * 3,
-      appliedBy: { entityProperties: user.entityProperties, friendOrFoe: FriendOrFoe.Hostile },
+      appliedBy: { entityProperties: user.getEntityProperties(), friendOrFoe: FriendOrFoe.Hostile },
     },
   ];
 };

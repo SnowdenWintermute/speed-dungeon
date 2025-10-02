@@ -14,11 +14,11 @@ export function getAttackActionIcons(user: CombatantProperties, inCombat: boolea
 
   const { actionPoints } = user;
   const mainHandEquipmentOption = CombatantEquipment.getEquippedHoldable(
-    user,
+    user.equipment,
     HoldableSlotType.MainHand
   );
   const offHandEquipmentOption = CombatantEquipment.getEquippedHoldable(
-    user,
+    user.equipment,
     HoldableSlotType.OffHand
   );
   const ohIsShield =

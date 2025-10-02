@@ -79,9 +79,9 @@ export class ThreatManager {
       newThreatTargetIdOption
     );
     const targetPos = newTargetCombatant.combatantProperties.homeLocation;
-    const monsterPos = monster.combatantProperties.position;
+    const monsterHomePos = monster.combatantProperties.homeLocation;
 
-    const lookAtMatrix = Matrix.LookAtLH(monsterPos, targetPos, Vector3.Up());
+    const lookAtMatrix = Matrix.LookAtLH(monsterHomePos, targetPos, Vector3.Up());
     // Invert because LookAtLH returns a view matrix
     const worldRotation = Quaternion.FromRotationMatrix(lookAtMatrix).invert();
 

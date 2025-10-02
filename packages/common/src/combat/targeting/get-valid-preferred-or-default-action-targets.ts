@@ -6,24 +6,25 @@ import {
   FriendOrFoe,
   TargetingScheme,
 } from "../combat-actions/targeting-schemes-and-categories.js";
-import { CombatActionComponent } from "../combat-actions/index.js";
-import { Combatant } from "../../combatants/index.js";
+import { IActionUser } from "../../action-user-context/action-user.js";
+import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
+import { EntityId } from "../../primatives/index.js";
+import { COMBAT_ACTIONS } from "../combat-actions/action-implementations/index.js";
 
 export function getValidPreferredOrDefaultActionTargets(
-  combatant: Combatant,
+  actionUser: IActionUser,
   playerOption: null | SpeedDungeonPlayer,
-  combatAction: CombatActionComponent,
-  allyIdsOption: null | string[],
-  opponentIdsOption: null | string[]
+  actionAndRank: ActionAndRank,
+  targetIdsByDisposition: Record<FriendOrFoe, EntityId[]>
 ): Error | CombatActionTarget {
   let newTargets: null | CombatActionTarget = null;
 
-  const { selectedActionLevel } = combatant.combatantProperties;
-  if (selectedActionLevel === null)
-    return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_LEVEL_SELECTED);
+  const { actionName, rank } = actionAndRank;
+  const action = COMBAT_ACTIONS[actionName];
+  const targetingSchemes = action.targetingProperties.getTargetingSchemes(rank);
 
-  const targetingSchemes =
-    combatAction.targetingProperties.getTargetingSchemes(selectedActionLevel);
+  const allyIds = targetIdsByDisposition[FriendOrFoe.Friendly];
+  const opponentIds = targetIdsByDisposition[FriendOrFoe.Hostile];
 
   if (playerOption) {
     const {
@@ -43,13 +44,13 @@ export function getValidPreferredOrDefaultActionTargets(
               case FriendOrFoe.Hostile:
                 newTargets = getPreferredOrDefaultSingleTargetOption(
                   preferredHostileOption,
-                  opponentIdsOption
+                  opponentIds
                 );
                 break;
               case FriendOrFoe.Friendly:
                 newTargets = getPreferredOrDefaultSingleTargetOption(
                   preferredFriendlyOption,
-                  allyIdsOption
+                  allyIds
                 );
                 break;
             }
@@ -58,7 +59,7 @@ export function getValidPreferredOrDefaultActionTargets(
           for (const category of iterateNumericEnum(FriendOrFoe)) {
             if (newTargets) return newTargets;
 
-            const idsOption = category === FriendOrFoe.Friendly ? allyIdsOption : opponentIdsOption;
+            const idsOption = category === FriendOrFoe.Friendly ? allyIds : opponentIds;
             if (idsOption) {
               newTargets = getPreferredOrDefaultSingleTargetOption(idsOption[0] || null, idsOption);
             }
@@ -66,15 +67,11 @@ export function getValidPreferredOrDefaultActionTargets(
           break;
         case TargetingScheme.Area:
           if (preferredCategoryOption) {
-            newTargets = getGroupTargetsOption(
-              allyIdsOption,
-              opponentIdsOption,
-              preferredCategoryOption
-            );
+            newTargets = getGroupTargetsOption(allyIds, opponentIds, preferredCategoryOption);
           } else {
             for (const category of iterateNumericEnum(FriendOrFoe)) {
               if (newTargets) return newTargets;
-              newTargets = getGroupTargetsOption(allyIdsOption, opponentIdsOption, category);
+              newTargets = getGroupTargetsOption(allyIds, opponentIds, category);
             }
           }
           break;
@@ -89,7 +86,8 @@ export function getValidPreferredOrDefaultActionTargets(
   }
 
   // IF NO VALID TARGET IN PREFERRED SCHEME OR PREFERRED SCHEME NOT VALID GET ANY VALID TARGET
-  const selectedTargetingSchemeOption = combatant.combatantProperties.selectedTargetingScheme;
+  const targetingProperties = actionUser.getTargetingProperties();
+  const selectedTargetingSchemeOption = targetingProperties.getSelectedTargetingScheme();
   const targetingSchemesToAttemptGettingDefaultTargets = [...targetingSchemes];
   // try the selectedTargetingSchemeOption first, this is how ai combatants will have a "preference" to start with
   if (
@@ -104,7 +102,7 @@ export function getValidPreferredOrDefaultActionTargets(
     switch (targetingScheme) {
       case TargetingScheme.Single:
         for (const category of iterateNumericEnum(FriendOrFoe)) {
-          const idsOption = category === FriendOrFoe.Friendly ? allyIdsOption : opponentIdsOption;
+          const idsOption = category === FriendOrFoe.Friendly ? allyIds : opponentIds;
 
           if (idsOption)
             newTargets = getPreferredOrDefaultSingleTargetOption(idsOption[0] || null, idsOption);
@@ -113,7 +111,7 @@ export function getValidPreferredOrDefaultActionTargets(
         break;
       case TargetingScheme.Area:
         for (const category of iterateNumericEnum(FriendOrFoe)) {
-          newTargets = getGroupTargetsOption(allyIdsOption, opponentIdsOption, category);
+          newTargets = getGroupTargetsOption(allyIds, opponentIds, category);
           if (newTargets) return newTargets;
         }
         break;

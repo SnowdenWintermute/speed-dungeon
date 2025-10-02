@@ -1,10 +1,11 @@
+import { IActionUser } from "../../action-user-context/action-user.js";
 import { Equipment, WeaponProperties } from "../../items/equipment/index.js";
 import { HoldableSlotType } from "../../items/equipment/slots.js";
 import { CombatantProperties } from "../index.js";
 import { CombatantEquipment } from "./index.js";
 
 export function getWeaponsInSlots(
-  combatantProperties: CombatantProperties,
+  user: IActionUser,
   weaponSlots: HoldableSlotType[],
   options: { usableWeaponsOnly: boolean }
 ) {
@@ -12,8 +13,10 @@ export function getWeaponsInSlots(
     Record<HoldableSlotType, { equipment: Equipment; weaponProperties: WeaponProperties }>
   > = {};
 
-  const equippedSelectedHotswapSlot =
-    CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+  const equipmentOption = user.getEquipmentOption();
+  if (equipmentOption === null) return toReturn;
+
+  const equippedSelectedHotswapSlot = CombatantEquipment.getEquippedHoldableSlots(equipmentOption);
   if (!equippedSelectedHotswapSlot) return toReturn;
 
   for (const weaponSlot of weaponSlots) {
@@ -27,7 +30,7 @@ export function getWeaponsInSlots(
     if (
       options.usableWeaponsOnly &&
       (!CombatantProperties.combatantHasRequiredAttributesToUseItem(
-        combatantProperties,
+        user.getTotalAttributes(),
         holdable
       ) ||
         Equipment.isBroken(holdable))

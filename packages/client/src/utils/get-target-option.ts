@@ -1,10 +1,9 @@
 import { useGameStore } from "@/stores/game-store";
 import {
+  ActionUserContext,
   COMBAT_ACTIONS,
   CombatActionName,
   Combatant,
-  CombatantContext,
-  CombatantProperties,
   SpeedDungeonGame,
   TargetingCalculator,
 } from "@speed-dungeon/common";
@@ -14,8 +13,11 @@ export function getTargetOption(
   user: Combatant,
   actionName: CombatActionName
 ) {
-  const { combatActionTarget, selectedActionLevel } = user.combatantProperties;
-  if (!gameOption || combatActionTarget === null || selectedActionLevel === null) return undefined;
+  const targetingProperties = user.getTargetingProperties();
+  const combatActionTarget = targetingProperties.getSelectedTarget();
+  const actionRank = targetingProperties.getSelectedActionAndRank()?.rank;
+
+  if (!gameOption || combatActionTarget === null || actionRank === undefined) return undefined;
   const game = gameOption;
   const partyResult = useGameStore.getState().getParty();
   if (partyResult instanceof Error) return undefined;
@@ -25,7 +27,7 @@ export function getTargetOption(
   const combatActionProperties = actionPropertiesResult;
 
   const targetingCalculator = new TargetingCalculator(
-    new CombatantContext(game, partyResult, user),
+    new ActionUserContext(game, partyResult, user),
     null
   );
 

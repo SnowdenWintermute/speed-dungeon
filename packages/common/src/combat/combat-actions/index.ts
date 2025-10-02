@@ -11,12 +11,10 @@ export * from "./combat-action-resource-change-properties.js";
 export * from "./combat-action-accuracy.js";
 export * from "./combat-action-combat-log-properties.js";
 
-import { CombatantProperties, getCombatActionPropertiesIfOwned } from "../../combatants/index.js";
 import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js";
-import { CombatActionName } from "./combat-action-names.js";
+import { COMBAT_ACTION_NAME_STRINGS, CombatActionName } from "./combat-action-names.js";
 import { Battle } from "../../battle/index.js";
 import { ActionAccuracyType } from "./combat-action-accuracy.js";
-import { CombatantContext } from "../../combatant-context/index.js";
 import {
   ActionIntentAndUser,
   ActionResolutionStepContext,
@@ -32,11 +30,10 @@ import {
   CombatActionCostPropertiesConfig,
 } from "./combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "./combat-action-steps-config.js";
-import { CombatActionTarget } from "../targeting/combat-action-targets.js";
-import { ERROR_MESSAGES } from "../../errors/index.js";
 import { AbilityTreeAbility } from "../../abilities/index.js";
 import { CombatActionCombatLogProperties } from "./combat-action-combat-log-properties.js";
-import { TurnTrackerEntityType } from "../turn-order/turn-tracker-tagged-tracked-entity-ids.js";
+import { IActionUser } from "../../action-user-context/action-user.js";
+import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
 
 export interface CombatActionComponentConfig {
   // unique to each action
@@ -82,13 +79,17 @@ export abstract class CombatActionComponent {
     this.hitOutcomeProperties = config.hitOutcomeProperties;
     this.costProperties = {
       ...config.costProperties,
-      getResourceCosts: (user: CombatantProperties, inCombat: boolean, actionLevel: number) =>
+      getResourceCosts: (user: IActionUser, inCombat: boolean, actionLevel: number) =>
         config.costProperties.getResourceCosts(user, inCombat, actionLevel, this),
     };
 
     this.stepsConfig = config.stepsConfig;
 
     this.hierarchyProperties = config.hierarchyProperties;
+  }
+
+  getStringName() {
+    return COMBAT_ACTION_NAME_STRINGS[this.name];
   }
 
   shouldExecute(
@@ -101,14 +102,14 @@ export abstract class CombatActionComponent {
     return executionPreconditions.every((fn) => fn(context, previousTrackerOption, this));
   }
 
-  getAccuracy(user: CombatantProperties, actionLevel: number) {
+  getAccuracy(user: IActionUser, actionLevel: number) {
     const baseAccuracy = this.hitOutcomeProperties.getUnmodifiedAccuracy(user, actionLevel);
     if (baseAccuracy.type === ActionAccuracyType.Percentage)
       baseAccuracy.value *= this.hitOutcomeProperties.accuracyModifier;
     return baseAccuracy;
   }
 
-  getCritChance(user: CombatantProperties, actionLevel: number) {
+  getCritChance(user: IActionUser, actionLevel: number) {
     const base = this.hitOutcomeProperties.getUnmodifiedCritChance(user, actionLevel);
     if (base === null) return base;
     const modified = base * this.hitOutcomeProperties.critChanceModifier;
@@ -137,86 +138,6 @@ export abstract class CombatActionComponent {
       : CombatActionUsabilityContext.OutOfCombat;
     return this.isUsableInGivenContext(context);
   };
-
-  useIsValid(
-    targets: CombatActionTarget,
-    actionLevel: number,
-    combatantContext: CombatantContext
-  ): Error | void {
-    const { game, party, combatant } = combatantContext;
-    const { combatantProperties } = combatant;
-
-    if (this.costProperties.getMeetsCustomRequirements) {
-      const { meetsRequirements, reasonDoesNot } = this.costProperties.getMeetsCustomRequirements(
-        combatant.combatantProperties,
-        actionLevel
-      );
-      if (!meetsRequirements) return new Error(reasonDoesNot);
-    }
-
-    const combatActionPropertiesResult = getCombatActionPropertiesIfOwned(
-      combatant.combatantProperties,
-      this.name,
-      actionLevel
-    );
-    if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
-
-    const actionStateOption = combatantProperties.abilityProperties.ownedActions[this.name];
-    if (actionStateOption && actionStateOption.cooldown && actionStateOption.cooldown.current)
-      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.IS_ON_COOLDOWN);
-
-    const hasRequiredConsumables = CombatantProperties.hasRequiredConsumablesToUseAction(
-      combatantProperties,
-      this.name
-    );
-    if (!hasRequiredConsumables) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
-
-    const hasRequiredResources = CombatantProperties.hasRequiredResourcesToUseAction(
-      combatantProperties,
-      this.name,
-      !!combatantContext.getBattleOption(),
-      actionLevel
-    );
-
-    if (!hasRequiredResources)
-      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INSUFFICIENT_RESOURCES);
-
-    const isWearingRequiredEquipment = CombatantProperties.isWearingRequiredEquipmentToUseAction(
-      combatantProperties,
-      this.name,
-      actionLevel
-    );
-    if (!isWearingRequiredEquipment)
-      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_WEARING_REQUIRED_EQUIPMENT);
-
-    // IF IN BATTLE, ONLY USE IF FIRST IN TURN ORDER
-    let battleOption: null | Battle = null;
-    if (party.battleId !== null) {
-      const battle = game.battles[party.battleId];
-      if (battle !== undefined) battleOption = battle;
-      else return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
-    }
-
-    if (battleOption !== null) {
-      const fastestActor = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
-      const taggedTrackedEntityId = fastestActor.getTaggedIdOfTrackedEntity();
-      if (taggedTrackedEntityId.type !== TurnTrackerEntityType.Combatant)
-        return new Error("expected a combatant to be first in turn order");
-      if (taggedTrackedEntityId.combatantId !== combatant.entityProperties.id) {
-        const message = `${ERROR_MESSAGES.COMBATANT.NOT_ACTIVE} first turn tracker ${JSON.stringify(fastestActor)}`;
-        return new Error(message);
-      }
-    }
-
-    const isInUsableContext = this.isUsableInThisContext(battleOption);
-    if (!isInUsableContext)
-      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_USABILITY_CONTEXT);
-
-    // @TODO - TARGETS ARE NOT IN A PROHIBITED STATE
-    // this would only make sense if we didn't already check valid states when targeting... unless
-    // target state could change while they are already targeted, like if someone healed themselves
-    // to full hp while someone else was targeting them with an autoinjector
-  }
 }
 
 export class CombatActionLeaf extends CombatActionComponent {}
@@ -241,13 +162,13 @@ export interface CombatActionHierarchyProperties {
   getChildren: (
     context: ActionResolutionStepContext,
     self: CombatActionComponent
-  ) => CombatActionComponent[];
+  ) => CombatActionExecutionIntent[];
   getParent: () => CombatActionComponent | null;
   getConcurrentSubActions?: (context: ActionResolutionStepContext) => ActionIntentAndUser[];
 }
 
 export const BASE_ACTION_HIERARCHY_PROPERTIES: CombatActionHierarchyProperties = {
-  getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {
+  getChildren: function (context: ActionResolutionStepContext): CombatActionExecutionIntent[] {
     return [];
   },
   getParent: function (): CombatActionComponent | null {

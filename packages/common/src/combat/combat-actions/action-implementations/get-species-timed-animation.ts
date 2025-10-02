@@ -7,15 +7,16 @@ import {
   SKELETAL_ANIMATION_NAME_STRINGS,
   SkeletalAnimationName,
 } from "../../../app-consts.js";
-import { CombatantProperties, CombatantSpecies } from "../../../combatants/index.js";
+import { IActionUser } from "../../../action-user-context/action-user.js";
+import { CombatantSpecies } from "../../../combatants/index.js";
 
 export function getSpeciesTimedAnimation(
-  user: CombatantProperties,
+  user: IActionUser,
   animationLengths: Record<CombatantSpecies, Record<string, number>>,
   animationName: SkeletalAnimationName,
   smoothTransition: boolean
 ): EntityAnimation {
-  const speciesLengths = animationLengths[user.combatantSpecies];
+  const speciesLengths = animationLengths[user.getCombatantProperties().combatantSpecies];
   const animationNameString = SKELETAL_ANIMATION_NAME_STRINGS[animationName];
   const duration = speciesLengths[animationNameString] || 0;
 

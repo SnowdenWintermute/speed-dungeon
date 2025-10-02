@@ -1,11 +1,11 @@
+import { AdventuringParty } from "../../adventuring-party/index.js";
 import {
   ActionPayableResource,
   COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTIONS,
-  CombatActionExecutionIntent,
 } from "../../combat/index.js";
-import { Combatant } from "../../combatants/index.js";
 import {
+  ActionIntentAndUser,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
@@ -13,7 +13,7 @@ import {
 import { evaluatePlayerEndTurnAndInputLock } from "./evaluate-player-turn-end-and-input-lock.js";
 
 export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends ActionResolutionStep {
-  branchingActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] = [];
+  branchingActions: ActionIntentAndUser[] = [];
   constructor(context: ActionResolutionStepContext, stepType: ActionResolutionStepType) {
     super(stepType, context, null); // this step should produce no game update
 
@@ -22,10 +22,12 @@ export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends
     const turnAlreadyEnded =
       context.tracker.parentActionManager.sequentialActionManagerRegistry.getTurnEnded();
 
+    const { actionUser, party, game } = context.actionUserContext;
+
     const resourceCosts = action.costProperties.getResourceCosts(
-      context.combatantContext.combatant.combatantProperties,
-      !!context.combatantContext.getBattleOption(),
-      context.tracker.actionExecutionIntent.level
+      actionUser,
+      !!AdventuringParty.getBattleOption(party, game),
+      context.tracker.actionExecutionIntent.rank
     );
 
     const actionPointCost = resourceCosts?.[ActionPayableResource.ActionPoints] || 0;
@@ -55,9 +57,7 @@ export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends
   getTimeToCompletion = () => 0;
   isComplete = () => true;
 
-  getBranchingActions():
-    | Error
-    | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
+  getBranchingActions(): Error | ActionIntentAndUser[] {
     const toReturn = this.branchingActions;
     return toReturn;
   }

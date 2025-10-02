@@ -1,3 +1,4 @@
+import { ActionAndRank } from "../../../action-user-context/action-user-targeting-properties.js";
 import { Combatant, CombatantProperties } from "../../../combatants/index.js";
 import { COMBAT_ACTION_NAME_STRINGS, CombatActionName } from "../../combat-actions/index.js";
 import { AIBehaviorContext } from "../ai-context.js";
@@ -18,8 +19,7 @@ export class CheckIfWearingProperEquipmentForAction implements BehaviorNode {
 
     const isWearingProperEquipment = CombatantProperties.isWearingRequiredEquipmentToUseAction(
       combatantProperties,
-      this.actionNameOption,
-      this.actionLevelOption
+      new ActionAndRank(this.actionNameOption, this.actionLevelOption)
     );
     if (isWearingProperEquipment) return BehaviorNodeState.Success;
     return BehaviorNodeState.Failure;

@@ -12,7 +12,7 @@ import {
 export function enqueueCharacterItemsForThumbnails(character: Combatant) {
   const itemsToCreateThumbnailsFor = [];
   itemsToCreateThumbnailsFor.push(...character.combatantProperties.inventory.equipment);
-  const hotswapSets = CombatantEquipment.getHoldableHotswapSlots(character.combatantProperties);
+  const hotswapSets = CombatantEquipment.getHoldableHotswapSlots(character.getEquipmentOption());
   if (hotswapSets)
     for (const hotswapSet of hotswapSets)
       itemsToCreateThumbnailsFor.push(...Object.values(hotswapSet.holdables));

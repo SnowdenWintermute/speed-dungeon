@@ -1,7 +1,6 @@
 import { GameState, useGameStore } from "@/stores/game-store";
 import {
   CharacterAssociatedData,
-  CombatantAssociatedData,
   ERROR_MESSAGES,
   PlayerAssociatedData,
   SpeedDungeonGame,

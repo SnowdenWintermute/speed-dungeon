@@ -217,13 +217,14 @@ export class CharacterModel extends SceneEntity {
     const combatant = this.getCombatant();
 
     const { combatantProperties } = combatant;
+    const { equipment } = combatantProperties;
     const offHandOption = CombatantEquipment.getEquippedHoldable(
-      combatantProperties,
+      equipment,
       HoldableSlotType.OffHand
     );
     const offhandType = offHandOption?.equipmentBaseItemProperties.equipmentType;
     const mainHandOption = CombatantEquipment.getEquippedHoldable(
-      combatantProperties,
+      equipment,
       HoldableSlotType.MainHand
     );
     const mainHandType = mainHandOption?.equipmentBaseItemProperties.equipmentType;

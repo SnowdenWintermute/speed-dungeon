@@ -24,12 +24,13 @@ import {
   COMBAT_ACTION_MAX_LEVEL,
 } from "../../../../app-consts.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
+import { ActionUserTargetingProperties } from "../../../../action-user-context/action-user-targeting-properties.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
 stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
-  getSpawnableEntity: (context) => {
-    const { party, combatant: user } = context.combatantContext;
+  getSpawnableEntities: (context) => {
+    const { party, actionUser } = context.actionUserContext;
 
     const existingFirewallOption = AdventuringParty.getExistingActionEntityOfType(
       party,
@@ -38,10 +39,10 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
 
     if (existingFirewallOption !== null) {
       // so it can be targeted by the on activation motion step
-      context.tracker.spawnedEntityOption = {
+      context.tracker.spawnedEntities.push({
         type: SpawnableEntityType.ActionEntity,
         actionEntity: existingFirewallOption,
-      };
+      });
       // don't spawn it again
       return null;
     }
@@ -59,9 +60,11 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
       dimensions,
     };
 
+    const selectedActionAndRank = actionUser.getTargetingProperties().getSelectedActionAndRank();
+
     const actionLevel = new MaxAndCurrent(
       COMBAT_ACTION_MAX_LEVEL,
-      user.combatantProperties.selectedActionLevel || 1
+      selectedActionAndRank?.rank || 1
     );
 
     const lifetime = new MaxAndCurrent(
@@ -71,35 +74,37 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
 
     const actionOriginData: ActionEntityActionOriginData = {
       actionLevel,
-      userCombatantAttributes: CombatantProperties.getTotalAttributes(user.combatantProperties),
+      userCombatantAttributes: actionUser.getTotalAttributes(),
       userElementalAffinities: CombatantProperties.getCombatantTotalElementalAffinities(
-        user.combatantProperties
+        actionUser.getCombatantProperties()
       ),
       turnOrderSpeed: BASE_PERSISTENT_ACTION_ENTITY_TICK_SPEED,
       stacks: lifetime,
+      targetingProperties: new ActionUserTargetingProperties(),
+      spawnedBy: actionUser.getEntityProperties(),
     };
 
-    return {
-      type: SpawnableEntityType.ActionEntity,
-      actionEntity: new ActionEntity(
-        { id: context.idGenerator.generate(), name: "firewall" },
-        {
-          position,
-          name: ActionEntityName.Firewall,
-          dimensions: taggedDimensions,
-          actionOriginData,
-        }
-      ),
-    };
+    return [
+      {
+        type: SpawnableEntityType.ActionEntity,
+        actionEntity: new ActionEntity(
+          { id: context.idGenerator.generate(), name: "firewall" },
+          {
+            position,
+            name: ActionEntityName.Firewall,
+            dimensions: taggedDimensions,
+            actionOriginData,
+          }
+        ),
+      },
+    ];
   },
 };
 
-stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
+stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
   getCosmeticEffectsToStop(context) {
-    const expectedFirewallEntity = context.tracker.spawnedEntityOption;
-    if (expectedFirewallEntity === null) throw new Error("expected firewall entity not found");
-    if (expectedFirewallEntity.type != SpawnableEntityType.ActionEntity)
-      throw new Error("expected firewall entity to be action enity");
+    const expectedFirewallEntity = context.tracker.getFirstExpectedSpawnedActionEntity();
+
     return [
       {
         name: CosmeticEffectNames.FirewallParticles,
@@ -114,10 +119,7 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
     ];
   },
   getCosmeticEffectsToStart: (context) => {
-    const expectedFirewallEntity = context.tracker.spawnedEntityOption;
-    if (expectedFirewallEntity === null) throw new Error("expected firewall entity not found");
-    if (expectedFirewallEntity.type != SpawnableEntityType.ActionEntity)
-      throw new Error("expected firewall entity to be action enity");
+    const expectedFirewallEntity = context.tracker.getFirstExpectedSpawnedActionEntity();
 
     const rankOption =
       expectedFirewallEntity.actionEntity.actionEntityProperties.actionOriginData?.actionLevel

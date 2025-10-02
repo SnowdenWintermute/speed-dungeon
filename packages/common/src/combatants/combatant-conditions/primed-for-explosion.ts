@@ -1,10 +1,5 @@
-import {
-  COMBATANT_CONDITION_NAME_STRINGS,
-  CombatantCondition,
-  CombatantConditionName,
-  ConditionAppliedBy,
-} from "./index.js";
-import { Combatant, createShimmedUserOfTriggeredCondition } from "../index.js";
+import { CombatantCondition, CombatantConditionName, ConditionAppliedBy } from "./index.js";
+import { Combatant } from "../index.js";
 import {
   CombatActionExecutionIntent,
   CombatActionIntent,
@@ -14,24 +9,28 @@ import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 import { CombatActionTargetType } from "../../combat/targeting/combat-action-targets.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
-import { CombatantContext } from "../../combatant-context/index.js";
 import { immerable } from "immer";
+import { ActionUserContext } from "../../action-user-context/index.js";
 
-export class PrimedForExplosionCombatantCondition implements CombatantCondition {
+const getNewStacks = () => new MaxAndCurrent(10, 1);
+
+export class PrimedForExplosionCombatantCondition extends CombatantCondition {
   [immerable] = true;
-  name = CombatantConditionName.PrimedForExplosion;
   intent = CombatActionIntent.Malicious;
-  stacksOption = new MaxAndCurrent(10, 1);
   removedOnDeath: boolean = true;
   ticks?: MaxAndCurrent | undefined;
+  stacksOption = getNewStacks();
   constructor(
-    public id: EntityId,
-    public appliedBy: ConditionAppliedBy,
-    public level: number,
-    stacksOption: null | MaxAndCurrent
+    id: EntityId,
+    appliedBy: ConditionAppliedBy,
+    appliedTo: EntityId,
+    public level: number
   ) {
-    if (stacksOption) this.stacksOption = stacksOption;
+    super(id, appliedBy, appliedTo, CombatantConditionName.PrimedForExplosion, getNewStacks());
   }
+
+  tickPropertiesOption = null;
+  getAttributeModifiers = undefined;
 
   triggeredWhenHitBy(actionName: CombatActionName) {
     const actionsThatTrigger = [
@@ -41,6 +40,7 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
       CombatActionName.AttackMeleeOffhand,
       CombatActionName.BurningTick,
       CombatActionName.FirewallBurn,
+      CombatActionName.ExecuteExplosion,
       CombatActionName.Fire,
       CombatActionName.ChainingSplitArrowProjectile,
     ];
@@ -53,45 +53,40 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
   }
 
   onTriggered(
-    combatantContext: CombatantContext,
+    this: PrimedForExplosionCombatantCondition,
+    actionUserContext: ActionUserContext,
     targetCombatant: Combatant,
     idGenerator: IdGenerator
   ) {
-    const user = createShimmedUserOfTriggeredCondition(
-      COMBATANT_CONDITION_NAME_STRINGS[this.name],
-      this,
-      targetCombatant.entityProperties.id
-    );
+    const actionUser = this;
 
-    user.combatantProperties.combatActionTarget = {
+    actionUser.getTargetingProperties().setSelectedTarget({
       type: CombatActionTargetType.Single,
       targetId: targetCombatant.entityProperties.id,
-    };
+    });
 
-    const combatantContextFromConditionUserPerspective = new CombatantContext(
-      combatantContext.game,
-      combatantContext.party,
-      user
+    const conditionUserContext = new ActionUserContext(
+      actionUserContext.game,
+      actionUserContext.party,
+      actionUser
     );
 
     const actionTarget = COMBAT_ACTIONS[
-      CombatActionName.Explosion
-    ].targetingProperties.getAutoTarget(combatantContextFromConditionUserPerspective, null);
+      CombatActionName.SpawnExplosion
+    ].targetingProperties.getAutoTarget(conditionUserContext, null);
 
     if (actionTarget instanceof Error) throw actionTarget;
     if (actionTarget === null) throw new Error("failed to get auto target");
 
-    const explosionLevel = this.level * this.stacksOption.current;
-
-    const explosionActionIntent = new CombatActionExecutionIntent(
-      CombatActionName.Explosion,
-      actionTarget,
-      explosionLevel
+    const actionExecutionIntent = new CombatActionExecutionIntent(
+      CombatActionName.SpawnExplosion,
+      actionUser.getLevel(),
+      actionTarget
     );
 
     return {
-      numStacksRemoved: 1,
-      triggeredActions: [{ user, actionExecutionIntent: explosionActionIntent }],
+      numStacksRemoved: this.stacksOption.current,
+      triggeredActions: [{ user: actionUser, actionExecutionIntent }],
     };
   }
 

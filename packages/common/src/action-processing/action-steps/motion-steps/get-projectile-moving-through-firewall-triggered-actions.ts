@@ -1,15 +1,17 @@
 import { ActionEntity, ActionEntityName } from "../../../action-entities/index.js";
 import {
-  COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   CombatActionName,
   CombatActionTargetType,
 } from "../../../combat/index.js";
 import { ShapeType3D } from "../../../utils/shape-utils.js";
-import { ActionResolutionStepContext, ActionResolutionStepType } from "../index.js";
+import {
+  ActionIntentAndUser,
+  ActionResolutionStepContext,
+  ActionResolutionStepType,
+} from "../index.js";
 import { TriggerEnvironmentalHazardsActionResolutionStep } from "./determine-environmental-hazard-triggers.js";
-import { ARROW_TIME_TO_MOVE_ONE_METER } from "../../../app-consts.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import cloneDeep from "lodash.clonedeep";
 import { timeToReachBox } from "../../../utils/index.js";
@@ -35,22 +37,12 @@ function projectileTypeShouldBeIncinerated(type: ActionEntityName) {
 
 export function getProjectileMovingThroughFirewallTriggeredActions(
   context: ActionResolutionStepContext,
-  step: TriggerEnvironmentalHazardsActionResolutionStep
-) {
+  step: TriggerEnvironmentalHazardsActionResolutionStep,
+  projectileEntity: ActionEntity
+): ActionIntentAndUser[] {
   if (step.type === ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers) {
     return [];
   }
-
-  let { spawnedEntityOption } = context.tracker;
-  if (spawnedEntityOption === null) {
-    spawnedEntityOption =
-      context.tracker.getPreviousTrackerInSequenceOption()?.spawnedEntityOption || null;
-    if (spawnedEntityOption === null) {
-      return [];
-    }
-  }
-  if (spawnedEntityOption.type !== SpawnableEntityType.ActionEntity) return [];
-  const projectileEntity = spawnedEntityOption.actionEntity;
 
   const { actionExecutionIntent } = context.tracker;
   const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
@@ -61,8 +53,7 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
     context,
     action,
     ActionResolutionStepType.OnActivationActionEntityMotion,
-    entityPosition,
-    ARROW_TIME_TO_MOVE_ONE_METER
+    projectileEntity
   );
 
   if (!destinationsOption) return [];
@@ -70,7 +61,7 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
   const { translationOption } = destinationsOption;
   if (!translationOption) return [];
 
-  const { party } = context.combatantContext;
+  const { party } = context.actionUserContext;
 
   // we only expect one firewall to exist
   const existingFirewallOption = AdventuringParty.getExistingActionEntityOfType(
@@ -123,13 +114,15 @@ function triggerIncinerateProjectile(
 ) {
   if (!projectileTypeShouldBeIncinerated(projectileEntity.actionEntityProperties.name)) return [];
 
-  context.tracker.projectileWasIncinerated = true;
+  const actionOriginDataOption = projectileEntity.getActionEntityProperties().actionOriginData;
+  if (actionOriginDataOption === undefined)
+    throw new Error("expected incinerated projectile to have actionOriginData");
+  actionOriginDataOption.wasIncinerated = true;
 
-  const intent = new CombatActionExecutionIntent(
-    CombatActionName.IncinerateProjectile,
-    { type: CombatActionTargetType.Single, targetId: projectileEntity.entityProperties.id },
-    1
-  );
+  const intent = new CombatActionExecutionIntent(CombatActionName.IncinerateProjectile, 1, {
+    type: CombatActionTargetType.Single,
+    targetId: projectileEntity.entityProperties.id,
+  });
 
   // use InitialPositioning motion, so that the delay happens before the post initial positioning
   // shouldExecute check in case some reason not to execute happens while it is delaying
@@ -138,16 +131,11 @@ function triggerIncinerateProjectile(
     timeToReachFirewallOption
   );
 
-  // this should be the cloned user of the projectile as set when the projectile
-  // was fired. by having access to it we can modify it
-  const user = context.combatantContext.combatant;
-  // for the combat log
-  user.entityProperties.name = projectileEntity.entityProperties.name;
-
-  user.combatantProperties.asShimmedActionEntity = projectileEntity;
+  // Setting the user as the projectile is how we've sent the projectile
+  // to the action. Looks like an anti-pattern to me.
 
   const intentWithUser = {
-    user,
+    user: projectileEntity,
     actionExecutionIntent: intent,
   };
 
@@ -163,8 +151,8 @@ function triggerIngiteProjectile(
 
   const igniteProjectileIntent = new CombatActionExecutionIntent(
     CombatActionName.IgniteProjectile,
-    { type: CombatActionTargetType.Single, targetId: projectileEntity.entityProperties.id },
-    1
+    1,
+    { type: CombatActionTargetType.Single, targetId: projectileEntity.entityProperties.id }
   );
 
   // use InitialPositioning motion, so that the delay happens before the post initial positioning
@@ -174,16 +162,8 @@ function triggerIngiteProjectile(
     timeToReachFirewallOption
   );
 
-  // this should be the cloned user of the projectile as set when the projectile
-  // was fired. by having access to it we can modify it
-  const igniteProjectileUser = context.combatantContext.combatant;
-  // for the combat log
-  igniteProjectileUser.entityProperties.name = projectileEntity.entityProperties.name;
-
-  igniteProjectileUser.combatantProperties.asShimmedActionEntity = projectileEntity;
-
   const intentWithUser = {
-    user: igniteProjectileUser,
+    user: projectileEntity, // kinda weird that the projectile ignites itself
     actionExecutionIntent: igniteProjectileIntent,
   };
 

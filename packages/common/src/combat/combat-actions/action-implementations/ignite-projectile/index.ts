@@ -1,4 +1,3 @@
-import { Vector3 } from "@babylonjs/core";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { ActivatedTriggersGameUpdateCommand } from "../../../../action-processing/game-update-commands.js";
 import {
@@ -15,6 +14,7 @@ import {
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
+  CombatActionResource,
   createGenericSpellCastMessageProperties,
 } from "../../index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
@@ -48,19 +48,24 @@ const config: CombatActionComponentConfig = {
       getHitOutcomeTriggers: (context) => {
         const toReturn: Partial<ActivatedTriggersGameUpdateCommand> = {};
 
-        // modify cloned user of projectile
-        const { asShimmedActionEntity } = context.combatantContext.combatant.combatantProperties;
-        if (asShimmedActionEntity === undefined)
-          throw new Error("expected user to have asShimmedActionEntity");
+        const { actionUser } = context.actionUserContext;
+        const actionEntityProperties = actionUser.getActionEntityProperties();
 
-        if (!asShimmedActionEntity.actionEntityProperties.actionOriginData)
-          asShimmedActionEntity.actionEntityProperties.actionOriginData = {};
+        if (!actionEntityProperties.actionOriginData)
+          actionEntityProperties.actionOriginData = { spawnedBy: { id: "", name: "" } };
 
-        asShimmedActionEntity.actionEntityProperties.actionOriginData.resourceChangeSource =
-          new ResourceChangeSource({
-            category: ResourceChangeSourceCategory.Physical,
-            elementOption: MagicalElement.Fire,
-          });
+        const { actionOriginData } = actionEntityProperties;
+
+        if (!actionOriginData.resourceChangeProperties)
+          actionOriginData.resourceChangeProperties = {};
+
+        const hpChangePropertiesOption =
+          actionOriginData.resourceChangeProperties[CombatActionResource.HitPoints];
+
+        if (hpChangePropertiesOption) {
+          if (hpChangePropertiesOption)
+            hpChangePropertiesOption.resourceChangeSource.elementOption = MagicalElement.Fire;
+        }
 
         // @PERF - combine when starting multiple cosmeticEffectsToStart on same entity
         toReturn.cosmeticEffectsToStart = [
@@ -69,7 +74,7 @@ const config: CombatActionComponentConfig = {
             parent: {
               sceneEntityIdentifier: {
                 type: SceneEntityType.ActionEntityModel,
-                entityId: asShimmedActionEntity.entityProperties.id,
+                entityId: actionUser.getEntityId(),
               },
               transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
             },
@@ -79,7 +84,7 @@ const config: CombatActionComponentConfig = {
             parent: {
               sceneEntityIdentifier: {
                 type: SceneEntityType.ActionEntityModel,
-                entityId: asShimmedActionEntity.entityProperties.id,
+                entityId: actionUser.getEntityId(),
               },
               transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
             },

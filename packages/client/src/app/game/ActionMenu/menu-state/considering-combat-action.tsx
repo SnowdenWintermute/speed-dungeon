@@ -46,8 +46,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
     const cancelButton = createCancelButton([], () => {
       websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
         characterId,
-        combatActionNameOption: null,
-        combatActionLevel: null,
+        actionAndRankOption: null,
       });
     });
     toReturn[ActionButtonCategory.Top].push(cancelButton);
@@ -103,7 +102,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
               partyOption,
               state.focusedCharacterId
             );
-            focusedCharacter.combatantProperties.selectedActionLevel = null;
+            focusedCharacter.getTargetingProperties().setSelectedActionAndRank(null);
             InputLock.lockInput(partyOption.inputLock);
           }
         });
@@ -118,22 +117,23 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
 
     // CYCLE SCHEMES
     //
-    const { selectedActionLevel } = focusedCharacterResult.combatantProperties;
-    if (selectedActionLevel === null)
+    const selectedActionAndRank = focusedCharacterResult
+      .getTargetingProperties()
+      .getSelectedActionAndRank();
+    if (selectedActionAndRank === null)
       throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_LEVEL_SELECTED);
 
     const combatActionProperties = CombatantProperties.getCombatActionPropertiesIfOwned(
       combatantProperties,
-      this.combatActionName,
-      selectedActionLevel
+      selectedActionAndRank
     );
     if (combatActionProperties instanceof Error) {
       setAlert(combatActionProperties);
       return toReturn;
     }
     if (
-      combatActionProperties.targetingProperties.getTargetingSchemes(selectedActionLevel).length <=
-      1
+      combatActionProperties.targetingProperties.getTargetingSchemes(selectedActionAndRank.rank)
+        .length <= 1
     )
       return toReturn;
 

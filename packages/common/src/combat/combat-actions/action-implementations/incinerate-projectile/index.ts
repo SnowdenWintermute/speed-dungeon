@@ -4,7 +4,6 @@ import {
   ActionEntityBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
-import { CleanupMode } from "../../../../types.js";
 import {
   CombatActionCombatLogProperties,
   CombatActionComponentConfig,
@@ -43,16 +42,11 @@ const config: CombatActionComponentConfig = {
       getHitOutcomeTriggers: (context) => {
         const toReturn: Partial<ActivatedTriggersGameUpdateCommand> = {};
 
-        const { asShimmedActionEntity } = context.combatantContext.combatant.combatantProperties;
-        if (asShimmedActionEntity === undefined)
-          throw new Error("expected user to have asShimmedActionEntity");
+        const { actionUser } = context.actionUserContext;
 
-        if (!asShimmedActionEntity.actionEntityProperties.actionOriginData)
-          asShimmedActionEntity.actionEntityProperties.actionOriginData = {};
+        actionUser.setWasRemovedBeforeHitOutcomes();
 
-        asShimmedActionEntity.actionEntityProperties.actionOriginData.wasIncinerated = true;
-
-        toReturn.actionEntityIdsToHide = [asShimmedActionEntity.entityProperties.id];
+        toReturn.actionEntityIdsToHide = [actionUser.getEntityId()];
 
         toReturn.cosmeticEffectsToStart = [
           {
@@ -60,7 +54,7 @@ const config: CombatActionComponentConfig = {
             parent: {
               sceneEntityIdentifier: {
                 type: SceneEntityType.ActionEntityModel,
-                entityId: asShimmedActionEntity.entityProperties.id,
+                entityId: actionUser.getEntityId(),
               },
               transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
             },

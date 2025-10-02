@@ -1,15 +1,10 @@
 import { ActionTracker } from "../../../../../action-processing/action-tracker.js";
 import { ActionResolutionStepContext } from "../../../../../action-processing/index.js";
-import { CombatantContext } from "../../../../../combatant-context/index.js";
 import { CombatantProperties } from "../../../../../combatants/index.js";
 import { SpeedDungeonGame } from "../../../../../game/index.js";
 import { TargetingCalculator } from "../../../../targeting/targeting-calculator.js";
 import { ActionExecutionPrecondition } from "../../../combat-action-targeting-properties.js";
-import {
-  ActionPayableResource,
-  COMBAT_ACTION_NAME_STRINGS,
-  CombatActionComponent,
-} from "../../../index.js";
+import { ActionPayableResource, CombatActionComponent } from "../../../index.js";
 import { MeleeAttackAnimationType } from "../../attack/determine-melee-attack-animation-type.js";
 
 export enum ActionExecutionPreconditions {
@@ -18,7 +13,6 @@ export enum ActionExecutionPreconditions {
   TargetsAreAlive,
   WasNotCounterattacked,
   WasNotWearing2HWeaponOnPreviousAction,
-  ProjectileWasNotIncinerated,
 }
 
 export const ACTION_EXECUTION_PRECONDITIONS: Record<
@@ -31,7 +25,6 @@ export const ACTION_EXECUTION_PRECONDITIONS: Record<
   [ActionExecutionPreconditions.WasNotCounterattacked]: wasNotCounterattacked,
   [ActionExecutionPreconditions.WasNotWearing2HWeaponOnPreviousAction]:
     wasWearing2HWeaponOnPreviousAction,
-  [ActionExecutionPreconditions.ProjectileWasNotIncinerated]: projectileWasNotIncinerated,
 };
 
 function wasWearing2HWeaponOnPreviousAction(
@@ -53,36 +46,24 @@ function wasNotCounterattacked(
   return !previousTrackerOption?.wasCountered();
 }
 
-function projectileWasNotIncinerated(
-  context: ActionResolutionStepContext,
-  previousTrackerOption: undefined | ActionTracker,
-  self: CombatActionComponent
-) {
-  return !context.tracker.projectileWasIncinerated;
-}
-
 function hasEnoughActionPoints(
   context: ActionResolutionStepContext,
   previousTrackerOption: undefined | ActionTracker,
   self: CombatActionComponent
 ) {
-  const { party, combatant } = context.combatantContext;
-  const { combatantProperties } = combatant;
+  const { party, actionUser } = context.actionUserContext;
+  const combatantProperties = actionUser.getCombatantProperties();
 
-  // @TODO - actually select the action level since some action level might cost more
   const isInCombat = party.battleId !== null;
-  let { selectedActionLevel } = combatantProperties;
+  const selectedActionAndRank = actionUser.getTargetingProperties().getSelectedActionAndRank();
 
-  if (selectedActionLevel === null) {
-    console.info("selectedActionLevel was null, setting to 1");
-    combatantProperties.selectedActionLevel = selectedActionLevel = 1;
-  }
+  if (selectedActionAndRank === null) throw new Error("Expected an action to be selected");
 
   const { costProperties } = self;
   const resourceCosts = costProperties.getResourceCosts(
-    combatantProperties,
+    actionUser,
     isInCombat,
-    selectedActionLevel
+    selectedActionAndRank.rank
   );
   if (resourceCosts === null) return true;
   const actionPointCost = resourceCosts[ActionPayableResource.ActionPoints] || 0;
@@ -98,8 +79,9 @@ function userIsAlive(
   previousTrackerOption: undefined | ActionTracker,
   self: CombatActionComponent
 ) {
-  const { combatant } = context.combatantContext;
-  return !CombatantProperties.isDead(combatant.combatantProperties);
+  const { actionUser } = context.actionUserContext;
+  const combatantProperties = actionUser.getCombatantProperties();
+  return !CombatantProperties.isDead(combatantProperties);
 }
 
 function targetsAreAlive(
@@ -107,7 +89,8 @@ function targetsAreAlive(
   previousTrackerOption: undefined | ActionTracker,
   self: CombatActionComponent
 ) {
-  const { game, party, combatant } = context.combatantContext;
+  const { actionUserContext } = context;
+  const { game, party, actionUser } = actionUserContext;
 
   const targetsOption = context.tracker.actionExecutionIntent.targets;
 
@@ -115,10 +98,7 @@ function targetsAreAlive(
     return false;
   }
 
-  const targetingCalculator = new TargetingCalculator(
-    new CombatantContext(game, party, combatant),
-    null
-  );
+  const targetingCalculator = new TargetingCalculator(actionUserContext, null);
 
   const targetIdsResult = targetingCalculator.getCombatActionTargetIds(self, targetsOption);
   if (targetIdsResult instanceof Error) {

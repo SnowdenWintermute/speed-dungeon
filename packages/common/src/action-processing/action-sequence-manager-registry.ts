@@ -1,12 +1,11 @@
-import { CombatActionExecutionIntent } from "../combat/index.js";
-import { CombatantContext } from "../combatant-context/index.js";
+import { COMBAT_ACTION_NAME_STRINGS, CombatActionExecutionIntent } from "../combat/index.js";
+import { ActionUserContext } from "../action-user-context/index.js";
 import { CombatantSpecies } from "../combatants/combatant-species.js";
-import { Combatant } from "../combatants/index.js";
 import { EntityId, Milliseconds } from "../primatives/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { SequentialIdGenerator } from "../utils/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
-import { ACTION_RESOLUTION_STEP_TYPE_STRINGS } from "./action-steps/index.js";
+import { ACTION_RESOLUTION_STEP_TYPE_STRINGS, ActionIntentAndUser } from "./action-steps/index.js";
 import { ActionTracker } from "./action-tracker.js";
 import { NestedNodeReplayEvent, ReplayEventType } from "./replay-events.js";
 
@@ -38,7 +37,7 @@ export class ActionSequenceManagerRegistry {
   registerAction(
     actionExecutionIntent: CombatActionExecutionIntent,
     replayNode: NestedNodeReplayEvent,
-    combatantContext: CombatantContext,
+    actionUserContext: ActionUserContext,
     previousTrackerInSequenceOption: null | ActionTracker
   ) {
     const id = this.idGenerator.generate();
@@ -46,7 +45,7 @@ export class ActionSequenceManagerRegistry {
       id,
       actionExecutionIntent,
       replayNode,
-      combatantContext,
+      actionUserContext,
       this,
       this.idGenerator,
       previousTrackerInSequenceOption
@@ -56,18 +55,15 @@ export class ActionSequenceManagerRegistry {
     const stepTrackerResult = manager.startProcessingNext();
     if (stepTrackerResult instanceof Error) return stepTrackerResult;
     const initialGameUpdate = stepTrackerResult.currentStep.getGameUpdateCommandOption();
-    this.incrementInputLockReferenceCount();
+
     return initialGameUpdate;
   }
 
   registerActions(
     sequenceManager: ActionSequenceManager,
     trackerOption: null | ActionTracker,
-    combatantContext: CombatantContext,
-    branchingActions: {
-      user: Combatant;
-      actionExecutionIntent: CombatActionExecutionIntent;
-    }[]
+    actionUserContext: ActionUserContext,
+    branchingActions: ActionIntentAndUser[]
   ) {
     for (const action of branchingActions) {
       const nestedReplayNode: NestedNodeReplayEvent = {
@@ -76,9 +72,9 @@ export class ActionSequenceManagerRegistry {
       };
       sequenceManager.replayNode.events.push(nestedReplayNode);
 
-      const modifiedContextWithActionUser = new CombatantContext(
-        combatantContext.game,
-        combatantContext.party,
+      const modifiedContextWithActionUser = new ActionUserContext(
+        actionUserContext.game,
+        actionUserContext.party,
         action.user
       );
 
@@ -98,6 +94,10 @@ export class ActionSequenceManagerRegistry {
         });
       }
     }
+  }
+
+  getInputLockReferenceCount() {
+    return this.inputBlockingActionStepsPendingReferenceCount;
   }
 
   incrementInputLockReferenceCount() {
@@ -138,8 +138,13 @@ export class ActionSequenceManagerRegistry {
     let stepName;
     for (const manager of this.getManagers()) {
       const trackerOption = manager.getCurrentTracker();
-      if (!trackerOption) return 0;
-      const timeToCompletion = trackerOption.currentStep.getTimeToCompletion() || 0;
+      if (!trackerOption) {
+        return 0;
+      } else {
+        //
+      }
+      const timeToCompletion = trackerOption.currentStep.getTimeToCompletion();
+
       if (msToTick === undefined) msToTick = timeToCompletion;
       else if (msToTick > timeToCompletion) {
         msToTick = timeToCompletion;
@@ -150,9 +155,9 @@ export class ActionSequenceManagerRegistry {
     return msToTick || 0;
   }
 
-  processActiveActionSequences(combatantContext: CombatantContext) {
+  processActiveActionSequences(actionUserContext: ActionUserContext) {
     for (const sequenceManager of this.getManagers())
-      sequenceManager.processCurrentStep(combatantContext);
+      sequenceManager.processCurrentStep(actionUserContext);
 
     const timeToTick = this.getShortestTimeToCompletion();
     this.time.ms += timeToTick;

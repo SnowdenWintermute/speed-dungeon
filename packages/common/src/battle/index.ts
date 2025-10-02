@@ -4,16 +4,11 @@ import { FriendOrFoe, TurnOrderManager } from "../combat/index.js";
 import {
   Combatant,
   CombatantCondition,
-  ConditionAppliedBy,
   ConditionWithCombatantIdAppliedTo,
 } from "../combatants/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { EntityId } from "../primatives/index.js";
 import { getAllyAndEnemyBattleGroups } from "./get-ally-and-enemy-battle-groups.js";
-import {
-  CombatantIdsByDisposition,
-  getAllyIdsAndOpponentIdsOption,
-} from "./get-ally-ids-and-opponent-ids-option.js";
 
 export class Battle {
   turnOrderManager: TurnOrderManager;
@@ -28,7 +23,7 @@ export class Battle {
     Battle.refillAllCombatantActionPoints(party);
   }
 
-  static rehydrate(battle: Battle, game: SpeedDungeonGame, party: AdventuringParty) {
+  static getDeserialized(battle: Battle, game: SpeedDungeonGame, party: AdventuringParty) {
     return new Battle(battle.id, battle.groupA, battle.groupB, game, party);
   }
 
@@ -69,7 +64,6 @@ export class Battle {
     battle.groupB.combatantIds = battle.groupB.combatantIds.filter((id) => id !== combatantId);
   }
 
-  static getAllyIdsAndOpponentIdsOption = getAllyIdsAndOpponentIdsOption;
   static getAllyAndEnemyBattleGroups = getAllyAndEnemyBattleGroups;
   static combatantsAreAllies(a: Combatant, b: Combatant, battle: Battle) {
     return (
@@ -80,31 +74,12 @@ export class Battle {
     );
   }
 
-  static getAllyIdsAndOpponentIdsOptionOfShimmedConditionUser(
-    battle: Battle,
-    conditionAppliedTo: EntityId,
-    conditionAppliedBy: ConditionAppliedBy
-  ): CombatantIdsByDisposition {
-    const idsByDispositionOfConditionHolder = Battle.getAllyIdsAndOpponentIdsOption(
-      battle,
-      conditionAppliedTo
-    );
-    switch (conditionAppliedBy.friendOrFoe) {
-      case FriendOrFoe.Friendly:
-        // if applied by a friendly combatant, "ally ids" would be the allies of conditionAppliedTo
-        return idsByDispositionOfConditionHolder;
-      case FriendOrFoe.Hostile:
-        // if applied by a hostile combatant, "ally ids" would be the opponents of conditionAppliedTo
-        return Battle.invertAllyAndOpponentIds(idsByDispositionOfConditionHolder);
-    }
-  }
-
   static invertAllyAndOpponentIds(
-    idsByDisposition: CombatantIdsByDisposition
-  ): CombatantIdsByDisposition {
+    idsByDisposition: Record<FriendOrFoe, EntityId[]>
+  ): Record<FriendOrFoe, EntityId[]> {
     return {
-      allyIds: idsByDisposition.opponentIds,
-      opponentIds: idsByDisposition.allyIds,
+      [FriendOrFoe.Hostile]: idsByDisposition[FriendOrFoe.Friendly],
+      [FriendOrFoe.Friendly]: idsByDisposition[FriendOrFoe.Hostile],
     };
   }
 }

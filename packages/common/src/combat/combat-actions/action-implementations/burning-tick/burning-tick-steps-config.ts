@@ -14,15 +14,16 @@ import { COMBAT_ACTIONS } from "../index.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
-stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
+stepOverrides[ActionResolutionStepType.EvalOnHitOutcomeTriggers] = {
   getCosmeticEffectsToStart: (context) => {
     const { actionExecutionIntent } = context.tracker;
-    const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
+    const targetingCalculator = new TargetingCalculator(context.actionUserContext, null);
 
     const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
       COMBAT_ACTIONS[actionExecutionIntent.actionName],
       actionExecutionIntent.targets
     );
+
     if (targetIdsResult instanceof Error) throw targetIdsResult;
 
     const toReturn: CosmeticEffectOnTargetTransformNode[] = targetIdsResult.map((targetId) =>
@@ -39,6 +40,5 @@ stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
 
 const base = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.VALUE_CHANGE_TICK;
 export const BURNING_TICK_STEPS_CONFIG = createStepsConfig(base, {
-  steps: {},
-  finalSteps: stepOverrides,
+  steps: stepOverrides,
 });

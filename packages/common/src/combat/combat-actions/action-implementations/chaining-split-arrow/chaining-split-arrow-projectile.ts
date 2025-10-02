@@ -2,8 +2,10 @@ import {
   CombatActionCombatLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
+  CombatActionExecutionIntent,
   CombatActionName,
   CombatActionOrigin,
+  FriendOrFoe,
 } from "../../index.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CHAINING_SPLIT_ARROW_PARENT } from "./index.js";
@@ -12,9 +14,7 @@ import {
   CombatActionTarget,
   CombatActionTargetType,
 } from "../../../targeting/combat-action-targets.js";
-import { CombatantContext } from "../../../../combatant-context/index.js";
 import { ActionTracker } from "../../../../action-processing/action-tracker.js";
-import { COMBAT_ACTIONS } from "../index.js";
 import { CombatActionTargetingPropertiesConfig } from "../../combat-action-targeting-properties.js";
 import { BasicRandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
 import { ArrayUtils } from "../../../../utils/array-utils.js";
@@ -29,6 +29,14 @@ import {
   createTargetingPropertiesConfig,
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import { ActionUserContext } from "../../../../action-user-context/index.js";
+import { AdventuringParty } from "../../../../adventuring-party/index.js";
+import {
+  ACTION_EXECUTION_PRECONDITIONS,
+  ActionExecutionPreconditions,
+} from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
+import { ActionResolutionStepContext } from "../../../../action-processing/index.js";
+import { Combatant, CombatantProperties } from "../../../../combatants/index.js";
 
 const targetingPropertiesOverrides: Partial<CombatActionTargetingPropertiesConfig> = {
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.RandomCombatant },
@@ -39,7 +47,7 @@ const targetingPropertiesOverrides: Partial<CombatActionTargetingPropertiesConfi
 
     const filteredPossibleTargetIds = getBouncableTargets(combatantContext, previousTrackerOption);
     if (filteredPossibleTargetIds instanceof Error) return filteredPossibleTargetIds;
-    const { possibleTargetIds, previousTargetId } = filteredPossibleTargetIds;
+    const { possibleTargetIds } = filteredPossibleTargetIds;
 
     if (possibleTargetIds.length === 0)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
@@ -58,6 +66,11 @@ const targetingPropertiesOverrides: Partial<CombatActionTargetingPropertiesConfi
   },
 };
 
+// a projectile can't be alive so don't check if it is
+targetingPropertiesOverrides.executionPreconditions = [
+  ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.TargetsAreAlive],
+];
+
 const targetingProperties = createTargetingPropertiesConfig(
   TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE,
   targetingPropertiesOverrides
@@ -66,7 +79,7 @@ const targetingProperties = createTargetingPropertiesConfig(
 const MAX_BOUNCES = 2;
 
 const hitOutcomeProperties = createHitOutcomeProperties(
-  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BOW_ATTACK,
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.PROJECTILE,
   {}
 );
 
@@ -83,29 +96,39 @@ const config: CombatActionComponentConfig = {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
 
     getChildren: (context) => {
-      let cursor = context.tracker.getPreviousTrackerInSequenceOption();
-      let numBouncesSoFar = 0;
-      while (cursor) {
-        if (
-          cursor.actionExecutionIntent.actionName === CombatActionName.ChainingSplitArrowProjectile
-        )
-          numBouncesSoFar += 1;
-        cursor = cursor.getPreviousTrackerInSequenceOption();
-      }
+      const { actionUserContext, tracker } = context;
+      const { actionUser } = actionUserContext;
 
-      const previousTrackerInSequenceOption = context.tracker.getPreviousTrackerInSequenceOption();
-      if (!previousTrackerInSequenceOption) return [];
+      // ex: if its parent was incinerated by firewall
+      if (actionUser.wasRemovedBeforeHitOutcomes()) return [];
 
-      const filteredPossibleTargetIdsResult = getBouncableTargets(
-        context.combatantContext,
-        context.tracker
-      );
+      const bounceCount = getPreviousBouncesCount(context);
+
+      const filteredPossibleTargetIdsResult = getBouncableTargets(actionUserContext, tracker);
       if (filteredPossibleTargetIdsResult instanceof Error) return [];
+      if (filteredPossibleTargetIdsResult.possibleTargetIds.length === 0) return [];
 
-      if (numBouncesSoFar < MAX_BOUNCES && filteredPossibleTargetIdsResult.possibleTargetIds.length)
-        return [COMBAT_ACTIONS[CombatActionName.ChainingSplitArrowProjectile]];
+      const noValidTargetsRemain = !filteredPossibleTargetIdsResult.possibleTargetIds.length;
+      const bounceLimitReached = bounceCount >= MAX_BOUNCES;
 
-      return [];
+      const randomTargetIdResult = ArrayUtils.chooseRandom(
+        filteredPossibleTargetIdsResult.possibleTargetIds,
+        new BasicRandomNumberGenerator()
+      );
+      if (randomTargetIdResult instanceof Error) throw randomTargetIdResult;
+      const targetId = randomTargetIdResult;
+
+      if (bounceLimitReached || noValidTargetsRemain) return [];
+
+      const { actionExecutionIntent } = tracker;
+      const { rank } = actionExecutionIntent;
+
+      return [
+        new CombatActionExecutionIntent(CombatActionName.ChainingSplitArrowProjectile, rank, {
+          type: CombatActionTargetType.Single,
+          targetId,
+        }),
+      ];
     },
     getParent: () => CHAINING_SPLIT_ARROW_PARENT,
   },
@@ -117,7 +140,7 @@ export const CHAINING_SPLIT_ARROW_PROJECTILE = new CombatActionComposite(
 );
 
 function getBouncableTargets(
-  combatantContext: CombatantContext,
+  actionUserContext: ActionUserContext,
   previousTrackerInSequenceOption: ActionTracker
 ) {
   const previousTargetInChain = previousTrackerInSequenceOption.actionExecutionIntent.targets;
@@ -128,12 +151,38 @@ function getBouncableTargets(
   })();
   if (previousTargetIdResult instanceof Error) return previousTargetIdResult;
 
-  const opponents = combatantContext.getOpponents();
+  const { actionUser, party } = actionUserContext;
+  const entityIdsByDisposition = actionUser.getAllyAndOpponentIds(
+    party,
+    actionUserContext.getBattleOption()
+  );
+
+  const opponentIds = entityIdsByDisposition[FriendOrFoe.Hostile];
+  const opponents = AdventuringParty.getCombatants(party, opponentIds);
+
+  const isValidTarget = (combatant: Combatant) =>
+    !CombatantProperties.isDead(combatant.combatantProperties) &&
+    combatant.entityProperties.id !== previousTargetIdResult;
+
+  const possibleTargetIds = opponents
+    .filter(isValidTarget)
+    .map((combatant) => combatant.entityProperties.id);
+
   return {
-    possibleTargetIds: opponents
-      .filter((combatant) => combatant.combatantProperties.hitPoints > 0)
-      .map((combatant) => combatant.entityProperties.id)
-      .filter((id) => id !== previousTargetIdResult),
+    possibleTargetIds,
     previousTargetId: previousTargetIdResult,
   };
+}
+
+function getPreviousBouncesCount(context: ActionResolutionStepContext) {
+  let cursor = context.tracker.getPreviousTrackerInSequenceOption();
+  let bounceCount = 0;
+  while (cursor) {
+    const lookingAtProjectileActionTracker =
+      cursor.actionExecutionIntent.actionName === CombatActionName.ChainingSplitArrowProjectile;
+    if (lookingAtProjectileActionTracker) bounceCount += 1;
+    cursor = cursor.getPreviousTrackerInSequenceOption();
+  }
+
+  return bounceCount;
 }

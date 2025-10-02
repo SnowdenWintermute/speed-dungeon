@@ -10,10 +10,9 @@ import { USE_BLUE_AUTOINJECTOR } from "./consumables/blue-autoinjector.js";
 import { USE_GREEN_AUTOINJECTOR } from "./consumables/green-autoinjector.js";
 import { EXPLODING_ARROW_PROJECTILE } from "./exploding-arrow/exploding-arrow-projectile.js";
 import { EXPLODING_ARROW_PARENT } from "./exploding-arrow/index.js";
-import { EXPLOSION } from "./explosion/index.js";
+import { SPAWN_EXPLOSION } from "./explosion/spawn-explosion.js";
 import { ICE_BOLT_PARENT } from "./ice-bolt/index.js";
 import { ICE_BOLT_PROJECTILE } from "./ice-bolt/ice-bolt-projectile.js";
-import { ICE_BURST } from "./ice-burst/index.js";
 import { COUNTER_ATTACK } from "./counter-attack/index.js";
 import { COUNTER_ATTACK_MELEE_MAIN_HAND } from "./counter-attack/counter-attack-melee-main-hand.js";
 import { COUNTER_ATTACK_RANGED_MAIN_HAND } from "./counter-attack/counter-attack-ranged-main-hand.js";
@@ -31,6 +30,9 @@ import { FIREWALL_BURN } from "./firewall/firewall-burn.js";
 import { FIREWALL_PASS_TURN } from "./firewall/firewall-pass-turn.js";
 import { IGNITE_PROJECTILE } from "./ignite-projectile/index.js";
 import { INCINERATE_PROJECTILE } from "./incinerate-projectile/index.js";
+import { ICE_BURST_PARENT } from "./ice-burst/index.js";
+import { ICE_BURST_EXPLOSION } from "./ice-burst/ice-burst-explosion.js";
+import { EXECUTE_EXPLOSION } from "./explosion/execute-explosion.js";
 
 export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Attack]: ATTACK,
@@ -49,10 +51,12 @@ export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.ChainingSplitArrowProjectile]: CHAINING_SPLIT_ARROW_PROJECTILE,
   [CombatActionName.ExplodingArrowParent]: EXPLODING_ARROW_PARENT,
   [CombatActionName.ExplodingArrowProjectile]: EXPLODING_ARROW_PROJECTILE,
-  [CombatActionName.Explosion]: EXPLOSION,
+  [CombatActionName.SpawnExplosion]: SPAWN_EXPLOSION,
+  [CombatActionName.ExecuteExplosion]: EXECUTE_EXPLOSION,
   [CombatActionName.IceBoltParent]: ICE_BOLT_PARENT,
   [CombatActionName.IceBoltProjectile]: ICE_BOLT_PROJECTILE,
-  [CombatActionName.IceBurst]: ICE_BURST,
+  [CombatActionName.IceBurstParent]: ICE_BURST_PARENT,
+  [CombatActionName.IceBurstExplosion]: ICE_BURST_EXPLOSION,
   [CombatActionName.Fire]: FIRE,
   [CombatActionName.Healing]: HEALING,
   [CombatActionName.BurningTick]: BURNING_TICK,

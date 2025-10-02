@@ -1,5 +1,5 @@
+import { ActionAndRank } from "../../../action-user-context/action-user-targeting-properties.js";
 import { Combatant } from "../../../combatants/index.js";
-import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 import { CombatActionTarget } from "../../targeting/combat-action-targets.js";
 import { AIBehaviorContext } from "../ai-context.js";
@@ -17,24 +17,29 @@ export class SelectActionExecutionIntent implements BehaviorNode {
     const targetsOption = this.targetsOptionGetter();
     if (actionNameOption === null || targetsOption === undefined) return BehaviorNodeState.Failure;
 
-    const action = COMBAT_ACTIONS[actionNameOption];
     // @TODO - actually consider higher levels and set this value to something
     const level = this.behaviorContext.currentActionLevelConsidering || 1;
-    const actionUseIsValidResult = action.useIsValid(
+
+    const actionAndRank = new ActionAndRank(actionNameOption, level);
+    const { game, party } = this.behaviorContext.actionUserContext;
+
+    const actionUseIsValidResult = this.combatant.canUseAction(
       targetsOption,
-      level,
-      this.behaviorContext.combatantContext
+      actionAndRank,
+      game,
+      party
     );
     if (actionUseIsValidResult instanceof Error) throw actionUseIsValidResult;
 
     this.behaviorContext.selectedActionIntent = new CombatActionExecutionIntent(
       actionNameOption,
-      targetsOption,
-      level
+      level,
+      targetsOption
     );
-    this.combatant.combatantProperties.selectedCombatAction = actionNameOption;
-    this.combatant.combatantProperties.combatActionTarget = targetsOption;
-    this.combatant.combatantProperties.selectedActionLevel = level;
+
+    const targetingProperties = this.combatant.getTargetingProperties();
+    targetingProperties.setSelectedActionAndRank(actionAndRank);
+    targetingProperties.setSelectedTarget(targetsOption);
 
     return BehaviorNodeState.Success;
   }

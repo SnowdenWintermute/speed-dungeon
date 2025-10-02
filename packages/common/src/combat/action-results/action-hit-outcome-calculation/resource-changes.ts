@@ -1,6 +1,5 @@
 import { immerable } from "immer";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
-import { CombatantContext } from "../../../combatant-context/index.js";
 import { CombatantProperties, ThreatType } from "../../../combatants/index.js";
 import { EntityId } from "../../../primatives/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
@@ -20,16 +19,14 @@ export abstract class ResourceChanges<T> {
     return Object.entries(this.changes);
   }
 
-  abstract applyToGame(combatantContext: CombatantContext): void;
+  abstract applyToGame(party: AdventuringParty): void;
 }
 
 export class HitPointChanges extends ResourceChanges<ResourceChange> {
   constructor() {
     super();
   }
-  applyToGame(combatantContext: CombatantContext) {
-    const { game, party } = combatantContext;
-
+  applyToGame(party: AdventuringParty) {
     const combatantsKilled: EntityId[] = [];
 
     for (const [targetId, hpChange] of Object.entries(this.changes)) {
@@ -73,9 +70,7 @@ export class ManaChanges extends ResourceChanges<ManaChange> {
     super();
   }
 
-  applyToGame(combatantContext: CombatantContext) {
-    const { party } = combatantContext;
-
+  applyToGame(party: AdventuringParty) {
     for (const [targetId, change] of Object.entries(this.changes)) {
       const targetResult = AdventuringParty.getCombatant(party, targetId);
       if (targetResult instanceof Error) throw targetResult;
