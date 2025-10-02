@@ -57,7 +57,7 @@ export class ReplayTreeProcessor {
         ids.push(...childIds);
       }
     }
-    return ids;
+    return ids.sort((a, b) => a - b);
   }
 
   processBranches() {
@@ -67,7 +67,12 @@ export class ReplayTreeProcessor {
       if (!branch) continue;
       if (branch.isDoneProcessing()) this.activeBranches.splice(i, 1);
       let branchIsComplete = branch.isDoneProcessing();
-      if (!branchIsComplete) branch.getCurrentGameUpdate()?.tryToCompleteInSequence(this);
+
+      const currentUpdateTrackerOption = branch.getCurrentGameUpdate();
+      if (currentUpdateTrackerOption && !currentUpdateTrackerOption.getIsComplete()) {
+        currentUpdateTrackerOption.tryToCompleteInSequence(this);
+      }
+
       let currentStepComplete = branch.currentStepIsComplete();
 
       let safetyCounter = -1;
@@ -80,10 +85,15 @@ export class ReplayTreeProcessor {
           );
         }
 
-        const completedUpdateOption = branch.getCurrentGameUpdate();
-
         branch.startProcessingNext();
-        if (branch.getCurrentGameUpdate() === null) break;
+
+        const currentUpdateTracker = branch.getCurrentGameUpdate();
+        if (currentUpdateTracker === null) break;
+
+        if (currentUpdateTracker && !currentUpdateTracker.getIsComplete()) {
+          currentUpdateTracker.tryToCompleteInSequence(this);
+        }
+
         currentStepComplete = branch.currentStepIsComplete();
         branchIsComplete = branch.isDoneProcessing();
       }
