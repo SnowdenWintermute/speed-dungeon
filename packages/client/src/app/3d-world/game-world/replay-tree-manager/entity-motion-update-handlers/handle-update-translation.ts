@@ -10,16 +10,16 @@ import { plainToInstance } from "class-transformer";
 import { EntityMotionUpdateCompletionTracker } from "./entity-motion-update-completion-tracker";
 import { SceneEntity } from "@/app/3d-world/scene-entities";
 import { getSceneEntityToUpdate } from "./get-scene-entity-to-update";
+import { GameUpdateTracker } from "..";
 
 export function handleUpdateTranslation(
   motionUpdate: EntityMotionUpdate,
   translation: EntityTranslation,
   cosmeticDestinationYOption: SceneEntityChildTransformNodeIdentifier | undefined,
   updateCompletionTracker: EntityMotionUpdateCompletionTracker,
-  gameUpdate: {
-    command: CombatantMotionGameUpdateCommand | ActionEntityMotionGameUpdateCommand;
-    isComplete: boolean;
-  },
+  gameUpdate: GameUpdateTracker<
+    CombatantMotionGameUpdateCommand | ActionEntityMotionGameUpdateCommand
+  >,
   onComplete: () => void
 ) {
   const toUpdate = getSceneEntityToUpdate(motionUpdate);
@@ -38,7 +38,7 @@ export function handleUpdateTranslation(
     updateCompletionTracker.setTranslationComplete();
 
     if (updateCompletionTracker.isComplete()) {
-      gameUpdate.isComplete = true;
+      gameUpdate.setAsQueuedToComplete();
       onComplete();
     }
   });

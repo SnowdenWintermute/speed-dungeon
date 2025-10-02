@@ -1,10 +1,8 @@
 import getCurrentParty from "@/utils/getCurrentParty";
 import { useGameStore } from "@/stores/game-store";
 import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionCompletionUpdateCommand,
   AdventuringParty,
-  COMBAT_ACTION_NAME_STRINGS,
   CombatantProperties,
   CombatantTurnTracker,
   ERROR_MESSAGES,
@@ -12,11 +10,11 @@ import {
 } from "@speed-dungeon/common";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { handleThreatChangesUpdate } from "./handle-threat-changes";
+import { GameUpdateTracker } from ".";
 
-export async function actionCompletionGameUpdateHandler(update: {
-  command: ActionCompletionUpdateCommand;
-  isComplete: boolean;
-}) {
+export async function actionCompletionGameUpdateHandler(
+  update: GameUpdateTracker<ActionCompletionUpdateCommand>
+) {
   if (update.command.endActiveCombatantTurn) {
     useGameStore.getState().mutateState((state) => {
       const battleId = state.getCurrentBattleId();
@@ -62,5 +60,5 @@ export async function actionCompletionGameUpdateHandler(update: {
 
   handleThreatChangesUpdate(update.command);
 
-  update.isComplete = true;
+  update.setAsQueuedToComplete();
 }

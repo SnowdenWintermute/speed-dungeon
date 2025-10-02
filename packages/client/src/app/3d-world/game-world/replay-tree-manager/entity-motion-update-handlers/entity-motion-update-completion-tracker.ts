@@ -5,6 +5,7 @@ import {
   EntityAnimation,
   Milliseconds,
 } from "@speed-dungeon/common";
+import { GameUpdateTracker } from "..";
 
 export class EntityMotionUpdateCompletionTracker {
   private translationIsComplete: boolean = false;
@@ -16,10 +17,9 @@ export class EntityMotionUpdateCompletionTracker {
     animationOption: undefined | EntityAnimation,
     hasTranslation: boolean,
     delayOption: Milliseconds,
-    gameUpdate: {
-      command: CombatantMotionGameUpdateCommand | ActionEntityMotionGameUpdateCommand;
-      isComplete: boolean;
-    }
+    gameUpdate: GameUpdateTracker<
+      CombatantMotionGameUpdateCommand | ActionEntityMotionGameUpdateCommand
+    >
   ) {
     if (!animationOption) this.animationIsComplete = true;
     else if (animationOption.timing.type === AnimationTimingType.Looping)
@@ -35,7 +35,7 @@ export class EntityMotionUpdateCompletionTracker {
         this.setDelayComplete();
 
         if (this.isComplete()) {
-          gameUpdate.isComplete = true;
+          gameUpdate.setAsQueuedToComplete();
         }
       }, this.delay);
     }

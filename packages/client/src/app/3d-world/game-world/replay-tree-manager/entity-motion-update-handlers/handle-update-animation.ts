@@ -6,20 +6,19 @@ import {
   CombatantMotionGameUpdateCommand,
   DynamicAnimationName,
   EntityAnimation,
-  SKELETAL_ANIMATION_NAME_STRINGS,
   SkeletalAnimationName,
 } from "@speed-dungeon/common";
 import { EntityMotionUpdateCompletionTracker } from "./entity-motion-update-completion-tracker";
 import { ManagedAnimationOptions } from "@/app/3d-world/scene-entities/model-animation-managers";
+import { GameUpdateTracker } from "..";
 
 export function handleUpdateAnimation(
   animationManager: SkeletalAnimationManager | DynamicAnimationManager,
   animation: EntityAnimation,
   updateCompletionTracker: EntityMotionUpdateCompletionTracker,
-  gameUpdate: {
-    command: CombatantMotionGameUpdateCommand | ActionEntityMotionGameUpdateCommand;
-    isComplete: boolean;
-  },
+  gameUpdate: GameUpdateTracker<
+    CombatantMotionGameUpdateCommand | ActionEntityMotionGameUpdateCommand
+  >,
   onComplete: () => void
 ) {
   const shouldLoop = animation.timing.type === AnimationTimingType.Looping;
@@ -35,7 +34,7 @@ export function handleUpdateAnimation(
       if (animation.timing.type === AnimationTimingType.Looping) return;
       updateCompletionTracker.setAnimationComplete();
 
-      if (updateCompletionTracker.isComplete()) gameUpdate.isComplete = true;
+      if (updateCompletionTracker.isComplete()) gameUpdate.setAsQueuedToComplete();
       onComplete();
     },
   };

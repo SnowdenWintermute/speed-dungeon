@@ -1,9 +1,7 @@
 import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionEntityMotionGameUpdateCommand,
   AdventuringParty,
   AnimationType,
-  COMBAT_ACTION_NAME_STRINGS,
   CleanupMode,
   CombatantMotionGameUpdateCommand,
   CombatantMotionUpdate,
@@ -29,12 +27,10 @@ import { handleStartPointingTowardEntity } from "./handle-start-pointing-toward"
 import { handleEquipmentAnimations } from "./handle-equipment-animations";
 import { useGameStore } from "@/stores/game-store";
 import getParty from "@/utils/getParty";
+import { GameUpdateTracker } from "..";
 
 export function handleEntityMotionUpdate(
-  update: {
-    command: ActionEntityMotionGameUpdateCommand | CombatantMotionGameUpdateCommand;
-    isComplete: boolean;
-  },
+  update: GameUpdateTracker<ActionEntityMotionGameUpdateCommand | CombatantMotionGameUpdateCommand>,
   motionUpdate: EntityMotionUpdate,
   isMainUpdate: boolean
 ) {
@@ -139,7 +135,7 @@ export function handleEntityMotionUpdate(
   }
 
   if (isMainUpdate && updateCompletionTracker.isComplete()) {
-    update.isComplete = true;
+    update.setAsQueuedToComplete();
   }
 }
 
@@ -162,10 +158,9 @@ function despawnAndUnregisterActionEntity(entityId: EntityId, cleanupMode: Clean
 
 function handleCombatantMotionUpdate(
   motionUpdate: CombatantMotionUpdate,
-  parentUpdate: {
-    command: ActionEntityMotionGameUpdateCommand | CombatantMotionGameUpdateCommand;
-    isComplete: boolean;
-  }
+  parentUpdate: GameUpdateTracker<
+    ActionEntityMotionGameUpdateCommand | CombatantMotionGameUpdateCommand
+  >
 ): { onTranslationComplete: () => void; onAnimationComplete: () => void } {
   const toReturn = {
     onAnimationComplete: () => {},
@@ -183,7 +178,7 @@ function handleCombatantMotionUpdate(
   // this happens if a combatant dies from getting counterattacked and the server
   // tells them to "return home"
   if (CombatantProperties.isDead(combatant.combatantProperties)) {
-    parentUpdate.isComplete = true;
+    parentUpdate.setAsQueuedToComplete();
     return toReturn;
   }
 

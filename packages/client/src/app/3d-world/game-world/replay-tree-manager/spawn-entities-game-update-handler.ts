@@ -16,16 +16,16 @@ import { handleStartPointingTowardEntity } from "./entity-motion-update-handlers
 import { handleLockRotationToFace } from "./entity-motion-update-handlers/handle-lock-rotation-to-face";
 import { useGameStore } from "@/stores/game-store";
 import getParty from "@/utils/getParty";
+import { GameUpdateTracker } from ".";
 
-export async function spawnEntitiesGameUpdateHandler(update: {
-  command: SpawnEntitiesGameUpdateCommand;
-  isComplete: boolean;
-}) {
+export async function spawnEntitiesGameUpdateHandler(
+  update: GameUpdateTracker<SpawnEntitiesGameUpdateCommand>
+) {
   const { command } = update;
   for (const entity of command.entities) {
     if (entity.type !== SpawnableEntityType.ActionEntity) {
       console.error("not implemented spawning entities other than action enities in replay tree");
-      update.isComplete = true;
+      update.setAsQueuedToComplete();
       return;
     }
 
@@ -52,7 +52,7 @@ export async function spawnEntitiesGameUpdateHandler(update: {
       actionEntityProperties.name
     );
 
-    update.isComplete = true;
+    update.setAsQueuedToComplete();
 
     getGameWorld().actionEntityManager.register(model);
 

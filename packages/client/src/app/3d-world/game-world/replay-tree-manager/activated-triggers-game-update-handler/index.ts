@@ -21,12 +21,12 @@ import { handleAppliedConditions } from "./handle-applied-conditions";
 import { handleRemovedConditionStacks } from "./handle-removed-condition-stacks";
 import { handleRemovedConditionIds } from "./handle-removed-condition-ids";
 import { handleHitPointChanges } from "./handle-hit-point-changes";
+import { GameUpdateTracker } from "..";
 
 // @REFACTOR - break into smaller functions
-export async function activatedTriggersGameUpdateHandler(update: {
-  command: ActivatedTriggersGameUpdateCommand;
-  isComplete: boolean;
-}) {
+export async function activatedTriggersGameUpdateHandler(
+  update: GameUpdateTracker<ActivatedTriggersGameUpdateCommand>
+) {
   const { command } = update;
 
   // keep track outside of the mutateState so we can post messages after mutating state
@@ -122,5 +122,5 @@ export async function activatedTriggersGameUpdateHandler(update: {
 
   handleHitPointChanges(command);
 
-  update.isComplete = true;
+  update.setAsQueuedToComplete();
 }

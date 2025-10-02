@@ -8,11 +8,11 @@ import {
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { useGameStore } from "@/stores/game-store";
+import { GameUpdateTracker } from ".";
 
-export async function resourcesPaidGameUpdateHandler(update: {
-  command: ResourcesPaidGameUpdateCommand;
-  isComplete: boolean;
-}) {
+export async function resourcesPaidGameUpdateHandler(
+  update: GameUpdateTracker<ResourcesPaidGameUpdateCommand>
+) {
   // deduct the resources
   // enqueue the floating text messages
   const { command } = update;
@@ -40,5 +40,5 @@ export async function resourcesPaidGameUpdateHandler(update: {
     }
   });
 
-  update.isComplete = true;
+  update.setAsQueuedToComplete();
 }

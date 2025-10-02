@@ -177,7 +177,7 @@ export class ReplayBranchProcessor {
       return;
     }
 
-    this.currentGameUpdateOption = { command: node.gameUpdate, isComplete: false };
+    this.currentGameUpdateOption = new GameUpdateTracker(node.gameUpdate);
 
     // Any update may include cosmetic effect updates
     const cosmeticEffectsToStartOption =
