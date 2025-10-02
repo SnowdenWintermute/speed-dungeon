@@ -209,30 +209,15 @@ export abstract class CombatantCondition implements IActionUser {
 
   static removeByNameFromCombatant(name: CombatantConditionName, combatant: Combatant) {
     const { combatantProperties } = combatant;
-    console.log(
-      "trying to remove condition by name from combatant",
-      COMBATANT_CONDITION_NAME_STRINGS[name],
-      combatant.getEntityId()
-    );
     combatantProperties.conditions = combatantProperties.conditions.filter((existingCondition) => {
-      if (existingCondition.name !== name) console.log("removed it");
       existingCondition.name !== name;
     });
-    console.log(
-      "after removal attempt:",
-      combatantProperties.conditions.map((condition) => condition.getName())
-    );
   }
 
   static replaceExisting(condition: CombatantCondition, combatant: Combatant) {
     CombatantCondition.removeByNameFromCombatant(condition.name, combatant);
     const { combatantProperties } = combatant;
     combatantProperties.conditions.push(condition);
-    console.log(
-      "after condition replacement:",
-      combatantProperties.conditions.map((condition) => condition.getName()),
-      combatant.getEntityId()
-    );
   }
 
   /* returns true if condition was preexisting */
@@ -242,14 +227,6 @@ export abstract class CombatantCondition implements IActionUser {
     battleOption: null | Battle,
     party: AdventuringParty
   ) {
-    console.log(
-      "attempting to apply condition:",
-      condition.getEntityId(),
-      condition.getName(),
-      "to combatant:",
-      combatant.getEntityId()
-    );
-
     let wasExisting = false;
     const { combatantProperties } = combatant;
     combatantProperties.conditions.forEach((existingCondition) => {
@@ -271,7 +248,6 @@ export abstract class CombatantCondition implements IActionUser {
 
       // if stackable and of same level, add to stacks
       if (existingCondition.stacksOption) {
-        console.log("existing condition of same name, adding stacks");
         const canHoldMoreStacks =
           existingCondition.stacksOption.max > existingCondition.stacksOption.current;
         if (canHoldMoreStacks) {
@@ -330,7 +306,6 @@ export abstract class CombatantCondition implements IActionUser {
     let removed: CombatantCondition | undefined = undefined;
     combatantProperties.conditions = combatantProperties.conditions.filter((condition) => {
       if (condition.id === conditionId) {
-        console.log("removing condition by id:", conditionId, combatant.getEntityId());
         removed = condition;
       }
       return condition.id !== conditionId;
@@ -345,8 +320,6 @@ export abstract class CombatantCondition implements IActionUser {
     numberToRemove: number
   ): CombatantCondition | undefined {
     const { combatantProperties } = combatant;
-
-    console.log("removing stacks for conditionId:", conditionId);
 
     for (const condition of combatantProperties.conditions) {
       if (condition.id !== conditionId) continue;

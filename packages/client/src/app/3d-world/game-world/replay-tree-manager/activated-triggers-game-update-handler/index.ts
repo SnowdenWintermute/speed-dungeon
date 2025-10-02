@@ -61,37 +61,14 @@ export async function activatedTriggersGameUpdateHandler(
     }
 
     if (appliedConditions) {
-      console.log(
-        COMBAT_ACTION_NAME_STRINGS[command.actionName],
-        "step",
-        ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step],
-        "appliedConditions:",
-        Object.entries(appliedConditions).map(([combatantId, conditions]) =>
-          Object.values(conditions)
-        )
-      );
       handleAppliedConditions(appliedConditions, party, battleOption);
     }
 
     if (removedConditionStacks) {
-      console.log(
-        COMBAT_ACTION_NAME_STRINGS[command.actionName],
-        "step",
-        ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step],
-        "removedConditionStacks:",
-        Object.keys(removedConditionStacks)
-      );
       handleRemovedConditionStacks(removedConditionStacks, party);
     }
 
     if (removedConditionIds) {
-      console.log(
-        COMBAT_ACTION_NAME_STRINGS[command.actionName],
-        "step",
-        ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step],
-        "removedConditionIds:",
-        JSON.stringify(removedConditionIds)
-      );
       handleRemovedConditionIds(removedConditionIds, party);
     }
 

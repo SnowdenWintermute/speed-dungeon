@@ -14,6 +14,10 @@ export class GameUpdateTracker<T extends GameUpdateCommand> {
     return this.isComplete;
   }
 
+  /** Replay events have a completionOrderId. In the interest of making sure we start the next
+   * event in the correct sequenece as defined on the server, when the client has finished playing
+   * back the replay event, mark it as ready to be completed. We'll mark it as truly completed
+   * in the game loop if it is the next expected completionOrderId to complete. */
   setAsQueuedToComplete() {
     this.shouldCompleteInSequence = true;
   }
@@ -25,9 +29,9 @@ export class GameUpdateTracker<T extends GameUpdateCommand> {
     };
   }
 
+  /** Check if next in line to complete */
   tryToCompleteInSequence(parentReplayTreeProcessor: ReplayTreeProcessor) {
     if (!this.shouldCompleteInSequence) {
-      console.log("not ready to complete in sequence");
       return;
     }
 
