@@ -5,7 +5,11 @@ import {
   CombatActionName,
   createGenericSpellCastMessageProperties,
 } from "../../index.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import {
+  ActionResolutionStepType,
+  ActivatedTriggersGameUpdateCommand,
+  GameUpdateCommandType,
+} from "../../../../action-processing/index.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
@@ -16,8 +20,11 @@ import {
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { CosmeticEffectInstructionFactory } from "../generic-action-templates/cosmetic-effect-factories/index.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import { ProjectileFactory } from "../generic-action-templates/projectile-factory.js";
-import { HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
+import {
+  createHitOutcomeProperties,
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
+} from "../generic-action-templates/hit-outcome-properties-templates/index.js";
+import { EntityId } from "../../../../primatives/index.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
 
@@ -29,26 +36,6 @@ stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
         CosmeticEffectNames.LightParticleAccumulation,
         context
       ),
-    ];
-  },
-};
-
-stepsConfig.steps[ActionResolutionStepType.OnActivationSpawnEntity] = {
-  getSpawnableEntities: (context) => {
-    const { rank } = context.tracker.actionExecutionIntent;
-    const petSlot = rank - 1;
-    console.log("pet slot:", petSlot);
-
-    const { actionUserContext } = context;
-    const { party, actionUser } = actionUserContext;
-
-    const pet = party.getPet(actionUser.getEntityId(), petSlot);
-
-    return [
-      {
-        type: SpawnableEntityType.Combatant,
-        combatant: pet,
-      },
     ];
   },
 };
@@ -70,12 +57,33 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL;
 const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
 
+const hitOutcomeProperties = createHitOutcomeProperties(
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.THREATLESS_ACTION,
+  {
+    getOnUseTriggers: (context) => {
+      const { rank } = context.tracker.actionExecutionIntent;
+      const petSlot = rank - 1;
+      console.log("pet slot:", petSlot);
+
+      const { actionUserContext } = context;
+      const { party, actionUser } = actionUserContext;
+      const pet = party.getPetByOwnerAndSlot(actionUser.getEntityId(), petSlot);
+
+      const toReturn: Partial<ActivatedTriggersGameUpdateCommand> = {
+        petIdsSummoned: [pet.getEntityId()],
+      };
+
+      return toReturn;
+    },
+  }
+);
+
 const config: CombatActionComponentConfig = {
   description: "Summon a creature companion",
   prerequisiteAbilities: [],
   combatLogMessageProperties: createGenericSpellCastMessageProperties(CombatActionName.SummonPet),
   targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME(),
-  hitOutcomeProperties: HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.THREATLESS_ACTION(),
+  hitOutcomeProperties,
   costProperties,
   stepsConfig,
 

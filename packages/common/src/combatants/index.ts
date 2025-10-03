@@ -323,10 +323,13 @@ export class CombatantProperties {
   // ITEMS
   equipment: CombatantEquipment = new CombatantEquipment();
   inventory: Inventory = new Inventory();
+
   // TARGETING
   targetingProperties: ActionUserTargetingProperties = new ActionUserTargetingProperties();
+
   // THREAT
   threatManager?: ThreatManager;
+
   // UNSORTED
   deepestFloorReached: number = 1;
   position: Vector3;

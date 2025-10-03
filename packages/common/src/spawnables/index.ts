@@ -1,5 +1,6 @@
 import { ActionEntity } from "../action-entities/index.js";
 import { Combatant } from "../combatants/index.js";
+import { EntityId } from "../primatives/index.js";
 
 export enum SpawnableEntityType {
   Combatant,
@@ -11,9 +12,14 @@ export const SPAWNABLE_ENTITY_TYPE_STRINGS: Record<SpawnableEntityType, string> 
   [SpawnableEntityType.ActionEntity]: "Action Entity",
 };
 
+export interface PetProperties {
+  ownerId: EntityId;
+}
+
 export type SpawnedCombatant = {
   type: SpawnableEntityType.Combatant;
   combatant: Combatant;
+  petProperties: PetProperties;
 };
 
 export type SpawnedActionEntity = {

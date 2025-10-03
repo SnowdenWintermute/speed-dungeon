@@ -155,6 +155,7 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   actionEntityIdsDespawned?: { id: EntityId; cleanupMode: CleanupMode }[];
   actionEntityIdsToHide?: EntityId[];
   actionEntityChanges?: Record<EntityId, Partial<ActionEntityActionOriginData>>;
+  petIdsSummoned?: EntityId[];
 }
 
 export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {

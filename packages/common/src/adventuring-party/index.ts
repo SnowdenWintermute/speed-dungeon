@@ -16,6 +16,8 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import { ActionEntity, ActionEntityName } from "../action-entities/index.js";
 import { Battle } from "../battle/index.js";
 import { FriendOrFoe, TurnTrackerEntityType } from "../combat/index.js";
+import { handleSummonPet } from "./handle-summon-pet.js";
+import { MAXIMUM_PET_SLOTS } from "../app-consts.js";
 export * from "./get-item-in-party.js";
 export * from "./dungeon-room.js";
 export * from "./update-player-readiness.js";
@@ -36,6 +38,7 @@ export class AdventuringParty {
   characters: Record<EntityId, Combatant> = {};
   characterPositions: EntityId[] = [];
   private unsummonedPetsByOwnerId: { [ownerId: EntityId]: Combatant[] } = {};
+  summonedCharacterPets: Record<EntityId, Combatant> = {};
   characterPetPositions: EntityId[] = [];
 
   actionEntities: Record<EntityId, ActionEntity> = {};
@@ -149,19 +152,27 @@ export class AdventuringParty {
     this.unsummonedPetsByOwnerId[ownerId] = pets;
   }
 
-  getPet(ownerId: EntityId, petSlot: number) {
+  getPetByOwnerAndSlot(ownerId: EntityId, petSlot: number) {
     const petOption = this.unsummonedPetsByOwnerId[ownerId]?.[petSlot];
     if (petOption === undefined) throw new Error("no pet was found in the provided slot index");
     return petOption;
   }
 
-  static registerCombatant(
-    party: AdventuringParty,
-    combatant: Combatant,
-    battleOption: null | Battle
-  ) {
-    console.log("tried to register a combatant:", combatant);
+  getPetAndOwnerByPetId(petId: EntityId) {
+    for (const [entityId, combatant] of Object.entries(this.characters)) {
+      for (let slotIndex = 0; slotIndex < MAXIMUM_PET_SLOTS; slotIndex += 1) {
+        try {
+          const pet = this.getPetByOwnerAndSlot(entityId, slotIndex);
+          return { pet, ownerId: entityId };
+        } catch {
+          // no pet found in that slot
+        }
+      }
+    }
+    throw new Error("no pet was found in the provided slot index");
   }
+
+  static handleSummonPet = handleSummonPet;
 
   static registerActionEntity(
     party: AdventuringParty,

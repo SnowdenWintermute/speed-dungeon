@@ -12,6 +12,7 @@ import {
 import { Combatant } from "../../combatants/index.js";
 import { DurabilityLossCondition } from "../../combat/combat-actions/combat-action-durability-loss-condition.js";
 import { DurabilityChangesByEntityId } from "../../durability/index.js";
+import { AdventuringParty } from "../../adventuring-party/index.js";
 
 const stepType = ActionResolutionStepType.EvalOnUseTriggers;
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
@@ -26,13 +27,20 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     super(stepType, context, gameUpdateCommand);
 
     const { tracker, actionUserContext } = context;
-    const { game, party, actionUser } = actionUserContext;
+    const { party, actionUser } = actionUserContext;
 
     const { actionName } = tracker.actionExecutionIntent;
     const action = COMBAT_ACTIONS[actionName];
 
     const onUseTriggers = action.hitOutcomeProperties.getOnUseTriggers(context);
     Object.assign(gameUpdateCommand, onUseTriggers);
+
+    const { petIdsSummoned } = onUseTriggers;
+    if (petIdsSummoned) {
+      for (const petId of petIdsSummoned) {
+        AdventuringParty.handleSummonPet(party, petId, actionUserContext.getBattleOption());
+      }
+    }
 
     const durabilityChanges = new DurabilityChangesByEntityId();
     durabilityChanges.updateConditionalChangesOnUser(
