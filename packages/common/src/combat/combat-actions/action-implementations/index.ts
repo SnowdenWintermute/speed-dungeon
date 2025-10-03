@@ -33,6 +33,7 @@ import { INCINERATE_PROJECTILE } from "./incinerate-projectile/index.js";
 import { ICE_BURST_PARENT } from "./ice-burst/index.js";
 import { ICE_BURST_EXPLOSION } from "./ice-burst/ice-burst-explosion.js";
 import { EXECUTE_EXPLOSION } from "./explosion/execute-explosion.js";
+import { SUMMON_PET } from "./summon-pet/index.js";
 
 export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Attack]: ATTACK,
@@ -70,4 +71,5 @@ export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.FirewallPassTurn]: FIREWALL_PASS_TURN,
   [CombatActionName.IgniteProjectile]: IGNITE_PROJECTILE,
   [CombatActionName.IncinerateProjectile]: INCINERATE_PROJECTILE,
+  [CombatActionName.SummonPet]: SUMMON_PET,
 };

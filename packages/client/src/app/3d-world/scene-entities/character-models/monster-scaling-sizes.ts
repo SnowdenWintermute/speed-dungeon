@@ -12,4 +12,5 @@ export const MONSTER_SCALING_SIZES: Record<MonsterType, number> = {
   [MonsterType.Cultist]: 1,
   [MonsterType.FireElemental]: 1,
   [MonsterType.IceElemental]: 1,
+  [MonsterType.Wolf]: 1,
 };

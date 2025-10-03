@@ -15,8 +15,6 @@ export const ACTION_ENTITY_MODEL_FACTORIES: Record<
 > = {
   [ActionEntityName.Arrow]: async () =>
     createActionEntityModelFromAssetPath(ActionEntityName.Arrow),
-  [ActionEntityName.DummyArrow]: async () =>
-    createActionEntityModelFromAssetPath(ActionEntityName.Arrow),
   [ActionEntityName.IceBolt]: async () =>
     createActionEntityModelFromAssetPath(ActionEntityName.IceBolt),
   [ActionEntityName.Explosion]: async (position) => {

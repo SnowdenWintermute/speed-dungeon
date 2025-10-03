@@ -10,6 +10,7 @@ export function getCharacterModelPartCategoriesAndAssetPaths(
 ) {
   const parts: { category: CharacterModelPartCategory; assetPath: string | undefined }[] = [];
 
+  console.log("getting parts for monster type", combatantProperties.monsterType);
   if (combatantProperties.monsterType !== null) {
     if (
       combatantProperties.monsterType === MonsterType.FireMage ||

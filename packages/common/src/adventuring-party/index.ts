@@ -26,23 +26,40 @@ export type RoomsExploredTracker = { total: number; onCurrentFloor: number };
 
 export class AdventuringParty {
   [immerable] = true;
+
+  // players
   playerUsernames: string[] = [];
-  playersReadyToExplore: string[] = [];
-  playersReadyToDescend: string[] = [];
-  characters: { [id: string]: Combatant } = {};
-  characterPositions: string[] = [];
+
+  // character entities
+  characters: Record<EntityId, Combatant> = {};
+  characterPositions: EntityId[] = [];
+  characterPets: Record<EntityId, Combatant> = {};
+  characterPetPositions: EntityId[] = [];
+
   actionEntities: Record<EntityId, ActionEntity> = {};
+
+  // dungeon exploration
   currentFloor: number = 1;
   roomsExplored: RoomsExploredTracker = { total: 0, onCurrentFloor: 1 };
-  currentRoom: DungeonRoom = new DungeonRoom(DungeonRoomType.Empty, {}, []);
   unexploredRooms: DungeonRoomType[] = [];
   clientCurrentFloorRoomsList: (null | DungeonRoomType)[] = [];
+  playersReadyToExplore: string[] = [];
+  playersReadyToDescend: string[] = [];
+
+  // current room
+  currentRoom: DungeonRoom = new DungeonRoom(DungeonRoomType.Empty, {}, []);
   battleId: null | EntityId = null;
+
+  // party status
   timeOfWipe: null | number = null;
   timeOfEscape: null | number = null;
+
+  // player input management
   itemsOnGroundNotYetReceivedByAllClients: { [id: EntityId]: EntityId[] } = {};
-  actionCommandQueue: ActionCommandQueue = new ActionCommandQueue();
   inputLock: InputLock = new InputLock();
+
+  // event management
+  actionCommandQueue: ActionCommandQueue = new ActionCommandQueue();
 
   constructor(
     public id: string,

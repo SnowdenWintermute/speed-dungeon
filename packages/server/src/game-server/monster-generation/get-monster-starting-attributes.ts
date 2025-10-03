@@ -3,6 +3,14 @@ import { CombatAttribute, CombatantAttributeRecord, MonsterType } from "@speed-d
 export function getMonsterStartingAttributes(monsterType: MonsterType): CombatantAttributeRecord {
   const attributes: CombatantAttributeRecord = {};
   switch (monsterType) {
+    case MonsterType.Wolf:
+      attributes[CombatAttribute.Vitality] = 2.0;
+      attributes[CombatAttribute.ArmorClass] = 15.0;
+      attributes[CombatAttribute.Hp] = 48;
+      attributes[CombatAttribute.Accuracy] = 70.0;
+      attributes[CombatAttribute.Strength] = 10.0;
+      attributes[CombatAttribute.Speed] = 1.0;
+      break;
     case MonsterType.MetallicGolem:
       attributes[CombatAttribute.Vitality] = 2.0;
       attributes[CombatAttribute.ArmorClass] = 15.0;

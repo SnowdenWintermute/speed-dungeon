@@ -15,13 +15,14 @@ export function giveStartingAbilities(actionUser: IActionUser) {
     CombatActionName.PassTurn,
     CombatActionName.ReadSkillBook,
     CombatActionName.ChainingSplitArrowParent,
+    CombatActionName.SummonPet,
     // CombatActionName.Counterattack,
-    CombatActionName.IceBoltParent,
-    CombatActionName.Fire,
+    // CombatActionName.IceBoltParent,
+    // CombatActionName.Fire,
     CombatActionName.Healing,
-    CombatActionName.ExplodingArrowParent,
-    CombatActionName.Blind,
-    CombatActionName.Firewall,
+    // CombatActionName.ExplodingArrowParent,
+    // CombatActionName.Blind,
+    // CombatActionName.Firewall,
   ];
 
   const levelTwoSpells: CombatActionName[] = [

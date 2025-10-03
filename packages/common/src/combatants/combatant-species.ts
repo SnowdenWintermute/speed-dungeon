@@ -5,4 +5,5 @@ export enum CombatantSpecies {
   Velociraptor,
   Elemental,
   Golem,
+  Canine,
 }

@@ -40,6 +40,14 @@ export default function DebugText({
 
   useEffect(() => {
     const gpuName = getGpuName();
+    // console.info(
+    //   "User Agent:",
+    //   navigator.userAgent,
+    //   "Operating System:",
+    //   navigator.platform,
+    //   "Number of CPU Cores:",
+    //   navigator.hardwareConcurrency,
+    // );
     setGpuName(gpuName);
   }, [gameWorld.current]);
 

@@ -2,6 +2,7 @@ import { CombatantClass } from "../combatants/index.js";
 
 export enum MonsterType {
   MetallicGolem, // High AC
+  Wolf,
   Zombie, // 1.25 blunt, .75 slashing, .5 piercing, high HP and vit
   SkeletonArcher, // 1.25 blunt, .75 slashing, .5 piercing, high dex, uses ranged attack
   Scavenger, // medium hp, .5 blunt, 1.25 slashing, 1 piercing
@@ -14,6 +15,7 @@ export enum MonsterType {
 
 export const MONSTER_TYPE_STRINGS: Record<MonsterType, string> = {
   [MonsterType.MetallicGolem]: "Metallic Golem",
+  [MonsterType.Wolf]: "Wolf",
   [MonsterType.Zombie]: "Zombie",
   [MonsterType.SkeletonArcher]: "Skeleton Archer",
   [MonsterType.Scavenger]: "Scavenger",
@@ -42,6 +44,7 @@ export function getMonsterCombatantClass(monsterType: MonsterType): CombatantCla
     case MonsterType.MetallicGolem:
     case MonsterType.Zombie:
     case MonsterType.Vulture:
+    case MonsterType.Wolf:
       return CombatantClass.Warrior;
     case MonsterType.SkeletonArcher:
     case MonsterType.Scavenger:

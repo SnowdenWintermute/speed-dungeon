@@ -105,4 +105,8 @@ const modelPortraitCameraPositionModifiers: Record<
   [MonsterType.Cultist]: { arcRotate: new ArcRotateParams(), position: Vector3.Zero() },
   [MonsterType.FireElemental]: elementals,
   [MonsterType.IceElemental]: elementals,
+  [MonsterType.Wolf]: {
+    arcRotate: new ArcRotateParams(0, -0.2, 0.2),
+    position: new Vector3(0, -0.1, 0),
+  },
 };

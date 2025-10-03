@@ -43,6 +43,7 @@ export const CHARACTER_PARTS: Record<
 
 export const MONSTER_FULL_SKINS: Partial<Record<MonsterType, string>> = {
   [MonsterType.MetallicGolem]: "monsters/wolf-full.glb",
+  [MonsterType.Wolf]: "monsters/wolf-full.glb",
   [MonsterType.Zombie]: "monsters/skeleton-full.glb",
   [MonsterType.SkeletonArcher]: "monsters/skeleton-full.glb",
   [MonsterType.Scavenger]: "monsters/velociraptor-full.glb",
