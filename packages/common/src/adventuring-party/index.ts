@@ -24,6 +24,8 @@ export * from "./add-character-to-party.js";
 
 export type RoomsExploredTracker = { total: number; onCurrentFloor: number };
 
+// @REFACTOR - split properties into component classes
+
 export class AdventuringParty {
   [immerable] = true;
 
@@ -33,7 +35,7 @@ export class AdventuringParty {
   // character entities
   characters: Record<EntityId, Combatant> = {};
   characterPositions: EntityId[] = [];
-  characterPets: Record<EntityId, Combatant> = {};
+  private unsummonedPetsByOwnerId: { [ownerId: EntityId]: Combatant[] } = {};
   characterPetPositions: EntityId[] = [];
 
   actionEntities: Record<EntityId, ActionEntity> = {};
@@ -143,6 +145,24 @@ export class AdventuringParty {
     }
   }
 
+  setCombatantPets(ownerId: EntityId, pets: Combatant[]) {
+    this.unsummonedPetsByOwnerId[ownerId] = pets;
+  }
+
+  getPet(ownerId: EntityId, petSlot: number) {
+    const petOption = this.unsummonedPetsByOwnerId[ownerId]?.[petSlot];
+    if (petOption === undefined) throw new Error("no pet was found in the provided slot index");
+    return petOption;
+  }
+
+  static registerCombatant(
+    party: AdventuringParty,
+    combatant: Combatant,
+    battleOption: null | Battle
+  ) {
+    console.log("tried to register a combatant:", combatant);
+  }
+
   static registerActionEntity(
     party: AdventuringParty,
     entity: ActionEntity,
@@ -165,6 +185,7 @@ export class AdventuringParty {
       );
     }
   }
+
   static unregisterActionEntity(
     party: AdventuringParty,
     entityId: EntityId,

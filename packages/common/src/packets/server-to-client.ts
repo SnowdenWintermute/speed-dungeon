@@ -97,7 +97,8 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.CharacterAddedToParty]: (
     partyName: string,
     username: string,
-    character: Combatant
+    character: Combatant,
+    pets: Combatant[]
   ) => void;
   [ServerToClientEvent.CharacterDeleted]: (
     partyName: string,

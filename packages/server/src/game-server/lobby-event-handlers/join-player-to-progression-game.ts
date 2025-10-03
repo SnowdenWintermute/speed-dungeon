@@ -36,7 +36,11 @@ export async function joinPlayerToProgressionGame(
     return errorHandler(socket, new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST));
 
   const deserialized = Combatant.getDeserialized(character);
-  addCharacterToParty(game, partyOption, playerOption, deserialized);
+
+  // @TODO - actually load their pets
+  const pets: Combatant[] = [];
+
+  addCharacterToParty(game, partyOption, playerOption, deserialized, pets);
 
   game.lowestStartingFloorOptionsBySavedCharacter[character.entityProperties.id] =
     character.combatantProperties.deepestFloorReached;
@@ -50,5 +54,5 @@ export async function joinPlayerToProgressionGame(
   gameServer.io
     .of("/")
     .in(game.name)
-    .emit(ServerToClientEvent.CharacterAddedToParty, partyName, session.username, character);
+    .emit(ServerToClientEvent.CharacterAddedToParty, partyName, session.username, character, pets);
 }

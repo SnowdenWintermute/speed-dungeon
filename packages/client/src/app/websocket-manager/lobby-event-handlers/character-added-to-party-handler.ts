@@ -7,7 +7,8 @@ import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-a
 export async function characterAddedToPartyHandler(
   partyName: string,
   username: string,
-  character: Combatant
+  character: Combatant,
+  pets: Combatant[]
 ) {
   useGameStore.getState().mutateState((gameState) => {
     const game = gameState.game;
@@ -19,7 +20,8 @@ export async function characterAddedToPartyHandler(
 
     try {
       const deserialized = Combatant.getDeserialized(character);
-      addCharacterToParty(game, party, player, deserialized);
+
+      addCharacterToParty(game, party, player, deserialized, pets);
     } catch (error) {
       if (error instanceof Error) setAlert(error.message);
       else console.error(error);

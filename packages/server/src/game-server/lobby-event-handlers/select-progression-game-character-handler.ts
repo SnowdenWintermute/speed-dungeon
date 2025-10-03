@@ -59,7 +59,10 @@ export async function selectProgressionGameCharacterHandler(
   delete game.lowestStartingFloorOptionsBySavedCharacter[removeCharacterResult.entityProperties.id];
   savedCharacterOption = Combatant.getDeserialized(savedCharacterOption);
 
-  addCharacterToParty(game, partyOption, player, savedCharacterOption);
+  // @TODO - load saved pets
+  const pets: Combatant[] = [];
+
+  addCharacterToParty(game, partyOption, player, savedCharacterOption, pets);
 
   game.lowestStartingFloorOptionsBySavedCharacter[savedCharacterOption.entityProperties.id] =
     savedCharacterOption.combatantProperties.deepestFloorReached;

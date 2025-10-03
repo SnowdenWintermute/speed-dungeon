@@ -33,18 +33,25 @@ stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
   },
 };
 
-// stepsConfig.steps[ActionResolutionStepType.OnActivationSpawnEntity] = {
-//   // getSpawnableEntities: (context) => {
-//   //   const projectileFactory = new ProjectileFactory(context, {});
-//   //   const actionEntity = projectileFactory.createIceBoltOnHand();
-//   //   return [
-//   //     {
-//   //       type: SpawnableEntityType.ActionEntity,
-//   //       actionEntity,
-//   //     },
-//   //   ];
-//   // },
-// };
+stepsConfig.steps[ActionResolutionStepType.OnActivationSpawnEntity] = {
+  getSpawnableEntities: (context) => {
+    const { rank } = context.tracker.actionExecutionIntent;
+    const petSlot = rank - 1;
+    console.log("pet slot:", petSlot);
+
+    const { actionUserContext } = context;
+    const { party, actionUser } = actionUserContext;
+
+    const pet = party.getPet(actionUser.getEntityId(), petSlot);
+
+    return [
+      {
+        type: SpawnableEntityType.Combatant,
+        combatant: pet,
+      },
+    ];
+  },
+};
 
 stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning] = {
   ...stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning],

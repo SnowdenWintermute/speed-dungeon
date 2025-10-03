@@ -1,7 +1,9 @@
 import {
+  Combatant,
   CombatantClass,
   ERROR_MESSAGES,
   MAX_CHARACTER_NAME_LENGTH,
+  MonsterType,
   ServerToClientEvent,
   SpeedDungeonGame,
   addCharacterToParty,
@@ -9,6 +11,7 @@ import {
 import { createCharacter } from "../character-creation/index.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { getGameServer } from "../../singletons/index.js";
+import { generateMonster } from "../monster-generation/index.js";
 
 export function createCharacterHandler(
   eventData: { name: string; combatantClass: CombatantClass },
@@ -25,7 +28,11 @@ export function createCharacterHandler(
   const newCharacter = createCharacter(name, combatantClass);
   if (newCharacter instanceof Error) return newCharacter;
 
-  addCharacterToParty(game, partyOption, player, newCharacter);
+  // @TESTING - pets
+  // @TODO - don't start a new character with any pets
+  const pets: Combatant[] = [generateMonster(1, MonsterType.Wolf)];
+
+  addCharacterToParty(game, partyOption, player, newCharacter, pets);
 
   const newCharacterId = newCharacter.entityProperties.id;
 
@@ -39,6 +46,7 @@ export function createCharacterHandler(
       ServerToClientEvent.CharacterAddedToParty,
       player.partyName,
       session.username,
-      characterResult
+      characterResult,
+      pets
     );
 }

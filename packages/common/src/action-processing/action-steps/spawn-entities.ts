@@ -33,7 +33,8 @@ export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
       for (const spawnableEntity of taggedSpawnableEntities) {
         switch (spawnableEntity.type) {
           case SpawnableEntityType.Combatant:
-            throw new Error("not yet implemeneted");
+            AdventuringParty.registerCombatant(party, spawnableEntity.combatant, battleOption);
+            break;
           case SpawnableEntityType.ActionEntity:
             AdventuringParty.registerActionEntity(
               party,
