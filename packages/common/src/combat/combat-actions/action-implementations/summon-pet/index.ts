@@ -25,6 +25,7 @@ import {
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { EntityId } from "../../../../primatives/index.js";
+import { AdventuringParty } from "../../../../adventuring-party/index.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
 
@@ -67,11 +68,12 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 
       const { actionUserContext } = context;
       const { party, actionUser } = actionUserContext;
-      const pet = party.getPetByOwnerAndSlot(actionUser.getEntityId(), petSlot);
+      // AdventuringParty.handleSummonPetFromSlot(party,actionUser.getEntityId(), petSlot)
+      // const pet = party.handleSummonPetFromSlot();
 
-      const toReturn: Partial<ActivatedTriggersGameUpdateCommand> = {
-        petIdsSummoned: [pet.getEntityId()],
-      };
+      // const toReturn: Partial<ActivatedTriggersGameUpdateCommand> = {
+      //   petIdsSummoned: [pet.getEntityId()],
+      // };
 
       return toReturn;
     },

@@ -16,7 +16,7 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import { ActionEntity, ActionEntityName } from "../action-entities/index.js";
 import { Battle } from "../battle/index.js";
 import { FriendOrFoe, TurnTrackerEntityType } from "../combat/index.js";
-import { handleSummonPet } from "./handle-summon-pet.js";
+import { handleSummonPetFromSlot } from "./handle-summon-pet.js";
 import { MAXIMUM_PET_SLOTS } from "../app-consts.js";
 export * from "./get-item-in-party.js";
 export * from "./dungeon-room.js";
@@ -152,27 +152,38 @@ export class AdventuringParty {
     this.unsummonedPetsByOwnerId[ownerId] = pets;
   }
 
-  getPetByOwnerAndSlot(ownerId: EntityId, petSlot: number) {
+  getUnsummonedPetOptionByOwnerAndSlot(ownerId: EntityId, petSlot: number) {
     const petOption = this.unsummonedPetsByOwnerId[ownerId]?.[petSlot];
-    if (petOption === undefined) throw new Error("no pet was found in the provided slot index");
     return petOption;
+  }
+
+  iteratePetSlots(ownerId: EntityId) {
+    const toReturn = [];
+    for (let slotIndex = 0; slotIndex < MAXIMUM_PET_SLOTS; slotIndex += 1) {
+      toReturn.push({
+        slotIndex,
+        petOption: this.getUnsummonedPetOptionByOwnerAndSlot(ownerId, slotIndex),
+      });
+    }
+    return toReturn;
   }
 
   getPetAndOwnerByPetId(petId: EntityId) {
     for (const [entityId, combatant] of Object.entries(this.characters)) {
-      for (let slotIndex = 0; slotIndex < MAXIMUM_PET_SLOTS; slotIndex += 1) {
-        try {
-          const pet = this.getPetByOwnerAndSlot(entityId, slotIndex);
-          return { pet, ownerId: entityId };
-        } catch {
-          // no pet found in that slot
-        }
+      for (const { slotIndex, petOption } of this.iteratePetSlots(entityId)) {
+        if (petId === petOption?.getEntityId()) return { pet: petOption, ownerId: entityId };
       }
     }
     throw new Error("no pet was found in the provided slot index");
   }
 
-  static handleSummonPet = handleSummonPet;
+  removePetFromUnsummonedSlot(ownerId: EntityId, slotIndex: number) {
+    const petOption = this.unsummonedPetsByOwnerId[ownerId]?.[slotIndex];
+    delete this.unsummonedPetsByOwnerId[ownerId]?.[slotIndex];
+    return petOption;
+  }
+
+  static handleSummonPetFromSlot = handleSummonPetFromSlot;
 
   static registerActionEntity(
     party: AdventuringParty,

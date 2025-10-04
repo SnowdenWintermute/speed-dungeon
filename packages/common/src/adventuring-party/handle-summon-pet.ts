@@ -2,15 +2,50 @@ import { Battle } from "../battle/index.js";
 import { EntityId } from "../primatives/index.js";
 import { AdventuringParty } from "./index.js";
 
-export function handleSummonPet(
+export function handleSummonPetFromSlot(
   party: AdventuringParty,
-  petId: EntityId,
+  ownerId: EntityId,
+  slotIndex: number,
   battleOption: null | Battle
 ) {
-  const { pet, ownerId } = party.getPetAndOwnerByPetId(petId);
+  const owner = AdventuringParty.getExpectedCombatant(party, ownerId);
+  const ownerHomePosition = owner.getHomePosition();
+
   // figure out if the pet is owned by character or monster
+  const isCharacterPet = party.characterPositions.includes(ownerId);
+  const isMonsterPet = party.currentRoom.monsterPositions.includes(ownerId);
+
   // remove the pet from the unsummonedPets data structure
+  const petOption = party.removePetFromUnsummonedSlot(ownerId, slotIndex);
+  if (petOption === undefined)
+    throw new Error(
+      `expected pet owner id ${ownerId} to have a pet in that slotIndex ${slotIndex} to summon`
+    );
+  const pet = petOption;
+
   // place the pet in either summonedCharacterPets or currentRoom.summonedMonsterPets
+  if (isCharacterPet) {
+    party.summonedCharacterPets[pet.getEntityId()] = pet;
+  } else if (isMonsterPet) {
+    throw new Error("not implemented");
+  }
+
   // determine where to position the pet
   // set its home position
+  const petHomePosition = pet.getHomePosition();
+  petHomePosition.copyFrom(ownerHomePosition);
+  petHomePosition.x -= 0.5;
 }
+
+// export function getSlotIndexOfPet(party: AdventuringParty, ownerId: EntityId, petId: EntityId) {
+//   const petSlots = party.unsummonedPetsByOwnerId[ownerId];
+//   if (petSlots === undefined) throw new Error("no pet slots for that owner id: " + ownerId);
+
+//   let slotIndex = -1;
+//   for (const pet of petSlots) {
+//     slotIndex += 1;
+//     if (pet.getEntityId() === petId) return slotIndex;
+//   }
+
+//   throw new Error("pet was not found by id" + petId + " for owner " + ownerId);
+// }
