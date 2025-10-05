@@ -21,7 +21,13 @@ export async function characterAddedToPartyHandler(
     try {
       const deserialized = Combatant.getDeserialized(character);
 
-      addCharacterToParty(game, party, player, deserialized, pets);
+      const deserializedPets: Combatant[] = [];
+      for (const pet of pets) {
+        const deserializedPet = Combatant.getDeserialized(pet);
+        deserializedPets.push(deserializedPet);
+      }
+
+      addCharacterToParty(game, party, player, deserialized, deserializedPets);
     } catch (error) {
       if (error instanceof Error) setAlert(error.message);
       else console.error(error);

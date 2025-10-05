@@ -121,6 +121,18 @@ function getModelsAndPositions() {
       };
     }
 
+    // pets
+
+    for (const combatant of Object.values(partyResult.summonedCharacterPets)) {
+      modelsAndPositions[combatant.entityProperties.id] = {
+        combatant: combatant,
+        homeRotation: combatant.combatantProperties.homeRotation,
+        homeLocation: combatant.combatantProperties.homeLocation,
+      };
+    }
+
+    // monsters
+
     for (const monster of Object.values(partyResult.currentRoom.monsters)) {
       modelsAndPositions[monster.entityProperties.id] = {
         combatant: monster,

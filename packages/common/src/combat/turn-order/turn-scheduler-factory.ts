@@ -1,4 +1,5 @@
 import { ActionEntityTurnScheduler } from "./action-entity-turn-scheduler.js";
+import { CombatantTurnScheduler } from "./combatant-turn-scheduler.js";
 import { ConditionTurnScheduler } from "./condition-turn-scheduler.js";
 import { ITurnScheduler } from "./turn-schedulers.js";
 import {
@@ -10,7 +11,8 @@ export class TurnSchedulerFactory {
   static create(from: TaggedTurnTrackerTrackedEntityId, startingDelay: number): ITurnScheduler {
     switch (from.type) {
       case TurnTrackerEntityType.Combatant:
-        throw new Error("Combatant turn scheduler not yet implemented");
+        const scheduler = new CombatantTurnScheduler(from.combatantId);
+        return scheduler;
 
       case TurnTrackerEntityType.Condition: {
         const scheduler = new ConditionTurnScheduler(from.combatantId, from.conditionId);

@@ -27,7 +27,7 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     super(stepType, context, gameUpdateCommand);
 
     const { tracker, actionUserContext } = context;
-    const { party, actionUser } = actionUserContext;
+    const { game, party, actionUser } = actionUserContext;
 
     const { actionName } = tracker.actionExecutionIntent;
     const action = COMBAT_ACTIONS[actionName];
@@ -35,10 +35,12 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     const onUseTriggers = action.hitOutcomeProperties.getOnUseTriggers(context);
     Object.assign(gameUpdateCommand, onUseTriggers);
 
-    const { petIdsSummoned } = onUseTriggers;
-    if (petIdsSummoned) {
-      for (const petId of petIdsSummoned) {
-        AdventuringParty.handleSummonPet(party, petId, actionUserContext.getBattleOption());
+    const { petSlotsSummoned } = onUseTriggers;
+    if (petSlotsSummoned) {
+      const battleOption = AdventuringParty.getBattleOption(party, game);
+
+      for (const { ownerId, slotIndex } of petSlotsSummoned) {
+        const pet = AdventuringParty.summonPetFromSlot(party, ownerId, slotIndex, battleOption);
       }
     }
 

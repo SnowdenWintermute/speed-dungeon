@@ -21,6 +21,10 @@ export function getCombatantClassIcon(
 export function getCombatantUiIdentifier(party: AdventuringParty, combatant: Combatant) {
   const playerPosition = party.characterPositions.indexOf(combatant.entityProperties.id);
   if (playerPosition !== -1) return { isPlayer: true, position: playerPosition };
+
+  // const playerPetPosition = party.characterPetPositions.indexOf(combatant.entityProperties.id);
+  // if (playerPetPosition !== -1) return { isPlayer: false, position: playerPetPosition };
+
   const monsterPosition = party.currentRoom.monsterPositions.indexOf(combatant.entityProperties.id);
   if (monsterPosition !== -1) return { isPlayer: false, position: monsterPosition };
 

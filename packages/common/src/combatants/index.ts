@@ -14,7 +14,7 @@ import getCombatantTotalElementalAffinities from "./combatant-traits/get-combata
 import getCombatantTotalKineticDamageTypeAffinities from "./combatant-traits/get-combatant-total-kinetic-damage-type-affinities.js";
 import { setResourcesToMax } from "./resources/set-resources-to-max.js";
 import { immerable } from "immer";
-import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
+import { cloneVector3, iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import awardLevelups, { XP_REQUIRED_TO_REACH_LEVEL_2 } from "./experience-points/award-levelups.js";
 import { incrementAttributePoint } from "./attributes/increment-attribute.js";
 import { MonsterType } from "../monsters/monster-types.js";
@@ -191,6 +191,9 @@ export class Combatant implements IActionUser {
     const { combatantProperties } = combatant;
 
     CombatantProperties.instantiateItemClasses(combatantProperties);
+
+    combatantProperties.homeLocation = cloneVector3(combatantProperties.homeLocation);
+    combatantProperties.position = cloneVector3(combatantProperties.position);
 
     const deserializedConditions = combatantProperties.conditions.map((condition) =>
       deserializeCondition(condition)

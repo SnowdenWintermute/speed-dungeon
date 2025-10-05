@@ -10,6 +10,7 @@ export * from "./combat-action-steps-config.js";
 export * from "./combat-action-resource-change-properties.js";
 export * from "./combat-action-accuracy.js";
 export * from "./combat-action-combat-log-properties.js";
+export * from "./action-implementations/generic-action-templates/pets.js";
 
 import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js";
 import { COMBAT_ACTION_NAME_STRINGS, CombatActionName } from "./combat-action-names.js";

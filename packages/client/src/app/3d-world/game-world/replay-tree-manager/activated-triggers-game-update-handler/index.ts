@@ -21,7 +21,8 @@ import { handleAppliedConditions } from "./handle-applied-conditions";
 import { handleRemovedConditionStacks } from "./handle-removed-condition-stacks";
 import { handleRemovedConditionIds } from "./handle-removed-condition-ids";
 import { handleHitPointChanges } from "./handle-hit-point-changes";
-import { GameUpdateTracker } from "..";
+import { GameUpdateTracker } from "../game-update-tracker";
+import { handlePetSlotsSummoned } from "./handle-pets-summoned";
 
 // @REFACTOR - break into smaller functions
 export async function activatedTriggersGameUpdateHandler(
@@ -46,10 +47,15 @@ export async function activatedTriggersGameUpdateHandler(
       appliedConditions,
       removedConditionStacks,
       removedConditionIds,
+      petSlotsSummoned,
     } = command;
 
     if (actionEntityChanges) {
       handleActionEntityChanges(actionEntityChanges, party);
+    }
+
+    if (petSlotsSummoned) {
+      handlePetSlotsSummoned(petSlotsSummoned, party, game);
     }
 
     if (supportClassLevelsGained !== undefined) {

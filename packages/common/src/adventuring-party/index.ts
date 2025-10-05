@@ -16,7 +16,7 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import { ActionEntity, ActionEntityName } from "../action-entities/index.js";
 import { Battle } from "../battle/index.js";
 import { FriendOrFoe, TurnTrackerEntityType } from "../combat/index.js";
-import { handleSummonPetFromSlot } from "./handle-summon-pet.js";
+import { summonPetFromSlot } from "./handle-summon-pet.js";
 import { MAXIMUM_PET_SLOTS } from "../app-consts.js";
 export * from "./get-item-in-party.js";
 export * from "./dungeon-room.js";
@@ -39,7 +39,6 @@ export class AdventuringParty {
   characterPositions: EntityId[] = [];
   private unsummonedPetsByOwnerId: { [ownerId: EntityId]: Combatant[] } = {};
   summonedCharacterPets: Record<EntityId, Combatant> = {};
-  characterPetPositions: EntityId[] = [];
 
   actionEntities: Record<EntityId, ActionEntity> = {};
 
@@ -70,6 +69,10 @@ export class AdventuringParty {
     public id: string,
     public name: string
   ) {}
+
+  hasCharacters() {
+    return Object.values(this.characters).length > 0;
+  }
 
   static removeCharacter = removeCharacterFromParty;
   static getCombatant = getCombatant;
@@ -183,7 +186,7 @@ export class AdventuringParty {
     return petOption;
   }
 
-  static handleSummonPetFromSlot = handleSummonPetFromSlot;
+  static summonPetFromSlot = summonPetFromSlot;
 
   static registerActionEntity(
     party: AdventuringParty,

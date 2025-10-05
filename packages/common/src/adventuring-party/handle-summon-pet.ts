@@ -1,8 +1,10 @@
 import { Battle } from "../battle/index.js";
+import { TurnTrackerEntityType } from "../combat/index.js";
+import { Combatant } from "../combatants/index.js";
 import { EntityId } from "../primatives/index.js";
 import { AdventuringParty } from "./index.js";
 
-export function handleSummonPetFromSlot(
+export function summonPetFromSlot(
   party: AdventuringParty,
   ownerId: EntityId,
   slotIndex: number,
@@ -21,6 +23,7 @@ export function handleSummonPetFromSlot(
     throw new Error(
       `expected pet owner id ${ownerId} to have a pet in that slotIndex ${slotIndex} to summon`
     );
+
   const pet = petOption;
 
   // place the pet in either summonedCharacterPets or currentRoom.summonedMonsterPets
@@ -35,6 +38,21 @@ export function handleSummonPetFromSlot(
   const petHomePosition = pet.getHomePosition();
   petHomePosition.copyFrom(ownerHomePosition);
   petHomePosition.x -= 0.5;
+
+  // if in battle, add its turn tracker
+  if (battleOption !== null) {
+    const delayOfCurrentActor =
+      battleOption.turnOrderManager.getFastestActorTurnOrderTracker().timeOfNextMove;
+    battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
+      {
+        type: TurnTrackerEntityType.Combatant,
+        combatantId: pet.entityProperties.id,
+      },
+      delayOfCurrentActor + 1
+    );
+  }
+
+  return pet;
 }
 
 // export function getSlotIndexOfPet(party: AdventuringParty, ownerId: EntityId, petId: EntityId) {

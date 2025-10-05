@@ -24,6 +24,7 @@ import {
   EquipmentAnimation,
 } from "../combat/combat-actions/combat-action-steps-config.js";
 import { CleanupMode } from "../types.js";
+import { PetSlot } from "../combat/combat-actions/action-implementations/generic-action-templates/pets.js";
 
 export enum GameUpdateCommandType {
   SpawnEntities,
@@ -155,7 +156,7 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   actionEntityIdsDespawned?: { id: EntityId; cleanupMode: CleanupMode }[];
   actionEntityIdsToHide?: EntityId[];
   actionEntityChanges?: Record<EntityId, Partial<ActionEntityActionOriginData>>;
-  petIdsSummoned?: EntityId[];
+  petSlotsSummoned?: PetSlot[];
 }
 
 export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {

@@ -9,6 +9,9 @@ export default function getCombatantInParty(
   const matchedCharacterOption = party.characters[entityId];
   if (matchedCharacterOption) return matchedCharacterOption;
 
+  const matchedSummonedCharacterPetOption = party.summonedCharacterPets[entityId];
+  if (matchedSummonedCharacterPetOption) return matchedSummonedCharacterPetOption;
+
   const matchedMonsterOption = party.currentRoom.monsters[entityId];
   if (matchedMonsterOption) return matchedMonsterOption;
 

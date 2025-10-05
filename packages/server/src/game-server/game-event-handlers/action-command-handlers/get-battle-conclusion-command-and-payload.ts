@@ -21,7 +21,7 @@ export async function getBattleConclusionCommandAndPayload(
   }
 ) {
   const gameServer = getGameServer();
-  if (!party.characterPositions[0]) throw new Error(ERROR_MESSAGES.PARTY.MISSING_CHARACTERS);
+  if (!party.hasCharacters()) throw new Error(ERROR_MESSAGES.PARTY.MISSING_CHARACTERS);
 
   let conclusion: BattleConclusion;
   let loot: { equipment: Equipment[]; consumables: Consumable[] } = {

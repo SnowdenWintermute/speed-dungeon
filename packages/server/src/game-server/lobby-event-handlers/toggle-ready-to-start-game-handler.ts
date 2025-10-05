@@ -30,7 +30,7 @@ export async function toggleReadyToStartGameHandler(
   if (!player.characterIds.length) return new Error("You must control at least one character");
 
   for (const party of Object.values(game.adventuringParties)) {
-    if (party.characterPositions.length < 1)
+    if (Object.values(party.characters).length < 1)
       return new Error("Each party must have at least one character");
     party.currentFloor = game.selectedStartingFloor;
     // party.currentFloor = 10; // testing
