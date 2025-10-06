@@ -56,16 +56,3 @@ export function summonPetFromSlot(
 
   return pet;
 }
-
-// export function getSlotIndexOfPet(party: AdventuringParty, ownerId: EntityId, petId: EntityId) {
-//   const petSlots = party.unsummonedPetsByOwnerId[ownerId];
-//   if (petSlots === undefined) throw new Error("no pet slots for that owner id: " + ownerId);
-
-//   let slotIndex = -1;
-//   for (const pet of petSlots) {
-//     slotIndex += 1;
-//     if (pet.getEntityId() === petId) return slotIndex;
-//   }
-
-//   throw new Error("pet was not found by id" + petId + " for owner " + ownerId);
-// }

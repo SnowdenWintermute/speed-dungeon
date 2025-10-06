@@ -11,11 +11,7 @@ import { Combatant, CombatantCondition, CombatantProperties } from "../combatant
 import { ActionCommandQueue } from "../action-processing/action-command-queue.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { ActionEntity, ActionEntityName } from "../action-entities/index.js";
-import { Battle } from "../battle/index.js";
-import { FriendOrFoe, TurnTrackerEntityType } from "../combat/index.js";
-import { summonPetFromSlot } from "./handle-summon-pet.js";
-import { MAXIMUM_PET_SLOTS } from "../app-consts.js";
+import { FriendOrFoe } from "../combat/index.js";
 import { DungeonExplorationManager } from "./dungeon-exploration-manager.js";
 import { ActionEntityManager } from "./action-entity-manager.js";
 export * from "./get-item-in-party.js";
@@ -28,6 +24,9 @@ export * from "./add-character-to-party.js";
 
 export class AdventuringParty {
   [immerable] = true;
+  // subsystems
+  actionEntityManager = new ActionEntityManager();
+  dungeonExplorationManager = new DungeonExplorationManager(this);
 
   // players
   playerUsernames: string[] = [];
@@ -35,13 +34,6 @@ export class AdventuringParty {
   // character entities
   characters: Record<EntityId, Combatant> = {};
   characterPositions: EntityId[] = [];
-  private unsummonedPetsByOwnerId: { [ownerId: EntityId]: Combatant[] } = {};
-  summonedCharacterPets: Record<EntityId, Combatant> = {};
-
-  actionEntityManager = new ActionEntityManager();
-
-  // dungeon exploration
-  dungeonExplorationManager = new DungeonExplorationManager(this);
 
   // current room
   currentRoom: DungeonRoom = new DungeonRoom(DungeonRoomType.Empty, {}, []);
@@ -150,43 +142,4 @@ export class AdventuringParty {
       throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
     }
   }
-
-  // PETS
-
-  setCombatantPets(ownerId: EntityId, pets: Combatant[]) {
-    this.unsummonedPetsByOwnerId[ownerId] = pets;
-  }
-
-  getUnsummonedPetOptionByOwnerAndSlot(ownerId: EntityId, petSlot: number) {
-    const petOption = this.unsummonedPetsByOwnerId[ownerId]?.[petSlot];
-    return petOption;
-  }
-
-  iteratePetSlots(ownerId: EntityId) {
-    const toReturn = [];
-    for (let slotIndex = 0; slotIndex < MAXIMUM_PET_SLOTS; slotIndex += 1) {
-      toReturn.push({
-        slotIndex,
-        petOption: this.getUnsummonedPetOptionByOwnerAndSlot(ownerId, slotIndex),
-      });
-    }
-    return toReturn;
-  }
-
-  getPetAndOwnerByPetId(petId: EntityId) {
-    for (const [entityId, combatant] of Object.entries(this.characters)) {
-      for (const { slotIndex, petOption } of this.iteratePetSlots(entityId)) {
-        if (petId === petOption?.getEntityId()) return { pet: petOption, ownerId: entityId };
-      }
-    }
-    throw new Error("no pet was found in the provided slot index");
-  }
-
-  removePetFromUnsummonedSlot(ownerId: EntityId, slotIndex: number) {
-    const petOption = this.unsummonedPetsByOwnerId[ownerId]?.[slotIndex];
-    delete this.unsummonedPetsByOwnerId[ownerId]?.[slotIndex];
-    return petOption;
-  }
-
-  static summonPetFromSlot = summonPetFromSlot;
 }
