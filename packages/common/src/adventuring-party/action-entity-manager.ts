@@ -7,8 +7,6 @@ import { EntityId } from "../primatives/index.js";
 export class ActionEntityManager {
   private actionEntities: Record<EntityId, ActionEntity> = {};
 
-  constructor() {}
-
   getActionEntities() {
     return this.actionEntities;
   }

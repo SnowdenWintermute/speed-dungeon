@@ -17,8 +17,6 @@ export class DungeonExplorationManager {
     [ExplorationAction.Explore]: [],
   };
 
-  constructor() {}
-
   unexploredRoomsExistOnCurrentFloor() {
     return this.unexploredRooms.length > 0;
   }

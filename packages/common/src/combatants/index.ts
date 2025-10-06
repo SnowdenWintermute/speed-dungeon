@@ -295,6 +295,8 @@ export class Combatant implements IActionUser {
   }
 }
 
+// @REFACTOR - split methods off into subsystems
+
 export interface SupportClassProperties {
   level: number;
   combatantClass: CombatantClass;
@@ -302,8 +304,11 @@ export interface SupportClassProperties {
 
 export class CombatantProperties {
   [immerable] = true;
-
+  // subsystems
+  abilityProperties = new CombatantAbilityProperties();
   supportClassProperties: null | SupportClassProperties = null;
+  targetingProperties: ActionUserTargetingProperties = new ActionUserTargetingProperties();
+  threatManager?: ThreatManager;
 
   level: number = 1;
   experiencePoints: ExperiencePoints = {
@@ -316,28 +321,21 @@ export class CombatantProperties {
   speccedAttributes: CombatantAttributeRecord = {};
   unspentAttributePoints: number = 0;
 
+  // RESOURCES
   hitPoints: number = 0;
   mana: number = 0;
   actionPoints: number = 0;
 
-  // ABILITIES
-  abilityProperties = new CombatantAbilityProperties();
-
   // ITEMS
   equipment: CombatantEquipment = new CombatantEquipment();
   inventory: Inventory = new Inventory();
-
-  // TARGETING
-  targetingProperties: ActionUserTargetingProperties = new ActionUserTargetingProperties();
-
-  // THREAT
-  threatManager?: ThreatManager;
 
   // UNSORTED
   deepestFloorReached: number = 1;
   position: Vector3;
   conditions: CombatantCondition[] = [];
 
+  summonedBy?: EntityId;
   aiTypes?: AiType[];
 
   public homeRotation: Quaternion = Quaternion.Zero();

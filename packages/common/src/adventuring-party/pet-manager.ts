@@ -8,7 +8,6 @@ import { TurnTrackerEntityType } from "../combat/index.js";
 export class PetManager {
   private unsummonedPetsByOwnerId: { [ownerId: EntityId]: Combatant[] } = {};
   private summonedCharacterPets: Record<EntityId, Combatant> = {};
-  constructor() {}
 
   getSummonedPetOptionById(petId: EntityId) {
     return this.summonedCharacterPets[petId];
