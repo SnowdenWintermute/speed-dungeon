@@ -1,3 +1,4 @@
+import { immerable } from "immer";
 import { EMPTY_ROOMS_PER_FLOOR, GAME_CONFIG } from "../app-consts.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ArrayUtils } from "../utils/array-utils.js";
@@ -6,6 +7,7 @@ import { DungeonRoomType } from "./dungeon-room.js";
 import { AdventuringParty } from "./index.js";
 
 export class DungeonExplorationManager {
+  [immerable] = true;
   private currentFloor: number = 1;
   private roomsExplored: RoomsExploredTracker = { total: 0, onCurrentFloor: 1 };
   private unexploredRooms: DungeonRoomType[] = [];
@@ -15,7 +17,7 @@ export class DungeonExplorationManager {
     [ExplorationAction.Explore]: [],
   };
 
-  constructor(private party: AdventuringParty) {}
+  constructor() {}
 
   unexploredRoomsExistOnCurrentFloor() {
     return this.unexploredRooms.length > 0;
@@ -36,9 +38,9 @@ export class DungeonExplorationManager {
     }
   }
 
-  allPlayersReadyToTakeAction(action: ExplorationAction) {
+  allPlayersReadyToTakeAction(action: ExplorationAction, party: AdventuringParty) {
     const playersReadyToTakeAction = this.playerExplorationActionChoices[action];
-    for (const username of this.party.playerUsernames) {
+    for (const username of party.playerUsernames) {
       const playerIsNotReady = !playersReadyToTakeAction.includes(username);
       if (playerIsNotReady) return false;
     }

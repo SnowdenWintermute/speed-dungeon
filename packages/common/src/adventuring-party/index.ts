@@ -27,7 +27,7 @@ export class AdventuringParty {
   [immerable] = true;
   // subsystems
   actionEntityManager = new ActionEntityManager();
-  dungeonExplorationManager = new DungeonExplorationManager(this);
+  dungeonExplorationManager = new DungeonExplorationManager();
   petManager = new PetManager();
 
   // players

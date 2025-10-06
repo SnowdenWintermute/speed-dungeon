@@ -52,7 +52,8 @@ export async function toggleReadyToExploreHandler(
     );
 
   const allPlayersReadyToExplore = dungeonExplorationManager.allPlayersReadyToTakeAction(
-    ExplorationAction.Explore
+    ExplorationAction.Explore,
+    party
   );
 
   const waitingForPlayersToBeReady = !allPlayersReadyToExplore;

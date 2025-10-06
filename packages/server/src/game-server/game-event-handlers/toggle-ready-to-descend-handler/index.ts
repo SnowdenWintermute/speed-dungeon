@@ -39,7 +39,8 @@ export function toggleReadyToDescendHandler(
     );
 
   const allPlayersReadyToDescend = dungeonExplorationManager.allPlayersReadyToTakeAction(
-    ExplorationAction.Descend
+    ExplorationAction.Descend,
+    party
   );
   if (!allPlayersReadyToDescend) return;
 
