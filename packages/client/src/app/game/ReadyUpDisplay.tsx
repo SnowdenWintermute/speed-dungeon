@@ -1,6 +1,11 @@
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { getCurrentMenu, operateVendingMachineMenuState, useGameStore } from "@/stores/game-store";
-import { AdventuringParty, ClientToServerEvent, DungeonRoomType } from "@speed-dungeon/common";
+import {
+  AdventuringParty,
+  ClientToServerEvent,
+  DungeonRoomType,
+  ExplorationAction,
+} from "@speed-dungeon/common";
 import React, { MouseEventHandler } from "react";
 import HotkeyButton from "../components/atoms/HotkeyButton";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
@@ -38,17 +43,26 @@ export default function ReadyUpDisplay({ party }: Props) {
 
   if (party.battleId !== null) return <></>;
 
+  const { dungeonExplorationManager } = party;
+
+  const playersReadyToExplore = dungeonExplorationManager.getPlayersChoosingAction(
+    ExplorationAction.Explore
+  );
+  const playersReadyToDescend = dungeonExplorationManager.getPlayersChoosingAction(
+    ExplorationAction.Descend
+  );
+
   const readyToExploreButtons = createReadyButtons(
     username,
     handleExploreClick,
     party.playerUsernames,
-    party.playersReadyToExplore
+    playersReadyToExplore
   );
   const readyToDescendButtons = createReadyButtons(
     username,
     handleDescendClick,
     party.playerUsernames,
-    party.playersReadyToDescend
+    playersReadyToDescend
   );
 
   const inStaircaseRoom = party.currentRoom.roomType === DungeonRoomType.Staircase;
@@ -87,6 +101,8 @@ export default function ReadyUpDisplay({ party }: Props) {
             >
               Explore next room (G)
             </HotkeyButton>
+            <div>Descenders: {playersReadyToDescend}</div>
+            <div>Explorers: {playersReadyToExplore}</div>
             {party.currentRoom.roomType === DungeonRoomType.VendingMachine && (
               <HotkeyButton
                 className={`h-10 pr-2 pl-2 bg-slate-800 ml-1 w-1/2 border border-white text-center hover:bg-slate-950 disabled:opacity-50`}

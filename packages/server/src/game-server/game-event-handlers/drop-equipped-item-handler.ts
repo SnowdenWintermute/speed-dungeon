@@ -8,7 +8,7 @@ import {
   ServerToClientEventTypes,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import writePlayerCharactersInGameToDb from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
+import { writePlayerCharactersInGameToDb } from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
 import errorHandler from "../error-handler.js";
 import SocketIO from "socket.io";
 import { getGameServer } from "../../singletons/index.js";

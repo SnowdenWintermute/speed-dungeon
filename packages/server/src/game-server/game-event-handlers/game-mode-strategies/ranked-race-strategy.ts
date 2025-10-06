@@ -49,7 +49,9 @@ export default class RankedRaceStrategy implements GameModeStrategy {
 
     partyRecord.partyFate = PartyFate.Wipe;
     partyRecord.partyFateRecordedAt = new Date(Date.now()).toISOString();
-    partyRecord.deepestFloor = party.currentFloor;
+
+    const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
+    partyRecord.deepestFloor = floorNumber;
     await raceGamePartyRecordsRepo.update(partyRecord);
 
     let allPartiesAreDead = true;
@@ -86,7 +88,9 @@ export default class RankedRaceStrategy implements GameModeStrategy {
     if (partyRecord.partyFate) return Promise.resolve();
     partyRecord.partyFate = PartyFate.Escape;
     partyRecord.partyFateRecordedAt = new Date(Date.now()).toISOString();
-    partyRecord.deepestFloor = party.currentFloor;
+
+    const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
+    partyRecord.deepestFloor = floorNumber;
 
     const gameRecord = await raceGameRecordsRepo.findAggregatedGameRecordById(game.id);
     if (!gameRecord) return new Error(ERROR_MESSAGES.GAME_RECORDS.NOT_FOUND);

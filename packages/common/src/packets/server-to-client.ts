@@ -1,13 +1,11 @@
-import { DungeonRoom, DungeonRoomType } from "../adventuring-party/index.js";
+import { DungeonRoom, DungeonRoomType, ExplorationAction } from "../adventuring-party/index.js";
 import { Battle, BattleConclusion } from "../battle/index.js";
-import { CombatActionName } from "../combat/index.js";
 import { ActionCommandPayload } from "../action-processing/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { Item } from "../items/index.js";
 import { EntityId, NextOrPrevious } from "../primatives/index.js";
 import { Combatant } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
-import { DescendOrExplore } from "../adventuring-party/update-player-readiness.js";
 import { UserChannelDisplayData } from "../users/index.js";
 import { GameMode } from "../types.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
@@ -109,7 +107,7 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.GameStarted]: (timeStarted: number) => void;
   [ServerToClientEvent.PlayerToggledReadyToDescendOrExplore]: (
     characterId: string,
-    descendOrExplore: DescendOrExplore
+    explorationAction: ExplorationAction
   ) => void;
   [ServerToClientEvent.DungeonRoomTypesOnCurrentFloor]: (
     roomTypes: (DungeonRoomType | null)[]

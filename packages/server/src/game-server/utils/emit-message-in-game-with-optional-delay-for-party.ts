@@ -9,7 +9,7 @@ import { getGameServer } from "../../singletons/index.js";
 /** We sometimes want to delay a message to a certain party if they are still
  * playing back their combat action results. We wouldn't want them to get the message
  * that they wiped until those results are done animating. Everyone else can be told instantly */
-export default function emitMessageInGameWithOptionalDelayForParty(
+export function emitMessageInGameWithOptionalDelayForParty(
   gameName: string,
   gameMessageType: GameMessageType,
   gameMessageText: string,

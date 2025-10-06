@@ -9,7 +9,7 @@ import {
 import { playerCharactersRepo } from "../../database/repos/player-characters.js";
 import { GameServer } from "../index.js";
 
-export default async function writePlayerCharactersInGameToDb(
+export async function writePlayerCharactersInGameToDb(
   game: SpeedDungeonGame,
   player: SpeedDungeonPlayer
 ): Promise<Error | void> {
@@ -27,8 +27,11 @@ export default async function writePlayerCharactersInGameToDb(
       characterResult.getTargetingProperties().clear();
       const partyOption = game.adventuringParties[getProgressionGamePartyName(game.name)];
       if (partyOption === undefined) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
-      if (partyOption.currentFloor > existingCharacter.combatantProperties.deepestFloorReached) {
-        characterResult.combatantProperties.deepestFloorReached = partyOption.currentFloor;
+
+      const floorNumber = partyOption.dungeonExplorationManager.getCurrentFloor();
+
+      if (floorNumber > existingCharacter.combatantProperties.deepestFloorReached) {
+        characterResult.combatantProperties.deepestFloorReached = floorNumber;
       }
 
       existingCharacter.combatantProperties = characterResult.combatantProperties;

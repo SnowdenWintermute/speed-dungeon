@@ -84,17 +84,11 @@ export class Battle {
   }
 }
 
-export enum BattleGroupType {
-  PlayerControlled,
-  ComputerControlled,
-}
-
 export class BattleGroup {
   constructor(
     public name: string,
     public partyName: EntityId,
-    public combatantIds: EntityId[],
-    public groupType: BattleGroupType
+    public combatantIds: EntityId[]
   ) {}
 }
 

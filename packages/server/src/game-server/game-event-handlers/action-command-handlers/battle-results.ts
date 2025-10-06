@@ -37,12 +37,14 @@ export async function battleResultActionCommandHandler(
 
       party.timeOfWipe = Date.now();
 
+      const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
+
       gameMessagePayloads.push({
         type: ActionCommandType.GameMessages,
         messages: [
           {
             type: GameMessageType.PartyWipe,
-            text: createPartyWipeMessage(party.name, party.currentFloor, new Date()),
+            text: createPartyWipeMessage(party.name, floorNumber, new Date()),
           },
         ],
         partyChannelToExclude: getPartyChannelName(game.name, party.name),

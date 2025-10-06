@@ -13,7 +13,7 @@ import {
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../../singletons/index.js";
 import { CraftingAction } from "@speed-dungeon/common";
-import writePlayerCharactersInGameToDb from "../../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
+import { writePlayerCharactersInGameToDb } from "../../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
 import { repairEquipment } from "./repair-equipment.js";
 import { makeNonMagicalItemMagical } from "./make-non-magical-item-magical.js";
 import { replaceExistingWithNewRandomAffixes } from "./replace-existing-with-new-random-affixes.js";
@@ -55,7 +55,8 @@ export async function craftItemHandler(
 
   applyEquipmentEffectWhileMaintainingResourcePercentages(character.combatantProperties, () => {
     const actionHandler = craftingActionHandlers[craftingAction];
-    actionResult = actionHandler(itemResult, party.currentFloor);
+    const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
+    actionResult = actionHandler(itemResult, floorNumber);
   });
   if (actionResult instanceof Error) return actionResult;
 

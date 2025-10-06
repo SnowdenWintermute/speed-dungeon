@@ -12,7 +12,8 @@ import {
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameModeStrategy } from "./index.js";
-import writePlayerCharactersInGameToDb, {
+import {
+  writePlayerCharactersInGameToDb,
   writeAllPlayerCharacterInGameToDb,
 } from "../../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
 import { getGameServer } from "../../../singletons/index.js";

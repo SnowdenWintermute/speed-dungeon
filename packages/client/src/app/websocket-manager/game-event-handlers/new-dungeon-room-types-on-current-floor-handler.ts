@@ -10,7 +10,9 @@ export default function newDungeonRoomTypesOnCurrentFloorHandler(
     const party = getCurrentParty(gameState, gameState.username || "");
     if (party === undefined) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY));
 
-    party.clientCurrentFloorRoomsList = newRoomTypes;
-    party.roomsExplored.onCurrentFloor = 0;
+    const { dungeonExplorationManager } = party;
+
+    dungeonExplorationManager.setClientVisibleRoomExplorationList(newRoomTypes);
+    dungeonExplorationManager.clearRoomsExploredOnCurrentFloorCount();
   });
 }

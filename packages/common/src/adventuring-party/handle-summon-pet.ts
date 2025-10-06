@@ -28,7 +28,9 @@ export function summonPetFromSlot(
 
   // place the pet in either summonedCharacterPets or currentRoom.summonedMonsterPets
   if (isCharacterPet) {
-    party.summonedCharacterPets[pet.getEntityId()] = pet;
+    const petId = pet.getEntityId();
+    party.summonedCharacterPets[petId] = pet;
+    party.characterPositions.push(petId);
   } else if (isMonsterPet) {
     throw new Error("not implemented");
   }

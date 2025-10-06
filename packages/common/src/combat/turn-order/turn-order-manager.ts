@@ -66,7 +66,11 @@ export class TurnOrderManager {
       return false;
     }
 
-    return party.characterPositions.includes(taggedIdOfTrackedEntity.combatantId);
+    const expectedCombatant = AdventuringParty.getExpectedCombatant(
+      party,
+      taggedIdOfTrackedEntity.combatantId
+    );
+    return expectedCombatant.combatantProperties.aiTypes === undefined;
   }
 
   combatantIsFirstInTurnOrder(combatantId: EntityId) {

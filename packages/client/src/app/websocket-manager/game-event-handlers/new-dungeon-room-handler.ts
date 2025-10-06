@@ -48,8 +48,10 @@ export default function newDungeonRoomHandler({
       ...Inventory.getItems(party.currentRoom.inventory).map((item) => item.entityProperties.id)
     );
 
-    party.playersReadyToDescend = [];
-    party.playersReadyToExplore = [];
+    const { dungeonExplorationManager } = party;
+
+    dungeonExplorationManager.clearPlayerExplorationActionChoices();
+
     previousRoomType = party.currentRoom.roomType;
     party.currentRoom = room;
 
@@ -65,10 +67,11 @@ export default function newDungeonRoomHandler({
       party.currentRoom.monsters[entityId] = Combatant.getDeserialized(monster);
     }
 
-    party.roomsExplored.onCurrentFloor += 1;
-    party.roomsExplored.total += 1;
-    const indexOfRoomTypeToReveal = party.roomsExplored.onCurrentFloor - 1;
-    party.clientCurrentFloorRoomsList[indexOfRoomTypeToReveal] = room.roomType;
+    dungeonExplorationManager.incrementExploredRoomsTrackers();
+
+    const indexOfRoomTypeToReveal = dungeonExplorationManager.getCurrentRoomNumber() - 1;
+    dungeonExplorationManager.getClientVisibleRoomExplorationList()[indexOfRoomTypeToReveal] =
+      room.roomType;
 
     if (room.monsterPositions.length) gameState.baseMenuState.inCombat = true;
   });

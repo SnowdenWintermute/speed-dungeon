@@ -59,6 +59,9 @@ export default function TopInfoBar() {
     });
   }
 
+  const currentFloor = party.dungeonExplorationManager.getCurrentFloor();
+  const currentRoom = party.dungeonExplorationManager.getCurrentRoomNumber();
+
   return (
     <div className="h-10 w-full border-b border-slate-400 bg-slate-700 flex justify-center items-center pointer-events-auto relative">
       <div className="p-2 absolute left-0 flex items-center text-md">
@@ -67,14 +70,14 @@ export default function TopInfoBar() {
             <StairsIcon className="fill-slate-400 h-full" />
           </div>
         </HoverableTooltipWrapper>
-        <span className="mr-2">{party.currentFloor}</span>
+        <span className="mr-2">{currentFloor}</span>
 
         <HoverableTooltipWrapper tooltipText="Current room">
           <div className="h-5 my-1 mr-1">
             <DoorIcon className="fill-slate-400 h-full" />
           </div>
         </HoverableTooltipWrapper>
-        {party.roomsExplored.onCurrentFloor}
+        {currentRoom}
         {": "}
         {DUNGEON_ROOM_TYPE_STRINGS[party.currentRoom.roomType]}
       </div>

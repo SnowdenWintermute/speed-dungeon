@@ -2,11 +2,12 @@ import { AdventuringParty, Consumable, Equipment, randBetween } from "@speed-dun
 import { GameServer } from "../../index.js";
 import { rngSingleton } from "../../../singletons/index.js";
 
-export default function generateLoot(this: GameServer, party: AdventuringParty) {
+export function generateLoot(this: GameServer, party: AdventuringParty) {
   let equipment: Equipment[] = [];
   let consumables: Consumable[] = [];
   for (let i = 0; i < 3; i += 1) {
-    const iLvl = randBetween(1, party.currentFloor, rngSingleton);
+    const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
+    const iLvl = randBetween(1, floorNumber, rngSingleton);
     const randomItem = this.generateRandomItem(iLvl);
     if (randomItem instanceof Error) console.error(randomItem);
     if (randomItem instanceof Consumable) consumables.push(randomItem);

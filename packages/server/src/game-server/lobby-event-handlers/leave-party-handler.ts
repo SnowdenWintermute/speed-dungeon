@@ -11,9 +11,9 @@ import { Socket } from "socket.io";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { getGameServer } from "../../singletons/index.js";
 import errorHandler from "../error-handler.js";
-import emitMessageInGameWithOptionalDelayForParty from "../utils/emit-message-in-game-with-optional-delay-for-party.js";
+import { emitMessageInGameWithOptionalDelayForParty } from "../utils/emit-message-in-game-with-optional-delay-for-party.js";
 
-export default async function leavePartyHandler(
+export async function leavePartyHandler(
   _eventData: undefined,
   playerAssociatedData: ServerPlayerAssociatedData,
   socket: Socket
@@ -45,10 +45,11 @@ export default async function leavePartyHandler(
 
     const remainingParties = Object.values(game.adventuringParties);
     if (remainingParties.length) {
+      const floorNumber = partyOption.dungeonExplorationManager.getCurrentFloor();
       emitMessageInGameWithOptionalDelayForParty(
         game.name,
         GameMessageType.PartyWipe,
-        createPartyWipeMessage(partyOption.name, partyOption.currentFloor, new Date(Date.now()))
+        createPartyWipeMessage(partyOption.name, floorNumber, new Date(Date.now()))
       );
     }
   }

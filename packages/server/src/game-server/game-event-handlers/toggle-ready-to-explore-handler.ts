@@ -1,7 +1,6 @@
 import {
   AdventuringParty,
   BattleGroup,
-  BattleGroupType,
   ERROR_MESSAGES,
   ServerToClientEvent,
   getPartyChannelName,
@@ -10,16 +9,15 @@ import {
   Battle,
   GameMode,
   InputLock,
-  EntityId,
 } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
 import { DungeonRoomType } from "@speed-dungeon/common";
-import { DescendOrExplore } from "@speed-dungeon/common";
 import { idGenerator, getGameServer } from "../../singletons/index.js";
 import { generateDungeonRoom } from "../dungeon-room-generation/index.js";
 import { writeAllPlayerCharacterInGameToDb } from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { BattleProcessor } from "./character-uses-selected-combat-action-handler/process-battle-until-player-turn-or-conclusion.js";
+import { ExplorationAction } from "@speed-dungeon/common";
 
 export async function toggleReadyToExploreHandler(
   _eventData: undefined,
@@ -39,27 +37,27 @@ export async function toggleReadyToExploreHandler(
   if (Object.values(party.currentRoom.monsters).length > 0)
     return new Error(ERROR_MESSAGES.PARTY.CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT);
 
-  AdventuringParty.updatePlayerReadiness(party, username, DescendOrExplore.Explore);
+  const { dungeonExplorationManager } = party;
+  dungeonExplorationManager.updatePlayerExplorationActionChoice(
+    username,
+    ExplorationAction.Explore
+  );
 
   gameServer.io
     .in(getPartyChannelName(game.name, party.name))
     .emit(
       ServerToClientEvent.PlayerToggledReadyToDescendOrExplore,
       username,
-      DescendOrExplore.Explore
+      ExplorationAction.Explore
     );
 
-  // if all players names are in the ready to explore list, generate the next room and remove
-  // them all from the ready list
-  let allPlayersReadyToExplore = true;
-  for (const username of party.playerUsernames) {
-    if (!party.playersReadyToExplore.includes(username)) {
-      allPlayersReadyToExplore = false;
-      break;
-    }
-  }
+  const allPlayersReadyToExplore = dungeonExplorationManager.allPlayersReadyToTakeAction(
+    ExplorationAction.Explore
+  );
 
-  if (!allPlayersReadyToExplore) return;
+  const waitingForPlayersToBeReady = !allPlayersReadyToExplore;
+
+  if (waitingForPlayersToBeReady) return;
 
   return gameServer.exploreNextRoom(game, party);
 }
@@ -71,31 +69,23 @@ export async function exploreNextRoom(
 ) {
   if (game.mode === GameMode.Progression) writeAllPlayerCharacterInGameToDb(this, game);
 
-  party.playersReadyToExplore = [];
+  const { dungeonExplorationManager } = party;
 
-  if (party.unexploredRooms.length < 1) {
-    party.generateUnexploredRoomsQueue();
-    // we only want the client to know about the monster lairs, they will discover other room types as they enter them
-    const newRoomTypesListForClientOption: (DungeonRoomType | null)[] = party.unexploredRooms.map(
-      (roomType) => {
-        if (roomType === DungeonRoomType.MonsterLair) return roomType;
-        else return null;
-      }
-    );
+  dungeonExplorationManager.clearPlayerExplorationActionChoices();
 
-    newRoomTypesListForClientOption.reverse();
+  const noUnexploredRoomsRemain = !dungeonExplorationManager.unexploredRoomsExistOnCurrentFloor();
+
+  if (noUnexploredRoomsRemain) {
+    dungeonExplorationManager.generateUnexploredRoomsQueue();
+
+    const newRoomTypesListForClient = dungeonExplorationManager.getFilteredNewRoomListForClient();
 
     this.io
       .in(getPartyChannelName(game.name, party.name))
-      .emit(ServerToClientEvent.DungeonRoomTypesOnCurrentFloor, newRoomTypesListForClientOption);
+      .emit(ServerToClientEvent.DungeonRoomTypesOnCurrentFloor, newRoomTypesListForClient);
   }
 
-  const roomTypeToGenerateOption = party.unexploredRooms.pop();
-  if (roomTypeToGenerateOption === undefined) {
-    console.error("no dungeon room to generate");
-    return new Error(ERROR_MESSAGES.SERVER_GENERIC);
-  }
-  const roomTypeToGenerate: DungeonRoomType = roomTypeToGenerateOption;
+  const roomTypeToGenerate = dungeonExplorationManager.popNextUnexploredRoomType();
 
   putPartyInNextRoom(game, party, roomTypeToGenerate);
 
@@ -129,27 +119,23 @@ export function putPartyInNextRoom(
   party: AdventuringParty,
   roomTypeToGenerate: DungeonRoomType
 ) {
-  const newRoom = generateDungeonRoom(party.currentFloor, roomTypeToGenerate);
+  const { dungeonExplorationManager } = party;
+  const floorNumber = dungeonExplorationManager.getCurrentFloor();
+
+  const newRoom = generateDungeonRoom(floorNumber, roomTypeToGenerate);
   party.currentRoom = newRoom;
 
   for (const monster of Object.values(party.currentRoom.monsters))
     updateCombatantHomePosition(monster.entityProperties.id, monster.combatantProperties, party);
 
-  party.roomsExplored.onCurrentFloor += 1;
-  party.roomsExplored.total += 1;
+  dungeonExplorationManager.incrementExploredRoomsTrackers();
 
   if (Object.keys(newRoom.monsters).length > 0) {
-    const battleGroupA = new BattleGroup(
-      party.name,
-      party.name,
-      party.characterPositions,
-      BattleGroupType.PlayerControlled
-    );
+    const battleGroupA = new BattleGroup(party.name, party.name, party.characterPositions);
     const battleGroupB = new BattleGroup(
       `${party.name}-monsters`,
       party.name,
-      party.currentRoom.monsterPositions,
-      BattleGroupType.ComputerControlled
+      party.currentRoom.monsterPositions
     );
 
     const battleIdResult = initiateBattle(game, party, battleGroupA, battleGroupB);

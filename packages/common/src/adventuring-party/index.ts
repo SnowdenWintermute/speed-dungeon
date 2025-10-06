@@ -5,8 +5,6 @@ import getCombatant from "./get-combatant-in-party.js";
 import { getItemInAdventuringParty } from "./get-item-in-party.js";
 import getCharacterIfOwned from "./get-character-if-owned.js";
 import { removeCharacterFromParty } from "./remove-character-from-party.js";
-import { generateUnexploredRoomsQueue } from "./generate-unexplored-rooms-queue.js";
-import updatePlayerReadiness from "./update-player-readiness.js";
 import playerOwnsCharacter from "./player-owns-character.js";
 import { InputLock } from "./input-lock.js";
 import { Combatant, CombatantCondition, CombatantProperties } from "../combatants/index.js";
@@ -18,13 +16,12 @@ import { Battle } from "../battle/index.js";
 import { FriendOrFoe, TurnTrackerEntityType } from "../combat/index.js";
 import { summonPetFromSlot } from "./handle-summon-pet.js";
 import { MAXIMUM_PET_SLOTS } from "../app-consts.js";
+import { DungeonExplorationManager } from "./dungeon-exploration-manager.js";
 export * from "./get-item-in-party.js";
 export * from "./dungeon-room.js";
-export * from "./update-player-readiness.js";
+export * from "./dungeon-exploration-manager.js";
 export * from "./input-lock.js";
 export * from "./add-character-to-party.js";
-
-export type RoomsExploredTracker = { total: number; onCurrentFloor: number };
 
 // @REFACTOR - split properties into component classes
 
@@ -43,12 +40,7 @@ export class AdventuringParty {
   actionEntities: Record<EntityId, ActionEntity> = {};
 
   // dungeon exploration
-  currentFloor: number = 1;
-  roomsExplored: RoomsExploredTracker = { total: 0, onCurrentFloor: 1 };
-  unexploredRooms: DungeonRoomType[] = [];
-  clientCurrentFloorRoomsList: (null | DungeonRoomType)[] = [];
-  playersReadyToExplore: string[] = [];
-  playersReadyToDescend: string[] = [];
+  dungeonExplorationManager = new DungeonExplorationManager(this);
 
   // current room
   currentRoom: DungeonRoom = new DungeonRoom(DungeonRoomType.Empty, {}, []);
@@ -117,8 +109,6 @@ export class AdventuringParty {
   }
   static getItem = getItemInAdventuringParty;
   static getCharacterIfOwned = getCharacterIfOwned;
-  generateUnexploredRoomsQueue = generateUnexploredRoomsQueue;
-  static updatePlayerReadiness = updatePlayerReadiness;
   static playerOwnsCharacter = playerOwnsCharacter;
   static getAllCombatants(party: AdventuringParty) {
     return { characters: party.characters, monsters: party.currentRoom.monsters };

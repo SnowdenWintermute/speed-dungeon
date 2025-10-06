@@ -24,7 +24,7 @@ import { ItemGenerationDirector } from "./item-generation/item-generation-direct
 import { generateRandomItem } from "./item-generation/generate-random-item.js";
 import { battleResultActionCommandHandler } from "./game-event-handlers/action-command-handlers/battle-results.js";
 import getGamePartyAndCombatant from "./utils/get-game-party-and-combatant.js";
-import generateLoot from "./game-event-handlers/action-command-handlers/generate-loot.js";
+import { generateLoot } from "./game-event-handlers/action-command-handlers/generate-loot.js";
 import generateExperiencePoints from "./game-event-handlers/action-command-handlers/generate-experience-points.js";
 import initiateSavedCharacterListeners from "./saved-character-event-handlers/index.js";
 import GameModeContext from "./game-event-handlers/game-mode-strategies/game-mode-context.js";

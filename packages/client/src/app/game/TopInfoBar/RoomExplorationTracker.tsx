@@ -12,16 +12,17 @@ export default function RoomExplorationTracker() {
   if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
   const party = partyResult;
 
+  const currentRoom = party.dungeonExplorationManager.getCurrentRoomNumber();
+  const roomList = party.dungeonExplorationManager.getClientVisibleRoomExplorationList();
+
   return (
     <ul className="h-full list-none flex items-center">
-      {party.clientCurrentFloorRoomsList.map((roomTypeOption, i) => {
+      {roomList.map((roomTypeOption, i) => {
         const currentRoomClass =
-          party.roomsExplored.onCurrentFloor === i + 1
-            ? "border border-yellow-400"
-            : "border-slate-400";
+          currentRoom === i + 1 ? "border border-yellow-400" : "border-slate-400";
 
         const connectionLine =
-          i !== party.clientCurrentFloorRoomsList.length - 1 ? (
+          i !== roomList.length - 1 ? (
             <span className={"h-[2px] bg-slate-400"} style={{ width: `${SPACING_REM}rem` }} />
           ) : (
             <></>

@@ -5,7 +5,6 @@ import {
   DungeonRoomType,
   ERROR_MESSAGES,
   EntityId,
-  Inventory,
   ItemType,
   ServerToClientEvent,
   getConsumableShardPrice,
@@ -31,7 +30,8 @@ export function purchaseItemHandler(
   if (consumableType === ConsumableType.StackOfShards)
     return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
 
-  const priceOption = getConsumableShardPrice(party.currentFloor, consumableType);
+  const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
+  const priceOption = getConsumableShardPrice(floorNumber, consumableType);
   if (priceOption === null) return new Error(ERROR_MESSAGES.ITEM.NOT_PURCHASEABLE);
   const { inventory } = character.combatantProperties;
   if (priceOption > inventory.shards) return new Error(ERROR_MESSAGES.COMBATANT.NOT_ENOUGH_SHARDS);

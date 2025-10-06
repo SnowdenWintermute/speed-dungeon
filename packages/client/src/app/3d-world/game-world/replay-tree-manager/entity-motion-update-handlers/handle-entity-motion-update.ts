@@ -27,7 +27,7 @@ import { handleStartPointingTowardEntity } from "./handle-start-pointing-toward"
 import { handleEquipmentAnimations } from "./handle-equipment-animations";
 import { useGameStore } from "@/stores/game-store";
 import getParty from "@/utils/getParty";
-import { GameUpdateTracker } from "..";
+import { GameUpdateTracker } from "../game-update-tracker";
 
 export function handleEntityMotionUpdate(
   update: GameUpdateTracker<ActionEntityMotionGameUpdateCommand | CombatantMotionGameUpdateCommand>,
