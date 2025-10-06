@@ -17,13 +17,14 @@ import { FriendOrFoe, TurnTrackerEntityType } from "../combat/index.js";
 import { summonPetFromSlot } from "./handle-summon-pet.js";
 import { MAXIMUM_PET_SLOTS } from "../app-consts.js";
 import { DungeonExplorationManager } from "./dungeon-exploration-manager.js";
+import { ActionEntityManager } from "./action-entity-manager.js";
 export * from "./get-item-in-party.js";
 export * from "./dungeon-room.js";
 export * from "./dungeon-exploration-manager.js";
 export * from "./input-lock.js";
 export * from "./add-character-to-party.js";
 
-// @REFACTOR - split properties into component classes
+// @REFACTOR - split properties into subsystem classes
 
 export class AdventuringParty {
   [immerable] = true;
@@ -37,7 +38,7 @@ export class AdventuringParty {
   private unsummonedPetsByOwnerId: { [ownerId: EntityId]: Combatant[] } = {};
   summonedCharacterPets: Record<EntityId, Combatant> = {};
 
-  actionEntities: Record<EntityId, ActionEntity> = {};
+  actionEntityManager = new ActionEntityManager();
 
   // dungeon exploration
   dungeonExplorationManager = new DungeonExplorationManager(this);
@@ -62,15 +63,13 @@ export class AdventuringParty {
     public name: string
   ) {}
 
-  hasCharacters() {
-    return Object.values(this.characters).length > 0;
-  }
-
-  static removeCharacter = removeCharacterFromParty;
+  // COMBATANTS
   static getCombatant = getCombatant;
+
   static getAllCombatantIds(party: AdventuringParty) {
     return [...party.characterPositions, ...party.currentRoom.monsterPositions];
   }
+
   static getCombatants(party: AdventuringParty, entityIds: EntityId[]) {
     const toReturn: Combatant[] = [];
 
@@ -85,11 +84,13 @@ export class AdventuringParty {
 
     return toReturn;
   }
+
   static getExpectedCombatant(party: AdventuringParty, combatantId: EntityId) {
     const combatantResult = AdventuringParty.getCombatant(party, combatantId);
     if (combatantResult instanceof Error) throw combatantResult;
     return combatantResult;
   }
+
   static getConditionOnCombatant(
     party: AdventuringParty,
     combatantId: EntityId,
@@ -107,9 +108,18 @@ export class AdventuringParty {
       );
     return conditionOption;
   }
+
+  // ITEMS
   static getItem = getItemInAdventuringParty;
+
+  // PLAYER CHARACTERS
   static getCharacterIfOwned = getCharacterIfOwned;
   static playerOwnsCharacter = playerOwnsCharacter;
+  static removeCharacter = removeCharacterFromParty;
+  hasCharacters() {
+    return Object.values(this.characters).length > 0;
+  }
+
   static getAllCombatants(party: AdventuringParty) {
     return { characters: party.characters, monsters: party.currentRoom.monsters };
   }
@@ -140,6 +150,8 @@ export class AdventuringParty {
       throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
     }
   }
+
+  // PETS
 
   setCombatantPets(ownerId: EntityId, pets: Combatant[]) {
     this.unsummonedPetsByOwnerId[ownerId] = pets;
@@ -177,64 +189,4 @@ export class AdventuringParty {
   }
 
   static summonPetFromSlot = summonPetFromSlot;
-
-  static registerActionEntity(
-    party: AdventuringParty,
-    entity: ActionEntity,
-    battleOption: null | Battle
-  ) {
-    const { entityProperties } = entity;
-    party.actionEntities[entityProperties.id] = entity;
-
-    const turnOrderSpeedOption = entity.actionEntityProperties.actionOriginData?.turnOrderSpeed;
-    if (battleOption && turnOrderSpeedOption !== undefined) {
-      // account for how long the battle has been going for
-      const fastestSchedulerDelay =
-        battleOption.turnOrderManager.turnSchedulerManager.getFirstScheduler().accumulatedDelay;
-
-      const startingDelay = turnOrderSpeedOption + fastestSchedulerDelay;
-
-      battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
-        { type: TurnTrackerEntityType.ActionEntity, actionEntityId: entity.entityProperties.id },
-        startingDelay
-      );
-    }
-  }
-
-  static unregisterActionEntity(
-    party: AdventuringParty,
-    entityId: EntityId,
-    battleOption: null | Battle
-  ) {
-    delete party.actionEntities[entityId];
-  }
-
-  static getActionEntity(party: AdventuringParty, entityId: EntityId) {
-    const entityOption = party.actionEntities[entityId];
-    if (entityOption === undefined) return new Error(ERROR_MESSAGES.ACTION_ENTITIES.NOT_FOUND);
-    return entityOption;
-  }
-
-  static getExistingActionEntityOfType(
-    party: AdventuringParty,
-    actionEntityType: ActionEntityName
-  ) {
-    for (const actionEntity of Object.values(party.actionEntities)) {
-      if (actionEntity.actionEntityProperties.name === actionEntityType) return actionEntity;
-    }
-    return null;
-  }
-
-  static unregisterActionEntitiesOnBattleEndOrNewRoom(
-    party: AdventuringParty,
-    battleOption: null | Battle
-  ) {
-    const removed = [];
-    for (const [key, entity] of Object.entries(party.actionEntities)) {
-      removed.push(entity.entityProperties.id);
-      AdventuringParty.unregisterActionEntity(party, key, battleOption);
-    }
-
-    return removed;
-  }
 }

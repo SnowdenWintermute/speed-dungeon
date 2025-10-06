@@ -9,9 +9,10 @@ export class ActionEntityTurnScheduler extends TurnScheduler implements ITurnSch
     super();
   }
   getTiebreakerId = () => this.actionEntityId;
+
   getSpeed(party: AdventuringParty) {
-    const entityOption = party.actionEntities[this.actionEntityId];
-    if (entityOption === undefined) throw new Error("no action entity found");
+    const { actionEntityManager } = party;
+    const entityOption = actionEntityManager.getExpectedActionEntity(this.actionEntityId);
     const { actionEntityProperties } = entityOption;
     const { actionOriginData } = actionEntityProperties;
     if (actionOriginData === undefined)
@@ -19,21 +20,25 @@ export class ActionEntityTurnScheduler extends TurnScheduler implements ITurnSch
 
     return actionOriginData.turnOrderSpeed || 0;
   }
+
   isStale(party: AdventuringParty) {
-    const actionEntity = AdventuringParty.getActionEntity(party, this.actionEntityId);
-    return actionEntity instanceof Error;
+    const { actionEntityManager } = party;
+    const entityOption = actionEntityManager.getActionEntityOption(this.actionEntityId);
+    return entityOption === undefined;
   }
+
   isMatch(otherScheduler: ITurnScheduler): boolean {
     return (
       otherScheduler instanceof ActionEntityTurnScheduler &&
       otherScheduler.actionEntityId === this.actionEntityId
     );
   }
+
   createTurnTrackerOption(game: SpeedDungeonGame, party: AdventuringParty) {
     const { actionEntityId, timeOfNextMove } = this;
-    const actionEntityResult = AdventuringParty.getActionEntity(party, actionEntityId);
-    if (actionEntityResult instanceof Error) throw actionEntityResult;
-    const actionEntity = actionEntityResult;
+
+    const { actionEntityManager } = party;
+    const actionEntity = actionEntityManager.getExpectedActionEntity(this.actionEntityId);
 
     const { actionOriginData } = actionEntity.actionEntityProperties;
     if (actionOriginData === undefined)

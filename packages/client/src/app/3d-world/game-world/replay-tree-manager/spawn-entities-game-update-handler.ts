@@ -64,7 +64,8 @@ export async function spawnEntitiesGameUpdateHandler(
 
         const deserialized = ActionEntity.getDeserialized(actionEntity);
 
-        AdventuringParty.registerActionEntity(partyResult, deserialized, battleOption);
+        const { actionEntityManager } = partyResult;
+        actionEntityManager.registerActionEntity(deserialized, battleOption);
       }
     });
 

@@ -11,7 +11,6 @@ import {
   Camera,
   RenderTargetTexture,
   GroundMesh,
-  Texture,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { initScene } from "./init-scene";
@@ -25,8 +24,7 @@ import { SavedMaterials, createDefaultMaterials } from "./materials/create-defau
 import { ImageManager } from "./image-manager";
 import pixelationShader from "./pixelationNodeMaterial.json";
 import { ReplayTreeProcessorManager } from "./replay-tree-manager";
-import { ActionEntityManager } from "../scene-entities/action-entity-models";
-import { testParticleSystem } from "./testing-particle-systems";
+import { ActionEntityModelManager } from "../scene-entities/action-entity-models";
 import { fillDynamicTextureWithSvg } from "@/utils";
 
 export const LAYER_MASK_1 = 0x10000000;
@@ -44,6 +42,7 @@ export class GameWorld {
   debug: { debugRef: React.RefObject<HTMLUListElement | null> | null } = { debugRef: null };
   useShadows: boolean = false;
   modelManager: ModelManager = new ModelManager(this);
+  actionEntityManager = new ActionEntityModelManager();
   groundTexture: DynamicTexture;
   defaultMaterials: SavedMaterials;
   // imageCreationDefaultMaterials: SavedMaterials;
@@ -52,7 +51,6 @@ export class GameWorld {
   portraitRenderTarget: RenderTargetTexture;
   replayTreeManager = new ReplayTreeProcessorManager();
   idGenerator = new IdGenerator();
-  actionEntityManager = new ActionEntityManager();
   tickCounter: number = 0;
   targetIndicatorTexture: DynamicTexture;
 

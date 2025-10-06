@@ -139,9 +139,8 @@ export class ActionEntityTurnTracker extends TurnTracker {
   }
 
   getActionEntity(party: AdventuringParty) {
-    const result = party.actionEntities[this.actionEntityId];
-    if (result === undefined) throw new Error("no action entity by that id was registered");
-    return result;
+    const { actionEntityManager } = party;
+    return actionEntityManager.getExpectedActionEntity(this.actionEntityId);
   }
 
   getTaggedIdOfTrackedEntity(): TaggedActionEntityTurnTrackerActionEntityId {
@@ -168,9 +167,9 @@ export class ActionEntityTurnTracker extends TurnTracker {
 
   getNextActionIntentAndUser(game: SpeedDungeonGame, party: AdventuringParty, battle: Battle) {
     const { actionEntityId } = this;
-    const actionEntityResult = AdventuringParty.getActionEntity(party, actionEntityId);
 
-    if (actionEntityResult instanceof Error) throw actionEntityResult;
+    const { actionEntityManager } = party;
+    const actionEntityResult = actionEntityManager.getExpectedActionEntity(actionEntityId);
 
     const actionIntentGetterOption =
       ACTION_ENTITY_ACTION_INTENT_GETTERS[actionEntityResult.actionEntityProperties.name];

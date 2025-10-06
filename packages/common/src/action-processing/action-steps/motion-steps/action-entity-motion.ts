@@ -1,8 +1,4 @@
-import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
-  ActionResolutionStepContext,
-  ActionResolutionStepType,
-} from "../index.js";
+import { ActionResolutionStepContext, ActionResolutionStepType } from "../index.js";
 import {
   ActionEntityMotionGameUpdateCommand,
   ActionEntityMotionUpdate,
@@ -11,8 +7,7 @@ import {
 import { SpawnableEntityType } from "../../../spawnables/index.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { ActionEntity } from "../../../action-entities/index.js";
-import { COMBAT_ACTION_NAME_STRINGS, COMBAT_ACTIONS } from "../../../combat/index.js";
-import { AdventuringParty } from "../../../adventuring-party/index.js";
+import { COMBAT_ACTIONS } from "../../../combat/index.js";
 
 export class ActionEntityMotionActionResolutionStep extends EntityMotionActionResolutionStep {
   constructor(context: ActionResolutionStepContext, stepType: ActionResolutionStepType) {
@@ -23,9 +18,9 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
       // otherwise check if the action has a spawned action entity
       actionEntity = context.tracker.getFirstExpectedSpawnedActionEntity().actionEntity;
 
-    const entityIsStillRegistered = !(
-      AdventuringParty.getActionEntity(party, actionUser.getEntityId()) instanceof Error
-    );
+    const { actionEntityManager } = party;
+    const entityIsStillRegistered =
+      actionEntityManager.getActionEntityOption(actionUser.getEntityId()) !== undefined;
 
     let gameUpdateCommand: null | ActionEntityMotionGameUpdateCommand = null;
     // don't send update if the entity was previously removed
@@ -91,9 +86,8 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
       gameUpdateCommand.mainEntityUpdate.despawnOnCompleteMode !== undefined
     ) {
       const { party } = context.actionUserContext;
-
-      const battleOption = AdventuringParty.getBattleOption(party, context.actionUserContext.game);
-      AdventuringParty.unregisterActionEntity(party, actionUser.getEntityId(), battleOption);
+      const { actionEntityManager } = party;
+      actionEntityManager.unregisterActionEntity(actionUser.getEntityId());
     }
 
     return [];

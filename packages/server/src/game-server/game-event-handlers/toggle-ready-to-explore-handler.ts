@@ -91,11 +91,10 @@ export async function exploreNextRoom(
 
   const partyChannelName = getPartyChannelName(game.name, party.name);
 
+  const { actionEntityManager } = party;
+
   const battleOption = AdventuringParty.getBattleOption(party, game);
-  const actionEntitiesRemoved = AdventuringParty.unregisterActionEntitiesOnBattleEndOrNewRoom(
-    party,
-    battleOption
-  );
+  const actionEntitiesRemoved = actionEntityManager.unregisterActionEntitiesOnBattleEndOrNewRoom();
 
   this.io.to(partyChannelName).emit(ServerToClientEvent.DungeonRoomUpdate, {
     dungeonRoom: party.currentRoom,

@@ -13,7 +13,6 @@ import { createHitOutcomeProperties } from "../generic-action-templates/hit-outc
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { FIREWALL_BURN_HIT_OUTCOME_PROPERTIES } from "./firewall-burn-hit-outcome-properties.js";
 import { FIREWALL_STEPS_CONFIG, getFirewallStacksByLevel } from "./firewall-steps-config.js";
-import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import {
   ActionEntity,
   ActionEntityActionOriginData,
@@ -29,8 +28,8 @@ const hitOutcomeProperties = createHitOutcomeProperties(
       const { actionUserContext } = context;
       const { game, party, actionUser } = actionUserContext;
       // check for existing firewall
-      const existingFirewallOption = AdventuringParty.getExistingActionEntityOfType(
-        party,
+      const { actionEntityManager } = party;
+      const existingFirewallOption = actionEntityManager.getExistingActionEntityOfType(
         ActionEntityName.Firewall
       );
 

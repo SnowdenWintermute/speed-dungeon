@@ -1,6 +1,5 @@
 import {
   ActionEntityMotionGameUpdateCommand,
-  AdventuringParty,
   AnimationType,
   CleanupMode,
   CombatantMotionGameUpdateCommand,
@@ -149,8 +148,8 @@ function despawnAndUnregisterActionEntity(entityId: EntityId, cleanupMode: Clean
       } else {
         if (!state.game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
 
-        const battleOption = AdventuringParty.getBattleOption(partyResult, state.game);
-        AdventuringParty.unregisterActionEntity(partyResult, entityId, battleOption);
+        const { actionEntityManager } = partyResult;
+        actionEntityManager.unregisterActionEntity(entityId);
       }
     });
   }

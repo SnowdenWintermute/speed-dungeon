@@ -40,10 +40,8 @@ export async function getBattleConclusionCommandAndPayload(
     InputLock.unlockInput(party.inputLock);
   }
 
-  const actionEntitiesRemoved = AdventuringParty.unregisterActionEntitiesOnBattleEndOrNewRoom(
-    party,
-    AdventuringParty.getBattleOption(party, game)
-  );
+  const { actionEntityManager } = party;
+  const actionEntitiesRemoved = actionEntityManager.unregisterActionEntitiesOnBattleEndOrNewRoom();
 
   const payload: BattleResultActionCommandPayload = {
     type: ActionCommandType.BattleResult,

@@ -35,11 +35,8 @@ export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
           case SpawnableEntityType.Combatant:
             throw new Error("not implemented");
           case SpawnableEntityType.ActionEntity:
-            AdventuringParty.registerActionEntity(
-              party,
-              spawnableEntity.actionEntity,
-              battleOption
-            );
+            const { actionEntityManager } = party;
+            actionEntityManager.registerActionEntity(spawnableEntity.actionEntity, battleOption);
         }
 
         context.tracker.spawnedEntities.push(spawnableEntity);

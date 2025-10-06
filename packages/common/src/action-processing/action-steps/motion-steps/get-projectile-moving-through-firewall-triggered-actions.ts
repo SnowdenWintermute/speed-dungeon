@@ -15,8 +15,6 @@ import { TriggerEnvironmentalHazardsActionResolutionStep } from "./determine-env
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import cloneDeep from "lodash.clonedeep";
 import { timeToReachBox } from "../../../utils/index.js";
-import { SpawnableEntityType } from "../../../spawnables/index.js";
-import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { Milliseconds } from "../../../primatives/index.js";
 
 const requiredFirewallLevelForIgnitingProjectiles = 2;
@@ -64,8 +62,9 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
   const { party } = context.actionUserContext;
 
   // we only expect one firewall to exist
-  const existingFirewallOption = AdventuringParty.getExistingActionEntityOfType(
-    party,
+
+  const { actionEntityManager } = party;
+  const existingFirewallOption = actionEntityManager.getExistingActionEntityOfType(
     ActionEntityName.Firewall
   );
 

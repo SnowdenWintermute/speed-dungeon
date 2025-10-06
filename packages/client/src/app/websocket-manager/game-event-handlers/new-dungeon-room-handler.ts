@@ -11,7 +11,6 @@ import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { Vector3 } from "@babylonjs/core";
 import {
-  AdventuringParty,
   CleanupMode,
   Combatant,
   Consumable,
@@ -39,8 +38,9 @@ export default function newDungeonRoomHandler({
     const party = getCurrentParty(gameState, gameState.username || "");
     if (party === undefined) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY));
 
+    const { actionEntityManager } = party;
     for (const actionEntityId of actionEntitiesToRemove) {
-      AdventuringParty.unregisterActionEntity(party, actionEntityId, null);
+      actionEntityManager.unregisterActionEntity(actionEntityId);
       getGameWorld().actionEntityManager.unregister(actionEntityId, CleanupMode.Soft);
     }
 

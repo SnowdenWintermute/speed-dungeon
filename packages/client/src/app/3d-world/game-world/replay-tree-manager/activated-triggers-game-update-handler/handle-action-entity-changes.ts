@@ -17,10 +17,15 @@ export function handleActionEntityChanges(
       userKineticAffinities,
       userCombatantAttributes,
     } = changes;
-    const actionEntity = throwIfError(AdventuringParty.getActionEntity(party, id));
+
+    const { actionEntityManager } = party;
+
+    const actionEntity = actionEntityManager.getExpectedActionEntity(id);
     let { actionOriginData } = actionEntity.actionEntityProperties;
     if (!actionOriginData)
-      actionOriginData = actionEntity.actionEntityProperties.actionOriginData = {};
+      actionOriginData = actionEntity.actionEntityProperties.actionOriginData = {
+        spawnedBy: { id: "", name: "not found" },
+      };
 
     // @PERF - probably don't need to send the whole MaxAndCurrent for level and stacks unless
     // we one day want to change the max, but it is simpler this way since we get to use a Partial of

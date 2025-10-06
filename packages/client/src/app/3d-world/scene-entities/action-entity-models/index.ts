@@ -19,7 +19,7 @@ import { getGameWorld } from "../../SceneManager";
 import { SceneEntity } from "..";
 import { ACTION_ENTITY_MODEL_FACTORIES } from "./action-entity-model-factories";
 
-export class ActionEntityManager {
+export class ActionEntityModelManager {
   models: { [id: EntityId]: ActionEntityModel } = {};
   constructor() {}
   register(model: ActionEntityModel) {

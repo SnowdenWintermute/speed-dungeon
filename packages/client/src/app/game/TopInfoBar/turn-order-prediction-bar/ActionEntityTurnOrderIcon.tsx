@@ -36,12 +36,12 @@ export default function ActionEntityTurnOrderTrackerIcon({
     </div>
   );
 
-  const actionEnityResult = AdventuringParty.getActionEntity(
-    party,
+  const { actionEntityManager } = party;
+  const actionEnityResult = actionEntityManager.getActionEntityOption(
     taggedTrackedEntityId.actionEntityId
   );
 
-  if (!(actionEnityResult instanceof Error)) {
+  if (actionEnityResult !== undefined) {
     const iconGetterOption = ACTION_ENTITY_ICONS[actionEnityResult.actionEntityProperties.name];
     if (iconGetterOption !== null) {
       icon = (

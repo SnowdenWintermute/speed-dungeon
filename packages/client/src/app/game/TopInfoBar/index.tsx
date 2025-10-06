@@ -2,12 +2,7 @@ import React from "react";
 import { useGameStore } from "@/stores/game-store";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import RoomExplorationTracker from "./RoomExplorationTracker";
-import {
-  AdventuringParty,
-  CleanupMode,
-  ClientToServerEvent,
-  DUNGEON_ROOM_TYPE_STRINGS,
-} from "@speed-dungeon/common";
+import { CleanupMode, ClientToServerEvent, DUNGEON_ROOM_TYPE_STRINGS } from "@speed-dungeon/common";
 import getGameAndParty from "@/utils/getGameAndParty";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
@@ -36,8 +31,9 @@ export default function TopInfoBar() {
     mutateGameState((state) => {
       const partyResult = getParty(state.game, state.username);
       if (!(partyResult instanceof Error)) {
-        for (const [entityId, entity] of Object.entries(partyResult.actionEntities)) {
-          AdventuringParty.unregisterActionEntity(partyResult, entity.entityProperties.id, null);
+        const { actionEntityManager } = partyResult;
+        for (const [entityId, entity] of Object.entries(actionEntityManager.getActionEntities())) {
+          actionEntityManager.unregisterActionEntity(entity.entityProperties.id);
           getGameWorld().actionEntityManager.unregister(
             entity.entityProperties.id,
             CleanupMode.Soft

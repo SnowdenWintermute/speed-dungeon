@@ -82,9 +82,10 @@ export async function activatedTriggersGameUpdateHandler(
 
     // must despawn AFTER startOrStopCosmeticEffects so we can do a little puff of smoke
     // on an entity right before we despawn it
+    const { actionEntityManager } = party;
     if (command.actionEntityIdsDespawned) {
       for (const { id, cleanupMode } of command.actionEntityIdsDespawned) {
-        AdventuringParty.unregisterActionEntity(party, id, battleOption);
+        actionEntityManager.unregisterActionEntity(id);
         getGameWorld().actionEntityManager.unregister(id, cleanupMode);
       }
     }

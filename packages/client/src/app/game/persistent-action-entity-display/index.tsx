@@ -1,7 +1,7 @@
 import { ACTION_ENTITY_ICONS } from "@/app/icons";
 import { useGameStore } from "@/stores/game-store";
 import { useUIStore } from "@/stores/ui-store";
-import { ACTION_ENTITY_STRINGS, ActionEntity, AdventuringParty } from "@speed-dungeon/common";
+import { ACTION_ENTITY_STRINGS, ActionEntity } from "@speed-dungeon/common";
 import React from "react";
 
 interface Props {}
@@ -13,15 +13,17 @@ export default function PersistentActionEntityDisplay(props: Props) {
 
   const game = useGameStore().game;
   if (game === null) return <div>no game</div>;
-  const battleOption = AdventuringParty.getBattleOption(party, game);
+  const { actionEntityManager } = party;
 
   return (
     <ul className="list-none">
-      {Object.entries(party.actionEntities).map(([actionEntityId, actionEntity]) => (
-        <ul key={actionEntityId}>
-          <PersistentActionEntity actionEntity={actionEntity} />
-        </ul>
-      ))}
+      {Object.entries(actionEntityManager.getActionEntities()).map(
+        ([actionEntityId, actionEntity]) => (
+          <ul key={actionEntityId}>
+            <PersistentActionEntity actionEntity={actionEntity} />
+          </ul>
+        )
+      )}
     </ul>
   );
 }
