@@ -10,7 +10,7 @@ export function handlePetSlotsSummoned(
   const battleOption = AdventuringParty.getBattleOption(party, game);
 
   for (const { ownerId, slotIndex } of petSlotsSummoned) {
-    const pet = AdventuringParty.summonPetFromSlot(party, ownerId, slotIndex, battleOption);
+    party.petManager.summonPetFromSlot(party, ownerId, slotIndex, battleOption);
   }
 
   getGameWorld().modelManager.modelActionQueue.enqueueMessage({

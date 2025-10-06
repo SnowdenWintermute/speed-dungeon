@@ -123,7 +123,7 @@ function getModelsAndPositions() {
 
     // pets
 
-    for (const combatant of Object.values(partyResult.summonedCharacterPets)) {
+    for (const combatant of Object.values(partyResult.petManager.getSummonedPets())) {
       modelsAndPositions[combatant.entityProperties.id] = {
         combatant: combatant,
         homeRotation: combatant.combatantProperties.homeRotation,

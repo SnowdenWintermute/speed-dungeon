@@ -1,14 +1,25 @@
-import { MAXIMUM_PET_SLOTS } from "../app-consts";
-import { Combatant } from "../combatants";
-import { EntityId } from "../primatives";
+import { AdventuringParty } from "./index.js";
+import { MAXIMUM_PET_SLOTS } from "../app-consts.js";
+import { Combatant } from "../combatants/index.js";
+import { EntityId } from "../primatives/index.js";
+import { Battle } from "../battle/index.js";
+import { TurnTrackerEntityType } from "../combat/index.js";
 
 export class PetManager {
   private unsummonedPetsByOwnerId: { [ownerId: EntityId]: Combatant[] } = {};
   private summonedCharacterPets: Record<EntityId, Combatant> = {};
   constructor() {}
 
+  getSummonedPetOptionById(petId: EntityId) {
+    return this.summonedCharacterPets[petId];
+  }
+
   setCombatantPets(ownerId: EntityId, pets: Combatant[]) {
     this.unsummonedPetsByOwnerId[ownerId] = pets;
+  }
+
+  getSummonedPets() {
+    return this.summonedCharacterPets;
   }
 
   getUnsummonedPetOptionByOwnerAndSlot(ownerId: EntityId, petSlot: number) {
@@ -27,8 +38,8 @@ export class PetManager {
     return toReturn;
   }
 
-  getPetAndOwnerByPetId(petId: EntityId) {
-    for (const [entityId, combatant] of Object.entries(this.characters)) {
+  getPetAndOwnerByPetId(party: AdventuringParty, petId: EntityId) {
+    for (const [entityId, combatant] of Object.entries(party.characters)) {
       for (const { slotIndex, petOption } of this.iteratePetSlots(entityId)) {
         if (petId === petOption?.getEntityId()) return { pet: petOption, ownerId: entityId };
       }
@@ -42,6 +53,8 @@ export class PetManager {
     return petOption;
   }
 
+  /** Moves the pet from the unsummoned pets storage to the summoned pets storage
+   * and returns the summoned pet */
   summonPetFromSlot(
     party: AdventuringParty,
     ownerId: EntityId,
@@ -56,7 +69,7 @@ export class PetManager {
     const isMonsterPet = party.currentRoom.monsterPositions.includes(ownerId);
 
     // remove the pet from the unsummonedPets data structure
-    const petOption = party.removePetFromUnsummonedSlot(ownerId, slotIndex);
+    const petOption = this.removePetFromUnsummonedSlot(ownerId, slotIndex);
     if (petOption === undefined)
       throw new Error(
         `expected pet owner id ${ownerId} to have a pet in that slotIndex ${slotIndex} to summon`
@@ -67,7 +80,8 @@ export class PetManager {
     // place the pet in either summonedCharacterPets or currentRoom.summonedMonsterPets
     if (isCharacterPet) {
       const petId = pet.getEntityId();
-      party.summonedCharacterPets[petId] = pet;
+      this.summonedCharacterPets[petId] = pet;
+      // @TODO - figure out characterPositions more generalized
       party.characterPositions.push(petId);
     } else if (isMonsterPet) {
       throw new Error("not implemented");

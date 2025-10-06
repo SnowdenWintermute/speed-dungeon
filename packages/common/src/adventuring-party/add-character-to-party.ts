@@ -22,7 +22,7 @@ export function addCharacterToParty(
   party.characters[characterId] = character;
   party.characterPositions.push(characterId);
 
-  party.setCombatantPets(characterId, pets);
+  party.petManager.setCombatantPets(characterId, pets);
 
   /// Could move this out of here
   character.combatantProperties.controllingPlayer = player.username;

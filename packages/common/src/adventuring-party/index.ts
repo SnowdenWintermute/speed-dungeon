@@ -14,6 +14,7 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import { FriendOrFoe } from "../combat/index.js";
 import { DungeonExplorationManager } from "./dungeon-exploration-manager.js";
 import { ActionEntityManager } from "./action-entity-manager.js";
+import { PetManager } from "./pet-manager.js";
 export * from "./get-item-in-party.js";
 export * from "./dungeon-room.js";
 export * from "./dungeon-exploration-manager.js";
@@ -27,6 +28,7 @@ export class AdventuringParty {
   // subsystems
   actionEntityManager = new ActionEntityManager();
   dungeonExplorationManager = new DungeonExplorationManager(this);
+  petManager = new PetManager();
 
   // players
   playerUsernames: string[] = [];

@@ -37,10 +37,11 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
 
     const { petSlotsSummoned } = onUseTriggers;
     if (petSlotsSummoned) {
+      const { petManager } = party;
       const battleOption = AdventuringParty.getBattleOption(party, game);
 
       for (const { ownerId, slotIndex } of petSlotsSummoned) {
-        const pet = AdventuringParty.summonPetFromSlot(party, ownerId, slotIndex, battleOption);
+        petManager.summonPetFromSlot(party, ownerId, slotIndex, battleOption);
       }
     }
 
