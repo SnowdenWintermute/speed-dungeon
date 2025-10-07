@@ -7,6 +7,7 @@ import {
   CombatAttribute,
   Combatant,
   CombatantActionState,
+  CombatantControllerType,
   CombatantProperties,
   Equipment,
   MONSTER_SPECIES,
@@ -41,7 +42,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
     combatantClass,
     combatantSpecies,
     monsterType,
-    null,
+    { controllerType: CombatantControllerType.Dungeon, controllerName: "" },
     Vector3.Zero()
   );
 

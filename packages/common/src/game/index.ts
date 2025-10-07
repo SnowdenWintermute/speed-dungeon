@@ -40,10 +40,8 @@ export class SpeedDungeonGame {
   }
 
   static deserialize(game: SpeedDungeonGame) {
-    for (const party of Object.values(game.adventuringParties)) {
-      for (const [entityId, character] of Object.entries(party.characters)) {
-        party.characters[entityId] = Combatant.getDeserialized(character);
-      }
+    for (const [partyId, party] of Object.entries(game.adventuringParties)) {
+      game.adventuringParties[partyId] = AdventuringParty.getDeserialized(party);
     }
 
     for (const [username, player] of Object.entries(game.players))

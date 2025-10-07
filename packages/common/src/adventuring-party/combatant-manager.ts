@@ -1,3 +1,4 @@
+import { plainToInstance } from "class-transformer";
 import { FriendOrFoe } from "../combat/index.js";
 import {
   Combatant,
@@ -157,5 +158,17 @@ export class CombatantManager {
     const combatant = this.getExpectedCombatant(combatantId);
     this.combatants.delete(combatantId);
     return combatant;
+  }
+
+  static getDeserialized(serialized: CombatantManager): CombatantManager {
+    const deserialized = plainToInstance(CombatantManager, serialized);
+    deserialized.combatants = new Map();
+
+    for (const [entityId, combatantJson] of Object.entries(serialized.combatants)) {
+      const combatant = Combatant.getDeserialized(combatantJson);
+      deserialized.combatants.set(entityId as EntityId, combatant);
+    }
+
+    return deserialized;
   }
 }

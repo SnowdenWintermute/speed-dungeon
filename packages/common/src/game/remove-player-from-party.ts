@@ -1,6 +1,5 @@
 import cloneDeep from "lodash.clonedeep";
 import { SpeedDungeonGame } from "./index.js";
-import { AdventuringParty } from "../adventuring-party/index.js";
 import { Combatant } from "../combatants/index.js";
 import { ArrayUtils } from "../utils/array-utils.js";
 
@@ -9,6 +8,8 @@ export type RemovedPlayerData = {
   partyWasRemoved: boolean;
   charactersRemoved: Combatant[];
 };
+
+// @REFACTOR - move method on to game class
 
 /** returns the name of the party and if the party was removed from the game (in the case of its last member being removed) */
 export default function removePlayerFromParty(
@@ -29,8 +30,7 @@ export default function removePlayerFromParty(
   const characterIds = cloneDeep(player.characterIds);
   if (characterIds) {
     Object.values(characterIds).forEach((characterId) => {
-      const removedCharacterResult = AdventuringParty.removeCharacter(
-        partyLeaving,
+      const removedCharacterResult = partyLeaving.removeCharacter(
         characterId,
         player,
         battleOption

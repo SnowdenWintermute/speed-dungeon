@@ -71,4 +71,10 @@ export class AdventuringParty {
     const character = this.combatantManager.removeCombatant(characterId);
     return character;
   }
+
+  static getDeserialized(party: AdventuringParty) {
+    const combatantManager = CombatantManager.getDeserialized(party.combatantManager);
+    party.combatantManager = combatantManager;
+    return party;
+  }
 }
