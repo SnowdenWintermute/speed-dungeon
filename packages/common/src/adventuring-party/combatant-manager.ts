@@ -127,23 +127,35 @@ export class CombatantManager {
 
     return toReturn;
   }
+
+  hasCharacters() {
+    for (const combatant of this.combatants.values()) {
+      const { controllerType } = combatant.combatantProperties.controlledBy;
+      if (controllerType === CombatantControllerType.Player) return true;
+    }
+    return false;
+  }
+
+  getCharacterIfOwned(playerName: string, characterId: string): Error | Combatant {
+    // if (!playerCharacterIdsOption) return new Error(ERROR_MESSAGES.PLAYER.NO_CHARACTERS);
+    for (const combatant of this.combatants.values()) {
+      const { controllerName } = combatant.combatantProperties.controlledBy;
+      if (controllerName === playerName) return combatant;
+    }
+    return new Error(ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED);
+  }
+
+  playerOwnsCharacter(playerName: string, characterId: string) {
+    const combatant = this.getExpectedCombatant(characterId);
+    combatant.combatantProperties;
+    const { controllerName } = combatant.combatantProperties.controlledBy;
+    return controllerName === playerName;
+  }
+
+  /** Expects the combatant to exist. Returns the removed combatant. */
+  removeCombatant(combatantId: EntityId) {
+    const combatant = this.getExpectedCombatant(combatantId);
+    this.combatants.delete(combatantId);
+    return combatant;
+  }
 }
-
-// Conceptual groups
-// .controlled by players in this client's part
-// .controlled by "the dungeon" ai
-// .controlled by player pet ai of pets of players in this party
-// .controlled by players of another party
-// .controlled by pet ai of players of another party
-
-// Things to do with groups
-// .display plaques of
-//   ..this party's characters
-//   ..this party's pets
-//   ..dungeon controlled combatants
-//   ..dungeon controlled pets
-
-// .target entire group of or a single entity from
-//   ..dungeon controlled combatants
-//   ..player combatants and pets of this party
-//   ..player combatants and pets of another player controlled party
