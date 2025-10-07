@@ -39,7 +39,7 @@ export class CombatantManager {
     const combatants = this.getExpectedCombatants(entityIds);
 
     const filtered = combatants.filter((combatant) => {
-      const isSummoned = combatant.combatantProperties.summonedBy !== undefined ?? false;
+      const isSummoned = combatant.combatantProperties.summonedBy !== undefined;
       if (options?.summonedCombatantsOnly) return isSummoned;
       if (options?.excludeSummonedCombatants) return !isSummoned;
       return true;
@@ -55,7 +55,7 @@ export class CombatantManager {
   }
 
   getAllCombatants() {
-    return this.combatants;
+    return Array.from(this.combatants.values());
   }
 
   getExpectedCombatants(entityIds: EntityId[]) {
@@ -130,10 +130,9 @@ export class CombatantManager {
     return bothDungeonControlled || bothPlayerTeam;
   }
 
-  getCombatantIdsByDispositionTowardsCombatantId(
-    combatantId: string
-  ): Record<FriendOrFoe, EntityId[]> {
-    const combatant = this.getExpectedCombatant(combatantId);
+  /** Pass the id of the combatant toward which the disposition should be calculated */
+  getCombatantIdsByDisposition(towardsId: string): Record<FriendOrFoe, EntityId[]> {
+    const combatant = this.getExpectedCombatant(towardsId);
 
     const toReturn: Record<FriendOrFoe, EntityId[]> = {
       [FriendOrFoe.Friendly]: [],
@@ -186,6 +185,16 @@ export class CombatantManager {
 
   addCombatant(combatant: Combatant) {
     this.combatants.set(combatant.getEntityId(), combatant);
+  }
+
+  removeDungeonControlledCombatants() {
+    for (const combatant of this.getDungeonControlledCombatants()) {
+      this.removeCombatant(combatant.getEntityId());
+    }
+  }
+
+  monstersArePresent() {
+    return this.getDungeonControlledCombatants().length > 0;
   }
 
   static getDeserialized(serialized: CombatantManager): CombatantManager {

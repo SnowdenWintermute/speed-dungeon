@@ -44,7 +44,7 @@ export class CollectConsideredCombatants implements BehaviorNode {
     }
 
     for (const combatantId of idsToFetchCombatants) {
-      const combatant = AdventuringParty.getExpectedCombatant(party, combatantId);
+      const combatant = party.combatantManager.getExpectedCombatant(combatantId);
       if (this.filteringFunction(combatant)) combatantsToConsider.push(combatant);
     }
 

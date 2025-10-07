@@ -136,8 +136,9 @@ export abstract class CombatantCondition implements IActionUser {
       return { [FriendOrFoe.Hostile]: [], [FriendOrFoe.Friendly]: [] };
     }
 
-    const idsByDispositionOfConditionHolder =
-      party.combatantManager.getCombatantIdsByDispositionTowardsCombatantId(this.appliedTo);
+    const idsByDispositionOfConditionHolder = party.combatantManager.getCombatantIdsByDisposition(
+      this.appliedTo
+    );
 
     switch (this.appliedBy.friendOrFoe) {
       case FriendOrFoe.Friendly:

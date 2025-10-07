@@ -21,13 +21,9 @@ export class TurnSchedulerManager {
 
   constructor(
     private minTurnTrackersCount: number,
-    game: SpeedDungeonGame,
-    battle: Battle
+    party: AdventuringParty
   ) {
-    const { combatants, tickableConditions } = Battle.getAllTickableConditionsAndCombatants(
-      game,
-      battle
-    );
+    const { combatants, tickableConditions } = Battle.getAllTickableConditionsAndCombatants(party);
 
     this.schedulers = [
       ...combatants.map((combatant) => new CombatantTurnScheduler(combatant.entityProperties.id)),

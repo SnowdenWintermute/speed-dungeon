@@ -51,15 +51,9 @@ export async function selectProgressionGameCharacterHandler(
     return errorHandler(socket, new Error("Expected to have a selected character but didn't"));
   }
 
-  const removeCharacterResult = partyOption.removeCharacter(
-    characterIdToRemoveOption,
-    player,
-    undefined
-  );
+  const removedChacter = partyOption.removeCharacter(characterIdToRemoveOption, player);
 
-  if (removeCharacterResult instanceof Error) return removeCharacterResult;
-
-  delete game.lowestStartingFloorOptionsBySavedCharacter[removeCharacterResult.entityProperties.id];
+  delete game.lowestStartingFloorOptionsBySavedCharacter[removedChacter.getEntityId()];
   savedCharacterOption = Combatant.getDeserialized(savedCharacterOption);
 
   // @TODO - load saved pets

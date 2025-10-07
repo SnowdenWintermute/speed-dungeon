@@ -23,11 +23,11 @@ export function deleteCharacterHandler(
 
   const party = partyOption;
 
-  if (!player.characterIds.includes(characterId.toString()))
+  if (!player.characterIds.includes(characterId.toString())) {
     return errorHandler(socket, new Error(ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED));
+  }
 
-  const removeCharacterResult = party.removeCharacter(characterId, player, undefined);
-  if (removeCharacterResult instanceof Error) return errorHandler(socket, removeCharacterResult);
+  party.removeCharacter(characterId, player);
 
   const partyMembers = party.combatantManager.getPartyMemberCombatants();
 
@@ -43,11 +43,12 @@ export function deleteCharacterHandler(
   ArrayUtils.removeElement(game.playersReadied, session.username);
   const gameServer = getGameServer();
 
-  if (wasReadied)
+  if (wasReadied) {
     gameServer.io
       .of("/")
       .in(game.name)
       .emit(ServerToClientEvent.PlayerToggledReadyToStartGame, session.username);
+  }
 
   gameServer.io
     .of("/")

@@ -98,8 +98,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
 
           const partyOption = getCurrentParty(state, state.username || "");
           if (partyOption) {
-            const focusedCharacter = AdventuringParty.getExpectedCombatant(
-              partyOption,
+            const focusedCharacter = partyOption.combatantManager.getExpectedCombatant(
               state.focusedCharacterId
             );
             focusedCharacter.getTargetingProperties().setSelectedActionAndRank(null);

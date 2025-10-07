@@ -28,7 +28,7 @@ export default async function createSavedCharacterHandler(
 
   if (slot.characterId !== null) return new Error(ERROR_MESSAGES.USER.CHARACTER_SLOT_FULL);
 
-  const newCharacter = createCharacter(name, combatantClass);
+  const newCharacter = createCharacter(name, combatantClass, loggedInUser.session.username);
 
   if (newCharacter instanceof Error) return newCharacter;
   await playerCharactersRepo.insert(newCharacter, userId);

@@ -132,9 +132,7 @@ export class ActionEntity implements IActionUser {
     const { combatantManager } = party;
 
     if (spawnedBy !== undefined) {
-      const idsByDisposition = combatantManager.getCombatantIdsByDispositionTowardsCombatantId(
-        spawnedBy.id
-      );
+      const idsByDisposition = combatantManager.getCombatantIdsByDisposition(spawnedBy.id);
       return idsByDisposition;
     } else {
       const allCombatantIds = combatantManager.getAllCombatantIds();

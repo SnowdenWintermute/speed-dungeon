@@ -90,7 +90,7 @@ function targetsAreAlive(
   self: CombatActionComponent
 ) {
   const { actionUserContext } = context;
-  const { game, party, actionUser } = actionUserContext;
+  const { party } = actionUserContext;
 
   const targetsOption = context.tracker.actionExecutionIntent.targets;
 
@@ -110,5 +110,8 @@ function targetsAreAlive(
     return false;
   }
 
-  return !SpeedDungeonGame.allCombatantsInGroupAreDead(game, targetIdsResult);
+  const targetCombatants = party.combatantManager.getExpectedCombatants(targetIdsResult);
+  const targetsAreAlive = !SpeedDungeonGame.allCombatantsInGroupAreDead(targetCombatants);
+
+  return targetsAreAlive;
 }

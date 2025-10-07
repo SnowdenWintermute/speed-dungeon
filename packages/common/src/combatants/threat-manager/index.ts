@@ -74,10 +74,7 @@ export class ThreatManager {
     if (!newThreatTargetIdOption) return false;
     this.setPreviouslyHighestThreatId(newThreatTargetIdOption);
 
-    const newTargetCombatant = AdventuringParty.getExpectedCombatant(
-      party,
-      newThreatTargetIdOption
-    );
+    const newTargetCombatant = party.combatantManager.getExpectedCombatant(newThreatTargetIdOption);
     const targetPos = newTargetCombatant.combatantProperties.homeLocation;
     const monsterHomePos = monster.combatantProperties.homeLocation;
 

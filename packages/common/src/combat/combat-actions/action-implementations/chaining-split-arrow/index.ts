@@ -27,7 +27,6 @@ import {
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { CHAINING_SPLIT_ARROW_PARENT_STEPS_CONFIG } from "./chaining-split-arrow-parent-steps-config.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import { AdventuringParty } from "../../../../adventuring-party/index.js";
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BOW_ATTACK,
@@ -74,7 +73,7 @@ const config: CombatActionComponentConfig = {
       const entityIdsByDisposition = actionUser.getAllyAndOpponentIds(party, battleOption);
 
       const opponentIds = entityIdsByDisposition[FriendOrFoe.Hostile];
-      const opponents = AdventuringParty.getCombatants(party, opponentIds);
+      const opponents = party.combatantManager.getExpectedCombatants(opponentIds);
 
       return opponents
         .filter((opponent) => opponent.combatantProperties.hitPoints > 0)

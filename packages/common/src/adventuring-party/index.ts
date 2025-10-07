@@ -31,7 +31,7 @@ export class AdventuringParty {
   playerUsernames: string[] = [];
 
   // current room
-  currentRoom: DungeonRoom = new DungeonRoom(DungeonRoomType.Empty, {}, []);
+  currentRoom: DungeonRoom = new DungeonRoom(DungeonRoomType.Empty);
   battleId: null | EntityId = null;
 
   // party status
@@ -61,12 +61,7 @@ export class AdventuringParty {
     return battleOption;
   }
 
-  removeCharacter(
-    characterId: EntityId,
-    player: SpeedDungeonPlayer,
-    battleOption: undefined | Battle
-  ): Error | Combatant {
-    if (battleOption) Battle.removeCombatant(battleOption, characterId);
+  removeCharacter(characterId: EntityId, player: SpeedDungeonPlayer): Combatant {
     ArrayUtils.removeElement(player.characterIds, characterId);
     const character = this.combatantManager.removeCombatant(characterId);
     return character;

@@ -34,9 +34,8 @@ export async function getCharacterAssociatedData<T extends { characterId: string
   if (playerOption === undefined) throw new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
   const player = playerOption;
 
-  const characterResult = AdventuringParty.getCharacterIfOwned(
-    party,
-    player.characterIds,
+  const characterResult = party.combatantManager.getCharacterIfOwned(
+    player.username,
     eventData.characterId
   );
   if (characterResult instanceof Error) throw characterResult;

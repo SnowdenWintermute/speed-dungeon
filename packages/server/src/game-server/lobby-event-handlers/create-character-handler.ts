@@ -25,7 +25,8 @@ export function createCharacterHandler(
 
   if (name.length > MAX_CHARACTER_NAME_LENGTH)
     return new Error(ERROR_MESSAGES.COMBATANT.MAX_NAME_LENGTH_EXCEEDED);
-  const newCharacter = createCharacter(name, combatantClass);
+
+  const newCharacter = createCharacter(name, combatantClass, player.username);
   if (newCharacter instanceof Error) return newCharacter;
 
   // @TESTING - pets

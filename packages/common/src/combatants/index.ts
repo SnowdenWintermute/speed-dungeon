@@ -135,10 +135,11 @@ export class Combatant implements IActionUser {
     throw new Error("getConditionAppliedBy() is only valid on CombatantCondition");
   }
 
-  getAllyAndOpponentIds(
-    party: AdventuringParty,
-    battleOption: null | Battle
-  ): Record<FriendOrFoe, EntityId[]> {
+  getAllyAndOpponentIds(party: AdventuringParty): Record<FriendOrFoe, EntityId[]> {
+    const { combatantManager } = party;
+    const dungeonControlledCombatants = combatantManager.getDungeonControlledCombatants();
+    const playerControlledCombatants = combatantManager.getDungeonControlledCombatants();
+
     const isMonster = this.combatantProperties.monsterType !== null;
 
     if (isMonster) {
@@ -366,6 +367,14 @@ export class CombatantProperties {
   ) {
     this.position = homeLocation;
     // this.ownedActions[CombatActionName.Attack] = new CombatantActionState(CombatActionName.Attack);
+  }
+
+  isPlayerControlled() {
+    return this.controlledBy.controllerType === CombatantControllerType.Player;
+  }
+
+  isDungeonControlled() {
+    return this.controlledBy.controllerType === CombatantControllerType.Player;
   }
 
   static meetsCombatantClassAndLevelRequirements(

@@ -8,7 +8,7 @@ export function handleRemovedConditionIds(
 ) {
   for (const [entityId, conditionIdsRemoved] of Object.entries(removedConditionIds)) {
     for (const conditionId of conditionIdsRemoved) {
-      const combatantResult = AdventuringParty.getExpectedCombatant(party, entityId);
+      const combatantResult = party.combatantManager.getExpectedCombatant(entityId);
       if (combatantResult instanceof Error) return combatantResult;
 
       const conditionRemovedOption = CombatantCondition.removeById(conditionId, combatantResult);

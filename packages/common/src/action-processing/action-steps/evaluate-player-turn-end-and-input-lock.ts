@@ -22,16 +22,12 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
     if (gameUpdateCommandOption) {
       this.gameUpdateCommandOption = gameUpdateCommandOption;
 
-      for (const [groupName, combatantGroup] of Object.entries(
-        AdventuringParty.getAllCombatants(party)
-      )) {
-        for (const [entityId, combatant] of Object.entries(combatantGroup)) {
-          if (!combatant.combatantProperties.threatManager) continue;
-          combatant.combatantProperties.threatManager.updateHomeRotationToPointTowardNewTopThreatTarget(
-            party,
-            combatant
-          );
-        }
+      for (const combatant of party.combatantManager.getAllCombatants()) {
+        if (!combatant.combatantProperties.threatManager) continue;
+        combatant.combatantProperties.threatManager.updateHomeRotationToPointTowardNewTopThreatTarget(
+          party,
+          combatant
+        );
       }
     }
 

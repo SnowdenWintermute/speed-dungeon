@@ -3,7 +3,6 @@ import { useGameStore } from "@/stores/game-store";
 import { getCombatantUiIdentifierIcon } from "@/utils/get-combatant-class-icon";
 import getGameAndParty from "@/utils/getGameAndParty";
 import {
-  AdventuringParty,
   CombatantTurnTracker,
   ConditionTurnTracker,
   TurnTrackerEntityType,
@@ -38,8 +37,7 @@ export default function TurnOrderTrackerIcon({ tracker }: { tracker: CombatantTu
   let combatantOption;
 
   const name: string = (() => {
-    const combatant = AdventuringParty.getExpectedCombatant(
-      party,
+    const combatant = party.combatantManager.getExpectedCombatant(
       taggedTrackedEntityId.combatantId
     );
     combatantOption = combatant;

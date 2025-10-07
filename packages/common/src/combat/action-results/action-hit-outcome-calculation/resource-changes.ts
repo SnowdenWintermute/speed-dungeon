@@ -124,9 +124,11 @@ export class ThreatChanges {
 
   applyToGame(party: AdventuringParty): void {
     for (const [entityIdOfThreatTableToUpdate, changes] of Object.entries(this.entries)) {
-      const targetResult = AdventuringParty.getCombatant(party, entityIdOfThreatTableToUpdate);
-      if (targetResult instanceof Error) throw targetResult;
-      const { combatantProperties: targetCombatantProperties } = targetResult;
+      const targetCombatant = party.combatantManager.getExpectedCombatant(
+        entityIdOfThreatTableToUpdate
+      );
+
+      const { combatantProperties: targetCombatantProperties } = targetCombatant;
 
       const { threatManager } = targetCombatantProperties;
       if (!threatManager) throw new Error("got threat changes on an entity with no threat manager");
@@ -139,9 +141,10 @@ export class ThreatChanges {
     for (const [entityIdOfThreatTableToUpdate, entityIdsToRemove] of Object.entries(
       this.entriesToRemove
     )) {
-      const targetResult = AdventuringParty.getCombatant(party, entityIdOfThreatTableToUpdate);
-      if (targetResult instanceof Error) throw targetResult;
-      const { combatantProperties: targetCombatantProperties } = targetResult;
+      const targetCombatant = party.combatantManager.getExpectedCombatant(
+        entityIdOfThreatTableToUpdate
+      );
+      const { combatantProperties: targetCombatantProperties } = targetCombatant;
 
       const { threatManager } = targetCombatantProperties;
       if (!threatManager) throw new Error("got threat changes on an entity with no threat manager");

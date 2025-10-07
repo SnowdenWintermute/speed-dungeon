@@ -5,7 +5,7 @@ export function handleSupportClassLevelsChanged(
   party: AdventuringParty
 ) {
   for (const [entityId, combatantClass] of Object.entries(supportClassLevelsGained)) {
-    const combatantResult = AdventuringParty.getExpectedCombatant(party, entityId);
+    const combatantResult = party.combatantManager.getExpectedCombatant(entityId);
     const { combatantProperties } = combatantResult;
     CombatantProperties.changeSupportClassLevel(combatantProperties, combatantClass, 1);
   }

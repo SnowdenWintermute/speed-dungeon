@@ -1,13 +1,9 @@
-import { Combatant, Inventory } from "../combatants/index.js";
+import { Inventory } from "../combatants/index.js";
 
 export class DungeonRoom {
   inventory: Inventory = new Inventory();
 
-  constructor(
-    public roomType: DungeonRoomType,
-    public monsters: { [entityId: string]: Combatant },
-    public monsterPositions: string[]
-  ) {}
+  constructor(public roomType: DungeonRoomType) {}
 }
 export enum DungeonRoomType {
   MonsterLair,

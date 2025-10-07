@@ -16,8 +16,8 @@ export class TurnOrderManager {
   private minTrackersCount: number = 12;
   turnSchedulerManager: TurnSchedulerManager;
   private turnTrackers: TurnTracker[] = [];
-  constructor(game: SpeedDungeonGame, party: AdventuringParty, battle: Battle) {
-    this.turnSchedulerManager = new TurnSchedulerManager(this.minTrackersCount, game, battle);
+  constructor(game: SpeedDungeonGame, party: AdventuringParty) {
+    this.turnSchedulerManager = new TurnSchedulerManager(this.minTrackersCount, party);
     this.updateTrackers(game, party);
   }
 
@@ -66,8 +66,7 @@ export class TurnOrderManager {
       return false;
     }
 
-    const expectedCombatant = AdventuringParty.getExpectedCombatant(
-      party,
+    const expectedCombatant = party.combatantManager.getExpectedCombatant(
       taggedIdOfTrackedEntity.combatantId
     );
     return expectedCombatant.combatantProperties.aiTypes === undefined;

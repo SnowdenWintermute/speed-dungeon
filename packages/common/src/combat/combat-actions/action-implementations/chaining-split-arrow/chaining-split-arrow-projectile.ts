@@ -158,7 +158,7 @@ function getBouncableTargets(
   );
 
   const opponentIds = entityIdsByDisposition[FriendOrFoe.Hostile];
-  const opponents = AdventuringParty.getCombatants(party, opponentIds);
+  const opponents = party.combatantManager.getExpectedCombatants(opponentIds);
 
   const isValidTarget = (combatant: Combatant) =>
     !CombatantProperties.isDead(combatant.combatantProperties) &&

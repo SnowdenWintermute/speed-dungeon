@@ -17,7 +17,7 @@ export function handleAppliedConditions(
     appliedConditions
   )) {
     for (const [entityId, conditions] of Object.entries(entityAppliedConditions)) {
-      const combatantResult = AdventuringParty.getExpectedCombatant(party, entityId);
+      const combatantResult = party.combatantManager.getExpectedCombatant(entityId);
       for (let condition of conditions) {
         const deserializedCondition = deserializeCondition(condition);
 

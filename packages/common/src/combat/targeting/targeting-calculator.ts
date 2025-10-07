@@ -50,8 +50,9 @@ export class TargetingCalculator {
 
   getFilteredPotentialTargetIdsForAction(actionAndRank: ActionAndRank) {
     const { party, actionUser } = this.context;
+    const { combatantManager } = party;
     const actionUserId = actionUser.getEntityId();
-    const allyAndOpponentIds = this.context.getAllyAndOpponentIds();
+    const allyAndOpponentIds = combatantManager.getCombatantIdsByDisposition(actionUserId);
     const { actionName, rank } = actionAndRank;
     const action = COMBAT_ACTIONS[actionName];
     const { targetingProperties } = action;

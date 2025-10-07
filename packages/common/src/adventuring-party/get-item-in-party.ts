@@ -22,12 +22,7 @@ function getItemOnCombatant(combatant: Combatant, itemId: string) {
 export function getItemInAdventuringParty(party: AdventuringParty, itemId: string) {
   let toReturn: undefined | Item;
 
-  for (const combatant of Object.values(party.characters)) {
-    toReturn = getItemOnCombatant(combatant, itemId);
-    if (toReturn) return toReturn;
-  }
-
-  for (const combatant of Object.values(party.currentRoom.monsters)) {
+  for (const combatant of party.combatantManager.getAllCombatants()) {
     toReturn = getItemOnCombatant(combatant, itemId);
     if (toReturn) return toReturn;
   }

@@ -14,7 +14,7 @@ export function handleRemovedConditionStacks(
 ) {
   for (const [entityId, conditionIdAndStacks] of Object.entries(removedConditionStacks)) {
     for (const { conditionId, numStacks } of conditionIdAndStacks) {
-      const combatantResult = AdventuringParty.getExpectedCombatant(party, entityId);
+      const combatantResult = party.combatantManager.getExpectedCombatant(entityId);
 
       const conditionRemovedOption = CombatantCondition.removeStacks(
         conditionId,

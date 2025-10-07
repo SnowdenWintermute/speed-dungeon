@@ -18,6 +18,7 @@ import { writeAllPlayerCharacterInGameToDb } from "../saved-character-event-hand
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { BattleProcessor } from "./character-uses-selected-combat-action-handler/process-battle-until-player-turn-or-conclusion.js";
 import { ExplorationAction } from "@speed-dungeon/common";
+import { CombatantManager } from "@speed-dungeon/common/src/adventuring-party/combatant-manager.js";
 
 export async function toggleReadyToExploreHandler(
   _eventData: undefined,
@@ -34,8 +35,9 @@ export async function toggleReadyToExploreHandler(
     throw new Error(ERROR_MESSAGES.PARTY.INPUT_IS_LOCKED);
   }
 
-  if (Object.values(party.currentRoom.monsters).length > 0)
+  if (party.combatantManager.monstersArePresent()) {
     return new Error(ERROR_MESSAGES.PARTY.CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT);
+  }
 
   const { dungeonExplorationManager } = party;
   dungeonExplorationManager.updatePlayerExplorationActionChoice(
@@ -125,32 +127,21 @@ export function putPartyInNextRoom(
   const newRoom = generateDungeonRoom(floorNumber, roomTypeToGenerate);
   party.currentRoom = newRoom;
 
-  for (const monster of Object.values(party.currentRoom.monsters))
+  for (const monster of Object.values(party.currentRoom.monsters)) {
     updateCombatantHomePosition(monster.entityProperties.id, monster.combatantProperties, party);
+  }
 
   dungeonExplorationManager.incrementExploredRoomsTrackers();
 
-  if (Object.keys(newRoom.monsters).length > 0) {
-    const battleGroupA = new BattleGroup(party.name, party.name, party.characterPositions);
-    const battleGroupB = new BattleGroup(
-      `${party.name}-monsters`,
-      party.name,
-      party.currentRoom.monsterPositions
-    );
-
-    const battleIdResult = initiateBattle(game, party, battleGroupA, battleGroupB);
+  if (party.combatantManager.monstersArePresent()) {
+    const battleIdResult = initiateBattle(game, party);
     if (battleIdResult instanceof Error) return battleIdResult;
     party.battleId = battleIdResult;
   }
 }
 
-function initiateBattle(
-  game: SpeedDungeonGame,
-  party: AdventuringParty,
-  groupA: BattleGroup,
-  groupB: BattleGroup
-): Error | string {
-  const battle = new Battle(idGenerator.generate(), groupA, groupB, game, party);
+function initiateBattle(game: SpeedDungeonGame, party: AdventuringParty): Error | string {
+  const battle = new Battle(idGenerator.generate(), game, party);
   game.battles[battle.id] = battle;
   battle.turnOrderManager.updateTrackers(game, party);
   return battle.id;

@@ -30,11 +30,7 @@ export default function removePlayerFromParty(
   const characterIds = cloneDeep(player.characterIds);
   if (characterIds) {
     Object.values(characterIds).forEach((characterId) => {
-      const removedCharacterResult = partyLeaving.removeCharacter(
-        characterId,
-        player,
-        battleOption
-      );
+      const removedCharacterResult = partyLeaving.removeCharacter(characterId, player);
       if (removedCharacterResult instanceof Error) return removedCharacterResult;
       charactersRemoved.push(removedCharacterResult);
       delete game.lowestStartingFloorOptionsBySavedCharacter[characterId];

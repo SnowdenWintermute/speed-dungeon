@@ -1,6 +1,7 @@
 import {
   Combatant,
   CombatantClass,
+  CombatantControllerType,
   CombatantProperties,
   CombatantSpecies,
 } from "@speed-dungeon/common";
@@ -9,7 +10,11 @@ import { generateRandomCharacterName } from "../../utils/index.js";
 import { Vector3 } from "@babylonjs/core";
 import { CharacterOutfitter } from "./character-outfitter.js";
 
-export function createCharacter(name: string, combatantClass: CombatantClass) {
+export function createCharacter(
+  name: string,
+  combatantClass: CombatantClass,
+  controllingPlayerName: string
+) {
   const characterId = idGenerator.generate();
 
   if (name === "") name = generateRandomCharacterName();
@@ -19,7 +24,7 @@ export function createCharacter(name: string, combatantClass: CombatantClass) {
     combatantClass,
     CombatantSpecies.Humanoid,
     null,
-    "",
+    { controllerType: CombatantControllerType.Player, controllerName: controllingPlayerName },
     Vector3.Zero()
   );
 

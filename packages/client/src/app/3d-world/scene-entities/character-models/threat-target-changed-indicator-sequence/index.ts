@@ -15,7 +15,7 @@ import getGameAndParty from "@/utils/getGameAndParty";
 import { ActionEntityModel } from "../../action-entity-models";
 import {
   ActionEntityName,
-  AdventuringParty,
+  CleanupMode,
   CombatantBaseChildTransformNodeName,
   CombatantProperties,
   easeOut,
@@ -30,92 +30,87 @@ export function threatTargetChangedIndicatorSequence() {
     if (gameAndPartyResult instanceof Error) throw gameAndPartyResult;
     const [game, party] = gameAndPartyResult;
 
-    for (const [groupName, combatantGroup] of Object.entries(
-      AdventuringParty.getAllCombatants(party)
-    )) {
-      for (const [entityId, combatant] of Object.entries(combatantGroup)) {
-        const { threatManager } = combatant.combatantProperties;
-        if (!threatManager) continue;
-        if (CombatantProperties.isDead(combatant.combatantProperties)) continue;
-        const updatedTopThreat = threatManager.updateHomeRotationToPointTowardNewTopThreatTarget(
-          party,
-          combatant
-        );
-        if (!updatedTopThreat) continue;
-        const monsterCharacterModel = getGameWorld().modelManager.findOne(entityId);
-        monsterCharacterModel.homeLocation.rotation = combatant.combatantProperties.homeRotation;
-        monsterCharacterModel.movementManager.startRotatingTowards(
-          monsterCharacterModel.homeLocation.rotation,
-          1000,
-          () => {}
-        );
+    for (const combatant of party.combatantManager.getAllCombatants()) {
+      const { threatManager } = combatant.combatantProperties;
+      if (!threatManager) continue;
+      if (CombatantProperties.isDead(combatant.combatantProperties)) continue;
+      const updatedTopThreat = threatManager.updateHomeRotationToPointTowardNewTopThreatTarget(
+        party,
+        combatant
+      );
+      if (!updatedTopThreat) continue;
+      const monsterCharacterModel = getGameWorld().modelManager.findOne(combatant.getEntityId());
+      monsterCharacterModel.homeLocation.rotation = combatant.combatantProperties.homeRotation;
+      monsterCharacterModel.movementManager.startRotatingTowards(
+        monsterCharacterModel.homeLocation.rotation,
+        1000,
+        () => {}
+      );
 
-        const indicatorArrow = spawnTargetChangedIndicatorArrow(
-          monsterCharacterModel.movementManager.transformNode.position
-        );
+      const indicatorArrow = spawnTargetChangedIndicatorArrow(
+        monsterCharacterModel.movementManager.transformNode.position
+      );
 
-        getGameWorld().actionEntityManager.register(indicatorArrow);
+      getGameWorld().actionEntityManager.register(indicatorArrow);
 
-        const newTargetId = threatManager.getHighestThreatCombatantId();
-        if (newTargetId === null) continue;
+      const newTargetId = threatManager.getHighestThreatCombatantId();
+      if (newTargetId === null) continue;
 
-        const newTargetCharacterModel = getGameWorld().modelManager.findOne(newTargetId);
-        const targetCurrentPosition =
-          newTargetCharacterModel.movementManager.transformNode.position;
-        indicatorArrow.rootTransformNode.lookAt(targetCurrentPosition);
+      const newTargetCharacterModel = getGameWorld().modelManager.findOne(newTargetId);
+      const targetCurrentPosition = newTargetCharacterModel.movementManager.transformNode.position;
+      indicatorArrow.rootTransformNode.lookAt(targetCurrentPosition);
 
-        handleLockRotationToFace(indicatorArrow, {
-          identifier: {
-            sceneEntityIdentifier: {
-              type: SceneEntityType.CharacterModel,
-              entityId: newTargetId,
-            },
-            transformNodeName: CombatantBaseChildTransformNodeName.EntityRoot,
+      handleLockRotationToFace(indicatorArrow, {
+        identifier: {
+          sceneEntityIdentifier: {
+            type: SceneEntityType.CharacterModel,
+            entityId: newTargetId,
           },
-          duration: 300,
-        });
+          transformNodeName: CombatantBaseChildTransformNodeName.EntityRoot,
+        },
+        duration: 300,
+      });
 
-        const trailWidth = 0.02;
-        const trailHeight = 0.02;
+      const trailWidth = 0.02;
+      const trailHeight = 0.02;
 
-        const { trail, positions } = spawnTargetChangedIndicatorTrail(
-          monsterCharacterModel.movementManager.transformNode.position,
-          trailWidth,
-          trailHeight
-        );
+      const { trail, positions } = spawnTargetChangedIndicatorTrail(
+        monsterCharacterModel.movementManager.transformNode.position,
+        trailWidth,
+        trailHeight
+      );
 
-        const distance = Vector3.Distance(
-          indicatorArrow.rootTransformNode.position,
-          targetCurrentPosition
-        );
-        // const duration = distance * COMBATANT_TIME_TO_MOVE_ONE_METER * 0.75;
-        const duration = 900;
+      const distance = Vector3.Distance(
+        indicatorArrow.rootTransformNode.position,
+        targetCurrentPosition
+      );
+      // const duration = distance * COMBATANT_TIME_TO_MOVE_ONE_METER * 0.75;
+      const duration = 900;
 
-        indicatorArrow.movementManager.startTranslating(
-          targetCurrentPosition,
-          duration,
-          () => {
-            getGameWorld().actionEntityManager.unregister(indicatorArrow.entityId);
-            trail.dispose();
-          },
-          (percentComplete) => {
-            // arrow head opacity
-            if (indicatorArrow.rootMesh.material?.alpha !== undefined)
-              indicatorArrow.rootMesh.material.alpha = 1 - percentComplete;
+      indicatorArrow.movementManager.startTranslating(
+        targetCurrentPosition,
+        duration,
+        () => {
+          getGameWorld().actionEntityManager.unregister(indicatorArrow.entityId, CleanupMode.Soft);
+          trail.dispose();
+        },
+        (percentComplete) => {
+          // arrow head opacity
+          if (indicatorArrow.rootMesh.material?.alpha !== undefined)
+            indicatorArrow.rootMesh.material.alpha = 1 - percentComplete;
 
-            updateTargetChangedIndicatorTrail(
-              indicatorArrow.movementManager.transformNode,
-              monsterCharacterModel.homeLocation.position,
-              positions,
-              trail,
-              trailWidth,
-              trailHeight,
-              percentComplete
-            );
-          },
-          easeOut
-        );
-      }
+          updateTargetChangedIndicatorTrail(
+            indicatorArrow.movementManager.transformNode,
+            monsterCharacterModel.homeLocation.position,
+            positions,
+            trail,
+            trailWidth,
+            trailHeight,
+            percentComplete
+          );
+        },
+        easeOut
+      );
     }
   });
 }

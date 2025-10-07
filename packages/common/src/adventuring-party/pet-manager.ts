@@ -7,18 +7,9 @@ import { TurnTrackerEntityType } from "../combat/index.js";
 
 export class PetManager {
   private unsummonedPetsByOwnerId: { [ownerId: EntityId]: Combatant[] } = {};
-  private summonedCharacterPets: Record<EntityId, Combatant> = {};
-
-  getSummonedPetOptionById(petId: EntityId) {
-    return this.summonedCharacterPets[petId];
-  }
 
   setCombatantPets(ownerId: EntityId, pets: Combatant[]) {
     this.unsummonedPetsByOwnerId[ownerId] = pets;
-  }
-
-  getSummonedPets() {
-    return this.summonedCharacterPets;
   }
 
   getUnsummonedPetOptionByOwnerAndSlot(ownerId: EntityId, petSlot: number) {
@@ -38,9 +29,10 @@ export class PetManager {
   }
 
   getPetAndOwnerByPetId(party: AdventuringParty, petId: EntityId) {
-    for (const [entityId, combatant] of Object.entries(party.characters)) {
-      for (const { slotIndex, petOption } of this.iteratePetSlots(entityId)) {
-        if (petId === petOption?.getEntityId()) return { pet: petOption, ownerId: entityId };
+    for (const character of party.combatantManager.getPartyMemberCharacters()) {
+      const characterId = character.getEntityId();
+      for (const { slotIndex, petOption } of this.iteratePetSlots(characterId)) {
+        if (petId === petOption?.getEntityId()) return { pet: petOption, ownerId: characterId };
       }
     }
     throw new Error("no pet was found in the provided slot index");
@@ -60,12 +52,12 @@ export class PetManager {
     slotIndex: number,
     battleOption: null | Battle
   ) {
-    const owner = AdventuringParty.getExpectedCombatant(party, ownerId);
+    const owner = party.combatantManager.getExpectedCombatant(ownerId);
     const ownerHomePosition = owner.getHomePosition();
 
     // figure out if the pet is owned by character or monster
-    const isCharacterPet = party.characterPositions.includes(ownerId);
-    const isMonsterPet = party.currentRoom.monsterPositions.includes(ownerId);
+    const isCharacterPet = owner.combatantProperties.isPlayerControlled();
+    const isMonsterPet = owner.combatantProperties.isDungeonControlled();
 
     // remove the pet from the unsummonedPets data structure
     const petOption = this.removePetFromUnsummonedSlot(ownerId, slotIndex);
@@ -78,13 +70,13 @@ export class PetManager {
 
     // place the pet in either summonedCharacterPets or currentRoom.summonedMonsterPets
     if (isCharacterPet) {
-      const petId = pet.getEntityId();
-      this.summonedCharacterPets[petId] = pet;
-      // @TODO - figure out characterPositions more generalized
-      party.characterPositions.push(petId);
+      party.combatantManager.addCombatant(pet);
     } else if (isMonsterPet) {
       throw new Error("not implemented");
     }
+
+    // @TODO - add pet home positions to updateHomePositions function
+    // then just call updateHomePositions()
 
     // determine where to position the pet
     // set its home position

@@ -37,8 +37,7 @@ export async function actionCompletionGameUpdateHandler(
       // of actions taking them away before they get their turn again
       const fastestTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
       if (fastestTracker instanceof CombatantTurnTracker) {
-        const { combatantProperties } = AdventuringParty.getExpectedCombatant(
-          partyOption,
+        const { combatantProperties } = partyOption.combatantManager.getExpectedCombatant(
           fastestTracker.getTaggedIdOfTrackedEntity().combatantId
         );
         CombatantProperties.refillActionPoints(combatantProperties);

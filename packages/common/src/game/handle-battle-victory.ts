@@ -31,8 +31,7 @@ export function handleBattleVictory(
     }
   }
 
-  party.currentRoom.monsters = {};
-  party.currentRoom.monsterPositions = [];
+  combatantManager.removeDungeonControlledCombatants();
 
   const battleIdToRemoveOption = party.battleId;
   party.battleId = null;

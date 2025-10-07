@@ -56,9 +56,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     const durabilityChanges = new DurabilityChangesByEntityId();
     for (const flag of iterateNumericEnum(HitOutcome)) {
       for (const combatantId of outcomeFlags[flag] || []) {
-        const combatantResult = AdventuringParty.getCombatant(party, combatantId);
-        if (combatantResult instanceof Error) throw combatantResult;
-        const targetCombatant = combatantResult;
+        const targetCombatant = party.combatantManager.getExpectedCombatant(combatantId);
 
         const hpChangeIsCrit = (() => {
           if (!hpChanges) return false;
@@ -83,7 +81,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         if (flag === HitOutcome.Death) {
           for (const condition of targetCombatant.combatantProperties.conditions) {
             if (!condition.removedOnDeath) continue;
-            CombatantCondition.removeById(condition.id, combatantResult);
+            CombatantCondition.removeById(condition.id, targetCombatant);
             addRemovedConditionIdToUpdate(
               condition.id,
               gameUpdateCommand,

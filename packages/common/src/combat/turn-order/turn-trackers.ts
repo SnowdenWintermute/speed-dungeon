@@ -58,10 +58,6 @@ export class CombatantTurnTracker extends TurnTracker {
   getNextActionIntentAndUser(game: SpeedDungeonGame, party: AdventuringParty, battle: Battle) {
     const { combatantId } = this;
     const activeCombatant = party.combatantManager.getExpectedCombatant(combatantId);
-    let { entityProperties } = activeCombatant;
-
-    const battleGroupsResult = Battle.getAllyAndEnemyBattleGroups(battle, entityProperties.id);
-    if (battleGroupsResult instanceof Error) throw battleGroupsResult;
 
     const actionExecutionIntent = AISelectActionAndTarget(game, activeCombatant);
     if (actionExecutionIntent instanceof Error) throw actionExecutionIntent;

@@ -28,8 +28,6 @@ export class BattleProcessor {
 
   async processBattleUntilPlayerTurnOrConclusion() {
     const { gameServer, game, party, battle } = this;
-    if (!party.characterPositions[0]) return new Error(ERROR_MESSAGES.PARTY.MISSING_CHARACTERS);
-
     battle.turnOrderManager.updateTrackers(game, party);
     let currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
 
@@ -49,14 +47,15 @@ export class BattleProcessor {
       battle.turnOrderManager.updateTrackers(game, party);
       currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
 
-      const partyWipesResult = checkForWipes(game, party.characterPositions[0], party.battleId);
-      const battleConcluded = partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated;
+      const partyWipes = checkForWipes(party, party.battleId);
+
+      const battleConcluded = partyWipes.alliesDefeated || partyWipes.opponentsDefeated;
 
       let shouldBreak = false;
 
       // battle ended, stop processing
       if (battleConcluded) {
-        const battleConclusionPayloads = await this.handleBattleConclusion(partyWipesResult);
+        const battleConclusionPayloads = await this.handleBattleConclusion(partyWipes);
         if (battleConclusionPayloads instanceof Error) throw battleConclusionPayloads;
         payloads.push(...battleConclusionPayloads);
         shouldBreak = true;
