@@ -37,11 +37,12 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
     party: AdventuringParty,
     player: SpeedDungeonPlayer
   ): Promise<void | Error | ActionCommandPayload[]> {
-    const characters: { [combatantId: string]: Combatant } = {};
+    const characters: Combatant[] = [];
+
     for (const id of player.characterIds) {
-      const characterResult = SpeedDungeonGame.getCharacter(game, party.name, id);
+      const characterResult = SpeedDungeonGame.getCombatantById(game, id);
       if (characterResult instanceof Error) return characterResult;
-      characters[characterResult.entityProperties.id] = characterResult;
+      characters.push(characterResult);
 
       delete game.lowestStartingFloorOptionsBySavedCharacter[id];
     }
@@ -71,7 +72,8 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
     game: SpeedDungeonGame,
     party: AdventuringParty
   ): Promise<void | Error | ActionCommandPayload[]> {
-    const ladderDeathsUpdate = await removeDeadCharactersFromLadder(party.characters);
+    const partyCharacters = party.combatantManager.getPartyMemberCharacters();
+    const ladderDeathsUpdate = await removeDeadCharactersFromLadder(partyCharacters);
     const deathMessagePayloads = getTopRankedDeathMessagesActionCommandPayload(
       getPartyChannelName(game.name, party.name),
       ladderDeathsUpdate
@@ -84,11 +86,13 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
     party: AdventuringParty,
     levelups: { [id: string]: number }
   ): Promise<void | Error | ActionCommandPayload[]> {
+    const partyCharacters = party.combatantManager.getPartyMemberCharacters();
+
     const messages: { type: GameMessageType; text: string }[] = [];
-    for (const character of Object.values(party.characters)) {
+    for (const character of partyCharacters) {
       const { name, id } = character.entityProperties;
 
-      const { level, controllingPlayer } = character.combatantProperties;
+      const { level, controlledBy } = character.combatantProperties;
       const currentRankOption = await valkeyManager.context.zRevRank(CHARACTER_LEVEL_LADDER, id);
       const totalExp =
         calculateTotalExperience(level) + character.combatantProperties.experiencePoints.current;
@@ -102,6 +106,8 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
 
       // - if they leveled up and were in the top 10 ranks, emit a message to everyone
       if (newRank === null || newRank >= 10) continue;
+
+      const controllingPlayer = controlledBy.controllerName;
 
       const levelup = levelups[id];
       if (levelup !== undefined) {

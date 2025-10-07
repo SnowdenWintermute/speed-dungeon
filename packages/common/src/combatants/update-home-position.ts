@@ -4,18 +4,22 @@ import {
   COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
   COMBATANT_POSITION_SPACING_SIDE,
 } from "../app-consts.js";
-import { CombatantProperties } from "./index.js";
+import { CombatantControllerType, CombatantProperties } from "./index.js";
 
 export function updateCombatantHomePosition(
   entityId: string,
   combatantProperties: CombatantProperties,
   party: AdventuringParty
 ) {
-  const isPlayer = combatantProperties.controllingPlayer !== null;
+  const isPlayer =
+    combatantProperties.controlledBy.controllerType === CombatantControllerType.Player;
+
+  const { combatantManager } = party;
 
   const combatantIdsInRow = isPlayer
     ? party.characterPositions
     : party.currentRoom.monsterPositions;
+
   const numberOfCombatantsInRow = combatantIdsInRow.length;
 
   const rowLength = COMBATANT_POSITION_SPACING_SIDE * (numberOfCombatantsInRow - 1);

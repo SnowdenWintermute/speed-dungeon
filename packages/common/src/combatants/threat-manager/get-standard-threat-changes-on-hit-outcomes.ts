@@ -1,5 +1,4 @@
 import { ActionResolutionStepContext } from "../../action-processing/index.js";
-import { AdventuringParty } from "../../adventuring-party/index.js";
 import { CombatActionHitOutcomes, ThreatChanges } from "../../combat/action-results/index.js";
 import { ThreatCalculator } from "./threat-calculator.js";
 
@@ -9,27 +8,27 @@ export function getStandardThreatChangesOnHitOutcomes(
 ) {
   const { party, actionUser } = context.actionUserContext;
 
-  const allCombatantsResult = AdventuringParty.getAllCombatants(party);
-  if (allCombatantsResult instanceof Error) throw allCombatantsResult;
-  const { characters } = allCombatantsResult;
+  const partyCombatants = party.combatantManager.getPartyMemberCombatants();
 
   const userIdToCredit = actionUser.getIdOfEntityToCreditWithThreat();
 
-  const userResult = AdventuringParty.getCombatant(party, userIdToCredit);
+  const userOption = party.combatantManager.getCombatantOption(userIdToCredit);
 
-  if (userResult instanceof Error) {
+  if (userOption === undefined) {
     // the combatant that applied this condition is no longer in the battle
-    throw userResult;
+    return null;
   }
 
-  const userIsOnPlayerTeam = Object.keys(characters).includes(userIdToCredit);
+  const userIsOnPlayerTeam = partyCombatants
+    .map((combatant) => combatant.getEntityId())
+    .includes(userIdToCredit);
 
   const threatChanges = new ThreatChanges();
   const threatCalculator = new ThreatCalculator(
     threatChanges,
     hitOutcomes,
     party,
-    userResult,
+    userOption,
     context.tracker.actionExecutionIntent.actionName
   );
 

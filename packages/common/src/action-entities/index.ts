@@ -23,7 +23,6 @@ import {
   CombatActionResourceChangeProperties,
   CombatActionTargetType,
   FriendOrFoe,
-  ResourceChangeSource,
 } from "../combat/index.js";
 import { ActionUserType, IActionUser } from "../action-user-context/action-user.js";
 import { ActionUserTargetingProperties } from "../action-user-context/action-user-targeting-properties.js";
@@ -130,14 +129,15 @@ export class ActionEntity implements IActionUser {
   }
   getAllyAndOpponentIds(party: AdventuringParty): Record<FriendOrFoe, EntityId[]> {
     const spawnedBy = this.actionEntityProperties.actionOriginData?.spawnedBy;
+    const { combatantManager } = party;
+
     if (spawnedBy !== undefined) {
-      const idsByDisposition = AdventuringParty.getCombatantIdsByDispositionTowardsCombatantId(
-        party,
+      const idsByDisposition = combatantManager.getCombatantIdsByDispositionTowardsCombatantId(
         spawnedBy.id
       );
       return idsByDisposition;
     } else {
-      const allCombatantIds = AdventuringParty.getAllCombatantIds(party);
+      const allCombatantIds = combatantManager.getAllCombatantIds();
       return { [FriendOrFoe.Hostile]: allCombatantIds, [FriendOrFoe.Friendly]: allCombatantIds };
     }
   }

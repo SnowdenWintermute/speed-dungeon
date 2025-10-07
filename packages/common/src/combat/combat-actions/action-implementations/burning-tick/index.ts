@@ -46,10 +46,9 @@ const config: CombatActionComponentConfig = {
         targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent)
       );
       const { party } = actionUserContext;
-      const targetCombatantResult = AdventuringParty.getCombatant(party, primaryTargetId);
-      if (targetCombatantResult instanceof Error) throw targetCombatantResult;
+      const targetCombatant = party.combatantManager.getExpectedCombatant(primaryTargetId);
 
-      return { nameOfTarget: targetCombatantResult.entityProperties.name };
+      return { nameOfTarget: targetCombatant.entityProperties.name };
     },
   }),
   targetingProperties,

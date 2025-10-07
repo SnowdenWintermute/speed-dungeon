@@ -30,9 +30,8 @@ export class HitPointChanges extends ResourceChanges<ResourceChange> {
     const combatantsKilled: EntityId[] = [];
 
     for (const [targetId, hpChange] of Object.entries(this.changes)) {
-      const targetResult = AdventuringParty.getCombatant(party, targetId);
-      if (targetResult instanceof Error) throw targetResult;
-      const { combatantProperties: targetCombatantProperties } = targetResult;
+      const target = party.combatantManager.getExpectedCombatant(targetId);
+      const { combatantProperties: targetCombatantProperties } = target;
       const combatantWasAliveBeforeResourceChange =
         !CombatantProperties.isDead(targetCombatantProperties);
 
@@ -72,9 +71,8 @@ export class ManaChanges extends ResourceChanges<ManaChange> {
 
   applyToGame(party: AdventuringParty) {
     for (const [targetId, change] of Object.entries(this.changes)) {
-      const targetResult = AdventuringParty.getCombatant(party, targetId);
-      if (targetResult instanceof Error) throw targetResult;
-      const { combatantProperties: targetCombatantProperties } = targetResult;
+      const target = party.combatantManager.getExpectedCombatant(targetId);
+      const { combatantProperties: targetCombatantProperties } = target;
       CombatantProperties.changeMana(targetCombatantProperties, change.value);
     }
   }

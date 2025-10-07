@@ -14,29 +14,36 @@ export function addCharacterToParty(
   character: Combatant,
   pets: Combatant[]
 ): EntityId {
-  if (Object.keys(party.characters).length >= MAX_PARTY_SIZE)
+  const { combatantManager } = party;
+
+  const partyCharacters = combatantManager.getPartyMemberCombatants();
+
+  const partyIsFull = partyCharacters.length >= MAX_PARTY_SIZE;
+
+  if (partyIsFull) {
     throw new Error(ERROR_MESSAGES.GAME.MAX_PARTY_SIZE);
+  }
 
   const characterId = character.entityProperties.id;
 
-  party.characters[characterId] = character;
-  party.characterPositions.push(characterId);
+  combatantManager.addCombatant(character);
 
   party.petManager.setCombatantPets(characterId, pets);
 
   /// Could move this out of here
-  character.combatantProperties.controllingPlayer = player.username;
+  character.combatantProperties.controlledBy.controllerName = player.username;
   player.characterIds.push(characterId);
   game.lowestStartingFloorOptionsBySavedCharacter[characterId] =
     character.combatantProperties.deepestFloorReached;
   ///
 
-  for (const character of Object.values(party.characters))
+  for (const character of combatantManager.getPartyMemberCombatants()) {
     updateCombatantHomePosition(
       character.entityProperties.id,
       character.combatantProperties,
       party
     );
+  }
 
   return characterId;
 }

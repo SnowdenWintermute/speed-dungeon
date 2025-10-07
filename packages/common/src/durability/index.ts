@@ -1,7 +1,4 @@
-import {
-  DURABILITY_LOSS_CONDITION_STRINGS,
-  DurabilityLossCondition,
-} from "../combat/combat-actions/combat-action-durability-loss-condition.js";
+import { DurabilityLossCondition } from "../combat/combat-actions/combat-action-durability-loss-condition.js";
 import { CombatActionComponent } from "../combat/combat-actions/index.js";
 import { IActionUser } from "../action-user-context/action-user.js";
 import {
@@ -9,7 +6,6 @@ import {
   CombatantEquipment,
   applyEquipmentEffectWhileMaintainingResourcePercentages,
 } from "../combatants/index.js";
-import { SpeedDungeonGame } from "../game/index.js";
 import { HitOutcome } from "../hit-outcome.js";
 import { Equipment, EquipmentSlotType, TaggedEquipmentSlot } from "../items/equipment/index.js";
 import { EntityId } from "../primatives/index.js";
@@ -82,20 +78,20 @@ export class DurabilityChangesByEntityId {
     onApply?: (combatant: Combatant, equipment: Equipment) => void
   ) {
     for (const [entityId, durabilitychanges] of Object.entries(durabilityChanges.records)) {
-      const combatantResult = AdventuringParty.getExpectedCombatant(party, entityId);
+      const combatant = party.combatantManager.getExpectedCombatant(entityId);
 
       for (const change of durabilitychanges.changes) {
         const { taggedSlot, value } = change;
         const equipmentOption = CombatantEquipment.getEquipmentInSlot(
-          combatantResult.combatantProperties.equipment,
+          combatant.combatantProperties.equipment,
           taggedSlot
         );
 
         applyEquipmentEffectWhileMaintainingResourcePercentages(
-          combatantResult.combatantProperties,
+          combatant.combatantProperties,
           () => {
             if (equipmentOption !== undefined) Equipment.changeDurability(equipmentOption, value);
-            if (onApply && equipmentOption) onApply(combatantResult, equipmentOption);
+            if (onApply && equipmentOption) onApply(combatant, equipmentOption);
           }
         );
       }

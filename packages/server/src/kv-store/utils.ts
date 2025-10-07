@@ -1,15 +1,21 @@
-import { Combatant, LadderDeathsUpdate, calculateTotalExperience } from "@speed-dungeon/common";
+import {
+  Combatant,
+  CombatantProperties,
+  LadderDeathsUpdate,
+  calculateTotalExperience,
+} from "@speed-dungeon/common";
 import { valkeyManager } from "./index.js";
 import { CHARACTER_LEVEL_LADDER } from "./consts.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
 
-export async function removeDeadCharactersFromLadder(characters: {
-  [combatantId: string]: Combatant;
-}) {
+export async function removeDeadCharactersFromLadder(characters: Combatant[]) {
   const ladderDeathsUpdate: LadderDeathsUpdate = {};
 
-  for (const character of Object.values(characters)) {
-    if (character.combatantProperties.hitPoints > 0) continue; // still alive
+  for (const character of characters) {
+    const { combatantProperties } = character;
+
+    const isAlive = !CombatantProperties.isDead(combatantProperties);
+    if (isAlive) continue; // still alive
 
     const rank = await valkeyManager.context.zRevRank(
       CHARACTER_LEVEL_LADDER,
@@ -17,9 +23,9 @@ export async function removeDeadCharactersFromLadder(characters: {
     );
     if (rank === null) continue;
     ladderDeathsUpdate[character.entityProperties.name] = {
-      owner: character.combatantProperties.controlledBy.controllerName || "",
+      owner: combatantProperties.controlledBy.controllerName || "",
       rank,
-      level: character.combatantProperties.level,
+      level: combatantProperties.level,
     };
     valkeyManager.context.zRem(CHARACTER_LEVEL_LADDER, [character.entityProperties.id]);
   }

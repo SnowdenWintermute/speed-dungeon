@@ -9,15 +9,13 @@ import { SpeedDungeonPlayer } from "./player.js";
 import putPlayerInParty from "./put-player-in-party.js";
 import removePlayerFromParty from "./remove-player-from-party.js";
 import { removePlayerFromGame } from "./remove-player-from-game.js";
-import getCharacterInGame from "./get-character-in-game.js";
-import getCombatantInGameById from "./get-combatant-in-game-by-id.js";
-import getPartyOfCombatant from "./get-party-of-combatant.js";
+import { getCombatantInGameById } from "./get-combatant-in-game-by-id.js";
+import { getPartyOfCombatant } from "./get-party-of-combatant.js";
 import { allCombatantsInGroupAreDead } from "../combat/all-combatants-in-group-are-dead.js";
 import { getPlayerPartyOption } from "./get-player-party.js";
-import handleBattleVictory from "./handle-battle-victory.js";
+import { handleBattleVictory } from "./handle-battle-victory.js";
 import { GameMode } from "../types.js";
 import { MAX_PARTY_SIZE } from "../app-consts.js";
-import { Combatant } from "../combatants/index.js";
 
 export class SpeedDungeonGame {
   [immerable] = true;
@@ -51,7 +49,6 @@ export class SpeedDungeonGame {
   static removePlayerFromParty = removePlayerFromParty;
   static removePlayer = removePlayerFromGame;
   static putPlayerInParty = putPlayerInParty;
-  static getCharacter = getCharacterInGame;
   static getCombatantById = getCombatantInGameById;
   static getPartyOfCombatant = getPartyOfCombatant;
   static getPlayerPartyOption = getPlayerPartyOption;

@@ -18,10 +18,7 @@ import { TurnOrderManager, TurnTrackerEntityType } from "../../combat/index.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "../../combat/turn-order/consts.js";
 import { ActionUserType, IActionUser } from "../../action-user-context/action-user.js";
 import { ActionIntentAndUser } from "../../action-processing/index.js";
-import {
-  ActionAndRank,
-  ActionUserTargetingProperties,
-} from "../../action-user-context/action-user-targeting-properties.js";
+import { ActionUserTargetingProperties } from "../../action-user-context/action-user-targeting-properties.js";
 import { Vector3, Quaternion } from "@babylonjs/core";
 import { ActionEntityProperties } from "../../action-entities/index.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
@@ -140,7 +137,8 @@ export abstract class CombatantCondition implements IActionUser {
     }
 
     const idsByDispositionOfConditionHolder =
-      AdventuringParty.getCombatantIdsByDispositionTowardsCombatantId(party, this.appliedTo);
+      party.combatantManager.getCombatantIdsByDispositionTowardsCombatantId(this.appliedTo);
+
     switch (this.appliedBy.friendOrFoe) {
       case FriendOrFoe.Friendly:
         // if applied by a friendly combatant, "ally ids" would be the allies of conditionAppliedTo

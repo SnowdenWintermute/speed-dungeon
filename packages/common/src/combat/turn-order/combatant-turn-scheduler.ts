@@ -11,20 +11,17 @@ export class CombatantTurnScheduler extends TurnScheduler implements ITurnSchedu
   }
   getTiebreakerId = () => this.combatantId;
   getSpeed(party: AdventuringParty) {
-    const combatantResult = AdventuringParty.getCombatant(party, this.combatantId);
-    if (combatantResult instanceof Error) throw combatantResult;
-    const combatantSpeed = CombatantProperties.getTotalAttributes(
-      combatantResult.combatantProperties
-    )[CombatAttribute.Speed];
+    const combatant = party.combatantManager.getExpectedCombatant(this.combatantId);
+    const combatantSpeed = CombatantProperties.getTotalAttributes(combatant.combatantProperties)[
+      CombatAttribute.Speed
+    ];
     return combatantSpeed;
   }
 
   isStale(party: AdventuringParty) {
-    const combatantResult = AdventuringParty.getCombatant(party, this.combatantId);
-    return (
-      combatantResult instanceof Error ||
-      CombatantProperties.isDead(combatantResult.combatantProperties)
-    );
+    const combatantOption = party.combatantManager.getCombatantOption(this.combatantId);
+    const combatantMissing = combatantOption === undefined;
+    return combatantMissing || CombatantProperties.isDead(combatantOption.combatantProperties);
   }
 
   isMatch(otherScheduler: ITurnScheduler): boolean {
@@ -35,12 +32,11 @@ export class CombatantTurnScheduler extends TurnScheduler implements ITurnSchedu
   }
 
   createTurnTrackerOption(game: SpeedDungeonGame, party: AdventuringParty) {
-    const combatantResult = AdventuringParty.getCombatant(party, this.combatantId);
-    if (combatantResult instanceof Error) throw combatantResult;
-    const isDead = CombatantProperties.isDead(combatantResult.combatantProperties);
+    const combatant = party.combatantManager.getExpectedCombatant(this.combatantId);
+    const isDead = CombatantProperties.isDead(combatant.combatantProperties);
+
     if (isDead) throw new Error("why is a combatant dead when trying to make its trackers");
 
     return new CombatantTurnTracker(this.combatantId, this.timeOfNextMove);
-    // numCombatantTrackersCreated += 1;
   }
 }

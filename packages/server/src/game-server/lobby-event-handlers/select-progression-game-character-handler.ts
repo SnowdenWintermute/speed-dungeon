@@ -1,6 +1,6 @@
 import {
-  AdventuringParty,
   Combatant,
+  CombatantProperties,
   ERROR_MESSAGES,
   GameMode,
   ServerToClientEvent,
@@ -36,8 +36,9 @@ export async function selectProgressionGameCharacterHandler(
   let savedCharacterOption;
   for (const character of Object.values(charactersResult)) {
     if (character.entityProperties.id === entityId) {
-      if (character.combatantProperties.hitPoints <= 0)
+      if (CombatantProperties.isDead(character.combatantProperties)) {
         return errorHandler(socket, new Error(ERROR_MESSAGES.COMBATANT.IS_DEAD));
+      }
       savedCharacterOption = character;
       break;
     }
@@ -46,14 +47,16 @@ export async function selectProgressionGameCharacterHandler(
     return errorHandler(socket, new Error(ERROR_MESSAGES.USER.SAVED_CHARACTER_NOT_OWNED));
 
   const characterIdToRemoveOption = player.characterIds[0];
-  if (characterIdToRemoveOption === undefined)
+  if (characterIdToRemoveOption === undefined) {
     return errorHandler(socket, new Error("Expected to have a selected character but didn't"));
-  const removeCharacterResult = AdventuringParty.removeCharacter(
-    partyOption,
+  }
+
+  const removeCharacterResult = partyOption.removeCharacter(
     characterIdToRemoveOption,
     player,
     undefined
   );
+
   if (removeCharacterResult instanceof Error) return removeCharacterResult;
 
   delete game.lowestStartingFloorOptionsBySavedCharacter[removeCharacterResult.entityProperties.id];

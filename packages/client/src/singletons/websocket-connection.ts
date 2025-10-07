@@ -3,7 +3,6 @@ import { setAlert } from "@/app/components/alerts";
 import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import {
-  AdventuringParty,
   ClientToServerEvent,
   ClientToServerEventTypes,
   InputLock,
@@ -73,9 +72,11 @@ websocketConnection.on(ServerToClientEvent.ErrorMessage, (message) => {
     const partyOption = getCurrentParty(state, state.username || "");
     if (partyOption) {
       InputLock.unlockInput(partyOption.inputLock);
-      const focusedCharacter = AdventuringParty.getCombatant(partyOption, state.focusedCharacterId);
-      if (!(focusedCharacter instanceof Error)) {
-        focusedCharacter.combatantProperties.targetingProperties.clear();
+      const focusedCharacterOption = partyOption.combatantManager.getCombatantOption(
+        state.focusedCharacterId
+      );
+      if (focusedCharacterOption !== undefined) {
+        focusedCharacterOption.combatantProperties.targetingProperties.clear();
         synchronizeTargetingIndicators(state, null, state.focusedCharacterId, []);
       }
     }

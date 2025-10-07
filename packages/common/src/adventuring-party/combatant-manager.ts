@@ -23,7 +23,7 @@ export class CombatantManager {
   }
 
   getAllCombatantIds() {
-    return this.combatants.keys();
+    return Array.from(this.combatants.keys());
   }
 
   /** Gets entityIds of combatants in group in left to right order from the perspective of
@@ -69,17 +69,32 @@ export class CombatantManager {
     return toReturn;
   }
 
-  getAllCombatantsByControllerType(controllerType: CombatantControllerType) {
-    const toReturn: Combatant[] = [];
-    for (const [entityId, combatant] of this.combatants.entries()) {
-      const hasMatchingControllerType =
-        combatant.combatantProperties.controlledBy.controllerType === controllerType;
-      if (hasMatchingControllerType) {
-        toReturn.push(combatant);
-      }
-    }
+  static PARTY_MEMBER_CONTROLLER_TYPES = [
+    CombatantControllerType.Player,
+    CombatantControllerType.PlayerPetAI,
+  ];
 
-    return toReturn;
+  /** Returns player controlled characters and their pets */
+  getPartyMemberCombatants() {
+    return this.getAllCombatantsWithControllerTypes(CombatantManager.PARTY_MEMBER_CONTROLLER_TYPES);
+  }
+
+  getPartyMemberCharacters() {
+    return this.getAllCombatantsWithControllerTypes([CombatantControllerType.Player]);
+  }
+
+  getDungeonControlledCombatants() {
+    return this.getAllCombatantsWithControllerTypes([CombatantControllerType.Dungeon]);
+  }
+
+  private getAllCombatantsWithControllerTypes(controllerTypes: CombatantControllerType[]) {
+    const matchingCombatants = Array.from(this.combatants.values()).filter((combatant) => {
+      const { controllerType } = combatant.combatantProperties.controlledBy;
+      const hasMatchingControllerType = controllerTypes.includes(controllerType);
+      return hasMatchingControllerType;
+    });
+
+    return matchingCombatants;
   }
 
   getConditionOptionOnCombatant(
@@ -93,6 +108,15 @@ export class CombatantManager {
       conditionId
     );
     if (conditionOption === null) return undefined;
+    return conditionOption;
+  }
+
+  getExpectedConditionOnCombatant(
+    combatantId: EntityId,
+    conditionId: EntityId
+  ): CombatantCondition {
+    const conditionOption = this.getConditionOptionOnCombatant(combatantId, conditionId);
+    if (conditionOption === undefined) throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
     return conditionOption;
   }
 
@@ -158,6 +182,10 @@ export class CombatantManager {
     const combatant = this.getExpectedCombatant(combatantId);
     this.combatants.delete(combatantId);
     return combatant;
+  }
+
+  addCombatant(combatant: Combatant) {
+    this.combatants.set(combatant.getEntityId(), combatant);
   }
 
   static getDeserialized(serialized: CombatantManager): CombatantManager {

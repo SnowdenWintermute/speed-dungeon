@@ -1,5 +1,6 @@
 import {
   AdventuringParty,
+  CombatantProperties,
   GameMessageType,
   ServerToClientEvent,
   SpeedDungeonGame,
@@ -67,8 +68,10 @@ export async function leavePartyHandler(
 
 function handleAbandoningDeadPartyMembers(game: SpeedDungeonGame, party: AdventuringParty) {
   let allRemainingCharactersAreDead = true;
-  for (const character of Object.values(party.characters)) {
-    if (character.combatantProperties.hitPoints > 0) {
+  const partyMembers = party.combatantManager.getPartyMemberCombatants();
+  for (const character of partyMembers) {
+    const characterIsAlive = !CombatantProperties.isDead(character.combatantProperties);
+    if (characterIsAlive) {
       allRemainingCharactersAreDead = false;
       break;
     }

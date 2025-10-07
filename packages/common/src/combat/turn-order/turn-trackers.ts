@@ -15,7 +15,6 @@ import { SpeedDungeonGame } from "../../game/index.js";
 import { Battle } from "../../battle/index.js";
 import { AISelectActionAndTarget } from "../ai-behavior/ai-select-action-and-target.js";
 import { ActionIntentOptionAndUser } from "../../action-processing/index.js";
-import { throwIfError } from "../../utils/index.js";
 import { CombatantCondition } from "../../combatants/index.js";
 import { ACTION_ENTITY_ACTION_INTENT_GETTERS } from "../../action-entities/index.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
@@ -58,17 +57,16 @@ export class CombatantTurnTracker extends TurnTracker {
 
   getNextActionIntentAndUser(game: SpeedDungeonGame, party: AdventuringParty, battle: Battle) {
     const { combatantId } = this;
-    const activeCombatantResult = AdventuringParty.getExpectedCombatant(party, combatantId);
-    if (activeCombatantResult instanceof Error) throw activeCombatantResult;
-    let { entityProperties } = activeCombatantResult;
+    const activeCombatant = party.combatantManager.getExpectedCombatant(combatantId);
+    let { entityProperties } = activeCombatant;
 
     const battleGroupsResult = Battle.getAllyAndEnemyBattleGroups(battle, entityProperties.id);
     if (battleGroupsResult instanceof Error) throw battleGroupsResult;
 
-    const actionExecutionIntent = AISelectActionAndTarget(game, activeCombatantResult);
+    const actionExecutionIntent = AISelectActionAndTarget(game, activeCombatant);
     if (actionExecutionIntent instanceof Error) throw actionExecutionIntent;
 
-    return { actionExecutionIntent, user: activeCombatantResult };
+    return { actionExecutionIntent, user: activeCombatant };
   }
 }
 
@@ -90,13 +88,10 @@ export class ConditionTurnTracker extends TurnTracker {
   }
 
   getCondition(party: AdventuringParty) {
-    const result = AdventuringParty.getConditionOnCombatant(
-      party,
+    return party.combatantManager.getExpectedConditionOnCombatant(
       this.combatantId,
       this.conditionId
     );
-    if (result instanceof Error) throw result;
-    return result;
   }
 
   getSpeed(): number {
@@ -115,8 +110,9 @@ export class ConditionTurnTracker extends TurnTracker {
 
   getNextActionIntentAndUser(game: SpeedDungeonGame, party: AdventuringParty, battle: Battle) {
     const { combatantId, conditionId } = this;
-    const condition = throwIfError(
-      AdventuringParty.getConditionOnCombatant(party, combatantId, conditionId)
+    const condition = party.combatantManager.getExpectedConditionOnCombatant(
+      combatantId,
+      conditionId
     );
 
     const tickPropertiesOption = CombatantCondition.getTickProperties(condition);

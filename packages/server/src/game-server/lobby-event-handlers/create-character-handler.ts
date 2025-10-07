@@ -36,7 +36,7 @@ export function createCharacterHandler(
 
   const newCharacterId = newCharacter.entityProperties.id;
 
-  const characterResult = SpeedDungeonGame.getCharacter(game, player.partyName, newCharacterId);
+  const characterResult = SpeedDungeonGame.getCombatantById(game, newCharacterId);
   if (characterResult instanceof Error) throw characterResult;
 
   getGameServer()

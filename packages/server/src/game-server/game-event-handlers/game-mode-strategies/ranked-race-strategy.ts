@@ -117,9 +117,13 @@ async function updateRaceGameCharacterRecordLevels(
   onlyForUsername: null | string = null
 ) {
   try {
-    for (const character of Object.values(party.characters)) {
-      if (onlyForUsername && character.combatantProperties.controllingPlayer !== onlyForUsername)
-        continue;
+    const partyCharacters = party.combatantManager.getPartyMemberCharacters();
+    for (const character of partyCharacters) {
+      if (onlyForUsername !== null) {
+        const { controllerName } = character.combatantProperties.controlledBy;
+        const userControlsThisCharacter = controllerName === onlyForUsername;
+        if (!userControlsThisCharacter) continue;
+      }
       await raceGameCharacterRecordsRepo.update(character);
     }
   } catch (error) {

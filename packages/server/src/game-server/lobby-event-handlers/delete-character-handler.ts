@@ -1,5 +1,4 @@
 import {
-  AdventuringParty,
   ArrayUtils,
   ERROR_MESSAGES,
   ServerToClientEvent,
@@ -10,33 +9,35 @@ import { ServerPlayerAssociatedData } from "../event-middleware";
 import { Socket } from "socket.io";
 import { getGameServer } from "../../singletons/index.js";
 
-export default function deleteCharacterHandler(
+export function deleteCharacterHandler(
   characterId: string,
   playerAssociatedData: ServerPlayerAssociatedData,
   socket: Socket
 ) {
   const { game, partyOption, player, session } = playerAssociatedData;
-  if (!partyOption)
+
+  const partyDoesNotExist = partyOption === undefined;
+  if (partyDoesNotExist) {
     return errorHandler(socket, new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST));
+  }
+
   const party = partyOption;
 
   if (!player.characterIds.includes(characterId.toString()))
     return errorHandler(socket, new Error(ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED));
 
-  const removeCharacterResult = AdventuringParty.removeCharacter(
-    party,
-    characterId,
-    player,
-    undefined
-  );
+  const removeCharacterResult = party.removeCharacter(characterId, player, undefined);
   if (removeCharacterResult instanceof Error) return errorHandler(socket, removeCharacterResult);
 
-  for (const character of Object.values(party.characters))
+  const partyMembers = party.combatantManager.getPartyMemberCombatants();
+
+  for (const character of partyMembers) {
     updateCombatantHomePosition(
       character.entityProperties.id,
       character.combatantProperties,
       party
     );
+  }
 
   const wasReadied = game.playersReadied.includes(session.username);
   ArrayUtils.removeElement(game.playersReadied, session.username);

@@ -1,12 +1,7 @@
 import { GameState } from "@/stores/game-store";
 import getCurrentBattleOption from "./getCurrentBattleOption";
 import getGameAndParty from "./getGameAndParty";
-import {
-  AdventuringParty,
-  Combatant,
-  CombatantTurnTracker,
-  ConditionTurnTracker,
-} from "@speed-dungeon/common";
+import { Combatant, CombatantTurnTracker, ERROR_MESSAGES } from "@speed-dungeon/common";
 
 export function getActiveCombatant(gameState: GameState): Error | null | Combatant {
   const gameAndPartyResult = getGameAndParty(gameState.game, gameState.username);
@@ -20,8 +15,10 @@ export function getActiveCombatant(gameState: GameState): Error | null | Combata
 
   const fastestTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
   if (!(fastestTracker instanceof CombatantTurnTracker)) return null;
-  return AdventuringParty.getCombatant(
-    party,
+  const combatantOption = party.combatantManager.getCombatantOption(
     fastestTracker.getTaggedIdOfTrackedEntity().combatantId
   );
+  if (combatantOption === undefined) return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
+
+  return combatantOption;
 }

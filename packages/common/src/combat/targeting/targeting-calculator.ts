@@ -113,9 +113,8 @@ export class TargetingCalculator {
   ) {
     const primaryTargetIdResult = this.getPrimaryTargetCombatantId(actionExecutionIntent);
     if (primaryTargetIdResult instanceof Error) return primaryTargetIdResult;
-    const primaryTargetResult = AdventuringParty.getCombatant(party, primaryTargetIdResult);
-    if (primaryTargetResult instanceof Error) return primaryTargetResult;
-    return primaryTargetResult;
+    const primaryTarget = party.combatantManager.getExpectedCombatant(primaryTargetIdResult);
+    return primaryTarget;
   }
 
   // I made this to check if the targeting scheme still matches after changing action level

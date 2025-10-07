@@ -5,7 +5,7 @@ import { CombatantProperties } from "../combatants/index.js";
 import { applyExperiencePointChanges } from "../combatants/experience-points/index.js";
 
 /** Returns any levelups by character id  */
-export default function handleBattleVictory(
+export function handleBattleVictory(
   game: SpeedDungeonGame,
   party: AdventuringParty,
   payload: BattleResultActionCommandPayload
@@ -17,12 +17,18 @@ export default function handleBattleVictory(
   }
   applyExperiencePointChanges(party, experiencePointChanges);
   const levelUps: { [entityId: string]: number } = {};
-  for (const character of Object.values(party.characters)) {
-    const newLevelOption = CombatantProperties.awardLevelups(character.combatantProperties);
-    if (newLevelOption !== null) levelUps[character.entityProperties.id] = newLevelOption;
+
+  const { combatantManager } = party;
+  const partyMembers = combatantManager.getPartyMemberCombatants();
+
+  for (const combatant of partyMembers) {
+    const { combatantProperties } = combatant;
+    const newLevelOption = CombatantProperties.awardLevelups(combatantProperties);
+    if (newLevelOption !== null) levelUps[combatant.entityProperties.id] = newLevelOption;
     // until revives are added, res dead characters to 1 hp
-    if (character.combatantProperties.hitPoints <= 0)
-      CombatantProperties.changeHitPoints(character.combatantProperties, 1);
+    if (CombatantProperties.isDead(combatantProperties)) {
+      CombatantProperties.changeHitPoints(combatantProperties, 1);
+    }
   }
 
   party.currentRoom.monsters = {};

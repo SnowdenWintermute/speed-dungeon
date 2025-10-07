@@ -16,14 +16,20 @@ export async function writePlayerCharactersInGameToDb(
   try {
     if (!player.partyName) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
     for (const id of player.characterIds) {
-      const characterResult = SpeedDungeonGame.getCharacter(game, player.partyName, id);
-      if (characterResult instanceof Error)
+      const characterResult = SpeedDungeonGame.getCombatantById(game, id);
+
+      if (characterResult instanceof Error) {
         throw new Error("Couldn't save character: " + characterResult);
+      }
+
       const existingCharacter = await playerCharactersRepo.findById(
         characterResult.entityProperties.id
       );
-      if (!existingCharacter)
+
+      if (!existingCharacter) {
         throw new Error("Tried to update character but it didn't exist in the database");
+      }
+
       characterResult.getTargetingProperties().clear();
       const partyOption = game.adventuringParties[getProgressionGamePartyName(game.name)];
       if (partyOption === undefined) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
