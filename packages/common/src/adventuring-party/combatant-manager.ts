@@ -1,38 +1,18 @@
 import { FriendOrFoe } from "../combat/index.js";
-import { Combatant, CombatantCondition, CombatantProperties } from "../combatants/index.js";
+import {
+  Combatant,
+  CombatantCondition,
+  CombatantControllerType,
+  CombatantProperties,
+} from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { EntityId } from "../primatives/index.js";
-import { AdventuringParty } from "./index.js";
-
-export class CombatantGroup {
-  private combatants: Record<EntityId, Combatant> = {};
-
-  getCombatantOption(entityId: EntityId) {
-    return this.combatants[entityId];
-  }
-
-  /** Gets entityIds of combatants in group in left to right order from the perspective of
-   * the group members' home positions facing the world origin. Useful for rendering combatant
-   * plaques in order and for cycling through targets in a group in order.*/
-  getIdsLeftToRight(options?: {
-    summonedCombatantsOnly?: boolean;
-    excludeSummonedCombatants?: boolean;
-  }): EntityId[] {
-    throw new Error("not implemented");
-  }
-
-  getDisposition(towardCombatant: Combatant) {}
-}
 
 export class CombatantManager {
-  private combatantGroups: CombatantGroup[] = [];
+  private combatants: Map<EntityId, Combatant> = new Map();
 
   getCombatantOption(entityId: string): Combatant | undefined {
-    for (const group of this.combatantGroups) {
-      const combatantOption = group.getCombatantOption(entityId);
-      if (combatantOption !== undefined) return group.getCombatantOption(entityId);
-    }
-    return undefined;
+    return this.combatants.get(entityId);
   }
 
   getExpectedCombatant(combatantId: EntityId) {
@@ -41,15 +21,40 @@ export class CombatantManager {
     return combatantOption;
   }
 
-  getAllCombatantIds(party: AdventuringParty) {
-    const toReturn: EntityId[] = [];
-    for (const group of this.combatantGroups) {
-      toReturn.push(...group.getIdsLeftToRight());
-    }
+  getAllCombatantIds() {
+    return this.combatants.keys();
   }
 
-  getAllCombatants(party: AdventuringParty) {
-    return { characters: this.characters, monsters: party.currentRoom.monsters };
+  /** Gets entityIds of combatants in group in left to right order from the perspective of
+   * the group members' home positions facing the world origin. Useful for rendering combatant
+   * plaques in order and for cycling through targets in a group in order.*/
+  sortCombatantIdsLeftToRight(
+    entityIds: EntityId[],
+    options?: {
+      summonedCombatantsOnly?: boolean;
+      excludeSummonedCombatants?: boolean;
+    }
+  ): EntityId[] {
+    const combatants = this.getExpectedCombatants(entityIds);
+
+    const filtered = combatants.filter((combatant) => {
+      const isSummoned = combatant.combatantProperties.summonedBy !== undefined ?? false;
+      if (options?.summonedCombatantsOnly) return isSummoned;
+      if (options?.excludeSummonedCombatants) return !isSummoned;
+      return true;
+    });
+
+    const sorted = filtered.sort((a, b) => {
+      const ax = a.getHomePosition().x;
+      const bx = b.getHomePosition().x;
+      return ax - bx;
+    });
+
+    return sorted.map((combatant) => combatant.getEntityId());
+  }
+
+  getAllCombatants() {
+    return this.combatants;
   }
 
   getExpectedCombatants(entityIds: EntityId[]) {
@@ -58,6 +63,19 @@ export class CombatantManager {
     for (const id of entityIds) {
       const combatant = this.getExpectedCombatant(id);
       toReturn.push(combatant);
+    }
+
+    return toReturn;
+  }
+
+  getAllCombatantsByControllerType(controllerType: CombatantControllerType) {
+    const toReturn: Combatant[] = [];
+    for (const [entityId, combatant] of this.combatants.entries()) {
+      const hasMatchingControllerType =
+        combatant.combatantProperties.controlledBy.controllerType === controllerType;
+      if (hasMatchingControllerType) {
+        toReturn.push(combatant);
+      }
     }
 
     return toReturn;
@@ -77,22 +95,55 @@ export class CombatantManager {
     return conditionOption;
   }
 
+  combatantsAreAllies(a: Combatant, b: Combatant) {
+    const aType = a.combatantProperties.controlledBy.controllerType;
+    const bType = b.combatantProperties.controlledBy.controllerType;
+    const aIsDungeonControlled = aType === CombatantControllerType.Dungeon;
+    const bIsDungeonControlled = bType === CombatantControllerType.Dungeon;
+    const bothDungeonControlled = aIsDungeonControlled && bIsDungeonControlled;
+    const bothPlayerTeam = !aIsDungeonControlled && !bIsDungeonControlled;
+    return bothDungeonControlled || bothPlayerTeam;
+  }
+
   getCombatantIdsByDispositionTowardsCombatantId(
-    party: AdventuringParty,
     combatantId: string
   ): Record<FriendOrFoe, EntityId[]> {
-    if (this.characterPositions.includes(combatantId)) {
-      return {
-        [FriendOrFoe.Friendly]: this.characterPositions,
-        [FriendOrFoe.Hostile]: party.currentRoom.monsterPositions,
-      };
-    } else if (party.currentRoom.monsterPositions.includes(combatantId)) {
-      return {
-        [FriendOrFoe.Friendly]: party.currentRoom.monsterPositions,
-        [FriendOrFoe.Hostile]: this.characterPositions,
-      };
-    } else {
-      throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
+    const combatant = this.getExpectedCombatant(combatantId);
+
+    const toReturn: Record<FriendOrFoe, EntityId[]> = {
+      [FriendOrFoe.Friendly]: [],
+      [FriendOrFoe.Hostile]: [],
+    };
+
+    for (const [entityId, combatantToCompare] of this.combatants.entries()) {
+      const comparedIsAlly = this.combatantsAreAllies(combatant, combatantToCompare);
+
+      if (comparedIsAlly) {
+        toReturn[FriendOrFoe.Friendly].push(entityId);
+      } else {
+        toReturn[FriendOrFoe.Hostile].push(entityId);
+      }
     }
+
+    return toReturn;
   }
 }
+
+// Conceptual groups
+// .controlled by players in this client's part
+// .controlled by "the dungeon" ai
+// .controlled by player pet ai of pets of players in this party
+// .controlled by players of another party
+// .controlled by pet ai of players of another party
+
+// Things to do with groups
+// .display plaques of
+//   ..this party's characters
+//   ..this party's pets
+//   ..dungeon controlled combatants
+//   ..dungeon controlled pets
+
+// .target entire group of or a single entity from
+//   ..dungeon controlled combatants
+//   ..player combatants and pets of this party
+//   ..player combatants and pets of another player controlled party

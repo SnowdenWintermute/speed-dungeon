@@ -302,6 +302,18 @@ export interface SupportClassProperties {
   combatantClass: CombatantClass;
 }
 
+export enum CombatantControllerType {
+  Player,
+  Dungeon,
+  PlayerPetAI,
+}
+
+export interface CombatantControlledBy {
+  controllerType: CombatantControllerType;
+  /** For player name, can be empty string if this is dungeon controlled */
+  controllerName: string;
+}
+
 export class CombatantProperties {
   [immerable] = true;
   // subsystems
@@ -309,6 +321,10 @@ export class CombatantProperties {
   supportClassProperties: null | SupportClassProperties = null;
   targetingProperties: ActionUserTargetingProperties = new ActionUserTargetingProperties();
   threatManager?: ThreatManager;
+
+  // controller
+  summonedBy?: EntityId;
+  aiTypes?: AiType[];
 
   level: number = 1;
   experiencePoints: ExperiencePoints = {
@@ -335,9 +351,6 @@ export class CombatantProperties {
   position: Vector3;
   conditions: CombatantCondition[] = [];
 
-  summonedBy?: EntityId;
-  aiTypes?: AiType[];
-
   public homeRotation: Quaternion = Quaternion.Zero();
   constructor(
     public combatantClass: CombatantClass,
@@ -348,7 +361,7 @@ export class CombatantProperties {
      * forfeiting control of their characters. In practice, we ask their client to reconnect all sockets anyway
      * after a username change.
      * */
-    public controllingPlayer: null | string,
+    public controlledBy: CombatantControlledBy,
     public homeLocation: Vector3
   ) {
     this.position = homeLocation;
