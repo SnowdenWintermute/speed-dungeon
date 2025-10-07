@@ -9,26 +9,19 @@ import {
 import { setAlert } from "@/app/components/alerts";
 import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
-import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
+import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import {
-  BookConsumableType,
   CONSUMABLE_TEXT_COLOR,
   CONSUMABLE_TYPE_STRINGS,
-  ClientToServerEvent,
-  ConsumableType,
   SKILL_BOOK_CONSUMABLE_TYPES,
   createDummyConsumable,
-  getConsumableShardPrice,
 } from "@speed-dungeon/common";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import { ItemButtonBody, consumableGradientBg } from "./items";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { createCancelButton } from "./common-buttons/cancel";
 import setItemHovered from "@/utils/set-item-hovered";
-import { PriceDisplay } from "../../character-sheet/ShardsDisplay";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { SelectItemToTradeForBookMenuState } from "./select-item-to-trade-for-book";
-import { ReactNode } from "react";
 
 export class SelectBookToTradeForMenuState implements ActionMenuState {
   [immerable] = true;

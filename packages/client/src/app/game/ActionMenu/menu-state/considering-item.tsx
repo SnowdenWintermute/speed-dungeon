@@ -9,7 +9,6 @@ import {
 import {
   ActionAndRank,
   ClientToServerEvent,
-  CombatActionName,
   CombatantProperties,
   Consumable,
   Equipment,
@@ -21,7 +20,7 @@ import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
 import { useUIStore } from "@/stores/ui-store";
 import selectItem from "@/utils/selectItem";
-import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
+import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { createCancelButton } from "./common-buttons/cancel";
 

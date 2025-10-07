@@ -1,7 +1,6 @@
 import { GameState } from "@/stores/game-store";
 import {
   ActionUserContext,
-  AdventuringParty,
   COMBAT_ACTIONS,
   CharacterAssociatedData,
   ERROR_MESSAGES,
@@ -12,7 +11,6 @@ import { characterAssociatedDataProvider } from "../combatant-associated-details
 import { ConsideringCombatActionMenuState } from "@/app/game/ActionMenu/menu-state/considering-combat-action";
 import { synchronizeTargetingIndicators } from "./synchronize-targeting-indicators";
 import { ActionAndRank } from "@speed-dungeon/common";
-import cloneDeep from "lodash.clonedeep";
 
 export function characterSelectedCombatActionHandler(
   characterId: string,
@@ -32,10 +30,8 @@ export function characterSelectedCombatActionHandler(
       if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
       const combatActionOption =
         selectedActionAndRank !== null ? COMBAT_ACTIONS[selectedActionAndRank.actionName] : null;
-      if (character.combatantProperties.controllingPlayer === null)
-        return new Error(ERROR_MESSAGES.COMBATANT.EXPECTED_OWNER_ID_MISSING);
 
-      const playerOption = game.players[character.combatantProperties.controllingPlayer];
+      const playerOption = game.players[character.combatantProperties.controlledBy.controllerName];
       if (playerOption === undefined) return new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
 
       const targetingCalculator = new TargetingCalculator(
@@ -71,8 +67,7 @@ export function characterSelectedCombatActionHandler(
         targetIds || []
       );
 
-      const playerOwnsCharacter = AdventuringParty.playerOwnsCharacter(
-        party,
+      const playerOwnsCharacter = party.combatantManager.playerOwnsCharacter(
         gameState.username,
         characterId
       );

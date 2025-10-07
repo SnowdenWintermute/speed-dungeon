@@ -20,14 +20,15 @@ import {
   ERROR_MESSAGES,
   Inventory,
   Item,
-  updateCombatantHomePosition,
 } from "@speed-dungeon/common";
 
-export default function newDungeonRoomHandler({
+export function newDungeonRoomHandler({
   dungeonRoom: room,
+  monsters: newCombatants,
   actionEntitiesToRemove,
 }: {
   dungeonRoom: DungeonRoom;
+  monsters: Combatant[];
   actionEntitiesToRemove: EntityId[];
 }) {
   const itemIdsOnGroundInPreviousRoom: string[] = [];
@@ -62,10 +63,14 @@ export default function newDungeonRoomHandler({
 
     gameState.hoveredEntity = null;
 
-    for (const [entityId, monster] of Object.entries(party.currentRoom.monsters)) {
-      updateCombatantHomePosition(monster.entityProperties.id, monster.combatantProperties, party);
-      party.currentRoom.monsters[entityId] = Combatant.getDeserialized(monster);
+    const { combatantManager } = party;
+
+    for (const combatant of newCombatants) {
+      const deserialized = Combatant.getDeserialized(combatant);
+      combatantManager.addCombatant(deserialized);
     }
+
+    combatantManager.updateHomePositions();
 
     dungeonExplorationManager.incrementExploredRoomsTrackers();
 
@@ -73,7 +78,7 @@ export default function newDungeonRoomHandler({
     dungeonExplorationManager.getClientVisibleRoomExplorationList()[indexOfRoomTypeToReveal] =
       room.roomType;
 
-    if (room.monsterPositions.length) gameState.baseMenuState.inCombat = true;
+    if (combatantManager.monstersArePresent()) gameState.baseMenuState.inCombat = true;
   });
 
   if (

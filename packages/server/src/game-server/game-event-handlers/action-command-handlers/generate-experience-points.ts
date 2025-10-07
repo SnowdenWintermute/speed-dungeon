@@ -8,9 +8,9 @@ import {
 export function generateExperiencePoints(party: AdventuringParty) {
   const experiencePointChanges: { [combatantId: string]: number } = {};
 
-  const defeatedMonsterLevels = Object.values(party.currentRoom.monsters).map(
-    (monster) => monster.combatantProperties.level
-  );
+  const defeatedMonsterLevels = party.combatantManager
+    .getDungeonControlledCombatants()
+    .map((monster) => monster.combatantProperties.level);
 
   const { combatantManager } = party;
   const partyCombatants = combatantManager.getPartyMemberCombatants();

@@ -19,7 +19,7 @@ import {
 } from "@speed-dungeon/common";
 import { setAlert } from "@/app/components/alerts";
 import selectItem from "@/utils/selectItem";
-import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
+import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import ShardsIcon from "../../../../../public/img/game-ui-icons/shards.svg";

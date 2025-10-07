@@ -7,7 +7,7 @@ import { websocketConnection } from "@/singletons/websocket-connection";
 import { ClientToServerEvent, Inventory, Item } from "@speed-dungeon/common";
 import { takeItem } from "../../ItemsOnGround/ItemOnGround";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
-import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
+import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 
 const takeAllItemsHotkey = HOTKEYS.MAIN_2;
 

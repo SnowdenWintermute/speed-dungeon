@@ -3,7 +3,7 @@ import { useGameStore } from "@/stores/game-store";
 import { AdventuringParty, ERROR_MESSAGES, Inventory } from "@speed-dungeon/common";
 import React from "react";
 import ItemOnGround from "./ItemOnGround";
-import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
+import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 
 interface Props {

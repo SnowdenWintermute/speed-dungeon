@@ -9,7 +9,7 @@ import {
 } from "@/utils/enqueue-character-items-for-thumbnails";
 import getParty from "@/utils/getParty";
 import { Vector3 } from "@babylonjs/core";
-import { ERROR_MESSAGES, updateCombatantHomePosition } from "@speed-dungeon/common";
+import { ERROR_MESSAGES } from "@speed-dungeon/common";
 
 export function gameStartedHandler(timeStarted: number) {
   useGameStore.getState().mutateState((gameState) => {
@@ -28,21 +28,20 @@ export function gameStartedHandler(timeStarted: number) {
     const partyOption = getParty(gameState.game, gameState.username || "");
     if (partyOption instanceof Error) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
     const party = partyOption;
-    party.currentFloor = gameState.game?.selectedStartingFloor || 1;
+    party.dungeonExplorationManager.setCurrentFloor(gameState.game?.selectedStartingFloor || 1);
     // party.currentFloor = 10; // testing
 
     gameWorld.current?.clearFloorTexture();
 
     enqueueConsumableGenericThumbnailCreation();
 
-    for (const character of Object.values(partyOption.characters)) {
-      updateCombatantHomePosition(
-        character.entityProperties.id,
-        character.combatantProperties,
-        party
-      );
+    const { combatantManager } = partyOption;
+
+    for (const character of combatantManager.getAllCombatants()) {
       enqueueCharacterItemsForThumbnails(character);
     }
+
+    combatantManager.updateHomePositions();
 
     characterAutoFocusManager.focusFirstOwnedCharacter(gameState);
   });

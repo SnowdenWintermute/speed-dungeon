@@ -94,10 +94,13 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           let { threatChanges } = gameUpdateCommand;
           if (threatChanges === undefined) threatChanges = new ThreatChanges();
 
-          for (const [monsterId, monster] of Object.entries(party.currentRoom.monsters)) {
+          for (const monster of party.combatantManager.getDungeonControlledCombatants()) {
             const { threatManager } = monster.combatantProperties;
             if (!threatManager) continue;
-            threatChanges.addEntryToRemove(monsterId, targetCombatant.entityProperties.id);
+            threatChanges.addEntryToRemove(
+              monster.getEntityId(),
+              targetCombatant.entityProperties.id
+            );
           }
 
           if (

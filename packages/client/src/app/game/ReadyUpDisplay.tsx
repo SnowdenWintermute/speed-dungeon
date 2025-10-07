@@ -106,7 +106,7 @@ export default function ReadyUpDisplay({ party }: Props) {
                 className={`h-10 pr-2 pl-2 bg-slate-800 ml-1 w-1/2 border border-white text-center hover:bg-slate-950 disabled:opacity-50`}
                 hotkeys={["KeyT"]}
                 disabled={
-                  !AdventuringParty.playerOwnsCharacter(party, username, focusedCharacterId) ||
+                  !party.combatantManager.playerOwnsCharacter(username, focusedCharacterId) ||
                   (currentMenu.type !== MenuStateType.Base &&
                     currentMenu.type !== MenuStateType.OperatingVendingMachine)
                 }

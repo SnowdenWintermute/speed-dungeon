@@ -9,7 +9,7 @@ import {
 import { setAlert } from "@/app/components/alerts";
 import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
-import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
+import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import {
   CONSUMABLE_TEXT_COLOR,
   CONSUMABLE_TYPE_STRINGS,

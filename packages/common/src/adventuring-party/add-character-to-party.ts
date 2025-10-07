@@ -1,5 +1,5 @@
 import { MAX_PARTY_SIZE } from "../app-consts.js";
-import { Combatant, updateCombatantHomePosition } from "../combatants/index.js";
+import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { SpeedDungeonGame, SpeedDungeonPlayer } from "../game/index.js";
 import { EntityId } from "../primatives/index.js";
@@ -37,13 +37,7 @@ export function addCharacterToParty(
     character.combatantProperties.deepestFloorReached;
   ///
 
-  for (const character of combatantManager.getPartyMemberCombatants()) {
-    updateCombatantHomePosition(
-      character.entityProperties.id,
-      character.combatantProperties,
-      party
-    );
-  }
+  combatantManager.updateHomePositions();
 
   return characterId;
 }

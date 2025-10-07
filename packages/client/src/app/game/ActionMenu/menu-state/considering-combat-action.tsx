@@ -7,7 +7,6 @@ import {
   MenuStateType,
 } from ".";
 import {
-  AdventuringParty,
   ClientToServerEvent,
   CombatActionName,
   CombatantProperties,
@@ -17,7 +16,7 @@ import {
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
-import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
+import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { createCancelButton } from "./common-buttons/cancel";
 import getCurrentParty from "@/utils/getCurrentParty";

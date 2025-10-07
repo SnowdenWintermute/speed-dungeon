@@ -8,7 +8,7 @@ import {
 import { Socket } from "socket.io-client";
 import playerToggledReadyToDescendOrExploreHandler from "./player-toggled-ready-to-descend-or-explore-handler";
 import newDungeonRoomTypesOnCurrentFloorHandler from "./new-dungeon-room-types-on-current-floor-handler";
-import newDungeonRoomHandler from "./new-dungeon-room-handler";
+import { newDungeonRoomHandler } from "./new-dungeon-room-handler";
 import { battleFullUpdateHandler } from "./battle-full-update-handler";
 import characterDroppedItemHandler from "./character-dropped-item-handler";
 import { characterDroppedEquippedItemHandler } from "./character-dropped-equipped-item-handler";
@@ -33,7 +33,7 @@ import { characterSelectedActionLevelHandler } from "./character-selected-action
 import { characterAllocatedAbilityPointHandler } from "./character-allocated-ability-point-handler";
 import { characterTradedItemForBookHandler } from "./character-traded-item-for-book-handler";
 
-export default function setUpGameEventHandlers(
+export function setUpGameEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
 ) {
   socket.on(

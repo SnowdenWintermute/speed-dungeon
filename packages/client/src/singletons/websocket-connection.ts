@@ -12,7 +12,7 @@ import {
 import { Socket, io } from "socket.io-client";
 import setUpBasicLobbyEventHandlers from "@/app/websocket-manager/basic-lobby-event-handlers";
 import { setUpGameLobbyEventHandlers } from "@/app/websocket-manager/lobby-event-handlers";
-import setUpGameEventHandlers from "@/app/websocket-manager/game-event-handlers";
+import { setUpGameEventHandlers } from "@/app/websocket-manager/game-event-handlers";
 import setUpSavedCharacterEventListeners from "@/app/websocket-manager/saved-character-event-handlers";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { getGameWorld } from "@/app/3d-world/SceneManager";

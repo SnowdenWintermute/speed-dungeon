@@ -3,12 +3,10 @@ import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-a
 import { setAlert } from "@/app/components/alerts";
 import { useGameStore } from "@/stores/game-store";
 import {
-  AdventuringParty,
   Combatant,
   ERROR_MESSAGES,
   addCharacterToParty,
   getProgressionGamePartyName,
-  updateCombatantHomePosition,
 } from "@speed-dungeon/common";
 
 export function savedCharacterSelectionInProgressGameHandler(
@@ -30,28 +28,22 @@ export function savedCharacterSelectionInProgressGameHandler(
 
     const previouslySelectedCharacterId = player.characterIds[0];
     if (previouslySelectedCharacterId) {
-      const removedCharacterResult = AdventuringParty.removeCharacter(
-        party,
-        previouslySelectedCharacterId,
-        player,
-        undefined
-      );
-      if (removedCharacterResult instanceof Error) return setAlert(removedCharacterResult);
-
-      delete game.lowestStartingFloorOptionsBySavedCharacter[
-        removedCharacterResult.entityProperties.id
-      ];
-
-      for (const character of Object.values(party.characters))
-        updateCombatantHomePosition(
-          character.entityProperties.id,
-          character.combatantProperties,
-          party
-        );
+      try {
+        const removedCharacterResult = party.removeCharacter(previouslySelectedCharacterId, player);
+        delete game.lowestStartingFloorOptionsBySavedCharacter[
+          removedCharacterResult.entityProperties.id
+        ];
+        party.combatantManager.updateHomePositions();
+      } catch (err) {
+        return setAlert(err as Error);
+      }
     }
 
     const deserialized = Combatant.getDeserialized(character);
-    addCharacterToParty(game, party, player, deserialized);
+
+    throw new Error("not implemented - loading pets");
+
+    addCharacterToParty(game, party, player, deserialized, []);
 
     gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,

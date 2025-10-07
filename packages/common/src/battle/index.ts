@@ -51,14 +51,6 @@ export class Battle {
   }
 }
 
-export class BattleGroup {
-  constructor(
-    public name: string,
-    public partyName: EntityId,
-    public combatantIds: EntityId[]
-  ) {}
-}
-
 export enum BattleConclusion {
   Defeat,
   Victory,

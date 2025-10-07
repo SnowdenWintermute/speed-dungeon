@@ -1,6 +1,5 @@
 import { GameState, getCurrentMenu } from "@/stores/game-store";
 import {
-  AdventuringParty,
   CharacterAssociatedData,
   CombatantEquipment,
   CombatantProperties,
@@ -27,7 +26,7 @@ export function characterEquippedItemHandler(packet: {
       if (gameState.username === null) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
 
       const unequippedResult = CombatantProperties.equipItem(
-        character.combatantProperties,
+        character,
         itemId,
         equipToAlternateSlot
       );
@@ -39,7 +38,10 @@ export function characterEquippedItemHandler(packet: {
         itemId
       );
       if (slot !== null) {
-        const item = CombatantEquipment.getEquipmentInSlot(character.combatantProperties, slot);
+        const item = CombatantEquipment.getEquipmentInSlot(
+          character.combatantProperties.equipment,
+          slot
+        );
         if (item !== undefined)
           getGameWorld().modelManager.modelActionQueue.enqueueMessage({
             type: ModelActionType.SynchronizeCombatantEquipmentModels,
@@ -49,8 +51,7 @@ export function characterEquippedItemHandler(packet: {
 
       if (idsOfUnequippedItems[0] === undefined) return;
 
-      const playerOwnsCharacter = AdventuringParty.playerOwnsCharacter(
-        party,
+      const playerOwnsCharacter = party.combatantManager.playerOwnsCharacter(
         gameState.username,
         characterId
       );

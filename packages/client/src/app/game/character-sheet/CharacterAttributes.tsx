@@ -10,7 +10,7 @@ import React from "react";
 import { AttributeListItem } from "./AttributeListItem";
 import HpAndMp from "./HpAndMp";
 import CharacterSheetWeaponDamage from "./CharacterSheetWeaponDamage";
-import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
+import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
 import ElementalAffinitiesDisplay from "./ElementalAffinitiesDisplay";
 import KineticAffinitiesDisplay from "./KineticAffinitiesDisplay";

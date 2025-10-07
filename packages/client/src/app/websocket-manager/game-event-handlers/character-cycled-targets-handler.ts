@@ -29,10 +29,7 @@ export function characterCycledTargetsHandler(
 
       const targetingProperties = character.getTargetingProperties();
       // @REFACTOR - just pass the targeting calculator for this pattern
-      const idsByDisposition = character.getAllyAndOpponentIds(
-        party,
-        AdventuringParty.getBattleOption(party, game)
-      );
+      const idsByDisposition = party.combatantManager.getCombatantIdsByDisposition(characterId);
       targetingProperties.cycleTargets(direction, playerOption, idsByDisposition);
 
       const selectedActionAndRank = targetingProperties.getSelectedActionAndRank();

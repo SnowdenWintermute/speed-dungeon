@@ -8,8 +8,8 @@ import {
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io-client";
 import { characterAddedToPartyHandler } from "./character-added-to-party-handler";
-import characterDeletionHandler from "./character-deletion-handler";
-import playerToggledReadyToStartGameHandler from "./player-toggled-ready-to-start-game-handler";
+import { characterDeletionHandler } from "./character-deletion-handler";
+import { playerToggledReadyToStartGameHandler } from "./player-toggled-ready-to-start-game-handler";
 import { gameStartedHandler } from "../game-event-handlers/game-started-handler";
 import { playerLeftGameHandler } from "../player-left-game-handler";
 import { savedCharacterSelectionInProgressGameHandler } from "./saved-character-selection-in-progress-game-handler";

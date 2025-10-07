@@ -1,9 +1,4 @@
-import {
-  ArrayUtils,
-  ERROR_MESSAGES,
-  ServerToClientEvent,
-  updateCombatantHomePosition,
-} from "@speed-dungeon/common";
+import { ArrayUtils, ERROR_MESSAGES, ServerToClientEvent } from "@speed-dungeon/common";
 import errorHandler from "../error-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware";
 import { Socket } from "socket.io";
@@ -29,15 +24,7 @@ export function deleteCharacterHandler(
 
   party.removeCharacter(characterId, player);
 
-  const partyMembers = party.combatantManager.getPartyMemberCombatants();
-
-  for (const character of partyMembers) {
-    updateCombatantHomePosition(
-      character.entityProperties.id,
-      character.combatantProperties,
-      party
-    );
-  }
+  party.combatantManager.updateHomePositions();
 
   const wasReadied = game.playersReadied.includes(session.username);
   ArrayUtils.removeElement(game.playersReadied, session.username);

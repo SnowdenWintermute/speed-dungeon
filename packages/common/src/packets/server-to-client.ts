@@ -114,6 +114,7 @@ export interface ServerToClientEventTypes {
   ) => void;
   [ServerToClientEvent.DungeonRoomUpdate]: (eventData: {
     dungeonRoom: DungeonRoom;
+    monsters: Combatant[];
     actionEntitiesToRemove: EntityId[];
   }) => void;
   [ServerToClientEvent.BattleFullUpdate]: (battleOption: null | Battle) => void;

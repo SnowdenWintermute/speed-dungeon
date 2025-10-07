@@ -1,10 +1,8 @@
 import {
   AdventuringParty,
-  BattleGroup,
   ERROR_MESSAGES,
   ServerToClientEvent,
   getPartyChannelName,
-  updateCombatantHomePosition,
   SpeedDungeonGame,
   Battle,
   GameMode,
@@ -18,7 +16,7 @@ import { writeAllPlayerCharacterInGameToDb } from "../saved-character-event-hand
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { BattleProcessor } from "./character-uses-selected-combat-action-handler/process-battle-until-player-turn-or-conclusion.js";
 import { ExplorationAction } from "@speed-dungeon/common";
-import { CombatantManager } from "@speed-dungeon/common/src/adventuring-party/combatant-manager.js";
+import { instantiateItemGenerationBuildersAndDirectors } from "../item-generation/instantiate-item-generation-builders-and-directors.js";
 
 export async function toggleReadyToExploreHandler(
   _eventData: undefined,
@@ -90,7 +88,8 @@ export async function exploreNextRoom(
 
   const roomTypeToGenerate = dungeonExplorationManager.popNextUnexploredRoomType();
 
-  putPartyInNextRoom(game, party, roomTypeToGenerate);
+  const newMonstersResult = putPartyInNextRoom(game, party, roomTypeToGenerate);
+  if (newMonstersResult instanceof Error) return newMonstersResult;
 
   const partyChannelName = getPartyChannelName(game.name, party.name);
 
@@ -101,6 +100,7 @@ export async function exploreNextRoom(
 
   this.io.to(partyChannelName).emit(ServerToClientEvent.DungeonRoomUpdate, {
     dungeonRoom: party.currentRoom,
+    monsters: newMonstersResult,
     actionEntitiesToRemove: actionEntitiesRemoved,
   });
 
@@ -124,12 +124,14 @@ export function putPartyInNextRoom(
   const { dungeonExplorationManager } = party;
   const floorNumber = dungeonExplorationManager.getCurrentFloor();
 
-  const newRoom = generateDungeonRoom(floorNumber, roomTypeToGenerate);
-  party.currentRoom = newRoom;
+  const { room, monsters } = generateDungeonRoom(floorNumber, roomTypeToGenerate);
+  party.currentRoom = room;
 
-  for (const monster of Object.values(party.currentRoom.monsters)) {
-    updateCombatantHomePosition(monster.entityProperties.id, monster.combatantProperties, party);
+  for (const monster of monsters) {
+    party.combatantManager.addCombatant(monster);
   }
+
+  party.combatantManager.updateHomePositions();
 
   dungeonExplorationManager.incrementExploredRoomsTrackers();
 
@@ -138,6 +140,8 @@ export function putPartyInNextRoom(
     if (battleIdResult instanceof Error) return battleIdResult;
     party.battleId = battleIdResult;
   }
+
+  return monsters;
 }
 
 function initiateBattle(game: SpeedDungeonGame, party: AdventuringParty): Error | string {

@@ -86,13 +86,13 @@ export class ThreatCalculator {
       }
     }
 
-    const userIsMonster = this.party.currentRoom.monsterPositions.includes(
-      this.actionUser.getEntityId()
-    );
-    if (userIsMonster)
+    const userIsMonster = this.actionUser.getCombatantProperties().isDungeonControlled();
+
+    if (userIsMonster) {
       return console.error(
         "updateThreatChangesForPlayerControlledCharacterHitOutcomes but user was not on player team"
       );
+    }
 
     const resourceChanges = this.hitOutcomes.resourceChanges;
     if (!resourceChanges) return;

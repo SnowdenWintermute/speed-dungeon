@@ -17,7 +17,7 @@ import { setAlert } from "@/app/components/alerts";
 import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
 import { HOTKEYS } from "@/hotkeys";
-import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
+import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { createCancelButton } from "./common-buttons/cancel";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
 

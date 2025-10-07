@@ -65,6 +65,7 @@ import { SpeedDungeonGame } from "../game/index.js";
 import { Battle } from "../battle/index.js";
 import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
 import { deserializeCondition } from "./combatant-conditions/deserialize-condition.js";
+import { CombatantControlledBy, CombatantControllerType } from "./combatant-controllers.js";
 
 export enum AiType {
   Healer,
@@ -76,7 +77,6 @@ export * from "./combatant-traits/index.js";
 export * from "./owned-actions/index.js";
 export * from "./get-combat-action-properties.js";
 export * from "./inventory/index.js";
-export * from "./update-home-position.js";
 export * from "./combatant-equipment/index.js";
 export * from "./combatant-conditions/index.js";
 export * from "./threat-manager/index.js";
@@ -137,22 +137,7 @@ export class Combatant implements IActionUser {
 
   getAllyAndOpponentIds(party: AdventuringParty): Record<FriendOrFoe, EntityId[]> {
     const { combatantManager } = party;
-    const dungeonControlledCombatants = combatantManager.getDungeonControlledCombatants();
-    const playerControlledCombatants = combatantManager.getDungeonControlledCombatants();
-
-    const isMonster = this.combatantProperties.monsterType !== null;
-
-    if (isMonster) {
-      return {
-        [FriendOrFoe.Hostile]: party.characterPositions,
-        [FriendOrFoe.Friendly]: party.currentRoom.monsterPositions,
-      };
-    }
-
-    return {
-      [FriendOrFoe.Hostile]: party.currentRoom.monsterPositions,
-      [FriendOrFoe.Friendly]: party.characterPositions,
-    };
+    return combatantManager.getCombatantIdsByDisposition(this.getEntityId());
   }
 
   getTargetingProperties = () => this.combatantProperties.targetingProperties;
@@ -301,18 +286,6 @@ export class Combatant implements IActionUser {
 export interface SupportClassProperties {
   level: number;
   combatantClass: CombatantClass;
-}
-
-export enum CombatantControllerType {
-  Player,
-  Dungeon,
-  PlayerPetAI,
-}
-
-export interface CombatantControlledBy {
-  controllerType: CombatantControllerType;
-  /** For player name, can be empty string if this is dungeon controlled */
-  controllerName: string;
 }
 
 export class CombatantProperties {

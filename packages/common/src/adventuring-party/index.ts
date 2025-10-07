@@ -10,7 +10,6 @@ import { DungeonExplorationManager } from "./dungeon-exploration-manager.js";
 import { ActionEntityManager } from "./action-entity-manager.js";
 import { PetManager } from "./pet-manager.js";
 import { CombatantManager } from "./combatant-manager.js";
-import { Battle } from "../battle/index.js";
 import { Combatant } from "../combatants/index.js";
 import { ArrayUtils } from "../utils/array-utils.js";
 export * from "./get-item-in-party.js";

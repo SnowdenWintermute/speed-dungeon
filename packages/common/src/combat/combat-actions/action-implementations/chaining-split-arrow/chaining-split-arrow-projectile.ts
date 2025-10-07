@@ -152,9 +152,8 @@ function getBouncableTargets(
   if (previousTargetIdResult instanceof Error) return previousTargetIdResult;
 
   const { actionUser, party } = actionUserContext;
-  const entityIdsByDisposition = actionUser.getAllyAndOpponentIds(
-    party,
-    actionUserContext.getBattleOption()
+  const entityIdsByDisposition = party.combatantManager.getCombatantIdsByDisposition(
+    actionUser.getEntityId()
   );
 
   const opponentIds = entityIdsByDisposition[FriendOrFoe.Hostile];
