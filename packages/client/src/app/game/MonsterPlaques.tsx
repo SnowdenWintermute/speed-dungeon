@@ -11,7 +11,9 @@ export default function MonsterPlaques({ party, game }: Props) {
   let monsterPlaques = <div />;
   if (party.battleId === null) return monsterPlaques;
 
-  const monsterIdsOption = party.currentRoom.monsterPositions;
+  const monsterIdsOption = party.combatantManager
+    .getDungeonControlledCombatants()
+    .map((combatant) => combatant.getEntityId());
 
   if (monsterIdsOption) {
     monsterPlaques = (

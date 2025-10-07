@@ -80,9 +80,11 @@ export default function ReadyUpDisplay({ party }: Props) {
   const exploreHotkey = HOTKEYS.SIDE_1;
   const operateVendingMachineHotkey = HOTKEYS.SIDE_2;
 
+  const allowedToDescend = !inStaircaseRoom || party.combatantManager.monstersArePresent();
+
   return (
     <>
-      {!inStaircaseRoom && party.currentRoom.monsterPositions.length === 0 && (
+      {allowedToDescend && (
         <div
           className="absolute top-12 -translate-y-[1px] min-w-[500px] text-center left-1/2 -translate-x-1/2 border border-slate-400 bg-slate-700 p-4 flex flex-col pointer-events-auto"
           style={{ opacity: shouldDim ? "0%" : "100%" }}

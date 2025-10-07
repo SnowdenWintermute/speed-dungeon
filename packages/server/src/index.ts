@@ -27,42 +27,4 @@ const listening = expressApp.listen(PORT, async () => {
   console.info(`speed dungeon server on port ${PORT}`);
 
   gameServer.current = new GameServer(io);
-
-  // const combatantContext = setUpTestGameWithPartyInBattle(idGenerator);
-
-  // const { game, party, combatant } = combatantContext;
-  // const combatants = Object.values(party.characters).concat(
-  //   Object.values(party.currentRoom.monsters)
-  // );
-  // const combatantPositions = combatants.map((combatant) => [
-  //   combatant.entityProperties.name,
-  //   combatant.combatantProperties.position,
-  // ]);
-
-  // const opponents = combatantContext.getOpponents();
-  // const firstOpponentOption = opponents[0];
-  // if (!firstOpponentOption) throw new Error("no targets");
-  // const secondOpponentOption = opponents[0];
-  // if (!firstOpponentOption) throw new Error("no targets");
-
-  // const targets: CombatActionTarget = {
-  //   type: CombatActionTargetType.Single,
-  //   targetId: firstOpponentOption.entityProperties.id,
-  // };
-  // const otherTargets: CombatActionTarget = {
-  //   type: CombatActionTargetType.Single,
-  //   targetId: firstOpponentOption.entityProperties.id,
-  // };
-  // // const targets: CombatActionTarget = {
-  // //   type: CombatActionTargetType.Group,
-  // //   friendOrFoe: FriendOrFoe.Hostile
-  // // };
-  // combatant.combatantProperties.combatActionTarget = targets;
-
-  // const ATTRIBUTE_PER_TIER_BASE = 1.25;
-  // function getAttributeAffixValueRange(tier: number, rangeMultiplier: number) {
-  //   const min = Math.round(ATTRIBUTE_PER_TIER_BASE * tier - 1) * 2 * rangeMultiplier;
-  //   const max = Math.round(ATTRIBUTE_PER_TIER_BASE * tier) * 2 * rangeMultiplier;
-  //   return new NumberRange(Math.max(1, min), Math.max(1, max));
-  // }
 });

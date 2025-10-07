@@ -16,7 +16,9 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
     focusedCharacterResult instanceof Error ? null : focusedCharacterResult;
   if (!focusedCharacterOption) return <div>{ERROR_MESSAGES.COMBATANT.NOT_FOUND}</div>;
 
-  const partyCharacterIds = partyResult.characterPositions;
+  const partyCharacterIds = partyResult.combatantManager
+    .getPartyMemberCharacters()
+    .map((combatant) => combatant.getEntityId());
 
   let conditionalStyles = showCharacterSheet
     ? "pointer-events-auto w-fit "

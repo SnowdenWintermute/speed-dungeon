@@ -26,7 +26,9 @@ export default function TurnOrderTrackerIcon({ tracker }: { tracker: CombatantTu
 
   const combatantIsAlly =
     taggedTrackedEntityId.type === TurnTrackerEntityType.Combatant &&
-    party.characterPositions.includes(taggedTrackedEntityId.combatantId);
+    party.combatantManager
+      .getExpectedCombatant(taggedTrackedEntityId.combatantId)
+      .combatantProperties.isPlayerControlled();
 
   const conditionalClasses = isCondition
     ? "bg-slate-600"

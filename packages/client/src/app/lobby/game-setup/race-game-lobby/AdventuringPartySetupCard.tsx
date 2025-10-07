@@ -26,7 +26,8 @@ export default function PartySetupCard({
   playerOption: null | undefined | SpeedDungeonPlayer;
 }) {
   const menuWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));
-  const numCharacters = party.characterPositions.length;
+  const characters = party.combatantManager.getPartyMemberCharacters();
+  const characterCount = characters.length;
   const username = useGameStore().username;
   if (username === null) return <div>{ERROR_MESSAGES.CLIENT.NO_USERNAME}</div>;
   const userIsInThisParty = party.playerUsernames.includes(username);
@@ -35,10 +36,10 @@ export default function PartySetupCard({
     websocketConnection.emit(ClientToServerEvent.LeaveParty);
   }
 
-  const characterCards = party.characterPositions.map((characterId) => {
-    const character = party.characters[characterId];
-    if (!character) return <li>Character not found</li>;
-    return <CharacterCard character={character} username={username} key={characterId} />;
+  const characterCards = characters.map((character) => {
+    return (
+      <CharacterCard character={character} username={username} key={character.getEntityId()} />
+    );
   });
 
   return (
@@ -61,13 +62,13 @@ export default function PartySetupCard({
               )}
             </span>
             <span>
-              {numCharacters}/{MAX_PARTY_SIZE}
+              {characterCount}/{MAX_PARTY_SIZE}
             </span>
           </h4>
         </div>
         <ul className="p-2">
           {characterCards}
-          {new Array(MAX_PARTY_SIZE - numCharacters).fill(null).map((item, i) => (
+          {new Array(MAX_PARTY_SIZE - characterCount).fill(null).map((item, i) => (
             <EmptyCharacterSlot key={i} i={i} party={party} playerOption={playerOption} />
           ))}
         </ul>

@@ -113,31 +113,12 @@ function getModelsAndPositions() {
     // in game
     const partyResult = getParty(game, state.username || "");
     if (partyResult instanceof Error) return partyResult;
-    for (const character of Object.values(partyResult.characters)) {
-      modelsAndPositions[character.entityProperties.id] = {
-        combatant: character,
-        homeRotation: character.combatantProperties.homeRotation,
-        homeLocation: character.combatantProperties.homeLocation,
-      };
-    }
-
-    // pets
-
-    for (const combatant of Object.values(partyResult.petManager.getSummonedPets())) {
+    const { combatantManager } = partyResult;
+    for (const combatant of combatantManager.getAllCombatants()) {
       modelsAndPositions[combatant.entityProperties.id] = {
-        combatant: combatant,
+        combatant,
         homeRotation: combatant.combatantProperties.homeRotation,
         homeLocation: combatant.combatantProperties.homeLocation,
-      };
-    }
-
-    // monsters
-
-    for (const monster of Object.values(partyResult.currentRoom.monsters)) {
-      modelsAndPositions[monster.entityProperties.id] = {
-        combatant: monster,
-        homeRotation: monster.combatantProperties.homeRotation,
-        homeLocation: monster.combatantProperties.homeLocation,
       };
     }
   } else {
@@ -165,10 +146,10 @@ function getProgressionGameLobbyCombatantModelPositions(game: SpeedDungeonGame) 
 
   const modelsAndPositions: ModelsAndPositions = {};
 
-  partyOption.characterPositions.forEach(
-    (characterId, i) =>
-      (modelsAndPositions[characterId] = {
-        combatant: partyOption.characters[characterId]!,
+  partyOption.combatantManager.getPartyMemberCharacters().forEach(
+    (combatant, i) =>
+      (modelsAndPositions[combatant.getEntityId()] = {
+        combatant,
         homeLocation: new Vector3(-CHARACTER_SLOT_SPACING + i * CHARACTER_SLOT_SPACING, 0, 0),
         homeRotation: Quaternion.Identity(),
       })

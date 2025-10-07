@@ -1,4 +1,4 @@
-import { abilityTreeMenuState, inventoryItemsMenuState, useGameStore } from "@/stores/game-store";
+import { abilityTreeMenuState, useGameStore } from "@/stores/game-store";
 import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import React from "react";
 import { ActionMenuButtonProperties } from "./menu-state";
@@ -26,15 +26,22 @@ export function CharacterFocusingButtons() {
           useGameStore.getState().username || ""
         );
         if (!party) return;
-        const currCharIndex = party.characterPositions.indexOf(currentFocusedCharacterId);
+
+        const characterPositions = party.combatantManager.sortCombatantIdsLeftToRight(
+          party.combatantManager
+            .getPartyMemberCharacters()
+            .map((combatant) => combatant.getEntityId())
+        );
+
+        const currCharIndex = characterPositions.indexOf(currentFocusedCharacterId);
         if (currCharIndex === -1) return console.error("Character ID not in position list");
         const nextIndex = getNextOrPreviousNumber(
           currCharIndex,
-          party.characterPositions.length - 1,
+          characterPositions.length - 1,
           direction,
           { minNumber: 0 }
         );
-        const newCharacterId = party.characterPositions[nextIndex];
+        const newCharacterId = characterPositions[nextIndex];
         if (newCharacterId === undefined) return console.error("Invalid character position index");
 
         useGameStore.getState().mutateState((state) => {

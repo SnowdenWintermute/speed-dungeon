@@ -34,7 +34,7 @@ export default function ActionDetails({
   const selectedLevelOption =
     focusedCharacterResult.getTargetingProperties().getSelectedActionAndRank()?.rank || 1;
 
-  const inCombat = !!Object.values(party.currentRoom.monsters).length;
+  const inCombat = party.combatantManager.monstersArePresent();
 
   const action = COMBAT_ACTIONS[actionName];
   const costs =

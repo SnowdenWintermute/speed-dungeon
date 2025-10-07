@@ -83,7 +83,9 @@ export default function Game() {
                 <div className="w-fit max-w-full flex items-end">
                   <CombatantPlaqueGroup
                     party={party}
-                    combatantIds={party.characterPositions}
+                    combatantIds={party.combatantManager
+                      .getPartyMemberCharacters()
+                      .map((combatant) => combatant.getEntityId())}
                     isPlayerControlled={true}
                   />
                 </div>

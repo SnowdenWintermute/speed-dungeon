@@ -19,13 +19,23 @@ export function getCombatantClassIcon(
 }
 
 export function getCombatantUiIdentifier(party: AdventuringParty, combatant: Combatant) {
-  const playerPosition = party.characterPositions.indexOf(combatant.entityProperties.id);
+  const characterPositions = party.combatantManager.sortCombatantIdsLeftToRight(
+    party.combatantManager.getPartyMemberCharacters().map((combatant) => combatant.getEntityId())
+  );
+
+  const playerPosition = characterPositions.indexOf(combatant.entityProperties.id);
   if (playerPosition !== -1) return { isPlayer: true, position: playerPosition };
 
   // const playerPetPosition = party.characterPetPositions.indexOf(combatant.entityProperties.id);
   // if (playerPetPosition !== -1) return { isPlayer: false, position: playerPetPosition };
 
-  const monsterPosition = party.currentRoom.monsterPositions.indexOf(combatant.entityProperties.id);
+  const monsterPositions = party.combatantManager.sortCombatantIdsLeftToRight(
+    party.combatantManager
+      .getDungeonControlledCombatants()
+      .map((combatant) => combatant.getEntityId())
+  );
+
+  const monsterPosition = monsterPositions.indexOf(combatant.entityProperties.id);
   if (monsterPosition !== -1) return { isPlayer: false, position: monsterPosition };
 
   throw new Error("combatant not in this party so no ui identifier can be assigned");

@@ -53,7 +53,7 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
   const targetingProperties = focusedCharacterResult.getTargetingProperties();
   const selectedActionAndRankOption = targetingProperties.getSelectedActionAndRank();
 
-  const inCombat = !!Object.values(party.currentRoom.monsters).length;
+  const inCombat = partyResult.combatantManager.monstersArePresent();
 
   const disableOh = inCombat && combatantProperties.actionPoints < 2;
   if (actionName === CombatActionName.Attack)

@@ -12,8 +12,6 @@ import { CharacterModel } from ".";
 import { AdventuringParty, InputLock, iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import { CharacterModelPartCategory } from "./modular-character-parts-model-manager/modular-character-parts";
-import { actionCommandReceiver } from "@/singletons/action-command-manager";
-import { getGameWorld } from "../../SceneManager";
 
 export class HighlightManager {
   private originalPartMaterialColors: Partial<
@@ -127,13 +125,13 @@ export class HighlightManager {
         return;
       }
 
-      const isMonster = partyResult.currentRoom.monsterPositions.includes(
-        this.modularCharacter.entityId
-      );
+      const isMonster = this.modularCharacter
+        .getCombatant()
+        .combatantProperties.isDungeonControlled();
       if (isMonster) return;
 
       const isTurn =
-        battleOption.turnOrderManager.getFastestActorTurnOrderTracker().combatantId ===
+        battleOption.turnOrderManager.getFastestActorTurnOrderTracker().getId() ===
         this.modularCharacter.getCombatant().entityProperties.id;
 
       const inputIsLocked = InputLock.isLocked(partyResult.inputLock);

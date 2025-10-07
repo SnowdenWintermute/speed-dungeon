@@ -11,9 +11,12 @@ export class CharacterAutoFocusManager {
       if (partyResult instanceof Error) return console.error(partyResult.message);
       const party = partyResult;
 
-      const newlyActiveTrackerIsPlayerControlled = party.characterPositions.includes(
-        firstActiveTracker.getTaggedIdOfTrackedEntity().combatantId
-      );
+      const { combatantManager } = party;
+      const activeTrackerId = firstActiveTracker.getTaggedIdOfTrackedEntity().combatantId;
+
+      const newlyActiveTrackerIsPlayerControlled = combatantManager
+        .getExpectedCombatant(activeTrackerId)
+        .combatantProperties.isPlayerControlled();
 
       if (newlyActiveTrackerIsPlayerControlled)
         gameState.focusedCharacterId = firstActiveTracker.getTaggedIdOfTrackedEntity().combatantId;
@@ -44,15 +47,17 @@ export class CharacterAutoFocusManager {
     const currentMenu = getCurrentMenu(gameState);
     if (clientIsViewingMenus && currentMenu.type !== MenuStateType.ItemsOnGround) return;
 
-    let newlyActiveTrackerIsPlayerControlled = false;
-
     if (newlyActiveTracker instanceof CombatantTurnTracker) {
-      newlyActiveTrackerIsPlayerControlled = party.characterPositions.includes(
-        newlyActiveTracker.getTaggedIdOfTrackedEntity().combatantId
-      );
+      const { combatantManager } = party;
+      const activeTrackerId = newlyActiveTracker.getTaggedIdOfTrackedEntity().combatantId;
 
-      if (newlyActiveTrackerIsPlayerControlled)
+      const newlyActiveTrackerIsPlayerControlled = combatantManager
+        .getExpectedCombatant(activeTrackerId)
+        .combatantProperties.isPlayerControlled();
+
+      if (newlyActiveTrackerIsPlayerControlled) {
         gameState.focusedCharacterId = newlyActiveTracker.getTaggedIdOfTrackedEntity().combatantId;
+      }
     }
   }
 }
