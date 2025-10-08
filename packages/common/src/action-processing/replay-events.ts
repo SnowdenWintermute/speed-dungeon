@@ -1,17 +1,6 @@
 import { Vector3 } from "@babylonjs/core";
 import { SequentialIdGenerator } from "../utils/index.js";
-import { ACTION_RESOLUTION_STEP_TYPE_STRINGS } from "./action-steps/index.js";
-import {
-  GAME_UPDATE_COMMAND_TYPE_STRINGS,
-  GameUpdateCommand,
-  GameUpdateCommandType,
-} from "./game-update-commands.js";
-import { SpawnableEntityType } from "../spawnables/index.js";
-
-// export class ReplayEventNode {
-//   events: (GameUpdateCommand | ReplayEventNode)[] = [];
-//   constructor(public parentActionName: CombatActionName) {}
-// }
+import { GameUpdateCommand, GameUpdateCommandType } from "./game-update-commands.js";
 
 export enum ReplayEventType {
   GameUpdate,

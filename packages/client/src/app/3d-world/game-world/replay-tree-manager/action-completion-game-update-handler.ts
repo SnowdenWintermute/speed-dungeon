@@ -2,7 +2,6 @@ import getCurrentParty from "@/utils/getCurrentParty";
 import { useGameStore } from "@/stores/game-store";
 import {
   ActionCompletionUpdateCommand,
-  AdventuringParty,
   CombatantProperties,
   CombatantTurnTracker,
   ERROR_MESSAGES,
@@ -10,7 +9,7 @@ import {
 } from "@speed-dungeon/common";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { handleThreatChangesUpdate } from "./handle-threat-changes";
-import { GameUpdateTracker } from ".";
+import { GameUpdateTracker } from "./game-update-tracker";
 
 export async function actionCompletionGameUpdateHandler(
   update: GameUpdateTracker<ActionCompletionUpdateCommand>

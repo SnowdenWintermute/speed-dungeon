@@ -65,7 +65,7 @@ export function setUpGameEventHandlers(
       if (!state.username) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
       const partyOption = getCurrentParty(state, state.username);
       if (!partyOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
-      partyOption.currentFloor = newFloorNumber;
+      partyOption.dungeonExplorationManager.setCurrentFloor(newFloorNumber);
     });
   });
   socket.on(

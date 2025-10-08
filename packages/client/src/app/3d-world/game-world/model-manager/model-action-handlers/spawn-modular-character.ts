@@ -6,7 +6,6 @@ import { AssetContainer } from "@babylonjs/core";
 import { setCharacterModelPartDefaultMaterials } from "./set-modular-character-part-default-materials";
 import { CharacterModel } from "@/app/3d-world/scene-entities/character-models";
 import { getCharacterModelPartCategoriesAndAssetPaths } from "@/app/3d-world/scene-entities/character-models/modular-character-parts-model-manager/get-modular-character-parts";
-import { startOrStopCosmeticEffects } from "../../replay-tree-manager/start-or-stop-cosmetic-effect";
 
 export async function spawnCharacterModel(
   world: GameWorld,
@@ -21,7 +20,7 @@ export async function spawnCharacterModel(
     entityProperties.id,
     world,
     combatantProperties.monsterType,
-    !!combatantProperties.controllingPlayer,
+    combatantProperties.isPlayerControlled(),
     combatantProperties.combatantClass,
     skeleton,
     blueprint.modelDomPositionElement,

@@ -10,7 +10,6 @@ import {
   ClientToServerEvent,
   CombatActionName,
   CombatantProperties,
-  ERROR_MESSAGES,
   InputLock,
   NextOrPrevious,
 } from "@speed-dungeon/common";
@@ -115,25 +114,28 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
 
     // CYCLE SCHEMES
     //
-    const selectedActionAndRank = focusedCharacterResult
-      .getTargetingProperties()
-      .getSelectedActionAndRank();
-    if (selectedActionAndRank === null)
-      throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_LEVEL_SELECTED);
+    const selectedActionAndRank =
+      combatantProperties.targetingProperties.getSelectedActionAndRank();
+    if (selectedActionAndRank === null) {
+      return toReturn;
+    }
 
     const combatActionProperties = CombatantProperties.getCombatActionPropertiesIfOwned(
       combatantProperties,
       selectedActionAndRank
     );
+
     if (combatActionProperties instanceof Error) {
       setAlert(combatActionProperties);
       return toReturn;
     }
-    if (
-      combatActionProperties.targetingProperties.getTargetingSchemes(selectedActionAndRank.rank)
-        .length <= 1
-    )
+
+    const { targetingProperties } = combatActionProperties;
+    const noTargetingSchemesExist =
+      targetingProperties.getTargetingSchemes(selectedActionAndRank.rank).length <= 1;
+    if (noTargetingSchemesExist) {
       return toReturn;
+    }
 
     const targetingSchemeHotkey = HOTKEYS.MAIN_2;
     const cycleTargetingSchemesButton = new ActionMenuButtonProperties(

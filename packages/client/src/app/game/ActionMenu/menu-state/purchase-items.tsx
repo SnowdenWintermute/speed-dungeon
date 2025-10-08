@@ -66,7 +66,10 @@ export class PurchaseItemsMenuState implements ActionMenuState {
 
     const purchaseableItems = [ConsumableType.HpAutoinjector, ConsumableType.MpAutoinjector];
     for (const consumableType of purchaseableItems) {
-      const price = getConsumableShardPrice(partyResult.currentFloor, consumableType);
+      const price = getConsumableShardPrice(
+        partyResult.dungeonExplorationManager.getCurrentFloor(),
+        consumableType
+      );
 
       const thumbnailId = CONSUMABLE_TYPE_STRINGS[consumableType];
       const thumbnailOption = useGameStore.getState().itemThumbnails[thumbnailId];
@@ -109,7 +112,7 @@ export class PurchaseItemsMenuState implements ActionMenuState {
       );
       purchaseItemButton.shouldBeDisabled =
         !userControlsThisCharacter ||
-        focusedCharacterResult.combatantProperties.inventory.shards < price;
+        focusedCharacterResult.combatantProperties.inventory.shards < (price || 0);
       toReturn[ActionButtonCategory.Numbered].push(purchaseItemButton);
     }
 

@@ -100,7 +100,7 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
       setAlert(partyResult);
       return toReturn;
     }
-    const vendingMachineLevel = partyResult.currentFloor;
+    const vendingMachineLevel = partyResult.dungeonExplorationManager.getCurrentFloor();
     const vmLevelLimiter = Math.floor(vendingMachineLevel / 2);
 
     selectBooksButton.shouldBeDisabled = vmLevelLimiter < 1;

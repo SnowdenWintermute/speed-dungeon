@@ -64,11 +64,11 @@ export default function setFocusedCharacter(id: string) {
 
     if (
       playerOwnsCharacterSwitchingFocusAwayFrom &&
-      characterSwitchingFocusAwayFromOption?.combatantProperties.selectedCombatAction
+      characterSwitchingFocusAwayFromOption?.combatantProperties.targetingProperties.getSelectedActionAndRank()
     ) {
       websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
         characterId: characterSwitchingFocusAwayFromId,
-        combatActionNameOption: null,
+        actionAndRankOption: null,
       });
     }
   });

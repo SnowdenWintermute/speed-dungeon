@@ -15,7 +15,10 @@ export default function CharacterCard({
   character: Combatant;
   username: string;
 }) {
-  const { combatantClass, controllingPlayer } = character.combatantProperties;
+  const { combatantClass } = character.combatantProperties;
+
+  const { controllerName } = character.combatantProperties.controlledBy;
+
   function deleteCharacter() {
     websocketConnection.emit(ClientToServerEvent.DeleteCharacter, character.entityProperties.id);
   }
@@ -34,9 +37,9 @@ export default function CharacterCard({
         </div>
 
         <div className="flex flex-grow w-1/2 justify-end">
-          {controllingPlayer !== username ? (
+          {controllerName !== username ? (
             <h5 className="text-lg text-slate-400 text-right w-full whitespace-nowrap">
-              {controllingPlayer}
+              {controllerName}
             </h5>
           ) : (
             <HotkeyButton

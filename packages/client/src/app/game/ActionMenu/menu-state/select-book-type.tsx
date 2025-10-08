@@ -97,7 +97,7 @@ export class SelectBookToTradeForMenuState implements ActionMenuState {
       );
 
       // let them select and then if they don't have the items to trade, explain what is required
-      purchaseItemButton.shouldBeDisabled = false;
+      purchaseItemButton.shouldBeDisabled = !userControlsThisCharacter;
 
       toReturn[ActionButtonCategory.Numbered].push(purchaseItemButton);
     }

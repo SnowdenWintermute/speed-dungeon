@@ -10,6 +10,7 @@ import { TargetingCalculator } from "../combat/targeting/targeting-calculator.js
 import { immerable } from "immer";
 
 export class ActionAndRank {
+  [immerable] = true;
   constructor(
     public actionName: CombatActionName,
     public rank: number
@@ -17,6 +18,7 @@ export class ActionAndRank {
 }
 
 export class ActionUserTargetingProperties {
+  [immerable] = true;
   private selectedActionAndRank: Option<ActionAndRank> = null;
   private selectedTarget: Option<CombatActionTarget> = null;
   private selectedTargetingScheme: Option<TargetingScheme> = null;

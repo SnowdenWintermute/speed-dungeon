@@ -4,7 +4,7 @@ module.exports = defineConfig({
   e2e: {
     viewportWidth: 1920,
     viewportHeight: 1080,
-    setupNodeEvents(on, config) {
+    setupNodeEvents() {
       // implement node event listeners here
     },
   },

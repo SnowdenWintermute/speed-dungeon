@@ -21,6 +21,7 @@ import {
   ACTION_NAMES_TO_HIDE_IN_MENU,
   getUnmetCostResourceTypes,
   CombatActionName,
+  ActionAndRank,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -170,10 +171,7 @@ export class BaseMenuState implements ActionMenuState {
         () => {
           websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
             characterId,
-            actionAndRankOption: {
-              actionName,
-              rank: 1,
-            },
+            actionAndRankOption: new ActionAndRank(actionName, 1),
           });
           useGameStore.getState().mutateState((state) => {
             state.hoveredAction = null;
@@ -205,10 +203,7 @@ export class BaseMenuState implements ActionMenuState {
 
       const isWearingRequiredEquipment = CombatantProperties.isWearingRequiredEquipmentToUseAction(
         combatantProperties,
-        {
-          actionName: combatAction.name,
-          rank: 1,
-        }
+        new ActionAndRank(actionName, 1)
       );
 
       const isOnCooldown = (actionState.cooldown?.current || 0) > 0;

@@ -33,7 +33,6 @@ export async function toggleReadyToStartGameHandler(
     if (!party.combatantManager.hasCharacters())
       return new Error("Each party must have at least one character");
     party.dungeonExplorationManager.setCurrentFloor(game.selectedStartingFloor);
-    // party.currentFloor = 10; // testing
   }
 
   if (game.playersReadied.includes(username))

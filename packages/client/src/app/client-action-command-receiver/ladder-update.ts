@@ -3,13 +3,12 @@ import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/comb
 import { ClientActionCommandReceiver } from ".";
 import { useGameStore } from "@/stores/game-store";
 
-export default function gameMessageActionCommandHandler(
+export function gameMessageActionCommandHandler(
   this: ClientActionCommandReceiver,
   payload: GameMessagesPayload
 ) {
   payload.messages.forEach((message) => {
     useGameStore.getState().mutateState((state) => {
-      const style;
       state.combatLogMessages.push(
         new CombatLogMessage(message.text, CombatLogMessageStyle.LadderProgress)
       );

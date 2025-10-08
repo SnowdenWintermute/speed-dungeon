@@ -50,7 +50,7 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
   const actionState = abilityProperties.ownedActions[actionName];
   if (actionState === undefined) return <div>Somehow detailing an unowned action</div>;
 
-  const targetingProperties = focusedCharacterResult.getTargetingProperties();
+  const { targetingProperties } = focusedCharacterResult.combatantProperties;
   const selectedActionAndRankOption = targetingProperties.getSelectedActionAndRank();
 
   const inCombat = partyResult.combatantManager.monstersArePresent();
@@ -74,8 +74,10 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
     new ActionUserContext(gameOption, party, focusedCharacterResult),
     null
   );
+
   const currentTargetsOption = targetingProperties.getSelectedTarget();
   if (!currentTargetsOption) return <div>{ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED}</div>;
+
   const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
     party,
     new CombatActionExecutionIntent(

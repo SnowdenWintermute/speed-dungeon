@@ -20,7 +20,9 @@ export async function removeClientPlayerFromGame(username: string) {
       itemsToRemoveThumbnails.push(
         ...character.combatantProperties.inventory.equipment.map((item) => item.entityProperties.id)
       );
-      const hotswapSets = CombatantEquipment.getHoldableHotswapSlots(character.combatantProperties);
+      const hotswapSets = CombatantEquipment.getHoldableHotswapSlots(
+        character.combatantProperties.equipment
+      );
       if (hotswapSets)
         for (const hotswapSet of hotswapSets)
           itemsToRemoveThumbnails.push(

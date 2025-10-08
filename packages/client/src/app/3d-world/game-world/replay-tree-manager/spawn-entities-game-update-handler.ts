@@ -16,7 +16,7 @@ import { handleStartPointingTowardEntity } from "./entity-motion-update-handlers
 import { handleLockRotationToFace } from "./entity-motion-update-handlers/handle-lock-rotation-to-face";
 import { useGameStore } from "@/stores/game-store";
 import getParty from "@/utils/getParty";
-import { GameUpdateTracker } from ".";
+import { GameUpdateTracker } from "./game-update-tracker";
 
 export async function spawnEntitiesGameUpdateHandler(
   update: GameUpdateTracker<SpawnEntitiesGameUpdateCommand>

@@ -1,18 +1,17 @@
 import { EntityMotionUpdateCommand } from "@speed-dungeon/common";
 import { handleEntityMotionUpdate } from "./handle-entity-motion-update";
+import { GameUpdateTracker } from "../game-update-tracker";
 
-export async function entityMotionGameUpdateHandler(update: {
-  command: EntityMotionUpdateCommand;
-  isComplete: boolean;
-}) {
-  const { command } = update;
-  const { mainEntityUpdate, auxiliaryUpdates } = command;
+export async function entityMotionGameUpdateHandler(
+  updateTracker: GameUpdateTracker<EntityMotionUpdateCommand>
+) {
+  const { mainEntityUpdate, auxiliaryUpdates } = updateTracker.command;
 
-  handleEntityMotionUpdate(update, mainEntityUpdate, true);
+  handleEntityMotionUpdate(updateTracker, mainEntityUpdate, true);
 
   if (auxiliaryUpdates) {
     for (const auxiliaryUpdate of auxiliaryUpdates) {
-      handleEntityMotionUpdate(update, auxiliaryUpdate, false);
+      handleEntityMotionUpdate(updateTracker, auxiliaryUpdate, false);
     }
   }
 }

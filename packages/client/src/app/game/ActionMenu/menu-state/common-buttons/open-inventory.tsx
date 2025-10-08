@@ -1,7 +1,6 @@
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { ActionMenuButtonProperties } from "..";
 import { abilityTreeMenuState, inventoryItemsMenuState, useGameStore } from "@/stores/game-store";
-import PlusSign from "../../../../../../public/img/game-ui-icons/plus-sign.svg";
 
 export const toggleInventoryHotkey = HOTKEYS.MAIN_1;
 

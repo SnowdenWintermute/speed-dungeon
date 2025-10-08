@@ -21,7 +21,9 @@ export default function ItemCraftDisplay() {
 
   const equipment = currentMenu.item;
 
-  const ilvlLimited = equipment.itemLevel > partyResult.currentFloor;
+  const currentFloor = partyResult.dungeonExplorationManager.getCurrentFloor();
+
+  const ilvlLimited = equipment.itemLevel > currentFloor;
 
   return (
     <section className="flex-1 flex items-end">
@@ -36,7 +38,7 @@ export default function ItemCraftDisplay() {
         <Divider />
         <div className="w-[500px] text-slate-400">
           <p>Item level: {equipment.itemLevel}</p>
-          <p>Dungeon level: {partyResult.currentFloor}</p>
+          <p>Dungeon level: {currentFloor}</p>
           <div className={ilvlLimited ? UNMET_REQUIREMENT_TEXT_COLOR : ""}>
             <HoverableTooltipWrapper
               extraStyles="inline cursor-help"
@@ -49,7 +51,7 @@ export default function ItemCraftDisplay() {
             >
               {INFO_UNICODE_SYMBOL}
             </HoverableTooltipWrapper>{" "}
-            Effective item level: {Math.min(equipment.itemLevel, partyResult.currentFloor)}
+            Effective item level: {Math.min(equipment.itemLevel, currentFloor)}
           </div>
         </div>
       </div>

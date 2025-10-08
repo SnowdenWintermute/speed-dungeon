@@ -8,6 +8,7 @@ import {
   CombatActionComponent,
   Combatant,
   CombatantClass,
+  CombatantControllerType,
   CombatantProperties,
   CombatantSpecies,
   iterateNumericEnumKeyedRecord,
@@ -19,7 +20,7 @@ export const TARGET_DUMMY_COMBATANT = new CombatantProperties(
   CombatantClass.Warrior,
   CombatantSpecies.Humanoid,
   null,
-  null,
+  { controllerType: CombatantControllerType.Dungeon, controllerName: "" },
   Vector3.Zero()
 );
 

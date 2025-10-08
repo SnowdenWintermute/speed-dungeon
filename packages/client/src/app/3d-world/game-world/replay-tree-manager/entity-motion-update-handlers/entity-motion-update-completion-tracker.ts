@@ -5,7 +5,7 @@ import {
   EntityAnimation,
   Milliseconds,
 } from "@speed-dungeon/common";
-import { GameUpdateTracker } from "..";
+import { GameUpdateTracker } from "../game-update-tracker";
 
 export class EntityMotionUpdateCompletionTracker {
   private translationIsComplete: boolean = false;

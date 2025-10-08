@@ -124,10 +124,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
           itemIdOption?: string;
         } = {
           characterId,
-          actionAndRankOption: {
-            actionName,
-            rank: 1,
-          },
+          actionAndRankOption: new ActionAndRank(actionName, 1),
         };
 
         if (Consumable.isSkillBook(this.item.consumableType))

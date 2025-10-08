@@ -10,7 +10,7 @@ import {
 } from "@speed-dungeon/common";
 import { EntityMotionUpdateCompletionTracker } from "./entity-motion-update-completion-tracker";
 import { ManagedAnimationOptions } from "@/app/3d-world/scene-entities/model-animation-managers";
-import { GameUpdateTracker } from "..";
+import { GameUpdateTracker } from "../game-update-tracker";
 
 export function handleUpdateAnimation(
   animationManager: SkeletalAnimationManager | DynamicAnimationManager,

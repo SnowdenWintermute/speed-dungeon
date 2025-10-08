@@ -62,7 +62,7 @@ export class ConfirmTradeForBookMenuState implements ActionMenuState {
       setAlert(partyResult);
       return;
     }
-    const vendingMachineLevel = partyResult.currentFloor;
+    const vendingMachineLevel = partyResult.dungeonExplorationManager.getCurrentFloor();
     const bookLevel = getBookLevelForTrade(this.item.itemLevel, vendingMachineLevel);
 
     return (

@@ -21,7 +21,7 @@ import { HitPointChanges } from "@speed-dungeon/common";
 import { induceHitRecovery } from "./induce-hit-recovery";
 import { handleThreatChangesUpdate } from "./handle-threat-changes";
 import { CombatActionResource } from "@speed-dungeon/common";
-import { GameUpdateTracker } from ".";
+import { GameUpdateTracker } from "./game-update-tracker";
 
 export async function hitOutcomesGameUpdateHandler(
   update: GameUpdateTracker<HitOutcomesGameUpdateCommand>

@@ -1,5 +1,4 @@
 import {
-  COMBAT_ACTION_NAME_STRINGS,
   CombatantProperties,
   ERROR_MESSAGES,
   Inventory,
@@ -8,7 +7,7 @@ import {
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { useGameStore } from "@/stores/game-store";
-import { GameUpdateTracker } from ".";
+import { GameUpdateTracker } from "./game-update-tracker";
 
 export async function resourcesPaidGameUpdateHandler(
   update: GameUpdateTracker<ResourcesPaidGameUpdateCommand>

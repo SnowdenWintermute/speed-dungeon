@@ -29,7 +29,6 @@ export function gameStartedHandler(timeStarted: number) {
     if (partyOption instanceof Error) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
     const party = partyOption;
     party.dungeonExplorationManager.setCurrentFloor(gameState.game?.selectedStartingFloor || 1);
-    // party.currentFloor = 10; // testing
 
     gameWorld.current?.clearFloorTexture();
 

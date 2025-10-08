@@ -41,12 +41,12 @@ export function savedCharacterSelectionInProgressGameHandler(
 
     const deserialized = Combatant.getDeserialized(character);
 
-    throw new Error("not implemented - loading pets");
-
     addCharacterToParty(game, party, player, deserialized, []);
 
     gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
     });
+
+    throw new Error("not implemented - loading pets");
   });
 }

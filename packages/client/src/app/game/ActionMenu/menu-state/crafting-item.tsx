@@ -97,7 +97,10 @@ export class CraftingItemMenuState implements ActionMenuState {
       button.shouldBeDisabled =
         !userControlsThisCharacter ||
         actionPrice > focusedCharacterResult.combatantProperties.inventory.shards ||
-        CRAFTING_ACTION_DISABLED_CONDITIONS[craftingAction](this.item, partyResult.currentFloor) ||
+        CRAFTING_ACTION_DISABLED_CONDITIONS[craftingAction](
+          this.item,
+          partyResult.dungeonExplorationManager.getCurrentFloor()
+        ) ||
         !!useGameStore.getState().combatantsWithPendingCraftActions[
           focusedCharacterResult.entityProperties.id
         ];

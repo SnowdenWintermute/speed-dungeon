@@ -1,7 +1,6 @@
 import { GameState } from "@/stores/game-store";
 import {
   ActionUserContext,
-  AdventuringParty,
   COMBAT_ACTIONS,
   CharacterAssociatedData,
   ERROR_MESSAGES,
@@ -27,7 +26,8 @@ export function characterCycledTargetsHandler(
         playerOption
       );
 
-      const targetingProperties = character.getTargetingProperties();
+      const { targetingProperties } = character.combatantProperties;
+
       // @REFACTOR - just pass the targeting calculator for this pattern
       const idsByDisposition = party.combatantManager.getCombatantIdsByDisposition(characterId);
       targetingProperties.cycleTargets(direction, playerOption, idsByDisposition);

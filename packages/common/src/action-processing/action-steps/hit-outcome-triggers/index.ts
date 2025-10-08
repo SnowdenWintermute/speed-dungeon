@@ -24,6 +24,7 @@ import { CombatantCondition } from "../../../combatants/combatant-conditions/ind
 import { addRemovedConditionIdToUpdate } from "./add-triggered-condition-to-update.js";
 import { handleTriggeredLifesteals } from "./handle-triggered-lifesteals.js";
 import { handleHit } from "./handle-hit.js";
+import { ActionAndRank } from "../../../action-user-context/action-user-targeting-properties.js";
 
 const stepType = ActionResolutionStepType.EvalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
@@ -118,10 +119,9 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             type: CombatActionTargetType.Single,
             targetId: actionUser.getEntityId(),
           });
-          targetCombatant.combatantProperties.targetingProperties.setSelectedActionAndRank({
-            actionName: CombatActionName.Counterattack,
-            rank: 1,
-          });
+          targetCombatant.combatantProperties.targetingProperties.setSelectedActionAndRank(
+            new ActionAndRank(CombatActionName.Counterattack, 1)
+          );
 
           this.branchingActions.push({
             user: targetCombatant,

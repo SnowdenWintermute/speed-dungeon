@@ -31,20 +31,20 @@ export default function CharacterAttributes({
   const { entityProperties, combatantProperties } = combatant;
   const playerOwnsCharacter = clientUserControlsCombatant(entityProperties.id);
 
+  const isPlayerControlled = combatantProperties.isPlayerControlled();
+
   const hasUnspentAttributePoints = combatantProperties.unspentAttributePoints > 0;
   const shouldShowNumberOfUnspentAttributes =
-    hasUnspentAttributePoints &&
-    combatantProperties.controllingPlayer !== null &&
-    showAttributeAssignmentButtons;
+    hasUnspentAttributePoints && isPlayerControlled && showAttributeAssignmentButtons;
 
   let expRequiredForNextLevel =
     typeof combatantProperties.experiencePoints.requiredForNextLevel === "number"
       ? combatantProperties.experiencePoints.requiredForNextLevel.toString()
       : "∞";
-  let experiencePointsText =
-    combatantProperties.controllingPlayer !== null
-      ? `${combatantProperties.experiencePoints.current} / ${expRequiredForNextLevel} experience`
-      : "";
+
+  let experiencePointsText = isPlayerControlled
+    ? `${combatantProperties.experiencePoints.current} / ${expRequiredForNextLevel} experience`
+    : "";
 
   const totalAttributes = CombatantProperties.getTotalAttributes(combatantProperties);
   let totalAttributesSortedArray: [CombatAttribute, number][] = iterateNumericEnumKeyedRecord(
