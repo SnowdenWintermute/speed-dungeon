@@ -4,6 +4,11 @@ import { Combatant, CombatantCondition, CombatantProperties } from "../combatant
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { EntityId } from "../primatives/index.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
+import {
+  COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
+  COMBATANT_POSITION_SPACING_SIDE,
+} from "../app-consts.js";
+import { Quaternion, Vector3 } from "@babylonjs/core";
 
 export class CombatantManager {
   private combatants: Map<EntityId, Combatant> = new Map();
@@ -65,22 +70,32 @@ export class CombatantManager {
     return toReturn;
   }
 
-  static PARTY_MEMBER_CONTROLLER_TYPES = [
-    CombatantControllerType.Player,
-    CombatantControllerType.PlayerPetAI,
-  ];
-
-  /** Returns player controlled characters and their pets */
-  getPartyMemberCombatants() {
-    return this.getAllCombatantsWithControllerTypes(CombatantManager.PARTY_MEMBER_CONTROLLER_TYPES);
-  }
-
   getPartyMemberCharacters() {
     return this.getAllCombatantsWithControllerTypes([CombatantControllerType.Player]);
   }
 
+  getPartyMemberPets() {
+    return this.getAllCombatantsWithControllerTypes([CombatantControllerType.PlayerPetAI]);
+  }
+
+  getPartyMemberCombatants() {
+    return [...this.getPartyMemberCharacters(), ...this.getPartyMemberPets()];
+  }
+
   getDungeonControlledCombatants() {
     return this.getAllCombatantsWithControllerTypes([CombatantControllerType.Dungeon]);
+  }
+
+  getDungeonControlledCharacters() {
+    return this.getDungeonControlledCombatants().filter(
+      (combatant) => combatant.combatantProperties.summonedBy === undefined
+    );
+  }
+
+  getDungeonControlledPets() {
+    return this.getDungeonControlledCombatants().filter(
+      (combatant) => combatant.combatantProperties.summonedBy !== undefined
+    );
   }
 
   private getAllCombatantsWithControllerTypes(controllerTypes: CombatantControllerType[]) {
@@ -194,30 +209,61 @@ export class CombatantManager {
   }
 
   updateHomePositions() {
-    throw new Error("not implemented");
-    // @TODO -conform to new combatantManager flat combatant list
-    // const isPlayer =
-    //   combatantProperties.controlledBy.controllerType === CombatantControllerType.Player;
-    // const { combatantManager } = party;
-    // const combatantIdsInRow = isPlayer
-    //   ? party.characterPositions
-    //   : party.currentRoom.monsterPositions;
-    // const numberOfCombatantsInRow = combatantIdsInRow.length;
-    // const rowLength = COMBATANT_POSITION_SPACING_SIDE * (numberOfCombatantsInRow - 1);
-    // const rowStart = -rowLength / 2;
-    // const combatantRowIndex = combatantIdsInRow.indexOf(entityId);
-    // if (combatantRowIndex === -1) return console.error("Expected combatant id not found in row");
-    // const rowPositionOffset = rowStart + combatantRowIndex * COMBATANT_POSITION_SPACING_SIDE;
-    // let positionSpacing = -COMBATANT_POSITION_SPACING_BETWEEN_ROWS / 2;
-    // if (!isPlayer) positionSpacing *= -1;
-    // const homeLocation = new Vector3(rowPositionOffset, 0, positionSpacing);
-    // combatantProperties.homeLocation = homeLocation;
-    // combatantProperties.position = combatantProperties.homeLocation.clone();
-    // const forward = new Vector3(0, 0, 1);
-    // const directionToXAxis = new Vector3(0, 0, -positionSpacing).normalize();
-    // const homeRotation = new Quaternion();
-    // Quaternion.FromUnitVectorsToRef(forward, directionToXAxis, homeRotation);
-    // combatantProperties.homeRotation = homeRotation;
+    const dungeonControlledCharacters = this.getDungeonControlledCharacters();
+    dungeonControlledCharacters.forEach((combatant, rowIndex) => {
+      CombatantManager.setCombatantHomePosition(
+        dungeonControlledCharacters.length,
+        rowIndex,
+        true,
+        combatant
+      );
+    });
+
+    const partyMemberCharacters = this.getPartyMemberCharacters();
+    partyMemberCharacters.forEach((combatant, rowIndex) => {
+      CombatantManager.setCombatantHomePosition(
+        partyMemberCharacters.length,
+        rowIndex,
+        false,
+        combatant
+      );
+    });
+
+    for (const combatant of this.getPartyMemberPets()) {
+      const { summonedBy } = combatant.combatantProperties;
+      if (summonedBy === undefined) throw new Error("expected to have been summoned by someone");
+      const summonedByCombatant = this.getExpectedCombatant(summonedBy);
+
+      // put them next to the one who summoned them
+    }
+
+    for (const combatant of this.getDungeonControlledPets()) {
+      //
+    }
+  }
+
+  static setCombatantHomePosition(
+    combatantsInRowCount: number,
+    rowIndex: number,
+    flipSide: boolean,
+    combatant: Combatant
+  ) {
+    const rowLength = COMBATANT_POSITION_SPACING_SIDE * (combatantsInRowCount - 1);
+    const rowStart = -rowLength / 2;
+
+    const rowPositionOffset = rowStart + rowIndex * COMBATANT_POSITION_SPACING_SIDE;
+    let positionSpacing = -COMBATANT_POSITION_SPACING_BETWEEN_ROWS / 2;
+    if (flipSide) positionSpacing *= -1;
+
+    const homeLocation = new Vector3(rowPositionOffset, 0, positionSpacing);
+    const { combatantProperties } = combatant;
+    combatantProperties.homeLocation = homeLocation;
+    combatantProperties.position = combatantProperties.homeLocation.clone();
+    const forward = new Vector3(0, 0, 1);
+    const directionToXAxis = new Vector3(0, 0, -positionSpacing).normalize();
+    const homeRotation = new Quaternion();
+    Quaternion.FromUnitVectorsToRef(forward, directionToXAxis, homeRotation);
+    combatantProperties.homeRotation = homeRotation;
   }
 
   static getDeserialized(serialized: CombatantManager): CombatantManager {

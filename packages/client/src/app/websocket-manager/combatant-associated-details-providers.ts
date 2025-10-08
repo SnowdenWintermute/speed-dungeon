@@ -18,7 +18,7 @@ export function characterAssociatedDataProvider(
     const partyResult = getParty(game, gameState.username);
     if (partyResult instanceof Error) return setAlert(partyResult);
     const party = partyResult;
-    const characterResult = SpeedDungeonGame.getCharacter(game, party.name, characterId);
+    const characterResult = SpeedDungeonGame.getCombatantById(game, characterId);
     if (characterResult instanceof Error) return setAlert(characterResult);
     const character = characterResult;
     const username = gameState.username;

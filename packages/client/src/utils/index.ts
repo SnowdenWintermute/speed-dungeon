@@ -1,6 +1,5 @@
 import {
   AbstractMesh,
-  Color3,
   DynamicTexture,
   MeshBuilder,
   Quaternion,

@@ -5,7 +5,7 @@ import { ActionMenuButtonProperties } from "./menu-state";
 import getCurrentParty from "@/utils/getCurrentParty";
 import setFocusedCharacter from "@/utils/set-focused-character";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
-import getFocusedCharacter from "@/utils/getFocusedCharacter";
+import { getFocusedCharacter } from "@/utils/getFocusedCharacter";
 import { BUTTON_HEIGHT_SMALL, SPACING_REM_SMALL } from "@/client_consts";
 import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicatedButton";
 import { viewingAbilityTree } from "@/utils/should-show-character-sheet";

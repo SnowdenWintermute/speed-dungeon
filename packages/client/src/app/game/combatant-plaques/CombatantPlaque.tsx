@@ -79,6 +79,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
 
   const combatantIsDetailed = entityIsDetailed(entityId, detailedEntity);
   const isFocused = focusedCharacterId === entityId;
+
   const isPartyMember = combatant.combatantProperties.isPlayerControlled();
 
   const conditionalBorder = getConditionalBorder(isHovered(), isFocused, combatantIsDetailed);

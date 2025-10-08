@@ -176,10 +176,9 @@ export class Combatant implements IActionUser {
   static getDeserialized(combatant: Combatant) {
     const { combatantProperties } = combatant;
 
-    CombatantProperties.instantiateItemClasses(combatantProperties);
-
-    combatantProperties.homeLocation = cloneVector3(combatantProperties.homeLocation);
-    combatantProperties.position = cloneVector3(combatantProperties.position);
+    const deserializedCombatantProperties =
+      CombatantProperties.getDeserialized(combatantProperties);
+    combatant.combatantProperties = deserializedCombatantProperties;
 
     const deserializedConditions = combatantProperties.conditions.map((condition) =>
       deserializeCondition(condition)
@@ -459,9 +458,27 @@ export class CombatantProperties {
   static awardLevelups = awardLevelups;
   static incrementAttributePoint = incrementAttributePoint;
   static canPickUpItem = canPickUpItem;
-  static instantiateItemClasses(combatantProperties: CombatantProperties) {
+  static getDeserialized(combatantProperties: CombatantProperties) {
     Inventory.instantiateItemClasses(combatantProperties.inventory);
     CombatantEquipment.instatiateItemClasses(combatantProperties.equipment);
+
+    combatantProperties.homeLocation = cloneVector3(combatantProperties.homeLocation);
+    combatantProperties.position = cloneVector3(combatantProperties.position);
+
+    combatantProperties.targetingProperties = plainToInstance(
+      ActionUserTargetingProperties,
+      combatantProperties.targetingProperties
+    );
+
+    if (combatantProperties.threatManager !== undefined) {
+      combatantProperties.threatManager = plainToInstance(
+        ThreatManager,
+        combatantProperties.threatManager
+      );
+    }
+
+    const deserialized = plainToInstance(CombatantProperties, combatantProperties);
+    return deserialized;
   }
 
   static canParry(combatantProperties: CombatantProperties): boolean {

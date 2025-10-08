@@ -106,7 +106,7 @@ function PlayerDisplay({
   if (playerOption !== null) {
     const characterId = playerOption.characterIds[0];
     if (characterId === undefined) return <div></div>;
-    const selectedCharacter = partyOption.characters[characterId];
+    const selectedCharacter = partyOption.combatantManager.getCombatantOption(characterId);
     if (selectedCharacter === undefined) return <div></div>;
     selectedCharacterOption = selectedCharacter;
   }

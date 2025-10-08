@@ -6,7 +6,7 @@ import {
   getItemInAdventuringParty,
 } from "@speed-dungeon/common";
 import { getPlayerPartyOption } from "@speed-dungeon/common";
-import getFocusedCharacter from "./getFocusedCharacter";
+import { getFocusedCharacter } from "./getFocusedCharacter";
 import { EquipableSlots } from "@speed-dungeon/common";
 
 export default function setComparedItem(itemId: string, compareAltSlot: boolean) {

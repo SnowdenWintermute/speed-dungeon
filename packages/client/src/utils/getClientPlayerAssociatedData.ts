@@ -1,6 +1,5 @@
 import { GameState } from "@/stores/game-store";
 import getGameAndParty from "./getGameAndParty";
-import getFocusedCharacter from "./getFocusedCharacter";
 import {
   AdventuringParty,
   Combatant,
@@ -22,7 +21,7 @@ export default function getClientPlayerAssociatedData(
   const gameAndPartyResult = getGameAndParty(gameState.game, gameState.username);
   if (gameAndPartyResult instanceof Error) return gameAndPartyResult;
   const [game, party] = gameAndPartyResult;
-  const focusedCharacterResult = getFocusedCharacter(gameState);
+  const focusedCharacterResult = gameState.getFocusedCharacter();
   if (focusedCharacterResult instanceof Error) return focusedCharacterResult;
   const focusedCharacter = focusedCharacterResult;
   if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);

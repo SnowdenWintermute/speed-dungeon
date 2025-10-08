@@ -18,7 +18,7 @@ import {
 import { MutateState } from "../mutate-state";
 import { getActiveCombatant } from "@/utils/getActiveCombatant";
 import getParty from "@/utils/getParty";
-import getFocusedCharacter from "@/utils/getFocusedCharacter";
+import { getFocusedCharacter } from "@/utils/getFocusedCharacter";
 import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";
 import { BabylonControlledCombatantData } from "./babylon-controlled-combatant-data";
 import { ActionMenuState } from "@/app/game/ActionMenu/menu-state";
@@ -114,7 +114,7 @@ export class GameState {
     if (partyResult instanceof Error) return partyResult;
     const gameOption = this.get().game;
     if (!gameOption) return new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-    return SpeedDungeonGame.getCharacter(gameOption, partyResult.name, characterId);
+    return SpeedDungeonGame.getCombatantById(gameOption, characterId);
   };
 
   constructor(

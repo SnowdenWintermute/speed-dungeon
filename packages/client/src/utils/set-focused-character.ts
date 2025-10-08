@@ -14,8 +14,10 @@ export default function setFocusedCharacter(id: string) {
       return;
     }
     const characterSwitchingFocusAwayFromId = gameState.focusedCharacterId;
-    const characterSwitchingFocusAwayFromOption =
-      partyOption.characters[characterSwitchingFocusAwayFromId];
+    const characterSwitchingFocusAwayFromOption = partyOption.combatantManager.getCombatantOption(
+      characterSwitchingFocusAwayFromId
+    );
+
     gameState.detailedEntity = null;
     gameState.hoveredEntity = null;
     gameState.focusedCharacterId = id;
