@@ -141,6 +141,7 @@ export class Combatant implements IActionUser {
   }
 
   getTargetingProperties = () => this.combatantProperties.targetingProperties;
+
   payResourceCosts(): void {
     throw new Error("Method not implemented.");
   }
@@ -292,7 +293,7 @@ export class CombatantProperties {
   // subsystems
   abilityProperties = new CombatantAbilityProperties();
   supportClassProperties: null | SupportClassProperties = null;
-  targetingProperties: ActionUserTargetingProperties = new ActionUserTargetingProperties();
+  targetingProperties = new ActionUserTargetingProperties();
   threatManager?: ThreatManager;
 
   // controller

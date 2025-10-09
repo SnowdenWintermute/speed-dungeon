@@ -11,6 +11,7 @@ import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { CombatantProperties } from "../index.js";
 import { EntityId } from "../../primatives/index.js";
 import { IActionUser } from "../../action-user-context/action-user.js";
+import { immerable } from "immer";
 
 export * from "./equip-item.js";
 export * from "./unequip-slots.js";
@@ -37,6 +38,7 @@ export class HoldableHotswapSlot {
 }
 
 export class CombatantEquipment {
+  [immerable] = true;
   wearables: Partial<Record<WearableSlotType, Equipment>> = {};
   equippedHoldableHotswapSlotIndex: number = 0;
   inherentHoldableHotswapSlots: HoldableHotswapSlot[] = [

@@ -54,11 +54,6 @@ export function characterSelectedCombatActionHandler(
         targetIds = targetIdsResult;
       }
 
-      // @PERF
-      // we're not using [immerable] on the targetingProperties because then we can't self-modify
-      // it with the .setters(), so we have to replace the whole object
-      character.combatantProperties.targetingProperties = targetingProperties.clone();
-
       const actionName =
         selectedActionAndRank?.actionName === undefined ? null : selectedActionAndRank.actionName;
 

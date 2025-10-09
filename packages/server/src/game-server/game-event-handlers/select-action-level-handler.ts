@@ -9,6 +9,7 @@ import {
 import { getGameServer } from "../../singletons/index.js";
 import { TargetingCalculator } from "@speed-dungeon/common";
 import { ActionUserContext } from "@speed-dungeon/common";
+import cloneDeep from "lodash.clonedeep";
 
 export function selectCombatActionLevelHandler(
   eventData: {
@@ -49,6 +50,8 @@ export function selectCombatActionLevelHandler(
   if (!hasRequiredResources) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INSUFFICIENT_RESOURCES);
 
   targetingProperties.setSelectedActionAndRank(actionAndNewlySelectedRank);
+
+  character.combatantProperties.targetingProperties = cloneDeep(targetingProperties);
 
   // check if current targets are still valid at this level
   const actionUserContext = new ActionUserContext(game, party, character);

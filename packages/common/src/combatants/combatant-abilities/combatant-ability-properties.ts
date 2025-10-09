@@ -1,3 +1,4 @@
+import { immerable } from "immer";
 import { AbilityTreeAbility, AbilityType, AbilityUtils } from "../../abilities/index.js";
 import { CombatActionName } from "../../combat/combat-actions/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
@@ -11,6 +12,7 @@ import {
 import { CombatantActionState } from "../owned-actions/combatant-action-state.js";
 
 export class CombatantAbilityProperties {
+  [immerable] = true;
   constructor() {}
   ownedActions: Partial<Record<CombatActionName, CombatantActionState>> = {};
   unspentAbilityPoints: number = 0;
