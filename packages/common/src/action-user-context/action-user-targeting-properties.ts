@@ -7,24 +7,26 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import getNextOrPreviousTarget from "../combat/targeting/get-next-or-previous-target.js";
 import { TargetingCalculator } from "../combat/targeting/targeting-calculator.js";
-import { immerable } from "immer";
+import { makeAutoObservable } from "mobx";
 
 export class ActionAndRank {
-  [immerable] = true;
   constructor(
     public actionName: CombatActionName,
     public rank: number
-  ) {}
+  ) {
+    makeAutoObservable(this);
+  }
 }
 
 export class ActionUserTargetingProperties {
-  [immerable] = true;
   private selectedActionAndRank: Option<ActionAndRank> = null;
   private selectedTarget: Option<CombatActionTarget> = null;
   private selectedTargetingScheme: Option<TargetingScheme> = null;
   private selectedItemId: Option<EntityId> = null;
 
-  constructor() {}
+  constructor() {
+    makeAutoObservable(this);
+  }
 
   clear() {
     this.selectedActionAndRank = null;

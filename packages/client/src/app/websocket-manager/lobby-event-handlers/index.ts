@@ -27,7 +27,7 @@ export function setUpGameLobbyEventHandlers(
 
   socket.on(ServerToClientEvent.GameFullUpdate, (game) => {
     if (game) {
-      SpeedDungeonGame.deserialize(game);
+      game = SpeedDungeonGame.getDeserialized(game);
     } else {
       gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
         type: ModelActionType.ClearAllModels,
@@ -44,6 +44,7 @@ export function setUpGameLobbyEventHandlers(
     const currentSessionHttpResponseTracker =
       useHttpRequestStore.getState().requests[HTTP_REQUEST_NAMES.GET_SESSION];
     const isLoggedIn = currentSessionHttpResponseTracker?.statusCode === 200;
+
     mutateGameStore((state) => {
       if (game === null) {
         state.game = null;

@@ -1,7 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    // externalDir: true,
+    // swcPlugins: [
+    //   [
+    //     "mobx-react-observer",
+    //     {
+    //       auto: true,
+    //     },
+    //   ],
+    // ],
   },
   typescript: {
     // !! WARN !!

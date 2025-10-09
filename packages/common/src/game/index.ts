@@ -16,9 +16,11 @@ import { getPlayerPartyOption } from "./get-player-party.js";
 import { handleBattleVictory } from "./handle-battle-victory.js";
 import { GameMode } from "../types.js";
 import { MAX_PARTY_SIZE } from "../app-consts.js";
+import { makeAutoObservable } from "mobx";
+import { plainToInstance } from "class-transformer";
 
 export class SpeedDungeonGame {
-  [immerable] = true;
+  // [immerable] = true;
   players: { [username: string]: SpeedDungeonPlayer } = {};
   playerCapacity: number | null = null;
   playersReadied: string[] = [];
@@ -35,15 +37,21 @@ export class SpeedDungeonGame {
     public isRanked: boolean = false
   ) {
     if (mode === GameMode.Progression) this.playerCapacity = MAX_PARTY_SIZE;
+    makeAutoObservable(this);
   }
 
-  static deserialize(game: SpeedDungeonGame) {
+  getParties() {
+    return this.adventuringParties;
+  }
+
+  static getDeserialized(game: SpeedDungeonGame) {
     for (const [partyId, party] of Object.entries(game.adventuringParties)) {
       game.adventuringParties[partyId] = AdventuringParty.getDeserialized(party);
     }
 
     for (const [username, player] of Object.entries(game.players))
       SpeedDungeonPlayer.deserialize(player);
+    return plainToInstance(SpeedDungeonGame, game);
   }
 
   static removePlayerFromParty = removePlayerFromParty;

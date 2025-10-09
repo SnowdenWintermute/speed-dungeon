@@ -13,7 +13,6 @@ import getCombatantTotalAttributes from "./attributes/get-combatant-total-attrib
 import getCombatantTotalElementalAffinities from "./combatant-traits/get-combatant-total-elemental-affinities.js";
 import getCombatantTotalKineticDamageTypeAffinities from "./combatant-traits/get-combatant-total-kinetic-damage-type-affinities.js";
 import { setResourcesToMax } from "./resources/set-resources-to-max.js";
-import { immerable } from "immer";
 import { cloneVector3, iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import awardLevelups, { XP_REQUIRED_TO_REACH_LEVEL_2 } from "./experience-points/award-levelups.js";
 import { incrementAttributePoint } from "./attributes/increment-attribute.js";
@@ -86,7 +85,6 @@ export * from "./combatant-abilities/index.js";
 export * from "./attributes/index.js";
 
 export class Combatant implements IActionUser {
-  [immerable] = true;
   constructor(
     public entityProperties: EntityProperties,
     public combatantProperties: CombatantProperties
@@ -289,7 +287,6 @@ export interface SupportClassProperties {
 }
 
 export class CombatantProperties {
-  [immerable] = true;
   // subsystems
   abilityProperties = new CombatantAbilityProperties();
   supportClassProperties: null | SupportClassProperties = null;
