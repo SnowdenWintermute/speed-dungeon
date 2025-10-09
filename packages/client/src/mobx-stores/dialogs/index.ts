@@ -27,19 +27,27 @@ export class DialogStore {
     makeAutoObservable(this);
   }
 
-  setDialogIsOpen(elementName: DialogElementName, openState: boolean) {
+  setIsOpen(elementName: DialogElementName, openState: boolean) {
     this.dialogOpenStates[elementName] = openState;
   }
 
-  getDialogIsOpen(elementName: DialogElementName) {
+  isOpen(elementName: DialogElementName) {
     return this.dialogOpenStates[elementName];
+  }
+
+  toggle(elementName: DialogElementName) {
+    const toggled = !this.dialogOpenStates[elementName];
+    this.dialogOpenStates[elementName] = toggled;
+  }
+
+  close(elementName: DialogElementName) {
+    this.dialogOpenStates[elementName] = false;
   }
 }
 
 // Dialogs
 // showDebug: boolean = false;
 // viewingLeaveGameModal: boolean = false;
-// showSettings: boolean = false;
 // viewingDropShardsModal: boolean = false;
 // showAuthForm: boolean = false;
 // showSavedCharacterManager: boolean = false;

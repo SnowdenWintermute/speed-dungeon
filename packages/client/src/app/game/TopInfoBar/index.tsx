@@ -15,19 +15,25 @@ import StairsIcon from "../../../../public/img/game-ui-icons/stairs.svg";
 import DoorIcon from "../../../../public/img/game-ui-icons/door-icon.svg";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import getParty from "@/utils/getParty";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
+import { observer } from "mobx-react-lite";
 
-export default function TopInfoBar() {
+export const TopInfoBar = observer(() => {
   const mutateGameState = useGameStore().mutateState;
-  const viewingLeaveGameModal = useGameStore((state) => state.viewingLeaveGameModal);
   const gameOption = useGameStore().game;
   const username = useGameStore().username;
   const result = getGameAndParty(gameOption, username);
   if (result instanceof Error) return <div>{result.message}</div>;
   const [game, party] = result;
 
+  const viewingLeaveGameModal = AppStore.get().dialogStore.isOpen(DialogElementName.LeaveGame);
+
   const battleOptionResult = getCurrentBattleOption(game, party.name);
 
   function leaveGame() {
+    AppStore.get().dialogStore.close(DialogElementName.LeaveGame);
+
     mutateGameState((state) => {
       const partyResult = getParty(state.game, state.username);
       if (!(partyResult instanceof Error)) {
@@ -41,7 +47,6 @@ export default function TopInfoBar() {
         }
       }
 
-      state.viewingLeaveGameModal = false;
       state.game = null;
     });
 
@@ -86,8 +91,8 @@ export default function TopInfoBar() {
         <HotkeyButton
           className="h-full w-full bg-slate-700 hover:bg-slate-950 pr-4 pl-4 "
           onClick={() => {
+            AppStore.get().dialogStore.toggle(DialogElementName.LeaveGame);
             mutateGameState((state) => {
-              state.viewingLeaveGameModal = !state.viewingLeaveGameModal;
               state.stackedMenuStates = [];
               state.baseMenuState.inCombat = false;
             });
@@ -114,11 +119,9 @@ export default function TopInfoBar() {
           <div className="flex justify-between">
             <HotkeyButton
               hotkeys={["Escape"]}
-              onClick={() =>
-                mutateGameState((state) => {
-                  state.viewingLeaveGameModal = false;
-                })
-              }
+              onClick={() => {
+                AppStore.get().dialogStore.close(DialogElementName.LeaveGame);
+              }}
               className="h-10 w-24 p-2 border border-slate-400 mr-1 bg-slate-700"
             >
               No
@@ -134,4 +137,4 @@ export default function TopInfoBar() {
       )}
     </div>
   );
-}
+});

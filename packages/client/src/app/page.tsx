@@ -5,7 +5,7 @@ import { enableMapSet } from "immer";
 import { useGameStore } from "@/stores/game-store";
 import { GameSetup } from "./lobby/game-setup";
 import AlertManager from "./components/alerts/AlertManager";
-import Game from "./game";
+import { Game } from "./game";
 import TailwindClassLoader from "./TailwindClassLoader";
 import GlobalKeyboardEventManager from "./GlobalKeyboardEventManager";
 import TooltipManager from "./TooltipManager";

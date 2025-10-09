@@ -1,8 +1,7 @@
 "use client";
-import { gameWorld, getGameWorld } from "@/app/3d-world/SceneManager";
+import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
-import { useUIStore } from "@/stores/ui-store";
 import { useRouter } from "next/navigation";
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
@@ -12,6 +11,8 @@ import { TabMessageType, broadcastChannel, sessionFetcher } from "@/singletons/b
 import { HttpRequestTracker, useHttpRequestStore } from "@/stores/http-request-store";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { resetWebsocketConnection } from "@/singletons/websocket-connection";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
 
 export default function UserMenuContainer() {
   const mutateLobbyState = useLobbyStore().mutateState;
@@ -95,7 +96,6 @@ export default function UserMenuContainer() {
 function UserMenu({ username }: { username: null | string }) {
   const mutateGameState = useGameStore().mutateState;
   const mutateHttpState = useHttpRequestStore().mutateState;
-  const mutateUIState = useUIStore().mutateState;
   const mutateLobbyState = useLobbyStore().mutateState;
   const firstLetterOfUsername = username ? username.charAt(0) : "";
   const [showUserDropdown, setShowUserDropdown] = useState(false);
@@ -186,9 +186,8 @@ function UserMenu({ username }: { username: null | string }) {
                   className="h-full w-full flex items-center p-4"
                   onClick={() => {
                     setShowUserDropdown(false);
-                    mutateUIState((state) => {
-                      state.showSettings = !state.showSettings;
-                    });
+                    const { dialogStore } = AppStore.get();
+                    dialogStore.toggle(DialogElementName.AppSettings);
                   }}
                 >
                   Settings

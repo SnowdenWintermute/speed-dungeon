@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 const UserMenuContainer = dynamic(() => import("./user-menu"), { ssr: false });
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import Settings from "@/app/settings";
+import { Settings } from "@/app/settings";
 import { APP_VERSION_NUMBER } from "@speed-dungeon/common";
 
 export default function TopBar() {

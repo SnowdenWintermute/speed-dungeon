@@ -22,7 +22,6 @@ export type UIState = {
   tooltipPosition: null | Point;
   tooltipText: null | string;
   authFormEmailField: string;
-  showSettings: boolean;
   hotkeysDisabled: boolean;
   showDebug: boolean;
   threatTableDetailedDisplayMode: UiDisplayMode;
@@ -39,7 +38,6 @@ export const useUIStore = create<UIState>()(
         tooltipPosition: null,
         tooltipText: null,
         authFormEmailField: "",
-        showSettings: false,
         hotkeysDisabled: false,
         showDebug: false,
         threatTableDetailedDisplayMode: UiDisplayMode.Simple,

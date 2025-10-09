@@ -81,7 +81,6 @@ export class GameState {
   combatantPortraits: { [combatantId: EntityId]: string } = {};
 
   showItemsOnGround: boolean = true;
-  viewingLeaveGameModal: boolean = false;
   viewingDropShardsModal: boolean = false;
 
   combatantsWithPendingCraftActions: Partial<Record<EntityId, boolean>> = {};

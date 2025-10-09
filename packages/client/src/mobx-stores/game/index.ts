@@ -79,16 +79,6 @@ export class AppStoreManager {
   alternateClickKeyHeld: boolean = false;
   hotkeysDisabled: boolean = false;
 
-  // Dialogs
-  showDebug: boolean = false;
-  viewingLeaveGameModal: boolean = false;
-  showSettings: boolean = false;
-  viewingDropShardsModal: boolean = false;
-  showAuthForm: boolean = false;
-  showSavedCharacterManager: boolean = false;
-  showGameCreationForm: boolean = false;
-  highlightAuthForm: boolean = false;
-
   // Tooltips
   tooltipPosition: null | Point = null;
   tooltipText: null | string = null;

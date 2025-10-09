@@ -1,7 +1,7 @@
 import React from "react";
 import { useGameStore } from "@/stores/game-store";
 import PartyWipeModal from "./PartyWipeModal";
-import TopInfoBar from "./TopInfoBar";
+import { TopInfoBar } from "./TopInfoBar";
 import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
 import MonsterPlaques from "./MonsterPlaques";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
@@ -13,13 +13,16 @@ import CurrentItemUnmetRequirementsUpdater from "./CurrentItemUnmetRequirementsU
 import ActionMenuAndCharacterSheetLayer from "./ActionMenuAndCharacterSheetLayer";
 import { ZIndexLayers } from "../z-index-layers";
 import PersistentActionEntityDisplay from "./persistent-action-entity-display";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
 
-export default function Game() {
+export const Game = observer(() => {
   const game = useGameStore().game;
-  const viewingLeaveGameModal = useGameStore((state) => state.viewingLeaveGameModal);
   const currentMenu = useGameStore.getState().getCurrentMenu();
   const viewingCharacterSheet = shouldShowCharacterSheet(currentMenu.type);
-  // const leaveGameModalOpen = useGameStore.getState().leaveGameModalOpen
+
+  const viewingLeaveGameModal = AppStore.get().dialogStore.isOpen(DialogElementName.LeaveGame);
 
   const username = useGameStore().username;
   if (!username)
@@ -97,4 +100,4 @@ export default function Game() {
       <ActionMenuAndCharacterSheetLayer party={party} />
     </>
   );
-}
+});
