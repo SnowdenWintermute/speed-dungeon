@@ -175,7 +175,9 @@ export class CombatantManager {
     // if (!playerCharacterIdsOption) return new Error(ERROR_MESSAGES.PLAYER.NO_CHARACTERS);
     for (const combatant of this.combatants.values()) {
       const { controllerName } = combatant.combatantProperties.controlledBy;
-      if (controllerName === playerName) return combatant;
+      const isOwner = controllerName === playerName;
+      const isMatch = characterId === combatant.getEntityId();
+      if (isOwner && isMatch) return combatant;
     }
     return new Error(ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED);
   }

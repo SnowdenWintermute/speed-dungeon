@@ -1,5 +1,4 @@
 import {
-  AdventuringParty,
   ClientToServerEventTypes,
   ERROR_MESSAGES,
   ServerToClientEventTypes,

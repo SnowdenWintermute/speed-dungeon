@@ -20,6 +20,8 @@ export function characterSelectedCombatActionHandler(
   characterAssociatedDataProvider(
     characterId,
     ({ character, game, party }: CharacterAssociatedData, gameState: GameState) => {
+      console.log("character:", character.getEntityId(), "selected:", selectedActionAndRank);
+
       const targetingProperties = character.getTargetingProperties();
 
       targetingProperties.setSelectedActionAndRank(selectedActionAndRank);
