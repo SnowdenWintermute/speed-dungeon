@@ -13,12 +13,14 @@ import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { resetWebsocketConnection } from "@/singletons/websocket-connection";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
+import { observer } from "mobx-react-lite";
 
-export default function UserMenuContainer() {
+export const UserMenuContainer = observer(() => {
   const mutateLobbyState = useLobbyStore().mutateState;
   const mutateGameState = useGameStore().mutateState;
   const mutateHttpState = useHttpRequestStore().mutateState;
-  const showAuthForm = useLobbyStore().showAuthForm;
+  const { dialogStore } = AppStore.get();
+  const showAuthForm = dialogStore.isOpen(DialogElementName.Credentials);
   const router = useRouter();
   const username = useGameStore().username;
   const fetchData = useHttpRequestStore().fetchData;
@@ -82,21 +84,19 @@ export default function UserMenuContainer() {
             });
           }, 300);
         } else {
-          mutateLobbyState((state) => {
-            state.showAuthForm = true;
-          });
+          dialogStore.open(DialogElementName.Credentials);
         }
       }}
     >
       LOG IN
     </ButtonBasic>
   );
-}
+});
 
 function UserMenu({ username }: { username: null | string }) {
   const mutateGameState = useGameStore().mutateState;
   const mutateHttpState = useHttpRequestStore().mutateState;
-  const mutateLobbyState = useLobbyStore().mutateState;
+  const { dialogStore } = AppStore.get();
   const firstLetterOfUsername = username ? username.charAt(0) : "";
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -122,9 +122,7 @@ function UserMenu({ username }: { username: null | string }) {
       delete state.requests[HTTP_REQUEST_NAMES.LOGIN_WITH_CREDENTIALS];
     });
 
-    mutateLobbyState((state) => {
-      state.showAuthForm = true;
-    });
+    dialogStore.open(DialogElementName.Credentials);
 
     mutateGameState((state) => {
       state.username = null;

@@ -3,7 +3,7 @@ import { useGameStore } from "@/stores/game-store";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import React, { useLayoutEffect, useRef, useState } from "react";
 import CharacterSheetTopBar from "./CharacterSheetTopBar";
-import PaperDollAndAttributes from "./PaperDollAndAttributes";
+import { PaperDollAndAttributes } from "./PaperDollAndAttributes";
 import AbilitySelection from "./ability-tree";
 import { viewingAbilityTree } from "@/utils/should-show-character-sheet";
 

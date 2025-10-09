@@ -10,18 +10,21 @@ import {
   equipmentIsTwoHandedWeapon,
 } from "@speed-dungeon/common";
 import HotswapSlotButtons from "../combatant-plaques/HotswapSlotButtons";
-import { useGameStore } from "@/stores/game-store";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
 
 interface Props {
   combatant: Combatant;
 }
 
-export default function PaperDoll({ combatant }: Props) {
+export const PaperDoll = observer(({ combatant }: Props) => {
   const { combatantProperties, entityProperties } = combatant;
   const equippedHoldables = CombatantEquipment.getEquippedHoldableSlots(
     combatantProperties.equipment
   );
-  const viewingDropShardsModal = useGameStore((state) => state.viewingDropShardsModal);
+  const viewingDropShardsModal = AppStore.get().dialogStore.isOpen(DialogElementName.DropShards);
+
   const { equipment } = combatantProperties;
 
   const totalAttributes = useMemo(
@@ -110,4 +113,4 @@ export default function PaperDoll({ combatant }: Props) {
       </div>
     </div>
   );
-}
+});

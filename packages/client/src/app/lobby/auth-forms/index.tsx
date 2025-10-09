@@ -10,9 +10,10 @@ import { useLobbyStore } from "@/stores/lobby-store";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import LogInWithGoogleButton from "./login-in-with-google-button";
 import PasswordResetEmailForm from "./password-reset-email-form";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
 
 export default function AuthFormContainer() {
-  const mutateLobbyState = useLobbyStore().mutateState;
   const highlightAuthForm = useLobbyStore().highlightAuthForm;
 
   const authFormWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3.5));
@@ -28,11 +29,9 @@ export default function AuthFormContainer() {
         <HotkeyButton
           className="p-2"
           hotkeys={["Escape"]}
-          onClick={() =>
-            mutateLobbyState((state) => {
-              state.showAuthForm = false;
-            })
-          }
+          onClick={() => {
+            AppStore.get().dialogStore.close(DialogElementName.Credentials);
+          }}
         >
           <XShape className="h-full w-full fill-slate-400" />
         </HotkeyButton>

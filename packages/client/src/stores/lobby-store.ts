@@ -9,9 +9,6 @@ export type LobbyState = {
   gameList: GameListEntry[];
   mainChannelName: string;
   usersInMainChannel: { [username: string]: UserChannelDisplayData };
-  showAuthForm: boolean;
-  showSavedCharacterManager: boolean;
-  showGameCreationForm: boolean;
   highlightAuthForm: boolean;
   savedCharacters: { [slot: number]: Combatant | null };
   mutateState: (fn: (state: LobbyState) => void) => void;
@@ -25,9 +22,6 @@ export const useLobbyStore = create<LobbyState>()(
         gameList: [],
         mainChannelName: "",
         usersInMainChannel: {},
-        showAuthForm: true,
-        showSavedCharacterManager: false,
-        showGameCreationForm: false,
         highlightAuthForm: false,
         savedCharacters: {},
         mutateState: (fn: (state: LobbyState) => void) => set(produce(fn)),

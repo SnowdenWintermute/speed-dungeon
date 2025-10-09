@@ -16,7 +16,7 @@ export class DialogStore {
     [DialogElementName.LeaveGame]: false,
     [DialogElementName.AppSettings]: false,
     [DialogElementName.DropShards]: false,
-    [DialogElementName.Credentials]: false,
+    [DialogElementName.Credentials]: true,
     [DialogElementName.SavedCharacterManager]: false,
     [DialogElementName.GameCreation]: false,
   };
@@ -40,6 +40,10 @@ export class DialogStore {
     this.dialogOpenStates[elementName] = toggled;
   }
 
+  open(elementName: DialogElementName) {
+    this.dialogOpenStates[elementName] = true;
+  }
+
   close(elementName: DialogElementName) {
     this.dialogOpenStates[elementName] = false;
   }
@@ -47,8 +51,3 @@ export class DialogStore {
 
 // Dialogs
 // showDebug: boolean = false;
-// viewingLeaveGameModal: boolean = false;
-// viewingDropShardsModal: boolean = false;
-// showAuthForm: boolean = false;
-// showSavedCharacterManager: boolean = false;
-// showGameCreationForm: boolean = false;

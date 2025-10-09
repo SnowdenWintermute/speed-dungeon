@@ -1,15 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    // swcPlugins: [
-    //   [
-    //     "mobx-react-observer",
-    //     {
-    //       auto: true,
-    //     },
-    //   ],
-    // ],
-  },
+  experimental: {},
   typescript: {
     // !! WARN !!
     // Dangerously allow production builds to successfully complete even if

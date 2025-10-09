@@ -46,7 +46,7 @@ export const Settings = observer(() => {
           hotkeys={["Escape"]}
           ariaLabel="close settings window"
           onClick={() => {
-            dialogStore.setDialogIsOpen(DialogElementName.AppSettings, false);
+            dialogStore.setIsOpen(DialogElementName.AppSettings, false);
 
             mutateHttpRequestState((state) => {
               delete state.requests[HTTP_REQUEST_NAMES.PASSWORD_RESET_EMAIL];

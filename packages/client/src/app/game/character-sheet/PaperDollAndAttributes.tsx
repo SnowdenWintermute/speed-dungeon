@@ -1,20 +1,23 @@
 import React from "react";
-import PaperDoll from "./PaperDoll";
+import { PaperDoll } from "./PaperDoll";
 import InventoryCapacityDisplay from "./InventoryCapacityDisplay";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import { HOTKEYS } from "@/hotkeys";
 import { MenuStateType } from "../ActionMenu/menu-state";
 import { ShardsDisplay } from "./ShardsDisplay";
-import DropShardsModal from "./DropShardsModal";
+import { DropShardsModal } from "./DropShardsModal";
 import CharacterAttributes from "./CharacterAttributes";
 import { useGameStore } from "@/stores/game-store";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
 
-export default function PaperDollAndAttributes() {
-  const mutateGameState = useGameStore().mutateState;
-  const viewingDropShardsModal = useGameStore((state) => state.viewingDropShardsModal);
+export const PaperDollAndAttributes = observer(() => {
+  const { dialogStore } = AppStore.get();
+  const viewingDropShardsModal = dialogStore.isOpen(DialogElementName.DropShards);
   const currentMenu = useGameStore().getCurrentMenu();
 
   const partyResult = useGameStore().getParty();
@@ -37,9 +40,7 @@ export default function PaperDollAndAttributes() {
                 hotkeys={[HOTKEYS.MAIN_2]}
                 disabled={currentMenu.type !== MenuStateType.InventoryItems}
                 onClick={() => {
-                  mutateGameState((state) => {
-                    state.viewingDropShardsModal = true;
-                  });
+                  dialogStore.close(DialogElementName.DropShards);
                 }}
               >
                 <ShardsDisplay
@@ -63,4 +64,4 @@ export default function PaperDollAndAttributes() {
       />
     </div>
   );
-}
+});

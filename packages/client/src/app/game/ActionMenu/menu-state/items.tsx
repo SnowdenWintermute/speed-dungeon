@@ -79,8 +79,8 @@ export abstract class ItemsMenuState implements ActionMenuState {
           state.stackedMenuStates.pop();
           state.hoveredEntity = null;
           state.consideredItemUnmetRequirements = null;
-          state.viewingDropShardsModal = false;
         });
+        AppStore.get().dialogStore.close(DialogElementName.DropShards);
       }
     );
     closeInventory.dedicatedKeys = [...this.closeMenuTextAndHotkeys.hotkeys, "Escape"];
@@ -254,6 +254,8 @@ function itemButtonMouseEnterHandler(item: Item) {
 
 import AmuletIcon from "../../../../../public/img/equipment-icons/amulet.svg";
 import RingIcon from "../../../../../public/img/equipment-icons/ring-flattened.svg";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
 
 export function ItemButtonBody({
   children,

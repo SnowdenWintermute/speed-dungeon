@@ -1,6 +1,6 @@
 // @refresh reset
 "use client";
-import Lobby from "./lobby";
+import { Lobby } from "./lobby";
 import { enableMapSet } from "immer";
 import { useGameStore } from "@/stores/game-store";
 import { GameSetup } from "./lobby/game-setup";

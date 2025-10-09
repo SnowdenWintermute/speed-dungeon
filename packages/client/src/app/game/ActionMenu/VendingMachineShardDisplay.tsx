@@ -3,15 +3,19 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import { HOTKEYS } from "@/hotkeys";
 import React from "react";
 import { ShardsDisplay } from "../character-sheet/ShardsDisplay";
-import DropShardsModal from "../character-sheet/DropShardsModal";
+import { DropShardsModal } from "../character-sheet/DropShardsModal";
 import { useGameStore } from "@/stores/game-store";
 import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
 
-export default function VendingMachineShardDisplay() {
-  const mutateGameState = useGameStore().mutateState;
+export const VendingMachineShardDisplay = observer(() => {
   const currentMenu = useGameStore.getState().getCurrentMenu();
   const viewingCharacterSheet = shouldShowCharacterSheet(currentMenu.type);
-  const viewingDropShardsModal = useGameStore().viewingDropShardsModal;
+
+  const { dialogStore } = AppStore.get();
+  const viewingDropShardsModal = dialogStore.isOpen(DialogElementName.DropShards);
 
   const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
   if (focusedCharacterResult instanceof Error) return <></>;
@@ -23,9 +27,7 @@ export default function VendingMachineShardDisplay() {
           className="disabled:opacity-50"
           hotkeys={[HOTKEYS.MAIN_2]}
           onClick={() => {
-            mutateGameState((state) => {
-              state.viewingDropShardsModal = true;
-            });
+            dialogStore.close(DialogElementName.DropShards);
           }}
         >
           <ShardsDisplay
@@ -44,4 +46,4 @@ export default function VendingMachineShardDisplay() {
       )}
     </li>
   );
-}
+});

@@ -1,12 +1,10 @@
 "use client";
 import { SPACING_REM_LARGE, TOP_BAR_HEIGHT_REM, WEBSITE_NAME } from "@/client_consts";
-import dynamic from "next/dynamic";
-
-const UserMenuContainer = dynamic(() => import("./user-menu"), { ssr: false });
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Settings } from "@/app/settings";
 import { APP_VERSION_NUMBER } from "@speed-dungeon/common";
+import { UserMenuContainer } from "./user-menu";
 
 export default function TopBar() {
   const pathName = usePathname();

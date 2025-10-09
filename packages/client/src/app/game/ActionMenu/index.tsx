@@ -29,7 +29,7 @@ import { CharacterFocusingButtons } from "./CycleCharacterFocusButtons";
 import { BottomButtons } from "./BottomButtons";
 import { ConfirmShardConversionDisplay } from "./ConfirmShardConversionDisplay";
 import ConsideringItemDisplay from "./ConsideringItemDisplay";
-import VendingMachineShardDisplay from "./VendingMachineShardDisplay";
+import { VendingMachineShardDisplay } from "./VendingMachineShardDisplay";
 import StackedMenuStateDisplay from "./StackedMenuStateDisplay";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import ActionSelectedDetails from "../detailables/action-details/ActionSelectedDetails";
