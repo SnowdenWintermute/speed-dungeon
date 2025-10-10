@@ -1,14 +1,14 @@
-import { useUIStore } from "@/stores/ui-store";
 import React, { useRef } from "react";
 import { ZIndexLayers } from "./z-index-layers";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
 
-export default function TooltipManager() {
-  const tooltipText = useUIStore().tooltipText;
-  const tooltipPosition = useUIStore().tooltipPosition;
+export const TooltipManager = observer(() => {
+  const { text, position } = AppStore.get().tooltipStore.get();
   const tooltipRef = useRef<HTMLDivElement>(null);
 
-  if (tooltipPosition === null) return <></>;
-  const { x, y } = tooltipPosition;
+  if (position === null) return <></>;
+  const { x, y } = position;
 
   return (
     <div
@@ -20,8 +20,8 @@ export default function TooltipManager() {
         id="hoverable-tooltip"
         className="border border-slate-400 bg-slate-950 text-zinc-300 p-2 -translate-x-1/2 -translate-y-[100%] max-w-96"
       >
-        {tooltipText}
+        {text}
       </div>
     </div>
   );
-}
+});

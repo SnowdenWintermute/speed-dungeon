@@ -8,7 +8,7 @@ import AlertManager from "./components/alerts/AlertManager";
 import { Game } from "./game";
 import TailwindClassLoader from "./TailwindClassLoader";
 import GlobalKeyboardEventManager from "./GlobalKeyboardEventManager";
-import TooltipManager from "./TooltipManager";
+import { TooltipManager } from "./TooltipManager";
 import SceneManager from "./3d-world/SceneManager";
 import WebsocketManager from "./websocket-manager";
 import SkyColorProvider from "./SkyColorProvider";

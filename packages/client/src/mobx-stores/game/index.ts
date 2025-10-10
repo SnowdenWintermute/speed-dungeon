@@ -49,16 +49,13 @@ export const UI_DISPLAY_MODE_STRINGS: Record<UiDisplayMode, string> = {
 export class AppStoreManager {
   game: null | SpeedDungeonGame = null;
 
-  // Connectivity
-  websocketConnected: boolean = true;
-
   // Action Menu State
   baseMenuState: BaseMenuState;
   stackedMenuStates: ActionMenuState[] = [];
 
   // Misc Game UI
-  focusedCharacterId: string = "";
   username: null | string = null;
+  focusedCharacterId: string = "";
   showItemsOnGround: boolean = true;
   targetingIndicators: TargetIndicator[] = [];
   combatantsWithPendingCraftActions: Partial<Record<EntityId, boolean>> = {};
@@ -68,10 +65,6 @@ export class AppStoreManager {
   modKeyHeld: boolean = false;
   alternateClickKeyHeld: boolean = false;
   hotkeysDisabled: boolean = false;
-
-  // Tooltips
-  tooltipPosition: null | Point = null;
-  tooltipText: null | string = null;
 
   authFormEmailField: string = "";
 

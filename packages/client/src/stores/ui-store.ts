@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { produce } from "immer";
-import { Point } from "@speed-dungeon/common";
 
 export enum UiDisplayMode {
   Detailed,
@@ -19,8 +18,6 @@ export const UI_DISPLAY_MODE_STRINGS: Record<UiDisplayMode, string> = {
 export type UIState = {
   modKeyHeld: boolean;
   alternateClickKeyHeld: boolean;
-  tooltipPosition: null | Point;
-  tooltipText: null | string;
   authFormEmailField: string;
   hotkeysDisabled: boolean;
   threatTableDetailedDisplayMode: UiDisplayMode;
@@ -34,8 +31,6 @@ export const useUIStore = create<UIState>()(
       (set, _get) => ({
         modKeyHeld: false,
         alternateClickKeyHeld: false,
-        tooltipPosition: null,
-        tooltipText: null,
         authFormEmailField: "",
         hotkeysDisabled: false,
         threatTableDetailedDisplayMode: UiDisplayMode.Simple,

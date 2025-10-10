@@ -8,6 +8,9 @@ export class LobbyStore {
   private usersInChannel = new Map<string, UserChannelDisplayData>();
   private savedCharacterSlots: Record<number, Combatant | null> = {};
   constructor() {
+    // we autoBind because that allows us to pass methods of this class
+    // to callbacks like socket.on(ServerToClientEvent.UserLeftChannel, lobbyStore.handleUserLeftChannel);
+    // see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
