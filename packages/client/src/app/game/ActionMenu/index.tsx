@@ -8,7 +8,7 @@ import {
   EXECUTE_BUTTON_TEXT,
 } from "./menu-state/considering-combat-action";
 import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicatedButton";
-import NumberedButton from "./action-menu-buttons/NumberedButton";
+import { NumberedButton } from "./action-menu-buttons/NumberedButton";
 import { COMBATANT_MAX_ACTION_POINTS, Item } from "@speed-dungeon/common";
 import { HOTKEYS } from "@/hotkeys";
 import { VIEW_LOOT_BUTTON_TEXT } from "./menu-state/base";

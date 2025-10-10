@@ -16,10 +16,7 @@ export const UI_DISPLAY_MODE_STRINGS: Record<UiDisplayMode, string> = {
 };
 
 export type UIState = {
-  modKeyHeld: boolean;
-  alternateClickKeyHeld: boolean;
   authFormEmailField: string;
-  hotkeysDisabled: boolean;
   threatTableDetailedDisplayMode: UiDisplayMode;
   mutateState: (fn: (state: UIState) => void) => void;
   setAuthFormEmailField: (email: string) => void;
@@ -29,10 +26,7 @@ export const useUIStore = create<UIState>()(
   immer(
     devtools(
       (set, _get) => ({
-        modKeyHeld: false,
-        alternateClickKeyHeld: false,
         authFormEmailField: "",
-        hotkeysDisabled: false,
         threatTableDetailedDisplayMode: UiDisplayMode.Simple,
         mutateState: (fn: (state: UIState) => void) => set(produce(fn)),
         setAuthFormEmailField: (email: string) => {

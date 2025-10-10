@@ -256,75 +256,81 @@ import AmuletIcon from "../../../../../public/img/equipment-icons/amulet.svg";
 import RingIcon from "../../../../../public/img/equipment-icons/ring-flattened.svg";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
+import { ModifierKey } from "@/mobx-stores/input";
+import { observer } from "mobx-react-lite";
 
-export function ItemButtonBody({
-  children,
-  thumbnailOption,
-  gradientOverride,
-  containerExtraStyles,
-  imageExtraStyles,
-  imageHoverStyles,
-  alternateClickStyle,
-  equipmentBaseItem,
-}: {
-  children: ReactNode;
-  gradientOverride?: string;
-  containerExtraStyles?: string;
-  thumbnailOption?: string;
-  imageExtraStyles?: string;
-  imageHoverStyles?: string;
-  alternateClickStyle?: string;
-  equipmentBaseItem?: EquipmentBaseItem;
-}) {
-  const [isHovered, setIsHovered] = useState(false);
-  const alternateClickKeyHeld = useUIStore().alternateClickKeyHeld;
+export const ItemButtonBody = observer(
+  ({
+    children,
+    thumbnailOption,
+    gradientOverride,
+    containerExtraStyles,
+    imageExtraStyles,
+    imageHoverStyles,
+    alternateClickStyle,
+    equipmentBaseItem,
+  }: {
+    children: ReactNode;
+    gradientOverride?: string;
+    containerExtraStyles?: string;
+    thumbnailOption?: string;
+    imageExtraStyles?: string;
+    imageHoverStyles?: string;
+    alternateClickStyle?: string;
+    equipmentBaseItem?: EquipmentBaseItem;
+  }) => {
+    const [isHovered, setIsHovered] = useState(false);
+    const alternateClickKeyHeld = AppStore.get().inputStore.getKeyIsHeld(
+      ModifierKey.AlternateClick
+    );
 
-  let svgIconOption;
+    let svgIconOption;
 
-  if (!thumbnailOption) {
-    if (equipmentBaseItem?.equipmentType === EquipmentType.Amulet) {
-      svgIconOption = <AmuletIcon className="h-full fill-slate-400" />;
+    if (!thumbnailOption) {
+      if (equipmentBaseItem?.equipmentType === EquipmentType.Amulet) {
+        svgIconOption = <AmuletIcon className="h-full fill-slate-400" />;
+      }
+      if (equipmentBaseItem?.equipmentType === EquipmentType.Ring) {
+        svgIconOption = <RingIcon className="h-full fill-slate-400" />;
+      }
     }
-    if (equipmentBaseItem?.equipmentType === EquipmentType.Ring) {
-      svgIconOption = <RingIcon className="h-full fill-slate-400" />;
-    }
-  }
 
-  return (
-    <div
-      className={`h-full w-full relative ${containerExtraStyles} ${alternateClickKeyHeld && alternateClickStyle}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    return (
       <div
-        className={`absolute right-0 w-7/12 h-full`}
-        style={{ background: gradientOverride || gradientBg }}
-      />
-      {thumbnailOption && (
-        <div
-          className={`absolute right-0 h-full w-fit -rotate-90 transition-transform ${imageExtraStyles} ${isHovered ? imageHoverStyles : ""}`}
-        >
-          <img src={thumbnailOption} className="h-full object-fill " />
-        </div>
-      )}
-      {svgIconOption && (
-        <div
-          className={`absolute right-0 w-1 top-1/2 -translate-x-1/2 h-full flex justify-center  transition-transform ${isHovered ? "-translate-x-[50px]" : ""}`}
-        >
-          <div className="w-10 h-10 p-1 -translate-y-1/2 ">{svgIconOption}</div>
-        </div>
-      )}
-      <div
-        className="absolute z-10 w-full h-full flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis"
-        style={{
-          textShadow: "2px 2px 0px #000000",
-        }}
+        className={`h-full w-full relative ${containerExtraStyles} ${alternateClickKeyHeld && alternateClickStyle}`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
-        {children}
+        <div
+          className={`absolute right-0 w-7/12 h-full`}
+          style={{ background: gradientOverride || gradientBg }}
+        />
+        {thumbnailOption && (
+          <div
+            className={`absolute right-0 h-full w-fit -rotate-90 transition-transform ${imageExtraStyles} ${isHovered ? imageHoverStyles : ""}`}
+          >
+            <img src={thumbnailOption} className="h-full object-fill " />
+          </div>
+        )}
+        {svgIconOption && (
+          <div
+            className={`absolute right-0 w-1 top-1/2 -translate-x-1/2 h-full flex justify-center  transition-transform ${isHovered ? "-translate-x-[50px]" : ""}`}
+          >
+            <div className="w-10 h-10 p-1 -translate-y-1/2 ">{svgIconOption}</div>
+          </div>
+        )}
+        <div
+          className="absolute z-10 w-full h-full flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis"
+          style={{
+            textShadow: "2px 2px 0px #000000",
+          }}
+        >
+          {children}
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
+);
 
 function sortItemsIntoStacks(itemsToShow: Item[]) {
   const equipmentAndShardStacks: Item[] = [];

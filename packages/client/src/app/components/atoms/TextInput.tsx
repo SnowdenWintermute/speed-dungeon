@@ -1,4 +1,4 @@
-import { useUIStore } from "@/stores/ui-store";
+import { AppStore } from "@/mobx-stores/app-store";
 import { ChangeEvent, useEffect, useRef } from "react";
 
 interface Props {
@@ -20,7 +20,7 @@ interface Props {
 
 export default function TextInput(props: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const mutateUIState = useUIStore().mutateState;
+  const { inputStore } = AppStore.get();
 
   useEffect(() => {
     // trying to make it so we trigger the onfocus event, which didn't seem to be triggered
@@ -29,9 +29,7 @@ export default function TextInput(props: Props) {
     if (inputRef.current && props.autofocus) {
       inputRef.current.focus();
       inputRef.current.dispatchEvent(new Event("focus", { bubbles: true })); // Trigger the focus event manually
-      mutateUIState((state) => {
-        state.hotkeysDisabled = true;
-      });
+      inputStore.hotkeysDisabled = true;
     }
     return () => {
       handleBlur();
@@ -39,9 +37,7 @@ export default function TextInput(props: Props) {
   }, []);
 
   function handleBlur() {
-    mutateUIState((state) => {
-      state.hotkeysDisabled = false;
-    });
+    inputStore.hotkeysDisabled = false;
   }
 
   function handleKeydown(e: KeyboardEvent) {
@@ -58,9 +54,7 @@ export default function TextInput(props: Props) {
     <input
       ref={inputRef}
       onFocus={() => {
-        mutateUIState((state) => {
-          state.hotkeysDisabled = true;
-        });
+        inputStore.hotkeysDisabled = true;
       }}
       onBlur={handleBlur}
       className={`pointer-events-auto ${props.className}`}

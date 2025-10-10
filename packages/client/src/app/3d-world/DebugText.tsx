@@ -8,6 +8,7 @@ import { drawCompass, drawDebugGrid } from "./game-world/clear-floor-texture";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
+import { ModifierKey } from "@/mobx-stores/input";
 
 function getGpuName() {
   if (gameWorld.current === null) return;
@@ -25,9 +26,9 @@ function getGpuName() {
 export const DebugText = observer(
   ({ debugRef }: { debugRef: React.RefObject<HTMLUListElement | null> }) => {
     const thumbnails = useGameStore((state) => state.itemThumbnails);
-    const { dialogStore } = AppStore.get();
+    const { dialogStore, inputStore } = AppStore.get();
     const showDebug = dialogStore.isOpen(DialogElementName.Debug);
-    const hotkeysDisabled = useUIStore((state) => state.hotkeysDisabled);
+    const { hotkeysDisabled } = inputStore;
     const headerRef = useRef<HTMLDivElement>(null);
     const keydownListenerRef = useRef<(e: KeyboardEvent) => void>(null);
     const mouseDownListenerRef = useRef<(e: MouseEvent) => void>(null);
@@ -124,8 +125,8 @@ export const DebugText = observer(
 
     const partyResult = useGameStore.getState().getParty();
 
-    const alternateClickKeyHeld = useUIStore().alternateClickKeyHeld;
-    const modKeyHeld = useUIStore().modKeyHeld;
+    const alternateClickKeyHeld = inputStore.getKeyIsHeld(ModifierKey.AlternateClick);
+    const modKeyHeld = inputStore.getKeyIsHeld(ModifierKey.Mod);
 
     return (
       <div

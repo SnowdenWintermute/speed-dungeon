@@ -1,20 +1,22 @@
 import { useGameStore } from "@/stores/game-store";
-import { useUIStore } from "@/stores/ui-store";
 import setComparedItem from "@/utils/set-compared-item";
 import { Equipment, Item } from "@speed-dungeon/common";
 import React, { useEffect } from "react";
 import ItemDetails from "./ItemDetails";
 import shouldDisplayModTooltip from "./should-display-mod-tooltip";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
+import { ModifierKey } from "@/mobx-stores/input";
 
 interface Props {
   focusedItem: Item;
 }
 
-export default function FocusedAndComparedItemDetails({ focusedItem }: Props) {
+export const FocusedAndComparedItemDetails = observer(({ focusedItem }: Props) => {
   const mutateGameState = useGameStore().mutateState;
   const comparedItemOption = useGameStore().comparedItem;
   const comparedSlotOption = useGameStore().comparedSlot;
-  const modKeyHeld = useUIStore().modKeyHeld;
+  const modKeyHeld = AppStore.get().inputStore.getKeyIsHeld(ModifierKey.Mod);
   const focusedItemId = focusedItem.entityProperties.id;
 
   useEffect(() => {
@@ -65,4 +67,4 @@ export default function FocusedAndComparedItemDetails({ focusedItem }: Props) {
       {displays[1]}
     </div>
   );
-}
+});

@@ -1,4 +1,5 @@
 import { DialogStore } from "./dialogs";
+import { InputStore } from "./input";
 import { LobbyStore } from "./lobby";
 import { TooltipStore } from "./tooltip";
 
@@ -6,6 +7,7 @@ export class AppStore {
   dialogStore = new DialogStore();
   lobbyStore = new LobbyStore();
   tooltipStore = new TooltipStore();
+  inputStore = new InputStore();
 
   private static _instance: AppStore | null = null;
 

@@ -1,41 +1,30 @@
-import { useUIStore } from "@/stores/ui-store";
+import { AppStore } from "@/mobx-stores/app-store";
+import { ModifierKey } from "@/mobx-stores/input";
 import React, { useEffect } from "react";
 
+const ALTERNATE_CLICK_KEY_CODES = ["MetaRight", "MetaLeft", "ControlLeft", "ControlRight"];
+const MOD_KEY_CODES = ["ShiftLeft", "ShiftRight"];
+
 export default function GlobalKeyboardEventManager() {
-  const mutateUiState = useUIStore().mutateState;
+  const { inputStore } = AppStore.get();
 
   function keydownEventHandler(e: KeyboardEvent) {
-    if (
-      e.code === "MetaRight" ||
-      e.code === "MetaLeft" ||
-      e.code === "ControlLeft" ||
-      e.code === "ControlRight"
-    ) {
-      useUIStore.getState().mutateState((state) => {
-        state.alternateClickKeyHeld = true;
-      });
+    if (ALTERNATE_CLICK_KEY_CODES.includes(e.code)) {
+      inputStore.setKeyHeld(ModifierKey.AlternateClick);
     }
-    if (e.code === "ShiftLeft" || e.code === "ShiftRight")
-      mutateUiState((uiState) => {
-        uiState.modKeyHeld = true;
-      });
+
+    if (MOD_KEY_CODES.includes(e.code)) {
+      inputStore.setKeyHeld(ModifierKey.Mod);
+    }
   }
 
   function keyupEventHandler(e: KeyboardEvent) {
-    if (
-      e.code === "MetaRight" ||
-      e.code === "MetaLeft" ||
-      e.code === "ControlLeft" ||
-      e.code === "ControlRight"
-    ) {
-      useUIStore.getState().mutateState((state) => {
-        state.alternateClickKeyHeld = false;
-      });
+    if (ALTERNATE_CLICK_KEY_CODES.includes(e.code)) {
+      inputStore.setKeyReleased(ModifierKey.AlternateClick);
     }
-    if (e.code === "ShiftLeft" || e.code === "ShiftRight")
-      mutateUiState((uiState) => {
-        uiState.modKeyHeld = false;
-      });
+    if (MOD_KEY_CODES.includes(e.code)) {
+      inputStore.setKeyReleased(ModifierKey.Mod);
+    }
   }
 
   useEffect(() => {

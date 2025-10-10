@@ -61,11 +61,6 @@ export class AppStoreManager {
   combatantsWithPendingCraftActions: Partial<Record<EntityId, boolean>> = {};
   threatTableDetailedDisplayMode: UiDisplayMode = UiDisplayMode.Simple;
 
-  // Toggles
-  modKeyHeld: boolean = false;
-  alternateClickKeyHeld: boolean = false;
-  hotkeysDisabled: boolean = false;
-
   authFormEmailField: string = "";
 
   // Detailables UI

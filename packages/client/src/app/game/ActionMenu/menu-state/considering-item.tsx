@@ -18,11 +18,12 @@ import {
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
-import { useUIStore } from "@/stores/ui-store";
 import selectItem from "@/utils/selectItem";
 import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { createCancelButton } from "./common-buttons/cancel";
+import { AppStore } from "@/mobx-stores/app-store";
+import { ModifierKey } from "@/mobx-stores/input";
 
 const equipAltSlotHotkey = HOTKEYS.ALT_1;
 const useItemHotkey = HOTKEYS.MAIN_1;
@@ -64,8 +65,12 @@ export class ConsideringItemMenuState implements ActionMenuState {
       itemId
     );
 
+    const { inputStore } = AppStore.get();
+
+    const modKeyHeld = inputStore.getKeyIsHeld(ModifierKey.Mod);
+
     if (
-      !useUIStore.getState().modKeyHeld &&
+      !modKeyHeld &&
       this.item instanceof Equipment &&
       (this.item.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType ===
         EquipmentType.OneHandedMeleeWeapon ||
@@ -106,10 +111,11 @@ export class ConsideringItemMenuState implements ActionMenuState {
             () => EQUIP_ITEM_BUTTON_TEXT,
             EQUIP_ITEM_BUTTON_TEXT,
             () => {
+              const modKeyHeld = inputStore.getKeyIsHeld(ModifierKey.Mod);
               websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
                 characterId,
                 itemId,
-                equipToAltSlot: useUIStore.getState().modKeyHeld,
+                equipToAltSlot: modKeyHeld,
               });
             }
           );

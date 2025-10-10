@@ -5,7 +5,6 @@ import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { BUTTON_HEIGHT_SMALL } from "@/client_consts";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import { HOTKEYS } from "@/hotkeys";
-import { useUIStore } from "@/stores/ui-store";
 import { ClientToServerEvent, stringIsValidNumber } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -16,22 +15,16 @@ import { DialogElementName } from "@/mobx-stores/dialogs";
 
 export const DropShardsModal = observer(
   ({ max, min, className }: { max: number; min: number; className: string }) => {
-    const mutateUIState = useUIStore().mutateState;
-    const { dialogStore } = AppStore.get();
+    const { dialogStore, inputStore } = AppStore.get();
     const viewingDropShardsModal = dialogStore.isOpen(DialogElementName.DropShards);
     const inputRef = useRef<HTMLInputElement>(null);
     const [value, setValue] = useState<number>(0);
     const focusedCharacterResult = useGameStore().getFocusedCharacter();
 
     useEffect(() => {
-      mutateUIState((state) => {
-        state.hotkeysDisabled = true;
-      });
-
+      inputStore.hotkeysDisabled = true;
       return () => {
-        mutateUIState((state) => {
-          state.hotkeysDisabled = false;
-        });
+        inputStore.hotkeysDisabled = false;
       };
     }, []);
 

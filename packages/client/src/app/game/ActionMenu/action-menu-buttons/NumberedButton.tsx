@@ -2,7 +2,9 @@ import React, { ReactNode } from "react";
 import { BUTTON_HEIGHT } from "@/client_consts";
 import { ActionMenuButtonProperties } from "../menu-state";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
-import { useUIStore } from "@/stores/ui-store";
+import { AppStore } from "@/mobx-stores/app-store";
+import { ModifierKey } from "@/mobx-stores/input";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   number: number;
@@ -10,8 +12,8 @@ interface Props {
   extraStyles?: string;
 }
 
-export default function NumberedButton({ number, properties, extraStyles }: Props) {
-  const alternateClickKeyHeld = useUIStore().alternateClickKeyHeld;
+export const NumberedButton = observer(({ number, properties, extraStyles }: Props) => {
+  const alternateClickKeyHeld = AppStore.get().inputStore.getKeyIsHeld(ModifierKey.AlternateClick);
 
   const clickHandler = (() => {
     if (properties.shouldBeDisabled) return () => {};
@@ -54,7 +56,7 @@ export default function NumberedButton({ number, properties, extraStyles }: Prop
       </div>
     </HotkeyButton>
   );
-}
+});
 
 export function NumberedButtonBody({ children }: { children: ReactNode }) {
   <div className="h-full w-full">{children}</div>;
