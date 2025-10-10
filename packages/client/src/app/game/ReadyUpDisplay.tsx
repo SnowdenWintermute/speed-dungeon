@@ -7,7 +7,7 @@ import {
   ExplorationAction,
 } from "@speed-dungeon/common";
 import React, { MouseEventHandler } from "react";
-import HotkeyButton from "../components/atoms/HotkeyButton";
+import { HotkeyButton } from "../components/atoms/HotkeyButton";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
 import { MenuStateType } from "./ActionMenu/menu-state";

@@ -16,7 +16,7 @@ import useElementIsOverflowing from "@/hooks/use-element-is-overflowing";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import HostGameForm from "./HostGameForm";
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import RefreshIcon from "../../../../public/img/menu-icons/refresh.svg";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";

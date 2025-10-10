@@ -1,4 +1,4 @@
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { COMBATANT_CLASS_NAME_STRINGS, iterateNumericEnum } from "@speed-dungeon/common";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import SelectDropdown from "@/app/components/atoms/SelectDropdown";

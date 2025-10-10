@@ -21,7 +21,7 @@ import { AuthFormContainer } from "./auth-forms";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { SavedCharacterManager } from "./saved-character-manager";
 import { ZIndexLayers } from "../z-index-layers";
-import HotkeyButton from "../components/atoms/HotkeyButton";
+import { HotkeyButton } from "../components/atoms/HotkeyButton";
 import { HOTKEYS } from "@/hotkeys";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";

@@ -1,5 +1,5 @@
 import { FocusEventHandler, MouseEventHandler, useEffect, useRef } from "react";
-import HotkeyButton from "./HotkeyButton";
+import { HotkeyButton } from "./HotkeyButton";
 
 interface Props {
   extraStyles?: string;

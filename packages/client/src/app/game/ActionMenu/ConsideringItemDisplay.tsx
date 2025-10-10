@@ -7,7 +7,7 @@ import {
   getItemSellPrice,
 } from "@speed-dungeon/common";
 import Divider from "@/app/components/atoms/Divider";
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { ConfirmConvertToShardsMenuState } from "./menu-state/confirm-convert-to-shards";
 import { MenuStateType } from "./menu-state";
 import { letterFromKeyCode } from "@/hotkeys";

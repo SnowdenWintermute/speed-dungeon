@@ -1,7 +1,7 @@
 "use client";
 import { HTTP_REQUEST_NAMES, SPACING_REM_SMALL } from "@/client_consts";
 import React, { useEffect } from "react";
-import HotkeyButton from "../components/atoms/HotkeyButton";
+import { HotkeyButton } from "../components/atoms/HotkeyButton";
 import XShape from "../../../public/img/basic-shapes/x-shape.svg";
 import PasswordResetEmailForm from "../lobby/auth-forms/password-reset-email-form";
 import { useHttpRequestStore } from "@/stores/http-request-store";

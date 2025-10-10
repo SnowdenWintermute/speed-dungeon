@@ -2,7 +2,7 @@ import Divider from "@/app/components/atoms/Divider";
 import { useGameStore } from "@/stores/game-store";
 import React, { useState } from "react";
 import { CombatLogMessage, CombatLogMessageStyle } from "./combat-log-message";
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 
 export default function CombatLog() {
   const [expanded, setExpanded] = useState(false);

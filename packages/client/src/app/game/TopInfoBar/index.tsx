@@ -5,7 +5,7 @@ import RoomExplorationTracker from "./RoomExplorationTracker";
 import { CleanupMode, ClientToServerEvent, DUNGEON_ROOM_TYPE_STRINGS } from "@speed-dungeon/common";
 import getGameAndParty from "@/utils/getGameAndParty";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";

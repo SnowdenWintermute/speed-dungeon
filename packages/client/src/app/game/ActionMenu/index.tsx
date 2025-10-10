@@ -19,7 +19,7 @@ import {
 } from "./menu-state/considering-item";
 import ItemDetailsWithComparison from "../ItemDetailsWithComparison";
 import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import {
   CONFIRM_SHARD_TEXT,
   ConfirmConvertToShardsMenuState,

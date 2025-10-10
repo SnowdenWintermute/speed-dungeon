@@ -2,7 +2,7 @@ import React from "react";
 import { PaperDoll } from "./PaperDoll";
 import InventoryCapacityDisplay from "./InventoryCapacityDisplay";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { HOTKEYS } from "@/hotkeys";
 import { MenuStateType } from "../ActionMenu/menu-state";
 import { ShardsDisplay } from "./ShardsDisplay";

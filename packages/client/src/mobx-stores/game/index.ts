@@ -1,13 +1,4 @@
-import {
-  ActionUserContext,
-  CombatActionName,
-  CombatAttribute,
-  Combatant,
-  EntityId,
-  Item,
-  SpeedDungeonGame,
-  TaggedEquipmentSlot,
-} from "@speed-dungeon/common";
+import { ActionUserContext, Combatant, EntityId, SpeedDungeonGame } from "@speed-dungeon/common";
 import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";
 import { ActionMenuState } from "@/app/game/ActionMenu/menu-state";
 import { InventoryItemsMenuState } from "@/app/game/ActionMenu/menu-state/inventory-items";
@@ -21,9 +12,7 @@ import { RepairItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/r
 import { ConvertToShardItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/convert-to-shard-item-selection";
 import { TargetIndicator } from "@/app/3d-world/scene-entities/character-models/target-indicator-manager";
 import { AbilityTreeMenuState } from "@/app/game/ActionMenu/menu-state/ability-tree-menu-state";
-import { AbilityTreeAbility } from "@speed-dungeon/common";
 import { SelectBookToTradeForMenuState } from "@/app/game/ActionMenu/menu-state/select-book-type";
-import { Point } from "@speed-dungeon/common";
 import { FloatingMessage } from "@/stores/game-store/floating-messages";
 import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
 
@@ -62,16 +51,6 @@ export class AppStoreManager {
   threatTableDetailedDisplayMode: UiDisplayMode = UiDisplayMode.Simple;
 
   authFormEmailField: string = "";
-
-  // Detailables UI
-  detailedEntity: null | Combatant | Item = null;
-  hoveredEntity: null | Combatant | Item = null;
-  comparedItem: null | Item = null;
-  comparedSlot: null | TaggedEquipmentSlot = null;
-  consideredItemUnmetRequirements: null | CombatAttribute[] = null;
-  hoveredAction: null | CombatActionName = null;
-  hoveredCombatantAbility: null | AbilityTreeAbility = null;
-  detailedCombatantAbility: null | AbilityTreeAbility = null;
 
   // Combat log
   combatLogMessages: CombatLogMessage[] = [];

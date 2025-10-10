@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import { BUTTON_HEIGHT } from "@/client_consts";
 import { ActionMenuButtonProperties } from "../menu-state";
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { AppStore } from "@/mobx-stores/app-store";
 import { ModifierKey } from "@/mobx-stores/input";
 import { observer } from "mobx-react-lite";

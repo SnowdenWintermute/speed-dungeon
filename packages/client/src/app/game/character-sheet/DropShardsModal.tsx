@@ -3,7 +3,7 @@ import { useGameStore } from "@/stores/game-store";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { BUTTON_HEIGHT_SMALL } from "@/client_consts";
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { HOTKEYS } from "@/hotkeys";
 import { ClientToServerEvent, stringIsValidNumber } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";

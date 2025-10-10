@@ -6,7 +6,7 @@ import SignUpWithCredentialsForm from "./sign-up-with-credentials-form";
 import LoginWithCredentialsForm from "./login-with-credentials-form";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import LogInWithGoogleButton from "./login-in-with-google-button";
 import PasswordResetEmailForm from "./password-reset-email-form";
 import { AppStore } from "@/mobx-stores/app-store";

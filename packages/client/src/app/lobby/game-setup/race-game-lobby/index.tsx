@@ -7,7 +7,7 @@ import {
 } from "@speed-dungeon/common";
 import React from "react";
 import GameLobby from "../GameLobby";
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import PartySetupCard from "./AdventuringPartySetupCard";
 
