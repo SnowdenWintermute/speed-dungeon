@@ -1,7 +1,6 @@
 "use client";
 import { setAlert } from "@/app/components/alerts";
 import { useGameStore } from "@/stores/game-store";
-import { useLobbyStore } from "@/stores/lobby-store";
 import {
   ClientToServerEvent,
   ClientToServerEventTypes,
@@ -18,6 +17,7 @@ import getCurrentParty from "@/utils/getCurrentParty";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { synchronizeTargetingIndicators } from "@/app/websocket-manager/game-event-handlers/synchronize-targeting-indicators";
+import { AppStore } from "@/mobx-stores/app-store";
 
 const socketAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
 
@@ -41,27 +41,27 @@ websocketConnection.on("connect", () => {
   useGameStore.getState().mutateState((state) => {
     state.game = null;
   });
-  useLobbyStore.getState().mutateState((state) => {
-    state.websocketConnected = true;
-  });
-  websocketConnection.emit(ClientToServerEvent.RequestsGameList);
-  websocketConnection.emit(ClientToServerEvent.GetSavedCharactersList);
+  AppStore.get().lobbyStore.websocketConnected = true;
 
+  getGameWorld().modelManager.modelActionQueue.clear();
   getGameWorld().modelManager.modelActionQueue.enqueueMessage({
-    type: ModelActionType.SynchronizeCombatantModels,
+    type: ModelActionType.ClearAllModels,
   });
 
+  getGameWorld().replayTreeManager.clear();
   getGameWorld()
     .actionEntityManager.getAll()
     .forEach((entity) => entity.cleanup({ softCleanup: false }));
+
+  websocketConnection.emit(ClientToServerEvent.RequestsGameList);
+  websocketConnection.emit(ClientToServerEvent.GetSavedCharactersList);
 });
 
 websocketConnection.on("disconnect", () => {
   console.info("disconnected");
-  useLobbyStore.getState().mutateState((state) => {
-    state.websocketConnected = false;
-  });
+  AppStore.get().lobbyStore.websocketConnected = false;
 });
+
 websocketConnection.on(ServerToClientEvent.ErrorMessage, (message) => {
   setAlert(new Error(message));
 

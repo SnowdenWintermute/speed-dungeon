@@ -2,6 +2,7 @@ import { Combatant, EntityId, GameListEntry, UserChannelDisplayData } from "@spe
 import { makeAutoObservable } from "mobx";
 
 export class LobbyStore {
+  public websocketConnected: boolean = true;
   public gameList: GameListEntry[] = [];
   private mainChannelName: string = "";
   private usersInChannel = new Map<string, UserChannelDisplayData>();

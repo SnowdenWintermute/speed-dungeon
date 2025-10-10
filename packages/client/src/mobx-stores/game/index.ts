@@ -4,11 +4,9 @@ import {
   CombatAttribute,
   Combatant,
   EntityId,
-  GameListEntry,
   Item,
   SpeedDungeonGame,
   TaggedEquipmentSlot,
-  UserChannelDisplayData,
 } from "@speed-dungeon/common";
 import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";
 import { ActionMenuState } from "@/app/game/ActionMenu/menu-state";
@@ -53,9 +51,6 @@ export class AppStoreManager {
 
   // Connectivity
   websocketConnected: boolean = true;
-
-  // Lobby UI
-  savedCharacters: { [slot: number]: Combatant | null } = {};
 
   // Action Menu State
   baseMenuState: BaseMenuState;

@@ -1,15 +1,13 @@
 import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client_consts";
 import { UserPlaque } from "./UserPlaque";
-import { useLobbyStore } from "@/stores/lobby-store";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 
 export const UserList = observer(() => {
-  const websocketConnected = useLobbyStore().websocketConnected;
-  const usersInChannel = AppStore.get().lobbyStore.getUsersList();
-
-  console.log("usersInChannel at LobbyList:", usersInChannel);
+  const { lobbyStore } = AppStore.get();
+  const usersInChannel = lobbyStore.getUsersList();
+  const websocketConnected = lobbyStore.websocketConnected;
 
   return (
     <section

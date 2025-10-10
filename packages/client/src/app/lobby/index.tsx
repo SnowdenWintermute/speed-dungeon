@@ -17,7 +17,6 @@ import Link from "next/link";
 import WithTopBar from "../components/layouts/with-top-bar";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import { useEffect } from "react";
-import { useLobbyStore } from "@/stores/lobby-store";
 import { AuthFormContainer } from "./auth-forms";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { SavedCharacterManager } from "./saved-character-manager";
@@ -34,11 +33,11 @@ export const Lobby = observer(() => {
   const usersContainerWidth = Math.floor(BASE_SCREEN_SIZE * usersContainerWidthMultiplier);
   const currentSessionHttpResponseTracker =
     useHttpRequestStore().requests[HTTP_REQUEST_NAMES.GET_SESSION];
-  const { dialogStore } = AppStore.get();
+  const { dialogStore, lobbyStore } = AppStore.get();
   const showGameCreationForm = dialogStore.isOpen(DialogElementName.GameCreation);
   const showAuthForm = dialogStore.isOpen(DialogElementName.Credentials);
   const showSavedCharacterManager = dialogStore.isOpen(DialogElementName.SavedCharacterManager);
-  const websocketConnected = useLobbyStore().websocketConnected;
+  const websocketConnected = lobbyStore.websocketConnected;
 
   useEffect(() => {
     if (currentSessionHttpResponseTracker?.statusCode === 200) {

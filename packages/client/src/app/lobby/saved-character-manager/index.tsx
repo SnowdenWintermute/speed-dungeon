@@ -1,5 +1,4 @@
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
-import { useLobbyStore } from "@/stores/lobby-store";
 import { Vector3 } from "@babylonjs/core";
 import {
   COMBATANT_CLASS_NAME_STRINGS,

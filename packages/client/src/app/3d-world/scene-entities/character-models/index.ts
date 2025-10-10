@@ -30,7 +30,6 @@ import { setUpDebugMeshes, despawnDebugMeshes } from "./set-up-debug-meshes";
 import { HighlightManager } from "./highlight-manager";
 import { useGameStore } from "@/stores/game-store";
 import { plainToInstance } from "class-transformer";
-import { useLobbyStore } from "@/stores/lobby-store";
 import { ManagedAnimationOptions } from "../model-animation-managers";
 import { SceneEntity } from "..";
 import { BONE_NAMES, BoneName } from "./skeleton-structure-variables";
