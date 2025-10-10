@@ -4,13 +4,14 @@ import { SPACING_REM_SMALL } from "@/client_consts";
 import { useGameStore } from "@/stores/game-store";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import StarShape from "../../../../public/img/basic-shapes/star.svg";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   username: string;
   displayData: UserChannelDisplayData;
 }
 
-export default function UserPlaque({ username, displayData }: Props) {
+export const UserPlaque = observer(({ username, displayData }: Props) => {
   const thisTabUsername = useGameStore().username;
   const bgStyle = displayData.authStatus === UserAuthStatus.Guest ? "bg-slate-700" : "bg-slate-950";
   let thisIsYouMarker = <span />;
@@ -34,4 +35,4 @@ export default function UserPlaque({ username, displayData }: Props) {
       <div className="overflow-hidden whitespace-nowrap text-ellipsis">{username}</div>
     </li>
   );
-}
+});

@@ -22,10 +22,10 @@ export const CHARACTER_SLOT_SPACING = 1;
 export const CHARACTER_MANAGER_HOTKEY = "S";
 
 export const SavedCharacterManager = observer(() => {
-  const savedCharacters = useLobbyStore().savedCharacters;
   const [currentSlot, setCurrentSlot] = useState(1);
+  const { dialogStore, lobbyStore } = AppStore.get();
+  const savedCharacters = lobbyStore.getSavedCharacterSlots();
   const selectedCharacterOption = savedCharacters[currentSlot];
-  const { dialogStore } = AppStore.get();
   const showGameCreationForm = dialogStore.isOpen(DialogElementName.GameCreation);
   const showCharacterManager = dialogStore.isOpen(DialogElementName.SavedCharacterManager);
 

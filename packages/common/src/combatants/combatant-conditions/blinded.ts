@@ -26,7 +26,7 @@ export class BlindedCombatantCondition extends CombatantCondition {
   [immerable] = true;
   intent = CombatActionIntent.Malicious;
   removedOnDeath: boolean = true;
-  ticks?: MaxAndCurrent | undefined;
+  ticks?: MaxAndCurrent | undefined = undefined;
   constructor(
     id: EntityId,
     appliedBy: ConditionAppliedBy,

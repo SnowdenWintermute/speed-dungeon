@@ -33,7 +33,7 @@ export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
   stacksOption = getNewStacks();
   intent = CombatActionIntent.Malicious;
   removedOnDeath: boolean = true;
-  ticks?: MaxAndCurrent | undefined;
+  ticks?: MaxAndCurrent | undefined = undefined;
   constructor(
     public id: EntityId,
     appliedBy: ConditionAppliedBy,

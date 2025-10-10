@@ -1,7 +1,6 @@
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { CHARACTER_SLOT_SPACING } from "@/app/lobby/saved-character-manager";
 import { useGameStore } from "@/stores/game-store";
-import { useLobbyStore } from "@/stores/lobby-store";
 import getParty from "@/utils/getParty";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import {
@@ -18,6 +17,7 @@ import cloneDeep from "lodash.clonedeep";
 import { createCombatantPortrait } from "../../image-manager/create-combatant-portrait";
 import { CharacterModel } from "@/app/3d-world/scene-entities/character-models";
 import { startOrStopCosmeticEffects } from "../../replay-tree-manager/start-or-stop-cosmetic-effect";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export async function synchronizeCombatantModelsWithAppState() {
   if (!gameWorld.current) return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
@@ -103,7 +103,6 @@ interface ModelsAndPositions {
 
 function getModelsAndPositions() {
   const state = useGameStore.getState();
-  const lobbyState = useLobbyStore.getState();
   const { game } = state;
   let modelsAndPositions: ModelsAndPositions = {};
 
@@ -122,7 +121,7 @@ function getModelsAndPositions() {
       };
     }
   } else {
-    const savedCharacters = lobbyState.savedCharacters;
+    const savedCharacters = AppStore.get().lobbyStore.getSavedCharacterSlots();
     // viewing saved characters
     for (const [slot, character] of iterateNumericEnumKeyedRecord(savedCharacters).filter(
       ([_slot, characterOption]) => characterOption !== null

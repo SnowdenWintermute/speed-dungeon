@@ -55,20 +55,15 @@ export class AppStoreManager {
   websocketConnected: boolean = true;
 
   // Lobby UI
-  gameList: GameListEntry[] = [];
-  mainChannelName: string = "";
-  usersInMainChannel: { [username: string]: UserChannelDisplayData } = {};
   savedCharacters: { [slot: number]: Combatant | null } = {};
 
   // Action Menu State
   baseMenuState: BaseMenuState;
   stackedMenuStates: ActionMenuState[] = [];
 
-  /** Unique name which characters may list as their controller */
-  username: null | string = null;
-  focusedCharacterId: string = "";
-
   // Misc Game UI
+  focusedCharacterId: string = "";
+  username: null | string = null;
   showItemsOnGround: boolean = true;
   targetingIndicators: TargetIndicator[] = [];
   combatantsWithPendingCraftActions: Partial<Record<EntityId, boolean>> = {};

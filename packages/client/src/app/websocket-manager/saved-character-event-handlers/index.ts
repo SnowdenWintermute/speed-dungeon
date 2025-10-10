@@ -1,49 +1,53 @@
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { gameWorld, getGameWorld } from "@/app/3d-world/SceneManager";
-import { useLobbyStore } from "@/stores/lobby-store";
+import { AppStore } from "@/mobx-stores/app-store";
 import {
   ClientToServerEventTypes,
   Combatant,
+  EntityId,
   ServerToClientEvent,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io-client";
 
-export default function setUpSavedCharacterEventListeners(
+export function setUpSavedCharacterEventListeners(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
 ) {
-  const mutateLobbyState = useLobbyStore.getState().mutateState;
+  const lobbyStore = AppStore.get().lobbyStore;
+
   socket.on(ServerToClientEvent.SavedCharacterList, (characters) => {
-    for (const [slotNumber, character] of Object.entries(characters)) {
-      if (character !== null)
-        characters[parseInt(slotNumber)] = Combatant.getDeserialized(character);
+    const deserialized: Record<number, null | Combatant> = {};
+    for (const [slotNumberStringKey, characterOption] of Object.entries(characters)) {
+      const slotNumber = parseInt(slotNumberStringKey);
+      if (characterOption === null) {
+        deserialized[slotNumber] = null;
+      } else {
+        deserialized[slotNumber] = Combatant.getDeserialized(characterOption);
+      }
     }
 
+    lobbyStore.setSavedCharacterSlots(deserialized);
+
     gameWorld.current?.drawCharacterSlots();
-    mutateLobbyState((state) => {
-      state.savedCharacters = characters;
-    });
 
     getGameWorld().modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
     });
   });
 
-  socket.on(ServerToClientEvent.SavedCharacterDeleted, (id) => {
-    mutateLobbyState((state) => {
-      for (const [slot, character] of Object.entries(state.savedCharacters)) {
-        const slotAsNumber = parseInt(slot);
-        if (character?.entityProperties.id === id) {
-          state.savedCharacters[slotAsNumber] = null;
-          break;
-        }
-      }
+  socket.on(ServerToClientEvent.SavedCharacterDeleted, (entityId: EntityId) => {
+    lobbyStore.deleteSavedCharacter(entityId);
+
+    getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+      type: ModelActionType.SynchronizeCombatantModels,
     });
   });
 
   socket.on(ServerToClientEvent.SavedCharacter, (character, slot) => {
-    mutateLobbyState((state) => {
-      state.savedCharacters[slot] = Combatant.getDeserialized(character);
+    const deserialized = Combatant.getDeserialized(character);
+    lobbyStore.setSavedCharacterSlot(deserialized, slot);
+    getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+      type: ModelActionType.SynchronizeCombatantModels,
     });
   });
 }

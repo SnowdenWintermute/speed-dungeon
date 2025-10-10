@@ -37,6 +37,7 @@ import { BONE_NAMES, BoneName } from "./skeleton-structure-variables";
 import { EquipmentModelManager } from "./equipment-model-manager";
 import { ModularCharacterPartsModelManager } from "./modular-character-parts-model-manager";
 import { TargetIndicatorBillboardManager } from "./target-indicator-manager";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export class CharacterModel extends SceneEntity {
   childTransformNodes: Partial<Record<CombatantBaseChildTransformNodeName, TransformNode>> = {};
@@ -194,14 +195,12 @@ export class CharacterModel extends SceneEntity {
 
   getCombatant() {
     let combatantResult = useGameStore.getState().getCombatant(this.entityId);
+
     if (combatantResult instanceof Error) {
-      for (const [slotNumberString, combatantOption] of Object.entries(
-        useLobbyStore.getState().savedCharacters
-      )) {
-        if (combatantOption?.entityProperties.id === this.entityId)
-          combatantResult = combatantOption;
-      }
+      const combatantOption = AppStore.get().lobbyStore.getSavedCharacterOption(this.entityId);
+      if (combatantOption !== undefined) combatantResult = combatantOption;
     }
+
     if (combatantResult instanceof Error) throw combatantResult;
     return combatantResult;
   }

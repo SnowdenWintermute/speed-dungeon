@@ -1,7 +1,9 @@
 import { DialogStore } from "./dialogs";
+import { LobbyStore } from "./lobby";
 
 export class AppStore {
   dialogStore = new DialogStore();
+  lobbyStore = new LobbyStore();
 
   private static _instance: AppStore | null = null;
 

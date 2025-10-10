@@ -1,7 +1,6 @@
 "use client";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
-import { useLobbyStore } from "@/stores/lobby-store";
 import { useRouter } from "next/navigation";
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
@@ -16,7 +15,6 @@ import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
 
 export const UserMenuContainer = observer(() => {
-  const mutateLobbyState = useLobbyStore().mutateState;
   const mutateGameState = useGameStore().mutateState;
   const mutateHttpState = useHttpRequestStore().mutateState;
   const { dialogStore } = AppStore.get();
@@ -75,13 +73,9 @@ export const UserMenuContainer = observer(() => {
         });
 
         if (showAuthForm) {
-          mutateLobbyState((state) => {
-            state.highlightAuthForm = true;
-          });
+          dialogStore.highlightAuthForm = true;
           setTimeout(() => {
-            mutateLobbyState((state) => {
-              state.highlightAuthForm = false;
-            });
+            dialogStore.highlightAuthForm = false;
           }, 300);
         } else {
           dialogStore.open(DialogElementName.Credentials);

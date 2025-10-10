@@ -18,7 +18,7 @@ export class PrimedForExplosionCombatantCondition extends CombatantCondition {
   [immerable] = true;
   intent = CombatActionIntent.Malicious;
   removedOnDeath: boolean = true;
-  ticks?: MaxAndCurrent | undefined;
+  ticks?: MaxAndCurrent | undefined = undefined;
   stacksOption = getNewStacks();
   constructor(
     id: EntityId,
