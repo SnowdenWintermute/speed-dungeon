@@ -17,6 +17,8 @@ import { startResourceChangeFloatingMessage } from "./start-resource-change-floa
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { postResourceChangeToCombatLog } from "@/app/game/combat-log/post-resource-change-to-combat-log";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
 
 export function induceHitRecovery(
   actionUserName: string,
@@ -40,7 +42,7 @@ export function induceHitRecovery(
     FLOATING_MESSAGE_DURATION
   );
 
-  const showDebug = useUIStore.getState().showDebug;
+  const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
 
   useGameStore.getState().mutateState((gameState) => {
     const combatantContextResult = getActionUserContext(gameState, targetId);

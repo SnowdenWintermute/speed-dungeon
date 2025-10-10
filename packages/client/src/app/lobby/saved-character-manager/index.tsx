@@ -11,7 +11,7 @@ import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import CreateCharacterForm from "./CreateCharacterForm";
 import DeleteCharacterForm from "./DeleteCharacterForm";
-import CharacterModelDisplay from "@/app/character-model-display";
+import { CharacterModelDisplay } from "@/app/character-model-display";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { observer } from "mobx-react-lite";

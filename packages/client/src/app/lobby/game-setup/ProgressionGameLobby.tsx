@@ -17,7 +17,7 @@ import { useLobbyStore } from "@/stores/lobby-store";
 import SelectDropdown from "@/app/components/atoms/SelectDropdown";
 import Divider from "@/app/components/atoms/Divider";
 import GameLobby from "./GameLobby";
-import CharacterModelDisplay from "@/app/character-model-display";
+import { CharacterModelDisplay } from "@/app/character-model-display";
 
 export default function ProgressionGameLobby() {
   const username = useGameStore().username;

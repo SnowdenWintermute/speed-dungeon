@@ -20,8 +20,7 @@ import "./floating-text-animation.css";
 import CombatantFloatingMessagesDisplay from "./combatant-floating-messages-display";
 import InventoryIconButton from "./InventoryIconButton";
 import HotswapSlotButtons from "./HotswapSlotButtons";
-import CharacterModelDisplay from "@/app/character-model-display";
-import { useUIStore } from "@/stores/ui-store";
+import { CharacterModelDisplay } from "@/app/character-model-display";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import LowDurabilityIndicators from "./LowDurabilityIndicators";
 import ConditionIndicators from "./condition-indicators/";
@@ -29,15 +28,18 @@ import ThreatPriorityList from "./ThreatPriorityList";
 import Portrait from "./Portrait";
 import { getCombatantUiIdentifierIcon } from "@/utils/get-combatant-class-icon";
 import ClockIcon from "../../../../public/img/game-ui-icons/clock-icon.svg";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
 
 interface Props {
   combatant: Combatant;
   showExperience: boolean;
 }
 
-export default function CombatantPlaque({ combatant, showExperience }: Props) {
+export const CombatantPlaque = observer(({ combatant, showExperience }: Props) => {
   const gameOption = useGameStore().game;
-  const showDebug = useUIStore().showDebug;
+  const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
   const portrait = useGameStore((state) => state.combatantPortraits[combatant.entityProperties.id]);
   const { detailedEntity, focusedCharacterId, hoveredEntity } = useGameStore(
     useShallow((state) => ({
@@ -241,7 +243,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
       </div>
     </div>
   );
-}
+});
 
 function getConditionalBorder(
   infoButtonIsHovered: boolean,

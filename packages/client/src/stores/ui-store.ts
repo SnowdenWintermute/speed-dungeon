@@ -23,7 +23,6 @@ export type UIState = {
   tooltipText: null | string;
   authFormEmailField: string;
   hotkeysDisabled: boolean;
-  showDebug: boolean;
   threatTableDetailedDisplayMode: UiDisplayMode;
   mutateState: (fn: (state: UIState) => void) => void;
   setAuthFormEmailField: (email: string) => void;
@@ -39,7 +38,6 @@ export const useUIStore = create<UIState>()(
         tooltipText: null,
         authFormEmailField: "",
         hotkeysDisabled: false,
-        showDebug: false,
         threatTableDetailedDisplayMode: UiDisplayMode.Simple,
         mutateState: (fn: (state: UIState) => void) => set(produce(fn)),
         setAuthFormEmailField: (email: string) => {

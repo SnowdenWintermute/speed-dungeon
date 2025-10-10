@@ -48,6 +48,3 @@ export class DialogStore {
     this.dialogOpenStates[elementName] = false;
   }
 }
-
-// Dialogs
-// showDebug: boolean = false;

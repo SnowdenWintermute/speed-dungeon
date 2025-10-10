@@ -1,6 +1,6 @@
 import { AdventuringParty, ERROR_MESSAGES } from "@speed-dungeon/common";
 import React from "react";
-import CombatantPlaque from "./CombatantPlaque";
+import { CombatantPlaque } from "./CombatantPlaque";
 
 interface Props {
   party: AdventuringParty;
