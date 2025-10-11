@@ -3,7 +3,6 @@ import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import getGameAndParty from "@/utils/getGameAndParty";
 import React, { useEffect, useRef, useState } from "react";
 import TargetingIndicators from "./TargetingIndicators";
-import { entityIsDetailed } from "@/stores/game-store/detailable-entities";
 import UnspentAttributesButton from "../UnspentAttributesButton";
 import { useShallow } from "zustand/react/shallow";
 import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
@@ -39,15 +38,12 @@ interface Props {
 
 export const CombatantPlaque = observer(({ combatant, showExperience }: Props) => {
   const gameOption = useGameStore().game;
-  const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
+
+  const { focusStore, dialogStore } = AppStore.get();
+  const { focusedCharacterId, hoveredEntity } = focusStore;
+  const showDebug = dialogStore.isOpen(DialogElementName.Debug);
+
   const portrait = useGameStore((state) => state.combatantPortraits[combatant.entityProperties.id]);
-  const { detailedEntity, focusedCharacterId, hoveredEntity } = useGameStore(
-    useShallow((state) => ({
-      detailedEntity: state.detailedEntity,
-      focusedCharacterId: state.focusedCharacterId,
-      hoveredEntity: state.hoveredEntity,
-    }))
-  );
   const entityId = combatant.entityProperties.id;
   const babylonDataOption = useGameStore().babylonControlledCombatantDOMData[entityId];
 
@@ -79,7 +75,7 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
     return false;
   }
 
-  const combatantIsDetailed = entityIsDetailed(entityId, detailedEntity);
+  const combatantIsDetailed = focusStore.entityIsDetailed(entityId);
   const isFocused = focusedCharacterId === entityId;
 
   const isPartyMember = combatant.combatantProperties.isPlayerControlled();

@@ -1,6 +1,5 @@
 import React from "react";
 import { useGameStore } from "@/stores/game-store";
-import selectItem from "@/utils/selectItem";
 import {
   CONSUMABLE_TEXT_COLOR,
   CONSUMABLE_TYPE_STRINGS,
@@ -11,13 +10,14 @@ import {
   Item,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import setItemHovered from "@/utils/set-item-hovered";
 import {
   ItemButtonBody,
   consumableGradientBg,
   unmetRequirementsGradientBg,
 } from "../ActionMenu/menu-state/items";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { AppStore } from "@/mobx-stores/app-store";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   item: Item;
@@ -25,44 +25,36 @@ interface Props {
 }
 
 export function takeItem(item: Item) {
-  useGameStore.getState().mutateState((gameState) => {
-    gameState.hoveredEntity = null;
-    gameState.detailedEntity = null;
-  });
+  const { focusStore } = AppStore.get();
+
+  focusStore.clearDetailable();
+
   websocketConnection.emit(ClientToServerEvent.PickUpItems, {
     characterId: useGameStore.getState().focusedCharacterId,
     itemIds: [item.entityProperties.id],
   });
 }
 
-export default function ItemOnGround(props: Props) {
+export const ItemOnGround = observer((props: Props) => {
+  const { focusStore } = AppStore.get();
+
   const { item } = props;
-  const gameState = useGameStore();
   function mouseEnterHandler() {
-    setItemHovered(item);
+    focusStore.setHovered(item);
   }
   function mouseLeaveHandler() {
-    setItemHovered(null);
+    focusStore.clearHovered();
   }
   function clickHandler() {
-    selectItem(item);
+    focusStore.selectItem(item);
   }
 
+  const itemIsDetailed = focusStore.entityIsDetailed(item.entityProperties.id);
+  const itemIsHovered = focusStore.entityIsHovered(item.entityProperties.id);
+
   const conditionalClassNames = (() => {
-    if (gameState.detailedEntity !== null) {
-      if (
-        gameState.detailedEntity instanceof Item &&
-        gameState.detailedEntity.entityProperties.id === item.entityProperties.id
-      )
-        return "border-yellow-400 hover:border-t";
-    }
-    if (gameState.hoveredEntity !== null) {
-      if (
-        gameState.hoveredEntity instanceof Item &&
-        gameState.hoveredEntity.entityProperties.id === item.entityProperties.id
-      )
-        return "border-white hover:border-t";
-    }
+    if (itemIsDetailed) return "border-yellow-400 hover:border-t";
+    if (itemIsHovered) return "border-white hover:border-t";
     return "";
   })();
 
@@ -130,4 +122,4 @@ export default function ItemOnGround(props: Props) {
       </button>
     </li>
   );
-}
+});

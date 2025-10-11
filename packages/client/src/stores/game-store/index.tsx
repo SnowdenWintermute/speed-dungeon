@@ -5,15 +5,11 @@ import { immerable, produce } from "immer";
 import {
   ActionUserContext,
   AdventuringParty,
-  CombatActionName,
-  CombatAttribute,
   Combatant,
   ERROR_MESSAGES,
   EntityId,
-  Item,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
-  TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
 import { MutateState } from "../mutate-state";
 import { getActiveCombatant } from "@/utils/getActiveCombatant";
@@ -35,7 +31,6 @@ import { ConvertToShardItemSelectionMenuState } from "@/app/game/ActionMenu/menu
 import getCurrentParty from "@/utils/getCurrentParty";
 import { TargetIndicator } from "@/app/3d-world/scene-entities/character-models/target-indicator-manager";
 import { AbilityTreeMenuState } from "@/app/game/ActionMenu/menu-state/ability-tree-menu-state";
-import { AbilityTreeAbility } from "@speed-dungeon/common";
 import { SelectBookToTradeForMenuState } from "@/app/game/ActionMenu/menu-state/select-book-type";
 
 export enum MenuContext {
@@ -56,17 +51,6 @@ export class GameState {
   /** Unique name which characters may list as their controller */
   username: null | string = null;
   focusedCharacterId: string = "";
-
-  detailedEntity: null | Combatant | Item = null;
-  hoveredEntity: null | Combatant | Item = null;
-  comparedItem: null | Item = null;
-  comparedSlot: null | TaggedEquipmentSlot = null;
-  consideredItemUnmetRequirements: null | CombatAttribute[] = null;
-
-  hoveredAction: null | CombatActionName = null;
-
-  hoveredCombatantAbility: null | AbilityTreeAbility = null;
-  detailedCombatantAbility: null | AbilityTreeAbility = null;
 
   combatLogMessages: CombatLogMessage[] = [];
   combatantFloatingMessages: { [combatantId: string]: FloatingMessage[] } = {};
