@@ -18,7 +18,6 @@ import {
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
-import selectItem from "@/utils/selectItem";
 import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { createCancelButton } from "./common-buttons/cancel";
@@ -41,12 +40,14 @@ export class ConsideringItemMenuState implements ActionMenuState {
   constructor(public item: Item) {}
   setItem(item: Item) {
     this.item = item;
-    selectItem(item);
+    AppStore.get().focusStore.selectItem(item);
   }
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
-    toReturn[ActionButtonCategory.Top].push(createCancelButton([], () => selectItem(null)));
+    toReturn[ActionButtonCategory.Top].push(
+      createCancelButton([], () => AppStore.get().focusStore.selectItem(null))
+    );
 
     const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) {

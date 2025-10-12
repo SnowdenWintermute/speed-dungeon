@@ -4,13 +4,13 @@ import { immerable } from "immer";
 import { ItemsMenuState } from "./items";
 import { EquippedItemsMenuState, viewEquipmentHotkey } from "./equipped-items";
 import { letterFromKeyCode } from "@/hotkeys";
-import selectItem from "@/utils/selectItem";
 import { ConsideringItemMenuState } from "./considering-item";
 import { Inventory, Item } from "@speed-dungeon/common";
 import {
   setViewingAbilityTreeAsFreshStack,
   toggleInventoryHotkey,
 } from "./common-buttons/open-inventory";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export class InventoryItemsMenuState extends ItemsMenuState {
   [immerable] = true;
@@ -32,7 +32,7 @@ export class InventoryItemsMenuState extends ItemsMenuState {
       MenuStateType.InventoryItems,
       { text: "Cancel", hotkeys: ["KeyI", toggleInventoryHotkey] },
       (item: Item) => {
-        selectItem(item);
+        AppStore.get().focusStore.selectItem(item);
         useGameStore.getState().mutateState((state) => {
           state.stackedMenuStates.push(new ConsideringItemMenuState(item));
         });

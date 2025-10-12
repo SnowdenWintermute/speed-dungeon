@@ -1,5 +1,4 @@
 import { useGameStore } from "@/stores/game-store";
-import setComparedItem from "@/utils/set-compared-item";
 import { Equipment, Item } from "@speed-dungeon/common";
 import React, { useEffect } from "react";
 import ItemDetails from "./ItemDetails";
@@ -13,19 +12,24 @@ interface Props {
 }
 
 export const FocusedAndComparedItemDetails = observer(({ focusedItem }: Props) => {
-  const mutateGameState = useGameStore().mutateState;
-  const comparedItemOption = useGameStore().comparedItem;
-  const comparedSlotOption = useGameStore().comparedSlot;
-  const modKeyHeld = AppStore.get().inputStore.getKeyIsHeld(ModifierKey.Mod);
+  const { focusStore, inputStore } = AppStore.get();
+  const modKeyHeld = inputStore.getKeyIsHeld(ModifierKey.Mod);
+  const { comparedItem, comparedSlot } = focusStore.getItemComparison();
   const focusedItemId = focusedItem.entityProperties.id;
 
   useEffect(() => {
-    setComparedItem(focusedItemId, modKeyHeld);
+    const focusedCharacterResult = useGameStore().getFocusedCharacter();
+    if (!(focusedCharacterResult instanceof Error)) {
+      focusStore.updateItemComparison(
+        focusedItem,
+        modKeyHeld,
+        focusedCharacterResult.getEquipmentOption()
+      );
+    }
 
-    return () =>
-      mutateGameState((gameState) => {
-        gameState.comparedSlot = null;
-      });
+    return () => {
+      focusStore.clearItemComparison();
+    };
   }, [modKeyHeld, focusedItemId]);
 
   const focusedItemDisplay = (
@@ -43,8 +47,8 @@ export const FocusedAndComparedItemDetails = observer(({ focusedItem }: Props) =
     focusedItem instanceof Equipment ? (
       <ItemDetails
         key="compared"
-        shouldShowModKeyTooltip={shouldDisplayModTooltip(comparedSlotOption, focusedItem)}
-        itemOption={comparedItemOption}
+        shouldShowModKeyTooltip={shouldDisplayModTooltip(comparedSlot, focusedItem)}
+        itemOption={comparedItem}
         extraStyles={""}
         marginSide={"Left"}
         isComparedItem={true}
@@ -53,7 +57,7 @@ export const FocusedAndComparedItemDetails = observer(({ focusedItem }: Props) =
       <ItemDetails
         key="compared"
         shouldShowModKeyTooltip={false}
-        itemOption={comparedItemOption}
+        itemOption={comparedItem}
         extraStyles={""}
         marginSide={"Left"}
         isComparedItem={true}

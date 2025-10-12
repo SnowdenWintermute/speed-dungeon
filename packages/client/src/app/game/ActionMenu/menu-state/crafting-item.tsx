@@ -18,7 +18,6 @@ import {
   iterateNumericEnum,
 } from "@speed-dungeon/common";
 import { setAlert } from "@/app/components/alerts";
-import selectItem from "@/utils/selectItem";
 import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { websocketConnection } from "@/singletons/websocket-connection";
@@ -26,6 +25,7 @@ import ShardsIcon from "../../../../../public/img/game-ui-icons/shards.svg";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { createCancelButton } from "./common-buttons/cancel";
+import { AppStore } from "@/mobx-stores/app-store";
 
 const useItemHotkey = HOTKEYS.MAIN_1;
 const useItemLetter = letterFromKeyCode(useItemHotkey);
@@ -42,7 +42,9 @@ export class CraftingItemMenuState implements ActionMenuState {
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
-    toReturn[ActionButtonCategory.Top].push(createCancelButton([], () => selectItem(null)));
+    toReturn[ActionButtonCategory.Top].push(
+      createCancelButton([], () => AppStore.get().focusStore.selectItem(null))
+    );
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
 
     const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();

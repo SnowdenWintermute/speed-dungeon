@@ -6,42 +6,37 @@ import {
   Item,
   MAGICAL_PROPERTY_BLUE_TEXT,
 } from "@speed-dungeon/common";
-import { useGameStore } from "@/stores/game-store";
+import { AppStore } from "@/mobx-stores/app-store";
+import { observer } from "mobx-react-lite";
 
-export function ItemLink({ item }: { item: Item }) {
-  const mutateState = useGameStore().mutateState;
+export const ItemLink = observer(({ item }: { item: Item }) => {
+  const { focusStore } = AppStore.get();
   let textColor = "text-zinc-300";
   if (item instanceof Consumable) textColor = CONSUMABLE_TEXT_COLOR;
   else if (item instanceof Equipment && Equipment.isMagical(item))
     textColor = MAGICAL_PROPERTY_BLUE_TEXT;
 
   function handleFocus() {
-    mutateState((state) => {
-      state.hoveredEntity = item;
-    });
+    focusStore.setHovered(item);
   }
 
   function handleBlur() {
-    mutateState((state) => {
-      state.hoveredEntity = null;
-    });
+    focusStore.clearHovered();
   }
 
-  const detailedEntity = useGameStore.getState().detailedEntity;
+  const { detailedItem } = focusStore.getFocusedItems();
+
   const isDetailedEntity =
-    detailedEntity?.entityProperties.id === item.entityProperties.id &&
-    detailedEntity instanceof Item &&
-    detailedEntity.craftingIteration === item.craftingIteration;
+    detailedItem?.entityProperties.id === item.entityProperties.id &&
+    detailedItem.craftingIteration === item.craftingIteration;
 
   return (
     <button
       className={`underline cursor-pointer ${isDetailedEntity ? "outline outline-1 outline-yellow-500" : ""} ${textColor}`}
       aria-label={`Crafting result for item: ${item.entityProperties.name}`}
       onClick={() => {
-        mutateState((state) => {
-          if (isDetailedEntity) state.detailedEntity = null;
-          else state.detailedEntity = item;
-        });
+        if (isDetailedEntity) focusStore.clearDetailed();
+        else focusStore.setDetailed(item);
       }}
       onMouseEnter={handleFocus}
       onMouseLeave={handleBlur}
@@ -51,4 +46,4 @@ export function ItemLink({ item }: { item: Item }) {
       {item.entityProperties.name}
     </button>
   );
-}
+});

@@ -22,8 +22,8 @@ import { websocketConnection } from "@/singletons/websocket-connection";
 import { ItemButtonBody, consumableGradientBg } from "./items";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { createCancelButton } from "./common-buttons/cancel";
-import setItemHovered from "@/utils/set-item-hovered";
 import { PriceDisplay } from "../../character-sheet/ShardsDisplay";
+import { AppStore } from "@/mobx-stores/app-store";
 
 // @TODO - this is duplicating items menu, now that we added the extraChildren option we
 // should be able to just implement item state with a list of dummy consumables
@@ -38,6 +38,7 @@ export class PurchaseItemsMenuState implements ActionMenuState {
   constructor() {}
 
   getButtonProperties(): ActionButtonsByCategory {
+    const { focusStore } = AppStore.get();
     const toReturn = new ActionButtonsByCategory();
 
     const partyResult = useGameStore.getState().getParty();
@@ -56,10 +57,7 @@ export class PurchaseItemsMenuState implements ActionMenuState {
 
     toReturn[ActionButtonCategory.Top].push(
       createCancelButton([], () => {
-        useGameStore.getState().mutateState((state) => {
-          state.hoveredEntity = null;
-          state.detailedEntity = null;
-        });
+        focusStore.clearDetailable();
       })
     );
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
@@ -86,10 +84,10 @@ export class PurchaseItemsMenuState implements ActionMenuState {
             <div
               className="h-full flex justify-between items-center w-full pr-2"
               onMouseEnter={() => {
-                setItemHovered(createDummyConsumable(consumableType));
+                focusStore.setHovered(createDummyConsumable(consumableType));
               }}
               onMouseLeave={() => {
-                setItemHovered(null);
+                focusStore.clearHovered();
               }}
             >
               <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">

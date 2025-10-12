@@ -19,9 +19,9 @@ import {
 import { ItemButtonBody, consumableGradientBg } from "./items";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { createCancelButton } from "./common-buttons/cancel";
-import setItemHovered from "@/utils/set-item-hovered";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { SelectItemToTradeForBookMenuState } from "./select-item-to-trade-for-book";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export class SelectBookToTradeForMenuState implements ActionMenuState {
   [immerable] = true;
@@ -34,6 +34,7 @@ export class SelectBookToTradeForMenuState implements ActionMenuState {
 
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
+    const { focusStore } = AppStore.get();
 
     const partyResult = useGameStore.getState().getParty();
     if (partyResult instanceof Error) {
@@ -51,10 +52,7 @@ export class SelectBookToTradeForMenuState implements ActionMenuState {
 
     toReturn[ActionButtonCategory.Top].push(
       createCancelButton([], () => {
-        useGameStore.getState().mutateState((state) => {
-          state.hoveredEntity = null;
-          state.detailedEntity = null;
-        });
+        focusStore.clearDetailable();
       })
     );
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
@@ -75,10 +73,10 @@ export class SelectBookToTradeForMenuState implements ActionMenuState {
             <div
               className="h-full flex justify-between items-center w-full pr-2"
               onMouseEnter={() => {
-                setItemHovered(createDummyConsumable(consumableType));
+                focusStore.setHovered(createDummyConsumable(consumableType));
               }}
               onMouseLeave={() => {
-                setItemHovered(null);
+                focusStore.clearHovered();
               }}
             >
               <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">

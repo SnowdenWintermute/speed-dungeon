@@ -23,6 +23,7 @@ import { createCancelButton } from "./common-buttons/cancel";
 import Divider from "@/app/components/atoms/Divider";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { AppStore } from "@/mobx-stores/app-store";
 
 const confirmHotkey = HOTKEYS.MAIN_1;
 const confirmLetter = letterFromKeyCode(confirmHotkey);
@@ -38,9 +39,9 @@ function handleConfirmTrade(characterId: EntityId, itemId: EntityId, bookType: B
     state.stackedMenuStates.pop();
     // need to pop twice so we're not showing the item consideration screen of this item that may no longer exist
     state.stackedMenuStates.pop();
-    state.comparedItem = null;
-    state.detailedEntity = null;
   });
+
+  AppStore.get().focusStore.clearItemComparison();
 }
 
 export class ConfirmTradeForBookMenuState implements ActionMenuState {

@@ -11,8 +11,8 @@ import { useGameStore } from "@/stores/game-store";
 import { setAlert } from "@/app/components/alerts";
 import { ReactNode } from "react";
 import { ConfirmTradeForBookMenuState } from "./confirm-trade-for-book";
-import selectItem from "@/utils/selectItem";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export class SelectItemToTradeForBookMenuState extends ItemsMenuState {
   [immerable] = true;
@@ -24,7 +24,7 @@ export class SelectItemToTradeForBookMenuState extends ItemsMenuState {
       MenuStateType.SelectItemToTradeForBook,
       { text: "Go Back", hotkeys: [] },
       (item: Item) => {
-        selectItem(item);
+        AppStore.get().focusStore.selectItem(item);
         useGameStore.getState().mutateState((state) => {
           state.stackedMenuStates.push(new ConfirmTradeForBookMenuState(item, this.bookType));
         });

@@ -12,7 +12,7 @@ import { setAlert } from "@/app/components/alerts";
 import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { createCancelButton } from "./common-buttons/cancel";
-import selectItem from "@/utils/selectItem";
+import { AppStore } from "@/mobx-stores/app-store";
 
 const confirmShardHotkey = HOTKEYS.MAIN_1;
 const confirmShardLetter = letterFromKeyCode(confirmShardHotkey);
@@ -39,7 +39,9 @@ export class ConfirmConvertToShardsMenuState implements ActionMenuState {
       createCancelButton([], () => {
         // when operating the vending machine we want to clear the item
         // selection, but not when in inventory
-        if (this.type === MenuStateType.ConfimConvertToShards) selectItem(null);
+        if (this.type === MenuStateType.ConfimConvertToShards) {
+          AppStore.get().focusStore.selectItem(null);
+        }
       })
     );
 
@@ -67,9 +69,8 @@ export class ConfirmConvertToShardsMenuState implements ActionMenuState {
           // stacked menus since we go itemSelected -> confirmShard and now that the item is
           // shards it doesn't make sense we would have it selected
           if (this.type === MenuStateType.ItemSelected) state.stackedMenuStates.pop();
-          state.comparedItem = null;
-          state.detailedEntity = null;
         });
+        AppStore.get().focusStore.clearItemComparison();
       }
     );
 

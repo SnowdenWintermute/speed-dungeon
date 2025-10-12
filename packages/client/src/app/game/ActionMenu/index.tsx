@@ -33,6 +33,8 @@ import { VendingMachineShardDisplay } from "./VendingMachineShardDisplay";
 import StackedMenuStateDisplay from "./StackedMenuStateDisplay";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import ActionSelectedDetails from "../detailables/action-details/ActionSelectedDetails";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
@@ -46,14 +48,12 @@ const buttonTitlesToAccent = [
   CONFIRM_SHARD_TEXT,
 ];
 
-export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
+export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) => {
   const hoveredAction = useGameStore((state) => state.hoveredAction);
-  const hoveredItem = useGameStore((state) =>
-    state.hoveredEntity instanceof Item ? state.hoveredEntity : null
-  );
-  const detailedItem = useGameStore((state) =>
-    state.detailedEntity instanceof Item ? state.detailedEntity : null
-  );
+
+  const { focusStore } = AppStore.get();
+  const { hoveredItem, detailedItem } = focusStore.getFocusedItems();
+
   const currentMenu = useGameStore.getState().getCurrentMenu();
   const currentPageNumber = currentMenu.page;
   const buttonProperties = currentMenu.getButtonProperties();
@@ -252,4 +252,4 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
       </div>
     </section>
   );
-}
+});

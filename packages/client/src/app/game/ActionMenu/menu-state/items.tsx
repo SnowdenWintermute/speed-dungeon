@@ -22,14 +22,12 @@ import {
 } from "@speed-dungeon/common";
 import { setAlert } from "@/app/components/alerts";
 import { immerable } from "immer";
-import setItemHovered from "@/utils/set-item-hovered";
 import createPageButtons from "./create-page-buttons";
 import { Color4 } from "@babylonjs/core";
 import cloneDeep from "lodash.clonedeep";
 import { createEaseGradient } from "@/utils/create-ease-gradient-style";
 import { ReactNode, useState } from "react";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
-import { useUIStore } from "@/stores/ui-store";
 import { postItemLink } from "@/utils/post-item-link";
 
 const hexRed = "#563D45"; // eye droppered from paper doll slot disabled with filter
@@ -243,13 +241,13 @@ export abstract class ItemsMenuState implements ActionMenuState {
 }
 
 function itemButtonMouseLeaveHandler() {
-  useGameStore.getState().mutateState((gameState) => {
-    gameState.hoveredEntity = null;
-  });
+  const { focusStore } = AppStore.get();
+  focusStore.clearHovered();
 }
 
 function itemButtonMouseEnterHandler(item: Item) {
-  setItemHovered(item);
+  const { focusStore } = AppStore.get();
+  focusStore.setHovered(item);
 }
 
 import AmuletIcon from "../../../../../public/img/equipment-icons/amulet.svg";

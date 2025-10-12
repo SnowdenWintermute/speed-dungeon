@@ -11,6 +11,7 @@ import { ConsideringItemMenuState } from "@/app/game/ActionMenu/menu-state/consi
 import cloneDeep from "lodash.clonedeep";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export function characterEquippedItemHandler(packet: {
   itemId: string;
@@ -66,14 +67,17 @@ export function characterEquippedItemHandler(packet: {
         }
       }
 
-      gameState.hoveredEntity = null;
+      const { focusStore } = AppStore.get();
+      focusStore.clearHovered();
+
       if (itemToSelectOption === null) return;
 
       const currentMenu = getCurrentMenu(gameState);
       if (currentMenu instanceof ConsideringItemMenuState) {
         // not cloning here leads to zustand revoked proxy error
+        // maybe once we don't use zustand we can try not cloning
         currentMenu.item = cloneDeep(itemToSelectOption);
-        gameState.detailedEntity = cloneDeep(itemToSelectOption);
+        focusStore.setDetailed(cloneDeep(itemToSelectOption));
       }
     }
   );

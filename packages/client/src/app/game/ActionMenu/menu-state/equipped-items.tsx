@@ -3,9 +3,9 @@ import { immerable } from "immer";
 import { ItemsMenuState } from "./items";
 import { HOTKEYS } from "@/hotkeys";
 import { CombatantEquipment, Item } from "@speed-dungeon/common";
-import selectItem from "@/utils/selectItem";
 import { ConsideringItemMenuState } from "./considering-item";
 import { useGameStore } from "@/stores/game-store";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export const viewEquipmentHotkey = HOTKEYS.ALT_1;
 export class EquippedItemsMenuState extends ItemsMenuState {
@@ -17,7 +17,7 @@ export class EquippedItemsMenuState extends ItemsMenuState {
       MenuStateType.ViewingEquipedItems,
       { text: "Go Back", hotkeys: [viewEquipmentHotkey] },
       (item: Item) => {
-        selectItem(item);
+        AppStore.get().focusStore.selectItem(item);
         useGameStore.getState().mutateState((state) => {
           state.stackedMenuStates.push(new ConsideringItemMenuState(item));
         });

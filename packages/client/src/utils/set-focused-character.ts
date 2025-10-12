@@ -5,6 +5,7 @@ import { websocketConnection } from "@/singletons/websocket-connection";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
 import { shouldShowCharacterSheet } from "./should-show-character-sheet";
 import getCurrentParty from "./getCurrentParty";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export default function setFocusedCharacter(id: string) {
   useGameStore.getState().mutateState((gameState) => {
@@ -18,8 +19,9 @@ export default function setFocusedCharacter(id: string) {
       characterSwitchingFocusAwayFromId
     );
 
-    gameState.detailedEntity = null;
-    gameState.hoveredEntity = null;
+    const { focusStore } = AppStore.get();
+    focusStore.clearDetailable();
+
     gameState.focusedCharacterId = id;
 
     gameState.hoveredCombatantAbility = null;
