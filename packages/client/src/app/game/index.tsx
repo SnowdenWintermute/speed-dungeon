@@ -9,7 +9,6 @@ import ReadyUpDisplay from "./ReadyUpDisplay";
 import CombatLog from "./combat-log";
 import { getFocusedCharacter } from "@/utils/getFocusedCharacter";
 import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
-import CurrentItemUnmetRequirementsUpdater from "./CurrentItemUnmetRequirementsUpdater";
 import ActionMenuAndCharacterSheetLayer from "./ActionMenuAndCharacterSheetLayer";
 import { ZIndexLayers } from "../z-index-layers";
 import PersistentActionEntityDisplay from "./persistent-action-entity-display";
@@ -60,7 +59,6 @@ export const Game = observer(() => {
           zIndex: viewingLeaveGameModal ? ZIndexLayers.GameModal : ZIndexLayers.MainUI,
         }}
       >
-        <CurrentItemUnmetRequirementsUpdater />
         <PartyWipeModal party={party} />
         {
           // BASE LAYER

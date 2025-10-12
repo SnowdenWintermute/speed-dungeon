@@ -1,3 +1,4 @@
+import { useGameStore } from "@/stores/game-store";
 import {
   AbilityTreeAbility,
   CombatActionName,
@@ -6,7 +7,6 @@ import {
   CombatantEquipment,
   EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE,
   EntityId,
-  EquipableSlots,
   Equipment,
   Item,
   TaggedEquipmentSlot,
@@ -24,7 +24,7 @@ export class FocusStore {
   private comparedItem: null | Item = null;
   private comparedSlot: null | TaggedEquipmentSlot = null;
 
-  consideredItemUnmetRequirements: null | CombatAttribute[] = null;
+  private consideredItemUnmetRequirements: Set<CombatAttribute> = new Set();
 
   hoveredAction: null | CombatActionName = null;
   hoveredCombatantAbility: null | AbilityTreeAbility = null;
@@ -48,6 +48,7 @@ export class FocusStore {
 
   clearDetailed() {
     this.detailedEntity = null;
+    this.consideredItemUnmetRequirements.clear();
   }
 
   clearDetailable() {
@@ -73,14 +74,24 @@ export class FocusStore {
 
     if (wasAlreadyDetailed || itemOption === null) {
       this.detailedEntity = null;
-      this.consideredItemUnmetRequirements = null;
+      this.consideredItemUnmetRequirements.clear();
     } else {
       this.detailedEntity = itemOption;
+
+      // @REFACTOR - maybe easier to test if we pass this as an argument instead of fetching it here
+      const focusedCharacterResult = useGameStore().getFocusedCharacter();
+      if (!(focusedCharacterResult instanceof Error))
+        this.consideredItemUnmetRequirements =
+          focusedCharacterResult.combatantProperties.getUnmetItemRequirements(itemOption);
     }
 
     this.hoveredEntity = null;
 
     return this.detailedEntity === null;
+  }
+
+  getSelectedItemUnmetRequirements() {
+    return this.consideredItemUnmetRequirements;
   }
 
   getFocusedItems() {
@@ -126,7 +137,7 @@ export class FocusStore {
     const noItemInSlot = !equippedItemOption;
 
     if (noItemInSlot || comparingToSelf) {
-      this.clearComparedItem();
+      this.clearItemComparison();
     } else {
       this.comparedItem = equippedItemOption;
     }

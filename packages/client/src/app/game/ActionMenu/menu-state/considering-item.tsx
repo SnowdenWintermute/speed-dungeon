@@ -172,10 +172,8 @@ export class ConsideringItemMenuState implements ActionMenuState {
 
         useGameStore.getState().mutateState((state) => {
           state.stackedMenuStates.pop();
-          state.hoveredEntity = null;
-          state.consideredItemUnmetRequirements = null;
-          state.detailedEntity = null;
         });
+        AppStore.get().focusStore.clearDetailed();
       }
     );
 

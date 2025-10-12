@@ -12,6 +12,7 @@ import {
   INFO_UNICODE_SYMBOL,
 } from "@speed-dungeon/common";
 import StarShape from "../../../../public/img/basic-shapes/star.svg";
+import { AppStore } from "@/mobx-stores/app-store";
 
 interface Props {
   attribute: CombatAttribute;
@@ -22,8 +23,9 @@ interface Props {
 }
 
 export function AttributeListItem(props: Props) {
-  const consideredItemUnmetRequirements = useGameStore().consideredItemUnmetRequirements;
-  const isUnmetRequirement = consideredItemUnmetRequirements?.includes(props.attribute);
+  const consideredItemUnmetRequirements =
+    AppStore.get().focusStore.getSelectedItemUnmetRequirements();
+  const isUnmetRequirement = consideredItemUnmetRequirements.has(props.attribute);
   let highlightClass = isUnmetRequirement ? UNMET_REQUIREMENT_TEXT_COLOR : "";
 
   const shouldShowIncreaseAttributeButton =

@@ -32,7 +32,7 @@ export const PaperDollSlot = observer(
     const { detailedItem, hoveredItem } = focusStore.getFocusedItems();
     const { comparedSlot } = focusStore.getItemComparison();
 
-    const consideredItemUnmetRequirements = useGameStore().consideredItemUnmetRequirements;
+    const consideredItemUnmetRequirements = focusStore.getSelectedItemUnmetRequirements();
 
     const focusedCharacterId = useGameStore.getState().focusedCharacterId;
     const playerOwnsCharacter = clientUserControlsCombatant(focusedCharacterId);

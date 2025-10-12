@@ -75,9 +75,8 @@ export abstract class ItemsMenuState implements ActionMenuState {
       () => {
         useGameStore.getState().mutateState((state) => {
           state.stackedMenuStates.pop();
-          state.hoveredEntity = null;
-          state.consideredItemUnmetRequirements = null;
         });
+        AppStore.get().focusStore.clearDetailed();
         AppStore.get().dialogStore.close(DialogElementName.DropShards);
       }
     );

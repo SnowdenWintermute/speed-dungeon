@@ -65,6 +65,7 @@ import { Battle } from "../battle/index.js";
 import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
 import { deserializeCondition } from "./combatant-conditions/deserialize-condition.js";
 import { CombatantControlledBy, CombatantControllerType } from "./combatant-controllers.js";
+import { Item } from "../items/index.js";
 
 export enum AiType {
   Healer,
@@ -366,6 +367,19 @@ export class CombatantProperties {
       if (condition.id === conditionId) return condition;
     }
     return null;
+  }
+
+  getUnmetItemRequirements(item: Item) {
+    const totalAttributes = CombatantProperties.getTotalAttributes(this);
+
+    const unmetAttributeRequirements: Set<CombatAttribute> = new Set();
+    for (const [attribute, value] of iterateNumericEnumKeyedRecord(item.requirements)) {
+      const characterAttribute = totalAttributes[attribute] || 0;
+      if (characterAttribute >= value) continue;
+      else unmetAttributeRequirements.add(attribute);
+    }
+
+    return unmetAttributeRequirements;
   }
 
   static getCombatActionPropertiesIfOwned = getCombatActionPropertiesIfOwned;

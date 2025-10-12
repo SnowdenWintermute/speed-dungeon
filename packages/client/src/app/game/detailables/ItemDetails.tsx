@@ -23,6 +23,7 @@ import { HOTKEYS } from "@/hotkeys";
 import domtoimage from "dom-to-image";
 import { EQUIPMENT_ICONS } from "./EquipmentDetails/equipment-icons";
 import { IconName, SVG_ICONS } from "@/app/icons";
+import { AppStore } from "@/mobx-stores/app-store";
 
 interface Props {
   shouldShowModKeyTooltip: boolean;
@@ -85,15 +86,15 @@ export default function ItemDetails({
     }
   }, [preppedForDownloadPhoto]);
 
-  const unmetRequirements = useGameStore().consideredItemUnmetRequirements;
+  const { focusStore } = AppStore.get();
+  const unmetRequirements = focusStore.getSelectedItemUnmetRequirements();
   let BG_COLOR = "bg-slate-800";
 
   let thumbnailIdOption = "";
 
   const isDetailedEntity =
-    useGameStore.getState().detailedEntity?.entityProperties.id === itemOption?.entityProperties.id;
-  const isHoveredEntity =
-    useGameStore.getState().hoveredEntity?.entityProperties.id === itemOption?.entityProperties.id;
+    itemOption && focusStore.entityIsDetailed(itemOption.entityProperties.id);
+  const isHoveredEntity = itemOption && focusStore.entityIsHovered(itemOption.entityProperties.id);
 
   if (!itemOption) {
     itemDetailsDisplay = <></>;
@@ -168,9 +169,7 @@ export default function ItemDetails({
             className="z-10 h-6 w-6 p-1 border border-slate-400 bg-slate-700"
             hotkeys={[HOTKEYS.CANCEL]}
             onClick={() => {
-              useGameStore.getState().mutateState((state) => {
-                state.detailedEntity = null;
-              });
+              focusStore.clearDetailed();
             }}
           >
             {SVG_ICONS[IconName.XShape]("h-full fill-slate-400")}
