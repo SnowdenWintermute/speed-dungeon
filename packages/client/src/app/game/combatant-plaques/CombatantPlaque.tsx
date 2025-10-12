@@ -39,7 +39,6 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
   const gameOption = useGameStore().game;
 
   const { focusStore, dialogStore } = AppStore.get();
-  const { hoveredEntity } = focusStore.getDetailable();
   const showDebug = dialogStore.isOpen(DialogElementName.Debug);
 
   const portrait = useGameStore((state) => state.combatantPortraits[combatant.entityProperties.id]);

@@ -8,10 +8,10 @@ import {
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import React from "react";
-import AbilityTreeDetailedAbility from "./AbilityTreeDetailedAbility";
+import { AbilityTreeDetailedAbility } from "./AbilityTreeDetailedAbility";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import CharacterClassAbilityTree from "./CharacterClassAbilityTree";
+import { CharacterClassAbilityTree } from "./CharacterClassAbilityTree";
 import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
 
 export default function AbilitySelection() {

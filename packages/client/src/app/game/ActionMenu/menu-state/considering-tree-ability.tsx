@@ -32,6 +32,7 @@ import { COMBAT_ACTION_DESCRIPTIONS } from "../../character-sheet/ability-tree/a
 import { ActionDescriptionComponent } from "../../character-sheet/ability-tree/action-description";
 import Divider from "@/app/components/atoms/Divider";
 import { ACTION_ICONS, TRAIT_ICONS } from "@/app/icons";
+import { AppStore } from "@/mobx-stores/app-store";
 
 const allocateAbilityPointHotkey = HOTKEYS.MAIN_1;
 
@@ -56,7 +57,7 @@ export class ConsideringCombatantAbilityMenuState implements ActionMenuState {
       return <div>Error getting focused character</div>;
     }
 
-    const abilityOption = useGameStore.getState().detailedCombatantAbility;
+    const abilityOption = AppStore.get().focusStore.combatantAbility.get().detailed;
     if (abilityOption === null) throw new Error("expected ability missing");
 
     const conditionsToShowDetailButtonsFor = getConditionsToShowDetailButtonsFor(
@@ -115,9 +116,7 @@ export class ConsideringCombatantAbilityMenuState implements ActionMenuState {
     const toReturn = new ActionButtonsByCategory();
     toReturn[ActionButtonCategory.Top].push(
       createCancelButton([], () => {
-        useGameStore.getState().mutateState((state) => {
-          state.detailedCombatantAbility = null;
-        });
+        AppStore.get().focusStore.combatantAbility.clearDetailed();
       })
     );
 
@@ -127,7 +126,7 @@ export class ConsideringCombatantAbilityMenuState implements ActionMenuState {
       return toReturn;
     }
 
-    const abilityOption = useGameStore.getState().detailedCombatantAbility;
+    const abilityOption = AppStore.get().focusStore.combatantAbility.get().detailed;
     if (abilityOption === null) throw new Error("expected ability missing");
 
     const button = new ActionMenuButtonProperties(
@@ -164,9 +163,12 @@ export class ConsideringCombatantAbilityMenuState implements ActionMenuState {
     toReturn[ActionButtonCategory.Top].push(button);
 
     createPageButtons(this, toReturn, this.column.length, (newPage) => {
-      useGameStore.getState().mutateState((state) => {
-        state.detailedCombatantAbility = this.column[newPage - 1] || null;
-      });
+      const newDetailedAbilityOption = this.column[newPage - 1] || null;
+      if (newDetailedAbilityOption !== null) {
+        AppStore.get().focusStore.combatantAbility.setDetailed(newDetailedAbilityOption);
+      } else {
+        AppStore.get().focusStore.combatantAbility.clearDetailed();
+      }
     });
 
     return toReturn;

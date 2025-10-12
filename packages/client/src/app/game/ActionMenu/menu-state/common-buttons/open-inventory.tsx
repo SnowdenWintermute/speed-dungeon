@@ -1,7 +1,6 @@
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { ActionMenuButtonProperties } from "..";
 import { abilityTreeMenuState, inventoryItemsMenuState, useGameStore } from "@/stores/game-store";
-import { AppStore } from "@/mobx-stores/app-store";
 
 export const toggleInventoryHotkey = HOTKEYS.MAIN_1;
 
@@ -51,7 +50,6 @@ export const setViewingAbilityTreeAsFreshStack = new ActionMenuButtonProperties(
       state.stackedMenuStates = [abilityTreeMenuState];
       state.hoveredAction = null;
     });
-    AppStore.get().focusStore.clearHovered();
   }
 );
 

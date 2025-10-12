@@ -14,6 +14,7 @@ import {
 } from "./common-buttons/open-inventory";
 import { ConsideringAbilityTreeColumnMenuState } from "./considering-tree-ability-column";
 import { ArrayUtils } from "@speed-dungeon/common";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export class AbilityTreeMenuState implements ActionMenuState {
   [immerable] = true;
@@ -26,10 +27,7 @@ export class AbilityTreeMenuState implements ActionMenuState {
     const toReturn = new ActionButtonsByCategory();
     toReturn[ActionButtonCategory.Top].push(
       createCancelButton([setViewingAbilityTreeHotkey], () => {
-        useGameStore.getState().mutateState((state) => {
-          state.hoveredCombatantAbility = null;
-          state.detailedCombatantAbility = null;
-        });
+        AppStore.get().focusStore.combatantAbility.clear();
       })
     );
     toReturn[ActionButtonCategory.Top].push(setInventoryAsFreshStack);

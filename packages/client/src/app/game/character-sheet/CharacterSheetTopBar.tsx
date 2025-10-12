@@ -4,6 +4,7 @@ import CharacterSheetCharacterSelectionButton from "./CharacterSheetCharacterSel
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { useGameStore } from "@/stores/game-store";
 import { EntityId } from "@speed-dungeon/common";
+import { AppStore } from "@/mobx-stores/app-store";
 
 interface Props {
   partyCharacterIds: EntityId[];
@@ -25,10 +26,9 @@ export default function CharacterSheetTopBar({ partyCharacterIds }: Props) {
         style={{ height: `${BUTTON_HEIGHT_SMALL}rem` }}
         aria-label="close inventory"
         onClick={() => {
+          AppStore.get().focusStore.combatantAbility.clear();
           mutateGameState((state) => {
             state.stackedMenuStates = [];
-            state.detailedCombatantAbility = null;
-            state.hoveredCombatantAbility = null;
           });
         }}
       >

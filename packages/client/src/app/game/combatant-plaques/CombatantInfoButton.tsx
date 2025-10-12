@@ -14,11 +14,13 @@ export default function CombatantInfoButton({ combatant }: Props) {
   }
 
   function handleMouseEnter() {
-    focusStore.setHovered(new Combatant(combatant.entityProperties, combatant.combatantProperties));
+    focusStore.detailable.setHovered(
+      new Combatant(combatant.entityProperties, combatant.combatantProperties)
+    );
   }
 
   function handleMouseLeave() {
-    focusStore.clearHovered();
+    focusStore.detailable.clearHovered();
   }
 
   return (

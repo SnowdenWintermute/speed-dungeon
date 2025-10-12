@@ -21,6 +21,7 @@ import { ReactNode } from "react";
 import { ConsideringCombatantAbilityMenuState } from "./considering-tree-ability";
 import { AbilityType } from "@speed-dungeon/common";
 import { getAbilityIcon } from "../../character-sheet/ability-tree/ability-icons";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export class ConsideringAbilityTreeColumnMenuState implements ActionMenuState {
   [immerable] = true;
@@ -85,7 +86,11 @@ export class ConsideringAbilityTreeColumnMenuState implements ActionMenuState {
           nameAsString || "",
           () => {
             useGameStore.getState().mutateState((state) => {
-              state.detailedCombatantAbility = ability === undefined ? null : ability;
+              if (ability === undefined) {
+                AppStore.get().focusStore.combatantAbility.clearDetailed();
+              } else {
+                AppStore.get().focusStore.combatantAbility.setDetailed(ability);
+              }
               if (ability !== undefined)
                 state.stackedMenuStates.push(
                   new ConsideringCombatantAbilityMenuState(
@@ -97,14 +102,16 @@ export class ConsideringAbilityTreeColumnMenuState implements ActionMenuState {
           }
         );
 
-        button.mouseEnterHandler = button.focusHandler = () =>
-          useGameStore.getState().mutateState((state) => {
-            state.hoveredCombatantAbility = ability === undefined ? null : ability;
-          });
-        button.mouseLeaveHandler = button.blurHandler = () =>
-          useGameStore.getState().mutateState((state) => {
-            state.hoveredCombatantAbility = null;
-          });
+        button.mouseEnterHandler = button.focusHandler = () => {
+          if (ability === undefined) {
+            AppStore.get().focusStore.combatantAbility.clearHovered();
+          } else {
+            AppStore.get().focusStore.combatantAbility.setHovered(ability);
+          }
+        };
+        button.mouseLeaveHandler = button.blurHandler = () => {
+          AppStore.get().focusStore.combatantAbility.clearHovered();
+        };
 
         button.shouldBeDisabled = nameAsString === undefined;
 

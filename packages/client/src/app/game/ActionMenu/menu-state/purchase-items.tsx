@@ -84,10 +84,10 @@ export class PurchaseItemsMenuState implements ActionMenuState {
             <div
               className="h-full flex justify-between items-center w-full pr-2"
               onMouseEnter={() => {
-                focusStore.setHovered(createDummyConsumable(consumableType));
+                focusStore.detailable.setHovered(createDummyConsumable(consumableType));
               }}
               onMouseLeave={() => {
-                focusStore.clearHovered();
+                focusStore.detailable.clearHovered();
               }}
             >
               <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">

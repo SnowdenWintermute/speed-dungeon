@@ -169,7 +169,7 @@ export default function ItemDetails({
             className="z-10 h-6 w-6 p-1 border border-slate-400 bg-slate-700"
             hotkeys={[HOTKEYS.CANCEL]}
             onClick={() => {
-              focusStore.clearDetailed();
+              focusStore.detailable.clearDetailed();
             }}
           >
             {SVG_ICONS[IconName.XShape]("h-full fill-slate-400")}

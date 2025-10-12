@@ -12,7 +12,7 @@ import { AppStore } from "@/mobx-stores/app-store";
 export const ItemCraftDisplay = observer(() => {
   const currentMenu = useGameStore.getState().getCurrentMenu();
   const { focusStore } = AppStore.get();
-  const { hoveredEntity } = focusStore.getDetailable();
+  const { hovered: hoveredEntity } = focusStore.detailable.get();
   const partyResult = useGameStore.getState().getParty();
   if (
     !(currentMenu instanceof CraftingItemMenuState) ||

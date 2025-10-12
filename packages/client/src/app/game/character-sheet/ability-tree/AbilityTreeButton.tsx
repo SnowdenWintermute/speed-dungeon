@@ -12,6 +12,7 @@ import { useGameStore } from "@/stores/game-store";
 import React, { ReactNode, useState } from "react";
 import { MenuStateType } from "../../ActionMenu/menu-state";
 import { ConsideringCombatantAbilityMenuState } from "../../ActionMenu/menu-state/considering-tree-ability";
+import { AppStore } from "@/mobx-stores/app-store";
 
 interface Props {
   focusedCharacterId: EntityId;
@@ -45,7 +46,7 @@ export default function AbilityTreeButton(props: Props) {
         onClick={() => {
           if (!isDetailed) {
             useGameStore.getState().mutateState((state) => {
-              state.detailedCombatantAbility = ability;
+              AppStore.get().focusStore.combatantAbility.setDetailed(ability);
               const currentMenu = state.getCurrentMenu();
 
               const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
@@ -102,16 +103,12 @@ export default function AbilityTreeButton(props: Props) {
           }
         }}
         onMouseEnter={() => {
-          useGameStore.getState().mutateState((state) => {
-            state.hoveredCombatantAbility = ability;
-            setHovered(true);
-          });
+          AppStore.get().focusStore.combatantAbility.setHovered(ability);
+          setHovered(true);
         }}
         onMouseLeave={() => {
-          useGameStore.getState().mutateState((state) => {
-            state.hoveredCombatantAbility = null;
-            setHovered(false);
-          });
+          AppStore.get().focusStore.combatantAbility.clearHovered();
+          setHovered(false);
         }}
       >
         {buttonContent}

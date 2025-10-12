@@ -68,7 +68,7 @@ export function characterEquippedItemHandler(packet: {
       }
 
       const { focusStore } = AppStore.get();
-      focusStore.clearHovered();
+      focusStore.detailable.clearHovered();
 
       if (itemToSelectOption === null) return;
 
@@ -77,7 +77,7 @@ export function characterEquippedItemHandler(packet: {
         // not cloning here leads to zustand revoked proxy error
         // maybe once we don't use zustand we can try not cloning
         currentMenu.item = cloneDeep(itemToSelectOption);
-        focusStore.setDetailed(cloneDeep(itemToSelectOption));
+        focusStore.detailable.setDetailed(cloneDeep(itemToSelectOption));
       }
     }
   );

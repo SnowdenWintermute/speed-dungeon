@@ -63,7 +63,7 @@ export function newDungeonRoomHandler({
     }
 
     const { focusStore } = AppStore.get();
-    focusStore.clearHovered();
+    focusStore.detailable.clearHovered();
 
     const { combatantManager } = party;
 

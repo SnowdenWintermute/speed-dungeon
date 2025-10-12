@@ -40,10 +40,10 @@ export const ItemOnGround = observer((props: Props) => {
 
   const { item } = props;
   function mouseEnterHandler() {
-    focusStore.setHovered(item);
+    focusStore.detailable.setHovered(item);
   }
   function mouseLeaveHandler() {
-    focusStore.clearHovered();
+    focusStore.detailable.clearHovered();
   }
   function clickHandler() {
     focusStore.selectItem(item);

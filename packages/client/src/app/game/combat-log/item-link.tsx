@@ -17,11 +17,11 @@ export const ItemLink = observer(({ item }: { item: Item }) => {
     textColor = MAGICAL_PROPERTY_BLUE_TEXT;
 
   function handleFocus() {
-    focusStore.setHovered(item);
+    focusStore.detailable.setHovered(item);
   }
 
   function handleBlur() {
-    focusStore.clearHovered();
+    focusStore.detailable.clearHovered();
   }
 
   const { detailedItem } = focusStore.getFocusedItems();
@@ -35,8 +35,8 @@ export const ItemLink = observer(({ item }: { item: Item }) => {
       className={`underline cursor-pointer ${isDetailedEntity ? "outline outline-1 outline-yellow-500" : ""} ${textColor}`}
       aria-label={`Crafting result for item: ${item.entityProperties.name}`}
       onClick={() => {
-        if (isDetailedEntity) focusStore.clearDetailed();
-        else focusStore.setDetailed(item);
+        if (isDetailedEntity) focusStore.detailable.clearDetailed();
+        else focusStore.detailable.setDetailed(item);
       }}
       onMouseEnter={handleFocus}
       onMouseLeave={handleBlur}

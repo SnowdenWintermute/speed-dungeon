@@ -173,7 +173,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
         useGameStore.getState().mutateState((state) => {
           state.stackedMenuStates.pop();
         });
-        AppStore.get().focusStore.clearDetailed();
+        AppStore.get().focusStore.detailable.clearDetailed();
       }
     );
 

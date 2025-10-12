@@ -77,18 +77,19 @@ export const PaperDollSlot = observer(
     }, [detailedItem, hoveredItem, itemOption]);
 
     function handleFocus() {
-      if (itemOption !== null) focusStore.setHovered(itemOption);
+      if (itemOption !== null) focusStore.detailable.setHovered(itemOption);
     }
 
     function handleBlur() {
-      focusStore.clearHovered();
+      focusStore.detailable.clearHovered();
     }
 
     function handleClick() {
       if (!playerOwnsCharacter) return;
       if (!itemOption) return;
 
-      const detailedItemIsNowNull = focusStore.selectItem(itemOption);
+      focusStore.selectItem(itemOption);
+      const detailedItemIsNowNull = focusStore.detailable.get().detailed === null;
 
       const currentMenu = useGameStore.getState().getCurrentMenu();
       if (currentMenu instanceof ConsideringItemMenuState && detailedItemIsNowNull)

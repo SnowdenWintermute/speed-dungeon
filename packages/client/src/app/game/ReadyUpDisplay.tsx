@@ -72,7 +72,7 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
   const currentMenu = useGameStore.getState().getCurrentMenu();
 
   const { focusStore } = AppStore.get();
-  const { detailedEntity, hoveredEntity } = focusStore.getDetailable();
+  const { detailed: detailedEntity, hovered: hoveredEntity } = focusStore.detailable.get();
 
   const shouldDim =
     detailedEntity ||

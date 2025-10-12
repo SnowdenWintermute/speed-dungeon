@@ -76,7 +76,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
         useGameStore.getState().mutateState((state) => {
           state.stackedMenuStates.pop();
         });
-        AppStore.get().focusStore.clearDetailed();
+        AppStore.get().focusStore.detailable.clearDetailed();
         AppStore.get().dialogStore.close(DialogElementName.DropShards);
       }
     );
@@ -241,12 +241,12 @@ export abstract class ItemsMenuState implements ActionMenuState {
 
 function itemButtonMouseLeaveHandler() {
   const { focusStore } = AppStore.get();
-  focusStore.clearHovered();
+  focusStore.detailable.clearHovered();
 }
 
 function itemButtonMouseEnterHandler(item: Item) {
   const { focusStore } = AppStore.get();
-  focusStore.setHovered(item);
+  focusStore.detailable.setHovered(item);
 }
 
 import AmuletIcon from "../../../../../public/img/equipment-icons/amulet.svg";

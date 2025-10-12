@@ -31,7 +31,9 @@ export function characterPickedUpItemsHandler(characterAndItems: CharacterAndIte
         const { focusStore } = AppStore.get();
         // otherwise it is possible that one player is hovering this item, then it "disappears"
         // from under their mouse cursor and they can never trigger a mouseleave event to unhover it
-        if (focusStore.entityIsHovered(itemResult.entityProperties.id)) focusStore.clearHovered();
+        if (focusStore.entityIsHovered(itemResult.entityProperties.id)) {
+          focusStore.detailable.clearHovered();
+        }
       }
     }
   );

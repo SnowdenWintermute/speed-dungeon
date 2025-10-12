@@ -17,6 +17,7 @@ export type DetailableEntity = Combatant | Item;
 export class FocusStore {
   focusedCharacterId: EntityId | null = null;
 
+  readonly combatantAbility = new Detailable<AbilityTreeAbility>(() => {});
   readonly detailable = new Detailable<DetailableEntity>(() =>
     this.consideredItemUnmetRequirements.clear()
   );
@@ -25,9 +26,6 @@ export class FocusStore {
   private comparedSlot: null | TaggedEquipmentSlot = null;
 
   private consideredItemUnmetRequirements: Set<CombatAttribute> = new Set();
-
-  hoveredCombatantAbility: null | AbilityTreeAbility = null;
-  detailedCombatantAbility: null | AbilityTreeAbility = null;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -52,7 +50,7 @@ export class FocusStore {
     const wasAlreadyDetailed = detailedEntityIdOption === selectedItemOptionId;
 
     if (wasAlreadyDetailed || itemOption === null) {
-      this.detailable.clearDetalied();
+      this.detailable.clearDetailed();
     } else {
       this.detailable.setDetailed(itemOption);
 
@@ -62,8 +60,6 @@ export class FocusStore {
         this.consideredItemUnmetRequirements =
           focusedCharacterResult.combatantProperties.getUnmetItemRequirements(itemOption);
     }
-
-    this.detailable.clear();
   }
 
   getSelectedItemUnmetRequirements() {
@@ -162,13 +158,13 @@ class Detailable<T> {
     this.hovered = null;
   }
 
-  clearDetalied() {
+  clearDetailed() {
     this.detailed = null;
     this.onClearDetailed();
   }
 
   clear() {
     this.clearHovered();
-    this.clearDetalied();
+    this.clearDetailed();
   }
 }

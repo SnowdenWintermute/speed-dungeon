@@ -24,8 +24,7 @@ export default function setFocusedCharacter(id: string) {
 
     gameState.focusedCharacterId = id;
 
-    gameState.hoveredCombatantAbility = null;
-    gameState.detailedCombatantAbility = null;
+    focusStore.combatantAbility.clear();
 
     let currentMenu = getCurrentMenu(gameState);
 
