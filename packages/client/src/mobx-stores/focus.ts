@@ -1,7 +1,6 @@
 import { useGameStore } from "@/stores/game-store";
 import {
   AbilityTreeAbility,
-  CombatActionName,
   CombatAttribute,
   Combatant,
   CombatantEquipment,
@@ -18,15 +17,15 @@ export type DetailableEntity = Combatant | Item;
 export class FocusStore {
   focusedCharacterId: EntityId | null = null;
 
-  private detailedEntity: null | DetailableEntity = null;
-  private hoveredEntity: null | DetailableEntity = null;
+  readonly detailable = new Detailable<DetailableEntity>(() =>
+    this.consideredItemUnmetRequirements.clear()
+  );
 
   private comparedItem: null | Item = null;
   private comparedSlot: null | TaggedEquipmentSlot = null;
 
   private consideredItemUnmetRequirements: Set<CombatAttribute> = new Set();
 
-  hoveredAction: null | CombatActionName = null;
   hoveredCombatantAbility: null | AbilityTreeAbility = null;
   detailedCombatantAbility: null | AbilityTreeAbility = null;
 
@@ -34,53 +33,28 @@ export class FocusStore {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
-  setHovered(detailable: DetailableEntity) {
-    this.hoveredEntity = detailable;
-  }
-
-  clearHovered() {
-    this.hoveredEntity = null;
-  }
-
-  setDetailed(detailable: DetailableEntity) {
-    this.detailedEntity = detailable;
-  }
-
-  clearDetailed() {
-    this.detailedEntity = null;
-    this.consideredItemUnmetRequirements.clear();
-  }
-
-  clearDetailable() {
-    this.clearHovered();
-    this.clearDetailed();
-  }
-
-  getDetailable() {
-    return { detailedEntity: this.detailedEntity, hoveredEntity: this.hoveredEntity };
-  }
-
   entityIsHovered(entityId: string) {
-    if (!this.hoveredEntity) return false;
-    return this.hoveredEntity.entityProperties.id === entityId;
+    const { hovered } = this.detailable.get();
+    if (!hovered) return false;
+    return hovered.entityProperties.id === entityId;
   }
 
   entityIsDetailed(entityId: string) {
-    if (!this.detailedEntity) return false;
-    return this.detailedEntity.entityProperties.id === entityId;
+    const { detailed } = this.detailable.get();
+    if (!detailed) return false;
+    return detailed.entityProperties.id === entityId;
   }
 
   // ITEMS
   selectItem(itemOption: null | Item) {
-    const detailedEntityIdOption = this.detailedEntity?.entityProperties.id;
+    const detailedEntityIdOption = this.detailable.get().detailed?.entityProperties.id;
     const selectedItemOptionId = itemOption?.entityProperties.id;
     const wasAlreadyDetailed = detailedEntityIdOption === selectedItemOptionId;
 
     if (wasAlreadyDetailed || itemOption === null) {
-      this.detailedEntity = null;
-      this.consideredItemUnmetRequirements.clear();
+      this.detailable.clearDetalied();
     } else {
-      this.detailedEntity = itemOption;
+      this.detailable.setDetailed(itemOption);
 
       // @REFACTOR - maybe easier to test if we pass this as an argument instead of fetching it here
       const focusedCharacterResult = useGameStore().getFocusedCharacter();
@@ -89,9 +63,7 @@ export class FocusStore {
           focusedCharacterResult.combatantProperties.getUnmetItemRequirements(itemOption);
     }
 
-    this.hoveredEntity = null;
-
-    return this.detailedEntity === null;
+    this.detailable.clear();
   }
 
   getSelectedItemUnmetRequirements() {
@@ -99,8 +71,9 @@ export class FocusStore {
   }
 
   getFocusedItems() {
-    const hoveredItem = this.hoveredEntity instanceof Item ? this.hoveredEntity : null;
-    const detailedItem = this.detailedEntity instanceof Item ? this.detailedEntity : null;
+    const { hovered, detailed } = this.detailable.get();
+    const hoveredItem = hovered instanceof Item ? hovered : null;
+    const detailedItem = detailed instanceof Item ? detailed : null;
     return { hoveredItem, detailedItem };
   }
 
@@ -152,11 +125,50 @@ export class FocusStore {
     const newCombatantAlreadyDetailed = this.entityIsDetailed(newCombatant.entityProperties.id);
 
     if (newCombatantAlreadyDetailed) {
-      this.clearDetailed();
+      this.detailable.clear();
     } else {
-      this.setDetailed(
+      this.detailable.setDetailed(
         new Combatant(newCombatant.entityProperties, newCombatant.combatantProperties)
       );
     }
+  }
+}
+
+class Detailable<T> {
+  private hovered: null | T = null;
+  private detailed: null | T = null;
+
+  constructor(private onClearDetailed: () => void) {}
+
+  setHovered(toSet: T) {
+    this.hovered = toSet;
+  }
+
+  setDetailed(toSet: T) {
+    this.detailed = toSet;
+  }
+
+  get() {
+    return { detailed: this.detailed, hovered: this.hovered };
+  }
+
+  getIfInstanceOf<K extends new (...args: any[]) => any>(kind: K) {
+    const detailed = this.detailed instanceof kind ? this.detailed : null;
+    const hovered = this.hovered instanceof kind ? this.hovered : null;
+    return { hovered, detailed };
+  }
+
+  clearHovered() {
+    this.hovered = null;
+  }
+
+  clearDetalied() {
+    this.detailed = null;
+    this.onClearDetailed();
+  }
+
+  clear() {
+    this.clearHovered();
+    this.clearDetalied();
   }
 }

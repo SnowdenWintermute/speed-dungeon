@@ -20,7 +20,7 @@ export default function setFocusedCharacter(id: string) {
     );
 
     const { focusStore } = AppStore.get();
-    focusStore.clearDetailable();
+    focusStore.detailable.clear();
 
     gameState.focusedCharacterId = id;
 

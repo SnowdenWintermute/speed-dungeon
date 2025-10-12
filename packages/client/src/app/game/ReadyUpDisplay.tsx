@@ -122,7 +122,7 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
                       state.stackedMenuStates.pop();
                     else {
                       state.stackedMenuStates.push(operateVendingMachineMenuState);
-                      focusStore.clearDetailable();
+                      focusStore.detailable.clear();
                     }
                   });
                 }}

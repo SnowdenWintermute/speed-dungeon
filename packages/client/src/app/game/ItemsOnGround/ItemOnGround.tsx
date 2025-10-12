@@ -27,7 +27,7 @@ interface Props {
 export function takeItem(item: Item) {
   const { focusStore } = AppStore.get();
 
-  focusStore.clearDetailable();
+  focusStore.detailable.clear();
 
   websocketConnection.emit(ClientToServerEvent.PickUpItems, {
     characterId: useGameStore.getState().focusedCharacterId,

@@ -12,7 +12,9 @@ interface Props {
 }
 
 export const DetailedCombatantInfoCard = observer((props: Props) => {
-  const { detailedEntity, hoveredEntity } = AppStore.get().focusStore.getDetailable();
+  const { focusStore } = AppStore.get();
+  const { detailed: detailedEntity, hovered: hoveredEntity } =
+    focusStore.detailable.getIfInstanceOf(Combatant);
 
   const detailedInfoContainerRef = useRef<HTMLDivElement>(null);
   const [cardPositionStyle, setCardPositionStyle] = useState<{ [key: string]: string }>({

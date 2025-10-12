@@ -90,7 +90,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
         });
 
         const { focusStore } = AppStore.get();
-        focusStore.clearDetailable();
+        focusStore.detailable.clear();
         useGameStore.getState().mutateState((state) => {
           state.baseMenuState.page = 1;
           state.stackedMenuStates = [];

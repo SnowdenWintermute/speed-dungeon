@@ -52,7 +52,7 @@ export class SelectBookToTradeForMenuState implements ActionMenuState {
 
     toReturn[ActionButtonCategory.Top].push(
       createCancelButton([], () => {
-        focusStore.clearDetailable();
+        focusStore.detailable.clear();
       })
     );
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);

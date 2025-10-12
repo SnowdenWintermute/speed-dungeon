@@ -1,4 +1,10 @@
-import { ActionUserContext, Combatant, EntityId, SpeedDungeonGame } from "@speed-dungeon/common";
+import {
+  ActionUserContext,
+  CombatActionName,
+  Combatant,
+  EntityId,
+  SpeedDungeonGame,
+} from "@speed-dungeon/common";
 import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";
 import { ActionMenuState } from "@/app/game/ActionMenu/menu-state";
 import { InventoryItemsMenuState } from "@/app/game/ActionMenu/menu-state/inventory-items";
@@ -41,6 +47,7 @@ export class AppStoreManager {
   // Action Menu State
   baseMenuState: BaseMenuState;
   stackedMenuStates: ActionMenuState[] = [];
+  hoveredAction: null | CombatActionName = null;
 
   // Misc Game UI
   username: null | string = null;
