@@ -5,7 +5,7 @@ import { TopInfoBar } from "./TopInfoBar";
 import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
 import MonsterPlaques from "./MonsterPlaques";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
-import ReadyUpDisplay from "./ReadyUpDisplay";
+import { ReadyUpDisplay } from "./ReadyUpDisplay";
 import CombatLog from "./combat-log";
 import { getFocusedCharacter } from "@/utils/getFocusedCharacter";
 import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";

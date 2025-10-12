@@ -1,14 +1,14 @@
 import React from "react";
-import ActionMenu from "./ActionMenu";
+import { ActionMenu } from "./ActionMenu";
 import { AdventuringParty, ERROR_MESSAGES, InputLock } from "@speed-dungeon/common";
-import ItemDetailsWithComparison from "./ItemDetailsWithComparison";
+import { ItemDetailsWithComparison } from "./ItemDetailsWithComparison";
 import ItemsOnGround from "./ItemsOnGround";
 import CharacterSheet from "./character-sheet";
 import { useGameStore } from "@/stores/game-store";
 import { shouldShowCharacterSheet, viewingAbilityTree } from "@/utils/should-show-character-sheet";
 import { SPACING_REM } from "@/client_consts";
 import { ZIndexLayers } from "../z-index-layers";
-import ItemCraftDisplay from "./item-crafting/ItemCraftingDisplay";
+import { ItemCraftDisplay } from "./item-crafting/ItemCraftingDisplay";
 import { CraftingItemMenuState } from "./ActionMenu/menu-state/crafting-item";
 import CharacterAttributes from "./character-sheet/CharacterAttributes";
 

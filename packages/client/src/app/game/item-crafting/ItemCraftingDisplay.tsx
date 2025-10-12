@@ -6,10 +6,13 @@ import Divider from "@/app/components/atoms/Divider";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { INFO_UNICODE_SYMBOL } from "@speed-dungeon/common";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
 
-export default function ItemCraftDisplay() {
+export const ItemCraftDisplay = observer(() => {
   const currentMenu = useGameStore.getState().getCurrentMenu();
-  const hoveredEntity = useGameStore.getState().hoveredEntity;
+  const { focusStore } = AppStore.get();
+  const { hoveredEntity } = focusStore.getDetailable();
   const partyResult = useGameStore.getState().getParty();
   if (
     !(currentMenu instanceof CraftingItemMenuState) ||
@@ -57,4 +60,4 @@ export default function ItemCraftDisplay() {
       </div>
     </section>
   );
-}
+});

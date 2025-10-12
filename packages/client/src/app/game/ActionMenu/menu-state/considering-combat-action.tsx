@@ -19,6 +19,7 @@ import { clientUserControlsCombatant } from "@/utils/client-user-controls-combat
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { createCancelButton } from "./common-buttons/cancel";
 import getCurrentParty from "@/utils/getCurrentParty";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export const executeHotkey = HOTKEYS.MAIN_1;
 export const EXECUTE_BUTTON_TEXT = `Execute (${letterFromKeyCode(executeHotkey)})`;
@@ -87,10 +88,10 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
         websocketConnection.emit(ClientToServerEvent.UseSelectedCombatAction, {
           characterId,
         });
-        useGameStore.getState().mutateState((state) => {
-          state.detailedEntity = null;
-          state.hoveredEntity = null;
 
+        const { focusStore } = AppStore.get();
+        focusStore.clearDetailable();
+        useGameStore.getState().mutateState((state) => {
           state.baseMenuState.page = 1;
           state.stackedMenuStates = [];
 

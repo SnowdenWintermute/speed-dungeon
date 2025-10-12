@@ -1,4 +1,4 @@
-import { useGameStore } from "@/stores/game-store";
+import { AppStore } from "@/mobx-stores/app-store";
 import { Combatant } from "@speed-dungeon/common";
 import React from "react";
 
@@ -7,39 +7,18 @@ interface Props {
 }
 
 export default function CombatantInfoButton({ combatant }: Props) {
-  const mutateGameState = useGameStore().mutateState;
+  const { focusStore } = AppStore.get();
 
   function handleClick() {
-    mutateGameState((store) => {
-      const detailedEntity = store.detailedEntity;
-      let shouldSetEntityDetailed = true;
-      if (detailedEntity && detailedEntity instanceof Combatant) {
-        shouldSetEntityDetailed =
-          detailedEntity.entityProperties.id !== combatant.entityProperties.id;
-      }
-
-      if (shouldSetEntityDetailed)
-        store.detailedEntity = new Combatant(
-          combatant.entityProperties,
-          combatant.combatantProperties
-        );
-      else store.detailedEntity = null;
-    });
+    focusStore.updateDetailedCombatant(combatant);
   }
 
   function handleMouseEnter() {
-    mutateGameState((store) => {
-      store.hoveredEntity = new Combatant(
-        combatant.entityProperties,
-        combatant.combatantProperties
-      );
-    });
+    focusStore.setHovered(new Combatant(combatant.entityProperties, combatant.combatantProperties));
   }
 
   function handleMouseLeave() {
-    mutateGameState((store) => {
-      store.hoveredEntity = null;
-    });
+    focusStore.clearHovered();
   }
 
   return (

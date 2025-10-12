@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import PaperDollSlot from "./PaperDollSlot";
+import { PaperDollSlot } from "./PaperDollSlot";
 import {
   Combatant,
   CombatantEquipment,

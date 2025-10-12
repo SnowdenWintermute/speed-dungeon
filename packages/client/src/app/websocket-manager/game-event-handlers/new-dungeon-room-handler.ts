@@ -21,6 +21,7 @@ import {
   Inventory,
   Item,
 } from "@speed-dungeon/common";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export function newDungeonRoomHandler({
   dungeonRoom: room,
@@ -61,7 +62,8 @@ export function newDungeonRoomHandler({
       newItemsOnGround.push(item);
     }
 
-    gameState.hoveredEntity = null;
+    const { focusStore } = AppStore.get();
+    focusStore.clearHovered();
 
     const { combatantManager } = party;
 

@@ -56,6 +56,10 @@ export class FocusStore {
     this.clearDetailed();
   }
 
+  getDetailable() {
+    return { detailedEntity: this.detailedEntity, hoveredEntity: this.hoveredEntity };
+  }
+
   entityIsHovered(entityId: string) {
     if (!this.hoveredEntity) return false;
     return this.hoveredEntity.entityProperties.id === entityId;
@@ -140,6 +144,19 @@ export class FocusStore {
       this.clearItemComparison();
     } else {
       this.comparedItem = equippedItemOption;
+    }
+  }
+
+  // COMBATANTS
+  updateDetailedCombatant(newCombatant: Combatant) {
+    const newCombatantAlreadyDetailed = this.entityIsDetailed(newCombatant.entityProperties.id);
+
+    if (newCombatantAlreadyDetailed) {
+      this.clearDetailed();
+    } else {
+      this.setDetailed(
+        new Combatant(newCombatant.entityProperties, newCombatant.combatantProperties)
+      );
     }
   }
 }

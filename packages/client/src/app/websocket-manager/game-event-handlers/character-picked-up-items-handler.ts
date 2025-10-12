@@ -7,6 +7,7 @@ import {
   Inventory,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export function characterPickedUpItemsHandler(characterAndItems: CharacterAndItems) {
   characterAssociatedDataProvider(
@@ -27,10 +28,10 @@ export function characterPickedUpItemsHandler(characterAndItems: CharacterAndIte
 
         Inventory.insertItem(character.combatantProperties.inventory, itemResult);
 
+        const { focusStore } = AppStore.get();
         // otherwise it is possible that one player is hovering this item, then it "disappears"
         // from under their mouse cursor and they can never trigger a mouseleave event to unhover it
-        if (itemResult.entityProperties.id === gameState.hoveredEntity?.entityProperties.id)
-          gameState.hoveredEntity = null;
+        if (focusStore.entityIsHovered(itemResult.entityProperties.id)) focusStore.clearHovered();
       }
     }
   );

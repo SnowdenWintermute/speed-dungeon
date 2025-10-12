@@ -9,7 +9,7 @@ import {
 } from "./menu-state/considering-combat-action";
 import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicatedButton";
 import { NumberedButton } from "./action-menu-buttons/NumberedButton";
-import { COMBATANT_MAX_ACTION_POINTS, Item } from "@speed-dungeon/common";
+import { COMBATANT_MAX_ACTION_POINTS } from "@speed-dungeon/common";
 import { HOTKEYS } from "@/hotkeys";
 import { VIEW_LOOT_BUTTON_TEXT } from "./menu-state/base";
 import {
@@ -17,7 +17,7 @@ import {
   EQUIP_ITEM_BUTTON_TEXT,
   USE_CONSUMABLE_BUTTON_TEXT,
 } from "./menu-state/considering-item";
-import ItemDetailsWithComparison from "../ItemDetailsWithComparison";
+import { ItemDetailsWithComparison } from "../ItemDetailsWithComparison";
 import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import {

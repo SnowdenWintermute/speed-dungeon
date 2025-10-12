@@ -6,6 +6,7 @@ import { useGameStore } from "@/stores/game-store";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { PriceDisplay } from "../../character-sheet/ShardsDisplay";
 import { ConfirmConvertToShardsMenuState } from "./confirm-convert-to-shards";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export class ConvertToShardItemSelectionMenuState extends ItemsMenuState {
   [immerable] = true;
@@ -16,8 +17,9 @@ export class ConvertToShardItemSelectionMenuState extends ItemsMenuState {
       MenuStateType.ShardItemSelection,
       { text: "Cancel", hotkeys: [] },
       (item: Item) => {
+        const { focusStore } = AppStore.get();
+        focusStore.setDetailed(item);
         useGameStore.getState().mutateState((state) => {
-          state.detailedEntity = item;
           state.stackedMenuStates.push(
             new ConfirmConvertToShardsMenuState(item, MenuStateType.ConfimConvertToShards)
           );

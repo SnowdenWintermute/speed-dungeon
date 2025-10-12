@@ -12,12 +12,14 @@ import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
 import { MenuStateType } from "./ActionMenu/menu-state";
 import { playerIsOperatingVendingMachine } from "@/utils/player-is-operating-vending-machine";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
 
 interface Props {
   party: AdventuringParty;
 }
 
-export default function ReadyUpDisplay({ party }: Props) {
+export const ReadyUpDisplay = observer(({ party }: Props) => {
   const username = useGameStore().username;
   if (username === null) return <div>no username</div>;
   const mutateGameState = useGameStore().mutateState;
@@ -68,8 +70,9 @@ export default function ReadyUpDisplay({ party }: Props) {
   const inStaircaseRoom = party.currentRoom.roomType === DungeonRoomType.Staircase;
   const isVendingMachine = party.currentRoom.roomType === DungeonRoomType.VendingMachine;
   const currentMenu = useGameStore.getState().getCurrentMenu();
-  const detailedEntity = useGameStore.getState().detailedEntity;
-  const hoveredEntity = useGameStore.getState().hoveredEntity;
+
+  const { focusStore } = AppStore.get();
+  const { detailedEntity, hoveredEntity } = focusStore.getDetailable();
 
   const shouldDim =
     detailedEntity ||
@@ -119,8 +122,7 @@ export default function ReadyUpDisplay({ party }: Props) {
                       state.stackedMenuStates.pop();
                     else {
                       state.stackedMenuStates.push(operateVendingMachineMenuState);
-                      state.detailedEntity = null;
-                      state.hoveredAction = null;
+                      focusStore.clearDetailable();
                     }
                   });
                 }}
@@ -181,7 +183,7 @@ export default function ReadyUpDisplay({ party }: Props) {
       </div>
     </>
   );
-}
+});
 
 function createReadyButtons(
   username: string,

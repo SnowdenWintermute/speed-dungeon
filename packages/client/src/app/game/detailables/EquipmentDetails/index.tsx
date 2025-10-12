@@ -4,7 +4,7 @@ import { ArmorClassText, getArmorCategoryText } from "./armor";
 import WeaponDamage from "./WeaponDamage";
 import Durability from "./Durability";
 import CombatAttributesAndTraits from "./CombatAttributesAndTraits";
-import ItemRequirements from "../ItemRequirements";
+import { ItemRequirements } from "../ItemRequirements";
 
 interface Props {
   equipment: Equipment;

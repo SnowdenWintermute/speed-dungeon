@@ -4,10 +4,9 @@ import getGameAndParty from "@/utils/getGameAndParty";
 import React, { useEffect, useRef, useState } from "react";
 import TargetingIndicators from "./TargetingIndicators";
 import UnspentAttributesButton from "../UnspentAttributesButton";
-import { useShallow } from "zustand/react/shallow";
 import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import CombatantInfoButton from "./CombatantInfoButton";
-import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
+import { DetailedCombatantInfoCard } from "./DetailedCombatantInfoCard";
 import {
   Combatant,
   CombatantEquipment,
@@ -40,7 +39,7 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
   const gameOption = useGameStore().game;
 
   const { focusStore, dialogStore } = AppStore.get();
-  const { focusedCharacterId, hoveredEntity } = focusStore;
+  const { hoveredEntity } = focusStore.getDetailable();
   const showDebug = dialogStore.isOpen(DialogElementName.Debug);
 
   const portrait = useGameStore((state) => state.combatantPortraits[combatant.entityProperties.id]);
@@ -68,19 +67,13 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
     setPortraitHeight(height);
   }, []);
 
-  function isHovered() {
-    if (!hoveredEntity) return false;
-    if (!(hoveredEntity instanceof Combatant)) return false;
-    if (hoveredEntity.entityProperties.id === entityId) return true;
-    return false;
-  }
-
   const combatantIsDetailed = focusStore.entityIsDetailed(entityId);
   const isFocused = focusedCharacterId === entityId;
 
   const isPartyMember = combatant.combatantProperties.isPlayerControlled();
 
-  const conditionalBorder = getConditionalBorder(isHovered(), isFocused, combatantIsDetailed);
+  const isHovered = focusStore.entityIsHovered(entityId);
+  const conditionalBorder = getConditionalBorder(isHovered, isFocused, combatantIsDetailed);
 
   const lockedUiState = InputLock.isLocked(party.inputLock)
     ? "opacity-50 pointer-events-none "

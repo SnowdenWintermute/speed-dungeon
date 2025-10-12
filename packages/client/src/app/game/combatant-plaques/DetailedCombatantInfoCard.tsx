@@ -1,18 +1,18 @@
-import { useGameStore } from "@/stores/game-store";
 import React, { useEffect, useRef, useState } from "react";
 import CombatantDisplay from "../detailables/CombatantDisplay";
 import { SPACING_REM_SMALL } from "@/client_consts";
 import { Combatant } from "@speed-dungeon/common";
 import { ZIndexLayers } from "@/app/z-index-layers";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
 
 interface Props {
   combatantId: string;
   combatantPlaqueRef: React.RefObject<HTMLDivElement | null>;
 }
 
-export default function DetailedCombatantInfoCard(props: Props) {
-  const detailedEntity = useGameStore((state) => state.detailedEntity);
-  const hoveredEntity = useGameStore((state) => state.hoveredEntity);
+export const DetailedCombatantInfoCard = observer((props: Props) => {
+  const { detailedEntity, hoveredEntity } = AppStore.get().focusStore.getDetailable();
 
   const detailedInfoContainerRef = useRef<HTMLDivElement>(null);
   const [cardPositionStyle, setCardPositionStyle] = useState<{ [key: string]: string }>({
@@ -83,4 +83,4 @@ export default function DetailedCombatantInfoCard(props: Props) {
       {detailedInfoCard}
     </div>
   );
-}
+});
