@@ -15,6 +15,7 @@ import { ERROR_MESSAGES } from "@speed-dungeon/common";
 
 export function gameStartedHandler(timeStarted: number) {
   AppStore.get().actionMenuStore.initialize(new BaseMenuState());
+  console.log("game started handler ran");
 
   useGameStore.getState().mutateState((gameState) => {
     if (gameState.game) gameState.game.timeStarted = timeStarted;
@@ -23,7 +24,10 @@ export function gameStartedHandler(timeStarted: number) {
     ];
 
     const camera = gameWorld.current?.camera;
-    if (!camera) return;
+    if (!camera) {
+      console.error("no camera found");
+      return;
+    }
     camera.target.copyFrom(new Vector3(-1, 0.2, 0.15));
     camera.alpha = 4.66;
     camera.beta = 1.02;
@@ -46,6 +50,7 @@ export function gameStartedHandler(timeStarted: number) {
 
     combatantManager.updateHomePositions();
 
+    console.log("trying to autofocus character");
     characterAutoFocusManager.focusFirstOwnedCharacter(gameState);
   });
 

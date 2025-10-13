@@ -11,6 +11,7 @@ export function getFocusedCharacter() {
   const characterOption = partyOption.combatantManager.getCombatantOption(
     gameState.focusedCharacterId
   );
+  console.log(characterOption, gameState.focusedCharacterId);
   if (!characterOption) return new Error(ERROR_MESSAGES.GAME.CHARACTER_DOES_NOT_EXIST);
   return characterOption;
 }

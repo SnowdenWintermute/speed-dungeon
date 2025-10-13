@@ -29,12 +29,16 @@ export class CharacterAutoFocusManager {
     const { actionMenuStore } = AppStore.get();
     const clientIsViewingMenus = actionMenuStore.hasStackedMenus();
     const currentMenu = actionMenuStore.getCurrentMenu();
-    if (clientIsViewingMenus && currentMenu.type !== MenuStateType.ItemsOnGround) return;
+    if (clientIsViewingMenus && currentMenu.type !== MenuStateType.ItemsOnGround) {
+      console.info("not switching focus since in menus");
+      return;
+    }
 
     const playerResult = gameState.getPlayer();
     if (playerResult instanceof Error) throw playerResult;
 
     const firstOwnedCharacterId = playerResult.characterIds[0];
+    console.log("focusing first owned character", firstOwnedCharacterId);
     if (!firstOwnedCharacterId) return console.error("Player doesn't own any characters");
     gameState.focusedCharacterId = firstOwnedCharacterId;
   }

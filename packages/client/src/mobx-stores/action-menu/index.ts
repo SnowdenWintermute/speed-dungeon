@@ -8,7 +8,7 @@ import { CombatActionName } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 
 export class ActionMenuStore {
-  // private baseMenuState: ActionMenuState = new BaseMenuState();
+  private baseMenuState: ActionMenuState | null = null;
   private stackedMenuStates: ActionMenuState[] = [];
   hoveredAction: null | CombatActionName = null;
 
@@ -20,7 +20,7 @@ export class ActionMenuStore {
    * because the BaseMenuState class (like most MenuState classes) call AppStore.get()
    * and AppStore holds ActionMenuStore */
   initialize(baseMenuState: ActionMenuState) {
-    this.stackedMenuStates = [baseMenuState];
+    this.baseMenuState = baseMenuState;
   }
 
   pushStack(menuState: ActionMenuState) {
@@ -33,9 +33,10 @@ export class ActionMenuStore {
   }
 
   clearStack() {
-    while (this.stackedMenuStates.length > 2) {
-      this.stackedMenuStates.pop()?.goToFirstPage();
+    for (const menuState of this.stackedMenuStates) {
+      menuState.goToFirstPage();
     }
+    this.stackedMenuStates = [];
   }
 
   replaceStack(newStack: ActionMenuState[]) {
@@ -44,7 +45,9 @@ export class ActionMenuStore {
   }
 
   getStackedMenuStringNames() {
-    return this.stackedMenuStates.map((menuState) => MENU_STATE_TYPE_STRINGS[menuState.type]);
+    return ([this.baseMenuState] as ActionMenuState[])
+      .concat(this.stackedMenuStates)
+      .map((menuState) => MENU_STATE_TYPE_STRINGS[menuState.type]);
   }
 
   currentMenuIsType(menuStateType: MenuStateType) {
@@ -69,8 +72,10 @@ export class ActionMenuStore {
     const topIndex = this.stackedMenuStates.length - 1;
     const topStackedMenu = this.stackedMenuStates[topIndex];
     if (topStackedMenu) return topStackedMenu;
-    else {
-      throw new Error("expected to have a menu in the first index");
+    else if (this.baseMenuState === null) {
+      throw new Error("improperly initialized actionMenuStore - expected to have a baseMenuState");
+    } else {
+      return this.baseMenuState;
     }
   }
 
