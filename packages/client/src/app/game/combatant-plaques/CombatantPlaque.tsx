@@ -67,7 +67,8 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
   }, []);
 
   const combatantIsDetailed = focusStore.entityIsDetailed(entityId);
-  const isFocused = focusedCharacterId === entityId;
+
+  const isFocused = focusStore.characterIsFocused(entityId);
 
   const isPartyMember = combatant.combatantProperties.isPlayerControlled();
 
@@ -170,7 +171,7 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
                   CombatantEquipment.getHoldableHotswapSlots(combatantProperties.equipment).length
                 }
                 vertical={true}
-                registerKeyEvents={entityId === focusedCharacterId}
+                registerKeyEvents={isFocused}
               />
             )}
             <TargetingIndicators party={party} entityId={entityId} />

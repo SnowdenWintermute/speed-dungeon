@@ -15,7 +15,7 @@ import { makeAutoObservable } from "mobx";
 export type DetailableEntity = Combatant | Item;
 
 export class FocusStore {
-  focusedCharacterId: EntityId | null = null;
+  private focusedCharacterId: EntityId | null = null;
 
   readonly combatantAbility = new Detailable<AbilityTreeAbility>(() => {});
   readonly detailable = new Detailable<DetailableEntity>(() =>
@@ -29,6 +29,10 @@ export class FocusStore {
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
+  }
+
+  characterIsFocused(entityId: EntityId) {
+    return this.focusedCharacterId === entityId;
   }
 
   entityIsHovered(entityId: string) {

@@ -1,11 +1,5 @@
 import { useGameStore } from "@/stores/game-store";
-import {
-  ActionButtonCategory,
-  ActionButtonsByCategory,
-  ActionMenuButtonProperties,
-  ActionMenuState,
-  MenuStateType,
-} from ".";
+import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState, MenuStateType } from ".";
 import {
   ActionAndRank,
   ClientToServerEvent,
@@ -23,6 +17,7 @@ import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { createCancelButton } from "./common-buttons/cancel";
 import { AppStore } from "@/mobx-stores/app-store";
 import { ModifierKey } from "@/mobx-stores/input";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 
 const equipAltSlotHotkey = HOTKEYS.ALT_1;
 const useItemHotkey = HOTKEYS.MAIN_1;

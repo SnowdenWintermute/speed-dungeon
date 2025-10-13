@@ -1,11 +1,5 @@
 import { useGameStore } from "@/stores/game-store";
-import {
-  ActionButtonCategory,
-  ActionButtonsByCategory,
-  ActionMenuButtonProperties,
-  ActionMenuState,
-  MenuStateType,
-} from ".";
+import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState, MenuStateType } from ".";
 import {
   CONSUMABLE_TEXT_COLOR,
   CONSUMABLE_TURQUOISE,
@@ -224,7 +218,7 @@ export abstract class ItemsMenuState extends ActionMenuState {
 
     // possible when a numbered button disapears like when equipping the last item
     // on a page
-    if (this.pageIndex > this.numPages) {
+    if (this.pageIndex > this.getPageCount()) {
       AppStore.get().actionMenuStore.getCurrentMenu().goToLastPage();
     }
 
@@ -248,6 +242,7 @@ import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { ModifierKey } from "@/mobx-stores/input";
 import { observer } from "mobx-react-lite";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 
 export const ItemButtonBody = observer(
   ({

@@ -1,11 +1,5 @@
 import { useGameStore } from "@/stores/game-store";
-import {
-  ActionButtonCategory,
-  ActionButtonsByCategory,
-  ActionMenuButtonProperties,
-  ActionMenuState,
-  MenuStateType,
-} from ".";
+import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState, MenuStateType } from ".";
 import { createCancelButton } from "./common-buttons/cancel";
 import {
   ABILITY_TREES,
@@ -21,6 +15,7 @@ import { ConsideringCombatantAbilityMenuState } from "./considering-tree-ability
 import { AbilityType } from "@speed-dungeon/common";
 import { getAbilityIcon } from "../../character-sheet/ability-tree/ability-icons";
 import { AppStore } from "@/mobx-stores/app-store";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 
 export class ConsideringAbilityTreeColumnMenuState extends ActionMenuState {
   constructor(public readonly columnIndex: number) {

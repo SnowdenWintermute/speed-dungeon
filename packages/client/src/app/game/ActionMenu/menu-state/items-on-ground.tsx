@@ -1,5 +1,5 @@
 import { ItemsMenuState } from "./items";
-import { ActionButtonCategory, ActionMenuButtonProperties, MenuStateType } from ".";
+import { ActionButtonCategory, MenuStateType } from ".";
 import { useGameStore } from "@/stores/game-store";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { websocketConnection } from "@/singletons/websocket-connection";
@@ -7,6 +7,7 @@ import { ClientToServerEvent, Inventory, Item } from "@speed-dungeon/common";
 import { takeItem } from "../../ItemsOnGround/ItemOnGround";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 
 const takeAllItemsHotkey = HOTKEYS.MAIN_2;
 

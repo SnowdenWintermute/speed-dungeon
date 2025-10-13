@@ -66,23 +66,6 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
     }
   }, [currentMenu.type, numberOfNumberedButtons]);
 
-  // instead of directly getting the button properties, we must put it in a useEffect
-  // because some of the button creation calls zustand mutation/set state functions
-  // which causes a warning which was hard to track down about updating other components
-  // while this component was rendering, in short, you aren't allowed to update state in
-  // a component render, which is what happens if you try to call currentMenu.getButtonProperties()
-  // directly in the component
-  useEffect(() => {
-    const numPages = Math.max(
-      currentMenu.numPages,
-      Math.ceil(buttonProperties[ActionButtonCategory.Numbered].length / ACTION_MENU_PAGE_SIZE)
-    );
-    useGameStore.getState().mutateState((state) => {
-      getCurrentMenu(state).numPages = numPages;
-      getCurrentMenu(state).page = currentPageIndex;
-    });
-  }, [buttonProperties[ActionButtonCategory.Numbered].length]);
-
   if (inputLocked) return <div />;
 
   let selectedActionDisplay = <></>;
@@ -238,8 +221,6 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
       </div>
       <div className="min-w-[25rem] max-w-[25rem]">
         <BottomButtons
-          numPages={currentMenu.numPages}
-          currentPageNumber={currentPageIndex}
           left={buttonProperties[ActionButtonCategory.Bottom][0]}
           right={buttonProperties[ActionButtonCategory.Bottom][1]}
         />

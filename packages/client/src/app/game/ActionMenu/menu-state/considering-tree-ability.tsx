@@ -1,11 +1,5 @@
 import { useGameStore } from "@/stores/game-store";
-import {
-  ActionButtonCategory,
-  ActionButtonsByCategory,
-  ActionMenuButtonProperties,
-  ActionMenuState,
-  MenuStateType,
-} from ".";
+import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState, MenuStateType } from ".";
 import { createCancelButton } from "./common-buttons/cancel";
 import { setAlert } from "@/app/components/alerts";
 import {
@@ -32,6 +26,7 @@ import { ActionDescriptionComponent } from "../../character-sheet/ability-tree/a
 import Divider from "@/app/components/atoms/Divider";
 import { ACTION_ICONS, TRAIT_ICONS } from "@/app/icons";
 import { AppStore } from "@/mobx-stores/app-store";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 
 const allocateAbilityPointHotkey = HOTKEYS.MAIN_1;
 
@@ -42,7 +37,7 @@ export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
     public index: number
   ) {
     super(MenuStateType.ConsideringAbilityTreeColumn, index + 1);
-    this.numPages = column.length;
+    this.minPageCount = column.length;
   }
 
   getCenterInfoDisplayOption() {

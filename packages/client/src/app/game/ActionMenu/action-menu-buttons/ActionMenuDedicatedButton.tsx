@@ -1,6 +1,6 @@
 import React from "react";
-import { ActionMenuButtonProperties } from "../menu-state";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { ActionMenuButtonProperties } from "../menu-state/action-menu-button-properties";
 
 interface Props {
   properties: ActionMenuButtonProperties;

@@ -1,5 +1,5 @@
 import { useGameStore } from "@/stores/game-store";
-import { ActionButtonCategory, ActionMenuButtonProperties, MenuStateType } from ".";
+import { ActionButtonCategory, MenuStateType } from ".";
 import { ItemsMenuState } from "./items";
 import { viewEquipmentHotkey } from "./equipped-items";
 import { letterFromKeyCode } from "@/hotkeys";
@@ -11,6 +11,7 @@ import {
 } from "./common-buttons/open-inventory";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MENU_STATE_POOL } from "@/mobx-stores/action-menu/menu-state-pool";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 
 export class InventoryItemsMenuState extends ItemsMenuState {
   constructor() {

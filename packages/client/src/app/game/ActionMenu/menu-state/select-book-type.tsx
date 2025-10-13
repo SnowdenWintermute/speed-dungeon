@@ -1,11 +1,5 @@
 import { useGameStore } from "@/stores/game-store";
-import {
-  ActionButtonCategory,
-  ActionButtonsByCategory,
-  ActionMenuButtonProperties,
-  ActionMenuState,
-  MenuStateType,
-} from ".";
+import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState, MenuStateType } from ".";
 import { setAlert } from "@/app/components/alerts";
 import { createPageButtons } from "./create-page-buttons";
 import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
@@ -21,6 +15,7 @@ import { createCancelButton } from "./common-buttons/cancel";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { SelectItemToTradeForBookMenuState } from "./select-item-to-trade-for-book";
 import { AppStore } from "@/mobx-stores/app-store";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 
 export class SelectBookToTradeForMenuState extends ActionMenuState {
   constructor() {

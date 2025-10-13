@@ -1,10 +1,4 @@
-import {
-  ActionButtonCategory,
-  ActionButtonsByCategory,
-  ActionMenuButtonProperties,
-  ActionMenuState,
-  MenuStateType,
-} from ".";
+import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState, MenuStateType } from ".";
 import { createCancelButton } from "./common-buttons/cancel";
 import {
   setInventoryAsFreshStack,
@@ -13,6 +7,7 @@ import {
 import { ConsideringAbilityTreeColumnMenuState } from "./considering-tree-ability-column";
 import { ArrayUtils } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 
 export class AbilityTreeMenuState extends ActionMenuState {
   constructor() {

@@ -1,11 +1,5 @@
 import { useGameStore } from "@/stores/game-store";
-import {
-  ActionButtonCategory,
-  ActionButtonsByCategory,
-  ActionMenuButtonProperties,
-  ActionMenuState,
-  MenuStateType,
-} from ".";
+import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState, MenuStateType } from ".";
 import {
   ClientToServerEvent,
   CombatantProperties,
@@ -35,6 +29,7 @@ import { getAttackActionIcons } from "../../character-sheet/ability-tree/action-
 import { ACTION_ICONS } from "@/app/icons";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MENU_STATE_POOL } from "@/mobx-stores/action-menu/menu-state-pool";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -97,6 +92,8 @@ export class BaseMenuState extends ActionMenuState {
     const disabledBecauseNotThisCombatantTurnResult =
       disableButtonBecauseNotThisCombatantTurn(characterId);
 
+    const inCombat = partyResult.combatantManager.monstersArePresent();
+
     for (const [actionName, actionState] of iterateNumericEnumKeyedRecord(
       combatantProperties.abilityProperties.ownedActions
     )) {
@@ -113,7 +110,7 @@ export class BaseMenuState extends ActionMenuState {
           if (isAttack) {
             const { mhIcons, ohIcons, ohDisabled } = getAttackActionIcons(
               combatantProperties,
-              this.inCombat
+              inCombat
             );
             mainHandIcons.push(...mhIcons);
             offHandIcons.push(...ohIcons);
@@ -186,7 +183,7 @@ export class BaseMenuState extends ActionMenuState {
 
       const costs = combatAction.costProperties.getResourceCosts(
         focusedCharacterResult,
-        this.inCombat,
+        inCombat,
         1 // @TODO - calculate the actual level to display based on most expensive they can afford
       );
       let unmetCosts = [];
@@ -202,8 +199,8 @@ export class BaseMenuState extends ActionMenuState {
       const isOnCooldown = (actionState.cooldown?.current || 0) > 0;
 
       button.shouldBeDisabled =
-        (usabilityContext === CombatActionUsabilityContext.InCombat && !this.inCombat) ||
-        (usabilityContext === CombatActionUsabilityContext.OutOfCombat && this.inCombat) ||
+        (usabilityContext === CombatActionUsabilityContext.InCombat && !inCombat) ||
+        (usabilityContext === CombatActionUsabilityContext.OutOfCombat && inCombat) ||
         isOnCooldown ||
         !isWearingRequiredEquipment ||
         unmetCosts.length > 0 ||

@@ -1,11 +1,5 @@
 import { useGameStore } from "@/stores/game-store";
-import {
-  ActionButtonCategory,
-  ActionButtonsByCategory,
-  ActionMenuButtonProperties,
-  ActionMenuState,
-  MenuStateType,
-} from ".";
+import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState, MenuStateType } from ".";
 import {
   BookConsumableType,
   CONSUMABLE_TYPE_STRINGS,
@@ -24,6 +18,7 @@ import Divider from "@/app/components/atoms/Divider";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { AppStore } from "@/mobx-stores/app-store";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 
 const confirmHotkey = HOTKEYS.MAIN_1;
 const confirmLetter = letterFromKeyCode(confirmHotkey);
