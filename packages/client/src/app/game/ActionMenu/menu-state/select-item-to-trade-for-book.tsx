@@ -21,9 +21,9 @@ export class SelectItemToTradeForBookMenuState extends ItemsMenuState {
       { text: "Go Back", hotkeys: [] },
       (item: Item) => {
         AppStore.get().focusStore.selectItem(item);
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.push(new ConfirmTradeForBookMenuState(item, this.bookType));
-        });
+        AppStore.get().actionMenuStore.pushStack(
+          new ConfirmTradeForBookMenuState(item, this.bookType)
+        );
       },
       () => Object.values(this.acceptedItems),
       { extraButtons: { [ActionButtonCategory.Top]: [setInventoryOpen] } }

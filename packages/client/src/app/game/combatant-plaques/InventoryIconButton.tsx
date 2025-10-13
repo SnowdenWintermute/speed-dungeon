@@ -4,6 +4,8 @@ import { useGameStore } from "@/stores/game-store";
 import { INVENTORY_DEFAULT_CAPACITY } from "@speed-dungeon/common";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import { AppStore } from "@/mobx-stores/app-store";
+import { MENU_STATE_POOL } from "@/mobx-stores/action-menu/menu-state-pool";
+import { MenuStateType } from "../ActionMenu/menu-state";
 
 export default function InventoryIconButton({
   entityId,
@@ -31,16 +33,15 @@ export default function InventoryIconButton({
             state.focusedCharacterId = entityId;
             switchedFocusedCharacter = true;
           }
+          const { actionMenuStore } = AppStore.get();
+
+          const shouldShowCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
+          if (shouldShowCharacterSheet && !switchedFocusedCharacter) {
+            actionMenuStore.clearStack();
+          } else if (!shouldShowCharacterSheet) {
+            actionMenuStore.pushStack(MENU_STATE_POOL[MenuStateType.InventoryItems]);
+          }
         });
-
-        const { actionMenuStore } = AppStore.get();
-
-        const shouldShowCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
-        if (shouldShowCharacterSheet && !switchedFocusedCharacter) {
-          actionMenuStore.clearStack();
-        } else if (!shouldShowCharacterSheet) {
-          state.stackedMenuStates.push(inventoryItemsMenuState);
-        }
       }}
     >
       <BackpackIcon className="fill-slate-400 h-full w-full pointer-events-none" />

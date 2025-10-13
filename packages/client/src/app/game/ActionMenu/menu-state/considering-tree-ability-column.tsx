@@ -14,7 +14,7 @@ import {
   COMBAT_ACTION_NAME_STRINGS,
   EMPTY_ABILITY_TREE,
 } from "@speed-dungeon/common";
-import createPageButtons from "./create-page-buttons";
+import { createPageButtons } from "./create-page-buttons";
 import { setAlert } from "@/app/components/alerts";
 import { ReactNode } from "react";
 import { ConsideringCombatantAbilityMenuState } from "./considering-tree-ability";
@@ -23,9 +23,9 @@ import { getAbilityIcon } from "../../character-sheet/ability-tree/ability-icons
 import { AppStore } from "@/mobx-stores/app-store";
 
 export class ConsideringAbilityTreeColumnMenuState extends ActionMenuState {
-  constructor(public readonly columnNumber: number) {
+  constructor(public readonly columnIndex: number) {
     super(MenuStateType.ConsideringAbilityTreeColumn, 5);
-    this.page = columnNumber;
+    this.pageIndex = columnIndex;
   }
 
   getButtonProperties() {
@@ -81,16 +81,13 @@ export class ConsideringAbilityTreeColumnMenuState extends ActionMenuState {
               AppStore.get().focusStore.combatantAbility.clearDetailed();
             } else {
               AppStore.get().focusStore.combatantAbility.setDetailed(ability);
+              AppStore.get().actionMenuStore.pushStack(
+                new ConsideringCombatantAbilityMenuState(
+                  withSubjobAbilities.filter((item) => item !== undefined),
+                  index
+                )
+              );
             }
-            useGameStore.getState().mutateState((state) => {
-              if (ability !== undefined)
-                state.stackedMenuStates.push(
-                  new ConsideringCombatantAbilityMenuState(
-                    withSubjobAbilities.filter((item) => item !== undefined),
-                    index
-                  )
-                );
-            });
           }
         );
 
@@ -111,7 +108,7 @@ export class ConsideringAbilityTreeColumnMenuState extends ActionMenuState {
       });
     });
 
-    createPageButtons(this, toReturn, ABILITY_TREE_DIMENSIONS.x);
+    createPageButtons(toReturn, ABILITY_TREE_DIMENSIONS.x);
 
     return toReturn;
   }

@@ -14,10 +14,8 @@ export class CraftingItemSelectionMenuState extends ItemsMenuState {
       { text: "Cancel", hotkeys: [] },
       (item: Item) => {
         AppStore.get().focusStore.selectItem(item);
-        useGameStore.getState().mutateState((state) => {
-          if (!(item instanceof Equipment)) return setAlert(ERROR_MESSAGES.ITEM.INVALID_TYPE);
-          state.stackedMenuStates.push(new CraftingItemMenuState(item));
-        });
+        if (!(item instanceof Equipment)) return setAlert(ERROR_MESSAGES.ITEM.INVALID_TYPE);
+        AppStore.get().actionMenuStore.pushStack(new CraftingItemMenuState(item));
       },
       () => {
         const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();

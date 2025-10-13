@@ -90,7 +90,8 @@ export default function AbilityTreeButton(props: Props) {
                     ) {
                       actionMenuStore.popStack();
                     }
-                    state.stackedMenuStates.push(newMenuState);
+
+                    actionMenuStore.pushStack(newMenuState);
 
                     break;
                   }

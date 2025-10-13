@@ -21,8 +21,6 @@ export const ConsideringItemDisplay = observer(() => {
   const { actionMenuStore } = AppStore.get();
   const currentMenu = actionMenuStore.getCurrentMenu();
 
-  const mutateGameState = useGameStore().mutateState;
-
   if (!(currentMenu instanceof ConsideringItemMenuState)) return <div>Unexpected menu state</div>;
   const shardReward = getItemSellPrice(currentMenu.item);
 
@@ -53,16 +51,11 @@ export const ConsideringItemDisplay = observer(() => {
             <HotkeyButton
               className="border border-slate-400 w-full p-2 pl-3 pr-3 hover:bg-slate-950"
               hotkeys={[SHARD_ITEM_HOTKEY]}
-              onClick={() =>
-                mutateGameState((state) => {
-                  state.stackedMenuStates.push(
-                    new ConfirmConvertToShardsMenuState(
-                      currentMenu.item,
-                      MenuStateType.ItemSelected
-                    )
-                  );
-                })
-              }
+              onClick={() => {
+                actionMenuStore.pushStack(
+                  new ConfirmConvertToShardsMenuState(currentMenu.item, MenuStateType.ItemSelected)
+                );
+              }}
             >
               <span>
                 ({letterFromKeyCode(SHARD_ITEM_HOTKEY)}) Convert to {shardReward}{" "}

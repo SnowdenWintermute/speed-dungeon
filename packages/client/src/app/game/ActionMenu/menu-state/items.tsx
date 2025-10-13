@@ -21,7 +21,7 @@ import {
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { setAlert } from "@/app/components/alerts";
-import createPageButtons from "./create-page-buttons";
+import { createPageButtons } from "./create-page-buttons";
 import { Color4 } from "@babylonjs/core";
 import cloneDeep from "lodash.clonedeep";
 import { createEaseGradient } from "@/utils/create-ease-gradient-style";
@@ -214,7 +214,7 @@ export abstract class ItemsMenuState extends ActionMenuState {
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 
-    createPageButtons(this, toReturn);
+    createPageButtons(toReturn);
 
     if (!this.options.extraButtons) return toReturn;
 

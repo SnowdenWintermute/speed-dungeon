@@ -86,14 +86,13 @@ export class ConsideringCombatActionMenuState extends ActionMenuState {
           characterId,
         });
 
-        const { focusStore } = AppStore.get();
+        const { focusStore, actionMenuStore } = AppStore.get();
         focusStore.detailable.clear();
 
-        AppStore.get().actionMenuStore.clearStack();
+        actionMenuStore.clearStack();
+        actionMenuStore.getCurrentMenu().goToFirstPage();
 
         useGameStore.getState().mutateState((state) => {
-          state.baseMenuState.page = 1;
-
           const partyOption = getCurrentParty(state, state.username || "");
           if (partyOption) {
             const focusedCharacter = partyOption.combatantManager.getExpectedCombatant(

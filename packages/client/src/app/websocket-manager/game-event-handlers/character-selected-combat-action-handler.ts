@@ -11,6 +11,7 @@ import { characterAssociatedDataProvider } from "../combatant-associated-details
 import { ConsideringCombatActionMenuState } from "@/app/game/ActionMenu/menu-state/considering-combat-action";
 import { synchronizeTargetingIndicators } from "./synchronize-targeting-indicators";
 import { ActionAndRank } from "@speed-dungeon/common";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export function characterSelectedCombatActionHandler(
   characterId: string,
@@ -20,6 +21,7 @@ export function characterSelectedCombatActionHandler(
   characterAssociatedDataProvider(
     characterId,
     ({ character, game, party }: CharacterAssociatedData, gameState: GameState) => {
+      const { actionMenuStore } = AppStore.get();
       console.log("character:", character.getEntityId(), "selected:", selectedActionAndRank);
 
       const targetingProperties = character.getTargetingProperties();
@@ -71,7 +73,7 @@ export function characterSelectedCombatActionHandler(
 
       if (!playerOwnsCharacter || actionName === null) return;
 
-      gameState.stackedMenuStates.push(new ConsideringCombatActionMenuState(actionName));
+      actionMenuStore.pushStack(new ConsideringCombatActionMenuState(actionName));
     }
   );
 }

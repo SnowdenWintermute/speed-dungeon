@@ -5,9 +5,9 @@ import React from "react";
 import HoverableTooltipWrapper from "../components/atoms/HoverableTooltipWrapper";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import setFocusedCharacter from "@/utils/set-focused-character";
-import { AssigningAttributePointsMenuState } from "./ActionMenu/menu-state/assigning-attribute-points";
 import { MenuStateType } from "./ActionMenu/menu-state";
 import { AppStore } from "@/mobx-stores/app-store";
+import { MENU_STATE_POOL } from "@/mobx-stores/action-menu/menu-state-pool";
 
 export const toggleAssignAttributesHotkey = HOTKEYS.MAIN_2;
 const buttonText = `Assign attributes (${letterFromKeyCode(toggleAssignAttributesHotkey)})`;
@@ -22,7 +22,6 @@ export default function UnspentAttributesButton({
   if (combatantProperties.unspentAttributePoints < 1) return <></>;
   const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
   if (focusedCharacterResult instanceof Error) return <></>;
-  const mutateGameState = useGameStore().mutateState;
   const { actionMenuStore } = AppStore.get();
 
   function handleUnspentAttributesButtonClick() {
@@ -41,9 +40,7 @@ export default function UnspentAttributesButton({
       actionMenuStore.popStack();
     } else {
       setFocusedCharacter(entityId);
-      mutateGameState((store) => {
-        store.stackedMenuStates = [new AssigningAttributePointsMenuState()];
-      });
+      actionMenuStore.replaceStack([MENU_STATE_POOL[MenuStateType.AssignAttributePoints]]);
     }
   }
 

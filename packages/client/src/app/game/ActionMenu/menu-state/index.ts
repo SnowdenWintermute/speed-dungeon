@@ -75,6 +75,10 @@ export abstract class ActionMenuState {
     return this.pageIndex;
   }
 
+  setPageIndex(newIndex: number) {
+    this.pageIndex = newIndex;
+  }
+
   turnPage(direction: NextOrPrevious) {
     const newPage = getNextOrPreviousNumber(this.pageIndex, this.numPages, direction);
     this.pageIndex = newPage;

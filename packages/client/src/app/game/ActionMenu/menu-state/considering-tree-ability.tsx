@@ -24,7 +24,7 @@ import {
   CombatantConditionName,
   getAbilityTreeAbilityNameString,
 } from "@speed-dungeon/common";
-import createPageButtons from "./create-page-buttons";
+import { createPageButtons } from "./create-page-buttons";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { COMBAT_ACTION_DESCRIPTIONS } from "../../character-sheet/ability-tree/ability-descriptions";
@@ -157,7 +157,7 @@ export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
 
     toReturn[ActionButtonCategory.Top].push(button);
 
-    createPageButtons(this, toReturn, this.column.length, (newPage) => {
+    createPageButtons(toReturn, this.column.length, (newPage) => {
       const newDetailedAbilityOption = this.column[newPage - 1] || null;
       if (newDetailedAbilityOption !== null) {
         AppStore.get().focusStore.combatantAbility.setDetailed(newDetailedAbilityOption);

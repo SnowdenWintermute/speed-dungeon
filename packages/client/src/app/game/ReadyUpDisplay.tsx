@@ -12,6 +12,7 @@ import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { MenuStateType } from "./ActionMenu/menu-state";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
+import { MENU_STATE_POOL } from "@/mobx-stores/action-menu/menu-state-pool";
 
 interface Props {
   party: AdventuringParty;
@@ -21,7 +22,6 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
   const username = useGameStore().username;
   if (username === null) return <div>no username</div>;
   const { focusStore, actionMenuStore } = AppStore.get();
-  const mutateGameState = useGameStore().mutateState;
   const focusedCharacterId = useGameStore().focusedCharacterId;
 
   function handleExploreClick() {
@@ -111,15 +111,15 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
                 }
                 onClick={() => {
                   const { actionMenuStore } = AppStore.get();
-                  mutateGameState((state) => {
-                    const currentMenu = actionMenuStore.getCurrentMenu();
-                    if (currentMenu.type === MenuStateType.OperatingVendingMachine) {
-                      actionMenuStore.popStack();
-                    } else {
-                      state.stackedMenuStates.push(operateVendingMachineMenuState);
-                      focusStore.detailable.clear();
-                    }
-                  });
+                  const currentMenu = actionMenuStore.getCurrentMenu();
+                  if (currentMenu.type === MenuStateType.OperatingVendingMachine) {
+                    actionMenuStore.popStack();
+                  } else {
+                    actionMenuStore.pushStack(
+                      MENU_STATE_POOL[MenuStateType.OperatingVendingMachine]
+                    );
+                    focusStore.detailable.clear();
+                  }
                 }}
               >
                 Operate machine ({letterFromKeyCode(operateVendingMachineHotkey)})

@@ -13,13 +13,11 @@ export class ConvertToShardItemSelectionMenuState extends ItemsMenuState {
       MenuStateType.ShardItemSelection,
       { text: "Cancel", hotkeys: [] },
       (item: Item) => {
-        const { focusStore } = AppStore.get();
+        const { focusStore, actionMenuStore } = AppStore.get();
         focusStore.detailable.setDetailed(item);
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.push(
-            new ConfirmConvertToShardsMenuState(item, MenuStateType.ConfimConvertToShards)
-          );
-        });
+        actionMenuStore.pushStack(
+          new ConfirmConvertToShardsMenuState(item, MenuStateType.ConfimConvertToShards)
+        );
       },
       () => {
         const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();

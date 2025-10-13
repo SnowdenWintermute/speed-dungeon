@@ -1,4 +1,8 @@
-import { ActionMenuState, MenuStateType } from "@/app/game/ActionMenu/menu-state";
+import {
+  ActionMenuState,
+  MENU_STATE_TYPE_STRINGS,
+  MenuStateType,
+} from "@/app/game/ActionMenu/menu-state";
 import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
 import { CombatActionName } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
@@ -7,18 +11,36 @@ export class ActionMenuStore {
   private baseMenuState: ActionMenuState = new BaseMenuState();
   private stackedMenuStates: ActionMenuState[] = [];
   hoveredAction: null | CombatActionName = null;
-  inCombat: boolean = false;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
+  pushStack(menuState: ActionMenuState) {
+    this.stackedMenuStates.push(menuState);
+  }
+
   popStack() {
+    this.getCurrentMenu().goToFirstPage();
     return this.stackedMenuStates.pop();
   }
 
   clearStack() {
+    for (const menuState of this.stackedMenuStates) {
+      menuState.goToFirstPage();
+    }
     this.stackedMenuStates = [];
+  }
+
+  replaceStack(newStack: ActionMenuState[]) {
+    this.clearStack();
+    this.stackedMenuStates = newStack;
+  }
+
+  getStackedMenuStringNames() {
+    return ([this.baseMenuState] as ActionMenuState[])
+      .concat(this.stackedMenuStates)
+      .map((menuState) => MENU_STATE_TYPE_STRINGS[menuState.type]);
   }
 
   currentMenuIsType(menuStateType: MenuStateType) {

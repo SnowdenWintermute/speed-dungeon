@@ -13,7 +13,7 @@ import {
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
-import createPageButtons from "./create-page-buttons";
+import { createPageButtons } from "./create-page-buttons";
 import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 import { createCancelButton } from "./common-buttons/cancel";
@@ -53,7 +53,7 @@ export class AssigningAttributePointsMenuState extends ActionMenuState {
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 
-    createPageButtons(this, toReturn);
+    createPageButtons(toReturn);
 
     return toReturn;
   }

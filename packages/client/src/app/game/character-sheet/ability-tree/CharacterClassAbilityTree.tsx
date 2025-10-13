@@ -43,7 +43,7 @@ export const CharacterClassAbilityTree = observer(
           {abilityTree.columns.map((column, columnIndex) => {
             const shouldHighlight =
               currentMenu.type === MenuStateType.ConsideringAbilityTreeColumn &&
-              currentMenu.page - 1 === columnIndex;
+              currentMenu.setPageIndex(columnIndex);
             return (
               <div
                 key={columnIndex}

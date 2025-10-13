@@ -1,42 +1,40 @@
-import {
-  BUTTON_HEIGHT_SMALL,
-  MAIN_TEXT_AND_BORDERS_COLOR,
-  SPACING_REM_SMALL,
-} from "@/client_consts";
+import { BUTTON_HEIGHT_SMALL, SPACING_REM_SMALL } from "@/client_consts";
 import React from "react";
-import { ActionMenuState, MENU_STATE_TYPE_STRINGS } from "./menu-state";
-import { baseMenuState, useGameStore } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
 
-export default function StackedMenuStateDisplay() {
-  const stackedMenuStates = useGameStore().stackedMenuStates;
+export const StackedMenuStateDisplay = observer(() => {
+  const { actionMenuStore } = AppStore.get();
+  const stackedMenuStateStringNames = actionMenuStore.getStackedMenuStringNames();
 
   return (
     <div
       className={`relative min-w-[25rem] max-w-[25rem] z-0`}
       style={{ marginBottom: `${SPACING_REM_SMALL}rem`, height: `${BUTTON_HEIGHT_SMALL}rem` }}
     >
-      {([baseMenuState] as ActionMenuState[]).concat(stackedMenuStates).map((menuState, i) => {
+      {stackedMenuStateStringNames.map((stringName, i) => {
         return (
           <MenuStateDisplay
-            key={i + MENU_STATE_TYPE_STRINGS[menuState.type]}
-            menuState={menuState}
+            key={i + stringName}
+            name={stringName}
             index={i}
-            isTop={!stackedMenuStates.length || i === stackedMenuStates.length}
-            stackSize={stackedMenuStates.length}
+            isTop={stackedMenuStateStringNames.length === i}
+            stackSize={stackedMenuStateStringNames.length}
           />
         );
       })}
     </div>
   );
-}
+});
 
 function MenuStateDisplay({
-  menuState,
+  name,
   index,
   isTop,
   stackSize,
 }: {
-  menuState: ActionMenuState;
+  name: string;
   index: number;
   isTop: boolean;
   stackSize: number;
@@ -66,7 +64,7 @@ function MenuStateDisplay({
         filter: isTop ? undefined : `brightness(${filterStrengthNormalized})`,
       }}
     >
-      <span className={!isTop ? "opacity-0" : ""}>{MENU_STATE_TYPE_STRINGS[menuState.type]}</span>
+      <span className={!isTop ? "opacity-0" : ""}>{name}</span>
       <span
         key={focusedCharacteResult.entityProperties.name}
         className="animate-slide-appear-from-left-fast"

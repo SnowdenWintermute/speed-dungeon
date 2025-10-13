@@ -60,13 +60,13 @@ export class ConfirmConvertToShardsMenuState extends ActionMenuState {
           characterId,
           itemIds: [itemId],
         });
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.pop();
+        AppStore.get().actionMenuStore.popStack();
+        if (this.type === MenuStateType.ItemSelected) {
           // converting to shards from the inventory nessecitates going back two
           // stacked menus since we go itemSelected -> confirmShard and now that the item is
           // shards it doesn't make sense we would have it selected
-          if (this.type === MenuStateType.ItemSelected) state.stackedMenuStates.pop();
-        });
+          AppStore.get().actionMenuStore.popStack();
+        }
         AppStore.get().focusStore.clearItemComparison();
       }
     );

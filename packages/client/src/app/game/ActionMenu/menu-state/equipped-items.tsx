@@ -14,9 +14,7 @@ export class EquippedItemsMenuState extends ItemsMenuState {
       { text: "Go Back", hotkeys: [viewEquipmentHotkey] },
       (item: Item) => {
         AppStore.get().focusStore.selectItem(item);
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.push(new ConsideringItemMenuState(item));
-        });
+        AppStore.get().actionMenuStore.pushStack(new ConsideringItemMenuState(item));
       },
       () => {
         const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();

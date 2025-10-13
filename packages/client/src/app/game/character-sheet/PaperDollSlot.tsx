@@ -97,11 +97,11 @@ export const PaperDollSlot = observer(
         return actionMenuStore.popStack();
       }
 
-      if (currentMenu instanceof ConsideringItemMenuState) currentMenu.item = itemOption;
-      else
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.push(new ConsideringItemMenuState(itemOption));
-        });
+      if (currentMenu instanceof ConsideringItemMenuState) {
+        currentMenu.item = itemOption;
+      } else {
+        actionMenuStore.pushStack(new ConsideringItemMenuState(itemOption));
+      }
     }
 
     const disabledStyle = playerOwnsCharacter ? "" : "opacity-50";

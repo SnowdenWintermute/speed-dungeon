@@ -92,9 +92,6 @@ export const TopInfoBar = observer(() => {
           className="h-full w-full bg-slate-700 hover:bg-slate-950 pr-4 pl-4 "
           onClick={() => {
             AppStore.get().dialogStore.toggle(DialogElementName.LeaveGame);
-            mutateGameState((state) => {
-              state.baseMenuState.inCombat = false;
-            });
             AppStore.get().actionMenuStore.clearStack();
           }}
         >

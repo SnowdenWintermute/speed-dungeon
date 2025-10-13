@@ -18,6 +18,7 @@ import { MenuStateType } from "../game/ActionMenu/menu-state";
 import { plainToInstance } from "class-transformer";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { AppStore } from "@/mobx-stores/app-store";
+import { MENU_STATE_POOL } from "@/mobx-stores/action-menu/menu-state-pool";
 
 export async function battleResultActionCommandHandler(
   this: ClientActionCommandReceiver,
@@ -41,9 +42,7 @@ export async function battleResultActionCommandHandler(
 
     const { actionMenuStore } = AppStore.get();
     if (actionMenuStore.currentMenuIsType(MenuStateType.Base)) {
-      useGameStore.getState().mutateState((state) => {
-        state.stackedMenuStates.push(itemsOnGroundMenuState);
-      });
+      actionMenuStore.pushStack(MENU_STATE_POOL[MenuStateType.ItemsOnGround]);
     }
   }
 
@@ -96,7 +95,5 @@ export async function battleResultActionCommandHandler(
       actionEntityManager.unregisterActionEntity(entityId);
       getGameWorld().actionEntityManager.unregister(entityId, CleanupMode.Soft);
     }
-
-    state.baseMenuState.inCombat = false;
   });
 }

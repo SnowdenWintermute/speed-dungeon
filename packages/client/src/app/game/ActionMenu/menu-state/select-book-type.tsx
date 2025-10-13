@@ -8,7 +8,6 @@ import {
 } from ".";
 import { setAlert } from "@/app/components/alerts";
 import { createPageButtons } from "./create-page-buttons";
-import { immerable } from "immer";
 import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import {
   CONSUMABLE_TEXT_COLOR,
@@ -84,9 +83,9 @@ export class SelectBookToTradeForMenuState extends ActionMenuState {
         ),
         `${CONSUMABLE_TYPE_STRINGS[consumableType]}`,
         () => {
-          useGameStore.getState().mutateState((state) => {
-            state.stackedMenuStates.push(new SelectItemToTradeForBookMenuState(consumableType));
-          });
+          AppStore.get().actionMenuStore.pushStack(
+            new SelectItemToTradeForBookMenuState(consumableType)
+          );
         }
       );
 

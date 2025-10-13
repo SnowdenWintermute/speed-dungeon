@@ -1,8 +1,4 @@
-import {
-  useGameStore,
-  itemsOnGroundMenuState,
-  assignAttributesMenuState,
-} from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 import {
   ActionButtonCategory,
   ActionButtonsByCategory,
@@ -38,6 +34,7 @@ import { createPageButtons } from "./create-page-buttons";
 import { getAttackActionIcons } from "../../character-sheet/ability-tree/action-icons";
 import { ACTION_ICONS } from "@/app/icons";
 import { AppStore } from "@/mobx-stores/app-store";
+import { MENU_STATE_POOL } from "@/mobx-stores/action-menu/menu-state-pool";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -76,9 +73,7 @@ export class BaseMenuState extends ActionMenuState {
         () => {
           const { actionMenuStore } = AppStore.get();
           actionMenuStore.hoveredAction = null;
-          useGameStore.getState().mutateState((state) => {
-            state.stackedMenuStates.push(assignAttributesMenuState);
-          });
+          actionMenuStore.pushStack(MENU_STATE_POOL[MenuStateType.AssignAttributePoints]);
         }
       );
       hiddenButtonForUnspentAttributesHotkey.dedicatedKeys = [toggleAssignAttributesHotkey];
@@ -91,9 +86,7 @@ export class BaseMenuState extends ActionMenuState {
         VIEW_LOOT_BUTTON_TEXT,
         () => {
           AppStore.get().actionMenuStore.hoveredAction = null;
-          useGameStore.getState().mutateState((state) => {
-            state.stackedMenuStates.push(itemsOnGroundMenuState);
-          });
+          AppStore.get().actionMenuStore.pushStack(MENU_STATE_POOL[MenuStateType.ItemsOnGround]);
         }
       );
       viewItemsOnGroundButton.dedicatedKeys = [viewItemsOnGroundHotkey];

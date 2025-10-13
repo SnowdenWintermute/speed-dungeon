@@ -1,5 +1,3 @@
-import { immerable } from "immer";
-import { useGameStore } from "@/stores/game-store";
 import {
   ActionButtonCategory,
   ActionButtonsByCategory,
@@ -42,9 +40,9 @@ export class AbilityTreeMenuState extends ActionMenuState {
         ),
         nameAsString,
         () => {
-          useGameStore.getState().mutateState((state) => {
-            state.stackedMenuStates.push(new ConsideringAbilityTreeColumnMenuState(number));
-          });
+          AppStore.get().actionMenuStore.pushStack(
+            new ConsideringAbilityTreeColumnMenuState(number)
+          );
         }
       );
       toReturn[ActionButtonCategory.Numbered].push(button);
