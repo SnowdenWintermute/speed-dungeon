@@ -9,9 +9,7 @@ import {
 import React, { MouseEventHandler } from "react";
 import { HotkeyButton } from "../components/atoms/HotkeyButton";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
-import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
 import { MenuStateType } from "./ActionMenu/menu-state";
-import { playerIsOperatingVendingMachine } from "@/utils/player-is-operating-vending-machine";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 
@@ -71,13 +69,13 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
   const isVendingMachine = party.currentRoom.roomType === DungeonRoomType.VendingMachine;
   const currentMenu = useGameStore.getState().getCurrentMenu();
 
-  const { focusStore } = AppStore.get();
+  const { focusStore, actionMenuStore } = AppStore.get();
   const { detailed: detailedEntity, hovered: hoveredEntity } = focusStore.detailable.get();
 
   const shouldDim =
     detailedEntity ||
     hoveredEntity ||
-    shouldShowCharacterSheet(currentMenu.type) ||
+    actionMenuStore.shouldShowCharacterSheet() ||
     currentMenu.type !== MenuStateType.Base;
   const descendHotkey = HOTKEYS.SIDE_2;
   const exploreHotkey = HOTKEYS.SIDE_1;
@@ -101,7 +99,7 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
             <HotkeyButton
               className={`h-10 pr-2 pl-2 ${!isVendingMachine ? "bg-slate-800 w-full" : "w-1/2 mr-1 "} border border-white text-center hover:bg-slate-950`}
               hotkeys={["KeyG"]}
-              disabled={playerIsOperatingVendingMachine(currentMenu.type)}
+              disabled={actionMenuStore.operatingVendingMachine()}
               onClick={handleExploreClick}
             >
               Explore next room (G)

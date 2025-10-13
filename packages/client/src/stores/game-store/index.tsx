@@ -17,21 +17,9 @@ import getParty from "@/utils/getParty";
 import { getFocusedCharacter } from "@/utils/getFocusedCharacter";
 import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";
 import { BabylonControlledCombatantData } from "./babylon-controlled-combatant-data";
-import { ActionMenuState } from "@/app/game/ActionMenu/menu-state";
-import { InventoryItemsMenuState } from "@/app/game/ActionMenu/menu-state/inventory-items";
-import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
-import { AssigningAttributePointsMenuState } from "@/app/game/ActionMenu/menu-state/assigning-attribute-points";
 import { FloatingMessage } from "./floating-messages";
-import { ItemsOnGroundMenuState } from "@/app/game/ActionMenu/menu-state/items-on-ground";
-import { OperatingVendingMachineMenuState } from "@/app/game/ActionMenu/menu-state/operating-vending-machine";
-import { PurchaseItemsMenuState } from "@/app/game/ActionMenu/menu-state/purchase-items";
-import { CraftingItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/crafting-item-selection";
-import { RepairItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/repair-item-selection";
-import { ConvertToShardItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/convert-to-shard-item-selection";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { TargetIndicator } from "@/app/3d-world/scene-entities/character-models/target-indicator-manager";
-import { AbilityTreeMenuState } from "@/app/game/ActionMenu/menu-state/ability-tree-menu-state";
-import { SelectBookToTradeForMenuState } from "@/app/game/ActionMenu/menu-state/select-book-type";
 
 export enum MenuContext {
   InventoryItems,
@@ -44,9 +32,6 @@ export class GameState {
   [immerable] = true;
   gameName: string | null = null;
   game: null | SpeedDungeonGame = null;
-
-  baseMenuState: BaseMenuState;
-  stackedMenuStates: ActionMenuState[] = [];
 
   /** Unique name which characters may list as their controller */
   username: null | string = null;
@@ -104,11 +89,8 @@ export class GameState {
     public get: () => GameState,
     public getActiveCombatant: () => Error | null | Combatant,
     public getCombatant: (entityId: EntityId) => Error | Combatant,
-    public getParty: () => Error | AdventuringParty,
-    public getCurrentMenu: () => ActionMenuState
-  ) {
-    this.baseMenuState = new BaseMenuState(false);
-  }
+    public getParty: () => Error | AdventuringParty
+  ) {}
 }
 
 export const useGameStore = create<GameState>()(
@@ -129,8 +111,7 @@ export const useGameStore = create<GameState>()(
             if (combatantResult instanceof Error) return combatantResult;
             return combatantResult;
           },
-          () => getParty(get().game, get().username),
-          () => getCurrentMenu(get())
+          () => getParty(get().game, get().username)
         ),
       {
         enabled: true,
@@ -146,23 +127,17 @@ export const useGameStore = create<GameState>()(
 // if we don't declare them in this file we get an error for trying to use the stores
 // before they're initialized
 
-export const baseMenuState = new BaseMenuState(false);
-export const inventoryItemsMenuState = new InventoryItemsMenuState();
-export const itemsOnGroundMenuState = new ItemsOnGroundMenuState();
-export const assignAttributesMenuState = new AssigningAttributePointsMenuState();
-export const operateVendingMachineMenuState = new OperatingVendingMachineMenuState();
-export const purchasingItemsMenuState = new PurchaseItemsMenuState();
-export const craftingItemSelectionMenuState = new CraftingItemSelectionMenuState();
-export const repairItemSelectionMenuState = new RepairItemSelectionMenuState();
-export const convertToShardItemSelectionMenuState = new ConvertToShardItemSelectionMenuState();
-export const selectBooksToTradeForMenuState = new SelectBookToTradeForMenuState();
-export const abilityTreeMenuState = new AbilityTreeMenuState();
-
-export function getCurrentMenu(state: GameState) {
-  const topStackedMenu = state.stackedMenuStates[state.stackedMenuStates.length - 1];
-  if (topStackedMenu) return topStackedMenu;
-  else return state.baseMenuState;
-}
+// export const baseMenuState = new BaseMenuState(false);
+// export const inventoryItemsMenuState = new InventoryItemsMenuState();
+// export const itemsOnGroundMenuState = new ItemsOnGroundMenuState();
+// export const assignAttributesMenuState = new AssigningAttributePointsMenuState();
+// export const operateVendingMachineMenuState = new OperatingVendingMachineMenuState();
+// export const purchasingItemsMenuState = new PurchaseItemsMenuState();
+// export const craftingItemSelectionMenuState = new CraftingItemSelectionMenuState();
+// export const repairItemSelectionMenuState = new RepairItemSelectionMenuState();
+// export const convertToShardItemSelectionMenuState = new ConvertToShardItemSelectionMenuState();
+// export const selectBooksToTradeForMenuState = new SelectBookToTradeForMenuState();
+// export const abilityTreeMenuState = new AbilityTreeMenuState();
 
 export function getActionUserContext(
   gameState: GameState,

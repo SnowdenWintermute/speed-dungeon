@@ -1,5 +1,5 @@
 import { setAlert } from "@/app/components/alerts";
-import { getCurrentMenu, useGameStore } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 import { ERROR_MESSAGES, ClientToServerEvent } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
@@ -8,6 +8,7 @@ import getCurrentParty from "./getCurrentParty";
 import { AppStore } from "@/mobx-stores/app-store";
 
 export default function setFocusedCharacter(id: string) {
+  const { actionMenuStore } = AppStore.get();
   useGameStore.getState().mutateState((gameState) => {
     const partyOption = getCurrentParty(gameState, gameState.username || "");
     if (!partyOption) {
@@ -26,7 +27,7 @@ export default function setFocusedCharacter(id: string) {
 
     focusStore.combatantAbility.clear();
 
-    let currentMenu = getCurrentMenu(gameState);
+    let currentMenu = actionMenuStore.getCurrentMenu();
 
     if (
       !shouldShowCharacterSheet(currentMenu.type) &&

@@ -1,3 +1,4 @@
+import { ActionMenuStore } from "./action-menu";
 import { DialogStore } from "./dialogs";
 import { FocusStore } from "./focus";
 import { InputStore } from "./input";
@@ -10,6 +11,7 @@ export class AppStore {
   tooltipStore = new TooltipStore();
   inputStore = new InputStore();
   focusStore = new FocusStore();
+  actionMenuStore = new ActionMenuStore();
 
   private static _instance: AppStore | null = null;
 

@@ -24,7 +24,6 @@ import {
   CONFIRM_SHARD_TEXT,
   ConfirmConvertToShardsMenuState,
 } from "./menu-state/confirm-convert-to-shards";
-import { playerIsOperatingVendingMachine } from "@/utils/player-is-operating-vending-machine";
 import { CharacterFocusingButtons } from "./CycleCharacterFocusButtons";
 import { BottomButtons } from "./BottomButtons";
 import { ConfirmShardConversionDisplay } from "./ConfirmShardConversionDisplay";
@@ -51,7 +50,7 @@ const buttonTitlesToAccent = [
 export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) => {
   const hoveredAction = useGameStore((state) => state.hoveredAction);
 
-  const { focusStore } = AppStore.get();
+  const { focusStore, actionMenuStore } = AppStore.get();
   const { hoveredItem, detailedItem } = focusStore.getFocusedItems();
 
   const currentMenu = useGameStore.getState().getCurrentMenu();
@@ -204,7 +203,7 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
             </span>
           </HoverableTooltipWrapper>
         )}
-        {playerIsOperatingVendingMachine(currentMenu.type) && <VendingMachineShardDisplay />}
+        {actionMenuStore.operatingVendingMachine() && <VendingMachineShardDisplay />}
       </ul>
       <div
         className={`mb-3 flex`}

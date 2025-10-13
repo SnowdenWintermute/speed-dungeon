@@ -1,12 +1,5 @@
-import {
-  ActionUserContext,
-  CombatActionName,
-  Combatant,
-  EntityId,
-  SpeedDungeonGame,
-} from "@speed-dungeon/common";
+import { ActionUserContext, Combatant, EntityId, SpeedDungeonGame } from "@speed-dungeon/common";
 import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";
-import { ActionMenuState } from "@/app/game/ActionMenu/menu-state";
 import { InventoryItemsMenuState } from "@/app/game/ActionMenu/menu-state/inventory-items";
 import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
 import { AssigningAttributePointsMenuState } from "@/app/game/ActionMenu/menu-state/assigning-attribute-points";
@@ -44,11 +37,6 @@ export const UI_DISPLAY_MODE_STRINGS: Record<UiDisplayMode, string> = {
 export class AppStoreManager {
   game: null | SpeedDungeonGame = null;
 
-  // Action Menu State
-  baseMenuState: BaseMenuState;
-  stackedMenuStates: ActionMenuState[] = [];
-  hoveredAction: null | CombatActionName = null;
-
   // Misc Game UI
   username: null | string = null;
   focusedCharacterId: string = "";
@@ -81,34 +69,7 @@ export class AppStoreManager {
     // return getFocusedCharacter();
   };
 
-  constructor() {
-    this.baseMenuState = new BaseMenuState(false);
-  }
-}
-
-// instantiate all states upfront and save them, or just save them as they are created
-// so we don't pay object creation cost every time we switch state
-//
-// if we don't declare them in this file we get an error for trying to use the stores
-// before they're initialized
-
-export const baseMenuState = new BaseMenuState(false);
-export const inventoryItemsMenuState = new InventoryItemsMenuState();
-export const itemsOnGroundMenuState = new ItemsOnGroundMenuState();
-export const assignAttributesMenuState = new AssigningAttributePointsMenuState();
-export const operateVendingMachineMenuState = new OperatingVendingMachineMenuState();
-export const purchasingItemsMenuState = new PurchaseItemsMenuState();
-export const craftingItemSelectionMenuState = new CraftingItemSelectionMenuState();
-export const repairItemSelectionMenuState = new RepairItemSelectionMenuState();
-export const convertToShardItemSelectionMenuState = new ConvertToShardItemSelectionMenuState();
-export const selectBooksToTradeForMenuState = new SelectBookToTradeForMenuState();
-export const abilityTreeMenuState = new AbilityTreeMenuState();
-
-export function getCurrentMenu() {
-  throw new Error("not implemented");
-  // const topStackedMenu = state.stackedMenuStates[state.stackedMenuStates.length - 1];
-  // if (topStackedMenu) return topStackedMenu;
-  // else return state.baseMenuState;
+  constructor() {}
 }
 
 export function getActionUserContext(): Error | ActionUserContext {
