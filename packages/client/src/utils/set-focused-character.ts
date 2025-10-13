@@ -3,7 +3,6 @@ import { useGameStore } from "@/stores/game-store";
 import { ERROR_MESSAGES, ClientToServerEvent } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
-import { shouldShowCharacterSheet } from "./should-show-character-sheet";
 import getCurrentParty from "./getCurrentParty";
 import { AppStore } from "@/mobx-stores/app-store";
 
@@ -30,29 +29,28 @@ export default function setFocusedCharacter(id: string) {
     let currentMenu = actionMenuStore.getCurrentMenu();
 
     if (
-      !shouldShowCharacterSheet(currentMenu.type) &&
+      !actionMenuStore.shouldShowCharacterSheet() &&
       currentMenu.type !== MenuStateType.ItemsOnGround &&
       currentMenu.type !== MenuStateType.RepairItemSelection &&
       currentMenu.type !== MenuStateType.CraftingItemSelection &&
       currentMenu.type !== MenuStateType.PurchasingItems
-    )
-      gameState.stackedMenuStates = [];
-    if (currentMenu.type === MenuStateType.ItemSelected) {
-      gameState.stackedMenuStates.pop();
-    }
-    // otherwise you'll end up looking at crafting action selection on an unowned item
-    if (
-      shouldShowCharacterSheet(currentMenu.type) &&
-      gameState.stackedMenuStates
-        .map((menuState) => menuState.type)
-        .includes(MenuStateType.CraftingActionSelection)
     ) {
-      gameState.stackedMenuStates = gameState.stackedMenuStates.filter(
-        (menuState) => menuState.type !== MenuStateType.CraftingActionSelection
-      );
+      actionMenuStore.clearStack();
     }
 
-    currentMenu = getCurrentMenu(gameState);
+    if (currentMenu.type === MenuStateType.ItemSelected) {
+      actionMenuStore.popStack();
+    }
+
+    // otherwise you'll end up looking at crafting action selection on an unowned item
+    if (
+      actionMenuStore.shouldShowCharacterSheet() &&
+      actionMenuStore.stackedMenusIncludeType(MenuStateType.CraftingActionSelection)
+    ) {
+      actionMenuStore.removeMenuFromStack(MenuStateType.CraftingActionSelection);
+    }
+
+    currentMenu = actionMenuStore.getCurrentMenu();
     currentMenu.page = 1;
 
     const game = gameState.game;

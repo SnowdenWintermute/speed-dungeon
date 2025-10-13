@@ -1,4 +1,4 @@
-import { GameState, getCurrentMenu } from "@/stores/game-store";
+import { GameState } from "@/stores/game-store";
 import {
   CharacterAssociatedData,
   CombatantEquipment,
@@ -72,7 +72,8 @@ export function characterEquippedItemHandler(packet: {
 
       if (itemToSelectOption === null) return;
 
-      const currentMenu = getCurrentMenu(gameState);
+      const { actionMenuStore } = AppStore.get();
+      const currentMenu = actionMenuStore.getCurrentMenu();
       if (currentMenu instanceof ConsideringItemMenuState) {
         // not cloning here leads to zustand revoked proxy error
         // maybe once we don't use zustand we can try not cloning

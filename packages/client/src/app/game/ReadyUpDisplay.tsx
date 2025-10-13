@@ -1,5 +1,5 @@
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { getCurrentMenu, operateVendingMachineMenuState, useGameStore } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 import {
   AdventuringParty,
   ClientToServerEvent,
@@ -20,20 +20,17 @@ interface Props {
 export const ReadyUpDisplay = observer(({ party }: Props) => {
   const username = useGameStore().username;
   if (username === null) return <div>no username</div>;
+  const { focusStore, actionMenuStore } = AppStore.get();
   const mutateGameState = useGameStore().mutateState;
   const focusedCharacterId = useGameStore().focusedCharacterId;
 
   function handleExploreClick() {
     websocketConnection.emit(ClientToServerEvent.ToggleReadyToExplore);
-    useGameStore.getState().mutateState((state) => {
-      state.stackedMenuStates = [];
-    });
+    actionMenuStore.clearStack();
   }
   function handleDescendClick() {
     websocketConnection.emit(ClientToServerEvent.ToggleReadyToDescend);
-    useGameStore.getState().mutateState((state) => {
-      state.stackedMenuStates = [];
-    });
+    actionMenuStore.clearStack();
   }
 
   const exploreButtonsText =
@@ -67,9 +64,8 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
 
   const inStaircaseRoom = party.currentRoom.roomType === DungeonRoomType.Staircase;
   const isVendingMachine = party.currentRoom.roomType === DungeonRoomType.VendingMachine;
-  const currentMenu = useGameStore.getState().getCurrentMenu();
+  const currentMenu = actionMenuStore.getCurrentMenu();
 
-  const { focusStore, actionMenuStore } = AppStore.get();
   const { detailed: detailedEntity, hovered: hoveredEntity } = focusStore.detailable.get();
 
   const shouldDim =
@@ -116,9 +112,9 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
                 onClick={() => {
                   mutateGameState((state) => {
                     const currentMenu = getCurrentMenu(state);
-                    if (currentMenu.type === MenuStateType.OperatingVendingMachine)
-                      state.stackedMenuStates.pop();
-                    else {
+                    if (currentMenu.type === MenuStateType.OperatingVendingMachine) {
+                      actionMenuStore.popStack();
+                    } else {
                       state.stackedMenuStates.push(operateVendingMachineMenuState);
                       focusStore.detailable.clear();
                     }

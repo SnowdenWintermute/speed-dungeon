@@ -91,11 +91,11 @@ export const PaperDollSlot = observer(
       focusStore.selectItem(itemOption);
       const detailedItemIsNowNull = focusStore.detailable.get().detailed === null;
 
-      const currentMenu = useGameStore.getState().getCurrentMenu();
-      if (currentMenu instanceof ConsideringItemMenuState && detailedItemIsNowNull)
-        return useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.pop();
-        });
+      const { actionMenuStore } = AppStore.get();
+      const currentMenu = actionMenuStore.getCurrentMenu();
+      if (currentMenu instanceof ConsideringItemMenuState && detailedItemIsNowNull) {
+        return actionMenuStore.popStack();
+      }
 
       if (currentMenu instanceof ConsideringItemMenuState) currentMenu.item = itemOption;
       else

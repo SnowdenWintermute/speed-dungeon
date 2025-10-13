@@ -10,8 +10,8 @@ import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 
 export const ItemCraftDisplay = observer(() => {
-  const currentMenu = useGameStore.getState().getCurrentMenu();
-  const { focusStore } = AppStore.get();
+  const { focusStore, actionMenuStore } = AppStore.get();
+  const currentMenu = actionMenuStore.getCurrentMenu();
   const { hovered: hoveredEntity } = focusStore.detailable.get();
   const partyResult = useGameStore.getState().getParty();
   if (

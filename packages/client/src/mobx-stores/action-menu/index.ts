@@ -12,8 +12,30 @@ export class ActionMenuStore {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
+  popStack() {
+    return this.stackedMenuStates.pop();
+  }
+
   clearStack() {
     this.stackedMenuStates = [];
+  }
+
+  currentMenuIsType(menuStateType: MenuStateType) {
+    return this.getCurrentMenu().type === menuStateType;
+  }
+
+  hasStackedMenus() {
+    return this.stackedMenuStates.length > 0;
+  }
+
+  stackedMenusIncludeType(menuStateType: MenuStateType) {
+    return this.stackedMenuStates.map((menuState) => menuState.type).includes(menuStateType);
+  }
+
+  removeMenuFromStack(menuStateType: MenuStateType) {
+    this.stackedMenuStates = this.stackedMenuStates.filter(
+      (menuState) => menuState.type !== menuStateType
+    );
   }
 
   getCurrentMenu() {

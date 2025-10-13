@@ -93,9 +93,9 @@ export const TopInfoBar = observer(() => {
           onClick={() => {
             AppStore.get().dialogStore.toggle(DialogElementName.LeaveGame);
             mutateGameState((state) => {
-              state.stackedMenuStates = [];
               state.baseMenuState.inCombat = false;
             });
+            AppStore.get().actionMenuStore.clearStack();
           }}
         >
           LEAVE GAME{" "}

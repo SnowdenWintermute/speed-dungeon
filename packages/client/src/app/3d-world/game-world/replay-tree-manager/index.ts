@@ -6,6 +6,7 @@ import {
 import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { ReplayTreeProcessor } from "./replay-tree-processor";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export class ReplayTreeProcessorManager {
   private queue: { root: NestedNodeReplayEvent; onComplete: () => void }[] = [];
@@ -32,8 +33,8 @@ export class ReplayTreeProcessorManager {
     useGameStore.getState().mutateState((state) => {
       const partyOption = getCurrentParty(state, state.username || "");
       if (partyOption && !payload.doNotLockInput) InputLock.lockInput(partyOption.inputLock);
-      state.stackedMenuStates = [];
     });
+    AppStore.get().actionMenuStore.clearStack();
   }
 
   currentTreeCompleted() {

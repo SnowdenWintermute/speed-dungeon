@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import BackpackIcon from "../../../../public/img/game-ui-icons/backpack.svg";
-import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
-import { getCurrentMenu, inventoryItemsMenuState, useGameStore } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 import { INVENTORY_DEFAULT_CAPACITY } from "@speed-dungeon/common";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export default function InventoryIconButton({
   entityId,
@@ -31,11 +31,16 @@ export default function InventoryIconButton({
             state.focusedCharacterId = entityId;
             switchedFocusedCharacter = true;
           }
-          if (shouldShowCharacterSheet(getCurrentMenu(state).type) && !switchedFocusedCharacter)
-            state.stackedMenuStates = [];
-          else if (!shouldShowCharacterSheet(getCurrentMenu(state).type))
-            state.stackedMenuStates.push(inventoryItemsMenuState);
         });
+
+        const { actionMenuStore } = AppStore.get();
+
+        const shouldShowCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
+        if (shouldShowCharacterSheet && !switchedFocusedCharacter) {
+          actionMenuStore.clearStack();
+        } else if (!shouldShowCharacterSheet) {
+          state.stackedMenuStates.push(inventoryItemsMenuState);
+        }
       }}
     >
       <BackpackIcon className="fill-slate-400 h-full w-full pointer-events-none" />

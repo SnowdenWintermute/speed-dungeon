@@ -8,7 +8,6 @@ import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import { ReadyUpDisplay } from "./ReadyUpDisplay";
 import CombatLog from "./combat-log";
 import { getFocusedCharacter } from "@/utils/getFocusedCharacter";
-import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
 import ActionMenuAndCharacterSheetLayer from "./ActionMenuAndCharacterSheetLayer";
 import { ZIndexLayers } from "../z-index-layers";
 import PersistentActionEntityDisplay from "./persistent-action-entity-display";
@@ -18,8 +17,8 @@ import { DialogElementName } from "@/mobx-stores/dialogs";
 
 export const Game = observer(() => {
   const game = useGameStore().game;
-  const currentMenu = useGameStore.getState().getCurrentMenu();
-  const viewingCharacterSheet = shouldShowCharacterSheet(currentMenu.type);
+  const { actionMenuStore } = AppStore.get();
+  const viewingCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
 
   const viewingLeaveGameModal = AppStore.get().dialogStore.isOpen(DialogElementName.LeaveGame);
 

@@ -19,11 +19,14 @@ import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export function setUpGameLobbyEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
 ) {
   const mutateGameStore = useGameStore.getState().mutateState;
+
+  const { actionMenuStore } = AppStore.get();
 
   socket.on(ServerToClientEvent.GameFullUpdate, (game) => {
     if (game) {
@@ -54,8 +57,9 @@ export function setUpGameLobbyEventHandlers(
         state.game = game;
         state.gameName = game.name;
       }
-      state.stackedMenuStates = [];
     });
+
+    actionMenuStore.clearStack();
   });
 
   socket.on(ServerToClientEvent.PlayerJoinedGame, (username) => {

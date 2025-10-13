@@ -1,6 +1,6 @@
 import { BUTTON_HEIGHT, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import React, { ReactNode, useEffect } from "react";
-import { getCurrentMenu, useGameStore } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 import { ActionButtonCategory, MenuStateType } from "./menu-state";
 import ActionDetails from "../detailables/action-details";
 import {
@@ -18,7 +18,6 @@ import {
   USE_CONSUMABLE_BUTTON_TEXT,
 } from "./menu-state/considering-item";
 import { ItemDetailsWithComparison } from "../ItemDetailsWithComparison";
-import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import {
   CONFIRM_SHARD_TEXT,
@@ -53,21 +52,18 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
   const { focusStore, actionMenuStore } = AppStore.get();
   const { hoveredItem, detailedItem } = focusStore.getFocusedItems();
 
-  const currentMenu = useGameStore.getState().getCurrentMenu();
+  const currentMenu = actionMenuStore.getCurrentMenu();
   const currentPageNumber = currentMenu.page;
   const buttonProperties = currentMenu.getButtonProperties();
   const numberOfNumberedButtons = buttonProperties[ActionButtonCategory.Numbered].length;
-  const mutateGameState = useGameStore().mutateState;
-  const viewingCharacterSheet = shouldShowCharacterSheet(currentMenu.type);
+  const viewingCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
   const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
   const partyResult = useGameStore.getState().getParty();
   if (focusedCharacterResult instanceof Error || partyResult instanceof Error) return <></>;
 
   useEffect(() => {
     if (currentMenu.type === MenuStateType.ItemsOnGround && numberOfNumberedButtons === 0) {
-      mutateGameState((state) => {
-        state.stackedMenuStates.pop();
-      });
+      actionMenuStore.popStack();
     }
   }, [currentMenu.type, numberOfNumberedButtons]);
 

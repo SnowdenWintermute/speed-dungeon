@@ -10,15 +10,14 @@ import { DropShardsModal } from "./DropShardsModal";
 import CharacterAttributes from "./CharacterAttributes";
 import { useGameStore } from "@/stores/game-store";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
-import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 
 export const PaperDollAndAttributes = observer(() => {
-  const { dialogStore } = AppStore.get();
+  const { dialogStore, actionMenuStore } = AppStore.get();
   const viewingDropShardsModal = dialogStore.isOpen(DialogElementName.DropShards);
-  const currentMenu = useGameStore().getCurrentMenu();
+  const currentMenu = actionMenuStore.getCurrentMenu();
 
   const partyResult = useGameStore().getParty();
   if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
@@ -48,7 +47,7 @@ export const PaperDollAndAttributes = observer(() => {
                 />
               </HotkeyButton>
             </HoverableTooltipWrapper>
-            {viewingDropShardsModal === true && shouldShowCharacterSheet(currentMenu.type) && (
+            {viewingDropShardsModal === true && actionMenuStore.shouldShowCharacterSheet() && (
               <DropShardsModal
                 className="absolute bottom-0 right-0 border border-slate-400"
                 min={0}

@@ -5,14 +5,13 @@ import React from "react";
 import { ShardsDisplay } from "../character-sheet/ShardsDisplay";
 import { DropShardsModal } from "../character-sheet/DropShardsModal";
 import { useGameStore } from "@/stores/game-store";
-import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 
 export const VendingMachineShardDisplay = observer(() => {
-  const currentMenu = useGameStore.getState().getCurrentMenu();
-  const viewingCharacterSheet = shouldShowCharacterSheet(currentMenu.type);
+  const { actionMenuStore } = AppStore.get();
+  const viewingCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
 
   const { dialogStore } = AppStore.get();
   const viewingDropShardsModal = dialogStore.isOpen(DialogElementName.DropShards);

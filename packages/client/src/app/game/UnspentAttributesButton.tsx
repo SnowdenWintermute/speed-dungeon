@@ -7,6 +7,7 @@ import { websocketConnection } from "@/singletons/websocket-connection";
 import setFocusedCharacter from "@/utils/set-focused-character";
 import { AssigningAttributePointsMenuState } from "./ActionMenu/menu-state/assigning-attribute-points";
 import { MenuStateType } from "./ActionMenu/menu-state";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export const toggleAssignAttributesHotkey = HOTKEYS.MAIN_2;
 const buttonText = `Assign attributes (${letterFromKeyCode(toggleAssignAttributesHotkey)})`;
@@ -22,6 +23,7 @@ export default function UnspentAttributesButton({
   const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
   if (focusedCharacterResult instanceof Error) return <></>;
   const mutateGameState = useGameStore().mutateState;
+  const { actionMenuStore } = AppStore.get();
 
   function handleUnspentAttributesButtonClick() {
     websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
@@ -33,12 +35,10 @@ export default function UnspentAttributesButton({
     if (focusedCharacterResult instanceof Error) return;
 
     if (
-      useGameStore.getState().getCurrentMenu().type === MenuStateType.AssignAttributePoints &&
+      actionMenuStore.currentMenuIsType(MenuStateType.AssignAttributePoints) &&
       entityId === focusedCharacterResult.entityProperties.id
     ) {
-      mutateGameState((store) => {
-        store.stackedMenuStates.pop();
-      });
+      actionMenuStore.popStack();
     } else {
       setFocusedCharacter(entityId);
       mutateGameState((store) => {

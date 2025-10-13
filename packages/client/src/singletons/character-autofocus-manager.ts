@@ -1,6 +1,7 @@
 import { CombatantTurnTracker, TurnTracker } from "@speed-dungeon/common";
-import { GameState, getCurrentMenu } from "@/stores/game-store";
+import { GameState } from "@/stores/game-store";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export class CharacterAutoFocusManager {
   constructor() {}
@@ -25,8 +26,9 @@ export class CharacterAutoFocusManager {
 
   focusFirstOwnedCharacter(gameState: GameState) {
     // if viewing menu other than ItemsOnGround, do nothing
-    const clientIsViewingMenus = gameState.stackedMenuStates.length;
-    const currentMenu = getCurrentMenu(gameState);
+    const { actionMenuStore } = AppStore.get();
+    const clientIsViewingMenus = actionMenuStore.hasStackedMenus();
+    const currentMenu = actionMenuStore.getCurrentMenu();
     if (clientIsViewingMenus && currentMenu.type !== MenuStateType.ItemsOnGround) return;
 
     const playerResult = gameState.getPlayer();
@@ -43,8 +45,9 @@ export class CharacterAutoFocusManager {
     const party = partyResult;
 
     // if viewing menu other than ItemsOnGround, do nothing
-    const clientIsViewingMenus = gameState.stackedMenuStates.length;
-    const currentMenu = getCurrentMenu(gameState);
+    const { actionMenuStore } = AppStore.get();
+    const clientIsViewingMenus = actionMenuStore.hasStackedMenus();
+    const currentMenu = actionMenuStore.getCurrentMenu();
     if (clientIsViewingMenus && currentMenu.type !== MenuStateType.ItemsOnGround) return;
 
     if (newlyActiveTracker instanceof CombatantTurnTracker) {

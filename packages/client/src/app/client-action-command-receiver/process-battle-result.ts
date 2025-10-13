@@ -1,5 +1,4 @@
 import {
-  AdventuringParty,
   BattleConclusion,
   BattleResultActionCommandPayload,
   CleanupMode,
@@ -12,12 +11,13 @@ import {
 import { ClientActionCommandReceiver } from ".";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/combat-log-message";
-import { itemsOnGroundMenuState, useGameStore } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 import { gameWorld, getGameWorld } from "../3d-world/SceneManager";
 import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
 import { MenuStateType } from "../game/ActionMenu/menu-state";
 import { plainToInstance } from "class-transformer";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export async function battleResultActionCommandHandler(
   this: ClientActionCommandReceiver,
@@ -39,11 +39,12 @@ export async function battleResultActionCommandHandler(
       });
     }
 
-    const currentMenu = useGameStore.getState().getCurrentMenu();
-    if (currentMenu.type === MenuStateType.Base)
+    const { actionMenuStore } = AppStore.get();
+    if (actionMenuStore.currentMenuIsType(MenuStateType.Base)) {
       useGameStore.getState().mutateState((state) => {
         state.stackedMenuStates.push(itemsOnGroundMenuState);
       });
+    }
   }
 
   useGameStore.getState().mutateState((state) => {

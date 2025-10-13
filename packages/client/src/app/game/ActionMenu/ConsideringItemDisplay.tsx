@@ -14,9 +14,13 @@ import { letterFromKeyCode } from "@/hotkeys";
 import { useGameStore } from "@/stores/game-store";
 import { ConsideringItemMenuState } from "./menu-state/considering-item";
 import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
+import { AppStore } from "@/mobx-stores/app-store";
+import { observer } from "mobx-react-lite";
 
-export default function ConsideringItemDisplay() {
-  const currentMenu = useGameStore().getCurrentMenu();
+export const ConsideringItemDisplay = observer(() => {
+  const { actionMenuStore } = AppStore.get();
+  const currentMenu = actionMenuStore.getCurrentMenu();
+
   const mutateGameState = useGameStore().mutateState;
 
   if (!(currentMenu instanceof ConsideringItemMenuState)) return <div>Unexpected menu state</div>;
@@ -70,4 +74,4 @@ export default function ConsideringItemDisplay() {
       </div>
     </div>
   );
-}
+});

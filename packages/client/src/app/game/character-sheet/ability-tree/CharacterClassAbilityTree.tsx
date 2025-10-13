@@ -17,9 +17,9 @@ import { AppStore } from "@/mobx-stores/app-store";
 
 export const CharacterClassAbilityTree = observer(
   ({ abilityTree, isSupportClass }: { abilityTree: AbilityTree; isSupportClass: boolean }) => {
-    const currentMenu = useGameStore.getState().getCurrentMenu();
-
-    const detailedAbilityOption = AppStore.get().focusStore.combatantAbility.get().detailed;
+    const { actionMenuStore, focusStore } = AppStore.get();
+    const currentMenu = actionMenuStore.getCurrentMenu();
+    const detailedAbilityOption = focusStore.combatantAbility.get().detailed;
 
     const cellRefs = useRef<
       Record<string, { element: HTMLDivElement; prerequisites: AbilityTreeAbility[] }>
