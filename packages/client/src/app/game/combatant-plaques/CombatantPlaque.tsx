@@ -16,7 +16,7 @@ import {
 } from "@speed-dungeon/common";
 import "./floating-text-animation.css";
 import CombatantFloatingMessagesDisplay from "./combatant-floating-messages-display";
-import InventoryIconButton from "./InventoryIconButton";
+import { InventoryIconButton } from "./InventoryIconButton";
 import HotswapSlotButtons from "./HotswapSlotButtons";
 import { CharacterModelDisplay } from "@/app/character-model-display";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";

@@ -7,13 +7,13 @@ import {
   ERROR_MESSAGES,
   getAbilityTreeAbilityNameString,
 } from "@speed-dungeon/common";
-import { MenuStateType } from "../../ActionMenu/menu-state";
 import { getAbilityIcon } from "./ability-icons";
 import AbilityTreeButton from "./AbilityTreeButton";
 import { useRef } from "react";
 import PrerequisiteArrows from "./PrerequisiteArrows";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
+import { MenuStateType } from "../../ActionMenu/menu-state/menu-state-type";
 
 export const CharacterClassAbilityTree = observer(
   ({ abilityTree, isSupportClass }: { abilityTree: AbilityTree; isSupportClass: boolean }) => {

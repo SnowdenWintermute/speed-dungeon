@@ -1,5 +1,5 @@
 import { useGameStore } from "@/stores/game-store";
-import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState, MenuStateType } from ".";
+import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState } from ".";
 import {
   ClientToServerEvent,
   CombatActionName,
@@ -15,6 +15,7 @@ import { createCancelButton } from "./common-buttons/cancel";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { AppStore } from "@/mobx-stores/app-store";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
+import { MenuStateType } from "./menu-state-type";
 
 export const executeHotkey = HOTKEYS.MAIN_1;
 export const EXECUTE_BUTTON_TEXT = `Execute (${letterFromKeyCode(executeHotkey)})`;

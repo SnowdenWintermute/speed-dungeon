@@ -5,8 +5,8 @@ import { removeClientPlayerFromGame } from "./remove-client-player-from-game";
 import { getGameWorld } from "../3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
 import { synchronizeTargetingIndicators } from "../websocket-manager/game-event-handlers/synchronize-targeting-indicators";
-import { MenuStateType } from "../game/ActionMenu/menu-state";
 import { AppStore } from "@/mobx-stores/app-store";
+import { MenuStateType } from "../game/ActionMenu/menu-state/menu-state-type";
 
 export class ClientActionCommandReceiver implements ActionCommandReceiver {
   constructor() {}

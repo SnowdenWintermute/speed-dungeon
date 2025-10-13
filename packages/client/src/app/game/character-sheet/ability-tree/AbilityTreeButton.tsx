@@ -10,9 +10,9 @@ import {
 } from "@speed-dungeon/common";
 import { useGameStore } from "@/stores/game-store";
 import React, { ReactNode, useState } from "react";
-import { MenuStateType } from "../../ActionMenu/menu-state";
 import { ConsideringCombatantAbilityMenuState } from "../../ActionMenu/menu-state/considering-tree-ability";
 import { AppStore } from "@/mobx-stores/app-store";
+import { MenuStateType } from "../../ActionMenu/menu-state/menu-state-type";
 
 interface Props {
   focusedCharacterId: EntityId;

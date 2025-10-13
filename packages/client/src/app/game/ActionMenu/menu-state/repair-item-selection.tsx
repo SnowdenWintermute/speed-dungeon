@@ -1,4 +1,4 @@
-import { ActionButtonCategory, MenuStateType } from ".";
+import { ActionButtonCategory } from ".";
 import { ItemsMenuState } from "./items";
 import {
   ClientToServerEvent,
@@ -14,6 +14,7 @@ import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
 import { PriceDisplay } from "../../character-sheet/ShardsDisplay";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { MenuStateType } from "./menu-state-type";
 
 export class RepairItemSelectionMenuState extends ItemsMenuState {
   constructor() {

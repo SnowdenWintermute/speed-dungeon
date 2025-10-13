@@ -1,5 +1,5 @@
 import { useGameStore } from "@/stores/game-store";
-import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState, MenuStateType } from ".";
+import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState } from ".";
 import {
   CRAFTING_ACTION_DESCRIPTIONS,
   CRAFTING_ACTION_DISABLED_CONDITIONS,
@@ -21,6 +21,7 @@ import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { createCancelButton } from "./common-buttons/cancel";
 import { AppStore } from "@/mobx-stores/app-store";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
+import { MenuStateType } from "./menu-state-type";
 
 const useItemHotkey = HOTKEYS.MAIN_1;
 const useItemLetter = letterFromKeyCode(useItemHotkey);

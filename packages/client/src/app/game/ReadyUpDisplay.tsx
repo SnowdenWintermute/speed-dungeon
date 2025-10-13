@@ -9,10 +9,10 @@ import {
 import React, { MouseEventHandler } from "react";
 import { HotkeyButton } from "../components/atoms/HotkeyButton";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
-import { MenuStateType } from "./ActionMenu/menu-state";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MENU_STATE_POOL } from "@/mobx-stores/action-menu/menu-state-pool";
+import { MenuStateType } from "./ActionMenu/menu-state/menu-state-type";
 
 interface Props {
   party: AdventuringParty;

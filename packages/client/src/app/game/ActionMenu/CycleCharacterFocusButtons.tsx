@@ -1,7 +1,6 @@
 import { useGameStore } from "@/stores/game-store";
 import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import React from "react";
-import { MenuStateType } from "./menu-state";
 import getCurrentParty from "@/utils/getCurrentParty";
 import setFocusedCharacter from "@/utils/set-focused-character";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
@@ -11,6 +10,7 @@ import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicated
 import { AppStore } from "@/mobx-stores/app-store";
 import { MENU_STATE_POOL } from "@/mobx-stores/action-menu/menu-state-pool";
 import { ActionMenuButtonProperties } from "./menu-state/action-menu-button-properties";
+import { MenuStateType } from "./menu-state/menu-state-type";
 
 export function CharacterFocusingButtons() {
   function createFocusCharacterButtonProperties(

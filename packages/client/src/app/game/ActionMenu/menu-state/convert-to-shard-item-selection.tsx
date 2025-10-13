@@ -1,4 +1,4 @@
-import { ActionButtonCategory, MenuStateType } from ".";
+import { ActionButtonCategory } from ".";
 import { ItemsMenuState } from "./items";
 import { CombatantProperties, Item, getItemSellPrice } from "@speed-dungeon/common";
 import { useGameStore } from "@/stores/game-store";
@@ -6,6 +6,7 @@ import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { PriceDisplay } from "../../character-sheet/ShardsDisplay";
 import { ConfirmConvertToShardsMenuState } from "./confirm-convert-to-shards";
 import { AppStore } from "@/mobx-stores/app-store";
+import { MenuStateType } from "./menu-state-type";
 
 export class ConvertToShardItemSelectionMenuState extends ItemsMenuState {
   constructor() {

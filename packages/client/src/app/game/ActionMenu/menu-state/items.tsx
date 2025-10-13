@@ -1,5 +1,5 @@
 import { useGameStore } from "@/stores/game-store";
-import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState, MenuStateType } from ".";
+import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState } from ".";
 import {
   CONSUMABLE_TEXT_COLOR,
   CONSUMABLE_TURQUOISE,
@@ -243,6 +243,7 @@ import { DialogElementName } from "@/mobx-stores/dialogs";
 import { ModifierKey } from "@/mobx-stores/input";
 import { observer } from "mobx-react-lite";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
+import { MenuStateType } from "./menu-state-type";
 
 export const ItemButtonBody = observer(
   ({

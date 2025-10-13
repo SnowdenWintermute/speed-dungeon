@@ -1,4 +1,4 @@
-import { ActionButtonCategory, MenuStateType } from ".";
+import { ActionButtonCategory } from ".";
 import { ItemsMenuState } from "./items";
 import {
   BookConsumableType,
@@ -12,6 +12,7 @@ import { ReactNode } from "react";
 import { ConfirmTradeForBookMenuState } from "./confirm-trade-for-book";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { AppStore } from "@/mobx-stores/app-store";
+import { MenuStateType } from "./menu-state-type";
 
 export class SelectItemToTradeForBookMenuState extends ItemsMenuState {
   acceptedItems: Item[] = [];

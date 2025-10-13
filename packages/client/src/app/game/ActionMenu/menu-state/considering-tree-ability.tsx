@@ -1,5 +1,5 @@
 import { useGameStore } from "@/stores/game-store";
-import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState, MenuStateType } from ".";
+import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState } from ".";
 import { createCancelButton } from "./common-buttons/cancel";
 import { setAlert } from "@/app/components/alerts";
 import {
@@ -27,6 +27,7 @@ import Divider from "@/app/components/atoms/Divider";
 import { ACTION_ICONS, TRAIT_ICONS } from "@/app/icons";
 import { AppStore } from "@/mobx-stores/app-store";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
+import { MenuStateType } from "./menu-state-type";
 
 const allocateAbilityPointHotkey = HOTKEYS.MAIN_1;
 

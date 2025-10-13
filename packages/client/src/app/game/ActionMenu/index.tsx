@@ -1,7 +1,7 @@
 import { BUTTON_HEIGHT, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import React, { ReactNode, useEffect } from "react";
 import { useGameStore } from "@/stores/game-store";
-import { ActionButtonCategory, MenuStateType } from "./menu-state";
+import { ActionButtonCategory } from "./menu-state";
 import ActionDetails from "../detailables/action-details";
 import {
   ConsideringCombatActionMenuState,
@@ -33,6 +33,7 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import ActionSelectedDetails from "../detailables/action-details/ActionSelectedDetails";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
+import { MenuStateType } from "./menu-state/menu-state-type";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };

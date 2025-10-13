@@ -1,10 +1,10 @@
-import { MenuStateType } from ".";
 import { ItemsMenuState } from "./items";
 import { HOTKEYS } from "@/hotkeys";
 import { CombatantEquipment, Item } from "@speed-dungeon/common";
 import { ConsideringItemMenuState } from "./considering-item";
 import { useGameStore } from "@/stores/game-store";
 import { AppStore } from "@/mobx-stores/app-store";
+import { MenuStateType } from "./menu-state-type";
 
 export const viewEquipmentHotkey = HOTKEYS.ALT_1;
 export class EquippedItemsMenuState extends ItemsMenuState {

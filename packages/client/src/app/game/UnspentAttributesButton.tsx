@@ -5,9 +5,9 @@ import React from "react";
 import HoverableTooltipWrapper from "../components/atoms/HoverableTooltipWrapper";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import setFocusedCharacter from "@/utils/set-focused-character";
-import { MenuStateType } from "./ActionMenu/menu-state";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MENU_STATE_POOL } from "@/mobx-stores/action-menu/menu-state-pool";
+import { MenuStateType } from "./ActionMenu/menu-state/menu-state-type";
 
 export const toggleAssignAttributesHotkey = HOTKEYS.MAIN_2;
 const buttonText = `Assign attributes (${letterFromKeyCode(toggleAssignAttributesHotkey)})`;

@@ -14,11 +14,11 @@ import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/comb
 import { useGameStore } from "@/stores/game-store";
 import { gameWorld, getGameWorld } from "../3d-world/SceneManager";
 import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
-import { MenuStateType } from "../game/ActionMenu/menu-state";
 import { plainToInstance } from "class-transformer";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MENU_STATE_POOL } from "@/mobx-stores/action-menu/menu-state-pool";
+import { MenuStateType } from "../game/ActionMenu/menu-state/menu-state-type";
 
 export async function battleResultActionCommandHandler(
   this: ClientActionCommandReceiver,

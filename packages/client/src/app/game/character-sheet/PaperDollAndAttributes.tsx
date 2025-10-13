@@ -4,7 +4,6 @@ import InventoryCapacityDisplay from "./InventoryCapacityDisplay";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { HOTKEYS } from "@/hotkeys";
-import { MenuStateType } from "../ActionMenu/menu-state";
 import { ShardsDisplay } from "./ShardsDisplay";
 import { DropShardsModal } from "./DropShardsModal";
 import CharacterAttributes from "./CharacterAttributes";
@@ -13,6 +12,7 @@ import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
+import { MenuStateType } from "../ActionMenu/menu-state/menu-state-type";
 
 export const PaperDollAndAttributes = observer(() => {
   const { dialogStore, actionMenuStore } = AppStore.get();

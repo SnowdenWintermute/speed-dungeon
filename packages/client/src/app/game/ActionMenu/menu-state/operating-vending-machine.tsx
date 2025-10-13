@@ -1,5 +1,5 @@
 import { useGameStore } from "@/stores/game-store";
-import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState, MenuStateType } from ".";
+import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState } from ".";
 import { setAlert } from "@/app/components/alerts";
 import { createPageButtons } from "./create-page-buttons";
 import { HOTKEYS } from "@/hotkeys";
@@ -9,6 +9,7 @@ import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MENU_STATE_POOL } from "@/mobx-stores/action-menu/menu-state-pool";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
+import { MenuStateType } from "./menu-state-type";
 
 export const operateVendingMachineHotkey = HOTKEYS.SIDE_2;
 

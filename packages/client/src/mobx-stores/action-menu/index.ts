@@ -1,9 +1,9 @@
+import { ActionMenuState } from "@/app/game/ActionMenu/menu-state";
+import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
 import {
-  ActionMenuState,
   MENU_STATE_TYPE_STRINGS,
   MenuStateType,
-} from "@/app/game/ActionMenu/menu-state";
-import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
+} from "@/app/game/ActionMenu/menu-state/menu-state-type";
 import { CombatActionName } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 

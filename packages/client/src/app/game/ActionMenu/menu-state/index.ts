@@ -2,6 +2,7 @@ import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import { ReactNode } from "react";
 import { ACTION_MENU_PAGE_SIZE } from "..";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
+import { MenuStateType } from "./menu-state-type";
 
 export enum ActionButtonCategory {
   Top,

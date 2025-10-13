@@ -2,7 +2,7 @@ import { setAlert } from "@/app/components/alerts";
 import { useGameStore } from "@/stores/game-store";
 import { ERROR_MESSAGES, ClientToServerEvent } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
+import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
 import getCurrentParty from "./getCurrentParty";
 import { AppStore } from "@/mobx-stores/app-store";
 

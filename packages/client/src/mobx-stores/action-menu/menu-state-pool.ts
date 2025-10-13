@@ -1,4 +1,4 @@
-import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
+import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
 import { AbilityTreeMenuState } from "@/app/game/ActionMenu/menu-state/ability-tree-menu-state";
 import { AssigningAttributePointsMenuState } from "@/app/game/ActionMenu/menu-state/assigning-attribute-points";
 import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";

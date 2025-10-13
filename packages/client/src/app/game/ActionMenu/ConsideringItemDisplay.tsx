@@ -9,7 +9,7 @@ import {
 import Divider from "@/app/components/atoms/Divider";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { ConfirmConvertToShardsMenuState } from "./menu-state/confirm-convert-to-shards";
-import { MenuStateType } from "./menu-state";
+import { MenuStateType } from "./menu-state/menu-state-type";
 import { letterFromKeyCode } from "@/hotkeys";
 import { useGameStore } from "@/stores/game-store";
 import { ConsideringItemMenuState } from "./menu-state/considering-item";
