@@ -40,7 +40,7 @@ export default function UnspentAttributesButton({
       actionMenuStore.popStack();
     } else {
       setFocusedCharacter(entityId);
-      actionMenuStore.replaceStack([MENU_STATE_POOL[MenuStateType.AssignAttributePoints]]);
+      actionMenuStore.replaceStack([MENU_STATE_POOL.get(MenuStateType.AssignAttributePoints)]);
     }
   }
 

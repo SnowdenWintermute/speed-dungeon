@@ -1,6 +1,6 @@
 import { BUTTON_HEIGHT } from "@/client_consts";
 import React from "react";
-import { ACTION_MENU_PAGE_SIZE } from ".";
+import { ACTION_MENU_PAGE_SIZE } from "./menu-state/";
 import { getItemSellPrice } from "@speed-dungeon/common";
 import Divider from "@/app/components/atoms/Divider";
 import { ConfirmConvertToShardsMenuState } from "./menu-state/confirm-convert-to-shards";

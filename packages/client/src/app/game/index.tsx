@@ -36,12 +36,14 @@ export const Game = observer(() => {
       </div>
     );
   const focusedCharacterResult = getFocusedCharacter();
-  if (focusedCharacterResult instanceof Error)
+  if (focusedCharacterResult instanceof Error) {
     return (
       <div>
         <div>Awaiting focused character...</div>
+        <div>{focusedCharacterResult.message}</div>
       </div>
     );
+  }
 
   const player = game.players[username];
   if (!player) return <div>Client player not found</div>;

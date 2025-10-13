@@ -1,8 +1,9 @@
 import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import { ReactNode } from "react";
-import { ACTION_MENU_PAGE_SIZE } from "..";
 import { MenuStateType } from "./menu-state-type";
 import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
+
+export const ACTION_MENU_PAGE_SIZE = 6;
 
 export abstract class ActionMenuState {
   protected pageIndex: number = 0;

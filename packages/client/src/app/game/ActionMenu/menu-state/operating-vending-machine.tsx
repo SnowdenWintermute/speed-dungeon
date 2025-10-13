@@ -36,7 +36,7 @@ export class OperatingVendingMachineMenuState extends ActionMenuState {
       () => "Purchase Items",
       "Purchase Items",
       () => {
-        actionMenuStore.pushStack(MENU_STATE_POOL[MenuStateType.PurchasingItems]);
+        actionMenuStore.pushStack(MENU_STATE_POOL.get(MenuStateType.PurchasingItems));
       }
     );
     purchaseItemsButton.shouldBeDisabled = !userControlsThisCharacter;
@@ -45,7 +45,7 @@ export class OperatingVendingMachineMenuState extends ActionMenuState {
       () => "Craft",
       "Craft",
       () => {
-        actionMenuStore.pushStack(MENU_STATE_POOL[MenuStateType.CraftingItemSelection]);
+        actionMenuStore.pushStack(MENU_STATE_POOL.get(MenuStateType.CraftingItemSelection));
       }
     );
 
@@ -53,7 +53,7 @@ export class OperatingVendingMachineMenuState extends ActionMenuState {
       () => "Repair",
       "Repair",
       () => {
-        actionMenuStore.pushStack(MENU_STATE_POOL[MenuStateType.RepairItemSelection]);
+        actionMenuStore.pushStack(MENU_STATE_POOL.get(MenuStateType.RepairItemSelection));
       }
     );
 
@@ -61,7 +61,7 @@ export class OperatingVendingMachineMenuState extends ActionMenuState {
       () => "Convert to Shards",
       "Convert to Shards",
       () => {
-        actionMenuStore.pushStack(MENU_STATE_POOL[MenuStateType.ShardItemSelection]);
+        actionMenuStore.pushStack(MENU_STATE_POOL.get(MenuStateType.ShardItemSelection));
       }
     );
 
@@ -69,7 +69,7 @@ export class OperatingVendingMachineMenuState extends ActionMenuState {
       () => "Trade for Books",
       "Trade for Books",
       () => {
-        actionMenuStore.pushStack(MENU_STATE_POOL[MenuStateType.SelectingBookType]);
+        actionMenuStore.pushStack(MENU_STATE_POOL.get(MenuStateType.SelectingBookType));
       }
     );
 

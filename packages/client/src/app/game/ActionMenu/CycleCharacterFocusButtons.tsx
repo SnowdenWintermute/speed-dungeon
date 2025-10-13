@@ -48,7 +48,7 @@ export function CharacterFocusingButtons() {
 
         const { actionMenuStore } = AppStore.get();
         if (actionMenuStore.viewingAbilityTree()) {
-          actionMenuStore.replaceStack([MENU_STATE_POOL[MenuStateType.ViewingAbilityTree]]);
+          actionMenuStore.replaceStack([MENU_STATE_POOL.get(MenuStateType.ViewingAbilityTree)]);
         }
 
         setFocusedCharacter(newCharacterId);

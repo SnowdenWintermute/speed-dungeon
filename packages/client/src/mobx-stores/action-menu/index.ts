@@ -1,5 +1,5 @@
 import { ActionMenuState } from "@/app/game/ActionMenu/menu-state";
-import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
+// import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
 import {
   MENU_STATE_TYPE_STRINGS,
   MenuStateType,
@@ -8,12 +8,19 @@ import { CombatActionName } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 
 export class ActionMenuStore {
-  private baseMenuState: ActionMenuState = new BaseMenuState();
+  // private baseMenuState: ActionMenuState = new BaseMenuState();
   private stackedMenuStates: ActionMenuState[] = [];
   hoveredAction: null | CombatActionName = null;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
+  }
+
+  /** Avoid a circular dependency by not constructing the BaseMenuState class here
+   * because the BaseMenuState class (like most MenuState classes) call AppStore.get()
+   * and AppStore holds ActionMenuStore */
+  initialize(baseMenuState: ActionMenuState) {
+    this.stackedMenuStates = [baseMenuState];
   }
 
   pushStack(menuState: ActionMenuState) {
@@ -26,10 +33,9 @@ export class ActionMenuStore {
   }
 
   clearStack() {
-    for (const menuState of this.stackedMenuStates) {
-      menuState.goToFirstPage();
+    while (this.stackedMenuStates.length > 2) {
+      this.stackedMenuStates.pop()?.goToFirstPage();
     }
-    this.stackedMenuStates = [];
   }
 
   replaceStack(newStack: ActionMenuState[]) {
@@ -38,9 +44,7 @@ export class ActionMenuStore {
   }
 
   getStackedMenuStringNames() {
-    return ([this.baseMenuState] as ActionMenuState[])
-      .concat(this.stackedMenuStates)
-      .map((menuState) => MENU_STATE_TYPE_STRINGS[menuState.type]);
+    return this.stackedMenuStates.map((menuState) => MENU_STATE_TYPE_STRINGS[menuState.type]);
   }
 
   currentMenuIsType(menuStateType: MenuStateType) {
@@ -65,7 +69,9 @@ export class ActionMenuStore {
     const topIndex = this.stackedMenuStates.length - 1;
     const topStackedMenu = this.stackedMenuStates[topIndex];
     if (topStackedMenu) return topStackedMenu;
-    else return this.baseMenuState;
+    else {
+      throw new Error("expected to have a menu in the first index");
+    }
   }
 
   shouldShowCharacterSheet() {

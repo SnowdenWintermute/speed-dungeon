@@ -1,6 +1,8 @@
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
+import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
+import { AppStore } from "@/mobx-stores/app-store";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { useGameStore } from "@/stores/game-store";
 import {
@@ -12,6 +14,8 @@ import { Vector3 } from "@babylonjs/core";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
 
 export function gameStartedHandler(timeStarted: number) {
+  AppStore.get().actionMenuStore.initialize(new BaseMenuState());
+
   useGameStore.getState().mutateState((gameState) => {
     if (gameState.game) gameState.game.timeStarted = timeStarted;
     gameState.combatLogMessages = [

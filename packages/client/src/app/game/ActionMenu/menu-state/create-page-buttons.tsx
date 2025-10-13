@@ -1,9 +1,9 @@
-import { ACTION_MENU_PAGE_SIZE } from "..";
 import { NextOrPrevious } from "@speed-dungeon/common";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { AppStore } from "@/mobx-stores/app-store";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
+import { ACTION_MENU_PAGE_SIZE } from ".";
 
 export function createPageButtons(
   buttonsByCategory: ActionButtonsByCategory,

@@ -42,7 +42,7 @@ export async function battleResultActionCommandHandler(
 
     const { actionMenuStore } = AppStore.get();
     if (actionMenuStore.currentMenuIsType(MenuStateType.Base)) {
-      actionMenuStore.pushStack(MENU_STATE_POOL[MenuStateType.ItemsOnGround]);
+      actionMenuStore.pushStack(MENU_STATE_POOL.get(MenuStateType.ItemsOnGround));
     }
   }
 

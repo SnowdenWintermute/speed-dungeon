@@ -35,7 +35,7 @@ export const InventoryIconButton = observer(
             if (shouldShowCharacterSheet && !switchedFocusedCharacter) {
               actionMenuStore.clearStack();
             } else if (!shouldShowCharacterSheet) {
-              actionMenuStore.pushStack(MENU_STATE_POOL[MenuStateType.InventoryItems]);
+              actionMenuStore.pushStack(MENU_STATE_POOL.get(MenuStateType.InventoryItems));
             }
           });
         }}

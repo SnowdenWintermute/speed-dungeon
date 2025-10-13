@@ -21,7 +21,7 @@ export class InventoryItemsMenuState extends ItemsMenuState {
       `Equipped (${letterFromKeyCode(viewEquipmentHotkey)})`,
       () => {
         AppStore.get().actionMenuStore.pushStack(
-          MENU_STATE_POOL[MenuStateType.ViewingEquipedItems]
+          MENU_STATE_POOL.get(MenuStateType.ViewingEquipedItems)
         );
       }
     );

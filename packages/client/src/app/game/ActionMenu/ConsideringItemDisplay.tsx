@@ -1,6 +1,6 @@
 import { BUTTON_HEIGHT } from "@/client_consts";
 import React from "react";
-import { ACTION_MENU_PAGE_SIZE, SHARD_ITEM_HOTKEY } from ".";
+import { SHARD_ITEM_HOTKEY } from ".";
 import {
   Consumable,
   combatantIsAllowedToConvertItemsToShards,
@@ -16,6 +16,7 @@ import { ConsideringItemMenuState } from "./menu-state/considering-item";
 import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
 import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
+import { ACTION_MENU_PAGE_SIZE } from "./menu-state";
 
 export const ConsideringItemDisplay = observer(() => {
   const { actionMenuStore } = AppStore.get();

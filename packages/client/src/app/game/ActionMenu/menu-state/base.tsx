@@ -70,7 +70,7 @@ export class BaseMenuState extends ActionMenuState {
         () => {
           const { actionMenuStore } = AppStore.get();
           actionMenuStore.hoveredAction = null;
-          actionMenuStore.pushStack(MENU_STATE_POOL[MenuStateType.AssignAttributePoints]);
+          actionMenuStore.pushStack(MENU_STATE_POOL.get(MenuStateType.AssignAttributePoints));
         }
       );
       hiddenButtonForUnspentAttributesHotkey.dedicatedKeys = [toggleAssignAttributesHotkey];
@@ -83,7 +83,9 @@ export class BaseMenuState extends ActionMenuState {
         VIEW_LOOT_BUTTON_TEXT,
         () => {
           AppStore.get().actionMenuStore.hoveredAction = null;
-          AppStore.get().actionMenuStore.pushStack(MENU_STATE_POOL[MenuStateType.ItemsOnGround]);
+          AppStore.get().actionMenuStore.pushStack(
+            MENU_STATE_POOL.get(MenuStateType.ItemsOnGround)
+          );
         }
       );
       viewItemsOnGroundButton.dedicatedKeys = [viewItemsOnGroundHotkey];

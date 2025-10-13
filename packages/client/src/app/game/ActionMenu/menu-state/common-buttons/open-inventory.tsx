@@ -13,7 +13,7 @@ export const setInventoryOpen = new ActionMenuButtonProperties(
   () => {
     const { actionMenuStore } = AppStore.get();
     actionMenuStore.hoveredAction = null;
-    actionMenuStore.pushStack(MENU_STATE_POOL[MenuStateType.InventoryItems]);
+    actionMenuStore.pushStack(MENU_STATE_POOL.get(MenuStateType.InventoryItems));
   }
 );
 
@@ -23,7 +23,7 @@ export const setInventoryAsFreshStack = new ActionMenuButtonProperties(
   () => {
     const { actionMenuStore } = AppStore.get();
     actionMenuStore.hoveredAction = null;
-    actionMenuStore.replaceStack([MENU_STATE_POOL[MenuStateType.InventoryItems]]);
+    actionMenuStore.replaceStack([MENU_STATE_POOL.get(MenuStateType.InventoryItems)]);
   }
 );
 setInventoryOpen.dedicatedKeys = ["KeyI", toggleInventoryHotkey];
@@ -49,7 +49,7 @@ export const setViewingAbilityTreeAsFreshStack = new ActionMenuButtonProperties(
   () => {
     const { actionMenuStore } = AppStore.get();
     actionMenuStore.hoveredAction = null;
-    actionMenuStore.replaceStack([MENU_STATE_POOL[MenuStateType.ViewingAbilityTree]]);
+    actionMenuStore.replaceStack([MENU_STATE_POOL.get(MenuStateType.ViewingAbilityTree)]);
   }
 );
 

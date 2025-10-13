@@ -1,5 +1,5 @@
 import { BUTTON_HEIGHT, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
-import React, { ReactNode, useEffect } from "react";
+import React, { ReactNode, useEffect, useLayoutEffect } from "react";
 import { useGameStore } from "@/stores/game-store";
 import ActionDetails from "../detailables/action-details";
 import {
@@ -10,7 +10,7 @@ import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicated
 import { NumberedButton } from "./action-menu-buttons/NumberedButton";
 import { COMBATANT_MAX_ACTION_POINTS } from "@speed-dungeon/common";
 import { HOTKEYS } from "@/hotkeys";
-import { VIEW_LOOT_BUTTON_TEXT } from "./menu-state/base";
+import { BaseMenuState, VIEW_LOOT_BUTTON_TEXT } from "./menu-state/base";
 import {
   ConsideringItemMenuState,
   EQUIP_ITEM_BUTTON_TEXT,
@@ -34,8 +34,8 @@ import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "./menu-state/menu-state-type";
 import { ActionButtonCategory } from "./menu-state/action-buttons-by-category";
+import { ACTION_MENU_PAGE_SIZE } from "./menu-state";
 
-export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
 export const SHARD_ITEM_HOTKEY = HOTKEYS.SIDE_2;
 

@@ -116,7 +116,7 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
                     actionMenuStore.popStack();
                   } else {
                     actionMenuStore.pushStack(
-                      MENU_STATE_POOL[MenuStateType.OperatingVendingMachine]
+                      MENU_STATE_POOL.get(MenuStateType.OperatingVendingMachine)
                     );
                     focusStore.detailable.clear();
                   }

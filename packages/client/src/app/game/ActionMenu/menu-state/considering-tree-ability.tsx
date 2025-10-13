@@ -1,6 +1,5 @@
 import { useGameStore } from "@/stores/game-store";
-import { ActionMenuState } from ".";
-import { createCancelButton } from "./common-buttons/cancel";
+import { ActionMenuState } from "./index";
 import { setAlert } from "@/app/components/alerts";
 import {
   ABILITY_TREES,
@@ -29,6 +28,7 @@ import { AppStore } from "@/mobx-stores/app-store";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
 import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
+import { createCancelButton } from "./common-buttons/cancel";
 
 const allocateAbilityPointHotkey = HOTKEYS.MAIN_1;
 
