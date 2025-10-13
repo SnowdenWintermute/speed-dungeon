@@ -1,4 +1,3 @@
-import { ActionButtonCategory } from ".";
 import { ItemsMenuState } from "./items";
 import { CombatantProperties, ERROR_MESSAGES, Equipment, Item } from "@speed-dungeon/common";
 import { CraftingItemMenuState } from "./crafting-item";
@@ -7,6 +6,7 @@ import { setAlert } from "@/app/components/alerts";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory } from "./action-buttons-by-category";
 
 export class CraftingItemSelectionMenuState extends ItemsMenuState {
   constructor() {

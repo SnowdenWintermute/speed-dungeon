@@ -1,5 +1,4 @@
 import { ItemsMenuState } from "./items";
-import { ActionButtonCategory } from ".";
 import { useGameStore } from "@/stores/game-store";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { websocketConnection } from "@/singletons/websocket-connection";
@@ -9,6 +8,7 @@ import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory } from "./action-buttons-by-category";
 
 const takeAllItemsHotkey = HOTKEYS.MAIN_2;
 

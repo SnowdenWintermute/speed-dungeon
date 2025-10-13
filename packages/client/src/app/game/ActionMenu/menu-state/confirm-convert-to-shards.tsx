@@ -1,5 +1,5 @@
 import { useGameStore } from "@/stores/game-store";
-import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState } from ".";
+import { ActionMenuState } from ".";
 import { ClientToServerEvent, Item } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -9,6 +9,7 @@ import { createCancelButton } from "./common-buttons/cancel";
 import { AppStore } from "@/mobx-stores/app-store";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
 
 const confirmShardHotkey = HOTKEYS.MAIN_1;
 const confirmShardLetter = letterFromKeyCode(confirmShardHotkey);

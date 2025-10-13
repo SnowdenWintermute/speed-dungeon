@@ -1,5 +1,5 @@
 import { useGameStore } from "@/stores/game-store";
-import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState } from ".";
+import { ActionMenuState } from ".";
 import {
   BookConsumableType,
   CONSUMABLE_TYPE_STRINGS,
@@ -20,6 +20,7 @@ import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { AppStore } from "@/mobx-stores/app-store";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
 
 const confirmHotkey = HOTKEYS.MAIN_1;
 const confirmLetter = letterFromKeyCode(confirmHotkey);

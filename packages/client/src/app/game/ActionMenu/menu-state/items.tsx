@@ -1,5 +1,5 @@
 import { useGameStore } from "@/stores/game-store";
-import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState } from ".";
+import { ActionMenuState } from ".";
 import {
   CONSUMABLE_TEXT_COLOR,
   CONSUMABLE_TURQUOISE,
@@ -244,6 +244,7 @@ import { ModifierKey } from "@/mobx-stores/input";
 import { observer } from "mobx-react-lite";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
 
 export const ItemButtonBody = observer(
   ({

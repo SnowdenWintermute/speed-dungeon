@@ -1,7 +1,6 @@
 import { BUTTON_HEIGHT, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import React, { ReactNode, useEffect } from "react";
 import { useGameStore } from "@/stores/game-store";
-import { ActionButtonCategory } from "./menu-state";
 import ActionDetails from "../detailables/action-details";
 import {
   ConsideringCombatActionMenuState,
@@ -34,6 +33,7 @@ import ActionSelectedDetails from "../detailables/action-details/ActionSelectedD
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "./menu-state/menu-state-type";
+import { ActionButtonCategory } from "./menu-state/action-buttons-by-category";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };

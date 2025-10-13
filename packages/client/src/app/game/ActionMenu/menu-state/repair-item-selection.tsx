@@ -1,4 +1,3 @@
-import { ActionButtonCategory } from ".";
 import { ItemsMenuState } from "./items";
 import {
   ClientToServerEvent,
@@ -15,6 +14,7 @@ import { setAlert } from "@/app/components/alerts";
 import { PriceDisplay } from "../../character-sheet/ShardsDisplay";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import { MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory } from "./action-buttons-by-category";
 
 export class RepairItemSelectionMenuState extends ItemsMenuState {
   constructor() {

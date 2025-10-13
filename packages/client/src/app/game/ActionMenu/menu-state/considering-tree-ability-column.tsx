@@ -1,5 +1,5 @@
 import { useGameStore } from "@/stores/game-store";
-import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState } from ".";
+import { ActionMenuState } from ".";
 import { createCancelButton } from "./common-buttons/cancel";
 import {
   ABILITY_TREES,
@@ -17,6 +17,7 @@ import { getAbilityIcon } from "../../character-sheet/ability-tree/ability-icons
 import { AppStore } from "@/mobx-stores/app-store";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
 
 export class ConsideringAbilityTreeColumnMenuState extends ActionMenuState {
   constructor(public readonly columnIndex: number) {

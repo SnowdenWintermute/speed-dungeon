@@ -1,5 +1,5 @@
 import { useGameStore } from "@/stores/game-store";
-import { ActionButtonCategory, ActionButtonsByCategory, ActionMenuState } from ".";
+import { ActionMenuState } from ".";
 import {
   ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,
   COMBAT_ATTRIBUTE_STRINGS,
@@ -13,6 +13,7 @@ import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 import { createCancelButton } from "./common-buttons/cancel";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
 
 export class AssigningAttributePointsMenuState extends ActionMenuState {
   constructor() {

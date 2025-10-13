@@ -1,24 +1,8 @@
 import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import { ReactNode } from "react";
 import { ACTION_MENU_PAGE_SIZE } from "..";
-import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
-
-export enum ActionButtonCategory {
-  Top,
-  Numbered,
-  Bottom,
-  Hidden,
-}
-
-export class ActionButtonsByCategory {
-  [ActionButtonCategory.Top]: ActionMenuButtonProperties[] = [];
-  [ActionButtonCategory.Numbered]: ActionMenuButtonProperties[] = [];
-  [ActionButtonCategory.Bottom]: ActionMenuButtonProperties[] = [];
-  [ActionButtonCategory.Hidden]: ActionMenuButtonProperties[] = [];
-
-  constructor() {}
-}
+import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
 
 export abstract class ActionMenuState {
   protected pageIndex: number = 0;
