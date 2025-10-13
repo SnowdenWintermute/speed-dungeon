@@ -14,19 +14,15 @@ import {
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
 import createPageButtons from "./create-page-buttons";
-import { immerable } from "immer";
 import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 import { createCancelButton } from "./common-buttons/cancel";
 
-export class AssigningAttributePointsMenuState implements ActionMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages: number = 1;
-  type = MenuStateType.AssignAttributePoints;
-  alwaysShowPageOne = false;
-  getCenterInfoDisplayOption = null;
-  constructor() {}
+export class AssigningAttributePointsMenuState extends ActionMenuState {
+  constructor() {
+    super(MenuStateType.AssignAttributePoints, 1);
+  }
+
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 

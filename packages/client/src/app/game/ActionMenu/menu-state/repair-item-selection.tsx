@@ -1,5 +1,4 @@
 import { ActionButtonCategory, MenuStateType } from ".";
-import { immerable } from "immer";
 import { ItemsMenuState } from "./items";
 import {
   ClientToServerEvent,
@@ -17,9 +16,6 @@ import { PriceDisplay } from "../../character-sheet/ShardsDisplay";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 
 export class RepairItemSelectionMenuState extends ItemsMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages = 1;
   constructor() {
     super(
       MenuStateType.RepairItemSelection,

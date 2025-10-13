@@ -79,8 +79,6 @@ export function newDungeonRoomHandler({
     const indexOfRoomTypeToReveal = dungeonExplorationManager.getCurrentRoomNumber() - 1;
     dungeonExplorationManager.getClientVisibleRoomExplorationList()[indexOfRoomTypeToReveal] =
       room.roomType;
-
-    if (combatantManager.monstersArePresent()) gameState.baseMenuState.inCombat = true;
   });
 
   if (

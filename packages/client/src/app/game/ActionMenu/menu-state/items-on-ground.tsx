@@ -1,4 +1,3 @@
-import { immerable } from "immer";
 import { ItemsMenuState } from "./items";
 import { ActionButtonCategory, ActionMenuButtonProperties, MenuStateType } from ".";
 import { useGameStore } from "@/stores/game-store";
@@ -12,9 +11,6 @@ import { clientUserControlsCombatant } from "@/utils/client-user-controls-combat
 const takeAllItemsHotkey = HOTKEYS.MAIN_2;
 
 export class ItemsOnGroundMenuState extends ItemsMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages = 1;
   constructor() {
     const takeAllButton = new ActionMenuButtonProperties(
       () => `Take items (${letterFromKeyCode(takeAllItemsHotkey)})`,

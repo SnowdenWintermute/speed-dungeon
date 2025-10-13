@@ -1,4 +1,3 @@
-import { immerable } from "immer";
 import { useGameStore } from "@/stores/game-store";
 import {
   ActionButtonCategory,
@@ -36,17 +35,13 @@ import { AppStore } from "@/mobx-stores/app-store";
 
 const allocateAbilityPointHotkey = HOTKEYS.MAIN_1;
 
-export class ConsideringCombatantAbilityMenuState implements ActionMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages: number = 1;
-  type = MenuStateType.ConsideringAbilityTreeAbility;
+export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
   alwaysShowPageOne = true;
   constructor(
     public column: (undefined | AbilityTreeAbility)[],
     public index: number
   ) {
-    this.page = index + 1;
+    super(MenuStateType.ConsideringAbilityTreeColumn, index + 1);
     this.numPages = column.length;
   }
 

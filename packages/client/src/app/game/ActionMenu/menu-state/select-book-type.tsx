@@ -7,7 +7,7 @@ import {
   MenuStateType,
 } from ".";
 import { setAlert } from "@/app/components/alerts";
-import createPageButtons from "./create-page-buttons";
+import { createPageButtons } from "./create-page-buttons";
 import { immerable } from "immer";
 import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import {
@@ -23,14 +23,10 @@ import { IconName, SVG_ICONS } from "@/app/icons";
 import { SelectItemToTradeForBookMenuState } from "./select-item-to-trade-for-book";
 import { AppStore } from "@/mobx-stores/app-store";
 
-export class SelectBookToTradeForMenuState implements ActionMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages: number = 1;
-  type = MenuStateType.SelectingBookType;
-  alwaysShowPageOne = false;
-  getCenterInfoDisplayOption = null;
-  constructor() {}
+export class SelectBookToTradeForMenuState extends ActionMenuState {
+  constructor() {
+    super(MenuStateType.SelectingBookType, 1);
+  }
 
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
@@ -100,7 +96,7 @@ export class SelectBookToTradeForMenuState implements ActionMenuState {
       toReturn[ActionButtonCategory.Numbered].push(purchaseItemButton);
     }
 
-    createPageButtons(this, toReturn);
+    createPageButtons(toReturn);
 
     return toReturn;
   }

@@ -16,13 +16,11 @@ import { ConsideringAbilityTreeColumnMenuState } from "./considering-tree-abilit
 import { ArrayUtils } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
 
-export class AbilityTreeMenuState implements ActionMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages: number = 1;
-  type = MenuStateType.ViewingAbilityTree;
-  alwaysShowPageOne = false;
-  getCenterInfoDisplayOption = null;
+export class AbilityTreeMenuState extends ActionMenuState {
+  constructor() {
+    super(MenuStateType.ViewingAbilityTree, 1);
+  }
+
   getButtonProperties() {
     const toReturn = new ActionButtonsByCategory();
     toReturn[ActionButtonCategory.Top].push(

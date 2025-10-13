@@ -51,7 +51,7 @@ export default function setFocusedCharacter(id: string) {
     }
 
     currentMenu = actionMenuStore.getCurrentMenu();
-    currentMenu.page = 1;
+    currentMenu.goToFirstPage();
 
     const game = gameState.game;
     if (!game) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));

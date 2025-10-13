@@ -32,13 +32,11 @@ const useItemLetter = letterFromKeyCode(useItemHotkey);
 export const USE_CONSUMABLE_BUTTON_TEXT = `Use (${useItemLetter})`;
 export const EQUIP_ITEM_BUTTON_TEXT = `Equip (${useItemLetter})`;
 
-export class CraftingItemMenuState implements ActionMenuState {
-  page = 1;
-  numPages: number = 1;
-  type = MenuStateType.CraftingActionSelection;
-  alwaysShowPageOne = false;
-  getCenterInfoDisplayOption = null;
-  constructor(public item: Equipment) {}
+export class CraftingItemMenuState extends ActionMenuState {
+  constructor(public item: Equipment) {
+    super(MenuStateType.CraftingActionSelection, 1);
+  }
+
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 

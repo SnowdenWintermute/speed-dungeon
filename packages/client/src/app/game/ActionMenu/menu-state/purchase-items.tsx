@@ -7,8 +7,7 @@ import {
   MenuStateType,
 } from ".";
 import { setAlert } from "@/app/components/alerts";
-import createPageButtons from "./create-page-buttons";
-import { immerable } from "immer";
+import { createPageButtons } from "./create-page-buttons";
 import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import {
   CONSUMABLE_TEXT_COLOR,
@@ -28,14 +27,10 @@ import { AppStore } from "@/mobx-stores/app-store";
 // @TODO - this is duplicating items menu, now that we added the extraChildren option we
 // should be able to just implement item state with a list of dummy consumables
 // - also, we copied this to SelectingBookType menu as well so if we ever change this, look at that too
-export class PurchaseItemsMenuState implements ActionMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages: number = 1;
-  type = MenuStateType.PurchasingItems;
-  alwaysShowPageOne = false;
-  getCenterInfoDisplayOption = null;
-  constructor() {}
+export class PurchaseItemsMenuState extends ActionMenuState {
+  constructor() {
+    super(MenuStateType.PurchasingItems, 1);
+  }
 
   getButtonProperties(): ActionButtonsByCategory {
     const { focusStore } = AppStore.get();
@@ -114,7 +109,7 @@ export class PurchaseItemsMenuState implements ActionMenuState {
       toReturn[ActionButtonCategory.Numbered].push(purchaseItemButton);
     }
 
-    createPageButtons(this, toReturn);
+    createPageButtons(toReturn);
 
     return toReturn;
   }

@@ -1,4 +1,3 @@
-import { immerable } from "immer";
 import { useGameStore } from "@/stores/game-store";
 import {
   ActionButtonCategory,
@@ -23,16 +22,9 @@ import { AbilityType } from "@speed-dungeon/common";
 import { getAbilityIcon } from "../../character-sheet/ability-tree/ability-icons";
 import { AppStore } from "@/mobx-stores/app-store";
 
-export class ConsideringAbilityTreeColumnMenuState implements ActionMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages: number = 5;
-  type = MenuStateType.ConsideringAbilityTreeColumn;
-
-  getCenterInfoDisplayOption = null;
-  alwaysShowPageOne = false;
+export class ConsideringAbilityTreeColumnMenuState extends ActionMenuState {
   constructor(public readonly columnNumber: number) {
-    this.numPages = 5;
+    super(MenuStateType.ConsideringAbilityTreeColumn, 5);
     this.page = columnNumber;
   }
 
@@ -85,12 +77,12 @@ export class ConsideringAbilityTreeColumnMenuState implements ActionMenuState {
           ),
           nameAsString || "",
           () => {
+            if (ability === undefined) {
+              AppStore.get().focusStore.combatantAbility.clearDetailed();
+            } else {
+              AppStore.get().focusStore.combatantAbility.setDetailed(ability);
+            }
             useGameStore.getState().mutateState((state) => {
-              if (ability === undefined) {
-                AppStore.get().focusStore.combatantAbility.clearDetailed();
-              } else {
-                AppStore.get().focusStore.combatantAbility.setDetailed(ability);
-              }
               if (ability !== undefined)
                 state.stackedMenuStates.push(
                   new ConsideringCombatantAbilityMenuState(

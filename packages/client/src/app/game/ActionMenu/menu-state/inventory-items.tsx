@@ -1,6 +1,5 @@
 import { useGameStore } from "@/stores/game-store";
 import { ActionButtonCategory, ActionMenuButtonProperties, MenuStateType } from ".";
-import { immerable } from "immer";
 import { ItemsMenuState } from "./items";
 import { EquippedItemsMenuState, viewEquipmentHotkey } from "./equipped-items";
 import { letterFromKeyCode } from "@/hotkeys";
@@ -13,9 +12,6 @@ import {
 import { AppStore } from "@/mobx-stores/app-store";
 
 export class InventoryItemsMenuState extends ItemsMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages = 1;
   constructor() {
     const viewEquipmentButton = new ActionMenuButtonProperties(
       () => `Equipped (${letterFromKeyCode(viewEquipmentHotkey)})`,

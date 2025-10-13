@@ -110,8 +110,9 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
                     currentMenu.type !== MenuStateType.OperatingVendingMachine)
                 }
                 onClick={() => {
+                  const { actionMenuStore } = AppStore.get();
                   mutateGameState((state) => {
-                    const currentMenu = getCurrentMenu(state);
+                    const currentMenu = actionMenuStore.getCurrentMenu();
                     if (currentMenu.type === MenuStateType.OperatingVendingMachine) {
                       actionMenuStore.popStack();
                     } else {

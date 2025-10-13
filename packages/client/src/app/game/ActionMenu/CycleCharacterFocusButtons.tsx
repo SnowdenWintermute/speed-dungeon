@@ -8,7 +8,7 @@ import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { getFocusedCharacter } from "@/utils/getFocusedCharacter";
 import { BUTTON_HEIGHT_SMALL, SPACING_REM_SMALL } from "@/client_consts";
 import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicatedButton";
-import { viewingAbilityTree } from "@/utils/should-show-character-sheet";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export function CharacterFocusingButtons() {
   function createFocusCharacterButtonProperties(
@@ -44,9 +44,9 @@ export function CharacterFocusingButtons() {
         const newCharacterId = characterPositions[nextIndex];
         if (newCharacterId === undefined) return console.error("Invalid character position index");
 
+        const { actionMenuStore } = AppStore.get();
         useGameStore.getState().mutateState((state) => {
-          const currentMenu = state.getCurrentMenu();
-          if (viewingAbilityTree(currentMenu.type)) {
+          if (actionMenuStore.viewingAbilityTree()) {
             state.stackedMenuStates = [abilityTreeMenuState];
           }
         });

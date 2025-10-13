@@ -18,12 +18,7 @@ const confirmShardHotkey = HOTKEYS.MAIN_1;
 const confirmShardLetter = letterFromKeyCode(confirmShardHotkey);
 export const CONFIRM_SHARD_TEXT = `Convert (${confirmShardLetter})`;
 
-export class ConfirmConvertToShardsMenuState implements ActionMenuState {
-  page = 1;
-  numPages: number = 1;
-
-  getCenterInfoDisplayOption = null;
-  alwaysShowPageOne = false;
+export class ConfirmConvertToShardsMenuState extends ActionMenuState {
   constructor(
     public item: Item,
     // the reason we take the type as an argument is because of the difference
@@ -31,7 +26,9 @@ export class ConfirmConvertToShardsMenuState implements ActionMenuState {
     // or the vending machine menu, in which case we choose MenuStateType.ConfimConvertToShards
     // which doesn't trigger shouldShowCharacterSheet()
     public type: MenuStateType.ItemSelected | MenuStateType.ConfimConvertToShards
-  ) {}
+  ) {
+    super(type, 1);
+  }
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 

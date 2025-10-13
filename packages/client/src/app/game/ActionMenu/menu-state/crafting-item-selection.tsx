@@ -1,5 +1,4 @@
 import { ActionButtonCategory, MenuStateType } from ".";
-import { immerable } from "immer";
 import { ItemsMenuState } from "./items";
 import { CombatantProperties, ERROR_MESSAGES, Equipment, Item } from "@speed-dungeon/common";
 import { CraftingItemMenuState } from "./crafting-item";
@@ -9,9 +8,6 @@ import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { AppStore } from "@/mobx-stores/app-store";
 
 export class CraftingItemSelectionMenuState extends ItemsMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages = 1;
   constructor() {
     super(
       MenuStateType.CraftingItemSelection,

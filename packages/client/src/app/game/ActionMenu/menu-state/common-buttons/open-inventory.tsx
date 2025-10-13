@@ -1,6 +1,7 @@
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { ActionMenuButtonProperties } from "..";
 import { abilityTreeMenuState, inventoryItemsMenuState, useGameStore } from "@/stores/game-store";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export const toggleInventoryHotkey = HOTKEYS.MAIN_1;
 
@@ -8,9 +9,10 @@ export const setInventoryOpen = new ActionMenuButtonProperties(
   () => `Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
   `Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
   () => {
+    const { actionMenuStore } = AppStore.get();
+    actionMenuStore.hoveredAction = null;
     useGameStore.getState().mutateState((state) => {
       state.stackedMenuStates.push(inventoryItemsMenuState);
-      state.hoveredAction = null;
     });
   }
 );
@@ -19,9 +21,10 @@ export const setInventoryAsFreshStack = new ActionMenuButtonProperties(
   () => `Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
   `Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
   () => {
+    const { actionMenuStore } = AppStore.get();
+    actionMenuStore.hoveredAction = null;
     useGameStore.getState().mutateState((state) => {
       state.stackedMenuStates = [inventoryItemsMenuState];
-      state.hoveredAction = null;
     });
   }
 );
@@ -46,9 +49,9 @@ export const setViewingAbilityTreeAsFreshStack = new ActionMenuButtonProperties(
   },
   `Abilities (${letterFromKeyCode(setViewingAbilityTreeHotkey)})`,
   () => {
+    AppStore.get().actionMenuStore.hoveredAction = null;
     useGameStore.getState().mutateState((state) => {
       state.stackedMenuStates = [abilityTreeMenuState];
-      state.hoveredAction = null;
     });
   }
 );

@@ -14,8 +14,7 @@ import {
   MenuStateType,
 } from ".";
 import { setAlert } from "@/app/components/alerts";
-import createPageButtons from "./create-page-buttons";
-import { immerable } from "immer";
+import { createPageButtons } from "./create-page-buttons";
 import { HOTKEYS } from "@/hotkeys";
 import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { createCancelButton } from "./common-buttons/cancel";
@@ -23,14 +22,10 @@ import { setInventoryOpen } from "./common-buttons/open-inventory";
 
 export const operateVendingMachineHotkey = HOTKEYS.SIDE_2;
 
-export class OperatingVendingMachineMenuState implements ActionMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages: number = 1;
-  type = MenuStateType.OperatingVendingMachine;
-  alwaysShowPageOne = false;
-  getCenterInfoDisplayOption = null;
-  constructor() {}
+export class OperatingVendingMachineMenuState extends ActionMenuState {
+  constructor() {
+    super(MenuStateType.OperatingVendingMachine, 1);
+  }
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
@@ -111,7 +106,7 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
     toReturn[ActionButtonCategory.Numbered].push(convertButton);
     toReturn[ActionButtonCategory.Numbered].push(selectBooksButton);
 
-    createPageButtons(this, toReturn);
+    createPageButtons(toReturn);
 
     return toReturn;
   }

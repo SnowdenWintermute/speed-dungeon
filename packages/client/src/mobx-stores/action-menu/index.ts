@@ -4,9 +4,10 @@ import { CombatActionName } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 
 export class ActionMenuStore {
-  private baseMenuState: ActionMenuState = new BaseMenuState(false);
+  private baseMenuState: ActionMenuState = new BaseMenuState();
   private stackedMenuStates: ActionMenuState[] = [];
-  private hoveredAction: null | CombatActionName = null;
+  hoveredAction: null | CombatActionName = null;
+  inCombat: boolean = false;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });

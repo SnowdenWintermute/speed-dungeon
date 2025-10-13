@@ -1,4 +1,4 @@
-import { getCurrentMenu, useGameStore } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 import {
   ActionButtonCategory,
   ActionButtonsByCategory,
@@ -21,7 +21,6 @@ import {
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { setAlert } from "@/app/components/alerts";
-import { immerable } from "immer";
 import createPageButtons from "./create-page-buttons";
 import { Color4 } from "@babylonjs/core";
 import cloneDeep from "lodash.clonedeep";
@@ -40,12 +39,7 @@ const gradientBg = createEaseGradient(TRANSPARENT, GRAY, 1, 25);
 export const consumableGradientBg = createEaseGradient(TRANSPARENT, GREEN, 1, 25);
 export const unmetRequirementsGradientBg = createEaseGradient(TRANSPARENT, RED, 1, 25);
 
-export abstract class ItemsMenuState implements ActionMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages: number = 1;
-  alwaysShowPageOne = false;
-  getCenterInfoDisplayOption: null | (() => ReactNode) = null;
+export abstract class ItemsMenuState extends ActionMenuState {
   constructor(
     public type:
       | MenuStateType.InventoryItems
@@ -65,7 +59,9 @@ export abstract class ItemsMenuState implements ActionMenuState {
       shouldBeDisabled?: (item: Item) => boolean;
       getCenterInfoDisplayOption?: () => ReactNode;
     }
-  ) {}
+  ) {
+    super(type, 1);
+  }
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
@@ -73,9 +69,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
       () => this.closeMenuTextAndHotkeys.text,
       this.closeMenuTextAndHotkeys.text,
       () => {
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.pop();
-        });
+        AppStore.get().actionMenuStore.popStack();
         AppStore.get().focusStore.detailable.clearDetailed();
         AppStore.get().dialogStore.close(DialogElementName.DropShards);
       }
@@ -230,10 +224,9 @@ export abstract class ItemsMenuState implements ActionMenuState {
 
     // possible when a numbered button disapears like when equipping the last item
     // on a page
-    if (this.page > this.numPages)
-      useGameStore.getState().mutateState((state) => {
-        getCurrentMenu(state).page = this.page - 1;
-      });
+    if (this.pageIndex > this.numPages) {
+      AppStore.get().actionMenuStore.getCurrentMenu().goToLastPage();
+    }
 
     return toReturn;
   }

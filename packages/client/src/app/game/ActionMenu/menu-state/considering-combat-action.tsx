@@ -24,13 +24,10 @@ import { AppStore } from "@/mobx-stores/app-store";
 export const executeHotkey = HOTKEYS.MAIN_1;
 export const EXECUTE_BUTTON_TEXT = `Execute (${letterFromKeyCode(executeHotkey)})`;
 
-export class ConsideringCombatActionMenuState implements ActionMenuState {
-  page = 1;
-  numPages: number = 1;
-  type = MenuStateType.CombatActionSelected;
-  alwaysShowPageOne = false;
-  getCenterInfoDisplayOption = null;
-  constructor(public combatActionName: CombatActionName) {}
+export class ConsideringCombatActionMenuState extends ActionMenuState {
+  constructor(public combatActionName: CombatActionName) {
+    super(MenuStateType.CombatActionSelected, 1);
+  }
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 

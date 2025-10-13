@@ -50,10 +50,12 @@ export enum ServerToClientEvent {
   CharacterCycledTargetingSchemes = "31",
   DungeonFloorNumber = "32",
   CharacterSpentAttributePoint = "33",
+
   SavedCharacterList = "34",
   SavedCharacter = "35",
   SavedCharacterDeleted = "36",
   PlayerSelectedSavedCharacterInProgressionGame = "37",
+
   ProgressionGameStartingFloorSelected = "38",
   //TEST
   TestItems = "39",

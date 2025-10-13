@@ -35,25 +35,21 @@ function handleConfirmTrade(characterId: EntityId, itemId: EntityId, bookType: B
     itemId,
     bookType,
   });
-  useGameStore.getState().mutateState((state) => {
-    state.stackedMenuStates.pop();
-    // need to pop twice so we're not showing the item consideration screen of this item that may no longer exist
-    state.stackedMenuStates.pop();
-  });
+  // need to pop twice so we're not showing the item consideration screen of this item that may no longer exist
+  AppStore.get().actionMenuStore.popStack();
+  AppStore.get().actionMenuStore.popStack();
 
   AppStore.get().focusStore.clearItemComparison();
 }
 
-export class ConfirmTradeForBookMenuState implements ActionMenuState {
-  page = 1;
-  numPages: number = 1;
-  type = MenuStateType.ConfirmTradeForBook;
-
-  alwaysShowPageOne = false;
+export class ConfirmTradeForBookMenuState extends ActionMenuState {
   constructor(
     public item: Item,
     public bookType: BookConsumableType
-  ) {}
+  ) {
+    super(MenuStateType.ConfirmTradeForBook, 1);
+  }
+
   getCenterInfoDisplayOption() {
     const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) return;
@@ -98,6 +94,7 @@ export class ConfirmTradeForBookMenuState implements ActionMenuState {
       </div>
     );
   }
+
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 

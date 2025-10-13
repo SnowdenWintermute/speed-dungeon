@@ -3,7 +3,7 @@ import { ActionMenu } from "./ActionMenu";
 import { AdventuringParty, ERROR_MESSAGES, InputLock } from "@speed-dungeon/common";
 import { ItemDetailsWithComparison } from "./ItemDetailsWithComparison";
 import ItemsOnGround from "./ItemsOnGround";
-import CharacterSheet from "./character-sheet";
+import { CharacterSheet } from "./character-sheet";
 import { useGameStore } from "@/stores/game-store";
 import { SPACING_REM } from "@/client_consts";
 import { ZIndexLayers } from "../z-index-layers";

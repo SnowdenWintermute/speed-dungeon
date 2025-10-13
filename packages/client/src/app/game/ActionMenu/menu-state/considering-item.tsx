@@ -31,13 +31,10 @@ const dropItemHotkey = HOTKEYS.MAIN_2;
 export const USE_CONSUMABLE_BUTTON_TEXT = `Use (${useItemLetter})`;
 export const EQUIP_ITEM_BUTTON_TEXT = `Equip (${useItemLetter})`;
 
-export class ConsideringItemMenuState implements ActionMenuState {
-  page = 1;
-  numPages: number = 1;
-  type = MenuStateType.ItemSelected;
-  alwaysShowPageOne = false;
-  getCenterInfoDisplayOption = null;
-  constructor(public item: Item) {}
+export class ConsideringItemMenuState extends ActionMenuState {
+  constructor(public item: Item) {
+    super(MenuStateType.ItemSelected, 1);
+  }
   setItem(item: Item) {
     this.item = item;
     AppStore.get().focusStore.selectItem(item);
@@ -170,9 +167,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
           });
         else websocketConnection.emit(ClientToServerEvent.DropItem, { characterId, itemId });
 
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.pop();
-        });
+        AppStore.get().actionMenuStore.popStack();
         AppStore.get().focusStore.detailable.clearDetailed();
       }
     );

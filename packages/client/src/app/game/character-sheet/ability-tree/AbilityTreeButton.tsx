@@ -45,10 +45,11 @@ export default function AbilityTreeButton(props: Props) {
         `}
         onClick={() => {
           if (!isDetailed) {
-            useGameStore.getState().mutateState((state) => {
-              AppStore.get().focusStore.combatantAbility.setDetailed(ability);
-              const currentMenu = state.getCurrentMenu();
+            const { focusStore, actionMenuStore } = AppStore.get();
 
+            focusStore.combatantAbility.setDetailed(ability);
+
+            useGameStore.getState().mutateState((state) => {
               const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
               if (focusedCharacterResult instanceof Error) {
                 return <div />;
@@ -84,8 +85,11 @@ export default function AbilityTreeButton(props: Props) {
                       indexIfInThisColumn
                     );
 
-                    if (currentMenu.type === MenuStateType.ConsideringAbilityTreeAbility)
-                      state.stackedMenuStates.pop();
+                    if (
+                      actionMenuStore.currentMenuIsType(MenuStateType.ConsideringAbilityTreeAbility)
+                    ) {
+                      actionMenuStore.popStack();
+                    }
                     state.stackedMenuStates.push(newMenuState);
 
                     break;

@@ -1,5 +1,4 @@
 import { ActionButtonCategory, MenuStateType } from ".";
-import { immerable } from "immer";
 import { ItemsMenuState } from "./items";
 import {
   BookConsumableType,
@@ -15,9 +14,6 @@ import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { AppStore } from "@/mobx-stores/app-store";
 
 export class SelectItemToTradeForBookMenuState extends ItemsMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages = 1;
   acceptedItems: Item[] = [];
   constructor(public bookType: BookConsumableType) {
     super(

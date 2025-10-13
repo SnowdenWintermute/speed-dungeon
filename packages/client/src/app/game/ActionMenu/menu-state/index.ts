@@ -1,3 +1,4 @@
+import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import { FocusEventHandler, MouseEventHandler, ReactNode } from "react";
 
 export enum MenuStateType {
@@ -63,14 +64,35 @@ export class ActionButtonsByCategory {
 }
 
 export abstract class ActionMenuState {
-  page: number = 1;
+  protected pageIndex: number = 0;
   alwaysShowPageOne: boolean = false;
   constructor(
     public type: MenuStateType,
     public numPages: number
   ) {}
+
+  getPageIndex() {
+    return this.pageIndex;
+  }
+
+  turnPage(direction: NextOrPrevious) {
+    const newPage = getNextOrPreviousNumber(this.pageIndex, this.numPages, direction);
+    this.pageIndex = newPage;
+  }
+
+  goToLastPage() {
+    this.pageIndex = this.numPages;
+  }
+
+  goToFirstPage() {
+    this.pageIndex = 0;
+  }
+
+  getCenterInfoDisplayOption(): ReactNode | null {
+    return null;
+  }
+
   abstract getButtonProperties(): ActionButtonsByCategory;
-  abstract getCenterInfoDisplayOption: null | (() => ReactNode);
 }
 
 export class ActionMenuButtonProperties {

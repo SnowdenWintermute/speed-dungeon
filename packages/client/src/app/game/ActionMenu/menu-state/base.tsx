@@ -34,24 +34,19 @@ import {
   setViewingAbilityTreeAsFreshStack,
 } from "./common-buttons/open-inventory";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
-import createPageButtons from "./create-page-buttons";
-import { immerable } from "immer";
+import { createPageButtons } from "./create-page-buttons";
 import { getAttackActionIcons } from "../../character-sheet/ability-tree/action-icons";
 import { ACTION_ICONS } from "@/app/icons";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
 export const VIEW_LOOT_BUTTON_TEXT = `Loot (${letterFromKeyCode(viewItemsOnGroundHotkey)})`;
 
-export class BaseMenuState implements ActionMenuState {
-  page = 1;
-  numPages: number = 1;
-  type = MenuStateType.Base;
-  alwaysShowPageOne = false;
-
-  getCenterInfoDisplayOption = null;
-  [immerable] = true;
-  constructor(public inCombat: boolean) {}
+export class BaseMenuState extends ActionMenuState {
+  constructor() {
+    super(MenuStateType.Base, 1);
+  }
 
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
@@ -79,8 +74,9 @@ export class BaseMenuState implements ActionMenuState {
         () => "Unspent Attributes Hotkey Button",
         "Unspent Attributes Hotkey Button",
         () => {
+          const { actionMenuStore } = AppStore.get();
+          actionMenuStore.hoveredAction = null;
           useGameStore.getState().mutateState((state) => {
-            state.hoveredAction = null;
             state.stackedMenuStates.push(assignAttributesMenuState);
           });
         }
@@ -94,8 +90,8 @@ export class BaseMenuState implements ActionMenuState {
         () => VIEW_LOOT_BUTTON_TEXT,
         VIEW_LOOT_BUTTON_TEXT,
         () => {
+          AppStore.get().actionMenuStore.hoveredAction = null;
           useGameStore.getState().mutateState((state) => {
-            state.hoveredAction = null;
             state.stackedMenuStates.push(itemsOnGroundMenuState);
           });
         }
@@ -180,20 +176,17 @@ export class BaseMenuState implements ActionMenuState {
             characterId,
             actionAndRankOption: new ActionAndRank(actionName, 1),
           });
-          useGameStore.getState().mutateState((state) => {
-            state.hoveredAction = null;
-          });
+
+          AppStore.get().actionMenuStore.hoveredAction = null;
         }
       );
 
-      button.mouseEnterHandler = button.focusHandler = () =>
-        useGameStore.getState().mutateState((state) => {
-          state.hoveredAction = actionName;
-        });
-      button.mouseLeaveHandler = button.blurHandler = () =>
-        useGameStore.getState().mutateState((state) => {
-          state.hoveredAction = null;
-        });
+      button.mouseEnterHandler = button.focusHandler = () => {
+        AppStore.get().actionMenuStore.hoveredAction = null;
+      };
+      button.mouseLeaveHandler = button.blurHandler = () => {
+        AppStore.get().actionMenuStore.hoveredAction = null;
+      };
 
       const combatAction = COMBAT_ACTIONS[actionName];
       const { usabilityContext } = combatAction.targetingProperties;
@@ -227,7 +220,7 @@ export class BaseMenuState implements ActionMenuState {
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 
-    createPageButtons(this, toReturn);
+    createPageButtons(toReturn);
 
     return toReturn;
   }

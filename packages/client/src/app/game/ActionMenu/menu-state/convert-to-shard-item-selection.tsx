@@ -1,5 +1,4 @@
 import { ActionButtonCategory, MenuStateType } from ".";
-import { immerable } from "immer";
 import { ItemsMenuState } from "./items";
 import { CombatantProperties, Item, getItemSellPrice } from "@speed-dungeon/common";
 import { useGameStore } from "@/stores/game-store";
@@ -9,9 +8,6 @@ import { ConfirmConvertToShardsMenuState } from "./confirm-convert-to-shards";
 import { AppStore } from "@/mobx-stores/app-store";
 
 export class ConvertToShardItemSelectionMenuState extends ItemsMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages = 1;
   constructor() {
     super(
       MenuStateType.ShardItemSelection,
