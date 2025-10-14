@@ -27,14 +27,14 @@ export async function synchronizeCombatantModelsWithAppState() {
   const modelsAndPositions = getModelsAndPositions();
   if (modelsAndPositions instanceof Error) return modelsAndPositions;
 
+  const { gameWorldStore } = AppStore.get();
+
   // delete models which don't appear on the list
   for (const [entityId, model] of Object.entries(modelManager.combatantModels)) {
     if (!modelsAndPositions[entityId]) {
       model.cleanup({ softCleanup: false });
       delete modelManager.combatantModels[entityId];
-      useGameStore.getState().mutateState((state) => {
-        delete state.combatantModelLoadingStates[entityId];
-      });
+      gameWorldStore.clearModelLoadingState(entityId);
     }
   }
 
@@ -48,9 +48,7 @@ export async function synchronizeCombatantModelsWithAppState() {
     if (!modelOption) {
       // start spawning model which we need to
 
-      useGameStore.getState().mutateState((state) => {
-        state.combatantModelLoadingStates[entityId] = true;
-      });
+      gameWorldStore.setModelLoading(entityId);
       modelSpawnPromises.push(
         spawnCharacterModel(gameWorld.current, {
           combatant,
@@ -85,9 +83,7 @@ export async function synchronizeCombatantModelsWithAppState() {
       const portraitResult = await createCombatantPortrait(result.entityId);
       if (portraitResult instanceof Error) setAlert(portraitResult);
 
-      useGameStore.getState().mutateState((state) => {
-        state.combatantModelLoadingStates[result.entityId] = false;
-      });
+      gameWorldStore.setModelIsLoaded(result.entityId);
     }
   }
   if (resultsIncludedError) return new Error("Error with spawning combatant models");

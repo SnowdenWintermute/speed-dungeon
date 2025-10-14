@@ -157,13 +157,6 @@ export class BaseMenuState extends ActionMenuState {
         },
         nameAsString,
         () => {
-          console.log(
-            "SelectCombatAction for entity:",
-            characterId,
-            "actionAndRankOption:",
-            actionName,
-            1
-          );
           websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
             characterId,
             actionAndRankOption: new ActionAndRank(actionName, 1),

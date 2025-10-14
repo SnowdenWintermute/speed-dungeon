@@ -62,7 +62,6 @@ const hitOutcomeProperties = createHitOutcomeProperties(
     getOnUseTriggers: (context) => {
       const { rank } = context.tracker.actionExecutionIntent;
       const petSlot = rank - 1;
-      console.log("pet slot:", petSlot);
 
       const { actionUserContext } = context;
       const { actionUser } = actionUserContext;

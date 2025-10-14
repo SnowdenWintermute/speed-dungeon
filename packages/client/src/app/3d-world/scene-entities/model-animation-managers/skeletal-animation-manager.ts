@@ -8,7 +8,8 @@ import {
   SKELETAL_ANIMATION_NAME_STRINGS,
   SkeletalAnimationName,
 } from "@speed-dungeon/common";
-import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
+import { AppStore } from "@/mobx-stores/app-store";
+import { FloatingMessageElementType } from "@/mobx-stores/game-world/floating-messages";
 
 export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
   protected timeStarted: number = Date.now();
@@ -81,9 +82,9 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
 
     if (clonedAnimation === undefined) {
       // send message to client with timout duration to remove itself
-      setDebugMessage(
+      AppStore.get().gameWorldStore.startFloatingMessage(
         this.sceneEntityId,
-        `Missing animation: ${newAnimationName}`,
+        [{ type: FloatingMessageElementType.Text, text: `Missing animation: ${newAnimationName}` }],
         MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME,
         options.onComplete
       );

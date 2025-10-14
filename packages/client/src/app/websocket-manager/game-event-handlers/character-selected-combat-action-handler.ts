@@ -22,7 +22,6 @@ export function characterSelectedCombatActionHandler(
     characterId,
     ({ character, game, party }: CharacterAssociatedData, gameState: GameState) => {
       const { actionMenuStore } = AppStore.get();
-      console.log("character:", character.getEntityId(), "selected:", selectedActionAndRank);
 
       const targetingProperties = character.getTargetingProperties();
 

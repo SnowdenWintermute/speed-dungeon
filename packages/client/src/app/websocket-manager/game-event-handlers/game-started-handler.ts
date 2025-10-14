@@ -15,7 +15,6 @@ import { ERROR_MESSAGES } from "@speed-dungeon/common";
 
 export function gameStartedHandler(timeStarted: number) {
   AppStore.get().actionMenuStore.initialize(new BaseMenuState());
-  console.log("game started handler ran");
 
   useGameStore.getState().mutateState((gameState) => {
     if (gameState.game) gameState.game.timeStarted = timeStarted;
@@ -50,7 +49,6 @@ export function gameStartedHandler(timeStarted: number) {
 
     combatantManager.updateHomePositions();
 
-    console.log("trying to autofocus character");
     characterAutoFocusManager.focusFirstOwnedCharacter(gameState);
   });
 

@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useUIStore } from "@/stores/ui-store";
 import { useGameStore } from "@/stores/game-store";
 import { ZIndexLayers } from "../z-index-layers";
 import { gameWorld } from "./SceneManager";
@@ -28,7 +27,7 @@ export const DebugText = observer(
     const thumbnails = useGameStore((state) => state.itemThumbnails);
     const { dialogStore, inputStore } = AppStore.get();
     const showDebug = dialogStore.isOpen(DialogElementName.Debug);
-    const { hotkeysDisabled } = inputStore;
+    const hotkeysDisabled = AppStore.get().inputStore.getHotkeysDisabled();
     const headerRef = useRef<HTMLDivElement>(null);
     const keydownListenerRef = useRef<(e: KeyboardEvent) => void>(null);
     const mouseDownListenerRef = useRef<(e: MouseEvent) => void>(null);

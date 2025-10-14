@@ -1,7 +1,6 @@
 import { Combatant } from "@speed-dungeon/common";
 import { ReactNode, useEffect } from "react";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
-import { useGameStore } from "@/stores/game-store";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
@@ -10,7 +9,7 @@ export const CharacterModelDisplay = observer(
   ({ character, children }: { character: Combatant; children?: ReactNode }) => {
     const { entityProperties } = character;
     const entityId = entityProperties.id;
-    const modelLoadingState = useGameStore.getState().combatantModelLoadingStates[entityId];
+    const modelIsLoading = AppStore.get().gameWorldStore.modelIsLoading(entityId);
     const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
 
     // @TODO - this is symantec coupling. instead of directly passing the modelDomPositionElement to babylon
@@ -28,13 +27,10 @@ export const CharacterModelDisplay = observer(
 
       const debugElement = document.getElementById(`${entityId}-debug-div`);
       modelOption.debugElement = debugElement as HTMLDivElement;
-    }, [modelLoadingState]);
+    }, [modelIsLoading]);
 
     return (
-      <div
-        id={`${entityId}-position-div`}
-        className={`absolute ${(modelLoadingState === undefined || modelLoadingState === true) && "opacity-0"}`}
-      >
+      <div id={`${entityId}-position-div`} className={`absolute ${modelIsLoading && "opacity-0"}`}>
         <div id={`${entityId}-debug-div`} className={showDebug ? "" : "hidden"}></div>
         {children}
       </div>

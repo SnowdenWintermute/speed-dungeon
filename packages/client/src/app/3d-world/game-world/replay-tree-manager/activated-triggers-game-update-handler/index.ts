@@ -9,7 +9,6 @@ import {
   throwIfError,
 } from "@speed-dungeon/common";
 import { getGameWorld } from "../../../SceneManager";
-import { postBrokenHoldableMessages } from "../post-broken-holdable-messages";
 import { handleThreatChangesUpdate } from "../handle-threat-changes";
 import getParty from "@/utils/getParty";
 import { handleActionEntityChanges } from "./handle-action-entity-changes";
@@ -21,6 +20,7 @@ import { handleRemovedConditionIds } from "./handle-removed-condition-ids";
 import { handleHitPointChanges } from "./handle-hit-point-changes";
 import { GameUpdateTracker } from "../game-update-tracker";
 import { handlePetSlotsSummoned } from "./handle-pets-summoned";
+import { FloatingMessageService } from "@/mobx-stores/game-world/floating-message-service";
 
 // @REFACTOR - break into smaller functions
 export async function activatedTriggersGameUpdateHandler(
@@ -99,8 +99,9 @@ export async function activatedTriggersGameUpdateHandler(
     }
   });
 
-  for (const { ownerId, equipment } of brokenHoldablesAndTheirOwnerIds)
-    postBrokenHoldableMessages(ownerId, equipment);
+  for (const { ownerId, equipment } of brokenHoldablesAndTheirOwnerIds) {
+    FloatingMessageService.startBrokenHoldablesMessage(ownerId, equipment);
+  }
 
   handleHitPointChanges(command);
 

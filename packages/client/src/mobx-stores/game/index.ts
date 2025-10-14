@@ -1,8 +1,6 @@
 import { ActionUserContext, Combatant, EntityId, SpeedDungeonGame } from "@speed-dungeon/common";
 import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";
 import { TargetIndicator } from "@/app/3d-world/scene-entities/character-models/target-indicator-manager";
-import { FloatingMessage } from "@/stores/game-store/floating-messages";
-import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
 
 export enum MenuContext {
   InventoryItems,
@@ -37,12 +35,6 @@ export class AppStoreManager {
 
   // Combat log
   combatLogMessages: CombatLogMessage[] = [];
-
-  // Babylon integration
-  lastDebugMessageId: number = 0;
-  combatantModelLoadingStates: { [combantatId: EntityId]: boolean } = {};
-  babylonControlledCombatantDOMData: { [combatantId: string]: BabylonControlledCombatantData } = {};
-  combatantFloatingMessages: { [combatantId: string]: FloatingMessage[] } = {};
 
   // Images
   itemThumbnails: { [itemId: string]: string } = {};

@@ -29,11 +29,9 @@ export class InventoryItemsMenuState extends ItemsMenuState {
 
     const closeButtonAndHotkeys = { text: "Cancel", hotkeys: ["KeyI", toggleInventoryHotkey] };
 
-    console.log("closeMenuTextAndHotkeys for InventoryItemsMenuState:", closeButtonAndHotkeys);
-
     super(
       MenuStateType.InventoryItems,
-      { text: "Cancel", hotkeys: ["KeyI", toggleInventoryHotkey] },
+      closeButtonAndHotkeys,
       (item: Item) => {
         AppStore.get().focusStore.selectItem(item);
         AppStore.get().actionMenuStore.pushStack(new ConsideringItemMenuState(item));

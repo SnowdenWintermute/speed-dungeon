@@ -2,6 +2,7 @@ import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import { ReactNode } from "react";
 import { MENU_STATE_TYPE_STRINGS, MenuStateType } from "./menu-state-type";
 import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
+import { makeAutoObservable } from "mobx";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 
@@ -14,6 +15,8 @@ export abstract class ActionMenuState {
     protected minPageCount: number
   ) {
     this.cachedPageCount = this.getPageCount();
+
+    // makeAutoObservable(this, {}, { autoBind: true });
   }
 
   getStringName() {
@@ -22,7 +25,6 @@ export abstract class ActionMenuState {
 
   getPageCount() {
     const buttonProperties = this.getButtonProperties();
-    console.log("buttonProperties in getPageCount:", buttonProperties, this.getStringName());
     return Math.max(
       this.minPageCount,
       Math.ceil(buttonProperties[ActionButtonCategory.Numbered].length / ACTION_MENU_PAGE_SIZE)

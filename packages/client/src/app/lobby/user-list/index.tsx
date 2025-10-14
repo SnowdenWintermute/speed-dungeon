@@ -7,7 +7,7 @@ import { AppStore } from "@/mobx-stores/app-store";
 export const UserList = observer(() => {
   const { lobbyStore } = AppStore.get();
   const usersInChannel = lobbyStore.getUsersList();
-  const websocketConnected = lobbyStore.websocketConnected;
+  const websocketConnected = lobbyStore.websocketIsConnected();
 
   return (
     <section

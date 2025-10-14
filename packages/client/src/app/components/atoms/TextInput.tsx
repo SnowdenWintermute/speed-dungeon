@@ -29,7 +29,7 @@ export default function TextInput(props: Props) {
     if (inputRef.current && props.autofocus) {
       inputRef.current.focus();
       inputRef.current.dispatchEvent(new Event("focus", { bubbles: true })); // Trigger the focus event manually
-      inputStore.hotkeysDisabled = true;
+      inputStore.setHotkeysDisabled(true);
     }
     return () => {
       handleBlur();
@@ -37,7 +37,7 @@ export default function TextInput(props: Props) {
   }, []);
 
   function handleBlur() {
-    inputStore.hotkeysDisabled = false;
+    inputStore.setHotkeysDisabled(false);
   }
 
   function handleKeydown(e: KeyboardEvent) {
@@ -54,7 +54,7 @@ export default function TextInput(props: Props) {
     <input
       ref={inputRef}
       onFocus={() => {
-        inputStore.hotkeysDisabled = true;
+        inputStore.setHotkeysDisabled(true);
       }}
       onBlur={handleBlur}
       className={`pointer-events-auto ${props.className}`}

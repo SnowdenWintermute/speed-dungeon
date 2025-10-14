@@ -2,8 +2,8 @@ import { Combatant, EntityId, GameListEntry, UserChannelDisplayData } from "@spe
 import { makeAutoObservable } from "mobx";
 
 export class LobbyStore {
-  public websocketConnected: boolean = true;
-  public gameList: GameListEntry[] = [];
+  private websocketConnected: boolean = true;
+  private gameList: GameListEntry[] = [];
   private mainChannelName: string = "";
   private usersInChannel = new Map<string, UserChannelDisplayData>();
   private savedCharacterSlots: Record<number, Combatant | null> = {};
@@ -12,6 +12,22 @@ export class LobbyStore {
     // to callbacks like socket.on(ServerToClientEvent.UserLeftChannel, lobbyStore.handleUserLeftChannel);
     // see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this
     makeAutoObservable(this, {}, { autoBind: true });
+  }
+
+  setWebsocketConnectedStatus(isConnected: boolean) {
+    this.websocketConnected = isConnected;
+  }
+
+  websocketIsConnected() {
+    return this.websocketConnected;
+  }
+
+  setGameList(newList: GameListEntry[]) {
+    this.gameList = newList;
+  }
+
+  getGameList() {
+    return this.gameList;
   }
 
   updateChannel(

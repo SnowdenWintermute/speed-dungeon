@@ -22,6 +22,6 @@ export function setUpBasicLobbyEventHandlers(
   socket.on(ServerToClientEvent.UserJoinedChannel, lobbyStore.handleUserJoinedChannel);
   socket.on(ServerToClientEvent.UserLeftChannel, lobbyStore.handleUserLeftChannel);
   socket.on(ServerToClientEvent.GameList, (gameList) => {
-    lobbyStore.gameList = gameList;
+    lobbyStore.setGameList(gameList);
   });
 }

@@ -1,10 +1,5 @@
-import {
-  FloatingMessageElementType,
-  FloatingMessageIconType,
-} from "@/stores/game-store/floating-messages";
 import React from "react";
-import FloatingMessageText from "./FloatingMessageText";
-import { useGameStore } from "@/stores/game-store";
+import { FloatingMessageText } from "./FloatingMessageText";
 import PiercingIcon from "../../../../../public/img/hp-change-source-icons/piercing.svg";
 import SlashingIcon from "../../../../../public/img/hp-change-source-icons/slashing.svg";
 import {
@@ -12,14 +7,20 @@ import {
   KineticDamageType,
   MAGICAL_ELEMENT_STRINGS,
 } from "@speed-dungeon/common";
+import { observer } from "mobx-react-lite";
+import {
+  FloatingMessageElementType,
+  FloatingMessageIconType,
+} from "@/mobx-stores/game-world/floating-messages";
+import { AppStore } from "@/mobx-stores/app-store";
 
-export default function CombatantFloatingMessagesDisplay({ entityId }: { entityId: string }) {
-  const floatingMessages =
-    useGameStore().babylonControlledCombatantDOMData[entityId]?.floatingMessages;
+export const CombatantFloatingMessagesDisplay = observer(({ entityId }: { entityId: string }) => {
+  const floatingMessages = AppStore.get().gameWorldStore.getFloatingMessages(entityId);
+  console.log("floatingMessages:", floatingMessages);
 
   return (
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full flex flex-col items-center text-center w-[300px]">
-      {floatingMessages?.map((message) => {
+      {floatingMessages.map((message) => {
         return (
           <div
             className="text-xl relative flex"
@@ -61,7 +62,7 @@ export default function CombatantFloatingMessagesDisplay({ entityId }: { entityI
       })}
     </div>
   );
-}
+});
 
 function getPhysicalDamageTypeIcon(damageType: KineticDamageType) {
   switch (damageType) {

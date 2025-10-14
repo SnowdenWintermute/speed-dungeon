@@ -37,7 +37,7 @@ export const Lobby = observer(() => {
   const showGameCreationForm = dialogStore.isOpen(DialogElementName.GameCreation);
   const showAuthForm = dialogStore.isOpen(DialogElementName.Credentials);
   const showSavedCharacterManager = dialogStore.isOpen(DialogElementName.SavedCharacterManager);
-  const websocketConnected = lobbyStore.websocketConnected;
+  const websocketConnected = lobbyStore.websocketIsConnected();
 
   useEffect(() => {
     if (currentSessionHttpResponseTracker?.statusCode === 200) {

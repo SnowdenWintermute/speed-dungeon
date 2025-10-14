@@ -15,7 +15,7 @@ import {
   Inventory,
 } from "@speed-dungeon/common";
 import "./floating-text-animation.css";
-import CombatantFloatingMessagesDisplay from "./combatant-floating-messages-display";
+import { CombatantFloatingMessagesDisplay } from "./combatant-floating-messages-display";
 import { InventoryIconButton } from "./InventoryIconButton";
 import HotswapSlotButtons from "./HotswapSlotButtons";
 import { CharacterModelDisplay } from "@/app/character-model-display";
@@ -38,12 +38,12 @@ interface Props {
 export const CombatantPlaque = observer(({ combatant, showExperience }: Props) => {
   const gameOption = useGameStore().game;
 
-  const { focusStore, dialogStore } = AppStore.get();
+  const { focusStore, dialogStore, gameWorldStore } = AppStore.get();
   const showDebug = dialogStore.isOpen(DialogElementName.Debug);
 
   const portrait = useGameStore((state) => state.combatantPortraits[combatant.entityProperties.id]);
   const entityId = combatant.entityProperties.id;
-  const babylonDataOption = useGameStore().babylonControlledCombatantDOMData[entityId];
+  const babylonDebugInfo = gameWorldStore.getCombatantDebugDisplay(entityId);
 
   const usernameOption = useGameStore().username;
   const result = getGameAndParty(gameOption, usernameOption);
@@ -138,7 +138,7 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
               // })
             }
           </div>
-          {babylonDataOption && babylonDataOption.debugHtml}
+          {babylonDebugInfo}
         </div>
       </CharacterModelDisplay>
       {isPartyMember && conditionIndicators("mb-1") /* otherwise put it below */}

@@ -36,7 +36,7 @@ export default function SelectDropdown(props: Props) {
   }, [value]);
 
   function handleBlur() {
-    inputStore.hotkeysDisabled = false;
+    inputStore.setHotkeysDisabled(false);
     setIsFocused(false);
     setIsOpen(false);
     // const activeElement = document.activeElement as HTMLElement;
@@ -48,7 +48,7 @@ export default function SelectDropdown(props: Props) {
   function handleFocus() {
     if (!selectInputRef.current) return;
     setIsFocused(true);
-    inputStore.hotkeysDisabled = true;
+    inputStore.setHotkeysDisabled(true);
   }
 
   function handleUserKeydown(e: KeyboardEvent) {

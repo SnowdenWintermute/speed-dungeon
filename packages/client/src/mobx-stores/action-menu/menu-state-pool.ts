@@ -40,8 +40,6 @@ export class MenuStatePool {
       throw new Error("tried to access a menu state that isn't stored in the pool");
     }
 
-    console.log("accessing menu state in pool:", stored);
-
     return stored;
   }
 }

@@ -1,6 +1,7 @@
 import { ActionMenuStore } from "./action-menu";
 import { DialogStore } from "./dialogs";
 import { FocusStore } from "./focus";
+import { GameWorldStore } from "./game-world";
 import { InputStore } from "./input";
 import { LobbyStore } from "./lobby";
 import { TooltipStore } from "./tooltip";
@@ -12,6 +13,7 @@ export class AppStore {
   inputStore = new InputStore();
   focusStore = new FocusStore();
   actionMenuStore = new ActionMenuStore();
+  gameWorldStore = new GameWorldStore();
 
   private static _instance: AppStore | null = null;
 

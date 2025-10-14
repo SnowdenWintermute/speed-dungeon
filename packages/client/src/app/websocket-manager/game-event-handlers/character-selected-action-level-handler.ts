@@ -29,8 +29,6 @@ export function characterSelectedActionLevelHandler(eventData: {
 
       const { actionName } = selectedActionAndRank;
 
-      console.log("set selectedActionAndRank rank", actionLevel);
-
       targetingProperties.setSelectedActionAndRank(new ActionAndRank(actionName, actionLevel));
 
       if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);

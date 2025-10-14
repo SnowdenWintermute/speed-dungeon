@@ -6,7 +6,7 @@ import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 
 export const GameList = observer(() => {
-  const { gameList } = AppStore.get().lobbyStore;
+  const gameList = AppStore.get().lobbyStore.getGameList();
 
   return (
     <section

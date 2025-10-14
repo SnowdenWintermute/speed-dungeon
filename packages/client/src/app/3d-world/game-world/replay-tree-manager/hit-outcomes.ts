@@ -9,19 +9,13 @@ import {
 import { getGameWorld } from "../../SceneManager";
 import { useGameStore } from "@/stores/game-store";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
-import {
-  FLOATING_TEXT_COLORS,
-  FloatingMessageElement,
-  FloatingMessageElementType,
-  FloatingMessageTextColor,
-  startFloatingMessage,
-} from "@/stores/game-store/floating-messages";
 import { plainToInstance } from "class-transformer";
 import { HitPointChanges } from "@speed-dungeon/common";
 import { induceHitRecovery } from "./induce-hit-recovery";
 import { handleThreatChangesUpdate } from "./handle-threat-changes";
 import { CombatActionResource } from "@speed-dungeon/common";
 import { GameUpdateTracker } from "./game-update-tracker";
+import { FloatingMessageService } from "@/mobx-stores/game-world/floating-message-service";
 
 export async function hitOutcomesGameUpdateHandler(
   update: GameUpdateTracker<HitOutcomesGameUpdateCommand>
@@ -85,15 +79,7 @@ export async function hitOutcomesGameUpdateHandler(
   handleThreatChangesUpdate(command);
 
   outcomeFlags[HitOutcome.Miss]?.forEach((entityId) => {
-    const elements: FloatingMessageElement[] = [
-      {
-        type: FloatingMessageElementType.Text,
-        text: `Miss`,
-        classNames: { mainText: "text-gray-500", shadowText: "text-black" },
-      },
-    ];
-
-    startFloatingMessage(entityId, elements, 2000);
+    FloatingMessageService.startHitOutcomeMissMessage(entityId);
 
     useGameStore.getState().mutateState((gameState) => {
       const targetCombatantResult = gameState.getCombatant(entityId);
@@ -107,15 +93,7 @@ export async function hitOutcomesGameUpdateHandler(
   });
 
   outcomeFlags[HitOutcome.Evade]?.forEach((entityId) => {
-    const elements: FloatingMessageElement[] = [
-      {
-        type: FloatingMessageElementType.Text,
-        text: `Evade`,
-        classNames: { mainText: "text-gray-500", shadowText: "text-black" },
-      },
-    ];
-
-    startFloatingMessage(entityId, elements, 2000);
+    FloatingMessageService.startHitOutcomeEvadeMessage(entityId);
 
     const targetModel = getGameWorld().modelManager.findOne(entityId);
 
@@ -139,18 +117,7 @@ export async function hitOutcomesGameUpdateHandler(
   });
 
   outcomeFlags[HitOutcome.Parry]?.forEach((entityId) => {
-    const elements: FloatingMessageElement[] = [
-      {
-        type: FloatingMessageElementType.Text,
-        text: `Parry`,
-        classNames: {
-          mainText: FLOATING_TEXT_COLORS[FloatingMessageTextColor.Parried],
-          shadowText: "text-black",
-        },
-      },
-    ];
-
-    startFloatingMessage(entityId, elements, 2000);
+    FloatingMessageService.startHitOutcomeParryMessage(entityId);
 
     const targetModel = getGameWorld().modelManager.findOne(entityId);
 
@@ -177,18 +144,7 @@ export async function hitOutcomesGameUpdateHandler(
   });
 
   outcomeFlags[HitOutcome.Counterattack]?.forEach((entityId) => {
-    const elements: FloatingMessageElement[] = [
-      {
-        type: FloatingMessageElementType.Text,
-        text: `Countered`,
-        classNames: {
-          mainText: FLOATING_TEXT_COLORS[FloatingMessageTextColor.Parried],
-          shadowText: "text-black",
-        },
-      },
-    ];
-
-    startFloatingMessage(entityId, elements, 2000);
+    FloatingMessageService.startHitOutcomeCounteredMessage(entityId);
 
     useGameStore.getState().mutateState((gameState) => {
       const targetCombatantResult = gameState.getCombatant(entityId);

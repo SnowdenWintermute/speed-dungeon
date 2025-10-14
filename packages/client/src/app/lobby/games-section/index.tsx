@@ -24,7 +24,7 @@ import { DialogElementName } from "@/mobx-stores/dialogs";
 
 export const GamesSection = observer(() => {
   const [gameListRefreshedAt, setGameListRefreshedAt] = useState("...");
-  const { gameList } = AppStore.get().lobbyStore;
+  const gameList = AppStore.get().lobbyStore.getGameList();
   const gameListRef = useRef(null);
   const gameListIsOverflowing = useElementIsOverflowing(gameListRef.current);
   const { dialogStore } = AppStore.get();

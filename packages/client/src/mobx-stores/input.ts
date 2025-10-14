@@ -11,10 +11,18 @@ export class InputStore {
     [ModifierKey.AlternateClick]: false,
   };
 
-  hotkeysDisabled: boolean = false;
+  private hotkeysDisabled: boolean = false;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
+  }
+
+  getHotkeysDisabled() {
+    return this.hotkeysDisabled;
+  }
+
+  setHotkeysDisabled(disabled: boolean) {
+    this.hotkeysDisabled = disabled;
   }
 
   setKeyHeld(key: ModifierKey) {

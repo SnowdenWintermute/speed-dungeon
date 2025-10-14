@@ -8,17 +8,15 @@ import {
   COMBAT_ACTIONS,
   ActionResolutionStepType,
   AdventuringParty,
-  FLOATING_MESSAGE_DURATION,
 } from "@speed-dungeon/common";
 import { getActionUserContext, useGameStore } from "@/stores/game-store";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
-import { useUIStore } from "@/stores/ui-store";
-import { startResourceChangeFloatingMessage } from "./start-resource-change-floating-message";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { postResourceChangeToCombatLog } from "@/app/game/combat-log/post-resource-change-to-combat-log";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
+import { FloatingMessageService } from "@/mobx-stores/game-world/floating-message-service";
 
 export function induceHitRecovery(
   actionUserName: string,
@@ -34,12 +32,11 @@ export function induceHitRecovery(
   const targetModel = getGameWorld().modelManager.findOneOptional(targetId);
   if (targetModel === undefined) return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
-  startResourceChangeFloatingMessage(
+  FloatingMessageService.startResourceChangeFloatingMessage(
     targetId,
     resourceChange,
     resourceType,
-    wasBlocked,
-    FLOATING_MESSAGE_DURATION
+    wasBlocked
   );
 
   const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);

@@ -16,8 +16,6 @@ import { getActiveCombatant } from "@/utils/getActiveCombatant";
 import getParty from "@/utils/getParty";
 import { getFocusedCharacter } from "@/utils/getFocusedCharacter";
 import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";
-import { BabylonControlledCombatantData } from "./babylon-controlled-combatant-data";
-import { FloatingMessage } from "./floating-messages";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { TargetIndicator } from "@/app/3d-world/scene-entities/character-models/target-indicator-manager";
 
@@ -38,12 +36,6 @@ export class GameState {
   focusedCharacterId: string = "";
 
   combatLogMessages: CombatLogMessage[] = [];
-  combatantFloatingMessages: { [combatantId: string]: FloatingMessage[] } = {};
-
-  lastDebugMessageId: number = 0;
-
-  combatantModelLoadingStates: { [combantatId: EntityId]: boolean } = {};
-  babylonControlledCombatantDOMData: { [combatantId: string]: BabylonControlledCombatantData } = {};
 
   itemThumbnails: { [itemId: string]: string } = {};
 

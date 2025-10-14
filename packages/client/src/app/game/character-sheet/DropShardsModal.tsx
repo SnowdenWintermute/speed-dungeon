@@ -22,9 +22,9 @@ export const DropShardsModal = observer(
     const focusedCharacterResult = useGameStore().getFocusedCharacter();
 
     useEffect(() => {
-      inputStore.hotkeysDisabled = true;
+      inputStore.setHotkeysDisabled(true);
       return () => {
-        inputStore.hotkeysDisabled = false;
+        inputStore.setHotkeysDisabled(false);
       };
     }, []);
 

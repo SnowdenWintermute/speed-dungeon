@@ -41,7 +41,7 @@ websocketConnection.on("connect", () => {
   useGameStore.getState().mutateState((state) => {
     state.game = null;
   });
-  AppStore.get().lobbyStore.websocketConnected = true;
+  AppStore.get().lobbyStore.setWebsocketConnectedStatus(true);
 
   getGameWorld().modelManager.modelActionQueue.clear();
   getGameWorld().modelManager.modelActionQueue.enqueueMessage({
@@ -59,7 +59,7 @@ websocketConnection.on("connect", () => {
 
 websocketConnection.on("disconnect", () => {
   console.info("disconnected");
-  AppStore.get().lobbyStore.websocketConnected = false;
+  AppStore.get().lobbyStore.setWebsocketConnectedStatus(false);
 });
 
 websocketConnection.on(ServerToClientEvent.ErrorMessage, (message) => {
