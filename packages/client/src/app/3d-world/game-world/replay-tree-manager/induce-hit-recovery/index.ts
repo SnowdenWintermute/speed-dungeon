@@ -16,7 +16,7 @@ import { postResourceChangeToCombatLog } from "@/app/game/combat-log/post-resour
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
-import { FloatingMessageService } from "@/mobx-stores/game-world/floating-message-service";
+import { FloatingMessageService } from "@/mobx-stores/game-event-notifications/floating-message-service";
 
 export function induceHitRecovery(
   actionUserName: string,

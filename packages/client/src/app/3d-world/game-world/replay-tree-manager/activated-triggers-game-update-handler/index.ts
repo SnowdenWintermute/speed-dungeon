@@ -20,7 +20,7 @@ import { handleRemovedConditionIds } from "./handle-removed-condition-ids";
 import { handleHitPointChanges } from "./handle-hit-point-changes";
 import { GameUpdateTracker } from "../game-update-tracker";
 import { handlePetSlotsSummoned } from "./handle-pets-summoned";
-import { FloatingMessageService } from "@/mobx-stores/game-world/floating-message-service";
+import { FloatingMessageService } from "@/mobx-stores/game-event-notifications/floating-message-service";
 
 // @REFACTOR - break into smaller functions
 export async function activatedTriggersGameUpdateHandler(

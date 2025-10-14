@@ -15,7 +15,7 @@ import { induceHitRecovery } from "./induce-hit-recovery";
 import { handleThreatChangesUpdate } from "./handle-threat-changes";
 import { CombatActionResource } from "@speed-dungeon/common";
 import { GameUpdateTracker } from "./game-update-tracker";
-import { FloatingMessageService } from "@/mobx-stores/game-world/floating-message-service";
+import { FloatingMessageService } from "@/mobx-stores/game-event-notifications/floating-message-service";
 
 export async function hitOutcomesGameUpdateHandler(
   update: GameUpdateTracker<HitOutcomesGameUpdateCommand>

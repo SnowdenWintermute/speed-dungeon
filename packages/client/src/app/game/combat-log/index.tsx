@@ -3,8 +3,9 @@ import { useGameStore } from "@/stores/game-store";
 import React, { useState } from "react";
 import { CombatLogMessage, CombatLogMessageStyle } from "./combat-log-message";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { observer } from "mobx-react-lite";
 
-export default function CombatLog() {
+export const CombatLog = observer(() => {
   const [expanded, setExpanded] = useState(false);
   const combatLogMessages = useGameStore().combatLogMessages;
 
@@ -37,7 +38,7 @@ export default function CombatLog() {
       </div>
     </div>
   );
-}
+});
 
 function CombatLogMessageElement({ message }: { message: CombatLogMessage }) {
   let color = "";

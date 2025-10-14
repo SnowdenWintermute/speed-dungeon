@@ -6,7 +6,7 @@ import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
 import MonsterPlaques from "./MonsterPlaques";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import { ReadyUpDisplay } from "./ReadyUpDisplay";
-import CombatLog from "./combat-log";
+import { CombatLog } from "./combat-log";
 import { getFocusedCharacter } from "@/utils/getFocusedCharacter";
 import { ActionMenuAndCharacterSheetLayer } from "./ActionMenuAndCharacterSheetLayer";
 import { ZIndexLayers } from "../z-index-layers";

@@ -2,6 +2,7 @@ import { ActionMenuStore } from "./action-menu";
 import { ConfigStore } from "./config";
 import { DialogStore } from "./dialogs";
 import { FocusStore } from "./focus";
+import { GameEventNotificationStore } from "./game-event-notifications";
 import { GameWorldStore } from "./game-world";
 import { InputStore } from "./input";
 import { LobbyStore } from "./lobby";
@@ -16,6 +17,7 @@ export class AppStore {
   actionMenuStore = new ActionMenuStore();
   gameWorldStore = new GameWorldStore();
   configStore = new ConfigStore();
+  gameEventNotificationStore = new GameEventNotificationStore();
 
   private static _instance: AppStore | null = null;
 

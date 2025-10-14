@@ -9,7 +9,7 @@ import {
   SkeletalAnimationName,
 } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
-import { FloatingMessageElementType } from "@/mobx-stores/game-world/floating-messages";
+import { FloatingMessageElementType } from "@/mobx-stores/game-event-notifications/floating-messages";
 
 export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
   protected timeStarted: number = Date.now();
@@ -82,7 +82,7 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
 
     if (clonedAnimation === undefined) {
       // send message to client with timout duration to remove itself
-      AppStore.get().gameWorldStore.startFloatingMessage(
+      AppStore.get().gameEventNotificationStore.startFloatingMessage(
         this.sceneEntityId,
         [{ type: FloatingMessageElementType.Text, text: `Missing animation: ${newAnimationName}` }],
         MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME,

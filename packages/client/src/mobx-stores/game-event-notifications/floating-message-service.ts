@@ -18,8 +18,8 @@ import { AppStore } from "../app-store";
 
 export class FloatingMessageService {
   private static dispatch(entityId: EntityId, elements: FloatingMessageElement[]) {
-    const { gameWorldStore } = AppStore.get();
-    gameWorldStore.startFloatingMessage(entityId, elements, FLOATING_MESSAGE_DURATION);
+    const { gameEventNotificationStore } = AppStore.get();
+    gameEventNotificationStore.startFloatingMessage(entityId, elements, FLOATING_MESSAGE_DURATION);
   }
 
   static startResourceChangeFloatingMessage(

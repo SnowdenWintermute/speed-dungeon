@@ -8,14 +8,14 @@ import {
   MAGICAL_ELEMENT_STRINGS,
 } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
 import {
   FloatingMessageElementType,
   FloatingMessageIconType,
-} from "@/mobx-stores/game-world/floating-messages";
-import { AppStore } from "@/mobx-stores/app-store";
+} from "@/mobx-stores/game-event-notifications/floating-messages";
 
 export const CombatantFloatingMessagesDisplay = observer(({ entityId }: { entityId: string }) => {
-  const floatingMessages = AppStore.get().gameWorldStore.getFloatingMessages(entityId);
+  const floatingMessages = AppStore.get().gameEventNotificationStore.getFloatingMessages(entityId);
   console.log("floatingMessages:", floatingMessages);
 
   return (
