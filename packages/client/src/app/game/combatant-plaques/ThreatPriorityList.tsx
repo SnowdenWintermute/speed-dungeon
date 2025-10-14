@@ -1,8 +1,5 @@
 import {
   formatThousandsAsK,
-  getNextOrPreviousNumber,
-  iterateNumericEnum,
-  NextOrPrevious,
   ThreatManager,
   ThreatTableEntry,
   ThreatType,
@@ -14,11 +11,11 @@ import {
   getCombatantClassIcon,
   getCombatantUiIdentifierIcon,
 } from "@/utils/get-combatant-class-icon";
-import { UI_DISPLAY_MODE_STRINGS, UiDisplayMode, useUIStore } from "@/stores/ui-store";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
+import { UI_DISPLAY_MODE_STRINGS, UiDisplayMode } from "@/mobx-stores/config";
 
 interface Props {
   threatManager: null | ThreatManager;
@@ -29,9 +26,6 @@ export default function ThreatPriorityList({ threatManager }: Props) {
 
   const entries = threatManager.getEntries();
 
-  const threatTableDetailedDisplayMode = useUIStore().threatTableDetailedDisplayMode;
-  // const widthClass = threatTableDetailedDisplayMode ? "w-40" : "w-24";
-  //${widthClass}
   const topThreatId = threatManager.getHighestThreatCombatantId();
   const highestThreat =
     topThreatId !== null ? threatManager.getEntries()[topThreatId]?.getTotal() : 0;
@@ -63,9 +57,9 @@ const ThreatTrackerIcon = observer(
     threatTableEntry: ThreatTableEntry;
     percentOfTopThreat: number;
   }) => {
-    const threatTableDetailedDisplayMode = useUIStore().threatTableDetailedDisplayMode;
-    const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
-    const mutateUIStore = useUIStore().mutateState;
+    const { dialogStore, configStore } = AppStore.get();
+    const threatTableDetailedDisplayMode = configStore.getThreatTableDisplayMode();
+    const showDebug = dialogStore.isOpen(DialogElementName.Debug);
 
     const { extraStyles, entityId, threatTableEntry } = props;
 
@@ -85,14 +79,7 @@ const ThreatTrackerIcon = observer(
     const totalThreat = stableThreat + volatileThreat;
 
     function handleClick() {
-      mutateUIStore((state) => {
-        state.threatTableDetailedDisplayMode = getNextOrPreviousNumber(
-          state.threatTableDetailedDisplayMode,
-          iterateNumericEnum(UiDisplayMode).length - 1,
-          NextOrPrevious.Next,
-          { minNumber: 0 }
-        );
-      });
+      configStore.cycleThreatTableDisplayMode();
     }
 
     const hoverableDebugText = showDebug ? entityId : "";

@@ -2,34 +2,13 @@ import { ActionUserContext, Combatant, EntityId, SpeedDungeonGame } from "@speed
 import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";
 import { TargetIndicator } from "@/app/3d-world/scene-entities/character-models/target-indicator-manager";
 
-export enum MenuContext {
-  InventoryItems,
-  Equipment,
-  ItemsOnGround,
-  AttributeAssignment,
-}
-
-export enum UiDisplayMode {
-  Detailed,
-  Simple,
-  Sparse,
-}
-
-export const UI_DISPLAY_MODE_STRINGS: Record<UiDisplayMode, string> = {
-  [UiDisplayMode.Detailed]: "Detailed",
-  [UiDisplayMode.Simple]: "Simple",
-  [UiDisplayMode.Sparse]: "Sparse",
-};
-
 export class AppStoreManager {
   game: null | SpeedDungeonGame = null;
 
   // Misc Game UI
   username: null | string = null;
-  showItemsOnGround: boolean = true;
   targetingIndicators: TargetIndicator[] = [];
   combatantsWithPendingCraftActions: Partial<Record<EntityId, boolean>> = {};
-  threatTableDetailedDisplayMode: UiDisplayMode = UiDisplayMode.Simple;
 
   authFormEmailField: string = "";
 

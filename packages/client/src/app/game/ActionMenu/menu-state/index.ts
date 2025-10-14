@@ -2,7 +2,6 @@ import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import { ReactNode } from "react";
 import { MENU_STATE_TYPE_STRINGS, MenuStateType } from "./menu-state-type";
 import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
-import { makeAutoObservable } from "mobx";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 

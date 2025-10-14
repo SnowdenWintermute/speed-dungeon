@@ -11,6 +11,7 @@ export class ActionMenuStore {
   private baseMenuState: ActionMenuState | null = null;
   private stackedMenuStates: ActionMenuState[] = [];
   private hoveredAction: null | CombatActionName = null;
+  private showItemsOnGround: boolean = true;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -25,6 +26,14 @@ export class ActionMenuStore {
 
   pushStack(menuState: ActionMenuState) {
     this.stackedMenuStates.push(menuState);
+  }
+
+  setShowGroundItems(shouldShow: boolean) {
+    this.showItemsOnGround = shouldShow;
+  }
+
+  getShowGroundItems() {
+    return this.showItemsOnGround;
   }
 
   popStack() {

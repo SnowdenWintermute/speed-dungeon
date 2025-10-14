@@ -1,4 +1,5 @@
 import { ActionMenuStore } from "./action-menu";
+import { ConfigStore } from "./config";
 import { DialogStore } from "./dialogs";
 import { FocusStore } from "./focus";
 import { GameWorldStore } from "./game-world";
@@ -14,6 +15,7 @@ export class AppStore {
   focusStore = new FocusStore();
   actionMenuStore = new ActionMenuStore();
   gameWorldStore = new GameWorldStore();
+  configStore = new ConfigStore();
 
   private static _instance: AppStore | null = null;
 

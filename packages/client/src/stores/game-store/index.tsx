@@ -19,13 +19,6 @@ import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { TargetIndicator } from "@/app/3d-world/scene-entities/character-models/target-indicator-manager";
 
-export enum MenuContext {
-  InventoryItems,
-  Equipment,
-  ItemsOnGround,
-  AttributeAssignment,
-}
-
 export class GameState {
   [immerable] = true;
   gameName: string | null = null;
@@ -34,17 +27,13 @@ export class GameState {
   /** Unique name which characters may list as their controller */
   username: null | string = null;
   focusedCharacterId: string = "";
+  combatantsWithPendingCraftActions: Partial<Record<EntityId, boolean>> = {};
+  targetingIndicators: TargetIndicator[] = [];
 
   combatLogMessages: CombatLogMessage[] = [];
 
   itemThumbnails: { [itemId: string]: string } = {};
-
   combatantPortraits: { [combatantId: EntityId]: string } = {};
-
-  showItemsOnGround: boolean = true;
-
-  combatantsWithPendingCraftActions: Partial<Record<EntityId, boolean>> = {};
-  targetingIndicators: TargetIndicator[] = [];
 
   rerenderForcer: number = 0;
 

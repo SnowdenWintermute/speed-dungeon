@@ -5,19 +5,21 @@ import React from "react";
 import { ItemOnGround } from "./ItemOnGround";
 import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
 
 interface Props {
   party: AdventuringParty;
   maxHeightRem: number;
 }
 
-export default function ItemsOnGround({ party, maxHeightRem }: Props) {
+export const ItemsOnGround = observer(({ party, maxHeightRem }: Props) => {
   const username = useGameStore().username;
-  const mutateGameState = useGameStore().mutateState;
   if (username === null) return <div>{ERROR_MESSAGES.CLIENT.NO_USERNAME}</div>;
   const focusedCharacterId = useGameStore().focusedCharacterId;
   const itemsToDisplay = Inventory.getItems(party.currentRoom.inventory);
-  const showItemsOnGround = useGameStore().showItemsOnGround;
+  const { actionMenuStore } = AppStore.get();
+  const showItemsOnGround = actionMenuStore.getShowGroundItems();
 
   const playerOwnsCharacter = clientUserControlsCombatant(focusedCharacterId);
 
@@ -32,9 +34,7 @@ export default function ItemsOnGround({ party, maxHeightRem }: Props) {
         <span>{"Items on the ground"}</span>
         <HotkeyButton
           onClick={() => {
-            mutateGameState((state) => {
-              state.showItemsOnGround = !state.showItemsOnGround;
-            });
+            actionMenuStore.setShowGroundItems(!showItemsOnGround);
           }}
         >
           {showItemsOnGround ? "Hide" : "Show"}
@@ -54,4 +54,4 @@ export default function ItemsOnGround({ party, maxHeightRem }: Props) {
       )}
     </div>
   );
-}
+});
