@@ -17,8 +17,8 @@ import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
 import { plainToInstance } from "class-transformer";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MENU_STATE_POOL } from "@/mobx-stores/action-menu/menu-state-pool";
 import { MenuStateType } from "../game/ActionMenu/menu-state/menu-state-type";
+import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 
 export async function battleResultActionCommandHandler(
   this: ClientActionCommandReceiver,
@@ -42,7 +42,7 @@ export async function battleResultActionCommandHandler(
 
     const { actionMenuStore } = AppStore.get();
     if (actionMenuStore.currentMenuIsType(MenuStateType.Base)) {
-      actionMenuStore.pushStack(MENU_STATE_POOL.get(MenuStateType.ItemsOnGround));
+      actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.ItemsOnGround));
     }
   }
 

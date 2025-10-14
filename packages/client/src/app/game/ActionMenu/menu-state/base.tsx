@@ -28,10 +28,10 @@ import { createPageButtons } from "./create-page-buttons";
 import { getAttackActionIcons } from "../../character-sheet/ability-tree/action-icons";
 import { ACTION_ICONS } from "@/app/icons";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MENU_STATE_POOL } from "@/mobx-stores/action-menu/menu-state-pool";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
 import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
+import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -69,8 +69,8 @@ export class BaseMenuState extends ActionMenuState {
         "Unspent Attributes Hotkey Button",
         () => {
           const { actionMenuStore } = AppStore.get();
-          actionMenuStore.hoveredAction = null;
-          actionMenuStore.pushStack(MENU_STATE_POOL.get(MenuStateType.AssignAttributePoints));
+          actionMenuStore.clearHoveredAction();
+          actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.AssignAttributePoints));
         }
       );
       hiddenButtonForUnspentAttributesHotkey.dedicatedKeys = [toggleAssignAttributesHotkey];
@@ -82,10 +82,8 @@ export class BaseMenuState extends ActionMenuState {
         () => VIEW_LOOT_BUTTON_TEXT,
         VIEW_LOOT_BUTTON_TEXT,
         () => {
-          AppStore.get().actionMenuStore.hoveredAction = null;
-          AppStore.get().actionMenuStore.pushStack(
-            MENU_STATE_POOL.get(MenuStateType.ItemsOnGround)
-          );
+          AppStore.get().actionMenuStore.clearHoveredAction();
+          AppStore.get().actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.ItemsOnGround));
         }
       );
       viewItemsOnGroundButton.dedicatedKeys = [viewItemsOnGroundHotkey];
@@ -171,15 +169,15 @@ export class BaseMenuState extends ActionMenuState {
             actionAndRankOption: new ActionAndRank(actionName, 1),
           });
 
-          AppStore.get().actionMenuStore.hoveredAction = null;
+          AppStore.get().actionMenuStore.clearHoveredAction();
         }
       );
 
       button.mouseEnterHandler = button.focusHandler = () => {
-        AppStore.get().actionMenuStore.hoveredAction = null;
+        AppStore.get().actionMenuStore.setHoveredAction(actionName);
       };
       button.mouseLeaveHandler = button.blurHandler = () => {
-        AppStore.get().actionMenuStore.hoveredAction = null;
+        AppStore.get().actionMenuStore.clearHoveredAction();
       };
 
       const combatAction = COMBAT_ACTIONS[actionName];

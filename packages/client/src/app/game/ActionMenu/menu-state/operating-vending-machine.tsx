@@ -7,10 +7,10 @@ import { clientUserControlsCombatant } from "@/utils/client-user-controls-combat
 import { createCancelButton } from "./common-buttons/cancel";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MENU_STATE_POOL } from "@/mobx-stores/action-menu/menu-state-pool";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
 import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
+import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 
 export const operateVendingMachineHotkey = HOTKEYS.SIDE_2;
 
@@ -36,7 +36,7 @@ export class OperatingVendingMachineMenuState extends ActionMenuState {
       () => "Purchase Items",
       "Purchase Items",
       () => {
-        actionMenuStore.pushStack(MENU_STATE_POOL.get(MenuStateType.PurchasingItems));
+        actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.PurchasingItems));
       }
     );
     purchaseItemsButton.shouldBeDisabled = !userControlsThisCharacter;
@@ -45,7 +45,7 @@ export class OperatingVendingMachineMenuState extends ActionMenuState {
       () => "Craft",
       "Craft",
       () => {
-        actionMenuStore.pushStack(MENU_STATE_POOL.get(MenuStateType.CraftingItemSelection));
+        actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.CraftingItemSelection));
       }
     );
 
@@ -53,7 +53,7 @@ export class OperatingVendingMachineMenuState extends ActionMenuState {
       () => "Repair",
       "Repair",
       () => {
-        actionMenuStore.pushStack(MENU_STATE_POOL.get(MenuStateType.RepairItemSelection));
+        actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.RepairItemSelection));
       }
     );
 
@@ -61,7 +61,7 @@ export class OperatingVendingMachineMenuState extends ActionMenuState {
       () => "Convert to Shards",
       "Convert to Shards",
       () => {
-        actionMenuStore.pushStack(MENU_STATE_POOL.get(MenuStateType.ShardItemSelection));
+        actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.ShardItemSelection));
       }
     );
 
@@ -69,7 +69,7 @@ export class OperatingVendingMachineMenuState extends ActionMenuState {
       () => "Trade for Books",
       "Trade for Books",
       () => {
-        actionMenuStore.pushStack(MENU_STATE_POOL.get(MenuStateType.SelectingBookType));
+        actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.SelectingBookType));
       }
     );
 

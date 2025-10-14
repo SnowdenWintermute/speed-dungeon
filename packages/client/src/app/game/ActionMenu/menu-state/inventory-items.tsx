@@ -9,10 +9,10 @@ import {
   toggleInventoryHotkey,
 } from "./common-buttons/open-inventory";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MENU_STATE_POOL } from "@/mobx-stores/action-menu/menu-state-pool";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
 import { ActionButtonCategory } from "./action-buttons-by-category";
+import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 
 export class InventoryItemsMenuState extends ItemsMenuState {
   constructor() {
@@ -21,11 +21,15 @@ export class InventoryItemsMenuState extends ItemsMenuState {
       `Equipped (${letterFromKeyCode(viewEquipmentHotkey)})`,
       () => {
         AppStore.get().actionMenuStore.pushStack(
-          MENU_STATE_POOL.get(MenuStateType.ViewingEquipedItems)
+          MenuStatePool.get(MenuStateType.ViewingEquipedItems)
         );
       }
     );
     viewEquipmentButton.dedicatedKeys = [viewEquipmentHotkey];
+
+    const closeButtonAndHotkeys = { text: "Cancel", hotkeys: ["KeyI", toggleInventoryHotkey] };
+
+    console.log("closeMenuTextAndHotkeys for InventoryItemsMenuState:", closeButtonAndHotkeys);
 
     super(
       MenuStateType.InventoryItems,

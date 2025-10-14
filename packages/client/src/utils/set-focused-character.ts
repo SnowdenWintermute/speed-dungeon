@@ -7,7 +7,10 @@ import getCurrentParty from "./getCurrentParty";
 import { AppStore } from "@/mobx-stores/app-store";
 
 export default function setFocusedCharacter(id: string) {
-  const { actionMenuStore } = AppStore.get();
+  const { actionMenuStore, focusStore } = AppStore.get();
+  // @TODO - move everything inside this:
+  focusStore.setFocusedCharacter(id);
+
   useGameStore.getState().mutateState((gameState) => {
     const partyOption = getCurrentParty(gameState, gameState.username || "");
     if (!partyOption) {

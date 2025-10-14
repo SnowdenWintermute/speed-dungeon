@@ -18,7 +18,6 @@ export class LobbyStore {
     channelName: string,
     users: { username: string; userChannelDisplayData: UserChannelDisplayData }[]
   ) {
-    console.log("update channel: channelName:", channelName, "users:", users);
     this.mainChannelName = channelName;
     this.usersInChannel.clear();
     users.forEach(({ username, userChannelDisplayData }) => {

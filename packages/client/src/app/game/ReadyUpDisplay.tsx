@@ -11,8 +11,8 @@ import { HotkeyButton } from "../components/atoms/HotkeyButton";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MENU_STATE_POOL } from "@/mobx-stores/action-menu/menu-state-pool";
 import { MenuStateType } from "./ActionMenu/menu-state/menu-state-type";
+import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 
 interface Props {
   party: AdventuringParty;
@@ -116,7 +116,7 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
                     actionMenuStore.popStack();
                   } else {
                     actionMenuStore.pushStack(
-                      MENU_STATE_POOL.get(MenuStateType.OperatingVendingMachine)
+                      MenuStatePool.get(MenuStateType.OperatingVendingMachine)
                     );
                     focusStore.detailable.clear();
                   }

@@ -6,8 +6,8 @@ import HoverableTooltipWrapper from "../components/atoms/HoverableTooltipWrapper
 import { websocketConnection } from "@/singletons/websocket-connection";
 import setFocusedCharacter from "@/utils/set-focused-character";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MENU_STATE_POOL } from "@/mobx-stores/action-menu/menu-state-pool";
 import { MenuStateType } from "./ActionMenu/menu-state/menu-state-type";
+import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 
 export const toggleAssignAttributesHotkey = HOTKEYS.MAIN_2;
 const buttonText = `Assign attributes (${letterFromKeyCode(toggleAssignAttributesHotkey)})`;
@@ -40,7 +40,7 @@ export default function UnspentAttributesButton({
       actionMenuStore.popStack();
     } else {
       setFocusedCharacter(entityId);
-      actionMenuStore.replaceStack([MENU_STATE_POOL.get(MenuStateType.AssignAttributePoints)]);
+      actionMenuStore.replaceStack([MenuStatePool.get(MenuStateType.AssignAttributePoints)]);
     }
   }
 

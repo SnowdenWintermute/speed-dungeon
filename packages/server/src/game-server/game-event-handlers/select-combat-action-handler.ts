@@ -24,8 +24,6 @@ export function selectCombatActionHandler(
 
   const { character, game, party, player } = characterAssociatedData;
 
-  console.log("character:", character.getEntityId(), "trying to select:", actionAndRankOption);
-
   if (actionAndRankOption !== null) {
     const combatActionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
       character.combatantProperties,

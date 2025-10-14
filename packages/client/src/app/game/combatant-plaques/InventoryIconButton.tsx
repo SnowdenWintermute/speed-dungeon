@@ -4,9 +4,10 @@ import { useGameStore } from "@/stores/game-store";
 import { INVENTORY_DEFAULT_CAPACITY } from "@speed-dungeon/common";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MENU_STATE_POOL } from "@/mobx-stores/action-menu/menu-state-pool";
+import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { MenuStateType } from "../ActionMenu/menu-state/menu-state-type";
 import { observer } from "mobx-react-lite";
+import { InventoryItemsMenuState } from "../ActionMenu/menu-state/inventory-items";
 
 export const InventoryIconButton = observer(
   ({ entityId, numItemsInInventory }: { entityId: string; numItemsInInventory: number }) => {
@@ -35,7 +36,8 @@ export const InventoryIconButton = observer(
             if (shouldShowCharacterSheet && !switchedFocusedCharacter) {
               actionMenuStore.clearStack();
             } else if (!shouldShowCharacterSheet) {
-              actionMenuStore.pushStack(MENU_STATE_POOL.get(MenuStateType.InventoryItems));
+              // actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.InventoryItems));
+              actionMenuStore.pushStack(new InventoryItemsMenuState());
             }
           });
         }}

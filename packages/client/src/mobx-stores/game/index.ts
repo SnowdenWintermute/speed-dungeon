@@ -1,17 +1,6 @@
 import { ActionUserContext, Combatant, EntityId, SpeedDungeonGame } from "@speed-dungeon/common";
 import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";
-import { InventoryItemsMenuState } from "@/app/game/ActionMenu/menu-state/inventory-items";
-import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
-import { AssigningAttributePointsMenuState } from "@/app/game/ActionMenu/menu-state/assigning-attribute-points";
-import { ItemsOnGroundMenuState } from "@/app/game/ActionMenu/menu-state/items-on-ground";
-import { OperatingVendingMachineMenuState } from "@/app/game/ActionMenu/menu-state/operating-vending-machine";
-import { PurchaseItemsMenuState } from "@/app/game/ActionMenu/menu-state/purchase-items";
-import { CraftingItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/crafting-item-selection";
-import { RepairItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/repair-item-selection";
-import { ConvertToShardItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/convert-to-shard-item-selection";
 import { TargetIndicator } from "@/app/3d-world/scene-entities/character-models/target-indicator-manager";
-import { AbilityTreeMenuState } from "@/app/game/ActionMenu/menu-state/ability-tree-menu-state";
-import { SelectBookToTradeForMenuState } from "@/app/game/ActionMenu/menu-state/select-book-type";
 import { FloatingMessage } from "@/stores/game-store/floating-messages";
 import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
 
@@ -39,7 +28,6 @@ export class AppStoreManager {
 
   // Misc Game UI
   username: null | string = null;
-  focusedCharacterId: string = "";
   showItemsOnGround: boolean = true;
   targetingIndicators: TargetIndicator[] = [];
   combatantsWithPendingCraftActions: Partial<Record<EntityId, boolean>> = {};

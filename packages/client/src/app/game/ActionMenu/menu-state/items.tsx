@@ -33,21 +33,23 @@ const gradientBg = createEaseGradient(TRANSPARENT, GRAY, 1, 25);
 export const consumableGradientBg = createEaseGradient(TRANSPARENT, GREEN, 1, 25);
 export const unmetRequirementsGradientBg = createEaseGradient(TRANSPARENT, RED, 1, 25);
 
+export type ItemMenuStateType =
+  | MenuStateType.InventoryItems
+  | MenuStateType.ViewingEquipedItems
+  | MenuStateType.ItemsOnGround
+  | MenuStateType.CraftingItemSelection
+  | MenuStateType.PurchasingItems
+  | MenuStateType.RepairItemSelection
+  | MenuStateType.ShardItemSelection
+  | MenuStateType.SelectItemToTradeForBook;
+
 export abstract class ItemsMenuState extends ActionMenuState {
   constructor(
-    public type:
-      | MenuStateType.InventoryItems
-      | MenuStateType.ViewingEquipedItems
-      | MenuStateType.ItemsOnGround
-      | MenuStateType.CraftingItemSelection
-      | MenuStateType.PurchasingItems
-      | MenuStateType.RepairItemSelection
-      | MenuStateType.ShardItemSelection
-      | MenuStateType.SelectItemToTradeForBook,
-    private closeMenuTextAndHotkeys: { text: string; hotkeys: string[] },
-    private itemButtonClickHandler: (item: Item) => void,
-    private getItemsToShow: () => Item[],
-    private options: {
+    public type: ItemMenuStateType,
+    protected closeMenuTextAndHotkeys: { text: string; hotkeys: string[] },
+    protected itemButtonClickHandler: (item: Item) => void,
+    protected getItemsToShow: () => Item[],
+    protected options: {
       getItemButtonCustomChildren?: (item: Item) => ReactNode;
       extraButtons?: Partial<Record<ActionButtonCategory, ActionMenuButtonProperties[]>>;
       shouldBeDisabled?: (item: Item) => boolean;
@@ -56,6 +58,7 @@ export abstract class ItemsMenuState extends ActionMenuState {
   ) {
     super(type, 1);
   }
+
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 

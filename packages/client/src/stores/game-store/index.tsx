@@ -121,24 +121,6 @@ export const useGameStore = create<GameState>()(
   )
 );
 
-// instantiate all states upfront and save them, or just save them as they are created
-// so we don't pay object creation cost every time we switch state
-//
-// if we don't declare them in this file we get an error for trying to use the stores
-// before they're initialized
-
-// export const baseMenuState = new BaseMenuState(false);
-// export const inventoryItemsMenuState = new InventoryItemsMenuState();
-// export const itemsOnGroundMenuState = new ItemsOnGroundMenuState();
-// export const assignAttributesMenuState = new AssigningAttributePointsMenuState();
-// export const operateVendingMachineMenuState = new OperatingVendingMachineMenuState();
-// export const purchasingItemsMenuState = new PurchaseItemsMenuState();
-// export const craftingItemSelectionMenuState = new CraftingItemSelectionMenuState();
-// export const repairItemSelectionMenuState = new RepairItemSelectionMenuState();
-// export const convertToShardItemSelectionMenuState = new ConvertToShardItemSelectionMenuState();
-// export const selectBooksToTradeForMenuState = new SelectBookToTradeForMenuState();
-// export const abilityTreeMenuState = new AbilityTreeMenuState();
-
 export function getActionUserContext(
   gameState: GameState,
   combatantId: EntityId

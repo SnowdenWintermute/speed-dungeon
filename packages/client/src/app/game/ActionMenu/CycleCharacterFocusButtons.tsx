@@ -8,9 +8,9 @@ import { getFocusedCharacter } from "@/utils/getFocusedCharacter";
 import { BUTTON_HEIGHT_SMALL, SPACING_REM_SMALL } from "@/client_consts";
 import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicatedButton";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MENU_STATE_POOL } from "@/mobx-stores/action-menu/menu-state-pool";
 import { ActionMenuButtonProperties } from "./menu-state/action-menu-button-properties";
 import { MenuStateType } from "./menu-state/menu-state-type";
+import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 
 export function CharacterFocusingButtons() {
   function createFocusCharacterButtonProperties(
@@ -48,7 +48,7 @@ export function CharacterFocusingButtons() {
 
         const { actionMenuStore } = AppStore.get();
         if (actionMenuStore.viewingAbilityTree()) {
-          actionMenuStore.replaceStack([MENU_STATE_POOL.get(MenuStateType.ViewingAbilityTree)]);
+          actionMenuStore.replaceStack([MenuStatePool.get(MenuStateType.ViewingAbilityTree)]);
         }
 
         setFocusedCharacter(newCharacterId);

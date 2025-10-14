@@ -50,7 +50,7 @@ const buttonTitlesToAccent = [
 export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) => {
   const { focusStore, actionMenuStore } = AppStore.get();
   const { hoveredItem, detailedItem } = focusStore.getFocusedItems();
-  const { hoveredAction } = actionMenuStore;
+  const hoveredAction = actionMenuStore.getHoveredAction();
 
   const currentMenu = actionMenuStore.getCurrentMenu();
   const currentPageIndex = currentMenu.getPageIndex();

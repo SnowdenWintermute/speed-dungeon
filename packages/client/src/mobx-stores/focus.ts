@@ -11,6 +11,8 @@ import {
   TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
+import { AppStore } from "./app-store";
+import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
 
 export type DetailableEntity = Combatant | Item;
 
@@ -29,6 +31,12 @@ export class FocusStore {
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
+  }
+
+  setFocusedCharacter(entityId: EntityId) {
+    const { actionMenuStore } = AppStore.get();
+    actionMenuStore.clearHoveredAction();
+    this.focusedCharacterId = entityId;
   }
 
   characterIsFocused(entityId: EntityId) {

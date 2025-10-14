@@ -1,6 +1,7 @@
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
 import { AbilityTreeMenuState } from "@/app/game/ActionMenu/menu-state/ability-tree-menu-state";
 import { AssigningAttributePointsMenuState } from "@/app/game/ActionMenu/menu-state/assigning-attribute-points";
+import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
 import { ConvertToShardItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/convert-to-shard-item-selection";
 import { CraftingItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/crafting-item-selection";
 import { EquippedItemsMenuState } from "@/app/game/ActionMenu/menu-state/equipped-items";
@@ -13,11 +14,13 @@ import { SelectBookToTradeForMenuState } from "@/app/game/ActionMenu/menu-state/
 import { ActionMenuState } from "@/app/game/ActionMenu/menu-state";
 
 export class MenuStatePool {
-  private pool: Partial<Record<MenuStateType, ActionMenuState>> | null = null;
+  private static _pool: Partial<Record<MenuStateType, ActionMenuState>> | null = null;
 
-  get(menuStateType: MenuStateType) {
-    if (this.pool === null) {
-      this.pool = {
+  static get(menuStateType: MenuStateType) {
+    if (MenuStatePool._pool === null) {
+      console.log("pool is null, creating pooled states");
+      MenuStatePool._pool = {
+        [MenuStateType.Base]: new BaseMenuState(),
         [MenuStateType.AssignAttributePoints]: new AssigningAttributePointsMenuState(),
         [MenuStateType.InventoryItems]: new InventoryItemsMenuState(),
         [MenuStateType.ViewingEquipedItems]: new EquippedItemsMenuState(),
@@ -32,13 +35,13 @@ export class MenuStatePool {
       };
     }
 
-    const stored = this.pool[menuStateType];
+    const stored = MenuStatePool._pool[menuStateType];
     if (stored === undefined) {
       throw new Error("tried to access a menu state that isn't stored in the pool");
     }
 
+    console.log("accessing menu state in pool:", stored);
+
     return stored;
   }
 }
-
-export const MENU_STATE_POOL = new MenuStatePool();

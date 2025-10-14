@@ -10,7 +10,7 @@ import { makeAutoObservable } from "mobx";
 export class ActionMenuStore {
   private baseMenuState: ActionMenuState | null = null;
   private stackedMenuStates: ActionMenuState[] = [];
-  hoveredAction: null | CombatActionName = null;
+  private hoveredAction: null | CombatActionName = null;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -93,6 +93,18 @@ export class ActionMenuStore {
   operatingVendingMachine() {
     const currentMenuType = this.getCurrentMenu().type;
     return VENDING_MACHINE_MENU_TYPES.includes(currentMenuType);
+  }
+
+  setHoveredAction(actionName: CombatActionName) {
+    this.hoveredAction = actionName;
+  }
+
+  clearHoveredAction() {
+    this.hoveredAction = null;
+  }
+
+  getHoveredAction() {
+    return this.hoveredAction;
   }
 }
 

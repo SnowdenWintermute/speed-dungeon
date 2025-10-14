@@ -26,7 +26,7 @@ export class CharacterAutoFocusManager {
 
   focusFirstOwnedCharacter(gameState: GameState) {
     // if viewing menu other than ItemsOnGround, do nothing
-    const { actionMenuStore } = AppStore.get();
+    const { actionMenuStore, focusStore } = AppStore.get();
     const clientIsViewingMenus = actionMenuStore.hasStackedMenus();
     const currentMenu = actionMenuStore.getCurrentMenu();
     if (clientIsViewingMenus && currentMenu.type !== MenuStateType.ItemsOnGround) {
@@ -38,9 +38,10 @@ export class CharacterAutoFocusManager {
     if (playerResult instanceof Error) throw playerResult;
 
     const firstOwnedCharacterId = playerResult.characterIds[0];
-    console.log("focusing first owned character", firstOwnedCharacterId);
     if (!firstOwnedCharacterId) return console.error("Player doesn't own any characters");
+    // @TODO replace this with focusStore
     gameState.focusedCharacterId = firstOwnedCharacterId;
+    focusStore.setFocusedCharacter(firstOwnedCharacterId);
   }
 
   updateFocusedCharacterOnNewTurnOrder(gameState: GameState, newlyActiveTracker: TurnTracker) {

@@ -1,6 +1,6 @@
 import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import { ReactNode } from "react";
-import { MenuStateType } from "./menu-state-type";
+import { MENU_STATE_TYPE_STRINGS, MenuStateType } from "./menu-state-type";
 import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
@@ -8,13 +8,21 @@ export const ACTION_MENU_PAGE_SIZE = 6;
 export abstract class ActionMenuState {
   protected pageIndex: number = 0;
   alwaysShowPageOne: boolean = false;
+  private cachedPageCount: number;
   constructor(
     public type: MenuStateType,
     protected minPageCount: number
-  ) {}
+  ) {
+    this.cachedPageCount = this.getPageCount();
+  }
+
+  getStringName() {
+    return MENU_STATE_TYPE_STRINGS[this.type];
+  }
 
   getPageCount() {
     const buttonProperties = this.getButtonProperties();
+    console.log("buttonProperties in getPageCount:", buttonProperties, this.getStringName());
     return Math.max(
       this.minPageCount,
       Math.ceil(buttonProperties[ActionButtonCategory.Numbered].length / ACTION_MENU_PAGE_SIZE)
@@ -30,12 +38,12 @@ export abstract class ActionMenuState {
   }
 
   turnPage(direction: NextOrPrevious) {
-    const newPage = getNextOrPreviousNumber(this.pageIndex, this.getPageCount(), direction);
+    const newPage = getNextOrPreviousNumber(this.pageIndex, this.cachedPageCount, direction);
     this.pageIndex = newPage;
   }
 
   goToLastPage() {
-    this.pageIndex = this.getPageCount();
+    this.pageIndex = this.cachedPageCount;
   }
 
   goToFirstPage() {

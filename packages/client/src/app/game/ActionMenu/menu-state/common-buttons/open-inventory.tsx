@@ -1,9 +1,9 @@
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { useGameStore } from "@/stores/game-store";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MENU_STATE_POOL } from "@/mobx-stores/action-menu/menu-state-pool";
 import { ActionMenuButtonProperties } from "../action-menu-button-properties";
 import { MenuStateType } from "../menu-state-type";
+import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 
 export const toggleInventoryHotkey = HOTKEYS.MAIN_1;
 
@@ -12,8 +12,10 @@ export const setInventoryOpen = new ActionMenuButtonProperties(
   `Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
   () => {
     const { actionMenuStore } = AppStore.get();
-    actionMenuStore.hoveredAction = null;
-    actionMenuStore.pushStack(MENU_STATE_POOL.get(MenuStateType.InventoryItems));
+    actionMenuStore.clearHoveredAction();
+    const inventoryItemsMenu = MenuStatePool.get(MenuStateType.InventoryItems);
+    console.log("pushing inventoryItemsMenu state:", inventoryItemsMenu);
+    actionMenuStore.pushStack(inventoryItemsMenu);
   }
 );
 
@@ -22,8 +24,8 @@ export const setInventoryAsFreshStack = new ActionMenuButtonProperties(
   `Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
   () => {
     const { actionMenuStore } = AppStore.get();
-    actionMenuStore.hoveredAction = null;
-    actionMenuStore.replaceStack([MENU_STATE_POOL.get(MenuStateType.InventoryItems)]);
+    actionMenuStore.clearHoveredAction();
+    actionMenuStore.replaceStack([MenuStatePool.get(MenuStateType.InventoryItems)]);
   }
 );
 setInventoryOpen.dedicatedKeys = ["KeyI", toggleInventoryHotkey];
@@ -48,8 +50,8 @@ export const setViewingAbilityTreeAsFreshStack = new ActionMenuButtonProperties(
   `Abilities (${letterFromKeyCode(setViewingAbilityTreeHotkey)})`,
   () => {
     const { actionMenuStore } = AppStore.get();
-    actionMenuStore.hoveredAction = null;
-    actionMenuStore.replaceStack([MENU_STATE_POOL.get(MenuStateType.ViewingAbilityTree)]);
+    actionMenuStore.clearHoveredAction();
+    actionMenuStore.replaceStack([MenuStatePool.get(MenuStateType.ViewingAbilityTree)]);
   }
 );
 
