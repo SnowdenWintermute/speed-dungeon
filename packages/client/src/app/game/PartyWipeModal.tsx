@@ -6,6 +6,7 @@ import { websocketConnection } from "@/singletons/websocket-connection";
 import Divider from "../components/atoms/Divider";
 import { ZIndexLayers } from "../z-index-layers";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export default function PartyWipeModal({ party }: { party: AdventuringParty }) {
   const mutateGameState = useGameStore().mutateState;
@@ -14,8 +15,9 @@ export default function PartyWipeModal({ party }: { party: AdventuringParty }) {
     websocketConnection.emit(ClientToServerEvent.LeaveGame);
     mutateGameState((state) => {
       state.game = null;
-      state.combatLogMessages = [];
     });
+
+    AppStore.get().gameEventNotificationStore.clearGameLog();
   }
 
   const leaveGameHotkey = HOTKEYS.SIDE_1;

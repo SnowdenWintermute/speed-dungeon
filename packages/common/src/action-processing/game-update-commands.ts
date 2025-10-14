@@ -31,7 +31,7 @@ export enum GameUpdateCommandType {
   CombatantMotion,
   ActionEntityMotion,
   ResourcesPaid,
-  ActionUseCombatLogMessage,
+  ActionUseGameLogMessage,
   ActivatedTriggers,
   HitOutcomes,
   ActionCompletion,
@@ -42,7 +42,7 @@ export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, str
   [GameUpdateCommandType.CombatantMotion]: "Combatant Entity Motion",
   [GameUpdateCommandType.ActionEntityMotion]: "Combatant Entity Motion",
   [GameUpdateCommandType.ResourcesPaid]: "Resources Paid",
-  [GameUpdateCommandType.ActionUseCombatLogMessage]: "Action Use Combat Log Message",
+  [GameUpdateCommandType.ActionUseGameLogMessage]: "Action Use Combat Log Message",
   [GameUpdateCommandType.ActivatedTriggers]: "Activated Triggers",
   [GameUpdateCommandType.HitOutcomes]: "Hit Outcomes",
   [GameUpdateCommandType.ActionCompletion]: "Action Completion",
@@ -174,8 +174,8 @@ export interface ActionCompletionUpdateCommand extends IGameUpdateCommand {
   threatChanges?: ThreatChanges;
 }
 
-export interface ActionUseCombatLogMessageUpdateCommand extends IGameUpdateCommand {
-  type: GameUpdateCommandType.ActionUseCombatLogMessage;
+export interface ActionUseGameLogMessageUpdateCommand extends IGameUpdateCommand {
+  type: GameUpdateCommandType.ActionUseGameLogMessage;
   actionUseMessageData: ActionUseMessageData;
 }
 
@@ -187,4 +187,4 @@ export type GameUpdateCommand =
   | ActivatedTriggersGameUpdateCommand
   | HitOutcomesGameUpdateCommand
   | ActionCompletionUpdateCommand
-  | ActionUseCombatLogMessageUpdateCommand;
+  | ActionUseGameLogMessageUpdateCommand;

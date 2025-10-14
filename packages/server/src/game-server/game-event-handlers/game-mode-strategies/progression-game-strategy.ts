@@ -3,6 +3,7 @@ import {
   ActionCommandType,
   AdventuringParty,
   Combatant,
+  GameMessage,
   GameMessageType,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
@@ -88,7 +89,8 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
   ): Promise<void | Error | ActionCommandPayload[]> {
     const partyCharacters = party.combatantManager.getPartyMemberCharacters();
 
-    const messages: { type: GameMessageType; text: string }[] = [];
+    const messages: GameMessage[] = [];
+
     for (const character of partyCharacters) {
       const { name, id } = character.entityProperties;
 
@@ -111,18 +113,24 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
 
       const levelup = levelups[id];
       if (levelup !== undefined) {
-        messages.push({
-          type: GameMessageType.LadderProgress,
-          text: createLevelLadderLevelupMessage(name, controllingPlayer || "", levelup, newRank),
-        });
+        messages.push(
+          new GameMessage(
+            GameMessageType.LadderProgress,
+            true,
+            createLevelLadderLevelupMessage(name, controllingPlayer || "", levelup, newRank)
+          )
+        );
       }
 
       // - if they ranked up and were in the top 10 ranks, emit a message to everyone
       if (newRank === currentRankOption || newRank >= 10) continue;
-      messages.push({
-        type: GameMessageType.LadderProgress,
-        text: createLevelLadderExpRankMessage(name, controllingPlayer || "", totalExp, newRank),
-      });
+      messages.push(
+        new GameMessage(
+          GameMessageType.LadderProgress,
+          true,
+          createLevelLadderExpRankMessage(name, controllingPlayer || "", totalExp, newRank)
+        )
+      );
     }
 
     return [

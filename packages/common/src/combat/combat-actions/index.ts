@@ -32,7 +32,7 @@ import {
 } from "./combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "./combat-action-steps-config.js";
 import { AbilityTreeAbility } from "../../abilities/index.js";
-import { CombatActionCombatLogProperties } from "./combat-action-combat-log-properties.js";
+import { CombatActionGameLogProperties } from "./combat-action-combat-log-properties.js";
 import { IActionUser } from "../../action-user-context/action-user.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
 
@@ -47,7 +47,7 @@ export interface CombatActionComponentConfig {
   costProperties: CombatActionCostPropertiesConfig;
   stepsConfig: ActionResolutionStepsConfig;
   hierarchyProperties: CombatActionHierarchyProperties;
-  combatLogMessageProperties: CombatActionCombatLogProperties;
+  gameLogMessageProperties: CombatActionGameLogProperties;
 }
 
 export abstract class CombatActionComponent {
@@ -56,7 +56,7 @@ export abstract class CombatActionComponent {
   public readonly prerequisiteAbilities?: AbilityTreeAbility[];
   public readonly targetingProperties: CombatActionTargetingProperties;
   public hitOutcomeProperties: CombatActionHitOutcomeProperties;
-  public readonly combatLogMessageProperties: CombatActionCombatLogProperties;
+  public readonly gameLogMessageProperties: CombatActionGameLogProperties;
   public readonly costProperties: CombatActionCostProperties;
   public readonly stepsConfig: ActionResolutionStepsConfig;
   hierarchyProperties: CombatActionHierarchyProperties;
@@ -69,7 +69,7 @@ export abstract class CombatActionComponent {
     this.description = config.description;
     if (config.byRankDescriptions) this.byRankDescriptions = config.byRankDescriptions;
 
-    this.combatLogMessageProperties = config.combatLogMessageProperties;
+    this.gameLogMessageProperties = config.gameLogMessageProperties;
 
     this.prerequisiteAbilities = config.prerequisiteAbilities;
     this.targetingProperties = {

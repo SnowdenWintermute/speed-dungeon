@@ -1,5 +1,5 @@
 import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
@@ -29,7 +29,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 
 export const ATTACK_CONFIG: CombatActionComponentConfig = {
   description: "Attack with equipped weapons or fists",
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.Attack,
   }),
   targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE(),

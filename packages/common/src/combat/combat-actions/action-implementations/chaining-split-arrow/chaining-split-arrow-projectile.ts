@@ -1,5 +1,5 @@
 import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionExecutionIntent,
@@ -86,7 +86,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 const config: CombatActionComponentConfig = {
   description: "An arrow that bounces to up to two additional targets after the first",
   targetingProperties,
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.Attack,
   }),
   hitOutcomeProperties,

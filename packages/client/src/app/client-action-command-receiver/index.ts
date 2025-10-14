@@ -1,6 +1,6 @@
 import { ActionCommandReceiver, CombatActionReplayTreePayload } from "@speed-dungeon/common";
 import { battleResultActionCommandHandler } from "./process-battle-result";
-import gameMessageActionCommandHandler from "./game-message";
+import { gameMessageActionCommandHandler } from "./game-message";
 import { removeClientPlayerFromGame } from "./remove-client-player-from-game";
 import { getGameWorld } from "../3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";

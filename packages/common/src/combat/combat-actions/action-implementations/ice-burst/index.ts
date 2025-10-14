@@ -6,7 +6,7 @@ import {
   TargetCategories,
 } from "../../index.js";
 import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionOrigin,
 } from "../../combat-action-combat-log-properties.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
@@ -40,7 +40,7 @@ const targetingProperties = createTargetingPropertiesConfig(
 
 const config: CombatActionComponentConfig = {
   description: "Deals kinetic ice damage in an area around the target",
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.TriggeredCondition,
     getOnUseMessage: (data) => `${data.nameOfActionUser} shatters!`,
   }),

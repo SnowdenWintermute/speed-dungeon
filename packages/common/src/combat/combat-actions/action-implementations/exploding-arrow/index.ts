@@ -3,7 +3,7 @@ import { AbilityType } from "../../../../abilities/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { CombatantTraitType } from "../../../../combatants/index.js";
 import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionExecutionIntent,
@@ -35,7 +35,7 @@ const config: CombatActionComponentConfig = {
   ],
   description: "Fire an arrow that applies a detonatable condition",
 
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.Attack,
     getOnUseMessage: (data) => {
       return `${data.nameOfActionUser} uses Exploding Arrow (level ${data.actionLevel})`;
@@ -61,7 +61,7 @@ const config: CombatActionComponentConfig = {
   },
 };
 
-config.stepsConfig.steps[ActionResolutionStepType.PostActionUseCombatLogMessage] = {};
+config.stepsConfig.steps[ActionResolutionStepType.PostActionUseGameLogMessage] = {};
 
 export const EXPLODING_ARROW_PARENT = new CombatActionComposite(
   CombatActionName.ExplodingArrowParent,

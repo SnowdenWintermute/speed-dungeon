@@ -1,5 +1,4 @@
 import { ActionUserContext, Combatant, EntityId, SpeedDungeonGame } from "@speed-dungeon/common";
-import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";
 import { TargetIndicator } from "@/app/3d-world/scene-entities/character-models/target-indicator-manager";
 
 export class AppStoreManager {
@@ -11,9 +10,6 @@ export class AppStoreManager {
   combatantsWithPendingCraftActions: Partial<Record<EntityId, boolean>> = {};
 
   authFormEmailField: string = "";
-
-  // Combat log
-  combatLogMessages: CombatLogMessage[] = [];
 
   // Images
   itemThumbnails: { [itemId: string]: string } = {};

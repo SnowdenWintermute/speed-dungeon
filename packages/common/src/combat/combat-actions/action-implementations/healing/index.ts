@@ -33,7 +33,7 @@ const costProperties = createCostPropertiesConfig(costPropertiesBase, costProper
 
 const config: CombatActionComponentConfig = {
   description: "Restore hit points or damage undead",
-  combatLogMessageProperties: createGenericSpellCastMessageProperties(CombatActionName.Healing),
+  gameLogMessageProperties: createGenericSpellCastMessageProperties(CombatActionName.Healing),
   targetingProperties,
   hitOutcomeProperties: HEALING_HIT_OUTCOME_PROPERTIES,
   costProperties,

@@ -6,22 +6,22 @@ import {
 import { COMBAT_ACTIONS } from "../../combat/index.js";
 import {
   GameUpdateCommandType,
-  ActionUseCombatLogMessageUpdateCommand,
+  ActionUseGameLogMessageUpdateCommand,
 } from "../game-update-commands.js";
 
-const stepType = ActionResolutionStepType.PostActionUseCombatLogMessage;
-export class PostActionUseCombatLogMessageActionResolutionStep extends ActionResolutionStep {
+const stepType = ActionResolutionStepType.PostActionUseGameLogMessage;
+export class PostActionUseGameLogMessageActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
 
-    const { getOnUseMessage, getOnUseMessageData } = action.combatLogMessageProperties;
+    const { getOnUseMessage, getOnUseMessageData } = action.gameLogMessageProperties;
 
-    let gameUpdateCommandOption: null | ActionUseCombatLogMessageUpdateCommand = null;
+    let gameUpdateCommandOption: null | ActionUseGameLogMessageUpdateCommand = null;
 
     if (getOnUseMessage !== null) {
       const actionUseMessageData = getOnUseMessageData(context);
       gameUpdateCommandOption = {
-        type: GameUpdateCommandType.ActionUseCombatLogMessage,
+        type: GameUpdateCommandType.ActionUseGameLogMessage,
         step: stepType,
         actionName: action.name,
         completionOrderId: null,

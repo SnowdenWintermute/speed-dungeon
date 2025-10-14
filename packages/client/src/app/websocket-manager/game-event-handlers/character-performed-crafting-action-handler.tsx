@@ -1,13 +1,10 @@
-import { useGameStore } from "@/stores/game-store";
 import {
-  CRAFTING_ACTION_PAST_TENSE_STRINGS,
   CharacterAssociatedData,
   CombatantProperties,
   CraftingAction,
   EntityId,
   Equipment,
   EquipmentType,
-  GameMessageType,
   Item,
   OneHandedMeleeWeapon,
   TwoHandedMeleeWeapon,
@@ -17,16 +14,11 @@ import {
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { plainToInstance } from "class-transformer";
 import { setAlert } from "@/app/components/alerts";
-import {
-  COMBAT_LOG_MESSAGE_STYLES_BY_MESSAGE_TYPE,
-  CombatLogMessage,
-} from "@/app/game/combat-log/combat-log-message";
-import { ReactNode } from "react";
-import { ItemLink } from "@/app/game/combat-log/item-link";
 import cloneDeep from "lodash.clonedeep";
 import { gameWorld, getGameWorld } from "@/app/3d-world/SceneManager";
 import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
+import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 
 export function characterPerformedCraftingActionHandler(eventData: {
   characterId: EntityId;
@@ -34,7 +26,6 @@ export function characterPerformedCraftingActionHandler(eventData: {
   craftingAction: CraftingAction;
 }) {
   const { characterId, item, craftingAction } = eventData;
-  let combatLogMessage: CombatLogMessage;
 
   characterAssociatedDataProvider(
     characterId,
@@ -94,44 +85,17 @@ export function characterPerformedCraftingActionHandler(eventData: {
         const actionPrice = getCraftingActionPrice(craftingAction, itemBeforeModification);
         character.combatantProperties.inventory.shards -= actionPrice;
 
-        // post combat log message about the crafted result with hoverable item inspection link
-        const style = COMBAT_LOG_MESSAGE_STYLES_BY_MESSAGE_TYPE[GameMessageType.CraftingAction];
-        let craftingResultMessage: ReactNode = "";
-
-        const craftedItemLink = <ItemLink item={cloneDeep(itemResult)} />;
-
-        switch (craftingAction) {
-          case CraftingAction.Repair:
-            break;
-          case CraftingAction.Reform:
-          case CraftingAction.Shake:
-            craftingResultMessage = <div> resulting in {craftedItemLink}</div>;
-            break;
-          case CraftingAction.Imbue:
-          case CraftingAction.Augment:
-          case CraftingAction.Tumble:
-            craftingResultMessage = <div> and created {craftedItemLink}</div>;
-        }
-
-        combatLogMessage = new CombatLogMessage(
-          (
-            <div>
-              {character.entityProperties.name} {CRAFTING_ACTION_PAST_TENSE_STRINGS[craftingAction]}{" "}
-              <ItemLink item={itemBeforeModification} />
-              {craftingResultMessage}
-            </div>
-          ),
-          style
+        GameLogMessageService.postCraftActionResult(
+          character.getName(),
+          itemBeforeModification,
+          craftingAction,
+          itemResult
         );
       } else {
         setAlert("Server sent crafting results of a consumable?");
       }
     }
   );
-
-  useGameStore.getState().mutateState((state) => {
-    state.combatLogMessages.push(combatLogMessage);
-  });
 }
 
 function shouldUpdateThumbnailAfterCraft(equipment: Equipment) {

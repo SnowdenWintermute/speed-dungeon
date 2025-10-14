@@ -78,7 +78,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 const config: CombatActionComponentConfig = {
   description: "Summon a creature companion",
   prerequisiteAbilities: [],
-  combatLogMessageProperties: createGenericSpellCastMessageProperties(CombatActionName.SummonPet),
+  gameLogMessageProperties: createGenericSpellCastMessageProperties(CombatActionName.SummonPet),
   targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME(),
   hitOutcomeProperties,
   costProperties,

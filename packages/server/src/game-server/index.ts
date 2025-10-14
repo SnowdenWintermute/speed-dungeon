@@ -70,11 +70,9 @@ export class GameServer implements ActionCommandReceiver {
   removePlayerFromGameCommandHandler: (username: string) => Promise<void> = async () => {}; // we only use it on the client
   async gameMessageCommandHandler(payload: GameMessagesPayload) {
     for (const message of payload.messages) {
-      this.io.except(payload.partyChannelToExclude || "").emit(ServerToClientEvent.GameMessage, {
-        type: message.type,
-        message: message.text,
-        showAfterActionQueueResolution: false,
-      });
+      this.io
+        .except(payload.partyChannelToExclude || "")
+        .emit(ServerToClientEvent.GameMessage, message);
     }
   }
   // UTILS

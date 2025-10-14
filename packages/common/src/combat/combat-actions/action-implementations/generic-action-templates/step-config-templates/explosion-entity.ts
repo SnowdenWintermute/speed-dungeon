@@ -4,7 +4,7 @@ import { ActionResolutionStepsConfig } from "../../../combat-action-steps-config
 const config = new ActionResolutionStepsConfig(
   {
     [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
-    [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
+    [ActionResolutionStepType.PostActionUseGameLogMessage]: {},
     // [ActionResolutionStepType.OnActivationSpawnEntity]: {},
     [ActionResolutionStepType.OnActivationActionEntityMotion]: {},
     [ActionResolutionStepType.RollIncomingHitOutcomes]: {},

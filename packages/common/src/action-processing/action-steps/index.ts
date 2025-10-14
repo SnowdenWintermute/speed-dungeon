@@ -28,7 +28,7 @@ export enum ActionResolutionStepType {
   ChamberingMotion,
   DeliveryMotion,
   PayResourceCosts,
-  PostActionUseCombatLogMessage,
+  PostActionUseGameLogMessage,
   EvalOnUseTriggers,
   OnActivationSpawnEntity,
   StartConcurrentSubActions, // starts actions that happen simultaneously and independently such as ["arrow projectile"]
@@ -63,7 +63,7 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.EvalOnUseTriggers]: "evalOnUseTriggers", // counterspells, branch block/parry/counterattacks, bow durability loss
   [ActionResolutionStepType.DeliveryMotion]: "deliveryMotion",
   [ActionResolutionStepType.PayResourceCosts]: "payResourceCosts",
-  [ActionResolutionStepType.PostActionUseCombatLogMessage]: "postActionUseCombatLogMessage",
+  [ActionResolutionStepType.PostActionUseGameLogMessage]: "postActionUseGameLogMessage",
   [ActionResolutionStepType.StartConcurrentSubActions]: "StartConcurrentSubActions",
   [ActionResolutionStepType.OnActivationSpawnEntity]: "onActivationSpawnEntity",
   [ActionResolutionStepType.PreActionEntityMotionCheckEnvironmentalHazardTriggers]:

@@ -10,7 +10,7 @@ import {
 } from "../../../hp-change-source-types.js";
 import { MagicalElement } from "../../../magical-elements.js";
 import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
@@ -37,7 +37,7 @@ const targetingProperties = createTargetingPropertiesConfig(
 const config: CombatActionComponentConfig = {
   description: "Add physical fire element to a projectile",
   targetingProperties,
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     ...createGenericSpellCastMessageProperties(CombatActionName.IgniteProjectile),
     getOnUseMessage: (data) => `The firewall ignites ${data.nameOfActionUser}`,
   }),

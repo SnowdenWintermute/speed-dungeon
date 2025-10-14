@@ -35,7 +35,7 @@ const costProperties = createCostPropertiesConfig(costPropertiesBase, costProper
 const config: CombatActionComponentConfig = {
   description: "Reduce the accuracy of targets",
   prerequisiteAbilities: [],
-  combatLogMessageProperties: createGenericSpellCastMessageProperties(CombatActionName.Blind),
+  gameLogMessageProperties: createGenericSpellCastMessageProperties(CombatActionName.Blind),
   targetingProperties,
   hitOutcomeProperties: BLIND_HIT_OUTCOME_PROPERTIES,
   costProperties,

@@ -1,5 +1,5 @@
 import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
@@ -26,7 +26,7 @@ const config: CombatActionComponentConfig = {
   targetingProperties,
   hitOutcomeProperties: ICE_BOLT_PROJECTILE_HIT_OUTCOME_PROPERTIES,
   costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL(),
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.SpellCast,
   }),
   hierarchyProperties: {

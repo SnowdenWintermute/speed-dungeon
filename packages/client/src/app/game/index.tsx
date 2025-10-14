@@ -6,7 +6,7 @@ import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
 import MonsterPlaques from "./MonsterPlaques";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import { ReadyUpDisplay } from "./ReadyUpDisplay";
-import { CombatLog } from "./combat-log";
+import { GameLog } from "./combat-log";
 import { getFocusedCharacter } from "@/utils/getFocusedCharacter";
 import { ActionMenuAndCharacterSheetLayer } from "./ActionMenuAndCharacterSheetLayer";
 import { ZIndexLayers } from "../z-index-layers";
@@ -79,7 +79,7 @@ export const Game = observer(() => {
             </div>
             <div className="flex flex-wrap justify-between">
               <div className="h-[14rem] min-w-[23rem] max-w-[26rem]  border border-slate-400 bg-slate-700 p-2 pointer-events-auto">
-                <CombatLog />
+                <GameLog />
               </div>
               <div className="flex flex-grow justify-end mt-3.5 max-w-full">
                 <div className="w-fit max-w-full flex items-end">

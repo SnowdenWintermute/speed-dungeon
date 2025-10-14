@@ -10,13 +10,12 @@ import {
   AdventuringParty,
 } from "@speed-dungeon/common";
 import { getActionUserContext, useGameStore } from "@/stores/game-store";
-import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
-import { postResourceChangeToCombatLog } from "@/app/game/combat-log/post-resource-change-to-combat-log";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { FloatingMessageService } from "@/mobx-stores/game-event-notifications/floating-message-service";
+import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 
 export function induceHitRecovery(
   actionUserName: string,
@@ -54,15 +53,14 @@ export function induceHitRecovery(
       CombatantProperties.changeMana(combatantProperties, resourceChange.value);
 
     const action = COMBAT_ACTIONS[actionName];
-    postResourceChangeToCombatLog(
-      gameState,
+    GameLogMessageService.postResourceChange(
       resourceChange,
       resourceType,
       action,
       wasBlocked,
       targetCombatant,
       actionUserName,
-      actionUserId,
+      actionUserId === targetCombatant.getEntityId(),
       showDebug
     );
 
@@ -99,12 +97,7 @@ export function induceHitRecovery(
           newlyActiveTracker
         );
 
-      gameState.combatLogMessages.push(
-        new CombatLogMessage(
-          `${targetCombatant.getName()}'s hp was reduced to zero`,
-          CombatLogMessageStyle.Basic
-        )
-      );
+      GameLogMessageService.postCombatantDeath(targetCombatant.getName());
 
       if (targetModel.skeletalAnimationManager.playing) {
         if (targetModel.skeletalAnimationManager.playing.options.onComplete)

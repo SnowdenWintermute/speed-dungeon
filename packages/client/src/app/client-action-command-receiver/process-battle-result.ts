@@ -10,7 +10,6 @@ import {
 } from "@speed-dungeon/common";
 import { ClientActionCommandReceiver } from ".";
 import getCurrentParty from "@/utils/getCurrentParty";
-import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/combat-log-message";
 import { useGameStore } from "@/stores/game-store";
 import { gameWorld, getGameWorld } from "../3d-world/SceneManager";
 import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
@@ -19,6 +18,7 @@ import { characterAutoFocusManager } from "@/singletons/character-autofocus-mana
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "../game/ActionMenu/menu-state/menu-state-type";
 import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
+import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 
 export async function battleResultActionCommandHandler(
   this: ClientActionCommandReceiver,
@@ -56,9 +56,7 @@ export async function battleResultActionCommandHandler(
     switch (payload.conclusion) {
       case BattleConclusion.Defeat:
         partyOption.timeOfWipe = timestamp;
-        state.combatLogMessages.push(
-          new CombatLogMessage("Your party was defeated", CombatLogMessageStyle.PartyWipe)
-        );
+        GameLogMessageService.postWipeMessage();
         break;
       case BattleConclusion.Victory:
         characterAutoFocusManager.focusFirstOwnedCharacter(state);
@@ -70,22 +68,12 @@ export async function battleResultActionCommandHandler(
         for (const [characterId, expChange] of Object.entries(payload.experiencePointChanges)) {
           const characterResult = SpeedDungeonGame.getCombatantById(gameOption, characterId);
           if (characterResult instanceof Error) return console.error(characterResult);
-          state.combatLogMessages.push(
-            new CombatLogMessage(
-              `${characterResult.entityProperties.name} gained ${expChange} experience points`,
-              CombatLogMessageStyle.PartyProgress
-            )
-          );
+          GameLogMessageService.postExperienceGained(characterResult.getName(), expChange);
         }
         for (const [characterId, levelup] of Object.entries(levelups)) {
           const characterResult = SpeedDungeonGame.getCombatantById(gameOption, characterId);
           if (characterResult instanceof Error) return console.error(characterResult);
-          state.combatLogMessages.push(
-            new CombatLogMessage(
-              `${characterResult.entityProperties.name} reached level ${levelup}!`,
-              CombatLogMessageStyle.PartyProgress
-            )
-          );
+          GameLogMessageService.postLevelup(characterResult.getName(), levelup);
         }
         break;
     }

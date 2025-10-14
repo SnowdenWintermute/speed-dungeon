@@ -3,9 +3,9 @@ import { setAlert } from "../components/alerts";
 import { CombatantEquipment, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
 import { getGameWorld } from "../3d-world/SceneManager";
 import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
-import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/combat-log-message";
 import { ModelActionType } from "../3d-world/game-world/model-manager/model-actions";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
+import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 
 export async function removeClientPlayerFromGame(username: string) {
   const itemsToRemoveThumbnails: string[] = [];
@@ -35,9 +35,7 @@ export async function removeClientPlayerFromGame(username: string) {
       );
     }
 
-    state.combatLogMessages.push(
-      new CombatLogMessage(`${username} left the game`, CombatLogMessageStyle.PartyWipe)
-    );
+    GameLogMessageService.postUserLeftGame(username);
 
     characterAutoFocusManager.focusFirstOwnedCharacter(state);
   });

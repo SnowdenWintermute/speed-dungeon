@@ -1,7 +1,7 @@
 import cloneDeep from "lodash.clonedeep";
 import { AbilityType } from "../../../../abilities/ability-types.js";
 import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
@@ -86,7 +86,7 @@ const config: CombatActionComponentConfig = {
   },
   prerequisiteAbilities: [{ type: AbilityType.Action, actionName: CombatActionName.Fire }],
   targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME(),
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     ...createGenericSpellCastMessageProperties(CombatActionName.Firewall),
   }),
 

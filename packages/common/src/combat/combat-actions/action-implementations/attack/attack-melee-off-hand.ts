@@ -1,5 +1,5 @@
 import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -62,7 +62,7 @@ const targetingProperties = createTargetingPropertiesConfig(
 
 export const ATTACK_MELEE_OFF_HAND_CONFIG: CombatActionComponentConfig = {
   description: "Attack target using equipment in off hand",
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.Attack,
   }),
   targetingProperties,

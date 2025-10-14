@@ -16,17 +16,17 @@ export interface ActionUseMessageData {
   actionLevel?: number;
 }
 
-export interface CombatActionCombatLogPropertiesConfig {
+export interface CombatActionGameLogPropertiesConfig {
   origin?: CombatActionOrigin;
   getOnUseMessage?: null | ((messageData: ActionUseMessageData) => string);
   getOnUseMessageDataOverride?: (context: ActionResolutionStepContext) => ActionUseMessageData;
 }
 
-export class CombatActionCombatLogProperties {
+export class CombatActionGameLogProperties {
   public origin: CombatActionOrigin = CombatActionOrigin.Attack;
   public getOnUseMessage: null | ((messageData: ActionUseMessageData) => string) = null;
   /** Used by the combat log to determine how to format messages */
-  constructor(config: CombatActionCombatLogPropertiesConfig) {
+  constructor(config: CombatActionGameLogPropertiesConfig) {
     if (config.origin !== undefined) this.origin = config.origin;
     if (config.getOnUseMessage) this.getOnUseMessage = config.getOnUseMessage;
     if (config.getOnUseMessageDataOverride)
@@ -55,14 +55,14 @@ export class CombatActionCombatLogProperties {
   }
 }
 
-export function getSpellCastCombatLogMessage(data: ActionUseMessageData, spellName: string) {
+export function getSpellCastGameLogMessage(data: ActionUseMessageData, spellName: string) {
   return `${data.nameOfActionUser} casts ${spellName} (level ${data.actionLevel})`;
 }
 
 export function createGenericSpellCastMessageProperties(actionName: CombatActionName) {
-  return new CombatActionCombatLogProperties({
+  return new CombatActionGameLogProperties({
     origin: CombatActionOrigin.SpellCast,
     getOnUseMessage: (data) =>
-      getSpellCastCombatLogMessage(data, COMBAT_ACTION_NAME_STRINGS[actionName]),
+      getSpellCastGameLogMessage(data, COMBAT_ACTION_NAME_STRINGS[actionName]),
   });
 }

@@ -1,5 +1,5 @@
 import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionExecutionIntent,
@@ -24,7 +24,7 @@ const targetingProperties = TARGETING_PROPERTIES_TEMPLATE_GETTERS.EXPLOSION();
 const config: CombatActionComponentConfig = {
   description: "Deals kinetic fire damage in an area around the target",
   targetingProperties,
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.TriggeredCondition,
     getOnUseMessage: (data) => {
       return `${data.nameOfActionUser} explodes!`;

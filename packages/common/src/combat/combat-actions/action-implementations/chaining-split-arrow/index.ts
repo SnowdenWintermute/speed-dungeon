@@ -1,6 +1,6 @@
 import {
   ActionPayableResource,
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionExecutionIntent,
@@ -51,7 +51,7 @@ const targetingProperties = createTargetingPropertiesConfig(
 const config: CombatActionComponentConfig = {
   description: "Fire arrows which each bounce to up to two additional targets",
 
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.Attack,
     getOnUseMessage: (data) => {
       return `${data.nameOfActionUser} fires a chaining split arrow.`;

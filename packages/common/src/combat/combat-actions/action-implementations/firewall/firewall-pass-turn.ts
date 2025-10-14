@@ -7,7 +7,7 @@ import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { CleanupMode } from "../../../../types.js";
 import {
   ActionResolutionStepsConfig,
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
@@ -115,7 +115,7 @@ const config: CombatActionComponentConfig = {
   description: "Firewall consumes its fuel",
   prerequisiteAbilities: [],
   targetingProperties,
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     getOnUseMessage: (data) => `${data.nameOfActionUser} burns down`,
   }),
 
@@ -124,7 +124,7 @@ const config: CombatActionComponentConfig = {
   stepsConfig: new ActionResolutionStepsConfig(
     {
       [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
-      [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
+      [ActionResolutionStepType.PostActionUseGameLogMessage]: {},
       [ActionResolutionStepType.EvalOnUseTriggers]: {},
     },
     {

@@ -1,13 +1,16 @@
 import Divider from "@/app/components/atoms/Divider";
-import { useGameStore } from "@/stores/game-store";
 import React, { useState } from "react";
-import { CombatLogMessage, CombatLogMessageStyle } from "./combat-log-message";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { observer } from "mobx-react-lite";
+import {
+  GAME_LOG_MESSAGE_STYLE_STRINGS,
+  GameLogMessage,
+} from "@/mobx-stores/game-event-notifications/game-log-messages";
+import { AppStore } from "@/mobx-stores/app-store";
 
-export const CombatLog = observer(() => {
+export const GameLog = observer(() => {
   const [expanded, setExpanded] = useState(false);
-  const combatLogMessages = useGameStore().combatLogMessages;
+  const gameLogMessages = AppStore.get().gameEventNotificationStore.getGameLogMessages();
 
   const expandedStyle = expanded
     ? "absolute bg-slate-700 p-2 top-0 right-0 h-screen w-screen"
@@ -31,8 +34,8 @@ export const CombatLog = observer(() => {
       <Divider />
       <div className="list-none overflow-y-auto flex flex-col-reverse flex-1 pb-[4px]">
         <ul>
-          {combatLogMessages.map((message, i) => (
-            <CombatLogMessageElement key={message.timestamp + i} message={message} />
+          {gameLogMessages.map((message, i) => (
+            <GameLogMessageElement key={message.timestamp + i} message={message} />
           ))}
         </ul>
       </div>
@@ -40,34 +43,8 @@ export const CombatLog = observer(() => {
   );
 });
 
-function CombatLogMessageElement({ message }: { message: CombatLogMessage }) {
-  let color = "";
-  switch (message.style) {
-    case CombatLogMessageStyle.Basic:
-      color = "text-slate-400";
-      break;
-    case CombatLogMessageStyle.Healing:
-      color = "text-green-600";
-      break;
-    case CombatLogMessageStyle.Mana:
-      color = "text-blue-600";
-      break;
-    case CombatLogMessageStyle.PartyProgress:
-      color = "text-yellow-400";
-      break;
-    case CombatLogMessageStyle.GameProgress:
-      color = "text-teal-300";
-      break;
-    case CombatLogMessageStyle.PartyWipe:
-      color = "text-red-400";
-      break;
-    case CombatLogMessageStyle.PartyEscape:
-    case CombatLogMessageStyle.BattleVictory:
-      color = "text-yellow-400";
-      break;
-    case CombatLogMessageStyle.LadderProgress:
-      color = "text-purple-400";
-  }
+function GameLogMessageElement({ message }: { message: GameLogMessage }) {
+  const color = GAME_LOG_MESSAGE_STYLE_STRINGS[message.style];
 
   return <li className={color}>{message.message}</li>;
 }

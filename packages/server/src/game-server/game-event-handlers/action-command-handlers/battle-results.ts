@@ -4,6 +4,7 @@ import {
   BattleConclusion,
   BattleResultActionCommandPayload,
   ERROR_MESSAGES,
+  GameMessage,
   GameMessageType,
   SpeedDungeonGame,
   createPartyWipeMessage,
@@ -42,10 +43,11 @@ export async function battleResultActionCommandHandler(
       gameMessagePayloads.push({
         type: ActionCommandType.GameMessages,
         messages: [
-          {
-            type: GameMessageType.PartyWipe,
-            text: createPartyWipeMessage(party.name, floorNumber, new Date()),
-          },
+          new GameMessage(
+            GameMessageType.PartyWipe,
+            true,
+            createPartyWipeMessage(party.name, floorNumber, new Date())
+          ),
         ],
         partyChannelToExclude: getPartyChannelName(game.name, party.name),
       });

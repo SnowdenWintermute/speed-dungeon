@@ -1,14 +1,27 @@
 import { EntityId, SequentialIdGenerator } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 import { FloatingMessage, FloatingMessageElement } from "./floating-messages";
+import { GameLogMessage } from "./game-log-messages";
 
 export class GameEventNotificationStore {
   private messageIdGenerator = new SequentialIdGenerator();
   private floatingMessages: Record<EntityId, FloatingMessage[]> = {};
-  // private gameLogMessages:
+  private gameLogMessages: GameLogMessage[] = [];
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
+  }
+
+  clearGameLog() {
+    this.gameLogMessages = [];
+  }
+
+  postGameLogMessage(message: GameLogMessage) {
+    this.gameLogMessages.push(message);
+  }
+
+  getGameLogMessages() {
+    return this.gameLogMessages;
   }
 
   getFloatingMessages(entityId: EntityId) {

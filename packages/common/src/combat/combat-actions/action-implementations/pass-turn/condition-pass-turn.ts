@@ -1,6 +1,6 @@
 import cloneDeep from "lodash.clonedeep";
 import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionOrigin,
 } from "../../combat-action-combat-log-properties.js";
 import { CombatActionComponentConfig, CombatActionLeaf, CombatActionName } from "../../index.js";
@@ -26,7 +26,7 @@ const config: CombatActionComponentConfig = {
   ...cloned,
   description: "For combatant conditions ending their turn on tick",
   targetingProperties,
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.SpellCast,
     getOnUseMessage: (data) => {
       return `${data.nameOfActionUser} ticks`;

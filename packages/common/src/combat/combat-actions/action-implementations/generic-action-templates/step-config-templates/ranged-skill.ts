@@ -30,7 +30,7 @@ export const RANGED_SKILL_STEPS_CONFIG = new ActionResolutionStepsConfig(
       getDestination: getRotateTowardPrimaryTargetDestination,
     },
     [ActionResolutionStepType.PayResourceCosts]: {},
-    [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
+    [ActionResolutionStepType.PostActionUseGameLogMessage]: {},
     [ActionResolutionStepType.EvalOnUseTriggers]: {},
     [ActionResolutionStepType.StartConcurrentSubActions]: {},
   },

@@ -15,9 +15,9 @@ import { MutateState } from "../mutate-state";
 import { getActiveCombatant } from "@/utils/getActiveCombatant";
 import getParty from "@/utils/getParty";
 import { getFocusedCharacter } from "@/utils/getFocusedCharacter";
-import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { TargetIndicator } from "@/app/3d-world/scene-entities/character-models/target-indicator-manager";
+import { GameLogMessage } from "@/mobx-stores/game-event-notifications/game-log-messages";
 
 export class GameState {
   [immerable] = true;
@@ -30,7 +30,7 @@ export class GameState {
   combatantsWithPendingCraftActions: Partial<Record<EntityId, boolean>> = {};
   targetingIndicators: TargetIndicator[] = [];
 
-  combatLogMessages: CombatLogMessage[] = [];
+  gameLogMessages: GameLogMessage[] = [];
 
   itemThumbnails: { [itemId: string]: string } = {};
   combatantPortraits: { [combatantId: EntityId]: string } = {};

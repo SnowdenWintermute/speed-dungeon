@@ -8,7 +8,6 @@ import {
 } from "@speed-dungeon/common";
 import { getGameWorld } from "../../SceneManager";
 import { useGameStore } from "@/stores/game-store";
-import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import { plainToInstance } from "class-transformer";
 import { HitPointChanges } from "@speed-dungeon/common";
 import { induceHitRecovery } from "./induce-hit-recovery";
@@ -16,6 +15,7 @@ import { handleThreatChangesUpdate } from "./handle-threat-changes";
 import { CombatActionResource } from "@speed-dungeon/common";
 import { GameUpdateTracker } from "./game-update-tracker";
 import { FloatingMessageService } from "@/mobx-stores/game-event-notifications/floating-message-service";
+import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 
 export async function hitOutcomesGameUpdateHandler(
   update: GameUpdateTracker<HitOutcomesGameUpdateCommand>
@@ -84,16 +84,18 @@ export async function hitOutcomesGameUpdateHandler(
     useGameStore.getState().mutateState((gameState) => {
       const targetCombatantResult = gameState.getCombatant(entityId);
       if (targetCombatantResult instanceof Error) throw targetCombatantResult;
-
-      const style = CombatLogMessageStyle.Basic;
-      let messageText = `${actionUserName} failed to hit ${targetCombatantResult.entityProperties.name}`;
-
-      gameState.combatLogMessages.push(new CombatLogMessage(messageText, style));
+      GameLogMessageService.postActionMissed(actionUserName, targetCombatantResult.getName());
     });
   });
 
   outcomeFlags[HitOutcome.Evade]?.forEach((entityId) => {
     FloatingMessageService.startHitOutcomeEvadeMessage(entityId);
+
+    useGameStore.getState().mutateState((gameState) => {
+      const targetCombatantResult = gameState.getCombatant(entityId);
+      if (targetCombatantResult instanceof Error) throw targetCombatantResult;
+      GameLogMessageService.postActionEvaded(actionUserName, targetCombatantResult.getName());
+    });
 
     const targetModel = getGameWorld().modelManager.findOne(entityId);
 
@@ -104,16 +106,6 @@ export async function hitOutcomesGameUpdateHandler(
         onComplete: () => targetModel.startIdleAnimation(100),
       }
     );
-
-    useGameStore.getState().mutateState((gameState) => {
-      const targetCombatantResult = gameState.getCombatant(entityId);
-      if (targetCombatantResult instanceof Error) throw targetCombatantResult;
-
-      const style = CombatLogMessageStyle.Basic;
-      let messageText = `${targetCombatantResult.entityProperties.name} evaded an attack from ${actionUserName}`;
-
-      gameState.combatLogMessages.push(new CombatLogMessage(messageText, style));
-    });
   });
 
   outcomeFlags[HitOutcome.Parry]?.forEach((entityId) => {
@@ -135,11 +127,7 @@ export async function hitOutcomesGameUpdateHandler(
     useGameStore.getState().mutateState((gameState) => {
       const targetCombatantResult = gameState.getCombatant(entityId);
       if (targetCombatantResult instanceof Error) throw targetCombatantResult;
-
-      const style = CombatLogMessageStyle.Basic;
-      let messageText = `${targetCombatantResult.entityProperties.name} parried an attack from ${actionUserName}`;
-
-      gameState.combatLogMessages.push(new CombatLogMessage(messageText, style));
+      GameLogMessageService.postActionParried(actionUserName, targetCombatantResult.getName());
     });
   });
 
@@ -149,11 +137,7 @@ export async function hitOutcomesGameUpdateHandler(
     useGameStore.getState().mutateState((gameState) => {
       const targetCombatantResult = gameState.getCombatant(entityId);
       if (targetCombatantResult instanceof Error) throw targetCombatantResult;
-
-      const style = CombatLogMessageStyle.Basic;
-      let messageText = `${targetCombatantResult.entityProperties.name} countered an attack from ${actionUserName}`;
-
-      gameState.combatLogMessages.push(new CombatLogMessage(messageText, style));
+      GameLogMessageService.postActionCountered(actionUserName, targetCombatantResult.getName());
     });
   });
 
