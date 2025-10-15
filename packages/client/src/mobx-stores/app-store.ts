@@ -9,6 +9,8 @@ import { LobbyStore } from "./lobby";
 import { TargetIndicatorStore } from "./target-indicators";
 import { TooltipStore } from "./tooltip";
 import { ImagesStore } from "./images";
+import { FormsStore } from "./forms";
+import { GameStore } from "./game";
 
 export class AppStore {
   dialogStore = new DialogStore();
@@ -22,6 +24,8 @@ export class AppStore {
   gameEventNotificationStore = new GameEventNotificationStore();
   targetIndicatorStore = new TargetIndicatorStore();
   imageStore = new ImagesStore();
+  formsStore = new FormsStore();
+  gameStore = new GameStore();
 
   private static _instance: AppStore | null = null;
 

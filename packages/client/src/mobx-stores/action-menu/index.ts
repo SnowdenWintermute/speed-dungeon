@@ -1,10 +1,9 @@
 import { ActionMenuState } from "@/app/game/ActionMenu/menu-state";
-// import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
 import {
   MENU_STATE_TYPE_STRINGS,
   MenuStateType,
 } from "@/app/game/ActionMenu/menu-state/menu-state-type";
-import { CombatActionName } from "@speed-dungeon/common";
+import { CombatActionName, EntityId } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 
 export class ActionMenuStore {
@@ -12,6 +11,7 @@ export class ActionMenuStore {
   private stackedMenuStates: ActionMenuState[] = [];
   private hoveredAction: null | CombatActionName = null;
   private showItemsOnGround: boolean = true;
+  private combatantsWithPendingCraftActions: Set<EntityId> = new Set();
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -50,13 +50,16 @@ export class ActionMenuStore {
 
   replaceStack(newStack: ActionMenuState[]) {
     this.clearStack();
-    this.stackedMenuStates = newStack;
+    this.stackedMenuStates.push(...newStack);
   }
 
   getStackedMenuStringNames() {
-    return ([this.baseMenuState] as ActionMenuState[])
-      .concat(this.stackedMenuStates)
-      .map((menuState) => MENU_STATE_TYPE_STRINGS[menuState.type]);
+    return [this.baseMenuState, ...this.stackedMenuStates]
+      .filter(Boolean)
+      .map((menu) => MENU_STATE_TYPE_STRINGS[menu!.type]);
+    // return ([this.baseMenuState] as ActionMenuState[])
+    //   .concat(this.stackedMenuStates)
+    //   .map((menuState) => MENU_STATE_TYPE_STRINGS[menuState.type]);
   }
 
   currentMenuIsType(menuStateType: MenuStateType) {
@@ -114,6 +117,18 @@ export class ActionMenuStore {
 
   getHoveredAction() {
     return this.hoveredAction;
+  }
+
+  setCharacterIsCrafting(entityId: EntityId) {
+    this.combatantsWithPendingCraftActions.add(entityId);
+  }
+
+  setCharacterCompletedCrafting(entityId: EntityId) {
+    this.combatantsWithPendingCraftActions.delete(entityId);
+  }
+
+  characterIsCrafting(entityId: EntityId) {
+    return this.combatantsWithPendingCraftActions.has(entityId);
   }
 }
 

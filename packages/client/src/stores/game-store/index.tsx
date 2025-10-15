@@ -25,7 +25,6 @@ export class GameState {
   /** Unique name which characters may list as their controller */
   username: null | string = null;
   focusedCharacterId: string = "";
-  combatantsWithPendingCraftActions: Partial<Record<EntityId, boolean>> = {};
 
   rerenderForcer: number = 0;
 

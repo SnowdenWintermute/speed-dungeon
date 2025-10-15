@@ -7,6 +7,7 @@ export class LobbyStore {
   private mainChannelName: string = "";
   private usersInChannel = new Map<string, UserChannelDisplayData>();
   private savedCharacterSlots: Record<number, Combatant | null> = {};
+
   constructor() {
     // we autoBind because that allows us to pass methods of this class
     // to callbacks like socket.on(ServerToClientEvent.UserLeftChannel, lobbyStore.handleUserLeftChannel);

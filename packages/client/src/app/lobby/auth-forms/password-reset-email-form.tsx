@@ -7,18 +7,20 @@ import useHttpResponseErrors from "@/hooks/use-http-response-errors";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import AuthForm from "./AuthForm";
 import { AuthFormTypes } from ".";
-import { useUIStore } from "@/stores/ui-store";
+import { AppStore } from "@/mobx-stores/app-store";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   setActiveForm?: React.Dispatch<SetStateAction<AuthFormTypes>>;
 }
 
-export default function PasswordResetEmailForm({ setActiveForm }: Props) {
+export const PasswordResetEmailForm = observer(({ setActiveForm }: Props) => {
   const httpRequestTrackerName = HTTP_REQUEST_NAMES.PASSWORD_RESET_EMAIL;
   const responseTracker = useHttpRequestStore().requests[httpRequestTrackerName];
   const [fieldErrors, setFieldErrors, nonFieldErrors] = useHttpResponseErrors(responseTracker);
-  const email = useUIStore().authFormEmailField;
-  const setEmail = useUIStore().setAuthFormEmailField;
+
+  const email = AppStore.get().formsStore.getAuthFormEmailField();
+  const setEmail = AppStore.get().formsStore.setAuthFormEmailField;
 
   return (
     <AuthForm
@@ -59,7 +61,7 @@ export default function PasswordResetEmailForm({ setActiveForm }: Props) {
       {setActiveForm && <PasswordResetEmailFormBottomButtons setActiveForm={setActiveForm} />}
     </AuthForm>
   );
-}
+});
 
 function PasswordResetEmailFormBottomButtons({
   setActiveForm,

@@ -57,6 +57,8 @@ export class CraftingItemMenuState extends ActionMenuState {
       return toReturn;
     }
 
+    const { actionMenuStore } = AppStore.get();
+
     for (const craftingAction of iterateNumericEnum(CraftingAction)) {
       const actionPrice = getCraftingActionPrice(craftingAction, this.item);
       const buttonName = `${CRAFTING_ACTION_STRINGS[craftingAction]}`;
@@ -80,10 +82,7 @@ export class CraftingItemMenuState extends ActionMenuState {
         ),
         buttonName,
         () => {
-          useGameStore.getState().mutateState((state) => {
-            state.combatantsWithPendingCraftActions[focusedCharacterResult.entityProperties.id] =
-              true;
-          });
+          actionMenuStore.setCharacterIsCrafting(focusedCharacterResult.getEntityId());
           websocketConnection.emit(ClientToServerEvent.PerformCraftingAction, {
             characterId: focusedCharacterResult.entityProperties.id,
             itemId,
@@ -98,9 +97,7 @@ export class CraftingItemMenuState extends ActionMenuState {
           this.item,
           partyResult.dungeonExplorationManager.getCurrentFloor()
         ) ||
-        !!useGameStore.getState().combatantsWithPendingCraftActions[
-          focusedCharacterResult.entityProperties.id
-        ];
+        actionMenuStore.characterIsCrafting(focusedCharacterResult.getEntityId());
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 

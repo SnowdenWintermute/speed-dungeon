@@ -7,17 +7,18 @@ import { AuthFormTypes } from ".";
 import useHttpResponseErrors from "@/hooks/use-http-response-errors";
 import AuthForm from "./AuthForm";
 import { HTTP_REQUEST_NAMES, WEBSITE_NAME } from "@/client_consts";
-import { useUIStore } from "@/stores/ui-store";
+import { AppStore } from "@/mobx-stores/app-store";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   setActiveForm: React.Dispatch<React.SetStateAction<AuthFormTypes>>;
 }
 
-export default function SignUpWithCredentialsForm({ setActiveForm }: Props) {
+export const SignUpWithCredentialsForm = observer(({ setActiveForm }: Props) => {
   const httpRequestTrackerName = HTTP_REQUEST_NAMES.SIGN_UP_WITH_CREDENTIALS;
   const responseTracker = useHttpRequestStore().requests[httpRequestTrackerName];
-  const email = useUIStore().authFormEmailField;
-  const setEmail = useUIStore().setAuthFormEmailField;
+  const email = AppStore.get().formsStore.getAuthFormEmailField();
+  const setEmail = AppStore.get().formsStore.setAuthFormEmailField;
   const [fieldErrors, setFieldErrors, nonFieldErrors] = useHttpResponseErrors(responseTracker);
 
   return (
@@ -65,4 +66,4 @@ export default function SignUpWithCredentialsForm({ setActiveForm }: Props) {
       </ButtonBasic>
     </AuthForm>
   );
-}
+});

@@ -19,6 +19,7 @@ import { gameWorld, getGameWorld } from "@/app/3d-world/SceneManager";
 import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export function characterPerformedCraftingActionHandler(eventData: {
   characterId: EntityId;
@@ -32,7 +33,7 @@ export function characterPerformedCraftingActionHandler(eventData: {
     ({ party, character }: CharacterAssociatedData, gameState) => {
       // used to show loading state so players don't get confused when
       // their craft action produces exact same item as already was
-      delete gameState.combatantsWithPendingCraftActions[character.entityProperties.id];
+      AppStore.get().actionMenuStore.setCharacterCompletedCrafting(character.getEntityId());
 
       const itemResult = CombatantProperties.getOwnedItemById(
         character.combatantProperties,
