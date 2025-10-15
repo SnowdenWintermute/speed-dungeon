@@ -62,7 +62,7 @@ export class PurchaseItemsMenuState extends ActionMenuState {
       );
 
       const thumbnailId = CONSUMABLE_TYPE_STRINGS[consumableType];
-      const thumbnailOption = useGameStore.getState().itemThumbnails[thumbnailId];
+      const thumbnailOption = AppStore.get().imageStore.getItemThumbnailOption(thumbnailId);
 
       const purchaseItemButton = new ActionMenuButtonProperties(
         () => (

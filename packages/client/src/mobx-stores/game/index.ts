@@ -9,10 +9,6 @@ export class AppStoreManager {
 
   authFormEmailField: string = "";
 
-  // Images
-  itemThumbnails: { [itemId: string]: string } = {};
-  combatantPortraits: { [combatantId: EntityId]: string } = {};
-
   hasGame: () => boolean = () => {
     throw new Error("not implementeted");
   };

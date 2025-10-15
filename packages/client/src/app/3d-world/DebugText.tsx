@@ -24,8 +24,8 @@ function getGpuName() {
 
 export const DebugText = observer(
   ({ debugRef }: { debugRef: React.RefObject<HTMLUListElement | null> }) => {
-    const thumbnails = useGameStore((state) => state.itemThumbnails);
-    const { dialogStore, inputStore } = AppStore.get();
+    const { dialogStore, inputStore, imageStore } = AppStore.get();
+    const itemThumbnails = imageStore.getItemThumbnails();
     const showDebug = dialogStore.isOpen(DialogElementName.Debug);
     const hotkeysDisabled = AppStore.get().inputStore.getHotkeysDisabled();
     const headerRef = useRef<HTMLDivElement>(null);
@@ -160,19 +160,13 @@ export const DebugText = observer(
         </ul>
         <ul className="flex flex-wrap bg-slate-700 w-full">
           <li key="ayy" className="border p-2 w-full mb-2">
-            Num thumbnails: {Object.keys(thumbnails).length}
+            Num thumbnails: {itemThumbnails.size}
           </li>
           <li className="p-2 flex max-w-40 overflow-auto">
-            {Object.entries(thumbnails).map(([id, data], i) => (
+            {[...itemThumbnails.entries()].map(([id, data], i) => (
               <div className="relative w-fit" key={id}>
                 <div className="absolute top-0 left-0 border bg-slate-800">{i}</div>
-                <button
-                  onClick={() => {
-                    useGameStore.getState().mutateState((state) => {
-                      state.itemThumbnails[id];
-                    });
-                  }}
-                >
+                <button>
                   <img alt={id} src={data} className="object-contain h-16" />
                 </button>
               </div>

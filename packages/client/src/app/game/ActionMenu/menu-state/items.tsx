@@ -116,7 +116,7 @@ export abstract class ItemsMenuState extends ActionMenuState {
         if (consumableStack.length > 1) consumableName += ` (${consumableStack.length})`;
 
         const thumbnailId = CONSUMABLE_TYPE_STRINGS[consumableType];
-        const thumbnailOption = useGameStore.getState().itemThumbnails[thumbnailId];
+        const thumbnailOption = AppStore.get().imageStore.getItemThumbnailOption(thumbnailId);
 
         let containerExtraStyles = CONSUMABLE_TEXT_COLOR;
 
@@ -153,7 +153,10 @@ export abstract class ItemsMenuState extends ActionMenuState {
     }
 
     for (const item of equipmentAndShardStacks) {
-      const thumbnailOption = useGameStore.getState().itemThumbnails[item.entityProperties.id];
+      const thumbnailOption = AppStore.get().imageStore.getItemThumbnailOption(
+        item.entityProperties.id
+      );
+
       const buttonText = buttonTextPrefix + item.entityProperties.name;
       let imageExtraStyles =
         item instanceof Equipment && Equipment.isWeapon(item)

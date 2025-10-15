@@ -51,7 +51,8 @@ export class SelectBookToTradeForMenuState extends ActionMenuState {
 
     for (const consumableType of SKILL_BOOK_CONSUMABLE_TYPES) {
       const thumbnailId = CONSUMABLE_TYPE_STRINGS[consumableType];
-      const thumbnailOption = useGameStore.getState().itemThumbnails[thumbnailId];
+
+      const thumbnailOption = AppStore.get().imageStore.getItemThumbnailOption(thumbnailId);
 
       const purchaseItemButton = new ActionMenuButtonProperties(
         () => (

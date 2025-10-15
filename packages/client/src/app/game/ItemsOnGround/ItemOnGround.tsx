@@ -36,7 +36,7 @@ export function takeItem(item: Item) {
 }
 
 export const ItemOnGround = observer((props: Props) => {
-  const { focusStore } = AppStore.get();
+  const { focusStore, imageStore } = AppStore.get();
 
   const { item } = props;
   function mouseEnterHandler() {
@@ -67,7 +67,8 @@ export const ItemOnGround = observer((props: Props) => {
   } else {
     thumbnailId = item.entityProperties.id;
   }
-  const thumbnailOption = useGameStore.getState().itemThumbnails[thumbnailId];
+  const thumbnailOption = imageStore.getItemThumbnailOption(thumbnailId);
+
   const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
   if (focusedCharacterResult instanceof Error) return <></>;
   const requirementsMet = Item.requirementsMet(

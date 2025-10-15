@@ -1,7 +1,7 @@
 import { useGameStore } from "@/stores/game-store";
 import { Equipment, Item } from "@speed-dungeon/common";
 import React, { useEffect } from "react";
-import ItemDetails from "./ItemDetails";
+import { ItemDetails } from "./ItemDetails";
 import shouldDisplayModTooltip from "./should-display-mod-tooltip";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";

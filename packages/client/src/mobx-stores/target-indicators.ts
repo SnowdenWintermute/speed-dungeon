@@ -5,16 +5,16 @@ import { makeAutoObservable } from "mobx";
 
 export class TargetIndicatorStore {
   private indicators: TargetIndicator[] = [];
-  private gameWorld: GameWorld | null = null;
+  _gameWorld: GameWorld | null = null; // we'd like it to be private but then we can't mark it as "not observable"
   constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+    makeAutoObservable(this, { _gameWorld: false }, { autoBind: true });
   }
 
   /** avoid a circular reference since targetIndicatorStore will need to access GameWorld
-      but GameWorld also accesses AppStore.get() which targetIndicatorStore is a member of
-      so we can't directly call getGameWorld() inside it */
+  but GameWorld also accesses AppStore.get() which targetIndicatorStore is a member of
+  so we can't directly call getGameWorld() inside it */
   initialize(gameWorld: GameWorld) {
-    this.gameWorld = gameWorld;
+    this._gameWorld = gameWorld;
   }
 
   getIndicatorsTargetingCombatant(entityId: EntityId) {
@@ -58,13 +58,13 @@ export class TargetIndicatorStore {
       this.indicators.push(...newIndicators);
     }
 
-    if (this.gameWorld === null) {
+    if (this._gameWorld === null) {
       return console.error(
         "Expected targetIndicatorStore to be initialized with gameWorld reference"
       );
     }
 
-    for (const combatantModel of Object.values(this.gameWorld.modelManager.combatantModels)) {
+    for (const combatantModel of Object.values(this._gameWorld.modelManager.combatantModels)) {
       const targetingThisModel = newIndicators.filter(
         (item) => item.targetId === combatantModel.entityId
       );

@@ -1,7 +1,7 @@
 import { useGameStore } from "@/stores/game-store";
 import React from "react";
 import { CraftingItemMenuState } from "../ActionMenu/menu-state/crafting-item";
-import ItemDetails from "../detailables/ItemDetails";
+import { ItemDetails } from "../detailables/ItemDetails";
 import Divider from "@/app/components/atoms/Divider";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";

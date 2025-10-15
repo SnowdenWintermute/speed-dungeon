@@ -27,7 +27,7 @@ const USABLE_ITEM_BG_STYLES = "bg-slate-800";
 
 export const PaperDollSlot = observer(
   ({ itemOption, slot, characterAttributes, tailwindClasses }: Props) => {
-    const { focusStore } = AppStore.get();
+    const { focusStore, imageStore } = AppStore.get();
 
     const { detailedItem, hoveredItem } = focusStore.getFocusedItems();
     const { comparedSlot } = focusStore.getItemComparison();
@@ -39,7 +39,10 @@ export const PaperDollSlot = observer(
 
     const itemNameDisplay = itemOption ? itemOption.entityProperties.name : "";
 
-    const thumbnailOption = useGameStore().itemThumbnails[itemOption?.entityProperties.id || ""];
+    let thumbnailOption = undefined;
+    if (itemOption !== null) {
+      thumbnailOption = imageStore.getItemThumbnailOption(itemOption.entityProperties.id);
+    }
 
     const itemDisplay = thumbnailOption ? (
       <img src={thumbnailOption} className={"max-h-full"} />

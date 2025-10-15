@@ -27,9 +27,6 @@ export class GameState {
   focusedCharacterId: string = "";
   combatantsWithPendingCraftActions: Partial<Record<EntityId, boolean>> = {};
 
-  itemThumbnails: { [itemId: string]: string } = {};
-  combatantPortraits: { [combatantId: EntityId]: string } = {};
-
   rerenderForcer: number = 0;
 
   getCurrentBattleId: () => null | string = () => {

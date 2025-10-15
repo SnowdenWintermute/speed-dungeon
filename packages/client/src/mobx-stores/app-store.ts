@@ -1,4 +1,3 @@
-import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { ActionMenuStore } from "./action-menu";
 import { ConfigStore } from "./config";
 import { DialogStore } from "./dialogs";
@@ -9,6 +8,7 @@ import { InputStore } from "./input";
 import { LobbyStore } from "./lobby";
 import { TargetIndicatorStore } from "./target-indicators";
 import { TooltipStore } from "./tooltip";
+import { ImagesStore } from "./images";
 
 export class AppStore {
   dialogStore = new DialogStore();
@@ -21,6 +21,7 @@ export class AppStore {
   configStore = new ConfigStore();
   gameEventNotificationStore = new GameEventNotificationStore();
   targetIndicatorStore = new TargetIndicatorStore();
+  imageStore = new ImagesStore();
 
   private static _instance: AppStore | null = null;
 
