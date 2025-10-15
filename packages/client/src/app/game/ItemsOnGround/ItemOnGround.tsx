@@ -69,11 +69,10 @@ export const ItemOnGround = observer((props: Props) => {
   }
   const thumbnailOption = imageStore.getItemThumbnailOption(thumbnailId);
 
-  const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-  if (focusedCharacterResult instanceof Error) return <></>;
+  const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
   const requirementsMet = Item.requirementsMet(
     item,
-    CombatantProperties.getTotalAttributes(focusedCharacterResult.combatantProperties)
+    CombatantProperties.getTotalAttributes(focusedCharacter.combatantProperties)
   );
 
   if (!requirementsMet) {

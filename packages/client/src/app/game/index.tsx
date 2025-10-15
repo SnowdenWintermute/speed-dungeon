@@ -7,7 +7,6 @@ import MonsterPlaques from "./MonsterPlaques";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import { ReadyUpDisplay } from "./ReadyUpDisplay";
 import { GameLog } from "./combat-log";
-import { getFocusedCharacter } from "@/utils/getFocusedCharacter";
 import { ActionMenuAndCharacterSheetLayer } from "./ActionMenuAndCharacterSheetLayer";
 import { ZIndexLayers } from "../z-index-layers";
 import PersistentActionEntityDisplay from "./persistent-action-entity-display";
@@ -35,12 +34,13 @@ export const Game = observer(() => {
         {ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME}
       </div>
     );
-  const focusedCharacterResult = getFocusedCharacter();
-  if (focusedCharacterResult instanceof Error) {
+
+  const focusedCharacterOption = AppStore.get().gameStore.getFocusedCharacterOption();
+
+  if (focusedCharacterOption === undefined) {
     return (
       <div>
         <div>Awaiting focused character...</div>
-        <div>{focusedCharacterResult.message}</div>
       </div>
     );
   }

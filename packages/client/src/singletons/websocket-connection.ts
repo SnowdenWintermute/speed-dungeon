@@ -71,13 +71,11 @@ websocketConnection.on(ServerToClientEvent.ErrorMessage, (message) => {
     const partyOption = getCurrentParty(state, state.username || "");
     if (partyOption) {
       InputLock.unlockInput(partyOption.inputLock);
-      const focusedCharacterOption = partyOption.combatantManager.getCombatantOption(
-        state.focusedCharacterId
-      );
+      const focusedCharacterOption = AppStore.get().gameStore.getFocusedCharacterOption();
       if (focusedCharacterOption !== undefined) {
         focusedCharacterOption.combatantProperties.targetingProperties.clear();
 
-        AppStore.get().targetIndicatorStore.clearUserTargets(state.focusedCharacterId);
+        AppStore.get().targetIndicatorStore.clearUserTargets(focusedCharacterOption.getEntityId());
       }
     }
   });

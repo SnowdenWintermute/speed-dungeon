@@ -5,20 +5,16 @@ import {
   Combatant,
   CombatantEquipment,
   EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE,
-  EntityId,
   Equipment,
   Item,
   TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 import { AppStore } from "./app-store";
-import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
 
 export type DetailableEntity = Combatant | Item;
 
 export class FocusStore {
-  private focusedCharacterId: EntityId | null = null;
-
   readonly combatantAbility = new Detailable<AbilityTreeAbility>(() => {});
   readonly detailable = new Detailable<DetailableEntity>(() =>
     this.consideredItemUnmetRequirements.clear()
@@ -31,16 +27,6 @@ export class FocusStore {
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
-  }
-
-  setFocusedCharacter(entityId: EntityId) {
-    const { actionMenuStore } = AppStore.get();
-    actionMenuStore.clearHoveredAction();
-    this.focusedCharacterId = entityId;
-  }
-
-  characterIsFocused(entityId: EntityId) {
-    return this.focusedCharacterId === entityId;
   }
 
   entityIsHovered(entityId: string) {
@@ -67,10 +53,9 @@ export class FocusStore {
       this.detailable.setDetailed(itemOption);
 
       // @REFACTOR - maybe easier to test if we pass this as an argument instead of fetching it here
-      const focusedCharacterResult = useGameStore().getFocusedCharacter();
-      if (!(focusedCharacterResult instanceof Error))
-        this.consideredItemUnmetRequirements =
-          focusedCharacterResult.combatantProperties.getUnmetItemRequirements(itemOption);
+      const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+      this.consideredItemUnmetRequirements =
+        focusedCharacter.combatantProperties.getUnmetItemRequirements(itemOption);
     }
   }
 

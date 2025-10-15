@@ -19,14 +19,16 @@ export class CharacterAutoFocusManager {
         .getExpectedCombatant(activeTrackerId)
         .combatantProperties.isPlayerControlled();
 
-      if (newlyActiveTrackerIsPlayerControlled)
-        gameState.focusedCharacterId = firstActiveTracker.getTaggedIdOfTrackedEntity().combatantId;
+      if (newlyActiveTrackerIsPlayerControlled) {
+        const trackerId = firstActiveTracker.getTaggedIdOfTrackedEntity().combatantId;
+        AppStore.get().gameStore.setFocusedCharacter(trackerId);
+      }
     }
   }
 
   focusFirstOwnedCharacter(gameState: GameState) {
     // if viewing menu other than ItemsOnGround, do nothing
-    const { actionMenuStore, focusStore } = AppStore.get();
+    const { actionMenuStore, gameStore } = AppStore.get();
     const clientIsViewingMenus = actionMenuStore.hasStackedMenus();
     const currentMenu = actionMenuStore.getCurrentMenu();
     if (clientIsViewingMenus && currentMenu.type !== MenuStateType.ItemsOnGround) {
@@ -39,9 +41,8 @@ export class CharacterAutoFocusManager {
 
     const firstOwnedCharacterId = playerResult.characterIds[0];
     if (!firstOwnedCharacterId) return console.error("Player doesn't own any characters");
-    // @TODO replace this with focusStore
-    gameState.focusedCharacterId = firstOwnedCharacterId;
-    focusStore.setFocusedCharacter(firstOwnedCharacterId);
+
+    gameStore.setFocusedCharacter(firstOwnedCharacterId);
   }
 
   updateFocusedCharacterOnNewTurnOrder(gameState: GameState, newlyActiveTracker: TurnTracker) {

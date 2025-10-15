@@ -11,6 +11,7 @@ import React from "react";
 import { useGameStore } from "@/stores/game-store";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import ActionDetailsTitleBar from "./ActionDetailsTitleBar";
+import { AppStore } from "@/mobx-stores/app-store";
 
 interface Props {
   actionName: CombatActionName;
@@ -26,20 +27,18 @@ export default function ActionDetails({
   const partyResult = useGameStore().getParty();
   if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
   const party = partyResult;
-  const focusedCharacterResult = useGameStore().getFocusedCharacter();
-  if (focusedCharacterResult instanceof Error) return <div>{focusedCharacterResult.message}</div>;
-  const { combatantProperties } = focusedCharacterResult;
+  const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+  const { combatantProperties } = focusedCharacter;
   const { abilityProperties } = combatantProperties;
   const actionStateOption = abilityProperties.ownedActions[actionName];
   const selectedLevelOption =
-    focusedCharacterResult.getTargetingProperties().getSelectedActionAndRank()?.rank || 1;
+    focusedCharacter.getTargetingProperties().getSelectedActionAndRank()?.rank || 1;
 
   const inCombat = party.combatantManager.monstersArePresent();
 
   const action = COMBAT_ACTIONS[actionName];
   const costs =
-    action.costProperties.getResourceCosts(focusedCharacterResult, inCombat, selectedLevelOption) ||
-    {};
+    action.costProperties.getResourceCosts(focusedCharacter, inCombat, selectedLevelOption) || {};
   const unmetCosts = costs ? getUnmetCostResourceTypes(combatantProperties, costs) : [];
   const { usabilityContext } = action.targetingProperties;
 

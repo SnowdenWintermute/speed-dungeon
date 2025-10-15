@@ -92,9 +92,7 @@ export class ConsideringCombatActionMenuState extends ActionMenuState {
         useGameStore.getState().mutateState((state) => {
           const partyOption = getCurrentParty(state, state.username || "");
           if (partyOption) {
-            const focusedCharacter = partyOption.combatantManager.getExpectedCombatant(
-              state.focusedCharacterId
-            );
+            const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
             focusedCharacter.getTargetingProperties().setSelectedActionAndRank(null);
             InputLock.lockInput(partyOption.inputLock);
           }

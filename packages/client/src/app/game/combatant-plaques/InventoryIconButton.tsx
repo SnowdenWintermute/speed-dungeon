@@ -4,8 +4,6 @@ import { useGameStore } from "@/stores/game-store";
 import { INVENTORY_DEFAULT_CAPACITY } from "@speed-dungeon/common";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
-import { MenuStateType } from "../ActionMenu/menu-state/menu-state-type";
 import { observer } from "mobx-react-lite";
 import { InventoryItemsMenuState } from "../ActionMenu/menu-state/inventory-items";
 

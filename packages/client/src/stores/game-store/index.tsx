@@ -14,7 +14,6 @@ import {
 import { MutateState } from "../mutate-state";
 import { getActiveCombatant } from "@/utils/getActiveCombatant";
 import getParty from "@/utils/getParty";
-import { getFocusedCharacter } from "@/utils/getFocusedCharacter";
 import getCurrentParty from "@/utils/getCurrentParty";
 
 export class GameState {
@@ -24,7 +23,6 @@ export class GameState {
 
   /** Unique name which characters may list as their controller */
   username: null | string = null;
-  focusedCharacterId: string = "";
 
   rerenderForcer: number = 0;
 
@@ -44,9 +42,6 @@ export class GameState {
   };
   hasGame: () => boolean = () => {
     return this.get().game ? true : false;
-  };
-  getFocusedCharacter: () => Error | Combatant = () => {
-    return getFocusedCharacter();
   };
   getCharacter: (characterId: string) => Error | Combatant = (characterId: string) => {
     const partyResult = this.getParty();
