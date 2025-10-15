@@ -12,6 +12,7 @@ import { CharacterModel } from ".";
 import { AdventuringParty, InputLock, iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import { CharacterModelPartCategory } from "./modular-character-parts-model-manager/modular-character-parts";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export class HighlightManager {
   private originalPartMaterialColors: Partial<
@@ -130,13 +131,16 @@ export class HighlightManager {
         .combatantProperties.isDungeonControlled();
       if (isMonster) return;
 
-      const isTurn =
-        battleOption.turnOrderManager.getFastestActorTurnOrderTracker().getId() ===
-        this.modularCharacter.getCombatant().entityProperties.id;
+      const entityId = this.modularCharacter.getCombatant().getEntityId();
+
+      const fastestActorId = battleOption.turnOrderManager
+        .getFastestActorTurnOrderTracker()
+        .getId();
+      const isTurn = fastestActorId === entityId;
 
       const inputIsLocked = InputLock.isLocked(partyResult.inputLock);
 
-      const isSelectingActionTargets = useGameStore.getState().targetingIndicators.length > 0;
+      const isSelectingActionTargets = AppStore.get().targetIndicatorStore.userHasTargets(entityId);
 
       // if (indicators.length && !this.isHighlighted) {
       if (isTurn && !this.isHighlighted && !inputIsLocked && !isSelectingActionTargets) {

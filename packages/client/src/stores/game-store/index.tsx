@@ -16,8 +16,6 @@ import { getActiveCombatant } from "@/utils/getActiveCombatant";
 import getParty from "@/utils/getParty";
 import { getFocusedCharacter } from "@/utils/getFocusedCharacter";
 import getCurrentParty from "@/utils/getCurrentParty";
-import { TargetIndicator } from "@/app/3d-world/scene-entities/character-models/target-indicator-manager";
-import { GameLogMessage } from "@/mobx-stores/game-event-notifications/game-log-messages";
 
 export class GameState {
   [immerable] = true;
@@ -28,9 +26,6 @@ export class GameState {
   username: null | string = null;
   focusedCharacterId: string = "";
   combatantsWithPendingCraftActions: Partial<Record<EntityId, boolean>> = {};
-  targetingIndicators: TargetIndicator[] = [];
-
-  gameLogMessages: GameLogMessage[] = [];
 
   itemThumbnails: { [itemId: string]: string } = {};
   combatantPortraits: { [combatantId: EntityId]: string } = {};

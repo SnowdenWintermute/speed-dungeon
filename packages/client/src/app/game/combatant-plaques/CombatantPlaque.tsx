@@ -2,7 +2,7 @@ import { useGameStore } from "@/stores/game-store";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import getGameAndParty from "@/utils/getGameAndParty";
 import React, { useEffect, useRef, useState } from "react";
-import TargetingIndicators from "./TargetingIndicators";
+import { TargetingIndicators } from "./TargetingIndicators";
 import UnspentAttributesButton from "../UnspentAttributesButton";
 import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import CombatantInfoButton from "./CombatantInfoButton";
@@ -113,9 +113,6 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
   const shouldDisplayActionPoints =
     battleOption !== null &&
     battleOption.turnOrderManager.combatantIsFirstInTurnOrder(combatant.entityProperties.id);
-
-  const indicators = useGameStore().targetingIndicators;
-  const targetedBy = indicators.filter((indicator) => indicator.targetId === entityId);
 
   return (
     <div className="">

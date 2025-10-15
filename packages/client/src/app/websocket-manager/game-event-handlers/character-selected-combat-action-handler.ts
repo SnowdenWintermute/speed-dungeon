@@ -9,7 +9,6 @@ import {
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { ConsideringCombatActionMenuState } from "@/app/game/ActionMenu/menu-state/considering-combat-action";
-import { synchronizeTargetingIndicators } from "./synchronize-targeting-indicators";
 import { ActionAndRank } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
 
@@ -58,10 +57,9 @@ export function characterSelectedCombatActionHandler(
       const actionName =
         selectedActionAndRank?.actionName === undefined ? null : selectedActionAndRank.actionName;
 
-      synchronizeTargetingIndicators(
-        gameState,
+      AppStore.get().targetIndicatorStore.synchronize(
         actionName,
-        character.entityProperties.id,
+        character.getEntityId(),
         targetIds || []
       );
 

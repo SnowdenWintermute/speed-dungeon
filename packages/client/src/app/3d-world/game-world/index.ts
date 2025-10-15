@@ -26,6 +26,7 @@ import pixelationShader from "./pixelationNodeMaterial.json";
 import { ReplayTreeProcessorManager } from "./replay-tree-manager";
 import { ActionEntityModelManager } from "../scene-entities/action-entity-models";
 import { fillDynamicTextureWithSvg } from "@/utils";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export const LAYER_MASK_1 = 0x10000000;
 export const LAYER_MASK_ALL = 0xffffffff;
@@ -58,6 +59,8 @@ export class GameWorld {
     public canvas: HTMLCanvasElement,
     debugRef: React.RefObject<HTMLUListElement | null>
   ) {
+    AppStore.get().targetIndicatorStore.initialize(this);
+
     // this.imageCreatorEngine = new Engine(imageCreatorCanvas, false);
     // this.imageCreatorScene = createImageCreatorScene(this.imageCreatorEngine);
 

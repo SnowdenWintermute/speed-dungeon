@@ -4,7 +4,6 @@ import { gameMessageActionCommandHandler } from "./game-message";
 import { removeClientPlayerFromGame } from "./remove-client-player-from-game";
 import { getGameWorld } from "../3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
-import { synchronizeTargetingIndicators } from "../websocket-manager/game-event-handlers/synchronize-targeting-indicators";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "../game/ActionMenu/menu-state/menu-state-type";
 
@@ -16,7 +15,7 @@ export class ClientActionCommandReceiver implements ActionCommandReceiver {
         const { actionMenuStore } = AppStore.get();
 
         useGameStore.getState().mutateState((state) => {
-          synchronizeTargetingIndicators(state, null, payload.actionUserId, []);
+          AppStore.get().targetIndicatorStore.clearUserTargets(payload.actionUserId);
 
           const playerResult = state.getPlayer();
           if (playerResult instanceof Error) throw playerResult;

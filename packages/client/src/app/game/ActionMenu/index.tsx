@@ -67,6 +67,8 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
     }
   }, [currentMenu.type, numberOfNumberedButtons]);
 
+  console.log("rendering ActionMenu, inputLocked:", inputLocked);
+
   if (inputLocked) return <div />;
 
   let selectedActionDisplay = <></>;

@@ -14,6 +14,7 @@ import { GameUpdateTracker } from "./game-update-tracker";
 export async function actionCompletionGameUpdateHandler(
   update: GameUpdateTracker<ActionCompletionUpdateCommand>
 ) {
+  console.log("update:", update);
   if (update.command.endActiveCombatantTurn) {
     useGameStore.getState().mutateState((state) => {
       const battleId = state.getCurrentBattleId();

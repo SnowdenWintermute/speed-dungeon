@@ -8,7 +8,7 @@ import {
   TargetingCalculator,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
-import { synchronizeTargetingIndicators } from "./synchronize-targeting-indicators";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export function characterCycledTargetsHandler(
   characterId: string,
@@ -48,10 +48,9 @@ export function characterCycledTargetsHandler(
       );
       if (targetIdsResult instanceof Error) return targetIdsResult;
 
-      synchronizeTargetingIndicators(
-        gameState,
+      AppStore.get().targetIndicatorStore.synchronize(
         actionName,
-        character.entityProperties.id,
+        character.getEntityId(),
         targetIdsResult || []
       );
     }

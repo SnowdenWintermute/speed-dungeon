@@ -16,7 +16,6 @@ import { setUpSavedCharacterEventListeners } from "@/app/websocket-manager/saved
 import getCurrentParty from "@/utils/getCurrentParty";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
-import { synchronizeTargetingIndicators } from "@/app/websocket-manager/game-event-handlers/synchronize-targeting-indicators";
 import { AppStore } from "@/mobx-stores/app-store";
 
 const socketAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
@@ -77,7 +76,8 @@ websocketConnection.on(ServerToClientEvent.ErrorMessage, (message) => {
       );
       if (focusedCharacterOption !== undefined) {
         focusedCharacterOption.combatantProperties.targetingProperties.clear();
-        synchronizeTargetingIndicators(state, null, state.focusedCharacterId, []);
+
+        AppStore.get().targetIndicatorStore.clearUserTargets(state.focusedCharacterId);
       }
     }
   });

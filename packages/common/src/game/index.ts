@@ -20,7 +20,7 @@ import { makeAutoObservable } from "mobx";
 import { plainToInstance } from "class-transformer";
 
 export class SpeedDungeonGame {
-  // [immerable] = true;
+  [immerable] = true;
   players: { [username: string]: SpeedDungeonPlayer } = {};
   playerCapacity: number | null = null;
   playersReadied: string[] = [];

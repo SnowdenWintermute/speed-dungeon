@@ -1,12 +1,10 @@
 import { ActionUserContext, Combatant, EntityId, SpeedDungeonGame } from "@speed-dungeon/common";
-import { TargetIndicator } from "@/app/3d-world/scene-entities/character-models/target-indicator-manager";
 
 export class AppStoreManager {
   game: null | SpeedDungeonGame = null;
 
   // Misc Game UI
   username: null | string = null;
-  targetingIndicators: TargetIndicator[] = [];
   combatantsWithPendingCraftActions: Partial<Record<EntityId, boolean>> = {};
 
   authFormEmailField: string = "";
