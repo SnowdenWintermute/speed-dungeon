@@ -1,4 +1,3 @@
-import { useGameStore } from "@/stores/game-store";
 import { ActionMenuState } from ".";
 import {
   CRAFTING_ACTION_DESCRIPTIONS,
@@ -11,8 +10,6 @@ import {
   getCraftingActionPrice,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
-import { setAlert } from "@/app/components/alerts";
-import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import ShardsIcon from "../../../../../public/img/game-ui-icons/shards.svg";
@@ -42,22 +39,11 @@ export class CraftingItemMenuState extends ActionMenuState {
     );
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
 
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult.message);
-      return toReturn;
-    }
+    const { gameStore, actionMenuStore } = AppStore.get();
+    const focusedCharacterResult = gameStore.getExpectedFocusedCharacter();
 
-    const characterId = focusedCharacterResult.entityProperties.id;
-    const userControlsThisCharacter = clientUserControlsCombatant(characterId);
+    const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
     const itemId = this.item.entityProperties.id;
-    const partyResult = useGameStore.getState().getParty();
-    if (partyResult instanceof Error) {
-      setAlert(partyResult);
-      return toReturn;
-    }
-
-    const { actionMenuStore } = AppStore.get();
 
     for (const craftingAction of iterateNumericEnum(CraftingAction)) {
       const actionPrice = getCraftingActionPrice(craftingAction, this.item);
@@ -90,12 +76,15 @@ export class CraftingItemMenuState extends ActionMenuState {
           });
         }
       );
+
+      const party = gameStore.getExpectedParty();
+
       button.shouldBeDisabled =
         !userControlsThisCharacter ||
         actionPrice > focusedCharacterResult.combatantProperties.inventory.shards ||
         CRAFTING_ACTION_DISABLED_CONDITIONS[craftingAction](
           this.item,
-          partyResult.dungeonExplorationManager.getCurrentFloor()
+          party.dungeonExplorationManager.getCurrentFloor()
         ) ||
         actionMenuStore.characterIsCrafting(focusedCharacterResult.getEntityId());
       toReturn[ActionButtonCategory.Numbered].push(button);

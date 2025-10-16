@@ -1,4 +1,3 @@
-import { useGameStore } from "@/stores/game-store";
 import { ActionMenuState } from ".";
 import {
   CONSUMABLE_TEXT_COLOR,
@@ -14,7 +13,6 @@ import {
   getSkillBookName,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import { setAlert } from "@/app/components/alerts";
 import { createPageButtons } from "./create-page-buttons";
 import { Color4 } from "@babylonjs/core";
 import cloneDeep from "lodash.clonedeep";
@@ -73,18 +71,6 @@ export abstract class ItemsMenuState extends ActionMenuState {
     );
     closeInventory.dedicatedKeys = [...this.closeMenuTextAndHotkeys.hotkeys, "Escape"];
     toReturn[ActionButtonCategory.Top].push(closeInventory);
-
-    let focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult);
-      return toReturn;
-    }
-
-    const partyResult = useGameStore.getState().getParty();
-    if (partyResult instanceof Error) {
-      setAlert(partyResult);
-      return toReturn;
-    }
 
     const buttonTextPrefix = this.type === MenuStateType.ItemsOnGround ? "" : "";
 
@@ -163,10 +149,11 @@ export abstract class ItemsMenuState extends ActionMenuState {
           ? "scale-[300%]"
           : "scale-[200%] -translate-x-1/2 p-[2px]";
 
+      const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
       const requirementsMet =
         Item.requirementsMet(
           item,
-          CombatantProperties.getTotalAttributes(focusedCharacterResult.combatantProperties)
+          CombatantProperties.getTotalAttributes(focusedCharacter.combatantProperties)
         ) && !(item instanceof Equipment && Equipment.isBroken(item));
 
       let containerExtraStyles = "";

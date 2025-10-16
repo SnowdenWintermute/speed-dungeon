@@ -122,7 +122,10 @@ export const DebugText = observer(
       };
     }, [hotkeysDisabled]);
 
-    const partyResult = useGameStore.getState().getParty();
+    const partyOption = AppStore.get().gameStore.getPartyOption();
+    const inputLockStatus = partyOption
+      ? JSON.stringify(InputLock.isLocked(partyOption.inputLock))
+      : "no party";
 
     const alternateClickKeyHeld = inputStore.getKeyIsHeld(ModifierKey.AlternateClick);
     const modKeyHeld = inputStore.getKeyIsHeld(ModifierKey.Mod);
@@ -152,11 +155,7 @@ export const DebugText = observer(
           <li>Alternate Click Function Key Held: {JSON.stringify(alternateClickKeyHeld)}</li>
           <li>Shift Held: {JSON.stringify(modKeyHeld)}</li>
           <li>Input Locked</li>
-          <li>
-            {!(partyResult instanceof Error)
-              ? JSON.stringify(InputLock.isLocked(partyResult.inputLock))
-              : "error"}
-          </li>
+          <li>{inputLockStatus}</li>
         </ul>
         <ul className="flex flex-wrap bg-slate-700 w-full">
           <li key="ayy" className="border p-2 w-full mb-2">

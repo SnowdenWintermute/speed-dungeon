@@ -1,8 +1,5 @@
-import { useGameStore } from "@/stores/game-store";
 import { ActionMenuState } from ".";
-import { setAlert } from "@/app/components/alerts";
 import { createPageButtons } from "./create-page-buttons";
-import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import {
   CONSUMABLE_TEXT_COLOR,
   CONSUMABLE_TYPE_STRINGS,
@@ -26,21 +23,9 @@ export class SelectBookToTradeForMenuState extends ActionMenuState {
 
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
-    const { focusStore } = AppStore.get();
+    const { focusStore, gameStore } = AppStore.get();
 
-    const partyResult = useGameStore.getState().getParty();
-    if (partyResult instanceof Error) {
-      setAlert(partyResult);
-      return toReturn;
-    }
-
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult.message);
-      return toReturn;
-    }
-    const characterId = focusedCharacterResult.entityProperties.id;
-    const userControlsThisCharacter = clientUserControlsCombatant(characterId);
+    const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
 
     toReturn[ActionButtonCategory.Top].push(
       createCancelButton([], () => {

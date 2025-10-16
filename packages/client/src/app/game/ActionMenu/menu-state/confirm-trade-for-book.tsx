@@ -11,7 +11,6 @@ import {
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
-import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { createCancelButton } from "./common-buttons/cancel";
 import Divider from "@/app/components/atoms/Divider";
@@ -48,15 +47,11 @@ export class ConfirmTradeForBookMenuState extends ActionMenuState {
   }
 
   getCenterInfoDisplayOption() {
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) return;
+    const { gameStore } = AppStore.get();
+    const focusedCharacter = gameStore.getExpectedFocusedCharacter();
 
-    const partyResult = useGameStore.getState().getParty();
-    if (partyResult instanceof Error) {
-      setAlert(partyResult);
-      return;
-    }
-    const vendingMachineLevel = partyResult.dungeonExplorationManager.getCurrentFloor();
+    const party = gameStore.getExpectedParty();
+    const vendingMachineLevel = party.dungeonExplorationManager.getCurrentFloor();
     const bookLevel = getBookLevelForTrade(this.item.itemLevel, vendingMachineLevel);
 
     return (
@@ -76,7 +71,7 @@ export class ConfirmTradeForBookMenuState extends ActionMenuState {
         <HotkeyButton
           onClick={() =>
             handleConfirmTrade(
-              focusedCharacterResult.entityProperties.id,
+              focusedCharacter.getEntityId(),
               this.item.entityProperties.id,
               this.bookType
             )
@@ -102,20 +97,15 @@ export class ConfirmTradeForBookMenuState extends ActionMenuState {
       })
     );
 
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult.message);
-      return toReturn;
-    }
-
-    const characterId = focusedCharacterResult.entityProperties.id;
-    const userControlsThisCharacter = clientUserControlsCombatant(characterId);
+    const { gameStore } = AppStore.get();
+    const focusedCharacterId = gameStore.getExpectedFocusedCharacterId();
+    const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
     const itemId = this.item.entityProperties.id;
 
     const confirmButton = new ActionMenuButtonProperties(
       () => CONFIRM_SHARD_TEXT,
       CONFIRM_SHARD_TEXT,
-      () => handleConfirmTrade(focusedCharacterResult.entityProperties.id, itemId, this.bookType)
+      () => handleConfirmTrade(focusedCharacterId, itemId, this.bookType)
     );
 
     confirmButton.dedicatedKeys = ["Enter", confirmHotkey];

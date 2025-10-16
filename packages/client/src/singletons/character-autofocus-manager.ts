@@ -6,11 +6,9 @@ import { AppStore } from "@/mobx-stores/app-store";
 export class CharacterAutoFocusManager {
   constructor() {}
 
-  handleBattleStart(gameState: GameState, firstActiveTracker: TurnTracker) {
+  handleBattleStart(firstActiveTracker: TurnTracker) {
     if (firstActiveTracker instanceof CombatantTurnTracker) {
-      const partyResult = gameState.getParty();
-      if (partyResult instanceof Error) return console.error(partyResult.message);
-      const party = partyResult;
+      const party = AppStore.get().gameStore.getExpectedParty();
 
       const { combatantManager } = party;
       const activeTrackerId = firstActiveTracker.getTaggedIdOfTrackedEntity().combatantId;
@@ -45,10 +43,8 @@ export class CharacterAutoFocusManager {
     gameStore.setFocusedCharacter(firstOwnedCharacterId);
   }
 
-  updateFocusedCharacterOnNewTurnOrder(gameState: GameState, newlyActiveTracker: TurnTracker) {
-    const partyResult = gameState.getParty();
-    if (partyResult instanceof Error) return console.error(partyResult.message);
-    const party = partyResult;
+  updateFocusedCharacterOnNewTurnOrder(newlyActiveTracker: TurnTracker) {
+    const party = AppStore.get().gameStore.getExpectedParty();
 
     // if viewing menu other than ItemsOnGround, do nothing
     const { actionMenuStore } = AppStore.get();
@@ -65,7 +61,9 @@ export class CharacterAutoFocusManager {
         .combatantProperties.isPlayerControlled();
 
       if (newlyActiveTrackerIsPlayerControlled) {
-        gameState.focusedCharacterId = newlyActiveTracker.getTaggedIdOfTrackedEntity().combatantId;
+        AppStore.get().gameStore.setFocusedCharacter(
+          newlyActiveTracker.getTaggedIdOfTrackedEntity().combatantId
+        );
       }
     }
   }

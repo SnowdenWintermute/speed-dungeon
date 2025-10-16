@@ -1,4 +1,5 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { AppStore } from "@/mobx-stores/app-store";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { useGameStore } from "@/stores/game-store";
 import {
@@ -10,6 +11,7 @@ import {
   CombatantActionState,
   getUnmetCostResourceTypes,
 } from "@speed-dungeon/common";
+import { observer } from "mobx-react-lite";
 import React from "react";
 
 interface Props {
@@ -20,21 +22,20 @@ interface Props {
   };
 }
 
-export default function ActionDetailsTitleBar(props: Props) {
+export const ActionDetailsTitleBar = observer((props: Props) => {
   const { actionName, actionStateAndSelectedLevel } = props;
   const actionStateOption = actionStateAndSelectedLevel?.actionStateOption;
   const selectedLevelOption = actionStateAndSelectedLevel?.selectedLevelOption;
   const action = COMBAT_ACTIONS[actionName];
 
-  const focusedCharacterId = useGameStore.getState().focusedCharacterId;
-  const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-  const inBattle = useGameStore.getState().getCurrentBattleId();
+  const { gameStore } = AppStore.get();
+  const focusedCharacter = gameStore.getExpectedFocusedCharacter();
 
-  if (focusedCharacterResult instanceof Error) return <>{focusedCharacterResult}</>;
+  const inBattle = useGameStore.getState().getCurrentBattleId();
 
   function handleSelectActionLevel(level: number) {
     websocketConnection.emit(ClientToServerEvent.SelectCombatActionLevel, {
-      characterId: focusedCharacterId,
+      characterId: focusedCharacter.getEntityId(),
       actionLevel: level,
     });
   }
@@ -51,12 +52,12 @@ export default function ActionDetailsTitleBar(props: Props) {
                 {ArrayUtils.createFilledWithSequentialNumbers(actionStateOption?.level || 0, 1).map(
                   (item) => {
                     const costs = action.costProperties.getResourceCosts(
-                      focusedCharacterResult,
+                      focusedCharacter,
                       !!inBattle,
                       item
                     );
                     const unmet = getUnmetCostResourceTypes(
-                      focusedCharacterResult.combatantProperties,
+                      focusedCharacter.combatantProperties,
                       costs || {}
                     );
 
@@ -88,4 +89,4 @@ export default function ActionDetailsTitleBar(props: Props) {
       <div className="mb-1 mt-1 h-[1px] bg-slate-400" />
     </div>
   );
-}
+});

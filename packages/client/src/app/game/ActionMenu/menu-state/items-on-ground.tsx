@@ -1,14 +1,13 @@
 import { ItemsMenuState } from "./items";
-import { useGameStore } from "@/stores/game-store";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { ClientToServerEvent, Inventory, Item } from "@speed-dungeon/common";
 import { takeItem } from "../../ItemsOnGround/ItemOnGround";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
-import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
 import { ActionButtonCategory } from "./action-buttons-by-category";
+import { AppStore } from "@/mobx-stores/app-store";
 
 const takeAllItemsHotkey = HOTKEYS.MAIN_2;
 
@@ -18,15 +17,14 @@ export class ItemsOnGroundMenuState extends ItemsMenuState {
       () => `Take items (${letterFromKeyCode(takeAllItemsHotkey)})`,
       `Take items (${letterFromKeyCode(takeAllItemsHotkey)})`,
       () => {
-        let itemIds: string[] = [];
-        const partyResult = useGameStore.getState().getParty();
-        if (!(partyResult instanceof Error)) {
-          itemIds = Inventory.getItems(partyResult.currentRoom.inventory).map(
-            (item) => item.entityProperties.id
-          );
-        }
+        const { gameStore } = AppStore.get();
+        const focusedCharacterId = gameStore.getExpectedFocusedCharacterId();
+        const party = gameStore.getExpectedParty();
+        const itemIds = Inventory.getItems(party.currentRoom.inventory).map(
+          (item) => item.entityProperties.id
+        );
         websocketConnection.emit(ClientToServerEvent.PickUpItems, {
-          characterId: useGameStore.getState().focusedCharacterId,
+          characterId: focusedCharacterId,
           itemIds,
         });
       }
@@ -38,17 +36,15 @@ export class ItemsOnGroundMenuState extends ItemsMenuState {
       { text: "Go Back", hotkeys: [] },
       takeItem,
       () => {
-        const partyResult = useGameStore.getState().getParty();
-        if (partyResult instanceof Error) return [];
-        return Inventory.getItems(partyResult.currentRoom.inventory);
+        const party = AppStore.get().gameStore.getExpectedParty();
+        return Inventory.getItems(party.currentRoom.inventory);
       },
       {
         extraButtons: {
           [ActionButtonCategory.Top]: [setInventoryOpen, takeAllButton],
         },
         shouldBeDisabled: (_item: Item) => {
-          const focusedCharacterId = useGameStore.getState().focusedCharacterId;
-          return !clientUserControlsCombatant(focusedCharacterId);
+          return !AppStore.get().gameStore.getExpectedFocusedCharacterId();
         },
       }
     );

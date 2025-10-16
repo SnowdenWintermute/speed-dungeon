@@ -1,8 +1,5 @@
-import { useGameStore } from "@/stores/game-store";
 import { ActionMenuState } from ".";
-import { setAlert } from "@/app/components/alerts";
 import { createPageButtons } from "./create-page-buttons";
-import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import {
   CONSUMABLE_TEXT_COLOR,
   CONSUMABLE_TYPE_STRINGS,
@@ -30,22 +27,13 @@ export class PurchaseItemsMenuState extends ActionMenuState {
   }
 
   getButtonProperties(): ActionButtonsByCategory {
-    const { focusStore } = AppStore.get();
+    const { focusStore, gameStore } = AppStore.get();
     const toReturn = new ActionButtonsByCategory();
 
-    const partyResult = useGameStore.getState().getParty();
-    if (partyResult instanceof Error) {
-      setAlert(partyResult);
-      return toReturn;
-    }
+    const focusedCharacter = gameStore.getExpectedFocusedCharacter();
+    const party = gameStore.getExpectedParty();
 
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult.message);
-      return toReturn;
-    }
-    const characterId = focusedCharacterResult.entityProperties.id;
-    const userControlsThisCharacter = clientUserControlsCombatant(characterId);
+    const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
 
     toReturn[ActionButtonCategory.Top].push(
       createCancelButton([], () => {
@@ -57,7 +45,7 @@ export class PurchaseItemsMenuState extends ActionMenuState {
     const purchaseableItems = [ConsumableType.HpAutoinjector, ConsumableType.MpAutoinjector];
     for (const consumableType of purchaseableItems) {
       const price = getConsumableShardPrice(
-        partyResult.dungeonExplorationManager.getCurrentFloor(),
+        party.dungeonExplorationManager.getCurrentFloor(),
         consumableType
       );
 
@@ -87,7 +75,7 @@ export class PurchaseItemsMenuState extends ActionMenuState {
               </div>
               <PriceDisplay
                 price={price}
-                shardsOwned={focusedCharacterResult.combatantProperties.inventory.shards}
+                shardsOwned={focusedCharacter.combatantProperties.inventory.shards}
               />
             </div>
           </ItemButtonBody>
@@ -95,14 +83,16 @@ export class PurchaseItemsMenuState extends ActionMenuState {
         `${CONSUMABLE_TYPE_STRINGS[consumableType]} (${price} shards)`,
         () => {
           websocketConnection.emit(ClientToServerEvent.PurchaseItem, {
-            characterId: focusedCharacterResult.entityProperties.id,
+            characterId: focusedCharacter.getEntityId(),
             consumableType,
           });
         }
       );
-      purchaseItemButton.shouldBeDisabled =
-        !userControlsThisCharacter ||
-        focusedCharacterResult.combatantProperties.inventory.shards < (price || 0);
+
+      const notEnoughShards = focusedCharacter.combatantProperties.inventory.shards < (price || 0);
+
+      purchaseItemButton.shouldBeDisabled = !userControlsThisCharacter || notEnoughShards;
+
       toReturn[ActionButtonCategory.Numbered].push(purchaseItemButton);
     }
 

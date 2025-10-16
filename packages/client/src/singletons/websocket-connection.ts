@@ -13,7 +13,6 @@ import { setUpBasicLobbyEventHandlers } from "@/app/websocket-manager/basic-lobb
 import { setUpGameLobbyEventHandlers } from "@/app/websocket-manager/lobby-event-handlers";
 import { setUpGameEventHandlers } from "@/app/websocket-manager/game-event-handlers";
 import { setUpSavedCharacterEventListeners } from "@/app/websocket-manager/saved-character-event-handlers";
-import getCurrentParty from "@/utils/getCurrentParty";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { AppStore } from "@/mobx-stores/app-store";
@@ -67,18 +66,16 @@ websocketConnection.on(ServerToClientEvent.ErrorMessage, (message) => {
   // this is a quick and dirty fix until we have a way to associate errors
   // with certain actions, which would also be good to associate responses with
   // certain actions so we can show the buttons in a loading state
-  useGameStore.getState().mutateState((state) => {
-    const partyOption = getCurrentParty(state, state.username || "");
-    if (partyOption) {
-      InputLock.unlockInput(partyOption.inputLock);
-      const focusedCharacterOption = AppStore.get().gameStore.getFocusedCharacterOption();
-      if (focusedCharacterOption !== undefined) {
-        focusedCharacterOption.combatantProperties.targetingProperties.clear();
+  const partyOption = AppStore.get().gameStore.getPartyOption();
+  if (partyOption) {
+    InputLock.unlockInput(partyOption.inputLock);
+    const focusedCharacterOption = AppStore.get().gameStore.getFocusedCharacterOption();
+    if (focusedCharacterOption !== undefined) {
+      focusedCharacterOption.combatantProperties.targetingProperties.clear();
 
-        AppStore.get().targetIndicatorStore.clearUserTargets(focusedCharacterOption.getEntityId());
-      }
+      AppStore.get().targetIndicatorStore.clearUserTargets(focusedCharacterOption.getEntityId());
     }
-  });
+  }
 });
 
 setUpBasicLobbyEventHandlers(websocketConnection);

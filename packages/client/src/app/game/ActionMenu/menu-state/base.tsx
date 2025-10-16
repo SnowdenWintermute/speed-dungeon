@@ -14,10 +14,8 @@ import {
   ActionAndRank,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { setAlert } from "@/app/components/alerts";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import getGameAndParty from "@/utils/getGameAndParty";
-import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import {
   setInventoryOpen,
@@ -43,25 +41,18 @@ export class BaseMenuState extends ActionMenuState {
   }
 
   getButtonProperties(): ActionButtonsByCategory {
+    const { gameStore } = AppStore.get();
     const toReturn = new ActionButtonsByCategory();
 
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
 
-    let focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult);
-      return toReturn;
-    }
+    const focusedCharacterResult = gameStore.getExpectedFocusedCharacter();
     const { combatantProperties, entityProperties } = focusedCharacterResult;
     const characterId = entityProperties.id;
 
     toReturn[ActionButtonCategory.Top].push(setViewingAbilityTreeAsFreshStack);
 
-    const partyResult = useGameStore.getState().getParty();
-    if (partyResult instanceof Error) {
-      setAlert(partyResult);
-      return toReturn;
-    }
+    const partyResult = gameStore.getExpectedParty();
 
     if (combatantProperties.unspentAttributePoints > 0) {
       const hiddenButtonForUnspentAttributesHotkey = new ActionMenuButtonProperties(
@@ -184,7 +175,7 @@ export class BaseMenuState extends ActionMenuState {
       let unmetCosts = [];
       if (costs) unmetCosts = getUnmetCostResourceTypes(combatantProperties, costs);
 
-      const userControlsThisCharacter = clientUserControlsCombatant(characterId);
+      const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
 
       const isWearingRequiredEquipment = CombatantProperties.isWearingRequiredEquipmentToUseAction(
         combatantProperties,

@@ -3,7 +3,6 @@ import { ActionMenuState } from ".";
 import { setAlert } from "@/app/components/alerts";
 import { createPageButtons } from "./create-page-buttons";
 import { HOTKEYS } from "@/hotkeys";
-import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { createCancelButton } from "./common-buttons/cancel";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { AppStore } from "@/mobx-stores/app-store";
@@ -19,16 +18,10 @@ export class OperatingVendingMachineMenuState extends ActionMenuState {
     super(MenuStateType.OperatingVendingMachine, 1);
   }
   getButtonProperties(): ActionButtonsByCategory {
-    const { actionMenuStore } = AppStore.get();
+    const { actionMenuStore, gameStore } = AppStore.get();
     const toReturn = new ActionButtonsByCategory();
 
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult.message);
-      return toReturn;
-    }
-    const characterId = focusedCharacterResult.entityProperties.id;
-    const userControlsThisCharacter = clientUserControlsCombatant(characterId);
+    const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
 
     toReturn[ActionButtonCategory.Top].push(createCancelButton([]), setInventoryOpen);
 
@@ -73,12 +66,8 @@ export class OperatingVendingMachineMenuState extends ActionMenuState {
       }
     );
 
-    const partyResult = useGameStore.getState().getParty();
-    if (partyResult instanceof Error) {
-      setAlert(partyResult);
-      return toReturn;
-    }
-    const vendingMachineLevel = partyResult.dungeonExplorationManager.getCurrentFloor();
+    const party = AppStore.get().gameStore.getExpectedParty();
+    const vendingMachineLevel = party.dungeonExplorationManager.getCurrentFloor();
     const vmLevelLimiter = Math.floor(vendingMachineLevel / 2);
 
     selectBooksButton.shouldBeDisabled = vmLevelLimiter < 1;

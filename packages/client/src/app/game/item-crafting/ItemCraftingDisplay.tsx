@@ -1,4 +1,3 @@
-import { useGameStore } from "@/stores/game-store";
 import React from "react";
 import { CraftingItemMenuState } from "../ActionMenu/menu-state/crafting-item";
 import { ItemDetails } from "../detailables/ItemDetails";
@@ -13,18 +12,15 @@ export const ItemCraftDisplay = observer(() => {
   const { focusStore, actionMenuStore } = AppStore.get();
   const currentMenu = actionMenuStore.getCurrentMenu();
   const { hovered: hoveredEntity } = focusStore.detailable.get();
-  const partyResult = useGameStore.getState().getParty();
-  if (
-    !(currentMenu instanceof CraftingItemMenuState) ||
-    partyResult instanceof Error ||
-    hoveredEntity
-  ) {
+
+  if (!(currentMenu instanceof CraftingItemMenuState) || hoveredEntity) {
     return <></>;
   }
 
   const equipment = currentMenu.item;
 
-  const currentFloor = partyResult.dungeonExplorationManager.getCurrentFloor();
+  const party = AppStore.get().gameStore.getExpectedParty();
+  const currentFloor = party.dungeonExplorationManager.getCurrentFloor();
 
   const ilvlLimited = equipment.itemLevel > currentFloor;
 

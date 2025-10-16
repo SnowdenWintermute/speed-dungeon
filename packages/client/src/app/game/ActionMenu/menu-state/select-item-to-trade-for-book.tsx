@@ -5,8 +5,6 @@ import {
   Item,
   getOwnedAcceptedItemsForBookTrade,
 } from "@speed-dungeon/common";
-import { useGameStore } from "@/stores/game-store";
-import { setAlert } from "@/app/components/alerts";
 import { ReactNode } from "react";
 import { ConfirmTradeForBookMenuState } from "./confirm-trade-for-book";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
@@ -30,14 +28,9 @@ export class SelectItemToTradeForBookMenuState extends ItemsMenuState {
       { extraButtons: { [ActionButtonCategory.Top]: [setInventoryOpen] } }
     );
 
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) return;
-    const { combatantProperties } = focusedCharacterResult;
-    const partyResult = useGameStore.getState().getParty();
-    if (partyResult instanceof Error) {
-      setAlert(partyResult);
-      return;
-    }
+    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    const { combatantProperties } = focusedCharacter;
+
     this.acceptedItems = getOwnedAcceptedItemsForBookTrade(combatantProperties, this.bookType);
 
     if (this.acceptedItems.length < 1)

@@ -1,4 +1,3 @@
-import { useGameStore } from "@/stores/game-store";
 import { ActionMenuState } from ".";
 import {
   ActionAndRank,
@@ -12,7 +11,6 @@ import {
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
-import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { createCancelButton } from "./common-buttons/cancel";
 import { AppStore } from "@/mobx-stores/app-store";
@@ -43,20 +41,16 @@ export class ConsideringItemMenuState extends ActionMenuState {
       createCancelButton([], () => AppStore.get().focusStore.selectItem(null))
     );
 
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult.message);
-      return toReturn;
-    }
+    const { gameStore } = AppStore.get();
+    const focusedCharacter = gameStore.getExpectedFocusedCharacter();
+    const characterId = focusedCharacter.getEntityId();
 
-    const characterId = focusedCharacterResult.entityProperties.id;
-    const userControlsThisCharacter = clientUserControlsCombatant(characterId);
     const itemId = this.item.entityProperties.id;
 
     const useItemHotkey = HOTKEYS.MAIN_1;
     const useItemLetter = letterFromKeyCode(useItemHotkey);
     const slotItemIsEquippedTo = CombatantProperties.getSlotItemIsEquippedTo(
-      focusedCharacterResult.combatantProperties,
+      focusedCharacter.combatantProperties,
       itemId
     );
 
@@ -145,7 +139,9 @@ export class ConsideringItemMenuState extends ActionMenuState {
     })();
 
     useItemButton.dedicatedKeys = ["Enter", useItemHotkey];
-    useItemButton.shouldBeDisabled = !userControlsThisCharacter;
+
+    const userDoesNotControlCharacter = !gameStore.clientUserControlsFocusedCombatant();
+    useItemButton.shouldBeDisabled = userDoesNotControlCharacter;
     toReturn[ActionButtonCategory.Top].push(useItemButton);
 
     const dropItemButton = new ActionMenuButtonProperties(
@@ -153,7 +149,7 @@ export class ConsideringItemMenuState extends ActionMenuState {
       `Drop (${letterFromKeyCode(dropItemHotkey)})`,
       () => {
         const slotEquipped = CombatantProperties.getSlotItemIsEquippedTo(
-          focusedCharacterResult.combatantProperties,
+          focusedCharacter.combatantProperties,
           itemId
         );
 
@@ -169,7 +165,7 @@ export class ConsideringItemMenuState extends ActionMenuState {
       }
     );
 
-    dropItemButton.shouldBeDisabled = !userControlsThisCharacter;
+    dropItemButton.shouldBeDisabled = userDoesNotControlCharacter;
     dropItemButton.dedicatedKeys = [dropItemHotkey];
     toReturn[ActionButtonCategory.Top].push(dropItemButton);
 

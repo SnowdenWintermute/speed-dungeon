@@ -1,4 +1,3 @@
-import { useGameStore } from "@/stores/game-store";
 import { ActionMenuState } from ".";
 import {
   ClientToServerEvent,
@@ -9,10 +8,8 @@ import {
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
-import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { createCancelButton } from "./common-buttons/cancel";
-import getCurrentParty from "@/utils/getCurrentParty";
 import { AppStore } from "@/mobx-stores/app-store";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
@@ -28,13 +25,11 @@ export class ConsideringCombatActionMenuState extends ActionMenuState {
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult);
-      return toReturn;
-    }
-    const { combatantProperties } = focusedCharacterResult;
-    const characterId = focusedCharacterResult.entityProperties.id;
+    const { gameStore } = AppStore.get();
+
+    const focusedCharacter = gameStore.getExpectedFocusedCharacter();
+    const { combatantProperties } = focusedCharacter;
+    const characterId = focusedCharacter.getEntityId();
 
     const cancelButton = createCancelButton([], () => {
       websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
@@ -83,25 +78,23 @@ export class ConsideringCombatActionMenuState extends ActionMenuState {
           characterId,
         });
 
-        const { focusStore, actionMenuStore } = AppStore.get();
+        const { focusStore, actionMenuStore, gameStore } = AppStore.get();
         focusStore.detailable.clear();
 
         actionMenuStore.clearStack();
         actionMenuStore.getCurrentMenu().goToFirstPage();
 
-        useGameStore.getState().mutateState((state) => {
-          const partyOption = getCurrentParty(state, state.username || "");
-          if (partyOption) {
-            const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
-            focusedCharacter.getTargetingProperties().setSelectedActionAndRank(null);
-            InputLock.lockInput(partyOption.inputLock);
-          }
-        });
+        const partyOption = gameStore.getPartyOption();
+        if (partyOption) {
+          const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+          focusedCharacter.getTargetingProperties().setSelectedActionAndRank(null);
+          InputLock.lockInput(partyOption.inputLock);
+        }
       }
     );
     executeActionButton.dedicatedKeys = ["Enter", executeHotkey];
 
-    const userControlsThisCharacter = clientUserControlsCombatant(characterId);
+    const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
     executeActionButton.shouldBeDisabled = !userControlsThisCharacter;
 
     toReturn[ActionButtonCategory.Top].push(executeActionButton);

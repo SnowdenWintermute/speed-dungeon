@@ -3,8 +3,6 @@ import {
   InputLock,
   NestedNodeReplayEvent,
 } from "@speed-dungeon/common";
-import { useGameStore } from "@/stores/game-store";
-import getCurrentParty from "@/utils/getCurrentParty";
 import { ReplayTreeProcessor } from "./replay-tree-processor";
 import { AppStore } from "@/mobx-stores/app-store";
 
@@ -30,10 +28,8 @@ export class ReplayTreeProcessorManager {
   async enqueueTree(payload: CombatActionReplayTreePayload, onComplete: () => void) {
     this.queue.push({ root: payload.root, onComplete });
 
-    useGameStore.getState().mutateState((state) => {
-      const partyOption = getCurrentParty(state, state.username || "");
-      if (partyOption && !payload.doNotLockInput) InputLock.lockInput(partyOption.inputLock);
-    });
+    const partyOption = AppStore.get().gameStore.getPartyOption();
+    if (partyOption && !payload.doNotLockInput) InputLock.lockInput(partyOption.inputLock);
     AppStore.get().actionMenuStore.clearStack();
   }
 

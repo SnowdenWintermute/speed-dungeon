@@ -1,9 +1,6 @@
-import { useGameStore } from "@/stores/game-store";
 import { ActionMenuState } from ".";
 import { ClientToServerEvent, Item } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { setAlert } from "@/app/components/alerts";
-import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { createCancelButton } from "./common-buttons/cancel";
 import { AppStore } from "@/mobx-stores/app-store";
@@ -39,14 +36,9 @@ export class ConfirmConvertToShardsMenuState extends ActionMenuState {
       })
     );
 
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult.message);
-      return toReturn;
-    }
+    const { gameStore } = AppStore.get();
 
-    const characterId = focusedCharacterResult.entityProperties.id;
-    const userControlsThisCharacter = clientUserControlsCombatant(characterId);
+    const focusedCharacter = gameStore.getExpectedFocusedCharacter();
     const itemId = this.item.entityProperties.id;
 
     const confirmShardButton = new ActionMenuButtonProperties(
@@ -54,7 +46,7 @@ export class ConfirmConvertToShardsMenuState extends ActionMenuState {
       `Convert (${confirmShardLetter})`,
       () => {
         websocketConnection.emit(ClientToServerEvent.ConvertItemsToShards, {
-          characterId,
+          characterId: focusedCharacter.getEntityId(),
           itemIds: [itemId],
         });
         AppStore.get().actionMenuStore.popStack();
@@ -69,7 +61,7 @@ export class ConfirmConvertToShardsMenuState extends ActionMenuState {
     );
 
     confirmShardButton.dedicatedKeys = ["Enter", confirmShardHotkey];
-    confirmShardButton.shouldBeDisabled = !userControlsThisCharacter;
+    confirmShardButton.shouldBeDisabled = !gameStore.clientUserControlsFocusedCombatant();
     toReturn[ActionButtonCategory.Top].push(confirmShardButton);
 
     return toReturn;

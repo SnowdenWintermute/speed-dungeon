@@ -1,6 +1,5 @@
 import { BUTTON_HEIGHT, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
-import React, { ReactNode, useEffect, useLayoutEffect } from "react";
-import { useGameStore } from "@/stores/game-store";
+import React, { ReactNode, useEffect } from "react";
 import ActionDetails from "../detailables/action-details";
 import {
   ConsideringCombatActionMenuState,
@@ -10,7 +9,7 @@ import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicated
 import { NumberedButton } from "./action-menu-buttons/NumberedButton";
 import { COMBATANT_MAX_ACTION_POINTS } from "@speed-dungeon/common";
 import { HOTKEYS } from "@/hotkeys";
-import { BaseMenuState, VIEW_LOOT_BUTTON_TEXT } from "./menu-state/base";
+import { VIEW_LOOT_BUTTON_TEXT } from "./menu-state/base";
 import {
   ConsideringItemMenuState,
   EQUIP_ITEM_BUTTON_TEXT,
@@ -48,7 +47,7 @@ const buttonTitlesToAccent = [
 ];
 
 export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) => {
-  const { focusStore, actionMenuStore } = AppStore.get();
+  const { focusStore, actionMenuStore, gameStore } = AppStore.get();
   const { hoveredItem, detailedItem } = focusStore.getFocusedItems();
   const hoveredAction = actionMenuStore.getHoveredAction();
 
@@ -57,9 +56,8 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
   const buttonProperties = currentMenu.getButtonProperties();
   const numberOfNumberedButtons = buttonProperties[ActionButtonCategory.Numbered].length;
   const viewingCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
-  const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-  const partyResult = useGameStore.getState().getParty();
-  if (focusedCharacterResult instanceof Error || partyResult instanceof Error) return <></>;
+  const focusedCharacter = gameStore.getExpectedFocusedCharacter();
+  const party = gameStore.getExpectedParty();
 
   useEffect(() => {
     if (currentMenu.type === MenuStateType.ItemsOnGround && numberOfNumberedButtons === 0) {
@@ -173,14 +171,13 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
             </li>
           );
         })}
-        {partyResult.battleId !== null && currentMenu.type === MenuStateType.Base && (
+        {party.battleId !== null && currentMenu.type === MenuStateType.Base && (
           <HoverableTooltipWrapper
             extraStyles="ml-auto h-full w-fit border border-slate-400 bg-slate-700 pointer-events-auto flex justify-center items-center px-2"
             tooltipText="Action Points"
           >
             <span>
-              AP: {focusedCharacterResult.combatantProperties.actionPoints}/
-              {COMBATANT_MAX_ACTION_POINTS}
+              AP: {focusedCharacter.combatantProperties.actionPoints}/{COMBATANT_MAX_ACTION_POINTS}
             </span>
           </HoverableTooltipWrapper>
         )}

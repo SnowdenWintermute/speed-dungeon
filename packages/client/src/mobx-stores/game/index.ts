@@ -13,22 +13,44 @@ import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type"
 
 export class GameStore {
   private game: null | SpeedDungeonGame = null;
-  username: null | string = null;
-  focusedCharacterId: EntityId | null = null;
+  private username: null | string = null;
+  private focusedCharacterId: EntityId | null = null;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
-  hasGame: () => boolean = () => {
-    throw new Error("not implementeted");
-  };
+  getGameOption() {
+    return this.game;
+  }
 
-  getCurrentPartyOption() {
+  getExpectedGame() {
+    if (this.game === null) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+    return this.game;
+  }
+
+  getCombatantContext(combatantId: EntityId): ActionUserContext {
+    const party = this.getExpectedParty();
+    const game = this.getExpectedGame();
+    const combatant = party.combatantManager.getExpectedCombatant(combatantId);
+    return new ActionUserContext(game, party, combatant);
+  }
+
+  getFocusedCharacterContext() {
+    return this.getCombatantContext(this.getExpectedFocusedCharacterId());
+  }
+
+  getPartyOption() {
     if (this.username === null || this.game === null) return undefined;
     const player = this.game.players[this.username];
     if (!player?.partyName) return undefined;
     return this.game.adventuringParties[player.partyName];
+  }
+
+  getExpectedParty() {
+    const partyOption = this.getPartyOption();
+    if (partyOption === undefined) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+    return partyOption;
   }
 
   setFocusedCharacter(entityId: EntityId) {
@@ -73,7 +95,7 @@ export class GameStore {
   private handleCharacterUnfocused(id: EntityId) {
     if (this.username === null) throw new Error("expected to have initialized a username");
 
-    const partyOption = this.getCurrentPartyOption();
+    const partyOption = this.getPartyOption();
     if (!partyOption) {
       return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
     }
@@ -130,19 +152,13 @@ export class GameStore {
     }
   };
 
-  getActionUserContext(): Error | ActionUserContext {
-    throw new Error("not implemented");
-    // const gameOption = gameState.game;
+  private clientUserControlsCombatant(combatantId: string) {
+    const partyOption = this.getPartyOption();
+    if (partyOption === undefined) return false;
+    return partyOption.combatantManager.playerOwnsCharacter(this.username || "", combatantId);
+  }
 
-    // if (!gameOption) return new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-    // const game = gameOption;
-    // if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
-    // const partyOptionResult = getCurrentParty(gameState, gameState.username);
-    // if (partyOptionResult instanceof Error) return partyOptionResult;
-    // if (partyOptionResult === undefined) return new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
-    // const party = partyOptionResult;
-    // const combatantResult = SpeedDungeonGame.getCombatantById(game, combatantId);
-    // if (combatantResult instanceof Error) return combatantResult;
-    // return new ActionUserContext(game, party, combatantResult);
+  clientUserControlsFocusedCombatant() {
+    return this.clientUserControlsCombatant(this.getExpectedFocusedCharacterId());
   }
 }

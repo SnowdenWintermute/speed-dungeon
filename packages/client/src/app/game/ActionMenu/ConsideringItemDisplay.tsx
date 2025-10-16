@@ -11,7 +11,6 @@ import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { ConfirmConvertToShardsMenuState } from "./menu-state/confirm-convert-to-shards";
 import { MenuStateType } from "./menu-state/menu-state-type";
 import { letterFromKeyCode } from "@/hotkeys";
-import { useGameStore } from "@/stores/game-store";
 import { ConsideringItemMenuState } from "./menu-state/considering-item";
 import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
 import { AppStore } from "@/mobx-stores/app-store";
@@ -19,15 +18,14 @@ import { observer } from "mobx-react-lite";
 import { ACTION_MENU_PAGE_SIZE } from "./menu-state";
 
 export const ConsideringItemDisplay = observer(() => {
-  const { actionMenuStore } = AppStore.get();
+  const { actionMenuStore, gameStore } = AppStore.get();
   const currentMenu = actionMenuStore.getCurrentMenu();
 
   if (!(currentMenu instanceof ConsideringItemMenuState)) return <div>Unexpected menu state</div>;
   const shardReward = getItemSellPrice(currentMenu.item);
 
-  const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-  const partyResult = useGameStore.getState().getParty();
-  if (focusedCharacterResult instanceof Error || partyResult instanceof Error) return <></>;
+  const party = gameStore.getExpectedParty();
+  const focusedCharacter = gameStore.getExpectedFocusedCharacter();
 
   return (
     <div
@@ -45,8 +43,8 @@ export const ConsideringItemDisplay = observer(() => {
           <div>Equipping this item will swap it with any currently equipped item</div>
         )}
         {combatantIsAllowedToConvertItemsToShards(
-          focusedCharacterResult.combatantProperties,
-          partyResult.currentRoom.roomType
+          focusedCharacter.combatantProperties,
+          party.currentRoom.roomType
         ) && (
           <div className="mt-4">
             <HotkeyButton

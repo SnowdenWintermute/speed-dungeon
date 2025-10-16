@@ -1,4 +1,3 @@
-import { useGameStore } from "@/stores/game-store";
 import {
   CombatantAttributeRecord,
   Equipment,
@@ -8,7 +7,6 @@ import {
 } from "@speed-dungeon/common";
 import React, { useMemo } from "react";
 import { ConsideringItemMenuState } from "../ActionMenu/menu-state/considering-item";
-import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import isEqual from "lodash.isequal";
 import RingIcon from "../../../../public/img/equipment-icons/ring-flattened.svg";
 import AmuletIcon from "../../../../public/img/equipment-icons/amulet.svg";
@@ -27,15 +25,14 @@ const USABLE_ITEM_BG_STYLES = "bg-slate-800";
 
 export const PaperDollSlot = observer(
   ({ itemOption, slot, characterAttributes, tailwindClasses }: Props) => {
-    const { focusStore, imageStore } = AppStore.get();
+    const { focusStore, imageStore, gameStore } = AppStore.get();
 
     const { detailedItem, hoveredItem } = focusStore.getFocusedItems();
     const { comparedSlot } = focusStore.getItemComparison();
 
     const consideredItemUnmetRequirements = focusStore.getSelectedItemUnmetRequirements();
 
-    const focusedCharacterId = useGameStore.getState().focusedCharacterId;
-    const playerOwnsCharacter = clientUserControlsCombatant(focusedCharacterId);
+    const playerOwnsCharacter = gameStore.clientUserControlsFocusedCombatant();
 
     const itemNameDisplay = itemOption ? itemOption.entityProperties.name : "";
 

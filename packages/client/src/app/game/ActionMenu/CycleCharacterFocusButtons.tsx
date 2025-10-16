@@ -1,8 +1,5 @@
-import { useGameStore } from "@/stores/game-store";
 import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import React from "react";
-import getCurrentParty from "@/utils/getCurrentParty";
-import setFocusedCharacter from "@/utils/set-focused-character";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { BUTTON_HEIGHT_SMALL, SPACING_REM_SMALL } from "@/client_consts";
 import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicatedButton";
@@ -10,8 +7,9 @@ import { AppStore } from "@/mobx-stores/app-store";
 import { ActionMenuButtonProperties } from "./menu-state/action-menu-button-properties";
 import { MenuStateType } from "./menu-state/menu-state-type";
 import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
+import { observer } from "mobx-react-lite";
 
-export function CharacterFocusingButtons() {
+export const CharacterFocusingButtons = observer(() => {
   function createFocusCharacterButtonProperties(
     text: string,
     direction: NextOrPrevious,
@@ -21,12 +19,11 @@ export function CharacterFocusingButtons() {
       () => text,
       text,
       () => {
-        const currentFocusedCharacterId = useGameStore.getState().focusedCharacterId;
-        const party = getCurrentParty(
-          useGameStore.getState(),
-          useGameStore.getState().username || ""
-        );
-        if (!party) return;
+        const { gameStore } = AppStore.get();
+        const focusedCharacterId = gameStore.getExpectedFocusedCharacterId();
+        const partyOption = gameStore.getCurrentPartyOption();
+        if (!partyOption) return;
+        const party = partyOption;
 
         const characterPositions = party.combatantManager.sortCombatantIdsLeftToRight(
           party.combatantManager
@@ -34,7 +31,7 @@ export function CharacterFocusingButtons() {
             .map((combatant) => combatant.getEntityId())
         );
 
-        const currCharIndex = characterPositions.indexOf(currentFocusedCharacterId);
+        const currCharIndex = characterPositions.indexOf(focusedCharacterId);
         if (currCharIndex === -1) return console.error("Character ID not in position list");
         const nextIndex = getNextOrPreviousNumber(
           currCharIndex,
@@ -50,7 +47,7 @@ export function CharacterFocusingButtons() {
           actionMenuStore.replaceStack([MenuStatePool.get(MenuStateType.ViewingAbilityTree)]);
         }
 
-        setFocusedCharacter(newCharacterId);
+        gameStore.setFocusedCharacter(newCharacterId);
       }
     );
 
@@ -71,8 +68,7 @@ export function CharacterFocusingButtons() {
     [nextCharacterHotkey]
   );
 
-  const focusedCharacterResult = AppStore.get().gameStore.getFocusedCharacter();
-  if (focusedCharacterResult instanceof Error) return <div>Error: no focused character</div>;
+  const focusedCharacterResult = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
   return (
     <ul
@@ -92,4 +88,4 @@ export function CharacterFocusingButtons() {
       />
     </ul>
   );
-}
+});

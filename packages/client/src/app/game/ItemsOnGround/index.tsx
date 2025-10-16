@@ -3,7 +3,6 @@ import { useGameStore } from "@/stores/game-store";
 import { AdventuringParty, ERROR_MESSAGES, Inventory } from "@speed-dungeon/common";
 import React from "react";
 import { ItemOnGround } from "./ItemOnGround";
-import { clientUserControlsCombatant } from "@/utils/client-user-controls-combatant";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
@@ -16,12 +15,11 @@ interface Props {
 export const ItemsOnGround = observer(({ party, maxHeightRem }: Props) => {
   const username = useGameStore().username;
   if (username === null) return <div>{ERROR_MESSAGES.CLIENT.NO_USERNAME}</div>;
-  const focusedCharacterId = useGameStore().focusedCharacterId;
   const itemsToDisplay = Inventory.getItems(party.currentRoom.inventory);
-  const { actionMenuStore } = AppStore.get();
+  const { actionMenuStore, gameStore } = AppStore.get();
   const showItemsOnGround = actionMenuStore.getShowGroundItems();
 
-  const playerOwnsCharacter = clientUserControlsCombatant(focusedCharacterId);
+  const playerOwnsCharacter = gameStore.clientUserControlsFocusedCombatant();
 
   if (itemsToDisplay.length < 1) return <></>;
 

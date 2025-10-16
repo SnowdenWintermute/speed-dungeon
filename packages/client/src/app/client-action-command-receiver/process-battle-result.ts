@@ -3,13 +3,11 @@ import {
   BattleResultActionCommandPayload,
   CleanupMode,
   Consumable,
-  ERROR_MESSAGES,
   Equipment,
   InputLock,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { ClientActionCommandReceiver } from ".";
-import getCurrentParty from "@/utils/getCurrentParty";
 import { useGameStore } from "@/stores/game-store";
 import { gameWorld, getGameWorld } from "../3d-world/SceneManager";
 import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
@@ -47,38 +45,34 @@ export async function battleResultActionCommandHandler(
   }
 
   useGameStore.getState().mutateState((state) => {
-    const gameOption = state.game;
-    if (gameOption === null) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-    if (state.username === null) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
-    const partyOption = getCurrentParty(state, state.username);
-    if (partyOption === undefined) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+    const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
 
     switch (payload.conclusion) {
       case BattleConclusion.Defeat:
-        partyOption.timeOfWipe = timestamp;
+        party.timeOfWipe = timestamp;
         GameLogMessageService.postWipeMessage();
         break;
       case BattleConclusion.Victory:
         characterAutoFocusManager.focusFirstOwnedCharacter(state);
 
-        InputLock.unlockInput(partyOption.inputLock);
+        InputLock.unlockInput(party.inputLock);
 
-        const levelups = SpeedDungeonGame.handleBattleVictory(gameOption, partyOption, payload);
+        const levelups = SpeedDungeonGame.handleBattleVictory(game, party, payload);
 
         for (const [characterId, expChange] of Object.entries(payload.experiencePointChanges)) {
-          const characterResult = SpeedDungeonGame.getCombatantById(gameOption, characterId);
+          const characterResult = SpeedDungeonGame.getCombatantById(game, characterId);
           if (characterResult instanceof Error) return console.error(characterResult);
           GameLogMessageService.postExperienceGained(characterResult.getName(), expChange);
         }
         for (const [characterId, levelup] of Object.entries(levelups)) {
-          const characterResult = SpeedDungeonGame.getCombatantById(gameOption, characterId);
+          const characterResult = SpeedDungeonGame.getCombatantById(game, characterId);
           if (characterResult instanceof Error) return console.error(characterResult);
           GameLogMessageService.postLevelup(characterResult.getName(), levelup);
         }
         break;
     }
 
-    const { actionEntityManager } = partyOption;
+    const { actionEntityManager } = party;
     for (const entityId of actionEntitiesRemoved) {
       actionEntityManager.unregisterActionEntity(entityId);
       getGameWorld().actionEntityManager.unregister(entityId, CleanupMode.Soft);

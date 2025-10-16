@@ -116,11 +116,11 @@ export class HighlightManager {
   }
 
   updateHighlight() {
-    const partyResult = useGameStore.getState().getParty();
-    if (!(partyResult instanceof Error)) {
+    const partyOption = AppStore.get().gameStore.getPartyOption();
+    if (partyOption !== undefined) {
       const gameOption = useGameStore.getState().game;
       if (gameOption === null) return;
-      const battleOption = AdventuringParty.getBattleOption(partyResult, gameOption);
+      const battleOption = AdventuringParty.getBattleOption(partyOption, gameOption);
       if (battleOption === null) {
         this.removeHighlight();
         return;
@@ -162,7 +162,8 @@ export class HighlightManager {
     // spin the targetingIndicator
 
     const rotation = elapsed;
-    const isFocused = this.modularCharacter.entityId === useGameStore.getState().focusedCharacterId;
+
+    const isFocused = AppStore.get().gameStore.characterIsFocused(this.modularCharacter.entityId);
     const color = updateColor(scale, amplitude, base, isFocused);
 
     if (this.targetingIndicator) {
