@@ -15,7 +15,6 @@ import {
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
-import getGameAndParty from "@/utils/getGameAndParty";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import {
   setInventoryOpen,
@@ -203,12 +202,7 @@ export class BaseMenuState extends ActionMenuState {
 }
 
 export function disableButtonBecauseNotThisCombatantTurn(combatantId: string) {
-  const gameOption = useGameStore.getState().game;
-  const username = useGameStore.getState().username;
-  const gameAndPartyResult = getGameAndParty(gameOption, username);
-  if (gameAndPartyResult instanceof Error) throw gameAndPartyResult;
-
-  const [game, party] = gameAndPartyResult;
+  const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
 
   const battleOptionResult = getCurrentBattleOption(game, party.name);
   let disableButtonBecauseNotThisCombatantTurn = false;

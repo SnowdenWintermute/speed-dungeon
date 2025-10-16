@@ -9,7 +9,7 @@ import {
   WearableSlotType,
   equipmentIsTwoHandedWeapon,
 } from "@speed-dungeon/common";
-import HotswapSlotButtons from "../combatant-plaques/HotswapSlotButtons";
+import { HotswapSlotButtons } from "../combatant-plaques/HotswapSlotButtons";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";

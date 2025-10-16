@@ -1,4 +1,3 @@
-import { useGameStore } from "@/stores/game-store";
 import { ItemsMenuState } from "./items";
 import { viewEquipmentHotkey } from "./equipped-items";
 import { letterFromKeyCode } from "@/hotkeys";
@@ -37,9 +36,8 @@ export class InventoryItemsMenuState extends ItemsMenuState {
         AppStore.get().actionMenuStore.pushStack(new ConsideringItemMenuState(item));
       },
       () => {
-        const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-        if (focusedCharacterResult instanceof Error) return [];
-        return Inventory.getItems(focusedCharacterResult.combatantProperties.inventory);
+        const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+        return Inventory.getItems(focusedCharacter.combatantProperties.inventory);
       },
       {
         extraButtons: {

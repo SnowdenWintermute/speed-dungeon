@@ -6,16 +6,14 @@ import {
   AbilityUtils,
   ClientToServerEvent,
   EMPTY_ABILITY_TREE,
-  EntityId,
 } from "@speed-dungeon/common";
-import { useGameStore } from "@/stores/game-store";
 import React, { ReactNode, useState } from "react";
 import { ConsideringCombatantAbilityMenuState } from "../../ActionMenu/menu-state/considering-tree-ability";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "../../ActionMenu/menu-state/menu-state-type";
+import { observer } from "mobx-react-lite";
 
 interface Props {
-  focusedCharacterId: EntityId;
   ability: AbilityTreeAbility;
   abilityLevel: number;
   buttonContent: ReactNode;
@@ -23,16 +21,9 @@ interface Props {
   isDetailed: boolean;
 }
 
-export default function AbilityTreeButton(props: Props) {
+export const AbilityTreeButton = observer((props: Props) => {
   const [hovered, setHovered] = useState(false);
-  const {
-    focusedCharacterId: characterId,
-    ability,
-    abilityLevel,
-    buttonContent,
-    isAllocatable,
-    isDetailed,
-  } = props;
+  const { ability, abilityLevel, buttonContent, isAllocatable, isDetailed } = props;
 
   const disabled = !isAllocatable.canAllocate && abilityLevel <= 0;
 
@@ -44,65 +35,60 @@ export default function AbilityTreeButton(props: Props) {
         ${disabled && "opacity-50 cursor-auto"} ${!isAllocatable.canAllocate ? "cursor-auto hover:border-white" : !isDetailed ? "cursor-pointer" : "cursor-cell hover:bg-slate-950"}
         `}
         onClick={() => {
+          const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+
           if (!isDetailed) {
             const { focusStore, actionMenuStore } = AppStore.get();
 
             focusStore.combatantAbility.setDetailed(ability);
 
-            useGameStore.getState().mutateState((state) => {
-              const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-              if (focusedCharacterResult instanceof Error) {
-                return <div />;
-              }
+            const { combatantProperties } = focusedCharacter;
+            const { combatantClass } = combatantProperties;
 
-              const { combatantProperties } = focusedCharacterResult;
-              const { combatantClass } = combatantProperties;
+            const abilityTree = ABILITY_TREES[combatantClass];
+            const subjobTree = combatantProperties.supportClassProperties
+              ? ABILITY_TREES[combatantProperties.supportClassProperties.combatantClass]
+              : EMPTY_ABILITY_TREE;
 
-              const abilityTree = ABILITY_TREES[combatantClass];
-              const subjobTree = combatantProperties.supportClassProperties
-                ? ABILITY_TREES[combatantProperties.supportClassProperties.combatantClass]
-                : EMPTY_ABILITY_TREE;
+            let indexIfInThisColumn = null;
+            let columnIndex = -1;
+            for (const column of abilityTree.columns) {
+              columnIndex += 1;
+              if (indexIfInThisColumn !== null) break;
+              let index = 0;
 
-              let indexIfInThisColumn = null;
-              let columnIndex = -1;
-              for (const column of abilityTree.columns) {
-                columnIndex += 1;
-                if (indexIfInThisColumn !== null) break;
-                let index = 0;
+              const withSubjobAbilities = [
+                ...column,
+                ...subjobTree.columns[columnIndex]!.slice(0, 2),
+              ];
 
-                const withSubjobAbilities = [
-                  ...column,
-                  ...subjobTree.columns[columnIndex]!.slice(0, 2),
-                ];
+              for (const abilityToCheck of withSubjobAbilities) {
+                if (abilityToCheck === undefined) continue;
+                if (AbilityUtils.abilitiesAreEqual(abilityToCheck, ability)) {
+                  indexIfInThisColumn = index;
 
-                for (const abilityToCheck of withSubjobAbilities) {
-                  if (abilityToCheck === undefined) continue;
-                  if (AbilityUtils.abilitiesAreEqual(abilityToCheck, ability)) {
-                    indexIfInThisColumn = index;
+                  const newMenuState = new ConsideringCombatantAbilityMenuState(
+                    withSubjobAbilities.filter((item) => item !== undefined),
+                    indexIfInThisColumn
+                  );
 
-                    const newMenuState = new ConsideringCombatantAbilityMenuState(
-                      withSubjobAbilities.filter((item) => item !== undefined),
-                      indexIfInThisColumn
-                    );
-
-                    if (
-                      actionMenuStore.currentMenuIsType(MenuStateType.ConsideringAbilityTreeAbility)
-                    ) {
-                      actionMenuStore.popStack();
-                    }
-
-                    actionMenuStore.pushStack(newMenuState);
-
-                    break;
+                  if (
+                    actionMenuStore.currentMenuIsType(MenuStateType.ConsideringAbilityTreeAbility)
+                  ) {
+                    actionMenuStore.popStack();
                   }
-                  index += 1;
+
+                  actionMenuStore.pushStack(newMenuState);
+
+                  break;
                 }
+                index += 1;
               }
-            });
+            }
           } else {
             if (!isAllocatable) return;
             websocketConnection.emit(ClientToServerEvent.AllocateAbilityPoint, {
-              characterId,
+              characterId: focusedCharacter.getEntityId(),
               ability,
             });
           }
@@ -123,4 +109,4 @@ export default function AbilityTreeButton(props: Props) {
       </HotkeyButton>
     </div>
   );
-}
+});

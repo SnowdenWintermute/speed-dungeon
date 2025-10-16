@@ -1,6 +1,6 @@
 import { BUTTON_HEIGHT, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import React, { ReactNode, useEffect } from "react";
-import ActionDetails from "../detailables/action-details";
+import { ActionDetails } from "../detailables/action-details";
 import {
   ConsideringCombatActionMenuState,
   EXECUTE_BUTTON_TEXT,
@@ -28,7 +28,7 @@ import { ConsideringItemDisplay } from "./ConsideringItemDisplay";
 import { VendingMachineShardDisplay } from "./VendingMachineShardDisplay";
 import { StackedMenuStateDisplay } from "./StackedMenuStateDisplay";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import ActionSelectedDetails from "../detailables/action-details/ActionSelectedDetails";
+import { ActionSelectedDetails } from "../detailables/action-details/ActionSelectedDetails";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "./menu-state/menu-state-type";

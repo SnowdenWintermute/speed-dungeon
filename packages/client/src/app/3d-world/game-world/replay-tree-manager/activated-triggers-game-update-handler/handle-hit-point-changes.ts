@@ -1,4 +1,3 @@
-import { useGameStore } from "@/stores/game-store";
 import {
   ActionPayableResource,
   ActivatedTriggersGameUpdateCommand,
@@ -7,6 +6,7 @@ import {
 } from "@speed-dungeon/common";
 import { plainToInstance } from "class-transformer";
 import { induceHitRecovery } from "../induce-hit-recovery";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export function handleHitPointChanges(command: ActivatedTriggersGameUpdateCommand) {
   const hitPointChanges = plainToInstance(HitPointChanges, command.hitPointChanges);
@@ -14,10 +14,9 @@ export function handleHitPointChanges(command: ActivatedTriggersGameUpdateComman
 
   if (hitPointChanges) {
     for (const [entityId, hpChange] of hitPointChanges.getRecords()) {
-      const combatantResult = useGameStore.getState().getCombatant(entityId);
-      if (combatantResult instanceof Error) throw combatantResult;
+      const combatant = AppStore.get().gameStore.getExpectedCombatant(entityId);
       induceHitRecovery(
-        combatantResult.entityProperties.name,
+        combatant.entityProperties.name,
         entityId,
         command.actionName,
         command.step,

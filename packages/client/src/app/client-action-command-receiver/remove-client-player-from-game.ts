@@ -37,7 +37,7 @@ export async function removeClientPlayerFromGame(username: string) {
 
     GameLogMessageService.postUserLeftGame(username);
 
-    characterAutoFocusManager.focusFirstOwnedCharacter(state);
+    characterAutoFocusManager.focusFirstOwnedCharacter();
   });
 
   getGameWorld().modelManager.modelActionQueue.enqueueMessage({

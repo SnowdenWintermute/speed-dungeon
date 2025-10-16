@@ -92,6 +92,7 @@ export class GameStore {
 
   setFocusedCharacter(entityId: EntityId) {
     if (this.username === null) throw new Error("expected to have initialized a username");
+    if (this.focusedCharacterId === entityId) return;
     const { actionMenuStore, focusStore } = AppStore.get();
     actionMenuStore.clearHoveredAction();
     focusStore.detailable.clear();

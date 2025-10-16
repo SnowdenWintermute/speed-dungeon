@@ -2,7 +2,7 @@ import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import Divider from "@/app/components/atoms/Divider";
 import { Combatant } from "@speed-dungeon/common";
 import React from "react";
-import CharacterAttributes from "../character-sheet/CharacterAttributes";
+import { CharacterAttributes } from "../character-sheet/CharacterAttributes";
 import CombatantTraitsDisplay from "./CombatantTraitsDisplay";
 import { AppStore } from "@/mobx-stores/app-store";
 

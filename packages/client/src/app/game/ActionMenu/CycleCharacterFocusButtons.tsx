@@ -21,9 +21,7 @@ export const CharacterFocusingButtons = observer(() => {
       () => {
         const { gameStore } = AppStore.get();
         const focusedCharacterId = gameStore.getExpectedFocusedCharacterId();
-        const partyOption = gameStore.getCurrentPartyOption();
-        if (!partyOption) return;
-        const party = partyOption;
+        const party = gameStore.getExpectedParty();
 
         const characterPositions = party.combatantManager.sortCombatantIdsLeftToRight(
           party.combatantManager

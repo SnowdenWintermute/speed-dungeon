@@ -1,6 +1,4 @@
-import { useGameStore } from "@/stores/game-store";
 import { ActionMenuState } from "./index";
-import { setAlert } from "@/app/components/alerts";
 import {
   ABILITY_TREES,
   AbilityTreeAbility,
@@ -43,18 +41,14 @@ export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
   }
 
   getCenterInfoDisplayOption() {
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult);
-      return <div>Error getting focused character</div>;
-    }
+    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
     const abilityOption = AppStore.get().focusStore.combatantAbility.get().detailed;
     if (abilityOption === null) throw new Error("expected ability missing");
 
     const conditionsToShowDetailButtonsFor = getConditionsToShowDetailButtonsFor(
       abilityOption,
-      focusedCharacterResult
+      focusedCharacter
     );
 
     const conditionDescriptions = conditionsToShowDetailButtonsFor.map((conditionName) => (
@@ -112,14 +106,10 @@ export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
       })
     );
 
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult);
-      return toReturn;
-    }
-
     const abilityOption = AppStore.get().focusStore.combatantAbility.get().detailed;
     if (abilityOption === null) throw new Error("expected ability missing");
+
+    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
     const button = new ActionMenuButtonProperties(
       () => (
@@ -132,7 +122,7 @@ export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
       "keyname",
       () => {
         websocketConnection.emit(ClientToServerEvent.AllocateAbilityPoint, {
-          characterId: focusedCharacterResult.entityProperties.id,
+          characterId: focusedCharacter.getEntityId(),
           ability: abilityOption,
         });
       }
@@ -140,12 +130,15 @@ export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
 
     button.dedicatedKeys = [allocateAbilityPointHotkey];
 
+    const { combatantProperties } = focusedCharacter;
+    const { combatantClass } = combatantProperties;
+
     const isMainClassAbility = AbilityUtils.abilityAppearsInTree(
       abilityOption,
-      ABILITY_TREES[focusedCharacterResult.combatantProperties.combatantClass]
+      ABILITY_TREES[combatantClass]
     );
     const { canAllocate } = CombatantAbilityProperties.canAllocateAbilityPoint(
-      focusedCharacterResult.combatantProperties,
+      combatantProperties,
       abilityOption,
       !isMainClassAbility
     );

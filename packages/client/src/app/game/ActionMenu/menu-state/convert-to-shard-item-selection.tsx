@@ -1,6 +1,5 @@
 import { ItemsMenuState } from "./items";
 import { CombatantProperties, Item, getItemSellPrice } from "@speed-dungeon/common";
-import { useGameStore } from "@/stores/game-store";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { PriceDisplay } from "../../character-sheet/ShardsDisplay";
 import { ConfirmConvertToShardsMenuState } from "./confirm-convert-to-shards";
@@ -21,11 +20,10 @@ export class ConvertToShardItemSelectionMenuState extends ItemsMenuState {
         );
       },
       () => {
-        const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-        if (focusedCharacterResult instanceof Error) return [];
+        const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
         const items: Item[] = [
-          ...CombatantProperties.getOwnedEquipment(focusedCharacterResult.combatantProperties),
-          ...focusedCharacterResult.combatantProperties.inventory.consumables,
+          ...CombatantProperties.getOwnedEquipment(focusedCharacter.combatantProperties),
+          ...focusedCharacter.combatantProperties.inventory.consumables,
         ];
         return items;
       },

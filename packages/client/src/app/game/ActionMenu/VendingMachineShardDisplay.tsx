@@ -4,7 +4,6 @@ import { HOTKEYS } from "@/hotkeys";
 import React from "react";
 import { ShardsDisplay } from "../character-sheet/ShardsDisplay";
 import { DropShardsModal } from "../character-sheet/DropShardsModal";
-import { useGameStore } from "@/stores/game-store";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
@@ -16,8 +15,8 @@ export const VendingMachineShardDisplay = observer(() => {
   const { dialogStore } = AppStore.get();
   const viewingDropShardsModal = dialogStore.isOpen(DialogElementName.DropShards);
 
-  const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-  if (focusedCharacterResult instanceof Error) return <></>;
+  const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+  const totalShards = focusedCharacter.combatantProperties.inventory.shards;
 
   return (
     <li className="ml-auto pointer-events-auto">
@@ -29,10 +28,7 @@ export const VendingMachineShardDisplay = observer(() => {
             dialogStore.close(DialogElementName.DropShards);
           }}
         >
-          <ShardsDisplay
-            extraStyles="h-10"
-            numShards={focusedCharacterResult.combatantProperties.inventory.shards}
-          />
+          <ShardsDisplay extraStyles="h-10" numShards={totalShards} />
         </HotkeyButton>
       </HoverableTooltipWrapper>
       {/* for better tab indexing, character sheet has it's own placement of the modal */}
@@ -40,7 +36,7 @@ export const VendingMachineShardDisplay = observer(() => {
         <DropShardsModal
           className="absolute bottom-0 right-0 border border-slate-400"
           min={0}
-          max={focusedCharacterResult.combatantProperties.inventory.shards}
+          max={totalShards}
         />
       )}
     </li>

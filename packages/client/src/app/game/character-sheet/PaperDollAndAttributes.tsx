@@ -1,6 +1,6 @@
 import React from "react";
 import { PaperDoll } from "./PaperDoll";
-import InventoryCapacityDisplay from "./InventoryCapacityDisplay";
+import { InventoryCapacityDisplay } from "./InventoryCapacityDisplay";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { HOTKEYS } from "@/hotkeys";

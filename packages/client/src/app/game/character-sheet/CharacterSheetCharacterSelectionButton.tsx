@@ -1,22 +1,20 @@
 import { BUTTON_HEIGHT_SMALL } from "@/client_consts";
-import { useGameStore } from "@/stores/game-store";
-import setFocusedCharacter from "@/utils/set-focused-character";
+import { AppStore } from "@/mobx-stores/app-store";
+import { observer } from "mobx-react-lite";
 import React from "react";
 
 interface Props {
   characterId: string;
 }
 
-export default function CharacterSheetCharacterSelectionButton({ characterId }: Props) {
-  const focusedCharacterId = useGameStore().focusedCharacterId;
-  const characterResult = useGameStore().getCharacter(characterId);
-  if (characterResult instanceof Error) return <div>{characterResult.message}</div>;
-  const character = characterResult;
-  const isSelectedStyle =
-    focusedCharacterId === character.entityProperties.id ? "border-yellow-400" : "";
+export const CharacterSheetCharacterSelectionButton = observer(({ characterId }: Props) => {
+  const { gameStore } = AppStore.get();
+  const isfocused = gameStore.characterIsFocused(characterId);
+  const character = gameStore.getExpectedCombatant(characterId);
+  const isSelectedStyle = isfocused ? "border-yellow-400" : "";
 
   function handleClick() {
-    setFocusedCharacter(characterId);
+    gameStore.setFocusedCharacter(characterId);
   }
 
   return (
@@ -28,4 +26,4 @@ export default function CharacterSheetCharacterSelectionButton({ characterId }: 
       {character.entityProperties.name}
     </button>
   );
-}
+});

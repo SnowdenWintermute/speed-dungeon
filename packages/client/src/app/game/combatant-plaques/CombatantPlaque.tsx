@@ -1,9 +1,7 @@
-import { useGameStore } from "@/stores/game-store";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
-import getGameAndParty from "@/utils/getGameAndParty";
 import React, { useEffect, useRef, useState } from "react";
 import { TargetingIndicators } from "./TargetingIndicators";
-import UnspentAttributesButton from "../UnspentAttributesButton";
+import { UnspentAttributesButton } from "../UnspentAttributesButton";
 import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import CombatantInfoButton from "./CombatantInfoButton";
 import { DetailedCombatantInfoCard } from "./DetailedCombatantInfoCard";
@@ -17,7 +15,7 @@ import {
 import "./floating-text-animation.css";
 import { CombatantFloatingMessagesDisplay } from "./combatant-floating-messages-display";
 import { InventoryIconButton } from "./InventoryIconButton";
-import HotswapSlotButtons from "./HotswapSlotButtons";
+import { HotswapSlotButtons } from "./HotswapSlotButtons";
 import { CharacterModelDisplay } from "@/app/character-model-display";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import LowDurabilityIndicators from "./LowDurabilityIndicators";
@@ -36,19 +34,14 @@ interface Props {
 }
 
 export const CombatantPlaque = observer(({ combatant, showExperience }: Props) => {
-  const gameOption = useGameStore().game;
-
-  const { focusStore, dialogStore, gameWorldStore, imageStore } = AppStore.get();
+  const { focusStore, dialogStore, gameWorldStore, imageStore, gameStore } = AppStore.get();
   const showDebug = dialogStore.isOpen(DialogElementName.Debug);
 
   const portraitOption = imageStore.getCombatantPortraitOption(combatant.getEntityId());
   const entityId = combatant.entityProperties.id;
   const babylonDebugInfo = gameWorldStore.getCombatantDebugDisplay(entityId);
 
-  const usernameOption = useGameStore().username;
-  const result = getGameAndParty(gameOption, usernameOption);
-  if (result instanceof Error) return <div>{result.message}</div>;
-  const [game, party] = result;
+  const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
 
   const { entityProperties, combatantProperties } = combatant;
   const battleOptionResult = getCurrentBattleOption(game, party.name);
@@ -68,7 +61,7 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
 
   const combatantIsDetailed = focusStore.entityIsDetailed(entityId);
 
-  const isFocused = focusStore.characterIsFocused(entityId);
+  const isFocused = gameStore.characterIsFocused(entityId);
 
   const isPartyMember = combatant.combatantProperties.isPlayerControlled();
 

@@ -2,7 +2,7 @@ import { SPACING_REM } from "@/client_consts";
 import React, { useLayoutEffect, useRef, useState } from "react";
 import CharacterSheetTopBar from "./CharacterSheetTopBar";
 import { PaperDollAndAttributes } from "./PaperDollAndAttributes";
-import AbilitySelection from "./ability-tree";
+import { AbilitySelection } from "./ability-tree";
 import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
 

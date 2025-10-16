@@ -1,5 +1,4 @@
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
-import { useGameStore } from "@/stores/game-store";
 import { AppStore } from "@/mobx-stores/app-store";
 import { ActionMenuButtonProperties } from "../action-menu-button-properties";
 import { MenuStateType } from "../menu-state-type";
@@ -34,10 +33,8 @@ export const setViewingAbilityTreeHotkey = HOTKEYS.BOTTOM_ALT;
 
 export const setViewingAbilityTreeAsFreshStack = new ActionMenuButtonProperties(
   () => {
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    let unspent = 0;
-    if (!(focusedCharacterResult instanceof Error))
-      unspent = focusedCharacterResult.combatantProperties.abilityProperties.unspentAbilityPoints;
+    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    const unspent = focusedCharacter.combatantProperties.abilityProperties.unspentAbilityPoints;
     const highlightClass = unspent ? "text-yellow-400" : "";
 
     return (

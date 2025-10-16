@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import BackpackIcon from "../../../../public/img/game-ui-icons/backpack.svg";
-import { useGameStore } from "@/stores/game-store";
 import { INVENTORY_DEFAULT_CAPACITY } from "@speed-dungeon/common";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import { AppStore } from "@/mobx-stores/app-store";
@@ -9,7 +8,6 @@ import { InventoryItemsMenuState } from "../ActionMenu/menu-state/inventory-item
 
 export const InventoryIconButton = observer(
   ({ entityId, numItemsInInventory }: { entityId: string; numItemsInInventory: number }) => {
-    const mutateGameState = useGameStore().mutateState;
     const [isHovered, setIsHovered] = useState(false);
 
     return (
@@ -22,22 +20,17 @@ export const InventoryIconButton = observer(
           setIsHovered(false);
         }}
         onClick={() => {
-          mutateGameState((state) => {
-            let switchedFocusedCharacter = false;
-            if (state.focusedCharacterId !== entityId) {
-              state.focusedCharacterId = entityId;
-              switchedFocusedCharacter = true;
-            }
-            const { actionMenuStore } = AppStore.get();
+          const { actionMenuStore, gameStore } = AppStore.get();
+          gameStore.setFocusedCharacter(entityId);
 
-            const shouldShowCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
-            if (shouldShowCharacterSheet && !switchedFocusedCharacter) {
-              actionMenuStore.clearStack();
-            } else if (!shouldShowCharacterSheet) {
-              // actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.InventoryItems));
-              actionMenuStore.pushStack(new InventoryItemsMenuState());
-            }
-          });
+          const shouldShowCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
+          if (shouldShowCharacterSheet) {
+            // happens if you click inventory button on a character that was already
+            // focused and was already in inventory
+            actionMenuStore.clearStack();
+          } else {
+            actionMenuStore.pushStack(new InventoryItemsMenuState());
+          }
         }}
       >
         <BackpackIcon className="fill-slate-400 h-full w-full pointer-events-none" />

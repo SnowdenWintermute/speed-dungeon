@@ -1,5 +1,4 @@
 import Divider from "@/app/components/atoms/Divider";
-import { useGameStore } from "@/stores/game-store";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { BUTTON_HEIGHT_SMALL } from "@/client_consts";
@@ -19,7 +18,6 @@ export const DropShardsModal = observer(
     const viewingDropShardsModal = dialogStore.isOpen(DialogElementName.DropShards);
     const inputRef = useRef<HTMLInputElement>(null);
     const [value, setValue] = useState<number>(0);
-    const focusedCharacterResult = useGameStore().getFocusedCharacter();
 
     useEffect(() => {
       inputStore.setHotkeysDisabled(true);
@@ -43,9 +41,8 @@ export const DropShardsModal = observer(
     function handleSubmit(e?: React.FormEvent<HTMLFormElement>) {
       e?.preventDefault();
       if (value <= 0) return;
-      if (focusedCharacterResult instanceof Error) return console.error(focusedCharacterResult);
       websocketConnection.emit(ClientToServerEvent.DropShards, {
-        characterId: focusedCharacterResult.entityProperties.id,
+        characterId: AppStore.get().gameStore.getExpectedFocusedCharacterId(),
         numShards: Number(value),
       });
       dialogStore.close(DialogElementName.DropShards);

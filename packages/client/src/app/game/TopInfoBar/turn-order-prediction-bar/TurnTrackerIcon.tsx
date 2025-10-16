@@ -1,22 +1,19 @@
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import { useGameStore } from "@/stores/game-store";
+import { AppStore } from "@/mobx-stores/app-store";
 import { getCombatantUiIdentifierIcon } from "@/utils/get-combatant-class-icon";
-import getGameAndParty from "@/utils/getGameAndParty";
 import {
   CombatantTurnTracker,
   ConditionTurnTracker,
   TurnTrackerEntityType,
 } from "@speed-dungeon/common";
+import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 
 const SHOWN_CLASSES = "mr-2 last:mr-0";
 
-export default function TurnOrderTrackerIcon({ tracker }: { tracker: CombatantTurnTracker }) {
-  const gameOption = useGameStore().game;
-  const usernameOption = useGameStore().username;
-  const result = getGameAndParty(gameOption, usernameOption);
-  if (result instanceof Error) return <div>{result.message}</div>;
-  const [game, party] = result;
+export const TurnOrderTrackerIcon = observer(({ tracker }: { tracker: CombatantTurnTracker }) => {
+  const party = AppStore.get().gameStore.getExpectedParty();
+
   let [preRemovalClassesState, _setPreRemovalClassesState] = useState(SHOWN_CLASSES);
   let [transitionStyle, _setTransitionStyle] = useState({ transition: "width 1s" });
 
@@ -68,4 +65,4 @@ export default function TurnOrderTrackerIcon({ tracker }: { tracker: CombatantTu
       </HoverableTooltipWrapper>
     </button>
   );
-}
+});

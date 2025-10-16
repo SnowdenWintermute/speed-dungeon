@@ -1,16 +1,14 @@
-import { useGameStore } from "@/stores/game-store";
 import {
   AbilityTree,
   AbilityTreeAbility,
   AbilityUtils,
   CombatantAbilityProperties,
-  ERROR_MESSAGES,
   getAbilityTreeAbilityNameString,
 } from "@speed-dungeon/common";
 import { getAbilityIcon } from "./ability-icons";
-import AbilityTreeButton from "./AbilityTreeButton";
+import { AbilityTreeButton } from "./AbilityTreeButton";
 import { useRef } from "react";
-import PrerequisiteArrows from "./PrerequisiteArrows";
+import { PrerequisiteArrows } from "./PrerequisiteArrows";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "../../ActionMenu/menu-state/menu-state-type";
@@ -25,16 +23,13 @@ export const CharacterClassAbilityTree = observer(
       Record<string, { element: HTMLDivElement; prerequisites: AbilityTreeAbility[] }>
     >({});
 
-    const focusedCharacterResult = useGameStore().getFocusedCharacter();
-    const focusedCharacterOption =
-      focusedCharacterResult instanceof Error ? null : focusedCharacterResult;
-    if (!focusedCharacterOption) return <div>{ERROR_MESSAGES.COMBATANT.NOT_FOUND}</div>;
+    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
-    const { combatantProperties } = focusedCharacterOption;
+    const { combatantProperties } = focusedCharacter;
 
     // @PERF - the way we draw arrows might be worth revisiting
     return (
-      <div className="relative h-fit" key={focusedCharacterOption.entityProperties.id}>
+      <div className="relative h-fit" key={focusedCharacter.entityProperties.id}>
         <PrerequisiteArrows cellRefs={cellRefs} />
         <div
           className="absolute flex w-fit -right-2 -top-2 opacity-50 z-0"
@@ -110,7 +105,6 @@ export const CharacterClassAbilityTree = observer(
                         }}
                       >
                         <AbilityTreeButton
-                          focusedCharacterId={focusedCharacterOption.entityProperties.id}
                           ability={ability}
                           abilityLevel={CombatantAbilityProperties.getAbilityLevel(
                             combatantProperties,

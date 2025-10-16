@@ -22,7 +22,7 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
   const username = useGameStore().username;
   if (username === null) return <div>no username</div>;
   const { focusStore, actionMenuStore } = AppStore.get();
-  const focusedCharacterId = useGameStore().focusedCharacterId;
+  const focusedCharacterId = AppStore.get().gameStore.getExpectedFocusedCharacterId();
 
   function handleExploreClick() {
     websocketConnection.emit(ClientToServerEvent.ToggleReadyToExplore);

@@ -31,7 +31,7 @@ export const ActionDetailsTitleBar = observer((props: Props) => {
   const { gameStore } = AppStore.get();
   const focusedCharacter = gameStore.getExpectedFocusedCharacter();
 
-  const inBattle = useGameStore.getState().getCurrentBattleId();
+  const inBattle = gameStore.getExpectedParty().combatantManager.monstersArePresent();
 
   function handleSelectActionLevel(level: number) {
     websocketConnection.emit(ClientToServerEvent.SelectCombatActionLevel, {

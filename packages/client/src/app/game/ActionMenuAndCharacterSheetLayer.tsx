@@ -1,10 +1,9 @@
 import React from "react";
 import { ActionMenu } from "./ActionMenu";
-import { AdventuringParty, ERROR_MESSAGES, InputLock } from "@speed-dungeon/common";
+import { AdventuringParty, InputLock } from "@speed-dungeon/common";
 import { ItemDetailsWithComparison } from "./ItemDetailsWithComparison";
 import { ItemsOnGround } from "./ItemsOnGround";
 import { CharacterSheet } from "./character-sheet";
-import { useGameStore } from "@/stores/game-store";
 import { SPACING_REM } from "@/client_consts";
 import { ZIndexLayers } from "../z-index-layers";
 import { ItemCraftDisplay } from "./item-crafting/ItemCraftingDisplay";
@@ -20,10 +19,7 @@ export const ActionMenuAndCharacterSheetLayer = observer(
     const viewingCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
     const abilityTreeOpen = actionMenuStore.viewingAbilityTree();
 
-    const focusedCharacterResult = useGameStore().getFocusedCharacter();
-    const focusedCharacterOption =
-      focusedCharacterResult instanceof Error ? null : focusedCharacterResult;
-    if (!focusedCharacterOption) return <div>{ERROR_MESSAGES.COMBATANT.NOT_FOUND}</div>;
+    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
     return (
       <section
@@ -61,7 +57,7 @@ export const ActionMenuAndCharacterSheetLayer = observer(
               {abilityTreeOpen && (
                 <div className=" bg-slate-700 p-2 border border-slate-400 pointer-events-auto">
                   <CharacterAttributes
-                    combatant={focusedCharacterOption}
+                    combatant={focusedCharacter}
                     showAttributeAssignmentButtons={true}
                     widthOptionClass={"w-full"}
                     hideHeader={true}

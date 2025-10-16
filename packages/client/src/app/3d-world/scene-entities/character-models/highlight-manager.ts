@@ -138,7 +138,7 @@ export class HighlightManager {
         .getId();
       const isTurn = fastestActorId === entityId;
 
-      const inputIsLocked = InputLock.isLocked(partyResult.inputLock);
+      const inputIsLocked = partyOption ? InputLock.isLocked(partyOption.inputLock) : false;
 
       const isSelectingActionTargets = AppStore.get().targetIndicatorStore.userHasTargets(entityId);
 

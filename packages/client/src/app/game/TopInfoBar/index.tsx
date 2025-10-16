@@ -1,6 +1,6 @@
 import React from "react";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
-import RoomExplorationTracker from "./RoomExplorationTracker";
+import { RoomExplorationTracker } from "./RoomExplorationTracker";
 import { CleanupMode, ClientToServerEvent, DUNGEON_ROOM_TYPE_STRINGS } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";

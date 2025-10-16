@@ -7,7 +7,6 @@ import {
   ManaChanges,
 } from "@speed-dungeon/common";
 import { getGameWorld } from "../../SceneManager";
-import { useGameStore } from "@/stores/game-store";
 import { plainToInstance } from "class-transformer";
 import { HitPointChanges } from "@speed-dungeon/common";
 import { induceHitRecovery } from "./induce-hit-recovery";
@@ -16,6 +15,7 @@ import { CombatActionResource } from "@speed-dungeon/common";
 import { GameUpdateTracker } from "./game-update-tracker";
 import { FloatingMessageService } from "@/mobx-stores/game-event-notifications/floating-message-service";
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export async function hitOutcomesGameUpdateHandler(
   update: GameUpdateTracker<HitOutcomesGameUpdateCommand>
@@ -81,21 +81,15 @@ export async function hitOutcomesGameUpdateHandler(
   outcomeFlags[HitOutcome.Miss]?.forEach((entityId) => {
     FloatingMessageService.startHitOutcomeMissMessage(entityId);
 
-    useGameStore.getState().mutateState((gameState) => {
-      const targetCombatantResult = gameState.getCombatant(entityId);
-      if (targetCombatantResult instanceof Error) throw targetCombatantResult;
-      GameLogMessageService.postActionMissed(actionUserName, targetCombatantResult.getName());
-    });
+    const targetCombatantResult = AppStore.get().gameStore.getExpectedCombatant(entityId);
+    GameLogMessageService.postActionMissed(actionUserName, targetCombatantResult.getName());
   });
 
   outcomeFlags[HitOutcome.Evade]?.forEach((entityId) => {
     FloatingMessageService.startHitOutcomeEvadeMessage(entityId);
 
-    useGameStore.getState().mutateState((gameState) => {
-      const targetCombatantResult = gameState.getCombatant(entityId);
-      if (targetCombatantResult instanceof Error) throw targetCombatantResult;
-      GameLogMessageService.postActionEvaded(actionUserName, targetCombatantResult.getName());
-    });
+    const targetCombatantResult = AppStore.get().gameStore.getExpectedCombatant(entityId);
+    GameLogMessageService.postActionEvaded(actionUserName, targetCombatantResult.getName());
 
     const targetModel = getGameWorld().modelManager.findOne(entityId);
 
@@ -124,21 +118,15 @@ export async function hitOutcomesGameUpdateHandler(
       }
     );
 
-    useGameStore.getState().mutateState((gameState) => {
-      const targetCombatantResult = gameState.getCombatant(entityId);
-      if (targetCombatantResult instanceof Error) throw targetCombatantResult;
-      GameLogMessageService.postActionParried(actionUserName, targetCombatantResult.getName());
-    });
+    const targetCombatantResult = AppStore.get().gameStore.getExpectedCombatant(entityId);
+    GameLogMessageService.postActionParried(actionUserName, targetCombatantResult.getName());
   });
 
   outcomeFlags[HitOutcome.Counterattack]?.forEach((entityId) => {
     FloatingMessageService.startHitOutcomeCounteredMessage(entityId);
 
-    useGameStore.getState().mutateState((gameState) => {
-      const targetCombatantResult = gameState.getCombatant(entityId);
-      if (targetCombatantResult instanceof Error) throw targetCombatantResult;
-      GameLogMessageService.postActionCountered(actionUserName, targetCombatantResult.getName());
-    });
+    const targetCombatantResult = AppStore.get().gameStore.getExpectedCombatant(entityId);
+    GameLogMessageService.postActionCountered(actionUserName, targetCombatantResult.getName());
   });
 
   update.setAsQueuedToComplete();

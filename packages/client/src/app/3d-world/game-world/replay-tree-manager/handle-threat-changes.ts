@@ -4,11 +4,10 @@ import {
   HitOutcomesGameUpdateCommand,
   ThreatChanges,
 } from "@speed-dungeon/common";
-import { useGameStore } from "@/stores/game-store";
-import getGameAndParty from "@/utils/getGameAndParty";
 import { plainToInstance } from "class-transformer";
 import { threatTargetChangedIndicatorSequence } from "../../scene-entities/character-models/threat-target-changed-indicator-sequence/index";
 import debounce from "lodash.debounce";
+import { AppStore } from "@/mobx-stores/app-store";
 
 const debounceThreatTargetChangeIndicatorSequence = debounce(
   threatTargetChangedIndicatorSequence,
@@ -22,14 +21,10 @@ export function handleThreatChangesUpdate(
     | ActivatedTriggersGameUpdateCommand
 ) {
   if (command.threatChanges) {
-    useGameStore.getState().mutateState((gameState) => {
-      const gameAndPartyResult = getGameAndParty(gameState.game, gameState.username);
-      if (gameAndPartyResult instanceof Error) throw gameAndPartyResult;
-      const [game, party] = gameAndPartyResult;
+    const party = AppStore.get().gameStore.getExpectedParty();
 
-      const threatChangesDeserialized = plainToInstance(ThreatChanges, command.threatChanges);
-      threatChangesDeserialized.applyToGame(party);
-    });
+    const threatChangesDeserialized = plainToInstance(ThreatChanges, command.threatChanges);
+    threatChangesDeserialized.applyToGame(party);
 
     // debouncing this is an easy but perhaps not optimal way to avoid showing many
     // threat target change events in a row when threat changes rapidly such as several

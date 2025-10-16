@@ -1,4 +1,3 @@
-import { useGameStore } from "@/stores/game-store";
 import { Equipment, Item } from "@speed-dungeon/common";
 import React, { useEffect } from "react";
 import { ItemDetails } from "./ItemDetails";
@@ -18,14 +17,8 @@ export const FocusedAndComparedItemDetails = observer(({ focusedItem }: Props) =
   const focusedItemId = focusedItem.entityProperties.id;
 
   useEffect(() => {
-    const focusedCharacterResult = useGameStore().getFocusedCharacter();
-    if (!(focusedCharacterResult instanceof Error)) {
-      focusStore.updateItemComparison(
-        focusedItem,
-        modKeyHeld,
-        focusedCharacterResult.getEquipmentOption()
-      );
-    }
+    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    focusStore.updateItemComparison(focusedItem, modKeyHeld, focusedCharacter.getEquipmentOption());
 
     return () => {
       focusStore.clearItemComparison();

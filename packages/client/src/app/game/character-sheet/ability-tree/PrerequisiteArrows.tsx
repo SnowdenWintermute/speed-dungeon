@@ -1,12 +1,11 @@
 import { MAIN_TEXT_AND_BORDERS_COLOR } from "@/client_consts";
-import { useGameStore } from "@/stores/game-store";
+import { AppStore } from "@/mobx-stores/app-store";
 import {
   AbilityTreeAbility,
   AbilityUtils,
   CombatantAbilityProperties,
-  CombatantProperties,
-  ERROR_MESSAGES,
 } from "@speed-dungeon/common";
+import { observer } from "mobx-react-lite";
 import React, { RefObject, useLayoutEffect, useRef, useState } from "react";
 
 const ARROW_WIDTH = 5;
@@ -26,18 +25,14 @@ interface Props {
   >;
 }
 
-export default function PrerequisiteArrows(props: Props) {
+export const PrerequisiteArrows = observer((props: Props) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [positions, setPositions] = useState<Map<string, DOMRect>>(new Map());
 
   const { cellRefs } = props;
 
-  const focusedCharacterResult = useGameStore().getFocusedCharacter();
-  const focusedCharacterOption =
-    focusedCharacterResult instanceof Error ? null : focusedCharacterResult;
-  if (!focusedCharacterOption) return <div>{ERROR_MESSAGES.COMBATANT.NOT_FOUND}</div>;
-
-  const { combatantProperties } = focusedCharacterOption;
+  const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+  const { combatantProperties } = focusedCharacter;
 
   useLayoutEffect(() => {
     const measurePositions = () => {
@@ -54,7 +49,7 @@ export default function PrerequisiteArrows(props: Props) {
 
     window.addEventListener("resize", measurePositions);
     return () => window.removeEventListener("resize", measurePositions);
-  }, [focusedCharacterOption.entityProperties.id]);
+  }, [focusedCharacter.getEntityId()]);
 
   return (
     <svg ref={svgRef} className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
@@ -106,7 +101,7 @@ export default function PrerequisiteArrows(props: Props) {
       </defs>
     </svg>
   );
-}
+});
 
 const TOLERANCE = 3;
 

@@ -1,4 +1,3 @@
-import { useGameStore } from "@/stores/game-store";
 import { ActionMenuState } from ".";
 import { createCancelButton } from "./common-buttons/cancel";
 import {
@@ -9,7 +8,6 @@ import {
   EMPTY_ABILITY_TREE,
 } from "@speed-dungeon/common";
 import { createPageButtons } from "./create-page-buttons";
-import { setAlert } from "@/app/components/alerts";
 import { ReactNode } from "react";
 import { ConsideringCombatantAbilityMenuState } from "./considering-tree-ability";
 import { AbilityType } from "@speed-dungeon/common";
@@ -29,13 +27,9 @@ export class ConsideringAbilityTreeColumnMenuState extends ActionMenuState {
     const toReturn = new ActionButtonsByCategory();
     toReturn[ActionButtonCategory.Top].push(createCancelButton([]));
 
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult);
-      return toReturn;
-    }
+    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
-    const { combatantProperties } = focusedCharacterResult;
+    const { combatantProperties } = focusedCharacter;
     const { combatantClass } = combatantProperties;
     const abilityTree = ABILITY_TREES[combatantClass];
     const subjobTree = combatantProperties.supportClassProperties

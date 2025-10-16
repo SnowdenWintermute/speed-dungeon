@@ -1,13 +1,12 @@
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
-import { useGameStore } from "@/stores/game-store";
+import { AppStore } from "@/mobx-stores/app-store";
 import { Inventory } from "@speed-dungeon/common";
+import { observer } from "mobx-react-lite";
 import React from "react";
 
-export default function InventoryCapacityDisplay() {
-  const focusedCharacterResult = useGameStore().getFocusedCharacter();
-
-  if (focusedCharacterResult instanceof Error) return <></>;
-  const { combatantProperties } = focusedCharacterResult;
+export const InventoryCapacityDisplay = observer(() => {
+  const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+  const { combatantProperties } = focusedCharacter;
   const {
     totalItemsInNormalStorage,
     numConsumablesInMinibag,
@@ -31,4 +30,4 @@ export default function InventoryCapacityDisplay() {
       </div>
     </div>
   );
-}
+});

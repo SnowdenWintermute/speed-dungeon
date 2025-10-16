@@ -1,10 +1,8 @@
 import Divider from "@/app/components/atoms/Divider";
-import { useGameStore } from "@/stores/game-store";
 import {
   ABILITY_TREES,
   COMBATANT_CLASS_NAME_STRINGS,
   EMPTY_ABILITY_TREE,
-  ERROR_MESSAGES,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import React from "react";
@@ -13,14 +11,13 @@ import { IconName, SVG_ICONS } from "@/app/icons";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { CharacterClassAbilityTree } from "./CharacterClassAbilityTree";
 import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
 
-export default function AbilitySelection() {
-  const focusedCharacterResult = useGameStore().getFocusedCharacter();
-  const focusedCharacterOption =
-    focusedCharacterResult instanceof Error ? null : focusedCharacterResult;
-  if (!focusedCharacterOption) return <div>{ERROR_MESSAGES.COMBATANT.NOT_FOUND}</div>;
+export const AbilitySelection = observer(() => {
+  const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
-  const { combatantProperties } = focusedCharacterOption;
+  const { combatantProperties } = focusedCharacter;
   const { combatantClass } = combatantProperties;
   const abilityTree = ABILITY_TREES[combatantClass];
 
@@ -89,7 +86,7 @@ export default function AbilitySelection() {
           </div>
         </div>
       </div>
-      <AbilityTreeDetailedAbility user={focusedCharacterOption} />
+      <AbilityTreeDetailedAbility user={focusedCharacter} />
     </div>
   );
-}
+});

@@ -1,6 +1,6 @@
 import { BUTTON_HEIGHT_SMALL, SPACING_REM_SMALL } from "@/client_consts";
 import React from "react";
-import CharacterSheetCharacterSelectionButton from "./CharacterSheetCharacterSelectionButton";
+import { CharacterSheetCharacterSelectionButton } from "./CharacterSheetCharacterSelectionButton";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { EntityId } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
