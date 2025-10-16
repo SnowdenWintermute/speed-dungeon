@@ -1,4 +1,3 @@
-import { GameState } from "@/stores/game-store";
 import {
   ActionUserContext,
   CharacterAssociatedData,
@@ -15,8 +14,7 @@ export function characterCycledTargetingSchemesHandler(
 ) {
   characterAssociatedDataProvider(
     characterId,
-    ({ game, party, character }: CharacterAssociatedData, gameState: GameState) => {
-      if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+    ({ game, party, character }: CharacterAssociatedData) => {
       const playerOption = game.players[playerUsername];
       if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
       const combatantContext = new ActionUserContext(game, party, character);

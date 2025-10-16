@@ -1,9 +1,7 @@
 import React from "react";
-import { useGameStore } from "@/stores/game-store";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import RoomExplorationTracker from "./RoomExplorationTracker";
 import { CleanupMode, ClientToServerEvent, DUNGEON_ROOM_TYPE_STRINGS } from "@speed-dungeon/common";
-import getGameAndParty from "@/utils/getGameAndParty";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { ZIndexLayers } from "@/app/z-index-layers";
@@ -14,18 +12,12 @@ import TurnOrderPredictionBar from "./turn-order-prediction-bar";
 import StairsIcon from "../../../../public/img/game-ui-icons/stairs.svg";
 import DoorIcon from "../../../../public/img/game-ui-icons/door-icon.svg";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import getParty from "@/utils/getParty";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
 
 export const TopInfoBar = observer(() => {
-  const mutateGameState = useGameStore().mutateState;
-  const gameOption = useGameStore().game;
-  const username = useGameStore().username;
-  const result = getGameAndParty(gameOption, username);
-  if (result instanceof Error) return <div>{result.message}</div>;
-  const [game, party] = result;
+  const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
 
   const viewingLeaveGameModal = AppStore.get().dialogStore.isOpen(DialogElementName.LeaveGame);
 
@@ -34,21 +26,12 @@ export const TopInfoBar = observer(() => {
   function leaveGame() {
     AppStore.get().dialogStore.close(DialogElementName.LeaveGame);
 
-    mutateGameState((state) => {
-      const partyResult = getParty(state.game, state.username);
-      if (!(partyResult instanceof Error)) {
-        const { actionEntityManager } = partyResult;
-        for (const [entityId, entity] of Object.entries(actionEntityManager.getActionEntities())) {
-          actionEntityManager.unregisterActionEntity(entity.entityProperties.id);
-          getGameWorld().actionEntityManager.unregister(
-            entity.entityProperties.id,
-            CleanupMode.Soft
-          );
-        }
-      }
-
-      state.game = null;
-    });
+    const { actionEntityManager } = party;
+    for (const [entityId, entity] of Object.entries(actionEntityManager.getActionEntities())) {
+      actionEntityManager.unregisterActionEntity(entity.entityProperties.id);
+      getGameWorld().actionEntityManager.unregister(entity.entityProperties.id, CleanupMode.Soft);
+    }
+    AppStore.get().gameStore.clearGame();
 
     websocketConnection.emit(ClientToServerEvent.LeaveGame);
 

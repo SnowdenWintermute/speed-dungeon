@@ -9,7 +9,7 @@ import { ReadyUpDisplay } from "./ReadyUpDisplay";
 import { GameLog } from "./combat-log";
 import { ActionMenuAndCharacterSheetLayer } from "./ActionMenuAndCharacterSheetLayer";
 import { ZIndexLayers } from "../z-index-layers";
-import PersistentActionEntityDisplay from "./persistent-action-entity-display";
+import { PersistentActionEntityDisplay } from "./persistent-action-entity-display";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";

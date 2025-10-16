@@ -28,7 +28,6 @@ import { MonsterType } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import { setUpDebugMeshes, despawnDebugMeshes } from "./set-up-debug-meshes";
 import { HighlightManager } from "./highlight-manager";
-import { useGameStore } from "@/stores/game-store";
 import { plainToInstance } from "class-transformer";
 import { ManagedAnimationOptions } from "../model-animation-managers";
 import { SceneEntity } from "..";
@@ -193,15 +192,19 @@ export class CharacterModel extends SceneEntity {
   }
 
   getCombatant() {
-    let combatantResult = useGameStore.getState().getCombatant(this.entityId);
+    // first check in their party if in game
+    let combatantOption = AppStore.get().gameStore.getCombatantOption(this.entityId);
 
-    if (combatantResult instanceof Error) {
-      const combatantOption = AppStore.get().lobbyStore.getSavedCharacterOption(this.entityId);
-      if (combatantOption !== undefined) combatantResult = combatantOption;
+    // if not there, it could be in saved characters
+    if (combatantOption === undefined) {
+      combatantOption = AppStore.get().lobbyStore.getSavedCharacterOption(this.entityId);
     }
 
-    if (combatantResult instanceof Error) throw combatantResult;
-    return combatantResult;
+    if (combatantOption === undefined) {
+      throw new Error("no combatant could be found for this character model");
+    }
+
+    return combatantOption;
   }
 
   getIdleAnimationName() {

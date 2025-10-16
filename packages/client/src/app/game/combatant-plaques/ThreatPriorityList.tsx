@@ -5,8 +5,6 @@ import {
   ThreatType,
 } from "@speed-dungeon/common";
 import React from "react";
-
-import { useGameStore } from "@/stores/game-store";
 import {
   getCombatantClassIcon,
   getCombatantUiIdentifierIcon,
@@ -63,10 +61,10 @@ const ThreatTrackerIcon = observer(
 
     const { extraStyles, entityId, threatTableEntry } = props;
 
-    const combatantResult = useGameStore().getCombatant(entityId);
-    if (combatantResult instanceof Error) return <div>no combatant found</div>;
+    const { party, combatant } = AppStore.get().gameStore.getCombatantContext(entityId);
+
     const classIcon = getCombatantClassIcon(
-      combatantResult.combatantProperties.combatantClass,
+      combatant.combatantProperties.combatantClass,
       "fill-slate-400",
       "stroke-slate-400"
     );
@@ -112,9 +110,7 @@ const ThreatTrackerIcon = observer(
       </div>
     );
 
-    const party = useGameStore().getParty();
-    if (party instanceof Error) return <div>no party</div>;
-    const combatantUiIdentifierIcon = getCombatantUiIdentifierIcon(party, combatantResult);
+    const combatantUiIdentifierIcon = getCombatantUiIdentifierIcon(party, combatant);
 
     return (
       <button className={`${extraStyles} w-full h-8`} onClick={handleClick}>

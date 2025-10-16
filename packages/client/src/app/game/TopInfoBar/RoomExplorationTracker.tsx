@@ -1,16 +1,11 @@
 import { BUTTON_HEIGHT_SMALL, SPACING_REM } from "@/client_consts";
-import { useGameStore } from "@/stores/game-store";
-import getParty from "@/utils/getParty";
+import { AppStore } from "@/mobx-stores/app-store";
 import { DUNGEON_ROOM_TYPE_STRINGS } from "@speed-dungeon/common";
+import { observer } from "mobx-react-lite";
 import React from "react";
 
-export default function RoomExplorationTracker() {
-  const game = useGameStore().game;
-  const username = useGameStore().username;
-  if (!game || !username) return <div>Client error</div>;
-  const partyResult = getParty(game, username);
-  if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
-  const party = partyResult;
+export const RoomExplorationTracker = observer(() => {
+  const { party } = AppStore.get().gameStore.getFocusedCharacterContext();
 
   const currentRoom = party.dungeonExplorationManager.getCurrentRoomNumber();
   const roomList = party.dungeonExplorationManager.getClientVisibleRoomExplorationList();
@@ -42,4 +37,4 @@ export default function RoomExplorationTracker() {
       })}
     </ul>
   );
-}
+});

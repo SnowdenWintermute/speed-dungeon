@@ -1,4 +1,3 @@
-import { GameState } from "@/stores/game-store";
 import {
   CharacterAndItems,
   CharacterAssociatedData,
@@ -12,7 +11,7 @@ import { AppStore } from "@/mobx-stores/app-store";
 export function characterPickedUpItemsHandler(characterAndItems: CharacterAndItems) {
   characterAssociatedDataProvider(
     characterAndItems.characterId,
-    ({ party, character }: CharacterAssociatedData, gameState: GameState) => {
+    ({ party, character }: CharacterAssociatedData) => {
       for (const itemId of characterAndItems.itemIds) {
         const itemResult = Inventory.removeItem(party.currentRoom.inventory, itemId);
         if (itemResult instanceof Error) return itemResult;

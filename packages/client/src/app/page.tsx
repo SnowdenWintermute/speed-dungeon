@@ -12,10 +12,11 @@ import { TooltipManager } from "./TooltipManager";
 import SceneManager from "./3d-world/SceneManager";
 import WebsocketManager from "./websocket-manager";
 import { SkyColorProvider } from "./SkyColorProvider";
+import { observer } from "mobx-react-lite";
 // for immer to be able to use map and set
 enableMapSet();
 
-export default function Home() {
+export default observer(() => {
   const game = useGameStore().game;
 
   const componentToRender = game?.timeStarted ? (
@@ -37,4 +38,4 @@ export default function Home() {
       <SkyColorProvider>{componentToRender}</SkyColorProvider>
     </>
   );
-}
+});

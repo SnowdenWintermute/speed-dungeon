@@ -1,4 +1,3 @@
-import { GameState } from "@/stores/game-store";
 import {
   CharacterAndItems,
   CharacterAssociatedData,
@@ -17,7 +16,7 @@ export function characterConvertedItemsToShardsHandler(characterAndItems: Charac
 
   characterAssociatedDataProvider(
     characterAndItems.characterId,
-    ({ character }: CharacterAssociatedData, _gameState: GameState) => {
+    ({ character }: CharacterAssociatedData) => {
       const { combatantProperties } = character;
       // unequip it if is equipped
       const equippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties.equipment, {

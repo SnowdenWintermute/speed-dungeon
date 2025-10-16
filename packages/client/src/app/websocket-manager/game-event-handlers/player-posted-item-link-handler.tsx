@@ -1,7 +1,7 @@
 import { AdventuringParty, EntityId, PlayerAssociatedData } from "@speed-dungeon/common";
-import { playerAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { setAlert } from "@/app/components/alerts";
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
+import { playerAssociatedDataProvider } from "../combatant-associated-details-providers";
 
 export function playerPostedItemLinkHandler(eventData: { username: string; itemId: EntityId }) {
   const { username, itemId } = eventData;

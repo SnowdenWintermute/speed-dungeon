@@ -10,10 +10,9 @@ import {
   Item,
 } from "@speed-dungeon/common";
 import React, { useEffect, useRef, useState } from "react";
-import ActionDetails from "./action-details";
+import { ActionDetails } from "./action-details";
 import EquipmentDetails from "./EquipmentDetails";
 import ModKeyTooltip from "./ModKeyTooltip";
-import { useGameStore } from "@/stores/game-store";
 import Divider from "@/app/components/atoms/Divider";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { ZIndexLayers } from "@/app/z-index-layers";

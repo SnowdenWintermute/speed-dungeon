@@ -5,11 +5,9 @@ import {
   CombatantMotionGameUpdateCommand,
   CombatantMotionUpdate,
   CombatantProperties,
-  ERROR_MESSAGES,
   EntityId,
   EntityMotionUpdate,
   SpawnableEntityType,
-  throwIfError,
 } from "@speed-dungeon/common";
 import { EntityMotionUpdateCompletionTracker } from "./entity-motion-update-completion-tracker";
 import { getSceneEntityToUpdate } from "./get-scene-entity-to-update";
@@ -24,9 +22,8 @@ import { handleEntityMotionSetNewParentUpdate } from "./handle-entity-motion-set
 import { handleLockRotationToFace } from "./handle-lock-rotation-to-face";
 import { handleStartPointingTowardEntity } from "./handle-start-pointing-toward";
 import { handleEquipmentAnimations } from "./handle-equipment-animations";
-import { useGameStore } from "@/stores/game-store";
-import getParty from "@/utils/getParty";
 import { GameUpdateTracker } from "../game-update-tracker";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export function handleEntityMotionUpdate(
   update: GameUpdateTracker<ActionEntityMotionGameUpdateCommand | CombatantMotionGameUpdateCommand>,
@@ -139,19 +136,14 @@ export function handleEntityMotionUpdate(
 }
 
 function despawnAndUnregisterActionEntity(entityId: EntityId, cleanupMode: CleanupMode) {
-  {
-    getGameWorld().actionEntityManager.unregister(entityId, cleanupMode);
-    useGameStore.getState().mutateState((state) => {
-      const partyResult = getParty(state.game, state.username);
-      if (partyResult instanceof Error) {
-        return console.error(partyResult);
-      } else {
-        if (!state.game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+  getGameWorld().actionEntityManager.unregister(entityId, cleanupMode);
 
-        const { actionEntityManager } = partyResult;
-        actionEntityManager.unregisterActionEntity(entityId);
-      }
-    });
+  const partyResult = AppStore.get().gameStore.getExpectedParty();
+  if (partyResult instanceof Error) {
+    return console.error(partyResult);
+  } else {
+    const { actionEntityManager } = partyResult;
+    actionEntityManager.unregisterActionEntity(entityId);
   }
 }
 
@@ -166,13 +158,8 @@ function handleCombatantMotionUpdate(
     onTranslationComplete: () => {},
   };
 
-  try {
-    const combatantResult = useGameStore.getState().getCombatant(motionUpdate.entityId);
-  } catch {
-    console.error("error motionUpdate:", motionUpdate);
-  }
+  const combatant = AppStore.get().gameStore.getExpectedCombatant(motionUpdate.entityId);
 
-  const combatant = throwIfError(useGameStore.getState().getCombatant(motionUpdate.entityId));
   // they are already dead, so don't animate them
   // this happens if a combatant dies from getting counterattacked and the server
   // tells them to "return home"

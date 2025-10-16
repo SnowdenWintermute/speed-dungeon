@@ -1,9 +1,7 @@
-import { GameState } from "@/stores/game-store";
 import {
   CharacterAssociatedData,
   CombatantEquipment,
   CombatantProperties,
-  ERROR_MESSAGES,
   Item,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
@@ -21,65 +19,53 @@ export function characterEquippedItemHandler(packet: {
   const { itemId, equipToAlternateSlot, characterId } = packet;
   let itemToSelectOption: Item | null = null;
 
-  characterAssociatedDataProvider(
-    characterId,
-    ({ party, character }: CharacterAssociatedData, gameState: GameState) => {
-      if (gameState.username === null) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+  characterAssociatedDataProvider(characterId, ({ party, character }: CharacterAssociatedData) => {
+    const unequippedResult = CombatantProperties.equipItem(character, itemId, equipToAlternateSlot);
+    if (unequippedResult instanceof Error) return unequippedResult;
+    const { idsOfUnequippedItems } = unequippedResult;
 
-      const unequippedResult = CombatantProperties.equipItem(
-        character,
-        itemId,
-        equipToAlternateSlot
+    const slot = CombatantProperties.getSlotItemIsEquippedTo(character.combatantProperties, itemId);
+    if (slot !== null) {
+      const item = CombatantEquipment.getEquipmentInSlot(
+        character.combatantProperties.equipment,
+        slot
       );
-      if (unequippedResult instanceof Error) return unequippedResult;
-      const { idsOfUnequippedItems } = unequippedResult;
+      if (item !== undefined)
+        getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+          type: ModelActionType.SynchronizeCombatantEquipmentModels,
+          entityId: character.entityProperties.id,
+        });
+    }
 
-      const slot = CombatantProperties.getSlotItemIsEquippedTo(
-        character.combatantProperties,
-        itemId
-      );
-      if (slot !== null) {
-        const item = CombatantEquipment.getEquipmentInSlot(
-          character.combatantProperties.equipment,
-          slot
-        );
-        if (item !== undefined)
-          getGameWorld().modelManager.modelActionQueue.enqueueMessage({
-            type: ModelActionType.SynchronizeCombatantEquipmentModels,
-            entityId: character.entityProperties.id,
-          });
-      }
+    if (idsOfUnequippedItems[0] === undefined) return;
 
-      if (idsOfUnequippedItems[0] === undefined) return;
+    const playerOwnsCharacter = party.combatantManager.playerOwnsCharacter(
+      AppStore.get().gameStore.getExpectedUsername(),
+      characterId
+    );
 
-      const playerOwnsCharacter = party.combatantManager.playerOwnsCharacter(
-        gameState.username,
-        characterId
-      );
+    if (!playerOwnsCharacter) return;
 
-      if (!playerOwnsCharacter) return;
-
-      // we want the user to be now selecting the item they just unequipped
-      for (const item of character.combatantProperties.inventory.equipment) {
-        if (item.entityProperties.id === idsOfUnequippedItems[0]) {
-          itemToSelectOption = item;
-          break;
-        }
-      }
-
-      const { focusStore } = AppStore.get();
-      focusStore.detailable.clearHovered();
-
-      if (itemToSelectOption === null) return;
-
-      const { actionMenuStore } = AppStore.get();
-      const currentMenu = actionMenuStore.getCurrentMenu();
-      if (currentMenu instanceof ConsideringItemMenuState) {
-        // not cloning here leads to zustand revoked proxy error
-        // maybe once we don't use zustand we can try not cloning
-        currentMenu.item = cloneDeep(itemToSelectOption);
-        focusStore.detailable.setDetailed(cloneDeep(itemToSelectOption));
+    // we want the user to be now selecting the item they just unequipped
+    for (const item of character.combatantProperties.inventory.equipment) {
+      if (item.entityProperties.id === idsOfUnequippedItems[0]) {
+        itemToSelectOption = item;
+        break;
       }
     }
-  );
+
+    const { focusStore } = AppStore.get();
+    focusStore.detailable.clearHovered();
+
+    if (itemToSelectOption === null) return;
+
+    const { actionMenuStore } = AppStore.get();
+    const currentMenu = actionMenuStore.getCurrentMenu();
+    if (currentMenu instanceof ConsideringItemMenuState) {
+      // not cloning here leads to zustand revoked proxy error
+      // maybe once we don't use zustand we can try not cloning
+      currentMenu.item = cloneDeep(itemToSelectOption);
+      focusStore.detailable.setDetailed(cloneDeep(itemToSelectOption));
+    }
+  });
 }

@@ -40,7 +40,7 @@ export function induceHitRecovery(
   const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
 
   const combatantContext = AppStore.get().gameStore.getCombatantContext(targetId);
-  const { game, party, actionUser: targetCombatant } = combatantContext;
+  const { game, party, combatant: targetCombatant } = combatantContext;
   const combatantProperties = targetCombatant.getCombatantProperties();
 
   const combatantWasAliveBeforeResourceChange = combatantProperties.hitPoints > 0;

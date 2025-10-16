@@ -2,6 +2,7 @@ import {
   ActionUserContext,
   ClientToServerEvent,
   Combatant,
+  CombatantContext,
   ERROR_MESSAGES,
   EntityId,
   SpeedDungeonGame,
@@ -20,6 +21,42 @@ export class GameStore {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
+  getExpectedUsername() {
+    if (this.username === null) throw new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+    return this.username;
+  }
+
+  setUsername(username: string) {
+    this.username = username;
+  }
+
+  getExpectedPlayer(username: string) {
+    const playerOption = this.getExpectedGame().players[username];
+    if (playerOption === undefined) throw new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+    return playerOption;
+  }
+
+  getExpectedClientPlayer() {
+    if (this.username === null) throw new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+    return this.getExpectedPlayer(this.username);
+  }
+
+  getCombatantOption(combatantId: EntityId) {
+    return this.getPartyOption()?.combatantManager.getCombatantOption(combatantId);
+  }
+
+  getExpectedCombatant(combatantId: EntityId) {
+    return this.getExpectedParty().combatantManager.getExpectedCombatant(combatantId);
+  }
+
+  setGame(game: SpeedDungeonGame) {
+    this.game = game;
+  }
+
+  clearGame() {
+    this.game = null;
+  }
+
   getGameOption() {
     return this.game;
   }
@@ -29,11 +66,11 @@ export class GameStore {
     return this.game;
   }
 
-  getCombatantContext(combatantId: EntityId): ActionUserContext {
+  getCombatantContext(combatantId: EntityId): CombatantContext {
     const party = this.getExpectedParty();
     const game = this.getExpectedGame();
     const combatant = party.combatantManager.getExpectedCombatant(combatantId);
-    return new ActionUserContext(game, party, combatant);
+    return new CombatantContext(game, party, combatant);
   }
 
   getFocusedCharacterContext() {

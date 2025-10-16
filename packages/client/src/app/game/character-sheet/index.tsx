@@ -1,6 +1,4 @@
 import { SPACING_REM } from "@/client_consts";
-import { useGameStore } from "@/stores/game-store";
-import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import React, { useLayoutEffect, useRef, useState } from "react";
 import CharacterSheetTopBar from "./CharacterSheetTopBar";
 import { PaperDollAndAttributes } from "./PaperDollAndAttributes";
@@ -12,14 +10,9 @@ export const CharacterSheet = observer(
   ({ showCharacterSheet }: { showCharacterSheet: boolean }) => {
     const { actionMenuStore } = AppStore.get();
 
-    const partyResult = useGameStore().getParty();
-    if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
-    const focusedCharacterResult = useGameStore().getFocusedCharacter();
-    const focusedCharacterOption =
-      focusedCharacterResult instanceof Error ? null : focusedCharacterResult;
-    if (!focusedCharacterOption) return <div>{ERROR_MESSAGES.COMBATANT.NOT_FOUND}</div>;
+    const party = AppStore.get().gameStore.getExpectedParty();
 
-    const partyCharacterIds = partyResult.combatantManager
+    const partyCharacterIds = party.combatantManager
       .getPartyMemberCharacters()
       .map((combatant) => combatant.getEntityId());
 

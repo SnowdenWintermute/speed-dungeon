@@ -1,5 +1,4 @@
 import { getGameWorld } from "@/app/3d-world/SceneManager";
-import { GameState } from "@/stores/game-store";
 import {
   AdventuringParty,
   CombatantProperties,
@@ -12,10 +11,10 @@ import {
 export function handleDurabilityChanges(
   durabilityChanges: DurabilityChangesByEntityId,
   party: AdventuringParty,
-  gameState: GameState,
   brokenHoldablesAndTheirOwnerIds: { ownerId: EntityId; equipment: Equipment }[]
 ) {
-  gameState.rerenderForcer += 1; // for some reason it delays updating the durability indicators on bow use without this
+  // @TODO - remove these if no longer relevant after MobX
+  // gameState.rerenderForcer += 1; // for some reason it delays updating the durability indicators on bow use without this
   // playBeep();
   DurabilityChangesByEntityId.ApplyToGame(party, durabilityChanges, (combatant, equipment) => {
     const slot = CombatantProperties.getSlotItemIsEquippedTo(

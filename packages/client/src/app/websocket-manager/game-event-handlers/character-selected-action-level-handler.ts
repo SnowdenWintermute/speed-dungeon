@@ -1,4 +1,3 @@
-import { GameState } from "@/stores/game-store";
 import {
   ActionAndRank,
   ActionUserContext,
@@ -17,7 +16,7 @@ export function characterSelectedActionLevelHandler(eventData: {
 }) {
   characterAssociatedDataProvider(
     eventData.characterId,
-    ({ character, game, party }: CharacterAssociatedData, gameState: GameState) => {
+    ({ character, game, party }: CharacterAssociatedData) => {
       const { actionLevel } = eventData;
 
       const { targetingProperties } = character.combatantProperties;
@@ -30,8 +29,6 @@ export function characterSelectedActionLevelHandler(eventData: {
       const { actionName } = selectedActionAndRank;
 
       targetingProperties.setSelectedActionAndRank(new ActionAndRank(actionName, actionLevel));
-
-      if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
 
       const playerOption = game.players[character.combatantProperties.controlledBy.controllerName];
       if (playerOption === undefined) return new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);

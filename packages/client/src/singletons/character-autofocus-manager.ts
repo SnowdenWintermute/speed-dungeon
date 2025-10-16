@@ -1,5 +1,4 @@
 import { CombatantTurnTracker, TurnTracker } from "@speed-dungeon/common";
-import { GameState } from "@/stores/game-store";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
 import { AppStore } from "@/mobx-stores/app-store";
 
@@ -24,7 +23,7 @@ export class CharacterAutoFocusManager {
     }
   }
 
-  focusFirstOwnedCharacter(gameState: GameState) {
+  focusFirstOwnedCharacter() {
     // if viewing menu other than ItemsOnGround, do nothing
     const { actionMenuStore, gameStore } = AppStore.get();
     const clientIsViewingMenus = actionMenuStore.hasStackedMenus();
@@ -34,8 +33,7 @@ export class CharacterAutoFocusManager {
       return;
     }
 
-    const playerResult = gameState.getPlayer();
-    if (playerResult instanceof Error) throw playerResult;
+    const playerResult = gameStore.getExpectedClientPlayer();
 
     const firstOwnedCharacterId = playerResult.characterIds[0];
     if (!firstOwnedCharacterId) return console.error("Player doesn't own any characters");

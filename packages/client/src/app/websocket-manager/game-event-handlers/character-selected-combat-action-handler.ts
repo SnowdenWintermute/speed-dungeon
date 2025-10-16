@@ -1,4 +1,3 @@
-import { GameState } from "@/stores/game-store";
 import {
   ActionUserContext,
   COMBAT_ACTIONS,
@@ -19,7 +18,7 @@ export function characterSelectedCombatActionHandler(
 ) {
   characterAssociatedDataProvider(
     characterId,
-    ({ character, game, party }: CharacterAssociatedData, gameState: GameState) => {
+    ({ character, game, party }: CharacterAssociatedData) => {
       const { actionMenuStore } = AppStore.get();
 
       const targetingProperties = character.getTargetingProperties();
@@ -29,7 +28,6 @@ export function characterSelectedCombatActionHandler(
       const itemId = itemIdOption === undefined ? null : itemIdOption;
       targetingProperties.setSelectedItemId(itemId);
 
-      if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
       const combatActionOption =
         selectedActionAndRank !== null ? COMBAT_ACTIONS[selectedActionAndRank.actionName] : null;
 
@@ -64,7 +62,7 @@ export function characterSelectedCombatActionHandler(
       );
 
       const playerOwnsCharacter = party.combatantManager.playerOwnsCharacter(
-        gameState.username,
+        AppStore.get().gameStore.getExpectedUsername(),
         characterId
       );
 

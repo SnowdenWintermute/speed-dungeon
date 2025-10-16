@@ -1,7 +1,6 @@
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { CHARACTER_SLOT_SPACING } from "@/app/lobby/saved-character-manager";
 import { useGameStore } from "@/stores/game-store";
-import getParty from "@/utils/getParty";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import {
   ERROR_MESSAGES,
@@ -98,17 +97,17 @@ interface ModelsAndPositions {
 }
 
 function getModelsAndPositions() {
-  const state = useGameStore.getState();
-  const { game } = state;
+  const { gameStore } = AppStore.get();
+  const gameOption = gameStore.getGameOption();
   let modelsAndPositions: ModelsAndPositions = {};
 
-  if (game && game.mode === GameMode.Progression && !game.timeStarted) {
-    modelsAndPositions = getProgressionGameLobbyCombatantModelPositions(game);
-  } else if (state.game && state.game.timeStarted) {
-    // in game
-    const partyResult = getParty(game, state.username || "");
-    if (partyResult instanceof Error) return partyResult;
-    const { combatantManager } = partyResult;
+  const inLobby = gameOption && !gameOption.timeStarted;
+  const inGame = gameOption && gameOption.timeStarted;
+  if (inLobby && gameOption.mode === GameMode.Progression) {
+    modelsAndPositions = getProgressionGameLobbyCombatantModelPositions(gameOption);
+  } else if (inGame) {
+    const party = gameStore.getExpectedParty();
+    const { combatantManager } = party;
     for (const combatant of combatantManager.getAllCombatants()) {
       modelsAndPositions[combatant.entityProperties.id] = {
         combatant,

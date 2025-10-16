@@ -28,75 +28,69 @@ export function characterPerformedCraftingActionHandler(eventData: {
 }) {
   const { characterId, item, craftingAction } = eventData;
 
-  characterAssociatedDataProvider(
-    characterId,
-    ({ party, character }: CharacterAssociatedData, gameState) => {
-      // used to show loading state so players don't get confused when
-      // their craft action produces exact same item as already was
-      AppStore.get().actionMenuStore.setCharacterCompletedCrafting(character.getEntityId());
+  characterAssociatedDataProvider(characterId, ({ party, character }: CharacterAssociatedData) => {
+    // used to show loading state so players don't get confused when
+    // their craft action produces exact same item as already was
+    AppStore.get().actionMenuStore.setCharacterCompletedCrafting(character.getEntityId());
 
-      const itemResult = CombatantProperties.getOwnedItemById(
+    const itemResult = CombatantProperties.getOwnedItemById(
+      character.combatantProperties,
+      item.entityProperties.id
+    );
+    if (itemResult instanceof Error) return itemResult;
+
+    const itemBeforeModification = cloneDeep(itemResult);
+    // distinguish between the crafted and pre-crafted item. used for selecting the item links in the
+    // combat log
+    itemBeforeModification.craftingIteration !== undefined
+      ? (itemBeforeModification.craftingIteration += 1)
+      : (itemBeforeModification.craftingIteration = 0);
+
+    if (itemResult instanceof Equipment && itemBeforeModification instanceof Equipment) {
+      const asInstance = plainToInstance(Equipment, item);
+
+      const wasBrokenBefore = Equipment.isBroken(itemResult);
+
+      applyEquipmentEffectWhileMaintainingResourcePercentages(character.combatantProperties, () => {
+        itemResult.copyFrom(asInstance);
+      });
+
+      const wasRepaired = wasBrokenBefore && !Equipment.isBroken(itemResult);
+      const slotEquippedToOption = CombatantProperties.getSlotItemIsEquippedTo(
         character.combatantProperties,
-        item.entityProperties.id
+        itemResult.entityProperties.id
       );
-      if (itemResult instanceof Error) return itemResult;
+      const isEquipped = slotEquippedToOption !== null;
 
-      const itemBeforeModification = cloneDeep(itemResult);
-      // distinguish between the crafted and pre-crafted item. used for selecting the item links in the
-      // combat log
-      itemBeforeModification.craftingIteration !== undefined
-        ? (itemBeforeModification.craftingIteration += 1)
-        : (itemBeforeModification.craftingIteration = 0);
-
-      if (itemResult instanceof Equipment && itemBeforeModification instanceof Equipment) {
-        const asInstance = plainToInstance(Equipment, item);
-
-        const wasBrokenBefore = Equipment.isBroken(itemResult);
-
-        applyEquipmentEffectWhileMaintainingResourcePercentages(
-          character.combatantProperties,
-          () => {
-            itemResult.copyFrom(asInstance);
-          }
-        );
-
-        const wasRepaired = wasBrokenBefore && !Equipment.isBroken(itemResult);
-        const slotEquippedToOption = CombatantProperties.getSlotItemIsEquippedTo(
-          character.combatantProperties,
-          itemResult.entityProperties.id
-        );
-        const isEquipped = slotEquippedToOption !== null;
-
-        if (isEquipped && wasRepaired) {
-          getGameWorld().modelManager.modelActionQueue.enqueueMessage({
-            type: ModelActionType.SynchronizeCombatantEquipmentModels,
-            entityId: character.entityProperties.id,
-          });
-        }
-
-        if (shouldUpdateThumbnailAfterCraft(itemResult)) {
-          gameWorld.current?.imageManager.enqueueMessage({
-            type: ImageManagerRequestType.ItemCreation,
-            item: itemResult,
-          });
-        }
-
-        itemResult.craftingIteration = itemBeforeModification.craftingIteration + 1;
-
-        const actionPrice = getCraftingActionPrice(craftingAction, itemBeforeModification);
-        character.combatantProperties.inventory.shards -= actionPrice;
-
-        GameLogMessageService.postCraftActionResult(
-          character.getName(),
-          itemBeforeModification,
-          craftingAction,
-          itemResult
-        );
-      } else {
-        setAlert("Server sent crafting results of a consumable?");
+      if (isEquipped && wasRepaired) {
+        getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+          type: ModelActionType.SynchronizeCombatantEquipmentModels,
+          entityId: character.entityProperties.id,
+        });
       }
+
+      if (shouldUpdateThumbnailAfterCraft(itemResult)) {
+        gameWorld.current?.imageManager.enqueueMessage({
+          type: ImageManagerRequestType.ItemCreation,
+          item: itemResult,
+        });
+      }
+
+      itemResult.craftingIteration = itemBeforeModification.craftingIteration + 1;
+
+      const actionPrice = getCraftingActionPrice(craftingAction, itemBeforeModification);
+      character.combatantProperties.inventory.shards -= actionPrice;
+
+      GameLogMessageService.postCraftActionResult(
+        character.getName(),
+        itemBeforeModification,
+        craftingAction,
+        itemResult
+      );
+    } else {
+      setAlert("Server sent crafting results of a consumable?");
     }
-  );
+  });
 }
 
 function shouldUpdateThumbnailAfterCraft(equipment: Equipment) {

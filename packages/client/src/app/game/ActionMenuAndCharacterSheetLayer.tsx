@@ -9,7 +9,7 @@ import { SPACING_REM } from "@/client_consts";
 import { ZIndexLayers } from "../z-index-layers";
 import { ItemCraftDisplay } from "./item-crafting/ItemCraftingDisplay";
 import { CraftingItemMenuState } from "./ActionMenu/menu-state/crafting-item";
-import CharacterAttributes from "./character-sheet/CharacterAttributes";
+import { CharacterAttributes } from "./character-sheet/CharacterAttributes";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 

@@ -4,16 +4,12 @@ import {
   CombatantProperties,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
-import { GameState } from "@/stores/game-store";
 
-export default function characterIncrementedAttributePointHandler(
+export function characterIncrementedAttributePointHandler(
   characterId: string,
   attribute: CombatAttribute
 ) {
-  characterAssociatedDataProvider(
-    characterId,
-    ({ character }: CharacterAssociatedData, gameState: GameState) => {
-      CombatantProperties.incrementAttributePoint(character.combatantProperties, attribute);
-    }
-  );
+  characterAssociatedDataProvider(characterId, ({ character }: CharacterAssociatedData) => {
+    CombatantProperties.incrementAttributePoint(character.combatantProperties, attribute);
+  });
 }

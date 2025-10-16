@@ -1,18 +1,13 @@
 import { ACTION_ENTITY_ICONS } from "@/app/icons";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
-import { useGameStore } from "@/stores/game-store";
 import { ACTION_ENTITY_STRINGS, ActionEntity } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
-export default function PersistentActionEntityDisplay() {
-  const partyResult = useGameStore().getParty();
-  if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
-  const party = partyResult;
+export const PersistentActionEntityDisplay = observer(() => {
+  const party = AppStore.get().gameStore.getExpectedParty();
 
-  const game = useGameStore().game;
-  if (game === null) return <div>no game</div>;
   const { actionEntityManager } = party;
 
   return (
@@ -26,7 +21,7 @@ export default function PersistentActionEntityDisplay() {
       )}
     </ul>
   );
-}
+});
 
 const PersistentActionEntity = observer(({ actionEntity }: { actionEntity: ActionEntity }) => {
   const { actionOriginData } = actionEntity.actionEntityProperties;
