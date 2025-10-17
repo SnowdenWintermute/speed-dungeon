@@ -62,7 +62,12 @@ export class ActionMenuStore {
     //   .map((menuState) => MENU_STATE_TYPE_STRINGS[menuState.type]);
   }
 
+  isInitialized() {
+    return this.baseMenuState !== null;
+  }
+
   currentMenuIsType(menuStateType: MenuStateType) {
+    if (!this.isInitialized()) return false;
     return this.getCurrentMenu().type === menuStateType;
   }
 
@@ -91,20 +96,29 @@ export class ActionMenuStore {
     }
   }
 
+  isViewingItemsOnGround() {
+    return this.currentMenuIsType(MenuStateType.ItemsOnGround);
+  }
+
   shouldShowCharacterSheet() {
-    const currentMenuType = this.getCurrentMenu().type;
-    const isCharacterSheetType = CHARACTER_SHEET_MENU_TYPES.includes(currentMenuType);
-    return isCharacterSheetType || this.viewingAbilityTree();
+    for (const menuType of CHARACTER_SHEET_MENU_TYPES) {
+      if (this.currentMenuIsType(menuType)) return true;
+    }
+    return this.viewingAbilityTree();
   }
 
   viewingAbilityTree() {
-    const currentMenuType = this.getCurrentMenu().type;
-    return ABILITY_TREE_MENU_TYPES.includes(currentMenuType);
+    for (const menuType of ABILITY_TREE_MENU_TYPES) {
+      if (this.currentMenuIsType(menuType)) return true;
+    }
+    return false;
   }
 
   operatingVendingMachine() {
-    const currentMenuType = this.getCurrentMenu().type;
-    return VENDING_MACHINE_MENU_TYPES.includes(currentMenuType);
+    for (const menuType of VENDING_MACHINE_MENU_TYPES) {
+      if (this.currentMenuIsType(menuType)) return true;
+    }
+    return false;
   }
 
   setHoveredAction(actionName: CombatActionName) {

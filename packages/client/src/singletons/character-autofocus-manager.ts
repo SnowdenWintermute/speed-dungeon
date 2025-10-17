@@ -27,8 +27,8 @@ export class CharacterAutoFocusManager {
     // if viewing menu other than ItemsOnGround, do nothing
     const { actionMenuStore, gameStore } = AppStore.get();
     const clientIsViewingMenus = actionMenuStore.hasStackedMenus();
-    const currentMenu = actionMenuStore.getCurrentMenu();
-    if (clientIsViewingMenus && currentMenu.type !== MenuStateType.ItemsOnGround) {
+
+    if (clientIsViewingMenus && actionMenuStore.isViewingItemsOnGround()) {
       console.info("not switching focus since in menus");
       return;
     }

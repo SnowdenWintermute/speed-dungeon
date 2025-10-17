@@ -14,7 +14,6 @@ import { DialogElementName } from "@/mobx-stores/dialogs";
 
 export const Game = observer(() => {
   const { actionMenuStore, gameStore } = AppStore.get();
-  const { game, party } = gameStore.getFocusedCharacterContext();
   const viewingCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
 
   const viewingLeaveGameModal = AppStore.get().dialogStore.isOpen(DialogElementName.LeaveGame);
@@ -28,6 +27,8 @@ export const Game = observer(() => {
       </div>
     );
   }
+
+  const { game, party } = gameStore.getFocusedCharacterContext();
 
   return (
     <>

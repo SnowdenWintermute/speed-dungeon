@@ -20,7 +20,7 @@ import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-
 export class ConsideringAbilityTreeColumnMenuState extends ActionMenuState {
   constructor(public readonly columnIndex: number) {
     super(MenuStateType.ConsideringAbilityTreeColumn, 5);
-    this.pageIndex = columnIndex;
+    this.pageIndexInternal = columnIndex;
   }
 
   getButtonProperties() {

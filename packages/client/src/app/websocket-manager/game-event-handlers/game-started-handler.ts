@@ -11,11 +11,15 @@ import {
 import { Vector3 } from "@babylonjs/core";
 
 export function gameStartedHandler(timeStarted: number) {
-  AppStore.get().actionMenuStore.initialize(new BaseMenuState());
-
+  console.log("game started handle ran");
   const { gameEventNotificationStore, gameStore } = AppStore.get();
   gameEventNotificationStore.clearGameLog();
   GameLogMessageService.postGameStarted();
+
+  AppStore.get().actionMenuStore.initialize(new BaseMenuState());
+
+  characterAutoFocusManager.focusFirstOwnedCharacter();
+  console.log("after focusFirstOwnedCharacter", gameStore.getFocusedCharacterOption());
 
   const { game, party } = gameStore.getFocusedCharacterContext();
 
@@ -44,8 +48,6 @@ export function gameStartedHandler(timeStarted: number) {
   }
 
   combatantManager.updateHomePositions();
-
-  characterAutoFocusManager.focusFirstOwnedCharacter();
 
   gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.SynchronizeCombatantModels,

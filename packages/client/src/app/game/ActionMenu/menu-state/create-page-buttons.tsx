@@ -12,7 +12,7 @@ export function createPageButtons(
   ),
   onPageTurn?: (newPageNumber: number) => void
 ) {
-  if (pageCount <= 1) return;
+  if (pageCount <= 1) return console.log("no pages in menu to turn");
 
   const { actionMenuStore } = AppStore.get();
   const prevButtonHotkey = HOTKEYS.LEFT_MAIN;
@@ -21,7 +21,7 @@ export function createPageButtons(
     `Previous (${letterFromKeyCode(prevButtonHotkey)})`,
     () => {
       actionMenuStore.getCurrentMenu().turnPage(NextOrPrevious.Previous);
-      if (onPageTurn !== undefined) onPageTurn(actionMenuStore.getCurrentMenu().getPageIndex());
+      if (onPageTurn !== undefined) onPageTurn(actionMenuStore.getCurrentMenu().pageIndex);
     }
   );
   previousPageButton.dedicatedKeys = [prevButtonHotkey, "ArrowLeft"];
@@ -33,7 +33,7 @@ export function createPageButtons(
     `Next (${letterFromKeyCode(nextButtonHotkey)})`,
     () => {
       actionMenuStore.getCurrentMenu().turnPage(NextOrPrevious.Next);
-      if (onPageTurn !== undefined) onPageTurn(actionMenuStore.getCurrentMenu().getPageIndex());
+      if (onPageTurn !== undefined) onPageTurn(actionMenuStore.getCurrentMenu().pageIndex);
     }
   );
   nextPageButton.dedicatedKeys = [nextButtonHotkey, "ArrowRight"];

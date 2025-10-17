@@ -44,8 +44,17 @@ export class BaseMenuState extends ActionMenuState {
 
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
 
-    const focusedCharacterResult = gameStore.getExpectedFocusedCharacter();
-    const { combatantProperties, entityProperties } = focusedCharacterResult;
+    const focusedCharacterOption = gameStore.getFocusedCharacterOption();
+
+    if (focusedCharacterOption === undefined) {
+      // this happens because there is a circular dependency between initializing
+      // action menu store and focusing a character
+      return toReturn;
+    }
+
+    const focusedCharacter = focusedCharacterOption;
+
+    const { combatantProperties, entityProperties } = focusedCharacter;
     const characterId = entityProperties.id;
 
     toReturn[ActionButtonCategory.Top].push(setViewingAbilityTreeAsFreshStack);
@@ -166,7 +175,7 @@ export class BaseMenuState extends ActionMenuState {
       const { usabilityContext } = combatAction.targetingProperties;
 
       const costs = combatAction.costProperties.getResourceCosts(
-        focusedCharacterResult,
+        focusedCharacter,
         inCombat,
         1 // @TODO - calculate the actual level to display based on most expensive they can afford
       );

@@ -18,8 +18,13 @@ enableMapSet();
 
 export default observer(() => {
   const game = AppStore.get().gameStore.getGameOption();
+  const focusedCharacterOption = AppStore.get().gameStore.getFocusedCharacterOption();
 
-  const componentToRender = game?.timeStarted ? (
+  const shouldShowGame = focusedCharacterOption !== undefined && game?.timeStarted !== undefined;
+
+  console.log("shouldShowGame:", shouldShowGame);
+
+  const componentToRender = shouldShowGame ? (
     <Game />
   ) : game ? (
     <GameSetup gameMode={game.mode} />

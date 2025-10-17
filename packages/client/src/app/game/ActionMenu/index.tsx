@@ -52,8 +52,8 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
   const hoveredAction = actionMenuStore.getHoveredAction();
 
   const currentMenu = actionMenuStore.getCurrentMenu();
-  const currentPageIndex = currentMenu.getPageIndex();
-  const buttonProperties = currentMenu.getButtonProperties();
+  const currentPageIndex = currentMenu.pageIndex;
+  const buttonProperties = currentMenu.buttonProperties;
   const numberOfNumberedButtons = buttonProperties[ActionButtonCategory.Numbered].length;
   const viewingCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
   const focusedCharacter = gameStore.getExpectedFocusedCharacter();
@@ -64,8 +64,6 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
       actionMenuStore.popStack();
     }
   }, [currentMenu.type, numberOfNumberedButtons]);
-
-  console.log("rendering ActionMenu, inputLocked:", inputLocked);
 
   if (inputLocked) return <div />;
 

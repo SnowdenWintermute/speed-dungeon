@@ -2,11 +2,12 @@ import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import { ReactNode } from "react";
 import { MENU_STATE_TYPE_STRINGS, MenuStateType } from "./menu-state-type";
 import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
+import { action, computed, makeObservable, observable } from "mobx";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 
 export abstract class ActionMenuState {
-  protected pageIndex: number = 0;
+  protected pageIndexInternal: number = 0;
   alwaysShowPageOne: boolean = false;
   private cachedPageCount: number;
   constructor(
@@ -15,7 +16,20 @@ export abstract class ActionMenuState {
   ) {
     this.cachedPageCount = this.getPageCount();
 
-    // makeAutoObservable(this, {}, { autoBind: true });
+    makeObservable(
+      this,
+      {
+        pageIndexInternal: observable,
+        pageIndex: computed,
+        alwaysShowPageOne: observable,
+        setPageIndex: action,
+        turnPage: action,
+        goToLastPage: action,
+        goToFirstPage: action,
+        buttonProperties: computed,
+      },
+      { autoBind: true }
+    );
   }
 
   getStringName() {
@@ -30,25 +44,29 @@ export abstract class ActionMenuState {
     );
   }
 
-  getPageIndex() {
-    return this.pageIndex;
+  get pageIndex() {
+    return this.pageIndexInternal;
   }
 
   setPageIndex(newIndex: number) {
-    this.pageIndex = newIndex;
+    this.pageIndexInternal = newIndex;
   }
 
   turnPage(direction: NextOrPrevious) {
-    const newPage = getNextOrPreviousNumber(this.pageIndex, this.cachedPageCount, direction);
-    this.pageIndex = newPage;
+    const newPage = getNextOrPreviousNumber(
+      this.pageIndexInternal,
+      this.cachedPageCount,
+      direction
+    );
+    this.pageIndexInternal = newPage;
   }
 
   goToLastPage() {
-    this.pageIndex = this.cachedPageCount;
+    this.pageIndexInternal = this.cachedPageCount;
   }
 
   goToFirstPage() {
-    this.pageIndex = 0;
+    this.pageIndexInternal = 0;
   }
 
   getCenterInfoDisplayOption(): ReactNode | null {
@@ -56,4 +74,8 @@ export abstract class ActionMenuState {
   }
 
   abstract getButtonProperties(): ActionButtonsByCategory;
+
+  get buttonProperties() {
+    return this.getButtonProperties();
+  }
 }

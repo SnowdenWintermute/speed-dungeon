@@ -9,7 +9,7 @@ export const BottomButtons = observer(
     const { actionMenuStore } = AppStore.get();
     const currentMenu = actionMenuStore.getCurrentMenu();
     const pageCount = currentMenu.getPageCount();
-    const currentPageIndex = currentMenu.getPageIndex();
+    const currentPageIndex = currentMenu.pageIndex;
 
     return (
       <div

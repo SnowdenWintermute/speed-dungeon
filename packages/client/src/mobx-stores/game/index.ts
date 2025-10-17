@@ -10,7 +10,6 @@ import {
 } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 import { AppStore } from "../app-store";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
 import { Socket } from "socket.io-client";
 
@@ -120,8 +119,13 @@ export class GameStore {
   }
 
   setFocusedCharacter(entityId: EntityId) {
-    if (this.username === null) throw new Error("expected to have initialized a username");
-    if (this.focusedCharacterId === entityId) return;
+    if (this.username === null) {
+      throw new Error("expected to have initialized a username");
+    }
+    if (this.focusedCharacterId === entityId) {
+      return console.log("already focusing character id:", entityId);
+    }
+
     const { actionMenuStore, focusStore } = AppStore.get();
     actionMenuStore.clearHoveredAction();
     focusStore.detailable.clear();
@@ -133,17 +137,15 @@ export class GameStore {
 
     this.focusedCharacterId = entityId;
 
-    let currentMenu = actionMenuStore.getCurrentMenu();
-
     if (
       !actionMenuStore.shouldShowCharacterSheet() &&
       !actionMenuStore.operatingVendingMachine() &&
-      currentMenu.type !== MenuStateType.ItemsOnGround
+      !actionMenuStore.isViewingItemsOnGround()
     ) {
       actionMenuStore.clearStack();
     }
 
-    if (currentMenu.type === MenuStateType.ItemSelected) {
+    if (actionMenuStore.currentMenuIsType(MenuStateType.ItemSelected)) {
       actionMenuStore.popStack();
     }
 
@@ -155,8 +157,11 @@ export class GameStore {
       actionMenuStore.removeMenuFromStack(MenuStateType.CraftingActionSelection);
     }
 
-    currentMenu = actionMenuStore.getCurrentMenu();
-    currentMenu.goToFirstPage();
+    if (actionMenuStore.isInitialized()) {
+      console.log("menu store initialize! allegedly");
+      const currentMenu = actionMenuStore.getCurrentMenu();
+      currentMenu.goToFirstPage();
+    }
   }
 
   private handleCharacterUnfocused(id: EntityId) {
