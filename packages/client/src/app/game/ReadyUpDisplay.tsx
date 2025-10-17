@@ -1,5 +1,4 @@
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { useGameStore } from "@/stores/game-store";
 import {
   AdventuringParty,
   ClientToServerEvent,
@@ -19,9 +18,8 @@ interface Props {
 }
 
 export const ReadyUpDisplay = observer(({ party }: Props) => {
-  const username = useGameStore().username;
-  if (username === null) return <div>no username</div>;
-  const { focusStore, actionMenuStore } = AppStore.get();
+  const { focusStore, actionMenuStore, gameStore } = AppStore.get();
+  const username = gameStore.getExpectedUsername();
   const focusedCharacterId = AppStore.get().gameStore.getExpectedFocusedCharacterId();
 
   function handleExploreClick() {

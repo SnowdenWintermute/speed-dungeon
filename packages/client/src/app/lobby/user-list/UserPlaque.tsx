@@ -1,10 +1,10 @@
 import React from "react";
 import { UserAuthStatus, UserChannelDisplayData } from "@speed-dungeon/common";
 import { SPACING_REM_SMALL } from "@/client_consts";
-import { useGameStore } from "@/stores/game-store";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import StarShape from "../../../../public/img/basic-shapes/star.svg";
 import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
 
 interface Props {
   username: string;
@@ -12,7 +12,7 @@ interface Props {
 }
 
 export const UserPlaque = observer(({ username, displayData }: Props) => {
-  const thisTabUsername = useGameStore().username;
+  const thisTabUsername = AppStore.get().gameStore.getUsernameOption();
   const bgStyle = displayData.authStatus === UserAuthStatus.Guest ? "bg-slate-700" : "bg-slate-950";
   let thisIsYouMarker = <span />;
   if (thisTabUsername === username)

@@ -43,11 +43,5 @@ export function createCharacterHandler(
   getGameServer()
     .io.of("/")
     .in(game.name)
-    .emit(
-      ServerToClientEvent.CharacterAddedToParty,
-      player.partyName,
-      session.username,
-      characterResult,
-      pets
-    );
+    .emit(ServerToClientEvent.CharacterAddedToParty, session.username, characterResult, pets);
 }

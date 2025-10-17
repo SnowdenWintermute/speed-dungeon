@@ -1,21 +1,22 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { useGameStore } from "@/stores/game-store";
 import { ClientToServerEvent, SpeedDungeonPlayer, formatGameMode } from "@speed-dungeon/common";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { SPACING_REM_LARGE } from "@/client_consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { ZIndexLayers } from "@/app/z-index-layers";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
 
 interface Props {
   children: ReactNode;
 }
 
-export default function GameLobby({ children }: Props) {
-  const game = useGameStore().game;
+export const GameLobby = observer(({ children }: Props) => {
+  const { gameStore } = AppStore.get();
+  const game = gameStore.getGameOption();
   if (game === null) return <div>Loading...</div>;
-  const username = useGameStore().username;
   const titleRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(0);
 
@@ -39,7 +40,8 @@ export default function GameLobby({ children }: Props) {
     websocketConnection.emit(ClientToServerEvent.ToggleReadyToStartGame);
   }
 
-  const isReady = username && game.playersReadied.includes(username);
+  const username = gameStore.getExpectedUsername();
+  const isReady = game.playersReadied.includes(username);
   const readyStyle = isReady ? "bg-green-800" : "";
 
   return (
@@ -97,7 +99,7 @@ export default function GameLobby({ children }: Props) {
       </div>
     </div>
   );
-}
+});
 
 function PlayerInGameIcon({
   playersReadied,

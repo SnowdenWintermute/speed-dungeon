@@ -1,5 +1,4 @@
 import React from "react";
-import { useGameStore } from "@/stores/game-store";
 import {
   CONSUMABLE_TEXT_COLOR,
   CONSUMABLE_TYPE_STRINGS,

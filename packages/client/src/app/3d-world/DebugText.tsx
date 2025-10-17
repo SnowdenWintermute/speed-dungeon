@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useGameStore } from "@/stores/game-store";
 import { ZIndexLayers } from "../z-index-layers";
 import { gameWorld } from "./SceneManager";
 import { InputLock } from "@speed-dungeon/common";

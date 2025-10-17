@@ -9,7 +9,7 @@ import { CombatAttribute } from "@speed-dungeon/common";
 import React from "react";
 import { AttributeListItem } from "./AttributeListItem";
 import HpAndMp from "./HpAndMp";
-import CharacterSheetWeaponDamage from "./CharacterSheetWeaponDamage";
+import { CharacterSheetWeaponDamage } from "./CharacterSheetWeaponDamage";
 import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
 import ElementalAffinitiesDisplay from "./ElementalAffinitiesDisplay";
 import KineticAffinitiesDisplay from "./KineticAffinitiesDisplay";

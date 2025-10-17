@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useGameStore } from "@/stores/game-store";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import {
   ClientToServerEvent,
@@ -112,9 +111,6 @@ function HotswapSlotButton({
   isSelected: boolean;
   disabled: boolean;
 }) {
-  const mutateGameState = useGameStore().mutateState;
-  const [isHovered, setIsHovered] = useState(false);
-
   return (
     <button
       className={`p-1 h-6 w-6 ${isSelected ? "bg-slate-800" : "bg-slate-700"}

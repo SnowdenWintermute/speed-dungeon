@@ -9,9 +9,14 @@ import {
   COMBATANT_POSITION_SPACING_SIDE,
 } from "../app-consts.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
+import { makeAutoObservable } from "mobx";
 
 export class CombatantManager {
   private combatants: Map<EntityId, Combatant> = new Map();
+
+  constructor() {
+    makeAutoObservable(this, {}, { autoBind: true });
+  }
 
   getCombatantOption(entityId: string): Combatant | undefined {
     return this.combatants.get(entityId);

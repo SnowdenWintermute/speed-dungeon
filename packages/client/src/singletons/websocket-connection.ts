@@ -1,6 +1,5 @@
 "use client";
 import { setAlert } from "@/app/components/alerts";
-import { useGameStore } from "@/stores/game-store";
 import {
   ClientToServerEvent,
   ClientToServerEventTypes,
@@ -28,6 +27,8 @@ export const websocketConnection: Socket<ServerToClientEventTypes, ClientToServe
   }
 );
 
+AppStore.get().gameStore.initialize(websocketConnection);
+
 export function resetWebsocketConnection() {
   websocketConnection.disconnect();
   websocketConnection.connect();
@@ -36,9 +37,7 @@ export function resetWebsocketConnection() {
 
 websocketConnection.on("connect", () => {
   console.info("connected");
-  useGameStore.getState().mutateState((state) => {
-    state.game = null;
-  });
+  AppStore.get().gameStore.clearGame();
   AppStore.get().lobbyStore.setWebsocketConnectedStatus(true);
 
   getGameWorld().modelManager.modelActionQueue.clear();

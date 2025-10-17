@@ -1,4 +1,3 @@
-import { useGameStore } from "@/stores/game-store";
 import {
   CombatantProperties,
   ERROR_MESSAGES,
@@ -20,74 +19,72 @@ import { getTargetOption } from "@/utils/get-target-option";
 import { TARGET_DUMMY_COMBATANT } from "./ability-tree/action-description";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import cloneDeep from "lodash.clonedeep";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
 
-export default function CharacterSheetWeaponDamage({
-  combatant,
-  disableOh,
-}: {
-  combatant: Combatant;
-  disableOh?: boolean;
-}) {
-  const { combatantProperties } = combatant;
+export const CharacterSheetWeaponDamage = observer(
+  ({ combatant, disableOh }: { combatant: Combatant; disableOh?: boolean }) => {
+    const { combatantProperties } = combatant;
 
-  const mhWeaponOption = CombatantProperties.getEquippedWeapon(
-    combatantProperties,
-    HoldableSlotType.MainHand
-  );
-
-  if (mhWeaponOption instanceof Error) return <div>{mhWeaponOption.message}</div>;
-  const mhDamageAndAccuracyResult = getAttackActionDamageAndAccuracy(
-    combatant,
-    mhWeaponOption,
-    false
-  );
-  const isTwoHanded = mhWeaponOption
-    ? Equipment.isTwoHanded(mhWeaponOption.taggedBaseEquipment.equipmentType)
-    : false;
-
-  const ohEquipmentOption = CombatantEquipment.getEquippedHoldable(
-    combatant.combatantProperties.equipment,
-    HoldableSlotType.OffHand
-  );
-
-  if (ohEquipmentOption instanceof Error) return <div>{ohEquipmentOption.message}</div>;
-
-  let ohDamageAndAccuracyResult;
-  if (
-    !isTwoHanded &&
-    ohEquipmentOption?.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType !==
-      EquipmentType.Shield
-  ) {
-    let ohWeaponOption = CombatantProperties.getEquippedWeapon(
+    const mhWeaponOption = CombatantProperties.getEquippedWeapon(
       combatantProperties,
+      HoldableSlotType.MainHand
+    );
+
+    if (mhWeaponOption instanceof Error) return <div>{mhWeaponOption.message}</div>;
+    const mhDamageAndAccuracyResult = getAttackActionDamageAndAccuracy(
+      combatant,
+      mhWeaponOption,
+      false
+    );
+    const isTwoHanded = mhWeaponOption
+      ? Equipment.isTwoHanded(mhWeaponOption.taggedBaseEquipment.equipmentType)
+      : false;
+
+    const ohEquipmentOption = CombatantEquipment.getEquippedHoldable(
+      combatant.combatantProperties.equipment,
       HoldableSlotType.OffHand
     );
-    if (ohWeaponOption instanceof Error) ohWeaponOption = undefined; // might be a shield
-    ohDamageAndAccuracyResult = getAttackActionDamageAndAccuracy(combatant, ohWeaponOption, true);
+
+    if (ohEquipmentOption instanceof Error) return <div>{ohEquipmentOption.message}</div>;
+
+    let ohDamageAndAccuracyResult;
+    if (
+      !isTwoHanded &&
+      ohEquipmentOption?.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType !==
+        EquipmentType.Shield
+    ) {
+      let ohWeaponOption = CombatantProperties.getEquippedWeapon(
+        combatantProperties,
+        HoldableSlotType.OffHand
+      );
+      if (ohWeaponOption instanceof Error) ohWeaponOption = undefined; // might be a shield
+      ohDamageAndAccuracyResult = getAttackActionDamageAndAccuracy(combatant, ohWeaponOption, true);
+    }
+
+    if (mhDamageAndAccuracyResult instanceof Error)
+      return <div>{mhDamageAndAccuracyResult.message}</div>;
+    if (ohDamageAndAccuracyResult instanceof Error)
+      return <div>{ohDamageAndAccuracyResult.message}</div>;
+
+    return (
+      <div className="flex w-full">
+        <WeaponDamageEntry
+          damageAndAccuracyOption={mhDamageAndAccuracyResult}
+          label="Main Hand"
+          paddingClass="pr-1"
+        />
+        <WeaponDamageEntry
+          damageAndAccuracyOption={ohDamageAndAccuracyResult}
+          label="Off Hand"
+          paddingClass="pl-1"
+          isOffHand={true}
+          showDisabled={disableOh}
+        />
+      </div>
+    );
   }
-
-  if (mhDamageAndAccuracyResult instanceof Error)
-    return <div>{mhDamageAndAccuracyResult.message}</div>;
-  if (ohDamageAndAccuracyResult instanceof Error)
-    return <div>{ohDamageAndAccuracyResult.message}</div>;
-
-  return (
-    <div className="flex w-full">
-      <WeaponDamageEntry
-        damageAndAccuracyOption={mhDamageAndAccuracyResult}
-        label="Main Hand"
-        paddingClass="pr-1"
-      />
-      <WeaponDamageEntry
-        damageAndAccuracyOption={ohDamageAndAccuracyResult}
-        label="Off Hand"
-        paddingClass="pl-1"
-        isOffHand={true}
-        showDisabled={disableOh}
-      />
-    </div>
-  );
-}
+);
 
 interface WeaponDamageEntryProps {
   damageAndAccuracyOption:
@@ -143,7 +140,7 @@ function getAttackActionDamageAndAccuracy(
 ) {
   const actionName = getAttackActionName(weaponOption, isOffHand);
 
-  const gameOption = useGameStore.getState().game;
+  const gameOption = AppStore.get().gameStore.getGameOption();
 
   const currentlyTargetedCombatantResult = getTargetOption(gameOption, combatant, actionName);
   if (currentlyTargetedCombatantResult instanceof Error) return currentlyTargetedCombatantResult;

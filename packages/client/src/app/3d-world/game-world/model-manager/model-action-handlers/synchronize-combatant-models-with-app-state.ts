@@ -1,6 +1,5 @@
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { CHARACTER_SLOT_SPACING } from "@/app/lobby/saved-character-manager";
-import { useGameStore } from "@/stores/game-store";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import {
   ERROR_MESSAGES,

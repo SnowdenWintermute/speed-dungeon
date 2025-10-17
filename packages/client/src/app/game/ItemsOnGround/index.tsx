@@ -1,6 +1,5 @@
 import Divider from "@/app/components/atoms/Divider";
-import { useGameStore } from "@/stores/game-store";
-import { AdventuringParty, ERROR_MESSAGES, Inventory } from "@speed-dungeon/common";
+import { AdventuringParty, Inventory } from "@speed-dungeon/common";
 import React from "react";
 import { ItemOnGround } from "./ItemOnGround";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
@@ -13,8 +12,6 @@ interface Props {
 }
 
 export const ItemsOnGround = observer(({ party, maxHeightRem }: Props) => {
-  const username = useGameStore().username;
-  if (username === null) return <div>{ERROR_MESSAGES.CLIENT.NO_USERNAME}</div>;
   const itemsToDisplay = Inventory.getItems(party.currentRoom.inventory);
   const { actionMenuStore, gameStore } = AppStore.get();
   const showItemsOnGround = actionMenuStore.getShowGroundItems();

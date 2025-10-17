@@ -1,24 +1,38 @@
 import {
-  ActionUserContext,
   ClientToServerEvent,
+  ClientToServerEventTypes,
   Combatant,
   CombatantContext,
   ERROR_MESSAGES,
   EntityId,
+  ServerToClientEventTypes,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 import { AppStore } from "../app-store";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
+import { Socket } from "socket.io-client";
 
 export class GameStore {
   private game: null | SpeedDungeonGame = null;
   private username: null | string = null;
   private focusedCharacterId: EntityId | null = null;
+  private websocketConnection: Socket<ServerToClientEventTypes, ClientToServerEventTypes> | null =
+    null;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
+  }
+
+  /** Without this we will get a circular reference because we use the websocketConnection in methods
+   of this store, and websocketConnection also calls AppStore methods and AppStore composes this store */
+  initialize(websocketConnection: Socket<ServerToClientEventTypes, ClientToServerEventTypes>) {
+    this.websocketConnection = websocketConnection;
+  }
+
+  getUsernameOption() {
+    return this.username;
   }
 
   getExpectedUsername() {
@@ -28,6 +42,10 @@ export class GameStore {
 
   setUsername(username: string) {
     this.username = username;
+  }
+
+  clearUsername() {
+    this.username = null;
   }
 
   getExpectedPlayer(username: string) {
@@ -66,15 +84,26 @@ export class GameStore {
     return this.game;
   }
 
-  getCombatantContext(combatantId: EntityId): CombatantContext {
+  getExpectedCombatantContext(combatantId: EntityId): CombatantContext {
     const party = this.getExpectedParty();
     const game = this.getExpectedGame();
     const combatant = party.combatantManager.getExpectedCombatant(combatantId);
     return new CombatantContext(game, party, combatant);
   }
 
+  getExpectedPlayerContext(username: string) {
+    const game = this.getExpectedGame();
+    if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+    const player = game.players[username];
+    if (!player) throw new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+    if (player.partyName === null) throw new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
+    const party = game.adventuringParties[player.partyName];
+    if (!party) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+    return { game, party, player };
+  }
+
   getFocusedCharacterContext() {
-    return this.getCombatantContext(this.getExpectedFocusedCharacterId());
+    return this.getExpectedCombatantContext(this.getExpectedFocusedCharacterId());
   }
 
   getPartyOption() {
@@ -147,8 +176,12 @@ export class GameStore {
     const hadSelectedAction = targetingProperties.getSelectedActionAndRank();
     const shouldDeselectAction = playerOwnsCombatant && hadSelectedAction;
 
+    if (this.websocketConnection === null) {
+      return console.error("couldn't send deselect action packet - no websocket connection");
+    }
+
     if (shouldDeselectAction) {
-      websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
+      this.websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
         characterId: id,
         actionAndRankOption: null,
       });

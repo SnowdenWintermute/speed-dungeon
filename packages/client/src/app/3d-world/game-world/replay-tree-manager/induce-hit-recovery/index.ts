@@ -39,7 +39,7 @@ export function induceHitRecovery(
 
   const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
 
-  const combatantContext = AppStore.get().gameStore.getCombatantContext(targetId);
+  const combatantContext = AppStore.get().gameStore.getExpectedCombatantContext(targetId);
   const { game, party, combatant: targetCombatant } = combatantContext;
   const combatantProperties = targetCombatant.getCombatantProperties();
 

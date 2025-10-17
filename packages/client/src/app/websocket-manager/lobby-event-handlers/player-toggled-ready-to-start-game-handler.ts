@@ -1,14 +1,11 @@
-import { setAlert } from "../../components/alerts";
-import { ArrayUtils, ERROR_MESSAGES } from "@speed-dungeon/common";
-import { useGameStore } from "@/stores/game-store";
+import { ArrayUtils } from "@speed-dungeon/common";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export function playerToggledReadyToStartGameHandler(username: string) {
-  useGameStore.getState().mutateState((gameState) => {
-    const { game } = gameState;
-    if (!game) return setAlert(new Error(ERROR_MESSAGES.GAME_DOESNT_EXIST));
+  const { gameStore } = AppStore.get();
+  const game = gameStore.getExpectedGame();
 
-    if (game.playersReadied.includes(username))
-      ArrayUtils.removeElement(game.playersReadied, username);
-    else game.playersReadied.push(username);
-  });
+  if (game.playersReadied.includes(username))
+    ArrayUtils.removeElement(game.playersReadied, username);
+  else game.playersReadied.push(username);
 }

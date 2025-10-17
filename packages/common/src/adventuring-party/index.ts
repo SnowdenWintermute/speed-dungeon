@@ -1,4 +1,3 @@
-import { immerable } from "immer";
 import { EntityId } from "../primatives/index.js";
 import { DungeonRoom, DungeonRoomType } from "./dungeon-room.js";
 import { getItemInAdventuringParty } from "./get-item-in-party.js";
@@ -12,6 +11,7 @@ import { PetManager } from "./pet-manager.js";
 import { CombatantManager } from "./combatant-manager.js";
 import { Combatant } from "../combatants/index.js";
 import { ArrayUtils } from "../utils/array-utils.js";
+import { makeAutoObservable } from "mobx";
 export * from "./get-item-in-party.js";
 export * from "./dungeon-room.js";
 export * from "./dungeon-exploration-manager.js";
@@ -19,7 +19,6 @@ export * from "./input-lock.js";
 export * from "./add-character-to-party.js";
 
 export class AdventuringParty {
-  [immerable] = true;
   // subsystems
   actionEntityManager = new ActionEntityManager();
   dungeonExplorationManager = new DungeonExplorationManager();
@@ -47,7 +46,9 @@ export class AdventuringParty {
   constructor(
     public id: string,
     public name: string
-  ) {}
+  ) {
+    makeAutoObservable(this, {}, { autoBind: true });
+  }
 
   // ITEMS
   static getItem = getItemInAdventuringParty;

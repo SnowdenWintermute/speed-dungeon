@@ -1,10 +1,8 @@
 import React from "react";
-import { useGameStore } from "@/stores/game-store";
-import PartyWipeModal from "./PartyWipeModal";
+import { PartyWipeModal } from "./PartyWipeModal";
 import { TopInfoBar } from "./TopInfoBar";
 import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
 import MonsterPlaques from "./MonsterPlaques";
-import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import { ReadyUpDisplay } from "./ReadyUpDisplay";
 import { GameLog } from "./combat-log";
 import { ActionMenuAndCharacterSheetLayer } from "./ActionMenuAndCharacterSheetLayer";
@@ -15,25 +13,11 @@ import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 
 export const Game = observer(() => {
-  const game = useGameStore().game;
-  const { actionMenuStore } = AppStore.get();
+  const { actionMenuStore, gameStore } = AppStore.get();
+  const { game, party } = gameStore.getFocusedCharacterContext();
   const viewingCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
 
   const viewingLeaveGameModal = AppStore.get().dialogStore.isOpen(DialogElementName.LeaveGame);
-
-  const username = useGameStore().username;
-  if (!username)
-    return (
-      <div className="w-screen h-screen flex items-center justify-center">
-        {ERROR_MESSAGES.CLIENT.NO_USERNAME}
-      </div>
-    );
-  if (!game)
-    return (
-      <div className="w-screen h-screen flex items-center justify-center">
-        {ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME}
-      </div>
-    );
 
   const focusedCharacterOption = AppStore.get().gameStore.getFocusedCharacterOption();
 
@@ -44,13 +28,6 @@ export const Game = observer(() => {
       </div>
     );
   }
-
-  const player = game.players[username];
-  if (!player) return <div>Client player not found</div>;
-  const partyName = player.partyName;
-  if (!partyName) return <div>Client player doesn't know what party they are in</div>;
-  const party = game.adventuringParties[partyName];
-  if (!party) return <div>Client thinks it is in a party that doesn't exist</div>;
 
   return (
     <>

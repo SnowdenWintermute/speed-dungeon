@@ -2,7 +2,6 @@
 "use client";
 import { Lobby } from "./lobby";
 import { enableMapSet } from "immer";
-import { useGameStore } from "@/stores/game-store";
 import { GameSetup } from "./lobby/game-setup";
 import AlertManager from "./components/alerts/AlertManager";
 import { Game } from "./game";
@@ -13,11 +12,12 @@ import SceneManager from "./3d-world/SceneManager";
 import WebsocketManager from "./websocket-manager";
 import { SkyColorProvider } from "./SkyColorProvider";
 import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
 // for immer to be able to use map and set
 enableMapSet();
 
 export default observer(() => {
-  const game = useGameStore().game;
+  const game = AppStore.get().gameStore.getGameOption();
 
   const componentToRender = game?.timeStarted ? (
     <Game />

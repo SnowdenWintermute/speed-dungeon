@@ -7,7 +7,6 @@ import {
   StandardMaterial,
   Vector3,
 } from "@babylonjs/core";
-import { useGameStore } from "@/stores/game-store";
 import { CharacterModel } from ".";
 import { AdventuringParty, InputLock, iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
@@ -118,7 +117,7 @@ export class HighlightManager {
   updateHighlight() {
     const partyOption = AppStore.get().gameStore.getPartyOption();
     if (partyOption !== undefined) {
-      const gameOption = useGameStore.getState().game;
+      const gameOption = AppStore.get().gameStore.getGameOption();
       if (gameOption === null) return;
       const battleOption = AdventuringParty.getBattleOption(partyOption, gameOption);
       if (battleOption === null) {

@@ -6,7 +6,8 @@ export function characterAssociatedDataProvider(
   characterId: string,
   fn: (characterAssociatedData: CharacterAssociatedData) => void
 ) {
-  const { game, party, combatant } = AppStore.get().gameStore.getCombatantContext(characterId);
+  const { game, party, combatant } =
+    AppStore.get().gameStore.getExpectedCombatantContext(characterId);
   const player = AppStore.get().gameStore.getExpectedClientPlayer();
   try {
     fn({ game, character: combatant, party, player });

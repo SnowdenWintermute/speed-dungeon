@@ -1,5 +1,4 @@
 import { ERROR_MESSAGES, MonsterType } from "@speed-dungeon/common";
-import { useGameStore } from "@/stores/game-store";
 import { gameWorld } from "../../SceneManager";
 import { getChildMeshByName } from "../../utils";
 import { CreateScreenshotUsingRenderTargetAsync, Vector3 } from "@babylonjs/core";

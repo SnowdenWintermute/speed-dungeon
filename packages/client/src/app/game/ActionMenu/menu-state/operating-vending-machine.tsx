@@ -1,6 +1,4 @@
-import { useGameStore } from "@/stores/game-store";
 import { ActionMenuState } from ".";
-import { setAlert } from "@/app/components/alerts";
 import { createPageButtons } from "./create-page-buttons";
 import { HOTKEYS } from "@/hotkeys";
 import { createCancelButton } from "./common-buttons/cancel";

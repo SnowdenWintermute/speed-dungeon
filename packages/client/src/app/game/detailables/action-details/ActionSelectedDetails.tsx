@@ -28,7 +28,7 @@ import { ConditionIndicator } from "../../combatant-plaques/condition-indicators
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import CharacterSheetWeaponDamage from "../../character-sheet/CharacterSheetWeaponDamage";
+import { CharacterSheetWeaponDamage } from "../../character-sheet/CharacterSheetWeaponDamage";
 import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
 

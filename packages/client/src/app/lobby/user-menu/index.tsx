@@ -1,6 +1,5 @@
 "use client";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
-import { useGameStore } from "@/stores/game-store";
 import { useRouter } from "next/navigation";
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
@@ -15,12 +14,11 @@ import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
 
 export const UserMenuContainer = observer(() => {
-  const mutateGameState = useGameStore().mutateState;
   const mutateHttpState = useHttpRequestStore().mutateState;
-  const { dialogStore } = AppStore.get();
+  const { dialogStore, gameStore } = AppStore.get();
   const showAuthForm = dialogStore.isOpen(DialogElementName.Credentials);
   const router = useRouter();
-  const username = useGameStore().username;
+  const username = gameStore.getUsernameOption();
   const fetchData = useHttpRequestStore().fetchData;
   const getSessionRequestTrackerName = "get session";
   const responseTracker = useHttpRequestStore().requests[getSessionRequestTrackerName];
@@ -49,10 +47,7 @@ export const UserMenuContainer = observer(() => {
     if (responseTracker && responseTracker.data) {
       const data = responseTracker.data;
       if (typeof data !== "string") {
-        const username = data["username"];
-        mutateGameState((state) => {
-          state.username = username;
-        });
+        gameStore.setUsername(data["username"]);
       }
     }
   }, [responseTracker?.data]);
@@ -88,7 +83,6 @@ export const UserMenuContainer = observer(() => {
 });
 
 function UserMenu({ username }: { username: null | string }) {
-  const mutateGameState = useGameStore().mutateState;
   const mutateHttpState = useHttpRequestStore().mutateState;
   const { dialogStore } = AppStore.get();
   const firstLetterOfUsername = username ? username.charAt(0) : "";
@@ -118,9 +112,7 @@ function UserMenu({ username }: { username: null | string }) {
 
     dialogStore.open(DialogElementName.Credentials);
 
-    mutateGameState((state) => {
-      state.username = null;
-    });
+    AppStore.get().gameStore.clearUsername();
 
     resetWebsocketConnection();
     // message to have their other tabs reconnect with new cookie

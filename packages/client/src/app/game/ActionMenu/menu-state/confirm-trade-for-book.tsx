@@ -1,4 +1,3 @@
-import { useGameStore } from "@/stores/game-store";
 import { ActionMenuState } from ".";
 import {
   BookConsumableType,
@@ -10,7 +9,6 @@ import {
   getBookLevelForTrade,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { setAlert } from "@/app/components/alerts";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { createCancelButton } from "./common-buttons/cancel";
 import Divider from "@/app/components/atoms/Divider";

@@ -95,16 +95,11 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.PlayerJoinedGame]: (userame: string) => void;
   [ServerToClientEvent.PartyCreated]: (partyId: string, partyName: string) => void;
   [ServerToClientEvent.CharacterAddedToParty]: (
-    partyName: string,
     username: string,
     character: Combatant,
     pets: Combatant[]
   ) => void;
-  [ServerToClientEvent.CharacterDeleted]: (
-    partyName: string,
-    username: string,
-    characterId: string
-  ) => void;
+  [ServerToClientEvent.CharacterDeleted]: (username: string, characterId: string) => void;
   [ServerToClientEvent.PlayerToggledReadyToStartGame]: (username: string) => void;
   [ServerToClientEvent.GameStarted]: (timeStarted: number) => void;
   [ServerToClientEvent.PlayerToggledReadyToDescendOrExplore]: (

@@ -14,7 +14,6 @@ import { gameStartedHandler } from "../game-event-handlers/game-started-handler"
 import { playerLeftGameHandler } from "../player-left-game-handler";
 import { savedCharacterSelectionInProgressGameHandler } from "./saved-character-selection-in-progress-game-handler";
 import { gameWorld } from "@/app/3d-world/SceneManager";
-import { useGameStore } from "@/stores/game-store";
 import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { useHttpRequestStore } from "@/stores/http-request-store";
@@ -24,8 +23,6 @@ import { AppStore } from "@/mobx-stores/app-store";
 export function setUpGameLobbyEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
 ) {
-  const mutateGameStore = useGameStore.getState().mutateState;
-
   const { actionMenuStore } = AppStore.get();
 
   socket.on(ServerToClientEvent.GameFullUpdate, (game) => {
@@ -48,47 +45,40 @@ export function setUpGameLobbyEventHandlers(
       useHttpRequestStore.getState().requests[HTTP_REQUEST_NAMES.GET_SESSION];
     const isLoggedIn = currentSessionHttpResponseTracker?.statusCode === 200;
 
-    mutateGameStore((state) => {
-      if (game === null) {
-        state.game = null;
-        state.gameName = null;
-        if (isLoggedIn) gameWorld.current?.drawCharacterSlots();
-      } else {
-        state.game = game;
-        state.gameName = game.name;
-      }
-    });
+    const { gameStore } = AppStore.get();
+    if (game === null) {
+      gameStore.clearGame();
+      if (isLoggedIn) gameWorld.current?.drawCharacterSlots();
+    } else {
+      gameStore.setGame(game);
+    }
 
     actionMenuStore.clearStack();
   });
 
   socket.on(ServerToClientEvent.PlayerJoinedGame, (username) => {
-    mutateGameStore((state) => {
-      const player = new SpeedDungeonPlayer(username);
-      if (state.game) state.game.players[username] = player;
-    });
+    const gameOption = AppStore.get().gameStore.getGameOption();
+    const player = new SpeedDungeonPlayer(username);
+    if (gameOption) gameOption.players[username] = player;
   });
 
   socket.on(ServerToClientEvent.PlayerLeftGame, playerLeftGameHandler);
   socket.on(ServerToClientEvent.PartyCreated, (partyId, partyName) => {
-    mutateGameStore((state) => {
-      if (state.game) {
-        state.game.adventuringParties[partyName] = new AdventuringParty(partyId, partyName);
-      }
-    });
+    const gameOption = AppStore.get().gameStore.getGameOption();
+    if (!gameOption) return;
+    gameOption.adventuringParties[partyName] = new AdventuringParty(partyId, partyName);
   });
   socket.on(ServerToClientEvent.PlayerChangedAdventuringParty, (username, partyName) => {
-    mutateGameStore((state) => {
-      if (!state.game) return;
-      // ignore if game already started. this is a relic of the fact we remove them
-      // from their party when leaving a lobby game, but it is an unhandled crash
-      // to remove them from a party when still in a game
-      if (!state.game.timeStarted) {
-        SpeedDungeonGame.removePlayerFromParty(state.game, username);
-        if (partyName === null) return;
-        SpeedDungeonGame.putPlayerInParty(state.game, partyName, username);
-      }
-    });
+    const gameOption = AppStore.get().gameStore.getGameOption();
+    if (!gameOption) return;
+    // ignore if game already started. this is a relic of the fact we remove them
+    // from their party when leaving a lobby game, but it is an unhandled crash
+    // to remove them from a party when still in a game
+    if (!gameOption.timeStarted) {
+      SpeedDungeonGame.removePlayerFromParty(gameOption, username);
+      if (partyName === null) return;
+      SpeedDungeonGame.putPlayerInParty(gameOption, partyName, username);
+    }
   });
   socket.on(ServerToClientEvent.CharacterAddedToParty, characterAddedToPartyHandler);
   socket.on(ServerToClientEvent.CharacterDeleted, characterDeletionHandler);
@@ -105,8 +95,7 @@ export function setUpGameLobbyEventHandlers(
   });
 
   socket.on(ServerToClientEvent.ProgressionGameStartingFloorSelected, (floorNumber) => {
-    mutateGameStore((state) => {
-      if (state.game) state.game.selectedStartingFloor = floorNumber;
-    });
+    const gameOption = AppStore.get().gameStore.getGameOption();
+    if (gameOption) gameOption.selectedStartingFloor = floorNumber;
   });
 }

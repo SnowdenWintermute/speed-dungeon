@@ -40,5 +40,5 @@ export function deleteCharacterHandler(
   gameServer.io
     .of("/")
     .in(game.name)
-    .emit(ServerToClientEvent.CharacterDeleted, party.name, session.username, characterId);
+    .emit(ServerToClientEvent.CharacterDeleted, session.username, characterId);
 }

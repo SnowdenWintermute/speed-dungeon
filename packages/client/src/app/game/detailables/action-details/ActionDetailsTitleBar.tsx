@@ -1,7 +1,6 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { AppStore } from "@/mobx-stores/app-store";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { useGameStore } from "@/stores/game-store";
 import {
   ArrayUtils,
   ClientToServerEvent,

@@ -5,7 +5,6 @@ import { HotkeyButton } from "../components/atoms/HotkeyButton";
 import XShape from "../../../public/img/basic-shapes/x-shape.svg";
 import { PasswordResetEmailForm } from "../lobby/auth-forms/password-reset-email-form";
 import { useHttpRequestStore } from "@/stores/http-request-store";
-import { useGameStore } from "@/stores/game-store";
 import Divider from "../components/atoms/Divider";
 import DeleteAccountForm from "../lobby/auth-forms/delete-account-form";
 import ChangeUsernameForm from "../lobby/auth-forms/change-username-form";
@@ -16,9 +15,9 @@ import { observer } from "mobx-react-lite";
 
 export const Settings = observer(() => {
   const mutateHttpRequestState = useHttpRequestStore().mutateState;
-  const username = useGameStore().username;
-  const { dialogStore } = AppStore.get();
+  const { dialogStore, gameStore } = AppStore.get();
   const settingsIsOpen = dialogStore.isOpen(DialogElementName.AppSettings);
+  const username = gameStore.getUsernameOption();
 
   useEffect(() => {
     mutateHttpRequestState((state) => {

@@ -54,5 +54,5 @@ export async function joinPlayerToProgressionGame(
   gameServer.io
     .of("/")
     .in(game.name)
-    .emit(ServerToClientEvent.CharacterAddedToParty, partyName, session.username, character, pets);
+    .emit(ServerToClientEvent.CharacterAddedToParty, session.username, character, pets);
 }

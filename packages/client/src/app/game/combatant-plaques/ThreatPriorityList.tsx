@@ -61,7 +61,7 @@ const ThreatTrackerIcon = observer(
 
     const { extraStyles, entityId, threatTableEntry } = props;
 
-    const { party, combatant } = AppStore.get().gameStore.getCombatantContext(entityId);
+    const { party, combatant } = AppStore.get().gameStore.getExpectedCombatantContext(entityId);
 
     const classIcon = getCombatantClassIcon(
       combatant.combatantProperties.combatantClass,

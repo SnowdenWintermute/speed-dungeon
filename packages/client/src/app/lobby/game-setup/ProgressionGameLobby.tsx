@@ -12,18 +12,17 @@ import {
   getProgressionGamePartyName,
 } from "@speed-dungeon/common";
 import React, { useEffect, useMemo } from "react";
-import { useGameStore } from "@/stores/game-store";
 import SelectDropdown from "@/app/components/atoms/SelectDropdown";
 import Divider from "@/app/components/atoms/Divider";
-import GameLobby from "./GameLobby";
+import { GameLobby } from "./GameLobby";
 import { CharacterModelDisplay } from "@/app/character-model-display";
 import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
 
-export default function ProgressionGameLobby() {
-  const username = useGameStore().username;
-  const game = useGameStore().game;
-  const mutateGameState = useGameStore().mutateState;
+export const ProgressionGameLobby = observer(() => {
+  const { gameStore } = AppStore.get();
+  const username = gameStore.getExpectedUsername();
+  const game = gameStore.getExpectedGame();
   if (game === null) return <div>Loading...</div>;
 
   useEffect(() => {
@@ -47,9 +46,7 @@ export default function ProgressionGameLobby() {
 
   useEffect(() => {
     if (game.selectedStartingFloor > maxStartingFloor) {
-      mutateGameState((state) => {
-        if (state.game) state.game.selectedStartingFloor = maxStartingFloor;
-      });
+      gameStore.getExpectedGame().selectedStartingFloor = maxStartingFloor;
     }
   }, [maxStartingFloor, game.selectedStartingFloor, game.players]);
 
@@ -85,7 +82,7 @@ export default function ProgressionGameLobby() {
       </div>
     </GameLobby>
   );
-}
+});
 
 const PlayerDisplay = observer(
   ({
@@ -96,7 +93,7 @@ const PlayerDisplay = observer(
     game: SpeedDungeonGame;
     index: number;
   }) => {
-    const username = useGameStore().username;
+    const username = AppStore.get().gameStore.getExpectedUsername();
     const savedCharacters = AppStore.get().lobbyStore.getSavedCharacterSlots();
     const isControlledByUser = username === playerOption?.username;
 

@@ -20,7 +20,6 @@ import { makeAutoObservable } from "mobx";
 import { plainToInstance } from "class-transformer";
 
 export class SpeedDungeonGame {
-  [immerable] = true;
   players: { [username: string]: SpeedDungeonPlayer } = {};
   playerCapacity: number | null = null;
   playersReadied: string[] = [];
@@ -37,7 +36,7 @@ export class SpeedDungeonGame {
     public isRanked: boolean = false
   ) {
     if (mode === GameMode.Progression) this.playerCapacity = MAX_PARTY_SIZE;
-    makeAutoObservable(this);
+    makeAutoObservable(this, {}, { autoBind: true });
   }
 
   getParties() {

@@ -1,4 +1,3 @@
-import { useGameStore } from "@/stores/game-store";
 import React from "react";
 import ButtonBasic from "../components/atoms/ButtonBasic";
 import { AdventuringParty, ClientToServerEvent } from "@speed-dungeon/common";
@@ -7,16 +6,12 @@ import Divider from "../components/atoms/Divider";
 import { ZIndexLayers } from "../z-index-layers";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { AppStore } from "@/mobx-stores/app-store";
+import { observer } from "mobx-react-lite";
 
-export default function PartyWipeModal({ party }: { party: AdventuringParty }) {
-  const mutateGameState = useGameStore().mutateState;
-
+export const PartyWipeModal = observer(({ party }: { party: AdventuringParty }) => {
   function leaveGame() {
     websocketConnection.emit(ClientToServerEvent.LeaveGame);
-    mutateGameState((state) => {
-      state.game = null;
-    });
-
+    AppStore.get().gameStore.clearGame();
     AppStore.get().gameEventNotificationStore.clearGameLog();
   }
 
@@ -38,4 +33,4 @@ export default function PartyWipeModal({ party }: { party: AdventuringParty }) {
       </ButtonBasic>
     </div>
   );
-}
+});
