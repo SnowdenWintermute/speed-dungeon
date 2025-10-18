@@ -28,6 +28,8 @@ export class InventoryItemsMenuState extends ItemsMenuState {
 
     const closeButtonAndHotkeys = { text: "Cancel", hotkeys: ["KeyI", toggleInventoryHotkey] };
 
+    console.log("passing closeButtonAndHotkeys to super:", closeButtonAndHotkeys);
+
     super(
       MenuStateType.InventoryItems,
       closeButtonAndHotkeys,

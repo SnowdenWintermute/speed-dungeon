@@ -7,15 +7,13 @@ import { action, computed, makeObservable, observable } from "mobx";
 export const ACTION_MENU_PAGE_SIZE = 6;
 
 export abstract class ActionMenuState {
-  protected pageIndexInternal: number = 0;
+  pageIndexInternal: number = 0;
   alwaysShowPageOne: boolean = false;
-  private cachedPageCount: number;
+  private cachedPageCount: number | null = null;
   constructor(
     public type: MenuStateType,
     protected minPageCount: number
   ) {
-    this.cachedPageCount = this.getPageCount();
-
     makeObservable(
       this,
       {
@@ -37,11 +35,16 @@ export abstract class ActionMenuState {
   }
 
   getPageCount() {
-    const buttonProperties = this.getButtonProperties();
-    return Math.max(
-      this.minPageCount,
-      Math.ceil(buttonProperties[ActionButtonCategory.Numbered].length / ACTION_MENU_PAGE_SIZE)
-    );
+    console.log("getting page count");
+    if (this.cachedPageCount === null) {
+      const buttonProperties = this.getButtonProperties();
+      this.cachedPageCount = Math.max(
+        this.minPageCount,
+        Math.ceil(buttonProperties[ActionButtonCategory.Numbered].length / ACTION_MENU_PAGE_SIZE)
+      );
+    }
+
+    return this.cachedPageCount;
   }
 
   get pageIndex() {
@@ -55,14 +58,15 @@ export abstract class ActionMenuState {
   turnPage(direction: NextOrPrevious) {
     const newPage = getNextOrPreviousNumber(
       this.pageIndexInternal,
-      this.cachedPageCount,
-      direction
+      this.getPageCount(),
+      direction,
+      { minNumber: 0 }
     );
     this.pageIndexInternal = newPage;
   }
 
   goToLastPage() {
-    this.pageIndexInternal = this.cachedPageCount;
+    this.pageIndexInternal = this.getPageCount();
   }
 
   goToFirstPage() {
