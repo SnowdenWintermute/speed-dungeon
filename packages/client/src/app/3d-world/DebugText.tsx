@@ -10,15 +10,13 @@ import { ModifierKey } from "@/mobx-stores/input";
 
 function getGpuName() {
   if (gameWorld.current === null) return;
-  const babylonGl = gameWorld.current.engine._gl;
 
-  const debugInfo = babylonGl?.getExtension("WEBGL_debug_renderer_info");
-  if (debugInfo) {
-    const renderer = babylonGl?.getParameter(debugInfo?.UNMASKED_RENDERER_WEBGL);
-    return renderer;
-  } else {
-    return "Unable to get GPU name";
-  }
+  const babylonGl = gameWorld.current.engine._gl;
+  if (!babylonGl) return "Unknown GPU";
+
+  // Use the standard WebGL parameter instead of the deprecated extension
+  const renderer = babylonGl.getParameter(babylonGl.RENDERER);
+  return renderer || "Unknown GPU";
 }
 
 export const DebugText = observer(

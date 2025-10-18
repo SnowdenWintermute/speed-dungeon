@@ -1,4 +1,4 @@
-import { ActionMenuState } from ".";
+import { ACTION_MENU_PAGE_SIZE, ActionMenuState } from ".";
 import {
   CONSUMABLE_TEXT_COLOR,
   CONSUMABLE_TURQUOISE,
@@ -213,7 +213,10 @@ export abstract class ItemsMenuState extends ActionMenuState {
 
     // possible when a numbered button disapears like when equipping the last item
     // on a page
-    if (this.pageIndex > this.getPageCount()) {
+    const numberedButtonsCount = toReturn[ActionButtonCategory.Numbered].length;
+    const pageCount = Math.ceil(numberedButtonsCount / ACTION_MENU_PAGE_SIZE);
+    const newCount = Math.max(this.minPageCount, pageCount);
+    if (this.pageIndex > newCount) {
       AppStore.get().actionMenuStore.getCurrentMenu().goToLastPage();
     }
 
