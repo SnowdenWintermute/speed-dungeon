@@ -35,9 +35,7 @@ export async function toggleReadyToStartGameHandler(
     party.dungeonExplorationManager.setCurrentFloor(game.selectedStartingFloor);
   }
 
-  if (game.playersReadied.includes(username))
-    ArrayUtils.removeElement(game.playersReadied, username);
-  else game.playersReadied.push(username);
+  game.togglePlayerReadyToStartGameStatus(username);
 
   let allPlayersReadied = true;
 

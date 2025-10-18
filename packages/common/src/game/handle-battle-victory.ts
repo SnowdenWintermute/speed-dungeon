@@ -11,9 +11,9 @@ export function handleBattleVictory(
   payload: BattleResultActionCommandPayload
 ) {
   const { experiencePointChanges, loot } = payload;
+
   if (loot) {
-    party.currentRoom.inventory.consumables.push(...loot.consumables);
-    party.currentRoom.inventory.equipment.push(...loot.equipment);
+    party.currentRoom.inventory.insertItems([...loot.consumables, ...loot.equipment]);
   }
   applyExperiencePointChanges(party, experiencePointChanges);
   const levelUps: { [entityId: string]: number } = {};

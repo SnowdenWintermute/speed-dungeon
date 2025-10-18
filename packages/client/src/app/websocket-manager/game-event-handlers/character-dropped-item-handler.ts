@@ -15,6 +15,6 @@ export function characterDroppedItemHandler(characterAndItem: CharacterAndItem) 
     const itemResult = Inventory.removeItem(character.combatantProperties.inventory, itemId);
     if (itemResult instanceof Error) return itemResult;
     const item = itemResult;
-    Inventory.insertItem(party.currentRoom.inventory, item);
+    party.currentRoom.inventory.insertItem(item);
   });
 }

@@ -25,7 +25,7 @@ export function characterPickedUpItemsHandler(characterAndItems: CharacterAndIte
           continue;
         }
 
-        Inventory.insertItem(character.combatantProperties.inventory, itemResult);
+        character.combatantProperties.inventory.insertItem(itemResult);
 
         const { focusStore } = AppStore.get();
         // otherwise it is possible that one player is hovering this item, then it "disappears"

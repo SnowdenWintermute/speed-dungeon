@@ -3,7 +3,7 @@ import { EntityId } from "../../primatives/index.js";
 import { Inventory } from "./index.js";
 import { CombatantProperties } from "../index.js";
 
-export default function dropItem(
+export function dropItem(
   party: AdventuringParty,
   combatantProperties: CombatantProperties,
   itemId: string
@@ -11,7 +11,7 @@ export default function dropItem(
   const itemResult = Inventory.removeItem(combatantProperties.inventory, itemId);
   if (itemResult instanceof Error) return itemResult;
   const item = itemResult;
-  const maybeError = Inventory.insertItem(party.currentRoom.inventory, item);
+  const maybeError = party.currentRoom.inventory.insertItem(item);
   if (maybeError instanceof Error) return maybeError;
   return itemId;
 }

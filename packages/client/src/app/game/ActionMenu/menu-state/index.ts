@@ -37,6 +37,7 @@ export abstract class ActionMenuState {
   getPageCount() {
     console.log("getting page count");
     if (this.cachedPageCount === null) {
+      console.log("recalculating page count");
       const buttonProperties = this.getButtonProperties();
       this.cachedPageCount = Math.max(
         this.minPageCount,

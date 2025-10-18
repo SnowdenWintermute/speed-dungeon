@@ -18,6 +18,7 @@ import { GameMode } from "../types.js";
 import { MAX_PARTY_SIZE } from "../app-consts.js";
 import { makeAutoObservable } from "mobx";
 import { plainToInstance } from "class-transformer";
+import { ArrayUtils } from "../utils/array-utils.js";
 
 export class SpeedDungeonGame {
   players: { [username: string]: SpeedDungeonPlayer } = {};
@@ -55,7 +56,25 @@ export class SpeedDungeonGame {
 
   static removePlayerFromParty = removePlayerFromParty;
   static removePlayer = removePlayerFromGame;
-  static putPlayerInParty = putPlayerInParty;
+  putPlayerInParty(partyName: string, username: string) {
+    const party = this.adventuringParties[partyName];
+    if (!party) throw new Error("Tried to put a player in a party but the party didn't exist");
+    const player = this.players[username];
+    if (!player) {
+      throw new Error("Tried to put a player in a party but couldn't find the player in game game");
+    }
+
+    party.playerUsernames.push(username);
+    player.partyName = partyName;
+  }
+  togglePlayerReadyToStartGameStatus(username: string) {
+    if (this.playersReadied.includes(username))
+      ArrayUtils.removeElement(this.playersReadied, username);
+    else this.playersReadied.push(username);
+  }
+  addParty(party: AdventuringParty) {
+    this.adventuringParties[party.name] = party;
+  }
   static getCombatantById = getCombatantInGameById;
   static getPartyOfCombatant = getPartyOfCombatant;
   static getPlayerPartyOption = getPlayerPartyOption;

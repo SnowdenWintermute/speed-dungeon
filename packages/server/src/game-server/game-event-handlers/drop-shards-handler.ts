@@ -7,7 +7,6 @@ import {
   ConsumableType,
   ERROR_MESSAGES,
   GameMode,
-  Inventory,
   ServerToClientEvent,
   ServerToClientEventTypes,
   getPartyChannelName,
@@ -32,7 +31,7 @@ export async function dropShardsHandler(
   inventory.shards -= numShards;
   // create a "shard stack" consumable item
   const shardStack = createShardStack(numShards);
-  Inventory.insertItem(party.currentRoom.inventory, shardStack);
+  party.currentRoom.inventory.insertItem(shardStack);
   party.itemsOnGroundNotYetReceivedByAllClients[shardStack.entityProperties.id] = [];
 
   // SERVER

@@ -5,7 +5,6 @@ import {
   Equipment,
   EquipmentBaseItem,
   EquipmentType,
-  Inventory,
   Item,
   ItemType,
   NumberRange,
@@ -19,7 +18,7 @@ export default function generateTestItems(combatantProperties: CombatantProperti
     const iLvl = randBetween(1, DEEPEST_FLOOR, rngSingleton);
     const randomItem = getGameServer().generateRandomItem(1);
     if (randomItem instanceof Error) return console.error(randomItem);
-    Inventory.insertItem(combatantProperties.inventory, randomItem);
+    combatantProperties.inventory.insertItem(randomItem);
   }
 }
 

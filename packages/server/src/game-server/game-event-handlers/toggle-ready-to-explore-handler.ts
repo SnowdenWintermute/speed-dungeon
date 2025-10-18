@@ -125,7 +125,7 @@ export function putPartyInNextRoom(
   const floorNumber = dungeonExplorationManager.getCurrentFloor();
 
   const { room, monsters } = generateDungeonRoom(floorNumber, roomTypeToGenerate);
-  party.currentRoom = room;
+  party.setCurrentRoom(room);
 
   for (const monster of monsters) {
     party.combatantManager.addCombatant(monster);

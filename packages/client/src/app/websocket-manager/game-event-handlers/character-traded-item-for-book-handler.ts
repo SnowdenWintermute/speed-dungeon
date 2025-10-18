@@ -4,7 +4,6 @@ import {
   CombatantProperties,
   Consumable,
   EntityId,
-  Inventory,
   TaggedEquipmentSlot,
   getSkillBookName,
 } from "@speed-dungeon/common";
@@ -50,7 +49,7 @@ export function characterTradedItemForBookHandler(eventData: {
     else {
       const asClassInstance = plainToInstance(Consumable, book);
       const { inventory } = combatantProperties;
-      Inventory.insertItem(inventory, asClassInstance);
+      inventory.insertItem(asClassInstance);
       setAlert(`Obtained ${getSkillBookName(book.consumableType, book.itemLevel)}`, true);
     }
   });

@@ -1,4 +1,4 @@
-import { CharacterAssociatedData, Consumable, EntityId, Inventory } from "@speed-dungeon/common";
+import { CharacterAssociatedData, Consumable, EntityId } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { plainToInstance } from "class-transformer";
 import { setAlert } from "@/app/components/alerts";
@@ -13,7 +13,7 @@ export function characterPurchasedItemHandler(eventData: {
     const asClassInstance = plainToInstance(Consumable, item);
     const { inventory } = character.combatantProperties;
     inventory.shards -= price;
-    Inventory.insertItem(inventory, asClassInstance);
+    inventory.insertItem(asClassInstance);
     setAlert(`Purchased ${item.entityProperties.name}`, true);
   });
 }

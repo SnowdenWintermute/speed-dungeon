@@ -41,7 +41,7 @@ export async function tradeItemForBookHandler(
   const bookResult = tradeItemForBook(itemId, character.combatantProperties, bookType, floorNumber);
   if (bookResult instanceof Error) return bookResult;
 
-  Inventory.insertItem(combatantProperties.inventory, bookResult);
+  combatantProperties.inventory.insertItem(bookResult);
 
   // SERVER
   // save the character if in progression game

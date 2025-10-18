@@ -9,7 +9,7 @@ import {
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
-import initiateLobbyEventListeners from "./lobby-event-handlers/index.js";
+import { initiateLobbyEventListeners } from "./lobby-event-handlers/index.js";
 import { BrowserTabSession } from "./socket-connection-metadata.js";
 import joinSocketToChannel from "./join-socket-to-channel.js";
 import { connectionHandler } from "./connection-handler.js";

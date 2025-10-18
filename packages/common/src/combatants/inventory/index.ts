@@ -1,4 +1,3 @@
-import { immerable } from "immer";
 import { INVENTORY_DEFAULT_CAPACITY } from "../../app-consts.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { Item } from "../../items/index.js";
@@ -12,14 +11,22 @@ import {
 } from "../combatant-traits/index.js";
 import { getCapacityByItemType } from "./can-pick-up-item.js";
 import { EntityId } from "../../primatives/index.js";
+import { makeAutoObservable } from "mobx";
 
 export class Inventory {
-  [immerable] = true;
   consumables: Consumable[] = [];
   equipment: Equipment[] = [];
   capacity: number = INVENTORY_DEFAULT_CAPACITY;
   shards: number = 0;
-  constructor() {}
+  constructor() {
+    makeAutoObservable(this, {}, { autoBind: true });
+  }
+
+  static getDeserialized(inventory: Inventory) {
+    const deserialized = plainToInstance(Inventory, inventory);
+    deserialized.instantiateItemClasses();
+    return deserialized;
+  }
 
   static getTotalNumberOfItems(inventory: Inventory) {
     return inventory.consumables.length + inventory.equipment.length;
@@ -49,15 +56,15 @@ export class Inventory {
     return numItemsToCountTowardCapacity >= combatantProperties.inventory.capacity;
   }
 
-  static insertItem(inventory: Inventory, item: Item) {
-    if (item instanceof Consumable) inventory.consumables.push(item);
-    else if (item instanceof Equipment) inventory.equipment.push(item);
+  insertItem(item: Item) {
+    if (item instanceof Consumable) this.consumables.push(item);
+    else if (item instanceof Equipment) this.equipment.push(item);
     else return new Error("Unhandled item type");
   }
 
-  static insertItems(inventory: Inventory, items: Item[]) {
+  insertItems(items: Item[]) {
     for (const item of items) {
-      const result = Inventory.insertItem(inventory, item);
+      const result = this.insertItem(item);
       if (result instanceof Error) return result;
     }
   }
@@ -127,17 +134,17 @@ export class Inventory {
     return toReturn;
   }
 
-  static instantiateItemClasses(inventory: Inventory) {
+  instantiateItemClasses() {
     const consumables: Consumable[] = [];
     const equipments: Equipment[] = [];
-    for (const consumable of inventory.consumables) {
+    for (const consumable of this.consumables) {
       consumables.push(plainToInstance(Consumable, consumable));
     }
-    for (const equipment of inventory.equipment) {
+    for (const equipment of this.equipment) {
       equipments.push(plainToInstance(Equipment, equipment));
     }
-    inventory.consumables = consumables;
-    inventory.equipment = equipments;
+    this.consumables = consumables;
+    this.equipment = equipments;
   }
 
   static getSelectedSkillBook(

@@ -7,7 +7,7 @@ import { CombatantClass } from "./combatant-class/index.js";
 import { CombatantSpecies } from "./combatant-species.js";
 import { CombatantTraitType } from "./combatant-traits/index.js";
 import dropEquippedItem from "./inventory/drop-equipped-item.js";
-import dropItem from "./inventory/drop-item.js";
+import { dropItem } from "./inventory/drop-item.js";
 import { getCombatActionPropertiesIfOwned } from "./get-combat-action-properties.js";
 import getCombatantTotalAttributes from "./attributes/get-combatant-total-attributes.js";
 import getCombatantTotalElementalAffinities from "./combatant-traits/get-combatant-total-elemental-affinities.js";
@@ -196,6 +196,8 @@ export class Combatant implements IActionUser {
       ActionUserTargetingProperties,
       combatantProperties.targetingProperties
     );
+
+    combatantProperties.inventory = Inventory.getDeserialized(combatantProperties.inventory);
 
     return plainToInstance(Combatant, combatant);
   }
@@ -471,25 +473,24 @@ export class CombatantProperties {
   static incrementAttributePoint = incrementAttributePoint;
   static canPickUpItem = canPickUpItem;
   static getDeserialized(combatantProperties: CombatantProperties) {
-    Inventory.instantiateItemClasses(combatantProperties.inventory);
-    CombatantEquipment.instatiateItemClasses(combatantProperties.equipment);
+    const deserialized = plainToInstance(CombatantProperties, combatantProperties);
+    deserialized.inventory = Inventory.getDeserialized(deserialized.inventory);
 
-    combatantProperties.homeLocation = cloneVector3(combatantProperties.homeLocation);
-    combatantProperties.position = cloneVector3(combatantProperties.position);
+    deserialized.inventory.instantiateItemClasses();
+    CombatantEquipment.instatiateItemClasses(deserialized.equipment);
 
-    combatantProperties.targetingProperties = plainToInstance(
+    deserialized.homeLocation = cloneVector3(deserialized.homeLocation);
+    deserialized.position = cloneVector3(deserialized.position);
+
+    deserialized.targetingProperties = plainToInstance(
       ActionUserTargetingProperties,
-      combatantProperties.targetingProperties
+      deserialized.targetingProperties
     );
 
-    if (combatantProperties.threatManager !== undefined) {
-      combatantProperties.threatManager = plainToInstance(
-        ThreatManager,
-        combatantProperties.threatManager
-      );
+    if (deserialized.threatManager !== undefined) {
+      deserialized.threatManager = plainToInstance(ThreatManager, deserialized.threatManager);
     }
 
-    const deserialized = plainToInstance(CombatantProperties, combatantProperties);
     return deserialized;
   }
 

@@ -28,6 +28,7 @@ export function newDungeonRoomHandler({
   monsters: Combatant[];
   actionEntitiesToRemove: EntityId[];
 }) {
+  const deserializedRoom = DungeonRoom.getDeserialized(room);
   const itemIdsOnGroundInPreviousRoom: string[] = [];
   const newItemsOnGround: Item[] = [];
   let previousRoomType;
@@ -49,9 +50,8 @@ export function newDungeonRoomHandler({
   dungeonExplorationManager.clearPlayerExplorationActionChoices();
 
   previousRoomType = party.currentRoom.roomType;
-  party.currentRoom = room;
+  party.setCurrentRoom(deserializedRoom);
 
-  Inventory.instantiateItemClasses(party.currentRoom.inventory);
   for (const item of Inventory.getItems(party.currentRoom.inventory)) {
     newItemsOnGround.push(item);
   }
@@ -102,10 +102,13 @@ export function newDungeonRoomHandler({
     type: ImageManagerRequestType.ItemDeletion,
     itemIds: itemIdsOnGroundInPreviousRoom,
   });
-  for (const item of newItemsOnGround)
-    if (!(item instanceof Consumable))
-      gameWorld.current?.imageManager.enqueueMessage({
-        type: ImageManagerRequestType.ItemCreation,
-        item,
-      });
+
+  for (const item of newItemsOnGround) {
+    if (item instanceof Consumable) continue;
+
+    gameWorld.current?.imageManager.enqueueMessage({
+      type: ImageManagerRequestType.ItemCreation,
+      item,
+    });
+  }
 }

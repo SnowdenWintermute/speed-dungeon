@@ -66,7 +66,7 @@ export function setUpGameLobbyEventHandlers(
   socket.on(ServerToClientEvent.PartyCreated, (partyId, partyName) => {
     const gameOption = AppStore.get().gameStore.getGameOption();
     if (!gameOption) return;
-    gameOption.adventuringParties[partyName] = new AdventuringParty(partyId, partyName);
+    gameOption.addParty(new AdventuringParty(partyId, partyName));
   });
   socket.on(ServerToClientEvent.PlayerChangedAdventuringParty, (username, partyName) => {
     const gameOption = AppStore.get().gameStore.getGameOption();
@@ -77,7 +77,7 @@ export function setUpGameLobbyEventHandlers(
     if (!gameOption.timeStarted) {
       SpeedDungeonGame.removePlayerFromParty(gameOption, username);
       if (partyName === null) return;
-      SpeedDungeonGame.putPlayerInParty(gameOption, partyName, username);
+      gameOption.putPlayerInParty(partyName, username);
     }
   });
   socket.on(ServerToClientEvent.CharacterAddedToParty, characterAddedToPartyHandler);

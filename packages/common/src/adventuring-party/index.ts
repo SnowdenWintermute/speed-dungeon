@@ -67,9 +67,15 @@ export class AdventuringParty {
     return character;
   }
 
+  setCurrentRoom(room: DungeonRoom) {
+    this.currentRoom = room;
+  }
+
   static getDeserialized(party: AdventuringParty) {
     const combatantManager = CombatantManager.getDeserialized(party.combatantManager);
     party.combatantManager = combatantManager;
+    party.currentRoom = DungeonRoom.getDeserialized(party.currentRoom);
+
     return party;
   }
 }

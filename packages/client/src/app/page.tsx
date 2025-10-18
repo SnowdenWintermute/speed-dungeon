@@ -22,8 +22,6 @@ export default observer(() => {
 
   const shouldShowGame = focusedCharacterOption !== undefined && game?.timeStarted !== undefined;
 
-  console.log("shouldShowGame:", shouldShowGame);
-
   const componentToRender = shouldShowGame ? (
     <Game />
   ) : game ? (
