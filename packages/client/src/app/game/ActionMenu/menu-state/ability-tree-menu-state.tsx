@@ -20,7 +20,7 @@ export class AbilityTreeMenuState extends ActionMenuState {
     const toReturn = new ActionButtonsByCategory();
     toReturn[ActionButtonCategory.Top].push(
       createCancelButton([setViewingAbilityTreeHotkey], () => {
-        AppStore.get().focusStore.combatantAbility.clear();
+        AppStore.get().focusStore.combatantAbilities.clear();
       })
     );
     toReturn[ActionButtonCategory.Top].push(setInventoryAsFreshStack);

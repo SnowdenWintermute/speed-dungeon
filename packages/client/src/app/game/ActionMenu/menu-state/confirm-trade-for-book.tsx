@@ -91,7 +91,7 @@ export class ConfirmTradeForBookMenuState extends ActionMenuState {
     toReturn[ActionButtonCategory.Top].push(
       createCancelButton([], () => {
         const { focusStore } = AppStore.get();
-        focusStore.detailable.clearDetailed();
+        focusStore.detailables.clearDetailed();
       })
     );
 

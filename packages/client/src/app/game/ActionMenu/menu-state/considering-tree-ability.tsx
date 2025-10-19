@@ -43,7 +43,7 @@ export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
   getCenterInfoDisplayOption() {
     const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
-    const abilityOption = AppStore.get().focusStore.combatantAbility.get().detailed;
+    const abilityOption = AppStore.get().focusStore.combatantAbilities.get().detailed;
     if (abilityOption === null) throw new Error("expected ability missing");
 
     const conditionsToShowDetailButtonsFor = getConditionsToShowDetailButtonsFor(
@@ -102,11 +102,11 @@ export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
     const toReturn = new ActionButtonsByCategory();
     toReturn[ActionButtonCategory.Top].push(
       createCancelButton([], () => {
-        AppStore.get().focusStore.combatantAbility.clearDetailed();
+        AppStore.get().focusStore.combatantAbilities.clearDetailed();
       })
     );
 
-    const abilityOption = AppStore.get().focusStore.combatantAbility.get().detailed;
+    const abilityOption = AppStore.get().focusStore.combatantAbilities.get().detailed;
     if (abilityOption === null) throw new Error("expected ability missing");
 
     const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
@@ -150,9 +150,9 @@ export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
     createPageButtons(toReturn, this.column.length, (newPage) => {
       const newDetailedAbilityOption = this.column[newPage - 1] || null;
       if (newDetailedAbilityOption !== null) {
-        AppStore.get().focusStore.combatantAbility.setDetailed(newDetailedAbilityOption);
+        AppStore.get().focusStore.combatantAbilities.setDetailed(newDetailedAbilityOption);
       } else {
-        AppStore.get().focusStore.combatantAbility.clearDetailed();
+        AppStore.get().focusStore.combatantAbilities.clearDetailed();
       }
     });
 

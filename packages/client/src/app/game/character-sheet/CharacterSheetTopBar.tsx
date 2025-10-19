@@ -23,7 +23,7 @@ export default function CharacterSheetTopBar({ partyCharacterIds }: Props) {
         style={{ height: `${BUTTON_HEIGHT_SMALL}rem` }}
         aria-label="close inventory"
         onClick={() => {
-          AppStore.get().focusStore.combatantAbility.clear();
+          AppStore.get().focusStore.combatantAbilities.clear();
           AppStore.get().actionMenuStore.clearStack();
         }}
       >

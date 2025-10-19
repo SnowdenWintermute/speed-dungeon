@@ -1,7 +1,7 @@
 import React from "react";
-import { FocusedAndComparedItemDetails } from "./detailables/FocusedAndComparedItemDetails";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
+import { FocusedAndComparedItemDetails } from "./detailables/FocusedAndComparedItemDetails";
 
 export const ItemDetailsWithComparison = observer(() => {
   const { focusStore } = AppStore.get();

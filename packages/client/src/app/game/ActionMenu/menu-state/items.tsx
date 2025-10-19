@@ -224,12 +224,12 @@ export abstract class ItemsMenuState extends ActionMenuState {
 
 function itemButtonMouseLeaveHandler() {
   const { focusStore } = AppStore.get();
-  focusStore.detailable.clearHovered();
+  focusStore.detailables.clearHovered();
 }
 
 function itemButtonMouseEnterHandler(item: Item) {
   const { focusStore } = AppStore.get();
-  focusStore.detailable.setHovered(item);
+  focusStore.detailables.setHovered(item);
 }
 
 import AmuletIcon from "../../../../../public/img/equipment-icons/amulet.svg";

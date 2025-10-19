@@ -77,11 +77,11 @@ export const PaperDollSlot = observer(
     }, [detailedItem, hoveredItem, itemOption]);
 
     function handleFocus() {
-      if (itemOption !== null) focusStore.detailable.setHovered(itemOption);
+      if (itemOption !== null) focusStore.detailables.setHovered(itemOption);
     }
 
     function handleBlur() {
-      focusStore.detailable.clearHovered();
+      focusStore.detailables.clearHovered();
     }
 
     function handleClick() {
@@ -89,7 +89,7 @@ export const PaperDollSlot = observer(
       if (!itemOption) return;
 
       focusStore.selectItem(itemOption);
-      const detailedItemIsNowNull = focusStore.detailable.get().detailed === null;
+      const detailedItemIsNowNull = focusStore.detailables.get().detailed === null;
 
       const { actionMenuStore } = AppStore.get();
       const currentMenu = actionMenuStore.getCurrentMenu();

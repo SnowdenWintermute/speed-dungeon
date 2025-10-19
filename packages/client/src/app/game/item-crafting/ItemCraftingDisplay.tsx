@@ -1,17 +1,17 @@
 import React from "react";
 import { CraftingItemMenuState } from "../ActionMenu/menu-state/crafting-item";
-import { ItemDetails } from "../detailables/ItemDetails";
 import Divider from "@/app/components/atoms/Divider";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { INFO_UNICODE_SYMBOL } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
+import { ItemDetails } from "../detailables/ItemDetails";
 
 export const ItemCraftDisplay = observer(() => {
   const { focusStore, actionMenuStore } = AppStore.get();
   const currentMenu = actionMenuStore.getCurrentMenu();
-  const { hovered: hoveredEntity } = focusStore.detailable.get();
+  const { hovered: hoveredEntity } = focusStore.detailables.get();
 
   if (!(currentMenu instanceof CraftingItemMenuState) || hoveredEntity) {
     return <></>;

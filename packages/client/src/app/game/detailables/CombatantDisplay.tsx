@@ -14,7 +14,7 @@ export default function CombatantDisplay({ combatant }: Props) {
   const { combatantProperties } = combatant;
 
   function closeDisplay() {
-    AppStore.get().focusStore.detailable.clear();
+    AppStore.get().focusStore.detailables.clear();
   }
 
   return (

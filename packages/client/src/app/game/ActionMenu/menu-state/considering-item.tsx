@@ -161,7 +161,7 @@ export class ConsideringItemMenuState extends ActionMenuState {
         else websocketConnection.emit(ClientToServerEvent.DropItem, { characterId, itemId });
 
         AppStore.get().actionMenuStore.popStack();
-        AppStore.get().focusStore.detailable.clearDetailed();
+        AppStore.get().focusStore.detailables.clearDetailed();
       }
     );
 

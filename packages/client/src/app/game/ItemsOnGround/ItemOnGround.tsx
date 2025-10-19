@@ -26,7 +26,7 @@ interface Props {
 export function takeItem(item: Item) {
   const { focusStore, gameStore } = AppStore.get();
 
-  focusStore.detailable.clear();
+  focusStore.detailables.clear();
 
   websocketConnection.emit(ClientToServerEvent.PickUpItems, {
     characterId: gameStore.getExpectedFocusedCharacterId(),
@@ -39,10 +39,10 @@ export const ItemOnGround = observer((props: Props) => {
 
   const { item } = props;
   function mouseEnterHandler() {
-    focusStore.detailable.setHovered(item);
+    focusStore.detailables.setHovered(item);
   }
   function mouseLeaveHandler() {
-    focusStore.detailable.clearHovered();
+    focusStore.detailables.clearHovered();
   }
   function clickHandler() {
     focusStore.selectItem(item);

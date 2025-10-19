@@ -38,14 +38,14 @@ export function characterSelectedHoldableHotswapSlotHandler(
     changeSelectedHotswapSlot(character.combatantProperties, slotIndex);
 
     if (previouslyHoveredSlotTypeOption !== null) {
-      focusStore.detailable.clearHovered();
+      focusStore.detailables.clearHovered();
       const newlyEquippedSlotOption = CombatantEquipment.getEquippedHoldableSlots(equipment);
       if (newlyEquippedSlotOption) {
         for (const [slotType, holdable] of iterateNumericEnumKeyedRecord(
           newlyEquippedSlotOption.holdables
         )) {
           if (slotType === previouslyHoveredSlotTypeOption)
-            focusStore.detailable.setHovered(holdable);
+            focusStore.detailables.setHovered(holdable);
         }
       }
     }

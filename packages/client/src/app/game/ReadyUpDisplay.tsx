@@ -64,7 +64,7 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
   const isVendingMachine = party.currentRoom.roomType === DungeonRoomType.VendingMachine;
   const currentMenu = actionMenuStore.getCurrentMenu();
 
-  const { detailed: detailedEntity, hovered: hoveredEntity } = focusStore.detailable.get();
+  const { detailed: detailedEntity, hovered: hoveredEntity } = focusStore.detailables.get();
 
   const shouldDim =
     detailedEntity ||
@@ -116,7 +116,7 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
                     actionMenuStore.pushStack(
                       MenuStatePool.get(MenuStateType.OperatingVendingMachine)
                     );
-                    focusStore.detailable.clear();
+                    focusStore.detailables.clear();
                   }
                 }}
               >

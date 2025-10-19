@@ -69,9 +69,9 @@ export class ConsideringAbilityTreeColumnMenuState extends ActionMenuState {
           nameAsString || "",
           () => {
             if (ability === undefined) {
-              AppStore.get().focusStore.combatantAbility.clearDetailed();
+              AppStore.get().focusStore.combatantAbilities.clearDetailed();
             } else {
-              AppStore.get().focusStore.combatantAbility.setDetailed(ability);
+              AppStore.get().focusStore.combatantAbilities.setDetailed(ability);
               AppStore.get().actionMenuStore.pushStack(
                 new ConsideringCombatantAbilityMenuState(
                   withSubjobAbilities.filter((item) => item !== undefined),
@@ -84,13 +84,13 @@ export class ConsideringAbilityTreeColumnMenuState extends ActionMenuState {
 
         button.mouseEnterHandler = button.focusHandler = () => {
           if (ability === undefined) {
-            AppStore.get().focusStore.combatantAbility.clearHovered();
+            AppStore.get().focusStore.combatantAbilities.clearHovered();
           } else {
-            AppStore.get().focusStore.combatantAbility.setHovered(ability);
+            AppStore.get().focusStore.combatantAbilities.setHovered(ability);
           }
         };
         button.mouseLeaveHandler = button.blurHandler = () => {
-          AppStore.get().focusStore.combatantAbility.clearHovered();
+          AppStore.get().focusStore.combatantAbilities.clearHovered();
         };
 
         button.shouldBeDisabled = nameAsString === undefined;

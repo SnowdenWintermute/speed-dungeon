@@ -17,7 +17,7 @@ export const CharacterClassAbilityTree = observer(
   ({ abilityTree, isSupportClass }: { abilityTree: AbilityTree; isSupportClass: boolean }) => {
     const { actionMenuStore, focusStore } = AppStore.get();
     const currentMenu = actionMenuStore.getCurrentMenu();
-    const detailedAbilityOption = focusStore.combatantAbility.get().detailed;
+    const detailedAbilityOption = focusStore.combatantAbilities.get().detailed;
 
     const cellRefs = useRef<
       Record<string, { element: HTMLDivElement; prerequisites: AbilityTreeAbility[] }>

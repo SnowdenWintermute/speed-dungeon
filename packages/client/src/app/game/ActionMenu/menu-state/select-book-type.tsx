@@ -29,7 +29,7 @@ export class SelectBookToTradeForMenuState extends ActionMenuState {
 
     toReturn[ActionButtonCategory.Top].push(
       createCancelButton([], () => {
-        focusStore.detailable.clear();
+        focusStore.detailables.clear();
       })
     );
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
@@ -51,10 +51,10 @@ export class SelectBookToTradeForMenuState extends ActionMenuState {
             <div
               className="h-full flex justify-between items-center w-full pr-2"
               onMouseEnter={() => {
-                focusStore.detailable.setHovered(createDummyConsumable(consumableType));
+                focusStore.detailables.setHovered(createDummyConsumable(consumableType));
               }}
               onMouseLeave={() => {
-                focusStore.detailable.clearHovered();
+                focusStore.detailables.clearHovered();
               }}
             >
               <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">

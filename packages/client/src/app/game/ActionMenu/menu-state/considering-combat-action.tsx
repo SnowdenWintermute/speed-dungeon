@@ -79,7 +79,7 @@ export class ConsideringCombatActionMenuState extends ActionMenuState {
         });
 
         const { focusStore, actionMenuStore, gameStore } = AppStore.get();
-        focusStore.detailable.clear();
+        focusStore.detailables.clear();
 
         actionMenuStore.clearStack();
         actionMenuStore.getCurrentMenu().goToFirstPage();

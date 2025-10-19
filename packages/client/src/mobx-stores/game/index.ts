@@ -128,8 +128,8 @@ export class GameStore {
 
     const { actionMenuStore, focusStore } = AppStore.get();
     actionMenuStore.clearHoveredAction();
-    focusStore.detailable.clear();
-    focusStore.combatantAbility.clear();
+    focusStore.detailables.clear();
+    focusStore.combatantAbilities.clear();
 
     if (this.focusedCharacterId !== null) {
       this.handleCharacterUnfocused(this.focusedCharacterId);

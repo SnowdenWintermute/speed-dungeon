@@ -1,6 +1,5 @@
 import { BUTTON_HEIGHT, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import React, { ReactNode, useEffect } from "react";
-import { ActionDetails } from "../detailables/action-details";
 import {
   ConsideringCombatActionMenuState,
   EXECUTE_BUTTON_TEXT,
@@ -28,12 +27,13 @@ import { ConsideringItemDisplay } from "./ConsideringItemDisplay";
 import { VendingMachineShardDisplay } from "./VendingMachineShardDisplay";
 import { StackedMenuStateDisplay } from "./StackedMenuStateDisplay";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import { ActionSelectedDetails } from "../detailables/action-details/ActionSelectedDetails";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "./menu-state/menu-state-type";
 import { ActionButtonCategory } from "./menu-state/action-buttons-by-category";
 import { ACTION_MENU_PAGE_SIZE } from "./menu-state";
+import { ActionSelectedDetails } from "../detailables/action-details/ActionSelectedDetails";
+import { ActionDetails } from "../detailables/action-details";
 
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
 export const SHARD_ITEM_HOTKEY = HOTKEYS.SIDE_2;

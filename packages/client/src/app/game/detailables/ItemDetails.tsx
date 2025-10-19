@@ -165,7 +165,7 @@ export const ItemDetails = observer(
               className="z-10 h-6 w-6 p-1 border border-slate-400 bg-slate-700"
               hotkeys={[HOTKEYS.CANCEL]}
               onClick={() => {
-                focusStore.detailable.clearDetailed();
+                focusStore.detailables.clearDetailed();
               }}
             >
               {SVG_ICONS[IconName.XShape]("h-full fill-slate-400")}

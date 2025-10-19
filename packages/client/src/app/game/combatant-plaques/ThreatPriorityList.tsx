@@ -19,7 +19,7 @@ interface Props {
   threatManager: null | ThreatManager;
 }
 
-export default function ThreatPriorityList({ threatManager }: Props) {
+export const ThreatPriorityList = observer(({ threatManager }: Props) => {
   if (threatManager === null) return <></>;
 
   const entries = threatManager.getEntries();
@@ -46,7 +46,7 @@ export default function ThreatPriorityList({ threatManager }: Props) {
       </ul>
     </div>
   );
-}
+});
 
 const ThreatTrackerIcon = observer(
   (props: {

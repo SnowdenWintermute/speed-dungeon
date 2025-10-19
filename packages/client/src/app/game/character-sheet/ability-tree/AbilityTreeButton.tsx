@@ -40,7 +40,7 @@ export const AbilityTreeButton = observer((props: Props) => {
           if (!isDetailed) {
             const { focusStore, actionMenuStore } = AppStore.get();
 
-            focusStore.combatantAbility.setDetailed(ability);
+            focusStore.combatantAbilities.setDetailed(ability);
 
             const { combatantProperties } = focusedCharacter;
             const { combatantClass } = combatantProperties;
@@ -94,11 +94,11 @@ export const AbilityTreeButton = observer((props: Props) => {
           }
         }}
         onMouseEnter={() => {
-          AppStore.get().focusStore.combatantAbility.setHovered(ability);
+          AppStore.get().focusStore.combatantAbilities.setHovered(ability);
           setHovered(true);
         }}
         onMouseLeave={() => {
-          AppStore.get().focusStore.combatantAbility.clearHovered();
+          AppStore.get().focusStore.combatantAbilities.clearHovered();
           setHovered(false);
         }}
       >

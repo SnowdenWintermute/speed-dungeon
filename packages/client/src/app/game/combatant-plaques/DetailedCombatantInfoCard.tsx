@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import CombatantDisplay from "../detailables/CombatantDisplay";
 import { SPACING_REM_SMALL } from "@/client_consts";
 import { Combatant } from "@speed-dungeon/common";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
+import CombatantDisplay from "../detailables/CombatantDisplay";
 
 interface Props {
   combatantId: string;
@@ -14,7 +14,7 @@ interface Props {
 export const DetailedCombatantInfoCard = observer((props: Props) => {
   const { focusStore } = AppStore.get();
   const { detailed: detailedEntity, hovered: hoveredEntity } =
-    focusStore.detailable.getIfInstanceOf(Combatant);
+    focusStore.detailables.getIfInstanceOf(Combatant);
 
   const detailedInfoContainerRef = useRef<HTMLDivElement>(null);
   const [cardPositionStyle, setCardPositionStyle] = useState<{ [key: string]: string }>({

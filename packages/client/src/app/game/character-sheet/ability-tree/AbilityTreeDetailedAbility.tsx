@@ -13,7 +13,7 @@ import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 
 export const AbilityTreeDetailedAbility = observer(({ user }: { user: Combatant }) => {
-  const focusedAbility = AppStore.get().focusStore.combatantAbility.get();
+  const focusedAbility = AppStore.get().focusStore.combatantAbilities.get();
   const { detailed: detailedAbility, hovered: hoveredCombatantAbility } = focusedAbility;
   const ability = hoveredCombatantAbility || detailedAbility || null;
 
