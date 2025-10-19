@@ -1,39 +1,54 @@
-import { immerable } from "immer";
 import { AbilityTreeAbility, AbilityType, AbilityUtils } from "../../abilities/index.js";
-import { CombatActionName } from "../../combat/combat-actions/index.js";
+import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
+import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
+import { CombatActionComponent, CombatActionName } from "../../combat/combat-actions/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
+import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { CombatantTraitProperties } from "../combatant-traits/combatant-trait-properties.js";
-import {
-  ABILITY_TREES,
-  COMBATANT_TRAIT_DESCRIPTIONS,
-  CombatantClass,
-  CombatantProperties,
-} from "../index.js";
+import { CombatantTraitType } from "../combatant-traits/index.js";
 import { CombatantActionState } from "../owned-actions/combatant-action-state.js";
+import { makeAutoObservable } from "mobx";
 
 export class CombatantAbilityProperties {
-  [immerable] = true;
-  constructor() {}
-  ownedActions: Partial<Record<CombatActionName, CombatantActionState>> = {};
-  unspentAbilityPoints: number = 0;
-  traitProperties = new CombatantTraitProperties();
+  private ownedActions: Partial<Record<CombatActionName, CombatantActionState>> = {};
+  private unspentAbilityPoints: number = 0;
+  private traitProperties = new CombatantTraitProperties();
 
-  static getOwnedActionState(
-    combatantProperties: CombatantProperties,
-    actionName: CombatActionName
-  ): Error | CombatantActionState {
-    const ownedActionStateOption = combatantProperties.abilityProperties.ownedActions[actionName];
-    if (!ownedActionStateOption) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED);
+  constructor() {
+    makeAutoObservable(this, {}, { autoBind: true });
+  }
+
+  getUnspentPointsCount() {
+    return this.unspentAbilityPoints;
+  }
+
+  giveUnspentAbilityPoints(count: number) {
+    this.unspentAbilityPoints += count;
+  }
+
+  getOwnedActionState(actionName: CombatActionName): Error | CombatantActionState {
+    const ownedActionStateOption = this.ownedActions[actionName];
+    if (ownedActionStateOption === undefined) {
+      throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED);
+    }
     return ownedActionStateOption;
   }
 
-  static getAbilityLevel(combatantProperties: CombatantProperties, ability: AbilityTreeAbility) {
-    const { abilityProperties } = combatantProperties;
+  getCombatActionPropertiesIfOwned(actionAndRank: ActionAndRank): Error | CombatActionComponent {
+    const { actionName, rank } = actionAndRank;
+    const actionOption = this.ownedActions[actionName];
+    if (actionOption === undefined) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED);
+    if (actionOption.level < rank)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED_AT_THAT_LEVEL);
+    return COMBAT_ACTIONS[actionName];
+  }
+
+  getAbilityRank(ability: AbilityTreeAbility) {
     switch (ability.type) {
       case AbilityType.Action:
-        return abilityProperties.ownedActions[ability.actionName]?.level || 0;
+        return this.ownedActions[ability.actionName]?.level || 0;
       case AbilityType.Trait:
-        const { speccedTraitLevels, inherentTraitLevels } = abilityProperties.traitProperties;
+        const { speccedTraitLevels, inherentTraitLevels } = this.traitProperties;
         return (
           (speccedTraitLevels[ability.traitType] || 0) +
           (inherentTraitLevels[ability.traitType] || 0)
@@ -41,112 +56,27 @@ export class CombatantAbilityProperties {
     }
   }
 
-  static ownedAbilityIsAtMaxAllocatableLevel(
-    combatantProperties: CombatantProperties,
-    ability: AbilityTreeAbility
-  ) {
-    const abilityLevel = CombatantAbilityProperties.getAbilityLevel(combatantProperties, ability);
-    const maxAllocatableLevel = AbilityUtils.getAbilityMaxAllocatableLevel(ability);
-    if (abilityLevel >= maxAllocatableLevel) return true;
+  getOwnedActions() {
+    return this.ownedActions;
+  }
+
+  ownedAbilityIsAtMaxAllocatableRank(ability: AbilityTreeAbility) {
+    const abilityLevel = this.getAbilityRank(ability);
+    const max = AbilityUtils.getAbilityMaxAllocatableRank(ability);
+    if (abilityLevel >= max) return true;
     return false;
   }
 
-  static isRequiredCharacterLevelToAllocateToAbility(
-    combatantProperties: CombatantProperties,
-    ability: AbilityTreeAbility,
-    isSupportClass: boolean
-  ) {
-    const abilityLevel = CombatantAbilityProperties.getAbilityLevel(combatantProperties, ability);
-    // const characterLevel = isSupportClass ? combatantProperties.supportClassProperties?.level || 0: combatantProperties.level;
-    let characterLevel: number = 0;
-    let combatantClass: CombatantClass;
-    if (isSupportClass) {
-      const { supportClassProperties } = combatantProperties;
-      if (supportClassProperties === null) throw new Error("expected support class not found");
-      characterLevel = supportClassProperties.level;
-      combatantClass = supportClassProperties.combatantClass;
-    } else {
-      characterLevel = combatantProperties.level;
-      combatantClass = combatantProperties.combatantClass;
-    }
-
-    const abilityTree = ABILITY_TREES[combatantClass];
-    const characterLevelRequiredForFirstRank = AbilityUtils.getCharacterLevelRequiredForFirstRank(
-      abilityTree,
-      ability
-    );
-    const characterLevelRequired = characterLevelRequiredForFirstRank + abilityLevel;
-    return characterLevel >= characterLevelRequired;
-  }
-
-  static hasPrerequisiteAbilities(
-    combatantProperties: CombatantProperties,
-    ability: AbilityTreeAbility
-  ) {
+  hasPrerequisiteAbilities(ability: AbilityTreeAbility) {
     for (const prerequisite of AbilityUtils.getPrerequisites(ability)) {
-      if (CombatantAbilityProperties.getAbilityLevel(combatantProperties, prerequisite) < 1)
-        return false;
+      if (this.getAbilityRank(prerequisite) < 1) return false;
     }
     return true;
   }
 
-  static canAllocateAbilityPoint(
-    combatantProperties: CombatantProperties,
-    ability: AbilityTreeAbility,
-    isSupportClass: boolean
-  ): { canAllocate: boolean; reasonCanNot?: string } {
-    if (
-      ability.type === AbilityType.Trait &&
-      !COMBATANT_TRAIT_DESCRIPTIONS[ability.traitType].isAllocatable
-    ) {
-      return {
-        canAllocate: false,
-        reasonCanNot: "That trait is inherent to the combatant and can not be allocated to",
-      };
-    }
-    // has unspent points
-    if (combatantProperties.abilityProperties.unspentAbilityPoints <= 0)
-      return { canAllocate: false, reasonCanNot: "No unspent ability points" };
-    // ability is max level
-    const isAtMaxAllocatableLevel = CombatantAbilityProperties.ownedAbilityIsAtMaxAllocatableLevel(
-      combatantProperties,
-      ability
-    );
-    if (isAtMaxAllocatableLevel)
-      return { canAllocate: false, reasonCanNot: "That ability is at its maximum level" };
-    // is required character level
-    const isAtRequiredCharacterLevel =
-      CombatantAbilityProperties.isRequiredCharacterLevelToAllocateToAbility(
-        combatantProperties,
-        ability,
-        isSupportClass
-      );
-    if (!isAtRequiredCharacterLevel)
-      return {
-        canAllocate: false,
-        reasonCanNot: "That character is too low level to allocate to this ability",
-      };
-    // has prerequisite abilities
-    const hasPrerequisiteAbilities = CombatantAbilityProperties.hasPrerequisiteAbilities(
-      combatantProperties,
-      ability
-    );
-    if (!hasPrerequisiteAbilities)
-      return {
-        canAllocate: false,
-        reasonCanNot: "Requires prerequisite",
-      };
-
-    return { canAllocate: true };
-  }
-
-  static allocateAbilityPoint(
-    combatantProperties: CombatantProperties,
-    ability: AbilityTreeAbility
-  ) {
-    const { abilityProperties } = combatantProperties;
-    const { ownedActions, traitProperties } = abilityProperties;
-    abilityProperties.unspentAbilityPoints -= 1;
+  allocateAbilityPoint(ability: AbilityTreeAbility) {
+    const { ownedActions, traitProperties } = this;
+    this.unspentAbilityPoints -= 1;
     switch (ability.type) {
       case AbilityType.Action:
         const existingActionOption = ownedActions[ability.actionName];
@@ -159,5 +89,23 @@ export class CombatantAbilityProperties {
           traitProperties.speccedTraitLevels[ability.traitType] = existingTraitLevel + 1;
         else traitProperties.speccedTraitLevels[ability.traitType] = 1;
     }
+  }
+
+  tickCooldowns() {
+    for (const [actionName, actionState] of iterateNumericEnumKeyedRecord(this.ownedActions)) {
+      if (actionState.wasUsedThisTurn) {
+        actionState.wasUsedThisTurn = false;
+      } else if (actionState.cooldown && actionState.cooldown.current) {
+        actionState.cooldown.current -= 1;
+      }
+    }
+  }
+
+  hasTraitType(traitType: CombatantTraitType) {
+    const { traitProperties } = this;
+    return (
+      !!traitProperties.inherentTraitLevels[traitType] ||
+      !!traitProperties.speccedTraitLevels[traitType]
+    );
   }
 }

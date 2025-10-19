@@ -16,6 +16,8 @@ import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { IActionUser } from "../../action-user-context/action-user.js";
 import { makeAutoObservable } from "mobx";
+import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
+import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 
 export * from "./equip-item.js";
 export * from "./unequip-slots.js";
@@ -273,6 +275,25 @@ export class CombatantEquipment {
       HoldableSlotType.MainHand,
       EquipmentType.TwoHandedMeleeWeapon
     );
+  }
+
+  isWearingRequiredEquipmentToUseAction(actionAndRank: ActionAndRank) {
+    const { actionName, rank } = actionAndRank;
+    const action = COMBAT_ACTIONS[actionName];
+    const { getRequiredEquipmentTypeOptions } = action.targetingProperties;
+    if (getRequiredEquipmentTypeOptions(rank).length === 0) return true;
+
+    const allEquipment = this.getAllEquippedItems({
+      includeUnselectedHotswapSlots: false,
+    });
+
+    for (const equipment of allEquipment) {
+      const { equipmentType } = equipment.equipmentBaseItemProperties;
+      if (Equipment.isBroken(equipment)) continue;
+      if (getRequiredEquipmentTypeOptions(rank).includes(equipmentType)) return true;
+    }
+
+    return false;
   }
 
   /** For checking if a spawned holdable model is still equipped during model synchronization */

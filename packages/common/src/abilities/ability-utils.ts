@@ -68,7 +68,7 @@ export class AbilityUtils {
     else return false;
   }
 
-  static getAbilityMaxAllocatableLevel(ability: AbilityTreeAbility) {
+  static getAbilityMaxAllocatableRank(ability: AbilityTreeAbility) {
     switch (ability.type) {
       case AbilityType.Action:
         return MAX_ALLOCATABLE_ACTION_LEVEL;

@@ -1,9 +1,7 @@
 import { ActionMenuState } from "./index";
 import {
-  ABILITY_TREES,
   AbilityTreeAbility,
   AbilityType,
-  AbilityUtils,
   ArrayUtils,
   ClientToServerEvent,
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
@@ -11,7 +9,6 @@ import {
   COMBATANT_CONDITION_DESCRIPTIONS,
   COMBATANT_CONDITION_NAME_STRINGS,
   COMBATANT_TRAIT_DESCRIPTIONS,
-  CombatantAbilityProperties,
   CombatantConditionName,
   getAbilityTreeAbilityNameString,
 } from "@speed-dungeon/common";
@@ -131,17 +128,8 @@ export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
     button.dedicatedKeys = [allocateAbilityPointHotkey];
 
     const { combatantProperties } = focusedCharacter;
-    const { combatantClass } = combatantProperties;
 
-    const isMainClassAbility = AbilityUtils.abilityAppearsInTree(
-      abilityOption,
-      ABILITY_TREES[combatantClass]
-    );
-    const { canAllocate } = CombatantAbilityProperties.canAllocateAbilityPoint(
-      combatantProperties,
-      abilityOption,
-      !isMainClassAbility
-    );
+    const { canAllocate } = combatantProperties.canAllocateAbilityPoint(abilityOption);
 
     button.shouldBeDisabled = !canAllocate;
 
