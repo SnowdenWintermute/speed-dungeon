@@ -13,7 +13,6 @@ export const setInventoryOpen = new ActionMenuButtonProperties(
     const { actionMenuStore } = AppStore.get();
     actionMenuStore.clearHoveredAction();
     const inventoryItemsMenu = MenuStatePool.get(MenuStateType.InventoryItems);
-    console.log("inventoryItemsMenu:", inventoryItemsMenu);
     actionMenuStore.pushStack(inventoryItemsMenu);
   }
 );

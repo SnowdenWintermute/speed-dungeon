@@ -14,8 +14,8 @@ import { AppStore } from "./app-store";
 export type DetailableEntity = Combatant | Item;
 
 export class FocusStore {
-  readonly combatantAbility = new Detailable<AbilityTreeAbility>(() => {});
-  readonly detailable = new Detailable<DetailableEntity>(() =>
+  readonly combatantAbilities = new Detailable<AbilityTreeAbility>(() => {});
+  readonly detailables = new Detailable<DetailableEntity>(() =>
     this.consideredItemUnmetRequirements.clear()
   );
 
@@ -29,27 +29,27 @@ export class FocusStore {
   }
 
   entityIsHovered(entityId: string) {
-    const { hovered } = this.detailable.get();
+    const { hovered } = this.detailables.get();
     if (!hovered) return false;
     return hovered.entityProperties.id === entityId;
   }
 
   entityIsDetailed(entityId: string) {
-    const { detailed } = this.detailable.get();
+    const { detailed } = this.detailables.get();
     if (!detailed) return false;
     return detailed.entityProperties.id === entityId;
   }
 
   // ITEMS
   selectItem(itemOption: null | Item) {
-    const detailedEntityIdOption = this.detailable.get().detailed?.entityProperties.id;
+    const detailedEntityIdOption = this.detailables.get().detailed?.entityProperties.id;
     const selectedItemOptionId = itemOption?.entityProperties.id;
     const wasAlreadyDetailed = detailedEntityIdOption === selectedItemOptionId;
 
     if (wasAlreadyDetailed || itemOption === null) {
-      this.detailable.clearDetailed();
+      this.detailables.clearDetailed();
     } else {
-      this.detailable.setDetailed(itemOption);
+      this.detailables.setDetailed(itemOption);
 
       // @REFACTOR - maybe easier to test if we pass this as an argument instead of fetching it here
       const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
@@ -63,7 +63,7 @@ export class FocusStore {
   }
 
   getFocusedItems() {
-    const { hovered, detailed } = this.detailable.get();
+    const { hovered, detailed } = this.detailables.get();
     const hoveredItem = hovered instanceof Item ? hovered : null;
     const detailedItem = detailed instanceof Item ? detailed : null;
     return { hoveredItem, detailedItem };
@@ -117,9 +117,9 @@ export class FocusStore {
     const newCombatantAlreadyDetailed = this.entityIsDetailed(newCombatant.entityProperties.id);
 
     if (newCombatantAlreadyDetailed) {
-      this.detailable.clear();
+      this.detailables.clear();
     } else {
-      this.detailable.setDetailed(
+      this.detailables.setDetailed(
         new Combatant(newCombatant.entityProperties, newCombatant.combatantProperties)
       );
     }
@@ -130,7 +130,9 @@ class Detailable<T> {
   private hovered: null | T = null;
   private detailed: null | T = null;
 
-  constructor(private onClearDetailed: () => void) {}
+  constructor(private onClearDetailed: () => void) {
+    makeAutoObservable(this, {}, { autoBind: true });
+  }
 
   setHovered(toSet: T) {
     this.hovered = toSet;

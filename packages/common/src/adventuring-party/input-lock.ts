@@ -1,14 +1,10 @@
-import { immerable } from "immer";
-
 export class InputLock {
-  [immerable] = true;
   timeLocked: null | number = null;
   lockDuration: null | number = null;
   constructor() {}
   static lockInput(inputLock: InputLock) {
     inputLock.timeLocked = Date.now();
     inputLock.lockDuration = null;
-    console.log("locked input");
   }
   static increaseLockoutDuration(inputLock: InputLock, ms: number) {
     if (inputLock.lockDuration === null) inputLock.lockDuration = ms;
@@ -23,7 +19,5 @@ export class InputLock {
   static unlockInput(inputLock: InputLock) {
     inputLock.timeLocked = null;
     inputLock.lockDuration = null;
-
-    console.log("unlocked input");
   }
 }

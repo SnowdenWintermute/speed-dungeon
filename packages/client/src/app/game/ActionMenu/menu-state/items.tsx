@@ -55,7 +55,6 @@ export abstract class ItemsMenuState extends ActionMenuState {
     }
   ) {
     super(type, 1);
-    console.log("ItemsMenuState constructor: ", this.closeMenuTextAndHotkeys);
   }
 
   getButtonProperties(): ActionButtonsByCategory {
@@ -66,11 +65,10 @@ export abstract class ItemsMenuState extends ActionMenuState {
       this.closeMenuTextAndHotkeys.text,
       () => {
         AppStore.get().actionMenuStore.popStack();
-        AppStore.get().focusStore.detailable.clearDetailed();
+        AppStore.get().focusStore.detailables.clear();
         AppStore.get().dialogStore.close(DialogElementName.DropShards);
       }
     );
-    console.log("calling getButtonProperties in ItemsMenuState");
     closeInventory.dedicatedKeys = [...this.closeMenuTextAndHotkeys.hotkeys, "Escape"];
     toReturn[ActionButtonCategory.Top].push(closeInventory);
 

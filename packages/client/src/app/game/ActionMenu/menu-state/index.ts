@@ -35,9 +35,7 @@ export abstract class ActionMenuState {
   }
 
   getPageCount() {
-    console.log("getting page count");
     if (this.cachedPageCount === null) {
-      console.log("recalculating page count", this.getStringName());
       const buttonProperties = this.getButtonProperties();
       const numberedButtonsCount = buttonProperties[ActionButtonCategory.Numbered].length;
       const pageCount = Math.ceil(numberedButtonsCount / ACTION_MENU_PAGE_SIZE);

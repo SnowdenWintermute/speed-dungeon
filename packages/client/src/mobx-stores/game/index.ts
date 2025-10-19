@@ -123,7 +123,7 @@ export class GameStore {
       throw new Error("expected to have initialized a username");
     }
     if (this.focusedCharacterId === entityId) {
-      return console.log("already focusing character id:", entityId);
+      return console.info("already focusing character id:", entityId);
     }
 
     const { actionMenuStore, focusStore } = AppStore.get();
@@ -158,7 +158,6 @@ export class GameStore {
     }
 
     if (actionMenuStore.isInitialized()) {
-      console.log("menu store initialize! allegedly");
       const currentMenu = actionMenuStore.getCurrentMenu();
       currentMenu.goToFirstPage();
     }

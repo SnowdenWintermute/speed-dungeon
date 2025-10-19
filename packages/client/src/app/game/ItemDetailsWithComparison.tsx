@@ -6,6 +6,7 @@ import { AppStore } from "@/mobx-stores/app-store";
 export const ItemDetailsWithComparison = observer(() => {
   const { focusStore } = AppStore.get();
   const { hoveredItem, detailedItem } = focusStore.getFocusedItems();
+  console.log("hoveredItem:", hoveredItem);
 
   const focusedItemOption = hoveredItem || detailedItem;
 

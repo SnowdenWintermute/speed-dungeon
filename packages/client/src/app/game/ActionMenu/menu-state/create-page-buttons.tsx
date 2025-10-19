@@ -12,7 +12,7 @@ export function createPageButtons(
   ),
   onPageTurn?: (newPageNumber: number) => void
 ) {
-  if (pageCount <= 1) return console.log("no pages in menu to turn");
+  if (pageCount <= 1) return console.info("no pages in menu to turn");
 
   const { actionMenuStore } = AppStore.get();
   const prevButtonHotkey = HOTKEYS.LEFT_MAIN;

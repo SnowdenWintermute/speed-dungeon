@@ -18,7 +18,6 @@ export class MenuStatePool {
 
   static get(menuStateType: MenuStateType) {
     if (MenuStatePool._pool === null) {
-      console.log("pool is null, creating pooled states");
       MenuStatePool._pool = {
         [MenuStateType.Base]: new BaseMenuState(),
         [MenuStateType.AssignAttributePoints]: new AssigningAttributePointsMenuState(),
