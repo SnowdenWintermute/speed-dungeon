@@ -1,5 +1,5 @@
 import { setAlert } from "../components/alerts";
-import { CombatantEquipment, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
+import { ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
 import { getGameWorld } from "../3d-world/SceneManager";
 import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
 import { ModelActionType } from "../3d-world/game-world/model-manager/model-actions";
@@ -26,16 +26,16 @@ export async function removeClientPlayerFromGame(username: string) {
     itemsToRemoveThumbnails.push(
       ...character.combatantProperties.inventory.equipment.map((item) => item.entityProperties.id)
     );
-    const hotswapSets = CombatantEquipment.getHoldableHotswapSlots(
-      character.combatantProperties.equipment
-    );
-    if (hotswapSets)
+    const hotswapSets = character.combatantProperties.equipment.getHoldableHotswapSlots();
+    if (hotswapSets) {
       for (const hotswapSet of hotswapSets)
         itemsToRemoveThumbnails.push(
           ...Object.values(hotswapSet.holdables).map((item) => item.entityProperties.id)
         );
+    }
+
     itemsToRemoveThumbnails.push(
-      ...Object.values(character.combatantProperties.equipment.wearables).map(
+      ...Object.values(character.combatantProperties.equipment.getWearables()).map(
         (item) => item.entityProperties.id
       )
     );

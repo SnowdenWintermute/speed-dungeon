@@ -9,7 +9,7 @@ import { CombatantTraitType } from "./combatant-traits/index.js";
 import dropEquippedItem from "./inventory/drop-equipped-item.js";
 import { dropItem } from "./inventory/drop-item.js";
 import { getCombatActionPropertiesIfOwned } from "./get-combat-action-properties.js";
-import getCombatantTotalAttributes from "./attributes/get-combatant-total-attributes.js";
+import { getCombatantTotalAttributes } from "./attributes/get-combatant-total-attributes.js";
 import getCombatantTotalElementalAffinities from "./combatant-traits/get-combatant-total-elemental-affinities.js";
 import getCombatantTotalKineticDamageTypeAffinities from "./combatant-traits/get-combatant-total-kinetic-damage-type-affinities.js";
 import { setResourcesToMax } from "./resources/set-resources-to-max.js";
@@ -21,8 +21,6 @@ import {
   CombatantEquipment,
   applyEquipmentEffectWhileMaintainingResourcePercentages,
   equipItem,
-  getEquippedWeapon,
-  getSlotItemIsEquippedTo,
   getWeaponsInSlots,
   unequipSlots,
 } from "./combatant-equipment/index.js";
@@ -389,10 +387,8 @@ export class CombatantProperties {
   static getCombatantTotalElementalAffinities = getCombatantTotalElementalAffinities;
   static getCombatantTotalKineticDamageTypeAffinities =
     getCombatantTotalKineticDamageTypeAffinities;
-  static getEquippedWeapon = getEquippedWeapon;
   static getWeaponsInSlots = getWeaponsInSlots;
   static getActionNamesFilteredByUseableContext = getActionNamesFilteredByUseableContext;
-  static getSlotItemIsEquippedTo = getSlotItemIsEquippedTo;
   static getOwnedEquipment = getOwnedEquipment;
   static getOwnedItemById(combatantProperties: CombatantProperties, itemId: EntityId) {
     const ownedEquipment = CombatantProperties.getOwnedEquipment(combatantProperties);
@@ -411,7 +407,7 @@ export class CombatantProperties {
 
     if (removedItemResult instanceof Error) {
       applyEquipmentEffectWhileMaintainingResourcePercentages(combatantProperties, () => {
-        removedItemResult = CombatantEquipment.removeItem(combatantProperties.equipment, itemId);
+        removedItemResult = combatantProperties.equipment.removeItem(itemId);
       });
     }
     return removedItemResult;
@@ -475,9 +471,7 @@ export class CombatantProperties {
   static getDeserialized(combatantProperties: CombatantProperties) {
     const deserialized = plainToInstance(CombatantProperties, combatantProperties);
     deserialized.inventory = Inventory.getDeserialized(deserialized.inventory);
-
-    deserialized.inventory.instantiateItemClasses();
-    CombatantEquipment.instatiateItemClasses(deserialized.equipment);
+    deserialized.equipment = CombatantEquipment.getDeserialized(deserialized.equipment);
 
     deserialized.homeLocation = cloneVector3(deserialized.homeLocation);
     deserialized.position = cloneVector3(deserialized.position);
@@ -495,7 +489,7 @@ export class CombatantProperties {
   }
 
   static canParry(combatantProperties: CombatantProperties): boolean {
-    const holdables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties.equipment);
+    const holdables = combatantProperties.equipment.getActiveHoldableSlot();
     if (!holdables) return false;
     for (const [slot, equipment] of iterateNumericEnumKeyedRecord(holdables.holdables)) {
       if (slot === HoldableSlotType.OffHand) continue;
@@ -514,7 +508,7 @@ export class CombatantProperties {
   }
 
   static canBlock(combatantProperties: CombatantProperties): boolean {
-    const holdables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties.equipment);
+    const holdables = combatantProperties.equipment.getActiveHoldableSlot();
     if (!holdables) return false;
     for (const [slot, equipment] of iterateNumericEnumKeyedRecord(holdables.holdables)) {
       if (slot === HoldableSlotType.MainHand) continue;
@@ -571,7 +565,7 @@ export class CombatantProperties {
     const { getRequiredEquipmentTypeOptions } = action.targetingProperties;
     if (getRequiredEquipmentTypeOptions(rank).length === 0) return true;
 
-    const allEquipment = CombatantEquipment.getAllEquippedItems(combatantProperties.equipment, {
+    const allEquipment = combatantProperties.equipment.getAllEquippedItems({
       includeUnselectedHotswapSlots: false,
     });
     for (const equipment of allEquipment) {

@@ -9,12 +9,11 @@ import {
 } from "../index.js";
 import { CombatAttribute, initializeCombatAttributeRecord } from "../attributes/index.js";
 import { Equipment, HoldableSlotType } from "../../items/equipment/index.js";
-import { CombatantEquipment } from "../combatant-equipment/index.js";
 import { DERIVED_ATTRIBUTE_RATIOS } from "./derrived-attribute-ratios.js";
 import { addAttributesToAccumulator } from "./add-attributes-to-accumulator.js";
 import { COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL } from "../combatant-class/class-attributes-by-level.js";
 
-export default function getCombatantTotalAttributes(
+export function getCombatantTotalAttributes(
   combatantProperties: CombatantProperties
 ): Record<CombatAttribute, number> {
   const totalAttributes = initializeCombatAttributeRecord();
@@ -37,7 +36,7 @@ export default function getCombatantTotalAttributes(
       addAttributesToAccumulator(supportClassAttributesByLevel, totalAttributes);
   }
 
-  const allEquippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties.equipment, {
+  const allEquippedItems = combatantProperties.equipment.getAllEquippedItems({
     includeUnselectedHotswapSlots: false,
   });
   // you have to add the attributes first, then subtract them later if item is unusable
@@ -110,10 +109,7 @@ function getArmorPenDerivedBonus(
   combatantProperties: CombatantProperties,
   totalAttributesLessArmorPenBonus: CombatantAttributeRecord
 ): number {
-  const mhWeaponOption = CombatantProperties.getEquippedWeapon(
-    combatantProperties,
-    HoldableSlotType.MainHand
-  );
+  const mhWeaponOption = combatantProperties.equipment.getEquippedWeapon(HoldableSlotType.MainHand);
   if (mhWeaponOption instanceof Error) return 0;
   let attributeToDeriveFrom = CombatAttribute.Strength;
   if (mhWeaponOption) {

@@ -49,10 +49,8 @@ export class ConsideringItemMenuState extends ActionMenuState {
 
     const useItemHotkey = HOTKEYS.MAIN_1;
     const useItemLetter = letterFromKeyCode(useItemHotkey);
-    const slotItemIsEquippedTo = CombatantProperties.getSlotItemIsEquippedTo(
-      focusedCharacter.combatantProperties,
-      itemId
-    );
+    const slotItemIsEquippedTo =
+      focusedCharacter.combatantProperties.equipment.getSlotItemIsEquippedTo(itemId);
 
     const { inputStore } = AppStore.get();
 
@@ -148,10 +146,8 @@ export class ConsideringItemMenuState extends ActionMenuState {
       () => `Drop (${letterFromKeyCode(dropItemHotkey)})`,
       `Drop (${letterFromKeyCode(dropItemHotkey)})`,
       () => {
-        const slotEquipped = CombatantProperties.getSlotItemIsEquippedTo(
-          focusedCharacter.combatantProperties,
-          itemId
-        );
+        const slotEquipped =
+          focusedCharacter.combatantProperties.equipment.getSlotItemIsEquippedTo(itemId);
 
         if (slotEquipped)
           websocketConnection.emit(ClientToServerEvent.DropEquippedItem, {

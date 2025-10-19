@@ -7,10 +7,7 @@ import {
   TaggedEquipmentSlot,
 } from "../../items/equipment/slots.js";
 import { Equipment } from "../../items/equipment/index.js";
-import {
-  applyEquipmentEffectWhileMaintainingResourcePercentages,
-  CombatantEquipment,
-} from "./index.js";
+import { applyEquipmentEffectWhileMaintainingResourcePercentages } from "./index.js";
 import { Combatant, CombatantProperties, Inventory } from "../index.js";
 
 /** 
@@ -63,9 +60,7 @@ export function equipItem(
                 ];
               else return [slot];
             case HoldableSlotType.OffHand:
-              const equippedHotswapSlot = CombatantEquipment.getEquippedHoldableSlots(
-                combatantProperties.equipment
-              );
+              const equippedHotswapSlot = combatantProperties.equipment.getActiveHoldableSlot();
               if (!equippedHotswapSlot) return [];
 
               const itemInMainHandOption = equippedHotswapSlot.holdables[HoldableSlotType.MainHand];
@@ -103,12 +98,7 @@ export function equipItem(
     );
     if (itemToEquipResult instanceof Error) return itemToEquipResult;
 
-    const maybeError = CombatantEquipment.putEquipmentInSlot(
-      combatantProperties.equipment,
-      itemToEquipResult,
-      slot
-    );
-    if (maybeError instanceof Error) return maybeError;
+    combatantProperties.equipment.putEquipmentInSlot(itemToEquipResult, slot);
   });
 
   return { idsOfUnequippedItems, unequippedSlots: slotsToUnequip };

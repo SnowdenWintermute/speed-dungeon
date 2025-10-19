@@ -18,7 +18,6 @@ import {
   Equipment,
   HoldableSlotType,
   iterateNumericEnumKeyedRecord,
-  CombatantEquipment,
   EquipmentType,
   CombatantBaseChildTransformNodeName,
   NormalizedPercentage,
@@ -219,15 +218,9 @@ export class CharacterModel extends SceneEntity {
 
     const { combatantProperties } = combatant;
     const { equipment } = combatantProperties;
-    const offHandOption = CombatantEquipment.getEquippedHoldable(
-      equipment,
-      HoldableSlotType.OffHand
-    );
+    const offHandOption = equipment.getEquippedHoldable(HoldableSlotType.OffHand);
     const offhandType = offHandOption?.equipmentBaseItemProperties.equipmentType;
-    const mainHandOption = CombatantEquipment.getEquippedHoldable(
-      equipment,
-      HoldableSlotType.MainHand
-    );
+    const mainHandOption = equipment.getEquippedHoldable(HoldableSlotType.MainHand);
     const mainHandType = mainHandOption?.equipmentBaseItemProperties.equipmentType;
     const mhIsBroken = mainHandOption && Equipment.isBroken(mainHandOption);
     const ohIsBroken = offHandOption && Equipment.isBroken(offHandOption);

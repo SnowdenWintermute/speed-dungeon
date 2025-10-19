@@ -1,21 +1,18 @@
 import {
   AffixCategory,
   AffixType,
-  CombatAttribute,
   CombatantClass,
   CombatantProperties,
   EquipmentBaseItem,
+  EquipmentSlotType,
   EquipmentTraitType,
   EquipmentType,
   HoldableSlotType,
   OneHandedMeleeWeapon,
-  PrefixType,
   TwoHandedMeleeWeapon,
   TwoHandedRangedWeapon,
   iterateNumericEnumKeyedRecord,
-  throwIfError,
 } from "@speed-dungeon/common";
-import { CombatantEquipment } from "@speed-dungeon/common";
 import { repairEquipment } from "../game-event-handlers/craft-item-handler/repair-equipment.js";
 import { generateSpecificEquipmentType } from "../item-generation/generate-test-items.js";
 
@@ -63,9 +60,7 @@ export function giveStartingEquipment(combatantProperties: CombatantProperties) 
   const startingHoldables =
     STARTING_EQUIPMENT_BY_COMBATANT_CLASS[combatantProperties.combatantClass];
 
-  const mainHoldableHotswapSlot = throwIfError(
-    CombatantEquipment.getEquippedHoldableSlots(combatantProperties.equipment)
-  );
+  const mainHoldableHotswapSlot = combatantProperties.equipment.getActiveHoldableSlot();
 
   for (const [slotType, template] of iterateNumericEnumKeyedRecord(startingHoldables)) {
     const holdable = generateSpecificEquipmentType(template, { noAffixes: true });
@@ -100,9 +95,8 @@ function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
     },
     { noAffixes: true }
   );
-  if (!(mh instanceof Error) && combatantProperties.equipment.inherentHoldableHotswapSlots[1]) {
-    combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
-      HoldableSlotType.MainHand
-    ] = mh;
-  }
+  combatantProperties.equipment.putEquipmentInSlot(mh, {
+    type: EquipmentSlotType.Holdable,
+    slot: HoldableSlotType.MainHand,
+  });
 }

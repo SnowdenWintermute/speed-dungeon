@@ -1,12 +1,7 @@
 import { MAX_CRIT_CHANCE, MIN_HIT_CHANCE } from "../../../app-consts.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
-import {
-  Combatant,
-  CombatantEquipment,
-  CombatantProperties,
-  CombatantTraitType,
-} from "../../../combatants/index.js";
+import { Combatant, CombatantProperties, CombatantTraitType } from "../../../combatants/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
 import {
   SHIELD_SIZE_BLOCK_RATE,
@@ -233,9 +228,7 @@ export class HitOutcomeMitigationCalculator {
   }
 
   static getShieldBlockChance(aggressor: IActionUser, defender: Combatant): Percentage {
-    const shieldPropertiesOption = CombatantEquipment.getEquippedShieldProperties(
-      defender.getEquipmentOption()
-    );
+    const shieldPropertiesOption = defender.getEquipmentOption().getEquippedShieldProperties();
     if (!shieldPropertiesOption) return 0;
 
     const baseBlockRate = SHIELD_SIZE_BLOCK_RATE[shieldPropertiesOption.size] * 100;
@@ -248,9 +241,7 @@ export class HitOutcomeMitigationCalculator {
 
   /**Should return a normalized percentage*/
   static getShieldBlockDamageReduction(combatantProperties: CombatantProperties) {
-    const shieldPropertiesOption = CombatantEquipment.getEquippedShieldProperties(
-      combatantProperties.equipment
-    );
+    const shieldPropertiesOption = combatantProperties.equipment.getEquippedShieldProperties();
     if (!shieldPropertiesOption) return 0;
 
     const baseDamageReduction = SHIELD_SIZE_DAMAGE_REDUCTION[shieldPropertiesOption.size];

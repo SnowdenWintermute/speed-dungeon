@@ -56,8 +56,7 @@ export function characterPerformedCraftingActionHandler(eventData: {
       });
 
       const wasRepaired = wasBrokenBefore && !Equipment.isBroken(itemResult);
-      const slotEquippedToOption = CombatantProperties.getSlotItemIsEquippedTo(
-        character.combatantProperties,
+      const slotEquippedToOption = character.combatantProperties.equipment.getSlotItemIsEquippedTo(
         itemResult.entityProperties.id
       );
       const isEquipped = slotEquippedToOption !== null;

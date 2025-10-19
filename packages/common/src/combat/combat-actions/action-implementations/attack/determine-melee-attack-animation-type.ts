@@ -1,5 +1,4 @@
 import { ActionResolutionStepContext } from "../../../../action-processing/index.js";
-import { CombatantEquipment } from "../../../../combatants/index.js";
 import { Equipment, EquipmentType } from "../../../../items/equipment/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { FixedNumberGenerator } from "../../../../utility-classes/randomizers.js";
@@ -25,10 +24,7 @@ export function determineMeleeAttackAnimationType(
   const { actionUser } = context.actionUserContext;
   const combatantProperties = actionUser.getCombatantProperties();
 
-  const equipmentOption = CombatantEquipment.getEquippedHoldable(
-    combatantProperties.equipment,
-    holdableSlot
-  );
+  const equipmentOption = combatantProperties.equipment.getEquippedHoldable(holdableSlot);
 
   const noUseableEquipmentInSlot =
     !equipmentOption ||

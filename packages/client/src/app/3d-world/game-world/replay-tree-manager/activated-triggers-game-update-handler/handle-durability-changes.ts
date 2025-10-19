@@ -17,8 +17,7 @@ export function handleDurabilityChanges(
   // gameState.rerenderForcer += 1; // for some reason it delays updating the durability indicators on bow use without this
   // playBeep();
   DurabilityChangesByEntityId.ApplyToGame(party, durabilityChanges, (combatant, equipment) => {
-    const slot = CombatantProperties.getSlotItemIsEquippedTo(
-      combatant.combatantProperties,
+    const slot = combatant.combatantProperties.equipment.getSlotItemIsEquippedTo(
       equipment.entityProperties.id
     );
     // remove the model if it broke

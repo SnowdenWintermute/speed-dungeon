@@ -1,7 +1,6 @@
 import {
   CharacterAndItems,
   CharacterAssociatedData,
-  CombatantEquipment,
   CombatantProperties,
   TaggedEquipmentSlot,
   convertItemsToShards,
@@ -19,14 +18,13 @@ export function characterConvertedItemsToShardsHandler(characterAndItems: Charac
     ({ character }: CharacterAssociatedData) => {
       const { combatantProperties } = character;
       // unequip it if is equipped
-      const equippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties.equipment, {
+      const equippedItems = combatantProperties.equipment.getAllEquippedItems({
         includeUnselectedHotswapSlots: true,
       });
 
       for (const item of equippedItems) {
         if (characterAndItems.itemIds.includes(item.entityProperties.id)) {
-          const slot = CombatantProperties.getSlotItemIsEquippedTo(
-            combatantProperties,
+          const slot = combatantProperties.equipment.getSlotItemIsEquippedTo(
             item.entityProperties.id
           );
           if (slot !== null) {

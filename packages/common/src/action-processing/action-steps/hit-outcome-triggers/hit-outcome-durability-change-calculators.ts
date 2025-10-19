@@ -3,7 +3,7 @@ import { DurabilityLossCondition } from "../../../combat/combat-actions/combat-a
 import { CombatActionResource } from "../../../combat/combat-actions/combat-action-hit-outcome-properties.js";
 import { CombatActionComponent } from "../../../combat/index.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
-import { Combatant, CombatantEquipment, CombatantProperties } from "../../../combatants/index.js";
+import { Combatant, CombatantEquipment } from "../../../combatants/index.js";
 import {
   BASE_DURABILITY_LOSS,
   DurabilityChangesByEntityId,
@@ -99,7 +99,6 @@ const HIT_OUTCOME_DURABILITY_CHANGE_ON_TARGET_CALCULATORS: Record<
   },
   [HitOutcome.Hit]: (durabilityChanges, targetCombatant, isCrit) => {
     const { combatantProperties: targetCombatantProperties } = targetCombatant;
-    const targetId = targetCombatant.entityProperties.id;
     const headSlot: TaggedEquipmentSlot = {
       type: EquipmentSlotType.Wearable,
       slot: WearableSlotType.Head,
@@ -110,14 +109,9 @@ const HIT_OUTCOME_DURABILITY_CHANGE_ON_TARGET_CALCULATORS: Record<
     };
 
     // hits damage a random wearable
-    const equippedHelmOption = CombatantEquipment.getEquipmentInSlot(
-      targetCombatantProperties.equipment,
-      headSlot
-    );
-    const equippedBodyOption = CombatantEquipment.getEquipmentInSlot(
-      targetCombatantProperties.equipment,
-      bodySlot
-    );
+    const { equipment } = targetCombatantProperties;
+    const equippedHelmOption = equipment.getEquipmentInSlot(headSlot);
+    const equippedBodyOption = equipment.getEquipmentInSlot(bodySlot);
 
     if (
       equippedBodyOption &&

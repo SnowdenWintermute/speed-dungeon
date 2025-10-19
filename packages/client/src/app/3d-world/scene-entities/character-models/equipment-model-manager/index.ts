@@ -1,5 +1,4 @@
 import {
-  CombatantEquipment,
   CombatantProperties,
   Equipment,
   EquipmentSlotType,
@@ -69,9 +68,8 @@ export class EquipmentModelManager {
   }
 
   getHoldableModelInSlot(slot: HoldableSlotType) {
-    const selectedHotswapSlotIndex =
-      this.characterModel.getCombatant().combatantProperties.equipment
-        .equippedHoldableHotswapSlotIndex;
+    const { equipment } = this.characterModel.getCombatant().combatantProperties;
+    const selectedHotswapSlotIndex = equipment.getSelectedHoldableSlotIndex();
     const holdableModelsHotswapSlotOption = this.holdableHotswapSlots[selectedHotswapSlotIndex];
     if (!holdableModelsHotswapSlotOption) return undefined;
     return holdableModelsHotswapSlotOption[slot];
@@ -101,8 +99,7 @@ export class EquipmentModelManager {
         const equipmentModelId = equipmentModelOption.entityId;
 
         const indexAndHoldableSlotIfEquipped =
-          CombatantEquipment.getHotswapSlotIndexAndHoldableSlotOfPotentiallyEquippedHoldable(
-            combatantProperties.equipment,
+          combatantProperties.equipment.getHotswapSlotIndexAndHoldableSlotOfPotentiallyEquippedHoldable(
             equipmentModelId
           );
 
@@ -131,7 +128,7 @@ export class EquipmentModelManager {
     newState: HoldableHotswapSlotsModels,
     combatantProperties: CombatantProperties
   ) {
-    const holdableSlots = CombatantEquipment.getHoldableHotswapSlots(combatantProperties.equipment);
+    const holdableSlots = combatantProperties.equipment.getHoldableHotswapSlots();
 
     let slotIndex = -1;
     for (const hotswapSlot of holdableSlots) {
@@ -175,8 +172,8 @@ export class EquipmentModelManager {
     this.holdableHotswapSlots = newState;
     // attach to correct positions
 
-    const hotswapSlots = CombatantEquipment.getHoldableHotswapSlots(combatantProperties.equipment);
-    const equippedSlotIndex = combatantProperties.equipment.equippedHoldableHotswapSlotIndex;
+    const hotswapSlots = combatantProperties.equipment.getHoldableHotswapSlots();
+    const equippedSlotIndex = combatantProperties.equipment.getSelectedHoldableSlotIndex();
     const holsteredSlotIndex = this.getIndexForDisplayedHolsteredSlot(
       hotswapSlots,
       equippedSlotIndex

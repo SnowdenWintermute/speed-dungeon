@@ -3,7 +3,6 @@ import { CombatActionComponent } from "../combat/combat-actions/index.js";
 import { IActionUser } from "../action-user-context/action-user.js";
 import {
   Combatant,
-  CombatantEquipment,
   applyEquipmentEffectWhileMaintainingResourcePercentages,
 } from "../combatants/index.js";
 import { HitOutcome } from "../hit-outcome.js";
@@ -55,10 +54,7 @@ export class DurabilityChangesByEntityId {
     const userEquipment = actionUser.getEquipmentOption();
     if (userEquipment === null) throw new Error("Expected action user to have equipment");
 
-    const equipment = CombatantEquipment.getEquipmentInSlot(
-      userEquipment,
-      durabilityChange.taggedSlot
-    );
+    const equipment = userEquipment.getEquipmentInSlot(durabilityChange.taggedSlot);
 
     if (durabilityChange.value < 0 && equipment?.durability?.current === 0) return;
 
@@ -82,10 +78,8 @@ export class DurabilityChangesByEntityId {
 
       for (const change of durabilitychanges.changes) {
         const { taggedSlot, value } = change;
-        const equipmentOption = CombatantEquipment.getEquipmentInSlot(
-          combatant.combatantProperties.equipment,
-          taggedSlot
-        );
+        const { equipment } = combatant.combatantProperties;
+        const equipmentOption = equipment.getEquipmentInSlot(taggedSlot);
 
         applyEquipmentEffectWhileMaintainingResourcePercentages(
           combatant.combatantProperties,
@@ -120,7 +114,7 @@ export class DurabilityChangesByEntityId {
           slot: wearableSlot,
         };
 
-        const equipment = CombatantEquipment.getEquipmentInSlot(equipmentOption, taggedSlot);
+        const equipment = equipmentOption.getEquipmentInSlot(taggedSlot);
         if (equipment?.durability?.current === 0) continue;
 
         this.updateOrCreateDurabilityChangeRecord(user, {
@@ -140,7 +134,7 @@ export class DurabilityChangesByEntityId {
           type: EquipmentSlotType.Holdable,
           slot: holdableSlot,
         };
-        const equipment = CombatantEquipment.getEquipmentInSlot(equipmentOption, taggedSlot);
+        const equipment = equipmentOption.getEquipmentInSlot(taggedSlot);
         if (equipment === undefined) continue;
         if (equipment.durability?.current === 0) continue;
 
@@ -157,10 +151,8 @@ export class DurabilityChangesByEntityId {
     taggedSlot: TaggedEquipmentSlot,
     extraDurabilityLoss: number = 0
   ) {
-    const equipmentOption = CombatantEquipment.getEquipmentInSlot(
-      combatant.combatantProperties.equipment,
-      taggedSlot
-    );
+    const { equipment } = combatant.combatantProperties;
+    const equipmentOption = equipment.getEquipmentInSlot(taggedSlot);
 
     if (equipmentOption) {
       this.updateOrCreateDurabilityChangeRecord(combatant, {

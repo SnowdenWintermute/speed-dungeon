@@ -24,14 +24,13 @@ export function characterTradedItemForBookHandler(eventData: {
   characterAssociatedDataProvider(characterId, ({ character }: CharacterAssociatedData) => {
     const { combatantProperties } = character;
     // unequip it if is equipped
-    const equippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties.equipment, {
+    const equippedItems = combatantProperties.equipment.getAllEquippedItems({
       includeUnselectedHotswapSlots: true,
     });
 
     for (const item of equippedItems) {
       if (item.entityProperties.id === itemIdTraded) {
-        const slot = CombatantProperties.getSlotItemIsEquippedTo(
-          combatantProperties,
+        const slot = combatantProperties.equipment.getSlotItemIsEquippedTo(
           item.entityProperties.id
         );
         if (slot !== null) {

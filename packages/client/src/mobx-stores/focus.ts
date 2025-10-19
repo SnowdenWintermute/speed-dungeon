@@ -97,10 +97,7 @@ export class FocusStore {
       this.comparedSlot = equipableSlots.main;
     }
 
-    const equippedItemOption = CombatantEquipment.getEquipmentInSlot(
-      combatantEquipment,
-      this.comparedSlot
-    );
+    const equippedItemOption = combatantEquipment.getEquipmentInSlot(this.comparedSlot);
 
     const comparingToSelf = equippedItemOption?.entityProperties.id === item.entityProperties.id;
     const noItemInSlot = !equippedItemOption;

@@ -1,16 +1,12 @@
 import {
   ArrayUtils,
-  BodyArmor,
   EquipmentType,
-  HeadGear,
   HoldableSlotType,
   MonsterType,
   OneHandedMeleeWeapon,
   PreDeterminedItemType,
   Shield,
   TwoHandedMeleeWeapon,
-  TwoHandedRangedWeapon,
-  WearableSlotType,
   generatePreDeterminedItem,
 } from "@speed-dungeon/common";
 import { idGenerator, rngSingleton } from "../../singletons/index.js";
@@ -157,6 +153,7 @@ export function getMonsterEquipment(monsterType: MonsterType): CombatantEquipmen
     case MonsterType.IceElemental:
   }
 
-  equipment.inherentHoldableHotswapSlots = [mainHoldableHotswapSlot];
+  equipment.replaceHoldableSlots([mainHoldableHotswapSlot]);
+
   return equipment;
 }

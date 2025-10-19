@@ -6,7 +6,6 @@ import {
   CombatActionExecutionIntent,
   CombatActionName,
   CombatActionTargetType,
-  CombatantEquipment,
   ERROR_MESSAGES,
   HOTSWAP_SLOT_SELECTION_ACTION_POINT_COST,
   ServerToClientEvent,
@@ -41,8 +40,9 @@ export default function selectHoldableHotswapSlotHandler(
 
   const { equipment } = character.combatantProperties;
 
-  if (slotIndex >= CombatantEquipment.getHoldableHotswapSlots(equipment).length)
-    return new Error(ERROR_MESSAGES.EQUIPMENT.SELECTED_SLOT_OUT_OF_BOUNDS);
+  if (slotIndex >= equipment.getHoldableHotswapSlots().length) {
+    throw new Error(ERROR_MESSAGES.EQUIPMENT.SELECTED_SLOT_OUT_OF_BOUNDS);
+  }
 
   changeSelectedHotswapSlot(character.combatantProperties, slotIndex);
 

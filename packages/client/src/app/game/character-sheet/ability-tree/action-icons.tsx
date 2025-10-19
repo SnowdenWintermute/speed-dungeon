@@ -1,6 +1,5 @@
 import { IconName, KINETIC_TYPE_ICONS, MAGICAL_ELEMENT_ICONS, SVG_ICONS } from "@/app/icons";
 import {
-  CombatantEquipment,
   CombatantProperties,
   Equipment,
   EquipmentType,
@@ -13,14 +12,8 @@ export function getAttackActionIcons(user: CombatantProperties, inCombat: boolea
   const mhIcons = [];
 
   const { actionPoints } = user;
-  const mainHandEquipmentOption = CombatantEquipment.getEquippedHoldable(
-    user.equipment,
-    HoldableSlotType.MainHand
-  );
-  const offHandEquipmentOption = CombatantEquipment.getEquippedHoldable(
-    user.equipment,
-    HoldableSlotType.OffHand
-  );
+  const mainHandEquipmentOption = user.equipment.getEquippedHoldable(HoldableSlotType.MainHand);
+  const offHandEquipmentOption = user.equipment.getEquippedHoldable(HoldableSlotType.OffHand);
   const ohIsShield =
     offHandEquipmentOption?.equipmentBaseItemProperties.equipmentType === EquipmentType.Shield;
 

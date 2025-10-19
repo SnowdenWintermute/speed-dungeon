@@ -8,6 +8,6 @@ export function changeSelectedHotswapSlot(
   slotIndex: number
 ) {
   applyEquipmentEffectWhileMaintainingResourcePercentages(combatantProperties, () => {
-    combatantProperties.equipment.equippedHoldableHotswapSlotIndex = slotIndex;
+    combatantProperties.equipment.setSelectedHoldableSlotIndex(slotIndex);
   });
 }

@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import { PaperDollSlot } from "./PaperDollSlot";
 import {
   Combatant,
-  CombatantEquipment,
   CombatantProperties,
   EquipmentSlotType,
   HoldableSlotType,
@@ -20,9 +19,7 @@ interface Props {
 
 export const PaperDoll = observer(({ combatant }: Props) => {
   const { combatantProperties, entityProperties } = combatant;
-  const equippedHoldables = CombatantEquipment.getEquippedHoldableSlots(
-    combatantProperties.equipment
-  );
+  const equippedHoldables = combatantProperties.equipment.getActiveHoldableSlot();
   const viewingDropShardsModal = AppStore.get().dialogStore.isOpen(DialogElementName.DropShards);
 
   const { equipment } = combatantProperties;
@@ -50,19 +47,19 @@ export const PaperDoll = observer(({ combatant }: Props) => {
         vertical={false}
         className={"absolute h-fit flex border border-slate-400"}
         entityId={entityProperties.id}
-        selectedSlotIndex={combatantProperties.equipment.equippedHoldableHotswapSlotIndex}
-        numSlots={CombatantEquipment.getHoldableHotswapSlots(combatantProperties.equipment).length}
+        selectedSlotIndex={combatantProperties.equipment.getSelectedHoldableSlotIndex()}
+        numSlots={combatantProperties.equipment.getHoldableHotswapSlots().length}
       />
       <div className="w-[7.5rem] mr-2.5">
         <div className="h-[6.25rem] mb-2.5 flex justify-between items-end">
           <PaperDollSlot
-            itemOption={equipment.wearables[WearableSlotType.RingR] ?? null}
+            itemOption={equipment.getWearables()[WearableSlotType.RingR] ?? null}
             characterAttributes={totalAttributes}
             slot={{ type: EquipmentSlotType.Wearable, slot: WearableSlotType.RingR }}
             tailwindClasses=" h-10 max-h-10 w-10 max-w-10"
           />
           <PaperDollSlot
-            itemOption={equipment.wearables[WearableSlotType.RingL] ?? null}
+            itemOption={equipment.getWearables()[WearableSlotType.RingL] ?? null}
             characterAttributes={totalAttributes}
             slot={{ type: EquipmentSlotType.Wearable, slot: WearableSlotType.RingL }}
             tailwindClasses=" h-10 max-h-10 w-10 max-w-10"
@@ -78,14 +75,14 @@ export const PaperDoll = observer(({ combatant }: Props) => {
       <div className="w-[7.5rem] mr-2.5">
         {
           <PaperDollSlot
-            itemOption={equipment.wearables[WearableSlotType.Head] ?? null}
+            itemOption={equipment.getWearables()[WearableSlotType.Head] ?? null}
             characterAttributes={totalAttributes}
             slot={{ type: EquipmentSlotType.Wearable, slot: WearableSlotType.Head }}
             tailwindClasses="h-[6.25rem] ?? null w-full mb-2.5"
           />
         }
         <PaperDollSlot
-          itemOption={equipment.wearables[WearableSlotType.Body] ?? null}
+          itemOption={equipment.getWearables()[WearableSlotType.Body] ?? null}
           characterAttributes={totalAttributes}
           slot={{ type: EquipmentSlotType.Wearable, slot: WearableSlotType.Body }}
           tailwindClasses="h-[12.125rem] ?? null max-h-[12.125rem] w-full"
@@ -94,7 +91,7 @@ export const PaperDoll = observer(({ combatant }: Props) => {
       <div className="w-[7.5rem]">
         <div className="h-[6.25rem] mb-2.5 flex justify-end items-end">
           <PaperDollSlot
-            itemOption={equipment.wearables[WearableSlotType.Amulet] ?? null}
+            itemOption={equipment.getWearables()[WearableSlotType.Amulet] ?? null}
             characterAttributes={totalAttributes}
             slot={{ type: EquipmentSlotType.Wearable, slot: WearableSlotType.Amulet }}
             tailwindClasses=" h-10 w-10"

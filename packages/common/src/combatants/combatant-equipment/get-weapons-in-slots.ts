@@ -2,7 +2,6 @@ import { IActionUser } from "../../action-user-context/action-user.js";
 import { Equipment, WeaponProperties } from "../../items/equipment/index.js";
 import { HoldableSlotType } from "../../items/equipment/slots.js";
 import { CombatantProperties } from "../index.js";
-import { CombatantEquipment } from "./index.js";
 
 export function getWeaponsInSlots(
   user: IActionUser,
@@ -16,7 +15,7 @@ export function getWeaponsInSlots(
   const equipmentOption = user.getEquipmentOption();
   if (equipmentOption === null) return toReturn;
 
-  const equippedSelectedHotswapSlot = CombatantEquipment.getEquippedHoldableSlots(equipmentOption);
+  const equippedSelectedHotswapSlot = equipmentOption.getActiveHoldableSlot();
   if (!equippedSelectedHotswapSlot) return toReturn;
 
   for (const weaponSlot of weaponSlots) {

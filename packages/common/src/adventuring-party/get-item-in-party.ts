@@ -1,17 +1,14 @@
 import { AdventuringParty } from "./index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { Item } from "../items/index.js";
-import { Combatant, CombatantEquipment, Inventory } from "../combatants/index.js";
+import { Combatant, Inventory } from "../combatants/index.js";
 
 function getItemOnCombatant(combatant: Combatant, itemId: string) {
   let itemOption = Inventory.getItemById(combatant.combatantProperties.inventory, itemId);
   if (!(itemOption instanceof Error)) return itemOption;
-  const equippedItems = CombatantEquipment.getAllEquippedItems(
-    combatant.combatantProperties.equipment,
-    {
-      includeUnselectedHotswapSlots: true,
-    }
-  );
+  const equippedItems = combatant.combatantProperties.equipment.getAllEquippedItems({
+    includeUnselectedHotswapSlots: true,
+  });
   for (const equippedItem of equippedItems) {
     if (equippedItem.entityProperties.id === itemId) {
       return equippedItem;

@@ -5,13 +5,7 @@ import { UnspentAttributesButton } from "../UnspentAttributesButton";
 import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import CombatantInfoButton from "./CombatantInfoButton";
 import { DetailedCombatantInfoCard } from "./DetailedCombatantInfoCard";
-import {
-  Combatant,
-  CombatantEquipment,
-  CombatantProperties,
-  InputLock,
-  Inventory,
-} from "@speed-dungeon/common";
+import { Combatant, CombatantProperties, InputLock, Inventory } from "@speed-dungeon/common";
 import "./floating-text-animation.css";
 import { CombatantFloatingMessagesDisplay } from "./combatant-floating-messages-display";
 import { InventoryIconButton } from "./InventoryIconButton";
@@ -72,7 +66,7 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
     ? "opacity-50 pointer-events-none "
     : "pointer-events-auto ";
 
-  const equippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties.equipment, {});
+  const equippedItems = combatantProperties.equipment.getAllEquippedItems({});
 
   const conditionIndicators = (styles: string) => (
     <div className={`w-full h-6 py-0.5 ${styles}`}>
@@ -156,10 +150,8 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
               <HotswapSlotButtons
                 className={"absolute -top-2 -left-2 z-10 flex flex-col border border-slate-400"}
                 entityId={entityId}
-                selectedSlotIndex={combatantProperties.equipment.equippedHoldableHotswapSlotIndex}
-                numSlots={
-                  CombatantEquipment.getHoldableHotswapSlots(combatantProperties.equipment).length
-                }
+                selectedSlotIndex={combatantProperties.equipment.getSelectedHoldableSlotIndex()}
+                numSlots={combatantProperties.equipment.getHoldableHotswapSlots().length}
                 vertical={true}
                 registerKeyEvents={isFocused}
               />

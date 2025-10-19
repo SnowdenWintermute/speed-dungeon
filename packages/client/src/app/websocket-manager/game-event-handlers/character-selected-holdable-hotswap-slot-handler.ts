@@ -1,6 +1,5 @@
 import {
   CharacterAssociatedData,
-  CombatantEquipment,
   ERROR_MESSAGES,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
@@ -17,12 +16,14 @@ export function characterSelectedHoldableHotswapSlotHandler(
   characterAssociatedDataProvider(characterId, ({ character }: CharacterAssociatedData) => {
     const { equipment } = character.combatantProperties;
 
-    if (slotIndex >= CombatantEquipment.getHoldableHotswapSlots(equipment).length)
+    if (slotIndex >= equipment.getHoldableHotswapSlots().length) {
       return new Error(ERROR_MESSAGES.EQUIPMENT.SELECTED_SLOT_OUT_OF_BOUNDS);
+    }
 
-    const slotSwitchingAwayFrom = CombatantEquipment.getEquippedHoldableSlots(equipment);
-    if (!slotSwitchingAwayFrom)
-      return new Error(ERROR_MESSAGES.EQUIPMENT.SELECTED_SLOT_OUT_OF_BOUNDS);
+    const slotSwitchingAwayFrom = equipment.getActiveHoldableSlot();
+    if (!slotSwitchingAwayFrom) {
+      throw new Error(ERROR_MESSAGES.EQUIPMENT.SELECTED_SLOT_OUT_OF_BOUNDS);
+    }
 
     const { focusStore } = AppStore.get();
     // if hovering equipped item we don't want to show the previously held item anymore since it is no longer
@@ -39,7 +40,7 @@ export function characterSelectedHoldableHotswapSlotHandler(
 
     if (previouslyHoveredSlotTypeOption !== null) {
       focusStore.detailables.clearHovered();
-      const newlyEquippedSlotOption = CombatantEquipment.getEquippedHoldableSlots(equipment);
+      const newlyEquippedSlotOption = equipment.getActiveHoldableSlot();
       if (newlyEquippedSlotOption) {
         for (const [slotType, holdable] of iterateNumericEnumKeyedRecord(
           newlyEquippedSlotOption.holdables

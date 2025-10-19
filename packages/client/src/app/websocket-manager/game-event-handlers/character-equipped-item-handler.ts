@@ -1,9 +1,4 @@
-import {
-  CharacterAssociatedData,
-  CombatantEquipment,
-  CombatantProperties,
-  Item,
-} from "@speed-dungeon/common";
+import { CharacterAssociatedData, CombatantProperties, Item } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { ConsideringItemMenuState } from "@/app/game/ActionMenu/menu-state/considering-item";
 import cloneDeep from "lodash.clonedeep";
@@ -24,12 +19,9 @@ export function characterEquippedItemHandler(packet: {
     if (unequippedResult instanceof Error) return unequippedResult;
     const { idsOfUnequippedItems } = unequippedResult;
 
-    const slot = CombatantProperties.getSlotItemIsEquippedTo(character.combatantProperties, itemId);
+    const slot = character.combatantProperties.equipment.getSlotItemIsEquippedTo(itemId);
     if (slot !== null) {
-      const item = CombatantEquipment.getEquipmentInSlot(
-        character.combatantProperties.equipment,
-        slot
-      );
+      const item = character.combatantProperties.equipment.getEquipmentInSlot(slot);
       if (item !== undefined)
         getGameWorld().modelManager.modelActionQueue.enqueueMessage({
           type: ModelActionType.SynchronizeCombatantEquipmentModels,

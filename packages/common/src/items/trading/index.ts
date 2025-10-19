@@ -1,5 +1,5 @@
 export * from "./combatant-is-allowed-to-trade-for-books.js";
-import { CombatantEquipment, CombatantProperties } from "../../combatants/index.js";
+import { CombatantProperties } from "../../combatants/index.js";
 import { BookConsumableType } from "../consumables/index.js";
 import { Equipment } from "../equipment/index.js";
 import { BOOK_TRADE_ACCEPTED_EQUIPMENT_CHECKERS } from "./book-trade-accepted-equipment-checkers.js";
@@ -11,7 +11,7 @@ export function getOwnedAcceptedItemsForBookTrade(
   const toReturn = [];
   // look at all broken items equipped and in inventory
   const equipmentInInventory = CombatantProperties.getOwnedEquipment(combatantProperties);
-  const equippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties.equipment, {
+  const equippedItems = combatantProperties.equipment.getAllEquippedItems({
     includeUnselectedHotswapSlots: true,
   });
 

@@ -1,6 +1,6 @@
 import { ItemsMenuState } from "./items";
 import { HOTKEYS } from "@/hotkeys";
-import { CombatantEquipment, Item } from "@speed-dungeon/common";
+import { Item } from "@speed-dungeon/common";
 import { ConsideringItemMenuState } from "./considering-item";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "./menu-state-type";
@@ -18,7 +18,7 @@ export class EquippedItemsMenuState extends ItemsMenuState {
       () => {
         const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
         return Object.values(
-          CombatantEquipment.getAllEquippedItems(focusedCharacter.combatantProperties.equipment, {
+          focusedCharacter.combatantProperties.equipment.getAllEquippedItems({
             includeUnselectedHotswapSlots: false,
           })
         );

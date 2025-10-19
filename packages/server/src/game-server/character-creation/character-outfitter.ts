@@ -57,8 +57,8 @@ export class CharacterOutfitter {
     // of the trait which would be used in calculations scattered accross the codebase
     const hasExtraHoldableSlotTrait = !!classTraits[CombatantTraitType.ExtraHotswapSlot];
     if (!hasExtraHoldableSlotTrait) return;
-    const { inherentHoldableHotswapSlots } = combatantProperties.equipment;
-    inherentHoldableHotswapSlots.push(new HoldableHotswapSlot());
+
+    combatantProperties.equipment.addHoldableSlot(new HoldableHotswapSlot());
   }
 
   static giveStartingInventoryItems(combatantProperties: CombatantProperties) {

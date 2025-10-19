@@ -5,7 +5,6 @@ import {
   CombatAttribute,
   Equipment,
   HoldableSlotType,
-  CombatantEquipment,
   CombatActionName,
   COMBAT_ACTIONS,
   CombatActionResource,
@@ -25,11 +24,9 @@ import { AppStore } from "@/mobx-stores/app-store";
 export const CharacterSheetWeaponDamage = observer(
   ({ combatant, disableOh }: { combatant: Combatant; disableOh?: boolean }) => {
     const { combatantProperties } = combatant;
+    const { equipment } = combatantProperties;
 
-    const mhWeaponOption = CombatantProperties.getEquippedWeapon(
-      combatantProperties,
-      HoldableSlotType.MainHand
-    );
+    const mhWeaponOption = equipment.getEquippedWeapon(HoldableSlotType.MainHand);
 
     if (mhWeaponOption instanceof Error) return <div>{mhWeaponOption.message}</div>;
     const mhDamageAndAccuracyResult = getAttackActionDamageAndAccuracy(
@@ -41,10 +38,7 @@ export const CharacterSheetWeaponDamage = observer(
       ? Equipment.isTwoHanded(mhWeaponOption.taggedBaseEquipment.equipmentType)
       : false;
 
-    const ohEquipmentOption = CombatantEquipment.getEquippedHoldable(
-      combatant.combatantProperties.equipment,
-      HoldableSlotType.OffHand
-    );
+    const ohEquipmentOption = equipment.getEquippedHoldable(HoldableSlotType.OffHand);
 
     if (ohEquipmentOption instanceof Error) return <div>{ohEquipmentOption.message}</div>;
 
@@ -54,10 +48,7 @@ export const CharacterSheetWeaponDamage = observer(
       ohEquipmentOption?.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType !==
         EquipmentType.Shield
     ) {
-      let ohWeaponOption = CombatantProperties.getEquippedWeapon(
-        combatantProperties,
-        HoldableSlotType.OffHand
-      );
+      let ohWeaponOption = equipment.getEquippedWeapon(HoldableSlotType.OffHand);
       if (ohWeaponOption instanceof Error) ohWeaponOption = undefined; // might be a shield
       ohDamageAndAccuracyResult = getAttackActionDamageAndAccuracy(combatant, ohWeaponOption, true);
     }
