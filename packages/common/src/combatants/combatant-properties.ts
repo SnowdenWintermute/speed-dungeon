@@ -20,7 +20,6 @@ import getCombatantTotalElementalAffinities from "./combatant-traits/get-combata
 import getCombatantTotalKineticDamageTypeAffinities from "./combatant-traits/get-combatant-total-kinetic-damage-type-affinities.js";
 import { setResourcesToMax } from "./resources/set-resources-to-max.js";
 import { cloneVector3, iterateNumericEnumKeyedRecord } from "../utils/index.js";
-import awardLevelups, { XP_REQUIRED_TO_REACH_LEVEL_2 } from "./experience-points/award-levelups.js";
 import { MonsterType } from "../monsters/monster-types.js";
 import {
   CombatantEquipment,
@@ -42,7 +41,11 @@ import { EntityId } from "../primatives/index.js";
 import { AiType, CombatantCondition, Inventory } from "./index.js";
 import { plainToInstance } from "class-transformer";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { COMBATANT_MAX_ACTION_POINTS } from "../app-consts.js";
+import {
+  ABILITY_POINTS_AWARDED_PER_LEVEL,
+  ATTRIBUTE_POINTS_AWARDED_PER_LEVEL,
+  COMBATANT_MAX_ACTION_POINTS,
+} from "../app-consts.js";
 import {
   ActionPayableResource,
   CombatActionName,
@@ -50,11 +53,7 @@ import {
 } from "../combat/combat-actions/index.js";
 import { IActionUser } from "../action-user-context/action-user.js";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
-
-export interface SupportClassProperties {
-  level: number;
-  combatantClass: CombatantClass;
-}
+import { ClassProgressionProperties } from "./class-progression-properties.js";
 
 export class CombatantProperties {
   // subsystems
@@ -64,15 +63,6 @@ export class CombatantProperties {
   threatManager?: ThreatManager;
   equipment: CombatantEquipment = new CombatantEquipment();
   inventory: Inventory = new Inventory();
-
-  // CLASS AND LEVEL PROPERTIES
-  // combatantClass
-  supportClassProperties: null | SupportClassProperties = null;
-  level: number = 1;
-  experiencePoints: ExperiencePoints = {
-    current: 0,
-    requiredForNextLevel: XP_REQUIRED_TO_REACH_LEVEL_2,
-  };
 
   // controller
   summonedBy?: EntityId;
@@ -94,7 +84,7 @@ export class CombatantProperties {
   public homeRotation: Quaternion = Quaternion.Zero();
 
   constructor(
-    public combatantClass: CombatantClass,
+    public classProgressionProperties: ClassProgressionProperties,
     public combatantSpecies: CombatantSpecies,
     public monsterType: null | MonsterType,
     /** We use the player name, even though it can change, because using the ownerId (snowauth id)
@@ -137,16 +127,6 @@ export class CombatantProperties {
     return this.controlledBy.controllerType === CombatantControllerType.Player;
   }
 
-  meetsCombatantClassAndLevelRequirements(combatantClass: CombatantClass, level: number) {
-    const { supportClassProperties } = this;
-    const supportClassMeetsRequirements =
-      supportClassProperties?.combatantClass === combatantClass &&
-      supportClassProperties.level >= level;
-    const mainClassMeetsRequirements =
-      this.combatantClass === combatantClass && this.level >= level;
-    return supportClassMeetsRequirements || mainClassMeetsRequirements;
-  }
-
   static getConditionById(combatantProperties: CombatantProperties, conditionId: EntityId) {
     for (const condition of combatantProperties.conditions) {
       if (condition.id === conditionId) return condition;
@@ -154,6 +134,8 @@ export class CombatantProperties {
     return null;
   }
 
+  // ATTRIBUTES
+  getTotalAttributes = () => getCombatantTotalAttributes(this);
   getUnmetItemRequirements(item: Item) {
     const totalAttributes = this.getTotalAttributes();
 
@@ -166,9 +148,6 @@ export class CombatantProperties {
 
     return unmetAttributeRequirements;
   }
-
-  // ATTRIBUTES
-  getTotalAttributes = () => getCombatantTotalAttributes(this);
 
   // AFFINITIES
   static getCombatantTotalElementalAffinities = getCombatantTotalElementalAffinities;
@@ -244,11 +223,31 @@ export class CombatantProperties {
       }
     }
   }
+
   static isDead(combatantProperties: CombatantProperties) {
     return combatantProperties.hitPoints <= 0;
   }
 
-  static awardLevelups = awardLevelups;
+  /** Returns the new level reached for this combatant if any */
+  awardLevelups() {
+    const levelupCount = this.classProgressionProperties.convertExperienceToClassLevels();
+
+    for (let levelup = 0; levelup < levelupCount; levelup += 1) {
+      this.abilityProperties.changeUnspentAbilityPoints(ABILITY_POINTS_AWARDED_PER_LEVEL);
+      this.attributeProperties.changeUnspentPoints(ATTRIBUTE_POINTS_AWARDED_PER_LEVEL);
+
+      CombatantProperties.setHpAndMpToMax(this);
+    }
+
+    return this.classProgressionProperties.getMainClass().level;
+  }
+
+  changeSupportClassLevel(supportClass: CombatantClass, value: number) {
+    applyEquipmentEffectWhileMaintainingResourcePercentages(this, () => {
+      this.classProgressionProperties.changeSupportClassLevel(supportClass, value);
+      this.abilityProperties.changeUnspentAbilityPoints(1);
+    });
+  }
 
   // ACTION CALCULATION
   static canParry(combatantProperties: CombatantProperties): boolean {
@@ -309,40 +308,22 @@ export class CombatantProperties {
     return true;
   }
 
-  static changeSupportClassLevel(
-    combatantProperties: CombatantProperties,
-    supportClass: CombatantClass,
-    value: number
-  ) {
-    applyEquipmentEffectWhileMaintainingResourcePercentages(combatantProperties, () => {
-      const { supportClassProperties } = combatantProperties;
-
-      if (supportClassProperties !== null) {
-        supportClassProperties.level += value;
-      } else {
-        combatantProperties.supportClassProperties = { combatantClass: supportClass, level: value };
-      }
-
-      combatantProperties.abilityProperties.giveUnspentAbilityPoints(1);
-    });
-  }
-
   canAllocateAbilityPoint(ability: AbilityTreeAbility): {
     canAllocate: boolean;
     reasonCanNot?: string;
   } {
+    const mainClass = this.classProgressionProperties.getMainClass();
     const isMainClassAbility = AbilityUtils.abilityAppearsInTree(
       ability,
-      ABILITY_TREES[this.combatantClass]
+      ABILITY_TREES[mainClass.combatantClass]
     );
 
-    const isSupportClassAbility = !!(
-      this.supportClassProperties &&
-      AbilityUtils.abilityAppearsInTree(
-        ability,
-        ABILITY_TREES[this.supportClassProperties?.combatantClass]
-      )
-    );
+    const supportClassOption = this.classProgressionProperties.getSupportClassOption();
+    const hasSupportClass = supportClassOption !== null;
+
+    const isSupportClassAbility =
+      hasSupportClass &&
+      AbilityUtils.abilityAppearsInTree(ability, ABILITY_TREES[supportClassOption.combatantClass]);
 
     if (!isSupportClassAbility && !isMainClassAbility) {
       return {
@@ -361,64 +342,42 @@ export class CombatantProperties {
         reasonCanNot: "That trait is inherent to the combatant and can not be allocated to",
       };
     }
+
     // has unspent points
     if (abilityProperties.getUnspentPointsCount() <= 0) {
       return { canAllocate: false, reasonCanNot: "No unspent ability points" };
     }
+
     // ability is max level
     if (abilityProperties.ownedAbilityIsAtMaxAllocatableRank(ability)) {
       return { canAllocate: false, reasonCanNot: "That ability is at its maximum level" };
     }
+
     // is required character level
-    const isAtRequiredCharacterLevel = this.isRequiredCharacterLevelToAllocateToAbility(
-      ability,
-      isSupportClassAbility
-    );
-    if (!isAtRequiredCharacterLevel)
+    const abilityRank = this.abilityProperties.getAbilityRank(ability);
+    const isAtRequiredCharacterLevel =
+      this.classProgressionProperties.isRequiredClassLevelToAllocateToAbility(
+        ability,
+        abilityRank,
+        isSupportClassAbility
+      );
+
+    if (!isAtRequiredCharacterLevel) {
       return {
         canAllocate: false,
         reasonCanNot: "That character is too low level to allocate to this ability",
       };
+    }
+
     // has prerequisite abilities
     const hasPrerequisiteAbilities = this.abilityProperties.hasPrerequisiteAbilities(ability);
-    if (!hasPrerequisiteAbilities)
+    if (!hasPrerequisiteAbilities) {
       return {
         canAllocate: false,
         reasonCanNot: "Requires prerequisite",
       };
+    }
 
     return { canAllocate: true };
   }
-
-  isRequiredCharacterLevelToAllocateToAbility(
-    ability: AbilityTreeAbility,
-    isSupportClass: boolean
-  ) {
-    const abilityRank = this.abilityProperties.getAbilityRank(ability);
-    // const characterLevel = isSupportClass ? combatantProperties.supportClassProperties?.level || 0: combatantProperties.level;
-    let characterLevel: number = 0;
-    let combatantClass: CombatantClass;
-    if (isSupportClass) {
-      const { supportClassProperties } = this;
-      if (supportClassProperties === null) throw new Error("expected support class not found");
-      characterLevel = supportClassProperties.level;
-      combatantClass = supportClassProperties.combatantClass;
-    } else {
-      characterLevel = this.level;
-      combatantClass = this.combatantClass;
-    }
-
-    const abilityTree = ABILITY_TREES[combatantClass];
-    const characterLevelRequiredForFirstRank = AbilityUtils.getCharacterLevelRequiredForFirstRank(
-      abilityTree,
-      ability
-    );
-    const characterLevelRequired = characterLevelRequiredForFirstRank + abilityRank;
-    return characterLevel >= characterLevelRequired;
-  }
 }
-
-export type ExperiencePoints = {
-  current: number;
-  requiredForNextLevel: null | number;
-};

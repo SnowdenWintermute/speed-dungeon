@@ -5,9 +5,9 @@ import { CombatAttribute } from "./attributes/index.js";
 export type CombatantAttributeRecord = Partial<Record<CombatAttribute, number>>;
 
 export class CombatantAttributeProperties {
-  inherentAttributes: CombatantAttributeRecord = {};
-  speccedAttributes: CombatantAttributeRecord = {};
-  unspentAttributePoints: number = 0;
+  private inherentAttributes: CombatantAttributeRecord = {};
+  private speccedAttributes: CombatantAttributeRecord = {};
+  private unspentAttributePoints: number = 0;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -20,5 +20,13 @@ export class CombatantAttributeProperties {
   incrementAttribute(attribute: CombatAttribute) {
     if (this.speccedAttributes[attribute] === undefined) this.speccedAttributes[attribute] = 0;
     else this.speccedAttributes[attribute] += 1;
+  }
+
+  changeUnspentPoints(value: number) {
+    this.unspentAttributePoints += value;
+  }
+
+  getUnspentPoints() {
+    return this.unspentAttributePoints;
   }
 }

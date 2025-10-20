@@ -67,7 +67,6 @@ export class Combatant implements IActionUser {
   getCombatantProperties(): CombatantProperties {
     return this.combatantProperties;
   }
-
   getConditionStacks(): MaxAndCurrent {
     throw new Error("Only conditions have stacks");
   }

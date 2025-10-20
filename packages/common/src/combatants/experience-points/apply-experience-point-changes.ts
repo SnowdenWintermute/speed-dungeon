@@ -6,6 +6,8 @@ export function applyExperiencePointChanges(
 ) {
   for (const [characterId, expChange] of Object.entries(experiencePointChanges)) {
     const character = party.combatantManager.getExpectedCombatant(characterId);
-    character.combatantProperties.experiencePoints.current += expChange;
+    character.combatantProperties.classProgressionProperties.experiencePoints.changeExperience(
+      expChange
+    );
   }
 }

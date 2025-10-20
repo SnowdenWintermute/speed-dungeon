@@ -22,8 +22,8 @@ export class CombatantAbilityProperties {
     return this.unspentAbilityPoints;
   }
 
-  giveUnspentAbilityPoints(count: number) {
-    this.unspentAbilityPoints += count;
+  changeUnspentAbilityPoints(value: number) {
+    this.unspentAbilityPoints += value;
   }
 
   getOwnedActionState(actionName: CombatActionName): Error | CombatantActionState {

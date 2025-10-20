@@ -23,7 +23,7 @@ export function handleBattleVictory(
 
   for (const combatant of partyMembers) {
     const { combatantProperties } = combatant;
-    const newLevelOption = CombatantProperties.awardLevelups(combatantProperties);
+    const newLevelOption = combatantProperties.awardLevelups();
     if (newLevelOption !== null) levelUps[combatant.entityProperties.id] = newLevelOption;
     // until revives are added, res dead characters to 1 hp
     if (CombatantProperties.isDead(combatantProperties)) {
