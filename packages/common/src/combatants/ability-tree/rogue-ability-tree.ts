@@ -1,6 +1,6 @@
 import { AbilityType } from "../../abilities/ability-types.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
-import { CombatantTraitType } from "../combatant-traits/index.js";
+import { CombatantTraitType } from "../combatant-traits/trait-types.js";
 import { AbilityTree } from "./ability-tree.js";
 
 export function setUpRogueAbilityTree() {

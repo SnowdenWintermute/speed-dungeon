@@ -1,5 +1,5 @@
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
-import { CombatantProperties } from "../../../../combatants/index.js";
+import { CombatantProperties } from "../../../../combatants/combatant-properties.js";
 import {
   CombatantBaseChildTransformNodeName,
   SceneEntityChildTransformNodeIdentifier,

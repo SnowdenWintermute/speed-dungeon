@@ -6,25 +6,25 @@ import {
 } from "@speed-dungeon/common";
 
 export function setPlaytestingCombatantProperties(combatantProperties: CombatantProperties) {
-  combatantProperties.level = 10;
-  combatantProperties.unspentAttributePoints = 30;
-  combatantProperties.abilityProperties.unspentAbilityPoints = 6;
-  // combatantProperties.supportClassProperties = { combatantClass: CombatantClass.Rogue, level: 1 };
+  // combatantProperties.level = 10;
+  // combatantProperties.unspentAttributePoints = 30;
+  // combatantProperties.abilityProperties.unspentAbilityPoints = 6;
+  // // combatantProperties.supportClassProperties = { combatantClass: CombatantClass.Rogue, level: 1 };
 
-  if (combatantProperties.combatantClass === CombatantClass.Mage)
-    combatantProperties.inherentAttributes[CombatAttribute.Spirit] = 200;
+  // if (combatantProperties.combatantClass === CombatantClass.Mage)
+  //   combatantProperties.inherentAttributes[CombatAttribute.Spirit] = 200;
 
-  combatantProperties.inherentAttributes = {
-    ...combatantProperties.inherentAttributes,
-    ...TESTING_INHERENT_ATTRIBUTES,
-  };
+  // combatantProperties.inherentAttributes = {
+  //   ...combatantProperties.inherentAttributes,
+  //   ...TESTING_INHERENT_ATTRIBUTES,
+  // };
 
-  combatantProperties.abilityProperties.traitProperties.inherentElementalAffinities[
-    MagicalElement.Fire
-  ] = 200;
-  combatantProperties.abilityProperties.traitProperties.inherentElementalAffinities[
-    MagicalElement.Dark
-  ] = -150;
+  // combatantProperties.abilityProperties.traitProperties.inherentElementalAffinities[
+  //   MagicalElement.Fire
+  // ] = 200;
+  // combatantProperties.abilityProperties.traitProperties.inherentElementalAffinities[
+  //   MagicalElement.Dark
+  // ] = -150;
 
   // combatantProperties.hitPoints = Math.floor(combatantProperties.hitPoints * 0.5);
   // combatantProperties.hitPoints = 4;

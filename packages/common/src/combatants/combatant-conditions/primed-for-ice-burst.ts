@@ -21,14 +21,12 @@ import {
   SceneEntityType,
 } from "../../scene-entities/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
-import { immerable } from "immer";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import { ActionUserTargetingProperties } from "../../action-user-context/action-user-targeting-properties.js";
 
 const getNewStacks = () => new MaxAndCurrent(1, 1);
 
 export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
-  [immerable] = true;
   name = CombatantConditionName.PrimedForIceBurst;
   stacksOption = getNewStacks();
   intent = CombatActionIntent.Malicious;

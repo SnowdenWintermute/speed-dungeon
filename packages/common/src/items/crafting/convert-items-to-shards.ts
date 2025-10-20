@@ -1,15 +1,11 @@
 import { Item } from "../index.js";
-import {
-  Combatant,
-  CombatantEquipment,
-  CombatantProperties,
-  CombatantTraitType,
-  Inventory,
-} from "../../combatants/index.js";
+import { Combatant, Inventory } from "../../combatants/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { DungeonRoomType } from "../../adventuring-party/dungeon-room.js";
 import { getItemSellPrice } from "./shard-sell-prices.js";
 import { ArrayUtils } from "../../utils/array-utils.js";
+import { CombatantProperties } from "../../combatants/combatant-properties.js";
+import { CombatantTraitType } from "../../combatants/combatant-traits/trait-types.js";
 
 export function combatantIsAllowedToConvertItemsToShards(
   combatantProperties: CombatantProperties,
@@ -17,8 +13,7 @@ export function combatantIsAllowedToConvertItemsToShards(
 ) {
   return (
     currentRoomType === DungeonRoomType.VendingMachine ||
-    CombatantProperties.hasTraitType(
-      combatantProperties,
+    combatantProperties.abilityProperties.hasTraitType(
       CombatantTraitType.CanConvertToShardsManually
     )
   );

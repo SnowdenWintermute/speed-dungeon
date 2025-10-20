@@ -1,6 +1,6 @@
 import { ActionTracker } from "../../../../../action-processing/action-tracker.js";
 import { ActionResolutionStepContext } from "../../../../../action-processing/index.js";
-import { CombatantProperties } from "../../../../../combatants/index.js";
+import { CombatantProperties } from "../../../../../combatants/combatant-properties.js";
 import { SpeedDungeonGame } from "../../../../../game/index.js";
 import { TargetingCalculator } from "../../../../targeting/targeting-calculator.js";
 import { ActionExecutionPrecondition } from "../../../combat-action-targeting-properties.js";

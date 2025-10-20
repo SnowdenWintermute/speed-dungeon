@@ -1,4 +1,5 @@
-import { CombatAttribute, CombatantAttributeRecord, MonsterType } from "@speed-dungeon/common";
+import { CombatAttribute, MonsterType } from "@speed-dungeon/common";
+import { CombatantAttributeRecord } from "@speed-dungeon/common/src/combatants/attribute-properties";
 
 export function getMonsterStartingAttributes(monsterType: MonsterType): CombatantAttributeRecord {
   const attributes: CombatantAttributeRecord = {};

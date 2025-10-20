@@ -3,8 +3,6 @@ import { EntityProperties } from "../primatives/index.js";
 import itemRequirementsMet from "./requirements-met.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { Consumable } from "./consumables/index.js";
-import { Combatant, CombatantProperties } from "../combatants/index.js";
-import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 
 export enum ItemType {
   Consumable,

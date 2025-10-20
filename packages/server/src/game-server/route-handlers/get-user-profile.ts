@@ -6,11 +6,7 @@ import { valkeyManager } from "../../kv-store/index.js";
 import { CHARACTER_LEVEL_LADDER } from "../../kv-store/consts.js";
 import { fetchSavedCharacters } from "../saved-character-event-handlers/fetch-saved-characters.js";
 
-export default async function getUserProfileHandler(
-  _req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export async function getUserProfileHandler(_req: Request, res: Response, next: NextFunction) {
   try {
     const userId: number = res.locals.userId; // expected from middleware
     const profile = await speedDungeonProfilesRepo.findOne("ownerId", userId);
@@ -34,8 +30,8 @@ export default async function getUserProfileHandler(
       characterRanks[entityProperties.id] = {
         name: entityProperties.name,
         rank,
-        level: combatantProperties.level,
-        class: combatantProperties.combatantClass,
+        level: combatantProperties.classProgressionProperties.getMainClass().level,
+        class: combatantProperties.classProgressionProperties.getMainClass().combatantClass,
       };
     }
 

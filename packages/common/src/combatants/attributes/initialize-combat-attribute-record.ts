@@ -1,4 +1,5 @@
-import { CombatAttribute, CombatantAttributeRecord } from "../index.js";
+import { CombatantAttributeRecord } from "../attribute-properties.js";
+import { CombatAttribute } from "../index.js";
 
 export function initializeCombatAttributeRecord() {
   const allAttributesAsZero: CombatantAttributeRecord = {};

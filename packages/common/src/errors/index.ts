@@ -8,6 +8,7 @@ export const ERROR_MESSAGES = {
   NOT_IMPLEMENTED: "This feature is not yet implemented",
   GAME_DOESNT_EXIST: "No game by that name exists",
   NOT_PERMITTED: "That action is not permitted",
+  CLASS_INSTANCE_NOT_INITIALIZED: "The class instance was not initialized",
   LOOP_SAFETY_ITERATION_LIMIT_REACHED: (limit: number) =>
     `Loop reached the safety limit of ${limit}`,
   SERVER: {

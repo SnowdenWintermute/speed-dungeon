@@ -1,9 +1,5 @@
 import { Combatant } from "../../../combatants/index.js";
-import {
-  COMBAT_ACTION_NAME_STRINGS,
-  CombatActionIntent,
-  CombatActionName,
-} from "../../combat-actions/index.js";
+import { CombatActionIntent, CombatActionName } from "../../combat-actions/index.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import {
   BehaviorNode,
@@ -43,7 +39,7 @@ export class SelectRandomActionAndTargets implements BehaviorNode {
               this.behaviorContext.setCurrentActionNameConsidering(actionName);
               // @TODO -actually select an actionLevel
               const actionLevel =
-                this.combatant.combatantProperties.abilityProperties.ownedActions[actionName]
+                this.combatant.combatantProperties.abilityProperties.getOwnedActions()[actionName]
                   ?.level || 1;
               this.behaviorContext.setCurrentActionLevelConsidering(actionLevel);
             }

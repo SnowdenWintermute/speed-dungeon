@@ -4,14 +4,12 @@ import { Item } from "../../items/index.js";
 import { Consumable, ConsumableType } from "../../items/consumables/index.js";
 import { Equipment } from "../../items/equipment/index.js";
 import { plainToInstance } from "class-transformer";
-import { CombatantProperties } from "../index.js";
-import {
-  CombatantTraitType,
-  EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL,
-} from "../combatant-traits/index.js";
+import { EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL } from "../combatant-traits/index.js";
 import { getCapacityByItemType } from "./can-pick-up-item.js";
 import { EntityId } from "../../primatives/index.js";
 import { makeAutoObservable } from "mobx";
+import { CombatantProperties } from "../combatant-properties.js";
+import { CombatantTraitType } from "../combatant-traits/trait-types.js";
 
 export class Inventory {
   consumables: Consumable[] = [];
@@ -36,7 +34,7 @@ export class Inventory {
 
   static isAtCapacity(combatantProperties: CombatantProperties) {
     const extraConsumableStorageCapacityOption =
-      (combatantProperties.abilityProperties.traitProperties.inherentTraitLevels[
+      (combatantProperties.abilityProperties.getTraitProperties().inherentTraitLevels[
         CombatantTraitType.ExtraConsumablesStorage
       ] || 0) * EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL;
 

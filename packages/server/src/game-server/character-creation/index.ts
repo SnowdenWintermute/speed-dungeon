@@ -9,6 +9,7 @@ import { idGenerator } from "../../singletons/index.js";
 import { generateRandomCharacterName } from "../../utils/index.js";
 import { Vector3 } from "@babylonjs/core";
 import { CharacterOutfitter } from "./character-outfitter.js";
+import { ClassProgressionProperties, CombatantClassProperties } from "@speed-dungeon/common";
 
 export function createCharacter(
   name: string,
@@ -21,7 +22,7 @@ export function createCharacter(
 
   const entityProperties = { id: characterId, name };
   const combatantProperties = new CombatantProperties(
-    combatantClass,
+    new ClassProgressionProperties(new CombatantClassProperties(1, combatantClass)),
     CombatantSpecies.Humanoid,
     null,
     { controllerType: CombatantControllerType.Player, controllerName: controllingPlayerName },

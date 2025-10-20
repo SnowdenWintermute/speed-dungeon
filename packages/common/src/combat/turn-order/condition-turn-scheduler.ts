@@ -1,10 +1,11 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { EntityId } from "../../primatives/index.js";
-import { CombatantCondition, CombatantProperties } from "../../combatants/index.js";
+import { CombatantCondition } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { ITurnScheduler, TurnScheduler } from "./turn-schedulers.js";
 import { ConditionTurnTracker } from "./turn-trackers.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
+import { CombatantProperties } from "../../combatants/combatant-properties.js";
 
 export class ConditionTurnScheduler extends TurnScheduler implements ITurnScheduler {
   constructor(

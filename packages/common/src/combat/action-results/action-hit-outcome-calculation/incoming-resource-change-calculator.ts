@@ -10,11 +10,11 @@ import {
   CombatActionHitOutcomeProperties,
   CombatActionResource,
 } from "../../combat-actions/combat-action-hit-outcome-properties.js";
-import { CombatantProperties } from "../../../combatants/index.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 import cloneDeep from "lodash.clonedeep";
 import { IActionUser } from "../../../action-user-context/action-user.js";
 import { ActionUserContext } from "../../../action-user-context/index.js";
+import { CombatantProperties } from "../../../combatants/combatant-properties.js";
 
 export interface ResourceChangesPerTarget {
   value: number;

@@ -1,9 +1,5 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
-import {
-  CombatantProperties,
-  ConditionAppliedBy,
-  ConditionTickProperties,
-} from "../combatants/index.js";
+import { ConditionAppliedBy, ConditionTickProperties } from "../combatants/index.js";
 import {
   CombatantActionState,
   CombatantAttributeRecord,
@@ -17,6 +13,7 @@ import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-cate
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ActionEntityProperties } from "../action-entities/index.js";
 import { Battle } from "../battle/index.js";
+import { CombatantProperties } from "../combatants/combatant-properties.js";
 
 export enum ActionUserType {
   Combatant,

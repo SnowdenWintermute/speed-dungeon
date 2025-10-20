@@ -1,4 +1,4 @@
-import { CombatantProperties } from "../../../../combatants/index.js";
+import { CombatantProperties } from "../../../../combatants/combatant-properties.js";
 import {
   Consumable,
   SKILL_BOOK_TYPE_TO_COMBATANT_CLASS,
@@ -6,9 +6,10 @@ import {
 
 export function onSkillBookRead(user: CombatantProperties, book: Consumable) {
   const skillBookClass = SKILL_BOOK_TYPE_TO_COMBATANT_CLASS[book.consumableType];
-  if (skillBookClass === undefined)
+  if (skillBookClass === undefined) {
     return new Error("Somehow tried to read a skill book that wasn't associated with any class");
+  }
 
-  CombatantProperties.changeSupportClassLevel(user, skillBookClass, 1);
+  user.classProgressionProperties.changeSupportClassLevel(skillBookClass, 1);
   return { supportClassLevelIncreased: skillBookClass };
 }

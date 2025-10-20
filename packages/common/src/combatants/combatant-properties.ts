@@ -1,6 +1,6 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { combatantHasRequiredAttributesToUseItem } from "./can-use-item.js";
-import changeCombatantMana from "./resources/change-mana.js";
+import { changeCombatantMana } from "./resources/change-mana.js";
 import { changeCombatantHitPoints } from "./resources/change-hit-points.js";
 import { clampResourcesToMax } from "./resources/clamp-resources-to-max.js";
 import { getActionNamesFilteredByUseableContext } from "./owned-actions/get-owned-action-names-filtered-by-usable-context.js";
@@ -97,6 +97,10 @@ export class CombatantProperties {
   ) {
     this.position = homeLocation;
     // this.ownedActions[CombatActionName.Attack] = new CombatantActionState(CombatActionName.Attack);
+  }
+
+  initialize() {
+    // this.attributeProperties.initialize(this);
   }
 
   static getDeserialized(combatantProperties: CombatantProperties) {

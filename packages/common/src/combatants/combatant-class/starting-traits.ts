@@ -1,4 +1,4 @@
-import { CombatantTraitType } from "../combatant-traits/index.js";
+import { CombatantTraitType } from "../combatant-traits/trait-types.js";
 import { CombatantClass } from "./classes.js";
 
 export const STARTING_COMBATANT_TRAITS: Record<

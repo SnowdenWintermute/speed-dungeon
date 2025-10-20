@@ -1,7 +1,7 @@
 import { AbilityTree } from "./ability-tree.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
-import { CombatantTraitType } from "../combatant-traits/index.js";
 import { AbilityType } from "../../abilities/ability-types.js";
+import { CombatantTraitType } from "../combatant-traits/trait-types.js";
 
 export function setUpWarriorAbilityTree() {
   const tree = new AbilityTree();

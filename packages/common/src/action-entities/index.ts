@@ -10,7 +10,6 @@ import { TaggedShape3DDimensions } from "../utils/shape-utils.js";
 import {
   CombatantActionState,
   CombatantAttributeRecord,
-  CombatantProperties,
   ConditionAppliedBy,
   ConditionTickProperties,
 } from "../combatants/index.js";
@@ -29,6 +28,7 @@ import { ActionUserTargetingProperties } from "../action-user-context/action-use
 import { plainToInstance } from "class-transformer";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { ARROW_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
+import { CombatantProperties } from "../combatants/combatant-properties.js";
 
 export enum ActionEntityName {
   Arrow,

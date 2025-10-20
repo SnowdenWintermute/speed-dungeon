@@ -11,7 +11,7 @@ import {
 import { PlayerCharacter, playerCharactersRepo } from "../../database/repos/player-characters.js";
 import { getUsernamesByUserIds } from "../../database/get-usernames-by-user-ids.js";
 
-export default async function getCharacterLevelLadderPageHandler(
+export async function getCharacterLevelLadderPageHandler(
   req: Request,
   res: Response,
   next: NextFunction
@@ -90,14 +90,17 @@ export default async function getCharacterLevelLadderPageHandler(
         console.error("Expected rank not found");
         continue;
       }
+
+      const { classProgressionProperties } = character.combatantProperties;
+      const level = classProgressionProperties.getMainClass().level;
+      const currentExperience = classProgressionProperties.experiencePoints.getCurrent();
+
       toReturn.push({
         owner: usernamesResponse[character.ownerId] || "",
         characterName: character.name,
         characterId: character.id,
-        level: character.combatantProperties.level,
-        experience:
-          calculateTotalExperience(character.combatantProperties.level) +
-          character.combatantProperties.experiencePoints.current,
+        level,
+        experience: calculateTotalExperience(level) + currentExperience,
         rank,
         gameVersion: character.gameVersion,
       });

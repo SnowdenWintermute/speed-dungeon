@@ -1,4 +1,5 @@
-import { Combatant, CombatantProperties } from "../../../combatants/index.js";
+import { CombatantProperties } from "../../../combatants/combatant-properties.js";
+import { Combatant } from "../../../combatants/index.js";
 import { CombatActionName } from "../../combat-actions/index.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import { BehaviorNode, BehaviorNodeState } from "../behavior-tree.js";

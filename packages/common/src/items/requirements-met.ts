@@ -1,4 +1,4 @@
-import { CombatantAttributeRecord } from "../combatants/index.js";
+import { CombatantAttributeRecord } from "../combatants/attribute-properties.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { Item } from "./index.js";
 

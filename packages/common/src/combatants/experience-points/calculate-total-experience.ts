@@ -1,7 +1,7 @@
 import {
   XP_REQUIRED_TO_LEVEL_INCREASE_INCREMENT,
   XP_REQUIRED_TO_REACH_LEVEL_2,
-} from "../../app-consts";
+} from "../../app-consts.js";
 
 export function calculateTotalExperience(level: number): number {
   if (level < 1) return 0;

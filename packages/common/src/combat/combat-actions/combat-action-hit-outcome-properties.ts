@@ -4,12 +4,8 @@ import {
   ActivatedTriggersGameUpdateCommand,
 } from "../../action-processing/index.js";
 import { IActionUser } from "../../action-user-context/action-user.js";
-import {
-  CombatantConditionName,
-  CombatantProperties,
-  ConditionAppliedBy,
-  ThreatType,
-} from "../../combatants/index.js";
+import { CombatantProperties } from "../../combatants/combatant-properties.js";
+import { CombatantConditionName, ConditionAppliedBy, ThreatType } from "../../combatants/index.js";
 import { HoldableSlotType } from "../../items/equipment/slots.js";
 import { NormalizedPercentage, Percentage } from "../../primatives/index.js";
 import { CombatActionHitOutcomes, ThreatChanges } from "../action-results/index.js";

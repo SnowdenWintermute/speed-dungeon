@@ -94,10 +94,12 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
     for (const character of partyCharacters) {
       const { name, id } = character.entityProperties;
 
-      const { level, controlledBy } = character.combatantProperties;
+      const { level } = character.combatantProperties.classProgressionProperties.getMainClass();
+      const { controlledBy } = character.combatantProperties;
       const currentRankOption = await valkeyManager.context.zRevRank(CHARACTER_LEVEL_LADDER, id);
       const totalExp =
-        calculateTotalExperience(level) + character.combatantProperties.experiencePoints.current;
+        calculateTotalExperience(level) +
+        character.combatantProperties.classProgressionProperties.experiencePoints.getCurrent();
       await valkeyManager.context.zAdd(CHARACTER_LEVEL_LADDER, [
         {
           value: id,

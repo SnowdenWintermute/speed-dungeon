@@ -24,12 +24,15 @@ export function selectCombatActionLevelHandler(
   const { character, game, party, player } = characterAssociatedData;
   const targetingProperties = character.getTargetingProperties();
   const selectedActionAndRankOption = targetingProperties.getSelectedActionAndRank();
-  const { ownedActions } = character.combatantProperties.abilityProperties;
-  if (selectedActionAndRankOption === null)
-    return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
 
-  const combatActionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
-    character.combatantProperties,
+  if (selectedActionAndRankOption === null) {
+    return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
+  }
+
+  const { abilityProperties } = character.combatantProperties;
+  const ownedActions = abilityProperties.getOwnedActions();
+
+  const combatActionPropertiesResult = abilityProperties.getCombatActionPropertiesIfOwned(
     selectedActionAndRankOption
   );
   if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;

@@ -6,7 +6,6 @@ import {
   FriendOrFoe,
   TargetCategories,
 } from "../../combat-actions/targeting-schemes-and-categories.js";
-import { AdventuringParty } from "../../../adventuring-party/index.js";
 
 export class CollectConsideredCombatants implements BehaviorNode {
   constructor(

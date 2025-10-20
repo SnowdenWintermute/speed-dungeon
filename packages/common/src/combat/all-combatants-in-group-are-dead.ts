@@ -1,4 +1,5 @@
-import { Combatant, CombatantProperties } from "../combatants/index.js";
+import { CombatantProperties } from "../combatants/combatant-properties.js";
+import { Combatant } from "../combatants/index.js";
 
 export function allCombatantsInGroupAreDead(combatants: Combatant[]): boolean {
   if (combatants.length === 0) return false;

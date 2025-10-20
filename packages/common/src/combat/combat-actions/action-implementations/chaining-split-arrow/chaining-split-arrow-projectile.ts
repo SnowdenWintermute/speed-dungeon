@@ -30,13 +30,13 @@ import {
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { ActionUserContext } from "../../../../action-user-context/index.js";
-import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import {
   ACTION_EXECUTION_PRECONDITIONS,
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
 import { ActionResolutionStepContext } from "../../../../action-processing/index.js";
-import { Combatant, CombatantProperties } from "../../../../combatants/index.js";
+import { Combatant } from "../../../../combatants/index.js";
+import { CombatantProperties } from "../../../../combatants/combatant-properties.js";
 
 const targetingPropertiesOverrides: Partial<CombatActionTargetingPropertiesConfig> = {
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.RandomCombatant },

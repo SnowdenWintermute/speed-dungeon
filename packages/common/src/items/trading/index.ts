@@ -1,5 +1,5 @@
 export * from "./combatant-is-allowed-to-trade-for-books.js";
-import { CombatantProperties } from "../../combatants/index.js";
+import { CombatantProperties } from "../../combatants/combatant-properties.js";
 import { BookConsumableType } from "../consumables/index.js";
 import { Equipment } from "../equipment/index.js";
 import { BOOK_TRADE_ACCEPTED_EQUIPMENT_CHECKERS } from "./book-trade-accepted-equipment-checkers.js";

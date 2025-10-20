@@ -11,7 +11,7 @@ import {
   SKILL_BOOK_TYPE_TO_COMBATANT_CLASS,
 } from "../../../../items/consumables/index.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
-import { Combatant, Inventory } from "../../../../combatants/index.js";
+import { Inventory } from "../../../../combatants/index.js";
 import { throwIfError } from "../../../../utils/index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
@@ -80,30 +80,38 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
       return { meetsRequirements: false, reasonDoesNot: skillBookResult.message };
 
     // if they have no support class it is allowed
-    const { supportClassProperties } = user.getCombatantProperties();
+    const supportClassProperties = user
+      .getCombatantProperties()
+      .classProgressionProperties.getSupportClassOption();
     if (supportClassProperties !== null) {
       const { combatantClass } = supportClassProperties;
       // if they already have a support class that isn't matching, return error
       const requiredSkillBookType = COMBATANT_CLASS_TO_SKILL_BOOK_TYPE[combatantClass];
-      if (skillBookResult.consumableType !== requiredSkillBookType)
+      if (skillBookResult.consumableType !== requiredSkillBookType) {
         return {
           meetsRequirements: false,
           reasonDoesNot: "You can only read a skill book that is relevant to your support class",
         };
+      }
     }
 
     // don't let them get a support class same as their main class
     const skillBookClass = SKILL_BOOK_TYPE_TO_COMBATANT_CLASS[skillBookResult.consumableType];
-    if (skillBookClass === undefined)
+    if (skillBookClass === undefined) {
       return {
         meetsRequirements: false,
         reasonDoesNot: "Somehow tried to read a skill book that wasn't associated with any class",
       };
-    if (user.getCombatantProperties().combatantClass === skillBookClass)
+    }
+    if (
+      user.getCombatantProperties().classProgressionProperties.getMainClass().combatantClass ===
+      skillBookClass
+    ) {
       return {
         meetsRequirements: false,
         reasonDoesNot: "You could have written this book - reading it won't help you",
       };
+    }
 
     const supportClassLevel = supportClassProperties?.level || 0;
     // check required level of book

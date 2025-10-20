@@ -1,9 +1,10 @@
 import { immerable } from "immer";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
-import { CombatantProperties, ThreatType } from "../../../combatants/index.js";
+import { ThreatType } from "../../../combatants/index.js";
 import { EntityId } from "../../../primatives/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 import { ResourceChange, ResourceChangeSource } from "../../hp-change-source-types.js";
+import { CombatantProperties } from "../../../combatants/combatant-properties.js";
 
 export abstract class ResourceChanges<T> {
   protected changes: Record<EntityId, T> = {};

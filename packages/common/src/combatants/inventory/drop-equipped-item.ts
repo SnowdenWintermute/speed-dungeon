@@ -2,7 +2,7 @@ import { AdventuringParty } from "../../adventuring-party/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { TaggedEquipmentSlot } from "../../items/equipment/slots.js";
 import { EntityId } from "../../primatives/index.js";
-import { CombatantProperties } from "../index.js";
+import { CombatantProperties } from "../combatant-properties.js";
 
 export default function dropEquippedItem(
   party: AdventuringParty,

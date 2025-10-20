@@ -1,7 +1,7 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { EntityId } from "../../primatives/index.js";
+import { CombatantProperties } from "../combatant-properties.js";
 import { Inventory } from "./index.js";
-import { CombatantProperties } from "../index.js";
 
 export function dropItem(
   party: AdventuringParty,

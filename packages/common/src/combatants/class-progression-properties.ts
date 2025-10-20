@@ -1,6 +1,6 @@
 import { makeAutoObservable } from "mobx";
-import { CombatantClass } from "./combatant-class/index.js";
 import { plainToInstance } from "class-transformer";
+import { CombatantClass } from "./combatant-class/index.js";
 import { AbilityUtils } from "../abilities/ability-utils.js";
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ABILITY_TREES } from "./ability-tree/set-up-ability-trees.js";

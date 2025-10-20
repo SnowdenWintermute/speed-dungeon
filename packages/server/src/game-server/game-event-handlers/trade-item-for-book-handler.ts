@@ -28,7 +28,7 @@ export async function tradeItemForBookHandler(
   const { characterId, itemId, bookType } = eventData;
 
   const { combatantProperties } = character;
-  if (!combatantIsAllowedToTradeForBooks(combatantProperties, party.currentRoom.roomType))
+  if (!combatantIsAllowedToTradeForBooks(party.currentRoom.roomType))
     return new Error(ERROR_MESSAGES.NOT_PERMITTED);
 
   const inventoryFull = Inventory.isAtCapacity(combatantProperties);

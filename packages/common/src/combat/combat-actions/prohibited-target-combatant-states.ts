@@ -1,4 +1,4 @@
-import { Combatant, CombatantProperties } from "../../combatants/index.js";
+import { Combatant } from "../../combatants/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 
 export enum ProhibitedTargetCombatantStates {
@@ -27,15 +27,11 @@ export const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
   (combatant: Combatant) => boolean
 > = {
   [ProhibitedTargetCombatantStates.FullHp]: function (combatant: Combatant): boolean {
-    const maxHp = CombatantProperties.getTotalAttributes(combatant.combatantProperties)[
-      CombatAttribute.Hp
-    ];
+    const maxHp = combatant.combatantProperties.getTotalAttributes()[CombatAttribute.Hp];
     return combatant.combatantProperties.hitPoints >= maxHp;
   },
   [ProhibitedTargetCombatantStates.FullMana]: function (combatant: Combatant): boolean {
-    const maxMp = CombatantProperties.getTotalAttributes(combatant.combatantProperties)[
-      CombatAttribute.Mp
-    ];
+    const maxMp = combatant.combatantProperties.getTotalAttributes()[CombatAttribute.Mp];
     return combatant.combatantProperties.mana >= maxMp;
   },
   [ProhibitedTargetCombatantStates.Dead]: function (combatant: Combatant): boolean {

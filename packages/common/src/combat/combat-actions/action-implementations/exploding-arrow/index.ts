@@ -1,7 +1,6 @@
 import cloneDeep from "lodash.clonedeep";
 import { AbilityType } from "../../../../abilities/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
-import { CombatantTraitType } from "../../../../combatants/index.js";
 import {
   CombatActionGameLogProperties,
   CombatActionComponentConfig,
@@ -15,6 +14,7 @@ import { ATTACK_RANGED_MAIN_HAND } from "../attack/attack-ranged-main-hand.js";
 import { EXPLODING_ARROW_PROJECTILE_HIT_OUTCOME_PROPERTIES } from "./exploding-arrow-projectile-hit-outcome-properties.js";
 import { createHitOutcomeProperties } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { ARROW_RESOURCE_CHANGE_CALCULATORS } from "../generic-action-templates/resource-change-calculation-templates/arrow.js";
+import { CombatantTraitType } from "../../../../combatants/combatant-traits/trait-types.js";
 
 // the purpose of projectile parent hit outcome properties is to show a description
 // we'll clone the projectile's hit outcome properties so we can show the applied effects

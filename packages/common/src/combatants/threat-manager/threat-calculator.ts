@@ -6,8 +6,9 @@ import { CombatActionName } from "../../combat/combat-actions/combat-action-name
 import { IActionUser } from "../../action-user-context/action-user.js";
 import { HitOutcome } from "../../hit-outcome.js";
 import { CombatAttribute } from "../attributes/index.js";
-import { Combatant, CombatantProperties } from "../index.js";
+import { Combatant } from "../index.js";
 import { ThreatType } from "./index.js";
+import { CombatantProperties } from "../combatant-properties.js";
 
 const DAMAGE_STABLE_THREAT_BASE = 80;
 const HEALING_STABLE_THREAT_BASE = DAMAGE_STABLE_THREAT_BASE / 2;
@@ -114,7 +115,7 @@ export class ThreatCalculator {
         this.addThreatFromHealingPlayerCharacter(
           this.monsters,
           this.actionUser,
-          combatantProperties.level,
+          combatantProperties.classProgressionProperties.getMainClass().level,
           hitPointChange.value
         );
       }
@@ -159,8 +160,7 @@ export class ThreatCalculator {
       const currentThreatForTargetOption = threatManager.getEntries()[entityId];
       if (!currentThreatForTargetOption || currentThreatForTargetOption.getTotal() === 0) continue;
 
-      const targetMaxHp =
-        CombatantProperties.getTotalAttributes(combatantProperties)[CombatAttribute.Hp];
+      const targetMaxHp = combatantProperties.getTotalAttributes()[CombatAttribute.Hp];
 
       const stableThreatChange = ThreatCalculator.getThreatChangeOnDamageTaken(
         hitPointChange.value,
@@ -186,7 +186,7 @@ export class ThreatCalculator {
     const stableThreatGenerated =
       ThreatCalculator.getThreatGeneratedOnHpChange(
         hpChangeValue,
-        monster.combatantProperties.level,
+        monster.combatantProperties.classProgressionProperties.getMainClass().level,
         DAMAGE_STABLE_THREAT_BASE,
         DAMAGE_THREAT_SCALING_OFFSET
       ) * -1;
@@ -201,7 +201,7 @@ export class ThreatCalculator {
     const volatileThreatGenerated =
       ThreatCalculator.getThreatGeneratedOnHpChange(
         hpChangeValue,
-        monster.combatantProperties.level,
+        monster.combatantProperties.classProgressionProperties.getMainClass().level,
         VOLATILE_THREAT_BASE,
         DAMAGE_THREAT_SCALING_OFFSET
       ) * -1;

@@ -24,11 +24,11 @@ export function selectCombatActionHandler(
 
   const { character, game, party, player } = characterAssociatedData;
 
+  const { abilityProperties } = character.combatantProperties;
+
   if (actionAndRankOption !== null) {
-    const combatActionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
-      character.combatantProperties,
-      actionAndRankOption
-    );
+    const combatActionPropertiesResult =
+      abilityProperties.getCombatActionPropertiesIfOwned(actionAndRankOption);
     if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
   }
 

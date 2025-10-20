@@ -40,6 +40,8 @@ export * from "./combatant-traits/index.js";
 export * from "./ability-tree/index.js";
 export * from "./combatant-abilities/index.js";
 export * from "./attributes/index.js";
+export * from "./attribute-properties.js";
+export * from "./class-progression-properties.js";
 
 export class Combatant implements IActionUser {
   constructor(
@@ -110,7 +112,7 @@ export class Combatant implements IActionUser {
     return this.entityProperties.id;
   }
   getLevel(): number {
-    return this.combatantProperties.level;
+    return this.combatantProperties.classProgressionProperties.getMainClass().level;
   }
   getTotalAttributes(): CombatantAttributeRecord {
     return this.combatantProperties.getTotalAttributes();

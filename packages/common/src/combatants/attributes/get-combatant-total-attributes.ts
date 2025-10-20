@@ -2,30 +2,32 @@ import { DEX_TO_RANGED_ARMOR_PEN_RATIO, STR_TO_MELEE_ARMOR_PEN_RATIO } from "../
 import { Item } from "../../items/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { EquipmentType } from "../../items/equipment/equipment-types/index.js";
-import { BASE_STARTING_ATTRIBUTES, CombatantProperties } from "../index.js";
-import { CombatAttribute, initializeCombatAttributeRecord } from "../attributes/index.js";
+import { BASE_STARTING_ATTRIBUTES } from "../index.js";
+import { CombatAttribute } from "../attributes/index.js";
 import { Equipment, HoldableSlotType } from "../../items/equipment/index.js";
 import { DERIVED_ATTRIBUTE_RATIOS } from "./derrived-attribute-ratios.js";
 import { addAttributesToAccumulator } from "./add-attributes-to-accumulator.js";
 import { COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL } from "../combatant-class/class-attributes-by-level.js";
 import { CombatantAttributeRecord } from "../attribute-properties.js";
+import { CombatantProperties } from "../combatant-properties.js";
 
 export function getCombatantTotalAttributes(
   combatantProperties: CombatantProperties
 ): Record<CombatAttribute, number> {
-  const totalAttributes = initializeCombatAttributeRecord();
   const { attributeProperties } = combatantProperties;
-  addAttributesToAccumulator(attributeProperties.inherentAttributes, totalAttributes);
-  addAttributesToAccumulator(attributeProperties.speccedAttributes, totalAttributes);
-  const { combatantClass, monsterType } = combatantProperties;
-  const supportClassPropertiesOption = combatantProperties.supportClassProperties;
+  const totalAttributes = attributeProperties.getNaturalAttributes();
+  const { combatantClass, level } = combatantProperties.classProgressionProperties.getMainClass();
+  const { monsterType } = combatantProperties;
+  const supportClassPropertiesOption =
+    combatantProperties.classProgressionProperties.getSupportClassOption();
 
   const combatantClassStartingAttributes = BASE_STARTING_ATTRIBUTES[combatantClass];
   addAttributesToAccumulator(combatantClassStartingAttributes, totalAttributes);
 
   const combatantClassAttributesByLevel = COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL[combatantClass];
-  for (let i = 0; i < combatantProperties.level; i += 1)
+  for (let i = 0; i < level; i += 1) {
     addAttributesToAccumulator(combatantClassAttributesByLevel, totalAttributes);
+  }
 
   if (supportClassPropertiesOption !== null) {
     const { combatantClass, level } = supportClassPropertiesOption;

@@ -5,7 +5,7 @@ import { CombatActionComponent, CombatActionName } from "../../combat/combat-act
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { CombatantTraitProperties } from "../combatant-traits/combatant-trait-properties.js";
-import { CombatantTraitType } from "../combatant-traits/index.js";
+import { CombatantTraitType } from "../combatant-traits/trait-types.js";
 import { CombatantActionState } from "../owned-actions/combatant-action-state.js";
 import { makeAutoObservable } from "mobx";
 
@@ -99,6 +99,10 @@ export class CombatantAbilityProperties {
         actionState.cooldown.current -= 1;
       }
     }
+  }
+
+  getTraitProperties() {
+    return this.traitProperties;
   }
 
   hasTraitType(traitType: CombatantTraitType) {

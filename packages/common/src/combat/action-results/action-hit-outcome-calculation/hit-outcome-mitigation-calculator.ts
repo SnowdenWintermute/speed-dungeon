@@ -1,7 +1,7 @@
 import { MAX_CRIT_CHANCE, MIN_HIT_CHANCE } from "../../../app-consts.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
-import { Combatant, CombatantProperties, CombatantTraitType } from "../../../combatants/index.js";
+import { Combatant } from "../../../combatants/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
 import {
   SHIELD_SIZE_BLOCK_RATE,
@@ -15,6 +15,8 @@ import { CombatActionResource } from "../../combat-actions/combat-action-hit-out
 import { CombatActionComponent, CombatActionIntent } from "../../combat-actions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../combat-actions/prohibited-target-combatant-states.js";
 import { ResourceChangeSource } from "../../hp-change-source-types.js";
+import { CombatantProperties } from "../../../combatants/combatant-properties.js";
+import { CombatantTraitType } from "../../../combatants/combatant-traits/trait-types.js";
 
 const BASE_PARRY_CHANCE = 5;
 
@@ -53,7 +55,7 @@ export class HitOutcomeMitigationCalculator {
       this.action,
       user,
       this.actionLevel,
-      CombatantProperties.getTotalAttributes(target.combatantProperties)[CombatAttribute.Evasion],
+      target.combatantProperties.getTotalAttributes()[CombatAttribute.Evasion],
       targetWillAttemptMitigation,
       target.combatantProperties
     );
@@ -143,8 +145,7 @@ export class HitOutcomeMitigationCalculator {
       const { resourceChangeSource } = hpChangePropertiesOption;
       const { isHealing } = resourceChangeSource;
 
-      const isUndead = CombatantProperties.hasTraitType(
-        targetCombatantProperties,
+      const isUndead = targetCombatantProperties.abilityProperties.hasTraitType(
         CombatantTraitType.Undead
       );
 
@@ -205,7 +206,7 @@ export class HitOutcomeMitigationCalculator {
   ) {
     const actionBaseCritChance = action.getCritChance(user, actionLevel);
 
-    const targetAttributes = CombatantProperties.getTotalAttributes(target);
+    const targetAttributes = target.getTotalAttributes();
     const targetAvoidaceAttributeValue = targetAttributes[CombatAttribute.Spirit];
 
     const targetCritAvoidance = targetWillAttemptMitigation ? targetAvoidaceAttributeValue : 0;

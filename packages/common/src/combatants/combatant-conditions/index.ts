@@ -7,12 +7,7 @@ import { CosmeticEffectOnTargetTransformNode } from "../../combat/combat-actions
 import { FriendOrFoe } from "../../combat/combat-actions/targeting-schemes-and-categories.js";
 import { EntityId, EntityProperties, MaxAndCurrent } from "../../primatives/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
-import {
-  Combatant,
-  CombatantAttributeRecord,
-  CombatantProperties,
-  ConditionTickProperties,
-} from "../index.js";
+import { Combatant, CombatantAttributeRecord, ConditionTickProperties } from "../index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { TurnOrderManager, TurnTrackerEntityType } from "../../combat/index.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "../../combat/turn-order/consts.js";
@@ -22,6 +17,7 @@ import { ActionUserTargetingProperties } from "../../action-user-context/action-
 import { Vector3, Quaternion } from "@babylonjs/core";
 import { ActionEntityProperties } from "../../action-entities/index.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
+import { CombatantProperties } from "../combatant-properties.js";
 export * from "./condition-tick-properties.js";
 
 export enum CombatantConditionName {

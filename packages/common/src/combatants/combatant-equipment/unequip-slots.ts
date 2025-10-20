@@ -1,5 +1,5 @@
 import { TaggedEquipmentSlot } from "../../items/equipment/slots.js";
-import { CombatantProperties } from "../index.js";
+import { CombatantProperties } from "../combatant-properties.js";
 import { applyEquipmentEffectWhileMaintainingResourcePercentages } from "./apply-equipment-affect-while-maintaining-resource-percentages.js";
 
 export function unequipSlots(

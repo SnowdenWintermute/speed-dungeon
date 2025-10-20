@@ -1,6 +1,6 @@
 import { plainToInstance } from "class-transformer";
 import { FriendOrFoe } from "../combat/index.js";
-import { Combatant, CombatantCondition, CombatantProperties } from "../combatants/index.js";
+import { Combatant, CombatantCondition } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { EntityId } from "../primatives/index.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
@@ -10,6 +10,7 @@ import {
 } from "../app-consts.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { makeAutoObservable } from "mobx";
+import { CombatantProperties } from "../combatants/combatant-properties.js";
 
 export class CombatantManager {
   private combatants: Map<EntityId, Combatant> = new Map();

@@ -1,5 +1,5 @@
 import { CombatAttribute } from "../attributes/index.js";
-import { CombatantProperties } from "../index.js";
+import { CombatantProperties } from "../combatant-properties.js";
 import { getPreEquipmentChangeHpAndManaPercentage } from "./get-pre-equipment-change-hp-and-mana-percentage.js";
 
 /** When equipping/unequipping armor, breaking, or sharding an equipped item, HP and MP
@@ -14,7 +14,7 @@ export function applyEquipmentEffectWhileMaintainingResourcePercentages(
 
   effect();
 
-  const attributesAfter = CombatantProperties.getTotalAttributes(combatantProperties);
+  const attributesAfter = combatantProperties.getTotalAttributes();
   const maxHitPointsAfter = attributesAfter[CombatAttribute.Hp];
   const maxManaAfter = attributesAfter[CombatAttribute.Mp];
 

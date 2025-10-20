@@ -1,16 +1,12 @@
 import cloneDeep from "lodash.clonedeep";
 import { MELEE_ATTACK_STEPS_CONFIG } from "./melee-attack.js";
-import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
-  ActionResolutionStepType,
-} from "../../../../../action-processing/index.js";
+import { ActionResolutionStepType } from "../../../../../action-processing/index.js";
 import { getMeleeAttackAnimationFromType } from "../../get-entity-animation.js";
 import { ActionExecutionPhase } from "../../action-execution-phase.js";
 import { HoldableSlotType } from "../../../../../items/equipment/slots.js";
 import { COMBAT_ACTIONS } from "../../index.js";
 import { CombatActionName } from "../../../combat-action-names.js";
-import { CombatantProperties } from "../../../../../combatants/index.js";
-import { iterateNumericEnumKeyedRecord } from "../../../../../utils/index.js";
+import { CombatantProperties } from "../../../../../combatants/combatant-properties.js";
 
 const expectedMeleeAttackAnimationType = "Expected meleeAttackAnimationType was undefined";
 

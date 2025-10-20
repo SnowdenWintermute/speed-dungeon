@@ -57,8 +57,9 @@ const STARTING_EQUIPMENT_BY_COMBATANT_CLASS: Record<
 };
 
 export function giveStartingEquipment(combatantProperties: CombatantProperties) {
-  const startingHoldables =
-    STARTING_EQUIPMENT_BY_COMBATANT_CLASS[combatantProperties.combatantClass];
+  const combatantClass =
+    combatantProperties.classProgressionProperties.getMainClass().combatantClass;
+  const startingHoldables = STARTING_EQUIPMENT_BY_COMBATANT_CLASS[combatantClass];
 
   const mainHoldableHotswapSlot = combatantProperties.equipment.getActiveHoldableSlot();
 

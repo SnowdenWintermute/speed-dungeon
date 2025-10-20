@@ -3,7 +3,8 @@ import {
   AnimationTimingType,
 } from "../../../../../action-processing/index.js";
 import { AnimationType, SkeletalAnimationName } from "../../../../../app-consts.js";
-import { Combatant, CombatantProperties } from "../../../../../combatants/index.js";
+import { CombatantProperties } from "../../../../../combatants/combatant-properties.js";
+import { Combatant } from "../../../../../combatants/index.js";
 import { ActionResolutionStepsConfig } from "../../../combat-action-steps-config.js";
 import {
   getHomeDestination,

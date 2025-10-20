@@ -20,10 +20,11 @@ import {
 } from "./equipment-properties/index.js";
 import { EquipmentType } from "./equipment-types/index.js";
 import { EquipmentTraitType } from "./equipment-traits/index.js";
-import { CombatantAttributeRecord, CombatantProperties } from "../../combatants/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { IActionUser } from "../../action-user-context/action-user.js";
+import { CombatantAttributeRecord } from "../../combatants/attribute-properties.js";
+import { CombatantProperties } from "../../combatants/combatant-properties.js";
 
 export * from "./equipment-properties/index.js";
 export * from "./pre-determined-items/index.js";

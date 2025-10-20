@@ -1,4 +1,4 @@
-import { CombatantProperties } from "../../../combatants/index.js";
+import { CombatantProperties } from "../../../combatants/combatant-properties.js";
 import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 
 export interface CombatActionCostBase {

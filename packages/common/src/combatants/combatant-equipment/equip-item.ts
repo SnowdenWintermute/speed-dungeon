@@ -8,7 +8,8 @@ import {
 } from "../../items/equipment/slots.js";
 import { Equipment } from "../../items/equipment/index.js";
 import { applyEquipmentEffectWhileMaintainingResourcePercentages } from "./index.js";
-import { Combatant, CombatantProperties, Inventory } from "../index.js";
+import { Combatant, Inventory } from "../index.js";
+import { CombatantProperties } from "../combatant-properties.js";
 
 /** 
   

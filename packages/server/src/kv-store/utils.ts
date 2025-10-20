@@ -1,12 +1,8 @@
-import {
-  Combatant,
-  CombatantProperties,
-  LadderDeathsUpdate,
-  calculateTotalExperience,
-} from "@speed-dungeon/common";
+import { Combatant, LadderDeathsUpdate, calculateTotalExperience } from "@speed-dungeon/common";
 import { valkeyManager } from "./index.js";
 import { CHARACTER_LEVEL_LADDER } from "./consts.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
+import { CombatantProperties } from "@speed-dungeon/common";
 
 export async function removeDeadCharactersFromLadder(characters: Combatant[]) {
   const ladderDeathsUpdate: LadderDeathsUpdate = {};
@@ -25,7 +21,7 @@ export async function removeDeadCharactersFromLadder(characters: Combatant[]) {
     ladderDeathsUpdate[character.entityProperties.name] = {
       owner: combatantProperties.controlledBy.controllerName || "",
       rank,
-      level: combatantProperties.level,
+      level: combatantProperties.classProgressionProperties.getMainClass().level,
     };
     valkeyManager.context.zRem(CHARACTER_LEVEL_LADDER, [character.entityProperties.id]);
   }

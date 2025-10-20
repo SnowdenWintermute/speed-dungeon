@@ -1,10 +1,11 @@
 import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
 import { ResourceChange } from "../../hp-change-source-types.js";
-import { CombatantProperties, CombatantTraitType } from "../../../combatants/index.js";
 import { Percentage } from "../../../primatives/index.js";
 import { HitOutcomeMitigationCalculator } from "./hit-outcome-mitigation-calculator.js";
 import { CombatActionHitOutcomeProperties } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
+import { CombatantProperties } from "../../../combatants/combatant-properties.js";
+import { CombatantTraitType } from "../../../combatants/combatant-traits/trait-types.js";
 
 export class ResourceChangeModifier {
   constructor(
@@ -111,7 +112,7 @@ export class ResourceChangeModifier {
   }
 
   convertResourceChangeValueToFinalSign() {
-    const targetIsUndead = CombatantProperties.hasTraitType(this.target, CombatantTraitType.Undead);
+    const targetIsUndead = this.target.abilityProperties.hasTraitType(CombatantTraitType.Undead);
     // if it wasn't intended as healing, but is actually healing target due to affinities,
     // don't "un healify" the hp change here
     const { resourceChange } = this;

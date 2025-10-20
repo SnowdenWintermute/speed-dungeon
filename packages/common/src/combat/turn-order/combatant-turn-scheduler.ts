@@ -1,9 +1,10 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { EntityId } from "../../primatives/index.js";
-import { CombatantProperties, CombatAttribute } from "../../combatants/index.js";
+import { CombatAttribute } from "../../combatants/index.js";
 import { ITurnScheduler, TurnScheduler } from "./turn-schedulers.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { CombatantTurnTracker } from "./turn-trackers.js";
+import { CombatantProperties } from "../../combatants/combatant-properties.js";
 
 export class CombatantTurnScheduler extends TurnScheduler implements ITurnScheduler {
   constructor(public readonly combatantId: EntityId) {
@@ -12,9 +13,8 @@ export class CombatantTurnScheduler extends TurnScheduler implements ITurnSchedu
   getTiebreakerId = () => this.combatantId;
   getSpeed(party: AdventuringParty) {
     const combatant = party.combatantManager.getExpectedCombatant(this.combatantId);
-    const combatantSpeed = CombatantProperties.getTotalAttributes(combatant.combatantProperties)[
-      CombatAttribute.Speed
-    ];
+    const combatantSpeed =
+      combatant.combatantProperties.getTotalAttributes()[CombatAttribute.Speed];
     return combatantSpeed;
   }
 

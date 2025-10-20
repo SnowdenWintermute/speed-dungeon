@@ -21,6 +21,8 @@ class RaceGameCharacterRecordRepo extends DatabaseRepository<RaceGameCharacterRe
     partyRecordId: string,
     controllingPlayerIdOption: null | number
   ) {
+    const { classProgressionProperties } = character.combatantProperties;
+
     const { rows } = await this.pgPool.query(
       format(
         `INSERT INTO race_game_character_records
@@ -29,8 +31,10 @@ class RaceGameCharacterRecordRepo extends DatabaseRepository<RaceGameCharacterRe
         character.entityProperties.id,
         partyRecordId,
         character.entityProperties.name,
-        character.combatantProperties.level,
-        COMBATANT_CLASS_NAME_STRINGS[character.combatantProperties.combatantClass].toLowerCase(),
+        classProgressionProperties.getMainClass().level,
+        COMBATANT_CLASS_NAME_STRINGS[
+          classProgressionProperties.getMainClass().combatantClass
+        ].toLowerCase(),
         controllingPlayerIdOption || null
       )
     );
@@ -44,7 +48,7 @@ class RaceGameCharacterRecordRepo extends DatabaseRepository<RaceGameCharacterRe
         SET level = %L
         WHERE id = %L;
        `,
-        character.combatantProperties.level,
+        character.combatantProperties.classProgressionProperties.getMainClass().level,
         character.entityProperties.id
       )
     );

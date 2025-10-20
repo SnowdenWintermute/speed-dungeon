@@ -1,6 +1,5 @@
 import { Vector3 } from "@babylonjs/core";
 import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
@@ -16,7 +15,8 @@ import { COMBAT_ACTIONS, CombatActionComponent, CombatActionName } from "../../.
 import { getTranslationTime } from "../../../combat/combat-actions/action-implementations/get-translation-time.js";
 import { Milliseconds } from "../../../primatives/index.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
-import { Combatant, CombatantProperties } from "../../../combatants/index.js";
+import { Combatant } from "../../../combatants/index.js";
+import { CombatantProperties } from "../../../combatants/combatant-properties.js";
 
 export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   private translationOption: null | EntityTranslation = null;

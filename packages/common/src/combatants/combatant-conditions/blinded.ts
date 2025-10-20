@@ -1,11 +1,10 @@
 import { CombatantCondition, CombatantConditionName, ConditionAppliedBy } from "./index.js";
-import { CombatantProperties } from "../index.js";
 import {
   CombatActionExecutionIntent,
   CombatActionIntent,
   CombatActionName,
 } from "../../combat/combat-actions/index.js";
-import { EntityId, EntityProperties, MaxAndCurrent } from "../../primatives/index.js";
+import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 import { BASE_CONDITION_TICK_SPEED } from "../../combat/turn-order/consts.js";
 import {
   CombatActionTargetSingle,
@@ -21,6 +20,7 @@ import {
 } from "../../scene-entities/index.js";
 import { CombatAttribute } from "../attributes/index.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
+import { CombatantProperties } from "../combatant-properties.js";
 
 export class BlindedCombatantCondition extends CombatantCondition {
   [immerable] = true;

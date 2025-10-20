@@ -1,7 +1,7 @@
 import { IActionUser } from "../../action-user-context/action-user.js";
 import { Equipment, WeaponProperties } from "../../items/equipment/index.js";
 import { HoldableSlotType } from "../../items/equipment/slots.js";
-import { CombatantProperties } from "../index.js";
+import { CombatantProperties } from "../combatant-properties.js";
 
 export function getWeaponsInSlots(
   user: IActionUser,

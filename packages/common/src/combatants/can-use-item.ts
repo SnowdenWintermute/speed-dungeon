@@ -1,5 +1,5 @@
 import { Item } from "../items/index.js";
-import { CombatantAttributeRecord } from "./index.js";
+import { CombatantAttributeRecord } from "./attribute-properties.js";
 
 export function combatantHasRequiredAttributesToUseItem(
   attributes: CombatantAttributeRecord,

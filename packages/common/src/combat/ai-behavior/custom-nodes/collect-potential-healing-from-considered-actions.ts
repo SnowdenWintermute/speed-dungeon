@@ -1,5 +1,5 @@
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
-import { Combatant, CombatantProperties } from "../../../combatants/index.js";
+import { Combatant } from "../../../combatants/index.js";
 import { FixedNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 import { HitOutcomeCalculator } from "../../action-results/index.js";
@@ -128,9 +128,8 @@ export class CollectPotentialHealingFromConsideredActions implements BehaviorNod
         for (const allyCombatant of this.behaviorContext.consideredCombatants) {
           const allyId = allyCombatant.entityProperties.id;
           const { hitPoints } = allyCombatant.combatantProperties;
-          const maxHitPoints = CombatantProperties.getTotalAttributes(
-            allyCombatant.combatantProperties
-          )[CombatAttribute.Hp];
+          const maxHitPoints =
+            allyCombatant.combatantProperties.getTotalAttributes()[CombatAttribute.Hp];
           const missingHitPoints = Math.max(0, maxHitPoints - hitPoints);
 
           const averageHealing = averageHitPointChanges.getRecord(allyId)?.value || 0;

@@ -16,7 +16,6 @@ import {
   ActionEntityBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
-import { CombatantProperties } from "../../../../combatants/index.js";
 import { BASE_PERSISTENT_ACTION_ENTITY_TICK_SPEED } from "../../../turn-order/consts.js";
 import { MaxAndCurrent } from "../../../../primatives/max-and-current.js";
 import {
@@ -24,6 +23,7 @@ import {
   COMBAT_ACTION_MAX_LEVEL,
 } from "../../../../app-consts.js";
 import { ActionUserTargetingProperties } from "../../../../action-user-context/action-user-targeting-properties.js";
+import { CombatantProperties } from "../../../../combatants/combatant-properties.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
