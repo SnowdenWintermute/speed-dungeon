@@ -7,7 +7,7 @@ import {
 } from "@speed-dungeon/common";
 import React from "react";
 import { COMBAT_ACTION_DESCRIPTIONS } from "./ability-descriptions";
-import ActionDescriptionDisplay from "./ActionDescriptionDisplay";
+import { ActionDescriptionDisplay } from "./ActionDescriptionDisplay";
 import TraitDescriptionDisplay from "./TraitDescriptionDisplay";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";

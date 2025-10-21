@@ -21,7 +21,7 @@ export async function spawnCharacterModel(
     world,
     combatantProperties.monsterType,
     combatantProperties.isPlayerControlled(),
-    combatantProperties.combatantClass,
+    combatantProperties.classProgressionProperties.getMainClass().combatantClass,
     skeleton,
     blueprint.modelDomPositionElement,
     null,

@@ -3,7 +3,6 @@ import {
   CONSUMABLE_TEXT_COLOR,
   CONSUMABLE_TURQUOISE,
   CONSUMABLE_TYPE_STRINGS,
-  CombatantProperties,
   Consumable,
   ConsumableType,
   Equipment,
@@ -151,10 +150,8 @@ export abstract class ItemsMenuState extends ActionMenuState {
 
       const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
       const requirementsMet =
-        Item.requirementsMet(
-          item,
-          CombatantProperties.getTotalAttributes(focusedCharacter.combatantProperties)
-        ) && !(item instanceof Equipment && Equipment.isBroken(item));
+        Item.requirementsMet(item, focusedCharacter.combatantProperties.getTotalAttributes()) &&
+        !(item instanceof Equipment && Equipment.isBroken(item));
 
       let containerExtraStyles = "";
       if (!requirementsMet) {

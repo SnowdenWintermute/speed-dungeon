@@ -12,8 +12,8 @@ export class CombatantAttributeProperties {
   private speccedAttributes: CombatantAttributeRecord = {};
   private unspentAttributePoints: number = 0;
 
-  @Exclude() // don't send parent references over the wire
-  private combatantProperties: CombatantProperties | undefined;
+  // @Exclude() // don't send parent references over the wire
+  // private combatantProperties: CombatantProperties | undefined;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });

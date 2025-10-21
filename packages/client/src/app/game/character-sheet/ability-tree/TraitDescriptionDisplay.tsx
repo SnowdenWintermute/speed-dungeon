@@ -4,8 +4,6 @@ import {
   AbilityUtils,
   Combatant,
   COMBATANT_CLASS_NAME_STRINGS,
-  CombatantAbilityProperties,
-  CombatantProperties,
   CombatantTraitDescription,
   CombatantTraitType,
 } from "@speed-dungeon/common";
@@ -19,7 +17,8 @@ export default function TraitDescriptionDisplay({
   description: CombatantTraitDescription;
   user: Combatant;
 }) {
-  const ownedAbilityLevel = CombatantAbilityProperties.getAbilityLevel(user.combatantProperties, {
+  const { abilityProperties } = user.combatantProperties;
+  const ownedAbilityLevel = abilityProperties.getAbilityRank({
     type: AbilityType.Trait,
     traitType,
   });
@@ -52,8 +51,7 @@ export default function TraitDescriptionDisplay({
                 {classAndLevelRequirements && (
                   <div
                     className={
-                      CombatantProperties.meetsCombatantClassAndLevelRequirements(
-                        user.combatantProperties,
+                      user.combatantProperties.classProgressionProperties.meetsCombatantClassAndLevelRequirements(
                         classAndLevelRequirements.combatantClass,
                         classAndLevelRequirements.level
                       )

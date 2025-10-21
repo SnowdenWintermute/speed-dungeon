@@ -2,7 +2,6 @@ import {
   AbilityTree,
   AbilityTreeAbility,
   AbilityUtils,
-  CombatantAbilityProperties,
   getAbilityTreeAbilityNameString,
 } from "@speed-dungeon/common";
 import { getAbilityIcon } from "./ability-icons";
@@ -102,8 +101,7 @@ export const CharacterClassAbilityTree = observer(
                       >
                         <AbilityTreeButton
                           ability={ability}
-                          abilityLevel={CombatantAbilityProperties.getAbilityLevel(
-                            combatantProperties,
+                          abilityLevel={combatantProperties.abilityProperties.getAbilityRank(
                             ability
                           )}
                           buttonContent={buttonContent}

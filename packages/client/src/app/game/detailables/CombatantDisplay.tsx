@@ -5,12 +5,13 @@ import React from "react";
 import { CharacterAttributes } from "../character-sheet/CharacterAttributes";
 import CombatantTraitsDisplay from "./CombatantTraitsDisplay";
 import { AppStore } from "@/mobx-stores/app-store";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   combatant: Combatant;
 }
 
-export default function CombatantDisplay({ combatant }: Props) {
+export const CombatantDisplay = observer(({ combatant }: Props) => {
   const { combatantProperties } = combatant;
 
   function closeDisplay() {
@@ -31,10 +32,10 @@ export default function CombatantDisplay({ combatant }: Props) {
         <Divider />
         <ul>
           <CombatantTraitsDisplay
-            traitProperties={combatantProperties.abilityProperties.traitProperties}
+            traitProperties={combatantProperties.abilityProperties.getTraitProperties()}
           />
         </ul>
       </div>
     </div>
   );
-}
+});

@@ -4,10 +4,12 @@ import {
   AbilityType,
   AbilityUtils,
   ActionPayableResource,
+  ClassProgressionProperties,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponent,
   Combatant,
   CombatantClass,
+  CombatantClassProperties,
   CombatantControllerType,
   CombatantProperties,
   CombatantSpecies,
@@ -17,7 +19,7 @@ import cloneDeep from "lodash.clonedeep";
 import isEqual from "lodash.isequal";
 
 export const TARGET_DUMMY_COMBATANT = new CombatantProperties(
-  CombatantClass.Warrior,
+  new ClassProgressionProperties(new CombatantClassProperties(1, CombatantClass.Warrior)),
   CombatantSpecies.Humanoid,
   null,
   { controllerType: CombatantControllerType.Dungeon, controllerName: "" },

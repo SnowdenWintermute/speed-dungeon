@@ -31,20 +31,24 @@ export const CharacterAttributes = observer(
 
     const isPlayerControlled = combatantProperties.isPlayerControlled();
 
-    const hasUnspentAttributePoints = combatantProperties.unspentAttributePoints > 0;
+    const { attributeProperties, classProgressionProperties } = combatantProperties;
+
+    const hasUnspentAttributePoints = attributeProperties.getUnspentPoints() > 0;
+
     const shouldShowNumberOfUnspentAttributes =
       hasUnspentAttributePoints && isPlayerControlled && showAttributeAssignmentButtons;
 
-    let expRequiredForNextLevel =
-      typeof combatantProperties.experiencePoints.requiredForNextLevel === "number"
-        ? combatantProperties.experiencePoints.requiredForNextLevel.toString()
-        : "∞";
+    const { experiencePoints } = classProgressionProperties;
+    const requiredForNextLevel = experiencePoints.getRequiredForNextLevel();
+
+    let expRequiredForNextLevelString =
+      typeof requiredForNextLevel === "number" ? requiredForNextLevel.toString() : "∞";
 
     let experiencePointsText = isPlayerControlled
-      ? `${combatantProperties.experiencePoints.current} / ${expRequiredForNextLevel} experience`
+      ? `${experiencePoints.getCurrent()} / ${expRequiredForNextLevelString} experience`
       : "";
 
-    const totalAttributes = CombatantProperties.getTotalAttributes(combatantProperties);
+    const totalAttributes = combatantProperties.getTotalAttributes();
     let totalAttributesSortedArray: [CombatAttribute, number][] = iterateNumericEnumKeyedRecord(
       totalAttributes
     ).map(([attribute, value]) => {
@@ -70,7 +74,8 @@ export const CharacterAttributes = observer(
       />
     ));
 
-    const { supportClassProperties } = combatantProperties;
+    const supportClassProperties = classProgressionProperties.getSupportClassOption();
+    const mainClassProperties = classProgressionProperties.getMainClass();
 
     return (
       <div
@@ -82,7 +87,7 @@ export const CharacterAttributes = observer(
               <span>{entityProperties.name}</span>
               <span className="h-10 w-10 flex justify-center rotate-45">
                 {getCombatantClassIcon(
-                  combatantProperties.combatantClass,
+                  mainClassProperties.combatantClass,
                   "fill-slate-400",
                   "stroke-slate-400"
                 )}
@@ -91,8 +96,8 @@ export const CharacterAttributes = observer(
             <div className="flex justify-between">
               <span>
                 {"Level "}
-                {combatantProperties.level}
-                {` ${COMBATANT_CLASS_NAME_STRINGS[combatantProperties.combatantClass]}`}
+                {mainClassProperties.level}
+                {` ${COMBATANT_CLASS_NAME_STRINGS[mainClassProperties.combatantClass]}`}
                 {supportClassProperties
                   ? ` / ${supportClassProperties.level} ${COMBATANT_CLASS_NAME_STRINGS[supportClassProperties.combatantClass]}`
                   : ""}
@@ -110,7 +115,7 @@ export const CharacterAttributes = observer(
               <li className="text-ffxipink flex justify-between">
                 <span>Unspent: </span>
                 <span>
-                  <span>{combatantProperties.unspentAttributePoints}</span>
+                  <span>{attributeProperties.getUnspentPoints()}</span>
                 </span>
               </li>
             )}

@@ -2,7 +2,7 @@ import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import React, { useEffect, useRef, useState } from "react";
 import { TargetingIndicators } from "./TargetingIndicators";
 import { UnspentAttributesButton } from "../UnspentAttributesButton";
-import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
+import { ValueBarsAndFocusButton } from "./ValueBarsAndFocusButton";
 import CombatantInfoButton from "./CombatantInfoButton";
 import { DetailedCombatantInfoCard } from "./DetailedCombatantInfoCard";
 import { Combatant, CombatantProperties, InputLock, Inventory } from "@speed-dungeon/common";
@@ -164,7 +164,7 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
             <Portrait
               portrait={portraitOption}
               portraitHeight={portraitHeight}
-              combatantLevel={combatantProperties.level}
+              combatantLevel={combatantProperties.classProgressionProperties.getMainClass().level}
             />
             <div className="flex-grow" ref={nameAndBarsRef}>
               <div className="mb-1.5 flex justify-between items-center align-middle leading-5 text-lg ">

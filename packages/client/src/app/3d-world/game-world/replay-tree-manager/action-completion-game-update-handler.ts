@@ -35,7 +35,7 @@ export async function actionCompletionGameUpdateHandler(
         fastestTracker.getTaggedIdOfTrackedEntity().combatantId
       );
       CombatantProperties.refillActionPoints(combatantProperties);
-      CombatantProperties.tickCooldowns(combatantProperties);
+      combatantProperties.abilityProperties.tickCooldowns();
     }
 
     battleOption.turnOrderManager.updateTrackers(game, party);

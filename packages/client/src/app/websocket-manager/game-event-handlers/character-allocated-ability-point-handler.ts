@@ -1,8 +1,4 @@
-import {
-  AbilityTreeAbility,
-  CharacterAssociatedData,
-  CombatantAbilityProperties,
-} from "@speed-dungeon/common";
+import { AbilityTreeAbility, CharacterAssociatedData } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 
 export function characterAllocatedAbilityPointHandler(eventData: {
@@ -11,6 +7,6 @@ export function characterAllocatedAbilityPointHandler(eventData: {
 }) {
   const { characterId, ability } = eventData;
   characterAssociatedDataProvider(characterId, ({ character }: CharacterAssociatedData) => {
-    CombatantAbilityProperties.allocateAbilityPoint(character.combatantProperties, ability);
+    character.combatantProperties.abilityProperties.allocateAbilityPoint(ability);
   });
 }

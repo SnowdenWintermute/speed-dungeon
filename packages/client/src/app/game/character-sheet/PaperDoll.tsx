@@ -25,7 +25,7 @@ export const PaperDoll = observer(({ combatant }: Props) => {
   const { equipment } = combatantProperties;
 
   const totalAttributes = useMemo(
-    () => CombatantProperties.getTotalAttributes(combatantProperties),
+    () => combatantProperties.getTotalAttributes(),
     [combatantProperties]
   );
 

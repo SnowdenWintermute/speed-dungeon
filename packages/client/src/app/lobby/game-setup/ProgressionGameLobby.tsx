@@ -186,5 +186,7 @@ export function formatCharacterTag(combatant: Combatant) {
 }
 
 export function formatCharacterLevelAndClass(combatant: Combatant) {
-  return `level ${combatant.combatantProperties.level} ${COMBATANT_CLASS_NAME_STRINGS[combatant.combatantProperties.combatantClass]}`;
+  const { combatantClass } =
+    combatant.combatantProperties.classProgressionProperties.getMainClass();
+  return `level ${combatant.getLevel()} ${COMBATANT_CLASS_NAME_STRINGS[combatantClass]}`;
 }

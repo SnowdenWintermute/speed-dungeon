@@ -18,10 +18,11 @@ export const AbilitySelection = observer(() => {
   const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
   const { combatantProperties } = focusedCharacter;
-  const { combatantClass } = combatantProperties;
+  const { classProgressionProperties } = combatantProperties;
+  const { combatantClass } = classProgressionProperties.getMainClass();
   const abilityTree = ABILITY_TREES[combatantClass];
 
-  const { supportClassProperties } = combatantProperties;
+  const supportClassProperties = classProgressionProperties.getSupportClassOption();
   const supportClassAbilityTree = supportClassProperties
     ? ABILITY_TREES[supportClassProperties.combatantClass]
     : EMPTY_ABILITY_TREE;
@@ -32,7 +33,7 @@ export const AbilitySelection = observer(() => {
     ? COMBATANT_CLASS_NAME_STRINGS[supportClassProperties?.combatantClass]
     : "No support class";
 
-  const { unspentAbilityPoints } = combatantProperties.abilityProperties;
+  const unspentAbilityPoints = combatantProperties.abilityProperties.getUnspentPointsCount();
 
   return (
     <div
@@ -46,14 +47,14 @@ export const AbilitySelection = observer(() => {
               `h-full ${unspentAbilityPoints ? "fill-yellow-400" : "fill-slate-400"}`
             )}
           </div>
-          <div>{combatantProperties.abilityProperties.unspentAbilityPoints}</div>
+          <div>{unspentAbilityPoints}</div>
         </div>
       </HoverableTooltipWrapper>
       <div className="flex flex-col  mr-4">
         <div className="text-lg flex justify-center">
           <h3>
             <span>
-              {COMBATANT_CLASS_NAME_STRINGS[combatantClass]} (level {combatantProperties.level})
+              {COMBATANT_CLASS_NAME_STRINGS[combatantClass]} (level {focusedCharacter.getLevel()})
             </span>
           </h3>
         </div>

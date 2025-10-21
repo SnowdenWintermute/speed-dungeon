@@ -1,5 +1,4 @@
 import {
-  CombatantProperties,
   ERROR_MESSAGES,
   Combatant,
   CombatAttribute,
@@ -152,7 +151,7 @@ function getAttackActionDamageAndAccuracy(
 
   if (hpChangeRangeResult instanceof Error) return hpChangeRangeResult;
 
-  const targetEvasion = CombatantProperties.getTotalAttributes(target)[CombatAttribute.Evasion];
+  const targetEvasion = target.getTotalAttributes()[CombatAttribute.Evasion];
 
   const hpChangeRange = hpChangeRangeResult;
   const hitChance = HitOutcomeMitigationCalculator.getActionHitChance(

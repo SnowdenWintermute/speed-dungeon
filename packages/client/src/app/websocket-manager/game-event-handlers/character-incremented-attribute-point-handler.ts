@@ -1,8 +1,4 @@
-import {
-  CharacterAssociatedData,
-  CombatAttribute,
-  CombatantProperties,
-} from "@speed-dungeon/common";
+import { CharacterAssociatedData, CombatAttribute } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 
 export function characterIncrementedAttributePointHandler(
@@ -10,6 +6,6 @@ export function characterIncrementedAttributePointHandler(
   attribute: CombatAttribute
 ) {
   characterAssociatedDataProvider(characterId, ({ character }: CharacterAssociatedData) => {
-    CombatantProperties.incrementAttributePoint(character.combatantProperties, attribute);
+    character.combatantProperties.attributeProperties.incrementAttribute(attribute);
   });
 }

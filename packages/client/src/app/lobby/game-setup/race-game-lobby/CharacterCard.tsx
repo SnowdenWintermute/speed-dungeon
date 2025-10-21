@@ -11,7 +11,8 @@ import { observer } from "mobx-react-lite";
 
 export const CharacterCard = observer(
   ({ character, username }: { character: Combatant; username: string }) => {
-    const { combatantClass } = character.combatantProperties;
+    const { combatantClass } =
+      character.combatantProperties.classProgressionProperties.getMainClass();
 
     const { controllerName } = character.combatantProperties.controlledBy;
 

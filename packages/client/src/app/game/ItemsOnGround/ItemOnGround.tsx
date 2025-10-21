@@ -3,7 +3,6 @@ import {
   CONSUMABLE_TEXT_COLOR,
   CONSUMABLE_TYPE_STRINGS,
   ClientToServerEvent,
-  CombatantProperties,
   Consumable,
   Equipment,
   Item,
@@ -71,7 +70,7 @@ export const ItemOnGround = observer((props: Props) => {
   const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
   const requirementsMet = Item.requirementsMet(
     item,
-    CombatantProperties.getTotalAttributes(focusedCharacter.combatantProperties)
+    focusedCharacter.combatantProperties.getTotalAttributes()
   );
 
   if (!requirementsMet) {

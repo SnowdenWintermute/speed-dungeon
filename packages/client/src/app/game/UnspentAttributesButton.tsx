@@ -19,7 +19,7 @@ export const UnspentAttributesButton = observer(
     entityId: EntityId;
     combatantProperties: CombatantProperties;
   }) => {
-    if (combatantProperties.unspentAttributePoints < 1) return <></>;
+    if (combatantProperties.attributeProperties.getUnspentPoints() < 1) return <></>;
 
     const { actionMenuStore, gameStore } = AppStore.get();
 

@@ -1,7 +1,6 @@
 import { ActionMenuState } from ".";
 import {
   ClientToServerEvent,
-  CombatantProperties,
   Inventory,
   CombatActionUsabilityContext,
   iterateNumericEnumKeyedRecord,
@@ -61,7 +60,7 @@ export class BaseMenuState extends ActionMenuState {
 
     const partyResult = gameStore.getExpectedParty();
 
-    if (combatantProperties.unspentAttributePoints > 0) {
+    if (combatantProperties.attributeProperties.getUnspentPoints() > 0) {
       const hiddenButtonForUnspentAttributesHotkey = new ActionMenuButtonProperties(
         () => "Unspent Attributes Hotkey Button",
         "Unspent Attributes Hotkey Button",
@@ -95,7 +94,7 @@ export class BaseMenuState extends ActionMenuState {
     const inCombat = partyResult.combatantManager.monstersArePresent();
 
     for (const [actionName, actionState] of iterateNumericEnumKeyedRecord(
-      combatantProperties.abilityProperties.ownedActions
+      combatantProperties.abilityProperties.getOwnedActions()
     )) {
       if (ACTION_NAMES_TO_HIDE_IN_MENU.includes(actionName)) continue;
       const nameAsString = COMBAT_ACTION_NAME_STRINGS[actionName];
@@ -184,10 +183,10 @@ export class BaseMenuState extends ActionMenuState {
 
       const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
 
-      const isWearingRequiredEquipment = CombatantProperties.isWearingRequiredEquipmentToUseAction(
-        combatantProperties,
-        new ActionAndRank(actionName, 1)
-      );
+      const isWearingRequiredEquipment =
+        combatantProperties.equipment.isWearingRequiredEquipmentToUseAction(
+          new ActionAndRank(actionName, 1)
+        );
 
       const isOnCooldown = (actionState.cooldown?.current || 0) > 0;
 

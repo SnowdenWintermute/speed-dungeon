@@ -9,7 +9,6 @@ import {
   CombatActionExecutionIntent,
   CombatActionName,
   CombatAttribute,
-  CombatantProperties,
   ERROR_MESSAGES,
   FriendOrFoe,
   HitOutcomeMitigationCalculator,
@@ -41,9 +40,8 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
   const { game, party, combatant } = AppStore.get().gameStore.getFocusedCharacterContext();
   const { combatantProperties, entityProperties } = combatant;
   const { abilityProperties } = combatantProperties;
-  const actionStateOption = abilityProperties.ownedActions[actionName];
-  const actionState = abilityProperties.ownedActions[actionName];
-  if (actionState === undefined) return <div>Somehow detailing an unowned action</div>;
+  const actionStateOption = abilityProperties.getOwnedActions()[actionName];
+  if (actionStateOption === undefined) return <div>Somehow detailing an unowned action</div>;
 
   const { targetingProperties } = combatant.combatantProperties;
   const selectedActionAndRankOption = targetingProperties.getSelectedActionAndRank();
@@ -76,16 +74,15 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
   const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
     party,
     new CombatActionExecutionIntent(
-      actionState.actionName,
+      actionStateOption.actionName,
       selectedActionAndRankOption?.rank || 1,
       currentTargetsOption
     )
   );
   if (primaryTargetResult instanceof Error) return <div>{primaryTargetResult.message}</div>;
 
-  const targetEvasion = CombatantProperties.getTotalAttributes(
-    primaryTargetResult.combatantProperties
-  )[CombatAttribute.Evasion];
+  const targetEvasion =
+    primaryTargetResult.combatantProperties.getTotalAttributes()[CombatAttribute.Evasion];
 
   return (
     <div className="flex flex-col pointer-events-auto" style={{ flex: `1 1 1px` }}>
@@ -99,7 +96,7 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
         />
       )}
       <ul className="list-none">
-        {ArrayUtils.createFilledWithSequentialNumbers(actionState.level, 1).map((rank) => {
+        {ArrayUtils.createFilledWithSequentialNumbers(actionStateOption.level, 1).map((rank) => {
           const percentChanceToHit = HitOutcomeMitigationCalculator.getActionHitChance(
             action,
             combatant,

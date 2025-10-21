@@ -3,6 +3,7 @@ import { CombatantProperties } from "@speed-dungeon/common";
 import { CombatAttribute } from "@speed-dungeon/common";
 import React from "react";
 import FocusCharacterButton from "./FocusCharacterButton";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   combatantProperties: CombatantProperties;
@@ -11,54 +12,53 @@ interface Props {
   isFocused: boolean;
 }
 
-export default function ValueBarsAndFocusButton({
-  combatantProperties,
-  combatantId,
-  showExperience,
-  isFocused,
-}: Props) {
-  const totalAttributes = CombatantProperties.getTotalAttributes(combatantProperties);
-  const maxHitPointsOption = totalAttributes[CombatAttribute.Hp];
-  const maxManaOption = totalAttributes[CombatAttribute.Mp];
+export const ValueBarsAndFocusButton = observer(
+  ({ combatantProperties, combatantId, showExperience, isFocused }: Props) => {
+    const totalAttributes = combatantProperties.getTotalAttributes();
+    const maxHitPointsOption = totalAttributes[CombatAttribute.Hp];
+    const maxManaOption = totalAttributes[CombatAttribute.Mp];
 
-  const hpBar = maxHitPointsOption ? (
-    <ValueBar
-      maxValue={maxHitPointsOption}
-      currentValue={combatantProperties.hitPoints}
-      color="green-700"
-    />
-  ) : (
-    "Immortal object"
-  );
+    const hpBar = maxHitPointsOption ? (
+      <ValueBar
+        maxValue={maxHitPointsOption}
+        currentValue={combatantProperties.hitPoints}
+        color="green-700"
+      />
+    ) : (
+      "Immortal object"
+    );
 
-  const mpBar = maxManaOption ? (
-    <ValueBar maxValue={maxManaOption} currentValue={combatantProperties.mana} color="blue-700" />
-  ) : (
-    <span />
-  );
+    const mpBar = maxManaOption ? (
+      <ValueBar maxValue={maxManaOption} currentValue={combatantProperties.mana} color="blue-700" />
+    ) : (
+      <span />
+    );
 
-  const experiencRequiredToLevel = combatantProperties.experiencePoints.requiredForNextLevel;
-  const experienceBar = experiencRequiredToLevel ? (
-    <ValueBar
-      maxValue={experiencRequiredToLevel}
-      currentValue={combatantProperties.experiencePoints.current}
-      color="ffxipink"
-      hideNumbers={true}
-    />
-  ) : (
-    <></>
-  );
+    const { experiencePoints } = combatantProperties.classProgressionProperties;
 
-  return (
-    <>
-      <div className="h-5 mb-1">{hpBar}</div>
-      <div className="h-5 flex">{mpBar}</div>
-      {showExperience && (
-        <div className="h-5 mt-[6px] flex text-sm">
-          <FocusCharacterButton combatantId={combatantId} isFocused={isFocused} />
-          {experienceBar}{" "}
-        </div>
-      )}
-    </>
-  );
-}
+    const experiencRequiredToLevel = experiencePoints.getRequiredForNextLevel();
+    const experienceBar = experiencRequiredToLevel ? (
+      <ValueBar
+        maxValue={experiencRequiredToLevel}
+        currentValue={experiencePoints.getCurrent()}
+        color="ffxipink"
+        hideNumbers={true}
+      />
+    ) : (
+      <></>
+    );
+
+    return (
+      <>
+        <div className="h-5 mb-1">{hpBar}</div>
+        <div className="h-5 flex">{mpBar}</div>
+        {showExperience && (
+          <div className="h-5 mt-[6px] flex text-sm">
+            <FocusCharacterButton combatantId={combatantId} isFocused={isFocused} />
+            {experienceBar}{" "}
+          </div>
+        )}
+      </>
+    );
+  }
+);

@@ -1,3 +1,4 @@
+import { plainToInstance } from "class-transformer";
 import { AbilityTreeAbility, AbilityType, AbilityUtils } from "../../abilities/index.js";
 import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
@@ -16,6 +17,11 @@ export class CombatantAbilityProperties {
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
+  }
+
+  static getDeserialized(serialized: CombatantAbilityProperties) {
+    const deserialized = plainToInstance(CombatantAbilityProperties, serialized);
+    return deserialized;
   }
 
   getUnspentPointsCount() {

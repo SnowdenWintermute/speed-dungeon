@@ -105,11 +105,11 @@ export const SavedCharacterManager = observer(() => {
             <h3>{selectedCharacterOption?.entityProperties.name || "Empty"}</h3>
             {selectedCharacterOption && (
               <div>
-                Level: {selectedCharacterOption.combatantProperties.level}
+                Level: {selectedCharacterOption.getLevel()}
                 {" " +
-                  COMBATANT_CLASS_NAME_STRINGS[
-                    selectedCharacterOption.combatantProperties.combatantClass
-                  ]}
+                  selectedCharacterOption.combatantProperties.classProgressionProperties
+                    .getMainClass()
+                    .getStringName()}
               </div>
             )}
           </div>

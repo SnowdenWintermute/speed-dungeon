@@ -34,7 +34,7 @@ export const setViewingAbilityTreeHotkey = HOTKEYS.BOTTOM_ALT;
 export const setViewingAbilityTreeAsFreshStack = new ActionMenuButtonProperties(
   () => {
     const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
-    const unspent = focusedCharacter.combatantProperties.abilityProperties.unspentAbilityPoints;
+    const unspent = focusedCharacter.combatantProperties.abilityProperties.getUnspentPointsCount();
     const highlightClass = unspent ? "text-yellow-400" : "";
 
     return (

@@ -4,7 +4,7 @@ import { Combatant } from "@speed-dungeon/common";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
-import CombatantDisplay from "../detailables/CombatantDisplay";
+import { CombatantDisplay } from "../detailables/CombatantDisplay";
 
 interface Props {
   combatantId: string;

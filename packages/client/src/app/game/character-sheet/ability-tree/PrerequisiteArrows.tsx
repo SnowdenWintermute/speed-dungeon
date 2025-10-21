@@ -1,10 +1,6 @@
 import { MAIN_TEXT_AND_BORDERS_COLOR } from "@/client_consts";
 import { AppStore } from "@/mobx-stores/app-store";
-import {
-  AbilityTreeAbility,
-  AbilityUtils,
-  CombatantAbilityProperties,
-} from "@speed-dungeon/common";
+import { AbilityTreeAbility, AbilityUtils } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React, { RefObject, useLayoutEffect, useRef, useState } from "react";
 
@@ -59,17 +55,13 @@ export const PrerequisiteArrows = observer((props: Props) => {
 
         const ability: AbilityTreeAbility = JSON.parse(abilityAsJson);
 
-        const characterOwnsAbility = CombatantAbilityProperties.getAbilityLevel(
-          combatantProperties,
-          ability
-        );
+        const { abilityProperties } = combatantProperties;
+
+        const characterOwnsAbility = abilityProperties.getAbilityRank(ability);
 
         let characterOwnsPrerequisites = true;
         for (const prerequisite of prerequisites) {
-          const characterOwnsPrerequisite = CombatantAbilityProperties.getAbilityLevel(
-            combatantProperties,
-            prerequisite
-          );
+          const characterOwnsPrerequisite = abilityProperties.getAbilityRank(prerequisite);
           if (!characterOwnsPrerequisite) {
             characterOwnsPrerequisites = false;
             break;

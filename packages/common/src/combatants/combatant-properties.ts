@@ -116,6 +116,16 @@ export class CombatantProperties {
       deserialized.targetingProperties
     );
 
+    deserialized.classProgressionProperties = ClassProgressionProperties.getDeserialized(
+      deserialized.classProgressionProperties
+    );
+    deserialized.abilityProperties = CombatantAbilityProperties.getDeserialized(
+      deserialized.abilityProperties
+    );
+    deserialized.attributeProperties = CombatantAttributeProperties.getDeserialized(
+      deserialized.attributeProperties
+    );
+
     if (deserialized.threatManager !== undefined) {
       deserialized.threatManager = plainToInstance(ThreatManager, deserialized.threatManager);
     }

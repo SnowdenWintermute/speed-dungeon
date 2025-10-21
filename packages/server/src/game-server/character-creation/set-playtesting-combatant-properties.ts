@@ -7,6 +7,11 @@ import {
 
 export function setPlaytestingCombatantProperties(combatantProperties: CombatantProperties) {
   // combatantProperties.level = 10;
+  const { classProgressionProperties } = combatantProperties;
+  classProgressionProperties.experiencePoints.changeExperience(500);
+  classProgressionProperties.convertExperienceToClassLevels();
+
+  combatantProperties.attributeProperties.changeUnspentPoints(30);
   // combatantProperties.unspentAttributePoints = 30;
   // combatantProperties.abilityProperties.unspentAbilityPoints = 6;
   // // combatantProperties.supportClassProperties = { combatantClass: CombatantClass.Rogue, level: 1 };

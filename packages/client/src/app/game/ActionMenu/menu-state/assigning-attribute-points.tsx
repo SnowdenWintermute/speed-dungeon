@@ -38,7 +38,8 @@ export class AssigningAttributePointsMenuState extends ActionMenuState {
         }
       );
 
-      const hasNoUnspentPoints = focusedCharacter.combatantProperties.unspentAttributePoints === 0;
+      const hasNoUnspentPoints =
+        focusedCharacter.combatantProperties.attributeProperties.getUnspentPoints() === 0;
       const doesNotControlCharacter = !gameStore.clientUserControlsFocusedCombatant();
       button.shouldBeDisabled = hasNoUnspentPoints || doesNotControlCharacter;
 

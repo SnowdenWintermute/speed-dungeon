@@ -63,11 +63,10 @@ const ThreatTrackerIcon = observer(
 
     const { party, combatant } = AppStore.get().gameStore.getExpectedCombatantContext(entityId);
 
-    const classIcon = getCombatantClassIcon(
-      combatant.combatantProperties.combatantClass,
-      "fill-slate-400",
-      "stroke-slate-400"
-    );
+    const { combatantClass } =
+      combatant.combatantProperties.classProgressionProperties.getMainClass();
+
+    const classIcon = getCombatantClassIcon(combatantClass, "fill-slate-400", "stroke-slate-400");
 
     const stableThreat = threatTableEntry.threatScoresByType[ThreatType.Stable].current;
     // const stableThreat = 1039;

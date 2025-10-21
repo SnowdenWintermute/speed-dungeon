@@ -2,7 +2,6 @@ import { ActionMenuState } from ".";
 import {
   ClientToServerEvent,
   CombatActionName,
-  CombatantProperties,
   InputLock,
   NextOrPrevious,
 } from "@speed-dungeon/common";
@@ -107,10 +106,8 @@ export class ConsideringCombatActionMenuState extends ActionMenuState {
       return toReturn;
     }
 
-    const combatActionProperties = CombatantProperties.getCombatActionPropertiesIfOwned(
-      combatantProperties,
-      selectedActionAndRank
-    );
+    const combatActionProperties =
+      combatantProperties.abilityProperties.getCombatActionPropertiesIfOwned(selectedActionAndRank);
 
     if (combatActionProperties instanceof Error) {
       setAlert(combatActionProperties);

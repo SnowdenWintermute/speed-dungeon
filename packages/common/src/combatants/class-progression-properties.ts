@@ -1,6 +1,6 @@
 import { makeAutoObservable } from "mobx";
 import { plainToInstance } from "class-transformer";
-import { CombatantClass } from "./combatant-class/index.js";
+import { COMBATANT_CLASS_NAME_STRINGS, CombatantClass } from "./combatant-class/index.js";
 import { AbilityUtils } from "../abilities/ability-utils.js";
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ABILITY_TREES } from "./ability-tree/set-up-ability-trees.js";
@@ -44,6 +44,10 @@ export class CombatantClassProperties {
     public level: number,
     public combatantClass: CombatantClass
   ) {}
+
+  getStringName() {
+    return COMBATANT_CLASS_NAME_STRINGS[this.combatantClass];
+  }
 }
 
 export class ClassProgressionProperties {
@@ -96,7 +100,7 @@ export class ClassProgressionProperties {
     if (this.supportClass !== null) {
       this.supportClass.level += value;
     } else {
-      this.supportClass = { combatantClass, level: value };
+      this.supportClass = new CombatantClassProperties(combatantClass, value);
     }
   }
 

@@ -30,10 +30,13 @@ export class ConsideringAbilityTreeColumnMenuState extends ActionMenuState {
     const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
     const { combatantProperties } = focusedCharacter;
-    const { combatantClass } = combatantProperties;
-    const abilityTree = ABILITY_TREES[combatantClass];
-    const subjobTree = combatantProperties.supportClassProperties
-      ? ABILITY_TREES[combatantProperties.supportClassProperties.combatantClass]
+    const { classProgressionProperties } = combatantProperties;
+    const mainClassProperties = classProgressionProperties.getMainClass();
+    const supportClassProperties = classProgressionProperties.getSupportClassOption();
+
+    const abilityTree = ABILITY_TREES[mainClassProperties.combatantClass];
+    const subjobTree = supportClassProperties
+      ? ABILITY_TREES[supportClassProperties.combatantClass]
       : EMPTY_ABILITY_TREE;
 
     abilityTree.columns.forEach((column, columnIndex) => {

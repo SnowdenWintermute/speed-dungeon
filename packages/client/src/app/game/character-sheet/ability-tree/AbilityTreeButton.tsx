@@ -43,12 +43,16 @@ export const AbilityTreeButton = observer((props: Props) => {
             focusStore.combatantAbilities.setDetailed(ability);
 
             const { combatantProperties } = focusedCharacter;
-            const { combatantClass } = combatantProperties;
+            const { combatantClass } =
+              combatantProperties.classProgressionProperties.getMainClass();
+            const supportClassOption =
+              combatantProperties.classProgressionProperties.getSupportClassOption();
 
             const abilityTree = ABILITY_TREES[combatantClass];
-            const subjobTree = combatantProperties.supportClassProperties
-              ? ABILITY_TREES[combatantProperties.supportClassProperties.combatantClass]
-              : EMPTY_ABILITY_TREE;
+            const subjobTree =
+              supportClassOption !== null
+                ? ABILITY_TREES[supportClassOption.combatantClass]
+                : EMPTY_ABILITY_TREE;
 
             let indexIfInThisColumn = null;
             let columnIndex = -1;
