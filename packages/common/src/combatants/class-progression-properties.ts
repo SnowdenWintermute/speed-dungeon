@@ -9,12 +9,13 @@ import {
   XP_REQUIRED_TO_LEVEL_INCREASE_INCREMENT,
   XP_REQUIRED_TO_REACH_LEVEL_2,
 } from "../app-consts.js";
+import { runIfInBrowser } from "../utils/index.js";
 
 export class ExperiencePoints {
   private current: number = 0;
   private requiredForNextLevel: null | number = XP_REQUIRED_TO_REACH_LEVEL_2;
   constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 
   static getDeserialized(experiencePoints: ExperiencePoints) {
@@ -55,7 +56,7 @@ export class ClassProgressionProperties {
   public experiencePoints = new ExperiencePoints();
 
   constructor(private mainClass: CombatantClassProperties) {
-    makeAutoObservable(this, {}, { autoBind: true });
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 
   static getDeserialized(self: ClassProgressionProperties) {

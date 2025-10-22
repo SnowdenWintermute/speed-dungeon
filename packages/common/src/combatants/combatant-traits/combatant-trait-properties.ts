@@ -3,6 +3,7 @@ import { MagicalElement } from "../../combat/magical-elements.js";
 import { Percentage } from "../../primatives/index.js";
 import { makeAutoObservable } from "mobx";
 import { CombatantTraitType } from "./trait-types.js";
+import { runIfInBrowser } from "../../utils/index.js";
 
 export class CombatantTraitProperties {
   inherentElementalAffinities: Partial<Record<MagicalElement, Percentage>> = {};
@@ -11,6 +12,6 @@ export class CombatantTraitProperties {
   speccedTraitLevels: Partial<Record<CombatantTraitType, number>> = {};
 
   constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 }

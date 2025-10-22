@@ -4,7 +4,7 @@ import { ActionAndRank } from "../../action-user-context/action-user-targeting-p
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { CombatActionComponent, CombatActionName } from "../../combat/combat-actions/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
+import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../../utils/index.js";
 import { CombatantTraitProperties } from "../combatant-traits/combatant-trait-properties.js";
 import { CombatantTraitType } from "../combatant-traits/trait-types.js";
 import { CombatantActionState } from "../owned-actions/combatant-action-state.js";
@@ -16,7 +16,7 @@ export class CombatantAbilityProperties {
   private traitProperties = new CombatantTraitProperties();
 
   constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 
   static getDeserialized(serialized: CombatantAbilityProperties) {

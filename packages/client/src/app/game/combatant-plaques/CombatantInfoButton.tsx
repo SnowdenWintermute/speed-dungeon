@@ -15,7 +15,7 @@ export default function CombatantInfoButton({ combatant }: Props) {
 
   function handleMouseEnter() {
     focusStore.detailables.setHovered(
-      new Combatant(combatant.entityProperties, combatant.combatantProperties)
+      Combatant.createInitialized(combatant.entityProperties, combatant.combatantProperties)
     );
   }
 

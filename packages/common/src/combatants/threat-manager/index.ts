@@ -2,6 +2,9 @@ import { Matrix, Quaternion, Vector3 } from "@babylonjs/core";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 import { Combatant } from "../index.js";
+import { plainToInstance } from "class-transformer";
+import { makeAutoObservable } from "mobx";
+import { runIfInBrowser } from "../../utils/index.js";
 
 export const STABLE_THREAT_CAP = 10000;
 export const VOLATILE_THREAT_CAP = 10000;
@@ -34,7 +37,13 @@ export class ThreatTableEntry {
 export class ThreatManager {
   private threatScoresByCombatantId: Record<EntityId, ThreatTableEntry> = {};
   private previouslyHighestThreatId: null | EntityId = null;
-  constructor() {}
+  constructor() {
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+  }
+
+  static getDeserialized(serialized: ThreatManager) {
+    return plainToInstance(ThreatManager, serialized);
+  }
 
   changeThreat(combatantId: EntityId, threatType: ThreatType, value: number) {
     let existingEntry = this.threatScoresByCombatantId[combatantId];

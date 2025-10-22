@@ -6,7 +6,6 @@ import { FocusedAndComparedItemDetails } from "./detailables/FocusedAndComparedI
 export const ItemDetailsWithComparison = observer(() => {
   const { focusStore } = AppStore.get();
   const { hoveredItem, detailedItem } = focusStore.getFocusedItems();
-  console.log("hoveredItem:", hoveredItem);
 
   const focusedItemOption = hoveredItem || detailedItem;
 

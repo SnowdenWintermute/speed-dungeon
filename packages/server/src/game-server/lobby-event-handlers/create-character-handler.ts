@@ -1,3 +1,4 @@
+import util from "util";
 import {
   Combatant,
   CombatantClass,
@@ -7,11 +8,13 @@ import {
   ServerToClientEvent,
   SpeedDungeonGame,
   addCharacterToParty,
+  runIfInBrowser,
 } from "@speed-dungeon/common";
 import { createCharacter } from "../character-creation/index.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { getGameServer } from "../../singletons/index.js";
 import { generateMonster } from "../monster-generation/index.js";
+import { makeAutoObservable, toJS } from "mobx";
 
 export function createCharacterHandler(
   eventData: { name: string; combatantClass: CombatantClass },
@@ -23,8 +26,9 @@ export function createCharacterHandler(
 
   const { name, combatantClass } = eventData;
 
-  if (name.length > MAX_CHARACTER_NAME_LENGTH)
+  if (name.length > MAX_CHARACTER_NAME_LENGTH) {
     return new Error(ERROR_MESSAGES.COMBATANT.MAX_NAME_LENGTH_EXCEEDED);
+  }
 
   const newCharacter = createCharacter(name, combatantClass, player.username);
   if (newCharacter instanceof Error) return newCharacter;
@@ -35,13 +39,46 @@ export function createCharacterHandler(
 
   addCharacterToParty(game, partyOption, player, newCharacter, pets);
 
-  const newCharacterId = newCharacter.entityProperties.id;
+  const serialized = newCharacter.getSerialized();
+  console.log("serialized character: ");
+  console.dir(serialized.combatantProperties, { depth: null, colors: true });
+  const cloned = structuredClone(serialized);
 
-  const characterResult = SpeedDungeonGame.getCombatantById(game, newCharacterId);
-  if (characterResult instanceof Error) throw characterResult;
+  console.log(util.inspect(cloned, { depth: null, showHidden: true }));
 
   getGameServer()
     .io.of("/")
     .in(game.name)
-    .emit(ServerToClientEvent.CharacterAddedToParty, session.username, characterResult, pets);
+    .emit(ServerToClientEvent.CharacterAddedToParty, session.username, cloned, []);
+  // .emit(ServerToClientEvent.TestCircularRef, serializedParent);
+  console.log("after emit");
+}
+
+import { Exclude, instanceToPlain } from "class-transformer";
+import cloneDeep from "lodash.clonedeep";
+
+export class MyParentClass {
+  myParentField: number = 1;
+  myChildClass = new MyCircularClass();
+  constructor() {
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+  }
+  initialize() {
+    this.myChildClass.initialize(this);
+  }
+
+  getSerialized() {
+    const cloned = cloneDeep(this);
+    return instanceToPlain(cloned) as MyParentClass;
+  }
+}
+
+class MyCircularClass {
+  @Exclude()
+  public myParentClass: MyParentClass | null = null;
+  constructor() {}
+
+  initialize(myParentClass: MyParentClass) {
+    this.myParentClass = myParentClass;
+  }
 }

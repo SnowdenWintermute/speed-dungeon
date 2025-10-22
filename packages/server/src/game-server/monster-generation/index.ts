@@ -72,7 +72,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   // const combatantProperties = cloneDeep(STOCK_MONSTER.combatantProperties);
 
   // will modify this monster after creation with basic values
-  const monster = new Combatant(entityProperties, combatantProperties);
+  const monster = Combatant.createInitialized(entityProperties, combatantProperties);
   combatantProperties.threatManager = new ThreatManager();
   const inherentAttributes = initializeCombatAttributeRecord();
 

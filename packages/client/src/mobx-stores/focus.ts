@@ -117,7 +117,7 @@ export class FocusStore {
       this.detailables.clear();
     } else {
       this.detailables.setDetailed(
-        new Combatant(newCombatant.entityProperties, newCombatant.combatantProperties)
+        Combatant.createInitialized(newCombatant.entityProperties, newCombatant.combatantProperties)
       );
     }
   }

@@ -8,13 +8,15 @@ import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/
 import getNextOrPreviousTarget from "../combat/targeting/get-next-or-previous-target.js";
 import { TargetingCalculator } from "../combat/targeting/targeting-calculator.js";
 import { makeAutoObservable } from "mobx";
+import { plainToInstance } from "class-transformer";
+import { runIfInBrowser } from "../utils/index.js";
 
 export class ActionAndRank {
   constructor(
     public actionName: CombatActionName,
     public rank: number
   ) {
-    makeAutoObservable(this);
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 }
 
@@ -25,7 +27,11 @@ export class ActionUserTargetingProperties {
   private selectedItemId: Option<EntityId> = null;
 
   constructor() {
-    makeAutoObservable(this);
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+  }
+
+  static getDeserialized(actionUserTargetingProperties: ActionUserTargetingProperties) {
+    return plainToInstance(ActionUserTargetingProperties, actionUserTargetingProperties);
   }
 
   clear() {

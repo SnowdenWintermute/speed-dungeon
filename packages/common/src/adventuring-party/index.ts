@@ -12,6 +12,7 @@ import { CombatantManager } from "./combatant-manager.js";
 import { Combatant } from "../combatants/index.js";
 import { ArrayUtils } from "../utils/array-utils.js";
 import { makeAutoObservable } from "mobx";
+import { runIfInBrowser } from "../utils/index.js";
 export * from "./get-item-in-party.js";
 export * from "./dungeon-room.js";
 export * from "./dungeon-exploration-manager.js";
@@ -47,7 +48,7 @@ export class AdventuringParty {
     public id: string,
     public name: string
   ) {
-    makeAutoObservable(this, {}, { autoBind: true });
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 
   // ITEMS

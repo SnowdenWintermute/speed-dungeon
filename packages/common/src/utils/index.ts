@@ -50,6 +50,13 @@ export function isBrowser() {
   return typeof window !== "undefined" && typeof window.document !== "undefined";
 }
 
+export function runIfInBrowser(callback: () => void) {
+  if (isBrowser()) callback();
+  else {
+    console.log("no browser");
+  }
+}
+
 export function stringIsValidNumber(str: string) {
   return !isNaN(parseInt(str)) && str.trim() !== "";
 }

@@ -14,6 +14,7 @@ export abstract class ActionMenuState {
     public type: MenuStateType,
     protected minPageCount: number
   ) {
+    // can't use makeAutoObservable on classes with subclassing
     makeObservable(
       this,
       {

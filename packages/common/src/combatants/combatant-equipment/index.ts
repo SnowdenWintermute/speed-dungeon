@@ -12,7 +12,7 @@ import {
   WearableSlotType,
 } from "../../items/equipment/slots.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
+import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../../utils/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { IActionUser } from "../../action-user-context/action-user.js";
 import { makeAutoObservable } from "mobx";
@@ -39,7 +39,7 @@ export class HoldableHotswapSlot {
   holdables: Partial<Record<HoldableSlotType, Equipment>> = {};
   forbiddenBaseItems: EquipmentBaseItem[] = [];
   constructor(public allowedTypes: EquipmentType[] = [...DEFAULT_HOTSWAP_SLOT_ALLOWED_TYPES]) {
-    makeAutoObservable(this, {}, { autoBind: true });
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 
   static getDeserialized(holdableSlot: HoldableHotswapSlot) {
@@ -56,7 +56,7 @@ export class CombatantEquipment {
   ];
 
   constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 
   getHoldableHotswapSlots(): HoldableHotswapSlot[] {

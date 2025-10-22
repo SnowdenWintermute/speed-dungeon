@@ -15,7 +15,7 @@ export async function fetchSavedCharacters(profileId: number) {
         if (character === undefined)
           return console.error("Character slot was holding an id that didn't match any character");
 
-        const combatant = new Combatant(
+        const combatant = Combatant.createInitialized(
           { id: character.id, name: character.name },
           character.combatantProperties
         );

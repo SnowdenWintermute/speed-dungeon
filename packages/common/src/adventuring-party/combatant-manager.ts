@@ -11,12 +11,13 @@ import {
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { makeAutoObservable } from "mobx";
 import { CombatantProperties } from "../combatants/combatant-properties.js";
+import { runIfInBrowser } from "../utils/index.js";
 
 export class CombatantManager {
   private combatants: Map<EntityId, Combatant> = new Map();
 
   constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 
   getCombatantOption(entityId: string): Combatant | undefined {

@@ -29,7 +29,7 @@ export function createCharacter(
     Vector3.Zero()
   );
 
-  const newCharacter = new Combatant(entityProperties, combatantProperties);
+  const newCharacter = Combatant.createInitialized(entityProperties, combatantProperties);
 
   CharacterOutfitter.outfitNewCharacter(newCharacter);
 

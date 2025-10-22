@@ -5,7 +5,7 @@ import { Inventory } from "./inventory/index.js";
 import { CombatActionName, FriendOrFoe } from "../combat/combat-actions/index.js";
 import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
 import { ConditionAppliedBy, ConditionTickProperties } from "./combatant-conditions/index.js";
-import { plainToInstance } from "class-transformer";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { ThreatManager } from "./threat-manager/index.js";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
@@ -23,6 +23,9 @@ import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-
 import { deserializeCondition } from "./combatant-conditions/deserialize-condition.js";
 import { CombatantAttributeRecord } from "./attribute-properties.js";
 import { CombatantProperties } from "./combatant-properties.js";
+import { CombatAttribute } from "./attributes/index.js";
+import { toJS } from "mobx";
+import cloneDeep from "lodash.clonedeep";
 
 export enum AiType {
   Healer,
@@ -48,6 +51,40 @@ export class Combatant implements IActionUser {
     public entityProperties: EntityProperties,
     public combatantProperties: CombatantProperties
   ) {}
+
+  static createInitialized(
+    entityProperties: EntityProperties,
+    combatantProperties: CombatantProperties
+  ) {
+    const combatant = new Combatant(entityProperties, combatantProperties);
+    combatant.combatantProperties.initialize();
+    return combatant;
+  }
+
+  getSerialized() {
+    // this.combatantProperties = this.combatantProperties.getSerialized();
+    const cloned = cloneDeep(this);
+    const serialized = instanceToPlain(cloned) as Combatant;
+
+    return serialized;
+  }
+
+  static getDeserialized(combatant: Combatant) {
+    const toReturn = plainToInstance(Combatant, combatant);
+
+    const { combatantProperties } = combatant;
+
+    const deserializedCombatantProperties =
+      CombatantProperties.getDeserialized(combatantProperties);
+
+    deserializedCombatantProperties.initialize();
+
+    toReturn.combatantProperties = deserializedCombatantProperties;
+    toReturn.combatantProperties.attributeProperties.incrementAttribute(CombatAttribute.Mp);
+
+    return toReturn;
+  }
+
   getType = () => ActionUserType.Combatant;
   getMovementSpeedOption(): null | number {
     return COMBATANT_TIME_TO_MOVE_ONE_METER;
@@ -128,35 +165,6 @@ export class Combatant implements IActionUser {
   }
   getIdOfEntityToCreditWithThreat(): EntityId {
     return this.entityProperties.id;
-  }
-
-  static getDeserialized(combatant: Combatant) {
-    const { combatantProperties } = combatant;
-
-    const deserializedCombatantProperties =
-      CombatantProperties.getDeserialized(combatantProperties);
-    combatant.combatantProperties = deserializedCombatantProperties;
-
-    const deserializedConditions = combatantProperties.conditions.map((condition) =>
-      deserializeCondition(condition)
-    );
-
-    combatantProperties.conditions = deserializedConditions;
-
-    if (combatantProperties.threatManager)
-      combatantProperties.threatManager = plainToInstance(
-        ThreatManager,
-        combatantProperties.threatManager
-      );
-
-    combatantProperties.targetingProperties = plainToInstance(
-      ActionUserTargetingProperties,
-      combatantProperties.targetingProperties
-    );
-
-    combatantProperties.inventory = Inventory.getDeserialized(combatantProperties.inventory);
-
-    return plainToInstance(Combatant, combatant);
   }
 
   canUseAction(

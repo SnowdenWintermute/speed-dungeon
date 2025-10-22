@@ -19,6 +19,7 @@ import { MAX_PARTY_SIZE } from "../app-consts.js";
 import { makeAutoObservable } from "mobx";
 import { plainToInstance } from "class-transformer";
 import { ArrayUtils } from "../utils/array-utils.js";
+import { runIfInBrowser } from "../utils/index.js";
 
 export class SpeedDungeonGame {
   players: { [username: string]: SpeedDungeonPlayer } = {};
@@ -37,7 +38,7 @@ export class SpeedDungeonGame {
     public isRanked: boolean = false
   ) {
     if (mode === GameMode.Progression) this.playerCapacity = MAX_PARTY_SIZE;
-    makeAutoObservable(this, {}, { autoBind: true });
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 
   getParties() {

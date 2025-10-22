@@ -39,7 +39,7 @@ import { CombatantAttributeProperties } from "./attribute-properties.js";
 import { ThreatManager } from "./threat-manager/index.js";
 import { EntityId } from "../primatives/index.js";
 import { AiType, CombatantCondition, Inventory } from "./index.js";
-import { plainToInstance } from "class-transformer";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import {
   ABILITY_POINTS_AWARDED_PER_LEVEL,
@@ -54,6 +54,7 @@ import {
 import { IActionUser } from "../action-user-context/action-user.js";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { ClassProgressionProperties } from "./class-progression-properties.js";
+import { deserializeCondition } from "./combatant-conditions/deserialize-condition.js";
 
 export class CombatantProperties {
   // subsystems
@@ -100,22 +101,22 @@ export class CombatantProperties {
   }
 
   initialize() {
-    // this.attributeProperties.initialize(this);
+    console.log("initializing combatantProperties");
+    this.attributeProperties.initialize(this);
   }
+
+  // getSerialized() {
+  //   this.attributeProperties = this.attributeProperties.getSerialized();
+  //   return instanceToPlain(this) as CombatantProperties;
+  // }
 
   static getDeserialized(combatantProperties: CombatantProperties) {
     const deserialized = plainToInstance(CombatantProperties, combatantProperties);
     deserialized.inventory = Inventory.getDeserialized(deserialized.inventory);
     deserialized.equipment = CombatantEquipment.getDeserialized(deserialized.equipment);
-
-    deserialized.homeLocation = cloneVector3(deserialized.homeLocation);
-    deserialized.position = cloneVector3(deserialized.position);
-
-    deserialized.targetingProperties = plainToInstance(
-      ActionUserTargetingProperties,
+    deserialized.targetingProperties = ActionUserTargetingProperties.getDeserialized(
       deserialized.targetingProperties
     );
-
     deserialized.classProgressionProperties = ClassProgressionProperties.getDeserialized(
       deserialized.classProgressionProperties
     );
@@ -125,10 +126,17 @@ export class CombatantProperties {
     deserialized.attributeProperties = CombatantAttributeProperties.getDeserialized(
       deserialized.attributeProperties
     );
-
     if (deserialized.threatManager !== undefined) {
-      deserialized.threatManager = plainToInstance(ThreatManager, deserialized.threatManager);
+      deserialized.threatManager = ThreatManager.getDeserialized(deserialized.threatManager);
     }
+
+    deserialized.homeLocation = cloneVector3(deserialized.homeLocation);
+    deserialized.position = cloneVector3(deserialized.position);
+
+    const deserializedConditions = combatantProperties.conditions.map((condition) =>
+      deserializeCondition(condition)
+    );
+    combatantProperties.conditions = deserializedConditions;
 
     return deserialized;
   }

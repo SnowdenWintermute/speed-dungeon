@@ -15,6 +15,8 @@ export async function characterAddedToPartyHandler(
   try {
     const deserialized = Combatant.getDeserialized(character);
 
+    console.log("deserialized combatnt:", deserialized.combatantProperties.attributeProperties);
+
     const deserializedPets: Combatant[] = [];
     for (const pet of pets) {
       const deserializedPet = Combatant.getDeserialized(pet);

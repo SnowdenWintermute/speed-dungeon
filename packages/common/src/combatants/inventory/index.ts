@@ -10,6 +10,7 @@ import { EntityId } from "../../primatives/index.js";
 import { makeAutoObservable } from "mobx";
 import { CombatantProperties } from "../combatant-properties.js";
 import { CombatantTraitType } from "../combatant-traits/trait-types.js";
+import { runIfInBrowser } from "../../utils/index.js";
 
 export class Inventory {
   consumables: Consumable[] = [];
@@ -17,7 +18,7 @@ export class Inventory {
   capacity: number = INVENTORY_DEFAULT_CAPACITY;
   shards: number = 0;
   constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 
   static getDeserialized(inventory: Inventory) {
