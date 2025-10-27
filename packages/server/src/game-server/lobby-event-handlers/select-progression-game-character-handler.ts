@@ -43,8 +43,10 @@ export async function selectProgressionGameCharacterHandler(
       break;
     }
   }
-  if (savedCharacterOption === undefined)
+
+  if (savedCharacterOption === undefined){
     return errorHandler(socket, new Error(ERROR_MESSAGES.USER.SAVED_CHARACTER_NOT_OWNED));
+  }
 
   const characterIdToRemoveOption = player.characterIds[0];
   if (characterIdToRemoveOption === undefined) {

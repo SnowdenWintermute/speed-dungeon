@@ -150,8 +150,10 @@ export abstract class ItemsMenuState extends ActionMenuState {
 
       const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
       const requirementsMet =
-        Item.requirementsMet(item, focusedCharacter.combatantProperties.getTotalAttributes()) &&
-        !(item instanceof Equipment && Equipment.isBroken(item));
+        Item.requirementsMet(
+          item,
+          focusedCharacter.combatantProperties.attributeProperties.getTotalAttributes()
+        ) && !(item instanceof Equipment && Equipment.isBroken(item));
 
       let containerExtraStyles = "";
       if (!requirementsMet) {

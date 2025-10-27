@@ -14,7 +14,7 @@ export function applyEquipmentEffectWhileMaintainingResourcePercentages(
 
   effect();
 
-  const attributesAfter = combatantProperties.getTotalAttributes();
+  const attributesAfter = combatantProperties.attributeProperties.getTotalAttributes();
   const maxHitPointsAfter = attributesAfter[CombatAttribute.Hp];
   const maxManaAfter = attributesAfter[CombatAttribute.Mp];
 

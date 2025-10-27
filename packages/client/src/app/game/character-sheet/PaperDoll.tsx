@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import { PaperDollSlot } from "./PaperDollSlot";
 import {
   Combatant,
-  CombatantProperties,
   EquipmentSlotType,
   HoldableSlotType,
   WearableSlotType,
@@ -25,7 +24,7 @@ export const PaperDoll = observer(({ combatant }: Props) => {
   const { equipment } = combatantProperties;
 
   const totalAttributes = useMemo(
-    () => combatantProperties.getTotalAttributes(),
+    () => combatantProperties.attributeProperties.getTotalAttributes(),
     [combatantProperties]
   );
 

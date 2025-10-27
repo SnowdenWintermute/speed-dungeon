@@ -52,9 +52,6 @@ export function isBrowser() {
 
 export function runIfInBrowser(callback: () => void) {
   if (isBrowser()) callback();
-  else {
-    console.log("no browser");
-  }
 }
 
 export function stringIsValidNumber(str: string) {

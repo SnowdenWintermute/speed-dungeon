@@ -18,7 +18,7 @@ export default function getDamageAfterArmorClass(
   // and flip it back at the end
   damageBefore *= -1;
 
-  const targetAc = target.getTotalAttributes()[CombatAttribute.ArmorClass];
+  const targetAc = target.attributeProperties.getAttributeValue(CombatAttribute.ArmorClass);
 
   const userArmorPen = hitOutcomeProperties.getArmorPenetration(
     user,

@@ -3,14 +3,12 @@ import {
   Equipment,
   EquipmentType,
   ResourceChangeSource,
-  PrefixType,
-  SuffixType,
   WeaponProperties,
   AffixCategory,
 } from "@speed-dungeon/common";
 import { NumberRange } from "@speed-dungeon/common";
 import React from "react";
-import DamageTypeBadge, { DamageTypeBadgeWithIcon } from "../DamageTypeBadge";
+import { DamageTypeBadgeWithIcon } from "../DamageTypeBadge";
 
 interface Props {
   equipment: Equipment;

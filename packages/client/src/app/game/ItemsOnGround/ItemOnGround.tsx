@@ -70,7 +70,7 @@ export const ItemOnGround = observer((props: Props) => {
   const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
   const requirementsMet = Item.requirementsMet(
     item,
-    focusedCharacter.combatantProperties.getTotalAttributes()
+    focusedCharacter.combatantProperties.attributeProperties.getTotalAttributes()
   );
 
   if (!requirementsMet) {

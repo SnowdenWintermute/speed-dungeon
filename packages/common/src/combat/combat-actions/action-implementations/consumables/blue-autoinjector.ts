@@ -50,7 +50,7 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
 
     mpBioavailability = traitBioavailabilityPercentageModifier / 100;
 
-    const maxMp = primaryTarget.getTotalAttributes()[CombatAttribute.Mp];
+    const maxMp = primaryTarget.attributeProperties.getAttributeValue(CombatAttribute.Mp);
     const minRestored = Math.max(1, (mpBioavailability * maxMp) / 8);
     const maxRestored = Math.max(1, (mpBioavailability * 3 * maxMp) / 8);
 

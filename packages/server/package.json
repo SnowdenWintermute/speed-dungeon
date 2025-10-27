@@ -22,6 +22,7 @@
     "express": "4.19.2",
     "lodash.clonedeep": "4.5.0",
     "mobx": "^6.15.0",
+    "mobx-store-inheritance": "^1.0.6",
     "node-pg-migrate": "7.7.1",
     "pg": "8.13.0",
     "pg-format": "1.0.4",

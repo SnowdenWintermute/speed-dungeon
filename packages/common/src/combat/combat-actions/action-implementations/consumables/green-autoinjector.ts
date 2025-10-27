@@ -52,7 +52,7 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
       100;
     hpBioavailability = traitBioavailabilityPercentageModifier / 100;
 
-    const maxHp = primaryTarget.getTotalAttributes()[CombatAttribute.Hp];
+    const maxHp = primaryTarget.attributeProperties.getAttributeValue(CombatAttribute.Hp);
     const minHealing = (hpBioavailability * maxHp) / 8;
     const maxHealing = (hpBioavailability * 3 * maxHp) / 8;
 

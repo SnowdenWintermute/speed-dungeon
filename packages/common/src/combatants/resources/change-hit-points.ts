@@ -6,8 +6,9 @@ export function changeCombatantHitPoints(
   hitPointChange: number
 ) {
   if (isNaN(hitPointChange)) throw new Error("hit point change was NaN");
-  const totalAttributes = combatantProperties.getTotalAttributes();
-  const maxHitPoints = totalAttributes[CombatAttribute.Hp] || 0;
+  const maxHitPoints = combatantProperties.attributeProperties.getAttributeValue(
+    CombatAttribute.Hp
+  );
   const newHitPoints = Math.max(
     0,
     Math.min(maxHitPoints, combatantProperties.hitPoints + hitPointChange)

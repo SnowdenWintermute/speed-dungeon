@@ -24,7 +24,7 @@ export function characterSpentAttributePointHandler(
     return new Error(ERROR_MESSAGES.COMBATANT.ATTRIBUTE_IS_NOT_ASSIGNABLE);
   }
 
-  combatantProperties.attributeProperties.incrementAttribute(attribute);
+  combatantProperties.attributeProperties.allocatePoint(attribute);
 
   getGameServer()
     .io.in(getPartyChannelName(game.name, party.name))

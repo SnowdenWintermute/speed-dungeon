@@ -129,7 +129,9 @@ export class CollectPotentialHealingFromConsideredActions implements BehaviorNod
           const allyId = allyCombatant.entityProperties.id;
           const { hitPoints } = allyCombatant.combatantProperties;
           const maxHitPoints =
-            allyCombatant.combatantProperties.getTotalAttributes()[CombatAttribute.Hp];
+            allyCombatant.combatantProperties.attributeProperties.getAttributeValue(
+              CombatAttribute.Hp
+            );
           const missingHitPoints = Math.max(0, maxHitPoints - hitPoints);
 
           const averageHealing = averageHitPointChanges.getRecord(allyId)?.value || 0;

@@ -48,7 +48,7 @@ export const CharacterAttributes = observer(
       ? `${experiencePoints.getCurrent()} / ${expRequiredForNextLevelString} experience`
       : "";
 
-    const totalAttributes = combatantProperties.getTotalAttributes();
+    const totalAttributes = combatantProperties.attributeProperties.getTotalAttributes();
     let totalAttributesSortedArray: [CombatAttribute, number][] = iterateNumericEnumKeyedRecord(
       totalAttributes
     ).map(([attribute, value]) => {

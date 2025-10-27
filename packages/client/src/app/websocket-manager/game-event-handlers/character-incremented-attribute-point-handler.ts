@@ -6,6 +6,6 @@ export function characterIncrementedAttributePointHandler(
   attribute: CombatAttribute
 ) {
   characterAssociatedDataProvider(characterId, ({ character }: CharacterAssociatedData) => {
-    character.combatantProperties.attributeProperties.incrementAttribute(attribute);
+    character.combatantProperties.attributeProperties.allocatePoint(attribute);
   });
 }

@@ -70,7 +70,6 @@ export enum ServerToClientEvent {
   CharacterSelectedCombatActionLevel = "47",
   CharacterAllocatedAbilityPoint = "48",
   CharacterTradedItemForBook = "49",
-  TestCircularRef = "50",
 }
 
 export interface ServerToClientEventTypes {
@@ -200,7 +199,6 @@ export interface ServerToClientEventTypes {
     itemIdTraded: EntityId;
     book: Consumable;
   }) => void;
-  [ServerToClientEvent.TestCircularRef]: (data: any) => void;
 }
 
 export interface CharacterAndItem {

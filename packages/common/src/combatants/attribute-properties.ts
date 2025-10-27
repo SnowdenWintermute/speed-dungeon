@@ -1,35 +1,23 @@
-import { Exclude, instanceToPlain, plainToInstance } from "class-transformer";
-import { makeAutoObservable } from "mobx";
+import { plainToInstance } from "class-transformer";
+import makeAutoObservable from "mobx-store-inheritance";
 import { CombatAttribute, initializeCombatAttributeRecord } from "./attributes/index.js";
 import { addAttributesToAccumulator } from "./attributes/add-attributes-to-accumulator.js";
-import { CombatantProperties } from "./combatant-properties.js";
-import { ERROR_MESSAGES } from "../errors/index.js";
-import { runIfInBrowser } from "../utils/index.js";
+import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../utils/index.js";
+import { getCombatantTotalAttributes } from "./attributes/get-combatant-total-attributes.js";
+import { Item } from "../items/index.js";
+import { applyEquipmentEffectWhileMaintainingResourcePercentages } from "./combatant-equipment/apply-equipment-affect-while-maintaining-resource-percentages.js";
+import { CombatantSubsystem } from "./combatant-subsystem.js";
 
 export type CombatantAttributeRecord = Partial<Record<CombatAttribute, number>>;
 
-export class CombatantAttributeProperties {
+export class CombatantAttributeProperties extends CombatantSubsystem {
   private inherentAttributes: CombatantAttributeRecord = {};
   private speccedAttributes: CombatantAttributeRecord = {};
   private unspentAttributePoints: number = 0;
 
-  @Exclude() // don't send parent references over the wire
-  private combatantProperties: CombatantProperties | undefined;
-
   constructor() {
+    super();
     runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
-  }
-
-  initialize(combatantProperties: CombatantProperties) {
-    console.log("initialized attributeProperties");
-    this.combatantProperties = combatantProperties;
-  }
-
-  private getCombatantProperties() {
-    if (this.combatantProperties === undefined) {
-      throw new Error(ERROR_MESSAGES.CLASS_INSTANCE_NOT_INITIALIZED);
-    }
-    return this.combatantProperties;
   }
 
   static getDeserialized(serialized: CombatantAttributeProperties) {
@@ -37,17 +25,12 @@ export class CombatantAttributeProperties {
     return deserialized;
   }
 
-  incrementAttribute(attribute: CombatAttribute) {
-    if (this.speccedAttributes[attribute] === undefined) this.speccedAttributes[attribute] = 0;
-    else this.speccedAttributes[attribute] += 1;
-
-    const combatantProperties = this.getCombatantProperties();
-    console.log(
-      "very circular mana:",
-      combatantProperties.attributeProperties
-        .getCombatantProperties()
-        .attributeProperties.getCombatantProperties().mana
-    );
+  allocatePoint(attribute: CombatAttribute) {
+    applyEquipmentEffectWhileMaintainingResourcePercentages(this.getCombatantProperties(), () => {
+      const currentAttributeValue = this.speccedAttributes[attribute] || 0;
+      this.speccedAttributes[attribute] = currentAttributeValue + 1;
+      this.unspentAttributePoints -= 1;
+    });
   }
 
   setInherentAttributeValue(attribute: CombatAttribute, value: number) {
@@ -67,5 +50,24 @@ export class CombatantAttributeProperties {
     addAttributesToAccumulator(this.inherentAttributes, total);
     addAttributesToAccumulator(this.speccedAttributes, total);
     return total;
+  }
+
+  getTotalAttributes = () => getCombatantTotalAttributes(this.getCombatantProperties());
+
+  getAttributeValue(attribute: CombatAttribute) {
+    return this.getTotalAttributes()[attribute];
+  }
+
+  getUnmetItemRequirements(item: Item) {
+    const totalAttributes = this.getTotalAttributes();
+
+    const unmetAttributeRequirements: Set<CombatAttribute> = new Set();
+    for (const [attribute, value] of iterateNumericEnumKeyedRecord(item.requirements)) {
+      const characterAttribute = totalAttributes[attribute] || 0;
+      if (characterAttribute >= value) continue;
+      else unmetAttributeRequirements.add(attribute);
+    }
+
+    return unmetAttributeRequirements;
   }
 }

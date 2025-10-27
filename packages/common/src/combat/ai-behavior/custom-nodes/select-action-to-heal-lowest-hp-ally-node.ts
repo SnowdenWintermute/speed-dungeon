@@ -35,7 +35,9 @@ export class SelectActionToHealLowestHpAlly implements BehaviorNode {
         TargetCategories.Friendly,
         (combatant) =>
           combatant.combatantProperties.hitPoints /
-            combatant.combatantProperties.getTotalAttributes()[CombatAttribute.Hp] <
+            combatant.combatantProperties.attributeProperties.getAttributeValue(
+              CombatAttribute.Hp
+            ) <
           this.hitPointThresholdToWarrantHealing,
         this.behaviorContext.setConsideredCombatants
       ),

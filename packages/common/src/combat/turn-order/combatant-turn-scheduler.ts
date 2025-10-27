@@ -13,8 +13,9 @@ export class CombatantTurnScheduler extends TurnScheduler implements ITurnSchedu
   getTiebreakerId = () => this.combatantId;
   getSpeed(party: AdventuringParty) {
     const combatant = party.combatantManager.getExpectedCombatant(this.combatantId);
-    const combatantSpeed =
-      combatant.combatantProperties.getTotalAttributes()[CombatAttribute.Speed];
+    const combatantSpeed = combatant.combatantProperties.attributeProperties.getAttributeValue(
+      CombatAttribute.Speed
+    );
     return combatantSpeed;
   }
 

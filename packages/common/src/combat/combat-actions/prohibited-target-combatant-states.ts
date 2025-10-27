@@ -27,11 +27,15 @@ export const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
   (combatant: Combatant) => boolean
 > = {
   [ProhibitedTargetCombatantStates.FullHp]: function (combatant: Combatant): boolean {
-    const maxHp = combatant.combatantProperties.getTotalAttributes()[CombatAttribute.Hp];
+    const maxHp = combatant.combatantProperties.attributeProperties.getAttributeValue(
+      CombatAttribute.Hp
+    );
     return combatant.combatantProperties.hitPoints >= maxHp;
   },
   [ProhibitedTargetCombatantStates.FullMana]: function (combatant: Combatant): boolean {
-    const maxMp = combatant.combatantProperties.getTotalAttributes()[CombatAttribute.Mp];
+    const maxMp = combatant.combatantProperties.attributeProperties.getAttributeValue(
+      CombatAttribute.Mp
+    );
     return combatant.combatantProperties.mana >= maxMp;
   },
   [ProhibitedTargetCombatantStates.Dead]: function (combatant: Combatant): boolean {

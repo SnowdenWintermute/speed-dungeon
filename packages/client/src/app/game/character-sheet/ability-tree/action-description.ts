@@ -18,12 +18,15 @@ import {
 import cloneDeep from "lodash.clonedeep";
 import isEqual from "lodash.isequal";
 
-export const TARGET_DUMMY_COMBATANT = new CombatantProperties(
-  new ClassProgressionProperties(new CombatantClassProperties(1, CombatantClass.Warrior)),
-  CombatantSpecies.Humanoid,
-  null,
-  { controllerType: CombatantControllerType.Dungeon, controllerName: "" },
-  Vector3.Zero()
+export const TARGET_DUMMY_COMBATANT = Combatant.createInitialized(
+  { name: "Target Dummy", id: "Target Dummy Entity Id" },
+  new CombatantProperties(
+    new ClassProgressionProperties(new CombatantClassProperties(1, CombatantClass.Warrior)),
+    CombatantSpecies.Humanoid,
+    null,
+    { controllerType: CombatantControllerType.Dungeon, controllerName: "" },
+    Vector3.Zero()
+  )
 );
 
 export enum ActionDescriptionComponent {
@@ -138,7 +141,7 @@ export class ActionDescription {
             user,
             hitOutcomeProperties,
             actionLevel,
-            TARGET_DUMMY_COMBATANT
+            TARGET_DUMMY_COMBATANT.combatantProperties
           )
         );
 

@@ -15,13 +15,13 @@ export async function characterAddedToPartyHandler(
   try {
     const deserialized = Combatant.getDeserialized(character);
 
-    console.log("deserialized combatnt:", deserialized.combatantProperties.attributeProperties);
-
     const deserializedPets: Combatant[] = [];
     for (const pet of pets) {
       const deserializedPet = Combatant.getDeserialized(pet);
       deserializedPets.push(deserializedPet);
     }
+
+    console.log("added deserialized character");
 
     addCharacterToParty(game, party, player, deserialized, deserializedPets);
   } catch (error) {

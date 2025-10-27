@@ -136,13 +136,27 @@ function getAttackActionDamageAndAccuracy(
   if (currentlyTargetedCombatantResult instanceof Error) return currentlyTargetedCombatantResult;
   const usingDummy = currentlyTargetedCombatantResult === undefined;
 
-  const target = currentlyTargetedCombatantResult || TARGET_DUMMY_COMBATANT;
+  const target = currentlyTargetedCombatantResult || TARGET_DUMMY_COMBATANT.combatantProperties;
 
   const combatAction = COMBAT_ACTIONS[actionName];
 
-  const hpChangeProperties = combatAction.hitOutcomeProperties.resourceChangePropertiesGetters![
-    CombatActionResource.HitPoints
-  ]!(combatant, combatAction.hitOutcomeProperties, 1, target);
+  console.log("trying to show CharacterSheetWeaponDamage");
+
+  const hpChangeGetterOption =
+    combatAction.hitOutcomeProperties.resourceChangePropertiesGetters[
+      CombatActionResource.HitPoints
+    ];
+
+  if (hpChangeGetterOption === undefined) {
+    return new Error("No hp change properties getter found");
+  }
+
+  const hpChangeProperties = hpChangeGetterOption(
+    combatant,
+    combatAction.hitOutcomeProperties,
+    1,
+    target
+  );
   if (hpChangeProperties === null) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TYPE);
   const modified = cloneDeep(hpChangeProperties);
   modified.baseValues.mult(combatAction.hitOutcomeProperties.resourceChangeValuesModifier);
@@ -151,7 +165,7 @@ function getAttackActionDamageAndAccuracy(
 
   if (hpChangeRangeResult instanceof Error) return hpChangeRangeResult;
 
-  const targetEvasion = target.getTotalAttributes()[CombatAttribute.Evasion];
+  const targetEvasion = target.attributeProperties.getAttributeValue(CombatAttribute.Evasion);
 
   const hpChangeRange = hpChangeRangeResult;
   const hitChance = HitOutcomeMitigationCalculator.getActionHitChance(

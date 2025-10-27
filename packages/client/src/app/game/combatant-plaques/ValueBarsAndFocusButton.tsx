@@ -14,7 +14,7 @@ interface Props {
 
 export const ValueBarsAndFocusButton = observer(
   ({ combatantProperties, combatantId, showExperience, isFocused }: Props) => {
-    const totalAttributes = combatantProperties.getTotalAttributes();
+    const totalAttributes = combatantProperties.attributeProperties.getTotalAttributes();
     const maxHitPointsOption = totalAttributes[CombatAttribute.Hp];
     const maxManaOption = totalAttributes[CombatAttribute.Mp];
 

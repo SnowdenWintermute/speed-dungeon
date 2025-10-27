@@ -1,4 +1,3 @@
-import util from "util";
 import {
   Combatant,
   CombatantClass,
@@ -6,15 +5,12 @@ import {
   MAX_CHARACTER_NAME_LENGTH,
   MonsterType,
   ServerToClientEvent,
-  SpeedDungeonGame,
   addCharacterToParty,
-  runIfInBrowser,
 } from "@speed-dungeon/common";
 import { createCharacter } from "../character-creation/index.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { getGameServer } from "../../singletons/index.js";
 import { generateMonster } from "../monster-generation/index.js";
-import { makeAutoObservable, toJS } from "mobx";
 
 export function createCharacterHandler(
   eventData: { name: string; combatantClass: CombatantClass },
@@ -36,49 +32,14 @@ export function createCharacterHandler(
   // @TESTING - pets
   // @TODO - don't start a new character with any pets
   const pets: Combatant[] = [generateMonster(1, MonsterType.Wolf)];
+  const serializedPets = pets.map((pet) => pet.getSerialized());
 
   addCharacterToParty(game, partyOption, player, newCharacter, pets);
 
   const serialized = newCharacter.getSerialized();
-  console.log("serialized character: ");
-  console.dir(serialized.combatantProperties, { depth: null, colors: true });
-  const cloned = structuredClone(serialized);
-
-  console.log(util.inspect(cloned, { depth: null, showHidden: true }));
 
   getGameServer()
     .io.of("/")
     .in(game.name)
-    .emit(ServerToClientEvent.CharacterAddedToParty, session.username, cloned, []);
-  // .emit(ServerToClientEvent.TestCircularRef, serializedParent);
-  console.log("after emit");
-}
-
-import { Exclude, instanceToPlain } from "class-transformer";
-import cloneDeep from "lodash.clonedeep";
-
-export class MyParentClass {
-  myParentField: number = 1;
-  myChildClass = new MyCircularClass();
-  constructor() {
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
-  }
-  initialize() {
-    this.myChildClass.initialize(this);
-  }
-
-  getSerialized() {
-    const cloned = cloneDeep(this);
-    return instanceToPlain(cloned) as MyParentClass;
-  }
-}
-
-class MyCircularClass {
-  @Exclude()
-  public myParentClass: MyParentClass | null = null;
-  constructor() {}
-
-  initialize(myParentClass: MyParentClass) {
-    this.myParentClass = myParentClass;
-  }
+    .emit(ServerToClientEvent.CharacterAddedToParty, session.username, serialized, serializedPets);
 }

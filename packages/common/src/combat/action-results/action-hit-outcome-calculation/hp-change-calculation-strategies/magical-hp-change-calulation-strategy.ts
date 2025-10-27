@@ -17,20 +17,26 @@ export class MagicalResourceChangeCalculationStrategy implements ResourceChangeC
   ) {
     return;
   }
+
   applyResilience(hpChange: ResourceChange, user: IActionUser, target: CombatantProperties) {
     if (hpChange.value === 0) return hpChange;
+
+    const targetCombatAttributes = target.attributeProperties.getTotalAttributes();
+
     if (hpChange.value > 0) {
       // don't apply resilience if being healed
       // instead increase the healing done
-      const targetCombatAttributes = target.getTotalAttributes();
       const targetResilience = targetCombatAttributes[CombatAttribute.Spirit];
       const resilienceMultiplier =
         (targetResilience / 100) * RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO + 1.0;
       hpChange.value *= resilienceMultiplier;
     } else {
       const userAttributes = user.getTotalAttributes();
-      const targetAttributes = target.getTotalAttributes();
-      hpChange.value = getDamageAfterResilience(hpChange.value, userAttributes, targetAttributes);
+      hpChange.value = getDamageAfterResilience(
+        hpChange.value,
+        userAttributes,
+        targetCombatAttributes
+      );
     }
   }
 }

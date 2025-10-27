@@ -13,6 +13,7 @@
     "immer": "10.1.1",
     "lodash.clonedeep": "4.5.0",
     "mobx": "^6.15.0",
+    "mobx-store-inheritance": "^1.0.6",
     "oxide.ts": "1.1.0",
     "uuid": "11.0.5"
   },

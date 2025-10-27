@@ -62,10 +62,7 @@ export class Combatant implements IActionUser {
   }
 
   getSerialized() {
-    // this.combatantProperties = this.combatantProperties.getSerialized();
-    const cloned = cloneDeep(this);
-    const serialized = instanceToPlain(cloned) as Combatant;
-
+    const serialized = instanceToPlain(this) as Combatant;
     return serialized;
   }
 
@@ -80,7 +77,6 @@ export class Combatant implements IActionUser {
     deserializedCombatantProperties.initialize();
 
     toReturn.combatantProperties = deserializedCombatantProperties;
-    toReturn.combatantProperties.attributeProperties.incrementAttribute(CombatAttribute.Mp);
 
     return toReturn;
   }
@@ -152,7 +148,7 @@ export class Combatant implements IActionUser {
     return this.combatantProperties.classProgressionProperties.getMainClass().level;
   }
   getTotalAttributes(): CombatantAttributeRecord {
-    return this.combatantProperties.getTotalAttributes();
+    return this.combatantProperties.attributeProperties.getTotalAttributes();
   }
   getOwnedAbilities(): Partial<Record<CombatActionName, CombatantActionState>> {
     return this.combatantProperties.abilityProperties.getOwnedActions();

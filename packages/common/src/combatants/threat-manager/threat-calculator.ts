@@ -160,7 +160,9 @@ export class ThreatCalculator {
       const currentThreatForTargetOption = threatManager.getEntries()[entityId];
       if (!currentThreatForTargetOption || currentThreatForTargetOption.getTotal() === 0) continue;
 
-      const targetMaxHp = combatantProperties.getTotalAttributes()[CombatAttribute.Hp];
+      const targetMaxHp = combatantProperties.attributeProperties.getAttributeValue(
+        CombatAttribute.Hp
+      );
 
       const stableThreatChange = ThreatCalculator.getThreatChangeOnDamageTaken(
         hitPointChange.value,

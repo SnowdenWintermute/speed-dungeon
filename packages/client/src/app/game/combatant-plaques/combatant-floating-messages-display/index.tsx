@@ -16,7 +16,6 @@ import {
 
 export const CombatantFloatingMessagesDisplay = observer(({ entityId }: { entityId: string }) => {
   const floatingMessages = AppStore.get().gameEventNotificationStore.getFloatingMessages(entityId);
-  console.log("floatingMessages:", floatingMessages);
 
   return (
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full flex flex-col items-center text-center w-[300px]">

@@ -2,7 +2,7 @@ import { CombatAttribute } from "../attributes/index.js";
 import { CombatantProperties } from "../combatant-properties.js";
 
 export function setResourcesToMax(combatantProperties: CombatantProperties) {
-  const totalAttributes = combatantProperties.getTotalAttributes();
+  const totalAttributes = combatantProperties.attributeProperties.getTotalAttributes();
   const maxHpOption = totalAttributes[CombatAttribute.Hp];
   if (isNaN(maxHpOption)) throw new Error("unexpected NaN");
   if (typeof maxHpOption === "number") combatantProperties.hitPoints = maxHpOption;

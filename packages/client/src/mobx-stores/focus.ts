@@ -54,7 +54,9 @@ export class FocusStore {
       // @REFACTOR - maybe easier to test if we pass this as an argument instead of fetching it here
       const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
       this.consideredItemUnmetRequirements =
-        focusedCharacter.combatantProperties.getUnmetItemRequirements(itemOption);
+        focusedCharacter.combatantProperties.attributeProperties.getUnmetItemRequirements(
+          itemOption
+        );
     }
   }
 

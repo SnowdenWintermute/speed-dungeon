@@ -19,7 +19,7 @@ import { getCombatantTotalAttributes } from "./attributes/get-combatant-total-at
 import getCombatantTotalElementalAffinities from "./combatant-traits/get-combatant-total-elemental-affinities.js";
 import getCombatantTotalKineticDamageTypeAffinities from "./combatant-traits/get-combatant-total-kinetic-damage-type-affinities.js";
 import { setResourcesToMax } from "./resources/set-resources-to-max.js";
-import { cloneVector3, iterateNumericEnumKeyedRecord } from "../utils/index.js";
+import { cloneVector3, iterateNumericEnumKeyedRecord, runIfInBrowser } from "../utils/index.js";
 import { MonsterType } from "../monsters/monster-types.js";
 import {
   CombatantEquipment,
@@ -55,12 +55,13 @@ import { IActionUser } from "../action-user-context/action-user.js";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { ClassProgressionProperties } from "./class-progression-properties.js";
 import { deserializeCondition } from "./combatant-conditions/deserialize-condition.js";
+import { makeAutoObservable } from "mobx";
 
 export class CombatantProperties {
   // subsystems
   abilityProperties = new CombatantAbilityProperties();
-  targetingProperties = new ActionUserTargetingProperties();
   attributeProperties = new CombatantAttributeProperties();
+  targetingProperties = new ActionUserTargetingProperties();
   threatManager?: ThreatManager;
   equipment: CombatantEquipment = new CombatantEquipment();
   inventory: Inventory = new Inventory();
@@ -101,7 +102,6 @@ export class CombatantProperties {
   }
 
   initialize() {
-    console.log("initializing combatantProperties");
     this.attributeProperties.initialize(this);
   }
 
@@ -154,21 +154,6 @@ export class CombatantProperties {
       if (condition.id === conditionId) return condition;
     }
     return null;
-  }
-
-  // ATTRIBUTES
-  getTotalAttributes = () => getCombatantTotalAttributes(this);
-  getUnmetItemRequirements(item: Item) {
-    const totalAttributes = this.getTotalAttributes();
-
-    const unmetAttributeRequirements: Set<CombatAttribute> = new Set();
-    for (const [attribute, value] of iterateNumericEnumKeyedRecord(item.requirements)) {
-      const characterAttribute = totalAttributes[attribute] || 0;
-      if (characterAttribute >= value) continue;
-      else unmetAttributeRequirements.add(attribute);
-    }
-
-    return unmetAttributeRequirements;
   }
 
   // AFFINITIES
