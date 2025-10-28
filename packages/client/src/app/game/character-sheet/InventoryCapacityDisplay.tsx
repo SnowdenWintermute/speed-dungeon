@@ -1,6 +1,5 @@
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import { AppStore } from "@/mobx-stores/app-store";
-import { Inventory } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
@@ -12,7 +11,7 @@ export const InventoryCapacityDisplay = observer(() => {
     numConsumablesInMinibag,
     minibagCapacity,
     normalStorageCapacity,
-  } = Inventory.getCapacityByItemType(combatantProperties);
+  } = combatantProperties.inventory.getCapacityByItemType();
 
   return (
     <div className="flex flex-col">

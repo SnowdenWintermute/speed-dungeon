@@ -8,7 +8,7 @@ import {
 } from "../../items/equipment/slots.js";
 import { Equipment } from "../../items/equipment/index.js";
 import { applyEquipmentEffectWhileMaintainingResourcePercentages } from "./index.js";
-import { Combatant, Inventory } from "../index.js";
+import { Combatant } from "../index.js";
 import { CombatantProperties } from "../combatant-properties.js";
 
 /** 
@@ -22,7 +22,7 @@ export function equipItem(
 ): Error | { idsOfUnequippedItems: EntityId[]; unequippedSlots: TaggedEquipmentSlot[] } {
   const { combatantProperties } = combatant;
 
-  const equipmentResult = Inventory.getEquipmentById(combatantProperties.inventory, itemId);
+  const equipmentResult = combatantProperties.inventory.getEquipmentById(itemId);
   if (equipmentResult instanceof Error) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   const equipment = equipmentResult;
 
@@ -93,8 +93,7 @@ export function equipItem(
       ...CombatantProperties.unequipSlots(combatantProperties, slotsToUnequip)
     );
 
-    const itemToEquipResult = Inventory.removeEquipment(
-      combatantProperties.inventory,
+    const itemToEquipResult = combatantProperties.inventory.removeEquipment(
       equipment.entityProperties.id
     );
     if (itemToEquipResult instanceof Error) return itemToEquipResult;

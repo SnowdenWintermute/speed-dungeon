@@ -3,7 +3,6 @@ import {
   CharacterAssociatedData,
   Consumable,
   ConsumableType,
-  Inventory,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { AppStore } from "@/mobx-stores/app-store";
@@ -13,7 +12,7 @@ export function characterPickedUpItemsHandler(characterAndItems: CharacterAndIte
     characterAndItems.characterId,
     ({ party, character }: CharacterAssociatedData) => {
       for (const itemId of characterAndItems.itemIds) {
-        const itemResult = Inventory.removeItem(party.currentRoom.inventory, itemId);
+        const itemResult = party.currentRoom.inventory.removeItem(itemId);
         if (itemResult instanceof Error) return itemResult;
 
         // handle shard stacks uniquely

@@ -1,7 +1,6 @@
 import { ActionMenuState } from ".";
 import {
   ClientToServerEvent,
-  Inventory,
   CombatActionUsabilityContext,
   iterateNumericEnumKeyedRecord,
   COMBAT_ACTION_NAME_STRINGS,
@@ -74,7 +73,7 @@ export class BaseMenuState extends ActionMenuState {
       toReturn[ActionButtonCategory.Hidden].push(hiddenButtonForUnspentAttributesHotkey);
     }
 
-    if (Inventory.getItems(partyResult.currentRoom.inventory).length) {
+    if (partyResult.currentRoom.inventory.getItems().length) {
       const viewItemsOnGroundButton = new ActionMenuButtonProperties(
         () => VIEW_LOOT_BUTTON_TEXT,
         VIEW_LOOT_BUTTON_TEXT,

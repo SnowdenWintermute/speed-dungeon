@@ -1,5 +1,5 @@
 import Divider from "@/app/components/atoms/Divider";
-import { AdventuringParty, Inventory } from "@speed-dungeon/common";
+import { AdventuringParty } from "@speed-dungeon/common";
 import React from "react";
 import { ItemOnGround } from "./ItemOnGround";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
@@ -12,7 +12,7 @@ interface Props {
 }
 
 export const ItemsOnGround = observer(({ party, maxHeightRem }: Props) => {
-  const itemsToDisplay = Inventory.getItems(party.currentRoom.inventory);
+  const itemsToDisplay = party.currentRoom.inventory.getItems();
   const { actionMenuStore, gameStore } = AppStore.get();
   const showItemsOnGround = actionMenuStore.getShowGroundItems();
 

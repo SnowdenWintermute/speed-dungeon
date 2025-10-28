@@ -5,7 +5,6 @@ import {
 } from "./index.js";
 import { COMBAT_ACTIONS } from "../../combat/index.js";
 import { GameUpdateCommandType, ResourcesPaidGameUpdateCommand } from "../game-update-commands.js";
-import { Inventory } from "../../combatants/index.js";
 import { MaxAndCurrent } from "../../primatives/max-and-current.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { CombatantProperties } from "../../combatants/combatant-properties.js";
@@ -52,16 +51,12 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
 
       if (!!consumableTypeAndLevelToConsumeOption) {
         const { inventory } = combatantProperties;
-        const consumableOption = Inventory.getConsumableByTypeAndLevel(
-          inventory,
+        const consumableOption = inventory.getConsumableByTypeAndLevel(
           consumableTypeAndLevelToConsumeOption.type,
           consumableTypeAndLevelToConsumeOption.level
         );
         if (consumableOption) {
-          const removed = Inventory.removeConsumable(
-            inventory,
-            consumableOption.entityProperties.id
-          );
+          const removed = inventory.removeConsumable(consumableOption.entityProperties.id);
           if (!(removed instanceof Error)) context.tracker.consumableUsed = removed;
           else console.error(removed);
           gameUpdateCommandOption.itemsConsumed = [consumableOption.entityProperties.id];

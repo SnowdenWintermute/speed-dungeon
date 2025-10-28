@@ -1,7 +1,6 @@
 import { ItemsMenuState } from "./items";
 import {
   ClientToServerEvent,
-  CombatantProperties,
   CraftingAction,
   Equipment,
   Item,
@@ -30,12 +29,12 @@ export class RepairItemSelectionMenuState extends ItemsMenuState {
       },
       () => {
         const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
-        return CombatantProperties.getOwnedEquipment(focusedCharacter.combatantProperties).filter(
-          (equipment) => {
+        return focusedCharacter.combatantProperties.inventory
+          .getOwnedEquipment()
+          .filter((equipment) => {
             const durability = Equipment.getDurability(equipment);
             return durability !== null && durability.current !== durability.max;
-          }
-        );
+          });
       },
       {
         extraButtons: {

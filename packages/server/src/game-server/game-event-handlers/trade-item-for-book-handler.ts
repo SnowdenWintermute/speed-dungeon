@@ -7,7 +7,6 @@ import {
   ERROR_MESSAGES,
   EntityId,
   GameMode,
-  Inventory,
   ServerToClientEvent,
   ServerToClientEventTypes,
   combatantIsAllowedToTradeForBooks,
@@ -31,7 +30,7 @@ export async function tradeItemForBookHandler(
   if (!combatantIsAllowedToTradeForBooks(party.currentRoom.roomType))
     return new Error(ERROR_MESSAGES.NOT_PERMITTED);
 
-  const inventoryFull = Inventory.isAtCapacity(combatantProperties);
+  const inventoryFull = combatantProperties.inventory.isAtCapacity();
   if (inventoryFull) return new Error(ERROR_MESSAGES.COMBATANT.MAX_INVENTORY_CAPACITY);
 
   const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
@@ -66,7 +65,7 @@ function tradeItemForBook(
   bookType: BookConsumableType,
   vendingMachineLevel: number
 ) {
-  const removedItemResult = CombatantProperties.removeOwnedItem(combatantProperties, itemToTradeId);
+  const removedItemResult = combatantProperties.inventory.removeOwnedItem(itemToTradeId);
   if (removedItemResult instanceof Error) return removedItemResult;
 
   const bookToReturn = createConsumableByType(bookType);

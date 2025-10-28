@@ -1,5 +1,5 @@
 import { Item } from "../index.js";
-import { Combatant, Inventory } from "../../combatants/index.js";
+import { Combatant } from "../../combatants/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { DungeonRoomType } from "../../adventuring-party/dungeon-room.js";
 import { getItemSellPrice } from "./shard-sell-prices.js";
@@ -21,7 +21,7 @@ export function combatantIsAllowedToConvertItemsToShards(
 
 export function convertItemsToShards(itemIds: EntityId[], combatant: Combatant) {
   const { combatantProperties } = combatant;
-  const itemsInInventory = Inventory.getItems(combatantProperties.inventory);
+  const itemsInInventory = combatantProperties.inventory.getItems();
   const equippedItems = combatantProperties.equipment.getAllEquippedItems({
     includeUnselectedHotswapSlots: true,
   });
@@ -39,7 +39,7 @@ export function convertItemsToShards(itemIds: EntityId[], combatant: Combatant) 
 
 function convertItemToShards(item: Item, combatantProperties: CombatantProperties) {
   const itemId = item.entityProperties.id;
-  const removedItemResult = CombatantProperties.removeOwnedItem(combatantProperties, itemId);
+  const removedItemResult = combatantProperties.inventory.removeOwnedItem(itemId);
   if (removedItemResult instanceof Error) return removedItemResult;
   return getItemSellPrice(removedItemResult);
 }

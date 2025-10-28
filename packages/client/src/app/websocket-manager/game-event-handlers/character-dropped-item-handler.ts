@@ -2,7 +2,6 @@ import {
   CharacterAndItem,
   CharacterAssociatedData,
   ClientToServerEvent,
-  Inventory,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { websocketConnection } from "@/singletons/websocket-connection";
@@ -12,7 +11,7 @@ export function characterDroppedItemHandler(characterAndItem: CharacterAndItem) 
   websocketConnection.emit(ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate, itemId);
 
   characterAssociatedDataProvider(characterId, ({ party, character }: CharacterAssociatedData) => {
-    const itemResult = Inventory.removeItem(character.combatantProperties.inventory, itemId);
+    const itemResult = character.combatantProperties.inventory.removeItem(itemId);
     if (itemResult instanceof Error) return itemResult;
     const item = itemResult;
     party.currentRoom.inventory.insertItem(item);

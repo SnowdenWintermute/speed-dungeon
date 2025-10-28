@@ -10,7 +10,7 @@ import { playerInGame } from "../event-middleware/get-player-associated-data.js"
 import { toggleReadyToDescendHandler } from "./toggle-ready-to-descend-handler/index.js";
 import { getCharacterAssociatedData } from "../event-middleware/get-character-associated-data.js";
 import { prohibitIfDead } from "../event-middleware/prohibit-if-dead.js";
-import dropItemHandler from "./drop-item-handler.js";
+import { dropItemHandler } from "./drop-item-handler.js";
 import dropEquippedItemHandler from "./drop-equipped-item-handler.js";
 import unequipSlotHandler from "./unequip-slot-handler.js";
 import { equipItemHandler } from "./equip-item-handler.js";

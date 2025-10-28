@@ -1,6 +1,5 @@
 import {
   CombatantProperties,
-  Inventory,
   MaxAndCurrent,
   ResourcesPaidGameUpdateCommand,
   SpeedDungeonGame,
@@ -21,11 +20,13 @@ export async function resourcesPaidGameUpdateHandler(
   const { combatantProperties } = combatantResult;
 
   if (command.itemsConsumed !== undefined)
-    for (const itemId of command.itemsConsumed)
-      Inventory.removeItem(combatantProperties.inventory, itemId);
+    for (const itemId of command.itemsConsumed) {
+      combatantProperties.inventory.removeItem(itemId);
+    }
 
-  if (command.costsPaid)
+  if (command.costsPaid) {
     CombatantProperties.payResourceCosts(combatantProperties, command.costsPaid);
+  }
 
   const actionState = combatantProperties.abilityProperties.getOwnedActions()[command.actionName];
   if (actionState !== undefined) {

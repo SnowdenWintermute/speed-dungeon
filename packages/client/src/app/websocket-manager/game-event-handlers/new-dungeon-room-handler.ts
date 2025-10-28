@@ -14,7 +14,6 @@ import {
   DungeonRoom,
   DungeonRoomType,
   EntityId,
-  Inventory,
   Item,
 } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
@@ -42,7 +41,7 @@ export function newDungeonRoomHandler({
   }
 
   itemIdsOnGroundInPreviousRoom.push(
-    ...Inventory.getItems(party.currentRoom.inventory).map((item) => item.entityProperties.id)
+    ...party.currentRoom.inventory.getItems().map((item) => item.entityProperties.id)
   );
 
   const { dungeonExplorationManager } = party;
@@ -52,7 +51,7 @@ export function newDungeonRoomHandler({
   previousRoomType = party.currentRoom.roomType;
   party.setCurrentRoom(deserializedRoom);
 
-  for (const item of Inventory.getItems(party.currentRoom.inventory)) {
+  for (const item of party.currentRoom.inventory.getItems()) {
     newItemsOnGround.push(item);
   }
 

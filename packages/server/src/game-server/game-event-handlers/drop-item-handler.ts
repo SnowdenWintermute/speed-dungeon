@@ -2,7 +2,6 @@ import {
   CharacterAndItem,
   CharacterAssociatedData,
   ClientToServerEventTypes,
-  CombatantProperties,
   GameMode,
   ServerToClientEvent,
   ServerToClientEventTypes,
@@ -13,7 +12,7 @@ import errorHandler from "../error-handler.js";
 import SocketIO from "socket.io";
 import { getGameServer } from "../../singletons/index.js";
 
-export default async function dropItemHandler(
+export async function dropItemHandler(
   eventData: CharacterAndItem,
   characterAssociatedData: CharacterAssociatedData,
   socket?: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
@@ -21,9 +20,8 @@ export default async function dropItemHandler(
   const { game, party, character, player } = characterAssociatedData;
   const gameServer = getGameServer();
 
-  const itemDroppedIdResult = CombatantProperties.dropItem(
+  const itemDroppedIdResult = character.combatantProperties.inventory.dropItem(
     party,
-    character.combatantProperties,
     eventData.itemId
   );
 

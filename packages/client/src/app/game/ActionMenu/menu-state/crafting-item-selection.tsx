@@ -1,5 +1,5 @@
 import { ItemsMenuState } from "./items";
-import { CombatantProperties, ERROR_MESSAGES, Equipment, Item } from "@speed-dungeon/common";
+import { ERROR_MESSAGES, Equipment, Item } from "@speed-dungeon/common";
 import { CraftingItemMenuState } from "./crafting-item";
 import { setAlert } from "@/app/components/alerts";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
@@ -19,7 +19,7 @@ export class CraftingItemSelectionMenuState extends ItemsMenuState {
       },
       () => {
         const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
-        return CombatantProperties.getOwnedEquipment(focusedCharacter.combatantProperties);
+        return focusedCharacter.combatantProperties.inventory.getOwnedEquipment();
       },
       {
         extraButtons: { [ActionButtonCategory.Top]: [setInventoryOpen] },

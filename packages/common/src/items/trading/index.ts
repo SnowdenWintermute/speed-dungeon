@@ -10,7 +10,7 @@ export function getOwnedAcceptedItemsForBookTrade(
 ): Equipment[] {
   const toReturn = [];
   // look at all broken items equipped and in inventory
-  const equipmentInInventory = CombatantProperties.getOwnedEquipment(combatantProperties);
+  const equipmentInInventory = combatantProperties.inventory.getOwnedEquipment();
   const equippedItems = combatantProperties.equipment.getAllEquippedItems({
     includeUnselectedHotswapSlots: true,
   });

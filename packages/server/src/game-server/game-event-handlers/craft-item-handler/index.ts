@@ -1,6 +1,5 @@
 import {
   CharacterAssociatedData,
-  CombatantProperties,
   DungeonRoomType,
   ERROR_MESSAGES,
   EntityId,
@@ -34,7 +33,7 @@ export async function craftItemHandler(
   const { characterId, itemId, craftingAction } = eventData;
   const { inventory } = character.combatantProperties;
   // check if they own the item
-  const itemResult = CombatantProperties.getOwnedItemById(character.combatantProperties, itemId);
+  const itemResult = character.combatantProperties.inventory.getOwnedItemById(itemId);
   if (itemResult instanceof Error) return itemResult;
   // make sure it is an equipment
   if (!(itemResult instanceof Equipment)) return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);

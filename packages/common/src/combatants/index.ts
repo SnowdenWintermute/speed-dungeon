@@ -7,25 +7,17 @@ import { CombatantActionState } from "./owned-actions/combatant-action-state.js"
 import { ConditionAppliedBy, ConditionTickProperties } from "./combatant-conditions/index.js";
 import { instanceToPlain, plainToInstance } from "class-transformer";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
-import { ThreatManager } from "./threat-manager/index.js";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
 import { ActionEntityProperties } from "../action-entities/index.js";
 import { ActionUserType, IActionUser } from "../action-user-context/action-user.js";
-import {
-  ActionAndRank,
-  ActionUserTargetingProperties,
-} from "../action-user-context/action-user-targeting-properties.js";
+import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { Battle } from "../battle/index.js";
 import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
-import { deserializeCondition } from "./combatant-conditions/deserialize-condition.js";
 import { CombatantAttributeRecord } from "./attribute-properties.js";
 import { CombatantProperties } from "./combatant-properties.js";
-import { CombatAttribute } from "./attributes/index.js";
-import { toJS } from "mobx";
-import cloneDeep from "lodash.clonedeep";
 
 export enum AiType {
   Healer,

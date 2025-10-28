@@ -1,7 +1,7 @@
 import { ItemsMenuState } from "./items";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { ClientToServerEvent, Inventory, Item } from "@speed-dungeon/common";
+import { ClientToServerEvent, Item } from "@speed-dungeon/common";
 import { takeItem } from "../../ItemsOnGround/ItemOnGround";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
@@ -20,9 +20,9 @@ export class ItemsOnGroundMenuState extends ItemsMenuState {
         const { gameStore } = AppStore.get();
         const focusedCharacterId = gameStore.getExpectedFocusedCharacterId();
         const party = gameStore.getExpectedParty();
-        const itemIds = Inventory.getItems(party.currentRoom.inventory).map(
-          (item) => item.entityProperties.id
-        );
+        const itemIds = party.currentRoom.inventory
+          .getItems()
+          .map((item) => item.entityProperties.id);
         websocketConnection.emit(ClientToServerEvent.PickUpItems, {
           characterId: focusedCharacterId,
           itemIds,
@@ -37,7 +37,7 @@ export class ItemsOnGroundMenuState extends ItemsMenuState {
       takeItem,
       () => {
         const party = AppStore.get().gameStore.getExpectedParty();
-        return Inventory.getItems(party.currentRoom.inventory);
+        return party.currentRoom.inventory.getItems();
       },
       {
         extraButtons: {

@@ -1,6 +1,5 @@
 import {
   CharacterAssociatedData,
-  CombatantProperties,
   CraftingAction,
   EntityId,
   Equipment,
@@ -33,8 +32,7 @@ export function characterPerformedCraftingActionHandler(eventData: {
     // their craft action produces exact same item as already was
     AppStore.get().actionMenuStore.setCharacterCompletedCrafting(character.getEntityId());
 
-    const itemResult = CombatantProperties.getOwnedItemById(
-      character.combatantProperties,
+    const itemResult = character.combatantProperties.inventory.getOwnedItemById(
       item.entityProperties.id
     );
     if (itemResult instanceof Error) return itemResult;

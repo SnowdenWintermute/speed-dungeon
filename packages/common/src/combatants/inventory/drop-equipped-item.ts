@@ -4,7 +4,7 @@ import { TaggedEquipmentSlot } from "../../items/equipment/slots.js";
 import { EntityId } from "../../primatives/index.js";
 import { CombatantProperties } from "../combatant-properties.js";
 
-export default function dropEquippedItem(
+export function dropEquippedItem(
   party: AdventuringParty,
   combatantProperties: CombatantProperties,
   taggedSlot: TaggedEquipmentSlot
@@ -12,7 +12,7 @@ export default function dropEquippedItem(
   const itemIdsUnequipped = CombatantProperties.unequipSlots(combatantProperties, [taggedSlot]);
   const itemId = itemIdsUnequipped[0];
   if (itemId === undefined) return new Error(ERROR_MESSAGES.EQUIPMENT.NO_ITEM_EQUIPPED);
-  const itemDroppedIdResult = CombatantProperties.dropItem(party, combatantProperties, itemId);
+  const itemDroppedIdResult = combatantProperties.inventory.dropItem(party, itemId);
   if (itemDroppedIdResult instanceof Error) return itemDroppedIdResult;
   return itemId;
 }

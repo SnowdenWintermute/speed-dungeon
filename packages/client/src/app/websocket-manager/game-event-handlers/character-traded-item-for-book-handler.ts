@@ -1,6 +1,5 @@
 import {
   CharacterAssociatedData,
-  CombatantEquipment,
   CombatantProperties,
   Consumable,
   EntityId,
@@ -40,10 +39,7 @@ export function characterTradedItemForBookHandler(eventData: {
       }
     }
 
-    const removedItemResult = CombatantProperties.removeOwnedItem(
-      combatantProperties,
-      itemIdTraded
-    );
+    const removedItemResult = combatantProperties.inventory.removeOwnedItem(itemIdTraded);
     if (removedItemResult instanceof Error) setAlert(removedItemResult);
     else {
       const asClassInstance = plainToInstance(Consumable, book);

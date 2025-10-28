@@ -11,7 +11,6 @@ import {
   SKILL_BOOK_TYPE_TO_COMBATANT_CLASS,
 } from "../../../../items/consumables/index.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
-import { Inventory } from "../../../../combatants/index.js";
 import { throwIfError } from "../../../../utils/index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
@@ -63,7 +62,7 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
     if (itemId === null) throw new Error("expected to have a book selected");
     const inventoryOption = user.getInventoryOption();
     if (inventoryOption === null) throw new Error("expected user to have an inventory");
-    const selectedItem = throwIfError(Inventory.getItemById(inventoryOption, itemId));
+    const selectedItem = throwIfError(inventoryOption.getItemById(itemId));
     if (!(selectedItem instanceof Consumable)) throw new Error("expected to select a consumable");
     return { type: selectedItem.consumableType, level: selectedItem.itemLevel };
   },
@@ -72,8 +71,7 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
     // if it isn't a skill book, error
     const inventoryOption = user.getInventoryOption();
     if (inventoryOption === null) throw new Error("expected user to have an inventory");
-    const skillBookResult = Inventory.getSelectedSkillBook(
-      inventoryOption,
+    const skillBookResult = inventoryOption.getSelectedSkillBook(
       user.getTargetingProperties().getSelectedItemId()
     );
     if (skillBookResult instanceof Error)

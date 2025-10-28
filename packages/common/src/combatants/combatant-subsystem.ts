@@ -7,7 +7,7 @@ export class CombatantSubsystem {
   // when we call instanceToPlain when serializing so we don't try to send a circular reference
   // over the wire or when persisting to the database
   @Exclude()
-  protected combatantProperties: CombatantProperties | undefined;
+  private combatantProperties: CombatantProperties | undefined;
 
   initialize(combatantProperties: CombatantProperties) {
     this.combatantProperties = combatantProperties;

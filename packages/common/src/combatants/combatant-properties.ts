@@ -4,22 +4,18 @@ import { changeCombatantMana } from "./resources/change-mana.js";
 import { changeCombatantHitPoints } from "./resources/change-hit-points.js";
 import { clampResourcesToMax } from "./resources/clamp-resources-to-max.js";
 import { getActionNamesFilteredByUseableContext } from "./owned-actions/get-owned-action-names-filtered-by-usable-context.js";
-import { canPickUpItem } from "./inventory/can-pick-up-item.js";
 import { Equipment, EquipmentType, HoldableSlotType } from "../items/equipment/index.js";
 import { CombatantAbilityProperties } from "./combatant-abilities/combatant-ability-properties.js";
 import { CombatantControlledBy, CombatantControllerType } from "./combatant-controllers.js";
-import { Item } from "../items/index.js";
 import { AbilityTreeAbility, AbilityType, AbilityUtils } from "../abilities/index.js";
 import { ABILITY_TREES } from "./ability-tree/set-up-ability-trees.js";
 import { CombatantSpecies } from "./combatant-species.js";
 import { COMBATANT_TRAIT_DESCRIPTIONS } from "./combatant-traits/index.js";
-import dropEquippedItem from "./inventory/drop-equipped-item.js";
-import { dropItem } from "./inventory/drop-item.js";
-import { getCombatantTotalAttributes } from "./attributes/get-combatant-total-attributes.js";
+import { dropEquippedItem } from "./inventory/drop-equipped-item.js";
 import getCombatantTotalElementalAffinities from "./combatant-traits/get-combatant-total-elemental-affinities.js";
 import getCombatantTotalKineticDamageTypeAffinities from "./combatant-traits/get-combatant-total-kinetic-damage-type-affinities.js";
 import { setResourcesToMax } from "./resources/set-resources-to-max.js";
-import { cloneVector3, iterateNumericEnumKeyedRecord, runIfInBrowser } from "../utils/index.js";
+import { cloneVector3, iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { MonsterType } from "../monsters/monster-types.js";
 import {
   CombatantEquipment,
@@ -28,8 +24,6 @@ import {
   getWeaponsInSlots,
   unequipSlots,
 } from "./combatant-equipment/index.js";
-import { CombatAttribute } from "./attributes/index.js";
-import { getOwnedEquipment } from "./inventory/get-owned-items.js";
 import { CombatantClass } from "./combatant-class/index.js";
 import {
   ActionAndRank,
@@ -39,8 +33,7 @@ import { CombatantAttributeProperties } from "./attribute-properties.js";
 import { ThreatManager } from "./threat-manager/index.js";
 import { EntityId } from "../primatives/index.js";
 import { AiType, CombatantCondition, Inventory } from "./index.js";
-import { instanceToPlain, plainToInstance } from "class-transformer";
-import { ERROR_MESSAGES } from "../errors/index.js";
+import { plainToInstance } from "class-transformer";
 import {
   ABILITY_POINTS_AWARDED_PER_LEVEL,
   ATTRIBUTE_POINTS_AWARDED_PER_LEVEL,
@@ -99,16 +92,13 @@ export class CombatantProperties {
   ) {
     this.position = homeLocation;
     // this.ownedActions[CombatActionName.Attack] = new CombatantActionState(CombatActionName.Attack);
+    makeAutoObservable(this, {}, { autoBind: true });
   }
 
   initialize() {
     this.attributeProperties.initialize(this);
+    this.inventory.initialize(this);
   }
-
-  // getSerialized() {
-  //   this.attributeProperties = this.attributeProperties.getSerialized();
-  //   return instanceToPlain(this) as CombatantProperties;
-  // }
 
   static getDeserialized(combatantProperties: CombatantProperties) {
     const deserialized = plainToInstance(CombatantProperties, combatantProperties);
@@ -166,35 +156,11 @@ export class CombatantProperties {
 
   // ITEMS / EQUIPMENT
 
-  static canPickUpItem = canPickUpItem;
   static unequipSlots = unequipSlots;
-  static dropItem = dropItem;
   static dropEquippedItem = dropEquippedItem;
   static combatantHasRequiredAttributesToUseItem = combatantHasRequiredAttributesToUseItem;
   static equipItem = equipItem;
   static getWeaponsInSlots = getWeaponsInSlots;
-  static getOwnedEquipment = getOwnedEquipment;
-  static getOwnedItemById(combatantProperties: CombatantProperties, itemId: EntityId) {
-    const ownedEquipment = CombatantProperties.getOwnedEquipment(combatantProperties);
-    for (const equipment of ownedEquipment) {
-      if (equipment.entityProperties.id === itemId) return equipment;
-    }
-    const items = Inventory.getItems(combatantProperties.inventory);
-    for (const item of items) {
-      if (item.entityProperties.id === itemId) return item;
-    }
-    return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
-  }
-  static removeOwnedItem(combatantProperties: CombatantProperties, itemId: EntityId) {
-    let removedItemResult = Inventory.removeItem(combatantProperties.inventory, itemId);
-
-    if (removedItemResult instanceof Error) {
-      applyEquipmentEffectWhileMaintainingResourcePercentages(combatantProperties, () => {
-        removedItemResult = combatantProperties.equipment.removeItem(itemId);
-      });
-    }
-    return removedItemResult;
-  }
 
   // RESOURCES
   static changeHitPoints = changeCombatantHitPoints;
@@ -292,7 +258,7 @@ export class CombatantProperties {
       const inventory = actionUser.getInventoryOption();
       if (inventory === null) throw new Error("expected user to have an inventory");
       const { type, level } = consumableCost;
-      const consumableOption = Inventory.getConsumableByTypeAndLevel(inventory, type, level);
+      const consumableOption = inventory.getConsumableByTypeAndLevel(type, level);
       if (consumableOption === undefined) return false;
     }
     return true;
