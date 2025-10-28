@@ -18,6 +18,9 @@ import { Battle } from "../battle/index.js";
 import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
 import { CombatantAttributeRecord } from "./attribute-properties.js";
 import { CombatantProperties } from "./combatant-properties.js";
+import { Item } from "../items/index.js";
+import { Equipment, WeaponProperties } from "../items/equipment/index.js";
+import { HoldableSlotType } from "../items/equipment/slots.js";
 
 export enum AiType {
   Healer,
@@ -153,6 +156,13 @@ export class Combatant implements IActionUser {
   }
   getIdOfEntityToCreditWithThreat(): EntityId {
     return this.entityProperties.id;
+  }
+  hasRequiredAttributesToUseItem(item: Item): boolean {
+    return this.combatantProperties.attributeProperties.hasRequiredAttributesToUseItem(item);
+  }
+
+  getWeaponsInSlots(weaponSlots: HoldableSlotType[], options: { usableWeaponsOnly: boolean }) {
+    return this.combatantProperties.equipment.getWeaponsInSlots(weaponSlots, options);
   }
 
   canUseAction(

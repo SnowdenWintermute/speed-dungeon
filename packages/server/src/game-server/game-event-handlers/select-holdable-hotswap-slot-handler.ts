@@ -13,10 +13,9 @@ import {
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../singletons/index.js";
-import { changeSelectedHotswapSlot } from "@speed-dungeon/common";
 import { executeActionAndSendReplayResult } from "./character-uses-selected-combat-action-handler/index.js";
 
-export default function selectHoldableHotswapSlotHandler(
+export function selectHoldableHotswapSlotHandler(
   eventData: { characterId: string; slotIndex: number },
   characterAssociatedData: CharacterAssociatedData,
   _socket?: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
@@ -44,7 +43,7 @@ export default function selectHoldableHotswapSlotHandler(
     throw new Error(ERROR_MESSAGES.EQUIPMENT.SELECTED_SLOT_OUT_OF_BOUNDS);
   }
 
-  changeSelectedHotswapSlot(character.combatantProperties, slotIndex);
+  equipment.changeSelectedHotswapSlot(slotIndex);
 
   const partyChannelName = getPartyChannelName(game.name, party.name);
   gameServer.io

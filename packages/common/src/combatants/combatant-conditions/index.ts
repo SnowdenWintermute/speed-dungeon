@@ -162,6 +162,14 @@ export abstract class CombatantCondition implements IActionUser {
   getInventoryOption = () => null;
   getIdOfEntityToCreditWithThreat = () => this.appliedBy.entityProperties.id;
 
+  hasRequiredAttributesToUseItem(): boolean {
+    return true;
+  }
+
+  getWeaponsInSlots() {
+    return {};
+  }
+
   // if tracking ticks, increment current
   // examples of action to take here:
   // - cause resource change

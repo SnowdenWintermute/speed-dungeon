@@ -170,6 +170,14 @@ export class ActionEntity implements IActionUser {
     return spawnedByOption.id;
   }
 
+  hasRequiredAttributesToUseItem(): boolean {
+    return true;
+  }
+
+  getWeaponsInSlots() {
+    return {};
+  }
+
   static getDeserialized(actionEntity: ActionEntity) {
     const deserialized = plainToInstance(ActionEntity, actionEntity);
     const { actionOriginData } = deserialized.actionEntityProperties;

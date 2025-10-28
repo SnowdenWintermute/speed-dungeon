@@ -1,7 +1,6 @@
 import {
   CharacterAndItems,
   CharacterAssociatedData,
-  CombatantProperties,
   TaggedEquipmentSlot,
   convertItemsToShards,
 } from "@speed-dungeon/common";
@@ -28,7 +27,7 @@ export function characterConvertedItemsToShardsHandler(characterAndItems: Charac
             item.entityProperties.id
           );
           if (slot !== null) {
-            CombatantProperties.unequipSlots(combatantProperties, [slot]);
+            combatantProperties.equipment.unequipSlots([slot]);
             slotsUnequipped.push(slot);
           }
         }

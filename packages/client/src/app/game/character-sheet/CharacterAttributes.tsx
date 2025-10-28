@@ -54,6 +54,7 @@ export const CharacterAttributes = observer(
     ).map(([attribute, value]) => {
       return [attribute, value];
     });
+
     totalAttributesSortedArray = totalAttributesSortedArray.filter(
       ([attribute, _value]) => attribute !== CombatAttribute.Hp && attribute !== CombatAttribute.Mp
     );

@@ -25,7 +25,9 @@ interface Props {
 export function AttributeListItem(props: Props) {
   const consideredItemUnmetRequirements =
     AppStore.get().focusStore.getSelectedItemUnmetRequirements();
+
   const isUnmetRequirement = consideredItemUnmetRequirements.has(props.attribute);
+
   let highlightClass = isUnmetRequirement ? UNMET_REQUIREMENT_TEXT_COLOR : "";
 
   const shouldShowIncreaseAttributeButton =

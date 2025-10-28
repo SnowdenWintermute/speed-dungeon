@@ -6,6 +6,7 @@ import {
   WeaponProperties,
 } from "../../items/equipment/index.js";
 import {
+  EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE,
   EquipmentSlotType,
   HoldableSlotType,
   TaggedEquipmentSlot,
@@ -15,14 +16,12 @@ import { ERROR_MESSAGES } from "../../errors/index.js";
 import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../../utils/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { IActionUser } from "../../action-user-context/action-user.js";
-import { makeAutoObservable } from "mobx";
+import makeAutoObservable from "mobx-store-inheritance";
 import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
+import { CombatantSubsystem } from "../combatant-subsystem.js";
+import { applyEquipmentEffectWhileMaintainingResourcePercentages } from "./apply-equipment-affect-while-maintaining-resource-percentages.js";
 
-export * from "./equip-item.js";
-export * from "./unequip-slots.js";
-export * from "./get-weapons-in-slots.js";
-export * from "./change-selected-hotswap-slot.js";
 export * from "./get-pre-equipment-change-hp-and-mana-percentage.js";
 export * from "./apply-equipment-affect-while-maintaining-resource-percentages.js";
 
@@ -33,8 +32,6 @@ const DEFAULT_HOTSWAP_SLOT_ALLOWED_TYPES = [
   EquipmentType.Shield,
 ];
 
-/// We take CombatantProperties as an argument instead of CombatantEquipment because we
-// may want to get hotswap slots derrived from traits
 export class HoldableHotswapSlot {
   holdables: Partial<Record<HoldableSlotType, Equipment>> = {};
   forbiddenBaseItems: EquipmentBaseItem[] = [];
@@ -47,7 +44,7 @@ export class HoldableHotswapSlot {
   }
 }
 
-export class CombatantEquipment {
+export class CombatantEquipment extends CombatantSubsystem {
   private wearables: Partial<Record<WearableSlotType, Equipment>> = {};
   private equippedHoldableHotswapSlotIndex: number = 0;
   private inherentHoldableHotswapSlots: HoldableHotswapSlot[] = [
@@ -56,7 +53,29 @@ export class CombatantEquipment {
   ];
 
   constructor() {
+    super();
     runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+  }
+
+  static getDeserialized(equipment: CombatantEquipment) {
+    const deserialized = plainToInstance(CombatantEquipment, equipment);
+
+    for (const [slot, item] of iterateNumericEnumKeyedRecord(deserialized.wearables)) {
+      deserialized.wearables[slot] = plainToInstance(Equipment, item);
+    }
+
+    const deserializedHotswapSlots = deserialized
+      .getHoldableHotswapSlots()
+      .map((slot) => HoldableHotswapSlot.getDeserialized(slot));
+    deserialized.replaceHoldableSlots(deserializedHotswapSlots);
+
+    for (const hotswapSlot of Object.values(deserialized.getHoldableHotswapSlots())) {
+      for (const [slot, item] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables)) {
+        hotswapSlot.holdables[slot] = plainToInstance(Equipment, item);
+      }
+    }
+
+    return deserialized;
   }
 
   getHoldableHotswapSlots(): HoldableHotswapSlot[] {
@@ -67,7 +86,7 @@ export class CombatantEquipment {
     return this.equippedHoldableHotswapSlotIndex;
   }
 
-  setSelectedHoldableSlotIndex(newIndex: number) {
+  private setSelectedHoldableSlotIndex(newIndex: number) {
     this.equippedHoldableHotswapSlotIndex = newIndex;
   }
 
@@ -94,6 +113,36 @@ export class CombatantEquipment {
     return Equipment.getWeaponProperties(itemOption);
   }
 
+  getWeaponsInSlots(weaponSlots: HoldableSlotType[], options: { usableWeaponsOnly: boolean }) {
+    const toReturn: Partial<
+      Record<HoldableSlotType, { equipment: Equipment; weaponProperties: WeaponProperties }>
+    > = {};
+
+    const equippedSelectedHotswapSlot = this.getActiveHoldableSlot();
+    if (!equippedSelectedHotswapSlot) return toReturn;
+
+    for (const weaponSlot of weaponSlots) {
+      const holdable = equippedSelectedHotswapSlot.holdables[weaponSlot];
+      if (holdable === undefined) continue;
+
+      const combatantProperties = this.getCombatantProperties();
+
+      const itemNotUsable =
+        !combatantProperties.attributeProperties.hasRequiredAttributesToUseItem(holdable) ||
+        Equipment.isBroken(holdable);
+
+      if (options.usableWeaponsOnly && itemNotUsable) {
+        continue;
+      }
+
+      const weaponPropertiesResult = Equipment.getWeaponProperties(holdable);
+      if (weaponPropertiesResult instanceof Error) continue; // could be a shield so just skip it
+      toReturn[weaponSlot] = { equipment: holdable, weaponProperties: weaponPropertiesResult };
+    }
+
+    return toReturn;
+  }
+
   /** Used when deserializing since the slots also need to be deserialized but they are private
    * so we can't just directly write to them */
   replaceHoldableSlots(replacementSlots: HoldableHotswapSlot[]) {
@@ -102,27 +151,6 @@ export class CombatantEquipment {
 
   addHoldableSlot(newSlot: HoldableHotswapSlot) {
     this.inherentHoldableHotswapSlots.push(newSlot);
-  }
-
-  static getDeserialized(equipment: CombatantEquipment) {
-    const deserialized = plainToInstance(CombatantEquipment, equipment);
-
-    for (const [slot, item] of iterateNumericEnumKeyedRecord(deserialized.wearables)) {
-      deserialized.wearables[slot] = plainToInstance(Equipment, item);
-    }
-
-    const deserializedHotswapSlots = deserialized
-      .getHoldableHotswapSlots()
-      .map((slot) => HoldableHotswapSlot.getDeserialized(slot));
-    deserialized.replaceHoldableSlots(deserializedHotswapSlots);
-
-    for (const hotswapSlot of Object.values(deserialized.getHoldableHotswapSlots())) {
-      for (const [slot, item] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables)) {
-        hotswapSlot.holdables[slot] = plainToInstance(Equipment, item);
-      }
-    }
-
-    return deserialized;
   }
 
   putEquipmentInSlot(equipmentItem: Equipment, taggedSlot: TaggedEquipmentSlot) {
@@ -184,7 +212,115 @@ export class CombatantEquipment {
     return null;
   }
 
+  /** 
+  returns list of item ids unequipped 
+  */
+  equipItem(
+    itemId: string,
+    equipToAltSlot: boolean
+  ): Error | { idsOfUnequippedItems: EntityId[]; unequippedSlots: TaggedEquipmentSlot[] } {
+    const combatantProperties = this.getCombatantProperties();
+
+    const equipmentResult = combatantProperties.inventory.getEquipmentById(itemId);
+    if (equipmentResult instanceof Error) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
+    const equipment = equipmentResult;
+
+    if (!combatantProperties.attributeProperties.hasRequiredAttributesToUseItem(equipment)) {
+      return new Error(ERROR_MESSAGES.EQUIPMENT.REQUIREMENTS_NOT_MET);
+    }
+    if (Equipment.isBroken(equipment)) return new Error(ERROR_MESSAGES.EQUIPMENT.IS_BROKEN);
+
+    const idsOfUnequippedItems: EntityId[] = [];
+    const slotsToUnequip: TaggedEquipmentSlot[] = [];
+
+    applyEquipmentEffectWhileMaintainingResourcePercentages(combatantProperties, () => {
+      const { equipmentType } = equipment.equipmentBaseItemProperties.taggedBaseEquipment;
+
+      const possibleSlots = EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[equipmentType];
+
+      const slot = (() => {
+        if (equipToAltSlot && possibleSlots.alternate !== null) return possibleSlots.alternate;
+        else return possibleSlots.main;
+      })();
+
+      // @REFACTOR
+      const slotsToUnequipResult = ((): TaggedEquipmentSlot[] => {
+        switch (slot.type) {
+          case EquipmentSlotType.Holdable:
+            switch (slot.slot) {
+              case HoldableSlotType.MainHand:
+                if (Equipment.isTwoHanded(equipmentType)) {
+                  return [
+                    { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand },
+                    { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.OffHand },
+                  ];
+                } else {
+                  return [slot];
+                }
+              case HoldableSlotType.OffHand:
+                const equippedHotswapSlot = combatantProperties.equipment.getActiveHoldableSlot();
+                if (!equippedHotswapSlot) return [];
+
+                const itemInMainHandOption =
+                  equippedHotswapSlot.holdables[HoldableSlotType.MainHand];
+
+                if (itemInMainHandOption !== undefined) {
+                  if (
+                    Equipment.isTwoHanded(equipmentType) ||
+                    Equipment.isTwoHanded(
+                      itemInMainHandOption.equipmentBaseItemProperties.equipmentType
+                    )
+                  ) {
+                    return [
+                      { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand },
+                      { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.OffHand },
+                    ];
+                  }
+                }
+                return [slot];
+            }
+          case EquipmentSlotType.Wearable:
+            return [slot];
+        }
+      })();
+
+      if (slotsToUnequipResult instanceof Error) return slotsToUnequipResult;
+      slotsToUnequip.push(...slotsToUnequipResult);
+
+      idsOfUnequippedItems.push(...combatantProperties.equipment.unequipSlots(slotsToUnequip));
+
+      const itemToEquipResult = combatantProperties.inventory.removeEquipment(
+        equipment.entityProperties.id
+      );
+      if (itemToEquipResult instanceof Error) return itemToEquipResult;
+
+      combatantProperties.equipment.putEquipmentInSlot(itemToEquipResult, slot);
+    });
+
+    return { idsOfUnequippedItems, unequippedSlots: slotsToUnequip };
+  }
+
+  changeSelectedHotswapSlot(slotIndex: number) {
+    const combatantProperties = this.getCombatantProperties();
+    applyEquipmentEffectWhileMaintainingResourcePercentages(combatantProperties, () => {
+      combatantProperties.equipment.setSelectedHoldableSlotIndex(slotIndex);
+    });
+  }
+
   unequipSlots(slots: TaggedEquipmentSlot[]) {
+    const unequippedItemIds: string[] = [];
+
+    const combatantProperties = this.getCombatantProperties();
+
+    applyEquipmentEffectWhileMaintainingResourcePercentages(combatantProperties, () => {
+      const unequippedItems = combatantProperties.equipment.removeEquipmentInSlots(slots);
+      combatantProperties.inventory.equipment.push(...unequippedItems);
+      unequippedItemIds.push(...unequippedItems.map((item) => item.entityProperties.id));
+    });
+    return unequippedItemIds;
+  }
+
+  private removeEquipmentInSlots(slots: TaggedEquipmentSlot[]) {
     const unequippedItems: Equipment[] = [];
 
     for (const slot of slots) {

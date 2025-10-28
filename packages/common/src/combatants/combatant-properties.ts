@@ -1,5 +1,4 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { combatantHasRequiredAttributesToUseItem } from "./can-use-item.js";
 import { changeCombatantMana } from "./resources/change-mana.js";
 import { changeCombatantHitPoints } from "./resources/change-hit-points.js";
 import { clampResourcesToMax } from "./resources/clamp-resources-to-max.js";
@@ -11,7 +10,6 @@ import { AbilityTreeAbility, AbilityType, AbilityUtils } from "../abilities/inde
 import { ABILITY_TREES } from "./ability-tree/set-up-ability-trees.js";
 import { CombatantSpecies } from "./combatant-species.js";
 import { COMBATANT_TRAIT_DESCRIPTIONS } from "./combatant-traits/index.js";
-import { dropEquippedItem } from "./inventory/drop-equipped-item.js";
 import getCombatantTotalElementalAffinities from "./combatant-traits/get-combatant-total-elemental-affinities.js";
 import getCombatantTotalKineticDamageTypeAffinities from "./combatant-traits/get-combatant-total-kinetic-damage-type-affinities.js";
 import { setResourcesToMax } from "./resources/set-resources-to-max.js";
@@ -20,9 +18,6 @@ import { MonsterType } from "../monsters/monster-types.js";
 import {
   CombatantEquipment,
   applyEquipmentEffectWhileMaintainingResourcePercentages,
-  equipItem,
-  getWeaponsInSlots,
-  unequipSlots,
 } from "./combatant-equipment/index.js";
 import { CombatantClass } from "./combatant-class/index.js";
 import {
@@ -98,6 +93,7 @@ export class CombatantProperties {
   initialize() {
     this.attributeProperties.initialize(this);
     this.inventory.initialize(this);
+    this.equipment.initialize(this);
   }
 
   static getDeserialized(combatantProperties: CombatantProperties) {
@@ -153,14 +149,6 @@ export class CombatantProperties {
 
   // ACTIONS
   static getActionNamesFilteredByUseableContext = getActionNamesFilteredByUseableContext;
-
-  // ITEMS / EQUIPMENT
-
-  static unequipSlots = unequipSlots;
-  static dropEquippedItem = dropEquippedItem;
-  static combatantHasRequiredAttributesToUseItem = combatantHasRequiredAttributesToUseItem;
-  static equipItem = equipItem;
-  static getWeaponsInSlots = getWeaponsInSlots;
 
   // RESOURCES
   static changeHitPoints = changeCombatantHitPoints;

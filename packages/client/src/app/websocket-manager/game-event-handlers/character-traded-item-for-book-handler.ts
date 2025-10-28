@@ -1,6 +1,5 @@
 import {
   CharacterAssociatedData,
-  CombatantProperties,
   Consumable,
   EntityId,
   TaggedEquipmentSlot,
@@ -33,7 +32,7 @@ export function characterTradedItemForBookHandler(eventData: {
           item.entityProperties.id
         );
         if (slot !== null) {
-          CombatantProperties.unequipSlots(combatantProperties, [slot]);
+          combatantProperties.equipment.unequipSlots([slot]);
           slotsUnequipped.push(slot);
         }
       }

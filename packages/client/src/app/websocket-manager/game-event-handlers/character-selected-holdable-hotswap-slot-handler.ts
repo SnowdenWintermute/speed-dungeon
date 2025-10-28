@@ -5,7 +5,6 @@ import {
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
-import { changeSelectedHotswapSlot } from "@speed-dungeon/common";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { AppStore } from "@/mobx-stores/app-store";
 
@@ -36,7 +35,7 @@ export function characterSelectedHoldableHotswapSlotHandler(
         previouslyHoveredSlotTypeOption = slotType;
     }
 
-    changeSelectedHotswapSlot(character.combatantProperties, slotIndex);
+    character.combatantProperties.equipment.changeSelectedHotswapSlot(slotIndex);
 
     if (previouslyHoveredSlotTypeOption !== null) {
       focusStore.detailables.clearHovered();

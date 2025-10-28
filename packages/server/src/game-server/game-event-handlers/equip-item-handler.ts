@@ -1,6 +1,5 @@
 import {
   CharacterAssociatedData,
-  CombatantProperties,
   ServerToClientEvent,
   getPartyChannelName,
 } from "@speed-dungeon/common";
@@ -18,7 +17,7 @@ export function equipItemHandler(
   const { itemId, equipToAltSlot } = eventData;
   const gameServer = getGameServer();
 
-  const equipItemResult = CombatantProperties.equipItem(character, itemId, equipToAltSlot);
+  const equipItemResult = character.combatantProperties.equipment.equipItem(itemId, equipToAltSlot);
   if (equipItemResult instanceof Error) return equipItemResult;
 
   const partyChannelName = getPartyChannelName(game.name, party.name);

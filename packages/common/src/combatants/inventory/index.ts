@@ -2,7 +2,7 @@ import { INVENTORY_DEFAULT_CAPACITY } from "../../app-consts.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { Item, ItemType } from "../../items/index.js";
 import { Consumable, ConsumableType } from "../../items/consumables/index.js";
-import { Equipment } from "../../items/equipment/index.js";
+import { Equipment, TaggedEquipmentSlot } from "../../items/equipment/index.js";
 import { plainToInstance } from "class-transformer";
 import { EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL } from "../combatant-traits/index.js";
 import { EntityId } from "../../primatives/index.js";
@@ -98,6 +98,16 @@ export class Inventory extends CombatantSubsystem {
     const item = itemResult;
     const maybeError = party.currentRoom.inventory.insertItem(item);
     if (maybeError instanceof Error) return maybeError;
+    return itemId;
+  }
+
+  dropEquippedItem(party: AdventuringParty, taggedSlot: TaggedEquipmentSlot): Error | EntityId {
+    const combatantProperties = this.getCombatantProperties();
+    const itemIdsUnequipped = combatantProperties.equipment.unequipSlots([taggedSlot]);
+    const itemId = itemIdsUnequipped[0];
+    if (itemId === undefined) return new Error(ERROR_MESSAGES.EQUIPMENT.NO_ITEM_EQUIPPED);
+    const itemDroppedIdResult = combatantProperties.inventory.dropItem(party, itemId);
+    if (itemDroppedIdResult instanceof Error) return itemDroppedIdResult;
     return itemId;
   }
 

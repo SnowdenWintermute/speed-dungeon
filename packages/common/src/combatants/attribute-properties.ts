@@ -1,5 +1,5 @@
-import { plainToInstance } from "class-transformer";
 import makeAutoObservable from "mobx-store-inheritance";
+import { plainToInstance } from "class-transformer";
 import { CombatAttribute, initializeCombatAttributeRecord } from "./attributes/index.js";
 import { addAttributesToAccumulator } from "./attributes/add-attributes-to-accumulator.js";
 import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../utils/index.js";
@@ -69,5 +69,11 @@ export class CombatantAttributeProperties extends CombatantSubsystem {
     }
 
     return unmetAttributeRequirements;
+  }
+
+  hasRequiredAttributesToUseItem(item: Item): boolean {
+    const requirementsMet = Item.requirementsMet(item, this.getTotalAttributes());
+    if (!requirementsMet) return false;
+    return true;
   }
 }

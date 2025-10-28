@@ -1,4 +1,4 @@
-import { CharacterAssociatedData, CombatantProperties, Item } from "@speed-dungeon/common";
+import { CharacterAssociatedData, Item } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { ConsideringItemMenuState } from "@/app/game/ActionMenu/menu-state/considering-item";
 import cloneDeep from "lodash.clonedeep";
@@ -15,7 +15,10 @@ export function characterEquippedItemHandler(packet: {
   let itemToSelectOption: Item | null = null;
 
   characterAssociatedDataProvider(characterId, ({ party, character }: CharacterAssociatedData) => {
-    const unequippedResult = CombatantProperties.equipItem(character, itemId, equipToAlternateSlot);
+    const unequippedResult = character.combatantProperties.equipment.equipItem(
+      itemId,
+      equipToAlternateSlot
+    );
     if (unequippedResult instanceof Error) return unequippedResult;
     const { idsOfUnequippedItems } = unequippedResult;
 
