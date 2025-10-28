@@ -30,19 +30,19 @@ export const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
     const maxHp = combatant.combatantProperties.attributeProperties.getAttributeValue(
       CombatAttribute.Hp
     );
-    return combatant.combatantProperties.hitPoints >= maxHp;
+    return combatant.combatantProperties.resources.getHitPoints() >= maxHp;
   },
   [ProhibitedTargetCombatantStates.FullMana]: function (combatant: Combatant): boolean {
     const maxMp = combatant.combatantProperties.attributeProperties.getAttributeValue(
       CombatAttribute.Mp
     );
-    return combatant.combatantProperties.mana >= maxMp;
+    return combatant.combatantProperties.resources.getMana() >= maxMp;
   },
   [ProhibitedTargetCombatantStates.Dead]: function (combatant: Combatant): boolean {
-    return combatant.combatantProperties.hitPoints <= 0;
+    return combatant.combatantProperties.isDead();
   },
   [ProhibitedTargetCombatantStates.Alive]: function (combatant: Combatant): boolean {
-    return combatant.combatantProperties.hitPoints > 0;
+    return !combatant.combatantProperties.isDead();
   },
   [ProhibitedTargetCombatantStates.UntargetableBySpells]: function (combatant: Combatant): boolean {
     return false;

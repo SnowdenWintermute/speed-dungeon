@@ -1,6 +1,5 @@
 import {
   SkeletalAnimationName,
-  CombatantProperties,
   ERROR_MESSAGES,
   ResourceChange,
   ActionPayableResource,
@@ -43,11 +42,11 @@ export function induceHitRecovery(
   const { game, party, combatant: targetCombatant } = combatantContext;
   const combatantProperties = targetCombatant.getCombatantProperties();
 
-  const combatantWasAliveBeforeResourceChange = combatantProperties.hitPoints > 0;
+  const combatantWasAliveBeforeResourceChange = !combatantProperties.isDead();
   if (resourceType === ActionPayableResource.HitPoints)
-    CombatantProperties.changeHitPoints(combatantProperties, resourceChange.value);
+    combatantProperties.resources.changeHitPoints(resourceChange.value);
   if (resourceType === ActionPayableResource.Mana)
-    CombatantProperties.changeMana(combatantProperties, resourceChange.value);
+    combatantProperties.resources.changeMana(resourceChange.value);
 
   const action = COMBAT_ACTIONS[actionName];
   GameLogMessageService.postResourceChange(
@@ -63,7 +62,7 @@ export function induceHitRecovery(
 
   const battleOption = AdventuringParty.getBattleOption(party, game);
 
-  if (CombatantProperties.isDead(combatantProperties)) {
+  if (combatantProperties.isDead()) {
     targetModel.cosmeticEffectManager.softCleanup(() => {});
 
     const combatantDiedOnTheirOwnTurn = (() => {
@@ -126,7 +125,7 @@ export function induceHitRecovery(
       targetModel.skeletalAnimationManager.startAnimationWithTransition(animationName, 0, {
         onComplete: () => {
           const wasRevived =
-            !combatantWasAliveBeforeResourceChange && combatantProperties.hitPoints > 0;
+            !combatantWasAliveBeforeResourceChange && !combatantProperties.isDead();
 
           if (wasRevived) {
             // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle

@@ -1,5 +1,4 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
-import { COMBATANT_MAX_ACTION_POINTS } from "../app-consts.js";
 import { FriendOrFoe, TurnOrderManager } from "../combat/index.js";
 import { CombatantCondition, ConditionWithCombatantIdAppliedTo } from "../combatants/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
@@ -22,8 +21,9 @@ export class Battle {
 
   static refillAllCombatantActionPoints(party: AdventuringParty) {
     const combatants = party.combatantManager.getAllCombatants();
-    for (const combatant of combatants)
-      combatant.combatantProperties.actionPoints = COMBATANT_MAX_ACTION_POINTS;
+    for (const combatant of combatants) {
+      combatant.combatantProperties.resources.refillActionPoints();
+    }
   }
 
   static getAllTickableConditionsAndCombatants(party: AdventuringParty) {

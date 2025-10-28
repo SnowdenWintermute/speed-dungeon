@@ -5,7 +5,7 @@ import { UnspentAttributesButton } from "../UnspentAttributesButton";
 import { ValueBarsAndFocusButton } from "./ValueBarsAndFocusButton";
 import CombatantInfoButton from "./CombatantInfoButton";
 import { DetailedCombatantInfoCard } from "./DetailedCombatantInfoCard";
-import { Combatant, CombatantProperties, InputLock, Inventory } from "@speed-dungeon/common";
+import { Combatant, InputLock } from "@speed-dungeon/common";
 import "./floating-text-animation.css";
 import { CombatantFloatingMessagesDisplay } from "./combatant-floating-messages-display";
 import { InventoryIconButton } from "./InventoryIconButton";
@@ -88,7 +88,8 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
         {[1, 2].map((item) => (
           <li
             key={item}
-            className={`h-5 w-5 mr-1 last:mr-0 bg-slate-700 rounded-full ${item > combatantProperties.actionPoints ? "opacity-50" : ""}`}
+            className={`h-5 w-5 mr-1 last:mr-0 bg-slate-700 rounded-full 
+            ${item > combatantProperties.resources.getActionPoints() ? "opacity-50" : ""}`}
           >
             <ClockIcon className="h-full w-full fill-slate-400" />
           </li>
@@ -128,7 +129,7 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
       {isPartyMember && conditionIndicators("mb-1") /* otherwise put it below */}
 
       <div className="flex">
-        {!CombatantProperties.isDead(combatantProperties) && (
+        {!combatantProperties.isDead() && (
           <ThreatPriorityList threatManager={combatantProperties.threatManager || null} />
         )}
         <div>

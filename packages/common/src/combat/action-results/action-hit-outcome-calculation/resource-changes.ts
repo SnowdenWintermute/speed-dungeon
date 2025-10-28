@@ -4,7 +4,6 @@ import { ThreatType } from "../../../combatants/index.js";
 import { EntityId } from "../../../primatives/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 import { ResourceChange, ResourceChangeSource } from "../../hp-change-source-types.js";
-import { CombatantProperties } from "../../../combatants/combatant-properties.js";
 
 export abstract class ResourceChanges<T> {
   protected changes: Record<EntityId, T> = {};
@@ -33,12 +32,11 @@ export class HitPointChanges extends ResourceChanges<ResourceChange> {
     for (const [targetId, hpChange] of Object.entries(this.changes)) {
       const target = party.combatantManager.getExpectedCombatant(targetId);
       const { combatantProperties: targetCombatantProperties } = target;
-      const combatantWasAliveBeforeResourceChange =
-        !CombatantProperties.isDead(targetCombatantProperties);
+      const combatantWasAliveBeforeResourceChange = !targetCombatantProperties.isDead();
 
-      CombatantProperties.changeHitPoints(targetCombatantProperties, hpChange.value);
+      targetCombatantProperties.resources.changeHitPoints(hpChange.value);
 
-      const combatantIsDead = CombatantProperties.isDead(targetCombatantProperties);
+      const combatantIsDead = targetCombatantProperties.isDead();
 
       const wasResurrected = !combatantWasAliveBeforeResourceChange && !combatantIsDead;
 
@@ -74,7 +72,7 @@ export class ManaChanges extends ResourceChanges<ManaChange> {
     for (const [targetId, change] of Object.entries(this.changes)) {
       const target = party.combatantManager.getExpectedCombatant(targetId);
       const { combatantProperties: targetCombatantProperties } = target;
-      CombatantProperties.changeMana(targetCombatantProperties, change.value);
+      targetCombatantProperties.resources.changeMana(change.value);
     }
   }
 }

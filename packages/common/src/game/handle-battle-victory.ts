@@ -2,7 +2,6 @@ import { SpeedDungeonGame } from "./index.js";
 import { BattleResultActionCommandPayload } from "../action-processing/index.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { applyExperiencePointChanges } from "../combatants/experience-points/index.js";
-import { CombatantProperties } from "../combatants/combatant-properties.js";
 
 /** Returns any levelups by character id  */
 export function handleBattleVictory(
@@ -26,8 +25,8 @@ export function handleBattleVictory(
     const newLevelOption = combatantProperties.awardLevelups();
     if (newLevelOption !== null) levelUps[combatant.entityProperties.id] = newLevelOption;
     // until revives are added, res dead characters to 1 hp
-    if (CombatantProperties.isDead(combatantProperties)) {
-      CombatantProperties.changeHitPoints(combatantProperties, 1);
+    if (combatantProperties.isDead()) {
+      combatantProperties.resources.changeHitPoints(1);
     }
   }
 

@@ -11,7 +11,7 @@ import {
 export function getAttackActionIcons(user: CombatantProperties, inCombat: boolean) {
   const mhIcons = [];
 
-  const { actionPoints } = user;
+  const actionPoints = user.resources.getActionPoints();
   const mainHandEquipmentOption = user.equipment.getEquippedHoldable(HoldableSlotType.MainHand);
   const offHandEquipmentOption = user.equipment.getEquippedHoldable(HoldableSlotType.OffHand);
   const ohIsShield =

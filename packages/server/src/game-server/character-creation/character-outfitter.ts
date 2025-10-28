@@ -31,7 +31,7 @@ export class CharacterOutfitter {
     CharacterOutfitter.setUpInherentTraits(combatantProperties);
     CharacterOutfitter.giveStartingInventoryItems(combatantProperties);
     CharacterOutfitter.giveStartingEquipment(combatantProperties);
-    CombatantProperties.setHpAndMpToMax(combatantProperties);
+    combatantProperties.resources.setToMax();
   }
 
   static giveStartingAbilities = giveStartingAbilities;

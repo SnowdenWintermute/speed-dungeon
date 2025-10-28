@@ -127,7 +127,7 @@ export class CollectPotentialHealingFromConsideredActions implements BehaviorNod
 
         for (const allyCombatant of this.behaviorContext.consideredCombatants) {
           const allyId = allyCombatant.entityProperties.id;
-          const { hitPoints } = allyCombatant.combatantProperties;
+          const hitPoints = allyCombatant.combatantProperties.resources.getHitPoints();
           const maxHitPoints =
             allyCombatant.combatantProperties.attributeProperties.getAttributeValue(
               CombatAttribute.Hp

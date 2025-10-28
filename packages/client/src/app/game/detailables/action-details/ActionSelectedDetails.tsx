@@ -14,7 +14,6 @@ import {
   HitOutcomeMitigationCalculator,
   MaxAndCurrent,
   TargetingCalculator,
-  getUnmetCostResourceTypes,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import React from "react";
@@ -48,7 +47,7 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
 
   const inCombat = party.combatantManager.monstersArePresent();
 
-  const disableOh = inCombat && combatantProperties.actionPoints < 2;
+  const disableOh = inCombat && combatantProperties.resources.getActionPoints() < 2;
   if (actionName === CombatActionName.Attack)
     return (
       <div className="w-full flex flex-col">
@@ -115,7 +114,7 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
 
           const rankCosts = action.costProperties.getResourceCosts(combatant, inCombat, rank) || {};
           const unmetCosts = rankCosts
-            ? getUnmetCostResourceTypes(combatantProperties, rankCosts)
+            ? combatantProperties.resources.getUnmetCostResourceTypes(rankCosts)
             : [];
 
           const accuracy = rankDescription[ActionDescriptionComponent.Accuracy];

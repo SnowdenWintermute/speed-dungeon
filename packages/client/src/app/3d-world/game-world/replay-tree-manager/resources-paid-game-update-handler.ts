@@ -1,5 +1,4 @@
 import {
-  CombatantProperties,
   MaxAndCurrent,
   ResourcesPaidGameUpdateCommand,
   SpeedDungeonGame,
@@ -25,7 +24,7 @@ export async function resourcesPaidGameUpdateHandler(
     }
 
   if (command.costsPaid) {
-    CombatantProperties.payResourceCosts(combatantProperties, command.costsPaid);
+    combatantProperties.resources.payResourceCosts(command.costsPaid);
   }
 
   const actionState = combatantProperties.abilityProperties.getOwnedActions()[command.actionName];

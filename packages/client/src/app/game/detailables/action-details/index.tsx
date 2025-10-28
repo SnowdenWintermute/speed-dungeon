@@ -4,7 +4,6 @@ import {
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
   CombatActionName,
   CombatActionUsabilityContext,
-  getUnmetCostResourceTypes,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import React from "react";
@@ -34,7 +33,7 @@ export const ActionDetails = observer(
     const action = COMBAT_ACTIONS[actionName];
     const costs =
       action.costProperties.getResourceCosts(focusedCharacter, inCombat, selectedLevelOption) || {};
-    const unmetCosts = costs ? getUnmetCostResourceTypes(combatantProperties, costs) : [];
+    const unmetCosts = costs ? combatantProperties.resources.getUnmetCostResourceTypes(costs) : [];
     const { usabilityContext } = action.targetingProperties;
 
     const notInUsableContext =

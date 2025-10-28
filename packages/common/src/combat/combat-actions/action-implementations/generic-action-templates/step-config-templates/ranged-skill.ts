@@ -3,7 +3,6 @@ import {
   AnimationTimingType,
 } from "../../../../../action-processing/index.js";
 import { AnimationType, SkeletalAnimationName } from "../../../../../app-consts.js";
-import { CombatantProperties } from "../../../../../combatants/combatant-properties.js";
 import { Combatant } from "../../../../../combatants/index.js";
 import { ActionResolutionStepsConfig } from "../../../combat-action-steps-config.js";
 import {
@@ -42,7 +41,7 @@ export const RANGED_SKILL_STEPS_CONFIG = new ActionResolutionStepsConfig(
     [ActionResolutionStepType.FinalPositioning]: {
       getDestination: getHomeDestination,
       getAnimation: (user) => {
-        if (user instanceof Combatant && CombatantProperties.isDead(user.combatantProperties)) {
+        if (user instanceof Combatant && user.combatantProperties.isDead()) {
           return null;
         }
 

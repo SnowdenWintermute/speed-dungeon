@@ -8,7 +8,6 @@ import { HitOutcome } from "../../hit-outcome.js";
 import { CombatAttribute } from "../attributes/index.js";
 import { Combatant } from "../index.js";
 import { ThreatType } from "./index.js";
-import { CombatantProperties } from "../combatant-properties.js";
 
 const DAMAGE_STABLE_THREAT_BASE = 80;
 const HEALING_STABLE_THREAT_BASE = DAMAGE_STABLE_THREAT_BASE / 2;
@@ -69,7 +68,7 @@ export class ThreatCalculator {
         const targetIsPlayerControlled = combatantProperties.isPlayerControlled();
 
         if (combatantProperties.threatManager) {
-          if (!CombatantProperties.isDead(combatantProperties))
+          if (!combatantProperties.isDead())
             // add flat threat to monster for user
             this.addThreatFromDebuffingMonster(
               targetCombatant,
@@ -183,7 +182,7 @@ export class ThreatCalculator {
     playerCharacter: IActionUser,
     hpChangeValue: number
   ) {
-    if (CombatantProperties.isDead(monster.combatantProperties)) return;
+    if (monster.combatantProperties.isDead()) return;
 
     const stableThreatGenerated =
       ThreatCalculator.getThreatGeneratedOnHpChange(
@@ -259,7 +258,7 @@ export class ThreatCalculator {
     values: Record<ThreatType, number>
   ) {
     for (const monster of monsters) {
-      if (CombatantProperties.isDead(monster.combatantProperties)) continue;
+      if (monster.combatantProperties.isDead()) continue;
 
       this.threatChanges.addOrUpdateEntry(
         monster.entityProperties.id,
@@ -301,7 +300,7 @@ export class ThreatCalculator {
     const monsters = this.party.combatantManager.getDungeonControlledCombatants();
 
     for (const monster of monsters) {
-      if (CombatantProperties.isDead(monster.combatantProperties)) continue;
+      if (monster.combatantProperties.isDead()) continue;
       const { threatManager } = monster.combatantProperties;
       if (threatManager === undefined) continue;
       for (const [combatantId, threatEntry] of Object.entries(threatManager.getEntries())) {

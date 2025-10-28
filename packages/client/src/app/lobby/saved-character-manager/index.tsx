@@ -55,7 +55,7 @@ export const SavedCharacterManager = observer(() => {
               return (
                 <CharacterModelDisplay character={character} key={character.entityProperties.id}>
                   <div className="w-full h-full flex justify-center items-center">
-                    {character!.combatantProperties.hitPoints <= 0 && (
+                    {character.combatantProperties.isDead() && (
                       <div className="relative text-2xl">
                         <span
                           className="text-red-600"

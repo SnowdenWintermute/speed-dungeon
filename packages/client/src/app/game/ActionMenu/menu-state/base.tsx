@@ -6,7 +6,6 @@ import {
   COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTIONS,
   ACTION_NAMES_TO_HIDE_IN_MENU,
-  getUnmetCostResourceTypes,
   CombatActionName,
   ActionAndRank,
 } from "@speed-dungeon/common";
@@ -178,7 +177,7 @@ export class BaseMenuState extends ActionMenuState {
         1 // @TODO - calculate the actual level to display based on most expensive they can afford
       );
       let unmetCosts = [];
-      if (costs) unmetCosts = getUnmetCostResourceTypes(combatantProperties, costs);
+      if (costs) unmetCosts = combatantProperties.resources.getUnmetCostResourceTypes(costs);
 
       const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
 

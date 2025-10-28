@@ -108,7 +108,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   combatantProperties.equipment = getMonsterEquipment(monsterType);
 
   // set hp and mp to max
-  CombatantProperties.setHpAndMpToMax(monster.combatantProperties);
+  monster.combatantProperties.resources.setToMax();
   // @TODO - assign abilities (realistically need to refactor monster creation)
 
   combatantProperties.aiTypes = [AiType.Healer];

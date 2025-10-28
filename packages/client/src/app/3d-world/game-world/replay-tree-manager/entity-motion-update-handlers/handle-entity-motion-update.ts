@@ -4,7 +4,6 @@ import {
   CleanupMode,
   CombatantMotionGameUpdateCommand,
   CombatantMotionUpdate,
-  CombatantProperties,
   EntityId,
   EntityMotionUpdate,
   SpawnableEntityType,
@@ -163,7 +162,7 @@ function handleCombatantMotionUpdate(
   // they are already dead, so don't animate them
   // this happens if a combatant dies from getting counterattacked and the server
   // tells them to "return home"
-  if (CombatantProperties.isDead(combatant.combatantProperties)) {
+  if (combatant.combatantProperties.isDead()) {
     parentUpdate.setAsQueuedToComplete();
     return toReturn;
   }

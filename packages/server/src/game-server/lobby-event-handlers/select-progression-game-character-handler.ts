@@ -1,6 +1,5 @@
 import {
   Combatant,
-  CombatantProperties,
   ERROR_MESSAGES,
   GameMode,
   ServerToClientEvent,
@@ -36,7 +35,7 @@ export async function selectProgressionGameCharacterHandler(
   let savedCharacterOption;
   for (const character of Object.values(charactersResult)) {
     if (character.entityProperties.id === entityId) {
-      if (CombatantProperties.isDead(character.combatantProperties)) {
+      if (character.combatantProperties.isDead()) {
         return errorHandler(socket, new Error(ERROR_MESSAGES.COMBATANT.IS_DEAD));
       }
       savedCharacterOption = character;
@@ -44,7 +43,7 @@ export async function selectProgressionGameCharacterHandler(
     }
   }
 
-  if (savedCharacterOption === undefined){
+  if (savedCharacterOption === undefined) {
     return errorHandler(socket, new Error(ERROR_MESSAGES.USER.SAVED_CHARACTER_NOT_OWNED));
   }
 

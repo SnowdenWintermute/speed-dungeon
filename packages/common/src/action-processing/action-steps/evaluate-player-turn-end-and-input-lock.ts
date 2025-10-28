@@ -1,5 +1,5 @@
 import { AdventuringParty, InputLock } from "../../adventuring-party/index.js";
-import { COMBAT_ACTION_NAME_STRINGS, COMBAT_ACTIONS, ThreatChanges } from "../../combat/index.js";
+import { COMBAT_ACTIONS, ThreatChanges } from "../../combat/index.js";
 import { Combatant } from "../../combatants/index.js";
 import { ThreatCalculator } from "../../combatants/threat-manager/threat-calculator.js";
 import {
@@ -53,14 +53,14 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   sequentialActionManagerRegistry.decrementInputLockReferenceCount();
 
   const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
-  const actionNameString = COMBAT_ACTION_NAME_STRINGS[tracker.actionExecutionIntent.actionName];
 
   const { game, party, actionUser } = context.actionUserContext;
   const battleOption = AdventuringParty.getBattleOption(party, game);
 
   const userIsCombatant = actionUser instanceof Combatant;
 
-  const noActionPointsLeft = userIsCombatant && actionUser.combatantProperties.actionPoints === 0;
+  const noActionPointsLeft =
+    userIsCombatant && actionUser.combatantProperties.resources.getActionPoints() === 0;
   const requiredTurn =
     action.costProperties.requiresCombatTurnInThisContext(context, action) || noActionPointsLeft;
 

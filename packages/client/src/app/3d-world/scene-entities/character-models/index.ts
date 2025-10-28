@@ -21,7 +21,6 @@ import {
   EquipmentType,
   CombatantBaseChildTransformNodeName,
   NormalizedPercentage,
-  CombatantProperties,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
@@ -170,7 +169,7 @@ export class CharacterModel extends SceneEntity {
 
   startIdleAnimation(transitionMs: number, options?: ManagedAnimationOptions) {
     const combatant = this.getCombatant();
-    if (CombatantProperties.isDead(combatant.combatantProperties)) return;
+    if (combatant.combatantProperties.isDead()) return;
     try {
       const idleName = this.getIdleAnimationName();
 

@@ -5,7 +5,6 @@ import { addAttributesToAccumulator } from "./attributes/add-attributes-to-accum
 import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../utils/index.js";
 import { getCombatantTotalAttributes } from "./attributes/get-combatant-total-attributes.js";
 import { Item } from "../items/index.js";
-import { applyEquipmentEffectWhileMaintainingResourcePercentages } from "./combatant-equipment/apply-equipment-affect-while-maintaining-resource-percentages.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 
 export type CombatantAttributeRecord = Partial<Record<CombatAttribute, number>>;
@@ -26,7 +25,7 @@ export class CombatantAttributeProperties extends CombatantSubsystem {
   }
 
   allocatePoint(attribute: CombatAttribute) {
-    applyEquipmentEffectWhileMaintainingResourcePercentages(this.getCombatantProperties(), () => {
+    this.getCombatantProperties().resources.maintainResourcePercentagesAfterEffect(() => {
       const currentAttributeValue = this.speccedAttributes[attribute] || 0;
       this.speccedAttributes[attribute] = currentAttributeValue + 1;
       this.unspentAttributePoints -= 1;

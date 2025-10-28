@@ -30,8 +30,11 @@ export function selectHoldableHotswapSlotHandler(
       character.entityProperties.id
     );
     if (!isCombatantTurn) return new Error(ERROR_MESSAGES.COMBATANT.NOT_ACTIVE);
-    if (combatantProperties.actionPoints < HOTSWAP_SLOT_SELECTION_ACTION_POINT_COST)
+    if (
+      combatantProperties.resources.getActionPoints() < HOTSWAP_SLOT_SELECTION_ACTION_POINT_COST
+    ) {
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INSUFFICIENT_RESOURCES);
+    }
   }
 
   const gameServer = getGameServer();

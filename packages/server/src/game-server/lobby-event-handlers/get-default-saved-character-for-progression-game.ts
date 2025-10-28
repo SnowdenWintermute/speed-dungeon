@@ -35,7 +35,7 @@ export default async function getDefaultSavedCharacterForProgressionGame(
   let defaultSavedCharacter: Combatant | undefined = undefined;
 
   for (const character of Object.values(charactersResult)) {
-    if (character.combatantProperties.hitPoints > 0) {
+    if (!character.combatantProperties.isDead()) {
       defaultSavedCharacter = Combatant.getDeserialized(character);
       break;
     }

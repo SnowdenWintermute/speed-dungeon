@@ -6,7 +6,6 @@ import { ActionExecutionPhase } from "../../action-execution-phase.js";
 import { HoldableSlotType } from "../../../../../items/equipment/slots.js";
 import { COMBAT_ACTIONS } from "../../index.js";
 import { CombatActionName } from "../../../combat-action-names.js";
-import { CombatantProperties } from "../../../../../combatants/combatant-properties.js";
 
 const expectedMeleeAttackAnimationType = "Expected meleeAttackAnimationType was undefined";
 
@@ -73,7 +72,7 @@ config.options.getFinalSteps = (self, context) => {
   const { actionUser } = context.actionUserContext;
   const combatantProperties = actionUser.getCombatantProperties();
 
-  if (CombatantProperties.isDead(combatantProperties)) {
+  if (combatantProperties.isDead()) {
     return {
       [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     };

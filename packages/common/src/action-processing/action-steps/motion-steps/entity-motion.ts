@@ -16,7 +16,6 @@ import { getTranslationTime } from "../../../combat/combat-actions/action-implem
 import { Milliseconds } from "../../../primatives/index.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
 import { Combatant } from "../../../combatants/index.js";
-import { CombatantProperties } from "../../../combatants/combatant-properties.js";
 
 export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   private translationOption: null | EntityTranslation = null;
@@ -163,10 +162,7 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   protected onTick(): void {
     if (!this.translationOption) return;
 
-    if (
-      this.actionUser instanceof Combatant &&
-      CombatantProperties.isDead(this.actionUser.combatantProperties)
-    ) {
+    if (this.actionUser instanceof Combatant && this.actionUser.combatantProperties.isDead()) {
       this.translationOption.destination = this.actionUser.getPositionOption();
       this.translationOption.duration = this.elapsed;
     }

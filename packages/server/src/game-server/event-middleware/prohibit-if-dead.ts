@@ -3,7 +3,6 @@ import {
   ClientToServerEventTypes,
   ServerToClientEventTypes,
   CharacterAssociatedData,
-  CombatantProperties,
 } from "@speed-dungeon/common";
 import { SocketEventNextFunction } from "./index.js";
 import { Socket } from "socket.io";
@@ -18,7 +17,7 @@ export async function prohibitIfDead<T extends { characterId: string }>(
 
   const { character } = middlewareProvidedData;
 
-  if (CombatantProperties.isDead(character.combatantProperties))
+  if (character.combatantProperties.isDead())
     throw new Error(`${ERROR_MESSAGES.COMBATANT.IS_DEAD}`);
 
   next(eventData, middlewareProvidedData);

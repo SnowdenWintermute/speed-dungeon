@@ -6,7 +6,6 @@ import {
   Equipment,
   GameMode,
   ServerToClientEvent,
-  applyEquipmentEffectWhileMaintainingResourcePercentages,
   getCraftingActionPrice,
   getPartyChannelName,
 } from "@speed-dungeon/common";
@@ -52,7 +51,7 @@ export async function craftItemHandler(
     percentRepairedBeforeModification = durabilityOption.current / durabilityOption.max;
   }
 
-  applyEquipmentEffectWhileMaintainingResourcePercentages(character.combatantProperties, () => {
+  character.combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
     const actionHandler = craftingActionHandlers[craftingAction];
     const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
     actionResult = actionHandler(itemResult, floorNumber);

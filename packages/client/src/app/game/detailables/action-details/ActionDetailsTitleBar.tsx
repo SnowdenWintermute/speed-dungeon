@@ -8,7 +8,6 @@ import {
   COMBAT_ACTIONS,
   CombatActionName,
   CombatantActionState,
-  getUnmetCostResourceTypes,
 } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React from "react";
@@ -55,10 +54,10 @@ export const ActionDetailsTitleBar = observer((props: Props) => {
                       !!inBattle,
                       item
                     );
-                    const unmet = getUnmetCostResourceTypes(
-                      focusedCharacter.combatantProperties,
-                      costs || {}
-                    );
+                    const unmet =
+                      focusedCharacter.combatantProperties.resources.getUnmetCostResourceTypes(
+                        costs || {}
+                      );
 
                     return (
                       <li key={actionName + item} className="mr-1 last:mr-0">

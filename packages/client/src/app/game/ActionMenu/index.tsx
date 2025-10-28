@@ -175,7 +175,8 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
             tooltipText="Action Points"
           >
             <span>
-              AP: {focusedCharacter.combatantProperties.actionPoints}/{COMBATANT_MAX_ACTION_POINTS}
+              AP: {focusedCharacter.combatantProperties.resources.getActionPoints()}/
+              {COMBATANT_MAX_ACTION_POINTS}
             </span>
           </HoverableTooltipWrapper>
         )}

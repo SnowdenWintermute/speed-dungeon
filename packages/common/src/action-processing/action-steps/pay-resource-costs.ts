@@ -65,7 +65,7 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
 
       if (costsOption) {
         gameUpdateCommandOption.costsPaid = costsOption;
-        CombatantProperties.payResourceCosts(combatantProperties, costsOption);
+        combatantProperties.resources.payResourceCosts(costsOption);
       }
 
       const actionState = combatantProperties.abilityProperties.getOwnedActions()[action.name];

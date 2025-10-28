@@ -24,7 +24,7 @@ stepOverrides[ActionResolutionStepType.PostPrepSpawnEntity] = {
     const opponents = party.combatantManager.getExpectedCombatants(opponentIds);
 
     const projectileEntitiesToSpawn = opponents
-      .filter((opponent) => opponent.combatantProperties.hitPoints > 0)
+      .filter((opponent) => !opponent.combatantProperties.isDead())
       .map((opponent) => {
         const projectileFactory = new ProjectileFactory(context, {
           defaultTargetOverride: opponent,

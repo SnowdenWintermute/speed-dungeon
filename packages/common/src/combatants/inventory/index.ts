@@ -10,7 +10,6 @@ import { CombatantTraitType } from "../combatant-traits/trait-types.js";
 import { runIfInBrowser } from "../../utils/index.js";
 import { CombatantSubsystem } from "../combatant-subsystem.js";
 import makeAutoObservable from "mobx-store-inheritance";
-import { applyEquipmentEffectWhileMaintainingResourcePercentages } from "../combatant-equipment/apply-equipment-affect-while-maintaining-resource-percentages.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 
 export class Inventory extends CombatantSubsystem {
@@ -178,7 +177,7 @@ export class Inventory extends CombatantSubsystem {
 
     if (removedItemResult instanceof Error) {
       const combatantProperties = this.getCombatantProperties();
-      applyEquipmentEffectWhileMaintainingResourcePercentages(combatantProperties, () => {
+      combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
         removedItemResult = combatantProperties.equipment.removeItem(itemId);
       });
     }

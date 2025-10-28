@@ -21,7 +21,7 @@ export const ValueBarsAndFocusButton = observer(
     const hpBar = maxHitPointsOption ? (
       <ValueBar
         maxValue={maxHitPointsOption}
-        currentValue={combatantProperties.hitPoints}
+        currentValue={combatantProperties.resources.getHitPoints()}
         color="green-700"
       />
     ) : (
@@ -29,7 +29,11 @@ export const ValueBarsAndFocusButton = observer(
     );
 
     const mpBar = maxManaOption ? (
-      <ValueBar maxValue={maxManaOption} currentValue={combatantProperties.mana} color="blue-700" />
+      <ValueBar
+        maxValue={maxManaOption}
+        currentValue={combatantProperties.resources.getMana()}
+        color="blue-700"
+      />
     ) : (
       <span />
     );

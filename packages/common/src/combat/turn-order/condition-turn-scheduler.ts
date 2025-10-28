@@ -5,7 +5,6 @@ import { SpeedDungeonGame } from "../../game/index.js";
 import { ITurnScheduler, TurnScheduler } from "./turn-schedulers.js";
 import { ConditionTurnTracker } from "./turn-trackers.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
-import { CombatantProperties } from "../../combatants/combatant-properties.js";
 
 export class ConditionTurnScheduler extends TurnScheduler implements ITurnScheduler {
   constructor(
@@ -31,8 +30,7 @@ export class ConditionTurnScheduler extends TurnScheduler implements ITurnSchedu
     const { combatantManager } = party;
     const combatantOption = combatantManager.getCombatantOption(this.combatantId);
     const combatantIsDeadOrMissing =
-      combatantOption === undefined ||
-      CombatantProperties.isDead(combatantOption.combatantProperties);
+      combatantOption === undefined || combatantOption.combatantProperties.isDead();
     if (combatantIsDeadOrMissing) return true;
 
     const conditionResult = combatantManager.getConditionOptionOnCombatant(

@@ -4,7 +4,6 @@ import { CombatAttribute } from "../../combatants/index.js";
 import { ITurnScheduler, TurnScheduler } from "./turn-schedulers.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { CombatantTurnTracker } from "./turn-trackers.js";
-import { CombatantProperties } from "../../combatants/combatant-properties.js";
 
 export class CombatantTurnScheduler extends TurnScheduler implements ITurnScheduler {
   constructor(public readonly combatantId: EntityId) {
@@ -22,7 +21,7 @@ export class CombatantTurnScheduler extends TurnScheduler implements ITurnSchedu
   isStale(party: AdventuringParty) {
     const combatantOption = party.combatantManager.getCombatantOption(this.combatantId);
     const combatantMissing = combatantOption === undefined;
-    return combatantMissing || CombatantProperties.isDead(combatantOption.combatantProperties);
+    return combatantMissing || combatantOption.combatantProperties.isDead();
   }
 
   isMatch(otherScheduler: ITurnScheduler): boolean {
@@ -34,7 +33,7 @@ export class CombatantTurnScheduler extends TurnScheduler implements ITurnSchedu
 
   createTurnTrackerOption(game: SpeedDungeonGame, party: AdventuringParty) {
     const combatant = party.combatantManager.getExpectedCombatant(this.combatantId);
-    const isDead = CombatantProperties.isDead(combatant.combatantProperties);
+    const isDead = combatant.combatantProperties.isDead();
 
     if (isDead) throw new Error("why is a combatant dead when trying to make its trackers");
 

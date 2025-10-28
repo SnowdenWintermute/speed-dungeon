@@ -2,7 +2,6 @@ import { Combatant, LadderDeathsUpdate, calculateTotalExperience } from "@speed-
 import { valkeyManager } from "./index.js";
 import { CHARACTER_LEVEL_LADDER } from "./consts.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
-import { CombatantProperties } from "@speed-dungeon/common";
 
 export async function removeDeadCharactersFromLadder(characters: Combatant[]) {
   const ladderDeathsUpdate: LadderDeathsUpdate = {};
@@ -10,7 +9,7 @@ export async function removeDeadCharactersFromLadder(characters: Combatant[]) {
   for (const character of characters) {
     const { combatantProperties } = character;
 
-    const isAlive = !CombatantProperties.isDead(combatantProperties);
+    const isAlive = !combatantProperties.isDead();
     if (isAlive) continue; // still alive
 
     const rank = await valkeyManager.context.zRevRank(

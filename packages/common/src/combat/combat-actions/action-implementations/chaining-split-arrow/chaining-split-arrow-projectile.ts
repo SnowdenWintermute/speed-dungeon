@@ -36,7 +36,6 @@ import {
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
 import { ActionResolutionStepContext } from "../../../../action-processing/index.js";
 import { Combatant } from "../../../../combatants/index.js";
-import { CombatantProperties } from "../../../../combatants/combatant-properties.js";
 
 const targetingPropertiesOverrides: Partial<CombatActionTargetingPropertiesConfig> = {
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.RandomCombatant },
@@ -160,7 +159,7 @@ function getBouncableTargets(
   const opponents = party.combatantManager.getExpectedCombatants(opponentIds);
 
   const isValidTarget = (combatant: Combatant) =>
-    !CombatantProperties.isDead(combatant.combatantProperties) &&
+    !combatant.combatantProperties.isDead() &&
     combatant.entityProperties.id !== previousTargetIdResult;
 
   const possibleTargetIds = opponents

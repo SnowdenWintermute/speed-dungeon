@@ -20,10 +20,6 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { CombatantSubsystem } from "../combatant-subsystem.js";
-import { applyEquipmentEffectWhileMaintainingResourcePercentages } from "./apply-equipment-affect-while-maintaining-resource-percentages.js";
-
-export * from "./get-pre-equipment-change-hp-and-mana-percentage.js";
-export * from "./apply-equipment-affect-while-maintaining-resource-percentages.js";
 
 const DEFAULT_HOTSWAP_SLOT_ALLOWED_TYPES = [
   EquipmentType.OneHandedMeleeWeapon,
@@ -233,7 +229,7 @@ export class CombatantEquipment extends CombatantSubsystem {
     const idsOfUnequippedItems: EntityId[] = [];
     const slotsToUnequip: TaggedEquipmentSlot[] = [];
 
-    applyEquipmentEffectWhileMaintainingResourcePercentages(combatantProperties, () => {
+    combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
       const { equipmentType } = equipment.equipmentBaseItemProperties.taggedBaseEquipment;
 
       const possibleSlots = EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[equipmentType];
@@ -302,7 +298,7 @@ export class CombatantEquipment extends CombatantSubsystem {
 
   changeSelectedHotswapSlot(slotIndex: number) {
     const combatantProperties = this.getCombatantProperties();
-    applyEquipmentEffectWhileMaintainingResourcePercentages(combatantProperties, () => {
+    combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
       combatantProperties.equipment.setSelectedHoldableSlotIndex(slotIndex);
     });
   }
@@ -312,7 +308,7 @@ export class CombatantEquipment extends CombatantSubsystem {
 
     const combatantProperties = this.getCombatantProperties();
 
-    applyEquipmentEffectWhileMaintainingResourcePercentages(combatantProperties, () => {
+    combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
       const unequippedItems = combatantProperties.equipment.removeEquipmentInSlots(slots);
       combatantProperties.inventory.equipment.push(...unequippedItems);
       unequippedItemIds.push(...unequippedItems.map((item) => item.entityProperties.id));

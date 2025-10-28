@@ -1,6 +1,5 @@
 import { ActionTracker } from "../../../../../action-processing/action-tracker.js";
 import { ActionResolutionStepContext } from "../../../../../action-processing/index.js";
-import { CombatantProperties } from "../../../../../combatants/combatant-properties.js";
 import { SpeedDungeonGame } from "../../../../../game/index.js";
 import { TargetingCalculator } from "../../../../targeting/targeting-calculator.js";
 import { ActionExecutionPrecondition } from "../../../combat-action-targeting-properties.js";
@@ -67,7 +66,7 @@ function hasEnoughActionPoints(
   );
   if (resourceCosts === null) return true;
   const actionPointCost = resourceCosts[ActionPayableResource.ActionPoints] || 0;
-  const { actionPoints } = combatantProperties;
+  const actionPoints = combatantProperties.resources.getActionPoints();
 
   if (actionPoints >= Math.abs(actionPointCost)) return true;
 
@@ -81,7 +80,7 @@ function userIsAlive(
 ) {
   const { actionUser } = context.actionUserContext;
   const combatantProperties = actionUser.getCombatantProperties();
-  return !CombatantProperties.isDead(combatantProperties);
+  return !combatantProperties.isDead();
 }
 
 function targetsAreAlive(

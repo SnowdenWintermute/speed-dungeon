@@ -1,7 +1,6 @@
 import {
   ActionCompletionUpdateCommand,
   AdventuringParty,
-  CombatantProperties,
   CombatantTurnTracker,
   InputLock,
 } from "@speed-dungeon/common";
@@ -34,7 +33,7 @@ export async function actionCompletionGameUpdateHandler(
       const { combatantProperties } = party.combatantManager.getExpectedCombatant(
         fastestTracker.getTaggedIdOfTrackedEntity().combatantId
       );
-      CombatantProperties.refillActionPoints(combatantProperties);
+      combatantProperties.resources.refillActionPoints();
       combatantProperties.abilityProperties.tickCooldowns();
     }
 

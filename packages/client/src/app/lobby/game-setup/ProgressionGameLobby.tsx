@@ -160,7 +160,7 @@ const PlayerDisplay = observer(
                 return {
                   title: formatCharacterTag(character!),
                   value: character!.entityProperties.id,
-                  disabled: character?.combatantProperties.hitPoints === 0,
+                  disabled: character!.combatantProperties.isDead(),
                 };
               })}
             disabled={game.playersReadied.includes(username)}
@@ -181,7 +181,7 @@ const PlayerDisplay = observer(
 );
 
 export function formatCharacterTag(combatant: Combatant) {
-  const deadText = combatant.combatantProperties.hitPoints <= 0 ? " - DEAD" : "";
+  const deadText = combatant.combatantProperties.isDead() ? " - DEAD" : "";
   return `${combatant.entityProperties.name} - ${formatCharacterLevelAndClass(combatant)}${deadText}`;
 }
 

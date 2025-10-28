@@ -1,10 +1,7 @@
 import { DurabilityLossCondition } from "../combat/combat-actions/combat-action-durability-loss-condition.js";
 import { CombatActionComponent } from "../combat/combat-actions/index.js";
 import { IActionUser } from "../action-user-context/action-user.js";
-import {
-  Combatant,
-  applyEquipmentEffectWhileMaintainingResourcePercentages,
-} from "../combatants/index.js";
+import { Combatant } from "../combatants/index.js";
 import { HitOutcome } from "../hit-outcome.js";
 import { Equipment, EquipmentSlotType, TaggedEquipmentSlot } from "../items/equipment/index.js";
 import { EntityId } from "../primatives/index.js";
@@ -81,13 +78,10 @@ export class DurabilityChangesByEntityId {
         const { equipment } = combatant.combatantProperties;
         const equipmentOption = equipment.getEquipmentInSlot(taggedSlot);
 
-        applyEquipmentEffectWhileMaintainingResourcePercentages(
-          combatant.combatantProperties,
-          () => {
-            if (equipmentOption !== undefined) Equipment.changeDurability(equipmentOption, value);
-            if (onApply && equipmentOption) onApply(combatant, equipmentOption);
-          }
-        );
+        combatant.combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
+          if (equipmentOption !== undefined) Equipment.changeDurability(equipmentOption, value);
+          if (onApply && equipmentOption) onApply(combatant, equipmentOption);
+        });
       }
     }
   }

@@ -1,7 +1,4 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { changeCombatantMana } from "./resources/change-mana.js";
-import { changeCombatantHitPoints } from "./resources/change-hit-points.js";
-import { clampResourcesToMax } from "./resources/clamp-resources-to-max.js";
 import { getActionNamesFilteredByUseableContext } from "./owned-actions/get-owned-action-names-filtered-by-usable-context.js";
 import { Equipment, EquipmentType, HoldableSlotType } from "../items/equipment/index.js";
 import { CombatantAbilityProperties } from "./combatant-abilities/combatant-ability-properties.js";
@@ -12,13 +9,9 @@ import { CombatantSpecies } from "./combatant-species.js";
 import { COMBATANT_TRAIT_DESCRIPTIONS } from "./combatant-traits/index.js";
 import getCombatantTotalElementalAffinities from "./combatant-traits/get-combatant-total-elemental-affinities.js";
 import getCombatantTotalKineticDamageTypeAffinities from "./combatant-traits/get-combatant-total-kinetic-damage-type-affinities.js";
-import { setResourcesToMax } from "./resources/set-resources-to-max.js";
 import { cloneVector3, iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { MonsterType } from "../monsters/monster-types.js";
-import {
-  CombatantEquipment,
-  applyEquipmentEffectWhileMaintainingResourcePercentages,
-} from "./combatant-equipment/index.js";
+import { CombatantEquipment } from "./combatant-equipment/index.js";
 import { CombatantClass } from "./combatant-class/index.js";
 import {
   ActionAndRank,
@@ -32,36 +25,30 @@ import { plainToInstance } from "class-transformer";
 import {
   ABILITY_POINTS_AWARDED_PER_LEVEL,
   ATTRIBUTE_POINTS_AWARDED_PER_LEVEL,
-  COMBATANT_MAX_ACTION_POINTS,
 } from "../app-consts.js";
-import {
-  ActionPayableResource,
-  CombatActionName,
-  getUnmetCostResourceTypes,
-} from "../combat/combat-actions/index.js";
+import { CombatActionName } from "../combat/combat-actions/index.js";
 import { IActionUser } from "../action-user-context/action-user.js";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { ClassProgressionProperties } from "./class-progression-properties.js";
 import { deserializeCondition } from "./combatant-conditions/deserialize-condition.js";
 import { makeAutoObservable } from "mobx";
+import { CombatantResources } from "./combatant-resources.js";
 
 export class CombatantProperties {
   // subsystems
-  abilityProperties = new CombatantAbilityProperties();
   attributeProperties = new CombatantAttributeProperties();
-  targetingProperties = new ActionUserTargetingProperties();
-  threatManager?: ThreatManager;
   equipment: CombatantEquipment = new CombatantEquipment();
   inventory: Inventory = new Inventory();
+  resources: CombatantResources = new CombatantResources();
+
+  abilityProperties = new CombatantAbilityProperties();
+  targetingProperties = new ActionUserTargetingProperties();
+
+  threatManager?: ThreatManager;
 
   // controller
   summonedBy?: EntityId;
   aiTypes?: AiType[];
-
-  // RESOURCES
-  hitPoints: number = 0;
-  mana: number = 0;
-  actionPoints: number = 0;
 
   // ACHIEVEMENTS
   deepestFloorReached: number = 1;
@@ -94,6 +81,7 @@ export class CombatantProperties {
     this.attributeProperties.initialize(this);
     this.inventory.initialize(this);
     this.equipment.initialize(this);
+    this.resources.initialize(this);
   }
 
   static getDeserialized(combatantProperties: CombatantProperties) {
@@ -112,6 +100,8 @@ export class CombatantProperties {
     deserialized.attributeProperties = CombatantAttributeProperties.getDeserialized(
       deserialized.attributeProperties
     );
+    deserialized.resources = CombatantResources.getDeserialized(deserialized.resources);
+
     if (deserialized.threatManager !== undefined) {
       deserialized.threatManager = ThreatManager.getDeserialized(deserialized.threatManager);
     }
@@ -135,6 +125,7 @@ export class CombatantProperties {
     return this.controlledBy.controllerType === CombatantControllerType.Player;
   }
 
+  // CONDITIONS
   static getConditionById(combatantProperties: CombatantProperties, conditionId: EntityId) {
     for (const condition of combatantProperties.conditions) {
       if (condition.id === conditionId) return condition;
@@ -149,44 +140,39 @@ export class CombatantProperties {
 
   // ACTIONS
   static getActionNamesFilteredByUseableContext = getActionNamesFilteredByUseableContext;
-
-  // RESOURCES
-  static changeHitPoints = changeCombatantHitPoints;
-  static changeMana = changeCombatantMana;
-  static changeActionPoints(combatantProperties: CombatantProperties, value: number) {
-    combatantProperties.actionPoints = Math.min(
-      COMBATANT_MAX_ACTION_POINTS,
-      Math.max(0, combatantProperties.actionPoints + value)
-    );
-  }
-  static clampHpAndMpToMax = clampResourcesToMax;
-  static setHpAndMpToMax = setResourcesToMax;
-  static refillActionPoints(combatantProperties: CombatantProperties) {
-    combatantProperties.actionPoints = COMBATANT_MAX_ACTION_POINTS;
-  }
-  static payResourceCosts(
-    combatantProperties: CombatantProperties,
-    costs: Partial<Record<ActionPayableResource, number>>
-  ) {
-    for (const [resource, cost] of iterateNumericEnumKeyedRecord(costs)) {
-      switch (resource) {
-        case ActionPayableResource.HitPoints:
-          CombatantProperties.changeHitPoints(combatantProperties, cost);
-          break;
-        case ActionPayableResource.Mana:
-          CombatantProperties.changeMana(combatantProperties, cost);
-          break;
-        case ActionPayableResource.Shards:
-          break;
-        case ActionPayableResource.ActionPoints:
-          CombatantProperties.changeActionPoints(combatantProperties, cost);
-          break;
-      }
+  static hasRequiredConsumablesToUseAction(actionUser: IActionUser, actionName: CombatActionName) {
+    const action = COMBAT_ACTIONS[actionName];
+    const consumableCost = action.costProperties.getConsumableCost(actionUser);
+    if (consumableCost !== null) {
+      const inventory = actionUser.getInventoryOption();
+      if (inventory === null) throw new Error("expected user to have an inventory");
+      const { type, level } = consumableCost;
+      const consumableOption = inventory.getConsumableByTypeAndLevel(type, level);
+      if (consumableOption === undefined) return false;
     }
+    return true;
+  }
+  static hasRequiredResourcesToUseAction(
+    actionUser: IActionUser,
+    actionAndRank: ActionAndRank,
+    isInCombat: boolean
+  ) {
+    const { actionName, rank } = actionAndRank;
+
+    const action = COMBAT_ACTIONS[actionName];
+    const costs = action.costProperties.getResourceCosts(actionUser, isInCombat, rank);
+
+    if (costs) {
+      const unmetCosts = actionUser
+        .getCombatantProperties()
+        .resources.getUnmetCostResourceTypes(costs);
+      if (unmetCosts.length) return false;
+    }
+    return true;
   }
 
-  static isDead(combatantProperties: CombatantProperties) {
-    return combatantProperties.hitPoints <= 0;
+  isDead() {
+    return this.resources.getHitPoints() <= 0;
   }
 
   /** Returns the new level reached for this combatant if any */
@@ -197,14 +183,14 @@ export class CombatantProperties {
       this.abilityProperties.changeUnspentAbilityPoints(ABILITY_POINTS_AWARDED_PER_LEVEL);
       this.attributeProperties.changeUnspentPoints(ATTRIBUTE_POINTS_AWARDED_PER_LEVEL);
 
-      CombatantProperties.setHpAndMpToMax(this);
+      this.resources.setToMax();
     }
 
     return this.classProgressionProperties.getMainClass().level;
   }
 
   changeSupportClassLevel(supportClass: CombatantClass, value: number) {
-    applyEquipmentEffectWhileMaintainingResourcePercentages(this, () => {
+    this.resources.maintainResourcePercentagesAfterEffect(() => {
       this.classProgressionProperties.changeSupportClassLevel(supportClass, value);
       this.abilityProperties.changeUnspentAbilityPoints(1);
     });
@@ -239,35 +225,7 @@ export class CombatantProperties {
     return false;
   }
 
-  static hasRequiredConsumablesToUseAction(actionUser: IActionUser, actionName: CombatActionName) {
-    const action = COMBAT_ACTIONS[actionName];
-    const consumableCost = action.costProperties.getConsumableCost(actionUser);
-    if (consumableCost !== null) {
-      const inventory = actionUser.getInventoryOption();
-      if (inventory === null) throw new Error("expected user to have an inventory");
-      const { type, level } = consumableCost;
-      const consumableOption = inventory.getConsumableByTypeAndLevel(type, level);
-      if (consumableOption === undefined) return false;
-    }
-    return true;
-  }
-
-  static hasRequiredResourcesToUseAction(
-    actionUser: IActionUser,
-    actionAndRank: ActionAndRank,
-    isInCombat: boolean
-  ) {
-    const { actionName, rank } = actionAndRank;
-
-    const action = COMBAT_ACTIONS[actionName];
-    const costs = action.costProperties.getResourceCosts(actionUser, isInCombat, rank);
-
-    if (costs) {
-      const unmetCosts = getUnmetCostResourceTypes(actionUser.getCombatantProperties(), costs);
-      if (unmetCosts.length) return false;
-    }
-    return true;
-  }
+  // ABILITIES
 
   canAllocateAbilityPoint(ability: AbilityTreeAbility): {
     canAllocate: boolean;

@@ -1,5 +1,4 @@
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
-import { CombatantProperties } from "../../../../combatants/combatant-properties.js";
 import {
   CombatantBaseChildTransformNodeName,
   SceneEntityChildTransformNodeIdentifier,
@@ -115,7 +114,7 @@ finalStepOverrides[ActionResolutionStepType.ActionEntityDissipationMotion] = {
     if (combatantNotFound) {
       return CleanupMode.Soft;
     }
-    const targetIsDead = CombatantProperties.isDead(primaryTargetResult.combatantProperties);
+    const targetIsDead = primaryTargetResult.combatantProperties.isDead();
     if (targetIsDead) {
       return CleanupMode.Soft;
     }

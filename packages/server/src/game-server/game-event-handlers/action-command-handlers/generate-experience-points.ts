@@ -2,7 +2,6 @@ import {
   AdventuringParty,
   BASE_XP_LEVEL_DIFF_MULTIPLIER,
   BASE_XP_PER_MONSTER,
-  CombatantProperties,
 } from "@speed-dungeon/common";
 
 export function generateExperiencePoints(party: AdventuringParty) {
@@ -17,13 +16,13 @@ export function generateExperiencePoints(party: AdventuringParty) {
 
   let numCharactersAlive = 0;
   for (const combatant of partyCombatants) {
-    const isAlive = !CombatantProperties.isDead(combatant.combatantProperties);
+    const isAlive = !combatant.combatantProperties.isDead();
     if (isAlive) numCharactersAlive += 1;
   }
 
   for (const combatant of partyCombatants) {
     const { combatantProperties } = combatant;
-    const isDead = CombatantProperties.isDead(combatantProperties);
+    const isDead = combatantProperties.isDead();
     if (isDead) continue;
 
     let totalExpToAward = 0;

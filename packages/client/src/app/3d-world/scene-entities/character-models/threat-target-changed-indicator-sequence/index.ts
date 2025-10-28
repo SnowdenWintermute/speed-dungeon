@@ -15,7 +15,6 @@ import {
   ActionEntityName,
   CleanupMode,
   CombatantBaseChildTransformNodeName,
-  CombatantProperties,
   easeOut,
   NormalizedPercentage,
   SceneEntityType,
@@ -29,7 +28,7 @@ export function threatTargetChangedIndicatorSequence() {
   for (const combatant of party.combatantManager.getAllCombatants()) {
     const { threatManager } = combatant.combatantProperties;
     if (!threatManager) continue;
-    if (CombatantProperties.isDead(combatant.combatantProperties)) continue;
+    if (combatant.combatantProperties.isDead()) continue;
     const updatedTopThreat = threatManager.updateHomeRotationToPointTowardNewTopThreatTarget(
       party,
       combatant

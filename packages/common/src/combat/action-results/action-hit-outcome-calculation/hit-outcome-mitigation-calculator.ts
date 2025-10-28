@@ -178,7 +178,7 @@ export class HitOutcomeMitigationCalculator {
       !combatAction.targetingProperties.prohibitedHitCombatantStates.includes(
         ProhibitedTargetCombatantStates.Dead
       );
-    const targetIsDead = CombatantProperties.isDead(target);
+    const targetIsDead = target.isDead();
     if (targetIsDead && !canHitDeadCombatants) {
       return { beforeEvasion: 0, afterEvasion: 0 };
     } else {
@@ -223,7 +223,7 @@ export class HitOutcomeMitigationCalculator {
   }
 
   static getCounterattackChance(aggressor: IActionUser, defender: Combatant): Percentage {
-    if (CombatantProperties.isDead(defender.combatantProperties)) return 0;
+    if (defender.combatantProperties.isDead()) return 0;
     // derive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
     // and probably put it on the action configs
     return BASE_PARRY_CHANCE;

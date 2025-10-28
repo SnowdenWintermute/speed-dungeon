@@ -34,7 +34,7 @@ export class SelectActionToHealLowestHpAlly implements BehaviorNode {
         this.combatant,
         TargetCategories.Friendly,
         (combatant) =>
-          combatant.combatantProperties.hitPoints /
+          combatant.combatantProperties.resources.getHitPoints() /
             combatant.combatantProperties.attributeProperties.getAttributeValue(
               CombatAttribute.Hp
             ) <
@@ -44,7 +44,9 @@ export class SelectActionToHealLowestHpAlly implements BehaviorNode {
       // sort allies by lowest Hp
       new SorterNode(
         () => this.behaviorContext.consideredCombatants,
-        (a, b) => a.combatantProperties.hitPoints - b.combatantProperties.hitPoints
+        (a, b) =>
+          a.combatantProperties.resources.getHitPoints() -
+          b.combatantProperties.resources.getHitPoints()
       ),
       new CollectAllOwnedActionsByIntent(
         this.behaviorContext,

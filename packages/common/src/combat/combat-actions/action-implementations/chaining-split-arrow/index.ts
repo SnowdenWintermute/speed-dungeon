@@ -76,7 +76,7 @@ const config: CombatActionComponentConfig = {
       const opponents = party.combatantManager.getExpectedCombatants(opponentIds);
 
       return opponents
-        .filter((opponent) => opponent.combatantProperties.hitPoints > 0)
+        .filter((opponent) => !opponent.combatantProperties.isDead())
         .map((opponent, i) => {
           const expectedProjectile = context.tracker.spawnedEntities[i];
           if (expectedProjectile === undefined)

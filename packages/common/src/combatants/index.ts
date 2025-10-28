@@ -133,7 +133,7 @@ export class Combatant implements IActionUser {
     // REFILL THE QUICK ACTIONS OF THE CURRENT TURN
     // this way, if we want to remove their quick actions they can be at risk
     // of actions taking them away before they get their turn again
-    CombatantProperties.refillActionPoints(this.combatantProperties);
+    this.combatantProperties.resources.refillActionPoints();
     this.combatantProperties.abilityProperties.tickCooldowns();
   }
   getEntityId(): EntityId {
