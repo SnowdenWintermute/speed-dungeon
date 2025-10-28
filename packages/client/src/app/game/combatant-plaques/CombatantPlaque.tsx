@@ -143,7 +143,7 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
             {isPartyMember && (
               <InventoryIconButton
                 entityId={entityId}
-                numItemsInInventory={combatantProperties.inventory.getTotalNumberOfItems()}
+                numItemsInInventory={combatantProperties.inventory.getItemsCount()}
               />
             )}
             {isPartyMember && (

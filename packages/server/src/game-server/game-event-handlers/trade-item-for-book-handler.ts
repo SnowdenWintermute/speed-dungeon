@@ -65,7 +65,7 @@ function tradeItemForBook(
   bookType: BookConsumableType,
   vendingMachineLevel: number
 ) {
-  const removedItemResult = combatantProperties.inventory.removeOwnedItem(itemToTradeId);
+  const removedItemResult = combatantProperties.inventory.removeStoredOrEquipped(itemToTradeId);
   if (removedItemResult instanceof Error) return removedItemResult;
 
   const bookToReturn = createConsumableByType(bookType);

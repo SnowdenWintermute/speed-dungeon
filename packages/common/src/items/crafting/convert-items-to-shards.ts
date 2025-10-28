@@ -39,7 +39,7 @@ export function convertItemsToShards(itemIds: EntityId[], combatant: Combatant) 
 
 function convertItemToShards(item: Item, combatantProperties: CombatantProperties) {
   const itemId = item.entityProperties.id;
-  const removedItemResult = combatantProperties.inventory.removeOwnedItem(itemId);
+  const removedItemResult = combatantProperties.inventory.removeStoredOrEquipped(itemId);
   if (removedItemResult instanceof Error) return removedItemResult;
   return getItemSellPrice(removedItemResult);
 }

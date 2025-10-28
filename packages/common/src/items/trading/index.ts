@@ -10,12 +10,7 @@ export function getOwnedAcceptedItemsForBookTrade(
 ): Equipment[] {
   const toReturn = [];
   // look at all broken items equipped and in inventory
-  const equipmentInInventory = combatantProperties.inventory.getOwnedEquipment();
-  const equippedItems = combatantProperties.equipment.getAllEquippedItems({
-    includeUnselectedHotswapSlots: true,
-  });
-
-  const ownedEquipment = [...equipmentInInventory, ...equippedItems];
+  const ownedEquipment = combatantProperties.inventory.getOwnedEquipment();
 
   // check the affixes / stats on those items to match the consumable type
   for (const equipment of ownedEquipment) {

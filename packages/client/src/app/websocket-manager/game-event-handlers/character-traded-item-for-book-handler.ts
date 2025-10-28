@@ -39,7 +39,7 @@ export function characterTradedItemForBookHandler(eventData: {
       }
     }
 
-    const removedItemResult = combatantProperties.inventory.removeOwnedItem(itemIdTraded);
+    const removedItemResult = combatantProperties.inventory.removeStoredOrEquipped(itemIdTraded);
     if (removedItemResult instanceof Error) setAlert(removedItemResult);
     else {
       const asClassInstance = plainToInstance(Consumable, book);

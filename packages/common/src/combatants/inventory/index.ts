@@ -29,48 +29,67 @@ export class Inventory extends CombatantSubsystem {
     return deserialized;
   }
 
-  getTotalNumberOfItems() {
+  private instantiateItemClasses() {
+    const consumables: Consumable[] = [];
+    const equipments: Equipment[] = [];
+    for (const consumable of this.consumables) {
+      consumables.push(plainToInstance(Consumable, consumable));
+    }
+    for (const equipment of this.equipment) {
+      equipments.push(plainToInstance(Equipment, equipment));
+    }
+    this.consumables = consumables;
+    this.equipment = equipments;
+  }
+
+  getItemsCount() {
     return this.consumables.length + this.equipment.length;
   }
 
-  getOwnedEquipment() {
-    const combatantProperties = this.getCombatantProperties();
-    const allEquippedItems = combatantProperties.equipment.getAllEquippedItems({
-      includeUnselectedHotswapSlots: true,
-    });
-    return combatantProperties.inventory.equipment.concat(allEquippedItems);
-  }
-
   isAtCapacity() {
-    const combatantProperties = this.getCombatantProperties();
-    const { abilityProperties } = combatantProperties;
-    const extraConsumableStorageCapacityOption =
-      (abilityProperties.getTraitProperties().inherentTraitLevels[
-        CombatantTraitType.ExtraConsumablesStorage
-      ] || 0) * EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL;
-
-    let numItemsToCountTowardCapacity = this.getTotalNumberOfItems();
-
-    if (extraConsumableStorageCapacityOption) {
-      const numConsumables = combatantProperties.inventory.consumables.length;
-      const numConsumablesToDeductFromCapacityCheck = Math.min(
-        numConsumables,
-        extraConsumableStorageCapacityOption
-      );
-      numItemsToCountTowardCapacity -= numConsumablesToDeductFromCapacityCheck;
-    }
-
-    return numItemsToCountTowardCapacity >= combatantProperties.inventory.capacity;
+    const { availableCapacity, availableConsumableCapacity } = this.getCapacityByItemType();
+    return availableConsumableCapacity <= 0 && availableCapacity <= 0;
   }
 
   canPickUpItem(itemType: ItemType) {
-    const { totalItemsInNormalStorage, normalStorageCapacity, availableConsumableCapacity } =
+    const { itemsInNormalStorageCount, normalStorageCapacity, availableConsumableCapacity } =
       this.getCapacityByItemType();
     if (itemType === ItemType.Consumable && availableConsumableCapacity > 0) {
       return true;
-    } else if (totalItemsInNormalStorage < normalStorageCapacity) return true;
+    } else if (itemsInNormalStorageCount < normalStorageCapacity) return true;
 
     return false;
+  }
+
+  getCapacityByItemType() {
+    const { abilityProperties } = this.getCombatantProperties();
+    const extraConsumableCapacityOption =
+      (abilityProperties.getTraitProperties().inherentTraitLevels[
+        CombatantTraitType.ExtraConsumablesStorage
+      ] || 0) * EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL;
+    const minibagCapacity = extraConsumableCapacityOption || 0;
+
+    const totalItemsCount = this.getItemsCount();
+
+    const consumablesTotalCount = this.consumables.length;
+    const consumablesInMinibagCount = Math.min(minibagCapacity, consumablesTotalCount);
+    const consumablesInNormalStorageCount = consumablesTotalCount - consumablesInMinibagCount;
+    const itemsInNormalStorageCount = consumablesInNormalStorageCount + this.equipment.length;
+    const normalStorageCapacity = INVENTORY_DEFAULT_CAPACITY;
+    const availableCapacity = normalStorageCapacity - itemsInNormalStorageCount;
+    const availableConsumableCapacity =
+      minibagCapacity - consumablesInMinibagCount + availableCapacity;
+
+    return {
+      totalItemsCount,
+      availableConsumableCapacity,
+      consumablesInMinibagCount,
+      minibagCapacity,
+      availableCapacity,
+      normalStorageCapacity,
+      itemsInNormalStorageCount,
+      consumablesTotalCount,
+    };
   }
 
   dropItem(party: AdventuringParty, itemId: string): Error | EntityId {
@@ -82,40 +101,7 @@ export class Inventory extends CombatantSubsystem {
     return itemId;
   }
 
-  getCapacityByItemType() {
-    const { abilityProperties } = this.getCombatantProperties();
-    const extraConsumableCapacityOption =
-      (abilityProperties.getTraitProperties().inherentTraitLevels[
-        CombatantTraitType.ExtraConsumablesStorage
-      ] || 0) * EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL;
-    let minibagCapacity = 0;
-    if (extraConsumableCapacityOption) minibagCapacity = extraConsumableCapacityOption;
-
-    const totalNumItemsInInventory = this.getTotalNumberOfItems();
-
-    // if minibag
-    const totalNumConsumables = this.consumables.length;
-    const numConsumablesInMinibag = Math.min(minibagCapacity, totalNumConsumables);
-    const numConsumablesInNormalStorage = totalNumConsumables - numConsumablesInMinibag;
-    const totalItemsInNormalStorage = numConsumablesInNormalStorage + this.equipment.length;
-    const normalStorageCapacity = INVENTORY_DEFAULT_CAPACITY;
-    const availableCapacity = normalStorageCapacity - totalItemsInNormalStorage;
-    const availableConsumableCapacity =
-      minibagCapacity - numConsumablesInMinibag + availableCapacity;
-
-    return {
-      totalNumItemsInInventory,
-      availableConsumableCapacity,
-      numConsumablesInMinibag,
-      minibagCapacity,
-      availableCapacity,
-      normalStorageCapacity,
-      totalItemsInNormalStorage,
-      totalNumConsumables,
-    };
-  }
-
-  insertItem(item: Item) {
+  insertItem(item: Item): Error | void {
     if (item instanceof Consumable) this.consumables.push(item);
     else if (item instanceof Equipment) this.equipment.push(item);
     else return new Error("Unhandled item type");
@@ -151,14 +137,21 @@ export class Inventory extends CombatantSubsystem {
   }
 
   getConsumableByTypeAndLevel(consumableType: ConsumableType, level: number) {
-    for (const item of Object.values(this.consumables)) {
-      if (item.consumableType === consumableType && item.itemLevel === level) {
-        return item;
-      }
-    }
+    const itemOption = this.consumables.find(
+      (item) => item.consumableType === consumableType && item.itemLevel === level
+    );
+    return itemOption;
   }
 
-  getOwnedItemById(itemId: EntityId) {
+  getOwnedEquipment() {
+    const combatantProperties = this.getCombatantProperties();
+    const allEquippedItems = combatantProperties.equipment.getAllEquippedItems({
+      includeUnselectedHotswapSlots: true,
+    });
+    return combatantProperties.inventory.equipment.concat(allEquippedItems);
+  }
+
+  getStoredOrEquipped(itemId: EntityId) {
     const ownedEquipment = this.getOwnedEquipment();
     for (const equipment of ownedEquipment) {
       if (equipment.entityProperties.id === itemId) return equipment;
@@ -170,7 +163,7 @@ export class Inventory extends CombatantSubsystem {
     return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 
-  removeOwnedItem(itemId: EntityId) {
+  removeStoredOrEquipped(itemId: EntityId) {
     let removedItemResult = this.removeItem(itemId);
 
     if (removedItemResult instanceof Error) {
@@ -183,21 +176,13 @@ export class Inventory extends CombatantSubsystem {
   }
 
   getConsumableById(itemId: string) {
-    for (const item of Object.values(this.consumables)) {
-      if (item.entityProperties.id === itemId) {
-        return item;
-      }
-    }
-    return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
+    const item = this.consumables.find((i) => i.entityProperties.id === itemId);
+    return item ?? new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 
   getEquipmentById(itemId: string) {
-    for (const item of Object.values(this.equipment)) {
-      if (item.entityProperties.id === itemId) {
-        return item;
-      }
-    }
-    return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
+    const item = this.equipment.find((i) => i.entityProperties.id === itemId);
+    return item ?? new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 
   getItemById(itemId: string) {
@@ -211,19 +196,6 @@ export class Inventory extends CombatantSubsystem {
     toReturn.push(...this.consumables);
     toReturn.push(...this.equipment);
     return toReturn;
-  }
-
-  instantiateItemClasses() {
-    const consumables: Consumable[] = [];
-    const equipments: Equipment[] = [];
-    for (const consumable of this.consumables) {
-      consumables.push(plainToInstance(Consumable, consumable));
-    }
-    for (const equipment of this.equipment) {
-      equipments.push(plainToInstance(Equipment, equipment));
-    }
-    this.consumables = consumables;
-    this.equipment = equipments;
   }
 
   getSelectedSkillBook(itemIdSelectedOption: null | EntityId): Error | Consumable {
