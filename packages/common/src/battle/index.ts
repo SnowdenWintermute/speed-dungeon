@@ -30,7 +30,8 @@ export class Battle {
     const combatants = party.combatantManager.getAllCombatants();
     const tickableConditions: ConditionWithCombatantIdAppliedTo[] = [];
     for (const combatant of combatants) {
-      for (const condition of combatant.combatantProperties.conditions) {
+      const { conditionManager } = combatant.combatantProperties;
+      for (const condition of conditionManager.getConditions()) {
         const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
         if (tickPropertiesOption) {
           tickableConditions.push({ condition, appliedTo: combatant.entityProperties.id });

@@ -78,7 +78,7 @@ export function getCombatantTotalAttributes(
   }
 
   // CONDITIONS
-  for (const condition of combatantProperties.conditions) {
+  for (const condition of combatantProperties.conditionManager.getConditions()) {
     if (!condition.getAttributeModifiers) continue;
     const attributesFromCondition = condition.getAttributeModifiers(condition, combatantProperties);
     addAttributesToAccumulator(attributesFromCondition, totalAttributes);

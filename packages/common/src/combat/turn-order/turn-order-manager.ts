@@ -1,5 +1,4 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { Battle } from "../../battle/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId, Milliseconds } from "../../primatives/index.js";
 import { CombatActionName } from "../combat-actions/combat-action-names.js";
@@ -69,7 +68,8 @@ export class TurnOrderManager {
     const expectedCombatant = party.combatantManager.getExpectedCombatant(
       taggedIdOfTrackedEntity.combatantId
     );
-    return expectedCombatant.combatantProperties.aiTypes === undefined;
+
+    return expectedCombatant.combatantProperties.controlledBy.isPlayerControlled();
   }
 
   combatantIsFirstInTurnOrder(combatantId: EntityId) {

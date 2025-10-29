@@ -10,20 +10,17 @@ import { CombatantEquipment } from "./combatant-equipment/index.js";
 import { ActionUserTargetingProperties } from "../action-user-context/action-user-targeting-properties.js";
 import { CombatantAttributeProperties } from "./attribute-properties.js";
 import { ThreatManager } from "./threat-manager/index.js";
-import { EntityId } from "../primatives/index.js";
-import { AiType, CombatantClass, CombatantCondition, Inventory } from "./index.js";
+import { CombatantClass, Inventory } from "./index.js";
 import { plainToInstance } from "class-transformer";
-import { CombatActionName } from "../combat/combat-actions/index.js";
-import { IActionUser } from "../action-user-context/action-user.js";
-import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import {
   ClassProgressionProperties,
   CombatantClassProperties,
 } from "./class-progression-properties.js";
-import { deserializeCondition } from "./combatant-conditions/deserialize-condition.js";
 import { makeAutoObservable } from "mobx";
 import { CombatantResources } from "./combatant-resources.js";
 import { MitigationProperties } from "./combatant-mitigation-properties.js";
+import { CombatantSubsystem } from "./combatant-subsystem.js";
+import { CombatantConditionManager } from "./condition-manager.js";
 
 export class CombatantProperties {
   // subsystems
@@ -38,12 +35,10 @@ export class CombatantProperties {
     new CombatantClassProperties(1, CombatantClass.Warrior)
   );
   mitigationProperties = new MitigationProperties();
+  conditionManager = new CombatantConditionManager();
 
   // ACHIEVEMENTS
   deepestFloorReached: number = 1;
-
-  // CONDITIONS
-  conditions: CombatantCondition[] = [];
 
   // POSITION
   position: Vector3;
@@ -64,13 +59,11 @@ export class CombatantProperties {
   }
 
   initialize() {
-    this.attributeProperties.initialize(this);
-    this.abilityProperties.initialize(this);
-    this.inventory.initialize(this);
-    this.equipment.initialize(this);
-    this.resources.initialize(this);
-    this.classProgressionProperties.initialize(this);
-    this.mitigationProperties.initialize(this);
+    for (const value of Object.values(this)) {
+      const isSubsystem = value instanceof CombatantSubsystem;
+      if (!isSubsystem) continue;
+      value.initialize(this);
+    }
   }
 
   static getDeserialized(combatantProperties: CombatantProperties) {
@@ -95,44 +88,24 @@ export class CombatantProperties {
       deserialized.threatManager = ThreatManager.getDeserialized(deserialized.threatManager);
     }
     deserialized.controlledBy = CombatantControlledBy.getDeserialized(deserialized.controlledBy);
+    deserialized.mitigationProperties = MitigationProperties.getDeserialized(
+      deserialized.mitigationProperties
+    );
+
+    deserialized.conditionManager = CombatantConditionManager.getDeserialized(
+      deserialized.conditionManager
+    );
 
     deserialized.homeLocation = cloneVector3(deserialized.homeLocation);
     deserialized.position = cloneVector3(deserialized.position);
 
-    const deserializedConditions = combatantProperties.conditions.map((condition) =>
-      deserializeCondition(condition)
-    );
-    combatantProperties.conditions = deserializedConditions;
-
     return deserialized;
-  }
-
-  // CONDITIONS
-  static getConditionById(combatantProperties: CombatantProperties, conditionId: EntityId) {
-    for (const condition of combatantProperties.conditions) {
-      if (condition.id === conditionId) return condition;
-    }
-    return null;
   }
 
   // AFFINITIES
   static getCombatantTotalElementalAffinities = getCombatantTotalElementalAffinities;
   static getCombatantTotalKineticDamageTypeAffinities =
     getCombatantTotalKineticDamageTypeAffinities;
-
-  // ACTIONS
-  static hasRequiredConsumablesToUseAction(actionUser: IActionUser, actionName: CombatActionName) {
-    const action = COMBAT_ACTIONS[actionName];
-    const consumableCost = action.costProperties.getConsumableCost(actionUser);
-    if (consumableCost !== null) {
-      const inventory = actionUser.getInventoryOption();
-      if (inventory === null) throw new Error("expected user to have an inventory");
-      const { type, level } = consumableCost;
-      const consumableOption = inventory.getConsumableByTypeAndLevel(type, level);
-      if (consumableOption === undefined) return false;
-    }
-    return true;
-  }
 
   isDead() {
     return this.resources.getHitPoints() <= 0;

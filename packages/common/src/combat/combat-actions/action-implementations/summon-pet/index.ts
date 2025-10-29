@@ -8,7 +8,6 @@ import {
 import {
   ActionResolutionStepType,
   ActivatedTriggersGameUpdateCommand,
-  GameUpdateCommandType,
 } from "../../../../action-processing/index.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
@@ -23,7 +22,6 @@ import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
-import { AdventuringParty } from "../../../../adventuring-party/index.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
 

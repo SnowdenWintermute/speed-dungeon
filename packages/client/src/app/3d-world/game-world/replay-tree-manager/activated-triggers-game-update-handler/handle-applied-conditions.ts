@@ -21,12 +21,14 @@ export function handleAppliedConditions(
       for (let condition of conditions) {
         const deserializedCondition = deserializeCondition(condition);
 
-        CombatantCondition.applyToCombatant(
-          deserializedCondition,
-          combatantResult,
-          battleOption,
-          party
-        );
+        combatantResult.combatantProperties.conditionManager.applyCondition(deserializedCondition);
+
+        if (battleOption !== null) {
+          battleOption.turnOrderManager.turnSchedulerManager.addConditionToTurnOrder(
+            party,
+            deserializedCondition
+          );
+        }
 
         startOrStopCosmeticEffects(
           deserializedCondition.getCosmeticEffectWhileActive(combatantResult.entityProperties.id),

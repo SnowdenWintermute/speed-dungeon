@@ -20,7 +20,6 @@ import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { addHitOutcomeDurabilityChanges } from "./hit-outcome-durability-change-calculators.js";
 import { HitOutcome } from "../../../hit-outcome.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
-import { CombatantCondition } from "../../../combatants/combatant-conditions/index.js";
 import { addRemovedConditionIdToUpdate } from "./add-triggered-condition-to-update.js";
 import { handleTriggeredLifesteals } from "./handle-triggered-lifesteals.js";
 import { handleHit } from "./handle-hit.js";
@@ -80,9 +79,10 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         }
 
         if (flag === HitOutcome.Death) {
-          for (const condition of targetCombatant.combatantProperties.conditions) {
+          const { conditionManager } = targetCombatant.combatantProperties;
+          for (const condition of conditionManager.getConditions()) {
             if (!condition.removedOnDeath) continue;
-            CombatantCondition.removeById(condition.id, targetCombatant);
+            conditionManager.removeConditionById(condition.id);
             addRemovedConditionIdToUpdate(
               condition.id,
               gameUpdateCommand,

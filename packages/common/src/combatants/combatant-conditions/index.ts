@@ -9,8 +9,6 @@ import { EntityId, EntityProperties, MaxAndCurrent } from "../../primatives/inde
 import { IdGenerator } from "../../utility-classes/index.js";
 import { Combatant, CombatantAttributeRecord, ConditionTickProperties } from "../index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { TurnOrderManager, TurnTrackerEntityType } from "../../combat/index.js";
-import { BASE_ACTION_DELAY_MULTIPLIER } from "../../combat/turn-order/consts.js";
 import { ActionUserType, IActionUser } from "../../action-user-context/action-user.js";
 import { ActionIntentAndUser } from "../../action-processing/index.js";
 import { ActionUserTargetingProperties } from "../../action-user-context/action-user-targeting-properties.js";
@@ -166,6 +164,10 @@ export abstract class CombatantCondition implements IActionUser {
     return true;
   }
 
+  hasRequiredConsumablesToUseAction(): boolean {
+    return true;
+  }
+
   getWeaponsInSlots() {
     return {};
   }
@@ -208,134 +210,5 @@ export abstract class CombatantCondition implements IActionUser {
 
   static getTickProperties(condition: CombatantCondition) {
     return condition.tickPropertiesOption;
-  }
-
-  static removeByNameFromCombatant(name: CombatantConditionName, combatant: Combatant) {
-    const { combatantProperties } = combatant;
-    combatantProperties.conditions = combatantProperties.conditions.filter((existingCondition) => {
-      existingCondition.name !== name;
-    });
-  }
-
-  static replaceExisting(condition: CombatantCondition, combatant: Combatant) {
-    CombatantCondition.removeByNameFromCombatant(condition.name, combatant);
-    const { combatantProperties } = combatant;
-    combatantProperties.conditions.push(condition);
-  }
-
-  /* returns true if condition was preexisting */
-  static applyToCombatant(
-    condition: CombatantCondition,
-    combatant: Combatant,
-    battleOption: null | Battle,
-    party: AdventuringParty
-  ) {
-    let wasExisting = false;
-    const { combatantProperties } = combatant;
-    combatantProperties.conditions.forEach((existingCondition) => {
-      if (existingCondition.name !== condition.name) {
-        return;
-      }
-
-      wasExisting = true;
-
-      // don't replace an existing condition of higher level
-      if (existingCondition.level > condition.level) {
-        return;
-      }
-
-      // if higher level, replace it
-      if (existingCondition.level < condition.level) {
-        return CombatantCondition.replaceExisting(condition, combatant);
-      }
-
-      // if stackable and of same level, add to stacks
-      if (existingCondition.stacksOption) {
-        const canHoldMoreStacks =
-          existingCondition.stacksOption.max > existingCondition.stacksOption.current;
-        if (canHoldMoreStacks) {
-          existingCondition.stacksOption.current += condition.stacksOption?.current ?? 0;
-        }
-        // replacing the appliedBy helps to ensure that threat is applied correctly
-        // when a replaced condition was persisted from a previous battle where it
-        // was applied by a now nonexistant combatant
-        existingCondition.appliedBy = condition.appliedBy;
-        return;
-      }
-
-      // not stackable, replace or just add it
-      return CombatantCondition.replaceExisting(condition, combatant);
-    });
-
-    if (wasExisting) return true;
-    combatantProperties.conditions.push(condition);
-
-    const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
-
-    if (!tickPropertiesOption || !battleOption) return;
-
-    // add one actions worth + 1 delay or else when we get to the endTurnAndEvaluateInputLock step
-    // when we search for the fastest scheduler tracker it will find this
-    // condition's tracker instead of the combatant, since we are adding the scheduler now
-    // and the combatant who's action applied this condition won't update their scheduler
-    // until a later step
-    const appliedByScheduler =
-      battleOption.turnOrderManager.turnSchedulerManager.getSchedulerByCombatantId(
-        condition.appliedBy.entityProperties.id
-      );
-
-    // once we start getting action delay costs that are different per each action
-    // we'll have to calculate this based on the current action
-    const appliedByPredictedAdditionalDelay = TurnOrderManager.getActionDelayCost(
-      appliedByScheduler.getSpeed(party),
-      BASE_ACTION_DELAY_MULTIPLIER
-    );
-
-    const combatantApplyingAccumulatedDelay = appliedByScheduler.accumulatedDelay;
-
-    battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
-      {
-        type: TurnTrackerEntityType.Condition,
-        combatantId: combatant.entityProperties.id,
-        conditionId: condition.id,
-      },
-      combatantApplyingAccumulatedDelay + appliedByPredictedAdditionalDelay + 1
-    );
-  }
-
-  static removeById(conditionId: EntityId, combatant: Combatant): CombatantCondition | undefined {
-    const { combatantProperties } = combatant;
-
-    let removed: CombatantCondition | undefined = undefined;
-    combatantProperties.conditions = combatantProperties.conditions.filter((condition) => {
-      if (condition.id === conditionId) {
-        removed = condition;
-      }
-      return condition.id !== conditionId;
-    });
-
-    return removed;
-  }
-
-  static removeStacks(
-    conditionId: EntityId,
-    combatant: Combatant,
-    numberToRemove: number
-  ): CombatantCondition | undefined {
-    const { combatantProperties } = combatant;
-
-    for (const condition of combatantProperties.conditions) {
-      if (condition.id !== conditionId) continue;
-      if (condition.stacksOption) {
-        const newStacksCount = condition.stacksOption.current - numberToRemove;
-        condition.stacksOption.current = Math.max(0, newStacksCount);
-      }
-
-      if (condition.stacksOption === null || condition.stacksOption.current === 0) {
-        CombatantCondition.removeById(condition.id, combatant);
-        return condition;
-      }
-    }
-    return;
   }
 }

@@ -13,7 +13,7 @@ import { HotswapSlotButtons } from "./HotswapSlotButtons";
 import { CharacterModelDisplay } from "@/app/character-model-display";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { LowDurabilityIndicators } from "./LowDurabilityIndicators";
-import ConditionIndicators from "./condition-indicators/";
+import { ConditionIndicators } from "./condition-indicators/";
 import { ThreatPriorityList } from "./ThreatPriorityList";
 import Portrait from "./Portrait";
 import { getCombatantUiIdentifierIcon } from "@/utils/get-combatant-class-icon";
@@ -70,7 +70,9 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
 
   const conditionIndicators = (styles: string) => (
     <div className={`w-full h-6 py-0.5 ${styles}`}>
-      <ConditionIndicators conditions={combatant.combatantProperties.conditions} />
+      <ConditionIndicators
+        conditions={combatant.combatantProperties.conditionManager.getConditions()}
+      />
       <LowDurabilityIndicators isPlayerControlled={isPartyMember} equippedItems={equippedItems} />
     </div>
   );

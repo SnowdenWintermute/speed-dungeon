@@ -14,7 +14,7 @@ interface Props {
   conditions: CombatantCondition[];
 }
 
-export default function ConditionIndicators(props: Props) {
+export const ConditionIndicators = observer((props: Props) => {
   const { conditions } = props;
   return (
     <ul className="flex">
@@ -27,7 +27,7 @@ export default function ConditionIndicators(props: Props) {
       })}
     </ul>
   );
-}
+});
 
 export const ConditionIndicator = observer(({ condition }: { condition: CombatantCondition }) => {
   const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);

@@ -73,8 +73,9 @@ export async function synchronizeCombatantModelsWithAppState() {
 
       const character = result.getCombatant();
       const { combatantProperties, entityProperties } = character;
+      const { conditionManager } = combatantProperties;
 
-      combatantProperties.conditions.forEach((condition) => {
+      conditionManager.getConditions().forEach((condition) => {
         startOrStopCosmeticEffects(condition.getCosmeticEffectWhileActive(entityProperties.id), []);
       });
 

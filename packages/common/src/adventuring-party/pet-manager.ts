@@ -67,6 +67,7 @@ export class PetManager {
       );
 
     const pet = petOption;
+    pet.combatantProperties.controlledBy.summonedBy = ownerId;
 
     // place the pet in either summonedCharacterPets or currentRoom.summonedMonsterPets
     if (isCharacterPet) {

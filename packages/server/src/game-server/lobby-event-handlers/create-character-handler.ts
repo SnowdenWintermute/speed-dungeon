@@ -1,6 +1,7 @@
 import {
   Combatant,
   CombatantClass,
+  CombatantControllerType,
   ERROR_MESSAGES,
   MAX_CHARACTER_NAME_LENGTH,
   MonsterType,
@@ -31,7 +32,9 @@ export function createCharacterHandler(
 
   // @TESTING - pets
   // @TODO - don't start a new character with any pets
-  const pets: Combatant[] = [generateMonster(1, MonsterType.Wolf)];
+  const testPet = generateMonster(1, MonsterType.Wolf);
+  testPet.combatantProperties.controlledBy.controllerType = CombatantControllerType.PlayerPetAI;
+  const pets: Combatant[] = [testPet];
   const serializedPets = pets.map((pet) => pet.getSerialized());
 
   addCharacterToParty(game, partyOption, player, newCharacter, pets);

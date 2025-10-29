@@ -46,7 +46,10 @@ export interface IActionUser {
 
   // ex: a condition should give threat caused by it's burning ticks to the caster of the spell that caused the condition
   getIdOfEntityToCreditWithThreat(): EntityId;
+
   hasRequiredAttributesToUseItem(item: Item): boolean;
+  hasRequiredConsumablesToUseAction(actionName: CombatActionName): boolean;
+
   getWeaponsInSlots(
     weaponSlots: HoldableSlotType[],
     options: { usableWeaponsOnly: boolean }

@@ -173,6 +173,9 @@ export class ActionEntity implements IActionUser {
   hasRequiredAttributesToUseItem(): boolean {
     return true;
   }
+  hasRequiredConsumablesToUseAction(): boolean {
+    return true;
+  }
 
   getWeaponsInSlots() {
     return {};

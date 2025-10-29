@@ -36,4 +36,8 @@ export class CombatantControlledBy {
   isDungeonControlled() {
     return this.controllerType === CombatantControllerType.Player;
   }
+
+  wasSummoned() {
+    return this.summonedBy !== undefined;
+  }
 }

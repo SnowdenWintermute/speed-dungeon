@@ -165,6 +165,19 @@ export class Combatant implements IActionUser {
     return this.combatantProperties.equipment.getWeaponsInSlots(weaponSlots, options);
   }
 
+  hasRequiredConsumablesToUseAction(actionName: CombatActionName) {
+    const action = COMBAT_ACTIONS[actionName];
+    const consumableCost = action.costProperties.getConsumableCost(this);
+    if (consumableCost !== null) {
+      const inventory = this.getInventoryOption();
+      if (inventory === null) throw new Error("expected user to have an inventory");
+      const { type, level } = consumableCost;
+      const consumableOption = inventory.getConsumableByTypeAndLevel(type, level);
+      if (consumableOption === undefined) return false;
+    }
+    return true;
+  }
+
   canUseAction(
     targets: CombatActionTarget,
     actionAndRank: ActionAndRank,
@@ -195,10 +208,7 @@ export class Combatant implements IActionUser {
     if (actionStateOption && actionStateOption.cooldown && actionStateOption.cooldown.current)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.IS_ON_COOLDOWN);
 
-    const hasRequiredConsumables = CombatantProperties.hasRequiredConsumablesToUseAction(
-      this,
-      action.name
-    );
+    const hasRequiredConsumables = this.hasRequiredConsumablesToUseAction(action.name);
     if (!hasRequiredConsumables) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
 
     const costs = action.costProperties.getResourceCosts(

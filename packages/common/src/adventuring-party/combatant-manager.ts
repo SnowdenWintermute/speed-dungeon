@@ -47,7 +47,7 @@ export class CombatantManager {
     const combatants = this.getExpectedCombatants(entityIds);
 
     const filtered = combatants.filter((combatant) => {
-      const isSummoned = combatant.combatantProperties.summonedBy !== undefined;
+      const isSummoned = combatant.combatantProperties.controlledBy.wasSummoned();
       if (options?.summonedCombatantsOnly) return isSummoned;
       if (options?.excludeSummonedCombatants) return !isSummoned;
       return true;
@@ -94,14 +94,14 @@ export class CombatantManager {
   }
 
   getDungeonControlledCharacters() {
-    return this.getDungeonControlledCombatants().filter(
-      (combatant) => combatant.combatantProperties.summonedBy === undefined
+    return this.getDungeonControlledCombatants().filter((combatant) =>
+      combatant.combatantProperties.controlledBy.wasSummoned()
     );
   }
 
   getDungeonControlledPets() {
-    return this.getDungeonControlledCombatants().filter(
-      (combatant) => combatant.combatantProperties.summonedBy !== undefined
+    return this.getDungeonControlledCombatants().filter((combatant) =>
+      combatant.combatantProperties.controlledBy.wasSummoned()
     );
   }
 
@@ -121,10 +121,8 @@ export class CombatantManager {
   ): undefined | CombatantCondition {
     const combatantOption = this.getCombatantOption(combatantId);
     if (combatantOption === undefined) return undefined;
-    const conditionOption = CombatantProperties.getConditionById(
-      combatantOption.combatantProperties,
-      conditionId
-    );
+    const { conditionManager } = combatantOption.combatantProperties;
+    const conditionOption = conditionManager.getConditionById(conditionId);
     if (conditionOption === null) return undefined;
     return conditionOption;
   }
@@ -239,7 +237,7 @@ export class CombatantManager {
     });
 
     for (const combatant of this.getPartyMemberPets()) {
-      const { summonedBy } = combatant.combatantProperties;
+      const { summonedBy } = combatant.combatantProperties.controlledBy;
       if (summonedBy === undefined) throw new Error("expected to have been summoned by someone");
       const summonedByCombatant = this.getExpectedCombatant(summonedBy);
 

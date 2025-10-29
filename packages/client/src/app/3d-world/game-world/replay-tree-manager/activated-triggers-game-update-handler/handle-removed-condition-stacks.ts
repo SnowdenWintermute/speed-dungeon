@@ -1,5 +1,5 @@
 import { getGameWorld } from "@/app/3d-world/SceneManager";
-import { AdventuringParty, CombatantCondition, EntityId } from "@speed-dungeon/common";
+import { AdventuringParty, EntityId } from "@speed-dungeon/common";
 import { startOrStopCosmeticEffects } from "../start-or-stop-cosmetic-effect";
 
 export function handleRemovedConditionStacks(
@@ -16,11 +16,8 @@ export function handleRemovedConditionStacks(
     for (const { conditionId, numStacks } of conditionIdAndStacks) {
       const combatantResult = party.combatantManager.getExpectedCombatant(entityId);
 
-      const conditionRemovedOption = CombatantCondition.removeStacks(
-        conditionId,
-        combatantResult,
-        numStacks
-      );
+      const { conditionManager } = combatantResult.combatantProperties;
+      const conditionRemovedOption = conditionManager.removeStacks(conditionId, numStacks);
 
       if (conditionRemovedOption) {
         const targetModelOption = getGameWorld().modelManager.findOne(entityId);

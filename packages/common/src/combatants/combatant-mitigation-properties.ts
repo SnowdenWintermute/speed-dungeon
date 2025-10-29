@@ -1,3 +1,4 @@
+import { plainToInstance } from "class-transformer";
 import { Equipment, EquipmentType, HoldableSlotType } from "../items/equipment/index.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
@@ -5,6 +6,10 @@ import { CombatantSubsystem } from "./combatant-subsystem.js";
 export class MitigationProperties extends CombatantSubsystem {
   constructor() {
     super();
+  }
+
+  static getDeserialized(self: MitigationProperties) {
+    return plainToInstance(MitigationProperties, self);
   }
 
   canParry(): boolean {
