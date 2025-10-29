@@ -107,13 +107,13 @@ export class Combatant implements IActionUser {
     return this.entityProperties.name;
   }
   getPositionOption() {
-    return this.combatantProperties.position;
+    return this.combatantProperties.transformProperties.position;
   }
   getHomePosition() {
-    return this.combatantProperties.homeLocation;
+    return this.combatantProperties.transformProperties.homePosition;
   }
   getHomeRotation() {
-    return this.combatantProperties.homeRotation;
+    return this.combatantProperties.transformProperties.homeRotation;
   }
   getConditionAppliedBy(): ConditionAppliedBy {
     throw new Error("getConditionAppliedBy() is only valid on CombatantCondition");

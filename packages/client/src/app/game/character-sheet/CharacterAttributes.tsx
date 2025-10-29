@@ -2,7 +2,6 @@ import Divider from "@/app/components/atoms/Divider";
 import {
   COMBATANT_CLASS_NAME_STRINGS,
   Combatant,
-  CombatantProperties,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { CombatAttribute } from "@speed-dungeon/common";
@@ -131,12 +130,10 @@ export const CharacterAttributes = observer(
         <CharacterSheetWeaponDamage combatant={combatant} />
         <Divider extraStyles={"mr-2 ml-2 "} />
         <ElementalAffinitiesDisplay
-          affinities={CombatantProperties.getCombatantTotalElementalAffinities(combatantProperties)}
+          affinities={combatantProperties.mitigationProperties.getElementalAffinities()}
         />
         <KineticAffinitiesDisplay
-          affinities={CombatantProperties.getCombatantTotalKineticDamageTypeAffinities(
-            combatantProperties
-          )}
+          affinities={combatantProperties.mitigationProperties.getKineticImpactTypeAffinities()}
         />
       </div>
     );

@@ -4,8 +4,6 @@ import { AbilityTreeAbility } from "../../abilities/index.js";
 import { CombatantTraitType } from "./trait-types.js";
 
 export * from "./combatant-trait-properties.js";
-export * from "./get-combatant-total-elemental-affinities.js";
-export * from "./get-combatant-total-kinetic-damage-type-affinities.js";
 
 export const BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL: Percentage = 50;
 export const EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL = 20;

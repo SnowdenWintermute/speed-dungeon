@@ -1,4 +1,3 @@
-import { immerable } from "immer";
 import { Option } from "../../primatives/index.js";
 import { Battle } from "../../battle/index.js";
 import { CombatActionIntent } from "../../combat/combat-actions/combat-action-intent.js";
@@ -61,7 +60,6 @@ export interface ConditionWithCombatantIdAppliedTo {
 }
 
 export abstract class CombatantCondition implements IActionUser {
-  [immerable] = true;
   ticks?: MaxAndCurrent;
   level: number = 1;
   intent: CombatActionIntent = CombatActionIntent.Malicious;
@@ -172,21 +170,9 @@ export abstract class CombatantCondition implements IActionUser {
     return {};
   }
 
-  // if tracking ticks, increment current
-  // examples of action to take here:
-  // - cause resource change
-  // - removeSelf
-  // - modifySelf (ex: increase debuff strength)
-
   abstract triggeredWhenHitBy(actionName: CombatActionName): boolean;
-  // examples
-  // - combatant uses ability
-  // - combatant is attacked by fire
-  // - "remove buff" spell is cast on combatant
-  // - combatant switches equipment
 
   abstract triggeredWhenActionUsed(): boolean;
-  //
 
   abstract onTriggered(
     actionUserContext: ActionUserContext,
@@ -208,7 +194,7 @@ export abstract class CombatantCondition implements IActionUser {
     appliedTo: CombatantProperties
   ): CombatantAttributeRecord;
 
-  static getTickProperties(condition: CombatantCondition) {
-    return condition.tickPropertiesOption;
+  getTickProperties() {
+    return this.tickPropertiesOption;
   }
 }

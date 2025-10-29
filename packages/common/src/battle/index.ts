@@ -1,6 +1,6 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { FriendOrFoe, TurnOrderManager } from "../combat/index.js";
-import { CombatantCondition, ConditionWithCombatantIdAppliedTo } from "../combatants/index.js";
+import { ConditionWithCombatantIdAppliedTo } from "../combatants/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { EntityId } from "../primatives/index.js";
 
@@ -32,7 +32,7 @@ export class Battle {
     for (const combatant of combatants) {
       const { conditionManager } = combatant.combatantProperties;
       for (const condition of conditionManager.getConditions()) {
-        const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
+        const tickPropertiesOption = condition.getTickProperties();
         if (tickPropertiesOption) {
           tickableConditions.push({ condition, appliedTo: combatant.entityProperties.id });
         }

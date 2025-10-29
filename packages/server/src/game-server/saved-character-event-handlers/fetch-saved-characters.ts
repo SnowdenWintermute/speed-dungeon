@@ -1,5 +1,5 @@
 import { characterSlotsRepo } from "../../database/repos/character-slots.js";
-import { Combatant } from "@speed-dungeon/common";
+import { Combatant, CombatantProperties } from "@speed-dungeon/common";
 import { playerCharactersRepo } from "../../database/repos/player-characters.js";
 
 export async function fetchSavedCharacters(profileId: number) {
@@ -15,9 +15,13 @@ export async function fetchSavedCharacters(profileId: number) {
         if (character === undefined)
           return console.error("Character slot was holding an id that didn't match any character");
 
+        const deserializedCombatantProperties = CombatantProperties.getDeserialized(
+          character.combatantProperties
+        );
+
         const combatant = Combatant.createInitialized(
           { id: character.id, name: character.name },
-          character.combatantProperties
+          deserializedCombatantProperties
         );
 
         toReturn[slot.slotNumber] = combatant;

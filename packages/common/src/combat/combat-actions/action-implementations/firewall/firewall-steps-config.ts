@@ -23,7 +23,6 @@ import {
   COMBAT_ACTION_MAX_LEVEL,
 } from "../../../../app-consts.js";
 import { ActionUserTargetingProperties } from "../../../../action-user-context/action-user-targeting-properties.js";
-import { CombatantProperties } from "../../../../combatants/combatant-properties.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
@@ -74,9 +73,9 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
     const actionOriginData: ActionEntityActionOriginData = {
       actionLevel,
       userCombatantAttributes: actionUser.getTotalAttributes(),
-      userElementalAffinities: CombatantProperties.getCombatantTotalElementalAffinities(
-        actionUser.getCombatantProperties()
-      ),
+      userElementalAffinities: actionUser
+        .getCombatantProperties()
+        .mitigationProperties.getElementalAffinities(),
       turnOrderSpeed: BASE_PERSISTENT_ACTION_ENTITY_TICK_SPEED,
       stacks: lifetime,
       targetingProperties: new ActionUserTargetingProperties(),

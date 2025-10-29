@@ -138,7 +138,7 @@ export class TurnSchedulerManager {
   }
 
   addConditionToTurnOrder(party: AdventuringParty, condition: CombatantCondition) {
-    const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
+    const tickPropertiesOption = condition.getTickProperties();
 
     if (!tickPropertiesOption) return;
 

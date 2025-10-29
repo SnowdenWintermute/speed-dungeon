@@ -1,10 +1,7 @@
-import { Quaternion, Vector3 } from "@babylonjs/core";
+import { Vector3 } from "@babylonjs/core";
 import { CombatantAbilityProperties } from "./combatant-abilities/combatant-ability-properties.js";
 import { CombatantControlledBy } from "./combatant-controllers.js";
 import { CombatantSpecies } from "./combatant-species.js";
-import getCombatantTotalElementalAffinities from "./combatant-traits/get-combatant-total-elemental-affinities.js";
-import getCombatantTotalKineticDamageTypeAffinities from "./combatant-traits/get-combatant-total-kinetic-damage-type-affinities.js";
-import { cloneVector3 } from "../utils/index.js";
 import { MonsterType } from "../monsters/monster-types.js";
 import { CombatantEquipment } from "./combatant-equipment/index.js";
 import { ActionUserTargetingProperties } from "../action-user-context/action-user-targeting-properties.js";
@@ -21,6 +18,7 @@ import { CombatantResources } from "./combatant-resources.js";
 import { MitigationProperties } from "./combatant-mitigation-properties.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { CombatantConditionManager } from "./condition-manager.js";
+import { CombatantTransformProperties } from "./combatant-transform-properties.js";
 
 export class CombatantProperties {
   // subsystems
@@ -36,22 +34,20 @@ export class CombatantProperties {
   );
   mitigationProperties = new MitigationProperties();
   conditionManager = new CombatantConditionManager();
+  transformProperties = new CombatantTransformProperties();
 
   // ACHIEVEMENTS
   deepestFloorReached: number = 1;
-
-  // POSITION
-  position: Vector3;
-  public homeRotation: Quaternion = Quaternion.Zero();
 
   constructor(
     mainClassType: CombatantClass,
     public combatantSpecies: CombatantSpecies,
     public monsterType: null | MonsterType,
     public controlledBy: CombatantControlledBy,
-    public homeLocation: Vector3
+    homePosition: Vector3
   ) {
-    this.position = homeLocation;
+    this.transformProperties.position = homePosition;
+    this.transformProperties.homePosition = homePosition.clone();
 
     this.classProgressionProperties.setMainClass(mainClassType);
 
@@ -96,16 +92,12 @@ export class CombatantProperties {
       deserialized.conditionManager
     );
 
-    deserialized.homeLocation = cloneVector3(deserialized.homeLocation);
-    deserialized.position = cloneVector3(deserialized.position);
+    deserialized.transformProperties = CombatantTransformProperties.getDeserialized(
+      deserialized.transformProperties
+    );
 
     return deserialized;
   }
-
-  // AFFINITIES
-  static getCombatantTotalElementalAffinities = getCombatantTotalElementalAffinities;
-  static getCombatantTotalKineticDamageTypeAffinities =
-    getCombatantTotalKineticDamageTypeAffinities;
 
   isDead() {
     return this.resources.getHitPoints() <= 0;

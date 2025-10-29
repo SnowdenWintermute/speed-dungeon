@@ -111,7 +111,7 @@ export class ConditionTurnTracker extends TurnTracker {
       conditionId
     );
 
-    const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
+    const tickPropertiesOption = condition.getTickProperties();
     if (tickPropertiesOption === null)
       throw new Error("expected condition tick properties were missing");
 

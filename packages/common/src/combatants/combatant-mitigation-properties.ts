@@ -2,6 +2,8 @@ import { plainToInstance } from "class-transformer";
 import { Equipment, EquipmentType, HoldableSlotType } from "../items/equipment/index.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
+import { MagicalElement } from "../combat/magical-elements.js";
+import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 
 export class MitigationProperties extends CombatantSubsystem {
   constructor() {
@@ -42,5 +44,15 @@ export class MitigationProperties extends CombatantSubsystem {
       if (equipmentType === EquipmentType.Shield && !Equipment.isBroken(equipment)) return true;
     }
     return false;
+  }
+
+  getElementalAffinities(): Partial<Record<MagicalElement, number>> {
+    const { abilityProperties } = this.getCombatantProperties();
+    return abilityProperties.getTraitProperties().inherentElementalAffinities;
+  }
+
+  getKineticImpactTypeAffinities(): Partial<Record<KineticDamageType, number>> {
+    const { abilityProperties } = this.getCombatantProperties();
+    return abilityProperties.getTraitProperties().inherentKineticDamageTypeAffinities;
   }
 }

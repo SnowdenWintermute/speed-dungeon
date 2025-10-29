@@ -10,7 +10,6 @@ import {
 } from "../app-consts.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { makeAutoObservable } from "mobx";
-import { CombatantProperties } from "../combatants/combatant-properties.js";
 import { runIfInBrowser } from "../utils/index.js";
 
 export class CombatantManager {
@@ -264,13 +263,14 @@ export class CombatantManager {
 
     const homeLocation = new Vector3(rowPositionOffset, 0, positionSpacing);
     const { combatantProperties } = combatant;
-    combatantProperties.homeLocation = homeLocation;
-    combatantProperties.position = combatantProperties.homeLocation.clone();
+    const { transformProperties } = combatantProperties;
+    transformProperties.homePosition = homeLocation;
+    transformProperties.position = transformProperties.homePosition.clone();
     const forward = new Vector3(0, 0, 1);
     const directionToXAxis = new Vector3(0, 0, -positionSpacing).normalize();
     const homeRotation = new Quaternion();
     Quaternion.FromUnitVectorsToRef(forward, directionToXAxis, homeRotation);
-    combatantProperties.homeRotation = homeRotation;
+    transformProperties.homeRotation = homeRotation;
   }
 
   static getDeserialized(serialized: CombatantManager): CombatantManager {

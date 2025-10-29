@@ -1,7 +1,5 @@
 import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionSequenceManagerRegistry,
-  COMBAT_ACTION_NAME_STRINGS,
   CombatActionExecutionIntent,
   ERROR_MESSAGES,
   InputLock,

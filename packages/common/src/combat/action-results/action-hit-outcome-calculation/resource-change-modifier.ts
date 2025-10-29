@@ -64,7 +64,7 @@ export class ResourceChangeModifier {
   private applyElementalAffinities() {
     const hpChangeElement = this.resourceChange.source.elementOption;
     if (hpChangeElement === undefined) return;
-    const targetAffinities = CombatantProperties.getCombatantTotalElementalAffinities(this.target);
+    const targetAffinities = this.target.mitigationProperties.getElementalAffinities();
     const affinityValue = targetAffinities[hpChangeElement] || 0;
     const afterAffinityApplied = this.applyAffinity(affinityValue);
     // target wanted to be hit, so don't reduce the incoming value
@@ -79,9 +79,7 @@ export class ResourceChangeModifier {
   private applyKineticAffinities() {
     const kineticDamageType = this.resourceChange.source.kineticDamageTypeOption;
     if (kineticDamageType === undefined) return;
-    const targetAffinities = CombatantProperties.getCombatantTotalKineticDamageTypeAffinities(
-      this.target
-    );
+    const targetAffinities = this.target.mitigationProperties.getKineticImpactTypeAffinities();
     const affinityValue: Percentage = targetAffinities[kineticDamageType] || 0;
 
     const afterAffinityApplied = this.applyAffinity(affinityValue);

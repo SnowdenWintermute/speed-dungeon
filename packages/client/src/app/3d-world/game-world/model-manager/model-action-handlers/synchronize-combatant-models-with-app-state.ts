@@ -109,10 +109,14 @@ function getModelsAndPositions() {
     const party = gameStore.getExpectedParty();
     const { combatantManager } = party;
     for (const combatant of combatantManager.getAllCombatants()) {
+      console.log(
+        "GETTING COMBATANT POSITION:",
+        combatant.combatantProperties.transformProperties.homePosition
+      );
       modelsAndPositions[combatant.entityProperties.id] = {
         combatant,
-        homeRotation: combatant.combatantProperties.homeRotation,
-        homeLocation: combatant.combatantProperties.homeLocation,
+        homeRotation: combatant.combatantProperties.transformProperties.homeRotation,
+        homeLocation: combatant.combatantProperties.transformProperties.homePosition,
       };
     }
   } else {

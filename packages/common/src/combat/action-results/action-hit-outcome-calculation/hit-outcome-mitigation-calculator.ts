@@ -155,7 +155,7 @@ export class HitOutcomeMitigationCalculator {
       const { elementOption } = resourceChangeSource;
       if (elementOption) {
         const targetAffinities =
-          CombatantProperties.getCombatantTotalElementalAffinities(targetCombatantProperties);
+          targetCombatantProperties.mitigationProperties.getElementalAffinities();
         const targetAffinity = targetAffinities[elementOption];
         if (targetAffinity && targetAffinity > 100) return false;
       }

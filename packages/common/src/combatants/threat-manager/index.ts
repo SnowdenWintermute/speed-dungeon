@@ -84,14 +84,14 @@ export class ThreatManager {
     this.setPreviouslyHighestThreatId(newThreatTargetIdOption);
 
     const newTargetCombatant = party.combatantManager.getExpectedCombatant(newThreatTargetIdOption);
-    const targetPos = newTargetCombatant.combatantProperties.homeLocation;
-    const monsterHomePos = monster.combatantProperties.homeLocation;
+    const targetPos = newTargetCombatant.getHomePosition();
+    const monsterHomePos = monster.getHomePosition();
 
     const lookAtMatrix = Matrix.LookAtLH(monsterHomePos, targetPos, Vector3.Up());
     // Invert because LookAtLH returns a view matrix
     const worldRotation = Quaternion.FromRotationMatrix(lookAtMatrix).invert();
 
-    monster.combatantProperties.homeRotation = worldRotation;
+    monster.combatantProperties.transformProperties.homeRotation = worldRotation;
 
     return true;
   }

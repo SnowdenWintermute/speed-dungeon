@@ -22,7 +22,7 @@ stepsOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
     const actionTarget = actionUser.getConditionAppliedTo();
     const primaryTarget = party.combatantManager.getExpectedCombatant(actionTarget);
 
-    const position = primaryTarget.combatantProperties.position.clone();
+    const position = primaryTarget.combatantProperties.transformProperties.position.clone();
 
     const entityProperties = { id: context.idGenerator.generate(), name: "explosion" };
     const actionEntityProperties: ActionEntityProperties = {
