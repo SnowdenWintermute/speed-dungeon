@@ -82,7 +82,8 @@ export const CharacterClassAbilityTree = observer(
                       </div>
                     );
 
-                    const isAllocatable = combatantProperties.canAllocateAbilityPoint(ability);
+                    const isAllocatable =
+                      combatantProperties.abilityProperties.canAllocateAbilityPoint(ability);
 
                     const isDetailed =
                       detailedAbilityOption !== null &&

@@ -16,7 +16,6 @@ import { writeAllPlayerCharacterInGameToDb } from "../saved-character-event-hand
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { BattleProcessor } from "./character-uses-selected-combat-action-handler/process-battle-until-player-turn-or-conclusion.js";
 import { ExplorationAction } from "@speed-dungeon/common";
-import { instantiateItemGenerationBuildersAndDirectors } from "../item-generation/instantiate-item-generation-builders-and-directors.js";
 
 export async function toggleReadyToExploreHandler(
   _eventData: undefined,
@@ -88,22 +87,21 @@ export async function exploreNextRoom(
 
   const roomTypeToGenerate = dungeonExplorationManager.popNextUnexploredRoomType();
 
-  const newMonstersResult = putPartyInNextRoom(game, party, roomTypeToGenerate);
-  if (newMonstersResult instanceof Error) return newMonstersResult;
-
-  const partyChannelName = getPartyChannelName(game.name, party.name);
-
   const { actionEntityManager } = party;
-
-  const battleOption = AdventuringParty.getBattleOption(party, game);
   const actionEntitiesRemoved = actionEntityManager.unregisterActionEntitiesOnBattleEndOrNewRoom();
 
+  const newMonstersResult = putPartyInNextRoom(game, party, roomTypeToGenerate);
+  if (newMonstersResult instanceof Error) return newMonstersResult;
+  const serializedMonsters = newMonstersResult.map((combatant) => combatant.getSerialized());
+
+  const partyChannelName = getPartyChannelName(game.name, party.name);
   this.io.to(partyChannelName).emit(ServerToClientEvent.DungeonRoomUpdate, {
     dungeonRoom: party.currentRoom,
-    monsters: newMonstersResult,
+    monsters: serializedMonsters,
     actionEntitiesToRemove: actionEntitiesRemoved,
   });
 
+  const battleOption = AdventuringParty.getBattleOption(party, game);
   if (battleOption === null) return;
 
   const battle = battleOption;

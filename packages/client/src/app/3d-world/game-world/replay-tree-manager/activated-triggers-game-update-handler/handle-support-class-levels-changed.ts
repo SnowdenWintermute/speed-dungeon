@@ -7,6 +7,6 @@ export function handleSupportClassLevelsChanged(
   for (const [entityId, combatantClass] of Object.entries(supportClassLevelsGained)) {
     const combatantResult = party.combatantManager.getExpectedCombatant(entityId);
     const { combatantProperties } = combatantResult;
-    combatantProperties.classProgressionProperties.changeSupportClassLevel(combatantClass, 1);
+    combatantProperties.classProgressionProperties.incrementSupportClassLevel(combatantClass);
   }
 }

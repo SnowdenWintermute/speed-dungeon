@@ -4,12 +4,11 @@ import {
   AbilityType,
   AbilityUtils,
   ActionPayableResource,
-  ClassProgressionProperties,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponent,
   Combatant,
   CombatantClass,
-  CombatantClassProperties,
+  CombatantControlledBy,
   CombatantControllerType,
   CombatantProperties,
   CombatantSpecies,
@@ -21,10 +20,10 @@ import isEqual from "lodash.isequal";
 export const TARGET_DUMMY_COMBATANT = Combatant.createInitialized(
   { name: "Target Dummy", id: "Target Dummy Entity Id" },
   new CombatantProperties(
-    new ClassProgressionProperties(new CombatantClassProperties(1, CombatantClass.Warrior)),
+    CombatantClass.Warrior,
     CombatantSpecies.Humanoid,
     null,
-    { controllerType: CombatantControllerType.Dungeon, controllerName: "" },
+    new CombatantControlledBy(CombatantControllerType.Dungeon, ""),
     Vector3.Zero()
   )
 );

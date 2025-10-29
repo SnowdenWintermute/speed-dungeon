@@ -1,5 +1,6 @@
 import {
   ActionAndRank,
+  COMBAT_ACTIONS,
   CharacterAssociatedData,
   CombatantProperties,
   ERROR_MESSAGES,
@@ -44,11 +45,14 @@ export function selectCombatActionLevelHandler(
 
   const actionAndNewlySelectedRank = new ActionAndRank(actionName, newSelectedActionLevel);
 
-  const hasRequiredResources = CombatantProperties.hasRequiredResourcesToUseAction(
+  const action = COMBAT_ACTIONS[actionName];
+  const costs = action.costProperties.getResourceCosts(
     character,
-    actionAndNewlySelectedRank,
-    !!party.battleId
+    !!party.battleId,
+    newSelectedActionLevel
   );
+  const hasRequiredResources =
+    !character.combatantProperties.resources.getUnmetCostResourceTypes(costs).length;
 
   if (!hasRequiredResources) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INSUFFICIENT_RESOURCES);
 

@@ -14,7 +14,7 @@ export class CharacterAutoFocusManager {
 
       const newlyActiveTrackerIsPlayerControlled = combatantManager
         .getExpectedCombatant(activeTrackerId)
-        .combatantProperties.isPlayerControlled();
+        .combatantProperties.controlledBy.isPlayerControlled();
 
       if (newlyActiveTrackerIsPlayerControlled) {
         const trackerId = firstActiveTracker.getTaggedIdOfTrackedEntity().combatantId;
@@ -56,7 +56,7 @@ export class CharacterAutoFocusManager {
 
       const newlyActiveTrackerIsPlayerControlled = combatantManager
         .getExpectedCombatant(activeTrackerId)
-        .combatantProperties.isPlayerControlled();
+        .combatantProperties.controlledBy.isPlayerControlled();
 
       if (newlyActiveTrackerIsPlayerControlled) {
         AppStore.get().gameStore.setFocusedCharacter(

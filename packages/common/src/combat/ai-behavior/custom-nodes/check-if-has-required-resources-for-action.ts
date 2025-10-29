@@ -1,6 +1,5 @@
-import { ActionAndRank } from "../../../action-user-context/action-user-targeting-properties.js";
-import { CombatantProperties } from "../../../combatants/combatant-properties.js";
 import { Combatant } from "../../../combatants/index.js";
+import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionName } from "../../combat-actions/index.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import { BehaviorNode, BehaviorNodeState } from "../behavior-tree.js";
@@ -15,13 +14,16 @@ export class CheckIfHasRequiredResourcesForAction implements BehaviorNode {
     if (this.actionNameOption === null) return BehaviorNodeState.Failure;
     const { combatantProperties } = this.combatant;
 
-    const hasResources = CombatantProperties.hasRequiredResourcesToUseAction(
+    const costs = COMBAT_ACTIONS[this.actionNameOption].costProperties.getResourceCosts(
       this.combatant,
+      true,
       // @TODO - actually select an action level
-      new ActionAndRank(this.actionNameOption, 1),
-      true
+      1
     );
-    if (hasResources) return BehaviorNodeState.Success;
+    const hasRequiredResources =
+      !this.combatant.combatantProperties.resources.getUnmetCostResourceTypes(costs).length;
+
+    if (hasRequiredResources) return BehaviorNodeState.Success;
 
     return BehaviorNodeState.Failure;
   }

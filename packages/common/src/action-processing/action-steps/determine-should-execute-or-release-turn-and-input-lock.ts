@@ -1,9 +1,5 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import {
-  ActionPayableResource,
-  COMBAT_ACTION_NAME_STRINGS,
-  COMBAT_ACTIONS,
-} from "../../combat/index.js";
+import { ActionPayableResource, COMBAT_ACTIONS } from "../../combat/index.js";
 import {
   ActionIntentAndUser,
   ActionResolutionStep,

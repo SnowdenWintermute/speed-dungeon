@@ -1,15 +1,18 @@
-import { makeAutoObservable } from "mobx";
+import makeAutoObservable from "mobx-store-inheritance";
 import { plainToInstance } from "class-transformer";
 import { COMBATANT_CLASS_NAME_STRINGS, CombatantClass } from "./combatant-class/index.js";
 import { AbilityUtils } from "../abilities/ability-utils.js";
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ABILITY_TREES } from "./ability-tree/set-up-ability-trees.js";
 import {
+  ABILITY_POINTS_AWARDED_PER_LEVEL,
+  ATTRIBUTE_POINTS_AWARDED_PER_LEVEL,
   COMBATANT_MAX_LEVEL,
   XP_REQUIRED_TO_LEVEL_INCREASE_INCREMENT,
   XP_REQUIRED_TO_REACH_LEVEL_2,
 } from "../app-consts.js";
 import { runIfInBrowser } from "../utils/index.js";
+import { CombatantSubsystem } from "./combatant-subsystem.js";
 
 export class ExperiencePoints {
   private current: number = 0;
@@ -44,18 +47,21 @@ export class CombatantClassProperties {
   constructor(
     public level: number,
     public combatantClass: CombatantClass
-  ) {}
+  ) {
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+  }
 
   getStringName() {
     return COMBATANT_CLASS_NAME_STRINGS[this.combatantClass];
   }
 }
 
-export class ClassProgressionProperties {
+export class ClassProgressionProperties extends CombatantSubsystem {
   private supportClass: null | CombatantClassProperties = null;
   public experiencePoints = new ExperiencePoints();
 
   constructor(private mainClass: CombatantClassProperties) {
+    super();
     runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 
@@ -73,7 +79,11 @@ export class ClassProgressionProperties {
     return this.mainClass;
   }
 
-  convertExperienceToClassLevels() {
+  setMainClass(combatantClass: CombatantClass) {
+    this.mainClass.combatantClass = combatantClass;
+  }
+
+  private convertExperienceToClassLevels() {
     let levelupCount = 0;
 
     while (true) {
@@ -97,12 +107,38 @@ export class ClassProgressionProperties {
     return levelupCount;
   }
 
-  changeSupportClassLevel(combatantClass: CombatantClass, value: number) {
+  /** Returns the new level reached for this combatant if any */
+  awardLevelups() {
+    const levelupCount = this.convertExperienceToClassLevels();
+
+    const combatantProperties = this.getCombatantProperties();
+    const { abilityProperties, attributeProperties, resources } = combatantProperties;
+
+    for (let levelup = 0; levelup < levelupCount; levelup += 1) {
+      this.getMainClass().level += 1;
+      abilityProperties.changeUnspentAbilityPoints(ABILITY_POINTS_AWARDED_PER_LEVEL);
+      attributeProperties.changeUnspentPoints(ATTRIBUTE_POINTS_AWARDED_PER_LEVEL);
+
+      resources.setToMax();
+    }
+
+    return this.getMainClass().level;
+  }
+
+  private changeSupportClassLevel(combatantClass: CombatantClass, value: number) {
     if (this.supportClass !== null) {
       this.supportClass.level += value;
     } else {
       this.supportClass = new CombatantClassProperties(combatantClass, value);
     }
+  }
+
+  incrementSupportClassLevel(supportClass: CombatantClass) {
+    const combatantProperties = this.getCombatantProperties();
+    combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
+      this.changeSupportClassLevel(supportClass, 1);
+      combatantProperties.abilityProperties.changeUnspentAbilityPoints(1);
+    });
   }
 
   meetsCombatantClassAndLevelRequirements(combatantClass: CombatantClass, level: number) {

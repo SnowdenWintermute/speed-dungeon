@@ -29,7 +29,7 @@ export const CharacterAttributes = observer(
     const { gameStore } = AppStore.get();
     const playerOwnsCharacter = gameStore.clientUserControlsFocusedCombatant();
 
-    const isPlayerControlled = combatantProperties.isPlayerControlled();
+    const isPlayerControlled = combatantProperties.controlledBy.isPlayerControlled();
 
     const { attributeProperties, classProgressionProperties } = combatantProperties;
 

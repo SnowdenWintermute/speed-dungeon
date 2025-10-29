@@ -10,6 +10,6 @@ export function onSkillBookRead(user: CombatantProperties, book: Consumable) {
     return new Error("Somehow tried to read a skill book that wasn't associated with any class");
   }
 
-  user.classProgressionProperties.changeSupportClassLevel(skillBookClass, 1);
+  user.classProgressionProperties.incrementSupportClassLevel(skillBookClass);
   return { supportClassLevelIncreased: skillBookClass };
 }

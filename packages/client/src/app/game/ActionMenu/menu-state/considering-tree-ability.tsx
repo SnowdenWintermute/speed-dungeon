@@ -129,7 +129,8 @@ export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
 
     const { combatantProperties } = focusedCharacter;
 
-    const { canAllocate } = combatantProperties.canAllocateAbilityPoint(abilityOption);
+    const { canAllocate } =
+      combatantProperties.abilityProperties.canAllocateAbilityPoint(abilityOption);
 
     button.shouldBeDisabled = !canAllocate;
 

@@ -57,7 +57,7 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
 
   const isFocused = gameStore.characterIsFocused(entityId);
 
-  const isPartyMember = combatant.combatantProperties.isPlayerControlled();
+  const isPartyMember = combatant.combatantProperties.controlledBy.isPlayerControlled();
 
   const isHovered = focusStore.entityIsHovered(entityId);
   const conditionalBorder = getConditionalBorder(isHovered, isFocused, combatantIsDetailed);

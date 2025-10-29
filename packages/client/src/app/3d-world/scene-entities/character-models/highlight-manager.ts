@@ -127,7 +127,7 @@ export class HighlightManager {
 
       const isMonster = this.modularCharacter
         .getCombatant()
-        .combatantProperties.isDungeonControlled();
+        .combatantProperties.controlledBy.isDungeonControlled();
       if (isMonster) return;
 
       const entityId = this.modularCharacter.getCombatant().getEntityId();

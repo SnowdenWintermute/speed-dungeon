@@ -25,7 +25,7 @@ export const TurnOrderTrackerIcon = observer(({ tracker }: { tracker: CombatantT
     taggedTrackedEntityId.type === TurnTrackerEntityType.Combatant &&
     party.combatantManager
       .getExpectedCombatant(taggedTrackedEntityId.combatantId)
-      .combatantProperties.isPlayerControlled();
+      .combatantProperties.controlledBy.isPlayerControlled();
 
   const conditionalClasses = isCondition
     ? "bg-slate-600"

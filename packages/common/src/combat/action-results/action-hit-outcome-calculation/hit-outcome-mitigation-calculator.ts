@@ -77,7 +77,7 @@ export class HitOutcomeMitigationCalculator {
 
     const willAttemptParry =
       hitOutcomeProperties.getIsParryable(user, actionLevel) &&
-      CombatantProperties.canParry(target.combatantProperties);
+      target.combatantProperties.mitigationProperties.canParry();
 
     // PARRIES
     if (willAttemptParry) {
@@ -110,7 +110,7 @@ export class HitOutcomeMitigationCalculator {
     if (actionHasResourceChanges) {
       if (
         hitOutcomeProperties.getIsBlockable(user, actionLevel) &&
-        CombatantProperties.canBlock(target.combatantProperties)
+        target.combatantProperties.mitigationProperties.canBlock()
       ) {
         const percentChanceToBlock = HitOutcomeMitigationCalculator.getShieldBlockChance(
           user,

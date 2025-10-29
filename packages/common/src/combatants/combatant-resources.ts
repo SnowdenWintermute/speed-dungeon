@@ -34,11 +34,10 @@ export class CombatantResources extends CombatantSubsystem {
     const totalAttributes = attributeProperties.getTotalAttributes();
     const maxHpOption = totalAttributes[CombatAttribute.Hp];
     if (isNaN(maxHpOption)) throw new Error("unexpected NaN");
-    if (typeof maxHpOption === "number") this.hitPoints = maxHpOption;
+    this.hitPoints = maxHpOption;
     const maxMpOption = totalAttributes[CombatAttribute.Mp];
     if (isNaN(maxMpOption)) throw new Error("unexpected NaN");
-    if (typeof maxMpOption === "number") this.mana = maxMpOption;
-    else this.mana = 0;
+    this.mana = maxMpOption;
   }
 
   clampResourcesToMax() {
@@ -52,8 +51,8 @@ export class CombatantResources extends CombatantSubsystem {
   }
 
   changeActionPoints(value: number) {
-    const newMax = Math.max(0, this.actionPoints + value);
-    this.actionPoints = Math.min(COMBATANT_MAX_ACTION_POINTS, newMax);
+    const newCandidateValue = Math.max(0, this.actionPoints + value);
+    this.actionPoints = Math.min(COMBATANT_MAX_ACTION_POINTS, newCandidateValue);
   }
 
   changeMana(value: number) {
@@ -100,7 +99,9 @@ export class CombatantResources extends CombatantSubsystem {
     return { percentOfMaxHitPoints, percentOfMaxMana };
   }
 
-  getUnmetCostResourceTypes(costs: Partial<Record<ActionPayableResource, number>>) {
+  getUnmetCostResourceTypes(costs: Partial<Record<ActionPayableResource, number>> | null) {
+    if (costs === null) return [];
+
     const combatantProperties = this.getCombatantProperties();
 
     const unmet: ActionPayableResource[] = [];

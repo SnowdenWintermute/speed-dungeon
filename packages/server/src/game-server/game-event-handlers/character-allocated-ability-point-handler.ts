@@ -14,7 +14,8 @@ export function characterAllocatedAbilityPointHandler(
   const { game, party, character } = characterAssociatedData;
   const { combatantProperties } = character;
 
-  const { canAllocate, reasonCanNot } = combatantProperties.canAllocateAbilityPoint(ability);
+  const { canAllocate, reasonCanNot } =
+    combatantProperties.abilityProperties.canAllocateAbilityPoint(ability);
   if (!canAllocate) return new Error(reasonCanNot);
 
   combatantProperties.abilityProperties.allocateAbilityPoint(ability);

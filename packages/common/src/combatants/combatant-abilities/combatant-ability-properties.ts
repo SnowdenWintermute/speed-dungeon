@@ -8,14 +8,18 @@ import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../../utils/index
 import { CombatantTraitProperties } from "../combatant-traits/combatant-trait-properties.js";
 import { CombatantTraitType } from "../combatant-traits/trait-types.js";
 import { CombatantActionState } from "../owned-actions/combatant-action-state.js";
-import { makeAutoObservable } from "mobx";
+import makeAutoObservable from "mobx-store-inheritance";
+import { CombatantSubsystem } from "../combatant-subsystem.js";
+import { ABILITY_TREES } from "../ability-tree/set-up-ability-trees.js";
+import { COMBATANT_TRAIT_DESCRIPTIONS } from "../combatant-traits/index.js";
 
-export class CombatantAbilityProperties {
+export class CombatantAbilityProperties extends CombatantSubsystem {
   private ownedActions: Partial<Record<CombatActionName, CombatantActionState>> = {};
   private unspentAbilityPoints: number = 0;
   private traitProperties = new CombatantTraitProperties();
 
   constructor() {
+    super();
     runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 
@@ -66,18 +70,94 @@ export class CombatantAbilityProperties {
     return this.ownedActions;
   }
 
-  ownedAbilityIsAtMaxAllocatableRank(ability: AbilityTreeAbility) {
+  // POINT ALLOCATION
+
+  private ownedAbilityIsAtMaxAllocatableRank(ability: AbilityTreeAbility) {
     const abilityLevel = this.getAbilityRank(ability);
     const max = AbilityUtils.getAbilityMaxAllocatableRank(ability);
     if (abilityLevel >= max) return true;
     return false;
   }
 
-  hasPrerequisiteAbilities(ability: AbilityTreeAbility) {
+  private hasPrerequisiteAbilities(ability: AbilityTreeAbility) {
     for (const prerequisite of AbilityUtils.getPrerequisites(ability)) {
       if (this.getAbilityRank(prerequisite) < 1) return false;
     }
     return true;
+  }
+
+  canAllocateAbilityPoint(ability: AbilityTreeAbility): {
+    canAllocate: boolean;
+    reasonCanNot?: string;
+  } {
+    const combatantProperties = this.getCombatantProperties();
+    const { classProgressionProperties, abilityProperties } = combatantProperties;
+    const mainClass = classProgressionProperties.getMainClass();
+    const isMainClassAbility = AbilityUtils.abilityAppearsInTree(
+      ability,
+      ABILITY_TREES[mainClass.combatantClass]
+    );
+
+    const supportClassOption = classProgressionProperties.getSupportClassOption();
+    const hasSupportClass = supportClassOption !== null;
+
+    const isSupportClassAbility =
+      hasSupportClass &&
+      AbilityUtils.abilityAppearsInTree(ability, ABILITY_TREES[supportClassOption.combatantClass]);
+
+    if (!isSupportClassAbility && !isMainClassAbility) {
+      return {
+        canAllocate: false,
+        reasonCanNot: "That ability is not in any of that combatant's ability trees",
+      };
+    }
+
+    if (
+      ability.type === AbilityType.Trait &&
+      !COMBATANT_TRAIT_DESCRIPTIONS[ability.traitType].isAllocatable
+    ) {
+      return {
+        canAllocate: false,
+        reasonCanNot: "That trait is inherent to the combatant and can not be allocated to",
+      };
+    }
+
+    // has unspent points
+    if (abilityProperties.getUnspentPointsCount() <= 0) {
+      return { canAllocate: false, reasonCanNot: "No unspent ability points" };
+    }
+
+    // ability is max level
+    if (abilityProperties.ownedAbilityIsAtMaxAllocatableRank(ability)) {
+      return { canAllocate: false, reasonCanNot: "That ability is at its maximum level" };
+    }
+
+    // is required character level
+    const abilityRank = abilityProperties.getAbilityRank(ability);
+    const isAtRequiredCharacterLevel =
+      classProgressionProperties.isRequiredClassLevelToAllocateToAbility(
+        ability,
+        abilityRank,
+        isSupportClassAbility
+      );
+
+    if (!isAtRequiredCharacterLevel) {
+      return {
+        canAllocate: false,
+        reasonCanNot: "That character is too low level to allocate to this ability",
+      };
+    }
+
+    // has prerequisite abilities
+    const hasPrerequisiteAbilities = abilityProperties.hasPrerequisiteAbilities(ability);
+    if (!hasPrerequisiteAbilities) {
+      return {
+        canAllocate: false,
+        reasonCanNot: "Requires prerequisite",
+      };
+    }
+
+    return { canAllocate: true };
   }
 
   allocateAbilityPoint(ability: AbilityTreeAbility) {
@@ -97,6 +177,8 @@ export class CombatantAbilityProperties {
     }
   }
 
+  // USABILITY
+
   tickCooldowns() {
     for (const [actionName, actionState] of iterateNumericEnumKeyedRecord(this.ownedActions)) {
       if (actionState.wasUsedThisTurn) {
@@ -106,6 +188,8 @@ export class CombatantAbilityProperties {
       }
     }
   }
+
+  // TRAITS
 
   getTraitProperties() {
     return this.traitProperties;

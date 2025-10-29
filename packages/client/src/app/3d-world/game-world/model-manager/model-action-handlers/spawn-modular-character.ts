@@ -20,7 +20,7 @@ export async function spawnCharacterModel(
     entityProperties.id,
     world,
     combatantProperties.monsterType,
-    combatantProperties.isPlayerControlled(),
+    combatantProperties.controlledBy.isPlayerControlled(),
     combatantProperties.classProgressionProperties.getMainClass().combatantClass,
     skeleton,
     blueprint.modelDomPositionElement,

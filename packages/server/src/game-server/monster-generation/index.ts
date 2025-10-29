@@ -6,6 +6,7 @@ import {
   AiType,
   CombatActionName,
   Combatant,
+  CombatantControlledBy,
   CombatantControllerType,
   Equipment,
   MONSTER_SPECIES,
@@ -21,12 +22,10 @@ import { getMonsterEquipment } from "./get-monster-equipment.js";
 import { ThreatManager } from "@speed-dungeon/common";
 import { MONSTER_INHERENT_TRAIT_GETTERS } from "./monster-trait-getters.js";
 import { initializeCombatAttributeRecord } from "@speed-dungeon/common";
-import {
-  CombatantProperties,
-  ClassProgressionProperties,
-  CombatantClassProperties,
-} from "@speed-dungeon/common";
+import { CombatantProperties } from "@speed-dungeon/common";
 // import { STOCK_MONSTER } from "../../index.js";
+//
+const EMPTY_STRING = "";
 
 export function generateMonster(level: number, forcedType?: MonsterType) {
   // roll a random monster type from list of pre determined types
@@ -41,12 +40,14 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
     name: MONSTER_TYPE_STRINGS[monsterType],
   };
   const combatantProperties = new CombatantProperties(
-    new ClassProgressionProperties(new CombatantClassProperties(level, combatantClass)),
+    combatantClass,
     combatantSpecies,
     monsterType,
-    { controllerType: CombatantControllerType.Dungeon, controllerName: "" },
+    new CombatantControlledBy(CombatantControllerType.Dungeon, EMPTY_STRING),
     Vector3.Zero()
   );
+
+  combatantProperties.classProgressionProperties.getMainClass().level = level;
 
   const ownedActions: CombatActionName[] = [
     CombatActionName.Attack,

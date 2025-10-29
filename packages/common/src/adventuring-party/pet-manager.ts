@@ -56,8 +56,8 @@ export class PetManager {
     const ownerHomePosition = owner.getHomePosition();
 
     // figure out if the pet is owned by character or monster
-    const isCharacterPet = owner.combatantProperties.isPlayerControlled();
-    const isMonsterPet = owner.combatantProperties.isDungeonControlled();
+    const isCharacterPet = owner.combatantProperties.controlledBy.isPlayerControlled();
+    const isMonsterPet = owner.combatantProperties.controlledBy.isDungeonControlled();
 
     // remove the pet from the unsummonedPets data structure
     const petOption = this.removePetFromUnsummonedSlot(ownerId, slotIndex);

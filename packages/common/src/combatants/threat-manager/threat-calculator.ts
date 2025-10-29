@@ -65,7 +65,7 @@ export class ThreatCalculator {
       for (const entityId of entitiesHit) {
         const targetCombatant = this.party.combatantManager.getExpectedCombatant(entityId);
         const { combatantProperties } = targetCombatant;
-        const targetIsPlayerControlled = combatantProperties.isPlayerControlled();
+        const targetIsPlayerControlled = combatantProperties.controlledBy.isPlayerControlled();
 
         if (combatantProperties.threatManager) {
           if (!combatantProperties.isDead())
@@ -86,7 +86,9 @@ export class ThreatCalculator {
       }
     }
 
-    const userIsMonster = this.actionUser.getCombatantProperties().isDungeonControlled();
+    const userIsMonster = this.actionUser
+      .getCombatantProperties()
+      .controlledBy.isDungeonControlled();
 
     if (userIsMonster) {
       return console.error(
@@ -102,7 +104,7 @@ export class ThreatCalculator {
     for (const [entityId, hitPointChange] of hitPointChanges.getRecords()) {
       const targetCombatant = this.party.combatantManager.getExpectedCombatant(entityId);
       const { combatantProperties } = targetCombatant;
-      const targetIsPlayerControlled = combatantProperties.isPlayerControlled();
+      const targetIsPlayerControlled = combatantProperties.controlledBy.isPlayerControlled();
 
       if (combatantProperties.threatManager) {
         this.addThreatDamageDealtByPlayerCharacter(
@@ -129,7 +131,7 @@ export class ThreatCalculator {
     for (const entityId of entitiesHit) {
       const targetCombatant = this.party.combatantManager.getExpectedCombatant(entityId);
       const { combatantProperties } = targetCombatant;
-      const targetIsAIControlled = !combatantProperties.isPlayerControlled();
+      const targetIsAIControlled = !combatantProperties.controlledBy.isPlayerControlled();
       if (targetIsAIControlled) continue;
 
       const currentThreatForTargetOption = threatManager.getEntries()[entityId];
@@ -153,7 +155,7 @@ export class ThreatCalculator {
       if (hitPointChange.value > 0) continue; // don't add threat for monsters healing players
       const targetCombatant = this.party.combatantManager.getExpectedCombatant(entityId);
       const { combatantProperties } = targetCombatant;
-      const targetIsAIControlled = !combatantProperties.isPlayerControlled();
+      const targetIsAIControlled = !combatantProperties.controlledBy.isPlayerControlled();
       if (targetIsAIControlled) continue;
 
       const currentThreatForTargetOption = threatManager.getEntries()[entityId];
