@@ -55,7 +55,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
 
   const { game, party, actionUser } = context.actionUserContext;
-  const battleOption = AdventuringParty.getBattleOption(party, game);
+  const battleOption = party.getBattleOption(game);
 
   const userIsCombatant = actionUser instanceof Combatant;
 

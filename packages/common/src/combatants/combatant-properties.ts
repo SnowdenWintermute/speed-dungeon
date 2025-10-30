@@ -46,9 +46,12 @@ export class CombatantProperties {
     public controlledBy: CombatantControlledBy,
     homePosition: Vector3
   ) {
-    this.transformProperties.position = homePosition;
-    this.transformProperties.homePosition = homePosition.clone();
-
+    // this happens when running plainToInstance, homePosition will be undefined
+    // I don't know why but for now this works
+    if (homePosition !== undefined) {
+      this.transformProperties.position = homePosition;
+      this.transformProperties.homePosition = homePosition.clone();
+    }
     this.classProgressionProperties.setMainClass(mainClassType);
 
     makeAutoObservable(this, {}, { autoBind: true });
@@ -64,6 +67,10 @@ export class CombatantProperties {
 
   static getDeserialized(combatantProperties: CombatantProperties) {
     const deserialized = plainToInstance(CombatantProperties, combatantProperties);
+
+    deserialized.transformProperties = CombatantTransformProperties.getDeserialized(
+      deserialized.transformProperties
+    );
     deserialized.inventory = Inventory.getDeserialized(deserialized.inventory);
     deserialized.equipment = CombatantEquipment.getDeserialized(deserialized.equipment);
     deserialized.targetingProperties = ActionUserTargetingProperties.getDeserialized(
@@ -90,10 +97,6 @@ export class CombatantProperties {
 
     deserialized.conditionManager = CombatantConditionManager.getDeserialized(
       deserialized.conditionManager
-    );
-
-    deserialized.transformProperties = CombatantTransformProperties.getDeserialized(
-      deserialized.transformProperties
     );
 
     return deserialized;

@@ -6,7 +6,6 @@ import {
   CombatActionName,
   COMBAT_ACTIONS,
   ActionResolutionStepType,
-  AdventuringParty,
 } from "@speed-dungeon/common";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
@@ -60,7 +59,7 @@ export function induceHitRecovery(
     showDebug
   );
 
-  const battleOption = AdventuringParty.getBattleOption(party, game);
+  const battleOption = party.getBattleOption(game);
 
   if (combatantProperties.isDead()) {
     targetModel.cosmeticEffectManager.softCleanup(() => {});

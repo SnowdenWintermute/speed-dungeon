@@ -7,7 +7,7 @@ export function handlePetSlotsSummoned(
   party: AdventuringParty,
   game: SpeedDungeonGame
 ) {
-  const battleOption = AdventuringParty.getBattleOption(party, game);
+  const battleOption = party.getBattleOption(game);
 
   for (const { ownerId, slotIndex } of petSlotsSummoned) {
     party.petManager.summonPetFromSlot(party, ownerId, slotIndex, battleOption);

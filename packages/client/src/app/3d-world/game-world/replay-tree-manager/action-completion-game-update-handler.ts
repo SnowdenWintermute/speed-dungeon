@@ -1,8 +1,4 @@
-import {
-  ActionCompletionUpdateCommand,
-  AdventuringParty,
-  CombatantTurnTracker,
-} from "@speed-dungeon/common";
+import { ActionCompletionUpdateCommand, CombatantTurnTracker } from "@speed-dungeon/common";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { handleThreatChangesUpdate } from "./handle-threat-changes";
 import { GameUpdateTracker } from "./game-update-tracker";
@@ -14,7 +10,7 @@ export async function actionCompletionGameUpdateHandler(
   const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
 
   if (update.command.endActiveCombatantTurn) {
-    const battleOption = AdventuringParty.getBattleOption(party, game);
+    const battleOption = party.getBattleOption(game);
     if (!battleOption) return console.error("no battle but tried to end turn");
 
     const actionNameOption = update.command.actionName;

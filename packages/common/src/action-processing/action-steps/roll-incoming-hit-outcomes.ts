@@ -8,12 +8,9 @@ import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-command
 import {
   COMBAT_ACTIONS,
   COMBAT_ACTION_NAME_STRINGS,
-  CombatActionExecutionIntent,
   HitOutcomeCalculator,
   HitPointChanges,
 } from "../../combat/index.js";
-import { Combatant } from "../../combatants/index.js";
-import { AdventuringParty } from "../../adventuring-party/index.js";
 import { HitOutcome } from "../../hit-outcome.js";
 import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
 import { CombatActionResource } from "../../combat/combat-actions/combat-action-hit-outcome-properties.js";
@@ -88,7 +85,7 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
       gameUpdateCommand.threatChanges = threatChangesOption;
     }
 
-    const battleOption = AdventuringParty.getBattleOption(party, game);
+    const battleOption = party.getBattleOption(game);
     battleOption?.turnOrderManager.updateTrackers(game, party);
   }
 

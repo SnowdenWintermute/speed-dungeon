@@ -6,13 +6,11 @@ import {
 import { COMBAT_ACTIONS } from "../../combat/index.js";
 import { GameUpdateCommandType, ResourcesPaidGameUpdateCommand } from "../game-update-commands.js";
 import { MaxAndCurrent } from "../../primatives/max-and-current.js";
-import { AdventuringParty } from "../../adventuring-party/index.js";
-import { CombatantProperties } from "../../combatants/combatant-properties.js";
 
 const stepType = ActionResolutionStepType.PayResourceCosts;
 export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
-    const { actionUser, game, party } = context.actionUserContext;
+    const { actionUser, party } = context.actionUserContext;
     const combatantProperties = actionUser.getCombatantProperties();
 
     const selectedActionLevelAndRank = actionUser
@@ -24,7 +22,7 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
     let actionRank = selectedActionLevelAndRank?.rank || 1;
 
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
-    const inCombat = !!AdventuringParty.getBattleOption(party, game);
+    const inCombat = party.isInCombat();
 
     const costsOption = action.costProperties.getResourceCosts(actionUser, inCombat, actionRank);
 

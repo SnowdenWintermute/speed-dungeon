@@ -100,7 +100,7 @@ export async function exploreNextRoom(
     actionEntitiesToRemove: actionEntitiesRemoved,
   });
 
-  const battleOption = AdventuringParty.getBattleOption(party, game);
+  const battleOption = party.getBattleOption(game);
   if (battleOption === null) return;
 
   const battle = battleOption;

@@ -8,7 +8,7 @@ import {
   Vector3,
 } from "@babylonjs/core";
 import { CharacterModel } from ".";
-import { AdventuringParty, iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
+import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import { CharacterModelPartCategory } from "./modular-character-parts-model-manager/modular-character-parts";
 import { AppStore } from "@/mobx-stores/app-store";
@@ -119,7 +119,7 @@ export class HighlightManager {
     if (partyOption !== undefined) {
       const gameOption = AppStore.get().gameStore.getGameOption();
       if (gameOption === null) return;
-      const battleOption = AdventuringParty.getBattleOption(partyOption, gameOption);
+      const battleOption = partyOption.getBattleOption(gameOption);
       if (battleOption === null) {
         this.removeHighlight();
         return;

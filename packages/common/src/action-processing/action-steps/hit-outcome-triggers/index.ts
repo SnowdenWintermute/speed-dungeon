@@ -15,7 +15,6 @@ import {
   CombatActionTargetType,
   ThreatChanges,
 } from "../../../combat/index.js";
-import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { addHitOutcomeDurabilityChanges } from "./hit-outcome-durability-change-calculators.js";
 import { HitOutcome } from "../../../hit-outcome.js";
@@ -40,7 +39,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     const { actionExecutionIntent } = tracker;
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
     const { game, party, actionUser } = actionUserContext;
-    const battleOption = AdventuringParty.getBattleOption(party, game);
+    const battleOption = party.getBattleOption(game);
     const { outcomeFlags } = tracker.hitOutcomes;
 
     const customTriggers = action.hitOutcomeProperties.getHitOutcomeTriggers(context);

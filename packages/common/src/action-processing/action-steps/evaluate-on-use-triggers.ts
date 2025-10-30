@@ -12,7 +12,6 @@ import {
 import { Combatant } from "../../combatants/index.js";
 import { DurabilityLossCondition } from "../../combat/combat-actions/combat-action-durability-loss-condition.js";
 import { DurabilityChangesByEntityId } from "../../durability/index.js";
-import { AdventuringParty } from "../../adventuring-party/index.js";
 
 const stepType = ActionResolutionStepType.EvalOnUseTriggers;
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
@@ -38,7 +37,7 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     const { petSlotsSummoned } = onUseTriggers;
     if (petSlotsSummoned) {
       const { petManager } = party;
-      const battleOption = AdventuringParty.getBattleOption(party, game);
+      const battleOption = party.getBattleOption(game);
 
       for (const { ownerId, slotIndex } of petSlotsSummoned) {
         petManager.summonPetFromSlot(party, ownerId, slotIndex, battleOption);

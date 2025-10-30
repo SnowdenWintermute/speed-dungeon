@@ -211,11 +211,7 @@ export class Combatant implements IActionUser {
     const hasRequiredConsumables = this.hasRequiredConsumablesToUseAction(action.name);
     if (!hasRequiredConsumables) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
 
-    const costs = action.costProperties.getResourceCosts(
-      this,
-      !!AdventuringParty.getBattleOption(party, game),
-      rank
-    );
+    const costs = action.costProperties.getResourceCosts(this, party.isInCombat(), rank);
     const hasRequiredResources =
       !this.combatantProperties.resources.getUnmetCostResourceTypes(costs).length;
 

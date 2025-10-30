@@ -1,4 +1,3 @@
-import { AdventuringParty } from "../../adventuring-party/index.js";
 import { ActionPayableResource, COMBAT_ACTIONS } from "../../combat/index.js";
 import {
   ActionIntentAndUser,
@@ -18,11 +17,11 @@ export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends
     const turnAlreadyEnded =
       context.tracker.parentActionManager.sequentialActionManagerRegistry.getTurnEnded();
 
-    const { actionUser, party, game } = context.actionUserContext;
+    const { actionUser, party } = context.actionUserContext;
 
     const resourceCosts = action.costProperties.getResourceCosts(
       actionUser,
-      !!AdventuringParty.getBattleOption(party, game),
+      party.isInCombat(),
       context.tracker.actionExecutionIntent.rank
     );
 

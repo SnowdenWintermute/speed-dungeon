@@ -1,4 +1,3 @@
-import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { COMBAT_ACTIONS } from "../../../combat/index.js";
 import { COMBATANT_CONDITION_CONSTRUCTORS } from "../../../combatants/combatant-conditions/condition-constructors.js";
 import { Combatant, MAX_CONDITION_STACKS } from "../../../combatants/index.js";
@@ -18,7 +17,7 @@ export function handleHit(
   const { actionExecutionIntent } = tracker;
   const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
   const { game, party, actionUser } = actionUserContext;
-  const battleOption = AdventuringParty.getBattleOption(party, game);
+  const battleOption = party.getBattleOption(game);
 
   const branchingActions: ActionIntentAndUser[] = [];
 

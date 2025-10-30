@@ -21,12 +21,12 @@ export async function characterAddedToPartyHandler(
       deserializedPets.push(deserializedPet);
     }
 
-    console.log("added deserialized character");
-
     addCharacterToParty(game, party, player, deserialized, deserializedPets);
   } catch (error) {
-    if (error instanceof Error) setAlert(error.message);
-    else console.error(error);
+    if (error instanceof Error) {
+      setAlert(error.message);
+      console.trace(error);
+    } else console.error(error);
   }
 
   if (game.mode === GameMode.Progression) {

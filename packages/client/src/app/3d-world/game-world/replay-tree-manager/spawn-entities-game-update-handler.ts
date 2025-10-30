@@ -1,6 +1,5 @@
 import {
   ActionEntity,
-  AdventuringParty,
   SpawnableEntityType,
   SpawnEntitiesGameUpdateCommand,
 } from "@speed-dungeon/common";
@@ -55,7 +54,7 @@ export async function spawnEntitiesGameUpdateHandler(
     getGameWorld().actionEntityManager.register(model);
 
     const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
-    const battleOption = AdventuringParty.getBattleOption(party, game);
+    const battleOption = party.getBattleOption(game);
 
     const deserialized = ActionEntity.getDeserialized(actionEntity);
 

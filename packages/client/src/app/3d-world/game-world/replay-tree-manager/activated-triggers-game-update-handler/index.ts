@@ -1,7 +1,6 @@
 import {
   ActionEntityName,
   ActivatedTriggersGameUpdateCommand,
-  AdventuringParty,
   EntityId,
   Equipment,
 } from "@speed-dungeon/common";
@@ -29,7 +28,7 @@ export async function activatedTriggersGameUpdateHandler(
   const brokenHoldablesAndTheirOwnerIds: { ownerId: EntityId; equipment: Equipment }[] = [];
 
   const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
-  const battleOption = AdventuringParty.getBattleOption(party, game);
+  const battleOption = party.getBattleOption(game);
 
   const {
     actionEntityChanges,

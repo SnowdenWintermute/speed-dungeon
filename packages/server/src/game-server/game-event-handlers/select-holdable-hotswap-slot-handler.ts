@@ -1,6 +1,5 @@
 import SocketIO from "socket.io";
 import {
-  AdventuringParty,
   CharacterAssociatedData,
   ClientToServerEventTypes,
   CombatActionExecutionIntent,
@@ -23,7 +22,7 @@ export function selectHoldableHotswapSlotHandler(
   const { game, party, character } = characterAssociatedData;
   const { combatantProperties } = character;
 
-  const battleOption = AdventuringParty.getBattleOption(party, game);
+  const battleOption = party.getBattleOption(game);
 
   if (battleOption) {
     const isCombatantTurn = battleOption.turnOrderManager.combatantIsFirstInTurnOrder(

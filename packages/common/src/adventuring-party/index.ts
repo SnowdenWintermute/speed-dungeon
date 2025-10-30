@@ -63,12 +63,16 @@ export class AdventuringParty {
   // ITEMS
   static getItem = getItemInAdventuringParty;
 
-  static getBattleOption(party: AdventuringParty, game: SpeedDungeonGame) {
-    const battleIdOption = party.battleId;
+  getBattleOption(game: SpeedDungeonGame) {
+    const battleIdOption = this.battleId;
     if (battleIdOption === null) return null;
     const battleOption = game.battles[battleIdOption];
     if (!battleOption) throw new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
     return battleOption;
+  }
+
+  isInCombat() {
+    return this.combatantManager.monstersArePresent();
   }
 
   removeCharacter(characterId: EntityId, player: SpeedDungeonPlayer): Combatant {

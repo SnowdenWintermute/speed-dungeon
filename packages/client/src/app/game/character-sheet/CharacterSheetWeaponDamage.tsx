@@ -140,8 +140,6 @@ function getAttackActionDamageAndAccuracy(
 
   const combatAction = COMBAT_ACTIONS[actionName];
 
-  console.log("trying to show CharacterSheetWeaponDamage");
-
   const hpChangeGetterOption =
     combatAction.hitOutcomeProperties.resourceChangePropertiesGetters[
       CombatActionResource.HitPoints
