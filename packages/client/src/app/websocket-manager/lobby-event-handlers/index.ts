@@ -75,7 +75,7 @@ export function setUpGameLobbyEventHandlers(
     // from their party when leaving a lobby game, but it is an unhandled crash
     // to remove them from a party when still in a game
     if (!gameOption.timeStarted) {
-      SpeedDungeonGame.removePlayerFromParty(gameOption, username);
+      gameOption.removePlayerFromParty(username);
       if (partyName === null) return;
       gameOption.putPlayerInParty(partyName, username);
     }

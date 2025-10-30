@@ -1,7 +1,7 @@
 import { ERROR_MESSAGES, MAX_PARTY_NAME_LENGTH, ServerToClientEvent } from "@speed-dungeon/common";
 import { generateRandomPartyName } from "../../utils/index.js";
 import { AdventuringParty } from "@speed-dungeon/common";
-import joinPartyHandler from "./join-party-handler.js";
+import { joinPartyHandler } from "./join-party-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { getGameServer } from "../../singletons/index.js";
 import { Socket } from "socket.io";

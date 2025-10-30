@@ -1,8 +1,4 @@
-import {
-  MaxAndCurrent,
-  ResourcesPaidGameUpdateCommand,
-  SpeedDungeonGame,
-} from "@speed-dungeon/common";
+import { MaxAndCurrent, ResourcesPaidGameUpdateCommand } from "@speed-dungeon/common";
 import { GameUpdateTracker } from "./game-update-tracker";
 import { AppStore } from "@/mobx-stores/app-store";
 
@@ -14,7 +10,7 @@ export async function resourcesPaidGameUpdateHandler(
   const { command } = update;
 
   const game = AppStore.get().gameStore.getExpectedGame();
-  const combatantResult = SpeedDungeonGame.getCombatantById(game, command.combatantId);
+  const combatantResult = game.getCombatantById(command.combatantId);
   if (combatantResult instanceof Error) return combatantResult;
   const { combatantProperties } = combatantResult;
 

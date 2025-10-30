@@ -252,4 +252,16 @@ export class Combatant implements IActionUser {
     // target state could change while they are already targeted, like if someone healed themselves
     // to full hp while someone else was targeting them with an autoinjector
   }
+
+  static groupIsDead(group: Combatant[]) {
+    if (group.length === 0) return false;
+    for (const combatant of group) {
+      const { combatantProperties } = combatant;
+      const isDead = combatantProperties.isDead();
+      const isAlive = !isDead;
+      if (isAlive) return false;
+    }
+
+    return true;
+  }
 }

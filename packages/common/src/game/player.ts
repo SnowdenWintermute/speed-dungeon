@@ -1,4 +1,3 @@
-import { immerable } from "immer";
 import { EntityId } from "../primatives/index.js";
 import {
   FriendOrFoe,
@@ -9,7 +8,6 @@ import { ActionAndRank } from "../action-user-context/action-user-targeting-prop
 import { plainToInstance } from "class-transformer";
 
 export class SpeedDungeonPlayer {
-  [immerable] = true;
   partyName: null | string = null;
   characterIds: string[] = [];
   targetPreferences: CombatActionTargetPreferences = new CombatActionTargetPreferences();
@@ -23,7 +21,6 @@ export class SpeedDungeonPlayer {
 }
 
 export class CombatActionTargetPreferences {
-  [immerable] = true;
   friendlySingle: null | EntityId = null;
   hostileSingle: null | EntityId = null;
   category: null | FriendOrFoe = null;

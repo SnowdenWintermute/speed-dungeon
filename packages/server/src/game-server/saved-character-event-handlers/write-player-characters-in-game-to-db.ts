@@ -16,7 +16,7 @@ export async function writePlayerCharactersInGameToDb(
   try {
     if (!player.partyName) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
     for (const id of player.characterIds) {
-      const characterResult = SpeedDungeonGame.getCombatantById(game, id);
+      const characterResult = game.getCombatantById(id);
 
       if (characterResult instanceof Error) {
         throw new Error("Couldn't save character: " + characterResult);

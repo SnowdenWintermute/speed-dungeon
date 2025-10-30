@@ -24,9 +24,10 @@ export async function leavePartyHandler(
   if (!partyOption) return;
   const { username } = player;
 
-  const removedPlayerDataResult = SpeedDungeonGame.removePlayerFromParty(game, username);
-  if (removedPlayerDataResult instanceof Error)
+  const removedPlayerDataResult = game.removePlayerFromParty(username);
+  if (removedPlayerDataResult instanceof Error) {
     return errorHandler(socket, removedPlayerDataResult);
+  }
   let { partyWasRemoved } = removedPlayerDataResult;
 
   // check if only dead players remain

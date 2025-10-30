@@ -1,5 +1,4 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { Battle } from "../../battle/index.js";
 import { CombatantCondition } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../primatives/index.js";
@@ -27,7 +26,8 @@ export class TurnSchedulerManager {
     private minTurnTrackersCount: number,
     party: AdventuringParty
   ) {
-    const { combatants, tickableConditions } = Battle.getAllTickableConditionsAndCombatants(party);
+    const { combatants, tickableConditions } =
+      party.combatantManager.getAllTickableConditionsAndCombatants();
 
     this.schedulers = [
       ...combatants.map((combatant) => new CombatantTurnScheduler(combatant.entityProperties.id)),

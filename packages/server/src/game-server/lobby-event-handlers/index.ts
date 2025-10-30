@@ -5,7 +5,7 @@ import {
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import { GameServer } from "../index.js";
-import joinPartyHandler from "./join-party-handler.js";
+import { joinPartyHandler } from "./join-party-handler.js";
 import { applyMiddlewares } from "../event-middleware/index.js";
 import { playerInGame } from "../event-middleware/get-player-associated-data.js";
 import { createPartyHandler } from "./create-party-handler.js";

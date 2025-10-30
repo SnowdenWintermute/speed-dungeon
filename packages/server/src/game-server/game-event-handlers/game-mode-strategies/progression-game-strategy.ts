@@ -41,7 +41,7 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
     const characters: Combatant[] = [];
 
     for (const id of player.characterIds) {
-      const characterResult = SpeedDungeonGame.getCombatantById(game, id);
+      const characterResult = game.getCombatantById(id);
       if (characterResult instanceof Error) return characterResult;
       characters.push(characterResult);
 

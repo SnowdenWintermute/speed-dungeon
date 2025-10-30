@@ -218,7 +218,7 @@ export class GameStore {
   getFocusedCharacterOption: () => undefined | Combatant = () => {
     const focusedCharacterId = this.getFocusedCharacterIdOption();
     if (this.game === null || focusedCharacterId === null) return undefined;
-    const result = SpeedDungeonGame.getCombatantById(this.game, focusedCharacterId);
+    const result = this.game.getCombatantById(focusedCharacterId);
     if (result instanceof Error) {
       console.error(result);
       return undefined;

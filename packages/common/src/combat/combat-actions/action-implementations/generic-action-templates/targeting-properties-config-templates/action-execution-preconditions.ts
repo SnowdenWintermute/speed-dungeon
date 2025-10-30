@@ -1,6 +1,6 @@
 import { ActionTracker } from "../../../../../action-processing/action-tracker.js";
 import { ActionResolutionStepContext } from "../../../../../action-processing/index.js";
-import { SpeedDungeonGame } from "../../../../../game/index.js";
+import { Combatant } from "../../../../../combatants/index.js";
 import { TargetingCalculator } from "../../../../targeting/targeting-calculator.js";
 import { ActionExecutionPrecondition } from "../../../combat-action-targeting-properties.js";
 import { ActionPayableResource, CombatActionComponent } from "../../../index.js";
@@ -110,7 +110,7 @@ function targetsAreAlive(
   }
 
   const targetCombatants = party.combatantManager.getExpectedCombatants(targetIdsResult);
-  const targetsAreAlive = !SpeedDungeonGame.allCombatantsInGroupAreDead(targetCombatants);
+  const targetsAreAlive = !Combatant.groupIsDead(targetCombatants);
 
   return targetsAreAlive;
 }

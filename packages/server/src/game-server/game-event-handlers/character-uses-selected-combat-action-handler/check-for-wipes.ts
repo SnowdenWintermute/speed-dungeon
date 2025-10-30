@@ -1,4 +1,4 @@
-import { AdventuringParty, Combatant, SpeedDungeonGame } from "@speed-dungeon/common";
+import { AdventuringParty, Combatant } from "@speed-dungeon/common";
 
 export interface PartyWipes {
   alliesDefeated: boolean;
@@ -10,7 +10,7 @@ export function checkForWipes(party: AdventuringParty, battleIdOption: null | st
   if (battleIdOption === null) {
     const partyMemberCombatants = party.combatantManager.getPartyMemberCombatants();
 
-    const alliesDefeated = SpeedDungeonGame.allCombatantsInGroupAreDead(partyMemberCombatants);
+    const alliesDefeated = Combatant.groupIsDead(partyMemberCombatants);
 
     return {
       alliesDefeated,
@@ -40,8 +40,8 @@ function checkForDefeatedCombatantGroups(
       alliesDefeated: boolean;
       opponentsDefeated: boolean;
     } {
-  const alliesDefeated = SpeedDungeonGame.allCombatantsInGroupAreDead(allies);
-  const opponentsDefeated = SpeedDungeonGame.allCombatantsInGroupAreDead(opponents);
+  const alliesDefeated = Combatant.groupIsDead(allies);
+  const opponentsDefeated = Combatant.groupIsDead(opponents);
 
   return { alliesDefeated, opponentsDefeated };
 }

@@ -1,12 +1,12 @@
 import {
   ActionCommandPayload,
   ActionCommandType,
+  Battle,
   BattleConclusion,
   BattleResultActionCommandPayload,
   ERROR_MESSAGES,
   GameMessage,
   GameMessageType,
-  SpeedDungeonGame,
   createPartyWipeMessage,
   getPartyChannelName,
 } from "@speed-dungeon/common";
@@ -57,7 +57,7 @@ export async function battleResultActionCommandHandler(
       if (defeatMessagePayloadResults) gameMessagePayloads.push(...defeatMessagePayloadResults);
       break;
     case BattleConclusion.Victory:
-      const levelups = SpeedDungeonGame.handleBattleVictory(game, party, payload);
+      const levelups = Battle.handleVictory(game, party, payload);
       const victoryMessagePayloadResults = await gameModeContext.onPartyVictory(
         game,
         party,

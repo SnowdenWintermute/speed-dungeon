@@ -3,7 +3,6 @@ import {
   ERROR_MESSAGES,
   PlayerAssociatedData,
   ServerToClientEventTypes,
-  SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { ServerPlayerAssociatedData, SocketEventNextFunction } from ".";
 import { getGameServer } from "../../singletons/index.js";
@@ -31,7 +30,7 @@ export function getPlayerAssociatedData(socket: Socket): Error | ServerPlayerAss
   const gameResult = gameServer.getSocketCurrentGame(session);
   if (gameResult instanceof Error) return gameResult;
   const game = gameResult;
-  const partyResult = SpeedDungeonGame.getPlayerPartyOption(game, session.username);
+  const partyResult = game.getPlayerPartyOption(session.username);
   if (partyResult instanceof Error) return partyResult;
   const playerOption = game.players[session.username];
   if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);

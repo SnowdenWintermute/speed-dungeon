@@ -39,7 +39,7 @@ export function getTargetOption(
   const targetIds = targetIdsResult;
   const firstTargetIdOption = targetIds[0];
   if (firstTargetIdOption === undefined) return undefined;
-  const firstTargetCombatant = SpeedDungeonGame.getCombatantById(game, firstTargetIdOption);
+  const firstTargetCombatant = game.getCombatantById(firstTargetIdOption);
   if (firstTargetCombatant instanceof Error) return undefined;
   return firstTargetCombatant.combatantProperties;
 }

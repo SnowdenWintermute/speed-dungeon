@@ -1,5 +1,5 @@
 import { setAlert } from "../components/alerts";
-import { ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
+import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import { getGameWorld } from "../3d-world/SceneManager";
 import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
 import { ModelActionType } from "../3d-world/game-world/model-manager/model-actions";
@@ -15,7 +15,7 @@ export async function removeClientPlayerFromGame(username: string) {
     return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
   }
 
-  const removedPlayerResult = SpeedDungeonGame.removePlayer(gameOption, username);
+  const removedPlayerResult = gameOption.removePlayer(username);
   if (removedPlayerResult instanceof Error) {
     return setAlert(removedPlayerResult);
   }

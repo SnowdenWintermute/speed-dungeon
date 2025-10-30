@@ -1,10 +1,10 @@
 import {
+  Battle,
   BattleConclusion,
   BattleResultActionCommandPayload,
   CleanupMode,
   Consumable,
   Equipment,
-  SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { ClientActionCommandReceiver } from ".";
 import { gameWorld, getGameWorld } from "../3d-world/SceneManager";
@@ -54,15 +54,15 @@ export async function battleResultActionCommandHandler(
 
       party.inputLock.unlockInput();
 
-      const levelups = SpeedDungeonGame.handleBattleVictory(game, party, payload);
+      const levelups = Battle.handleVictory(game, party, payload);
 
       for (const [characterId, expChange] of Object.entries(payload.experiencePointChanges)) {
-        const characterResult = SpeedDungeonGame.getCombatantById(game, characterId);
+        const characterResult = game.getCombatantById(characterId);
         if (characterResult instanceof Error) return console.error(characterResult);
         GameLogMessageService.postExperienceGained(characterResult.getName(), expChange);
       }
       for (const [characterId, levelup] of Object.entries(levelups)) {
-        const characterResult = SpeedDungeonGame.getCombatantById(game, characterId);
+        const characterResult = game.getCombatantById(characterId);
         if (characterResult instanceof Error) return console.error(characterResult);
         GameLogMessageService.postLevelup(characterResult.getName(), levelup);
       }

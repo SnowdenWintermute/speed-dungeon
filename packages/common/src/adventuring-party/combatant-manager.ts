@@ -1,6 +1,10 @@
 import { plainToInstance } from "class-transformer";
 import { FriendOrFoe } from "../combat/index.js";
-import { Combatant, CombatantCondition } from "../combatants/index.js";
+import {
+  Combatant,
+  CombatantCondition,
+  ConditionWithCombatantIdAppliedTo,
+} from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { EntityId } from "../primatives/index.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
@@ -63,6 +67,21 @@ export class CombatantManager {
 
   getAllCombatants() {
     return Array.from(this.combatants.values());
+  }
+
+  getAllTickableConditionsAndCombatants() {
+    const combatants = this.getAllCombatants();
+    const tickableConditions: ConditionWithCombatantIdAppliedTo[] = [];
+    for (const combatant of combatants) {
+      const { conditionManager } = combatant.combatantProperties;
+      for (const condition of conditionManager.getConditions()) {
+        const tickPropertiesOption = condition.getTickProperties();
+        if (!tickPropertiesOption) continue;
+        tickableConditions.push({ condition, appliedTo: combatant.entityProperties.id });
+      }
+    }
+
+    return { combatants, tickableConditions };
   }
 
   getExpectedCombatants(entityIds: EntityId[]) {
@@ -245,6 +264,13 @@ export class CombatantManager {
 
     for (const combatant of this.getDungeonControlledPets()) {
       //
+    }
+  }
+
+  refillAllCombatantActionPoints() {
+    const combatants = this.getAllCombatants();
+    for (const combatant of combatants) {
+      combatant.combatantProperties.resources.refillActionPoints();
     }
   }
 

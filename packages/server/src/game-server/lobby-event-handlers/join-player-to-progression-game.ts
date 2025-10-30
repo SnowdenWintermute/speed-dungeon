@@ -14,7 +14,7 @@ import errorHandler from "../error-handler.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
 import SocketIO from "socket.io";
 import joinPlayerToGame from "./join-player-to-game.js";
-import joinPartyHandler from "./join-party-handler.js";
+import { joinPartyHandler } from "./join-party-handler.js";
 
 export async function joinPlayerToProgressionGame(
   gameServer: GameServer,
