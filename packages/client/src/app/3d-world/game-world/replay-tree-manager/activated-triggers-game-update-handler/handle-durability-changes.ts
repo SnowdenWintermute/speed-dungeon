@@ -1,7 +1,6 @@
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import {
   AdventuringParty,
-  CombatantProperties,
   DurabilityChangesByEntityId,
   EntityId,
   Equipment,
@@ -24,8 +23,7 @@ export function handleDurabilityChanges(
     // @TODO - if this causes bugs because it is jumping the queue, look into it
     // if we use the queue though, it will wait to break their model and not look like it broke instantly
     // maybe we can set visibilty instead and despawn it later
-    const justBrokeHoldable =
-      Equipment.isBroken(equipment) && slot?.type === EquipmentSlotType.Holdable;
+    const justBrokeHoldable = equipment.isBroken() && slot?.type === EquipmentSlotType.Holdable;
     if (justBrokeHoldable) {
       const characterModelOption = getGameWorld().modelManager.findOneOptional(
         combatant.entityProperties.id

@@ -79,7 +79,7 @@ export class DurabilityChangesByEntityId {
         const equipmentOption = equipment.getEquipmentInSlot(taggedSlot);
 
         combatant.combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
-          if (equipmentOption !== undefined) Equipment.changeDurability(equipmentOption, value);
+          if (equipmentOption !== undefined) equipmentOption.changeDurability(value);
           if (onApply && equipmentOption) onApply(combatant, equipmentOption);
         });
       }

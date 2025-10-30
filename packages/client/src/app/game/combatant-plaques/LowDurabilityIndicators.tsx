@@ -17,8 +17,8 @@ export const LowDurabilityIndicators = observer(({ isPlayerControlled, equippedI
   let indicators = [];
 
   for (const equipment of equippedItems) {
-    const durability = Equipment.getDurability(equipment);
-    if (Equipment.isIndestructable(equipment) || durability === null) continue;
+    const durability = equipment.getDurability();
+    if (equipment.isIndestructable() || durability === null) continue;
     const durabilityPercentage = durability.current / durability.max;
     if (durabilityPercentage === 0) continue;
     let iconColor;

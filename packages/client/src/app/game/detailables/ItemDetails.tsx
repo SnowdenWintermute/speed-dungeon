@@ -208,7 +208,7 @@ export const ItemDetails = observer(
         )}
         <div className="flex-1 justify-center items-center text-center ">
           <span
-            className={`pr-2 ${itemOption instanceof Equipment && Equipment.isMagical(itemOption) && "text-blue-300"}`}
+            className={`pr-2 ${itemOption instanceof Equipment && itemOption.isMagical() && "text-blue-300"}`}
           >
             {itemOption?.entityProperties.name}
           </span>

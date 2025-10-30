@@ -34,7 +34,7 @@ export const CharacterSheetWeaponDamage = observer(
       false
     );
     const isTwoHanded = mhWeaponOption
-      ? Equipment.isTwoHanded(mhWeaponOption.taggedBaseEquipment.equipmentType)
+      ? Equipment.isTwoHandedWeaponType(mhWeaponOption.taggedBaseEquipment.equipmentType)
       : false;
 
     const ohEquipmentOption = equipment.getEquippedHoldable(HoldableSlotType.OffHand);

@@ -35,7 +35,7 @@ export class Inventory extends CombatantSubsystem {
       consumables.push(plainToInstance(Consumable, consumable));
     }
     for (const equipment of this.equipment) {
-      equipments.push(plainToInstance(Equipment, equipment));
+      equipments.push(Equipment.getDeserialized(equipment));
     }
     this.consumables = consumables;
     this.equipment = equipments;

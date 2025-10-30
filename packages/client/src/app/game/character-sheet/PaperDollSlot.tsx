@@ -48,7 +48,7 @@ export const PaperDollSlot = observer(
     ) : itemOption?.equipmentBaseItemProperties.equipmentType === EquipmentType.Amulet ? (
       <AmuletIcon className="max-w-10 object-contain fill-slate-400 " />
     ) : (
-      <div className={itemOption && Equipment.isMagical(itemOption) ? "text-blue-300" : ""}>
+      <div className={itemOption && itemOption.isMagical() ? "text-blue-300" : ""}>
         {itemNameDisplay}
       </div>
     );
@@ -60,7 +60,7 @@ export const PaperDollSlot = observer(
       if (!itemOption) return "";
       if (
         !Item.requirementsMet(itemOption, characterAttributes) ||
-        (itemOption instanceof Equipment && Equipment.isBroken(itemOption))
+        (itemOption instanceof Equipment && itemOption.isBroken())
       )
         return UNUSABLE_ITEM_BG_STYLES;
     }, [itemOption, characterAttributes, consideredItemUnmetRequirements, comparedSlot]);

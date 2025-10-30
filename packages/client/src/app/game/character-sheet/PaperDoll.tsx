@@ -5,7 +5,6 @@ import {
   EquipmentSlotType,
   HoldableSlotType,
   WearableSlotType,
-  equipmentIsTwoHandedWeapon,
 } from "@speed-dungeon/common";
 import { HotswapSlotButtons } from "../combatant-plaques/HotswapSlotButtons";
 import { observer } from "mobx-react-lite";
@@ -30,12 +29,7 @@ export const PaperDoll = observer(({ combatant }: Props) => {
 
   const mainhandOption = equippedHoldables?.holdables[HoldableSlotType.MainHand];
 
-  const mainHandIs2h =
-    mainhandOption !== undefined
-      ? equipmentIsTwoHandedWeapon(
-          mainhandOption.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType
-        )
-      : false;
+  const mainHandIs2h = mainhandOption !== undefined ? mainhandOption.isTwoHanded() : false;
 
   return (
     <div

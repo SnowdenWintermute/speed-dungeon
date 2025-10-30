@@ -46,13 +46,13 @@ export function characterPerformedCraftingActionHandler(eventData: {
     if (itemResult instanceof Equipment && itemBeforeModification instanceof Equipment) {
       const asInstance = plainToInstance(Equipment, item);
 
-      const wasBrokenBefore = Equipment.isBroken(itemResult);
+      const wasBrokenBefore = itemResult.isBroken();
 
       character.combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
         itemResult.copyFrom(asInstance);
       });
 
-      const wasRepaired = wasBrokenBefore && !Equipment.isBroken(itemResult);
+      const wasRepaired = wasBrokenBefore && !itemResult.isBroken();
       const slotEquippedToOption = character.combatantProperties.equipment.getSlotItemIsEquippedTo(
         itemResult.entityProperties.id
       );

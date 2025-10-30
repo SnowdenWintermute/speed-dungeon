@@ -11,7 +11,6 @@ import {
 } from "../../../durability/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
 import {
-  Equipment,
   EquipmentSlotType,
   HoldableSlotType,
   TaggedEquipmentSlot,
@@ -115,9 +114,9 @@ const HIT_OUTCOME_DURABILITY_CHANGE_ON_TARGET_CALCULATORS: Record<
 
     if (
       equippedBodyOption &&
-      !Equipment.isBroken(equippedBodyOption) &&
+      !equippedBodyOption.isBroken() &&
       equippedHelmOption &&
-      !Equipment.isBroken(equippedHelmOption)
+      !equippedHelmOption.isBroken()
     ) {
       const whichArmorToHitRoll = Math.random();
       const shouldHitHeadArmor = whichArmorToHitRoll < ONE_THIRD_OF_ONE;
@@ -135,12 +134,12 @@ const HIT_OUTCOME_DURABILITY_CHANGE_ON_TARGET_CALCULATORS: Record<
           value: BASE_DURABILITY_LOSS,
         });
       }
-    } else if (equippedBodyOption && !Equipment.isBroken(equippedBodyOption)) {
+    } else if (equippedBodyOption && !equippedBodyOption.isBroken()) {
       durabilityChanges.updateOrCreateDurabilityChangeRecord(targetCombatant, {
         taggedSlot: bodySlot,
         value: BASE_DURABILITY_LOSS,
       });
-    } else if (equippedHelmOption && !Equipment.isBroken(equippedHelmOption)) {
+    } else if (equippedHelmOption && !equippedHelmOption.isBroken()) {
       durabilityChanges.updateOrCreateDurabilityChangeRecord(targetCombatant, {
         taggedSlot: headSlot,
         value: BASE_DURABILITY_LOSS,

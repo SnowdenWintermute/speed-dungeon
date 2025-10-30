@@ -1,7 +1,6 @@
 import {
   Affix,
   AffixCategory,
-  AffixType,
   CONSUMABLE_TYPE_STRINGS,
   EquipmentAffixes,
   EquipmentType,

@@ -49,7 +49,7 @@ export function getCombatantTotalAttributes(
         addAttributesToAccumulator(affix.combatAttributes, totalAttributes);
       }
     }
-    const modifiedArmorClass = Equipment.getModifiedArmorClass(item);
+    const modifiedArmorClass = item.getModifiedArmorClass();
     if (totalAttributes[CombatAttribute.ArmorClass])
       totalAttributes[CombatAttribute.ArmorClass] += modifiedArmorClass;
     else totalAttributes[CombatAttribute.ArmorClass] = modifiedArmorClass;
@@ -60,7 +60,7 @@ export function getCombatantTotalAttributes(
   for (const item of allEquippedItems) {
     const equippedItemIsUsable =
       Item.requirementsMet(item, totalAttributes) &&
-      !(item instanceof Equipment && Equipment.isBroken(item));
+      !(item instanceof Equipment && item.isBroken());
     if (equippedItemIsUsable) continue;
     // otherwise subtract its stats
     removeAttributesFromAccumulator(item.attributes, totalAttributes);
@@ -69,7 +69,7 @@ export function getCombatantTotalAttributes(
         removeAttributesFromAccumulator(affix.combatAttributes, totalAttributes);
       }
     }
-    const baseArmorClass = Equipment.getBaseArmorClass(item);
+    const baseArmorClass = item.getBaseArmorClass();
     if (totalAttributes[CombatAttribute.ArmorClass])
       totalAttributes[CombatAttribute.ArmorClass] = Math.max(
         totalAttributes[CombatAttribute.ArmorClass] - baseArmorClass,

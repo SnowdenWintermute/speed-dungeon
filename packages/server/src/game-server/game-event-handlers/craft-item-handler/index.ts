@@ -46,7 +46,7 @@ export async function craftItemHandler(
   let actionResult: Error | void = new Error("Action callback never called");
 
   let percentRepairedBeforeModification = 1;
-  const durabilityOption = Equipment.getDurability(itemResult);
+  const durabilityOption = itemResult.getDurability();
   if (durabilityOption) {
     percentRepairedBeforeModification = durabilityOption.current / durabilityOption.max;
   }
@@ -59,7 +59,7 @@ export async function craftItemHandler(
   if (actionResult instanceof Error) return actionResult;
 
   if (craftingAction !== CraftingAction.Repair) {
-    const durabilityOptionAfter = Equipment.getDurability(itemResult);
+    const durabilityOptionAfter = itemResult.getDurability();
     if (durabilityOptionAfter && itemResult.durability) {
       itemResult.durability.current = Math.round(
         durabilityOptionAfter.max * percentRepairedBeforeModification

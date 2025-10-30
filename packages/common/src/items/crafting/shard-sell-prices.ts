@@ -29,8 +29,8 @@ export function getBaseItemShardValue(itemLevel: number) {
 }
 
 export function getEquipmentBaseValue(equipment: Equipment) {
-  const hasSuffix = Equipment.hasSuffix(equipment);
-  const hasPrefix = Equipment.hasPrefix(equipment);
+  const hasSuffix = equipment.hasSuffix();
+  const hasPrefix = equipment.hasPrefix();
 
   let modifier = 1;
   if (hasSuffix && hasPrefix) modifier = BOTH_CHANCE_BEFORE_MAGICAL;
@@ -62,7 +62,7 @@ export function getEquipmentSellPrice(equipment: Equipment) {
   // take depreciation
   const afterDepreciation = baseValue * DEPRECIATION;
   // take missing dura
-  const normalizedPercentRepaired = Equipment.getNormalizedPercentRepaired(equipment);
+  const normalizedPercentRepaired = equipment.getNormalizedPercentRepaired();
   const durabilityModifier = 1 - (1 - normalizedPercentRepaired) * DURABILITY_PRICE_MODIFIER_WEIGHT;
   return Math.floor(afterDepreciation * durabilityModifier);
 }

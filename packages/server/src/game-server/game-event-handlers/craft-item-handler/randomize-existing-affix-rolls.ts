@@ -5,7 +5,6 @@ import {
   ERROR_MESSAGES,
   Equipment,
   TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER,
-  equipmentIsTwoHandedWeapon,
 } from "@speed-dungeon/common";
 import { rollAffix } from "../../item-generation/roll-affix.js";
 import { getEquipmentGenerationTemplate } from "../../item-generation/equipment-templates/index.js";
@@ -19,14 +18,11 @@ export function randomizeExistingAffixRolls(equipment: Equipment, itemLevelLimit
     equipment.equipmentBaseItemProperties.taggedBaseEquipment
   );
 
-  for (const [prefixType, prefix] of Equipment.iteratePrefixes(equipment)) {
+  for (const [prefixType, prefix] of equipment.iteratePrefixes()) {
     let multiplier = 1;
-    if (
-      equipmentIsTwoHandedWeapon(
-        equipment.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType
-      )
-    )
+    if (equipment.isTwoHanded()) {
       multiplier = TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER;
+    }
 
     const affix = rollAffix(
       { affixCategory: AffixCategory.Prefix, prefixType },
@@ -34,23 +30,21 @@ export function randomizeExistingAffixRolls(equipment: Equipment, itemLevelLimit
       multiplier,
       template
     );
-    Equipment.insertOrReplaceAffix(equipment, AffixCategory.Prefix, prefixType, affix);
+    equipment.insertOrReplaceAffix(AffixCategory.Prefix, prefixType, affix);
   }
 
-  for (const [suffixType, suffix] of Equipment.iterateSuffixes(equipment)) {
+  for (const [suffixType, suffix] of equipment.iterateSuffixes()) {
     let multiplier = 1;
-    if (
-      equipmentIsTwoHandedWeapon(
-        equipment.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType
-      )
-    )
+    if (equipment.isTwoHanded()) {
       multiplier = TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER;
+    }
+
     const affix = rollAffix(
       { affixCategory: AffixCategory.Suffix, suffixType },
       suffix.tier,
       multiplier,
       template
     );
-    Equipment.insertOrReplaceAffix(equipment, AffixCategory.Suffix, suffixType, affix);
+    equipment.insertOrReplaceAffix(AffixCategory.Suffix, suffixType, affix);
   }
 }

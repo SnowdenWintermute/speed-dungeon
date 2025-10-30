@@ -28,14 +28,12 @@ export function determineMeleeAttackAnimationType(
 
   const noUseableEquipmentInSlot =
     !equipmentOption ||
-    Equipment.isBroken(equipmentOption) ||
+    equipmentOption.isBroken() ||
     equipmentOption.equipmentBaseItemProperties.equipmentType === EquipmentType.Shield;
 
   if (noUseableEquipmentInSlot) return MeleeAttackAnimationType.Unarmed;
 
-  const isTwoHanded = Equipment.isTwoHanded(
-    equipmentOption.equipmentBaseItemProperties.equipmentType
-  );
+  const isTwoHanded = equipmentOption.isTwoHanded();
 
   const targetingCalculator = new TargetingCalculator(context.actionUserContext, null);
 

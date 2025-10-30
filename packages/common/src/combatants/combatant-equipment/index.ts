@@ -57,7 +57,7 @@ export class CombatantEquipment extends CombatantSubsystem {
     const deserialized = plainToInstance(CombatantEquipment, equipment);
 
     for (const [slot, item] of iterateNumericEnumKeyedRecord(deserialized.wearables)) {
-      deserialized.wearables[slot] = plainToInstance(Equipment, item);
+      deserialized.wearables[slot] = Equipment.getDeserialized(item);
     }
 
     const deserializedHotswapSlots = deserialized
@@ -67,7 +67,7 @@ export class CombatantEquipment extends CombatantSubsystem {
 
     for (const hotswapSlot of Object.values(deserialized.getHoldableHotswapSlots())) {
       for (const [slot, item] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables)) {
-        hotswapSlot.holdables[slot] = plainToInstance(Equipment, item);
+        hotswapSlot.holdables[slot] = Equipment.getDeserialized(item);
       }
     }
 
@@ -106,7 +106,7 @@ export class CombatantEquipment extends CombatantSubsystem {
     const itemOption = this.getEquippedHoldable(holdableSlot);
     if (itemOption === undefined) return undefined;
 
-    return Equipment.getWeaponProperties(itemOption);
+    return itemOption.getWeaponProperties();
   }
 
   getWeaponsInSlots(weaponSlots: HoldableSlotType[], options: { usableWeaponsOnly: boolean }) {
@@ -125,13 +125,13 @@ export class CombatantEquipment extends CombatantSubsystem {
 
       const itemNotUsable =
         !combatantProperties.attributeProperties.hasRequiredAttributesToUseItem(holdable) ||
-        Equipment.isBroken(holdable);
+        holdable.isBroken();
 
       if (options.usableWeaponsOnly && itemNotUsable) {
         continue;
       }
 
-      const weaponPropertiesResult = Equipment.getWeaponProperties(holdable);
+      const weaponPropertiesResult = holdable.getWeaponProperties();
       if (weaponPropertiesResult instanceof Error) continue; // could be a shield so just skip it
       toReturn[weaponSlot] = { equipment: holdable, weaponProperties: weaponPropertiesResult };
     }
@@ -224,7 +224,7 @@ export class CombatantEquipment extends CombatantSubsystem {
     if (!combatantProperties.attributeProperties.hasRequiredAttributesToUseItem(equipment)) {
       return new Error(ERROR_MESSAGES.EQUIPMENT.REQUIREMENTS_NOT_MET);
     }
-    if (Equipment.isBroken(equipment)) return new Error(ERROR_MESSAGES.EQUIPMENT.IS_BROKEN);
+    if (equipment.isBroken()) return new Error(ERROR_MESSAGES.EQUIPMENT.IS_BROKEN);
 
     const idsOfUnequippedItems: EntityId[] = [];
     const slotsToUnequip: TaggedEquipmentSlot[] = [];
@@ -245,7 +245,7 @@ export class CombatantEquipment extends CombatantSubsystem {
           case EquipmentSlotType.Holdable:
             switch (slot.slot) {
               case HoldableSlotType.MainHand:
-                if (Equipment.isTwoHanded(equipmentType)) {
+                if (equipment.isTwoHanded()) {
                   return [
                     { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand },
                     { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.OffHand },
@@ -261,12 +261,7 @@ export class CombatantEquipment extends CombatantSubsystem {
                   equippedHotswapSlot.holdables[HoldableSlotType.MainHand];
 
                 if (itemInMainHandOption !== undefined) {
-                  if (
-                    Equipment.isTwoHanded(equipmentType) ||
-                    Equipment.isTwoHanded(
-                      itemInMainHandOption.equipmentBaseItemProperties.equipmentType
-                    )
-                  ) {
+                  if (equipment.isTwoHanded() || itemInMainHandOption.isTwoHanded()) {
                     return [
                       { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand },
                       { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.OffHand },
@@ -386,7 +381,9 @@ export class CombatantEquipment extends CombatantSubsystem {
 
     if (itemOption.equipmentBaseItemProperties.equipmentType !== type) return false;
 
-    return Equipment.isUsable(actionUser, itemOption);
+    const isBroken = itemOption.isBroken();
+    if (isBroken) return false;
+    return actionUser.hasRequiredAttributesToUseItem(itemOption);
   }
 
   static isWearingUsableShield(actionUser: IActionUser) {
@@ -421,7 +418,7 @@ export class CombatantEquipment extends CombatantSubsystem {
 
     for (const equipment of allEquipment) {
       const { equipmentType } = equipment.equipmentBaseItemProperties;
-      if (Equipment.isBroken(equipment)) continue;
+      if (equipment.isBroken()) continue;
       if (getRequiredEquipmentTypeOptions(rank).includes(equipmentType)) return true;
     }
 

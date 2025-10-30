@@ -82,7 +82,7 @@ export const ItemOnGround = observer((props: Props) => {
   if (!requirementsMet) {
     containerExtraStyles += ` ${UNMET_REQUIREMENT_TEXT_COLOR}`;
     imageExtraStyles += " filter-red";
-  } else if (item instanceof Equipment && Equipment.isMagical(item)) {
+  } else if (item instanceof Equipment && item.isMagical()) {
     containerExtraStyles += " text-blue-300";
   } else if (item instanceof Consumable) {
     containerExtraStyles += ` ${CONSUMABLE_TEXT_COLOR}`;

@@ -7,15 +7,10 @@ import {
   Equipment,
   EquipmentType,
   Inventory,
-  NumberRange,
-  OneHandedMeleeWeapon,
   TwoHandedMeleeWeapon,
 } from "@speed-dungeon/common";
 import { createConsumableByType } from "../item-generation/create-consumable-by-type.js";
-import {
-  generateOneOfEachItem,
-  generateSpecificEquipmentType,
-} from "../item-generation/generate-test-items.js";
+import { generateSpecificEquipmentType } from "../item-generation/generate-test-items.js";
 
 export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inventory: Inventory) {
   for (let i = 0; i < 3; i += 1) {
@@ -53,7 +48,7 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inv
   if (tradeableItemResult instanceof Error) return;
   tradeableItemResult.durability = { current: 0, inherentMax: 6 };
 
-  Equipment.insertOrReplaceAffix(tradeableItemResult, AffixCategory.Suffix, AffixType.Strength, {
+  tradeableItemResult.insertOrReplaceAffix(AffixCategory.Suffix, AffixType.Strength, {
     combatAttributes: { [CombatAttribute.Strength]: 1 },
     equipmentTraits: {},
     tier: 1,

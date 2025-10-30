@@ -7,14 +7,14 @@ interface Props {
 }
 
 export default function Durability({ equipment }: Props) {
-  const durability = Equipment.getDurability(equipment);
-  const isJewelry = Equipment.isJewelry(equipment);
+  const durability = equipment.getDurability();
+  const isJewelry = equipment.isJewelry();
 
   let isModified = false;
   if (durability !== null && equipment.durability !== null)
     isModified = durability.max > equipment.durability.inherentMax;
 
-  const isBroken = Equipment.isBroken(equipment);
+  const isBroken = equipment.isBroken();
 
   const textColor = isBroken ? UNMET_REQUIREMENT_TEXT_COLOR : isModified ? "text-blue-300" : "";
 

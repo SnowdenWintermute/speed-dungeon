@@ -43,8 +43,7 @@ export function applyWeaponPropertiesToResourceChangeProperties(
 
   // if we ever add another trait besides lifesteal which might affect damage, put those traits
   // before the testing for best hp change source modifiers
-  const maybeError = Equipment.applyEquipmentTraitsToResourceChangeSource(
-    weapon.equipment,
+  const maybeError = weapon.equipment.applyTraitsToResourceChangeSource(
     mostEffectiveAvailableResourceChangeSourceOnWeapon
   );
   if (maybeError instanceof Error) console.error(maybeError);

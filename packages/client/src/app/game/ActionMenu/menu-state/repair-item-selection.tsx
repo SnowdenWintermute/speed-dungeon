@@ -32,7 +32,7 @@ export class RepairItemSelectionMenuState extends ItemsMenuState {
         return focusedCharacter.combatantProperties.inventory
           .getOwnedEquipment()
           .filter((equipment) => {
-            const durability = Equipment.getDurability(equipment);
+            const durability = equipment.getDurability();
             return durability !== null && durability.current !== durability.max;
           });
       },
@@ -41,12 +41,12 @@ export class RepairItemSelectionMenuState extends ItemsMenuState {
           [ActionButtonCategory.Top]: [setInventoryOpen],
         },
         getItemButtonCustomChildren: (item: Item) => {
-          if (!(item instanceof Equipment) || Equipment.getNormalizedPercentRepaired(item) >= 1)
+          if (!(item instanceof Equipment) || item.getNormalizedPercentRepaired() >= 1)
             return <></>;
           const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
           const price = getCraftingActionPrice(CraftingAction.Repair, item);
-          const durability = Equipment.getDurability(item);
+          const durability = item.getDurability();
           return (
             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex">
               {durability && (

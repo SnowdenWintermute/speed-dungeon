@@ -1,6 +1,5 @@
 import {
   CombatantProperties,
-  Equipment,
   EquipmentSlotType,
   HoldableHotswapSlot,
   HoldableSlotType,
@@ -109,7 +108,7 @@ export class EquipmentModelManager {
           continue;
         }
 
-        const equipmentIsBroken = Equipment.isBroken(equipmentModelOption.equipment);
+        const equipmentIsBroken = equipmentModelOption.equipment.isBroken();
 
         if (equipmentIsBroken) equipmentModelOption.setVisibility(0);
         else equipmentModelOption.setVisibility(this.visibilityForShownHotswapSlots);
@@ -158,7 +157,7 @@ export class EquipmentModelManager {
         }
         if (equipmentModel instanceof ConsumableModel) throw new Error("unexpected item type");
 
-        if (Equipment.isBroken(equipmentModel.equipment)) equipmentModel.setVisibility(0);
+        if (equipmentModel.equipment.isBroken()) equipmentModel.setVisibility(0);
 
         existingSlotOption[holdableSlotType] = equipmentModel;
       }
@@ -197,7 +196,7 @@ export class EquipmentModelManager {
 
         if (slotIndex === equippedSlotIndex || slotIndex === holsteredSlotIndex) {
           let newVisibility = this.visibilityForShownHotswapSlots;
-          if (Equipment.isBroken(equipmentModel.equipment)) newVisibility = 0;
+          if (equipmentModel.equipment.isBroken()) newVisibility = 0;
           equipmentModel.setVisibility(newVisibility);
         } else {
           equipmentModel.setVisibility(0);

@@ -15,7 +15,7 @@ export function getOwnedAcceptedItemsForBookTrade(
   // check the affixes / stats on those items to match the consumable type
   for (const equipment of ownedEquipment) {
     // make sure it is broken
-    if (!Equipment.isBroken(equipment)) continue;
+    if (!equipment.isBroken()) continue;
     // check if it has the properties required for this book trade
     const equipmentAcceptedChecker = BOOK_TRADE_ACCEPTED_EQUIPMENT_CHECKERS[bookType];
     const isAccepted = equipmentAcceptedChecker(equipment);

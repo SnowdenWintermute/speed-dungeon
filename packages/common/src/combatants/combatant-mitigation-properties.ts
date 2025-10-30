@@ -41,7 +41,11 @@ export class MitigationProperties extends CombatantSubsystem {
     for (const [slot, equipment] of iterateNumericEnumKeyedRecord(holdables.holdables)) {
       if (slot === HoldableSlotType.MainHand) continue;
       const { equipmentType } = equipment.equipmentBaseItemProperties;
-      if (equipmentType === EquipmentType.Shield && !Equipment.isBroken(equipment)) return true;
+
+      if (equipmentType === EquipmentType.Shield && !equipment.isBroken()) return true;
+      // @TODO - move this upward to IActionUser so we can use their method of checking
+      // if the shield is usable. Right now we only check it is not broken, but don't
+      // check if user has stats required to wield it
     }
     return false;
   }

@@ -144,7 +144,7 @@ export abstract class ItemsMenuState extends ActionMenuState {
 
       const buttonText = buttonTextPrefix + item.entityProperties.name;
       let imageExtraStyles =
-        item instanceof Equipment && Equipment.isWeapon(item)
+        item instanceof Equipment && item.isWeapon()
           ? "scale-[300%]"
           : "scale-[200%] -translate-x-1/2 p-[2px]";
 
@@ -153,14 +153,14 @@ export abstract class ItemsMenuState extends ActionMenuState {
         Item.requirementsMet(
           item,
           focusedCharacter.combatantProperties.attributeProperties.getTotalAttributes()
-        ) && !(item instanceof Equipment && Equipment.isBroken(item));
+        ) && !(item instanceof Equipment && item.isBroken());
 
       let containerExtraStyles = "";
       if (!requirementsMet) {
         containerExtraStyles += ` ${UNMET_REQUIREMENT_TEXT_COLOR}`;
 
         imageExtraStyles += " filter-red";
-      } else if (item instanceof Equipment && Equipment.isMagical(item)) {
+      } else if (item instanceof Equipment && item.isMagical()) {
         containerExtraStyles += " text-blue-300";
       }
       const button = new ActionMenuButtonProperties(

@@ -47,20 +47,18 @@ export const CRAFTING_ACTION_DISABLED_CONDITIONS: Record<
   (equipment: Equipment, itemLevelLimiter: number) => boolean
 > = {
   [CraftingAction.Repair]: function (equipment: Equipment): boolean {
-    const durability = Equipment.getDurability(equipment);
+    const durability = equipment.getDurability();
     return durability === null || durability.current === durability.max;
   },
   [CraftingAction.Imbue]: function (equipment: Equipment): boolean {
-    return Equipment.isMagical(equipment);
+    return equipment.isMagical();
   },
   [CraftingAction.Augment]: function (equipment: Equipment): boolean {
-    return (
-      !Equipment.isMagical(equipment) ||
-      (Equipment.hasPrefix(equipment) && Equipment.hasSuffix(equipment))
-    );
+    const noRoomForNewAffix = equipment.hasPrefix() && equipment.hasSuffix();
+    return !equipment.isMagical() || noRoomForNewAffix;
   },
   [CraftingAction.Tumble]: function (equipment: Equipment): boolean {
-    return !Equipment.isMagical(equipment);
+    return !equipment.isMagical();
   },
   [CraftingAction.Reform]: function (equipment: Equipment): boolean {
     const { taggedBaseEquipment } = equipment.equipmentBaseItemProperties;
@@ -84,6 +82,6 @@ export const CRAFTING_ACTION_DISABLED_CONDITIONS: Record<
   [CraftingAction.Shake]: function (equipment: Equipment, itemLevelLimiter: number): boolean {
     // since this rolls within the values on the existing affixs' tiers, don't allow
     // if at a vending machine that is not on a floor at least as deep as the item level
-    return !Equipment.isMagical(equipment) || equipment.itemLevel > itemLevelLimiter;
+    return !equipment.isMagical() || equipment.itemLevel > itemLevelLimiter;
   },
 };

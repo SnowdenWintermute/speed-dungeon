@@ -15,7 +15,6 @@ import {
   SkeletalAnimationName,
   CombatantClass,
   ERROR_MESSAGES,
-  Equipment,
   HoldableSlotType,
   iterateNumericEnumKeyedRecord,
   EquipmentType,
@@ -221,8 +220,8 @@ export class CharacterModel extends SceneEntity {
     const offhandType = offHandOption?.equipmentBaseItemProperties.equipmentType;
     const mainHandOption = equipment.getEquippedHoldable(HoldableSlotType.MainHand);
     const mainHandType = mainHandOption?.equipmentBaseItemProperties.equipmentType;
-    const mhIsBroken = mainHandOption && Equipment.isBroken(mainHandOption);
-    const ohIsBroken = offHandOption && Equipment.isBroken(offHandOption);
+    const mhIsBroken = mainHandOption && mainHandOption.isBroken();
+    const ohIsBroken = offHandOption && offHandOption.isBroken();
 
     if (mainHandType === EquipmentType.TwoHandedRangedWeapon && !mhIsBroken)
       return SkeletalAnimationName.IdleBow;

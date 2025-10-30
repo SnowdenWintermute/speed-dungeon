@@ -12,9 +12,11 @@ import { observer } from "mobx-react-lite";
 export const ItemLink = observer(({ item }: { item: Item }) => {
   const { focusStore } = AppStore.get();
   let textColor = "text-zinc-300";
-  if (item instanceof Consumable) textColor = CONSUMABLE_TEXT_COLOR;
-  else if (item instanceof Equipment && Equipment.isMagical(item))
+  if (item instanceof Consumable) {
+    textColor = CONSUMABLE_TEXT_COLOR;
+  } else if (item instanceof Equipment && item.isMagical()) {
     textColor = MAGICAL_PROPERTY_BLUE_TEXT;
+  }
 
   function handleFocus() {
     focusStore.detailables.setHovered(item);
