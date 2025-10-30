@@ -1,10 +1,5 @@
 import { ActionMenuState } from ".";
-import {
-  ClientToServerEvent,
-  CombatActionName,
-  InputLock,
-  NextOrPrevious,
-} from "@speed-dungeon/common";
+import { ClientToServerEvent, CombatActionName, NextOrPrevious } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
@@ -87,7 +82,7 @@ export class ConsideringCombatActionMenuState extends ActionMenuState {
         if (partyOption) {
           const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
           focusedCharacter.getTargetingProperties().setSelectedActionAndRank(null);
-          InputLock.lockInput(partyOption.inputLock);
+          partyOption.inputLock.lockInput();
         }
       }
     );

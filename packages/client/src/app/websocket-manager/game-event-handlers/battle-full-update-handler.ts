@@ -1,6 +1,6 @@
 import { AppStore } from "@/mobx-stores/app-store";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
-import { Battle, InputLock } from "@speed-dungeon/common";
+import { Battle } from "@speed-dungeon/common";
 
 export function battleFullUpdateHandler(battleOption: null | Battle) {
   const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
@@ -19,7 +19,7 @@ export function battleFullUpdateHandler(battleOption: null | Battle) {
 
     if (!currentActorIsPlayerControlled) {
       // it is ai controlled so lock input
-      InputLock.lockInput(party.inputLock);
+      party.inputLock.lockInput();
     }
   } else {
     game.battles = {};

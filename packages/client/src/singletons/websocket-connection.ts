@@ -3,7 +3,6 @@ import { setAlert } from "@/app/components/alerts";
 import {
   ClientToServerEvent,
   ClientToServerEventTypes,
-  InputLock,
   ServerToClientEvent,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
@@ -67,7 +66,7 @@ websocketConnection.on(ServerToClientEvent.ErrorMessage, (message) => {
   // certain actions so we can show the buttons in a loading state
   const partyOption = AppStore.get().gameStore.getPartyOption();
   if (partyOption) {
-    InputLock.unlockInput(partyOption.inputLock);
+    partyOption.inputLock.unlockInput();
     const focusedCharacterOption = AppStore.get().gameStore.getFocusedCharacterOption();
     if (focusedCharacterOption !== undefined) {
       focusedCharacterOption.combatantProperties.targetingProperties.clear();

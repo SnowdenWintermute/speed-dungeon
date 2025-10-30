@@ -5,7 +5,7 @@ import { UnspentAttributesButton } from "../UnspentAttributesButton";
 import { ValueBarsAndFocusButton } from "./ValueBarsAndFocusButton";
 import CombatantInfoButton from "./CombatantInfoButton";
 import { DetailedCombatantInfoCard } from "./DetailedCombatantInfoCard";
-import { Combatant, InputLock } from "@speed-dungeon/common";
+import { Combatant } from "@speed-dungeon/common";
 import "./floating-text-animation.css";
 import { CombatantFloatingMessagesDisplay } from "./combatant-floating-messages-display";
 import { InventoryIconButton } from "./InventoryIconButton";
@@ -62,7 +62,7 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
   const isHovered = focusStore.entityIsHovered(entityId);
   const conditionalBorder = getConditionalBorder(isHovered, isFocused, combatantIsDetailed);
 
-  const lockedUiState = InputLock.isLocked(party.inputLock)
+  const lockedUiState = party.inputLock.isLocked()
     ? "opacity-50 pointer-events-none "
     : "pointer-events-auto ";
 

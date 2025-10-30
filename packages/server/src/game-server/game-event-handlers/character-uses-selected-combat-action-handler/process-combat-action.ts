@@ -2,7 +2,6 @@ import {
   ActionSequenceManagerRegistry,
   CombatActionExecutionIntent,
   ERROR_MESSAGES,
-  InputLock,
   LOOP_SAFETY_ITERATION_LIMIT,
   NestedNodeReplayEvent,
   NestedNodeReplayEventUtls,
@@ -29,7 +28,7 @@ export function processCombatAction(
   if (initialGameUpdateOptionResult)
     NestedNodeReplayEventUtls.appendGameUpdate(rootReplayNode, initialGameUpdateOptionResult);
 
-  InputLock.lockInput(actionUserContext.party.inputLock);
+  actionUserContext.party.inputLock.lockInput();
 
   let safetyCounter = -1;
   while (registry.isNotEmpty()) {
@@ -46,7 +45,7 @@ export function processCombatAction(
   }
 
   setTimeout(() => {
-    InputLock.unlockInput(actionUserContext.party.inputLock);
+    actionUserContext.party.inputLock.unlockInput();
   }, registry.time.ms);
 
   const endedTurn = registry.getTurnEnded();

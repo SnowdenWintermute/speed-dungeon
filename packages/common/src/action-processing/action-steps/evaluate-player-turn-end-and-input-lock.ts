@@ -1,4 +1,4 @@
-import { AdventuringParty, InputLock } from "../../adventuring-party/index.js";
+import { AdventuringParty } from "../../adventuring-party/index.js";
 import { COMBAT_ACTIONS, ThreatChanges } from "../../combat/index.js";
 import { Combatant } from "../../combatants/index.js";
 import { ThreatCalculator } from "../../combatants/threat-manager/threat-calculator.js";
@@ -128,7 +128,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   }
   if (shouldUnlockInput) {
     gameUpdateCommandOption.unlockInput = true;
-    InputLock.unlockInput(party.inputLock);
+    party.inputLock.unlockInput();
   }
 
   return gameUpdateCommandOption;

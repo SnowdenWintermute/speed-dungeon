@@ -1,13 +1,12 @@
-import { immerable } from "immer";
+import { makeAutoObservable } from "mobx";
 import { EMPTY_ROOMS_PER_FLOOR, GAME_CONFIG } from "../app-consts.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ArrayUtils } from "../utils/array-utils.js";
-import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
+import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../utils/index.js";
 import { DungeonRoomType } from "./dungeon-room.js";
 import { AdventuringParty } from "./index.js";
 
 export class DungeonExplorationManager {
-  [immerable] = true;
   private currentFloor: number = 1;
   private roomsExplored: RoomsExploredTracker = { total: 0, onCurrentFloor: 1 };
   private unexploredRooms: DungeonRoomType[] = [];
@@ -16,6 +15,10 @@ export class DungeonExplorationManager {
     [ExplorationAction.Descend]: [],
     [ExplorationAction.Explore]: [],
   };
+
+  constructor() {
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+  }
 
   unexploredRoomsExistOnCurrentFloor() {
     return this.unexploredRooms.length > 0;

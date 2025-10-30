@@ -1,23 +1,37 @@
+import { makeAutoObservable } from "mobx";
+import { runIfInBrowser } from "../utils/index.js";
+import { plainToInstance } from "class-transformer";
+
 export class InputLock {
   timeLocked: null | number = null;
   lockDuration: null | number = null;
-  constructor() {}
-  static lockInput(inputLock: InputLock) {
-    inputLock.timeLocked = Date.now();
-    inputLock.lockDuration = null;
+  constructor() {
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
-  static increaseLockoutDuration(inputLock: InputLock, ms: number) {
-    if (inputLock.lockDuration === null) inputLock.lockDuration = ms;
-    else inputLock.lockDuration += ms;
+
+  static getDeserialized(plain: InputLock) {
+    return plainToInstance(InputLock, plain);
   }
-  static isLocked(inputLock: InputLock) {
-    const { timeLocked, lockDuration } = inputLock;
-    if (timeLocked !== null && lockDuration === null) return true;
-    if (timeLocked !== null && Date.now() < timeLocked + (lockDuration ?? 0)) return true;
-    return false;
+
+  lockInput() {
+    this.timeLocked = Date.now();
+    this.lockDuration = null;
   }
-  static unlockInput(inputLock: InputLock) {
-    inputLock.timeLocked = null;
-    inputLock.lockDuration = null;
+
+  unlockInput() {
+    this.timeLocked = null;
+    this.lockDuration = null;
+  }
+
+  increaseLockoutDuration(ms: number) {
+    if (this.lockDuration === null) this.lockDuration = ms;
+    else this.lockDuration += ms;
+  }
+
+  isLocked() {
+    const { timeLocked, lockDuration } = this;
+    if (timeLocked === null) return false;
+    if (lockDuration === null) return true;
+    return Date.now() < timeLocked + lockDuration;
   }
 }

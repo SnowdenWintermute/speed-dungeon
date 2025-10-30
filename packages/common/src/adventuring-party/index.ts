@@ -51,6 +51,15 @@ export class AdventuringParty {
     runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 
+  static getDeserialized(party: AdventuringParty) {
+    const combatantManager = CombatantManager.getDeserialized(party.combatantManager);
+    party.combatantManager = combatantManager;
+    party.currentRoom = DungeonRoom.getDeserialized(party.currentRoom);
+    party.inputLock = InputLock.getDeserialized(party.inputLock);
+
+    return party;
+  }
+
   // ITEMS
   static getItem = getItemInAdventuringParty;
 
@@ -70,13 +79,5 @@ export class AdventuringParty {
 
   setCurrentRoom(room: DungeonRoom) {
     this.currentRoom = room;
-  }
-
-  static getDeserialized(party: AdventuringParty) {
-    const combatantManager = CombatantManager.getDeserialized(party.combatantManager);
-    party.combatantManager = combatantManager;
-    party.currentRoom = DungeonRoom.getDeserialized(party.currentRoom);
-
-    return party;
   }
 }

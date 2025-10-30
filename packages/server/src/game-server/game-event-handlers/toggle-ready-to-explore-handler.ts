@@ -6,7 +6,6 @@ import {
   SpeedDungeonGame,
   Battle,
   GameMode,
-  InputLock,
 } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
 import { DungeonRoomType } from "@speed-dungeon/common";
@@ -27,7 +26,7 @@ export async function toggleReadyToExploreHandler(
   if (partyOption === undefined) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
   const party = partyOption;
 
-  if (InputLock.isLocked(party.inputLock)) {
+  if (party.inputLock.isLocked()) {
     console.error("input is locked");
     throw new Error(ERROR_MESSAGES.PARTY.INPUT_IS_LOCKED);
   }

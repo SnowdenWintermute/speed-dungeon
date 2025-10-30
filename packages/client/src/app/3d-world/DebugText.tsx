@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ZIndexLayers } from "../z-index-layers";
 import { gameWorld } from "./SceneManager";
-import { InputLock } from "@speed-dungeon/common";
 import { drawCompass, drawDebugGrid } from "./game-world/clear-floor-texture";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
@@ -121,7 +120,7 @@ export const DebugText = observer(
 
     const partyOption = AppStore.get().gameStore.getPartyOption();
     const inputLockStatus = partyOption
-      ? JSON.stringify(InputLock.isLocked(partyOption.inputLock))
+      ? JSON.stringify(partyOption.inputLock.isLocked())
       : "no party";
 
     const alternateClickKeyHeld = inputStore.getKeyIsHeld(ModifierKey.AlternateClick);

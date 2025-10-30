@@ -8,7 +8,7 @@ import {
   Vector3,
 } from "@babylonjs/core";
 import { CharacterModel } from ".";
-import { AdventuringParty, InputLock, iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
+import { AdventuringParty, iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import { CharacterModelPartCategory } from "./modular-character-parts-model-manager/modular-character-parts";
 import { AppStore } from "@/mobx-stores/app-store";
@@ -137,7 +137,7 @@ export class HighlightManager {
         .getId();
       const isTurn = fastestActorId === entityId;
 
-      const inputIsLocked = partyOption ? InputLock.isLocked(partyOption.inputLock) : false;
+      const inputIsLocked = partyOption ? partyOption.inputLock.isLocked() : false;
 
       const isSelectingActionTargets = AppStore.get().targetIndicatorStore.userHasTargets(entityId);
 

@@ -7,7 +7,6 @@ import {
   Consumable,
   ERROR_MESSAGES,
   Equipment,
-  InputLock,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../../singletons/index.js";
@@ -40,7 +39,7 @@ export async function getBattleConclusionCommandAndPayload(
     loot = gameServer.generateLoot(party);
     experiencePointChanges = gameServer.generateExperiencePoints(party);
 
-    InputLock.unlockInput(party.inputLock);
+    party.inputLock.unlockInput();
   }
 
   const { actionEntityManager } = party;

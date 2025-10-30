@@ -4,7 +4,6 @@ import {
   CleanupMode,
   Consumable,
   Equipment,
-  InputLock,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { ClientActionCommandReceiver } from ".";
@@ -53,7 +52,7 @@ export async function battleResultActionCommandHandler(
     case BattleConclusion.Victory:
       characterAutoFocusManager.focusFirstOwnedCharacter();
 
-      InputLock.unlockInput(party.inputLock);
+      party.inputLock.unlockInput();
 
       const levelups = SpeedDungeonGame.handleBattleVictory(game, party, payload);
 

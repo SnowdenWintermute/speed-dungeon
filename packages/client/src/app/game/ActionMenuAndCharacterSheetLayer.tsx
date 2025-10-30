@@ -1,6 +1,6 @@
 import React from "react";
 import { ActionMenu } from "./ActionMenu";
-import { AdventuringParty, InputLock } from "@speed-dungeon/common";
+import { AdventuringParty } from "@speed-dungeon/common";
 import { ItemDetailsWithComparison } from "./ItemDetailsWithComparison";
 import { ItemsOnGround } from "./ItemsOnGround";
 import { CharacterSheet } from "./character-sheet";
@@ -21,6 +21,8 @@ export const ActionMenuAndCharacterSheetLayer = observer(
 
     const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
+    const inputLocked = party.inputLock.isLocked();
+
     return (
       <section
         style={{ zIndex: ZIndexLayers.CharacterSheetAndActionMenu, paddingTop: `calc(100vh / 11)` }}
@@ -32,7 +34,7 @@ export const ActionMenuAndCharacterSheetLayer = observer(
         <div className={`pl-4 pr-4 flex flex-col relative overflow-auto `}>
           <div className={`flex items-end w-full`} style={{ marginBottom: `${SPACING_REM}rem` }}>
             <div style={{ marginRight: `${SPACING_REM}rem` }} className="flex">
-              <ActionMenu inputLocked={InputLock.isLocked(party.inputLock)} />
+              <ActionMenu inputLocked={inputLocked} />
 
               {currentMenu instanceof CraftingItemMenuState && (
                 <div className="ml-3 h-1 w-fit">
@@ -42,9 +44,7 @@ export const ActionMenuAndCharacterSheetLayer = observer(
                 </div>
               )}
             </div>
-            <CharacterSheet
-              showCharacterSheet={viewingCharacterSheet && !InputLock.isLocked(party.inputLock)}
-            />
+            <CharacterSheet showCharacterSheet={viewingCharacterSheet && !inputLocked} />
           </div>
           <div className="flex  w-full">
             <div

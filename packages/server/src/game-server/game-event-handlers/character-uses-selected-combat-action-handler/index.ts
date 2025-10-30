@@ -5,7 +5,6 @@ import {
   CombatActionExecutionIntent,
   CombatActionReplayTreePayload,
   ERROR_MESSAGES,
-  InputLock,
   ServerToClientEvent,
   getPartyChannelName,
 } from "@speed-dungeon/common";
@@ -47,7 +46,7 @@ export async function useSelectedCombatActionHandler(
 function validateClientActionUseRequest(characterAssociatedData: CharacterAssociatedData) {
   const { game, party, character } = characterAssociatedData;
 
-  if (InputLock.isLocked(party.inputLock)) return new Error(ERROR_MESSAGES.PARTY.INPUT_IS_LOCKED);
+  if (party.inputLock.isLocked()) return new Error(ERROR_MESSAGES.PARTY.INPUT_IS_LOCKED);
 
   const targetingProperties = character.getTargetingProperties();
 

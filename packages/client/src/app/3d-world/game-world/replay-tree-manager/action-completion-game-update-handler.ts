@@ -2,7 +2,6 @@ import {
   ActionCompletionUpdateCommand,
   AdventuringParty,
   CombatantTurnTracker,
-  InputLock,
 } from "@speed-dungeon/common";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { handleThreatChangesUpdate } from "./handle-threat-changes";
@@ -43,7 +42,7 @@ export async function actionCompletionGameUpdateHandler(
   }
 
   if (update.command.unlockInput) {
-    if (party) InputLock.unlockInput(party.inputLock);
+    if (party) party.inputLock.unlockInput();
   }
 
   handleThreatChangesUpdate(update.command);
