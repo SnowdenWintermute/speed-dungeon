@@ -34,14 +34,16 @@ export class SpeedDungeonGame {
   }
 
   static getDeserialized(game: SpeedDungeonGame) {
-    for (const [partyId, party] of Object.entries(game.adventuringParties)) {
-      game.adventuringParties[partyId] = AdventuringParty.getDeserialized(party);
+    const deserialized = plainToInstance(SpeedDungeonGame, game);
+    for (const [partyId, party] of Object.entries(deserialized.adventuringParties)) {
+      deserialized.adventuringParties[partyId] = AdventuringParty.getDeserialized(party);
     }
 
-    for (const player of Object.values(game.players)) {
+    for (const player of Object.values(deserialized.players)) {
       SpeedDungeonPlayer.deserialize(player);
     }
-    return plainToInstance(SpeedDungeonGame, game);
+
+    return deserialized;
   }
 
   /** returns the name of the party and if the party was removed from the game (in the case of its last member being removed) */
@@ -49,8 +51,9 @@ export class SpeedDungeonGame {
     const player = this.players[username];
     const charactersRemoved: Combatant[] = [];
     if (!player) return new Error("No player found to remove");
-    if (!player.partyName)
+    if (!player.partyName) {
       return { partyNameLeft: null, partyWasRemoved: false, charactersRemoved };
+    }
 
     const partyLeaving = this.adventuringParties[player.partyName];
     if (!partyLeaving) return new Error("No party exists");
@@ -58,15 +61,16 @@ export class SpeedDungeonGame {
     // if a removed character was taking their turn, end their turn
     const battleOption = this.getBattleOption(partyLeaving.battleId);
 
+    // character ids will be removed when calling removeCharacter
+    // and we don't want to remove them while we're still iterating them
     const characterIds = cloneDeep(player.characterIds);
-    if (characterIds) {
-      Object.values(characterIds).forEach((characterId) => {
-        const removedCharacterResult = partyLeaving.removeCharacter(characterId, player);
-        if (removedCharacterResult instanceof Error) return removedCharacterResult;
-        charactersRemoved.push(removedCharacterResult);
-        delete this.lowestStartingFloorOptionsBySavedCharacter[characterId];
-      });
-    }
+
+    Object.values(characterIds).forEach((characterId) => {
+      const removedCharacterResult = partyLeaving.removeCharacter(characterId, player);
+      if (removedCharacterResult instanceof Error) return removedCharacterResult;
+      charactersRemoved.push(removedCharacterResult);
+      delete this.lowestStartingFloorOptionsBySavedCharacter[characterId];
+    });
 
     battleOption?.turnOrderManager.updateTrackers(this, partyLeaving);
 
@@ -76,6 +80,10 @@ export class SpeedDungeonGame {
 
     if (partyLeaving.playerUsernames.length < 1) {
       delete this.adventuringParties[partyLeaving.name];
+      // if we one day allow two parties to be in one battle this will need to change
+      if (battleOption) {
+        delete this.battles[battleOption.id];
+      }
       return { partyNameLeft: partyLeaving.name, partyWasRemoved: true, charactersRemoved };
     }
 
@@ -95,7 +103,7 @@ export class SpeedDungeonGame {
     if (!party) throw new Error("Tried to put a player in a party but the party didn't exist");
     const player = this.players[username];
     if (!player) {
-      throw new Error("Tried to put a player in a party but couldn't find the player in game game");
+      throw new Error("Tried to put a player in a party but couldn't find the player in game");
     }
 
     party.playerUsernames.push(username);
