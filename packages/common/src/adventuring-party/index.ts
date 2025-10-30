@@ -1,6 +1,5 @@
 import { EntityId } from "../primatives/index.js";
 import { DungeonRoom, DungeonRoomType } from "./dungeon-room.js";
-import { getItemInAdventuringParty } from "./get-item-in-party.js";
 import { InputLock } from "./input-lock.js";
 import { ActionCommandQueue } from "../action-processing/action-command-queue.js";
 import { SpeedDungeonGame, SpeedDungeonPlayer } from "../game/index.js";
@@ -13,7 +12,7 @@ import { Combatant } from "../combatants/index.js";
 import { ArrayUtils } from "../utils/array-utils.js";
 import { makeAutoObservable } from "mobx";
 import { runIfInBrowser } from "../utils/index.js";
-export * from "./get-item-in-party.js";
+import { Item } from "../items/index.js";
 export * from "./dungeon-room.js";
 export * from "./dungeon-exploration-manager.js";
 export * from "./input-lock.js";
@@ -60,8 +59,21 @@ export class AdventuringParty {
     return party;
   }
 
-  // ITEMS
-  static getItem = getItemInAdventuringParty;
+  getItem(itemId: string) {
+    let toReturn: undefined | Item;
+
+    for (const combatant of this.combatantManager.getAllCombatants()) {
+      const itemResult = combatant.combatantProperties.inventory.getStoredOrEquipped(itemId);
+      if (itemResult instanceof Error) continue;
+      toReturn = itemResult;
+      if (toReturn) return toReturn;
+    }
+
+    const maybeItem = this.currentRoom.inventory.getItemById(itemId);
+    if (!(maybeItem instanceof Error)) return maybeItem;
+
+    return new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
+  }
 
   getBattleOption(game: SpeedDungeonGame) {
     const battleIdOption = this.battleId;
