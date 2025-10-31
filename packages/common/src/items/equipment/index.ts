@@ -15,10 +15,11 @@ import { EquipmentBaseItemProperties, WeaponProperties } from "./equipment-prope
 import { EquipmentType } from "./equipment-types/index.js";
 import { EquipmentTraitType } from "./equipment-traits/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
-import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
+import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../../utils/index.js";
 import { CombatantAttributeRecord } from "../../combatants/attribute-properties.js";
 import { ResourceChangeSource } from "../../combat/hp-change-source-types.js";
 import { plainToInstance } from "class-transformer";
+import makeAutoObservable from "mobx-store-inheritance";
 
 export * from "./equipment-properties/index.js";
 export * from "./pre-determined-items/index.js";
@@ -44,6 +45,7 @@ export class Equipment extends Item {
     public durability: null | { current: number; inherentMax: number }
   ) {
     super(entityProperties, itemLevel, requirements);
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 
   static getDeserialized(plain: Equipment) {

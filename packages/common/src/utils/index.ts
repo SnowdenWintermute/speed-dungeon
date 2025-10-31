@@ -8,6 +8,9 @@ import { Quaternion, Vector3 } from "@babylonjs/core";
 import { CONSUMABLE_TYPE_STRINGS, Consumable, ConsumableType } from "../items/consumables/index.js";
 import { BoxDimensions } from "./shape-utils.js";
 import { NextOrPrevious } from "../primatives/index.js";
+import { toJS } from "mobx";
+import cloneDeep from "lodash.clonedeep";
+import { plainToInstance } from "class-transformer";
 
 export function iterateNumericEnum<T extends { [name: string]: string | number }>(
   enumType: T
@@ -205,4 +208,10 @@ export function cycleListGivenCurrentValue<T>(
 
   if (cycledTo === undefined) throw new Error("Target not found in list");
   return cycledTo;
+}
+
+export function cloneObservable<T>(cls: new (...args: any[]) => T, obj: T): T {
+  const plain = toJS(obj); // remove MobX proxies
+  const clonedPlain = cloneDeep(plain); // ensure deep structural copy
+  return plainToInstance(cls, clonedPlain); // restore class prototype
 }

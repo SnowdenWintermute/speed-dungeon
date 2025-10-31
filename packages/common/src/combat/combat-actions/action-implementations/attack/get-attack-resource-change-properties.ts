@@ -22,6 +22,7 @@ export function getAttackResourceChangeProperties(
   scalingAttribute: CombatAttribute,
   options = { usableWeaponsOnly: true }
 ) {
+  console.log("getAttackResourceChangeProperties");
   const weaponSlot = hitOutcomeProperties.addsPropertiesFromHoldableSlot;
 
   const hpChangeSourceConfig: ResourceChangeSourceConfig = {
@@ -59,6 +60,7 @@ export function getAttackResourceChangeProperties(
   const weaponOption = weaponSlot !== null ? equippedUsableWeapons[weaponSlot] : null;
 
   if (weaponOption) {
+    console.log("about to applyWeaponPropertiesToResourceChangeProperties");
     applyWeaponPropertiesToResourceChangeProperties(
       hitOutcomeProperties,
       weaponOption,

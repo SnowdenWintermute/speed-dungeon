@@ -9,13 +9,11 @@ import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 import { CombatActionTargetType } from "../../combat/targeting/combat-action-targets.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
-import { immerable } from "immer";
 import { ActionUserContext } from "../../action-user-context/index.js";
 
 const getNewStacks = () => new MaxAndCurrent(10, 1);
 
 export class PrimedForExplosionCombatantCondition extends CombatantCondition {
-  [immerable] = true;
   intent = CombatActionIntent.Malicious;
   removedOnDeath: boolean = true;
   ticks?: MaxAndCurrent | undefined = undefined;

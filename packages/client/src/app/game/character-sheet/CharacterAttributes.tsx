@@ -127,7 +127,7 @@ export const CharacterAttributes = observer(
         </div>
         <Divider extraStyles={"mr-2 ml-2 "} />
         <HpAndMp combatantProperties={combatantProperties} totalAttributes={totalAttributes} />
-        <CharacterSheetWeaponDamage combatant={combatant} />
+        {<CharacterSheetWeaponDamage combatant={combatant} />}
         <Divider extraStyles={"mr-2 ml-2 "} />
         <ElementalAffinitiesDisplay
           affinities={combatantProperties.mitigationProperties.getElementalAffinities()}

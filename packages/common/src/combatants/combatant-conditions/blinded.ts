@@ -10,7 +10,6 @@ import {
   CombatActionTargetSingle,
   CombatActionTargetType,
 } from "../../combat/targeting/combat-action-targets.js";
-import { immerable } from "immer";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
 import {
   CharacterModelIdentifier,
@@ -23,7 +22,6 @@ import { ActionUserContext } from "../../action-user-context/index.js";
 import { CombatantProperties } from "../combatant-properties.js";
 
 export class BlindedCombatantCondition extends CombatantCondition {
-  [immerable] = true;
   intent = CombatActionIntent.Malicious;
   removedOnDeath: boolean = true;
   ticks?: MaxAndCurrent | undefined = undefined;

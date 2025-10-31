@@ -26,6 +26,7 @@ export function applyWeaponPropertiesToResourceChangeProperties(
   const weaponModifiersToCopy = new Set(iterateNumericEnum(ResourceChangeSourceModifiers));
 
   const averageRoll = baseValues.getAverage();
+  console.log("about to selectMostEffectiveFromAvailableResourceChangeSourceModifiers");
   const mostEffectiveAvailableResourceChangeSourceOnWeapon =
     selectMostEffectiveFromAvailableResourceChangeSourceModifiers(
       hitOutcomeProperties,
@@ -40,6 +41,8 @@ export function applyWeaponPropertiesToResourceChangeProperties(
     );
 
   if (mostEffectiveAvailableResourceChangeSourceOnWeapon === undefined) return hpChangeProperties;
+
+  console.log("about to apply weaponModifiers");
 
   // if we ever add another trait besides lifesteal which might affect damage, put those traits
   // before the testing for best hp change source modifiers

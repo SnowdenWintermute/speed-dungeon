@@ -6,7 +6,6 @@ import {
   CRAFTING_ACTION_PAST_TENSE_STRINGS,
   CombatActionComponent,
   CombatActionOrigin,
-  Combatant,
   CraftingAction,
   Equipment,
   GameMessage,
@@ -27,6 +26,8 @@ import {
 import { ReactNode } from "react";
 import cloneDeep from "lodash.clonedeep";
 import { ItemLink } from "./item-link";
+import { toJS } from "mobx";
+import { plainToInstance } from "class-transformer";
 
 export class GameLogMessageService {
   private static dispatch(message: GameLogMessage) {
@@ -105,7 +106,9 @@ export class GameLogMessageService {
     const style = COMBAT_LOG_MESSAGE_STYLES_BY_MESSAGE_TYPE[GameMessageType.CraftingAction];
     let craftingResultMessage: ReactNode = "";
 
-    const craftedItemLink = <ItemLink item={cloneDeep(itemResult)} />;
+    const item = plainToInstance(Equipment, cloneDeep(toJS(itemResult)));
+
+    const craftedItemLink = <ItemLink item={item} />;
 
     switch (craftingAction) {
       case CraftingAction.Repair:

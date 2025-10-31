@@ -56,6 +56,8 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inv
 
   inventory.equipment.push(tradeableItemResult);
 
+  inventory.shards = 99999;
+
   // const items = generateOneOfEachItem(new NumberRange(1, 10));
   // for (const item of items) Inventory.insertItem(inventory, item);
 }

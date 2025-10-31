@@ -10,7 +10,6 @@ import {
   CombatActionTargetSingle,
   CombatActionTargetType,
 } from "../../combat/targeting/combat-action-targets.js";
-import { immerable } from "immer";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
 import {
   CharacterModelIdentifier,
@@ -21,7 +20,6 @@ import {
 import { ActionUserContext } from "../../action-user-context/index.js";
 
 export class BurningCombatantCondition extends CombatantCondition {
-  [immerable] = true;
   name = CombatantConditionName.Burning;
   intent = CombatActionIntent.Malicious;
   removedOnDeath: boolean = true;

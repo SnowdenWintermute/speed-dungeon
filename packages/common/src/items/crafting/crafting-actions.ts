@@ -34,12 +34,12 @@ export const CRAFTING_ACTION_STRINGS: Record<CraftingAction, string> = {
 };
 
 export const CRAFTING_ACTION_PAST_TENSE_STRINGS: Record<CraftingAction, string> = {
-  [CraftingAction.Repair]: "Repaired",
-  [CraftingAction.Imbue]: "Imbued",
-  [CraftingAction.Augment]: "Augmented",
-  [CraftingAction.Tumble]: "Tumbled",
-  [CraftingAction.Reform]: "Reformed",
-  [CraftingAction.Shake]: "Shook",
+  [CraftingAction.Repair]: "repaired",
+  [CraftingAction.Imbue]: "imbued",
+  [CraftingAction.Augment]: "augmented",
+  [CraftingAction.Tumble]: "tumbled",
+  [CraftingAction.Reform]: "reformed",
+  [CraftingAction.Shake]: "shook",
 };
 
 export const CRAFTING_ACTION_DISABLED_CONDITIONS: Record<

@@ -1,4 +1,3 @@
-import { immerable } from "immer";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { ThreatType } from "../../../combatants/index.js";
 import { EntityId } from "../../../primatives/index.js";
@@ -78,7 +77,6 @@ export class ManaChanges extends ResourceChanges<ManaChange> {
 }
 
 export class ThreatChanges {
-  [immerable] = true;
   private entries: {
     [entityIdOfThreatTableToUpdate: EntityId]: {
       [threatTableEntityId: EntityId]: Partial<Record<ThreatType, number>>;

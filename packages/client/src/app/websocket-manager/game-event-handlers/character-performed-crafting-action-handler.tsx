@@ -18,6 +18,7 @@ import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 import { AppStore } from "@/mobx-stores/app-store";
+import { toJS } from "mobx";
 
 export function characterPerformedCraftingActionHandler(eventData: {
   characterId: EntityId;
@@ -34,58 +35,63 @@ export function characterPerformedCraftingActionHandler(eventData: {
     const itemResult = character.combatantProperties.inventory.getStoredOrEquipped(
       item.entityProperties.id
     );
+
     if (itemResult instanceof Error) return itemResult;
 
-    const itemBeforeModification = cloneDeep(itemResult);
+    const isEquipment = itemResult instanceof Equipment;
+    if (!isEquipment) {
+      setAlert("Server sent crafting results of a consumable?");
+      return;
+    }
+
+    console.log("itemResult:", itemResult, "isEquipment:", isEquipment);
+
+    const actionPrice = getCraftingActionPrice(craftingAction, itemResult);
+    const itemBeforeModification = cloneDeep(toJS(itemResult));
     // distinguish between the crafted and pre-crafted item. used for selecting the item links in the
     // combat log
     itemBeforeModification.craftingIteration !== undefined
       ? (itemBeforeModification.craftingIteration += 1)
       : (itemBeforeModification.craftingIteration = 0);
 
-    if (itemResult instanceof Equipment && itemBeforeModification instanceof Equipment) {
-      const asInstance = plainToInstance(Equipment, item);
+    const asInstance = plainToInstance(Equipment, item);
 
-      const wasBrokenBefore = itemResult.isBroken();
+    const wasBrokenBefore = itemResult.isBroken();
 
-      character.combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
-        itemResult.copyFrom(asInstance);
+    character.combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
+      itemResult.copyFrom(asInstance);
+    });
+
+    const wasRepaired = wasBrokenBefore && !itemResult.isBroken();
+    const slotEquippedToOption = character.combatantProperties.equipment.getSlotItemIsEquippedTo(
+      itemResult.entityProperties.id
+    );
+    const isEquipped = slotEquippedToOption !== null;
+
+    if (isEquipped && wasRepaired) {
+      getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+        type: ModelActionType.SynchronizeCombatantEquipmentModels,
+        entityId: character.entityProperties.id,
       });
-
-      const wasRepaired = wasBrokenBefore && !itemResult.isBroken();
-      const slotEquippedToOption = character.combatantProperties.equipment.getSlotItemIsEquippedTo(
-        itemResult.entityProperties.id
-      );
-      const isEquipped = slotEquippedToOption !== null;
-
-      if (isEquipped && wasRepaired) {
-        getGameWorld().modelManager.modelActionQueue.enqueueMessage({
-          type: ModelActionType.SynchronizeCombatantEquipmentModels,
-          entityId: character.entityProperties.id,
-        });
-      }
-
-      if (shouldUpdateThumbnailAfterCraft(itemResult)) {
-        gameWorld.current?.imageManager.enqueueMessage({
-          type: ImageManagerRequestType.ItemCreation,
-          item: itemResult,
-        });
-      }
-
-      itemResult.craftingIteration = itemBeforeModification.craftingIteration + 1;
-
-      const actionPrice = getCraftingActionPrice(craftingAction, itemBeforeModification);
-      character.combatantProperties.inventory.shards -= actionPrice;
-
-      GameLogMessageService.postCraftActionResult(
-        character.getName(),
-        itemBeforeModification,
-        craftingAction,
-        itemResult
-      );
-    } else {
-      setAlert("Server sent crafting results of a consumable?");
     }
+
+    if (shouldUpdateThumbnailAfterCraft(itemResult)) {
+      gameWorld.current?.imageManager.enqueueMessage({
+        type: ImageManagerRequestType.ItemCreation,
+        item: itemResult,
+      });
+    }
+
+    itemResult.craftingIteration = itemBeforeModification.craftingIteration + 1;
+
+    character.combatantProperties.inventory.shards -= actionPrice;
+
+    GameLogMessageService.postCraftActionResult(
+      character.getName(),
+      plainToInstance(Equipment, itemBeforeModification),
+      craftingAction,
+      itemResult
+    );
   });
 }
 
