@@ -5,11 +5,11 @@ import { GameLogMessage } from "./game-log-messages";
 
 export class GameEventNotificationStore {
   private messageIdGenerator = new SequentialIdGenerator();
-  private floatingMessages: Record<EntityId, FloatingMessage[]> = {};
+  private floatingMessages: Map<EntityId, FloatingMessage[]> = new Map();
   private gameLogMessages: GameLogMessage[] = [];
 
   constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+    makeAutoObservable(this);
   }
 
   clearGameLog() {
@@ -25,7 +25,7 @@ export class GameEventNotificationStore {
   }
 
   getFloatingMessages(entityId: EntityId) {
-    const messagesOption = this.floatingMessages[entityId];
+    const messagesOption = this.floatingMessages.get(entityId);
     if (messagesOption === undefined) return [];
     return messagesOption;
   }
@@ -39,12 +39,13 @@ export class GameEventNotificationStore {
     const id = this.messageIdGenerator.getNextId();
     let newMessage = new FloatingMessage(id, elements, displayTime);
 
-    let messagesOption = this.floatingMessages[entityId];
+    let messagesOption = this.floatingMessages.get(entityId);
 
     if (messagesOption === undefined) {
-      messagesOption = this.floatingMessages[entityId] = [];
+      this.floatingMessages.set(entityId, [newMessage]);
+    } else {
+      messagesOption.push(newMessage);
     }
-    messagesOption.push(newMessage);
 
     setTimeout(() => {
       this.removeFloatingMessage(entityId, id);
@@ -53,7 +54,7 @@ export class GameEventNotificationStore {
   }
 
   removeFloatingMessage(entityId: string, messageId: string) {
-    const messagesOption = this.floatingMessages[entityId];
+    const messagesOption = this.floatingMessages.get(entityId);
     if (messagesOption === undefined) {
       return console.error("no combatant floating message record found");
     }

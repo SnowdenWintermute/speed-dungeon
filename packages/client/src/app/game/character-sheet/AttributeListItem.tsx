@@ -22,7 +22,7 @@ interface Props {
   showAttributeAssignmentButtonsIfOwned: boolean;
 }
 
-export function AttributeListItem(props: Props) {
+export const AttributeListItem = observer((props: Props) => {
   const consideredItemUnmetRequirements =
     AppStore.get().focusStore.getSelectedItemUnmetRequirements();
 
@@ -68,7 +68,7 @@ export function AttributeListItem(props: Props) {
       </span>
     </li>
   );
-}
+});
 
 const IncreaseAttributeButton = observer(({ attribute }: { attribute: CombatAttribute }) => {
   const socketOption = websocketConnection;

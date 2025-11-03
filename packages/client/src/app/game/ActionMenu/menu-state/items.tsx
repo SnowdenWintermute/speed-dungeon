@@ -200,22 +200,24 @@ export abstract class ItemsMenuState extends ActionMenuState {
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 
-    createPageButtons(toReturn);
-
-    if (!this.options.extraButtons) return toReturn;
-
-    for (const [category, buttons] of iterateNumericEnumKeyedRecord(this.options.extraButtons)) {
-      for (const button of buttons) toReturn[category].push(button);
+    if (this.options.extraButtons) {
+      for (const [category, buttons] of iterateNumericEnumKeyedRecord(this.options.extraButtons)) {
+        for (const button of buttons) toReturn[category].push(button);
+      }
     }
 
-    // possible when a numbered button disapears like when equipping the last item
-    // on a page
     const numberedButtonsCount = toReturn[ActionButtonCategory.Numbered].length;
     const pageCount = Math.ceil(numberedButtonsCount / ACTION_MENU_PAGE_SIZE);
     const newCount = Math.max(this.minPageCount, pageCount);
-    if (this.pageIndex > newCount) {
-      AppStore.get().actionMenuStore.getCurrentMenu().goToLastPage();
+    this.setCachedPageCount(newCount);
+
+    // possible when a numbered button disapears like when equipping the last item
+    // on a page
+    if (this.pageIndex + 1 > newCount) {
+      this.goToLastPage();
     }
+
+    createPageButtons(toReturn);
 
     return toReturn;
   }

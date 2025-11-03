@@ -14,6 +14,7 @@ interface Props {
 
 export const ItemRequirements = observer(({ attributeRequirements }: Props) => {
   const unmetRequirements = AppStore.get().focusStore.getSelectedItemUnmetRequirements();
+
   let displays = [];
 
   let i = 0;

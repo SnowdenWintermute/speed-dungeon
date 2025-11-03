@@ -18,7 +18,7 @@ export const StackedMenuStateDisplay = observer(() => {
             key={i + stringName}
             menuStringName={stringName}
             index={i}
-            isTop={stackedMenuStateStringNames.length === i}
+            isTop={stackedMenuStateStringNames.length === i + 1}
             stackSize={stackedMenuStateStringNames.length}
           />
         );
@@ -39,7 +39,7 @@ const MenuStateDisplay = observer(
     isTop: boolean;
     stackSize: number;
   }) => {
-    let offsetPx = index * 2;
+    let offsetPx = index * 3;
     const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
     const filterStrengthNormalized = 1 - 0.2 * (stackSize - index);

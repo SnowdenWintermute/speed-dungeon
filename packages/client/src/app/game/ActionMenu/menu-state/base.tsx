@@ -1,4 +1,4 @@
-import { ActionMenuState } from ".";
+import { ACTION_MENU_PAGE_SIZE, ActionMenuState } from ".";
 import {
   ClientToServerEvent,
   CombatActionUsabilityContext,
@@ -199,6 +199,11 @@ export class BaseMenuState extends ActionMenuState {
 
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
+
+    const numberedButtonsCount = toReturn[ActionButtonCategory.Numbered].length;
+    const pageCount = Math.ceil(numberedButtonsCount / ACTION_MENU_PAGE_SIZE);
+    const newCount = Math.max(this.minPageCount, pageCount);
+    this.setCachedPageCount(newCount);
 
     createPageButtons(toReturn);
 

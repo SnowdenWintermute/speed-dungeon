@@ -8,7 +8,8 @@ export const BottomButtons = observer(
   ({ left, right }: { left?: ActionMenuButtonProperties; right?: ActionMenuButtonProperties }) => {
     const { actionMenuStore } = AppStore.get();
     const currentMenu = actionMenuStore.getCurrentMenu();
-    const pageCount = currentMenu.getPageCount();
+    const pageCount = currentMenu.pageCount;
+
     const currentPageIndex = currentMenu.pageIndex;
 
     return (
@@ -24,7 +25,7 @@ export const BottomButtons = observer(
           style={pageCount <= 1 ? { display: "none" } : {}}
         >
           <span>
-            Page {currentPageIndex}/{pageCount}
+            Page {currentPageIndex + 1}/{pageCount}
           </span>
         </div>
         <div key={right?.key} className="flex-1 flex border-l border-slate-400 h-full">

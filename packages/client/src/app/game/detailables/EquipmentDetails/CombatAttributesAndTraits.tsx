@@ -1,19 +1,19 @@
 import {
   AffixCategory,
   COMBAT_ATTRIBUTE_STRINGS,
-  CORE_ATTRIBUTES,
   Equipment,
   EquipmentTraitType,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import { Affix, AffixType, PrefixType, SuffixType } from "@speed-dungeon/common";
+import { Affix, PrefixType, SuffixType } from "@speed-dungeon/common";
+import { observer } from "mobx-react-lite";
 import React from "react";
 
 interface Props {
   equipment: Equipment;
 }
 
-export default function CombatAttributesAndTraits({ equipment }: Props) {
+export const CombatAttributesAndTraits = observer(({ equipment }: Props) => {
   let equipmentModDisplaysInPrefixSuffixOrder: string[] = [];
   const affixBonusText: Record<AffixCategory, { attributes: string[]; traits: string[] }> = {
     [AffixCategory.Prefix]: {
@@ -52,7 +52,7 @@ export default function CombatAttributesAndTraits({ equipment }: Props) {
       ))}
     </div>
   );
-}
+});
 
 function formatAffixCombatAttributeBonuses(
   affix: Affix,

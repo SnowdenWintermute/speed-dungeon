@@ -7,6 +7,7 @@ import {
   EquipmentType,
   Inventory,
   OneHandedMeleeWeapon,
+  Shield,
   TwoHandedMeleeWeapon,
 } from "@speed-dungeon/common";
 import { createConsumableByType } from "../item-generation/create-consumable-by-type.js";
@@ -30,6 +31,16 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inv
   });
 
   inventory.equipment.push(tradeableItemResult);
+
+  inventory.equipment.push(
+    generateSpecificEquipmentType(
+      {
+        equipmentType: EquipmentType.Shield,
+        baseItemType: Shield.LanternShield,
+      },
+      { itemLevel: 1 }
+    )
+  );
 
   inventory.changeShards(399);
 

@@ -14,7 +14,7 @@ export class ActionMenuStore {
   private combatantsWithPendingCraftActions: Set<EntityId> = new Set();
 
   constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+    makeAutoObservable(this);
   }
 
   /** Avoid a circular dependency by not constructing the BaseMenuState class here

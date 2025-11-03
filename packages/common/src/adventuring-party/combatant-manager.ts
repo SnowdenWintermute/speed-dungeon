@@ -112,8 +112,8 @@ export class CombatantManager {
   }
 
   getDungeonControlledCharacters() {
-    return this.getDungeonControlledCombatants().filter((combatant) =>
-      combatant.combatantProperties.controlledBy.wasSummoned()
+    return this.getDungeonControlledCombatants().filter(
+      (combatant) => !combatant.combatantProperties.controlledBy.wasSummoned()
     );
   }
 
@@ -220,6 +220,7 @@ export class CombatantManager {
   }
 
   addCombatant(combatant: Combatant) {
+    console.log("added combatant:", combatant.getName());
     this.combatants.set(combatant.getEntityId(), combatant);
   }
 
@@ -235,6 +236,7 @@ export class CombatantManager {
 
   updateHomePositions() {
     const dungeonControlledCharacters = this.getDungeonControlledCharacters();
+
     dungeonControlledCharacters.forEach((combatant, rowIndex) => {
       CombatantManager.setCombatantHomePosition(
         dungeonControlledCharacters.length,

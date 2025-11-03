@@ -128,6 +128,8 @@ export function putPartyInNextRoom(
     party.combatantManager.addCombatant(monster);
   }
 
+  console.log("dungcontcob leng", party.combatantManager.getDungeonControlledCombatants().length);
+
   party.combatantManager.updateHomePositions();
 
   dungeonExplorationManager.incrementExploredRoomsTrackers();

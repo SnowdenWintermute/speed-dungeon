@@ -9,12 +9,13 @@ import {
 import { NumberRange } from "@speed-dungeon/common";
 import React from "react";
 import { DamageTypeBadgeWithIcon } from "../DamageTypeBadge";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   equipment: Equipment;
 }
 
-export default function WeaponDamage({ equipment }: Props) {
+export const WeaponDamage = observer(({ equipment }: Props) => {
   let damageOption: null | NumberRange = null;
   let damagetypes: null | ResourceChangeSource[] = null;
 
@@ -62,4 +63,4 @@ export default function WeaponDamage({ equipment }: Props) {
       )}
     </>
   );
-}
+});

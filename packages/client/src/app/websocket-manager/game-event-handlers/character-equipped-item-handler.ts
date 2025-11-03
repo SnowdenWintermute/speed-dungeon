@@ -19,12 +19,9 @@ export function characterEquippedItemHandler(packet: {
     if (unequippedResult instanceof Error) return unequippedResult;
     const { idsOfUnequippedItems } = unequippedResult;
 
-    console.log("unequipped ids: ", idsOfUnequippedItems);
-
     const slot = equipment.getSlotItemIsEquippedTo(itemId);
     if (slot !== null) {
       const item = equipment.getEquipmentInSlot(slot);
-      console.log("equipment to equip:", item, "from slot:", slot, "itemId: ", itemId);
       if (item !== undefined) {
         getGameWorld().modelManager.modelActionQueue.enqueueMessage({
           type: ModelActionType.SynchronizeCombatantEquipmentModels,
@@ -50,7 +47,6 @@ export function characterEquippedItemHandler(packet: {
     const itemToSelectOption = equipmentInInventory.find(
       (equipment) => equipment.entityProperties.id === idsOfUnequippedItems[0]
     );
-    console.log("itemToSelectOption:", itemToSelectOption);
     if (itemToSelectOption === undefined) return;
 
     const { actionMenuStore } = AppStore.get();

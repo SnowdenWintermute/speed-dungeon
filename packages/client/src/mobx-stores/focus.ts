@@ -50,18 +50,24 @@ export class FocusStore {
       this.detailables.clearDetailed();
     } else {
       this.detailables.setDetailed(itemOption);
-
-      // @REFACTOR - maybe easier to test if we pass this as an argument instead of fetching it here
-      const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
-      this.consideredItemUnmetRequirements =
-        focusedCharacter.combatantProperties.attributeProperties.getUnmetItemRequirements(
-          itemOption
-        );
     }
   }
 
   getSelectedItemUnmetRequirements() {
-    return this.consideredItemUnmetRequirements;
+    const detailedItemOption = this.detailables.get();
+    if (detailedItemOption === null) return new Set();
+    const { hovered, detailed } = detailedItemOption;
+    if (hovered === null && detailed === null) return new Set();
+    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    if (hovered instanceof Item) {
+      return focusedCharacter.combatantProperties.attributeProperties.getUnmetItemRequirements(
+        hovered
+      );
+    } else if (detailed instanceof Item) {
+      return focusedCharacter.combatantProperties.attributeProperties.getUnmetItemRequirements(
+        detailed
+      );
+    } else return new Set();
   }
 
   getFocusedItems() {

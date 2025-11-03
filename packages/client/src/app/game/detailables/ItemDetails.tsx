@@ -11,7 +11,7 @@ import {
 } from "@speed-dungeon/common";
 import React, { useEffect, useRef, useState } from "react";
 import { ActionDetails } from "./action-details";
-import EquipmentDetails from "./EquipmentDetails";
+import { EquipmentDetails } from "./EquipmentDetails";
 import ModKeyTooltip from "./ModKeyTooltip";
 import Divider from "@/app/components/atoms/Divider";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
@@ -217,7 +217,7 @@ export const ItemDetails = observer(
         </div>
         <div className="self-start flex flex-col">
           <div
-            className={`${unmetRequirements ? "filter-red bg-gray-700" : BG_COLOR} 
+            className={`${unmetRequirements.size > 0 ? "filter-red bg-gray-700" : BG_COLOR} 
           border border-white w-[7.5rem] h-[12.125rem] max-h-[12.125rem] flex items-center justify-center p-4 mb-1`}
             // className={`bg-slate-700 self-start border border-white w-[7.5rem] h-[12.125rem] max-h-[12.125rem] flex items-center justify-center p-4`}
           >
