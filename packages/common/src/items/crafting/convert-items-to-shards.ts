@@ -31,7 +31,7 @@ export function convertItemsToShards(itemIds: EntityId[], combatant: Combatant) 
     if (!itemIds.includes(item.entityProperties.id)) continue;
     const shardsResult = convertItemToShards(item, combatantProperties);
     if (shardsResult instanceof Error) return shardsResult;
-    combatantProperties.inventory.shards += shardsResult;
+    combatantProperties.inventory.changeShards(shardsResult);
     ArrayUtils.removeElement(itemIds, item.entityProperties.id);
     if (itemIds.length === 0) break;
   }

@@ -44,8 +44,6 @@ export function characterPerformedCraftingActionHandler(eventData: {
       return;
     }
 
-    console.log("itemResult:", itemResult, "isEquipment:", isEquipment);
-
     const actionPrice = getCraftingActionPrice(craftingAction, itemResult);
     const itemBeforeModification = cloneDeep(toJS(itemResult));
     // distinguish between the crafted and pre-crafted item. used for selecting the item links in the
@@ -84,7 +82,7 @@ export function characterPerformedCraftingActionHandler(eventData: {
 
     itemResult.craftingIteration = itemBeforeModification.craftingIteration + 1;
 
-    character.combatantProperties.inventory.shards -= actionPrice;
+    character.combatantProperties.inventory.changeShards(actionPrice * -1);
 
     GameLogMessageService.postCraftActionResult(
       character.getName(),

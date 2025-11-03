@@ -18,6 +18,8 @@ import {
   SceneEntityType,
 } from "../../scene-entities/index.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
+import { runIfInBrowser } from "../../utils/index.js";
+import makeAutoObservable from "mobx-store-inheritance";
 
 export class BurningCombatantCondition extends CombatantCondition {
   name = CombatantConditionName.Burning;
@@ -32,6 +34,7 @@ export class BurningCombatantCondition extends CombatantCondition {
     stacksOption: null | MaxAndCurrent
   ) {
     super(id, appliedBy, appliedTo, CombatantConditionName.Burning, stacksOption);
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 
   getAttributeModifiers = undefined;

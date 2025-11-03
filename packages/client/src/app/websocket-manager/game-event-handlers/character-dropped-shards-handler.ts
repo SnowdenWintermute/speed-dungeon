@@ -20,7 +20,7 @@ export function characterDroppedShardsHandler(eventData: {
   const asClassInstance = plainToInstance(Consumable, shardStack);
 
   characterAssociatedDataProvider(characterId, ({ party, character }: CharacterAssociatedData) => {
-    character.combatantProperties.inventory.shards -= asClassInstance.usesRemaining;
+    character.combatantProperties.inventory.changeShards(asClassInstance.usesRemaining * -1);
 
     party.currentRoom.inventory.insertItem(asClassInstance);
   });

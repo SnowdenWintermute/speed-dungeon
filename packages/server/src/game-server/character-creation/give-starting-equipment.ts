@@ -71,8 +71,10 @@ export function giveStartingEquipment(combatantProperties: CombatantProperties) 
     if (slotType !== HoldableSlotType.MainHand) continue;
 
     // @TESTING
-    if (holdable.affixes[AffixCategory.Prefix] === undefined)
+    if (holdable.affixes[AffixCategory.Prefix] === undefined) {
       holdable.affixes[AffixCategory.Prefix] = {};
+    }
+
     holdable.affixes[AffixCategory.Prefix][AffixType.LifeSteal] = {
       combatAttributes: {},
       tier: 1,
@@ -83,9 +85,9 @@ export function giveStartingEquipment(combatantProperties: CombatantProperties) 
         },
       },
     };
-    // @TESTING
-    giveHotswapSlotEquipment(combatantProperties);
   }
+  // @TESTING
+  giveHotswapSlotEquipment(combatantProperties);
 }
 
 function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
@@ -96,8 +98,6 @@ function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
     },
     { noAffixes: true }
   );
-  combatantProperties.equipment.putEquipmentInSlot(mh, {
-    type: EquipmentSlotType.Holdable,
-    slot: HoldableSlotType.MainHand,
-  });
+  combatantProperties.inventory.insertItem(mh);
+  combatantProperties.equipment.equipItem(mh.entityProperties.id, false);
 }

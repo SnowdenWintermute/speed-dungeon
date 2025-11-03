@@ -110,20 +110,10 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
 
   // set hp and mp to max
   monster.combatantProperties.resources.setToMax();
+
   // @TODO - assign abilities (realistically need to refactor monster creation)
-
+  //
   combatantProperties.controlledBy.aiTypes = [AiType.Healer];
-  // monster.combatantProperties.hitPoints = Math.floor(monster.combatantProperties.hitPoints * 0.5);
-  // @TESTING - random evasion
-  // combatantProperties.inherentAttributes[CombatAttribute.Evasion] = Math.floor(Math.random() * 20);
-
-  // combatantProperties.abilityProperties.traitProperties.inherentKineticDamageTypeAffinities[
-  //   KineticDamageType.Piercing
-  // ] = 100;
-
-  // combatantProperties.abilityProperties.traitProperties.inherentElementalAffinities[
-  //   MagicalElement.Fire
-  // ] = 200;
 
   return monster;
 }

@@ -19,7 +19,7 @@ export class Inventory extends CombatantSubsystem {
   shards: number = 0;
   constructor() {
     super();
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this, {}));
   }
 
   static getDeserialized(inventory: Inventory) {
@@ -169,6 +169,7 @@ export class Inventory extends CombatantSubsystem {
     for (const item of items) {
       if (item.entityProperties.id === itemId) return item;
     }
+
     return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 
@@ -215,5 +216,9 @@ export class Inventory extends CombatantSubsystem {
     if (!Consumable.isSkillBook(itemResult.consumableType))
       return new Error("Item is not a skill book");
     return itemResult;
+  }
+
+  changeShards(value: number) {
+    this.shards += value;
   }
 }

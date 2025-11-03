@@ -12,7 +12,7 @@ export function characterPurchasedItemHandler(eventData: {
   characterAssociatedDataProvider(characterId, ({ character }: CharacterAssociatedData) => {
     const asClassInstance = plainToInstance(Consumable, item);
     const { inventory } = character.combatantProperties;
-    inventory.shards -= price;
+    inventory.changeShards(price * -1);
     inventory.insertItem(asClassInstance);
     setAlert(`Purchased ${item.entityProperties.name}`, true);
   });

@@ -68,7 +68,7 @@ export async function craftItemHandler(
   }
 
   // deduct the price from their inventory (do this after in case of error, like trying to imbue an already magical item)
-  inventory.shards -= price;
+  inventory.changeShards(price * -1);
 
   // save character
   if (game.mode === GameMode.Progression) {

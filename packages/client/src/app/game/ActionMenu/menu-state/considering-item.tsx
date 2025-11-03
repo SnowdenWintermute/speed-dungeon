@@ -2,7 +2,6 @@ import { ActionMenuState } from ".";
 import {
   ActionAndRank,
   ClientToServerEvent,
-  CombatantProperties,
   Consumable,
   Equipment,
   EquipmentType,
@@ -18,6 +17,7 @@ import { ModifierKey } from "@/mobx-stores/input";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
 import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
+import { makeObservable, observable } from "mobx";
 
 const equipAltSlotHotkey = HOTKEYS.ALT_1;
 const useItemHotkey = HOTKEYS.MAIN_1;
@@ -29,7 +29,12 @@ export const EQUIP_ITEM_BUTTON_TEXT = `Equip (${useItemLetter})`;
 export class ConsideringItemMenuState extends ActionMenuState {
   constructor(public item: Item) {
     super(MenuStateType.ItemSelected, 1);
+
+    makeObservable(this, {
+      item: observable,
+    });
   }
+
   setItem(item: Item) {
     this.item = item;
     AppStore.get().focusStore.selectItem(item);

@@ -26,7 +26,6 @@ export const CharacterSheetWeaponDamage = observer(
     const { equipment } = combatantProperties;
 
     const mhWeaponOption = equipment.getEquippedWeapon(HoldableSlotType.MainHand);
-    console.log("mhOption:", mhWeaponOption);
 
     if (mhWeaponOption instanceof Error) return <div>{mhWeaponOption.message}</div>;
     const mhDamageAndAccuracyResult = getAttackActionDamageAndAccuracy(
@@ -129,15 +128,12 @@ function getAttackActionDamageAndAccuracy(
   weaponOption: undefined | WeaponProperties,
   isOffHand: boolean
 ) {
-  console.log("getting getAttackActionDamageAndAccuracy");
   const actionName = getAttackActionName(weaponOption, isOffHand);
 
   const gameOption = AppStore.get().gameStore.getGameOption();
-  console.log("after get game");
 
   const currentlyTargetedCombatantResult = getTargetOption(gameOption, combatant, actionName);
   if (currentlyTargetedCombatantResult instanceof Error) return currentlyTargetedCombatantResult;
-  console.log("after getTargetOption");
   const usingDummy = currentlyTargetedCombatantResult === undefined;
 
   const target = currentlyTargetedCombatantResult || TARGET_DUMMY_COMBATANT.combatantProperties;
@@ -149,8 +145,6 @@ function getAttackActionDamageAndAccuracy(
       CombatActionResource.HitPoints
     ];
 
-  console.log("hpChangeGetterOption obtained for", combatAction.getStringName());
-
   if (hpChangeGetterOption === undefined) {
     return new Error("No hp change properties getter found");
   }
@@ -161,12 +155,9 @@ function getAttackActionDamageAndAccuracy(
     1,
     target
   );
-  console.log("hp change properties calculated");
   if (hpChangeProperties === null) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TYPE);
 
-  console.log("about to clone deep");
   const modified = cloneDeep(hpChangeProperties);
-  console.log("after clone deep");
 
   modified.baseValues.mult(combatAction.hitOutcomeProperties.resourceChangeValuesModifier);
 

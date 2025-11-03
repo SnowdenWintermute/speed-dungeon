@@ -28,7 +28,7 @@ export async function dropShardsHandler(
   // check if have enough shards
   if (inventory.shards < numShards) return new Error(ERROR_MESSAGES.COMBATANT.NOT_ENOUGH_SHARDS);
   // deduct shards from inventory
-  inventory.shards -= numShards;
+  inventory.changeShards(numShards * -1);
   // create a "shard stack" consumable item
   const shardStack = createShardStack(numShards);
   party.currentRoom.inventory.insertItem(shardStack);

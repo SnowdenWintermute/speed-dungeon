@@ -38,7 +38,7 @@ export function purchaseItemHandler(
   const { inventory } = character.combatantProperties;
   if (priceOption > inventory.shards) return new Error(ERROR_MESSAGES.COMBATANT.NOT_ENOUGH_SHARDS);
 
-  inventory.shards -= priceOption;
+  inventory.changeShards(priceOption * -1);
   const purchasedItem = createConsumableByType(consumableType);
   inventory.consumables.push(purchasedItem);
 

@@ -10,6 +10,8 @@ import { CombatActionTargetType } from "../../combat/targeting/combat-action-tar
 import { IdGenerator } from "../../utility-classes/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
+import { runIfInBrowser } from "../../utils/index.js";
+import makeAutoObservable from "mobx-store-inheritance";
 
 const getNewStacks = () => new MaxAndCurrent(10, 1);
 
@@ -25,6 +27,7 @@ export class PrimedForExplosionCombatantCondition extends CombatantCondition {
     public level: number
   ) {
     super(id, appliedBy, appliedTo, CombatantConditionName.PrimedForExplosion, getNewStacks());
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 
   tickPropertiesOption = null;

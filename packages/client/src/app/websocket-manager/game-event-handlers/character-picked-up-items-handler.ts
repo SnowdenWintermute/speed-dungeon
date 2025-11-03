@@ -20,7 +20,7 @@ export function characterPickedUpItemsHandler(characterAndItems: CharacterAndIte
           itemResult instanceof Consumable &&
           itemResult.consumableType === ConsumableType.StackOfShards
         ) {
-          character.combatantProperties.inventory.shards += itemResult.usesRemaining;
+          character.combatantProperties.inventory.changeShards(itemResult.usesRemaining);
           continue;
         }
 

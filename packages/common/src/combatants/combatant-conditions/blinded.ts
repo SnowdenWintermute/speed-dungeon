@@ -20,6 +20,8 @@ import {
 import { CombatAttribute } from "../attributes/index.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import { CombatantProperties } from "../combatant-properties.js";
+import { runIfInBrowser } from "../../utils/index.js";
+import makeAutoObservable from "mobx-store-inheritance";
 
 export class BlindedCombatantCondition extends CombatantCondition {
   intent = CombatActionIntent.Malicious;
@@ -33,6 +35,7 @@ export class BlindedCombatantCondition extends CombatantCondition {
     stacksOption: null | MaxAndCurrent
   ) {
     super(id, appliedBy, appliedTo, CombatantConditionName.Blinded, stacksOption);
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 
   tickPropertiesOption = {
