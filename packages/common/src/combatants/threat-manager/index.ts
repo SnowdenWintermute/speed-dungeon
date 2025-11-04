@@ -24,7 +24,9 @@ export class ThreatTableEntry {
     [ThreatType.Stable]: new MaxAndCurrent(STABLE_THREAT_CAP, 0),
     [ThreatType.Volatile]: new MaxAndCurrent(VOLATILE_THREAT_CAP, 0),
   };
-  constructor() {}
+  constructor() {
+    runIfInBrowser(() => makeAutoObservable(this));
+  }
 
   getTotal() {
     return (
@@ -38,7 +40,7 @@ export class ThreatManager {
   private threatScoresByCombatantId: Record<EntityId, ThreatTableEntry> = {};
   private previouslyHighestThreatId: null | EntityId = null;
   constructor() {
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getDeserialized(serialized: ThreatManager) {
@@ -49,8 +51,9 @@ export class ThreatManager {
     let existingEntry = this.threatScoresByCombatantId[combatantId];
     // don't create a new entry if not generating threat
     if (existingEntry === undefined && value < 1) return;
-    if (existingEntry === undefined)
+    if (existingEntry === undefined) {
       this.threatScoresByCombatantId[combatantId] = existingEntry = new ThreatTableEntry();
+    }
     existingEntry.threatScoresByType[threatType].addValue(value);
   }
 

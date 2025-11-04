@@ -11,7 +11,7 @@ export class CombatantConditionManager extends CombatantSubsystem {
 
   constructor() {
     super();
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getDeserialized(plain: CombatantConditionManager) {

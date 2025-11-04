@@ -1,3 +1,4 @@
+import { plainToInstance } from "class-transformer";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { ThreatType } from "../../../combatants/index.js";
 import { EntityId } from "../../../primatives/index.js";
@@ -86,6 +87,11 @@ export class ThreatChanges {
     [entityIdOfThreatTableToUpdate: EntityId]: EntityId[];
   } = {};
   constructor() {}
+
+  static getDeserialized(plain: ThreatChanges) {
+    return plainToInstance(ThreatChanges, plain);
+  }
+
   isEmpty() {
     return Object.keys(this.entries).length === 0;
   }
@@ -130,9 +136,11 @@ export class ThreatChanges {
       const { threatManager } = targetCombatantProperties;
       if (!threatManager) throw new Error("got threat changes on an entity with no threat manager");
 
-      for (const [entityId, changesByThreatType] of Object.entries(changes))
-        for (const [threatType, value] of iterateNumericEnumKeyedRecord(changesByThreatType))
+      for (const [entityId, changesByThreatType] of Object.entries(changes)) {
+        for (const [threatType, value] of iterateNumericEnumKeyedRecord(changesByThreatType)) {
           threatManager.changeThreat(entityId, threatType, value);
+        }
+      }
     }
 
     for (const [entityIdOfThreatTableToUpdate, entityIdsToRemove] of Object.entries(

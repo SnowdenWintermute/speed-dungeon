@@ -203,6 +203,8 @@ export class HitOutcomeMitigationCalculator {
     target: CombatantProperties,
     targetWillAttemptMitigation: boolean
   ) {
+    return 100;
+
     const actionBaseCritChance = action.getCritChance(user, actionLevel);
 
     const targetAvoidaceAttributeValue = target.attributeProperties.getAttributeValue(

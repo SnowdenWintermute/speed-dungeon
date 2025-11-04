@@ -68,13 +68,14 @@ export class ThreatCalculator {
         const targetIsPlayerControlled = combatantProperties.controlledBy.isPlayerControlled();
 
         if (combatantProperties.threatManager) {
-          if (!combatantProperties.isDead())
+          if (!combatantProperties.isDead()) {
             // add flat threat to monster for user
             this.addThreatFromDebuffingMonster(
               targetCombatant,
               this.actionUser,
               action.hitOutcomeProperties.flatThreatGeneratedOnHit
             );
+          }
         } else if (targetIsPlayerControlled) {
           // add threat to all monsters for user
           this.addThreatFromBuffingPlayerCharacter(
@@ -126,16 +127,27 @@ export class ThreatCalculator {
   updateThreatChangesForMonsterHitOutcomes() {
     const entitiesHit = this.hitOutcomes.outcomeFlags[HitOutcome.Hit] || [];
     const { threatManager } = this.actionUser.getCombatantProperties();
-    if (!threatManager) return;
+    if (!threatManager) {
+      console.log("no threat manager for user");
+      return;
+    }
 
     for (const entityId of entitiesHit) {
       const targetCombatant = this.party.combatantManager.getExpectedCombatant(entityId);
       const { combatantProperties } = targetCombatant;
       const targetIsAIControlled = !combatantProperties.controlledBy.isPlayerControlled();
-      if (targetIsAIControlled) continue;
+      if (targetIsAIControlled) {
+        console.log("skipping threat change on hitting ai controlled combatant");
+        continue;
+      }
 
       const currentThreatForTargetOption = threatManager.getEntries()[entityId];
-      if (!currentThreatForTargetOption || currentThreatForTargetOption.getTotal() === 0) continue;
+      if (!currentThreatForTargetOption || currentThreatForTargetOption.getTotal() === 0) {
+        console.log(
+          "threat zero for target of ai attack that would reduce target's position on user's threat meter"
+        );
+        continue;
+      }
 
       this.threatChanges.addOrUpdateEntry(
         this.actionUser.getEntityId(),
@@ -149,7 +161,13 @@ export class ThreatCalculator {
       this.hitOutcomes.resourceChanges &&
       this.hitOutcomes.resourceChanges[CombatActionResource.HitPoints];
 
-    if (hitPointChanges === undefined) return;
+    if (hitPointChanges === undefined) {
+      console.log(
+        "hit point changes were undefined, returning early from threat calcluation - hitPointChanges:",
+        hitPointChanges
+      );
+      return;
+    }
 
     for (const [entityId, hitPointChange] of hitPointChanges.getRecords()) {
       if (hitPointChange.value > 0) continue; // don't add threat for monsters healing players

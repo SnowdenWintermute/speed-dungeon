@@ -8,8 +8,6 @@ export function getStandardThreatChangesOnHitOutcomes(
 ) {
   const { party, actionUser } = context.actionUserContext;
 
-  const partyCombatants = party.combatantManager.getPartyMemberCombatants();
-
   const userIdToCredit = actionUser.getIdOfEntityToCreditWithThreat();
 
   const userOption = party.combatantManager.getCombatantOption(userIdToCredit);
@@ -18,10 +16,6 @@ export function getStandardThreatChangesOnHitOutcomes(
     // the combatant that applied this condition is no longer in the battle
     return null;
   }
-
-  const userIsOnPlayerTeam = partyCombatants
-    .map((combatant) => combatant.getEntityId())
-    .includes(userIdToCredit);
 
   const threatChanges = new ThreatChanges();
   const threatCalculator = new ThreatCalculator(
@@ -32,9 +26,16 @@ export function getStandardThreatChangesOnHitOutcomes(
     context.tracker.actionExecutionIntent.actionName
   );
 
+  const partyCombatants = party.combatantManager.getPartyMemberCombatants();
+  const userIsOnPlayerTeam = partyCombatants
+    .map((combatant) => combatant.getEntityId())
+    .includes(userIdToCredit);
+
   if (userIsOnPlayerTeam) {
+    console.log("user is on player team, user:", userOption.getName());
     threatCalculator.updateThreatChangesForPlayerControlledCharacterHitOutcomes();
   } else {
+    console.log("user is on DUNGEON team, user:", userOption.getName());
     // this is a monster so damage dealt should reduce stable threat
     threatCalculator.updateThreatChangesForMonsterHitOutcomes();
   }

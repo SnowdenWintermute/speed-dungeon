@@ -1,7 +1,8 @@
+import { websocketConnection } from "@/singletons/websocket-connection";
 import { ClientToServerEvent, CombatantClass, GameMode } from "@speed-dungeon/common";
-import { Socket } from "socket.io-client";
 
-export function quickStartGame(socketOption: Socket | undefined) {
+export function quickStartGame() {
+  const socketOption = websocketConnection;
   socketOption?.emit(ClientToServerEvent.CreateGame, { gameName: "", mode: GameMode.Race });
   socketOption?.emit(ClientToServerEvent.CreateParty, "");
 

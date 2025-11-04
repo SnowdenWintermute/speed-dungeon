@@ -72,6 +72,7 @@ export class GameStore {
 
   clearGame() {
     this.game = null;
+    this.focusedCharacterId = null;
   }
 
   getGameOption() {

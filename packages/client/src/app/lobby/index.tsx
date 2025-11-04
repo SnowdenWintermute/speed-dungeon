@@ -18,7 +18,6 @@ import WithTopBar from "../components/layouts/with-top-bar";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import { useEffect } from "react";
 import { AuthFormContainer } from "./auth-forms";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import { SavedCharacterManager } from "./saved-character-manager";
 import { ZIndexLayers } from "../z-index-layers";
 import { HotkeyButton } from "../components/atoms/HotkeyButton";
@@ -28,7 +27,6 @@ import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 
 export const Lobby = observer(() => {
-  const socketOption = websocketConnection;
   const usersContainerWidthMultiplier = Math.pow(GOLDEN_RATIO, 4);
   const usersContainerWidth = Math.floor(BASE_SCREEN_SIZE * usersContainerWidthMultiplier);
   const currentSessionHttpResponseTracker =
@@ -107,7 +105,7 @@ export const Lobby = observer(() => {
             tooltipText="Start a single player game where you control one of each character type (G)"
           >
             <HotkeyButton
-              onClick={() => quickStartGame(socketOption)}
+              onClick={() => quickStartGame()}
               hotkeys={[HOTKEYS.SIDE_1]}
               className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
                           flex justify-center items-center disabled:opacity-50 pointer-events-auto disabled:cursor-auto

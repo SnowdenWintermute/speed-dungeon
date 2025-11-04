@@ -4,7 +4,6 @@ import {
   HitOutcomesGameUpdateCommand,
   ThreatChanges,
 } from "@speed-dungeon/common";
-import { plainToInstance } from "class-transformer";
 import { threatTargetChangedIndicatorSequence } from "../../scene-entities/character-models/threat-target-changed-indicator-sequence/index";
 import debounce from "lodash.debounce";
 import { AppStore } from "@/mobx-stores/app-store";
@@ -23,7 +22,7 @@ export function handleThreatChangesUpdate(
   if (command.threatChanges) {
     const party = AppStore.get().gameStore.getExpectedParty();
 
-    const threatChangesDeserialized = plainToInstance(ThreatChanges, command.threatChanges);
+    const threatChangesDeserialized = ThreatChanges.getDeserialized(command.threatChanges);
     threatChangesDeserialized.applyToGame(party);
 
     // debouncing this is an easy but perhaps not optimal way to avoid showing many
