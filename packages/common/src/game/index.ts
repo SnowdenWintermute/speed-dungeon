@@ -46,6 +46,40 @@ export class SpeedDungeonGame {
     return deserialized;
   }
 
+  addCharacterToParty(
+    party: AdventuringParty,
+    player: SpeedDungeonPlayer,
+    character: Combatant,
+    pets: Combatant[]
+  ): EntityId {
+    const { combatantManager } = party;
+
+    const partyCharacters = combatantManager.getPartyMemberCombatants();
+
+    const partyIsFull = partyCharacters.length >= MAX_PARTY_SIZE;
+
+    if (partyIsFull) {
+      throw new Error(ERROR_MESSAGES.GAME.MAX_PARTY_SIZE);
+    }
+
+    const characterId = character.entityProperties.id;
+
+    combatantManager.addCombatant(character);
+
+    party.petManager.setCombatantPets(characterId, pets);
+
+    /// Could move this out of here
+    character.combatantProperties.controlledBy.controllerName = player.username;
+    player.characterIds.push(characterId);
+    this.lowestStartingFloorOptionsBySavedCharacter[characterId] =
+      character.combatantProperties.deepestFloorReached;
+    ///
+
+    combatantManager.updateHomePositions();
+
+    return characterId;
+  }
+
   /** returns the name of the party and if the party was removed from the game (in the case of its last member being removed) */
   removePlayerFromParty(username: string): Error | RemovedPlayerData {
     const player = this.players[username];

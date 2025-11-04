@@ -3,7 +3,6 @@ import {
   ERROR_MESSAGES,
   GameMode,
   ServerToClientEvent,
-  addCharacterToParty,
   getProgressionGameMaxStartingFloor,
 } from "@speed-dungeon/common";
 import errorHandler from "../error-handler.js";
@@ -60,7 +59,7 @@ export async function selectProgressionGameCharacterHandler(
   // @TODO - load saved pets
   const pets: Combatant[] = [];
 
-  addCharacterToParty(game, partyOption, player, savedCharacterOption, pets);
+  game.addCharacterToParty(partyOption, player, savedCharacterOption, pets);
 
   game.lowestStartingFloorOptionsBySavedCharacter[savedCharacterOption.entityProperties.id] =
     savedCharacterOption.combatantProperties.deepestFloorReached;

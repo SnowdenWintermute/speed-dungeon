@@ -1,4 +1,4 @@
-import { Combatant, GameMode, addCharacterToParty } from "@speed-dungeon/common";
+import { Combatant, GameMode } from "@speed-dungeon/common";
 import { setAlert } from "../../components/alerts";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
@@ -21,7 +21,7 @@ export async function characterAddedToPartyHandler(
       deserializedPets.push(deserializedPet);
     }
 
-    addCharacterToParty(game, party, player, deserialized, deserializedPets);
+    game.addCharacterToParty(party, player, deserialized, deserializedPets);
   } catch (error) {
     if (error instanceof Error) {
       setAlert(error.message);

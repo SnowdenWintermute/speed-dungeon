@@ -2,12 +2,7 @@ import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { setAlert } from "@/app/components/alerts";
 import { AppStore } from "@/mobx-stores/app-store";
-import {
-  Combatant,
-  ERROR_MESSAGES,
-  addCharacterToParty,
-  getProgressionGamePartyName,
-} from "@speed-dungeon/common";
+import { Combatant, ERROR_MESSAGES, getProgressionGamePartyName } from "@speed-dungeon/common";
 
 export function savedCharacterSelectionInProgressGameHandler(
   username: string,
@@ -40,7 +35,7 @@ export function savedCharacterSelectionInProgressGameHandler(
 
   const deserialized = Combatant.getDeserialized(character);
 
-  addCharacterToParty(game, party, player, deserialized, []);
+  game.addCharacterToParty(party, player, deserialized, []);
 
   gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.SynchronizeCombatantModels,

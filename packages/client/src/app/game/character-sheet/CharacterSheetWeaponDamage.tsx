@@ -1,7 +1,6 @@
 import {
   ERROR_MESSAGES,
   Combatant,
-  CombatAttribute,
   Equipment,
   HoldableSlotType,
   CombatActionName,
@@ -165,14 +164,11 @@ function getAttackActionDamageAndAccuracy(
 
   if (hpChangeRangeResult instanceof Error) return hpChangeRangeResult;
 
-  const targetEvasion = target.attributeProperties.getAttributeValue(CombatAttribute.Evasion);
-
   const hpChangeRange = hpChangeRangeResult;
   const hitChance = HitOutcomeMitigationCalculator.getActionHitChance(
     combatAction,
     combatant,
     1,
-    targetEvasion,
     !usingDummy,
     target
   );

@@ -128,24 +128,14 @@ export function putPartyInNextRoom(
     party.combatantManager.addCombatant(monster);
   }
 
-  console.log("dungcontcob leng", party.combatantManager.getDungeonControlledCombatants().length);
-
   party.combatantManager.updateHomePositions();
 
   dungeonExplorationManager.incrementExploredRoomsTrackers();
 
   if (party.combatantManager.monstersArePresent()) {
-    const battleIdResult = initiateBattle(game, party);
-    if (battleIdResult instanceof Error) return battleIdResult;
+    const battleIdResult = Battle.createInitialized(game, party, idGenerator);
     party.battleId = battleIdResult;
   }
 
   return monsters;
-}
-
-function initiateBattle(game: SpeedDungeonGame, party: AdventuringParty): Error | string {
-  const battle = new Battle(idGenerator.generate(), game, party);
-  game.battles[battle.id] = battle;
-  battle.turnOrderManager.updateTrackers(game, party);
-  return battle.id;
 }

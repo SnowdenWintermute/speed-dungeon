@@ -5,7 +5,6 @@ import {
   ServerToClientEvent,
   ServerToClientEventTypes,
   SpeedDungeonGame,
-  addCharacterToParty,
   getProgressionGameMaxStartingFloor,
   getProgressionGamePartyName,
 } from "@speed-dungeon/common";
@@ -40,7 +39,7 @@ export async function joinPlayerToProgressionGame(
   // @TODO - actually load their pets
   const pets: Combatant[] = [];
 
-  addCharacterToParty(game, partyOption, playerOption, deserialized, pets);
+  game.addCharacterToParty(partyOption, playerOption, deserialized, pets);
 
   game.lowestStartingFloorOptionsBySavedCharacter[character.entityProperties.id] =
     character.combatantProperties.deepestFloorReached;

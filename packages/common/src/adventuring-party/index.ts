@@ -16,7 +16,6 @@ import { Item } from "../items/index.js";
 export * from "./dungeon-room.js";
 export * from "./dungeon-exploration-manager.js";
 export * from "./input-lock.js";
-export * from "./add-character-to-party.js";
 
 export class AdventuringParty {
   // subsystems

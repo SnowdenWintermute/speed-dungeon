@@ -7,7 +7,7 @@ import { CombatAttribute } from "./index.js";
 import { ActionPayableResource } from "../combat/combat-actions/index.js";
 
 export class CombatantResources extends CombatantSubsystem {
-  private hitPoints: number = 0;
+  private hitPoints: number = 1;
   private mana: number = 0;
   private actionPoints: number = 0;
 

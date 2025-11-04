@@ -6,7 +6,6 @@ import {
   MAX_CHARACTER_NAME_LENGTH,
   MonsterType,
   ServerToClientEvent,
-  addCharacterToParty,
 } from "@speed-dungeon/common";
 import { createCharacter } from "../character-creation/index.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
@@ -37,7 +36,7 @@ export function createCharacterHandler(
   const pets: Combatant[] = [testPet];
   const serializedPets = pets.map((pet) => pet.getSerialized());
 
-  addCharacterToParty(game, partyOption, player, newCharacter, pets);
+  game.addCharacterToParty(partyOption, player, newCharacter, pets);
 
   const serialized = newCharacter.getSerialized();
 

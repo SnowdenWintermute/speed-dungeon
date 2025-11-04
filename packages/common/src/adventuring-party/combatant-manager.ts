@@ -220,7 +220,6 @@ export class CombatantManager {
   }
 
   addCombatant(combatant: Combatant) {
-    console.log("added combatant:", combatant.getName());
     this.combatants.set(combatant.getEntityId(), combatant);
   }
 

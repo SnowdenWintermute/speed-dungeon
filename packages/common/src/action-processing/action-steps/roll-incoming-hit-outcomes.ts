@@ -85,6 +85,8 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
       gameUpdateCommand.threatChanges = threatChangesOption;
     }
 
+    console.log("threat changes in RollIncomingHitOutcomes:", gameUpdateCommand.threatChanges);
+
     const battleOption = party.getBattleOption(game);
     battleOption?.turnOrderManager.updateTrackers(game, party);
   }

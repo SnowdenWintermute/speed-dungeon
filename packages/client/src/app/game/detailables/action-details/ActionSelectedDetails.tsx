@@ -80,11 +80,6 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
   );
   if (primaryTargetResult instanceof Error) return <div>{primaryTargetResult.message}</div>;
 
-  const targetEvasion =
-    primaryTargetResult.combatantProperties.attributeProperties.getAttributeValue(
-      CombatAttribute.Evasion
-    );
-
   return (
     <div className="flex flex-col pointer-events-auto" style={{ flex: `1 1 1px` }}>
       {!hideTitle && (
@@ -102,7 +97,6 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
             action,
             combatant,
             rank,
-            targetEvasion,
             true,
             primaryTargetResult.combatantProperties
           );

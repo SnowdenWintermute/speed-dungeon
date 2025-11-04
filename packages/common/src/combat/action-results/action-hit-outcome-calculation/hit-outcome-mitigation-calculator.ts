@@ -55,7 +55,6 @@ export class HitOutcomeMitigationCalculator {
       this.action,
       user,
       this.actionLevel,
-      target.combatantProperties.attributeProperties.getAttributeValue(CombatAttribute.Evasion),
       targetWillAttemptMitigation,
       target.combatantProperties
     );
@@ -170,10 +169,10 @@ export class HitOutcomeMitigationCalculator {
     combatAction: CombatActionComponent,
     user: IActionUser,
     actionLevel: number,
-    targetEvasion: number,
     targetWillAttemptToEvade: boolean,
     target: CombatantProperties
   ): { beforeEvasion: number; afterEvasion: number } {
+    const targetEvasion = target.attributeProperties.getAttributeValue(CombatAttribute.Evasion);
     const canHitDeadCombatants =
       !combatAction.targetingProperties.prohibitedHitCombatantStates.includes(
         ProhibitedTargetCombatantStates.Dead

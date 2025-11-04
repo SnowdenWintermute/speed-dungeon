@@ -4,6 +4,7 @@ import { FriendOrFoe, TurnOrderManager } from "../combat/index.js";
 import { applyExperiencePointChanges } from "../combatants/experience-points/apply-experience-point-changes.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { EntityId } from "../primatives/index.js";
+import { IdGenerator } from "../utility-classes/index.js";
 
 export class Battle {
   turnOrderManager: TurnOrderManager;
@@ -14,6 +15,17 @@ export class Battle {
   ) {
     this.turnOrderManager = new TurnOrderManager(game, party);
     party.combatantManager.refillAllCombatantActionPoints();
+  }
+
+  static createInitialized(
+    game: SpeedDungeonGame,
+    party: AdventuringParty,
+    idGenerator: IdGenerator
+  ) {
+    const battle = new Battle(idGenerator.generate(), game, party);
+    game.battles[battle.id] = battle;
+    battle.turnOrderManager.updateTrackers(game, party);
+    return battle.id;
   }
 
   static getDeserialized(battle: Battle, game: SpeedDungeonGame, party: AdventuringParty) {
