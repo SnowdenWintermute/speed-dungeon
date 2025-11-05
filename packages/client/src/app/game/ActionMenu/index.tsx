@@ -34,6 +34,7 @@ import { ActionButtonCategory } from "./menu-state/action-buttons-by-category";
 import { ACTION_MENU_PAGE_SIZE } from "./menu-state";
 import { ActionSelectedDetails } from "../detailables/action-details/ActionSelectedDetails";
 import { ActionDetails } from "../detailables/action-details";
+import ActionMenuHiddenButtons from "./ActionMenuHiddenButtons";
 
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
 export const SHARD_ITEM_HOTKEY = HOTKEYS.SIDE_2;
@@ -140,17 +141,11 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
     <section className={`flex flex-col justify-between `}>
       <CharacterFocusingButtons />
       <StackedMenuStateDisplay />
+      <ActionMenuHiddenButtons buttonProperties={buttonProperties[ActionButtonCategory.Hidden]} />
       <ul
         className={`flex list-none min-w-[25rem] max-w-[25rem] relative`}
         style={{ marginBottom: `${SPACING_REM_SMALL}rem` }}
       >
-        {buttonProperties[ActionButtonCategory.Hidden].map((button, i) => (
-          <div className="hidden" key={button.key}>
-            <HotkeyButton hotkeys={button.dedicatedKeys} onClick={button.clickHandler}>
-              <></>
-            </HotkeyButton>
-          </div>
-        ))}
         {buttonProperties[ActionButtonCategory.Top].map((button, i) => {
           const conditionalStyles = (() => {
             if (buttonTitlesToAccent.includes(button.key)) return "bg-slate-800 border-white";
