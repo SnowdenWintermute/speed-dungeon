@@ -55,24 +55,19 @@ export const PaperDollSlot = observer(
 
     const bgStyle = useMemo(() => {
       if (isEqual(comparedSlot, slot)) {
-        console.log("is equal", consideredItemUnmetRequirements.size);
         if (consideredItemUnmetRequirements.size) {
-          console.log("unmet");
           return UNUSABLE_ITEM_BG_STYLES;
         } else {
           return USABLE_ITEM_BG_STYLES;
         }
       }
       if (!itemOption) {
-        console.log("no item option");
         return "";
       }
       if (
         !Item.requirementsMet(itemOption, characterAttributes) ||
         (itemOption instanceof Equipment && itemOption.isBroken())
       ) {
-        console.log("broken");
-
         return UNUSABLE_ITEM_BG_STYLES;
       }
     }, [itemOption, characterAttributes, consideredItemUnmetRequirements, comparedSlot]);

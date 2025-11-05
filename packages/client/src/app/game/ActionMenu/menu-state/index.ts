@@ -69,7 +69,7 @@ export abstract class ActionMenuState {
   turnPage(direction: NextOrPrevious) {
     const newPage = getNextOrPreviousNumber(
       this.pageIndexInternal,
-      this.getPageCount() - 1,
+      this.cachedPageCount - 1,
       direction,
       { minNumber: 0 }
     );
@@ -77,7 +77,7 @@ export abstract class ActionMenuState {
   }
 
   goToLastPage() {
-    this.pageIndexInternal = this.getPageCount() - 1;
+    this.pageIndexInternal = this.cachedPageCount - 1;
   }
 
   goToFirstPage() {

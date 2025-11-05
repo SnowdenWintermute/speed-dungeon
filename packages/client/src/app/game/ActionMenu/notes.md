@@ -24,5 +24,8 @@ class ActionMenuState
 getInvisibleButtons
 getTopSection
 getCentralSection
+getNumberedButtons
 getBottomSection
 getSideContent
+recalculateButtons
+cachedNumberedButtons
