@@ -39,11 +39,8 @@ export class FloatingMessageService {
 
     const colorClass = FLOATING_TEXT_COLORS[color];
 
-    console.log("iscrit:", resourceChange.isCrit);
-
     // const critClass = resourceChange.isCrit ? " scale-[1.25] animate-crit-text " : "";
-    const critClass = resourceChange.isCrit ? " scale-[1.25] animate-appear-fast " : "";
-    console.log("crit class:", critClass);
+    const critClass = resourceChange.isCrit ? " scale-[1.25] animate-crit-text " : "";
 
     const { elementOption, kineticDamageTypeOption } = resourceChange.source;
 
@@ -64,8 +61,6 @@ export class FloatingMessageService {
     if (elementOption !== undefined) {
       elementText = ` ${MAGICAL_ELEMENT_STRINGS[elementOption].toLowerCase()}`;
     }
-
-    console.log("final text class: ", colorClass + critClass);
 
     const elements: FloatingMessageElement[] = [
       {

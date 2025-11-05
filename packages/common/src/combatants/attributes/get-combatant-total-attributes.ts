@@ -21,19 +21,22 @@ export function getCombatantTotalAttributes(
   const supportClassPropertiesOption =
     combatantProperties.classProgressionProperties.getSupportClassOption();
 
-  const combatantClassStartingAttributes = BASE_STARTING_ATTRIBUTES[combatantClass];
-  addAttributesToAccumulator(combatantClassStartingAttributes, totalAttributes);
+  // monsters will have their attributes explicitly set instead of inferred by their classes
+  if (monsterType === null) {
+    const combatantClassStartingAttributes = BASE_STARTING_ATTRIBUTES[combatantClass];
+    addAttributesToAccumulator(combatantClassStartingAttributes, totalAttributes);
 
-  const combatantClassAttributesByLevel = COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL[combatantClass];
-  for (let i = 0; i < level; i += 1) {
-    addAttributesToAccumulator(combatantClassAttributesByLevel, totalAttributes);
-  }
+    const combatantClassAttributesByLevel = COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL[combatantClass];
+    for (let i = 0; i < level; i += 1) {
+      addAttributesToAccumulator(combatantClassAttributesByLevel, totalAttributes);
+    }
 
-  if (supportClassPropertiesOption !== null) {
-    const { combatantClass, level } = supportClassPropertiesOption;
-    const supportClassAttributesByLevel = COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL[combatantClass];
-    for (let i = 0; i < level; i += 1)
-      addAttributesToAccumulator(supportClassAttributesByLevel, totalAttributes);
+    if (supportClassPropertiesOption !== null) {
+      const { combatantClass, level } = supportClassPropertiesOption;
+      const supportClassAttributesByLevel = COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL[combatantClass];
+      for (let i = 0; i < level; i += 1)
+        addAttributesToAccumulator(supportClassAttributesByLevel, totalAttributes);
+    }
   }
 
   const allEquippedItems = combatantProperties.equipment.getAllEquippedItems({

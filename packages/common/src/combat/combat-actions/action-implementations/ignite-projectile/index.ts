@@ -4,10 +4,6 @@ import {
   ActionEntityBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
-import {
-  ResourceChangeSource,
-  ResourceChangeSourceCategory,
-} from "../../../hp-change-source-types.js";
 import { MagicalElement } from "../../../magical-elements.js";
 import {
   CombatActionGameLogProperties,
@@ -40,6 +36,13 @@ const config: CombatActionComponentConfig = {
   gameLogMessageProperties: new CombatActionGameLogProperties({
     ...createGenericSpellCastMessageProperties(CombatActionName.IgniteProjectile),
     getOnUseMessage: (data) => `The firewall ignites ${data.nameOfActionUser}`,
+    getOnUseMessageDataOverride: (context) => {
+      return {
+        actionLevel: 1,
+        nameOfActionUser: context.actionUserContext.actionUser.getName(),
+        nameOfTarget: context.actionUserContext.actionUser.getName(),
+      };
+    },
   }),
 
   hitOutcomeProperties: createHitOutcomeProperties(

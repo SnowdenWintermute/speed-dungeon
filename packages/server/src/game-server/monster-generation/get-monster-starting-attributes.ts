@@ -5,9 +5,9 @@ export function getMonsterStartingAttributes(monsterType: MonsterType): Combatan
   const attributes: CombatantAttributeRecord = {};
   switch (monsterType) {
     case MonsterType.Wolf:
-      attributes[CombatAttribute.Vitality] = 2.0;
+      attributes[CombatAttribute.Vitality] = 1.0;
       attributes[CombatAttribute.ArmorClass] = 15.0;
-      attributes[CombatAttribute.Hp] = 48;
+      attributes[CombatAttribute.Hp] = 45;
       attributes[CombatAttribute.Accuracy] = 70.0;
       attributes[CombatAttribute.Strength] = 10.0;
       attributes[CombatAttribute.Speed] = 1.0;

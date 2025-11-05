@@ -17,7 +17,7 @@ export class DungeonExplorationManager {
   };
 
   constructor() {
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   unexploredRoomsExistOnCurrentFloor() {

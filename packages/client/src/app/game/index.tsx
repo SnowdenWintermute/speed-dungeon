@@ -2,7 +2,7 @@ import React from "react";
 import { PartyWipeModal } from "./PartyWipeModal";
 import { TopInfoBar } from "./TopInfoBar";
 import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
-import MonsterPlaques from "./MonsterPlaques";
+import { MonsterPlaques } from "./MonsterPlaques";
 import { ReadyUpDisplay } from "./ReadyUpDisplay";
 import { GameLog } from "./combat-log";
 import { ActionMenuAndCharacterSheetLayer } from "./ActionMenuAndCharacterSheetLayer";

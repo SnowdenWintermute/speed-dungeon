@@ -34,6 +34,14 @@ const config: CombatActionComponentConfig = {
   gameLogMessageProperties: new CombatActionGameLogProperties({
     ...createGenericSpellCastMessageProperties(CombatActionName.IncinerateProjectile),
     getOnUseMessage: (data) => `The firewall incinerates ${data.nameOfActionUser}`,
+
+    getOnUseMessageDataOverride: (context) => {
+      return {
+        actionLevel: 1,
+        nameOfActionUser: context.actionUserContext.actionUser.getName(),
+        nameOfTarget: context.actionUserContext.actionUser.getName(),
+      };
+    },
   }),
 
   hitOutcomeProperties: createHitOutcomeProperties(

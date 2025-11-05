@@ -46,7 +46,7 @@ export class AdventuringParty {
     public id: string,
     public name: string
   ) {
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getDeserialized(party: AdventuringParty) {

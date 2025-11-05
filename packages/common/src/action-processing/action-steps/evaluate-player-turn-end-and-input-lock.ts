@@ -131,10 +131,5 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     party.inputLock.unlockInput();
   }
 
-  console.log(
-    "threat changes in evaluatePlayerEndTurnAndInputLock:",
-    gameUpdateCommandOption.threatChanges
-  );
-
   return gameUpdateCommandOption;
 }

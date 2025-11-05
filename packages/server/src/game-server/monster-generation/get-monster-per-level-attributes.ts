@@ -80,6 +80,7 @@ export function getMonsterPerLevelAttributes(monsterType: MonsterType): Combatan
       attributes[CombatAttribute.Hp] = 9.5;
       attributes[CombatAttribute.Agility] = 1.5;
       break;
+    case MonsterType.Wolf:
   }
 
   return attributes;

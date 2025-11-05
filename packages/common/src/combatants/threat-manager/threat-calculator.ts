@@ -128,7 +128,6 @@ export class ThreatCalculator {
     const entitiesHit = this.hitOutcomes.outcomeFlags[HitOutcome.Hit] || [];
     const { threatManager } = this.actionUser.getCombatantProperties();
     if (!threatManager) {
-      console.log("no threat manager for user");
       return;
     }
 
@@ -137,15 +136,11 @@ export class ThreatCalculator {
       const { combatantProperties } = targetCombatant;
       const targetIsAIControlled = !combatantProperties.controlledBy.isPlayerControlled();
       if (targetIsAIControlled) {
-        console.log("skipping threat change on hitting ai controlled combatant");
         continue;
       }
 
       const currentThreatForTargetOption = threatManager.getEntries()[entityId];
       if (!currentThreatForTargetOption || currentThreatForTargetOption.getTotal() === 0) {
-        console.log(
-          "threat zero for target of ai attack that would reduce target's position on user's threat meter"
-        );
         continue;
       }
 
@@ -162,10 +157,6 @@ export class ThreatCalculator {
       this.hitOutcomes.resourceChanges[CombatActionResource.HitPoints];
 
     if (hitPointChanges === undefined) {
-      console.log(
-        "hit point changes were undefined, returning early from threat calcluation - hitPointChanges:",
-        hitPointChanges
-      );
       return;
     }
 

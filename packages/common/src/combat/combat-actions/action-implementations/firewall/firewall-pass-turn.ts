@@ -117,6 +117,13 @@ const config: CombatActionComponentConfig = {
   targetingProperties,
   gameLogMessageProperties: new CombatActionGameLogProperties({
     getOnUseMessage: (data) => `${data.nameOfActionUser} burns down`,
+    getOnUseMessageDataOverride: (context) => {
+      return {
+        actionLevel: 1,
+        nameOfActionUser: "Firewall",
+        nameOfTarget: context.actionUserContext.actionUser.getName(),
+      };
+    },
   }),
 
   hitOutcomeProperties,

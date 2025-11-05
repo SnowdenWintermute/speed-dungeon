@@ -32,10 +32,8 @@ export function getStandardThreatChangesOnHitOutcomes(
     .includes(userIdToCredit);
 
   if (userIsOnPlayerTeam) {
-    console.log("user is on player team, user:", userOption.getName());
     threatCalculator.updateThreatChangesForPlayerControlledCharacterHitOutcomes();
   } else {
-    console.log("user is on DUNGEON team, user:", userOption.getName());
     // this is a monster so damage dealt should reduce stable threat
     threatCalculator.updateThreatChangesForMonsterHitOutcomes();
   }

@@ -152,10 +152,16 @@ function getBouncableTargets(
 
   const { actionUser, party } = actionUserContext;
   const entityIdsByDisposition = party.combatantManager.getCombatantIdsByDisposition(
-    actionUser.getEntityId()
+    actionUser.getIdOfEntityToCreditWithThreat()
   );
 
   const opponentIds = entityIdsByDisposition[FriendOrFoe.Hostile];
+  if (opponentIds.length === 0) {
+    return {
+      possibleTargetIds: [],
+      previousTargetId: previousTargetIdResult,
+    };
+  }
   const opponents = party.combatantManager.getExpectedCombatants(opponentIds);
 
   const isValidTarget = (combatant: Combatant) =>

@@ -1,13 +1,14 @@
 import { AdventuringParty, SpeedDungeonGame } from "@speed-dungeon/common";
 import React from "react";
 import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   game: SpeedDungeonGame;
   party: AdventuringParty;
 }
 
-export default function MonsterPlaques({ party, game }: Props) {
+export const MonsterPlaques = observer(({ party, game }: Props) => {
   let monsterPlaques = <div />;
   if (party.battleId === null) return monsterPlaques;
 
@@ -26,4 +27,4 @@ export default function MonsterPlaques({ party, game }: Props) {
   }
 
   return monsterPlaques;
-}
+});
