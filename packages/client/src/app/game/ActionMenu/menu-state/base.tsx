@@ -1,15 +1,5 @@
 import { ACTION_MENU_PAGE_SIZE, ActionMenuState } from ".";
-import {
-  ClientToServerEvent,
-  CombatActionUsabilityContext,
-  iterateNumericEnumKeyedRecord,
-  COMBAT_ACTION_NAME_STRINGS,
-  COMBAT_ACTIONS,
-  ACTION_NAMES_TO_HIDE_IN_MENU,
-  CombatActionName,
-  ActionAndRank,
-} from "@speed-dungeon/common";
-import { websocketConnection } from "@/singletons/websocket-connection";
+import { iterateNumericEnumKeyedRecord, ACTION_NAMES_TO_HIDE_IN_MENU } from "@speed-dungeon/common";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import {
@@ -18,13 +8,14 @@ import {
 } from "./common-buttons/open-inventory";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 import { createPageButtons } from "./create-page-buttons";
-import { getAttackActionIcons } from "../../character-sheet/ability-tree/action-icons";
-import { ACTION_ICONS } from "@/app/icons";
 import { AppStore } from "@/mobx-stores/app-store";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
 import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
 import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
+import { ReactNode } from "react";
+import OpenInventoryButton from "./common-buttons/OpenInventory";
+import { CombatActionButton } from "./common-buttons/CombatActionButton";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -33,6 +24,48 @@ export const VIEW_LOOT_BUTTON_TEXT = `Loot (${letterFromKeyCode(viewItemsOnGroun
 export class BaseMenuState extends ActionMenuState {
   constructor() {
     super(MenuStateType.Base, 1);
+  }
+
+  getTopSection(): ReactNode {
+    return (
+      <ul className="flex">
+        <OpenInventoryButton />
+      </ul>
+    );
+  }
+
+  recalculateButtons() {
+    const { gameStore } = AppStore.get();
+
+    const focusedCharacterOption = gameStore.getFocusedCharacterOption();
+
+    if (focusedCharacterOption === undefined) {
+      this.numberedButtons = [];
+      return;
+    }
+
+    const focusedCharacter = focusedCharacterOption;
+    const { combatantProperties } = focusedCharacter;
+
+    const ownedActions = combatantProperties.abilityProperties.getOwnedActions();
+
+    this.numberedButtons = iterateNumericEnumKeyedRecord(ownedActions)
+      .filter(([actionName, _]) => !ACTION_NAMES_TO_HIDE_IN_MENU.includes(actionName))
+      .map(([actionName, _], i) => (
+        <CombatActionButton
+          key={actionName}
+          hotkeys={[`Digit${i + 1}`]}
+          hotkeyLabel={(i + 1).toString()}
+          user={focusedCharacter}
+          actionName={actionName}
+        />
+      ));
+  }
+
+  getNumberedButtons(): ReactNode[] {
+    const startIndex = ACTION_MENU_PAGE_SIZE * this.pageIndex;
+    const endIndex = startIndex + ACTION_MENU_PAGE_SIZE;
+    return this.numberedButtons.slice(startIndex, endIndex);
   }
 
   getButtonProperties(): ActionButtonsByCategory {
@@ -90,115 +123,6 @@ export class BaseMenuState extends ActionMenuState {
       disableButtonBecauseNotThisCombatantTurn(characterId);
 
     const inCombat = partyResult.combatantManager.monstersArePresent();
-
-    for (const [actionName, actionState] of iterateNumericEnumKeyedRecord(
-      combatantProperties.abilityProperties.getOwnedActions()
-    )) {
-      if (ACTION_NAMES_TO_HIDE_IN_MENU.includes(actionName)) continue;
-      const nameAsString = COMBAT_ACTION_NAME_STRINGS[actionName];
-      const button = new ActionMenuButtonProperties(
-        () => {
-          const standardActionIcon = ACTION_ICONS[actionName];
-
-          let isAttack = actionName === CombatActionName.Attack;
-          let mainHandIcons = [];
-          let offHandIcons = [];
-          let ohDisabledStyle = "";
-          if (isAttack) {
-            const { mhIcons, ohIcons, ohDisabled } = getAttackActionIcons(
-              combatantProperties,
-              inCombat
-            );
-            mainHandIcons.push(...mhIcons);
-            offHandIcons.push(...ohIcons);
-            if (ohDisabled) ohDisabledStyle = "opacity-50";
-          }
-
-          return (
-            <div className="flex justify-between h-full w-full pr-2">
-              <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
-                {nameAsString}
-              </div>
-              <div className="h-full flex items-center p-2">
-                {isAttack ? (
-                  <div className="h-full flex">
-                    <div className="h-full flex">
-                      {mainHandIcons.map((iconGetter, i) => (
-                        <div key={"mh-" + i} className="h-full mr-1 last:mr-0">
-                          {iconGetter("h-full fill-slate-400 stroke-slate-400")}
-                        </div>
-                      ))}
-                    </div>
-                    {!!(offHandIcons.length > 0) && <div className="mx-1">/</div>}
-
-                    <div className={"h-full flex"}>
-                      {offHandIcons.map((iconGetter, i) => (
-                        <div key={"mh-" + i} className={`h-full mr-1 last:mr-0 ${ohDisabledStyle}`}>
-                          {iconGetter("h-full fill-slate-400 stroke-slate-400")}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="h-full">
-                    {standardActionIcon === null
-                      ? "icon missing"
-                      : standardActionIcon("h-full fill-slate-400 stroke-slate-400")}{" "}
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        },
-        nameAsString,
-        () => {
-          websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
-            characterId,
-            actionAndRankOption: new ActionAndRank(actionName, 1),
-          });
-
-          AppStore.get().actionMenuStore.clearHoveredAction();
-        }
-      );
-
-      button.mouseEnterHandler = button.focusHandler = () => {
-        AppStore.get().actionMenuStore.setHoveredAction(actionName);
-      };
-      button.mouseLeaveHandler = button.blurHandler = () => {
-        AppStore.get().actionMenuStore.clearHoveredAction();
-      };
-
-      const combatAction = COMBAT_ACTIONS[actionName];
-      const { usabilityContext } = combatAction.targetingProperties;
-
-      const costs = combatAction.costProperties.getResourceCosts(
-        focusedCharacter,
-        inCombat,
-        1 // @TODO - calculate the actual level to display based on most expensive they can afford
-      );
-      let unmetCosts = [];
-      if (costs) unmetCosts = combatantProperties.resources.getUnmetCostResourceTypes(costs);
-
-      const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
-
-      const isWearingRequiredEquipment =
-        combatantProperties.equipment.isWearingRequiredEquipmentToUseAction(
-          new ActionAndRank(actionName, 1)
-        );
-
-      const isOnCooldown = (actionState.cooldown?.current || 0) > 0;
-
-      button.shouldBeDisabled =
-        (usabilityContext === CombatActionUsabilityContext.InCombat && !inCombat) ||
-        (usabilityContext === CombatActionUsabilityContext.OutOfCombat && inCombat) ||
-        isOnCooldown ||
-        !isWearingRequiredEquipment ||
-        unmetCosts.length > 0 ||
-        disabledBecauseNotThisCombatantTurnResult ||
-        !userControlsThisCharacter;
-
-      toReturn[ActionButtonCategory.Numbered].push(button);
-    }
 
     const numberedButtonsCount = toReturn[ActionButtonCategory.Numbered].length;
     const pageCount = Math.ceil(numberedButtonsCount / ACTION_MENU_PAGE_SIZE);

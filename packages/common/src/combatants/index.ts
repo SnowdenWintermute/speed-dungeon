@@ -179,7 +179,6 @@ export class Combatant implements IActionUser {
   }
 
   canUseAction(
-    targets: CombatActionTarget,
     actionAndRank: ActionAndRank,
     game: SpeedDungeonGame,
     party: AdventuringParty

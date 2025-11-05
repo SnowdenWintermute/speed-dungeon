@@ -9,6 +9,7 @@ export const ACTION_MENU_PAGE_SIZE = 6;
 export abstract class ActionMenuState {
   pageIndexInternal: number = 0;
   alwaysShowPageOne: boolean = false;
+  protected numberedButtons: ReactNode[] = [];
   private cachedPageCount: number = 1;
   constructor(
     public type: MenuStateType,
@@ -32,6 +33,17 @@ export abstract class ActionMenuState {
       { autoBind: true }
     );
   }
+
+  abstract getButtonProperties(): ActionButtonsByCategory;
+  // abstract getInvisibleButtons: ReactNode;
+  abstract getTopSection(): ReactNode;
+  abstract getNumberedButtons(): ReactNode[];
+  abstract recalculateButtons(): void;
+  // abstract getCentralSection: ReactNode
+  // abstract getNumberedButtons: ReactNode
+  // abstract getBottomSection: ReactNode
+  // abstract getSideContent: ReactNode
+  // abstract cachedNumberedButtons: number
 
   getStringName() {
     return MENU_STATE_TYPE_STRINGS[this.type];
@@ -87,8 +99,6 @@ export abstract class ActionMenuState {
   getCenterInfoDisplayOption(): ReactNode | null {
     return null;
   }
-
-  abstract getButtonProperties(): ActionButtonsByCategory;
 
   get buttonProperties() {
     return this.getButtonProperties();
