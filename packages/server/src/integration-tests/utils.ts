@@ -67,13 +67,13 @@ export async function emitGameSetupForTwoUsers(
 
   // best to wait for this event to make sure user1 doesn't ready up before user 2 has
   // created their character
-  user2.on(ServerToClientEvent.CharacterAddedToParty, (_partyName, _username, character) => {
+  user2.on(ServerToClientEvent.CharacterAddedToParty, (_username, character) => {
     if (character.entityProperties.name !== character2Name) return;
     character2 = character;
     user2.off(ServerToClientEvent.CharacterAddedToParty);
   });
 
-  user1.on(ServerToClientEvent.CharacterAddedToParty, (_partyName, _username, character) => {
+  user1.on(ServerToClientEvent.CharacterAddedToParty, (_username, character) => {
     if (character.entityProperties.name !== character1Name) return;
     character1 = character;
     user1.off(ServerToClientEvent.CharacterAddedToParty);

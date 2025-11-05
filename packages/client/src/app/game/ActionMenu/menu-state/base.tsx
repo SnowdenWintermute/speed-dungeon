@@ -1,102 +1,84 @@
-import {
-  useGameStore,
-  itemsOnGroundMenuState,
-  assignAttributesMenuState,
-} from "@/stores/game-store";
-import {
-  ActionButtonCategory,
-  ActionButtonsByCategory,
-  ActionMenuButtonProperties,
-  ActionMenuState,
-  MenuStateType,
-} from ".";
+import { ACTION_MENU_PAGE_SIZE, ActionMenuState } from ".";
 import {
   ClientToServerEvent,
-  CombatantProperties,
-  Inventory,
   CombatActionUsabilityContext,
   iterateNumericEnumKeyedRecord,
   COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTIONS,
   ACTION_NAMES_TO_HIDE_IN_MENU,
-  getUnmetCostResourceTypes,
   CombatActionName,
+  ActionAndRank,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { setAlert } from "@/app/components/alerts";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
-import getGameAndParty from "@/utils/getGameAndParty";
-import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import {
   setInventoryOpen,
   setViewingAbilityTreeAsFreshStack,
 } from "./common-buttons/open-inventory";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
-import createPageButtons from "./create-page-buttons";
-import { immerable } from "immer";
+import { createPageButtons } from "./create-page-buttons";
 import { getAttackActionIcons } from "../../character-sheet/ability-tree/action-icons";
 import { ACTION_ICONS } from "@/app/icons";
+import { AppStore } from "@/mobx-stores/app-store";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
+import { MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
+import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
 export const VIEW_LOOT_BUTTON_TEXT = `Loot (${letterFromKeyCode(viewItemsOnGroundHotkey)})`;
 
-export class BaseMenuState implements ActionMenuState {
-  page = 1;
-  numPages: number = 1;
-  type = MenuStateType.Base;
-  alwaysShowPageOne = false;
-
-  getCenterInfoDisplayOption = null;
-  [immerable] = true;
-  constructor(public inCombat: boolean) {}
+export class BaseMenuState extends ActionMenuState {
+  constructor() {
+    super(MenuStateType.Base, 1);
+  }
 
   getButtonProperties(): ActionButtonsByCategory {
+    const { gameStore } = AppStore.get();
     const toReturn = new ActionButtonsByCategory();
 
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
 
-    let focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult);
+    const focusedCharacterOption = gameStore.getFocusedCharacterOption();
+
+    if (focusedCharacterOption === undefined) {
+      // this happens because there is a circular dependency between initializing
+      // action menu store and focusing a character
       return toReturn;
     }
-    const { combatantProperties, entityProperties } = focusedCharacterResult;
+
+    const focusedCharacter = focusedCharacterOption;
+
+    const { combatantProperties, entityProperties } = focusedCharacter;
     const characterId = entityProperties.id;
 
     toReturn[ActionButtonCategory.Top].push(setViewingAbilityTreeAsFreshStack);
 
-    const partyResult = useGameStore.getState().getParty();
-    if (partyResult instanceof Error) {
-      setAlert(partyResult);
-      return toReturn;
-    }
+    const partyResult = gameStore.getExpectedParty();
 
-    if (combatantProperties.unspentAttributePoints > 0) {
+    if (combatantProperties.attributeProperties.getUnspentPoints() > 0) {
       const hiddenButtonForUnspentAttributesHotkey = new ActionMenuButtonProperties(
         () => "Unspent Attributes Hotkey Button",
         "Unspent Attributes Hotkey Button",
         () => {
-          useGameStore.getState().mutateState((state) => {
-            state.hoveredAction = null;
-            state.stackedMenuStates.push(assignAttributesMenuState);
-          });
+          const { actionMenuStore } = AppStore.get();
+          actionMenuStore.clearHoveredAction();
+          actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.AssignAttributePoints));
         }
       );
       hiddenButtonForUnspentAttributesHotkey.dedicatedKeys = [toggleAssignAttributesHotkey];
       toReturn[ActionButtonCategory.Hidden].push(hiddenButtonForUnspentAttributesHotkey);
     }
 
-    if (Inventory.getItems(partyResult.currentRoom.inventory).length) {
+    if (partyResult.currentRoom.inventory.getItems().length) {
       const viewItemsOnGroundButton = new ActionMenuButtonProperties(
         () => VIEW_LOOT_BUTTON_TEXT,
         VIEW_LOOT_BUTTON_TEXT,
         () => {
-          useGameStore.getState().mutateState((state) => {
-            state.hoveredAction = null;
-            state.stackedMenuStates.push(itemsOnGroundMenuState);
-          });
+          AppStore.get().actionMenuStore.clearHoveredAction();
+          AppStore.get().actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.ItemsOnGround));
         }
       );
       viewItemsOnGroundButton.dedicatedKeys = [viewItemsOnGroundHotkey];
@@ -107,8 +89,10 @@ export class BaseMenuState implements ActionMenuState {
     const disabledBecauseNotThisCombatantTurnResult =
       disableButtonBecauseNotThisCombatantTurn(characterId);
 
+    const inCombat = partyResult.combatantManager.monstersArePresent();
+
     for (const [actionName, actionState] of iterateNumericEnumKeyedRecord(
-      combatantProperties.abilityProperties.ownedActions
+      combatantProperties.abilityProperties.getOwnedActions()
     )) {
       if (ACTION_NAMES_TO_HIDE_IN_MENU.includes(actionName)) continue;
       const nameAsString = COMBAT_ACTION_NAME_STRINGS[actionName];
@@ -123,7 +107,7 @@ export class BaseMenuState implements ActionMenuState {
           if (isAttack) {
             const { mhIcons, ohIcons, ohDisabled } = getAttackActionIcons(
               combatantProperties,
-              this.inCombat
+              inCombat
             );
             mainHandIcons.push(...mhIcons);
             offHandIcons.push(...ohIcons);
@@ -170,52 +154,43 @@ export class BaseMenuState implements ActionMenuState {
         () => {
           websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
             characterId,
-            actionAndRankOption: {
-              actionName,
-              rank: 1,
-            },
+            actionAndRankOption: new ActionAndRank(actionName, 1),
           });
-          useGameStore.getState().mutateState((state) => {
-            state.hoveredAction = null;
-          });
+
+          AppStore.get().actionMenuStore.clearHoveredAction();
         }
       );
 
-      button.mouseEnterHandler = button.focusHandler = () =>
-        useGameStore.getState().mutateState((state) => {
-          state.hoveredAction = actionName;
-        });
-      button.mouseLeaveHandler = button.blurHandler = () =>
-        useGameStore.getState().mutateState((state) => {
-          state.hoveredAction = null;
-        });
+      button.mouseEnterHandler = button.focusHandler = () => {
+        AppStore.get().actionMenuStore.setHoveredAction(actionName);
+      };
+      button.mouseLeaveHandler = button.blurHandler = () => {
+        AppStore.get().actionMenuStore.clearHoveredAction();
+      };
 
       const combatAction = COMBAT_ACTIONS[actionName];
       const { usabilityContext } = combatAction.targetingProperties;
 
       const costs = combatAction.costProperties.getResourceCosts(
-        focusedCharacterResult,
-        this.inCombat,
+        focusedCharacter,
+        inCombat,
         1 // @TODO - calculate the actual level to display based on most expensive they can afford
       );
       let unmetCosts = [];
-      if (costs) unmetCosts = getUnmetCostResourceTypes(combatantProperties, costs);
+      if (costs) unmetCosts = combatantProperties.resources.getUnmetCostResourceTypes(costs);
 
-      const userControlsThisCharacter = clientUserControlsCombatant(characterId);
+      const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
 
-      const isWearingRequiredEquipment = CombatantProperties.isWearingRequiredEquipmentToUseAction(
-        combatantProperties,
-        {
-          actionName: combatAction.name,
-          rank: 1,
-        }
-      );
+      const isWearingRequiredEquipment =
+        combatantProperties.equipment.isWearingRequiredEquipmentToUseAction(
+          new ActionAndRank(actionName, 1)
+        );
 
       const isOnCooldown = (actionState.cooldown?.current || 0) > 0;
 
       button.shouldBeDisabled =
-        (usabilityContext === CombatActionUsabilityContext.InCombat && !this.inCombat) ||
-        (usabilityContext === CombatActionUsabilityContext.OutOfCombat && this.inCombat) ||
+        (usabilityContext === CombatActionUsabilityContext.InCombat && !inCombat) ||
+        (usabilityContext === CombatActionUsabilityContext.OutOfCombat && inCombat) ||
         isOnCooldown ||
         !isWearingRequiredEquipment ||
         unmetCosts.length > 0 ||
@@ -225,19 +200,19 @@ export class BaseMenuState implements ActionMenuState {
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 
-    createPageButtons(this, toReturn);
+    const numberedButtonsCount = toReturn[ActionButtonCategory.Numbered].length;
+    const pageCount = Math.ceil(numberedButtonsCount / ACTION_MENU_PAGE_SIZE);
+    const newCount = Math.max(this.minPageCount, pageCount);
+    this.setCachedPageCount(newCount);
+
+    createPageButtons(toReturn);
 
     return toReturn;
   }
 }
 
 export function disableButtonBecauseNotThisCombatantTurn(combatantId: string) {
-  const gameOption = useGameStore.getState().game;
-  const username = useGameStore.getState().username;
-  const gameAndPartyResult = getGameAndParty(gameOption, username);
-  if (gameAndPartyResult instanceof Error) throw gameAndPartyResult;
-
-  const [game, party] = gameAndPartyResult;
+  const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
 
   const battleOptionResult = getCurrentBattleOption(game, party.name);
   let disableButtonBecauseNotThisCombatantTurn = false;

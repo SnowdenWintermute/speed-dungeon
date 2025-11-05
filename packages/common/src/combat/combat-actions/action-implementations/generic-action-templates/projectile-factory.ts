@@ -2,7 +2,7 @@ import { Vector3 } from "@babylonjs/core";
 import { ActionEntity, ActionEntityName } from "../../../../action-entities/index.js";
 import { ActionResolutionStepContext } from "../../../../action-processing/index.js";
 import { IActionUser } from "../../../../action-user-context/action-user.js";
-import { Combatant, CombatantProperties } from "../../../../combatants/index.js";
+import { Combatant } from "../../../../combatants/index.js";
 import {
   CombatantBaseChildTransformNodeName,
   SceneEntityType,
@@ -20,6 +20,7 @@ import {
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { COMBAT_ACTIONS } from "../index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
+import { CombatantProperties } from "../../../../combatants/combatant-properties.js";
 
 export class ProjectileFactory {
   private resourceChangeProperties: Partial<

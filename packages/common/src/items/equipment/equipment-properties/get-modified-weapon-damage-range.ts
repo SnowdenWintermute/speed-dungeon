@@ -2,7 +2,7 @@ import { NumberRange } from "../../../primatives/number-range.js";
 import { AffixCategory, AffixType, EquipmentAffixes } from "../affixes.js";
 import { EquipmentTraitType } from "../equipment-traits/index.js";
 
-export default function getModifiedWeaponDamageRange(
+export function getModifiedWeaponDamageRange(
   affixes: EquipmentAffixes,
   damage: NumberRange
 ): NumberRange {

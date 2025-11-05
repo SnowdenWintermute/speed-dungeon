@@ -1,23 +1,20 @@
 import {
-  AdventuringParty,
+  Battle,
   BattleConclusion,
   BattleResultActionCommandPayload,
   CleanupMode,
   Consumable,
-  ERROR_MESSAGES,
   Equipment,
-  InputLock,
-  SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { ClientActionCommandReceiver } from ".";
-import getCurrentParty from "@/utils/getCurrentParty";
-import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/combat-log-message";
-import { itemsOnGroundMenuState, useGameStore } from "@/stores/game-store";
 import { gameWorld, getGameWorld } from "../3d-world/SceneManager";
 import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
-import { MenuStateType } from "../game/ActionMenu/menu-state";
 import { plainToInstance } from "class-transformer";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
+import { AppStore } from "@/mobx-stores/app-store";
+import { MenuStateType } from "../game/ActionMenu/menu-state/menu-state-type";
+import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
+import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 
 export async function battleResultActionCommandHandler(
   this: ClientActionCommandReceiver,
@@ -39,62 +36,42 @@ export async function battleResultActionCommandHandler(
       });
     }
 
-    const currentMenu = useGameStore.getState().getCurrentMenu();
-    if (currentMenu.type === MenuStateType.Base)
-      useGameStore.getState().mutateState((state) => {
-        state.stackedMenuStates.push(itemsOnGroundMenuState);
-      });
+    const { actionMenuStore } = AppStore.get();
+    if (actionMenuStore.currentMenuIsType(MenuStateType.Base)) {
+      actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.ItemsOnGround));
+    }
   }
 
-  useGameStore.getState().mutateState((state) => {
-    const gameOption = state.game;
-    if (gameOption === null) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-    if (state.username === null) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
-    const partyOption = getCurrentParty(state, state.username);
-    if (partyOption === undefined) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+  const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
 
-    switch (payload.conclusion) {
-      case BattleConclusion.Defeat:
-        partyOption.timeOfWipe = timestamp;
-        state.combatLogMessages.push(
-          new CombatLogMessage("Your party was defeated", CombatLogMessageStyle.PartyWipe)
-        );
-        break;
-      case BattleConclusion.Victory:
-        characterAutoFocusManager.focusFirstOwnedCharacter(state);
+  switch (payload.conclusion) {
+    case BattleConclusion.Defeat:
+      party.timeOfWipe = timestamp;
+      GameLogMessageService.postWipeMessage();
+      break;
+    case BattleConclusion.Victory:
+      characterAutoFocusManager.focusFirstOwnedCharacter();
 
-        InputLock.unlockInput(partyOption.inputLock);
+      party.inputLock.unlockInput();
 
-        const levelups = SpeedDungeonGame.handleBattleVictory(gameOption, partyOption, payload);
+      const levelups = Battle.handleVictory(game, party, payload);
 
-        for (const [characterId, expChange] of Object.entries(payload.experiencePointChanges)) {
-          const characterResult = SpeedDungeonGame.getCombatantById(gameOption, characterId);
-          if (characterResult instanceof Error) return console.error(characterResult);
-          state.combatLogMessages.push(
-            new CombatLogMessage(
-              `${characterResult.entityProperties.name} gained ${expChange} experience points`,
-              CombatLogMessageStyle.PartyProgress
-            )
-          );
-        }
-        for (const [characterId, levelup] of Object.entries(levelups)) {
-          const characterResult = SpeedDungeonGame.getCombatantById(gameOption, characterId);
-          if (characterResult instanceof Error) return console.error(characterResult);
-          state.combatLogMessages.push(
-            new CombatLogMessage(
-              `${characterResult.entityProperties.name} reached level ${levelup}!`,
-              CombatLogMessageStyle.PartyProgress
-            )
-          );
-        }
-        break;
-    }
+      for (const [characterId, expChange] of Object.entries(payload.experiencePointChanges)) {
+        const characterResult = game.getCombatantById(characterId);
+        if (characterResult instanceof Error) return console.error(characterResult);
+        GameLogMessageService.postExperienceGained(characterResult.getName(), expChange);
+      }
+      for (const [characterId, levelup] of Object.entries(levelups)) {
+        const characterResult = game.getCombatantById(characterId);
+        if (characterResult instanceof Error) return console.error(characterResult);
+        GameLogMessageService.postLevelup(characterResult.getName(), levelup);
+      }
+      break;
+  }
 
-    for (const entityId of actionEntitiesRemoved) {
-      AdventuringParty.unregisterActionEntity(partyOption, entityId, null);
-      getGameWorld().actionEntityManager.unregister(entityId, CleanupMode.Soft);
-    }
-
-    state.baseMenuState.inCombat = false;
-  });
+  const { actionEntityManager } = party;
+  for (const entityId of actionEntitiesRemoved) {
+    actionEntityManager.unregisterActionEntity(entityId);
+    getGameWorld().actionEntityManager.unregister(entityId, CleanupMode.Soft);
+  }
 }

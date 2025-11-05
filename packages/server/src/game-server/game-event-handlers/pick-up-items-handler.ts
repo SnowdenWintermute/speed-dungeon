@@ -1,12 +1,9 @@
 import {
   CharacterAndItems,
   CharacterAssociatedData,
-  CombatantProperties,
   Consumable,
   ConsumableType,
   ERROR_MESSAGES,
-  Equipment,
-  Inventory,
   ItemType,
   ServerToClientEvent,
   getPartyChannelName,
@@ -31,12 +28,14 @@ export function pickUpItemsHandler(
       return new Error(ERROR_MESSAGES.ITEM.NOT_YET_AVAILABLE);
 
     // handle shard stacks uniquely
-    const itemInInventoryResult = Inventory.getItemById(party.currentRoom.inventory, itemId);
+    const itemInInventoryResult = party.currentRoom.inventory.getItemById(itemId);
     if (itemInInventoryResult instanceof Error) return itemInInventoryResult;
-    if (
+
+    const itemIsShardStack =
       itemInInventoryResult instanceof Consumable &&
-      itemInInventoryResult.consumableType === ConsumableType.StackOfShards
-    ) {
+      itemInInventoryResult.consumableType === ConsumableType.StackOfShards;
+
+    if (itemIsShardStack) {
       const mabyeError = pickUpShardStack(
         itemId,
         party.currentRoom.inventory,
@@ -50,18 +49,15 @@ export function pickUpItemsHandler(
     // let them pick up to capacity
     const itemType =
       itemInInventoryResult instanceof Consumable ? ItemType.Consumable : ItemType.Equipment;
-    if (!CombatantProperties.canPickUpItem(character.combatantProperties, itemType)) {
+    if (!character.combatantProperties.inventory.canPickUpItem(itemType)) {
       reachedMaxCapacity = true;
       continue;
     } // continue instead of break so they can still pick up shard stacks
 
-    const itemResult = Inventory.removeItem(party.currentRoom.inventory, itemId);
+    const itemResult = party.currentRoom.inventory.removeItem(itemId);
     if (itemResult instanceof Error) return itemResult;
 
-    if (itemResult instanceof Consumable)
-      character.combatantProperties.inventory.consumables.push(itemResult);
-    else if (itemResult instanceof Equipment)
-      character.combatantProperties.inventory.equipment.push(itemResult);
+    character.combatantProperties.inventory.insertItem(itemResult);
 
     idsPickedUp.push(itemResult.entityProperties.id);
   }

@@ -2,42 +2,44 @@ import { DEX_TO_RANGED_ARMOR_PEN_RATIO, STR_TO_MELEE_ARMOR_PEN_RATIO } from "../
 import { Item } from "../../items/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { EquipmentType } from "../../items/equipment/equipment-types/index.js";
-import {
-  BASE_STARTING_ATTRIBUTES,
-  CombatantAttributeRecord,
-  CombatantProperties,
-} from "../index.js";
-import { CombatAttribute, initializeCombatAttributeRecord } from "../attributes/index.js";
+import { BASE_STARTING_ATTRIBUTES } from "../index.js";
+import { CombatAttribute } from "../attributes/index.js";
 import { Equipment, HoldableSlotType } from "../../items/equipment/index.js";
-import { CombatantEquipment } from "../combatant-equipment/index.js";
 import { DERIVED_ATTRIBUTE_RATIOS } from "./derrived-attribute-ratios.js";
 import { addAttributesToAccumulator } from "./add-attributes-to-accumulator.js";
 import { COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL } from "../combatant-class/class-attributes-by-level.js";
+import { CombatantAttributeRecord } from "../attribute-properties.js";
+import { CombatantProperties } from "../combatant-properties.js";
 
-export default function getCombatantTotalAttributes(
+export function getCombatantTotalAttributes(
   combatantProperties: CombatantProperties
 ): Record<CombatAttribute, number> {
-  const totalAttributes = initializeCombatAttributeRecord();
-  addAttributesToAccumulator(combatantProperties.inherentAttributes, totalAttributes);
-  addAttributesToAccumulator(combatantProperties.speccedAttributes, totalAttributes);
-  const { combatantClass, monsterType } = combatantProperties;
-  const supportClassPropertiesOption = combatantProperties.supportClassProperties;
+  const { attributeProperties } = combatantProperties;
+  const totalAttributes = attributeProperties.getNaturalAttributes();
+  const { combatantClass, level } = combatantProperties.classProgressionProperties.getMainClass();
+  const { monsterType } = combatantProperties;
+  const supportClassPropertiesOption =
+    combatantProperties.classProgressionProperties.getSupportClassOption();
 
-  const combatantClassStartingAttributes = BASE_STARTING_ATTRIBUTES[combatantClass];
-  addAttributesToAccumulator(combatantClassStartingAttributes, totalAttributes);
+  // monsters will have their attributes explicitly set instead of inferred by their classes
+  if (monsterType === null) {
+    const combatantClassStartingAttributes = BASE_STARTING_ATTRIBUTES[combatantClass];
+    addAttributesToAccumulator(combatantClassStartingAttributes, totalAttributes);
 
-  const combatantClassAttributesByLevel = COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL[combatantClass];
-  for (let i = 0; i < combatantProperties.level; i += 1)
-    addAttributesToAccumulator(combatantClassAttributesByLevel, totalAttributes);
+    const combatantClassAttributesByLevel = COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL[combatantClass];
+    for (let i = 0; i < level; i += 1) {
+      addAttributesToAccumulator(combatantClassAttributesByLevel, totalAttributes);
+    }
 
-  if (supportClassPropertiesOption !== null) {
-    const { combatantClass, level } = supportClassPropertiesOption;
-    const supportClassAttributesByLevel = COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL[combatantClass];
-    for (let i = 0; i < level; i += 1)
-      addAttributesToAccumulator(supportClassAttributesByLevel, totalAttributes);
+    if (supportClassPropertiesOption !== null) {
+      const { combatantClass, level } = supportClassPropertiesOption;
+      const supportClassAttributesByLevel = COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL[combatantClass];
+      for (let i = 0; i < level; i += 1)
+        addAttributesToAccumulator(supportClassAttributesByLevel, totalAttributes);
+    }
   }
 
-  const allEquippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties.equipment, {
+  const allEquippedItems = combatantProperties.equipment.getAllEquippedItems({
     includeUnselectedHotswapSlots: false,
   });
   // you have to add the attributes first, then subtract them later if item is unusable
@@ -50,7 +52,7 @@ export default function getCombatantTotalAttributes(
         addAttributesToAccumulator(affix.combatAttributes, totalAttributes);
       }
     }
-    const modifiedArmorClass = Equipment.getModifiedArmorClass(item);
+    const modifiedArmorClass = item.getModifiedArmorClass();
     if (totalAttributes[CombatAttribute.ArmorClass])
       totalAttributes[CombatAttribute.ArmorClass] += modifiedArmorClass;
     else totalAttributes[CombatAttribute.ArmorClass] = modifiedArmorClass;
@@ -61,7 +63,7 @@ export default function getCombatantTotalAttributes(
   for (const item of allEquippedItems) {
     const equippedItemIsUsable =
       Item.requirementsMet(item, totalAttributes) &&
-      !(item instanceof Equipment && Equipment.isBroken(item));
+      !(item instanceof Equipment && item.isBroken());
     if (equippedItemIsUsable) continue;
     // otherwise subtract its stats
     removeAttributesFromAccumulator(item.attributes, totalAttributes);
@@ -70,7 +72,7 @@ export default function getCombatantTotalAttributes(
         removeAttributesFromAccumulator(affix.combatAttributes, totalAttributes);
       }
     }
-    const baseArmorClass = Equipment.getBaseArmorClass(item);
+    const baseArmorClass = item.getBaseArmorClass();
     if (totalAttributes[CombatAttribute.ArmorClass])
       totalAttributes[CombatAttribute.ArmorClass] = Math.max(
         totalAttributes[CombatAttribute.ArmorClass] - baseArmorClass,
@@ -79,7 +81,7 @@ export default function getCombatantTotalAttributes(
   }
 
   // CONDITIONS
-  for (const condition of combatantProperties.conditions) {
+  for (const condition of combatantProperties.conditionManager.getConditions()) {
     if (!condition.getAttributeModifiers) continue;
     const attributesFromCondition = condition.getAttributeModifiers(condition, combatantProperties);
     addAttributesToAccumulator(attributesFromCondition, totalAttributes);
@@ -110,10 +112,7 @@ function getArmorPenDerivedBonus(
   combatantProperties: CombatantProperties,
   totalAttributesLessArmorPenBonus: CombatantAttributeRecord
 ): number {
-  const mhWeaponOption = CombatantProperties.getEquippedWeapon(
-    combatantProperties,
-    HoldableSlotType.MainHand
-  );
+  const mhWeaponOption = combatantProperties.equipment.getEquippedWeapon(HoldableSlotType.MainHand);
   if (mhWeaponOption instanceof Error) return 0;
   let attributeToDeriveFrom = CombatAttribute.Strength;
   if (mhWeaponOption) {

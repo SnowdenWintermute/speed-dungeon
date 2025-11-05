@@ -5,7 +5,7 @@ export const VALUE_CHANGE_TICK_ACTION_STEPS_CONFIG = new ActionResolutionStepsCo
   {
     [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
     [ActionResolutionStepType.PostInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
-    [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
+    [ActionResolutionStepType.PostActionUseGameLogMessage]: {},
     [ActionResolutionStepType.EvalOnUseTriggers]: {},
     [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
     [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},

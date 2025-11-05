@@ -1,37 +1,27 @@
-import { setAlert } from "@/app/components/alerts";
+import { AppStore } from "@/mobx-stores/app-store";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
-import { useGameStore } from "@/stores/game-store";
-import getCurrentParty from "@/utils/getCurrentParty";
-import { Battle, ERROR_MESSAGES, InputLock } from "@speed-dungeon/common";
+import { Battle } from "@speed-dungeon/common";
 
 export function battleFullUpdateHandler(battleOption: null | Battle) {
-  useGameStore.getState().mutateState((gameState) => {
-    const gameOption = gameState.game;
-    if (gameOption === null) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
-    const game = gameOption;
+  const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
 
-    if (battleOption !== null) {
-      const battle = battleOption;
-      const partyOption = getCurrentParty(gameState, gameState.username || "");
-      if (partyOption === undefined)
-        return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY));
-      const party = partyOption;
-      party.battleId = battle.id;
-      const deserializedBattle = Battle.getDeserialized(battle, game, party);
-      game.battles[battle.id] = deserializedBattle;
+  if (battleOption !== null) {
+    const battle = battleOption;
+    party.battleId = battle.id;
+    const deserializedBattle = Battle.getDeserialized(battle, game, party);
+    game.battles[battle.id] = deserializedBattle;
 
-      const currentActorIsPlayerControlled =
-        deserializedBattle.turnOrderManager.currentActorIsPlayerControlled(party);
+    const currentActorIsPlayerControlled =
+      deserializedBattle.turnOrderManager.currentActorIsPlayerControlled(party);
 
-      const turnTracker = deserializedBattle.turnOrderManager.getFastestActorTurnOrderTracker();
-      characterAutoFocusManager.handleBattleStart(gameState, turnTracker);
+    const turnTracker = deserializedBattle.turnOrderManager.getFastestActorTurnOrderTracker();
+    characterAutoFocusManager.handleBattleStart(turnTracker);
 
-      if (!currentActorIsPlayerControlled) {
-        // it is ai controlled so lock input
-        InputLock.lockInput(party.inputLock);
-      }
-    } else {
-      game.battles = {};
+    if (!currentActorIsPlayerControlled) {
+      // it is ai controlled so lock input
+      party.inputLock.lockInput();
     }
-  });
+  } else {
+    game.battles = {};
+  }
 }

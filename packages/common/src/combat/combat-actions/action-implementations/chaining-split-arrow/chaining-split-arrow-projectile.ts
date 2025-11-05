@@ -1,5 +1,5 @@
 import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionExecutionIntent,
@@ -30,13 +30,12 @@ import {
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { ActionUserContext } from "../../../../action-user-context/index.js";
-import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import {
   ACTION_EXECUTION_PRECONDITIONS,
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
 import { ActionResolutionStepContext } from "../../../../action-processing/index.js";
-import { Combatant, CombatantProperties } from "../../../../combatants/index.js";
+import { Combatant } from "../../../../combatants/index.js";
 
 const targetingPropertiesOverrides: Partial<CombatActionTargetingPropertiesConfig> = {
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.RandomCombatant },
@@ -86,7 +85,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 const config: CombatActionComponentConfig = {
   description: "An arrow that bounces to up to two additional targets after the first",
   targetingProperties,
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.Attack,
   }),
   hitOutcomeProperties,
@@ -152,16 +151,21 @@ function getBouncableTargets(
   if (previousTargetIdResult instanceof Error) return previousTargetIdResult;
 
   const { actionUser, party } = actionUserContext;
-  const entityIdsByDisposition = actionUser.getAllyAndOpponentIds(
-    party,
-    actionUserContext.getBattleOption()
+  const entityIdsByDisposition = party.combatantManager.getCombatantIdsByDisposition(
+    actionUser.getIdOfEntityToCreditWithThreat()
   );
 
   const opponentIds = entityIdsByDisposition[FriendOrFoe.Hostile];
-  const opponents = AdventuringParty.getCombatants(party, opponentIds);
+  if (opponentIds.length === 0) {
+    return {
+      possibleTargetIds: [],
+      previousTargetId: previousTargetIdResult,
+    };
+  }
+  const opponents = party.combatantManager.getExpectedCombatants(opponentIds);
 
   const isValidTarget = (combatant: Combatant) =>
-    !CombatantProperties.isDead(combatant.combatantProperties) &&
+    !combatant.combatantProperties.isDead() &&
     combatant.entityProperties.id !== previousTargetIdResult;
 
   const possibleTargetIds = opponents

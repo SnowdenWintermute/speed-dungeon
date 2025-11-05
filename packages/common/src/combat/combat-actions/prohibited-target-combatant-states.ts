@@ -1,4 +1,4 @@
-import { Combatant, CombatantProperties } from "../../combatants/index.js";
+import { Combatant } from "../../combatants/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 
 export enum ProhibitedTargetCombatantStates {
@@ -27,22 +27,22 @@ export const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
   (combatant: Combatant) => boolean
 > = {
   [ProhibitedTargetCombatantStates.FullHp]: function (combatant: Combatant): boolean {
-    const maxHp = CombatantProperties.getTotalAttributes(combatant.combatantProperties)[
+    const maxHp = combatant.combatantProperties.attributeProperties.getAttributeValue(
       CombatAttribute.Hp
-    ];
-    return combatant.combatantProperties.hitPoints >= maxHp;
+    );
+    return combatant.combatantProperties.resources.getHitPoints() >= maxHp;
   },
   [ProhibitedTargetCombatantStates.FullMana]: function (combatant: Combatant): boolean {
-    const maxMp = CombatantProperties.getTotalAttributes(combatant.combatantProperties)[
+    const maxMp = combatant.combatantProperties.attributeProperties.getAttributeValue(
       CombatAttribute.Mp
-    ];
-    return combatant.combatantProperties.mana >= maxMp;
+    );
+    return combatant.combatantProperties.resources.getMana() >= maxMp;
   },
   [ProhibitedTargetCombatantStates.Dead]: function (combatant: Combatant): boolean {
-    return combatant.combatantProperties.hitPoints <= 0;
+    return combatant.combatantProperties.isDead();
   },
   [ProhibitedTargetCombatantStates.Alive]: function (combatant: Combatant): boolean {
-    return combatant.combatantProperties.hitPoints > 0;
+    return !combatant.combatantProperties.isDead();
   },
   [ProhibitedTargetCombatantStates.UntargetableBySpells]: function (combatant: Combatant): boolean {
     return false;

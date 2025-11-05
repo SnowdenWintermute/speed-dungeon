@@ -7,8 +7,8 @@ export function pickUpShardStack(
   inventoryFrom: Inventory,
   inventoryTo: Inventory
 ) {
-  const shardStackResult = Inventory.removeItem(inventoryFrom, stackId);
+  const shardStackResult = inventoryFrom.removeItem(stackId);
   if (shardStackResult instanceof Error) return shardStackResult;
   if (!(shardStackResult instanceof Consumable)) return new Error("checked expectation failed");
-  inventoryTo.shards += shardStackResult.usesRemaining;
+  inventoryTo.changeShards(shardStackResult.usesRemaining);
 }

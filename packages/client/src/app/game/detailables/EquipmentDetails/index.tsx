@@ -1,16 +1,17 @@
 import { EQUIPMENT_TYPE_STRINGS, Equipment } from "@speed-dungeon/common";
 import React from "react";
 import { ArmorClassText, getArmorCategoryText } from "./armor";
-import WeaponDamage from "./WeaponDamage";
-import Durability from "./Durability";
-import CombatAttributesAndTraits from "./CombatAttributesAndTraits";
-import ItemRequirements from "../ItemRequirements";
+import { WeaponDamage } from "./WeaponDamage";
+import { Durability } from "./Durability";
+import { CombatAttributesAndTraits } from "./CombatAttributesAndTraits";
+import { ItemRequirements } from "../ItemRequirements";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   equipment: Equipment;
 }
 
-export default function EquipmentDetails({ equipment }: Props) {
+export const EquipmentDetails = observer(({ equipment }: Props) => {
   const armorCategoryTextOption = getArmorCategoryText(equipment);
   return (
     <div className="mr-2">
@@ -27,4 +28,4 @@ export default function EquipmentDetails({ equipment }: Props) {
       <CombatAttributesAndTraits equipment={equipment} />
     </div>
   );
-}
+});

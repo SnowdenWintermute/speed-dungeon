@@ -1,6 +1,5 @@
 import { Vector3 } from "@babylonjs/core";
 import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
@@ -16,7 +15,7 @@ import { COMBAT_ACTIONS, CombatActionComponent, CombatActionName } from "../../.
 import { getTranslationTime } from "../../../combat/combat-actions/action-implementations/get-translation-time.js";
 import { Milliseconds } from "../../../primatives/index.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
-import { Combatant, CombatantProperties } from "../../../combatants/index.js";
+import { Combatant } from "../../../combatants/index.js";
 
 export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   private translationOption: null | EntityTranslation = null;
@@ -163,10 +162,7 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   protected onTick(): void {
     if (!this.translationOption) return;
 
-    if (
-      this.actionUser instanceof Combatant &&
-      CombatantProperties.isDead(this.actionUser.combatantProperties)
-    ) {
+    if (this.actionUser instanceof Combatant && this.actionUser.combatantProperties.isDead()) {
       this.translationOption.destination = this.actionUser.getPositionOption();
       this.translationOption.duration = this.elapsed;
     }

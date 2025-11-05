@@ -4,13 +4,9 @@ import {
   ActionEntityBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
-import {
-  ResourceChangeSource,
-  ResourceChangeSourceCategory,
-} from "../../../hp-change-source-types.js";
 import { MagicalElement } from "../../../magical-elements.js";
 import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
@@ -37,9 +33,16 @@ const targetingProperties = createTargetingPropertiesConfig(
 const config: CombatActionComponentConfig = {
   description: "Add physical fire element to a projectile",
   targetingProperties,
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     ...createGenericSpellCastMessageProperties(CombatActionName.IgniteProjectile),
     getOnUseMessage: (data) => `The firewall ignites ${data.nameOfActionUser}`,
+    getOnUseMessageDataOverride: (context) => {
+      return {
+        actionLevel: 1,
+        nameOfActionUser: context.actionUserContext.actionUser.getName(),
+        nameOfTarget: context.actionUserContext.actionUser.getName(),
+      };
+    },
   }),
 
   hitOutcomeProperties: createHitOutcomeProperties(

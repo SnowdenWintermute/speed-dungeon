@@ -1,21 +1,16 @@
-import { useGameStore } from "@/stores/game-store";
-import {
-  BASE_SCREEN_SIZE,
-  ClientToServerEvent,
-  ERROR_MESSAGES,
-  GOLDEN_RATIO,
-} from "@speed-dungeon/common";
+import { BASE_SCREEN_SIZE, ClientToServerEvent, GOLDEN_RATIO } from "@speed-dungeon/common";
 import React from "react";
-import GameLobby from "../GameLobby";
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { GameLobby } from "../GameLobby";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import PartySetupCard from "./AdventuringPartySetupCard";
+import { PartySetupCard } from "./AdventuringPartySetupCard";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
 
-export default function RaceGameLobby() {
-  const username = useGameStore().username;
-  const game = useGameStore().game;
-  if (game === null) return <div>Loading...</div>;
-  if (!username) return <div>{ERROR_MESSAGES.CLIENT.NO_USERNAME}</div>;
+export const RaceGameLobby = observer(() => {
+  const { gameStore } = AppStore.get();
+  const username = gameStore.getExpectedUsername();
+  const game = gameStore.getExpectedGame();
   const playerOption = game.players[username];
 
   return (
@@ -39,7 +34,7 @@ export default function RaceGameLobby() {
       </div>
     </GameLobby>
   );
-}
+});
 
 function CreatePartyCard() {
   const menuWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));

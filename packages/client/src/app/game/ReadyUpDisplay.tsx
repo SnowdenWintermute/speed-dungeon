@@ -1,34 +1,34 @@
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { getCurrentMenu, operateVendingMachineMenuState, useGameStore } from "@/stores/game-store";
-import { AdventuringParty, ClientToServerEvent, DungeonRoomType } from "@speed-dungeon/common";
+import {
+  AdventuringParty,
+  ClientToServerEvent,
+  DungeonRoomType,
+  ExplorationAction,
+} from "@speed-dungeon/common";
 import React, { MouseEventHandler } from "react";
-import HotkeyButton from "../components/atoms/HotkeyButton";
+import { HotkeyButton } from "../components/atoms/HotkeyButton";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
-import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
-import { MenuStateType } from "./ActionMenu/menu-state";
-import { playerIsOperatingVendingMachine } from "@/utils/player-is-operating-vending-machine";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
+import { MenuStateType } from "./ActionMenu/menu-state/menu-state-type";
+import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 
 interface Props {
   party: AdventuringParty;
 }
 
-export default function ReadyUpDisplay({ party }: Props) {
-  const username = useGameStore().username;
-  if (username === null) return <div>no username</div>;
-  const mutateGameState = useGameStore().mutateState;
-  const focusedCharacterId = useGameStore().focusedCharacterId;
+export const ReadyUpDisplay = observer(({ party }: Props) => {
+  const { focusStore, actionMenuStore, gameStore } = AppStore.get();
+  const username = gameStore.getExpectedUsername();
+  const focusedCharacterId = AppStore.get().gameStore.getExpectedFocusedCharacterId();
 
   function handleExploreClick() {
     websocketConnection.emit(ClientToServerEvent.ToggleReadyToExplore);
-    useGameStore.getState().mutateState((state) => {
-      state.stackedMenuStates = [];
-    });
+    actionMenuStore.clearStack();
   }
   function handleDescendClick() {
     websocketConnection.emit(ClientToServerEvent.ToggleReadyToDescend);
-    useGameStore.getState().mutateState((state) => {
-      state.stackedMenuStates = [];
-    });
+    actionMenuStore.clearStack();
   }
 
   const exploreButtonsText =
@@ -38,37 +38,48 @@ export default function ReadyUpDisplay({ party }: Props) {
 
   if (party.battleId !== null) return <></>;
 
+  const { dungeonExplorationManager } = party;
+
+  const playersReadyToExplore = dungeonExplorationManager.getPlayersChoosingAction(
+    ExplorationAction.Explore
+  );
+  const playersReadyToDescend = dungeonExplorationManager.getPlayersChoosingAction(
+    ExplorationAction.Descend
+  );
+
   const readyToExploreButtons = createReadyButtons(
     username,
     handleExploreClick,
     party.playerUsernames,
-    party.playersReadyToExplore
+    playersReadyToExplore
   );
   const readyToDescendButtons = createReadyButtons(
     username,
     handleDescendClick,
     party.playerUsernames,
-    party.playersReadyToDescend
+    playersReadyToDescend
   );
 
   const inStaircaseRoom = party.currentRoom.roomType === DungeonRoomType.Staircase;
   const isVendingMachine = party.currentRoom.roomType === DungeonRoomType.VendingMachine;
-  const currentMenu = useGameStore.getState().getCurrentMenu();
-  const detailedEntity = useGameStore.getState().detailedEntity;
-  const hoveredEntity = useGameStore.getState().hoveredEntity;
+  const currentMenu = actionMenuStore.getCurrentMenu();
+
+  const { detailed: detailedEntity, hovered: hoveredEntity } = focusStore.detailables.get();
 
   const shouldDim =
     detailedEntity ||
     hoveredEntity ||
-    shouldShowCharacterSheet(currentMenu.type) ||
+    actionMenuStore.shouldShowCharacterSheet() ||
     currentMenu.type !== MenuStateType.Base;
   const descendHotkey = HOTKEYS.SIDE_2;
   const exploreHotkey = HOTKEYS.SIDE_1;
   const operateVendingMachineHotkey = HOTKEYS.SIDE_2;
 
+  const allowedToDescend = !inStaircaseRoom || party.combatantManager.monstersArePresent();
+
   return (
     <>
-      {!inStaircaseRoom && party.currentRoom.monsterPositions.length === 0 && (
+      {allowedToDescend && (
         <div
           className="absolute top-12 -translate-y-[1px] min-w-[500px] text-center left-1/2 -translate-x-1/2 border border-slate-400 bg-slate-700 p-4 flex flex-col pointer-events-auto"
           style={{ opacity: shouldDim ? "0%" : "100%" }}
@@ -82,7 +93,7 @@ export default function ReadyUpDisplay({ party }: Props) {
             <HotkeyButton
               className={`h-10 pr-2 pl-2 ${!isVendingMachine ? "bg-slate-800 w-full" : "w-1/2 mr-1 "} border border-white text-center hover:bg-slate-950`}
               hotkeys={["KeyG"]}
-              disabled={playerIsOperatingVendingMachine(currentMenu.type)}
+              disabled={actionMenuStore.operatingVendingMachine()}
               onClick={handleExploreClick}
             >
               Explore next room (G)
@@ -92,21 +103,21 @@ export default function ReadyUpDisplay({ party }: Props) {
                 className={`h-10 pr-2 pl-2 bg-slate-800 ml-1 w-1/2 border border-white text-center hover:bg-slate-950 disabled:opacity-50`}
                 hotkeys={["KeyT"]}
                 disabled={
-                  !AdventuringParty.playerOwnsCharacter(party, username, focusedCharacterId) ||
+                  !party.combatantManager.playerOwnsCharacter(username, focusedCharacterId) ||
                   (currentMenu.type !== MenuStateType.Base &&
                     currentMenu.type !== MenuStateType.OperatingVendingMachine)
                 }
                 onClick={() => {
-                  mutateGameState((state) => {
-                    const currentMenu = getCurrentMenu(state);
-                    if (currentMenu.type === MenuStateType.OperatingVendingMachine)
-                      state.stackedMenuStates.pop();
-                    else {
-                      state.stackedMenuStates.push(operateVendingMachineMenuState);
-                      state.detailedEntity = null;
-                      state.hoveredAction = null;
-                    }
-                  });
+                  const { actionMenuStore } = AppStore.get();
+                  const currentMenu = actionMenuStore.getCurrentMenu();
+                  if (currentMenu.type === MenuStateType.OperatingVendingMachine) {
+                    actionMenuStore.popStack();
+                  } else {
+                    actionMenuStore.pushStack(
+                      MenuStatePool.get(MenuStateType.OperatingVendingMachine)
+                    );
+                    focusStore.detailables.clear();
+                  }
                 }}
               >
                 Operate machine ({letterFromKeyCode(operateVendingMachineHotkey)})
@@ -165,7 +176,7 @@ export default function ReadyUpDisplay({ party }: Props) {
       </div>
     </>
   );
-}
+});
 
 function createReadyButtons(
   username: string,

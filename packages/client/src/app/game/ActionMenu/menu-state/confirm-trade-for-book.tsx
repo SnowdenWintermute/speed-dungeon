@@ -1,11 +1,4 @@
-import { useGameStore } from "@/stores/game-store";
-import {
-  ActionButtonCategory,
-  ActionButtonsByCategory,
-  ActionMenuButtonProperties,
-  ActionMenuState,
-  MenuStateType,
-} from ".";
+import { ActionMenuState } from ".";
 import {
   BookConsumableType,
   CONSUMABLE_TYPE_STRINGS,
@@ -16,14 +9,15 @@ import {
   getBookLevelForTrade,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { setAlert } from "@/app/components/alerts";
-import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { createCancelButton } from "./common-buttons/cancel";
 import Divider from "@/app/components/atoms/Divider";
 import { IconName, SVG_ICONS } from "@/app/icons";
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
-import { setInventoryOpen } from "./common-buttons/open-inventory";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { AppStore } from "@/mobx-stores/app-store";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
+import { MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
 
 const confirmHotkey = HOTKEYS.MAIN_1;
 const confirmLetter = letterFromKeyCode(confirmHotkey);
@@ -35,35 +29,27 @@ function handleConfirmTrade(characterId: EntityId, itemId: EntityId, bookType: B
     itemId,
     bookType,
   });
-  useGameStore.getState().mutateState((state) => {
-    state.stackedMenuStates.pop();
-    // need to pop twice so we're not showing the item consideration screen of this item that may no longer exist
-    state.stackedMenuStates.pop();
-    state.comparedItem = null;
-    state.detailedEntity = null;
-  });
+  // need to pop twice so we're not showing the item consideration screen of this item that may no longer exist
+  AppStore.get().actionMenuStore.popStack();
+  AppStore.get().actionMenuStore.popStack();
+
+  AppStore.get().focusStore.clearItemComparison();
 }
 
-export class ConfirmTradeForBookMenuState implements ActionMenuState {
-  page = 1;
-  numPages: number = 1;
-  type = MenuStateType.ConfirmTradeForBook;
-
-  alwaysShowPageOne = false;
+export class ConfirmTradeForBookMenuState extends ActionMenuState {
   constructor(
     public item: Item,
     public bookType: BookConsumableType
-  ) {}
-  getCenterInfoDisplayOption() {
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) return;
+  ) {
+    super(MenuStateType.ConfirmTradeForBook, 1);
+  }
 
-    const partyResult = useGameStore.getState().getParty();
-    if (partyResult instanceof Error) {
-      setAlert(partyResult);
-      return;
-    }
-    const vendingMachineLevel = partyResult.currentFloor;
+  getCenterInfoDisplayOption() {
+    const { gameStore } = AppStore.get();
+    const focusedCharacter = gameStore.getExpectedFocusedCharacter();
+
+    const party = gameStore.getExpectedParty();
+    const vendingMachineLevel = party.dungeonExplorationManager.getCurrentFloor();
     const bookLevel = getBookLevelForTrade(this.item.itemLevel, vendingMachineLevel);
 
     return (
@@ -83,7 +69,7 @@ export class ConfirmTradeForBookMenuState implements ActionMenuState {
         <HotkeyButton
           onClick={() =>
             handleConfirmTrade(
-              focusedCharacterResult.entityProperties.id,
+              focusedCharacter.getEntityId(),
               this.item.entityProperties.id,
               this.bookType
             )
@@ -98,31 +84,26 @@ export class ConfirmTradeForBookMenuState implements ActionMenuState {
       </div>
     );
   }
+
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
     toReturn[ActionButtonCategory.Top].push(
       createCancelButton([], () => {
-        useGameStore.getState().mutateState((state) => {
-          state.detailedEntity = null;
-        });
+        const { focusStore } = AppStore.get();
+        focusStore.detailables.clearDetailed();
       })
     );
 
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult.message);
-      return toReturn;
-    }
-
-    const characterId = focusedCharacterResult.entityProperties.id;
-    const userControlsThisCharacter = clientUserControlsCombatant(characterId);
+    const { gameStore } = AppStore.get();
+    const focusedCharacterId = gameStore.getExpectedFocusedCharacterId();
+    const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
     const itemId = this.item.entityProperties.id;
 
     const confirmButton = new ActionMenuButtonProperties(
       () => CONFIRM_SHARD_TEXT,
       CONFIRM_SHARD_TEXT,
-      () => handleConfirmTrade(focusedCharacterResult.entityProperties.id, itemId, this.bookType)
+      () => handleConfirmTrade(focusedCharacterId, itemId, this.bookType)
     );
 
     confirmButton.dedicatedKeys = ["Enter", confirmHotkey];

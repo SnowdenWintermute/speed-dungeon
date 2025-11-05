@@ -1,7 +1,6 @@
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { useGameStore } from "@/stores/game-store";
 import {
   ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,
   CombatAttribute,
@@ -12,6 +11,8 @@ import {
   INFO_UNICODE_SYMBOL,
 } from "@speed-dungeon/common";
 import StarShape from "../../../../public/img/basic-shapes/star.svg";
+import { AppStore } from "@/mobx-stores/app-store";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   attribute: CombatAttribute;
@@ -21,9 +22,12 @@ interface Props {
   showAttributeAssignmentButtonsIfOwned: boolean;
 }
 
-export function AttributeListItem(props: Props) {
-  const consideredItemUnmetRequirements = useGameStore().consideredItemUnmetRequirements;
-  const isUnmetRequirement = consideredItemUnmetRequirements?.includes(props.attribute);
+export const AttributeListItem = observer((props: Props) => {
+  const consideredItemUnmetRequirements =
+    AppStore.get().focusStore.getSelectedItemUnmetRequirements();
+
+  const isUnmetRequirement = consideredItemUnmetRequirements.has(props.attribute);
+
   let highlightClass = isUnmetRequirement ? UNMET_REQUIREMENT_TEXT_COLOR : "";
 
   const shouldShowIncreaseAttributeButton =
@@ -64,11 +68,11 @@ export function AttributeListItem(props: Props) {
       </span>
     </li>
   );
-}
+});
 
-function IncreaseAttributeButton({ attribute }: { attribute: CombatAttribute }) {
+const IncreaseAttributeButton = observer(({ attribute }: { attribute: CombatAttribute }) => {
   const socketOption = websocketConnection;
-  const focusedCharacterId = useGameStore().focusedCharacterId;
+  const focusedCharacterId = AppStore.get().gameStore.getExpectedFocusedCharacterId();
 
   function handleClick() {
     socketOption?.emit(ClientToServerEvent.IncrementAttribute, {
@@ -85,4 +89,4 @@ function IncreaseAttributeButton({ attribute }: { attribute: CombatAttribute }) 
       {"+"}
     </button>
   );
-}
+});

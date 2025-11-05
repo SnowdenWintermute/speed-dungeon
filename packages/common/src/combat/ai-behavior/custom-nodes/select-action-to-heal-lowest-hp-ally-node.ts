@@ -1,12 +1,11 @@
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
-import { Combatant, CombatantProperties } from "../../../combatants/index.js";
+import { Combatant } from "../../../combatants/index.js";
 import { NormalizedPercentage } from "../../../primatives/index.js";
 import { CombatActionIntent } from "../../combat-actions/combat-action-intent.js";
 import { CombatActionName } from "../../combat-actions/combat-action-names.js";
 import { TargetCategories } from "../../combat-actions/targeting-schemes-and-categories.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import {
-  BEHAVIOR_NODE_STATE_STRINGS,
   BehaviorNode,
   BehaviorNodeState,
   PopFromStackNode,
@@ -35,17 +34,19 @@ export class SelectActionToHealLowestHpAlly implements BehaviorNode {
         this.combatant,
         TargetCategories.Friendly,
         (combatant) =>
-          combatant.combatantProperties.hitPoints /
-            CombatantProperties.getTotalAttributes(combatant.combatantProperties)[
+          combatant.combatantProperties.resources.getHitPoints() /
+            combatant.combatantProperties.attributeProperties.getAttributeValue(
               CombatAttribute.Hp
-            ] <
+            ) <
           this.hitPointThresholdToWarrantHealing,
         this.behaviorContext.setConsideredCombatants
       ),
       // sort allies by lowest Hp
       new SorterNode(
         () => this.behaviorContext.consideredCombatants,
-        (a, b) => a.combatantProperties.hitPoints - b.combatantProperties.hitPoints
+        (a, b) =>
+          a.combatantProperties.resources.getHitPoints() -
+          b.combatantProperties.resources.getHitPoints()
       ),
       new CollectAllOwnedActionsByIntent(
         this.behaviorContext,
@@ -64,7 +65,7 @@ export class SelectActionToHealLowestHpAlly implements BehaviorNode {
 
               // @TODO -actually select an actionLevel
               const actionLevel =
-                this.combatant.combatantProperties.abilityProperties.ownedActions[actionName]
+                this.combatant.combatantProperties.abilityProperties.getOwnedActions()[actionName]
                   ?.level || 1;
               this.behaviorContext.setCurrentActionLevelConsidering(actionLevel);
             }

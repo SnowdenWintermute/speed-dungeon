@@ -1,10 +1,11 @@
 import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
 import { ResourceChange } from "../../hp-change-source-types.js";
-import { CombatantProperties, CombatantTraitType } from "../../../combatants/index.js";
 import { Percentage } from "../../../primatives/index.js";
 import { HitOutcomeMitigationCalculator } from "./hit-outcome-mitigation-calculator.js";
 import { CombatActionHitOutcomeProperties } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
+import { CombatantProperties } from "../../../combatants/combatant-properties.js";
+import { CombatantTraitType } from "../../../combatants/combatant-traits/trait-types.js";
 
 export class ResourceChangeModifier {
   constructor(
@@ -63,7 +64,7 @@ export class ResourceChangeModifier {
   private applyElementalAffinities() {
     const hpChangeElement = this.resourceChange.source.elementOption;
     if (hpChangeElement === undefined) return;
-    const targetAffinities = CombatantProperties.getCombatantTotalElementalAffinities(this.target);
+    const targetAffinities = this.target.mitigationProperties.getElementalAffinities();
     const affinityValue = targetAffinities[hpChangeElement] || 0;
     const afterAffinityApplied = this.applyAffinity(affinityValue);
     // target wanted to be hit, so don't reduce the incoming value
@@ -78,9 +79,7 @@ export class ResourceChangeModifier {
   private applyKineticAffinities() {
     const kineticDamageType = this.resourceChange.source.kineticDamageTypeOption;
     if (kineticDamageType === undefined) return;
-    const targetAffinities = CombatantProperties.getCombatantTotalKineticDamageTypeAffinities(
-      this.target
-    );
+    const targetAffinities = this.target.mitigationProperties.getKineticImpactTypeAffinities();
     const affinityValue: Percentage = targetAffinities[kineticDamageType] || 0;
 
     const afterAffinityApplied = this.applyAffinity(affinityValue);
@@ -111,7 +110,7 @@ export class ResourceChangeModifier {
   }
 
   convertResourceChangeValueToFinalSign() {
-    const targetIsUndead = CombatantProperties.hasTraitType(this.target, CombatantTraitType.Undead);
+    const targetIsUndead = this.target.abilityProperties.hasTraitType(CombatantTraitType.Undead);
     // if it wasn't intended as healing, but is actually healing target due to affinities,
     // don't "un healify" the hp change here
     const { resourceChange } = this;

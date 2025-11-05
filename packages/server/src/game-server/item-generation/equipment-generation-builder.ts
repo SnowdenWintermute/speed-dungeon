@@ -18,10 +18,9 @@ import {
   SuffixType,
   TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER,
   TaggedAffixType,
-  equipmentIsTwoHandedWeapon,
   randBetween,
   AffixCategory,
-  AffixType,
+  Equipment,
 } from "@speed-dungeon/common";
 import { EquipmentGenerationTemplate } from "./equipment-templates/equipment-generation-template-abstract-classes.js";
 import { getEquipmentGenerationTemplate } from "./equipment-templates/index.js";
@@ -246,7 +245,7 @@ export function rollAffixTierAndValue(
   const rolledTier = rollAffixTier(maxTierOption, maxTierLimiter);
 
   let multiplier = 1;
-  if (equipmentIsTwoHandedWeapon(equipmentType))
-    multiplier = TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER;
+  const equipmentIsTwoHandedWeapon = Equipment.isTwoHandedWeaponType(equipmentType);
+  if (equipmentIsTwoHandedWeapon) multiplier = TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER;
   return rollAffix(taggedAffixType, rolledTier, multiplier, template);
 }

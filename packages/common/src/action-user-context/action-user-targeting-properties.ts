@@ -7,13 +7,17 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import getNextOrPreviousTarget from "../combat/targeting/get-next-or-previous-target.js";
 import { TargetingCalculator } from "../combat/targeting/targeting-calculator.js";
-import { immerable } from "immer";
+import { makeAutoObservable } from "mobx";
+import { plainToInstance } from "class-transformer";
+import { runIfInBrowser } from "../utils/index.js";
 
 export class ActionAndRank {
   constructor(
     public actionName: CombatActionName,
     public rank: number
-  ) {}
+  ) {
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+  }
 }
 
 export class ActionUserTargetingProperties {
@@ -22,7 +26,13 @@ export class ActionUserTargetingProperties {
   private selectedTargetingScheme: Option<TargetingScheme> = null;
   private selectedItemId: Option<EntityId> = null;
 
-  constructor() {}
+  constructor() {
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+  }
+
+  static getDeserialized(actionUserTargetingProperties: ActionUserTargetingProperties) {
+    return plainToInstance(ActionUserTargetingProperties, actionUserTargetingProperties);
+  }
 
   clear() {
     this.selectedActionAndRank = null;

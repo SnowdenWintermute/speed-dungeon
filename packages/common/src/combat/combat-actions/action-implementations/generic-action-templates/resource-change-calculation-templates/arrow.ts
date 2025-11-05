@@ -1,5 +1,6 @@
 import { IActionUser } from "../../../../../action-user-context/action-user.js";
-import { CombatantProperties, CombatAttribute } from "../../../../../combatants/index.js";
+import { CombatantProperties } from "../../../../../combatants/combatant-properties.js";
+import { CombatAttribute } from "../../../../../combatants/index.js";
 import {
   CombatActionHitOutcomeProperties,
   CombatActionResource,

@@ -2,6 +2,9 @@ import { Matrix, Quaternion, Vector3 } from "@babylonjs/core";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 import { Combatant } from "../index.js";
+import { plainToInstance } from "class-transformer";
+import { makeAutoObservable } from "mobx";
+import { runIfInBrowser } from "../../utils/index.js";
 
 export const STABLE_THREAT_CAP = 10000;
 export const VOLATILE_THREAT_CAP = 10000;
@@ -21,7 +24,9 @@ export class ThreatTableEntry {
     [ThreatType.Stable]: new MaxAndCurrent(STABLE_THREAT_CAP, 0),
     [ThreatType.Volatile]: new MaxAndCurrent(VOLATILE_THREAT_CAP, 0),
   };
-  constructor() {}
+  constructor() {
+    runIfInBrowser(() => makeAutoObservable(this));
+  }
 
   getTotal() {
     return (
@@ -34,14 +39,21 @@ export class ThreatTableEntry {
 export class ThreatManager {
   private threatScoresByCombatantId: Record<EntityId, ThreatTableEntry> = {};
   private previouslyHighestThreatId: null | EntityId = null;
-  constructor() {}
+  constructor() {
+    runIfInBrowser(() => makeAutoObservable(this));
+  }
+
+  static getDeserialized(serialized: ThreatManager) {
+    return plainToInstance(ThreatManager, serialized);
+  }
 
   changeThreat(combatantId: EntityId, threatType: ThreatType, value: number) {
     let existingEntry = this.threatScoresByCombatantId[combatantId];
     // don't create a new entry if not generating threat
     if (existingEntry === undefined && value < 1) return;
-    if (existingEntry === undefined)
+    if (existingEntry === undefined) {
       this.threatScoresByCombatantId[combatantId] = existingEntry = new ThreatTableEntry();
+    }
     existingEntry.threatScoresByType[threatType].addValue(value);
   }
 
@@ -74,18 +86,15 @@ export class ThreatManager {
     if (!newThreatTargetIdOption) return false;
     this.setPreviouslyHighestThreatId(newThreatTargetIdOption);
 
-    const newTargetCombatant = AdventuringParty.getExpectedCombatant(
-      party,
-      newThreatTargetIdOption
-    );
-    const targetPos = newTargetCombatant.combatantProperties.homeLocation;
-    const monsterHomePos = monster.combatantProperties.homeLocation;
+    const newTargetCombatant = party.combatantManager.getExpectedCombatant(newThreatTargetIdOption);
+    const targetPos = newTargetCombatant.getHomePosition();
+    const monsterHomePos = monster.getHomePosition();
 
     const lookAtMatrix = Matrix.LookAtLH(monsterHomePos, targetPos, Vector3.Up());
     // Invert because LookAtLH returns a view matrix
     const worldRotation = Quaternion.FromRotationMatrix(lookAtMatrix).invert();
 
-    monster.combatantProperties.homeRotation = worldRotation;
+    monster.combatantProperties.transformProperties.homeRotation = worldRotation;
 
     return true;
   }

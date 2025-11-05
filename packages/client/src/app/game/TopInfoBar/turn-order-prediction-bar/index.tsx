@@ -5,12 +5,11 @@ import {
   TurnTracker,
 } from "@speed-dungeon/common";
 import React from "react";
-import TurnOrderTrackerIcon from "./TurnTrackerIcon";
-import ConditionTurnTrackerAggregation from "./ConditionTurnTrackerAggregation";
-
+import { TurnOrderTrackerIcon } from "./TurnTrackerIcon";
+import { ConditionTurnTrackerAggregation } from "./ConditionTurnTrackerAggregation";
 import ClockIcon from "../../../../../public/img/game-ui-icons/clock-icon.svg";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import ActionEntityTurnOrderTrackerIcon from "./ActionEntityTurnOrderIcon";
+import { ActionEntityTurnOrderTrackerIcon } from "./ActionEntityTurnOrderIcon";
 
 interface Props {
   trackers: TurnTracker[];

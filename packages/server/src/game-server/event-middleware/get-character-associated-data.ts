@@ -1,9 +1,7 @@
 import {
-  AdventuringParty,
   ClientToServerEventTypes,
   ERROR_MESSAGES,
   ServerToClientEventTypes,
-  SpeedDungeonGame,
   CharacterAssociatedData,
 } from "@speed-dungeon/common";
 import { SocketEventNextFunction } from "./index.js";
@@ -26,7 +24,7 @@ export async function getCharacterAssociatedData<T extends { characterId: string
 
   if (gameResult instanceof Error) throw gameResult;
   const game = gameResult;
-  const partyResult = SpeedDungeonGame.getPlayerPartyOption(game, socketMeta.username);
+  const partyResult = game.getPlayerPartyOption(socketMeta.username);
   if (partyResult instanceof Error) throw partyResult;
   if (partyResult === undefined) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
   const party = partyResult;
@@ -34,9 +32,8 @@ export async function getCharacterAssociatedData<T extends { characterId: string
   if (playerOption === undefined) throw new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
   const player = playerOption;
 
-  const characterResult = AdventuringParty.getCharacterIfOwned(
-    party,
-    player.characterIds,
+  const characterResult = party.combatantManager.getCharacterIfOwned(
+    player.username,
     eventData.characterId
   );
   if (characterResult instanceof Error) throw characterResult;

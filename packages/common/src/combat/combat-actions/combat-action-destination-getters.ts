@@ -24,22 +24,24 @@ export function getMeleeAttackDestination(context: ActionResolutionStepContext) 
     if (userPositionOption === null) throw new Error("expected position");
     const userPosition = userPositionOption;
 
-    const distance = Vector3.Distance(target.combatantProperties.position, userPosition);
+    const targetTransformProperties = target.combatantProperties.transformProperties;
+
+    const distance = Vector3.Distance(targetTransformProperties.position, userPosition);
     if (distance <= meleeRange || isNaN(distance) || Math.abs(meleeRange - distance) < threshold) {
       return { position: userPosition.clone() };
     }
 
     const homePosition = actionUser.getHomePosition();
 
-    const direction = target.combatantProperties.homeLocation.subtract(homePosition).normalize();
+    const direction = targetTransformProperties.homePosition.subtract(homePosition).normalize();
 
-    const destination = target.combatantProperties.homeLocation.subtract(
+    const destination = targetTransformProperties.homePosition.subtract(
       direction.scale(meleeRange)
     );
 
     const destinationRotation = getLookRotationFromPositions(
       homePosition,
-      target.combatantProperties.homeLocation
+      targetTransformProperties.homePosition
     );
 
     return {

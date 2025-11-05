@@ -13,7 +13,7 @@ export * from "./action-steps/motion-steps/determine-environmental-hazard-trigge
 import { BattleConclusion } from "../battle/index.js";
 import { Consumable } from "../items/consumables/index.js";
 import { Equipment } from "../items/equipment/index.js";
-import { GameMessageType } from "../packets/game-message.js";
+import { GameMessage, GameMessageType } from "../packets/game-message.js";
 import { EntityId } from "../primatives/index.js";
 import { NestedNodeReplayEvent } from "./replay-events.js";
 
@@ -47,7 +47,7 @@ export type LadderDeathsUpdate = {
 
 export type GameMessagesPayload = {
   type: ActionCommandType.GameMessages;
-  messages: { text: string; type: GameMessageType }[];
+  messages: GameMessage[];
   partyChannelToExclude?: string;
 };
 

@@ -10,7 +10,7 @@ import { plainToInstance } from "class-transformer";
 import { EntityMotionUpdateCompletionTracker } from "./entity-motion-update-completion-tracker";
 import { SceneEntity } from "@/app/3d-world/scene-entities";
 import { getSceneEntityToUpdate } from "./get-scene-entity-to-update";
-import { GameUpdateTracker } from "..";
+import { GameUpdateTracker } from "../game-update-tracker";
 
 export function handleUpdateTranslation(
   motionUpdate: EntityMotionUpdate,

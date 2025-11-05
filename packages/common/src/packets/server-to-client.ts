@@ -1,13 +1,11 @@
-import { DungeonRoom, DungeonRoomType } from "../adventuring-party/index.js";
+import { DungeonRoom, DungeonRoomType, ExplorationAction } from "../adventuring-party/index.js";
 import { Battle, BattleConclusion } from "../battle/index.js";
-import { CombatActionName } from "../combat/index.js";
 import { ActionCommandPayload } from "../action-processing/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { Item } from "../items/index.js";
 import { EntityId, NextOrPrevious } from "../primatives/index.js";
 import { Combatant } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
-import { DescendOrExplore } from "../adventuring-party/update-player-readiness.js";
 import { UserChannelDisplayData } from "../users/index.js";
 import { GameMode } from "../types.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
@@ -52,10 +50,12 @@ export enum ServerToClientEvent {
   CharacterCycledTargetingSchemes = "31",
   DungeonFloorNumber = "32",
   CharacterSpentAttributePoint = "33",
+
   SavedCharacterList = "34",
   SavedCharacter = "35",
   SavedCharacterDeleted = "36",
   PlayerSelectedSavedCharacterInProgressionGame = "37",
+
   ProgressionGameStartingFloorSelected = "38",
   //TEST
   TestItems = "39",
@@ -95,26 +95,23 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.PlayerJoinedGame]: (userame: string) => void;
   [ServerToClientEvent.PartyCreated]: (partyId: string, partyName: string) => void;
   [ServerToClientEvent.CharacterAddedToParty]: (
-    partyName: string,
     username: string,
-    character: Combatant
+    character: Combatant,
+    pets: Combatant[]
   ) => void;
-  [ServerToClientEvent.CharacterDeleted]: (
-    partyName: string,
-    username: string,
-    characterId: string
-  ) => void;
+  [ServerToClientEvent.CharacterDeleted]: (username: string, characterId: string) => void;
   [ServerToClientEvent.PlayerToggledReadyToStartGame]: (username: string) => void;
   [ServerToClientEvent.GameStarted]: (timeStarted: number) => void;
   [ServerToClientEvent.PlayerToggledReadyToDescendOrExplore]: (
     characterId: string,
-    descendOrExplore: DescendOrExplore
+    explorationAction: ExplorationAction
   ) => void;
   [ServerToClientEvent.DungeonRoomTypesOnCurrentFloor]: (
     roomTypes: (DungeonRoomType | null)[]
   ) => void;
   [ServerToClientEvent.DungeonRoomUpdate]: (eventData: {
     dungeonRoom: DungeonRoom;
+    monsters: Combatant[];
     actionEntitiesToRemove: EntityId[];
   }) => void;
   [ServerToClientEvent.BattleFullUpdate]: (battleOption: null | Battle) => void;

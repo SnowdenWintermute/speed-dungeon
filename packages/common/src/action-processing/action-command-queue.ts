@@ -1,3 +1,5 @@
+import { makeAutoObservable } from "mobx";
+import { runIfInBrowser } from "../utils/index.js";
 import { ActionCommand } from "./action-command.js";
 import { ActionCommandPayload } from "./index.js";
 
@@ -6,7 +8,9 @@ export class ActionCommandQueue {
   isProcessing: boolean = false;
   timeLastCommandStarted: number = Date.now();
 
-  constructor() {}
+  constructor() {
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+  }
 
   enqueueNewCommands(commands: ActionCommand[]) {
     this.commands.push(...commands);

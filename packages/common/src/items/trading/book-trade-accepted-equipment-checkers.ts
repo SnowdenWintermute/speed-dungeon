@@ -11,12 +11,12 @@ export const BOOK_TRADE_ACCEPTED_EQUIPMENT_CHECKERS: Record<
     const { equipmentType } = equipment.equipmentBaseItemProperties;
     if (equipmentType !== EquipmentType.OneHandedMeleeWeapon) return false;
 
-    if (Equipment.hasAffixWithAttributes(equipment, [CombatAttribute.Strength])) return true;
+    if (equipment.hasAffixWithAttributes([CombatAttribute.Strength])) return true;
 
     return false;
   },
   [ConsumableType.RogueSkillbook]: (equipment) => {
-    const weaponPropertiesResult = Equipment.getWeaponProperties(equipment);
+    const weaponPropertiesResult = equipment.getWeaponProperties();
     if (weaponPropertiesResult instanceof Error) return false;
 
     const { equipmentType } = equipment.equipmentBaseItemProperties;
@@ -34,7 +34,7 @@ export const BOOK_TRADE_ACCEPTED_EQUIPMENT_CHECKERS: Record<
 
       const requiredAttributes = [CombatAttribute.Dexterity, CombatAttribute.Accuracy];
 
-      if (Equipment.hasAffixWithAttributes(equipment, requiredAttributes)) return true;
+      if (equipment.hasAffixWithAttributes(requiredAttributes)) return true;
     }
 
     // allow bows with dex, accuracy or evasion
@@ -44,7 +44,7 @@ export const BOOK_TRADE_ACCEPTED_EQUIPMENT_CHECKERS: Record<
         CombatAttribute.Accuracy,
         CombatAttribute.Evasion,
       ];
-      if (Equipment.hasAffixWithAttributes(equipment, requiredAttributes)) return true;
+      if (equipment.hasAffixWithAttributes(requiredAttributes)) return true;
     }
 
     return false;
@@ -57,14 +57,14 @@ export const BOOK_TRADE_ACCEPTED_EQUIPMENT_CHECKERS: Record<
       const isWand = WANDS.includes(baseItemType);
       if (!isWand) return false;
 
-      if (Equipment.hasAffixWithAttributes(equipment, [CombatAttribute.Spirit])) return true;
+      if (equipment.hasAffixWithAttributes([CombatAttribute.Spirit])) return true;
     }
 
     if (equipmentType === EquipmentType.TwoHandedMeleeWeapon) {
       const isStaff = STAVES.includes(baseItemType);
       if (!isStaff) return false;
 
-      if (Equipment.hasAffixWithAttributes(equipment, [CombatAttribute.Spirit])) return true;
+      if (equipment.hasAffixWithAttributes([CombatAttribute.Spirit])) return true;
     }
 
     return false;

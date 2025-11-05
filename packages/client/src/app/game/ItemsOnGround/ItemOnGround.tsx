@@ -1,23 +1,21 @@
 import React from "react";
-import { useGameStore } from "@/stores/game-store";
-import selectItem from "@/utils/selectItem";
 import {
   CONSUMABLE_TEXT_COLOR,
   CONSUMABLE_TYPE_STRINGS,
   ClientToServerEvent,
-  CombatantProperties,
   Consumable,
   Equipment,
   Item,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import setItemHovered from "@/utils/set-item-hovered";
 import {
   ItemButtonBody,
   consumableGradientBg,
   unmetRequirementsGradientBg,
 } from "../ActionMenu/menu-state/items";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { AppStore } from "@/mobx-stores/app-store";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   item: Item;
@@ -25,44 +23,36 @@ interface Props {
 }
 
 export function takeItem(item: Item) {
-  useGameStore.getState().mutateState((gameState) => {
-    gameState.hoveredEntity = null;
-    gameState.detailedEntity = null;
-  });
+  const { focusStore, gameStore } = AppStore.get();
+
+  focusStore.detailables.clear();
+
   websocketConnection.emit(ClientToServerEvent.PickUpItems, {
-    characterId: useGameStore.getState().focusedCharacterId,
+    characterId: gameStore.getExpectedFocusedCharacterId(),
     itemIds: [item.entityProperties.id],
   });
 }
 
-export default function ItemOnGround(props: Props) {
+export const ItemOnGround = observer((props: Props) => {
+  const { focusStore, imageStore } = AppStore.get();
+
   const { item } = props;
-  const gameState = useGameStore();
   function mouseEnterHandler() {
-    setItemHovered(item);
+    focusStore.detailables.setHovered(item);
   }
   function mouseLeaveHandler() {
-    setItemHovered(null);
+    focusStore.detailables.clearHovered();
   }
   function clickHandler() {
-    selectItem(item);
+    focusStore.selectItem(item);
   }
 
+  const itemIsDetailed = focusStore.entityIsDetailed(item.entityProperties.id);
+  const itemIsHovered = focusStore.entityIsHovered(item.entityProperties.id);
+
   const conditionalClassNames = (() => {
-    if (gameState.detailedEntity !== null) {
-      if (
-        gameState.detailedEntity instanceof Item &&
-        gameState.detailedEntity.entityProperties.id === item.entityProperties.id
-      )
-        return "border-yellow-400 hover:border-t";
-    }
-    if (gameState.hoveredEntity !== null) {
-      if (
-        gameState.hoveredEntity instanceof Item &&
-        gameState.hoveredEntity.entityProperties.id === item.entityProperties.id
-      )
-        return "border-white hover:border-t";
-    }
+    if (itemIsDetailed) return "border-yellow-400 hover:border-t";
+    if (itemIsHovered) return "border-white hover:border-t";
     return "";
   })();
 
@@ -75,12 +65,12 @@ export default function ItemOnGround(props: Props) {
   } else {
     thumbnailId = item.entityProperties.id;
   }
-  const thumbnailOption = useGameStore.getState().itemThumbnails[thumbnailId];
-  const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-  if (focusedCharacterResult instanceof Error) return <></>;
+  const thumbnailOption = imageStore.getItemThumbnailOption(thumbnailId);
+
+  const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
   const requirementsMet = Item.requirementsMet(
     item,
-    CombatantProperties.getTotalAttributes(focusedCharacterResult.combatantProperties)
+    focusedCharacter.combatantProperties.attributeProperties.getTotalAttributes()
   );
 
   if (!requirementsMet) {
@@ -92,7 +82,7 @@ export default function ItemOnGround(props: Props) {
   if (!requirementsMet) {
     containerExtraStyles += ` ${UNMET_REQUIREMENT_TEXT_COLOR}`;
     imageExtraStyles += " filter-red";
-  } else if (item instanceof Equipment && Equipment.isMagical(item)) {
+  } else if (item instanceof Equipment && item.isMagical()) {
     containerExtraStyles += " text-blue-300";
   } else if (item instanceof Consumable) {
     containerExtraStyles += ` ${CONSUMABLE_TEXT_COLOR}`;
@@ -130,4 +120,4 @@ export default function ItemOnGround(props: Props) {
       </button>
     </li>
   );
-}
+});

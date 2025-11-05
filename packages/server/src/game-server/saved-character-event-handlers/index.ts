@@ -7,7 +7,7 @@ import {
 import { GameServer } from "..";
 import { applyMiddlewares } from "../event-middleware/index.js";
 import { provideLoggedInUser } from "../event-middleware/get-logged-in-user-from-socket.js";
-import createSavedCharacterHandler from "./create-saved-character-handler.js";
+import { createSavedCharacterHandler } from "./create-saved-character-handler.js";
 import { fetchSavedCharactersHandler } from "./fetch-saved-characters-handler.js";
 import deleteSavedCharacterHandler from "./delete-saved-character-handler.js";
 

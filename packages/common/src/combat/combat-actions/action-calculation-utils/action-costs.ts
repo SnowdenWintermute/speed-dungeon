@@ -1,6 +1,3 @@
-import { CombatantProperties } from "../../../combatants/index.js";
-import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
-
 export interface CombatActionCostBase {
   base: number;
   multipliers?: CombatActionCostModifiers;
@@ -28,31 +25,3 @@ export const ACTION_PAYABLE_RESOURCE_STRINGS: Record<ActionPayableResource, stri
 export type ActionResourceCostBases = Partial<Record<ActionPayableResource, CombatActionCostBase>>;
 
 export type ActionResourceCosts = Partial<Record<ActionPayableResource, number>>;
-
-export function getUnmetCostResourceTypes(
-  combatantProperties: CombatantProperties,
-  costs: Partial<Record<ActionPayableResource, number>>
-) {
-  const unmet: ActionPayableResource[] = [];
-
-  for (const [resourceType, cost] of iterateNumericEnumKeyedRecord(costs)) {
-    const absoluteCost = Math.abs(cost); // costs are in negative values
-
-    switch (resourceType) {
-      case ActionPayableResource.HitPoints:
-        if (absoluteCost > combatantProperties.hitPoints) unmet.push(resourceType);
-        break;
-      case ActionPayableResource.Mana:
-        if (absoluteCost > combatantProperties.mana) unmet.push(resourceType);
-        break;
-      case ActionPayableResource.Shards:
-        if (absoluteCost > combatantProperties.inventory.shards) unmet.push(resourceType);
-        break;
-      case ActionPayableResource.ActionPoints:
-        if (absoluteCost > combatantProperties.actionPoints) unmet.push(resourceType);
-        break;
-    }
-  }
-
-  return unmet;
-}

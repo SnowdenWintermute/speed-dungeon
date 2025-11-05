@@ -1,4 +1,4 @@
-import { Combatant, CombatantProperties } from "../../../combatants/index.js";
+import { Combatant } from "../../../combatants/index.js";
 import { CombatActionName } from "../../combat-actions/index.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import { BehaviorNode, BehaviorNodeState } from "../behavior-tree.js";
@@ -12,8 +12,7 @@ export class CheckIfHasRequiredConsumablesForAction implements BehaviorNode {
   execute(): BehaviorNodeState {
     if (this.actionNameOption === null) return BehaviorNodeState.Failure;
 
-    const hasRequiredConsumables = CombatantProperties.hasRequiredConsumablesToUseAction(
-      this.combatant,
+    const hasRequiredConsumables = this.combatant.hasRequiredConsumablesToUseAction(
       this.actionNameOption
     );
     if (hasRequiredConsumables) return BehaviorNodeState.Success;

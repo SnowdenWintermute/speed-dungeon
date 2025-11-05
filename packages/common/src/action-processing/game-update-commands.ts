@@ -24,13 +24,14 @@ import {
   EquipmentAnimation,
 } from "../combat/combat-actions/combat-action-steps-config.js";
 import { CleanupMode } from "../types.js";
+import { PetSlot } from "../combat/combat-actions/action-implementations/generic-action-templates/pets.js";
 
 export enum GameUpdateCommandType {
   SpawnEntities,
   CombatantMotion,
   ActionEntityMotion,
   ResourcesPaid,
-  ActionUseCombatLogMessage,
+  ActionUseGameLogMessage,
   ActivatedTriggers,
   HitOutcomes,
   ActionCompletion,
@@ -41,7 +42,7 @@ export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, str
   [GameUpdateCommandType.CombatantMotion]: "Combatant Entity Motion",
   [GameUpdateCommandType.ActionEntityMotion]: "Combatant Entity Motion",
   [GameUpdateCommandType.ResourcesPaid]: "Resources Paid",
-  [GameUpdateCommandType.ActionUseCombatLogMessage]: "Action Use Combat Log Message",
+  [GameUpdateCommandType.ActionUseGameLogMessage]: "Action Use Combat Log Message",
   [GameUpdateCommandType.ActivatedTriggers]: "Activated Triggers",
   [GameUpdateCommandType.HitOutcomes]: "Hit Outcomes",
   [GameUpdateCommandType.ActionCompletion]: "Action Completion",
@@ -155,6 +156,7 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   actionEntityIdsDespawned?: { id: EntityId; cleanupMode: CleanupMode }[];
   actionEntityIdsToHide?: EntityId[];
   actionEntityChanges?: Record<EntityId, Partial<ActionEntityActionOriginData>>;
+  petSlotsSummoned?: PetSlot[];
 }
 
 export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {
@@ -172,8 +174,8 @@ export interface ActionCompletionUpdateCommand extends IGameUpdateCommand {
   threatChanges?: ThreatChanges;
 }
 
-export interface ActionUseCombatLogMessageUpdateCommand extends IGameUpdateCommand {
-  type: GameUpdateCommandType.ActionUseCombatLogMessage;
+export interface ActionUseGameLogMessageUpdateCommand extends IGameUpdateCommand {
+  type: GameUpdateCommandType.ActionUseGameLogMessage;
   actionUseMessageData: ActionUseMessageData;
 }
 
@@ -185,4 +187,4 @@ export type GameUpdateCommand =
   | ActivatedTriggersGameUpdateCommand
   | HitOutcomesGameUpdateCommand
   | ActionCompletionUpdateCommand
-  | ActionUseCombatLogMessageUpdateCommand;
+  | ActionUseGameLogMessageUpdateCommand;

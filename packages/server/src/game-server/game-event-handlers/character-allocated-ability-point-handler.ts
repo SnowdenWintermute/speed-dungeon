@@ -1,9 +1,6 @@
 import {
-  ABILITY_TREES,
   AbilityTreeAbility,
-  AbilityUtils,
   CharacterAssociatedData,
-  CombatantAbilityProperties,
   ServerToClientEvent,
   getPartyChannelName,
 } from "@speed-dungeon/common";
@@ -17,29 +14,11 @@ export function characterAllocatedAbilityPointHandler(
   const { game, party, character } = characterAssociatedData;
   const { combatantProperties } = character;
 
-  const isMainClassAbility = AbilityUtils.abilityAppearsInTree(
-    ability,
-    ABILITY_TREES[combatantProperties.combatantClass]
-  );
-  const isSupportClassAbility = !!(
-    combatantProperties.supportClassProperties &&
-    AbilityUtils.abilityAppearsInTree(
-      ability,
-      ABILITY_TREES[combatantProperties.supportClassProperties?.combatantClass]
-    )
-  );
-
-  if (!isSupportClassAbility && !isMainClassAbility)
-    return new Error("That ability is not in any of that combatant's ability trees");
-
-  const { canAllocate, reasonCanNot } = CombatantAbilityProperties.canAllocateAbilityPoint(
-    combatantProperties,
-    ability,
-    isSupportClassAbility
-  );
+  const { canAllocate, reasonCanNot } =
+    combatantProperties.abilityProperties.canAllocateAbilityPoint(ability);
   if (!canAllocate) return new Error(reasonCanNot);
 
-  CombatantAbilityProperties.allocateAbilityPoint(combatantProperties, ability);
+  combatantProperties.abilityProperties.allocateAbilityPoint(ability);
 
   getGameServer()
     .io.in(getPartyChannelName(game.name, party.name))

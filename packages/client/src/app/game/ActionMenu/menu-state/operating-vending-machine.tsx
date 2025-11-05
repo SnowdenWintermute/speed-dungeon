@@ -1,46 +1,25 @@
-import {
-  convertToShardItemSelectionMenuState,
-  craftingItemSelectionMenuState,
-  purchasingItemsMenuState,
-  repairItemSelectionMenuState,
-  selectBooksToTradeForMenuState,
-  useGameStore,
-} from "@/stores/game-store";
-import {
-  ActionButtonCategory,
-  ActionButtonsByCategory,
-  ActionMenuButtonProperties,
-  ActionMenuState,
-  MenuStateType,
-} from ".";
-import { setAlert } from "@/app/components/alerts";
-import createPageButtons from "./create-page-buttons";
-import { immerable } from "immer";
+import { ActionMenuState } from ".";
+import { createPageButtons } from "./create-page-buttons";
 import { HOTKEYS } from "@/hotkeys";
-import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { createCancelButton } from "./common-buttons/cancel";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
+import { AppStore } from "@/mobx-stores/app-store";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
+import { MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
+import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 
 export const operateVendingMachineHotkey = HOTKEYS.SIDE_2;
 
-export class OperatingVendingMachineMenuState implements ActionMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages: number = 1;
-  type = MenuStateType.OperatingVendingMachine;
-  alwaysShowPageOne = false;
-  getCenterInfoDisplayOption = null;
-  constructor() {}
+export class OperatingVendingMachineMenuState extends ActionMenuState {
+  constructor() {
+    super(MenuStateType.OperatingVendingMachine, 1);
+  }
   getButtonProperties(): ActionButtonsByCategory {
+    const { actionMenuStore, gameStore } = AppStore.get();
     const toReturn = new ActionButtonsByCategory();
 
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult.message);
-      return toReturn;
-    }
-    const characterId = focusedCharacterResult.entityProperties.id;
-    const userControlsThisCharacter = clientUserControlsCombatant(characterId);
+    const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
 
     toReturn[ActionButtonCategory.Top].push(createCancelButton([]), setInventoryOpen);
 
@@ -48,9 +27,7 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
       () => "Purchase Items",
       "Purchase Items",
       () => {
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.push(purchasingItemsMenuState);
-        });
+        actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.PurchasingItems));
       }
     );
     purchaseItemsButton.shouldBeDisabled = !userControlsThisCharacter;
@@ -59,9 +36,7 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
       () => "Craft",
       "Craft",
       () => {
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.push(craftingItemSelectionMenuState);
-        });
+        actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.CraftingItemSelection));
       }
     );
 
@@ -69,9 +44,7 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
       () => "Repair",
       "Repair",
       () => {
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.push(repairItemSelectionMenuState);
-        });
+        actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.RepairItemSelection));
       }
     );
 
@@ -79,9 +52,7 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
       () => "Convert to Shards",
       "Convert to Shards",
       () => {
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.push(convertToShardItemSelectionMenuState);
-        });
+        actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.ShardItemSelection));
       }
     );
 
@@ -89,18 +60,12 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
       () => "Trade for Books",
       "Trade for Books",
       () => {
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.push(selectBooksToTradeForMenuState);
-        });
+        actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.SelectingBookType));
       }
     );
 
-    const partyResult = useGameStore.getState().getParty();
-    if (partyResult instanceof Error) {
-      setAlert(partyResult);
-      return toReturn;
-    }
-    const vendingMachineLevel = partyResult.currentFloor;
+    const party = AppStore.get().gameStore.getExpectedParty();
+    const vendingMachineLevel = party.dungeonExplorationManager.getCurrentFloor();
     const vmLevelLimiter = Math.floor(vendingMachineLevel / 2);
 
     selectBooksButton.shouldBeDisabled = vmLevelLimiter < 1;
@@ -111,7 +76,7 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
     toReturn[ActionButtonCategory.Numbered].push(convertButton);
     toReturn[ActionButtonCategory.Numbered].push(selectBooksButton);
 
-    createPageButtons(this, toReturn);
+    createPageButtons(toReturn);
 
     return toReturn;
   }

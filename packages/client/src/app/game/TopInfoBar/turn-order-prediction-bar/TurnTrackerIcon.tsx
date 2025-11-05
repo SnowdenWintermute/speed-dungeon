@@ -1,23 +1,19 @@
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import { useGameStore } from "@/stores/game-store";
+import { AppStore } from "@/mobx-stores/app-store";
 import { getCombatantUiIdentifierIcon } from "@/utils/get-combatant-class-icon";
-import getGameAndParty from "@/utils/getGameAndParty";
 import {
-  AdventuringParty,
   CombatantTurnTracker,
   ConditionTurnTracker,
   TurnTrackerEntityType,
 } from "@speed-dungeon/common";
+import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 
 const SHOWN_CLASSES = "mr-2 last:mr-0";
 
-export default function TurnOrderTrackerIcon({ tracker }: { tracker: CombatantTurnTracker }) {
-  const gameOption = useGameStore().game;
-  const usernameOption = useGameStore().username;
-  const result = getGameAndParty(gameOption, usernameOption);
-  if (result instanceof Error) return <div>{result.message}</div>;
-  const [game, party] = result;
+export const TurnOrderTrackerIcon = observer(({ tracker }: { tracker: CombatantTurnTracker }) => {
+  const party = AppStore.get().gameStore.getExpectedParty();
+
   let [preRemovalClassesState, _setPreRemovalClassesState] = useState(SHOWN_CLASSES);
   let [transitionStyle, _setTransitionStyle] = useState({ transition: "width 1s" });
 
@@ -27,7 +23,9 @@ export default function TurnOrderTrackerIcon({ tracker }: { tracker: CombatantTu
 
   const combatantIsAlly =
     taggedTrackedEntityId.type === TurnTrackerEntityType.Combatant &&
-    party.characterPositions.includes(taggedTrackedEntityId.combatantId);
+    party.combatantManager
+      .getExpectedCombatant(taggedTrackedEntityId.combatantId)
+      .combatantProperties.controlledBy.isPlayerControlled();
 
   const conditionalClasses = isCondition
     ? "bg-slate-600"
@@ -38,8 +36,7 @@ export default function TurnOrderTrackerIcon({ tracker }: { tracker: CombatantTu
   let combatantOption;
 
   const name: string = (() => {
-    const combatant = AdventuringParty.getExpectedCombatant(
-      party,
+    const combatant = party.combatantManager.getExpectedCombatant(
       taggedTrackedEntityId.combatantId
     );
     combatantOption = combatant;
@@ -68,4 +65,4 @@ export default function TurnOrderTrackerIcon({ tracker }: { tracker: CombatantTu
       </HoverableTooltipWrapper>
     </button>
   );
-}
+});

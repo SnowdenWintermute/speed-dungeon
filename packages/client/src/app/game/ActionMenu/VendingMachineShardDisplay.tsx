@@ -1,20 +1,22 @@
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { HOTKEYS } from "@/hotkeys";
 import React from "react";
 import { ShardsDisplay } from "../character-sheet/ShardsDisplay";
-import DropShardsModal from "../character-sheet/DropShardsModal";
-import { useGameStore } from "@/stores/game-store";
-import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
+import { DropShardsModal } from "../character-sheet/DropShardsModal";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
 
-export default function VendingMachineShardDisplay() {
-  const mutateGameState = useGameStore().mutateState;
-  const currentMenu = useGameStore.getState().getCurrentMenu();
-  const viewingCharacterSheet = shouldShowCharacterSheet(currentMenu.type);
-  const viewingDropShardsModal = useGameStore().viewingDropShardsModal;
+export const VendingMachineShardDisplay = observer(() => {
+  const { actionMenuStore } = AppStore.get();
+  const viewingCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
 
-  const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-  if (focusedCharacterResult instanceof Error) return <></>;
+  const { dialogStore } = AppStore.get();
+  const viewingDropShardsModal = dialogStore.isOpen(DialogElementName.DropShards);
+
+  const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+  const totalShards = focusedCharacter.combatantProperties.inventory.shards;
 
   return (
     <li className="ml-auto pointer-events-auto">
@@ -23,15 +25,10 @@ export default function VendingMachineShardDisplay() {
           className="disabled:opacity-50"
           hotkeys={[HOTKEYS.MAIN_2]}
           onClick={() => {
-            mutateGameState((state) => {
-              state.viewingDropShardsModal = true;
-            });
+            dialogStore.close(DialogElementName.DropShards);
           }}
         >
-          <ShardsDisplay
-            extraStyles="h-10"
-            numShards={focusedCharacterResult.combatantProperties.inventory.shards}
-          />
+          <ShardsDisplay extraStyles="h-10" numShards={totalShards} />
         </HotkeyButton>
       </HoverableTooltipWrapper>
       {/* for better tab indexing, character sheet has it's own placement of the modal */}
@@ -39,9 +36,9 @@ export default function VendingMachineShardDisplay() {
         <DropShardsModal
           className="absolute bottom-0 right-0 border border-slate-400"
           min={0}
-          max={focusedCharacterResult.combatantProperties.inventory.shards}
+          max={totalShards}
         />
       )}
     </li>
   );
-}
+});

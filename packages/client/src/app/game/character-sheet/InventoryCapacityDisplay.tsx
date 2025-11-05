@@ -1,34 +1,32 @@
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
-import { useGameStore } from "@/stores/game-store";
-import { Inventory } from "@speed-dungeon/common";
+import { AppStore } from "@/mobx-stores/app-store";
+import { observer } from "mobx-react-lite";
 import React from "react";
 
-export default function InventoryCapacityDisplay() {
-  const focusedCharacterResult = useGameStore().getFocusedCharacter();
-
-  if (focusedCharacterResult instanceof Error) return <></>;
-  const { combatantProperties } = focusedCharacterResult;
+export const InventoryCapacityDisplay = observer(() => {
+  const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+  const { combatantProperties } = focusedCharacter;
   const {
-    totalItemsInNormalStorage,
-    numConsumablesInMinibag,
+    itemsInNormalStorageCount,
+    consumablesInMinibagCount,
     minibagCapacity,
     normalStorageCapacity,
-  } = Inventory.getCapacityByItemType(combatantProperties);
+  } = combatantProperties.inventory.getCapacityByItemType();
 
   return (
     <div className="flex flex-col">
       {!!minibagCapacity && (
         <div
-          className={`${numConsumablesInMinibag > minibagCapacity ? UNMET_REQUIREMENT_TEXT_COLOR : numConsumablesInMinibag === minibagCapacity ? "text-yellow-400" : ""}`}
+          className={`${consumablesInMinibagCount > minibagCapacity ? UNMET_REQUIREMENT_TEXT_COLOR : consumablesInMinibagCount === minibagCapacity ? "text-yellow-400" : ""}`}
         >
-          Minibag Capacity: {numConsumablesInMinibag}/{minibagCapacity}
+          Minibag Capacity: {consumablesInMinibagCount}/{minibagCapacity}
         </div>
       )}
       <div
-        className={`${totalItemsInNormalStorage > normalStorageCapacity ? UNMET_REQUIREMENT_TEXT_COLOR : totalItemsInNormalStorage === normalStorageCapacity ? "text-yellow-400" : ""}`}
+        className={`${itemsInNormalStorageCount > normalStorageCapacity ? UNMET_REQUIREMENT_TEXT_COLOR : itemsInNormalStorageCount === normalStorageCapacity ? "text-yellow-400" : ""}`}
       >
-        Inventory Capacity: {totalItemsInNormalStorage}/{normalStorageCapacity}
+        Inventory Capacity: {itemsInNormalStorageCount}/{normalStorageCapacity}
       </div>
     </div>
   );
-}
+});

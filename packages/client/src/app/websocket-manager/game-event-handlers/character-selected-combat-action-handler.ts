@@ -1,7 +1,5 @@
-import { GameState } from "@/stores/game-store";
 import {
   ActionUserContext,
-  AdventuringParty,
   COMBAT_ACTIONS,
   CharacterAssociatedData,
   ERROR_MESSAGES,
@@ -10,9 +8,8 @@ import {
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { ConsideringCombatActionMenuState } from "@/app/game/ActionMenu/menu-state/considering-combat-action";
-import { synchronizeTargetingIndicators } from "./synchronize-targeting-indicators";
 import { ActionAndRank } from "@speed-dungeon/common";
-import cloneDeep from "lodash.clonedeep";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export function characterSelectedCombatActionHandler(
   characterId: string,
@@ -21,7 +18,9 @@ export function characterSelectedCombatActionHandler(
 ) {
   characterAssociatedDataProvider(
     characterId,
-    ({ character, game, party }: CharacterAssociatedData, gameState: GameState) => {
+    ({ character, game, party }: CharacterAssociatedData) => {
+      const { actionMenuStore } = AppStore.get();
+
       const targetingProperties = character.getTargetingProperties();
 
       targetingProperties.setSelectedActionAndRank(selectedActionAndRank);
@@ -29,13 +28,10 @@ export function characterSelectedCombatActionHandler(
       const itemId = itemIdOption === undefined ? null : itemIdOption;
       targetingProperties.setSelectedItemId(itemId);
 
-      if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
       const combatActionOption =
         selectedActionAndRank !== null ? COMBAT_ACTIONS[selectedActionAndRank.actionName] : null;
-      if (character.combatantProperties.controllingPlayer === null)
-        return new Error(ERROR_MESSAGES.COMBATANT.EXPECTED_OWNER_ID_MISSING);
 
-      const playerOption = game.players[character.combatantProperties.controllingPlayer];
+      const playerOption = game.players[character.combatantProperties.controlledBy.controllerName];
       if (playerOption === undefined) return new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
 
       const targetingCalculator = new TargetingCalculator(
@@ -56,30 +52,23 @@ export function characterSelectedCombatActionHandler(
         targetIds = targetIdsResult;
       }
 
-      // @PERF
-      // we're not using [immerable] on the targetingProperties because then we can't self-modify
-      // it with the .setters(), so we have to replace the whole object
-      character.combatantProperties.targetingProperties = targetingProperties.clone();
-
       const actionName =
         selectedActionAndRank?.actionName === undefined ? null : selectedActionAndRank.actionName;
 
-      synchronizeTargetingIndicators(
-        gameState,
+      AppStore.get().targetIndicatorStore.synchronize(
         actionName,
-        character.entityProperties.id,
+        character.getEntityId(),
         targetIds || []
       );
 
-      const playerOwnsCharacter = AdventuringParty.playerOwnsCharacter(
-        party,
-        gameState.username,
+      const playerOwnsCharacter = party.combatantManager.playerOwnsCharacter(
+        AppStore.get().gameStore.getExpectedUsername(),
         characterId
       );
 
       if (!playerOwnsCharacter || actionName === null) return;
 
-      gameState.stackedMenuStates.push(new ConsideringCombatActionMenuState(actionName));
+      actionMenuStore.pushStack(new ConsideringCombatActionMenuState(actionName));
     }
   );
 }

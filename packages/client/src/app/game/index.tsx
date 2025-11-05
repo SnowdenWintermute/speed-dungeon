@@ -1,53 +1,34 @@
 import React from "react";
-import { useGameStore } from "@/stores/game-store";
-import PartyWipeModal from "./PartyWipeModal";
-import TopInfoBar from "./TopInfoBar";
+import { PartyWipeModal } from "./PartyWipeModal";
+import { TopInfoBar } from "./TopInfoBar";
 import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
-import MonsterPlaques from "./MonsterPlaques";
-import { ERROR_MESSAGES } from "@speed-dungeon/common";
-import ReadyUpDisplay from "./ReadyUpDisplay";
-import CombatLog from "./combat-log";
-import getFocusedCharacter from "@/utils/getFocusedCharacter";
-import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
-import CurrentItemUnmetRequirementsUpdater from "./CurrentItemUnmetRequirementsUpdater";
-import ActionMenuAndCharacterSheetLayer from "./ActionMenuAndCharacterSheetLayer";
+import { MonsterPlaques } from "./MonsterPlaques";
+import { ReadyUpDisplay } from "./ReadyUpDisplay";
+import { GameLog } from "./combat-log";
+import { ActionMenuAndCharacterSheetLayer } from "./ActionMenuAndCharacterSheetLayer";
 import { ZIndexLayers } from "../z-index-layers";
-import PersistentActionEntityDisplay from "./persistent-action-entity-display";
+import { PersistentActionEntityDisplay } from "./persistent-action-entity-display";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
 
-export default function Game() {
-  const game = useGameStore().game;
-  const viewingLeaveGameModal = useGameStore((state) => state.viewingLeaveGameModal);
-  const currentMenu = useGameStore.getState().getCurrentMenu();
-  const viewingCharacterSheet = shouldShowCharacterSheet(currentMenu.type);
-  // const leaveGameModalOpen = useGameStore.getState().leaveGameModalOpen
+export const Game = observer(() => {
+  const { actionMenuStore, gameStore } = AppStore.get();
+  const viewingCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
 
-  const username = useGameStore().username;
-  if (!username)
-    return (
-      <div className="w-screen h-screen flex items-center justify-center">
-        {ERROR_MESSAGES.CLIENT.NO_USERNAME}
-      </div>
-    );
-  if (!game)
-    return (
-      <div className="w-screen h-screen flex items-center justify-center">
-        {ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME}
-      </div>
-    );
-  const focusedCharacterResult = getFocusedCharacter();
-  if (focusedCharacterResult instanceof Error)
+  const viewingLeaveGameModal = AppStore.get().dialogStore.isOpen(DialogElementName.LeaveGame);
+
+  const focusedCharacterOption = AppStore.get().gameStore.getFocusedCharacterOption();
+
+  if (focusedCharacterOption === undefined) {
     return (
       <div>
         <div>Awaiting focused character...</div>
       </div>
     );
+  }
 
-  const player = game.players[username];
-  if (!player) return <div>Client player not found</div>;
-  const partyName = player.partyName;
-  if (!partyName) return <div>Client player doesn't know what party they are in</div>;
-  const party = game.adventuringParties[partyName];
-  if (!party) return <div>Client thinks it is in a party that doesn't exist</div>;
+  const { game, party } = gameStore.getFocusedCharacterContext();
 
   return (
     <>
@@ -57,7 +38,6 @@ export default function Game() {
           zIndex: viewingLeaveGameModal ? ZIndexLayers.GameModal : ZIndexLayers.MainUI,
         }}
       >
-        <CurrentItemUnmetRequirementsUpdater />
         <PartyWipeModal party={party} />
         {
           // BASE LAYER
@@ -77,13 +57,15 @@ export default function Game() {
             </div>
             <div className="flex flex-wrap justify-between">
               <div className="h-[14rem] min-w-[23rem] max-w-[26rem]  border border-slate-400 bg-slate-700 p-2 pointer-events-auto">
-                <CombatLog />
+                <GameLog />
               </div>
               <div className="flex flex-grow justify-end mt-3.5 max-w-full">
                 <div className="w-fit max-w-full flex items-end">
                   <CombatantPlaqueGroup
                     party={party}
-                    combatantIds={party.characterPositions}
+                    combatantIds={party.combatantManager
+                      .getPartyMemberCharacters()
+                      .map((combatant) => combatant.getEntityId())}
                     isPlayerControlled={true}
                   />
                 </div>
@@ -95,4 +77,4 @@ export default function Game() {
       <ActionMenuAndCharacterSheetLayer party={party} />
     </>
   );
-}
+});

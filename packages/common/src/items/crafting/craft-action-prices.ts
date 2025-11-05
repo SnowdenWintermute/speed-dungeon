@@ -54,7 +54,7 @@ export const CRAFTING_ACTION_PRICE_CALCULATORS: Record<
 > = {
   [CraftingAction.Repair]: (equipment: Equipment) => {
     const baseValue = getEquipmentBaseValue(equipment);
-    const normalizedPercentRepaired = Equipment.getNormalizedPercentRepaired(equipment);
+    const normalizedPercentRepaired = equipment.getNormalizedPercentRepaired();
     const baseRepairCost = baseValue - baseValue * normalizedPercentRepaired;
     if (equipment.durability?.current === 0)
       return baseRepairCost * BROKEN_ITEM_REPAIR_COST_MULTIPLIER;
@@ -67,8 +67,8 @@ export const CRAFTING_ACTION_PRICE_CALCULATORS: Record<
   [CraftingAction.Tumble]: (equipment: Equipment) => getBaseCraftingCost(equipment.itemLevel),
   [CraftingAction.Reform]: (equipment: Equipment) => {
     let cost = getBaseCraftingCost(equipment.itemLevel);
-    const hasSuffix = Equipment.hasSuffix(equipment);
-    const hasPrefix = Equipment.hasPrefix(equipment);
+    const hasSuffix = equipment.hasSuffix();
+    const hasPrefix = equipment.hasPrefix();
     if (hasSuffix && hasPrefix) cost *= 1 + (1 - CHANCE_TO_HAVE_DOUBLE_AFFIX);
     else if (hasPrefix) cost *= 1 + (1 - CHANCE_TO_HAVE_PREFIX);
     else if (hasSuffix) cost *= 1 + (1 - CHANCE_TO_HAVE_SUFFIX);

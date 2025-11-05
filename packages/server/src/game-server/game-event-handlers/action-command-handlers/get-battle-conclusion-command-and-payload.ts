@@ -7,7 +7,6 @@ import {
   Consumable,
   ERROR_MESSAGES,
   Equipment,
-  InputLock,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../../singletons/index.js";
@@ -21,7 +20,10 @@ export async function getBattleConclusionCommandAndPayload(
   }
 ) {
   const gameServer = getGameServer();
-  if (!party.characterPositions[0]) throw new Error(ERROR_MESSAGES.PARTY.MISSING_CHARACTERS);
+
+  if (!party.combatantManager.hasCharacters()) {
+    throw new Error(ERROR_MESSAGES.PARTY.MISSING_CHARACTERS);
+  }
 
   let conclusion: BattleConclusion;
   let loot: { equipment: Equipment[]; consumables: Consumable[] } = {
@@ -37,13 +39,11 @@ export async function getBattleConclusionCommandAndPayload(
     loot = gameServer.generateLoot(party);
     experiencePointChanges = gameServer.generateExperiencePoints(party);
 
-    InputLock.unlockInput(party.inputLock);
+    party.inputLock.unlockInput();
   }
 
-  const actionEntitiesRemoved = AdventuringParty.unregisterActionEntitiesOnBattleEndOrNewRoom(
-    party,
-    AdventuringParty.getBattleOption(party, game)
-  );
+  const { actionEntityManager } = party;
+  const actionEntitiesRemoved = actionEntityManager.unregisterActionEntitiesOnBattleEndOrNewRoom();
 
   const payload: BattleResultActionCommandPayload = {
     type: ActionCommandType.BattleResult,

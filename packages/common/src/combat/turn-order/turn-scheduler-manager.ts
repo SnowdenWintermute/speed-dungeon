@@ -1,5 +1,5 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { Battle } from "../../battle/index.js";
+import { CombatantCondition } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { CombatantTurnScheduler } from "./combatant-turn-scheduler.js";
@@ -8,7 +8,10 @@ import { BASE_ACTION_DELAY_MULTIPLIER } from "./consts.js";
 import { TurnOrderManager } from "./turn-order-manager.js";
 import { TurnSchedulerFactory } from "./turn-scheduler-factory.js";
 import { ITurnScheduler } from "./turn-schedulers.js";
-import { TaggedTurnTrackerTrackedEntityId } from "./turn-tracker-tagged-tracked-entity-ids.js";
+import {
+  TaggedTurnTrackerTrackedEntityId,
+  TurnTrackerEntityType,
+} from "./turn-tracker-tagged-tracked-entity-ids.js";
 import { CombatantTurnTracker, TurnTracker } from "./turn-trackers.js";
 
 export enum TurnTrackerSortableProperty {
@@ -21,13 +24,10 @@ export class TurnSchedulerManager {
 
   constructor(
     private minTurnTrackersCount: number,
-    game: SpeedDungeonGame,
-    battle: Battle
+    party: AdventuringParty
   ) {
-    const { combatants, tickableConditions } = Battle.getAllTickableConditionsAndCombatants(
-      game,
-      battle
-    );
+    const { combatants, tickableConditions } =
+      party.combatantManager.getAllTickableConditionsAndCombatants();
 
     this.schedulers = [
       ...combatants.map((combatant) => new CombatantTurnScheduler(combatant.entityProperties.id)),
@@ -135,5 +135,38 @@ export class TurnSchedulerManager {
   addNewScheduler(from: TaggedTurnTrackerTrackedEntityId, startingDelay: number) {
     const scheduler = TurnSchedulerFactory.create(from, startingDelay);
     this.schedulers.push(scheduler);
+  }
+
+  addConditionToTurnOrder(party: AdventuringParty, condition: CombatantCondition) {
+    const tickPropertiesOption = condition.getTickProperties();
+
+    if (!tickPropertiesOption) return;
+
+    // add one actions worth + 1 delay or else when we get to the endTurnAndEvaluateInputLock step
+    // when we search for the fastest scheduler tracker it will find this
+    // condition's tracker instead of the combatant, since we are adding the scheduler now
+    // and the combatant who's action applied this condition won't update their scheduler
+    // until a later step
+    const appliedByScheduler = this.getSchedulerByCombatantId(
+      condition.appliedBy.entityProperties.id
+    );
+
+    // once we start getting action delay costs that are different per each action
+    // we'll have to calculate this based on the current action
+    const appliedByPredictedAdditionalDelay = TurnOrderManager.getActionDelayCost(
+      appliedByScheduler.getSpeed(party),
+      BASE_ACTION_DELAY_MULTIPLIER
+    );
+
+    const combatantApplyingAccumulatedDelay = appliedByScheduler.accumulatedDelay;
+
+    this.addNewScheduler(
+      {
+        type: TurnTrackerEntityType.Condition,
+        combatantId: condition.appliedTo,
+        conditionId: condition.id,
+      },
+      combatantApplyingAccumulatedDelay + appliedByPredictedAdditionalDelay + 1
+    );
   }
 }

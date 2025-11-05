@@ -5,7 +5,6 @@ import {
   ServerToClientEvent,
   ServerToClientEventTypes,
   SpeedDungeonGame,
-  addCharacterToParty,
   getProgressionGameMaxStartingFloor,
   getProgressionGamePartyName,
 } from "@speed-dungeon/common";
@@ -14,7 +13,7 @@ import errorHandler from "../error-handler.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
 import SocketIO from "socket.io";
 import joinPlayerToGame from "./join-player-to-game.js";
-import joinPartyHandler from "./join-party-handler.js";
+import { joinPartyHandler } from "./join-party-handler.js";
 
 export async function joinPlayerToProgressionGame(
   gameServer: GameServer,
@@ -36,7 +35,11 @@ export async function joinPlayerToProgressionGame(
     return errorHandler(socket, new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST));
 
   const deserialized = Combatant.getDeserialized(character);
-  addCharacterToParty(game, partyOption, playerOption, deserialized);
+
+  // @TODO - actually load their pets
+  const pets: Combatant[] = [];
+
+  game.addCharacterToParty(partyOption, playerOption, deserialized, pets);
 
   game.lowestStartingFloorOptionsBySavedCharacter[character.entityProperties.id] =
     character.combatantProperties.deepestFloorReached;
@@ -50,5 +53,5 @@ export async function joinPlayerToProgressionGame(
   gameServer.io
     .of("/")
     .in(game.name)
-    .emit(ServerToClientEvent.CharacterAddedToParty, partyName, session.username, character);
+    .emit(ServerToClientEvent.CharacterAddedToParty, session.username, character, pets);
 }

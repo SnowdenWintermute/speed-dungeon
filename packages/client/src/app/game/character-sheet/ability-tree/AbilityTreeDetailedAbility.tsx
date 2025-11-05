@@ -1,5 +1,4 @@
 import Divider from "@/app/components/atoms/Divider";
-import { useGameStore } from "@/stores/game-store";
 import {
   AbilityType,
   COMBATANT_TRAIT_DESCRIPTIONS,
@@ -8,12 +7,14 @@ import {
 } from "@speed-dungeon/common";
 import React from "react";
 import { COMBAT_ACTION_DESCRIPTIONS } from "./ability-descriptions";
-import ActionDescriptionDisplay from "./ActionDescriptionDisplay";
+import { ActionDescriptionDisplay } from "./ActionDescriptionDisplay";
 import TraitDescriptionDisplay from "./TraitDescriptionDisplay";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
 
-export default function AbilityTreeDetailedAbility({ user }: { user: Combatant }) {
-  const detailedAbility = useGameStore().detailedCombatantAbility;
-  const hoveredCombatantAbility = useGameStore().hoveredCombatantAbility;
+export const AbilityTreeDetailedAbility = observer(({ user }: { user: Combatant }) => {
+  const focusedAbility = AppStore.get().focusStore.combatantAbilities.get();
+  const { detailed: detailedAbility, hovered: hoveredCombatantAbility } = focusedAbility;
   const ability = hoveredCombatantAbility || detailedAbility || null;
 
   let abilityNameString = "Select an ability";
@@ -44,4 +45,4 @@ export default function AbilityTreeDetailedAbility({ user }: { user: Combatant }
       <div className="overflow-y-auto flex-1">{descriptionDisplay}</div>
     </div>
   );
-}
+});

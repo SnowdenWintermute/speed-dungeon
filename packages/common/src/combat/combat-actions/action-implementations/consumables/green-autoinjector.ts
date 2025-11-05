@@ -1,15 +1,11 @@
 import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
   CombatActionOrigin,
 } from "../../index.js";
-import {
-  BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL,
-  CombatantProperties,
-  CombatantTraitType,
-} from "../../../../combatants/index.js";
+import { BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL } from "../../../../combatants/index.js";
 import {
   ResourceChangeSource,
   ResourceChangeSourceCategory,
@@ -35,6 +31,7 @@ import {
   createCostPropertiesConfig,
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import { CombatantTraitType } from "../../../../combatants/combatant-traits/trait-types.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 
@@ -47,7 +44,7 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
 
     let hpBioavailability = 1;
 
-    const { inherentTraitLevels } = primaryTarget.abilityProperties.traitProperties;
+    const { inherentTraitLevels } = primaryTarget.abilityProperties.getTraitProperties();
 
     const traitBioavailabilityPercentageModifier =
       (inherentTraitLevels[CombatantTraitType.HpBioavailability] || 0) *
@@ -55,7 +52,7 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
       100;
     hpBioavailability = traitBioavailabilityPercentageModifier / 100;
 
-    const maxHp = CombatantProperties.getTotalAttributes(primaryTarget)[CombatAttribute.Hp];
+    const maxHp = primaryTarget.attributeProperties.getAttributeValue(CombatAttribute.Hp);
     const minHealing = (hpBioavailability * maxHp) / 8;
     const maxHealing = (hpBioavailability * 3 * maxHp) / 8;
 
@@ -87,7 +84,7 @@ const config: CombatActionComponentConfig = {
   description: "Restore hit points to a target",
   targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_FRIENDLY(),
   hitOutcomeProperties,
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.Medication,
     getOnUseMessage: (data) => {
       return `${data.nameOfActionUser} uses a green autoinjector.`;

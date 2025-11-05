@@ -47,7 +47,7 @@ export function getRotateTowardPrimaryTargetDestination(context: ActionResolutio
   if (primaryTargetResult.entityProperties.id === actionUser.getEntityId())
     return { rotation: actionUser.getHomeRotation() };
 
-  const direction = target.combatantProperties.homeLocation
+  const direction = target.combatantProperties.transformProperties.homePosition
     .subtract(actionUser.getHomePosition())
     .normalize();
 
@@ -76,5 +76,5 @@ export function getPrimaryTargetPositionAsDestination(
   if (primaryTargetResult instanceof Error) return primaryTargetResult;
   const target = primaryTargetResult;
 
-  return { position: target.combatantProperties.homeLocation.clone() };
+  return { position: target.combatantProperties.transformProperties.homePosition.clone() };
 }

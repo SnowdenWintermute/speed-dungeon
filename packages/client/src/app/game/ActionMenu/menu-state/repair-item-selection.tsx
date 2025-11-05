@@ -1,63 +1,52 @@
-import { ActionButtonCategory, MenuStateType } from ".";
-import { immerable } from "immer";
 import { ItemsMenuState } from "./items";
 import {
   ClientToServerEvent,
-  CombatantProperties,
   CraftingAction,
   Equipment,
   Item,
   getCraftingActionPrice,
 } from "@speed-dungeon/common";
-import { useGameStore } from "@/stores/game-store";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { setAlert } from "@/app/components/alerts";
 import { PriceDisplay } from "../../character-sheet/ShardsDisplay";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory } from "./action-buttons-by-category";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export class RepairItemSelectionMenuState extends ItemsMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages = 1;
   constructor() {
     super(
       MenuStateType.RepairItemSelection,
       { text: "Cancel", hotkeys: [] },
       (item: Item) => {
-        const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-        if (focusedCharacterResult instanceof Error) {
-          setAlert(focusedCharacterResult.message);
-          return;
-        }
+        const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
         websocketConnection.emit(ClientToServerEvent.PerformCraftingAction, {
-          characterId: focusedCharacterResult.entityProperties.id,
+          characterId: focusedCharacter.getEntityId(),
           itemId: item.entityProperties.id,
           craftingAction: CraftingAction.Repair,
         });
       },
       () => {
-        const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-        if (focusedCharacterResult instanceof Error) return [];
-        return CombatantProperties.getOwnedEquipment(
-          focusedCharacterResult.combatantProperties
-        ).filter((equipment) => {
-          const durability = Equipment.getDurability(equipment);
-          return durability !== null && durability.current !== durability.max;
-        });
+        const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+        return focusedCharacter.combatantProperties.inventory
+          .getOwnedEquipment()
+          .filter((equipment) => {
+            const durability = equipment.getDurability();
+            return durability !== null && durability.current !== durability.max;
+          });
       },
       {
         extraButtons: {
           [ActionButtonCategory.Top]: [setInventoryOpen],
         },
         getItemButtonCustomChildren: (item: Item) => {
-          if (!(item instanceof Equipment) || Equipment.getNormalizedPercentRepaired(item) >= 1)
+          if (!(item instanceof Equipment) || item.getNormalizedPercentRepaired() >= 1)
             return <></>;
-          const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-          if (focusedCharacterResult instanceof Error) return <></>;
+          const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
           const price = getCraftingActionPrice(CraftingAction.Repair, item);
-          const durability = Equipment.getDurability(item);
+          const durability = item.getDurability();
           return (
             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex">
               {durability && (
@@ -71,7 +60,7 @@ export class RepairItemSelectionMenuState extends ItemsMenuState {
               )}
               <PriceDisplay
                 price={price}
-                shardsOwned={focusedCharacterResult.combatantProperties.inventory.shards}
+                shardsOwned={focusedCharacter.combatantProperties.inventory.shards}
               />
             </div>
           );

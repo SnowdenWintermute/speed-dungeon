@@ -1,6 +1,5 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { EntityId } from "../../primatives/index.js";
-import { CombatantCondition, CombatantProperties } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { ITurnScheduler, TurnScheduler } from "./turn-schedulers.js";
 import { ConditionTurnTracker } from "./turn-trackers.js";
@@ -15,34 +14,29 @@ export class ConditionTurnScheduler extends TurnScheduler implements ITurnSchedu
   }
   getTiebreakerId = () => this.conditionId;
   getSpeed(party: AdventuringParty) {
-    const conditionResult = AdventuringParty.getConditionOnCombatant(
-      party,
+    const condition = party.combatantManager.getExpectedConditionOnCombatant(
       this.combatantId,
       this.conditionId
     );
-    if (conditionResult instanceof Error) {
-      throw conditionResult;
-    }
 
-    const tickPropertiesOption = CombatantCondition.getTickProperties(conditionResult);
+    const tickPropertiesOption = condition.getTickProperties();
 
     if (tickPropertiesOption === null) throw new Error("expected condition to be tickable");
-    return tickPropertiesOption.getTickSpeed(conditionResult);
+    return tickPropertiesOption.getTickSpeed(condition);
   }
 
   isStale(party: AdventuringParty) {
-    const combatantResult = AdventuringParty.getCombatant(party, this.combatantId);
+    const { combatantManager } = party;
+    const combatantOption = combatantManager.getCombatantOption(this.combatantId);
     const combatantIsDeadOrMissing =
-      combatantResult instanceof Error ||
-      CombatantProperties.isDead(combatantResult.combatantProperties);
+      combatantOption === undefined || combatantOption.combatantProperties.isDead();
     if (combatantIsDeadOrMissing) return true;
 
-    const conditionResult = AdventuringParty.getConditionOnCombatant(
-      party,
+    const conditionResult = combatantManager.getConditionOptionOnCombatant(
       this.combatantId,
       this.conditionId
     );
-    return conditionResult instanceof Error;
+    return conditionResult === undefined;
   }
 
   isMatch(otherScheduler: ITurnScheduler): boolean {
@@ -54,13 +48,9 @@ export class ConditionTurnScheduler extends TurnScheduler implements ITurnSchedu
 
   createTurnTrackerOption(game: SpeedDungeonGame, party: AdventuringParty) {
     const { combatantId, conditionId, timeOfNextMove } = this;
-    const conditionResult = AdventuringParty.getConditionOnCombatant(
-      party,
-      combatantId,
-      conditionId
-    );
-    if (conditionResult instanceof Error) throw conditionResult;
-    const condition = conditionResult;
+    const { combatantManager } = party;
+    const condition = combatantManager.getExpectedConditionOnCombatant(combatantId, conditionId);
+
     const stacksRemaining = condition.stacksOption?.current;
 
     if (!stacksRemaining) return null;
@@ -70,12 +60,9 @@ export class ConditionTurnScheduler extends TurnScheduler implements ITurnSchedu
     // record expected stacks consumed for this condition on its turn
 
     if (this.predictedConsumedStacks < stacksRemaining) {
-      const tickPropertiesOption = CombatantCondition.getTickProperties(condition);
+      const tickPropertiesOption = condition.getTickProperties();
 
       if (tickPropertiesOption) {
-        const combatantAppliedToResult = AdventuringParty.getCombatant(party, combatantId);
-        if (combatantAppliedToResult instanceof Error) throw combatantAppliedToResult;
-
         const ticksPredicted = tickPropertiesOption.onTick(
           new ActionUserContext(game, party, condition)
         ).numStacksRemoved;

@@ -1,27 +1,23 @@
 import { BUTTON_HEIGHT_SMALL, SPACING_REM } from "@/client_consts";
-import { useGameStore } from "@/stores/game-store";
-import getParty from "@/utils/getParty";
+import { AppStore } from "@/mobx-stores/app-store";
 import { DUNGEON_ROOM_TYPE_STRINGS } from "@speed-dungeon/common";
+import { observer } from "mobx-react-lite";
 import React from "react";
 
-export default function RoomExplorationTracker() {
-  const game = useGameStore().game;
-  const username = useGameStore().username;
-  if (!game || !username) return <div>Client error</div>;
-  const partyResult = getParty(game, username);
-  if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
-  const party = partyResult;
+export const RoomExplorationTracker = observer(() => {
+  const { party } = AppStore.get().gameStore.getFocusedCharacterContext();
+
+  const currentRoom = party.dungeonExplorationManager.getCurrentRoomNumber();
+  const roomList = party.dungeonExplorationManager.getClientVisibleRoomExplorationList();
 
   return (
     <ul className="h-full list-none flex items-center">
-      {party.clientCurrentFloorRoomsList.map((roomTypeOption, i) => {
+      {roomList.map((roomTypeOption, i) => {
         const currentRoomClass =
-          party.roomsExplored.onCurrentFloor === i + 1
-            ? "border border-yellow-400"
-            : "border-slate-400";
+          currentRoom === i + 1 ? "border border-yellow-400" : "border-slate-400";
 
         const connectionLine =
-          i !== party.clientCurrentFloorRoomsList.length - 1 ? (
+          i !== roomList.length - 1 ? (
             <span className={"h-[2px] bg-slate-400"} style={{ width: `${SPACING_REM}rem` }} />
           ) : (
             <></>
@@ -41,4 +37,4 @@ export default function RoomExplorationTracker() {
       })}
     </ul>
   );
-}
+});

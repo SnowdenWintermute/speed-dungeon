@@ -1,7 +1,5 @@
 import {
   ActionEntity,
-  AdventuringParty,
-  ERROR_MESSAGES,
   SpawnableEntityType,
   SpawnEntitiesGameUpdateCommand,
 } from "@speed-dungeon/common";
@@ -14,9 +12,8 @@ import { getGameWorld } from "../../SceneManager";
 import { SceneEntity } from "../../scene-entities";
 import { handleStartPointingTowardEntity } from "./entity-motion-update-handlers/handle-start-pointing-toward";
 import { handleLockRotationToFace } from "./entity-motion-update-handlers/handle-lock-rotation-to-face";
-import { useGameStore } from "@/stores/game-store";
-import getParty from "@/utils/getParty";
-import { GameUpdateTracker } from ".";
+import { GameUpdateTracker } from "./game-update-tracker";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export async function spawnEntitiesGameUpdateHandler(
   update: GameUpdateTracker<SpawnEntitiesGameUpdateCommand>
@@ -56,17 +53,13 @@ export async function spawnEntitiesGameUpdateHandler(
 
     getGameWorld().actionEntityManager.register(model);
 
-    useGameStore.getState().mutateState((state) => {
-      const partyResult = getParty(state.game, state.username);
-      if (!(partyResult instanceof Error)) {
-        if (state.game === null) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-        const battleOption = AdventuringParty.getBattleOption(partyResult, state.game);
+    const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
+    const battleOption = party.getBattleOption(game);
 
-        const deserialized = ActionEntity.getDeserialized(actionEntity);
+    const deserialized = ActionEntity.getDeserialized(actionEntity);
 
-        AdventuringParty.registerActionEntity(partyResult, deserialized, battleOption);
-      }
-    });
+    const { actionEntityManager } = party;
+    actionEntityManager.registerActionEntity(deserialized, battleOption);
 
     if (actionEntityProperties.parentOption) {
       const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(

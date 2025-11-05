@@ -1,7 +1,7 @@
-import { useUIStore } from "@/stores/ui-store";
 import Triangle from "../../../../public/img/basic-shapes/triangle.svg";
 import React, { useEffect, useRef, useState } from "react";
 import { ZIndexLayers } from "@/app/z-index-layers";
+import { AppStore } from "@/mobx-stores/app-store";
 
 interface Props {
   title: string;
@@ -14,13 +14,13 @@ interface Props {
 
 export default function SelectDropdown(props: Props) {
   const { options, value } = props;
-  const mutateUIState = useUIStore().mutateState;
   const selectInputRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [indexSelected, setIndexSelected] = useState<number>(
     options.reduce((accumulator, option, i) => (option.value === value ? i : accumulator), 0)
   );
+  const { inputStore } = AppStore.get();
 
   useEffect(() => {
     if (props.disabled) return;
@@ -36,9 +36,7 @@ export default function SelectDropdown(props: Props) {
   }, [value]);
 
   function handleBlur() {
-    mutateUIState((state) => {
-      state.hotkeysDisabled = false;
-    });
+    inputStore.setHotkeysDisabled(false);
     setIsFocused(false);
     setIsOpen(false);
     // const activeElement = document.activeElement as HTMLElement;
@@ -50,9 +48,7 @@ export default function SelectDropdown(props: Props) {
   function handleFocus() {
     if (!selectInputRef.current) return;
     setIsFocused(true);
-    mutateUIState((state) => {
-      state.hotkeysDisabled = true;
-    });
+    inputStore.setHotkeysDisabled(true);
   }
 
   function handleUserKeydown(e: KeyboardEvent) {

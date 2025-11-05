@@ -6,77 +6,77 @@ import {
 } from "@/app/3d-world/scene-entities/environment-models/environment-model-paths";
 import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
-import { setAlert } from "@/app/components/alerts";
-import { useGameStore } from "@/stores/game-store";
-import getCurrentParty from "@/utils/getCurrentParty";
 import { Vector3 } from "@babylonjs/core";
 import {
-  AdventuringParty,
   CleanupMode,
   Combatant,
   Consumable,
   DungeonRoom,
   DungeonRoomType,
   EntityId,
-  ERROR_MESSAGES,
-  Inventory,
   Item,
-  updateCombatantHomePosition,
 } from "@speed-dungeon/common";
+import { AppStore } from "@/mobx-stores/app-store";
 
-export default function newDungeonRoomHandler({
+export function newDungeonRoomHandler({
   dungeonRoom: room,
+  monsters: newCombatants,
   actionEntitiesToRemove,
 }: {
   dungeonRoom: DungeonRoom;
+  monsters: Combatant[];
   actionEntitiesToRemove: EntityId[];
 }) {
+  const deserializedRoom = DungeonRoom.getDeserialized(room);
   const itemIdsOnGroundInPreviousRoom: string[] = [];
   const newItemsOnGround: Item[] = [];
   let previousRoomType;
 
-  useGameStore.getState().mutateState((gameState) => {
-    const party = getCurrentParty(gameState, gameState.username || "");
-    if (party === undefined) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY));
+  const party = AppStore.get().gameStore.getExpectedParty();
 
-    for (const actionEntityId of actionEntitiesToRemove) {
-      AdventuringParty.unregisterActionEntity(party, actionEntityId, null);
-      getGameWorld().actionEntityManager.unregister(actionEntityId, CleanupMode.Soft);
-    }
+  const { actionEntityManager } = party;
+  for (const actionEntityId of actionEntitiesToRemove) {
+    actionEntityManager.unregisterActionEntity(actionEntityId);
+    getGameWorld().actionEntityManager.unregister(actionEntityId, CleanupMode.Soft);
+  }
 
-    itemIdsOnGroundInPreviousRoom.push(
-      ...Inventory.getItems(party.currentRoom.inventory).map((item) => item.entityProperties.id)
-    );
+  itemIdsOnGroundInPreviousRoom.push(
+    ...party.currentRoom.inventory.getItems().map((item) => item.entityProperties.id)
+  );
 
-    party.playersReadyToDescend = [];
-    party.playersReadyToExplore = [];
-    previousRoomType = party.currentRoom.roomType;
-    party.currentRoom = room;
+  const { dungeonExplorationManager } = party;
 
-    Inventory.instantiateItemClasses(party.currentRoom.inventory);
-    for (const item of Inventory.getItems(party.currentRoom.inventory)) {
-      newItemsOnGround.push(item);
-    }
+  dungeonExplorationManager.clearPlayerExplorationActionChoices();
 
-    gameState.hoveredEntity = null;
+  previousRoomType = party.currentRoom.roomType;
+  party.setCurrentRoom(deserializedRoom);
 
-    for (const [entityId, monster] of Object.entries(party.currentRoom.monsters)) {
-      updateCombatantHomePosition(monster.entityProperties.id, monster.combatantProperties, party);
-      party.currentRoom.monsters[entityId] = Combatant.getDeserialized(monster);
-    }
+  for (const item of party.currentRoom.inventory.getItems()) {
+    newItemsOnGround.push(item);
+  }
 
-    party.roomsExplored.onCurrentFloor += 1;
-    party.roomsExplored.total += 1;
-    const indexOfRoomTypeToReveal = party.roomsExplored.onCurrentFloor - 1;
-    party.clientCurrentFloorRoomsList[indexOfRoomTypeToReveal] = room.roomType;
+  const { focusStore } = AppStore.get();
+  focusStore.detailables.clearHovered();
 
-    if (room.monsterPositions.length) gameState.baseMenuState.inCombat = true;
-  });
+  const { combatantManager } = party;
 
-  if (
-    room.roomType === DungeonRoomType.VendingMachine &&
-    !(previousRoomType === DungeonRoomType.VendingMachine)
-  )
+  for (const combatant of newCombatants) {
+    const deserialized = Combatant.getDeserialized(combatant);
+    combatantManager.addCombatant(deserialized);
+  }
+
+  combatantManager.updateHomePositions();
+
+  dungeonExplorationManager.incrementExploredRoomsTrackers();
+
+  const indexOfRoomTypeToReveal = dungeonExplorationManager.getCurrentRoomNumber() - 1;
+  dungeonExplorationManager.getClientVisibleRoomExplorationList()[indexOfRoomTypeToReveal] =
+    room.roomType;
+
+  const noPreviouslySpawnedVendingMachine = !(previousRoomType === DungeonRoomType.VendingMachine);
+  const roomHasVendingMachine = room.roomType === DungeonRoomType.VendingMachine;
+
+  if (roomHasVendingMachine && noPreviouslySpawnedVendingMachine) {
     gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SpawnEnvironmentModel,
       modelType: EnvironmentModelTypes.VendingMachine,
@@ -85,7 +85,7 @@ export default function newDungeonRoomHandler({
       id: "vending-machine",
       position: Vector3.Forward(),
     });
-  else if (room.roomType !== DungeonRoomType.VendingMachine) {
+  } else if (!roomHasVendingMachine) {
     gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.DespawnEnvironmentModel,
       id: "vending-machine",
@@ -101,10 +101,13 @@ export default function newDungeonRoomHandler({
     type: ImageManagerRequestType.ItemDeletion,
     itemIds: itemIdsOnGroundInPreviousRoom,
   });
-  for (const item of newItemsOnGround)
-    if (!(item instanceof Consumable))
-      gameWorld.current?.imageManager.enqueueMessage({
-        type: ImageManagerRequestType.ItemCreation,
-        item,
-      });
+
+  for (const item of newItemsOnGround) {
+    if (item instanceof Consumable) continue;
+
+    gameWorld.current?.imageManager.enqueueMessage({
+      type: ImageManagerRequestType.ItemCreation,
+      item,
+    });
+  }
 }

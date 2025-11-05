@@ -1,15 +1,11 @@
 import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
   CombatActionOrigin,
 } from "../../index.js";
-import {
-  BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL,
-  CombatantProperties,
-  CombatantTraitType,
-} from "../../../../combatants/index.js";
+import { BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL } from "../../../../combatants/index.js";
 import { ConsumableType } from "../../../../items/consumables/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
@@ -37,6 +33,7 @@ import {
   createCostPropertiesConfig,
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import { CombatantTraitType } from "../../../../combatants/combatant-traits/trait-types.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 
@@ -44,7 +41,7 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
   [CombatActionResource.Mana]: (user, hitOutcomeProperties, actionLevel, primaryTarget) => {
     let mpBioavailability = 1;
 
-    const { inherentTraitLevels } = primaryTarget.abilityProperties.traitProperties;
+    const { inherentTraitLevels } = primaryTarget.abilityProperties.getTraitProperties();
 
     const traitBioavailabilityPercentageModifier =
       (inherentTraitLevels[CombatantTraitType.MpBioavailability] || 0) *
@@ -53,7 +50,7 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
 
     mpBioavailability = traitBioavailabilityPercentageModifier / 100;
 
-    const maxMp = CombatantProperties.getTotalAttributes(primaryTarget)[CombatAttribute.Mp];
+    const maxMp = primaryTarget.attributeProperties.getAttributeValue(CombatAttribute.Mp);
     const minRestored = Math.max(1, (mpBioavailability * maxMp) / 8);
     const maxRestored = Math.max(1, (mpBioavailability * 3 * maxMp) / 8);
 
@@ -87,7 +84,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(base, hitOutcomeOverride
 
 const config: CombatActionComponentConfig = {
   description: "Refreshes a target's mana reserves",
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.Medication,
     getOnUseMessage: (data) => {
       return `${data.nameOfActionUser} uses a blue autoinjector.`;

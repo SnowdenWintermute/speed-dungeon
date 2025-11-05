@@ -1,5 +1,4 @@
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
-import { CombatantProperties } from "../../../../combatants/index.js";
 import {
   CombatantBaseChildTransformNodeName,
   SceneEntityChildTransformNodeIdentifier,
@@ -84,7 +83,7 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
     if (primaryTargetResult instanceof Error) return primaryTargetResult;
     const target = primaryTargetResult;
 
-    return { position: target.combatantProperties.homeLocation.clone() };
+    return { position: target.combatantProperties.transformProperties.homePosition.clone() };
   },
   getNewParent: () => null,
 };
@@ -115,7 +114,7 @@ finalStepOverrides[ActionResolutionStepType.ActionEntityDissipationMotion] = {
     if (combatantNotFound) {
       return CleanupMode.Soft;
     }
-    const targetIsDead = CombatantProperties.isDead(primaryTargetResult.combatantProperties);
+    const targetIsDead = primaryTargetResult.combatantProperties.isDead();
     if (targetIsDead) {
       return CleanupMode.Soft;
     }

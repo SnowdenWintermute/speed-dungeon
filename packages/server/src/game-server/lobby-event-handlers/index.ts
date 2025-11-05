@@ -5,23 +5,23 @@ import {
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import { GameServer } from "../index.js";
-import joinPartyHandler from "./join-party-handler.js";
+import { joinPartyHandler } from "./join-party-handler.js";
 import { applyMiddlewares } from "../event-middleware/index.js";
 import { playerInGame } from "../event-middleware/get-player-associated-data.js";
-import createPartyHandler from "./create-party-handler.js";
+import { createPartyHandler } from "./create-party-handler.js";
 import { toggleReadyToStartGameHandler } from "./toggle-ready-to-start-game-handler.js";
-import leavePartyHandler from "./leave-party-handler.js";
-import leaveGameHandler from "./leave-game-handler.js";
+import { leavePartyHandler } from "./leave-party-handler.js";
+import { leaveGameHandler } from "./leave-game-handler.js";
 import joinGameHandler from "./join-game-handler.js";
 import getSession from "../event-middleware/get-session.js";
 import createGameHandler from "./create-game-handler.js";
 import requestGameListHandler from "./request-game-list-handler.js";
 import { createCharacterHandler } from "./create-character-handler.js";
-import deleteCharacterHandler from "./delete-character-handler.js";
+import { deleteCharacterHandler } from "./delete-character-handler.js";
 import { selectProgressionGameCharacterHandler } from "./select-progression-game-character-handler.js";
 import selectProgressionGameStartingFloorHandler from "./select-progression-game-starting-floor-handler.js";
 
-export default function initiateLobbyEventListeners(
+export function initiateLobbyEventListeners(
   this: GameServer,
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {

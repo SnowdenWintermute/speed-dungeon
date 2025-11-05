@@ -1,5 +1,4 @@
 import { ActionCommand } from "@speed-dungeon/common";
-import { useGameStore } from "@/stores/game-store";
 import { ModelManager } from "..";
 import {
   ChangeEquipmentModelAction,
@@ -13,6 +12,7 @@ import { actionCommandQueue, actionCommandReceiver } from "@/singletons/action-c
 import { synchronizeCombatantModelsWithAppState } from "./synchronize-combatant-models-with-app-state";
 import { spawnEnvironmentModel } from "./spawn-environmental-model";
 import { disposeAsyncLoadedScene } from "@/app/3d-world/utils";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export type ModelActionHandler = (...args: any[]) => Promise<Error | void> | (void | Error);
 
@@ -43,8 +43,8 @@ export function createModelActionHandlers(
     [ModelActionType.ProcessActionCommands]: async function (
       action: ProcessActionCommandsModelAction
     ): Promise<void | Error> {
-      const gameName = useGameStore.getState().gameName;
-      if (!gameName) return console.error("No game name");
+      const gameName = AppStore.get().gameStore.getGameOption()?.name;
+      if (gameName === undefined) return console.error("no game name");
       const actionCommands = action.actionCommandPayloads.map(
         (item) => new ActionCommand(gameName, item, actionCommandReceiver)
       );

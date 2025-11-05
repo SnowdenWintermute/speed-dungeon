@@ -9,18 +9,15 @@ import {
   CombatActionExecutionIntent,
   CombatActionName,
   CombatAttribute,
-  CombatantProperties,
   ERROR_MESSAGES,
   FriendOrFoe,
   HitOutcomeMitigationCalculator,
   MaxAndCurrent,
   TargetingCalculator,
-  getUnmetCostResourceTypes,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import React from "react";
-import { useGameStore } from "@/stores/game-store";
-import ActionDetailsTitleBar from "./ActionDetailsTitleBar";
+import { ActionDetailsTitleBar } from "./ActionDetailsTitleBar";
 import { COMBAT_ACTION_DESCRIPTIONS } from "../../character-sheet/ability-tree/ability-descriptions";
 import { ActionDescriptionComponent } from "../../character-sheet/ability-tree/action-description";
 import { ResourceChangeDisplay } from "../../character-sheet/ability-tree/ActionDescriptionDisplay";
@@ -29,33 +26,28 @@ import { ConditionIndicator } from "../../combatant-plaques/condition-indicators
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import CharacterSheetWeaponDamage from "../../character-sheet/CharacterSheetWeaponDamage";
+import { CharacterSheetWeaponDamage } from "../../character-sheet/CharacterSheetWeaponDamage";
+import { AppStore } from "@/mobx-stores/app-store";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   actionName: CombatActionName;
   hideTitle?: boolean;
 }
 
-export default function ActionSelectedDetails({ actionName, hideTitle }: Props) {
-  const gameOption = useGameStore().game;
-  if (!gameOption) return <div>{ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME}</div>;
-  const partyResult = useGameStore().getParty();
-  if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
-  const party = partyResult;
-  const focusedCharacterResult = useGameStore().getFocusedCharacter();
-  if (focusedCharacterResult instanceof Error) return <div>{focusedCharacterResult.message}</div>;
-  const { combatantProperties, entityProperties } = focusedCharacterResult;
+export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props) => {
+  const { game, party, combatant } = AppStore.get().gameStore.getFocusedCharacterContext();
+  const { combatantProperties, entityProperties } = combatant;
   const { abilityProperties } = combatantProperties;
-  const actionStateOption = abilityProperties.ownedActions[actionName];
-  const actionState = abilityProperties.ownedActions[actionName];
-  if (actionState === undefined) return <div>Somehow detailing an unowned action</div>;
+  const actionStateOption = abilityProperties.getOwnedActions()[actionName];
+  if (actionStateOption === undefined) return <div>Somehow detailing an unowned action</div>;
 
-  const targetingProperties = focusedCharacterResult.getTargetingProperties();
+  const { targetingProperties } = combatant.combatantProperties;
   const selectedActionAndRankOption = targetingProperties.getSelectedActionAndRank();
 
-  const inCombat = !!Object.values(party.currentRoom.monsters).length;
+  const inCombat = party.combatantManager.monstersArePresent();
 
-  const disableOh = inCombat && combatantProperties.actionPoints < 2;
+  const disableOh = inCombat && combatantProperties.resources.getActionPoints() < 2;
   if (actionName === CombatActionName.Attack)
     return (
       <div className="w-full flex flex-col">
@@ -63,7 +55,7 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
           Attack with equipped weapons. Accuracy and crit chance are updated below based on your
           target's defenses.
         </div>
-        <CharacterSheetWeaponDamage combatant={focusedCharacterResult} disableOh={disableOh} />
+        <CharacterSheetWeaponDamage combatant={combatant} disableOh={disableOh} />
       </div>
     );
 
@@ -71,24 +63,22 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
   const actionDescription = COMBAT_ACTION_DESCRIPTIONS[actionName];
 
   const targetingCalculator = new TargetingCalculator(
-    new ActionUserContext(gameOption, party, focusedCharacterResult),
+    new ActionUserContext(game, party, combatant),
     null
   );
+
   const currentTargetsOption = targetingProperties.getSelectedTarget();
   if (!currentTargetsOption) return <div>{ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED}</div>;
+
   const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
     party,
     new CombatActionExecutionIntent(
-      actionState.actionName,
+      actionStateOption.actionName,
       selectedActionAndRankOption?.rank || 1,
       currentTargetsOption
     )
   );
   if (primaryTargetResult instanceof Error) return <div>{primaryTargetResult.message}</div>;
-
-  const targetEvasion = CombatantProperties.getTotalAttributes(
-    primaryTargetResult.combatantProperties
-  )[CombatAttribute.Evasion];
 
   return (
     <div className="flex flex-col pointer-events-auto" style={{ flex: `1 1 1px` }}>
@@ -102,28 +92,23 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
         />
       )}
       <ul className="list-none">
-        {ArrayUtils.createFilledWithSequentialNumbers(actionState.level, 1).map((rank) => {
+        {ArrayUtils.createFilledWithSequentialNumbers(actionStateOption.level, 1).map((rank) => {
           const percentChanceToHit = HitOutcomeMitigationCalculator.getActionHitChance(
             action,
-            focusedCharacterResult,
+            combatant,
             rank,
-            targetEvasion,
             true,
             primaryTargetResult.combatantProperties
           );
 
-          const rankDescription = actionDescription.getDescriptionByLevel(
-            focusedCharacterResult,
-            rank
-          );
+          const rankDescription = actionDescription.getDescriptionByLevel(combatant, rank);
 
           const resourceChangePropertiesOption =
             rankDescription[ActionDescriptionComponent.ResourceChanges];
 
-          const rankCosts =
-            action.costProperties.getResourceCosts(focusedCharacterResult, inCombat, rank) || {};
+          const rankCosts = action.costProperties.getResourceCosts(combatant, inCombat, rank) || {};
           const unmetCosts = rankCosts
-            ? getUnmetCostResourceTypes(combatantProperties, rankCosts)
+            ? combatantProperties.resources.getUnmetCostResourceTypes(rankCosts)
             : [];
 
           const accuracy = rankDescription[ActionDescriptionComponent.Accuracy];
@@ -225,7 +210,7 @@ export default function ActionSelectedDetails({ actionName, hideTitle }: Props) 
       </ul>
     </div>
   );
-}
+});
 
 function PayableResourceCostDisplay({
   resourceType,

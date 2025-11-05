@@ -1,5 +1,6 @@
 import { COMBAT_ACTION_NAME_STRINGS, CombatActionName } from "../combat/index.js";
-import { COMBATANT_TRAIT_DESCRIPTIONS, CombatantTraitType } from "../combatants/index.js";
+import { CombatantTraitType } from "../combatants/combatant-traits/trait-types.js";
+import { COMBATANT_TRAIT_DESCRIPTIONS } from "../combatants/index.js";
 import { AbilityType } from "./ability-types.js";
 export * from "./ability-types.js";
 export * from "./ability-utils.js";

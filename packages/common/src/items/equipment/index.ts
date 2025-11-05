@@ -1,9 +1,7 @@
 import { Item } from "../index.js";
 import { EntityProperties } from "../../primatives/entity-properties.js";
 import { MaxAndCurrent } from "../../primatives/max-and-current.js";
-import { applyEquipmentTraitsToResourceChangeSource } from "./equipment-properties/apply-equipment-traits-to-hp-change-source.js";
-import getBaseArmorClass from "./equipment-properties/get-base-armor-class.js";
-import getModifiedWeaponDamageRange from "./equipment-properties/get-modified-weapon-damage-range.js";
+import { getModifiedWeaponDamageRange } from "./equipment-properties/get-modified-weapon-damage-range.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import {
   Affix,
@@ -13,17 +11,15 @@ import {
   PrefixType,
   SuffixType,
 } from "./affixes.js";
-import {
-  EquipmentBaseItemProperties,
-  WeaponProperties,
-  equipmentIsTwoHandedWeapon,
-} from "./equipment-properties/index.js";
+import { EquipmentBaseItemProperties, WeaponProperties } from "./equipment-properties/index.js";
 import { EquipmentType } from "./equipment-types/index.js";
 import { EquipmentTraitType } from "./equipment-traits/index.js";
-import { CombatantAttributeRecord, CombatantProperties } from "../../combatants/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
-import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
-import { IActionUser } from "../../action-user-context/action-user.js";
+import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../../utils/index.js";
+import { CombatantAttributeRecord } from "../../combatants/attribute-properties.js";
+import { ResourceChangeSource } from "../../combat/hp-change-source-types.js";
+import { plainToInstance } from "class-transformer";
+import makeAutoObservable from "mobx-store-inheritance";
 
 export * from "./equipment-properties/index.js";
 export * from "./pre-determined-items/index.js";
@@ -31,6 +27,12 @@ export * from "./equipment-traits/index.js";
 export * from "./slots.js";
 export * from "./equipment-types/index.js";
 export * from "./affixes.js";
+
+const WEAPON_EQUIPMENT_TYPES = [
+  EquipmentType.OneHandedMeleeWeapon,
+  EquipmentType.TwoHandedMeleeWeapon,
+  EquipmentType.TwoHandedRangedWeapon,
+];
 
 export class Equipment extends Item {
   attributes: CombatantAttributeRecord = {};
@@ -43,33 +45,42 @@ export class Equipment extends Item {
     public durability: null | { current: number; inherentMax: number }
   ) {
     super(entityProperties, itemLevel, requirements);
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 
-  static getBaseArmorClass = getBaseArmorClass;
+  static getDeserialized(plain: Equipment) {
+    return plainToInstance(Equipment, plain);
+  }
 
-  static getNormalizedPercentRepaired(equipment: Equipment) {
+  static getModifiedWeaponDamageRange = getModifiedWeaponDamageRange;
+
+  getBaseArmorClass() {
+    switch (this.equipmentBaseItemProperties.equipmentType) {
+      case EquipmentType.BodyArmor:
+      case EquipmentType.HeadGear:
+      case EquipmentType.Shield:
+        return this.equipmentBaseItemProperties.armorClass;
+      default:
+        return 0;
+    }
+  }
+
+  getNormalizedPercentRepaired() {
     let normalizedPercentRepaired = 1;
-    const durability = Equipment.getDurability(equipment);
+    const durability = this.getDurability();
     if (durability) {
       normalizedPercentRepaired = durability.current / durability.max;
     }
     return normalizedPercentRepaired;
   }
 
-  static hasArmorClass(equipment: Equipment) {
-    return (
-      equipment.equipmentBaseItemProperties.equipmentType === EquipmentType.BodyArmor ||
-      equipment.equipmentBaseItemProperties.equipmentType === EquipmentType.Shield ||
-      equipment.equipmentBaseItemProperties.equipmentType === EquipmentType.HeadGear
-    );
+  isWeapon() {
+    const { equipmentType } = this.equipmentBaseItemProperties.taggedBaseEquipment;
+    return WEAPON_EQUIPMENT_TYPES.includes(equipmentType);
   }
 
-  static getAffixAttributeValue(
-    equipment: Equipment,
-    affixTypeToFind: AffixType,
-    attributeToFind: CombatAttribute
-  ) {
-    for (const [category, affixes] of iterateNumericEnumKeyedRecord(equipment.affixes)) {
+  getAffixAttributeValue(affixTypeToFind: AffixType, attributeToFind: CombatAttribute) {
+    for (const [category, affixes] of iterateNumericEnumKeyedRecord(this.affixes)) {
       for (const [affixType, affix] of iterateNumericEnumKeyedRecord(affixes)) {
         if (affixType !== affixTypeToFind) continue;
         for (const [attribute, value] of iterateNumericEnumKeyedRecord(affix.combatAttributes)) {
@@ -80,10 +91,9 @@ export class Equipment extends Item {
     return 0;
   }
 
-  static getModifiedArmorClass(equipment: Equipment) {
-    const baseArmorClass = Equipment.getBaseArmorClass(equipment);
-    const flatArmorClassAffixBonus = Equipment.getAffixAttributeValue(
-      equipment,
+  getModifiedArmorClass() {
+    const baseArmorClass = this.getBaseArmorClass();
+    const flatArmorClassAffixBonus = this.getAffixAttributeValue(
       AffixType.FlatArmorClass,
       CombatAttribute.ArmorClass
     );
@@ -91,9 +101,9 @@ export class Equipment extends Item {
 
     let percentModifier = 1.0;
 
-    if (equipment.affixes[AffixCategory.Suffix]?.[AffixType.PercentArmorClass]) {
+    if (this.affixes[AffixCategory.Suffix]?.[AffixType.PercentArmorClass]) {
       const traitPercentage =
-        equipment.affixes[AffixCategory.Suffix]?.[AffixType.PercentArmorClass].equipmentTraits[
+        this.affixes[AffixCategory.Suffix]?.[AffixType.PercentArmorClass].equipmentTraits[
           EquipmentTraitType.ArmorClassPercentage
         ]?.value || 0;
       percentModifier += traitPercentage / 100;
@@ -102,13 +112,13 @@ export class Equipment extends Item {
     return Math.floor(withFlatAdditive * percentModifier);
   }
 
-  static getDurability(equipment: Equipment) {
-    const { durability } = equipment;
+  getDurability() {
+    const { durability } = this;
     if (durability === null) return null;
     const { inherentMax, current } = durability;
     let additive = 0;
     const durabilityTraitOption =
-      equipment.affixes[AffixCategory.Suffix]?.[AffixType.Durability]?.equipmentTraits[
+      this.affixes[AffixCategory.Suffix]?.[AffixType.Durability]?.equipmentTraits[
         EquipmentTraitType.FlatDurabilityAdditive
       ];
     if (durabilityTraitOption) additive = durabilityTraitOption.value;
@@ -116,36 +126,54 @@ export class Equipment extends Item {
     return new MaxAndCurrent(inherentMax + additive, current);
   }
 
-  static getModifiedWeaponDamageRange = getModifiedWeaponDamageRange;
-  static isTwoHanded = equipmentIsTwoHandedWeapon;
-  static isRangedWeapon(equipment: Equipment) {
+  isRangedWeapon() {
+    return this.equipmentBaseItemProperties.equipmentType === EquipmentType.TwoHandedRangedWeapon;
+  }
+
+  static isTwoHandedWeaponType(equipmentType: EquipmentType) {
     return (
-      equipment.equipmentBaseItemProperties.equipmentType === EquipmentType.TwoHandedRangedWeapon
+      equipmentType === EquipmentType.TwoHandedMeleeWeapon ||
+      equipmentType === EquipmentType.TwoHandedRangedWeapon
     );
   }
-  static applyEquipmentTraitsToResourceChangeSource = applyEquipmentTraitsToResourceChangeSource;
 
-  static getWeaponProperties(equipment: Equipment): Error | WeaponProperties {
-    if (!Equipment.isWeapon(equipment)) return new Error(ERROR_MESSAGES.EQUIPMENT.INVALID_TYPE);
-    return equipment.equipmentBaseItemProperties as WeaponProperties;
+  isTwoHanded() {
+    const { equipmentType } = this.equipmentBaseItemProperties;
+    return Equipment.isTwoHandedWeaponType(equipmentType);
   }
 
-  static hasPrefix(equipment: Equipment) {
-    return Equipment.iteratePrefixes(equipment).length > 0;
-  }
-  static hasSuffix(equipment: Equipment) {
-    return Equipment.iterateSuffixes(equipment).length > 0;
+  applyTraitsToResourceChangeSource(hpChangeSource: ResourceChangeSource) {
+    const lifestealAffixOption = this.affixes[AffixCategory.Prefix]?.[AffixType.LifeSteal];
+
+    if (lifestealAffixOption) {
+      const lifestealPercentageTrait =
+        lifestealAffixOption.equipmentTraits[EquipmentTraitType.LifeSteal];
+      if (!lifestealPercentageTrait)
+        return new Error(ERROR_MESSAGES.EQUIPMENT.EXPECTED_TRAIT_MISSING);
+
+      hpChangeSource.lifestealPercentage
+        ? (hpChangeSource.lifestealPercentage += lifestealPercentageTrait.value)
+        : (hpChangeSource.lifestealPercentage = lifestealPercentageTrait.value);
+    }
   }
 
-  static insertOrReplaceAffix(
-    equipment: Equipment,
-    affixCategory: AffixCategory,
-    affixType: AffixType,
-    affix: Affix
-  ) {
-    const existingCategory = equipment.affixes[affixCategory];
+  getWeaponProperties(): Error | WeaponProperties {
+    if (!this.isWeapon()) return new Error(ERROR_MESSAGES.EQUIPMENT.INVALID_TYPE);
+    return this.equipmentBaseItemProperties as WeaponProperties;
+  }
+
+  hasPrefix() {
+    return this.iteratePrefixes().length > 0;
+  }
+
+  hasSuffix() {
+    return this.iterateSuffixes().length > 0;
+  }
+
+  insertOrReplaceAffix(affixCategory: AffixCategory, affixType: AffixType, affix: Affix) {
+    const existingCategory = this.affixes[affixCategory];
     if (existingCategory === undefined)
-      equipment.affixes[affixCategory] = {
+      this.affixes[affixCategory] = {
         [affixType]: affix,
       };
     else {
@@ -153,75 +181,57 @@ export class Equipment extends Item {
     }
   }
 
-  static iteratePrefixes(equipment: Equipment) {
+  iteratePrefixes() {
     const prefixes =
-      equipment.affixes[AffixCategory.Prefix] || ({} as Partial<Record<PrefixType, Affix>>);
+      this.affixes[AffixCategory.Prefix] || ({} as Partial<Record<PrefixType, Affix>>);
     return iterateNumericEnumKeyedRecord(prefixes);
   }
-  static iterateSuffixes(equipment: Equipment) {
+
+  iterateSuffixes() {
     const suffixes =
-      equipment.affixes[AffixCategory.Suffix] || ({} as Partial<Record<SuffixType, Affix>>);
+      this.affixes[AffixCategory.Suffix] || ({} as Partial<Record<SuffixType, Affix>>);
     return iterateNumericEnumKeyedRecord(suffixes);
   }
 
-  static iterateAffixes(equipment: Equipment) {
+  iterateAffixes() {
     const affixes = [
-      ...Equipment.iteratePrefixes(equipment).map(([affixType, affix]) => affix),
-      ...Equipment.iterateSuffixes(equipment).map(([affixType, affix]) => affix),
+      ...this.iteratePrefixes().map(([affixType, affix]) => affix),
+      ...this.iterateSuffixes().map(([affixType, affix]) => affix),
     ];
 
     return affixes;
   }
 
   /** If the equipment has ANY of the passed attributes, returns true */
-  static hasAffixWithAttributes(equipment: Equipment, attributes: CombatAttribute[]) {
-    for (const affix of Equipment.iterateAffixes(equipment)) {
+  hasAffixWithAttributes(attributes: CombatAttribute[]) {
+    for (const affix of this.iterateAffixes()) {
       for (const [attributeType, value] of iterateNumericEnumKeyedRecord(affix.combatAttributes)) {
         if (attributes.includes(attributeType)) return true;
       }
     }
   }
 
-  static isMagical(equipment: Equipment) {
-    return Equipment.hasPrefix(equipment) || Equipment.hasSuffix(equipment);
+  isMagical() {
+    return this.iterateAffixes().length > 0;
   }
 
-  static isJewelry(equipment: Equipment) {
-    const { equipmentType } = equipment.equipmentBaseItemProperties.taggedBaseEquipment;
+  isJewelry() {
+    const { equipmentType } = this.equipmentBaseItemProperties.taggedBaseEquipment;
     return equipmentType === EquipmentType.Ring || equipmentType === EquipmentType.Amulet;
   }
 
-  static isWeapon(equipment: Equipment) {
-    const { equipmentType } = equipment.equipmentBaseItemProperties.taggedBaseEquipment;
-    return (
-      equipmentType === EquipmentType.OneHandedMeleeWeapon ||
-      equipmentType === EquipmentType.TwoHandedMeleeWeapon ||
-      equipmentType === EquipmentType.TwoHandedRangedWeapon
-    );
+  isIndestructable() {
+    return this.durability === null;
   }
 
-  static isIndestructable(equipment: Equipment) {
-    return equipment.durability === null;
+  changeDurability(value: number) {
+    if (this.isIndestructable() || this.durability === null) return;
+    this.durability.current = Math.max(0, this.durability.current + value);
   }
 
-  static changeDurability(equipment: Equipment, value: number) {
-    if (Equipment.isIndestructable(equipment) || equipment.durability === null) return;
-    equipment.durability.current = Math.max(0, equipment.durability.current + value);
-  }
-
-  static isBroken(equipment: Equipment) {
-    const isIndestructable = Equipment.isIndestructable(equipment);
-    if (isIndestructable || equipment.durability === null) return false;
-    return equipment.durability.current <= 0;
-  }
-
-  static isUsable(actionUser: IActionUser, equipment: Equipment): boolean {
-    const isBroken = Equipment.isBroken(equipment);
-    if (isBroken) return false;
-    // @REFACTOR - move this function off of combatant since it is now generalized to IActionUser
-    return CombatantProperties.combatantHasRequiredAttributesToUseItem(
-      actionUser.getTotalAttributes(),
-      equipment
-    );
+  isBroken() {
+    const isIndestructable = this.isIndestructable();
+    if (isIndestructable || this.durability === null) return false;
+    return this.durability.current <= 0;
   }
 }

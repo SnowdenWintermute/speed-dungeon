@@ -1,25 +1,22 @@
 import Divider from "@/app/components/atoms/Divider";
-import { useGameStore } from "@/stores/game-store";
-import { AdventuringParty, ERROR_MESSAGES, Inventory } from "@speed-dungeon/common";
+import { AdventuringParty } from "@speed-dungeon/common";
 import React from "react";
-import ItemOnGround from "./ItemOnGround";
-import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { ItemOnGround } from "./ItemOnGround";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
 
 interface Props {
   party: AdventuringParty;
   maxHeightRem: number;
 }
 
-export default function ItemsOnGround({ party, maxHeightRem }: Props) {
-  const username = useGameStore().username;
-  const mutateGameState = useGameStore().mutateState;
-  if (username === null) return <div>{ERROR_MESSAGES.CLIENT.NO_USERNAME}</div>;
-  const focusedCharacterId = useGameStore().focusedCharacterId;
-  const itemsToDisplay = Inventory.getItems(party.currentRoom.inventory);
-  const showItemsOnGround = useGameStore().showItemsOnGround;
+export const ItemsOnGround = observer(({ party, maxHeightRem }: Props) => {
+  const itemsToDisplay = party.currentRoom.inventory.getItems();
+  const { actionMenuStore, gameStore } = AppStore.get();
+  const showItemsOnGround = actionMenuStore.getShowGroundItems();
 
-  const playerOwnsCharacter = clientUserControlsCombatant(focusedCharacterId);
+  const playerOwnsCharacter = gameStore.clientUserControlsFocusedCombatant();
 
   if (itemsToDisplay.length < 1) return <></>;
 
@@ -32,9 +29,7 @@ export default function ItemsOnGround({ party, maxHeightRem }: Props) {
         <span>{"Items on the ground"}</span>
         <HotkeyButton
           onClick={() => {
-            mutateGameState((state) => {
-              state.showItemsOnGround = !state.showItemsOnGround;
-            });
+            actionMenuStore.setShowGroundItems(!showItemsOnGround);
           }}
         >
           {showItemsOnGround ? "Hide" : "Show"}
@@ -54,4 +49,4 @@ export default function ItemsOnGround({ party, maxHeightRem }: Props) {
       )}
     </div>
   );
-}
+});

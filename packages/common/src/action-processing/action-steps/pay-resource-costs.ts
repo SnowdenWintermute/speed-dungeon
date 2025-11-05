@@ -3,16 +3,14 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { COMBAT_ACTION_NAME_STRINGS, COMBAT_ACTIONS } from "../../combat/index.js";
+import { COMBAT_ACTIONS } from "../../combat/index.js";
 import { GameUpdateCommandType, ResourcesPaidGameUpdateCommand } from "../game-update-commands.js";
-import { CombatantProperties, Inventory } from "../../combatants/index.js";
 import { MaxAndCurrent } from "../../primatives/max-and-current.js";
-import { AdventuringParty } from "../../adventuring-party/index.js";
 
 const stepType = ActionResolutionStepType.PayResourceCosts;
 export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
-    const { actionUser, game, party } = context.actionUserContext;
+    const { actionUser, party } = context.actionUserContext;
     const combatantProperties = actionUser.getCombatantProperties();
 
     const selectedActionLevelAndRank = actionUser
@@ -24,7 +22,7 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
     let actionRank = selectedActionLevelAndRank?.rank || 1;
 
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
-    const inCombat = !!AdventuringParty.getBattleOption(party, game);
+    const inCombat = party.isInCombat();
 
     const costsOption = action.costProperties.getResourceCosts(actionUser, inCombat, actionRank);
 
@@ -51,16 +49,12 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
 
       if (!!consumableTypeAndLevelToConsumeOption) {
         const { inventory } = combatantProperties;
-        const consumableOption = Inventory.getConsumableByTypeAndLevel(
-          inventory,
+        const consumableOption = inventory.getConsumableByTypeAndLevel(
           consumableTypeAndLevelToConsumeOption.type,
           consumableTypeAndLevelToConsumeOption.level
         );
         if (consumableOption) {
-          const removed = Inventory.removeConsumable(
-            inventory,
-            consumableOption.entityProperties.id
-          );
+          const removed = inventory.removeConsumable(consumableOption.entityProperties.id);
           if (!(removed instanceof Error)) context.tracker.consumableUsed = removed;
           else console.error(removed);
           gameUpdateCommandOption.itemsConsumed = [consumableOption.entityProperties.id];
@@ -69,10 +63,10 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
 
       if (costsOption) {
         gameUpdateCommandOption.costsPaid = costsOption;
-        CombatantProperties.payResourceCosts(combatantProperties, costsOption);
+        combatantProperties.resources.payResourceCosts(costsOption);
       }
 
-      const actionState = combatantProperties.abilityProperties.ownedActions[action.name];
+      const actionState = combatantProperties.abilityProperties.getOwnedActions()[action.name];
       if (actionState !== undefined) {
         actionState.wasUsedThisTurn = true;
 

@@ -1,5 +1,6 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
+import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { EntityId } from "../primatives/index.js";
@@ -23,4 +24,12 @@ export class ActionUserContext {
     const battleOption = this.getBattleOption();
     return this.actionUser.getAllyAndOpponentIds(this.party, battleOption);
   }
+}
+
+export class CombatantContext {
+  constructor(
+    public game: SpeedDungeonGame,
+    public party: AdventuringParty,
+    public combatant: Combatant
+  ) {}
 }

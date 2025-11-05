@@ -7,4 +7,5 @@ export const SKELETON_FILE_PATHS: Record<CombatantSpecies, string> = {
   [CombatantSpecies.Velociraptor]: "monsters/velociraptor-main-skeleton.glb",
   [CombatantSpecies.Elemental]: "monsters/cube-main-skeleton.glb",
   [CombatantSpecies.Golem]: "monsters/wolf-main-skeleton.glb",
+  [CombatantSpecies.Canine]: "monsters/wolf-main-skeleton.glb",
 };

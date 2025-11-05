@@ -1,7 +1,7 @@
 export * from "./magical-hp-change-calulation-strategy.js";
 export * from "./physical-hp-change-calculation-strategy.js";
 import { IActionUser } from "../../../../action-user-context/action-user.js";
-import { CombatantProperties } from "../../../../combatants/index.js";
+import { CombatantProperties } from "../../../../combatants/combatant-properties.js";
 import { CombatActionHitOutcomeProperties } from "../../../combat-actions/combat-action-hit-outcome-properties.js";
 import { ResourceChange, ResourceChangeSourceCategory } from "../../../hp-change-source-types.js";
 import { MagicalResourceChangeCalculationStrategy } from "./magical-hp-change-calulation-strategy.js";

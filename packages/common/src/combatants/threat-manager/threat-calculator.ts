@@ -6,7 +6,7 @@ import { CombatActionName } from "../../combat/combat-actions/combat-action-name
 import { IActionUser } from "../../action-user-context/action-user.js";
 import { HitOutcome } from "../../hit-outcome.js";
 import { CombatAttribute } from "../attributes/index.js";
-import { Combatant, CombatantProperties } from "../index.js";
+import { Combatant } from "../index.js";
 import { ThreatType } from "./index.js";
 
 const DAMAGE_STABLE_THREAT_BASE = 80;
@@ -25,12 +25,7 @@ const STABLE_THREAT_REDUCTION_ON_MONSTER_HIT_MODIFIER = 1800;
 export const STABLE_THREAT_REDUCTION_ON_MONSTER_DEBUFFING_PLAYER = -80;
 
 export class ThreatCalculator {
-  private monsters: {
-    [entityId: string]: Combatant;
-  };
-  private players: {
-    [entityId: string]: Combatant;
-  };
+  private monsters: Combatant[];
   constructor(
     private threatChanges: ThreatChanges,
     private hitOutcomes: CombatActionHitOutcomes,
@@ -38,11 +33,8 @@ export class ThreatCalculator {
     private actionUser: IActionUser,
     private actionName: CombatActionName
   ) {
-    const allCombatantsResult = AdventuringParty.getAllCombatants(party);
-    if (allCombatantsResult instanceof Error) throw allCombatantsResult;
-    const { monsters, characters } = allCombatantsResult;
-    this.monsters = monsters;
-    this.players = characters;
+    const { combatantManager } = party;
+    this.monsters = combatantManager.getDungeonControlledCombatants();
   }
 
   static getThreatGeneratedOnHpChange(
@@ -71,19 +63,20 @@ export class ThreatCalculator {
     if (action.hitOutcomeProperties.flatThreatGeneratedOnHit) {
       const entitiesHit = this.hitOutcomes.outcomeFlags[HitOutcome.Hit] || [];
       for (const entityId of entitiesHit) {
-        const targetCombatantResult = AdventuringParty.getCombatant(this.party, entityId);
-        if (targetCombatantResult instanceof Error) throw targetCombatantResult;
-        const targetIsPlayer = targetCombatantResult.combatantProperties.controllingPlayer;
+        const targetCombatant = this.party.combatantManager.getExpectedCombatant(entityId);
+        const { combatantProperties } = targetCombatant;
+        const targetIsPlayerControlled = combatantProperties.controlledBy.isPlayerControlled();
 
-        if (targetCombatantResult.combatantProperties.threatManager) {
-          if (!CombatantProperties.isDead(targetCombatantResult.combatantProperties))
+        if (combatantProperties.threatManager) {
+          if (!combatantProperties.isDead()) {
             // add flat threat to monster for user
             this.addThreatFromDebuffingMonster(
-              targetCombatantResult,
+              targetCombatant,
               this.actionUser,
               action.hitOutcomeProperties.flatThreatGeneratedOnHit
             );
-        } else if (targetIsPlayer) {
+          }
+        } else if (targetIsPlayerControlled) {
           // add threat to all monsters for user
           this.addThreatFromBuffingPlayerCharacter(
             this.monsters,
@@ -94,13 +87,15 @@ export class ThreatCalculator {
       }
     }
 
-    const userIsMonster = this.party.currentRoom.monsterPositions.includes(
-      this.actionUser.getEntityId()
-    );
-    if (userIsMonster)
+    const userIsMonster = this.actionUser
+      .getCombatantProperties()
+      .controlledBy.isDungeonControlled();
+
+    if (userIsMonster) {
       return console.error(
         "updateThreatChangesForPlayerControlledCharacterHitOutcomes but user was not on player team"
       );
+    }
 
     const resourceChanges = this.hitOutcomes.resourceChanges;
     if (!resourceChanges) return;
@@ -108,21 +103,21 @@ export class ThreatCalculator {
 
     if (!hitPointChanges) return;
     for (const [entityId, hitPointChange] of hitPointChanges.getRecords()) {
-      const targetCombatantResult = AdventuringParty.getCombatant(this.party, entityId);
-      if (targetCombatantResult instanceof Error) throw targetCombatantResult;
-      const targetIsPlayer = targetCombatantResult.combatantProperties.controllingPlayer;
+      const targetCombatant = this.party.combatantManager.getExpectedCombatant(entityId);
+      const { combatantProperties } = targetCombatant;
+      const targetIsPlayerControlled = combatantProperties.controlledBy.isPlayerControlled();
 
-      if (targetCombatantResult.combatantProperties.threatManager) {
+      if (combatantProperties.threatManager) {
         this.addThreatDamageDealtByPlayerCharacter(
-          targetCombatantResult,
+          targetCombatant,
           this.actionUser,
           hitPointChange.value
         );
-      } else if (targetIsPlayer) {
+      } else if (targetIsPlayerControlled) {
         this.addThreatFromHealingPlayerCharacter(
           this.monsters,
           this.actionUser,
-          targetCombatantResult.combatantProperties.level,
+          combatantProperties.classProgressionProperties.getMainClass().level,
           hitPointChange.value
         );
       }
@@ -132,16 +127,22 @@ export class ThreatCalculator {
   updateThreatChangesForMonsterHitOutcomes() {
     const entitiesHit = this.hitOutcomes.outcomeFlags[HitOutcome.Hit] || [];
     const { threatManager } = this.actionUser.getCombatantProperties();
-    if (!threatManager) return;
+    if (!threatManager) {
+      return;
+    }
 
     for (const entityId of entitiesHit) {
-      const targetCombatantResult = AdventuringParty.getCombatant(this.party, entityId);
-      if (targetCombatantResult instanceof Error) throw targetCombatantResult;
-      const targetIsPlayer = targetCombatantResult.combatantProperties.controllingPlayer;
-      if (!targetIsPlayer) continue;
+      const targetCombatant = this.party.combatantManager.getExpectedCombatant(entityId);
+      const { combatantProperties } = targetCombatant;
+      const targetIsAIControlled = !combatantProperties.controlledBy.isPlayerControlled();
+      if (targetIsAIControlled) {
+        continue;
+      }
 
       const currentThreatForTargetOption = threatManager.getEntries()[entityId];
-      if (!currentThreatForTargetOption || currentThreatForTargetOption.getTotal() === 0) continue;
+      if (!currentThreatForTargetOption || currentThreatForTargetOption.getTotal() === 0) {
+        continue;
+      }
 
       this.threatChanges.addOrUpdateEntry(
         this.actionUser.getEntityId(),
@@ -155,34 +156,36 @@ export class ThreatCalculator {
       this.hitOutcomes.resourceChanges &&
       this.hitOutcomes.resourceChanges[CombatActionResource.HitPoints];
 
-    if (hitPointChanges)
-      for (const [entityId, hitPointChange] of hitPointChanges.getRecords()) {
-        if (hitPointChange.value > 0) continue; // don't add threat for monsters healing players
-        const targetCombatantResult = AdventuringParty.getCombatant(this.party, entityId);
-        if (targetCombatantResult instanceof Error) throw targetCombatantResult;
-        const targetIsPlayer = targetCombatantResult.combatantProperties.controllingPlayer;
-        if (!targetIsPlayer) continue;
+    if (hitPointChanges === undefined) {
+      return;
+    }
 
-        const currentThreatForTargetOption = threatManager.getEntries()[entityId];
-        if (!currentThreatForTargetOption || currentThreatForTargetOption.getTotal() === 0)
-          continue;
+    for (const [entityId, hitPointChange] of hitPointChanges.getRecords()) {
+      if (hitPointChange.value > 0) continue; // don't add threat for monsters healing players
+      const targetCombatant = this.party.combatantManager.getExpectedCombatant(entityId);
+      const { combatantProperties } = targetCombatant;
+      const targetIsAIControlled = !combatantProperties.controlledBy.isPlayerControlled();
+      if (targetIsAIControlled) continue;
 
-        const targetMaxHp = CombatantProperties.getTotalAttributes(
-          targetCombatantResult.combatantProperties
-        )[CombatAttribute.Hp];
+      const currentThreatForTargetOption = threatManager.getEntries()[entityId];
+      if (!currentThreatForTargetOption || currentThreatForTargetOption.getTotal() === 0) continue;
 
-        const stableThreatChange = ThreatCalculator.getThreatChangeOnDamageTaken(
-          hitPointChange.value,
-          targetMaxHp
-        );
+      const targetMaxHp = combatantProperties.attributeProperties.getAttributeValue(
+        CombatAttribute.Hp
+      );
 
-        this.threatChanges.addOrUpdateEntry(
-          this.actionUser.getEntityId(),
-          entityId,
-          ThreatType.Stable,
-          Math.min(-1, stableThreatChange) // all monster actions should at least reduce ST by 1
-        );
-      }
+      const stableThreatChange = ThreatCalculator.getThreatChangeOnDamageTaken(
+        hitPointChange.value,
+        targetMaxHp
+      );
+
+      this.threatChanges.addOrUpdateEntry(
+        this.actionUser.getEntityId(),
+        entityId,
+        ThreatType.Stable,
+        Math.min(-1, stableThreatChange) // all monster actions should at least reduce ST by 1
+      );
+    }
   }
 
   addThreatDamageDealtByPlayerCharacter(
@@ -190,12 +193,12 @@ export class ThreatCalculator {
     playerCharacter: IActionUser,
     hpChangeValue: number
   ) {
-    if (CombatantProperties.isDead(monster.combatantProperties)) return;
+    if (monster.combatantProperties.isDead()) return;
 
     const stableThreatGenerated =
       ThreatCalculator.getThreatGeneratedOnHpChange(
         hpChangeValue,
-        monster.combatantProperties.level,
+        monster.combatantProperties.classProgressionProperties.getMainClass().level,
         DAMAGE_STABLE_THREAT_BASE,
         DAMAGE_THREAT_SCALING_OFFSET
       ) * -1;
@@ -210,7 +213,7 @@ export class ThreatCalculator {
     const volatileThreatGenerated =
       ThreatCalculator.getThreatGeneratedOnHpChange(
         hpChangeValue,
-        monster.combatantProperties.level,
+        monster.combatantProperties.classProgressionProperties.getMainClass().level,
         VOLATILE_THREAT_BASE,
         DAMAGE_THREAT_SCALING_OFFSET
       ) * -1;
@@ -224,14 +227,12 @@ export class ThreatCalculator {
   }
 
   addThreatFromHealingPlayerCharacter(
-    monsters: {
-      [entityId: string]: Combatant;
-    },
+    monsters: Combatant[],
     user: IActionUser,
     targetLevel: number,
     hpChangeValue: number
   ) {
-    for (const [monsterId, monster] of Object.entries(monsters)) {
+    for (const monster of monsters) {
       const stableThreatGenerated = ThreatCalculator.getThreatGeneratedOnHpChange(
         hpChangeValue,
         targetLevel,
@@ -263,14 +264,12 @@ export class ThreatCalculator {
   }
 
   addThreatFromBuffingPlayerCharacter(
-    monsters: {
-      [entityId: string]: Combatant;
-    },
+    monsters: Combatant[],
     user: IActionUser,
     values: Record<ThreatType, number>
   ) {
-    for (const [monsterId, monster] of Object.entries(monsters)) {
-      if (CombatantProperties.isDead(monster.combatantProperties)) continue;
+    for (const monster of monsters) {
+      if (monster.combatantProperties.isDead()) continue;
 
       this.threatChanges.addOrUpdateEntry(
         monster.entityProperties.id,
@@ -309,15 +308,15 @@ export class ThreatCalculator {
   }
 
   addVolatileThreatDecay() {
-    const monsters = this.party.currentRoom.monsters;
+    const monsters = this.party.combatantManager.getDungeonControlledCombatants();
 
-    for (const [monsterId, monster] of Object.entries(monsters)) {
-      if (CombatantProperties.isDead(monster.combatantProperties)) continue;
+    for (const monster of monsters) {
+      if (monster.combatantProperties.isDead()) continue;
       const { threatManager } = monster.combatantProperties;
       if (threatManager === undefined) continue;
       for (const [combatantId, threatEntry] of Object.entries(threatManager.getEntries())) {
         this.threatChanges.addOrUpdateEntry(
-          monsterId,
+          monster.getEntityId(),
           combatantId,
           ThreatType.Volatile,
           VOLATILE_THREAT_DECAY_PER_TURN

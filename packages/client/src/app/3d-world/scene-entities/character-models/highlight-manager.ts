@@ -7,13 +7,11 @@ import {
   StandardMaterial,
   Vector3,
 } from "@babylonjs/core";
-import { useGameStore } from "@/stores/game-store";
 import { CharacterModel } from ".";
-import { AdventuringParty, InputLock, iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
+import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import { CharacterModelPartCategory } from "./modular-character-parts-model-manager/modular-character-parts";
-import { actionCommandReceiver } from "@/singletons/action-command-manager";
-import { getGameWorld } from "../../SceneManager";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export class HighlightManager {
   private originalPartMaterialColors: Partial<
@@ -117,28 +115,31 @@ export class HighlightManager {
   }
 
   updateHighlight() {
-    const partyResult = useGameStore.getState().getParty();
-    if (!(partyResult instanceof Error)) {
-      const gameOption = useGameStore.getState().game;
+    const partyOption = AppStore.get().gameStore.getPartyOption();
+    if (partyOption !== undefined) {
+      const gameOption = AppStore.get().gameStore.getGameOption();
       if (gameOption === null) return;
-      const battleOption = AdventuringParty.getBattleOption(partyResult, gameOption);
+      const battleOption = partyOption.getBattleOption(gameOption);
       if (battleOption === null) {
         this.removeHighlight();
         return;
       }
 
-      const isMonster = partyResult.currentRoom.monsterPositions.includes(
-        this.modularCharacter.entityId
-      );
+      const isMonster = this.modularCharacter
+        .getCombatant()
+        .combatantProperties.controlledBy.isDungeonControlled();
       if (isMonster) return;
 
-      const isTurn =
-        battleOption.turnOrderManager.getFastestActorTurnOrderTracker().combatantId ===
-        this.modularCharacter.getCombatant().entityProperties.id;
+      const entityId = this.modularCharacter.getCombatant().getEntityId();
 
-      const inputIsLocked = InputLock.isLocked(partyResult.inputLock);
+      const fastestActorId = battleOption.turnOrderManager
+        .getFastestActorTurnOrderTracker()
+        .getId();
+      const isTurn = fastestActorId === entityId;
 
-      const isSelectingActionTargets = useGameStore.getState().targetingIndicators.length > 0;
+      const inputIsLocked = partyOption ? partyOption.inputLock.isLocked() : false;
+
+      const isSelectingActionTargets = AppStore.get().targetIndicatorStore.userHasTargets(entityId);
 
       // if (indicators.length && !this.isHighlighted) {
       if (isTurn && !this.isHighlighted && !inputIsLocked && !isSelectingActionTargets) {
@@ -160,7 +161,8 @@ export class HighlightManager {
     // spin the targetingIndicator
 
     const rotation = elapsed;
-    const isFocused = this.modularCharacter.entityId === useGameStore.getState().focusedCharacterId;
+
+    const isFocused = AppStore.get().gameStore.characterIsFocused(this.modularCharacter.entityId);
     const color = updateColor(scale, amplitude, base, isFocused);
 
     if (this.targetingIndicator) {

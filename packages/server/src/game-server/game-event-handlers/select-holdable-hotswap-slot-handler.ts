@@ -1,12 +1,10 @@
 import SocketIO from "socket.io";
 import {
-  AdventuringParty,
   CharacterAssociatedData,
   ClientToServerEventTypes,
   CombatActionExecutionIntent,
   CombatActionName,
   CombatActionTargetType,
-  CombatantEquipment,
   ERROR_MESSAGES,
   HOTSWAP_SLOT_SELECTION_ACTION_POINT_COST,
   ServerToClientEvent,
@@ -14,10 +12,9 @@ import {
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../singletons/index.js";
-import { changeSelectedHotswapSlot } from "@speed-dungeon/common";
 import { executeActionAndSendReplayResult } from "./character-uses-selected-combat-action-handler/index.js";
 
-export default function selectHoldableHotswapSlotHandler(
+export function selectHoldableHotswapSlotHandler(
   eventData: { characterId: string; slotIndex: number },
   characterAssociatedData: CharacterAssociatedData,
   _socket?: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
@@ -25,15 +22,18 @@ export default function selectHoldableHotswapSlotHandler(
   const { game, party, character } = characterAssociatedData;
   const { combatantProperties } = character;
 
-  const battleOption = AdventuringParty.getBattleOption(party, game);
+  const battleOption = party.getBattleOption(game);
 
   if (battleOption) {
     const isCombatantTurn = battleOption.turnOrderManager.combatantIsFirstInTurnOrder(
       character.entityProperties.id
     );
     if (!isCombatantTurn) return new Error(ERROR_MESSAGES.COMBATANT.NOT_ACTIVE);
-    if (combatantProperties.actionPoints < HOTSWAP_SLOT_SELECTION_ACTION_POINT_COST)
+    if (
+      combatantProperties.resources.getActionPoints() < HOTSWAP_SLOT_SELECTION_ACTION_POINT_COST
+    ) {
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INSUFFICIENT_RESOURCES);
+    }
   }
 
   const gameServer = getGameServer();
@@ -41,10 +41,11 @@ export default function selectHoldableHotswapSlotHandler(
 
   const { equipment } = character.combatantProperties;
 
-  if (slotIndex >= CombatantEquipment.getHoldableHotswapSlots(equipment).length)
-    return new Error(ERROR_MESSAGES.EQUIPMENT.SELECTED_SLOT_OUT_OF_BOUNDS);
+  if (slotIndex >= equipment.getHoldableHotswapSlots().length) {
+    throw new Error(ERROR_MESSAGES.EQUIPMENT.SELECTED_SLOT_OUT_OF_BOUNDS);
+  }
 
-  changeSelectedHotswapSlot(character.combatantProperties, slotIndex);
+  equipment.changeSelectedHotswapSlot(slotIndex);
 
   const partyChannelName = getPartyChannelName(game.name, party.name);
   gameServer.io

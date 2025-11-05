@@ -1,27 +1,28 @@
-import { useGameStore } from "@/stores/game-store";
 import React from "react";
 import { CraftingItemMenuState } from "../ActionMenu/menu-state/crafting-item";
-import ItemDetails from "../detailables/ItemDetails";
 import Divider from "@/app/components/atoms/Divider";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { INFO_UNICODE_SYMBOL } from "@speed-dungeon/common";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
+import { ItemDetails } from "../detailables/ItemDetails";
 
-export default function ItemCraftDisplay() {
-  const currentMenu = useGameStore.getState().getCurrentMenu();
-  const hoveredEntity = useGameStore.getState().hoveredEntity;
-  const partyResult = useGameStore.getState().getParty();
-  if (
-    !(currentMenu instanceof CraftingItemMenuState) ||
-    partyResult instanceof Error ||
-    hoveredEntity
-  ) {
+export const ItemCraftDisplay = observer(() => {
+  const { focusStore, actionMenuStore } = AppStore.get();
+  const currentMenu = actionMenuStore.getCurrentMenu();
+  const { hovered: hoveredEntity } = focusStore.detailables.get();
+
+  if (!(currentMenu instanceof CraftingItemMenuState) || hoveredEntity) {
     return <></>;
   }
 
   const equipment = currentMenu.item;
 
-  const ilvlLimited = equipment.itemLevel > partyResult.currentFloor;
+  const party = AppStore.get().gameStore.getExpectedParty();
+  const currentFloor = party.dungeonExplorationManager.getCurrentFloor();
+
+  const ilvlLimited = equipment.itemLevel > currentFloor;
 
   return (
     <section className="flex-1 flex items-end">
@@ -36,7 +37,7 @@ export default function ItemCraftDisplay() {
         <Divider />
         <div className="w-[500px] text-slate-400">
           <p>Item level: {equipment.itemLevel}</p>
-          <p>Dungeon level: {partyResult.currentFloor}</p>
+          <p>Dungeon level: {currentFloor}</p>
           <div className={ilvlLimited ? UNMET_REQUIREMENT_TEXT_COLOR : ""}>
             <HoverableTooltipWrapper
               extraStyles="inline cursor-help"
@@ -49,10 +50,10 @@ export default function ItemCraftDisplay() {
             >
               {INFO_UNICODE_SYMBOL}
             </HoverableTooltipWrapper>{" "}
-            Effective item level: {Math.min(equipment.itemLevel, partyResult.currentFloor)}
+            Effective item level: {Math.min(equipment.itemLevel, currentFloor)}
           </div>
         </div>
       </div>
     </section>
   );
-}
+});

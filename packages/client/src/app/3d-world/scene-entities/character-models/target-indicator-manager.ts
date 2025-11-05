@@ -1,24 +1,8 @@
 import { AbstractMesh, Camera, Mesh, MeshBuilder, Scene, StandardMaterial } from "@babylonjs/core";
-import {
-  COMBAT_ACTIONS,
-  CombatActionIntent,
-  CombatActionName,
-  EntityId,
-} from "@speed-dungeon/common";
+import { COMBAT_ACTIONS, CombatActionIntent } from "@speed-dungeon/common";
 import { getGameWorld } from "../../SceneManager";
 import { GLOW_LAYER_NAME } from "../../game-world/init-scene";
-
-export class TargetIndicator {
-  constructor(
-    public targetedBy: EntityId,
-    public targetId: EntityId,
-    public actionName: CombatActionName
-  ) {}
-
-  getKey() {
-    return this.targetedBy + this.targetId;
-  }
-}
+import { TargetIndicator } from "@/app/target-indicators";
 
 export class TargetIndicatorBillboard {
   plane: Mesh;

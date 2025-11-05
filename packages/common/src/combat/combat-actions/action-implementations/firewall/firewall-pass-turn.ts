@@ -3,13 +3,11 @@ import {
   ActionResolutionStepType,
   ActivatedTriggersGameUpdateCommand,
 } from "../../../../action-processing/index.js";
-import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { CleanupMode } from "../../../../types.js";
-import { throwIfError } from "../../../../utils/index.js";
 import {
   ActionResolutionStepsConfig,
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
@@ -31,12 +29,12 @@ const hitOutcomeProperties = createHitOutcomeProperties(
   {
     getOnUseTriggers: (context) => {
       const { actionUserContext } = context;
-      const { game, party, actionUser } = actionUserContext;
+      const { party, actionUser } = actionUserContext;
+
       // check for existing firewall
-
       const firewallId = actionUser.getEntityId();
-
-      const existingFirewall = throwIfError(AdventuringParty.getActionEntity(party, firewallId));
+      const { actionEntityManager } = party;
+      const existingFirewall = actionEntityManager.getExpectedActionEntity(firewallId);
 
       const { actionOriginData } = existingFirewall.actionEntityProperties;
       if (actionOriginData === undefined)
@@ -59,8 +57,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(
       let despawned = false;
       if (newStacks === 0) {
         despawned = true;
-        const battleOption = AdventuringParty.getBattleOption(party, game);
-        AdventuringParty.unregisterActionEntity(party, firewallId, battleOption);
+        actionEntityManager.unregisterActionEntity(firewallId);
       }
 
       if (despawned) {
@@ -118,8 +115,15 @@ const config: CombatActionComponentConfig = {
   description: "Firewall consumes its fuel",
   prerequisiteAbilities: [],
   targetingProperties,
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     getOnUseMessage: (data) => `${data.nameOfActionUser} burns down`,
+    getOnUseMessageDataOverride: (context) => {
+      return {
+        actionLevel: 1,
+        nameOfActionUser: "Firewall",
+        nameOfTarget: context.actionUserContext.actionUser.getName(),
+      };
+    },
   }),
 
   hitOutcomeProperties,
@@ -127,7 +131,7 @@ const config: CombatActionComponentConfig = {
   stepsConfig: new ActionResolutionStepsConfig(
     {
       [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
-      [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
+      [ActionResolutionStepType.PostActionUseGameLogMessage]: {},
       [ActionResolutionStepType.EvalOnUseTriggers]: {},
     },
     {

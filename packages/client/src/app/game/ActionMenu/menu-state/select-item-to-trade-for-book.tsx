@@ -1,5 +1,3 @@
-import { ActionButtonCategory, MenuStateType } from ".";
-import { immerable } from "immer";
 import { ItemsMenuState } from "./items";
 import {
   BookConsumableType,
@@ -7,40 +5,32 @@ import {
   Item,
   getOwnedAcceptedItemsForBookTrade,
 } from "@speed-dungeon/common";
-import { useGameStore } from "@/stores/game-store";
-import { setAlert } from "@/app/components/alerts";
 import { ReactNode } from "react";
 import { ConfirmTradeForBookMenuState } from "./confirm-trade-for-book";
-import selectItem from "@/utils/selectItem";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
+import { AppStore } from "@/mobx-stores/app-store";
+import { MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory } from "./action-buttons-by-category";
 
 export class SelectItemToTradeForBookMenuState extends ItemsMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages = 1;
   acceptedItems: Item[] = [];
   constructor(public bookType: BookConsumableType) {
     super(
       MenuStateType.SelectItemToTradeForBook,
       { text: "Go Back", hotkeys: [] },
       (item: Item) => {
-        selectItem(item);
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.push(new ConfirmTradeForBookMenuState(item, this.bookType));
-        });
+        AppStore.get().focusStore.selectItem(item);
+        AppStore.get().actionMenuStore.pushStack(
+          new ConfirmTradeForBookMenuState(item, this.bookType)
+        );
       },
       () => Object.values(this.acceptedItems),
       { extraButtons: { [ActionButtonCategory.Top]: [setInventoryOpen] } }
     );
 
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) return;
-    const { combatantProperties } = focusedCharacterResult;
-    const partyResult = useGameStore.getState().getParty();
-    if (partyResult instanceof Error) {
-      setAlert(partyResult);
-      return;
-    }
+    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    const { combatantProperties } = focusedCharacter;
+
     this.acceptedItems = getOwnedAcceptedItemsForBookTrade(combatantProperties, this.bookType);
 
     if (this.acceptedItems.length < 1)

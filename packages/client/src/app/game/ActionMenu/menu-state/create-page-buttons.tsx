@@ -1,55 +1,42 @@
-import { getCurrentMenu } from "@/stores/game-store";
-import { useGameStore } from "@/stores/game-store";
-import {
-  ActionButtonCategory,
-  ActionButtonsByCategory,
-  ActionMenuButtonProperties,
-  ActionMenuState,
-} from ".";
-import { ACTION_MENU_PAGE_SIZE } from "..";
-import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
+import { NextOrPrevious } from "@speed-dungeon/common";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
+import { AppStore } from "@/mobx-stores/app-store";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
+import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
+import { ACTION_MENU_PAGE_SIZE } from ".";
 
-export default function createPageButtons(
-  menuState: ActionMenuState,
+export function createPageButtons(
   buttonsByCategory: ActionButtonsByCategory,
-  numPages: number = Math.ceil(
+  pageCount: number = Math.ceil(
     buttonsByCategory[ActionButtonCategory.Numbered].length / ACTION_MENU_PAGE_SIZE
   ),
   onPageTurn?: (newPageNumber: number) => void
 ) {
-  if (numPages > 1) {
-    const prevButtonHotkey = HOTKEYS.LEFT_MAIN;
-    const previousPageButton = new ActionMenuButtonProperties(
-      () => `Previous (${letterFromKeyCode(prevButtonHotkey)})`,
-      `Previous (${letterFromKeyCode(prevButtonHotkey)})`,
-      () => {
-        let newPage = null;
-        useGameStore.getState().mutateState((state) => {
-          newPage = getNextOrPreviousNumber(menuState.page, numPages, NextOrPrevious.Previous);
-          getCurrentMenu(state).page = newPage;
-        });
-        if (onPageTurn && newPage !== null) onPageTurn(newPage);
-      }
-    );
-    previousPageButton.dedicatedKeys = [prevButtonHotkey, "ArrowLeft"];
-    buttonsByCategory[ActionButtonCategory.Bottom].push(previousPageButton);
+  if (pageCount <= 1) return console.info("no pages in menu to turn so not creating page buttons");
 
-    const nextButtonHotkey = HOTKEYS.RIGHT_MAIN;
-    const nextPageButton = new ActionMenuButtonProperties(
-      () => `Next (${letterFromKeyCode(nextButtonHotkey)})`,
-      `Next (${letterFromKeyCode(nextButtonHotkey)})`,
-      () => {
-        let newPage = null;
-        useGameStore.getState().mutateState((state) => {
-          newPage = getNextOrPreviousNumber(menuState.page, numPages, NextOrPrevious.Next);
-          getCurrentMenu(state).page = newPage;
-        });
+  const { actionMenuStore } = AppStore.get();
 
-        if (onPageTurn && newPage !== null) onPageTurn(newPage);
-      }
-    );
-    nextPageButton.dedicatedKeys = [nextButtonHotkey, "ArrowRight"];
-    buttonsByCategory[ActionButtonCategory.Bottom].push(nextPageButton);
-  }
+  const prevButtonHotkey = HOTKEYS.LEFT_MAIN;
+  const previousPageButton = new ActionMenuButtonProperties(
+    () => `Previous (${letterFromKeyCode(prevButtonHotkey)})`,
+    `Previous (${letterFromKeyCode(prevButtonHotkey)})`,
+    () => {
+      actionMenuStore.getCurrentMenu().turnPage(NextOrPrevious.Previous);
+      if (onPageTurn !== undefined) onPageTurn(actionMenuStore.getCurrentMenu().pageIndex);
+    }
+  );
+  previousPageButton.dedicatedKeys = [prevButtonHotkey, "ArrowLeft"];
+  buttonsByCategory[ActionButtonCategory.Bottom].push(previousPageButton);
+
+  const nextButtonHotkey = HOTKEYS.RIGHT_MAIN;
+  const nextPageButton = new ActionMenuButtonProperties(
+    () => `Next (${letterFromKeyCode(nextButtonHotkey)})`,
+    `Next (${letterFromKeyCode(nextButtonHotkey)})`,
+    () => {
+      actionMenuStore.getCurrentMenu().turnPage(NextOrPrevious.Next);
+      if (onPageTurn !== undefined) onPageTurn(actionMenuStore.getCurrentMenu().pageIndex);
+    }
+  );
+  nextPageButton.dedicatedKeys = [nextButtonHotkey, "ArrowRight"];
+  buttonsByCategory[ActionButtonCategory.Bottom].push(nextPageButton);
 }

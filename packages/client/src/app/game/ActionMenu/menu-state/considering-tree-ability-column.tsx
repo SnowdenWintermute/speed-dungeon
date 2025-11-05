@@ -1,12 +1,4 @@
-import { immerable } from "immer";
-import { useGameStore } from "@/stores/game-store";
-import {
-  ActionButtonCategory,
-  ActionButtonsByCategory,
-  ActionMenuButtonProperties,
-  ActionMenuState,
-  MenuStateType,
-} from ".";
+import { ActionMenuState } from ".";
 import { createCancelButton } from "./common-buttons/cancel";
 import {
   ABILITY_TREES,
@@ -15,41 +7,36 @@ import {
   COMBAT_ACTION_NAME_STRINGS,
   EMPTY_ABILITY_TREE,
 } from "@speed-dungeon/common";
-import createPageButtons from "./create-page-buttons";
-import { setAlert } from "@/app/components/alerts";
+import { createPageButtons } from "./create-page-buttons";
 import { ReactNode } from "react";
 import { ConsideringCombatantAbilityMenuState } from "./considering-tree-ability";
 import { AbilityType } from "@speed-dungeon/common";
 import { getAbilityIcon } from "../../character-sheet/ability-tree/ability-icons";
+import { AppStore } from "@/mobx-stores/app-store";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
+import { MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
 
-export class ConsideringAbilityTreeColumnMenuState implements ActionMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages: number = 5;
-  type = MenuStateType.ConsideringAbilityTreeColumn;
-
-  getCenterInfoDisplayOption = null;
-  alwaysShowPageOne = false;
-  constructor(public readonly columnNumber: number) {
-    this.numPages = 5;
-    this.page = columnNumber;
+export class ConsideringAbilityTreeColumnMenuState extends ActionMenuState {
+  constructor(public readonly columnIndex: number) {
+    super(MenuStateType.ConsideringAbilityTreeColumn, 5);
+    this.pageIndexInternal = columnIndex;
   }
 
   getButtonProperties() {
     const toReturn = new ActionButtonsByCategory();
     toReturn[ActionButtonCategory.Top].push(createCancelButton([]));
 
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult);
-      return toReturn;
-    }
+    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
-    const { combatantProperties } = focusedCharacterResult;
-    const { combatantClass } = combatantProperties;
-    const abilityTree = ABILITY_TREES[combatantClass];
-    const subjobTree = combatantProperties.supportClassProperties
-      ? ABILITY_TREES[combatantProperties.supportClassProperties.combatantClass]
+    const { combatantProperties } = focusedCharacter;
+    const { classProgressionProperties } = combatantProperties;
+    const mainClassProperties = classProgressionProperties.getMainClass();
+    const supportClassProperties = classProgressionProperties.getSupportClassOption();
+
+    const abilityTree = ABILITY_TREES[mainClassProperties.combatantClass];
+    const subjobTree = supportClassProperties
+      ? ABILITY_TREES[supportClassProperties.combatantClass]
       : EMPTY_ABILITY_TREE;
 
     abilityTree.columns.forEach((column, columnIndex) => {
@@ -84,27 +71,30 @@ export class ConsideringAbilityTreeColumnMenuState implements ActionMenuState {
           ),
           nameAsString || "",
           () => {
-            useGameStore.getState().mutateState((state) => {
-              state.detailedCombatantAbility = ability === undefined ? null : ability;
-              if (ability !== undefined)
-                state.stackedMenuStates.push(
-                  new ConsideringCombatantAbilityMenuState(
-                    withSubjobAbilities.filter((item) => item !== undefined),
-                    index
-                  )
-                );
-            });
+            if (ability === undefined) {
+              AppStore.get().focusStore.combatantAbilities.clearDetailed();
+            } else {
+              AppStore.get().focusStore.combatantAbilities.setDetailed(ability);
+              AppStore.get().actionMenuStore.pushStack(
+                new ConsideringCombatantAbilityMenuState(
+                  withSubjobAbilities.filter((item) => item !== undefined),
+                  index
+                )
+              );
+            }
           }
         );
 
-        button.mouseEnterHandler = button.focusHandler = () =>
-          useGameStore.getState().mutateState((state) => {
-            state.hoveredCombatantAbility = ability === undefined ? null : ability;
-          });
-        button.mouseLeaveHandler = button.blurHandler = () =>
-          useGameStore.getState().mutateState((state) => {
-            state.hoveredCombatantAbility = null;
-          });
+        button.mouseEnterHandler = button.focusHandler = () => {
+          if (ability === undefined) {
+            AppStore.get().focusStore.combatantAbilities.clearHovered();
+          } else {
+            AppStore.get().focusStore.combatantAbilities.setHovered(ability);
+          }
+        };
+        button.mouseLeaveHandler = button.blurHandler = () => {
+          AppStore.get().focusStore.combatantAbilities.clearHovered();
+        };
 
         button.shouldBeDisabled = nameAsString === undefined;
 
@@ -112,7 +102,7 @@ export class ConsideringAbilityTreeColumnMenuState implements ActionMenuState {
       });
     });
 
-    createPageButtons(this, toReturn, ABILITY_TREE_DIMENSIONS.x);
+    createPageButtons(toReturn, ABILITY_TREE_DIMENSIONS.x);
 
     return toReturn;
   }

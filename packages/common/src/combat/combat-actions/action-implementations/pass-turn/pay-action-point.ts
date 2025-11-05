@@ -8,7 +8,7 @@ import {
 } from "../../index.js";
 import { passTurnConfig } from "./index.js";
 import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionOrigin,
 } from "../../combat-action-combat-log-properties.js";
 import {
@@ -25,7 +25,7 @@ const costProperties = createCostPropertiesConfig(COST_PROPERTIES_TEMPLATE_GETTE
 
 const config: CombatActionComponentConfig = {
   ...clonedConfig,
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.SpellCast,
     getOnUseMessage: (data) => {
       return "";

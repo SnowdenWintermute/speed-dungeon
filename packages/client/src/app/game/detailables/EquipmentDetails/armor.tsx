@@ -23,7 +23,7 @@ export function ArmorClassText({ equipment }: { equipment: Equipment }) {
   }
 
   if (typeof armorClassOption === "number") {
-    const modifiedArmorClass = Equipment.getModifiedArmorClass(equipment);
+    const modifiedArmorClass = equipment.getModifiedArmorClass();
     const acIsModified = !!(
       equipment.affixes[AffixCategory.Prefix]?.[AffixType.FlatArmorClass] ||
       equipment.affixes[AffixCategory.Suffix]?.[AffixType.PercentArmorClass]

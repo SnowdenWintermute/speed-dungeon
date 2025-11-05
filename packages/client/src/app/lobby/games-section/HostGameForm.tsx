@@ -6,7 +6,7 @@ import { useHttpRequestStore } from "@/stores/http-request-store";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import Divider from "@/app/components/atoms/Divider";
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 
 export default function HostGameForm() {
   const currentSessionHttpResponseTracker =

@@ -1,4 +1,4 @@
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import {

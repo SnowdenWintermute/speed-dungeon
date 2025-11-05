@@ -1,11 +1,13 @@
-import { useLobbyStore } from "@/stores/lobby-store";
 import React from "react";
 import ButtonBasic from "../components/atoms/ButtonBasic";
 import { ClientToServerEvent, GameListEntry } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
 
-export default function GameList() {
-  const gameList = useLobbyStore().gameList;
+export const GameList = observer(() => {
+  const gameList = AppStore.get().lobbyStore.getGameList();
+
   return (
     <section
       className="p-4 mr-4 bg-slate-700 border border-slate-400 overflow-y-auto flex-grow relative"
@@ -20,7 +22,7 @@ export default function GameList() {
       </ul>
     </section>
   );
-}
+});
 
 interface GameListItemProps {
   game: GameListEntry;

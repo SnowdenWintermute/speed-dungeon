@@ -1,28 +1,20 @@
 import SocketIO from "socket.io";
 import {
   BookConsumableType,
-  CharacterAndItems,
   CharacterAssociatedData,
   ClientToServerEventTypes,
-  CombatantEquipment,
   CombatantProperties,
-  ConsumableType,
   ERROR_MESSAGES,
   EntityId,
   GameMode,
-  Inventory,
   ServerToClientEvent,
   ServerToClientEventTypes,
-  applyEquipmentEffectWhileMaintainingResourcePercentages,
-  combatantIsAllowedToConvertItemsToShards,
   combatantIsAllowedToTradeForBooks,
-  convertItemsToShards,
   getBookLevelForTrade,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../singletons/index.js";
-import writePlayerCharactersInGameToDb from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
-import cloneDeep from "lodash.clonedeep";
+import { writePlayerCharactersInGameToDb } from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
 import { createConsumableByType } from "../item-generation/create-consumable-by-type.js";
 
 export async function tradeItemForBookHandler(
@@ -35,23 +27,20 @@ export async function tradeItemForBookHandler(
   const { characterId, itemId, bookType } = eventData;
 
   const { combatantProperties } = character;
-  if (!combatantIsAllowedToTradeForBooks(combatantProperties, party.currentRoom.roomType))
+  if (!combatantIsAllowedToTradeForBooks(party.currentRoom.roomType))
     return new Error(ERROR_MESSAGES.NOT_PERMITTED);
 
-  const inventoryFull = Inventory.isAtCapacity(combatantProperties);
+  const inventoryFull = combatantProperties.inventory.isAtCapacity();
   if (inventoryFull) return new Error(ERROR_MESSAGES.COMBATANT.MAX_INVENTORY_CAPACITY);
+
+  const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
 
   // find and convert it if owned (common code)
   // clone the itemIds so we can keep the unmodified original to send to the clients
-  const bookResult = tradeItemForBook(
-    itemId,
-    character.combatantProperties,
-    bookType,
-    party.currentFloor
-  );
+  const bookResult = tradeItemForBook(itemId, character.combatantProperties, bookType, floorNumber);
   if (bookResult instanceof Error) return bookResult;
 
-  Inventory.insertItem(combatantProperties.inventory, bookResult);
+  combatantProperties.inventory.insertItem(bookResult);
 
   // SERVER
   // save the character if in progression game
@@ -76,7 +65,7 @@ function tradeItemForBook(
   bookType: BookConsumableType,
   vendingMachineLevel: number
 ) {
-  const removedItemResult = CombatantProperties.removeOwnedItem(combatantProperties, itemToTradeId);
+  const removedItemResult = combatantProperties.inventory.removeStoredOrEquipped(itemToTradeId);
   if (removedItemResult instanceof Error) return removedItemResult;
 
   const bookToReturn = createConsumableByType(bookType);

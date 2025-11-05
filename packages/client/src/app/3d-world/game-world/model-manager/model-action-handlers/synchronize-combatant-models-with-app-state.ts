@@ -1,8 +1,5 @@
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { CHARACTER_SLOT_SPACING } from "@/app/lobby/saved-character-manager";
-import { useGameStore } from "@/stores/game-store";
-import { useLobbyStore } from "@/stores/lobby-store";
-import getParty from "@/utils/getParty";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import {
   ERROR_MESSAGES,
@@ -18,6 +15,7 @@ import cloneDeep from "lodash.clonedeep";
 import { createCombatantPortrait } from "../../image-manager/create-combatant-portrait";
 import { CharacterModel } from "@/app/3d-world/scene-entities/character-models";
 import { startOrStopCosmeticEffects } from "../../replay-tree-manager/start-or-stop-cosmetic-effect";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export async function synchronizeCombatantModelsWithAppState() {
   if (!gameWorld.current) return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
@@ -27,14 +25,14 @@ export async function synchronizeCombatantModelsWithAppState() {
   const modelsAndPositions = getModelsAndPositions();
   if (modelsAndPositions instanceof Error) return modelsAndPositions;
 
+  const { gameWorldStore } = AppStore.get();
+
   // delete models which don't appear on the list
   for (const [entityId, model] of Object.entries(modelManager.combatantModels)) {
     if (!modelsAndPositions[entityId]) {
       model.cleanup({ softCleanup: false });
       delete modelManager.combatantModels[entityId];
-      useGameStore.getState().mutateState((state) => {
-        delete state.combatantModelLoadingStates[entityId];
-      });
+      gameWorldStore.clearModelLoadingState(entityId);
     }
   }
 
@@ -48,9 +46,7 @@ export async function synchronizeCombatantModelsWithAppState() {
     if (!modelOption) {
       // start spawning model which we need to
 
-      useGameStore.getState().mutateState((state) => {
-        state.combatantModelLoadingStates[entityId] = true;
-      });
+      gameWorldStore.setModelLoading(entityId);
       modelSpawnPromises.push(
         spawnCharacterModel(gameWorld.current, {
           combatant,
@@ -77,17 +73,16 @@ export async function synchronizeCombatantModelsWithAppState() {
 
       const character = result.getCombatant();
       const { combatantProperties, entityProperties } = character;
+      const { conditionManager } = combatantProperties;
 
-      combatantProperties.conditions.forEach((condition) => {
+      conditionManager.getConditions().forEach((condition) => {
         startOrStopCosmeticEffects(condition.getCosmeticEffectWhileActive(entityProperties.id), []);
       });
 
       const portraitResult = await createCombatantPortrait(result.entityId);
       if (portraitResult instanceof Error) setAlert(portraitResult);
 
-      useGameStore.getState().mutateState((state) => {
-        state.combatantModelLoadingStates[result.entityId] = false;
-      });
+      gameWorldStore.setModelIsLoaded(result.entityId);
     }
   }
   if (resultsIncludedError) return new Error("Error with spawning combatant models");
@@ -102,34 +97,26 @@ interface ModelsAndPositions {
 }
 
 function getModelsAndPositions() {
-  const state = useGameStore.getState();
-  const lobbyState = useLobbyStore.getState();
-  const { game } = state;
+  const { gameStore } = AppStore.get();
+  const gameOption = gameStore.getGameOption();
   let modelsAndPositions: ModelsAndPositions = {};
 
-  if (game && game.mode === GameMode.Progression && !game.timeStarted) {
-    modelsAndPositions = getProgressionGameLobbyCombatantModelPositions(game);
-  } else if (state.game && state.game.timeStarted) {
-    // in game
-    const partyResult = getParty(game, state.username || "");
-    if (partyResult instanceof Error) return partyResult;
-    for (const character of Object.values(partyResult.characters)) {
-      modelsAndPositions[character.entityProperties.id] = {
-        combatant: character,
-        homeRotation: character.combatantProperties.homeRotation,
-        homeLocation: character.combatantProperties.homeLocation,
-      };
-    }
-
-    for (const monster of Object.values(partyResult.currentRoom.monsters)) {
-      modelsAndPositions[monster.entityProperties.id] = {
-        combatant: monster,
-        homeRotation: monster.combatantProperties.homeRotation,
-        homeLocation: monster.combatantProperties.homeLocation,
+  const inLobby = gameOption && !gameOption.timeStarted;
+  const inGame = gameOption && gameOption.timeStarted;
+  if (inLobby && gameOption.mode === GameMode.Progression) {
+    modelsAndPositions = getProgressionGameLobbyCombatantModelPositions(gameOption);
+  } else if (inGame) {
+    const party = gameStore.getExpectedParty();
+    const { combatantManager } = party;
+    for (const combatant of combatantManager.getAllCombatants()) {
+      modelsAndPositions[combatant.entityProperties.id] = {
+        combatant,
+        homeRotation: combatant.combatantProperties.transformProperties.homeRotation,
+        homeLocation: combatant.combatantProperties.transformProperties.homePosition,
       };
     }
   } else {
-    const savedCharacters = lobbyState.savedCharacters;
+    const savedCharacters = AppStore.get().lobbyStore.getSavedCharacterSlots();
     // viewing saved characters
     for (const [slot, character] of iterateNumericEnumKeyedRecord(savedCharacters).filter(
       ([_slot, characterOption]) => characterOption !== null
@@ -153,10 +140,10 @@ function getProgressionGameLobbyCombatantModelPositions(game: SpeedDungeonGame) 
 
   const modelsAndPositions: ModelsAndPositions = {};
 
-  partyOption.characterPositions.forEach(
-    (characterId, i) =>
-      (modelsAndPositions[characterId] = {
-        combatant: partyOption.characters[characterId]!,
+  partyOption.combatantManager.getPartyMemberCharacters().forEach(
+    (combatant, i) =>
+      (modelsAndPositions[combatant.getEntityId()] = {
+        combatant,
         homeLocation: new Vector3(-CHARACTER_SLOT_SPACING + i * CHARACTER_SLOT_SPACING, 0, 0),
         homeRotation: Quaternion.Identity(),
       })

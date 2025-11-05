@@ -1,19 +1,17 @@
 import {
   CharacterAssociatedData,
-  CombatantProperties,
   DungeonRoomType,
   ERROR_MESSAGES,
   EntityId,
   Equipment,
   GameMode,
   ServerToClientEvent,
-  applyEquipmentEffectWhileMaintainingResourcePercentages,
   getCraftingActionPrice,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../../singletons/index.js";
 import { CraftingAction } from "@speed-dungeon/common";
-import writePlayerCharactersInGameToDb from "../../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
+import { writePlayerCharactersInGameToDb } from "../../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
 import { repairEquipment } from "./repair-equipment.js";
 import { makeNonMagicalItemMagical } from "./make-non-magical-item-magical.js";
 import { replaceExistingWithNewRandomAffixes } from "./replace-existing-with-new-random-affixes.js";
@@ -34,7 +32,7 @@ export async function craftItemHandler(
   const { characterId, itemId, craftingAction } = eventData;
   const { inventory } = character.combatantProperties;
   // check if they own the item
-  const itemResult = CombatantProperties.getOwnedItemById(character.combatantProperties, itemId);
+  const itemResult = character.combatantProperties.inventory.getStoredOrEquipped(itemId);
   if (itemResult instanceof Error) return itemResult;
   // make sure it is an equipment
   if (!(itemResult instanceof Equipment)) return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
@@ -48,19 +46,20 @@ export async function craftItemHandler(
   let actionResult: Error | void = new Error("Action callback never called");
 
   let percentRepairedBeforeModification = 1;
-  const durabilityOption = Equipment.getDurability(itemResult);
+  const durabilityOption = itemResult.getDurability();
   if (durabilityOption) {
     percentRepairedBeforeModification = durabilityOption.current / durabilityOption.max;
   }
 
-  applyEquipmentEffectWhileMaintainingResourcePercentages(character.combatantProperties, () => {
+  character.combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
     const actionHandler = craftingActionHandlers[craftingAction];
-    actionResult = actionHandler(itemResult, party.currentFloor);
+    const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
+    actionResult = actionHandler(itemResult, floorNumber);
   });
   if (actionResult instanceof Error) return actionResult;
 
   if (craftingAction !== CraftingAction.Repair) {
-    const durabilityOptionAfter = Equipment.getDurability(itemResult);
+    const durabilityOptionAfter = itemResult.getDurability();
     if (durabilityOptionAfter && itemResult.durability) {
       itemResult.durability.current = Math.round(
         durabilityOptionAfter.max * percentRepairedBeforeModification
@@ -69,7 +68,7 @@ export async function craftItemHandler(
   }
 
   // deduct the price from their inventory (do this after in case of error, like trying to imbue an already magical item)
-  inventory.shards -= price;
+  inventory.changeShards(price * -1);
 
   // save character
   if (game.mode === GameMode.Progression) {

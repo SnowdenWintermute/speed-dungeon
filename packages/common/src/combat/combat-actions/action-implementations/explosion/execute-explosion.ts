@@ -1,31 +1,23 @@
-import { ActionIntentAndUser } from "../../../../action-processing/index.js";
-import { EntityId } from "../../../../primatives/index.js";
 import {
-  CombatActionTarget,
-  CombatActionTargetType,
-} from "../../../targeting/combat-action-targets.js";
-import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
-  CombatActionExecutionIntent,
   CombatActionName,
   CombatActionOrigin,
 } from "../../index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
-import { COMBAT_ACTIONS } from "../index.js";
 import { EXECUTE_EXPLOSION_STEPS_CONFIG } from "./execute-explosion-steps-config.js";
 import { EXECUTE_EXPLOSION_HIT_OUTCOME_PROPERTIES } from "./explosion-hit-outcome-properties.js";
 
 const config: CombatActionComponentConfig = {
   description: "Deals kinetic fire damage in an area around the target",
   targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.EXPLOSION(),
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.TriggeredCondition,
     getOnUseMessage: (data) => {
-      return `${data.nameOfActionUser} explodes!`;
+      return `Explosion detonates!`;
     },
   }),
 

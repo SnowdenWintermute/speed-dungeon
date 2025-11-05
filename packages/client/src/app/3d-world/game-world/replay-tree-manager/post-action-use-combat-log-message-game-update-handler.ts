@@ -1,13 +1,10 @@
-import { postActionUseMessageToCombatLog } from "@/app/game/combat-log/post-action-use-message-to-combat-log";
-import { useGameStore } from "@/stores/game-store";
-import { ActionUseCombatLogMessageUpdateCommand } from "@speed-dungeon/common";
-import { GameUpdateTracker } from ".";
+import { ActionUseGameLogMessageUpdateCommand } from "@speed-dungeon/common";
+import { GameUpdateTracker } from "./game-update-tracker";
+import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 
-export async function postActionUseCombatLogMessageGameUpdateHandler(
-  update: GameUpdateTracker<ActionUseCombatLogMessageUpdateCommand>
+export async function postActionUseGameLogMessageGameUpdateHandler(
+  update: GameUpdateTracker<ActionUseGameLogMessageUpdateCommand>
 ) {
-  useGameStore.getState().mutateState((state) => {
-    postActionUseMessageToCombatLog(state, update.command);
-  });
+  GameLogMessageService.postActionUse(update.command);
   update.setAsQueuedToComplete();
 }

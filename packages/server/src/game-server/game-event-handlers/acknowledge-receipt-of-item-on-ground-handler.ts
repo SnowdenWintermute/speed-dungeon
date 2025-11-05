@@ -1,7 +1,7 @@
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import { ServerPlayerAssociatedData } from "../event-middleware";
 
-export default function acknowledgeReceiptOfItemOnGroundHandler(
+export function acknowledgeReceiptOfItemOnGroundHandler(
   itemId: string,
   playerAssociatedData: ServerPlayerAssociatedData
 ) {

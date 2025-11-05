@@ -1,32 +1,29 @@
 import { ACTION_ENTITY_ICONS } from "@/app/icons";
-import { useGameStore } from "@/stores/game-store";
-import { useUIStore } from "@/stores/ui-store";
-import { ACTION_ENTITY_STRINGS, ActionEntity, AdventuringParty } from "@speed-dungeon/common";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
+import { ACTION_ENTITY_STRINGS, ActionEntity } from "@speed-dungeon/common";
+import { observer } from "mobx-react-lite";
 import React from "react";
 
-interface Props {}
+export const PersistentActionEntityDisplay = observer(() => {
+  const party = AppStore.get().gameStore.getExpectedParty();
 
-export default function PersistentActionEntityDisplay(props: Props) {
-  const partyResult = useGameStore().getParty();
-  if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
-  const party = partyResult;
-
-  const game = useGameStore().game;
-  if (game === null) return <div>no game</div>;
-  const battleOption = AdventuringParty.getBattleOption(party, game);
+  const { actionEntityManager } = party;
 
   return (
     <ul className="list-none">
-      {Object.entries(party.actionEntities).map(([actionEntityId, actionEntity]) => (
-        <ul key={actionEntityId}>
-          <PersistentActionEntity actionEntity={actionEntity} />
-        </ul>
-      ))}
+      {Object.entries(actionEntityManager.getActionEntities()).map(
+        ([actionEntityId, actionEntity]) => (
+          <ul key={actionEntityId}>
+            <PersistentActionEntity actionEntity={actionEntity} />
+          </ul>
+        )
+      )}
     </ul>
   );
-}
+});
 
-function PersistentActionEntity({ actionEntity }: { actionEntity: ActionEntity }) {
+const PersistentActionEntity = observer(({ actionEntity }: { actionEntity: ActionEntity }) => {
   const { actionOriginData } = actionEntity.actionEntityProperties;
   if (actionOriginData === undefined) return <div></div>;
 
@@ -44,7 +41,7 @@ function PersistentActionEntity({ actionEntity }: { actionEntity: ActionEntity }
     );
   }
 
-  const showDebug = useUIStore().showDebug;
+  const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
 
   return (
     <div className="h-20 w-20 border-2 border-slate-400 relative bg-slate-800 text-zinc-300 pointer-events-auto">
@@ -67,4 +64,4 @@ function PersistentActionEntity({ actionEntity }: { actionEntity: ActionEntity }
       </div>
     </div>
   );
-}
+});

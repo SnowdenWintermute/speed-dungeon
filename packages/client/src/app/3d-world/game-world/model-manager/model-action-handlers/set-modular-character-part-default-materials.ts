@@ -6,7 +6,7 @@ export function setCharacterModelPartDefaultMaterials(
   partResult: AssetContainer,
   combatantProperties: CombatantProperties
 ) {
-  if (combatantProperties.controllingPlayer) {
+  if (combatantProperties.controlledBy.isPlayerControlled()) {
     for (const mesh of partResult.meshes) {
       if (mesh.material?.name === "Purple") {
         // mesh.material.dispose();

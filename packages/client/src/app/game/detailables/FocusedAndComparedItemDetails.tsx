@@ -1,29 +1,28 @@
-import { useGameStore } from "@/stores/game-store";
-import { useUIStore } from "@/stores/ui-store";
-import setComparedItem from "@/utils/set-compared-item";
 import { Equipment, Item } from "@speed-dungeon/common";
 import React, { useEffect } from "react";
-import ItemDetails from "./ItemDetails";
+import { ItemDetails } from "./ItemDetails";
 import shouldDisplayModTooltip from "./should-display-mod-tooltip";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
+import { ModifierKey } from "@/mobx-stores/input";
 
 interface Props {
   focusedItem: Item;
 }
 
-export default function FocusedAndComparedItemDetails({ focusedItem }: Props) {
-  const mutateGameState = useGameStore().mutateState;
-  const comparedItemOption = useGameStore().comparedItem;
-  const comparedSlotOption = useGameStore().comparedSlot;
-  const modKeyHeld = useUIStore().modKeyHeld;
+export const FocusedAndComparedItemDetails = observer(({ focusedItem }: Props) => {
+  const { focusStore, inputStore } = AppStore.get();
+  const modKeyHeld = inputStore.getKeyIsHeld(ModifierKey.Mod);
+  const { comparedItem, comparedSlot } = focusStore.getItemComparison();
   const focusedItemId = focusedItem.entityProperties.id;
 
   useEffect(() => {
-    setComparedItem(focusedItemId, modKeyHeld);
+    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    focusStore.updateItemComparison(focusedItem, modKeyHeld, focusedCharacter.getEquipmentOption());
 
-    return () =>
-      mutateGameState((gameState) => {
-        gameState.comparedSlot = null;
-      });
+    return () => {
+      focusStore.clearItemComparison();
+    };
   }, [modKeyHeld, focusedItemId]);
 
   const focusedItemDisplay = (
@@ -41,8 +40,8 @@ export default function FocusedAndComparedItemDetails({ focusedItem }: Props) {
     focusedItem instanceof Equipment ? (
       <ItemDetails
         key="compared"
-        shouldShowModKeyTooltip={shouldDisplayModTooltip(comparedSlotOption, focusedItem)}
-        itemOption={comparedItemOption}
+        shouldShowModKeyTooltip={shouldDisplayModTooltip(comparedSlot, focusedItem)}
+        itemOption={comparedItem}
         extraStyles={""}
         marginSide={"Left"}
         isComparedItem={true}
@@ -51,7 +50,7 @@ export default function FocusedAndComparedItemDetails({ focusedItem }: Props) {
       <ItemDetails
         key="compared"
         shouldShowModKeyTooltip={false}
-        itemOption={comparedItemOption}
+        itemOption={comparedItem}
         extraStyles={""}
         marginSide={"Left"}
         isComparedItem={true}
@@ -65,4 +64,4 @@ export default function FocusedAndComparedItemDetails({ focusedItem }: Props) {
       {displays[1]}
     </div>
   );
-}
+});

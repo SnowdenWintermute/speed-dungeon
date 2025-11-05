@@ -12,7 +12,7 @@ import { StartConcurrentSubActionsActionResolutionStep } from "./start-concurren
 import { DetermineMeleeActionAnimationsActionResolutionStep } from "./determine-melee-action-animations.js";
 import { EvaluatePlayerEndTurnAndInputLockActionResolutionStep } from "./evaluate-player-turn-end-and-input-lock.js";
 import { DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep } from "./determine-should-execute-or-release-turn-and-input-lock.js";
-import { PostActionUseCombatLogMessageActionResolutionStep } from "./post-action-use-combat-log-message.js";
+import { PostActionUseGameLogMessageActionResolutionStep } from "./post-action-use-combat-log-message.js";
 import { CombatantMotionActionResolutionStep } from "./motion-steps/combatant-motion.js";
 import { ActionEntityMotionActionResolutionStep } from "./motion-steps/action-entity-motion.js";
 import { TriggerEnvironmentalHazardsActionResolutionStep } from "./motion-steps/determine-environmental-hazard-triggers.js";
@@ -67,8 +67,8 @@ export const ACTION_STEP_CREATORS: Record<
     new CombatantMotionActionResolutionStep(context, ActionResolutionStepType.DeliveryMotion),
   [ActionResolutionStepType.PayResourceCosts]: (context) =>
     new PayResourceCostsActionResolutionStep(context),
-  [ActionResolutionStepType.PostActionUseCombatLogMessage]: (context) =>
-    new PostActionUseCombatLogMessageActionResolutionStep(context),
+  [ActionResolutionStepType.PostActionUseGameLogMessage]: (context) =>
+    new PostActionUseGameLogMessageActionResolutionStep(context),
   [ActionResolutionStepType.EvalOnUseTriggers]: (context) =>
     new EvalOnUseTriggersActionResolutionStep(context),
   [ActionResolutionStepType.StartConcurrentSubActions]: (context) =>

@@ -1,16 +1,9 @@
 import React from "react";
-import { useGameStore } from "@/stores/game-store";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
-import RoomExplorationTracker from "./RoomExplorationTracker";
-import {
-  AdventuringParty,
-  CleanupMode,
-  ClientToServerEvent,
-  DUNGEON_ROOM_TYPE_STRINGS,
-} from "@speed-dungeon/common";
-import getGameAndParty from "@/utils/getGameAndParty";
+import { RoomExplorationTracker } from "./RoomExplorationTracker";
+import { CleanupMode, ClientToServerEvent, DUNGEON_ROOM_TYPE_STRINGS } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
@@ -19,35 +12,26 @@ import TurnOrderPredictionBar from "./turn-order-prediction-bar";
 import StairsIcon from "../../../../public/img/game-ui-icons/stairs.svg";
 import DoorIcon from "../../../../public/img/game-ui-icons/door-icon.svg";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import getParty from "@/utils/getParty";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
+import { observer } from "mobx-react-lite";
 
-export default function TopInfoBar() {
-  const mutateGameState = useGameStore().mutateState;
-  const viewingLeaveGameModal = useGameStore((state) => state.viewingLeaveGameModal);
-  const gameOption = useGameStore().game;
-  const username = useGameStore().username;
-  const result = getGameAndParty(gameOption, username);
-  if (result instanceof Error) return <div>{result.message}</div>;
-  const [game, party] = result;
+export const TopInfoBar = observer(() => {
+  const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
+
+  const viewingLeaveGameModal = AppStore.get().dialogStore.isOpen(DialogElementName.LeaveGame);
 
   const battleOptionResult = getCurrentBattleOption(game, party.name);
 
   function leaveGame() {
-    mutateGameState((state) => {
-      const partyResult = getParty(state.game, state.username);
-      if (!(partyResult instanceof Error)) {
-        for (const [entityId, entity] of Object.entries(partyResult.actionEntities)) {
-          AdventuringParty.unregisterActionEntity(partyResult, entity.entityProperties.id, null);
-          getGameWorld().actionEntityManager.unregister(
-            entity.entityProperties.id,
-            CleanupMode.Soft
-          );
-        }
-      }
+    AppStore.get().dialogStore.close(DialogElementName.LeaveGame);
 
-      state.viewingLeaveGameModal = false;
-      state.game = null;
-    });
+    const { actionEntityManager } = party;
+    for (const [entityId, entity] of Object.entries(actionEntityManager.getActionEntities())) {
+      actionEntityManager.unregisterActionEntity(entity.entityProperties.id);
+      getGameWorld().actionEntityManager.unregister(entity.entityProperties.id, CleanupMode.Soft);
+    }
+    AppStore.get().gameStore.clearGame();
 
     websocketConnection.emit(ClientToServerEvent.LeaveGame);
 
@@ -59,6 +43,9 @@ export default function TopInfoBar() {
     });
   }
 
+  const currentFloor = party.dungeonExplorationManager.getCurrentFloor();
+  const currentRoom = party.dungeonExplorationManager.getCurrentRoomNumber();
+
   return (
     <div className="h-10 w-full border-b border-slate-400 bg-slate-700 flex justify-center items-center pointer-events-auto relative">
       <div className="p-2 absolute left-0 flex items-center text-md">
@@ -67,14 +54,14 @@ export default function TopInfoBar() {
             <StairsIcon className="fill-slate-400 h-full" />
           </div>
         </HoverableTooltipWrapper>
-        <span className="mr-2">{party.currentFloor}</span>
+        <span className="mr-2">{currentFloor}</span>
 
         <HoverableTooltipWrapper tooltipText="Current room">
           <div className="h-5 my-1 mr-1">
             <DoorIcon className="fill-slate-400 h-full" />
           </div>
         </HoverableTooltipWrapper>
-        {party.roomsExplored.onCurrentFloor}
+        {currentRoom}
         {": "}
         {DUNGEON_ROOM_TYPE_STRINGS[party.currentRoom.roomType]}
       </div>
@@ -87,11 +74,8 @@ export default function TopInfoBar() {
         <HotkeyButton
           className="h-full w-full bg-slate-700 hover:bg-slate-950 pr-4 pl-4 "
           onClick={() => {
-            mutateGameState((state) => {
-              state.viewingLeaveGameModal = !state.viewingLeaveGameModal;
-              state.stackedMenuStates = [];
-              state.baseMenuState.inCombat = false;
-            });
+            AppStore.get().dialogStore.toggle(DialogElementName.LeaveGame);
+            AppStore.get().actionMenuStore.clearStack();
           }}
         >
           LEAVE GAME{" "}
@@ -115,11 +99,9 @@ export default function TopInfoBar() {
           <div className="flex justify-between">
             <HotkeyButton
               hotkeys={["Escape"]}
-              onClick={() =>
-                mutateGameState((state) => {
-                  state.viewingLeaveGameModal = false;
-                })
-              }
+              onClick={() => {
+                AppStore.get().dialogStore.close(DialogElementName.LeaveGame);
+              }}
               className="h-10 w-24 p-2 border border-slate-400 mr-1 bg-slate-700"
             >
               No
@@ -135,4 +117,4 @@ export default function TopInfoBar() {
       )}
     </div>
   );
-}
+});

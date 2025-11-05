@@ -1,90 +1,96 @@
-import { FocusEventHandler, MouseEventHandler, ReactNode } from "react";
+import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
+import { ReactNode } from "react";
+import { MENU_STATE_TYPE_STRINGS, MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
+import { action, computed, makeObservable, observable } from "mobx";
 
-export enum MenuStateType {
-  Base,
-  CombatActionSelected,
-  AssignAttributePoints,
-  InventoryItems,
-  ViewingEquipedItems,
-  ItemSelected,
-  CraftingActionSelection,
-  ItemsOnGround,
-  OperatingVendingMachine,
-  PurchasingItems,
-  CraftingItemSelection,
-  RepairItemSelection,
-  ShardItemSelection,
-  ConfimConvertToShards,
-  ViewingAbilityTree,
-  ConsideringAbilityTreeColumn,
-  ConsideringAbilityTreeAbility,
-  SelectingBookType,
-  SelectItemToTradeForBook,
-  ConfirmTradeForBook,
-}
-
-export const MENU_STATE_TYPE_STRINGS: Record<MenuStateType, string> = {
-  [MenuStateType.Base]: "Action Menu",
-  [MenuStateType.CombatActionSelected]: "Combat action selected",
-  [MenuStateType.AssignAttributePoints]: "Assigning attribute points",
-  [MenuStateType.InventoryItems]: "Inventory",
-  [MenuStateType.ViewingEquipedItems]: "Viewing equipped items",
-  [MenuStateType.ItemSelected]: "Considering item",
-  [MenuStateType.CraftingActionSelection]: "Selecting crafting action",
-  [MenuStateType.ItemsOnGround]: "Viewing items on ground",
-  [MenuStateType.OperatingVendingMachine]: "Operating vending machine",
-  [MenuStateType.PurchasingItems]: "Purchasing items",
-  [MenuStateType.CraftingItemSelection]: "Selecting item to craft",
-  [MenuStateType.RepairItemSelection]: "Selecting item to repair",
-  [MenuStateType.ShardItemSelection]: "Converting items to shards",
-  [MenuStateType.ConfimConvertToShards]: "Confirm item destruction",
-  [MenuStateType.ViewingAbilityTree]: "Viewing ability tree",
-  [MenuStateType.ConsideringAbilityTreeColumn]: "Considering abilities",
-  [MenuStateType.ConsideringAbilityTreeAbility]: "Considering ability",
-  [MenuStateType.SelectingBookType]: "Selecting skill book",
-  [MenuStateType.SelectItemToTradeForBook]: "Selecting item to trade",
-  [MenuStateType.ConfirmTradeForBook]: "Confirming trade",
-};
-
-export enum ActionButtonCategory {
-  Top,
-  Numbered,
-  Bottom,
-  Hidden,
-}
-
-export class ActionButtonsByCategory {
-  [ActionButtonCategory.Top]: ActionMenuButtonProperties[] = [];
-  [ActionButtonCategory.Numbered]: ActionMenuButtonProperties[] = [];
-  [ActionButtonCategory.Bottom]: ActionMenuButtonProperties[] = [];
-  [ActionButtonCategory.Hidden]: ActionMenuButtonProperties[] = [];
-
-  constructor() {}
-}
+export const ACTION_MENU_PAGE_SIZE = 6;
 
 export abstract class ActionMenuState {
-  page: number = 1;
+  pageIndexInternal: number = 0;
   alwaysShowPageOne: boolean = false;
+  private cachedPageCount: number = 1;
   constructor(
     public type: MenuStateType,
-    public numPages: number
-  ) {}
-  abstract getButtonProperties(): ActionButtonsByCategory;
-  abstract getCenterInfoDisplayOption: null | (() => ReactNode);
-}
+    protected minPageCount: number
+  ) {
+    // can't use makeAutoObservable on classes with subclassing
+    makeObservable(
+      this,
+      {
+        pageIndexInternal: observable,
+        pageIndex: computed,
+        alwaysShowPageOne: observable,
+        setPageIndex: action,
+        turnPage: action,
+        goToLastPage: action,
+        goToFirstPage: action,
+        buttonProperties: computed,
+        pageCount: computed,
+        setCachedPageCount: action,
+      },
+      { autoBind: true }
+    );
+  }
 
-export class ActionMenuButtonProperties {
-  focusHandler?: FocusEventHandler<HTMLButtonElement>;
-  blurHandler?: FocusEventHandler<HTMLButtonElement>;
-  mouseEnterHandler?: MouseEventHandler<HTMLButtonElement>;
-  mouseLeaveHandler?: MouseEventHandler<HTMLButtonElement>;
-  shouldBeDisabled: boolean = false;
-  dedicatedKeys: string[] = [];
-  shouldDisableMainClickOnly: boolean = false;
-  constructor(
-    public jsx: () => ReactNode,
-    public key: string,
-    public clickHandler: MouseEventHandler<HTMLButtonElement>,
-    public alternateClickHandler?: MouseEventHandler<HTMLButtonElement>
-  ) {}
+  getStringName() {
+    return MENU_STATE_TYPE_STRINGS[this.type];
+  }
+
+  setCachedPageCount(newCount: number) {
+    this.cachedPageCount = newCount;
+  }
+
+  getPageCount() {
+    if (this.cachedPageCount === null) {
+      const buttonProperties = this.getButtonProperties();
+      const numberedButtonsCount = buttonProperties[ActionButtonCategory.Numbered].length;
+      const pageCount = Math.ceil(numberedButtonsCount / ACTION_MENU_PAGE_SIZE);
+
+      const newCount = Math.max(this.minPageCount, pageCount);
+      this.setCachedPageCount(newCount);
+    }
+
+    return this.cachedPageCount;
+  }
+
+  get pageIndex() {
+    return this.pageIndexInternal;
+  }
+
+  get pageCount() {
+    return this.cachedPageCount;
+  }
+
+  setPageIndex(newIndex: number) {
+    this.pageIndexInternal = newIndex;
+  }
+
+  turnPage(direction: NextOrPrevious) {
+    const newPage = getNextOrPreviousNumber(
+      this.pageIndexInternal,
+      this.getPageCount() - 1,
+      direction,
+      { minNumber: 0 }
+    );
+    this.pageIndexInternal = newPage;
+  }
+
+  goToLastPage() {
+    this.pageIndexInternal = this.getPageCount() - 1;
+  }
+
+  goToFirstPage() {
+    this.pageIndexInternal = 0;
+  }
+
+  getCenterInfoDisplayOption(): ReactNode | null {
+    return null;
+  }
+
+  abstract getButtonProperties(): ActionButtonsByCategory;
+
+  get buttonProperties() {
+    return this.getButtonProperties();
+  }
 }

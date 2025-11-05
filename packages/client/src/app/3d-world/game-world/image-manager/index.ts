@@ -5,12 +5,12 @@ import {
   UniversalCamera,
   Vector3,
 } from "@babylonjs/core";
-import { useGameStore } from "@/stores/game-store";
 import { createImageCreatorScene } from "./create-image-creator-scene";
 import { SavedMaterials, createDefaultMaterials } from "../materials/create-default-materials";
 import { Equipment, Item } from "@speed-dungeon/common";
 import { calculateCompositeBoundingBox } from "../../utils";
 import { spawnItemModel } from "../../item-models/spawn-item-model";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export enum ImageManagerRequestType {
   ItemCreation,
@@ -70,6 +70,7 @@ export class ImageManager {
     const message = this.queue.shift();
     if (!message) return console.error("expected message not found");
 
+    const { imageStore } = AppStore.get();
     switch (message.type) {
       // we're calling processNextMessage() individually because we haven't figured out how
       // to await createItemImage because we need to run the render loop for it to finish
@@ -86,17 +87,11 @@ export class ImageManager {
         }
         break;
       case ImageManagerRequestType.ItemDeletion:
-        useGameStore.getState().mutateState((state) => {
-          for (const id of message.itemIds) {
-            delete state.itemThumbnails[id];
-          }
-        });
+        imageStore.clearThumbnailIds(message.itemIds);
         this.processNextMessage();
         break;
       case ImageManagerRequestType.ClearState:
-        useGameStore.getState().mutateState((state) => {
-          state.itemThumbnails = {};
-        });
+        imageStore.clearAllThumbnails();
         this.processNextMessage();
         break;
     }
@@ -149,9 +144,10 @@ export class ImageManager {
       { width: canvasWidth, height: canvasHeight },
       (image) => {
         this.engine.stopRenderLoop();
-        useGameStore.getState().mutateState((state) => {
-          state.itemThumbnails[item.entityProperties.id] = image;
-        });
+
+        const { imageStore } = AppStore.get();
+        imageStore.setItemThumbnail(item.entityProperties.id, image);
+
         equipmentModelResult.cleanup({ softCleanup: false });
 
         this.processNextMessage();

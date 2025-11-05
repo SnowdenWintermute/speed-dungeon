@@ -7,7 +7,7 @@ import {
 } from "../../index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionOrigin,
 } from "../../combat-action-combat-log-properties.js";
 import {
@@ -28,7 +28,7 @@ const targetingProperties = createTargetingPropertiesConfig(
 export const passTurnConfig: CombatActionComponentConfig = {
   description: "Skip your own turn",
   targetingProperties,
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.SpellCast,
     getOnUseMessage: (data) => {
       return `${data.nameOfActionUser} passes their turn`;
@@ -41,7 +41,7 @@ export const passTurnConfig: CombatActionComponentConfig = {
     {
       [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
       [ActionResolutionStepType.PayResourceCosts]: {},
-      [ActionResolutionStepType.PostActionUseCombatLogMessage]: {},
+      [ActionResolutionStepType.PostActionUseGameLogMessage]: {},
       [ActionResolutionStepType.EvalOnUseTriggers]: {},
     },
     {

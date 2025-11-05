@@ -7,7 +7,6 @@ import {
 import { GameUpdateCommandType, SpawnEntitiesGameUpdateCommand } from "../game-update-commands.js";
 import { COMBAT_ACTIONS, COMBAT_ACTION_NAME_STRINGS } from "../../combat/index.js";
 import { SpawnableEntityType } from "../../spawnables/index.js";
-import { AdventuringParty } from "../../adventuring-party/index.js";
 
 export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext, stepType: ActionResolutionStepType) {
@@ -28,18 +27,15 @@ export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
       const taggedSpawnableEntities = taggedSpawnableEntitiesOption;
 
       const { game, party } = context.actionUserContext;
-      const battleOption = AdventuringParty.getBattleOption(party, game);
+      const battleOption = party.getBattleOption(game);
 
       for (const spawnableEntity of taggedSpawnableEntities) {
         switch (spawnableEntity.type) {
           case SpawnableEntityType.Combatant:
-            throw new Error("not yet implemeneted");
+            throw new Error("not implemented");
           case SpawnableEntityType.ActionEntity:
-            AdventuringParty.registerActionEntity(
-              party,
-              spawnableEntity.actionEntity,
-              battleOption
-            );
+            const { actionEntityManager } = party;
+            actionEntityManager.registerActionEntity(spawnableEntity.actionEntity, battleOption);
         }
 
         context.tracker.spawnedEntities.push(spawnableEntity);

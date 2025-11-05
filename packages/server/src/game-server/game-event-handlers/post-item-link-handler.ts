@@ -1,5 +1,4 @@
 import {
-  AdventuringParty,
   ERROR_MESSAGES,
   EntityId,
   ServerToClientEvent,
@@ -17,7 +16,7 @@ export function postItemLinkHandler(
   const gameServer = getGameServer();
   const { game, partyOption, session } = playerAssociatedData;
   if (!partyOption) return new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
-  const itemInPartyResult = AdventuringParty.getItem(partyOption, itemId);
+  const itemInPartyResult = partyOption.getItem(itemId);
   if (itemInPartyResult instanceof Error) return itemInPartyResult;
 
   gameServer.io

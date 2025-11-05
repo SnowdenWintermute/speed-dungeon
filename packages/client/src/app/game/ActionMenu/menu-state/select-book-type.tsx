@@ -1,74 +1,43 @@
-import { useGameStore } from "@/stores/game-store";
+import { ActionMenuState } from ".";
+import { createPageButtons } from "./create-page-buttons";
 import {
-  ActionButtonCategory,
-  ActionButtonsByCategory,
-  ActionMenuButtonProperties,
-  ActionMenuState,
-  MenuStateType,
-} from ".";
-import { setAlert } from "@/app/components/alerts";
-import createPageButtons from "./create-page-buttons";
-import { immerable } from "immer";
-import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
-import {
-  BookConsumableType,
   CONSUMABLE_TEXT_COLOR,
   CONSUMABLE_TYPE_STRINGS,
-  ClientToServerEvent,
-  ConsumableType,
   SKILL_BOOK_CONSUMABLE_TYPES,
   createDummyConsumable,
-  getConsumableShardPrice,
 } from "@speed-dungeon/common";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import { ItemButtonBody, consumableGradientBg } from "./items";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { createCancelButton } from "./common-buttons/cancel";
-import setItemHovered from "@/utils/set-item-hovered";
-import { PriceDisplay } from "../../character-sheet/ShardsDisplay";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { SelectItemToTradeForBookMenuState } from "./select-item-to-trade-for-book";
-import { ReactNode } from "react";
+import { AppStore } from "@/mobx-stores/app-store";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
+import { MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
 
-export class SelectBookToTradeForMenuState implements ActionMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages: number = 1;
-  type = MenuStateType.SelectingBookType;
-  alwaysShowPageOne = false;
-  getCenterInfoDisplayOption = null;
-  constructor() {}
+export class SelectBookToTradeForMenuState extends ActionMenuState {
+  constructor() {
+    super(MenuStateType.SelectingBookType, 1);
+  }
 
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
+    const { focusStore, gameStore } = AppStore.get();
 
-    const partyResult = useGameStore.getState().getParty();
-    if (partyResult instanceof Error) {
-      setAlert(partyResult);
-      return toReturn;
-    }
-
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult.message);
-      return toReturn;
-    }
-    const characterId = focusedCharacterResult.entityProperties.id;
-    const userControlsThisCharacter = clientUserControlsCombatant(characterId);
+    const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
 
     toReturn[ActionButtonCategory.Top].push(
       createCancelButton([], () => {
-        useGameStore.getState().mutateState((state) => {
-          state.hoveredEntity = null;
-          state.detailedEntity = null;
-        });
+        focusStore.detailables.clear();
       })
     );
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
 
     for (const consumableType of SKILL_BOOK_CONSUMABLE_TYPES) {
       const thumbnailId = CONSUMABLE_TYPE_STRINGS[consumableType];
-      const thumbnailOption = useGameStore.getState().itemThumbnails[thumbnailId];
+
+      const thumbnailOption = AppStore.get().imageStore.getItemThumbnailOption(thumbnailId);
 
       const purchaseItemButton = new ActionMenuButtonProperties(
         () => (
@@ -82,10 +51,10 @@ export class SelectBookToTradeForMenuState implements ActionMenuState {
             <div
               className="h-full flex justify-between items-center w-full pr-2"
               onMouseEnter={() => {
-                setItemHovered(createDummyConsumable(consumableType));
+                focusStore.detailables.setHovered(createDummyConsumable(consumableType));
               }}
               onMouseLeave={() => {
-                setItemHovered(null);
+                focusStore.detailables.clearHovered();
               }}
             >
               <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
@@ -97,19 +66,19 @@ export class SelectBookToTradeForMenuState implements ActionMenuState {
         ),
         `${CONSUMABLE_TYPE_STRINGS[consumableType]}`,
         () => {
-          useGameStore.getState().mutateState((state) => {
-            state.stackedMenuStates.push(new SelectItemToTradeForBookMenuState(consumableType));
-          });
+          AppStore.get().actionMenuStore.pushStack(
+            new SelectItemToTradeForBookMenuState(consumableType)
+          );
         }
       );
 
       // let them select and then if they don't have the items to trade, explain what is required
-      purchaseItemButton.shouldBeDisabled = false;
+      purchaseItemButton.shouldBeDisabled = !userControlsThisCharacter;
 
       toReturn[ActionButtonCategory.Numbered].push(purchaseItemButton);
     }
 
-    createPageButtons(this, toReturn);
+    createPageButtons(toReturn);
 
     return toReturn;
   }

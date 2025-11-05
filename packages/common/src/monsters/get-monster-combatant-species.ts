@@ -3,6 +3,7 @@ import { MonsterType } from "./monster-types.js";
 
 export const MONSTER_SPECIES: Record<MonsterType, CombatantSpecies> = {
   [MonsterType.MetallicGolem]: CombatantSpecies.Golem,
+  [MonsterType.Wolf]: CombatantSpecies.Canine,
   [MonsterType.Zombie]: CombatantSpecies.Skeleton,
   [MonsterType.SkeletonArcher]: CombatantSpecies.Skeleton,
   [MonsterType.Scavenger]: CombatantSpecies.Velociraptor,

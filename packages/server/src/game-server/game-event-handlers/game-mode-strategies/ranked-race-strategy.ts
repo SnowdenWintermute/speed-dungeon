@@ -49,7 +49,9 @@ export default class RankedRaceStrategy implements GameModeStrategy {
 
     partyRecord.partyFate = PartyFate.Wipe;
     partyRecord.partyFateRecordedAt = new Date(Date.now()).toISOString();
-    partyRecord.deepestFloor = party.currentFloor;
+
+    const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
+    partyRecord.deepestFloor = floorNumber;
     await raceGamePartyRecordsRepo.update(partyRecord);
 
     let allPartiesAreDead = true;
@@ -86,7 +88,9 @@ export default class RankedRaceStrategy implements GameModeStrategy {
     if (partyRecord.partyFate) return Promise.resolve();
     partyRecord.partyFate = PartyFate.Escape;
     partyRecord.partyFateRecordedAt = new Date(Date.now()).toISOString();
-    partyRecord.deepestFloor = party.currentFloor;
+
+    const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
+    partyRecord.deepestFloor = floorNumber;
 
     const gameRecord = await raceGameRecordsRepo.findAggregatedGameRecordById(game.id);
     if (!gameRecord) return new Error(ERROR_MESSAGES.GAME_RECORDS.NOT_FOUND);
@@ -113,9 +117,13 @@ async function updateRaceGameCharacterRecordLevels(
   onlyForUsername: null | string = null
 ) {
   try {
-    for (const character of Object.values(party.characters)) {
-      if (onlyForUsername && character.combatantProperties.controllingPlayer !== onlyForUsername)
-        continue;
+    const partyCharacters = party.combatantManager.getPartyMemberCharacters();
+    for (const character of partyCharacters) {
+      if (onlyForUsername !== null) {
+        const { controllerName } = character.combatantProperties.controlledBy;
+        const userControlsThisCharacter = controllerName === onlyForUsername;
+        if (!userControlsThisCharacter) continue;
+      }
       await raceGameCharacterRecordsRepo.update(character);
     }
   } catch (error) {

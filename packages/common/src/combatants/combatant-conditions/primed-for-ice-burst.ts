@@ -21,19 +21,19 @@ import {
   SceneEntityType,
 } from "../../scene-entities/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
-import { immerable } from "immer";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import { ActionUserTargetingProperties } from "../../action-user-context/action-user-targeting-properties.js";
+import { runIfInBrowser } from "../../utils/index.js";
+import makeAutoObservable from "mobx-store-inheritance";
 
 const getNewStacks = () => new MaxAndCurrent(1, 1);
 
 export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
-  [immerable] = true;
   name = CombatantConditionName.PrimedForIceBurst;
   stacksOption = getNewStacks();
   intent = CombatActionIntent.Malicious;
   removedOnDeath: boolean = true;
-  ticks?: MaxAndCurrent | undefined;
+  ticks?: MaxAndCurrent | undefined = undefined;
   constructor(
     public id: EntityId,
     appliedBy: ConditionAppliedBy,
@@ -42,6 +42,7 @@ export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
   ) {
     super(id, appliedBy, appliedTo, CombatantConditionName.PrimedForIceBurst, getNewStacks());
     this.targetingProperties = new ActionUserTargetingProperties();
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 
   tickPropertiesOption: Option<ConditionTickProperties> = null;

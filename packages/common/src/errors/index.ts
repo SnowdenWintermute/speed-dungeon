@@ -8,6 +8,7 @@ export const ERROR_MESSAGES = {
   NOT_IMPLEMENTED: "This feature is not yet implemented",
   GAME_DOESNT_EXIST: "No game by that name exists",
   NOT_PERMITTED: "That action is not permitted",
+  CLASS_INSTANCE_NOT_INITIALIZED: "The class instance was not initialized",
   LOOP_SAFETY_ITERATION_LIMIT_REACHED: (limit: number) =>
     `Loop reached the safety limit of ${limit}`,
   SERVER: {
@@ -142,6 +143,7 @@ export const ERROR_MESSAGES = {
     REQUIREMENTS_NOT_MET: "You don't meet the requirements to equip that item",
     EXPECTED_TRAIT_MISSING: "Expected to find an equipment trait but didn't",
     NO_SELECTED_HOTSWAP_SLOT: "The combatant has no slots to equip holdable items",
+    EXPECTED_HOTSWAP_SLOT_UNDEFINED: "Expected a hotswap slot to exist",
     SELECTED_SLOT_OUT_OF_BOUNDS:
       "Combatant tried to equip a holdable equipment set that doesn't exist",
   },

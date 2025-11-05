@@ -5,14 +5,16 @@ import {
 } from "@speed-dungeon/common";
 import React from "react";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import { useUIStore } from "@/stores/ui-store";
 import { CONDITION_INDICATOR_ICONS } from "@/app/icons";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   conditions: CombatantCondition[];
 }
 
-export default function ConditionIndicators(props: Props) {
+export const ConditionIndicators = observer((props: Props) => {
   const { conditions } = props;
   return (
     <ul className="flex">
@@ -25,11 +27,12 @@ export default function ConditionIndicators(props: Props) {
       })}
     </ul>
   );
-}
+});
 
-export function ConditionIndicator({ condition }: { condition: CombatantCondition }) {
-  const isDebug = useUIStore.getState().showDebug;
-  const hoverableDebugText = isDebug
+export const ConditionIndicator = observer(({ condition }: { condition: CombatantCondition }) => {
+  const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
+
+  const hoverableDebugText = showDebug
     ? `\nid: ${condition.id} \nappliedBy: ${condition.appliedBy.entityProperties.id}`
     : "";
   return (
@@ -47,4 +50,4 @@ export function ConditionIndicator({ condition }: { condition: CombatantConditio
       )}
     </div>
   );
-}
+});

@@ -15,8 +15,9 @@ export async function prohibitInCombat<T extends { characterId: string }>(
 ) {
   if (!middlewareProvidedData) throw new Error(ERROR_MESSAGES.EVENT_MIDDLEWARE.MISSING_DATA);
 
-  if (Object.keys(middlewareProvidedData.party.currentRoom.monsters).length)
+  if (middlewareProvidedData.party.combatantManager.monstersArePresent()) {
     throw new Error(`${ERROR_MESSAGES.COMBAT_ACTIONS.NOT_USABLE_IN_COMBAT}`);
+  }
 
   next(eventData, middlewareProvidedData);
 }

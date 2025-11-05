@@ -1,16 +1,7 @@
-import { useGameStore } from "@/stores/game-store";
-import {
-  ActionButtonCategory,
-  ActionButtonsByCategory,
-  ActionMenuButtonProperties,
-  ActionMenuState,
-  MenuStateType,
-} from ".";
+import { ActionMenuState } from ".";
 import {
   ActionAndRank,
   ClientToServerEvent,
-  CombatActionName,
-  CombatantProperties,
   Consumable,
   Equipment,
   EquipmentType,
@@ -19,11 +10,14 @@ import {
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
-import { useUIStore } from "@/stores/ui-store";
-import selectItem from "@/utils/selectItem";
-import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { createCancelButton } from "./common-buttons/cancel";
+import { AppStore } from "@/mobx-stores/app-store";
+import { ModifierKey } from "@/mobx-stores/input";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
+import { MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
+import { makeObservable, observable } from "mobx";
 
 const equipAltSlotHotkey = HOTKEYS.ALT_1;
 const useItemHotkey = HOTKEYS.MAIN_1;
@@ -32,41 +26,43 @@ const dropItemHotkey = HOTKEYS.MAIN_2;
 export const USE_CONSUMABLE_BUTTON_TEXT = `Use (${useItemLetter})`;
 export const EQUIP_ITEM_BUTTON_TEXT = `Equip (${useItemLetter})`;
 
-export class ConsideringItemMenuState implements ActionMenuState {
-  page = 1;
-  numPages: number = 1;
-  type = MenuStateType.ItemSelected;
-  alwaysShowPageOne = false;
-  getCenterInfoDisplayOption = null;
-  constructor(public item: Item) {}
+export class ConsideringItemMenuState extends ActionMenuState {
+  constructor(public item: Item) {
+    super(MenuStateType.ItemSelected, 1);
+
+    makeObservable(this, {
+      item: observable,
+    });
+  }
+
   setItem(item: Item) {
     this.item = item;
-    selectItem(item);
+    AppStore.get().focusStore.selectItem(item);
   }
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
-    toReturn[ActionButtonCategory.Top].push(createCancelButton([], () => selectItem(null)));
+    toReturn[ActionButtonCategory.Top].push(
+      createCancelButton([], () => AppStore.get().focusStore.selectItem(null))
+    );
 
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult.message);
-      return toReturn;
-    }
+    const { gameStore } = AppStore.get();
+    const focusedCharacter = gameStore.getExpectedFocusedCharacter();
+    const characterId = focusedCharacter.getEntityId();
 
-    const characterId = focusedCharacterResult.entityProperties.id;
-    const userControlsThisCharacter = clientUserControlsCombatant(characterId);
     const itemId = this.item.entityProperties.id;
 
     const useItemHotkey = HOTKEYS.MAIN_1;
     const useItemLetter = letterFromKeyCode(useItemHotkey);
-    const slotItemIsEquippedTo = CombatantProperties.getSlotItemIsEquippedTo(
-      focusedCharacterResult.combatantProperties,
-      itemId
-    );
+    const slotItemIsEquippedTo =
+      focusedCharacter.combatantProperties.equipment.getSlotItemIsEquippedTo(itemId);
+
+    const { inputStore } = AppStore.get();
+
+    const modKeyHeld = inputStore.getKeyIsHeld(ModifierKey.Mod);
 
     if (
-      !useUIStore.getState().modKeyHeld &&
+      !modKeyHeld &&
       this.item instanceof Equipment &&
       (this.item.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType ===
         EquipmentType.OneHandedMeleeWeapon ||
@@ -107,10 +103,11 @@ export class ConsideringItemMenuState implements ActionMenuState {
             () => EQUIP_ITEM_BUTTON_TEXT,
             EQUIP_ITEM_BUTTON_TEXT,
             () => {
+              const modKeyHeld = inputStore.getKeyIsHeld(ModifierKey.Mod);
               websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
                 characterId,
                 itemId,
-                equipToAltSlot: useUIStore.getState().modKeyHeld,
+                equipToAltSlot: modKeyHeld,
               });
             }
           );
@@ -125,10 +122,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
           itemIdOption?: string;
         } = {
           characterId,
-          actionAndRankOption: {
-            actionName,
-            rank: 1,
-          },
+          actionAndRankOption: new ActionAndRank(actionName, 1),
         };
 
         if (Consumable.isSkillBook(this.item.consumableType))
@@ -148,17 +142,17 @@ export class ConsideringItemMenuState implements ActionMenuState {
     })();
 
     useItemButton.dedicatedKeys = ["Enter", useItemHotkey];
-    useItemButton.shouldBeDisabled = !userControlsThisCharacter;
+
+    const userDoesNotControlCharacter = !gameStore.clientUserControlsFocusedCombatant();
+    useItemButton.shouldBeDisabled = userDoesNotControlCharacter;
     toReturn[ActionButtonCategory.Top].push(useItemButton);
 
     const dropItemButton = new ActionMenuButtonProperties(
       () => `Drop (${letterFromKeyCode(dropItemHotkey)})`,
       `Drop (${letterFromKeyCode(dropItemHotkey)})`,
       () => {
-        const slotEquipped = CombatantProperties.getSlotItemIsEquippedTo(
-          focusedCharacterResult.combatantProperties,
-          itemId
-        );
+        const slotEquipped =
+          focusedCharacter.combatantProperties.equipment.getSlotItemIsEquippedTo(itemId);
 
         if (slotEquipped)
           websocketConnection.emit(ClientToServerEvent.DropEquippedItem, {
@@ -167,16 +161,12 @@ export class ConsideringItemMenuState implements ActionMenuState {
           });
         else websocketConnection.emit(ClientToServerEvent.DropItem, { characterId, itemId });
 
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.pop();
-          state.hoveredEntity = null;
-          state.consideredItemUnmetRequirements = null;
-          state.detailedEntity = null;
-        });
+        AppStore.get().actionMenuStore.popStack();
+        AppStore.get().focusStore.detailables.clearDetailed();
       }
     );
 
-    dropItemButton.shouldBeDisabled = !userControlsThisCharacter;
+    dropItemButton.shouldBeDisabled = userDoesNotControlCharacter;
     dropItemButton.dedicatedKeys = [dropItemHotkey];
     toReturn[ActionButtonCategory.Top].push(dropItemButton);
 

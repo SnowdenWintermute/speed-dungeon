@@ -17,7 +17,6 @@ import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { IncomingResourceChangesCalculator } from "./incoming-resource-change-calculator.js";
 import { TargetFilterer } from "../../targeting/filtering.js";
 import { CombatActionComponent, CombatActionExecutionIntent } from "../../combat-actions/index.js";
-import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 import { HitOutcomeMitigationCalculator } from "./hit-outcome-mitigation-calculator.js";
 import { ResourceChangeModifier } from "./resource-change-modifier.js";
@@ -114,7 +113,7 @@ export class HitOutcomeCalculator {
     const actionLevel = this.actionExecutionIntent.rank;
 
     for (const targetId of filteredTargetIds) {
-      const targetCombatant = AdventuringParty.getExpectedCombatant(party, targetId);
+      const targetCombatant = party.combatantManager.getExpectedCombatant(targetId);
       if (mitigationCalculator === null)
         mitigationCalculator = new HitOutcomeMitigationCalculator(
           this.action,

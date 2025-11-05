@@ -17,16 +17,18 @@ export function handleAppliedConditions(
     appliedConditions
   )) {
     for (const [entityId, conditions] of Object.entries(entityAppliedConditions)) {
-      const combatantResult = AdventuringParty.getExpectedCombatant(party, entityId);
+      const combatantResult = party.combatantManager.getExpectedCombatant(entityId);
       for (let condition of conditions) {
         const deserializedCondition = deserializeCondition(condition);
 
-        CombatantCondition.applyToCombatant(
-          deserializedCondition,
-          combatantResult,
-          battleOption,
-          party
-        );
+        combatantResult.combatantProperties.conditionManager.applyCondition(deserializedCondition);
+
+        if (battleOption !== null) {
+          battleOption.turnOrderManager.turnSchedulerManager.addConditionToTurnOrder(
+            party,
+            deserializedCondition
+          );
+        }
 
         startOrStopCosmeticEffects(
           deserializedCondition.getCosmeticEffectWhileActive(combatantResult.entityProperties.id),

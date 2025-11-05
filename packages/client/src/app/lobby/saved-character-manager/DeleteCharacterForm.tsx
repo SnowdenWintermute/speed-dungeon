@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import HotkeyButton from "../../components/atoms/HotkeyButton";
+import { HotkeyButton } from "../../components/atoms/HotkeyButton";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { ClientToServerEvent, Combatant } from "@speed-dungeon/common";

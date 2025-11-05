@@ -5,7 +5,7 @@ import {
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
 import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
@@ -31,9 +31,17 @@ const targetingProperties = createTargetingPropertiesConfig(
 const config: CombatActionComponentConfig = {
   description: "Removes projectile from play",
   targetingProperties,
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     ...createGenericSpellCastMessageProperties(CombatActionName.IncinerateProjectile),
     getOnUseMessage: (data) => `The firewall incinerates ${data.nameOfActionUser}`,
+
+    getOnUseMessageDataOverride: (context) => {
+      return {
+        actionLevel: 1,
+        nameOfActionUser: context.actionUserContext.actionUser.getName(),
+        nameOfTarget: context.actionUserContext.actionUser.getName(),
+      };
+    },
   }),
 
   hitOutcomeProperties: createHitOutcomeProperties(

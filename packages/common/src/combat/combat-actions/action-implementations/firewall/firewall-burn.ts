@@ -1,5 +1,5 @@
 import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
@@ -32,7 +32,7 @@ const targetingProperties = createTargetingPropertiesConfig(
 const config: CombatActionComponentConfig = {
   description: "Entities burn when moving through a firewall",
   targetingProperties,
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     ...createGenericSpellCastMessageProperties(CombatActionName.FirewallBurn),
     getOnUseMessage: (data) => `${data.nameOfTarget} traverses the firewall`,
   }),

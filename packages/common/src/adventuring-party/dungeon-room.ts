@@ -1,13 +1,19 @@
-import { Combatant, Inventory } from "../combatants/index.js";
+import { plainToInstance } from "class-transformer";
+import { Inventory } from "../combatants/index.js";
+import { runIfInBrowser } from "../utils/index.js";
+import { makeAutoObservable } from "mobx";
 
 export class DungeonRoom {
   inventory: Inventory = new Inventory();
 
-  constructor(
-    public roomType: DungeonRoomType,
-    public monsters: { [entityId: string]: Combatant },
-    public monsterPositions: string[]
-  ) {}
+  constructor(public roomType: DungeonRoomType) {
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+  }
+
+  static getDeserialized(dungeonRoom: DungeonRoom) {
+    dungeonRoom.inventory = Inventory.getDeserialized(dungeonRoom.inventory);
+    return plainToInstance(DungeonRoom, dungeonRoom);
+  }
 }
 export enum DungeonRoomType {
   MonsterLair,

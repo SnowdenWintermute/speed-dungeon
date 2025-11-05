@@ -1,15 +1,11 @@
 import { Item } from "../index.js";
-import {
-  Combatant,
-  CombatantEquipment,
-  CombatantProperties,
-  CombatantTraitType,
-  Inventory,
-} from "../../combatants/index.js";
+import { Combatant } from "../../combatants/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { DungeonRoomType } from "../../adventuring-party/dungeon-room.js";
 import { getItemSellPrice } from "./shard-sell-prices.js";
 import { ArrayUtils } from "../../utils/array-utils.js";
+import { CombatantProperties } from "../../combatants/combatant-properties.js";
+import { CombatantTraitType } from "../../combatants/combatant-traits/trait-types.js";
 
 export function combatantIsAllowedToConvertItemsToShards(
   combatantProperties: CombatantProperties,
@@ -17,8 +13,7 @@ export function combatantIsAllowedToConvertItemsToShards(
 ) {
   return (
     currentRoomType === DungeonRoomType.VendingMachine ||
-    CombatantProperties.hasTraitType(
-      combatantProperties,
+    combatantProperties.abilityProperties.hasTraitType(
       CombatantTraitType.CanConvertToShardsManually
     )
   );
@@ -26,8 +21,8 @@ export function combatantIsAllowedToConvertItemsToShards(
 
 export function convertItemsToShards(itemIds: EntityId[], combatant: Combatant) {
   const { combatantProperties } = combatant;
-  const itemsInInventory = Inventory.getItems(combatantProperties.inventory);
-  const equippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties.equipment, {
+  const itemsInInventory = combatantProperties.inventory.getItems();
+  const equippedItems = combatantProperties.equipment.getAllEquippedItems({
     includeUnselectedHotswapSlots: true,
   });
 
@@ -36,7 +31,7 @@ export function convertItemsToShards(itemIds: EntityId[], combatant: Combatant) 
     if (!itemIds.includes(item.entityProperties.id)) continue;
     const shardsResult = convertItemToShards(item, combatantProperties);
     if (shardsResult instanceof Error) return shardsResult;
-    combatantProperties.inventory.shards += shardsResult;
+    combatantProperties.inventory.changeShards(shardsResult);
     ArrayUtils.removeElement(itemIds, item.entityProperties.id);
     if (itemIds.length === 0) break;
   }
@@ -44,7 +39,7 @@ export function convertItemsToShards(itemIds: EntityId[], combatant: Combatant) 
 
 function convertItemToShards(item: Item, combatantProperties: CombatantProperties) {
   const itemId = item.entityProperties.id;
-  const removedItemResult = CombatantProperties.removeOwnedItem(combatantProperties, itemId);
+  const removedItemResult = combatantProperties.inventory.removeStoredOrEquipped(itemId);
   if (removedItemResult instanceof Error) return removedItemResult;
   return getItemSellPrice(removedItemResult);
 }

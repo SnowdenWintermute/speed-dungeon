@@ -1,4 +1,3 @@
-import { GameState } from "@/stores/game-store";
 import {
   ActionAndRank,
   ActionUserContext,
@@ -9,8 +8,7 @@ import {
   TargetingCalculator,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
-import { synchronizeTargetingIndicators } from "./synchronize-targeting-indicators";
-import cloneDeep from "lodash.clonedeep";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export function characterSelectedActionLevelHandler(eventData: {
   characterId: string;
@@ -18,29 +16,21 @@ export function characterSelectedActionLevelHandler(eventData: {
 }) {
   characterAssociatedDataProvider(
     eventData.characterId,
-    ({ character, game, party }: CharacterAssociatedData, gameState: GameState) => {
+    ({ character, game, party }: CharacterAssociatedData) => {
       const { actionLevel } = eventData;
 
-      const targetingProperties = character.getTargetingProperties();
+      const { targetingProperties } = character.combatantProperties;
 
       const selectedActionAndRank = targetingProperties.getSelectedActionAndRank();
-      if (selectedActionAndRank === null)
+      if (selectedActionAndRank === null) {
         return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
+      }
 
       const { actionName } = selectedActionAndRank;
 
       targetingProperties.setSelectedActionAndRank(new ActionAndRank(actionName, actionLevel));
 
-      // @PERF
-      // we're not using [immerable] on the targetingProperties because then we can't self-modify
-      // it with the .setters(), so we have to replace the whole object
-      character.combatantProperties.targetingProperties = targetingProperties.clone();
-
-      if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
-      if (character.combatantProperties.controllingPlayer === null)
-        return new Error(ERROR_MESSAGES.COMBATANT.EXPECTED_OWNER_ID_MISSING);
-
-      const playerOption = game.players[character.combatantProperties.controllingPlayer];
+      const playerOption = game.players[character.combatantProperties.controlledBy.controllerName];
       if (playerOption === undefined) return new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
 
       const targetingCalculator = new TargetingCalculator(
@@ -64,10 +54,9 @@ export function characterSelectedActionLevelHandler(eventData: {
         targetIds = targetIdsResult;
       }
 
-      synchronizeTargetingIndicators(
-        gameState,
+      AppStore.get().targetIndicatorStore.synchronize(
         actionName,
-        character.entityProperties.id,
+        character.getEntityId(),
         targetIds || []
       );
     }

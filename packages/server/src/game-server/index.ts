@@ -9,7 +9,7 @@ import {
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
-import initiateLobbyEventListeners from "./lobby-event-handlers/index.js";
+import { initiateLobbyEventListeners } from "./lobby-event-handlers/index.js";
 import { BrowserTabSession } from "./socket-connection-metadata.js";
 import joinSocketToChannel from "./join-socket-to-channel.js";
 import { connectionHandler } from "./connection-handler.js";
@@ -23,9 +23,8 @@ import initiateGameEventListeners from "./game-event-handlers/index.js";
 import { ItemGenerationDirector } from "./item-generation/item-generation-director.js";
 import { generateRandomItem } from "./item-generation/generate-random-item.js";
 import { battleResultActionCommandHandler } from "./game-event-handlers/action-command-handlers/battle-results.js";
-import getGamePartyAndCombatant from "./utils/get-game-party-and-combatant.js";
-import generateLoot from "./game-event-handlers/action-command-handlers/generate-loot.js";
-import generateExperiencePoints from "./game-event-handlers/action-command-handlers/generate-experience-points.js";
+import { generateLoot } from "./game-event-handlers/action-command-handlers/generate-loot.js";
+import { generateExperiencePoints } from "./game-event-handlers/action-command-handlers/generate-experience-points.js";
 import initiateSavedCharacterListeners from "./saved-character-event-handlers/index.js";
 import GameModeContext from "./game-event-handlers/game-mode-strategies/game-mode-context.js";
 import { ItemGenerationBuilder } from "./item-generation/item-generation-builder.js";
@@ -71,17 +70,14 @@ export class GameServer implements ActionCommandReceiver {
   removePlayerFromGameCommandHandler: (username: string) => Promise<void> = async () => {}; // we only use it on the client
   async gameMessageCommandHandler(payload: GameMessagesPayload) {
     for (const message of payload.messages) {
-      this.io.except(payload.partyChannelToExclude || "").emit(ServerToClientEvent.GameMessage, {
-        type: message.type,
-        message: message.text,
-        showAfterActionQueueResolution: false,
-      });
+      this.io
+        .except(payload.partyChannelToExclude || "")
+        .emit(ServerToClientEvent.GameMessage, message);
     }
   }
   // UTILS
   getSocketCurrentGame = getSocketCurrentGame;
   getSocketIdOfPlayer = getSocketIdOfPlayer;
-  getGamePartyAndCombatant = getGamePartyAndCombatant;
   // ITEMS
   instantiateItemGenerationBuildersAndDirectors = instantiateItemGenerationBuildersAndDirectors;
   generateRandomItem = generateRandomItem;

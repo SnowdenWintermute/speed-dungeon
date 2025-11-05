@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    // externalDir: true,
-  },
+  experimental: {},
   typescript: {
     // !! WARN !!
     // Dangerously allow production builds to successfully complete even if

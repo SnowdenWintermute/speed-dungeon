@@ -1,12 +1,10 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import getCombatantInParty from "../../adventuring-party/get-combatant-in-party.js";
 import {
   FriendOrFoe,
   TargetCategories,
 } from "../combat-actions/targeting-schemes-and-categories.js";
 import {
   PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS,
-  PROHIBITED_TARGET_COMBATANT_STATE_STRINGS,
   ProhibitedTargetCombatantStates,
 } from "../combat-actions/prohibited-target-combatant-states.js";
 import { EntityId } from "../../primatives/index.js";
@@ -49,8 +47,7 @@ export class TargetFilterer {
     const filteredIds = [];
 
     for (let targetId of potentialIds) {
-      const combatantResult = getCombatantInParty(party, targetId);
-      if (combatantResult instanceof Error) throw combatantResult;
+      const combatantResult = party.combatantManager.getExpectedCombatant(targetId);
       let targetIsInProhibitedState = false;
 
       for (const combatantState of prohibitedStates) {

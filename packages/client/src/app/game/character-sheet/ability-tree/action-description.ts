@@ -8,6 +8,8 @@ import {
   CombatActionComponent,
   Combatant,
   CombatantClass,
+  CombatantControlledBy,
+  CombatantControllerType,
   CombatantProperties,
   CombatantSpecies,
   iterateNumericEnumKeyedRecord,
@@ -15,12 +17,15 @@ import {
 import cloneDeep from "lodash.clonedeep";
 import isEqual from "lodash.isequal";
 
-export const TARGET_DUMMY_COMBATANT = new CombatantProperties(
-  CombatantClass.Warrior,
-  CombatantSpecies.Humanoid,
-  null,
-  null,
-  Vector3.Zero()
+export const TARGET_DUMMY_COMBATANT = Combatant.createInitialized(
+  { name: "Target Dummy", id: "Target Dummy Entity Id" },
+  new CombatantProperties(
+    CombatantClass.Warrior,
+    CombatantSpecies.Humanoid,
+    null,
+    new CombatantControlledBy(CombatantControllerType.Dungeon, ""),
+    Vector3.Zero()
+  )
 );
 
 export enum ActionDescriptionComponent {
@@ -135,7 +140,7 @@ export class ActionDescription {
             user,
             hitOutcomeProperties,
             actionLevel,
-            TARGET_DUMMY_COMBATANT
+            TARGET_DUMMY_COMBATANT.combatantProperties
           )
         );
 

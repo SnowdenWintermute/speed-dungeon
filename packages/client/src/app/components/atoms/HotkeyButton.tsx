@@ -1,4 +1,5 @@
-import { useUIStore } from "@/stores/ui-store";
+import { AppStore } from "@/mobx-stores/app-store";
+import { observer } from "mobx-react-lite";
 import React from "react";
 import { FocusEventHandler, MouseEventHandler, useEffect, useRef } from "react";
 
@@ -19,8 +20,8 @@ interface Props {
   keyUp?: boolean;
 }
 
-export default function HotkeyButton(props: Props) {
-  const hotkeysDisabled = useUIStore().hotkeysDisabled;
+export const HotkeyButton = observer((props: Props) => {
+  const hotkeysDisabled = AppStore.get().inputStore.getHotkeysDisabled();
   const keydownListenerRef = useRef<(e: KeyboardEvent) => void | null>(null);
   const disabled = props.alwaysEnabled === true ? false : props.disabled || hotkeysDisabled;
   const listenerType = props.keyUp ? "keyup" : "keydown";
@@ -60,4 +61,4 @@ export default function HotkeyButton(props: Props) {
       {props.children}
     </button>
   );
-}
+});

@@ -1,61 +1,44 @@
-import getCurrentParty from "@/utils/getCurrentParty";
-import { useGameStore } from "@/stores/game-store";
-import {
-  ActionCompletionUpdateCommand,
-  AdventuringParty,
-  CombatantProperties,
-  CombatantTurnTracker,
-  ERROR_MESSAGES,
-  InputLock,
-} from "@speed-dungeon/common";
+import { ActionCompletionUpdateCommand, CombatantTurnTracker } from "@speed-dungeon/common";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { handleThreatChangesUpdate } from "./handle-threat-changes";
-import { GameUpdateTracker } from ".";
+import { GameUpdateTracker } from "./game-update-tracker";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export async function actionCompletionGameUpdateHandler(
   update: GameUpdateTracker<ActionCompletionUpdateCommand>
 ) {
+  const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
+
   if (update.command.endActiveCombatantTurn) {
-    useGameStore.getState().mutateState((state) => {
-      const battleId = state.getCurrentBattleId();
-      if (!battleId) return console.error("no battle but tried to end turn");
-      const battleOption = state.game?.battles[battleId];
-      if (!state.game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-      if (!battleOption) return console.error("no battle but tried to end turn");
-      const partyOption = getCurrentParty(state, state.username || "");
-      if (!partyOption) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
+    const battleOption = party.getBattleOption(game);
+    if (!battleOption) return console.error("no battle but tried to end turn");
 
-      const actionNameOption = update.command.actionName;
+    const actionNameOption = update.command.actionName;
 
-      battleOption.turnOrderManager.updateFastestSchedulerWithExecutedActionDelay(
-        partyOption,
-        actionNameOption
+    battleOption.turnOrderManager.updateFastestSchedulerWithExecutedActionDelay(
+      party,
+      actionNameOption
+    );
+
+    // REFILL THE QUICK ACTIONS OF THE CURRENT TURN
+    // this way, if we want to remove their quick actions they can be at risk
+    // of actions taking them away before they get their turn again
+    const fastestTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
+    if (fastestTracker instanceof CombatantTurnTracker) {
+      const { combatantProperties } = party.combatantManager.getExpectedCombatant(
+        fastestTracker.getTaggedIdOfTrackedEntity().combatantId
       );
+      combatantProperties.resources.refillActionPoints();
+      combatantProperties.abilityProperties.tickCooldowns();
+    }
 
-      // REFILL THE QUICK ACTIONS OF THE CURRENT TURN
-      // this way, if we want to remove their quick actions they can be at risk
-      // of actions taking them away before they get their turn again
-      const fastestTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
-      if (fastestTracker instanceof CombatantTurnTracker) {
-        const { combatantProperties } = AdventuringParty.getExpectedCombatant(
-          partyOption,
-          fastestTracker.getTaggedIdOfTrackedEntity().combatantId
-        );
-        CombatantProperties.refillActionPoints(combatantProperties);
-        CombatantProperties.tickCooldowns(combatantProperties);
-      }
-
-      battleOption.turnOrderManager.updateTrackers(state.game, partyOption);
-      const newlyActiveTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
-      characterAutoFocusManager.updateFocusedCharacterOnNewTurnOrder(state, newlyActiveTracker);
-    });
+    battleOption.turnOrderManager.updateTrackers(game, party);
+    const newlyActiveTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
+    characterAutoFocusManager.updateFocusedCharacterOnNewTurnOrder(newlyActiveTracker);
   }
 
   if (update.command.unlockInput) {
-    useGameStore.getState().mutateState((state) => {
-      const partyOption = getCurrentParty(state, state.username || "");
-      if (partyOption) InputLock.unlockInput(partyOption.inputLock);
-    });
+    if (party) party.inputLock.unlockInput();
   }
 
   handleThreatChangesUpdate(update.command);

@@ -5,11 +5,12 @@ import {
   ResourceChangeSourceModifiers,
 } from "../../hp-change-source-types.js";
 import { ResourceChangeModifier } from "../../action-results/index.js";
-import { CombatantProperties } from "../../../combatants";
 import { CombatActionResourceChangeProperties } from "../combat-action-resource-change-properties";
 import { copySelectedModifiersFromResourceChangeSource } from "./copy-selected-modifiers-from-hp-change-source.js";
 import { CombatActionHitOutcomeProperties } from "../combat-action-hit-outcome-properties.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
+import { CombatantProperties } from "../../../combatants/combatant-properties.js";
+import { toJS } from "mobx";
 
 export function selectMostEffectiveFromAvailableResourceChangeSourceModifiers(
   hitOutcomeProperties: CombatActionHitOutcomeProperties,
@@ -60,7 +61,7 @@ export function selectMostEffectiveFromAvailableResourceChangeSourceModifiers(
     }
 
     mostEffective = {
-      source: cloneDeep(hpChangeSource),
+      source: cloneDeep(toJS(hpChangeSource)),
       value: hpChangeToTest.value,
     };
   }

@@ -1,5 +1,6 @@
 import { IActionUser } from "../../../../../action-user-context/action-user.js";
-import { CombatantProperties, CombatAttribute } from "../../../../../combatants/index.js";
+import { CombatantProperties } from "../../../../../combatants/combatant-properties.js";
+import { CombatAttribute } from "../../../../../combatants/index.js";
 import { NumberRange } from "../../../../../primatives/number-range.js";
 import { addCombatantLevelScaledAttributeToRange } from "../../../../action-results/action-hit-outcome-calculation/add-combatant-level-scaled-attribute-to-range.js";
 import {

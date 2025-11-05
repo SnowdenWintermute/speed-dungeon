@@ -1,5 +1,4 @@
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
-import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { ActionResolutionStepConfig } from "../../combat-action-steps-config.js";
 import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
 import {
@@ -7,7 +6,6 @@ import {
   createStepsConfig,
 } from "../generic-action-templates/step-config-templates/index.js";
 import { ProjectileFactory } from "../generic-action-templates/projectile-factory.js";
-import { COMBAT_ACTIONS } from "../index.js";
 
 const base = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BOW_SKILL;
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
@@ -23,10 +21,10 @@ stepOverrides[ActionResolutionStepType.PostPrepSpawnEntity] = {
     const entityIdsByDisposition = actionUser.getAllyAndOpponentIds(party, battleOption);
 
     const opponentIds = entityIdsByDisposition[FriendOrFoe.Hostile];
-    const opponents = AdventuringParty.getCombatants(party, opponentIds);
+    const opponents = party.combatantManager.getExpectedCombatants(opponentIds);
 
     const projectileEntitiesToSpawn = opponents
-      .filter((opponent) => opponent.combatantProperties.hitPoints > 0)
+      .filter((opponent) => !opponent.combatantProperties.isDead())
       .map((opponent) => {
         const projectileFactory = new ProjectileFactory(context, {
           defaultTargetOverride: opponent,

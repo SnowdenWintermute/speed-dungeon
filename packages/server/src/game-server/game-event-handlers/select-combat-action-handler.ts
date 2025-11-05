@@ -1,6 +1,5 @@
 import {
   CharacterAssociatedData,
-  CombatantProperties,
   Inventory,
   Option,
   ServerToClientEvent,
@@ -24,11 +23,11 @@ export function selectCombatActionHandler(
 
   const { character, game, party, player } = characterAssociatedData;
 
+  const { abilityProperties } = character.combatantProperties;
+
   if (actionAndRankOption !== null) {
-    const combatActionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
-      character.combatantProperties,
-      actionAndRankOption
-    );
+    const combatActionPropertiesResult =
+      abilityProperties.getCombatActionPropertiesIfOwned(actionAndRankOption);
     if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
   }
 
@@ -41,10 +40,7 @@ export function selectCombatActionHandler(
     // also it shouldn't matter if they can select an unowned item since we
     // check if they own it on reading skill books, which is the only thing
     // this is currently used for
-    const ownedItemResult = Inventory.getItemById(
-      character.combatantProperties.inventory,
-      itemIdOption
-    );
+    const ownedItemResult = character.combatantProperties.inventory.getItemById(itemIdOption);
     if (ownedItemResult instanceof Error) return ownedItemResult;
   }
 

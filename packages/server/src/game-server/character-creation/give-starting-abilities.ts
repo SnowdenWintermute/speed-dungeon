@@ -15,6 +15,7 @@ export function giveStartingAbilities(actionUser: IActionUser) {
     CombatActionName.PassTurn,
     CombatActionName.ReadSkillBook,
     CombatActionName.ChainingSplitArrowParent,
+    CombatActionName.SummonPet,
     // CombatActionName.Counterattack,
     CombatActionName.IceBoltParent,
     CombatActionName.Fire,
@@ -42,6 +43,6 @@ export function giveStartingAbilities(actionUser: IActionUser) {
     );
     if (cooldownOption) action.cooldown = new MaxAndCurrent(cooldownOption, 0);
 
-    actionUser.getCombatantProperties().abilityProperties.ownedActions[actionName] = action;
+    actionUser.getCombatantProperties().abilityProperties.getOwnedActions()[actionName] = action;
   }
 }

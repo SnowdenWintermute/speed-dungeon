@@ -50,8 +50,9 @@ export class TargetingCalculator {
 
   getFilteredPotentialTargetIdsForAction(actionAndRank: ActionAndRank) {
     const { party, actionUser } = this.context;
+    const { combatantManager } = party;
     const actionUserId = actionUser.getEntityId();
-    const allyAndOpponentIds = this.context.getAllyAndOpponentIds();
+    const allyAndOpponentIds = combatantManager.getCombatantIdsByDisposition(actionUserId);
     const { actionName, rank } = actionAndRank;
     const action = COMBAT_ACTIONS[actionName];
     const { targetingProperties } = action;
@@ -113,9 +114,8 @@ export class TargetingCalculator {
   ) {
     const primaryTargetIdResult = this.getPrimaryTargetCombatantId(actionExecutionIntent);
     if (primaryTargetIdResult instanceof Error) return primaryTargetIdResult;
-    const primaryTargetResult = AdventuringParty.getCombatant(party, primaryTargetIdResult);
-    if (primaryTargetResult instanceof Error) return primaryTargetResult;
-    return primaryTargetResult;
+    const primaryTarget = party.combatantManager.getExpectedCombatant(primaryTargetIdResult);
+    return primaryTarget;
   }
 
   // I made this to check if the targeting scheme still matches after changing action level

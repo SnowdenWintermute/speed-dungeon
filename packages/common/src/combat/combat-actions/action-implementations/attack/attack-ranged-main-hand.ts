@@ -1,5 +1,5 @@
 import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponentConfig,
   CombatActionExecutionIntent,
   CombatActionLeaf,
@@ -29,7 +29,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 
 export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   description: "Attack target using ranged weapon",
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.Attack,
   }),
   targetingProperties: createTargetingPropertiesConfig(

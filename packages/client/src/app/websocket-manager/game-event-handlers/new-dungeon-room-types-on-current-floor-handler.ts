@@ -1,16 +1,11 @@
-import { setAlert } from "@/app/components/alerts";
-import { useGameStore } from "@/stores/game-store";
-import getCurrentParty from "@/utils/getCurrentParty";
-import { DungeonRoomType, ERROR_MESSAGES } from "@speed-dungeon/common";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DungeonRoomType } from "@speed-dungeon/common";
 
-export default function newDungeonRoomTypesOnCurrentFloorHandler(
-  newRoomTypes: (DungeonRoomType | null)[]
-) {
-  useGameStore.getState().mutateState((gameState) => {
-    const party = getCurrentParty(gameState, gameState.username || "");
-    if (party === undefined) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY));
+export function newDungeonRoomTypesOnCurrentFloorHandler(newRoomTypes: (DungeonRoomType | null)[]) {
+  const party = AppStore.get().gameStore.getExpectedParty();
 
-    party.clientCurrentFloorRoomsList = newRoomTypes;
-    party.roomsExplored.onCurrentFloor = 0;
-  });
+  const { dungeonExplorationManager } = party;
+
+  dungeonExplorationManager.setClientVisibleRoomExplorationList(newRoomTypes);
+  dungeonExplorationManager.clearRoomsExploredOnCurrentFloorCount();
 }

@@ -1,58 +1,68 @@
 import { CombatantTurnTracker, TurnTracker } from "@speed-dungeon/common";
-import { GameState, getCurrentMenu } from "@/stores/game-store";
-import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
+import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export class CharacterAutoFocusManager {
   constructor() {}
 
-  handleBattleStart(gameState: GameState, firstActiveTracker: TurnTracker) {
+  handleBattleStart(firstActiveTracker: TurnTracker) {
     if (firstActiveTracker instanceof CombatantTurnTracker) {
-      const partyResult = gameState.getParty();
-      if (partyResult instanceof Error) return console.error(partyResult.message);
-      const party = partyResult;
+      const party = AppStore.get().gameStore.getExpectedParty();
 
-      const newlyActiveTrackerIsPlayerControlled = party.characterPositions.includes(
-        firstActiveTracker.getTaggedIdOfTrackedEntity().combatantId
-      );
+      const { combatantManager } = party;
+      const activeTrackerId = firstActiveTracker.getTaggedIdOfTrackedEntity().combatantId;
 
-      if (newlyActiveTrackerIsPlayerControlled)
-        gameState.focusedCharacterId = firstActiveTracker.getTaggedIdOfTrackedEntity().combatantId;
+      const newlyActiveTrackerIsPlayerControlled = combatantManager
+        .getExpectedCombatant(activeTrackerId)
+        .combatantProperties.controlledBy.isPlayerControlled();
+
+      if (newlyActiveTrackerIsPlayerControlled) {
+        const trackerId = firstActiveTracker.getTaggedIdOfTrackedEntity().combatantId;
+        AppStore.get().gameStore.setFocusedCharacter(trackerId);
+      }
     }
   }
 
-  focusFirstOwnedCharacter(gameState: GameState) {
+  focusFirstOwnedCharacter() {
     // if viewing menu other than ItemsOnGround, do nothing
-    const clientIsViewingMenus = gameState.stackedMenuStates.length;
-    const currentMenu = getCurrentMenu(gameState);
-    if (clientIsViewingMenus && currentMenu.type !== MenuStateType.ItemsOnGround) return;
+    const { actionMenuStore, gameStore } = AppStore.get();
+    const clientIsViewingMenus = actionMenuStore.hasStackedMenus();
 
-    const playerResult = gameState.getPlayer();
-    if (playerResult instanceof Error) throw playerResult;
+    if (clientIsViewingMenus && actionMenuStore.isViewingItemsOnGround()) {
+      console.info("not switching focus since in menus");
+      return;
+    }
+
+    const playerResult = gameStore.getExpectedClientPlayer();
 
     const firstOwnedCharacterId = playerResult.characterIds[0];
     if (!firstOwnedCharacterId) return console.error("Player doesn't own any characters");
-    gameState.focusedCharacterId = firstOwnedCharacterId;
+
+    gameStore.setFocusedCharacter(firstOwnedCharacterId);
   }
 
-  updateFocusedCharacterOnNewTurnOrder(gameState: GameState, newlyActiveTracker: TurnTracker) {
-    const partyResult = gameState.getParty();
-    if (partyResult instanceof Error) return console.error(partyResult.message);
-    const party = partyResult;
+  updateFocusedCharacterOnNewTurnOrder(newlyActiveTracker: TurnTracker) {
+    const party = AppStore.get().gameStore.getExpectedParty();
 
     // if viewing menu other than ItemsOnGround, do nothing
-    const clientIsViewingMenus = gameState.stackedMenuStates.length;
-    const currentMenu = getCurrentMenu(gameState);
+    const { actionMenuStore } = AppStore.get();
+    const clientIsViewingMenus = actionMenuStore.hasStackedMenus();
+    const currentMenu = actionMenuStore.getCurrentMenu();
     if (clientIsViewingMenus && currentMenu.type !== MenuStateType.ItemsOnGround) return;
 
-    let newlyActiveTrackerIsPlayerControlled = false;
-
     if (newlyActiveTracker instanceof CombatantTurnTracker) {
-      newlyActiveTrackerIsPlayerControlled = party.characterPositions.includes(
-        newlyActiveTracker.getTaggedIdOfTrackedEntity().combatantId
-      );
+      const { combatantManager } = party;
+      const activeTrackerId = newlyActiveTracker.getTaggedIdOfTrackedEntity().combatantId;
 
-      if (newlyActiveTrackerIsPlayerControlled)
-        gameState.focusedCharacterId = newlyActiveTracker.getTaggedIdOfTrackedEntity().combatantId;
+      const newlyActiveTrackerIsPlayerControlled = combatantManager
+        .getExpectedCombatant(activeTrackerId)
+        .combatantProperties.controlledBy.isPlayerControlled();
+
+      if (newlyActiveTrackerIsPlayerControlled) {
+        AppStore.get().gameStore.setFocusedCharacter(
+          newlyActiveTracker.getTaggedIdOfTrackedEntity().combatantId
+        );
+      }
     }
   }
 }

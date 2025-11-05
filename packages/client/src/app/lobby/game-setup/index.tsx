@@ -1,7 +1,7 @@
 import { GameMode } from "@speed-dungeon/common";
 import React from "react";
-import ProgressionGameLobby from "./ProgressionGameLobby";
-import RaceGameLobby from "./race-game-lobby/";
+import { ProgressionGameLobby } from "./ProgressionGameLobby";
+import { RaceGameLobby } from "./race-game-lobby/";
 import { ZIndexLayers } from "@/app/z-index-layers";
 
 export function GameSetup({ gameMode }: { gameMode: GameMode }) {

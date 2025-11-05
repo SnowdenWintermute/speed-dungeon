@@ -9,8 +9,7 @@ import {
   ActivatedTriggersGameUpdateCommand,
   GameUpdateCommandType,
 } from "../game-update-commands.js";
-import { Combatant, CombatantCondition } from "../../combatants/index.js";
-import { AdventuringParty } from "../../adventuring-party/index.js";
+import { Combatant } from "../../combatants/index.js";
 import { addRemovedConditionStacksToUpdate } from "./hit-outcome-triggers/add-triggered-condition-to-update.js";
 
 // Made this its own step because conditions were being removed by ticking, then the end turn step
@@ -40,10 +39,10 @@ export class RemoveTickedConditionStacksActionResolutionStep extends ActionResol
       const onTick = tickPropertiesOption.onTick(context.actionUserContext);
       const { numStacksRemoved } = onTick;
       const entityConditionWasAppliedTo = condition.getConditionAppliedTo();
-      const hostEntity = AdventuringParty.getCombatant(party, entityConditionWasAppliedTo);
-      if (hostEntity instanceof Error) throw hostEntity;
+      const hostEntity = party.combatantManager.getExpectedCombatant(entityConditionWasAppliedTo);
 
-      CombatantCondition.removeStacks(condition.getEntityId(), hostEntity, numStacksRemoved);
+      const { conditionManager } = hostEntity.combatantProperties;
+      conditionManager.removeStacks(condition.getEntityId(), numStacksRemoved);
 
       addRemovedConditionStacksToUpdate(
         condition.getEntityId(),

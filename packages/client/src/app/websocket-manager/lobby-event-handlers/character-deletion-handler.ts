@@ -1,31 +1,10 @@
-import {
-  AdventuringParty,
-  ERROR_MESSAGES,
-  updateCombatantHomePosition,
-} from "@speed-dungeon/common";
-import { setAlert } from "../../components/alerts";
-import { useGameStore } from "@/stores/game-store";
+import { AppStore } from "@/mobx-stores/app-store";
 
-export default function characterDeletionHandler(
-  partyName: string,
-  username: string,
-  characterId: string
-) {
-  useGameStore.getState().mutateState((gameState) => {
-    const game = gameState.game;
-    if (!game) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
-    const party = game.adventuringParties[partyName];
-    if (!party) return setAlert(new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST));
-    const player = game.players[username];
-    if (!player) return setAlert(new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST));
+export function characterDeletionHandler(username: string, characterId: string) {
+  const { gameStore } = AppStore.get();
+  const { party, player } = gameStore.getExpectedPlayerContext(username);
 
-    AdventuringParty.removeCharacter(party, characterId, player, undefined);
+  party.removeCharacter(characterId, player);
 
-    for (const character of Object.values(party.characters))
-      updateCombatantHomePosition(
-        character.entityProperties.id,
-        character.combatantProperties,
-        party
-      );
-  });
+  party.combatantManager.updateHomePositions();
 }

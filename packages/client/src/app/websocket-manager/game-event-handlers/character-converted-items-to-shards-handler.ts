@@ -1,9 +1,6 @@
-import { GameState } from "@/stores/game-store";
 import {
   CharacterAndItems,
   CharacterAssociatedData,
-  CombatantEquipment,
-  CombatantProperties,
   TaggedEquipmentSlot,
   convertItemsToShards,
 } from "@speed-dungeon/common";
@@ -17,21 +14,20 @@ export function characterConvertedItemsToShardsHandler(characterAndItems: Charac
 
   characterAssociatedDataProvider(
     characterAndItems.characterId,
-    ({ character }: CharacterAssociatedData, _gameState: GameState) => {
+    ({ character }: CharacterAssociatedData) => {
       const { combatantProperties } = character;
       // unequip it if is equipped
-      const equippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties.equipment, {
+      const equippedItems = combatantProperties.equipment.getAllEquippedItems({
         includeUnselectedHotswapSlots: true,
       });
 
       for (const item of equippedItems) {
         if (characterAndItems.itemIds.includes(item.entityProperties.id)) {
-          const slot = CombatantProperties.getSlotItemIsEquippedTo(
-            combatantProperties,
+          const slot = combatantProperties.equipment.getSlotItemIsEquippedTo(
             item.entityProperties.id
           );
           if (slot !== null) {
-            CombatantProperties.unequipSlots(combatantProperties, [slot]);
+            combatantProperties.equipment.unequipSlots([slot]);
             slotsUnequipped.push(slot);
           }
         }

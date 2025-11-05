@@ -1,5 +1,6 @@
 import {
   ActionAndRank,
+  COMBAT_ACTIONS,
   CharacterAssociatedData,
   CombatantProperties,
   ERROR_MESSAGES,
@@ -9,6 +10,7 @@ import {
 import { getGameServer } from "../../singletons/index.js";
 import { TargetingCalculator } from "@speed-dungeon/common";
 import { ActionUserContext } from "@speed-dungeon/common";
+import cloneDeep from "lodash.clonedeep";
 
 export function selectCombatActionLevelHandler(
   eventData: {
@@ -23,12 +25,15 @@ export function selectCombatActionLevelHandler(
   const { character, game, party, player } = characterAssociatedData;
   const targetingProperties = character.getTargetingProperties();
   const selectedActionAndRankOption = targetingProperties.getSelectedActionAndRank();
-  const { ownedActions } = character.combatantProperties.abilityProperties;
-  if (selectedActionAndRankOption === null)
-    return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
 
-  const combatActionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
-    character.combatantProperties,
+  if (selectedActionAndRankOption === null) {
+    return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
+  }
+
+  const { abilityProperties } = character.combatantProperties;
+  const ownedActions = abilityProperties.getOwnedActions();
+
+  const combatActionPropertiesResult = abilityProperties.getCombatActionPropertiesIfOwned(
     selectedActionAndRankOption
   );
   if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
@@ -40,15 +45,20 @@ export function selectCombatActionLevelHandler(
 
   const actionAndNewlySelectedRank = new ActionAndRank(actionName, newSelectedActionLevel);
 
-  const hasRequiredResources = CombatantProperties.hasRequiredResourcesToUseAction(
+  const action = COMBAT_ACTIONS[actionName];
+  const costs = action.costProperties.getResourceCosts(
     character,
-    actionAndNewlySelectedRank,
-    !!party.battleId
+    !!party.battleId,
+    newSelectedActionLevel
   );
+  const hasRequiredResources =
+    !character.combatantProperties.resources.getUnmetCostResourceTypes(costs).length;
 
   if (!hasRequiredResources) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INSUFFICIENT_RESOURCES);
 
   targetingProperties.setSelectedActionAndRank(actionAndNewlySelectedRank);
+
+  character.combatantProperties.targetingProperties = cloneDeep(targetingProperties);
 
   // check if current targets are still valid at this level
   const actionUserContext = new ActionUserContext(game, party, character);

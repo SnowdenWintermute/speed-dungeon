@@ -7,19 +7,21 @@ import { AuthFormTypes } from ".";
 import useHttpResponseErrors from "@/hooks/use-http-response-errors";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
 import AuthForm from "./AuthForm";
-import { useUIStore } from "@/stores/ui-store";
 import { gameWorld } from "@/app/3d-world/SceneManager";
+import { AppStore } from "@/mobx-stores/app-store";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   setActiveForm: React.Dispatch<React.SetStateAction<AuthFormTypes>>;
 }
 
-export default function LoginWithCredentialsForm({ setActiveForm }: Props) {
+export const LoginWithCredentialsForm = observer(({ setActiveForm }: Props) => {
   const httpRequestTrackerName = HTTP_REQUEST_NAMES.LOGIN_WITH_CREDENTIALS;
   const responseTracker = useHttpRequestStore().requests[httpRequestTrackerName];
   const [fieldErrors, setFieldErrors, nonFieldErrors] = useHttpResponseErrors(responseTracker);
-  const email = useUIStore().authFormEmailField;
-  const setEmail = useUIStore().setAuthFormEmailField;
+
+  const email = AppStore.get().formsStore.getAuthFormEmailField();
+  const setEmail = AppStore.get().formsStore.setAuthFormEmailField;
   const [password, setPassword] = useState("");
 
   return (
@@ -86,4 +88,4 @@ export default function LoginWithCredentialsForm({ setActiveForm }: Props) {
       </ButtonBasic>
     </AuthForm>
   );
-}
+});

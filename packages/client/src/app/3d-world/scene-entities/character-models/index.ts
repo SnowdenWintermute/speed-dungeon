@@ -15,28 +15,24 @@ import {
   SkeletalAnimationName,
   CombatantClass,
   ERROR_MESSAGES,
-  Equipment,
   HoldableSlotType,
   iterateNumericEnumKeyedRecord,
-  CombatantEquipment,
   EquipmentType,
   CombatantBaseChildTransformNodeName,
   NormalizedPercentage,
-  CombatantProperties,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import { setUpDebugMeshes, despawnDebugMeshes } from "./set-up-debug-meshes";
 import { HighlightManager } from "./highlight-manager";
-import { useGameStore } from "@/stores/game-store";
 import { plainToInstance } from "class-transformer";
-import { useLobbyStore } from "@/stores/lobby-store";
 import { ManagedAnimationOptions } from "../model-animation-managers";
 import { SceneEntity } from "..";
 import { BONE_NAMES, BoneName } from "./skeleton-structure-variables";
 import { EquipmentModelManager } from "./equipment-model-manager";
 import { ModularCharacterPartsModelManager } from "./modular-character-parts-model-manager";
 import { TargetIndicatorBillboardManager } from "./target-indicator-manager";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export class CharacterModel extends SceneEntity {
   childTransformNodes: Partial<Record<CombatantBaseChildTransformNodeName, TransformNode>> = {};
@@ -172,7 +168,7 @@ export class CharacterModel extends SceneEntity {
 
   startIdleAnimation(transitionMs: number, options?: ManagedAnimationOptions) {
     const combatant = this.getCombatant();
-    if (CombatantProperties.isDead(combatant.combatantProperties)) return;
+    if (combatant.combatantProperties.isDead()) return;
     try {
       const idleName = this.getIdleAnimationName();
 
@@ -193,17 +189,19 @@ export class CharacterModel extends SceneEntity {
   }
 
   getCombatant() {
-    let combatantResult = useGameStore.getState().getCombatant(this.entityId);
-    if (combatantResult instanceof Error) {
-      for (const [slotNumberString, combatantOption] of Object.entries(
-        useLobbyStore.getState().savedCharacters
-      )) {
-        if (combatantOption?.entityProperties.id === this.entityId)
-          combatantResult = combatantOption;
-      }
+    // first check in their party if in game
+    let combatantOption = AppStore.get().gameStore.getCombatantOption(this.entityId);
+
+    // if not there, it could be in saved characters
+    if (combatantOption === undefined) {
+      combatantOption = AppStore.get().lobbyStore.getSavedCharacterOption(this.entityId);
     }
-    if (combatantResult instanceof Error) throw combatantResult;
-    return combatantResult;
+
+    if (combatantOption === undefined) {
+      throw new Error("no combatant could be found for this character model");
+    }
+
+    return combatantOption;
   }
 
   getIdleAnimationName() {
@@ -218,18 +216,12 @@ export class CharacterModel extends SceneEntity {
 
     const { combatantProperties } = combatant;
     const { equipment } = combatantProperties;
-    const offHandOption = CombatantEquipment.getEquippedHoldable(
-      equipment,
-      HoldableSlotType.OffHand
-    );
+    const offHandOption = equipment.getEquippedHoldable(HoldableSlotType.OffHand);
     const offhandType = offHandOption?.equipmentBaseItemProperties.equipmentType;
-    const mainHandOption = CombatantEquipment.getEquippedHoldable(
-      equipment,
-      HoldableSlotType.MainHand
-    );
+    const mainHandOption = equipment.getEquippedHoldable(HoldableSlotType.MainHand);
     const mainHandType = mainHandOption?.equipmentBaseItemProperties.equipmentType;
-    const mhIsBroken = mainHandOption && Equipment.isBroken(mainHandOption);
-    const ohIsBroken = offHandOption && Equipment.isBroken(offHandOption);
+    const mhIsBroken = mainHandOption && mainHandOption.isBroken();
+    const ohIsBroken = offHandOption && offHandOption.isBroken();
 
     if (mainHandType === EquipmentType.TwoHandedRangedWeapon && !mhIsBroken)
       return SkeletalAnimationName.IdleBow;

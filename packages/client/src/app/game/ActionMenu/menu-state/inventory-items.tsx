@@ -1,46 +1,43 @@
-import { useGameStore } from "@/stores/game-store";
-import { ActionButtonCategory, ActionMenuButtonProperties, MenuStateType } from ".";
-import { immerable } from "immer";
 import { ItemsMenuState } from "./items";
-import { EquippedItemsMenuState, viewEquipmentHotkey } from "./equipped-items";
+import { viewEquipmentHotkey } from "./equipped-items";
 import { letterFromKeyCode } from "@/hotkeys";
-import selectItem from "@/utils/selectItem";
 import { ConsideringItemMenuState } from "./considering-item";
-import { Inventory, Item } from "@speed-dungeon/common";
+import { Item } from "@speed-dungeon/common";
 import {
   setViewingAbilityTreeAsFreshStack,
   toggleInventoryHotkey,
 } from "./common-buttons/open-inventory";
+import { AppStore } from "@/mobx-stores/app-store";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
+import { MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory } from "./action-buttons-by-category";
+import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 
 export class InventoryItemsMenuState extends ItemsMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages = 1;
   constructor() {
     const viewEquipmentButton = new ActionMenuButtonProperties(
       () => `Equipped (${letterFromKeyCode(viewEquipmentHotkey)})`,
       `Equipped (${letterFromKeyCode(viewEquipmentHotkey)})`,
       () => {
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.push(new EquippedItemsMenuState());
-        });
+        AppStore.get().actionMenuStore.pushStack(
+          MenuStatePool.get(MenuStateType.ViewingEquipedItems)
+        );
       }
     );
     viewEquipmentButton.dedicatedKeys = [viewEquipmentHotkey];
 
+    const closeButtonAndHotkeys = { text: "Cancel", hotkeys: ["KeyI", toggleInventoryHotkey] };
+
     super(
       MenuStateType.InventoryItems,
-      { text: "Cancel", hotkeys: ["KeyI", toggleInventoryHotkey] },
+      closeButtonAndHotkeys,
       (item: Item) => {
-        selectItem(item);
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.push(new ConsideringItemMenuState(item));
-        });
+        AppStore.get().focusStore.selectItem(item);
+        AppStore.get().actionMenuStore.pushStack(new ConsideringItemMenuState(item));
       },
       () => {
-        const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-        if (focusedCharacterResult instanceof Error) return [];
-        return Inventory.getItems(focusedCharacterResult.combatantProperties.inventory);
+        const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+        return focusedCharacter.combatantProperties.inventory.getItems();
       },
       {
         extraButtons: {

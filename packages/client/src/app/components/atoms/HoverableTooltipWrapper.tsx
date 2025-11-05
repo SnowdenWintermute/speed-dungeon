@@ -1,5 +1,4 @@
-import { MutateState } from "@/stores/mutate-state";
-import { UIState, useUIStore } from "@/stores/ui-store";
+import { AppStore } from "@/mobx-stores/app-store";
 import React, { ReactNode, useEffect, useRef } from "react";
 
 interface Props {
@@ -10,24 +9,17 @@ interface Props {
 }
 
 export default function HoverableTooltipWrapper(props: Props) {
-  const mutateUIState = useUIStore().mutateState;
+  const { tooltipStore } = AppStore.get();
   const elementRef = useRef<HTMLDivElement>(null);
 
-  function showTooltip(
-    mutateUIState: MutateState<UIState>,
-    elementOption: null | HTMLDivElement,
-    text: string
-  ) {
+  function showTooltip(elementOption: null | HTMLDivElement, text: string) {
     if (!elementOption) return;
     const { x, y, width, height } = elementOption.getBoundingClientRect();
     const offsetTop = props.offsetTop !== undefined ? props.offsetTop : 4;
     let tooltipX = x + width / 2.0;
     let tooltipY = -9999; // send it off screen for measuring before showing it
 
-    mutateUIState((store) => {
-      store.tooltipText = text;
-      store.tooltipPosition = { x: tooltipX, y: tooltipY };
-    });
+    tooltipStore.set(text, { x: tooltipX, y: tooltipY });
 
     // measure tooltip after render
     requestAnimationFrame(() => {
@@ -49,37 +41,24 @@ export default function HoverableTooltipWrapper(props: Props) {
         tooltipX = x - tooltipRect.width / 2 - 10;
       }
 
-      mutateUIState((store) => {
-        store.tooltipPosition = { x: tooltipX, y: tooltipY };
-      });
+      tooltipStore.moveTo({ x: tooltipX, y: tooltipY });
     });
   }
 
-  function hideTooltip(mutateUIState: MutateState<UIState>) {
-    mutateUIState((store) => {
-      store.tooltipPosition = null;
-      store.tooltipText = null;
-    });
+  function hideTooltip() {
+    tooltipStore.clear();
   }
 
   useEffect(() => {
-    return () => hideTooltip(mutateUIState);
+    return () => hideTooltip();
   }, []);
 
   function handleMouseEnter(_e: React.MouseEvent) {
-    if (props.tooltipText) showTooltip(mutateUIState, elementRef.current, props.tooltipText);
-  }
-
-  function handleMouseLeave(_e: React.MouseEvent) {
-    hideTooltip(mutateUIState);
+    if (props.tooltipText) showTooltip(elementRef.current, props.tooltipText);
   }
 
   function handleFocus(_e: React.FocusEvent): void {
-    if (props.tooltipText) showTooltip(mutateUIState, elementRef.current, props.tooltipText);
-  }
-
-  function handleBlur(_e: React.FocusEvent): void {
-    hideTooltip(mutateUIState);
+    if (props.tooltipText) showTooltip(elementRef.current, props.tooltipText);
   }
 
   return (
@@ -87,9 +66,9 @@ export default function HoverableTooltipWrapper(props: Props) {
       className={`h-fit w-fit ${props.extraStyles} p-0`}
       ref={elementRef}
       onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseLeave={hideTooltip}
       onFocus={handleFocus}
-      onBlur={handleBlur}
+      onBlur={hideTooltip}
       tabIndex={0}
     >
       {props.children}

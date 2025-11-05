@@ -15,15 +15,14 @@ import {
   CombatActionTargetType,
   ThreatChanges,
 } from "../../../combat/index.js";
-import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { addHitOutcomeDurabilityChanges } from "./hit-outcome-durability-change-calculators.js";
 import { HitOutcome } from "../../../hit-outcome.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
-import { CombatantCondition } from "../../../combatants/combatant-conditions/index.js";
 import { addRemovedConditionIdToUpdate } from "./add-triggered-condition-to-update.js";
 import { handleTriggeredLifesteals } from "./handle-triggered-lifesteals.js";
 import { handleHit } from "./handle-hit.js";
+import { ActionAndRank } from "../../../action-user-context/action-user-targeting-properties.js";
 
 const stepType = ActionResolutionStepType.EvalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
@@ -40,7 +39,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     const { actionExecutionIntent } = tracker;
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
     const { game, party, actionUser } = actionUserContext;
-    const battleOption = AdventuringParty.getBattleOption(party, game);
+    const battleOption = party.getBattleOption(game);
     const { outcomeFlags } = tracker.hitOutcomes;
 
     const customTriggers = action.hitOutcomeProperties.getHitOutcomeTriggers(context);
@@ -56,9 +55,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     const durabilityChanges = new DurabilityChangesByEntityId();
     for (const flag of iterateNumericEnum(HitOutcome)) {
       for (const combatantId of outcomeFlags[flag] || []) {
-        const combatantResult = AdventuringParty.getCombatant(party, combatantId);
-        if (combatantResult instanceof Error) throw combatantResult;
-        const targetCombatant = combatantResult;
+        const targetCombatant = party.combatantManager.getExpectedCombatant(combatantId);
 
         const hpChangeIsCrit = (() => {
           if (!hpChanges) return false;
@@ -81,9 +78,10 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         }
 
         if (flag === HitOutcome.Death) {
-          for (const condition of targetCombatant.combatantProperties.conditions) {
+          const { conditionManager } = targetCombatant.combatantProperties;
+          for (const condition of conditionManager.getConditions()) {
             if (!condition.removedOnDeath) continue;
-            CombatantCondition.removeById(condition.id, combatantResult);
+            conditionManager.removeConditionById(condition.id);
             addRemovedConditionIdToUpdate(
               condition.id,
               gameUpdateCommand,
@@ -96,10 +94,13 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           let { threatChanges } = gameUpdateCommand;
           if (threatChanges === undefined) threatChanges = new ThreatChanges();
 
-          for (const [monsterId, monster] of Object.entries(party.currentRoom.monsters)) {
+          for (const monster of party.combatantManager.getDungeonControlledCombatants()) {
             const { threatManager } = monster.combatantProperties;
             if (!threatManager) continue;
-            threatChanges.addEntryToRemove(monsterId, targetCombatant.entityProperties.id);
+            threatChanges.addEntryToRemove(
+              monster.getEntityId(),
+              targetCombatant.entityProperties.id
+            );
           }
 
           if (
@@ -117,10 +118,9 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             type: CombatActionTargetType.Single,
             targetId: actionUser.getEntityId(),
           });
-          targetCombatant.combatantProperties.targetingProperties.setSelectedActionAndRank({
-            actionName: CombatActionName.Counterattack,
-            rank: 1,
-          });
+          targetCombatant.combatantProperties.targetingProperties.setSelectedActionAndRank(
+            new ActionAndRank(CombatActionName.Counterattack, 1)
+          );
 
           this.branchingActions.push({
             user: targetCombatant,

@@ -3,7 +3,6 @@ import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager
 import {
   CONSUMABLE_TYPE_STRINGS,
   Combatant,
-  CombatantEquipment,
   Consumable,
   ConsumableType,
   iterateNumericEnum,
@@ -12,13 +11,14 @@ import {
 export function enqueueCharacterItemsForThumbnails(character: Combatant) {
   const itemsToCreateThumbnailsFor = [];
   itemsToCreateThumbnailsFor.push(...character.combatantProperties.inventory.equipment);
-  const hotswapSets = CombatantEquipment.getHoldableHotswapSlots(character.getEquipmentOption());
-  if (hotswapSets)
-    for (const hotswapSet of hotswapSets)
+  const equipment = character.getEquipmentOption();
+  const hotswapSets = equipment.getHoldableHotswapSlots();
+  if (hotswapSets) {
+    for (const hotswapSet of hotswapSets) {
       itemsToCreateThumbnailsFor.push(...Object.values(hotswapSet.holdables));
-  itemsToCreateThumbnailsFor.push(
-    ...Object.values(character.combatantProperties.equipment.wearables)
-  );
+      itemsToCreateThumbnailsFor.push(...Object.values(equipment.getWearables()));
+    }
+  }
 
   for (const item of itemsToCreateThumbnailsFor) {
     getGameWorld().imageManager.enqueueMessage({

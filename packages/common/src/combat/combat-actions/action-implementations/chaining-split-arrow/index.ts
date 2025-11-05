@@ -1,6 +1,6 @@
 import {
   ActionPayableResource,
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionExecutionIntent,
@@ -27,7 +27,6 @@ import {
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { CHAINING_SPLIT_ARROW_PARENT_STEPS_CONFIG } from "./chaining-split-arrow-parent-steps-config.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import { AdventuringParty } from "../../../../adventuring-party/index.js";
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BOW_ATTACK,
@@ -52,7 +51,7 @@ const targetingProperties = createTargetingPropertiesConfig(
 const config: CombatActionComponentConfig = {
   description: "Fire arrows which each bounce to up to two additional targets",
 
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.Attack,
     getOnUseMessage: (data) => {
       return `${data.nameOfActionUser} fires a chaining split arrow.`;
@@ -74,10 +73,10 @@ const config: CombatActionComponentConfig = {
       const entityIdsByDisposition = actionUser.getAllyAndOpponentIds(party, battleOption);
 
       const opponentIds = entityIdsByDisposition[FriendOrFoe.Hostile];
-      const opponents = AdventuringParty.getCombatants(party, opponentIds);
+      const opponents = party.combatantManager.getExpectedCombatants(opponentIds);
 
       return opponents
-        .filter((opponent) => opponent.combatantProperties.hitPoints > 0)
+        .filter((opponent) => !opponent.combatantProperties.isDead())
         .map((opponent, i) => {
           const expectedProjectile = context.tracker.spawnedEntities[i];
           if (expectedProjectile === undefined)

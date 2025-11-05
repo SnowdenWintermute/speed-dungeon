@@ -1,51 +1,51 @@
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
-import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
+import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
+import { AppStore } from "@/mobx-stores/app-store";
+import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
-import { useGameStore } from "@/stores/game-store";
 import {
   enqueueCharacterItemsForThumbnails,
   enqueueConsumableGenericThumbnailCreation,
 } from "@/utils/enqueue-character-items-for-thumbnails";
-import getParty from "@/utils/getParty";
 import { Vector3 } from "@babylonjs/core";
-import { ERROR_MESSAGES, updateCombatantHomePosition } from "@speed-dungeon/common";
 
 export function gameStartedHandler(timeStarted: number) {
-  useGameStore.getState().mutateState((gameState) => {
-    if (gameState.game) gameState.game.timeStarted = timeStarted;
-    gameState.combatLogMessages = [
-      new CombatLogMessage("A new game has begun!", CombatLogMessageStyle.Basic),
-    ];
+  const { gameEventNotificationStore, gameStore } = AppStore.get();
+  gameEventNotificationStore.clearGameLog();
+  GameLogMessageService.postGameStarted();
 
-    const camera = gameWorld.current?.camera;
-    if (!camera) return;
-    camera.target.copyFrom(new Vector3(-1, 0.2, 0.15));
-    camera.alpha = 4.66;
-    camera.beta = 1.02;
-    camera.radius = 7.15;
+  AppStore.get().actionMenuStore.initialize(new BaseMenuState());
 
-    const partyOption = getParty(gameState.game, gameState.username || "");
-    if (partyOption instanceof Error) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
-    const party = partyOption;
-    party.currentFloor = gameState.game?.selectedStartingFloor || 1;
-    // party.currentFloor = 10; // testing
+  characterAutoFocusManager.focusFirstOwnedCharacter();
 
-    gameWorld.current?.clearFloorTexture();
+  const { game, party } = gameStore.getFocusedCharacterContext();
 
-    enqueueConsumableGenericThumbnailCreation();
+  game.timeStarted = timeStarted;
 
-    for (const character of Object.values(partyOption.characters)) {
-      updateCombatantHomePosition(
-        character.entityProperties.id,
-        character.combatantProperties,
-        party
-      );
-      enqueueCharacterItemsForThumbnails(character);
-    }
+  const camera = gameWorld.current?.camera;
+  if (!camera) {
+    console.error("no camera found");
+    return;
+  }
+  camera.target.copyFrom(new Vector3(-1, 0.2, 0.15));
+  camera.alpha = 4.66;
+  camera.beta = 1.02;
+  camera.radius = 7.15;
 
-    characterAutoFocusManager.focusFirstOwnedCharacter(gameState);
-  });
+  party.dungeonExplorationManager.setCurrentFloor(game.selectedStartingFloor);
+
+  gameWorld.current?.clearFloorTexture();
+
+  enqueueConsumableGenericThumbnailCreation();
+
+  const { combatantManager } = party;
+
+  for (const character of combatantManager.getAllCombatants()) {
+    enqueueCharacterItemsForThumbnails(character);
+  }
+
+  combatantManager.updateHomePositions();
 
   gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.SynchronizeCombatantModels,

@@ -1,7 +1,5 @@
-import { GameState } from "@/stores/game-store";
 import {
   ActionUserContext,
-  AdventuringParty,
   COMBAT_ACTIONS,
   CharacterAssociatedData,
   ERROR_MESSAGES,
@@ -9,7 +7,7 @@ import {
   TargetingCalculator,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
-import { synchronizeTargetingIndicators } from "./synchronize-targeting-indicators";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export function characterCycledTargetsHandler(
   characterId: string,
@@ -18,8 +16,7 @@ export function characterCycledTargetsHandler(
 ) {
   characterAssociatedDataProvider(
     characterId,
-    ({ game, party, character }: CharacterAssociatedData, gameState: GameState) => {
-      if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+    ({ game, party, character }: CharacterAssociatedData) => {
       const playerOption = game.players[playerUsername];
       if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
       const targetingCalculator = new TargetingCalculator(
@@ -27,12 +24,10 @@ export function characterCycledTargetsHandler(
         playerOption
       );
 
-      const targetingProperties = character.getTargetingProperties();
+      const { targetingProperties } = character.combatantProperties;
+
       // @REFACTOR - just pass the targeting calculator for this pattern
-      const idsByDisposition = character.getAllyAndOpponentIds(
-        party,
-        AdventuringParty.getBattleOption(party, game)
-      );
+      const idsByDisposition = party.combatantManager.getCombatantIdsByDisposition(characterId);
       targetingProperties.cycleTargets(direction, playerOption, idsByDisposition);
 
       const selectedActionAndRank = targetingProperties.getSelectedActionAndRank();
@@ -51,10 +46,9 @@ export function characterCycledTargetsHandler(
       );
       if (targetIdsResult instanceof Error) return targetIdsResult;
 
-      synchronizeTargetingIndicators(
-        gameState,
+      AppStore.get().targetIndicatorStore.synchronize(
         actionName,
-        character.entityProperties.id,
+        character.getEntityId(),
         targetIdsResult || []
       );
     }

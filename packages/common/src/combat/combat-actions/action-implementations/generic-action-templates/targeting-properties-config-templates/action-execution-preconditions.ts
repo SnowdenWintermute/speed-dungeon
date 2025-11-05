@@ -1,7 +1,6 @@
 import { ActionTracker } from "../../../../../action-processing/action-tracker.js";
 import { ActionResolutionStepContext } from "../../../../../action-processing/index.js";
-import { CombatantProperties } from "../../../../../combatants/index.js";
-import { SpeedDungeonGame } from "../../../../../game/index.js";
+import { Combatant } from "../../../../../combatants/index.js";
 import { TargetingCalculator } from "../../../../targeting/targeting-calculator.js";
 import { ActionExecutionPrecondition } from "../../../combat-action-targeting-properties.js";
 import { ActionPayableResource, CombatActionComponent } from "../../../index.js";
@@ -67,7 +66,7 @@ function hasEnoughActionPoints(
   );
   if (resourceCosts === null) return true;
   const actionPointCost = resourceCosts[ActionPayableResource.ActionPoints] || 0;
-  const { actionPoints } = combatantProperties;
+  const actionPoints = combatantProperties.resources.getActionPoints();
 
   if (actionPoints >= Math.abs(actionPointCost)) return true;
 
@@ -81,7 +80,7 @@ function userIsAlive(
 ) {
   const { actionUser } = context.actionUserContext;
   const combatantProperties = actionUser.getCombatantProperties();
-  return !CombatantProperties.isDead(combatantProperties);
+  return !combatantProperties.isDead();
 }
 
 function targetsAreAlive(
@@ -90,7 +89,7 @@ function targetsAreAlive(
   self: CombatActionComponent
 ) {
   const { actionUserContext } = context;
-  const { game, party, actionUser } = actionUserContext;
+  const { party } = actionUserContext;
 
   const targetsOption = context.tracker.actionExecutionIntent.targets;
 
@@ -110,5 +109,8 @@ function targetsAreAlive(
     return false;
   }
 
-  return !SpeedDungeonGame.allCombatantsInGroupAreDead(game, targetIdsResult);
+  const targetCombatants = party.combatantManager.getExpectedCombatants(targetIdsResult);
+  const targetsAreAlive = !Combatant.groupIsDead(targetCombatants);
+
+  return targetsAreAlive;
 }

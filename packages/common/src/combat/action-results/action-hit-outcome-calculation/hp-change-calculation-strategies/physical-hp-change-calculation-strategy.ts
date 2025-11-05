@@ -1,5 +1,5 @@
 import { IActionUser } from "../../../../action-user-context/action-user.js";
-import { CombatantProperties } from "../../../../combatants/index.js";
+import { CombatantProperties } from "../../../../combatants/combatant-properties.js";
 import { CombatActionHitOutcomeProperties } from "../../../combat-actions/combat-action-hit-outcome-properties.js";
 import { ResourceChange } from "../../../hp-change-source-types.js";
 import getDamageAfterArmorClass from "../get-damage-after-armor-class.js";

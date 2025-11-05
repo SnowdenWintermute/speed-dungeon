@@ -1,19 +1,7 @@
-import { immerable } from "immer";
-import { useGameStore } from "@/stores/game-store";
+import { ActionMenuState } from "./index";
 import {
-  ActionButtonCategory,
-  ActionButtonsByCategory,
-  ActionMenuButtonProperties,
-  ActionMenuState,
-  MenuStateType,
-} from ".";
-import { createCancelButton } from "./common-buttons/cancel";
-import { setAlert } from "@/app/components/alerts";
-import {
-  ABILITY_TREES,
   AbilityTreeAbility,
   AbilityType,
-  AbilityUtils,
   ArrayUtils,
   ClientToServerEvent,
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
@@ -21,47 +9,43 @@ import {
   COMBATANT_CONDITION_DESCRIPTIONS,
   COMBATANT_CONDITION_NAME_STRINGS,
   COMBATANT_TRAIT_DESCRIPTIONS,
-  CombatantAbilityProperties,
   CombatantConditionName,
   getAbilityTreeAbilityNameString,
 } from "@speed-dungeon/common";
-import createPageButtons from "./create-page-buttons";
+import { createPageButtons } from "./create-page-buttons";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { COMBAT_ACTION_DESCRIPTIONS } from "../../character-sheet/ability-tree/ability-descriptions";
 import { ActionDescriptionComponent } from "../../character-sheet/ability-tree/action-description";
 import Divider from "@/app/components/atoms/Divider";
 import { ACTION_ICONS, TRAIT_ICONS } from "@/app/icons";
+import { AppStore } from "@/mobx-stores/app-store";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
+import { MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
+import { createCancelButton } from "./common-buttons/cancel";
 
 const allocateAbilityPointHotkey = HOTKEYS.MAIN_1;
 
-export class ConsideringCombatantAbilityMenuState implements ActionMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages: number = 1;
-  type = MenuStateType.ConsideringAbilityTreeAbility;
+export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
   alwaysShowPageOne = true;
   constructor(
     public column: (undefined | AbilityTreeAbility)[],
     public index: number
   ) {
-    this.page = index + 1;
-    this.numPages = column.length;
+    super(MenuStateType.ConsideringAbilityTreeColumn, index + 1);
+    this.minPageCount = column.length;
   }
 
   getCenterInfoDisplayOption() {
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult);
-      return <div>Error getting focused character</div>;
-    }
+    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
-    const abilityOption = useGameStore.getState().detailedCombatantAbility;
+    const abilityOption = AppStore.get().focusStore.combatantAbilities.get().detailed;
     if (abilityOption === null) throw new Error("expected ability missing");
 
     const conditionsToShowDetailButtonsFor = getConditionsToShowDetailButtonsFor(
       abilityOption,
-      focusedCharacterResult
+      focusedCharacter
     );
 
     const conditionDescriptions = conditionsToShowDetailButtonsFor.map((conditionName) => (
@@ -115,20 +99,14 @@ export class ConsideringCombatantAbilityMenuState implements ActionMenuState {
     const toReturn = new ActionButtonsByCategory();
     toReturn[ActionButtonCategory.Top].push(
       createCancelButton([], () => {
-        useGameStore.getState().mutateState((state) => {
-          state.detailedCombatantAbility = null;
-        });
+        AppStore.get().focusStore.combatantAbilities.clearDetailed();
       })
     );
 
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult);
-      return toReturn;
-    }
-
-    const abilityOption = useGameStore.getState().detailedCombatantAbility;
+    const abilityOption = AppStore.get().focusStore.combatantAbilities.get().detailed;
     if (abilityOption === null) throw new Error("expected ability missing");
+
+    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
     const button = new ActionMenuButtonProperties(
       () => (
@@ -141,7 +119,7 @@ export class ConsideringCombatantAbilityMenuState implements ActionMenuState {
       "keyname",
       () => {
         websocketConnection.emit(ClientToServerEvent.AllocateAbilityPoint, {
-          characterId: focusedCharacterResult.entityProperties.id,
+          characterId: focusedCharacter.getEntityId(),
           ability: abilityOption,
         });
       }
@@ -149,24 +127,22 @@ export class ConsideringCombatantAbilityMenuState implements ActionMenuState {
 
     button.dedicatedKeys = [allocateAbilityPointHotkey];
 
-    const isMainClassAbility = AbilityUtils.abilityAppearsInTree(
-      abilityOption,
-      ABILITY_TREES[focusedCharacterResult.combatantProperties.combatantClass]
-    );
-    const { canAllocate } = CombatantAbilityProperties.canAllocateAbilityPoint(
-      focusedCharacterResult.combatantProperties,
-      abilityOption,
-      !isMainClassAbility
-    );
+    const { combatantProperties } = focusedCharacter;
+
+    const { canAllocate } =
+      combatantProperties.abilityProperties.canAllocateAbilityPoint(abilityOption);
 
     button.shouldBeDisabled = !canAllocate;
 
     toReturn[ActionButtonCategory.Top].push(button);
 
-    createPageButtons(this, toReturn, this.column.length, (newPage) => {
-      useGameStore.getState().mutateState((state) => {
-        state.detailedCombatantAbility = this.column[newPage - 1] || null;
-      });
+    createPageButtons(toReturn, this.column.length, (newPage) => {
+      const newDetailedAbilityOption = this.column[newPage - 1] || null;
+      if (newDetailedAbilityOption !== null) {
+        AppStore.get().focusStore.combatantAbilities.setDetailed(newDetailedAbilityOption);
+      } else {
+        AppStore.get().focusStore.combatantAbilities.clearDetailed();
+      }
     });
 
     return toReturn;

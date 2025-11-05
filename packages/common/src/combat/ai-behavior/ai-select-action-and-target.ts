@@ -12,9 +12,9 @@ export function AISelectActionAndTarget(
 ): Error | null | CombatActionExecutionIntent {
   const { combatantProperties: userCombatantProperties } = user;
 
-  const partyResult = SpeedDungeonGame.getPartyOfCombatant(game, user.entityProperties.id);
+  const partyResult = game.getPartyOfCombatant(user.entityProperties.id);
   if (partyResult instanceof Error) return partyResult;
-  const battleOption = SpeedDungeonGame.getBattleOption(game, partyResult.battleId) || null;
+  const battleOption = game.getBattleOption(partyResult.battleId) || null;
 
   const behaviorContext = new AIBehaviorContext(
     new ActionUserContext(game, partyResult, user),

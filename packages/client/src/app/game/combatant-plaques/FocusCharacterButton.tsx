@@ -1,7 +1,7 @@
-import setFocusedCharacter from "@/utils/set-focused-character";
 import React from "react";
 import EyeIcon from "../../../../public/img/game-ui-icons/eye-open.svg";
 import ClosedEyeIcon from "../../../../public/img/game-ui-icons/eye-closed.svg";
+import { AppStore } from "@/mobx-stores/app-store";
 
 interface Props {
   combatantId: string;
@@ -12,7 +12,7 @@ export default function FocusCharacterButton({ combatantId, isFocused }: Props) 
   const conditionalStyles = isFocused ? "bg-slate-400 text-slate-700" : "";
 
   function handleClick() {
-    setFocusedCharacter(combatantId);
+    AppStore.get().gameStore.setFocusedCharacter(combatantId);
   }
 
   const conditionalIconClassname = isFocused ? "stroke-slate-700" : "stroke-slate-400";

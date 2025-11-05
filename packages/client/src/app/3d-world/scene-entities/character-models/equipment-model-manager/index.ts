@@ -1,7 +1,5 @@
 import {
-  CombatantEquipment,
   CombatantProperties,
-  Equipment,
   EquipmentSlotType,
   HoldableHotswapSlot,
   HoldableSlotType,
@@ -69,9 +67,8 @@ export class EquipmentModelManager {
   }
 
   getHoldableModelInSlot(slot: HoldableSlotType) {
-    const selectedHotswapSlotIndex =
-      this.characterModel.getCombatant().combatantProperties.equipment
-        .equippedHoldableHotswapSlotIndex;
+    const { equipment } = this.characterModel.getCombatant().combatantProperties;
+    const selectedHotswapSlotIndex = equipment.getSelectedHoldableSlotIndex();
     const holdableModelsHotswapSlotOption = this.holdableHotswapSlots[selectedHotswapSlotIndex];
     if (!holdableModelsHotswapSlotOption) return undefined;
     return holdableModelsHotswapSlotOption[slot];
@@ -101,8 +98,7 @@ export class EquipmentModelManager {
         const equipmentModelId = equipmentModelOption.entityId;
 
         const indexAndHoldableSlotIfEquipped =
-          CombatantEquipment.getHotswapSlotIndexAndHoldableSlotOfPotentiallyEquippedHoldable(
-            combatantProperties.equipment,
+          combatantProperties.equipment.getHotswapSlotIndexAndHoldableSlotOfPotentiallyEquippedHoldable(
             equipmentModelId
           );
 
@@ -112,7 +108,7 @@ export class EquipmentModelManager {
           continue;
         }
 
-        const equipmentIsBroken = Equipment.isBroken(equipmentModelOption.equipment);
+        const equipmentIsBroken = equipmentModelOption.equipment.isBroken();
 
         if (equipmentIsBroken) equipmentModelOption.setVisibility(0);
         else equipmentModelOption.setVisibility(this.visibilityForShownHotswapSlots);
@@ -131,7 +127,7 @@ export class EquipmentModelManager {
     newState: HoldableHotswapSlotsModels,
     combatantProperties: CombatantProperties
   ) {
-    const holdableSlots = CombatantEquipment.getHoldableHotswapSlots(combatantProperties.equipment);
+    const holdableSlots = combatantProperties.equipment.getHoldableHotswapSlots();
 
     let slotIndex = -1;
     for (const hotswapSlot of holdableSlots) {
@@ -161,7 +157,7 @@ export class EquipmentModelManager {
         }
         if (equipmentModel instanceof ConsumableModel) throw new Error("unexpected item type");
 
-        if (Equipment.isBroken(equipmentModel.equipment)) equipmentModel.setVisibility(0);
+        if (equipmentModel.equipment.isBroken()) equipmentModel.setVisibility(0);
 
         existingSlotOption[holdableSlotType] = equipmentModel;
       }
@@ -175,8 +171,8 @@ export class EquipmentModelManager {
     this.holdableHotswapSlots = newState;
     // attach to correct positions
 
-    const hotswapSlots = CombatantEquipment.getHoldableHotswapSlots(combatantProperties.equipment);
-    const equippedSlotIndex = combatantProperties.equipment.equippedHoldableHotswapSlotIndex;
+    const hotswapSlots = combatantProperties.equipment.getHoldableHotswapSlots();
+    const equippedSlotIndex = combatantProperties.equipment.getSelectedHoldableSlotIndex();
     const holsteredSlotIndex = this.getIndexForDisplayedHolsteredSlot(
       hotswapSlots,
       equippedSlotIndex
@@ -200,7 +196,7 @@ export class EquipmentModelManager {
 
         if (slotIndex === equippedSlotIndex || slotIndex === holsteredSlotIndex) {
           let newVisibility = this.visibilityForShownHotswapSlots;
-          if (Equipment.isBroken(equipmentModel.equipment)) newVisibility = 0;
+          if (equipmentModel.equipment.isBroken()) newVisibility = 0;
           equipmentModel.setVisibility(newVisibility);
         } else {
           equipmentModel.setVisibility(0);

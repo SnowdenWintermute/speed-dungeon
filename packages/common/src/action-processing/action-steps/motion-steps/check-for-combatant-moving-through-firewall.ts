@@ -15,7 +15,6 @@ import { TriggerEnvironmentalHazardsActionResolutionStep } from "./determine-env
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { AnimationTimingType } from "../../game-update-commands.js";
 import { timeToReachBox } from "../../../utils/index.js";
-import { AdventuringParty } from "../../../adventuring-party/index.js";
 
 export function getFirewallBurnScheduledActions(
   context: ActionResolutionStepContext,
@@ -51,8 +50,8 @@ export function getFirewallBurnScheduledActions(
 
   const { party } = context.actionUserContext;
 
-  const existingFirewallOption = AdventuringParty.getExistingActionEntityOfType(
-    party,
+  const { actionEntityManager } = party;
+  const existingFirewallOption = actionEntityManager.getExistingActionEntityOfType(
     ActionEntityName.Firewall
   );
 

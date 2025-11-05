@@ -16,14 +16,12 @@ import {
   ActionEntityBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
-import { CombatantProperties } from "../../../../combatants/index.js";
 import { BASE_PERSISTENT_ACTION_ENTITY_TICK_SPEED } from "../../../turn-order/consts.js";
 import { MaxAndCurrent } from "../../../../primatives/max-and-current.js";
 import {
   BASE_PERSISTENT_ACTION_ENTITY_MAX_STACKS,
   COMBAT_ACTION_MAX_LEVEL,
 } from "../../../../app-consts.js";
-import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { ActionUserTargetingProperties } from "../../../../action-user-context/action-user-targeting-properties.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
@@ -32,8 +30,8 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
   getSpawnableEntities: (context) => {
     const { party, actionUser } = context.actionUserContext;
 
-    const existingFirewallOption = AdventuringParty.getExistingActionEntityOfType(
-      party,
+    const { actionEntityManager } = party;
+    const existingFirewallOption = actionEntityManager.getExistingActionEntityOfType(
       ActionEntityName.Firewall
     );
 
@@ -75,9 +73,9 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
     const actionOriginData: ActionEntityActionOriginData = {
       actionLevel,
       userCombatantAttributes: actionUser.getTotalAttributes(),
-      userElementalAffinities: CombatantProperties.getCombatantTotalElementalAffinities(
-        actionUser.getCombatantProperties()
-      ),
+      userElementalAffinities: actionUser
+        .getCombatantProperties()
+        .mitigationProperties.getElementalAffinities(),
       turnOrderSpeed: BASE_PERSISTENT_ACTION_ENTITY_TICK_SPEED,
       stacks: lifetime,
       targetingProperties: new ActionUserTargetingProperties(),

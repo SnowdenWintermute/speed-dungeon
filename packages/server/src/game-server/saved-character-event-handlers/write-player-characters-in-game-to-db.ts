@@ -9,26 +9,35 @@ import {
 import { playerCharactersRepo } from "../../database/repos/player-characters.js";
 import { GameServer } from "../index.js";
 
-export default async function writePlayerCharactersInGameToDb(
+export async function writePlayerCharactersInGameToDb(
   game: SpeedDungeonGame,
   player: SpeedDungeonPlayer
 ): Promise<Error | void> {
   try {
     if (!player.partyName) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
     for (const id of player.characterIds) {
-      const characterResult = SpeedDungeonGame.getCharacter(game, player.partyName, id);
-      if (characterResult instanceof Error)
+      const characterResult = game.getCombatantById(id);
+
+      if (characterResult instanceof Error) {
         throw new Error("Couldn't save character: " + characterResult);
+      }
+
       const existingCharacter = await playerCharactersRepo.findById(
         characterResult.entityProperties.id
       );
-      if (!existingCharacter)
+
+      if (!existingCharacter) {
         throw new Error("Tried to update character but it didn't exist in the database");
+      }
+
       characterResult.getTargetingProperties().clear();
       const partyOption = game.adventuringParties[getProgressionGamePartyName(game.name)];
       if (partyOption === undefined) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
-      if (partyOption.currentFloor > existingCharacter.combatantProperties.deepestFloorReached) {
-        characterResult.combatantProperties.deepestFloorReached = partyOption.currentFloor;
+
+      const floorNumber = partyOption.dungeonExplorationManager.getCurrentFloor();
+
+      if (floorNumber > existingCharacter.combatantProperties.deepestFloorReached) {
+        characterResult.combatantProperties.deepestFloorReached = floorNumber;
       }
 
       existingCharacter.combatantProperties = characterResult.combatantProperties;

@@ -18,7 +18,8 @@ import {
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
-  ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.AREA_HOSTILE(),
+  // ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.AREA_HOSTILE(),
+  ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_FRIENDLY(),
   getTargetingSchemes: (actionLevel) => {
     const toReturn = [TargetingScheme.Single];
     if (actionLevel > 1) toReturn.push(TargetingScheme.Area);
@@ -35,7 +36,7 @@ const costProperties = createCostPropertiesConfig(costPropertiesBase, costProper
 const config: CombatActionComponentConfig = {
   description: "Reduce the accuracy of targets",
   prerequisiteAbilities: [],
-  combatLogMessageProperties: createGenericSpellCastMessageProperties(CombatActionName.Blind),
+  gameLogMessageProperties: createGenericSpellCastMessageProperties(CombatActionName.Blind),
   targetingProperties,
   hitOutcomeProperties: BLIND_HIT_OUTCOME_PROPERTIES,
   costProperties,

@@ -1,12 +1,4 @@
-import { immerable } from "immer";
-import { useGameStore } from "@/stores/game-store";
-import {
-  ActionButtonCategory,
-  ActionButtonsByCategory,
-  ActionMenuButtonProperties,
-  ActionMenuState,
-  MenuStateType,
-} from ".";
+import { ActionMenuState } from ".";
 import { createCancelButton } from "./common-buttons/cancel";
 import {
   setInventoryAsFreshStack,
@@ -14,22 +6,21 @@ import {
 } from "./common-buttons/open-inventory";
 import { ConsideringAbilityTreeColumnMenuState } from "./considering-tree-ability-column";
 import { ArrayUtils } from "@speed-dungeon/common";
+import { AppStore } from "@/mobx-stores/app-store";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
+import { MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
 
-export class AbilityTreeMenuState implements ActionMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages: number = 1;
-  type = MenuStateType.ViewingAbilityTree;
-  alwaysShowPageOne = false;
-  getCenterInfoDisplayOption = null;
+export class AbilityTreeMenuState extends ActionMenuState {
+  constructor() {
+    super(MenuStateType.ViewingAbilityTree, 1);
+  }
+
   getButtonProperties() {
     const toReturn = new ActionButtonsByCategory();
     toReturn[ActionButtonCategory.Top].push(
       createCancelButton([setViewingAbilityTreeHotkey], () => {
-        useGameStore.getState().mutateState((state) => {
-          state.hoveredCombatantAbility = null;
-          state.detailedCombatantAbility = null;
-        });
+        AppStore.get().focusStore.combatantAbilities.clear();
       })
     );
     toReturn[ActionButtonCategory.Top].push(setInventoryAsFreshStack);
@@ -46,9 +37,9 @@ export class AbilityTreeMenuState implements ActionMenuState {
         ),
         nameAsString,
         () => {
-          useGameStore.getState().mutateState((state) => {
-            state.stackedMenuStates.push(new ConsideringAbilityTreeColumnMenuState(number));
-          });
+          AppStore.get().actionMenuStore.pushStack(
+            new ConsideringAbilityTreeColumnMenuState(number)
+          );
         }
       );
       toReturn[ActionButtonCategory.Numbered].push(button);

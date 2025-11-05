@@ -11,9 +11,9 @@ import { Socket } from "socket.io";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { getGameServer } from "../../singletons/index.js";
 import errorHandler from "../error-handler.js";
-import emitMessageInGameWithOptionalDelayForParty from "../utils/emit-message-in-game-with-optional-delay-for-party.js";
+import { emitMessageInGameWithOptionalDelayForParty } from "../utils/emit-message-in-game-with-optional-delay-for-party.js";
 
-export default async function leavePartyHandler(
+export async function leavePartyHandler(
   _eventData: undefined,
   playerAssociatedData: ServerPlayerAssociatedData,
   socket: Socket
@@ -24,9 +24,10 @@ export default async function leavePartyHandler(
   if (!partyOption) return;
   const { username } = player;
 
-  const removedPlayerDataResult = SpeedDungeonGame.removePlayerFromParty(game, username);
-  if (removedPlayerDataResult instanceof Error)
+  const removedPlayerDataResult = game.removePlayerFromParty(username);
+  if (removedPlayerDataResult instanceof Error) {
     return errorHandler(socket, removedPlayerDataResult);
+  }
   let { partyWasRemoved } = removedPlayerDataResult;
 
   // check if only dead players remain
@@ -45,10 +46,11 @@ export default async function leavePartyHandler(
 
     const remainingParties = Object.values(game.adventuringParties);
     if (remainingParties.length) {
+      const floorNumber = partyOption.dungeonExplorationManager.getCurrentFloor();
       emitMessageInGameWithOptionalDelayForParty(
         game.name,
         GameMessageType.PartyWipe,
-        createPartyWipeMessage(partyOption.name, partyOption.currentFloor, new Date(Date.now()))
+        createPartyWipeMessage(partyOption.name, floorNumber, new Date(Date.now()))
       );
     }
   }
@@ -66,8 +68,10 @@ export default async function leavePartyHandler(
 
 function handleAbandoningDeadPartyMembers(game: SpeedDungeonGame, party: AdventuringParty) {
   let allRemainingCharactersAreDead = true;
-  for (const character of Object.values(party.characters)) {
-    if (character.combatantProperties.hitPoints > 0) {
+  const partyMembers = party.combatantManager.getPartyMemberCombatants();
+  for (const character of partyMembers) {
+    const characterIsAlive = !character.combatantProperties.isDead();
+    if (characterIsAlive) {
       allRemainingCharactersAreDead = false;
       break;
     }

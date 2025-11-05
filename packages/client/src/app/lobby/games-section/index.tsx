@@ -12,21 +12,23 @@ import {
 import ButtonBasic from "../../components/atoms/ButtonBasic";
 import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client_consts";
 import Divider from "@/app/components/atoms/Divider";
-import { useLobbyStore } from "@/stores/lobby-store";
 import useElementIsOverflowing from "@/hooks/use-element-is-overflowing";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import HostGameForm from "./HostGameForm";
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import RefreshIcon from "../../../../public/img/menu-icons/refresh.svg";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
 
-export default function GamesSection() {
+export const GamesSection = observer(() => {
   const [gameListRefreshedAt, setGameListRefreshedAt] = useState("...");
-  const gameList = useLobbyStore().gameList;
+  const gameList = AppStore.get().lobbyStore.getGameList();
   const gameListRef = useRef(null);
   const gameListIsOverflowing = useElementIsOverflowing(gameListRef.current);
-  const mutateLobbyState = useLobbyStore().mutateState;
-  const showGameCreationForm = useLobbyStore().showGameCreationForm;
+  const { dialogStore } = AppStore.get();
+  const showGameCreationForm = dialogStore.isOpen(DialogElementName.GameCreation);
   const gameFormHolderRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,10 +46,9 @@ export default function GamesSection() {
       const { x, y, width, height } = menuRect;
       const maxX = x + width;
       const maxY = y + height;
-      if (e.x < x || e.x > maxX || e.y > maxY || e.y < y)
-        mutateLobbyState((state) => {
-          state.showGameCreationForm = false;
-        });
+      if (e.x < x || e.x > maxX || e.y > maxY || e.y < y) {
+        dialogStore.close(DialogElementName.GameCreation);
+      }
     }
   };
 
@@ -126,12 +127,10 @@ export default function GamesSection() {
           <HotkeyButton
             hotkeys={["KeyA"]}
             className="w-full h-full"
-            onClick={() =>
-              mutateLobbyState((state) => {
-                state.showGameCreationForm = !state.showGameCreationForm;
-                state.showAuthForm = false;
-              })
-            }
+            onClick={() => {
+              dialogStore.toggle(DialogElementName.GameCreation);
+              dialogStore.close(DialogElementName.Credentials);
+            }}
           >
             HOST GAME {showGameCreationForm}
           </HotkeyButton>
@@ -140,9 +139,7 @@ export default function GamesSection() {
               className="p-2 h-10 w-10 border-l border-slate-400 cursor-pointer pointer-events-none absolute right-0"
               hotkeys={["Escape"]}
               onClick={() => {
-                mutateLobbyState((state) => {
-                  state.showGameCreationForm = false;
-                });
+                dialogStore.close(DialogElementName.GameCreation);
               }}
               ariaLabel="close game form"
             >
@@ -154,7 +151,7 @@ export default function GamesSection() {
       </div>
     </div>
   );
-}
+});
 
 interface GameListItemProps {
   game: GameListEntry;

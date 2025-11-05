@@ -1,12 +1,7 @@
 import { MAX_CRIT_CHANCE, MIN_HIT_CHANCE } from "../../../app-consts.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
-import {
-  Combatant,
-  CombatantEquipment,
-  CombatantProperties,
-  CombatantTraitType,
-} from "../../../combatants/index.js";
+import { Combatant } from "../../../combatants/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
 import {
   SHIELD_SIZE_BLOCK_RATE,
@@ -20,6 +15,8 @@ import { CombatActionResource } from "../../combat-actions/combat-action-hit-out
 import { CombatActionComponent, CombatActionIntent } from "../../combat-actions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../combat-actions/prohibited-target-combatant-states.js";
 import { ResourceChangeSource } from "../../hp-change-source-types.js";
+import { CombatantProperties } from "../../../combatants/combatant-properties.js";
+import { CombatantTraitType } from "../../../combatants/combatant-traits/trait-types.js";
 
 const BASE_PARRY_CHANCE = 5;
 
@@ -58,7 +55,6 @@ export class HitOutcomeMitigationCalculator {
       this.action,
       user,
       this.actionLevel,
-      CombatantProperties.getTotalAttributes(target.combatantProperties)[CombatAttribute.Evasion],
       targetWillAttemptMitigation,
       target.combatantProperties
     );
@@ -80,7 +76,7 @@ export class HitOutcomeMitigationCalculator {
 
     const willAttemptParry =
       hitOutcomeProperties.getIsParryable(user, actionLevel) &&
-      CombatantProperties.canParry(target.combatantProperties);
+      target.combatantProperties.mitigationProperties.canParry();
 
     // PARRIES
     if (willAttemptParry) {
@@ -113,7 +109,7 @@ export class HitOutcomeMitigationCalculator {
     if (actionHasResourceChanges) {
       if (
         hitOutcomeProperties.getIsBlockable(user, actionLevel) &&
-        CombatantProperties.canBlock(target.combatantProperties)
+        target.combatantProperties.mitigationProperties.canBlock()
       ) {
         const percentChanceToBlock = HitOutcomeMitigationCalculator.getShieldBlockChance(
           user,
@@ -148,8 +144,7 @@ export class HitOutcomeMitigationCalculator {
       const { resourceChangeSource } = hpChangePropertiesOption;
       const { isHealing } = resourceChangeSource;
 
-      const isUndead = CombatantProperties.hasTraitType(
-        targetCombatantProperties,
+      const isUndead = targetCombatantProperties.abilityProperties.hasTraitType(
         CombatantTraitType.Undead
       );
 
@@ -159,7 +154,7 @@ export class HitOutcomeMitigationCalculator {
       const { elementOption } = resourceChangeSource;
       if (elementOption) {
         const targetAffinities =
-          CombatantProperties.getCombatantTotalElementalAffinities(targetCombatantProperties);
+          targetCombatantProperties.mitigationProperties.getElementalAffinities();
         const targetAffinity = targetAffinities[elementOption];
         if (targetAffinity && targetAffinity > 100) return false;
       }
@@ -174,15 +169,15 @@ export class HitOutcomeMitigationCalculator {
     combatAction: CombatActionComponent,
     user: IActionUser,
     actionLevel: number,
-    targetEvasion: number,
     targetWillAttemptToEvade: boolean,
     target: CombatantProperties
   ): { beforeEvasion: number; afterEvasion: number } {
+    const targetEvasion = target.attributeProperties.getAttributeValue(CombatAttribute.Evasion);
     const canHitDeadCombatants =
       !combatAction.targetingProperties.prohibitedHitCombatantStates.includes(
         ProhibitedTargetCombatantStates.Dead
       );
-    const targetIsDead = CombatantProperties.isDead(target);
+    const targetIsDead = target.isDead();
     if (targetIsDead && !canHitDeadCombatants) {
       return { beforeEvasion: 0, afterEvasion: 0 };
     } else {
@@ -210,8 +205,9 @@ export class HitOutcomeMitigationCalculator {
   ) {
     const actionBaseCritChance = action.getCritChance(user, actionLevel);
 
-    const targetAttributes = CombatantProperties.getTotalAttributes(target);
-    const targetAvoidaceAttributeValue = targetAttributes[CombatAttribute.Spirit];
+    const targetAvoidaceAttributeValue = target.attributeProperties.getAttributeValue(
+      CombatAttribute.Spirit
+    );
 
     const targetCritAvoidance = targetWillAttemptMitigation ? targetAvoidaceAttributeValue : 0;
     const finalUnroundedCritChance = (actionBaseCritChance || 0) - targetCritAvoidance;
@@ -226,16 +222,14 @@ export class HitOutcomeMitigationCalculator {
   }
 
   static getCounterattackChance(aggressor: IActionUser, defender: Combatant): Percentage {
-    if (CombatantProperties.isDead(defender.combatantProperties)) return 0;
+    if (defender.combatantProperties.isDead()) return 0;
     // derive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
     // and probably put it on the action configs
     return BASE_PARRY_CHANCE;
   }
 
   static getShieldBlockChance(aggressor: IActionUser, defender: Combatant): Percentage {
-    const shieldPropertiesOption = CombatantEquipment.getEquippedShieldProperties(
-      defender.getEquipmentOption()
-    );
+    const shieldPropertiesOption = defender.getEquipmentOption().getEquippedShieldProperties();
     if (!shieldPropertiesOption) return 0;
 
     const baseBlockRate = SHIELD_SIZE_BLOCK_RATE[shieldPropertiesOption.size] * 100;
@@ -248,9 +242,7 @@ export class HitOutcomeMitigationCalculator {
 
   /**Should return a normalized percentage*/
   static getShieldBlockDamageReduction(combatantProperties: CombatantProperties) {
-    const shieldPropertiesOption = CombatantEquipment.getEquippedShieldProperties(
-      combatantProperties.equipment
-    );
+    const shieldPropertiesOption = combatantProperties.equipment.getEquippedShieldProperties();
     if (!shieldPropertiesOption) return 0;
 
     const baseDamageReduction = SHIELD_SIZE_DAMAGE_REDUCTION[shieldPropertiesOption.size];

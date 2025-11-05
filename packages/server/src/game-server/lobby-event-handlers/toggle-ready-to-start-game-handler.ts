@@ -30,15 +30,12 @@ export async function toggleReadyToStartGameHandler(
   if (!player.characterIds.length) return new Error("You must control at least one character");
 
   for (const party of Object.values(game.adventuringParties)) {
-    if (party.characterPositions.length < 1)
+    if (!party.combatantManager.hasCharacters())
       return new Error("Each party must have at least one character");
-    party.currentFloor = game.selectedStartingFloor;
-    // party.currentFloor = 10; // testing
+    party.dungeonExplorationManager.setCurrentFloor(game.selectedStartingFloor);
   }
 
-  if (game.playersReadied.includes(username))
-    ArrayUtils.removeElement(game.playersReadied, username);
-  else game.playersReadied.push(username);
+  game.togglePlayerReadyToStartGameStatus(username);
 
   let allPlayersReadied = true;
 

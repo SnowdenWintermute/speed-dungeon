@@ -1,15 +1,12 @@
 import { BUTTON_HEIGHT, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import React, { ReactNode, useEffect } from "react";
-import { getCurrentMenu, useGameStore } from "@/stores/game-store";
-import { ActionButtonCategory, MenuStateType } from "./menu-state";
-import ActionDetails from "../detailables/action-details";
 import {
   ConsideringCombatActionMenuState,
   EXECUTE_BUTTON_TEXT,
 } from "./menu-state/considering-combat-action";
 import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicatedButton";
-import NumberedButton from "./action-menu-buttons/NumberedButton";
-import { COMBATANT_MAX_ACTION_POINTS, Item } from "@speed-dungeon/common";
+import { NumberedButton } from "./action-menu-buttons/NumberedButton";
+import { COMBATANT_MAX_ACTION_POINTS } from "@speed-dungeon/common";
 import { HOTKEYS } from "@/hotkeys";
 import { VIEW_LOOT_BUTTON_TEXT } from "./menu-state/base";
 import {
@@ -17,24 +14,27 @@ import {
   EQUIP_ITEM_BUTTON_TEXT,
   USE_CONSUMABLE_BUTTON_TEXT,
 } from "./menu-state/considering-item";
-import ItemDetailsWithComparison from "../ItemDetailsWithComparison";
-import { shouldShowCharacterSheet } from "@/utils/should-show-character-sheet";
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { ItemDetailsWithComparison } from "../ItemDetailsWithComparison";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import {
   CONFIRM_SHARD_TEXT,
   ConfirmConvertToShardsMenuState,
 } from "./menu-state/confirm-convert-to-shards";
-import { playerIsOperatingVendingMachine } from "@/utils/player-is-operating-vending-machine";
 import { CharacterFocusingButtons } from "./CycleCharacterFocusButtons";
 import { BottomButtons } from "./BottomButtons";
 import { ConfirmShardConversionDisplay } from "./ConfirmShardConversionDisplay";
-import ConsideringItemDisplay from "./ConsideringItemDisplay";
-import VendingMachineShardDisplay from "./VendingMachineShardDisplay";
-import StackedMenuStateDisplay from "./StackedMenuStateDisplay";
+import { ConsideringItemDisplay } from "./ConsideringItemDisplay";
+import { VendingMachineShardDisplay } from "./VendingMachineShardDisplay";
+import { StackedMenuStateDisplay } from "./StackedMenuStateDisplay";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import ActionSelectedDetails from "../detailables/action-details/ActionSelectedDetails";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
+import { MenuStateType } from "./menu-state/menu-state-type";
+import { ActionButtonCategory } from "./menu-state/action-buttons-by-category";
+import { ACTION_MENU_PAGE_SIZE } from "./menu-state";
+import { ActionSelectedDetails } from "../detailables/action-details/ActionSelectedDetails";
+import { ActionDetails } from "../detailables/action-details";
 
-export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
 export const SHARD_ITEM_HOTKEY = HOTKEYS.SIDE_2;
 
@@ -46,48 +46,24 @@ const buttonTitlesToAccent = [
   CONFIRM_SHARD_TEXT,
 ];
 
-export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
-  const hoveredAction = useGameStore((state) => state.hoveredAction);
-  const hoveredItem = useGameStore((state) =>
-    state.hoveredEntity instanceof Item ? state.hoveredEntity : null
-  );
-  const detailedItem = useGameStore((state) =>
-    state.detailedEntity instanceof Item ? state.detailedEntity : null
-  );
-  const currentMenu = useGameStore.getState().getCurrentMenu();
-  const currentPageNumber = currentMenu.page;
-  const buttonProperties = currentMenu.getButtonProperties();
+export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) => {
+  const { focusStore, actionMenuStore, gameStore } = AppStore.get();
+  const { hoveredItem, detailedItem } = focusStore.getFocusedItems();
+  const hoveredAction = actionMenuStore.getHoveredAction();
+
+  const currentMenu = actionMenuStore.getCurrentMenu();
+  const currentPageIndex = currentMenu.pageIndex;
+  const buttonProperties = currentMenu.buttonProperties;
   const numberOfNumberedButtons = buttonProperties[ActionButtonCategory.Numbered].length;
-  const mutateGameState = useGameStore().mutateState;
-  const viewingCharacterSheet = shouldShowCharacterSheet(currentMenu.type);
-  const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-  const partyResult = useGameStore.getState().getParty();
-  if (focusedCharacterResult instanceof Error || partyResult instanceof Error) return <></>;
+  const viewingCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
+  const focusedCharacter = gameStore.getExpectedFocusedCharacter();
+  const party = gameStore.getExpectedParty();
 
   useEffect(() => {
     if (currentMenu.type === MenuStateType.ItemsOnGround && numberOfNumberedButtons === 0) {
-      mutateGameState((state) => {
-        state.stackedMenuStates.pop();
-      });
+      actionMenuStore.popStack();
     }
   }, [currentMenu.type, numberOfNumberedButtons]);
-
-  // instead of directly getting the button properties, we must put it in a useEffect
-  // because some of the button creation calls zustand mutation/set state functions
-  // which causes a warning which was hard to track down about updating other components
-  // while this component was rendering, in short, you aren't allowed to update state in
-  // a component render, which is what happens if you try to call currentMenu.getButtonProperties()
-  // directly in the component
-  useEffect(() => {
-    const numPages = Math.max(
-      currentMenu.numPages,
-      Math.ceil(buttonProperties[ActionButtonCategory.Numbered].length / ACTION_MENU_PAGE_SIZE)
-    );
-    useGameStore.getState().mutateState((state) => {
-      getCurrentMenu(state).numPages = numPages;
-      getCurrentMenu(state).page = currentPageNumber;
-    });
-  }, [buttonProperties[ActionButtonCategory.Numbered].length]);
 
   if (inputLocked) return <div />;
 
@@ -152,8 +128,8 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   const numberedButtonsOnThisPage = currentMenu.alwaysShowPageOne
     ? buttonProperties[ActionButtonCategory.Numbered].slice(0, ACTION_MENU_PAGE_SIZE)
     : buttonProperties[ActionButtonCategory.Numbered].slice(
-        (currentMenu.page - 1) * ACTION_MENU_PAGE_SIZE,
-        (currentMenu.page - 1) * ACTION_MENU_PAGE_SIZE + ACTION_MENU_PAGE_SIZE
+        currentPageIndex * ACTION_MENU_PAGE_SIZE,
+        currentPageIndex * ACTION_MENU_PAGE_SIZE + ACTION_MENU_PAGE_SIZE
       );
 
   const centerInfoDisplayOption = currentMenu.getCenterInfoDisplayOption
@@ -193,18 +169,18 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
             </li>
           );
         })}
-        {partyResult.battleId !== null && currentMenu.type === MenuStateType.Base && (
+        {party.battleId !== null && currentMenu.type === MenuStateType.Base && (
           <HoverableTooltipWrapper
             extraStyles="ml-auto h-full w-fit border border-slate-400 bg-slate-700 pointer-events-auto flex justify-center items-center px-2"
             tooltipText="Action Points"
           >
             <span>
-              AP: {focusedCharacterResult.combatantProperties.actionPoints}/
+              AP: {focusedCharacter.combatantProperties.resources.getActionPoints()}/
               {COMBATANT_MAX_ACTION_POINTS}
             </span>
           </HoverableTooltipWrapper>
         )}
-        {playerIsOperatingVendingMachine(currentMenu.type) && <VendingMachineShardDisplay />}
+        {actionMenuStore.operatingVendingMachine() && <VendingMachineShardDisplay />}
       </ul>
       <div
         className={`mb-3 flex`}
@@ -221,7 +197,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
 
             return (
               <li
-                key={button.key + i + currentPageNumber}
+                key={button.key + i + currentPageIndex}
                 tabIndex={button.shouldBeDisabled ? 0 : undefined} // so you can tab over to get the popups
                 className={`
                     pointer-events-auto w-full  flex hover:bg-slate-950
@@ -244,12 +220,10 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
       </div>
       <div className="min-w-[25rem] max-w-[25rem]">
         <BottomButtons
-          numPages={currentMenu.numPages}
-          currentPageNumber={currentPageNumber}
           left={buttonProperties[ActionButtonCategory.Bottom][0]}
           right={buttonProperties[ActionButtonCategory.Bottom][1]}
         />
       </div>
     </section>
   );
-}
+});

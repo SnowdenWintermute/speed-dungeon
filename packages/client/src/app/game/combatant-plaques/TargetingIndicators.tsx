@@ -5,9 +5,8 @@ interface Props {
   entityId: string;
 }
 
-export default function TargetingIndicators({ party, entityId }: Props) {
-  const indicators = useGameStore().targetingIndicators;
-  const targetedBy = indicators.filter((indicator) => indicator.targetId === entityId);
+export const TargetingIndicators = observer(({ party, entityId }: Props) => {
+  const targetedBy = AppStore.get().targetIndicatorStore.getIndicatorsTargetingCombatant(entityId);
 
   return targetedBy.length ? (
     <div
@@ -21,12 +20,13 @@ export default function TargetingIndicators({ party, entityId }: Props) {
   ) : (
     <></>
   );
-}
+});
 
 import React from "react";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { CombatActionIntent } from "@speed-dungeon/common";
-import { useGameStore } from "@/stores/game-store";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
 
 interface TargetingIndicatorProps {
   combatActionName: CombatActionName;

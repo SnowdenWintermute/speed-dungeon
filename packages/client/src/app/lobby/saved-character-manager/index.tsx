@@ -1,5 +1,4 @@
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
-import { useLobbyStore } from "@/stores/lobby-store";
 import { Vector3 } from "@babylonjs/core";
 import {
   COMBATANT_CLASS_NAME_STRINGS,
@@ -7,24 +6,27 @@ import {
 } from "@speed-dungeon/common";
 import React, { useEffect, useState } from "react";
 import ArrowShape from "../../../../public/img/menu-icons/arrow-button-icon.svg";
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import CreateCharacterForm from "./CreateCharacterForm";
 import DeleteCharacterForm from "./DeleteCharacterForm";
-import CharacterModelDisplay from "@/app/character-model-display";
+import { CharacterModelDisplay } from "@/app/character-model-display";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
 
 export const CHARACTER_SLOT_SPACING = 1;
 export const CHARACTER_MANAGER_HOTKEY = "S";
 
-export default function SavedCharacterManager() {
-  const savedCharacters = useLobbyStore().savedCharacters;
+export const SavedCharacterManager = observer(() => {
   const [currentSlot, setCurrentSlot] = useState(1);
+  const { dialogStore, lobbyStore } = AppStore.get();
+  const savedCharacters = lobbyStore.getSavedCharacterSlots();
   const selectedCharacterOption = savedCharacters[currentSlot];
-  const showCharacterManager = useLobbyStore().showSavedCharacterManager;
-  const mutateLobbyState = useLobbyStore().mutateState;
-  const showGameCreationForm = useLobbyStore().showGameCreationForm;
+  const showGameCreationForm = dialogStore.isOpen(DialogElementName.GameCreation);
+  const showCharacterManager = dialogStore.isOpen(DialogElementName.SavedCharacterManager);
 
   useEffect(() => {
     const camera = getGameWorld().camera;
@@ -53,7 +55,7 @@ export default function SavedCharacterManager() {
               return (
                 <CharacterModelDisplay character={character} key={character.entityProperties.id}>
                   <div className="w-full h-full flex justify-center items-center">
-                    {character!.combatantProperties.hitPoints <= 0 && (
+                    {character.combatantProperties.isDead() && (
                       <div className="relative text-2xl">
                         <span
                           className="text-red-600"
@@ -81,9 +83,7 @@ export default function SavedCharacterManager() {
               className="h-10 pr-2 pl-2 flex items-center border border-slate-400 bg-slate-700 pointer-events-auto"
               hotkeys={[`Key${CHARACTER_MANAGER_HOTKEY}`]}
               onClick={() => {
-                mutateLobbyState((state) => {
-                  state.showSavedCharacterManager = true;
-                });
+                dialogStore.open(DialogElementName.SavedCharacterManager);
               }}
             >
               MANAGE SAVED CHARACTERS
@@ -97,11 +97,7 @@ export default function SavedCharacterManager() {
             <HotkeyButton
               className="h-10 w-10 p-2 border-b border-l absolute top-0 right-0 border-slate-400"
               hotkeys={["Escape", `Key${CHARACTER_MANAGER_HOTKEY}`]}
-              onClick={() =>
-                mutateLobbyState((state) => {
-                  state.showSavedCharacterManager = false;
-                })
-              }
+              onClick={() => dialogStore.close(DialogElementName.SavedCharacterManager)}
             >
               <XShape className="h-full w-full fill-slate-400" />
             </HotkeyButton>
@@ -109,11 +105,11 @@ export default function SavedCharacterManager() {
             <h3>{selectedCharacterOption?.entityProperties.name || "Empty"}</h3>
             {selectedCharacterOption && (
               <div>
-                Level: {selectedCharacterOption.combatantProperties.level}
+                Level: {selectedCharacterOption.getLevel()}
                 {" " +
-                  COMBATANT_CLASS_NAME_STRINGS[
-                    selectedCharacterOption.combatantProperties.combatantClass
-                  ]}
+                  selectedCharacterOption.combatantProperties.classProgressionProperties
+                    .getMainClass()
+                    .getStringName()}
               </div>
             )}
           </div>
@@ -156,4 +152,4 @@ export default function SavedCharacterManager() {
       )}
     </>
   );
-}
+});

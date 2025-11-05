@@ -1,4 +1,4 @@
-import { useGameStore } from "@/stores/game-store";
+import { AppStore } from "@/mobx-stores/app-store";
 import {
   ActionUserContext,
   COMBAT_ACTIONS,
@@ -19,15 +19,15 @@ export function getTargetOption(
 
   if (!gameOption || combatActionTarget === null || actionRank === undefined) return undefined;
   const game = gameOption;
-  const partyResult = useGameStore.getState().getParty();
-  if (partyResult instanceof Error) return undefined;
+  const partyOption = AppStore.get().gameStore.getPartyOption();
+  if (partyOption === undefined) return undefined;
 
   const actionPropertiesResult = COMBAT_ACTIONS[actionName];
   if (actionPropertiesResult instanceof Error) return actionPropertiesResult;
   const combatActionProperties = actionPropertiesResult;
 
   const targetingCalculator = new TargetingCalculator(
-    new ActionUserContext(game, partyResult, user),
+    new ActionUserContext(game, partyOption, user),
     null
   );
 
@@ -39,7 +39,7 @@ export function getTargetOption(
   const targetIds = targetIdsResult;
   const firstTargetIdOption = targetIds[0];
   if (firstTargetIdOption === undefined) return undefined;
-  const firstTargetCombatant = SpeedDungeonGame.getCombatantById(game, firstTargetIdOption);
+  const firstTargetCombatant = game.getCombatantById(firstTargetIdOption);
   if (firstTargetCombatant instanceof Error) return undefined;
   return firstTargetCombatant.combatantProperties;
 }

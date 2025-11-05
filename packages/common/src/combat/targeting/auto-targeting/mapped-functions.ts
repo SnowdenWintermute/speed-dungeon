@@ -1,7 +1,6 @@
 import { AutoTargetingScheme } from "./index.js";
 import { CombatActionComponent, FriendOrFoe } from "../../combat-actions/index.js";
 import { CombatActionTarget, CombatActionTargetType } from "../combat-action-targets.js";
-import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { EntityId } from "../../../primatives/index.js";
 import { Vector3 } from "@babylonjs/core";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
@@ -90,18 +89,18 @@ export const AUTO_TARGETING_FUNCTIONS: Record<AutoTargetingScheme, AutoTargeting
 
     if (targetId === undefined) throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
 
+    const { combatantManager } = party;
+
     // get all combatants within radius of combatant location
-    const mainTargetCombatant = AdventuringParty.getCombatant(party, targetId);
-    if (mainTargetCombatant instanceof Error) throw mainTargetCombatant;
-    const mainTargetPosition = mainTargetCombatant.combatantProperties.position;
+    const mainTargetCombatant = combatantManager.getExpectedCombatant(targetId);
+    const mainTargetPosition = mainTargetCombatant.combatantProperties.transformProperties.position;
     const validTargetsWithinRadius: EntityId[] = [];
 
     for (const potentialTargetId of idsFilteredByTargetCategoryFlattened) {
       if (excludePrimaryTarget && potentialTargetId === targetId) continue;
 
-      const potentialTargetCombatant = AdventuringParty.getCombatant(party, potentialTargetId);
-      if (potentialTargetCombatant instanceof Error) throw potentialTargetCombatant;
-      const { position } = potentialTargetCombatant.combatantProperties;
+      const potentialTargetCombatant = combatantManager.getExpectedCombatant(potentialTargetId);
+      const { position } = potentialTargetCombatant.combatantProperties.transformProperties;
       const distanceFromMainTarget = Vector3.Distance(mainTargetPosition, position);
 
       if (distanceFromMainTarget <= radius) validTargetsWithinRadius.push(potentialTargetId);

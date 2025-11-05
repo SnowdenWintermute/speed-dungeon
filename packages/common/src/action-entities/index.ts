@@ -10,7 +10,6 @@ import { TaggedShape3DDimensions } from "../utils/shape-utils.js";
 import {
   CombatantActionState,
   CombatantAttributeRecord,
-  CombatantProperties,
   ConditionAppliedBy,
   ConditionTickProperties,
 } from "../combatants/index.js";
@@ -23,17 +22,16 @@ import {
   CombatActionResourceChangeProperties,
   CombatActionTargetType,
   FriendOrFoe,
-  ResourceChangeSource,
 } from "../combat/index.js";
 import { ActionUserType, IActionUser } from "../action-user-context/action-user.js";
 import { ActionUserTargetingProperties } from "../action-user-context/action-user-targeting-properties.js";
 import { plainToInstance } from "class-transformer";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { ARROW_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
+import { CombatantProperties } from "../combatants/combatant-properties.js";
 
 export enum ActionEntityName {
   Arrow,
-  DummyArrow,
   IceBolt,
   Explosion,
   IceBurst,
@@ -43,7 +41,6 @@ export enum ActionEntityName {
 
 export const ACTION_ENTITY_STRINGS: Record<ActionEntityName, string> = {
   [ActionEntityName.Arrow]: "Arrow",
-  [ActionEntityName.DummyArrow]: "Dummy Arrow", // for chaining split arrow, make a separate type so it isn't ignited
   [ActionEntityName.IceBolt]: "Ice Bolt",
   [ActionEntityName.Explosion]: "Explosion",
   [ActionEntityName.IceBurst]: "Ice Burst",
@@ -132,14 +129,13 @@ export class ActionEntity implements IActionUser {
   }
   getAllyAndOpponentIds(party: AdventuringParty): Record<FriendOrFoe, EntityId[]> {
     const spawnedBy = this.actionEntityProperties.actionOriginData?.spawnedBy;
+    const { combatantManager } = party;
+
     if (spawnedBy !== undefined) {
-      const idsByDisposition = AdventuringParty.getCombatantIdsByDispositionTowardsCombatantId(
-        party,
-        spawnedBy.id
-      );
+      const idsByDisposition = combatantManager.getCombatantIdsByDisposition(spawnedBy.id);
       return idsByDisposition;
     } else {
-      const allCombatantIds = AdventuringParty.getAllCombatantIds(party);
+      const allCombatantIds = combatantManager.getAllCombatantIds();
       return { [FriendOrFoe.Hostile]: allCombatantIds, [FriendOrFoe.Friendly]: allCombatantIds };
     }
   }
@@ -172,6 +168,17 @@ export class ActionEntity implements IActionUser {
     if (spawnedByOption === undefined)
       throw new Error("No entity to credit threat could be found for this action entity");
     return spawnedByOption.id;
+  }
+
+  hasRequiredAttributesToUseItem(): boolean {
+    return true;
+  }
+  hasRequiredConsumablesToUseAction(): boolean {
+    return true;
+  }
+
+  getWeaponsInSlots() {
+    return {};
   }
 
   static getDeserialized(actionEntity: ActionEntity) {

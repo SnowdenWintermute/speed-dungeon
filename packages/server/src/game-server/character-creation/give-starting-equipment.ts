@@ -1,21 +1,18 @@
 import {
   AffixCategory,
   AffixType,
-  CombatAttribute,
   CombatantClass,
   CombatantProperties,
   EquipmentBaseItem,
+  EquipmentSlotType,
   EquipmentTraitType,
   EquipmentType,
   HoldableSlotType,
   OneHandedMeleeWeapon,
-  PrefixType,
   TwoHandedMeleeWeapon,
   TwoHandedRangedWeapon,
   iterateNumericEnumKeyedRecord,
-  throwIfError,
 } from "@speed-dungeon/common";
-import { CombatantEquipment } from "@speed-dungeon/common";
 import { repairEquipment } from "../game-event-handlers/craft-item-handler/repair-equipment.js";
 import { generateSpecificEquipmentType } from "../item-generation/generate-test-items.js";
 
@@ -60,12 +57,11 @@ const STARTING_EQUIPMENT_BY_COMBATANT_CLASS: Record<
 };
 
 export function giveStartingEquipment(combatantProperties: CombatantProperties) {
-  const startingHoldables =
-    STARTING_EQUIPMENT_BY_COMBATANT_CLASS[combatantProperties.combatantClass];
+  const combatantClass =
+    combatantProperties.classProgressionProperties.getMainClass().combatantClass;
+  const startingHoldables = STARTING_EQUIPMENT_BY_COMBATANT_CLASS[combatantClass];
 
-  const mainHoldableHotswapSlot = throwIfError(
-    CombatantEquipment.getEquippedHoldableSlots(combatantProperties.equipment)
-  );
+  const mainHoldableHotswapSlot = combatantProperties.equipment.getActiveHoldableSlot();
 
   for (const [slotType, template] of iterateNumericEnumKeyedRecord(startingHoldables)) {
     const holdable = generateSpecificEquipmentType(template, { noAffixes: true });
@@ -75,8 +71,10 @@ export function giveStartingEquipment(combatantProperties: CombatantProperties) 
     if (slotType !== HoldableSlotType.MainHand) continue;
 
     // @TESTING
-    if (holdable.affixes[AffixCategory.Prefix] === undefined)
+    if (holdable.affixes[AffixCategory.Prefix] === undefined) {
       holdable.affixes[AffixCategory.Prefix] = {};
+    }
+
     holdable.affixes[AffixCategory.Prefix][AffixType.LifeSteal] = {
       combatAttributes: {},
       tier: 1,
@@ -87,9 +85,9 @@ export function giveStartingEquipment(combatantProperties: CombatantProperties) 
         },
       },
     };
-    // @TESTING
-    giveHotswapSlotEquipment(combatantProperties);
   }
+  // @TESTING
+  giveHotswapSlotEquipment(combatantProperties);
 }
 
 function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
@@ -100,9 +98,6 @@ function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
     },
     { noAffixes: true }
   );
-  if (!(mh instanceof Error) && combatantProperties.equipment.inherentHoldableHotswapSlots[1]) {
-    combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
-      HoldableSlotType.MainHand
-    ] = mh;
-  }
+  combatantProperties.inventory.insertItem(mh);
+  combatantProperties.equipment.equipItem(mh.entityProperties.id, false);
 }

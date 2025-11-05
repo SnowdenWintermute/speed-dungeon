@@ -34,6 +34,16 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     const onUseTriggers = action.hitOutcomeProperties.getOnUseTriggers(context);
     Object.assign(gameUpdateCommand, onUseTriggers);
 
+    const { petSlotsSummoned } = onUseTriggers;
+    if (petSlotsSummoned) {
+      const { petManager } = party;
+      const battleOption = party.getBattleOption(game);
+
+      for (const { ownerId, slotIndex } of petSlotsSummoned) {
+        petManager.summonPetFromSlot(party, ownerId, slotIndex, battleOption);
+      }
+    }
+
     const durabilityChanges = new DurabilityChangesByEntityId();
     durabilityChanges.updateConditionalChangesOnUser(
       actionUser,

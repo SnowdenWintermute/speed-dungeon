@@ -1,0 +1,36 @@
+import { ActionMenuStore } from "./action-menu";
+import { ConfigStore } from "./config";
+import { DialogStore } from "./dialogs";
+import { FocusStore } from "./focus";
+import { GameEventNotificationStore } from "./game-event-notifications";
+import { GameWorldStore } from "./game-world";
+import { InputStore } from "./input";
+import { LobbyStore } from "./lobby";
+import { TargetIndicatorStore } from "./target-indicators";
+import { TooltipStore } from "./tooltip";
+import { ImagesStore } from "./images";
+import { FormsStore } from "./forms";
+import { GameStore } from "./game";
+
+export class AppStore {
+  dialogStore = new DialogStore();
+  lobbyStore = new LobbyStore();
+  tooltipStore = new TooltipStore();
+  inputStore = new InputStore();
+  focusStore = new FocusStore();
+  actionMenuStore = new ActionMenuStore();
+  gameWorldStore = new GameWorldStore();
+  configStore = new ConfigStore();
+  gameEventNotificationStore = new GameEventNotificationStore();
+  targetIndicatorStore = new TargetIndicatorStore();
+  imageStore = new ImagesStore();
+  formsStore = new FormsStore();
+  gameStore = new GameStore();
+
+  private static _instance: AppStore | null = null;
+
+  static get(): AppStore {
+    if (!AppStore._instance) AppStore._instance = new AppStore();
+    return AppStore._instance;
+  }
+}

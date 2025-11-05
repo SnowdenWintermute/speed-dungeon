@@ -1,13 +1,13 @@
 import { ERROR_MESSAGES, MAX_PARTY_NAME_LENGTH, ServerToClientEvent } from "@speed-dungeon/common";
 import { generateRandomPartyName } from "../../utils/index.js";
 import { AdventuringParty } from "@speed-dungeon/common";
-import joinPartyHandler from "./join-party-handler.js";
+import { joinPartyHandler } from "./join-party-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { getGameServer } from "../../singletons/index.js";
 import { Socket } from "socket.io";
 import { idGenerator } from "../../singletons/index.js";
 
-export default function createPartyHandler(
+export function createPartyHandler(
   partyName: string,
   playerAssociatedData: ServerPlayerAssociatedData,
   socket: Socket
@@ -23,7 +23,8 @@ export default function createPartyHandler(
   if (game.adventuringParties[partyName]) return new Error(ERROR_MESSAGES.LOBBY.PARTY_NAME_EXISTS);
 
   const party = new AdventuringParty(idGenerator.generate(), partyName);
-  game.adventuringParties[partyName] = party;
+  game.addParty(party);
+
   getGameServer()
     .io.of("/")
     .in(game.name)

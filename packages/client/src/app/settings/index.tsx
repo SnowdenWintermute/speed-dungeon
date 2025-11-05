@@ -1,22 +1,23 @@
 "use client";
 import { HTTP_REQUEST_NAMES, SPACING_REM_SMALL } from "@/client_consts";
 import React, { useEffect } from "react";
-import HotkeyButton from "../components/atoms/HotkeyButton";
+import { HotkeyButton } from "../components/atoms/HotkeyButton";
 import XShape from "../../../public/img/basic-shapes/x-shape.svg";
-import { useUIStore } from "@/stores/ui-store";
-import PasswordResetEmailForm from "../lobby/auth-forms/password-reset-email-form";
+import { PasswordResetEmailForm } from "../lobby/auth-forms/password-reset-email-form";
 import { useHttpRequestStore } from "@/stores/http-request-store";
-import { useGameStore } from "@/stores/game-store";
 import Divider from "../components/atoms/Divider";
 import DeleteAccountForm from "../lobby/auth-forms/delete-account-form";
 import ChangeUsernameForm from "../lobby/auth-forms/change-username-form";
 import { ZIndexLayers } from "../z-index-layers";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
+import { observer } from "mobx-react-lite";
 
-export default function Settings() {
-  const mutateUIState = useUIStore().mutateState;
+export const Settings = observer(() => {
   const mutateHttpRequestState = useHttpRequestStore().mutateState;
-  const username = useGameStore().username;
-  const showSettings = useUIStore().showSettings;
+  const { dialogStore, gameStore } = AppStore.get();
+  const settingsIsOpen = dialogStore.isOpen(DialogElementName.AppSettings);
+  const username = gameStore.getUsernameOption();
 
   useEffect(() => {
     mutateHttpRequestState((state) => {
@@ -24,9 +25,9 @@ export default function Settings() {
       delete state.requests[HTTP_REQUEST_NAMES.CHANGE_USERNAME];
       delete state.requests[HTTP_REQUEST_NAMES.PASSWORD_RESET_EMAIL];
     });
-  }, [showSettings]);
+  }, [settingsIsOpen]);
 
-  if (!showSettings) return <></>;
+  if (!settingsIsOpen) return <></>;
 
   return (
     <section
@@ -44,9 +45,7 @@ export default function Settings() {
           hotkeys={["Escape"]}
           ariaLabel="close settings window"
           onClick={() => {
-            mutateUIState((state) => {
-              state.showSettings = false;
-            });
+            dialogStore.setIsOpen(DialogElementName.AppSettings, false);
 
             mutateHttpRequestState((state) => {
               delete state.requests[HTTP_REQUEST_NAMES.PASSWORD_RESET_EMAIL];
@@ -75,6 +74,4 @@ export default function Settings() {
       </div>
     </section>
   );
-}
-
-// function PasswordResetEmailForm
+});

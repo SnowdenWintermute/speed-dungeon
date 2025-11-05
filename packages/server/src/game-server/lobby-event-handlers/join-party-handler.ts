@@ -1,15 +1,10 @@
-import {
-  ERROR_MESSAGES,
-  ServerToClientEvent,
-  SpeedDungeonGame,
-  getPartyChannelName,
-} from "@speed-dungeon/common";
+import { ERROR_MESSAGES, ServerToClientEvent, getPartyChannelName } from "@speed-dungeon/common";
 import errorHandler from "../error-handler.js";
 import { Socket } from "socket.io";
 import { getGameServer } from "../../singletons/index.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 
-export default function joinPartyHandler(
+export function joinPartyHandler(
   partyName: string,
   playerAssociatedData: ServerPlayerAssociatedData,
   socket: Socket
@@ -19,7 +14,7 @@ export default function joinPartyHandler(
   if (player.partyName)
     return errorHandler(socket, new Error(ERROR_MESSAGES.LOBBY.ALREADY_IN_PARTY));
 
-  SpeedDungeonGame.putPlayerInParty(game, partyName, player.username);
+  game.putPlayerInParty(partyName, player.username);
   const partyChannelName = getPartyChannelName(game.name, partyName);
   gameServer.joinSocketToChannel(socket.id, partyChannelName);
   session.currentPartyName = partyName;

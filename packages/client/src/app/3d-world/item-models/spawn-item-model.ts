@@ -27,8 +27,9 @@ export async function spawnItemModel(
     throw new Error("not an instance of item");
   })();
 
-  if (modelPath === null || modelPath === BASE_FILE_PATH)
+  if (modelPath === null || modelPath === BASE_FILE_PATH) {
     return new Error(`No model path was found for item [${item.entityProperties.name}]`);
+  }
 
   const itemAssetContainer = await importMesh(modelPath, scene);
 

@@ -3,6 +3,7 @@ import { Equipment } from "@speed-dungeon/common";
 import { UNMET_REQUIREMENT_COLOR, WARNING_COLOR_DARK } from "@/client_consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { EQUIPMENT_ICONS } from "../detailables/EquipmentDetails/equipment-icons";
+import { observer } from "mobx-react-lite";
 
 const DURABILITY_WARNING_THRESHOLD_MODERATE = 0.3;
 const DURABILITY_WARNING_THRESHOLD_CRITICAL = 0.1;
@@ -12,12 +13,12 @@ interface Props {
   equippedItems: Equipment[];
 }
 
-export default function LowDurabilityIndicators({ isPlayerControlled, equippedItems }: Props) {
+export const LowDurabilityIndicators = observer(({ isPlayerControlled, equippedItems }: Props) => {
   let indicators = [];
 
   for (const equipment of equippedItems) {
-    const durability = Equipment.getDurability(equipment);
-    if (Equipment.isIndestructable(equipment) || durability === null) continue;
+    const durability = equipment.getDurability();
+    if (equipment.isIndestructable() || durability === null) continue;
     const durabilityPercentage = durability.current / durability.max;
     if (durabilityPercentage === 0) continue;
     let iconColor;
@@ -54,4 +55,4 @@ export default function LowDurabilityIndicators({ isPlayerControlled, equippedIt
       ))}
     </ul>
   );
-}
+});

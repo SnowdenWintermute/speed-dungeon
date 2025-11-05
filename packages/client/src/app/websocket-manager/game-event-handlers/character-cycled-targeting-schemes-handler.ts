@@ -1,4 +1,3 @@
-import { GameState } from "@/stores/game-store";
 import {
   ActionUserContext,
   CharacterAssociatedData,
@@ -7,7 +6,7 @@ import {
   TargetingCalculator,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
-import { synchronizeTargetingIndicators } from "./synchronize-targeting-indicators";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export function characterCycledTargetingSchemesHandler(
   characterId: string,
@@ -15,8 +14,7 @@ export function characterCycledTargetingSchemesHandler(
 ) {
   characterAssociatedDataProvider(
     characterId,
-    ({ game, party, character }: CharacterAssociatedData, gameState: GameState) => {
-      if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+    ({ game, party, character }: CharacterAssociatedData) => {
       const playerOption = game.players[playerUsername];
       if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
       const combatantContext = new ActionUserContext(game, party, character);
@@ -39,10 +37,9 @@ export function characterCycledTargetingSchemesHandler(
       );
       if (targetIdsResult instanceof Error) return targetIdsResult;
 
-      synchronizeTargetingIndicators(
-        gameState,
+      AppStore.get().targetIndicatorStore.synchronize(
         actionNameOption,
-        character.entityProperties.id,
+        character.getEntityId(),
         targetIdsResult
       );
     }

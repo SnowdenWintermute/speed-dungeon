@@ -1,58 +1,41 @@
-import { useGameStore } from "@/stores/game-store";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
-import getGameAndParty from "@/utils/getGameAndParty";
 import React, { useEffect, useRef, useState } from "react";
-import TargetingIndicators from "./TargetingIndicators";
-import { entityIsDetailed } from "@/stores/game-store/detailable-entities";
-import UnspentAttributesButton from "../UnspentAttributesButton";
-import { useShallow } from "zustand/react/shallow";
-import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
+import { TargetingIndicators } from "./TargetingIndicators";
+import { UnspentAttributesButton } from "../UnspentAttributesButton";
+import { ValueBarsAndFocusButton } from "./ValueBarsAndFocusButton";
 import CombatantInfoButton from "./CombatantInfoButton";
-import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
-import {
-  Combatant,
-  CombatantEquipment,
-  CombatantProperties,
-  InputLock,
-  Inventory,
-} from "@speed-dungeon/common";
+import { DetailedCombatantInfoCard } from "./DetailedCombatantInfoCard";
+import { Combatant } from "@speed-dungeon/common";
 import "./floating-text-animation.css";
-import CombatantFloatingMessagesDisplay from "./combatant-floating-messages-display";
-import InventoryIconButton from "./InventoryIconButton";
-import HotswapSlotButtons from "./HotswapSlotButtons";
-import CharacterModelDisplay from "@/app/character-model-display";
-import { useUIStore } from "@/stores/ui-store";
+import { CombatantFloatingMessagesDisplay } from "./combatant-floating-messages-display";
+import { InventoryIconButton } from "./InventoryIconButton";
+import { HotswapSlotButtons } from "./HotswapSlotButtons";
+import { CharacterModelDisplay } from "@/app/character-model-display";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import LowDurabilityIndicators from "./LowDurabilityIndicators";
-import ConditionIndicators from "./condition-indicators/";
-import ThreatPriorityList from "./ThreatPriorityList";
+import { LowDurabilityIndicators } from "./LowDurabilityIndicators";
+import { ConditionIndicators } from "./condition-indicators/";
+import { ThreatPriorityList } from "./ThreatPriorityList";
 import Portrait from "./Portrait";
 import { getCombatantUiIdentifierIcon } from "@/utils/get-combatant-class-icon";
 import ClockIcon from "../../../../public/img/game-ui-icons/clock-icon.svg";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
 
 interface Props {
   combatant: Combatant;
   showExperience: boolean;
 }
 
-export default function CombatantPlaque({ combatant, showExperience }: Props) {
-  const gameOption = useGameStore().game;
-  const showDebug = useUIStore().showDebug;
-  const portrait = useGameStore((state) => state.combatantPortraits[combatant.entityProperties.id]);
-  const { detailedEntity, focusedCharacterId, hoveredEntity } = useGameStore(
-    useShallow((state) => ({
-      detailedEntity: state.detailedEntity,
-      focusedCharacterId: state.focusedCharacterId,
-      hoveredEntity: state.hoveredEntity,
-    }))
-  );
-  const entityId = combatant.entityProperties.id;
-  const babylonDataOption = useGameStore().babylonControlledCombatantDOMData[entityId];
+export const CombatantPlaque = observer(({ combatant, showExperience }: Props) => {
+  const { focusStore, dialogStore, gameWorldStore, imageStore, gameStore } = AppStore.get();
+  const showDebug = dialogStore.isOpen(DialogElementName.Debug);
 
-  const usernameOption = useGameStore().username;
-  const result = getGameAndParty(gameOption, usernameOption);
-  if (result instanceof Error) return <div>{result.message}</div>;
-  const [game, party] = result;
+  const portraitOption = imageStore.getCombatantPortraitOption(combatant.getEntityId());
+  const entityId = combatant.entityProperties.id;
+  const babylonDebugInfo = gameWorldStore.getCombatantDebugDisplay(entityId);
+
+  const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
 
   const { entityProperties, combatantProperties } = combatant;
   const battleOptionResult = getCurrentBattleOption(game, party.name);
@@ -70,28 +53,26 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
     setPortraitHeight(height);
   }, []);
 
-  function isHovered() {
-    if (!hoveredEntity) return false;
-    if (!(hoveredEntity instanceof Combatant)) return false;
-    if (hoveredEntity.entityProperties.id === entityId) return true;
-    return false;
-  }
+  const combatantIsDetailed = focusStore.entityIsDetailed(entityId);
 
-  const combatantIsDetailed = entityIsDetailed(entityId, detailedEntity);
-  const isFocused = focusedCharacterId === entityId;
-  const isPartyMember = party.characterPositions.includes(entityId);
+  const isFocused = gameStore.characterIsFocused(entityId);
 
-  const conditionalBorder = getConditionalBorder(isHovered(), isFocused, combatantIsDetailed);
+  const isPartyMember = combatant.combatantProperties.controlledBy.isPlayerControlled();
 
-  const lockedUiState = InputLock.isLocked(party.inputLock)
+  const isHovered = focusStore.entityIsHovered(entityId);
+  const conditionalBorder = getConditionalBorder(isHovered, isFocused, combatantIsDetailed);
+
+  const lockedUiState = party.inputLock.isLocked()
     ? "opacity-50 pointer-events-none "
     : "pointer-events-auto ";
 
-  const equippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties.equipment, {});
+  const equippedItems = combatantProperties.equipment.getAllEquippedItems({});
 
   const conditionIndicators = (styles: string) => (
     <div className={`w-full h-6 py-0.5 ${styles}`}>
-      <ConditionIndicators conditions={combatant.combatantProperties.conditions} />
+      <ConditionIndicators
+        conditions={combatant.combatantProperties.conditionManager.getConditions()}
+      />
       <LowDurabilityIndicators isPlayerControlled={isPartyMember} equippedItems={equippedItems} />
     </div>
   );
@@ -109,7 +90,8 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
         {[1, 2].map((item) => (
           <li
             key={item}
-            className={`h-5 w-5 mr-1 last:mr-0 bg-slate-700 rounded-full ${item > combatantProperties.actionPoints ? "opacity-50" : ""}`}
+            className={`h-5 w-5 mr-1 last:mr-0 bg-slate-700 rounded-full 
+            ${item > combatantProperties.resources.getActionPoints() ? "opacity-50" : ""}`}
           >
             <ClockIcon className="h-full w-full fill-slate-400" />
           </li>
@@ -121,9 +103,6 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
   const shouldDisplayActionPoints =
     battleOption !== null &&
     battleOption.turnOrderManager.combatantIsFirstInTurnOrder(combatant.entityProperties.id);
-
-  const indicators = useGameStore().targetingIndicators;
-  const targetedBy = indicators.filter((indicator) => indicator.targetId === entityId);
 
   return (
     <div className="">
@@ -146,13 +125,13 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
               // })
             }
           </div>
-          {babylonDataOption && babylonDataOption.debugHtml}
+          {babylonDebugInfo}
         </div>
       </CharacterModelDisplay>
       {isPartyMember && conditionIndicators("mb-1") /* otherwise put it below */}
 
       <div className="flex">
-        {!CombatantProperties.isDead(combatantProperties) && (
+        {!combatantProperties.isDead() && (
           <ThreatPriorityList threatManager={combatantProperties.threatManager || null} />
         )}
         <div>
@@ -167,19 +146,17 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
             {isPartyMember && (
               <InventoryIconButton
                 entityId={entityId}
-                numItemsInInventory={Inventory.getTotalNumberOfItems(combatantProperties.inventory)}
+                numItemsInInventory={combatantProperties.inventory.getItemsCount()}
               />
             )}
             {isPartyMember && (
               <HotswapSlotButtons
                 className={"absolute -top-2 -left-2 z-10 flex flex-col border border-slate-400"}
                 entityId={entityId}
-                selectedSlotIndex={combatantProperties.equipment.equippedHoldableHotswapSlotIndex}
-                numSlots={
-                  CombatantEquipment.getHoldableHotswapSlots(combatantProperties.equipment).length
-                }
+                selectedSlotIndex={combatantProperties.equipment.getSelectedHoldableSlotIndex()}
+                numSlots={combatantProperties.equipment.getHoldableHotswapSlots().length}
                 vertical={true}
-                registerKeyEvents={entityId === focusedCharacterId}
+                registerKeyEvents={isFocused}
               />
             )}
             <TargetingIndicators party={party} entityId={entityId} />
@@ -188,9 +165,9 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
               combatantPlaqueRef={combatantPlaqueRef}
             />
             <Portrait
-              portrait={portrait}
+              portrait={portraitOption}
               portraitHeight={portraitHeight}
-              combatantLevel={combatantProperties.level}
+              combatantLevel={combatantProperties.classProgressionProperties.getMainClass().level}
             />
             <div className="flex-grow" ref={nameAndBarsRef}>
               <div className="mb-1.5 flex justify-between items-center align-middle leading-5 text-lg ">
@@ -240,7 +217,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
       </div>
     </div>
   );
-}
+});
 
 function getConditionalBorder(
   infoButtonIsHovered: boolean,

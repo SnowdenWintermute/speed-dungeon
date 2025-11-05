@@ -1,30 +1,28 @@
 import Divider from "@/app/components/atoms/Divider";
-import { useGameStore } from "@/stores/game-store";
 import {
   ABILITY_TREES,
   COMBATANT_CLASS_NAME_STRINGS,
   EMPTY_ABILITY_TREE,
-  ERROR_MESSAGES,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import React from "react";
-import AbilityTreeDetailedAbility from "./AbilityTreeDetailedAbility";
+import { AbilityTreeDetailedAbility } from "./AbilityTreeDetailedAbility";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import CharacterClassAbilityTree from "./CharacterClassAbilityTree";
+import { CharacterClassAbilityTree } from "./CharacterClassAbilityTree";
 import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
 
-export default function AbilitySelection() {
-  const focusedCharacterResult = useGameStore().getFocusedCharacter();
-  const focusedCharacterOption =
-    focusedCharacterResult instanceof Error ? null : focusedCharacterResult;
-  if (!focusedCharacterOption) return <div>{ERROR_MESSAGES.COMBATANT.NOT_FOUND}</div>;
+export const AbilitySelection = observer(() => {
+  const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
-  const { combatantProperties } = focusedCharacterOption;
-  const { combatantClass } = combatantProperties;
+  const { combatantProperties } = focusedCharacter;
+  const { classProgressionProperties } = combatantProperties;
+  const { combatantClass } = classProgressionProperties.getMainClass();
   const abilityTree = ABILITY_TREES[combatantClass];
 
-  const { supportClassProperties } = combatantProperties;
+  const supportClassProperties = classProgressionProperties.getSupportClassOption();
   const supportClassAbilityTree = supportClassProperties
     ? ABILITY_TREES[supportClassProperties.combatantClass]
     : EMPTY_ABILITY_TREE;
@@ -35,7 +33,7 @@ export default function AbilitySelection() {
     ? COMBATANT_CLASS_NAME_STRINGS[supportClassProperties?.combatantClass]
     : "No support class";
 
-  const { unspentAbilityPoints } = combatantProperties.abilityProperties;
+  const unspentAbilityPoints = combatantProperties.abilityProperties.getUnspentPointsCount();
 
   return (
     <div
@@ -49,14 +47,14 @@ export default function AbilitySelection() {
               `h-full ${unspentAbilityPoints ? "fill-yellow-400" : "fill-slate-400"}`
             )}
           </div>
-          <div>{combatantProperties.abilityProperties.unspentAbilityPoints}</div>
+          <div>{unspentAbilityPoints}</div>
         </div>
       </HoverableTooltipWrapper>
       <div className="flex flex-col  mr-4">
         <div className="text-lg flex justify-center">
           <h3>
             <span>
-              {COMBATANT_CLASS_NAME_STRINGS[combatantClass]} (level {combatantProperties.level})
+              {COMBATANT_CLASS_NAME_STRINGS[combatantClass]} (level {focusedCharacter.getLevel()})
             </span>
           </h3>
         </div>
@@ -89,7 +87,7 @@ export default function AbilitySelection() {
           </div>
         </div>
       </div>
-      <AbilityTreeDetailedAbility user={focusedCharacterOption} />
+      <AbilityTreeDetailedAbility user={focusedCharacter} />
     </div>
   );
-}
+});

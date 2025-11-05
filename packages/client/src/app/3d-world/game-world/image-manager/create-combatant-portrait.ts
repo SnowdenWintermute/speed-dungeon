@@ -1,9 +1,9 @@
 import { ERROR_MESSAGES, MonsterType } from "@speed-dungeon/common";
-import { useGameStore } from "@/stores/game-store";
 import { gameWorld } from "../../SceneManager";
 import { getChildMeshByName } from "../../utils";
-import { Color4, CreateScreenshotUsingRenderTargetAsync, Vector3 } from "@babylonjs/core";
+import { CreateScreenshotUsingRenderTargetAsync, Vector3 } from "@babylonjs/core";
 import { LAYER_MASK_1, LAYER_MASK_ALL } from "..";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export async function createCombatantPortrait(combatantId: string) {
   if (!gameWorld.current) return;
@@ -68,9 +68,7 @@ export async function createCombatantPortrait(combatantId: string) {
   for (const mesh of combatantModelOption.rootMesh.getChildMeshes())
     mesh.layerMask = LAYER_MASK_ALL;
 
-  useGameStore.getState().mutateState((state) => {
-    state.combatantPortraits[combatantId] = image;
-  });
+  AppStore.get().imageStore.setCombatantPortrait(combatantId, image);
 }
 
 class ArcRotateParams {
@@ -105,4 +103,8 @@ const modelPortraitCameraPositionModifiers: Record<
   [MonsterType.Cultist]: { arcRotate: new ArcRotateParams(), position: Vector3.Zero() },
   [MonsterType.FireElemental]: elementals,
   [MonsterType.IceElemental]: elementals,
+  [MonsterType.Wolf]: {
+    arcRotate: new ArcRotateParams(0, -0.2, 0.2),
+    position: new Vector3(0, -0.1, 0),
+  },
 };

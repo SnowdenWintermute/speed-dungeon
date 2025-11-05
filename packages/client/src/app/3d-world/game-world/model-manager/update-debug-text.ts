@@ -7,10 +7,13 @@ import {
   GameUpdateCommandType,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
-import { useUIStore } from "@/stores/ui-store";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
 
 export function updateDebugText(this: GameWorld) {
-  if (!useUIStore.getState().showDebug) return;
+  const debugIsHidden = !AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
+
+  if (debugIsHidden) return;
   if (this.debug.debugRef?.current) {
     const branches = this.replayTreeManager.getCurrent()?.getActiveBranches();
     let mapped = "";

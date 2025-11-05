@@ -2,18 +2,19 @@ import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import { SPACING_REM_LARGE } from "@/client_consts";
 import { BASE_SCREEN_SIZE, GOLDEN_RATIO } from "@speed-dungeon/common";
 import React, { useState } from "react";
-import SignUpWithCredentialsForm from "./sign-up-with-credentials-form";
-import LoginWithCredentialsForm from "./login-with-credentials-form";
+import { SignUpWithCredentialsForm } from "./sign-up-with-credentials-form";
+import { LoginWithCredentialsForm } from "./login-with-credentials-form";
+import { PasswordResetEmailForm } from "./password-reset-email-form";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
-import { useLobbyStore } from "@/stores/lobby-store";
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import LogInWithGoogleButton from "./login-in-with-google-button";
-import PasswordResetEmailForm from "./password-reset-email-form";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
+import { observer } from "mobx-react-lite";
 
-export default function AuthFormContainer() {
-  const mutateLobbyState = useLobbyStore().mutateState;
-  const highlightAuthForm = useLobbyStore().highlightAuthForm;
+export const AuthFormContainer = observer(() => {
+  const { highlightAuthForm } = AppStore.get().dialogStore;
 
   const authFormWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3.5));
   const borderStyle = highlightAuthForm ? "border-zinc-300" : "border-slate-400";
@@ -28,11 +29,9 @@ export default function AuthFormContainer() {
         <HotkeyButton
           className="p-2"
           hotkeys={["Escape"]}
-          onClick={() =>
-            mutateLobbyState((state) => {
-              state.showAuthForm = false;
-            })
-          }
+          onClick={() => {
+            AppStore.get().dialogStore.close(DialogElementName.Credentials);
+          }}
         >
           <XShape className="h-full w-full fill-slate-400" />
         </HotkeyButton>
@@ -40,7 +39,7 @@ export default function AuthFormContainer() {
       <AuthForms />
     </div>
   );
-}
+});
 
 export enum AuthFormTypes {
   Registration,

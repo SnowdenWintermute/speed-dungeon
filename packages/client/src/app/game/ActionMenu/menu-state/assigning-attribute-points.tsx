@@ -1,42 +1,28 @@
-import { useGameStore } from "@/stores/game-store";
-import {
-  ActionButtonCategory,
-  ActionButtonsByCategory,
-  ActionMenuButtonProperties,
-  ActionMenuState,
-  MenuStateType,
-} from ".";
+import { ActionMenuState } from ".";
 import {
   ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,
   COMBAT_ATTRIBUTE_STRINGS,
   ClientToServerEvent,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { setAlert } from "@/app/components/alerts";
-import createPageButtons from "./create-page-buttons";
-import { immerable } from "immer";
-import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
+import { createPageButtons } from "./create-page-buttons";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 import { createCancelButton } from "./common-buttons/cancel";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
+import { MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
+import { AppStore } from "@/mobx-stores/app-store";
 
-export class AssigningAttributePointsMenuState implements ActionMenuState {
-  [immerable] = true;
-  page = 1;
-  numPages: number = 1;
-  type = MenuStateType.AssignAttributePoints;
-  alwaysShowPageOne = false;
-  getCenterInfoDisplayOption = null;
-  constructor() {}
+export class AssigningAttributePointsMenuState extends ActionMenuState {
+  constructor() {
+    super(MenuStateType.AssignAttributePoints, 1);
+  }
+
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult.message);
-      return toReturn;
-    }
-    const characterId = focusedCharacterResult.entityProperties.id;
-    const userControlsThisCharacter = clientUserControlsCombatant(characterId);
+    const { gameStore } = AppStore.get();
+    const focusedCharacter = gameStore.getExpectedFocusedCharacter();
 
     toReturn[ActionButtonCategory.Top].push(createCancelButton([toggleAssignAttributesHotkey]));
 
@@ -46,18 +32,21 @@ export class AssigningAttributePointsMenuState implements ActionMenuState {
         COMBAT_ATTRIBUTE_STRINGS[attribute],
         () => {
           websocketConnection.emit(ClientToServerEvent.IncrementAttribute, {
-            characterId,
+            characterId: focusedCharacter.getEntityId(),
             attribute,
           });
         }
       );
-      button.shouldBeDisabled =
-        focusedCharacterResult.combatantProperties.unspentAttributePoints === 0 ||
-        !userControlsThisCharacter;
+
+      const hasNoUnspentPoints =
+        focusedCharacter.combatantProperties.attributeProperties.getUnspentPoints() === 0;
+      const doesNotControlCharacter = !gameStore.clientUserControlsFocusedCombatant();
+      button.shouldBeDisabled = hasNoUnspentPoints || doesNotControlCharacter;
+
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 
-    createPageButtons(this, toReturn);
+    createPageButtons(toReturn);
 
     return toReturn;
   }

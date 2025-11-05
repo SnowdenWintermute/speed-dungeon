@@ -7,21 +7,15 @@ import {
   ManaChanges,
 } from "@speed-dungeon/common";
 import { getGameWorld } from "../../SceneManager";
-import { useGameStore } from "@/stores/game-store";
-import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
-import {
-  FLOATING_TEXT_COLORS,
-  FloatingMessageElement,
-  FloatingMessageElementType,
-  FloatingMessageTextColor,
-  startFloatingMessage,
-} from "@/stores/game-store/floating-messages";
 import { plainToInstance } from "class-transformer";
 import { HitPointChanges } from "@speed-dungeon/common";
 import { induceHitRecovery } from "./induce-hit-recovery";
 import { handleThreatChangesUpdate } from "./handle-threat-changes";
 import { CombatActionResource } from "@speed-dungeon/common";
-import { GameUpdateTracker } from ".";
+import { GameUpdateTracker } from "./game-update-tracker";
+import { FloatingMessageService } from "@/mobx-stores/game-event-notifications/floating-message-service";
+import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export async function hitOutcomesGameUpdateHandler(
   update: GameUpdateTracker<HitOutcomesGameUpdateCommand>
@@ -85,37 +79,17 @@ export async function hitOutcomesGameUpdateHandler(
   handleThreatChangesUpdate(command);
 
   outcomeFlags[HitOutcome.Miss]?.forEach((entityId) => {
-    const elements: FloatingMessageElement[] = [
-      {
-        type: FloatingMessageElementType.Text,
-        text: `Miss`,
-        classNames: { mainText: "text-gray-500", shadowText: "text-black" },
-      },
-    ];
+    FloatingMessageService.startHitOutcomeMissMessage(entityId);
 
-    startFloatingMessage(entityId, elements, 2000);
-
-    useGameStore.getState().mutateState((gameState) => {
-      const targetCombatantResult = gameState.getCombatant(entityId);
-      if (targetCombatantResult instanceof Error) throw targetCombatantResult;
-
-      const style = CombatLogMessageStyle.Basic;
-      let messageText = `${actionUserName} failed to hit ${targetCombatantResult.entityProperties.name}`;
-
-      gameState.combatLogMessages.push(new CombatLogMessage(messageText, style));
-    });
+    const targetCombatantResult = AppStore.get().gameStore.getExpectedCombatant(entityId);
+    GameLogMessageService.postActionMissed(actionUserName, targetCombatantResult.getName());
   });
 
   outcomeFlags[HitOutcome.Evade]?.forEach((entityId) => {
-    const elements: FloatingMessageElement[] = [
-      {
-        type: FloatingMessageElementType.Text,
-        text: `Evade`,
-        classNames: { mainText: "text-gray-500", shadowText: "text-black" },
-      },
-    ];
+    FloatingMessageService.startHitOutcomeEvadeMessage(entityId);
 
-    startFloatingMessage(entityId, elements, 2000);
+    const targetCombatantResult = AppStore.get().gameStore.getExpectedCombatant(entityId);
+    GameLogMessageService.postActionEvaded(actionUserName, targetCombatantResult.getName());
 
     const targetModel = getGameWorld().modelManager.findOne(entityId);
 
@@ -126,31 +100,10 @@ export async function hitOutcomesGameUpdateHandler(
         onComplete: () => targetModel.startIdleAnimation(100),
       }
     );
-
-    useGameStore.getState().mutateState((gameState) => {
-      const targetCombatantResult = gameState.getCombatant(entityId);
-      if (targetCombatantResult instanceof Error) throw targetCombatantResult;
-
-      const style = CombatLogMessageStyle.Basic;
-      let messageText = `${targetCombatantResult.entityProperties.name} evaded an attack from ${actionUserName}`;
-
-      gameState.combatLogMessages.push(new CombatLogMessage(messageText, style));
-    });
   });
 
   outcomeFlags[HitOutcome.Parry]?.forEach((entityId) => {
-    const elements: FloatingMessageElement[] = [
-      {
-        type: FloatingMessageElementType.Text,
-        text: `Parry`,
-        classNames: {
-          mainText: FLOATING_TEXT_COLORS[FloatingMessageTextColor.Parried],
-          shadowText: "text-black",
-        },
-      },
-    ];
-
-    startFloatingMessage(entityId, elements, 2000);
+    FloatingMessageService.startHitOutcomeParryMessage(entityId);
 
     const targetModel = getGameWorld().modelManager.findOne(entityId);
 
@@ -165,40 +118,15 @@ export async function hitOutcomesGameUpdateHandler(
       }
     );
 
-    useGameStore.getState().mutateState((gameState) => {
-      const targetCombatantResult = gameState.getCombatant(entityId);
-      if (targetCombatantResult instanceof Error) throw targetCombatantResult;
-
-      const style = CombatLogMessageStyle.Basic;
-      let messageText = `${targetCombatantResult.entityProperties.name} parried an attack from ${actionUserName}`;
-
-      gameState.combatLogMessages.push(new CombatLogMessage(messageText, style));
-    });
+    const targetCombatantResult = AppStore.get().gameStore.getExpectedCombatant(entityId);
+    GameLogMessageService.postActionParried(actionUserName, targetCombatantResult.getName());
   });
 
   outcomeFlags[HitOutcome.Counterattack]?.forEach((entityId) => {
-    const elements: FloatingMessageElement[] = [
-      {
-        type: FloatingMessageElementType.Text,
-        text: `Countered`,
-        classNames: {
-          mainText: FLOATING_TEXT_COLORS[FloatingMessageTextColor.Parried],
-          shadowText: "text-black",
-        },
-      },
-    ];
+    FloatingMessageService.startHitOutcomeCounteredMessage(entityId);
 
-    startFloatingMessage(entityId, elements, 2000);
-
-    useGameStore.getState().mutateState((gameState) => {
-      const targetCombatantResult = gameState.getCombatant(entityId);
-      if (targetCombatantResult instanceof Error) throw targetCombatantResult;
-
-      const style = CombatLogMessageStyle.Basic;
-      let messageText = `${targetCombatantResult.entityProperties.name} countered an attack from ${actionUserName}`;
-
-      gameState.combatLogMessages.push(new CombatLogMessage(messageText, style));
-    });
+    const targetCombatantResult = AppStore.get().gameStore.getExpectedCombatant(entityId);
+    GameLogMessageService.postActionCountered(actionUserName, targetCombatantResult.getName());
   });
 
   update.setAsQueuedToComplete();

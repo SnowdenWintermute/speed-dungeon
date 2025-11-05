@@ -1,8 +1,5 @@
 "use client";
-import { gameWorld, getGameWorld } from "@/app/3d-world/SceneManager";
-import { useGameStore } from "@/stores/game-store";
-import { useLobbyStore } from "@/stores/lobby-store";
-import { useUIStore } from "@/stores/ui-store";
+import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { useRouter } from "next/navigation";
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
@@ -12,14 +9,16 @@ import { TabMessageType, broadcastChannel, sessionFetcher } from "@/singletons/b
 import { HttpRequestTracker, useHttpRequestStore } from "@/stores/http-request-store";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { resetWebsocketConnection } from "@/singletons/websocket-connection";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
+import { observer } from "mobx-react-lite";
 
-export default function UserMenuContainer() {
-  const mutateLobbyState = useLobbyStore().mutateState;
-  const mutateGameState = useGameStore().mutateState;
+export const UserMenuContainer = observer(() => {
   const mutateHttpState = useHttpRequestStore().mutateState;
-  const showAuthForm = useLobbyStore().showAuthForm;
+  const { dialogStore, gameStore } = AppStore.get();
+  const showAuthForm = dialogStore.isOpen(DialogElementName.Credentials);
   const router = useRouter();
-  const username = useGameStore().username;
+  const username = gameStore.getUsernameOption();
   const fetchData = useHttpRequestStore().fetchData;
   const getSessionRequestTrackerName = "get session";
   const responseTracker = useHttpRequestStore().requests[getSessionRequestTrackerName];
@@ -48,10 +47,7 @@ export default function UserMenuContainer() {
     if (responseTracker && responseTracker.data) {
       const data = responseTracker.data;
       if (typeof data !== "string") {
-        const username = data["username"];
-        mutateGameState((state) => {
-          state.username = username;
-        });
+        gameStore.setUsername(data["username"]);
       }
     }
   }, [responseTracker?.data]);
@@ -72,31 +68,23 @@ export default function UserMenuContainer() {
         });
 
         if (showAuthForm) {
-          mutateLobbyState((state) => {
-            state.highlightAuthForm = true;
-          });
+          dialogStore.highlightAuthForm = true;
           setTimeout(() => {
-            mutateLobbyState((state) => {
-              state.highlightAuthForm = false;
-            });
+            dialogStore.highlightAuthForm = false;
           }, 300);
         } else {
-          mutateLobbyState((state) => {
-            state.showAuthForm = true;
-          });
+          dialogStore.open(DialogElementName.Credentials);
         }
       }}
     >
       LOG IN
     </ButtonBasic>
   );
-}
+});
 
 function UserMenu({ username }: { username: null | string }) {
-  const mutateGameState = useGameStore().mutateState;
   const mutateHttpState = useHttpRequestStore().mutateState;
-  const mutateUIState = useUIStore().mutateState;
-  const mutateLobbyState = useLobbyStore().mutateState;
+  const { dialogStore } = AppStore.get();
   const firstLetterOfUsername = username ? username.charAt(0) : "";
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -122,13 +110,9 @@ function UserMenu({ username }: { username: null | string }) {
       delete state.requests[HTTP_REQUEST_NAMES.LOGIN_WITH_CREDENTIALS];
     });
 
-    mutateLobbyState((state) => {
-      state.showAuthForm = true;
-    });
+    dialogStore.open(DialogElementName.Credentials);
 
-    mutateGameState((state) => {
-      state.username = null;
-    });
+    AppStore.get().gameStore.clearUsername();
 
     resetWebsocketConnection();
     // message to have their other tabs reconnect with new cookie
@@ -186,9 +170,8 @@ function UserMenu({ username }: { username: null | string }) {
                   className="h-full w-full flex items-center p-4"
                   onClick={() => {
                     setShowUserDropdown(false);
-                    mutateUIState((state) => {
-                      state.showSettings = !state.showSettings;
-                    });
+                    const { dialogStore } = AppStore.get();
+                    dialogStore.toggle(DialogElementName.AppSettings);
                   }}
                 >
                   Settings

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { GameWorld } from "./game-world";
-import DebugText from "./DebugText";
+import { DebugText } from "./DebugText";
 import { ZIndexLayers } from "../z-index-layers";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
 

@@ -1,11 +1,4 @@
-import { useGameStore } from "@/stores/game-store";
-import {
-  ActionButtonCategory,
-  ActionButtonsByCategory,
-  ActionMenuButtonProperties,
-  ActionMenuState,
-  MenuStateType,
-} from ".";
+import { ActionMenuState } from ".";
 import {
   CRAFTING_ACTION_DESCRIPTIONS,
   CRAFTING_ACTION_DISABLED_CONDITIONS,
@@ -17,48 +10,40 @@ import {
   getCraftingActionPrice,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
-import { setAlert } from "@/app/components/alerts";
-import selectItem from "@/utils/selectItem";
-import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import ShardsIcon from "../../../../../public/img/game-ui-icons/shards.svg";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { createCancelButton } from "./common-buttons/cancel";
+import { AppStore } from "@/mobx-stores/app-store";
+import { ActionMenuButtonProperties } from "./action-menu-button-properties";
+import { MenuStateType } from "./menu-state-type";
+import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
 
 const useItemHotkey = HOTKEYS.MAIN_1;
 const useItemLetter = letterFromKeyCode(useItemHotkey);
 export const USE_CONSUMABLE_BUTTON_TEXT = `Use (${useItemLetter})`;
 export const EQUIP_ITEM_BUTTON_TEXT = `Equip (${useItemLetter})`;
 
-export class CraftingItemMenuState implements ActionMenuState {
-  page = 1;
-  numPages: number = 1;
-  type = MenuStateType.CraftingActionSelection;
-  alwaysShowPageOne = false;
-  getCenterInfoDisplayOption = null;
-  constructor(public item: Equipment) {}
+export class CraftingItemMenuState extends ActionMenuState {
+  constructor(public item: Equipment) {
+    super(MenuStateType.CraftingActionSelection, 1);
+  }
+
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
-    toReturn[ActionButtonCategory.Top].push(createCancelButton([], () => selectItem(null)));
+    toReturn[ActionButtonCategory.Top].push(
+      createCancelButton([], () => AppStore.get().focusStore.selectItem(null))
+    );
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
 
-    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult.message);
-      return toReturn;
-    }
+    const { gameStore, actionMenuStore } = AppStore.get();
+    const focusedCharacterResult = gameStore.getExpectedFocusedCharacter();
 
-    const characterId = focusedCharacterResult.entityProperties.id;
-    const userControlsThisCharacter = clientUserControlsCombatant(characterId);
+    const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
     const itemId = this.item.entityProperties.id;
-    const partyResult = useGameStore.getState().getParty();
-    if (partyResult instanceof Error) {
-      setAlert(partyResult);
-      return toReturn;
-    }
 
     for (const craftingAction of iterateNumericEnum(CraftingAction)) {
       const actionPrice = getCraftingActionPrice(craftingAction, this.item);
@@ -83,10 +68,7 @@ export class CraftingItemMenuState implements ActionMenuState {
         ),
         buttonName,
         () => {
-          useGameStore.getState().mutateState((state) => {
-            state.combatantsWithPendingCraftActions[focusedCharacterResult.entityProperties.id] =
-              true;
-          });
+          actionMenuStore.setCharacterIsCrafting(focusedCharacterResult.getEntityId());
           websocketConnection.emit(ClientToServerEvent.PerformCraftingAction, {
             characterId: focusedCharacterResult.entityProperties.id,
             itemId,
@@ -94,13 +76,17 @@ export class CraftingItemMenuState implements ActionMenuState {
           });
         }
       );
+
+      const party = gameStore.getExpectedParty();
+
       button.shouldBeDisabled =
         !userControlsThisCharacter ||
         actionPrice > focusedCharacterResult.combatantProperties.inventory.shards ||
-        CRAFTING_ACTION_DISABLED_CONDITIONS[craftingAction](this.item, partyResult.currentFloor) ||
-        !!useGameStore.getState().combatantsWithPendingCraftActions[
-          focusedCharacterResult.entityProperties.id
-        ];
+        CRAFTING_ACTION_DISABLED_CONDITIONS[craftingAction](
+          this.item,
+          party.dungeonExplorationManager.getCurrentFloor()
+        ) ||
+        actionMenuStore.characterIsCrafting(focusedCharacterResult.getEntityId());
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 

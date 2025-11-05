@@ -24,7 +24,7 @@ import {
   TwoHandedRangedWeapon,
 } from "../../../../../items/equipment/index.js";
 import { getRotateTowardPrimaryTargetDestination } from "../../common-destination-getters.js";
-import { CombatantEquipment, CombatantSpecies } from "../../../../../combatants/index.js";
+import { CombatantSpecies } from "../../../../../combatants/index.js";
 import { SpawnableEntityType, getSpawnableEntityId } from "../../../../../spawnables/index.js";
 import {
   CombatantHoldableChildTransformNodeName,
@@ -107,7 +107,7 @@ function getBowEquipmentAnimation(
   const equipmentOption = user.getEquipmentOption();
   if (equipmentOption === null) throw new Error("expected user to have equipment");
 
-  const equippedBowOption = CombatantEquipment.getEquipmentInSlot(equipmentOption, slot);
+  const equippedBowOption = equipmentOption.getEquipmentInSlot(slot);
   if (
     equippedBowOption?.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType !==
     EquipmentType.TwoHandedRangedWeapon
@@ -141,7 +141,7 @@ function lockArrowsToFaceArrowRest(context: ActionResolutionStepContext) {
     const actionEntity = spawnedEnity;
 
     const combatantProperties = context.actionUserContext.actionUser.getCombatantProperties();
-    const bowOption = CombatantEquipment.getEquipmentInSlot(combatantProperties.equipment, {
+    const bowOption = combatantProperties.equipment.getEquipmentInSlot({
       type: EquipmentSlotType.Holdable,
       slot: HoldableSlotType.MainHand,
     });

@@ -7,8 +7,8 @@ import {
   SPACING_REM_LARGE,
   TOP_BAR_HEIGHT_REM,
 } from "@/client_consts";
-import GamesSection from "./games-section";
-import UserList from "./user-list/";
+import { GamesSection } from "./games-section";
+import { UserList } from "./user-list/";
 import { quickStartGame } from "./games-section/quick-start-game";
 import HoverableTooltipWrapper from "../components/atoms/HoverableTooltipWrapper";
 import GithubLogo from "../../../public/github-logo.svg";
@@ -17,31 +17,30 @@ import Link from "next/link";
 import WithTopBar from "../components/layouts/with-top-bar";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import { useEffect } from "react";
-import { useLobbyStore } from "@/stores/lobby-store";
-import AuthFormContainer from "./auth-forms";
-import { websocketConnection } from "@/singletons/websocket-connection";
-import SavedCharacterManager from "./saved-character-manager";
+import { AuthFormContainer } from "./auth-forms";
+import { SavedCharacterManager } from "./saved-character-manager";
 import { ZIndexLayers } from "../z-index-layers";
-import HotkeyButton from "../components/atoms/HotkeyButton";
+import { HotkeyButton } from "../components/atoms/HotkeyButton";
 import { HOTKEYS } from "@/hotkeys";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
+import { DialogElementName } from "@/mobx-stores/dialogs";
 
-export default function Lobby() {
-  const socketOption = websocketConnection;
+export const Lobby = observer(() => {
   const usersContainerWidthMultiplier = Math.pow(GOLDEN_RATIO, 4);
   const usersContainerWidth = Math.floor(BASE_SCREEN_SIZE * usersContainerWidthMultiplier);
   const currentSessionHttpResponseTracker =
     useHttpRequestStore().requests[HTTP_REQUEST_NAMES.GET_SESSION];
-  const mutateLobbyState = useLobbyStore().mutateState;
-  const showAuthForm = useLobbyStore().showAuthForm;
-  const showSavedCharacterManager = useLobbyStore().showSavedCharacterManager;
-  const showGameCreationForm = useLobbyStore().showGameCreationForm;
-  const websocketConnected = useLobbyStore().websocketConnected;
+  const { dialogStore, lobbyStore } = AppStore.get();
+  const showGameCreationForm = dialogStore.isOpen(DialogElementName.GameCreation);
+  const showAuthForm = dialogStore.isOpen(DialogElementName.Credentials);
+  const showSavedCharacterManager = dialogStore.isOpen(DialogElementName.SavedCharacterManager);
+  const websocketConnected = lobbyStore.websocketIsConnected();
 
   useEffect(() => {
-    if (currentSessionHttpResponseTracker?.statusCode === 200)
-      mutateLobbyState((state) => {
-        state.showAuthForm = false;
-      });
+    if (currentSessionHttpResponseTracker?.statusCode === 200) {
+      dialogStore.close(DialogElementName.Credentials);
+    }
   }, [currentSessionHttpResponseTracker]);
 
   const hideAuthForm =
@@ -106,7 +105,7 @@ export default function Lobby() {
             tooltipText="Start a single player game where you control one of each character type (G)"
           >
             <HotkeyButton
-              onClick={() => quickStartGame(socketOption)}
+              onClick={() => quickStartGame()}
               hotkeys={[HOTKEYS.SIDE_1]}
               className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
                           flex justify-center items-center disabled:opacity-50 pointer-events-auto disabled:cursor-auto
@@ -141,4 +140,4 @@ export default function Lobby() {
       </div>
     </WithTopBar>
   );
-}
+});

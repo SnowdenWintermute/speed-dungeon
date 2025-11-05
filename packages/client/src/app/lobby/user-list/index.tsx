@@ -1,20 +1,13 @@
 import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client_consts";
-import UserPlaque from "./UserPlaque";
-import { useLobbyStore } from "@/stores/lobby-store";
+import { UserPlaque } from "./UserPlaque";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
 
-export default function UserList() {
-  const websocketConnected = useLobbyStore().websocketConnected;
-  const usersInChannel = useLobbyStore().usersInMainChannel;
-  const usersArray = Object.entries(usersInChannel);
-
-  // useEffect(() => {
-  //   const newList = cloneDeep(usernamesInMainChannelArray);
-  //   for (let i = 100; i > 0; i -= 1) {
-  //     newList.push("some realllllylonnng name");
-  //   }
-  //   setUsernamesInMainChannelArray(newList);
-  // }, []);
+export const UserList = observer(() => {
+  const { lobbyStore } = AppStore.get();
+  const usersInChannel = lobbyStore.getUsersList();
+  const websocketConnected = lobbyStore.websocketIsConnected();
 
   return (
     <section
@@ -28,7 +21,7 @@ export default function UserList() {
       <h2 className="text-slate-200 text-l mb-2 pointer-events-auto w-fit flex items-center">
         {websocketConnected ? "In lobby" : "Connecting"}
         {websocketConnected ? (
-          ` - ${usersArray.length}`
+          ` - ${usersInChannel.length}`
         ) : (
           <span className="ml-2 h-4 w-4 inline">
             <LoadingSpinner />
@@ -37,10 +30,10 @@ export default function UserList() {
       </h2>
       <ul className="list-none flex-grow overflow-y-auto pointer-events-auto">
         {websocketConnected &&
-          usersArray.map(([username, displayData]) => (
+          usersInChannel.map(([username, displayData]) => (
             <UserPlaque username={username} displayData={displayData} key={username} />
           ))}
       </ul>
     </section>
   );
-}
+});

@@ -1,9 +1,5 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
-import {
-  CombatantProperties,
-  ConditionAppliedBy,
-  ConditionTickProperties,
-} from "../combatants/index.js";
+import { ConditionAppliedBy, ConditionTickProperties } from "../combatants/index.js";
 import {
   CombatantActionState,
   CombatantAttributeRecord,
@@ -17,6 +13,10 @@ import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-cate
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ActionEntityProperties } from "../action-entities/index.js";
 import { Battle } from "../battle/index.js";
+import { CombatantProperties } from "../combatants/combatant-properties.js";
+import { Item } from "../items/index.js";
+import { HoldableSlotType } from "../items/equipment/slots.js";
+import { Equipment, WeaponProperties } from "../items/equipment/index.js";
 
 export enum ActionUserType {
   Combatant,
@@ -46,6 +46,22 @@ export interface IActionUser {
 
   // ex: a condition should give threat caused by it's burning ticks to the caster of the spell that caused the condition
   getIdOfEntityToCreditWithThreat(): EntityId;
+
+  hasRequiredAttributesToUseItem(item: Item): boolean;
+  hasRequiredConsumablesToUseAction(actionName: CombatActionName): boolean;
+
+  getWeaponsInSlots(
+    weaponSlots: HoldableSlotType[],
+    options: { usableWeaponsOnly: boolean }
+  ): Partial<
+    Record<
+      HoldableSlotType,
+      {
+        equipment: Equipment;
+        weaponProperties: WeaponProperties;
+      }
+    >
+  >;
 
   // COMBATANTS
   getCombatantProperties(): CombatantProperties;

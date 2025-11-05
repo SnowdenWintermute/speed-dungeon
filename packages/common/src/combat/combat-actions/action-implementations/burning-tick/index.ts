@@ -1,5 +1,5 @@
 import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -33,7 +33,7 @@ const targetingProperties = createTargetingPropertiesConfig(
 const config: CombatActionComponentConfig = {
   description: "Inflict magical fire damage on enemies",
 
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.TriggeredCondition,
     getOnUseMessage: (data) => {
       return `${data.nameOfTarget} is burning`;
@@ -46,10 +46,9 @@ const config: CombatActionComponentConfig = {
         targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent)
       );
       const { party } = actionUserContext;
-      const targetCombatantResult = AdventuringParty.getCombatant(party, primaryTargetId);
-      if (targetCombatantResult instanceof Error) throw targetCombatantResult;
+      const targetCombatant = party.combatantManager.getExpectedCombatant(primaryTargetId);
 
-      return { nameOfTarget: targetCombatantResult.entityProperties.name };
+      return { nameOfTarget: targetCombatant.entityProperties.name };
     },
   }),
   targetingProperties,

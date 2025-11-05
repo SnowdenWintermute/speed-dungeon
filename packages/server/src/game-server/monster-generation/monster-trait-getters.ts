@@ -31,4 +31,7 @@ export const MONSTER_INHERENT_TRAIT_GETTERS: Record<
   [MonsterType.Cultist]: (level) => {
     return {};
   },
+  [MonsterType.Wolf]: function (level: number): Partial<Record<CombatantTraitType, number>> {
+    return {};
+  },
 };

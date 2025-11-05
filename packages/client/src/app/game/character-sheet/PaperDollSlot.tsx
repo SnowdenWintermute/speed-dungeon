@@ -1,6 +1,3 @@
-import { useGameStore } from "@/stores/game-store";
-import selectItem from "@/utils/selectItem";
-import setItemHovered from "@/utils/set-item-hovered";
 import {
   CombatantAttributeRecord,
   Equipment,
@@ -10,10 +7,11 @@ import {
 } from "@speed-dungeon/common";
 import React, { useMemo } from "react";
 import { ConsideringItemMenuState } from "../ActionMenu/menu-state/considering-item";
-import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import isEqual from "lodash.isequal";
 import RingIcon from "../../../../public/img/equipment-icons/ring-flattened.svg";
 import AmuletIcon from "../../../../public/img/equipment-icons/amulet.svg";
+import { observer } from "mobx-react-lite";
+import { AppStore } from "@/mobx-stores/app-store";
 
 interface Props {
   itemOption: null | Equipment;
@@ -25,97 +23,100 @@ interface Props {
 const UNUSABLE_ITEM_BG_STYLES = "bg-slate-700 filter-red";
 const USABLE_ITEM_BG_STYLES = "bg-slate-800";
 
-export default function PaperDollSlot({
-  itemOption,
-  slot,
-  characterAttributes,
-  tailwindClasses,
-}: Props) {
-  const detailedEntityOption = useGameStore().detailedEntity;
-  const hoveredEntityOption = useGameStore().hoveredEntity;
-  const comparedSlot = useGameStore().comparedSlot;
-  const consideredItemUnmetRequirements = useGameStore().consideredItemUnmetRequirements;
+export const PaperDollSlot = observer(
+  ({ itemOption, slot, characterAttributes, tailwindClasses }: Props) => {
+    const { focusStore, imageStore, gameStore } = AppStore.get();
 
-  const focusedCharacterId = useGameStore.getState().focusedCharacterId;
-  const playerOwnsCharacter = clientUserControlsCombatant(focusedCharacterId);
+    const { detailedItem, hoveredItem } = focusStore.getFocusedItems();
+    const { comparedSlot } = focusStore.getItemComparison();
 
-  const itemNameDisplay = itemOption ? itemOption.entityProperties.name : "";
+    const consideredItemUnmetRequirements = focusStore.getSelectedItemUnmetRequirements();
 
-  const thumbnailOption = useGameStore().itemThumbnails[itemOption?.entityProperties.id || ""];
+    const playerOwnsCharacter = gameStore.clientUserControlsFocusedCombatant();
 
-  const itemDisplay = thumbnailOption ? (
-    <img src={thumbnailOption} className={"max-h-full"} />
-  ) : itemOption?.equipmentBaseItemProperties.equipmentType === EquipmentType.Ring ? (
-    <RingIcon className="h-full fill-slate-400 " />
-  ) : itemOption?.equipmentBaseItemProperties.equipmentType === EquipmentType.Amulet ? (
-    <AmuletIcon className="max-w-10 object-contain fill-slate-400 " />
-  ) : (
-    <div className={itemOption && Equipment.isMagical(itemOption) ? "text-blue-300" : ""}>
-      {itemNameDisplay}
-    </div>
-  );
+    const itemNameDisplay = itemOption ? itemOption.entityProperties.name : "";
 
-  const bgStyle = useMemo(() => {
-    if (isEqual(comparedSlot, slot))
-      if (consideredItemUnmetRequirements !== null) return UNUSABLE_ITEM_BG_STYLES;
-      else return USABLE_ITEM_BG_STYLES;
-    if (!itemOption) return "";
-    if (
-      !Item.requirementsMet(itemOption, characterAttributes) ||
-      (itemOption instanceof Equipment && Equipment.isBroken(itemOption))
-    )
-      return UNUSABLE_ITEM_BG_STYLES;
-  }, [itemOption, characterAttributes, consideredItemUnmetRequirements, comparedSlot]);
+    let thumbnailOption = undefined;
+    if (itemOption !== null) {
+      thumbnailOption = imageStore.getItemThumbnailOption(itemOption.entityProperties.id);
+    }
 
-  const highlightStyle = useMemo(() => {
-    if (itemOption === null) return `border-slate-400`;
-    const itemId = itemOption.entityProperties.id;
+    const itemDisplay = thumbnailOption ? (
+      <img src={thumbnailOption} className={"max-h-full"} />
+    ) : itemOption?.equipmentBaseItemProperties.equipmentType === EquipmentType.Ring ? (
+      <RingIcon className="h-full fill-slate-400 " />
+    ) : itemOption?.equipmentBaseItemProperties.equipmentType === EquipmentType.Amulet ? (
+      <AmuletIcon className="max-w-10 object-contain fill-slate-400 " />
+    ) : (
+      <div className={itemOption && itemOption.isMagical() ? "text-blue-300" : ""}>
+        {itemNameDisplay}
+      </div>
+    );
 
-    if (detailedEntityOption && itemId === detailedEntityOption.entityProperties.id) {
-      return `border-yellow-400`;
-    } else if (hoveredEntityOption && itemId === hoveredEntityOption.entityProperties.id) {
-      return `border-white`;
-    } else return `border-slate-400`;
-  }, [detailedEntityOption, hoveredEntityOption, itemOption]);
+    const bgStyle = useMemo(() => {
+      if (isEqual(comparedSlot, slot))
+        if (consideredItemUnmetRequirements !== null) return UNUSABLE_ITEM_BG_STYLES;
+        else return USABLE_ITEM_BG_STYLES;
+      if (!itemOption) return "";
+      if (
+        !Item.requirementsMet(itemOption, characterAttributes) ||
+        (itemOption instanceof Equipment && itemOption.isBroken())
+      )
+        return UNUSABLE_ITEM_BG_STYLES;
+    }, [itemOption, characterAttributes, consideredItemUnmetRequirements, comparedSlot]);
 
-  function handleFocus() {
-    setItemHovered(itemOption);
+    const highlightStyle = useMemo(() => {
+      if (itemOption === null) return `border-slate-400`;
+      const itemId = itemOption.entityProperties.id;
+
+      if (detailedItem && itemId === detailedItem.entityProperties.id) {
+        return `border-yellow-400`;
+      } else if (hoveredItem && itemId === hoveredItem.entityProperties.id) {
+        return `border-white`;
+      } else return `border-slate-400`;
+    }, [detailedItem, hoveredItem, itemOption]);
+
+    function handleFocus() {
+      if (itemOption !== null) focusStore.detailables.setHovered(itemOption);
+    }
+
+    function handleBlur() {
+      focusStore.detailables.clearHovered();
+    }
+
+    function handleClick() {
+      if (!playerOwnsCharacter) return;
+      if (!itemOption) return;
+
+      focusStore.selectItem(itemOption);
+      const detailedItemIsNowNull = focusStore.detailables.get().detailed === null;
+
+      const { actionMenuStore } = AppStore.get();
+      const currentMenu = actionMenuStore.getCurrentMenu();
+      if (currentMenu instanceof ConsideringItemMenuState && detailedItemIsNowNull) {
+        return actionMenuStore.popStack();
+      }
+
+      if (currentMenu instanceof ConsideringItemMenuState) {
+        currentMenu.item = itemOption;
+      } else {
+        actionMenuStore.pushStack(new ConsideringItemMenuState(itemOption));
+      }
+    }
+
+    const disabledStyle = playerOwnsCharacter ? "" : "opacity-50";
+
+    return (
+      <button
+        className={`overflow-ellipsis overflow-hidden border flex items-center justify-center p-2 ${tailwindClasses} ${highlightStyle} ${bgStyle} ${disabledStyle}`}
+        onMouseEnter={handleFocus}
+        onMouseLeave={handleBlur}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        onClick={handleClick}
+      >
+        {itemDisplay}
+      </button>
+    );
   }
-  function handleBlur() {
-    setItemHovered(null);
-  }
-
-  function handleClick() {
-    if (!playerOwnsCharacter) return;
-    if (!itemOption) return;
-
-    const detailedItemIsNowNull = selectItem(itemOption);
-
-    const currentMenu = useGameStore.getState().getCurrentMenu();
-    if (currentMenu instanceof ConsideringItemMenuState && detailedItemIsNowNull)
-      return useGameStore.getState().mutateState((state) => {
-        state.stackedMenuStates.pop();
-      });
-
-    if (currentMenu instanceof ConsideringItemMenuState) currentMenu.item = itemOption;
-    else
-      useGameStore.getState().mutateState((state) => {
-        state.stackedMenuStates.push(new ConsideringItemMenuState(itemOption));
-      });
-  }
-
-  const disabledStyle = playerOwnsCharacter ? "" : "opacity-50";
-
-  return (
-    <button
-      className={`overflow-ellipsis overflow-hidden border flex items-center justify-center p-2 ${tailwindClasses} ${highlightStyle} ${bgStyle} ${disabledStyle}`}
-      onMouseEnter={handleFocus}
-      onMouseLeave={handleBlur}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      onClick={handleClick}
-    >
-      {itemDisplay}
-    </button>
-  );
-}
+);

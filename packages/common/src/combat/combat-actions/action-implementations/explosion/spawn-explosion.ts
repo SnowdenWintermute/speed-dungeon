@@ -1,12 +1,11 @@
 import {
-  CombatActionCombatLogProperties,
+  CombatActionGameLogProperties,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionExecutionIntent,
   CombatActionName,
   CombatActionOrigin,
 } from "../../index.js";
-import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { SPAWN_EXPLOSION_STEPS_CONFIG } from "./spawn-explosion-steps-config.js";
@@ -24,7 +23,7 @@ const targetingProperties = TARGETING_PROPERTIES_TEMPLATE_GETTERS.EXPLOSION();
 const config: CombatActionComponentConfig = {
   description: "Deals kinetic fire damage in an area around the target",
   targetingProperties,
-  combatLogMessageProperties: new CombatActionCombatLogProperties({
+  gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.TriggeredCondition,
     getOnUseMessage: (data) => {
       return `${data.nameOfActionUser} explodes!`;

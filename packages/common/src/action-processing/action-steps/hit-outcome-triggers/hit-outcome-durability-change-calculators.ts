@@ -3,7 +3,7 @@ import { DurabilityLossCondition } from "../../../combat/combat-actions/combat-a
 import { CombatActionResource } from "../../../combat/combat-actions/combat-action-hit-outcome-properties.js";
 import { CombatActionComponent } from "../../../combat/index.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
-import { Combatant, CombatantEquipment, CombatantProperties } from "../../../combatants/index.js";
+import { Combatant, CombatantEquipment } from "../../../combatants/index.js";
 import {
   BASE_DURABILITY_LOSS,
   DurabilityChangesByEntityId,
@@ -11,7 +11,6 @@ import {
 } from "../../../durability/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
 import {
-  Equipment,
   EquipmentSlotType,
   HoldableSlotType,
   TaggedEquipmentSlot,
@@ -99,7 +98,6 @@ const HIT_OUTCOME_DURABILITY_CHANGE_ON_TARGET_CALCULATORS: Record<
   },
   [HitOutcome.Hit]: (durabilityChanges, targetCombatant, isCrit) => {
     const { combatantProperties: targetCombatantProperties } = targetCombatant;
-    const targetId = targetCombatant.entityProperties.id;
     const headSlot: TaggedEquipmentSlot = {
       type: EquipmentSlotType.Wearable,
       slot: WearableSlotType.Head,
@@ -110,20 +108,15 @@ const HIT_OUTCOME_DURABILITY_CHANGE_ON_TARGET_CALCULATORS: Record<
     };
 
     // hits damage a random wearable
-    const equippedHelmOption = CombatantEquipment.getEquipmentInSlot(
-      targetCombatantProperties.equipment,
-      headSlot
-    );
-    const equippedBodyOption = CombatantEquipment.getEquipmentInSlot(
-      targetCombatantProperties.equipment,
-      bodySlot
-    );
+    const { equipment } = targetCombatantProperties;
+    const equippedHelmOption = equipment.getEquipmentInSlot(headSlot);
+    const equippedBodyOption = equipment.getEquipmentInSlot(bodySlot);
 
     if (
       equippedBodyOption &&
-      !Equipment.isBroken(equippedBodyOption) &&
+      !equippedBodyOption.isBroken() &&
       equippedHelmOption &&
-      !Equipment.isBroken(equippedHelmOption)
+      !equippedHelmOption.isBroken()
     ) {
       const whichArmorToHitRoll = Math.random();
       const shouldHitHeadArmor = whichArmorToHitRoll < ONE_THIRD_OF_ONE;
@@ -141,12 +134,12 @@ const HIT_OUTCOME_DURABILITY_CHANGE_ON_TARGET_CALCULATORS: Record<
           value: BASE_DURABILITY_LOSS,
         });
       }
-    } else if (equippedBodyOption && !Equipment.isBroken(equippedBodyOption)) {
+    } else if (equippedBodyOption && !equippedBodyOption.isBroken()) {
       durabilityChanges.updateOrCreateDurabilityChangeRecord(targetCombatant, {
         taggedSlot: bodySlot,
         value: BASE_DURABILITY_LOSS,
       });
-    } else if (equippedHelmOption && !Equipment.isBroken(equippedHelmOption)) {
+    } else if (equippedHelmOption && !equippedHelmOption.isBroken()) {
       durabilityChanges.updateOrCreateDurabilityChangeRecord(targetCombatant, {
         taggedSlot: headSlot,
         value: BASE_DURABILITY_LOSS,

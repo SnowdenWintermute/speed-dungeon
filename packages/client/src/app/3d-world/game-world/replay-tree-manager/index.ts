@@ -1,11 +1,6 @@
-import {
-  CombatActionReplayTreePayload,
-  InputLock,
-  NestedNodeReplayEvent,
-} from "@speed-dungeon/common";
-import { useGameStore } from "@/stores/game-store";
-import getCurrentParty from "@/utils/getCurrentParty";
+import { CombatActionReplayTreePayload, NestedNodeReplayEvent } from "@speed-dungeon/common";
 import { ReplayTreeProcessor } from "./replay-tree-processor";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export class ReplayTreeProcessorManager {
   private queue: { root: NestedNodeReplayEvent; onComplete: () => void }[] = [];
@@ -29,11 +24,9 @@ export class ReplayTreeProcessorManager {
   async enqueueTree(payload: CombatActionReplayTreePayload, onComplete: () => void) {
     this.queue.push({ root: payload.root, onComplete });
 
-    useGameStore.getState().mutateState((state) => {
-      const partyOption = getCurrentParty(state, state.username || "");
-      if (partyOption && !payload.doNotLockInput) InputLock.lockInput(partyOption.inputLock);
-      state.stackedMenuStates = [];
-    });
+    const partyOption = AppStore.get().gameStore.getPartyOption();
+    if (partyOption && !payload.doNotLockInput) partyOption.inputLock.lockInput();
+    AppStore.get().actionMenuStore.clearStack();
   }
 
   currentTreeCompleted() {

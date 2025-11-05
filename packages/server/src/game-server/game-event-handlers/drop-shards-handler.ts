@@ -7,13 +7,12 @@ import {
   ConsumableType,
   ERROR_MESSAGES,
   GameMode,
-  Inventory,
   ServerToClientEvent,
   ServerToClientEventTypes,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { getGameServer, idGenerator } from "../../singletons/index.js";
-import writePlayerCharactersInGameToDb from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
+import { writePlayerCharactersInGameToDb } from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
 
 export async function dropShardsHandler(
   eventData: { characterId: string; numShards: number },
@@ -29,10 +28,10 @@ export async function dropShardsHandler(
   // check if have enough shards
   if (inventory.shards < numShards) return new Error(ERROR_MESSAGES.COMBATANT.NOT_ENOUGH_SHARDS);
   // deduct shards from inventory
-  inventory.shards -= numShards;
+  inventory.changeShards(numShards * -1);
   // create a "shard stack" consumable item
   const shardStack = createShardStack(numShards);
-  Inventory.insertItem(party.currentRoom.inventory, shardStack);
+  party.currentRoom.inventory.insertItem(shardStack);
   party.itemsOnGroundNotYetReceivedByAllClients[shardStack.entityProperties.id] = [];
 
   // SERVER

@@ -1,17 +1,15 @@
 import { CombatantCondition, CombatantConditionName, ConditionAppliedBy } from "./index.js";
-import { CombatantProperties } from "../index.js";
 import {
   CombatActionExecutionIntent,
   CombatActionIntent,
   CombatActionName,
 } from "../../combat/combat-actions/index.js";
-import { EntityId, EntityProperties, MaxAndCurrent } from "../../primatives/index.js";
+import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 import { BASE_CONDITION_TICK_SPEED } from "../../combat/turn-order/consts.js";
 import {
   CombatActionTargetSingle,
   CombatActionTargetType,
 } from "../../combat/targeting/combat-action-targets.js";
-import { immerable } from "immer";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
 import {
   CharacterModelIdentifier,
@@ -21,12 +19,14 @@ import {
 } from "../../scene-entities/index.js";
 import { CombatAttribute } from "../attributes/index.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
+import { CombatantProperties } from "../combatant-properties.js";
+import { runIfInBrowser } from "../../utils/index.js";
+import makeAutoObservable from "mobx-store-inheritance";
 
 export class BlindedCombatantCondition extends CombatantCondition {
-  [immerable] = true;
   intent = CombatActionIntent.Malicious;
   removedOnDeath: boolean = true;
-  ticks?: MaxAndCurrent | undefined;
+  ticks?: MaxAndCurrent | undefined = undefined;
   constructor(
     id: EntityId,
     appliedBy: ConditionAppliedBy,
@@ -35,6 +35,7 @@ export class BlindedCombatantCondition extends CombatantCondition {
     stacksOption: null | MaxAndCurrent
   ) {
     super(id, appliedBy, appliedTo, CombatantConditionName.Blinded, stacksOption);
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 
   tickPropertiesOption = {

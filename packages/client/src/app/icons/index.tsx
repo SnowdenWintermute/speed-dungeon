@@ -33,6 +33,7 @@ import Sword from "../../../public/img/equipment-icons/1h-sword-a.svg";
 import Camera from "../../../public/img/game-ui-icons/camera-1.svg";
 import XShape from "../../../public/img/basic-shapes/x-shape.svg";
 import Model3DIcon from "../../../public/img/menu-icons/3d-model-icon.svg";
+import Whistle from "../../../public/img/game-ui-icons/whistle.svg";
 
 import { ReactNode } from "react";
 import {
@@ -79,6 +80,7 @@ export enum IconName {
   XShape,
   Model3DIcon,
   Firewall,
+  Whistle,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -115,6 +117,7 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.XShape]: (className) => <XShape className={className} />,
   [IconName.Model3DIcon]: (className) => <Model3DIcon className={className} />,
   [IconName.Firewall]: (className) => <Firewall className={className} />,
+  [IconName.Whistle]: (className) => <Whistle className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {
@@ -169,10 +172,8 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
   [CombatActionName.ChainingSplitArrowProjectile]: null,
   [CombatActionName.ExplodingArrowParent]: null,
   [CombatActionName.ExplodingArrowProjectile]: null,
-  [CombatActionName.Explosion]: null,
   [CombatActionName.IceBoltParent]: (className: string) => SVG_ICONS[IconName.Ice](className),
   [CombatActionName.IceBoltProjectile]: null,
-  [CombatActionName.IceBurst]: null,
   [CombatActionName.Fire]: (className: string) => SVG_ICONS[IconName.Fire](className),
   [CombatActionName.BurningTick]: null,
   [CombatActionName.Healing]: (className: string) => SVG_ICONS[IconName.HealthCross](className),
@@ -186,6 +187,13 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
   [CombatActionName.Firewall]: (className: string) => SVG_ICONS[IconName.Firewall](className),
   [CombatActionName.FirewallBurn]: null,
   [CombatActionName.FirewallPassTurn]: null,
+  [CombatActionName.SpawnExplosion]: null,
+  [CombatActionName.ExecuteExplosion]: null,
+  [CombatActionName.IceBurstParent]: null,
+  [CombatActionName.IceBurstExplosion]: null,
+  [CombatActionName.IgniteProjectile]: null,
+  [CombatActionName.IncinerateProjectile]: null,
+  [CombatActionName.SummonPet]: (className: string) => SVG_ICONS[IconName.Whistle](className),
 };
 
 export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string) => ReactNode)> = {

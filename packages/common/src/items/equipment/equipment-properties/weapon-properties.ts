@@ -19,10 +19,3 @@ export interface WeaponProperties {
   damage: NumberRange;
   damageClassification: ResourceChangeSource[];
 }
-
-export function equipmentIsTwoHandedWeapon(equipmentType: EquipmentType) {
-  return (
-    equipmentType === EquipmentType.TwoHandedMeleeWeapon ||
-    equipmentType === EquipmentType.TwoHandedRangedWeapon
-  );
-}

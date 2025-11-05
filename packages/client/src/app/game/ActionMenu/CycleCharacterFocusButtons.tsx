@@ -1,16 +1,15 @@
-import { abilityTreeMenuState, inventoryItemsMenuState, useGameStore } from "@/stores/game-store";
 import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import React from "react";
-import { ActionMenuButtonProperties } from "./menu-state";
-import getCurrentParty from "@/utils/getCurrentParty";
-import setFocusedCharacter from "@/utils/set-focused-character";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
-import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { BUTTON_HEIGHT_SMALL, SPACING_REM_SMALL } from "@/client_consts";
 import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicatedButton";
-import { viewingAbilityTree } from "@/utils/should-show-character-sheet";
+import { AppStore } from "@/mobx-stores/app-store";
+import { ActionMenuButtonProperties } from "./menu-state/action-menu-button-properties";
+import { MenuStateType } from "./menu-state/menu-state-type";
+import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
+import { observer } from "mobx-react-lite";
 
-export function CharacterFocusingButtons() {
+export const CharacterFocusingButtons = observer(() => {
   function createFocusCharacterButtonProperties(
     text: string,
     direction: NextOrPrevious,
@@ -20,31 +19,33 @@ export function CharacterFocusingButtons() {
       () => text,
       text,
       () => {
-        const currentFocusedCharacterId = useGameStore.getState().focusedCharacterId;
-        const party = getCurrentParty(
-          useGameStore.getState(),
-          useGameStore.getState().username || ""
+        const { gameStore } = AppStore.get();
+        const focusedCharacterId = gameStore.getExpectedFocusedCharacterId();
+        const party = gameStore.getExpectedParty();
+
+        const characterPositions = party.combatantManager.sortCombatantIdsLeftToRight(
+          party.combatantManager
+            .getPartyMemberCharacters()
+            .map((combatant) => combatant.getEntityId())
         );
-        if (!party) return;
-        const currCharIndex = party.characterPositions.indexOf(currentFocusedCharacterId);
+
+        const currCharIndex = characterPositions.indexOf(focusedCharacterId);
         if (currCharIndex === -1) return console.error("Character ID not in position list");
         const nextIndex = getNextOrPreviousNumber(
           currCharIndex,
-          party.characterPositions.length - 1,
+          characterPositions.length - 1,
           direction,
           { minNumber: 0 }
         );
-        const newCharacterId = party.characterPositions[nextIndex];
+        const newCharacterId = characterPositions[nextIndex];
         if (newCharacterId === undefined) return console.error("Invalid character position index");
 
-        useGameStore.getState().mutateState((state) => {
-          const currentMenu = state.getCurrentMenu();
-          if (viewingAbilityTree(currentMenu.type)) {
-            state.stackedMenuStates = [abilityTreeMenuState];
-          }
-        });
+        const { actionMenuStore } = AppStore.get();
+        if (actionMenuStore.viewingAbilityTree()) {
+          actionMenuStore.replaceStack([MenuStatePool.get(MenuStateType.ViewingAbilityTree)]);
+        }
 
-        setFocusedCharacter(newCharacterId);
+        gameStore.setFocusedCharacter(newCharacterId);
       }
     );
 
@@ -65,8 +66,7 @@ export function CharacterFocusingButtons() {
     [nextCharacterHotkey]
   );
 
-  const focusedCharacter = getFocusedCharacter();
-  if (focusedCharacter instanceof Error) return <div>Error: no focused character</div>;
+  const focusedCharacterResult = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
   return (
     <ul
@@ -78,7 +78,7 @@ export function CharacterFocusingButtons() {
         properties={previousCharacterButton}
       />
       <span className="h-full flex items-center justify-center pr-2 pl-2 overflow-hidden w-1/3 text-nowrap overflow-ellipsis">
-        {focusedCharacter.entityProperties.name}
+        {focusedCharacterResult.entityProperties.name}
       </span>
       <ActionMenuDedicatedButton
         extraStyles="flex-1 flex border-l border-slate-400 h-full"
@@ -86,4 +86,4 @@ export function CharacterFocusingButtons() {
       />
     </ul>
   );
-}
+});

@@ -1,145 +1,351 @@
 import { plainToInstance } from "class-transformer";
-import { Equipment, EquipmentBaseItem, EquipmentType } from "../../items/equipment/index.js";
 import {
+  Equipment,
+  EquipmentBaseItem,
+  EquipmentType,
+  WeaponProperties,
+} from "../../items/equipment/index.js";
+import {
+  EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE,
   EquipmentSlotType,
   HoldableSlotType,
   TaggedEquipmentSlot,
   WearableSlotType,
 } from "../../items/equipment/slots.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
-import { CombatantProperties } from "../index.js";
+import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../../utils/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { IActionUser } from "../../action-user-context/action-user.js";
+import makeAutoObservable from "mobx-store-inheritance";
+import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
+import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
+import { CombatantSubsystem } from "../combatant-subsystem.js";
 
-export * from "./equip-item.js";
-export * from "./unequip-slots.js";
-export * from "./get-equipped-weapon.js";
-export * from "./get-weapons-in-slots.js";
-export * from "./get-slot-item-is-equipped-to.js";
-export * from "./change-selected-hotswap-slot.js";
-export * from "./get-pre-equipment-change-hp-and-mana-percentage.js";
-export * from "./apply-equipment-affect-while-maintaining-resource-percentages.js";
+const DEFAULT_HOTSWAP_SLOT_ALLOWED_TYPES = [
+  EquipmentType.OneHandedMeleeWeapon,
+  EquipmentType.TwoHandedMeleeWeapon,
+  EquipmentType.TwoHandedRangedWeapon,
+  EquipmentType.Shield,
+];
 
-/// We take CombatantProperties as an argument instead of CombatantEquipment because we
-// may want to get hotswap slots derrived from traits
 export class HoldableHotswapSlot {
   holdables: Partial<Record<HoldableSlotType, Equipment>> = {};
   forbiddenBaseItems: EquipmentBaseItem[] = [];
-  constructor(
-    public allowedTypes: EquipmentType[] = [
-      EquipmentType.OneHandedMeleeWeapon,
-      EquipmentType.TwoHandedMeleeWeapon,
-      EquipmentType.TwoHandedRangedWeapon,
-      EquipmentType.Shield,
-    ]
-  ) {}
+  constructor(public allowedTypes: EquipmentType[] = [...DEFAULT_HOTSWAP_SLOT_ALLOWED_TYPES]) {
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+  }
+
+  static getDeserialized(holdableSlot: HoldableHotswapSlot) {
+    return plainToInstance(HoldableHotswapSlot, holdableSlot);
+  }
 }
 
-export class CombatantEquipment {
-  wearables: Partial<Record<WearableSlotType, Equipment>> = {};
-  equippedHoldableHotswapSlotIndex: number = 0;
-  inherentHoldableHotswapSlots: HoldableHotswapSlot[] = [
+export class CombatantEquipment extends CombatantSubsystem {
+  private wearables: Partial<Record<WearableSlotType, Equipment>> = {};
+  private equippedHoldableHotswapSlotIndex: number = 0;
+  private inherentHoldableHotswapSlots: HoldableHotswapSlot[] = [
     new HoldableHotswapSlot(),
     new HoldableHotswapSlot(),
   ];
-  static getHoldableHotswapSlots(equipment: CombatantEquipment): HoldableHotswapSlot[] {
-    return equipment.inherentHoldableHotswapSlots;
+
+  constructor() {
+    super();
+    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
   }
 
-  static getEquippedHoldableSlots(equipment: CombatantEquipment) {
-    const slots =
-      this.getHoldableHotswapSlots(equipment)[equipment.equippedHoldableHotswapSlotIndex];
+  static getDeserialized(equipment: CombatantEquipment) {
+    const deserialized = plainToInstance(CombatantEquipment, equipment);
+
+    for (const [slot, item] of iterateNumericEnumKeyedRecord(deserialized.wearables)) {
+      deserialized.wearables[slot] = Equipment.getDeserialized(item);
+    }
+
+    const deserializedHotswapSlots = deserialized
+      .getHoldableHotswapSlots()
+      .map((slot) => HoldableHotswapSlot.getDeserialized(slot));
+    deserialized.replaceHoldableSlots(deserializedHotswapSlots);
+
+    for (const hotswapSlot of Object.values(deserialized.getHoldableHotswapSlots())) {
+      for (const [slot, item] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables)) {
+        hotswapSlot.holdables[slot] = Equipment.getDeserialized(item);
+      }
+    }
+
+    return deserialized;
+  }
+
+  getHoldableHotswapSlots(): HoldableHotswapSlot[] {
+    return this.inherentHoldableHotswapSlots;
+  }
+
+  getSelectedHoldableSlotIndex() {
+    return this.equippedHoldableHotswapSlotIndex;
+  }
+
+  private setSelectedHoldableSlotIndex(newIndex: number) {
+    this.equippedHoldableHotswapSlotIndex = newIndex;
+  }
+
+  getWearables() {
+    return this.wearables;
+  }
+
+  getActiveHoldableSlot() {
+    const slots = this.getHoldableHotswapSlots()[this.equippedHoldableHotswapSlotIndex];
 
     if (slots === undefined) throw new Error(ERROR_MESSAGES.EQUIPMENT.SELECTED_SLOT_OUT_OF_BOUNDS);
     return slots;
   }
 
-  static getEquippedHoldable(equipment: CombatantEquipment, holdableSlotType: HoldableSlotType) {
-    const equippedHoldableHotswapSlot = CombatantEquipment.getEquippedHoldableSlots(equipment);
-    if (!equippedHoldableHotswapSlot) return undefined;
+  getEquippedHoldable(holdableSlotType: HoldableSlotType) {
+    const equippedHoldableHotswapSlot = this.getActiveHoldableSlot();
     return equippedHoldableHotswapSlot.holdables[holdableSlotType];
   }
 
-  static instatiateItemClasses(equipment: CombatantEquipment) {
-    for (const [slot, item] of iterateNumericEnumKeyedRecord(equipment.wearables)) {
-      equipment.wearables[slot] = plainToInstance(Equipment, item);
-    }
-    for (const hotswapSlot of Object.values(
-      CombatantEquipment.getHoldableHotswapSlots(equipment)
-    )) {
-      for (const [slot, item] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables)) {
-        hotswapSlot.holdables[slot] = plainToInstance(Equipment, item);
-      }
-    }
+  getEquippedWeapon(holdableSlot: HoldableSlotType): undefined | Error | WeaponProperties {
+    const itemOption = this.getEquippedHoldable(holdableSlot);
+    if (itemOption === undefined) return undefined;
+
+    return itemOption.getWeaponProperties();
   }
 
-  static putEquipmentInSlot(
-    equipment: CombatantEquipment,
-    equipmentItem: Equipment,
-    taggedSlot: TaggedEquipmentSlot
-  ) {
+  getWeaponsInSlots(weaponSlots: HoldableSlotType[], options: { usableWeaponsOnly: boolean }) {
+    const toReturn: Partial<
+      Record<HoldableSlotType, { equipment: Equipment; weaponProperties: WeaponProperties }>
+    > = {};
+
+    const equippedSelectedHotswapSlot = this.getActiveHoldableSlot();
+    if (!equippedSelectedHotswapSlot) return toReturn;
+
+    for (const weaponSlot of weaponSlots) {
+      const holdable = equippedSelectedHotswapSlot.holdables[weaponSlot];
+      if (holdable === undefined) continue;
+
+      const combatantProperties = this.getCombatantProperties();
+
+      const itemNotUsable =
+        !combatantProperties.attributeProperties.hasRequiredAttributesToUseItem(holdable) ||
+        holdable.isBroken();
+
+      if (options.usableWeaponsOnly && itemNotUsable) {
+        continue;
+      }
+
+      const weaponPropertiesResult = holdable.getWeaponProperties();
+      if (weaponPropertiesResult instanceof Error) continue; // could be a shield so just skip it
+      toReturn[weaponSlot] = { equipment: holdable, weaponProperties: weaponPropertiesResult };
+    }
+
+    return toReturn;
+  }
+
+  /** Used when deserializing since the slots also need to be deserialized but they are private
+   * so we can't just directly write to them */
+  replaceHoldableSlots(replacementSlots: HoldableHotswapSlot[]) {
+    this.inherentHoldableHotswapSlots = replacementSlots;
+  }
+
+  addHoldableSlot(newSlot: HoldableHotswapSlot) {
+    this.inherentHoldableHotswapSlots.push(newSlot);
+  }
+
+  putEquipmentInSlot(equipmentItem: Equipment, taggedSlot: TaggedEquipmentSlot) {
     switch (taggedSlot.type) {
       case EquipmentSlotType.Holdable:
-        const equippedHoldableHotswapSlot = CombatantEquipment.getEquippedHoldableSlots(equipment);
-        if (!equippedHoldableHotswapSlot)
-          return new Error(ERROR_MESSAGES.EQUIPMENT.NO_SELECTED_HOTSWAP_SLOT);
+        const equippedHoldableHotswapSlot = this.getActiveHoldableSlot();
+        if (!equippedHoldableHotswapSlot) {
+          throw new Error(ERROR_MESSAGES.EQUIPMENT.NO_SELECTED_HOTSWAP_SLOT);
+        }
         equippedHoldableHotswapSlot.holdables[taggedSlot.slot] = equipmentItem;
         break;
       case EquipmentSlotType.Wearable:
-        equipment.wearables[taggedSlot.slot] = equipmentItem;
+        this.wearables[taggedSlot.slot] = equipmentItem;
         break;
     }
   }
 
   /**Optionally choose unselected hotswap slots*/
-  static getAllEquippedItems(
-    equipment: CombatantEquipment,
-    options: { includeUnselectedHotswapSlots?: boolean }
-  ) {
+  getAllEquippedItems(options: { includeUnselectedHotswapSlots?: boolean }) {
     const toReturn: Equipment[] = [];
 
+    let slotsToInclude = [this.getActiveHoldableSlot()];
     if (options.includeUnselectedHotswapSlots) {
-      for (const hotswapSlot of CombatantEquipment.getHoldableHotswapSlots(equipment)) {
-        for (const [slot, item] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables)) {
-          toReturn.push(item);
-        }
-      }
-    } else {
-      // only want selected slot
-      const equippedHoldableHotswapSlot = CombatantEquipment.getEquippedHoldableSlots(equipment);
-
-      if (equippedHoldableHotswapSlot)
-        toReturn.push(
-          ...Object.values(equippedHoldableHotswapSlot.holdables).filter(
-            (item) => item !== undefined
-          )
-        );
+      slotsToInclude = this.getHoldableHotswapSlots();
     }
 
-    toReturn.push(...Object.values(equipment.wearables).filter((item) => item !== undefined));
+    for (const hotswapSlot of slotsToInclude) {
+      for (const item of Object.values(hotswapSlot.holdables)) {
+        if (item) toReturn.push(item);
+      }
+    }
+
+    toReturn.push(...Object.values(this.wearables).filter((item) => item !== undefined));
 
     return toReturn;
   }
 
-  static getEquipmentInSlot(equipment: CombatantEquipment, taggedSlot: TaggedEquipmentSlot) {
+  getEquipmentInSlot(taggedSlot: TaggedEquipmentSlot) {
     switch (taggedSlot.type) {
       case EquipmentSlotType.Holdable:
-        return CombatantEquipment.getEquippedHoldable(equipment, taggedSlot.slot);
+        return this.getEquippedHoldable(taggedSlot.slot);
       case EquipmentSlotType.Wearable:
-        return equipment.wearables[taggedSlot.slot];
+        return this.wearables[taggedSlot.slot];
     }
   }
 
-  static removeItem(equipment: CombatantEquipment, itemId: string) {
-    for (const [slot, item] of iterateNumericEnumKeyedRecord(equipment.wearables)) {
+  getSlotItemIsEquippedTo(itemId: string): null | TaggedEquipmentSlot {
+    for (const [slot, item] of iterateNumericEnumKeyedRecord(this.wearables)) {
+      if (item.entityProperties.id === itemId) return { type: EquipmentSlotType.Wearable, slot };
+    }
+
+    const holdableSlotsOption = this.getActiveHoldableSlot();
+    if (!holdableSlotsOption) return null;
+
+    for (const [slot, item] of iterateNumericEnumKeyedRecord(holdableSlotsOption.holdables)) {
+      if (item.entityProperties.id === itemId) return { type: EquipmentSlotType.Holdable, slot };
+    }
+
+    return null;
+  }
+
+  /** 
+  returns list of item ids unequipped 
+  */
+  equipItem(
+    itemId: string,
+    equipToAltSlot: boolean
+  ): Error | { idsOfUnequippedItems: EntityId[]; unequippedSlots: TaggedEquipmentSlot[] } {
+    const combatantProperties = this.getCombatantProperties();
+
+    const equipmentResult = combatantProperties.inventory.getEquipmentById(itemId);
+    if (equipmentResult instanceof Error) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
+    const equipment = equipmentResult;
+
+    if (!combatantProperties.attributeProperties.hasRequiredAttributesToUseItem(equipment)) {
+      return new Error(ERROR_MESSAGES.EQUIPMENT.REQUIREMENTS_NOT_MET);
+    }
+    if (equipment.isBroken()) return new Error(ERROR_MESSAGES.EQUIPMENT.IS_BROKEN);
+
+    const idsOfUnequippedItems: EntityId[] = [];
+    const slotsToUnequip: TaggedEquipmentSlot[] = [];
+
+    combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
+      const { equipmentType } = equipment.equipmentBaseItemProperties.taggedBaseEquipment;
+
+      const possibleSlots = EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[equipmentType];
+
+      const slot = (() => {
+        if (equipToAltSlot && possibleSlots.alternate !== null) return possibleSlots.alternate;
+        else return possibleSlots.main;
+      })();
+
+      // @REFACTOR
+      const slotsToUnequipResult = ((): TaggedEquipmentSlot[] => {
+        switch (slot.type) {
+          case EquipmentSlotType.Holdable:
+            switch (slot.slot) {
+              case HoldableSlotType.MainHand:
+                if (equipment.isTwoHanded()) {
+                  return [
+                    { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand },
+                    { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.OffHand },
+                  ];
+                } else {
+                  return [slot];
+                }
+              case HoldableSlotType.OffHand:
+                const equippedHotswapSlot = combatantProperties.equipment.getActiveHoldableSlot();
+                if (!equippedHotswapSlot) return [];
+
+                const itemInMainHandOption =
+                  equippedHotswapSlot.holdables[HoldableSlotType.MainHand];
+
+                if (itemInMainHandOption !== undefined) {
+                  if (equipment.isTwoHanded() || itemInMainHandOption.isTwoHanded()) {
+                    return [
+                      { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand },
+                      { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.OffHand },
+                    ];
+                  }
+                }
+                return [slot];
+            }
+          case EquipmentSlotType.Wearable:
+            return [slot];
+        }
+      })();
+
+      if (slotsToUnequipResult instanceof Error) return slotsToUnequipResult;
+      slotsToUnequip.push(...slotsToUnequipResult);
+
+      idsOfUnequippedItems.push(...combatantProperties.equipment.unequipSlots(slotsToUnequip));
+
+      const itemToEquipResult = combatantProperties.inventory.removeEquipment(
+        equipment.entityProperties.id
+      );
+      if (itemToEquipResult instanceof Error) return itemToEquipResult;
+
+      combatantProperties.equipment.putEquipmentInSlot(itemToEquipResult, slot);
+    });
+
+    return { idsOfUnequippedItems, unequippedSlots: slotsToUnequip };
+  }
+
+  changeSelectedHotswapSlot(slotIndex: number) {
+    const combatantProperties = this.getCombatantProperties();
+    combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
+      combatantProperties.equipment.setSelectedHoldableSlotIndex(slotIndex);
+    });
+  }
+
+  unequipSlots(slots: TaggedEquipmentSlot[]) {
+    const unequippedItemIds: string[] = [];
+
+    const combatantProperties = this.getCombatantProperties();
+
+    combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
+      const unequippedItems = combatantProperties.equipment.removeEquipmentInSlots(slots);
+      combatantProperties.inventory.equipment.push(...unequippedItems);
+      unequippedItemIds.push(...unequippedItems.map((item) => item.entityProperties.id));
+    });
+    return unequippedItemIds;
+  }
+
+  private removeEquipmentInSlots(slots: TaggedEquipmentSlot[]) {
+    const unequippedItems: Equipment[] = [];
+
+    for (const slot of slots) {
+      let itemOption: Equipment | undefined;
+
+      switch (slot.type) {
+        case EquipmentSlotType.Holdable:
+          const equippedHoldableHotswapSlot = this.getActiveHoldableSlot();
+          if (!equippedHoldableHotswapSlot) continue;
+          itemOption = equippedHoldableHotswapSlot.holdables[slot.slot];
+          delete equippedHoldableHotswapSlot.holdables[slot.slot];
+          break;
+        case EquipmentSlotType.Wearable:
+          itemOption = this.wearables[slot.slot];
+          delete this.wearables[slot.slot];
+          break;
+      }
+      if (itemOption === undefined) continue;
+
+      unequippedItems.push(itemOption);
+    }
+
+    return unequippedItems;
+  }
+
+  removeItem(itemId: string) {
+    for (const [slot, item] of iterateNumericEnumKeyedRecord(this.wearables)) {
       if (item.entityProperties.id === itemId) {
-        delete equipment.wearables[slot];
+        delete this.wearables[slot];
         return item;
       }
     }
 
-    const allHotswapSlots = CombatantEquipment.getHoldableHotswapSlots(equipment);
+    const allHotswapSlots = this.getHoldableHotswapSlots();
     for (const hotswapSlot of allHotswapSlots) {
       for (const [slot, item] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables)) {
         if (item.entityProperties.id === itemId) {
@@ -149,81 +355,89 @@ export class CombatantEquipment {
       }
     }
 
-    return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
+    throw new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 
-  static getEquippedShieldProperties(equipment: CombatantEquipment) {
-    const offhandOption = CombatantEquipment.getEquipmentInSlot(equipment, {
+  getEquippedShieldProperties() {
+    const offhandOption = this.getEquipmentInSlot({
       type: EquipmentSlotType.Holdable,
       slot: HoldableSlotType.OffHand,
     });
-    if (!offhandOption) return;
+    if (offhandOption === undefined) return;
     if (offhandOption.equipmentBaseItemProperties.equipmentType !== EquipmentType.Shield) return;
     return offhandOption.equipmentBaseItemProperties;
   }
 
-  static isWearingUsableShield(actionUser: IActionUser): boolean {
-    const equipmentOption = actionUser.getEquipmentOption();
-    if (equipmentOption === null) return false;
-    const offHandEquipmentOption = CombatantEquipment.getEquipmentInSlot(equipmentOption, {
-      type: EquipmentSlotType.Holdable,
-      slot: HoldableSlotType.OffHand,
-    });
+  private static isHoldingUsableHoldable(
+    actionUser: IActionUser,
+    slot: HoldableSlotType,
+    type: EquipmentType
+  ): boolean {
+    const equipment = actionUser.getEquipmentOption();
+    if (!equipment) return false;
 
-    if (!offHandEquipmentOption) return false;
-    const { equipmentType } = offHandEquipmentOption.equipmentBaseItemProperties;
-    const isShield = equipmentType === EquipmentType.Shield;
-    if (!isShield) return false;
-    const isUsable = Equipment.isUsable(actionUser, offHandEquipmentOption);
+    const itemOption = equipment.getEquipmentInSlot({ type: EquipmentSlotType.Holdable, slot });
+    if (!itemOption) return false;
 
-    return isUsable;
+    if (itemOption.equipmentBaseItemProperties.equipmentType !== type) return false;
+
+    const isBroken = itemOption.isBroken();
+    if (isBroken) return false;
+    return actionUser.hasRequiredAttributesToUseItem(itemOption);
   }
 
-  static isWearingUsableTwoHandedRangedWeapon(actionUser: IActionUser): boolean {
-    const equipmentOption = actionUser.getEquipmentOption();
-    if (equipmentOption === null) return false;
-    const mainHandEquipmentOption = CombatantEquipment.getEquipmentInSlot(equipmentOption, {
-      type: EquipmentSlotType.Holdable,
-      slot: HoldableSlotType.MainHand,
-    });
-    if (!mainHandEquipmentOption) return false;
-    const { equipmentType } = mainHandEquipmentOption.equipmentBaseItemProperties;
-    const isTwoHandedRanged = equipmentType === EquipmentType.TwoHandedRangedWeapon;
-    if (!isTwoHandedRanged) return false;
-    const isUsable = Equipment.isUsable(actionUser, mainHandEquipmentOption);
-
-    return isUsable;
+  static isWearingUsableShield(actionUser: IActionUser) {
+    return this.isHoldingUsableHoldable(actionUser, HoldableSlotType.OffHand, EquipmentType.Shield);
   }
 
-  static isWearingUsableTwoHandedMeleeWeapon(actionUser: IActionUser): boolean {
-    const equipmentOption = actionUser.getEquipmentOption();
-    if (equipmentOption === null) return false;
-    const mainHandEquipmentOption = CombatantEquipment.getEquipmentInSlot(equipmentOption, {
-      type: EquipmentSlotType.Holdable,
-      slot: HoldableSlotType.MainHand,
-    });
-    if (!mainHandEquipmentOption) return false;
-    const { equipmentType } = mainHandEquipmentOption.equipmentBaseItemProperties;
-
-    const isTwoHandedMelee = equipmentType === EquipmentType.TwoHandedMeleeWeapon;
-    if (!isTwoHandedMelee) return false;
-    const isUsable = Equipment.isUsable(actionUser, mainHandEquipmentOption);
-
-    return isUsable;
+  static isWearingUsableTwoHandedRangedWeapon(actionUser: IActionUser) {
+    return this.isHoldingUsableHoldable(
+      actionUser,
+      HoldableSlotType.MainHand,
+      EquipmentType.TwoHandedRangedWeapon
+    );
   }
 
-  static getHotswapSlotIndexAndHoldableSlotOfPotentiallyEquippedHoldable(
-    equipment: CombatantEquipment,
-    equipmentId: EntityId
-  ) {
-    const allHotswapSlots = CombatantEquipment.getHoldableHotswapSlots(equipment);
+  static isWearingUsableTwoHandedMeleeWeapon(actionUser: IActionUser) {
+    return this.isHoldingUsableHoldable(
+      actionUser,
+      HoldableSlotType.MainHand,
+      EquipmentType.TwoHandedMeleeWeapon
+    );
+  }
 
-    let slotIndex = -1;
-    for (const hotswapSlot of allHotswapSlots) {
-      slotIndex += 1;
+  isWearingRequiredEquipmentToUseAction(actionAndRank: ActionAndRank) {
+    const { actionName, rank } = actionAndRank;
+    const action = COMBAT_ACTIONS[actionName];
+    const { getRequiredEquipmentTypeOptions } = action.targetingProperties;
+    if (getRequiredEquipmentTypeOptions(rank).length === 0) return true;
 
-      for (const [holdableSlot, holdable] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables))
+    const allEquipment = this.getAllEquippedItems({
+      includeUnselectedHotswapSlots: false,
+    });
+
+    for (const equipment of allEquipment) {
+      const { equipmentType } = equipment.equipmentBaseItemProperties;
+      if (equipment.isBroken()) continue;
+      if (getRequiredEquipmentTypeOptions(rank).includes(equipmentType)) return true;
+    }
+
+    return false;
+  }
+
+  /** For checking if a spawned holdable model is still equipped during model synchronization */
+  getHotswapSlotIndexAndHoldableSlotOfPotentiallyEquippedHoldable(equipmentId: EntityId) {
+    const allHotswapSlots = this.getHoldableHotswapSlots();
+
+    for (let slotIndex = 0; slotIndex < allHotswapSlots.length; slotIndex += 1) {
+      const hotswapSlot = allHotswapSlots[slotIndex];
+      if (hotswapSlot === undefined) {
+        throw new Error(ERROR_MESSAGES.EQUIPMENT.EXPECTED_HOTSWAP_SLOT_UNDEFINED);
+      }
+
+      for (const [holdableSlot, holdable] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables)) {
         if (holdable.entityProperties.id === equipmentId) return { holdableSlot, slotIndex };
+      }
     }
 
     return null;

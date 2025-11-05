@@ -31,7 +31,7 @@ export class CharacterOutfitter {
     CharacterOutfitter.setUpInherentTraits(combatantProperties);
     CharacterOutfitter.giveStartingInventoryItems(combatantProperties);
     CharacterOutfitter.giveStartingEquipment(combatantProperties);
-    CombatantProperties.setHpAndMpToMax(combatantProperties);
+    combatantProperties.resources.setToMax();
   }
 
   static giveStartingAbilities = giveStartingAbilities;
@@ -40,16 +40,17 @@ export class CharacterOutfitter {
   static givePlaytestingItems = givePlaytestingItems;
 
   static giveStartingAttributes(combatantProperties: CombatantProperties) {
-    const baseStartingAttributesOption =
-      BASE_STARTING_ATTRIBUTES[combatantProperties.combatantClass];
+    const { combatantClass } = combatantProperties.classProgressionProperties.getMainClass();
+    const baseStartingAttributesOption = BASE_STARTING_ATTRIBUTES[combatantClass];
     for (const [attribute, value] of iterateNumericEnumKeyedRecord(baseStartingAttributesOption)) {
-      combatantProperties.inherentAttributes[attribute] = value;
+      combatantProperties.attributeProperties.setInherentAttributeValue(attribute, value);
     }
   }
 
   static setUpInherentTraits(combatantProperties: CombatantProperties) {
-    const classTraits = STARTING_COMBATANT_TRAITS[combatantProperties.combatantClass];
-    const { traitProperties } = combatantProperties.abilityProperties;
+    const { combatantClass } = combatantProperties.classProgressionProperties.getMainClass();
+    const classTraits = STARTING_COMBATANT_TRAITS[combatantClass];
+    const traitProperties = combatantProperties.abilityProperties.getTraitProperties();
     traitProperties.inherentTraitLevels = cloneDeep(classTraits);
 
     // this is a one-off. as far as I know, no other traits have anything so special as to
@@ -57,8 +58,8 @@ export class CharacterOutfitter {
     // of the trait which would be used in calculations scattered accross the codebase
     const hasExtraHoldableSlotTrait = !!classTraits[CombatantTraitType.ExtraHotswapSlot];
     if (!hasExtraHoldableSlotTrait) return;
-    const { inherentHoldableHotswapSlots } = combatantProperties.equipment;
-    inherentHoldableHotswapSlots.push(new HoldableHotswapSlot());
+
+    combatantProperties.equipment.addHoldableSlot(new HoldableHotswapSlot());
   }
 
   static giveStartingInventoryItems(combatantProperties: CombatantProperties) {

@@ -15,20 +15,22 @@ export default function HpAndMp({
   const maxHpOption = totalAttributes[CombatAttribute.Hp];
   const maxMpOption = totalAttributes[CombatAttribute.Mp];
 
+  const mana = combatantProperties.resources.getMana();
+
   return (
     <div className="flex">
       <div className="w-1/2 flex justify-between mr-1">
         <span>{"HP"}</span>
         <span>
           {maxHpOption !== undefined
-            ? `${combatantProperties.hitPoints}/${maxHpOption}`
+            ? `${combatantProperties.resources.getHitPoints()}/${maxHpOption}`
             : "Immortal Object"}
         </span>
       </div>
       <div className="w-1/2 flex justify-between ml-1">
         <span>{"Mana"}</span>
-        {maxMpOption !== undefined && !isNaN(combatantProperties.mana) ? (
-          <span>{`${combatantProperties.mana}/${maxMpOption}`}</span>
+        {maxMpOption !== undefined && !isNaN(mana) ? (
+          <span>{`${mana}/${maxMpOption}`}</span>
         ) : (
           <span />
         )}

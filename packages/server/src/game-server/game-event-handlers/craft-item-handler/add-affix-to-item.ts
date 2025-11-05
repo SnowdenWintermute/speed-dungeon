@@ -9,10 +9,12 @@ import {
 import { getGameServer } from "../../../singletons/index.js";
 
 export function addAffixToItem(equipment: Equipment, itemLevelLimiter: number) {
-  const missingPrefix = Equipment.hasSuffix(equipment) && !Equipment.hasPrefix(equipment);
-  const missingSuffix = !Equipment.hasSuffix(equipment) && Equipment.hasPrefix(equipment);
-  if (!Equipment.isMagical(equipment) || (!missingPrefix && !missingSuffix))
+  const missingPrefix = equipment.hasSuffix() && !equipment.hasPrefix();
+  const missingSuffix = !equipment.hasSuffix() && equipment.hasPrefix();
+
+  if (!equipment.isMagical() || (!missingPrefix && !missingSuffix)) {
     return new Error(ERROR_MESSAGES.ITEM.INVALID_PROPERTIES);
+  }
 
   const template = getEquipmentGenerationTemplate(
     equipment.equipmentBaseItemProperties.taggedBaseEquipment
@@ -28,7 +30,7 @@ export function addAffixToItem(equipment: Equipment, itemLevelLimiter: number) {
       equipment.equipmentBaseItemProperties.equipmentType
     );
     if (affixResult instanceof Error) return affixResult;
-    Equipment.insertOrReplaceAffix(equipment, AffixCategory.Prefix, prefixType, affixResult);
+    equipment.insertOrReplaceAffix(AffixCategory.Prefix, prefixType, affixResult);
   }
 
   if (missingSuffix) {
@@ -41,7 +43,7 @@ export function addAffixToItem(equipment: Equipment, itemLevelLimiter: number) {
       equipment.equipmentBaseItemProperties.equipmentType
     );
     if (affixResult instanceof Error) return affixResult;
-    Equipment.insertOrReplaceAffix(equipment, AffixCategory.Suffix, suffixType, affixResult);
+    equipment.insertOrReplaceAffix(AffixCategory.Suffix, suffixType, affixResult);
   }
 
   const { equipmentBaseItemProperties } = equipment;

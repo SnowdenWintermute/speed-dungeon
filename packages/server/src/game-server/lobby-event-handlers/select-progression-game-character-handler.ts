@@ -1,10 +1,8 @@
 import {
-  AdventuringParty,
   Combatant,
   ERROR_MESSAGES,
   GameMode,
   ServerToClientEvent,
-  addCharacterToParty,
   getProgressionGameMaxStartingFloor,
 } from "@speed-dungeon/common";
 import errorHandler from "../error-handler.js";
@@ -36,30 +34,32 @@ export async function selectProgressionGameCharacterHandler(
   let savedCharacterOption;
   for (const character of Object.values(charactersResult)) {
     if (character.entityProperties.id === entityId) {
-      if (character.combatantProperties.hitPoints <= 0)
+      if (character.combatantProperties.isDead()) {
         return errorHandler(socket, new Error(ERROR_MESSAGES.COMBATANT.IS_DEAD));
+      }
       savedCharacterOption = character;
       break;
     }
   }
-  if (savedCharacterOption === undefined)
+
+  if (savedCharacterOption === undefined) {
     return errorHandler(socket, new Error(ERROR_MESSAGES.USER.SAVED_CHARACTER_NOT_OWNED));
+  }
 
   const characterIdToRemoveOption = player.characterIds[0];
-  if (characterIdToRemoveOption === undefined)
+  if (characterIdToRemoveOption === undefined) {
     return errorHandler(socket, new Error("Expected to have a selected character but didn't"));
-  const removeCharacterResult = AdventuringParty.removeCharacter(
-    partyOption,
-    characterIdToRemoveOption,
-    player,
-    undefined
-  );
-  if (removeCharacterResult instanceof Error) return removeCharacterResult;
+  }
 
-  delete game.lowestStartingFloorOptionsBySavedCharacter[removeCharacterResult.entityProperties.id];
+  const removedChacter = partyOption.removeCharacter(characterIdToRemoveOption, player);
+
+  delete game.lowestStartingFloorOptionsBySavedCharacter[removedChacter.getEntityId()];
   savedCharacterOption = Combatant.getDeserialized(savedCharacterOption);
 
-  addCharacterToParty(game, partyOption, player, savedCharacterOption);
+  // @TODO - load saved pets
+  const pets: Combatant[] = [];
+
+  game.addCharacterToParty(partyOption, player, savedCharacterOption, pets);
 
   game.lowestStartingFloorOptionsBySavedCharacter[savedCharacterOption.entityProperties.id] =
     savedCharacterOption.combatantProperties.deepestFloorReached;
