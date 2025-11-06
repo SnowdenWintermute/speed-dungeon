@@ -1,8 +1,9 @@
 import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
+import PageTurningButtons from "./common-buttons/PageTurningButtons";
 import { ReactNode } from "react";
 import { MENU_STATE_TYPE_STRINGS, MenuStateType } from "./menu-state-type";
-import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
 import { action, computed, makeObservable, observable } from "mobx";
+import React from "react";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 
@@ -10,7 +11,7 @@ export abstract class ActionMenuState {
   pageIndexInternal: number = 0;
   alwaysShowPageOne: boolean = false;
   protected numberedButtons: ReactNode[] = [];
-  private cachedPageCount: number = 1;
+  private pageCount: number = 1;
   protected minPageCount: number = 1;
   constructor(public type: MenuStateType) {
     // can't use makeAutoObservable on classes with subclassing
@@ -24,16 +25,15 @@ export abstract class ActionMenuState {
         turnPage: action,
         goToLastPage: action,
         goToFirstPage: action,
-        buttonProperties: computed,
-        pageCount: computed,
-        setCachedPageCount: action,
+        getPageCount: observable,
       },
       { autoBind: true }
     );
   }
 
-  abstract getButtonProperties(): ActionButtonsByCategory;
-  // abstract getInvisibleButtons: ReactNode;
+  // getInvisibleButtons(): ReactNode {
+  //   //
+  // }
   abstract getTopSection(): ReactNode;
   getNumberedButtons(): ReactNode[] {
     const startIndex = ACTION_MENU_PAGE_SIZE * this.pageIndex;
@@ -42,7 +42,9 @@ export abstract class ActionMenuState {
   }
   abstract recalculateButtons(): void;
   // abstract getCentralSection: ReactNode
-  abstract getBottomSection(): ReactNode;
+  getBottomSection(): ReactNode {
+    return <PageTurningButtons menuState={this} />;
+  }
   // abstract getSideContent: ReactNode
   // abstract cachedNumberedButtons: number
 
@@ -50,29 +52,20 @@ export abstract class ActionMenuState {
     return MENU_STATE_TYPE_STRINGS[this.type];
   }
 
-  setCachedPageCount(newCount: number) {
-    this.cachedPageCount = newCount;
+  setPageCount(newCount: number) {
+    this.pageCount = newCount;
   }
 
-  getPageCount() {
-    if (this.cachedPageCount === null) {
-      const buttonProperties = this.getButtonProperties();
-      const numberedButtonsCount = buttonProperties[ActionButtonCategory.Numbered].length;
-      const pageCount = Math.ceil(numberedButtonsCount / ACTION_MENU_PAGE_SIZE);
-
-      const newCount = Math.max(this.minPageCount, pageCount);
-      this.setCachedPageCount(newCount);
-    }
-
-    return this.cachedPageCount;
+  recalulatePageCount() {
+    this.setPageCount(Math.ceil(this.numberedButtons.length / ACTION_MENU_PAGE_SIZE));
   }
 
   get pageIndex() {
     return this.pageIndexInternal;
   }
 
-  get pageCount() {
-    return this.cachedPageCount;
+  getPageCount() {
+    return this.pageCount;
   }
 
   setPageIndex(newIndex: number) {
@@ -80,17 +73,14 @@ export abstract class ActionMenuState {
   }
 
   turnPage(direction: NextOrPrevious) {
-    const newPage = getNextOrPreviousNumber(
-      this.pageIndexInternal,
-      this.cachedPageCount - 1,
-      direction,
-      { minNumber: 0 }
-    );
+    const newPage = getNextOrPreviousNumber(this.pageIndexInternal, this.pageCount - 1, direction, {
+      minNumber: 0,
+    });
     this.pageIndexInternal = newPage;
   }
 
   goToLastPage() {
-    this.pageIndexInternal = this.cachedPageCount - 1;
+    this.pageIndexInternal = this.pageCount - 1;
   }
 
   goToFirstPage() {
@@ -99,9 +89,5 @@ export abstract class ActionMenuState {
 
   getCenterInfoDisplayOption(): ReactNode | null {
     return null;
-  }
-
-  get buttonProperties() {
-    return this.getButtonProperties();
   }
 }

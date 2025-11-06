@@ -1,12 +1,14 @@
 import {
   AffixCategory,
   AffixType,
+  Amulet,
   CombatAttribute,
   CombatantEquipment,
   ConsumableType,
   EquipmentType,
   Inventory,
   OneHandedMeleeWeapon,
+  Ring,
   Shield,
   TwoHandedMeleeWeapon,
 } from "@speed-dungeon/common";
@@ -37,6 +39,24 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inv
       {
         equipmentType: EquipmentType.Shield,
         baseItemType: Shield.LanternShield,
+      },
+      { itemLevel: 1 }
+    )
+  );
+  inventory.equipment.push(
+    generateSpecificEquipmentType(
+      {
+        equipmentType: EquipmentType.Ring,
+        baseItemType: Ring.Ring,
+      },
+      { itemLevel: 1 }
+    )
+  );
+  inventory.equipment.push(
+    generateSpecificEquipmentType(
+      {
+        equipmentType: EquipmentType.Amulet,
+        baseItemType: Amulet.Amulet,
       },
       { itemLevel: 1 }
     )

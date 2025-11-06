@@ -113,7 +113,6 @@ export abstract class ItemsMenuState extends ActionMenuState {
               containerExtraStyles={containerExtraStyles}
               imageExtraStyles="scale-[300%]"
               imageHoverStyles="-translate-x-[55px]"
-              alternateClickStyle="cursor-alias"
             >
               {consumableName}
               {this.options.getItemButtonCustomChildren &&
@@ -171,7 +170,6 @@ export abstract class ItemsMenuState extends ActionMenuState {
             gradientOverride={!requirementsMet ? unmetRequirementsGradientBg : ""}
             thumbnailOption={thumbnailOption}
             imageHoverStyles="-translate-x-[55px]"
-            alternateClickStyle="cursor-alias"
             equipmentBaseItem={
               item instanceof Equipment
                 ? item.equipmentBaseItemProperties.taggedBaseEquipment
@@ -209,7 +207,7 @@ export abstract class ItemsMenuState extends ActionMenuState {
     const numberedButtonsCount = toReturn[ActionButtonCategory.Numbered].length;
     const pageCount = Math.ceil(numberedButtonsCount / ACTION_MENU_PAGE_SIZE);
     const newCount = Math.max(this.minPageCount, pageCount);
-    this.setCachedPageCount(newCount);
+    this.setPageCount(newCount);
 
     // possible when a numbered button disapears like when equipping the last item
     // on a page
@@ -251,7 +249,6 @@ export const ItemButtonBody = observer(
     containerExtraStyles,
     imageExtraStyles,
     imageHoverStyles,
-    alternateClickStyle,
     equipmentBaseItem,
   }: {
     children: ReactNode;
@@ -260,7 +257,6 @@ export const ItemButtonBody = observer(
     thumbnailOption?: string;
     imageExtraStyles?: string;
     imageHoverStyles?: string;
-    alternateClickStyle?: string;
     equipmentBaseItem?: EquipmentBaseItem;
   }) => {
     const [isHovered, setIsHovered] = useState(false);
@@ -281,7 +277,7 @@ export const ItemButtonBody = observer(
 
     return (
       <div
-        className={`h-full w-full relative ${containerExtraStyles} ${alternateClickKeyHeld && alternateClickStyle}`}
+        className={`h-full w-full relative ${containerExtraStyles} ${alternateClickKeyHeld && "cursor-alias"}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >

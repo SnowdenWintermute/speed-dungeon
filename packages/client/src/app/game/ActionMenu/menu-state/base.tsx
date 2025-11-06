@@ -1,4 +1,4 @@
-import { ACTION_MENU_PAGE_SIZE, ActionMenuState } from ".";
+import { ActionMenuState } from ".";
 import { iterateNumericEnumKeyedRecord, ACTION_NAMES_TO_HIDE_IN_MENU } from "@speed-dungeon/common";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
@@ -7,16 +7,14 @@ import {
   setViewingAbilityTreeAsFreshStack,
 } from "./common-buttons/open-inventory";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
-import { createPageButtons } from "./create-page-buttons";
 import { AppStore } from "@/mobx-stores/app-store";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
 import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
 import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { ReactNode } from "react";
-import OpenInventoryButton from "./common-buttons/OpenInventory";
+import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import { CombatActionButton } from "./common-buttons/CombatActionButton";
-import PageTurningButtons from "./common-buttons/PageTurningButtons";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -30,13 +28,9 @@ export class BaseMenuState extends ActionMenuState {
   getTopSection(): ReactNode {
     return (
       <ul className="flex">
-        <OpenInventoryButton />
+        <ToggleInventoryButton />
       </ul>
     );
-  }
-
-  getBottomSection(): ReactNode {
-    return <PageTurningButtons menuState={this} />;
   }
 
   recalculateButtons() {
@@ -66,13 +60,7 @@ export class BaseMenuState extends ActionMenuState {
         />
       ));
 
-    this.setCachedPageCount(Math.ceil(this.numberedButtons.length / ACTION_MENU_PAGE_SIZE));
-  }
-
-  getNumberedButtons(): ReactNode[] {
-    const startIndex = ACTION_MENU_PAGE_SIZE * this.pageIndex;
-    const endIndex = startIndex + ACTION_MENU_PAGE_SIZE;
-    return this.numberedButtons.slice(startIndex, endIndex);
+    this.recalulatePageCount();
   }
 
   getButtonProperties(): ActionButtonsByCategory {
@@ -91,8 +79,7 @@ export class BaseMenuState extends ActionMenuState {
 
     const focusedCharacter = focusedCharacterOption;
 
-    const { combatantProperties, entityProperties } = focusedCharacter;
-    const characterId = entityProperties.id;
+    const { combatantProperties } = focusedCharacter;
 
     toReturn[ActionButtonCategory.Top].push(setViewingAbilityTreeAsFreshStack);
 
@@ -124,19 +111,6 @@ export class BaseMenuState extends ActionMenuState {
       viewItemsOnGroundButton.dedicatedKeys = [viewItemsOnGroundHotkey];
       toReturn[ActionButtonCategory.Top].push(viewItemsOnGroundButton);
     }
-
-    // disabled abilities if not their turn in a battle
-    const disabledBecauseNotThisCombatantTurnResult =
-      disableButtonBecauseNotThisCombatantTurn(characterId);
-
-    const inCombat = partyResult.combatantManager.monstersArePresent();
-
-    const numberedButtonsCount = toReturn[ActionButtonCategory.Numbered].length;
-    const pageCount = Math.ceil(numberedButtonsCount / ACTION_MENU_PAGE_SIZE);
-    const newCount = Math.max(this.minPageCount, pageCount);
-    this.setCachedPageCount(newCount);
-
-    createPageButtons(toReturn);
 
     return toReturn;
   }

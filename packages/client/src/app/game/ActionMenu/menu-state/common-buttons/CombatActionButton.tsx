@@ -13,6 +13,7 @@ import {
 } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React from "react";
+import NumberedButtonHotkeyLabel from "./NumberedButtonHotkeyLabel";
 
 interface Props {
   actionName: CombatActionName;
@@ -66,13 +67,7 @@ export const CombatActionButton = observer((props: Props) => {
         AppStore.get().actionMenuStore.clearHoveredAction();
       }}
     >
-      <div
-        className={`h-full w-10 !min-w-[2.5rem] border-r border-slate-400
-            flex items-center justify-center animate-slide-appear-from-left-fast mr-2
-            `}
-      >
-        <span className={disabledStyles}>{props.hotkeyLabel}</span>
-      </div>
+      <NumberedButtonHotkeyLabel hotkeyLabel={props.hotkeyLabel} isDisabled={shouldBeDisabled} />
       <div className="flex justify-between h-full w-full pr-2">
         <div
           className={`${disabledStyles} flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1`}

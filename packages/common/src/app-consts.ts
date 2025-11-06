@@ -131,6 +131,7 @@ export const CONSUMABLE_TEXT_COLOR = "text-teal-400";
 export const MAGICAL_PROPERTY_BLUE = "#93c5fd";
 export const MAGICAL_PROPERTY_BLUE_TEXT = "text-blue-300";
 export const BASE_TEXT = "#d4d4d8";
+export const APP_BASE_TEXT_COLOR = "text-zinc-300";
 
 export enum DungeonFloor {
   Zero,

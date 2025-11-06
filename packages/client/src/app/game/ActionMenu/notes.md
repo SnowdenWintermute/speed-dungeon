@@ -21,11 +21,11 @@ Menu
     - Change numbered buttons page
 
 class ActionMenuState
-getInvisibleButtons
-getTopSection
-getCentralSection
-getNumberedButtons
-getBottomSection
-getSideContent
-recalculateButtons
-cachedNumberedButtons
+getInvisibleButtons: ReactNode
+getTopSection: ReactNode
+getCentralSection: ReactNode
+getNumberedButtons: ReactNode
+getBottomSection: ReactNode
+getSideContent: ReactNode
+recalculateButtons: void
+cachedNumberedButtons: number
