@@ -11,10 +11,8 @@ export abstract class ActionMenuState {
   alwaysShowPageOne: boolean = false;
   protected numberedButtons: ReactNode[] = [];
   private cachedPageCount: number = 1;
-  constructor(
-    public type: MenuStateType,
-    protected minPageCount: number
-  ) {
+  protected minPageCount: number = 1;
+  constructor(public type: MenuStateType) {
     // can't use makeAutoObservable on classes with subclassing
     makeObservable(
       this,
@@ -37,11 +35,14 @@ export abstract class ActionMenuState {
   abstract getButtonProperties(): ActionButtonsByCategory;
   // abstract getInvisibleButtons: ReactNode;
   abstract getTopSection(): ReactNode;
-  abstract getNumberedButtons(): ReactNode[];
+  getNumberedButtons(): ReactNode[] {
+    const startIndex = ACTION_MENU_PAGE_SIZE * this.pageIndex;
+    const endIndex = startIndex + ACTION_MENU_PAGE_SIZE;
+    return this.numberedButtons.slice(startIndex, endIndex);
+  }
   abstract recalculateButtons(): void;
   // abstract getCentralSection: ReactNode
-  // abstract getNumberedButtons: ReactNode
-  // abstract getBottomSection: ReactNode
+  abstract getBottomSection(): ReactNode;
   // abstract getSideContent: ReactNode
   // abstract cachedNumberedButtons: number
 

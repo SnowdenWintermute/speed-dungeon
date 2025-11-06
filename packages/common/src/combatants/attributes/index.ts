@@ -1,5 +1,3 @@
-export * from "./initialize-combat-attribute-record.js";
-
 export enum CombatAttribute {
   Strength, // damage with melee attacks, melee crit multiplier, melee armor pen
   Dexterity, // ranged damage, accuracy, physical crit chance, armor ranged armor pen

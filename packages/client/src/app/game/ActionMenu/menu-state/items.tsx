@@ -53,7 +53,7 @@ export abstract class ItemsMenuState extends ActionMenuState {
       getCenterInfoDisplayOption?: () => ReactNode;
     }
   ) {
-    super(type, 1);
+    super(type);
   }
 
   getButtonProperties(): ActionButtonsByCategory {

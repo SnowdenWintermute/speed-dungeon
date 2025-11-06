@@ -38,6 +38,7 @@ export * from "./abilities/index.js";
 export * from "./items/trading/index.js";
 export * from "./combatants/combatant-properties.js";
 export * from "./combatants/combatant-traits/trait-types.js";
+export * from "./items/item-utils.js";
 
 export * from "./action-user-context/action-user.js";
 export * from "./combatants/combatant-conditions/condition-constructors.js";

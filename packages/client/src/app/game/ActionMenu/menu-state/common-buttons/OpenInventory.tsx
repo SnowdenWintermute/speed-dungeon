@@ -18,7 +18,7 @@ export default function OpenInventoryButton() {
         const inventoryItemsMenu = MenuStatePool.get(MenuStateType.InventoryItems);
         actionMenuStore.pushStack(inventoryItemsMenu);
       }}
-      hotkeys={[]}
+      hotkeys={[toggleInventoryHotkey]}
     >
       <span className="flex-grow h-full flex items-center justify-center whitespace-nowrap overflow-hidden overflow-ellipsis pr-2 pl-2 ">
         {`Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`}

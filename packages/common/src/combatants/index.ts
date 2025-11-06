@@ -41,6 +41,8 @@ export * from "./attributes/index.js";
 export * from "./attribute-properties.js";
 export * from "./class-progression-properties.js";
 
+export * from "./attributes/initialize-combat-attribute-record.js";
+
 export class Combatant implements IActionUser {
   constructor(
     public entityProperties: EntityProperties,

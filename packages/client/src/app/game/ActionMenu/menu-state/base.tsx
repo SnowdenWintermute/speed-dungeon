@@ -16,6 +16,7 @@ import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { ReactNode } from "react";
 import OpenInventoryButton from "./common-buttons/OpenInventory";
 import { CombatActionButton } from "./common-buttons/CombatActionButton";
+import PageTurningButtons from "./common-buttons/PageTurningButtons";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -23,7 +24,7 @@ export const VIEW_LOOT_BUTTON_TEXT = `Loot (${letterFromKeyCode(viewItemsOnGroun
 
 export class BaseMenuState extends ActionMenuState {
   constructor() {
-    super(MenuStateType.Base, 1);
+    super(MenuStateType.Base);
   }
 
   getTopSection(): ReactNode {
@@ -32,6 +33,10 @@ export class BaseMenuState extends ActionMenuState {
         <OpenInventoryButton />
       </ul>
     );
+  }
+
+  getBottomSection(): ReactNode {
+    return <PageTurningButtons menuState={this} />;
   }
 
   recalculateButtons() {
@@ -60,6 +65,8 @@ export class BaseMenuState extends ActionMenuState {
           actionName={actionName}
         />
       ));
+
+    this.setCachedPageCount(Math.ceil(this.numberedButtons.length / ACTION_MENU_PAGE_SIZE));
   }
 
   getNumberedButtons(): ReactNode[] {

@@ -25,6 +25,7 @@ export class ActionMenuStore {
   }
 
   pushStack(menuState: ActionMenuState) {
+    menuState.recalculateButtons();
     this.stackedMenuStates.push(menuState);
   }
 
@@ -38,18 +39,22 @@ export class ActionMenuStore {
 
   popStack() {
     this.getCurrentMenu().goToFirstPage();
-    return this.stackedMenuStates.pop();
+    const newState = this.stackedMenuStates.pop();
+    newState?.recalculateButtons();
+    return newState;
   }
 
   clearStack() {
     for (const menuState of this.stackedMenuStates) {
       menuState.goToFirstPage();
     }
+    this.baseMenuState?.recalculateButtons();
     this.stackedMenuStates = [];
   }
 
   replaceStack(newStack: ActionMenuState[]) {
     this.clearStack();
+    newStack[newStack.length - 1]?.recalculateButtons();
     this.stackedMenuStates.push(...newStack);
   }
 

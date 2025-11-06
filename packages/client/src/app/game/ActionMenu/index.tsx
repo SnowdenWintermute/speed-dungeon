@@ -15,6 +15,7 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
   const currentMenu = actionMenuStore.getCurrentMenu();
   const topSection = currentMenu.getTopSection();
   const numberedButtons = currentMenu.getNumberedButtons();
+  const bottomSection = currentMenu.getBottomSection();
 
   useEffect(() => {
     currentMenu.recalculateButtons();
@@ -29,13 +30,14 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
         {topSection}
       </div>
       <div
-        className={`pointer-events-auto mb-3 flex flex-col min-w-[25rem] max-w-[25rem] border-t border-slate-400 bg-slate-700`}
+        className={`pointer-events-auto mb-3 flex flex-col min-w-[25rem] max-w-[25rem] border-t border-slate-400`}
         style={{
           height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem`,
         }}
       >
         {numberedButtons}
       </div>
+      <div className="min-w-[25rem] max-w-[25rem]">{bottomSection}</div>
     </section>
   );
 });
