@@ -1,7 +1,5 @@
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { getAttackActionIcons } from "@/app/game/character-sheet/ability-tree/action-icons";
 import { ACTION_ICONS } from "@/app/icons";
-import { BUTTON_HEIGHT } from "@/client_consts";
 import { AppStore } from "@/mobx-stores/app-store";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import {
@@ -13,7 +11,7 @@ import {
 } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React from "react";
-import NumberedButtonHotkeyLabel from "./NumberedButtonHotkeyLabel";
+import { ActionMenuNumberedButton } from "./ActionMenuNumberedButton";
 
 interface Props {
   actionName: CombatActionName;
@@ -49,16 +47,13 @@ export const CombatActionButton = observer((props: Props) => {
   const disabledStyles = shouldBeDisabled ? "opacity-50" : "";
 
   return (
-    <HotkeyButton
-      onFocus={focusHandler}
-      onMouseEnter={focusHandler}
-      onBlur={blurHandler}
-      onMouseLeave={blurHandler}
+    <ActionMenuNumberedButton
+      focusHandler={focusHandler}
+      blurHandler={focusHandler}
       disabled={shouldBeDisabled}
       hotkeys={props.hotkeys}
-      className={`w-full flex bg-slate-700 hover:bg-slate-950 border-b border-l border-r border-slate-400 pointer-events-auto `}
-      style={{ height: `${BUTTON_HEIGHT}rem` }}
-      onClick={() => {
+      hotkeyLabel={props.hotkeyLabel}
+      clickHandler={() => {
         websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
           characterId: user.getEntityId(),
           actionAndRankOption: new ActionAndRank(actionName, 1),
@@ -67,7 +62,6 @@ export const CombatActionButton = observer((props: Props) => {
         AppStore.get().actionMenuStore.clearHoveredAction();
       }}
     >
-      <NumberedButtonHotkeyLabel hotkeyLabel={props.hotkeyLabel} isDisabled={shouldBeDisabled} />
       <div className="flex justify-between h-full w-full pr-2">
         <div
           className={`${disabledStyles} flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1`}
@@ -85,7 +79,7 @@ export const CombatActionButton = observer((props: Props) => {
           )}
         </div>
       </div>
-    </HotkeyButton>
+    </ActionMenuNumberedButton>
   );
 });
 

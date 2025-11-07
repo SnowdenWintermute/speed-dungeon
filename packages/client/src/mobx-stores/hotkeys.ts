@@ -8,19 +8,23 @@ import { letterFromKeyCode } from "@/hotkeys";
 export const VIEW_EQUIPMENT_HOTKEY = HOTKEYS.ALT_1;
 
 export enum HotkeyButtonTypes {
+  ToggleInventory,
   ToggleViewEquipment,
   UseItem,
   EquipAltSlot,
   DropItem,
+  ToggleViewingAbilityTree,
 }
 
 export type KeyCode = string;
 
 export const DEFAULT_KEYBINDS: Record<HotkeyButtonTypes, KeyCode[]> = {
+  [HotkeyButtonTypes.ToggleInventory]: [HOTKEYS.MAIN_1, "KeyI"],
   [HotkeyButtonTypes.ToggleViewEquipment]: [HOTKEYS.ALT_1],
   [HotkeyButtonTypes.UseItem]: [HOTKEYS.MAIN_1],
   [HotkeyButtonTypes.EquipAltSlot]: [HOTKEYS.ALT_1],
   [HotkeyButtonTypes.DropItem]: [HOTKEYS.MAIN_2],
+  [HotkeyButtonTypes.ToggleViewingAbilityTree]: [HOTKEYS.BOTTOM_ALT],
 };
 
 export class HotkeysStore {

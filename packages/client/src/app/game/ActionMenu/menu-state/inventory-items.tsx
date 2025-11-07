@@ -6,7 +6,6 @@ import { ActionMenuState } from ".";
 import { ReactNode } from "react";
 import { ConsideringItemMenuState } from "./considering-item";
 import GoBackButton from "./common-buttons/GoBackButton";
-import { toggleInventoryHotkeys } from "./common-buttons/ToggleInventory";
 import ActionMenuTopButton from "./common-buttons/ActionMenuTopButton";
 import ViewAbilityTreeButton from "./common-buttons/ViewAbilityTreeButton";
 import makeAutoObservable from "mobx-store-inheritance";
@@ -22,6 +21,7 @@ export class InventoryItemsMenuState extends ActionMenuState {
   getTopSection(): ReactNode {
     const { hotkeys } = AppStore.get();
     const viewEquipmentHotkeys = hotkeys.getKeybind(HotkeyButtonTypes.ToggleViewEquipment);
+    const toggleInventoryHotkeys = hotkeys.getKeybind(HotkeyButtonTypes.ToggleInventory);
 
     return (
       <ul className="flex">

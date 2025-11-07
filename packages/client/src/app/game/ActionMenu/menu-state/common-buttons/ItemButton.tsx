@@ -20,6 +20,7 @@ import { observer } from "mobx-react-lite";
 import { ReactNode, useState } from "react";
 import NumberedButtonHotkeyLabel from "./NumberedButtonHotkeyLabel";
 import { postItemLink } from "@/utils/post-item-link";
+import { ActionMenuNumberedButton } from "./ActionMenuNumberedButton";
 
 interface Props {
   item: Item;
@@ -77,18 +78,14 @@ export const ItemButton = observer((props: Props) => {
   }
 
   return (
-    <HotkeyButton
-      className={`w-full ${mainContainerStyles} relative pointer-events-auto 
-        flex bg-slate-700 hover:bg-slate-950 border-b border-l border-r border-slate-400 overflow-hidden`}
-      style={{ height: `${BUTTON_HEIGHT}rem` }}
+    <ActionMenuNumberedButton
+      extraStyles={mainContainerStyles + " relative overflow-hidden"}
       hotkeys={hotkeys}
-      onMouseEnter={focusHandler}
-      onMouseLeave={blurHandler}
-      onFocus={focusHandler}
-      onBlur={blurHandler}
-      onClick={clickHandler}
+      focusHandler={focusHandler}
+      blurHandler={blurHandler}
+      clickHandler={clickHandler}
+      hotkeyLabel={hotkeyLabel}
     >
-      <NumberedButtonHotkeyLabel hotkeyLabel={hotkeyLabel} isDisabled={false} />
       <div className={`absolute right-0 w-7/12 h-full`} style={{ background }} />
 
       <div className={`${textColor} flex justify-between h-full w-full pr-2`}>
@@ -116,7 +113,7 @@ export const ItemButton = observer((props: Props) => {
           {children}
         </div>
       </div>
-    </HotkeyButton>
+    </ActionMenuNumberedButton>
   );
 });
 

@@ -55,8 +55,8 @@ export class ActionMenuStore {
 
   replaceStack(newStack: ActionMenuState[]) {
     this.clearStack();
-    this.getCurrentMenu().recalculateButtons();
     this.stackedMenuStates.push(...newStack);
+    this.getCurrentMenu().recalculateButtons();
   }
 
   getStackedMenuStringNames() {
