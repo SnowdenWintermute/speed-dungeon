@@ -39,9 +39,11 @@ export class ActionMenuStore {
 
   popStack() {
     this.getCurrentMenu().goToFirstPage();
-    const newState = this.stackedMenuStates.pop();
-    newState?.recalculateButtons();
-    return newState;
+    const oldState = this.stackedMenuStates.pop();
+    const newMenuState = this.getCurrentMenu();
+    console.log("new menu state after popped:", newMenuState.getStringName());
+    newMenuState.recalculateButtons();
+    return oldState;
   }
 
   clearStack() {
@@ -54,7 +56,7 @@ export class ActionMenuStore {
 
   replaceStack(newStack: ActionMenuState[]) {
     this.clearStack();
-    newStack[newStack.length - 1]?.recalculateButtons();
+    this.getCurrentMenu().recalculateButtons();
     this.stackedMenuStates.push(...newStack);
   }
 

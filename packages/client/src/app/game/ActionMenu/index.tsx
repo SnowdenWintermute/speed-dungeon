@@ -4,6 +4,7 @@ import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { BUTTON_HEIGHT, SPACING_REM_SMALL } from "@/client_consts";
 import { ACTION_MENU_PAGE_SIZE } from "./menu-state";
+import { NextOrPrevious } from "@speed-dungeon/common";
 
 export const SHARD_ITEM_HOTKEY = HOTKEYS.SIDE_2;
 
@@ -17,6 +18,12 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
   const numberedButtons = currentMenu.getNumberedButtons();
   const centralSection = currentMenu.getCentralSection();
   const bottomSection = currentMenu.getBottomSection();
+
+  useEffect(() => {
+    if (numberedButtons.length === 0 && currentMenu.pageIndex > 0) {
+      currentMenu.turnPage(NextOrPrevious.Previous);
+    }
+  }, [numberedButtons.length, currentMenu.pageIndex]);
 
   useEffect(() => {
     currentMenu.recalculateButtons();

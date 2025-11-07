@@ -1,4 +1,4 @@
-import { ActionMenuState } from ".";
+import { ACTION_MENU_PAGE_SIZE, ActionMenuState } from ".";
 import { iterateNumericEnumKeyedRecord, ACTION_NAMES_TO_HIDE_IN_MENU } from "@speed-dungeon/common";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
@@ -15,6 +15,7 @@ import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { ReactNode } from "react";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import { CombatActionButton } from "./common-buttons/CombatActionButton";
+import makeAutoObservable from "mobx-store-inheritance";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -23,6 +24,7 @@ export const VIEW_LOOT_BUTTON_TEXT = `Loot (${letterFromKeyCode(viewItemsOnGroun
 export class BaseMenuState extends ActionMenuState {
   constructor() {
     super(MenuStateType.Base);
+    makeAutoObservable(this);
   }
 
   getTopSection(): ReactNode {
@@ -50,15 +52,18 @@ export class BaseMenuState extends ActionMenuState {
 
     this.numberedButtons = iterateNumericEnumKeyedRecord(ownedActions)
       .filter(([actionName, _]) => !ACTION_NAMES_TO_HIDE_IN_MENU.includes(actionName))
-      .map(([actionName, _], i) => (
-        <CombatActionButton
-          key={actionName}
-          hotkeys={[`Digit${i + 1}`]}
-          hotkeyLabel={(i + 1).toString()}
-          user={focusedCharacter}
-          actionName={actionName}
-        />
-      ));
+      .map(([actionName, _], i) => {
+        const buttonNumber = (i % ACTION_MENU_PAGE_SIZE) + 1;
+        return (
+          <CombatActionButton
+            key={actionName}
+            hotkeys={[`Digit${buttonNumber}`]}
+            hotkeyLabel={buttonNumber.toString()}
+            user={focusedCharacter}
+            actionName={actionName}
+          />
+        );
+      });
 
     this.recalulatePageCount();
   }

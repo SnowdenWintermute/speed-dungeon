@@ -11,6 +11,7 @@ export enum HotkeyButtonTypes {
   ToggleViewEquipment,
   UseItem,
   EquipAltSlot,
+  DropItem,
 }
 
 export type KeyCode = string;
@@ -19,6 +20,7 @@ export const DEFAULT_KEYBINDS: Record<HotkeyButtonTypes, KeyCode[]> = {
   [HotkeyButtonTypes.ToggleViewEquipment]: [HOTKEYS.ALT_1],
   [HotkeyButtonTypes.UseItem]: [HOTKEYS.MAIN_1],
   [HotkeyButtonTypes.EquipAltSlot]: [HOTKEYS.ALT_1],
+  [HotkeyButtonTypes.DropItem]: [HOTKEYS.MAIN_2],
 };
 
 export class HotkeysStore {

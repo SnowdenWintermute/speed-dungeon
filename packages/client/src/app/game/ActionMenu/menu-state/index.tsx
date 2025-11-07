@@ -2,7 +2,6 @@ import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import PageTurningButtons from "./common-buttons/PageTurningButtons";
 import { ReactNode } from "react";
 import { MENU_STATE_TYPE_STRINGS, MenuStateType } from "./menu-state-type";
-import { action, computed, makeObservable, observable } from "mobx";
 import React from "react";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
@@ -15,9 +14,7 @@ export abstract class ActionMenuState {
   protected minPageCount: number = 1;
   constructor(public type: MenuStateType) {}
 
-  // getInvisibleButtons(): ReactNode {
-  //   //
-  // }
+  // getInvisibleButtons(): ReactNode {}
   abstract getTopSection(): ReactNode;
   getNumberedButtons(): ReactNode[] {
     const startIndex = ACTION_MENU_PAGE_SIZE * this.pageIndex;

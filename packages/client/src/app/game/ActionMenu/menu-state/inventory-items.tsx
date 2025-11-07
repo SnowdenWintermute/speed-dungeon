@@ -7,7 +7,7 @@ import {
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "./menu-state-type";
 import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
-import { ActionMenuState } from ".";
+import { ACTION_MENU_PAGE_SIZE, ActionMenuState } from ".";
 import { ReactNode } from "react";
 import { ItemButton } from "./common-buttons/ItemButton";
 import { ItemUtils } from "@speed-dungeon/common";
@@ -57,7 +57,6 @@ export class InventoryItemsMenuState extends ActionMenuState {
     function itemButtonClickHandler(item: Item) {
       AppStore.get().focusStore.selectItem(item);
       AppStore.get().actionMenuStore.pushStack(new ConsideringItemMenuState(item));
-      console.log("pushed considering item");
     }
 
     const itemsToMakeButtonsFor: Item[] = [];
@@ -86,7 +85,7 @@ export class InventoryItemsMenuState extends ActionMenuState {
         if (stackSize > 1) buttonText += ` (${stackSize})`;
       }
 
-      const buttonNumber = i + 1;
+      const buttonNumber = (i % ACTION_MENU_PAGE_SIZE) + 1;
       return (
         <ItemButton
           key={item.entityProperties.id}
