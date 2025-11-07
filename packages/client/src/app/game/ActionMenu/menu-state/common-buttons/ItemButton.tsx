@@ -72,14 +72,13 @@ export const ItemButton = observer((props: Props) => {
   }
 
   function clickHandler() {
-    console.log("clickHandler item button");
     if (alternateClickKeyHeld) postItemLink(item);
     else props.clickHandler(item);
   }
 
   return (
     <HotkeyButton
-      className={`w-full ${mainContainerStyles} relative
+      className={`w-full ${mainContainerStyles} relative pointer-events-auto 
         flex bg-slate-700 hover:bg-slate-950 border-b border-l border-r border-slate-400 overflow-hidden`}
       style={{ height: `${BUTTON_HEIGHT}rem` }}
       hotkeys={hotkeys}

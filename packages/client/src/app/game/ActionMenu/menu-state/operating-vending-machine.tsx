@@ -1,5 +1,4 @@
 import { ActionMenuState } from ".";
-import { createPageButtons } from "./create-page-buttons";
 import { HOTKEYS } from "@/hotkeys";
 import { createCancelButton } from "./common-buttons/cancel";
 import { setInventoryOpen } from "./common-buttons/open-inventory";

@@ -10,10 +10,18 @@ import { AppStore } from "@/mobx-stores/app-store";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
 import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
+import { ReactNode } from "react";
 
 export class AbilityTreeMenuState extends ActionMenuState {
   constructor() {
-    super(MenuStateType.ViewingAbilityTree, 1);
+    super(MenuStateType.ViewingAbilityTree);
+  }
+
+  getTopSection(): ReactNode {
+    throw new Error("Method not implemented.");
+  }
+  recalculateButtons(): void {
+    throw new Error("Method not implemented.");
   }
 
   getButtonProperties() {

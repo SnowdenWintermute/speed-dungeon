@@ -41,7 +41,6 @@ export class ActionMenuStore {
     this.getCurrentMenu().goToFirstPage();
     const oldState = this.stackedMenuStates.pop();
     const newMenuState = this.getCurrentMenu();
-    console.log("new menu state after popped:", newMenuState.getStringName());
     newMenuState.recalculateButtons();
     return oldState;
   }

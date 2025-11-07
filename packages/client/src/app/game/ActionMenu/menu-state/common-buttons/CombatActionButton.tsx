@@ -56,7 +56,7 @@ export const CombatActionButton = observer((props: Props) => {
       onMouseLeave={blurHandler}
       disabled={shouldBeDisabled}
       hotkeys={props.hotkeys}
-      className={`w-full flex bg-slate-700 hover:bg-slate-950 border-b border-l border-r border-slate-400`}
+      className={`w-full flex bg-slate-700 hover:bg-slate-950 border-b border-l border-r border-slate-400 pointer-events-auto `}
       style={{ height: `${BUTTON_HEIGHT}rem` }}
       onClick={() => {
         websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {

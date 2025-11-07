@@ -12,7 +12,6 @@ import {
   CombatantConditionName,
   getAbilityTreeAbilityNameString,
 } from "@speed-dungeon/common";
-import { createPageButtons } from "./create-page-buttons";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { COMBAT_ACTION_DESCRIPTIONS } from "../../character-sheet/ability-tree/ability-descriptions";

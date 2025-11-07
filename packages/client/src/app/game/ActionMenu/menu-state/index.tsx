@@ -1,8 +1,17 @@
-import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
+import {
+  Consumable,
+  Item,
+  ItemUtils,
+  NextOrPrevious,
+  getNextOrPreviousNumber,
+  getSkillBookName,
+  iterateNumericEnumKeyedRecord,
+} from "@speed-dungeon/common";
 import PageTurningButtons from "./common-buttons/PageTurningButtons";
 import { ReactNode } from "react";
 import { MENU_STATE_TYPE_STRINGS, MenuStateType } from "./menu-state-type";
 import React from "react";
+import { ItemButton } from "./common-buttons/ItemButton";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 
@@ -10,6 +19,7 @@ export abstract class ActionMenuState {
   pageIndexInternal: number = 0;
   alwaysShowPageOne: boolean = false;
   protected numberedButtons: ReactNode[] = [];
+  protected centralSection: ReactNode = "";
   private pageCount: number = 1;
   protected minPageCount: number = 1;
   constructor(public type: MenuStateType) {}
@@ -23,7 +33,7 @@ export abstract class ActionMenuState {
   }
   abstract recalculateButtons(): void;
   getCentralSection(): ReactNode {
-    return;
+    return this.centralSection;
   }
   getBottomSection(): ReactNode {
     return <PageTurningButtons menuState={this} />;
@@ -72,5 +82,50 @@ export abstract class ActionMenuState {
 
   getCenterInfoDisplayOption(): ReactNode | null {
     return null;
+  }
+
+  static getItemButtonsFromList(items: Item[], clickHandler: (item: Item) => void) {
+    const stackedItems = ItemUtils.sortIntoStacks(items);
+
+    const { equipmentAndShardStacks, consumablesByTypeAndLevel } = stackedItems;
+
+    const itemsToMakeButtonsFor: Item[] = [];
+
+    for (const [consumableType, consumableStacksByLevel] of iterateNumericEnumKeyedRecord(
+      consumablesByTypeAndLevel
+    )) {
+      for (const [itemLevelString, consumableStack] of Object.entries(consumableStacksByLevel)) {
+        const firstConsumableOfThisType = consumableStack[0];
+        if (!firstConsumableOfThisType) continue;
+        itemsToMakeButtonsFor.push(firstConsumableOfThisType);
+      }
+    }
+
+    itemsToMakeButtonsFor.push(...equipmentAndShardStacks);
+
+    return itemsToMakeButtonsFor.map((item, i) => {
+      const itemLevel = item.itemLevel;
+      let buttonText = item.entityProperties.name;
+      if (item instanceof Consumable) {
+        const { consumableType } = item;
+        const skillBookNameOption = getSkillBookName(consumableType, itemLevel);
+        if (skillBookNameOption) buttonText = skillBookNameOption;
+        const stackOption = consumablesByTypeAndLevel[consumableType]?.[itemLevel];
+        const stackSize = stackOption?.length || 0;
+        if (stackSize > 1) buttonText += ` (${stackSize})`;
+      }
+
+      const buttonNumber = (i % ACTION_MENU_PAGE_SIZE) + 1;
+      return (
+        <ItemButton
+          key={item.entityProperties.id}
+          item={item}
+          text={buttonText}
+          hotkeyLabel={buttonNumber.toString()}
+          hotkeys={[`Digit${buttonNumber}`]}
+          clickHandler={clickHandler}
+        />
+      );
+    });
   }
 }

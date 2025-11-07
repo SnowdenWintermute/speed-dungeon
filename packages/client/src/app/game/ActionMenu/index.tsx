@@ -38,7 +38,7 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
         {topSection}
       </div>
       <div
-        className={`pointer-events-auto mb-3 flex flex-col min-w-[25rem] max-w-[25rem] border-t border-slate-400`}
+        className={`mb-3 flex flex-col min-w-[25rem] max-w-[25rem] border-t border-slate-400`}
         style={{
           height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem`,
         }}

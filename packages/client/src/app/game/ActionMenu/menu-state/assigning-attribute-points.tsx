@@ -5,7 +5,6 @@ import {
   ClientToServerEvent,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { createPageButtons } from "./create-page-buttons";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 import { createCancelButton } from "./common-buttons/cancel";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";

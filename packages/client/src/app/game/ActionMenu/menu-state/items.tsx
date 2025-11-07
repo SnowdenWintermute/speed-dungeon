@@ -12,7 +12,6 @@ import {
   getSkillBookName,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import { createPageButtons } from "./create-page-buttons";
 import { Color4 } from "@babylonjs/core";
 import cloneDeep from "lodash.clonedeep";
 import { createEaseGradient } from "@/utils/create-ease-gradient-style";

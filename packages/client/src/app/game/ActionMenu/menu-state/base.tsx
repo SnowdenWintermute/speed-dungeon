@@ -16,6 +16,7 @@ import { ReactNode } from "react";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import { CombatActionButton } from "./common-buttons/CombatActionButton";
 import makeAutoObservable from "mobx-store-inheritance";
+import ViewAbilityTreeButton from "./common-buttons/ViewAbilityTreeButton";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -31,6 +32,7 @@ export class BaseMenuState extends ActionMenuState {
     return (
       <ul className="flex">
         <ToggleInventoryButton />
+        <ViewAbilityTreeButton />
       </ul>
     );
   }
