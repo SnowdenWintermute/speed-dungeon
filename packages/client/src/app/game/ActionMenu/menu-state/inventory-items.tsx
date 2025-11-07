@@ -1,5 +1,3 @@
-import { viewEquipmentHotkey } from "./equipped-items";
-import { letterFromKeyCode } from "@/hotkeys";
 import {
   Consumable,
   getSkillBookName,
@@ -18,25 +16,31 @@ import GoBackButton from "./common-buttons/GoBackButton";
 import { toggleInventoryHotkeys } from "./common-buttons/ToggleInventory";
 import ActionMenuTopButton from "./common-buttons/ActionMenuTopButton";
 import ViewAbilityTreeButton from "./common-buttons/ViewAbilityTreeButton";
+import makeAutoObservable from "mobx-store-inheritance";
+import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 
 export class InventoryItemsMenuState extends ActionMenuState {
   constructor() {
     super(MenuStateType.InventoryItems);
+    makeAutoObservable(this);
   }
 
   getTopSection(): ReactNode {
+    const { hotkeys } = AppStore.get();
+    const viewEquipmentHotkeys = hotkeys.getKeybind(HotkeyButtonTypes.ToggleViewEquipment);
+
     return (
       <ul className="flex">
         <GoBackButton extraHotkeys={toggleInventoryHotkeys} />
         <ActionMenuTopButton
-          hotkeys={[viewEquipmentHotkey]}
+          hotkeys={viewEquipmentHotkeys}
           handleClick={() => {
             AppStore.get().actionMenuStore.pushStack(
               MenuStatePool.get(MenuStateType.ViewingEquipedItems)
             );
           }}
         >
-          Equipped ({letterFromKeyCode(viewEquipmentHotkey)})
+          Equipped ({hotkeys.getKeybindString(HotkeyButtonTypes.ToggleViewEquipment)})
         </ActionMenuTopButton>
         <ViewAbilityTreeButton />
       </ul>

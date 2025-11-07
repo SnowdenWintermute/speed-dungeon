@@ -6,12 +6,19 @@ import ActionMenuTopButton from "./ActionMenuTopButton";
 
 export const hotkey = HOTKEYS.CANCEL;
 
-export default function GoBackButton({ extraHotkeys }: { extraHotkeys?: string[] }) {
+export default function GoBackButton({
+  extraHotkeys,
+  extraFn,
+}: {
+  extraHotkeys?: string[];
+  extraFn?: () => void;
+}) {
   return (
     <ActionMenuTopButton
       handleClick={() => {
-        const { actionMenuStore } = AppStore.get();
+        const { actionMenuStore, focusStore } = AppStore.get();
         actionMenuStore.clearHoveredAction();
+        if (extraFn) extraFn();
         actionMenuStore.popStack();
       }}
       hotkeys={[hotkey, ...(extraHotkeys || [])]}

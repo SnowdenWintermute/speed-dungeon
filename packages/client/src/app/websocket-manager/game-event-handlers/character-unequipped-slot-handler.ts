@@ -8,6 +8,7 @@ export function characterUnequippedSlotHandler(characterAndSlot: CharacterAndSlo
 
   characterAssociatedDataProvider(characterId, ({ character }: CharacterAssociatedData) => {
     character.combatantProperties.equipment.unequipSlots([slot]);
+    console.log("unequipSlots:", characterId, slot);
 
     getGameWorld().modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantEquipmentModels,

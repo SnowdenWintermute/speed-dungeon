@@ -13,23 +13,7 @@ export abstract class ActionMenuState {
   protected numberedButtons: ReactNode[] = [];
   private pageCount: number = 1;
   protected minPageCount: number = 1;
-  constructor(public type: MenuStateType) {
-    // can't use makeAutoObservable on classes with subclassing
-    makeObservable(
-      this,
-      {
-        pageIndexInternal: observable,
-        pageIndex: computed,
-        alwaysShowPageOne: observable,
-        setPageIndex: action,
-        turnPage: action,
-        goToLastPage: action,
-        goToFirstPage: action,
-        getPageCount: observable,
-      },
-      { autoBind: true }
-    );
-  }
+  constructor(public type: MenuStateType) {}
 
   // getInvisibleButtons(): ReactNode {
   //   //
@@ -41,7 +25,9 @@ export abstract class ActionMenuState {
     return this.numberedButtons.slice(startIndex, endIndex);
   }
   abstract recalculateButtons(): void;
-  // abstract getCentralSection: ReactNode
+  getCentralSection(): ReactNode {
+    return;
+  }
   getBottomSection(): ReactNode {
     return <PageTurningButtons menuState={this} />;
   }

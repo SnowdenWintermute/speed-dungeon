@@ -15,6 +15,7 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
   const currentMenu = actionMenuStore.getCurrentMenu();
   const topSection = currentMenu.getTopSection();
   const numberedButtons = currentMenu.getNumberedButtons();
+  const centralSection = currentMenu.getCentralSection();
   const bottomSection = currentMenu.getBottomSection();
 
   useEffect(() => {
@@ -36,6 +37,7 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
         }}
       >
         {numberedButtons}
+        {centralSection}
       </div>
       <div className="min-w-[25rem] max-w-[25rem]">{bottomSection}</div>
     </section>

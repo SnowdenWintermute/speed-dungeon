@@ -11,6 +11,7 @@ import { TooltipStore } from "./tooltip";
 import { ImagesStore } from "./images";
 import { FormsStore } from "./forms";
 import { GameStore } from "./game";
+import { HotkeysStore } from "./hotkeys";
 
 export class AppStore {
   dialogStore = new DialogStore();
@@ -26,6 +27,7 @@ export class AppStore {
   imageStore = new ImagesStore();
   formsStore = new FormsStore();
   gameStore = new GameStore();
+  hotkeys = new HotkeysStore();
 
   private static _instance: AppStore | null = null;
 

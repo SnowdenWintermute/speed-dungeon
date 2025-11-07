@@ -79,7 +79,7 @@ export const ItemButton = observer((props: Props) => {
 
   return (
     <HotkeyButton
-      className={`w-full ${textColor} ${mainContainerStyles} relative
+      className={`w-full ${mainContainerStyles} relative
         flex bg-slate-700 hover:bg-slate-950 border-b border-l border-r border-slate-400 overflow-hidden`}
       style={{ height: `${BUTTON_HEIGHT}rem` }}
       hotkeys={hotkeys}
@@ -92,7 +92,7 @@ export const ItemButton = observer((props: Props) => {
       <NumberedButtonHotkeyLabel hotkeyLabel={hotkeyLabel} isDisabled={false} />
       <div className={`absolute right-0 w-7/12 h-full`} style={{ background }} />
 
-      <div className="flex justify-between h-full w-full pr-2">
+      <div className={`${textColor} flex justify-between h-full w-full pr-2`}>
         {thumbnailOption && (
           <div
             className={`absolute right-0 h-full w-fit -rotate-90 transition-transform ${imageContainerStyles}`}
