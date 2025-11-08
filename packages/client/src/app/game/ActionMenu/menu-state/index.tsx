@@ -7,7 +7,7 @@ import {
   getSkillBookName,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import PageTurningButtons from "./common-buttons/PageTurningButtons";
+import { PageTurningButtons } from "./common-buttons/PageTurningButtons";
 import { ReactNode } from "react";
 import { MENU_STATE_TYPE_STRINGS, MenuStateType } from "./menu-state-type";
 import React from "react";
@@ -18,23 +18,29 @@ export const ACTION_MENU_PAGE_SIZE = 6;
 export abstract class ActionMenuState {
   pageIndexInternal: number = 0;
   alwaysShowPageOne: boolean = false;
-  protected numberedButtons: ReactNode[] = [];
-  protected centralSection: ReactNode = "";
   private pageCount: number = 1;
   protected minPageCount: number = 1;
   constructor(public type: MenuStateType) {}
 
   // getInvisibleButtons(): ReactNode {}
   abstract getTopSection(): ReactNode;
-  getNumberedButtons(): ReactNode[] {
-    const startIndex = ACTION_MENU_PAGE_SIZE * this.pageIndex;
+
+  abstract getNumberedButtons(): ReactNode[];
+
+  get numberedButtons() {
+    return this.getNumberedButtons();
+  }
+
+  getNumberedButtonsOnCurrentPage() {
+    const startIndex = ACTION_MENU_PAGE_SIZE * this.pageIndexInternal;
     const endIndex = startIndex + ACTION_MENU_PAGE_SIZE;
     return this.numberedButtons.slice(startIndex, endIndex);
   }
-  abstract recalculateButtons(): void;
+
   getCentralSection(): ReactNode {
-    return this.centralSection;
+    return "";
   }
+
   getBottomSection(): ReactNode {
     return <PageTurningButtons menuState={this} />;
   }
@@ -45,20 +51,12 @@ export abstract class ActionMenuState {
     return MENU_STATE_TYPE_STRINGS[this.type];
   }
 
-  setPageCount(newCount: number) {
-    this.pageCount = newCount;
-  }
-
-  recalulatePageCount() {
-    this.setPageCount(Math.ceil(this.numberedButtons.length / ACTION_MENU_PAGE_SIZE));
-  }
-
   get pageIndex() {
     return this.pageIndexInternal;
   }
 
   getPageCount() {
-    return this.pageCount;
+    return Math.ceil(this.numberedButtons.length / ACTION_MENU_PAGE_SIZE);
   }
 
   setPageIndex(newIndex: number) {
@@ -66,9 +64,14 @@ export abstract class ActionMenuState {
   }
 
   turnPage(direction: NextOrPrevious) {
-    const newPage = getNextOrPreviousNumber(this.pageIndexInternal, this.pageCount - 1, direction, {
-      minNumber: 0,
-    });
+    const newPage = getNextOrPreviousNumber(
+      this.pageIndexInternal,
+      this.getPageCount() - 1,
+      direction,
+      {
+        minNumber: 0,
+      }
+    );
     this.pageIndexInternal = newPage;
   }
 

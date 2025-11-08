@@ -3,14 +3,15 @@ import { ActionMenuState } from "..";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { NextOrPrevious } from "@speed-dungeon/common";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   menuState: ActionMenuState;
 }
 
-export default function PageTurningButtons(props: Props) {
+export const PageTurningButtons = observer((props: Props) => {
   const { menuState } = props;
-  const pageCount = menuState.pageCount;
+  const pageCount = menuState.getPageCount();
   const currentPageIndex = menuState.pageIndex;
 
   const prevButtonHotkey = HOTKEYS.LEFT_MAIN;
@@ -50,4 +51,4 @@ export default function PageTurningButtons(props: Props) {
       </div>
     </div>
   );
-}
+});

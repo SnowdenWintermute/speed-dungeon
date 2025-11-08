@@ -1,6 +1,6 @@
 import { ActionMenuState } from ".";
 import { ConsideringAbilityTreeColumnMenuState } from "./considering-tree-ability-column";
-import { ArrayUtils } from "@speed-dungeon/common";
+import { ABILITY_TREE_DIMENSIONS, ArrayUtils } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "./menu-state-type";
 import { ReactNode } from "react";
@@ -32,31 +32,33 @@ export class AbilityTreeMenuState extends ActionMenuState {
     );
   }
 
-  recalculateButtons(): void {
-    this.numberedButtons = ArrayUtils.createFilledWithSequentialNumbers(5, 1).map((number) => {
-      const nameAsString = `Column ${number}`;
+  getNumberedButtons() {
+    return ArrayUtils.createFilledWithSequentialNumbers(ABILITY_TREE_DIMENSIONS.x, 1).map(
+      (number) => {
+        const nameAsString = `Column ${number}`;
 
-      return (
-        <ActionMenuNumberedButton
-          key={number}
-          hotkeys={[`Digit${number}`]}
-          hotkeyLabel={number.toString()}
-          extraStyles={""}
-          focusHandler={() => {}}
-          blurHandler={() => {}}
-          clickHandler={() => {
-            AppStore.get().actionMenuStore.pushStack(
-              new ConsideringAbilityTreeColumnMenuState(number)
-            );
-          }}
-        >
-          <div className="flex justify-between h-full w-full pr-2">
-            <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
-              {nameAsString}
+        return (
+          <ActionMenuNumberedButton
+            key={number}
+            hotkeys={[`Digit${number}`]}
+            hotkeyLabel={number.toString()}
+            extraStyles={""}
+            focusHandler={() => {}}
+            blurHandler={() => {}}
+            clickHandler={() => {
+              const { actionMenuStore } = AppStore.get();
+              actionMenuStore.pushStack(new ConsideringAbilityTreeColumnMenuState(number));
+              actionMenuStore.getCurrentMenu().setPageIndex(number - 1);
+            }}
+          >
+            <div className="flex justify-between h-full w-full pr-2">
+              <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
+                {nameAsString}
+              </div>
             </div>
-          </div>
-        </ActionMenuNumberedButton>
-      );
-    });
+          </ActionMenuNumberedButton>
+        );
+      }
+    );
   }
 }

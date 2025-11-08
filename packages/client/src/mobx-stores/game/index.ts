@@ -130,7 +130,6 @@ export class GameStore {
 
     const { actionMenuStore, focusStore } = AppStore.get();
     actionMenuStore.clearHoveredAction();
-    actionMenuStore.getCurrentMenu().recalculateButtons();
     focusStore.detailables.clear();
     focusStore.combatantAbilities.clear();
 

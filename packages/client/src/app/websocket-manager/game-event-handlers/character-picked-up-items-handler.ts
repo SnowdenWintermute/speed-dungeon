@@ -26,8 +26,6 @@ export function characterPickedUpItemsHandler(characterAndItems: CharacterAndIte
 
         character.combatantProperties.inventory.insertItem(itemResult);
 
-        AppStore.get().actionMenuStore.getCurrentMenu().recalculateButtons();
-
         const { focusStore } = AppStore.get();
         // otherwise it is possible that one player is hovering this item, then it "disappears"
         // from under their mouse cursor and they can never trigger a mouseleave event to unhover it

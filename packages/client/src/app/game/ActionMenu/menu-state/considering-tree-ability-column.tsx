@@ -1,5 +1,4 @@
 import { ActionMenuState } from ".";
-import { createCancelButton } from "./common-buttons/cancel";
 import {
   ABILITY_TREES,
   ABILITY_TREE_DIMENSIONS,
@@ -15,16 +14,40 @@ import { AppStore } from "@/mobx-stores/app-store";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
 import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
+import GoBackButton from "./common-buttons/GoBackButton";
 
 export class ConsideringAbilityTreeColumnMenuState extends ActionMenuState {
   constructor(public readonly columnIndex: number) {
-    super(MenuStateType.ConsideringAbilityTreeColumn, 5);
+    super(MenuStateType.ConsideringAbilityTreeColumn);
+    this.minPageCount = ABILITY_TREE_DIMENSIONS.x;
     this.pageIndexInternal = columnIndex;
+  }
+
+  getTopSection(): ReactNode {
+    return (
+      <ul className="flex">
+        <GoBackButton />
+      </ul>
+    );
+  }
+
+  getNumberedButtons() {
+    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+
+    const { combatantProperties } = focusedCharacter;
+    const { classProgressionProperties } = combatantProperties;
+    const mainClassProperties = classProgressionProperties.getMainClass();
+    const supportClassProperties = classProgressionProperties.getSupportClassOption();
+
+    const abilityTree = ABILITY_TREES[mainClassProperties.combatantClass];
+    const subjobTree = supportClassProperties
+      ? ABILITY_TREES[supportClassProperties.combatantClass]
+      : EMPTY_ABILITY_TREE;
+    return [];
   }
 
   getButtonProperties() {
     const toReturn = new ActionButtonsByCategory();
-    toReturn[ActionButtonCategory.Top].push(createCancelButton([]));
 
     const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
@@ -100,8 +123,6 @@ export class ConsideringAbilityTreeColumnMenuState extends ActionMenuState {
         toReturn[ActionButtonCategory.Numbered].push(button);
       });
     });
-
-    createPageButtons(toReturn, ABILITY_TREE_DIMENSIONS.x);
 
     return toReturn;
   }

@@ -5,7 +5,6 @@ import {
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { AppStore } from "@/mobx-stores/app-store";
 
 export function characterDroppedItemHandler(characterAndItem: CharacterAndItem) {
   const { characterId, itemId } = characterAndItem;
@@ -13,6 +12,5 @@ export function characterDroppedItemHandler(characterAndItem: CharacterAndItem) 
 
   characterAssociatedDataProvider(characterId, ({ party, character }: CharacterAssociatedData) => {
     character.combatantProperties.inventory.dropItem(party, itemId);
-    AppStore.get().actionMenuStore.getCurrentMenu().recalculateButtons();
   });
 }

@@ -49,7 +49,7 @@ export const CombatActionButton = observer((props: Props) => {
   return (
     <ActionMenuNumberedButton
       focusHandler={focusHandler}
-      blurHandler={focusHandler}
+      blurHandler={blurHandler}
       disabled={shouldBeDisabled}
       hotkeys={props.hotkeys}
       hotkeyLabel={props.hotkeyLabel}

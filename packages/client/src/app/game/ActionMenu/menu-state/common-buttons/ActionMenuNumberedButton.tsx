@@ -8,7 +8,7 @@ interface Props {
   children: ReactNode;
   hotkeys: string[];
   hotkeyLabel: string;
-  extraStyles: string;
+  extraStyles?: string;
   disabled?: boolean;
   focusHandler: () => void;
   blurHandler: () => void;

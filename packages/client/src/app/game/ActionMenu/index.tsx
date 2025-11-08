@@ -15,7 +15,8 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
 
   const currentMenu = actionMenuStore.getCurrentMenu();
   const topSection = currentMenu.getTopSection();
-  const numberedButtons = currentMenu.getNumberedButtons();
+  // const numberedButtons = currentMenu.getNumberedButtons();
+  const numberedButtons = currentMenu.getNumberedButtonsOnCurrentPage();
   const centralSection = currentMenu.getCentralSection();
   const bottomSection = currentMenu.getBottomSection();
 
@@ -24,10 +25,6 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
       currentMenu.turnPage(NextOrPrevious.Previous);
     }
   }, [numberedButtons.length, currentMenu.pageIndex]);
-
-  useEffect(() => {
-    currentMenu.recalculateButtons();
-  }, [currentMenu.type]);
 
   return (
     <section className={`flex flex-col justify-between`}>

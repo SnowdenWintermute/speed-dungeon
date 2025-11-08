@@ -60,8 +60,8 @@ export class ConsideringItemMenuState extends ActionMenuState {
     return <ConsideringItemDisplay />;
   }
 
-  recalculateButtons(): void {
-    return;
+  getNumberedButtons() {
+    return [];
   }
 
   setItem(item: Item) {

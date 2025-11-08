@@ -7,13 +7,17 @@ import {
   ConsumableType,
   EquipmentType,
   Inventory,
+  NumberRange,
   OneHandedMeleeWeapon,
   Ring,
   Shield,
   TwoHandedMeleeWeapon,
 } from "@speed-dungeon/common";
 import { createConsumableByType } from "../item-generation/create-consumable-by-type.js";
-import { generateSpecificEquipmentType } from "../item-generation/generate-test-items.js";
+import {
+  generateOneOfEachItem,
+  generateSpecificEquipmentType,
+} from "../item-generation/generate-test-items.js";
 
 export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inventory: Inventory) {
   const tradeableItemResult = generateSpecificEquipmentType(

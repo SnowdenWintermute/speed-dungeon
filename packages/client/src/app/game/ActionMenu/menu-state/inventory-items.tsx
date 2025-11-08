@@ -41,7 +41,7 @@ export class InventoryItemsMenuState extends ActionMenuState {
     );
   }
 
-  recalculateButtons(): void {
+  getNumberedButtons() {
     const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
     const itemsInInventory = focusedCharacter.combatantProperties.inventory.getItems();
 
@@ -55,14 +55,14 @@ export class InventoryItemsMenuState extends ActionMenuState {
       itemButtonClickHandler
     );
 
-    this.numberedButtons = newNumberedButtons;
+    return newNumberedButtons;
+  }
 
-    this.recalulatePageCount();
-
-    if (this.numberedButtons.length === 0) {
-      this.centralSection = <EmptyItemsList />;
+  getCentralSection(): ReactNode {
+    if (this.getNumberedButtons().length === 0) {
+      return <EmptyItemsList />;
     } else {
-      this.centralSection = "";
+      return "";
     }
   }
 }

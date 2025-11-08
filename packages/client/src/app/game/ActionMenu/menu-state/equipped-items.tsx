@@ -26,7 +26,7 @@ export class EquippedItemsMenuState extends ActionMenuState {
     );
   }
 
-  recalculateButtons(): void {
+  getNumberedButtons() {
     const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
     const itemsInInventory = focusedCharacter.combatantProperties.equipment.getAllEquippedItems({
       includeUnselectedHotswapSlots: false,
@@ -42,14 +42,14 @@ export class EquippedItemsMenuState extends ActionMenuState {
       itemButtonClickHandler
     );
 
-    this.numberedButtons = newNumberedButtons;
+    return newNumberedButtons;
+  }
 
-    this.recalulatePageCount();
-
+  getCentralSection(): ReactNode {
     if (this.numberedButtons.length === 0) {
-      this.centralSection = <EmptyItemsList />;
+      return <EmptyItemsList />;
     } else {
-      this.centralSection = "";
+      return "";
     }
   }
 }

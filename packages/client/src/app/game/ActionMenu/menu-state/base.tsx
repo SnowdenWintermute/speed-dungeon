@@ -37,14 +37,13 @@ export class BaseMenuState extends ActionMenuState {
     );
   }
 
-  recalculateButtons() {
+  getNumberedButtons() {
     const { gameStore } = AppStore.get();
 
     const focusedCharacterOption = gameStore.getFocusedCharacterOption();
 
     if (focusedCharacterOption === undefined) {
-      this.numberedButtons = [];
-      return;
+      return [];
     }
 
     const focusedCharacter = focusedCharacterOption;
@@ -52,7 +51,7 @@ export class BaseMenuState extends ActionMenuState {
 
     const ownedActions = combatantProperties.abilityProperties.getOwnedActions();
 
-    this.numberedButtons = iterateNumericEnumKeyedRecord(ownedActions)
+    return iterateNumericEnumKeyedRecord(ownedActions)
       .filter(([actionName, _]) => !ACTION_NAMES_TO_HIDE_IN_MENU.includes(actionName))
       .map(([actionName, _], i) => {
         const buttonNumber = (i % ACTION_MENU_PAGE_SIZE) + 1;
@@ -66,8 +65,6 @@ export class BaseMenuState extends ActionMenuState {
           />
         );
       });
-
-    this.recalulatePageCount();
   }
 
   getButtonProperties(): ActionButtonsByCategory {

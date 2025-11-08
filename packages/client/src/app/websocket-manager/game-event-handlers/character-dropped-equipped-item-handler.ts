@@ -7,7 +7,6 @@ import { characterAssociatedDataProvider } from "../combatant-associated-details
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
-import { AppStore } from "@/mobx-stores/app-store";
 
 export function characterDroppedEquippedItemHandler(characterAndSlot: CharacterAndSlot) {
   const { characterId, slot } = characterAndSlot;
@@ -18,8 +17,6 @@ export function characterDroppedEquippedItemHandler(characterAndSlot: CharacterA
       slot
     );
     if (itemDroppedIdResult instanceof Error) return itemDroppedIdResult;
-
-    AppStore.get().actionMenuStore.getCurrentMenu().recalculateButtons();
 
     websocketConnection.emit(
       ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate,
