@@ -20,7 +20,7 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
 
   constructor() {
     super();
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getDeserialized(serialized: CombatantAbilityProperties) {
@@ -162,7 +162,7 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
 
   allocateAbilityPoint(ability: AbilityTreeAbility) {
     const { ownedActions, traitProperties } = this;
-    this.unspentAbilityPoints -= 1;
+    this.changeUnspentAbilityPoints(-1);
     switch (ability.type) {
       case AbilityType.Action:
         const existingActionOption = ownedActions[ability.actionName];

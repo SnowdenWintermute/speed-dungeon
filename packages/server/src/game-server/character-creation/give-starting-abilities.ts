@@ -17,21 +17,21 @@ export function giveStartingAbilities(actionUser: IActionUser) {
     CombatActionName.ChainingSplitArrowParent,
     CombatActionName.SummonPet,
     // CombatActionName.Counterattack,
-    CombatActionName.IceBoltParent,
-    CombatActionName.Fire,
-    CombatActionName.Healing,
-    CombatActionName.ExplodingArrowParent,
-    CombatActionName.Blind,
-    CombatActionName.Firewall,
+    // CombatActionName.IceBoltParent,
+    // CombatActionName.Fire,
+    // CombatActionName.Healing,
+    // CombatActionName.ExplodingArrowParent,
+    // CombatActionName.Blind,
+    // CombatActionName.Firewall,
   ];
 
   const levelTwoSpells: CombatActionName[] = [
-    CombatActionName.IceBoltParent,
-    CombatActionName.Fire,
-    CombatActionName.Firewall,
-    CombatActionName.Healing,
-    CombatActionName.ExplodingArrowParent,
-    CombatActionName.Blind,
+    // CombatActionName.IceBoltParent,
+    // CombatActionName.Fire,
+    // CombatActionName.Firewall,
+    // CombatActionName.Healing,
+    // CombatActionName.ExplodingArrowParent,
+    // CombatActionName.Blind,
   ];
 
   for (const actionName of ownedActions) {

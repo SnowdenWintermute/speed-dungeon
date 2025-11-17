@@ -73,7 +73,8 @@ export const AbilityTreeButton = observer((props: Props) => {
 
                   const newMenuState = new ConsideringCombatantAbilityMenuState(
                     withSubjobAbilities.filter((item) => item !== undefined),
-                    indexIfInThisColumn
+                    indexIfInThisColumn,
+                    ability
                   );
 
                   if (

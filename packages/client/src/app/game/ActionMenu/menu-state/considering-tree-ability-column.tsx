@@ -2,25 +2,23 @@ import { ActionMenuState } from ".";
 import {
   ABILITY_TREES,
   ABILITY_TREE_DIMENSIONS,
-  COMBATANT_TRAIT_DESCRIPTIONS,
-  COMBAT_ACTION_NAME_STRINGS,
   EMPTY_ABILITY_TREE,
+  getAbilityTreeAbilityNameString,
 } from "@speed-dungeon/common";
 import { ReactNode } from "react";
-import { ConsideringCombatantAbilityMenuState } from "./considering-tree-ability";
-import { AbilityType } from "@speed-dungeon/common";
 import { getAbilityIcon } from "../../character-sheet/ability-tree/ability-icons";
 import { AppStore } from "@/mobx-stores/app-store";
-import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
-import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
 import GoBackButton from "./common-buttons/GoBackButton";
+import AbilityTreeAbilityButton from "./common-buttons/AbilityTreeAbilityButton";
+import makeAutoObservable from "mobx-store-inheritance";
 
 export class ConsideringAbilityTreeColumnMenuState extends ActionMenuState {
   constructor(public readonly columnIndex: number) {
     super(MenuStateType.ConsideringAbilityTreeColumn);
     this.minPageCount = ABILITY_TREE_DIMENSIONS.x;
     this.pageIndexInternal = columnIndex;
+    makeAutoObservable(this);
   }
 
   getTopSection(): ReactNode {
@@ -43,87 +41,40 @@ export class ConsideringAbilityTreeColumnMenuState extends ActionMenuState {
     const subjobTree = supportClassProperties
       ? ABILITY_TREES[supportClassProperties.combatantClass]
       : EMPTY_ABILITY_TREE;
-    return [];
-  }
 
-  getButtonProperties() {
-    const toReturn = new ActionButtonsByCategory();
-
-    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
-
-    const { combatantProperties } = focusedCharacter;
-    const { classProgressionProperties } = combatantProperties;
-    const mainClassProperties = classProgressionProperties.getMainClass();
-    const supportClassProperties = classProgressionProperties.getSupportClassOption();
-
-    const abilityTree = ABILITY_TREES[mainClassProperties.combatantClass];
-    const subjobTree = supportClassProperties
-      ? ABILITY_TREES[supportClassProperties.combatantClass]
-      : EMPTY_ABILITY_TREE;
+    const toReturn: ReactNode[] = [];
 
     abilityTree.columns.forEach((column, columnIndex) => {
       const subjobTreeColumn = subjobTree.columns[columnIndex] || [];
       const withSubjobAbilities = [...column, ...subjobTreeColumn.slice(0, 2)];
 
-      let numAbilitiesPushed = -1;
-      withSubjobAbilities.forEach((ability, rowIndex) => {
-        let nameAsString = undefined;
-        let iconOption: ReactNode = <div />;
-        if (ability !== undefined) {
-          if (ability.type === AbilityType.Action) {
-            nameAsString = COMBAT_ACTION_NAME_STRINGS[ability.actionName];
-          } else {
-            nameAsString = COMBATANT_TRAIT_DESCRIPTIONS[ability.traitType].name;
+      // once we click on an ability we want to use page turning buttons to cycle through abilities
+      // in that column and skip the buttons that we show in the empty spaces so we'll record the index
+      let abilityButtonIndex = 0;
+      toReturn.push(
+        ...withSubjobAbilities.map((abilityOption, rowIndex) => {
+          let nameAsString = undefined;
+          let iconOption: ReactNode = <div />;
+
+          if (abilityOption !== undefined) {
+            nameAsString = getAbilityTreeAbilityNameString(abilityOption);
+            const iconGetter = getAbilityIcon(abilityOption);
+            iconOption = iconGetter ? iconGetter("h-full p-2 fill-slate-400") : "icon";
+            abilityButtonIndex += 1;
           }
-          const iconGetter = getAbilityIcon(ability);
-          iconOption = iconGetter ? iconGetter("h-full p-2 fill-slate-400") : "icon";
-          numAbilitiesPushed += 1;
-        }
 
-        const index = numAbilitiesPushed;
-
-        const button = new ActionMenuButtonProperties(
-          () => (
-            <div className="flex justify-between h-full w-full pr-2">
-              <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
-                {nameAsString}
-              </div>
-              <div className="h-full flex items-center">{iconOption}</div>
-            </div>
-          ),
-          nameAsString || "",
-          () => {
-            if (ability === undefined) {
-              AppStore.get().focusStore.combatantAbilities.clearDetailed();
-            } else {
-              AppStore.get().focusStore.combatantAbilities.setDetailed(ability);
-              AppStore.get().actionMenuStore.pushStack(
-                new ConsideringCombatantAbilityMenuState(
-                  withSubjobAbilities.filter((item) => item !== undefined),
-                  index
-                )
-              );
-            }
-          }
-        );
-
-        button.mouseEnterHandler = button.focusHandler = () => {
-          if (ability === undefined) {
-            AppStore.get().focusStore.combatantAbilities.clearHovered();
-          } else {
-            AppStore.get().focusStore.combatantAbilities.setHovered(ability);
-          }
-        };
-        button.mouseLeaveHandler = button.blurHandler = () => {
-          AppStore.get().focusStore.combatantAbilities.clearHovered();
-        };
-
-        button.shouldBeDisabled = nameAsString === undefined;
-
-        toReturn[ActionButtonCategory.Numbered].push(button);
-      });
+          return (
+            <AbilityTreeAbilityButton
+              key={columnIndex + rowIndex + (nameAsString || "")}
+              abilityOption={abilityOption}
+              abilityButtonIndex={abilityButtonIndex}
+              rowIndex={rowIndex}
+              abilityTreeColumn={column}
+            />
+          );
+        })
+      );
     });
-
     return toReturn;
   }
 }

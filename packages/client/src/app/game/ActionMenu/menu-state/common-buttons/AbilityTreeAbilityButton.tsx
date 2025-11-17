@@ -7,12 +7,13 @@ import { ConsideringCombatantAbilityMenuState } from "../considering-tree-abilit
 
 interface Props {
   abilityOption: undefined | AbilityTreeAbility;
-  abilityIndex: number;
+  abilityButtonIndex: number;
+  rowIndex: number;
   abilityTreeColumn: (AbilityTreeAbility | undefined)[];
 }
 
 export default function AbilityTreeAbilityButton(props: Props) {
-  const { abilityOption, abilityIndex, abilityTreeColumn } = props;
+  const { abilityOption, abilityButtonIndex, abilityTreeColumn, rowIndex } = props;
 
   let buttonText = "";
   let iconOption: ReactNode = <div />;
@@ -30,7 +31,8 @@ export default function AbilityTreeAbilityButton(props: Props) {
       AppStore.get().actionMenuStore.pushStack(
         new ConsideringCombatantAbilityMenuState(
           abilityTreeColumn.filter((item) => item !== undefined),
-          abilityIndex
+          abilityButtonIndex,
+          abilityOption
         )
       );
     }
@@ -48,10 +50,12 @@ export default function AbilityTreeAbilityButton(props: Props) {
     AppStore.get().focusStore.combatantAbilities.clearHovered();
   }
 
+  const displayIndex = rowIndex + 1;
+
   return (
     <ActionMenuNumberedButton
-      hotkeys={[]}
-      hotkeyLabel={""}
+      hotkeys={[`Digit${displayIndex}`]}
+      hotkeyLabel={displayIndex.toString()}
       focusHandler={focusHandler}
       blurHandler={blurHandler}
       clickHandler={clickHandler}
