@@ -36,7 +36,11 @@ export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
   getTopSection(): ReactNode {
     return (
       <ul className="flex">
-        <GoBackButton />
+        <GoBackButton
+          extraFn={() => {
+            AppStore.get().focusStore.combatantAbilities.clearDetailed();
+          }}
+        />
         <AllocateAbilityPointButton ability={this.ability} />
       </ul>
     );

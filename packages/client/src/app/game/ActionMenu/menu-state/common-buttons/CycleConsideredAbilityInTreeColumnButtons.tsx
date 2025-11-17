@@ -2,11 +2,7 @@ import React from "react";
 import { observer } from "mobx-react-lite";
 import { ListCyclingButtons } from "./ListCyclingButtons";
 import { ConsideringCombatantAbilityMenuState } from "../considering-tree-ability";
-import {
-  NextOrPrevious,
-  abilityTreeAbilitiesAreEqual,
-  getNextOrPreviousNumber,
-} from "@speed-dungeon/common";
+import { AbilityUtils, NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
 
 interface Props {
@@ -16,7 +12,7 @@ interface Props {
 export const CycleConsideredAbilityInTreeColumnButtons = observer((props: Props) => {
   const { menuState } = props;
   const currentPageIndex = menuState.column.findIndex((item) =>
-    abilityTreeAbilitiesAreEqual(menuState.ability, item)
+    AbilityUtils.abilitiesAreEqual(menuState.ability, item)
   );
 
   const abilitiesInRowCount = menuState.column.length;

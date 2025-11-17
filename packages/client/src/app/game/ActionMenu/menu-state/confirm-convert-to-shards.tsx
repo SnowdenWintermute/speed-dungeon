@@ -1,16 +1,12 @@
 import { ActionMenuState } from ".";
-import { ClientToServerEvent, Item } from "@speed-dungeon/common";
-import { websocketConnection } from "@/singletons/websocket-connection";
-import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
-import { createCancelButton } from "./common-buttons/cancel";
+import { Item } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
-import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
-import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
-
-const confirmShardHotkey = HOTKEYS.MAIN_1;
-const confirmShardLetter = letterFromKeyCode(confirmShardHotkey);
-export const CONFIRM_SHARD_TEXT = `Convert (${confirmShardLetter})`;
+import makeAutoObservable from "mobx-store-inheritance";
+import { ReactNode } from "react";
+import GoBackButton from "./common-buttons/GoBackButton";
+import { ConfirmShardConversionDisplay } from "../ConfirmShardConversionDisplay";
+import { ConfirmShardConversionButton } from "./common-buttons/ConfirmShardConversionButton";
 
 export class ConfirmConvertToShardsMenuState extends ActionMenuState {
   constructor(
@@ -21,49 +17,32 @@ export class ConfirmConvertToShardsMenuState extends ActionMenuState {
     // which doesn't trigger shouldShowCharacterSheet()
     public type: MenuStateType.ItemSelected | MenuStateType.ConfimConvertToShards
   ) {
-    super(type, 1);
+    super(type);
+    makeAutoObservable(this);
   }
-  getButtonProperties(): ActionButtonsByCategory {
-    const toReturn = new ActionButtonsByCategory();
 
-    toReturn[ActionButtonCategory.Top].push(
-      createCancelButton([], () => {
-        // when operating the vending machine we want to clear the item
-        // selection, but not when in inventory
-        if (this.type === MenuStateType.ConfimConvertToShards) {
-          AppStore.get().focusStore.selectItem(null);
-        }
-      })
+  getTopSection(): ReactNode {
+    return (
+      <ul className="flex">
+        <GoBackButton
+          extraFn={() => {
+            const shouldDeselectItem = this.type === MenuStateType.ConfimConvertToShards;
+            if (!shouldDeselectItem) return;
+            // when operating the vending machine we want to clear the item
+            // selection, but not when in inventory
+            AppStore.get().focusStore.selectItem(null);
+          }}
+        />
+        <ConfirmShardConversionButton menuState={this} />
+      </ul>
     );
+  }
 
-    const { gameStore } = AppStore.get();
+  getCentralSection(): ReactNode {
+    return <ConfirmShardConversionDisplay />;
+  }
 
-    const focusedCharacter = gameStore.getExpectedFocusedCharacter();
-    const itemId = this.item.entityProperties.id;
-
-    const confirmShardButton = new ActionMenuButtonProperties(
-      () => `Convert (${confirmShardLetter})`,
-      `Convert (${confirmShardLetter})`,
-      () => {
-        websocketConnection.emit(ClientToServerEvent.ConvertItemsToShards, {
-          characterId: focusedCharacter.getEntityId(),
-          itemIds: [itemId],
-        });
-        AppStore.get().actionMenuStore.popStack();
-        if (this.type === MenuStateType.ItemSelected) {
-          // converting to shards from the inventory nessecitates going back two
-          // stacked menus since we go itemSelected -> confirmShard and now that the item is
-          // shards it doesn't make sense we would have it selected
-          AppStore.get().actionMenuStore.popStack();
-        }
-        AppStore.get().focusStore.clearItemComparison();
-      }
-    );
-
-    confirmShardButton.dedicatedKeys = ["Enter", confirmShardHotkey];
-    confirmShardButton.shouldBeDisabled = !gameStore.clientUserControlsFocusedCombatant();
-    toReturn[ActionButtonCategory.Top].push(confirmShardButton);
-
-    return toReturn;
+  getNumberedButtons(): ReactNode[] {
+    return [];
   }
 }

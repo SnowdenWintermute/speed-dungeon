@@ -71,9 +71,11 @@ export const AbilityTreeButton = observer((props: Props) => {
                 if (AbilityUtils.abilitiesAreEqual(abilityToCheck, ability)) {
                   indexIfInThisColumn = index;
 
+                  const filteredColumn = withSubjobAbilities.filter(
+                    (item): item is AbilityTreeAbility => item !== undefined
+                  );
                   const newMenuState = new ConsideringCombatantAbilityMenuState(
-                    withSubjobAbilities.filter((item) => item !== undefined),
-                    indexIfInThisColumn,
+                    filteredColumn,
                     ability
                   );
 

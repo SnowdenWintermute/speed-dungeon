@@ -67,7 +67,6 @@ export class ConsideringAbilityTreeColumnMenuState extends ActionMenuState {
             <AbilityTreeAbilityButton
               key={columnIndex + rowIndex + (nameAsString || "")}
               abilityOption={abilityOption}
-              abilityButtonIndex={abilityButtonIndex}
               rowIndex={rowIndex}
               abilityTreeColumn={column}
             />

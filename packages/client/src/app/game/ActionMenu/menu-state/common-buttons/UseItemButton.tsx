@@ -17,8 +17,9 @@ import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import { observer } from "mobx-react-lite";
 
 const { hotkeys } = AppStore.get();
-const useItemHotkeys = hotkeys.getKeybind(HotkeyButtonTypes.UseItem);
-const useItemHotkeyString = hotkeys.getKeybindString(HotkeyButtonTypes.UseItem);
+const buttonType = HotkeyButtonTypes.Confirm;
+const useItemHotkeys = hotkeys.getKeybind(buttonType);
+const useItemHotkeyString = hotkeys.getKeybindString(buttonType);
 
 interface Props {
   item: Item;

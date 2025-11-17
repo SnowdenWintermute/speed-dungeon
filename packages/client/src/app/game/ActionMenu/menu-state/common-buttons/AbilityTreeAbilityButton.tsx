@@ -28,7 +28,9 @@ export default function AbilityTreeAbilityButton(props: Props) {
     } else {
       AppStore.get().focusStore.combatantAbilities.setDetailed(abilityOption);
 
-      const filteredColumn = abilityTreeColumn.filter(Boolean) as AbilityTreeAbility[];
+      const filteredColumn = abilityTreeColumn.filter(
+        (item): item is AbilityTreeAbility => item !== undefined
+      );
 
       AppStore.get().actionMenuStore.pushStack(
         new ConsideringCombatantAbilityMenuState(filteredColumn, abilityOption)

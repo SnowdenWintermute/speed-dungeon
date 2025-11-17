@@ -10,13 +10,13 @@ export const VIEW_EQUIPMENT_HOTKEY = HOTKEYS.ALT_1;
 export enum HotkeyButtonTypes {
   ToggleInventory,
   ToggleViewEquipment,
-  UseItem,
   EquipAltSlot,
   DropItem,
   ToggleViewingAbilityTree,
   AllocateAbilityPoint,
   CycleBack,
   CycleForward,
+  Confirm,
 }
 
 export type KeyCode = string;
@@ -24,13 +24,13 @@ export type KeyCode = string;
 export const DEFAULT_KEYBINDS: Record<HotkeyButtonTypes, KeyCode[]> = {
   [HotkeyButtonTypes.ToggleInventory]: [HOTKEYS.MAIN_1, "KeyI"],
   [HotkeyButtonTypes.ToggleViewEquipment]: [HOTKEYS.ALT_1],
-  [HotkeyButtonTypes.UseItem]: [HOTKEYS.MAIN_1],
   [HotkeyButtonTypes.EquipAltSlot]: [HOTKEYS.ALT_1],
   [HotkeyButtonTypes.DropItem]: [HOTKEYS.MAIN_2],
   [HotkeyButtonTypes.ToggleViewingAbilityTree]: [HOTKEYS.BOTTOM_ALT],
   [HotkeyButtonTypes.AllocateAbilityPoint]: [HOTKEYS.MAIN_1],
   [HotkeyButtonTypes.CycleBack]: [HOTKEYS.LEFT_MAIN],
   [HotkeyButtonTypes.CycleForward]: [HOTKEYS.RIGHT_MAIN],
+  [HotkeyButtonTypes.Confirm]: [HOTKEYS.MAIN_1],
 };
 
 export class HotkeysStore {
