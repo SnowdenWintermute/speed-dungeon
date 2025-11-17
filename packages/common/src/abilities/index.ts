@@ -17,6 +17,17 @@ export interface TraitAbility {
 
 export type AbilityTreeAbility = ActionAbility | TraitAbility;
 
+export function abilityTreeAbilitiesAreEqual(a: AbilityTreeAbility, b: AbilityTreeAbility) {
+  if (a.type === AbilityType.Action && b.type === AbilityType.Action) {
+    if (a.type === AbilityType.Action && a.actionName === b.actionName) return true;
+    return false;
+  } else if (a.type === AbilityType.Trait && b.type === AbilityType.Trait) {
+    if (a.traitType === b.traitType) return true;
+    return false;
+  }
+  return false;
+}
+
 export function getAbilityTreeAbilityNameString(ability: AbilityTreeAbility) {
   switch (ability.type) {
     case AbilityType.Action:

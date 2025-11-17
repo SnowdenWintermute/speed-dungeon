@@ -7,13 +7,12 @@ import { ConsideringCombatantAbilityMenuState } from "../considering-tree-abilit
 
 interface Props {
   abilityOption: undefined | AbilityTreeAbility;
-  abilityButtonIndex: number;
   rowIndex: number;
   abilityTreeColumn: (AbilityTreeAbility | undefined)[];
 }
 
 export default function AbilityTreeAbilityButton(props: Props) {
-  const { abilityOption, abilityButtonIndex, abilityTreeColumn, rowIndex } = props;
+  const { abilityOption, abilityTreeColumn, rowIndex } = props;
 
   let buttonText = "";
   let iconOption: ReactNode = <div />;
@@ -28,12 +27,11 @@ export default function AbilityTreeAbilityButton(props: Props) {
       AppStore.get().focusStore.combatantAbilities.clearDetailed();
     } else {
       AppStore.get().focusStore.combatantAbilities.setDetailed(abilityOption);
+
+      const filteredColumn = abilityTreeColumn.filter(Boolean) as AbilityTreeAbility[];
+
       AppStore.get().actionMenuStore.pushStack(
-        new ConsideringCombatantAbilityMenuState(
-          abilityTreeColumn.filter((item) => item !== undefined),
-          abilityButtonIndex,
-          abilityOption
-        )
+        new ConsideringCombatantAbilityMenuState(filteredColumn, abilityOption)
       );
     }
   }
