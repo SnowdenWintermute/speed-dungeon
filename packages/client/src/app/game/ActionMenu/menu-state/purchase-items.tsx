@@ -9,20 +9,37 @@ import {
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { ItemButtonBody, consumableGradientBg } from "./items";
-import { setInventoryOpen } from "./common-buttons/open-inventory";
-import { createCancelButton } from "./common-buttons/cancel";
 import { PriceDisplay } from "../../character-sheet/ShardsDisplay";
 import { AppStore } from "@/mobx-stores/app-store";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
 import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
+import ToggleInventoryButton from "./common-buttons/ToggleInventory";
+import GoBackButton from "./common-buttons/GoBackButton";
 
 // @TODO - this is duplicating items menu, now that we added the extraChildren option we
 // should be able to just implement item state with a list of dummy consumables
 // - also, we copied this to SelectingBookType menu as well so if we ever change this, look at that too
 export class PurchaseItemsMenuState extends ActionMenuState {
   constructor() {
-    super(MenuStateType.PurchasingItems, 1);
+    super(MenuStateType.PurchasingItems);
+  }
+
+  getTopSection() {
+    return (
+      <ul className="flex">
+        <GoBackButton
+          extraFn={() => {
+            AppStore.get().focusStore.detailables.clear();
+          }}
+        />
+        <ToggleInventoryButton />
+      </ul>
+    );
+  }
+
+  getNumberedButtons() {
+    return [];
   }
 
   getButtonProperties(): ActionButtonsByCategory {
@@ -33,13 +50,6 @@ export class PurchaseItemsMenuState extends ActionMenuState {
     const party = gameStore.getExpectedParty();
 
     const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
-
-    toReturn[ActionButtonCategory.Top].push(
-      createCancelButton([], () => {
-        focusStore.detailables.clear();
-      })
-    );
-    toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
 
     const purchaseableItems = [ConsumableType.HpAutoinjector, ConsumableType.MpAutoinjector];
     for (const consumableType of purchaseableItems) {
@@ -94,8 +104,6 @@ export class PurchaseItemsMenuState extends ActionMenuState {
 
       toReturn[ActionButtonCategory.Numbered].push(purchaseItemButton);
     }
-
-    createPageButtons(toReturn);
 
     return toReturn;
   }

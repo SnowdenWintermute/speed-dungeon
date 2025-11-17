@@ -39,7 +39,8 @@ export class EquippedItemsMenuState extends ActionMenuState {
 
     const newNumberedButtons = ActionMenuState.getItemButtonsFromList(
       itemsInInventory,
-      itemButtonClickHandler
+      itemButtonClickHandler,
+      () => false
     );
 
     return newNumberedButtons;

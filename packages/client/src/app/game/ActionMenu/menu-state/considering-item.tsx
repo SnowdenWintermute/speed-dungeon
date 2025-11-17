@@ -60,10 +60,6 @@ export class ConsideringItemMenuState extends ActionMenuState {
     return <ConsideringItemDisplay />;
   }
 
-  getNumberedButtons() {
-    return [];
-  }
-
   setItem(item: Item) {
     this.item = item;
     AppStore.get().focusStore.selectItem(item);

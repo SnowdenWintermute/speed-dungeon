@@ -2,17 +2,12 @@ import { ACTION_MENU_PAGE_SIZE, ActionMenuState } from ".";
 import { iterateNumericEnumKeyedRecord, ACTION_NAMES_TO_HIDE_IN_MENU } from "@speed-dungeon/common";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
-import {
-  setInventoryOpen,
-  setViewingAbilityTreeAsFreshStack,
-} from "./common-buttons/open-inventory";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 import { AppStore } from "@/mobx-stores/app-store";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
 import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
 import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
-import { ReactNode } from "react";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import { CombatActionButton } from "./common-buttons/CombatActionButton";
 import makeAutoObservable from "mobx-store-inheritance";
@@ -28,7 +23,7 @@ export class BaseMenuState extends ActionMenuState {
     makeAutoObservable(this);
   }
 
-  getTopSection(): ReactNode {
+  getTopSection() {
     return (
       <ul className="flex">
         <ToggleInventoryButton />
@@ -71,8 +66,6 @@ export class BaseMenuState extends ActionMenuState {
     const { gameStore } = AppStore.get();
     const toReturn = new ActionButtonsByCategory();
 
-    toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
-
     const focusedCharacterOption = gameStore.getFocusedCharacterOption();
 
     if (focusedCharacterOption === undefined) {
@@ -84,8 +77,6 @@ export class BaseMenuState extends ActionMenuState {
     const focusedCharacter = focusedCharacterOption;
 
     const { combatantProperties } = focusedCharacter;
-
-    toReturn[ActionButtonCategory.Top].push(setViewingAbilityTreeAsFreshStack);
 
     const partyResult = gameStore.getExpectedParty();
 

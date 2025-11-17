@@ -17,6 +17,7 @@ export enum HotkeyButtonTypes {
   CycleBack,
   CycleForward,
   Confirm,
+  TakeAllItems,
 }
 
 export type KeyCode = string;
@@ -31,6 +32,7 @@ export const DEFAULT_KEYBINDS: Record<HotkeyButtonTypes, KeyCode[]> = {
   [HotkeyButtonTypes.CycleBack]: [HOTKEYS.LEFT_MAIN],
   [HotkeyButtonTypes.CycleForward]: [HOTKEYS.RIGHT_MAIN],
   [HotkeyButtonTypes.Confirm]: [HOTKEYS.MAIN_1],
+  [HotkeyButtonTypes.TakeAllItems]: [HOTKEYS.MAIN_2],
 };
 
 export class HotkeysStore {

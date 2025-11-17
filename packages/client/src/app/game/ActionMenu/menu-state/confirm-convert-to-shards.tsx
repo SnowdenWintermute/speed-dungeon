@@ -41,8 +41,4 @@ export class ConfirmConvertToShardsMenuState extends ActionMenuState {
   getCentralSection(): ReactNode {
     return <ConfirmShardConversionDisplay />;
   }
-
-  getNumberedButtons(): ReactNode[] {
-    return [];
-  }
 }

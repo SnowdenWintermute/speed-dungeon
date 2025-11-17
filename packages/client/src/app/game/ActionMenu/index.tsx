@@ -15,7 +15,6 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
 
   const currentMenu = actionMenuStore.getCurrentMenu();
   const topSection = currentMenu.getTopSection();
-  // const numberedButtons = currentMenu.getNumberedButtons();
   const numberedButtons = currentMenu.getNumberedButtonsOnCurrentPage();
   const centralSection = currentMenu.getCentralSection();
   const bottomSection = currentMenu.getBottomSection();

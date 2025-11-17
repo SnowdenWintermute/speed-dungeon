@@ -46,10 +46,6 @@ export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
     );
   }
 
-  getNumberedButtons(): ReactNode[] {
-    return [];
-  }
-
   getCentralSection() {
     const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 

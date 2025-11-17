@@ -25,7 +25,9 @@ export abstract class ActionMenuState {
   // getInvisibleButtons(): ReactNode {}
   abstract getTopSection(): ReactNode;
 
-  abstract getNumberedButtons(): ReactNode[];
+  getNumberedButtons(): ReactNode[] {
+    return [];
+  }
 
   get numberedButtons() {
     return this.getNumberedButtons();
@@ -87,7 +89,11 @@ export abstract class ActionMenuState {
     return null;
   }
 
-  static getItemButtonsFromList(items: Item[], clickHandler: (item: Item) => void) {
+  static getItemButtonsFromList(
+    items: Item[],
+    clickHandler: (item: Item) => void,
+    itemDisabledFunction: (item: Item) => boolean
+  ) {
     const stackedItems = ItemUtils.sortIntoStacks(items);
 
     const { equipmentAndShardStacks, consumablesByTypeAndLevel } = stackedItems;
@@ -124,6 +130,7 @@ export abstract class ActionMenuState {
           key={item.entityProperties.id}
           item={item}
           text={buttonText}
+          disabled={itemDisabledFunction(item)}
           hotkeyLabel={buttonNumber.toString()}
           hotkeys={[`Digit${buttonNumber}`]}
           clickHandler={clickHandler}

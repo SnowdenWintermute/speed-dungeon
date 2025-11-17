@@ -6,7 +6,6 @@ import {
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
-import { createCancelButton } from "./common-buttons/cancel";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
 import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";

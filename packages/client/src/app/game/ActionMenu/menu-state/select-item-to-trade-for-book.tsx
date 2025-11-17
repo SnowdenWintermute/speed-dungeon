@@ -7,12 +7,14 @@ import {
 } from "@speed-dungeon/common";
 import { ReactNode } from "react";
 import { ConfirmTradeForBookMenuState } from "./confirm-trade-for-book";
-import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "./menu-state-type";
 import { ActionButtonCategory } from "./action-buttons-by-category";
+import { ActionMenuState } from ".";
+import GoBackButton from "./common-buttons/GoBackButton";
+import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 
-export class SelectItemToTradeForBookMenuState extends ItemsMenuState {
+export class SelectItemToTradeForBookMenuState extends ActionMenuState {
   acceptedItems: Item[] = [];
   constructor(public bookType: BookConsumableType) {
     super(
@@ -24,8 +26,7 @@ export class SelectItemToTradeForBookMenuState extends ItemsMenuState {
           new ConfirmTradeForBookMenuState(item, this.bookType)
         );
       },
-      () => Object.values(this.acceptedItems),
-      { extraButtons: { [ActionButtonCategory.Top]: [setInventoryOpen] } }
+      () => Object.values(this.acceptedItems)
     );
 
     const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
@@ -48,6 +49,15 @@ export class SelectItemToTradeForBookMenuState extends ItemsMenuState {
           </div>
         );
       };
+  }
+
+  getTopSection() {
+    return (
+      <ul className="flex">
+        <GoBackButton />
+        <ToggleInventoryButton />
+      </ul>
+    );
   }
 }
 

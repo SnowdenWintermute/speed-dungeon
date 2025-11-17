@@ -1,52 +1,65 @@
-import { ItemsMenuState } from "./items";
-import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { ClientToServerEvent, Item } from "@speed-dungeon/common";
+import { ClientToServerEvent } from "@speed-dungeon/common";
 import { takeItem } from "../../ItemsOnGround/ItemOnGround";
-import { setInventoryOpen } from "./common-buttons/open-inventory";
-import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
-import { ActionButtonCategory } from "./action-buttons-by-category";
 import { AppStore } from "@/mobx-stores/app-store";
+import { ActionMenuState } from ".";
+import GoBackButton from "./common-buttons/GoBackButton";
+import ActionMenuTopButton from "./common-buttons/ActionMenuTopButton";
+import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
+import ToggleInventoryButton from "./common-buttons/ToggleInventory";
+import makeAutoObservable from "mobx-store-inheritance";
 
-const takeAllItemsHotkey = HOTKEYS.MAIN_2;
-
-export class ItemsOnGroundMenuState extends ItemsMenuState {
+export class ItemsOnGroundMenuState extends ActionMenuState {
   constructor() {
-    const takeAllButton = new ActionMenuButtonProperties(
-      () => `Take items (${letterFromKeyCode(takeAllItemsHotkey)})`,
-      `Take items (${letterFromKeyCode(takeAllItemsHotkey)})`,
-      () => {
-        const { gameStore } = AppStore.get();
-        const focusedCharacterId = gameStore.getExpectedFocusedCharacterId();
-        const party = gameStore.getExpectedParty();
-        const itemIds = party.currentRoom.inventory
-          .getItems()
-          .map((item) => item.entityProperties.id);
-        websocketConnection.emit(ClientToServerEvent.PickUpItems, {
-          characterId: focusedCharacterId,
-          itemIds,
-        });
-      }
-    );
-    takeAllButton.dedicatedKeys = [takeAllItemsHotkey];
+    super(MenuStateType.ItemsOnGround);
+    makeAutoObservable(this);
+  }
 
-    super(
-      MenuStateType.ItemsOnGround,
-      { text: "Go Back", hotkeys: [] },
-      takeItem,
-      () => {
-        const party = AppStore.get().gameStore.getExpectedParty();
-        return party.currentRoom.inventory.getItems();
-      },
-      {
-        extraButtons: {
-          [ActionButtonCategory.Top]: [setInventoryOpen, takeAllButton],
-        },
-        shouldBeDisabled: (_item: Item) => {
-          return !AppStore.get().gameStore.getExpectedFocusedCharacterId();
-        },
-      }
+  getTopSection() {
+    const { hotkeys } = AppStore.get();
+    const buttonType = HotkeyButtonTypes.TakeAllItems;
+    const takeAllKeys = hotkeys.getKeybind(buttonType);
+    const takeAllKeyString = hotkeys.getKeybindString(buttonType);
+
+    return (
+      <ul className="flex">
+        <GoBackButton />
+        <ToggleInventoryButton />
+        <ActionMenuTopButton
+          hotkeys={takeAllKeys}
+          handleClick={() => {
+            const { gameStore } = AppStore.get();
+            const focusedCharacterId = gameStore.getExpectedFocusedCharacterId();
+            const party = gameStore.getExpectedParty();
+            const itemIds = party.currentRoom.inventory
+              .getItems()
+              .map((item) => item.entityProperties.id);
+
+            websocketConnection.emit(ClientToServerEvent.PickUpItems, {
+              characterId: focusedCharacterId,
+              itemIds,
+            });
+          }}
+        >
+          Take All ({takeAllKeyString})
+        </ActionMenuTopButton>
+      </ul>
     );
+  }
+
+  getNumberedButtons() {
+    const party = AppStore.get().gameStore.getExpectedParty();
+    const itemsOnGround = party.currentRoom.inventory.getItems();
+
+    const ownsFocusedCharacter = AppStore.get().gameStore.clientUserControlsFocusedCombatant();
+
+    const newNumberedButtons = ActionMenuState.getItemButtonsFromList(
+      itemsOnGround,
+      takeItem,
+      () => ownsFocusedCharacter
+    );
+
+    return newNumberedButtons;
   }
 }

@@ -1,6 +1,5 @@
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { EQUIPMENT_ICONS } from "@/app/game/detailables/EquipmentDetails/equipment-icons";
-import { BUTTON_HEIGHT, UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import { AppStore } from "@/mobx-stores/app-store";
 import { ModifierKey } from "@/mobx-stores/input";
 import { createEaseGradient } from "@/utils/create-ease-gradient-style";
@@ -18,7 +17,6 @@ import {
 import cloneDeep from "lodash.clonedeep";
 import { observer } from "mobx-react-lite";
 import { ReactNode, useState } from "react";
-import NumberedButtonHotkeyLabel from "./NumberedButtonHotkeyLabel";
 import { postItemLink } from "@/utils/post-item-link";
 import { ActionMenuNumberedButton } from "./ActionMenuNumberedButton";
 
@@ -28,6 +26,7 @@ interface Props {
   hotkeyLabel: string;
   hotkeys: string[];
   clickHandler: (item: Item) => void;
+  disabled: boolean;
   children?: ReactNode;
 }
 
@@ -35,7 +34,7 @@ export const ItemButton = observer((props: Props) => {
   const [isHovered, setIsHovered] = useState(false);
   const alternateClickKeyHeld = AppStore.get().inputStore.getKeyIsHeld(ModifierKey.AlternateClick);
 
-  const { item, text, hotkeyLabel, hotkeys, children } = props;
+  const { item, text, hotkeyLabel, hotkeys, children, disabled } = props;
 
   const thumbnailOption = getItemButtonThumbnail(item);
 
@@ -85,6 +84,7 @@ export const ItemButton = observer((props: Props) => {
       blurHandler={blurHandler}
       clickHandler={clickHandler}
       hotkeyLabel={hotkeyLabel}
+      disabled={disabled}
     >
       <div className={`absolute right-0 w-7/12 h-full`} style={{ background }} />
 
