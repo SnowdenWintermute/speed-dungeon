@@ -15,13 +15,13 @@ interface Props {
 export const ListCyclingButtons = observer((props: Props) => {
   const { listTitle, itemCount, currentIndex, onCycle } = props;
 
-  const { hotkeys } = AppStore.get();
+  const { hotkeysStore } = AppStore.get();
 
   const prevButtonType = HotkeyButtonTypes.CycleBack;
   const nextButtonType = HotkeyButtonTypes.CycleForward;
 
-  const prevButtonHotkey = hotkeys.getKeybind(prevButtonType);
-  const nextButtonHotkey = hotkeys.getKeybind(nextButtonType);
+  const prevButtonHotkey = hotkeysStore.getKeybind(prevButtonType);
+  const nextButtonHotkey = hotkeysStore.getKeybind(nextButtonType);
 
   const hiddenStyles = itemCount <= 1 ? "opacity-0 pointer-events-none" : "pointer-events-auto";
 
@@ -35,7 +35,7 @@ export const ListCyclingButtons = observer((props: Props) => {
           hotkeys={prevButtonHotkey}
           onClick={() => onCycle(NextOrPrevious.Previous)}
         >
-          Previous ({hotkeys.getKeybindString(prevButtonType)})
+          Previous ({hotkeysStore.getKeybindString(prevButtonType)})
         </HotkeyButton>
       </div>
       <div className={`h-full flex items-center justify-center pr-2 pl-2 ${hiddenStyles}`}>
@@ -49,7 +49,7 @@ export const ListCyclingButtons = observer((props: Props) => {
           hotkeys={nextButtonHotkey}
           onClick={() => onCycle(NextOrPrevious.Next)}
         >
-          Next ({hotkeys.getKeybindString(nextButtonType)})
+          Next ({hotkeysStore.getKeybindString(nextButtonType)})
         </HotkeyButton>
       </div>
     </div>

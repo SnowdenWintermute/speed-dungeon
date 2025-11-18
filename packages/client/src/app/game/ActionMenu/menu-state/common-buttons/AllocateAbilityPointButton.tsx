@@ -13,9 +13,9 @@ interface Props {
 export const AllocateAbilityPointButton = observer((props: Props) => {
   const { ability } = props;
 
-  const { hotkeys } = AppStore.get();
+  const { hotkeysStore } = AppStore.get();
   const buttonType = HotkeyButtonTypes.AllocateAbilityPoint;
-  const hotkeyList = hotkeys.getKeybind(buttonType);
+  const hotkeyList = hotkeysStore.getKeybind(buttonType);
 
   const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
@@ -36,7 +36,7 @@ export const AllocateAbilityPointButton = observer((props: Props) => {
     >
       <div className="flex justify-between h-full w-full pr-2">
         <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
-          Allocate point ({hotkeys.getKeybindString(buttonType)})
+          Allocate point ({hotkeysStore.getKeybindString(buttonType)})
         </div>
       </div>
     </ActionMenuTopButton>

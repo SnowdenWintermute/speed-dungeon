@@ -76,6 +76,8 @@ export const ItemButton = observer((props: Props) => {
     else props.clickHandler(item);
   }
 
+  const disabledStyles = disabled ? "opacity-50" : "";
+
   return (
     <ActionMenuNumberedButton
       extraStyles={mainContainerStyles + " relative overflow-hidden"}
@@ -109,7 +111,7 @@ export const ItemButton = observer((props: Props) => {
             textShadow: "2px 2px 0px #000000",
           }}
         >
-          {text}
+          <div className={disabledStyles}>{text}</div>
           {children}
         </div>
       </div>

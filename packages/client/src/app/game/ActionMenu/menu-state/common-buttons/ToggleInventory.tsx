@@ -5,9 +5,9 @@ import { MenuStateType } from "../menu-state-type";
 import ActionMenuTopButton from "./ActionMenuTopButton";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 
-const { hotkeys } = AppStore.get();
-const buttonHotkeys = hotkeys.getKeybind(HotkeyButtonTypes.ToggleInventory);
-const buttonHotkeysString = hotkeys.getKeybindString(HotkeyButtonTypes.ToggleInventory);
+const { hotkeysStore } = AppStore.get();
+const buttonHotkeys = hotkeysStore.getKeybind(HotkeyButtonTypes.ToggleInventory);
+const buttonHotkeysString = hotkeysStore.getKeybindString(HotkeyButtonTypes.ToggleInventory);
 
 export default function ToggleInventoryButton() {
   return (

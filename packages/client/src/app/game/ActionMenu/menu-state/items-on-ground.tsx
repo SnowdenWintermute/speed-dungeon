@@ -17,10 +17,10 @@ export class ItemsOnGroundMenuState extends ActionMenuState {
   }
 
   getTopSection() {
-    const { hotkeys } = AppStore.get();
+    const { hotkeysStore } = AppStore.get();
     const buttonType = HotkeyButtonTypes.TakeAllItems;
-    const takeAllKeys = hotkeys.getKeybind(buttonType);
-    const takeAllKeyString = hotkeys.getKeybindString(buttonType);
+    const takeAllKeys = hotkeysStore.getKeybind(buttonType);
+    const takeAllKeyString = hotkeysStore.getKeybindString(buttonType);
 
     return (
       <ul className="flex">
@@ -29,7 +29,7 @@ export class ItemsOnGroundMenuState extends ActionMenuState {
         <ActionMenuTopButton
           hotkeys={takeAllKeys}
           handleClick={() => {
-            const { gameStore } = AppStore.get();
+            const { gameStore, actionMenuStore } = AppStore.get();
             const focusedCharacterId = gameStore.getExpectedFocusedCharacterId();
             const party = gameStore.getExpectedParty();
             const itemIds = party.currentRoom.inventory
@@ -40,6 +40,8 @@ export class ItemsOnGroundMenuState extends ActionMenuState {
               characterId: focusedCharacterId,
               itemIds,
             });
+
+            actionMenuStore.popStack();
           }}
         >
           Take All ({takeAllKeyString})

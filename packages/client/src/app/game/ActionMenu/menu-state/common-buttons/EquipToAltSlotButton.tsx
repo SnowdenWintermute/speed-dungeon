@@ -6,9 +6,9 @@ import { websocketConnection } from "@/singletons/websocket-connection";
 import { observer } from "mobx-react-lite";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 
-const { hotkeys } = AppStore.get();
-const equipAltSlotHotkeys = hotkeys.getKeybind(HotkeyButtonTypes.EquipAltSlot);
-const equipAltSlotHotkeysString = hotkeys.getKeybindString(HotkeyButtonTypes.EquipAltSlot);
+const { hotkeysStore } = AppStore.get();
+const equipAltSlotHotkeys = hotkeysStore.getKeybind(HotkeyButtonTypes.EquipAltSlot);
+const equipAltSlotHotkeysString = hotkeysStore.getKeybindString(HotkeyButtonTypes.EquipAltSlot);
 
 interface Props {
   item: Item;

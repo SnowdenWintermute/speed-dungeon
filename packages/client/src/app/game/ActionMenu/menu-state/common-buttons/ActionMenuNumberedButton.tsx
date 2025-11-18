@@ -10,9 +10,9 @@ interface Props {
   hotkeyLabel: string;
   extraStyles?: string;
   disabled?: boolean;
-  focusHandler: () => void;
-  blurHandler: () => void;
   clickHandler: () => void;
+  focusHandler?: () => void;
+  blurHandler?: () => void;
 }
 
 export const ActionMenuNumberedButton = observer((props: Props) => {

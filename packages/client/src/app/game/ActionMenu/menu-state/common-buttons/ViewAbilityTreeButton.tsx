@@ -5,10 +5,10 @@ import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { MenuStateType } from "../menu-state-type";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 
-export const toggleAbilityTreeHotkeys = AppStore.get().hotkeys.getKeybind(
+export const toggleAbilityTreeHotkeys = AppStore.get().hotkeysStore.getKeybind(
   HotkeyButtonTypes.ToggleViewingAbilityTree
 );
-export const toggleViewingAbilityTreeHotkeysString = AppStore.get().hotkeys.getKeybindString(
+export const toggleViewingAbilityTreeHotkeysString = AppStore.get().hotkeysStore.getKeybindString(
   HotkeyButtonTypes.ToggleViewingAbilityTree
 );
 

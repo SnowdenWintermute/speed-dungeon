@@ -19,9 +19,9 @@ export class InventoryItemsMenuState extends ActionMenuState {
   }
 
   getTopSection(): ReactNode {
-    const { hotkeys } = AppStore.get();
-    const viewEquipmentHotkeys = hotkeys.getKeybind(HotkeyButtonTypes.ToggleViewEquipment);
-    const toggleInventoryHotkeys = hotkeys.getKeybind(HotkeyButtonTypes.ToggleInventory);
+    const { hotkeysStore } = AppStore.get();
+    const viewEquipmentHotkeys = hotkeysStore.getKeybind(HotkeyButtonTypes.ToggleViewEquipment);
+    const toggleInventoryHotkeys = hotkeysStore.getKeybind(HotkeyButtonTypes.ToggleInventory);
 
     return (
       <ul className="flex">
@@ -34,7 +34,7 @@ export class InventoryItemsMenuState extends ActionMenuState {
             );
           }}
         >
-          Equipped ({hotkeys.getKeybindString(HotkeyButtonTypes.ToggleViewEquipment)})
+          Equipped ({hotkeysStore.getKeybindString(HotkeyButtonTypes.ToggleViewEquipment)})
         </ActionMenuTopButton>
         <ViewAbilityTreeButton />
       </ul>

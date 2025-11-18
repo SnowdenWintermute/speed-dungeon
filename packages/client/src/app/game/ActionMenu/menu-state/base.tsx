@@ -1,7 +1,6 @@
 import { ACTION_MENU_PAGE_SIZE, ActionMenuState } from ".";
 import { iterateNumericEnumKeyedRecord, ACTION_NAMES_TO_HIDE_IN_MENU } from "@speed-dungeon/common";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
-import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 import { AppStore } from "@/mobx-stores/app-store";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
@@ -12,10 +11,7 @@ import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import { CombatActionButton } from "./common-buttons/CombatActionButton";
 import makeAutoObservable from "mobx-store-inheritance";
 import ViewAbilityTreeButton from "./common-buttons/ViewAbilityTreeButton";
-
-export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
-
-export const VIEW_LOOT_BUTTON_TEXT = `Loot (${letterFromKeyCode(viewItemsOnGroundHotkey)})`;
+import { ViewItemsOnGroundButton } from "./common-buttons/ViewItemsOnGroundButton";
 
 export class BaseMenuState extends ActionMenuState {
   constructor() {
@@ -28,6 +24,7 @@ export class BaseMenuState extends ActionMenuState {
       <ul className="flex">
         <ToggleInventoryButton />
         <ViewAbilityTreeButton />
+        <ViewItemsOnGroundButton />
       </ul>
     );
   }
@@ -92,19 +89,6 @@ export class BaseMenuState extends ActionMenuState {
       );
       hiddenButtonForUnspentAttributesHotkey.dedicatedKeys = [toggleAssignAttributesHotkey];
       toReturn[ActionButtonCategory.Hidden].push(hiddenButtonForUnspentAttributesHotkey);
-    }
-
-    if (partyResult.currentRoom.inventory.getItems().length) {
-      const viewItemsOnGroundButton = new ActionMenuButtonProperties(
-        () => VIEW_LOOT_BUTTON_TEXT,
-        VIEW_LOOT_BUTTON_TEXT,
-        () => {
-          AppStore.get().actionMenuStore.clearHoveredAction();
-          AppStore.get().actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.ItemsOnGround));
-        }
-      );
-      viewItemsOnGroundButton.dedicatedKeys = [viewItemsOnGroundHotkey];
-      toReturn[ActionButtonCategory.Top].push(viewItemsOnGroundButton);
     }
 
     return toReturn;

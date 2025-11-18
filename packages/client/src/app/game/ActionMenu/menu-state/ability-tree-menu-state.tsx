@@ -9,7 +9,7 @@ import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import OpenInventoryAsFreshStackButton from "./common-buttons/OpenInventoryAsFreshStackButton";
 import { ActionMenuNumberedButton } from "./common-buttons/ActionMenuNumberedButton";
 
-export const toggleAbilityTreeHotkeys = AppStore.get().hotkeys.getKeybind(
+export const toggleAbilityTreeHotkeys = AppStore.get().hotkeysStore.getKeybind(
   HotkeyButtonTypes.ToggleViewingAbilityTree
 );
 

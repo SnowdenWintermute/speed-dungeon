@@ -16,10 +16,10 @@ import { setAlert } from "@/app/components/alerts";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import { observer } from "mobx-react-lite";
 
-const { hotkeys } = AppStore.get();
+const { hotkeysStore } = AppStore.get();
 const buttonType = HotkeyButtonTypes.Confirm;
-const useItemHotkeys = hotkeys.getKeybind(buttonType);
-const useItemHotkeyString = hotkeys.getKeybindString(buttonType);
+const useItemHotkeys = hotkeysStore.getKeybind(buttonType);
+const useItemHotkeyString = hotkeysStore.getKeybindString(buttonType);
 
 interface Props {
   item: Item;

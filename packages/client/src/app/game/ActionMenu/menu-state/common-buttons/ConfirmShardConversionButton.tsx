@@ -17,14 +17,14 @@ export function ConfirmShardConversionButton(props: Props) {
 
   const focusedCharacter = gameStore.getExpectedFocusedCharacter();
   const itemId = menuState.item.entityProperties.id;
-  const { hotkeys } = AppStore.get();
+  const { hotkeysStore } = AppStore.get();
   const buttonType = HotkeyButtonTypes.Confirm;
   const shouldBeDisabled = !gameStore.clientUserControlsFocusedCombatant();
 
   return (
     <ActionMenuTopButton
       disabled={shouldBeDisabled}
-      hotkeys={hotkeys.getKeybind(buttonType)}
+      hotkeys={hotkeysStore.getKeybind(buttonType)}
       handleClick={() => {
         websocketConnection.emit(ClientToServerEvent.ConvertItemsToShards, {
           characterId: focusedCharacter.getEntityId(),
@@ -40,7 +40,7 @@ export function ConfirmShardConversionButton(props: Props) {
         AppStore.get().focusStore.clearItemComparison();
       }}
     >
-      Convert ({hotkeys.getKeybindString(buttonType)})
+      Convert ({hotkeysStore.getKeybindString(buttonType)})
     </ActionMenuTopButton>
   );
 }

@@ -18,6 +18,8 @@ import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
 import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
 
+// @TODO implement similar to shop menu
+
 const confirmHotkey = HOTKEYS.MAIN_1;
 const confirmLetter = letterFromKeyCode(confirmHotkey);
 export const CONFIRM_SHARD_TEXT = `Confirm trade (${confirmLetter})`;

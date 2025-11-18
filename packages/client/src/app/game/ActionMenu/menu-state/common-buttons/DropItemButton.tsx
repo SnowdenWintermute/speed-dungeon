@@ -10,9 +10,9 @@ interface Props {
   item: Item;
 }
 
-const { hotkeys } = AppStore.get();
-const dropItemHotkeys = hotkeys.getKeybind(HotkeyButtonTypes.DropItem);
-const dropItemHotkeysString = hotkeys.getKeybindString(HotkeyButtonTypes.DropItem);
+const { hotkeysStore } = AppStore.get();
+const dropItemHotkeys = hotkeysStore.getKeybind(HotkeyButtonTypes.DropItem);
+const dropItemHotkeysString = hotkeysStore.getKeybindString(HotkeyButtonTypes.DropItem);
 
 export const DropItemButton = observer((props: Props) => {
   const { gameStore } = AppStore.get();

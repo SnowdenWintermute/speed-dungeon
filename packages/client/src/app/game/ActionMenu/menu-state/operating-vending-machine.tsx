@@ -4,6 +4,9 @@ import { MenuStateType } from "./menu-state-type";
 import makeAutoObservable from "mobx-store-inheritance";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import GoBackButton from "./common-buttons/GoBackButton";
+import { ActionMenuNumberedButton } from "./common-buttons/ActionMenuNumberedButton";
+import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export const operateVendingMachineHotkey = HOTKEYS.SIDE_2;
 
@@ -22,56 +25,62 @@ export class OperatingVendingMachineMenuState extends ActionMenuState {
     );
   }
 
-  // getButtonProperties(): ActionButtonsByCategory {
-  // const { actionMenuStore, gameStore } = AppStore.get();
-  // const toReturn = new ActionButtonsByCategory();
-  // const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
-  // const purchaseItemsButton = new ActionMenuButtonProperties(
-  //   () => "Purchase Items",
-  //   "Purchase Items",
-  //   () => {
-  //     actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.PurchasingItems));
-  //   }
-  // );
-  // purchaseItemsButton.shouldBeDisabled = !userControlsThisCharacter;
-  // const craftButton = new ActionMenuButtonProperties(
-  //   () => "Craft",
-  //   "Craft",
-  //   () => {
-  //     actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.CraftingItemSelection));
-  //   }
-  // );
-  // const repairButton = new ActionMenuButtonProperties(
-  //   () => "Repair",
-  //   "Repair",
-  //   () => {
-  //     actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.RepairItemSelection));
-  //   }
-  // );
-  // const convertButton = new ActionMenuButtonProperties(
-  //   () => "Convert to Shards",
-  //   "Convert to Shards",
-  //   () => {
-  //     actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.ShardItemSelection));
-  //   }
-  // );
-  // const selectBooksButton = new ActionMenuButtonProperties(
-  //   () => "Trade for Books",
-  //   "Trade for Books",
-  //   () => {
-  //     actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.SelectingBookType));
-  //   }
-  // );
-  // const party = AppStore.get().gameStore.getExpectedParty();
-  // const vendingMachineLevel = party.dungeonExplorationManager.getCurrentFloor();
-  // const vmLevelLimiter = Math.floor(vendingMachineLevel / 2);
-  // selectBooksButton.shouldBeDisabled = vmLevelLimiter < 1;
-  // toReturn[ActionButtonCategory.Numbered].push(purchaseItemsButton);
-  // toReturn[ActionButtonCategory.Numbered].push(craftButton);
-  // toReturn[ActionButtonCategory.Numbered].push(repairButton);
-  // toReturn[ActionButtonCategory.Numbered].push(convertButton);
-  // toReturn[ActionButtonCategory.Numbered].push(selectBooksButton);
-  // createPageButtons(toReturn);
-  // return toReturn;
-  // }
+  getNumberedButtons() {
+    const { actionMenuStore, gameStore } = AppStore.get();
+    const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
+
+    const buttonBlueprints: {
+      title: string;
+      clickHandler: () => void;
+      disabledCondition?: () => boolean;
+    }[] = [
+      {
+        title: "Purchase Items",
+        clickHandler: () => {
+          actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.PurchasingItems));
+        },
+      },
+      {
+        title: "Craft",
+        clickHandler: () => {
+          actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.CraftingItemSelection));
+        },
+      },
+      {
+        title: "Repair",
+        clickHandler: () => {
+          actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.RepairItemSelection));
+        },
+      },
+      {
+        title: "Trade for Books",
+        clickHandler: () => {
+          actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.SelectingBookType));
+        },
+
+        disabledCondition: () => {
+          const party = AppStore.get().gameStore.getExpectedParty();
+          const vendingMachineLevel = party.dungeonExplorationManager.getCurrentFloor();
+          const vmLevelLimiter = Math.floor(vendingMachineLevel / 2);
+          return vmLevelLimiter < 1;
+        },
+      },
+    ];
+
+    return buttonBlueprints.map((blueprint, i) => {
+      const disabled = !userControlsThisCharacter || !!blueprint.disabledCondition?.();
+      const disabledStyles = disabled ? "opacity-50" : "";
+      return (
+        <ActionMenuNumberedButton
+          key={blueprint.title}
+          hotkeys={[`Digit${i + 1}`]}
+          hotkeyLabel={(i + 1).toString()}
+          clickHandler={blueprint.clickHandler}
+          disabled={disabled}
+        >
+          <div className={`flex w-full items-center ${disabledStyles}`}>{blueprint.title}</div>
+        </ActionMenuNumberedButton>
+      );
+    });
+  }
 }

@@ -16,7 +16,7 @@ export class EquippedItemsMenuState extends ActionMenuState {
   }
 
   getTopSection(): ReactNode {
-    const viewEquipmentHotkeys = AppStore.get().hotkeys.getKeybind(
+    const viewEquipmentHotkeys = AppStore.get().hotkeysStore.getKeybind(
       HotkeyButtonTypes.ToggleViewEquipment
     );
     return (
