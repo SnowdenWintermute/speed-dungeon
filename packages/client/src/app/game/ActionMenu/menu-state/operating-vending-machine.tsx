@@ -7,6 +7,7 @@ import GoBackButton from "./common-buttons/GoBackButton";
 import { ActionMenuNumberedButton } from "./common-buttons/ActionMenuNumberedButton";
 import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { AppStore } from "@/mobx-stores/app-store";
+import { VendingMachineShardDisplay } from "../VendingMachineShardDisplay";
 
 export const operateVendingMachineHotkey = HOTKEYS.SIDE_2;
 
@@ -18,9 +19,10 @@ export class OperatingVendingMachineMenuState extends ActionMenuState {
 
   getTopSection() {
     return (
-      <ul className="flex">
+      <ul className="flex w-full">
         <GoBackButton />
         <ToggleInventoryButton />
+        <VendingMachineShardDisplay />
       </ul>
     );
   }
@@ -62,7 +64,9 @@ export class OperatingVendingMachineMenuState extends ActionMenuState {
           const party = AppStore.get().gameStore.getExpectedParty();
           const vendingMachineLevel = party.dungeonExplorationManager.getCurrentFloor();
           const vmLevelLimiter = Math.floor(vendingMachineLevel / 2);
-          return vmLevelLimiter < 1;
+          // return vmLevelLimiter < 1;
+          // @TODO - put back the above
+          return false;
         },
       },
     ];

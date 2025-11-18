@@ -112,9 +112,9 @@ export const ItemButton = observer((props: Props) => {
           }}
         >
           <div className={disabledStyles}>{text}</div>
-          {children}
         </div>
       </div>
+      <div className="absolute w-full h-full z-10">{children}</div>
     </ActionMenuNumberedButton>
   );
 });

@@ -221,4 +221,8 @@ export class Inventory extends CombatantSubsystem {
   changeShards(value: number) {
     this.shards += value;
   }
+
+  canAffordShardPrice(price: number) {
+    return price <= this.shards;
+  }
 }

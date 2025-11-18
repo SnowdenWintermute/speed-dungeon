@@ -20,6 +20,8 @@ import {
 } from "../item-generation/generate-test-items.js";
 
 export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inventory: Inventory) {
+  inventory.changeShards(20);
+
   const tradeableItemResult = generateSpecificEquipmentType(
     {
       equipmentType: EquipmentType.TwoHandedMeleeWeapon,
@@ -65,8 +67,6 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inv
       { itemLevel: 1 }
     )
   );
-
-  inventory.changeShards(399);
 
   const item = generateSpecificEquipmentType(
     {

@@ -18,22 +18,24 @@ export const ShardsDisplay = observer(
   }
 );
 
-export function PriceDisplay({
-  price,
-  shardsOwned,
-  extraStyles,
-}: {
-  price: number | null;
-  shardsOwned: number | null;
-  extraStyles?: string;
-}) {
-  return (
-    <div
-      className={`w-fit flex pr-2 pl-2 h-8 items-center bg-slate-700 border border-slate-400 
+export const PriceDisplay = observer(
+  ({
+    price,
+    shardsOwned,
+    extraStyles,
+  }: {
+    price: number | null;
+    shardsOwned: number | null;
+    extraStyles?: string;
+  }) => {
+    return (
+      <div
+        className={`w-fit flex pr-2 pl-2 h-8 items-center bg-slate-700 border border-slate-400 
       ${shardsOwned && (price === null || price > shardsOwned ? UNMET_REQUIREMENT_TEXT_COLOR : "text-zinc-300")} ${extraStyles}`}
-    >
-      <span className="mr-1">{price === null ? "priceless" : price}</span>
-      <ShardsIcon className="h-[20px] fill-slate-400" />
-    </div>
-  );
-}
+      >
+        <span className="mr-1">{price === null ? "priceless" : price}</span>
+        <ShardsIcon className="h-[20px] fill-slate-400" />
+      </div>
+    );
+  }
+);

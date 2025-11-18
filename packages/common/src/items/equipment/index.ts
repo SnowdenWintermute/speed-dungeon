@@ -229,6 +229,10 @@ export class Equipment extends Item {
     this.durability.current = Math.max(0, this.durability.current + value);
   }
 
+  isFullyRepaired() {
+    return this.isIndestructable() || this.getDurability()?.isMax();
+  }
+
   isBroken() {
     const isIndestructable = this.isIndestructable();
     if (isIndestructable || this.durability === null) return false;

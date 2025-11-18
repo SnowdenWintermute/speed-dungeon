@@ -5,6 +5,7 @@ import { MenuStateType } from "./menu-state-type";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import GoBackButton from "./common-buttons/GoBackButton";
 import { PurchaseItemButton } from "./common-buttons/PurchaseItemButton";
+import { VendingMachineShardDisplay } from "../VendingMachineShardDisplay";
 
 const purchaseableConsumableTypes = [ConsumableType.HpAutoinjector, ConsumableType.MpAutoinjector];
 export const SHOP_CONSUMABLES = purchaseableConsumableTypes.map((consumableType) =>
@@ -18,13 +19,14 @@ export class PurchaseItemsMenuState extends ActionMenuState {
 
   getTopSection() {
     return (
-      <ul className="flex">
+      <ul className="flex w-full">
         <GoBackButton
           extraFn={() => {
             AppStore.get().focusStore.detailables.clear();
           }}
         />
         <ToggleInventoryButton />
+        <VendingMachineShardDisplay />
       </ul>
     );
   }
