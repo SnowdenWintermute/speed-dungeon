@@ -59,7 +59,7 @@ export class ItemsOnGroundMenuState extends ActionMenuState {
     const newNumberedButtons = ActionMenuState.getItemButtonsFromList(
       itemsOnGround,
       takeItem,
-      () => ownsFocusedCharacter
+      () => !ownsFocusedCharacter
     );
 
     return newNumberedButtons;
