@@ -20,6 +20,7 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { CombatantSubsystem } from "../combatant-subsystem.js";
+import { Item } from "../../items/index.js";
 
 const DEFAULT_HOTSWAP_SLOT_ALLOWED_TYPES = [
   EquipmentType.OneHandedMeleeWeapon,
@@ -384,6 +385,12 @@ export class CombatantEquipment extends CombatantSubsystem {
     const isBroken = itemOption.isBroken();
     if (isBroken) return false;
     return actionUser.hasRequiredAttributesToUseItem(itemOption);
+  }
+
+  isWearingItemWithId(itemId: string) {
+    return this.getAllEquippedItems({ includeUnselectedHotswapSlots: true })
+      .map((equipment) => equipment.entityProperties.id)
+      .includes(itemId);
   }
 
   static isWearingUsableShield(actionUser: IActionUser) {

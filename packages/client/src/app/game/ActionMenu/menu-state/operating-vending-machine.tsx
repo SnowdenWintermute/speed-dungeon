@@ -55,6 +55,12 @@ export class OperatingVendingMachineMenuState extends ActionMenuState {
         },
       },
       {
+        title: "Convert to Shards",
+        clickHandler: () => {
+          actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.ShardItemSelection));
+        },
+      },
+      {
         title: "Trade for Books",
         clickHandler: () => {
           actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.SelectingBookType));
@@ -64,9 +70,7 @@ export class OperatingVendingMachineMenuState extends ActionMenuState {
           const party = AppStore.get().gameStore.getExpectedParty();
           const vendingMachineLevel = party.dungeonExplorationManager.getCurrentFloor();
           const vmLevelLimiter = Math.floor(vendingMachineLevel / 2);
-          // return vmLevelLimiter < 1;
-          // @TODO - put back the above
-          return false;
+          return vmLevelLimiter < 1;
         },
       },
     ];

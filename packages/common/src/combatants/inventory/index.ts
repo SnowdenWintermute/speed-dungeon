@@ -208,6 +208,10 @@ export class Inventory extends CombatantSubsystem {
     return toReturn;
   }
 
+  getAllOwned() {
+    return [...this.getOwnedEquipment(), ...this.consumables];
+  }
+
   getSelectedSkillBook(itemIdSelectedOption: null | EntityId): Error | Consumable {
     if (!itemIdSelectedOption) return new Error("No item selected");
     const itemResult = this.getItemById(itemIdSelectedOption);

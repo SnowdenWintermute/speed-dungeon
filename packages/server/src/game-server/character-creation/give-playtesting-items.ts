@@ -24,8 +24,8 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inv
 
   const tradeableItemResult = generateSpecificEquipmentType(
     {
-      equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-      baseItemType: TwoHandedMeleeWeapon.RottingBranch,
+      equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      baseItemType: OneHandedMeleeWeapon.ShortSword,
     },
     {}
   );

@@ -43,6 +43,7 @@ import {
   CombatActionName,
   CombatantConditionName,
   CombatantTraitType,
+  ConsumableType,
   KineticDamageType,
   MagicalElement,
 } from "@speed-dungeon/common";
@@ -220,4 +221,13 @@ export const ACTION_ENTITY_ICONS: Record<
   [ActionEntityName.TargetChangedIndicatorArrow]: null,
   [ActionEntityName.Firewall]: (className: string) =>
     SVG_ICONS[IconName.Firewall](className + " fill-firered"),
+};
+
+export const CONSUMABLE_ICONS: Record<ConsumableType, null | ((className: string) => ReactNode)> = {
+  [ConsumableType.HpAutoinjector]: null,
+  [ConsumableType.MpAutoinjector]: null,
+  [ConsumableType.StackOfShards]: null,
+  [ConsumableType.WarriorSkillbook]: (className: string) => SVG_ICONS[IconName.Book](className),
+  [ConsumableType.RogueSkillbook]: (className: string) => SVG_ICONS[IconName.Book](className),
+  [ConsumableType.MageSkillbook]: (className: string) => SVG_ICONS[IconName.Book](className),
 };

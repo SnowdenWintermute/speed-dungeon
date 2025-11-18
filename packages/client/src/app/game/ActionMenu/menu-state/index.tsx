@@ -92,7 +92,8 @@ export abstract class ActionMenuState {
   static getItemButtonsFromList(
     items: Item[],
     clickHandler: (item: Item) => void,
-    itemDisabledFunction: (item: Item) => boolean
+    itemDisabledFunction: (item: Item) => boolean,
+    customChildrenGetter?: (item: Item) => ReactNode
   ) {
     const stackedItems = ItemUtils.sortIntoStacks(items);
 
@@ -134,7 +135,9 @@ export abstract class ActionMenuState {
           hotkeyLabel={buttonNumber.toString()}
           hotkeys={[`Digit${buttonNumber}`]}
           clickHandler={clickHandler}
-        />
+        >
+          {customChildrenGetter?.(item)}
+        </ItemButton>
       );
     });
   }

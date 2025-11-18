@@ -19,6 +19,7 @@ import { observer } from "mobx-react-lite";
 import { ReactNode, useState } from "react";
 import { postItemLink } from "@/utils/post-item-link";
 import { ActionMenuNumberedButton } from "./ActionMenuNumberedButton";
+import { CONSUMABLE_ICONS } from "@/app/icons";
 
 interface Props {
   item: Item;
@@ -42,6 +43,11 @@ export const ItemButton = observer((props: Props) => {
   if (!thumbnailOption && item instanceof Equipment) {
     const { equipmentType } = item.equipmentBaseItemProperties;
     svgIconOption = EQUIPMENT_ICONS[equipmentType]("h-full fill-slate-400", {});
+  } else if (item instanceof Consumable && !thumbnailOption) {
+    const consumableSvgGetterOption = CONSUMABLE_ICONS[item.consumableType];
+    if (consumableSvgGetterOption !== null) {
+      svgIconOption = consumableSvgGetterOption("h-full fill-slate-400");
+    }
   }
 
   const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();

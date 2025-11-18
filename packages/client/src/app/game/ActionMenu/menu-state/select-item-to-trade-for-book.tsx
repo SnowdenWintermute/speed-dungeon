@@ -1,7 +1,6 @@
 import {
   BookConsumableType,
   ConsumableType,
-  Item,
   getOwnedAcceptedItemsForBookTrade,
 } from "@speed-dungeon/common";
 import { ReactNode } from "react";
@@ -11,9 +10,10 @@ import { ActionMenuState } from ".";
 import GoBackButton from "./common-buttons/GoBackButton";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import makeAutoObservable from "mobx-store-inheritance";
+import { ItemButton } from "./common-buttons/ItemButton";
+import { ConfirmTradeForBookMenuState } from "./confirm-trade-for-book";
 
 export class SelectItemToTradeForBookMenuState extends ActionMenuState {
-  acceptedItems: Item[] = [];
   constructor(public bookType: BookConsumableType) {
     super(MenuStateType.SelectItemToTradeForBook);
     makeAutoObservable(this);
@@ -32,27 +32,34 @@ export class SelectItemToTradeForBookMenuState extends ActionMenuState {
     const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
     const { combatantProperties } = focusedCharacter;
 
-    // (item: Item) => {
-    //         AppStore.get().focusStore.selectItem(item);
-    //         AppStore.get().actionMenuStore.pushStack(
-    //           new ConfirmTradeForBookMenuState(item, this.bookType)
-    //         );
-    //       }
-
-    getOwnedAcceptedItemsForBookTrade(combatantProperties, this.bookType).map((item) => {
-      //
+    return getOwnedAcceptedItemsForBookTrade(combatantProperties, this.bookType).map((item, i) => {
+      const buttonNumber = i + 1;
+      return (
+        <ItemButton
+          key={item.entityProperties.id}
+          item={item}
+          text={item.entityProperties.name}
+          hotkeyLabel={`${buttonNumber}`}
+          hotkeys={[`Digit${buttonNumber}`]}
+          clickHandler={() => {
+            AppStore.get().focusStore.selectItem(item);
+            AppStore.get().actionMenuStore.pushStack(
+              new ConfirmTradeForBookMenuState(item, this.bookType)
+            );
+          }}
+          disabled={false}
+        />
+      );
     });
-
-    return [];
   }
 
   getCentralSection() {
     const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
     const { combatantProperties } = focusedCharacter;
 
-    this.acceptedItems = getOwnedAcceptedItemsForBookTrade(combatantProperties, this.bookType);
+    const acceptedItems = getOwnedAcceptedItemsForBookTrade(combatantProperties, this.bookType);
 
-    if (this.acceptedItems.length >= 1) return <div />;
+    if (acceptedItems.length >= 1) return <div />;
 
     return (
       <div className="h-full bg-slate-700 p-2 border border-t-0 border-slate-400">
