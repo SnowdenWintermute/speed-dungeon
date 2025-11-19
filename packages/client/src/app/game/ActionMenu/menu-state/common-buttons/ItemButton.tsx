@@ -112,7 +112,7 @@ export const ItemButton = observer((props: Props) => {
           </div>
         )}
         <div
-          className="absolute z-10 w-full h-full flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis"
+          className="absolute z-10 w-full h-full flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis pl-2"
           style={{
             textShadow: "2px 2px 0px #000000",
           }}

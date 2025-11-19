@@ -27,7 +27,7 @@ export class PrimedForExplosionCombatantCondition extends CombatantCondition {
     public level: number
   ) {
     super(id, appliedBy, appliedTo, CombatantConditionName.PrimedForExplosion, getNewStacks());
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   tickPropertiesOption = null;

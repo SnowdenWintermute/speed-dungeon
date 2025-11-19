@@ -10,7 +10,7 @@ export class ActionEntityManager {
   private actionEntities: Record<EntityId, ActionEntity> = {};
 
   constructor() {
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   getActionEntities() {

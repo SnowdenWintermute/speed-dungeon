@@ -6,7 +6,7 @@ export class InputLock {
   timeLocked: null | number = null;
   lockDuration: null | number = null;
   constructor() {
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getDeserialized(plain: InputLock) {

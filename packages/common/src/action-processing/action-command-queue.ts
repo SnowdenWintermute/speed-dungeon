@@ -9,7 +9,7 @@ export class ActionCommandQueue {
   timeLastCommandStarted: number = Date.now();
 
   constructor() {
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   enqueueNewCommands(commands: ActionCommand[]) {

@@ -17,7 +17,7 @@ export class CombatantAttributeProperties extends CombatantSubsystem {
 
   constructor() {
     super();
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getDeserialized(serialized: CombatantAttributeProperties) {

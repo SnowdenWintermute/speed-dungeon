@@ -5,47 +5,59 @@ import {
   ClientToServerEvent,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
-import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
-import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
 import { AppStore } from "@/mobx-stores/app-store";
+import GoBackButton from "./common-buttons/GoBackButton";
+import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
+import { ActionMenuNumberedButton } from "./common-buttons/ActionMenuNumberedButton";
+import makeAutoObservable from "mobx-store-inheritance";
 
 export class AssigningAttributePointsMenuState extends ActionMenuState {
   constructor() {
-    super(MenuStateType.AssignAttributePoints, 1);
+    super(MenuStateType.AssignAttributePoints);
+    makeAutoObservable(this);
   }
 
-  getButtonProperties(): ActionButtonsByCategory {
-    const toReturn = new ActionButtonsByCategory();
+  getTopSection() {
+    return (
+      <ul className="flex">
+        <GoBackButton
+          extraHotkeys={AppStore.get().hotkeysStore.getKeybind(
+            HotkeyButtonTypes.ToggleAssignAttributesMenu
+          )}
+        />
+      </ul>
+    );
+  }
 
+  getNumberedButtons() {
     const { gameStore } = AppStore.get();
     const focusedCharacter = gameStore.getExpectedFocusedCharacter();
 
-    toReturn[ActionButtonCategory.Top].push(createCancelButton([toggleAssignAttributesHotkey]));
-
-    for (const attribute of ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES) {
-      const button = new ActionMenuButtonProperties(
-        () => COMBAT_ATTRIBUTE_STRINGS[attribute],
-        COMBAT_ATTRIBUTE_STRINGS[attribute],
-        () => {
-          websocketConnection.emit(ClientToServerEvent.IncrementAttribute, {
-            characterId: focusedCharacter.getEntityId(),
-            attribute,
-          });
-        }
-      );
-
-      const hasNoUnspentPoints =
-        focusedCharacter.combatantProperties.attributeProperties.getUnspentPoints() === 0;
+    return ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES.map((attribute, i) => {
+      const { attributeProperties } = focusedCharacter.combatantProperties;
+      const hasNoUnspentPoints = attributeProperties.getUnspentPoints() === 0;
       const doesNotControlCharacter = !gameStore.clientUserControlsFocusedCombatant();
-      button.shouldBeDisabled = hasNoUnspentPoints || doesNotControlCharacter;
+      const shouldBeDisabled = hasNoUnspentPoints || doesNotControlCharacter;
 
-      toReturn[ActionButtonCategory.Numbered].push(button);
-    }
+      const buttonNumber = i + 1;
 
-    createPageButtons(toReturn);
-
-    return toReturn;
+      return (
+        <ActionMenuNumberedButton
+          key={attribute}
+          hotkeys={[`Digit${buttonNumber}`]}
+          hotkeyLabel={buttonNumber.toString()}
+          disabled={shouldBeDisabled}
+          clickHandler={() => {
+            websocketConnection.emit(ClientToServerEvent.IncrementAttribute, {
+              characterId: focusedCharacter.getEntityId(),
+              attribute,
+            });
+          }}
+        >
+          <div className="h-full flex items-center px-2">{COMBAT_ATTRIBUTE_STRINGS[attribute]}</div>
+        </ActionMenuNumberedButton>
+      );
+    });
   }
 }

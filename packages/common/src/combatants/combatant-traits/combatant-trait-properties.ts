@@ -12,6 +12,6 @@ export class CombatantTraitProperties {
   speccedTraitLevels: Partial<Record<CombatantTraitType, number>> = {};
 
   constructor() {
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 }

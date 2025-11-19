@@ -8,7 +8,6 @@ import GoBackButton from "./common-buttons/GoBackButton";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import { VendingMachineShardDisplay } from "../VendingMachineShardDisplay";
 import makeAutoObservable from "mobx-store-inheritance";
-import EmptyItemsList from "./common-buttons/EmptyItemsList";
 
 export class ConvertToShardItemSelectionMenuState extends ActionMenuState {
   constructor() {
@@ -56,13 +55,5 @@ export class ConvertToShardItemSelectionMenuState extends ActionMenuState {
         </div>
       )
     );
-  }
-
-  getCentralSection() {
-    if (this.getNumberedButtons().length === 0) {
-      return <EmptyItemsList />;
-    } else {
-      return "";
-    }
   }
 }

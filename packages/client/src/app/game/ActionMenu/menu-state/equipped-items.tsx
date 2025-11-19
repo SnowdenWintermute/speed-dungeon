@@ -7,7 +7,6 @@ import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import GoBackButton from "./common-buttons/GoBackButton";
 import { ActionMenuState } from ".";
 import makeAutoObservable from "mobx-store-inheritance";
-import EmptyItemsList from "./common-buttons/EmptyItemsList";
 
 export class EquippedItemsMenuState extends ActionMenuState {
   constructor() {
@@ -44,13 +43,5 @@ export class EquippedItemsMenuState extends ActionMenuState {
     );
 
     return newNumberedButtons;
-  }
-
-  getCentralSection(): ReactNode {
-    if (this.numberedButtons.length === 0) {
-      return <EmptyItemsList />;
-    } else {
-      return "";
-    }
   }
 }

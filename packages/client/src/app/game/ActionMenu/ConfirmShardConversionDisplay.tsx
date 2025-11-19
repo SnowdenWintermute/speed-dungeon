@@ -10,8 +10,10 @@ import { AppStore } from "@/mobx-stores/app-store";
 export function ConfirmShardConversionDisplay() {
   const { actionMenuStore } = AppStore.get();
   const currentMenu = actionMenuStore.getCurrentMenu();
-  if (!(currentMenu instanceof ConfirmConvertToShardsMenuState))
+
+  if (!(currentMenu instanceof ConfirmConvertToShardsMenuState)) {
     return <div>Unexpected menu state</div>;
+  }
 
   return (
     <div

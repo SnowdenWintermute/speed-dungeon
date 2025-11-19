@@ -20,7 +20,6 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { CombatantSubsystem } from "../combatant-subsystem.js";
-import { Item } from "../../items/index.js";
 
 const DEFAULT_HOTSWAP_SLOT_ALLOWED_TYPES = [
   EquipmentType.OneHandedMeleeWeapon,
@@ -33,7 +32,7 @@ export class HoldableHotswapSlot {
   holdables: Partial<Record<HoldableSlotType, Equipment>> = {};
   forbiddenBaseItems: EquipmentBaseItem[] = [];
   constructor(public allowedTypes: EquipmentType[] = [...DEFAULT_HOTSWAP_SLOT_ALLOWED_TYPES]) {
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getDeserialized(holdableSlot: HoldableHotswapSlot) {
@@ -51,7 +50,7 @@ export class CombatantEquipment extends CombatantSubsystem {
 
   constructor() {
     super();
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getDeserialized(equipment: CombatantEquipment) {

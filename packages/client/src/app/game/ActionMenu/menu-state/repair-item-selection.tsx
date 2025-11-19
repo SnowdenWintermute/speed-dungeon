@@ -4,7 +4,6 @@ import { ActionMenuState } from ".";
 import GoBackButton from "./common-buttons/GoBackButton";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import { RepairEquipmentButton } from "./common-buttons/RepairEquipmentButton";
-import EmptyItemsList from "./common-buttons/EmptyItemsList";
 import { VendingMachineShardDisplay } from "../VendingMachineShardDisplay";
 
 export class RepairItemSelectionMenuState extends ActionMenuState {
@@ -29,13 +28,5 @@ export class RepairItemSelectionMenuState extends ActionMenuState {
     return ownedEquipment
       .filter((equipment) => !equipment.isFullyRepaired())
       .map((equipment, i) => <RepairEquipmentButton key={i} equipment={equipment} listIndex={i} />);
-  }
-
-  getCentralSection() {
-    if (this.getNumberedButtons().length === 0) {
-      return <EmptyItemsList />;
-    } else {
-      return "";
-    }
   }
 }

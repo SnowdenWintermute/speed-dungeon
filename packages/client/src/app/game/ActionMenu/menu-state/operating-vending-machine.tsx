@@ -86,7 +86,7 @@ export class OperatingVendingMachineMenuState extends ActionMenuState {
           clickHandler={blueprint.clickHandler}
           disabled={disabled}
         >
-          <div className={`flex w-full items-center ${disabledStyles}`}>{blueprint.title}</div>
+          <div className={`flex w-full items-center px-2 ${disabledStyles}`}>{blueprint.title}</div>
         </ActionMenuNumberedButton>
       );
     });

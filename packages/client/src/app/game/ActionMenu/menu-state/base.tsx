@@ -1,12 +1,8 @@
 import { ACTION_MENU_PAGE_SIZE, ActionMenuState } from ".";
 import { iterateNumericEnumKeyedRecord, ACTION_NAMES_TO_HIDE_IN_MENU } from "@speed-dungeon/common";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
-import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 import { AppStore } from "@/mobx-stores/app-store";
-import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
-import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
-import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import { CombatActionButton } from "./common-buttons/CombatActionButton";
 import makeAutoObservable from "mobx-store-inheritance";
@@ -34,6 +30,8 @@ export class BaseMenuState extends ActionMenuState {
 
     const focusedCharacterOption = gameStore.getFocusedCharacterOption();
 
+    // this happens because there is a circular dependency between initializing
+    // action menu store and focusing a character
     if (focusedCharacterOption === undefined) {
       return [];
     }
@@ -57,41 +55,6 @@ export class BaseMenuState extends ActionMenuState {
           />
         );
       });
-  }
-
-  getButtonProperties(): ActionButtonsByCategory {
-    const { gameStore } = AppStore.get();
-    const toReturn = new ActionButtonsByCategory();
-
-    const focusedCharacterOption = gameStore.getFocusedCharacterOption();
-
-    if (focusedCharacterOption === undefined) {
-      // this happens because there is a circular dependency between initializing
-      // action menu store and focusing a character
-      return toReturn;
-    }
-
-    const focusedCharacter = focusedCharacterOption;
-
-    const { combatantProperties } = focusedCharacter;
-
-    const partyResult = gameStore.getExpectedParty();
-
-    if (combatantProperties.attributeProperties.getUnspentPoints() > 0) {
-      const hiddenButtonForUnspentAttributesHotkey = new ActionMenuButtonProperties(
-        () => "Unspent Attributes Hotkey Button",
-        "Unspent Attributes Hotkey Button",
-        () => {
-          const { actionMenuStore } = AppStore.get();
-          actionMenuStore.clearHoveredAction();
-          actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.AssignAttributePoints));
-        }
-      );
-      hiddenButtonForUnspentAttributesHotkey.dedicatedKeys = [toggleAssignAttributesHotkey];
-      toReturn[ActionButtonCategory.Hidden].push(hiddenButtonForUnspentAttributesHotkey);
-    }
-
-    return toReturn;
   }
 }
 

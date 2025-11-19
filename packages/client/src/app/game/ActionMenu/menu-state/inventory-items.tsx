@@ -10,7 +10,6 @@ import ActionMenuTopButton from "./common-buttons/ActionMenuTopButton";
 import ViewAbilityTreeButton from "./common-buttons/ViewAbilityTreeButton";
 import makeAutoObservable from "mobx-store-inheritance";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
-import EmptyItemsList from "./common-buttons/EmptyItemsList";
 
 export class InventoryItemsMenuState extends ActionMenuState {
   constructor() {
@@ -57,13 +56,5 @@ export class InventoryItemsMenuState extends ActionMenuState {
     );
 
     return newNumberedButtons;
-  }
-
-  getCentralSection(): ReactNode {
-    if (this.getNumberedButtons().length === 0) {
-      return <EmptyItemsList />;
-    } else {
-      return "";
-    }
   }
 }

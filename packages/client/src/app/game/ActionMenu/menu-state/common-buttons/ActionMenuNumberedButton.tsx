@@ -30,7 +30,9 @@ export const ActionMenuNumberedButton = observer((props: Props) => {
       style={{ height: `${BUTTON_HEIGHT}rem` }}
       onClick={clickHandler}
     >
-      <NumberedButtonHotkeyLabel hotkeyLabel={props.hotkeyLabel} isDisabled={!!disabled} />
+      {props.hotkeyLabel && (
+        <NumberedButtonHotkeyLabel hotkeyLabel={props.hotkeyLabel} isDisabled={!!disabled} />
+      )}
       {children}
     </HotkeyButton>
   );

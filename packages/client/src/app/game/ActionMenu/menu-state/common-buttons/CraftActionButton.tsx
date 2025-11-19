@@ -16,6 +16,7 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { AppStore } from "@/mobx-stores/app-store";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { PriceDisplay } from "@/app/game/character-sheet/ShardsDisplay";
 
 interface Props {
   equipment: Equipment;
@@ -68,7 +69,7 @@ export const CraftActionButton = observer((props: Props) => {
         });
       }}
     >
-      <div className="flex justify-between w-full pr-2">
+      <div className="flex justify-between w-full px-2 relative">
         <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
           <HoverableTooltipWrapper
             extraStyles="inline mr-2"

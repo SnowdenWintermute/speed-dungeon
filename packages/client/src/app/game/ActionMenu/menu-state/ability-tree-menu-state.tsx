@@ -51,7 +51,7 @@ export class AbilityTreeMenuState extends ActionMenuState {
               actionMenuStore.getCurrentMenu().setPageIndex(number - 1);
             }}
           >
-            <div className="flex justify-between h-full w-full pr-2">
+            <div className="flex justify-between h-full w-full px-2">
               <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
                 {nameAsString}
               </div>

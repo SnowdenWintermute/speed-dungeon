@@ -25,7 +25,7 @@ export class FocusStore {
   private consideredItemUnmetRequirements: Set<CombatAttribute> = new Set();
 
   constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+    makeAutoObservable(this);
   }
 
   entityIsHovered(entityId: string) {
@@ -136,7 +136,7 @@ class Detailable<T> {
   private detailed: null | T = null;
 
   constructor(private onClearDetailed: () => void) {
-    makeAutoObservable(this, {}, { autoBind: true });
+    makeAutoObservable(this);
   }
 
   setHovered(toSet: T) {

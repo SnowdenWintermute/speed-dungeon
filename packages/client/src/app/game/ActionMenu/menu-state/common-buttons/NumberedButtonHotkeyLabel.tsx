@@ -10,7 +10,7 @@ export default function NumberedButtonHotkeyLabel(props: Props) {
   return (
     <div
       className={`h-full w-10 !min-w-[2.5rem] border-r border-slate-400
-            flex items-center justify-center animate-slide-appear-from-left-fast mr-2
+            flex items-center justify-center animate-slide-appear-from-left-fast 
             `}
     >
       <span className={disabledStyles}>{props.hotkeyLabel}</span>

@@ -16,7 +16,7 @@ export class ActionAndRank {
     public actionName: CombatActionName,
     public rank: number
   ) {
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 }
 
@@ -27,7 +27,7 @@ export class ActionUserTargetingProperties {
   private selectedItemId: Option<EntityId> = null;
 
   constructor() {
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getDeserialized(actionUserTargetingProperties: ActionUserTargetingProperties) {

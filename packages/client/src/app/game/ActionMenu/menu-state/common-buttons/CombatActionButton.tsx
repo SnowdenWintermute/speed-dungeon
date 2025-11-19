@@ -62,7 +62,7 @@ export const CombatActionButton = observer((props: Props) => {
         AppStore.get().actionMenuStore.clearHoveredAction();
       }}
     >
-      <div className="flex justify-between h-full w-full pr-2">
+      <div className="flex justify-between h-full w-full px-2">
         <div
           className={`${disabledStyles} flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1`}
         >

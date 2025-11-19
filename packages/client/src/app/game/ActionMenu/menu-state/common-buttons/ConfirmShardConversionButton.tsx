@@ -37,6 +37,8 @@ export function ConfirmShardConversionButton(props: Props) {
           // shards it doesn't make sense we would have it selected
           AppStore.get().actionMenuStore.popStack();
         }
+
+        AppStore.get().focusStore.selectItem(null);
         AppStore.get().focusStore.clearItemComparison();
       }}
     >

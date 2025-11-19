@@ -12,7 +12,6 @@ import { makeAutoObservable } from "mobx";
 import { AppStore } from "../app-store";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
 import { Socket } from "socket.io-client";
-import { Wav2Decode } from "@babylonjs/core";
 
 export class GameStore {
   private game: null | SpeedDungeonGame = null;
@@ -22,7 +21,7 @@ export class GameStore {
     null;
 
   constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+    makeAutoObservable(this);
   }
 
   /** Without this we will get a circular reference because we use the websocketConnection in methods

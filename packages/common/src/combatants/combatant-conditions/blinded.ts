@@ -35,7 +35,7 @@ export class BlindedCombatantCondition extends CombatantCondition {
     stacksOption: null | MaxAndCurrent
   ) {
     super(id, appliedBy, appliedTo, CombatantConditionName.Blinded, stacksOption);
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   tickPropertiesOption = {

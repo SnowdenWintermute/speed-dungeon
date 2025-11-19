@@ -19,6 +19,7 @@ import { MitigationProperties } from "./combatant-mitigation-properties.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { CombatantConditionManager } from "./condition-manager.js";
 import { CombatantTransformProperties } from "./combatant-transform-properties.js";
+import { runIfInBrowser } from "../utils/index.js";
 
 export class CombatantProperties {
   // subsystems
@@ -54,7 +55,7 @@ export class CombatantProperties {
     }
     this.classProgressionProperties.setMainClass(mainClassType);
 
-    makeAutoObservable(this, {}, { autoBind: true });
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   initialize() {

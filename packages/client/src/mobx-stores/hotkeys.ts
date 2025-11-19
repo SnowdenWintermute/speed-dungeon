@@ -19,6 +19,7 @@ export enum HotkeyButtonTypes {
   Confirm,
   TakeAllItems,
   ViewItemsOnGround,
+  ToggleAssignAttributesMenu,
 }
 
 export type KeyCode = string;
@@ -35,6 +36,7 @@ export const DEFAULT_KEYBINDS: Record<HotkeyButtonTypes, KeyCode[]> = {
   [HotkeyButtonTypes.Confirm]: [HOTKEYS.MAIN_1],
   [HotkeyButtonTypes.TakeAllItems]: [HOTKEYS.MAIN_2],
   [HotkeyButtonTypes.ViewItemsOnGround]: [HOTKEYS.ALT_1],
+  [HotkeyButtonTypes.ToggleAssignAttributesMenu]: [HOTKEYS.MAIN_2],
 };
 
 export class HotkeysStore {

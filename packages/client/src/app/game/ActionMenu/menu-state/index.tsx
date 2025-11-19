@@ -12,6 +12,7 @@ import { ReactNode } from "react";
 import { MENU_STATE_TYPE_STRINGS, MenuStateType } from "./menu-state-type";
 import React from "react";
 import { ItemButton } from "./common-buttons/ItemButton";
+import EmptyItemsList from "./common-buttons/EmptyItemsList";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 
@@ -40,7 +41,11 @@ export abstract class ActionMenuState {
   }
 
   getCentralSection(): ReactNode {
-    return "";
+    if (this.getNumberedButtons().length === 0) {
+      return <EmptyItemsList />;
+    } else {
+      return "";
+    }
   }
 
   getBottomSection(): ReactNode {
@@ -83,10 +88,6 @@ export abstract class ActionMenuState {
 
   goToFirstPage() {
     this.pageIndexInternal = 0;
-  }
-
-  getCenterInfoDisplayOption(): ReactNode | null {
-    return null;
   }
 
   static getItemButtonsFromList(

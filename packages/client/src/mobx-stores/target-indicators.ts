@@ -7,7 +7,7 @@ export class TargetIndicatorStore {
   private indicators: TargetIndicator[] = [];
   _gameWorld: GameWorld | null = null; // we'd like it to be private but then we can't mark it as "not observable"
   constructor() {
-    makeAutoObservable(this, { _gameWorld: false }, { autoBind: true });
+    makeAutoObservable(this, { _gameWorld: false });
   }
 
   /** avoid a circular reference since targetIndicatorStore will need to access GameWorld

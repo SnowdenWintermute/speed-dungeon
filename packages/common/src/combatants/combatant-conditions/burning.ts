@@ -34,7 +34,7 @@ export class BurningCombatantCondition extends CombatantCondition {
     stacksOption: null | MaxAndCurrent
   ) {
     super(id, appliedBy, appliedTo, CombatantConditionName.Burning, stacksOption);
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   getAttributeModifiers = undefined;
