@@ -7,13 +7,14 @@ import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 
 interface Props {
   onCycle: (direction: NextOrPrevious) => void;
-  itemCount: number;
+  itemCount: number | null;
   currentIndex: number;
   listTitle: string;
+  directionTitle?: string;
 }
 
 export const ListCyclingButtons = observer((props: Props) => {
-  const { listTitle, itemCount, currentIndex, onCycle } = props;
+  const { listTitle, itemCount, currentIndex, directionTitle, onCycle } = props;
 
   const { hotkeysStore } = AppStore.get();
 
@@ -23,11 +24,16 @@ export const ListCyclingButtons = observer((props: Props) => {
   const prevButtonHotkey = hotkeysStore.getKeybind(prevButtonType);
   const nextButtonHotkey = hotkeysStore.getKeybind(nextButtonType);
 
-  const hiddenStyles = itemCount <= 1 ? "opacity-0 pointer-events-none" : "pointer-events-auto";
+  let parentHiddenStyles = "pointer-events-auto";
+  if (itemCount !== null && itemCount <= 1) {
+    parentHiddenStyles = "opacity-0 pointer-events-none";
+  }
+
+  const listPositionHiddenStyles = itemCount === null ? "hidden" : "";
 
   return (
     <div
-      className={`${hiddenStyles} flex justify-between bg-slate-700 relative border border-slate-400 h-8`}
+      className={`${parentHiddenStyles} flex justify-between bg-slate-700 relative border border-slate-400 h-8`}
     >
       <div className="flex-1 border-r border-slate-400 h-full">
         <HotkeyButton
@@ -35,10 +41,12 @@ export const ListCyclingButtons = observer((props: Props) => {
           hotkeys={prevButtonHotkey}
           onClick={() => onCycle(NextOrPrevious.Previous)}
         >
-          Previous ({hotkeysStore.getKeybindString(prevButtonType)})
+          Previous {directionTitle || ""} ({hotkeysStore.getKeybindString(prevButtonType)})
         </HotkeyButton>
       </div>
-      <div className={`h-full flex items-center justify-center pr-2 pl-2 ${hiddenStyles}`}>
+      <div
+        className={`h-full flex items-center justify-center pr-2 pl-2 ${listPositionHiddenStyles}`}
+      >
         <span>
           {listTitle} {currentIndex + 1}/{itemCount}
         </span>
@@ -49,7 +57,7 @@ export const ListCyclingButtons = observer((props: Props) => {
           hotkeys={nextButtonHotkey}
           onClick={() => onCycle(NextOrPrevious.Next)}
         >
-          Next ({hotkeysStore.getKeybindString(nextButtonType)})
+          Next {directionTitle} ({hotkeysStore.getKeybindString(nextButtonType)})
         </HotkeyButton>
       </div>
     </div>

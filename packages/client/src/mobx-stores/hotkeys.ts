@@ -16,10 +16,14 @@ export enum HotkeyButtonTypes {
   AllocateAbilityPoint,
   CycleBack,
   CycleForward,
+  CycleBackAlternate,
+  CycleForwardAlternate,
   Confirm,
   TakeAllItems,
   ViewItemsOnGround,
   ToggleAssignAttributesMenu,
+  OpenConfirmConvertToShardMenu,
+  CycleTargetingSchemes,
 }
 
 export type KeyCode = string;
@@ -37,6 +41,10 @@ export const DEFAULT_KEYBINDS: Record<HotkeyButtonTypes, KeyCode[]> = {
   [HotkeyButtonTypes.TakeAllItems]: [HOTKEYS.MAIN_2],
   [HotkeyButtonTypes.ViewItemsOnGround]: [HOTKEYS.ALT_1],
   [HotkeyButtonTypes.ToggleAssignAttributesMenu]: [HOTKEYS.MAIN_2],
+  [HotkeyButtonTypes.CycleBackAlternate]: [HOTKEYS.LEFT_ALT],
+  [HotkeyButtonTypes.CycleForwardAlternate]: [HOTKEYS.RIGHT_ALT],
+  [HotkeyButtonTypes.OpenConfirmConvertToShardMenu]: [HOTKEYS.SIDE_2],
+  [HotkeyButtonTypes.CycleTargetingSchemes]: [HOTKEYS.MAIN_2],
 };
 
 export class HotkeysStore {

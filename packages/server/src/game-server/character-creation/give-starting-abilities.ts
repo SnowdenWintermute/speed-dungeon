@@ -19,7 +19,7 @@ export function giveStartingAbilities(actionUser: IActionUser) {
     // CombatActionName.Counterattack,
     // CombatActionName.IceBoltParent,
     // CombatActionName.Fire,
-    // CombatActionName.Healing,
+    CombatActionName.Healing,
     // CombatActionName.ExplodingArrowParent,
     // CombatActionName.Blind,
     // CombatActionName.Firewall,
@@ -29,7 +29,7 @@ export function giveStartingAbilities(actionUser: IActionUser) {
     // CombatActionName.IceBoltParent,
     // CombatActionName.Fire,
     // CombatActionName.Firewall,
-    // CombatActionName.Healing,
+    CombatActionName.Healing,
     // CombatActionName.ExplodingArrowParent,
     // CombatActionName.Blind,
   ];

@@ -1,16 +1,13 @@
 import React, { useEffect } from "react";
-import { HOTKEYS } from "@/hotkeys";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { BUTTON_HEIGHT, SPACING_REM_SMALL } from "@/client_consts";
 import { ACTION_MENU_PAGE_SIZE } from "./menu-state";
 import { NextOrPrevious } from "@speed-dungeon/common";
-
-export const SHARD_ITEM_HOTKEY = HOTKEYS.SIDE_2;
+import { CycleFocusedCharacterButtons } from "./CycleFocusedCharacterButtons";
+import { StackedMenuStateDisplay } from "./StackedMenuStateDisplay";
 
 export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) => {
-  if (inputLocked) return <div />;
-
   const { actionMenuStore } = AppStore.get();
 
   const currentMenu = actionMenuStore.getCurrentMenu();
@@ -25,8 +22,11 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
     }
   }, [numberedButtons.length, currentMenu.pageIndex]);
 
+  if (inputLocked) return <div />;
   return (
     <section className={`flex flex-col justify-between`}>
+      <CycleFocusedCharacterButtons />
+      <StackedMenuStateDisplay />
       <div
         className={`flex list-none min-w-[25rem] max-w-[25rem] relative`}
         style={{ marginBottom: `${SPACING_REM_SMALL}rem` }}

@@ -46,6 +46,7 @@ export class ActionMenuStore {
     for (const menuState of this.stackedMenuStates) {
       menuState.goToFirstPage();
     }
+
     this.stackedMenuStates = [];
   }
 

@@ -1,129 +1,56 @@
-import { ActionMenuState } from ".";
+import { ACTION_MENU_PAGE_SIZE, ActionMenuState } from ".";
 import { ClientToServerEvent, CombatActionName, NextOrPrevious } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "./menu-state-type";
+import GoBackButton from "./common-buttons/GoBackButton";
+import { ReactNode } from "react";
+import { ActionSelectedDetails } from "../../detailables/action-details/ActionSelectedDetails";
+import { BUTTON_HEIGHT } from "@/client_consts";
+import { CycleCombatActionTargetsButtons } from "./common-buttons/CycleCombatActionTargetsButtons";
+import { ExecuteCombatActionButton } from "./common-buttons/ExecuteCombatActionButton";
+import { CycleTargetingSchemesButtons } from "./common-buttons/CycleTargetingSchemesButtons";
 
 export const executeHotkey = HOTKEYS.MAIN_1;
 export const EXECUTE_BUTTON_TEXT = `Execute (${letterFromKeyCode(executeHotkey)})`;
 
 export class ConsideringCombatActionMenuState extends ActionMenuState {
   constructor(public combatActionName: CombatActionName) {
-    super(MenuStateType.CombatActionSelected, 1);
+    super(MenuStateType.CombatActionSelected);
   }
-  getButtonProperties(): ActionButtonsByCategory {
-    const toReturn = new ActionButtonsByCategory();
 
-    const { gameStore } = AppStore.get();
-
-    const focusedCharacter = gameStore.getExpectedFocusedCharacter();
-    const { combatantProperties } = focusedCharacter;
-    const characterId = focusedCharacter.getEntityId();
-
-    const cancelButton = createCancelButton([], () => {
-      websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
-        characterId,
-        actionAndRankOption: null,
-      });
-    });
-    toReturn[ActionButtonCategory.Top].push(cancelButton);
-
-    // CYCLE BACK
-    const prevHotkey = HOTKEYS.LEFT_MAIN;
-    const previousTargetButton = new ActionMenuButtonProperties(
-      () => `Previous Target (${letterFromKeyCode(prevHotkey)})`,
-      `Previous Target (${letterFromKeyCode(prevHotkey)})`,
-      () => {
-        websocketConnection.emit(ClientToServerEvent.CycleCombatActionTargets, {
-          characterId,
-          direction: NextOrPrevious.Previous,
-        });
-      }
+  getTopSection() {
+    return (
+      <ul className="flex">
+        <GoBackButton
+          extraFn={() => {
+            const { gameStore } = AppStore.get();
+            websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
+              characterId: gameStore.getExpectedFocusedCharacterId(),
+              actionAndRankOption: null,
+            });
+          }}
+        />
+        <ExecuteCombatActionButton />
+        <CycleTargetingSchemesButtons />
+      </ul>
     );
-    previousTargetButton.dedicatedKeys = [prevHotkey, "ArrowLeft"];
-    toReturn[ActionButtonCategory.Bottom].push(previousTargetButton);
+  }
 
-    // CYCLE FORWARD
-    const nextHotkey = HOTKEYS.RIGHT_MAIN;
-    const nextTargetButton = new ActionMenuButtonProperties(
-      () => `Next Target (${letterFromKeyCode(nextHotkey)})`,
-      `Next Target (${letterFromKeyCode(nextHotkey)})`,
-      () => {
-        websocketConnection.emit(ClientToServerEvent.CycleCombatActionTargets, {
-          characterId,
-          direction: NextOrPrevious.Next,
-        });
-      }
+  getCentralSection(): ReactNode {
+    return (
+      <div
+        className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex"
+        style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}
+      >
+        <ActionSelectedDetails actionName={this.combatActionName} />
+      </div>
     );
-    nextTargetButton.dedicatedKeys = [nextHotkey, "ArrowRight"];
-    toReturn[ActionButtonCategory.Bottom].push(nextTargetButton);
+  }
 
-    // EXECUTE
-    const executeActionButton = new ActionMenuButtonProperties(
-      () => EXECUTE_BUTTON_TEXT,
-      EXECUTE_BUTTON_TEXT,
-      () => {
-        websocketConnection.emit(ClientToServerEvent.UseSelectedCombatAction, {
-          characterId,
-        });
-
-        const { focusStore, actionMenuStore, gameStore } = AppStore.get();
-        focusStore.detailables.clear();
-
-        actionMenuStore.clearStack();
-        actionMenuStore.getCurrentMenu().goToFirstPage();
-
-        const partyOption = gameStore.getPartyOption();
-        if (partyOption) {
-          const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
-          focusedCharacter.getTargetingProperties().setSelectedActionAndRank(null);
-          partyOption.inputLock.lockInput();
-        }
-      }
-    );
-    executeActionButton.dedicatedKeys = ["Enter", executeHotkey];
-
-    const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
-    executeActionButton.shouldBeDisabled = !userControlsThisCharacter;
-
-    toReturn[ActionButtonCategory.Top].push(executeActionButton);
-
-    // CYCLE SCHEMES
-    //
-    const selectedActionAndRank =
-      combatantProperties.targetingProperties.getSelectedActionAndRank();
-    if (selectedActionAndRank === null) {
-      return toReturn;
-    }
-
-    const combatActionProperties =
-      combatantProperties.abilityProperties.getCombatActionPropertiesIfOwned(selectedActionAndRank);
-
-    if (combatActionProperties instanceof Error) {
-      setAlert(combatActionProperties);
-      return toReturn;
-    }
-
-    const { targetingProperties } = combatActionProperties;
-    const noTargetingSchemesExist =
-      targetingProperties.getTargetingSchemes(selectedActionAndRank.rank).length <= 1;
-    if (noTargetingSchemesExist) {
-      return toReturn;
-    }
-
-    const targetingSchemeHotkey = HOTKEYS.MAIN_2;
-    const cycleTargetingSchemesButton = new ActionMenuButtonProperties(
-      () => `Targeting Scheme (${letterFromKeyCode(targetingSchemeHotkey)})`,
-      `Targeting Scheme (${letterFromKeyCode(targetingSchemeHotkey)})`,
-      () => {
-        websocketConnection.emit(ClientToServerEvent.CycleTargetingSchemes, { characterId });
-      }
-    );
-    cycleTargetingSchemesButton.dedicatedKeys = [targetingSchemeHotkey];
-    toReturn[ActionButtonCategory.Top].push(cycleTargetingSchemesButton);
-
-    return toReturn;
+  getBottomSection() {
+    return <CycleCombatActionTargetsButtons />;
   }
 }

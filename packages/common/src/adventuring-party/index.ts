@@ -50,10 +50,12 @@ export class AdventuringParty {
   }
 
   static getDeserialized(party: AdventuringParty) {
-    const combatantManager = CombatantManager.getDeserialized(party.combatantManager);
-    party.combatantManager = combatantManager;
+    party.combatantManager = CombatantManager.getDeserialized(party.combatantManager);
     party.currentRoom = DungeonRoom.getDeserialized(party.currentRoom);
     party.inputLock = InputLock.getDeserialized(party.inputLock);
+    party.dungeonExplorationManager = DungeonExplorationManager.getDeserialized(
+      party.dungeonExplorationManager
+    );
 
     return party;
   }

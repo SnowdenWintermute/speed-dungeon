@@ -8,6 +8,7 @@ import { CombatActionButton } from "./common-buttons/CombatActionButton";
 import makeAutoObservable from "mobx-store-inheritance";
 import ViewAbilityTreeButton from "./common-buttons/ViewAbilityTreeButton";
 import { ViewItemsOnGroundButton } from "./common-buttons/ViewItemsOnGroundButton";
+import { ToggleAttributeAllocationMenuHiddenButton } from "./common-buttons/ToggleAttributeAllocationMenuHiddenButton";
 
 export class BaseMenuState extends ActionMenuState {
   constructor() {
@@ -21,6 +22,7 @@ export class BaseMenuState extends ActionMenuState {
         <ToggleInventoryButton />
         <ViewAbilityTreeButton />
         <ViewItemsOnGroundButton />
+        <ToggleAttributeAllocationMenuHiddenButton />
       </ul>
     );
   }

@@ -1,6 +1,5 @@
 import { BUTTON_HEIGHT } from "@/client_consts";
 import React from "react";
-import { SHARD_ITEM_HOTKEY } from ".";
 import {
   Consumable,
   combatantIsAllowedToConvertItemsToShards,
@@ -16,9 +15,10 @@ import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
 import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
 import { ACTION_MENU_PAGE_SIZE } from "./menu-state";
+import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 
 export const ConsideringItemDisplay = observer(() => {
-  const { actionMenuStore, gameStore } = AppStore.get();
+  const { actionMenuStore, gameStore, hotkeysStore } = AppStore.get();
   const currentMenu = actionMenuStore.getCurrentMenu();
 
   if (!(currentMenu instanceof ConsideringItemMenuState)) return <div>Unexpected menu state</div>;
@@ -26,6 +26,8 @@ export const ConsideringItemDisplay = observer(() => {
 
   const party = gameStore.getExpectedParty();
   const focusedCharacter = gameStore.getExpectedFocusedCharacter();
+
+  const shardMenuButtonType = HotkeyButtonTypes.OpenConfirmConvertToShardMenu;
 
   return (
     <div
@@ -49,7 +51,7 @@ export const ConsideringItemDisplay = observer(() => {
           <div className="mt-4">
             <HotkeyButton
               className="border border-slate-400 w-full p-2 pl-3 pr-3 hover:bg-slate-950"
-              hotkeys={[SHARD_ITEM_HOTKEY]}
+              hotkeys={hotkeysStore.getKeybind(shardMenuButtonType)}
               onClick={() => {
                 actionMenuStore.pushStack(
                   new ConfirmConvertToShardsMenuState(currentMenu.item, MenuStateType.ItemSelected)
@@ -57,7 +59,7 @@ export const ConsideringItemDisplay = observer(() => {
               }}
             >
               <span>
-                ({letterFromKeyCode(SHARD_ITEM_HOTKEY)}) Convert to {shardReward}{" "}
+                ({hotkeysStore.getKeybindString(shardMenuButtonType)}) Convert to {shardReward}{" "}
                 <ShardsIcon className="fill-slate-400 h-6 inline" />
               </span>
             </HotkeyButton>

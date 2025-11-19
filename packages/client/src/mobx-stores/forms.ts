@@ -3,7 +3,7 @@ import { makeAutoObservable } from "mobx";
 export class FormsStore {
   private authFormEmailField = "";
   constructor() {
-    makeAutoObservable(this);
+    makeAutoObservable(this, {}, { autoBind: true });
   }
 
   setAuthFormEmailField(email: string) {
