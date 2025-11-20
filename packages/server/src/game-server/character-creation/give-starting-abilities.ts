@@ -43,6 +43,6 @@ export function giveStartingAbilities(actionUser: IActionUser) {
     );
     if (cooldownOption) action.cooldown = new MaxAndCurrent(cooldownOption, 0);
 
-    actionUser.getCombatantProperties().abilityProperties.getOwnedActions()[actionName] = action;
+    actionUser.getCombatantProperties().abilityProperties.setOwnedAction(action);
   }
 }

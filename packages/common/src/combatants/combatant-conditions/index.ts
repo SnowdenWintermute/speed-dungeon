@@ -152,7 +152,7 @@ export abstract class CombatantCondition implements IActionUser {
   getLevel = () => this.level;
   getTotalAttributes = () => this.combatAttributes || {};
   getOwnedAbilities() {
-    return {};
+    return new Map();
   }
   getEquipmentOption = () => null;
   getInventoryOption = () => null;

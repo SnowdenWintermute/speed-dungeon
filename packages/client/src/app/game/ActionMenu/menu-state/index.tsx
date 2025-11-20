@@ -13,8 +13,7 @@ import { MENU_STATE_TYPE_STRINGS, MenuStateType } from "./menu-state-type";
 import React from "react";
 import { ItemButton } from "./common-buttons/ItemButton";
 import EmptyItemsList from "./common-buttons/EmptyItemsList";
-
-export const ACTION_MENU_PAGE_SIZE = 6;
+import { ACTION_MENU_PAGE_SIZE } from "@/client_consts";
 
 export abstract class ActionMenuState {
   pageIndexInternal: number = 0;
@@ -51,8 +50,6 @@ export abstract class ActionMenuState {
   getBottomSection(): ReactNode {
     return <PageTurningButtons menuState={this} />;
   }
-  // abstract getSideContent: ReactNode
-  // abstract cachedNumberedButtons: number
 
   getStringName() {
     return MENU_STATE_TYPE_STRINGS[this.type];

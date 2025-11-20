@@ -24,7 +24,12 @@ export class ItemsOnGroundMenuState extends ActionMenuState {
 
     return (
       <ul className="flex">
-        <GoBackButton />
+        <GoBackButton
+          extraFn={() => {
+            const { focusStore } = AppStore.get();
+            focusStore.detailables.clear();
+          }}
+        />
         <ToggleInventoryButton />
         <ActionMenuTopButton
           hotkeys={takeAllKeys}

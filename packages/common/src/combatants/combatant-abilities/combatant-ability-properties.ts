@@ -4,7 +4,7 @@ import { ActionAndRank } from "../../action-user-context/action-user-targeting-p
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { CombatActionComponent, CombatActionName } from "../../combat/combat-actions/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../../utils/index.js";
+import { runIfInBrowser } from "../../utils/index.js";
 import { CombatantTraitProperties } from "../combatant-traits/combatant-trait-properties.js";
 import { CombatantTraitType } from "../combatant-traits/trait-types.js";
 import { CombatantActionState } from "../owned-actions/combatant-action-state.js";
@@ -14,7 +14,7 @@ import { ABILITY_TREES } from "../ability-tree/set-up-ability-trees.js";
 import { COMBATANT_TRAIT_DESCRIPTIONS } from "../combatant-traits/index.js";
 
 export class CombatantAbilityProperties extends CombatantSubsystem {
-  private ownedActions: Partial<Record<CombatActionName, CombatantActionState>> = {};
+  private ownedActions: Map<CombatActionName, CombatantActionState> = new Map();
   private unspentAbilityPoints: number = 0;
   private traitProperties = new CombatantTraitProperties();
 
@@ -25,6 +25,12 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
 
   static getDeserialized(serialized: CombatantAbilityProperties) {
     const deserialized = plainToInstance(CombatantAbilityProperties, serialized);
+
+    deserialized.ownedActions = new Map<CombatActionName, CombatantActionState>();
+    for (const [key, value] of Object.entries(serialized.ownedActions)) {
+      deserialized.ownedActions.set(parseInt(key), value);
+    }
+
     return deserialized;
   }
 
@@ -37,7 +43,7 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
   }
 
   getOwnedActionState(actionName: CombatActionName): Error | CombatantActionState {
-    const ownedActionStateOption = this.ownedActions[actionName];
+    const ownedActionStateOption = this.ownedActions.get(actionName);
     if (ownedActionStateOption === undefined) {
       throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED);
     }
@@ -46,7 +52,7 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
 
   getCombatActionPropertiesIfOwned(actionAndRank: ActionAndRank): Error | CombatActionComponent {
     const { actionName, rank } = actionAndRank;
-    const actionOption = this.ownedActions[actionName];
+    const actionOption = this.ownedActions.get(actionName);
     if (actionOption === undefined) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED);
     if (actionOption.level < rank)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED_AT_THAT_LEVEL);
@@ -56,7 +62,7 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
   getAbilityRank(ability: AbilityTreeAbility) {
     switch (ability.type) {
       case AbilityType.Action:
-        return this.ownedActions[ability.actionName]?.level || 0;
+        return this.ownedActions.get(ability.actionName)?.level || 0;
       case AbilityType.Trait:
         const { speccedTraitLevels, inherentTraitLevels } = this.traitProperties;
         return (
@@ -68,6 +74,14 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
 
   getOwnedActions() {
     return this.ownedActions;
+  }
+
+  setOwnedAction(actionState: CombatantActionState) {
+    this.ownedActions.set(actionState.actionName, actionState);
+  }
+
+  getOwnedActionOption(actionName: CombatActionName) {
+    return this.ownedActions.get(actionName);
   }
 
   // POINT ALLOCATION
@@ -165,9 +179,9 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
     this.changeUnspentAbilityPoints(-1);
     switch (ability.type) {
       case AbilityType.Action:
-        const existingActionOption = ownedActions[ability.actionName];
+        const existingActionOption = ownedActions.get(ability.actionName);
         if (existingActionOption) existingActionOption.level += 1;
-        else ownedActions[ability.actionName] = new CombatantActionState(ability.actionName);
+        else ownedActions.set(ability.actionName, new CombatantActionState(ability.actionName));
         break;
       case AbilityType.Trait:
         const existingTraitLevel = traitProperties.speccedTraitLevels[ability.traitType];
@@ -180,7 +194,7 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
   // USABILITY
 
   tickCooldowns() {
-    for (const [actionName, actionState] of iterateNumericEnumKeyedRecord(this.ownedActions)) {
+    for (const [actionName, actionState] of this.ownedActions) {
       if (actionState.wasUsedThisTurn) {
         actionState.wasUsedThisTurn = false;
       } else if (actionState.cooldown && actionState.cooldown.current) {

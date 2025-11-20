@@ -9,7 +9,7 @@ import { MenuStateType } from "../menu-state-type";
 export const VIEW_LOOT_BUTTON_TEXT = ``;
 
 export const ViewItemsOnGroundButton = observer(() => {
-  const { gameStore, hotkeysStore } = AppStore.get();
+  const { gameStore, focusStore, hotkeysStore } = AppStore.get();
   const partyResult = gameStore.getExpectedParty();
 
   const buttonType = HotkeyButtonTypes.ViewItemsOnGround;
@@ -24,7 +24,7 @@ export const ViewItemsOnGroundButton = observer(() => {
     <ActionMenuTopButton
       hotkeys={hotkeys}
       handleClick={() => {
-        AppStore.get().actionMenuStore.clearHoveredAction();
+        focusStore.combatantAbilities.clear();
         AppStore.get().actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.ItemsOnGround));
       }}
     >

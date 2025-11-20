@@ -5,12 +5,11 @@ import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { MenuStateType } from "../menu-state-type";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 
-export const toggleAbilityTreeHotkeys = AppStore.get().hotkeysStore.getKeybind(
-  HotkeyButtonTypes.ToggleViewingAbilityTree
-);
-export const toggleViewingAbilityTreeHotkeysString = AppStore.get().hotkeysStore.getKeybindString(
-  HotkeyButtonTypes.ToggleViewingAbilityTree
-);
+const buttonType = HotkeyButtonTypes.ToggleViewingAbilityTree;
+const { hotkeysStore } = AppStore.get();
+
+export const toggleAbilityTreeHotkeys = hotkeysStore.getKeybind(buttonType);
+export const toggleViewingAbilityTreeHotkeysString = hotkeysStore.getKeybindString(buttonType);
 
 export default function ViewAbilityTreeButton() {
   const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
@@ -22,8 +21,9 @@ export default function ViewAbilityTreeButton() {
       extraStyles={highlightClass}
       hotkeys={toggleAbilityTreeHotkeys}
       handleClick={() => {
-        const { actionMenuStore } = AppStore.get();
-        actionMenuStore.clearHoveredAction();
+        const { actionMenuStore, focusStore } = AppStore.get();
+        focusStore.combatantAbilities.clear();
+        focusStore.detailables.clearHovered();
         actionMenuStore.replaceStack([MenuStatePool.get(MenuStateType.ViewingAbilityTree)]);
       }}
     >

@@ -3,13 +3,12 @@ import {
   MENU_STATE_TYPE_STRINGS,
   MenuStateType,
 } from "@/app/game/ActionMenu/menu-state/menu-state-type";
-import { CombatActionName, EntityId } from "@speed-dungeon/common";
+import { EntityId } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 
 export class ActionMenuStore {
   private baseMenuState: ActionMenuState | null = null;
   private stackedMenuStates: ActionMenuState[] = [];
-  private hoveredAction: null | CombatActionName = null;
   private showItemsOnGround: boolean = true;
   private combatantsWithPendingCraftActions: Set<EntityId> = new Set();
 
@@ -121,18 +120,6 @@ export class ActionMenuStore {
       if (this.currentMenuIsType(menuType)) return true;
     }
     return false;
-  }
-
-  setHoveredAction(actionName: CombatActionName) {
-    this.hoveredAction = actionName;
-  }
-
-  clearHoveredAction() {
-    this.hoveredAction = null;
-  }
-
-  getHoveredAction() {
-    return this.hoveredAction;
   }
 
   setCharacterIsCrafting(entityId: EntityId) {

@@ -24,7 +24,7 @@ export const ActionDetails = observer(
     const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
     const { combatantProperties } = focusedCharacter;
     const { abilityProperties } = combatantProperties;
-    const actionStateOption = abilityProperties.getOwnedActions()[actionName];
+    const actionStateOption = abilityProperties.getOwnedActionOption(actionName);
     const selectedLevelOption =
       focusedCharacter.getTargetingProperties().getSelectedActionAndRank()?.rank || 1;
 

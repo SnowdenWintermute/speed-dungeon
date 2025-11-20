@@ -19,7 +19,15 @@ import { DamageTypeBadgeWithIcon } from "../../detailables/DamageTypeBadge";
 import { observer } from "mobx-react-lite";
 
 export const ActionDescriptionDisplay = observer(
-  ({ description, user }: { description: ActionDescription; user: Combatant }) => {
+  ({
+    description,
+    user,
+    ownedAbilityLevel,
+  }: {
+    description: ActionDescription;
+    user: Combatant;
+    ownedAbilityLevel: number;
+  }) => {
     const descriptions = [];
     let prevDescription = {};
 
@@ -44,10 +52,6 @@ export const ActionDescriptionDisplay = observer(
 
       prevDescription = rankDescription;
     }
-
-    const ownedAbilityLevel = user.combatantProperties.abilityProperties.getAbilityRank(
-      description.ability
-    );
 
     return (
       <div>

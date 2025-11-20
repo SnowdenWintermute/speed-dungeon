@@ -8,7 +8,6 @@ import {
   ClientToServerEvent,
   CombatActionExecutionIntent,
   CombatActionName,
-  CombatAttribute,
   ERROR_MESSAGES,
   FriendOrFoe,
   HitOutcomeMitigationCalculator,
@@ -39,7 +38,7 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
   const { game, party, combatant } = AppStore.get().gameStore.getFocusedCharacterContext();
   const { combatantProperties, entityProperties } = combatant;
   const { abilityProperties } = combatantProperties;
-  const actionStateOption = abilityProperties.getOwnedActions()[actionName];
+  const actionStateOption = abilityProperties.getOwnedActionOption(actionName);
   if (actionStateOption === undefined) return <div>Somehow detailing an unowned action</div>;
 
   const { targetingProperties } = combatant.combatantProperties;

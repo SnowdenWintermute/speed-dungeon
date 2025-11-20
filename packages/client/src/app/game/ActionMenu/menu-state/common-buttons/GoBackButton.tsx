@@ -16,8 +16,10 @@ export default function GoBackButton({
   return (
     <ActionMenuTopButton
       handleClick={() => {
-        const { actionMenuStore } = AppStore.get();
-        actionMenuStore.clearHoveredAction();
+        const { actionMenuStore, focusStore } = AppStore.get();
+        focusStore.combatantAbilities.clear();
+        focusStore.detailables.clearHovered();
+
         if (extraFn) extraFn();
         actionMenuStore.popStack();
       }}

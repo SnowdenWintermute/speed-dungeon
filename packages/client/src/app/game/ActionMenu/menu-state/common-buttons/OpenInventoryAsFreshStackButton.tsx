@@ -14,8 +14,8 @@ export default function OpenInventoryAsFreshStackButton() {
     <ActionMenuTopButton
       hotkeys={buttonHotkeys}
       handleClick={() => {
-        const { actionMenuStore } = AppStore.get();
-        actionMenuStore.clearHoveredAction();
+        const { actionMenuStore, focusStore } = AppStore.get();
+        focusStore.combatantAbilities.clear();
         actionMenuStore.replaceStack([MenuStatePool.get(MenuStateType.InventoryItems)]);
       }}
     >

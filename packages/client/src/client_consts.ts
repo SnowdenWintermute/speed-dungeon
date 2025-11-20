@@ -1,6 +1,9 @@
+export const ACTION_MENU_PAGE_SIZE = 6;
+
 export const WEBSITE_NAME = "Speed Dungeon";
 export const BUTTON_HEIGHT_SMALL = 1.875;
 export const BUTTON_HEIGHT = 2.5;
+export const ACTION_MENU_CENTRAL_SECTION_HEIGHT = BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE;
 export const SPACING_REM = 0.875;
 export const SPACING_REM_SMALL = 0.625;
 export const SPACING_REM_LARGE = 1.563;

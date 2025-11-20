@@ -3,6 +3,7 @@ import { ACTION_ICONS } from "@/app/icons";
 import { AppStore } from "@/mobx-stores/app-store";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import {
+  AbilityType,
   ActionAndRank,
   ClientToServerEvent,
   COMBAT_ACTION_NAME_STRINGS,
@@ -25,17 +26,20 @@ export const CombatActionButton = observer((props: Props) => {
   const nameAsString = COMBAT_ACTION_NAME_STRINGS[actionName];
   const standardActionIcon = ACTION_ICONS[actionName];
 
-  const { gameStore } = AppStore.get();
+  const { gameStore, focusStore } = AppStore.get();
   const game = gameStore.getExpectedGame();
   const party = gameStore.getExpectedParty();
 
   let isAttack = actionName === CombatActionName.Attack;
 
   function focusHandler() {
-    AppStore.get().actionMenuStore.setHoveredAction(actionName);
+    AppStore.get().focusStore.combatantAbilities.setHovered({
+      type: AbilityType.Action,
+      actionName,
+    });
   }
   function blurHandler() {
-    AppStore.get().actionMenuStore.clearHoveredAction();
+    AppStore.get().focusStore.combatantAbilities.clearHovered();
   }
 
   const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
@@ -59,7 +63,7 @@ export const CombatActionButton = observer((props: Props) => {
           actionAndRankOption: new ActionAndRank(actionName, 1),
         });
 
-        AppStore.get().actionMenuStore.clearHoveredAction();
+        focusStore.combatantAbilities.clear();
       }}
     >
       <div className="flex justify-between h-full w-full px-2">

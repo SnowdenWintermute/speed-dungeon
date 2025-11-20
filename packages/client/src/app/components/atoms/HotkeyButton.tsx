@@ -7,6 +7,7 @@ interface Props {
   className?: string;
   children: React.ReactNode;
   ariaLabel?: string;
+  ariaDisabled?: boolean;
   hotkeys?: string[];
   style?: React.CSSProperties;
   buttonType?: "button" | "submit" | "reset";
@@ -30,7 +31,7 @@ export const HotkeyButton = observer((props: Props) => {
     if (props.hotkeys !== undefined) {
       keydownListenerRef.current = (e: KeyboardEvent) => {
         for (const hotkey of props.hotkeys!) {
-          if (e.code === hotkey && !disabled) {
+          if (e.code === hotkey && !disabled && !props.ariaDisabled) {
             //@ts-ignore
             props.onClick(new MouseEvent("mouseup"));
           }
@@ -51,6 +52,7 @@ export const HotkeyButton = observer((props: Props) => {
     <button
       type={props.buttonType || "button"}
       disabled={disabled}
+      aria-disabled={props.ariaDisabled}
       className={`${props.className}`}
       onClick={props.onClick}
       onFocus={props.onFocus}

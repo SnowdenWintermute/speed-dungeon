@@ -24,11 +24,15 @@ export const ActionMenuNumberedButton = observer((props: Props) => {
       onMouseEnter={focusHandler}
       onBlur={blurHandler}
       onMouseLeave={blurHandler}
-      disabled={disabled}
+      ariaDisabled={disabled ? true : undefined}
       hotkeys={hotkeys}
       className={`${props.extraStyles} w-full flex bg-slate-700 hover:bg-slate-950 border-b border-l border-r border-slate-400 pointer-events-auto `}
       style={{ height: `${BUTTON_HEIGHT}rem` }}
-      onClick={clickHandler}
+      onClick={() => {
+        if (!disabled) {
+          clickHandler();
+        }
+      }}
     >
       {props.hotkeyLabel && (
         <NumberedButtonHotkeyLabel hotkeyLabel={props.hotkeyLabel} isDisabled={!!disabled} />

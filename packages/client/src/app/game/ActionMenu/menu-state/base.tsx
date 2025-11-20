@@ -1,4 +1,4 @@
-import { ACTION_MENU_PAGE_SIZE, ActionMenuState } from ".";
+import { ActionMenuState } from ".";
 import { iterateNumericEnumKeyedRecord, ACTION_NAMES_TO_HIDE_IN_MENU } from "@speed-dungeon/common";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import { AppStore } from "@/mobx-stores/app-store";
@@ -9,6 +9,7 @@ import makeAutoObservable from "mobx-store-inheritance";
 import ViewAbilityTreeButton from "./common-buttons/ViewAbilityTreeButton";
 import { ViewItemsOnGroundButton } from "./common-buttons/ViewItemsOnGroundButton";
 import { ToggleAttributeAllocationMenuHiddenButton } from "./common-buttons/ToggleAttributeAllocationMenuHiddenButton";
+import { ACTION_MENU_PAGE_SIZE } from "@/client_consts";
 
 export class BaseMenuState extends ActionMenuState {
   constructor() {
@@ -43,7 +44,7 @@ export class BaseMenuState extends ActionMenuState {
 
     const ownedActions = combatantProperties.abilityProperties.getOwnedActions();
 
-    return iterateNumericEnumKeyedRecord(ownedActions)
+    return [...ownedActions]
       .filter(([actionName, _]) => !ACTION_NAMES_TO_HIDE_IN_MENU.includes(actionName))
       .map(([actionName, _], i) => {
         const buttonNumber = (i % ACTION_MENU_PAGE_SIZE) + 1;

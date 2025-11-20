@@ -1,11 +1,10 @@
-import { BUTTON_HEIGHT } from "@/client_consts";
 import React from "react";
-import { ACTION_MENU_PAGE_SIZE } from "./menu-state/";
 import { getItemSellPrice } from "@speed-dungeon/common";
 import Divider from "@/app/components/atoms/Divider";
 import { ConfirmConvertToShardsMenuState } from "./menu-state/confirm-convert-to-shards";
 import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
 import { AppStore } from "@/mobx-stores/app-store";
+import { ACTION_MENU_CENTRAL_SECTION_HEIGHT } from "@/client_consts";
 
 export function ConfirmShardConversionDisplay() {
   const { actionMenuStore } = AppStore.get();
@@ -18,7 +17,7 @@ export function ConfirmShardConversionDisplay() {
   return (
     <div
       className="min-w-[25rem] max-w-[25rem]"
-      style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}
+      style={{ height: `${ACTION_MENU_CENTRAL_SECTION_HEIGHT}rem` }}
     >
       <div className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex flex-col items-center pointer-events-auto">
         <div className="">{currentMenu.item.entityProperties.name}</div>

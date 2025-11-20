@@ -13,8 +13,9 @@ export class CheckIfActionOnCooldown implements BehaviorNode {
     if (this.actionNameOption === null) return BehaviorNodeState.Failure;
     const { combatantProperties } = this.combatant;
 
-    const actionStateOption =
-      combatantProperties.abilityProperties.getOwnedActions()[this.actionNameOption];
+    const actionStateOption = combatantProperties.abilityProperties.getOwnedActionOption(
+      this.actionNameOption
+    );
 
     if (!actionStateOption) return BehaviorNodeState.Failure;
 

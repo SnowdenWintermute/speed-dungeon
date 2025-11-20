@@ -1,5 +1,7 @@
 import {
   AbilityTreeAbility,
+  AbilityType,
+  CombatActionName,
   CombatAttribute,
   Combatant,
   CombatantEquipment,
@@ -81,6 +83,7 @@ export class FocusStore {
   getItemComparison() {
     return { comparedItem: this.comparedItem, comparedSlot: this.comparedSlot };
   }
+
   clearItemComparison() {
     this.comparedItem = null;
     this.comparedSlot = null;

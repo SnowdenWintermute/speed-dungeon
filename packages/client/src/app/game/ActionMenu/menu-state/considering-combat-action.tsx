@@ -1,14 +1,13 @@
-import { ACTION_MENU_PAGE_SIZE, ActionMenuState } from ".";
-import { ClientToServerEvent, CombatActionName, NextOrPrevious } from "@speed-dungeon/common";
+import { ActionMenuState } from ".";
+import { ClientToServerEvent, CombatActionName } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { setAlert } from "@/app/components/alerts";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "./menu-state-type";
 import GoBackButton from "./common-buttons/GoBackButton";
 import { ReactNode } from "react";
 import { ActionSelectedDetails } from "../../detailables/action-details/ActionSelectedDetails";
-import { BUTTON_HEIGHT } from "@/client_consts";
+import { ACTION_MENU_CENTRAL_SECTION_HEIGHT } from "@/client_consts";
 import { CycleCombatActionTargetsButtons } from "./common-buttons/CycleCombatActionTargetsButtons";
 import { ExecuteCombatActionButton } from "./common-buttons/ExecuteCombatActionButton";
 import { CycleTargetingSchemesButtons } from "./common-buttons/CycleTargetingSchemesButtons";
@@ -43,7 +42,7 @@ export class ConsideringCombatActionMenuState extends ActionMenuState {
     return (
       <div
         className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex"
-        style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}
+        style={{ height: `${ACTION_MENU_CENTRAL_SECTION_HEIGHT}rem` }}
       >
         <ActionSelectedDetails actionName={this.combatActionName} />
       </div>

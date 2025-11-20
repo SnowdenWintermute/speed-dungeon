@@ -33,6 +33,7 @@ export class ConvertToShardItemSelectionMenuState extends ActionMenuState {
 
     function clickHandler(item: Item) {
       focusStore.detailables.setDetailed(item);
+      focusStore.detailables.setHovered(item);
       actionMenuStore.pushStack(
         new ConfirmConvertToShardsMenuState(item, MenuStateType.ConfimConvertToShards)
       );

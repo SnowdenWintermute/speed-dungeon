@@ -13,8 +13,10 @@ export default function ToggleInventoryButton() {
   return (
     <ActionMenuTopButton
       handleClick={() => {
-        const { actionMenuStore } = AppStore.get();
-        actionMenuStore.clearHoveredAction();
+        const { actionMenuStore, focusStore } = AppStore.get();
+        focusStore.combatantAbilities.clear();
+        focusStore.detailables.clearHovered();
+
         if (actionMenuStore.getCurrentMenu().type === MenuStateType.InventoryItems) {
           actionMenuStore.popStack();
         } else {

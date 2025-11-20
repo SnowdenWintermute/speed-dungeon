@@ -11,7 +11,6 @@ import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
 import { ActionEntityProperties } from "../action-entities/index.js";
 import { ActionUserType, IActionUser } from "../action-user-context/action-user.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
-import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { Battle } from "../battle/index.js";
@@ -19,7 +18,6 @@ import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-
 import { CombatantAttributeRecord } from "./attribute-properties.js";
 import { CombatantProperties } from "./combatant-properties.js";
 import { Item } from "../items/index.js";
-import { Equipment, WeaponProperties } from "../items/equipment/index.js";
 import { HoldableSlotType } from "../items/equipment/slots.js";
 
 export enum AiType {
@@ -147,7 +145,7 @@ export class Combatant implements IActionUser {
   getTotalAttributes(): CombatantAttributeRecord {
     return this.combatantProperties.attributeProperties.getTotalAttributes();
   }
-  getOwnedAbilities(): Partial<Record<CombatActionName, CombatantActionState>> {
+  getOwnedAbilities(): Map<CombatActionName, CombatantActionState> {
     return this.combatantProperties.abilityProperties.getOwnedActions();
   }
   getEquipmentOption() {
@@ -205,7 +203,7 @@ export class Combatant implements IActionUser {
       return combatActionPropertiesResult;
     }
 
-    const actionStateOption = abilityProperties.getOwnedActions()[action.name];
+    const actionStateOption = abilityProperties.getOwnedActionOption(action.name);
     if (actionStateOption && actionStateOption.cooldown && actionStateOption.cooldown.current)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.IS_ON_COOLDOWN);
 

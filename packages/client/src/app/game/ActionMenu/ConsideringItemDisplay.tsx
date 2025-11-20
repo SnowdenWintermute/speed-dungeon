@@ -1,4 +1,4 @@
-import { BUTTON_HEIGHT } from "@/client_consts";
+import { ACTION_MENU_CENTRAL_SECTION_HEIGHT } from "@/client_consts";
 import React from "react";
 import {
   Consumable,
@@ -9,12 +9,10 @@ import Divider from "@/app/components/atoms/Divider";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { ConfirmConvertToShardsMenuState } from "./menu-state/confirm-convert-to-shards";
 import { MenuStateType } from "./menu-state/menu-state-type";
-import { letterFromKeyCode } from "@/hotkeys";
 import { ConsideringItemMenuState } from "./menu-state/considering-item";
 import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
 import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
-import { ACTION_MENU_PAGE_SIZE } from "./menu-state";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 
 export const ConsideringItemDisplay = observer(() => {
@@ -32,7 +30,7 @@ export const ConsideringItemDisplay = observer(() => {
   return (
     <div
       className="min-w-[25rem] max-w-[25rem]"
-      style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}
+      style={{ height: `${ACTION_MENU_CENTRAL_SECTION_HEIGHT}rem` }}
     >
       <div className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex flex-col items-center pointer-events-auto">
         <div className="">{currentMenu.item.entityProperties.name}</div>

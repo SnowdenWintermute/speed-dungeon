@@ -6,8 +6,6 @@ import { ItemsOnGround } from "./ItemsOnGround";
 import { CharacterSheet } from "./character-sheet";
 import { SPACING_REM } from "@/client_consts";
 import { ZIndexLayers } from "../z-index-layers";
-import { ItemCraftDisplay } from "./item-crafting/ItemCraftingDisplay";
-import { CraftingItemMenuState } from "./ActionMenu/menu-state/crafting-item";
 import { CharacterAttributes } from "./character-sheet/CharacterAttributes";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
@@ -15,7 +13,6 @@ import { AppStore } from "@/mobx-stores/app-store";
 export const ActionMenuAndCharacterSheetLayer = observer(
   ({ party }: { party: AdventuringParty }) => {
     const { actionMenuStore } = AppStore.get();
-    const currentMenu = actionMenuStore.getCurrentMenu();
     const viewingCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
     const abilityTreeOpen = actionMenuStore.viewingAbilityTree();
 
@@ -35,14 +32,6 @@ export const ActionMenuAndCharacterSheetLayer = observer(
           <div className={`flex items-end w-full`} style={{ marginBottom: `${SPACING_REM}rem` }}>
             <div style={{ marginRight: `${SPACING_REM}rem` }} className="flex">
               <ActionMenu inputLocked={inputLocked} />
-
-              {currentMenu instanceof CraftingItemMenuState && (
-                <div className="ml-3 h-1 w-fit">
-                  <div className="fixed">
-                    <ItemCraftDisplay />
-                  </div>
-                </div>
-              )}
             </div>
             <CharacterSheet showCharacterSheet={viewingCharacterSheet && !inputLocked} />
           </div>
