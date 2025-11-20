@@ -43,8 +43,9 @@ export class SelectTopThreatTargetAndAction implements BehaviorNode {
               this.behaviorContext.setCurrentActionNameConsidering(actionName);
               // @TODO -actually select an actionLevel
               const actionLevel =
-                this.combatant.combatantProperties.abilityProperties.getOwnedActions()[actionName]
-                  ?.level || 1;
+                this.combatant.combatantProperties.abilityProperties.getOwnedActionOption(
+                  actionName
+                )?.level || 1;
               this.behaviorContext.setCurrentActionLevelConsidering(actionLevel);
             }
           ),

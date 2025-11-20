@@ -31,7 +31,6 @@ export function selectCombatActionLevelHandler(
   }
 
   const { abilityProperties } = character.combatantProperties;
-  const ownedActions = abilityProperties.getOwnedActions();
 
   const combatActionPropertiesResult = abilityProperties.getCombatActionPropertiesIfOwned(
     selectedActionAndRankOption
@@ -40,7 +39,7 @@ export function selectCombatActionLevelHandler(
 
   const { actionName } = selectedActionAndRankOption;
 
-  const actionStateOption = ownedActions[actionName];
+  const actionStateOption = abilityProperties.getOwnedActionOption(actionName);
   if (actionStateOption === undefined) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED);
 
   const actionAndNewlySelectedRank = new ActionAndRank(actionName, newSelectedActionLevel);

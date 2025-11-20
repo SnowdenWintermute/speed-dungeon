@@ -9,19 +9,14 @@ import {
   getBookLevelForTrade,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
-import { createCancelButton } from "./common-buttons/cancel";
 import Divider from "@/app/components/atoms/Divider";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { AppStore } from "@/mobx-stores/app-store";
-import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
-import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
-
-const confirmHotkey = HOTKEYS.MAIN_1;
-const confirmLetter = letterFromKeyCode(confirmHotkey);
-export const CONFIRM_SHARD_TEXT = `Confirm trade (${confirmLetter})`;
+import GoBackButton from "./common-buttons/GoBackButton";
+import ActionMenuTopButton from "./common-buttons/ActionMenuTopButton";
+import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 
 function handleConfirmTrade(characterId: EntityId, itemId: EntityId, bookType: BookConsumableType) {
   websocketConnection.emit(ClientToServerEvent.TradeItemForBook, {
@@ -41,10 +36,37 @@ export class ConfirmTradeForBookMenuState extends ActionMenuState {
     public item: Item,
     public bookType: BookConsumableType
   ) {
-    super(MenuStateType.ConfirmTradeForBook, 1);
+    super(MenuStateType.ConfirmTradeForBook);
   }
 
-  getCenterInfoDisplayOption() {
+  getTopSection() {
+    const { gameStore, hotkeysStore } = AppStore.get();
+    const focusedCharacterId = gameStore.getExpectedFocusedCharacterId();
+    const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
+    const itemId = this.item.entityProperties.id;
+
+    const shouldBeDisabled = !userControlsThisCharacter;
+    const buttonType = HotkeyButtonTypes.Confirm;
+
+    return (
+      <ul className="flex w-full">
+        <GoBackButton
+          extraFn={() => {
+            AppStore.get().focusStore.detailables.clear();
+          }}
+        />
+        <ActionMenuTopButton
+          hotkeys={hotkeysStore.getKeybind(buttonType)}
+          handleClick={() => handleConfirmTrade(focusedCharacterId, itemId, this.bookType)}
+          disabled={shouldBeDisabled}
+        >
+          Confirm trade ({hotkeysStore.getKeybindString(buttonType)})
+        </ActionMenuTopButton>
+      </ul>
+    );
+  }
+
+  getCentralSection() {
     const { gameStore } = AppStore.get();
     const focusedCharacter = gameStore.getExpectedFocusedCharacter();
 
@@ -83,33 +105,5 @@ export class ConfirmTradeForBookMenuState extends ActionMenuState {
         </HotkeyButton>{" "}
       </div>
     );
-  }
-
-  getButtonProperties(): ActionButtonsByCategory {
-    const toReturn = new ActionButtonsByCategory();
-
-    toReturn[ActionButtonCategory.Top].push(
-      createCancelButton([], () => {
-        const { focusStore } = AppStore.get();
-        focusStore.detailables.clearDetailed();
-      })
-    );
-
-    const { gameStore } = AppStore.get();
-    const focusedCharacterId = gameStore.getExpectedFocusedCharacterId();
-    const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
-    const itemId = this.item.entityProperties.id;
-
-    const confirmButton = new ActionMenuButtonProperties(
-      () => CONFIRM_SHARD_TEXT,
-      CONFIRM_SHARD_TEXT,
-      () => handleConfirmTrade(focusedCharacterId, itemId, this.bookType)
-    );
-
-    confirmButton.dedicatedKeys = ["Enter", confirmHotkey];
-    confirmButton.shouldBeDisabled = !userControlsThisCharacter;
-    toReturn[ActionButtonCategory.Top].push(confirmButton);
-
-    return toReturn;
   }
 }

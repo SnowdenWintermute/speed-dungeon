@@ -1,23 +1,31 @@
 import {
   AffixCategory,
   AffixType,
+  Amulet,
   CombatAttribute,
   CombatantEquipment,
   ConsumableType,
   EquipmentType,
   Inventory,
+  NumberRange,
   OneHandedMeleeWeapon,
+  Ring,
   Shield,
   TwoHandedMeleeWeapon,
 } from "@speed-dungeon/common";
 import { createConsumableByType } from "../item-generation/create-consumable-by-type.js";
-import { generateSpecificEquipmentType } from "../item-generation/generate-test-items.js";
+import {
+  generateOneOfEachItem,
+  generateSpecificEquipmentType,
+} from "../item-generation/generate-test-items.js";
 
 export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inventory: Inventory) {
+  inventory.changeShards(20);
+
   const tradeableItemResult = generateSpecificEquipmentType(
     {
-      equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-      baseItemType: TwoHandedMeleeWeapon.RottingBranch,
+      equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      baseItemType: OneHandedMeleeWeapon.ShortSword,
     },
     {}
   );
@@ -41,8 +49,24 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inv
       { itemLevel: 1 }
     )
   );
-
-  inventory.changeShards(399);
+  inventory.equipment.push(
+    generateSpecificEquipmentType(
+      {
+        equipmentType: EquipmentType.Ring,
+        baseItemType: Ring.Ring,
+      },
+      { itemLevel: 1 }
+    )
+  );
+  inventory.equipment.push(
+    generateSpecificEquipmentType(
+      {
+        equipmentType: EquipmentType.Amulet,
+        baseItemType: Amulet.Amulet,
+      },
+      { itemLevel: 1 }
+    )
+  );
 
   const item = generateSpecificEquipmentType(
     {

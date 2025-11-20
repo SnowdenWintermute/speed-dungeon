@@ -1,53 +1,78 @@
-import { ItemsMenuState } from "./items";
 import {
   BookConsumableType,
   ConsumableType,
-  Item,
   getOwnedAcceptedItemsForBookTrade,
 } from "@speed-dungeon/common";
 import { ReactNode } from "react";
-import { ConfirmTradeForBookMenuState } from "./confirm-trade-for-book";
-import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "./menu-state-type";
-import { ActionButtonCategory } from "./action-buttons-by-category";
+import { ActionMenuState } from ".";
+import GoBackButton from "./common-buttons/GoBackButton";
+import ToggleInventoryButton from "./common-buttons/ToggleInventory";
+import makeAutoObservable from "mobx-store-inheritance";
+import { ItemButton } from "./common-buttons/ItemButton";
+import { ConfirmTradeForBookMenuState } from "./confirm-trade-for-book";
 
-export class SelectItemToTradeForBookMenuState extends ItemsMenuState {
-  acceptedItems: Item[] = [];
+export class SelectItemToTradeForBookMenuState extends ActionMenuState {
   constructor(public bookType: BookConsumableType) {
-    super(
-      MenuStateType.SelectItemToTradeForBook,
-      { text: "Go Back", hotkeys: [] },
-      (item: Item) => {
-        AppStore.get().focusStore.selectItem(item);
-        AppStore.get().actionMenuStore.pushStack(
-          new ConfirmTradeForBookMenuState(item, this.bookType)
-        );
-      },
-      () => Object.values(this.acceptedItems),
-      { extraButtons: { [ActionButtonCategory.Top]: [setInventoryOpen] } }
-    );
+    super(MenuStateType.SelectItemToTradeForBook);
+    makeAutoObservable(this);
+  }
 
+  getTopSection() {
+    return (
+      <ul className="flex">
+        <GoBackButton />
+        <ToggleInventoryButton />
+      </ul>
+    );
+  }
+
+  getNumberedButtons() {
     const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
     const { combatantProperties } = focusedCharacter;
 
-    this.acceptedItems = getOwnedAcceptedItemsForBookTrade(combatantProperties, this.bookType);
+    return getOwnedAcceptedItemsForBookTrade(combatantProperties, this.bookType).map((item, i) => {
+      const buttonNumber = i + 1;
+      return (
+        <ItemButton
+          key={item.entityProperties.id}
+          item={item}
+          text={item.entityProperties.name}
+          hotkeyLabel={`${buttonNumber}`}
+          hotkeys={[`Digit${buttonNumber}`]}
+          clickHandler={() => {
+            AppStore.get().focusStore.selectItem(item);
+            AppStore.get().actionMenuStore.pushStack(
+              new ConfirmTradeForBookMenuState(item, this.bookType)
+            );
+          }}
+          disabled={false}
+        />
+      );
+    });
+  }
 
-    if (this.acceptedItems.length < 1)
-      this.getCenterInfoDisplayOption = () => {
-        return (
-          <div className="h-full bg-slate-700 p-2 border border-t-0 border-slate-400">
-            <p className="mb-1"> No items in your possession are accepted for this trade.</p>
-            <p className="mb-1">
-              This trade requires {BOOK_TRADE_ACCEPTED_EQUIPMENT_DESCRIPTIONS[this.bookType]}.
-            </p>
-            <p>
-              {" "}
-              Items must be <span className={"font-bold"}>completely broken</span>.
-            </p>
-          </div>
-        );
-      };
+  getCentralSection() {
+    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    const { combatantProperties } = focusedCharacter;
+
+    const acceptedItems = getOwnedAcceptedItemsForBookTrade(combatantProperties, this.bookType);
+
+    if (acceptedItems.length >= 1) return <div />;
+
+    return (
+      <div className="h-full bg-slate-700 p-2 border border-t-0 border-slate-400">
+        <p className="mb-1"> No items in your possession are accepted for this trade.</p>
+        <p className="mb-1">
+          This trade requires {BOOK_TRADE_ACCEPTED_EQUIPMENT_DESCRIPTIONS[this.bookType]}.
+        </p>
+        <p>
+          {" "}
+          Items must be <span className={"font-bold"}>completely broken</span>.
+        </p>
+      </div>
+    );
   }
 }
 

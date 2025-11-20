@@ -20,12 +20,12 @@ export const VendingMachineShardDisplay = observer(() => {
 
   return (
     <li className="ml-auto pointer-events-auto">
-      <HoverableTooltipWrapper tooltipText="The machine seems to want these...">
+      <HoverableTooltipWrapper tooltipText="Click to drop shards (A)">
         <HotkeyButton
           className="disabled:opacity-50"
           hotkeys={[HOTKEYS.MAIN_2]}
           onClick={() => {
-            dialogStore.close(DialogElementName.DropShards);
+            dialogStore.toggle(DialogElementName.DropShards);
           }}
         >
           <ShardsDisplay extraStyles="h-10" numShards={totalShards} />

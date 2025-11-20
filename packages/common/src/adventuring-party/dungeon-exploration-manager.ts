@@ -5,6 +5,7 @@ import { ArrayUtils } from "../utils/array-utils.js";
 import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../utils/index.js";
 import { DungeonRoomType } from "./dungeon-room.js";
 import { AdventuringParty } from "./index.js";
+import { plainToInstance } from "class-transformer";
 
 export class DungeonExplorationManager {
   private currentFloor: number = 1;
@@ -18,6 +19,10 @@ export class DungeonExplorationManager {
 
   constructor() {
     runIfInBrowser(() => makeAutoObservable(this));
+  }
+
+  static getDeserialized(plain: DungeonExplorationManager) {
+    return plainToInstance(DungeonExplorationManager, plain);
   }
 
   unexploredRoomsExistOnCurrentFloor() {
@@ -72,7 +77,7 @@ export class DungeonExplorationManager {
     if (this.currentFloor === 1 && this.roomsExplored.total === 0) {
       this.unexploredRooms.push(DungeonRoomType.Empty);
     }
-    // this.unexploredRooms.push(DungeonRoomType.VendingMachine); // TESTING
+    this.unexploredRooms.push(DungeonRoomType.VendingMachine); // TESTING
 
     this.unexploredRooms.unshift(DungeonRoomType.VendingMachine);
     this.unexploredRooms.unshift(DungeonRoomType.Staircase);

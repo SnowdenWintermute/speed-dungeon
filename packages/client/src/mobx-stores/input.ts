@@ -14,7 +14,7 @@ export class InputStore {
   private hotkeysDisabled: boolean = false;
 
   constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+    makeAutoObservable(this);
   }
 
   getHotkeysDisabled() {

@@ -54,15 +54,22 @@ export const PaperDollSlot = observer(
     );
 
     const bgStyle = useMemo(() => {
-      if (isEqual(comparedSlot, slot))
-        if (consideredItemUnmetRequirements !== null) return UNUSABLE_ITEM_BG_STYLES;
-        else return USABLE_ITEM_BG_STYLES;
-      if (!itemOption) return "";
+      if (isEqual(comparedSlot, slot)) {
+        if (consideredItemUnmetRequirements.size) {
+          return UNUSABLE_ITEM_BG_STYLES;
+        } else {
+          return USABLE_ITEM_BG_STYLES;
+        }
+      }
+      if (!itemOption) {
+        return "";
+      }
       if (
         !Item.requirementsMet(itemOption, characterAttributes) ||
         (itemOption instanceof Equipment && itemOption.isBroken())
-      )
+      ) {
         return UNUSABLE_ITEM_BG_STYLES;
+      }
     }, [itemOption, characterAttributes, consideredItemUnmetRequirements, comparedSlot]);
 
     const highlightStyle = useMemo(() => {

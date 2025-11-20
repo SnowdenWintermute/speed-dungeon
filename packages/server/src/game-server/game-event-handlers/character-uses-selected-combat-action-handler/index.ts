@@ -57,7 +57,7 @@ function validateClientActionUseRequest(characterAssociatedData: CharacterAssoci
   if (selectedActionAndRankOption === null)
     return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
 
-  const maybeError = character.canUseAction(targets, selectedActionAndRankOption, game, party);
+  const maybeError = character.canUseAction(selectedActionAndRankOption, game, party);
   if (maybeError instanceof Error) return maybeError;
 
   return { actionAndRank: selectedActionAndRankOption, targets };

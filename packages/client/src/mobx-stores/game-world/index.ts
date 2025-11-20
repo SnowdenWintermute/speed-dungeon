@@ -7,7 +7,7 @@ export class GameWorldStore {
   private babylonControlledCombatantDOMData: Record<EntityId, BabylonControlledCombatantData> = {};
 
   constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+    makeAutoObservable(this);
   }
 
   setModelLoading(entityId: EntityId) {

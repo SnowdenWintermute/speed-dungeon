@@ -32,7 +32,7 @@ export const PaperDollAndAttributes = observer(() => {
                 hotkeys={[HOTKEYS.MAIN_2]}
                 disabled={currentMenu.type !== MenuStateType.InventoryItems}
                 onClick={() => {
-                  dialogStore.close(DialogElementName.DropShards);
+                  dialogStore.toggle(DialogElementName.DropShards);
                 }}
               >
                 <ShardsDisplay numShards={combatant.combatantProperties.inventory.shards} />

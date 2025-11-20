@@ -45,7 +45,7 @@ export class Equipment extends Item {
     public durability: null | { current: number; inherentMax: number }
   ) {
     super(entityProperties, itemLevel, requirements);
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getDeserialized(plain: Equipment) {
@@ -227,6 +227,10 @@ export class Equipment extends Item {
   changeDurability(value: number) {
     if (this.isIndestructable() || this.durability === null) return;
     this.durability.current = Math.max(0, this.durability.current + value);
+  }
+
+  isFullyRepaired() {
+    return this.isIndestructable() || this.getDurability()?.isMax();
   }
 
   isBroken() {

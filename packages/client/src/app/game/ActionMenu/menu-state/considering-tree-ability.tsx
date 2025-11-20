@@ -3,7 +3,6 @@ import {
   AbilityTreeAbility,
   AbilityType,
   ArrayUtils,
-  ClientToServerEvent,
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
   Combatant,
   COMBATANT_CONDITION_DESCRIPTIONS,
@@ -12,39 +11,46 @@ import {
   CombatantConditionName,
   getAbilityTreeAbilityNameString,
 } from "@speed-dungeon/common";
-import { createPageButtons } from "./create-page-buttons";
-import { websocketConnection } from "@/singletons/websocket-connection";
-import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { COMBAT_ACTION_DESCRIPTIONS } from "../../character-sheet/ability-tree/ability-descriptions";
 import { ActionDescriptionComponent } from "../../character-sheet/ability-tree/action-description";
 import Divider from "@/app/components/atoms/Divider";
 import { ACTION_ICONS, TRAIT_ICONS } from "@/app/icons";
 import { AppStore } from "@/mobx-stores/app-store";
-import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
-import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
-import { createCancelButton } from "./common-buttons/cancel";
-
-const allocateAbilityPointHotkey = HOTKEYS.MAIN_1;
+import { ReactNode } from "react";
+import GoBackButton from "./common-buttons/GoBackButton";
+import { AllocateAbilityPointButton } from "./common-buttons/AllocateAbilityPointButton";
+import { CycleConsideredAbilityInTreeColumnButtons } from "./common-buttons/CycleConsideredAbilityInTreeColumnButtons";
+import makeAutoObservable from "mobx-store-inheritance";
 
 export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
-  alwaysShowPageOne = true;
   constructor(
-    public column: (undefined | AbilityTreeAbility)[],
-    public index: number
+    public column: AbilityTreeAbility[],
+    public ability: AbilityTreeAbility
   ) {
-    super(MenuStateType.ConsideringAbilityTreeColumn, index + 1);
+    super(MenuStateType.ConsideringAbilityTreeAbility);
     this.minPageCount = column.length;
+    makeAutoObservable(this);
   }
 
-  getCenterInfoDisplayOption() {
+  getTopSection(): ReactNode {
+    return (
+      <ul className="flex">
+        <GoBackButton
+          extraFn={() => {
+            AppStore.get().focusStore.combatantAbilities.clearDetailed();
+          }}
+        />
+        <AllocateAbilityPointButton ability={this.ability} />
+      </ul>
+    );
+  }
+
+  getCentralSection() {
     const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
-    const abilityOption = AppStore.get().focusStore.combatantAbilities.get().detailed;
-    if (abilityOption === null) throw new Error("expected ability missing");
-
     const conditionsToShowDetailButtonsFor = getConditionsToShowDetailButtonsFor(
-      abilityOption,
+      this.ability,
       focusedCharacter
     );
 
@@ -58,9 +64,11 @@ export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
     let content;
     let iconGetter;
 
-    if (abilityOption.type === AbilityType.Action) {
-      const description = COMBAT_ACTION_DESCRIPTIONS[abilityOption.actionName];
-      iconGetter = ACTION_ICONS[abilityOption.actionName];
+    const { ability } = this;
+
+    if (ability.type === AbilityType.Action) {
+      const description = COMBAT_ACTION_DESCRIPTIONS[ability.actionName];
+      iconGetter = ACTION_ICONS[ability.actionName];
       content = (
         <div className="">
           <div>{description.getSummary()}</div>
@@ -77,8 +85,8 @@ export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
         </div>
       );
     } else {
-      iconGetter = TRAIT_ICONS[abilityOption.traitType];
-      const description = COMBATANT_TRAIT_DESCRIPTIONS[abilityOption.traitType];
+      iconGetter = TRAIT_ICONS[ability.traitType];
+      const description = COMBATANT_TRAIT_DESCRIPTIONS[ability.traitType];
       content = <div>{description.summary}</div>;
     }
 
@@ -88,64 +96,19 @@ export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
           iconGetter(
             "absolute h-full p-6 fill-slate-400 stroke-slate-400 opacity-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
           )}
-        <div className="text-lg">{getAbilityTreeAbilityNameString(abilityOption)}</div>
+        <div className="text-lg">{getAbilityTreeAbilityNameString(ability)}</div>
         <Divider />
         {content}
       </div>
     );
   }
 
-  getButtonProperties() {
-    const toReturn = new ActionButtonsByCategory();
-    toReturn[ActionButtonCategory.Top].push(
-      createCancelButton([], () => {
-        AppStore.get().focusStore.combatantAbilities.clearDetailed();
-      })
-    );
+  getBottomSection(): ReactNode {
+    return <CycleConsideredAbilityInTreeColumnButtons menuState={this} />;
+  }
 
-    const abilityOption = AppStore.get().focusStore.combatantAbilities.get().detailed;
-    if (abilityOption === null) throw new Error("expected ability missing");
-
-    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
-
-    const button = new ActionMenuButtonProperties(
-      () => (
-        <div className="flex justify-between h-full w-full pr-2">
-          <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
-            Allocate point ({letterFromKeyCode(allocateAbilityPointHotkey)})
-          </div>
-        </div>
-      ),
-      "keyname",
-      () => {
-        websocketConnection.emit(ClientToServerEvent.AllocateAbilityPoint, {
-          characterId: focusedCharacter.getEntityId(),
-          ability: abilityOption,
-        });
-      }
-    );
-
-    button.dedicatedKeys = [allocateAbilityPointHotkey];
-
-    const { combatantProperties } = focusedCharacter;
-
-    const { canAllocate } =
-      combatantProperties.abilityProperties.canAllocateAbilityPoint(abilityOption);
-
-    button.shouldBeDisabled = !canAllocate;
-
-    toReturn[ActionButtonCategory.Top].push(button);
-
-    createPageButtons(toReturn, this.column.length, (newPage) => {
-      const newDetailedAbilityOption = this.column[newPage - 1] || null;
-      if (newDetailedAbilityOption !== null) {
-        AppStore.get().focusStore.combatantAbilities.setDetailed(newDetailedAbilityOption);
-      } else {
-        AppStore.get().focusStore.combatantAbilities.clearDetailed();
-      }
-    });
-
-    return toReturn;
+  setAbility(abilityTreeAbility: AbilityTreeAbility) {
+    this.ability = abilityTreeAbility;
   }
 }
 

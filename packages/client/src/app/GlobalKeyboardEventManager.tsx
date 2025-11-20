@@ -16,6 +16,11 @@ export default function GlobalKeyboardEventManager() {
     if (MOD_KEY_CODES.includes(e.code)) {
       inputStore.setKeyHeld(ModifierKey.Mod);
     }
+
+    // try to stop Firefox Quick Find when not typing in a text input
+    if (e.code === "KeyQ" && !typingFieldIsFocused()) {
+      e.preventDefault();
+    }
   }
 
   function keyupEventHandler(e: KeyboardEvent) {
@@ -37,4 +42,21 @@ export default function GlobalKeyboardEventManager() {
   }, []);
 
   return <></>;
+}
+
+function typingFieldIsFocused() {
+  const el = document.activeElement;
+  if (!el) return false;
+
+  const tag = el.tagName.toLowerCase();
+  if (tag === "input" || tag === "textarea") {
+    return true;
+  }
+
+  // Narrow to HTMLElement to access isContentEditable
+  if (el instanceof HTMLElement && el.isContentEditable) {
+    return true;
+  }
+
+  return false;
 }

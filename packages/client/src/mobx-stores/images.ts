@@ -8,7 +8,7 @@ export class ImagesStore {
   private combatantPortraits: Map<EntityId, ImageString> = new Map();
 
   constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+    makeAutoObservable(this);
   }
 
   setItemThumbnail(entityId: EntityId, imageString: ImageString) {

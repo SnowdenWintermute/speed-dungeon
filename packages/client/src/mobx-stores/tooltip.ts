@@ -6,7 +6,7 @@ export class TooltipStore {
   private text: null | string = null;
 
   constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+    makeAutoObservable(this);
   }
 
   get() {

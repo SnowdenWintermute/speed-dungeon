@@ -1,11 +1,12 @@
 import makeAutoObservable from "mobx-store-inheritance";
 import { plainToInstance } from "class-transformer";
-import { CombatAttribute, initializeCombatAttributeRecord } from "./attributes/index.js";
+import { CombatAttribute } from "./attributes/index.js";
 import { addAttributesToAccumulator } from "./attributes/add-attributes-to-accumulator.js";
 import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../utils/index.js";
 import { getCombatantTotalAttributes } from "./attributes/get-combatant-total-attributes.js";
 import { Item } from "../items/index.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
+import { initializeCombatAttributeRecord } from "./attributes/initialize-combat-attribute-record.js";
 
 export type CombatantAttributeRecord = Partial<Record<CombatAttribute, number>>;
 
@@ -16,7 +17,7 @@ export class CombatantAttributeProperties extends CombatantSubsystem {
 
   constructor() {
     super();
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getDeserialized(serialized: CombatantAttributeProperties) {

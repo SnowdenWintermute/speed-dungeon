@@ -21,7 +21,7 @@ export class GameStore {
     null;
 
   constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+    makeAutoObservable(this);
   }
 
   /** Without this we will get a circular reference because we use the websocketConnection in methods
@@ -128,7 +128,6 @@ export class GameStore {
     }
 
     const { actionMenuStore, focusStore } = AppStore.get();
-    actionMenuStore.clearHoveredAction();
     focusStore.detailables.clear();
     focusStore.combatantAbilities.clear();
 

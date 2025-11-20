@@ -7,7 +7,7 @@ export class DungeonRoom {
   inventory: Inventory = new Inventory();
 
   constructor(public roomType: DungeonRoomType) {
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getDeserialized(dungeonRoom: DungeonRoom) {

@@ -1,49 +1,49 @@
-import { ItemsMenuState } from "./items";
-import { viewEquipmentHotkey } from "./equipped-items";
-import { letterFromKeyCode } from "@/hotkeys";
-import { ConsideringItemMenuState } from "./considering-item";
 import { Item } from "@speed-dungeon/common";
-import {
-  setViewingAbilityTreeAsFreshStack,
-  toggleInventoryHotkey,
-} from "./common-buttons/open-inventory";
 import { AppStore } from "@/mobx-stores/app-store";
-import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
-import { ActionButtonCategory } from "./action-buttons-by-category";
-import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
+import { ActionMenuState } from ".";
+import { ReactNode } from "react";
+import { ConsideringItemMenuState } from "./considering-item";
+import GoBackButton from "./common-buttons/GoBackButton";
+import ViewAbilityTreeButton from "./common-buttons/ViewAbilityTreeButton";
+import makeAutoObservable from "mobx-store-inheritance";
+import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
+import ToggleViewingEquipmentButton from "./common-buttons/ToggleViewingEquipmentButton";
 
-export class InventoryItemsMenuState extends ItemsMenuState {
+export class InventoryItemsMenuState extends ActionMenuState {
   constructor() {
-    const viewEquipmentButton = new ActionMenuButtonProperties(
-      () => `Equipped (${letterFromKeyCode(viewEquipmentHotkey)})`,
-      `Equipped (${letterFromKeyCode(viewEquipmentHotkey)})`,
-      () => {
-        AppStore.get().actionMenuStore.pushStack(
-          MenuStatePool.get(MenuStateType.ViewingEquipedItems)
-        );
-      }
-    );
-    viewEquipmentButton.dedicatedKeys = [viewEquipmentHotkey];
+    super(MenuStateType.InventoryItems);
+    makeAutoObservable(this);
+  }
 
-    const closeButtonAndHotkeys = { text: "Cancel", hotkeys: ["KeyI", toggleInventoryHotkey] };
+  getTopSection(): ReactNode {
+    const { hotkeysStore } = AppStore.get();
+    const toggleInventoryHotkeys = hotkeysStore.getKeybind(HotkeyButtonTypes.ToggleInventory);
 
-    super(
-      MenuStateType.InventoryItems,
-      closeButtonAndHotkeys,
-      (item: Item) => {
-        AppStore.get().focusStore.selectItem(item);
-        AppStore.get().actionMenuStore.pushStack(new ConsideringItemMenuState(item));
-      },
-      () => {
-        const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
-        return focusedCharacter.combatantProperties.inventory.getItems();
-      },
-      {
-        extraButtons: {
-          [ActionButtonCategory.Top]: [viewEquipmentButton, setViewingAbilityTreeAsFreshStack],
-        },
-      }
+    return (
+      <ul className="flex">
+        <GoBackButton extraHotkeys={toggleInventoryHotkeys} />
+        <ToggleViewingEquipmentButton />
+        <ViewAbilityTreeButton />
+      </ul>
     );
+  }
+
+  getNumberedButtons() {
+    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    const itemsInInventory = focusedCharacter.combatantProperties.inventory.getItems();
+
+    function itemButtonClickHandler(item: Item) {
+      AppStore.get().focusStore.selectItem(item);
+      AppStore.get().actionMenuStore.pushStack(new ConsideringItemMenuState(item));
+    }
+
+    const newNumberedButtons = ActionMenuState.getItemButtonsFromList(
+      itemsInInventory,
+      itemButtonClickHandler,
+      () => false
+    );
+
+    return newNumberedButtons;
   }
 }

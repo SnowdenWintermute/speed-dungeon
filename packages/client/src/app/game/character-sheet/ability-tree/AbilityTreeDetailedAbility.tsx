@@ -23,7 +23,17 @@ export const AbilityTreeDetailedAbility = observer(({ user }: { user: Combatant 
     abilityNameString = getAbilityTreeAbilityNameString(ability);
     if (ability.type === AbilityType.Action) {
       const description = COMBAT_ACTION_DESCRIPTIONS[ability.actionName];
-      descriptionDisplay = <ActionDescriptionDisplay description={description} user={user} />;
+
+      const ownedAbilityLevel = user.combatantProperties.abilityProperties.getAbilityRank(
+        description.ability
+      );
+      descriptionDisplay = (
+        <ActionDescriptionDisplay
+          description={description}
+          user={user}
+          ownedAbilityLevel={ownedAbilityLevel}
+        />
+      );
     } else {
       const description = COMBATANT_TRAIT_DESCRIPTIONS[ability.traitType];
       descriptionDisplay = (

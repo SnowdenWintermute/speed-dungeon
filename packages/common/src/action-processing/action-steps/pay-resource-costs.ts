@@ -66,7 +66,7 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
         combatantProperties.resources.payResourceCosts(costsOption);
       }
 
-      const actionState = combatantProperties.abilityProperties.getOwnedActions()[action.name];
+      const actionState = combatantProperties.abilityProperties.getOwnedActionOption(action.name);
       if (actionState !== undefined) {
         actionState.wasUsedThisTurn = true;
 

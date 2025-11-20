@@ -2,6 +2,7 @@ import { plainToInstance } from "class-transformer";
 import { makeAutoObservable } from "mobx";
 import { EntityId } from "../primatives/index.js";
 import { AiType } from "./index.js";
+import { runIfInBrowser } from "../utils/index.js";
 
 export enum CombatantControllerType {
   Player,
@@ -22,7 +23,7 @@ export class CombatantControlledBy {
     /** For player name, can be empty string if this is dungeon controlled */
     public controllerName: string
   ) {
-    makeAutoObservable(this, {}, { autoBind: true });
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getDeserialized(controlledBy: CombatantControlledBy) {

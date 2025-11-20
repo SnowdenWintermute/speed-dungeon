@@ -30,7 +30,7 @@ export class SpeedDungeonGame {
     public isRanked: boolean = false
   ) {
     if (mode === GameMode.Progression) this.playerCapacity = MAX_PARTY_SIZE;
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getDeserialized(game: SpeedDungeonGame) {

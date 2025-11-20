@@ -12,7 +12,12 @@ export class MaxAndCurrent {
   addValue(value: number) {
     this.current = Math.max(0, Math.min(this.max, this.current + value));
   }
+
   setCurrent(value: number) {
     this.current = Math.max(0, Math.min(this.max, value));
+  }
+
+  isMax() {
+    return this.current === this.max;
   }
 }

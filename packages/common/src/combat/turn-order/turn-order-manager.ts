@@ -21,7 +21,7 @@ export class TurnOrderManager {
     this.turnSchedulerManager = new TurnSchedulerManager(this.minTrackersCount, party);
     this.updateTrackers(game, party);
 
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getActionDelayCost(speed: number, actionDelayMultiplier: number) {

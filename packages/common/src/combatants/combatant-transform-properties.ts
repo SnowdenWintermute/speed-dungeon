@@ -10,7 +10,7 @@ export class CombatantTransformProperties {
   public position: Vector3 = Vector3.Zero();
 
   constructor() {
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getDeserialized(plain: CombatantTransformProperties) {

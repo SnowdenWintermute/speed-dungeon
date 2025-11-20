@@ -6,8 +6,8 @@ import {
 
 export function setPlaytestingCombatantProperties(combatantProperties: CombatantProperties) {
   const { classProgressionProperties } = combatantProperties;
-  // classProgressionProperties.experiencePoints.changeExperience(500);
-  // classProgressionProperties.awardLevelups();
+  classProgressionProperties.experiencePoints.changeExperience(500);
+  classProgressionProperties.awardLevelups();
 
   combatantProperties.attributeProperties.changeUnspentPoints(30);
   for (const [attributeType, value] of iterateNumericEnumKeyedRecord(TESTING_INHERENT_ATTRIBUTES)) {

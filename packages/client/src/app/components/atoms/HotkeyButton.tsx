@@ -7,6 +7,7 @@ interface Props {
   className?: string;
   children: React.ReactNode;
   ariaLabel?: string;
+  ariaDisabled?: boolean;
   hotkeys?: string[];
   style?: React.CSSProperties;
   buttonType?: "button" | "submit" | "reset";
@@ -27,28 +28,31 @@ export const HotkeyButton = observer((props: Props) => {
   const listenerType = props.keyUp ? "keyup" : "keydown";
 
   useEffect(() => {
-    if (props.hotkeys === undefined) return;
-    keydownListenerRef.current = (e: KeyboardEvent) => {
-      for (const hotkey of props.hotkeys!) {
-        if (e.code === hotkey && !disabled) {
-          //@ts-ignore
-          props.onClick(new MouseEvent("mouseup"));
+    if (props.hotkeys !== undefined) {
+      keydownListenerRef.current = (e: KeyboardEvent) => {
+        for (const hotkey of props.hotkeys!) {
+          if (e.code === hotkey && !disabled && !props.ariaDisabled) {
+            //@ts-ignore
+            props.onClick(new MouseEvent("mouseup"));
+          }
         }
-      }
-    };
+      };
 
-    window.addEventListener(listenerType, keydownListenerRef.current);
+      window.addEventListener(listenerType, keydownListenerRef.current);
+    }
 
     return () => {
-      if (keydownListenerRef.current)
+      if (keydownListenerRef.current) {
         window.removeEventListener(listenerType, keydownListenerRef.current);
+      }
     };
-  }, [props.onClick, hotkeysDisabled, props.hotkeys]);
+  }, [props.onClick, hotkeysDisabled, disabled, listenerType, props.hotkeys]);
 
   return (
     <button
       type={props.buttonType || "button"}
       disabled={disabled}
+      aria-disabled={props.ariaDisabled}
       className={`${props.className}`}
       onClick={props.onClick}
       onFocus={props.onFocus}

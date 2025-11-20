@@ -18,7 +18,7 @@ export class ExperiencePoints {
   private current: number = 0;
   private requiredForNextLevel: null | number = XP_REQUIRED_TO_REACH_LEVEL_2;
   constructor() {
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getDeserialized(experiencePoints: ExperiencePoints) {
@@ -48,7 +48,7 @@ export class CombatantClassProperties {
     public level: number,
     public combatantClass: CombatantClass
   ) {
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   getStringName() {
@@ -62,7 +62,7 @@ export class ClassProgressionProperties extends CombatantSubsystem {
 
   constructor(private mainClass: CombatantClassProperties) {
     super();
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getDeserialized(self: ClassProgressionProperties) {

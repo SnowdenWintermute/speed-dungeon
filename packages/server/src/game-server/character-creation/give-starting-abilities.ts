@@ -17,21 +17,21 @@ export function giveStartingAbilities(actionUser: IActionUser) {
     CombatActionName.ChainingSplitArrowParent,
     CombatActionName.SummonPet,
     // CombatActionName.Counterattack,
-    CombatActionName.IceBoltParent,
-    CombatActionName.Fire,
+    // CombatActionName.IceBoltParent,
+    // CombatActionName.Fire,
     CombatActionName.Healing,
-    CombatActionName.ExplodingArrowParent,
-    CombatActionName.Blind,
-    CombatActionName.Firewall,
+    // CombatActionName.ExplodingArrowParent,
+    // CombatActionName.Blind,
+    // CombatActionName.Firewall,
   ];
 
   const levelTwoSpells: CombatActionName[] = [
-    CombatActionName.IceBoltParent,
-    CombatActionName.Fire,
-    CombatActionName.Firewall,
+    // CombatActionName.IceBoltParent,
+    // CombatActionName.Fire,
+    // CombatActionName.Firewall,
     CombatActionName.Healing,
-    CombatActionName.ExplodingArrowParent,
-    CombatActionName.Blind,
+    // CombatActionName.ExplodingArrowParent,
+    // CombatActionName.Blind,
   ];
 
   for (const actionName of ownedActions) {
@@ -43,6 +43,6 @@ export function giveStartingAbilities(actionUser: IActionUser) {
     );
     if (cooldownOption) action.cooldown = new MaxAndCurrent(cooldownOption, 0);
 
-    actionUser.getCombatantProperties().abilityProperties.getOwnedActions()[actionName] = action;
+    actionUser.getCombatantProperties().abilityProperties.setOwnedAction(action);
   }
 }

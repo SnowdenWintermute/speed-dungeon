@@ -1,5 +1,4 @@
 import { Combatant } from "../../../combatants/index.js";
-import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionIntent, CombatActionName } from "../../combat-actions/index.js";
 import { AIBehaviorContext } from "../ai-context.js";
@@ -14,7 +13,7 @@ export class CollectAllOwnedActionsByIntent implements BehaviorNode {
   execute(): BehaviorNodeState {
     const ownedActions = this.combatant.combatantProperties.abilityProperties.getOwnedActions();
     const collected: CombatActionName[] = [];
-    for (const [actionName, _actionState] of iterateNumericEnumKeyedRecord(ownedActions)) {
+    for (const [actionName, _actionState] of ownedActions) {
       const action = COMBAT_ACTIONS[actionName];
       if (this.actionIntents.includes(action.targetingProperties.intent)) {
         collected.push(actionName);

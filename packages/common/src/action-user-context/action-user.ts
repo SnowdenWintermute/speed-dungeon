@@ -35,7 +35,7 @@ export interface IActionUser {
   getEntityProperties(): EntityProperties;
   getLevel(): number;
   getTotalAttributes(): CombatantAttributeRecord;
-  getOwnedAbilities(): Partial<Record<CombatActionName, CombatantActionState>>;
+  getOwnedAbilities(): Map<CombatActionName, CombatantActionState>;
   getEquipmentOption: () => null | CombatantEquipment;
   getInventoryOption(): null | Inventory;
   getTargetingProperties(): ActionUserTargetingProperties;

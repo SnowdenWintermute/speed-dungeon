@@ -32,6 +32,7 @@ import Book from "../../../public/img/game-ui-icons/book.svg";
 import Sword from "../../../public/img/equipment-icons/1h-sword-a.svg";
 import Camera from "../../../public/img/game-ui-icons/camera-1.svg";
 import XShape from "../../../public/img/basic-shapes/x-shape.svg";
+import Chevron from "../../../public/img/basic-shapes/chevron.svg";
 import Model3DIcon from "../../../public/img/menu-icons/3d-model-icon.svg";
 import Whistle from "../../../public/img/game-ui-icons/whistle.svg";
 
@@ -42,6 +43,7 @@ import {
   CombatActionName,
   CombatantConditionName,
   CombatantTraitType,
+  ConsumableType,
   KineticDamageType,
   MagicalElement,
 } from "@speed-dungeon/common";
@@ -78,6 +80,7 @@ export enum IconName {
   Sword,
   Camera,
   XShape,
+  Chevron,
   Model3DIcon,
   Firewall,
   Whistle,
@@ -115,6 +118,7 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.Sword]: (className) => <Sword className={className} />,
   [IconName.Camera]: (className) => <Camera className={className} />,
   [IconName.XShape]: (className) => <XShape className={className} />,
+  [IconName.Chevron]: (className) => <Chevron className={className} />,
   [IconName.Model3DIcon]: (className) => <Model3DIcon className={className} />,
   [IconName.Firewall]: (className) => <Firewall className={className} />,
   [IconName.Whistle]: (className) => <Whistle className={className} />,
@@ -217,4 +221,13 @@ export const ACTION_ENTITY_ICONS: Record<
   [ActionEntityName.TargetChangedIndicatorArrow]: null,
   [ActionEntityName.Firewall]: (className: string) =>
     SVG_ICONS[IconName.Firewall](className + " fill-firered"),
+};
+
+export const CONSUMABLE_ICONS: Record<ConsumableType, null | ((className: string) => ReactNode)> = {
+  [ConsumableType.HpAutoinjector]: null,
+  [ConsumableType.MpAutoinjector]: null,
+  [ConsumableType.StackOfShards]: null,
+  [ConsumableType.WarriorSkillbook]: (className: string) => SVG_ICONS[IconName.Book](className),
+  [ConsumableType.RogueSkillbook]: (className: string) => SVG_ICONS[IconName.Book](className),
+  [ConsumableType.MageSkillbook]: (className: string) => SVG_ICONS[IconName.Book](className),
 };

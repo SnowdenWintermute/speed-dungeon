@@ -42,7 +42,7 @@ export class PrimedForIceBurstCombatantCondition extends CombatantCondition {
   ) {
     super(id, appliedBy, appliedTo, CombatantConditionName.PrimedForIceBurst, getNewStacks());
     this.targetingProperties = new ActionUserTargetingProperties();
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   tickPropertiesOption: Option<ConditionTickProperties> = null;

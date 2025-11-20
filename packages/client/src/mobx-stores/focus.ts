@@ -1,5 +1,7 @@
 import {
   AbilityTreeAbility,
+  AbilityType,
+  CombatActionName,
   CombatAttribute,
   Combatant,
   CombatantEquipment,
@@ -25,7 +27,7 @@ export class FocusStore {
   private consideredItemUnmetRequirements: Set<CombatAttribute> = new Set();
 
   constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+    makeAutoObservable(this);
   }
 
   entityIsHovered(entityId: string) {
@@ -81,6 +83,7 @@ export class FocusStore {
   getItemComparison() {
     return { comparedItem: this.comparedItem, comparedSlot: this.comparedSlot };
   }
+
   clearItemComparison() {
     this.comparedItem = null;
     this.comparedSlot = null;
@@ -136,7 +139,7 @@ class Detailable<T> {
   private detailed: null | T = null;
 
   constructor(private onClearDetailed: () => void) {
-    makeAutoObservable(this, {}, { autoBind: true });
+    makeAutoObservable(this);
   }
 
   setHovered(toSet: T) {

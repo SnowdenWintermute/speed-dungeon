@@ -1,4 +1,3 @@
-import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { ClientToServerEvent, CombatantProperties, EntityId } from "@speed-dungeon/common";
 import React from "react";
 import HoverableTooltipWrapper from "../components/atoms/HoverableTooltipWrapper";
@@ -7,9 +6,7 @@ import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "./ActionMenu/menu-state/menu-state-type";
 import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { observer } from "mobx-react-lite";
-
-export const toggleAssignAttributesHotkey = HOTKEYS.MAIN_2;
-const buttonText = `Assign attributes (${letterFromKeyCode(toggleAssignAttributesHotkey)})`;
+import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 
 export const UnspentAttributesButton = observer(
   ({
@@ -24,12 +21,13 @@ export const UnspentAttributesButton = observer(
     const { actionMenuStore, gameStore } = AppStore.get();
 
     function handleUnspentAttributesButtonClick() {
+      gameStore.setFocusedCharacter(entityId);
+      const focusedCharacter = gameStore.getExpectedFocusedCharacter();
+
       websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
         characterId: entityId,
         actionAndRankOption: null,
       });
-
-      const focusedCharacter = gameStore.getExpectedFocusedCharacter();
 
       if (
         actionMenuStore.currentMenuIsType(MenuStateType.AssignAttributePoints) &&
@@ -42,8 +40,16 @@ export const UnspentAttributesButton = observer(
       }
     }
 
+    // the actual hotkey button is in the base action menu to avoid
+    // the hotkey being available when inventory is open and other times
+    // where it would collide with using the hotkey for dropping shards
+    const buttonType = HotkeyButtonTypes.ToggleAssignAttributesMenu;
+    const { hotkeysStore } = AppStore.get();
+
     return (
-      <HoverableTooltipWrapper tooltipText={buttonText}>
+      <HoverableTooltipWrapper
+        tooltipText={`Assign attributes (${hotkeysStore.getKeybindString(buttonType)})`}
+      >
         <button
           onClick={handleUnspentAttributesButtonClick}
           className="bg-ffxipink h-5 w-5 border border-slate-400 text-slate-950 text-lg leading-3 ml-1"

@@ -32,7 +32,7 @@ export class HoldableHotswapSlot {
   holdables: Partial<Record<HoldableSlotType, Equipment>> = {};
   forbiddenBaseItems: EquipmentBaseItem[] = [];
   constructor(public allowedTypes: EquipmentType[] = [...DEFAULT_HOTSWAP_SLOT_ALLOWED_TYPES]) {
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getDeserialized(holdableSlot: HoldableHotswapSlot) {
@@ -50,7 +50,7 @@ export class CombatantEquipment extends CombatantSubsystem {
 
   constructor() {
     super();
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getDeserialized(equipment: CombatantEquipment) {
@@ -384,6 +384,12 @@ export class CombatantEquipment extends CombatantSubsystem {
     const isBroken = itemOption.isBroken();
     if (isBroken) return false;
     return actionUser.hasRequiredAttributesToUseItem(itemOption);
+  }
+
+  isWearingItemWithId(itemId: string) {
+    return this.getAllEquippedItems({ includeUnselectedHotswapSlots: true })
+      .map((equipment) => equipment.entityProperties.id)
+      .includes(itemId);
   }
 
   static isWearingUsableShield(actionUser: IActionUser) {

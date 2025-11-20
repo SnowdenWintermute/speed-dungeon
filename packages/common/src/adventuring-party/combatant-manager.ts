@@ -20,7 +20,7 @@ export class CombatantManager {
   private combatants: Map<EntityId, Combatant> = new Map();
 
   constructor() {
-    runIfInBrowser(() => makeAutoObservable(this, {}, { autoBind: true }));
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   getCombatantOption(entityId: string): Combatant | undefined {

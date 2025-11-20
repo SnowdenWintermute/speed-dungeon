@@ -1,50 +1,64 @@
 import { ActionMenuState } from ".";
-import { createCancelButton } from "./common-buttons/cancel";
-import {
-  setInventoryAsFreshStack,
-  setViewingAbilityTreeHotkey,
-} from "./common-buttons/open-inventory";
 import { ConsideringAbilityTreeColumnMenuState } from "./considering-tree-ability-column";
-import { ArrayUtils } from "@speed-dungeon/common";
+import { ABILITY_TREE_DIMENSIONS, ArrayUtils } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
-import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { MenuStateType } from "./menu-state-type";
-import { ActionButtonCategory, ActionButtonsByCategory } from "./action-buttons-by-category";
+import { ReactNode } from "react";
+import GoBackButton from "./common-buttons/GoBackButton";
+import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
+import OpenInventoryAsFreshStackButton from "./common-buttons/OpenInventoryAsFreshStackButton";
+import { ActionMenuNumberedButton } from "./common-buttons/ActionMenuNumberedButton";
+
+export const toggleAbilityTreeHotkeys = AppStore.get().hotkeysStore.getKeybind(
+  HotkeyButtonTypes.ToggleViewingAbilityTree
+);
 
 export class AbilityTreeMenuState extends ActionMenuState {
   constructor() {
-    super(MenuStateType.ViewingAbilityTree, 1);
+    super(MenuStateType.ViewingAbilityTree);
   }
 
-  getButtonProperties() {
-    const toReturn = new ActionButtonsByCategory();
-    toReturn[ActionButtonCategory.Top].push(
-      createCancelButton([setViewingAbilityTreeHotkey], () => {
-        AppStore.get().focusStore.combatantAbilities.clear();
-      })
+  getTopSection(): ReactNode {
+    return (
+      <ul className="flex">
+        <GoBackButton
+          extraHotkeys={toggleAbilityTreeHotkeys}
+          extraFn={() => {
+            AppStore.get().focusStore.combatantAbilities.clear();
+          }}
+        />
+        <OpenInventoryAsFreshStackButton />
+      </ul>
     );
-    toReturn[ActionButtonCategory.Top].push(setInventoryAsFreshStack);
+  }
 
-    for (const number of ArrayUtils.createFilledWithSequentialNumbers(5, 1)) {
-      const nameAsString = `Column ${number}`;
-      const button = new ActionMenuButtonProperties(
-        () => (
-          <div className="flex justify-between h-full w-full pr-2">
-            <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
-              {nameAsString}
+  getNumberedButtons() {
+    return ArrayUtils.createFilledWithSequentialNumbers(ABILITY_TREE_DIMENSIONS.x, 1).map(
+      (number) => {
+        const nameAsString = `Column ${number}`;
+
+        return (
+          <ActionMenuNumberedButton
+            key={number}
+            hotkeys={[`Digit${number}`]}
+            hotkeyLabel={number.toString()}
+            extraStyles={""}
+            focusHandler={() => {}}
+            blurHandler={() => {}}
+            clickHandler={() => {
+              const { actionMenuStore } = AppStore.get();
+              actionMenuStore.pushStack(new ConsideringAbilityTreeColumnMenuState(number));
+              actionMenuStore.getCurrentMenu().setPageIndex(number - 1);
+            }}
+          >
+            <div className="flex justify-between h-full w-full px-2">
+              <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
+                {nameAsString}
+              </div>
             </div>
-          </div>
-        ),
-        nameAsString,
-        () => {
-          AppStore.get().actionMenuStore.pushStack(
-            new ConsideringAbilityTreeColumnMenuState(number)
-          );
-        }
-      );
-      toReturn[ActionButtonCategory.Numbered].push(button);
-    }
-
-    return toReturn;
+          </ActionMenuNumberedButton>
+        );
+      }
+    );
   }
 }

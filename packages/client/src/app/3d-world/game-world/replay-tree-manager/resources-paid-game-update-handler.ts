@@ -23,7 +23,9 @@ export async function resourcesPaidGameUpdateHandler(
     combatantProperties.resources.payResourceCosts(command.costsPaid);
   }
 
-  const actionState = combatantProperties.abilityProperties.getOwnedActions()[command.actionName];
+  const actionState = combatantProperties.abilityProperties.getOwnedActionOption(
+    command.actionName
+  );
   if (actionState !== undefined) {
     actionState.wasUsedThisTurn = true;
 

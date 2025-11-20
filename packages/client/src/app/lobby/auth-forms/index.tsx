@@ -54,11 +54,11 @@ function AuthForms() {
   const formToShow = (() => {
     switch (activeForm) {
       case AuthFormTypes.Registration:
-        return <SignUpWithCredentialsForm setActiveForm={setActiveForm} />;
+        return <SignUpWithCredentialsForm setActiveForm={(form) => setActiveForm(form)} />;
       case AuthFormTypes.SignIn:
-        return <LoginWithCredentialsForm setActiveForm={setActiveForm} />;
+        return <LoginWithCredentialsForm setActiveForm={(form) => setActiveForm(form)} />;
       case AuthFormTypes.PasswordReset:
-        return <PasswordResetEmailForm setActiveForm={setActiveForm} />;
+        return <PasswordResetEmailForm setActiveForm={(form) => setActiveForm(form)} />;
     }
   })();
 
