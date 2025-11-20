@@ -1,6 +1,11 @@
 import { getGameWorld } from "@/app/3d-world/SceneManager";
-import { AdventuringParty, PetSlot, SpeedDungeonGame } from "@speed-dungeon/common";
-import { ModelActionType } from "../../model-manager/model-actions";
+import {
+  AdventuringParty,
+  PetSlot,
+  SkeletalAnimationName,
+  SpeedDungeonGame,
+} from "@speed-dungeon/common";
+import { spawnCharacterModel } from "../../model-manager/model-action-handlers/spawn-modular-character";
 
 export function handlePetSlotsSummoned(
   petSlotsSummoned: PetSlot[],
@@ -10,10 +15,29 @@ export function handlePetSlotsSummoned(
   const battleOption = party.getBattleOption(game);
 
   for (const { ownerId, slotIndex } of petSlotsSummoned) {
-    party.petManager.summonPetFromSlot(party, ownerId, slotIndex, battleOption);
+    const pet = party.petManager.summonPetFromSlot(party, ownerId, slotIndex, battleOption);
+    spawnCharacterModel(getGameWorld(), {
+      combatant: pet,
+      homeRotation: pet.getHomeRotation(),
+      homePosition: pet.getHomePosition(),
+      modelDomPositionElement: null, // vestigial from when we used to spawn directly from next.js
+    }).then((model) => {
+      if (model instanceof Error) {
+        throw model;
+      }
+      getGameWorld().modelManager.combatantModels[pet.getEntityId()] = model;
+
+      model.skeletalAnimationManager.startAnimationWithTransition(
+        SkeletalAnimationName.OnSummoned,
+        500,
+        {
+          onComplete: () => {
+            model.startIdleAnimation(500);
+          },
+        }
+      );
+    });
   }
 
-  getGameWorld().modelManager.modelActionQueue.enqueueMessage({
-    type: ModelActionType.SynchronizeCombatantModels,
-  });
+  party.getBattleOption(game)?.turnOrderManager.updateTrackers(game, party);
 }

@@ -21,17 +21,29 @@ export const TurnOrderTrackerIcon = observer(({ tracker }: { tracker: CombatantT
 
   const isCondition = tracker instanceof ConditionTurnTracker;
 
-  const combatantIsAlly =
+  const { combatantManager } = party;
+
+  const combatant = combatantManager.getExpectedCombatant(taggedTrackedEntityId.combatantId);
+
+  const combatantIsCharacter =
     taggedTrackedEntityId.type === TurnTrackerEntityType.Combatant &&
-    party.combatantManager
-      .getExpectedCombatant(taggedTrackedEntityId.combatantId)
-      .combatantProperties.controlledBy.isPlayerControlled();
+    combatant.combatantProperties.controlledBy.isPlayerControlled();
+
+  const combatantIsPlayerPet =
+    taggedTrackedEntityId.type === TurnTrackerEntityType.Combatant &&
+    combatant.combatantProperties.controlledBy.wasSummoned() &&
+    combatantManager
+      .getPartyMemberPets()
+      .map((pet) => pet.entityProperties.id)
+      .includes(combatant.getEntityId());
 
   const conditionalClasses = isCondition
     ? "bg-slate-600"
-    : combatantIsAlly
+    : combatantIsCharacter
       ? "bg-emerald-900"
-      : "bg-amber-900";
+      : combatantIsPlayerPet
+        ? "bg-slate-500"
+        : "bg-amber-900";
 
   let combatantOption;
 

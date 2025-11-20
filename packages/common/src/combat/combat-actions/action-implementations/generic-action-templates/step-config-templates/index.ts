@@ -19,6 +19,7 @@ import { iterateNumericEnumKeyedRecord } from "../../../../../utils/index.js";
 import { VALUE_CHANGE_TICK_ACTION_STEPS_CONFIG } from "./value-change-tick.js";
 import { MODIFY_ACTION_ENTITY_ACTION_STEPS_CONFIG } from "./modify-action-entity.js";
 import { EXPLOSION_PARENT_STEPS_CONFIG } from "./explosion-parent.js";
+import { SUMMON_COMBATANT_STEPS_CONFIG } from "./summon-combatant.js";
 
 export const ACTION_STEPS_CONFIG_TEMPLATE_GETTERS = {
   BASIC_SPELL: () => cloneDeep(BASIC_SPELL_STEPS_CONFIG),
@@ -34,6 +35,7 @@ export const ACTION_STEPS_CONFIG_TEMPLATE_GETTERS = {
   PROJECTILE_ENTITY: () => cloneDeep(PROJECTILE_ENTITY_STEPS_CONFIG),
   VALUE_CHANGE_TICK: () => cloneDeep(VALUE_CHANGE_TICK_ACTION_STEPS_CONFIG),
   MODIFY_ACTION_ENTITY: () => cloneDeep(MODIFY_ACTION_ENTITY_ACTION_STEPS_CONFIG),
+  SUMMON_COMBATANT: () => cloneDeep(SUMMON_COMBATANT_STEPS_CONFIG),
 };
 
 export function createStepsConfig(

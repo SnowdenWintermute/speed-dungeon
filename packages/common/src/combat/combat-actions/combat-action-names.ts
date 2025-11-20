@@ -27,7 +27,8 @@ export enum CombatActionName {
   IgniteProjectile,
   IncinerateProjectile,
   // SUMMON PETS
-  SummonPet,
+  SummonPetParent,
+  SummonPetAppear,
   // CONDITION TICKS
   BurningTick,
   ConditionPassTurn,
@@ -85,5 +86,6 @@ export const COMBAT_ACTION_NAME_STRINGS: Record<CombatActionName, string> = {
   [CombatActionName.FirewallPassTurn]: "Firewall Pass Turn",
   [CombatActionName.IgniteProjectile]: "Ignite Projectile",
   [CombatActionName.IncinerateProjectile]: "Incinerate Projectile",
-  [CombatActionName.SummonPet]: "Summon Pet",
+  [CombatActionName.SummonPetParent]: "Summon Pet",
+  [CombatActionName.SummonPetAppear]: "Summon Pet Appear",
 };

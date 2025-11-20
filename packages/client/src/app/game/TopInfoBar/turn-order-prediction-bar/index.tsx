@@ -10,12 +10,13 @@ import { ConditionTurnTrackerAggregation } from "./ConditionTurnTrackerAggregati
 import ClockIcon from "../../../../../public/img/game-ui-icons/clock-icon.svg";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { ActionEntityTurnOrderTrackerIcon } from "./ActionEntityTurnOrderIcon";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   trackers: TurnTracker[];
 }
 
-export default function TurnPredictionOrderBar({ trackers }: Props) {
+export const TurnOrderPredictionBar = observer(({ trackers }: Props) => {
   // aggregate here
   const listWithAggregatedSequentialConditionTrackers: (
     | CombatantTurnTracker
@@ -65,4 +66,4 @@ export default function TurnPredictionOrderBar({ trackers }: Props) {
       })}
     </div>
   );
-}
+});

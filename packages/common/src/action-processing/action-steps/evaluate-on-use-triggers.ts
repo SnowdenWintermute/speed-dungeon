@@ -12,6 +12,7 @@ import {
 import { Combatant } from "../../combatants/index.js";
 import { DurabilityLossCondition } from "../../combat/combat-actions/combat-action-durability-loss-condition.js";
 import { DurabilityChangesByEntityId } from "../../durability/index.js";
+import { SpawnableEntityType } from "../../spawnables/index.js";
 
 const stepType = ActionResolutionStepType.EvalOnUseTriggers;
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
@@ -40,7 +41,13 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
       const battleOption = party.getBattleOption(game);
 
       for (const { ownerId, slotIndex } of petSlotsSummoned) {
-        petManager.summonPetFromSlot(party, ownerId, slotIndex, battleOption);
+        const pet = petManager.summonPetFromSlot(party, ownerId, slotIndex, battleOption);
+
+        this.context.tracker.spawnedEntities.push({
+          type: SpawnableEntityType.Combatant,
+          combatant: pet,
+          petProperties: { ownerId: actionUser.getEntityId() },
+        });
       }
     }
 

@@ -18,25 +18,40 @@ export function getCombatantClassIcon(
   }
 }
 
+export enum CombatantUiIdentifierType {
+  PlayerCharacter,
+  PlayerCharacterPet,
+  Monster,
+}
+
 export function getCombatantUiIdentifier(party: AdventuringParty, combatant: Combatant) {
-  const characterPositions = party.combatantManager.sortCombatantIdsLeftToRight(
-    party.combatantManager.getPartyMemberCharacters().map((combatant) => combatant.getEntityId())
-  );
+  const { combatantManager } = party;
+
+  const characterIds = combatantManager
+    .getPartyMemberCharacters()
+    .map((combatant) => combatant.getEntityId());
+  const characterPositions = combatantManager.sortCombatantIdsLeftToRight(characterIds);
 
   const playerPosition = characterPositions.indexOf(combatant.entityProperties.id);
-  if (playerPosition !== -1) return { isPlayer: true, position: playerPosition };
+  if (playerPosition !== -1)
+    return { type: CombatantUiIdentifierType.PlayerCharacter, position: playerPosition };
 
-  // const playerPetPosition = party.characterPetPositions.indexOf(combatant.entityProperties.id);
-  // if (playerPetPosition !== -1) return { isPlayer: false, position: playerPetPosition };
+  const playerPetIds = combatantManager
+    .getPartyMemberPets()
+    .map((combatant) => combatant.getEntityId());
+  const playerPetPosition = playerPetIds.indexOf(combatant.entityProperties.id);
+  if (playerPetPosition !== -1)
+    return { type: CombatantUiIdentifierType.PlayerCharacterPet, position: playerPetPosition };
 
-  const monsterPositions = party.combatantManager.sortCombatantIdsLeftToRight(
-    party.combatantManager
-      .getDungeonControlledCombatants()
-      .map((combatant) => combatant.getEntityId())
-  );
+  const monsterIds = combatantManager
+    .getDungeonControlledCombatants()
+    .map((combatant) => combatant.getEntityId());
+
+  const monsterPositions = combatantManager.sortCombatantIdsLeftToRight(monsterIds);
 
   const monsterPosition = monsterPositions.indexOf(combatant.entityProperties.id);
-  if (monsterPosition !== -1) return { isPlayer: false, position: monsterPosition };
+  if (monsterPosition !== -1)
+    return { type: CombatantUiIdentifierType.Monster, position: monsterPosition };
 
   throw new Error("combatant not in this party so no ui identifier can be assigned");
 }
@@ -48,7 +63,18 @@ export function getCombatantUiIdentifierIcon(party: AdventuringParty, combatant:
   //   "fill-slate-400",
   //   "stroke-slate-400"
   // );
-  const letterToDisplay = combatantUiIdentifier.isPlayer ? "C" : "M";
+
+  const letterToDisplay = (() => {
+    switch (combatantUiIdentifier.type) {
+      case CombatantUiIdentifierType.PlayerCharacter:
+        return "C";
+      case CombatantUiIdentifierType.PlayerCharacterPet:
+        return "P";
+      case CombatantUiIdentifierType.Monster:
+        return "M";
+    }
+  })();
+
   return (
     <div className="h-full w-full relative">
       <div className="text-slate-300 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">

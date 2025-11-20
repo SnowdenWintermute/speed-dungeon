@@ -197,7 +197,8 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
   [CombatActionName.IceBurstExplosion]: null,
   [CombatActionName.IgniteProjectile]: null,
   [CombatActionName.IncinerateProjectile]: null,
-  [CombatActionName.SummonPet]: (className: string) => SVG_ICONS[IconName.Whistle](className),
+  [CombatActionName.SummonPetParent]: (className: string) => SVG_ICONS[IconName.Whistle](className),
+  [CombatActionName.SummonPetAppear]: null,
 };
 
 export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string) => ReactNode)> = {
