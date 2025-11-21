@@ -16,7 +16,7 @@ export default function ValueBar({ maxValue, currentValue, color, hideNumbers }:
     <div className={containerStyles}>
       <div className={innerBarStyles} style={{ width: `${percentOfMax}%` }} />
       {!hideNumbers && (
-        <div className="text-xs text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div className="text-s text-zinc-300 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
           {currentValue} / {maxValue}
         </div>
       )}

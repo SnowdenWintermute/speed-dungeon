@@ -41,7 +41,7 @@ export const PaperDoll = observer(({ combatant }: Props) => {
         className={"absolute h-fit flex border border-slate-400"}
         entityId={entityProperties.id}
         selectedSlotIndex={combatantProperties.equipment.getSelectedHoldableSlotIndex()}
-        numSlots={combatantProperties.equipment.getHoldableHotswapSlots().length}
+        slotsCount={combatantProperties.equipment.getHoldableHotswapSlots().length}
       />
       <div className="w-[7.5rem] mr-2.5">
         <div className="h-[6.25rem] mb-2.5 flex justify-between items-end">

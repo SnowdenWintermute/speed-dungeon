@@ -29,8 +29,18 @@ export const CharacterModelDisplay = observer(
       modelOption.debugElement = debugElement as HTMLDivElement;
     }, [modelIsLoading]);
 
+    const testingPetStyles = {
+      // height: "1000px",
+      // width: "1000px",
+      // background: "teal",
+    };
+
     return (
-      <div id={`${entityId}-position-div`} className={`absolute ${modelIsLoading && "opacity-0"}`}>
+      <div
+        id={`${entityId}-position-div`}
+        className={`absolute ${modelIsLoading && "opacity-0"} `}
+        style={character.combatantProperties.controlledBy.wasSummoned() ? testingPetStyles : {}}
+      >
         <div id={`${entityId}-debug-div`} className={showDebug ? "" : "hidden"}></div>
         {children}
       </div>

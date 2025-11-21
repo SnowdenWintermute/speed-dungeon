@@ -76,6 +76,7 @@ const config: Config = {
     "absolute",
     "w-40",
     "w-22",
+    "h-3.5",
   ],
   theme: {
     screens: {

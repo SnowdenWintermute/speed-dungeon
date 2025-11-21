@@ -13,12 +13,15 @@ import {
   FloatingMessageElementType,
   FloatingMessageIconType,
 } from "@/mobx-stores/game-event-notifications/floating-messages";
+import { DialogElementName } from "@/mobx-stores/dialogs";
 
 export const CombatantFloatingMessagesDisplay = observer(({ entityId }: { entityId: string }) => {
   const floatingMessages = AppStore.get().gameEventNotificationStore.getFloatingMessages(entityId);
+  const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
 
   return (
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full flex flex-col items-center text-center w-[300px]">
+      {showDebug && <div>Floating Text: {entityId.slice(0, 2)}</div>}
       {floatingMessages.map((message) => {
         return (
           <div

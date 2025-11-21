@@ -5,6 +5,7 @@ import HealthCrossIcon from "../../../public/img/game-ui-icons/health-cross.svg"
 import IceIcon from "../../../public/img/game-ui-icons/ice.svg";
 import PlusSign from "../../../public/img/game-ui-icons/plus-sign.svg";
 import EyeClosed from "../../../public/img/game-ui-icons/eye-closed.svg";
+import EyeOpen from "../../../public/img/game-ui-icons/eye-open.svg";
 import EyeOpenIcon from "../../../public/img/game-ui-icons/eye-open.svg";
 import BloodWithH from "../../../public/img/game-ui-icons/blood-with-h.svg";
 import Wind from "../../../public/img/game-ui-icons/wind.svg";
@@ -62,6 +63,7 @@ export enum IconName {
   HealthCross,
   PlusSign,
   EyeClosed,
+  EyeOpen,
   BloodWithH,
   Slashing,
   Piercing,
@@ -94,6 +96,7 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.Ice]: (className) => <IceIcon className={className} />,
   [IconName.PlusSign]: (className) => <PlusSign className={className} />,
   [IconName.EyeClosed]: (className) => <EyeClosed className={className} />,
+  [IconName.EyeOpen]: (className) => <EyeOpen className={className} />,
   [IconName.BloodWithH]: (className) => <BloodWithH className={className} />,
   [IconName.Water]: (className) => <Water className={className} />,
   [IconName.Wind]: (className) => <Wind className={className} />,

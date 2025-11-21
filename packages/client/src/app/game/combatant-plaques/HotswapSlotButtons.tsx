@@ -15,14 +15,14 @@ import { observer } from "mobx-react-lite";
 interface Props {
   entityId: string;
   selectedSlotIndex: number;
-  numSlots: number;
+  slotsCount: number;
   className: string;
   vertical: boolean;
   registerKeyEvents?: boolean;
 }
 
 export const HotswapSlotButtons = observer(
-  ({ entityId, selectedSlotIndex, numSlots, className, vertical, registerKeyEvents }: Props) => {
+  ({ entityId, selectedSlotIndex, slotsCount, className, vertical, registerKeyEvents }: Props) => {
     const listenerRef = useRef<(e: KeyboardEvent) => void | null>(null);
 
     const { gameStore } = AppStore.get();
@@ -35,7 +35,7 @@ export const HotswapSlotButtons = observer(
       if (waitingForIndexChange) return;
       if (disableIfNotTurn) return;
 
-      const newIndex = getNextOrPreviousNumber(selectedSlotIndex, numSlots - 1, nextOrPrevious, {
+      const newIndex = getNextOrPreviousNumber(selectedSlotIndex, slotsCount - 1, nextOrPrevious, {
         minNumber: 0,
       });
 
@@ -68,21 +68,25 @@ export const HotswapSlotButtons = observer(
       return () => {
         if (listenerRef.current) window.removeEventListener("keydown", listenerRef.current);
       };
-    }, [selectedSlotIndex, focusedCharacterId, numSlots, waitingForIndexChange]);
+    }, [selectedSlotIndex, focusedCharacterId, slotsCount, waitingForIndexChange]);
+
+    if (slotsCount < 2) return <div />;
 
     return (
       <div className={className}>
-        <HoverableTooltipWrapper
-          extraStyles="cursor-help"
-          tooltipText={"Select weapon swap slot (X, C)"}
-        >
-          <div
-            className={`bg-slate-700 h-6 w-6 p-1 ${vertical ? "border-b" : "border-r"} border-slate-400`}
+        {!vertical && (
+          <HoverableTooltipWrapper
+            extraStyles="cursor-help"
+            tooltipText={"Select weapon swap slot (X, C)"}
           >
-            {SVG_ICONS[IconName.OpenHand]("h-full w-full fill-slate-400")}
-          </div>
-        </HoverableTooltipWrapper>
-        {new Array(numSlots).fill(null).map((_nullValue, i) => (
+            <div
+              className={`bg-slate-700 h-6 w-6 p-1 ${vertical ? "border-b" : "border-r"} border-slate-400`}
+            >
+              {SVG_ICONS[IconName.OpenHand]("h-full w-full fill-slate-400")}
+            </div>
+          </HoverableTooltipWrapper>
+        )}
+        {new Array(slotsCount).fill(null).map((_nullValue, i) => (
           <div
             key={i}
             className={`m-0 ${vertical ? "border-b" : "border-r"} border-slate-400 last:border-none`}
@@ -112,20 +116,25 @@ function HotswapSlotButton({
   disabled: boolean;
 }) {
   return (
-    <button
-      className={`p-1 h-6 w-6 ${isSelected ? "bg-slate-800" : "bg-slate-700"}
+    <HoverableTooltipWrapper
+      extraStyles="cursor-help"
+      tooltipText={"Select weapon swap slot (X, C)"}
+    >
+      <button
+        className={`p-1 h-6 w-6 ${isSelected ? "bg-slate-800" : "bg-slate-700"}
       text-sm hover:bg-slate-950 block disabled:opacity-50
       `}
-      style={{ lineHeight: "14px" }}
-      disabled={disabled}
-      onClick={() => {
-        websocketConnection.emit(ClientToServerEvent.SelectHoldableHotswapSlot, {
-          characterId: entityId,
-          slotIndex: index,
-        });
-      }}
-    >
-      {index + 1}
-    </button>
+        style={{ lineHeight: "14px" }}
+        disabled={disabled}
+        onClick={() => {
+          websocketConnection.emit(ClientToServerEvent.SelectHoldableHotswapSlot, {
+            characterId: entityId,
+            slotIndex: index,
+          });
+        }}
+      >
+        {index + 1}
+      </button>
+    </HoverableTooltipWrapper>
   );
 }

@@ -19,6 +19,7 @@ export async function createCombatantPortrait(combatantId: string) {
   const boundingInfo = combatantModelOption.rootMesh.getBoundingInfo();
   const min = boundingInfo.boundingBox.minimumWorld;
   const max = boundingInfo.boundingBox.maximumWorld;
+
   const width = max.x - min.x;
 
   // Camera parameters

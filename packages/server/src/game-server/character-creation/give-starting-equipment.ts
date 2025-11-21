@@ -65,8 +65,10 @@ export function giveStartingEquipment(combatantProperties: CombatantProperties) 
 
   for (const [slotType, template] of iterateNumericEnumKeyedRecord(startingHoldables)) {
     const holdable = generateSpecificEquipmentType(template, { noAffixes: true });
-    repairEquipment(holdable);
+    // repairEquipment(holdable); // @TODO - put this back
     mainHoldableHotswapSlot.holdables[slotType] = holdable;
+
+    holdable.durability!.current = 1; // @TODO - remove (testing)
 
     if (slotType !== HoldableSlotType.MainHand) continue;
 

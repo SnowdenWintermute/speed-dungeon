@@ -6,6 +6,8 @@ import {
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { spawnCharacterModel } from "../../model-manager/model-action-handlers/spawn-modular-character";
+import { synchronizeCombatantModelsWithAppState } from "../../model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
+import { AppStore } from "@/mobx-stores/app-store";
 
 export function handlePetSlotsSummoned(
   petSlotsSummoned: PetSlot[],
@@ -16,6 +18,8 @@ export function handlePetSlotsSummoned(
 
   for (const { ownerId, slotIndex } of petSlotsSummoned) {
     const pet = party.petManager.summonPetFromSlot(party, ownerId, slotIndex, battleOption);
+    // synchronizeCombatantModelsWithAppState();
+
     spawnCharacterModel(getGameWorld(), {
       combatant: pet,
       homeRotation: pet.getHomeRotation(),
@@ -26,6 +30,7 @@ export function handlePetSlotsSummoned(
         throw model;
       }
       getGameWorld().modelManager.combatantModels[pet.getEntityId()] = model;
+      AppStore.get().gameWorldStore.setModelIsLoaded(pet.getEntityId());
 
       model.skeletalAnimationManager.startAnimationWithTransition(
         SkeletalAnimationName.OnSummoned,
