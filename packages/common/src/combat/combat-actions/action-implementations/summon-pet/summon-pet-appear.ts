@@ -5,10 +5,7 @@ import {
   CombatActionName,
   createGenericSpellCastMessageProperties,
 } from "../../index.js";
-import {
-  ActionResolutionStepType,
-  ActivatedTriggersGameUpdateCommand,
-} from "../../../../action-processing/index.js";
+import { ActivatedTriggersGameUpdateCommand } from "../../../../action-processing/index.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import {
   ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,

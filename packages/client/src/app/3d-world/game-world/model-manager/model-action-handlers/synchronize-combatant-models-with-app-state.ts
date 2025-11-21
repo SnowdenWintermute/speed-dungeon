@@ -64,6 +64,7 @@ export async function synchronizeCombatantModelsWithAppState() {
 
   const spawnResults = await Promise.all(modelSpawnPromises);
   let resultsIncludedError = false;
+
   for (const result of spawnResults) {
     if (result instanceof Error) {
       console.error(result);

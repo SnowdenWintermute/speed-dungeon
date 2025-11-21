@@ -35,7 +35,7 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     const onUseTriggers = action.hitOutcomeProperties.getOnUseTriggers(context);
     Object.assign(gameUpdateCommand, onUseTriggers);
 
-    const { petSlotsSummoned } = onUseTriggers;
+    const { petSlotsSummoned, petsUnsummoned } = onUseTriggers;
     if (petSlotsSummoned) {
       const { petManager } = party;
       const battleOption = party.getBattleOption(game);
@@ -48,6 +48,21 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
           combatant: pet,
           petProperties: { ownerId: actionUser.getEntityId() },
         });
+      }
+    }
+
+    if (petsUnsummoned) {
+      for (const petId of petsUnsummoned) {
+        const expectedPet = party.combatantManager.getExpectedCombatant(petId);
+        const summonedBy = expectedPet.combatantProperties.controlledBy.summonedBy;
+        if (summonedBy === undefined) {
+          throw new Error("Expected a pet to have been summoned by someone");
+        }
+
+        // get expected empty pet slot
+        // put back in pet slot
+        // tell client to despawn pet model
+        // tell client to put pet back in owner's pet slot
       }
     }
 

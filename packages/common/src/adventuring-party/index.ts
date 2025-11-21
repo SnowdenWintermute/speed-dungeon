@@ -60,6 +60,12 @@ export class AdventuringParty {
     return party;
   }
 
+  //@REFACTOR - make pet manager hold a reference to parent with initialize fn and put in pet manager
+  getCombatantSummonedPetOption(combatantId: EntityId) {
+    const pets = this.combatantManager.getPartyMemberPets();
+    return pets.filter((pet) => pet.combatantProperties.controlledBy.summonedBy === combatantId)[0];
+  }
+
   getItem(itemId: string) {
     let toReturn: undefined | Item;
 

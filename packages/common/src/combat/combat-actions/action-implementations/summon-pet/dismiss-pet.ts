@@ -1,12 +1,15 @@
 import {
   BASE_ACTION_HIERARCHY_PROPERTIES,
   CombatActionComponentConfig,
-  CombatActionExecutionIntent,
+  CombatActionGameLogProperties,
   CombatActionLeaf,
   CombatActionName,
-  createGenericSpellCastMessageProperties,
+  CombatActionOrigin,
 } from "../../index.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import {
+  ActionResolutionStepType,
+  ActivatedTriggersGameUpdateCommand,
+} from "../../../../action-processing/index.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
@@ -28,7 +31,7 @@ import {
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
 
-const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
+const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.SUMMON_COMBATANT();
 
 stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
   ...stepsConfig.steps[ActionResolutionStepType.InitialPositioning],
@@ -61,21 +64,37 @@ const costProperties = createCostPropertiesConfig(costPropertiesBase, costProper
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.THREATLESS_ACTION,
-  {}
+  {
+    getOnUseTriggers: (context) => {
+      const { actionUserContext } = context;
+      const { party, actionUser } = actionUserContext;
+
+      const petOption = party.getCombatantSummonedPetOption(actionUser.getEntityId());
+
+      if (petOption === undefined) return {};
+
+      const toReturn: Partial<ActivatedTriggersGameUpdateCommand> = {
+        petsUnsummoned: [petOption.getEntityId()],
+      };
+
+      return toReturn;
+    },
+  }
 );
 
 const config: CombatActionComponentConfig = {
-  description: "Summon a creature companion",
+  description: "Temporarily unsummon your pet. You can call it back later.",
   prerequisiteAbilities: [],
-  gameLogMessageProperties: createGenericSpellCastMessageProperties(
-    CombatActionName.SummonPetParent
-  ),
+  gameLogMessageProperties: new CombatActionGameLogProperties({
+    origin: CombatActionOrigin.SpellCast,
+    getOnUseMessage: (data) => `${data.nameOfActionUser} dismisses their pet`,
+  }),
   targetingProperties: createTargetingPropertiesConfig(
     TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME,
     {
       executionPreconditions: [
         ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME().executionPreconditions,
-        ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.NoPetCurrentlySummoned],
+        ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.PetCurrentlySummoned],
       ],
     }
   ),
@@ -85,20 +104,7 @@ const config: CombatActionComponentConfig = {
 
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
-    getConcurrentSubActions(context) {
-      const user = context.actionUserContext.actionUser;
-      return [
-        {
-          user,
-          actionExecutionIntent: new CombatActionExecutionIntent(
-            CombatActionName.SummonPetAppear,
-            context.tracker.actionExecutionIntent.rank,
-            context.tracker.actionExecutionIntent.targets
-          ),
-        },
-      ];
-    },
   },
 };
 
-export const SUMMON_PET_PARENT = new CombatActionLeaf(CombatActionName.SummonPetParent, config);
+export const DISMISS_PET = new CombatActionLeaf(CombatActionName.DismissPet, config);

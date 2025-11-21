@@ -18,7 +18,11 @@ export function handlePetSlotsSummoned(
 
   for (const { ownerId, slotIndex } of petSlotsSummoned) {
     const pet = party.petManager.summonPetFromSlot(party, ownerId, slotIndex, battleOption);
-    // synchronizeCombatantModelsWithAppState();
+
+    // @REFACTOR
+    // not calling synchronizeCombatantModelsWithAppState();
+    // because it was setting positions strangely
+    // but we should combine all "spawn a character model" functionality somehow
 
     spawnCharacterModel(getGameWorld(), {
       combatant: pet,
@@ -29,6 +33,7 @@ export function handlePetSlotsSummoned(
       if (model instanceof Error) {
         throw model;
       }
+
       getGameWorld().modelManager.combatantModels[pet.getEntityId()] = model;
       AppStore.get().gameWorldStore.setModelIsLoaded(pet.getEntityId());
 

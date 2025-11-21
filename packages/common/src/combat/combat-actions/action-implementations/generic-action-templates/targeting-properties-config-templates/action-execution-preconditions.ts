@@ -12,6 +12,8 @@ export enum ActionExecutionPreconditions {
   TargetsAreAlive,
   WasNotCounterattacked,
   WasNotWearing2HWeaponOnPreviousAction,
+  NoPetCurrentlySummoned,
+  PetCurrentlySummoned,
 }
 
 export const ACTION_EXECUTION_PRECONDITIONS: Record<
@@ -24,6 +26,18 @@ export const ACTION_EXECUTION_PRECONDITIONS: Record<
   [ActionExecutionPreconditions.WasNotCounterattacked]: wasNotCounterattacked,
   [ActionExecutionPreconditions.WasNotWearing2HWeaponOnPreviousAction]:
     wasWearing2HWeaponOnPreviousAction,
+  [ActionExecutionPreconditions.NoPetCurrentlySummoned]: function (
+    context: ActionResolutionStepContext
+  ) {
+    const { party, actionUser } = context.actionUserContext;
+    const petOption = party.getCombatantSummonedPetOption(actionUser.getEntityId());
+    return petOption === undefined;
+  },
+  [ActionExecutionPreconditions.PetCurrentlySummoned]: function (...args): boolean {
+    return !ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.NoPetCurrentlySummoned](
+      ...args
+    );
+  },
 };
 
 function wasWearing2HWeaponOnPreviousAction(

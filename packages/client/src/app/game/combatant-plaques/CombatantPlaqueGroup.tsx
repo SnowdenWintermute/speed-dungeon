@@ -15,12 +15,9 @@ export default function CombatantPlaqueGroup(props: Props) {
         const combatantOption = props.party.combatantManager.getCombatantOption(id);
         if (combatantOption === undefined) return <div>{ERROR_MESSAGES.COMBATANT.NOT_FOUND} </div>;
         else {
-          const pets = props.party.combatantManager.getPartyMemberPets();
-          const petOption = pets.filter(
-            (pet) =>
-              pet.combatantProperties.controlledBy.summonedBy ===
-              combatantOption.entityProperties.id
-          )[0];
+          const petOption = props.party.getCombatantSummonedPetOption(
+            combatantOption.entityProperties.id
+          );
 
           let petDisplay: ReactNode = null;
 
