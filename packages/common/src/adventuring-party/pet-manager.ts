@@ -6,7 +6,7 @@ import { Battle } from "../battle/index.js";
 import { TurnTrackerEntityType } from "../combat/index.js";
 
 export class PetManager {
-  private unsummonedPetsByOwnerId: { [ownerId: EntityId]: Combatant[] } = {};
+  private unsummonedPetsByOwnerId: { [ownerId: EntityId]: (Combatant | undefined)[] } = {};
 
   setCombatantPets(ownerId: EntityId, pets: Combatant[]) {
     this.unsummonedPetsByOwnerId[ownerId] = pets;
@@ -38,10 +38,29 @@ export class PetManager {
     throw new Error("no pet was found in the provided slot index");
   }
 
-  removePetFromUnsummonedSlot(ownerId: EntityId, slotIndex: number) {
+  private removePetFromUnsummonedSlot(ownerId: EntityId, slotIndex: number) {
     const petOption = this.unsummonedPetsByOwnerId[ownerId]?.[slotIndex];
     delete this.unsummonedPetsByOwnerId[ownerId]?.[slotIndex];
     return petOption;
+  }
+
+  private putPetInFirstEmptyUnsummonedSlot(ownerId: EntityId, pet: Combatant) {
+    const ownerPetSlots = this.unsummonedPetsByOwnerId[ownerId];
+    if (ownerPetSlots === undefined) {
+      throw new Error("Expected to have pet slots if a pet had been summoned in this party");
+    }
+    const emptyIndex = ownerPetSlots.findIndex((slot) => slot === undefined);
+    ownerPetSlots[emptyIndex] = pet;
+  }
+
+  unsummonPet(party: AdventuringParty, petId: EntityId) {
+    const expectedPet = party.combatantManager.getExpectedCombatant(petId);
+    const summonedBy = expectedPet.combatantProperties.controlledBy.summonedBy;
+    if (summonedBy === undefined) {
+      throw new Error("Expected a pet to have been summoned by someone");
+    }
+    this.putPetInFirstEmptyUnsummonedSlot(summonedBy, expectedPet);
+    party.combatantManager.removeCombatant(expectedPet.getEntityId());
   }
 
   /** Moves the pet from the unsummoned pets storage to the summoned pets storage

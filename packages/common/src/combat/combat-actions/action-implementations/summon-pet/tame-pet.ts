@@ -74,7 +74,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(
       if (petOption === undefined) return {};
 
       const toReturn: Partial<ActivatedTriggersGameUpdateCommand> = {
-        petsUnsummoned: [petOption.getEntityId()],
+        petsTamed: [petOption.getEntityId()],
       };
 
       return toReturn;
@@ -83,18 +83,18 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 );
 
 const config: CombatActionComponentConfig = {
-  description: "Temporarily unsummon your pet. You can call it back later.",
+  description: "Attempt to convince a creature to join your pack.",
   prerequisiteAbilities: [],
   gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.SpellCast,
-    getOnUseMessage: (data) => `${data.nameOfActionUser} dismisses their pet`,
+    getOnUseMessage: (data) => `${data.nameOfActionUser} attempts to tame ${data.nameOfTarget}`,
   }),
   targetingProperties: createTargetingPropertiesConfig(
-    TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME,
+    TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE,
     {
       executionPreconditions: [
-        ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME().executionPreconditions,
-        ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.PetCurrentlySummoned],
+        ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE().executionPreconditions,
+        ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.NoPetCurrentlySummoned],
       ],
     }
   ),
@@ -107,4 +107,4 @@ const config: CombatActionComponentConfig = {
   },
 };
 
-export const DISMISS_PET = new CombatActionLeaf(CombatActionName.DismissPet, config);
+export const TAME_PET = new CombatActionLeaf(CombatActionName.TamePet, config);

@@ -30,6 +30,7 @@ export enum CombatActionName {
   SummonPetParent,
   SummonPetAppear,
   DismissPet,
+  TamePet,
   // CONDITION TICKS
   BurningTick,
   ConditionPassTurn,
@@ -90,4 +91,5 @@ export const COMBAT_ACTION_NAME_STRINGS: Record<CombatActionName, string> = {
   [CombatActionName.SummonPetParent]: "Summon Pet",
   [CombatActionName.SummonPetAppear]: "Summon Pet Appear",
   [CombatActionName.DismissPet]: "Dismiss Pet",
+  [CombatActionName.TamePet]: "Tame Pet",
 };

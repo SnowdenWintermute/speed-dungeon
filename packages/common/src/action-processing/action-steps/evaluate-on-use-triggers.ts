@@ -53,16 +53,7 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
 
     if (petsUnsummoned) {
       for (const petId of petsUnsummoned) {
-        const expectedPet = party.combatantManager.getExpectedCombatant(petId);
-        const summonedBy = expectedPet.combatantProperties.controlledBy.summonedBy;
-        if (summonedBy === undefined) {
-          throw new Error("Expected a pet to have been summoned by someone");
-        }
-
-        // get expected empty pet slot
-        // put back in pet slot
-        // tell client to despawn pet model
-        // tell client to put pet back in owner's pet slot
+        party.petManager.unsummonPet(party, petId);
       }
     }
 

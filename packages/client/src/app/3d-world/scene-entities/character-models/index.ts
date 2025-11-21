@@ -162,8 +162,8 @@ export class CharacterModel extends SceneEntity {
   }
 
   setHomeLocation(position: Vector3) {
-    this.rootTransformNode.position.copyFrom(position);
-    this.homeLocation.position = cloneDeep(this.rootTransformNode.position);
+    // this.rootTransformNode.position.copyFrom(position);
+    this.homeLocation.position = cloneDeep(position);
   }
 
   startIdleAnimation(transitionMs: number, options?: ManagedAnimationOptions) {

@@ -8,7 +8,7 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   safelist: [
-    "-scale-x-full",
+    "-scale-x-100",
     "outline-1",
     "outline",
     "outline-2",

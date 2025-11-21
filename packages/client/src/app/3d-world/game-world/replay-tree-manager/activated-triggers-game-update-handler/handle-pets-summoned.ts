@@ -6,8 +6,8 @@ import {
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { spawnCharacterModel } from "../../model-manager/model-action-handlers/spawn-modular-character";
-import { synchronizeCombatantModelsWithAppState } from "../../model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
 import { AppStore } from "@/mobx-stores/app-store";
+import { synchronizeCombatantModelsWithAppState } from "../../model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
 
 export function handlePetSlotsSummoned(
   petSlotsSummoned: PetSlot[],
@@ -19,30 +19,14 @@ export function handlePetSlotsSummoned(
   for (const { ownerId, slotIndex } of petSlotsSummoned) {
     const pet = party.petManager.summonPetFromSlot(party, ownerId, slotIndex, battleOption);
 
-    // @REFACTOR
-    // not calling synchronizeCombatantModelsWithAppState();
-    // because it was setting positions strangely
-    // but we should combine all "spawn a character model" functionality somehow
-
-    spawnCharacterModel(getGameWorld(), {
-      combatant: pet,
-      homeRotation: pet.getHomeRotation(),
-      homePosition: pet.getHomePosition(),
-      modelDomPositionElement: null, // vestigial from when we used to spawn directly from next.js
-    }).then((model) => {
-      if (model instanceof Error) {
-        throw model;
-      }
-
-      getGameWorld().modelManager.combatantModels[pet.getEntityId()] = model;
-      AppStore.get().gameWorldStore.setModelIsLoaded(pet.getEntityId());
-
-      model.skeletalAnimationManager.startAnimationWithTransition(
+    synchronizeCombatantModelsWithAppState(() => {
+      const modelOption = getGameWorld().modelManager.combatantModels[pet.getEntityId()];
+      modelOption?.skeletalAnimationManager.startAnimationWithTransition(
         SkeletalAnimationName.OnSummoned,
         500,
         {
           onComplete: () => {
-            model.startIdleAnimation(500);
+            modelOption.startIdleAnimation(500);
           },
         }
       );

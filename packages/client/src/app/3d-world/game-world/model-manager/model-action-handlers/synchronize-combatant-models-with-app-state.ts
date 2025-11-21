@@ -17,7 +17,7 @@ import { CharacterModel } from "@/app/3d-world/scene-entities/character-models";
 import { startOrStopCosmeticEffects } from "../../replay-tree-manager/start-or-stop-cosmetic-effect";
 import { AppStore } from "@/mobx-stores/app-store";
 
-export async function synchronizeCombatantModelsWithAppState() {
+export async function synchronizeCombatantModelsWithAppState(onComplete?: () => void) {
   if (!gameWorld.current) return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
   const { modelManager } = gameWorld.current;
 
@@ -87,6 +87,10 @@ export async function synchronizeCombatantModelsWithAppState() {
     }
   }
   if (resultsIncludedError) return new Error("Error with spawning combatant models");
+
+  if (onComplete !== undefined) {
+    onComplete();
+  }
 }
 
 interface ModelsAndPositions {

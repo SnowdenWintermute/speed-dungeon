@@ -30,7 +30,7 @@ export function createModelActionHandlers(
         disposeAsyncLoadedScene(modelOption.model);
       }
     },
-    [ModelActionType.SynchronizeCombatantModels]: synchronizeCombatantModelsWithAppState,
+    [ModelActionType.SynchronizeCombatantModels]: () => synchronizeCombatantModelsWithAppState(),
     [ModelActionType.SynchronizeCombatantEquipmentModels]: async function (
       action: ChangeEquipmentModelAction
     ): Promise<void | Error> {

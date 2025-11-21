@@ -34,9 +34,10 @@ export const ACTION_EXECUTION_PRECONDITIONS: Record<
     return petOption === undefined;
   },
   [ActionExecutionPreconditions.PetCurrentlySummoned]: function (...args): boolean {
-    return !ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.NoPetCurrentlySummoned](
-      ...args
-    );
+    const shouldSucceed = !ACTION_EXECUTION_PRECONDITIONS[
+      ActionExecutionPreconditions.NoPetCurrentlySummoned
+    ](...args);
+    return shouldSucceed;
   },
 };
 
