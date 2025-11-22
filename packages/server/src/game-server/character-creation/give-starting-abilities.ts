@@ -22,7 +22,7 @@ export function giveStartingAbilities(actionUser: IActionUser) {
     // CombatActionName.Fire,
     CombatActionName.Healing,
     // CombatActionName.ExplodingArrowParent,
-    // CombatActionName.Blind,
+    CombatActionName.Blind,
     // CombatActionName.Firewall,
   ];
 

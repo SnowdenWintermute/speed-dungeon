@@ -113,6 +113,7 @@ export class TargetingCalculator {
     actionExecutionIntent: CombatActionExecutionIntent
   ) {
     const primaryTargetIdResult = this.getPrimaryTargetCombatantId(actionExecutionIntent);
+    console.log("primaryTargetIdResult:", primaryTargetIdResult);
     if (primaryTargetIdResult instanceof Error) return primaryTargetIdResult;
     const primaryTarget = party.combatantManager.getExpectedCombatant(primaryTargetIdResult);
     return primaryTarget;

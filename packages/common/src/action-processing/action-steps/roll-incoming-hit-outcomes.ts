@@ -26,6 +26,10 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
 
     const { actionUserContext, tracker } = context;
 
+    // if action has a custom hit calculation function, us it instead
+    // if(action.customHitCalculation())
+    //
+
     const hitOutcomeCalculator = new HitOutcomeCalculator(
       actionUserContext,
       tracker.actionExecutionIntent,

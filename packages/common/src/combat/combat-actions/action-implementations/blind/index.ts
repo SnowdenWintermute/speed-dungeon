@@ -1,6 +1,7 @@
 import {
   ActionPayableResource,
   CombatActionComponentConfig,
+  CombatActionGameLogProperties,
   CombatActionLeaf,
   CombatActionName,
   TargetingScheme,
@@ -32,6 +33,10 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
 };
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.FAST_SPELL;
 const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
+
+const gameLogMessageProperties: CombatActionGameLogProperties =
+  createGenericSpellCastMessageProperties(CombatActionName.Blind);
+gameLogMessageProperties.getOnSuccessMessage = (data) => `${data.nameOfTarget} is blinded!`;
 
 const config: CombatActionComponentConfig = {
   description: "Reduce the accuracy of targets",

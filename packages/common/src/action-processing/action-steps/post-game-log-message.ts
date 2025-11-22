@@ -9,16 +9,34 @@ import {
   ActionUseGameLogMessageUpdateCommand,
 } from "../game-update-commands.js";
 
-const stepType = ActionResolutionStepType.PostActionUseGameLogMessage;
-export class PostActionUseGameLogMessageActionResolutionStep extends ActionResolutionStep {
-  constructor(context: ActionResolutionStepContext) {
+export class PostGameLogMessageActionResolutionStep extends ActionResolutionStep {
+  constructor(
+    context: ActionResolutionStepContext,
+    stepType:
+      | ActionResolutionStepType.PostActionUseGameLogMessage
+      | ActionResolutionStepType.PostOnResolutionGameLogMessage
+  ) {
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
 
-    const { getOnUseMessage, getOnUseMessageData } = action.gameLogMessageProperties;
+    const { getOnUseMessage, getOnFailureMessage, getOnSuccessMessage, getOnUseMessageData } =
+      action.gameLogMessageProperties;
 
     let gameUpdateCommandOption: null | ActionUseGameLogMessageUpdateCommand = null;
 
-    if (getOnUseMessage !== null) {
+    const messageGetterOption = (() => {
+      switch (stepType) {
+        case ActionResolutionStepType.PostActionUseGameLogMessage:
+          return getOnUseMessage;
+        case ActionResolutionStepType.PostOnResolutionGameLogMessage:
+          if (context.tracker.wasSuccess) {
+            return getOnFailureMessage;
+          } else {
+            return getOnSuccessMessage;
+          }
+      }
+    })();
+
+    if (messageGetterOption !== null) {
       const actionUseMessageData = getOnUseMessageData(context);
       gameUpdateCommandOption = {
         type: GameUpdateCommandType.ActionUseGameLogMessage,

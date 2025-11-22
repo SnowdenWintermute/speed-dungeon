@@ -12,13 +12,13 @@ import { StartConcurrentSubActionsActionResolutionStep } from "./start-concurren
 import { DetermineMeleeActionAnimationsActionResolutionStep } from "./determine-melee-action-animations.js";
 import { EvaluatePlayerEndTurnAndInputLockActionResolutionStep } from "./evaluate-player-turn-end-and-input-lock.js";
 import { DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep } from "./determine-should-execute-or-release-turn-and-input-lock.js";
-import { PostActionUseGameLogMessageActionResolutionStep } from "./post-action-use-combat-log-message.js";
 import { CombatantMotionActionResolutionStep } from "./motion-steps/combatant-motion.js";
 import { ActionEntityMotionActionResolutionStep } from "./motion-steps/action-entity-motion.js";
 import { TriggerEnvironmentalHazardsActionResolutionStep } from "./motion-steps/determine-environmental-hazard-triggers.js";
 import { RemoveTickedConditionStacksActionResolutionStep } from "./remove-ticked-condition-stacks.js";
 import { WaitForDelayActionResolutionStep } from "./motion-steps/wait-for-delay.js";
 import { SpawnEntitiesActionResolutionStep } from "./spawn-entities.js";
+import { PostGameLogMessageActionResolutionStep } from "./post-game-log-message.js";
 
 // right now the idea is to have the action tracker call these creators, which in turn call
 // step class constructors. We don't call the constructors directly because this allows us
@@ -68,7 +68,10 @@ export const ACTION_STEP_CREATORS: Record<
   [ActionResolutionStepType.PayResourceCosts]: (context) =>
     new PayResourceCostsActionResolutionStep(context),
   [ActionResolutionStepType.PostActionUseGameLogMessage]: (context) =>
-    new PostActionUseGameLogMessageActionResolutionStep(context),
+    new PostGameLogMessageActionResolutionStep(
+      context,
+      ActionResolutionStepType.PostActionUseGameLogMessage
+    ),
   [ActionResolutionStepType.EvalOnUseTriggers]: (context) =>
     new EvalOnUseTriggersActionResolutionStep(context),
   [ActionResolutionStepType.StartConcurrentSubActions]: (context) =>
@@ -93,6 +96,11 @@ export const ACTION_STEP_CREATORS: Record<
     new RollIncomingHitOutcomesActionResolutionStep(context),
   [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: (context) =>
     new EvalOnHitOutcomeTriggersActionResolutionStep(context),
+  [ActionResolutionStepType.PostOnResolutionGameLogMessage]: (context) =>
+    new PostGameLogMessageActionResolutionStep(
+      context,
+      ActionResolutionStepType.PostOnResolutionGameLogMessage
+    ),
   [ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers]: (context) =>
     new TriggerEnvironmentalHazardsActionResolutionStep(
       context,
