@@ -35,12 +35,10 @@ export class PostGameLogMessageActionResolutionStep extends ActionResolutionStep
     const messageGetterOption = (() => {
       switch (stepType) {
         case ActionResolutionStepType.PostActionUseGameLogMessage:
-          console.log("trying on use message");
           return getOnUseMessage;
         case ActionResolutionStepType.PostOnResolutionGameLogMessage:
           gameUpdateType = GameUpdateCommandType.ActionResolutionGameLogMessage;
           if (context.tracker.hitOutcomes.outcomeFlags[HitOutcome.Hit]) {
-            console.log("trying getOnSuccessMessage");
             isSuccess = true;
             return getOnSuccessMessage;
           } else {

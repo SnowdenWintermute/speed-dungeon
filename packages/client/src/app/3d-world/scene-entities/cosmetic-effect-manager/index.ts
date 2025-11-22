@@ -30,8 +30,10 @@ export class CosmeticEffectManager {
 
   stopEffect(name: CosmeticEffectNames, onComplete: () => void) {
     const existingEffectOption = this.cosmeticEffects[name];
-    if (!existingEffectOption)
+    if (!existingEffectOption) {
       return console.info("tried to end a cosmetic effect but couldn't find it");
+    }
+
     existingEffectOption.referenceCount -= 1;
 
     if (existingEffectOption.referenceCount <= 0) {

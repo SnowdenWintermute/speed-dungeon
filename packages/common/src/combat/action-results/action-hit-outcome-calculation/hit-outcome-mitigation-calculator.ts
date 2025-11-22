@@ -109,7 +109,6 @@ export class HitOutcomeMitigationCalculator {
       }
     }
 
-    console.log("action hit:", this.action.getStringName());
     // it is possible that an ability hits, but does not change resource values, ex: a spell that only induces a condition
     const flagsToReturn: HitOutcome[] = [HitOutcome.Hit];
 
