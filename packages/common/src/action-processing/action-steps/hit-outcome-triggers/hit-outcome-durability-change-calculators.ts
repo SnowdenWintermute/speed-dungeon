@@ -146,4 +146,5 @@ const HIT_OUTCOME_DURABILITY_CHANGE_ON_TARGET_CALCULATORS: Record<
       });
     }
   },
+  [HitOutcome.Resist]: () => {},
 };

@@ -22,7 +22,9 @@ export default function CombatantPlaqueGroup(props: Props) {
           let petDisplay: ReactNode = null;
 
           if (petOption) {
-            petDisplay = <CombatantPlaque combatant={petOption} showExperience={false} />;
+            petDisplay = (
+              <CombatantPlaque extraStyles="mb-2" combatant={petOption} showExperience={false} />
+            );
           }
 
           return (

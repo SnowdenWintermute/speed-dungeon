@@ -36,12 +36,13 @@ const costProperties = createCostPropertiesConfig(costPropertiesBase, costProper
 
 const gameLogMessageProperties: CombatActionGameLogProperties =
   createGenericSpellCastMessageProperties(CombatActionName.Blind);
+
 gameLogMessageProperties.getOnSuccessMessage = (data) => `${data.nameOfTarget} is blinded!`;
 
 const config: CombatActionComponentConfig = {
   description: "Reduce the accuracy of targets",
   prerequisiteAbilities: [],
-  gameLogMessageProperties: createGenericSpellCastMessageProperties(CombatActionName.Blind),
+  gameLogMessageProperties,
   targetingProperties,
   hitOutcomeProperties: BLIND_HIT_OUTCOME_PROPERTIES,
   costProperties,

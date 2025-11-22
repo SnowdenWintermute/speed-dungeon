@@ -65,10 +65,10 @@ export class HitOutcomeMitigationCalculator {
     const isMiss = hitRoll < 100 - percentChanceToHit.beforeEvasion;
     if (isMiss) return [HitOutcome.Miss];
 
-    if (targetWillAttemptMitigation) {
-      const isEvaded = !isMiss && hitRoll < 100 - percentChanceToHit.afterEvasion;
-      if (isEvaded) return [HitOutcome.Evade];
-    } else return [HitOutcome.Hit];
+    if (!targetWillAttemptMitigation) return [HitOutcome.Hit];
+
+    const isEvaded = !isMiss && hitRoll < 100 - percentChanceToHit.afterEvasion;
+    if (isEvaded) return [HitOutcome.Evade];
 
     const { hitOutcomeProperties } = this.action;
 
@@ -101,6 +101,15 @@ export class HitOutcomeMitigationCalculator {
       if (isCounterAttacked) return [HitOutcome.Counterattack];
     }
 
+    // RESISTS
+    if (hitOutcomeProperties.getIsResisted !== undefined) {
+      const isResisted = hitOutcomeProperties.getIsResisted(user, this.actionLevel, target);
+      if (isResisted) {
+        return [HitOutcome.Resist];
+      }
+    }
+
+    console.log("action hit:", this.action.getStringName());
     // it is possible that an ability hits, but does not change resource values, ex: a spell that only induces a condition
     const flagsToReturn: HitOutcome[] = [HitOutcome.Hit];
 

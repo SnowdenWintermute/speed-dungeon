@@ -1,5 +1,4 @@
 import { ActionResolutionStepContext } from "../../action-processing/index.js";
-import { AdventuringParty } from "../../adventuring-party/index.js";
 import { TargetingCalculator } from "../targeting/targeting-calculator.js";
 import { COMBAT_ACTION_NAME_STRINGS, CombatActionName } from "./combat-action-names.js";
 

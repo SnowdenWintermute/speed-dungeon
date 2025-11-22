@@ -5,9 +5,11 @@ import {
 } from "./index.js";
 import { COMBAT_ACTIONS } from "../../combat/index.js";
 import {
-  GameUpdateCommandType,
+  ActionResolutionGameLogMessageUpdateCommand,
   ActionUseGameLogMessageUpdateCommand,
+  GameUpdateCommandType,
 } from "../game-update-commands.js";
+import { HitOutcome } from "../../hit-outcome.js";
 
 export class PostGameLogMessageActionResolutionStep extends ActionResolutionStep {
   constructor(
@@ -21,30 +23,54 @@ export class PostGameLogMessageActionResolutionStep extends ActionResolutionStep
     const { getOnUseMessage, getOnFailureMessage, getOnSuccessMessage, getOnUseMessageData } =
       action.gameLogMessageProperties;
 
-    let gameUpdateCommandOption: null | ActionUseGameLogMessageUpdateCommand = null;
+    let gameUpdateCommandOption:
+      | null
+      | ActionUseGameLogMessageUpdateCommand
+      | ActionResolutionGameLogMessageUpdateCommand = null;
+
+    let gameUpdateType = GameUpdateCommandType.ActionUseGameLogMessage;
+
+    let isSuccess: undefined | boolean;
 
     const messageGetterOption = (() => {
       switch (stepType) {
         case ActionResolutionStepType.PostActionUseGameLogMessage:
+          console.log("trying on use message");
           return getOnUseMessage;
         case ActionResolutionStepType.PostOnResolutionGameLogMessage:
-          if (context.tracker.wasSuccess) {
-            return getOnFailureMessage;
-          } else {
+          gameUpdateType = GameUpdateCommandType.ActionResolutionGameLogMessage;
+          if (context.tracker.hitOutcomes.outcomeFlags[HitOutcome.Hit]) {
+            console.log("trying getOnSuccessMessage");
+            isSuccess = true;
             return getOnSuccessMessage;
+          } else {
+            return getOnFailureMessage;
           }
       }
     })();
 
     if (messageGetterOption !== null) {
       const actionUseMessageData = getOnUseMessageData(context);
-      gameUpdateCommandOption = {
-        type: GameUpdateCommandType.ActionUseGameLogMessage,
-        step: stepType,
-        actionName: action.name,
-        completionOrderId: null,
-        actionUseMessageData,
-      };
+      if (gameUpdateType === GameUpdateCommandType.ActionUseGameLogMessage) {
+        gameUpdateCommandOption = {
+          type: gameUpdateType,
+          step: stepType,
+          actionName: action.name,
+          completionOrderId: null,
+          actionUseMessageData,
+        };
+      } else if (gameUpdateType === GameUpdateCommandType.ActionResolutionGameLogMessage) {
+        gameUpdateCommandOption = {
+          type: gameUpdateType,
+          step: stepType,
+          actionName: action.name,
+          completionOrderId: null,
+          actionUseMessageData,
+        };
+        if (isSuccess !== undefined) {
+          gameUpdateCommandOption.isSuccess = true;
+        }
+      }
     }
 
     super(stepType, context, gameUpdateCommandOption);

@@ -114,7 +114,7 @@ export class HitOutcomeCalculator {
 
     for (const targetId of filteredTargetIds) {
       const targetCombatant = party.combatantManager.getExpectedCombatant(targetId);
-      if (mitigationCalculator === null)
+      if (mitigationCalculator === null) {
         mitigationCalculator = new HitOutcomeMitigationCalculator(
           this.action,
           actionLevel,
@@ -123,7 +123,9 @@ export class HitOutcomeCalculator {
           incomingResourceChangesPerTarget,
           this.rng
         );
-      else mitigationCalculator.setTargetCombatant(targetCombatant);
+      } else {
+        mitigationCalculator.setTargetCombatant(targetCombatant);
+      }
 
       const hitOutcomeFlags = mitigationCalculator.rollHitMitigationEvents();
       let wasHit = false;

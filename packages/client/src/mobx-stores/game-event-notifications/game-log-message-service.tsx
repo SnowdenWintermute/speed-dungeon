@@ -1,6 +1,7 @@
 import {
   ACTION_PAYABLE_RESOURCE_STRINGS,
   ActionPayableResource,
+  ActionResolutionGameLogMessageUpdateCommand,
   ActionUseGameLogMessageUpdateCommand,
   COMBAT_ACTIONS,
   CRAFTING_ACTION_PAST_TENSE_STRINGS,
@@ -47,6 +48,26 @@ export class GameLogMessageService {
 
       const message = action.gameLogMessageProperties.getOnUseMessage(actionUseMessageData);
       this.dispatch(new GameLogMessage(message, GameLogMessageStyle.Basic));
+    }
+  }
+
+  static postActionResolution(command: ActionResolutionGameLogMessageUpdateCommand) {
+    {
+      const { actionUseMessageData, actionName } = command;
+      const action = COMBAT_ACTIONS[actionName];
+      const { gameLogMessageProperties } = action;
+
+      let message: null | string = null;
+
+      if (command.isSuccess && gameLogMessageProperties.getOnSuccessMessage) {
+        message = gameLogMessageProperties.getOnSuccessMessage(actionUseMessageData);
+      } else if (gameLogMessageProperties.getOnFailureMessage) {
+        message = gameLogMessageProperties.getOnFailureMessage(actionUseMessageData);
+      }
+
+      if (message) {
+        this.dispatch(new GameLogMessage(message, GameLogMessageStyle.Basic));
+      }
     }
   }
 

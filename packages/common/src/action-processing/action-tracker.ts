@@ -31,8 +31,6 @@ export class ActionTracker {
   consumableUsed: null | Consumable = null;
   /** Set by checking shouldExecute in DetermineShouldExecuteOrReleaseInputLock step */
   public wasAborted = false;
-  /** For posting success/failure messages of actions that don't change resource values */
-  public wasSuccess = false;
   /** Idea here is to have final steps such as DetermineEnvironmentalHazardTriggers,
    * DetermineEndTurnAndReleaseInputLock, RecoveryMotion conditionally queue themselves only once*/
   public hasQueuedUpFinalSteps = false;
