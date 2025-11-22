@@ -30,6 +30,7 @@ import {
   ACTION_EXECUTION_PRECONDITIONS,
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
+import { HitOutcome } from "../../../../hit-outcome.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
 
@@ -65,19 +66,37 @@ const costProperties = createCostPropertiesConfig(costPropertiesBase, costProper
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.THREATLESS_ACTION,
   {
-    getOnUseTriggers: (context) => {
+    getIsResisted() {
+      // check the hp of the pet is below a threshold based on something
+      // check the difference in level user-target
+
+      return true;
+    },
+
+    getHitOutcomeTriggers: (context) => {
+      const isSuccess = context.tracker.hitOutcomes.outcomeFlags[HitOutcome.Hit] !== undefined;
+      if (!isSuccess) {
+        return {};
+      }
       const { actionUserContext } = context;
       const { party, actionUser } = actionUserContext;
 
-      const petOption = party.getCombatantSummonedPetOption(actionUser.getEntityId());
+      // get the primary target
+      // set it as petsTamed in the toReturn
 
-      if (petOption === undefined) return {};
+      return {};
 
-      const toReturn: Partial<ActivatedTriggersGameUpdateCommand> = {
-        petsTamed: [petOption.getEntityId()],
-      };
+      // const petOption = party.getCombatantSummonedPetOption(actionUser.getEntityId());
 
-      return toReturn;
+      // if (petOption === undefined) {
+      //   return {};
+      // }
+
+      // const toReturn: Partial<ActivatedTriggersGameUpdateCommand> = {
+      //   petsTamed: [petOption.getEntityId()],
+      // };
+
+      // return toReturn;
     },
   }
 );

@@ -15,6 +15,7 @@ export function giveStartingAbilities(actionUser: IActionUser) {
     CombatActionName.PassTurn,
     CombatActionName.ReadSkillBook,
     CombatActionName.ChainingSplitArrowParent,
+    CombatActionName.TamePet,
     CombatActionName.SummonPetParent,
     CombatActionName.DismissPet,
     // CombatActionName.Counterattack,

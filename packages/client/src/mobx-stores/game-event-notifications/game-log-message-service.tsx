@@ -104,6 +104,12 @@ export class GameLogMessageService {
     this.dispatch(new GameLogMessage(messageText, style));
   }
 
+  static postActionResisted(actionUserName: string, targetName: string) {
+    const style = GameLogMessageStyle.Basic;
+    const messageText = `${targetName} resisted.`;
+    this.dispatch(new GameLogMessage(messageText, style));
+  }
+
   static postItemLink(posterName: string, item: Item) {
     this.dispatch(
       new GameLogMessage(
