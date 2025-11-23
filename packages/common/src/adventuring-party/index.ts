@@ -13,6 +13,7 @@ import { ArrayUtils } from "../utils/array-utils.js";
 import { makeAutoObservable } from "mobx";
 import { runIfInBrowser } from "../utils/index.js";
 import { Item } from "../items/index.js";
+import { AdventuringPartySubsystem } from "./party-subsystem.js";
 export * from "./dungeon-room.js";
 export * from "./dungeon-exploration-manager.js";
 export * from "./input-lock.js";
@@ -49,6 +50,12 @@ export class AdventuringParty {
     runIfInBrowser(() => makeAutoObservable(this));
   }
 
+  static createInitialized(id: EntityId, name: string) {
+    const party = new AdventuringParty(id, name);
+    party.initialize();
+    return party;
+  }
+
   static getDeserialized(party: AdventuringParty) {
     party.combatantManager = CombatantManager.getDeserialized(party.combatantManager);
     party.currentRoom = DungeonRoom.getDeserialized(party.currentRoom);
@@ -57,13 +64,17 @@ export class AdventuringParty {
       party.dungeonExplorationManager
     );
 
+    party.initialize();
+
     return party;
   }
 
-  //@REFACTOR - make pet manager hold a reference to parent with initialize fn and put in pet manager
-  getCombatantSummonedPetOption(combatantId: EntityId) {
-    const pets = this.combatantManager.getPartyMemberPets();
-    return pets.filter((pet) => pet.combatantProperties.controlledBy.summonedBy === combatantId)[0];
+  initialize() {
+    for (const value of Object.values(this)) {
+      const isSubsystem = value instanceof AdventuringPartySubsystem;
+      if (!isSubsystem) continue;
+      value.initialize(this);
+    }
   }
 
   getItem(itemId: string) {
@@ -94,9 +105,13 @@ export class AdventuringParty {
     return this.combatantManager.monstersArePresent();
   }
 
-  removeCharacter(characterId: EntityId, player: SpeedDungeonPlayer): Combatant {
+  removeCharacter(
+    characterId: EntityId,
+    player: SpeedDungeonPlayer,
+    game: SpeedDungeonGame
+  ): Combatant {
     ArrayUtils.removeElement(player.characterIds, characterId);
-    const character = this.combatantManager.removeCombatant(characterId);
+    const character = this.combatantManager.removeCombatant(characterId, game);
     return character;
   }
 

@@ -53,7 +53,7 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
 
     if (petsUnsummoned) {
       for (const petId of petsUnsummoned) {
-        party.petManager.unsummonPet(party, petId);
+        party.petManager.unsummonPet(petId, game);
       }
     }
 

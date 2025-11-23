@@ -1,18 +1,20 @@
 import {
+  ActionResolutionStepConfig,
   BASE_ACTION_HIERARCHY_PROPERTIES,
   CombatActionComponentConfig,
   CombatActionGameLogProperties,
   CombatActionLeaf,
   CombatActionName,
   CombatActionOrigin,
+  CosmeticEffectOnTargetTransformNode,
 } from "../../index.js";
-import {
-  ActionResolutionStepType,
-  ActivatedTriggersGameUpdateCommand,
-} from "../../../../action-processing/index.js";
+import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
-import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
+import {
+  ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
+  createStepsConfig,
+} from "../generic-action-templates/step-config-templates/index.js";
 import {
   COST_PROPERTIES_TEMPLATE_GETTERS,
   createCostPropertiesConfig,
@@ -31,11 +33,18 @@ import {
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
 import { HitOutcome } from "../../../../hit-outcome.js";
+import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
+import { COMBAT_ACTIONS } from "../index.js";
+import {
+  CombatantBaseChildTransformNodeName,
+  SceneEntityType,
+} from "../../../../scene-entities/index.js";
 
-const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
+const mainStepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
+const finalStepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> =
+  {};
 
-stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
-  ...stepsConfig.steps[ActionResolutionStepType.InitialPositioning],
+mainStepOverrides[ActionResolutionStepType.InitialPositioning] = {
   getCosmeticEffectsToStart: (context) => {
     return [
       CosmeticEffectInstructionFactory.createParticlesOnOffhand(
@@ -46,8 +55,48 @@ stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
   },
 };
 
-stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning] = {
-  ...stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning],
+finalStepOverrides[ActionResolutionStepType.RecoveryMotion] = {
+  getCosmeticEffectsToStart: (context) => {
+    const { actionExecutionIntent } = context.tracker;
+    const targetingCalculator = new TargetingCalculator(context.actionUserContext, null);
+
+    const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
+      COMBAT_ACTIONS[actionExecutionIntent.actionName],
+      actionExecutionIntent.targets
+    );
+    if (targetIdsResult instanceof Error) throw targetIdsResult;
+
+    const toReturn: CosmeticEffectOnTargetTransformNode[] = targetIdsResult.map((targetId) => {
+      return {
+        name: CosmeticEffectNames.HeartParticles,
+        lifetime: 700,
+        parent: {
+          sceneEntityIdentifier: {
+            type: SceneEntityType.CharacterModel,
+            entityId: targetId,
+          },
+          transformNodeName: CombatantBaseChildTransformNodeName.Head,
+        },
+      };
+    });
+
+    toReturn.push({
+      name: CosmeticEffectNames.HeartParticles,
+      lifetime: 700,
+      parent: {
+        sceneEntityIdentifier: {
+          type: SceneEntityType.CharacterModel,
+          entityId: context.actionUserContext.actionUser.getEntityId(),
+        },
+        transformNodeName: CombatantBaseChildTransformNodeName.Head,
+      },
+    });
+
+    return toReturn;
+  },
+};
+
+finalStepOverrides[ActionResolutionStepType.FinalPositioning] = {
   getCosmeticEffectsToStop: (context) => [
     CosmeticEffectInstructionFactory.createParticlesOnOffhand(
       CosmeticEffectNames.LightParticleAccumulation,
@@ -55,6 +104,12 @@ stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning] = {
     ),
   ],
 };
+
+const base = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL;
+const stepsConfig = createStepsConfig(base, {
+  steps: mainStepOverrides,
+  finalSteps: finalStepOverrides,
+});
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,
@@ -67,36 +122,25 @@ const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.THREATLESS_ACTION,
   {
     getIsResisted() {
+      // @TODO
       // check the hp of the pet is below a threshold based on something
       // check the difference in level user-target
 
-      return true;
+      return false;
     },
 
     getHitOutcomeTriggers: (context) => {
-      const isSuccess = context.tracker.hitOutcomes.outcomeFlags[HitOutcome.Hit] !== undefined;
+      const hitTargetId = context.tracker.hitOutcomes.outcomeFlags[HitOutcome.Hit]?.[0];
+      const isSuccess = hitTargetId !== undefined;
       if (!isSuccess) {
         return {};
       }
-      const { actionUserContext } = context;
-      const { party, actionUser } = actionUserContext;
 
-      // get the primary target
-      // set it as petsTamed in the toReturn
-
-      return {};
-
-      // const petOption = party.getCombatantSummonedPetOption(actionUser.getEntityId());
-
-      // if (petOption === undefined) {
-      //   return {};
-      // }
-
-      // const toReturn: Partial<ActivatedTriggersGameUpdateCommand> = {
-      //   petsTamed: [petOption.getEntityId()],
-      // };
-
-      // return toReturn;
+      return {
+        petsTamed: [
+          { petId: hitTargetId, tamerId: context.actionUserContext.actionUser.getEntityId() },
+        ],
+      };
     },
   }
 );

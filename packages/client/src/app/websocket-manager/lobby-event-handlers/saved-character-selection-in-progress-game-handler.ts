@@ -23,7 +23,11 @@ export function savedCharacterSelectionInProgressGameHandler(
   const previouslySelectedCharacterId = player.characterIds[0];
   if (previouslySelectedCharacterId) {
     try {
-      const removedCharacterResult = party.removeCharacter(previouslySelectedCharacterId, player);
+      const removedCharacterResult = party.removeCharacter(
+        previouslySelectedCharacterId,
+        player,
+        game
+      );
       delete game.lowestStartingFloorOptionsBySavedCharacter[
         removedCharacterResult.entityProperties.id
       ];

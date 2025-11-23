@@ -13,13 +13,16 @@ import {
   COMBATANT_POSITION_SPACING_SIDE,
 } from "../app-consts.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { makeAutoObservable } from "mobx";
+import makeAutoObservable from "mobx-store-inheritance";
 import { runIfInBrowser } from "../utils/index.js";
+import { AdventuringPartySubsystem } from "./party-subsystem.js";
+import { SpeedDungeonGame } from "../game/index.js";
 
-export class CombatantManager {
+export class CombatantManager extends AdventuringPartySubsystem {
   private combatants: Map<EntityId, Combatant> = new Map();
 
   constructor() {
+    super();
     runIfInBrowser(() => makeAutoObservable(this));
   }
 
@@ -213,9 +216,11 @@ export class CombatantManager {
   }
 
   /** Expects the combatant to exist. Returns the removed combatant. */
-  removeCombatant(combatantId: EntityId) {
+  removeCombatant(combatantId: EntityId, game: SpeedDungeonGame) {
     const combatant = this.getExpectedCombatant(combatantId);
     this.combatants.delete(combatantId);
+    const party = this.getParty();
+    party.getBattleOption(game)?.turnOrderManager.updateTrackers(game, party);
     return combatant;
   }
 
@@ -223,9 +228,9 @@ export class CombatantManager {
     this.combatants.set(combatant.getEntityId(), combatant);
   }
 
-  removeDungeonControlledCombatants() {
+  removeDungeonControlledCombatants(game: SpeedDungeonGame) {
     for (const combatant of this.getDungeonControlledCombatants()) {
-      this.removeCombatant(combatant.getEntityId());
+      this.removeCombatant(combatant.getEntityId(), game);
     }
   }
 

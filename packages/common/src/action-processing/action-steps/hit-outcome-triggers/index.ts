@@ -53,6 +53,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     // HANDLE HIT OUTCOME FLAGS
 
     const durabilityChanges = new DurabilityChangesByEntityId();
+
     for (const flag of iterateNumericEnum(HitOutcome)) {
       for (const combatantId of outcomeFlags[flag] || []) {
         const targetCombatant = party.combatantManager.getExpectedCombatant(combatantId);
@@ -106,8 +107,9 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           if (
             gameUpdateCommand.threatChanges === undefined &&
             Object.values(threatChanges.getEntriesToRemove()).length !== 0
-          )
+          ) {
             gameUpdateCommand.threatChanges = threatChanges;
+          }
         }
 
         if (flag === HitOutcome.Counterattack) {
@@ -140,6 +142,17 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     if (!durabilityChanges.isEmpty()) {
       gameUpdateCommand.durabilityChanges = durabilityChanges;
       DurabilityChangesByEntityId.ApplyToGame(party, durabilityChanges);
+    }
+
+    // CUSTOM TRIGGER HANDLERS
+    // do this after other triggers because these custom triggers
+    // might remove a combatant, such as with tame pet
+
+    const { petsTamed } = customTriggers;
+    if (petsTamed) {
+      for (const { petId, tamerId } of petsTamed) {
+        party.petManager.handlePetTamed(petId, tamerId, game);
+      }
     }
   }
 

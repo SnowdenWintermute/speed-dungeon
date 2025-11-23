@@ -15,6 +15,7 @@ import { BlindnessParticlesLarge } from "./blindness-particles-large.js";
 import { FirewallParticles } from "./firewall-particles.js";
 import { SmokeParticleStream } from "./smoke-particle-stream.js";
 import { SmokePuff } from "./smoke-puff.js";
+import { HeartParticlesLarge } from "./heart-particles.js";
 
 type CosmeticEffectConstructor = new (scene: Scene, rank: number) => CosmeticEffect;
 
@@ -35,4 +36,5 @@ export const COSMETIC_EFFECT_CONSTRUCTORS: Record<CosmeticEffectNames, CosmeticE
     [CosmeticEffectNames.FirewallParticles]: FirewallParticles,
     [CosmeticEffectNames.SmokeParticleStream]: SmokeParticleStream,
     [CosmeticEffectNames.SmokePuff]: SmokePuff,
+    [CosmeticEffectNames.HeartParticles]: HeartParticlesLarge,
   };

@@ -100,7 +100,7 @@ export class SpeedDungeonGame {
     const characterIds = cloneDeep(player.characterIds);
 
     Object.values(characterIds).forEach((characterId) => {
-      const removedCharacterResult = partyLeaving.removeCharacter(characterId, player);
+      const removedCharacterResult = partyLeaving.removeCharacter(characterId, player, this);
       if (removedCharacterResult instanceof Error) return removedCharacterResult;
       charactersRemoved.push(removedCharacterResult);
       delete this.lowestStartingFloorOptionsBySavedCharacter[characterId];

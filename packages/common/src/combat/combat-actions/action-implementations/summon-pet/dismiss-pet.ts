@@ -69,7 +69,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(
       const { actionUserContext } = context;
       const { party, actionUser } = actionUserContext;
 
-      const petOption = party.getCombatantSummonedPetOption(actionUser.getEntityId());
+      const petOption = party.petManager.getCombatantSummonedPetOption(actionUser.getEntityId());
 
       if (petOption === undefined) return {};
 

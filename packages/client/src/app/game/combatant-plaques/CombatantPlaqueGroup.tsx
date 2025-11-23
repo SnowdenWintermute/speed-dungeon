@@ -15,7 +15,7 @@ export default function CombatantPlaqueGroup(props: Props) {
         const combatantOption = props.party.combatantManager.getCombatantOption(id);
         if (combatantOption === undefined) return <div>{ERROR_MESSAGES.COMBATANT.NOT_FOUND} </div>;
         else {
-          const petOption = props.party.getCombatantSummonedPetOption(
+          const petOption = props.party.petManager.getCombatantSummonedPetOption(
             combatantOption.entityProperties.id
           );
 

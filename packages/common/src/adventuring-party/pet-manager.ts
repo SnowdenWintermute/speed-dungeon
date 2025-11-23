@@ -4,8 +4,10 @@ import { Combatant } from "../combatants/index.js";
 import { EntityId } from "../primatives/index.js";
 import { Battle } from "../battle/index.js";
 import { TurnTrackerEntityType } from "../combat/index.js";
+import { AdventuringPartySubsystem } from "./party-subsystem.js";
+import { SpeedDungeonGame } from "../game/index.js";
 
-export class PetManager {
+export class PetManager extends AdventuringPartySubsystem {
   private unsummonedPetsByOwnerId: { [ownerId: EntityId]: (Combatant | undefined)[] } = {};
 
   setCombatantPets(ownerId: EntityId, pets: Combatant[]) {
@@ -44,23 +46,25 @@ export class PetManager {
     return petOption;
   }
 
-  private putPetInFirstEmptyUnsummonedSlot(ownerId: EntityId, pet: Combatant) {
-    const ownerPetSlots = this.unsummonedPetsByOwnerId[ownerId];
+  putPetInFirstEmptyUnsummonedSlot(ownerId: EntityId, pet: Combatant) {
+    let ownerPetSlots = this.unsummonedPetsByOwnerId[ownerId];
     if (ownerPetSlots === undefined) {
-      throw new Error("Expected to have pet slots if a pet had been summoned in this party");
+      // possible if taming a pet before summoning one
+      ownerPetSlots = this.unsummonedPetsByOwnerId[ownerId] = [];
     }
     const emptyIndex = ownerPetSlots.findIndex((slot) => slot === undefined);
     ownerPetSlots[emptyIndex] = pet;
   }
 
-  unsummonPet(party: AdventuringParty, petId: EntityId) {
+  unsummonPet(petId: EntityId, game: SpeedDungeonGame) {
+    const party = this.getParty();
     const expectedPet = party.combatantManager.getExpectedCombatant(petId);
     const summonedBy = expectedPet.combatantProperties.controlledBy.summonedBy;
     if (summonedBy === undefined) {
       throw new Error("Expected a pet to have been summoned by someone");
     }
     this.putPetInFirstEmptyUnsummonedSlot(summonedBy, expectedPet);
-    party.combatantManager.removeCombatant(expectedPet.getEntityId());
+    party.combatantManager.removeCombatant(expectedPet.getEntityId(), game);
   }
 
   /** Moves the pet from the unsummoned pets storage to the summoned pets storage
@@ -118,5 +122,16 @@ export class PetManager {
     }
 
     return pet;
+  }
+
+  getCombatantSummonedPetOption(combatantId: EntityId) {
+    const pets = this.getParty().combatantManager.getPartyMemberPets();
+    return pets.filter((pet) => pet.combatantProperties.controlledBy.summonedBy === combatantId)[0];
+  }
+
+  handlePetTamed(petId: EntityId, newOwnerId: EntityId, game: SpeedDungeonGame) {
+    console.log("pet id:", petId);
+    const petCombatant = this.getParty().combatantManager.removeCombatant(petId, game);
+    this.putPetInFirstEmptyUnsummonedSlot(newOwnerId, petCombatant);
   }
 }

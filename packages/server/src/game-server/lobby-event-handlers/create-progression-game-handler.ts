@@ -41,10 +41,8 @@ export async function createProgressionGameHandler(
   game.selectedStartingFloor = defaultSavedCharacterResult.combatantProperties.deepestFloorReached;
 
   const defaultPartyName = getProgressionGamePartyName(game.name);
-  game.adventuringParties[getProgressionGamePartyName(game.name)] = new AdventuringParty(
-    idGenerator.generate(),
-    defaultPartyName
-  );
+  game.adventuringParties[getProgressionGamePartyName(game.name)] =
+    AdventuringParty.createInitialized(idGenerator.generate(), defaultPartyName);
 
   gameServer.games.insert(gameName, game);
 

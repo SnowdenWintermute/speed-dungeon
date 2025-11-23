@@ -30,7 +30,7 @@ export const ACTION_EXECUTION_PRECONDITIONS: Record<
     context: ActionResolutionStepContext
   ) {
     const { party, actionUser } = context.actionUserContext;
-    const petOption = party.getCombatantSummonedPetOption(actionUser.getEntityId());
+    const petOption = party.petManager.getCombatantSummonedPetOption(actionUser.getEntityId());
     return petOption === undefined;
   },
   [ActionExecutionPreconditions.PetCurrentlySummoned]: function (...args): boolean {

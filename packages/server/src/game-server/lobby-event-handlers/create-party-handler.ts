@@ -22,7 +22,7 @@ export function createPartyHandler(
 
   if (game.adventuringParties[partyName]) return new Error(ERROR_MESSAGES.LOBBY.PARTY_NAME_EXISTS);
 
-  const party = new AdventuringParty(idGenerator.generate(), partyName);
+  const party = AdventuringParty.createInitialized(idGenerator.generate(), partyName);
   game.addParty(party);
 
   getGameServer()
