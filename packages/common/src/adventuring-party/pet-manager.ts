@@ -6,6 +6,7 @@ import { Battle } from "../battle/index.js";
 import { TurnTrackerEntityType } from "../combat/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { SpeedDungeonGame } from "../game/index.js";
+import { CombatantControllerType } from "../combatants/combatant-controllers.js";
 
 export class PetManager extends AdventuringPartySubsystem {
   private unsummonedPetsByOwnerId: { [ownerId: EntityId]: (Combatant | undefined)[] } = {};
@@ -53,7 +54,11 @@ export class PetManager extends AdventuringPartySubsystem {
       ownerPetSlots = this.unsummonedPetsByOwnerId[ownerId] = [];
     }
     const emptyIndex = ownerPetSlots.findIndex((slot) => slot === undefined);
-    ownerPetSlots[emptyIndex] = pet;
+    if (emptyIndex === -1) {
+      ownerPetSlots.push(pet);
+    } else {
+      ownerPetSlots[emptyIndex] = pet;
+    }
   }
 
   unsummonPet(petId: EntityId, game: SpeedDungeonGame) {
@@ -76,7 +81,6 @@ export class PetManager extends AdventuringPartySubsystem {
     battleOption: null | Battle
   ) {
     const owner = party.combatantManager.getExpectedCombatant(ownerId);
-    const ownerHomePosition = owner.getHomePosition();
 
     // figure out if the pet is owned by character or monster
     const isCharacterPet = owner.combatantProperties.controlledBy.isPlayerControlled();
@@ -99,14 +103,8 @@ export class PetManager extends AdventuringPartySubsystem {
       throw new Error("not implemented");
     }
 
-    // @TODO - add pet home positions to updateHomePositions function
-    // then just call updateHomePositions()
-
-    // determine where to position the pet
-    // set its home position
-    const petHomePosition = pet.getHomePosition();
-    petHomePosition.copyFrom(ownerHomePosition);
-    petHomePosition.x -= 0.5;
+    party.combatantManager.setPetHomePositionNextToOwner(petOption);
+    petOption.combatantProperties.transformProperties.setToHomeTransform();
 
     // if in battle, add its turn tracker
     if (battleOption !== null) {
@@ -130,8 +128,11 @@ export class PetManager extends AdventuringPartySubsystem {
   }
 
   handlePetTamed(petId: EntityId, newOwnerId: EntityId, game: SpeedDungeonGame) {
-    console.log("pet id:", petId);
-    const petCombatant = this.getParty().combatantManager.removeCombatant(petId, game);
+    const party = this.getParty();
+    const petCombatant = party.combatantManager.removeCombatant(petId, game);
+    petCombatant.combatantProperties.controlledBy.controllerType =
+      CombatantControllerType.PlayerPetAI;
+
     this.putPetInFirstEmptyUnsummonedSlot(newOwnerId, petCombatant);
   }
 }

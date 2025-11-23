@@ -117,8 +117,11 @@ function getConditionsToShowDetailButtonsFor(ability: AbilityTreeAbility, user: 
 
   const description = COMBAT_ACTION_DESCRIPTIONS[ability.actionName];
   const conditionsToShowDetailButtonsFor: CombatantConditionName[] = [];
+
+  const party = AppStore.get().gameStore.getExpectedParty();
+
   for (const actionRank of ArrayUtils.createFilledWithSequentialNumbers(3, 1)) {
-    const rankDescription = description.getDescriptionByLevel(user, actionRank);
+    const rankDescription = description.getDescriptionByLevel(user, party, actionRank);
     const conditionsAppliedOption = rankDescription[ActionDescriptionComponent.AppliesConditions];
     if (!conditionsAppliedOption) continue;
     for (const conditionBlueprint of conditionsAppliedOption) {

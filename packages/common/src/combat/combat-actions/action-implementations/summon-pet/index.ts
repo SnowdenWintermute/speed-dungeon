@@ -70,6 +70,15 @@ const config: CombatActionComponentConfig = {
   gameLogMessageProperties: createGenericSpellCastMessageProperties(
     CombatActionName.SummonPetParent
   ),
+  getByRankShortDescriptions: (user, party) => {
+    const toReturn: { [rank: number]: string | null } = {};
+    party.petManager.iteratePetSlots(user.getEntityId()).forEach((petSlot, i) => {
+      const { petOption } = petSlot;
+      toReturn[i + 1] = petOption?.getName() || "Empty slot";
+    });
+
+    return toReturn;
+  },
   targetingProperties: createTargetingPropertiesConfig(
     TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME,
     {

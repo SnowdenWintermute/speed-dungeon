@@ -14,6 +14,7 @@ import { AppStore } from "@/mobx-stores/app-store";
 
 export const AbilityTreeDetailedAbility = observer(({ user }: { user: Combatant }) => {
   const focusedAbility = AppStore.get().focusStore.combatantAbilities.get();
+  const party = AppStore.get().gameStore.getExpectedParty();
   const { detailed: detailedAbility, hovered: hoveredCombatantAbility } = focusedAbility;
   const ability = hoveredCombatantAbility || detailedAbility || null;
 
@@ -31,6 +32,7 @@ export const AbilityTreeDetailedAbility = observer(({ user }: { user: Combatant 
         <ActionDescriptionDisplay
           description={description}
           user={user}
+          party={party}
           ownedAbilityLevel={ownedAbilityLevel}
         />
       );

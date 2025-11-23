@@ -35,11 +35,19 @@ import { AbilityTreeAbility } from "../../abilities/index.js";
 import { CombatActionGameLogProperties } from "./combat-action-combat-log-properties.js";
 import { IActionUser } from "../../action-user-context/action-user.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
+import { AdventuringParty } from "../../adventuring-party/index.js";
 
 export interface CombatActionComponentConfig {
   // unique to each action
   description: string;
-  byRankDescriptions?: { [rank: number]: string | null };
+  getByRankDescriptions?: (
+    user: IActionUser,
+    party: AdventuringParty
+  ) => { [rank: number]: string | null };
+  getByRankShortDescriptions?: (
+    user: IActionUser,
+    party: AdventuringParty
+  ) => { [rank: number]: string | null };
   prerequisiteAbilities?: AbilityTreeAbility[];
   // properties objects
   targetingProperties: CombatActionTargetingPropertiesConfig;
@@ -52,7 +60,20 @@ export interface CombatActionComponentConfig {
 
 export abstract class CombatActionComponent {
   public readonly description: string;
-  public readonly byRankDescriptions: { [rank: number]: string | null } = {};
+  public readonly getByRankDescriptions: (
+    user: IActionUser,
+    party: AdventuringParty
+  ) => { [rank: number]: string | null } = () => {
+    return {};
+  };
+  // I wanted to show pet names in the action rank selection menu
+  // so I added this
+  public readonly getByRankShortDescriptions: (
+    user: IActionUser,
+    party: AdventuringParty
+  ) => { [rank: number]: string | null } = () => {
+    return {};
+  };
   public readonly prerequisiteAbilities?: AbilityTreeAbility[];
   public readonly targetingProperties: CombatActionTargetingProperties;
   public hitOutcomeProperties: CombatActionHitOutcomeProperties;
@@ -67,7 +88,13 @@ export abstract class CombatActionComponent {
     config: CombatActionComponentConfig
   ) {
     this.description = config.description;
-    if (config.byRankDescriptions) this.byRankDescriptions = config.byRankDescriptions;
+    if (config.getByRankDescriptions) {
+      this.getByRankDescriptions = config.getByRankDescriptions;
+    }
+
+    if (config.getByRankShortDescriptions) {
+      this.getByRankShortDescriptions = config.getByRankShortDescriptions;
+    }
 
     this.gameLogMessageProperties = config.gameLogMessageProperties;
 

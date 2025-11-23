@@ -24,14 +24,15 @@ export function giveStartingAbilities(actionUser: IActionUser) {
     CombatActionName.Healing,
     // CombatActionName.ExplodingArrowParent,
     CombatActionName.Blind,
-    // CombatActionName.Firewall,
+    CombatActionName.Firewall,
   ];
 
   const levelTwoSpells: CombatActionName[] = [
     // CombatActionName.IceBoltParent,
     // CombatActionName.Fire,
-    // CombatActionName.Firewall,
+    CombatActionName.Firewall,
     CombatActionName.Healing,
+    CombatActionName.SummonPetParent,
     // CombatActionName.ExplodingArrowParent,
     // CombatActionName.Blind,
   ];

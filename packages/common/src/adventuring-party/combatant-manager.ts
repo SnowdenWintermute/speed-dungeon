@@ -261,16 +261,36 @@ export class CombatantManager extends AdventuringPartySubsystem {
     });
 
     for (const combatant of this.getPartyMemberPets()) {
-      const { summonedBy } = combatant.combatantProperties.controlledBy;
-      if (summonedBy === undefined) throw new Error("expected to have been summoned by someone");
-      const summonedByCombatant = this.getExpectedCombatant(summonedBy);
-
-      // put them next to the one who summoned them
+      this.setPetHomePositionNextToOwner(combatant);
     }
 
     for (const combatant of this.getDungeonControlledPets()) {
       //
     }
+  }
+
+  setPetHomePositionNextToOwner(pet: Combatant) {
+    // put them next to the one who summoned them
+    const { summonedBy } = pet.combatantProperties.controlledBy;
+    if (summonedBy === undefined) throw new Error("expected to have been summoned by someone");
+    const summonedByCombatant = this.getExpectedCombatant(summonedBy);
+
+    const ownerHomePosition = summonedByCombatant.getHomePosition();
+    const petHomePosition = pet.getHomePosition();
+    petHomePosition.copyFrom(ownerHomePosition);
+    petHomePosition.x -= 0.5;
+
+    const forward = new Vector3(0, 0, 1);
+    const directionToXAxis = new Vector3(0, 0, -petHomePosition.z).normalize();
+    const homeRotation = new Quaternion();
+    Quaternion.FromUnitVectorsToRef(forward, directionToXAxis, homeRotation);
+    pet.combatantProperties.transformProperties.homeRotation = homeRotation;
+  }
+
+  setAllCombatantsToHomePositions() {
+    this.combatants.forEach((combatant) => {
+      combatant.combatantProperties.transformProperties.setToHomeTransform();
+    });
   }
 
   refillAllCombatantActionPoints() {
@@ -297,7 +317,7 @@ export class CombatantManager extends AdventuringPartySubsystem {
     const { combatantProperties } = combatant;
     const { transformProperties } = combatantProperties;
     transformProperties.homePosition = homeLocation;
-    transformProperties.position = transformProperties.homePosition.clone();
+    // transformProperties.position = transformProperties.homePosition.clone();
     const forward = new Vector3(0, 0, 1);
     const directionToXAxis = new Vector3(0, 0, -positionSpacing).normalize();
     const homeRotation = new Quaternion();

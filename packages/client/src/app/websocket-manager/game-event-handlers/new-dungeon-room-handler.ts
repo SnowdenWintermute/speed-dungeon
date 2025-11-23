@@ -66,6 +66,7 @@ export function newDungeonRoomHandler({
   }
 
   combatantManager.updateHomePositions();
+  combatantManager.setAllCombatantsToHomePositions();
 
   dungeonExplorationManager.incrementExploredRoomsTrackers();
 

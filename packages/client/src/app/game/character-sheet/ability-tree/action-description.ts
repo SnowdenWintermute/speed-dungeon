@@ -4,6 +4,7 @@ import {
   AbilityType,
   AbilityUtils,
   ActionPayableResource,
+  AdventuringParty,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponent,
   Combatant,
@@ -12,6 +13,7 @@ import {
   CombatantControllerType,
   CombatantProperties,
   CombatantSpecies,
+  IActionUser,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
@@ -35,6 +37,7 @@ export enum ActionDescriptionComponent {
   RequiresTurn,
   ClassAndLevelRequirements,
   ByRankDescriptions,
+  ByRankDescriptionsShort,
   ShardCost,
   ManaCost,
   HitPointCost,
@@ -70,15 +73,19 @@ export class ActionDescription {
       abilityRank
     );
   }
-  getByRankDescriptions(abilityRank: number) {
-    return this.combatAction.byRankDescriptions[abilityRank] || null;
+  getByRankDescriptions(user: IActionUser, party: AdventuringParty, abilityRank: number) {
+    return this.combatAction.getByRankDescriptions?.(user, party)[abilityRank] || null;
+  }
+
+  getByRankShortDescriptions(user: IActionUser, party: AdventuringParty, abilityRank: number) {
+    return this.combatAction.getByRankShortDescriptions?.(user, party)[abilityRank] || null;
   }
 
   getFlatThreatGenerated(abilityRank: number) {
     return this.combatAction.hitOutcomeProperties.flatThreatGeneratedOnHit;
   }
 
-  getDescriptionByLevel(user: Combatant, actionLevel: number) {
+  getDescriptionByLevel(user: Combatant, party: AdventuringParty, actionLevel: number) {
     const { combatantProperties } = user;
     const { hitOutcomeProperties, targetingProperties, costProperties } = this.combatAction;
 
@@ -164,7 +171,16 @@ export class ActionDescription {
       ),
       [ActionDescriptionComponent.ClassAndLevelRequirements]:
         this.getClassAndLevelRequirements(actionLevel),
-      [ActionDescriptionComponent.ByRankDescriptions]: this.getByRankDescriptions(actionLevel),
+      [ActionDescriptionComponent.ByRankDescriptions]: this.getByRankDescriptions(
+        user,
+        party,
+        actionLevel
+      ),
+      [ActionDescriptionComponent.ByRankDescriptionsShort]: this.getByRankShortDescriptions(
+        user,
+        party,
+        actionLevel
+      ),
       [ActionDescriptionComponent.FlatThreatGenerated]: this.getFlatThreatGenerated(actionLevel),
     };
   }

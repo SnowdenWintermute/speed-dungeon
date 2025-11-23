@@ -100,7 +100,7 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
             primaryTargetResult.combatantProperties
           );
 
-          const rankDescription = actionDescription.getDescriptionByLevel(combatant, rank);
+          const rankDescription = actionDescription.getDescriptionByLevel(combatant, party, rank);
 
           const resourceChangePropertiesOption =
             rankDescription[ActionDescriptionComponent.ResourceChanges];
@@ -118,6 +118,9 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
             rankDescription[ActionDescriptionComponent.AppliesConditions];
 
           const endsTurnOption = rankDescription[ActionDescriptionComponent.RequiresTurn];
+
+          const shortDescriptionOption =
+            rankDescription[ActionDescriptionComponent.ByRankDescriptionsShort];
 
           function handleSelectActionLevel(level: number) {
             websocketConnection.emit(ClientToServerEvent.SelectCombatActionLevel, {
@@ -195,6 +198,7 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
                     })}
                   </ul>
                 )}
+                {shortDescriptionOption && <div>{shortDescriptionOption}</div>}
                 {endsTurnOption && (
                   <HoverableTooltipWrapper extraStyles="ml-auto " tooltipText="Ends turn on use">
                     <div className="h-6">

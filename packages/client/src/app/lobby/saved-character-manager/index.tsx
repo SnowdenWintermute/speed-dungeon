@@ -1,9 +1,6 @@
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { Vector3 } from "@babylonjs/core";
-import {
-  COMBATANT_CLASS_NAME_STRINGS,
-  DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
-} from "@speed-dungeon/common";
+import { DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "@speed-dungeon/common";
 import React, { useEffect, useState } from "react";
 import ArrowShape from "../../../../public/img/menu-icons/arrow-button-icon.svg";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
