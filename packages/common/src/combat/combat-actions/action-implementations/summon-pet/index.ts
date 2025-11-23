@@ -4,6 +4,7 @@ import {
   CombatActionExecutionIntent,
   CombatActionLeaf,
   CombatActionName,
+  CombatActionResource,
   createGenericSpellCastMessageProperties,
 } from "../../index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
@@ -54,6 +55,15 @@ stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning] = {
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,
+  costBases: {
+    [CombatActionResource.Mana]: {
+      base: 2,
+      additives: {
+        actionLevel: 0,
+        userCombatantLevel: 0,
+      },
+    },
+  },
 };
 
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL;
