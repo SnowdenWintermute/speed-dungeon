@@ -79,6 +79,8 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
   );
   if (primaryTargetResult instanceof Error) return <div>{primaryTargetResult.message}</div>;
 
+  const maxRankToShow = action.selectableRankLimit || actionStateOption.level;
+
   return (
     <div className="flex flex-col pointer-events-auto" style={{ flex: `1 1 1px` }}>
       {!hideTitle && (
@@ -91,7 +93,7 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
         />
       )}
       <ul className="list-none">
-        {ArrayUtils.createFilledWithSequentialNumbers(actionStateOption.level, 1).map((rank) => {
+        {ArrayUtils.createFilledWithSequentialNumbers(maxRankToShow, 1).map((rank) => {
           const percentChanceToHit = HitOutcomeMitigationCalculator.getActionHitChance(
             action,
             combatant,

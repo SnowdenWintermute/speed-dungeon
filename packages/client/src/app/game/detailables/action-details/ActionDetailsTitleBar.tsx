@@ -38,6 +38,8 @@ export const ActionDetailsTitleBar = observer((props: Props) => {
     });
   }
 
+  const maxRankToShow = action.selectableRankLimit || actionStateOption?.level;
+
   return (
     <div className="flex flex-col w-full">
       <div className="flex justify-between">
@@ -47,37 +49,35 @@ export const ActionDetailsTitleBar = observer((props: Props) => {
             <span className="mr-1">{(actionStateOption?.level ?? 0) > 1 ? "Ranks" : "Rank"}</span>
             {actionStateAndSelectedLevel && (
               <ul className="flex">
-                {ArrayUtils.createFilledWithSequentialNumbers(actionStateOption?.level || 0, 1).map(
-                  (item) => {
-                    const costs = action.costProperties.getResourceCosts(
-                      focusedCharacter,
-                      !!inBattle,
-                      item
+                {ArrayUtils.createFilledWithSequentialNumbers(maxRankToShow || 0, 1).map((item) => {
+                  const costs = action.costProperties.getResourceCosts(
+                    focusedCharacter,
+                    !!inBattle,
+                    item
+                  );
+                  const unmet =
+                    focusedCharacter.combatantProperties.resources.getUnmetCostResourceTypes(
+                      costs || {}
                     );
-                    const unmet =
-                      focusedCharacter.combatantProperties.resources.getUnmetCostResourceTypes(
-                        costs || {}
-                      );
 
-                    return (
-                      <li key={actionName + item} className="mr-1 last:mr-0">
-                        <HotkeyButton
-                          hotkeys={[`Digit${item.toString()}`, `Numpad${item.toString()}`]}
-                          disabled={selectedLevelOption === null || !!unmet.length}
-                          onClick={() => handleSelectActionLevel(item)}
-                        >
-                          <div
-                            className={`h-5 w-5 flex items-center justify-center border border-slate-400 
+                  return (
+                    <li key={actionName + item} className="mr-1 last:mr-0">
+                      <HotkeyButton
+                        hotkeys={[`Digit${item.toString()}`, `Numpad${item.toString()}`]}
+                        disabled={selectedLevelOption === null || !!unmet.length}
+                        onClick={() => handleSelectActionLevel(item)}
+                      >
+                        <div
+                          className={`h-5 w-5 flex items-center justify-center border border-slate-400 
                           ${item === selectedLevelOption ? "bg-slate-950" : "bg-slate-700"}
                           ${!!unmet.length && "opacity-50"}`}
-                          >
-                            <span>{item}</span>
-                          </div>
-                        </HotkeyButton>
-                      </li>
-                    );
-                  }
-                )}
+                        >
+                          <span>{item}</span>
+                        </div>
+                      </HotkeyButton>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>

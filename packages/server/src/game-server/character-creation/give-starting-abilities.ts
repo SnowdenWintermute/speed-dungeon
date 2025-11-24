@@ -33,6 +33,7 @@ export function giveStartingAbilities(actionUser: IActionUser) {
     CombatActionName.Firewall,
     CombatActionName.Healing,
     CombatActionName.SummonPetParent,
+    CombatActionName.TamePet,
     // CombatActionName.ExplodingArrowParent,
     // CombatActionName.Blind,
   ];

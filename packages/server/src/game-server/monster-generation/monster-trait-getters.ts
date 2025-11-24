@@ -2,36 +2,38 @@ import { CombatantTraitType, MonsterType } from "@speed-dungeon/common";
 
 export const MONSTER_INHERENT_TRAIT_GETTERS: Record<
   MonsterType,
-  (level: number) => Partial<Record<CombatantTraitType, number>>
+  (combatantLevel: number) => Partial<Record<CombatantTraitType, number>>
 > = {
-  [MonsterType.MetallicGolem]: (level) => {
+  [MonsterType.MetallicGolem]: (combatantLevel) => {
     return {};
   },
-  [MonsterType.Zombie]: (level) => {
+  [MonsterType.Zombie]: (combatantLevel) => {
+    return { [CombatantTraitType.Undead]: 1 };
+  },
+  [MonsterType.SkeletonArcher]: (combatantLevel) => {
     return {};
   },
-  [MonsterType.SkeletonArcher]: (level) => {
+  [MonsterType.Scavenger]: (combatantLevel) => {
     return {};
   },
-  [MonsterType.Scavenger]: (level) => {
+  [MonsterType.Vulture]: (combatantLevel) => {
     return {};
   },
-  [MonsterType.Vulture]: (level) => {
+  [MonsterType.FireMage]: (combatantLevel) => {
     return {};
   },
-  [MonsterType.FireMage]: (level) => {
+  [MonsterType.FireElemental]: (combatantLevel) => {
     return {};
   },
-  [MonsterType.FireElemental]: (level) => {
+  [MonsterType.IceElemental]: (combatantLevel) => {
     return {};
   },
-  [MonsterType.IceElemental]: (level) => {
+  [MonsterType.Cultist]: (combatantLevel) => {
     return {};
   },
-  [MonsterType.Cultist]: (level) => {
-    return {};
-  },
-  [MonsterType.Wolf]: function (level: number): Partial<Record<CombatantTraitType, number>> {
-    return {};
+  [MonsterType.Wolf]: function (
+    combatantLevel: number
+  ): Partial<Record<CombatantTraitType, number>> {
+    return { [CombatantTraitType.IsTameable]: 1 };
   },
 };

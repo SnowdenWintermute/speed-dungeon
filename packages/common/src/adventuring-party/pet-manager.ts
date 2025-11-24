@@ -31,6 +31,10 @@ export class PetManager extends AdventuringPartySubsystem {
     return toReturn;
   }
 
+  getOwnerOccupiedPetSlotsCount(ownerId: EntityId) {
+    return this.iteratePetSlots(ownerId).filter((slot) => slot.petOption !== undefined).length;
+  }
+
   getPetAndOwnerByPetId(party: AdventuringParty, petId: EntityId) {
     for (const character of party.combatantManager.getPartyMemberCharacters()) {
       const characterId = character.getEntityId();
@@ -75,6 +79,7 @@ export class PetManager extends AdventuringPartySubsystem {
   /** Moves the pet from the unsummoned pets storage to the summoned pets storage
    * and returns the summoned pet */
   summonPetFromSlot(
+    game: SpeedDungeonGame,
     party: AdventuringParty,
     ownerId: EntityId,
     slotIndex: number,
@@ -108,14 +113,18 @@ export class PetManager extends AdventuringPartySubsystem {
 
     // if in battle, add its turn tracker
     if (battleOption !== null) {
-      const delayOfCurrentActor =
-        battleOption.turnOrderManager.getFastestActorTurnOrderTracker().timeOfNextMove;
+      const fastestTurnTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
+
+      const delayOfCurrentActor = fastestTurnTracker.timeOfNextMove;
+
+      const delayOfNewScheduler = delayOfCurrentActor + 1;
+
       battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
         {
           type: TurnTrackerEntityType.Combatant,
           combatantId: pet.entityProperties.id,
         },
-        delayOfCurrentActor + 1
+        delayOfNewScheduler
       );
     }
 
@@ -132,6 +141,7 @@ export class PetManager extends AdventuringPartySubsystem {
     const petCombatant = party.combatantManager.removeCombatant(petId, game);
     petCombatant.combatantProperties.controlledBy.controllerType =
       CombatantControllerType.PlayerPetAI;
+    petCombatant.combatantProperties.threatManager = undefined;
 
     this.putPetInFirstEmptyUnsummonedSlot(newOwnerId, petCombatant);
   }

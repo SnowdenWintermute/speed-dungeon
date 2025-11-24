@@ -1,5 +1,6 @@
 import { ActionTracker } from "../../../../../action-processing/action-tracker.js";
 import { ActionResolutionStepContext } from "../../../../../action-processing/index.js";
+import { CombatantTraitType } from "../../../../../combatants/combatant-traits/trait-types.js";
 import { Combatant } from "../../../../../combatants/index.js";
 import { TargetingCalculator } from "../../../../targeting/targeting-calculator.js";
 import { ActionExecutionPrecondition } from "../../../combat-action-targeting-properties.js";

@@ -110,6 +110,7 @@ export class ClassProgressionProperties extends CombatantSubsystem {
   /** Returns the new level reached for this combatant if any */
   awardLevelups() {
     const levelupCount = this.convertExperienceToClassLevels();
+    if (!levelupCount) return null;
 
     const combatantProperties = this.getCombatantProperties();
     const { abilityProperties, attributeProperties, resources } = combatantProperties;

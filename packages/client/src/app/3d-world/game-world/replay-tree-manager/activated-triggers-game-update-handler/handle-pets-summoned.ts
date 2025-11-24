@@ -15,7 +15,7 @@ export function handlePetSlotsSummoned(
   const battleOption = party.getBattleOption(game);
 
   for (const { ownerId, slotIndex } of petSlotsSummoned) {
-    const pet = party.petManager.summonPetFromSlot(party, ownerId, slotIndex, battleOption);
+    const pet = party.petManager.summonPetFromSlot(game, party, ownerId, slotIndex, battleOption);
 
     synchronizeCombatantModelsWithAppState({
       onComplete: () => {

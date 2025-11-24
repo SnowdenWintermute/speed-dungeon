@@ -40,6 +40,8 @@ import { AdventuringParty } from "../../adventuring-party/index.js";
 export interface CombatActionComponentConfig {
   // unique to each action
   description: string;
+  /** Such as Tame Pet, in which selecting a higher rank is meaningless and thus should not be shown in the menu */
+  selectableRankLimit?: number;
   getByRankDescriptions?: (
     user: IActionUser,
     party: AdventuringParty
@@ -60,6 +62,7 @@ export interface CombatActionComponentConfig {
 
 export abstract class CombatActionComponent {
   public readonly description: string;
+  public readonly selectableRankLimit?: number;
   public readonly getByRankDescriptions: (
     user: IActionUser,
     party: AdventuringParty
@@ -88,6 +91,9 @@ export abstract class CombatActionComponent {
     config: CombatActionComponentConfig
   ) {
     this.description = config.description;
+    if (config.selectableRankLimit !== undefined) {
+      this.selectableRankLimit = config.selectableRankLimit;
+    }
     if (config.getByRankDescriptions) {
       this.getByRankDescriptions = config.getByRankDescriptions;
     }

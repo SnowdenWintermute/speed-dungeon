@@ -19,16 +19,16 @@ export function characterCycledTargetsHandler(
     ({ game, party, character }: CharacterAssociatedData) => {
       const playerOption = game.players[playerUsername];
       if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+
+      // @REFACTOR - just pass the targeting calculator for this pattern
       const targetingCalculator = new TargetingCalculator(
         new ActionUserContext(game, party, character),
         playerOption
       );
 
-      const { targetingProperties } = character.combatantProperties;
-
-      // @REFACTOR - just pass the targeting calculator for this pattern
-      const idsByDisposition = party.combatantManager.getCombatantIdsByDisposition(characterId);
-      targetingProperties.cycleTargets(direction, playerOption, idsByDisposition);
+      const validTargetsByDisposition = targetingCalculator.getValidTargetsByDisposition();
+      const targetingProperties = character.getTargetingProperties();
+      targetingProperties.cycleTargets(direction, playerOption, validTargetsByDisposition);
 
       const selectedActionAndRank = targetingProperties.getSelectedActionAndRank();
       const combatActionTarget = targetingProperties.getSelectedTarget();

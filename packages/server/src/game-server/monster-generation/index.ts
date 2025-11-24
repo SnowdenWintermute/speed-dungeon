@@ -72,6 +72,9 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   // const entityProperties = { id: idGenerator.generate(), name: STOCK_MONSTER.name };
   // const combatantProperties = cloneDeep(STOCK_MONSTER.combatantProperties);
 
+  // equip weapons (do this before initialization because equipment needs to get its combatantProperties
+  // reference set by the initialization)
+  combatantProperties.equipment = getMonsterEquipment(monsterType);
   // will modify this monster after creation with basic values
   const monster = Combatant.createInitialized(entityProperties, combatantProperties);
   combatantProperties.threatManager = new ThreatManager();
@@ -105,8 +108,6 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   // traits
   combatantProperties.abilityProperties.getTraitProperties().inherentTraitLevels =
     MONSTER_INHERENT_TRAIT_GETTERS[monsterType](level);
-  // equip weapons
-  combatantProperties.equipment = getMonsterEquipment(monsterType);
 
   // set hp and mp to max
   monster.combatantProperties.resources.setToMax();

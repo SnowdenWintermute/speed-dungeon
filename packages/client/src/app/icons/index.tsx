@@ -215,6 +215,7 @@ export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string)
   [CombatantTraitType.ExtraHotswapSlot]: null,
   [CombatantTraitType.CanConvertToShardsManually]: null,
   [CombatantTraitType.ExtraConsumablesStorage]: null,
+  [CombatantTraitType.IsTameable]: (className: string) => SVG_ICONS[IconName.Whistle](className),
 };
 
 export const ACTION_ENTITY_ICONS: Record<

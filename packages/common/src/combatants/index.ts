@@ -190,7 +190,7 @@ export class Combatant implements IActionUser {
     if (action.costProperties.getMeetsCustomRequirements) {
       const { meetsRequirements, reasonDoesNot } = action.costProperties.getMeetsCustomRequirements(
         this,
-        rank
+        party
       );
       if (!meetsRequirements) return new Error(reasonDoesNot);
     }
@@ -253,7 +253,8 @@ export class Combatant implements IActionUser {
   }
 
   static groupIsDead(group: Combatant[]) {
-    if (group.length === 0) return false;
+    // group length may be zero if you tame a pet and they were the last one left in that group
+    if (group.length === 0) return true;
     for (const combatant of group) {
       const { combatantProperties } = combatant;
       const isDead = combatantProperties.isDead();

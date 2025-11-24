@@ -9,22 +9,21 @@ import {
 
 export class TurnSchedulerFactory {
   static create(from: TaggedTurnTrackerTrackedEntityId, startingDelay: number): ITurnScheduler {
+    let scheduler: ITurnScheduler;
     switch (from.type) {
       case TurnTrackerEntityType.Combatant:
-        const scheduler = new CombatantTurnScheduler(from.combatantId);
-        return scheduler;
-
+        scheduler = new CombatantTurnScheduler(from.combatantId);
+        break;
       case TurnTrackerEntityType.Condition: {
-        const scheduler = new ConditionTurnScheduler(from.combatantId, from.conditionId);
-        scheduler.accumulatedDelay = startingDelay;
-        return scheduler;
+        scheduler = new ConditionTurnScheduler(from.combatantId, from.conditionId);
+        break;
       }
-
       case TurnTrackerEntityType.ActionEntity: {
-        const scheduler = new ActionEntityTurnScheduler(from.actionEntityId);
-        scheduler.accumulatedDelay = startingDelay;
-        return scheduler;
+        scheduler = new ActionEntityTurnScheduler(from.actionEntityId);
+        break;
       }
     }
+    scheduler.accumulatedDelay = startingDelay;
+    return scheduler;
   }
 }

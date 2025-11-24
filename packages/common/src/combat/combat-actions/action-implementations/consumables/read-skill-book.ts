@@ -66,7 +66,7 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
     if (!(selectedItem instanceof Consumable)) throw new Error("expected to select a consumable");
     return { type: selectedItem.consumableType, level: selectedItem.itemLevel };
   },
-  getMeetsCustomRequirements: (user, actionLevel) => {
+  getMeetsCustomRequirements: (user, party) => {
     // check what book they are selecting
     // if it isn't a skill book, error
     const inventoryOption = user.getInventoryOption();

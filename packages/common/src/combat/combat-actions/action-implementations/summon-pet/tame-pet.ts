@@ -1,20 +1,13 @@
 import {
-  ActionResolutionStepConfig,
   BASE_ACTION_HIERARCHY_PROPERTIES,
   CombatActionComponentConfig,
   CombatActionGameLogProperties,
   CombatActionLeaf,
   CombatActionName,
   CombatActionOrigin,
-  CosmeticEffectOnTargetTransformNode,
+  CombatActionResource,
 } from "../../index.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
-import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
-import {
-  ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
-  createStepsConfig,
-} from "../generic-action-templates/step-config-templates/index.js";
 import {
   COST_PROPERTIES_TEMPLATE_GETTERS,
   createCostPropertiesConfig,
@@ -23,7 +16,6 @@ import {
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
   createTargetingPropertiesConfig,
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
-import { CosmeticEffectInstructionFactory } from "../generic-action-templates/cosmetic-effect-factories/index.js";
 import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
@@ -33,86 +25,38 @@ import {
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
 import { HitOutcome } from "../../../../hit-outcome.js";
-import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
-import { COMBAT_ACTIONS } from "../index.js";
-import {
-  CombatantBaseChildTransformNodeName,
-  SceneEntityType,
-} from "../../../../scene-entities/index.js";
-
-const mainStepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
-const finalStepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> =
-  {};
-
-mainStepOverrides[ActionResolutionStepType.InitialPositioning] = {
-  getCosmeticEffectsToStart: (context) => {
-    return [
-      CosmeticEffectInstructionFactory.createParticlesOnOffhand(
-        CosmeticEffectNames.LightParticleAccumulation,
-        context
-      ),
-    ];
-  },
-};
-
-finalStepOverrides[ActionResolutionStepType.RecoveryMotion] = {
-  getCosmeticEffectsToStart: (context) => {
-    const { actionExecutionIntent } = context.tracker;
-    const targetingCalculator = new TargetingCalculator(context.actionUserContext, null);
-
-    const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
-      COMBAT_ACTIONS[actionExecutionIntent.actionName],
-      actionExecutionIntent.targets
-    );
-    if (targetIdsResult instanceof Error) throw targetIdsResult;
-
-    const toReturn: CosmeticEffectOnTargetTransformNode[] = targetIdsResult.map((targetId) => {
-      return {
-        name: CosmeticEffectNames.HeartParticles,
-        lifetime: 700,
-        parent: {
-          sceneEntityIdentifier: {
-            type: SceneEntityType.CharacterModel,
-            entityId: targetId,
-          },
-          transformNodeName: CombatantBaseChildTransformNodeName.Head,
-        },
-      };
-    });
-
-    toReturn.push({
-      name: CosmeticEffectNames.HeartParticles,
-      lifetime: 700,
-      parent: {
-        sceneEntityIdentifier: {
-          type: SceneEntityType.CharacterModel,
-          entityId: context.actionUserContext.actionUser.getEntityId(),
-        },
-        transformNodeName: CombatantBaseChildTransformNodeName.Head,
-      },
-    });
-
-    return toReturn;
-  },
-};
-
-finalStepOverrides[ActionResolutionStepType.FinalPositioning] = {
-  getCosmeticEffectsToStop: (context) => [
-    CosmeticEffectInstructionFactory.createParticlesOnOffhand(
-      CosmeticEffectNames.LightParticleAccumulation,
-      context
-    ),
-  ],
-};
-
-const base = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL;
-const stepsConfig = createStepsConfig(base, {
-  steps: mainStepOverrides,
-  finalSteps: finalStepOverrides,
-});
+import { TAME_PET_STEP_CONFIG } from "./tame-pet-steps-config.js";
+import { AbilityType } from "../../../../abilities/ability-types.js";
+import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,
+  getMeetsCustomRequirements: (user, party) => {
+    const occupiedPetSlotsCount = party.petManager.getOwnerOccupiedPetSlotsCount(
+      user.getEntityId()
+    );
+    const userMaxTamePetRank = user.getCombatantProperties().abilityProperties.getAbilityRank({
+      type: AbilityType.Action,
+      actionName: CombatActionName.TamePet,
+    });
+    if (occupiedPetSlotsCount >= userMaxTamePetRank) {
+      return {
+        meetsRequirements: false,
+        reasonDoesNot: `You already have the maximum number of tamed pets for your Tame Pet action rank (${userMaxTamePetRank})`,
+      };
+    }
+
+    return { meetsRequirements: true };
+  },
+  costBases: {
+    [CombatActionResource.Mana]: {
+      base: 2,
+      additives: {
+        actionLevel: 0,
+        userCombatantLevel: 0,
+      },
+    },
+  },
 };
 
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL;
@@ -131,6 +75,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 
     getHitOutcomeTriggers: (context) => {
       const hitTargetId = context.tracker.hitOutcomes.outcomeFlags[HitOutcome.Hit]?.[0];
+
       const isSuccess = hitTargetId !== undefined;
       if (!isSuccess) {
         return {};
@@ -147,11 +92,18 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 
 const config: CombatActionComponentConfig = {
   description: "Attempt to convince a creature to join your pack.",
+  selectableRankLimit: 1,
   prerequisiteAbilities: [],
   gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.SpellCast,
     getOnUseMessage: (data) => `${data.nameOfActionUser} attempts to tame ${data.nameOfTarget}`,
   }),
+  getByRankDescriptions: () => {
+    return { [1]: "One pet slot", [2]: "Two pet slots", [3]: "Three pet slots" };
+  },
+  getByRankShortDescriptions: () => {
+    return { [1]: "Attempt to tame the target" };
+  },
   targetingProperties: createTargetingPropertiesConfig(
     TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE,
     {
@@ -159,11 +111,15 @@ const config: CombatActionComponentConfig = {
         ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE().executionPreconditions,
         ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.NoPetCurrentlySummoned],
       ],
+      prohibitedTargetCombatantStates: [
+        ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE().prohibitedTargetCombatantStates,
+        ProhibitedTargetCombatantStates.IsNotTameable,
+      ],
     }
   ),
   hitOutcomeProperties,
   costProperties,
-  stepsConfig,
+  stepsConfig: TAME_PET_STEP_CONFIG,
 
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
