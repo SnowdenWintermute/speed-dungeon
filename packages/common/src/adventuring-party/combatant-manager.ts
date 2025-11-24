@@ -1,5 +1,5 @@
 import { plainToInstance } from "class-transformer";
-import { FriendOrFoe } from "../combat/index.js";
+import { FriendOrFoe, TurnTrackerEntityType } from "../combat/index.js";
 import {
   Combatant,
   CombatantCondition,
@@ -224,8 +224,32 @@ export class CombatantManager extends AdventuringPartySubsystem {
     return combatant;
   }
 
-  addCombatant(combatant: Combatant) {
+  addCombatant(combatant: Combatant, game: SpeedDungeonGame) {
     this.combatants.set(combatant.getEntityId(), combatant);
+    const party = this.getParty();
+    const battleOption = party.getBattleOption(game);
+    if (battleOption) {
+      const { turnSchedulerManager } = battleOption.turnOrderManager;
+
+      const fastestTurnTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
+      const delayOfCurrentActor = fastestTurnTracker.timeOfNextMove;
+      const delayOfNewScheduler = delayOfCurrentActor + 1;
+
+      battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
+        {
+          type: TurnTrackerEntityType.Combatant,
+          combatantId: combatant.entityProperties.id,
+        },
+        delayOfNewScheduler
+      );
+
+      for (const condition of combatant.combatantProperties.conditionManager.getConditions()) {
+        console.log("adding condition to turn order:", condition.getName());
+        turnSchedulerManager.addConditionToTurnOrder(party, condition);
+      }
+
+      battleOption.turnOrderManager.updateTrackers(game, party);
+    }
   }
 
   removeDungeonControlledCombatants(game: SpeedDungeonGame) {

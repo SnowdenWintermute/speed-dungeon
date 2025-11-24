@@ -8,7 +8,7 @@ export interface ITurnScheduler {
   timeOfNextMove: number;
   accumulatedDelay: number; // when they take their turn, add to this
   getSpeed: (party: AdventuringParty) => number;
-  getTiebreakerId: () => string;
+  getTurnTakerId: () => string;
   isStale: (party: AdventuringParty) => boolean;
   isMatch: (otherScheduler: ITurnScheduler) => boolean;
   reset: (party: AdventuringParty) => void;
@@ -21,7 +21,7 @@ export abstract class TurnScheduler implements ITurnScheduler {
   protected predictedConsumedStacks = 0;
 
   abstract getSpeed(party: AdventuringParty): number;
-  abstract getTiebreakerId(): string;
+  abstract getTurnTakerId(): string;
   abstract isStale(party: AdventuringParty): boolean;
   abstract isMatch(otherScheduler: ITurnScheduler): boolean;
   abstract createTurnTrackerOption(

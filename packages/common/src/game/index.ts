@@ -64,7 +64,7 @@ export class SpeedDungeonGame {
 
     const characterId = character.entityProperties.id;
 
-    combatantManager.addCombatant(character);
+    combatantManager.addCombatant(character, this);
 
     party.petManager.setCombatantPets(characterId, pets);
 

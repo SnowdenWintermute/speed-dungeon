@@ -20,7 +20,7 @@ export function giveStartingAbilities(actionUser: IActionUser) {
     CombatActionName.DismissPet,
     // CombatActionName.Counterattack,
     // CombatActionName.IceBoltParent,
-    // CombatActionName.Fire,
+    CombatActionName.Fire,
     CombatActionName.Healing,
     // CombatActionName.ExplodingArrowParent,
     CombatActionName.Blind,
@@ -29,7 +29,7 @@ export function giveStartingAbilities(actionUser: IActionUser) {
 
   const levelTwoSpells: CombatActionName[] = [
     // CombatActionName.IceBoltParent,
-    // CombatActionName.Fire,
+    CombatActionName.Fire,
     CombatActionName.Firewall,
     CombatActionName.Healing,
     CombatActionName.SummonPetParent,

@@ -1,5 +1,5 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { CombatantCondition } from "../../combatants/index.js";
+import { Combatant, CombatantCondition } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { CombatantTurnScheduler } from "./combatant-turn-scheduler.js";
@@ -39,6 +39,7 @@ export class TurnSchedulerManager {
 
   buildNewList(game: SpeedDungeonGame, party: AdventuringParty) {
     this.removeStaleTurnSchedulers(party);
+
     for (const scheduler of this.schedulers) scheduler.reset(party);
 
     const turnTrackerList: TurnTracker[] = [];
@@ -111,7 +112,7 @@ export class TurnSchedulerManager {
             return a.timeOfNextMove - b.timeOfNextMove;
           } else if (a.getSpeed(party) !== b.getSpeed(party)) {
             return b.getSpeed(party) - a.getSpeed(party);
-          } else return a.getTiebreakerId().localeCompare(b.getTiebreakerId());
+          } else return a.getTurnTakerId().localeCompare(b.getTurnTakerId());
         });
         break;
       case TurnTrackerSortableProperty.AccumulatedDelay:
@@ -120,7 +121,7 @@ export class TurnSchedulerManager {
             return a.accumulatedDelay - b.accumulatedDelay;
           else if (a.getSpeed(party) !== b.getSpeed(party)) {
             return b.getSpeed(party) - a.getSpeed(party);
-          } else return a.getTiebreakerId().localeCompare(b.getTiebreakerId());
+          } else return a.getTurnTakerId().localeCompare(b.getTurnTakerId());
         });
         break;
     }
@@ -137,28 +138,37 @@ export class TurnSchedulerManager {
     this.schedulers.push(scheduler);
   }
 
-  addConditionToTurnOrder(party: AdventuringParty, condition: CombatantCondition) {
+  addConditionToTurnOrder(
+    party: AdventuringParty,
+    condition: CombatantCondition,
+    options?: { withCustomStartingDelay?: number }
+  ) {
     const tickPropertiesOption = condition.getTickProperties();
 
     if (!tickPropertiesOption) return;
 
-    // add one actions worth + 1 delay or else when we get to the endTurnAndEvaluateInputLock step
-    // when we search for the fastest scheduler tracker it will find this
-    // condition's tracker instead of the combatant, since we are adding the scheduler now
-    // and the combatant who's action applied this condition won't update their scheduler
-    // until a later step
-    const appliedByScheduler = this.getSchedulerByCombatantId(
-      condition.appliedBy.entityProperties.id
-    );
+    let startingDelay = options?.withCustomStartingDelay || 0;
 
-    // once we start getting action delay costs that are different per each action
-    // we'll have to calculate this based on the current action
-    const appliedByPredictedAdditionalDelay = TurnOrderManager.getActionDelayCost(
-      appliedByScheduler.getSpeed(party),
-      BASE_ACTION_DELAY_MULTIPLIER
-    );
+    if (options?.withCustomStartingDelay === undefined) {
+      // add ( one actions worth + 1 ) delay or else when we get to the endTurnAndEvaluateInputLock step
+      // when we search for the fastest scheduler tracker it will find this
+      // condition's tracker instead of the combatant, since we are adding the scheduler now
+      // and the combatant who's action applied this condition won't update their scheduler
+      // until a later step
+      const appliedByScheduler = this.getSchedulerByCombatantId(
+        condition.appliedBy.entityProperties.id
+      );
 
-    const combatantApplyingAccumulatedDelay = appliedByScheduler.accumulatedDelay;
+      // once we start getting action delay costs that are different per each action
+      // we'll have to calculate this based on the current action
+      const appliedByPredictedAdditionalDelay = TurnOrderManager.getActionDelayCost(
+        appliedByScheduler.getSpeed(party),
+        BASE_ACTION_DELAY_MULTIPLIER
+      );
+
+      const combatantApplyingAccumulatedDelay = appliedByScheduler.accumulatedDelay;
+      startingDelay = combatantApplyingAccumulatedDelay + appliedByPredictedAdditionalDelay + 1;
+    }
 
     this.addNewScheduler(
       {
@@ -166,7 +176,7 @@ export class TurnSchedulerManager {
         combatantId: condition.appliedTo,
         conditionId: condition.id,
       },
-      combatantApplyingAccumulatedDelay + appliedByPredictedAdditionalDelay + 1
+      startingDelay
     );
   }
 }

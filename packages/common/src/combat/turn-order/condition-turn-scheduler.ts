@@ -12,7 +12,7 @@ export class ConditionTurnScheduler extends TurnScheduler implements ITurnSchedu
   ) {
     super();
   }
-  getTiebreakerId = () => this.conditionId;
+  getTurnTakerId = () => this.conditionId;
   getSpeed(party: AdventuringParty) {
     const condition = party.combatantManager.getExpectedConditionOnCombatant(
       this.combatantId,

@@ -125,7 +125,7 @@ export function putPartyInNextRoom(
   party.setCurrentRoom(room);
 
   for (const monster of monsters) {
-    party.combatantManager.addCombatant(monster);
+    party.combatantManager.addCombatant(monster, game);
   }
 
   party.combatantManager.updateHomePositions();

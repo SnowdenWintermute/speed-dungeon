@@ -103,7 +103,7 @@ export class PetManager extends AdventuringPartySubsystem {
 
     // place the pet in either summonedCharacterPets or currentRoom.summonedMonsterPets
     if (isCharacterPet) {
-      party.combatantManager.addCombatant(pet);
+      party.combatantManager.addCombatant(pet, game);
     } else if (isMonsterPet) {
       throw new Error("not implemented");
     }

@@ -9,7 +9,7 @@ export class CombatantTurnScheduler extends TurnScheduler implements ITurnSchedu
   constructor(public readonly combatantId: EntityId) {
     super();
   }
-  getTiebreakerId = () => this.combatantId;
+  getTurnTakerId = () => this.combatantId;
   getSpeed(party: AdventuringParty) {
     const combatant = party.combatantManager.getExpectedCombatant(this.combatantId);
     const combatantSpeed = combatant.combatantProperties.attributeProperties.getAttributeValue(

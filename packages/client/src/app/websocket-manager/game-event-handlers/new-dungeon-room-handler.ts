@@ -60,9 +60,10 @@ export function newDungeonRoomHandler({
 
   const { combatantManager } = party;
 
+  const game = AppStore.get().gameStore.getExpectedGame();
   for (const combatant of newCombatants) {
     const deserialized = Combatant.getDeserialized(combatant);
-    combatantManager.addCombatant(deserialized);
+    combatantManager.addCombatant(deserialized, game);
   }
 
   combatantManager.updateHomePositions();
