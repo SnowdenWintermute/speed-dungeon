@@ -9,7 +9,8 @@ import { getCharacterModelPartCategoriesAndAssetPaths } from "@/app/3d-world/sce
 
 export async function spawnCharacterModel(
   world: GameWorld,
-  blueprint: CombatantModelBlueprint
+  blueprint: CombatantModelBlueprint,
+  options?: { spawnInDeadPose?: boolean }
 ): Promise<Error | CharacterModel> {
   const { combatantProperties, entityProperties } = blueprint.combatant;
 
@@ -68,7 +69,11 @@ export async function spawnCharacterModel(
 
   modularCharacter.initChildTransformNodes();
 
-  modularCharacter.startIdleAnimation(0, {});
+  if (options?.spawnInDeadPose) {
+    modularCharacter.setToDeadPose();
+  } else {
+    modularCharacter.startIdleAnimation(0, {});
+  }
 
   modularCharacter.setVisibility(1);
 

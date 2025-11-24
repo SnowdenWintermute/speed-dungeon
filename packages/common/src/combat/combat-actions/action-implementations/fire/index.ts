@@ -18,7 +18,8 @@ import {
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
-  ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.AREA_HOSTILE(),
+  // ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.AREA_HOSTILE(), @ TODO - put this back
+  ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.AREA_ANY(),
   getTargetingSchemes: (actionLevel) => {
     const toReturn = [TargetingScheme.Single];
     if (actionLevel > 1) toReturn.push(TargetingScheme.Area);

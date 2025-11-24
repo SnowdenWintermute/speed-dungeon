@@ -166,6 +166,12 @@ export class CharacterModel extends SceneEntity {
     this.homeLocation.position = cloneDeep(position);
   }
 
+  setToDeadPose() {
+    this.skeletalAnimationManager.startAnimationWithTransition(SkeletalAnimationName.DeathBack, 0, {
+      onlyPlayLastFrame: true,
+    });
+  }
+
   startIdleAnimation(transitionMs: number, options?: ManagedAnimationOptions) {
     const combatant = this.getCombatant();
     if (combatant.combatantProperties.isDead()) return;

@@ -20,15 +20,18 @@ export function handlePetSlotsSummoned(
     synchronizeCombatantModelsWithAppState({
       onComplete: () => {
         const modelOption = getGameWorld().modelManager.combatantModels[pet.getEntityId()];
-        modelOption?.skeletalAnimationManager.startAnimationWithTransition(
-          SkeletalAnimationName.OnSummoned,
-          500,
-          {
-            onComplete: () => {
-              modelOption.startIdleAnimation(500);
-            },
-          }
-        );
+
+        if (!pet.combatantProperties.isDead()) {
+          modelOption?.skeletalAnimationManager.startAnimationWithTransition(
+            SkeletalAnimationName.OnSummoned,
+            500,
+            {
+              onComplete: () => {
+                modelOption.startIdleAnimation(500);
+              },
+            }
+          );
+        }
       },
     });
   }

@@ -15,15 +15,21 @@ export function handlePetSlotsUnsummoned(
   const { petManager } = party;
   for (const petId of petsUnsummoned) {
     const modelOption = getGameWorld().modelManager.combatantModels[petId];
-    modelOption?.skeletalAnimationManager.startAnimationWithTransition(
-      SkeletalAnimationName.OnSummoned,
-      500,
-      {
-        onComplete: () => {
-          petManager.unsummonPet(petId, game);
-          synchronizeCombatantModelsWithAppState({ softCleanup: true });
-        },
-      }
-    );
+
+    if (modelOption?.getCombatant().combatantProperties.isDead()) {
+      petManager.unsummonPet(petId, game);
+      synchronizeCombatantModelsWithAppState({ softCleanup: true });
+    } else {
+      modelOption?.skeletalAnimationManager.startAnimationWithTransition(
+        SkeletalAnimationName.OnSummoned,
+        500,
+        {
+          onComplete: () => {
+            petManager.unsummonPet(petId, game);
+            synchronizeCombatantModelsWithAppState({ softCleanup: true });
+          },
+        }
+      );
+    }
   }
 }

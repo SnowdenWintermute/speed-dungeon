@@ -51,12 +51,16 @@ export async function synchronizeCombatantModelsWithAppState(options: {
 
       gameWorldStore.setModelLoading(entityId);
       modelSpawnPromises.push(
-        spawnCharacterModel(gameWorld.current, {
-          combatant,
-          homeRotation,
-          homePosition: homeLocation,
-          modelDomPositionElement: null, // vestigial from when we used to spawn directly from next.js
-        })
+        spawnCharacterModel(
+          gameWorld.current,
+          {
+            combatant,
+            homeRotation,
+            homePosition: homeLocation,
+            modelDomPositionElement: null, // vestigial from when we used to spawn directly from next.js
+          },
+          { spawnInDeadPose: combatant.combatantProperties.isDead() }
+        )
       );
     } else {
       // move models to correct positions

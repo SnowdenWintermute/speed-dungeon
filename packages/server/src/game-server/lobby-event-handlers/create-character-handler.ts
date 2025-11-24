@@ -32,8 +32,9 @@ export function createCharacterHandler(
   // @TESTING - pets
   // @TODO - don't start a new character with any pets
   const testPet = generateMonster(1, MonsterType.Wolf);
-  delete testPet.combatantProperties.threatManager; // @TODO - when taming, remove it
+  delete testPet.combatantProperties.threatManager;
   testPet.combatantProperties.controlledBy.controllerType = CombatantControllerType.PlayerPetAI;
+  // testPet.combatantProperties.resources.changeHitPoints(-100);
   const pets: Combatant[] = [testPet];
   const serializedPets = pets.map((pet) => pet.getSerialized());
 
