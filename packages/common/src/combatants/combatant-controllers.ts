@@ -3,6 +3,7 @@ import { makeAutoObservable } from "mobx";
 import { EntityId } from "../primatives/index.js";
 import { AiType } from "./index.js";
 import { runIfInBrowser } from "../utils/index.js";
+import { AdventuringParty } from "../adventuring-party/index.js";
 
 export enum CombatantControllerType {
   Player,
@@ -21,7 +22,7 @@ export class CombatantControlledBy {
   constructor(
     public controllerType: CombatantControllerType,
     /** For player name, can be empty string if this is dungeon controlled */
-    public controllerName: string
+    public controllerPlayerName: string
   ) {
     runIfInBrowser(() => makeAutoObservable(this));
   }
@@ -44,5 +45,22 @@ export class CombatantControlledBy {
 
   wasSummoned() {
     return this.summonedBy !== undefined;
+  }
+
+  wasSummonedByCharacterControlledByPlayer(playerName: string, party: AdventuringParty) {
+    const { combatantManager } = party;
+    for (const character of combatantManager.getPartyMemberCharacters()) {
+      const { controllerPlayerName } = character.combatantProperties.controlledBy;
+      const isCharacterOfThisPlayer = controllerPlayerName === playerName;
+      if (!isCharacterOfThisPlayer) {
+        continue;
+      }
+      const wasSummonedByThisCharacter = this.summonedBy === character.getEntityId();
+      if (wasSummonedByThisCharacter) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

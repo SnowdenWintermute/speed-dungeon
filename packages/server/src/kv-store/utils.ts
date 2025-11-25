@@ -18,7 +18,7 @@ export async function removeDeadCharactersFromLadder(characters: Combatant[]) {
     );
     if (rank === null) continue;
     ladderDeathsUpdate[character.entityProperties.name] = {
-      owner: combatantProperties.controlledBy.controllerName || "",
+      owner: combatantProperties.controlledBy.controllerPlayerName || "",
       rank,
       level: combatantProperties.classProgressionProperties.getMainClass().level,
     };

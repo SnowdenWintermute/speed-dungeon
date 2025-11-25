@@ -17,6 +17,7 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { runIfInBrowser } from "../utils/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { SpeedDungeonGame } from "../game/index.js";
+import { AdventuringParty } from "./index.js";
 
 export class CombatantManager extends AdventuringPartySubsystem {
   private combatants: Map<EntityId, Combatant> = new Map();
@@ -197,13 +198,24 @@ export class CombatantManager extends AdventuringPartySubsystem {
     return false;
   }
 
-  getCharacterIfOwned(playerName: string, characterId: string): Error | Combatant {
+  getCharacterIfOwned(
+    playerName: string,
+    characterId: string,
+    options?: { allowSummonedPets?: boolean }
+  ): Error | Combatant {
     // if (!playerCharacterIdsOption) return new Error(ERROR_MESSAGES.PLAYER.NO_CHARACTERS);
     for (const combatant of this.combatants.values()) {
-      const { controllerName } = combatant.combatantProperties.controlledBy;
-      const isOwner = controllerName === playerName;
+      const { controlledBy } = combatant.combatantProperties;
+      const { controllerPlayerName } = controlledBy;
+      const isOwner = controllerPlayerName === playerName;
       const isMatch = characterId === combatant.getEntityId();
       if (isOwner && isMatch) return combatant;
+
+      if (options?.allowSummonedPets) {
+        if (controlledBy.wasSummonedByCharacterControlledByPlayer(playerName, this.getParty())) {
+          return combatant;
+        }
+      }
     }
     return new Error(ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED);
   }
@@ -211,8 +223,8 @@ export class CombatantManager extends AdventuringPartySubsystem {
   playerOwnsCharacter(playerName: string, characterId: string) {
     const combatant = this.getExpectedCombatant(characterId);
     combatant.combatantProperties;
-    const { controllerName } = combatant.combatantProperties.controlledBy;
-    return controllerName === playerName;
+    const { controllerPlayerName } = combatant.combatantProperties.controlledBy;
+    return controllerPlayerName === playerName;
   }
 
   /** Expects the combatant to exist. Returns the removed combatant. */

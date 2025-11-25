@@ -12,9 +12,9 @@ export const CharacterSheet = observer(
 
     const party = AppStore.get().gameStore.getExpectedParty();
 
-    const partyCharacterIds = party.combatantManager
-      .getPartyMemberCharacters()
-      .map((combatant) => combatant.getEntityId());
+    const characterIdsByPhysicalPositions = party.combatantManager.sortCombatantIdsLeftToRight(
+      party.combatantManager.getPartyMemberCombatants().map((combatant) => combatant.getEntityId())
+    );
 
     let conditionalStyles = showCharacterSheet
       ? "pointer-events-auto w-fit "
@@ -34,7 +34,7 @@ export const CharacterSheet = observer(
 
     return (
       <section className={`${conditionalStyles}`}>
-        <CharacterSheetTopBar partyCharacterIds={partyCharacterIds} />
+        <CharacterSheetTopBar partyCharacterIds={characterIdsByPhysicalPositions} />
         <div
           className={`border border-slate-400 bg-slate-700 flex h-[450px] overflow-y-visible ${showCharacterSheet && "pointer-events-auto"} relative`}
           style={{ padding: `${SPACING_REM}rem` }}

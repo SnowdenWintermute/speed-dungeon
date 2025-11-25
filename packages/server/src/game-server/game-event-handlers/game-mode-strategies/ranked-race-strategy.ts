@@ -120,8 +120,8 @@ async function updateRaceGameCharacterRecordLevels(
     const partyCharacters = party.combatantManager.getPartyMemberCharacters();
     for (const character of partyCharacters) {
       if (onlyForUsername !== null) {
-        const { controllerName } = character.combatantProperties.controlledBy;
-        const userControlsThisCharacter = controllerName === onlyForUsername;
+        const { controllerPlayerName } = character.combatantProperties.controlledBy;
+        const userControlsThisCharacter = controllerPlayerName === onlyForUsername;
         if (!userControlsThisCharacter) continue;
       }
       await raceGameCharacterRecordsRepo.update(character);

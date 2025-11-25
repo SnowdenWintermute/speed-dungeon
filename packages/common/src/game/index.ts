@@ -69,7 +69,7 @@ export class SpeedDungeonGame {
     party.petManager.setCombatantPets(characterId, pets);
 
     /// Could move this out of here
-    character.combatantProperties.controlledBy.controllerName = player.username;
+    character.combatantProperties.controlledBy.controllerPlayerName = player.username;
     player.characterIds.push(characterId);
     this.lowestStartingFloorOptionsBySavedCharacter[characterId] =
       character.combatantProperties.deepestFloorReached;

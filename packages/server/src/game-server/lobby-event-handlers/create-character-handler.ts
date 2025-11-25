@@ -35,7 +35,7 @@ export function createCharacterHandler(
   delete testPet.combatantProperties.threatManager;
   testPet.combatantProperties.controlledBy.controllerType = CombatantControllerType.PlayerPetAI;
   testPet.combatantProperties.classProgressionProperties.experiencePoints.changeExperience(81);
-  // testPet.combatantProperties.resources.changeHitPoints(-100);
+  testPet.combatantProperties.attributeProperties.changeUnspentPoints(10);
   const pets: Combatant[] = [testPet];
   const serializedPets = pets.map((pet) => pet.getSerialized());
 

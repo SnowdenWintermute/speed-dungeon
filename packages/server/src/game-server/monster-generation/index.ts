@@ -13,13 +13,10 @@ import {
   MONSTER_TYPE_STRINGS,
   MonsterType,
   getMonsterCombatantClass,
-  iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import { addAttributesToAccumulator } from "@speed-dungeon/common";
 import { getMonsterEquipment } from "./get-monster-equipment.js";
 import { ThreatManager } from "@speed-dungeon/common";
 import { MONSTER_INHERENT_TRAIT_GETTERS } from "./monster-trait-getters.js";
-import { initializeCombatAttributeRecord } from "@speed-dungeon/common";
 import { CombatantProperties } from "@speed-dungeon/common";
 // import { STOCK_MONSTER } from "../../index.js";
 //

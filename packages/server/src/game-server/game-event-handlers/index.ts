@@ -31,6 +31,7 @@ import { postItemLinkHandler } from "./post-item-link-handler.js";
 import { selectCombatActionLevelHandler } from "./select-action-level-handler.js";
 import { characterAllocatedAbilityPointHandler } from "./character-allocated-ability-point-handler.js";
 import { tradeItemForBookHandler } from "./trade-item-for-book-handler.js";
+import { allowSummonedPets } from "../event-middleware/allow-summoned-pets.js";
 
 export default function initiateGameEventListeners(
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
@@ -103,10 +104,11 @@ export default function initiateGameEventListeners(
   );
   socket.on(
     ClientToServerEvent.IncrementAttribute,
-    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(
-      socket,
-      characterSpentAttributePointHandler
-    )
+    applyMiddlewares(
+      allowSummonedPets,
+      getCharacterAssociatedData,
+      prohibitIfDead
+    )(socket, characterSpentAttributePointHandler)
   );
   socket.on(
     ClientToServerEvent.SelectHoldableHotswapSlot,

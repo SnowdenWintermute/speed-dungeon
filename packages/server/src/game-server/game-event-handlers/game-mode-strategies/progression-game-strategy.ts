@@ -111,7 +111,7 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
       // - if they leveled up and were in the top 10 ranks, emit a message to everyone
       if (newRank === null || newRank >= 10) continue;
 
-      const controllingPlayer = controlledBy.controllerName;
+      const controllingPlayer = controlledBy.controllerPlayerName;
 
       const levelup = levelups[id];
       if (levelup !== undefined) {
