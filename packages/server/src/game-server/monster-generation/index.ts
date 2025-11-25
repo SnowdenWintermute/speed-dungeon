@@ -15,9 +15,7 @@ import {
   getMonsterCombatantClass,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import { getMonsterStartingAttributes } from "./get-monster-starting-attributes.js";
 import { addAttributesToAccumulator } from "@speed-dungeon/common";
-import { getMonsterPerLevelAttributes } from "./get-monster-per-level-attributes.js";
 import { getMonsterEquipment } from "./get-monster-equipment.js";
 import { ThreatManager } from "@speed-dungeon/common";
 import { MONSTER_INHERENT_TRAIT_GETTERS } from "./monster-trait-getters.js";
@@ -78,25 +76,6 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   // will modify this monster after creation with basic values
   const monster = Combatant.createInitialized(entityProperties, combatantProperties);
   combatantProperties.threatManager = new ThreatManager();
-  const inherentAttributes = initializeCombatAttributeRecord();
-
-  const attributesPerLevel = getMonsterPerLevelAttributes(monsterType);
-  for (const [attribute, value] of iterateNumericEnumKeyedRecord(attributesPerLevel)) {
-    const levelAdjustedValue = value * (level - 1);
-
-    if (!inherentAttributes[attribute]) {
-      inherentAttributes[attribute] = levelAdjustedValue;
-    } else {
-      inherentAttributes[attribute] += levelAdjustedValue;
-    }
-  }
-
-  const startingAttributes = getMonsterStartingAttributes(monsterType);
-  addAttributesToAccumulator(startingAttributes, inherentAttributes);
-
-  iterateNumericEnumKeyedRecord(inherentAttributes).forEach(([attribute, value]) => {
-    monster.combatantProperties.attributeProperties.setInherentAttributeValue(attribute, value);
-  });
 
   // randomize their hp a little
   // const baseHp = combatantProperties.inherentAttributes[CombatAttribute.Hp] || 1;

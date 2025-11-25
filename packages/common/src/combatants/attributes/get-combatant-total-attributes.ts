@@ -10,6 +10,8 @@ import { addAttributesToAccumulator } from "./add-attributes-to-accumulator.js";
 import { COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL } from "../combatant-class/class-attributes-by-level.js";
 import { CombatantAttributeRecord } from "../attribute-properties.js";
 import { CombatantProperties } from "../combatant-properties.js";
+import { MONSTER_STARTING_ATTRIBUTES } from "../../monsters/monster-starting-attributes.js";
+import { MONSTER_ATTRIBUTES_BY_LEVEL } from "../../monsters/monster-per-level-attributes.js";
 
 export function getCombatantTotalAttributes(
   combatantProperties: CombatantProperties
@@ -36,6 +38,14 @@ export function getCombatantTotalAttributes(
       const supportClassAttributesByLevel = COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL[combatantClass];
       for (let i = 0; i < level; i += 1)
         addAttributesToAccumulator(supportClassAttributesByLevel, totalAttributes);
+    }
+  } else {
+    const startingAttributes = MONSTER_STARTING_ATTRIBUTES[monsterType];
+    addAttributesToAccumulator(startingAttributes, totalAttributes);
+
+    const monsterAttributesByLevel = MONSTER_ATTRIBUTES_BY_LEVEL[monsterType];
+    for (let i = 0; i < level; i += 1) {
+      addAttributesToAccumulator(monsterAttributesByLevel, totalAttributes);
     }
   }
 
