@@ -34,6 +34,10 @@ export class CombatantControlledBy {
     return this.controllerType === CombatantControllerType.Player;
   }
 
+  isPlayerPet() {
+    return this.controllerType === CombatantControllerType.PlayerPetAI;
+  }
+
   isDungeonControlled() {
     return this.controllerType === CombatantControllerType.Dungeon;
   }

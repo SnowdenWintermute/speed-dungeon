@@ -34,6 +34,7 @@ export function createCharacterHandler(
   const testPet = generateMonster(1, MonsterType.Wolf);
   delete testPet.combatantProperties.threatManager;
   testPet.combatantProperties.controlledBy.controllerType = CombatantControllerType.PlayerPetAI;
+  testPet.combatantProperties.classProgressionProperties.experiencePoints.changeExperience(81);
   // testPet.combatantProperties.resources.changeHitPoints(-100);
   const pets: Combatant[] = [testPet];
   const serializedPets = pets.map((pet) => pet.getSerialized());

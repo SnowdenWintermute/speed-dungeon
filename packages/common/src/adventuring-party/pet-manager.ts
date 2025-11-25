@@ -3,7 +3,6 @@ import { MAXIMUM_PET_SLOTS } from "../app-consts.js";
 import { Combatant } from "../combatants/index.js";
 import { EntityId } from "../primatives/index.js";
 import { Battle } from "../battle/index.js";
-import { TurnTrackerEntityType } from "../combat/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
@@ -112,6 +111,10 @@ export class PetManager extends AdventuringPartySubsystem {
     petOption.combatantProperties.transformProperties.setToHomeTransform();
 
     return pet;
+  }
+
+  releasePetInSlot(ownerId: EntityId, slotIndex: number) {
+    this.removePetFromUnsummonedSlot(ownerId, slotIndex);
   }
 
   getCombatantSummonedPetOption(combatantId: EntityId) {

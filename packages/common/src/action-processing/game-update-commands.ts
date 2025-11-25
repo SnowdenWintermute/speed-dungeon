@@ -159,6 +159,7 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   actionEntityIdsToHide?: EntityId[];
   actionEntityChanges?: Record<EntityId, Partial<ActionEntityActionOriginData>>;
   petSlotsSummoned?: PetSlot[];
+  petSlotsReleased?: PetSlot[];
   petsUnsummoned?: EntityId[];
   petsTamed?: { petId: EntityId; tamerId: EntityId }[];
 }

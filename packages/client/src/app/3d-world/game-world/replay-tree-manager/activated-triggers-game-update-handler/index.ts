@@ -19,6 +19,7 @@ import { FloatingMessageService } from "@/mobx-stores/game-event-notifications/f
 import { AppStore } from "@/mobx-stores/app-store";
 import { handlePetSlotsUnsummoned } from "./handle-pets-unsummoned";
 import { handlePetsTamed } from "./handle-pets-tamed";
+import { handlePetSlotsReleased } from "./handle-pets-released";
 
 export async function activatedTriggersGameUpdateHandler(
   update: GameUpdateTracker<ActivatedTriggersGameUpdateCommand>
@@ -40,6 +41,7 @@ export async function activatedTriggersGameUpdateHandler(
     removedConditionStacks,
     removedConditionIds,
     petSlotsSummoned,
+    petSlotsReleased,
     petsUnsummoned,
     petsTamed,
   } = command;
@@ -50,6 +52,10 @@ export async function activatedTriggersGameUpdateHandler(
 
   if (petSlotsSummoned) {
     handlePetSlotsSummoned(petSlotsSummoned, party, game);
+  }
+
+  if (petSlotsReleased) {
+    handlePetSlotsReleased(petSlotsReleased, party);
   }
 
   if (petsUnsummoned) {

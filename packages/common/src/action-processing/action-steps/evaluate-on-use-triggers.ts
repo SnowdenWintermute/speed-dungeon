@@ -35,7 +35,7 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     const onUseTriggers = action.hitOutcomeProperties.getOnUseTriggers(context);
     Object.assign(gameUpdateCommand, onUseTriggers);
 
-    const { petSlotsSummoned, petsUnsummoned } = onUseTriggers;
+    const { petSlotsSummoned, petsUnsummoned, petSlotsReleased } = onUseTriggers;
     if (petSlotsSummoned) {
       const { petManager } = party;
       const battleOption = party.getBattleOption(game);
@@ -54,6 +54,12 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     if (petsUnsummoned) {
       for (const petId of petsUnsummoned) {
         party.petManager.unsummonPet(petId, game);
+      }
+    }
+
+    if (petSlotsReleased) {
+      for (const { ownerId, slotIndex } of petSlotsReleased) {
+        party.petManager.releasePetInSlot(ownerId, slotIndex);
       }
     }
 

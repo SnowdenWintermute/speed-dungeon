@@ -1,13 +1,15 @@
 import {
   BASE_ACTION_HIERARCHY_PROPERTIES,
   CombatActionComponentConfig,
-  CombatActionExecutionIntent,
   CombatActionLeaf,
   CombatActionName,
   CombatActionResource,
   createGenericSpellCastMessageProperties,
 } from "../../index.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import {
+  ActionResolutionStepType,
+  ActivatedTriggersGameUpdateCommand,
+} from "../../../../action-processing/index.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
@@ -28,6 +30,7 @@ import {
   ACTION_EXECUTION_PRECONDITIONS,
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
+import cloneDeep from "lodash.clonedeep";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
 
@@ -57,7 +60,7 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,
   costBases: {
     [CombatActionResource.Mana]: {
-      base: 2,
+      base: 0,
       additives: {
         actionLevel: 0,
         userCombatantLevel: 0,
@@ -71,11 +74,25 @@ const costProperties = createCostPropertiesConfig(costPropertiesBase, costProper
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.THREATLESS_ACTION,
-  {}
+  {
+    getOnUseTriggers: (context) => {
+      const { rank } = context.tracker.actionExecutionIntent;
+      const petSlot = rank - 1;
+
+      const { actionUserContext } = context;
+      const { actionUser } = actionUserContext;
+
+      const toReturn: Partial<ActivatedTriggersGameUpdateCommand> = {
+        petSlotsReleased: [{ ownerId: actionUser.getEntityId(), slotIndex: petSlot }],
+      };
+
+      return toReturn;
+    },
+  }
 );
 
 const config: CombatActionComponentConfig = {
-  description: "Summon a creature companion",
+  description: "Permenantly release your creature companion",
   prerequisiteAbilities: [],
   gameLogMessageProperties: createGenericSpellCastMessageProperties(
     CombatActionName.SummonPetParent
@@ -101,23 +118,7 @@ const config: CombatActionComponentConfig = {
   hitOutcomeProperties,
   costProperties,
   stepsConfig,
-
-  hierarchyProperties: {
-    ...BASE_ACTION_HIERARCHY_PROPERTIES,
-    getConcurrentSubActions(context) {
-      const user = context.actionUserContext.actionUser;
-      return [
-        {
-          user,
-          actionExecutionIntent: new CombatActionExecutionIntent(
-            CombatActionName.SummonPetAppear,
-            context.tracker.actionExecutionIntent.rank,
-            context.tracker.actionExecutionIntent.targets
-          ),
-        },
-      ];
-    },
-  },
+  hierarchyProperties: cloneDeep(BASE_ACTION_HIERARCHY_PROPERTIES),
 };
 
-export const SUMMON_PET_PARENT = new CombatActionLeaf(CombatActionName.SummonPetParent, config);
+export const RELEASE_PET = new CombatActionLeaf(CombatActionName.SummonPetParent, config);

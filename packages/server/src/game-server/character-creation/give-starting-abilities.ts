@@ -18,6 +18,7 @@ export function giveStartingAbilities(actionUser: IActionUser) {
     CombatActionName.TamePet,
     CombatActionName.SummonPetParent,
     CombatActionName.DismissPet,
+    CombatActionName.ReleasePet,
     // CombatActionName.Counterattack,
     // CombatActionName.IceBoltParent,
     CombatActionName.Fire,

@@ -149,6 +149,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     // might remove a combatant, such as with tame pet
 
     const { petsTamed } = customTriggers;
+
     if (petsTamed) {
       for (const { petId, tamerId } of petsTamed) {
         party.petManager.handlePetTamed(petId, tamerId, game);

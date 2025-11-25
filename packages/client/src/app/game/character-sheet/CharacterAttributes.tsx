@@ -40,10 +40,12 @@ export const CharacterAttributes = observer(
     const { experiencePoints } = classProgressionProperties;
     const requiredForNextLevel = experiencePoints.getRequiredForNextLevel();
 
-    let expRequiredForNextLevelString =
+    const expRequiredForNextLevelString =
       typeof requiredForNextLevel === "number" ? requiredForNextLevel.toString() : "∞";
 
-    let experiencePointsText = isPlayerControlled
+    const isPlayerPet = combatantProperties.controlledBy.isPlayerPet();
+    const shouldShowExp = isPlayerControlled || isPlayerPet;
+    const experiencePointsText = shouldShowExp
       ? `${experiencePoints.getCurrent()} / ${expRequiredForNextLevelString} experience`
       : "";
 
