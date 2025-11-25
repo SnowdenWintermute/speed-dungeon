@@ -35,6 +35,4 @@ export function handlePetSlotsSummoned(
       },
     });
   }
-
-  party.getBattleOption(game)?.turnOrderManager.updateTrackers(game, party);
 }

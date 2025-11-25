@@ -40,7 +40,9 @@ export class TurnSchedulerManager {
   buildNewList(game: SpeedDungeonGame, party: AdventuringParty) {
     this.removeStaleTurnSchedulers(party);
 
-    for (const scheduler of this.schedulers) scheduler.reset(party);
+    for (const scheduler of this.schedulers) {
+      scheduler.reset(party);
+    }
 
     const turnTrackerList: TurnTracker[] = [];
 
@@ -59,9 +61,14 @@ export class TurnSchedulerManager {
       const fastestActor = this.getFirstScheduler();
 
       const trackerOption = fastestActor.createTurnTrackerOption(game, party);
-      if (trackerOption instanceof CombatantTurnTracker) numCombatantTrackersCreated += 1;
+      if (trackerOption instanceof CombatantTurnTracker) {
+        numCombatantTrackersCreated += 1;
+      }
 
-      if (trackerOption) turnTrackerList.push(trackerOption);
+      if (trackerOption) {
+        turnTrackerList.push(trackerOption);
+      }
+
       const delay = TurnOrderManager.getActionDelayCost(
         fastestActor.getSpeed(party),
         BASE_ACTION_DELAY_MULTIPLIER

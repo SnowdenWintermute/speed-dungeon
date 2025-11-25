@@ -111,23 +111,6 @@ export class PetManager extends AdventuringPartySubsystem {
     party.combatantManager.setPetHomePositionNextToOwner(petOption);
     petOption.combatantProperties.transformProperties.setToHomeTransform();
 
-    // if in battle, add its turn tracker
-    if (battleOption !== null) {
-      const fastestTurnTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
-
-      const delayOfCurrentActor = fastestTurnTracker.timeOfNextMove;
-
-      const delayOfNewScheduler = delayOfCurrentActor + 1;
-
-      battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
-        {
-          type: TurnTrackerEntityType.Combatant,
-          combatantId: pet.entityProperties.id,
-        },
-        delayOfNewScheduler
-      );
-    }
-
     return pet;
   }
 

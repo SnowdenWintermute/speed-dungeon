@@ -221,11 +221,22 @@ export class CombatantManager extends AdventuringPartySubsystem {
     this.combatants.delete(combatantId);
     const party = this.getParty();
     party.getBattleOption(game)?.turnOrderManager.updateTrackers(game, party);
+
+    for (const combatant of party.combatantManager.getAllCombatants()) {
+      const { threatManager } = combatant.combatantProperties;
+      if (threatManager === undefined) {
+        continue;
+      }
+
+      threatManager.removeEntry(combatantId);
+    }
+
     return combatant;
   }
 
   addCombatant(combatant: Combatant, game: SpeedDungeonGame) {
     this.combatants.set(combatant.getEntityId(), combatant);
+
     const party = this.getParty();
     const battleOption = party.getBattleOption(game);
     if (battleOption) {
@@ -233,20 +244,24 @@ export class CombatantManager extends AdventuringPartySubsystem {
 
       const fastestTurnTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
       const delayOfCurrentActor = fastestTurnTracker.timeOfNextMove;
-      const delayOfNewScheduler = delayOfCurrentActor + 1;
+      const delayOfNewCombatantSheduler = delayOfCurrentActor + 1;
 
       battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
         {
           type: TurnTrackerEntityType.Combatant,
           combatantId: combatant.entityProperties.id,
         },
-        delayOfNewScheduler
+        delayOfNewCombatantSheduler
       );
 
-      for (const condition of combatant.combatantProperties.conditionManager.getConditions()) {
-        console.log("adding condition to turn order:", condition.getName());
-        turnSchedulerManager.addConditionToTurnOrder(party, condition);
-      }
+      combatant.combatantProperties.conditionManager
+        .getConditions()
+        .forEach((condition, conditionIndex) => {
+          const conditionStartingDelay = delayOfNewCombatantSheduler + conditionIndex;
+          turnSchedulerManager.addConditionToTurnOrder(party, condition, {
+            withCustomStartingDelay: conditionStartingDelay,
+          });
+        });
 
       battleOption.turnOrderManager.updateTrackers(game, party);
     }
