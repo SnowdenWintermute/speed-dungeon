@@ -10,6 +10,7 @@ export enum ProhibitedTargetCombatantStates {
   UntargetableBySpells,
   UntargetableByPhysical,
   IsNotTameable,
+  // is too high level to target
 }
 
 export const PROHIBITED_TARGET_COMBATANT_STATE_STRINGS: Record<

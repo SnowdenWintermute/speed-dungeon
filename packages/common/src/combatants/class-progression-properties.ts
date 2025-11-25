@@ -13,6 +13,7 @@ import {
 } from "../app-consts.js";
 import { runIfInBrowser } from "../utils/index.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
+import { AdventuringParty } from "../adventuring-party/index.js";
 
 export class ExperiencePoints {
   private current: number = 0;
@@ -105,6 +106,25 @@ export class ClassProgressionProperties extends CombatantSubsystem {
     }
 
     return levelupCount;
+  }
+
+  isEligableToReceiveExperiencePoints(party: AdventuringParty) {
+    const combatantProperties = this.getCombatantProperties();
+    const isDead = combatantProperties.isDead();
+    if (isDead) {
+      return false;
+    }
+
+    // check if they are pet of combatant
+    const { summonedBy } = combatantProperties.controlledBy;
+    if (summonedBy === undefined) {
+      return true;
+    }
+
+    const petOwner = party.combatantManager.getExpectedCombatant(summonedBy);
+    const maxPetLevel = petOwner.combatantProperties.abilityProperties.getMaxPetLevel();
+    const petLevel = combatantProperties.classProgressionProperties.getMainClass().level;
+    return petLevel < maxPetLevel;
   }
 
   /** Returns the new level reached for this combatant if any */

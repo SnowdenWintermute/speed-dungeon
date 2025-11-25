@@ -31,7 +31,7 @@ export function createCharacterHandler(
 
   // @TESTING - pets
   // @TODO - don't start a new character with any pets
-  const testPet = generateMonster(1, MonsterType.Wolf);
+  const testPet = generateMonster(8, MonsterType.Wolf);
   delete testPet.combatantProperties.threatManager;
   testPet.combatantProperties.controlledBy.controllerType = CombatantControllerType.PlayerPetAI;
   testPet.combatantProperties.classProgressionProperties.experiencePoints.changeExperience(81);

@@ -12,6 +12,7 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantSubsystem } from "../combatant-subsystem.js";
 import { ABILITY_TREES } from "../ability-tree/set-up-ability-trees.js";
 import { COMBATANT_TRAIT_DESCRIPTIONS } from "../combatant-traits/index.js";
+import { getTamePetMaxPetLevel } from "../../combat/combat-actions/action-implementations/summon-pet/tame-pet.js";
 
 export class CombatantAbilityProperties extends CombatantSubsystem {
   private ownedActions: Map<CombatActionName, CombatantActionState> = new Map();
@@ -201,6 +202,18 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
         actionState.cooldown.current -= 1;
       }
     }
+  }
+
+  getMaxPetLevel() {
+    const summonPetRank = this.getAbilityRank({
+      type: AbilityType.Action,
+      actionName: CombatActionName.SummonPetParent,
+    });
+    if (summonPetRank === 0) {
+      return 1;
+    }
+    const max = getTamePetMaxPetLevel(summonPetRank);
+    return max;
   }
 
   // TRAITS

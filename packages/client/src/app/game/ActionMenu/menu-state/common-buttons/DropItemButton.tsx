@@ -19,7 +19,9 @@ export const DropItemButton = observer((props: Props) => {
   const focusedCharacter = gameStore.getExpectedFocusedCharacter();
   const characterId = focusedCharacter.getEntityId();
   const itemId = props.item.entityProperties.id;
-  const userDoesNotControlCharacter = !gameStore.clientUserControlsFocusedCombatant();
+  const userDoesNotControlCharacter = !gameStore.clientUserControlsFocusedCombatant({
+    includePets: true,
+  });
 
   function clickHandler() {
     const slotEquipped =

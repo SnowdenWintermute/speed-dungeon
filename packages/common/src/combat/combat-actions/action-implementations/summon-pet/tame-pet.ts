@@ -90,6 +90,13 @@ const hitOutcomeProperties = createHitOutcomeProperties(
   }
 );
 
+export function getTamePetMaxPetLevel(actionRank: number) {
+  const BASE_SUMMONED_PET_LEVEL = 4;
+  const PET_LEVEL_PER_SUMMON_PET_RANK = 2;
+  const levelBonus = PET_LEVEL_PER_SUMMON_PET_RANK * actionRank;
+  return BASE_SUMMONED_PET_LEVEL + levelBonus;
+}
+
 const config: CombatActionComponentConfig = {
   description: "Attempt to convince a creature to join your pack.",
   selectableRankLimit: 1,
@@ -99,7 +106,11 @@ const config: CombatActionComponentConfig = {
     getOnUseMessage: (data) => `${data.nameOfActionUser} attempts to tame ${data.nameOfTarget}`,
   }),
   getByRankDescriptions: () => {
-    return { [1]: "One pet slot", [2]: "Two pet slots", [3]: "Three pet slots" };
+    return {
+      [1]: `One pet slot, max pet level ${getTamePetMaxPetLevel(1)}`,
+      [2]: `Two pet slots, ${getTamePetMaxPetLevel(2)}`,
+      [3]: `Three pet slots, ${getTamePetMaxPetLevel(3)}`,
+    };
   },
   getByRankShortDescriptions: () => {
     return { [1]: "Attempt to tame the target" };

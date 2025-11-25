@@ -46,7 +46,11 @@ export default function initiateGameEventListeners(
   );
   socket.on(
     ClientToServerEvent.DropItem,
-    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, dropItemHandler)
+    applyMiddlewares(
+      allowSummonedPets,
+      getCharacterAssociatedData,
+      prohibitIfDead
+    )(socket, dropItemHandler)
   );
   socket.on(
     ClientToServerEvent.DropEquippedItem,
@@ -74,7 +78,11 @@ export default function initiateGameEventListeners(
   );
   socket.on(
     ClientToServerEvent.PickUpItems,
-    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, pickUpItemsHandler)
+    applyMiddlewares(
+      allowSummonedPets,
+      getCharacterAssociatedData,
+      prohibitIfDead
+    )(socket, pickUpItemsHandler)
   );
   socket.on(
     ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate,
