@@ -47,6 +47,13 @@ export class CombatantControlledBy {
     return this.summonedBy !== undefined;
   }
 
+  getExpectedSummonedByCombatant(party: AdventuringParty) {
+    if (this.summonedBy === undefined) {
+      throw new Error("Expected this combatant to have been summoned by someone");
+    }
+    return party.combatantManager.getExpectedCombatant(this.summonedBy);
+  }
+
   wasSummonedByCharacterControlledByPlayer(playerName: string, party: AdventuringParty) {
     const { combatantManager } = party;
     for (const character of combatantManager.getPartyMemberCharacters()) {

@@ -1,5 +1,10 @@
 import { Option } from "../primatives/option.js";
-import { CombatActionName, FriendOrFoe, TargetingScheme } from "../combat/combat-actions/index.js";
+import {
+  CombatActionExecutionIntent,
+  CombatActionName,
+  FriendOrFoe,
+  TargetingScheme,
+} from "../combat/combat-actions/index.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
 import { EntityId, NextOrPrevious } from "../primatives/index.js";
 import { SpeedDungeonPlayer } from "../game/player.js";
@@ -23,6 +28,8 @@ export class ActionAndRank {
 export class ActionUserTargetingProperties {
   private selectedActionAndRank: Option<ActionAndRank> = null;
   private selectedTarget: Option<CombatActionTarget> = null;
+  /** Used for when a pet needs to know which target their owner most recently targeted */
+  private mostRecentActionExecutionIntent: Option<CombatActionExecutionIntent> = null;
   private selectedTargetingScheme: Option<TargetingScheme> = null;
   private selectedItemId: Option<EntityId> = null;
 
@@ -34,11 +41,14 @@ export class ActionUserTargetingProperties {
     return plainToInstance(ActionUserTargetingProperties, actionUserTargetingProperties);
   }
 
-  clear() {
+  clear(options?: { clearMostRecentTarget?: boolean }) {
     this.selectedActionAndRank = null;
     this.selectedTarget = null;
     this.selectedTargetingScheme = null;
     this.selectedItemId = null;
+    if (options?.clearMostRecentTarget) {
+      this.mostRecentActionExecutionIntent = null;
+    }
   }
 
   // Useful for working with immer/zustand. Allows us to use setters
@@ -53,14 +63,21 @@ export class ActionUserTargetingProperties {
   getSelectedActionAndRank() {
     return this.selectedActionAndRank;
   }
+
   getSelectedTarget() {
     return this.selectedTarget;
   }
+
   getSelectedTargetingScheme() {
     return this.selectedTargetingScheme;
   }
+
   getSelectedItemId() {
     return this.selectedItemId;
+  }
+
+  getMostRecentActionExecutionIntentOption() {
+    return this.mostRecentActionExecutionIntent;
   }
 
   setSelectedActionAndRank(actionAndRank: Option<ActionAndRank>) {
@@ -68,6 +85,14 @@ export class ActionUserTargetingProperties {
   }
 
   setSelectedTarget(targetOption: Option<CombatActionTarget>) {
+    if (this.selectedActionAndRank && targetOption) {
+      const { actionName, rank } = this.selectedActionAndRank;
+      this.mostRecentActionExecutionIntent = new CombatActionExecutionIntent(
+        actionName,
+        rank,
+        targetOption
+      );
+    }
     this.selectedTarget = targetOption;
   }
   setSelectedTargetingScheme(selectedTargetingSchemeOption: Option<TargetingScheme>) {

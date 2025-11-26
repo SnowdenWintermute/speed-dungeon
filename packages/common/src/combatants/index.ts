@@ -22,6 +22,9 @@ import { HoldableSlotType } from "../items/equipment/slots.js";
 
 export enum AiType {
   Healer,
+  TargetPetOwnerMostRecentTarget,
+  TargetLowestHpEnemy,
+  AlwaysPassTurn,
 }
 
 export * from "./combatant-class/index.js";

@@ -322,9 +322,9 @@ export class CombatantManager extends AdventuringPartySubsystem {
 
   setPetHomePositionNextToOwner(pet: Combatant) {
     // put them next to the one who summoned them
-    const { summonedBy } = pet.combatantProperties.controlledBy;
-    if (summonedBy === undefined) throw new Error("expected to have been summoned by someone");
-    const summonedByCombatant = this.getExpectedCombatant(summonedBy);
+    const summonedByCombatant = pet.combatantProperties.controlledBy.getExpectedSummonedByCombatant(
+      this.getParty()
+    );
 
     const ownerHomePosition = summonedByCombatant.getHomePosition();
     const petHomePosition = pet.getHomePosition();

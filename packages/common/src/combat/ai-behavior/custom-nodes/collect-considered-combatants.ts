@@ -12,7 +12,7 @@ export class CollectConsideredCombatants implements BehaviorNode {
     private behaviorContext: AIBehaviorContext,
     private combatant: Combatant,
     private combatantRelation: TargetCategories,
-    private filteringFunction: (combatant: Combatant) => boolean,
+    private filteringFunction: (targetCombatant: Combatant) => boolean,
     private consideredCombatantsSetter: (combatants: Combatant[]) => void
   ) {}
   execute(): BehaviorNodeState {
