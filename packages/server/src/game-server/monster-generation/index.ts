@@ -45,9 +45,9 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
 
   combatantProperties.classProgressionProperties.getMainClass().level = level;
 
-  // @TODO - remove, testing
-  const testLevel = randBetween(8, 9, rngSingleton);
-  combatantProperties.classProgressionProperties.getMainClass().level = testLevel;
+  // // @TODO - remove, testing
+  // const testLevel = randBetween(8, 9, rngSingleton);
+  // combatantProperties.classProgressionProperties.getMainClass().level = testLevel;
 
   const ownedActions: CombatActionName[] = [
     CombatActionName.Attack,

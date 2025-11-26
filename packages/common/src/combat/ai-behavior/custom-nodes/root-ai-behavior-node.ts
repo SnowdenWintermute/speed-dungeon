@@ -13,6 +13,10 @@ export class RootAIBehaviorNode implements BehaviorNode {
   ) {
     const targetSelectionSchemes: BehaviorNode[] = [];
 
+    // @TODO pet command handling - can be used for "confuse" and "fear" conditions also
+    // - check conditions for temporary AiTypes
+    // - replace combatant's default AiTypes with those
+
     if (combatant.combatantProperties.controlledBy.aiTypes?.includes(AiType.Healer)) {
       targetSelectionSchemes.push(
         new SelectActionToHealLowestHpAlly(this.behaviorContext, this.combatant, 0.7)

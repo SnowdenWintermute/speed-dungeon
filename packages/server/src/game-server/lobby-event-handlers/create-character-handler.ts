@@ -34,6 +34,7 @@ export function createCharacterHandler(
   const testPet = generateMonster(8, MonsterType.Wolf);
   delete testPet.combatantProperties.threatManager;
   testPet.combatantProperties.controlledBy.controllerType = CombatantControllerType.PlayerPetAI;
+
   testPet.combatantProperties.classProgressionProperties.experiencePoints.changeExperience(81);
   testPet.combatantProperties.attributeProperties.changeUnspentPoints(10);
   const pets: Combatant[] = [testPet];
