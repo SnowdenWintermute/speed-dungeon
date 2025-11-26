@@ -102,8 +102,13 @@ export class HitOutcomeMitigationCalculator {
     }
 
     // RESISTS
-    if (hitOutcomeProperties.getIsResisted !== undefined) {
-      const isResisted = hitOutcomeProperties.getIsResisted(user, this.actionLevel, target);
+    if (hitOutcomeProperties.getResistChance !== undefined) {
+      const resistChance = hitOutcomeProperties.getResistChance(user, this.actionLevel, target);
+
+      const resistRoll = randBetween(0, 100, this.rng);
+
+      const isResisted = resistRoll < resistChance;
+
       if (isResisted) {
         return [HitOutcome.Resist];
       }

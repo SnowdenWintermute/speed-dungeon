@@ -3,8 +3,10 @@ import {
   DungeonRoom,
   DungeonRoomType,
   NUM_MONSTERS_PER_ROOM,
+  randBetween,
 } from "@speed-dungeon/common";
 import { generateMonster } from "../monster-generation/index.js";
+import { rngSingleton } from "../../singletons/index.js";
 
 export function generateDungeonRoom(
   floor: number,
@@ -15,6 +17,7 @@ export function generateDungeonRoom(
   if (roomType === DungeonRoomType.MonsterLair) {
     for (let i = 0; i < NUM_MONSTERS_PER_ROOM; i += 1) {
       const newMonster = generateMonster(floor);
+
       monsters.push(newMonster);
     }
   }

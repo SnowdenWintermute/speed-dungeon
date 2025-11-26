@@ -102,6 +102,11 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
             primaryTargetResult.combatantProperties
           );
 
+          const isResistable = !!action.hitOutcomeProperties?.getResistChance;
+          const percentChanceToResist =
+            action.hitOutcomeProperties?.getResistChance?.(combatant, rank, primaryTargetResult) ||
+            0;
+
           const rankDescription = actionDescription.getDescriptionByLevel(combatant, party, rank);
 
           const resourceChangePropertiesOption =
@@ -173,6 +178,16 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
                       </div>
                     }{" "}
                     <div className="">{Math.floor(percentChanceToHit.afterEvasion)}%</div>
+                  </div>
+                )}
+                {isResistable && percentChanceToResist && (
+                  <div className="h-full flex items-center ml-2 mr-1">
+                    {
+                      <div className="h-6 mr-1">
+                        {SVG_ICONS[IconName.Target]("h-full fill-slate-400 stroke-slate-400 ")}
+                      </div>
+                    }{" "}
+                    <div className="">{Math.floor(100 - percentChanceToResist)}%</div>
                   </div>
                 )}
                 {conditionsAppliedOption && (

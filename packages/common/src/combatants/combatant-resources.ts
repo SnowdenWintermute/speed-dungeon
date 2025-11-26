@@ -88,7 +88,8 @@ export class CombatantResources extends CombatantSubsystem {
     }
   }
 
-  private getResourcePercentagesOfMax() {
+  /** Returns a normalized percentage (0-1) */
+  getResourcePercentagesOfMax() {
     const combatantProperties = this.getCombatantProperties();
     const totalAttributes = combatantProperties.attributeProperties.getTotalAttributes();
     const maxHitPoints = totalAttributes[CombatAttribute.Hp] ?? 0;

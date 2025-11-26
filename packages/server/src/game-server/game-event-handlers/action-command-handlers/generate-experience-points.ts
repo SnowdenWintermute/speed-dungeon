@@ -27,7 +27,6 @@ export function generateExperiencePoints(party: AdventuringParty) {
     const { classProgressionProperties } = combatant.combatantProperties;
 
     const isEligable = classProgressionProperties.isEligableToReceiveExperiencePoints(party);
-    console.log(combatant.getName(), "is isEligableToReceiveExperiencePoints:", isEligable);
     const notEligableToReceiveExp = !isEligable;
     if (notEligableToReceiveExp) {
       continue;

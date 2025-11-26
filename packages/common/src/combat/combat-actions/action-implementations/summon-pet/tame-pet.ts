@@ -28,6 +28,7 @@ import { HitOutcome } from "../../../../hit-outcome.js";
 import { TAME_PET_STEP_CONFIG } from "./tame-pet-steps-config.js";
 import { AbilityType } from "../../../../abilities/ability-types.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
+import { COMBATANT_MAX_LEVEL } from "../../../../app-consts.js";
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,
@@ -65,12 +66,20 @@ const costProperties = createCostPropertiesConfig(costPropertiesBase, costProper
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.THREATLESS_ACTION,
   {
-    getIsResisted() {
-      // @TODO
-      // check the hp of the pet is below a threshold based on something
-      // check the difference in level user-target
+    getResistChance(user, actionRank, target) {
+      const { percentOfMaxHitPoints } = target
+        .getCombatantProperties()
+        .resources.getResourcePercentagesOfMax();
 
-      return false;
+      const targetLevel = target.getLevel();
+      const userLevel = user.getLevel();
+      const levelDifference = targetLevel - userLevel;
+      const levelDifferenceMultiplier = levelDifference / COMBATANT_MAX_LEVEL;
+
+      const rawChanceToResist = (percentOfMaxHitPoints + levelDifferenceMultiplier) * 100;
+      const chanceToResist = Math.min(100, rawChanceToResist);
+
+      return chanceToResist;
     },
 
     getHitOutcomeTriggers: (context) => {
@@ -107,13 +116,15 @@ const config: CombatActionComponentConfig = {
   }),
   getByRankDescriptions: () => {
     return {
-      [1]: `One pet slot, max pet level ${getTamePetMaxPetLevel(1)}`,
-      [2]: `Two pet slots, ${getTamePetMaxPetLevel(2)}`,
-      [3]: `Three pet slots, ${getTamePetMaxPetLevel(3)}`,
+      [1]: `One pet slot, max pet level: ${getTamePetMaxPetLevel(1)}`,
+      [2]: `Two pet slots, max pet level: ${getTamePetMaxPetLevel(2)}`,
+      [3]: `Three pet slots, max pet level: ${getTamePetMaxPetLevel(3)}`,
     };
   },
-  getByRankShortDescriptions: () => {
-    return { [1]: "Attempt to tame the target" };
+  getByRankShortDescriptions: (user) => {
+    return {
+      [1]: `Tame the target`,
+    };
   },
   targetingProperties: createTargetingPropertiesConfig(
     TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE,
@@ -125,6 +136,7 @@ const config: CombatActionComponentConfig = {
       prohibitedTargetCombatantStates: [
         ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE().prohibitedTargetCombatantStates,
         ProhibitedTargetCombatantStates.IsNotTameable,
+        ProhibitedTargetCombatantStates.IsBeyondUserMaximumPetLevel,
       ],
     }
   ),

@@ -31,7 +31,8 @@ export class TargetingCalculator {
     const filteredTargets = TargetFilterer.filterPossibleTargetIdsByProhibitedCombatantStates(
       this.context.party,
       targetingProperties.prohibitedTargetCombatantStates,
-      idsByDisposition
+      idsByDisposition,
+      this.context.actionUser
     );
 
     const targetEntityIdsResult = getActionTargetsIfSchemeIsValid(targets, filteredTargets);
@@ -62,7 +63,8 @@ export class TargetingCalculator {
     const filtered = TargetFilterer.filterPossibleTargetIdsByProhibitedCombatantStates(
       party,
       prohibitedTargetCombatantStates,
-      allyAndOpponentIds
+      allyAndOpponentIds,
+      this.context.actionUser
     );
 
     TargetFilterer.filterPossibleTargetIdsByActionTargetCategories(

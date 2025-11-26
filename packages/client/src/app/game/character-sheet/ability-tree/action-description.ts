@@ -4,9 +4,11 @@ import {
   AbilityType,
   AbilityUtils,
   ActionPayableResource,
+  ActionUserContext,
   AdventuringParty,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponent,
+  CombatActionExecutionIntent,
   Combatant,
   CombatantClass,
   CombatantControlledBy,
@@ -15,6 +17,8 @@ import {
   CombatantSpecies,
   IActionUser,
   iterateNumericEnumKeyedRecord,
+  SpeedDungeonGame,
+  TargetingCalculator,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import isEqual from "lodash.isequal";
@@ -85,24 +89,24 @@ export class ActionDescription {
     return this.combatAction.hitOutcomeProperties.flatThreatGeneratedOnHit;
   }
 
-  getDescriptionByLevel(user: Combatant, party: AdventuringParty, actionLevel: number) {
+  getDescriptionByLevel(user: Combatant, party: AdventuringParty, actionRank: number) {
     const { combatantProperties } = user;
     const { hitOutcomeProperties, targetingProperties, costProperties } = this.combatAction;
 
-    const resourceCosts = costProperties.getResourceCosts(user, true, actionLevel);
+    const resourceCosts = costProperties.getResourceCosts(user, true, actionRank);
 
-    const critChanceOption = this.combatAction.getCritChance(user, actionLevel);
-    const critMultiplierOption = hitOutcomeProperties.getCritMultiplier(user, actionLevel);
+    const critChanceOption = this.combatAction.getCritChance(user, actionRank);
+    const critMultiplierOption = hitOutcomeProperties.getCritMultiplier(user, actionRank);
 
     // const addsPropertiesFromHoldableSlot = hitOutcomeProperties.addsPropertiesFromHoldableSlot
 
     return {
       [ActionDescriptionComponent.TargetingSchemes]:
-        targetingProperties.getTargetingSchemes(actionLevel),
+        targetingProperties.getTargetingSchemes(actionRank),
       [ActionDescriptionComponent.TargetableGroups]:
-        targetingProperties.getValidTargetCategories(actionLevel),
-      [ActionDescriptionComponent.Cooldown]: costProperties.getCooldownTurns(user, actionLevel),
-      [ActionDescriptionComponent.RequiresTurn]: costProperties.getEndsTurnOnUse(actionLevel),
+        targetingProperties.getValidTargetCategories(actionRank),
+      [ActionDescriptionComponent.Cooldown]: costProperties.getCooldownTurns(user, actionRank),
+      [ActionDescriptionComponent.RequiresTurn]: costProperties.getEndsTurnOnUse(actionRank),
       [ActionDescriptionComponent.ShardCost]: resourceCosts
         ? resourceCosts[ActionPayableResource.Shards]
         : null,
@@ -115,7 +119,7 @@ export class ActionDescription {
       [ActionDescriptionComponent.ActionPointCost]: resourceCosts
         ? resourceCosts[ActionPayableResource.ActionPoints]
         : null,
-      [ActionDescriptionComponent.Accuracy]: this.combatAction.getAccuracy(user, actionLevel),
+      [ActionDescriptionComponent.Accuracy]: this.combatAction.getAccuracy(user, actionRank),
       [ActionDescriptionComponent.CritChance]:
         critChanceOption !== null ? Math.floor(critChanceOption) : null,
       [ActionDescriptionComponent.CritMultiplier]:
@@ -123,21 +127,21 @@ export class ActionDescription {
       [ActionDescriptionComponent.ArmorPenetration]: Math.floor(
         hitOutcomeProperties.getArmorPenetration(
           user,
-          actionLevel,
+          actionRank,
           this.combatAction.hitOutcomeProperties
         )
       ),
       [ActionDescriptionComponent.IsParryable]: hitOutcomeProperties.getIsParryable(
         user,
-        actionLevel
+        actionRank
       ),
       [ActionDescriptionComponent.IsBlockable]: hitOutcomeProperties.getIsBlockable(
         user,
-        actionLevel
+        actionRank
       ),
       [ActionDescriptionComponent.IsCounterable]: hitOutcomeProperties.getCanTriggerCounterattack(
         user,
-        actionLevel
+        actionRank
       ),
       [ActionDescriptionComponent.ResourceChanges]: iterateNumericEnumKeyedRecord(
         hitOutcomeProperties.resourceChangePropertiesGetters
@@ -146,7 +150,7 @@ export class ActionDescription {
           resourceChangePropertiesGetter(
             user,
             hitOutcomeProperties,
-            actionLevel,
+            actionRank,
             TARGET_DUMMY_COMBATANT.combatantProperties
           )
         );
@@ -164,24 +168,24 @@ export class ActionDescription {
       [ActionDescriptionComponent.AddsPropertiesFromHoldableSlot]:
         hitOutcomeProperties.addsPropertiesFromHoldableSlot,
       [ActionDescriptionComponent.UsableWithEquipmentTypes]:
-        targetingProperties.getRequiredEquipmentTypeOptions(actionLevel),
+        targetingProperties.getRequiredEquipmentTypeOptions(actionRank),
       [ActionDescriptionComponent.AppliesConditions]: hitOutcomeProperties.getAppliedConditions(
         user,
-        actionLevel
+        actionRank
       ),
       [ActionDescriptionComponent.ClassAndLevelRequirements]:
-        this.getClassAndLevelRequirements(actionLevel),
+        this.getClassAndLevelRequirements(actionRank),
       [ActionDescriptionComponent.ByRankDescriptions]: this.getByRankDescriptions(
         user,
         party,
-        actionLevel
+        actionRank
       ),
       [ActionDescriptionComponent.ByRankDescriptionsShort]: this.getByRankShortDescriptions(
         user,
         party,
-        actionLevel
+        actionRank
       ),
-      [ActionDescriptionComponent.FlatThreatGenerated]: this.getFlatThreatGenerated(actionLevel),
+      [ActionDescriptionComponent.FlatThreatGenerated]: this.getFlatThreatGenerated(actionRank),
     };
   }
 

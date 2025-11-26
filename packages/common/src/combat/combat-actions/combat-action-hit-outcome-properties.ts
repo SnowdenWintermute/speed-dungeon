@@ -13,6 +13,7 @@ import {
 } from "../../combatants/index.js";
 import { HoldableSlotType } from "../../items/equipment/slots.js";
 import { NormalizedPercentage, Percentage } from "../../primatives/index.js";
+import { RandomNumberGenerator } from "../../utility-classes/randomizers.js";
 import { CombatActionHitOutcomes, ThreatChanges } from "../action-results/index.js";
 import { ActionAccuracy } from "./combat-action-accuracy.js";
 import { CombatActionResourceChangeProperties } from "./combat-action-resource-change-properties.js";
@@ -54,7 +55,11 @@ export interface CombatActionHitOutcomeProperties {
   getIsParryable: (user: IActionUser, actionLevel: number) => boolean;
   getIsBlockable: (user: IActionUser, actionLevel: number) => boolean;
   getCanTriggerCounterattack: (user: IActionUser, actionLevel: number) => boolean;
-  getIsResisted?: (user: IActionUser, actionRank: number, targetCombatant: Combatant) => boolean;
+  getResistChance?: (
+    user: IActionUser,
+    actionRank: number,
+    targetCombatant: Combatant
+  ) => Percentage;
   getAppliedConditions: (
     user: IActionUser,
     actionLevel: number

@@ -95,7 +95,8 @@ export class HitOutcomeCalculator {
       TargetFilterer.filterTargetIdGroupByProhibitedCombatantStates(
         party,
         this.targetIds,
-        this.action.targetingProperties.prohibitedHitCombatantStates
+        this.action.targetingProperties.prohibitedHitCombatantStates,
+        actionUser
       )
     );
 

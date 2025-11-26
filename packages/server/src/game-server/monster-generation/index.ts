@@ -1,5 +1,5 @@
 import { Vector3 } from "@babylonjs/core";
-import { idGenerator } from "../../singletons/index.js";
+import { idGenerator, rngSingleton } from "../../singletons/index.js";
 import getSpawnableMonsterTypesByFloor from "./get-spawnable-monster-types-by-floor.js";
 import {
   AbilityType,
@@ -13,6 +13,7 @@ import {
   MONSTER_TYPE_STRINGS,
   MonsterType,
   getMonsterCombatantClass,
+  randBetween,
 } from "@speed-dungeon/common";
 import { getMonsterEquipment } from "./get-monster-equipment.js";
 import { ThreatManager } from "@speed-dungeon/common";
@@ -43,6 +44,10 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   );
 
   combatantProperties.classProgressionProperties.getMainClass().level = level;
+
+  // @TODO - remove, testing
+  const testLevel = randBetween(8, 9, rngSingleton);
+  combatantProperties.classProgressionProperties.getMainClass().level = testLevel;
 
   const ownedActions: CombatActionName[] = [
     CombatActionName.Attack,

@@ -1,6 +1,7 @@
 import { Combatant } from "../../combatants/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 import { CombatantTraitType } from "../../combatants/combatant-traits/trait-types.js";
+import { IActionUser } from "../../action-user-context/action-user.js";
 
 export enum ProhibitedTargetCombatantStates {
   FullHp,
@@ -10,7 +11,7 @@ export enum ProhibitedTargetCombatantStates {
   UntargetableBySpells,
   UntargetableByPhysical,
   IsNotTameable,
-  // is too high level to target
+  IsBeyondUserMaximumPetLevel,
 }
 
 export const PROHIBITED_TARGET_COMBATANT_STATE_STRINGS: Record<
@@ -24,11 +25,12 @@ export const PROHIBITED_TARGET_COMBATANT_STATE_STRINGS: Record<
   [ProhibitedTargetCombatantStates.UntargetableBySpells]: "UntargetableBySpells",
   [ProhibitedTargetCombatantStates.UntargetableByPhysical]: "UntargetableByPhysical",
   [ProhibitedTargetCombatantStates.IsNotTameable]: "IsNotTameable",
+  [ProhibitedTargetCombatantStates.IsBeyondUserMaximumPetLevel]: "IsBeyondUserMaximumPetLevel",
 };
 
 export const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
   ProhibitedTargetCombatantStates,
-  (combatant: Combatant, extraFn?: () => boolean) => boolean
+  (combatant: Combatant, user: IActionUser) => boolean
 > = {
   [ProhibitedTargetCombatantStates.FullHp]: function (combatant: Combatant): boolean {
     const maxHp = combatant.combatantProperties.attributeProperties.getAttributeValue(
@@ -61,5 +63,13 @@ export const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
       CombatantTraitType.IsTameable
     );
     return !isTameable;
+  },
+  [ProhibitedTargetCombatantStates.IsBeyondUserMaximumPetLevel]: function (
+    combatant: Combatant,
+    user: IActionUser
+  ): boolean {
+    const userMaxPetLevel = user.getCombatantProperties().abilityProperties.getMaxPetLevel();
+    const targetLevel = combatant.getLevel();
+    return targetLevel > userMaxPetLevel;
   },
 };
