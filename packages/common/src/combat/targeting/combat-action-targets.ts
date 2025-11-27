@@ -47,3 +47,35 @@ export type CombatActionTarget =
   | CombatActionTargetAll
   | CombatActionTargetSingleAndSides
   | CombatActionTargetSides;
+
+export function combatActionTargetsAreEqual(a: CombatActionTarget, b: CombatActionTarget): boolean {
+  if (a.type !== b.type) return false;
+
+  switch (a.type) {
+    case CombatActionTargetType.Single:
+      return (b as CombatActionTargetSingle).targetId === a.targetId;
+
+    case CombatActionTargetType.SingleAndSides:
+      return (b as CombatActionTargetSingleAndSides).targetId === a.targetId;
+
+    case CombatActionTargetType.Sides:
+      return (b as CombatActionTargetSides).targetId === a.targetId;
+
+    case CombatActionTargetType.DistinctIds: {
+      const aIds = a.targetIds;
+      const bIds = (b as CombatActionTargetDistinctIds).targetIds;
+      if (aIds.length !== bIds.length) return false;
+      // compare sets ignoring order
+      return aIds.every((id) => bIds.includes(id));
+    }
+
+    case CombatActionTargetType.Group:
+      return (b as CombatActionTargetGroup).friendOrFoe === a.friendOrFoe;
+
+    case CombatActionTargetType.All:
+      return true;
+
+    default:
+      return false;
+  }
+}

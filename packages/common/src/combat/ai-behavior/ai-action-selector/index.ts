@@ -1,9 +1,16 @@
+import cloneDeep from "lodash.clonedeep";
 import { ActionAndRank } from "../../../action-user-context/action-user-targeting-properties.js";
 import { ActionUserContext } from "../../../action-user-context/index.js";
-import { Combatant, CombatantActionState } from "../../../combatants/index.js";
-import { ArrayUtils } from "../../../utils/array-utils.js";
+import { Combatant } from "../../../combatants/index.js";
+import { EntityId, NextOrPrevious } from "../../../primatives/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
-import { CombatActionExecutionIntent, CombatActionName } from "../../combat-actions/index.js";
+import { CombatActionExecutionIntent } from "../../combat-actions/index.js";
+import {
+  CombatActionTarget,
+  combatActionTargetsAreEqual,
+} from "../../targeting/combat-action-targets.js";
+import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
+import { ArrayUtils } from "../../../utils/array-utils.js";
 
 export type AiActionComparator = (
   a: CombatActionExecutionIntent,
@@ -21,12 +28,69 @@ export class AiActionSelector {
     return allCombatants.filter(filteringFunction);
   }
 
-  private getUsableActionIntents(): CombatActionExecutionIntent[] {
+  private getPotentialTargetsForActionAndRank(actionAndRank: ActionAndRank) {
+    const { actionUser } = this.actionUserContext;
+    const targetingProperties = actionUser.getTargetingProperties();
+    targetingProperties.setSelectedActionAndRank(actionAndRank);
+
+    const targetingCalculator = new TargetingCalculator(this.actionUserContext, null);
+
+    // must set it as selected since targetingCalculator will look for it
+    const initialTargetsResult =
+      targetingProperties.assignInitialTargetsForSelectedAction(targetingCalculator);
+
+    if (initialTargetsResult instanceof Error) {
+      console.error(initialTargetsResult);
+      return [];
+    }
+
+    const targetOptions: CombatActionTarget[] = [];
+
+    const { actionName, rank } = actionAndRank;
+    const action = COMBAT_ACTIONS[actionName];
+
+    const targetingSchemeOptions = [...action.targetingProperties.getTargetingSchemes(rank)];
+
+    const validTargetsByDisposition =
+      targetingCalculator.getFilteredPotentialTargetIdsForAction(actionAndRank);
+
+    for (const currentTargetingSchemeIndex of targetingSchemeOptions) {
+      let currentOption = targetingProperties.cycleTargets(
+        NextOrPrevious.Next,
+        null,
+        validTargetsByDisposition
+      );
+
+      while (
+        !targetOptions.some((existing) => combatActionTargetsAreEqual(existing, currentOption))
+      ) {
+        targetOptions.push(currentOption);
+
+        currentOption = targetingProperties.cycleTargets(
+          NextOrPrevious.Next,
+          null,
+          validTargetsByDisposition
+        );
+      }
+
+      targetingProperties.cycleTargetingSchemes(targetingCalculator);
+
+      const selectedTarget = targetingProperties.getSelectedTarget();
+      if (selectedTarget !== null) {
+        currentOption = cloneDeep(selectedTarget);
+      }
+    }
+
+    return targetOptions;
+  }
+
+  private getUsableActionRankPairs(): ActionAndRank[] {
     const { actionUser, party } = this.actionUserContext;
     const ownedActions = Array.from(actionUser.getOwnedAbilities());
     const battleOption = this.actionUserContext.getBattleOption();
     const possibleActionRanks: ActionAndRank[] = [];
 
+    // make sure the action is usable at this rank
     for (const [actionName, state] of ownedActions) {
       for (let rank = 1; rank <= state.level; rank += 1) {
         const actionAndRank = new ActionAndRank(actionName, rank);
@@ -42,15 +106,51 @@ export class AiActionSelector {
       }
     }
 
-    return [];
+    return possibleActionRanks;
+  }
+
+  private getUsableActionIntents(): CombatActionExecutionIntent[] {
+    const possibleActionRanks = this.getUsableActionRankPairs();
+
+    // collect possible targets and build the intents
+    const toReturn: CombatActionExecutionIntent[] = [];
+    for (const pair of possibleActionRanks) {
+      const { actionName, rank } = pair;
+      const possibleTargets = this.getPotentialTargetsForActionAndRank(pair);
+      toReturn.push(
+        ...possibleTargets.map(
+          (targets) => new CombatActionExecutionIntent(actionName, rank, targets)
+        )
+      );
+    }
+
+    return toReturn;
   }
 
   private filterActionIntentsByThoseThatTargetCombatants(
     actionIntents: CombatActionExecutionIntent[],
-    combatants: Combatant[]
+    combatantIds: EntityId[]
   ): CombatActionExecutionIntent[] {
-    // @TODO
-    return [];
+    const targetingCalculator = new TargetingCalculator(this.actionUserContext, null);
+
+    return actionIntents.filter((actionIntent) => {
+      const { actionName, rank, targets } = actionIntent;
+
+      const targetIds = targetingCalculator.getCombatActionTargetIds(
+        COMBAT_ACTIONS[actionName],
+        targets
+      );
+
+      if (targetIds instanceof Error) {
+        throw targetIds;
+      }
+
+      if (ArrayUtils.overlaps(targetIds, combatantIds)) {
+        return true;
+      } else {
+        return false;
+      }
+    });
   }
 
   private getSortedActionIntents(
@@ -58,7 +158,7 @@ export class AiActionSelector {
     compareFunction?: AiActionComparator
   ) {
     if (compareFunction === undefined) {
-      return actionIntents;
+      return [...actionIntents];
     } else {
       const copy = [...actionIntents];
       copy.sort(compareFunction);
@@ -68,7 +168,7 @@ export class AiActionSelector {
 
   getBestActionIntentOption(
     possibleTargetFilter: (combatant: Combatant) => boolean,
-    evaluatorFunction?: AiActionComparator
+    actionIntentComparator?: AiActionComparator
   ): null | CombatActionExecutionIntent {
     const consideredTargetCombatants = this.getConsideredCombatants(possibleTargetFilter);
 
@@ -77,12 +177,12 @@ export class AiActionSelector {
     const actionIntentsThatCanTargetDesiredTargets =
       this.filterActionIntentsByThoseThatTargetCombatants(
         allPossibleActionIntents,
-        consideredTargetCombatants
+        consideredTargetCombatants.map((combatant) => combatant.getEntityId())
       );
 
     const sortedActionIntents = this.getSortedActionIntents(
       actionIntentsThatCanTargetDesiredTargets,
-      evaluatorFunction
+      actionIntentComparator
     );
 
     const bestIntentOption = sortedActionIntents[0];
