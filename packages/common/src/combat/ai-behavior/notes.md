@@ -1,0 +1,25 @@
+- considered combatants collection with filtering function
+    - low hp allies
+    - low hp enemies
+    - all enemies
+    - all allies
+    - recent targets of this pet's owner
+    - enemy at the top of user's threat meter
+- get all owned actions and rank combinations which we currently have the resources to use,
+  are wearing the required equipment to use, are not on cooldown
+    - healing rank 1
+    - healing rank 2
+    - attack rank 1
+- get all owned action/rank possible action intents that include combatants
+    - healing rank 1 on target A
+    - healing rank 1 on target B
+    - healing rank 2 on target A
+    - healing rank 2 on target B
+    - healing rank 2 AOE
+- evaluate list of valid action intents by some criteria
+    - most expected healing on lowest HP target
+    - most expected damage on lowest HP target
+    - most expected damage on any target
+    - most expected healing for the least mp to healing ratio
+    - most expected damage on any target without going on to top of a threat meter
+- select action with highest evaluation score

@@ -1,5 +1,4 @@
 import { Combatant } from "../../../combatants/index.js";
-import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionIntent } from "../../combat-actions/combat-action-intent.js";
 import { CombatActionName } from "../../combat-actions/combat-action-names.js";
 import {
@@ -14,7 +13,6 @@ import {
   PopFromStackNode,
   RandomizerNode,
   SequenceNode,
-  SorterNode,
   UntilSuccessNode,
 } from "../behavior-tree.js";
 import { CollectPotentialTargetsForActionIfUsable } from "./add-to-considered-actions-with-targets-if-usable.js";
@@ -48,8 +46,6 @@ export class SelectActionToTargetPetOwnerMostRecentTarget implements BehaviorNod
             .getTargetPreferences()
             .getPreferredTargetsInCategory(FriendOrFoe.Hostile);
 
-          console.log("ownerTargetOption:", ownerPreferredTargets);
-
           // if there is no recent target, all targets are viable options
           if (ownerPreferredTargets === null) {
             return true;
@@ -63,19 +59,12 @@ export class SelectActionToTargetPetOwnerMostRecentTarget implements BehaviorNod
             );
             const targetIds = targetingCalculator.getTargetIds(ownerPreferredTargets, []);
 
-            console.log("valid target ids for pet owner target:", targetIds);
-
             if (targetIds instanceof Error) {
               console.error(targetIds);
               return false;
             }
 
             const shouldConsiderThisTarget = targetIds.includes(targetCombatant.getEntityId());
-            console.log(
-              "shouldConsiderThisTarget:",
-              shouldConsiderThisTarget,
-              targetCombatant.getEntityId()
-            );
 
             return shouldConsiderThisTarget;
           }

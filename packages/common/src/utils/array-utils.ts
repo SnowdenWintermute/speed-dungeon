@@ -38,4 +38,8 @@ export class ArrayUtils {
     }
     return false;
   }
+
+  static combinePredicates<T>(...predicates: Array<(item: T) => boolean>) {
+    return (item: T) => predicates.every((p) => p(item));
+  }
 }
