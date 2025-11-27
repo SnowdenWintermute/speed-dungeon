@@ -30,4 +30,12 @@ export class ArrayUtils {
   static createFilledWithSequentialNumbers(length: number, start: number) {
     return Array.from({ length: length || 0 }, (_, i) => i + start);
   }
+
+  static overlaps(a: string[], b: string[]): boolean {
+    const setA = new Set(a);
+    for (const v of b) {
+      if (setA.has(v)) return true;
+    }
+    return false;
+  }
 }

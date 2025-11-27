@@ -10,6 +10,7 @@ import { COMBAT_ACTIONS } from "../combat-actions/action-implementations/index.j
 import { TargetFilterer } from "./filtering.js";
 import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
+import { ProhibitedTargetCombatantStates } from "../combat-actions/prohibited-target-combatant-states.js";
 
 export class TargetingCalculator {
   constructor(
@@ -25,12 +26,19 @@ export class TargetingCalculator {
     combatAction: CombatActionComponent,
     targets: CombatActionTarget
   ): Error | EntityId[] {
-    const idsByDisposition = this.context.getAllyAndOpponentIds();
     const { targetingProperties } = combatAction;
+    return this.getTargetIds(targets, targetingProperties.prohibitedTargetCombatantStates);
+  }
+
+  getTargetIds(
+    targets: CombatActionTarget,
+    prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[]
+  ): Error | EntityId[] {
+    const idsByDisposition = this.context.getAllyAndOpponentIds();
 
     const filteredTargets = TargetFilterer.filterPossibleTargetIdsByProhibitedCombatantStates(
       this.context.party,
-      targetingProperties.prohibitedTargetCombatantStates,
+      prohibitedTargetCombatantStates,
       idsByDisposition,
       this.context.actionUser
     );

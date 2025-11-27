@@ -4,8 +4,10 @@ import {
   CharacterAssociatedData,
   CombatActionExecutionIntent,
   CombatActionReplayTreePayload,
+  CombatActionTarget,
   ERROR_MESSAGES,
   ServerToClientEvent,
+  TargetingCalculator,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../../singletons/index.js";
@@ -17,7 +19,7 @@ export async function useSelectedCombatActionHandler(
   _eventData: { characterId: string },
   characterAssociatedData: CharacterAssociatedData
 ) {
-  const { game, player } = characterAssociatedData;
+  const { character, game, party, player } = characterAssociatedData;
   const gameServer = getGameServer();
 
   const validTargetsAndActionNameResult = validateClientActionUseRequest(characterAssociatedData);
@@ -40,7 +42,28 @@ export async function useSelectedCombatActionHandler(
 
   const actionExecutionIntent = new CombatActionExecutionIntent(actionName, rank, targets);
 
+  updateCharacterTargetingPreferencesOnActionExecution(characterAssociatedData, targets);
+
   await executeActionAndSendReplayResult(characterAssociatedData, actionExecutionIntent, true);
+}
+
+function updateCharacterTargetingPreferencesOnActionExecution(
+  characterAssociatedData: CharacterAssociatedData,
+  targets: CombatActionTarget
+) {
+  const { character, game, party, player } = characterAssociatedData;
+  // we only want to update a character's target preferences on execution, unlike how a player's
+  // preferences are updated on cycle or action selection, because this is currently only used for
+  // their pet to attack the last hostile they targeted. If we update on cycle, the character could cycle
+  // past a hostile target while trying to target something else, then whatever the last hostile they targeted
+  // would be the pet's target, instead of what the character last attacked.
+  const targetingCalculator = new TargetingCalculator(
+    new ActionUserContext(game, party, character),
+    null
+  );
+  const validTargetsByDisposition = targetingCalculator.getValidTargetsByDisposition();
+  const { targetingProperties } = character.combatantProperties;
+  targetingProperties.updatePreferences(targets, validTargetsByDisposition);
 }
 
 function validateClientActionUseRequest(characterAssociatedData: CharacterAssociatedData) {

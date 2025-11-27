@@ -2,7 +2,10 @@ import { Combatant } from "../../../combatants/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionIntent } from "../../combat-actions/combat-action-intent.js";
 import { CombatActionName } from "../../combat-actions/combat-action-names.js";
-import { TargetCategories } from "../../combat-actions/targeting-schemes-and-categories.js";
+import {
+  FriendOrFoe,
+  TargetCategories,
+} from "../../combat-actions/targeting-schemes-and-categories.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import {
@@ -17,6 +20,7 @@ import {
 import { CollectPotentialTargetsForActionIfUsable } from "./add-to-considered-actions-with-targets-if-usable.js";
 import { CollectAllOwnedActionsByIntent } from "./collect-all-owned-action-by-intent.js";
 import { CollectConsideredCombatants } from "./collect-considered-combatants.js";
+import { CollectPotentialActionIntentsOnConsideredCombatants } from "./collect-potential-action-intents-on-considered-combatants.js";
 import { SelectActionExecutionIntent } from "./select-action-intent-node.js";
 import { SetConsideredAction } from "./set-considered-action.js";
 
@@ -39,12 +43,15 @@ export class SelectActionToTargetPetOwnerMostRecentTarget implements BehaviorNod
           const summonedByCombatant = controlledBy.getExpectedSummonedByCombatant(party);
 
           // get most recent targets of owner
-          const ownerTargetOption = summonedByCombatant
+          const ownerPreferredTargets = summonedByCombatant
             .getTargetingProperties()
-            .getMostRecentActionExecutionIntentOption();
+            .getTargetPreferences()
+            .getPreferredTargetsInCategory(FriendOrFoe.Hostile);
+
+          console.log("ownerTargetOption:", ownerPreferredTargets);
 
           // if there is no recent target, all targets are viable options
-          if (ownerTargetOption === null) {
+          if (ownerPreferredTargets === null) {
             return true;
           } else {
             // check if this combatant is on the list of owner's most recent targets
@@ -54,41 +61,38 @@ export class SelectActionToTargetPetOwnerMostRecentTarget implements BehaviorNod
               this.behaviorContext.actionUserContext,
               null
             );
-            const targetIds = targetingCalculator.getCombatActionTargetIds(
-              COMBAT_ACTIONS[ownerTargetOption.actionName],
-              ownerTargetOption.targets
-            );
+            const targetIds = targetingCalculator.getTargetIds(ownerPreferredTargets, []);
+
+            console.log("valid target ids for pet owner target:", targetIds);
 
             if (targetIds instanceof Error) {
               console.error(targetIds);
               return false;
             }
 
-            return targetIds.includes(targetCombatant.getEntityId());
+            const shouldConsiderThisTarget = targetIds.includes(targetCombatant.getEntityId());
+            console.log(
+              "shouldConsiderThisTarget:",
+              shouldConsiderThisTarget,
+              targetCombatant.getEntityId()
+            );
+
+            return shouldConsiderThisTarget;
           }
         },
         this.behaviorContext.setConsideredCombatants
       ),
-      // sort potential targets by lowest Hp
-      new SorterNode(
-        () => this.behaviorContext.consideredCombatants,
-        (a, b) =>
-          a.combatantProperties.resources.getHitPoints() -
-          b.combatantProperties.resources.getHitPoints()
-      ),
-      new CollectAllOwnedActionsByIntent(
-        this.behaviorContext,
-        this.combatant,
-        // iterateNumericEnum(CombatActionIntent)
-        [CombatActionIntent.Malicious]
-      ),
-
+      new CollectAllOwnedActionsByIntent(this.behaviorContext, this.combatant, [
+        CombatActionIntent.Malicious,
+      ]),
       new RandomizerNode(() => this.behaviorContext.consideredActionNamesFilteredByIntents),
       new UntilSuccessNode(
         new SequenceNode([
           new PopFromStackNode(
             () => this.behaviorContext.consideredActionNamesFilteredByIntents,
             (actionName: CombatActionName) => {
+              console.log("considered targets:", this.behaviorContext.getConsideredCombatants());
+
               this.behaviorContext.setCurrentActionNameConsidering(actionName);
 
               // one day we should choose the action rank somehow instead of max only
@@ -113,6 +117,8 @@ export class SelectActionToTargetPetOwnerMostRecentTarget implements BehaviorNod
             this.behaviorContext.consideredActionNamesFilteredByIntents.length,
         }
       ),
+      new CollectPotentialActionIntentsOnConsideredCombatants(this.behaviorContext),
+      new RandomizerNode(() => this.behaviorContext.consideredActionIntents),
       new SetConsideredAction(
         this.behaviorContext,
         () => this.behaviorContext.consideredActionIntents?.[0]?.intent.actionName,

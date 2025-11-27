@@ -16,7 +16,7 @@ export function setPlaytestingCombatantProperties(combatantProperties: Combatant
 }
 
 const TESTING_INHERENT_ATTRIBUTES: Partial<Record<CombatAttribute, number>> = {
-  [CombatAttribute.Speed]: 90,
+  [CombatAttribute.Speed]: 9,
   [CombatAttribute.Dexterity]: 30,
   // [CombatAttribute.Accuracy]: 200,
   // [CombatAttribute.Strength]: 40,

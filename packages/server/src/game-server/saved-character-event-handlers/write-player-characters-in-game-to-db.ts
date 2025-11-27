@@ -30,7 +30,7 @@ export async function writePlayerCharactersInGameToDb(
         throw new Error("Tried to update character but it didn't exist in the database");
       }
 
-      characterResult.getTargetingProperties().clear({ clearMostRecentTarget: true });
+      characterResult.getTargetingProperties().clear({ clearTargetingPreferences: true });
       const partyOption = game.adventuringParties[getProgressionGamePartyName(game.name)];
       if (partyOption === undefined) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
 

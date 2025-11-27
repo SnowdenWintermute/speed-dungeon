@@ -125,8 +125,9 @@ export class PetManager extends AdventuringPartySubsystem {
   handlePetTamed(petId: EntityId, newOwnerId: EntityId, game: SpeedDungeonGame) {
     const party = this.getParty();
     const petCombatant = party.combatantManager.removeCombatant(petId, game);
-    petCombatant.combatantProperties.controlledBy.controllerType =
-      CombatantControllerType.PlayerPetAI;
+    const { controlledBy } = petCombatant.combatantProperties;
+    controlledBy.controllerType = CombatantControllerType.PlayerPetAI;
+
     petCombatant.combatantProperties.threatManager = undefined;
 
     this.putPetInFirstEmptyUnsummonedSlot(newOwnerId, petCombatant);

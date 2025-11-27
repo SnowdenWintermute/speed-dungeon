@@ -2,6 +2,7 @@ import { AiType, Combatant } from "../../../combatants/index.js";
 import { CombatActionIntent } from "../../combat-actions/combat-action-intent.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import { BehaviorNode, BehaviorNodeState, SelectorNode } from "../behavior-tree.js";
+import { SelectActionToTargetPetOwnerMostRecentTarget } from "./select-action-to-damage-pet-owner-recent-target.js";
 import { SelectActionToHealLowestHpAlly } from "./select-action-to-heal-lowest-hp-ally-node.js";
 import { SelectTopThreatTargetAndAction } from "./select-highest-threat-target.js";
 
@@ -16,8 +17,15 @@ export class RootAIBehaviorNode implements BehaviorNode {
     // @TODO pet command handling - can be used for "confuse" and "fear" conditions also
     // - check conditions for temporary AiTypes
     // - replace combatant's default AiTypes with those
+    const { aiTypes } = combatant.combatantProperties.controlledBy;
 
-    if (combatant.combatantProperties.controlledBy.aiTypes?.includes(AiType.Healer)) {
+    if (aiTypes?.includes(AiType.TargetPetOwnerMostRecentTarget)) {
+      targetSelectionSchemes.push(
+        new SelectActionToTargetPetOwnerMostRecentTarget(this.behaviorContext, this.combatant)
+      );
+    }
+
+    if (aiTypes?.includes(AiType.Healer)) {
       targetSelectionSchemes.push(
         new SelectActionToHealLowestHpAlly(this.behaviorContext, this.combatant, 0.7)
       );
