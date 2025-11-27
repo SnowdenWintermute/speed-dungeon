@@ -10,7 +10,10 @@ import { Combatant, CombatantAttributeRecord, ConditionTickProperties } from "..
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { ActionUserType, IActionUser } from "../../action-user-context/action-user.js";
 import { ActionIntentAndUser } from "../../action-processing/index.js";
-import { ActionUserTargetingProperties } from "../../action-user-context/action-user-targeting-properties.js";
+import {
+  ActionAndRank,
+  ActionUserTargetingProperties,
+} from "../../action-user-context/action-user-targeting-properties.js";
 import { Vector3, Quaternion } from "@babylonjs/core";
 import { ActionEntityProperties } from "../../action-entities/index.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
@@ -164,6 +167,14 @@ export abstract class CombatantCondition implements IActionUser {
 
   hasRequiredConsumablesToUseAction(): boolean {
     return true;
+  }
+
+  actionAndRankMeetsUseRequirements(
+    actionAndRank: ActionAndRank,
+    party: AdventuringParty,
+    battleOption: Battle | null
+  ): { canUse: boolean; reasonCanNot?: string } {
+    throw new Error("not implemented on conditions");
   }
 
   getWeaponsInSlots() {

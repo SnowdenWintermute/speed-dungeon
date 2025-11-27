@@ -24,11 +24,15 @@ import {
   FriendOrFoe,
 } from "../combat/index.js";
 import { ActionUserType, IActionUser } from "../action-user-context/action-user.js";
-import { ActionUserTargetingProperties } from "../action-user-context/action-user-targeting-properties.js";
+import {
+  ActionAndRank,
+  ActionUserTargetingProperties,
+} from "../action-user-context/action-user-targeting-properties.js";
 import { plainToInstance } from "class-transformer";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { ARROW_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
 import { CombatantProperties } from "../combatants/combatant-properties.js";
+import { Battle } from "../battle/index.js";
 
 export enum ActionEntityName {
   Arrow,
@@ -179,6 +183,14 @@ export class ActionEntity implements IActionUser {
 
   getWeaponsInSlots() {
     return {};
+  }
+
+  actionAndRankMeetsUseRequirements(
+    actionAndRank: ActionAndRank,
+    party: AdventuringParty,
+    battleOption: Battle | null
+  ): { canUse: boolean; reasonCanNot?: string } {
+    throw new Error("not implemented on action entities");
   }
 
   static getDeserialized(actionEntity: ActionEntity) {

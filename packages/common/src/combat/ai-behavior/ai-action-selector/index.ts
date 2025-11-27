@@ -24,29 +24,21 @@ export class AiActionSelector {
   private getUsableActionIntents(): CombatActionExecutionIntent[] {
     const { actionUser, party } = this.actionUserContext;
     const ownedActions = Array.from(actionUser.getOwnedAbilities());
-
-    const usableInContext = ([actionName, actionState]: [
-      CombatActionName,
-      CombatantActionState,
-    ]) => {
-      const battleOption = this.actionUserContext.getBattleOption();
-      const action = COMBAT_ACTIONS[actionName];
-      return action.isUsableInThisContext(battleOption);
-    };
-
-    const notOnCooldown = ([actionName, actionState]: [CombatActionName, CombatantActionState]) => {
-      const isOnCooldown = !!actionState.cooldown?.current;
-      return !isOnCooldown;
-    };
-
-    const predicates = ArrayUtils.combinePredicates(usableInContext, notOnCooldown);
-
-    const filteredOwnedActions = ownedActions.filter(predicates);
-
+    const battleOption = this.actionUserContext.getBattleOption();
     const possibleActionRanks: ActionAndRank[] = [];
-    for (const [actionName, state] of filteredOwnedActions) {
+
+    for (const [actionName, state] of ownedActions) {
       for (let rank = 1; rank <= state.level; rank += 1) {
-        possibleActionRanks.push(new ActionAndRank(actionName, rank));
+        const actionAndRank = new ActionAndRank(actionName, rank);
+        const { canUse } = actionUser.actionAndRankMeetsUseRequirements(
+          actionAndRank,
+          party,
+          battleOption
+        );
+
+        if (canUse) {
+          possibleActionRanks.push(new ActionAndRank(actionName, rank));
+        }
       }
     }
 
