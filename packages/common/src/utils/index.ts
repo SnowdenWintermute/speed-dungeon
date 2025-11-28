@@ -134,7 +134,7 @@ export function getLookRotationFromPositions(
   return Quaternion.FromLookDirectionRH(direction, up);
 }
 
-const EPSILON = 1e-8; // tiny value to prevent division by zero in ray-AABB calculations
+export const EPSILON = 1e-8; // tiny value to prevent division by zero in ray-AABB calculations (and others)
 
 export function timeToReachBox(
   userPosition: Vector3,

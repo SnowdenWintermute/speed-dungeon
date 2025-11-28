@@ -88,7 +88,10 @@ export class CombatantResources extends CombatantSubsystem {
     }
   }
 
-  /** Returns a normalized percentage (0-1) */
+  /** Returns a normalized percentage (0-1)
+   *
+   *  Returns 1 if resource is currently zero because when allocating points to mana when
+   *  combatant previously had zero mana, we want to fill their new mana pool*/
   getResourcePercentagesOfMax() {
     const combatantProperties = this.getCombatantProperties();
     const totalAttributes = combatantProperties.attributeProperties.getTotalAttributes();

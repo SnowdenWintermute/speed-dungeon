@@ -3,7 +3,6 @@ import { ActionUserContext } from "../../action-user-context/index.js";
 import { Combatant } from "../../combatants/index.js";
 import { CombatActionExecutionIntent } from "../combat-actions/combat-action-execution-intent.js";
 import { CombatActionName, CombatActionTarget } from "../index.js";
-import { PotentialTotalHealingEvaluation } from "./custom-nodes/collect-potential-healing-from-considered-actions.js";
 
 export enum AIActionSelectionScheme {
   Basic,
@@ -54,10 +53,6 @@ export class AIBehaviorContext {
     potentialValidTargets: CombatActionTarget[];
   } = null;
 
-  public consideredActionIntents: {
-    intent: CombatActionExecutionIntent;
-    healingEvaluation: PotentialTotalHealingEvaluation;
-  }[] = [];
   public selectedActionIntent: null | CombatActionExecutionIntent = null;
 
   constructor(

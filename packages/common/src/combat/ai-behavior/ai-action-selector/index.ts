@@ -12,20 +12,23 @@ import {
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { ArrayUtils } from "../../../utils/array-utils.js";
 
-export type AiActionComparator = (
-  a: CombatActionExecutionIntent,
-  b: CombatActionExecutionIntent
-) => number;
+export type AiActionEvaluator = (
+  intents: CombatActionExecutionIntent[],
+  actionUserContext: ActionUserContext,
+  consideredCombatants: Combatant[]
+) => null | CombatActionExecutionIntent;
 
 export class AiActionSelector {
   constructor(private actionUserContext: ActionUserContext) {}
 
   private getConsideredCombatants(
-    filteringFunction: (combatant: Combatant) => boolean
+    filteringFunctions: ((combatant: Combatant) => boolean)[]
   ): Combatant[] {
     const { party } = this.actionUserContext;
     const allCombatants = party.combatantManager.getAllCombatants();
-    return allCombatants.filter(filteringFunction);
+    return allCombatants.filter((combatant) =>
+      filteringFunctions.every((filteringFunction) => filteringFunction(combatant))
+    );
   }
 
   private getPotentialTargetsForActionAndRank(actionAndRank: ActionAndRank) {
@@ -153,24 +156,11 @@ export class AiActionSelector {
     });
   }
 
-  private getSortedActionIntents(
-    actionIntents: CombatActionExecutionIntent[],
-    compareFunction?: AiActionComparator
-  ) {
-    if (compareFunction === undefined) {
-      return [...actionIntents];
-    } else {
-      const copy = [...actionIntents];
-      copy.sort(compareFunction);
-      return copy;
-    }
-  }
-
   getBestActionIntentOption(
-    possibleTargetFilter: (combatant: Combatant) => boolean,
-    actionIntentComparator?: AiActionComparator
+    possibleTargetFilters: ((combatant: Combatant) => boolean)[],
+    evaluator: AiActionEvaluator
   ): null | CombatActionExecutionIntent {
-    const consideredTargetCombatants = this.getConsideredCombatants(possibleTargetFilter);
+    const consideredTargetCombatants = this.getConsideredCombatants(possibleTargetFilters);
 
     const allPossibleActionIntents = this.getUsableActionIntents();
 
@@ -180,15 +170,11 @@ export class AiActionSelector {
         consideredTargetCombatants.map((combatant) => combatant.getEntityId())
       );
 
-    const sortedActionIntents = this.getSortedActionIntents(
+    const bestIntentOption = evaluator(
       actionIntentsThatCanTargetDesiredTargets,
-      actionIntentComparator
+      this.actionUserContext,
+      consideredTargetCombatants
     );
-
-    const bestIntentOption = sortedActionIntents[0];
-    if (bestIntentOption === undefined) {
-      return null;
-    }
 
     return bestIntentOption;
   }
