@@ -54,7 +54,7 @@ export const MONSTER_ATTRIBUTES_BY_LEVEL: Record<
     [CombatAttribute.Spirit]: 14.0,
     [CombatAttribute.Hp]: 0.0,
     [CombatAttribute.Agility]: 1.5,
-    [CombatAttribute.Evasion]: 10.0,
+    [CombatAttribute.Evasion]: 0.0,
   },
   [MonsterType.FireElemental]: {
     [CombatAttribute.Spirit]: 6.0,

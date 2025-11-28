@@ -35,6 +35,22 @@ export class RootAIBehaviorNode implements BehaviorNode {
       actionUserContext
     );
 
+    if (aiTypes?.includes(AiType.AlwaysPassTurn)) {
+      // no valid behaviors should result in a pass turn by default
+      this.root = new SelectorNode([]);
+      return;
+    }
+
+    if (aiTypes?.includes(AiType.TargetLowestHpEnemy)) {
+      targetSelectionSchemes.push(
+        new ActionSelectorNode(
+          this.behaviorContext,
+          [isOpponentFilter],
+          ACTION_EVALUATORS[ActionEvaluatorTypes.MostDamageOnLowestHitPointTarget]
+        )
+      );
+    }
+
     if (aiTypes?.includes(AiType.TargetPetOwnerMostRecentTarget)) {
       const recentHostileTargetOfPetOwnerFilter =
         CombatantFilterFactory.createIsRecentTargetOfPetOwner(

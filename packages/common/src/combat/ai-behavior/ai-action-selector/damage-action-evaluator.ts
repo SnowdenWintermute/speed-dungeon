@@ -1,15 +1,36 @@
 import { ActionUserContext } from "../../../action-user-context/index.js";
-import { Combatant, CombatAttribute } from "../../../combatants/index.js";
-import { NormalizedPercentage } from "../../../primatives/index.js";
+import { Combatant } from "../../../combatants/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 import { PotentialTotalResourceChangeEvaluation } from "./potential-total-resource-change-evaluation.js";
 import { ResourceChangeActionEvaluator } from "./resource-change-action-evaluator.js";
 
-export const NEEDS_HEALING_HP_NORMALIZED_PERCENTAGE: NormalizedPercentage = 0.7;
+export interface ResourceChangeEfficiencyEvaluation {
+  max: number;
+  average: number;
+  averageManaPricePerPoint: number;
+}
 
-export class HealingActionEvaluator extends ResourceChangeActionEvaluator {
+export interface ResourceChangeEvaluationWeights {
+  avgPrimary: number;
+  maxPrimary: number;
+  avgTotal: number;
+  maxTotal: number;
+  efficiency: number;
+  efficiencyBonusCap: number;
+}
+
+export class DamageActionEvaluator extends ResourceChangeActionEvaluator {
+  static DAMAGE_EVALUATION_WEIGHTS: ResourceChangeEvaluationWeights = {
+    avgPrimary: 1.0,
+    maxPrimary: 0.5,
+    avgTotal: 0.0,
+    maxTotal: 0.0,
+    efficiency: 0.0,
+    efficiencyBonusCap: 5,
+  };
+
   static evaluateActionIntents(
     intents: CombatActionExecutionIntent[],
     actionUserContext: ActionUserContext,
@@ -37,7 +58,6 @@ export class HealingActionEvaluator extends ResourceChangeActionEvaluator {
           actionUserContext,
           actionExecutionIntent
         );
-
       const averageHitPointChanges =
         averageHitOutcomes.resourceChanges?.[CombatActionResource.HitPoints];
 
@@ -48,39 +68,37 @@ export class HealingActionEvaluator extends ResourceChangeActionEvaluator {
       }
 
       const resourceCosts = action.costProperties.getResourceCosts(actionUser, true, rank);
-      const resourceCost = resourceCosts?.[CombatActionResource.Mana] ?? 0;
-      const potentialHealingEvaluation = new PotentialTotalResourceChangeEvaluation(resourceCost);
+      const manaCost = resourceCosts?.[CombatActionResource.Mana] ?? 0;
+      const evaluation = new PotentialTotalResourceChangeEvaluation(manaCost);
 
-      for (const combatant of consideredCombatants) {
-        const targetId = combatant.entityProperties.id;
-        const { attributeProperties, resources } = combatant.combatantProperties;
+      for (const targetCombatant of consideredCombatants) {
+        const targetId = targetCombatant.entityProperties.id;
+        const { resources } = targetCombatant.combatantProperties;
         const hitPoints = resources.getHitPoints();
-        const maxHitPoints = attributeProperties.getAttributeValue(CombatAttribute.Hp);
-        const missingHitPoints = Math.max(0, maxHitPoints - hitPoints);
 
-        const averageValueChange = averageHitPointChanges.getRecord(targetId)?.value || 0;
-        const averageEffectiveValueChange = Math.min(missingHitPoints, averageValueChange);
-        const maxValueChange = maxHitPointChanges.getRecord(targetId)?.value || 0;
-        const maxEffectiveValueChange = Math.min(missingHitPoints, maxValueChange);
+        const remainingHitPoints = hitPoints;
+
+        const averageDamage = averageHitPointChanges.getRecord(targetId)?.value || 0;
+        const averageEffectiveDamage = Math.min(remainingHitPoints, averageDamage);
+
+        const maxDamage = maxHitPointChanges.getRecord(targetId)?.value || 0;
+        const maxEffectiveDamage = Math.min(remainingHitPoints, maxDamage);
 
         if (targetId === mainTarget.entityProperties.id) {
-          potentialHealingEvaluation.setPrimaryTargetEfficiencyEvaluation(
-            maxEffectiveValueChange,
-            averageEffectiveValueChange
+          evaluation.setPrimaryTargetEfficiencyEvaluation(
+            maxEffectiveDamage,
+            averageEffectiveDamage
           );
         }
 
-        potentialHealingEvaluation.setOrUpdateTotalAcrossAllTargets(
-          maxEffectiveValueChange,
-          averageEffectiveValueChange
-        );
+        evaluation.setOrUpdateTotalAcrossAllTargets(maxEffectiveDamage, averageEffectiveDamage);
       }
 
-      potentialHealingEvaluation.computeEfficiencyAcrossAllTargets();
+      evaluation.computeEfficiencyAcrossAllTargets();
 
       const evaluatedIntent = {
         intent: actionExecutionIntent,
-        evaluation: potentialHealingEvaluation,
+        evaluation,
       };
 
       evaluatedIntents.push(evaluatedIntent);

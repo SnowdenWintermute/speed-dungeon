@@ -40,7 +40,7 @@ export function createCharacterHandler(
   testPet.combatantProperties.attributeProperties.changeUnspentPoints(10);
 
   const { controlledBy } = testPet.combatantProperties;
-  controlledBy.aiTypes = [AiType.TargetPetOwnerMostRecentTarget];
+  controlledBy.aiTypes = [AiType.TargetLowestHpEnemy];
 
   const pets: Combatant[] = [testPet];
   const serializedPets = pets.map((pet) => pet.getSerialized());

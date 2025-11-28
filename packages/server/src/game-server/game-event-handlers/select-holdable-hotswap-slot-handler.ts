@@ -28,7 +28,10 @@ export function selectHoldableHotswapSlotHandler(
     const isCombatantTurn = battleOption.turnOrderManager.combatantIsFirstInTurnOrder(
       character.entityProperties.id
     );
-    if (!isCombatantTurn) return new Error(ERROR_MESSAGES.COMBATANT.NOT_ACTIVE);
+    if (!isCombatantTurn) {
+      console.log("TURN ORDER: ", battleOption.turnOrderManager.getTrackers());
+      return new Error(ERROR_MESSAGES.COMBATANT.NOT_ACTIVE);
+    }
     if (
       combatantProperties.resources.getActionPoints() < HOTSWAP_SLOT_SELECTION_ACTION_POINT_COST
     ) {

@@ -4,12 +4,14 @@ import { ArrayUtils } from "../../../utils/array-utils.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 import { CombatActionIntent } from "../../combat-actions/combat-action-intent.js";
+import { DamageActionEvaluator } from "./damage-action-evaluator.js";
 import { HealingActionEvaluator } from "./healing-action-evaluator.js";
 import { AiActionEvaluator } from "./index.js";
 
 export enum ActionEvaluatorTypes {
   MostHealingOnLowestTarget,
   RandomMaliciousAction,
+  MostDamageOnLowestHitPointTarget,
 }
 
 export const ACTION_EVALUATORS: Record<ActionEvaluatorTypes, AiActionEvaluator> = {
@@ -19,6 +21,17 @@ export const ACTION_EVALUATORS: Record<ActionEvaluatorTypes, AiActionEvaluator> 
     consideredCombatants: Combatant[]
   ): null | CombatActionExecutionIntent {
     return HealingActionEvaluator.evaluateActionIntents(
+      intents,
+      actionUserContext,
+      consideredCombatants
+    );
+  },
+  [ActionEvaluatorTypes.MostDamageOnLowestHitPointTarget]: function (
+    intents: CombatActionExecutionIntent[],
+    actionUserContext: ActionUserContext,
+    consideredCombatants: Combatant[]
+  ): null | CombatActionExecutionIntent {
+    return DamageActionEvaluator.evaluateActionIntents(
       intents,
       actionUserContext,
       consideredCombatants
