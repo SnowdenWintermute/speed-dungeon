@@ -5,6 +5,7 @@ import {
   FriendOrFoe,
   TargetCategories,
 } from "../../combat-actions/targeting-schemes-and-categories.js";
+import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 
 export class CombatantFilterFactory {
   static createBelowHpThresholdFilter(threshold: NormalizedPercentage) {
@@ -62,6 +63,62 @@ export class CombatantFilterFactory {
       return combatantsToConsider
         .map((combatant) => combatant.getEntityId())
         .includes(combatant.getEntityId());
+    };
+  }
+
+  static createIsTopOfThreatMeterFilter(actionUserContext: ActionUserContext) {
+    return (combatant: Combatant) => {
+      const { actionUser } = actionUserContext;
+      const { threatManager } = actionUser.getCombatantProperties();
+
+      if (threatManager === undefined) {
+        return false;
+      }
+
+      const topThreatTargetId = threatManager.getHighestThreatCombatantId();
+
+      if (topThreatTargetId === null) {
+        return false;
+      }
+
+      return topThreatTargetId === combatant.getEntityId();
+    };
+  }
+
+  static createIsRecentTargetOfPetOwner(
+    actionUserContext: ActionUserContext,
+    targetDisposition: FriendOrFoe
+  ) {
+    return (combatant: Combatant) => {
+      const { party, actionUser } = actionUserContext;
+      // get owner of this action user
+      const { controlledBy } = actionUser.getCombatantProperties();
+      const summonedByCombatant = controlledBy.getExpectedSummonedByCombatant(party);
+
+      // get most recent targets of owner
+      const ownerPreferredTargets = summonedByCombatant
+        .getTargetingProperties()
+        .getTargetPreferences()
+        .getPreferredTargetsInCategory(targetDisposition);
+
+      if (ownerPreferredTargets === null) {
+        return false;
+      } else {
+        // check if this combatant is on the list of owner's most recent targets
+        // @PERF - recreating a new targetingCalculator here could be moved to a singleton
+        // and just modified here
+        const targetingCalculator = new TargetingCalculator(actionUserContext, null);
+        const targetIds = targetingCalculator.getTargetIds(ownerPreferredTargets, []);
+
+        if (targetIds instanceof Error) {
+          console.error(targetIds);
+          return false;
+        }
+
+        const shouldConsiderThisTarget = targetIds.includes(combatant.getEntityId());
+
+        return shouldConsiderThisTarget;
+      }
     };
   }
 }

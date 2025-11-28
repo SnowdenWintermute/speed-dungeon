@@ -270,7 +270,7 @@ export class Combatant implements IActionUser {
 
     const { canUse, reasonCanNot } = meetsUseRequirements;
     if (!canUse) {
-      throw new Error(reasonCanNot || "unspecified reason can not use action");
+      return new Error(reasonCanNot || "unspecified reason can not use action");
     }
 
     if (battleOption !== null) {

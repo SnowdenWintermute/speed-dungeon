@@ -21,7 +21,7 @@ export function AISelectActionAndTarget(
     battleOption
   );
 
-  const targetSelectorNode = new RootAIBehaviorNode(behaviorContext, user);
+  const targetSelectorNode = new RootAIBehaviorNode(behaviorContext);
 
   const targetSelectionTreeSuccess = targetSelectorNode.execute();
 

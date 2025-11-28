@@ -7,7 +7,7 @@ import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/inde
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 
-export const NEEDS_HEALING_HP_PERCENTAGE: NormalizedPercentage = 0.7;
+export const NEEDS_HEALING_HP_NORMALIZED_PERCENTAGE: NormalizedPercentage = 0.7;
 
 export interface HealingEvaluationOnTargets {
   max: number;

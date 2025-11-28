@@ -58,7 +58,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
     // CombatActionName.UseGreenAutoinjector,
     // CombatActionName.UseBlueAutoinjector,
     // CombatActionName.Blind,
-    // CombatActionName.Healing,
+    CombatActionName.Healing,
     // CombatActionName.PassTurn,
   ];
 
