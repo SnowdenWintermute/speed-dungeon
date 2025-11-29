@@ -1,9 +1,9 @@
 import { plainToInstance } from "class-transformer";
 import { makeAutoObservable } from "mobx";
 import { EntityId } from "../primatives/index.js";
-import { AiType } from "./index.js";
 import { runIfInBrowser } from "../utils/index.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
+import { AiType } from "../combat/ai-behavior/index.js";
 
 export enum CombatantControllerType {
   Player,

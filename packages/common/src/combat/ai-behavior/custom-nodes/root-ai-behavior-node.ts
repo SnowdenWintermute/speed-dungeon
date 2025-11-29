@@ -1,4 +1,3 @@
-import { AiType, Combatant } from "../../../combatants/index.js";
 import {
   FriendOrFoe,
   TargetCategories,
@@ -14,6 +13,7 @@ import {
 } from "../ai-action-selector/healing-action-evaluator.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import { BehaviorNode, BehaviorNodeState, SelectorNode } from "../behavior-tree.js";
+import { AiType } from "../index.js";
 import { ActionSelectorNode } from "./action-selector-node.js";
 
 export class RootAIBehaviorNode implements BehaviorNode {

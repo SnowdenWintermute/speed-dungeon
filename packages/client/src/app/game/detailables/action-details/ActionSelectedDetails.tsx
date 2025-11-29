@@ -215,7 +215,7 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
                     })}
                   </ul>
                 )}
-                {shortDescriptionOption && <div>{shortDescriptionOption}</div>}
+                {shortDescriptionOption && <div className="ml-2">{shortDescriptionOption}</div>}
                 {endsTurnOption && (
                   <HoverableTooltipWrapper extraStyles="ml-auto " tooltipText="Ends turn on use">
                     <div className="h-6">

@@ -38,6 +38,7 @@ import { SUMMON_PET_APPEAR } from "./summon-pet/summon-pet-appear.js";
 import { DISMISS_PET } from "./summon-pet/dismiss-pet.js";
 import { TAME_PET } from "./summon-pet/tame-pet.js";
 import { RELEASE_PET } from "./summon-pet/release-pet.js";
+import { PET_COMMAND } from "./pet-command/index.js";
 
 export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Attack]: ATTACK,
@@ -80,4 +81,5 @@ export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.DismissPet]: DISMISS_PET,
   [CombatActionName.TamePet]: TAME_PET,
   [CombatActionName.ReleasePet]: RELEASE_PET,
+  [CombatActionName.PetCommand]: PET_COMMAND,
 };

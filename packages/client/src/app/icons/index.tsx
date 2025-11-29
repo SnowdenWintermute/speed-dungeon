@@ -163,6 +163,9 @@ export const CONDITION_INDICATOR_ICONS: Record<CombatantConditionName, ReactNode
       <EyeOpenIcon className="fill-lightningpurple stroke-darknessblack h-full" />
     </div>
   ),
+  [CombatantConditionName.FollowingPetCommand]: (
+    <div className="h-full">{SVG_ICONS[IconName.Whistle]("h-full fill-zinc-300")}</div>
+  ),
 };
 
 export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) => ReactNode)> = {
@@ -206,6 +209,7 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
     SVG_ICONS[IconName.Whistle](`${className} -scale-x-100`),
   [CombatActionName.TamePet]: (className: string) => SVG_ICONS[IconName.Whistle](`${className}`),
   [CombatActionName.ReleasePet]: null,
+  [CombatActionName.PetCommand]: null,
 };
 
 export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string) => ReactNode)> = {

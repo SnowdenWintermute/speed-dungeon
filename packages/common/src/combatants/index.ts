@@ -20,13 +20,6 @@ import { CombatantProperties } from "./combatant-properties.js";
 import { Item } from "../items/index.js";
 import { HoldableSlotType } from "../items/equipment/slots.js";
 
-export enum AiType {
-  Healer,
-  TargetPetOwnerMostRecentTarget,
-  TargetLowestHpEnemy,
-  AlwaysPassTurn,
-}
-
 export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
 export * from "./combatant-traits/index.js";

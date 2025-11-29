@@ -12,6 +12,7 @@ export enum ProhibitedTargetCombatantStates {
   UntargetableByPhysical,
   IsNotTameable,
   IsBeyondUserMaximumPetLevel,
+  IsNotThisUsersPet,
 }
 
 export const PROHIBITED_TARGET_COMBATANT_STATE_STRINGS: Record<
@@ -26,6 +27,7 @@ export const PROHIBITED_TARGET_COMBATANT_STATE_STRINGS: Record<
   [ProhibitedTargetCombatantStates.UntargetableByPhysical]: "UntargetableByPhysical",
   [ProhibitedTargetCombatantStates.IsNotTameable]: "IsNotTameable",
   [ProhibitedTargetCombatantStates.IsBeyondUserMaximumPetLevel]: "IsBeyondUserMaximumPetLevel",
+  [ProhibitedTargetCombatantStates.IsNotThisUsersPet]: "IsNotThisUsersPet",
 };
 
 export const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
@@ -71,5 +73,11 @@ export const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
     const userMaxPetLevel = user.getCombatantProperties().abilityProperties.getMaxPetLevel();
     const targetLevel = combatant.getLevel();
     return targetLevel > userMaxPetLevel;
+  },
+  [ProhibitedTargetCombatantStates.IsNotThisUsersPet]: function (
+    combatant: Combatant,
+    user: IActionUser
+  ): boolean {
+    return combatant.combatantProperties.controlledBy.summonedBy !== user.getEntityId();
   },
 };

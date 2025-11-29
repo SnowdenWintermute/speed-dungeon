@@ -19,6 +19,7 @@ export function giveStartingAbilities(actionUser: IActionUser) {
     CombatActionName.SummonPetParent,
     CombatActionName.DismissPet,
     CombatActionName.ReleasePet,
+    CombatActionName.PetCommand,
     // CombatActionName.Counterattack,
     // CombatActionName.IceBoltParent,
     CombatActionName.Fire,
@@ -35,13 +36,14 @@ export function giveStartingAbilities(actionUser: IActionUser) {
     CombatActionName.Healing,
     CombatActionName.SummonPetParent,
     CombatActionName.TamePet,
+    CombatActionName.PetCommand,
     // CombatActionName.ExplodingArrowParent,
     // CombatActionName.Blind,
   ];
 
   for (const actionName of ownedActions) {
     const action = new CombatantActionState(actionName);
-    if (levelTwoSpells.includes(actionName)) action.level = 2;
+    if (levelTwoSpells.includes(actionName)) action.level = 3;
     const cooldownOption = COMBAT_ACTIONS[actionName].costProperties.getCooldownTurns(
       actionUser,
       action.level

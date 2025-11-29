@@ -18,30 +18,31 @@ import { Vector3, Quaternion } from "@babylonjs/core";
 import { ActionEntityProperties } from "../../action-entities/index.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import { CombatantProperties } from "../combatant-properties.js";
+import { AiType } from "../../combat/ai-behavior/index.js";
 export * from "./condition-tick-properties.js";
 
 export enum CombatantConditionName {
-  // Poison,
   PrimedForExplosion,
   PrimedForIceBurst,
   Burning,
   Blinded,
+  FollowingPetCommand,
 }
 
 export const COMBATANT_CONDITION_NAME_STRINGS: Record<CombatantConditionName, string> = {
-  // [CombatantConditionName.Poison]: "Poison",
   [CombatantConditionName.PrimedForExplosion]: "Detonatable",
   [CombatantConditionName.PrimedForIceBurst]: "Shatterable",
   [CombatantConditionName.Burning]: "Burning",
   [CombatantConditionName.Blinded]: "Blinded",
+  [CombatantConditionName.FollowingPetCommand]: "Following Command",
 };
 
 export const COMBATANT_CONDITION_DESCRIPTIONS: Record<CombatantConditionName, string> = {
-  // [CombatantConditionName.Poison]: "Periodically takes damage",
   [CombatantConditionName.PrimedForExplosion]: "Causes an explosion when hit by certain actions",
   [CombatantConditionName.PrimedForIceBurst]: "Causes an ice burst when hit by certain actions",
   [CombatantConditionName.Burning]: "Periodically takes non-magical fire damage",
   [CombatantConditionName.Blinded]: "Accuracy is reduced",
+  [CombatantConditionName.FollowingPetCommand]: "Making decisions based on external factors",
 };
 
 export const MAX_CONDITION_STACKS = 99;
@@ -52,7 +53,7 @@ export interface ConditionAppliedBy {
   // the entity which originally applied the condition may no longer exist
   // yet we still must figure out the target ids of the condition's triggered
   // action based on its intent and friend or foe status of targets
-  // where normally we would just calculate that based off a condition user's
+  // where normally we would just calculate that based off an action user's
   // presence in a certain battle group relative to the target's battle group
   friendOrFoe: FriendOrFoe;
 }
@@ -179,6 +180,14 @@ export abstract class CombatantCondition implements IActionUser {
 
   getWeaponsInSlots() {
     return {};
+  }
+
+  getAiTypesAppliedToTarget(): AiType[] {
+    return [];
+  }
+
+  getDescription(): string {
+    return `${COMBATANT_CONDITION_DESCRIPTIONS[this.name]} (rank ${this.level})`;
   }
 
   abstract triggeredWhenHitBy(actionName: CombatActionName): boolean;

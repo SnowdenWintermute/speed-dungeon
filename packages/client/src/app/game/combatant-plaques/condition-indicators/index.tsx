@@ -48,7 +48,7 @@ export const ConditionIndicator = observer(({ condition }: { condition: Combatan
     <div className="h-6 mr-1 border border-slate-400 bg-slate-700 pointer-events-auto cursor-help relative">
       <HoverableTooltipWrapper
         extraStyles="h-full w-full p-0.5"
-        tooltipText={`${COMBATANT_CONDITION_NAME_STRINGS[condition.name]}: ${COMBATANT_CONDITION_DESCRIPTIONS[condition.name]} (rank ${condition.level})${hoverableDebugText}`}
+        tooltipText={`${COMBATANT_CONDITION_NAME_STRINGS[condition.name]}: ${condition.getDescription()}${hoverableDebugText}`}
       >
         {CONDITION_INDICATOR_ICONS[condition.name]}{" "}
       </HoverableTooltipWrapper>

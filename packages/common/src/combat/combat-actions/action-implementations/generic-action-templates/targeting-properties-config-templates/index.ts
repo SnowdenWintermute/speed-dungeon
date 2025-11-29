@@ -1,6 +1,7 @@
 import cloneDeep from "lodash.clonedeep";
 import { CombatActionTargetingPropertiesConfig } from "../../../combat-action-targeting-properties.js";
 import {
+  PET_OF_USER_TARGETING_PROPERTIES,
   SINGLE_FRIENDLY_TARGETING_PROPERTIES,
   SINGLE_HOSTILE_TARGETING_PROPERTIES,
 } from "./single.js";
@@ -28,6 +29,7 @@ export const TARGETING_PROPERTIES_TEMPLATE_GETTERS = {
   SELF_OUT_OF_COMBAT: () => cloneDeep(SELF_OUT_OF_COMBAT_TARGETING_PROPERTIES),
   SELF_ANY_TIME: () => cloneDeep(SELF_ANY_TIME_TARGETING_PROPERTIES),
   EXPLOSION: () => cloneDeep(EXPLOSION_TARGETING_PROPERTIES_CONFIG),
+  PET_OF_USER: () => cloneDeep(PET_OF_USER_TARGETING_PROPERTIES),
 };
 
 export function createTargetingPropertiesConfig(
