@@ -70,6 +70,7 @@ export enum ServerToClientEvent {
   CharacterSelectedCombatActionLevel = "47",
   CharacterAllocatedAbilityPoint = "48",
   CharacterTradedItemForBook = "49",
+  CharacterRenamedPet = "50",
 }
 
 export interface ServerToClientEventTypes {
@@ -198,6 +199,10 @@ export interface ServerToClientEventTypes {
     characterId: EntityId;
     itemIdTraded: EntityId;
     book: Consumable;
+  }) => void;
+  [ServerToClientEvent.CharacterRenamedPet]: (eventData: {
+    petId: EntityId;
+    newName: string;
   }) => void;
 }
 

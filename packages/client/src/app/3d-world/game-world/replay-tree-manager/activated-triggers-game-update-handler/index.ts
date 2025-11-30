@@ -74,16 +74,16 @@ export async function activatedTriggersGameUpdateHandler(
     handleDurabilityChanges(durabilityChanges, party, brokenHoldablesAndTheirOwnerIds);
   }
 
-  if (appliedConditions) {
-    handleAppliedConditions(appliedConditions, party, battleOption);
-  }
-
   if (removedConditionStacks) {
     handleRemovedConditionStacks(removedConditionStacks, party);
   }
 
   if (removedConditionIds) {
     handleRemovedConditionIds(removedConditionIds, party);
+  }
+
+  if (appliedConditions) {
+    handleAppliedConditions(appliedConditions, party, battleOption);
   }
 
   handleThreatChangesUpdate(update.command);

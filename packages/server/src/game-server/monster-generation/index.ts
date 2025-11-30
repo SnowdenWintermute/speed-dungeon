@@ -95,7 +95,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
 
   // @TODO - assign abilities (realistically need to refactor monster creation)
   //
-  combatantProperties.controlledBy.aiTypes = [AiType.Healer];
+  combatantProperties.controlledBy.setAiTypes([AiType.Healer]);
 
   return monster;
 }

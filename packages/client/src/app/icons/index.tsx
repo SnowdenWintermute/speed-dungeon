@@ -36,6 +36,7 @@ import XShape from "../../../public/img/basic-shapes/x-shape.svg";
 import Chevron from "../../../public/img/basic-shapes/chevron.svg";
 import Model3DIcon from "../../../public/img/menu-icons/3d-model-icon.svg";
 import Whistle from "../../../public/img/game-ui-icons/whistle.svg";
+import EditPencil from "../../../public/img/menu-icons//edit-pencil.svg";
 
 import { ReactNode } from "react";
 import {
@@ -86,6 +87,7 @@ export enum IconName {
   Model3DIcon,
   Firewall,
   Whistle,
+  EditPencil,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -125,6 +127,7 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.Model3DIcon]: (className) => <Model3DIcon className={className} />,
   [IconName.Firewall]: (className) => <Firewall className={className} />,
   [IconName.Whistle]: (className) => <Whistle className={className} />,
+  [IconName.EditPencil]: (className: string) => <EditPencil className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {

@@ -59,7 +59,7 @@ export class FollowingPetCommandCombatantCondition extends CombatantCondition {
   }
 
   triggeredWhenHitBy(actionName: CombatActionName) {
-    return false;
+    return actionName === CombatActionName.PetCommand;
   }
 
   triggeredWhenActionUsed() {

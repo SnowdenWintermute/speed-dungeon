@@ -39,9 +39,6 @@ export function createCharacterHandler(
   testPet.combatantProperties.classProgressionProperties.experiencePoints.changeExperience(81);
   testPet.combatantProperties.attributeProperties.changeUnspentPoints(10);
 
-  const { controlledBy } = testPet.combatantProperties;
-  controlledBy.aiTypes = [AiType.TargetLowestHpEnemy];
-
   const pets: Combatant[] = [testPet];
   const serializedPets = pets.map((pet) => pet.getSerialized());
 

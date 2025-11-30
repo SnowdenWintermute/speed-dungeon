@@ -22,11 +22,7 @@ export class RootAIBehaviorNode implements BehaviorNode {
     const { actionUserContext } = this.behaviorContext;
     const { actionUser } = actionUserContext;
 
-    // @TODO pet command handling - can be used for "confuse" and "fear" conditions also
-    // - check conditions for temporary AiTypes
-    // - replace combatant's default AiTypes with those
-
-    const { aiTypes } = actionUser.getCombatantProperties().controlledBy;
+    const aiTypes = actionUser.getCombatantProperties().controlledBy.getAiTypes();
 
     const targetSelectionSchemes: BehaviorNode[] = [];
 

@@ -1,9 +1,10 @@
 import { plainToInstance } from "class-transformer";
-import { makeAutoObservable } from "mobx";
+import makeAutoObservable from "mobx-store-inheritance";
 import { EntityId } from "../primatives/index.js";
 import { runIfInBrowser } from "../utils/index.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { AiType } from "../combat/ai-behavior/index.js";
+import { CombatantSubsystem } from "./combatant-subsystem.js";
 
 export enum CombatantControllerType {
   Player,
@@ -16,19 +17,35 @@ export enum CombatantControllerType {
  * forfeiting control of their characters. In practice, we ask their client to reconnect all sockets anyway
  * after a username change.
  * */
-export class CombatantControlledBy {
+export class CombatantControlledBy extends CombatantSubsystem {
   summonedBy?: EntityId;
-  aiTypes?: AiType[];
+  private aiTypes?: AiType[];
   constructor(
     public controllerType: CombatantControllerType,
     /** For player name, can be empty string if this is dungeon controlled */
     public controllerPlayerName: string
   ) {
+    super();
     runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getDeserialized(controlledBy: CombatantControlledBy) {
     return plainToInstance(CombatantControlledBy, controlledBy);
+  }
+
+  setAiTypes(aiTypes: AiType[]) {
+    this.aiTypes = aiTypes;
+  }
+
+  getAiTypes() {
+    const conditions = this.getCombatantProperties().conditionManager.getConditions();
+    const temporaryAiTypes: AiType[] = [];
+
+    for (const condition of conditions) {
+      temporaryAiTypes.push(...condition.getAiTypesAppliedToTarget());
+    }
+
+    return [...temporaryAiTypes, ...(this.aiTypes || [])];
   }
 
   isPlayerControlled() {

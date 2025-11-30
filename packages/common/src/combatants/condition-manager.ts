@@ -45,13 +45,16 @@ export class CombatantConditionManager extends CombatantSubsystem {
 
   /* returns true if condition was preexisting */
   applyCondition(condition: CombatantCondition) {
+    console.log("applyCondition:", condition.name, condition.level);
     for (const existingCondition of this.conditions) {
       if (existingCondition.name !== condition.name) {
+        console.log("existingCondition does not match: ", existingCondition.name, condition.name);
         continue;
       }
 
       // don't replace an existing condition of higher level
       const existingConditionIsHigherLevel = existingCondition.level > condition.level;
+      console.log("existingConditionIsHigherLevel: ", existingConditionIsHigherLevel);
       if (existingConditionIsHigherLevel) return true;
 
       // if higher level, replace it
@@ -82,6 +85,7 @@ export class CombatantConditionManager extends CombatantSubsystem {
     }
 
     this.conditions.push(condition);
+    console.log("added condition, now has: ", this.conditions);
     return false;
   }
 
