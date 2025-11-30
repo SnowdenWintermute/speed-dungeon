@@ -56,10 +56,17 @@ export const HotswapSlotButtons = observer(
       }
     }, [selectedSlotIndex]);
 
+    const hotkeysDisabled = AppStore.get().inputStore.getHotkeysDisabled();
+
     useEffect(() => {
       if (!registerKeyEvents) return;
+      console.log(
+        "AppStore.get().inputStore.getHotkeysDisabled()",
+        AppStore.get().inputStore.getHotkeysDisabled()
+      );
 
       listenerRef.current = (e: KeyboardEvent) => {
+        if (AppStore.get().inputStore.getHotkeysDisabled()) return;
         if (e.code === HOTKEYS.BOTTOM_LEFT) selectNextOrPrevious(NextOrPrevious.Previous);
         if (e.code === HOTKEYS.BOTTOM_RIGHT) selectNextOrPrevious(NextOrPrevious.Next);
       };
@@ -68,7 +75,7 @@ export const HotswapSlotButtons = observer(
       return () => {
         if (listenerRef.current) window.removeEventListener("keydown", listenerRef.current);
       };
-    }, [selectedSlotIndex, focusedCharacterId, slotsCount, waitingForIndexChange]);
+    }, [selectedSlotIndex, focusedCharacterId, slotsCount, waitingForIndexChange, hotkeysDisabled]);
 
     if (slotsCount < 2) return <div />;
 

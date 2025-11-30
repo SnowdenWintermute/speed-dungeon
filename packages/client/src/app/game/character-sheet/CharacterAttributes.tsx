@@ -66,7 +66,8 @@ export const CharacterAttributes = observer(
       >
         {!hideHeader && (
           <CharacterSheetHeader
-            entityProperties={entityProperties}
+            entityId={entityProperties.id}
+            name={entityProperties.name}
             combatantProperties={combatantProperties}
           />
         )}

@@ -19,6 +19,8 @@ import { CombatantAttributeRecord } from "./attribute-properties.js";
 import { CombatantProperties } from "./combatant-properties.js";
 import { Item } from "../items/index.js";
 import { HoldableSlotType } from "../items/equipment/slots.js";
+import { runIfInBrowser } from "../utils/index.js";
+import makeAutoObservable from "mobx-store-inheritance";
 
 export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
@@ -41,7 +43,9 @@ export class Combatant implements IActionUser {
   constructor(
     public entityProperties: EntityProperties,
     public combatantProperties: CombatantProperties
-  ) {}
+  ) {
+    runIfInBrowser(() => makeAutoObservable(this));
+  }
 
   static createInitialized(
     entityProperties: EntityProperties,

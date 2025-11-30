@@ -31,6 +31,7 @@ import {
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
 import cloneDeep from "lodash.clonedeep";
+import { ActionStepConfigUtils } from "../generic-action-templates/step-config-templates/utils.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
 
@@ -120,5 +121,9 @@ const config: CombatActionComponentConfig = {
   stepsConfig,
   hierarchyProperties: cloneDeep(BASE_ACTION_HIERARCHY_PROPERTIES),
 };
+
+ActionStepConfigUtils.removeMoveForwardSteps(stepsConfig);
+delete stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning]?.getAnimation;
+stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning]!.shouldIdleOnComplete = true;
 
 export const RELEASE_PET = new CombatActionLeaf(CombatActionName.SummonPetParent, config);

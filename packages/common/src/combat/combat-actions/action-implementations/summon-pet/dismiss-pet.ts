@@ -30,6 +30,7 @@ import {
   ACTION_EXECUTION_PRECONDITIONS,
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
+import { ActionStepConfigUtils } from "../generic-action-templates/step-config-templates/utils.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
 
@@ -106,5 +107,10 @@ const config: CombatActionComponentConfig = {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
   },
 };
+
+// @TODO - create a template for these
+ActionStepConfigUtils.removeMoveForwardSteps(stepsConfig);
+delete stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning]?.getAnimation;
+stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning]!.shouldIdleOnComplete = true;
 
 export const DISMISS_PET = new CombatActionLeaf(CombatActionName.DismissPet, config);

@@ -28,6 +28,7 @@ import {
   ACTION_EXECUTION_PRECONDITIONS,
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
+import { ActionStepConfigUtils } from "../generic-action-templates/step-config-templates/utils.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
 
@@ -119,5 +120,9 @@ const config: CombatActionComponentConfig = {
     },
   },
 };
+
+ActionStepConfigUtils.removeMoveForwardSteps(stepsConfig);
+delete stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning]?.getAnimation;
+stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning]!.shouldIdleOnComplete = true;
 
 export const SUMMON_PET_PARENT = new CombatActionLeaf(CombatActionName.SummonPetParent, config);

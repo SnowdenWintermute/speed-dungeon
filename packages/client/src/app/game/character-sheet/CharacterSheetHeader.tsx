@@ -3,32 +3,34 @@ import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import TextInput from "@/app/components/atoms/TextInput";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { AppStore } from "@/mobx-stores/app-store";
+import { websocketConnection } from "@/singletons/websocket-connection";
 import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
 import {
+  ClientToServerEvent,
   COMBATANT_CLASS_NAME_STRINGS,
   CombatantProperties,
-  EntityProperties,
+  EntityId,
 } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 
 interface Props {
-  entityProperties: EntityProperties;
+  name: string;
+  entityId: EntityId;
   combatantProperties: CombatantProperties;
 }
 
 export const CharacterSheetHeader = observer((props: Props) => {
   const [isEditingName, setIsEditingName] = useState(false);
 
-  const { entityProperties, combatantProperties } = props;
-  const { name, id } = entityProperties;
+  const { combatantProperties, entityId, name } = props;
 
   const [editNameText, setEditNameText] = useState(name);
 
   useEffect(() => {
     setIsEditingName(false);
     setEditNameText(name);
-  }, [id]);
+  }, [entityId]);
 
   const { classProgressionProperties } = combatantProperties;
   const mainClassProperties = classProgressionProperties.getMainClass();
@@ -45,8 +47,9 @@ export const CharacterSheetHeader = observer((props: Props) => {
   const isPlayerPet = controlledBy.isPlayerPet();
   const shouldShowExp = isPlayerControlled || isPlayerPet;
 
-  const party = AppStore.get().gameStore.getExpectedParty();
-  const player = AppStore.get().gameStore.getExpectedClientPlayer();
+  const { gameStore } = AppStore.get();
+  const party = gameStore.getExpectedParty();
+  const player = gameStore.getExpectedClientPlayer();
   const isPetOfClientPlayer = controlledBy.wasSummonedByCharacterControlledByPlayer(
     player.username,
     party
@@ -56,10 +59,21 @@ export const CharacterSheetHeader = observer((props: Props) => {
     ? `${experiencePoints.getCurrent()} / ${expRequiredForNextLevelString} experience`
     : "";
 
+  function handleSubmitChangePetName(e: FormEvent) {
+    e.preventDefault();
+
+    websocketConnection.emit(ClientToServerEvent.RenamePet, {
+      petId: entityId,
+      newName: editNameText,
+    });
+
+    setIsEditingName(false);
+  }
+
   return (
     <div>
       <div className="font-bold flex justify-between items-center">
-        <div className="h-5 flex">
+        <div className="h-6 flex">
           {isPetOfClientPlayer && (
             <HotkeyButton
               onClick={() => {
@@ -72,16 +86,21 @@ export const CharacterSheetHeader = observer((props: Props) => {
             </HotkeyButton>
           )}
           {isEditingName ? (
-            <TextInput
-              className="bg-transparent"
-              autofocus={true}
-              placeholder={"Enter a name..."}
-              name={"Edit name"}
-              onChange={(e) => {
-                setEditNameText(e.target.value);
-              }}
-              value={editNameText}
-            />
+            <form onSubmit={handleSubmitChangePetName} className="flex h-full">
+              <TextInput
+                className="bg-transparent "
+                autofocus={true}
+                placeholder={"Enter a name..."}
+                name={"Edit name"}
+                onChange={(e) => {
+                  setEditNameText(e.target.value);
+                }}
+                onEscape={() => {
+                  setIsEditingName(false);
+                }}
+                value={editNameText}
+              />
+            </form>
           ) : (
             <span>{name}</span>
           )}
