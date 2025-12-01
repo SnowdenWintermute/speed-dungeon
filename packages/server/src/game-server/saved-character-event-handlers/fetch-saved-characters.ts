@@ -12,8 +12,10 @@ export async function fetchSavedCharacters(profileId: number) {
     characterPromises.push(
       (async () => {
         const character = await playerCharactersRepo.findOne("id", slot.characterId);
-        if (character === undefined)
+
+        if (character === undefined) {
           return console.error("Character slot was holding an id that didn't match any character");
+        }
 
         const deserializedCombatantProperties = CombatantProperties.getDeserialized(
           character.combatantProperties

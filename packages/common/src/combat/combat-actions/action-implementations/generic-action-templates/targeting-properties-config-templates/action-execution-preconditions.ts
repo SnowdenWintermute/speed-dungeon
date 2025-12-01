@@ -15,6 +15,7 @@ export enum ActionExecutionPreconditions {
   WasNotWearing2HWeaponOnPreviousAction,
   NoPetCurrentlySummoned,
   PetCurrentlySummoned,
+  PetSlotNotEmpty,
 }
 
 export const ACTION_EXECUTION_PRECONDITIONS: Record<
@@ -40,6 +41,7 @@ export const ACTION_EXECUTION_PRECONDITIONS: Record<
     ](...args);
     return shouldSucceed;
   },
+  [ActionExecutionPreconditions.PetSlotNotEmpty]: petSlotNotEmpty,
 };
 
 function wasWearing2HWeaponOnPreviousAction(
@@ -129,4 +131,31 @@ function targetsAreAlive(
   const targetsAreAlive = !Combatant.groupIsDead(targetCombatants);
 
   return targetsAreAlive;
+}
+
+function petSlotNotEmpty(
+  context: ActionResolutionStepContext,
+  previousTrackerOption: undefined | ActionTracker,
+  self: CombatActionComponent
+) {
+  const { party, actionUser } = context.actionUserContext;
+
+  const selectedActionAndRank = actionUser.getTargetingProperties().getSelectedActionAndRank();
+
+  if (selectedActionAndRank === null) {
+    throw new Error("Expected an action to be selected");
+  }
+
+  const slotIndex = selectedActionAndRank.rank - 1;
+
+  const petOption = party.petManager.getUnsummonedPetOptionByOwnerAndSlot(
+    actionUser.getEntityId(),
+    slotIndex
+  );
+
+  if (petOption !== undefined) {
+    return true;
+  }
+
+  return false;
 }

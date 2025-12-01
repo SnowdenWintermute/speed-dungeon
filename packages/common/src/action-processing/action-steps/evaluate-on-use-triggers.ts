@@ -41,13 +41,20 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
       const battleOption = party.getBattleOption(game);
 
       for (const { ownerId, slotIndex } of petSlotsSummoned) {
-        const pet = petManager.summonPetFromSlot(game, party, ownerId, slotIndex, battleOption);
-
-        this.context.tracker.spawnedEntities.push({
-          type: SpawnableEntityType.Combatant,
-          combatant: pet,
-          petProperties: { ownerId: actionUser.getEntityId() },
-        });
+        const petOption = petManager.summonPetFromSlot(
+          game,
+          party,
+          ownerId,
+          slotIndex,
+          battleOption
+        );
+        if (petOption) {
+          this.context.tracker.spawnedEntities.push({
+            type: SpawnableEntityType.Combatant,
+            combatant: petOption,
+            petProperties: { ownerId: actionUser.getEntityId() },
+          });
+        }
       }
     }
 

@@ -35,7 +35,10 @@ export async function writePlayerCharactersInGameToDb(
 
       characterResult.getTargetingProperties().clear({ clearTargetingPreferences: true });
       const partyOption = game.adventuringParties[getProgressionGamePartyName(game.name)];
-      if (partyOption === undefined) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+
+      if (partyOption === undefined) {
+        throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+      }
 
       const floorNumber = partyOption.dungeonExplorationManager.getCurrentFloor();
 

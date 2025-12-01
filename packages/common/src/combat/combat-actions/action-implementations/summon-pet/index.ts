@@ -106,6 +106,7 @@ const config: CombatActionComponentConfig = {
       executionPreconditions: [
         ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME().executionPreconditions,
         ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.NoPetCurrentlySummoned],
+        ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.PetSlotNotEmpty],
       ],
     }
   ),

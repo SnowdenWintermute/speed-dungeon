@@ -92,10 +92,9 @@ export class PetManager extends AdventuringPartySubsystem {
 
     // remove the pet from the unsummonedPets data structure
     const petOption = this.removePetFromUnsummonedSlot(ownerId, slotIndex);
-    if (petOption === undefined)
-      throw new Error(
-        `expected pet owner id ${ownerId} to have a pet in that slotIndex ${slotIndex} to summon`
-      );
+    if (petOption === undefined) {
+      return undefined;
+    }
 
     const pet = petOption;
     pet.combatantProperties.controlledBy.summonedBy = ownerId;

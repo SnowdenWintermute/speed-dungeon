@@ -6,6 +6,7 @@ import {
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { synchronizeCombatantModelsWithAppState } from "../../model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
+import { setAlert } from "@/app/components/alerts";
 
 export function handlePetSlotsSummoned(
   petSlotsSummoned: PetSlot[],
@@ -16,6 +17,11 @@ export function handlePetSlotsSummoned(
 
   for (const { ownerId, slotIndex } of petSlotsSummoned) {
     const pet = party.petManager.summonPetFromSlot(game, party, ownerId, slotIndex, battleOption);
+
+    if (pet === undefined) {
+      setAlert("No pet was found even though server thought there should have been one");
+      return console.warn("No pet was found even though server thought there should have been one");
+    }
 
     synchronizeCombatantModelsWithAppState({
       onComplete: () => {

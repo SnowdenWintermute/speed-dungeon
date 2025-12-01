@@ -14,21 +14,28 @@ export type PlayerCharacter = {
   combatantProperties: CombatantProperties;
   createdAt: number | Date;
   updatedAt: number | Date;
+  pets: CombatantProperties[];
 };
 
 const tableName = RESOURCE_NAMES.PLAYER_CHARACTERS;
 
 class PlayerCharacterRepo extends DatabaseRepository<PlayerCharacter> {
-  async insert(combatant: Combatant, ownerId: number) {
+  async insert(combatant: Combatant, pets: Combatant[], ownerId: number) {
     const { id, name } = combatant.entityProperties;
     const { combatantProperties } = combatant;
+    const petCombatantProperties = pets.map((petCombatant) => petCombatant.combatantProperties);
+
     const { rows } = await this.pgPool.query(
       format(
-        `INSERT INTO ${tableName} (id, name, owner_id, combatant_properties, game_version) VALUES (%L, %L, %L, %L, %L) RETURNING *;`,
+        `INSERT INTO ${tableName} 
+         (id, name, owner_id, combatant_properties, pets, game_version) 
+         VALUES (%L, %L, %L, %L, %L) 
+         RETURNING *;`,
         id,
         name,
         ownerId,
         combatantProperties,
+        petCombatantProperties,
         SERVER_VERSION
       )
     );
@@ -38,15 +45,23 @@ class PlayerCharacterRepo extends DatabaseRepository<PlayerCharacter> {
     return undefined;
   }
 
-  async update(playerCharacter: PlayerCharacter) {
+  async update(playerCharacter: PlayerCharacter, pets: Combatant[]) {
     const { id, ownerId, name, combatantProperties } = playerCharacter;
+    const petCombatantProperties = pets.map((petCombatant) => petCombatant.combatantProperties);
     const { rows } = await this.pgPool.query(
       format(
-        `UPDATE ${tableName} SET owner_id = %L, name = %L, game_version = %L, combatant_properties = %L WHERE id = %L RETURNING *;`,
+        `UPDATE ${tableName} 
+         SET owner_id = %L, 
+         name = %L,
+         game_version = %L,
+         combatant_properties = %L,
+         pets = %L
+         WHERE id = %L RETURNING *;`,
         ownerId,
         name,
         SERVER_VERSION,
         combatantProperties,
+        petCombatantProperties,
         id
       )
     );
