@@ -1,5 +1,5 @@
 import { ActionCommand } from "@speed-dungeon/common";
-import { ModelManager } from "..";
+import { ModelManager } from "../index.js";
 import {
   ChangeEquipmentModelAction,
   ClearAllModelsModelAction,

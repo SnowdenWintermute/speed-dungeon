@@ -9,15 +9,16 @@ export async function runMigrations() {
     await migrate({
       databaseUrl: `postgresql://${pgOptions.user}:${pgOptions.password}@${pgOptions.host}:${pgOptions.port}/${pgOptions.database}`,
       direction: "up",
-      migrationsTable: "pg_migrations",
+      migrationsTable: "pgmigrations",
       dir: "./src/database/migrations",
     });
 
     console.info("Migrations completed successfully");
   } catch (err) {
     //@ts-ignore
-    if (err.code === "42P07")
+    if (err.code === "42P07") {
       return console.info("Postgres tables already exist, no need to run migrations");
+    }
     console.error("Error running migrations", err);
     process.exit(1); // Exit the process with a failure status
   } finally {

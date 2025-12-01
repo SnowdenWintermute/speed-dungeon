@@ -1,3 +1,4 @@
 {
-  "migrations-dir": "src/database/migrations"
+  "migrations-dir": "src/database/migrations",
+  "migrationFileNameFormat": "index"
 }

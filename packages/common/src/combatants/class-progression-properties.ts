@@ -69,6 +69,10 @@ export class ClassProgressionProperties extends CombatantSubsystem {
   static getDeserialized(self: ClassProgressionProperties) {
     const deserialized = plainToInstance(ClassProgressionProperties, self);
     deserialized.experiencePoints = ExperiencePoints.getDeserialized(deserialized.experiencePoints);
+    deserialized.mainClass = plainToInstance(CombatantClassProperties, self.mainClass);
+    if (self.supportClass !== null) {
+      deserialized.supportClass = plainToInstance(CombatantClassProperties, self.supportClass);
+    }
     return deserialized;
   }
 

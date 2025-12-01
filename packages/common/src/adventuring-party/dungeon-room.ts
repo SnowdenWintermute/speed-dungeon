@@ -11,8 +11,9 @@ export class DungeonRoom {
   }
 
   static getDeserialized(dungeonRoom: DungeonRoom) {
-    dungeonRoom.inventory = Inventory.getDeserialized(dungeonRoom.inventory);
-    return plainToInstance(DungeonRoom, dungeonRoom);
+    const toReturn = plainToInstance(DungeonRoom, dungeonRoom);
+    toReturn.inventory = Inventory.getDeserialized(dungeonRoom.inventory);
+    return toReturn;
   }
 }
 export enum DungeonRoomType {

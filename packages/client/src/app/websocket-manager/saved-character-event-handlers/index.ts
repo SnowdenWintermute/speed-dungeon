@@ -16,13 +16,19 @@ export function setUpSavedCharacterEventListeners(
   const lobbyStore = AppStore.get().lobbyStore;
 
   socket.on(ServerToClientEvent.SavedCharacterList, (characters) => {
-    const deserialized: Record<number, null | Combatant> = {};
+    console.log("got saved character list");
+
+    const deserialized: Record<number, null | { combatant: Combatant; pets: Combatant[] }> = {};
     for (const [slotNumberStringKey, characterOption] of Object.entries(characters)) {
       const slotNumber = parseInt(slotNumberStringKey);
       if (characterOption === null) {
         deserialized[slotNumber] = null;
       } else {
-        deserialized[slotNumber] = Combatant.getDeserialized(characterOption);
+        deserialized[slotNumber] = {
+          combatant: Combatant.getDeserialized(characterOption.combatant),
+          pets: characterOption.pets.map((pet) => Combatant.getDeserialized(pet)),
+        };
+        console.log("deserialized: ", deserialized[slotNumber]);
       }
     }
 
@@ -44,8 +50,16 @@ export function setUpSavedCharacterEventListeners(
   });
 
   socket.on(ServerToClientEvent.SavedCharacter, (character, slot) => {
-    const deserialized = Combatant.getDeserialized(character);
-    lobbyStore.setSavedCharacterSlot(deserialized, slot);
+    const { combatant, pets } = character;
+    const deserializedCombatant = Combatant.getDeserialized(combatant);
+    const deserializedPets = pets.map((pet) => Combatant.getDeserialized(pet));
+
+    console.log("setting combatant: ", deserializedCombatant);
+
+    lobbyStore.setSavedCharacterSlot(
+      { combatant: deserializedCombatant, pets: deserializedPets },
+      slot
+    );
     getGameWorld().modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
     });

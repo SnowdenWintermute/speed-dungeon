@@ -27,7 +27,7 @@ import { setUpDebugMeshes, despawnDebugMeshes } from "./set-up-debug-meshes";
 import { HighlightManager } from "./highlight-manager";
 import { plainToInstance } from "class-transformer";
 import { ManagedAnimationOptions } from "../model-animation-managers";
-import { SceneEntity } from "..";
+import { SceneEntity } from "../index";
 import { BONE_NAMES, BoneName } from "./skeleton-structure-variables";
 import { EquipmentModelManager } from "./equipment-model-manager";
 import { ModularCharacterPartsModelManager } from "./modular-character-parts-model-manager";
@@ -200,7 +200,7 @@ export class CharacterModel extends SceneEntity {
 
     // if not there, it could be in saved characters
     if (combatantOption === undefined) {
-      combatantOption = AppStore.get().lobbyStore.getSavedCharacterOption(this.entityId);
+      combatantOption = AppStore.get().lobbyStore.getSavedCharacterOption(this.entityId)?.combatant;
     }
 
     if (combatantOption === undefined) {

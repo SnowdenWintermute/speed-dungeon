@@ -2,7 +2,7 @@ import { ERROR_MESSAGES, MonsterType } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
 import { getChildMeshByName } from "../../utils";
 import { CreateScreenshotUsingRenderTargetAsync, Vector3 } from "@babylonjs/core";
-import { LAYER_MASK_1, LAYER_MASK_ALL } from "..";
+import { LAYER_MASK_1, LAYER_MASK_ALL } from "../index";
 import { AppStore } from "@/mobx-stores/app-store";
 
 export async function createCombatantPortrait(combatantId: string) {

@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "checkTs": "npx tsc --noEmit --watch",
     "cypress:firefox": "env-cmd -f .env.test.local cypress open --e2e --browser firefox",
     "cypress:first": "env-cmd -f .env.test.local cypress open --e2e -b firefox --config-file ./cypress/cypress-first-user.config.ts",
     "cypress:second": "env-cmd -f .env.test.local cypress open --e2e -b chromium --config-file ./cypress/cypress-second-user.config.ts",

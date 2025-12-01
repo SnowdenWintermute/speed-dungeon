@@ -4,7 +4,7 @@ import {
   ClientToServerEventTypes,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
-import { GameServer } from "..";
+import { GameServer } from "../index.js";
 import { applyMiddlewares } from "../event-middleware/index.js";
 import { provideLoggedInUser } from "../event-middleware/get-logged-in-user-from-socket.js";
 import { createSavedCharacterHandler } from "./create-saved-character-handler.js";

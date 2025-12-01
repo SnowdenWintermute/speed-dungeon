@@ -24,9 +24,9 @@ export async function getUserProfileHandler(_req: Request, res: Response, next: 
     for (const character of Object.values(characterSlotsResult)) {
       const rank = await valkeyManager.context.zRevRank(
         CHARACTER_LEVEL_LADDER,
-        character.entityProperties.id
+        character.combatant.entityProperties.id
       );
-      const { combatantProperties, entityProperties } = character;
+      const { combatantProperties, entityProperties } = character.combatant;
       characterRanks[entityProperties.id] = {
         name: entityProperties.name,
         rank,

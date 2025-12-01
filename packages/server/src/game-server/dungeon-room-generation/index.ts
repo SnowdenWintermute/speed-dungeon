@@ -3,10 +3,8 @@ import {
   DungeonRoom,
   DungeonRoomType,
   NUM_MONSTERS_PER_ROOM,
-  randBetween,
 } from "@speed-dungeon/common";
 import { generateMonster } from "../monster-generation/index.js";
-import { rngSingleton } from "../../singletons/index.js";
 
 export function generateDungeonRoom(
   floor: number,

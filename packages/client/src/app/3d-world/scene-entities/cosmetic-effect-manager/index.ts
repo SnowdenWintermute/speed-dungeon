@@ -1,5 +1,5 @@
 import { CosmeticEffect, CosmeticEffectNames } from "@speed-dungeon/common";
-import { SceneEntity } from "..";
+import { SceneEntity } from "../index.js";
 import { StandardMaterial } from "@babylonjs/core";
 
 export class CosmeticEffectManager {

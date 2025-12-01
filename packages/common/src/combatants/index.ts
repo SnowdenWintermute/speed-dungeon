@@ -124,7 +124,9 @@ export class Combatant implements IActionUser {
     return combatantManager.getCombatantIdsByDisposition(this.getEntityId());
   }
 
-  getTargetingProperties = () => this.combatantProperties.targetingProperties;
+  getTargetingProperties() {
+    return this.combatantProperties.targetingProperties;
+  }
 
   payResourceCosts(): void {
     throw new Error("Method not implemented.");

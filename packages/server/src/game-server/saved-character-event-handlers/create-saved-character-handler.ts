@@ -1,8 +1,11 @@
 import {
+  ClientToServerEventTypes,
+  Combatant,
   CombatantClass,
   ERROR_MESSAGES,
   MAX_CHARACTER_NAME_LENGTH,
   ServerToClientEvent,
+  ServerToClientEventTypes,
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io";
 import { LoggedInUser } from "../event-middleware/get-logged-in-user-from-socket.js";
@@ -15,7 +18,7 @@ import { CHARACTER_LEVEL_LADDER } from "../../kv-store/consts.js";
 export async function createSavedCharacterHandler(
   eventData: { name: string; combatantClass: CombatantClass; slotNumber: number },
   loggedInUser: LoggedInUser,
-  socket: Socket
+  socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
   const { userId, profile } = loggedInUser;
 
@@ -30,8 +33,10 @@ export async function createSavedCharacterHandler(
 
   const newCharacter = createCharacter(name, combatantClass, loggedInUser.session.username);
 
-  if (newCharacter instanceof Error) return newCharacter;
-  await playerCharactersRepo.insert(newCharacter, userId);
+  const newCharacterEmptyPetsArray: Combatant[] = [];
+
+  await playerCharactersRepo.insert(newCharacter, newCharacterEmptyPetsArray, userId);
+
   slot.characterId = newCharacter.entityProperties.id;
   await characterSlotsRepo.update(slot);
 
@@ -42,5 +47,9 @@ export async function createSavedCharacterHandler(
     },
   ]);
 
-  socket.emit(ServerToClientEvent.SavedCharacter, newCharacter, slotNumber);
+  socket.emit(
+    ServerToClientEvent.SavedCharacter,
+    { combatant: newCharacter.getSerialized(), pets: [] },
+    slotNumber
+  );
 }

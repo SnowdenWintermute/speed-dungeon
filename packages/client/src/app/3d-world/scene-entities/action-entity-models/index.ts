@@ -16,7 +16,7 @@ import {
   TaggedShape3DDimensions,
 } from "@speed-dungeon/common";
 import { getGameWorld } from "../../SceneManager";
-import { SceneEntity } from "..";
+import { SceneEntity } from "../index";
 import { ACTION_ENTITY_MODEL_FACTORIES } from "./action-entity-model-factories";
 
 export class ActionEntityModelManager {

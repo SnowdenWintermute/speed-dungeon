@@ -5,7 +5,7 @@ import {
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
-import { GameServer } from "..";
+import { GameServer } from "../index.js";
 import errorHandler from "../error-handler.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
 import getDefaultSavedCharacterForProgressionGame from "./get-default-saved-character-for-progression-game.js";

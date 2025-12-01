@@ -6,7 +6,8 @@ export class LobbyStore {
   private gameList: GameListEntry[] = [];
   private mainChannelName: string = "";
   private usersInChannel = new Map<string, UserChannelDisplayData>();
-  private savedCharacterSlots: Record<number, Combatant | null> = {};
+  private savedCharacterSlots: Record<number, { combatant: Combatant; pets: Combatant[] } | null> =
+    {};
 
   constructor() {
     // we autoBind because that allows us to pass methods of this class
@@ -58,24 +59,29 @@ export class LobbyStore {
     return this.savedCharacterSlots;
   }
 
-  setSavedCharacterSlots(characters: Record<number, Combatant | null>) {
+  setSavedCharacterSlots(
+    characters: Record<number, { combatant: Combatant; pets: Combatant[] } | null>
+  ) {
     this.savedCharacterSlots = characters;
   }
 
-  setSavedCharacterSlot(characterOption: Combatant | null, slot: number) {
+  setSavedCharacterSlot(
+    characterOption: { combatant: Combatant; pets: Combatant[] } | null,
+    slot: number
+  ) {
     this.savedCharacterSlots[slot] = characterOption;
   }
 
   getSavedCharacterOption(entityId: EntityId) {
-    for (const [slotNumberString, combatantOption] of Object.entries(this.savedCharacterSlots)) {
-      if (combatantOption?.entityProperties.id === entityId) return combatantOption;
+    for (const [slotNumberString, savedCharacterSlot] of Object.entries(this.savedCharacterSlots)) {
+      if (savedCharacterSlot?.combatant.entityProperties.id === entityId) return savedCharacterSlot;
     }
   }
 
   deleteSavedCharacter(entityId: EntityId) {
     for (const [slotStringKey, characterOption] of Object.entries(this.savedCharacterSlots)) {
       const slotNumber = parseInt(slotStringKey);
-      if (characterOption?.entityProperties.id !== entityId) continue;
+      if (characterOption?.combatant.entityProperties.id !== entityId) continue;
       this.savedCharacterSlots[slotNumber] = null;
       break;
     }

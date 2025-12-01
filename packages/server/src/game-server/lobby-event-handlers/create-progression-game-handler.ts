@@ -7,7 +7,7 @@ import {
   getProgressionGamePartyName,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
-import { GameServer } from "..";
+import { GameServer } from "../index.js";
 import errorHandler from "../error-handler.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
 import getDefaultSavedCharacterForProgressionGame from "./get-default-saved-character-for-progression-game.js";
@@ -20,14 +20,17 @@ export async function createProgressionGameHandler(
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
   gameName: string
 ) {
+  console.log("creating progression game");
   const defaultSavedCharacterResult = await getDefaultSavedCharacterForProgressionGame(
     gameServer,
     socketMeta.username,
     socket
   );
 
-  if (defaultSavedCharacterResult instanceof Error)
+  if (defaultSavedCharacterResult instanceof Error) {
+    console.log("defaultSavedCharacterResult was error");
     return errorHandler(socket, defaultSavedCharacterResult);
+  }
 
   const game = new SpeedDungeonGame(
     idGenerator.generate(),
@@ -35,16 +38,25 @@ export async function createProgressionGameHandler(
     GameMode.Progression,
     socketMeta.username
   );
-  game.lowestStartingFloorOptionsBySavedCharacter[defaultSavedCharacterResult.entityProperties.id] =
-    defaultSavedCharacterResult.combatantProperties.deepestFloorReached;
+  console.log("created progression game");
 
-  game.selectedStartingFloor = defaultSavedCharacterResult.combatantProperties.deepestFloorReached;
+  game.lowestStartingFloorOptionsBySavedCharacter[
+    defaultSavedCharacterResult.combatant.entityProperties.id
+  ] = defaultSavedCharacterResult.combatant.combatantProperties.deepestFloorReached;
+
+  game.selectedStartingFloor =
+    defaultSavedCharacterResult.combatant.combatantProperties.deepestFloorReached;
 
   const defaultPartyName = getProgressionGamePartyName(game.name);
+
+  console.log("creating initialized party");
+
   game.adventuringParties[getProgressionGamePartyName(game.name)] =
     AdventuringParty.createInitialized(idGenerator.generate(), defaultPartyName);
 
   gameServer.games.insert(gameName, game);
+
+  console.log("about to joinPlayerToProgressionGame");
 
   await joinPlayerToProgressionGame(
     gameServer,

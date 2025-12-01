@@ -14,7 +14,7 @@ export type PlayerCharacter = {
   combatantProperties: CombatantProperties;
   createdAt: number | Date;
   updatedAt: number | Date;
-  pets: CombatantProperties[];
+  pets: Combatant[];
 };
 
 const tableName = RESOURCE_NAMES.PLAYER_CHARACTERS;
@@ -22,20 +22,21 @@ const tableName = RESOURCE_NAMES.PLAYER_CHARACTERS;
 class PlayerCharacterRepo extends DatabaseRepository<PlayerCharacter> {
   async insert(combatant: Combatant, pets: Combatant[], ownerId: number) {
     const { id, name } = combatant.entityProperties;
-    const { combatantProperties } = combatant;
-    const petCombatantProperties = pets.map((petCombatant) => petCombatant.combatantProperties);
+    const { combatantProperties } = combatant.getSerialized();
+
+    const petsAsJSON = JSON.stringify(pets.map((pet) => pet.getSerialized()));
 
     const { rows } = await this.pgPool.query(
       format(
         `INSERT INTO ${tableName} 
          (id, name, owner_id, combatant_properties, pets, game_version) 
-         VALUES (%L, %L, %L, %L, %L) 
+         VALUES (%L, %L, %L, %L, %L, %L) 
          RETURNING *;`,
         id,
         name,
         ownerId,
         combatantProperties,
-        petCombatantProperties,
+        petsAsJSON,
         SERVER_VERSION
       )
     );

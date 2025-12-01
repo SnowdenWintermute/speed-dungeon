@@ -1,7 +1,7 @@
 import migrate from "node-pg-migrate";
 import format from "pg-format";
 import { pgOptionsTestDB, TEST_DB_NAME } from "../database/config.js";
-import { pgPool } from "../singletons/pg-pool";
+import { pgPool } from "../singletons/pg-pool.js";
 
 export default class PGTestingContext {
   roleName: string;

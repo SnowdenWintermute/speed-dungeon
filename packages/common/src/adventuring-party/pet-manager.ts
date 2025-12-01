@@ -10,6 +10,21 @@ import { CombatantControllerType } from "../combatants/combatant-controllers.js"
 export class PetManager extends AdventuringPartySubsystem {
   private unsummonedPetsByOwnerId: { [ownerId: EntityId]: (Combatant | undefined)[] } = {};
 
+  getAllPetsByOwnerId(ownerId: EntityId) {
+    const unsummoned = this.iteratePetSlots(ownerId)
+      .map((petSlot) => petSlot.petOption)
+      .filter((petOption) => petOption !== undefined);
+    const summonedOption = this.getCombatantSummonedPetOption(ownerId);
+
+    const allPets = [...unsummoned];
+
+    if (summonedOption !== undefined) {
+      allPets.push(summonedOption);
+    }
+
+    return allPets;
+  }
+
   setCombatantPets(ownerId: EntityId, pets: Combatant[]) {
     this.unsummonedPetsByOwnerId[ownerId] = pets;
   }

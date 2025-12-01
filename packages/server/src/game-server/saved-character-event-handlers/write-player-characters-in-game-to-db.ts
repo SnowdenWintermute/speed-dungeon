@@ -1,4 +1,5 @@
 import {
+  Combatant,
   ERROR_MESSAGES,
   ServerToClientEvent,
   SpeedDungeonGame,
@@ -46,8 +47,13 @@ export async function writePlayerCharactersInGameToDb(
         characterResult.combatantProperties.deepestFloorReached = floorNumber;
       }
 
-      existingCharacter.combatantProperties = characterResult.combatantProperties;
-      await playerCharactersRepo.update(existingCharacter);
+      const serializedCharacter = characterResult.getSerialized();
+      existingCharacter.combatantProperties = serializedCharacter.combatantProperties;
+
+      const pets = partyOption.petManager.getAllPetsByOwnerId(existingCharacter.id);
+      const serializedPets = pets.map((pet) => pet.getSerialized());
+
+      await playerCharactersRepo.update(existingCharacter, serializedPets);
     }
   } catch (error) {
     if (error instanceof Error) return error;

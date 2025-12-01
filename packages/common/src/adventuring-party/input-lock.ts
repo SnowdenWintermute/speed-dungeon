@@ -10,7 +10,9 @@ export class InputLock {
   }
 
   static getDeserialized(plain: InputLock) {
-    return plainToInstance(InputLock, plain);
+    const toReturn = plainToInstance(InputLock, plain);
+    console.log(toReturn.isLocked(), "TEST IS DES");
+    return toReturn;
   }
 
   lockInput() {

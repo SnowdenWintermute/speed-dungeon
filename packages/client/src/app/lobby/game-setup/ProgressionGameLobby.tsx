@@ -158,9 +158,9 @@ const PlayerDisplay = observer(
               .filter((character) => !!character)
               .map((character) => {
                 return {
-                  title: formatCharacterTag(character!),
-                  value: character!.entityProperties.id,
-                  disabled: character!.combatantProperties.isDead(),
+                  title: formatCharacterTag(character!.combatant),
+                  value: character!.combatant.entityProperties.id,
+                  disabled: character!.combatant.combatantProperties.isDead(),
                 };
               })}
             disabled={game.playersReadied.includes(username)}

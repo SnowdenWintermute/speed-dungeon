@@ -14,6 +14,7 @@ import { makeAutoObservable } from "mobx";
 import { runIfInBrowser } from "../utils/index.js";
 import { Item } from "../items/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
+import { plainToInstance } from "class-transformer";
 export * from "./dungeon-room.js";
 export * from "./dungeon-exploration-manager.js";
 export * from "./input-lock.js";
@@ -57,16 +58,17 @@ export class AdventuringParty {
   }
 
   static getDeserialized(party: AdventuringParty) {
-    party.combatantManager = CombatantManager.getDeserialized(party.combatantManager);
-    party.currentRoom = DungeonRoom.getDeserialized(party.currentRoom);
-    party.inputLock = InputLock.getDeserialized(party.inputLock);
-    party.dungeonExplorationManager = DungeonExplorationManager.getDeserialized(
-      party.dungeonExplorationManager
+    const toReturn = plainToInstance(AdventuringParty, party);
+    toReturn.combatantManager = CombatantManager.getDeserialized(toReturn.combatantManager);
+    toReturn.currentRoom = DungeonRoom.getDeserialized(toReturn.currentRoom);
+    toReturn.inputLock = InputLock.getDeserialized(toReturn.inputLock);
+    toReturn.dungeonExplorationManager = DungeonExplorationManager.getDeserialized(
+      toReturn.dungeonExplorationManager
     );
 
-    party.initialize();
+    toReturn.initialize();
 
-    return party;
+    return toReturn;
   }
 
   initialize() {

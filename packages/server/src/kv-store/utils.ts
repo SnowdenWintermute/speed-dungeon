@@ -41,6 +41,10 @@ export async function loadLadderIntoKvStore() {
     });
   }
 
+  if (forValkey.length === 0) {
+    return;
+  }
+
   await valkeyManager.context.zAdd(CHARACTER_LEVEL_LADDER, forValkey);
   const topTen = await valkeyManager.context.zRangeWithScores(CHARACTER_LEVEL_LADDER, 0, 10, {
     REV: true,

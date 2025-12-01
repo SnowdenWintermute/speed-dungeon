@@ -134,8 +134,8 @@ function getModelsAndPositions() {
       ([_slot, characterOption]) => characterOption !== null
     )) {
       if (!character) return new Error("Failed to meet checked expectation");
-      modelsAndPositions[character.entityProperties.id] = {
-        combatant: character,
+      modelsAndPositions[character.combatant.entityProperties.id] = {
+        combatant: character.combatant,
         homeRotation: Quaternion.Identity(),
         homeLocation: new Vector3(-CHARACTER_SLOT_SPACING + slot * CHARACTER_SLOT_SPACING, 0, 0),
       };
