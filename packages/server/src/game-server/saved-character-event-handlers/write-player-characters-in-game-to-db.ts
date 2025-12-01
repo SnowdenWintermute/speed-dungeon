@@ -14,7 +14,10 @@ export async function writePlayerCharactersInGameToDb(
   player: SpeedDungeonPlayer
 ): Promise<Error | void> {
   try {
-    if (!player.partyName) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
+    if (!player.partyName) {
+      throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
+    }
+
     for (const id of player.characterIds) {
       const characterResult = game.getCombatantById(id);
 

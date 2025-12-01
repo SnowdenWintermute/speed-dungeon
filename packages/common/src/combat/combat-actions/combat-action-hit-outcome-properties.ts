@@ -13,11 +13,9 @@ import {
 } from "../../combatants/index.js";
 import { HoldableSlotType } from "../../items/equipment/slots.js";
 import { NormalizedPercentage, Percentage } from "../../primatives/index.js";
-import { RandomNumberGenerator } from "../../utility-classes/randomizers.js";
 import { CombatActionHitOutcomes, ThreatChanges } from "../action-results/index.js";
 import { ActionAccuracy } from "./combat-action-accuracy.js";
 import { CombatActionResourceChangeProperties } from "./combat-action-resource-change-properties.js";
-import { CombatActionComponent } from "./index.js";
 
 export enum CombatActionResource {
   HitPoints,

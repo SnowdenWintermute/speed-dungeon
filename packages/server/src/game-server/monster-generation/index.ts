@@ -63,6 +63,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   ];
 
   for (const actionName of ownedActions) {
+    combatantProperties.abilityProperties.changeUnspentAbilityPoints(1);
     combatantProperties.abilityProperties.allocateAbilityPoint({
       type: AbilityType.Action,
       actionName,

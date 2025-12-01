@@ -89,7 +89,7 @@ export class AiActionSelector {
 
   private getUsableActionRankPairs(): ActionAndRank[] {
     const { actionUser, party } = this.actionUserContext;
-    const ownedActions = Array.from(actionUser.getOwnedAbilities());
+    const ownedActions = Array.from(actionUser.getOwnedActions());
     const battleOption = this.actionUserContext.getBattleOption();
     const possibleActionRanks: ActionAndRank[] = [];
 

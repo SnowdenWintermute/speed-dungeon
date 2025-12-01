@@ -61,7 +61,21 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
 };
 
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL;
-const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
+const costProperties = createCostPropertiesConfig(costPropertiesBase, {
+  getMeetsCustomRequirements: (user, party) => {
+    const { combatantManager } = party;
+    for (const combatant of combatantManager.getPartyMemberPets()) {
+      if (combatant.combatantProperties.controlledBy.summonedBy === user.getEntityId()) {
+        return { meetsRequirements: true };
+      }
+    }
+
+    return {
+      meetsRequirements: false,
+      reasonDoesNot: "You must have a pet summoned in order to dismiss it",
+    };
+  },
+});
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.THREATLESS_ACTION,

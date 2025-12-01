@@ -26,7 +26,21 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   costBases: { [ActionPayableResource.Mana]: { base: 1 } },
 };
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.FAST_SPELL;
-const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
+const costProperties = createCostPropertiesConfig(costPropertiesBase, {
+  getMeetsCustomRequirements: (user, party) => {
+    const { combatantManager } = party;
+    for (const combatant of combatantManager.getPartyMemberPets()) {
+      if (combatant.combatantProperties.controlledBy.summonedBy === user.getEntityId()) {
+        return { meetsRequirements: true };
+      }
+    }
+
+    return {
+      meetsRequirements: false,
+      reasonDoesNot: "You must have a pet summoned",
+    };
+  },
+});
 
 const gameLogMessageProperties: CombatActionGameLogProperties =
   createGenericSpellCastMessageProperties(CombatActionName.PetCommand);

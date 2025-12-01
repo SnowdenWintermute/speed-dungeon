@@ -65,6 +65,16 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
       },
     },
   },
+  getMeetsCustomRequirements: (user, party) => {
+    const { combatantManager } = party;
+    for (const combatant of combatantManager.getPartyMemberPets()) {
+      if (combatant.combatantProperties.controlledBy.summonedBy === user.getEntityId()) {
+        return { meetsRequirements: false, reasonDoesNot: "You already have a pet summoned" };
+      }
+    }
+
+    return { meetsRequirements: true };
+  },
 };
 
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.FAST_ACTION;

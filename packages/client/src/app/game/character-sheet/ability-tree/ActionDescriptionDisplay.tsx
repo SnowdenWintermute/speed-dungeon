@@ -65,6 +65,7 @@ export const ActionDescriptionDisplay = observer(
           const canBeBlocked = description[ActionDescriptionComponent.IsBlockable];
           const canBeCountered = description[ActionDescriptionComponent.IsCounterable];
           const canBeParried = description[ActionDescriptionComponent.IsParryable];
+          const canBeResisted = description[ActionDescriptionComponent.IsResistable];
           const resourceChangePropertiesOption =
             description[ActionDescriptionComponent.ResourceChanges];
 
@@ -93,6 +94,11 @@ export const ActionDescriptionDisplay = observer(
           if (typeof canBeCountered === "boolean") {
             if (canBeCountered) allowedMitigations.push("countered");
             else prohibitedMitigations.push("countered");
+          }
+
+          if (typeof canBeResisted === "boolean") {
+            if (canBeResisted) allowedMitigations.push("resisted");
+            else prohibitedMitigations.push("resisted");
           }
 
           const flatThreatOption = description[ActionDescriptionComponent.FlatThreatGenerated];

@@ -119,7 +119,7 @@ export class ActionEntity implements IActionUser {
   getTotalAttributes(): CombatantAttributeRecord {
     return this.actionEntityProperties.actionOriginData?.userCombatantAttributes || {};
   }
-  getOwnedAbilities(): Map<CombatActionName, CombatantActionState> {
+  getOwnedActions(): Map<CombatActionName, CombatantActionState> {
     throw new Error("Method not implemented.");
   }
   getEquipmentOption = () => null;

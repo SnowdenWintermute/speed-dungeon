@@ -1,6 +1,5 @@
 import SocketIO from "socket.io";
 import {
-  CharacterAssociatedData,
   ClientToServerEventTypes,
   ERROR_MESSAGES,
   EntityId,
@@ -23,10 +22,19 @@ export async function renamePetHandler(
   const { petId, newName } = eventData;
 
   if (partyOption === undefined) {
-    throw new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
+    return new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
   }
 
   const pet = partyOption.combatantManager.getExpectedCombatant(petId);
+
+  const isPetOfThisPlayer =
+    pet.combatantProperties.controlledBy.wasSummonedByCharacterControlledByPlayer(
+      player.username,
+      partyOption
+    );
+  if (!isPetOfThisPlayer) {
+    return new Error("Can't rename a pet of a character you do not control");
+  }
 
   pet.entityProperties.name = newName;
 

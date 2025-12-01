@@ -145,7 +145,7 @@ export class Combatant implements IActionUser {
   getTotalAttributes(): CombatantAttributeRecord {
     return this.combatantProperties.attributeProperties.getTotalAttributes();
   }
-  getOwnedAbilities(): Map<CombatActionName, CombatantActionState> {
+  getOwnedActions(): Map<CombatActionName, CombatantActionState> {
     return this.combatantProperties.abilityProperties.getOwnedActions();
   }
   getEquipmentOption() {

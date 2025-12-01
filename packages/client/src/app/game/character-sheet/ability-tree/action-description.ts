@@ -53,6 +53,7 @@ export enum ActionDescriptionComponent {
   IsParryable,
   IsBlockable,
   IsCounterable,
+  IsResistable,
   ResourceChanges,
   AddsPropertiesFromHoldableSlot,
   UsableWithEquipmentTypes,
@@ -143,6 +144,7 @@ export class ActionDescription {
         user,
         actionRank
       ),
+      [ActionDescriptionComponent.IsResistable]: hitOutcomeProperties.getResistChance !== undefined,
       [ActionDescriptionComponent.ResourceChanges]: iterateNumericEnumKeyedRecord(
         hitOutcomeProperties.resourceChangePropertiesGetters
       ).map(([resource, resourceChangePropertiesGetter]) => {
