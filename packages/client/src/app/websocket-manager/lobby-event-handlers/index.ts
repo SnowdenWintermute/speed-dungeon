@@ -36,6 +36,7 @@ export function setUpGameLobbyEventHandlers(
 
     gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
+      placeInHomePositions: true,
     });
     gameWorld.current?.imageManager.enqueueMessage({
       type: ImageManagerRequestType.ClearState,

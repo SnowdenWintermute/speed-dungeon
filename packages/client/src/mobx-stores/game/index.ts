@@ -243,13 +243,6 @@ export class GameStore {
       this.getExpectedFocusedCharacterId()
     );
 
-    console.log(
-      usernameOption,
-      "is direct controller of:",
-      this.getExpectedFocusedCharacter().getName(),
-      isDirectController
-    );
-
     if (isDirectController) {
       return true;
     }
@@ -265,8 +258,6 @@ export class GameStore {
         usernameOption,
         partyOption
       );
-
-      console.log("is pet of", usernameOption, ":", isPetOfThisPlayer);
 
       return isPetOfThisPlayer;
     }

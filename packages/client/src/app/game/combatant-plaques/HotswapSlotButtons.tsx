@@ -60,10 +60,6 @@ export const HotswapSlotButtons = observer(
 
     useEffect(() => {
       if (!registerKeyEvents) return;
-      console.log(
-        "AppStore.get().inputStore.getHotkeysDisabled()",
-        AppStore.get().inputStore.getHotkeysDisabled()
-      );
 
       listenerRef.current = (e: KeyboardEvent) => {
         if (AppStore.get().inputStore.getHotkeysDisabled()) return;

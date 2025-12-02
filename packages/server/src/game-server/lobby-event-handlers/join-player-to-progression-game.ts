@@ -22,12 +22,9 @@ export async function joinPlayerToProgressionGame(
   game: SpeedDungeonGame,
   character: { combatant: Combatant; pets: Combatant[] }
 ) {
-  console.log("about to joinPlayerToGame");
   const player = joinPlayerToGame(gameServer, game, session, socket);
 
-  console.log("getting getProgressionGamePartyName");
   const partyName = getProgressionGamePartyName(game.name);
-  console.log("calling joinPartyHandler");
   joinPartyHandler(partyName, { game, partyOption: undefined, session, player }, socket);
 
   const partyOption = game.adventuringParties[partyName];
@@ -36,8 +33,6 @@ export async function joinPlayerToProgressionGame(
   const playerOption = game.players[session.username];
   if (playerOption === undefined)
     return errorHandler(socket, new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST));
-
-  console.log("about to add character to party");
 
   game.addCharacterToParty(partyOption, playerOption, character.combatant, character.pets);
 
@@ -48,13 +43,9 @@ export async function joinPlayerToProgressionGame(
     game.lowestStartingFloorOptionsBySavedCharacter
   );
 
-  console.log("got max starting floor");
-
   if (game.selectedStartingFloor > maxStartingFloor) {
     game.selectedStartingFloor = maxStartingFloor;
   }
-
-  console.log("about to send CharacterAddedToParty");
 
   gameServer.io
     .of("/")

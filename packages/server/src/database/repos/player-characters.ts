@@ -48,7 +48,8 @@ class PlayerCharacterRepo extends DatabaseRepository<PlayerCharacter> {
 
   async update(playerCharacter: PlayerCharacter, pets: Combatant[]) {
     const { id, ownerId, name, combatantProperties } = playerCharacter;
-    const petCombatantProperties = pets.map((petCombatant) => petCombatant.combatantProperties);
+
+    const petsAsJSON = JSON.stringify(pets.map((pet) => pet.getSerialized()));
     const { rows } = await this.pgPool.query(
       format(
         `UPDATE ${tableName} 
@@ -62,7 +63,7 @@ class PlayerCharacterRepo extends DatabaseRepository<PlayerCharacter> {
         name,
         SERVER_VERSION,
         combatantProperties,
-        petCombatantProperties,
+        petsAsJSON,
         id
       )
     );

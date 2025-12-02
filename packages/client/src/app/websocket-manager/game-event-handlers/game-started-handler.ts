@@ -50,5 +50,6 @@ export function gameStartedHandler(timeStarted: number) {
 
   gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.SynchronizeCombatantModels,
+    placeInHomePositions: true,
   });
 }

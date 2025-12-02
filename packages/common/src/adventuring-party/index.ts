@@ -57,13 +57,17 @@ export class AdventuringParty {
     return party;
   }
 
-  static getDeserialized(party: AdventuringParty) {
-    const toReturn = plainToInstance(AdventuringParty, party);
+  static getDeserialized(plain: AdventuringParty) {
+    const toReturn = plainToInstance(AdventuringParty, plain);
     toReturn.combatantManager = CombatantManager.getDeserialized(toReturn.combatantManager);
     toReturn.currentRoom = DungeonRoom.getDeserialized(toReturn.currentRoom);
     toReturn.inputLock = InputLock.getDeserialized(toReturn.inputLock);
     toReturn.dungeonExplorationManager = DungeonExplorationManager.getDeserialized(
       toReturn.dungeonExplorationManager
+    );
+    toReturn.petManager = PetManager.getDeserialized(toReturn.petManager);
+    toReturn.actionEntityManager = ActionEntityManager.getDeserialized(
+      toReturn.actionEntityManager
     );
 
     toReturn.initialize();

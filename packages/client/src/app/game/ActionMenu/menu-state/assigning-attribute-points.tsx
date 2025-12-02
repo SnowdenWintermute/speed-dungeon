@@ -41,8 +41,6 @@ export class AssigningAttributePointsMenuState extends ActionMenuState {
         includePets: true,
       });
 
-      console.log("does not control:", doesNotControlCharacter);
-
       const shouldBeDisabled = hasNoUnspentPoints || doesNotControlCharacter;
 
       const buttonNumber = i + 1;

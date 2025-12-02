@@ -32,6 +32,7 @@ export type ProcessActionCommandsModelAction = {
 
 export type SynchronizeCombatantModelsModelAction = {
   type: ModelActionType.SynchronizeCombatantModels;
+  placeInHomePositions: boolean;
 };
 
 export type SpawnEnvironmentalModelModelAction = {

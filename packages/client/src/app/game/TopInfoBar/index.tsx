@@ -32,14 +32,17 @@ export const TopInfoBar = observer(() => {
       getGameWorld().actionEntityManager.unregister(entity.entityProperties.id, CleanupMode.Soft);
     }
     AppStore.get().gameStore.clearGame();
+    console.log("left game");
 
     websocketConnection.emit(ClientToServerEvent.LeaveGame);
 
     getGameWorld().replayTreeManager.clear();
     getGameWorld().modelManager.modelActionQueue.clear();
 
+    console.log("enqueu sync models after left game");
     getGameWorld().modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
+      placeInHomePositions: true,
     });
   }
 

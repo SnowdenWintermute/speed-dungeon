@@ -18,6 +18,7 @@ import { startOrStopCosmeticEffects } from "../../replay-tree-manager/start-or-s
 import { AppStore } from "@/mobx-stores/app-store";
 
 export async function synchronizeCombatantModelsWithAppState(options: {
+  placeInHomePositions?: boolean;
   softCleanup?: boolean;
   onComplete?: () => void;
 }) {
@@ -66,6 +67,14 @@ export async function synchronizeCombatantModelsWithAppState(options: {
       // move models to correct positions
       modelOption.setHomeRotation(cloneDeep(homeRotation));
       modelOption.setHomeLocation(cloneDeep(homeLocation));
+      if (options.placeInHomePositions) {
+        modelOption.rootTransformNode.position.copyFrom(homeLocation);
+        if (modelOption.rootTransformNode.rotationQuaternion) {
+          modelOption.rootTransformNode.rotationQuaternion.copyFrom(homeRotation);
+        } else {
+          modelOption.rootTransformNode.rotationQuaternion = cloneDeep(homeRotation);
+        }
+      }
     }
   }
 
@@ -118,6 +127,7 @@ function getModelsAndPositions() {
   if (inLobby && gameOption.mode === GameMode.Progression) {
     modelsAndPositions = getProgressionGameLobbyCombatantModelPositions(gameOption);
   } else if (inGame) {
+    console.log("syncing models in game", gameOption.id);
     const party = gameStore.getExpectedParty();
     const { combatantManager } = party;
     for (const combatant of combatantManager.getAllCombatants()) {
@@ -128,6 +138,7 @@ function getModelsAndPositions() {
       };
     }
   } else {
+    console.log("syncing models NO game");
     const savedCharacters = AppStore.get().lobbyStore.getSavedCharacterSlots();
     // viewing saved characters
     for (const [slot, character] of iterateNumericEnumKeyedRecord(savedCharacters).filter(

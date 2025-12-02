@@ -21,7 +21,5 @@ export async function fetchSavedCharactersHandler(
     toSend[parseInt(slot)] = { combatant: combatant.getSerialized(), pets: serializedPets };
   }
 
-  console.log("sending characters:", toSend);
-
   socket.emit(ServerToClientEvent.SavedCharacterList, toSend);
 }

@@ -2,6 +2,7 @@ import { makeAutoObservable } from "mobx";
 import { runIfInBrowser } from "../utils/index.js";
 import { ActionCommand } from "./action-command.js";
 import { ActionCommandPayload } from "./index.js";
+import { plainToInstance } from "class-transformer";
 
 export class ActionCommandQueue {
   commands: ActionCommand[] = [];
@@ -10,6 +11,10 @@ export class ActionCommandQueue {
 
   constructor() {
     runIfInBrowser(() => makeAutoObservable(this));
+  }
+
+  static getDeserialized(plain: ActionCommandQueue) {
+    return plainToInstance(ActionCommandQueue, plain);
   }
 
   enqueueNewCommands(commands: ActionCommand[]) {

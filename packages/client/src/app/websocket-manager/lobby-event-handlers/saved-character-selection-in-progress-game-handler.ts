@@ -46,7 +46,6 @@ export function savedCharacterSelectionInProgressGameHandler(
 
   gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.SynchronizeCombatantModels,
+    placeInHomePositions: true,
   });
-
-  throw new Error("not implemented - loading pets");
 }

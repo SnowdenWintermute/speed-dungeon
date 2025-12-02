@@ -5,12 +5,17 @@ import { TurnTrackerEntityType } from "../combat/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { EntityId } from "../primatives/index.js";
 import { runIfInBrowser } from "../utils/index.js";
+import { plainToInstance } from "class-transformer";
 
 export class ActionEntityManager {
   private actionEntities: Record<EntityId, ActionEntity> = {};
 
   constructor() {
     runIfInBrowser(() => makeAutoObservable(this));
+  }
+
+  static getDeserialized(plain: ActionEntityManager) {
+    return plainToInstance(ActionEntityManager, plain);
   }
 
   getActionEntities() {

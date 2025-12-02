@@ -96,6 +96,7 @@ export function newDungeonRoomHandler({
 
   gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.SynchronizeCombatantModels,
+    placeInHomePositions: true,
   });
 
   // clean up unused screenshots for items left behind

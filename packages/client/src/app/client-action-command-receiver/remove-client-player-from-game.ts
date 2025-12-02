@@ -47,6 +47,7 @@ export async function removeClientPlayerFromGame(username: string) {
 
   getGameWorld().modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.SynchronizeCombatantModels,
+    placeInHomePositions: true,
   });
 
   getGameWorld().imageManager.enqueueMessage({

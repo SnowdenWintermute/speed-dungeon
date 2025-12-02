@@ -16,8 +16,6 @@ export function setUpSavedCharacterEventListeners(
   const lobbyStore = AppStore.get().lobbyStore;
 
   socket.on(ServerToClientEvent.SavedCharacterList, (characters) => {
-    console.log("got saved character list");
-
     const deserialized: Record<number, null | { combatant: Combatant; pets: Combatant[] }> = {};
     for (const [slotNumberStringKey, characterOption] of Object.entries(characters)) {
       const slotNumber = parseInt(slotNumberStringKey);
@@ -28,7 +26,6 @@ export function setUpSavedCharacterEventListeners(
           combatant: Combatant.getDeserialized(characterOption.combatant),
           pets: characterOption.pets.map((pet) => Combatant.getDeserialized(pet)),
         };
-        console.log("deserialized: ", deserialized[slotNumber]);
       }
     }
 
@@ -38,6 +35,7 @@ export function setUpSavedCharacterEventListeners(
 
     getGameWorld().modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
+      placeInHomePositions: true,
     });
   });
 
@@ -46,6 +44,7 @@ export function setUpSavedCharacterEventListeners(
 
     getGameWorld().modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
+      placeInHomePositions: true,
     });
   });
 
@@ -54,14 +53,13 @@ export function setUpSavedCharacterEventListeners(
     const deserializedCombatant = Combatant.getDeserialized(combatant);
     const deserializedPets = pets.map((pet) => Combatant.getDeserialized(pet));
 
-    console.log("setting combatant: ", deserializedCombatant);
-
     lobbyStore.setSavedCharacterSlot(
       { combatant: deserializedCombatant, pets: deserializedPets },
       slot
     );
     getGameWorld().modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
+      placeInHomePositions: true,
     });
   });
 }

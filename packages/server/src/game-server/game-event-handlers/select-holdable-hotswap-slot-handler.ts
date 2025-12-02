@@ -29,7 +29,6 @@ export function selectHoldableHotswapSlotHandler(
       character.entityProperties.id
     );
     if (!isCombatantTurn) {
-      console.log("TURN ORDER: ", battleOption.turnOrderManager.getTrackers());
       return new Error(ERROR_MESSAGES.COMBATANT.NOT_ACTIVE);
     }
     if (

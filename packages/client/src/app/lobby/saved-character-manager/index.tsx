@@ -39,6 +39,7 @@ export const SavedCharacterManager = observer(() => {
   useEffect(() => {
     getGameWorld().modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
+      placeInHomePositions: true,
     });
   }, [savedCharacters]);
 

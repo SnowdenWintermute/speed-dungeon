@@ -6,9 +6,14 @@ import { Battle } from "../battle/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
+import { plainToInstance } from "class-transformer";
 
 export class PetManager extends AdventuringPartySubsystem {
   private unsummonedPetsByOwnerId: { [ownerId: EntityId]: (Combatant | undefined)[] } = {};
+
+  static getDeserialized(plain: PetManager) {
+    return plainToInstance(PetManager, plain);
+  }
 
   getAllPetsByOwnerId(ownerId: EntityId) {
     const unsummoned = this.iteratePetSlots(ownerId)

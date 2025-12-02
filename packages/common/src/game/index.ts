@@ -43,7 +43,6 @@ export class SpeedDungeonGame {
 
     for (const [partyId, party] of Object.entries(deserialized.adventuringParties)) {
       const deserializedParty = AdventuringParty.getDeserialized(party);
-      console.log("didpartydeserialize:", deserializedParty.inputLock.isLocked());
       deserialized.adventuringParties[partyId] = deserializedParty;
     }
 
