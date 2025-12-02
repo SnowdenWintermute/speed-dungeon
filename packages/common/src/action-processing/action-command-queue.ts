@@ -17,6 +17,11 @@ export class ActionCommandQueue {
     return plainToInstance(ActionCommandQueue, plain);
   }
 
+  clear() {
+    this.commands = [];
+    this.isProcessing = false;
+  }
+
   enqueueNewCommands(commands: ActionCommand[]) {
     this.commands.push(...commands);
   }

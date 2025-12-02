@@ -27,7 +27,7 @@ export class TargetIndicatorStore {
   }
 
   clear() {
-    this.indicators.length = 0;
+    this.indicators = [];
   }
 
   clearUserTargets(actionUserId: EntityId) {

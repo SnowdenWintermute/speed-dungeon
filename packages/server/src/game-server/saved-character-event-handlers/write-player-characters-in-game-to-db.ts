@@ -46,10 +46,13 @@ export async function writePlayerCharactersInGameToDb(
         characterResult.combatantProperties.deepestFloorReached = floorNumber;
       }
 
+      characterResult.combatantProperties.targetingProperties.clear();
+
       const serializedCharacter = characterResult.getSerialized();
       existingCharacter.combatantProperties = serializedCharacter.combatantProperties;
 
       const pets = partyOption.petManager.getAllPetsByOwnerId(existingCharacter.id);
+      pets.forEach((pet) => pet.combatantProperties.targetingProperties.clear());
       await playerCharactersRepo.update(existingCharacter, pets);
     }
   } catch (error) {

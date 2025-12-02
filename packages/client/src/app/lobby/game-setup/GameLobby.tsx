@@ -87,7 +87,7 @@ export const GameLobby = observer(({ children }: Props) => {
         style={{ zIndex: ZIndexLayers.ReadyButton }}
       >
         <HotkeyButton
-          hotkeys={["Space"]}
+          hotkeys={["KeyG"]}
           onClick={toggleReady}
           className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
                         flex justify-center items-center disabled:opacity-50 pointer-events-auto 

@@ -70,6 +70,8 @@ export class AdventuringParty {
       toReturn.actionEntityManager
     );
 
+    toReturn.actionCommandQueue = ActionCommandQueue.getDeserialized(toReturn.actionCommandQueue);
+
     toReturn.initialize();
 
     return toReturn;
