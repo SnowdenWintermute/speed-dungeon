@@ -120,6 +120,13 @@ export class AdventuringParty {
   ): Combatant {
     ArrayUtils.removeElement(player.characterIds, characterId);
     const character = this.combatantManager.removeCombatant(characterId, game);
+    const summonedPetOption = this.petManager.getCombatantSummonedPetOption(
+      character.getEntityId()
+    );
+    if (summonedPetOption) {
+      this.petManager.unsummonPet(summonedPetOption.getEntityId(), game);
+      this.petManager.clearCombatantPets(characterId);
+    }
     return character;
   }
 

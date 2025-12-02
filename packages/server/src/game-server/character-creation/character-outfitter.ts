@@ -1,10 +1,12 @@
 import {
   BASE_STARTING_ATTRIBUTES,
   Combatant,
+  CombatantControllerType,
   CombatantProperties,
   CombatantTraitType,
   ConsumableType,
   HoldableHotswapSlot,
+  MonsterType,
   STARTING_COMBATANT_TRAITS,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
@@ -14,6 +16,7 @@ import { createConsumableByType } from "../item-generation/create-consumable-by-
 import { giveStartingEquipment } from "./give-starting-equipment.js";
 import { setPlaytestingCombatantProperties } from "./set-playtesting-combatant-properties.js";
 import { givePlaytestingItems } from "./give-playtesting-items.js";
+import { generateMonster } from "../monster-generation/index.js";
 
 export class CharacterOutfitter {
   constructor() {}

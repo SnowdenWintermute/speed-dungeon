@@ -12,7 +12,7 @@ import {
   getProgressionGamePartyName,
 } from "@speed-dungeon/common";
 import React, { useEffect, useMemo } from "react";
-import SelectDropdown from "@/app/components/atoms/SelectDropdown";
+import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
 import Divider from "@/app/components/atoms/Divider";
 import { GameLobby } from "./GameLobby";
 import { CharacterModelDisplay } from "@/app/character-model-display";

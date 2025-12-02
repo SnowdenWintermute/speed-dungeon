@@ -12,7 +12,21 @@ export class PetManager extends AdventuringPartySubsystem {
   private unsummonedPetsByOwnerId: { [ownerId: EntityId]: (Combatant | undefined)[] } = {};
 
   static getDeserialized(plain: PetManager) {
-    return plainToInstance(PetManager, plain);
+    const toReturn = plainToInstance(PetManager, plain);
+
+    for (const [entityId, petSlots] of Object.entries(plain.unsummonedPetsByOwnerId)) {
+      const deserializedSlots: (Combatant | undefined)[] = [];
+      for (const slotContent of petSlots) {
+        if (slotContent === undefined) {
+          deserializedSlots.push(slotContent);
+        } else {
+          const deserializedPet = Combatant.getDeserialized(slotContent);
+          deserializedSlots.push(deserializedPet);
+        }
+      }
+      toReturn.unsummonedPetsByOwnerId[entityId] = deserializedSlots;
+    }
+    return toReturn;
   }
 
   getAllPetsByOwnerId(ownerId: EntityId) {
@@ -32,6 +46,10 @@ export class PetManager extends AdventuringPartySubsystem {
 
   setCombatantPets(ownerId: EntityId, pets: Combatant[]) {
     this.unsummonedPetsByOwnerId[ownerId] = pets;
+  }
+
+  clearCombatantPets(ownerId: EntityId) {
+    delete this.unsummonedPetsByOwnerId[ownerId];
   }
 
   getUnsummonedPetOptionByOwnerAndSlot(ownerId: EntityId, petSlot: number) {
