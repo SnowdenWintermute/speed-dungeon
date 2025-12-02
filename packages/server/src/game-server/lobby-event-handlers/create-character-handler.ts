@@ -30,16 +30,17 @@ export function createCharacterHandler(
   const newCharacter = createCharacter(name, combatantClass, player.username);
   if (newCharacter instanceof Error) return newCharacter;
 
-  // @TESTING - pets
-  // @TODO - don't start a new character with any pets
-  const testPet = generateMonster(1, MonsterType.Wolf);
-  delete testPet.combatantProperties.threatManager;
-  testPet.combatantProperties.controlledBy.controllerType = CombatantControllerType.PlayerPetAI;
+  // // @TESTING - pets
+  // // @TODO - don't start a new character with any pets
+  // const testPet = generateMonster(1, MonsterType.Wolf);
+  // delete testPet.combatantProperties.threatManager;
+  // testPet.combatantProperties.controlledBy.controllerType = CombatantControllerType.PlayerPetAI;
 
-  testPet.combatantProperties.classProgressionProperties.experiencePoints.changeExperience(81);
-  testPet.combatantProperties.attributeProperties.changeUnspentPoints(10);
+  // testPet.combatantProperties.classProgressionProperties.experiencePoints.changeExperience(81);
+  // testPet.combatantProperties.attributeProperties.changeUnspentPoints(10);
 
-  const pets: Combatant[] = [testPet];
+  // const pets: Combatant[] = [testPet];
+  const pets: Combatant[] = [];
   const serializedPets = pets.map((pet) => pet.getSerialized());
 
   game.addCharacterToParty(partyOption, player, newCharacter, pets);

@@ -51,8 +51,6 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
 
   const ownedActions: CombatActionName[] = [
     CombatActionName.Attack,
-    // CombatActionName.Fire,
-    // CombatActionName.IceBoltParent,
     // CombatActionName.ChainingSplitArrowParent,
     // CombatActionName.ExplodingArrowParent,
     // CombatActionName.UseGreenAutoinjector,
@@ -61,6 +59,10 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
     CombatActionName.Healing,
     // CombatActionName.PassTurn,
   ];
+
+  if (monsterType === MonsterType.Cultist) {
+    ownedActions.push(...[CombatActionName.Fire, CombatActionName.IceBoltParent]);
+  }
 
   for (const actionName of ownedActions) {
     combatantProperties.abilityProperties.changeUnspentAbilityPoints(1);

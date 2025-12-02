@@ -6,7 +6,7 @@ import {
 
 export function setPlaytestingCombatantProperties(combatantProperties: CombatantProperties) {
   const { classProgressionProperties } = combatantProperties;
-  classProgressionProperties.experiencePoints.changeExperience(1000);
+  classProgressionProperties.experiencePoints.changeExperience(400);
   classProgressionProperties.awardLevelups();
 
   combatantProperties.attributeProperties.changeUnspentPoints(30);
