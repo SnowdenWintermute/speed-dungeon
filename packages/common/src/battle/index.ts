@@ -68,7 +68,7 @@ export class Battle {
       }
     }
 
-    combatantManager.removeDungeonControlledCombatants();
+    combatantManager.removeDungeonControlledCombatants(game);
 
     const battleIdToRemoveOption = party.battleId;
     party.battleId = null;

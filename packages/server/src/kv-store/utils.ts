@@ -18,7 +18,7 @@ export async function removeDeadCharactersFromLadder(characters: Combatant[]) {
     );
     if (rank === null) continue;
     ladderDeathsUpdate[character.entityProperties.name] = {
-      owner: combatantProperties.controlledBy.controllerName || "",
+      owner: combatantProperties.controlledBy.controllerPlayerName || "",
       rank,
       level: combatantProperties.classProgressionProperties.getMainClass().level,
     };
@@ -39,6 +39,10 @@ export async function loadLadderIntoKvStore() {
       value: item.id,
       score: calculateTotalExperience(item.level) + item.experiencePoints,
     });
+  }
+
+  if (forValkey.length === 0) {
+    return;
   }
 
   await valkeyManager.context.zAdd(CHARACTER_LEVEL_LADDER, forValkey);

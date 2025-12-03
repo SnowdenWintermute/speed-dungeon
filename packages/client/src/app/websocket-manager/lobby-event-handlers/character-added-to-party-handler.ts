@@ -32,6 +32,7 @@ export async function characterAddedToPartyHandler(
   if (game.mode === GameMode.Progression) {
     gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
+      placeInHomePositions: true,
     });
   }
 }

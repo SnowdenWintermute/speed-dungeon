@@ -7,7 +7,7 @@ import {
   getProgressionGamePartyName,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
-import { GameServer } from "..";
+import { GameServer } from "../index.js";
 import errorHandler from "../error-handler.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
 import getDefaultSavedCharacterForProgressionGame from "./get-default-saved-character-for-progression-game.js";
@@ -26,8 +26,9 @@ export async function createProgressionGameHandler(
     socket
   );
 
-  if (defaultSavedCharacterResult instanceof Error)
+  if (defaultSavedCharacterResult instanceof Error) {
     return errorHandler(socket, defaultSavedCharacterResult);
+  }
 
   const game = new SpeedDungeonGame(
     idGenerator.generate(),
@@ -35,16 +36,18 @@ export async function createProgressionGameHandler(
     GameMode.Progression,
     socketMeta.username
   );
-  game.lowestStartingFloorOptionsBySavedCharacter[defaultSavedCharacterResult.entityProperties.id] =
-    defaultSavedCharacterResult.combatantProperties.deepestFloorReached;
 
-  game.selectedStartingFloor = defaultSavedCharacterResult.combatantProperties.deepestFloorReached;
+  game.lowestStartingFloorOptionsBySavedCharacter[
+    defaultSavedCharacterResult.combatant.entityProperties.id
+  ] = defaultSavedCharacterResult.combatant.combatantProperties.deepestFloorReached;
+
+  game.selectedStartingFloor =
+    defaultSavedCharacterResult.combatant.combatantProperties.deepestFloorReached;
 
   const defaultPartyName = getProgressionGamePartyName(game.name);
-  game.adventuringParties[getProgressionGamePartyName(game.name)] = new AdventuringParty(
-    idGenerator.generate(),
-    defaultPartyName
-  );
+
+  game.adventuringParties[getProgressionGamePartyName(game.name)] =
+    AdventuringParty.createInitialized(idGenerator.generate(), defaultPartyName);
 
   gameServer.games.insert(gameName, game);
 

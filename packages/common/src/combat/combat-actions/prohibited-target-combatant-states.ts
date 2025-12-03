@@ -1,5 +1,7 @@
 import { Combatant } from "../../combatants/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
+import { CombatantTraitType } from "../../combatants/combatant-traits/trait-types.js";
+import { IActionUser } from "../../action-user-context/action-user.js";
 
 export enum ProhibitedTargetCombatantStates {
   FullHp,
@@ -8,6 +10,9 @@ export enum ProhibitedTargetCombatantStates {
   Alive,
   UntargetableBySpells,
   UntargetableByPhysical,
+  IsNotTameable,
+  IsBeyondUserMaximumPetLevel,
+  IsNotThisUsersPet,
 }
 
 export const PROHIBITED_TARGET_COMBATANT_STATE_STRINGS: Record<
@@ -20,11 +25,14 @@ export const PROHIBITED_TARGET_COMBATANT_STATE_STRINGS: Record<
   [ProhibitedTargetCombatantStates.Alive]: "Alive",
   [ProhibitedTargetCombatantStates.UntargetableBySpells]: "UntargetableBySpells",
   [ProhibitedTargetCombatantStates.UntargetableByPhysical]: "UntargetableByPhysical",
+  [ProhibitedTargetCombatantStates.IsNotTameable]: "IsNotTameable",
+  [ProhibitedTargetCombatantStates.IsBeyondUserMaximumPetLevel]: "IsBeyondUserMaximumPetLevel",
+  [ProhibitedTargetCombatantStates.IsNotThisUsersPet]: "IsNotThisUsersPet",
 };
 
 export const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
   ProhibitedTargetCombatantStates,
-  (combatant: Combatant) => boolean
+  (combatant: Combatant, user: IActionUser) => boolean
 > = {
   [ProhibitedTargetCombatantStates.FullHp]: function (combatant: Combatant): boolean {
     const maxHp = combatant.combatantProperties.attributeProperties.getAttributeValue(
@@ -51,5 +59,25 @@ export const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
     combatant: Combatant
   ): boolean {
     return false;
+  },
+  [ProhibitedTargetCombatantStates.IsNotTameable]: function (combatant: Combatant): boolean {
+    const isTameable = combatant.combatantProperties.abilityProperties.hasTraitType(
+      CombatantTraitType.IsTameable
+    );
+    return !isTameable;
+  },
+  [ProhibitedTargetCombatantStates.IsBeyondUserMaximumPetLevel]: function (
+    combatant: Combatant,
+    user: IActionUser
+  ): boolean {
+    const userMaxPetLevel = user.getCombatantProperties().abilityProperties.getMaxPetLevel();
+    const targetLevel = combatant.getLevel();
+    return targetLevel > userMaxPetLevel;
+  },
+  [ProhibitedTargetCombatantStates.IsNotThisUsersPet]: function (
+    combatant: Combatant,
+    user: IActionUser
+  ): boolean {
+    return combatant.combatantProperties.controlledBy.summonedBy !== user.getEntityId();
   },
 };

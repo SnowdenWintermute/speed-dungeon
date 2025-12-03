@@ -2,7 +2,7 @@ import { Option } from "../primatives/option.js";
 import { CombatActionName, FriendOrFoe, TargetingScheme } from "../combat/combat-actions/index.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
 import { EntityId, NextOrPrevious } from "../primatives/index.js";
-import { SpeedDungeonPlayer } from "../game/player.js";
+import { CombatActionTargetPreferences, SpeedDungeonPlayer } from "../game/player.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import getNextOrPreviousTarget from "../combat/targeting/get-next-or-previous-target.js";
@@ -23,6 +23,10 @@ export class ActionAndRank {
 export class ActionUserTargetingProperties {
   private selectedActionAndRank: Option<ActionAndRank> = null;
   private selectedTarget: Option<CombatActionTarget> = null;
+  /** Used for when a pet needs to know which target their owner most recently targeted .
+   * Otherwise, the player should have their own targetPreferences which determine what to
+   * select by default when selecting a character's action. */
+  private targetPreferences = new CombatActionTargetPreferences();
   private selectedTargetingScheme: Option<TargetingScheme> = null;
   private selectedItemId: Option<EntityId> = null;
 
@@ -31,14 +35,20 @@ export class ActionUserTargetingProperties {
   }
 
   static getDeserialized(actionUserTargetingProperties: ActionUserTargetingProperties) {
+    actionUserTargetingProperties.targetPreferences = CombatActionTargetPreferences.getDeserialized(
+      actionUserTargetingProperties.targetPreferences
+    );
     return plainToInstance(ActionUserTargetingProperties, actionUserTargetingProperties);
   }
 
-  clear() {
+  clear(options?: { clearTargetingPreferences?: boolean }) {
     this.selectedActionAndRank = null;
     this.selectedTarget = null;
     this.selectedTargetingScheme = null;
     this.selectedItemId = null;
+    if (options?.clearTargetingPreferences) {
+      this.targetPreferences.clear();
+    }
   }
 
   // Useful for working with immer/zustand. Allows us to use setters
@@ -53,14 +63,21 @@ export class ActionUserTargetingProperties {
   getSelectedActionAndRank() {
     return this.selectedActionAndRank;
   }
+
   getSelectedTarget() {
     return this.selectedTarget;
   }
+
   getSelectedTargetingScheme() {
     return this.selectedTargetingScheme;
   }
+
   getSelectedItemId() {
     return this.selectedItemId;
+  }
+
+  getTargetPreferences() {
+    return this.targetPreferences;
   }
 
   setSelectedActionAndRank(actionAndRank: Option<ActionAndRank>) {
@@ -75,6 +92,19 @@ export class ActionUserTargetingProperties {
   }
   setSelectedItemId(itemIdOption: Option<EntityId>) {
     this.selectedItemId = itemIdOption;
+  }
+
+  updatePreferences(
+    target: CombatActionTarget,
+    validTargetIdsByDisposition: Record<FriendOrFoe, EntityId[]>
+  ) {
+    if (this.selectedActionAndRank && validTargetIdsByDisposition) {
+      this.targetPreferences.update(
+        this.selectedActionAndRank,
+        target,
+        validTargetIdsByDisposition
+      );
+    }
   }
 
   assignInitialTargetsForSelectedAction(targetingCalculator: TargetingCalculator) {
@@ -193,9 +223,10 @@ export class ActionUserTargetingProperties {
 
     if (newTargetsResult instanceof Error) throw newTargetsResult;
 
+    const filteredIds =
+      targetingCalculator.getFilteredPotentialTargetIdsForAction(selectedActionAndRank);
+
     if (playerOption) {
-      const filteredIds =
-        targetingCalculator.getFilteredPotentialTargetIdsForAction(selectedActionAndRank);
       playerOption.targetPreferences.update(selectedActionAndRank, newTargetsResult, filteredIds);
     }
 

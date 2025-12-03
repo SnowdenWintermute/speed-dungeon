@@ -1,4 +1,4 @@
-import { GameWorld } from "..";
+import { GameWorld } from "../index.js";
 import { actionCommandQueue } from "@/singletons/action-command-manager";
 import {
   ACTION_COMMAND_TYPE_STRINGS,

@@ -8,7 +8,7 @@ import {
   getProgressionGameMaxStartingFloor,
   getProgressionGamePartyName,
 } from "@speed-dungeon/common";
-import { GameServer } from "..";
+import { GameServer } from "../index.js";
 import errorHandler from "../error-handler.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
 import SocketIO from "socket.io";
@@ -20,7 +20,7 @@ export async function joinPlayerToProgressionGame(
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
   session: BrowserTabSession,
   game: SpeedDungeonGame,
-  character: Combatant
+  character: { combatant: Combatant; pets: Combatant[] }
 ) {
   const player = joinPlayerToGame(gameServer, game, session, socket);
 
@@ -34,24 +34,26 @@ export async function joinPlayerToProgressionGame(
   if (playerOption === undefined)
     return errorHandler(socket, new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST));
 
-  const deserialized = Combatant.getDeserialized(character);
+  game.addCharacterToParty(partyOption, playerOption, character.combatant, character.pets);
 
-  // @TODO - actually load their pets
-  const pets: Combatant[] = [];
-
-  game.addCharacterToParty(partyOption, playerOption, deserialized, pets);
-
-  game.lowestStartingFloorOptionsBySavedCharacter[character.entityProperties.id] =
-    character.combatantProperties.deepestFloorReached;
+  game.lowestStartingFloorOptionsBySavedCharacter[character.combatant.entityProperties.id] =
+    character.combatant.combatantProperties.deepestFloorReached;
 
   const maxStartingFloor = getProgressionGameMaxStartingFloor(
     game.lowestStartingFloorOptionsBySavedCharacter
   );
 
-  if (game.selectedStartingFloor > maxStartingFloor) game.selectedStartingFloor = maxStartingFloor;
+  if (game.selectedStartingFloor > maxStartingFloor) {
+    game.selectedStartingFloor = maxStartingFloor;
+  }
 
   gameServer.io
     .of("/")
     .in(game.name)
-    .emit(ServerToClientEvent.CharacterAddedToParty, session.username, character, pets);
+    .emit(
+      ServerToClientEvent.CharacterAddedToParty,
+      session.username,
+      character.combatant.getSerialized(),
+      character.pets.map((pet) => pet.getSerialized())
+    );
 }

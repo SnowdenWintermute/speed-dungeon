@@ -60,12 +60,14 @@ export function newDungeonRoomHandler({
 
   const { combatantManager } = party;
 
+  const game = AppStore.get().gameStore.getExpectedGame();
   for (const combatant of newCombatants) {
     const deserialized = Combatant.getDeserialized(combatant);
-    combatantManager.addCombatant(deserialized);
+    combatantManager.addCombatant(deserialized, game);
   }
 
   combatantManager.updateHomePositions();
+  combatantManager.setAllCombatantsToHomePositions();
 
   dungeonExplorationManager.incrementExploredRoomsTrackers();
 
@@ -94,6 +96,7 @@ export function newDungeonRoomHandler({
 
   gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.SynchronizeCombatantModels,
+    placeInHomePositions: true,
   });
 
   // clean up unused screenshots for items left behind

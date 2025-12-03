@@ -8,6 +8,7 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   safelist: [
+    "-scale-x-100",
     "outline-1",
     "outline",
     "outline-2",
@@ -76,6 +77,7 @@ const config: Config = {
     "absolute",
     "w-40",
     "w-22",
+    "h-3.5",
   ],
   theme: {
     screens: {

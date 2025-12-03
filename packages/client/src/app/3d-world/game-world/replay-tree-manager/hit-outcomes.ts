@@ -129,5 +129,12 @@ export async function hitOutcomesGameUpdateHandler(
     GameLogMessageService.postActionCountered(actionUserName, targetCombatantResult.getName());
   });
 
+  outcomeFlags[HitOutcome.Resist]?.forEach((entityId) => {
+    FloatingMessageService.startHitOutcomeResistedMessage(entityId);
+
+    const targetCombatantResult = AppStore.get().gameStore.getExpectedCombatant(entityId);
+    GameLogMessageService.postActionResisted(actionUserName, targetCombatantResult.getName());
+  });
+
   update.setAsQueuedToComplete();
 }

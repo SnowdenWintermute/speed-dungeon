@@ -37,7 +37,10 @@ export class AssigningAttributePointsMenuState extends ActionMenuState {
     return ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES.map((attribute, i) => {
       const { attributeProperties } = focusedCharacter.combatantProperties;
       const hasNoUnspentPoints = attributeProperties.getUnspentPoints() === 0;
-      const doesNotControlCharacter = !gameStore.clientUserControlsFocusedCombatant();
+      const doesNotControlCharacter = !gameStore.clientUserControlsFocusedCombatant({
+        includePets: true,
+      });
+
       const shouldBeDisabled = hasNoUnspentPoints || doesNotControlCharacter;
 
       const buttonNumber = i + 1;
@@ -55,7 +58,9 @@ export class AssigningAttributePointsMenuState extends ActionMenuState {
             });
           }}
         >
-          <div className="h-full flex items-center px-2">{COMBAT_ATTRIBUTE_STRINGS[attribute]}</div>
+          <div className={`h-full flex items-center px-2 ${shouldBeDisabled && "opacity-50"}`}>
+            {COMBAT_ATTRIBUTE_STRINGS[attribute]}
+          </div>
         </ActionMenuNumberedButton>
       );
     });

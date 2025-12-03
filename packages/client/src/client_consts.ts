@@ -9,6 +9,8 @@ export const SPACING_REM_SMALL = 0.625;
 export const SPACING_REM_LARGE = 1.563;
 export const TOP_BAR_HEIGHT_REM = 3.75;
 
+export const COMBATANT_PLAQUE_RESOURCE_BAR_HEIGHT = "h-3.5";
+
 export const UNMET_REQUIREMENT_TEXT_COLOR = "text-red-400";
 export const UNMET_REQUIREMENT_COLOR = "#f87171";
 export const WARNING_COLOR = "#facc15";

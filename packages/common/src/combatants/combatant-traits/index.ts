@@ -91,4 +91,11 @@ export const COMBATANT_TRAIT_DESCRIPTIONS: Record<CombatantTraitType, CombatantT
     summary: "Provides extra storage for consumables",
     createDescriptionsByLevel: (self) => [],
   }),
+  [CombatantTraitType.IsTameable]: new CombatantTraitDescription({
+    name: "Tameable",
+    maxLevel: 1,
+    isAllocatable: false,
+    summary: "This creature can be conviced to join your pack with the Tame Pet action",
+    createDescriptionsByLevel: (self) => [],
+  }),
 };

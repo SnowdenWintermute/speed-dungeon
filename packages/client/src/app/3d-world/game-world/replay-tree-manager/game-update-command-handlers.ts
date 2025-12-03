@@ -6,6 +6,7 @@ import { resourcesPaidGameUpdateHandler } from "./resources-paid-game-update-han
 import { actionCompletionGameUpdateHandler } from "./action-completion-game-update-handler";
 import { postActionUseGameLogMessageGameUpdateHandler } from "./post-action-use-combat-log-message-game-update-handler";
 import { spawnEntitiesGameUpdateHandler } from "./spawn-entities-game-update-handler";
+import { postActionResolutionGameLogMessageGameUpdateHandler } from "./post-action-resolution-game-log-message-game-update-handler";
 
 export const GAME_UPDATE_COMMAND_HANDLERS: Record<
   GameUpdateCommandType,
@@ -15,6 +16,8 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
   [GameUpdateCommandType.ActionEntityMotion]: entityMotionGameUpdateHandler,
   [GameUpdateCommandType.ResourcesPaid]: resourcesPaidGameUpdateHandler,
   [GameUpdateCommandType.ActionUseGameLogMessage]: postActionUseGameLogMessageGameUpdateHandler,
+  [GameUpdateCommandType.ActionResolutionGameLogMessage]:
+    postActionResolutionGameLogMessageGameUpdateHandler,
   [GameUpdateCommandType.ActivatedTriggers]: activatedTriggersGameUpdateHandler,
   [GameUpdateCommandType.HitOutcomes]: hitOutcomesGameUpdateHandler,
   [GameUpdateCommandType.SpawnEntities]: spawnEntitiesGameUpdateHandler,

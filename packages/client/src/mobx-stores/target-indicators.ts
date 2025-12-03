@@ -27,7 +27,14 @@ export class TargetIndicatorStore {
   }
 
   clear() {
-    this.indicators.length = 0;
+    this.indicators = [];
+
+    if (this._gameWorld === null) {
+      return;
+    }
+    for (const combatantModel of Object.values(this._gameWorld.modelManager.combatantModels)) {
+      combatantModel.targetingIndicatorBillboardManager.synchronizeIndicators([]);
+    }
   }
 
   clearUserTargets(actionUserId: EntityId) {

@@ -6,7 +6,7 @@ import { CONSUMABLE_TEXT_COLOR } from "@speed-dungeon/common";
 // can not use imported string consts, so we'll force them to be built in here
 export default function TailwindClassLoader() {
   return (
-    <div id="tailwind-inline-safelist-for-imported-consts" aria-hidden className="hidden">
+    <div id=" tailwind-inline-safelist-for-imported-consts" aria-hidden className="hidden">
       <div className={CONSUMABLE_TEXT_COLOR} />
     </div>
   );

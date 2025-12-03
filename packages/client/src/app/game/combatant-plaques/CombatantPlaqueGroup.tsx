@@ -1,5 +1,5 @@
 import { AdventuringParty, ERROR_MESSAGES } from "@speed-dungeon/common";
-import React from "react";
+import React, { ReactNode } from "react";
 import { CombatantPlaque } from "./CombatantPlaque";
 
 interface Props {
@@ -14,15 +14,34 @@ export default function CombatantPlaqueGroup(props: Props) {
       {props.combatantIds.map((id) => {
         const combatantOption = props.party.combatantManager.getCombatantOption(id);
         if (combatantOption === undefined) return <div>{ERROR_MESSAGES.COMBATANT.NOT_FOUND} </div>;
-        else
+        else {
+          const petOption = props.party.petManager.getCombatantSummonedPetOption(
+            combatantOption.entityProperties.id
+          );
+
+          let petDisplay: ReactNode = null;
+
+          if (petOption) {
+            petDisplay = (
+              <CombatantPlaque extraStyles="mb-2" combatant={petOption} showExperience={false} />
+            );
+          }
+
           return (
-            <li key={`plaque-${id}`} className="mr-4 last:mr-0 box-border">
-              <CombatantPlaque
-                combatant={combatantOption}
-                showExperience={props.isPlayerControlled}
-              />
+            <li
+              key={`plaque-${id}`}
+              className={`mr-4 last:mr-0 box-border flex ${props.isPlayerControlled ? "items-end" : "items-start"}`}
+            >
+              <div className="flex flex-col items-end justify-end">
+                {petDisplay}
+                <CombatantPlaque
+                  combatant={combatantOption}
+                  showExperience={props.isPlayerControlled}
+                />
+              </div>
             </li>
           );
+        }
       })}
     </ul>
   );

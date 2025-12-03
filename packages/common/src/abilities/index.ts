@@ -25,3 +25,18 @@ export function getAbilityTreeAbilityNameString(ability: AbilityTreeAbility) {
       return COMBATANT_TRAIT_DESCRIPTIONS[ability.traitType].name;
   }
 }
+
+export const ABILITIES_GRANTED_WHEN_ACTION_ALLOCATED: Partial<
+  Record<CombatActionName, AbilityTreeAbility[]>
+> = {
+  [CombatActionName.TamePet]: [
+    { type: AbilityType.Action, actionName: CombatActionName.SummonPetParent },
+    { type: AbilityType.Action, actionName: CombatActionName.DismissPet },
+    { type: AbilityType.Action, actionName: CombatActionName.ReleasePet },
+    { type: AbilityType.Action, actionName: CombatActionName.PetCommand },
+  ],
+};
+
+export const ACTION_FORCED_RANKS: Partial<Record<CombatActionName, number>> = {
+  [CombatActionName.PetCommand]: 3,
+};

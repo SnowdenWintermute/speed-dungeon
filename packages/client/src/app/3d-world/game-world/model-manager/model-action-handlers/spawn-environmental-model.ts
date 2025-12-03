@@ -1,7 +1,7 @@
 import { Color3, AssetContainer, Material, StandardMaterial } from "@babylonjs/core";
 import { SpawnEnvironmentalModelModelAction } from "../model-actions";
 import { importMesh } from "@/app/3d-world/utils";
-import { ModelManager } from "..";
+import { ModelManager } from "../index.js";
 import { setAlert } from "@/app/components/alerts";
 import { LightestToDarkest, MATERIAL_NAMES, PlasticColor } from "../../materials/material-colors";
 import {

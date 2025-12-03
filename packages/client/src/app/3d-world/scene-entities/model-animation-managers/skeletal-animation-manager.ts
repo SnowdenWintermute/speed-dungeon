@@ -39,6 +39,11 @@ export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
     this.animationGroup.setWeightForAllAnimatables(newWeight);
   }
 
+  setToLastFrame() {
+    const lastFrame = this.animationGroup.to;
+    this.animationGroup.goToFrame(lastFrame);
+  }
+
   isCompleted() {
     if (this.options.shouldLoop) return false;
     const timeSinceStarted = Date.now() - this.timeStarted;
@@ -73,6 +78,10 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     return animationGroup.clone(animationGroup.name, undefined, true);
   }
 
+  setCurrentAnimationToLastFrame() {
+    this.playing?.setToLastFrame();
+  }
+
   startAnimationWithTransition(
     newAnimationName: SkeletalAnimationName,
     transitionDuration: number,
@@ -105,7 +114,17 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
 
     speedModifier *= 1 / DEBUG_ANIMATION_SPEED_MULTIPLIER;
 
-    clonedAnimation.start(options.shouldLoop, speedModifier);
+    const onlyPlayLastFrame = options?.onlyPlayLastFrame;
+    if (onlyPlayLastFrame) {
+      clonedAnimation.start(
+        options.shouldLoop,
+        speedModifier,
+        clonedAnimation.to,
+        clonedAnimation.to
+      );
+    } else {
+      clonedAnimation.start(options.shouldLoop, speedModifier);
+    }
   }
 
   stepAnimationTransitionWeights(): Error | void {

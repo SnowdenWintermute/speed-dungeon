@@ -1,6 +1,12 @@
 import { getGameWorld } from "@/app/3d-world/SceneManager";
-import { AdventuringParty, PetSlot, SpeedDungeonGame } from "@speed-dungeon/common";
-import { ModelActionType } from "../../model-manager/model-actions";
+import {
+  AdventuringParty,
+  PetSlot,
+  SkeletalAnimationName,
+  SpeedDungeonGame,
+} from "@speed-dungeon/common";
+import { synchronizeCombatantModelsWithAppState } from "../../model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
+import { setAlert } from "@/app/components/alerts";
 
 export function handlePetSlotsSummoned(
   petSlotsSummoned: PetSlot[],
@@ -10,10 +16,29 @@ export function handlePetSlotsSummoned(
   const battleOption = party.getBattleOption(game);
 
   for (const { ownerId, slotIndex } of petSlotsSummoned) {
-    party.petManager.summonPetFromSlot(party, ownerId, slotIndex, battleOption);
-  }
+    const pet = party.petManager.summonPetFromSlot(game, party, ownerId, slotIndex, battleOption);
 
-  getGameWorld().modelManager.modelActionQueue.enqueueMessage({
-    type: ModelActionType.SynchronizeCombatantModels,
-  });
+    if (pet === undefined) {
+      setAlert("No pet was found even though server thought there should have been one");
+      return console.warn("No pet was found even though server thought there should have been one");
+    }
+
+    synchronizeCombatantModelsWithAppState({
+      onComplete: () => {
+        const modelOption = getGameWorld().modelManager.combatantModels[pet.getEntityId()];
+
+        if (!pet.combatantProperties.isDead()) {
+          modelOption?.skeletalAnimationManager.startAnimationWithTransition(
+            SkeletalAnimationName.OnSummoned,
+            500,
+            {
+              onComplete: () => {
+                modelOption.startIdleAnimation(500);
+              },
+            }
+          );
+        }
+      },
+    });
+  }
 }

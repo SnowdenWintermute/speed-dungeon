@@ -22,7 +22,7 @@ export function deleteCharacterHandler(
     return errorHandler(socket, new Error(ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED));
   }
 
-  party.removeCharacter(characterId, player);
+  party.removeCharacter(characterId, player, game);
 
   party.combatantManager.updateHomePositions();
 

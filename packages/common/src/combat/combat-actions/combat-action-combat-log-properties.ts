@@ -1,5 +1,4 @@
 import { ActionResolutionStepContext } from "../../action-processing/index.js";
-import { AdventuringParty } from "../../adventuring-party/index.js";
 import { TargetingCalculator } from "../targeting/targeting-calculator.js";
 import { COMBAT_ACTION_NAME_STRINGS, CombatActionName } from "./combat-action-names.js";
 
@@ -19,16 +18,21 @@ export interface ActionUseMessageData {
 export interface CombatActionGameLogPropertiesConfig {
   origin?: CombatActionOrigin;
   getOnUseMessage?: null | ((messageData: ActionUseMessageData) => string);
+  getOnSuccessMessage?: null | ((messageData: ActionUseMessageData) => string);
+  getOnFailureMessage?: null | ((messageData: ActionUseMessageData) => string);
   getOnUseMessageDataOverride?: (context: ActionResolutionStepContext) => ActionUseMessageData;
 }
 
 export class CombatActionGameLogProperties {
   public origin: CombatActionOrigin = CombatActionOrigin.Attack;
   public getOnUseMessage: null | ((messageData: ActionUseMessageData) => string) = null;
+  public getOnSuccessMessage: null | ((messageData: ActionUseMessageData) => string) = null;
+  public getOnFailureMessage: null | ((messageData: ActionUseMessageData) => string) = null;
   /** Used by the combat log to determine how to format messages */
   constructor(config: CombatActionGameLogPropertiesConfig) {
     if (config.origin !== undefined) this.origin = config.origin;
     if (config.getOnUseMessage) this.getOnUseMessage = config.getOnUseMessage;
+    if (config.getOnSuccessMessage) this.getOnSuccessMessage = config.getOnSuccessMessage;
     if (config.getOnUseMessageDataOverride)
       this.getOnUseMessageData = config.getOnUseMessageDataOverride;
   }

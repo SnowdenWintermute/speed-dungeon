@@ -8,7 +8,7 @@ export class ActionEntityTurnScheduler extends TurnScheduler implements ITurnSch
   constructor(public readonly actionEntityId: EntityId) {
     super();
   }
-  getTiebreakerId = () => this.actionEntityId;
+  getTurnTakerId = () => this.actionEntityId;
 
   getSpeed(party: AdventuringParty) {
     const { actionEntityManager } = party;

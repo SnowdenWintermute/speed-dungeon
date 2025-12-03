@@ -3,8 +3,8 @@ import {
   CombatActionName,
   CombatantActionState,
   MaxAndCurrent,
+  IActionUser,
 } from "@speed-dungeon/common";
-import { IActionUser } from "@speed-dungeon/common/src/action-user-context/action-user";
 
 export function giveStartingAbilities(actionUser: IActionUser) {
   const ownedActions = [
@@ -15,21 +15,28 @@ export function giveStartingAbilities(actionUser: IActionUser) {
     CombatActionName.PassTurn,
     CombatActionName.ReadSkillBook,
     CombatActionName.ChainingSplitArrowParent,
-    CombatActionName.SummonPet,
+    // CombatActionName.TamePet,
+    // CombatActionName.SummonPetParent,
+    // CombatActionName.DismissPet,
+    // CombatActionName.ReleasePet,
+    // CombatActionName.PetCommand,
     // CombatActionName.Counterattack,
     // CombatActionName.IceBoltParent,
-    // CombatActionName.Fire,
+    CombatActionName.Fire,
     CombatActionName.Healing,
     // CombatActionName.ExplodingArrowParent,
     // CombatActionName.Blind,
-    // CombatActionName.Firewall,
+    CombatActionName.Firewall,
   ];
 
   const levelTwoSpells: CombatActionName[] = [
     // CombatActionName.IceBoltParent,
-    // CombatActionName.Fire,
-    // CombatActionName.Firewall,
+    CombatActionName.Fire,
+    CombatActionName.Firewall,
     CombatActionName.Healing,
+    // CombatActionName.SummonPetParent,
+    // CombatActionName.TamePet,
+    // CombatActionName.PetCommand,
     // CombatActionName.ExplodingArrowParent,
     // CombatActionName.Blind,
   ];

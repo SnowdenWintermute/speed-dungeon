@@ -28,11 +28,15 @@ const config: CombatActionComponentConfig = {
   targetingProperties,
   gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.SpellCast,
+    getOnUseMessageDataOverride(context) {
+      const { actionUserContext } = context;
+      return { nameOfTarget: "", nameOfActionUser: actionUserContext.actionUser.getName() };
+    },
     getOnUseMessage: (data) => {
       return `${data.nameOfActionUser} ticks`;
     },
   }),
-  stepsConfig: ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.VALUE_CHANGE_TICK(),
+  stepsConfig: ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.CONDITION_TICK(),
 };
 
 export const CONDITION_PASS_TURN = new CombatActionLeaf(CombatActionName.ConditionPassTurn, config);

@@ -14,6 +14,7 @@ import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
+import { ComputeNormalsBlock } from "@babylonjs/core";
 
 export enum ServerToClientEvent {
   GameList = "0",
@@ -70,6 +71,7 @@ export enum ServerToClientEvent {
   CharacterSelectedCombatActionLevel = "47",
   CharacterAllocatedAbilityPoint = "48",
   CharacterTradedItemForBook = "49",
+  CharacterRenamedPet = "50",
 }
 
 export interface ServerToClientEventTypes {
@@ -148,13 +150,16 @@ export interface ServerToClientEventTypes {
     attribute: CombatAttribute
   ) => void;
   [ServerToClientEvent.SavedCharacterList]: (characterSlots: {
-    [slot: number]: null | Combatant;
+    [slot: number]: null | { combatant: Combatant; pets: Combatant[] };
   }) => void;
-  [ServerToClientEvent.SavedCharacter]: (character: Combatant, slot: number) => void;
+  [ServerToClientEvent.SavedCharacter]: (
+    character: { combatant: Combatant; pets: Combatant[] },
+    slot: number
+  ) => void;
   [ServerToClientEvent.SavedCharacterDeleted]: (id: string) => void;
   [ServerToClientEvent.PlayerSelectedSavedCharacterInProgressionGame]: (
     username: string,
-    character: Combatant
+    character: { combatant: Combatant; pets: Combatant[] }
   ) => void;
   [ServerToClientEvent.ProgressionGameStartingFloorSelected]: (floor: number) => void;
   // was using this to create models of items on client with randomly generated
@@ -198,6 +203,10 @@ export interface ServerToClientEventTypes {
     characterId: EntityId;
     itemIdTraded: EntityId;
     book: Consumable;
+  }) => void;
+  [ServerToClientEvent.CharacterRenamedPet]: (eventData: {
+    petId: EntityId;
+    newName: string;
   }) => void;
 }
 

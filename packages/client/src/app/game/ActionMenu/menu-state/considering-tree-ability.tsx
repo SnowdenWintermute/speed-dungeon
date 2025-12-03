@@ -4,6 +4,7 @@ import {
   AbilityType,
   ArrayUtils,
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
+  COMBAT_ACTIONS,
   Combatant,
   COMBATANT_CONDITION_DESCRIPTIONS,
   COMBATANT_CONDITION_NAME_STRINGS,
@@ -48,6 +49,7 @@ export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
 
   getCentralSection() {
     const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    // const { gameStore } = AppStore.get();
 
     const conditionsToShowDetailButtonsFor = getConditionsToShowDetailButtonsFor(
       this.ability,
@@ -69,12 +71,14 @@ export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
     if (ability.type === AbilityType.Action) {
       const description = COMBAT_ACTION_DESCRIPTIONS[ability.actionName];
       iconGetter = ACTION_ICONS[ability.actionName];
+
       content = (
         <div className="">
           <div>{description.getSummary()}</div>
           <div>
             Usable {COMBAT_ACTION_USABLITY_CONTEXT_STRINGS[description.getUsabilityContext()]}
           </div>
+          {<div>{}</div>}
 
           {!!conditionDescriptions.length && (
             <div>
@@ -117,8 +121,11 @@ function getConditionsToShowDetailButtonsFor(ability: AbilityTreeAbility, user: 
 
   const description = COMBAT_ACTION_DESCRIPTIONS[ability.actionName];
   const conditionsToShowDetailButtonsFor: CombatantConditionName[] = [];
+
+  const party = AppStore.get().gameStore.getExpectedParty();
+
   for (const actionRank of ArrayUtils.createFilledWithSequentialNumbers(3, 1)) {
-    const rankDescription = description.getDescriptionByLevel(user, actionRank);
+    const rankDescription = description.getDescriptionByLevel(user, party, actionRank);
     const conditionsAppliedOption = rankDescription[ActionDescriptionComponent.AppliesConditions];
     if (!conditionsAppliedOption) continue;
     for (const conditionBlueprint of conditionsAppliedOption) {

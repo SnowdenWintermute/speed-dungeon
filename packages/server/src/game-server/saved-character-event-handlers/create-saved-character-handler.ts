@@ -1,8 +1,13 @@
 import {
+  ClientToServerEventTypes,
+  Combatant,
   CombatantClass,
+  CombatantControllerType,
   ERROR_MESSAGES,
   MAX_CHARACTER_NAME_LENGTH,
+  MonsterType,
   ServerToClientEvent,
+  ServerToClientEventTypes,
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io";
 import { LoggedInUser } from "../event-middleware/get-logged-in-user-from-socket.js";
@@ -11,11 +16,12 @@ import { createCharacter } from "../character-creation/index.js";
 import { playerCharactersRepo } from "../../database/repos/player-characters.js";
 import { valkeyManager } from "../../kv-store/index.js";
 import { CHARACTER_LEVEL_LADDER } from "../../kv-store/consts.js";
+import { generateMonster } from "../monster-generation/index.js";
 
 export async function createSavedCharacterHandler(
   eventData: { name: string; combatantClass: CombatantClass; slotNumber: number },
   loggedInUser: LoggedInUser,
-  socket: Socket
+  socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
   const { userId, profile } = loggedInUser;
 
@@ -30,8 +36,22 @@ export async function createSavedCharacterHandler(
 
   const newCharacter = createCharacter(name, combatantClass, loggedInUser.session.username);
 
-  if (newCharacter instanceof Error) return newCharacter;
-  await playerCharactersRepo.insert(newCharacter, userId);
+  // @TESTING - pets
+  // @TODO - don't start a new character with any pets
+  const testPet = generateMonster(1, MonsterType.Wolf);
+  delete testPet.combatantProperties.threatManager;
+  testPet.combatantProperties.controlledBy.controllerType = CombatantControllerType.PlayerPetAI;
+
+  testPet.combatantProperties.classProgressionProperties.experiencePoints.changeExperience(81);
+  testPet.combatantProperties.attributeProperties.changeUnspentPoints(10);
+
+  const pets: Combatant[] = [testPet];
+
+  // @TODO - once remove test pet, use this
+  const newCharacterEmptyPetsArray: Combatant[] = [];
+
+  await playerCharactersRepo.insert(newCharacter, pets, userId);
+
   slot.characterId = newCharacter.entityProperties.id;
   await characterSlotsRepo.update(slot);
 
@@ -42,5 +62,10 @@ export async function createSavedCharacterHandler(
     },
   ]);
 
-  socket.emit(ServerToClientEvent.SavedCharacter, newCharacter, slotNumber);
+  const serializedPets = pets.map((pet) => pet.getSerialized());
+  socket.emit(
+    ServerToClientEvent.SavedCharacter,
+    { combatant: newCharacter.getSerialized(), pets: serializedPets },
+    slotNumber
+  );
 }

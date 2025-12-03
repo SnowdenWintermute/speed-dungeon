@@ -1,5 +1,5 @@
 import { ActionMenuState } from ".";
-import { iterateNumericEnumKeyedRecord, ACTION_NAMES_TO_HIDE_IN_MENU } from "@speed-dungeon/common";
+import { ACTION_NAMES_TO_HIDE_IN_MENU } from "@speed-dungeon/common";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "./menu-state-type";

@@ -14,7 +14,10 @@ export async function writePlayerCharactersInGameToDb(
   player: SpeedDungeonPlayer
 ): Promise<Error | void> {
   try {
-    if (!player.partyName) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
+    if (!player.partyName) {
+      throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
+    }
+
     for (const id of player.characterIds) {
       const characterResult = game.getCombatantById(id);
 
@@ -30,9 +33,12 @@ export async function writePlayerCharactersInGameToDb(
         throw new Error("Tried to update character but it didn't exist in the database");
       }
 
-      characterResult.getTargetingProperties().clear();
+      characterResult.getTargetingProperties().clear({ clearTargetingPreferences: true });
       const partyOption = game.adventuringParties[getProgressionGamePartyName(game.name)];
-      if (partyOption === undefined) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+
+      if (partyOption === undefined) {
+        throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+      }
 
       const floorNumber = partyOption.dungeonExplorationManager.getCurrentFloor();
 
@@ -40,8 +46,14 @@ export async function writePlayerCharactersInGameToDb(
         characterResult.combatantProperties.deepestFloorReached = floorNumber;
       }
 
-      existingCharacter.combatantProperties = characterResult.combatantProperties;
-      await playerCharactersRepo.update(existingCharacter);
+      characterResult.combatantProperties.targetingProperties.clear();
+
+      const serializedCharacter = characterResult.getSerialized();
+      existingCharacter.combatantProperties = serializedCharacter.combatantProperties;
+
+      const pets = partyOption.petManager.getAllPetsByOwnerId(existingCharacter.id);
+      pets.forEach((pet) => pet.combatantProperties.targetingProperties.clear());
+      await playerCharactersRepo.update(existingCharacter, pets);
     }
   } catch (error) {
     if (error instanceof Error) return error;

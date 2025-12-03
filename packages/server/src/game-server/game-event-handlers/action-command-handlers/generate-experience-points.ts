@@ -14,23 +14,29 @@ export function generateExperiencePoints(party: AdventuringParty) {
   const { combatantManager } = party;
   const partyCombatants = combatantManager.getPartyMemberCombatants();
 
-  let numCharactersAlive = 0;
+  let combatantsEligableToReceiveExpCount = 0;
   for (const combatant of partyCombatants) {
-    const isAlive = !combatant.combatantProperties.isDead();
-    if (isAlive) numCharactersAlive += 1;
+    const { classProgressionProperties } = combatant.combatantProperties;
+    const isEligable = classProgressionProperties.isEligableToReceiveExperiencePoints(party);
+    if (isEligable) {
+      combatantsEligableToReceiveExpCount += 1;
+    }
   }
 
   for (const combatant of partyCombatants) {
-    const { combatantProperties } = combatant;
-    const isDead = combatantProperties.isDead();
-    if (isDead) continue;
+    const { classProgressionProperties } = combatant.combatantProperties;
+
+    const isEligable = classProgressionProperties.isEligableToReceiveExperiencePoints(party);
+    const notEligableToReceiveExp = !isEligable;
+    if (notEligableToReceiveExp) {
+      continue;
+    }
 
     let totalExpToAward = 0;
 
     for (const monsterLevel of defeatedMonsterLevels) {
-      const baseExp = BASE_XP_PER_MONSTER / numCharactersAlive;
-      const levelDifference =
-        combatantProperties.classProgressionProperties.getMainClass().level - monsterLevel;
+      const baseExp = BASE_XP_PER_MONSTER / combatantsEligableToReceiveExpCount;
+      const levelDifference = classProgressionProperties.getMainClass().level - monsterLevel;
       const diffMultiplier = BASE_XP_LEVEL_DIFF_MULTIPLIER * Math.abs(levelDifference);
 
       const sign = levelDifference > 0 ? -1 : 1;

@@ -31,10 +31,10 @@ export async function selectProgressionGameCharacterHandler(
     return new Error(ERROR_MESSAGES.GAME.NO_SAVED_CHARACTERS);
 
   // make sure the character exists and is alive
-  let savedCharacterOption;
+  let savedCharacterOption: undefined | { combatant: Combatant; pets: Combatant[] };
   for (const character of Object.values(charactersResult)) {
-    if (character.entityProperties.id === entityId) {
-      if (character.combatantProperties.isDead()) {
+    if (character.combatant.entityProperties.id === entityId) {
+      if (character.combatant.combatantProperties.isDead()) {
         return errorHandler(socket, new Error(ERROR_MESSAGES.COMBATANT.IS_DEAD));
       }
       savedCharacterOption = character;
@@ -51,18 +51,21 @@ export async function selectProgressionGameCharacterHandler(
     return errorHandler(socket, new Error("Expected to have a selected character but didn't"));
   }
 
-  const removedChacter = partyOption.removeCharacter(characterIdToRemoveOption, player);
+  const removedChacter = partyOption.removeCharacter(characterIdToRemoveOption, player, game);
 
   delete game.lowestStartingFloorOptionsBySavedCharacter[removedChacter.getEntityId()];
-  savedCharacterOption = Combatant.getDeserialized(savedCharacterOption);
+  savedCharacterOption = savedCharacterOption;
 
-  // @TODO - load saved pets
-  const pets: Combatant[] = [];
+  game.addCharacterToParty(
+    partyOption,
+    player,
+    savedCharacterOption.combatant,
+    savedCharacterOption.pets
+  );
 
-  game.addCharacterToParty(partyOption, player, savedCharacterOption, pets);
-
-  game.lowestStartingFloorOptionsBySavedCharacter[savedCharacterOption.entityProperties.id] =
-    savedCharacterOption.combatantProperties.deepestFloorReached;
+  game.lowestStartingFloorOptionsBySavedCharacter[
+    savedCharacterOption.combatant.entityProperties.id
+  ] = savedCharacterOption.combatant.combatantProperties.deepestFloorReached;
   const maxStartingFloor = getProgressionGameMaxStartingFloor(
     game.lowestStartingFloorOptionsBySavedCharacter
   );
@@ -71,9 +74,8 @@ export async function selectProgressionGameCharacterHandler(
   gameServer.io
     .of("/")
     .in(game.name)
-    .emit(
-      ServerToClientEvent.PlayerSelectedSavedCharacterInProgressionGame,
-      player.username,
-      savedCharacterOption
-    );
+    .emit(ServerToClientEvent.PlayerSelectedSavedCharacterInProgressionGame, player.username, {
+      combatant: savedCharacterOption.combatant.getSerialized(),
+      pets: savedCharacterOption.pets.map((pet) => pet.getSerialized()),
+    });
 }

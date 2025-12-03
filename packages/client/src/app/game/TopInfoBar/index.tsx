@@ -7,7 +7,7 @@ import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
-import TurnOrderPredictionBar from "./turn-order-prediction-bar";
+import { TurnOrderPredictionBar } from "./turn-order-prediction-bar";
 
 import StairsIcon from "../../../../public/img/game-ui-icons/stairs.svg";
 import DoorIcon from "../../../../public/img/game-ui-icons/door-icon.svg";
@@ -15,6 +15,8 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
+import { actionCommandQueue, actionCommandReceiver } from "@/singletons/action-command-manager";
+import { synchronizeCombatantModelsWithAppState } from "@/app/3d-world/game-world/model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
 
 export const TopInfoBar = observer(() => {
   const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
@@ -26,21 +28,40 @@ export const TopInfoBar = observer(() => {
   function leaveGame() {
     AppStore.get().dialogStore.close(DialogElementName.LeaveGame);
 
+    party.actionCommandQueue.clear();
+    actionCommandQueue.clear();
+
     const { actionEntityManager } = party;
     for (const [entityId, entity] of Object.entries(actionEntityManager.getActionEntities())) {
       actionEntityManager.unregisterActionEntity(entity.entityProperties.id);
       getGameWorld().actionEntityManager.unregister(entity.entityProperties.id, CleanupMode.Soft);
     }
-    AppStore.get().gameStore.clearGame();
+
+    party.combatantManager.getAllCombatants().forEach((combatant) => {
+      combatant.combatantProperties.targetingProperties.clear();
+    });
+
+    AppStore.get().targetIndicatorStore.clear();
+
+    const { gameStore } = AppStore.get();
+    gameStore.clearGame();
+
+    console.log("left game");
 
     websocketConnection.emit(ClientToServerEvent.LeaveGame);
 
     getGameWorld().replayTreeManager.clear();
     getGameWorld().modelManager.modelActionQueue.clear();
 
+    // console.log("enqueu sync models after left game");
+    // synchronizeCombatantModelsWithAppState({ placeInHomePositions: true });
+
     getGameWorld().modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
+      placeInHomePositions: true,
     });
+
+    getGameWorld()?.drawCharacterSlots();
   }
 
   const currentFloor = party.dungeonExplorationManager.getCurrentFloor();

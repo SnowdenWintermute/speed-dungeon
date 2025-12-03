@@ -14,7 +14,6 @@ import { IdGenerator } from "../utility-classes/index.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
 import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,

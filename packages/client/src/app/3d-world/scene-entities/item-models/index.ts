@@ -7,7 +7,7 @@ import {
   TransformNode,
   Vector3,
 } from "@babylonjs/core";
-import { SceneEntity } from "..";
+import { SceneEntity } from "../index";
 import {
   CombatantHoldableChildTransformNodeName,
   Consumable,

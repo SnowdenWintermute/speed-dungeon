@@ -5,6 +5,7 @@ import HealthCrossIcon from "../../../public/img/game-ui-icons/health-cross.svg"
 import IceIcon from "../../../public/img/game-ui-icons/ice.svg";
 import PlusSign from "../../../public/img/game-ui-icons/plus-sign.svg";
 import EyeClosed from "../../../public/img/game-ui-icons/eye-closed.svg";
+import EyeOpen from "../../../public/img/game-ui-icons/eye-open.svg";
 import EyeOpenIcon from "../../../public/img/game-ui-icons/eye-open.svg";
 import BloodWithH from "../../../public/img/game-ui-icons/blood-with-h.svg";
 import Wind from "../../../public/img/game-ui-icons/wind.svg";
@@ -35,6 +36,7 @@ import XShape from "../../../public/img/basic-shapes/x-shape.svg";
 import Chevron from "../../../public/img/basic-shapes/chevron.svg";
 import Model3DIcon from "../../../public/img/menu-icons/3d-model-icon.svg";
 import Whistle from "../../../public/img/game-ui-icons/whistle.svg";
+import EditPencil from "../../../public/img/menu-icons//edit-pencil.svg";
 
 import { ReactNode } from "react";
 import {
@@ -62,6 +64,7 @@ export enum IconName {
   HealthCross,
   PlusSign,
   EyeClosed,
+  EyeOpen,
   BloodWithH,
   Slashing,
   Piercing,
@@ -84,6 +87,7 @@ export enum IconName {
   Model3DIcon,
   Firewall,
   Whistle,
+  EditPencil,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -94,6 +98,7 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.Ice]: (className) => <IceIcon className={className} />,
   [IconName.PlusSign]: (className) => <PlusSign className={className} />,
   [IconName.EyeClosed]: (className) => <EyeClosed className={className} />,
+  [IconName.EyeOpen]: (className) => <EyeOpen className={className} />,
   [IconName.BloodWithH]: (className) => <BloodWithH className={className} />,
   [IconName.Water]: (className) => <Water className={className} />,
   [IconName.Wind]: (className) => <Wind className={className} />,
@@ -122,6 +127,7 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.Model3DIcon]: (className) => <Model3DIcon className={className} />,
   [IconName.Firewall]: (className) => <Firewall className={className} />,
   [IconName.Whistle]: (className) => <Whistle className={className} />,
+  [IconName.EditPencil]: (className: string) => <EditPencil className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {
@@ -160,6 +166,9 @@ export const CONDITION_INDICATOR_ICONS: Record<CombatantConditionName, ReactNode
       <EyeOpenIcon className="fill-lightningpurple stroke-darknessblack h-full" />
     </div>
   ),
+  [CombatantConditionName.FollowingPetCommand]: (
+    <div className="h-full">{SVG_ICONS[IconName.Whistle]("h-full fill-zinc-300")}</div>
+  ),
 };
 
 export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) => ReactNode)> = {
@@ -197,7 +206,13 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
   [CombatActionName.IceBurstExplosion]: null,
   [CombatActionName.IgniteProjectile]: null,
   [CombatActionName.IncinerateProjectile]: null,
-  [CombatActionName.SummonPet]: (className: string) => SVG_ICONS[IconName.Whistle](className),
+  [CombatActionName.SummonPetParent]: (className: string) => SVG_ICONS[IconName.Whistle](className),
+  [CombatActionName.SummonPetAppear]: null,
+  [CombatActionName.DismissPet]: (className: string) =>
+    SVG_ICONS[IconName.Whistle](`${className} -scale-x-100`),
+  [CombatActionName.TamePet]: (className: string) => SVG_ICONS[IconName.Whistle](`${className}`),
+  [CombatActionName.ReleasePet]: null,
+  [CombatActionName.PetCommand]: null,
 };
 
 export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string) => ReactNode)> = {
@@ -208,6 +223,7 @@ export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string)
   [CombatantTraitType.ExtraHotswapSlot]: null,
   [CombatantTraitType.CanConvertToShardsManually]: null,
   [CombatantTraitType.ExtraConsumablesStorage]: null,
+  [CombatantTraitType.IsTameable]: (className: string) => SVG_ICONS[IconName.Whistle](className),
 };
 
 export const ACTION_ENTITY_ICONS: Record<

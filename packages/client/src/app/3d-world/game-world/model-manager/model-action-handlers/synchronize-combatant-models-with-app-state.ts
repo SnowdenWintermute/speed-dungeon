@@ -17,7 +17,11 @@ import { CharacterModel } from "@/app/3d-world/scene-entities/character-models";
 import { startOrStopCosmeticEffects } from "../../replay-tree-manager/start-or-stop-cosmetic-effect";
 import { AppStore } from "@/mobx-stores/app-store";
 
-export async function synchronizeCombatantModelsWithAppState() {
+export async function synchronizeCombatantModelsWithAppState(options: {
+  placeInHomePositions?: boolean;
+  softCleanup?: boolean;
+  onComplete?: () => void;
+}) {
   if (!gameWorld.current) return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
   const { modelManager } = gameWorld.current;
 
@@ -30,7 +34,7 @@ export async function synchronizeCombatantModelsWithAppState() {
   // delete models which don't appear on the list
   for (const [entityId, model] of Object.entries(modelManager.combatantModels)) {
     if (!modelsAndPositions[entityId]) {
-      model.cleanup({ softCleanup: false });
+      model.cleanup({ softCleanup: !!options.softCleanup });
       delete modelManager.combatantModels[entityId];
       gameWorldStore.clearModelLoadingState(entityId);
     }
@@ -48,22 +52,35 @@ export async function synchronizeCombatantModelsWithAppState() {
 
       gameWorldStore.setModelLoading(entityId);
       modelSpawnPromises.push(
-        spawnCharacterModel(gameWorld.current, {
-          combatant,
-          homeRotation,
-          homePosition: homeLocation,
-          modelDomPositionElement: null, // vestigial from when we used to spawn directly from next.js
-        })
+        spawnCharacterModel(
+          gameWorld.current,
+          {
+            combatant,
+            homeRotation,
+            homePosition: homeLocation,
+            modelDomPositionElement: null, // vestigial from when we used to spawn directly from next.js
+          },
+          { spawnInDeadPose: combatant.combatantProperties.isDead() }
+        )
       );
     } else {
       // move models to correct positions
       modelOption.setHomeRotation(cloneDeep(homeRotation));
       modelOption.setHomeLocation(cloneDeep(homeLocation));
+      if (options.placeInHomePositions) {
+        modelOption.rootTransformNode.position.copyFrom(homeLocation);
+        if (modelOption.rootTransformNode.rotationQuaternion) {
+          modelOption.rootTransformNode.rotationQuaternion.copyFrom(homeRotation);
+        } else {
+          modelOption.rootTransformNode.rotationQuaternion = cloneDeep(homeRotation);
+        }
+      }
     }
   }
 
   const spawnResults = await Promise.all(modelSpawnPromises);
   let resultsIncludedError = false;
+
   for (const result of spawnResults) {
     if (result instanceof Error) {
       console.error(result);
@@ -86,6 +103,10 @@ export async function synchronizeCombatantModelsWithAppState() {
     }
   }
   if (resultsIncludedError) return new Error("Error with spawning combatant models");
+
+  if (options.onComplete !== undefined) {
+    options.onComplete();
+  }
 }
 
 interface ModelsAndPositions {
@@ -106,6 +127,7 @@ function getModelsAndPositions() {
   if (inLobby && gameOption.mode === GameMode.Progression) {
     modelsAndPositions = getProgressionGameLobbyCombatantModelPositions(gameOption);
   } else if (inGame) {
+    console.log("syncing models in game", gameOption.id);
     const party = gameStore.getExpectedParty();
     const { combatantManager } = party;
     for (const combatant of combatantManager.getAllCombatants()) {
@@ -116,14 +138,15 @@ function getModelsAndPositions() {
       };
     }
   } else {
+    console.log("syncing models NO game");
     const savedCharacters = AppStore.get().lobbyStore.getSavedCharacterSlots();
     // viewing saved characters
     for (const [slot, character] of iterateNumericEnumKeyedRecord(savedCharacters).filter(
       ([_slot, characterOption]) => characterOption !== null
     )) {
       if (!character) return new Error("Failed to meet checked expectation");
-      modelsAndPositions[character.entityProperties.id] = {
-        combatant: character,
+      modelsAndPositions[character.combatant.entityProperties.id] = {
+        combatant: character.combatant,
         homeRotation: Quaternion.Identity(),
         homeLocation: new Vector3(-CHARACTER_SLOT_SPACING + slot * CHARACTER_SLOT_SPACING, 0, 0),
       };

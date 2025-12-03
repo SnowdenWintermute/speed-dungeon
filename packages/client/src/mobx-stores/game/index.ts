@@ -233,7 +233,35 @@ export class GameStore {
     return partyOption.combatantManager.playerOwnsCharacter(this.username || "", combatantId);
   }
 
-  clientUserControlsFocusedCombatant() {
-    return this.clientUserControlsCombatant(this.getExpectedFocusedCharacterId());
+  clientUserControlsFocusedCombatant(options?: { includePets: boolean }) {
+    const usernameOption = this.getUsernameOption();
+    if (!usernameOption) {
+      return false;
+    }
+
+    const isDirectController = this.clientUserControlsCombatant(
+      this.getExpectedFocusedCharacterId()
+    );
+
+    if (isDirectController) {
+      return true;
+    }
+
+    if (options?.includePets) {
+      const focusedCombatant = this.getExpectedFocusedCharacter();
+
+      const partyOption = this.getPartyOption();
+      if (partyOption === undefined) return false;
+
+      const { controlledBy } = focusedCombatant.combatantProperties;
+      const isPetOfThisPlayer = controlledBy.wasSummonedByCharacterControlledByPlayer(
+        usernameOption,
+        partyOption
+      );
+
+      return isPetOfThisPlayer;
+    }
+
+    return false;
   }
 }

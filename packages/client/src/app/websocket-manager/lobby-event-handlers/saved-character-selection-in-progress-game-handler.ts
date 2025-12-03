@@ -6,13 +6,18 @@ import { Combatant, ERROR_MESSAGES, getProgressionGamePartyName } from "@speed-d
 
 export function savedCharacterSelectionInProgressGameHandler(
   username: string,
-  character: Combatant
+  character: { combatant: Combatant; pets: Combatant[] }
 ) {
   const { gameStore } = AppStore.get();
   const game = gameStore.getExpectedGame();
 
-  game.lowestStartingFloorOptionsBySavedCharacter[character.entityProperties.id] =
-    character.combatantProperties.deepestFloorReached;
+  const deserialized = {
+    combatant: Combatant.getDeserialized(character.combatant),
+    pets: character.pets.map((pet) => Combatant.getDeserialized(pet)),
+  };
+
+  game.lowestStartingFloorOptionsBySavedCharacter[character.combatant.entityProperties.id] =
+    character.combatant.combatantProperties.deepestFloorReached;
 
   const partyName = getProgressionGamePartyName(game.name);
   const party = game.adventuringParties[partyName];
@@ -23,7 +28,11 @@ export function savedCharacterSelectionInProgressGameHandler(
   const previouslySelectedCharacterId = player.characterIds[0];
   if (previouslySelectedCharacterId) {
     try {
-      const removedCharacterResult = party.removeCharacter(previouslySelectedCharacterId, player);
+      const removedCharacterResult = party.removeCharacter(
+        previouslySelectedCharacterId,
+        player,
+        game
+      );
       delete game.lowestStartingFloorOptionsBySavedCharacter[
         removedCharacterResult.entityProperties.id
       ];
@@ -33,13 +42,10 @@ export function savedCharacterSelectionInProgressGameHandler(
     }
   }
 
-  const deserialized = Combatant.getDeserialized(character);
-
-  game.addCharacterToParty(party, player, deserialized, []);
+  game.addCharacterToParty(party, player, deserialized.combatant, deserialized.pets);
 
   gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.SynchronizeCombatantModels,
+    placeInHomePositions: true,
   });
-
-  throw new Error("not implemented - loading pets");
 }

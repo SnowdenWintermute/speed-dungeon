@@ -10,7 +10,8 @@ export class InputLock {
   }
 
   static getDeserialized(plain: InputLock) {
-    return plainToInstance(InputLock, plain);
+    const toReturn = plainToInstance(InputLock, plain);
+    return toReturn;
   }
 
   lockInput() {

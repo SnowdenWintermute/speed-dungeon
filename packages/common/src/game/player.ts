@@ -31,6 +31,43 @@ export class CombatActionTargetPreferences {
     return plainToInstance(CombatActionTargetPreferences, targetPreferences);
   }
 
+  clear() {
+    this.friendlySingle = null;
+    this.hostileSingle = null;
+    this.category = null;
+    this.targetingSchemePreference = TargetingScheme.Single;
+  }
+
+  getPreferredTargetsInCategory(category: FriendOrFoe): null | CombatActionTarget {
+    if (this.category === null || this.targetingSchemePreference === null) {
+      return null;
+    }
+
+    if (this.targetingSchemePreference === TargetingScheme.All) {
+      return { type: CombatActionTargetType.All };
+    }
+
+    if (this.targetingSchemePreference === TargetingScheme.Area) {
+      return { type: CombatActionTargetType.Group, friendOrFoe: this.category };
+    }
+
+    switch (category) {
+      case FriendOrFoe.Friendly:
+        if (this.friendlySingle === null) {
+          return null;
+        } else {
+          return { type: CombatActionTargetType.Single, targetId: this.friendlySingle };
+        }
+
+      case FriendOrFoe.Hostile:
+        if (this.hostileSingle === null) {
+          return null;
+        } else {
+          return { type: CombatActionTargetType.Single, targetId: this.hostileSingle };
+        }
+    }
+  }
+
   update(
     selectedActionAndRank: ActionAndRank,
     newTargets: CombatActionTarget,
@@ -56,6 +93,8 @@ export class CombatActionTargetPreferences {
           this.friendlySingle = targetId;
           this.category = FriendOrFoe.Friendly;
         }
+
+        this.targetingSchemePreference = TargetingScheme.Single;
         break;
       case CombatActionTargetType.Group:
         const category = newTargets.friendOrFoe;

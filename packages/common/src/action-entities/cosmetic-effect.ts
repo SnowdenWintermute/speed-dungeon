@@ -17,6 +17,7 @@ export enum CosmeticEffectNames {
   FirewallParticles,
   SmokeParticleStream,
   SmokePuff,
+  HeartParticles,
 }
 
 export abstract class CosmeticEffect {

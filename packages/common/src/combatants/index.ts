@@ -19,10 +19,8 @@ import { CombatantAttributeRecord } from "./attribute-properties.js";
 import { CombatantProperties } from "./combatant-properties.js";
 import { Item } from "../items/index.js";
 import { HoldableSlotType } from "../items/equipment/slots.js";
-
-export enum AiType {
-  Healer,
-}
+import { runIfInBrowser } from "../utils/index.js";
+import makeAutoObservable from "mobx-store-inheritance";
 
 export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
@@ -45,7 +43,9 @@ export class Combatant implements IActionUser {
   constructor(
     public entityProperties: EntityProperties,
     public combatantProperties: CombatantProperties
-  ) {}
+  ) {
+    runIfInBrowser(() => makeAutoObservable(this));
+  }
 
   static createInitialized(
     entityProperties: EntityProperties,
@@ -124,7 +124,9 @@ export class Combatant implements IActionUser {
     return combatantManager.getCombatantIdsByDisposition(this.getEntityId());
   }
 
-  getTargetingProperties = () => this.combatantProperties.targetingProperties;
+  getTargetingProperties() {
+    return this.combatantProperties.targetingProperties;
+  }
 
   payResourceCosts(): void {
     throw new Error("Method not implemented.");
@@ -145,7 +147,7 @@ export class Combatant implements IActionUser {
   getTotalAttributes(): CombatantAttributeRecord {
     return this.combatantProperties.attributeProperties.getTotalAttributes();
   }
-  getOwnedAbilities(): Map<CombatActionName, CombatantActionState> {
+  getOwnedActions(): Map<CombatActionName, CombatantActionState> {
     return this.combatantProperties.abilityProperties.getOwnedActions();
   }
   getEquipmentOption() {
@@ -178,21 +180,31 @@ export class Combatant implements IActionUser {
     return true;
   }
 
-  canUseAction(
+  actionAndRankMeetsUseRequirements(
     actionAndRank: ActionAndRank,
-    game: SpeedDungeonGame,
-    party: AdventuringParty
-  ): Error | void {
+    party: AdventuringParty,
+    battleOption: Battle | null
+  ): { canUse: boolean; reasonCanNot?: string } {
     const { combatantProperties } = this;
     const { actionName, rank } = actionAndRank;
     const action = COMBAT_ACTIONS[actionName];
 
+    const isInUsableContext = action.isUsableInThisContext(battleOption);
+    if (!isInUsableContext) {
+      return {
+        canUse: false,
+        reasonCanNot: ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_USABILITY_CONTEXT,
+      };
+    }
+
     if (action.costProperties.getMeetsCustomRequirements) {
       const { meetsRequirements, reasonDoesNot } = action.costProperties.getMeetsCustomRequirements(
         this,
-        rank
+        party
       );
-      if (!meetsRequirements) return new Error(reasonDoesNot);
+      if (!meetsRequirements) {
+        return { canUse: false, reasonCanNot: reasonDoesNot };
+      }
     }
 
     const { abilityProperties } = this.combatantProperties;
@@ -200,35 +212,64 @@ export class Combatant implements IActionUser {
     const combatActionPropertiesResult =
       abilityProperties.getCombatActionPropertiesIfOwned(actionAndRank);
     if (combatActionPropertiesResult instanceof Error) {
-      return combatActionPropertiesResult;
+      return { canUse: false, reasonCanNot: combatActionPropertiesResult.message };
     }
 
     const actionStateOption = abilityProperties.getOwnedActionOption(action.name);
-    if (actionStateOption && actionStateOption.cooldown && actionStateOption.cooldown.current)
-      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.IS_ON_COOLDOWN);
+    if (actionStateOption && actionStateOption.cooldown && actionStateOption.cooldown.current) {
+      return { canUse: false, reasonCanNot: ERROR_MESSAGES.COMBAT_ACTIONS.IS_ON_COOLDOWN };
+    }
 
     const hasRequiredConsumables = this.hasRequiredConsumablesToUseAction(action.name);
-    if (!hasRequiredConsumables) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
+    if (!hasRequiredConsumables) {
+      return { canUse: false, reasonCanNot: ERROR_MESSAGES.ITEM.NOT_OWNED };
+    }
 
     const costs = action.costProperties.getResourceCosts(this, party.isInCombat(), rank);
     const hasRequiredResources =
       !this.combatantProperties.resources.getUnmetCostResourceTypes(costs).length;
 
-    if (!hasRequiredResources)
-      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INSUFFICIENT_RESOURCES);
+    if (!hasRequiredResources) {
+      return {
+        canUse: false,
+        reasonCanNot: ERROR_MESSAGES.COMBAT_ACTIONS.INSUFFICIENT_RESOURCES,
+      };
+    }
 
     const isWearingRequiredEquipment =
       combatantProperties.equipment.isWearingRequiredEquipmentToUseAction(actionAndRank);
     if (!isWearingRequiredEquipment) {
-      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_WEARING_REQUIRED_EQUIPMENT);
+      return {
+        canUse: false,
+        reasonCanNot: ERROR_MESSAGES.COMBAT_ACTIONS.NOT_WEARING_REQUIRED_EQUIPMENT,
+      };
     }
 
+    return { canUse: true };
+  }
+
+  canUseAction(
+    actionAndRank: ActionAndRank,
+    game: SpeedDungeonGame,
+    party: AdventuringParty
+  ): Error | void {
     // IF IN BATTLE, ONLY USE IF FIRST IN TURN ORDER
     let battleOption: null | Battle = null;
     if (party.battleId !== null) {
       const battle = game.battles[party.battleId];
       if (battle !== undefined) battleOption = battle;
       else return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
+    }
+
+    const meetsUseRequirements = this.actionAndRankMeetsUseRequirements(
+      actionAndRank,
+      party,
+      battleOption
+    );
+
+    const { canUse, reasonCanNot } = meetsUseRequirements;
+    if (!canUse) {
+      return new Error(reasonCanNot || "unspecified reason can not use action");
     }
 
     if (battleOption !== null) {
@@ -242,10 +283,6 @@ export class Combatant implements IActionUser {
       }
     }
 
-    const isInUsableContext = action.isUsableInThisContext(battleOption);
-    if (!isInUsableContext)
-      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_USABILITY_CONTEXT);
-
     // @TODO - TARGETS ARE NOT IN A PROHIBITED STATE
     // action would only make sense if we didn't already check valid states when targeting... unless
     // target state could change while they are already targeted, like if someone healed themselves
@@ -253,7 +290,8 @@ export class Combatant implements IActionUser {
   }
 
   static groupIsDead(group: Combatant[]) {
-    if (group.length === 0) return false;
+    // group length may be zero if you tame a pet and they were the last one left in that group
+    if (group.length === 0) return true;
     for (const combatant of group) {
       const { combatantProperties } = combatant;
       const isDead = combatantProperties.isDead();

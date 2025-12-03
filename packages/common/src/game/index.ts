@@ -6,7 +6,7 @@ import { SpeedDungeonPlayer } from "./player.js";
 import { GameMode } from "../types.js";
 import { MAX_PARTY_SIZE } from "../app-consts.js";
 import { makeAutoObservable } from "mobx";
-import { plainToInstance } from "class-transformer";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 import { ArrayUtils } from "../utils/array-utils.js";
 import { runIfInBrowser } from "../utils/index.js";
 import { Combatant } from "../combatants/index.js";
@@ -33,10 +33,17 @@ export class SpeedDungeonGame {
     runIfInBrowser(() => makeAutoObservable(this));
   }
 
+  getSerialized() {
+    const serialized = instanceToPlain(this) as SpeedDungeonGame;
+    return serialized;
+  }
+
   static getDeserialized(game: SpeedDungeonGame) {
     const deserialized = plainToInstance(SpeedDungeonGame, game);
+
     for (const [partyId, party] of Object.entries(deserialized.adventuringParties)) {
-      deserialized.adventuringParties[partyId] = AdventuringParty.getDeserialized(party);
+      const deserializedParty = AdventuringParty.getDeserialized(party);
+      deserialized.adventuringParties[partyId] = deserializedParty;
     }
 
     for (const player of Object.values(deserialized.players)) {
@@ -64,12 +71,12 @@ export class SpeedDungeonGame {
 
     const characterId = character.entityProperties.id;
 
-    combatantManager.addCombatant(character);
+    combatantManager.addCombatant(character, this);
 
     party.petManager.setCombatantPets(characterId, pets);
 
     /// Could move this out of here
-    character.combatantProperties.controlledBy.controllerName = player.username;
+    character.combatantProperties.controlledBy.controllerPlayerName = player.username;
     player.characterIds.push(characterId);
     this.lowestStartingFloorOptionsBySavedCharacter[characterId] =
       character.combatantProperties.deepestFloorReached;
@@ -100,7 +107,7 @@ export class SpeedDungeonGame {
     const characterIds = cloneDeep(player.characterIds);
 
     Object.values(characterIds).forEach((characterId) => {
-      const removedCharacterResult = partyLeaving.removeCharacter(characterId, player);
+      const removedCharacterResult = partyLeaving.removeCharacter(characterId, player, this);
       if (removedCharacterResult instanceof Error) return removedCharacterResult;
       charactersRemoved.push(removedCharacterResult);
       delete this.lowestStartingFloorOptionsBySavedCharacter[characterId];

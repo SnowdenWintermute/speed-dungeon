@@ -43,9 +43,9 @@ export default async function createGameHandler(
   if (gameServer.games.get(gameName))
     return errorHandler(socket, new Error(ERROR_MESSAGES.LOBBY.GAME_EXISTS));
 
-  if (mode === GameMode.Progression)
+  if (mode === GameMode.Progression) {
     await createProgressionGameHandler(gameServer, session, socket, gameName);
-  else {
+  } else {
     const game = new SpeedDungeonGame(
       idGenerator.generate(),
       gameName,

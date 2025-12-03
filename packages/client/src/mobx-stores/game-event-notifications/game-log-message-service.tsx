@@ -1,6 +1,7 @@
 import {
   ACTION_PAYABLE_RESOURCE_STRINGS,
   ActionPayableResource,
+  ActionResolutionGameLogMessageUpdateCommand,
   ActionUseGameLogMessageUpdateCommand,
   COMBAT_ACTIONS,
   CRAFTING_ACTION_PAST_TENSE_STRINGS,
@@ -50,6 +51,26 @@ export class GameLogMessageService {
     }
   }
 
+  static postActionResolution(command: ActionResolutionGameLogMessageUpdateCommand) {
+    {
+      const { actionUseMessageData, actionName } = command;
+      const action = COMBAT_ACTIONS[actionName];
+      const { gameLogMessageProperties } = action;
+
+      let message: null | string = null;
+
+      if (command.isSuccess && gameLogMessageProperties.getOnSuccessMessage) {
+        message = gameLogMessageProperties.getOnSuccessMessage(actionUseMessageData);
+      } else if (gameLogMessageProperties.getOnFailureMessage) {
+        message = gameLogMessageProperties.getOnFailureMessage(actionUseMessageData);
+      }
+
+      if (message) {
+        this.dispatch(new GameLogMessage(message, GameLogMessageStyle.Basic));
+      }
+    }
+  }
+
   static postUserLeftGame(username: string) {
     this.dispatch(new GameLogMessage(`${username} left the game`, GameLogMessageStyle.PartyWipe));
   }
@@ -80,6 +101,12 @@ export class GameLogMessageService {
   static postActionCountered(actionUserName: string, targetName: string) {
     const style = GameLogMessageStyle.Basic;
     const messageText = `${targetName} countered an attack from ${actionUserName}`;
+    this.dispatch(new GameLogMessage(messageText, style));
+  }
+
+  static postActionResisted(actionUserName: string, targetName: string) {
+    const style = GameLogMessageStyle.Basic;
+    const messageText = `${targetName} resisted.`;
     this.dispatch(new GameLogMessage(messageText, style));
   }
 

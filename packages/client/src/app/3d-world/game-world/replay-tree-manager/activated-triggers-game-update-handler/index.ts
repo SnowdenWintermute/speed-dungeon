@@ -17,6 +17,9 @@ import { GameUpdateTracker } from "../game-update-tracker";
 import { handlePetSlotsSummoned } from "./handle-pets-summoned";
 import { FloatingMessageService } from "@/mobx-stores/game-event-notifications/floating-message-service";
 import { AppStore } from "@/mobx-stores/app-store";
+import { handlePetSlotsUnsummoned } from "./handle-pets-unsummoned";
+import { handlePetsTamed } from "./handle-pets-tamed";
+import { handlePetSlotsReleased } from "./handle-pets-released";
 
 export async function activatedTriggersGameUpdateHandler(
   update: GameUpdateTracker<ActivatedTriggersGameUpdateCommand>
@@ -38,6 +41,9 @@ export async function activatedTriggersGameUpdateHandler(
     removedConditionStacks,
     removedConditionIds,
     petSlotsSummoned,
+    petSlotsReleased,
+    petsUnsummoned,
+    petsTamed,
   } = command;
 
   if (actionEntityChanges) {
@@ -48,6 +54,18 @@ export async function activatedTriggersGameUpdateHandler(
     handlePetSlotsSummoned(petSlotsSummoned, party, game);
   }
 
+  if (petSlotsReleased) {
+    handlePetSlotsReleased(petSlotsReleased, party);
+  }
+
+  if (petsUnsummoned) {
+    handlePetSlotsUnsummoned(petsUnsummoned, party, game);
+  }
+
+  if (petsTamed) {
+    handlePetsTamed(petsTamed, party, game);
+  }
+
   if (supportClassLevelsGained !== undefined) {
     handleSupportClassLevelsChanged(supportClassLevelsGained, party);
   }
@@ -56,16 +74,16 @@ export async function activatedTriggersGameUpdateHandler(
     handleDurabilityChanges(durabilityChanges, party, brokenHoldablesAndTheirOwnerIds);
   }
 
-  if (appliedConditions) {
-    handleAppliedConditions(appliedConditions, party, battleOption);
-  }
-
   if (removedConditionStacks) {
     handleRemovedConditionStacks(removedConditionStacks, party);
   }
 
   if (removedConditionIds) {
     handleRemovedConditionIds(removedConditionIds, party);
+  }
+
+  if (appliedConditions) {
+    handleAppliedConditions(appliedConditions, party, battleOption);
   }
 
   handleThreatChangesUpdate(update.command);

@@ -5,7 +5,7 @@ import {
   SpeedDungeonGame,
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
-import { GameServer } from "..";
+import { GameServer } from "../index.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
 import SocketIO from "socket.io";
 
@@ -23,9 +23,10 @@ export default function joinPlayerToGame(
   for (const channelName of session.channels) {
     gameServer.removeSocketFromChannel(socket.id, channelName);
   }
+
   gameServer.joinSocketToChannel(socket.id, game.name);
 
-  socket.emit(ServerToClientEvent.GameFullUpdate, game);
+  socket.emit(ServerToClientEvent.GameFullUpdate, game.getSerialized());
 
   gameServer.io
     .of("/")

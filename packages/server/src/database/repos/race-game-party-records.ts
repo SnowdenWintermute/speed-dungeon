@@ -44,8 +44,8 @@ class RaceGamePartyRecordRepo extends DatabaseRepository<RaceGamePartyRecord> {
     const partyCharacters = party.combatantManager.getPartyMemberCombatants();
 
     for (const character of partyCharacters) {
-      const { controllerName } = character.combatantProperties.controlledBy;
-      const controllingPlayerIdOption = userIdsByUsernameResult[controllerName] || null;
+      const { controllerPlayerName } = character.combatantProperties.controlledBy;
+      const controllingPlayerIdOption = userIdsByUsernameResult[controllerPlayerName] || null;
       await raceGameCharacterRecordsRepo.insert(
         character,
         party.id,

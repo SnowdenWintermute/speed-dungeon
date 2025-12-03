@@ -9,9 +9,8 @@ import {
   ActionUseGameLogMessageUpdateCommand,
 } from "../game-update-commands.js";
 
-const stepType = ActionResolutionStepType.PostActionUseGameLogMessage;
-export class PostActionUseGameLogMessageActionResolutionStep extends ActionResolutionStep {
-  constructor(context: ActionResolutionStepContext) {
+export class PostGameLogMessageActionResolutionStep extends ActionResolutionStep {
+  constructor(context: ActionResolutionStepContext, stepType: ActionResolutionStepType) {
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
 
     const { getOnUseMessage, getOnUseMessageData } = action.gameLogMessageProperties;

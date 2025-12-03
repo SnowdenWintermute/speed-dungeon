@@ -139,4 +139,19 @@ export class FloatingMessageService {
 
     this.dispatch(entityId, elements);
   }
+
+  static startHitOutcomeResistedMessage(entityId: EntityId) {
+    const elements: FloatingMessageElement[] = [
+      {
+        type: FloatingMessageElementType.Text,
+        text: `Resisted`,
+        classNames: {
+          mainText: FLOATING_TEXT_COLORS[FloatingMessageTextColor.Parried],
+          shadowText: "text-black",
+        },
+      },
+    ];
+
+    this.dispatch(entityId, elements);
+  }
 }

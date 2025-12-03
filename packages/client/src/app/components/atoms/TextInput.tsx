@@ -12,6 +12,7 @@ interface Props {
   disabled?: boolean;
   autofocus?: boolean;
   ariaInvalid?: boolean;
+  onEscape?: () => void;
   dataCy?: string;
   id?: string;
   min?: number;
@@ -31,6 +32,7 @@ export default function TextInput(props: Props) {
       inputRef.current.dispatchEvent(new Event("focus", { bubbles: true })); // Trigger the focus event manually
       inputStore.setHotkeysDisabled(true);
     }
+
     return () => {
       handleBlur();
     };
@@ -42,7 +44,10 @@ export default function TextInput(props: Props) {
 
   function handleKeydown(e: KeyboardEvent) {
     const { code } = e;
-    if (code === "Escape" || code === "Esc") inputRef.current?.blur();
+    if (code === "Escape" || code === "Esc") {
+      inputRef.current?.blur();
+      props.onEscape?.();
+    }
   }
 
   useEffect(() => {

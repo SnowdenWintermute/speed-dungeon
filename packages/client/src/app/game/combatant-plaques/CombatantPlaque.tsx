@@ -5,7 +5,7 @@ import { UnspentAttributesButton } from "../UnspentAttributesButton";
 import { ValueBarsAndFocusButton } from "./ValueBarsAndFocusButton";
 import CombatantInfoButton from "./CombatantInfoButton";
 import { DetailedCombatantInfoCard } from "./DetailedCombatantInfoCard";
-import { Combatant } from "@speed-dungeon/common";
+import { Combatant, CombatantControllerType } from "@speed-dungeon/common";
 import "./floating-text-animation.css";
 import { CombatantFloatingMessagesDisplay } from "./combatant-floating-messages-display";
 import { InventoryIconButton } from "./InventoryIconButton";
@@ -25,9 +25,10 @@ import { DialogElementName } from "@/mobx-stores/dialogs";
 interface Props {
   combatant: Combatant;
   showExperience: boolean;
+  extraStyles?: string;
 }
 
-export const CombatantPlaque = observer(({ combatant, showExperience }: Props) => {
+export const CombatantPlaque = observer(({ combatant, showExperience, extraStyles }: Props) => {
   const { focusStore, dialogStore, gameWorldStore, imageStore, gameStore } = AppStore.get();
   const showDebug = dialogStore.isOpen(DialogElementName.Debug);
 
@@ -57,7 +58,11 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
 
   const isFocused = gameStore.characterIsFocused(entityId);
 
-  const isPartyMember = combatant.combatantProperties.controlledBy.isPlayerControlled();
+  const { controlledBy } = combatantProperties;
+
+  const isPartyMember =
+    controlledBy.isPlayerControlled() ||
+    controlledBy.controllerType === CombatantControllerType.PlayerPetAI;
 
   const isHovered = focusStore.entityIsHovered(entityId);
   const conditionalBorder = getConditionalBorder(isHovered, isFocused, combatantIsDetailed);
@@ -69,7 +74,7 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
   const equippedItems = combatantProperties.equipment.getAllEquippedItems({});
 
   const conditionIndicators = (styles: string) => (
-    <div className={`w-full h-6 py-0.5 ${styles}`}>
+    <div className={`w-full h-6 py-0.5 ${styles} flex`}>
       <ConditionIndicators
         conditions={combatant.combatantProperties.conditionManager.getConditions()}
       />
@@ -105,30 +110,14 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
     battleOption.turnOrderManager.combatantIsFirstInTurnOrder(combatant.entityProperties.id);
 
   return (
-    <div className="">
+    <div className={extraStyles}>
       <CharacterModelDisplay character={combatant}>
         <CombatantFloatingMessagesDisplay entityId={entityId} />
         <div className="absolute flex flex-col justify-center items-center text-center top-1/2 left-1/2 -translate-x-1/2 w-[400px]">
-          <div>
-            {
-              // targetedBy.map((item) => {
-              // const action = COMBAT_ACTIONS[item.actionName];
-              // const intentStyling =
-              //   action.targetingProperties.intent === CombatActionIntent.Malicious
-              //     ? "fill-red-600"
-              //     : "fill-green-600";
-              // return (
-              //   <div className="h-10 w-10 ">
-              //     <TargetIcon className={`h-full w-full ${intentStyling}`} />
-              //   </div>
-              // );
-              // })
-            }
-          </div>
           {babylonDebugInfo}
         </div>
       </CharacterModelDisplay>
-      {isPartyMember && conditionIndicators("mb-1") /* otherwise put it below */}
+      {isPartyMember && conditionIndicators("mb-2") /* otherwise put it below */}
 
       <div className="flex">
         {!combatantProperties.isDead() && (
@@ -154,7 +143,7 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
                 className={"absolute -top-2 -left-2 z-10 flex flex-col border border-slate-400"}
                 entityId={entityId}
                 selectedSlotIndex={combatantProperties.equipment.getSelectedHoldableSlotIndex()}
-                numSlots={combatantProperties.equipment.getHoldableHotswapSlots().length}
+                slotsCount={combatantProperties.equipment.getHoldableHotswapSlots().length}
                 vertical={true}
                 registerKeyEvents={isFocused}
               />
@@ -167,6 +156,7 @@ export const CombatantPlaque = observer(({ combatant, showExperience }: Props) =
             <Portrait
               portrait={portraitOption}
               portraitHeight={portraitHeight}
+              combatantId={entityId}
               combatantLevel={combatantProperties.classProgressionProperties.getMainClass().level}
             />
             <div className="flex-grow" ref={nameAndBarsRef}>

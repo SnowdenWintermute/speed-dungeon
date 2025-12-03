@@ -14,7 +14,7 @@ export const CharacterCard = observer(
     const { combatantClass } =
       character.combatantProperties.classProgressionProperties.getMainClass();
 
-    const { controllerName } = character.combatantProperties.controlledBy;
+    const { controllerPlayerName } = character.combatantProperties.controlledBy;
 
     function deleteCharacter() {
       websocketConnection.emit(ClientToServerEvent.DeleteCharacter, character.entityProperties.id);
@@ -34,9 +34,9 @@ export const CharacterCard = observer(
           </div>
 
           <div className="flex flex-grow w-1/2 justify-end">
-            {controllerName !== username ? (
+            {controllerPlayerName !== username ? (
               <h5 className="text-lg text-slate-400 text-right w-full whitespace-nowrap">
-                {controllerName}
+                {controllerPlayerName}
               </h5>
             ) : (
               <HotkeyButton

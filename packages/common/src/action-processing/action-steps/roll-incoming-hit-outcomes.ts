@@ -31,6 +31,7 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
       tracker.actionExecutionIntent,
       rng
     );
+
     const hitOutcomesResult = hitOutcomeCalculator.calculateHitOutcomes();
 
     if (hitOutcomesResult instanceof Error) {

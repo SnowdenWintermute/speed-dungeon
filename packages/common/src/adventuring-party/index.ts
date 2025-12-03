@@ -13,6 +13,8 @@ import { ArrayUtils } from "../utils/array-utils.js";
 import { makeAutoObservable } from "mobx";
 import { runIfInBrowser } from "../utils/index.js";
 import { Item } from "../items/index.js";
+import { AdventuringPartySubsystem } from "./party-subsystem.js";
+import { plainToInstance } from "class-transformer";
 export * from "./dungeon-room.js";
 export * from "./dungeon-exploration-manager.js";
 export * from "./input-lock.js";
@@ -49,15 +51,38 @@ export class AdventuringParty {
     runIfInBrowser(() => makeAutoObservable(this));
   }
 
-  static getDeserialized(party: AdventuringParty) {
-    party.combatantManager = CombatantManager.getDeserialized(party.combatantManager);
-    party.currentRoom = DungeonRoom.getDeserialized(party.currentRoom);
-    party.inputLock = InputLock.getDeserialized(party.inputLock);
-    party.dungeonExplorationManager = DungeonExplorationManager.getDeserialized(
-      party.dungeonExplorationManager
+  static createInitialized(id: EntityId, name: string) {
+    const party = new AdventuringParty(id, name);
+    party.initialize();
+    return party;
+  }
+
+  static getDeserialized(plain: AdventuringParty) {
+    const toReturn = plainToInstance(AdventuringParty, plain);
+    toReturn.combatantManager = CombatantManager.getDeserialized(toReturn.combatantManager);
+    toReturn.currentRoom = DungeonRoom.getDeserialized(toReturn.currentRoom);
+    toReturn.inputLock = InputLock.getDeserialized(toReturn.inputLock);
+    toReturn.dungeonExplorationManager = DungeonExplorationManager.getDeserialized(
+      toReturn.dungeonExplorationManager
+    );
+    toReturn.petManager = PetManager.getDeserialized(toReturn.petManager);
+    toReturn.actionEntityManager = ActionEntityManager.getDeserialized(
+      toReturn.actionEntityManager
     );
 
-    return party;
+    toReturn.actionCommandQueue = ActionCommandQueue.getDeserialized(toReturn.actionCommandQueue);
+
+    toReturn.initialize();
+
+    return toReturn;
+  }
+
+  initialize() {
+    for (const value of Object.values(this)) {
+      const isSubsystem = value instanceof AdventuringPartySubsystem;
+      if (!isSubsystem) continue;
+      value.initialize(this);
+    }
   }
 
   getItem(itemId: string) {
@@ -88,9 +113,20 @@ export class AdventuringParty {
     return this.combatantManager.monstersArePresent();
   }
 
-  removeCharacter(characterId: EntityId, player: SpeedDungeonPlayer): Combatant {
+  removeCharacter(
+    characterId: EntityId,
+    player: SpeedDungeonPlayer,
+    game: SpeedDungeonGame
+  ): Combatant {
     ArrayUtils.removeElement(player.characterIds, characterId);
-    const character = this.combatantManager.removeCombatant(characterId);
+    const character = this.combatantManager.removeCombatant(characterId, game);
+    const summonedPetOption = this.petManager.getCombatantSummonedPetOption(
+      character.getEntityId()
+    );
+    if (summonedPetOption) {
+      this.petManager.unsummonPet(summonedPetOption.getEntityId(), game);
+      this.petManager.clearCombatantPets(characterId);
+    }
     return character;
   }
 

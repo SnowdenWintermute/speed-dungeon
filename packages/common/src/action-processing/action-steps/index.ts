@@ -36,6 +36,7 @@ export enum ActionResolutionStepType {
   OnActivationActionEntityMotion,
   RollIncomingHitOutcomes,
   EvalOnHitOutcomeTriggers, // may start branching actions if triggered
+  PostOnResolutionGameLogMessage,
   DetermineChildActions, // enqueues sequential actions such as [ "main hand attack", "off hand attack" ]
   // FINAL STEPS - conditionally obtained. example - may skip PreInitialPositioningCheckEnvironmentalHazardTriggers
   // and FinalPositioning and just do RecoveryMotion
@@ -71,6 +72,7 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.OnActivationActionEntityMotion]: "onActivationActionEntityMotion",
   [ActionResolutionStepType.RollIncomingHitOutcomes]: "rollIncomingHitOutcomes",
   [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: "evalOnHitOutcomeTriggers", // lifesteal traits, apply conditions
+  [ActionResolutionStepType.PostOnResolutionGameLogMessage]: "postOnResolutionGameLogMessage",
   [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: "EvaluatePlayerEndTurnAndInputLock",
   [ActionResolutionStepType.ActionEntityDissipationMotion]: "actionEntityDissipationMotion",
   [ActionResolutionStepType.RecoveryMotion]: "recoveryMotion",

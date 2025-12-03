@@ -13,10 +13,12 @@ interface Props {
 
 export const ItemsOnGround = observer(({ party, maxHeightRem }: Props) => {
   const itemsToDisplay = party.currentRoom.inventory.getItems();
-  const { actionMenuStore, gameStore } = AppStore.get();
+  const { actionMenuStore } = AppStore.get();
   const showItemsOnGround = actionMenuStore.getShowGroundItems();
 
-  const playerOwnsCharacter = gameStore.clientUserControlsFocusedCombatant();
+  const playerOwnsCharacter = AppStore.get().gameStore.clientUserControlsFocusedCombatant({
+    includePets: true,
+  });
 
   if (itemsToDisplay.length < 1) return <></>;
 

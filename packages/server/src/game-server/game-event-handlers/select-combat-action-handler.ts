@@ -50,6 +50,7 @@ export function selectCombatActionHandler(
     new ActionUserContext(game, party, character),
     player
   );
+
   const initialTargetsResult =
     targetingProperties.assignInitialTargetsForSelectedAction(targetingCalculator);
 

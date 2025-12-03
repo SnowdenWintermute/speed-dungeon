@@ -17,6 +17,13 @@ export class CombatantTransformProperties {
     const deserialized = plainToInstance(CombatantTransformProperties, plain);
     deserialized.homePosition = cloneVector3(plain.homePosition);
     deserialized.position = cloneVector3(plain.position);
+    deserialized.homeRotation = plainToInstance(Quaternion, plain.homeRotation);
+    deserialized.rotation = plainToInstance(Quaternion, plain.rotation);
     return deserialized;
+  }
+
+  setToHomeTransform() {
+    this.position.copyFrom(this.homePosition);
+    this.rotation.copyFrom(this.homeRotation);
   }
 }

@@ -59,9 +59,6 @@ finalStepOverrides[ActionResolutionStepType.RecoveryMotion] = {
 
     return toReturn;
   },
-};
-
-finalStepOverrides[ActionResolutionStepType.FinalPositioning] = {
   getCosmeticEffectsToStop: (context) => [
     CosmeticEffectInstructionFactory.createParticlesOnOffhand(
       CosmeticEffectNames.DarkParticleAccumulation,

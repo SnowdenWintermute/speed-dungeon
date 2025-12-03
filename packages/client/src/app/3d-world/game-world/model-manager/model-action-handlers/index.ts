@@ -1,5 +1,5 @@
 import { ActionCommand } from "@speed-dungeon/common";
-import { ModelManager } from "..";
+import { ModelManager } from "../index.js";
 import {
   ChangeEquipmentModelAction,
   ClearAllModelsModelAction,
@@ -7,6 +7,7 @@ import {
   ModelActionType,
   ProcessActionCommandsModelAction,
   SpawnEnvironmentalModelModelAction,
+  SynchronizeCombatantModelsModelAction,
 } from "../model-actions";
 import { actionCommandQueue, actionCommandReceiver } from "@/singletons/action-command-manager";
 import { synchronizeCombatantModelsWithAppState } from "./synchronize-combatant-models-with-app-state";
@@ -30,7 +31,8 @@ export function createModelActionHandlers(
         disposeAsyncLoadedScene(modelOption.model);
       }
     },
-    [ModelActionType.SynchronizeCombatantModels]: synchronizeCombatantModelsWithAppState,
+    [ModelActionType.SynchronizeCombatantModels]: (action: SynchronizeCombatantModelsModelAction) =>
+      synchronizeCombatantModelsWithAppState({ placeInHomePositions: action.placeInHomePositions }),
     [ModelActionType.SynchronizeCombatantEquipmentModels]: async function (
       action: ChangeEquipmentModelAction
     ): Promise<void | Error> {

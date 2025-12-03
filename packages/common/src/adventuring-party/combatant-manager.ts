@@ -1,5 +1,5 @@
 import { plainToInstance } from "class-transformer";
-import { FriendOrFoe } from "../combat/index.js";
+import { FriendOrFoe, TurnTrackerEntityType } from "../combat/index.js";
 import {
   Combatant,
   CombatantCondition,
@@ -13,13 +13,17 @@ import {
   COMBATANT_POSITION_SPACING_SIDE,
 } from "../app-consts.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { makeAutoObservable } from "mobx";
+import makeAutoObservable from "mobx-store-inheritance";
 import { runIfInBrowser } from "../utils/index.js";
+import { AdventuringPartySubsystem } from "./party-subsystem.js";
+import { SpeedDungeonGame } from "../game/index.js";
+import { AdventuringParty } from "./index.js";
 
-export class CombatantManager {
+export class CombatantManager extends AdventuringPartySubsystem {
   private combatants: Map<EntityId, Combatant> = new Map();
 
   constructor() {
+    super();
     runIfInBrowser(() => makeAutoObservable(this));
   }
 
@@ -194,13 +198,24 @@ export class CombatantManager {
     return false;
   }
 
-  getCharacterIfOwned(playerName: string, characterId: string): Error | Combatant {
+  getCharacterIfOwned(
+    playerName: string,
+    characterId: string,
+    options?: { allowSummonedPets?: boolean }
+  ): Error | Combatant {
     // if (!playerCharacterIdsOption) return new Error(ERROR_MESSAGES.PLAYER.NO_CHARACTERS);
     for (const combatant of this.combatants.values()) {
-      const { controllerName } = combatant.combatantProperties.controlledBy;
-      const isOwner = controllerName === playerName;
+      const { controlledBy } = combatant.combatantProperties;
+      const { controllerPlayerName } = controlledBy;
+      const isOwner = controllerPlayerName === playerName;
       const isMatch = characterId === combatant.getEntityId();
       if (isOwner && isMatch) return combatant;
+
+      if (options?.allowSummonedPets) {
+        if (controlledBy.wasSummonedByCharacterControlledByPlayer(playerName, this.getParty())) {
+          return combatant;
+        }
+      }
     }
     return new Error(ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED);
   }
@@ -208,24 +223,65 @@ export class CombatantManager {
   playerOwnsCharacter(playerName: string, characterId: string) {
     const combatant = this.getExpectedCombatant(characterId);
     combatant.combatantProperties;
-    const { controllerName } = combatant.combatantProperties.controlledBy;
-    return controllerName === playerName;
+    const { controllerPlayerName } = combatant.combatantProperties.controlledBy;
+    return controllerPlayerName === playerName;
   }
 
   /** Expects the combatant to exist. Returns the removed combatant. */
-  removeCombatant(combatantId: EntityId) {
+  removeCombatant(combatantId: EntityId, game: SpeedDungeonGame) {
     const combatant = this.getExpectedCombatant(combatantId);
     this.combatants.delete(combatantId);
+    const party = this.getParty();
+    party.getBattleOption(game)?.turnOrderManager.updateTrackers(game, party);
+
+    for (const combatant of party.combatantManager.getAllCombatants()) {
+      const { threatManager } = combatant.combatantProperties;
+      if (threatManager === undefined) {
+        continue;
+      }
+
+      threatManager.removeEntry(combatantId);
+    }
+
     return combatant;
   }
 
-  addCombatant(combatant: Combatant) {
+  addCombatant(combatant: Combatant, game: SpeedDungeonGame) {
     this.combatants.set(combatant.getEntityId(), combatant);
+
+    const party = this.getParty();
+    const battleOption = party.getBattleOption(game);
+    if (battleOption) {
+      const { turnSchedulerManager } = battleOption.turnOrderManager;
+
+      const fastestTurnTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
+      const delayOfCurrentActor = fastestTurnTracker.timeOfNextMove;
+      const delayOfNewCombatantSheduler = delayOfCurrentActor + 1;
+
+      battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
+        {
+          type: TurnTrackerEntityType.Combatant,
+          combatantId: combatant.entityProperties.id,
+        },
+        delayOfNewCombatantSheduler
+      );
+
+      combatant.combatantProperties.conditionManager
+        .getConditions()
+        .forEach((condition, conditionIndex) => {
+          const conditionStartingDelay = delayOfNewCombatantSheduler + conditionIndex;
+          turnSchedulerManager.addConditionToTurnOrder(party, condition, {
+            withCustomStartingDelay: conditionStartingDelay,
+          });
+        });
+
+      battleOption.turnOrderManager.updateTrackers(game, party);
+    }
   }
 
-  removeDungeonControlledCombatants() {
+  removeDungeonControlledCombatants(game: SpeedDungeonGame) {
     for (const combatant of this.getDungeonControlledCombatants()) {
-      this.removeCombatant(combatant.getEntityId());
+      this.removeCombatant(combatant.getEntityId(), game);
     }
   }
 
@@ -256,16 +312,36 @@ export class CombatantManager {
     });
 
     for (const combatant of this.getPartyMemberPets()) {
-      const { summonedBy } = combatant.combatantProperties.controlledBy;
-      if (summonedBy === undefined) throw new Error("expected to have been summoned by someone");
-      const summonedByCombatant = this.getExpectedCombatant(summonedBy);
-
-      // put them next to the one who summoned them
+      this.setPetHomePositionNextToOwner(combatant);
     }
 
     for (const combatant of this.getDungeonControlledPets()) {
       //
     }
+  }
+
+  setPetHomePositionNextToOwner(pet: Combatant) {
+    // put them next to the one who summoned them
+    const summonedByCombatant = pet.combatantProperties.controlledBy.getExpectedSummonedByCombatant(
+      this.getParty()
+    );
+
+    const ownerHomePosition = summonedByCombatant.getHomePosition();
+    const petHomePosition = pet.getHomePosition();
+    petHomePosition.copyFrom(ownerHomePosition);
+    petHomePosition.x -= 0.5;
+
+    const forward = new Vector3(0, 0, 1);
+    const directionToXAxis = new Vector3(0, 0, -petHomePosition.z).normalize();
+    const homeRotation = new Quaternion();
+    Quaternion.FromUnitVectorsToRef(forward, directionToXAxis, homeRotation);
+    pet.combatantProperties.transformProperties.homeRotation = homeRotation;
+  }
+
+  setAllCombatantsToHomePositions() {
+    this.combatants.forEach((combatant) => {
+      combatant.combatantProperties.transformProperties.setToHomeTransform();
+    });
   }
 
   refillAllCombatantActionPoints() {
@@ -292,7 +368,7 @@ export class CombatantManager {
     const { combatantProperties } = combatant;
     const { transformProperties } = combatantProperties;
     transformProperties.homePosition = homeLocation;
-    transformProperties.position = transformProperties.homePosition.clone();
+    // transformProperties.position = transformProperties.homePosition.clone();
     const forward = new Vector3(0, 0, 1);
     const directionToXAxis = new Vector3(0, 0, -positionSpacing).normalize();
     const homeRotation = new Quaternion();

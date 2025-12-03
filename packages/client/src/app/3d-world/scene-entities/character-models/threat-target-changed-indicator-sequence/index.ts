@@ -23,7 +23,12 @@ import { handleLockRotationToFace } from "../../../game-world/replay-tree-manage
 import { AppStore } from "@/mobx-stores/app-store";
 
 export function threatTargetChangedIndicatorSequence() {
-  const party = AppStore.get().gameStore.getExpectedParty();
+  // since we debounce this, it could be that the party is not found
+  // after leaving a game
+  const party = AppStore.get().gameStore.getPartyOption();
+  if (party === undefined) {
+    return;
+  }
 
   for (const combatant of party.combatantManager.getAllCombatants()) {
     const { threatManager } = combatant.combatantProperties;

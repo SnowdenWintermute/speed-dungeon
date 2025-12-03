@@ -1,5 +1,5 @@
 import React from "react";
-import { ActionMenuState } from "..";
+import { ActionMenuState } from "../index";
 import { observer } from "mobx-react-lite";
 import { ListCyclingButtons } from "./ListCyclingButtons";
 

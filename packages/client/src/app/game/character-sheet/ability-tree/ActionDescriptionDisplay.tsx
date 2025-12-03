@@ -1,4 +1,5 @@
 import {
+  AdventuringParty,
   ArrayUtils,
   CombatActionResourceChangeProperties,
   Combatant,
@@ -22,10 +23,12 @@ export const ActionDescriptionDisplay = observer(
   ({
     description,
     user,
+    party,
     ownedAbilityLevel,
   }: {
     description: ActionDescription;
     user: Combatant;
+    party: AdventuringParty;
     ownedAbilityLevel: number;
   }) => {
     const descriptions = [];
@@ -42,7 +45,7 @@ export const ActionDescriptionDisplay = observer(
     const maxRank = isSupportClassAbility ? 2 : 3;
 
     for (const actionRank of ArrayUtils.createFilledWithSequentialNumbers(maxRank, 1)) {
-      const rankDescription = description.getDescriptionByLevel(user, actionRank);
+      const rankDescription = description.getDescriptionByLevel(user, party, actionRank);
 
       const diff = ActionDescription.getDiff<Partial<typeof rankDescription>>(
         prevDescription,
@@ -62,6 +65,7 @@ export const ActionDescriptionDisplay = observer(
           const canBeBlocked = description[ActionDescriptionComponent.IsBlockable];
           const canBeCountered = description[ActionDescriptionComponent.IsCounterable];
           const canBeParried = description[ActionDescriptionComponent.IsParryable];
+          const canBeResisted = description[ActionDescriptionComponent.IsResistable];
           const resourceChangePropertiesOption =
             description[ActionDescriptionComponent.ResourceChanges];
 
@@ -90,6 +94,11 @@ export const ActionDescriptionDisplay = observer(
           if (typeof canBeCountered === "boolean") {
             if (canBeCountered) allowedMitigations.push("countered");
             else prohibitedMitigations.push("countered");
+          }
+
+          if (typeof canBeResisted === "boolean") {
+            if (canBeResisted) allowedMitigations.push("resisted");
+            else prohibitedMitigations.push("resisted");
           }
 
           const flatThreatOption = description[ActionDescriptionComponent.FlatThreatGenerated];

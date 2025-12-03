@@ -1,0 +1,83 @@
+import { CombatantAttributeRecord, CombatAttribute } from "../combatants/index.js";
+import { MonsterType } from "./monster-types.js";
+
+export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttributeRecord> = {
+  [MonsterType.Wolf]: {
+    [CombatAttribute.Vitality]: 1.0,
+    [CombatAttribute.ArmorClass]: 15.0,
+    [CombatAttribute.Hp]: 45,
+    [CombatAttribute.Accuracy]: 70.0,
+    [CombatAttribute.Strength]: 10.0,
+    [CombatAttribute.Speed]: 1.0,
+  },
+  [MonsterType.MetallicGolem]: {
+    [CombatAttribute.Vitality]: 2.0,
+    [CombatAttribute.ArmorClass]: 15.0,
+    [CombatAttribute.Hp]: 7.5,
+    [CombatAttribute.Accuracy]: 70.0,
+    [CombatAttribute.Strength]: 10.0,
+    [CombatAttribute.Speed]: 1.0,
+  },
+  [MonsterType.Zombie]: {
+    [CombatAttribute.Strength]: 35.0,
+    [CombatAttribute.Dexterity]: 1.0,
+    [CombatAttribute.Vitality]: 6.0,
+    [CombatAttribute.Hp]: 150.0,
+    [CombatAttribute.Agility]: 0.5,
+    [CombatAttribute.Accuracy]: 60.0,
+    [CombatAttribute.Speed]: 1.0,
+  },
+  [MonsterType.SkeletonArcher]: {
+    [CombatAttribute.Dexterity]: 10.0,
+    [CombatAttribute.Vitality]: 1.0,
+    [CombatAttribute.Hp]: 4.0,
+    [CombatAttribute.Speed]: 1.5,
+    [CombatAttribute.Accuracy]: 75.0,
+  },
+  [MonsterType.Scavenger]: {
+    [CombatAttribute.Dexterity]: 7.0,
+    [CombatAttribute.Strength]: 2.0,
+    [CombatAttribute.Vitality]: 1.5,
+    [CombatAttribute.Hp]: 150.0,
+    [CombatAttribute.Agility]: 2.0,
+    [CombatAttribute.Accuracy]: 80.0,
+  },
+  [MonsterType.Vulture]: {
+    [CombatAttribute.Dexterity]: 2.5,
+    [CombatAttribute.Strength]: 2.0,
+    [CombatAttribute.Vitality]: 1.5,
+    [CombatAttribute.Hp]: 4.0,
+    [CombatAttribute.Accuracy]: 80.0,
+    [CombatAttribute.Speed]: 1.0,
+  },
+  [MonsterType.FireMage]: {
+    [CombatAttribute.Spirit]: 4.0,
+    [CombatAttribute.Vitality]: 1.5,
+    [CombatAttribute.Hp]: 3.0,
+    [CombatAttribute.Accuracy]: 60.0,
+    [CombatAttribute.Speed]: 1.0,
+  },
+  [MonsterType.Cultist]: {
+    [CombatAttribute.Spirit]: 6.0,
+    [CombatAttribute.Hp]: 40.0,
+    [CombatAttribute.Strength]: 20,
+    [CombatAttribute.Dexterity]: 20,
+    [CombatAttribute.Accuracy]: 0.0,
+    [CombatAttribute.Evasion]: 0.0,
+    [CombatAttribute.Speed]: 5.0,
+  },
+  [MonsterType.FireElemental]: {
+    [CombatAttribute.Spirit]: 4.0,
+    [CombatAttribute.Vitality]: 1.0,
+    [CombatAttribute.Hp]: 3.0,
+    [CombatAttribute.Accuracy]: 60.0,
+    [CombatAttribute.Speed]: 1.0,
+  },
+  [MonsterType.IceElemental]: {
+    [CombatAttribute.Spirit]: 4.0,
+    [CombatAttribute.Vitality]: 1.0,
+    [CombatAttribute.Hp]: 3.0,
+    [CombatAttribute.Accuracy]: 60.0,
+    [CombatAttribute.Speed]: 1.0,
+  },
+};

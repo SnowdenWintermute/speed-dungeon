@@ -5,4 +5,5 @@ export enum CombatantTraitType {
   ExtraHotswapSlot,
   CanConvertToShardsManually,
   ExtraConsumablesStorage,
+  IsTameable,
 }

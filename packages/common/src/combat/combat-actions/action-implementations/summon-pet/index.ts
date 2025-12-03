@@ -1,14 +1,13 @@
 import {
   BASE_ACTION_HIERARCHY_PROPERTIES,
   CombatActionComponentConfig,
+  CombatActionExecutionIntent,
   CombatActionLeaf,
   CombatActionName,
+  CombatActionResource,
   createGenericSpellCastMessageProperties,
 } from "../../index.js";
-import {
-  ActionResolutionStepType,
-  ActivatedTriggersGameUpdateCommand,
-} from "../../../../action-processing/index.js";
+import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
@@ -16,12 +15,20 @@ import {
   COST_PROPERTIES_TEMPLATE_GETTERS,
   createCostPropertiesConfig,
 } from "../generic-action-templates/cost-properties-templates/index.js";
-import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import {
+  TARGETING_PROPERTIES_TEMPLATE_GETTERS,
+  createTargetingPropertiesConfig,
+} from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { CosmeticEffectInstructionFactory } from "../generic-action-templates/cosmetic-effect-factories/index.js";
 import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
+import {
+  ACTION_EXECUTION_PRECONDITIONS,
+  ActionExecutionPreconditions,
+} from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
+import { ActionStepConfigUtils } from "../generic-action-templates/step-config-templates/utils.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
 
@@ -49,35 +56,60 @@ stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning] = {
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,
+  costBases: {
+    [CombatActionResource.Mana]: {
+      base: 2,
+      additives: {
+        actionLevel: 0,
+        userCombatantLevel: 0,
+      },
+    },
+  },
+  getMeetsCustomRequirements: (user, party) => {
+    const { combatantManager } = party;
+    for (const combatant of combatantManager.getPartyMemberPets()) {
+      if (combatant.combatantProperties.controlledBy.summonedBy === user.getEntityId()) {
+        return { meetsRequirements: false, reasonDoesNot: "You already have a pet summoned" };
+      }
+    }
+
+    return { meetsRequirements: true };
+  },
 };
 
-const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL;
+const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.FAST_ACTION;
 const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.THREATLESS_ACTION,
-  {
-    getOnUseTriggers: (context) => {
-      const { rank } = context.tracker.actionExecutionIntent;
-      const petSlot = rank - 1;
-
-      const { actionUserContext } = context;
-      const { actionUser } = actionUserContext;
-
-      const toReturn: Partial<ActivatedTriggersGameUpdateCommand> = {
-        petSlotsSummoned: [{ ownerId: actionUser.getEntityId(), slotIndex: petSlot }],
-      };
-
-      return toReturn;
-    },
-  }
+  {}
 );
 
 const config: CombatActionComponentConfig = {
   description: "Summon a creature companion",
   prerequisiteAbilities: [],
-  gameLogMessageProperties: createGenericSpellCastMessageProperties(CombatActionName.SummonPet),
-  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME(),
+  gameLogMessageProperties: createGenericSpellCastMessageProperties(
+    CombatActionName.SummonPetParent
+  ),
+  getByRankShortDescriptions: (user, party) => {
+    const toReturn: { [rank: number]: string | null } = {};
+    party.petManager.iteratePetSlots(user.getEntityId()).forEach((petSlot, i) => {
+      const { petOption } = petSlot;
+      toReturn[i + 1] = petOption?.getName() || "Empty slot";
+    });
+
+    return toReturn;
+  },
+  targetingProperties: createTargetingPropertiesConfig(
+    TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME,
+    {
+      executionPreconditions: [
+        ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME().executionPreconditions,
+        ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.NoPetCurrentlySummoned],
+        ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.PetSlotNotEmpty],
+      ],
+    }
+  ),
   hitOutcomeProperties,
   costProperties,
   stepsConfig,
@@ -85,11 +117,23 @@ const config: CombatActionComponentConfig = {
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
     getConcurrentSubActions(context) {
-      // const user = context.tracker.getFirstExpectedSpawnedActionEntity().actionEntity;
-      // maybe a pet appear action that has the pet do an entry animation on itself
-      return [];
+      const user = context.actionUserContext.actionUser;
+      return [
+        {
+          user,
+          actionExecutionIntent: new CombatActionExecutionIntent(
+            CombatActionName.SummonPetAppear,
+            context.tracker.actionExecutionIntent.rank,
+            context.tracker.actionExecutionIntent.targets
+          ),
+        },
+      ];
     },
   },
 };
 
-export const SUMMON_PET = new CombatActionLeaf(CombatActionName.SummonPet, config);
+ActionStepConfigUtils.removeMoveForwardSteps(stepsConfig);
+delete stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning]?.getAnimation;
+stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning]!.shouldIdleOnComplete = true;
+
+export const SUMMON_PET_PARENT = new CombatActionLeaf(CombatActionName.SummonPetParent, config);

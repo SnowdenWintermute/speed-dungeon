@@ -15,6 +15,7 @@ export function generateDungeonRoom(
   if (roomType === DungeonRoomType.MonsterLair) {
     for (let i = 0; i < NUM_MONSTERS_PER_ROOM; i += 1) {
       const newMonster = generateMonster(floor);
+
       monsters.push(newMonster);
     }
   }

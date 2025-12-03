@@ -1,19 +1,15 @@
 import Divider from "@/app/components/atoms/Divider";
-import {
-  COMBATANT_CLASS_NAME_STRINGS,
-  Combatant,
-  iterateNumericEnumKeyedRecord,
-} from "@speed-dungeon/common";
+import { Combatant, iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import { CombatAttribute } from "@speed-dungeon/common";
 import React from "react";
 import { AttributeListItem } from "./AttributeListItem";
 import HpAndMp from "./HpAndMp";
 import { CharacterSheetWeaponDamage } from "./CharacterSheetWeaponDamage";
-import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
 import ElementalAffinitiesDisplay from "./ElementalAffinitiesDisplay";
 import KineticAffinitiesDisplay from "./KineticAffinitiesDisplay";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
+import { CharacterSheetHeader } from "./CharacterSheetHeader";
 
 interface Props {
   combatant: Combatant;
@@ -28,24 +24,14 @@ export const CharacterAttributes = observer(
     const { gameStore } = AppStore.get();
     const playerOwnsCharacter = gameStore.clientUserControlsFocusedCombatant();
 
-    const isPlayerControlled = combatantProperties.controlledBy.isPlayerControlled();
-
-    const { attributeProperties, classProgressionProperties } = combatantProperties;
+    const { attributeProperties } = combatantProperties;
 
     const hasUnspentAttributePoints = attributeProperties.getUnspentPoints() > 0;
 
+    const isPlayerControlled = combatantProperties.controlledBy.isPlayerControlled();
+
     const shouldShowNumberOfUnspentAttributes =
       hasUnspentAttributePoints && isPlayerControlled && showAttributeAssignmentButtons;
-
-    const { experiencePoints } = classProgressionProperties;
-    const requiredForNextLevel = experiencePoints.getRequiredForNextLevel();
-
-    let expRequiredForNextLevelString =
-      typeof requiredForNextLevel === "number" ? requiredForNextLevel.toString() : "∞";
-
-    let experiencePointsText = isPlayerControlled
-      ? `${experiencePoints.getCurrent()} / ${expRequiredForNextLevelString} experience`
-      : "";
 
     const totalAttributes = combatantProperties.attributeProperties.getTotalAttributes();
     let totalAttributesSortedArray: [CombatAttribute, number][] = iterateNumericEnumKeyedRecord(
@@ -74,38 +60,16 @@ export const CharacterAttributes = observer(
       />
     ));
 
-    const supportClassProperties = classProgressionProperties.getSupportClassOption();
-    const mainClassProperties = classProgressionProperties.getMainClass();
-
     return (
       <div
         className={`h-full ${widthOptionClass ? `widthOptionClass` : "w-[25.25rem]"} whitespace-nowrap`}
       >
         {!hideHeader && (
-          <div>
-            <div className="font-bold flex justify-between items-center">
-              <span>{entityProperties.name}</span>
-              <span className="h-10 w-10 flex justify-center rotate-45">
-                {getCombatantClassIcon(
-                  mainClassProperties.combatantClass,
-                  "fill-slate-400",
-                  "stroke-slate-400"
-                )}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span>
-                {"Level "}
-                {mainClassProperties.level}
-                {` ${COMBATANT_CLASS_NAME_STRINGS[mainClassProperties.combatantClass]}`}
-                {supportClassProperties
-                  ? ` / ${supportClassProperties.level} ${COMBATANT_CLASS_NAME_STRINGS[supportClassProperties.combatantClass]}`
-                  : ""}
-              </span>
-              <span>{experiencePointsText}</span>
-            </div>
-            <Divider extraStyles={"mr-2 ml-2 "} />
-          </div>
+          <CharacterSheetHeader
+            entityId={entityProperties.id}
+            name={entityProperties.name}
+            combatantProperties={combatantProperties}
+          />
         )}
         <div className="flex mb-1">
           {/*LEFT COLUMN*/}

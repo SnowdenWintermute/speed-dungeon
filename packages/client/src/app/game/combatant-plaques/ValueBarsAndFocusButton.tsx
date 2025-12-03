@@ -4,6 +4,7 @@ import { CombatAttribute } from "@speed-dungeon/common";
 import React from "react";
 import FocusCharacterButton from "./FocusCharacterButton";
 import { observer } from "mobx-react-lite";
+import { COMBATANT_PLAQUE_RESOURCE_BAR_HEIGHT } from "@/client_consts";
 
 interface Props {
   combatantProperties: CombatantProperties;
@@ -52,16 +53,13 @@ export const ValueBarsAndFocusButton = observer(
       <></>
     );
 
+    <FocusCharacterButton combatantId={combatantId} isFocused={isFocused} />;
+
     return (
       <>
-        <div className="h-5 mb-1">{hpBar}</div>
-        <div className="h-5 flex">{mpBar}</div>
-        {showExperience && (
-          <div className="h-5 mt-[6px] flex text-sm">
-            <FocusCharacterButton combatantId={combatantId} isFocused={isFocused} />
-            {experienceBar}{" "}
-          </div>
-        )}
+        <div className={`${COMBATANT_PLAQUE_RESOURCE_BAR_HEIGHT} mb-1`}>{hpBar}</div>
+        <div className={`${COMBATANT_PLAQUE_RESOURCE_BAR_HEIGHT} flex`}>{mpBar}</div>
+        {showExperience && <div className={`h-2 mt-[6px] flex text-sm`}>{experienceBar} </div>}
       </>
     );
   }

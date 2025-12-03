@@ -1,0 +1,112 @@
+import { ActionUserContext } from "../../../action-user-context/index.js";
+import { Combatant } from "../../../combatants/index.js";
+import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
+import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
+import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
+import { PotentialTotalResourceChangeEvaluation } from "./potential-total-resource-change-evaluation.js";
+import { ResourceChangeActionEvaluator } from "./resource-change-action-evaluator.js";
+
+export interface ResourceChangeEfficiencyEvaluation {
+  max: number;
+  average: number;
+  averageManaPricePerPoint: number;
+}
+
+export interface ResourceChangeEvaluationWeights {
+  avgPrimary: number;
+  maxPrimary: number;
+  avgTotal: number;
+  maxTotal: number;
+  efficiency: number;
+  efficiencyBonusCap: number;
+}
+
+export class DamageActionEvaluator extends ResourceChangeActionEvaluator {
+  static DAMAGE_EVALUATION_WEIGHTS: ResourceChangeEvaluationWeights = {
+    avgPrimary: 1.0,
+    maxPrimary: 0.5,
+    avgTotal: 0.0,
+    maxTotal: 0.0,
+    efficiency: 0.0,
+    efficiencyBonusCap: 5,
+  };
+
+  static evaluateActionIntents(
+    intents: CombatActionExecutionIntent[],
+    actionUserContext: ActionUserContext,
+    consideredCombatants: Combatant[]
+  ) {
+    const mainTarget =
+      ResourceChangeActionEvaluator.getLowestHpCombatantOption(consideredCombatants);
+    if (mainTarget === null) {
+      return null;
+    }
+
+    const evaluatedIntents: {
+      intent: CombatActionExecutionIntent;
+      evaluation: PotentialTotalResourceChangeEvaluation;
+    }[] = [];
+
+    const { actionUser } = actionUserContext;
+
+    for (const actionExecutionIntent of intents) {
+      const { actionName, rank } = actionExecutionIntent;
+      const action = COMBAT_ACTIONS[actionName];
+
+      const { averageHitOutcomes, maxHitOutcomes } =
+        ResourceChangeActionEvaluator.getPredictedHitOutcomes(
+          actionUserContext,
+          actionExecutionIntent
+        );
+      const averageHitPointChanges =
+        averageHitOutcomes.resourceChanges?.[CombatActionResource.HitPoints];
+
+      const maxHitPointChanges = maxHitOutcomes.resourceChanges?.[CombatActionResource.HitPoints];
+
+      if (!averageHitPointChanges || !maxHitPointChanges) {
+        continue;
+      }
+
+      const resourceCosts = action.costProperties.getResourceCosts(actionUser, true, rank);
+      const manaCost = resourceCosts?.[CombatActionResource.Mana] ?? 0;
+      const evaluation = new PotentialTotalResourceChangeEvaluation(manaCost);
+
+      for (const targetCombatant of consideredCombatants) {
+        const targetId = targetCombatant.entityProperties.id;
+        const { resources } = targetCombatant.combatantProperties;
+        const hitPoints = resources.getHitPoints();
+
+        const remainingHitPoints = hitPoints;
+
+        const averageDamage = averageHitPointChanges.getRecord(targetId)?.value || 0;
+        const averageEffectiveDamage = Math.min(remainingHitPoints, averageDamage);
+
+        const maxDamage = maxHitPointChanges.getRecord(targetId)?.value || 0;
+        const maxEffectiveDamage = Math.min(remainingHitPoints, maxDamage);
+
+        if (targetId === mainTarget.entityProperties.id) {
+          evaluation.setPrimaryTargetEfficiencyEvaluation(
+            maxEffectiveDamage,
+            averageEffectiveDamage
+          );
+        }
+
+        evaluation.setOrUpdateTotalAcrossAllTargets(maxEffectiveDamage, averageEffectiveDamage);
+      }
+
+      evaluation.computeEfficiencyAcrossAllTargets();
+
+      const evaluatedIntent = {
+        intent: actionExecutionIntent,
+        evaluation,
+      };
+
+      evaluatedIntents.push(evaluatedIntent);
+    }
+
+    evaluatedIntents.sort((a, b) => b.evaluation.getScore() - a.evaluation.getScore());
+
+    const bestActionIntentOption = evaluatedIntents[0]?.intent || null;
+    return bestActionIntentOption;
+  }
+}

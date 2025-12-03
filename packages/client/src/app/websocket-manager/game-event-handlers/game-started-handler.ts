@@ -46,8 +46,10 @@ export function gameStartedHandler(timeStarted: number) {
   }
 
   combatantManager.updateHomePositions();
+  combatantManager.setAllCombatantsToHomePositions();
 
   gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.SynchronizeCombatantModels,
+    placeInHomePositions: true,
   });
 }

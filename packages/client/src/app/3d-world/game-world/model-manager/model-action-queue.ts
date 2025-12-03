@@ -15,6 +15,7 @@ export class ModelActionQueue {
 
   clear() {
     this.messages = [];
+    this.isProcessing = false;
   }
 
   async processMessages() {

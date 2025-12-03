@@ -2,7 +2,6 @@ import {
   ActionAndRank,
   COMBAT_ACTIONS,
   CharacterAssociatedData,
-  CombatantProperties,
   ERROR_MESSAGES,
   ServerToClientEvent,
   getPartyChannelName,

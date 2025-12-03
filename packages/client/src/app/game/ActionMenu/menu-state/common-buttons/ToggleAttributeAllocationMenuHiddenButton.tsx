@@ -9,14 +9,18 @@ import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { observer } from "mobx-react-lite";
 
 export const ToggleAttributeAllocationMenuHiddenButton = observer(() => {
-  const { hotkeysStore, actionMenuStore, gameStore } = AppStore.get();
-  const entityId = gameStore.getExpectedFocusedCharacterId();
+  const { hotkeysStore } = AppStore.get();
 
   function clickHandler() {
-    websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
-      characterId: entityId,
-      actionAndRankOption: null,
-    });
+    const { actionMenuStore, gameStore } = AppStore.get();
+    const entityId = gameStore.getExpectedFocusedCharacterId();
+
+    if (gameStore.clientUserControlsFocusedCombatant()) {
+      websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
+        characterId: entityId,
+        actionAndRankOption: null,
+      });
+    }
 
     if (actionMenuStore.currentMenuIsType(MenuStateType.AssignAttributePoints)) {
       actionMenuStore.popStack();

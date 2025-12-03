@@ -13,7 +13,7 @@ export const CycleFocusedCharacterButtons = observer(() => {
   const party = gameStore.getExpectedParty();
 
   const characterPositions = party.combatantManager.sortCombatantIdsLeftToRight(
-    party.combatantManager.getPartyMemberCharacters().map((combatant) => combatant.getEntityId())
+    party.combatantManager.getPartyMemberCombatants().map((combatant) => combatant.getEntityId())
   );
 
   const currCharIndex = characterPositions.indexOf(focusedCharacterId);

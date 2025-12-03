@@ -22,6 +22,10 @@ export class ItemsOnGroundMenuState extends ActionMenuState {
     const takeAllKeys = hotkeysStore.getKeybind(buttonType);
     const takeAllKeyString = hotkeysStore.getKeybindString(buttonType);
 
+    const ownsFocusedCharacter = AppStore.get().gameStore.clientUserControlsFocusedCombatant({
+      includePets: true,
+    });
+
     return (
       <ul className="flex">
         <GoBackButton
@@ -33,6 +37,7 @@ export class ItemsOnGroundMenuState extends ActionMenuState {
         <ToggleInventoryButton />
         <ActionMenuTopButton
           hotkeys={takeAllKeys}
+          disabled={!ownsFocusedCharacter}
           handleClick={() => {
             const { gameStore, actionMenuStore } = AppStore.get();
             const focusedCharacterId = gameStore.getExpectedFocusedCharacterId();
@@ -59,7 +64,9 @@ export class ItemsOnGroundMenuState extends ActionMenuState {
     const party = AppStore.get().gameStore.getExpectedParty();
     const itemsOnGround = party.currentRoom.inventory.getItems();
 
-    const ownsFocusedCharacter = AppStore.get().gameStore.clientUserControlsFocusedCombatant();
+    const ownsFocusedCharacter = AppStore.get().gameStore.clientUserControlsFocusedCombatant({
+      includePets: true,
+    });
 
     const newNumberedButtons = ActionMenuState.getItemButtonsFromList(
       itemsOnGround,

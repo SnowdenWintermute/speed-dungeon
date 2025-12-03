@@ -1,4 +1,4 @@
-import { Item } from "..";
+import { Item } from "../index.js";
 import {
   BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL,
   CHANCE_TO_HAVE_DOUBLE_AFFIX,

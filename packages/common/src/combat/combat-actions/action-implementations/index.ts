@@ -33,7 +33,12 @@ import { INCINERATE_PROJECTILE } from "./incinerate-projectile/index.js";
 import { ICE_BURST_PARENT } from "./ice-burst/index.js";
 import { ICE_BURST_EXPLOSION } from "./ice-burst/ice-burst-explosion.js";
 import { EXECUTE_EXPLOSION } from "./explosion/execute-explosion.js";
-import { SUMMON_PET } from "./summon-pet/index.js";
+import { SUMMON_PET_PARENT } from "./summon-pet/index.js";
+import { SUMMON_PET_APPEAR } from "./summon-pet/summon-pet-appear.js";
+import { DISMISS_PET } from "./summon-pet/dismiss-pet.js";
+import { TAME_PET } from "./summon-pet/tame-pet.js";
+import { RELEASE_PET } from "./summon-pet/release-pet.js";
+import { PET_COMMAND } from "./pet-command/index.js";
 
 export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Attack]: ATTACK,
@@ -71,5 +76,10 @@ export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.FirewallPassTurn]: FIREWALL_PASS_TURN,
   [CombatActionName.IgniteProjectile]: IGNITE_PROJECTILE,
   [CombatActionName.IncinerateProjectile]: INCINERATE_PROJECTILE,
-  [CombatActionName.SummonPet]: SUMMON_PET,
+  [CombatActionName.SummonPetParent]: SUMMON_PET_PARENT,
+  [CombatActionName.SummonPetAppear]: SUMMON_PET_APPEAR,
+  [CombatActionName.DismissPet]: DISMISS_PET,
+  [CombatActionName.TamePet]: TAME_PET,
+  [CombatActionName.ReleasePet]: RELEASE_PET,
+  [CombatActionName.PetCommand]: PET_COMMAND,
 };

@@ -21,17 +21,20 @@ export const UnspentAttributesButton = observer(
     const { actionMenuStore, gameStore } = AppStore.get();
 
     function handleUnspentAttributesButtonClick() {
-      gameStore.setFocusedCharacter(entityId);
-      const focusedCharacter = gameStore.getExpectedFocusedCharacter();
+      const previouslyFocusedCharacterId = gameStore.getExpectedFocusedCharacterId();
 
-      websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
-        characterId: entityId,
-        actionAndRankOption: null,
-      });
+      if (gameStore.clientUserControlsFocusedCombatant()) {
+        websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
+          characterId: previouslyFocusedCharacterId,
+          actionAndRankOption: null,
+        });
+      }
+
+      gameStore.setFocusedCharacter(entityId);
 
       if (
         actionMenuStore.currentMenuIsType(MenuStateType.AssignAttributePoints) &&
-        entityId === focusedCharacter.entityProperties.id
+        entityId === previouslyFocusedCharacterId
       ) {
         actionMenuStore.popStack();
       } else {

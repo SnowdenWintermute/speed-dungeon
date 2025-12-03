@@ -19,7 +19,7 @@ export const CharacterSheetCharacterSelectionButton = observer(({ characterId }:
 
   return (
     <button
-      className={`border border-slate-400 bg-slate-700 w-40 mr-2.5 ${isSelectedStyle}`}
+      className={`border border-slate-400 bg-slate-700 w-28 px-2 mr-2.5 ${isSelectedStyle} text-ellipsis overflow-hidden`}
       onClick={handleClick}
       style={{ height: `${BUTTON_HEIGHT_SMALL}rem` }}
     >

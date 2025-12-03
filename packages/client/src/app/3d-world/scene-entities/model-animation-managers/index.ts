@@ -2,6 +2,7 @@ export type ManagedAnimationOptions = {
   shouldLoop?: boolean;
   animationDurationOverrideOption?: number;
   onComplete?: () => void;
+  onlyPlayLastFrame?: boolean;
 };
 
 export abstract class ManagedAnimation<T> {

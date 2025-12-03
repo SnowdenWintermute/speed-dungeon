@@ -79,6 +79,8 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
   );
   if (primaryTargetResult instanceof Error) return <div>{primaryTargetResult.message}</div>;
 
+  const maxRankToShow = action.selectableRankLimit || actionStateOption.level;
+
   return (
     <div className="flex flex-col pointer-events-auto" style={{ flex: `1 1 1px` }}>
       {!hideTitle && (
@@ -91,7 +93,7 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
         />
       )}
       <ul className="list-none">
-        {ArrayUtils.createFilledWithSequentialNumbers(actionStateOption.level, 1).map((rank) => {
+        {ArrayUtils.createFilledWithSequentialNumbers(maxRankToShow, 1).map((rank) => {
           const percentChanceToHit = HitOutcomeMitigationCalculator.getActionHitChance(
             action,
             combatant,
@@ -100,7 +102,12 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
             primaryTargetResult.combatantProperties
           );
 
-          const rankDescription = actionDescription.getDescriptionByLevel(combatant, rank);
+          const isResistable = !!action.hitOutcomeProperties?.getResistChance;
+          const percentChanceToResist =
+            action.hitOutcomeProperties?.getResistChance?.(combatant, rank, primaryTargetResult) ||
+            0;
+
+          const rankDescription = actionDescription.getDescriptionByLevel(combatant, party, rank);
 
           const resourceChangePropertiesOption =
             rankDescription[ActionDescriptionComponent.ResourceChanges];
@@ -118,6 +125,9 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
             rankDescription[ActionDescriptionComponent.AppliesConditions];
 
           const endsTurnOption = rankDescription[ActionDescriptionComponent.RequiresTurn];
+
+          const shortDescriptionOption =
+            rankDescription[ActionDescriptionComponent.ByRankDescriptionsShort];
 
           function handleSelectActionLevel(level: number) {
             websocketConnection.emit(ClientToServerEvent.SelectCombatActionLevel, {
@@ -170,6 +180,16 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
                     <div className="">{Math.floor(percentChanceToHit.afterEvasion)}%</div>
                   </div>
                 )}
+                {isResistable && percentChanceToResist && (
+                  <div className="h-full flex items-center ml-2 mr-1">
+                    {
+                      <div className="h-6 mr-1">
+                        {SVG_ICONS[IconName.Target]("h-full fill-slate-400 stroke-slate-400 ")}
+                      </div>
+                    }{" "}
+                    <div className="">{Math.floor(100 - percentChanceToResist)}%</div>
+                  </div>
+                )}
                 {conditionsAppliedOption && (
                   <ul className="flex items-center list-none ml-2">
                     {conditionsAppliedOption.map((conditionBlueprint) => {
@@ -195,6 +215,7 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
                     })}
                   </ul>
                 )}
+                {shortDescriptionOption && <div className="ml-2">{shortDescriptionOption}</div>}
                 {endsTurnOption && (
                   <HoverableTooltipWrapper extraStyles="ml-auto " tooltipText="Ends turn on use">
                     <div className="h-6">

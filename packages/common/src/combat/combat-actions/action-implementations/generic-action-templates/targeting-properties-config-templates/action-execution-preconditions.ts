@@ -1,5 +1,6 @@
 import { ActionTracker } from "../../../../../action-processing/action-tracker.js";
 import { ActionResolutionStepContext } from "../../../../../action-processing/index.js";
+import { CombatantTraitType } from "../../../../../combatants/combatant-traits/trait-types.js";
 import { Combatant } from "../../../../../combatants/index.js";
 import { TargetingCalculator } from "../../../../targeting/targeting-calculator.js";
 import { ActionExecutionPrecondition } from "../../../combat-action-targeting-properties.js";
@@ -12,6 +13,9 @@ export enum ActionExecutionPreconditions {
   TargetsAreAlive,
   WasNotCounterattacked,
   WasNotWearing2HWeaponOnPreviousAction,
+  NoPetCurrentlySummoned,
+  PetCurrentlySummoned,
+  PetSlotNotEmpty,
 }
 
 export const ACTION_EXECUTION_PRECONDITIONS: Record<
@@ -24,6 +28,20 @@ export const ACTION_EXECUTION_PRECONDITIONS: Record<
   [ActionExecutionPreconditions.WasNotCounterattacked]: wasNotCounterattacked,
   [ActionExecutionPreconditions.WasNotWearing2HWeaponOnPreviousAction]:
     wasWearing2HWeaponOnPreviousAction,
+  [ActionExecutionPreconditions.NoPetCurrentlySummoned]: function (
+    context: ActionResolutionStepContext
+  ) {
+    const { party, actionUser } = context.actionUserContext;
+    const petOption = party.petManager.getCombatantSummonedPetOption(actionUser.getEntityId());
+    return petOption === undefined;
+  },
+  [ActionExecutionPreconditions.PetCurrentlySummoned]: function (...args): boolean {
+    const shouldSucceed = !ACTION_EXECUTION_PRECONDITIONS[
+      ActionExecutionPreconditions.NoPetCurrentlySummoned
+    ](...args);
+    return shouldSucceed;
+  },
+  [ActionExecutionPreconditions.PetSlotNotEmpty]: petSlotNotEmpty,
 };
 
 function wasWearing2HWeaponOnPreviousAction(
@@ -113,4 +131,31 @@ function targetsAreAlive(
   const targetsAreAlive = !Combatant.groupIsDead(targetCombatants);
 
   return targetsAreAlive;
+}
+
+function petSlotNotEmpty(
+  context: ActionResolutionStepContext,
+  previousTrackerOption: undefined | ActionTracker,
+  self: CombatActionComponent
+) {
+  const { party, actionUser } = context.actionUserContext;
+
+  const selectedActionAndRank = actionUser.getTargetingProperties().getSelectedActionAndRank();
+
+  if (selectedActionAndRank === null) {
+    throw new Error("Expected an action to be selected");
+  }
+
+  const slotIndex = selectedActionAndRank.rank - 1;
+
+  const petOption = party.petManager.getUnsummonedPetOptionByOwnerAndSlot(
+    actionUser.getEntityId(),
+    slotIndex
+  );
+
+  if (petOption !== undefined) {
+    return true;
+  }
+
+  return false;
 }

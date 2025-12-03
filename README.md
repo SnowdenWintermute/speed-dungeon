@@ -31,3 +31,11 @@ Join the Discord: [Discord](https://discord.gg/NxzPFUBVVm)
 - NEW PHILOSOPHY: Encapsulation is too valuable to give up. We will add the complexity of serialization and deserialization
   methods to gain the benefits of traditional OOP techniques. To allow for circular references in subsystems that need access
   to their parent classes, we will take on the complexity of initialization functions.
+
+### Common errors and their solutions
+
+- Error description: All of a sudden Typescript complains of missing modules, things are of type unknown, or
+  error TS5055: Cannot write file 'some long name.d.ts' because it would overwrite input file.
+  Solution: Delete tsconfig.tsbuildinfo, dist folders and .next folder. May need to delete node_modules,
+  clear the yarn cache and yarn install.
+-

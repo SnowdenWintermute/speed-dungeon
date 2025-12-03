@@ -35,6 +35,7 @@ export async function battleResultActionCommandHandler(
   switch (conclusion) {
     case BattleConclusion.Defeat:
       if (party.battleId !== null) delete game.battles[party.battleId];
+      party.battleId = null;
 
       party.timeOfWipe = Date.now();
 

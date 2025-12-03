@@ -1,9 +1,6 @@
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { Vector3 } from "@babylonjs/core";
-import {
-  COMBATANT_CLASS_NAME_STRINGS,
-  DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
-} from "@speed-dungeon/common";
+import { DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "@speed-dungeon/common";
 import React, { useEffect, useState } from "react";
 import ArrowShape from "../../../../public/img/menu-icons/arrow-button-icon.svg";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
@@ -42,6 +39,7 @@ export const SavedCharacterManager = observer(() => {
   useEffect(() => {
     getGameWorld().modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
+      placeInHomePositions: true,
     });
   }, [savedCharacters]);
 
@@ -51,11 +49,13 @@ export const SavedCharacterManager = observer(() => {
         {Object.entries(savedCharacters)
           .filter(([_slot, characterOption]) => characterOption !== null)
           .map(([_slot, character]) => {
-            if (character)
+            if (character) {
+              const { combatant } = character;
+
               return (
-                <CharacterModelDisplay character={character} key={character.entityProperties.id}>
+                <CharacterModelDisplay character={combatant} key={combatant.entityProperties.id}>
                   <div className="w-full h-full flex justify-center items-center">
-                    {character.combatantProperties.isDead() && (
+                    {combatant.combatantProperties.isDead() && (
                       <div className="relative text-2xl">
                         <span
                           className="text-red-600"
@@ -70,6 +70,7 @@ export const SavedCharacterManager = observer(() => {
                   </div>
                 </CharacterModelDisplay>
               );
+            }
           })}
       </div>
 
@@ -102,12 +103,12 @@ export const SavedCharacterManager = observer(() => {
               <XShape className="h-full w-full fill-slate-400" />
             </HotkeyButton>
             <h4>{!selectedCharacterOption && ` Slot ${currentSlot + 1} `}</h4>
-            <h3>{selectedCharacterOption?.entityProperties.name || "Empty"}</h3>
+            <h3>{selectedCharacterOption?.combatant.entityProperties.name || "Empty"}</h3>
             {selectedCharacterOption && (
               <div>
-                Level: {selectedCharacterOption.getLevel()}
+                Level: {selectedCharacterOption.combatant.getLevel()}
                 {" " +
-                  selectedCharacterOption.combatantProperties.classProgressionProperties
+                  selectedCharacterOption.combatant.combatantProperties.classProgressionProperties
                     .getMainClass()
                     .getStringName()}
               </div>
@@ -143,7 +144,7 @@ export const SavedCharacterManager = observer(() => {
           </div>
           <div>
             {selectedCharacterOption ? (
-              <DeleteCharacterForm character={selectedCharacterOption} />
+              <DeleteCharacterForm character={selectedCharacterOption.combatant} />
             ) : (
               <CreateCharacterForm currentSlot={currentSlot} />
             )}

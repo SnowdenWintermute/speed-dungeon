@@ -8,6 +8,7 @@ export function setUpWarriorAbilityTree() {
   tree.assign(0, 0, { type: AbilityType.Action, actionName: CombatActionName.Fire });
   tree.assign(0, 1, { type: AbilityType.Action, actionName: CombatActionName.Firewall });
   tree.assign(0, 2, { type: AbilityType.Action, actionName: CombatActionName.IceBoltParent });
+  tree.assign(1, 0, { type: AbilityType.Action, actionName: CombatActionName.TamePet });
   tree.assign(1, 1, {
     type: AbilityType.Action,
     actionName: CombatActionName.ExplodingArrowParent,

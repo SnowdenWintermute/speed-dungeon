@@ -8,7 +8,9 @@ import { SocketEventNextFunction } from "./index.js";
 import { getGameServer } from "../../singletons/index.js";
 import { Socket } from "socket.io";
 
-export async function getCharacterAssociatedData<T extends { characterId: string }>(
+export async function getCharacterAssociatedData<
+  T extends { characterId: string; allowSummonedPets?: boolean },
+>(
   socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
   eventData: T,
   _middlewareProvidedData: CharacterAssociatedData | undefined,
@@ -34,7 +36,8 @@ export async function getCharacterAssociatedData<T extends { characterId: string
 
   const characterResult = party.combatantManager.getCharacterIfOwned(
     player.username,
-    eventData.characterId
+    eventData.characterId,
+    { allowSummonedPets: eventData.allowSummonedPets }
   );
   if (characterResult instanceof Error) throw characterResult;
 

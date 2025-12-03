@@ -55,7 +55,7 @@ export const Game = observer(() => {
                 <PersistentActionEntityDisplay />
               </div>
             </div>
-            <div className="flex flex-wrap justify-between">
+            <div className="flex flex-wrap justify-between items-end">
               <div className="h-[14rem] min-w-[23rem] max-w-[26rem]  border border-slate-400 bg-slate-700 p-2 pointer-events-auto">
                 <GameLog />
               </div>

@@ -12,6 +12,7 @@ import {
 import { Combatant } from "../../combatants/index.js";
 import { DurabilityLossCondition } from "../../combat/combat-actions/combat-action-durability-loss-condition.js";
 import { DurabilityChangesByEntityId } from "../../durability/index.js";
+import { SpawnableEntityType } from "../../spawnables/index.js";
 
 const stepType = ActionResolutionStepType.EvalOnUseTriggers;
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
@@ -34,13 +35,38 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     const onUseTriggers = action.hitOutcomeProperties.getOnUseTriggers(context);
     Object.assign(gameUpdateCommand, onUseTriggers);
 
-    const { petSlotsSummoned } = onUseTriggers;
+    const { petSlotsSummoned, petsUnsummoned, petSlotsReleased } = onUseTriggers;
     if (petSlotsSummoned) {
       const { petManager } = party;
       const battleOption = party.getBattleOption(game);
 
       for (const { ownerId, slotIndex } of petSlotsSummoned) {
-        petManager.summonPetFromSlot(party, ownerId, slotIndex, battleOption);
+        const petOption = petManager.summonPetFromSlot(
+          game,
+          party,
+          ownerId,
+          slotIndex,
+          battleOption
+        );
+        if (petOption) {
+          this.context.tracker.spawnedEntities.push({
+            type: SpawnableEntityType.Combatant,
+            combatant: petOption,
+            petProperties: { ownerId: actionUser.getEntityId() },
+          });
+        }
+      }
+    }
+
+    if (petsUnsummoned) {
+      for (const petId of petsUnsummoned) {
+        party.petManager.unsummonPet(petId, game);
+      }
+    }
+
+    if (petSlotsReleased) {
+      for (const { ownerId, slotIndex } of petSlotsReleased) {
+        party.petManager.releasePetInSlot(ownerId, slotIndex);
       }
     }
 

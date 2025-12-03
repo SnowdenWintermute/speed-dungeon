@@ -30,6 +30,7 @@ import { characterSelectedActionLevelHandler } from "./character-selected-action
 import { characterAllocatedAbilityPointHandler } from "./character-allocated-ability-point-handler";
 import { characterTradedItemForBookHandler } from "./character-traded-item-for-book-handler";
 import { AppStore } from "@/mobx-stores/app-store";
+import { characterRenamedPetHandler } from "./character-renamed-pet-handler";
 
 export function setUpGameEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
@@ -102,4 +103,5 @@ export function setUpGameEventHandlers(
     characterAllocatedAbilityPointHandler
   );
   socket.on(ServerToClientEvent.CharacterTradedItemForBook, characterTradedItemForBookHandler);
+  socket.on(ServerToClientEvent.CharacterRenamedPet, characterRenamedPetHandler);
 }

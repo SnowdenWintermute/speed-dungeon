@@ -9,6 +9,7 @@ export class ArrayUtils {
     }
   }
 
+  /** Randomizes the order of the array in place */
   static shuffle<T>(array: T[]) {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -29,5 +30,17 @@ export class ArrayUtils {
 
   static createFilledWithSequentialNumbers(length: number, start: number) {
     return Array.from({ length: length || 0 }, (_, i) => i + start);
+  }
+
+  static overlaps(a: string[], b: string[]): boolean {
+    const setA = new Set(a);
+    for (const v of b) {
+      if (setA.has(v)) return true;
+    }
+    return false;
+  }
+
+  static combinePredicates<T>(...predicates: Array<(item: T) => boolean>) {
+    return (item: T) => predicates.every((p) => p(item));
   }
 }

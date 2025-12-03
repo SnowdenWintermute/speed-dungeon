@@ -31,6 +31,8 @@ import { postItemLinkHandler } from "./post-item-link-handler.js";
 import { selectCombatActionLevelHandler } from "./select-action-level-handler.js";
 import { characterAllocatedAbilityPointHandler } from "./character-allocated-ability-point-handler.js";
 import { tradeItemForBookHandler } from "./trade-item-for-book-handler.js";
+import { allowSummonedPets } from "../event-middleware/allow-summoned-pets.js";
+import { renamePetHandler } from "./rename-pet-handler.js";
 
 export default function initiateGameEventListeners(
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
@@ -45,7 +47,11 @@ export default function initiateGameEventListeners(
   );
   socket.on(
     ClientToServerEvent.DropItem,
-    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, dropItemHandler)
+    applyMiddlewares(
+      allowSummonedPets,
+      getCharacterAssociatedData,
+      prohibitIfDead
+    )(socket, dropItemHandler)
   );
   socket.on(
     ClientToServerEvent.DropEquippedItem,
@@ -73,7 +79,11 @@ export default function initiateGameEventListeners(
   );
   socket.on(
     ClientToServerEvent.PickUpItems,
-    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, pickUpItemsHandler)
+    applyMiddlewares(
+      allowSummonedPets,
+      getCharacterAssociatedData,
+      prohibitIfDead
+    )(socket, pickUpItemsHandler)
   );
   socket.on(
     ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate,
@@ -103,10 +113,11 @@ export default function initiateGameEventListeners(
   );
   socket.on(
     ClientToServerEvent.IncrementAttribute,
-    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(
-      socket,
-      characterSpentAttributePointHandler
-    )
+    applyMiddlewares(
+      allowSummonedPets,
+      getCharacterAssociatedData,
+      prohibitIfDead
+    )(socket, characterSpentAttributePointHandler)
   );
   socket.on(
     ClientToServerEvent.SelectHoldableHotswapSlot,
@@ -155,5 +166,9 @@ export default function initiateGameEventListeners(
   socket.on(
     ClientToServerEvent.TradeItemForBook,
     applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, tradeItemForBookHandler)
+  );
+  socket.on(
+    ClientToServerEvent.RenamePet,
+    applyMiddlewares(playerInGame)(socket, renamePetHandler)
   );
 }

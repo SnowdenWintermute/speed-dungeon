@@ -2,6 +2,7 @@ import Triangle from "../../../../public/img/basic-shapes/triangle.svg";
 import React, { useEffect, useRef, useState } from "react";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { AppStore } from "@/mobx-stores/app-store";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   title: string;
@@ -12,7 +13,7 @@ interface Props {
   extraStyles?: string;
 }
 
-export default function SelectDropdown(props: Props) {
+export const SelectDropdown = observer((props: Props) => {
   const { options, value } = props;
   const selectInputRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -155,4 +156,4 @@ export default function SelectDropdown(props: Props) {
       )}
     </div>
   );
-}
+});

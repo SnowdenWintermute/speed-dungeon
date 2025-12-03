@@ -8,7 +8,10 @@ import {
 } from "../combatants/index.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
 import { EntityId, EntityProperties, MaxAndCurrent } from "../primatives/index.js";
-import { ActionUserTargetingProperties } from "./action-user-targeting-properties.js";
+import {
+  ActionAndRank,
+  ActionUserTargetingProperties,
+} from "./action-user-targeting-properties.js";
 import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ActionEntityProperties } from "../action-entities/index.js";
@@ -35,7 +38,7 @@ export interface IActionUser {
   getEntityProperties(): EntityProperties;
   getLevel(): number;
   getTotalAttributes(): CombatantAttributeRecord;
-  getOwnedAbilities(): Map<CombatActionName, CombatantActionState>;
+  getOwnedActions(): Map<CombatActionName, CombatantActionState>;
   getEquipmentOption: () => null | CombatantEquipment;
   getInventoryOption(): null | Inventory;
   getTargetingProperties(): ActionUserTargetingProperties;
@@ -49,6 +52,12 @@ export interface IActionUser {
 
   hasRequiredAttributesToUseItem(item: Item): boolean;
   hasRequiredConsumablesToUseAction(actionName: CombatActionName): boolean;
+
+  actionAndRankMeetsUseRequirements(
+    actionAndRank: ActionAndRank,
+    party: AdventuringParty,
+    battleOption: Battle | null
+  ): { canUse: boolean; reasonCanNot?: string };
 
   getWeaponsInSlots(
     weaponSlots: HoldableSlotType[],

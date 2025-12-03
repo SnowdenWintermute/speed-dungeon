@@ -37,3 +37,11 @@ export const SINGLE_FRIENDLY_TARGETING_PROPERTIES: CombatActionTargetingProperti
   intent: CombatActionIntent.Benevolent,
   usabilityContext: CombatActionUsabilityContext.All,
 };
+
+export const PET_OF_USER_TARGETING_PROPERTIES: CombatActionTargetingPropertiesConfig = {
+  ...SINGLE_FRIENDLY_TARGETING_PROPERTIES,
+  prohibitedTargetCombatantStates: [
+    ProhibitedTargetCombatantStates.Dead,
+    ProhibitedTargetCombatantStates.IsNotThisUsersPet,
+  ],
+};

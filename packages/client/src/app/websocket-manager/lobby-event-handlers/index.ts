@@ -36,6 +36,7 @@ export function setUpGameLobbyEventHandlers(
 
     gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
+      placeInHomePositions: true,
     });
     gameWorld.current?.imageManager.enqueueMessage({
       type: ImageManagerRequestType.ClearState,
@@ -66,7 +67,7 @@ export function setUpGameLobbyEventHandlers(
   socket.on(ServerToClientEvent.PartyCreated, (partyId, partyName) => {
     const gameOption = AppStore.get().gameStore.getGameOption();
     if (!gameOption) return;
-    gameOption.addParty(new AdventuringParty(partyId, partyName));
+    gameOption.addParty(AdventuringParty.createInitialized(partyId, partyName));
   });
   socket.on(ServerToClientEvent.PlayerChangedAdventuringParty, (username, partyName) => {
     const gameOption = AppStore.get().gameStore.getGameOption();

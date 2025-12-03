@@ -1,5 +1,11 @@
 import { plainToInstance } from "class-transformer";
-import { AbilityTreeAbility, AbilityType, AbilityUtils } from "../../abilities/index.js";
+import {
+  ABILITIES_GRANTED_WHEN_ACTION_ALLOCATED,
+  AbilityTreeAbility,
+  AbilityType,
+  AbilityUtils,
+  ACTION_FORCED_RANKS,
+} from "../../abilities/index.js";
 import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { CombatActionComponent, CombatActionName } from "../../combat/combat-actions/index.js";
@@ -12,6 +18,7 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantSubsystem } from "../combatant-subsystem.js";
 import { ABILITY_TREES } from "../ability-tree/set-up-ability-trees.js";
 import { COMBATANT_TRAIT_DESCRIPTIONS } from "../combatant-traits/index.js";
+import { getTamePetMaxPetLevel } from "../../combat/combat-actions/action-implementations/summon-pet/tame-pet.js";
 
 export class CombatantAbilityProperties extends CombatantSubsystem {
   private ownedActions: Map<CombatActionName, CombatantActionState> = new Map();
@@ -40,6 +47,10 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
 
   changeUnspentAbilityPoints(value: number) {
     this.unspentAbilityPoints += value;
+  }
+
+  setUnspentAbilityPoints(value: number) {
+    this.unspentAbilityPoints = value;
   }
 
   getOwnedActionState(actionName: CombatActionName): Error | CombatantActionState {
@@ -174,21 +185,46 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
     return { canAllocate: true };
   }
 
-  allocateAbilityPoint(ability: AbilityTreeAbility) {
+  private changeAbilityRank(ability: AbilityTreeAbility, changeBy: number) {
     const { ownedActions, traitProperties } = this;
-    this.changeUnspentAbilityPoints(-1);
     switch (ability.type) {
       case AbilityType.Action:
         const existingActionOption = ownedActions.get(ability.actionName);
-        if (existingActionOption) existingActionOption.level += 1;
-        else ownedActions.set(ability.actionName, new CombatantActionState(ability.actionName));
+        const actionComesWith = ABILITIES_GRANTED_WHEN_ACTION_ALLOCATED[ability.actionName];
+
+        const forcedRankOption = ACTION_FORCED_RANKS[ability.actionName];
+
+        // some abilities grant "sub abilities" such as Tame Pet which comes with all associated
+        // pet abilities
+        if (actionComesWith) {
+          for (const extraAbility of actionComesWith) {
+            this.changeAbilityRank(extraAbility, changeBy);
+          }
+        }
+
+        if (existingActionOption) {
+          existingActionOption.level += changeBy;
+          if (forcedRankOption !== undefined) {
+            existingActionOption.level = forcedRankOption;
+          }
+        } else {
+          ownedActions.set(
+            ability.actionName,
+            new CombatantActionState(ability.actionName, forcedRankOption || 1)
+          );
+        }
         break;
       case AbilityType.Trait:
         const existingTraitLevel = traitProperties.speccedTraitLevels[ability.traitType];
         if (existingTraitLevel !== undefined)
-          traitProperties.speccedTraitLevels[ability.traitType] = existingTraitLevel + 1;
-        else traitProperties.speccedTraitLevels[ability.traitType] = 1;
+          traitProperties.speccedTraitLevels[ability.traitType] = existingTraitLevel + changeBy;
+        else traitProperties.speccedTraitLevels[ability.traitType] = changeBy;
     }
+  }
+
+  allocateAbilityPoint(ability: AbilityTreeAbility) {
+    this.changeUnspentAbilityPoints(-1);
+    this.changeAbilityRank(ability, 1);
   }
 
   // USABILITY
@@ -201,6 +237,18 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
         actionState.cooldown.current -= 1;
       }
     }
+  }
+
+  getMaxPetLevel() {
+    const summonPetRank = this.getAbilityRank({
+      type: AbilityType.Action,
+      actionName: CombatActionName.SummonPetParent,
+    });
+    if (summonPetRank === 0) {
+      return 1;
+    }
+    const max = getTamePetMaxPetLevel(summonPetRank);
+    return max;
   }
 
   // TRAITS

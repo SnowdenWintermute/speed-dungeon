@@ -9,6 +9,10 @@ export function setUpRogueAbilityTree() {
     type: AbilityType.Action,
     actionName: CombatActionName.Blind,
   });
+  tree.assign(1, 0, {
+    type: AbilityType.Action,
+    actionName: CombatActionName.TamePet,
+  });
   tree.assign(0, 1, {
     type: AbilityType.Action,
     actionName: CombatActionName.Healing,

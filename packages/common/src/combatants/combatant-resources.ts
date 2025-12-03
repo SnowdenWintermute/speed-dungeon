@@ -88,13 +88,17 @@ export class CombatantResources extends CombatantSubsystem {
     }
   }
 
-  private getResourcePercentagesOfMax() {
+  /** Returns a normalized percentage (0-1)
+   *
+   *  Returns 1 if resource is currently zero because when allocating points to mana when
+   *  combatant previously had zero mana, we want to fill their new mana pool*/
+  getResourcePercentagesOfMax() {
     const combatantProperties = this.getCombatantProperties();
     const totalAttributes = combatantProperties.attributeProperties.getTotalAttributes();
-    const maxHitPoints = totalAttributes[CombatAttribute.Hp];
-    const maxMana = totalAttributes[CombatAttribute.Mp];
-    const percentOfMaxHitPoints = this.hitPoints / maxHitPoints;
-    const percentOfMaxMana = this.mana / maxMana;
+    const maxHitPoints = totalAttributes[CombatAttribute.Hp] ?? 0;
+    const maxMana = totalAttributes[CombatAttribute.Mp] ?? 0;
+    const percentOfMaxHitPoints = maxHitPoints > 0 ? this.hitPoints / maxHitPoints : 1;
+    const percentOfMaxMana = maxMana > 0 ? this.mana / maxMana : 1;
 
     return { percentOfMaxHitPoints, percentOfMaxMana };
   }

@@ -8,6 +8,7 @@ import {
   ProhibitedTargetCombatantStates,
 } from "../combat-actions/prohibited-target-combatant-states.js";
 import { EntityId } from "../../primatives/index.js";
+import { IActionUser } from "../../action-user-context/action-user.js";
 
 export class TargetFilterer {
   constructor() {}
@@ -15,7 +16,8 @@ export class TargetFilterer {
   static filterPossibleTargetIdsByProhibitedCombatantStates(
     party: AdventuringParty,
     prohibitedStates: null | ProhibitedTargetCombatantStates[],
-    allyAndOpponentIds: Record<FriendOrFoe, EntityId[]>
+    allyAndOpponentIds: Record<FriendOrFoe, EntityId[]>,
+    actionUser: IActionUser
   ): Record<FriendOrFoe, EntityId[]> {
     if (prohibitedStates === null) {
       return allyAndOpponentIds;
@@ -24,13 +26,15 @@ export class TargetFilterer {
     const filteredAllyIds = TargetFilterer.filterTargetIdGroupByProhibitedCombatantStates(
       party,
       allyAndOpponentIds[FriendOrFoe.Friendly],
-      prohibitedStates
+      prohibitedStates,
+      actionUser
     );
 
     const filteredOpponentIds = TargetFilterer.filterTargetIdGroupByProhibitedCombatantStates(
       party,
       allyAndOpponentIds[FriendOrFoe.Hostile],
-      prohibitedStates
+      prohibitedStates,
+      actionUser
     );
 
     return {
@@ -42,7 +46,8 @@ export class TargetFilterer {
   static filterTargetIdGroupByProhibitedCombatantStates(
     party: AdventuringParty,
     potentialIds: string[],
-    prohibitedStates: ProhibitedTargetCombatantStates[]
+    prohibitedStates: ProhibitedTargetCombatantStates[],
+    actionUser: IActionUser
   ) {
     const filteredIds = [];
 
@@ -51,8 +56,10 @@ export class TargetFilterer {
       let targetIsInProhibitedState = false;
 
       for (const combatantState of prohibitedStates) {
-        targetIsInProhibitedState =
-          PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS[combatantState](combatantResult);
+        targetIsInProhibitedState = PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS[combatantState](
+          combatantResult,
+          actionUser
+        );
         if (targetIsInProhibitedState) {
           break;
         }

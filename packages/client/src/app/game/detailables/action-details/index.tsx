@@ -1,5 +1,6 @@
 import {
   ACTION_PAYABLE_RESOURCE_STRINGS,
+  AbilityType,
   COMBAT_ACTIONS,
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
   CombatActionName,
@@ -40,6 +41,20 @@ export const ActionDetails = observer(
       (!inCombat && usabilityContext === CombatActionUsabilityContext.InCombat) ||
       (inCombat && usabilityContext === CombatActionUsabilityContext.OutOfCombat);
 
+    const maxRank = focusedCharacter.getCombatantProperties().abilityProperties.getAbilityRank({
+      type: AbilityType.Action,
+      actionName,
+    });
+
+    const customRequirementsGetterOption = action.costProperties.getMeetsCustomRequirements;
+    let customRequirementsNotMetReason = "";
+    if (customRequirementsGetterOption) {
+      const meetsCustomRequirements = customRequirementsGetterOption(focusedCharacter, party);
+      if (meetsCustomRequirements.reasonDoesNot) {
+        customRequirementsNotMetReason = meetsCustomRequirements.reasonDoesNot;
+      }
+    }
+
     return (
       <div className="flex flex-col pointer-events-auto" style={{ flex: `1 1 1px` }}>
         {!hideTitle && (
@@ -69,6 +84,9 @@ export const ActionDetails = observer(
               <div
                 className={UNMET_REQUIREMENT_TEXT_COLOR}
               >{`Usable ${COMBAT_ACTION_USABLITY_CONTEXT_STRINGS[usabilityContext]}`}</div>
+            )}
+            {customRequirementsNotMetReason && (
+              <div className={UNMET_REQUIREMENT_TEXT_COLOR}>{customRequirementsNotMetReason}</div>
             )}
             {iterateNumericEnumKeyedRecord(costs)
               .filter(([resource, price]) => unmetCosts.includes(resource))
