@@ -36,4 +36,9 @@ export const MONSTER_INHERENT_TRAIT_GETTERS: Record<
   ): Partial<Record<CombatantTraitType, number>> {
     return { [CombatantTraitType.IsTameable]: 1 };
   },
+  [MonsterType.MantaRay]: function (
+    combatantLevel: number
+  ): Partial<Record<CombatantTraitType, number>> {
+    return { [CombatantTraitType.IsTameable]: 1 };
+  },
 };

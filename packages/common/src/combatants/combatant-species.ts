@@ -6,4 +6,5 @@ export enum CombatantSpecies {
   Elemental,
   Golem,
   Canine,
+  Ray,
 }

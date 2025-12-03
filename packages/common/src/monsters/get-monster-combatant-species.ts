@@ -12,4 +12,5 @@ export const MONSTER_SPECIES: Record<MonsterType, CombatantSpecies> = {
   [MonsterType.Cultist]: CombatantSpecies.Humanoid,
   [MonsterType.IceElemental]: CombatantSpecies.Elemental,
   [MonsterType.FireElemental]: CombatantSpecies.Elemental,
+  [MonsterType.MantaRay]: CombatantSpecies.Ray,
 };

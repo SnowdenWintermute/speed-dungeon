@@ -2,6 +2,7 @@ export enum AiType {
   Healer,
   TargetPetOwnerMostRecentTarget,
   TargetLowestHpEnemy,
+  PrefersAttackWithMana,
   AlwaysPassTurn,
 }
 

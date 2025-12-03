@@ -82,6 +82,16 @@ export class RootAIBehaviorNode implements BehaviorNode {
       );
     }
 
+    if (aiTypes?.includes(AiType.PrefersAttackWithMana)) {
+      targetSelectionSchemes.push(
+        new ActionSelectorNode(
+          this.behaviorContext,
+          [CombatantFilterFactory.createIsTopOfThreatMeterFilter(actionUserContext)],
+          ACTION_EVALUATORS[ActionEvaluatorTypes.RandomManaCostingMaliciousAction]
+        )
+      );
+    }
+
     targetSelectionSchemes.push(
       new ActionSelectorNode(
         this.behaviorContext,

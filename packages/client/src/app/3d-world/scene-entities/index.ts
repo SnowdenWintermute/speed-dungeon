@@ -77,7 +77,9 @@ export abstract class SceneEntity {
     boneName: string
   ) {
     const bone = getChildMeshByName(rootMesh, boneName);
-    if (!bone) return;
+    if (bone === undefined) {
+      return;
+    }
     const newTransformNode = new TransformNode(name);
     newTransformNode.setParent(bone);
     newTransformNode.setPositionWithLocalVector(Vector3.Zero());

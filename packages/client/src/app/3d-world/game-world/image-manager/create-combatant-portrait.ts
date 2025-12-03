@@ -108,4 +108,8 @@ const modelPortraitCameraPositionModifiers: Record<
     arcRotate: new ArcRotateParams(0, -0.2, 0.2),
     position: new Vector3(0, -0.1, 0),
   },
+  [MonsterType.MantaRay]: {
+    arcRotate: new ArcRotateParams(),
+    position: new Vector3(0.2, -0.13, 0.9),
+  },
 };

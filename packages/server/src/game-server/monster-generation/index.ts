@@ -6,6 +6,7 @@ import {
   AiType,
   CombatActionName,
   Combatant,
+  CombatantClass,
   CombatantControlledBy,
   CombatantControllerType,
   Equipment,
@@ -64,6 +65,10 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
     ownedActions.push(...[CombatActionName.Fire, CombatActionName.IceBoltParent]);
   }
 
+  if (monsterType === MonsterType.MantaRay) {
+    ownedActions.push(...[CombatActionName.IceBoltParent, CombatActionName.Healing]);
+  }
+
   for (const actionName of ownedActions) {
     combatantProperties.abilityProperties.changeUnspentAbilityPoints(1);
     combatantProperties.abilityProperties.allocateAbilityPoint({
@@ -99,6 +104,13 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   // @TODO - assign abilities (realistically need to refactor monster creation)
   //
   combatantProperties.controlledBy.setAiTypes([AiType.Healer]);
+  if (
+    monster.combatantProperties.classProgressionProperties.getMainClass().combatantClass ===
+    CombatantClass.Mage
+  ) {
+    console.log("genereate mage type monster with PrefersAttackWithMana AI");
+    combatantProperties.controlledBy.setAiTypes([AiType.Healer, AiType.PrefersAttackWithMana]);
+  }
 
   return monster;
 }

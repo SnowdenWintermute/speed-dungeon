@@ -11,6 +11,7 @@ export enum MonsterType {
   FireElemental, // .25 damage from physical, casts fire, weak to ice
   IceElemental, // .25 damage from physical, casts ice, weak to fire
   Cultist, // Low AC and HP, casts cure
+  MantaRay,
 }
 
 export const MONSTER_TYPE_STRINGS: Record<MonsterType, string> = {
@@ -24,6 +25,7 @@ export const MONSTER_TYPE_STRINGS: Record<MonsterType, string> = {
   [MonsterType.Cultist]: "Cultist",
   [MonsterType.FireElemental]: "Fire Elemental",
   [MonsterType.IceElemental]: "Ice Elemental",
+  [MonsterType.MantaRay]: "Manta Ray",
 };
 
 // export function selectRandomMonsterType(): MonsterType {
@@ -53,6 +55,7 @@ export function getMonsterCombatantClass(monsterType: MonsterType): CombatantCla
     case MonsterType.Cultist:
     case MonsterType.FireElemental:
     case MonsterType.IceElemental:
+    case MonsterType.MantaRay:
       return CombatantClass.Mage;
   }
 }

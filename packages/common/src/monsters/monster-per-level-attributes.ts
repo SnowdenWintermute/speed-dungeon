@@ -86,4 +86,10 @@ export const MONSTER_ATTRIBUTES_BY_LEVEL: Record<
     [CombatAttribute.ArmorClass]: 4.5,
     [CombatAttribute.Evasion]: 10.0,
   },
+  [MonsterType.MantaRay]: {
+    [CombatAttribute.Spirit]: 6.0,
+    [CombatAttribute.Vitality]: 1.0,
+    [CombatAttribute.Hp]: 4.0,
+    [CombatAttribute.Agility]: 1.5,
+  },
 };
