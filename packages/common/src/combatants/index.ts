@@ -167,6 +167,10 @@ export class Combatant implements IActionUser {
     return this.combatantProperties.equipment.getWeaponsInSlots(weaponSlots, options);
   }
 
+  getNaturalUnarmedWeapons() {
+    return this.combatantProperties.equipment.getUnarmedWeapons();
+  }
+
   hasRequiredConsumablesToUseAction(actionName: CombatActionName) {
     const action = COMBAT_ACTIONS[actionName];
     const consumableCost = action.costProperties.getConsumableCost(this);

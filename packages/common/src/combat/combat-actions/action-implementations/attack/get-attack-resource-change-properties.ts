@@ -56,7 +56,13 @@ export function getAttackResourceChangeProperties(
     { usableWeaponsOnly: options.usableWeaponsOnly }
   );
 
-  const weaponOption = weaponSlot !== null ? equippedUsableWeapons[weaponSlot] : null;
+  let weaponOption = weaponSlot !== null ? equippedUsableWeapons[weaponSlot] : null;
+
+  const unarmedOverridesOption = user.getNaturalUnarmedWeapons();
+
+  if (!weaponOption && weaponSlot !== null) {
+    weaponOption = unarmedOverridesOption[weaponSlot];
+  }
 
   if (weaponOption) {
     applyWeaponPropertiesToResourceChangeProperties(

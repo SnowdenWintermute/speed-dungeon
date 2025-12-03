@@ -52,6 +52,7 @@ const targetingPropertiesOverrides: Partial<CombatActionTargetingPropertiesConfi
     ACTION_EXECUTION_PRECONDITIONS[
       ActionExecutionPreconditions.WasNotWearing2HWeaponOnPreviousAction
     ],
+    ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.NaturalUnarmedIsNotTwoHanded],
   ],
 };
 

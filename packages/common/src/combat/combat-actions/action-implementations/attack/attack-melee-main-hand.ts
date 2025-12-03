@@ -39,14 +39,17 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
     if (CombatantEquipment.isWearingUsableShield(user)) {
       return true;
     }
+
     if (CombatantEquipment.isWearingUsableTwoHandedMeleeWeapon(user)) {
       return true;
     }
+
     if (
       !COMBAT_ACTIONS[CombatActionName.AttackMeleeOffhand].shouldExecute(context, context.tracker)
     ) {
       return true; // check if offhand should execute, otherwise if we kill an enemy with main hand
     }
+
     // we won't end our turn
     if (context.tracker.wasCountered()) {
       return true;

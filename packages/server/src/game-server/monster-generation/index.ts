@@ -66,7 +66,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   }
 
   if (monsterType === MonsterType.MantaRay) {
-    ownedActions.push(...[CombatActionName.IceBoltParent, CombatActionName.Healing]);
+    // ownedActions.push(...[CombatActionName.IceBoltParent, CombatActionName.Healing]);
   }
 
   for (const actionName of ownedActions) {

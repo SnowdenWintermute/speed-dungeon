@@ -182,6 +182,10 @@ export abstract class CombatantCondition implements IActionUser {
     return {};
   }
 
+  getNaturalUnarmedWeapons() {
+    return {};
+  }
+
   getAiTypesAppliedToTarget(): AiType[] {
     return [];
   }

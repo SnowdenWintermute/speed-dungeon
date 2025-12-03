@@ -72,6 +72,16 @@ export interface IActionUser {
     >
   >;
 
+  getNaturalUnarmedWeapons(): Partial<
+    Record<
+      HoldableSlotType,
+      {
+        equipment: Equipment;
+        weaponProperties: WeaponProperties;
+      }
+    >
+  >;
+
   // COMBATANTS
   getCombatantProperties(): CombatantProperties;
 

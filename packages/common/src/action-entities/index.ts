@@ -185,6 +185,10 @@ export class ActionEntity implements IActionUser {
     return {};
   }
 
+  getNaturalUnarmedWeapons() {
+    return {};
+  }
+
   actionAndRankMeetsUseRequirements(
     actionAndRank: ActionAndRank,
     party: AdventuringParty,
