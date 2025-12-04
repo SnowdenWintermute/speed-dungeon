@@ -25,7 +25,7 @@ export class CombatantTransformProperties extends CombatantSubsystem {
   }
 
   setToHomeTransform() {
-    this.position.copyFrom(this.homePosition);
+    this.position.copyFrom(this.getHomePosition());
     this.rotation.copyFrom(this.homeRotation);
   }
 

@@ -129,6 +129,7 @@ export function putPartyInNextRoom(
   }
 
   party.combatantManager.updateHomePositions();
+
   party.combatantManager.setAllCombatantsToHomePositions();
 
   dungeonExplorationManager.incrementExploredRoomsTrackers();

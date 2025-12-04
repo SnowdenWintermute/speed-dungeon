@@ -219,6 +219,7 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
   [CombatActionName.TamePet]: (className: string) => SVG_ICONS[IconName.Whistle](`${className}`),
   [CombatActionName.ReleasePet]: null,
   [CombatActionName.PetCommand]: null,
+  [CombatActionName.FallTowardsHomePosition]: null,
 };
 
 export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string) => ReactNode)> = {

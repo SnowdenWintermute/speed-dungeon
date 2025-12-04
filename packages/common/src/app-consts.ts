@@ -219,6 +219,7 @@ export enum SkeletalAnimationName {
   UseConsumableDelivery,
   UseConsumableRecovery,
   OnSummoned,
+  Falling,
 }
 
 export enum DynamicAnimationName {
@@ -284,6 +285,7 @@ export const SKELETAL_ANIMATION_NAME_STRINGS: Record<SkeletalAnimationName, stri
   [SkeletalAnimationName.EquipmentRecurveBowShoot]: "recurve-bow-shoot-baked",
   [SkeletalAnimationName.EquipmentCompositeBowShoot]: "composite-bow-shoot-baked",
   [SkeletalAnimationName.OnSummoned]: "on-summoned",
+  [SkeletalAnimationName.Falling]: "falling",
 };
 
 export const DYNAMIC_ANIMATION_NAME_STRINGS: Record<DynamicAnimationName, string> = {

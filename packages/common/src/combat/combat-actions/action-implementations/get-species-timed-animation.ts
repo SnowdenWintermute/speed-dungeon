@@ -29,3 +29,17 @@ export function getSpeciesTimedAnimation(
     smoothTransition,
   };
 }
+
+export function getSpeciesLoopingAnimation(
+  user: IActionUser,
+  animationName: SkeletalAnimationName,
+  smoothTransition: boolean
+): EntityAnimation {
+  return {
+    name: { type: AnimationType.Skeletal, name: animationName },
+    timing: {
+      type: AnimationTimingType.Looping,
+    },
+    smoothTransition,
+  };
+}

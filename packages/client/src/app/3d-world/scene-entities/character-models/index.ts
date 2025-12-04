@@ -175,13 +175,17 @@ export class CharacterModel extends SceneEntity {
   startIdleAnimation(transitionMs: number, options?: ManagedAnimationOptions) {
     console.log("startIdleAnimation with ", transitionMs, "ms transition");
     const combatant = this.getCombatant();
-    if (combatant.combatantProperties.isDead()) return;
+    if (combatant.combatantProperties.isDead()) {
+      return;
+    }
+
     try {
       const idleName = this.getIdleAnimationName();
 
       const currentAnimationName = this.skeletalAnimationManager.playing?.getName();
-      if (currentAnimationName === SKELETAL_ANIMATION_NAME_STRINGS[idleName])
+      if (currentAnimationName === SKELETAL_ANIMATION_NAME_STRINGS[idleName]) {
         return console.info("was already idling");
+      }
 
       this.skeletalAnimationManager.startAnimationWithTransition(idleName, transitionMs, {
         ...options,

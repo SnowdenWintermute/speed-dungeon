@@ -43,6 +43,8 @@ export enum CombatActionName {
   // UTILITY
   PayActionPoint, // useful for charging action points for swapping weapons and maybe other things
   PassTurn,
+  // TRANSFORMS AND MOVEMENTS
+  FallTowardsHomePosition,
 }
 
 export const ACTION_NAMES_TO_HIDE_IN_MENU = [
@@ -96,4 +98,5 @@ export const COMBAT_ACTION_NAME_STRINGS: Record<CombatActionName, string> = {
   [CombatActionName.TamePet]: "Tame Pet",
   [CombatActionName.ReleasePet]: "Release Pet",
   [CombatActionName.PetCommand]: "Pet Command",
+  [CombatActionName.FallTowardsHomePosition]: "Fall Towards Home Position",
 };

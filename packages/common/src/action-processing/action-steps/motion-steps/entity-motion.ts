@@ -90,16 +90,26 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   ) {
     const stepConfigOption = action.stepsConfig.getStepConfigOption(stepType);
     const destinationGetterOption = stepConfigOption?.getDestination;
-    if (!destinationGetterOption) return null;
+    if (!destinationGetterOption) {
+      return null;
+    }
 
     const entitySpeedOption = actionUser.getMovementSpeedOption();
     const positionOption = actionUser.getPositionOption();
-    if (entitySpeedOption === null || positionOption === null) return null;
+    if (entitySpeedOption === null || positionOption === null) {
+      return null;
+    }
 
     let destinationResult = null;
     let translationOption;
-    if (destinationGetterOption) destinationResult = destinationGetterOption(context);
-    if (destinationResult instanceof Error) throw destinationResult;
+    if (destinationGetterOption) {
+      destinationResult = destinationGetterOption(context);
+    }
+
+    if (destinationResult instanceof Error) {
+      throw destinationResult;
+    }
+
     if (destinationResult?.position) {
       const translation = {
         destination: destinationResult.position,
@@ -173,7 +183,10 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
         : Math.min(1, this.elapsed / this.translationOption.duration);
 
     const positionOption = this.actionUser.getPositionOption();
-    if (positionOption === null) return;
+
+    if (positionOption === null) {
+      return;
+    }
 
     const newPosition = Vector3.Lerp(
       positionOption,
