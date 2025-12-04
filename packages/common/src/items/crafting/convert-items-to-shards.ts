@@ -13,9 +13,9 @@ export function combatantIsAllowedToConvertItemsToShards(
 ) {
   return (
     currentRoomType === DungeonRoomType.VendingMachine ||
-    combatantProperties.abilityProperties.hasTraitType(
-      CombatantTraitType.CanConvertToShardsManually
-    )
+    combatantProperties.abilityProperties
+      .getTraitProperties()
+      .hasTraitType(CombatantTraitType.CanConvertToShardsManually)
   );
 }
 

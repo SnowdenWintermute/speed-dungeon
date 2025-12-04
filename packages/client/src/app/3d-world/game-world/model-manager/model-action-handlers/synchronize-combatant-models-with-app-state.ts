@@ -134,7 +134,7 @@ function getModelsAndPositions() {
       modelsAndPositions[combatant.entityProperties.id] = {
         combatant,
         homeRotation: combatant.combatantProperties.transformProperties.homeRotation,
-        homeLocation: combatant.combatantProperties.transformProperties.homePosition,
+        homeLocation: combatant.combatantProperties.transformProperties.getHomePosition(),
       };
     }
   } else {

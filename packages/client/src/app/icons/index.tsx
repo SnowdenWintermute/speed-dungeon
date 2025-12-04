@@ -37,6 +37,7 @@ import Chevron from "../../../public/img/basic-shapes/chevron.svg";
 import Model3DIcon from "../../../public/img/menu-icons/3d-model-icon.svg";
 import Whistle from "../../../public/img/game-ui-icons/whistle.svg";
 import EditPencil from "../../../public/img/menu-icons//edit-pencil.svg";
+import Feather from "../../../public/img/game-ui-icons/feather.svg";
 
 import { ReactNode } from "react";
 import {
@@ -88,6 +89,7 @@ export enum IconName {
   Firewall,
   Whistle,
   EditPencil,
+  Feather,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -128,6 +130,7 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.Firewall]: (className) => <Firewall className={className} />,
   [IconName.Whistle]: (className) => <Whistle className={className} />,
   [IconName.EditPencil]: (className: string) => <EditPencil className={className} />,
+  [IconName.Feather]: (className: string) => <Feather className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {
@@ -168,6 +171,9 @@ export const CONDITION_INDICATOR_ICONS: Record<CombatantConditionName, ReactNode
   ),
   [CombatantConditionName.FollowingPetCommand]: (
     <div className="h-full">{SVG_ICONS[IconName.Whistle]("h-full fill-zinc-300")}</div>
+  ),
+  [CombatantConditionName.Flying]: (
+    <div className="h-full">{SVG_ICONS[IconName.Feather]("h-full fill-windgreen")}</div>
   ),
 };
 
@@ -224,6 +230,7 @@ export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string)
   [CombatantTraitType.CanConvertToShardsManually]: null,
   [CombatantTraitType.ExtraConsumablesStorage]: null,
   [CombatantTraitType.IsTameable]: (className: string) => SVG_ICONS[IconName.Whistle](className),
+  [CombatantTraitType.Flyer]: (className: string) => SVG_ICONS[IconName.Feather](className),
 };
 
 export const ACTION_ENTITY_ICONS: Record<

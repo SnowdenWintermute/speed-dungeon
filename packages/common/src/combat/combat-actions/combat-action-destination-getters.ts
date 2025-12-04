@@ -33,15 +33,18 @@ export function getMeleeAttackDestination(context: ActionResolutionStepContext) 
 
     const homePosition = actionUser.getHomePosition();
 
-    const direction = targetTransformProperties.homePosition.subtract(homePosition).normalize();
+    const direction = targetTransformProperties
+      .getHomePosition()
+      .subtract(homePosition)
+      .normalize();
 
-    const destination = targetTransformProperties.homePosition.subtract(
-      direction.scale(meleeRange)
-    );
+    const destination = targetTransformProperties
+      .getHomePosition()
+      .subtract(direction.scale(meleeRange));
 
     const destinationRotation = getLookRotationFromPositions(
       homePosition,
-      targetTransformProperties.homePosition
+      targetTransformProperties.getHomePosition()
     );
 
     return {

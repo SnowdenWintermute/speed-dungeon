@@ -83,7 +83,7 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
     if (primaryTargetResult instanceof Error) return primaryTargetResult;
     const target = primaryTargetResult;
 
-    return { position: target.combatantProperties.transformProperties.homePosition.clone() };
+    return { position: target.combatantProperties.transformProperties.getHomePosition().clone() };
   },
   getNewParent: () => null,
 };

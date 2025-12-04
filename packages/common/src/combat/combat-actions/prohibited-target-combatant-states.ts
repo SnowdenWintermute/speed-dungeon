@@ -61,9 +61,9 @@ export const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
     return false;
   },
   [ProhibitedTargetCombatantStates.IsNotTameable]: function (combatant: Combatant): boolean {
-    const isTameable = combatant.combatantProperties.abilityProperties.hasTraitType(
-      CombatantTraitType.IsTameable
-    );
+    const isTameable = combatant.combatantProperties.abilityProperties
+      .getTraitProperties()
+      .hasTraitType(CombatantTraitType.IsTameable);
     return !isTameable;
   },
   [ProhibitedTargetCombatantStates.IsBeyondUserMaximumPetLevel]: function (

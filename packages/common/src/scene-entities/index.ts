@@ -1,3 +1,4 @@
+import { Quaternion, Vector3 } from "@babylonjs/core";
 import { HoldableSlotType } from "../items/equipment";
 import { Axis, EntityId, Milliseconds } from "../primatives";
 
@@ -82,4 +83,10 @@ export enum ActionEntityBaseChildTransformNodeName {
 export enum CombatantHoldableChildTransformNodeName {
   NockBone,
   ArrowRest,
+}
+
+export interface TransformModifiers {
+  scale?: number;
+  homePosition?: Vector3;
+  homeRotation?: Quaternion;
 }

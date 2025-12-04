@@ -112,6 +112,8 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
     combatantProperties.controlledBy.setAiTypes([AiType.Healer, AiType.PrefersAttackWithMana]);
   }
 
+  monster.combatantProperties.abilityProperties.applyConditionsFromTraits(monster, idGenerator);
+
   return monster;
 }
 

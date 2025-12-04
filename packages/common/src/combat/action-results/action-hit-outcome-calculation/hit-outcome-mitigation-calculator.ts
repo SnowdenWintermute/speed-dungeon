@@ -157,9 +157,9 @@ export class HitOutcomeMitigationCalculator {
       const { resourceChangeSource } = hpChangePropertiesOption;
       const { isHealing } = resourceChangeSource;
 
-      const isUndead = targetCombatantProperties.abilityProperties.hasTraitType(
-        CombatantTraitType.Undead
-      );
+      const isUndead = targetCombatantProperties.abilityProperties
+        .getTraitProperties()
+        .hasTraitType(CombatantTraitType.Undead);
 
       if (isHealing && isUndead) return true;
       if (isHealing) return false;

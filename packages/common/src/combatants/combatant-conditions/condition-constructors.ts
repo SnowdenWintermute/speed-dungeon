@@ -1,6 +1,7 @@
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 import { BlindedCombatantCondition } from "./blinded.js";
 import { BurningCombatantCondition } from "./burning.js";
+import { FlyingCombatantCondition } from "./flying.js";
 import { FollowingPetCommandCombatantCondition } from "./following-pet-command.js";
 import { CombatantCondition, CombatantConditionName, ConditionAppliedBy } from "./index.js";
 import { PrimedForExplosionCombatantCondition } from "./primed-for-explosion.js";
@@ -23,4 +24,5 @@ export const COMBATANT_CONDITION_CONSTRUCTORS: Record<
   [CombatantConditionName.Burning]: BurningCombatantCondition,
   [CombatantConditionName.Blinded]: BlindedCombatantCondition,
   [CombatantConditionName.FollowingPetCommand]: FollowingPetCommandCombatantCondition,
+  [CombatantConditionName.Flying]: FlyingCombatantCondition,
 };

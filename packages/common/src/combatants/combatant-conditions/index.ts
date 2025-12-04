@@ -19,6 +19,7 @@ import { ActionEntityProperties } from "../../action-entities/index.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import { CombatantProperties } from "../combatant-properties.js";
 import { AiType } from "../../combat/ai-behavior/index.js";
+import { TransformModifiers } from "../../scene-entities/index.js";
 export * from "./condition-tick-properties.js";
 
 export enum CombatantConditionName {
@@ -27,6 +28,7 @@ export enum CombatantConditionName {
   Burning,
   Blinded,
   FollowingPetCommand,
+  Flying,
 }
 
 export const COMBATANT_CONDITION_NAME_STRINGS: Record<CombatantConditionName, string> = {
@@ -35,6 +37,7 @@ export const COMBATANT_CONDITION_NAME_STRINGS: Record<CombatantConditionName, st
   [CombatantConditionName.Burning]: "Burning",
   [CombatantConditionName.Blinded]: "Blinded",
   [CombatantConditionName.FollowingPetCommand]: "Following Command",
+  [CombatantConditionName.Flying]: "Flying",
 };
 
 export const COMBATANT_CONDITION_DESCRIPTIONS: Record<CombatantConditionName, string> = {
@@ -43,6 +46,7 @@ export const COMBATANT_CONDITION_DESCRIPTIONS: Record<CombatantConditionName, st
   [CombatantConditionName.Burning]: "Periodically takes non-magical fire damage",
   [CombatantConditionName.Blinded]: "Accuracy is reduced",
   [CombatantConditionName.FollowingPetCommand]: "Making decisions based on external factors",
+  [CombatantConditionName.Flying]: "Untargetable by melee actions",
 };
 
 export const MAX_CONDITION_STACKS = 99;
@@ -217,6 +221,10 @@ export abstract class CombatantCondition implements IActionUser {
     condition: CombatantCondition,
     appliedTo: CombatantProperties
   ): CombatantAttributeRecord;
+
+  getTransformModifiers(): TransformModifiers {
+    return {};
+  }
 
   getTickProperties() {
     return this.tickPropertiesOption;

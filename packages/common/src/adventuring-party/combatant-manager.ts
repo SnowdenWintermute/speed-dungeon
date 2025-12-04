@@ -251,6 +251,7 @@ export class CombatantManager extends AdventuringPartySubsystem {
 
     const party = this.getParty();
     const battleOption = party.getBattleOption(game);
+
     if (battleOption) {
       const { turnSchedulerManager } = battleOption.turnOrderManager;
 
@@ -367,8 +368,7 @@ export class CombatantManager extends AdventuringPartySubsystem {
     const homeLocation = new Vector3(rowPositionOffset, 0, positionSpacing);
     const { combatantProperties } = combatant;
     const { transformProperties } = combatantProperties;
-    transformProperties.homePosition = homeLocation;
-    // transformProperties.position = transformProperties.homePosition.clone();
+    transformProperties.setHomePosition(homeLocation);
     const forward = new Vector3(0, 0, 1);
     const directionToXAxis = new Vector3(0, 0, -positionSpacing).normalize();
     const homeRotation = new Quaternion();

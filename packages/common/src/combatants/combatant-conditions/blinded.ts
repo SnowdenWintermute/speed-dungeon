@@ -16,6 +16,7 @@ import {
   CombatantBaseChildTransformNodeIdentifier,
   CombatantBaseChildTransformNodeName,
   SceneEntityType,
+  TransformModifiers,
 } from "../../scene-entities/index.js";
 import { CombatAttribute } from "../attributes/index.js";
 import { ActionUserContext } from "../../action-user-context/index.js";

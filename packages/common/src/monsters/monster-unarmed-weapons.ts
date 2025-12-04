@@ -4,7 +4,12 @@ import {
 } from "../combat/hp-change-source-types.js";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import { MagicalElement } from "../combat/magical-elements.js";
-import { Equipment, EquipmentType, TwoHandedMeleeWeapon } from "../items/equipment/index.js";
+import {
+  Equipment,
+  EquipmentType,
+  OneHandedMeleeWeapon,
+  TwoHandedMeleeWeapon,
+} from "../items/equipment/index.js";
 import { HoldableSlotType } from "../items/equipment/slots.js";
 import { NumberRange } from "../primatives/number-range.js";
 import { MonsterType } from "./monster-types.js";
@@ -14,7 +19,54 @@ export const MONSTER_UNARMED_WEAPONS: Record<
   null | Partial<Record<HoldableSlotType, Equipment>>
 > = {
   [MonsterType.MetallicGolem]: null,
-  [MonsterType.Wolf]: null,
+  [MonsterType.Wolf]: {
+    [HoldableSlotType.MainHand]: new Equipment(
+      {
+        id: "wolf default main hand weapon id",
+        name: "wolf default main hand weapon",
+      },
+      1,
+      {},
+      {
+        equipmentType: EquipmentType.OneHandedMeleeWeapon,
+        taggedBaseEquipment: {
+          equipmentType: EquipmentType.OneHandedMeleeWeapon,
+          baseItemType: OneHandedMeleeWeapon.ShortSpear,
+        },
+        damage: new NumberRange(2, 4),
+        damageClassification: [
+          new ResourceChangeSource({
+            category: ResourceChangeSourceCategory.Physical,
+            kineticDamageTypeOption: KineticDamageType.Piercing,
+          }),
+        ],
+      },
+      null
+    ),
+    [HoldableSlotType.OffHand]: new Equipment(
+      {
+        id: "wolf default off hand weapon id",
+        name: "wolf default off hand weapon",
+      },
+      1,
+      {},
+      {
+        equipmentType: EquipmentType.OneHandedMeleeWeapon,
+        taggedBaseEquipment: {
+          equipmentType: EquipmentType.OneHandedMeleeWeapon,
+          baseItemType: OneHandedMeleeWeapon.ShortSpear,
+        },
+        damage: new NumberRange(2, 4),
+        damageClassification: [
+          new ResourceChangeSource({
+            category: ResourceChangeSourceCategory.Physical,
+            kineticDamageTypeOption: KineticDamageType.Piercing,
+          }),
+        ],
+      },
+      null
+    ),
+  },
   [MonsterType.Zombie]: null,
   [MonsterType.SkeletonArcher]: null,
   [MonsterType.Scavenger]: null,

@@ -51,7 +51,7 @@ export class CombatantProperties {
     // I don't know why but for now this works
     if (homePosition !== undefined) {
       this.transformProperties.position = homePosition;
-      this.transformProperties.homePosition = homePosition.clone();
+      this.transformProperties.setHomePosition(homePosition.clone());
     }
     this.classProgressionProperties.setMainClass(mainClassType);
 

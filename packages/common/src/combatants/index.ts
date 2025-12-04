@@ -110,7 +110,7 @@ export class Combatant implements IActionUser {
     return this.combatantProperties.transformProperties.position;
   }
   getHomePosition() {
-    return this.combatantProperties.transformProperties.homePosition;
+    return this.combatantProperties.transformProperties.getHomePosition();
   }
   getHomeRotation() {
     return this.combatantProperties.transformProperties.homeRotation;
