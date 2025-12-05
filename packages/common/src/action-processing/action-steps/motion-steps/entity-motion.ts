@@ -68,7 +68,9 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
         this.translationOption = translationOption;
         mainEntityUpdate.translationOption = translationOption;
       }
-      if (rotationOption) mainEntityUpdate.rotationOption = rotationOption;
+      if (rotationOption) {
+        mainEntityUpdate.rotationOption = rotationOption;
+      }
     }
 
     // this is for when we need to tweak positions/parents of projectiles based on steps of

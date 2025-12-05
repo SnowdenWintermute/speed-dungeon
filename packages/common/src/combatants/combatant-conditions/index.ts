@@ -174,6 +174,10 @@ export abstract class CombatantCondition implements IActionUser {
     return true;
   }
 
+  targetFlyingConditionPreventsReachingMeleeRange() {
+    return false;
+  }
+
   actionAndRankMeetsUseRequirements(
     actionAndRank: ActionAndRank,
     party: AdventuringParty,

@@ -13,6 +13,7 @@ export enum ProhibitedTargetCombatantStates {
   IsNotTameable,
   IsBeyondUserMaximumPetLevel,
   IsNotThisUsersPet,
+  TargetFlyingPreventsReachingRequiredRange,
 }
 
 export const PROHIBITED_TARGET_COMBATANT_STATE_STRINGS: Record<
@@ -28,6 +29,8 @@ export const PROHIBITED_TARGET_COMBATANT_STATE_STRINGS: Record<
   [ProhibitedTargetCombatantStates.IsNotTameable]: "IsNotTameable",
   [ProhibitedTargetCombatantStates.IsBeyondUserMaximumPetLevel]: "IsBeyondUserMaximumPetLevel",
   [ProhibitedTargetCombatantStates.IsNotThisUsersPet]: "IsNotThisUsersPet",
+  [ProhibitedTargetCombatantStates.TargetFlyingPreventsReachingRequiredRange]:
+    "TargetFlyingPreventsReachingRequiredRange",
 };
 
 export const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
@@ -79,5 +82,11 @@ export const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
     user: IActionUser
   ): boolean {
     return combatant.combatantProperties.controlledBy.summonedBy !== user.getEntityId();
+  },
+  [ProhibitedTargetCombatantStates.TargetFlyingPreventsReachingRequiredRange]: (target, user) => {
+    const canNotReachTarget = user.targetFlyingConditionPreventsReachingMeleeRange(
+      target.combatantProperties
+    );
+    return !canNotReachTarget;
   },
 };

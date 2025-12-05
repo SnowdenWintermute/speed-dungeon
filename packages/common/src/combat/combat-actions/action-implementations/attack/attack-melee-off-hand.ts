@@ -29,6 +29,7 @@ import {
   ACTION_EXECUTION_PRECONDITIONS,
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
+import { CombatActionRequiredRange } from "../../combat-action-range.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 hitOutcomeOverrides.addsPropertiesFromHoldableSlot = HoldableSlotType.OffHand;
@@ -54,6 +55,7 @@ const targetingPropertiesOverrides: Partial<CombatActionTargetingPropertiesConfi
     ],
     ACTION_EXECUTION_PRECONDITIONS[ActionExecutionPreconditions.NaturalUnarmedIsNotTwoHanded],
   ],
+  getRequiredRange: () => CombatActionRequiredRange.Melee,
 };
 
 const targetingProperties = createTargetingPropertiesConfig(

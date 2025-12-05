@@ -1,4 +1,4 @@
-import { Vector3 } from "@babylonjs/core";
+import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ActionResolutionStepContext } from "../../action-processing/index.js";
 import { TargetingCalculator } from "../targeting/targeting-calculator.js";
 import { getLookRotationFromPositions } from "../../utils/index.js";
@@ -16,8 +16,8 @@ export function getMeleeAttackDestination(context: ActionResolutionStepContext) 
       actionExecutionIntent
     );
     if (primaryTargetResult instanceof Error) return primaryTargetResult;
-    const target = primaryTargetResult;
 
+    const target = primaryTargetResult;
     const { actionUser } = actionUserContext;
 
     const userPositionOption = actionUser.getPositionOption();
@@ -33,19 +33,35 @@ export function getMeleeAttackDestination(context: ActionResolutionStepContext) 
 
     const homePosition = actionUser.getHomePosition();
 
-    const direction = targetTransformProperties
-      .getHomePosition()
-      .subtract(homePosition)
-      .normalize();
+    let direction = targetTransformProperties.getHomePosition().subtract(homePosition).normalize();
 
     const destination = targetTransformProperties
       .getHomePosition()
       .subtract(direction.scale(meleeRange));
 
-    const destinationRotation = getLookRotationFromPositions(
-      homePosition,
-      targetTransformProperties.getHomePosition()
+    const shouldFlyTowardsTarget = !actionUser.targetFlyingConditionPreventsReachingMeleeRange(
+      target.combatantProperties
     );
+    const constrainToXZPlane = !shouldFlyTowardsTarget;
+
+    if (constrainToXZPlane) {
+      destination.y = homePosition.y;
+    }
+
+    let destinationRotation: Quaternion;
+
+    if (constrainToXZPlane) {
+      // Use XZ-projected look rotation
+      const forwardXZ = targetTransformProperties.getHomePosition().subtract(homePosition);
+      forwardXZ.y = 0;
+      forwardXZ.normalize();
+      destinationRotation = getLookRotationFromPositions(homePosition, homePosition.add(forwardXZ));
+    } else {
+      destinationRotation = getLookRotationFromPositions(
+        homePosition,
+        targetTransformProperties.getHomePosition()
+      );
+    }
 
     return {
       position: destination,

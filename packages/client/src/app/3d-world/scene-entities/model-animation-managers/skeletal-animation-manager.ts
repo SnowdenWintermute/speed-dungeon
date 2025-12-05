@@ -211,7 +211,9 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
       SkeletalAnimationName.BowDelivery,
     ];
 
-    if (deliveryNames.includes(animationName)) return SkeletalAnimationName.MainHandUnarmedDelivery;
+    if (deliveryNames.includes(animationName)) {
+      return SkeletalAnimationName.MainHandUnarmedDelivery;
+    }
     const recoveryNames = [
       SkeletalAnimationName.MainHandStabRecovery,
       SkeletalAnimationName.MainHandSwingRecovery,
@@ -220,18 +222,24 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
       SkeletalAnimationName.CastSpellRecovery,
       SkeletalAnimationName.BowRecovery,
     ];
-    if (recoveryNames.includes(animationName)) return SkeletalAnimationName.MainHandUnarmedRecovery;
+    if (recoveryNames.includes(animationName)) {
+      return SkeletalAnimationName.MainHandUnarmedRecovery;
+    }
 
-    if (animationName === SkeletalAnimationName.MoveBack)
+    if (animationName === SkeletalAnimationName.MoveBack) {
       return SkeletalAnimationName.MoveForwardLoop;
+    }
 
     const idleAnimationNames = [
       SkeletalAnimationName.IdleUnarmed,
+      SkeletalAnimationName.IdleFlying,
       SkeletalAnimationName.IdleBow,
       SkeletalAnimationName.IdleTwoHand,
       SkeletalAnimationName.IdleDualWield,
       SkeletalAnimationName.IdleMainHand,
     ];
-    if (idleAnimationNames.includes(animationName)) return SkeletalAnimationName.IdleUnarmed;
+    if (idleAnimationNames.includes(animationName)) {
+      return SkeletalAnimationName.IdleUnarmed;
+    }
   }
 }

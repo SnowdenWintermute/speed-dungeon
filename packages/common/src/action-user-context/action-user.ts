@@ -82,6 +82,8 @@ export interface IActionUser {
     >
   >;
 
+  targetFlyingConditionPreventsReachingMeleeRange(target: CombatantProperties): boolean;
+
   // COMBATANTS
   getCombatantProperties(): CombatantProperties;
 

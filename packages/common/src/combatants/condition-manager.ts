@@ -113,4 +113,10 @@ export class CombatantConditionManager extends CombatantSubsystem {
     }
     return;
   }
+
+  hasConditionName(conditionName: CombatantConditionName) {
+    return this.getConditions()
+      .map((condition) => condition.name)
+      .includes(conditionName);
+  }
 }

@@ -48,7 +48,7 @@ export class FlyingCombatantCondition extends CombatantCondition {
   }
 
   triggeredWhenHitBy(actionName: CombatActionName) {
-    if (actionName === CombatActionName.Healing) {
+    if (actionName === CombatActionName.Fire) {
       return true;
     }
     return false;

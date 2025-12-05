@@ -5,6 +5,7 @@ import { Inventory } from "./inventory/index.js";
 import { CombatActionName, FriendOrFoe } from "../combat/combat-actions/index.js";
 import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
 import { ConditionAppliedBy, ConditionTickProperties } from "./combatant-conditions/index.js";
+import { CombatantConditionName } from "../index.js";
 import { instanceToPlain, plainToInstance } from "class-transformer";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
@@ -301,6 +302,24 @@ export class Combatant implements IActionUser {
       const isDead = combatantProperties.isDead();
       const isAlive = !isDead;
       if (isAlive) return false;
+    }
+
+    return true;
+  }
+
+  targetFlyingConditionPreventsReachingMeleeRange(target: CombatantProperties) {
+    const targetIsFlying = target.conditionManager.hasConditionName(CombatantConditionName.Flying);
+
+    if (!targetIsFlying) {
+      return false;
+    }
+
+    const userIsFlying = this.getCombatantProperties().conditionManager.hasConditionName(
+      CombatantConditionName.Flying
+    );
+
+    if (userIsFlying) {
+      return false;
     }
 
     return true;

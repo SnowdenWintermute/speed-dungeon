@@ -22,7 +22,11 @@ import {
   COST_PROPERTIES_TEMPLATE_GETTERS,
   createCostPropertiesConfig,
 } from "../generic-action-templates/cost-properties-templates/index.js";
-import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import {
+  createTargetingPropertiesConfig,
+  TARGETING_PROPERTIES_TEMPLATE_GETTERS,
+} from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import { CombatActionRequiredRange } from "../../combat-action-range.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 hitOutcomeOverrides.addsPropertiesFromHoldableSlot = HoldableSlotType.MainHand;
@@ -66,7 +70,10 @@ export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.Attack,
   }),
-  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.COPY_PARENT_HOSTILE(),
+  targetingProperties: createTargetingPropertiesConfig(
+    TARGETING_PROPERTIES_TEMPLATE_GETTERS.COPY_PARENT_HOSTILE,
+    { getRequiredRange: () => CombatActionRequiredRange.Melee }
+  ),
   costProperties,
   hitOutcomeProperties,
   stepsConfig: ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.MAIN_HAND_MELEE_ATTACK(),

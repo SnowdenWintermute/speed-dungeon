@@ -20,6 +20,7 @@ import {
   EquipmentType,
   CombatantBaseChildTransformNodeName,
   NormalizedPercentage,
+  CombatantConditionName,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
@@ -220,8 +221,17 @@ export class CharacterModel extends SceneEntity {
       this.monsterType !== null &&
       this.monsterType !== MonsterType.Cultist &&
       this.monsterType !== MonsterType.FireMage
-    )
+    ) {
+      if (
+        this.getCombatant().combatantProperties.conditionManager.hasConditionName(
+          CombatantConditionName.Flying
+        )
+      ) {
+        return SkeletalAnimationName.IdleFlying;
+      }
+
       return SkeletalAnimationName.IdleUnarmed;
+    }
 
     const combatant = this.getCombatant();
 

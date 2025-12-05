@@ -17,6 +17,7 @@ import { ProhibitedTargetCombatantStates } from "../../combat-actions/prohibited
 import { ResourceChangeSource } from "../../hp-change-source-types.js";
 import { CombatantProperties } from "../../../combatants/combatant-properties.js";
 import { CombatantTraitType } from "../../../combatants/combatant-traits/trait-types.js";
+import { CombatActionRequiredRange } from "../../combat-actions/combat-action-range.js";
 
 const BASE_PARRY_CHANCE = 5;
 
@@ -197,15 +198,32 @@ export class HitOutcomeMitigationCalculator {
     }
 
     const actionBaseAccuracy = combatAction.getAccuracy(user, actionLevel);
-    if (actionBaseAccuracy.type === ActionAccuracyType.Unavoidable)
+    if (actionBaseAccuracy.type === ActionAccuracyType.Unavoidable) {
       return { beforeEvasion: 100, afterEvasion: 100 };
+    }
 
     const finalTargetEvasion = !targetWillAttemptToEvade ? 0 : targetEvasion;
     const accComparedToEva = actionBaseAccuracy.value - finalTargetEvasion;
+    let afterEvasion = Math.max(MIN_HIT_CHANCE, accComparedToEva);
+
+    const canNotReachTargetForMeleeAction =
+      user.targetFlyingConditionPreventsReachingMeleeRange(target);
+    console.log("canNotReachTargetForMeleeAction:", canNotReachTargetForMeleeAction);
+
+    const isMeleeAction =
+      combatAction.targetingProperties.getRequiredRange(user, combatAction) ===
+      CombatActionRequiredRange.Melee;
+
+    console.log("isMeleeAction:", isMeleeAction);
+
+    if (isMeleeAction && canNotReachTargetForMeleeAction) {
+      console.log("setting afterEvasion to zero");
+      afterEvasion = 0;
+    }
 
     return {
       beforeEvasion: actionBaseAccuracy.value,
-      afterEvasion: Math.max(MIN_HIT_CHANCE, accComparedToEva),
+      afterEvasion,
     };
   }
 

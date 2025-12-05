@@ -189,6 +189,10 @@ export class ActionEntity implements IActionUser {
     return {};
   }
 
+  targetFlyingConditionPreventsReachingMeleeRange() {
+    return false;
+  }
+
   actionAndRankMeetsUseRequirements(
     actionAndRank: ActionAndRank,
     party: AdventuringParty,
