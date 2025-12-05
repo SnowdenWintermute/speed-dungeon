@@ -106,7 +106,6 @@ export class CombatantConditionManager extends CombatantSubsystem {
       }
 
       if (condition.stacksOption === null || condition.stacksOption.current === 0) {
-        console.log("stacks were null, removing condition:", condition.getName());
         this.removeConditionById(condition.id);
         return condition;
       }

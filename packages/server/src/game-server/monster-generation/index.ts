@@ -108,7 +108,6 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
     monster.combatantProperties.classProgressionProperties.getMainClass().combatantClass ===
     CombatantClass.Mage
   ) {
-    console.log("genereate mage type monster with PrefersAttackWithMana AI");
     combatantProperties.controlledBy.setAiTypes([AiType.Healer, AiType.PrefersAttackWithMana]);
   }
 

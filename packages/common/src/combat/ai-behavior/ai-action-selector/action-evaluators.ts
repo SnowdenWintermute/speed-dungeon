@@ -64,19 +64,9 @@ export const ACTION_EVALUATORS: Record<ActionEvaluatorTypes, AiActionEvaluator> 
     const filtered = intents.filter((intent) => {
       const action = COMBAT_ACTIONS[intent.actionName];
       const isMalicious = action.targetingProperties.intent === CombatActionIntent.Malicious;
-      console.log(
-        action.getStringName(),
-        "mana cost bases:",
-        action.costProperties.costBases[ActionPayableResource.Mana]
-      );
       const costsMana = action.costProperties.costBases[ActionPayableResource.Mana] !== undefined;
-      if (costsMana && isMalicious) {
-        console.log("valid mana costing spell found: ", action.getStringName());
-      }
       return costsMana && isMalicious;
     });
-
-    console.log("filtered mana costing Malicious actions:", filtered);
 
     ArrayUtils.shuffle(filtered);
 

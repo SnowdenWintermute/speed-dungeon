@@ -174,7 +174,6 @@ export class CharacterModel extends SceneEntity {
   }
 
   startIdleAnimation(transitionMs: number, options?: ManagedAnimationOptions) {
-    console.log("startIdleAnimation with ", transitionMs, "ms transition");
     const combatant = this.getCombatant();
     if (combatant.combatantProperties.isDead()) {
       return;

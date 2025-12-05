@@ -127,7 +127,6 @@ function getModelsAndPositions() {
   if (inLobby && gameOption.mode === GameMode.Progression) {
     modelsAndPositions = getProgressionGameLobbyCombatantModelPositions(gameOption);
   } else if (inGame) {
-    console.log("syncing models in game", gameOption.id);
     const party = gameStore.getExpectedParty();
     const { combatantManager } = party;
     for (const combatant of combatantManager.getAllCombatants()) {
@@ -138,7 +137,6 @@ function getModelsAndPositions() {
       };
     }
   } else {
-    console.log("syncing models NO game");
     const savedCharacters = AppStore.get().lobbyStore.getSavedCharacterSlots();
     // viewing saved characters
     for (const [slot, character] of iterateNumericEnumKeyedRecord(savedCharacters).filter(

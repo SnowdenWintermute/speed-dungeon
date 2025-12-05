@@ -66,7 +66,6 @@ export class FlyingCombatantCondition extends CombatantCondition {
     const actionUser = context.party.combatantManager.getExpectedCombatant(
       this.getConditionAppliedTo()
     );
-    console.log("triggering fall toward home position used by target :", actionUser);
 
     return {
       numStacksRemoved: this.stacksOption?.current || 1,

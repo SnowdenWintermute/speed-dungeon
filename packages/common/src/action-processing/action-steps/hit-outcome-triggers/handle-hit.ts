@@ -47,11 +47,8 @@ export function handleHit(
       })
     );
 
-    console.log("num stacks removed:", numStacksRemoved, condition.getName());
-
     // add it to the update so the client can remove the triggered conditions if required
     if (numStacksRemoved) {
-      console.log("adding removed stacks to update:", condition.getName(), numStacksRemoved);
       addRemovedConditionStacksToUpdate(
         condition.id,
         numStacksRemoved,

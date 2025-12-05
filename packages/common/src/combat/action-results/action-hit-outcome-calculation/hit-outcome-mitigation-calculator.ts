@@ -208,16 +208,12 @@ export class HitOutcomeMitigationCalculator {
 
     const canNotReachTargetForMeleeAction =
       user.targetFlyingConditionPreventsReachingMeleeRange(target);
-    console.log("canNotReachTargetForMeleeAction:", canNotReachTargetForMeleeAction);
 
     const isMeleeAction =
       combatAction.targetingProperties.getRequiredRange(user, combatAction) ===
       CombatActionRequiredRange.Melee;
 
-    console.log("isMeleeAction:", isMeleeAction);
-
     if (isMeleeAction && canNotReachTargetForMeleeAction) {
-      console.log("setting afterEvasion to zero");
       afterEvasion = 0;
     }
 
