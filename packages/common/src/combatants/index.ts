@@ -4,7 +4,7 @@ import { EntityProperties } from "../primatives/index.js";
 import { Inventory } from "./inventory/index.js";
 import { CombatActionName, FriendOrFoe } from "../combat/combat-actions/index.js";
 import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
-import { ConditionAppliedBy, ConditionTickProperties } from "./combatant-conditions/index.js";
+import { ConditionAppliedBy } from "./combatant-conditions/index.js";
 import { CombatantConditionName } from "../index.js";
 import { instanceToPlain, plainToInstance } from "class-transformer";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
@@ -88,7 +88,7 @@ export class Combatant implements IActionUser {
     return false;
   }
   setWasRemovedBeforeHitOutcomes(): void {}
-  getConditionTickPropertiesOption(): null | ConditionTickProperties {
+  getConditionTickPropertiesOption(): null {
     throw new Error("getCombatantPropertiesOption() is invalid on Combatants.");
   }
   getConditionAppliedTo(): EntityId {

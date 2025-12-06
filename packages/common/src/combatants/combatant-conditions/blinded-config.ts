@@ -1,0 +1,78 @@
+import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
+import {
+  CombatActionExecutionIntent,
+  CombatActionIntent,
+  CombatActionName,
+} from "../../combat/combat-actions/index.js";
+import {
+  CombatActionTargetSingle,
+  CombatActionTargetType,
+} from "../../combat/targeting/combat-action-targets.js";
+import { BASE_CONDITION_TICK_SPEED } from "../../combat/turn-order/consts.js";
+import {
+  CharacterModelIdentifier,
+  CombatantBaseChildTransformNodeIdentifier,
+  CombatantBaseChildTransformNodeName,
+  SceneEntityType,
+} from "../../scene-entities/index.js";
+import { CombatAttribute } from "../attributes/index.js";
+import { CombatantProperties } from "../combatant-properties.js";
+import { CombatantConditionConfig, CombatantConditionInit } from "./combatant-condition-config.js";
+import { CombatantCondition } from "./index.js";
+
+export function BLINDED_CONFIG_CREATOR(init: CombatantConditionInit): CombatantConditionConfig {
+  return {
+    ...init,
+    intent: CombatActionIntent.Malicious,
+    getAttributeModifiers(self: CombatantCondition, appliedTo: CombatantProperties) {
+      return { [CombatAttribute.Accuracy]: -10 * (self.level + 1) };
+    },
+    tickPropertiesOption: {
+      getTickSpeed(condition: CombatantCondition) {
+        return BASE_CONDITION_TICK_SPEED / (condition.level + 5);
+      },
+      onTick(actionUserContext: ActionUserContext) {
+        const user = actionUserContext.actionUser;
+
+        const targets: CombatActionTargetSingle = {
+          type: CombatActionTargetType.Single,
+          targetId: user.getEntityId(),
+        };
+
+        const triggeredAction = {
+          actionIntentAndUser: {
+            user,
+            actionExecutionIntent: new CombatActionExecutionIntent(
+              CombatActionName.ConditionPassTurn,
+              0,
+              targets
+            ),
+          },
+        };
+
+        return {
+          numStacksRemoved: 1,
+          triggeredAction,
+        };
+      },
+    },
+    getCosmeticEffectWhileActive(self, combatantId) {
+      const sceneEntityIdentifier: CharacterModelIdentifier = {
+        type: SceneEntityType.CharacterModel,
+        entityId: combatantId,
+      };
+      const parent: CombatantBaseChildTransformNodeIdentifier = {
+        sceneEntityIdentifier,
+        transformNodeName: CombatantBaseChildTransformNodeName.Head,
+      };
+
+      const effect = {
+        name: CosmeticEffectNames.DarkParticleAccumulation,
+        parent,
+      };
+
+      return [effect];
+    },
+  };
+}
