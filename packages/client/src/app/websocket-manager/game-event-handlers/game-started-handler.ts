@@ -28,10 +28,10 @@ export function gameStartedHandler(timeStarted: number) {
     console.error("no camera found");
     return;
   }
-  camera.target.copyFrom(new Vector3(-1, 0.2, 0.15));
-  camera.alpha = 4.66;
-  camera.beta = 1.02;
-  camera.radius = 7.15;
+  camera.target.copyFrom(new Vector3(-1, 0.85, 0.51));
+  camera.alpha = 4.7;
+  camera.beta = 1.06;
+  camera.radius = 10.94;
 
   party.dungeonExplorationManager.setCurrentFloor(game.selectedStartingFloor);
 

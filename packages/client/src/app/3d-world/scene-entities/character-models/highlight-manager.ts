@@ -12,6 +12,7 @@ import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import { CharacterModelPartCategory } from "./modular-character-parts-model-manager/modular-character-parts";
 import { AppStore } from "@/mobx-stores/app-store";
+import { makeAutoObservable } from "mobx";
 
 export class HighlightManager {
   private originalPartMaterialColors: Partial<
@@ -22,7 +23,9 @@ export class HighlightManager {
   } = {};
   public targetingIndicator: null | Mesh = null;
   public isHighlighted: boolean = false;
-  constructor(private modularCharacter: CharacterModel) {}
+  constructor(private modularCharacter: CharacterModel) {
+    makeAutoObservable(this);
+  }
 
   setHighlighted() {
     for (const [partCategory, part] of iterateNumericEnumKeyedRecord(
@@ -134,7 +137,7 @@ export class HighlightManager {
 
       const fastestActorId = battleOption.turnOrderManager
         .getFastestActorTurnOrderTracker()
-        .getId();
+        .getEntityId();
       const isTurn = fastestActorId === entityId;
 
       const inputIsLocked = partyOption ? partyOption.inputLock.isLocked() : false;
