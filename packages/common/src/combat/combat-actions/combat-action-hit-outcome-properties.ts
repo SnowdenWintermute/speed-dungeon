@@ -5,12 +5,9 @@ import {
 } from "../../action-processing/index.js";
 import { IActionUser } from "../../action-user-context/action-user.js";
 import { CombatantProperties } from "../../combatants/combatant-properties.js";
-import {
-  Combatant,
-  CombatantConditionName,
-  ConditionAppliedBy,
-  ThreatType,
-} from "../../combatants/index.js";
+import { Combatant, ThreatType } from "../../combatants/index.js";
+import { ConditionAppliedBy } from "../../conditions/condition-applied-by.js";
+import { CombatantConditionName } from "../../conditions/condition-names.js";
 import { HoldableSlotType } from "../../items/equipment/slots.js";
 import { NormalizedPercentage, Percentage } from "../../primatives/index.js";
 import { CombatActionHitOutcomes, ThreatChanges } from "../action-results/index.js";
@@ -64,8 +61,8 @@ export interface CombatActionHitOutcomeProperties {
   ) =>
     | null
     | {
-        conditionName: CombatantConditionName;
-        level: number;
+        name: CombatantConditionName;
+        rank: number;
         stacks: number;
         appliedBy: ConditionAppliedBy;
       }[];

@@ -1,10 +1,6 @@
 import { plainToInstance } from "class-transformer";
 import { FriendOrFoe, TurnTrackerEntityType } from "../combat/index.js";
-import {
-  Combatant,
-  CombatantCondition,
-  ConditionWithCombatantIdAppliedTo,
-} from "../combatants/index.js";
+import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { EntityId } from "../primatives/index.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
@@ -17,7 +13,7 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { runIfInBrowser } from "../utils/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { SpeedDungeonGame } from "../game/index.js";
-import { AdventuringParty } from "./index.js";
+import { CombatantCondition, ConditionWithCombatantIdAppliedTo } from "../conditions/index.js";
 
 export class CombatantManager extends AdventuringPartySubsystem {
   private combatants: Map<EntityId, Combatant> = new Map();

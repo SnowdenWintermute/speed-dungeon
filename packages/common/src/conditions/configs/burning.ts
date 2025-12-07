@@ -16,8 +16,8 @@ import {
   CombatantBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../scene-entities/index.js";
-import { CombatantConditionConfig, CombatantConditionInit } from "./combatant-condition-config.js";
-import { CombatantCondition } from "./index.js";
+import { CombatantConditionConfig, CombatantConditionInit } from "../condition-config.js";
+import { CombatantCondition } from "../index.js";
 
 export function BURNING_CONFIG_CREATOR(init: CombatantConditionInit): CombatantConditionConfig {
   return {
@@ -25,7 +25,7 @@ export function BURNING_CONFIG_CREATOR(init: CombatantConditionInit): CombatantC
     intent: CombatActionIntent.Malicious,
     tickPropertiesOption: {
       getTickSpeed(condition: CombatantCondition) {
-        return condition.level * BASE_CONDITION_TICK_SPEED;
+        return condition.rank * BASE_CONDITION_TICK_SPEED;
       },
       onTick(context: ActionUserContext) {
         const user = context.actionUser;

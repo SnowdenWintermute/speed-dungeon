@@ -1,21 +1,19 @@
-import {
-  ActionIntentAndUser,
-  ActionUserContext,
-  AiType,
-  CombatActionIntent,
-  CombatActionName,
-  Combatant,
-  CombatantAttributeRecord,
-  CombatantConditionName,
-  CombatantProperties,
-  ConditionTickProperties,
-  CosmeticEffectOnTargetTransformNode,
-  EntityId,
-  IdGenerator,
-  MaxAndCurrent,
-  TransformModifiers,
-} from "../../index.js";
-import { CombatantCondition, ConditionAppliedBy } from "./index.js";
+import { ActionIntentAndUser } from "../action-processing/action-steps/index.js";
+import { ActionUserContext } from "../action-user-context/index.js";
+import { AiType } from "../combat/ai-behavior/index.js";
+import { CombatActionIntent } from "../combat/combat-actions/combat-action-intent.js";
+import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
+import { CosmeticEffectOnTargetTransformNode } from "../combat/combat-actions/combat-action-steps-config.js";
+import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
+import { CombatantProperties } from "../combatants/combatant-properties.js";
+import { Combatant } from "../combatants/index.js";
+import { EntityId, MaxAndCurrent } from "../primatives/index.js";
+import { TransformModifiers } from "../scene-entities/index.js";
+import { IdGenerator } from "../utility-classes/index.js";
+import { ConditionAppliedBy } from "./condition-applied-by.js";
+import { CombatantConditionName } from "./condition-names.js";
+import { ConditionTickProperties } from "./condition-tick-properties.js";
+import { CombatantCondition } from "./index.js";
 
 export interface CombatantConditionInit {
   name: CombatantConditionName;

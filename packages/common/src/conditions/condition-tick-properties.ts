@@ -1,5 +1,5 @@
-import { ActionIntentAndUser } from "../../action-processing/index.js";
-import { ActionUserContext } from "../../action-user-context/index.js";
+import { ActionIntentAndUser } from "../action-processing/action-steps/index.js";
+import { ActionUserContext } from "../action-user-context/index.js";
 import { CombatantCondition } from "./index.js";
 
 export interface ConditionTickProperties {

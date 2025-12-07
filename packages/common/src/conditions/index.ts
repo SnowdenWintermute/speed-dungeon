@@ -1,52 +1,52 @@
-import { Option } from "../../primatives/index.js";
-import { Battle } from "../../battle/index.js";
-import { CombatActionIntent } from "../../combat/combat-actions/combat-action-intent.js";
-import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
-import { CosmeticEffectOnTargetTransformNode } from "../../combat/combat-actions/combat-action-steps-config.js";
-import { FriendOrFoe } from "../../combat/combat-actions/targeting-schemes-and-categories.js";
-import { EntityId, EntityProperties, MaxAndCurrent } from "../../primatives/index.js";
-import { IdGenerator } from "../../utility-classes/index.js";
-import { Combatant, CombatantAttributeRecord, ConditionTickProperties } from "../index.js";
-import { AdventuringParty } from "../../adventuring-party/index.js";
-import { ActionUserType, IActionUser } from "../../action-user-context/action-user.js";
-import { ActionIntentAndUser } from "../../action-processing/index.js";
+import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
+import { EntityId, MaxAndCurrent } from "../primatives/index.js";
+import { EntityProperties } from "../primatives/entity-properties.js";
+import { CombatActionIntent } from "../combat/combat-actions/combat-action-intent.js";
+import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
 import {
-  ActionAndRank,
+  ActionEntityProperties,
+  ActionIntentAndUser,
+  ActionUserContext,
   ActionUserTargetingProperties,
-} from "../../action-user-context/action-user-targeting-properties.js";
-import { Vector3, Quaternion } from "@babylonjs/core";
-import { ActionEntityProperties } from "../../action-entities/index.js";
-import { ActionUserContext } from "../../action-user-context/index.js";
-import { CombatantProperties } from "../combatant-properties.js";
-import { AiType } from "../../combat/ai-behavior/index.js";
-import { TransformModifiers } from "../../scene-entities/index.js";
+  ActionUserType,
+  AdventuringParty,
+  AiType,
+  Battle,
+  CombatActionName,
+  Combatant,
+  COMBATANT_CONDITION_DESCRIPTIONS,
+  CombatantProperties,
+  ConditionTickProperties,
+  CosmeticEffectOnTargetTransformNode,
+  IActionUser,
+  IdGenerator,
+  TransformModifiers,
+} from "../index.js";
+import { COMBATANT_CONDITION_NAME_STRINGS, CombatantConditionName } from "./condition-names.js";
+import { Quaternion, Vector3 } from "@babylonjs/core";
+import { ConditionAppliedBy } from "./condition-applied-by.js";
 
 export const MAX_CONDITION_STACKS = 99;
-
-export interface ConditionAppliedBy {
-  entityProperties: EntityProperties;
-  // we store this because at the time a condition is triggered,
-  // the entity which originally applied the condition may no longer exist
-  // yet we still must figure out the target ids of the condition's triggered
-  // action based on its intent and friend or foe status of targets
-  // where normally we would just calculate that based off an action user's
-  // presence in a certain battle group relative to the target's battle group
-  friendOrFoe: FriendOrFoe;
-}
 
 export interface ConditionWithCombatantIdAppliedTo {
   condition: CombatantCondition;
   appliedTo: EntityId;
 }
 
+// circular import:
+// -IActionUser
+// -ActionUserContext
+// -AdventuringParty
+// -CombatantProperties
 export abstract class CombatantCondition implements IActionUser {
   ticks?: MaxAndCurrent;
-  level: number = 1;
+  rank: number = 1;
   intent: CombatActionIntent = CombatActionIntent.Malicious;
   removedOnDeath: boolean = true;
   combatAttributes?: CombatantAttributeRecord = {};
   // @PERF - don't use targeting properties on conditions that don't have targets
   targetingProperties: ActionUserTargetingProperties = new ActionUserTargetingProperties();
+
   constructor(
     public id: EntityId,
     public appliedBy: ConditionAppliedBy,
@@ -80,12 +80,8 @@ export abstract class CombatantCondition implements IActionUser {
   getEntityProperties(): EntityProperties {
     return { id: this.id, name: this.getName() };
   }
-  getName(): string {
-    return COMBATANT_CONDITION_NAME_STRINGS[this.name];
-  }
-  getPositionOption() {
-    return null;
-  }
+  getName = () => COMBATANT_CONDITION_NAME_STRINGS[this.name];
+  getPositionOption = () => null;
   getMovementSpeedOption = () => null;
   getHomePosition(): Vector3 {
     throw new Error("Conditions do not have a home position");
@@ -126,7 +122,7 @@ export abstract class CombatantCondition implements IActionUser {
   payResourceCosts = () => {};
   handleTurnEnded = () => {};
   getEntityId = () => this.id;
-  getLevel = () => this.level;
+  getLevel = () => this.rank;
   getTotalAttributes = () => this.combatAttributes || {};
   getOwnedActions = () => new Map();
   getEquipmentOption = () => null;
@@ -151,9 +147,7 @@ export abstract class CombatantCondition implements IActionUser {
     return [];
   }
 
-  getDescription(): string {
-    return `${COMBATANT_CONDITION_DESCRIPTIONS[this.name]} (rank ${this.level})`;
-  }
+  getDescription = () => `${COMBATANT_CONDITION_DESCRIPTIONS[this.name]} (rank ${this.rank})`;
 
   abstract triggeredWhenHitBy(actionName: CombatActionName): boolean;
 
@@ -172,7 +166,7 @@ export abstract class CombatantCondition implements IActionUser {
     combatantId: EntityId
   ): CosmeticEffectOnTargetTransformNode[];
 
-  abstract tickPropertiesOption: Option<ConditionTickProperties>;
+  abstract tickPropertiesOption: null | ConditionTickProperties;
 
   abstract getAttributeModifiers?(
     condition: CombatantCondition,

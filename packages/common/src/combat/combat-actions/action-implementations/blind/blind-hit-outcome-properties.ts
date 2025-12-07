@@ -2,11 +2,11 @@ import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcom
 import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
 import { ThreatType } from "../../../../combatants/threat-manager/index.js";
 import { STABLE_THREAT_REDUCTION_ON_MONSTER_DEBUFFING_PLAYER } from "../../../../combatants/threat-manager/threat-calculator.js";
-import { CombatantConditionName } from "../../../../combatants/index.js";
 import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
+import { CombatantConditionName } from "../../../../conditions/condition-names.js";
 
 const overrides: Partial<CombatActionHitOutcomeProperties> = {};
 overrides.flatThreatGeneratedOnHit = { [ThreatType.Stable]: 1, [ThreatType.Volatile]: 300 };
@@ -20,8 +20,8 @@ overrides.getIsBlockable = () => false;
 overrides.getAppliedConditions = (user, actionLevel) => {
   return [
     {
-      conditionName: CombatantConditionName.Blinded,
-      level: actionLevel,
+      name: CombatantConditionName.Blinded,
+      rank: actionLevel,
       stacks: 1,
       appliedBy: { entityProperties: user.getEntityProperties(), friendOrFoe: FriendOrFoe.Hostile },
     },

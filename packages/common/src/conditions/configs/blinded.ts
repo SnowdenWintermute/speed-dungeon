@@ -10,27 +10,27 @@ import {
   CombatActionTargetType,
 } from "../../combat/targeting/combat-action-targets.js";
 import { BASE_CONDITION_TICK_SPEED } from "../../combat/turn-order/consts.js";
+import { CombatAttribute } from "../../combatants/attributes/index.js";
+import { CombatantProperties } from "../../combatants/combatant-properties.js";
 import {
   CharacterModelIdentifier,
   CombatantBaseChildTransformNodeIdentifier,
   CombatantBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../scene-entities/index.js";
-import { CombatAttribute } from "../attributes/index.js";
-import { CombatantProperties } from "../combatant-properties.js";
-import { CombatantConditionConfig, CombatantConditionInit } from "./combatant-condition-config.js";
-import { CombatantCondition } from "./index.js";
+import { CombatantConditionConfig, CombatantConditionInit } from "../condition-config.js";
+import { CombatantCondition } from "../index.js";
 
 export function BLINDED_CONFIG_CREATOR(init: CombatantConditionInit): CombatantConditionConfig {
   return {
     ...init,
     intent: CombatActionIntent.Malicious,
     getAttributeModifiers(self: CombatantCondition, appliedTo: CombatantProperties) {
-      return { [CombatAttribute.Accuracy]: -10 * (self.level + 1) };
+      return { [CombatAttribute.Accuracy]: -10 * (self.rank + 1) };
     },
     tickPropertiesOption: {
       getTickSpeed(condition: CombatantCondition) {
-        return BASE_CONDITION_TICK_SPEED / (condition.level + 5);
+        return BASE_CONDITION_TICK_SPEED / (condition.rank + 5);
       },
       onTick(actionUserContext: ActionUserContext) {
         const user = actionUserContext.actionUser;

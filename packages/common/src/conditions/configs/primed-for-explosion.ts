@@ -1,32 +1,31 @@
-import { CombatActionIntent } from "../../combat/combat-actions/index.js";
+import { MaxAndCurrent } from "../../index.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
+import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import {
-  ActionUserContext,
-  COMBAT_ACTIONS,
   CombatActionExecutionIntent,
+  CombatActionIntent,
   CombatActionName,
-  CombatActionTargetType,
-  MaxAndCurrent,
-} from "../../index.js";
-import { CombatantConditionConfig, CombatantConditionInit } from "./combatant-condition-config.js";
+} from "../../combat/combat-actions/index.js";
+import { CombatActionTargetType } from "../../combat/targeting/combat-action-targets.js";
+import { CombatantConditionConfig, CombatantConditionInit } from "../condition-config.js";
 
-export function PRIMED_FOR_ICE_BURST_CONFIG_CREATOR(
+export function PRIMED_FOR_EXPLOSION_CONFIG_CREATOR(
   init: CombatantConditionInit
 ): CombatantConditionConfig {
   return {
     ...init,
     intent: CombatActionIntent.Malicious,
-    stacksOption: new MaxAndCurrent(1, 1),
+    stacksOption: new MaxAndCurrent(10, 1),
     triggeredWhenHitBy: [
+      CombatActionName.AttackRangedMainhandProjectile,
+      CombatActionName.CounterAttackRangedMainhandProjectile,
       CombatActionName.AttackMeleeMainhand,
       CombatActionName.AttackMeleeOffhand,
-      CombatActionName.AttackRangedMainhandProjectile,
-      CombatActionName.ExplodingArrowProjectile,
-      CombatActionName.ChainingSplitArrowProjectile,
-      CombatActionName.CounterattackMeleeMainhand,
-      CombatActionName.CounterAttackRangedMainhandProjectile,
-      CombatActionName.ExecuteExplosion,
+      CombatActionName.BurningTick,
       CombatActionName.FirewallBurn,
+      CombatActionName.ExecuteExplosion,
       CombatActionName.Fire,
+      CombatActionName.ChainingSplitArrowProjectile,
     ],
     onTriggered(self, actionUserContext, targetCombatant, idGenerator) {
       const actionUser = self;
@@ -43,19 +42,14 @@ export function PRIMED_FOR_ICE_BURST_CONFIG_CREATOR(
       );
 
       const actionTarget = COMBAT_ACTIONS[
-        CombatActionName.IceBurstParent
+        CombatActionName.SpawnExplosion
       ].targetingProperties.getAutoTarget(conditionUserContext, null);
 
-      if (actionTarget instanceof Error) {
-        throw actionTarget;
-      }
-
-      if (actionTarget === null) {
-        throw new Error("failed to get auto target");
-      }
+      if (actionTarget instanceof Error) throw actionTarget;
+      if (actionTarget === null) throw new Error("failed to get auto target");
 
       const actionExecutionIntent = new CombatActionExecutionIntent(
-        CombatActionName.IceBurstParent,
+        CombatActionName.SpawnExplosion,
         actionUser.getLevel(),
         actionTarget
       );

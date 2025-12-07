@@ -1,7 +1,7 @@
 import { AiType } from "../../combat/ai-behavior/index.js";
 import { CombatActionIntent } from "../../combat/combat-actions/combat-action-intent.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
-import { CombatantConditionConfig, CombatantConditionInit } from "./combatant-condition-config.js";
+import { CombatantConditionConfig, CombatantConditionInit } from "../condition-config.js";
 
 const PET_AI_TYPES_BY_COMMAND_RANK: Record<number, AiType> = {
   [1]: AiType.TargetPetOwnerMostRecentTarget,
@@ -28,11 +28,11 @@ export function FOLLOWING_PET_COMMAND_CONFIG_CREATOR(
     ...init,
     intent: CombatActionIntent.Benevolent,
     getDescription(self): string {
-      return `${PET_COMMAND_AI_TYPE_DESCRIPTIONS_BY_RANK[self.level]} - ${PET_COMMAND_AI_TYPE_EXPLANATIONS_BY_RANK[self.level]}`;
+      return `${PET_COMMAND_AI_TYPE_DESCRIPTIONS_BY_RANK[self.rank]} - ${PET_COMMAND_AI_TYPE_EXPLANATIONS_BY_RANK[self.rank]}`;
     },
 
     getAiTypesAppliedToTarget(self) {
-      const aiTypeOption = PET_AI_TYPES_BY_COMMAND_RANK[self.level];
+      const aiTypeOption = PET_AI_TYPES_BY_COMMAND_RANK[self.rank];
       if (aiTypeOption === undefined) {
         return [];
       }

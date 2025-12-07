@@ -41,10 +41,11 @@ export * from "./combatants/combatant-traits/trait-types.js";
 export * from "./items/item-utils.js";
 
 export * from "./action-user-context/action-user.js";
-export * from "./combatants/combatant-conditions/condition-constructors.js";
 export * from "./action-user-context/action-user-targeting-properties.js";
-export * from "./combatants/combatant-conditions/deserialize-condition.js";
 
-export * from "./combatants/combatant-conditions/condition-tick-properties.js";
-export * from "./combatants/combatant-conditions/condition-names.js";
-export * from "./combatants/combatant-conditions/condition-descriptions.js";
+export * from "./conditions/deserialize-condition.js";
+export * from "./conditions/condition-tick-properties.js";
+export * from "./conditions/condition-names.js";
+export * from "./conditions/condition-descriptions.js";
+export * from "./conditions/index.js";
+export * from "./conditions/condition-factory.js";

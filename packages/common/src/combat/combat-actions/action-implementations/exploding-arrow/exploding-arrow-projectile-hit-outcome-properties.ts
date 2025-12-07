@@ -1,4 +1,3 @@
-import { CombatantConditionName } from "../../../../combatants/index.js";
 import { FriendOrFoe } from "../../index.js";
 import { ActionEntity } from "../../../../action-entities/index.js";
 import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
@@ -7,6 +6,7 @@ import {
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
+import { CombatantConditionName } from "../../../../conditions/condition-names.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 
@@ -25,8 +25,8 @@ hitOutcomeOverrides.getAppliedConditions = (user, actionLevel) => {
 
   return [
     {
-      conditionName: CombatantConditionName.PrimedForExplosion,
-      level: actionLevel,
+      name: CombatantConditionName.PrimedForExplosion,
+      rank: actionLevel,
       stacks: 1,
       appliedBy: {
         entityProperties: appliedBy || user.getEntityProperties(),

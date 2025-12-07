@@ -24,10 +24,10 @@ import { ABILITY_TREES } from "../ability-tree/set-up-ability-trees.js";
 import { COMBATANT_TRAIT_DESCRIPTIONS } from "../combatant-traits/index.js";
 import { getTamePetMaxPetLevel } from "../../combat/combat-actions/action-implementations/summon-pet/tame-pet.js";
 import { IdGenerator } from "../../utility-classes/index.js";
-import { COMBATANT_CONDITION_CONSTRUCTORS } from "../combatant-conditions/condition-constructors.js";
-import { CombatantConditionName } from "../combatant-conditions/index.js";
 import { Combatant } from "../index.js";
 import cloneDeep from "lodash.clonedeep";
+import { CombatantConditionName } from "../../conditions/condition-names.js";
+import { CombatantConditionFactory } from "../../conditions/condition-factory.js";
 
 export class CombatantAbilityProperties extends CombatantSubsystem {
   private ownedActions: Map<CombatActionName, CombatantActionState> = new Map();
@@ -273,14 +273,16 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
   applyConditionsFromTraits(self: Combatant, idGenerator: IdGenerator) {
     for (const [traitType, rank] of this.traitProperties.iterateAllTraits()) {
       if (traitType === CombatantTraitType.Flyer) {
-        const flyingCondition = new COMBATANT_CONDITION_CONSTRUCTORS[CombatantConditionName.Flying](
-          idGenerator.generate(),
-          { friendOrFoe: FriendOrFoe.Friendly, entityProperties: cloneDeep(self.entityProperties) },
-          self.getEntityId(),
-          1,
-          null
-        );
-
+        const flyingCondition = CombatantConditionFactory.create({
+          name: CombatantConditionName.Flying,
+          rank: 1,
+          id: idGenerator.generate(),
+          appliedBy: {
+            friendOrFoe: FriendOrFoe.Friendly,
+            entityProperties: cloneDeep(self.entityProperties),
+          },
+          appliedTo: self.getEntityId(),
+        });
         this.getCombatantProperties().conditionManager.applyCondition(flyingCondition);
       }
     }

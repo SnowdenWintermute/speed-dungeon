@@ -1,6 +1,6 @@
 import { COMBATANT_LEVEL_ACTION_VALUE_LEVEL_MODIFIER } from "../../../app-consts.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
-import { CombatantAttributeRecord } from "../../../combatants/index.js";
+import { CombatantAttributeRecord } from "../../../combatants/combatant-attribute-record.js";
 import { NumberRange } from "../../../primatives/index.js";
 
 /** Like in Diablo 1 where higher level combatants get greater benefits from attributes such as Strength -> Damage */

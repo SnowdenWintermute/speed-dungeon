@@ -11,12 +11,12 @@ import {
   CombatActionResource,
 } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
-import { CombatantCondition, CombatantConditionName } from "../../../../combatants/index.js";
 import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
+import { CombatantCondition, CombatantConditionName } from "../../../../index.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 hitOutcomeOverrides.getArmorPenetration = (user, actionLevel, self) => 15;
@@ -31,7 +31,9 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
     };
 
     let stacks = 1;
-    if (user instanceof CombatantCondition) stacks = user.stacksOption?.current || 1;
+    if (user instanceof CombatantCondition) {
+      stacks = user.stacksOption?.current || 1;
+    }
 
     const userLevel = user.getLevel();
 
@@ -59,8 +61,8 @@ hitOutcomeOverrides.getAppliedConditions = (actionUser, actionlevel) => {
   };
   return [
     {
-      conditionName: CombatantConditionName.PrimedForIceBurst,
-      level: actionUser.getLevel(),
+      name: CombatantConditionName.PrimedForIceBurst,
+      rank: actionUser.getLevel(),
       stacks: 1,
       appliedBy,
     },

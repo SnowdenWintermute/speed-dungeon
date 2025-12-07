@@ -1,11 +1,5 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
-import { ConditionAppliedBy, ConditionTickProperties } from "../combatants/index.js";
-import {
-  CombatantActionState,
-  CombatantAttributeRecord,
-  CombatantEquipment,
-  Inventory,
-} from "../combatants/index.js";
+import { CombatantActionState, CombatantEquipment, Inventory } from "../combatants/index.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
 import { EntityId, EntityProperties, MaxAndCurrent } from "../primatives/index.js";
 import {
@@ -20,6 +14,9 @@ import { CombatantProperties } from "../combatants/combatant-properties.js";
 import { Item } from "../items/index.js";
 import { HoldableSlotType } from "../items/equipment/slots.js";
 import { Equipment, WeaponProperties } from "../items/equipment/index.js";
+import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
+import { ConditionTickProperties } from "../conditions/condition-tick-properties.js";
+import { ConditionAppliedBy } from "../conditions/condition-applied-by.js";
 
 export enum ActionUserType {
   Combatant,

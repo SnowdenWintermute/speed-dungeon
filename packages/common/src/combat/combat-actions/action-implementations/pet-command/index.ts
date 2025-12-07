@@ -16,7 +16,7 @@ import {
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { PET_COMMAND_HIT_OUTCOME_PROPERTIES } from "./pet-command-hit-outcome-properties.js";
 import { PET_COMMAND_STEPS_CONFIG } from "./pet-command-steps-config.js";
-import { PET_COMMAND_AI_TYPE_DESCRIPTIONS_BY_RANK } from "../../../../combatants/combatant-conditions/following-pet-command.js";
+import { PET_COMMAND_AI_TYPE_DESCRIPTIONS_BY_RANK } from "../../../../conditions/configs/following-pet-command.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.PET_OF_USER(),

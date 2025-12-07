@@ -1,17 +1,15 @@
+"use client";
 import {
   ActionAccuracyType,
   ActionPayableResource,
   ActionUserContext,
   ArrayUtils,
-  COMBATANT_CONDITION_CONSTRUCTORS,
   COMBAT_ACTIONS,
   ClientToServerEvent,
   CombatActionExecutionIntent,
   CombatActionName,
   ERROR_MESSAGES,
-  FriendOrFoe,
   HitOutcomeMitigationCalculator,
-  MaxAndCurrent,
   TargetingCalculator,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
@@ -28,6 +26,7 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import { CharacterSheetWeaponDamage } from "../../character-sheet/CharacterSheetWeaponDamage";
 import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
+import { CombatantConditionFactory } from "@speed-dungeon/common";
 
 interface Props {
   actionName: CombatActionName;
@@ -192,24 +191,17 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
                 )}
                 {conditionsAppliedOption && (
                   <ul className="flex items-center list-none ml-2">
-                    {conditionsAppliedOption.map((conditionBlueprint) => {
-                      const condition = new COMBATANT_CONDITION_CONSTRUCTORS[
-                        conditionBlueprint.conditionName
-                      ](
-                        "condition name",
-                        {
-                          entityProperties: { id: "", name: "" },
-                          friendOrFoe: FriendOrFoe.Hostile,
-                        },
-                        "applied to dummy id",
-                        conditionBlueprint.level,
-                        new MaxAndCurrent(conditionBlueprint.stacks, conditionBlueprint.stacks)
-                      );
+                    {conditionsAppliedOption.map((conditionBlueprint, i) => {
+                      const condition = CombatantConditionFactory.create({
+                        ...conditionBlueprint,
+                        id: `dummy-condition-${i}`,
+                        appliedTo: "applied to dummy id",
+                      });
 
                       return (
-                        <li className="flex items-center" key={conditionBlueprint.conditionName}>
+                        <li className="flex items-center" key={conditionBlueprint.name}>
                           <ConditionIndicator key={condition.name} condition={condition} />
-                          <div>R{conditionBlueprint.level}</div>
+                          <div>R{conditionBlueprint.rank}</div>
                         </li>
                       );
                     })}

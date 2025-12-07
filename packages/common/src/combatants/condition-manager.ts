@@ -1,10 +1,11 @@
 import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { runIfInBrowser } from "../utils/index.js";
-import { CombatantCondition, CombatantConditionName } from "./combatant-conditions/index.js";
+import { CombatantCondition } from "../conditions/index.js";
 import { plainToInstance } from "class-transformer";
-import { deserializeCondition } from "./combatant-conditions/deserialize-condition.js";
 import { EntityId } from "../primatives/index.js";
+import { deserializeCondition } from "../conditions/deserialize-condition.js";
+import { CombatantConditionName } from "../conditions/condition-names.js";
 
 export class CombatantConditionManager extends CombatantSubsystem {
   private conditions: CombatantCondition[] = [];
@@ -51,11 +52,11 @@ export class CombatantConditionManager extends CombatantSubsystem {
       }
 
       // don't replace an existing condition of higher level
-      const existingConditionIsHigherLevel = existingCondition.level > condition.level;
+      const existingConditionIsHigherLevel = existingCondition.rank > condition.rank;
       if (existingConditionIsHigherLevel) return true;
 
       // if higher level, replace it
-      if (existingCondition.level < condition.level) {
+      if (existingCondition.rank < condition.rank) {
         this.replaceExistingCondition(condition);
         return true;
       }

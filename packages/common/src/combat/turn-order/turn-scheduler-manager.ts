@@ -1,5 +1,5 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { Combatant, CombatantCondition } from "../../combatants/index.js";
+import { CombatantCondition } from "../../conditions/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { CombatantTurnScheduler } from "./combatant-turn-scheduler.js";

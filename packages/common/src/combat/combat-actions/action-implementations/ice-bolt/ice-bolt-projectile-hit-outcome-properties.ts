@@ -1,11 +1,11 @@
 import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
 import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
-import { CombatantConditionName } from "../../../../combatants/index.js";
 import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { ActionEntity } from "../../../../action-entities/index.js";
+import { CombatantConditionName } from "../../../../conditions/condition-names.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 
@@ -22,8 +22,8 @@ hitOutcomeOverrides.getAppliedConditions = (user, actionLevel) => {
 
   return [
     {
-      conditionName: CombatantConditionName.PrimedForIceBurst,
-      level: actionLevel,
+      name: CombatantConditionName.PrimedForIceBurst,
+      rank: actionLevel,
       stacks: 1,
       appliedBy: {
         entityProperties: appliedBy || user.getEntityProperties(),
