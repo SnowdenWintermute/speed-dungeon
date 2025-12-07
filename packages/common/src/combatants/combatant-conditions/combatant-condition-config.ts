@@ -6,19 +6,16 @@ import {
   CombatActionName,
   Combatant,
   CombatantAttributeRecord,
+  CombatantConditionName,
   CombatantProperties,
+  ConditionTickProperties,
   CosmeticEffectOnTargetTransformNode,
   EntityId,
   IdGenerator,
   MaxAndCurrent,
   TransformModifiers,
 } from "../../index.js";
-import {
-  CombatantCondition,
-  CombatantConditionName,
-  ConditionAppliedBy,
-  ConditionTickProperties,
-} from "./index.js";
+import { CombatantCondition, ConditionAppliedBy } from "./index.js";
 
 export interface CombatantConditionInit {
   name: CombatantConditionName;

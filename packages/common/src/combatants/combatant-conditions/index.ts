@@ -20,34 +20,6 @@ import { ActionUserContext } from "../../action-user-context/index.js";
 import { CombatantProperties } from "../combatant-properties.js";
 import { AiType } from "../../combat/ai-behavior/index.js";
 import { TransformModifiers } from "../../scene-entities/index.js";
-export * from "./condition-tick-properties.js";
-
-export enum CombatantConditionName {
-  PrimedForExplosion,
-  PrimedForIceBurst,
-  Burning,
-  Blinded,
-  FollowingPetCommand,
-  Flying,
-}
-
-export const COMBATANT_CONDITION_NAME_STRINGS: Record<CombatantConditionName, string> = {
-  [CombatantConditionName.PrimedForExplosion]: "Detonatable",
-  [CombatantConditionName.PrimedForIceBurst]: "Shatterable",
-  [CombatantConditionName.Burning]: "Burning",
-  [CombatantConditionName.Blinded]: "Blinded",
-  [CombatantConditionName.FollowingPetCommand]: "Following Command",
-  [CombatantConditionName.Flying]: "Flying",
-};
-
-export const COMBATANT_CONDITION_DESCRIPTIONS: Record<CombatantConditionName, string> = {
-  [CombatantConditionName.PrimedForExplosion]: "Causes an explosion when hit by certain actions",
-  [CombatantConditionName.PrimedForIceBurst]: "Causes an ice burst when hit by certain actions",
-  [CombatantConditionName.Burning]: "Periodically takes non-magical fire damage",
-  [CombatantConditionName.Blinded]: "Accuracy is reduced",
-  [CombatantConditionName.FollowingPetCommand]: "Making decisions based on external factors",
-  [CombatantConditionName.Flying]: "Untargetable by melee actions",
-};
 
 export const MAX_CONDITION_STACKS = 99;
 
@@ -114,10 +86,7 @@ export abstract class CombatantCondition implements IActionUser {
   getPositionOption() {
     return null;
   }
-  getMovementSpeedOption(): null | number {
-    return null;
-  }
-
+  getMovementSpeedOption = () => null;
   getHomePosition(): Vector3 {
     throw new Error("Conditions do not have a home position");
   }
@@ -159,40 +128,24 @@ export abstract class CombatantCondition implements IActionUser {
   getEntityId = () => this.id;
   getLevel = () => this.level;
   getTotalAttributes = () => this.combatAttributes || {};
-  getOwnedActions() {
-    return new Map();
-  }
+  getOwnedActions = () => new Map();
   getEquipmentOption = () => null;
   getInventoryOption = () => null;
   getIdOfEntityToCreditWithThreat = () => this.appliedBy.entityProperties.id;
-
-  hasRequiredAttributesToUseItem(): boolean {
-    return true;
-  }
-
-  hasRequiredConsumablesToUseAction(): boolean {
-    return true;
-  }
-
-  targetFlyingConditionPreventsReachingMeleeRange() {
-    return false;
-  }
-
-  actionAndRankMeetsUseRequirements(
-    actionAndRank: ActionAndRank,
-    party: AdventuringParty,
-    battleOption: Battle | null
-  ): { canUse: boolean; reasonCanNot?: string } {
+  hasRequiredAttributesToUseItem = () => true;
+  hasRequiredConsumablesToUseAction = () => true;
+  targetFlyingConditionPreventsReachingMeleeRange = () => false;
+  actionAndRankMeetsUseRequirements(): { canUse: boolean; reasonCanNot?: string } {
     throw new Error("not implemented on conditions");
   }
-
   getWeaponsInSlots() {
     return {};
   }
-
   getNaturalUnarmedWeapons() {
     return {};
   }
+
+  // CONDITION SPECIFIC
 
   getAiTypesAppliedToTarget(): AiType[] {
     return [];
