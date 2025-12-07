@@ -20,12 +20,14 @@ import {
   CosmeticEffectOnTargetTransformNode,
   IActionUser,
   IdGenerator,
+  runIfInBrowser,
   TransformModifiers,
 } from "../index.js";
 import { COMBATANT_CONDITION_NAME_STRINGS, CombatantConditionName } from "./condition-names.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ConditionAppliedBy } from "./condition-applied-by.js";
 import { CombatantConditionConfig, CombatantConditionInit } from "./condition-config.js";
+import { makeAutoObservable } from "mobx";
 
 export const MAX_CONDITION_STACKS = 99;
 
@@ -121,6 +123,8 @@ export class CombatantCondition implements IActionUser {
     if (descriptionGetterOverride) {
       this.getDescription = () => descriptionGetterOverride(this);
     }
+
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static getInit(condition: CombatantCondition): CombatantConditionInit {

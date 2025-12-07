@@ -8,7 +8,7 @@ import { ActionUserTargetingProperties } from "../action-user-context/action-use
 import { CombatantAttributeProperties } from "./attribute-properties.js";
 import { ThreatManager } from "./threat-manager/index.js";
 import { CombatantClass, Inventory } from "./index.js";
-import { plainToInstance } from "class-transformer";
+import { Exclude, plainToInstance } from "class-transformer";
 import {
   ClassProgressionProperties,
   CombatantClassProperties,
@@ -34,6 +34,9 @@ export class CombatantProperties {
     new CombatantClassProperties(1, CombatantClass.Warrior)
   );
   mitigationProperties = new MitigationProperties();
+  // the combatant conditions constructor takes a config object and we don't have that
+  // when trying to call instanceToPlain
+  @Exclude()
   conditionManager = new CombatantConditionManager();
   transformProperties = new CombatantTransformProperties();
 
@@ -97,7 +100,7 @@ export class CombatantProperties {
     );
 
     deserialized.conditionManager = CombatantConditionManager.getDeserialized(
-      deserialized.conditionManager
+      combatantProperties.conditionManager
     );
 
     return deserialized;

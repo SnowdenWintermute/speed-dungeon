@@ -72,7 +72,8 @@ export class CombatantFilterFactory {
       const { threatManager } = actionUser.getCombatantProperties();
 
       if (threatManager === undefined) {
-        throw new Error("expected threat meter found");
+        // no threat meter, so anyone is valid
+        return true;
       }
 
       const topThreatTargetId = threatManager.getHighestThreatCombatantId();

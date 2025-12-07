@@ -22,6 +22,7 @@ import { runIfInBrowser } from "../utils/index.js";
 import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantAttributeRecord } from "./combatant-attribute-record.js";
 import { ConditionAppliedBy } from "../conditions/condition-applied-by.js";
+import cloneDeep from "lodash.clonedeep";
 
 export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
@@ -57,7 +58,17 @@ export class Combatant implements IActionUser {
   }
 
   getSerialized() {
+    console.log("about to serialize combatant");
     const serialized = instanceToPlain(this) as Combatant;
+
+    serialized.combatantProperties.conditionManager =
+      this.combatantProperties.conditionManager.getSerialized();
+    console.log(
+      "serialized combatant",
+      this.getName(),
+      "serialized conditionManager:",
+      serialized.combatantProperties.conditionManager
+    );
     return serialized;
   }
 
