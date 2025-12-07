@@ -1,9 +1,7 @@
 import { COMBAT_ACTIONS } from "../../../combat/index.js";
 import { Combatant } from "../../../combatants/index.js";
 import { CombatantConditionFactory } from "../../../conditions/condition-factory.js";
-import { CombatantCondition } from "../../../conditions/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
-import { MaxAndCurrent } from "../../../primatives/max-and-current.js";
 import { ActivatedTriggersGameUpdateCommand } from "../../game-update-commands.js";
 import { ActionIntentAndUser, ActionResolutionStepContext } from "../index.js";
 import { addConditionToUpdate } from "./add-condition-to-update.js";
@@ -25,7 +23,7 @@ export function handleHit(
   const { conditionManager } = targetCombatant.combatantProperties;
 
   for (const condition of conditionManager.getConditions()) {
-    const conditionHasNoHitTrigger = !condition.triggeredWhenHitBy(
+    const conditionHasNoHitTrigger = !condition.triggeredWhenHitBy?.includes(
       actionExecutionIntent.actionName
     );
     if (conditionHasNoHitTrigger) continue;

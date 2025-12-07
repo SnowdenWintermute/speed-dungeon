@@ -93,7 +93,10 @@ export async function synchronizeCombatantModelsWithAppState(options: {
       const { conditionManager } = combatantProperties;
 
       conditionManager.getConditions().forEach((condition) => {
-        startOrStopCosmeticEffects(condition.getCosmeticEffectWhileActive(entityProperties.id), []);
+        startOrStopCosmeticEffects(
+          condition.getCosmeticEffectWhileActive?.(entityProperties.id),
+          []
+        );
       });
 
       const portraitResult = await createCombatantPortrait(result.entityId);

@@ -25,6 +25,7 @@ import {
 import { COMBATANT_CONDITION_NAME_STRINGS, CombatantConditionName } from "./condition-names.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ConditionAppliedBy } from "./condition-applied-by.js";
+import { CombatantConditionConfig, CombatantConditionInit } from "./condition-config.js";
 
 export const MAX_CONDITION_STACKS = 99;
 
@@ -33,42 +34,117 @@ export interface ConditionWithCombatantIdAppliedTo {
   appliedTo: EntityId;
 }
 
-// circular import:
-// -IActionUser
-// -ActionUserContext
-// -AdventuringParty
-// -CombatantProperties
-export abstract class CombatantCondition implements IActionUser {
-  ticks?: MaxAndCurrent;
-  rank: number = 1;
-  intent: CombatActionIntent = CombatActionIntent.Malicious;
-  removedOnDeath: boolean = true;
-  combatAttributes?: CombatantAttributeRecord = {};
-  // @PERF - don't use targeting properties on conditions that don't have targets
-  targetingProperties: ActionUserTargetingProperties = new ActionUserTargetingProperties();
+export class CombatantCondition implements IActionUser {
+  public name: CombatantConditionName;
+  public rank: number;
+  public id: EntityId;
+  public appliedBy: ConditionAppliedBy;
+  public appliedTo: EntityId;
+  public intent: CombatActionIntent;
+  public stacksOption?: MaxAndCurrent;
+  public removedOnDeath?: boolean;
+  public triggeredWhenHitBy?: CombatActionName[];
+  public triggeredWhenActionUsed?: CombatActionName[];
+  /** As action user, this condition's attributes */
+  public combatAttributes?: CombatantAttributeRecord;
+  public targetingProperties?: ActionUserTargetingProperties;
 
-  constructor(
-    public id: EntityId,
-    public appliedBy: ConditionAppliedBy,
-    public appliedTo: EntityId,
-    public name: CombatantConditionName,
-    public stacksOption: null | MaxAndCurrent
-  ) {}
+  private tickPropertiesOption?: ConditionTickProperties;
+
+  getAiTypesAppliedToTarget: () => AiType[];
+  getConditionAppliedTo: () => EntityId;
+  getDescription = () => `${COMBATANT_CONDITION_DESCRIPTIONS[this.name]} (rank ${this.rank})`;
+  onTriggered(
+    actionUserContext: ActionUserContext,
+    targetCombatant: Combatant,
+    idGenerator: IdGenerator
+  ): {
+    numStacksRemoved: number;
+    triggeredActions: ActionIntentAndUser[];
+  } {
+    return { numStacksRemoved: 0, triggeredActions: [] };
+  }
+
+  getCosmeticEffectWhileActive?(combatantId: EntityId): CosmeticEffectOnTargetTransformNode[];
+
+  /** How this condition affects the appliedTo combatant */
+  getAttributeModifiers?(appliedTo: CombatantProperties): CombatantAttributeRecord;
+
+  getTransformModifiers(): TransformModifiers {
+    return {};
+  }
+
+  getTickProperties() {
+    return this.tickPropertiesOption;
+  }
+
+  constructor(config: CombatantConditionConfig) {
+    this.name = config.name;
+    this.rank = config.rank;
+    this.id = config.id;
+    this.appliedBy = config.appliedBy;
+    this.appliedTo = config.appliedTo;
+    this.intent = config.intent;
+    this.stacksOption = config.stacksOption;
+    this.tickPropertiesOption = config.tickPropertiesOption;
+    this.removedOnDeath = config.removedOnDeath;
+    this.triggeredWhenHitBy = config.triggeredWhenHitBy;
+    this.combatAttributes = config.combatAttributes;
+
+    this.getAiTypesAppliedToTarget = () => config.getAiTypesAppliedToTarget?.(this) || [];
+    this.getConditionAppliedTo = () => config.appliedTo;
+
+    const onTriggeredOverride = config.onTriggered;
+    if (onTriggeredOverride) {
+      this.onTriggered = (actionUserContext, combatantAppliedTo, idGenerator) =>
+        onTriggeredOverride(this, actionUserContext, combatantAppliedTo, idGenerator);
+    }
+
+    const cosmeticEffectWhileActiveGetterOverride = config.getCosmeticEffectWhileActive;
+    if (cosmeticEffectWhileActiveGetterOverride) {
+      this.getCosmeticEffectWhileActive = (appliedTo) =>
+        cosmeticEffectWhileActiveGetterOverride(this, appliedTo);
+    }
+
+    const attributeModifiersGetterOverride = config.getAttributeModifiers;
+    if (attributeModifiersGetterOverride) {
+      this.getAttributeModifiers = (combatantAppliedTo) =>
+        attributeModifiersGetterOverride(this, combatantAppliedTo);
+    }
+
+    const transformModifiersGetterOverride = config.getTransformModifiers;
+    if (transformModifiersGetterOverride) {
+      this.getTransformModifiers = () => transformModifiersGetterOverride();
+    }
+
+    const descriptionGetterOverride = config.getDescription;
+    if (descriptionGetterOverride) {
+      this.getDescription = () => descriptionGetterOverride(this);
+    }
+  }
+
+  static getInit(condition: CombatantCondition): CombatantConditionInit {
+    return {
+      name: condition.name,
+      rank: condition.rank,
+      id: condition.id,
+      appliedBy: condition.appliedBy,
+      appliedTo: condition.appliedTo,
+      stacks: condition.stacksOption?.current || null,
+    };
+  }
+
+  getStringName() {
+    return COMBATANT_CONDITION_NAME_STRINGS[this.name];
+  }
+
   getType = () => ActionUserType.Condition;
   getActionEntityProperties(): ActionEntityProperties {
     throw new Error("Conditions do not have ActionEntityProperties.");
   }
-  wasRemovedBeforeHitOutcomes(): boolean {
-    return false;
-  }
-
+  wasRemovedBeforeHitOutcomes = () => false;
   setWasRemovedBeforeHitOutcomes(): void {}
-  getConditionTickPropertiesOption() {
-    return this.tickPropertiesOption;
-  }
-  getConditionAppliedTo(): EntityId {
-    return this.appliedTo;
-  }
+  getConditionTickPropertiesOption = () => this.tickPropertiesOption || null;
 
   getCombatantProperties(): CombatantProperties {
     throw new Error("Conditions do not have combatantProperties");
@@ -77,6 +153,7 @@ export abstract class CombatantCondition implements IActionUser {
   getConditionStacks(): MaxAndCurrent {
     return this.stacksOption || new MaxAndCurrent(0, 0);
   }
+
   getEntityProperties(): EntityProperties {
     return { id: this.id, name: this.getName() };
   }
@@ -92,6 +169,7 @@ export abstract class CombatantCondition implements IActionUser {
   getConditionAppliedBy(): ConditionAppliedBy {
     return this.appliedBy;
   }
+
   getAllyAndOpponentIds(
     party: AdventuringParty,
     battleOption: null | Battle
@@ -116,9 +194,17 @@ export abstract class CombatantCondition implements IActionUser {
   }
 
   getTargetingProperties(): ActionUserTargetingProperties {
-    if (this.targetingProperties) return this.targetingProperties;
+    if (!this.targetingProperties) {
+      this.targetingProperties = new ActionUserTargetingProperties();
+    }
+
+    if (this.targetingProperties) {
+      return this.targetingProperties;
+    }
+
     throw new Error("Condition was not configured with targetingProperties");
   }
+
   payResourceCosts = () => {};
   handleTurnEnded = () => {};
   getEntityId = () => this.id;
@@ -139,45 +225,5 @@ export abstract class CombatantCondition implements IActionUser {
   }
   getNaturalUnarmedWeapons() {
     return {};
-  }
-
-  // CONDITION SPECIFIC
-
-  getAiTypesAppliedToTarget(): AiType[] {
-    return [];
-  }
-
-  getDescription = () => `${COMBATANT_CONDITION_DESCRIPTIONS[this.name]} (rank ${this.rank})`;
-
-  abstract triggeredWhenHitBy(actionName: CombatActionName): boolean;
-
-  abstract triggeredWhenActionUsed(): boolean;
-
-  abstract onTriggered(
-    actionUserContext: ActionUserContext,
-    targetCombatant: Combatant,
-    idGenerator: IdGenerator
-  ): {
-    numStacksRemoved: number;
-    triggeredActions: ActionIntentAndUser[];
-  };
-
-  abstract getCosmeticEffectWhileActive(
-    combatantId: EntityId
-  ): CosmeticEffectOnTargetTransformNode[];
-
-  abstract tickPropertiesOption: null | ConditionTickProperties;
-
-  abstract getAttributeModifiers?(
-    condition: CombatantCondition,
-    appliedTo: CombatantProperties
-  ): CombatantAttributeRecord;
-
-  getTransformModifiers(): TransformModifiers {
-    return {};
-  }
-
-  getTickProperties() {
-    return this.tickPropertiesOption;
   }
 }

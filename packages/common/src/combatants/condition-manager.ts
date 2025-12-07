@@ -106,7 +106,7 @@ export class CombatantConditionManager extends CombatantSubsystem {
         condition.stacksOption.current = Math.max(0, newStacksCount);
       }
 
-      if (condition.stacksOption === null || condition.stacksOption.current === 0) {
+      if (condition.stacksOption === undefined || condition.stacksOption.current === 0) {
         this.removeConditionById(condition.id);
         return condition;
       }

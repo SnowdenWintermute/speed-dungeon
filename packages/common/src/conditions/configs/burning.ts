@@ -10,6 +10,7 @@ import {
   CombatActionTargetType,
 } from "../../combat/targeting/combat-action-targets.js";
 import { BASE_CONDITION_TICK_SPEED } from "../../combat/turn-order/consts.js";
+import { MAX_CONDITION_STACKS, MaxAndCurrent } from "../../index.js";
 import {
   CharacterModelIdentifier,
   CombatantBaseChildTransformNodeIdentifier,
@@ -20,9 +21,11 @@ import { CombatantConditionConfig, CombatantConditionInit } from "../condition-c
 import { CombatantCondition } from "../index.js";
 
 export function BURNING_CONFIG_CREATOR(init: CombatantConditionInit): CombatantConditionConfig {
+  console.log("creating burning:", init);
   return {
     ...init,
     intent: CombatActionIntent.Malicious,
+    stacksOption: new MaxAndCurrent(MAX_CONDITION_STACKS, init.stacks || 1),
     tickPropertiesOption: {
       getTickSpeed(condition: CombatantCondition) {
         return condition.rank * BASE_CONDITION_TICK_SPEED;

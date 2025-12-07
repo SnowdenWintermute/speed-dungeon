@@ -21,6 +21,7 @@ export interface CombatantConditionInit {
   id: EntityId;
   appliedBy: ConditionAppliedBy;
   appliedTo: EntityId;
+  stacks: number | null;
 }
 
 export interface CombatantConditionConfig {
@@ -48,6 +49,7 @@ export interface CombatantConditionConfig {
   // triggers
   removedOnDeath?: boolean;
   triggeredWhenHitBy?: CombatActionName[];
+
   onTriggered?(
     self: CombatantCondition,
     actionUserContext: ActionUserContext,

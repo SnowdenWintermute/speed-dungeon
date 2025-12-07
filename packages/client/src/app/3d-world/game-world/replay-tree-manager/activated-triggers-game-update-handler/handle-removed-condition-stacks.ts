@@ -24,7 +24,7 @@ export function handleRemovedConditionStacks(
 
         startOrStopCosmeticEffects(
           [],
-          conditionRemovedOption.getCosmeticEffectWhileActive(targetModelOption.entityId)
+          conditionRemovedOption.getCosmeticEffectWhileActive?.(targetModelOption.entityId)
         );
       }
     }

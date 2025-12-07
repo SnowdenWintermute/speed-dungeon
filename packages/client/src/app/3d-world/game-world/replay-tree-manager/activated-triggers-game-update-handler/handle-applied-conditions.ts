@@ -31,7 +31,7 @@ export function handleAppliedConditions(
         }
 
         startOrStopCosmeticEffects(
-          deserializedCondition.getCosmeticEffectWhileActive(combatantResult.entityProperties.id),
+          deserializedCondition.getCosmeticEffectWhileActive?.(combatantResult.entityProperties.id),
           []
         );
       }

@@ -276,6 +276,7 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
         const flyingCondition = CombatantConditionFactory.create({
           name: CombatantConditionName.Flying,
           rank: 1,
+          stacks: null,
           id: idGenerator.generate(),
           appliedBy: {
             friendOrFoe: FriendOrFoe.Friendly,

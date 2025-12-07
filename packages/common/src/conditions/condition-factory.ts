@@ -12,7 +12,7 @@ import { CombatantCondition } from "./index.js";
 export class CombatantConditionFactory {
   constructor(private idGenerator: IdGenerator) {}
   static create(init: CombatantConditionInit): CombatantCondition {
-    throw new Error("not implemented");
+    return new CombatantCondition(CONDITION_CONFIGS[init.name](init));
   }
 }
 

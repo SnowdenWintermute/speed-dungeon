@@ -123,8 +123,9 @@ export class ConditionTurnTracker extends TurnTracker {
     );
 
     const tickPropertiesOption = condition.getTickProperties();
-    if (tickPropertiesOption === null)
+    if (!tickPropertiesOption) {
       throw new Error("expected condition tick properties were missing");
+    }
 
     const onTick = tickPropertiesOption.onTick(new ActionUserContext(game, party, condition));
 

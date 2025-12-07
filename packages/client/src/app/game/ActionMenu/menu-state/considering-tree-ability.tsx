@@ -4,7 +4,6 @@ import {
   AbilityType,
   ArrayUtils,
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
-  COMBAT_ACTIONS,
   Combatant,
   COMBATANT_CONDITION_DESCRIPTIONS,
   COMBATANT_CONDITION_NAME_STRINGS,
@@ -129,8 +128,8 @@ function getConditionsToShowDetailButtonsFor(ability: AbilityTreeAbility, user: 
     const conditionsAppliedOption = rankDescription[ActionDescriptionComponent.AppliesConditions];
     if (!conditionsAppliedOption) continue;
     for (const conditionBlueprint of conditionsAppliedOption) {
-      if (conditionsToShowDetailButtonsFor.includes(conditionBlueprint.conditionName)) continue;
-      conditionsToShowDetailButtonsFor.push(conditionBlueprint.conditionName);
+      if (conditionsToShowDetailButtonsFor.includes(conditionBlueprint.name)) continue;
+      conditionsToShowDetailButtonsFor.push(conditionBlueprint.name);
     }
   }
 

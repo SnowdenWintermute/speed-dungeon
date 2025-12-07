@@ -1,17 +1,25 @@
+import { plainToInstance } from "class-transformer";
+import { ActionUserTargetingProperties, CombatantConditionFactory } from "../index.js";
 import { CombatantCondition } from "./index.js";
+
 /**Putting this on the condition class created a circular dependency which is why it is separately declared here*/
-/** this note was befor the refactor though */
 export function deserializeCondition(condition: CombatantCondition): CombatantCondition {
-  throw new Error("needs reimplemented");
-  // const constructor = COMBATANT_CONDITION_CONSTRUCTORS[condition.name];
-  // const { id, appliedBy, appliedTo, level, stacksOption, ...rest } = condition;
-  // const deserialized = new constructor(id, appliedBy, appliedTo, level, stacksOption);
+  const init = CombatantCondition.getInit(condition);
+  const deserializedCondition = CombatantConditionFactory.create(init);
 
-  // for (const [key, value] of Object.entries(rest)) {
-  //   if ((deserialized as any)[key] === undefined) {
-  //     (deserialized as any)[key] = value;
-  //   }
-  // }
+  const { ...rest } = condition;
+  for (const [key, value] of Object.entries(rest)) {
+    if ((deserializedCondition as any)[key] === undefined) {
+      (deserializedCondition as any)[key] = value;
+    }
+  }
 
-  // return deserialized;
+  if (deserializedCondition.targetingProperties) {
+    deserializedCondition.targetingProperties = plainToInstance(
+      ActionUserTargetingProperties,
+      deserializedCondition.targetingProperties
+    );
+  }
+
+  return deserializedCondition;
 }
