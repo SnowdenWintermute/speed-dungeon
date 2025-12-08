@@ -38,12 +38,14 @@ import Model3DIcon from "../../../public/img/menu-icons/3d-model-icon.svg";
 import Whistle from "../../../public/img/game-ui-icons/whistle.svg";
 import EditPencil from "../../../public/img/menu-icons//edit-pencil.svg";
 import Feather from "../../../public/img/game-ui-icons/feather.svg";
+import SpiderWeb from "../../../public/img/game-ui-icons/spider-web.svg";
 
 import { ReactNode } from "react";
 import {
   ActionEntityName,
   ActionPayableResource,
   CombatActionName,
+  CombatantCondition,
   CombatantConditionName,
   CombatantTraitType,
   ConsumableType,
@@ -90,6 +92,7 @@ export enum IconName {
   Whistle,
   EditPencil,
   Feather,
+  SpiderWeb,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -131,6 +134,7 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.Whistle]: (className) => <Whistle className={className} />,
   [IconName.EditPencil]: (className: string) => <EditPencil className={className} />,
   [IconName.Feather]: (className: string) => <Feather className={className} />,
+  [IconName.SpiderWeb]: (className: string) => <SpiderWeb className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {
@@ -220,6 +224,7 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
   [CombatActionName.ReleasePet]: null,
   [CombatActionName.PetCommand]: null,
   [CombatActionName.FallTowardsHomePosition]: null,
+  [CombatActionName.Ensnare]: (className: string) => SVG_ICONS[IconName.SpiderWeb](`${className}`),
 };
 
 export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string) => ReactNode)> = {

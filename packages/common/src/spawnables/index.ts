@@ -19,7 +19,7 @@ export interface PetProperties {
 export type SpawnedCombatant = {
   type: SpawnableEntityType.Combatant;
   combatant: Combatant;
-  petProperties: PetProperties;
+  petProperties?: PetProperties;
 };
 
 export type SpawnedActionEntity = {

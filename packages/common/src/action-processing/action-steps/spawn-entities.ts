@@ -32,7 +32,8 @@ export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
       for (const spawnableEntity of taggedSpawnableEntities) {
         switch (spawnableEntity.type) {
           case SpawnableEntityType.Combatant:
-            throw new Error("not implemented");
+            party.combatantManager.addCombatant(spawnableEntity.combatant, game);
+            break;
           case SpawnableEntityType.ActionEntity:
             const { actionEntityManager } = party;
             actionEntityManager.registerActionEntity(spawnableEntity.actionEntity, battleOption);

@@ -40,6 +40,7 @@ import { TAME_PET } from "./summon-pet/tame-pet.js";
 import { RELEASE_PET } from "./summon-pet/release-pet.js";
 import { PET_COMMAND } from "./pet-command/index.js";
 import { FALL_TOWARDS_HOME_POSITION } from "./move-to-home-position/fall-towards-home-position.js";
+import { ENSNARE } from "./ensnare/index.js";
 
 export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Attack]: ATTACK,
@@ -84,4 +85,5 @@ export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.ReleasePet]: RELEASE_PET,
   [CombatActionName.PetCommand]: PET_COMMAND,
   [CombatActionName.FallTowardsHomePosition]: FALL_TOWARDS_HOME_POSITION,
+  [CombatActionName.Ensnare]: ENSNARE,
 };

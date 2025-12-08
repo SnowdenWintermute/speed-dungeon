@@ -221,6 +221,9 @@ export enum SkeletalAnimationName {
   UseConsumableRecovery,
   OnSummoned,
   Falling,
+  ThrowObjectChambering,
+  ThrowObjectDelivery,
+  ThrowObjectRecovery,
 }
 
 export enum DynamicAnimationName {
@@ -288,6 +291,9 @@ export const SKELETAL_ANIMATION_NAME_STRINGS: Record<SkeletalAnimationName, stri
   [SkeletalAnimationName.EquipmentCompositeBowShoot]: "composite-bow-shoot-baked",
   [SkeletalAnimationName.OnSummoned]: "on-summoned",
   [SkeletalAnimationName.Falling]: "falling",
+  [SkeletalAnimationName.ThrowObjectChambering]: "throw-object-chambering",
+  [SkeletalAnimationName.ThrowObjectDelivery]: "throw-object-delivery",
+  [SkeletalAnimationName.ThrowObjectRecovery]: "throw-object-recovery",
 };
 
 export const DYNAMIC_ANIMATION_NAME_STRINGS: Record<DynamicAnimationName, string> = {

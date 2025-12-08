@@ -1,0 +1,57 @@
+import {
+  BASE_ACTION_HIERARCHY_PROPERTIES,
+  CombatActionComponentConfig,
+  CombatActionLeaf,
+  CombatActionName,
+  createGenericSpellCastMessageProperties,
+} from "../../index.js";
+import { ActivatedTriggersGameUpdateCommand } from "../../../../action-processing/index.js";
+import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
+import {
+  ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
+  createStepsConfig,
+} from "../generic-action-templates/step-config-templates/index.js";
+import {
+  COST_PROPERTIES_TEMPLATE_GETTERS,
+  createCostPropertiesConfig,
+} from "../generic-action-templates/cost-properties-templates/index.js";
+import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import {
+  createHitOutcomeProperties,
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
+} from "../generic-action-templates/hit-outcome-properties-templates/index.js";
+import { ENSNARE_STEPS_CONFIG } from "./ensnare-steps.config.js";
+
+const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
+  requiresCombatTurnInThisContext: () => false,
+};
+
+const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL;
+const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
+
+const hitOutcomeProperties = createHitOutcomeProperties(
+  HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.THREATLESS_ACTION,
+  {
+    getOnUseTriggers: (context) => {
+      const toReturn: Partial<ActivatedTriggersGameUpdateCommand> = {};
+
+      return toReturn;
+    },
+  }
+);
+
+const config: CombatActionComponentConfig = {
+  description: "Throw a net that brings the target to the ground and limits their movement",
+  prerequisiteAbilities: [],
+  gameLogMessageProperties: createGenericSpellCastMessageProperties(CombatActionName.Ensnare),
+  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE(),
+  hitOutcomeProperties,
+  costProperties,
+  stepsConfig: ENSNARE_STEPS_CONFIG,
+
+  hierarchyProperties: {
+    ...BASE_ACTION_HIERARCHY_PROPERTIES,
+  },
+};
+
+export const ENSNARE = new CombatActionLeaf(CombatActionName.Ensnare, config);
