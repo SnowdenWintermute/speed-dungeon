@@ -2,17 +2,13 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { runIfInBrowser } from "../utils/index.js";
 import { CombatantCondition } from "../conditions/index.js";
-import { Exclude, instanceToPlain, plainToInstance } from "class-transformer";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 import { EntityId } from "../primatives/index.js";
 import { deserializeCondition } from "../conditions/deserialize-condition.js";
 import { CombatantConditionName } from "../conditions/condition-names.js";
-import { CombatantConditionInit } from "../conditions/condition-config.js";
 
 export class CombatantConditionManager extends CombatantSubsystem {
-  @Exclude()
   private conditions: CombatantCondition[] = [];
-
-  public serializedConditions: CombatantConditionInit[] = [];
 
   constructor() {
     super();
@@ -20,21 +16,16 @@ export class CombatantConditionManager extends CombatantSubsystem {
   }
 
   getSerialized() {
-    const serializedConditions = this.conditions.map((condition) =>
-      CombatantCondition.getInit(condition)
-    );
+    const serializedConditions = this.conditions.map((condition) => condition.getSerialized());
     console.log("serialized conditions:", serializedConditions);
     const asPlain = instanceToPlain(this) as CombatantConditionManager;
-    asPlain.serializedConditions = serializedConditions;
     return asPlain;
   }
 
   static getDeserialized(plain: CombatantConditionManager) {
-    const deserializedConditions = plain.serializedConditions.map(deserializeCondition);
+    const deserializedConditions = plain.conditions.map(deserializeCondition);
     const deserialized = plainToInstance(CombatantConditionManager, plain);
     deserialized.conditions = deserializedConditions;
-    deserialized.serializedConditions = [];
-
     console.log("deserializedConditions:", JSON.stringify(deserialized.conditions));
 
     return deserialized;

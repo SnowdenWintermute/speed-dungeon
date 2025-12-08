@@ -1,3 +1,4 @@
+import makeAutoObservable from "mobx-store-inheritance";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import {
@@ -10,69 +11,76 @@ import {
   CombatActionTargetType,
 } from "../../combat/targeting/combat-action-targets.js";
 import { BASE_CONDITION_TICK_SPEED } from "../../combat/turn-order/consts.js";
-import { MAX_CONDITION_STACKS, MaxAndCurrent } from "../../index.js";
+import { EntityId, MAX_CONDITION_STACKS, MaxAndCurrent, runIfInBrowser } from "../../index.js";
 import {
   CharacterModelIdentifier,
   CombatantBaseChildTransformNodeIdentifier,
   CombatantBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../scene-entities/index.js";
-import { CombatantConditionConfig, CombatantConditionInit } from "../condition-config.js";
+import { CombatantConditionInit } from "../condition-config.js";
 import { CombatantCondition } from "../index.js";
 
-export function BURNING_CONFIG_CREATOR(init: CombatantConditionInit): CombatantConditionConfig {
-  console.log("creating burning:", init);
-  return {
-    ...init,
-    intent: CombatActionIntent.Malicious,
-    stacksOption: new MaxAndCurrent(MAX_CONDITION_STACKS, init.stacks || 1),
-    tickPropertiesOption: {
-      getTickSpeed(condition: CombatantCondition) {
-        return condition.rank * BASE_CONDITION_TICK_SPEED;
-      },
-      onTick(context: ActionUserContext) {
-        const user = context.actionUser;
+export class BurningCondition extends CombatantCondition {
+  constructor(init: CombatantConditionInit) {
+    super(init);
 
-        const targets: CombatActionTargetSingle = {
-          type: CombatActionTargetType.Single,
-          targetId: user.getConditionAppliedTo(),
-        };
+    if (init.stacks) {
+      this.stacksOption = new MaxAndCurrent(MAX_CONDITION_STACKS, init.stacks || 1);
+    }
 
-        user.getTargetingProperties().setSelectedTarget(targets);
+    runIfInBrowser(() => makeAutoObservable(this));
+  }
 
-        const triggeredAction = {
-          actionIntentAndUser: {
-            user,
-            actionExecutionIntent: new CombatActionExecutionIntent(
-              CombatActionName.BurningTick,
-              user.getLevel(),
-              targets
-            ),
-          },
-        };
+  intent = CombatActionIntent.Malicious;
 
-        return {
-          numStacksRemoved: 1,
-          triggeredAction,
-        };
-      },
+  tickPropertiesOption = {
+    getTickSpeed(condition: CombatantCondition) {
+      return condition.rank * BASE_CONDITION_TICK_SPEED;
     },
-    getCosmeticEffectWhileActive(self, appliedToId) {
-      const sceneEntityIdentifier: CharacterModelIdentifier = {
-        type: SceneEntityType.CharacterModel,
-        entityId: appliedToId,
-      };
-      const parent: CombatantBaseChildTransformNodeIdentifier = {
-        sceneEntityIdentifier,
-        transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
+    onTick(context: ActionUserContext) {
+      const user = context.actionUser;
+
+      const targets: CombatActionTargetSingle = {
+        type: CombatActionTargetType.Single,
+        targetId: user.getConditionAppliedTo(),
       };
 
-      const effect = {
-        name: CosmeticEffectNames.Burning,
-        parent,
+      user.getTargetingProperties().setSelectedTarget(targets);
+
+      const triggeredAction = {
+        actionIntentAndUser: {
+          user,
+          actionExecutionIntent: new CombatActionExecutionIntent(
+            CombatActionName.BurningTick,
+            user.getLevel(),
+            targets
+          ),
+        },
       };
 
-      return [effect];
+      return {
+        numStacksRemoved: 1,
+        triggeredAction,
+      };
     },
   };
+
+  getCosmeticEffectWhileActive(appliedToId: EntityId) {
+    const sceneEntityIdentifier: CharacterModelIdentifier = {
+      type: SceneEntityType.CharacterModel,
+      entityId: appliedToId,
+    };
+    const parent: CombatantBaseChildTransformNodeIdentifier = {
+      sceneEntityIdentifier,
+      transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
+    };
+
+    const effect = {
+      name: CosmeticEffectNames.Burning,
+      parent,
+    };
+
+    return [effect];
+  }
 }

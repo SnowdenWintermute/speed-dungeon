@@ -1,3 +1,4 @@
+import makeAutoObservable from "mobx-store-inheritance";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import {
@@ -18,61 +19,74 @@ import {
   CombatantBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../scene-entities/index.js";
-import { CombatantConditionConfig, CombatantConditionInit } from "../condition-config.js";
+import { runIfInBrowser } from "../../utils/index.js";
+import { CombatantConditionInit } from "../condition-config.js";
 import { CombatantCondition } from "../index.js";
+import { MaxAndCurrent } from "../../primatives/max-and-current.js";
+import { EntityId } from "../../index.js";
 
-export function BLINDED_CONFIG_CREATOR(init: CombatantConditionInit): CombatantConditionConfig {
-  return {
-    ...init,
-    intent: CombatActionIntent.Malicious,
-    getAttributeModifiers(self: CombatantCondition, appliedTo: CombatantProperties) {
-      return { [CombatAttribute.Accuracy]: -10 * (self.rank + 1) };
+export class BlindedCondition extends CombatantCondition {
+  constructor(init: CombatantConditionInit) {
+    super(init);
+
+    if (init.stacks) {
+      this.stacksOption = new MaxAndCurrent(10, init.stacks);
+    }
+
+    runIfInBrowser(() => makeAutoObservable(this));
+  }
+
+  intent = CombatActionIntent.Malicious;
+
+  getAttributeModifiers(appliedTo: CombatantProperties) {
+    return { [CombatAttribute.Accuracy]: -10 * (this.rank + 1) };
+  }
+
+  tickPropertiesOption = {
+    getTickSpeed(condition: CombatantCondition) {
+      return BASE_CONDITION_TICK_SPEED / (condition.rank + 5);
     },
-    tickPropertiesOption: {
-      getTickSpeed(condition: CombatantCondition) {
-        return BASE_CONDITION_TICK_SPEED / (condition.rank + 5);
-      },
-      onTick(actionUserContext: ActionUserContext) {
-        const user = actionUserContext.actionUser;
+    onTick(actionUserContext: ActionUserContext) {
+      const user = actionUserContext.actionUser;
 
-        const targets: CombatActionTargetSingle = {
-          type: CombatActionTargetType.Single,
-          targetId: user.getEntityId(),
-        };
-
-        const triggeredAction = {
-          actionIntentAndUser: {
-            user,
-            actionExecutionIntent: new CombatActionExecutionIntent(
-              CombatActionName.ConditionPassTurn,
-              0,
-              targets
-            ),
-          },
-        };
-
-        return {
-          numStacksRemoved: 1,
-          triggeredAction,
-        };
-      },
-    },
-    getCosmeticEffectWhileActive(self, combatantId) {
-      const sceneEntityIdentifier: CharacterModelIdentifier = {
-        type: SceneEntityType.CharacterModel,
-        entityId: combatantId,
-      };
-      const parent: CombatantBaseChildTransformNodeIdentifier = {
-        sceneEntityIdentifier,
-        transformNodeName: CombatantBaseChildTransformNodeName.Head,
+      const targets: CombatActionTargetSingle = {
+        type: CombatActionTargetType.Single,
+        targetId: user.getEntityId(),
       };
 
-      const effect = {
-        name: CosmeticEffectNames.DarkParticleAccumulation,
-        parent,
+      const triggeredAction = {
+        actionIntentAndUser: {
+          user,
+          actionExecutionIntent: new CombatActionExecutionIntent(
+            CombatActionName.ConditionPassTurn,
+            0,
+            targets
+          ),
+        },
       };
 
-      return [effect];
+      return {
+        numStacksRemoved: 1,
+        triggeredAction,
+      };
     },
   };
+
+  getCosmeticEffectWhileActive(combatantId: EntityId) {
+    const sceneEntityIdentifier: CharacterModelIdentifier = {
+      type: SceneEntityType.CharacterModel,
+      entityId: combatantId,
+    };
+    const parent: CombatantBaseChildTransformNodeIdentifier = {
+      sceneEntityIdentifier,
+      transformNodeName: CombatantBaseChildTransformNodeName.Head,
+    };
+
+    const effect = {
+      name: CosmeticEffectNames.DarkParticleAccumulation,
+      parent,
+    };
+
+    return [effect];
+  }
 }
