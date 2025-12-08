@@ -144,7 +144,7 @@ export class PetManager extends AdventuringPartySubsystem {
       throw new Error("not implemented");
     }
 
-    party.combatantManager.setPetHomePositionNextToOwner(petOption);
+    party.combatantManager.setPetHomePositionNextTo(petOption, owner);
     petOption.combatantProperties.transformProperties.setToHomeTransform();
 
     return pet;
@@ -166,6 +166,10 @@ export class PetManager extends AdventuringPartySubsystem {
     controlledBy.controllerType = CombatantControllerType.PlayerPetAI;
 
     petCombatant.combatantProperties.threatManager = undefined;
+
+    party.combatantManager.updateHomePositions();
+    const newOwner = party.combatantManager.getExpectedCombatant(newOwnerId);
+    party.combatantManager.setPetHomePositionNextTo(petCombatant, newOwner);
 
     this.putPetInFirstEmptyUnsummonedSlot(newOwnerId, petCombatant);
   }

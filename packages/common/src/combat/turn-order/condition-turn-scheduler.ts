@@ -10,7 +10,6 @@ export class ConditionTurnScheduler extends TurnScheduler implements ITurnSchedu
     public readonly combatantId: EntityId,
     public readonly conditionId: EntityId
   ) {
-    console.log("creating scheduler for condition:", conditionId);
     super();
   }
   getTurnTakerId = () => this.conditionId;

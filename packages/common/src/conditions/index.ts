@@ -26,7 +26,7 @@ import { COMBATANT_CONDITION_NAME_STRINGS, CombatantConditionName } from "./cond
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ConditionAppliedBy } from "./condition-applied-by.js";
 import { CombatantConditionInit } from "./condition-config.js";
-import { instanceToPlain } from "class-transformer";
+import { Exclude, instanceToPlain, plainToInstance } from "class-transformer";
 
 export const MAX_CONDITION_STACKS = 99;
 
@@ -51,8 +51,6 @@ export abstract class CombatantCondition implements IActionUser {
   public combatAttributes?: CombatantAttributeRecord;
   public targetingProperties?: ActionUserTargetingProperties;
 
-  protected tickPropertiesOption?: ConditionTickProperties;
-
   constructor(init: CombatantConditionInit) {
     this.name = init.name;
     this.rank = init.rank;
@@ -73,7 +71,7 @@ export abstract class CombatantCondition implements IActionUser {
   }
 
   getSerialized() {
-    return instanceToPlain(this);
+    return CombatantCondition.getInit(this);
   }
 
   getDescription = () => `${COMBATANT_CONDITION_DESCRIPTIONS[this.name]} (rank ${this.rank})`;
@@ -98,8 +96,8 @@ export abstract class CombatantCondition implements IActionUser {
     return {};
   }
 
-  getTickProperties() {
-    return this.tickPropertiesOption;
+  getTickProperties(): ConditionTickProperties | undefined {
+    return undefined;
   }
 
   getAiTypesAppliedToTarget(): AiType[] {
@@ -120,7 +118,7 @@ export abstract class CombatantCondition implements IActionUser {
   }
   wasRemovedBeforeHitOutcomes = () => false;
   setWasRemovedBeforeHitOutcomes(): void {}
-  getConditionTickPropertiesOption = () => this.tickPropertiesOption || null;
+  getConditionTickPropertiesOption = () => this.getTickProperties() || null;
 
   getCombatantProperties(): CombatantProperties {
     throw new Error("Conditions do not have combatantProperties");

@@ -23,7 +23,6 @@ export function characterSelectedActionLevelHandler(eventData: {
 
       const selectedActionAndRank = targetingProperties.getSelectedActionAndRank();
       if (selectedActionAndRank === null) {
-        console.log("characterSelectedActionLevelHandler");
         return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
       }
 

@@ -34,7 +34,6 @@ export function characterCycledTargetsHandler(
       const combatActionTarget = targetingProperties.getSelectedTarget();
 
       if (selectedActionAndRank === null) {
-        console.log("characterCycledTargetsHandler");
         return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
       }
       if (combatActionTarget === null) {

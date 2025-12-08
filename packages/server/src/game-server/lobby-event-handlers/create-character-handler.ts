@@ -39,7 +39,7 @@ export function createCharacterHandler(
   testPet.combatantProperties.classProgressionProperties.experiencePoints.changeExperience(81);
   testPet.combatantProperties.attributeProperties.changeUnspentPoints(10);
 
-  const pets: Combatant[] = [testPet];
+  const pets: Combatant[] = [];
   // const pets: Combatant[] = [];
   const serializedPets = pets.map((pet) => pet.getSerialized());
 

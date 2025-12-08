@@ -33,6 +33,10 @@ export class CombatantTransformProperties extends CombatantSubsystem {
     this.homePosition.copyFrom(newHomePosition);
   }
 
+  setHomeRotation(newHomeRotation: Quaternion) {
+    this.homeRotation.copyFrom(newHomeRotation);
+  }
+
   getHomePosition() {
     const transformModifiers = {
       homePosition: new Vector3(),

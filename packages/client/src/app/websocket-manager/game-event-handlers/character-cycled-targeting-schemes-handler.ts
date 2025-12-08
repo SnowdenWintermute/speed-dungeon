@@ -26,7 +26,6 @@ export function characterCycledTargetingSchemesHandler(
       const combatActionTarget = targetingProperties.getSelectedTarget();
 
       if (selectedActionAndRank === null) {
-        console.log("characterCycledTargetingSchemesHandler");
         return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
       }
       if (combatActionTarget === null) {

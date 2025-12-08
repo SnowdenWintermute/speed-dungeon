@@ -58,17 +58,11 @@ export class Combatant implements IActionUser {
   }
 
   getSerialized() {
-    console.log("about to serialize combatant");
+    const serializedConditionManager = this.combatantProperties.conditionManager.getSerialized();
     const serialized = instanceToPlain(this) as Combatant;
 
-    serialized.combatantProperties.conditionManager =
-      this.combatantProperties.conditionManager.getSerialized();
-    console.log(
-      "serialized combatant",
-      this.getName(),
-      "serialized conditionManager:",
-      serialized.combatantProperties.conditionManager
-    );
+    serialized.combatantProperties.conditionManager = serializedConditionManager;
+
     return serialized;
   }
 

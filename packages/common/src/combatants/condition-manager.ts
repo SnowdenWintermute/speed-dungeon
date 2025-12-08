@@ -2,13 +2,24 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { runIfInBrowser } from "../utils/index.js";
 import { CombatantCondition } from "../conditions/index.js";
-import { instanceToPlain, plainToInstance } from "class-transformer";
+import { Exclude, instanceToPlain, plainToInstance } from "class-transformer";
 import { EntityId } from "../primatives/index.js";
 import { deserializeCondition } from "../conditions/deserialize-condition.js";
 import { CombatantConditionName } from "../conditions/condition-names.js";
+import cloneDeep from "lodash.clonedeep";
+import { CombatantConditionInit } from "../conditions/condition-config.js";
 
 export class CombatantConditionManager extends CombatantSubsystem {
+  @Exclude({ toPlainOnly: true })
   private conditions: CombatantCondition[] = [];
+
+  /** Conditions deserialize to an init object and reconstruct using their
+   * specific constructors via that object. plainToInstance does not work with
+   * the current implementation of conditions for reasons beyond my understanding, but
+   * allegedly because the getTickProperties() declaration takes in functions as arguments
+   * and makes them "own properties" of the class instance, which when plainToInstance tries to traverse
+   * and execute it can't */
+  public serializedConditions?: CombatantConditionInit[] = [];
 
   constructor() {
     super();
@@ -16,17 +27,18 @@ export class CombatantConditionManager extends CombatantSubsystem {
   }
 
   getSerialized() {
-    const serializedConditions = this.conditions.map((condition) => condition.getSerialized());
-    console.log("serialized conditions:", serializedConditions);
-    const asPlain = instanceToPlain(this) as CombatantConditionManager;
+    const cloned = cloneDeep(this);
+    cloned.serializedConditions = cloned.conditions.map((condition) => {
+      return condition.getSerialized();
+    });
+    const asPlain = instanceToPlain(cloned) as CombatantConditionManager;
     return asPlain;
   }
 
   static getDeserialized(plain: CombatantConditionManager) {
-    const deserializedConditions = plain.conditions.map(deserializeCondition);
+    const deserializedConditions = plain.serializedConditions?.map(deserializeCondition) || [];
     const deserialized = plainToInstance(CombatantConditionManager, plain);
     deserialized.conditions = deserializedConditions;
-    console.log("deserializedConditions:", JSON.stringify(deserialized.conditions));
 
     return deserialized;
   }

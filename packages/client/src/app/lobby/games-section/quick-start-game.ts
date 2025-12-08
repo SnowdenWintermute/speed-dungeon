@@ -27,3 +27,15 @@ export function quickStartGame() {
   //   abilityName: AbilityName.Attack,
   // });
 }
+
+export function quickStartGameProgression() {
+  const socketOption = websocketConnection;
+  socketOption.emit(ClientToServerEvent.CreateGame, { gameName: "", mode: GameMode.Progression });
+
+  socketOption.emit(ClientToServerEvent.ToggleReadyToStartGame);
+  // socketOption?.emit(ClientToServerEvent.ToggleReadyToExplore);
+  // socketOption?.emit(ClientToServerEvent.SelectCombatAction, "1", {
+  //   type: CombatActionType.AbilityUsed,
+  //   abilityName: AbilityName.Attack,
+  // });
+}

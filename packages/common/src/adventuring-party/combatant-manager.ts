@@ -308,8 +308,13 @@ export class CombatantManager extends AdventuringPartySubsystem {
       );
     });
 
-    for (const combatant of this.getPartyMemberPets()) {
-      this.setPetHomePositionNextToOwner(combatant);
+    const partyMemberPets = this.getPartyMemberPets();
+    for (const pet of partyMemberPets) {
+      // put them next to the one who summoned them
+      const summonedByCombatant =
+        pet.combatantProperties.controlledBy.getExpectedSummonedByCombatant(this.getParty());
+
+      this.setPetHomePositionNextTo(pet, summonedByCombatant);
     }
 
     for (const combatant of this.getDungeonControlledPets()) {
@@ -317,16 +322,15 @@ export class CombatantManager extends AdventuringPartySubsystem {
     }
   }
 
-  setPetHomePositionNextToOwner(pet: Combatant) {
-    // put them next to the one who summoned them
-    const summonedByCombatant = pet.combatantProperties.controlledBy.getExpectedSummonedByCombatant(
-      this.getParty()
-    );
-
-    const ownerHomePosition = summonedByCombatant.getHomePosition();
+  setPetHomePositionNextTo(pet: Combatant, combatant: Combatant) {
+    const ownerHomePosition = combatant.getHomePosition();
     const petHomePosition = pet.getHomePosition();
-    petHomePosition.copyFrom(ownerHomePosition);
-    petHomePosition.x -= 0.5;
+    const newHomePosition = ownerHomePosition.clone();
+
+    newHomePosition.x -= 0.5;
+
+    pet.combatantProperties.transformProperties.setHomePosition(newHomePosition);
+    pet.combatantProperties.transformProperties.setHomeRotation(combatant.getHomeRotation());
 
     const forward = new Vector3(0, 0, 1);
     const directionToXAxis = new Vector3(0, 0, -petHomePosition.z).normalize();

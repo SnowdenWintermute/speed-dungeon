@@ -34,8 +34,7 @@ export class CombatantProperties {
     new CombatantClassProperties(1, CombatantClass.Warrior)
   );
   mitigationProperties = new MitigationProperties();
-  // the combatant conditions constructor takes a config object and we don't have that
-  // when trying to call instanceToPlain
+  // need to specially serialize conditions
   @Exclude()
   conditionManager = new CombatantConditionManager();
   transformProperties = new CombatantTransformProperties();

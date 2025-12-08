@@ -23,7 +23,7 @@ import { runIfInBrowser } from "../../utils/index.js";
 import { CombatantConditionInit } from "../condition-config.js";
 import { CombatantCondition } from "../index.js";
 import { MaxAndCurrent } from "../../primatives/max-and-current.js";
-import { EntityId } from "../../index.js";
+import { ConditionTickProperties, EntityId } from "../../index.js";
 
 export class BlindedCondition extends CombatantCondition {
   constructor(init: CombatantConditionInit) {
@@ -42,35 +42,37 @@ export class BlindedCondition extends CombatantCondition {
     return { [CombatAttribute.Accuracy]: -10 * (this.rank + 1) };
   }
 
-  tickPropertiesOption = {
-    getTickSpeed(condition: CombatantCondition) {
-      return BASE_CONDITION_TICK_SPEED / (condition.rank + 5);
-    },
-    onTick(actionUserContext: ActionUserContext) {
-      const user = actionUserContext.actionUser;
+  getTickProperties(): ConditionTickProperties | undefined {
+    return new ConditionTickProperties(
+      (condition: CombatantCondition) => {
+        return BASE_CONDITION_TICK_SPEED / (condition.rank + 5);
+      },
+      (actionUserContext: ActionUserContext) => {
+        const user = actionUserContext.actionUser;
 
-      const targets: CombatActionTargetSingle = {
-        type: CombatActionTargetType.Single,
-        targetId: user.getEntityId(),
-      };
+        const targets: CombatActionTargetSingle = {
+          type: CombatActionTargetType.Single,
+          targetId: user.getEntityId(),
+        };
 
-      const triggeredAction = {
-        actionIntentAndUser: {
-          user,
-          actionExecutionIntent: new CombatActionExecutionIntent(
-            CombatActionName.ConditionPassTurn,
-            0,
-            targets
-          ),
-        },
-      };
+        const triggeredAction = {
+          actionIntentAndUser: {
+            user,
+            actionExecutionIntent: new CombatActionExecutionIntent(
+              CombatActionName.ConditionPassTurn,
+              0,
+              targets
+            ),
+          },
+        };
 
-      return {
-        numStacksRemoved: 1,
-        triggeredAction,
-      };
-    },
-  };
+        return {
+          numStacksRemoved: 1,
+          triggeredAction,
+        };
+      }
+    );
+  }
 
   getCosmeticEffectWhileActive(combatantId: EntityId) {
     const sceneEntityIdentifier: CharacterModelIdentifier = {

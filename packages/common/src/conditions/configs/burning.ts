@@ -11,7 +11,13 @@ import {
   CombatActionTargetType,
 } from "../../combat/targeting/combat-action-targets.js";
 import { BASE_CONDITION_TICK_SPEED } from "../../combat/turn-order/consts.js";
-import { EntityId, MAX_CONDITION_STACKS, MaxAndCurrent, runIfInBrowser } from "../../index.js";
+import {
+  ConditionTickProperties,
+  EntityId,
+  MAX_CONDITION_STACKS,
+  MaxAndCurrent,
+  runIfInBrowser,
+} from "../../index.js";
 import {
   CharacterModelIdentifier,
   CombatantBaseChildTransformNodeIdentifier,
@@ -34,37 +40,39 @@ export class BurningCondition extends CombatantCondition {
 
   intent = CombatActionIntent.Malicious;
 
-  tickPropertiesOption = {
-    getTickSpeed(condition: CombatantCondition) {
-      return condition.rank * BASE_CONDITION_TICK_SPEED;
-    },
-    onTick(context: ActionUserContext) {
-      const user = context.actionUser;
+  getTickProperties(): ConditionTickProperties | undefined {
+    return new ConditionTickProperties(
+      (condition: CombatantCondition) => {
+        return condition.rank * BASE_CONDITION_TICK_SPEED;
+      },
+      (context: ActionUserContext) => {
+        const user = context.actionUser;
 
-      const targets: CombatActionTargetSingle = {
-        type: CombatActionTargetType.Single,
-        targetId: user.getConditionAppliedTo(),
-      };
+        const targets: CombatActionTargetSingle = {
+          type: CombatActionTargetType.Single,
+          targetId: user.getConditionAppliedTo(),
+        };
 
-      user.getTargetingProperties().setSelectedTarget(targets);
+        user.getTargetingProperties().setSelectedTarget(targets);
 
-      const triggeredAction = {
-        actionIntentAndUser: {
-          user,
-          actionExecutionIntent: new CombatActionExecutionIntent(
-            CombatActionName.BurningTick,
-            user.getLevel(),
-            targets
-          ),
-        },
-      };
+        const triggeredAction = {
+          actionIntentAndUser: {
+            user,
+            actionExecutionIntent: new CombatActionExecutionIntent(
+              CombatActionName.BurningTick,
+              user.getLevel(),
+              targets
+            ),
+          },
+        };
 
-      return {
-        numStacksRemoved: 1,
-        triggeredAction,
-      };
-    },
-  };
+        return {
+          numStacksRemoved: 1,
+          triggeredAction,
+        };
+      }
+    );
+  }
 
   getCosmeticEffectWhileActive(appliedToId: EntityId) {
     const sceneEntityIdentifier: CharacterModelIdentifier = {

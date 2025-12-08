@@ -18,7 +18,9 @@ export default async function joinGameHandler(
 
   if (!game) return new Error(ERROR_MESSAGES.GAME_DOESNT_EXIST);
   if (game.timeStarted) return new Error(ERROR_MESSAGES.LOBBY.GAME_ALREADY_STARTED);
-  if (game.mode === GameMode.Progression)
+  if (game.mode === GameMode.Progression) {
     joinProgressionGameHandler(gameServer, session, socket, game);
-  else joinPlayerToGame(gameServer, game, session, socket);
+  } else {
+    joinPlayerToGame(gameServer, game, session, socket);
+  }
 }

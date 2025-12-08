@@ -46,8 +46,6 @@ export class FlyingCondition extends CombatantCondition {
       this.getConditionAppliedTo()
     );
 
-    console.log("triggering fall toward home position used by target :", actionUser);
-
     const actionExecutionIntent = new CombatActionExecutionIntent(
       CombatActionName.FallTowardsHomePosition,
       1,
