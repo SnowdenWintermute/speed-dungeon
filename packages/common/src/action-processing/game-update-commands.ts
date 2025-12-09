@@ -26,6 +26,7 @@ import {
 import { CleanupMode } from "../types.js";
 import { PetSlot } from "../combat/combat-actions/action-implementations/generic-action-templates/pets.js";
 import { CombatantCondition } from "../conditions/index.js";
+import { CurveType } from "../utils/interpolation-curves.js";
 
 export enum GameUpdateCommandType {
   SpawnEntities,
@@ -55,13 +56,18 @@ export type GameEntity = Combatant | ActionEntity;
 export interface EntityTranslation {
   duration: Milliseconds;
   destination: Vector3;
+  translationPathCurveOption?: CurveType;
+  translationSpeedCurveOption?: CurveType;
 }
 export interface EntityRotation {
   duration: Milliseconds;
   rotation: Quaternion;
 }
+
 export interface EntityDestination {
   position?: Vector3;
+  translationPathCurveOption?: CurveType;
+  translationSpeedCurveOption?: CurveType;
   rotation?: Quaternion;
 }
 export enum AnimationTimingType {

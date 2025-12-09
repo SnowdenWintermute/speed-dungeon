@@ -4,6 +4,8 @@ export * from "./array-utils.js";
 export * from "./rand-between.js";
 export * from "./shape-utils.js";
 
+export * from "./interpolation-curves.js";
+
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { CONSUMABLE_TYPE_STRINGS, Consumable, ConsumableType } from "../items/consumables/index.js";
 import { BoxDimensions } from "./shape-utils.js";
@@ -80,18 +82,6 @@ export class SequentialIdGenerator {
   getNextIdNumeric() {
     return this.nextId++;
   }
-}
-
-export function easeInOut(t: number) {
-  return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-}
-
-export function easeIn(t: number) {
-  return t * t;
-}
-
-export function easeOut(t: number) {
-  return t * (2 - t);
 }
 
 export function getQuaternionAngleDifference(q1: Quaternion, q2: Quaternion): number {

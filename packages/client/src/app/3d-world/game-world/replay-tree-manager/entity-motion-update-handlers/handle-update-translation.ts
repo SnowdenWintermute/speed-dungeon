@@ -25,6 +25,8 @@ export function handleUpdateTranslation(
   const toUpdate = getSceneEntityToUpdate(motionUpdate);
   const { movementManager, skeletalAnimationManager, dynamicAnimationManager } = toUpdate;
   const destination = plainToInstance(Vector3, translation.destination);
+  const pathCurveOption = translation.translationPathCurveOption;
+  const speedCurveOption = translation.translationSpeedCurveOption;
 
   // don't consider the y from the server since the server only calculates 2d positions
   if (cosmeticDestinationYOption) {
@@ -34,12 +36,17 @@ export function handleUpdateTranslation(
     destination.y = transformNode.getAbsolutePosition().y;
   }
 
-  movementManager.startTranslating(destination, translation.duration, () => {
-    updateCompletionTracker.setTranslationComplete();
+  movementManager.startTranslating(
+    destination,
+    translation.duration,
+    { pathCurveOption, speedCurveOption },
+    () => {
+      updateCompletionTracker.setTranslationComplete();
 
-    if (updateCompletionTracker.isComplete()) {
-      gameUpdate.setAsQueuedToComplete();
-      onComplete();
+      if (updateCompletionTracker.isComplete()) {
+        gameUpdate.setAsQueuedToComplete();
+        onComplete();
+      }
     }
-  });
+  );
 }

@@ -4,8 +4,8 @@ import {
   SkeletalAnimationName,
   DynamicAnimationName,
   MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME,
-  easeOut,
   Milliseconds,
+  InterpolationCurves,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import { disposeAsyncLoadedScene } from "../../utils";
@@ -188,7 +188,7 @@ export class ExplosionDissipationAnimation extends DynamicAnimation {
     const elapsed = Date.now() - this.timeStarted;
     const percentCompleted = elapsed / this.duration;
     parentMesh.scaling = parentMesh.scaling = this.originalScale.scale(
-      1 + easeOut(percentCompleted) * 1.5
+      1 + InterpolationCurves.easeOut(percentCompleted) * 1.5
     );
     if (parentMesh.material) parentMesh.material.alpha = 1 - percentCompleted;
   }

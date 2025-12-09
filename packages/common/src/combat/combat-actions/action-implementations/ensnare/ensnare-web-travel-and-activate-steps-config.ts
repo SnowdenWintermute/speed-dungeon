@@ -1,12 +1,21 @@
 import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 import { getPrimaryTargetPositionAsDestination } from "../common-destination-getters.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
+import { CurveType } from "../../../../index.js";
 
 const config = new ActionResolutionStepsConfig(
   {
     [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
     [ActionResolutionStepType.DeliveryMotion]: {
-      getDestination: getPrimaryTargetPositionAsDestination,
+      getDestination: (context) => {
+        const primaryTargetDestination = getPrimaryTargetPositionAsDestination(context);
+        return {
+          ...primaryTargetDestination,
+          translationSpeedCurveOption: CurveType.EaseOut,
+          translationPathCurveOption: CurveType.GradualToPeakThenSharpDrop,
+        };
+      },
+
       getNewParent: () => null,
     },
     [ActionResolutionStepType.RollIncomingHitOutcomes]: {},

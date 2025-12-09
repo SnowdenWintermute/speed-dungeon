@@ -1,5 +1,13 @@
-import { Quaternion, TransformNode, Vector3 } from "@babylonjs/core";
-import { easeOut, ERROR_MESSAGES, Milliseconds, NormalizedPercentage } from "@speed-dungeon/common";
+import { Quaternion, TransformNode, Vector2, Vector3 } from "@babylonjs/core";
+import {
+  CubicBezierCurve,
+  CurveType,
+  ERROR_MESSAGES,
+  exampleTemplate,
+  InterpolationCurves,
+  Milliseconds,
+  NormalizedPercentage,
+} from "@speed-dungeon/common";
 
 export enum ModelMovementType {
   Rotation,
@@ -33,21 +41,47 @@ export abstract class ModelMovementTracker {
 }
 
 export class TranslationTracker extends ModelMovementTracker {
+  private computedCurve: CubicBezierCurve | undefined;
+
   constructor(
     movable: TransformNode,
     duration: Milliseconds,
     private previous: Vector3,
     private destination: Vector3,
+    private curves: { pathCurveOption?: CurveType; speedCurveOption?: CurveType },
     public onComplete: () => void,
-    public onUpdate: (percentComplete: NormalizedPercentage) => void,
-    public easing?: (percentComplete: NormalizedPercentage) => number
+    public onUpdate: (percentComplete: NormalizedPercentage) => void
   ) {
     super(movable, duration);
   }
   updateMovable() {
     let lerpPercentage = this.percentComplete();
-    if (this.easing) lerpPercentage = this.easing(lerpPercentage);
-    const newPosition = Vector3.Lerp(this.previous, this.destination, lerpPercentage);
+
+    if (this.curves.speedCurveOption) {
+      lerpPercentage = InterpolationCurves.getCurveByType(this.curves.speedCurveOption)(
+        lerpPercentage
+      );
+    }
+
+    let newPosition = Vector3.Lerp(this.previous, this.destination, lerpPercentage);
+
+    if (this.curves.pathCurveOption !== undefined) {
+      if (this.computedCurve === undefined) {
+        const startVec2 = new Vector2(this.previous.x, this.previous.z);
+        const endVec2 = new Vector2(this.destination.x, this.destination.z);
+        const { mod1, mod2 } = CubicBezierCurve.buildControlsFromExample(
+          startVec2,
+          endVec2,
+          exampleTemplate
+        );
+        this.computedCurve = new CubicBezierCurve(startVec2, mod1, mod2, endVec2);
+      }
+
+      const curvePosition = this.computedCurve.getPoint(lerpPercentage);
+      newPosition.x = curvePosition.x;
+      newPosition.y = curvePosition.y;
+    }
+
     this.movable.position.copyFrom(newPosition);
     this.onUpdate(lerpPercentage);
   }

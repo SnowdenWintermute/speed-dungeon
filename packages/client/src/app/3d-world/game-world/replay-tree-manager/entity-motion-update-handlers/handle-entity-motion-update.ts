@@ -185,8 +185,9 @@ function handleCombatantMotionUpdate(
     combatantModelOption.startIdleAnimation(500);
   };
 
-  if (motionUpdate.equipmentAnimations)
+  if (motionUpdate.equipmentAnimations) {
     handleEquipmentAnimations(motionUpdate.entityId, motionUpdate.equipmentAnimations);
+  }
 
   return toReturn;
 }

@@ -113,10 +113,18 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     }
 
     if (destinationResult?.position) {
-      const translation = {
+      const translation: EntityTranslation = {
         destination: destinationResult.position,
         duration: getTranslationTime(positionOption, destinationResult.position, entitySpeedOption),
       };
+
+      if (destinationResult?.translationPathCurveOption !== undefined) {
+        translation.translationPathCurveOption = destinationResult.translationPathCurveOption;
+      }
+
+      if (destinationResult?.translationSpeedCurveOption !== undefined) {
+        translation.translationSpeedCurveOption = destinationResult.translationSpeedCurveOption;
+      }
 
       translationOption = translation;
     }

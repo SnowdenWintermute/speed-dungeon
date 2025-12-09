@@ -17,5 +17,5 @@ export function handleEntityMotionSetNewParentUpdate(
 
   sceneEntity.rootTransformNode.setParent(targetTransformNode);
 
-  sceneEntity.movementManager.startTranslating(Vector3.Zero(), duration, () => {});
+  sceneEntity.movementManager.startTranslating(Vector3.Zero(), duration, {}, () => {});
 }
