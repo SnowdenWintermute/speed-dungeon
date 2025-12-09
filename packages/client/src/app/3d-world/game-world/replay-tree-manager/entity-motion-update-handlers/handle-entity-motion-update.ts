@@ -46,8 +46,9 @@ export function handleEntityMotionUpdate(
 
     let alreadyDespawned = false;
 
-    if (motionUpdate.setParent !== undefined)
+    if (motionUpdate.setParent !== undefined) {
       handleEntityMotionSetNewParentUpdate(actionEntityModelOption, motionUpdate.setParent);
+    }
 
     if (motionUpdate.lockRotationToFace !== undefined) {
       const toUpdate = getSceneEntityToUpdate(motionUpdate);
@@ -158,6 +159,11 @@ function handleCombatantMotionUpdate(
   };
 
   const combatant = AppStore.get().gameStore.getExpectedCombatant(motionUpdate.entityId);
+
+  if (motionUpdate.setParent !== undefined) {
+    const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
+    handleEntityMotionSetNewParentUpdate(combatantModelOption, motionUpdate.setParent);
+  }
 
   // they are already dead, so don't animate them
   // this happens if a combatant dies from getting counterattacked and the server

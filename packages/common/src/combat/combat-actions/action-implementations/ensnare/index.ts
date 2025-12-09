@@ -1,16 +1,12 @@
 import {
   BASE_ACTION_HIERARCHY_PROPERTIES,
   CombatActionComponentConfig,
+  CombatActionExecutionIntent,
   CombatActionLeaf,
   CombatActionName,
   createGenericSpellCastMessageProperties,
 } from "../../index.js";
-import { ActivatedTriggersGameUpdateCommand } from "../../../../action-processing/index.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
-import {
-  ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
-  createStepsConfig,
-} from "../generic-action-templates/step-config-templates/index.js";
 import {
   COST_PROPERTIES_TEMPLATE_GETTERS,
   createCostPropertiesConfig,
@@ -31,13 +27,7 @@ const costProperties = createCostPropertiesConfig(costPropertiesBase, costProper
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.THREATLESS_ACTION,
-  {
-    getOnUseTriggers: (context) => {
-      const toReturn: Partial<ActivatedTriggersGameUpdateCommand> = {};
-
-      return toReturn;
-    },
-  }
+  {}
 );
 
 const config: CombatActionComponentConfig = {
@@ -51,6 +41,20 @@ const config: CombatActionComponentConfig = {
 
   hierarchyProperties: {
     ...BASE_ACTION_HIERARCHY_PROPERTIES,
+
+    getConcurrentSubActions(context) {
+      const user = context.tracker.getFirstExpectedSpawnedCombatant().combatant;
+      return [
+        {
+          user,
+          actionExecutionIntent: new CombatActionExecutionIntent(
+            CombatActionName.EnsnareMoveNetTowardTargetAndActivate,
+            context.tracker.actionExecutionIntent.rank,
+            context.tracker.actionExecutionIntent.targets
+          ),
+        },
+      ];
+    },
   },
 };
 

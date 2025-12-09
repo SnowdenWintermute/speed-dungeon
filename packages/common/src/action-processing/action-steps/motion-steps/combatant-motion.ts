@@ -25,6 +25,8 @@ export class CombatantMotionActionResolutionStep extends EntityMotionActionResol
     const stepConfig = action.stepsConfig.getStepConfigOption(step);
     if (!stepConfig) throw new Error("expected step config not found");
 
+    if (stepConfig.getNewParent) update.setParent = stepConfig.getNewParent(context);
+
     if (stepConfig.shouldIdleOnComplete) update.idleOnComplete = true;
 
     if (stepConfig.getEquipmentAnimations)

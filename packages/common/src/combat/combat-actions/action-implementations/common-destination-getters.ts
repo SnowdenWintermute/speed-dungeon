@@ -70,6 +70,7 @@ export function getPrimaryTargetPositionAsDestination(
     actionExecutionIntent
   );
   if (primaryTargetResult instanceof Error) return primaryTargetResult;
+  console.log("primaryTargetResult: ", primaryTargetResult.getEntityId());
   const target = primaryTargetResult;
 
   return { position: target.combatantProperties.transformProperties.getHomePosition().clone() };

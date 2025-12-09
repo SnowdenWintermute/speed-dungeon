@@ -6,6 +6,10 @@ import { EnvironmentModel } from "./model-action-handlers/spawn-environmental-mo
 import { disposeAsyncLoadedScene } from "../../utils";
 import { CharacterModel } from "../../scene-entities/character-models";
 import { ERROR_MESSAGES, EntityId } from "@speed-dungeon/common";
+import { startOrStopCosmeticEffects } from "../replay-tree-manager/start-or-stop-cosmetic-effect";
+import { createCombatantPortrait } from "../image-manager/create-combatant-portrait";
+import { setAlert } from "@/app/components/alerts";
+import { AppStore } from "@/mobx-stores/app-store";
 
 // things involving moving models around must be handled synchronously, even though spawning
 // models is async, so we'll use a queue to handle things in order
@@ -19,10 +23,28 @@ export class ModelManager {
     this.modelActionHandlers = createModelActionHandlers(this);
   }
 
+  async register(model: CharacterModel) {
+    this.combatantModels[model.entityId] = model;
+
+    const character = model.getCombatant();
+    const { combatantProperties, entityProperties } = character;
+    const { conditionManager } = combatantProperties;
+
+    conditionManager.getConditions().forEach((condition) => {
+      startOrStopCosmeticEffects(condition.getCosmeticEffectWhileActive?.(entityProperties.id), []);
+    });
+
+    const portraitResult = await createCombatantPortrait(model.entityId);
+    if (portraitResult instanceof Error) setAlert(portraitResult);
+
+    AppStore.get().gameWorldStore.setModelIsLoaded(model.entityId);
+  }
+
   findOne(entityId: EntityId) {
     const modelOption = this.combatantModels[entityId];
-    if (!modelOption)
+    if (!modelOption) {
       throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL + " " + entityId);
+    }
     return modelOption;
   }
 

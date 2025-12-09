@@ -5,12 +5,14 @@ import { ActionResolutionStepType } from "../../../../action-processing/action-s
 import { getSpeciesTimedAnimation } from "../get-species-timed-animation.js";
 import {
   Combatant,
+  CombatantBaseChildTransformNodeName,
   CombatantClass,
   CombatantControlledBy,
   CombatantControllerType,
   CombatantProperties,
   CombatantSpecies,
   MonsterType,
+  SceneEntityType,
   SkeletalAnimationName,
   SpawnableEntityType,
 } from "../../../../index.js";
@@ -18,6 +20,38 @@ import { Vector3 } from "@babylonjs/core";
 
 const config = cloneDeep(BASIC_SPELL_STEPS_CONFIG);
 ActionStepConfigUtils.removeMoveForwardSteps(config);
+
+config.steps[ActionResolutionStepType.PostPrepSpawnEntity] = {
+  getSpawnableEntities: (context) => {
+    const web = Combatant.createInitialized(
+      { name: "web", id: context.idGenerator.generate() },
+      new CombatantProperties(
+        CombatantClass.Warrior,
+        CombatantSpecies.Ray,
+        MonsterType.MantaRay,
+        new CombatantControlledBy(CombatantControllerType.Dungeon, ""),
+        Vector3.Zero()
+      )
+    );
+
+    web.getCombatantProperties().controlledBy.summonedBy =
+      context.actionUserContext.actionUser.getEntityId();
+
+    return [
+      {
+        type: SpawnableEntityType.Combatant,
+        combatant: web,
+        parentTransformNodeOption: {
+          sceneEntityIdentifier: {
+            type: SceneEntityType.CharacterModel,
+            entityId: context.actionUserContext.actionUser.getEntityId(),
+          },
+          transformNodeName: CombatantBaseChildTransformNodeName.MainHandEquipment,
+        },
+      },
+    ];
+  },
+};
 
 config.steps[ActionResolutionStepType.ChamberingMotion] = {
   ...config.steps[ActionResolutionStepType.ChamberingMotion],
@@ -41,27 +75,7 @@ config.steps[ActionResolutionStepType.DeliveryMotion] = {
     ),
 };
 
-config.steps[ActionResolutionStepType.OnActivationSpawnEntity] = {
-  getSpawnableEntities: (context) => {
-    const web = Combatant.createInitialized(
-      { name: "web", id: context.idGenerator.generate() },
-      new CombatantProperties(
-        CombatantClass.Warrior,
-        CombatantSpecies.Ray,
-        MonsterType.MantaRay,
-        new CombatantControlledBy(CombatantControllerType.Dungeon, ""),
-        Vector3.Zero()
-      )
-    );
-
-    return [
-      {
-        type: SpawnableEntityType.Combatant,
-        combatant: web,
-      },
-    ];
-  },
-};
+config.steps[ActionResolutionStepType.EvalOnUseTriggers] = {};
 
 config.finalSteps[ActionResolutionStepType.RecoveryMotion] = {
   ...config.finalSteps[ActionResolutionStepType.RecoveryMotion],

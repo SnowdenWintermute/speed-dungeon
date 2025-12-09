@@ -110,6 +110,7 @@ export interface ActionEntityMotionUpdate extends IEntityMotionUpdate {
 export interface CombatantMotionUpdate extends IEntityMotionUpdate {
   entityType: SpawnableEntityType.Combatant;
   idleOnComplete?: boolean;
+  setParent?: SceneEntityChildTransformNodeIdentifierWithDuration | null;
   equipmentAnimations?: EquipmentAnimation[];
 }
 

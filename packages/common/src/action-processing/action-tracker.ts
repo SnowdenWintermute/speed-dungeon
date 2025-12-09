@@ -107,6 +107,12 @@ export class ActionTracker {
     else throw new Error("expected spawned action entity not found");
   }
 
+  getFirstExpectedSpawnedCombatant() {
+    const firstOption = this.spawnedEntities[0];
+    if (firstOption?.type === SpawnableEntityType.Combatant) return firstOption;
+    else throw new Error("expected spawned combatant not found");
+  }
+
   wasCountered() {
     return iterateNumericEnumKeyedRecord(this.hitOutcomes.outcomeFlags)
       .map(([key, value]) => key)
