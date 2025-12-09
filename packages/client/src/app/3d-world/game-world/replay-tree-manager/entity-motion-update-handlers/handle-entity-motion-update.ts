@@ -34,11 +34,7 @@ export function handleEntityMotionUpdate(
   let onAnimationComplete = () => {};
   let onTranslationComplete = () => {};
 
-  let cosmeticDestinationYOption = undefined;
-
   if (motionUpdate.entityType === SpawnableEntityType.ActionEntity) {
-    cosmeticDestinationYOption = motionUpdate.cosmeticDestinationY;
-
     const actionEntityModelOption = getGameWorld().actionEntityManager.findOne(
       motionUpdate.entityId,
       motionUpdate
@@ -97,7 +93,6 @@ export function handleEntityMotionUpdate(
     handleUpdateTranslation(
       motionUpdate,
       translationOption,
-      cosmeticDestinationYOption,
       updateCompletionTracker,
       update,
       onTranslationComplete

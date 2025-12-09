@@ -66,9 +66,21 @@ export class TranslationTracker extends ModelMovementTracker {
     let newPosition = Vector3.Lerp(this.previous, this.destination, lerpPercentage);
 
     if (this.curves.pathCurveOption !== undefined) {
+      const start3 = this.previous; // Vector3
+      const end3 = this.destination; // Vector3
+      const forward = end3.subtract(start3).normalize();
+      const worldUp = new Vector3(0, 1, 0);
+
+      let tempUp = worldUp;
+      if (Math.abs(forward.dot(worldUp)) > 0.99) {
+        tempUp = new Vector3(1, 0, 0); // fallback if almost parallel
+      }
+      const right = forward.cross(tempUp).normalize();
+      const up = right.cross(forward).normalize();
       if (this.computedCurve === undefined) {
-        const startVec2 = new Vector2(this.previous.x, this.previous.z);
-        const endVec2 = new Vector2(this.destination.x, this.destination.z);
+        const startVec2 = projectToPlane(start3, start3, forward, up); // always (0,0)
+        const endVec2 = projectToPlane(end3, start3, forward, up); // (distance, vertical offset)
+
         const { mod1, mod2 } = CubicBezierCurve.buildControlsFromExample(
           startVec2,
           endVec2,
@@ -78,8 +90,8 @@ export class TranslationTracker extends ModelMovementTracker {
       }
 
       const curvePosition = this.computedCurve.getPoint(lerpPercentage);
-      newPosition.x = curvePosition.x;
-      newPosition.y = curvePosition.y;
+
+      newPosition = toWorld(curvePosition, this.previous, forward, up);
     }
 
     this.movable.position.copyFrom(newPosition);
@@ -111,4 +123,16 @@ export class RotationTracker extends ModelMovementTracker {
     const newPosition = Quaternion.Slerp(this.previous, this.destination, this.percentComplete());
     this.movable.rotationQuaternion.copyFrom(newPosition);
   }
+}
+
+function projectToPlane(point: Vector3, origin: Vector3, forward: Vector3, up: Vector3): Vector2 {
+  const local = point.subtract(origin);
+  return new Vector2(
+    local.dot(forward), // X coordinate along forward direction
+    local.dot(up) // Y coordinate along up direction (height)
+  );
+}
+
+function toWorld(v: Vector2, origin: Vector3, forward: Vector3, up: Vector3): Vector3 {
+  return origin.add(forward.scale(v.x)).add(up.scale(v.y));
 }
