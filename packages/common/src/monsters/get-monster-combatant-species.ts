@@ -13,4 +13,5 @@ export const MONSTER_SPECIES: Record<MonsterType, CombatantSpecies> = {
   [MonsterType.IceElemental]: CombatantSpecies.Elemental,
   [MonsterType.FireElemental]: CombatantSpecies.Elemental,
   [MonsterType.MantaRay]: CombatantSpecies.Ray,
+  [MonsterType.Net]: CombatantSpecies.Net,
 };

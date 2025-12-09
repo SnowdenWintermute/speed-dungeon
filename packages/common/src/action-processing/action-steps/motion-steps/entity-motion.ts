@@ -242,6 +242,22 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
         .transformProperties.setHomePosition(this.translationOption.destination);
     }
 
+    const { party } = this.context.actionUserContext;
+
+    for (const combatant of party.combatantManager.getAllCombatants()) {
+      const attachedCombatants =
+        combatant.getCombatantProperties().transformProperties.attachedCombatants;
+
+      for (const attachedId of attachedCombatants) {
+        const attachedOption = party.combatantManager.getCombatantOption(attachedId);
+        if (attachedOption) {
+          attachedOption
+            .getCombatantProperties()
+            .transformProperties.setHomePosition(combatant.getHomePosition());
+        }
+      }
+    }
+
     return [];
   }
 

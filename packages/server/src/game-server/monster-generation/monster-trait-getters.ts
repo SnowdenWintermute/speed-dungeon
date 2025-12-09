@@ -16,6 +16,9 @@ export const MONSTER_INHERENT_TRAIT_GETTERS: Record<
   [MonsterType.Scavenger]: (combatantLevel) => {
     return {};
   },
+  [MonsterType.Net]: (combatantLevel) => {
+    return {};
+  },
   [MonsterType.Vulture]: (combatantLevel) => {
     return {};
   },

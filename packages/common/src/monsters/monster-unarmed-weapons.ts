@@ -101,4 +101,5 @@ export const MONSTER_UNARMED_WEAPONS: Record<
       null
     ),
   },
+  [MonsterType.Net]: null,
 };

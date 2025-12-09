@@ -50,6 +50,7 @@ export async function collectAnimationLengths() {
     [CombatantSpecies.Golem]: {},
     [CombatantSpecies.Canine]: {},
     [CombatantSpecies.Ray]: {},
+    [CombatantSpecies.Net]: {},
   };
 
   for (const [species, skeletonPath] of iterateNumericEnumKeyedRecord(SKELETON_FILE_PATHS)) {

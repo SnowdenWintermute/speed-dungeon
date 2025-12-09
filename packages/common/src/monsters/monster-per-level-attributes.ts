@@ -5,6 +5,9 @@ export const MONSTER_ATTRIBUTES_BY_LEVEL: Record<
   MonsterType,
   Partial<Record<CombatAttribute, number>>
 > = {
+  [MonsterType.Net]: {
+    [CombatAttribute.Speed]: 10,
+  },
   [MonsterType.Zombie]: {
     [CombatAttribute.Strength]: 8.0,
     [CombatAttribute.Dexterity]: 2.0,

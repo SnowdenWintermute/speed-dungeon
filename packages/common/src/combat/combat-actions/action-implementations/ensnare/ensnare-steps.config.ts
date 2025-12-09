@@ -27,8 +27,8 @@ config.steps[ActionResolutionStepType.PostPrepSpawnEntity] = {
       { name: "web", id: context.idGenerator.generate() },
       new CombatantProperties(
         CombatantClass.Warrior,
-        CombatantSpecies.Ray,
-        MonsterType.MantaRay,
+        CombatantSpecies.Net,
+        MonsterType.Net,
         new CombatantControlledBy(CombatantControllerType.Dungeon, ""),
         Vector3.Zero()
       )

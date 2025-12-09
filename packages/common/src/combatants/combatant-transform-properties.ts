@@ -10,7 +10,7 @@ export class CombatantTransformProperties extends CombatantSubsystem {
   public rotation: Quaternion = Quaternion.Zero();
   private homePosition: Vector3 = Vector3.Zero();
   public position: Vector3 = Vector3.Zero();
-  public attachedToCombatant?: EntityId;
+  public attachedCombatants = new Set<EntityId>();
 
   constructor() {
     super();
@@ -26,12 +26,12 @@ export class CombatantTransformProperties extends CombatantSubsystem {
     return deserialized;
   }
 
-  setAttachedToCombatant(entityId: EntityId) {
-    this.attachedToCombatant = entityId;
+  setAttachedCombatant(entityId: EntityId) {
+    this.attachedCombatants.add(entityId);
   }
 
-  clearAttachedToCombatant() {
-    this.attachedToCombatant = undefined;
+  removeAttachedCombatant(entityId: EntityId) {
+    this.attachedCombatants.delete(entityId);
   }
 
   setToHomeTransform() {
