@@ -251,9 +251,10 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
       for (const attachedId of attachedCombatants) {
         const attachedOption = party.combatantManager.getCombatantOption(attachedId);
         if (attachedOption) {
-          attachedOption
-            .getCombatantProperties()
-            .transformProperties.setHomePosition(combatant.getHomePosition());
+          const { transformProperties } = attachedOption.getCombatantProperties();
+
+          transformProperties.setHomePosition(combatant.getHomePosition());
+          transformProperties.setToHomeTransform();
         }
       }
     }

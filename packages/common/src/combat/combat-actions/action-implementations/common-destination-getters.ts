@@ -73,7 +73,10 @@ export function getPrimaryTargetPositionAsDestination(
 
   const target = primaryTargetResult;
 
-  return { position: target.combatantProperties.transformProperties.getHomePosition().clone() };
+  const position = target.combatantProperties.transformProperties.position.clone();
+  console.log("target position:", position.toString());
+
+  return { position };
 }
 
 function getDestinationRotation(actionUser: IActionUser, target: Combatant) {

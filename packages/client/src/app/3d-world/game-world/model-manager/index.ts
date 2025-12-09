@@ -34,10 +34,18 @@ export class ModelManager {
       startOrStopCosmeticEffects(condition.getCosmeticEffectWhileActive?.(entityProperties.id), []);
     });
 
-    const portraitResult = await createCombatantPortrait(model.entityId);
-    if (portraitResult instanceof Error) setAlert(portraitResult);
+    try {
+      const portraitResult = createCombatantPortrait(model.entityId);
 
-    AppStore.get().gameWorldStore.setModelIsLoaded(model.entityId);
+      if (portraitResult instanceof Error) {
+        setAlert(portraitResult);
+        throw portraitResult;
+      }
+
+      AppStore.get().gameWorldStore.setModelIsLoaded(model.entityId);
+    } catch (error) {
+      console.info("some error taking portrait: ", error);
+    }
   }
 
   findOne(entityId: EntityId) {

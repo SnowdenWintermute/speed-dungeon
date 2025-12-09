@@ -50,6 +50,12 @@ export class ModelMovementManager {
       onComplete,
       onUpdate || (() => {})
     );
+    const currentTrackerOption = this.activeTrackers[ModelMovementType.Translation];
+
+    if (currentTrackerOption) {
+      currentTrackerOption.onComplete();
+    }
+
     this.activeTrackers[ModelMovementType.Translation] = tracker;
   }
 

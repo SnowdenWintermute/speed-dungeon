@@ -29,7 +29,6 @@ export function handleUpdateTranslation(
   const pathCurveOption = translation.translationPathCurveOption;
   const speedCurveOption = translation.translationSpeedCurveOption;
 
-  // don't consider the y from the server since the server only calculates 2d positions
   if (cosmeticDestinationYOption) {
     const transformNode = SceneEntity.getChildTransformNodeFromIdentifier(
       cosmeticDestinationYOption
@@ -49,7 +48,6 @@ export function handleUpdateTranslation(
 
         if (motionUpdate.translationOption?.setAsNewHome) {
           if (toUpdate instanceof CharacterModel) {
-            console.log("updating home position:", destination.toString());
             toUpdate
               .getCombatant()
               .getCombatantProperties()

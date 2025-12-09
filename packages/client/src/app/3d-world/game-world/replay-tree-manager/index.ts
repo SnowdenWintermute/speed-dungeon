@@ -21,7 +21,7 @@ export class ReplayTreeProcessorManager {
     this.queue = [];
   }
 
-  async enqueueTree(payload: CombatActionReplayTreePayload, onComplete: () => void) {
+  enqueueTree(payload: CombatActionReplayTreePayload, onComplete: () => void) {
     this.queue.push({ root: payload.root, onComplete });
 
     const partyOption = AppStore.get().gameStore.getPartyOption();

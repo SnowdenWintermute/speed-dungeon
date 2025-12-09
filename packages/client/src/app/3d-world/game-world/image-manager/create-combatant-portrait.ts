@@ -63,6 +63,7 @@ export async function createCombatantPortrait(combatantId: string) {
     { width: 100, height: 100 },
     "image/png"
   );
+
   // @TODO - stopping this affects item screenshot creation, fix it
   world.imageManager.portraitEngine.stopRenderLoop();
 

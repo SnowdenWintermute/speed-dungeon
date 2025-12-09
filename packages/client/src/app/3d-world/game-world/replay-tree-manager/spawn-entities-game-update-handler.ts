@@ -19,7 +19,6 @@ import { handleStartPointingTowardEntity } from "./entity-motion-update-handlers
 import { handleLockRotationToFace } from "./entity-motion-update-handlers/handle-lock-rotation-to-face";
 import { GameUpdateTracker } from "./game-update-tracker";
 import { AppStore } from "@/mobx-stores/app-store";
-import { synchronizeCombatantModelsWithAppState } from "../model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
 import { spawnCharacterModel } from "../model-manager/model-action-handlers/spawn-modular-character";
 
 export async function spawnEntitiesGameUpdateHandler(
@@ -38,9 +37,13 @@ export async function spawnEntitiesGameUpdateHandler(
     }
   }
 
-  await Promise.all(promises);
+  try {
+    await Promise.all(promises);
 
-  update.setAsQueuedToComplete();
+    update.setAsQueuedToComplete();
+  } catch (error) {
+    console.info("some error with spawn entities:", error);
+  }
 }
 
 async function handleNewSpawnableCombatant(
@@ -62,7 +65,9 @@ async function handleNewSpawnableCombatant(
     },
     { spawnInDeadPose: deserialized.combatantProperties.isDead() }
   );
+
   if (model instanceof Error) {
+    console.info("model was error");
     throw model;
   }
 
