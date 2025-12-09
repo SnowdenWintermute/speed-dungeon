@@ -5,8 +5,11 @@ import {
   CombatantBaseChildTransformNodeName,
   CurveType,
   SceneEntityType,
+  SkeletalAnimationName,
   TargetingCalculator,
 } from "../../../../index.js";
+import { getSpeciesTimedAnimation } from "../get-species-timed-animation.js";
+import { Quaternion } from "@babylonjs/core";
 
 const config = new ActionResolutionStepsConfig(
   {
@@ -14,6 +17,13 @@ const config = new ActionResolutionStepsConfig(
     [ActionResolutionStepType.DeliveryMotion]: {
       getDestination: (context) => {
         const primaryTargetDestination = getPrimaryTargetPositionAsDestination(context);
+        if (primaryTargetDestination instanceof Error) {
+          return primaryTargetDestination;
+        }
+
+        const faceDown = Quaternion.FromEulerAngles(Math.PI / 2, 0, 0);
+        primaryTargetDestination.rotation = faceDown;
+
         return {
           ...primaryTargetDestination,
           translationSpeedCurveOption: CurveType.EaseOut,
@@ -22,6 +32,8 @@ const config = new ActionResolutionStepsConfig(
       },
 
       getNewParent: () => null,
+      getAnimation: (user, animationLengths) =>
+        getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.Enclose, false),
     },
     [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
     [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},

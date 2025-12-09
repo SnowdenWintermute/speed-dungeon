@@ -224,6 +224,7 @@ export enum SkeletalAnimationName {
   ThrowObjectChambering,
   ThrowObjectDelivery,
   ThrowObjectRecovery,
+  Enclose,
 }
 
 export enum DynamicAnimationName {
@@ -294,6 +295,7 @@ export const SKELETAL_ANIMATION_NAME_STRINGS: Record<SkeletalAnimationName, stri
   [SkeletalAnimationName.ThrowObjectChambering]: "throw-object-chambering",
   [SkeletalAnimationName.ThrowObjectDelivery]: "throw-object-delivery",
   [SkeletalAnimationName.ThrowObjectRecovery]: "throw-object-recovery",
+  [SkeletalAnimationName.Enclose]: "enclose",
 };
 
 export const DYNAMIC_ANIMATION_NAME_STRINGS: Record<DynamicAnimationName, string> = {

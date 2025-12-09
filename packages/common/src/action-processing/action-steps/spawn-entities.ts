@@ -32,6 +32,7 @@ export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
       for (const spawnableEntity of taggedSpawnableEntities) {
         switch (spawnableEntity.type) {
           case SpawnableEntityType.Combatant:
+            spawnableEntity.combatant.combatantProperties.resources.setToMax();
             party.combatantManager.addCombatant(spawnableEntity.combatant, game);
             break;
           case SpawnableEntityType.ActionEntity:
