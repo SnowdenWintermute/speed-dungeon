@@ -113,8 +113,6 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
 
   monster.combatantProperties.abilityProperties.applyConditionsFromTraits(monster, idGenerator);
 
-  monster.combatantProperties.resources.changeHitPoints(-30);
-
   return monster;
 }
 

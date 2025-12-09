@@ -34,7 +34,10 @@ export class FlyingCondition extends CombatantCondition {
     return { homePosition: new Vector3(0, FLYING_HEIGHT, 0) };
   }
 
-  triggeredWhenHitBy = [CombatActionName.Fire];
+  triggeredWhenHitBy = [
+    CombatActionName.Fire,
+    CombatActionName.EnsnareMoveNetTowardTargetAndActivate,
+  ];
 
   onTriggered(
     this: CombatantCondition,

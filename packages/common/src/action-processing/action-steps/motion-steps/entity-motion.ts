@@ -1,5 +1,6 @@
 import { Vector3 } from "@babylonjs/core";
 import {
+  ActionIntentAndUser,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
@@ -116,6 +117,7 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
       const translation: EntityTranslation = {
         destination: destinationResult.position,
         duration: getTranslationTime(positionOption, destinationResult.position, entitySpeedOption),
+        setAsNewHome: destinationResult.setAsNewHome,
       };
 
       if (destinationResult?.translationPathCurveOption !== undefined) {
@@ -231,6 +233,16 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     );
 
     return timeToCompletion;
+  }
+
+  onComplete(): Error | ActionIntentAndUser[] {
+    if (this.translationOption?.setAsNewHome) {
+      this.context.actionUserContext.actionUser
+        .getCombatantProperties()
+        .transformProperties.setHomePosition(this.translationOption.destination);
+    }
+
+    return [];
   }
 
   protected getBranchingActions = () => [];

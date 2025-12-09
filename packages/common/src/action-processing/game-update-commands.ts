@@ -53,11 +53,13 @@ export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, str
 };
 
 export type GameEntity = Combatant | ActionEntity;
+
 export interface EntityTranslation {
   duration: Milliseconds;
   destination: Vector3;
   translationPathCurveOption?: CurveType;
   translationSpeedCurveOption?: CurveType;
+  setAsNewHome?: boolean;
 }
 export interface EntityRotation {
   duration: Milliseconds;
@@ -69,7 +71,9 @@ export interface EntityDestination {
   translationPathCurveOption?: CurveType;
   translationSpeedCurveOption?: CurveType;
   rotation?: Quaternion;
+  setAsNewHome?: boolean;
 }
+
 export enum AnimationTimingType {
   Timed,
   Looping,

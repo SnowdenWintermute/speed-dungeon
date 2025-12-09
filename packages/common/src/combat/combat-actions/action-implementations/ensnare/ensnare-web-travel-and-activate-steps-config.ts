@@ -1,7 +1,12 @@
 import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 import { getPrimaryTargetPositionAsDestination } from "../common-destination-getters.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
-import { CurveType } from "../../../../index.js";
+import {
+  CombatantBaseChildTransformNodeName,
+  CurveType,
+  SceneEntityType,
+  TargetingCalculator,
+} from "../../../../index.js";
 
 const config = new ActionResolutionStepsConfig(
   {
@@ -23,6 +28,31 @@ const config = new ActionResolutionStepsConfig(
   },
   {
     [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
+    [ActionResolutionStepType.FinalPositioning]: {
+      getNewParent: (context) => {
+        const { actionUserContext, tracker } = context;
+        const { actionExecutionIntent } = tracker;
+
+        const targetingCalculator = new TargetingCalculator(actionUserContext, null);
+        const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
+          actionUserContext.party,
+          actionExecutionIntent
+        );
+        if (primaryTargetResult instanceof Error) throw primaryTargetResult;
+        const target = primaryTargetResult;
+
+        return {
+          identifier: {
+            sceneEntityIdentifier: {
+              type: SceneEntityType.CharacterModel,
+              entityId: target.getEntityId(),
+            },
+            transformNodeName: CombatantBaseChildTransformNodeName.EntityRoot,
+          },
+          duration: 0,
+        };
+      },
+    },
   },
   {
     getFinalSteps: (self) => {

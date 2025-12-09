@@ -3,12 +3,14 @@ import { cloneVector3, runIfInBrowser } from "../utils/index.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { plainToInstance } from "class-transformer";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
+import { EntityId } from "../index.js";
 
 export class CombatantTransformProperties extends CombatantSubsystem {
   public homeRotation: Quaternion = Quaternion.Zero();
   public rotation: Quaternion = Quaternion.Zero();
   private homePosition: Vector3 = Vector3.Zero();
   public position: Vector3 = Vector3.Zero();
+  public attachedToCombatant?: EntityId;
 
   constructor() {
     super();
@@ -22,6 +24,14 @@ export class CombatantTransformProperties extends CombatantSubsystem {
     deserialized.homeRotation = plainToInstance(Quaternion, plain.homeRotation);
     deserialized.rotation = plainToInstance(Quaternion, plain.rotation);
     return deserialized;
+  }
+
+  setAttachedToCombatant(entityId: EntityId) {
+    this.attachedToCombatant = entityId;
+  }
+
+  clearAttachedToCombatant() {
+    this.attachedToCombatant = undefined;
   }
 
   setToHomeTransform() {

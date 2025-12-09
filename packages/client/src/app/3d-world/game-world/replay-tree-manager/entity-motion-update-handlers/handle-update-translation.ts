@@ -11,6 +11,7 @@ import { EntityMotionUpdateCompletionTracker } from "./entity-motion-update-comp
 import { SceneEntity } from "@/app/3d-world/scene-entities";
 import { getSceneEntityToUpdate } from "./get-scene-entity-to-update";
 import { GameUpdateTracker } from "../game-update-tracker";
+import { CharacterModel } from "@/app/3d-world/scene-entities/character-models";
 
 export function handleUpdateTranslation(
   motionUpdate: EntityMotionUpdate,
@@ -45,6 +46,16 @@ export function handleUpdateTranslation(
 
       if (updateCompletionTracker.isComplete()) {
         gameUpdate.setAsQueuedToComplete();
+
+        if (motionUpdate.translationOption?.setAsNewHome) {
+          if (toUpdate instanceof CharacterModel) {
+            console.log("updating home position:", destination.toString());
+            toUpdate
+              .getCombatant()
+              .getCombatantProperties()
+              .transformProperties.setHomePosition(destination);
+          }
+        }
         onComplete();
       }
     }
