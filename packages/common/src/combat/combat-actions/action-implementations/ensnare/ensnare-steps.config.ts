@@ -11,6 +11,7 @@ import {
   CombatantControllerType,
   CombatantProperties,
   CombatantSpecies,
+  CombatantTraitType,
   MonsterType,
   SceneEntityType,
   SkeletalAnimationName,
@@ -34,13 +35,19 @@ config.steps[ActionResolutionStepType.PostPrepSpawnEntity] = {
       )
     );
 
-    web.getCombatantProperties().controlledBy.summonedBy =
+    web.combatantProperties.removeFromPartyOnDeath = true;
+    web.combatantProperties.giveThreatGeneratedToId =
       context.actionUserContext.actionUser.getEntityId();
+
+    web.combatantProperties.abilityProperties.getTraitProperties().inherentTraitLevels[
+      CombatantTraitType.Passive
+    ] = 1;
 
     return [
       {
         type: SpawnableEntityType.Combatant,
         combatant: web,
+        doNotIdle: true,
         parentTransformNodeOption: {
           sceneEntityIdentifier: {
             type: SceneEntityType.CharacterModel,

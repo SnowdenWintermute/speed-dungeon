@@ -14,6 +14,7 @@ import { runIfInBrowser } from "../utils/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { CombatantCondition, ConditionWithCombatantIdAppliedTo } from "../conditions/index.js";
+import { CombatantTraitType } from "../combatants/combatant-traits/trait-types.js";
 
 export class CombatantManager extends AdventuringPartySubsystem {
   private combatants: Map<EntityId, Combatant> = new Map();
@@ -249,6 +250,15 @@ export class CombatantManager extends AdventuringPartySubsystem {
     const battleOption = party.getBattleOption(game);
 
     if (battleOption) {
+      const isPassive = combatant
+        .getCombatantProperties()
+        .abilityProperties.getTraitProperties()
+        .hasTraitType(CombatantTraitType.Passive);
+
+      if (isPassive) {
+        return;
+      }
+
       const { turnSchedulerManager } = battleOption.turnOrderManager;
 
       const fastestTurnTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();

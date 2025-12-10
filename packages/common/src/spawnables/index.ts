@@ -22,6 +22,7 @@ export type SpawnedCombatant = {
   combatant: Combatant;
   parentTransformNodeOption?: SceneEntityChildTransformNodeIdentifier;
   petProperties?: PetProperties;
+  doNotIdle?: boolean;
 };
 
 export type SpawnedActionEntity = {

@@ -6,6 +6,7 @@ import {
   CombatActionName,
   COMBAT_ACTIONS,
   ActionResolutionStepType,
+  SKELETAL_ANIMATION_NAME_STRINGS,
 } from "@speed-dungeon/common";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
@@ -13,6 +14,7 @@ import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { FloatingMessageService } from "@/mobx-stores/game-event-notifications/floating-message-service";
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
+import { synchronizeCombatantModelsWithAppState } from "../../model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
 
 export function induceHitRecovery(
   actionUserName: string,
@@ -96,6 +98,8 @@ export function induceHitRecovery(
         targetModel.skeletalAnimationManager.playing.options.onComplete();
     }
 
+    console.log("should animate:", shouldAnimate);
+
     // if (shouldAnimate) // we kind of need to animate this
     targetModel.skeletalAnimationManager.startAnimationWithTransition(
       SkeletalAnimationName.DeathBack,
@@ -103,17 +107,31 @@ export function induceHitRecovery(
       {
         onComplete: () => {
           targetModel.skeletalAnimationManager.locked = true;
+          const shouldRemove =
+            targetModel.getCombatant().combatantProperties.removeFromPartyOnDeath;
+          if (shouldRemove) {
+            party.combatantManager.removeCombatant(targetModel.entityId, game);
+            synchronizeCombatantModelsWithAppState({});
+          }
         },
       }
     );
   } else if (resourceChange.value < 0) {
     const hasCritRecoveryAnimation = targetModel.skeletalAnimationManager.getAnimationGroupByName(
-      SkeletalAnimationName.HitRecovery
+      SkeletalAnimationName.CritRecovery
     );
+
     let animationName = SkeletalAnimationName.HitRecovery;
     if (resourceChange.isCrit && hasCritRecoveryAnimation)
       animationName = SkeletalAnimationName.CritRecovery;
     if (wasBlocked) animationName = SkeletalAnimationName.Block;
+
+    console.log(
+      "doing animation:",
+      SKELETAL_ANIMATION_NAME_STRINGS[animationName],
+      "on",
+      targetModel.getCombatant().getName()
+    );
 
     // checking for isIdling is a simple way to avoid interrupting their return home when
     // they are hit midway through an action, which would cause their turn to never end

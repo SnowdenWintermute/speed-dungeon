@@ -73,7 +73,10 @@ export interface ActionResolutionStepConfig {
   ): EquipmentAnimation[];
   //an arrow to have been spawned
   getSpawnableEntities?: (context: ActionResolutionStepContext) => null | SpawnableEntity[];
-  getAuxiliaryEntityMotions?(context: ActionResolutionStepContext): EntityMotionUpdate[];
+  getAuxiliaryEntityMotions?(
+    context: ActionResolutionStepContext,
+    animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>
+  ): EntityMotionUpdate[];
 
   shouldIdleOnComplete?: boolean;
 }

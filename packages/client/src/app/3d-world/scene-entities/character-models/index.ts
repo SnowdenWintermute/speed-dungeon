@@ -137,6 +137,15 @@ export class CharacterModel extends SceneEntity {
 
     this.childTransformNodes[CombatantBaseChildTransformNodeName.HitboxCenter] =
       hitboxCenterTransformNode;
+
+    const hitboxCenterTopTransformNode = new TransformNode(`${this.entityId}-hitbox-center`);
+    const hitboxTop = this.getBoundingInfo().boundingBox.center.clone();
+    hitboxTop.y += this.getBoundingInfo().boundingBox.extendSize.y;
+    hitboxCenterTopTransformNode.setParent(this.rootTransformNode);
+    hitboxCenterTopTransformNode.position = hitboxTop.clone();
+
+    this.childTransformNodes[CombatantBaseChildTransformNodeName.HitboxCenterTop] =
+      hitboxCenterTopTransformNode;
   }
 
   customCleanup(): void {

@@ -39,13 +39,13 @@ import Whistle from "../../../public/img/game-ui-icons/whistle.svg";
 import EditPencil from "../../../public/img/menu-icons//edit-pencil.svg";
 import Feather from "../../../public/img/game-ui-icons/feather.svg";
 import SpiderWeb from "../../../public/img/game-ui-icons/spider-web.svg";
+import Dove from "../../../public/img/game-ui-icons/dove.svg";
 
 import { ReactNode } from "react";
 import {
   ActionEntityName,
   ActionPayableResource,
   CombatActionName,
-  CombatantCondition,
   CombatantConditionName,
   CombatantTraitType,
   ConsumableType,
@@ -93,6 +93,7 @@ export enum IconName {
   EditPencil,
   Feather,
   SpiderWeb,
+  Dove,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -135,6 +136,7 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.EditPencil]: (className: string) => <EditPencil className={className} />,
   [IconName.Feather]: (className: string) => <Feather className={className} />,
   [IconName.SpiderWeb]: (className: string) => <SpiderWeb className={className} />,
+  [IconName.Dove]: (className: string) => <Dove className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {
@@ -239,6 +241,7 @@ export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string)
   [CombatantTraitType.ExtraConsumablesStorage]: null,
   [CombatantTraitType.IsTameable]: (className: string) => SVG_ICONS[IconName.Whistle](className),
   [CombatantTraitType.Flyer]: (className: string) => SVG_ICONS[IconName.Feather](className),
+  [CombatantTraitType.Passive]: (className: string) => SVG_ICONS[IconName.Dove](className),
 };
 
 export const ACTION_ENTITY_ICONS: Record<

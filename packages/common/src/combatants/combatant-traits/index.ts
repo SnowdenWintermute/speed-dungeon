@@ -105,4 +105,11 @@ export const COMBATANT_TRAIT_DESCRIPTIONS: Record<CombatantTraitType, CombatantT
     summary: "This creature can be conviced to join your pack with the Tame Pet action",
     createDescriptionsByLevel: (self) => [],
   }),
+  [CombatantTraitType.Passive]: new CombatantTraitDescription({
+    name: "Passive",
+    maxLevel: 1,
+    isAllocatable: false,
+    summary: "Can not take turns or perform actions",
+    createDescriptionsByLevel: (self) => [],
+  }),
 };

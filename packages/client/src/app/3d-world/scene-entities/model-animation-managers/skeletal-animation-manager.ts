@@ -93,7 +93,12 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
       // send message to client with timout duration to remove itself
       AppStore.get().gameEventNotificationStore.startFloatingMessage(
         this.sceneEntityId,
-        [{ type: FloatingMessageElementType.Text, text: `Missing animation: ${newAnimationName}` }],
+        [
+          {
+            type: FloatingMessageElementType.Text,
+            text: `Missing animation: ${SKELETAL_ANIMATION_NAME_STRINGS[newAnimationName]}`,
+          },
+        ],
         MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME,
         options.onComplete
       );

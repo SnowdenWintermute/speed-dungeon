@@ -7,4 +7,5 @@ export enum CombatantTraitType {
   ExtraConsumablesStorage,
   IsTameable,
   Flyer,
+  Passive,
 }

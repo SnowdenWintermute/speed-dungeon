@@ -17,6 +17,7 @@ import {
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { ENSNARE_WEB_TRAVEL_AND_ACTIVATE_STEPS_CONFIG } from "./ensnare-web-travel-and-activate-steps-config.js";
+import { ThreatType } from "../../../../combatants/threat-manager/index.js";
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,
@@ -33,6 +34,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 
       return toReturn;
     },
+    flatThreatGeneratedOnHit: { [ThreatType.Volatile]: 800, [ThreatType.Stable]: 1 },
   }
 );
 

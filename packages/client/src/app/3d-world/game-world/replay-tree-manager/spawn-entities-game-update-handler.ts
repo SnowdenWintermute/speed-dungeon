@@ -63,7 +63,10 @@ async function handleNewSpawnableCombatant(
       homePosition: deserialized.combatantProperties.transformProperties.getHomePosition(),
       modelDomPositionElement: null, // vestigial from when we used to spawn directly from next.js
     },
-    { spawnInDeadPose: deserialized.combatantProperties.isDead() }
+    {
+      spawnInDeadPose: deserialized.combatantProperties.isDead(),
+      doNotIdle: !!spawnableCombatant.doNotIdle,
+    }
   );
 
   if (model instanceof Error) {

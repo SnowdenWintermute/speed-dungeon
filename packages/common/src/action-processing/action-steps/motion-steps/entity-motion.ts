@@ -80,7 +80,10 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     let auxiliaryEntityMotionsGetter = stepConfigOption?.getAuxiliaryEntityMotions;
 
     if (auxiliaryEntityMotionsGetter) {
-      const auxiliaryEntityMotions = auxiliaryEntityMotionsGetter(context);
+      const auxiliaryEntityMotions = auxiliaryEntityMotionsGetter(
+        context,
+        context.manager.sequentialActionManagerRegistry.animationLengths
+      );
       gameUpdateCommand.auxiliaryUpdates = auxiliaryEntityMotions;
     }
   }

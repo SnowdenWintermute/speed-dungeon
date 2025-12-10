@@ -4,6 +4,7 @@ import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { MagicalElement } from "../combat/magical-elements.js";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
+import { CombatantTraitType } from "./combatant-traits/trait-types.js";
 
 export class MitigationProperties extends CombatantSubsystem {
   constructor() {
@@ -14,7 +15,17 @@ export class MitigationProperties extends CombatantSubsystem {
     return plainToInstance(MitigationProperties, self);
   }
 
+  private isPassive() {
+    return this.getCombatantProperties()
+      .abilityProperties.getTraitProperties()
+      .hasTraitType(CombatantTraitType.Passive);
+  }
+
   canParry(): boolean {
+    if (this.isPassive()) {
+      return false;
+    }
+
     const combatantProperties = this.getCombatantProperties();
     const holdables = combatantProperties.equipment.getActiveHoldableSlot();
     if (!holdables) return false;
@@ -31,10 +42,17 @@ export class MitigationProperties extends CombatantSubsystem {
   }
 
   canCounterattack(): boolean {
+    if (this.isPassive()) {
+      return false;
+    }
     return true;
   }
 
   canBlock(): boolean {
+    if (this.isPassive()) {
+      return false;
+    }
+
     const combatantProperties = this.getCombatantProperties();
     const holdables = combatantProperties.equipment.getActiveHoldableSlot();
     if (!holdables) return false;

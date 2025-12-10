@@ -22,7 +22,6 @@ import { runIfInBrowser } from "../utils/index.js";
 import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantAttributeRecord } from "./combatant-attribute-record.js";
 import { ConditionAppliedBy } from "../conditions/condition-applied-by.js";
-import cloneDeep from "lodash.clonedeep";
 
 export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
@@ -162,6 +161,9 @@ export class Combatant implements IActionUser {
     return this.combatantProperties.inventory;
   }
   getIdOfEntityToCreditWithThreat(): EntityId {
+    if (this.combatantProperties.giveThreatGeneratedToId) {
+      return this.combatantProperties.giveThreatGeneratedToId;
+    }
     return this.entityProperties.id;
   }
   hasRequiredAttributesToUseItem(item: Item): boolean {

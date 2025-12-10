@@ -20,6 +20,7 @@ import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { CombatantConditionManager } from "./condition-manager.js";
 import { CombatantTransformProperties } from "./combatant-transform-properties.js";
 import { runIfInBrowser } from "../utils/index.js";
+import { EntityId } from "../index.js";
 
 export class CombatantProperties {
   // subsystems
@@ -108,4 +109,7 @@ export class CombatantProperties {
   isDead() {
     return this.resources.getHitPoints() <= 0;
   }
+
+  removeFromPartyOnDeath?: boolean;
+  giveThreatGeneratedToId?: EntityId;
 }

@@ -26,8 +26,6 @@ export function handleUpdateTranslation(
   const pathCurveOption = translation.translationPathCurveOption;
   const speedCurveOption = translation.translationSpeedCurveOption;
 
-  console.log("new translationOption destination", destination.toString());
-
   movementManager.startTranslating(
     destination,
     translation.duration,

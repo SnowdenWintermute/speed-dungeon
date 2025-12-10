@@ -30,7 +30,7 @@ const config = new ActionResolutionStepsConfig(
           translationPathCurveOption: CurveType.GradualToPeakThenSharpDrop,
         };
       },
-
+      shouldIdleOnComplete: true,
       getNewParent: () => null,
       getAnimation: (user, animationLengths) =>
         getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.Enclose, false),
@@ -41,6 +41,7 @@ const config = new ActionResolutionStepsConfig(
   {
     [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     [ActionResolutionStepType.FinalPositioning]: {
+      shouldIdleOnComplete: false,
       getNewParent: (context) => {
         const { actionUserContext, tracker } = context;
         const { actionExecutionIntent } = tracker;
