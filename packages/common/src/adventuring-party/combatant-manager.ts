@@ -118,6 +118,10 @@ export class CombatantManager extends AdventuringPartySubsystem {
     );
   }
 
+  getNeutralCombatants() {
+    return this.getAllCombatantsWithControllerTypes([CombatantControllerType.Neutral]);
+  }
+
   getDungeonControlledPets() {
     return this.getDungeonControlledCombatants().filter((combatant) =>
       combatant.combatantProperties.controlledBy.wasSummoned()
@@ -156,6 +160,14 @@ export class CombatantManager extends AdventuringPartySubsystem {
   }
 
   combatantsAreAllies(a: Combatant, b: Combatant) {
+    if (a.combatantProperties.controlledBy.controllerType === CombatantControllerType.Neutral) {
+      return false;
+    }
+
+    if (b.combatantProperties.controlledBy.controllerType === CombatantControllerType.Neutral) {
+      return false;
+    }
+
     const aType = a.combatantProperties.controlledBy.controllerType;
     const bType = b.combatantProperties.controlledBy.controllerType;
     const aIsDungeonControlled = aType === CombatantControllerType.Dungeon;
@@ -169,9 +181,14 @@ export class CombatantManager extends AdventuringPartySubsystem {
   getCombatantIdsByDisposition(towardsId: string): Record<FriendOrFoe, EntityId[]> {
     const combatant = this.getExpectedCombatant(towardsId);
 
+    const neutralCombatantIds = this.getParty()
+      .combatantManager.getNeutralCombatants()
+      .map((combatant) => combatant.getEntityId());
+
     const toReturn: Record<FriendOrFoe, EntityId[]> = {
       [FriendOrFoe.Friendly]: [],
       [FriendOrFoe.Hostile]: [],
+      [FriendOrFoe.Neutral]: [...neutralCombatantIds],
     };
 
     for (const [entityId, combatantToCompare] of this.combatants.entries()) {
@@ -288,6 +305,12 @@ export class CombatantManager extends AdventuringPartySubsystem {
 
   removeDungeonControlledCombatants(game: SpeedDungeonGame) {
     for (const combatant of this.getDungeonControlledCombatants()) {
+      this.removeCombatant(combatant.getEntityId(), game);
+    }
+  }
+
+  removeNeutralCombatants(game: SpeedDungeonGame) {
+    for (const combatant of this.getNeutralCombatants()) {
       this.removeCombatant(combatant.getEntityId(), game);
     }
   }

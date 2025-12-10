@@ -35,13 +35,17 @@ config.steps[ActionResolutionStepType.PostPrepSpawnEntity] = {
       )
     );
 
-    web.combatantProperties.removeFromPartyOnDeath = true;
-    web.combatantProperties.giveThreatGeneratedToId =
+    const { combatantProperties } = web;
+
+    combatantProperties.removeFromPartyOnDeath = true;
+    combatantProperties.giveThreatGeneratedToId =
       context.actionUserContext.actionUser.getEntityId();
 
-    web.combatantProperties.abilityProperties.getTraitProperties().inherentTraitLevels[
+    combatantProperties.abilityProperties.getTraitProperties().inherentTraitLevels[
       CombatantTraitType.Passive
     ] = 1;
+
+    combatantProperties.controlledBy.controllerType = CombatantControllerType.Neutral;
 
     return [
       {

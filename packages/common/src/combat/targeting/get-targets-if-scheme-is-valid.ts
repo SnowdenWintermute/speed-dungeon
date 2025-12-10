@@ -8,6 +8,7 @@ export function getActionTargetsIfSchemeIsValid(
 ): Error | EntityId[] {
   const allyIds = idsByDisposition[FriendOrFoe.Friendly];
   const opponentIds = idsByDisposition[FriendOrFoe.Hostile];
+  const neutralIds = idsByDisposition[FriendOrFoe.Neutral];
 
   switch (actionTarget.type) {
     case CombatActionTargetType.Single:
@@ -55,10 +56,12 @@ export function getActionTargetsIfSchemeIsValid(
       return targetIds as EntityId[];
 
     case CombatActionTargetType.Group:
-      if (actionTarget.friendOrFoe === FriendOrFoe.Friendly) return allyIds;
-      else return opponentIds;
+      if (actionTarget.friendOrFoe === FriendOrFoe.Friendly) return [...allyIds, ...neutralIds];
+      else if (actionTarget.friendOrFoe === FriendOrFoe.Hostile)
+        return [...opponentIds, ...neutralIds];
+      else neutralIds;
     case CombatActionTargetType.All:
-      const allCombatantIds: EntityId[] = allyIds.concat(opponentIds);
+      const allCombatantIds: EntityId[] = allyIds.concat(opponentIds).concat(neutralIds);
       return allCombatantIds;
   }
 }

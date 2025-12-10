@@ -138,7 +138,11 @@ export class ActionEntity implements IActionUser {
       return idsByDisposition;
     } else {
       const allCombatantIds = combatantManager.getAllCombatantIds();
-      return { [FriendOrFoe.Hostile]: allCombatantIds, [FriendOrFoe.Friendly]: allCombatantIds };
+      return {
+        [FriendOrFoe.Hostile]: allCombatantIds,
+        [FriendOrFoe.Friendly]: allCombatantIds,
+        [FriendOrFoe.Neutral]: allCombatantIds,
+      };
     }
   }
   getCombatantProperties(): CombatantProperties {

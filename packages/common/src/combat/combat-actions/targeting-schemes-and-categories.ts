@@ -1,6 +1,7 @@
 export enum FriendOrFoe {
   Friendly,
   Hostile,
+  Neutral,
 }
 
 export enum TargetingScheme {

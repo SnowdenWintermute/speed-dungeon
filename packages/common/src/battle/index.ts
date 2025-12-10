@@ -41,6 +41,7 @@ export class Battle {
     return {
       [FriendOrFoe.Hostile]: idsByDisposition[FriendOrFoe.Friendly],
       [FriendOrFoe.Friendly]: idsByDisposition[FriendOrFoe.Hostile],
+      [FriendOrFoe.Neutral]: idsByDisposition[FriendOrFoe.Neutral],
     };
   }
 
@@ -72,6 +73,7 @@ export class Battle {
     }
 
     combatantManager.removeDungeonControlledCombatants(game);
+    combatantManager.removeNeutralCombatants(game);
 
     const battleIdToRemoveOption = party.battleId;
     party.battleId = null;

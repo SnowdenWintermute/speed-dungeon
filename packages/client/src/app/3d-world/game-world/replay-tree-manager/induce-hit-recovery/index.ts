@@ -15,6 +15,7 @@ import { DialogElementName } from "@/mobx-stores/dialogs";
 import { FloatingMessageService } from "@/mobx-stores/game-event-notifications/floating-message-service";
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 import { synchronizeCombatantModelsWithAppState } from "../../model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
+import cloneDeep from "lodash.clonedeep";
 
 export function induceHitRecovery(
   actionUserName: string,
@@ -107,11 +108,17 @@ export function induceHitRecovery(
       {
         onComplete: () => {
           targetModel.skeletalAnimationManager.locked = true;
-          const shouldRemove =
-            targetModel.getCombatant().combatantProperties.removeFromPartyOnDeath;
-          if (shouldRemove) {
-            party.combatantManager.removeCombatant(targetModel.entityId, game);
-            synchronizeCombatantModelsWithAppState({});
+          try {
+            const shouldRemove =
+              targetModel.getCombatant().combatantProperties.removeFromPartyOnDeath;
+            if (shouldRemove) {
+              party.combatantManager.removeCombatant(targetModel.entityId, game);
+              synchronizeCombatantModelsWithAppState({});
+            }
+          } catch {
+            console.log(
+              "couldn't do death animation onComplete, maybe the combatant was already removed"
+            );
           }
         },
       }
@@ -126,19 +133,12 @@ export function induceHitRecovery(
       animationName = SkeletalAnimationName.CritRecovery;
     if (wasBlocked) animationName = SkeletalAnimationName.Block;
 
-    console.log(
-      "doing animation:",
-      SKELETAL_ANIMATION_NAME_STRINGS[animationName],
-      "on",
-      targetModel.getCombatant().getName()
-    );
-
     // checking for isIdling is a simple way to avoid interrupting their return home when
     // they are hit midway through an action, which would cause their turn to never end
     // on the client
     const isIdling = targetModel.isIdling();
 
-    if (shouldAnimate && isIdling)
+    if (shouldAnimate && isIdling) {
       targetModel.skeletalAnimationManager.startAnimationWithTransition(animationName, 0, {
         onComplete: () => {
           const wasRevived =
@@ -147,9 +147,14 @@ export function induceHitRecovery(
           if (wasRevived) {
             // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
           } else {
-            targetModel.startIdleAnimation(500);
+            try {
+              targetModel.startIdleAnimation(500);
+            } catch (error) {
+              console.log("couldn't idle, maybe combatant was removed already");
+            }
           }
         },
       });
+    }
   }
 }

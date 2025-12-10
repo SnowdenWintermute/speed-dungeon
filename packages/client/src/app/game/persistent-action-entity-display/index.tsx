@@ -11,12 +11,12 @@ export const PersistentActionEntityDisplay = observer(() => {
   const { actionEntityManager } = party;
 
   return (
-    <ul className="list-none">
+    <ul className="list-none w-20 max-w-20">
       {Object.entries(actionEntityManager.getActionEntities()).map(
         ([actionEntityId, actionEntity]) => (
-          <ul key={actionEntityId}>
+          <li key={actionEntityId}>
             <PersistentActionEntity actionEntity={actionEntity} />
-          </ul>
+          </li>
         )
       )}
     </ul>
@@ -44,7 +44,7 @@ const PersistentActionEntity = observer(({ actionEntity }: { actionEntity: Actio
   const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
 
   return (
-    <div className="h-20 w-20 border-2 border-slate-400 relative bg-slate-800 text-zinc-300 pointer-events-auto">
+    <div className="h-20 w-full border-2 border-slate-400 relative bg-slate-800 text-zinc-300 pointer-events-auto">
       <div className="absolute h-full p-1">{icon}</div>
       <div
         className="absolute h-full p-1 text-sm flex flex-col text-center justify-end w-full"

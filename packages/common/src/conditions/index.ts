@@ -150,7 +150,11 @@ export abstract class CombatantCondition implements IActionUser {
   ): Record<FriendOrFoe, EntityId[]> {
     // @TODO - replace this placeholder
     if (!battleOption) {
-      return { [FriendOrFoe.Hostile]: [], [FriendOrFoe.Friendly]: [] };
+      return {
+        [FriendOrFoe.Hostile]: [],
+        [FriendOrFoe.Friendly]: [],
+        [FriendOrFoe.Neutral]: [],
+      };
     }
 
     const idsByDispositionOfConditionHolder = party.combatantManager.getCombatantIdsByDisposition(
@@ -162,6 +166,7 @@ export abstract class CombatantCondition implements IActionUser {
         // if applied by a friendly combatant, "ally ids" would be the allies of conditionAppliedTo
         return idsByDispositionOfConditionHolder;
       case FriendOrFoe.Hostile:
+      case FriendOrFoe.Neutral:
         // if applied by a hostile combatant, "ally ids" would be the opponents of conditionAppliedTo
         return Battle.invertAllyAndOpponentIds(idsByDispositionOfConditionHolder);
     }

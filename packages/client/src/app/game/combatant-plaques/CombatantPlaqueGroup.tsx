@@ -6,11 +6,15 @@ interface Props {
   party: AdventuringParty;
   combatantIds: string[];
   isPlayerControlled: boolean;
+  displayCompact?: boolean;
+  displayColumn?: boolean;
 }
 
 export default function CombatantPlaqueGroup(props: Props) {
   return (
-    <ul className={`w-full flex list-none ${!props.isPlayerControlled && "justify-center"} `}>
+    <ul
+      className={`w-full flex ${props.displayColumn ? "flex-col" : ""} list-none ${!props.isPlayerControlled && "justify-center"} `}
+    >
       {props.combatantIds.map((id) => {
         const combatantOption = props.party.combatantManager.getCombatantOption(id);
         if (combatantOption === undefined) return <div>{ERROR_MESSAGES.COMBATANT.NOT_FOUND} </div>;
@@ -23,7 +27,12 @@ export default function CombatantPlaqueGroup(props: Props) {
 
           if (petOption) {
             petDisplay = (
-              <CombatantPlaque extraStyles="mb-2" combatant={petOption} showExperience={false} />
+              <CombatantPlaque
+                extraStyles="mb-2"
+                combatant={petOption}
+                showExperience={false}
+                compactView={props.displayCompact}
+              />
             );
           }
 
@@ -32,11 +41,12 @@ export default function CombatantPlaqueGroup(props: Props) {
               key={`plaque-${id}`}
               className={`mr-4 last:mr-0 box-border flex ${props.isPlayerControlled ? "items-end" : "items-start"}`}
             >
-              <div className="flex flex-col items-end justify-end">
+              <div className="flex flex-col items-end justify-end w-full">
                 {petDisplay}
                 <CombatantPlaque
                   combatant={combatantOption}
                   showExperience={props.isPlayerControlled}
+                  compactView={props.displayCompact}
                 />
               </div>
             </li>
