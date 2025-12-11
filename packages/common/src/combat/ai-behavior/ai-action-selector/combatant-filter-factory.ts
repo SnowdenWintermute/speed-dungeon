@@ -38,17 +38,18 @@ export class CombatantFilterFactory {
 
       const allyIds = combatantIdsByDisposition[FriendOrFoe.Friendly];
       const opponentIds = combatantIdsByDisposition[FriendOrFoe.Hostile];
+      const neutralIds = combatantIdsByDisposition[FriendOrFoe.Neutral];
 
       const idsToFetchCombatants: EntityId[] = [];
       switch (targetCategory) {
         case TargetCategories.Any:
-          idsToFetchCombatants.push(...opponentIds, ...allyIds);
+          idsToFetchCombatants.push(...opponentIds, ...allyIds, ...neutralIds);
           break;
         case TargetCategories.Opponent:
-          idsToFetchCombatants.push(...opponentIds);
+          idsToFetchCombatants.push(...opponentIds, ...neutralIds);
           break;
         case TargetCategories.Friendly:
-          idsToFetchCombatants.push(...allyIds);
+          idsToFetchCombatants.push(...allyIds, ...neutralIds);
           break;
         case TargetCategories.User:
           combatantsToConsider.push(combatant);

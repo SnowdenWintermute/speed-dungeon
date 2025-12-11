@@ -89,6 +89,15 @@ export abstract class CombatantCondition implements IActionUser {
     return { numStacksRemoved: 0, triggeredActions: [] };
   }
 
+  onRemoved(
+    this: CombatantCondition,
+    actionUserContext: ActionUserContext,
+    targetCombatant: Combatant,
+    idGenerator: IdGenerator
+  ): ActionIntentAndUser[] {
+    return [];
+  }
+
   getCosmeticEffectWhileActive?(combatantId: EntityId): CosmeticEffectOnTargetTransformNode[];
 
   /** How this condition affects the appliedTo combatant */

@@ -232,6 +232,7 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
   [CombatActionName.Ensnare]: (className: string) => SVG_ICONS[IconName.SpiderWeb](`${className}`),
   [CombatActionName.EnsnareMoveNetTowardTargetAndActivate]: (className: string) =>
     SVG_ICONS[IconName.SpiderWeb](`${className}`),
+  [CombatActionName.StartFlying]: (className: string) => SVG_ICONS[IconName.Feather](className),
 };
 
 export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string) => ReactNode)> = {

@@ -22,6 +22,10 @@ import { CombatantTransformProperties } from "./combatant-transform-properties.j
 import { runIfInBrowser } from "../utils/index.js";
 import { EntityId } from "../index.js";
 
+export interface CombatantOnDeathProperties {
+  removeConditionsApplied: boolean;
+}
+
 export class CombatantProperties {
   // subsystems
   attributeProperties = new CombatantAttributeProperties();
@@ -35,13 +39,16 @@ export class CombatantProperties {
     new CombatantClassProperties(1, CombatantClass.Warrior)
   );
   mitigationProperties = new MitigationProperties();
-  // need to specially serialize conditions
+  // need to specially serialize conditions,
+  // see note on conditionManager.serializedConditions
   @Exclude()
   conditionManager = new CombatantConditionManager();
   transformProperties = new CombatantTransformProperties();
 
   // ACHIEVEMENTS
   deepestFloorReached: number = 1;
+
+  onDeathProperties?: CombatantOnDeathProperties;
 
   constructor(
     mainClassType: CombatantClass,

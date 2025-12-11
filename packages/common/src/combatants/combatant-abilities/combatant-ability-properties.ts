@@ -288,4 +288,11 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
       }
     }
   }
+
+  canGainFlying() {
+    const isEnsnared = this.getCombatantProperties().conditionManager.hasConditionName(
+      CombatantConditionName.Ensnared
+    );
+    return !isEnsnared;
+  }
 }

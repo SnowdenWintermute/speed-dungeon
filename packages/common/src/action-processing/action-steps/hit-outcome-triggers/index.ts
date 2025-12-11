@@ -83,11 +83,49 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           for (const condition of conditionManager.getConditions()) {
             if (!condition.removedOnDeath) continue;
             conditionManager.removeConditionById(condition.id);
+
+            const onRemovedTriggeredActions = condition.onRemoved(
+              actionUserContext,
+              targetCombatant,
+              context.idGenerator
+            );
+            this.branchingActions.push(...onRemovedTriggeredActions);
+
             addRemovedConditionIdToUpdate(
               condition.id,
               gameUpdateCommand,
               targetCombatant.entityProperties.id
             );
+          }
+
+          // remove linked conditions such as when a web dies it must remove the ensnared condition
+          // from corresponding target
+          const shouldRemoveAllConditionsAppliedByDyingCombatant =
+            targetCombatant.combatantProperties.onDeathProperties?.removeConditionsApplied;
+
+          if (shouldRemoveAllConditionsAppliedByDyingCombatant) {
+            for (const combatant of party.combatantManager.getAllCombatants()) {
+              for (const condition of combatant.combatantProperties.conditionManager.getConditions()) {
+                const wasAppliedByDyingCombatant =
+                  condition.appliedBy.entityProperties.id === targetCombatant.getEntityId();
+                if (wasAppliedByDyingCombatant) {
+                  combatant.combatantProperties.conditionManager.removeConditionById(condition.id);
+
+                  const onRemovedTriggeredActions = condition.onRemoved(
+                    actionUserContext,
+                    combatant,
+                    context.idGenerator
+                  );
+                  this.branchingActions.push(...onRemovedTriggeredActions);
+
+                  addRemovedConditionIdToUpdate(
+                    condition.id,
+                    gameUpdateCommand,
+                    combatant.entityProperties.id
+                  );
+                }
+              }
+            }
           }
 
           // @TODO

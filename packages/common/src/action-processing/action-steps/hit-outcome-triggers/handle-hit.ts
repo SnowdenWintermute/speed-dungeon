@@ -62,6 +62,8 @@ export function handleHit(
     context.tracker.actionExecutionIntent.rank
   );
 
+  console.log("action:", action.getStringName(), "conditions to apply:", conditionsToApply);
+
   if (conditionsToApply) {
     for (const conditionProperties of conditionsToApply) {
       const condition = CombatantConditionFactory.create({

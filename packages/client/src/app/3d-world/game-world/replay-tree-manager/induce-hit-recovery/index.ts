@@ -99,8 +99,6 @@ export function induceHitRecovery(
         targetModel.skeletalAnimationManager.playing.options.onComplete();
     }
 
-    console.log("should animate:", shouldAnimate);
-
     // if (shouldAnimate) // we kind of need to animate this
     targetModel.skeletalAnimationManager.startAnimationWithTransition(
       SkeletalAnimationName.DeathBack,
@@ -116,7 +114,7 @@ export function induceHitRecovery(
               synchronizeCombatantModelsWithAppState({});
             }
           } catch {
-            console.log(
+            console.info(
               "couldn't do death animation onComplete, maybe the combatant was already removed"
             );
           }
@@ -150,7 +148,7 @@ export function induceHitRecovery(
             try {
               targetModel.startIdleAnimation(500);
             } catch (error) {
-              console.log("couldn't idle, maybe combatant was removed already");
+              console.info("couldn't idle, maybe combatant was removed already");
             }
           }
         },

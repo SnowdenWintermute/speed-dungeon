@@ -1,9 +1,14 @@
 import makeAutoObservable from "mobx-store-inheritance";
 import { CombatActionIntent } from "../../combat/combat-actions/index.js";
 import {
+  ActionIntentAndUser,
   ActionUserContext,
+  CombatActionExecutionIntent,
+  CombatActionName,
+  CombatActionTargetType,
   Combatant,
   CombatantCondition,
+  CombatantTraitType,
   IdGenerator,
   MaxAndCurrent,
   runIfInBrowser,
@@ -22,17 +27,35 @@ export class EnsnaredCondition extends CombatantCondition {
   multiplesAllowed = true;
   triggeredWhenHitBy = [];
 
-  onTriggered(
+  onRemoved(
     this: CombatantCondition,
     actionUserContext: ActionUserContext,
     targetCombatant: Combatant,
     idGenerator: IdGenerator
   ) {
-    // { user: this, actionExecutionIntent }
+    const { party } = actionUserContext;
+    const appliedToCombatant = party.combatantManager.getExpectedCombatant(this.appliedTo);
+    const triggeredActions: ActionIntentAndUser[] = [];
+    if (
+      appliedToCombatant.combatantProperties.abilityProperties
+        .getTraitProperties()
+        .hasTraitType(CombatantTraitType.Flyer)
+    ) {
+      const combatantCanGainFlying =
+        appliedToCombatant.combatantProperties.abilityProperties.canGainFlying();
 
-    return {
-      numStacksRemoved: this.stacksOption?.current || 1,
-      triggeredActions: [],
-    };
+      // if they had more than one net on them, don't let them try to fly
+      if (combatantCanGainFlying) {
+        triggeredActions.push({
+          user: appliedToCombatant,
+          actionExecutionIntent: new CombatActionExecutionIntent(CombatActionName.StartFlying, 1, {
+            type: CombatActionTargetType.Single,
+            targetId: appliedToCombatant.getEntityId(),
+          }),
+        });
+      }
+    }
+
+    return triggeredActions;
   }
 }

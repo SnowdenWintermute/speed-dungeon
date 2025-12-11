@@ -52,8 +52,20 @@ export class CombatantTransformProperties extends CombatantSubsystem {
       homePosition: new Vector3(),
     };
 
-    for (const condition of this.getCombatantProperties().conditionManager.getConditions()) {
+    const conditions = this.getCombatantProperties().conditionManager.getConditions();
+
+    console.log(
+      "getting home position affected conditions:",
+      conditions.map((condition) => condition.getStringName())
+    );
+
+    for (const condition of conditions) {
       const homePositionModifier = condition.getTransformModifiers().homePosition;
+      console.log(
+        "checking conditions fro homePosition modifiers",
+        condition.getStringName(),
+        homePositionModifier
+      );
       if (!homePositionModifier) {
         continue;
       }

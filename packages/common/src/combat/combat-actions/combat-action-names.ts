@@ -48,6 +48,7 @@ export enum CombatActionName {
   PassTurn,
   // TRANSFORMS AND MOVEMENTS
   FallTowardsHomePosition,
+  StartFlying,
 }
 
 export const ACTION_NAMES_TO_HIDE_IN_MENU = [
@@ -105,4 +106,5 @@ export const COMBAT_ACTION_NAME_STRINGS: Record<CombatActionName, string> = {
   [CombatActionName.Ensnare]: "Ensnare",
   [CombatActionName.EnsnareMoveNetTowardTargetAndActivate]:
     "Ensnare Move Net Toward Target And Activate",
+  [CombatActionName.StartFlying]: "Start Flying",
 };

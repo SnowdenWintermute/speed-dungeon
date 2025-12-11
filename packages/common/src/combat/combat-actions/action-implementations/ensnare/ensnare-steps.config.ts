@@ -41,6 +41,8 @@ config.steps[ActionResolutionStepType.PostPrepSpawnEntity] = {
     combatantProperties.giveThreatGeneratedToId =
       context.actionUserContext.actionUser.getEntityId();
 
+    combatantProperties.onDeathProperties = { removeConditionsApplied: true };
+
     combatantProperties.abilityProperties.getTraitProperties().inherentTraitLevels[
       CombatantTraitType.Passive
     ] = 1;
