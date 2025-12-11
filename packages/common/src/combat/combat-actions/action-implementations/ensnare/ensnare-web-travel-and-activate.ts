@@ -4,6 +4,7 @@ import {
   CombatActionLeaf,
   CombatActionName,
   createGenericSpellCastMessageProperties,
+  FriendOrFoe,
 } from "../../index.js";
 import { ActivatedTriggersGameUpdateCommand } from "../../../../action-processing/index.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
@@ -18,6 +19,7 @@ import {
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { ENSNARE_WEB_TRAVEL_AND_ACTIVATE_STEPS_CONFIG } from "./ensnare-web-travel-and-activate-steps-config.js";
 import { ThreatType } from "../../../../combatants/threat-manager/index.js";
+import { CombatantConditionName } from "../../../../conditions/condition-names.js";
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,
@@ -33,6 +35,19 @@ const hitOutcomeProperties = createHitOutcomeProperties(
       const toReturn: Partial<ActivatedTriggersGameUpdateCommand> = {};
 
       return toReturn;
+    },
+    getAppliedConditions: (user, actionLevel) => {
+      return [
+        {
+          name: CombatantConditionName.Ensnared,
+          rank: actionLevel,
+          stacks: 1,
+          appliedBy: {
+            entityProperties: user.getEntityProperties(),
+            friendOrFoe: FriendOrFoe.Hostile,
+          },
+        },
+      ];
     },
     flatThreatGeneratedOnHit: { [ThreatType.Volatile]: 800, [ThreatType.Stable]: 1 },
   }

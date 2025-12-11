@@ -5,6 +5,7 @@ export enum CombatantConditionName {
   Blinded,
   FollowingPetCommand,
   Flying,
+  Ensnared,
 }
 
 export const COMBATANT_CONDITION_NAME_STRINGS: Record<CombatantConditionName, string> = {
@@ -14,4 +15,5 @@ export const COMBATANT_CONDITION_NAME_STRINGS: Record<CombatantConditionName, st
   [CombatantConditionName.Blinded]: "Blinded",
   [CombatantConditionName.FollowingPetCommand]: "Following Command",
   [CombatantConditionName.Flying]: "Flying",
+  [CombatantConditionName.Ensnared]: "Ensnared",
 };

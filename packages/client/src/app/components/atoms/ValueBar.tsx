@@ -24,7 +24,7 @@ export default function ValueBar({
       <div className={innerBarStyles} style={{ width: `${percentOfMax}%` }} />
       {!hideNumbers && (
         <div
-          className={`${compactView ? "text-xs" : "text-s"} text-zinc-300 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2`}
+          className={`${compactView ? "text-xs" : "text-s"} w-full text-center text-zinc-296 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2`}
         >
           {currentValue} / {maxValue}
         </div>

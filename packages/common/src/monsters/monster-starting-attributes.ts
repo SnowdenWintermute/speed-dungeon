@@ -5,7 +5,7 @@ import { MonsterType } from "./monster-types.js";
 export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttributeRecord> = {
   [MonsterType.Net]: {
     [CombatAttribute.Speed]: 10,
-    [CombatAttribute.Hp]: 30,
+    [CombatAttribute.Hp]: 300,
   },
   [MonsterType.Wolf]: {
     [CombatAttribute.Vitality]: 1.0,

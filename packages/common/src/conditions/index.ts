@@ -50,6 +50,8 @@ export abstract class CombatantCondition implements IActionUser {
   /** As action user, this condition's attributes */
   public combatAttributes?: CombatantAttributeRecord;
   public targetingProperties?: ActionUserTargetingProperties;
+  /** If we should let a combatant have more that one of this condition */
+  public readonly multiplesAllowed?: boolean;
 
   constructor(init: CombatantConditionInit) {
     this.name = init.name;

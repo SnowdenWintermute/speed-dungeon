@@ -25,7 +25,7 @@ ActionStepConfigUtils.removeMoveForwardSteps(config);
 config.steps[ActionResolutionStepType.PostPrepSpawnEntity] = {
   getSpawnableEntities: (context) => {
     const web = Combatant.createInitialized(
-      { name: "web", id: context.idGenerator.generate() },
+      { name: "Webbbbbbbbbbbbbbbbbbbbbbb", id: context.idGenerator.generate() },
       new CombatantProperties(
         CombatantClass.Warrior,
         CombatantSpecies.Net,

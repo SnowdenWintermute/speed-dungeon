@@ -81,8 +81,6 @@ export class TargetingCalculator {
       filtered
     );
 
-    console.log("filtered:", filtered);
-
     return filtered;
   }
 

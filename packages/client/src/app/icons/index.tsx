@@ -181,6 +181,9 @@ export const CONDITION_INDICATOR_ICONS: Record<CombatantConditionName, ReactNode
   [CombatantConditionName.Flying]: (
     <div className="h-full">{SVG_ICONS[IconName.Feather]("h-full fill-windgreen")}</div>
   ),
+  [CombatantConditionName.Ensnared]: (
+    <div className="h-full">{SVG_ICONS[IconName.SpiderWeb]("h-full fill-zinc-300")}</div>
+  ),
 };
 
 export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) => ReactNode)> = {

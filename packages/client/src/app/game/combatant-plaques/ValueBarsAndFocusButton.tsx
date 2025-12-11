@@ -57,7 +57,7 @@ export const ValueBarsAndFocusButton = observer(
       <></>
     );
 
-    <FocusCharacterButton combatantId={combatantId} isFocused={isFocused} />;
+    // <FocusCharacterButton combatantId={combatantId} isFocused={isFocused} />;
 
     return (
       <>

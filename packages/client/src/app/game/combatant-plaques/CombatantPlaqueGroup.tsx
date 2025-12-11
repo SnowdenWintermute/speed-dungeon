@@ -39,7 +39,7 @@ export default function CombatantPlaqueGroup(props: Props) {
           return (
             <li
               key={`plaque-${id}`}
-              className={`mr-4 last:mr-0 box-border flex ${props.isPlayerControlled ? "items-end" : "items-start"}`}
+              className={`${!props.displayCompact && " mr-4 last:mr-0 "} box-border flex ${props.isPlayerControlled ? "items-end" : "items-start"}`}
             >
               <div className="flex flex-col items-end justify-end w-full">
                 {petDisplay}

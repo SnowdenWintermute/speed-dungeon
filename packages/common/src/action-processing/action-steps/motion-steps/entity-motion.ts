@@ -17,6 +17,7 @@ import { getTranslationTime } from "../../../combat/combat-actions/action-implem
 import { Milliseconds } from "../../../primatives/index.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
 import { Combatant } from "../../../combatants/index.js";
+import { AdventuringParty } from "../../../index.js";
 
 export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   private translationOption: null | EntityTranslation = null;
@@ -246,24 +247,27 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     }
 
     const { party } = this.context.actionUserContext;
-
-    for (const combatant of party.combatantManager.getAllCombatants()) {
-      const attachedCombatants =
-        combatant.getCombatantProperties().transformProperties.attachedCombatants;
-
-      for (const attachedId of attachedCombatants) {
-        const attachedOption = party.combatantManager.getCombatantOption(attachedId);
-        if (attachedOption) {
-          const { transformProperties } = attachedOption.getCombatantProperties();
-
-          transformProperties.setHomePosition(combatant.getHomePosition());
-          transformProperties.setToHomeTransform();
-        }
-      }
-    }
+    updateAttachedCombatants(party);
 
     return [];
   }
 
   protected getBranchingActions = () => [];
+}
+
+function updateAttachedCombatants(party: AdventuringParty) {
+  for (const combatant of party.combatantManager.getAllCombatants()) {
+    const attachedCombatants =
+      combatant.getCombatantProperties().transformProperties.attachedCombatants;
+
+    for (const attachedId of attachedCombatants) {
+      const attachedOption = party.combatantManager.getCombatantOption(attachedId);
+      if (attachedOption) {
+        const { transformProperties } = attachedOption.getCombatantProperties();
+
+        transformProperties.setHomePosition(combatant.getHomePosition());
+        transformProperties.setToHomeTransform();
+      }
+    }
+  }
 }

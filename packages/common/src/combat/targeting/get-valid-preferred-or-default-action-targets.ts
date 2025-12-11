@@ -43,15 +43,16 @@ export function getValidPreferredOrDefaultActionTargets(
           if (preferredCategoryOption !== null) {
             switch (preferredCategoryOption) {
               case FriendOrFoe.Hostile:
-                newTargets = getPreferredOrDefaultSingleTargetOption(
-                  preferredHostileOption,
-                  opponentIds
-                );
+                newTargets = getPreferredOrDefaultSingleTargetOption(preferredHostileOption, [
+                  ...opponentIds,
+                  ...neutralIds,
+                ]);
                 break;
               case FriendOrFoe.Friendly:
                 newTargets = getPreferredOrDefaultSingleTargetOption(
                   preferredFriendlyOption,
-                  allyIds
+
+                  [...allyIds, ...neutralIds]
                 );
                 break;
             }
@@ -108,11 +109,17 @@ export function getValidPreferredOrDefaultActionTargets(
     switch (targetingScheme) {
       case TargetingScheme.Single:
         for (const category of iterateNumericEnum(FriendOrFoe)) {
-          const idsOption = category === FriendOrFoe.Friendly ? allyIds : opponentIds;
+          const idsOption =
+            category === FriendOrFoe.Friendly
+              ? [...allyIds, ...neutralIds]
+              : [...opponentIds, ...neutralIds];
 
-          if (idsOption)
+          if (idsOption) {
             newTargets = getPreferredOrDefaultSingleTargetOption(idsOption[0] || null, idsOption);
-          if (newTargets) return newTargets;
+          }
+          if (newTargets) {
+            return newTargets;
+          }
         }
         break;
       case TargetingScheme.Area:

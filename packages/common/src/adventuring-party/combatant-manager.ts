@@ -185,7 +185,7 @@ export class CombatantManager extends AdventuringPartySubsystem {
     const toReturn: Record<FriendOrFoe, EntityId[]> = {
       [FriendOrFoe.Friendly]: [],
       [FriendOrFoe.Hostile]: [],
-      [FriendOrFoe.Neutral]: [...neutralCombatantIds],
+      [FriendOrFoe.Neutral]: neutralCombatantIds,
     };
 
     for (const [entityId, combatantToCompare] of this.combatants.entries()) {

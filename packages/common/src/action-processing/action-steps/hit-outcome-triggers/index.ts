@@ -90,6 +90,9 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             );
           }
 
+          // @TODO
+          // kill attached combatants that die when their attachedTo is killed
+
           battleOption?.turnOrderManager.updateTrackers(game, party);
 
           let { threatChanges } = gameUpdateCommand;

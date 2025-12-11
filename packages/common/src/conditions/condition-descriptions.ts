@@ -7,4 +7,6 @@ export const COMBATANT_CONDITION_DESCRIPTIONS: Record<CombatantConditionName, st
   [CombatantConditionName.Blinded]: "Accuracy is reduced",
   [CombatantConditionName.FollowingPetCommand]: "Making decisions based on external factors",
   [CombatantConditionName.Flying]: "Untargetable by melee actions",
+  [CombatantConditionName.Ensnared]:
+    "Can not gain flying and may only target self or the ensnaring entity",
 };

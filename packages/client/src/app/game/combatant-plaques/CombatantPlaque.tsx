@@ -165,15 +165,16 @@ export const CombatantPlaque = observer(
                 combatantLevel={combatantProperties.classProgressionProperties.getMainClass().level}
               />
               <div
-                className={`flex-grow 
-
-              ${compactView && "flex flex-col mt-2"}
+                className={`
+                  ${compactView ? "flex flex-col mt-2 flex-grow w-full " : "flex-grow"}
                 `}
                 ref={nameAndBarsRef}
               >
-                <div className="mb-1.5 flex justify-between items-center align-middle leading-5 text-lg ">
-                  <span className="flex">
-                    <span className="max-w-44 overflow-hidden text-ellipsis">
+                <div className="mb-1.5 max-w-full flex justify-between items-center align-middle leading-5 text-lg ">
+                  <span className="flex w-full">
+                    <span
+                      className={`${compactView ? "w-16 text-xs" : "max-w-44"} overflow-hidden text-ellipsis`}
+                    >
                       {entityProperties.name}
                     </span>
                     <span>
@@ -187,7 +188,7 @@ export const CombatantPlaque = observer(
                     </span>
                   </span>
 
-                  <div className="flex items-center h-full">
+                  <div className="flex  max-w-full items-center h-full">
                     {!compactView && (
                       <HoverableTooltipWrapper tooltipText="This combatant's designation in UI elements such as the turn order bar and threat table displays">
                         <div className="h-5 bg-slate-950 mr-2">{combatantUiIdentifierIcon}</div>
@@ -204,13 +205,15 @@ export const CombatantPlaque = observer(
                     </div>
                   </div>
                 </div>
-                <ValueBarsAndFocusButton
-                  combatantId={entityId}
-                  combatantProperties={combatantProperties}
-                  isFocused={isFocused}
-                  showExperience={showExperience}
-                  combactView={compactView}
-                />
+                <div className="">
+                  <ValueBarsAndFocusButton
+                    combatantId={entityId}
+                    combatantProperties={combatantProperties}
+                    isFocused={isFocused}
+                    showExperience={showExperience}
+                    combactView={compactView}
+                  />
+                </div>
               </div>
             </div>
 

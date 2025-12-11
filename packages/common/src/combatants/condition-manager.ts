@@ -67,6 +67,11 @@ export class CombatantConditionManager extends CombatantSubsystem {
 
   /* returns true if condition was preexisting */
   applyCondition(condition: CombatantCondition) {
+    if (condition.multiplesAllowed) {
+      this.conditions.push(condition);
+      return false;
+    }
+
     for (const existingCondition of this.conditions) {
       if (existingCondition.name !== condition.name) {
         continue;
