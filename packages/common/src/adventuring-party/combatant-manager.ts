@@ -159,17 +159,14 @@ export class CombatantManager extends AdventuringPartySubsystem {
     return conditionOption;
   }
 
-  combatantsAreAllies(a: Combatant, b: Combatant) {
-    if (a.combatantProperties.controlledBy.controllerType === CombatantControllerType.Neutral) {
-      return false;
-    }
-
-    if (b.combatantProperties.controlledBy.controllerType === CombatantControllerType.Neutral) {
-      return false;
-    }
-
+  private combatantsAreAllies(a: Combatant, b: Combatant) {
     const aType = a.combatantProperties.controlledBy.controllerType;
     const bType = b.combatantProperties.controlledBy.controllerType;
+
+    if (aType === CombatantControllerType.Neutral || bType === CombatantControllerType.Neutral) {
+      return false;
+    }
+
     const aIsDungeonControlled = aType === CombatantControllerType.Dungeon;
     const bIsDungeonControlled = bType === CombatantControllerType.Dungeon;
     const bothDungeonControlled = aIsDungeonControlled && bIsDungeonControlled;
@@ -193,10 +190,13 @@ export class CombatantManager extends AdventuringPartySubsystem {
 
     for (const [entityId, combatantToCompare] of this.combatants.entries()) {
       const comparedIsAlly = this.combatantsAreAllies(combatant, combatantToCompare);
+      const { controllerType } = combatantToCompare.combatantProperties.controlledBy;
+      const comparedIsNeutral = controllerType === CombatantControllerType.Neutral;
+      const comparedIsOpponent = !comparedIsNeutral && !comparedIsAlly;
 
       if (comparedIsAlly) {
         toReturn[FriendOrFoe.Friendly].push(entityId);
-      } else {
+      } else if (comparedIsOpponent) {
         toReturn[FriendOrFoe.Hostile].push(entityId);
       }
     }

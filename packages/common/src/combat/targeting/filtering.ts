@@ -88,10 +88,6 @@ export class TargetFilterer {
     switch (targetCategories) {
       case TargetCategories.Opponent:
         allyAndOpponentIds[FriendOrFoe.Friendly] = [];
-        allyAndOpponentIds[FriendOrFoe.Hostile] = [
-          ...allyAndOpponentIds[FriendOrFoe.Hostile],
-          ...allyAndOpponentIds[FriendOrFoe.Neutral],
-        ];
         break;
       case TargetCategories.User:
         allyAndOpponentIds[FriendOrFoe.Hostile] = [];
@@ -99,10 +95,6 @@ export class TargetFilterer {
         break;
       case TargetCategories.Friendly:
         allyAndOpponentIds[FriendOrFoe.Hostile] = [];
-        allyAndOpponentIds[FriendOrFoe.Friendly] = [
-          ...allyAndOpponentIds[FriendOrFoe.Friendly],
-          ...allyAndOpponentIds[FriendOrFoe.Neutral],
-        ];
         break;
       case TargetCategories.Any:
         return;

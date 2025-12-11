@@ -179,6 +179,7 @@ export function cycleListGivenCurrentValue<T>(
   current: T,
   direction: NextOrPrevious
 ): T {
+  console.log("cycling list:", list);
   if (list.length < 1) throw new Error("Tried to cycle an empty list");
   let currentIndex = list.indexOf(current);
   if (currentIndex === -1) throw new Error("Current value was not found in provided list");

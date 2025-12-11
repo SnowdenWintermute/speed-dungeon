@@ -18,6 +18,7 @@ export default function getNextOrPreviousTarget(
 ): CombatActionTarget {
   const allyIdsOption = validTargetIds[FriendOrFoe.Friendly];
   const opponentIdsOption = validTargetIds[FriendOrFoe.Hostile];
+  const neutralIds = validTargetIds[FriendOrFoe.Neutral];
 
   let newTarget: Error | string = new Error("No target was calculated");
   switch (currentTargets.type) {
@@ -30,7 +31,7 @@ export default function getNextOrPreviousTarget(
         case TargetCategories.Opponent:
           if (!opponentIdsOption) throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
           newTarget = cycleListGivenCurrentValue(
-            opponentIdsOption,
+            [...opponentIdsOption, ...neutralIds],
             currentTargets.targetId,
             direction
           );
@@ -42,15 +43,21 @@ export default function getNextOrPreviousTarget(
           return currentTargets;
         case TargetCategories.Friendly:
           if (!allyIdsOption) throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
-          newTarget = cycleListGivenCurrentValue(allyIdsOption, currentTargets.targetId, direction);
+          newTarget = cycleListGivenCurrentValue(
+            [...allyIdsOption, ...neutralIds],
+            currentTargets.targetId,
+            direction
+          );
           return {
             type: currentTargets.type,
             targetId: newTarget,
           };
         case TargetCategories.Any:
-          const possibleTargetIds: string[] = [];
-          if (opponentIdsOption) possibleTargetIds.push(...opponentIdsOption);
-          if (allyIdsOption) possibleTargetIds.push(...allyIdsOption);
+          const possibleTargetIds: string[] = [
+            ...opponentIdsOption,
+            ...allyIdsOption,
+            ...neutralIds,
+          ];
           newTarget = cycleListGivenCurrentValue(
             possibleTargetIds,
             currentTargets.targetId,
