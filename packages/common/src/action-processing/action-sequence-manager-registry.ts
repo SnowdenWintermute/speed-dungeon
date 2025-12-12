@@ -156,13 +156,15 @@ export class ActionSequenceManagerRegistry {
   }
 
   processActiveActionSequences(actionUserContext: ActionUserContext) {
-    for (const sequenceManager of this.getManagers())
+    for (const sequenceManager of this.getManagers()) {
       sequenceManager.processCurrentStep(actionUserContext);
+    }
 
     const timeToTick = this.getShortestTimeToCompletion();
     this.time.ms += timeToTick;
 
-    for (const sequenceManager of this.getManagers())
+    for (const sequenceManager of this.getManagers()) {
       sequenceManager.getCurrentTracker()?.currentStep.tick(timeToTick);
+    }
   }
 }

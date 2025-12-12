@@ -1,6 +1,7 @@
 import { IdGenerator } from "@speed-dungeon/common";
 import { GameServer } from "../game-server/index.js";
 import { collectAnimationLengths } from "../utils/collect-animation-lengths.js";
+import { collectBoundingBoxSizes } from "../utils/collect-bounding-box-sizes.js";
 
 export const idGenerator = new IdGenerator();
 
@@ -12,6 +13,7 @@ export function getGameServer() {
 }
 
 export const ANIMATION_LENGTHS = await collectAnimationLengths();
+export const BOUNDING_BOX_SIZES = await collectBoundingBoxSizes();
 
 import { FixedNumberGenerator, BasicRandomNumberGenerator } from "@speed-dungeon/common";
 

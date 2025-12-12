@@ -6,6 +6,7 @@ import {
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { Combatant } from "../../../combatants/index.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
+import { COMBAT_ACTION_NAME_STRINGS } from "../combat-action-names.js";
 
 export function getHomeDestination(context: ActionResolutionStepContext) {
   const { actionUserContext } = context;
@@ -15,6 +16,12 @@ export function getHomeDestination(context: ActionResolutionStepContext) {
     position: actionUser.getHomePosition().clone(),
     rotation: actionUser.getHomeRotation().clone(),
   };
+
+  console.log(
+    "getting home destination for",
+    COMBAT_ACTION_NAME_STRINGS[context.tracker.actionExecutionIntent.actionName],
+    toReturn.position?.toString()
+  );
 
   return toReturn;
 }

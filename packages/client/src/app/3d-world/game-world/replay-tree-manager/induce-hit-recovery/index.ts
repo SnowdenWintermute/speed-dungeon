@@ -7,6 +7,7 @@ import {
   COMBAT_ACTIONS,
   ActionResolutionStepType,
   SKELETAL_ANIMATION_NAME_STRINGS,
+  CombatantConditionName,
 } from "@speed-dungeon/common";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
@@ -16,6 +17,7 @@ import { FloatingMessageService } from "@/mobx-stores/game-event-notifications/f
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 import { synchronizeCombatantModelsWithAppState } from "../../model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
 import cloneDeep from "lodash.clonedeep";
+import { Vector3 } from "@babylonjs/core";
 
 export function induceHitRecovery(
   actionUserName: string,
@@ -89,8 +91,9 @@ export function induceHitRecovery(
     }
 
     const newlyActiveTracker = battleOption?.turnOrderManager.getFastestActorTurnOrderTracker();
-    if (newlyActiveTracker !== undefined)
+    if (newlyActiveTracker !== undefined) {
       characterAutoFocusManager.updateFocusedCharacterOnNewTurnOrder(newlyActiveTracker);
+    }
 
     GameLogMessageService.postCombatantDeath(targetCombatant.getName());
 
@@ -98,6 +101,18 @@ export function induceHitRecovery(
       if (targetModel.skeletalAnimationManager.playing.options.onComplete) {
         targetModel.skeletalAnimationManager.playing.runOnComplete();
       }
+    }
+
+    // this is purely cosmetic and may be an issue if we revive a flying combatant because their server side
+    // home position will be different than where we just put them, but then again maybe we just reset home position
+    // to ground when revived
+    const wasFlying = targetCombatant
+      .getCombatantProperties()
+      .conditionManager.hasConditionName(CombatantConditionName.Flying);
+    if (wasFlying) {
+      const groundUnderHomePosition = targetCombatant.getHomePosition().clone();
+      groundUnderHomePosition.y = 0;
+      targetModel.movementManager.startTranslating(groundUnderHomePosition, 1700, {}, () => {});
     }
 
     // if (shouldAnimate) // we kind of need to animate this

@@ -23,6 +23,7 @@ import { addRemovedConditionIdToUpdate } from "./add-triggered-condition-to-upda
 import { handleTriggeredLifesteals } from "./handle-triggered-lifesteals.js";
 import { handleHit } from "./handle-hit.js";
 import { ActionAndRank } from "../../../action-user-context/action-user-targeting-properties.js";
+import { CombatantConditionName } from "../../../conditions/condition-names.js";
 
 const stepType = ActionResolutionStepType.EvalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {

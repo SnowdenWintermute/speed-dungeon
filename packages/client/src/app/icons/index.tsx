@@ -246,6 +246,8 @@ export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string)
   [CombatantTraitType.IsTameable]: (className: string) => SVG_ICONS[IconName.Whistle](className),
   [CombatantTraitType.Flyer]: (className: string) => SVG_ICONS[IconName.Feather](className),
   [CombatantTraitType.Passive]: (className: string) => SVG_ICONS[IconName.Dove](className),
+  [CombatantTraitType.CanNotBeRestrained]: (className: string) =>
+    SVG_ICONS[IconName.Feather](className),
 };
 
 export const ACTION_ENTITY_ICONS: Record<

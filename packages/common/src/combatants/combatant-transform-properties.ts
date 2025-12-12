@@ -59,6 +59,7 @@ export class CombatantTransformProperties extends CombatantSubsystem {
       if (!homePositionModifier) {
         continue;
       }
+      console.log("adding home position transformModifiers for", condition.getStringName());
       const added = transformModifiers.homePosition.add(homePositionModifier);
       transformModifiers.homePosition.copyFrom(added);
     }

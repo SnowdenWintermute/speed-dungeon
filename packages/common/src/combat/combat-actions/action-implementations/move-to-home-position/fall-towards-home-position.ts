@@ -23,7 +23,7 @@ import { FALL_TOWARD_HOME_POSITION_STEPS_CONFIG } from "./fall-toward-home-posit
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = createTargetingPropertiesConfig(
   TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME,
-  {}
+  { executionPreconditions: [] }
 );
 
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.FREE_ACTION;
