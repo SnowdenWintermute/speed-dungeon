@@ -47,6 +47,9 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
 
       if (stepConfig.getNewParent) update.setParent = stepConfig.getNewParent(context);
 
+      if (stepConfig.getCosmeticDestinationY)
+        update.cosmeticDestinationY = stepConfig.getCosmeticDestinationY(context);
+
       if (stepConfig.getEntityToLockOnTo)
         update.lockRotationToFace = stepConfig.getEntityToLockOnTo(context);
 

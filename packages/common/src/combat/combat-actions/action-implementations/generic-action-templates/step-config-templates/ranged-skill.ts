@@ -17,7 +17,11 @@ export const RANGED_SKILL_STEPS_CONFIG = new ActionResolutionStepsConfig(
     [ActionResolutionStepType.PreInitialPositioningCheckEnvironmentalHazardTriggers]: {},
     [ActionResolutionStepType.InitialPositioning]: {
       getDestination: getStepForwardDestination,
-      getAnimation: () => {
+      getAnimation: (actionUser) => {
+        const isRestrained = actionUser.movementIsRestrained();
+        if (isRestrained) {
+          return null;
+        }
         return {
           name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },
           timing: { type: AnimationTimingType.Looping },
@@ -41,8 +45,14 @@ export const RANGED_SKILL_STEPS_CONFIG = new ActionResolutionStepsConfig(
     [ActionResolutionStepType.FinalPositioning]: {
       getDestination: getHomeDestination,
       getAnimation: (user) => {
-        if (user instanceof Combatant && user.combatantProperties.isDead()) {
-          return null;
+        if (user instanceof Combatant) {
+          const userAlreadyInHomePosition = user
+            .getHomePosition()
+            .equals(user.getCombatantProperties().transformProperties.position);
+
+          if (user.combatantProperties.isDead() || userAlreadyInHomePosition) {
+            return null;
+          }
         }
 
         return {

@@ -17,6 +17,7 @@ export async function collectBoundingBoxSizes() {
   return toReturn;
 }
 
+// using the skeleton right now, below is commented out code for using meshes
 async function computeBoundingBoxFromGLB(pathToFile: string) {
   const io = new NodeIO();
   try {
@@ -26,35 +27,22 @@ async function computeBoundingBoxFromGLB(pathToFile: string) {
     const globalMin: [number, number, number] = [Infinity, Infinity, Infinity];
     const globalMax: [number, number, number] = [-Infinity, -Infinity, -Infinity];
 
-    for (const mesh of root.listMeshes()) {
-      for (const prim of mesh.listPrimitives()) {
-        const positionAccessor = prim.getAttribute("POSITION");
-        if (!positionAccessor) continue;
+    const skins = root.listSkins();
+    const skeleton = skins[0];
 
-        // Read raw positions
-        const array = positionAccessor.getArray(); // Float32Array
+    for (const bone of skeleton!.listJoints()) {
+      const m = bone.getWorldMatrix();
+      const x = m[12]!;
+      const y = m[13]!;
+      const z = m[14]!;
 
-        if (!array) continue; // skip empty accessors
+      if (x < globalMin[0]) globalMin[0] = x;
+      if (y < globalMin[1]) globalMin[1] = y;
+      if (z < globalMin[2]) globalMin[2] = z;
 
-        for (let i = 0; i < array.length; i += 3) {
-          // Non-null assertion
-          const x = array[i]!;
-          const y = array[i + 1]!;
-          const z = array[i + 2]!;
-
-          // const x = array[i];
-          // const y = array[i + 1];
-          // const z = array[i + 2];
-
-          if (x < globalMin[0]) globalMin[0] = x;
-          if (y < globalMin[1]) globalMin[1] = y;
-          if (z < globalMin[2]) globalMin[2] = z;
-
-          if (x > globalMax[0]) globalMax[0] = x;
-          if (y > globalMax[1]) globalMax[1] = y;
-          if (z > globalMax[2]) globalMax[2] = z;
-        }
-      }
+      if (x > globalMax[0]) globalMax[0] = x;
+      if (y > globalMax[1]) globalMax[1] = y;
+      if (z > globalMax[2]) globalMax[2] = z;
     }
 
     const dx = globalMax[0] - globalMin[0];
@@ -70,3 +58,39 @@ async function computeBoundingBoxFromGLB(pathToFile: string) {
     // console.log("couldnt't comput bounding box size for", pathToFile);
   }
 }
+
+// for meshes
+
+// const globalMin: [number, number, number] = [Infinity, Infinity, Infinity];
+// const globalMax: [number, number, number] = [-Infinity, -Infinity, -Infinity];
+
+// for (const mesh of root.listMeshes()) {
+//   for (const prim of mesh.listPrimitives()) {
+//     const positionAccessor = prim.getAttribute("POSITION");
+//     if (!positionAccessor) continue;
+
+//     // Read raw positions
+//     const array = positionAccessor.getArray(); // Float32Array
+
+//     if (!array) continue; // skip empty accessors
+
+//     for (let i = 0; i < array.length; i += 3) {
+//       // Non-null assertion
+//       const x = array[i]!;
+//       const y = array[i + 1]!;
+//       const z = array[i + 2]!;
+
+//       // const x = array[i];
+//       // const y = array[i + 1];
+//       // const z = array[i + 2];
+
+//       if (x < globalMin[0]) globalMin[0] = x;
+//       if (y < globalMin[1]) globalMin[1] = y;
+//       if (z < globalMin[2]) globalMin[2] = z;
+
+//       if (x > globalMax[0]) globalMax[0] = x;
+//       if (y > globalMax[1]) globalMax[1] = y;
+//       if (z > globalMax[2]) globalMax[2] = z;
+//     }
+//   }
+// }

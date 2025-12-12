@@ -70,9 +70,13 @@ config.steps[ActionResolutionStepType.PostPrepSpawnEntity] = {
     const primaryTargetBoundingBoxSize =
       boundingBoxSizes[primaryTargetResult.combatantProperties.combatantSpecies]?.volume;
 
-    console.log("primaryTargetBoundingBoxSize:", primaryTargetBoundingBoxSize);
+    // looks good on humanoid, wolf and manta ray when based off their skeleton's bounding box volume
+    const BOUNDING_BOX_VOLUME_TO_WEB_SIZE_MULTIPLIER = 0.25;
 
-    web.combatantProperties.transformProperties.scaleModifier = 0.5;
+    if (primaryTargetBoundingBoxSize !== undefined) {
+      web.combatantProperties.transformProperties.scaleModifier =
+        primaryTargetBoundingBoxSize * BOUNDING_BOX_VOLUME_TO_WEB_SIZE_MULTIPLIER;
+    }
 
     return [
       {
