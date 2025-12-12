@@ -25,6 +25,14 @@ const config = new ActionResolutionStepsConfig(
         const faceDown = Quaternion.FromEulerAngles(Math.PI / 2, 0, 0);
         primaryTargetDestination.rotation = faceDown;
 
+        // Small random twist around Z (in radians).
+        const maxAngle = Math.PI / 12; // 15 degrees
+        const randomAngle = (Math.random() * 2 - 1) * maxAngle;
+        const randomZ = Quaternion.FromEulerAngles(0, 0, randomAngle);
+
+        // Compose: randomZ occurs *after* faceDown.
+        primaryTargetDestination.rotation = faceDown.multiply(randomZ);
+
         return {
           ...primaryTargetDestination,
           translationSpeedCurveOption: CurveType.EaseOut,

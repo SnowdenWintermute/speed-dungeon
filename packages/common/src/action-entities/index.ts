@@ -195,6 +195,8 @@ export class ActionEntity implements IActionUser {
     return false;
   }
 
+  movementIsRestrained = () => false;
+
   actionAndRankMeetsUseRequirements(
     actionAndRank: ActionAndRank,
     party: AdventuringParty,

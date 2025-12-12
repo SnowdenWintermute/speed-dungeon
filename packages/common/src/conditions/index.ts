@@ -216,4 +216,6 @@ export abstract class CombatantCondition implements IActionUser {
   getNaturalUnarmedWeapons() {
     return {};
   }
+
+  movementIsRestrained = () => false;
 }

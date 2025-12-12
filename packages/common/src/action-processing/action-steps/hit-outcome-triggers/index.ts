@@ -89,6 +89,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
               targetCombatant,
               context.idGenerator
             );
+
             this.branchingActions.push(...onRemovedTriggeredActions);
 
             addRemovedConditionIdToUpdate(

@@ -112,4 +112,11 @@ export const COMBATANT_TRAIT_DESCRIPTIONS: Record<CombatantTraitType, CombatantT
     summary: "Can not take turns or perform actions",
     createDescriptionsByLevel: (self) => [],
   }),
+  [CombatantTraitType.CanNotBeRestrained]: new CombatantTraitDescription({
+    name: "Unrestrainable",
+    maxLevel: 1,
+    isAllocatable: false,
+    summary: "Can not be the target of restrait actions such as Ensnare",
+    createDescriptionsByLevel: (self) => [],
+  }),
 };

@@ -77,6 +77,7 @@ export const AUTO_TARGETING_FUNCTIONS: Record<AutoTargetingScheme, AutoTargeting
     const idsFilteredByTargetCategoryFlattened = [
       ...targetIdsByDisposition[FriendOrFoe.Hostile],
       ...targetIdsByDisposition[FriendOrFoe.Friendly],
+      ...targetIdsByDisposition[FriendOrFoe.Neutral],
     ];
 
     const targetingProperties = actionUser.getTargetingProperties();

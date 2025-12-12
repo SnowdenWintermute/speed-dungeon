@@ -14,6 +14,7 @@ export enum ProhibitedTargetCombatantStates {
   IsBeyondUserMaximumPetLevel,
   IsNotThisUsersPet,
   TargetFlyingPreventsReachingRequiredRange,
+  CanNotBeTargetedByRestraintActions,
 }
 
 export const PROHIBITED_TARGET_COMBATANT_STATE_STRINGS: Record<
@@ -31,6 +32,8 @@ export const PROHIBITED_TARGET_COMBATANT_STATE_STRINGS: Record<
   [ProhibitedTargetCombatantStates.IsNotThisUsersPet]: "IsNotThisUsersPet",
   [ProhibitedTargetCombatantStates.TargetFlyingPreventsReachingRequiredRange]:
     "TargetFlyingPreventsReachingRequiredRange",
+  [ProhibitedTargetCombatantStates.CanNotBeTargetedByRestraintActions]:
+    "CanNotBeTargetedByRestraintActions",
 };
 
 export const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
@@ -88,5 +91,11 @@ export const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
       target.combatantProperties
     );
     return !canNotReachTarget;
+  },
+  [ProhibitedTargetCombatantStates.CanNotBeTargetedByRestraintActions]: (target, user) => {
+    const isUnrestrainable = target.combatantProperties.abilityProperties
+      .getTraitProperties()
+      .hasTraitType(CombatantTraitType.CanNotBeRestrained);
+    return isUnrestrainable;
   },
 };

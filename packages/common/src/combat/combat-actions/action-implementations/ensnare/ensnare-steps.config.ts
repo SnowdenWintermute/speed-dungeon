@@ -35,6 +35,10 @@ config.steps[ActionResolutionStepType.PostPrepSpawnEntity] = {
       )
     );
 
+    web.combatantProperties.abilityProperties.getTraitProperties().inherentTraitLevels = {
+      [CombatantTraitType.CanNotBeRestrained]: 1,
+    };
+
     const { combatantProperties } = web;
 
     combatantProperties.removeFromPartyOnDeath = true;

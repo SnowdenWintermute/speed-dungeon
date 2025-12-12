@@ -17,7 +17,9 @@ export const MONSTER_INHERENT_TRAIT_GETTERS: Record<
     return {};
   },
   [MonsterType.Net]: (combatantLevel) => {
-    return {};
+    return {
+      [CombatantTraitType.CanNotBeRestrained]: 1,
+    };
   },
   [MonsterType.Vulture]: (combatantLevel) => {
     return {};

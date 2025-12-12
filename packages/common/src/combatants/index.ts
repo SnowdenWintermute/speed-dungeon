@@ -330,4 +330,10 @@ export class Combatant implements IActionUser {
 
     return true;
   }
+
+  movementIsRestrained(): boolean {
+    return this.combatantProperties.conditionManager.hasConditionName(
+      CombatantConditionName.Ensnared
+    );
+  }
 }

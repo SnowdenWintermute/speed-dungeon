@@ -23,6 +23,12 @@ export function getStepForwardDestination(context: ActionResolutionStepContext) 
   const { actionUserContext } = context;
   const { actionUser } = actionUserContext;
 
+  const isRestrained = actionUser.movementIsRestrained();
+  console.log(actionUser.getName(), "is restrained:", isRestrained);
+  if (isRestrained) {
+    return null;
+  }
+
   // @REFACTOR - just get the "direction of their home vector towards center line"
 
   const z = actionUser.getHomePosition().z;
@@ -43,6 +49,11 @@ export function getRotateTowardPrimaryTargetDestination(context: ActionResolutio
 
   if (primaryTargetResult instanceof Error) return primaryTargetResult;
   const { actionUser } = actionUserContext;
+
+  const isRestrained = actionUser.movementIsRestrained();
+  if (isRestrained) {
+    return null;
+  }
 
   const targetingSelf = primaryTargetResult.entityProperties.id === actionUser.getEntityId();
   if (targetingSelf) {

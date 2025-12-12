@@ -94,6 +94,7 @@ export interface IActionUser {
   getPositionOption(): null | Vector3;
   getHomePosition(): Vector3;
   getHomeRotation(): Quaternion;
+  movementIsRestrained(): boolean;
   /**milliseconds per meter*/
   getMovementSpeedOption(): null | number;
 

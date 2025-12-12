@@ -8,4 +8,5 @@ export enum CombatantTraitType {
   IsTameable,
   Flyer,
   Passive,
+  CanNotBeRestrained,
 }
