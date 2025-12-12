@@ -3,7 +3,7 @@ import { cloneVector3, runIfInBrowser } from "../utils/index.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { plainToInstance } from "class-transformer";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
-import { EntityId } from "../index.js";
+import { EntityId, NormalizedPercentage } from "../index.js";
 
 export class CombatantTransformProperties extends CombatantSubsystem {
   public homeRotation: Quaternion = Quaternion.Zero();
@@ -11,6 +11,7 @@ export class CombatantTransformProperties extends CombatantSubsystem {
   private homePosition: Vector3 = Vector3.Zero();
   public position: Vector3 = Vector3.Zero();
   public attachedCombatants = new Set<EntityId>();
+  public scaleModifier?: NormalizedPercentage;
 
   constructor() {
     super();

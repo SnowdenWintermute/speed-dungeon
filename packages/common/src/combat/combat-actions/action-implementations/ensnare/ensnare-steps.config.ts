@@ -16,6 +16,7 @@ import {
   SceneEntityType,
   SkeletalAnimationName,
   SpawnableEntityType,
+  TargetingCalculator,
 } from "../../../../index.js";
 import { Vector3 } from "@babylonjs/core";
 
@@ -52,6 +53,26 @@ config.steps[ActionResolutionStepType.PostPrepSpawnEntity] = {
     ] = 1;
 
     combatantProperties.controlledBy.controllerType = CombatantControllerType.Neutral;
+
+    // scale to the target's bounding box
+    const { party } = context.actionUserContext;
+    const targetingCalculator = new TargetingCalculator(context.actionUserContext, null);
+    const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
+      party,
+      context.tracker.actionExecutionIntent
+    );
+    if (primaryTargetResult instanceof Error) {
+      throw primaryTargetResult;
+    }
+
+    const boundingBoxSizes = context.manager.sequentialActionManagerRegistry.boundingBoxSizes;
+
+    const primaryTargetBoundingBoxSize =
+      boundingBoxSizes[primaryTargetResult.combatantProperties.combatantSpecies]?.volume;
+
+    console.log("primaryTargetBoundingBoxSize:", primaryTargetBoundingBoxSize);
+
+    web.combatantProperties.transformProperties.scaleModifier = 0.5;
 
     return [
       {

@@ -1,15 +1,13 @@
 import { NodeIO } from "@gltf-transform/core";
 import {
-  CombatantSpecies,
+  BoundingBoxSizesBySpecies,
   SKELETON_FILE_PATHS,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 
 export async function collectBoundingBoxSizes() {
   const assetsFolderPath = "./assets/";
-  const toReturn: Partial<
-    Record<CombatantSpecies, { min: [number, number, number]; max: [number, number, number] }>
-  > = {};
+  const toReturn: BoundingBoxSizesBySpecies = {};
 
   for (const [species, skeletonPath] of iterateNumericEnumKeyedRecord(SKELETON_FILE_PATHS)) {
     const boundingBoxDimensions = await computeBoundingBoxFromGLB(assetsFolderPath + skeletonPath);
@@ -59,9 +57,15 @@ async function computeBoundingBoxFromGLB(pathToFile: string) {
       }
     }
 
+    const dx = globalMax[0] - globalMin[0];
+    const dy = globalMax[1] - globalMin[1];
+    const dz = globalMax[2] - globalMin[2];
+
+    const diagonal = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
     // console.log("computed boundingBoxDimensions for", pathToFile, globalMin, globalMax);
 
-    return { min: globalMin, max: globalMax };
+    return { min: globalMin, max: globalMax, volume: diagonal };
   } catch (error) {
     // console.log("couldnt't comput bounding box size for", pathToFile);
   }
