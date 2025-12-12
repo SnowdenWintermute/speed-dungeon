@@ -13,6 +13,7 @@ import { Quaternion } from "@babylonjs/core";
 
 const config = new ActionResolutionStepsConfig(
   {
+    [ActionResolutionStepType.PreInitialPositioningCheckEnvironmentalHazardTriggers]: {},
     [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
     [ActionResolutionStepType.DeliveryMotion]: {
       getDestination: (context) => {

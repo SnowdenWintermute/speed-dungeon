@@ -21,11 +21,14 @@ export class CosmeticEffectManager {
   }
 
   softCleanup(onComplete: () => void) {
-    for (const effectRc of Object.values(this.cosmeticEffects))
+    for (const effectRc of Object.values(this.cosmeticEffects)) {
       effectRc.effect.softCleanup(onComplete);
+    }
   }
   cleanup() {
-    for (const effectRc of Object.values(this.cosmeticEffects)) effectRc.effect.cleanup();
+    for (const effectRc of Object.values(this.cosmeticEffects)) {
+      effectRc.effect.cleanup();
+    }
   }
 
   stopEffect(name: CosmeticEffectNames, onComplete: () => void) {

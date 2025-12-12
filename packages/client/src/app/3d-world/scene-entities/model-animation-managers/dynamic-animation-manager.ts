@@ -8,7 +8,6 @@ import {
   InterpolationCurves,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
-import { disposeAsyncLoadedScene } from "../../utils";
 
 export abstract class DynamicAnimation {
   protected timeStarted = Date.now();
@@ -77,7 +76,9 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
     }
   ): Error | void {
     if (this.playing !== null) {
-      if (this.previous !== null) this.cleanUpFinishedAnimation(this.previous);
+      if (this.previous !== null) {
+        this.cleanUpFinishedAnimation(this.previous);
+      }
       this.previous = this.playing;
       this.playing = null;
     }
@@ -116,7 +117,7 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
     const { onComplete } = managedAnimation.options;
     if (onComplete) onComplete();
     if (managedAnimation.animationGroup.despawnOnComplete) {
-      disposeAsyncLoadedScene(this.assetContainer);
+      this.assetContainer.dispose();
     }
   }
 

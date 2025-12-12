@@ -23,23 +23,40 @@ export function handleUpdateAnimation(
 ) {
   const shouldLoop = animation.timing.type === AnimationTimingType.Looping;
   let animationDurationOverrideOption = undefined;
-  if (animation.timing.type === AnimationTimingType.Timed)
+  if (animation.timing.type === AnimationTimingType.Timed) {
     animationDurationOverrideOption = animation.timing.duration;
+  }
 
   const options: ManagedAnimationOptions = {
     shouldLoop,
     animationDurationOverrideOption,
     onComplete: () => {
       // otherwise looping animation will finish at an arbitrary time and could set an unintended action to complete
-      if (animation.timing.type === AnimationTimingType.Looping) return;
+      if (animation.timing.type === AnimationTimingType.Looping) {
+        return;
+      }
+
       updateCompletionTracker.setAnimationComplete();
 
-      if (updateCompletionTracker.isComplete()) gameUpdate.setAsQueuedToComplete();
+      if (updateCompletionTracker.isComplete()) {
+        gameUpdate.setAsQueuedToComplete();
+      }
+
       onComplete();
     },
   };
 
   if (animationManager instanceof SkeletalAnimationManager) {
+    if (animationManager.playing?.options.onComplete && !animationManager.playing.onCompleteRan) {
+      // @REFACTOR - We're sidestepping a bug here I don't really understand fully:
+      // if we don't run the oncomplete for animations that are interrupted
+      // it will never unlock the input since we're often relying on those animations'
+      // onComplete functions to know when to unlock input
+      // if I tried to put this in the animation manager's cleanup we got a heavy recursion
+      // lag but not a crash until the next room was explored
+      animationManager.playing.runOnComplete();
+    }
+
     animationManager.startAnimationWithTransition(
       animation.name.name as SkeletalAnimationName,
       animation.smoothTransition ? 500 : 200,

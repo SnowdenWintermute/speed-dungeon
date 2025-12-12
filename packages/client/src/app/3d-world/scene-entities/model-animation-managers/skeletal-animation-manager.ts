@@ -45,19 +45,35 @@ export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
   }
 
   isCompleted() {
-    if (this.options.shouldLoop) return false;
+    if (this.onCompleteRan) {
+      return true;
+    }
+
+    if (this.options.shouldLoop) {
+      return false;
+    }
+
     const timeSinceStarted = Date.now() - this.timeStarted;
     const animationLength = this.getLength();
     return timeSinceStarted >= animationLength;
   }
 
+  runOnComplete() {
+    if (this.onCompleteRan) {
+      return;
+    }
+    this.options.onComplete?.();
+    this.onCompleteRan = true;
+  }
+
   cleanup() {
-    // if (this.options.onComplete && !this.onCompleteRan) {
-    //   this.options.onComplete();
-    //   this.onCompleteRan = true;
-    // }
     this.animationGroup.stop();
     this.animationGroup.dispose(); // else causes memory leaks
+
+    // if we don't run the oncomplete for animations that are interrupted
+    // it will never unlock the input since we're often relying on those animations'
+    // onComplete functions to know when to unlock input
+    // this.runOnComplete();
   }
 }
 
@@ -162,11 +178,13 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
       this.previous = null;
     }
 
-    if (this.playing && this.playing.isCompleted() && !this.playing.onCompleteRan) {
-      if (this.playing.options.onComplete && !this.playing.options.shouldLoop) {
-        this.playing.options.onComplete();
-        this.playing.onCompleteRan = true;
-      }
+    if (this.playing && this.playing.isCompleted()) {
+      console.log(
+        "this.playing.onCompleteRan:",
+        this.playing.onCompleteRan,
+        this.playing.getName()
+      );
+      this.playing.runOnComplete();
     }
   }
 

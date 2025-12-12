@@ -35,7 +35,7 @@ export class FlyingCondition extends CombatantCondition {
   }
 
   triggeredWhenHitBy = [
-    CombatActionName.Fire,
+    // CombatActionName.Fire,
     CombatActionName.EnsnareMoveNetTowardTargetAndActivate,
   ];
 

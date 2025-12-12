@@ -64,6 +64,7 @@ export function handleEntityMotionUpdate(
         alreadyDespawned = true;
       }
     };
+
     onAnimationComplete = () => {
       if (despawnOnCompleteMode !== undefined && !alreadyDespawned) {
         despawnAndUnregisterActionEntity(motionUpdate.entityId, despawnOnCompleteMode);
@@ -113,8 +114,9 @@ export function handleEntityMotionUpdate(
     let animationManager: DynamicAnimationManager | SkeletalAnimationManager =
       toUpdate.skeletalAnimationManager;
 
-    if (animationOption.name.type === AnimationType.Dynamic)
+    if (animationOption.name.type === AnimationType.Dynamic) {
       animationManager = toUpdate.dynamicAnimationManager;
+    }
 
     handleUpdateAnimation(
       animationManager,
@@ -169,13 +171,17 @@ function handleCombatantMotionUpdate(
   }
 
   toReturn.onTranslationComplete = () => {
-    if (!motionUpdate.idleOnComplete) return;
+    if (!motionUpdate.idleOnComplete) {
+      return;
+    }
     const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
     combatantModelOption.startIdleAnimation(500);
   };
 
   toReturn.onAnimationComplete = () => {
-    if (!motionUpdate.idleOnComplete) return;
+    if (!motionUpdate.idleOnComplete) {
+      return;
+    }
     const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
     combatantModelOption.startIdleAnimation(500);
   };

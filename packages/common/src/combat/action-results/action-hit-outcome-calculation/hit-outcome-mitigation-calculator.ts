@@ -245,11 +245,13 @@ export class HitOutcomeMitigationCalculator {
   static getParryChance(aggressor: IActionUser, defender: Combatant): Percentage {
     // derive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
     // and probably put it on the action configs
+    if (!defender.combatantProperties.mitigationProperties.canParry()) return 0;
     return BASE_PARRY_CHANCE;
   }
 
   static getCounterattackChance(aggressor: IActionUser, defender: Combatant): Percentage {
     if (defender.combatantProperties.isDead()) return 0;
+    if (!defender.combatantProperties.mitigationProperties.canCounterattack()) return 0;
     // derive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
     // and probably put it on the action configs
     return BASE_PARRY_CHANCE;

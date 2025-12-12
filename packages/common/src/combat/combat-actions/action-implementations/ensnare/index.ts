@@ -34,7 +34,7 @@ const config: CombatActionComponentConfig = {
   description: "Throw a net that brings the target to the ground and limits their movement",
   prerequisiteAbilities: [],
   gameLogMessageProperties: createGenericSpellCastMessageProperties(CombatActionName.Ensnare),
-  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_ANY(),
+  targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE(),
   hitOutcomeProperties,
   costProperties,
   stepsConfig: ENSNARE_STEPS_CONFIG,

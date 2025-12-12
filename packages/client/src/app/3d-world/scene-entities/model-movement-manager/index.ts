@@ -75,6 +75,13 @@ export class ModelMovementManager {
       destination,
       onComplete
     );
+
+    const currentTrackerOption = this.activeTrackers[ModelMovementType.Rotation];
+
+    if (currentTrackerOption) {
+      currentTrackerOption.onComplete();
+    }
+
     this.activeTrackers[ModelMovementType.Rotation] = tracker;
   }
 

@@ -3,7 +3,6 @@ import { ModelActionQueue } from "./model-action-queue";
 import { ModelActionHandler, createModelActionHandlers } from "./model-action-handlers";
 import { ModelActionType } from "./model-actions";
 import { EnvironmentModel } from "./model-action-handlers/spawn-environmental-model";
-import { disposeAsyncLoadedScene } from "../../utils";
 import { CharacterModel } from "../../scene-entities/character-models";
 import { ERROR_MESSAGES, EntityId } from "@speed-dungeon/common";
 import { startOrStopCosmeticEffects } from "../replay-tree-manager/start-or-stop-cosmetic-effect";
@@ -65,7 +64,7 @@ export class ModelManager {
     for (const model of Object.values(this.combatantModels)) model.cleanup({ softCleanup: false });
 
     for (const model of Object.values(this.environmentModels)) {
-      disposeAsyncLoadedScene(model.model);
+      model.model.dispose();
     }
     this.environmentModels = {};
     this.combatantModels = {};

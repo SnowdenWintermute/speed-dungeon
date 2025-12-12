@@ -11,8 +11,6 @@ export function getHomeDestination(context: ActionResolutionStepContext) {
   const { actionUserContext } = context;
   const { actionUser } = actionUserContext;
 
-  console.log(actionUser.getName(), actionUser.getEntityId(), "getting home position");
-
   const toReturn: EntityDestination = {
     position: actionUser.getHomePosition().clone(),
     rotation: actionUser.getHomeRotation().clone(),

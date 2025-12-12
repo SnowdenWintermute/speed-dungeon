@@ -95,8 +95,9 @@ export function induceHitRecovery(
     GameLogMessageService.postCombatantDeath(targetCombatant.getName());
 
     if (targetModel.skeletalAnimationManager.playing) {
-      if (targetModel.skeletalAnimationManager.playing.options.onComplete)
-        targetModel.skeletalAnimationManager.playing.options.onComplete();
+      if (targetModel.skeletalAnimationManager.playing.options.onComplete) {
+        targetModel.skeletalAnimationManager.playing.runOnComplete();
+      }
     }
 
     // if (shouldAnimate) // we kind of need to animate this

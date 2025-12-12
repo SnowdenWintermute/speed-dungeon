@@ -24,9 +24,9 @@ export function giveStartingAbilities(actionUser: IActionUser) {
     CombatActionName.Ensnare,
     CombatActionName.Fire,
     CombatActionName.Healing,
-    // CombatActionName.ExplodingArrowParent,
+    CombatActionName.ExplodingArrowParent,
     // CombatActionName.Blind,
-    // CombatActionName.Firewall,
+    CombatActionName.Firewall,
   ];
 
   const levelTwoSpells: CombatActionName[] = [

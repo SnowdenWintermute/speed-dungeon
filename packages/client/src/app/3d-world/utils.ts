@@ -35,10 +35,6 @@ export function getChildMeshByName(mesh: Mesh | AbstractMesh, name: string) {
   return undefined;
 }
 
-export function disposeAsyncLoadedScene(sceneResult: AssetContainer | null) {
-  if (sceneResult?.dispose) sceneResult.dispose();
-}
-
 export function getChildrenByName(rootNode: Node) {
   const childrenByName: { [name: string]: Node } = {};
   for (const node of rootNode.getDescendants(false)) {

@@ -3,6 +3,7 @@ import { actionCommandQueue } from "@/singletons/action-command-manager";
 import {
   ACTION_COMMAND_TYPE_STRINGS,
   ACTION_RESOLUTION_STEP_TYPE_STRINGS,
+  COMBAT_ACTION_NAME_STRINGS,
   GAME_UPDATE_COMMAND_TYPE_STRINGS,
   GameUpdateCommandType,
 } from "@speed-dungeon/common";
@@ -27,7 +28,8 @@ export function updateDebugText(this: GameWorld) {
           )
             return (
               GAME_UPDATE_COMMAND_TYPE_STRINGS[currUpdateOption.command.type] +
-              ACTION_RESOLUTION_STEP_TYPE_STRINGS[currUpdateOption.command.step]
+              `${COMBAT_ACTION_NAME_STRINGS[currUpdateOption.command.actionName]}` +
+              [ACTION_RESOLUTION_STEP_TYPE_STRINGS[currUpdateOption.command.step]]
             );
           if (currUpdateOption)
             return GAME_UPDATE_COMMAND_TYPE_STRINGS[currUpdateOption.command.type];
