@@ -56,6 +56,7 @@ const config: CombatActionComponentConfig = {
 
     getConcurrentSubActions(context) {
       const user = context.tracker.getFirstExpectedSpawnedCombatant().combatant;
+
       return [
         {
           user,

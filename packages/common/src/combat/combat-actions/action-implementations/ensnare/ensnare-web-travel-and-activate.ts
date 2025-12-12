@@ -25,7 +25,7 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,
 };
 
-const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL;
+const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.FREE_ACTION;
 const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
 
 const hitOutcomeProperties = createHitOutcomeProperties(
