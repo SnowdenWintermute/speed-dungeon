@@ -34,6 +34,8 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
 
     const hitOutcomesResult = hitOutcomeCalculator.calculateHitOutcomes();
 
+    console.log("hit outcomes:", JSON.stringify(hitOutcomesResult));
+
     if (hitOutcomesResult instanceof Error) {
       console.error(
         "ERROR WITH ACTION",

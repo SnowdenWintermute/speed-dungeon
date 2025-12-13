@@ -46,6 +46,7 @@ export enum CombatActionName {
   // UTILITY
   PayActionPoint, // useful for charging action points for swapping weapons and maybe other things
   PassTurn,
+  Death,
   // TRANSFORMS AND MOVEMENTS
   FallTowardsHomePosition,
   StartFlying,
@@ -107,4 +108,5 @@ export const COMBAT_ACTION_NAME_STRINGS: Record<CombatActionName, string> = {
   [CombatActionName.EnsnareMoveNetTowardTargetAndActivate]:
     "Ensnare Move Net Toward Target And Activate",
   [CombatActionName.StartFlying]: "Start Flying",
+  [CombatActionName.Death]: "Death",
 };

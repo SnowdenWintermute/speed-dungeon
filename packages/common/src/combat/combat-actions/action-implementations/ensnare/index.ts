@@ -22,11 +22,8 @@ import {
 import { ENSNARE_STEPS_CONFIG } from "./ensnare-steps.config.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 
-const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
-  requiresCombatTurnInThisContext: () => false,
-};
-
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL;
+const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {};
 const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
 
 const hitOutcomeProperties = createHitOutcomeProperties(

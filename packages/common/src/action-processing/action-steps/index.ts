@@ -115,6 +115,7 @@ export abstract class ActionResolutionStep {
     protected gameUpdateCommandOption: null | GameUpdateCommand
   ) {
     this.action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
+    console.log(this.getStringName(), this.action.getStringName());
 
     const stepConfig = this.action.stepsConfig.getStepConfigOption(type);
 

@@ -43,6 +43,7 @@ import { FALL_TOWARDS_HOME_POSITION } from "./move-to-home-position/fall-towards
 import { ENSNARE } from "./ensnare/index.js";
 import { ENSNARE_WEB_TRAVEL_AND_ACTIVATE } from "./ensnare/ensnare-web-travel-and-activate.js";
 import { START_FLYING } from "./start-flying/index.js";
+import { DEATH } from "./death/index.js";
 
 export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Attack]: ATTACK,
@@ -90,4 +91,5 @@ export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Ensnare]: ENSNARE,
   [CombatActionName.EnsnareMoveNetTowardTargetAndActivate]: ENSNARE_WEB_TRAVEL_AND_ACTIVATE,
   [CombatActionName.StartFlying]: START_FLYING,
+  [CombatActionName.Death]: DEATH,
 };

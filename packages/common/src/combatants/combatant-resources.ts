@@ -26,6 +26,7 @@ export class CombatantResources extends CombatantSubsystem {
   getActionPoints = () => this.actionPoints;
 
   refillActionPoints() {
+    console.log("refilling AP");
     this.actionPoints = COMBATANT_MAX_ACTION_POINTS;
   }
 
@@ -82,6 +83,7 @@ export class CombatantResources extends CombatantSubsystem {
         case ActionPayableResource.Shards:
           break;
         case ActionPayableResource.ActionPoints:
+          console.log("changing AP:", cost);
           this.changeActionPoints(cost);
           break;
       }

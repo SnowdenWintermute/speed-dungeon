@@ -61,14 +61,33 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
 
   const noActionPointsLeft =
     userIsCombatant && actionUser.combatantProperties.resources.getActionPoints() === 0;
-  const requiredTurn =
-    action.costProperties.requiresCombatTurnInThisContext(context, action) || noActionPointsLeft;
+
+  const requiresTurnInThisContext = action.costProperties.requiresCombatTurnInThisContext(
+    context,
+    action
+  );
+
+  console.log(action.getStringName(), "requiresTurnInThisContext:", requiresTurnInThisContext);
+
+  const requiredTurn = requiresTurnInThisContext || noActionPointsLeft;
 
   const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
 
   let shouldSendEndActiveTurnMessage = false;
   const threatChanges = new ThreatChanges();
-  if (requiredTurn && !turnAlreadyEnded && battleOption) {
+
+  console.log(
+    "requiredTurn:",
+    requiredTurn,
+    "turnAlreadyEnded:",
+    turnAlreadyEnded,
+    "battleOption:",
+    !!battleOption,
+    "shouldHandleEndTurn:",
+    requiredTurn && !turnAlreadyEnded && !!battleOption
+  );
+
+  if (requiredTurn && !turnAlreadyEnded && !!battleOption) {
     // if they died on their own turn we should not end the active combatant's turn because
     // we would have already removed their turn tracker on death
     const { actionName } = tracker.actionExecutionIntent;
@@ -79,6 +98,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     sequentialActionManagerRegistry.setTurnEnded();
     shouldSendEndActiveTurnMessage = true;
 
+    console.log("handle turn ended for", actionUser.getName());
     actionUser.handleTurnEnded();
 
     // only decay threat for combatant turns ending

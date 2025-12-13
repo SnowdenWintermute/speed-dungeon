@@ -78,6 +78,9 @@ config.steps[ActionResolutionStepType.PostPrepSpawnEntity] = {
         primaryTargetBoundingBoxSize * BOUNDING_BOX_VOLUME_TO_WEB_SIZE_MULTIPLIER;
     }
 
+    // testing if we can kill this if the thing it is attached to dies first:
+    web.combatantProperties.shouldDieWhenCombatantAttachedToDies = true;
+
     return [
       {
         type: SpawnableEntityType.Combatant,

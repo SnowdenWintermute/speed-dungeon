@@ -82,8 +82,10 @@ export class TurnSchedulerManager {
 
   getSchedulerByCombatantId(entityId: EntityId) {
     const filtered = this.schedulers.filter(
-      (scheduler) => scheduler instanceof CombatantTurnScheduler
+      (scheduler): scheduler is CombatantTurnScheduler =>
+        scheduler instanceof CombatantTurnScheduler
     );
+
     const found = filtered.find((scheduler) => scheduler.combatantId === entityId);
     if (found === undefined) throw new Error("Expected combatant turn order scheduler not found");
     return found;

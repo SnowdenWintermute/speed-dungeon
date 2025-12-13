@@ -20,7 +20,7 @@ import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { CombatantConditionManager } from "./condition-manager.js";
 import { CombatantTransformProperties } from "./combatant-transform-properties.js";
 import { runIfInBrowser } from "../utils/index.js";
-import { CombatantConditionName, EntityId } from "../index.js";
+import { EntityId } from "../index.js";
 
 export interface CombatantOnDeathProperties {
   removeConditionsApplied: boolean;
@@ -51,6 +51,7 @@ export class CombatantProperties {
   onDeathProperties?: CombatantOnDeathProperties;
   removeFromPartyOnDeath?: boolean;
   giveThreatGeneratedToId?: EntityId;
+  shouldDieWhenCombatantAttachedToDies?: boolean;
 
   constructor(
     mainClassType: CombatantClass,

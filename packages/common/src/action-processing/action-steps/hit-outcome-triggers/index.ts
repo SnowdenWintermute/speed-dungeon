@@ -100,6 +100,34 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             );
           }
 
+          // if was attached to anyone, remove their id from that list
+          for (const combatant of party.combatantManager.getAllCombatants()) {
+            if (
+              combatant.combatantProperties.transformProperties.attachedCombatants.has(
+                targetCombatant.getEntityId()
+              )
+            ) {
+              combatant.combatantProperties.transformProperties.removeAttachedCombatant(
+                targetCombatant.getEntityId()
+              );
+            }
+          }
+
+          // kill anyone attached to us that should be
+          for (const attachedId of targetCombatant.combatantProperties.transformProperties
+            .attachedCombatants) {
+            const attachedCombatant = party.combatantManager.getExpectedCombatant(attachedId);
+            if (attachedCombatant.combatantProperties.shouldDieWhenCombatantAttachedToDies) {
+              this.branchingActions.push({
+                user: attachedCombatant,
+                actionExecutionIntent: new CombatActionExecutionIntent(CombatActionName.Death, 1, {
+                  type: CombatActionTargetType.Single,
+                  targetId: targetCombatant.getEntityId(),
+                }),
+              });
+            }
+          }
+
           // remove linked conditions such as when a web dies it must remove the ensnared condition
           // from corresponding target
           const shouldRemoveAllConditionsAppliedByDyingCombatant =
