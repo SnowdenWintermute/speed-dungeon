@@ -4,7 +4,9 @@ import { ActionStepConfigUtils } from "../generic-action-templates/step-config-t
 import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 import { getSpeciesTimedAnimation } from "../get-species-timed-animation.js";
 import {
+  calculateBalancedAttributeSynergy,
   Combatant,
+  COMBATANT_MAX_LEVEL,
   CombatantBaseChildTransformNodeName,
   CombatantClass,
   CombatantControlledBy,
@@ -13,6 +15,7 @@ import {
   CombatantSpecies,
   CombatantTraitProperties,
   CombatantTraitType,
+  CombatAttribute,
   IActionUser,
   KineticDamageType,
   MagicalElement,
@@ -61,6 +64,7 @@ config.steps[ActionResolutionStepType.PostPrepSpawnEntity] = {
     const actionRank = context.tracker.actionExecutionIntent.rank;
     combatantProperties.classProgressionProperties.getMainClass().level = actionRank;
     applyWebInherentAffinities(actionUser, actionRank, traitProperties);
+    applyWebMaxHp(actionUser, actionRank, combatantProperties);
 
     combatantProperties.controlledBy.controllerType = CombatantControllerType.Neutral;
 
@@ -175,4 +179,30 @@ function applyWebInherentAffinities(
   webTraitProperties.inherentKineticDamageTypeAffinities[KineticDamageType.Blunt] = bluntAffinity;
   webTraitProperties.inherentKineticDamageTypeAffinities[KineticDamageType.Piercing] =
     piercingAffinity;
+}
+
+function applyWebMaxHp(
+  actionUser: IActionUser,
+  actionRank: number,
+  webCombatantProperties: CombatantProperties
+) {
+  // determine web's stats based on action rank and user's attributes
+  const baseHpPerRank = 10;
+  let hp = baseHpPerRank * actionRank;
+
+  // get action user's dex/str bonus for balanced values
+  const strength = actionUser.getTotalAttributes()[CombatAttribute.Strength] || 0;
+  const dexterity = actionUser.getTotalAttributes()[CombatAttribute.Dexterity] || 0;
+  const attributeValueBonus = calculateBalancedAttributeSynergy(strength, dexterity);
+
+  hp += attributeValueBonus;
+
+  const userPercentOfMaxLevel = actionUser.getLevel() / COMBATANT_MAX_LEVEL;
+
+  const userLevelModifier = 0.5 + userPercentOfMaxLevel;
+
+  hp *= userLevelModifier;
+
+  webCombatantProperties.attributeProperties.setInherentAttributeValue(CombatAttribute.Hp, hp);
+  webCombatantProperties.resources.setToMax();
 }

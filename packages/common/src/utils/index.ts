@@ -205,3 +205,23 @@ export function cloneObservable<T>(cls: new (...args: any[]) => T, obj: T): T {
   const clonedPlain = cloneDeep(plain); // ensure deep structural copy
   return plainToInstance(cls, clonedPlain); // restore class prototype
 }
+
+/** The idea is that two attributes contribute well if they are balanced, otherwise there is a penalty but they
+ * still contribute */
+export function calculateBalancedAttributeSynergy(attributeA: number, attributeB: number): number {
+  // Base value is additive when stats are equal
+  const base = attributeA + attributeB;
+
+  // Calculate imbalance
+  const diff = Math.abs(attributeA - attributeB);
+
+  // Tunable penalty coefficient (higher = stronger punishment)
+  const penaltyCoefficient = 4.5;
+
+  // Apply logarithmic reduction scaled by coefficient
+  const imbalancePenalty = Math.log1p(diff) * penaltyCoefficient;
+
+  const total = base - imbalancePenalty;
+
+  return Math.max(1, Math.round(total));
+}

@@ -45,6 +45,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   );
 
   combatantProperties.classProgressionProperties.getMainClass().level = level;
+  combatantProperties.classProgressionProperties.getMainClass().level = 4;
 
   // // @TODO - remove, testing
   // const testLevel = randBetween(8, 9, rngSingleton);
@@ -66,7 +67,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   }
 
   if (monsterType === MonsterType.MantaRay) {
-    // ownedActions.push(...[CombatActionName.IceBoltParent, CombatActionName.Healing]);
+    ownedActions.push(...[CombatActionName.IceBoltParent, CombatActionName.Healing]);
   }
 
   for (const actionName of ownedActions) {

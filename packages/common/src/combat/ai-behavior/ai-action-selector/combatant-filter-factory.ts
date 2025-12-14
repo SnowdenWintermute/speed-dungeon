@@ -43,13 +43,13 @@ export class CombatantFilterFactory {
       const idsToFetchCombatants: EntityId[] = [];
       switch (targetCategory) {
         case TargetCategories.Any:
-          idsToFetchCombatants.push(...opponentIds, ...allyIds, ...neutralIds);
+          idsToFetchCombatants.push(...opponentIds, ...allyIds);
           break;
         case TargetCategories.Opponent:
           idsToFetchCombatants.push(...opponentIds, ...neutralIds);
           break;
         case TargetCategories.Friendly:
-          idsToFetchCombatants.push(...allyIds, ...neutralIds);
+          idsToFetchCombatants.push(...allyIds);
           break;
         case TargetCategories.User:
           combatantsToConsider.push(combatant);
