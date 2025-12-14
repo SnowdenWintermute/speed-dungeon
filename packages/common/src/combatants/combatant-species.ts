@@ -8,4 +8,5 @@ export enum CombatantSpecies {
   Canine,
   Ray,
   Net,
+  Spider,
 }

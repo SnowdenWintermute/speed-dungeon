@@ -13,6 +13,7 @@ export enum MonsterType {
   Cultist, // Low AC and HP, casts cure
   MantaRay,
   Net,
+  Spider,
 }
 
 export const MONSTER_TYPE_STRINGS: Record<MonsterType, string> = {
@@ -28,6 +29,7 @@ export const MONSTER_TYPE_STRINGS: Record<MonsterType, string> = {
   [MonsterType.IceElemental]: "Ice Elemental",
   [MonsterType.MantaRay]: "Manta Ray",
   [MonsterType.Net]: "Net",
+  [MonsterType.Spider]: "Spider",
 };
 
 // export function selectRandomMonsterType(): MonsterType {
@@ -53,6 +55,7 @@ export function getMonsterCombatantClass(monsterType: MonsterType): CombatantCla
       return CombatantClass.Warrior;
     case MonsterType.SkeletonArcher:
     case MonsterType.Scavenger:
+    case MonsterType.Spider:
       return CombatantClass.Rogue;
     case MonsterType.FireMage:
     case MonsterType.Cultist:

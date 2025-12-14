@@ -6,6 +6,7 @@ import { AssetContainer, Vector3 } from "@babylonjs/core";
 import { setCharacterModelPartDefaultMaterials } from "./set-modular-character-part-default-materials";
 import { CharacterModel } from "@/app/3d-world/scene-entities/character-models";
 import { getCharacterModelPartCategoriesAndAssetPaths } from "@/app/3d-world/scene-entities/character-models/modular-character-parts-model-manager/get-modular-character-parts";
+import { MONSTER_SCALING_SIZES } from "@/app/3d-world/scene-entities/character-models/monster-scaling-sizes";
 
 export async function spawnCharacterModel(
   world: GameWorld,
@@ -73,6 +74,12 @@ export async function spawnCharacterModel(
       scaleModifier,
       scaleModifier
     );
+  }
+
+  if (modularCharacter.monsterType !== null) {
+    const defaultScalingModifier = MONSTER_SCALING_SIZES[modularCharacter.monsterType];
+    modularCharacter.rootTransformNode.scaling =
+      modularCharacter.rootTransformNode.scaling.scale(defaultScalingModifier);
   }
 
   modularCharacter.updateBoundingBox();

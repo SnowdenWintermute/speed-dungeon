@@ -70,6 +70,10 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
     ownedActions.push(...[CombatActionName.IceBoltParent, CombatActionName.Healing]);
   }
 
+  if (monsterType === MonsterType.Spider) {
+    ownedActions.push(...[CombatActionName.Ensnare]);
+  }
+
   for (const actionName of ownedActions) {
     combatantProperties.abilityProperties.changeUnspentAbilityPoints(1);
     combatantProperties.abilityProperties.allocateAbilityPoint({

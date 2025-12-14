@@ -36,6 +36,16 @@ export const MONSTER_ATTRIBUTES_BY_LEVEL: Record<
     [CombatAttribute.ArmorClass]: 7.5,
     [CombatAttribute.Evasion]: 12.0,
   },
+  [MonsterType.Spider]: {
+    [CombatAttribute.Dexterity]: 6.0,
+    [CombatAttribute.Strength]: 8.0,
+    [CombatAttribute.Vitality]: 1.5,
+    [CombatAttribute.Hp]: 4.5,
+    [CombatAttribute.Mp]: 0.0,
+    [CombatAttribute.Agility]: 2.0,
+    [CombatAttribute.ArmorClass]: 7.5,
+    [CombatAttribute.Evasion]: 12.0,
+  },
   [MonsterType.Vulture]: {
     [CombatAttribute.Dexterity]: 8.0,
     [CombatAttribute.Strength]: 6.0,

@@ -67,6 +67,7 @@ export const MONSTER_UNARMED_WEAPONS: Record<
       null
     ),
   },
+
   [MonsterType.Zombie]: null,
   [MonsterType.SkeletonArcher]: null,
   [MonsterType.Scavenger]: null,
@@ -75,6 +76,32 @@ export const MONSTER_UNARMED_WEAPONS: Record<
   [MonsterType.FireElemental]: null,
   [MonsterType.IceElemental]: null,
   [MonsterType.Cultist]: null,
+  [MonsterType.Spider]: {
+    [HoldableSlotType.MainHand]: new Equipment(
+      {
+        id: "spider default main hand weapon id",
+        name: "spider default main hand weapon",
+      },
+      1,
+      {},
+      {
+        equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+        taggedBaseEquipment: {
+          equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+          baseItemType: TwoHandedMeleeWeapon.Spear,
+        },
+        damage: new NumberRange(2, 8),
+        damageClassification: [
+          new ResourceChangeSource({
+            category: ResourceChangeSourceCategory.Physical,
+            kineticDamageTypeOption: KineticDamageType.Piercing,
+            elementOption: MagicalElement.Dark,
+          }),
+        ],
+      },
+      null
+    ),
+  },
   [MonsterType.MantaRay]: {
     [HoldableSlotType.MainHand]: new Equipment(
       {

@@ -51,6 +51,7 @@ export async function collectAnimationLengths() {
     [CombatantSpecies.Canine]: {},
     [CombatantSpecies.Ray]: {},
     [CombatantSpecies.Net]: {},
+    [CombatantSpecies.Spider]: {},
   };
 
   for (const [species, skeletonPath] of iterateNumericEnumKeyedRecord(SKELETON_FILE_PATHS)) {

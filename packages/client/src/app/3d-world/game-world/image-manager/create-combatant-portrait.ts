@@ -114,4 +114,5 @@ const modelPortraitCameraPositionModifiers: Record<
     position: new Vector3(0.2, -0.13, 0.9),
   },
   [MonsterType.Net]: { arcRotate: new ArcRotateParams(), position: Vector3.Zero() },
+  [MonsterType.Spider]: { arcRotate: new ArcRotateParams(), position: Vector3.Zero() },
 };
