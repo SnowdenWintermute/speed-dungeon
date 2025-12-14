@@ -67,6 +67,9 @@ config.steps[ActionResolutionStepType.PostPrepSpawnEntity] = {
     applyWebMaxHp(actionUser, actionRank, combatantProperties);
 
     combatantProperties.controlledBy.controllerType = CombatantControllerType.Neutral;
+    // we need to know who summoned it when the AI decides to attack neutral targets
+    // if they were summoned by an ally or enemy
+    combatantProperties.controlledBy.summonedBy = actionUser.getEntityId();
 
     // scale to the target's bounding box
     const { party } = context.actionUserContext;

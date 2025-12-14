@@ -1,5 +1,12 @@
 import { ActionUserContext } from "../../../action-user-context/index.js";
+import { CombatantManager } from "../../../adventuring-party/combatant-manager.js";
 import { Combatant } from "../../../combatants/index.js";
+import {
+  ActionUserType,
+  AdventuringParty,
+  CombatantControllerType,
+  IActionUser,
+} from "../../../index.js";
 import { EntityId, NormalizedPercentage } from "../../../primatives/index.js";
 import {
   FriendOrFoe,
@@ -28,7 +35,7 @@ export class CombatantFilterFactory {
     return (combatant: Combatant) => {
       const combatantsToConsider: Combatant[] = [];
 
-      const { party } = actionUserContext;
+      const { party, actionUser } = actionUserContext;
       const battle = actionUserContext.getBattleOption();
 
       const combatantIdsByDisposition = actionUserContext.actionUser.getAllyAndOpponentIds(
@@ -43,13 +50,22 @@ export class CombatantFilterFactory {
       const idsToFetchCombatants: EntityId[] = [];
       switch (targetCategory) {
         case TargetCategories.Any:
-          idsToFetchCombatants.push(...opponentIds, ...allyIds);
+          idsToFetchCombatants.push(...opponentIds, ...allyIds, ...neutralIds);
           break;
         case TargetCategories.Opponent:
-          idsToFetchCombatants.push(...opponentIds, ...neutralIds);
+          // only want to attack neutral that were summoned by an enemy
+          const validNeutralOpponents = neutralIds.filter((id) =>
+            filterNeutralIdsByDisposition(actionUser, party, id, TargetCategories.Opponent)
+          );
+          idsToFetchCombatants.push(...opponentIds, ...validNeutralOpponents);
           break;
         case TargetCategories.Friendly:
-          idsToFetchCombatants.push(...allyIds);
+          // only want to heal neutral that were summoned by an ally like a net
+          const validNeutralFriendlies = neutralIds.filter((id) =>
+            filterNeutralIdsByDisposition(actionUser, party, id, TargetCategories.Friendly)
+          );
+
+          idsToFetchCombatants.push(...allyIds, ...validNeutralFriendlies);
           break;
         case TargetCategories.User:
           combatantsToConsider.push(combatant);
@@ -123,5 +139,36 @@ export class CombatantFilterFactory {
         return shouldConsiderThisTarget;
       }
     };
+  }
+}
+
+function filterNeutralIdsByDisposition(
+  actionUser: IActionUser,
+  party: AdventuringParty,
+  neutralEntityId: EntityId,
+  disposition: TargetCategories
+) {
+  if (disposition === TargetCategories.Any || disposition === TargetCategories.User) {
+    return true;
+  }
+
+  if (actionUser.getType() !== ActionUserType.Combatant) {
+    return true;
+  }
+  const combatant = party.combatantManager.getCombatantOption(neutralEntityId);
+  const summonedByIdOption = combatant?.combatantProperties.controlledBy.summonedBy;
+  if (summonedByIdOption === undefined) {
+    return false;
+  }
+
+  const summonedByCombatant = party.combatantManager.getCombatantOption(summonedByIdOption);
+  const summonedByIsAlly =
+    summonedByCombatant !== undefined &&
+    CombatantManager.combatantsAreAllies(summonedByCombatant, actionUser as Combatant);
+
+  if (disposition === TargetCategories.Friendly) {
+    return summonedByIsAlly;
+  } else {
+    return !summonedByIsAlly;
   }
 }

@@ -159,7 +159,7 @@ export class CombatantManager extends AdventuringPartySubsystem {
     return conditionOption;
   }
 
-  private combatantsAreAllies(a: Combatant, b: Combatant) {
+  static combatantsAreAllies(a: Combatant, b: Combatant) {
     const aType = a.combatantProperties.controlledBy.controllerType;
     const bType = b.combatantProperties.controlledBy.controllerType;
 
@@ -189,7 +189,7 @@ export class CombatantManager extends AdventuringPartySubsystem {
     };
 
     for (const [entityId, combatantToCompare] of this.combatants.entries()) {
-      const comparedIsAlly = this.combatantsAreAllies(combatant, combatantToCompare);
+      const comparedIsAlly = CombatantManager.combatantsAreAllies(combatant, combatantToCompare);
       const { controllerType } = combatantToCompare.combatantProperties.controlledBy;
       const comparedIsNeutral = controllerType === CombatantControllerType.Neutral;
       const comparedIsOpponent = !comparedIsNeutral && !comparedIsAlly;
