@@ -37,21 +37,26 @@ export const passTurnConfig: CombatActionComponentConfig = {
   targetingProperties,
   gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.TriggeredCondition,
-    getOnUseMessage: (data) => `${data.nameOfActionUser} uses death action`,
+    getOnUseMessage: (data) => ``,
   }),
 
   hitOutcomeProperties: createHitOutcomeProperties(
     HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.THREATLESS_ACTION,
     {
       resourceChangePropertiesGetters: {
-        [CombatActionResource.HitPoints]: (user) => {
+        [CombatActionResource.HitPoints]: (
+          user,
+          hitOutcomeProperties,
+          actionRank,
+          primaryTarget
+        ) => {
           return {
             resourceChangeSource: new ResourceChangeSource({
               category: ResourceChangeSourceCategory.Direct,
             }),
             baseValues: new NumberRange(
-              user.getCombatantProperties().resources.getHitPoints(),
-              user.getCombatantProperties().resources.getHitPoints()
+              primaryTarget.resources.getHitPoints(),
+              primaryTarget.resources.getHitPoints()
             ),
           };
         },
@@ -66,6 +71,7 @@ export const passTurnConfig: CombatActionComponentConfig = {
       [ActionResolutionStepType.PostActionUseGameLogMessage]: {},
       [ActionResolutionStepType.EvalOnUseTriggers]: {},
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
+      [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
     },
     {
       [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},

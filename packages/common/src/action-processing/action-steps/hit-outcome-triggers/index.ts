@@ -122,7 +122,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
                 user: attachedCombatant,
                 actionExecutionIntent: new CombatActionExecutionIntent(CombatActionName.Death, 1, {
                   type: CombatActionTargetType.Single,
-                  targetId: targetCombatant.getEntityId(),
+                  targetId: attachedCombatant.getEntityId(),
                 }),
               });
             }

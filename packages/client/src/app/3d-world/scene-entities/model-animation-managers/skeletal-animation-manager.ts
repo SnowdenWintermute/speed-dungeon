@@ -179,11 +179,6 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     }
 
     if (this.playing && this.playing.isCompleted()) {
-      console.log(
-        "this.playing.onCompleteRan:",
-        this.playing.onCompleteRan,
-        this.playing.getName()
-      );
       this.playing.runOnComplete();
     }
   }

@@ -67,25 +67,12 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     action
   );
 
-  console.log(action.getStringName(), "requiresTurnInThisContext:", requiresTurnInThisContext);
-
   const requiredTurn = requiresTurnInThisContext || noActionPointsLeft;
 
   const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
 
   let shouldSendEndActiveTurnMessage = false;
   const threatChanges = new ThreatChanges();
-
-  console.log(
-    "requiredTurn:",
-    requiredTurn,
-    "turnAlreadyEnded:",
-    turnAlreadyEnded,
-    "battleOption:",
-    !!battleOption,
-    "shouldHandleEndTurn:",
-    requiredTurn && !turnAlreadyEnded && !!battleOption
-  );
 
   if (requiredTurn && !turnAlreadyEnded && !!battleOption) {
     // if they died on their own turn we should not end the active combatant's turn because
@@ -98,7 +85,6 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     sequentialActionManagerRegistry.setTurnEnded();
     shouldSendEndActiveTurnMessage = true;
 
-    console.log("handle turn ended for", actionUser.getName());
     actionUser.handleTurnEnded();
 
     // only decay threat for combatant turns ending

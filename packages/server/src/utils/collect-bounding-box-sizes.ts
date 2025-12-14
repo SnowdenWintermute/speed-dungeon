@@ -18,6 +18,7 @@ export async function collectBoundingBoxSizes() {
 }
 
 // using the skeleton right now, below is commented out code for using meshes
+// pretty much raw chatgpt code
 async function computeBoundingBoxFromGLB(pathToFile: string) {
   const io = new NodeIO();
   try {
@@ -51,11 +52,9 @@ async function computeBoundingBoxFromGLB(pathToFile: string) {
 
     const diagonal = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-    // console.log("computed boundingBoxDimensions for", pathToFile, globalMin, globalMax);
-
     return { min: globalMin, max: globalMax, volume: diagonal };
   } catch (error) {
-    // console.log("couldnt't comput bounding box size for", pathToFile);
+    // console.info("couldnt't comput bounding box size for", pathToFile);
   }
 }
 
