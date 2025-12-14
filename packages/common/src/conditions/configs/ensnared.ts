@@ -8,7 +8,9 @@ import {
   CombatActionTargetType,
   Combatant,
   CombatantCondition,
+  CombatantProperties,
   CombatantTraitType,
+  CombatAttribute,
   IdGenerator,
   MaxAndCurrent,
   runIfInBrowser,
@@ -26,6 +28,10 @@ export class EnsnaredCondition extends CombatantCondition {
   removedOnDeath = true;
   multiplesAllowed = true;
   triggeredWhenHitBy = [];
+
+  getAttributeModifiers(appliedTo: CombatantProperties) {
+    return { [CombatAttribute.Evasion]: this.rank * 25 * -1 };
+  }
 
   onRemoved(
     this: CombatantCondition,

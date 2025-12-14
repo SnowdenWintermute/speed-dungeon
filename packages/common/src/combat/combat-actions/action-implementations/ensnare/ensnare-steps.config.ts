@@ -11,7 +11,11 @@ import {
   CombatantControllerType,
   CombatantProperties,
   CombatantSpecies,
+  CombatantTraitProperties,
   CombatantTraitType,
+  IActionUser,
+  KineticDamageType,
+  MagicalElement,
   MonsterType,
   SceneEntityType,
   SkeletalAnimationName,
@@ -36,21 +40,27 @@ config.steps[ActionResolutionStepType.PostPrepSpawnEntity] = {
       )
     );
 
+    // so we can't target the web with other webs
     web.combatantProperties.abilityProperties.getTraitProperties().inherentTraitLevels = {
       [CombatantTraitType.CanNotBeRestrained]: 1,
     };
 
     const { combatantProperties } = web;
 
+    const { actionUser } = context.actionUserContext;
+
     combatantProperties.removeFromPartyOnDeath = true;
-    combatantProperties.giveThreatGeneratedToId =
-      context.actionUserContext.actionUser.getEntityId();
+    combatantProperties.giveThreatGeneratedToId = actionUser.getEntityId();
 
     combatantProperties.onDeathProperties = { removeConditionsApplied: true };
 
-    combatantProperties.abilityProperties.getTraitProperties().inherentTraitLevels[
-      CombatantTraitType.Passive
-    ] = 1;
+    const traitProperties = combatantProperties.abilityProperties.getTraitProperties();
+    traitProperties.inherentTraitLevels[CombatantTraitType.Passive] = 1;
+
+    // determine web's stats based on action rank and user's attributes
+    const actionRank = context.tracker.actionExecutionIntent.rank;
+    combatantProperties.classProgressionProperties.getMainClass().level = actionRank;
+    applyWebInherentAffinities(actionUser, actionRank, traitProperties);
 
     combatantProperties.controlledBy.controllerType = CombatantControllerType.Neutral;
 
@@ -134,3 +144,35 @@ config.finalSteps[ActionResolutionStepType.RecoveryMotion] = {
 };
 
 export const ENSNARE_STEPS_CONFIG = config;
+
+function applyWebInherentAffinities(
+  actionUser: IActionUser,
+  actionRank: number,
+  webTraitProperties: CombatantTraitProperties
+) {
+  // determine web's stats based on action rank and user's attributes
+  const baseSlashingAffinity = -100;
+  const baseFireAffinity = -100;
+  const baseBluntAffinity = 25;
+  const basePiercingAffinity = 25;
+  let slashingAffinity = baseSlashingAffinity;
+  let fireAffinity = baseFireAffinity;
+  let bluntAffinity = baseBluntAffinity;
+  let piercingAffinity = basePiercingAffinity;
+
+  if (actionRank > 1) {
+    for (let i = 0; i < actionRank - 1; i += 1) {
+      slashingAffinity /= 2;
+      fireAffinity /= 2;
+      bluntAffinity *= 2;
+      piercingAffinity *= 2;
+    }
+  }
+
+  webTraitProperties.inherentElementalAffinities[MagicalElement.Fire] = fireAffinity;
+  webTraitProperties.inherentKineticDamageTypeAffinities[KineticDamageType.Slashing] =
+    slashingAffinity;
+  webTraitProperties.inherentKineticDamageTypeAffinities[KineticDamageType.Blunt] = bluntAffinity;
+  webTraitProperties.inherentKineticDamageTypeAffinities[KineticDamageType.Piercing] =
+    piercingAffinity;
+}

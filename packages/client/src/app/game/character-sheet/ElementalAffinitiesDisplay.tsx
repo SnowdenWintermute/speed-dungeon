@@ -53,11 +53,15 @@ function ElementAffinityDisplay({
 }) {
   let numberStyles = "";
   let textShadowStyle = {};
-  if (affinity < 0) numberStyles = UNMET_REQUIREMENT_TEXT_COLOR;
-  if (affinity > 100) {
+  if (affinity < 0) {
+    numberStyles = UNMET_REQUIREMENT_TEXT_COLOR;
+  } else if (affinity == 0) {
+    numberStyles = "opacity-50";
+  } else if (affinity > 100) {
     numberStyles = "text-green-600 shadow-black";
     textShadowStyle = { textShadow: "2px 2px 0px #000000" };
   }
+
   return (
     <li className="flex items-center w-24">
       <HoverableTooltipWrapper

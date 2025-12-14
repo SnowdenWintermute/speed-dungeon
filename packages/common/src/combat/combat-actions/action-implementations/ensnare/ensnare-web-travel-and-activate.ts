@@ -36,11 +36,11 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 
       return toReturn;
     },
-    getAppliedConditions: (user, actionLevel) => {
+    getAppliedConditions: (user, actionRank) => {
       return [
         {
           name: CombatantConditionName.Ensnared,
-          rank: actionLevel,
+          rank: actionRank,
           stacks: 1,
           appliedBy: {
             entityProperties: user.getEntityProperties(),

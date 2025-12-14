@@ -98,6 +98,12 @@ export class ActionEntity implements IActionUser {
     const wasRemoved = !!this.actionEntityProperties.actionOriginData?.wasIncinerated;
     return wasRemoved;
   }
+
+  /** Should be displayed in persistent action entity display list on client */
+  shouldBeDisplayedInPersistentEntityList() {
+    return [ActionEntityName.Firewall].includes(this.actionEntityProperties.name);
+  }
+
   payResourceCosts(): void {
     throw new Error("Method not implemented.");
   }
