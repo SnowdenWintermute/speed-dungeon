@@ -46,26 +46,34 @@ export class EnsnaredCondition extends CombatantCondition {
     const { party } = actionUserContext;
     const appliedToCombatant = party.combatantManager.getExpectedCombatant(this.appliedTo);
     const triggeredActions: ActionIntentAndUser[] = [];
-    if (
-      appliedToCombatant.combatantProperties.abilityProperties
-        .getTraitProperties()
-        .hasTraitType(CombatantTraitType.Flyer)
-    ) {
-      const combatantCanGainFlying =
-        appliedToCombatant.combatantProperties.abilityProperties.canGainFlying();
-
-      // if they had more than one net on them, don't let them try to fly
-      if (combatantCanGainFlying) {
-        triggeredActions.push({
-          user: appliedToCombatant,
-          actionExecutionIntent: new CombatActionExecutionIntent(CombatActionName.StartFlying, 1, {
-            type: CombatActionTargetType.Single,
-            targetId: appliedToCombatant.getEntityId(),
-          }),
-        });
-      }
+    const startFlyingIntentAndUser = getStartFlyingActionIntentIfAble(appliedToCombatant);
+    if (startFlyingIntentAndUser !== undefined) {
+      triggeredActions.push(startFlyingIntentAndUser);
     }
 
     return triggeredActions;
+  }
+}
+
+export function getStartFlyingActionIntentIfAble(
+  combatant: Combatant
+): ActionIntentAndUser | undefined {
+  if (
+    combatant.combatantProperties.abilityProperties
+      .getTraitProperties()
+      .hasTraitType(CombatantTraitType.Flyer)
+  ) {
+    const combatantCanGainFlying = combatant.combatantProperties.abilityProperties.canGainFlying();
+
+    // if they had more than one net on them, don't let them try to fly
+    if (combatantCanGainFlying) {
+      return {
+        user: combatant,
+        actionExecutionIntent: new CombatActionExecutionIntent(CombatActionName.StartFlying, 1, {
+          type: CombatActionTargetType.Single,
+          targetId: combatant.getEntityId(),
+        }),
+      };
+    }
   }
 }

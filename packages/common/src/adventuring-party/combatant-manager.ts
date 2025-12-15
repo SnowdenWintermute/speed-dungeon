@@ -30,7 +30,9 @@ export class CombatantManager extends AdventuringPartySubsystem {
 
   getExpectedCombatant(combatantId: EntityId) {
     const combatantOption = this.getCombatantOption(combatantId);
-    if (combatantOption === undefined) throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
+    if (combatantOption === undefined) {
+      throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND + combatantId);
+    }
     return combatantOption;
   }
 

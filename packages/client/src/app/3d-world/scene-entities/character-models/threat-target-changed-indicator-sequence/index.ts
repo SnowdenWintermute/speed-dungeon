@@ -42,6 +42,7 @@ export function threatTargetChangedIndicatorSequence() {
     const monsterCharacterModel = getGameWorld().modelManager.findOne(combatant.getEntityId());
     monsterCharacterModel.homeLocation.rotation =
       combatant.combatantProperties.transformProperties.homeRotation;
+
     monsterCharacterModel.movementManager.startRotatingTowards(
       monsterCharacterModel.homeLocation.rotation,
       1000,

@@ -54,7 +54,7 @@ export class CombatantConditionManager extends CombatantSubsystem {
     return null;
   }
 
-  private removeConditionByName(name: CombatantConditionName) {
+  removeConditionByName(name: CombatantConditionName) {
     this.conditions = this.conditions.filter(
       (existingCondition) => existingCondition.name !== name
     );

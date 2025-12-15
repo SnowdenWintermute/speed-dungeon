@@ -87,7 +87,12 @@ export class ThreatManager {
     this.setPreviouslyHighestThreatId(newThreatTargetIdOption);
 
     const newTargetCombatant = party.combatantManager.getExpectedCombatant(newThreatTargetIdOption);
-    const targetPos = newTargetCombatant.getHomePosition();
+    const targetPos = newTargetCombatant.getHomePosition().clone();
+
+    // don't use their Y coordinate otherwise it will look strange when ground
+    // units loot at flyers
+    targetPos.y = 0;
+
     const monsterHomePos = monster.getHomePosition();
 
     const lookAtMatrix = Matrix.LookAtLH(monsterHomePos, targetPos, Vector3.Up());

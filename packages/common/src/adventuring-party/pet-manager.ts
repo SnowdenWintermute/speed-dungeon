@@ -7,6 +7,8 @@ import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
 import { plainToInstance } from "class-transformer";
+import { CombatantConditionName } from "../conditions/condition-names.js";
+import { CombatantTraitType } from "../combatants/combatant-traits/trait-types.js";
 
 export class PetManager extends AdventuringPartySubsystem {
   private unsummonedPetsByOwnerId: { [ownerId: EntityId]: (Combatant | undefined)[] } = {};
@@ -133,6 +135,12 @@ export class PetManager extends AdventuringPartySubsystem {
     if (petOption === undefined) {
       return undefined;
     }
+
+    // remove ensnared since the net usually removes it on death but if the net is gone
+    // that would be a problem since it would never die and never remove the net
+    petOption.combatantProperties.conditionManager.removeConditionByName(
+      CombatantConditionName.Ensnared
+    );
 
     const pet = petOption;
     pet.combatantProperties.controlledBy.summonedBy = ownerId;
