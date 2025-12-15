@@ -157,6 +157,7 @@ function filterNeutralIdsByDisposition(
   if (actionUser.getType() !== ActionUserType.Combatant) {
     return true;
   }
+
   const combatant = party.combatantManager.getCombatantOption(neutralEntityId);
   const summonedByIdOption = combatant?.combatantProperties.controlledBy.summonedBy;
   if (summonedByIdOption === undefined) {

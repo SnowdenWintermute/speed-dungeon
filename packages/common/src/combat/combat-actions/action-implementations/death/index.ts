@@ -38,6 +38,7 @@ export const passTurnConfig: CombatActionComponentConfig = {
   gameLogMessageProperties: new CombatActionGameLogProperties({
     origin: CombatActionOrigin.TriggeredCondition,
     getOnUseMessage: (data) => ``,
+    doNotPostResourceChange: true,
   }),
 
   hitOutcomeProperties: createHitOutcomeProperties(

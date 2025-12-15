@@ -17,6 +17,10 @@ import {
 } from "../../index.js";
 import { CombatantConditionInit } from "../condition-config.js";
 
+export function getEnsnaredEvasionChange(rank: number) {
+  return rank * 25 * -1;
+}
+
 export class EnsnaredCondition extends CombatantCondition {
   constructor(init: CombatantConditionInit) {
     super(init);
@@ -30,7 +34,7 @@ export class EnsnaredCondition extends CombatantCondition {
   triggeredWhenHitBy = [];
 
   getAttributeModifiers(appliedTo: CombatantProperties) {
-    return { [CombatAttribute.Evasion]: this.rank * 25 * -1 };
+    return { [CombatAttribute.Evasion]: getEnsnaredEvasionChange(this.rank) };
   }
 
   onRemoved(

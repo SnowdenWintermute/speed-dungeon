@@ -16,8 +16,6 @@ import { DialogElementName } from "@/mobx-stores/dialogs";
 import { FloatingMessageService } from "@/mobx-stores/game-event-notifications/floating-message-service";
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 import { synchronizeCombatantModelsWithAppState } from "../../model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
-import cloneDeep from "lodash.clonedeep";
-import { Vector3 } from "@babylonjs/core";
 
 export function induceHitRecovery(
   actionUserName: string,
@@ -53,16 +51,20 @@ export function induceHitRecovery(
     combatantProperties.resources.changeMana(resourceChange.value);
 
   const action = COMBAT_ACTIONS[actionName];
-  GameLogMessageService.postResourceChange(
-    resourceChange,
-    resourceType,
-    action,
-    wasBlocked,
-    targetCombatant,
-    actionUserName,
-    actionUserId === targetCombatant.getEntityId(),
-    showDebug
-  );
+  const shouldPostResourceChange = !action.gameLogMessageProperties.doNotPostResourceChange;
+
+  if (shouldPostResourceChange) {
+    GameLogMessageService.postResourceChange(
+      resourceChange,
+      resourceType,
+      action,
+      wasBlocked,
+      targetCombatant,
+      actionUserName,
+      actionUserId === targetCombatant.getEntityId(),
+      showDebug
+    );
+  }
 
   const battleOption = party.getBattleOption(game);
 
@@ -95,7 +97,9 @@ export function induceHitRecovery(
       characterAutoFocusManager.updateFocusedCharacterOnNewTurnOrder(newlyActiveTracker);
     }
 
-    GameLogMessageService.postCombatantDeath(targetCombatant.getName());
+    if (shouldPostResourceChange) {
+      GameLogMessageService.postCombatantDeath(targetCombatant.getName());
+    }
 
     if (targetModel.skeletalAnimationManager.playing) {
       if (targetModel.skeletalAnimationManager.playing.options.onComplete) {

@@ -63,7 +63,7 @@ config.steps[ActionResolutionStepType.PostPrepSpawnEntity] = {
     // determine web's stats based on action rank and user's attributes
     const actionRank = context.tracker.actionExecutionIntent.rank;
     combatantProperties.classProgressionProperties.getMainClass().level = actionRank;
-    applyWebInherentAffinities(actionUser, actionRank, traitProperties);
+    applyWebInherentAffinities(actionRank, traitProperties);
     applyWebMaxHp(actionUser, actionRank, combatantProperties);
 
     combatantProperties.controlledBy.controllerType = CombatantControllerType.Neutral;
@@ -152,11 +152,7 @@ config.finalSteps[ActionResolutionStepType.RecoveryMotion] = {
 
 export const ENSNARE_STEPS_CONFIG = config;
 
-function applyWebInherentAffinities(
-  actionUser: IActionUser,
-  actionRank: number,
-  webTraitProperties: CombatantTraitProperties
-) {
+export function getWebInherentAffinities(actionRank: number) {
   // determine web's stats based on action rank and user's attributes
   const baseSlashingAffinity = -100;
   const baseFireAffinity = -100;
@@ -176,6 +172,15 @@ function applyWebInherentAffinities(
     }
   }
 
+  return { fireAffinity, slashingAffinity, bluntAffinity, piercingAffinity };
+}
+
+function applyWebInherentAffinities(
+  actionRank: number,
+  webTraitProperties: CombatantTraitProperties
+) {
+  const { fireAffinity, bluntAffinity, piercingAffinity, slashingAffinity } =
+    getWebInherentAffinities(actionRank);
   webTraitProperties.inherentElementalAffinities[MagicalElement.Fire] = fireAffinity;
   webTraitProperties.inherentKineticDamageTypeAffinities[KineticDamageType.Slashing] =
     slashingAffinity;
@@ -184,11 +189,7 @@ function applyWebInherentAffinities(
     piercingAffinity;
 }
 
-function applyWebMaxHp(
-  actionUser: IActionUser,
-  actionRank: number,
-  webCombatantProperties: CombatantProperties
-) {
+export function getWebMaxHp(actionUser: IActionUser, actionRank: number) {
   // determine web's stats based on action rank and user's attributes
   const baseHpPerRank = 10;
   let hp = baseHpPerRank * actionRank;
@@ -205,6 +206,15 @@ function applyWebMaxHp(
   const userLevelModifier = 0.5 + userPercentOfMaxLevel;
 
   hp *= userLevelModifier;
+  return Math.floor(hp);
+}
+
+function applyWebMaxHp(
+  actionUser: IActionUser,
+  actionRank: number,
+  webCombatantProperties: CombatantProperties
+) {
+  const hp = getWebMaxHp(actionUser, actionRank);
 
   webCombatantProperties.attributeProperties.setInherentAttributeValue(CombatAttribute.Hp, hp);
   webCombatantProperties.resources.setToMax();
