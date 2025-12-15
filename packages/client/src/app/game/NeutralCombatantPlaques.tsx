@@ -22,7 +22,13 @@ export const NeutralCombatantPlaques = observer(() => {
     />
   );
 
-  return <div className=" max-h-[620px] border flex p-1">{plaques}</div>;
+  return (
+    <div className=" relative">
+      <div className="max-h-[620px] border flex p-1 right-0 border-blue-300 absolute w-fit">
+        {plaques}
+      </div>
+    </div>
+  );
 
   {
     // <ul className="list-none w-20 max-w-20">

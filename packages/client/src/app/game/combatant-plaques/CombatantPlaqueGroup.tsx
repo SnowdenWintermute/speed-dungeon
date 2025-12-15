@@ -13,7 +13,7 @@ interface Props {
 export default function CombatantPlaqueGroup(props: Props) {
   return (
     <ul
-      className={`w-full flex ${props.displayColumn ? "flex-col flex-wrap" : ""} list-none ${!props.isPlayerControlled && "justify-center"} `}
+      className={`${props.displayColumn ? "max-h-96 w-fit" : "flex "} list-none ${!props.isPlayerControlled && "justify-center"} `}
     >
       {props.combatantIds.map((id) => {
         const combatantOption = props.party.combatantManager.getCombatantOption(id);

@@ -84,7 +84,7 @@ export const CombatantPlaque = observer(
       </div>
     );
 
-    const plaqueWidth = compactView ? "100%" : "23rem";
+    const plaqueWidth = compactView ? "100%" : "20rem";
 
     const combatantUiIdentifierIcon = getCombatantUiIdentifierIcon(party, combatant);
 
