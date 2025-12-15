@@ -38,19 +38,19 @@ export async function createSavedCharacterHandler(
 
   // @TESTING - pets
   // @TODO - don't start a new character with any pets
-  const testPet = generateMonster(1, MonsterType.Wolf);
-  delete testPet.combatantProperties.threatManager;
-  testPet.combatantProperties.controlledBy.controllerType = CombatantControllerType.PlayerPetAI;
+  // const testPet = generateMonster(1, MonsterType.Wolf);
+  // delete testPet.combatantProperties.threatManager;
+  // testPet.combatantProperties.controlledBy.controllerType = CombatantControllerType.PlayerPetAI;
 
-  testPet.combatantProperties.classProgressionProperties.experiencePoints.changeExperience(81);
-  testPet.combatantProperties.attributeProperties.changeUnspentPoints(10);
+  // testPet.combatantProperties.classProgressionProperties.experiencePoints.changeExperience(81);
+  // testPet.combatantProperties.attributeProperties.changeUnspentPoints(10);
 
-  const pets: Combatant[] = [testPet];
+  // const pets: Combatant[] = [testPet];
 
   // @TODO - once remove test pet, use this
   const newCharacterEmptyPetsArray: Combatant[] = [];
 
-  await playerCharactersRepo.insert(newCharacter, pets, userId);
+  await playerCharactersRepo.insert(newCharacter, newCharacterEmptyPetsArray, userId);
 
   slot.characterId = newCharacter.entityProperties.id;
   await characterSlotsRepo.update(slot);
@@ -62,7 +62,7 @@ export async function createSavedCharacterHandler(
     },
   ]);
 
-  const serializedPets = pets.map((pet) => pet.getSerialized());
+  const serializedPets = newCharacterEmptyPetsArray.map((pet) => pet.getSerialized());
   socket.emit(
     ServerToClientEvent.SavedCharacter,
     { combatant: newCharacter.getSerialized(), pets: serializedPets },

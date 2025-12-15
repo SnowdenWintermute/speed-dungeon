@@ -109,12 +109,6 @@ export class HitOutcomeCalculator {
     const incomingResourceChangesPerTarget =
       this.incomingResourceChangesCalculator.getBaseIncomingResourceChangesPerTarget();
 
-    console.log(
-      this.action.getStringName(),
-      "incomingResourceChangesPerTarget:",
-      incomingResourceChangesPerTarget
-    );
-
     let mitigationCalculator: null | HitOutcomeMitigationCalculator = null;
 
     const actionLevel = this.actionExecutionIntent.rank;

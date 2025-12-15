@@ -22,7 +22,7 @@ export const NeutralCombatantPlaques = observer(() => {
     />
   );
 
-  return <div className="overflow-y-scroll max-h-[620px] border">{plaques}</div>;
+  return <div className="overflow-y-scroll max-h-[620px] p-1">{plaques}</div>;
 
   {
     // <ul className="list-none w-20 max-w-20">

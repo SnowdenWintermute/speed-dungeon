@@ -1,12 +1,7 @@
 import { ActionUserContext } from "../../../action-user-context/index.js";
 import { CombatantManager } from "../../../adventuring-party/combatant-manager.js";
 import { Combatant } from "../../../combatants/index.js";
-import {
-  ActionUserType,
-  AdventuringParty,
-  CombatantControllerType,
-  IActionUser,
-} from "../../../index.js";
+import { ActionUserType, AdventuringParty, IActionUser } from "../../../index.js";
 import { EntityId, NormalizedPercentage } from "../../../primatives/index.js";
 import {
   FriendOrFoe,
@@ -165,11 +160,9 @@ function filterNeutralIdsByDisposition(
   }
 
   const summonedByCombatant = party.combatantManager.getCombatantOption(summonedByIdOption);
-  console.log("summonedBy:", summonedByIdOption);
   const summonedByIsAlly =
     summonedByCombatant !== undefined &&
     CombatantManager.combatantsAreAllies(summonedByCombatant, actionUser as Combatant);
-  console.log("is Ally:", summonedByIsAlly, actionUser.getEntityId(), actionUser.getName());
 
   if (disposition === TargetCategories.Friendly) {
     return summonedByIsAlly;

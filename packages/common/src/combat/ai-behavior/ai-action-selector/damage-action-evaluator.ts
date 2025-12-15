@@ -3,6 +3,7 @@ import { Combatant } from "../../../combatants/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
+import { COMBAT_ACTION_NAME_STRINGS } from "../../combat-actions/combat-action-names.js";
 import { PotentialTotalResourceChangeEvaluation } from "./potential-total-resource-change-evaluation.js";
 import { ResourceChangeActionEvaluator } from "./resource-change-action-evaluator.js";
 
@@ -78,11 +79,13 @@ export class DamageActionEvaluator extends ResourceChangeActionEvaluator {
 
         const remainingHitPoints = hitPoints;
 
-        const averageDamage = averageHitPointChanges.getRecord(targetId)?.value || 0;
-        const averageEffectiveDamage = Math.min(remainingHitPoints, averageDamage);
+        // if number would be positive it is healing and we don't want to give it a good score
+        // so make it 0, do same for max damage
+        const averageDamage = Math.min(0, averageHitPointChanges.getRecord(targetId)?.value || 0);
+        const averageEffectiveDamage = Math.max(remainingHitPoints * -1, averageDamage);
 
-        const maxDamage = maxHitPointChanges.getRecord(targetId)?.value || 0;
-        const maxEffectiveDamage = Math.min(remainingHitPoints, maxDamage);
+        const maxDamage = Math.min(0, maxHitPointChanges.getRecord(targetId)?.value || 0);
+        const maxEffectiveDamage = Math.max(remainingHitPoints * -1, maxDamage);
 
         if (targetId === mainTarget.entityProperties.id) {
           evaluation.setPrimaryTargetEfficiencyEvaluation(
@@ -90,6 +93,22 @@ export class DamageActionEvaluator extends ResourceChangeActionEvaluator {
             averageEffectiveDamage
           );
         }
+
+        console.log(
+          "evaluating",
+          COMBAT_ACTION_NAME_STRINGS[actionExecutionIntent.actionName],
+          "rank",
+          actionExecutionIntent.rank,
+          "on target:",
+          targetCombatant.getName(),
+
+          "maxDamage:",
+          maxDamage,
+          "maxEffectiveDamage:",
+          maxEffectiveDamage,
+          "averageEffectiveDamage:",
+          averageEffectiveDamage
+        );
 
         evaluation.setOrUpdateTotalAcrossAllTargets(maxEffectiveDamage, averageEffectiveDamage);
       }
@@ -100,6 +119,8 @@ export class DamageActionEvaluator extends ResourceChangeActionEvaluator {
         intent: actionExecutionIntent,
         evaluation,
       };
+
+      console.log(JSON.stringify(evaluatedIntent, null, 2));
 
       evaluatedIntents.push(evaluatedIntent);
     }

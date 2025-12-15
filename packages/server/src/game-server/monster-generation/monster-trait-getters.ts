@@ -24,6 +24,7 @@ export const MONSTER_INHERENT_TRAIT_GETTERS: Record<
   [MonsterType.Spider]: (combatantLevel) => {
     return {
       [CombatantTraitType.CanNotBeRestrained]: 1,
+      [CombatantTraitType.IsTameable]: 1,
     };
   },
   [MonsterType.Vulture]: (combatantLevel) => {
