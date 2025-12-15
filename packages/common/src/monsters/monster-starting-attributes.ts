@@ -54,6 +54,7 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
     [CombatAttribute.Hp]: 150.0,
     [CombatAttribute.Agility]: 2.0,
     [CombatAttribute.Accuracy]: 80.0,
+    [CombatAttribute.Mp]: 10.0,
   },
   [MonsterType.Vulture]: {
     [CombatAttribute.Dexterity]: 2.5,

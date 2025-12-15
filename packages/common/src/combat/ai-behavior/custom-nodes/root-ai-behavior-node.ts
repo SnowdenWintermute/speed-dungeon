@@ -86,7 +86,10 @@ export class RootAIBehaviorNode implements BehaviorNode {
       targetSelectionSchemes.push(
         new ActionSelectorNode(
           this.behaviorContext,
-          [CombatantFilterFactory.createIsTopOfThreatMeterFilter(actionUserContext)],
+          [
+            isOpponentFilter,
+            CombatantFilterFactory.createIsTopOfThreatMeterFilter(actionUserContext),
+          ],
           ACTION_EVALUATORS[ActionEvaluatorTypes.RandomManaCostingMaliciousAction]
         )
       );
@@ -95,7 +98,10 @@ export class RootAIBehaviorNode implements BehaviorNode {
     targetSelectionSchemes.push(
       new ActionSelectorNode(
         this.behaviorContext,
-        [CombatantFilterFactory.createIsTopOfThreatMeterFilter(actionUserContext)],
+        [
+          isOpponentFilter,
+          CombatantFilterFactory.createIsTopOfThreatMeterFilter(actionUserContext),
+        ],
         ACTION_EVALUATORS[ActionEvaluatorTypes.RandomMaliciousAction]
       )
     );

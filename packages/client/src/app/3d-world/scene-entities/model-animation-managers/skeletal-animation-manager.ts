@@ -259,5 +259,15 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     if (idleAnimationNames.includes(animationName)) {
       return SkeletalAnimationName.IdleUnarmed;
     }
+
+    if (animationName === SkeletalAnimationName.ThrowObjectChambering) {
+      return SkeletalAnimationName.CastSpellChambering;
+    }
+    if (animationName === SkeletalAnimationName.ThrowObjectDelivery) {
+      return SkeletalAnimationName.CastSpellDelivery;
+    }
+    if (animationName === SkeletalAnimationName.ThrowObjectRecovery) {
+      return SkeletalAnimationName.CastSpellRecovery;
+    }
   }
 }

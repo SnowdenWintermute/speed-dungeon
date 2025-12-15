@@ -57,6 +57,7 @@ export class CombatantFilterFactory {
           const validNeutralOpponents = neutralIds.filter((id) =>
             filterNeutralIdsByDisposition(actionUser, party, id, TargetCategories.Opponent)
           );
+          console.log("got valid neutral opponent ids:", validNeutralOpponents);
           idsToFetchCombatants.push(...opponentIds, ...validNeutralOpponents);
           break;
         case TargetCategories.Friendly:
@@ -64,6 +65,7 @@ export class CombatantFilterFactory {
           const validNeutralFriendlies = neutralIds.filter((id) =>
             filterNeutralIdsByDisposition(actionUser, party, id, TargetCategories.Friendly)
           );
+          console.log("got valid neutral friendlyids ids:", validNeutralFriendlies);
 
           idsToFetchCombatants.push(...allyIds, ...validNeutralFriendlies);
           break;
@@ -162,9 +164,11 @@ function filterNeutralIdsByDisposition(
   }
 
   const summonedByCombatant = party.combatantManager.getCombatantOption(summonedByIdOption);
+  console.log("summonedBy:", summonedByIdOption);
   const summonedByIsAlly =
     summonedByCombatant !== undefined &&
     CombatantManager.combatantsAreAllies(summonedByCombatant, actionUser as Combatant);
+  console.log("is Ally:", summonedByIsAlly, actionUser.getEntityId(), actionUser.getName());
 
   if (disposition === TargetCategories.Friendly) {
     return summonedByIsAlly;

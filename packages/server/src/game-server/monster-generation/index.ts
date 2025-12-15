@@ -72,6 +72,8 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
 
   if (monsterType === MonsterType.Spider) {
     ownedActions.push(...[CombatActionName.Ensnare]);
+
+    combatantProperties.controlledBy.setAiTypes([AiType.PrefersAttackWithMana]);
   }
 
   for (const actionName of ownedActions) {

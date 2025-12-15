@@ -106,8 +106,14 @@ export class CharacterModel extends SceneEntity {
       `${this.entityId}-mh-equipment`,
       "Equipment.R"
     );
-    this.childTransformNodes[CombatantBaseChildTransformNodeName.MainHandEquipment] =
-      mainHandEquipmentNode;
+
+    if (mainHandEquipmentNode === undefined) {
+      this.childTransformNodes[CombatantBaseChildTransformNodeName.MainHandEquipment] =
+        this.rootTransformNode;
+    } else {
+      this.childTransformNodes[CombatantBaseChildTransformNodeName.MainHandEquipment] =
+        mainHandEquipmentNode;
+    }
 
     const offHandEquipmentNode = SceneEntity.createTransformNodeChildOfBone(
       this.rootMesh,
