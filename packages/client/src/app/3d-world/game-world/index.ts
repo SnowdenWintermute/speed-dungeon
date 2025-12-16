@@ -51,7 +51,7 @@ export class GameWorld {
   imageManager: ImageManager = new ImageManager();
   portraitRenderTarget: RenderTargetTexture;
   replayTreeManager = new ReplayTreeProcessorManager();
-  idGenerator = new IdGenerator();
+  idGenerator = new IdGenerator({ saveHistory: false });
   tickCounter: number = 0;
   targetIndicatorTexture: DynamicTexture;
 

@@ -2,7 +2,7 @@ import { ActionTracker } from "../../../../../action-processing/action-tracker.j
 import { ActionResolutionStepContext } from "../../../../../action-processing/index.js";
 import { CombatantTraitType } from "../../../../../combatants/combatant-traits/trait-types.js";
 import { Combatant } from "../../../../../combatants/index.js";
-import { HoldableSlotType } from "../../../../../items/equipment/slots.js";
+import { EquipmentSlotType, HoldableSlotType } from "../../../../../items/equipment/slots.js";
 import { TargetingCalculator } from "../../../../targeting/targeting-calculator.js";
 import { ActionExecutionPrecondition } from "../../../combat-action-targeting-properties.js";
 import { ActionPayableResource, CombatActionComponent } from "../../../index.js";
@@ -18,6 +18,7 @@ export enum ActionExecutionPreconditions {
   NoPetCurrentlySummoned,
   PetCurrentlySummoned,
   PetSlotNotEmpty,
+  OffhandIsNotShield,
 }
 
 export const ACTION_EXECUTION_PRECONDITIONS: Record<
@@ -49,6 +50,27 @@ export const ACTION_EXECUTION_PRECONDITIONS: Record<
     return shouldSucceed;
   },
   [ActionExecutionPreconditions.PetSlotNotEmpty]: petSlotNotEmpty,
+  [ActionExecutionPreconditions.OffhandIsNotShield]: function (
+    context: ActionResolutionStepContext,
+    previousTrackerOption: undefined | ActionTracker,
+    self: CombatActionComponent
+  ): boolean {
+    const equipmentOption = context.actionUserContext.actionUser.getEquipmentOption();
+    if (!equipmentOption) {
+      return true;
+    }
+
+    const offhandEquipmentOption = equipmentOption.getEquipmentInSlot({
+      type: EquipmentSlotType.Holdable,
+      slot: HoldableSlotType.OffHand,
+    });
+    if (offhandEquipmentOption === undefined) {
+      return true;
+    }
+
+    const shouldSucceed = !offhandEquipmentOption.isShield();
+    return shouldSucceed;
+  },
 };
 
 function wasWearing2HWeaponOnPreviousAction(

@@ -6,6 +6,7 @@ export * from "./utils/index.js";
 export * from "./utils/array-utils.js";
 export * from "./types.js";
 export * from "./errors/index.js";
+export * from "./errors/entity-not-found.js";
 export * from "./items/index.js";
 export * from "./items/equipment/index.js";
 export * from "./items/consumables/index.js";

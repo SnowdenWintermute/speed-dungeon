@@ -39,10 +39,13 @@ export class RootAIBehaviorNode implements BehaviorNode {
 
     const targetSelectionSchemes: BehaviorNode[] = [];
 
-    console.log("creating ai targetSelectionSchemes");
-    for (const aiType of aiTypes) {
-      targetSelectionSchemes.push(aiBehaviorActionSelectorNodeFactory.createNode(aiType));
-      console.log("pushed target selection scheme:", AI_BEHAVIOR_TYPE_STRINGS[aiType]);
+    if (aiTypes[0] !== AiType.AlwaysPassTurn) {
+      for (const aiType of aiTypes) {
+        targetSelectionSchemes.push(aiBehaviorActionSelectorNodeFactory.createNode(aiType));
+        console.log("pushed target selection scheme:", AI_BEHAVIOR_TYPE_STRINGS[aiType]);
+      }
+    } else {
+      console.log("AI IS SET TO ALWAYS PASS TURN");
     }
 
     this.root = new SelectorNode(targetSelectionSchemes);
@@ -88,7 +91,7 @@ class AiBehaviorActionSelectorNodeFactory {
         [this.isFriendlyFilter, this.needsHealingFilter],
         HealingActionEvaluator.evaluateActionIntents
       ),
-      [AiType.AlwaysPassTurn]: new SelectorNode([]),
+      [AiType.AlwaysPassTurn]: new SelectorNode([]), // actually this doesn't work since we don't really select the pass turn action here
       [AiType.TargetLowestHpEnemy]: new ActionSelectorNode(
         this.behaviorContext,
         AiType.TargetLowestHpEnemy,

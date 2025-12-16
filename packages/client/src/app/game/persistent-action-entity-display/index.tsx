@@ -12,7 +12,7 @@ export const PersistentActionEntityDisplay = observer(() => {
   const { actionEntityManager } = party;
 
   return (
-    <ul className="list-none w-20 max-w-20 mb-2">
+    <ul className="list-none w-full mb-2 mx-auto px-1">
       {Object.entries(actionEntityManager.getActionEntities())
         .filter(([id, actionEnity]) => {
           if (showDebug) {

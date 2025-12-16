@@ -48,9 +48,9 @@ export async function createSavedCharacterHandler(
   // const pets: Combatant[] = [testPet];
 
   // @TODO - once remove test pet, use this
-  const newCharacterEmptyPetsArray: Combatant[] = [];
+  const pets: Combatant[] = [];
 
-  await playerCharactersRepo.insert(newCharacter, newCharacterEmptyPetsArray, userId);
+  await playerCharactersRepo.insert(newCharacter, pets, userId);
 
   slot.characterId = newCharacter.entityProperties.id;
   await characterSlotsRepo.update(slot);
@@ -62,7 +62,7 @@ export async function createSavedCharacterHandler(
     },
   ]);
 
-  const serializedPets = newCharacterEmptyPetsArray.map((pet) => pet.getSerialized());
+  const serializedPets = pets.map((pet) => pet.getSerialized());
   socket.emit(
     ServerToClientEvent.SavedCharacter,
     { combatant: newCharacter.getSerialized(), pets: serializedPets },

@@ -38,5 +38,5 @@ export const ABILITIES_GRANTED_WHEN_ACTION_ALLOCATED: Partial<
 };
 
 export const ACTION_FORCED_RANKS: Partial<Record<CombatActionName, number>> = {
-  [CombatActionName.PetCommand]: 3,
+  [CombatActionName.PetCommand]: 4,
 };

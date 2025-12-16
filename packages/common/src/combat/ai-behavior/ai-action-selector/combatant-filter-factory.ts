@@ -52,7 +52,6 @@ export class CombatantFilterFactory {
           const validNeutralOpponents = neutralIds.filter((id) =>
             filterNeutralIdsByDisposition(actionUser, party, id, TargetCategories.Opponent)
           );
-          console.log("got valid neutral opponent ids:", validNeutralOpponents);
           idsToFetchCombatants.push(...opponentIds, ...validNeutralOpponents);
           break;
         case TargetCategories.Friendly:
@@ -60,7 +59,6 @@ export class CombatantFilterFactory {
           const validNeutralFriendlies = neutralIds.filter((id) =>
             filterNeutralIdsByDisposition(actionUser, party, id, TargetCategories.Friendly)
           );
-          console.log("got valid neutral friendlyids ids:", validNeutralFriendlies);
 
           idsToFetchCombatants.push(...allyIds, ...validNeutralFriendlies);
           break;

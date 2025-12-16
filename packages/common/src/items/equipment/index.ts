@@ -79,6 +79,11 @@ export class Equipment extends Item {
     return WEAPON_EQUIPMENT_TYPES.includes(equipmentType);
   }
 
+  isShield() {
+    const { equipmentType } = this.equipmentBaseItemProperties.taggedBaseEquipment;
+    return equipmentType === EquipmentType.Shield;
+  }
+
   getAffixAttributeValue(affixTypeToFind: AffixType, attributeToFind: CombatAttribute) {
     for (const [category, affixes] of iterateNumericEnumKeyedRecord(this.affixes)) {
       for (const [affixType, affix] of iterateNumericEnumKeyedRecord(affixes)) {

@@ -52,7 +52,7 @@ export const Game = observer(() => {
               <div className="w-full">
                 <MonsterPlaques game={game} party={party} />
               </div>
-              <div className="border flex flex-col">
+              <div className="flex flex-col">
                 <PersistentActionEntityDisplay />
                 <NeutralCombatantPlaques />
               </div>

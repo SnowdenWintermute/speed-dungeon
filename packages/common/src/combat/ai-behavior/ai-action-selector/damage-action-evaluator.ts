@@ -94,22 +94,6 @@ export class DamageActionEvaluator extends ResourceChangeActionEvaluator {
           );
         }
 
-        console.log(
-          "evaluating",
-          COMBAT_ACTION_NAME_STRINGS[actionExecutionIntent.actionName],
-          "rank",
-          actionExecutionIntent.rank,
-          "on target:",
-          targetCombatant.getName(),
-
-          "maxDamage:",
-          maxDamage,
-          "maxEffectiveDamage:",
-          maxEffectiveDamage,
-          "averageEffectiveDamage:",
-          averageEffectiveDamage
-        );
-
         evaluation.setOrUpdateTotalAcrossAllTargets(maxEffectiveDamage, averageEffectiveDamage);
       }
 
@@ -119,8 +103,6 @@ export class DamageActionEvaluator extends ResourceChangeActionEvaluator {
         intent: actionExecutionIntent,
         evaluation,
       };
-
-      console.log(JSON.stringify(evaluatedIntent, null, 2));
 
       evaluatedIntents.push(evaluatedIntent);
     }

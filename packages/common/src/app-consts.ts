@@ -22,6 +22,10 @@ export const GAME_CONFIG = {
   LEVEL_TO_REACH_FOR_ESCAPE: DEFAULT_LEVEL_TO_REACH_FOR_ESCAPE,
   MIN_RACE_GAME_PARTIES: 2,
 };
+
+export const DEBUG_CONFIG = {
+  SAVE_ID_GENERATOR_HISTORY: true,
+};
 export const MAX_PARTY_SIZE = 3;
 export const NUM_MONSTERS_PER_ROOM = 3;
 // export const NUM_MONSTERS_PER_ROOM = 1;

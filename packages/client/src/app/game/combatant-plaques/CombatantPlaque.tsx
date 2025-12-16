@@ -112,7 +112,7 @@ export const CombatantPlaque = observer(
       battleOption.turnOrderManager.combatantIsFirstInTurnOrder(combatant.entityProperties.id);
 
     return (
-      <div className={`${extraStyles} w-full `}>
+      <div className={`${extraStyles} w-full ${compactView ? "mb-2" : ""}`}>
         <CharacterModelDisplay character={combatant}>
           <CombatantFloatingMessagesDisplay entityId={entityId} />
           <div className="absolute flex flex-col justify-center items-center text-center top-1/2 left-1/2 -translate-x-1/2 w-[400px]">
@@ -157,13 +157,17 @@ export const CombatantPlaque = observer(
                 combatantId={entityId}
                 combatantPlaqueRef={combatantPlaqueRef}
               />
-              <Portrait
-                focusable={isPartyMember}
-                portrait={portraitOption}
-                portraitHeight={portraitHeight}
-                combatantId={entityId}
-                combatantLevel={combatantProperties.classProgressionProperties.getMainClass().level}
-              />
+              {!compactView && (
+                <Portrait
+                  focusable={isPartyMember}
+                  portrait={portraitOption}
+                  portraitHeight={portraitHeight}
+                  combatantId={entityId}
+                  combatantLevel={
+                    combatantProperties.classProgressionProperties.getMainClass().level
+                  }
+                />
+              )}
               <div
                 className={`
                   ${compactView ? "flex flex-col mt-2 flex-grow w-full " : "flex-grow"}

@@ -9,6 +9,7 @@ import {
   EquipmentType,
   HoldableSlotType,
   OneHandedMeleeWeapon,
+  Shield,
   TwoHandedMeleeWeapon,
   TwoHandedRangedWeapon,
   iterateNumericEnumKeyedRecord,
@@ -21,17 +22,17 @@ const STARTING_EQUIPMENT_BY_COMBATANT_CLASS: Record<
   Partial<Record<HoldableSlotType, EquipmentBaseItem>>
 > = {
   [CombatantClass.Warrior]: {
-    // [HoldableSlotType.MainHand]: {
-    //   equipmentType: EquipmentType.TwoHandedRangedWeapon,
-    //   baseItemType: TwoHandedRangedWeapon.CompositeBow,
-    // },
     [HoldableSlotType.MainHand]: {
       equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: OneHandedMeleeWeapon.Dagger,
+      baseItemType: OneHandedMeleeWeapon.ShortSword,
     },
+    // [HoldableSlotType.MainHand]: {
+    //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
+    //   baseItemType: OneHandedMeleeWeapon.Dagger,
+    // },
     [HoldableSlotType.OffHand]: {
-      equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: OneHandedMeleeWeapon.Dagger,
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.Heater,
     },
   },
   [CombatantClass.Mage]: {
@@ -47,12 +48,12 @@ const STARTING_EQUIPMENT_BY_COMBATANT_CLASS: Record<
     // },
     [HoldableSlotType.MainHand]: {
       equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: OneHandedMeleeWeapon.ButterKnife,
+      baseItemType: OneHandedMeleeWeapon.Dagger,
     },
-    // [HoldableSlotType.OffHand]: {
-    //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
-    //   baseItemType: OneHandedMeleeWeapon.ButterKnife,
-    // },
+    [HoldableSlotType.OffHand]: {
+      equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      baseItemType: OneHandedMeleeWeapon.Rapier,
+    },
   },
 };
 
@@ -68,7 +69,7 @@ export function giveStartingEquipment(combatantProperties: CombatantProperties) 
     // repairEquipment(holdable); // @TODO - put this back
     mainHoldableHotswapSlot.holdables[slotType] = holdable;
 
-    holdable.durability!.current = 1; // @TODO - remove (testing)
+    // holdable.durability!.current = 1; // @TODO - remove (testing)
 
     if (slotType !== HoldableSlotType.MainHand) continue;
 
@@ -96,10 +97,14 @@ function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
   const mh = generateSpecificEquipmentType(
     {
       equipmentType: EquipmentType.TwoHandedRangedWeapon,
-      baseItemType: TwoHandedRangedWeapon.RecurveBow,
+      baseItemType: TwoHandedRangedWeapon.ShortBow,
     },
     { noAffixes: true }
   );
+
+  mh.durability!.inherentMax = 15;
+  mh.changeDurability(100);
   combatantProperties.inventory.insertItem(mh);
+  combatantProperties.equipment.changeSelectedHotswapSlot(1);
   combatantProperties.equipment.equipItem(mh.entityProperties.id, false);
 }

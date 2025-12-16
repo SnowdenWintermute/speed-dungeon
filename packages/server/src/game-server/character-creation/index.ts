@@ -16,7 +16,7 @@ export function createCharacter(
   combatantClass: CombatantClass,
   controllingPlayerName: string
 ) {
-  const characterId = idGenerator.generate();
+  const characterId = idGenerator.generate(`player controlled character: ${name}`);
 
   if (name === "") name = generateRandomCharacterName();
 

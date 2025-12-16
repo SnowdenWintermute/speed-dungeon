@@ -28,7 +28,7 @@ export function generateMonster(level: number, roomIndex: number, forcedType?: M
   // roll a random monster type from list of pre determined types
   // const spawnableTypes = getSpawnableMonsterTypesByFloor(level);
   //
-  const spawnableTypes = roomIndex % 2 === 0 ? [MonsterType.Spider] : [MonsterType.MantaRay];
+  const spawnableTypes = roomIndex % 2 === 1 ? [MonsterType.MantaRay] : [MonsterType.Spider];
 
   const randomIndex = Math.floor(Math.floor(Math.random() * spawnableTypes.length));
   const monsterType = forcedType !== undefined ? forcedType : spawnableTypes[randomIndex]!;
@@ -36,7 +36,9 @@ export function generateMonster(level: number, roomIndex: number, forcedType?: M
   const combatantSpecies = MONSTER_SPECIES[monsterType];
 
   const entityProperties = {
-    id: idGenerator.generate(),
+    id: idGenerator.generate(
+      `monster ${MONSTER_TYPE_STRINGS[monsterType]} on floor ${level} in room ${roomIndex}`
+    ),
     name: MONSTER_TYPE_STRINGS[monsterType],
   };
   const combatantProperties = new CombatantProperties(
@@ -94,6 +96,14 @@ export function generateMonster(level: number, roomIndex: number, forcedType?: M
 
     combatantProperties.controlledBy.setAiTypes([
       AiType.PrefersAttackWithMana,
+      AiType.TargetTopOfThreatMeter,
+      AiType.TargetLowestHpEnemy,
+      AiType.RandomMaliciousAction,
+    ]);
+  }
+
+  if (monsterType === MonsterType.Wolf) {
+    combatantProperties.controlledBy.setAiTypes([
       AiType.TargetTopOfThreatMeter,
       AiType.TargetLowestHpEnemy,
       AiType.RandomMaliciousAction,

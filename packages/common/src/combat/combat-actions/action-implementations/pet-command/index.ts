@@ -27,6 +27,11 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
 };
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.FAST_SPELL;
 const costProperties = createCostPropertiesConfig(costPropertiesBase, {
+  costBases: {
+    [ActionPayableResource.Mana]: {
+      base: 1,
+    },
+  },
   getMeetsCustomRequirements: (user, party) => {
     const { combatantManager } = party;
     for (const combatant of combatantManager.getPartyMemberPets()) {
