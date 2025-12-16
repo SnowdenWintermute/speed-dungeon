@@ -26,6 +26,7 @@ const config: Config = {
     "text-blue-700",
     "text-blue-600",
     "text-teal-300",
+    "text-grey-300",
     "hidden",
     "text-purple-400",
     "bg-green-800",

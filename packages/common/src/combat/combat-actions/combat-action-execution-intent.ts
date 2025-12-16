@@ -7,7 +7,7 @@ import { IdGenerator } from "../../utility-classes/index.js";
 
 export class CombatActionExecutionIntent {
   private delaysByStep: Partial<Record<ActionResolutionStepType, Milliseconds>> = {};
-  public id = new IdGenerator().generate();
+  public id = new IdGenerator({ saveHistory: false }).generate();
 
   constructor(
     public actionName: CombatActionName,

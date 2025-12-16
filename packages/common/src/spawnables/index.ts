@@ -1,6 +1,7 @@
 import { ActionEntity } from "../action-entities/index.js";
 import { Combatant } from "../combatants/index.js";
 import { EntityId } from "../primatives/index.js";
+import { SceneEntityChildTransformNodeIdentifier } from "../scene-entities/index.js";
 
 export enum SpawnableEntityType {
   Combatant,
@@ -19,7 +20,9 @@ export interface PetProperties {
 export type SpawnedCombatant = {
   type: SpawnableEntityType.Combatant;
   combatant: Combatant;
-  petProperties: PetProperties;
+  parentTransformNodeOption?: SceneEntityChildTransformNodeIdentifier;
+  petProperties?: PetProperties;
+  doNotIdle?: boolean;
 };
 
 export type SpawnedActionEntity = {

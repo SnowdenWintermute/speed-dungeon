@@ -1,5 +1,6 @@
 import { Vector3 } from "@babylonjs/core";
 import {
+  ActionIntentAndUser,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
@@ -16,6 +17,7 @@ import { getTranslationTime } from "../../../combat/combat-actions/action-implem
 import { Milliseconds } from "../../../primatives/index.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
 import { Combatant } from "../../../combatants/index.js";
+import { AdventuringParty } from "../../../index.js";
 
 export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   private translationOption: null | EntityTranslation = null;
@@ -68,7 +70,9 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
         this.translationOption = translationOption;
         mainEntityUpdate.translationOption = translationOption;
       }
-      if (rotationOption) mainEntityUpdate.rotationOption = rotationOption;
+      if (rotationOption) {
+        mainEntityUpdate.rotationOption = rotationOption;
+      }
     }
 
     // this is for when we need to tweak positions/parents of projectiles based on steps of
@@ -77,7 +81,10 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     let auxiliaryEntityMotionsGetter = stepConfigOption?.getAuxiliaryEntityMotions;
 
     if (auxiliaryEntityMotionsGetter) {
-      const auxiliaryEntityMotions = auxiliaryEntityMotionsGetter(context);
+      const auxiliaryEntityMotions = auxiliaryEntityMotionsGetter(
+        context,
+        context.manager.sequentialActionManagerRegistry.animationLengths
+      );
       gameUpdateCommand.auxiliaryUpdates = auxiliaryEntityMotions;
     }
   }
@@ -90,21 +97,40 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   ) {
     const stepConfigOption = action.stepsConfig.getStepConfigOption(stepType);
     const destinationGetterOption = stepConfigOption?.getDestination;
-    if (!destinationGetterOption) return null;
+    if (!destinationGetterOption) {
+      return null;
+    }
 
     const entitySpeedOption = actionUser.getMovementSpeedOption();
     const positionOption = actionUser.getPositionOption();
-    if (entitySpeedOption === null || positionOption === null) return null;
+    if (entitySpeedOption === null || positionOption === null) {
+      return null;
+    }
 
     let destinationResult = null;
     let translationOption;
-    if (destinationGetterOption) destinationResult = destinationGetterOption(context);
-    if (destinationResult instanceof Error) throw destinationResult;
+    if (destinationGetterOption) {
+      destinationResult = destinationGetterOption(context);
+    }
+
+    if (destinationResult instanceof Error) {
+      throw destinationResult;
+    }
+
     if (destinationResult?.position) {
-      const translation = {
+      const translation: EntityTranslation = {
         destination: destinationResult.position,
         duration: getTranslationTime(positionOption, destinationResult.position, entitySpeedOption),
+        setAsNewHome: destinationResult.setAsNewHome,
       };
+
+      if (destinationResult?.translationPathCurveOption !== undefined) {
+        translation.translationPathCurveOption = destinationResult.translationPathCurveOption;
+      }
+
+      if (destinationResult?.translationSpeedCurveOption !== undefined) {
+        translation.translationSpeedCurveOption = destinationResult.translationSpeedCurveOption;
+      }
 
       translationOption = translation;
     }
@@ -173,7 +199,10 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
         : Math.min(1, this.elapsed / this.translationOption.duration);
 
     const positionOption = this.actionUser.getPositionOption();
-    if (positionOption === null) return;
+
+    if (positionOption === null) {
+      return;
+    }
 
     const newPosition = Vector3.Lerp(
       positionOption,
@@ -210,5 +239,35 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     return timeToCompletion;
   }
 
+  onComplete(): Error | ActionIntentAndUser[] {
+    if (this.translationOption?.setAsNewHome) {
+      this.context.actionUserContext.actionUser
+        .getCombatantProperties()
+        .transformProperties.setHomePosition(this.translationOption.destination);
+    }
+
+    const { party } = this.context.actionUserContext;
+    updateAttachedCombatants(party);
+
+    return [];
+  }
+
   protected getBranchingActions = () => [];
+}
+
+function updateAttachedCombatants(party: AdventuringParty) {
+  for (const combatant of party.combatantManager.getAllCombatants()) {
+    const attachedCombatants =
+      combatant.getCombatantProperties().transformProperties.attachedCombatants;
+
+    for (const attachedId of attachedCombatants) {
+      const attachedOption = party.combatantManager.getCombatantOption(attachedId);
+      if (attachedOption) {
+        const { transformProperties } = attachedOption.getCombatantProperties();
+
+        transformProperties.setHomePosition(combatant.getHomePosition());
+        transformProperties.setToHomeTransform();
+      }
+    }
+  }
 }

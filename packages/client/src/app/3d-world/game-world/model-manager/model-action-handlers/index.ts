@@ -12,7 +12,6 @@ import {
 import { actionCommandQueue, actionCommandReceiver } from "@/singletons/action-command-manager";
 import { synchronizeCombatantModelsWithAppState } from "./synchronize-combatant-models-with-app-state";
 import { spawnEnvironmentModel } from "./spawn-environmental-model";
-import { disposeAsyncLoadedScene } from "@/app/3d-world/utils";
 import { AppStore } from "@/mobx-stores/app-store";
 
 export type ModelActionHandler = (...args: any[]) => Promise<Error | void> | (void | Error);
@@ -28,7 +27,8 @@ export function createModelActionHandlers(
     [ModelActionType.DespawnEnvironmentModel]: (action: DespawnEnvironmentModelModelAction) => {
       const modelOption = modelManager.environmentModels[action.id];
       if (modelOption) {
-        disposeAsyncLoadedScene(modelOption.model);
+        modelOption.model.dispose();
+        delete modelManager.environmentModels[action.id];
       }
     },
     [ModelActionType.SynchronizeCombatantModels]: (action: SynchronizeCombatantModelsModelAction) =>

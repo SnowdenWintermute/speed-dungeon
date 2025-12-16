@@ -41,7 +41,7 @@ export const CHARACTER_PARTS: Record<
   },
 };
 
-export const MONSTER_FULL_SKINS: Partial<Record<MonsterType, string>> = {
+export const MONSTER_FULL_SKINS: Record<MonsterType, string | null> = {
   [MonsterType.MetallicGolem]: "monsters/wolf-full.glb",
   [MonsterType.Wolf]: "monsters/wolf-full.glb",
   [MonsterType.Zombie]: "monsters/skeleton-full.glb",
@@ -52,4 +52,9 @@ export const MONSTER_FULL_SKINS: Partial<Record<MonsterType, string>> = {
   // [MonsterType.Cultist]: "monsters/",
   [MonsterType.FireElemental]: "monsters/cube-full.glb",
   [MonsterType.IceElemental]: "monsters/cube-full.glb",
+  [MonsterType.MantaRay]: "monsters/manta-ray-full.glb",
+  [MonsterType.Net]: "effects/net-full.glb",
+  [MonsterType.FireMage]: null,
+  [MonsterType.Cultist]: null,
+  [MonsterType.Spider]: "monsters/spider-full.glb",
 };

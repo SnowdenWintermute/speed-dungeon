@@ -6,6 +6,8 @@ import {
   CombatActionName,
   COMBAT_ACTIONS,
   ActionResolutionStepType,
+  SKELETAL_ANIMATION_NAME_STRINGS,
+  CombatantConditionName,
 } from "@speed-dungeon/common";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
@@ -13,6 +15,7 @@ import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { FloatingMessageService } from "@/mobx-stores/game-event-notifications/floating-message-service";
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
+import { synchronizeCombatantModelsWithAppState } from "../../model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
 
 export function induceHitRecovery(
   actionUserName: string,
@@ -48,16 +51,20 @@ export function induceHitRecovery(
     combatantProperties.resources.changeMana(resourceChange.value);
 
   const action = COMBAT_ACTIONS[actionName];
-  GameLogMessageService.postResourceChange(
-    resourceChange,
-    resourceType,
-    action,
-    wasBlocked,
-    targetCombatant,
-    actionUserName,
-    actionUserId === targetCombatant.getEntityId(),
-    showDebug
-  );
+  const shouldPostResourceChange = !action.gameLogMessageProperties.doNotPostResourceChange;
+
+  if (shouldPostResourceChange) {
+    GameLogMessageService.postResourceChange(
+      resourceChange,
+      resourceType,
+      action,
+      wasBlocked,
+      targetCombatant,
+      actionUserName,
+      actionUserId === targetCombatant.getEntityId(),
+      showDebug
+    );
+  }
 
   const battleOption = party.getBattleOption(game);
 
@@ -86,14 +93,30 @@ export function induceHitRecovery(
     }
 
     const newlyActiveTracker = battleOption?.turnOrderManager.getFastestActorTurnOrderTracker();
-    if (newlyActiveTracker !== undefined)
+    if (newlyActiveTracker !== undefined) {
       characterAutoFocusManager.updateFocusedCharacterOnNewTurnOrder(newlyActiveTracker);
+    }
 
-    GameLogMessageService.postCombatantDeath(targetCombatant.getName());
+    if (shouldPostResourceChange) {
+      GameLogMessageService.postCombatantDeath(targetCombatant.getName());
+    }
 
     if (targetModel.skeletalAnimationManager.playing) {
-      if (targetModel.skeletalAnimationManager.playing.options.onComplete)
-        targetModel.skeletalAnimationManager.playing.options.onComplete();
+      if (targetModel.skeletalAnimationManager.playing.options.onComplete) {
+        targetModel.skeletalAnimationManager.playing.runOnComplete();
+      }
+    }
+
+    // this is purely cosmetic and may be an issue if we revive a flying combatant because their server side
+    // home position will be different than where we just put them, but then again maybe we just reset home position
+    // to ground when revived
+    const wasFlying = targetCombatant
+      .getCombatantProperties()
+      .conditionManager.hasConditionName(CombatantConditionName.Flying);
+    if (wasFlying) {
+      const groundUnderHomePosition = targetCombatant.getHomePosition().clone();
+      groundUnderHomePosition.y = 0;
+      targetModel.movementManager.startTranslating(groundUnderHomePosition, 1700, {}, () => {});
     }
 
     // if (shouldAnimate) // we kind of need to animate this
@@ -103,13 +126,26 @@ export function induceHitRecovery(
       {
         onComplete: () => {
           targetModel.skeletalAnimationManager.locked = true;
+          try {
+            const shouldRemove =
+              targetModel.getCombatant().combatantProperties.removeFromPartyOnDeath;
+            if (shouldRemove) {
+              party.combatantManager.removeCombatant(targetModel.entityId, game);
+              synchronizeCombatantModelsWithAppState({});
+            }
+          } catch {
+            console.info(
+              "couldn't do death animation onComplete, maybe the combatant was already removed"
+            );
+          }
         },
       }
     );
   } else if (resourceChange.value < 0) {
     const hasCritRecoveryAnimation = targetModel.skeletalAnimationManager.getAnimationGroupByName(
-      SkeletalAnimationName.HitRecovery
+      SkeletalAnimationName.CritRecovery
     );
+
     let animationName = SkeletalAnimationName.HitRecovery;
     if (resourceChange.isCrit && hasCritRecoveryAnimation)
       animationName = SkeletalAnimationName.CritRecovery;
@@ -120,7 +156,7 @@ export function induceHitRecovery(
     // on the client
     const isIdling = targetModel.isIdling();
 
-    if (shouldAnimate && isIdling)
+    if (shouldAnimate && isIdling) {
       targetModel.skeletalAnimationManager.startAnimationWithTransition(animationName, 0, {
         onComplete: () => {
           const wasRevived =
@@ -129,9 +165,14 @@ export function induceHitRecovery(
           if (wasRevived) {
             // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
           } else {
-            targetModel.startIdleAnimation(500);
+            try {
+              targetModel.startIdleAnimation(500);
+            } catch (error) {
+              console.info("couldn't idle, maybe combatant was removed already");
+            }
           }
         },
       });
+    }
   }
 }

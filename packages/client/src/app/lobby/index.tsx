@@ -9,7 +9,7 @@ import {
 } from "@/client_consts";
 import { GamesSection } from "./games-section";
 import { UserList } from "./user-list/";
-import { quickStartGame } from "./games-section/quick-start-game";
+import { quickStartGame, quickStartGameProgression } from "./games-section/quick-start-game";
 import HoverableTooltipWrapper from "../components/atoms/HoverableTooltipWrapper";
 import GithubLogo from "../../../public/github-logo.svg";
 import DiscordLogo from "../../../public/discord-logo.svg";
@@ -103,16 +103,27 @@ export const Lobby = observer(() => {
           <HoverableTooltipWrapper
             offsetTop={8}
             tooltipText="Start a single player game where you control one of each character type (G)"
+            extraStyles="flex"
           >
             <HotkeyButton
               onClick={() => quickStartGame()}
               hotkeys={[HOTKEYS.SIDE_1]}
               className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
                           flex justify-center items-center disabled:opacity-50 pointer-events-auto disabled:cursor-auto
+                          text-xl bg-slate-950 text-slate-400 animate-slide-appear-from-top mr-2
+            `}
+            >
+              RACE
+            </HotkeyButton>
+            <HotkeyButton
+              onClick={() => quickStartGameProgression()}
+              hotkeys={[HOTKEYS.MAIN_1]}
+              className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
+                          flex justify-center items-center disabled:opacity-50 pointer-events-auto disabled:cursor-auto
                           text-xl bg-slate-950 text-slate-400 animate-slide-appear-from-top 
             `}
             >
-              PLAY NOW
+              PROGRESSION
             </HotkeyButton>
           </HoverableTooltipWrapper>
         )}

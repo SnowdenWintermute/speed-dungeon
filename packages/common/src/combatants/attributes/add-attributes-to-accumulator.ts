@@ -1,5 +1,5 @@
-import { CombatantAttributeRecord } from "../index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
+import { CombatantAttributeRecord } from "../combatant-attribute-record.js";
 import { CombatAttribute } from "./index.js";
 
 export function addAttributesToAccumulator(

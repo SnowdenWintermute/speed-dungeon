@@ -7,14 +7,18 @@ import {
   NestedNodeReplayEventUtls,
   ReplayEventType,
 } from "@speed-dungeon/common";
-import { ANIMATION_LENGTHS, idGenerator } from "../../../singletons/index.js";
+import { ANIMATION_LENGTHS, BOUNDING_BOX_SIZES, idGenerator } from "../../../singletons/index.js";
 import { ActionUserContext } from "@speed-dungeon/common";
 
 export function processCombatAction(
   actionExecutionIntent: CombatActionExecutionIntent,
   actionUserContext: ActionUserContext
 ) {
-  const registry = new ActionSequenceManagerRegistry(idGenerator, ANIMATION_LENGTHS);
+  const registry = new ActionSequenceManagerRegistry(
+    idGenerator,
+    ANIMATION_LENGTHS,
+    BOUNDING_BOX_SIZES
+  );
   const rootReplayNode: NestedNodeReplayEvent = { type: ReplayEventType.NestedNode, events: [] };
 
   const initialGameUpdateOptionResult = registry.registerAction(

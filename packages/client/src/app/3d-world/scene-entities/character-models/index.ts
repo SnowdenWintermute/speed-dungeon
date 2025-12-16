@@ -20,6 +20,7 @@ import {
   EquipmentType,
   CombatantBaseChildTransformNodeName,
   NormalizedPercentage,
+  CombatantConditionName,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
@@ -105,8 +106,14 @@ export class CharacterModel extends SceneEntity {
       `${this.entityId}-mh-equipment`,
       "Equipment.R"
     );
-    this.childTransformNodes[CombatantBaseChildTransformNodeName.MainHandEquipment] =
-      mainHandEquipmentNode;
+
+    if (mainHandEquipmentNode === undefined) {
+      this.childTransformNodes[CombatantBaseChildTransformNodeName.MainHandEquipment] =
+        this.rootTransformNode;
+    } else {
+      this.childTransformNodes[CombatantBaseChildTransformNodeName.MainHandEquipment] =
+        mainHandEquipmentNode;
+    }
 
     const offHandEquipmentNode = SceneEntity.createTransformNodeChildOfBone(
       this.rootMesh,
@@ -136,6 +143,15 @@ export class CharacterModel extends SceneEntity {
 
     this.childTransformNodes[CombatantBaseChildTransformNodeName.HitboxCenter] =
       hitboxCenterTransformNode;
+
+    const hitboxCenterTopTransformNode = new TransformNode(`${this.entityId}-hitbox-center`);
+    const hitboxTop = this.getBoundingInfo().boundingBox.center.clone();
+    hitboxTop.y += this.getBoundingInfo().boundingBox.extendSize.y;
+    hitboxCenterTopTransformNode.setParent(this.rootTransformNode);
+    hitboxCenterTopTransformNode.position = hitboxTop.clone();
+
+    this.childTransformNodes[CombatantBaseChildTransformNodeName.HitboxCenterTop] =
+      hitboxCenterTopTransformNode;
   }
 
   customCleanup(): void {
@@ -174,13 +190,17 @@ export class CharacterModel extends SceneEntity {
 
   startIdleAnimation(transitionMs: number, options?: ManagedAnimationOptions) {
     const combatant = this.getCombatant();
-    if (combatant.combatantProperties.isDead()) return;
+    if (combatant.combatantProperties.isDead()) {
+      return;
+    }
+
     try {
       const idleName = this.getIdleAnimationName();
 
       const currentAnimationName = this.skeletalAnimationManager.playing?.getName();
-      if (currentAnimationName === SKELETAL_ANIMATION_NAME_STRINGS[idleName])
+      if (currentAnimationName === SKELETAL_ANIMATION_NAME_STRINGS[idleName]) {
         return console.info("was already idling");
+      }
 
       this.skeletalAnimationManager.startAnimationWithTransition(idleName, transitionMs, {
         ...options,
@@ -215,8 +235,17 @@ export class CharacterModel extends SceneEntity {
       this.monsterType !== null &&
       this.monsterType !== MonsterType.Cultist &&
       this.monsterType !== MonsterType.FireMage
-    )
+    ) {
+      if (
+        this.getCombatant().combatantProperties.conditionManager.hasConditionName(
+          CombatantConditionName.Flying
+        )
+      ) {
+        return SkeletalAnimationName.IdleFlying;
+      }
+
       return SkeletalAnimationName.IdleUnarmed;
+    }
 
     const combatant = this.getCombatant();
 

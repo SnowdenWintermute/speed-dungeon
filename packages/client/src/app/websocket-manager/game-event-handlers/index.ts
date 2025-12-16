@@ -85,8 +85,9 @@ export function setUpGameEventHandlers(
   socket.on(ServerToClientEvent.PlayerPostedItemLink, playerPostedItemLinkHandler);
 
   socket.on(ServerToClientEvent.ActionCommandPayloads, (payloads) => {
-    if (!gameWorld.current)
+    if (!gameWorld.current) {
       return console.error("Got action command payloads but no game world was found");
+    }
 
     gameWorld.current.modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.ProcessActionCommands,

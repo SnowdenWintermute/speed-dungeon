@@ -16,7 +16,7 @@ import {
   SceneEntityIdentifier,
   SceneEntityType,
 } from "@speed-dungeon/common";
-import { disposeAsyncLoadedScene, getChildMeshByName } from "../utils";
+import { getChildMeshByName } from "../utils";
 import { plainToInstance } from "class-transformer";
 import { SkeletalAnimationManager } from "./model-animation-managers/skeletal-animation-manager";
 import { DynamicAnimationManager } from "./model-animation-managers/dynamic-animation-manager";
@@ -77,7 +77,9 @@ export abstract class SceneEntity {
     boneName: string
   ) {
     const bone = getChildMeshByName(rootMesh, boneName);
-    if (!bone) return;
+    if (bone === undefined) {
+      return;
+    }
     const newTransformNode = new TransformNode(name);
     newTransformNode.setParent(bone);
     newTransformNode.setPositionWithLocalVector(Vector3.Zero());
@@ -135,12 +137,10 @@ export abstract class SceneEntity {
     if (this.cosmeticEffectManager.hasActiveEffects()) {
       this.setVisibility(0);
       this.cosmeticEffectManager.softCleanup(() => {
-        disposeAsyncLoadedScene(this.assetContainer);
-        this.rootTransformNode.dispose(false);
+        this.dispose();
       });
     } else {
-      disposeAsyncLoadedScene(this.assetContainer);
-      this.rootTransformNode.dispose(false);
+      this.dispose();
     }
   }
 

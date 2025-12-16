@@ -8,10 +8,10 @@ import { Equipment, HoldableSlotType } from "../../items/equipment/index.js";
 import { DERIVED_ATTRIBUTE_RATIOS } from "./derrived-attribute-ratios.js";
 import { addAttributesToAccumulator } from "./add-attributes-to-accumulator.js";
 import { COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL } from "../combatant-class/class-attributes-by-level.js";
-import { CombatantAttributeRecord } from "../attribute-properties.js";
 import { CombatantProperties } from "../combatant-properties.js";
 import { MONSTER_STARTING_ATTRIBUTES } from "../../monsters/monster-starting-attributes.js";
 import { MONSTER_ATTRIBUTES_BY_LEVEL } from "../../monsters/monster-per-level-attributes.js";
+import { CombatantAttributeRecord } from "../combatant-attribute-record.js";
 
 export function getCombatantTotalAttributes(
   combatantProperties: CombatantProperties
@@ -93,7 +93,7 @@ export function getCombatantTotalAttributes(
   // CONDITIONS
   for (const condition of combatantProperties.conditionManager.getConditions()) {
     if (!condition.getAttributeModifiers) continue;
-    const attributesFromCondition = condition.getAttributeModifiers(condition, combatantProperties);
+    const attributesFromCondition = condition.getAttributeModifiers(combatantProperties);
     addAttributesToAccumulator(attributesFromCondition, totalAttributes);
   }
 

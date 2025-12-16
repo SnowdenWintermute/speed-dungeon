@@ -6,7 +6,7 @@ import {
 } from "./index.js";
 import { GameUpdateCommandType, SpawnEntitiesGameUpdateCommand } from "../game-update-commands.js";
 import { COMBAT_ACTIONS, COMBAT_ACTION_NAME_STRINGS } from "../../combat/index.js";
-import { SpawnableEntityType } from "../../spawnables/index.js";
+import { SpawnableEntity, SpawnableEntityType } from "../../spawnables/index.js";
 
 export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext, stepType: ActionResolutionStepType) {
@@ -32,7 +32,9 @@ export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
       for (const spawnableEntity of taggedSpawnableEntities) {
         switch (spawnableEntity.type) {
           case SpawnableEntityType.Combatant:
-            throw new Error("not implemented");
+            spawnableEntity.combatant.combatantProperties.resources.setToMax();
+            party.combatantManager.addCombatant(spawnableEntity.combatant, game);
+            break;
           case SpawnableEntityType.ActionEntity:
             const { actionEntityManager } = party;
             actionEntityManager.registerActionEntity(spawnableEntity.actionEntity, battleOption);
@@ -41,12 +43,23 @@ export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
         context.tracker.spawnedEntities.push(spawnableEntity);
       }
 
+      const serializedSpawnedEntities: SpawnableEntity[] = taggedSpawnableEntities.map(
+        (taggedSpawnable) => {
+          switch (taggedSpawnable.type) {
+            case SpawnableEntityType.Combatant:
+              return { ...taggedSpawnable, combatant: taggedSpawnable.combatant.getSerialized() };
+            case SpawnableEntityType.ActionEntity:
+              return taggedSpawnable;
+          }
+        }
+      );
+
       gameUpdateCommand = {
         type: GameUpdateCommandType.SpawnEntities,
         step: stepType,
         actionName: context.tracker.actionExecutionIntent.actionName,
         completionOrderId: null,
-        entities: taggedSpawnableEntities,
+        entities: serializedSpawnedEntities,
       };
     }
 

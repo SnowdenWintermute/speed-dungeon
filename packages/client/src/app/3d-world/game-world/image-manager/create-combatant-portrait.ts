@@ -63,6 +63,7 @@ export async function createCombatantPortrait(combatantId: string) {
     { width: 100, height: 100 },
     "image/png"
   );
+
   // @TODO - stopping this affects item screenshot creation, fix it
   world.imageManager.portraitEngine.stopRenderLoop();
 
@@ -108,4 +109,10 @@ const modelPortraitCameraPositionModifiers: Record<
     arcRotate: new ArcRotateParams(0, -0.2, 0.2),
     position: new Vector3(0, -0.1, 0),
   },
+  [MonsterType.MantaRay]: {
+    arcRotate: new ArcRotateParams(),
+    position: new Vector3(0.2, -0.13, 0.9),
+  },
+  [MonsterType.Net]: { arcRotate: new ArcRotateParams(), position: Vector3.Zero() },
+  [MonsterType.Spider]: { arcRotate: new ArcRotateParams(), position: Vector3.Zero() },
 };

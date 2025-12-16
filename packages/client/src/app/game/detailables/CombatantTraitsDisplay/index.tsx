@@ -22,7 +22,8 @@ export default function CombatantTraitsDisplay({
             </HoverableTooltipWrapper>
           </span>
           <span>
-            {description.name} R{level}
+            {description.name}
+            {level ? ` R${level}` : ""}
           </span>
         </li>
       );

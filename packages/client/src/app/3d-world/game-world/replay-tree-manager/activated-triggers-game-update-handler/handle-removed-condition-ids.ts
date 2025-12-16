@@ -18,7 +18,7 @@ export function handleRemovedConditionIds(
         const targetModelOption = getGameWorld().modelManager.findOne(entityId);
         startOrStopCosmeticEffects(
           [],
-          conditionRemovedOption.getCosmeticEffectWhileActive(targetModelOption.entityId)
+          conditionRemovedOption.getCosmeticEffectWhileActive?.(targetModelOption.entityId)
         );
       }
     }

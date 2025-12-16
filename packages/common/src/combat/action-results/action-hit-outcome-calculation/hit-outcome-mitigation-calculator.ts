@@ -17,6 +17,7 @@ import { ProhibitedTargetCombatantStates } from "../../combat-actions/prohibited
 import { ResourceChangeSource } from "../../hp-change-source-types.js";
 import { CombatantProperties } from "../../../combatants/combatant-properties.js";
 import { CombatantTraitType } from "../../../combatants/combatant-traits/trait-types.js";
+import { CombatActionRequiredRange } from "../../combat-actions/combat-action-range.js";
 
 const BASE_PARRY_CHANCE = 5;
 
@@ -157,9 +158,9 @@ export class HitOutcomeMitigationCalculator {
       const { resourceChangeSource } = hpChangePropertiesOption;
       const { isHealing } = resourceChangeSource;
 
-      const isUndead = targetCombatantProperties.abilityProperties.hasTraitType(
-        CombatantTraitType.Undead
-      );
+      const isUndead = targetCombatantProperties.abilityProperties
+        .getTraitProperties()
+        .hasTraitType(CombatantTraitType.Undead);
 
       if (isHealing && isUndead) return true;
       if (isHealing) return false;
@@ -197,15 +198,28 @@ export class HitOutcomeMitigationCalculator {
     }
 
     const actionBaseAccuracy = combatAction.getAccuracy(user, actionLevel);
-    if (actionBaseAccuracy.type === ActionAccuracyType.Unavoidable)
+    if (actionBaseAccuracy.type === ActionAccuracyType.Unavoidable) {
       return { beforeEvasion: 100, afterEvasion: 100 };
+    }
 
     const finalTargetEvasion = !targetWillAttemptToEvade ? 0 : targetEvasion;
     const accComparedToEva = actionBaseAccuracy.value - finalTargetEvasion;
+    let afterEvasion = Math.max(MIN_HIT_CHANCE, accComparedToEva);
+
+    const canNotReachTargetForMeleeAction =
+      user.targetFlyingConditionPreventsReachingMeleeRange(target);
+
+    const isMeleeAction =
+      combatAction.targetingProperties.getRequiredRange(user, combatAction) ===
+      CombatActionRequiredRange.Melee;
+
+    if (isMeleeAction && canNotReachTargetForMeleeAction) {
+      afterEvasion = 0;
+    }
 
     return {
       beforeEvasion: actionBaseAccuracy.value,
-      afterEvasion: Math.max(MIN_HIT_CHANCE, accComparedToEva),
+      afterEvasion,
     };
   }
 
@@ -231,11 +245,13 @@ export class HitOutcomeMitigationCalculator {
   static getParryChance(aggressor: IActionUser, defender: Combatant): Percentage {
     // derive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
     // and probably put it on the action configs
+    if (!defender.combatantProperties.mitigationProperties.canParry()) return 0;
     return BASE_PARRY_CHANCE;
   }
 
   static getCounterattackChance(aggressor: IActionUser, defender: Combatant): Percentage {
     if (defender.combatantProperties.isDead()) return 0;
+    if (!defender.combatantProperties.mitigationProperties.canCounterattack()) return 0;
     // derive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
     // and probably put it on the action configs
     return BASE_PARRY_CHANCE;

@@ -11,6 +11,7 @@ import { PersistentActionEntityDisplay } from "./persistent-action-entity-displa
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
+import { NeutralCombatantPlaques } from "./NeutralCombatantPlaques";
 
 export const Game = observer(() => {
   const { actionMenuStore, gameStore } = AppStore.get();
@@ -51,8 +52,9 @@ export const Game = observer(() => {
               <div className="w-full">
                 <MonsterPlaques game={game} party={party} />
               </div>
-              <div>
+              <div className="flex flex-col">
                 <PersistentActionEntityDisplay />
+                <NeutralCombatantPlaques />
               </div>
             </div>
             <div className="flex flex-wrap justify-between items-end">

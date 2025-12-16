@@ -8,12 +8,13 @@ export function setUpWarriorAbilityTree() {
   tree.assign(0, 0, { type: AbilityType.Action, actionName: CombatActionName.Fire });
   tree.assign(0, 1, { type: AbilityType.Action, actionName: CombatActionName.Firewall });
   tree.assign(0, 2, { type: AbilityType.Action, actionName: CombatActionName.IceBoltParent });
-  tree.assign(1, 0, { type: AbilityType.Action, actionName: CombatActionName.TamePet });
-  tree.assign(1, 1, {
+  tree.assign(1, 0, { type: AbilityType.Action, actionName: CombatActionName.Ensnare });
+  tree.assign(1, 1, { type: AbilityType.Action, actionName: CombatActionName.TamePet });
+  tree.assign(2, 0, { type: AbilityType.Trait, traitType: CombatantTraitType.ExtraHotswapSlot });
+  tree.assign(2, 1, {
     type: AbilityType.Action,
     actionName: CombatActionName.ExplodingArrowParent,
   });
-  tree.assign(2, 0, { type: AbilityType.Trait, traitType: CombatantTraitType.ExtraHotswapSlot });
   tree.assign(1, 3, {
     type: AbilityType.Action,
     actionName: CombatActionName.ChainingSplitArrowParent,

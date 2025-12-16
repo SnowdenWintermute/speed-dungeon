@@ -38,4 +38,20 @@ Join the Discord: [Discord](https://discord.gg/NxzPFUBVVm)
   error TS5055: Cannot write file 'some long name.d.ts' because it would overwrite input file.
   Solution: Delete tsconfig.tsbuildinfo, dist folders and .next folder. May need to delete node_modules,
   clear the yarn cache and yarn install.
--
+- Error description: Module not found but the IDE doesn't give errors.
+  Solution: Maybe you are importing from a common package incorrectly:
+  Check how you’re importing from a common package. Correct:
+
+    import { CombatantConditionFactory } from "@speed-dungeon/common";
+
+    Incorrect:
+
+    import { CombatantConditionFactory } from "@speed-dungeon/common/src/conditions/condition-factory";
+
+    Always import from the package root (@speed-dungeon/common) where the index.ts exports the public API.
+    This ensures all .js extensions in the built output resolve correctly for both Node and Next.js.
+
+Explanation:
+Importing from src tries to pull in the TypeScript source directly. This breaks because:
+Node requires .js extensions in ESM imports, which is handled in the compiled dist files.
+Next.js (Turbopack) reads the .js imports in the source and cannot find the corresponding files.

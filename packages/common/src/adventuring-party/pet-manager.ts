@@ -7,6 +7,8 @@ import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
 import { plainToInstance } from "class-transformer";
+import { CombatantConditionName } from "../conditions/condition-names.js";
+import { CombatantTraitType } from "../combatants/combatant-traits/trait-types.js";
 
 export class PetManager extends AdventuringPartySubsystem {
   private unsummonedPetsByOwnerId: { [ownerId: EntityId]: (Combatant | undefined)[] } = {};
@@ -134,6 +136,12 @@ export class PetManager extends AdventuringPartySubsystem {
       return undefined;
     }
 
+    // remove ensnared since the net usually removes it on death but if the net is gone
+    // that would be a problem since it would never die and never remove the net
+    petOption.combatantProperties.conditionManager.removeConditionByName(
+      CombatantConditionName.Ensnared
+    );
+
     const pet = petOption;
     pet.combatantProperties.controlledBy.summonedBy = ownerId;
 
@@ -144,7 +152,7 @@ export class PetManager extends AdventuringPartySubsystem {
       throw new Error("not implemented");
     }
 
-    party.combatantManager.setPetHomePositionNextToOwner(petOption);
+    party.combatantManager.setPetHomePositionNextTo(petOption, owner);
     petOption.combatantProperties.transformProperties.setToHomeTransform();
 
     return pet;
@@ -166,6 +174,10 @@ export class PetManager extends AdventuringPartySubsystem {
     controlledBy.controllerType = CombatantControllerType.PlayerPetAI;
 
     petCombatant.combatantProperties.threatManager = undefined;
+
+    party.combatantManager.updateHomePositions();
+    const newOwner = party.combatantManager.getExpectedCombatant(newOwnerId);
+    party.combatantManager.setPetHomePositionNextTo(petCombatant, newOwner);
 
     this.putPetInFirstEmptyUnsummonedSlot(newOwnerId, petCombatant);
   }

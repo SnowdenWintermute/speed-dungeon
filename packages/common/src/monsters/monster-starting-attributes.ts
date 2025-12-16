@@ -1,7 +1,12 @@
-import { CombatantAttributeRecord, CombatAttribute } from "../combatants/index.js";
+import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
+import { CombatAttribute } from "../combatants/index.js";
 import { MonsterType } from "./monster-types.js";
 
 export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttributeRecord> = {
+  [MonsterType.Net]: {
+    [CombatAttribute.Speed]: 10,
+    [CombatAttribute.Hp]: 3,
+  },
   [MonsterType.Wolf]: {
     [CombatAttribute.Vitality]: 1.0,
     [CombatAttribute.ArmorClass]: 15.0,
@@ -42,6 +47,15 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
     [CombatAttribute.Agility]: 2.0,
     [CombatAttribute.Accuracy]: 80.0,
   },
+  [MonsterType.Spider]: {
+    [CombatAttribute.Dexterity]: 7.0,
+    [CombatAttribute.Strength]: 2.0,
+    [CombatAttribute.Vitality]: 1.5,
+    [CombatAttribute.Hp]: 35.0,
+    [CombatAttribute.Agility]: 2.0,
+    [CombatAttribute.Accuracy]: 80.0,
+    [CombatAttribute.Mp]: 2.0,
+  },
   [MonsterType.Vulture]: {
     [CombatAttribute.Dexterity]: 2.5,
     [CombatAttribute.Strength]: 2.0,
@@ -78,6 +92,13 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
     [CombatAttribute.Vitality]: 1.0,
     [CombatAttribute.Hp]: 3.0,
     [CombatAttribute.Accuracy]: 60.0,
+    [CombatAttribute.Speed]: 1.0,
+  },
+  [MonsterType.MantaRay]: {
+    [CombatAttribute.Spirit]: 8.0,
+    [CombatAttribute.Vitality]: 1.0,
+    [CombatAttribute.Hp]: 10.0,
+    [CombatAttribute.Accuracy]: 100.0,
     [CombatAttribute.Speed]: 1.0,
   },
 };

@@ -45,19 +45,35 @@ export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
   }
 
   isCompleted() {
-    if (this.options.shouldLoop) return false;
+    if (this.onCompleteRan) {
+      return true;
+    }
+
+    if (this.options.shouldLoop) {
+      return false;
+    }
+
     const timeSinceStarted = Date.now() - this.timeStarted;
     const animationLength = this.getLength();
     return timeSinceStarted >= animationLength;
   }
 
+  runOnComplete() {
+    if (this.onCompleteRan) {
+      return;
+    }
+    this.options.onComplete?.();
+    this.onCompleteRan = true;
+  }
+
   cleanup() {
-    // if (this.options.onComplete && !this.onCompleteRan) {
-    //   this.options.onComplete();
-    //   this.onCompleteRan = true;
-    // }
     this.animationGroup.stop();
     this.animationGroup.dispose(); // else causes memory leaks
+
+    // if we don't run the oncomplete for animations that are interrupted
+    // it will never unlock the input since we're often relying on those animations'
+    // onComplete functions to know when to unlock input
+    // this.runOnComplete();
   }
 }
 
@@ -93,7 +109,12 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
       // send message to client with timout duration to remove itself
       AppStore.get().gameEventNotificationStore.startFloatingMessage(
         this.sceneEntityId,
-        [{ type: FloatingMessageElementType.Text, text: `Missing animation: ${newAnimationName}` }],
+        [
+          {
+            type: FloatingMessageElementType.Text,
+            text: `Missing animation: ${SKELETAL_ANIMATION_NAME_STRINGS[newAnimationName]}`,
+          },
+        ],
         MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME,
         options.onComplete
       );
@@ -157,11 +178,8 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
       this.previous = null;
     }
 
-    if (this.playing && this.playing.isCompleted() && !this.playing.onCompleteRan) {
-      if (this.playing.options.onComplete && !this.playing.options.shouldLoop) {
-        this.playing.options.onComplete();
-        this.playing.onCompleteRan = true;
-      }
+    if (this.playing && this.playing.isCompleted()) {
+      this.playing.runOnComplete();
     }
   }
 
@@ -211,7 +229,9 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
       SkeletalAnimationName.BowDelivery,
     ];
 
-    if (deliveryNames.includes(animationName)) return SkeletalAnimationName.MainHandUnarmedDelivery;
+    if (deliveryNames.includes(animationName)) {
+      return SkeletalAnimationName.MainHandUnarmedDelivery;
+    }
     const recoveryNames = [
       SkeletalAnimationName.MainHandStabRecovery,
       SkeletalAnimationName.MainHandSwingRecovery,
@@ -220,18 +240,34 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
       SkeletalAnimationName.CastSpellRecovery,
       SkeletalAnimationName.BowRecovery,
     ];
-    if (recoveryNames.includes(animationName)) return SkeletalAnimationName.MainHandUnarmedRecovery;
+    if (recoveryNames.includes(animationName)) {
+      return SkeletalAnimationName.MainHandUnarmedRecovery;
+    }
 
-    if (animationName === SkeletalAnimationName.MoveBack)
+    if (animationName === SkeletalAnimationName.MoveBack) {
       return SkeletalAnimationName.MoveForwardLoop;
+    }
 
     const idleAnimationNames = [
       SkeletalAnimationName.IdleUnarmed,
+      SkeletalAnimationName.IdleFlying,
       SkeletalAnimationName.IdleBow,
       SkeletalAnimationName.IdleTwoHand,
       SkeletalAnimationName.IdleDualWield,
       SkeletalAnimationName.IdleMainHand,
     ];
-    if (idleAnimationNames.includes(animationName)) return SkeletalAnimationName.IdleUnarmed;
+    if (idleAnimationNames.includes(animationName)) {
+      return SkeletalAnimationName.IdleUnarmed;
+    }
+
+    if (animationName === SkeletalAnimationName.ThrowObjectChambering) {
+      return SkeletalAnimationName.CastSpellChambering;
+    }
+    if (animationName === SkeletalAnimationName.ThrowObjectDelivery) {
+      return SkeletalAnimationName.CastSpellDelivery;
+    }
+    if (animationName === SkeletalAnimationName.ThrowObjectRecovery) {
+      return SkeletalAnimationName.CastSpellRecovery;
+    }
   }
 }

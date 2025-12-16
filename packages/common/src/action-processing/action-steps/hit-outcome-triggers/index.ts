@@ -23,6 +23,9 @@ import { addRemovedConditionIdToUpdate } from "./add-triggered-condition-to-upda
 import { handleTriggeredLifesteals } from "./handle-triggered-lifesteals.js";
 import { handleHit } from "./handle-hit.js";
 import { ActionAndRank } from "../../../action-user-context/action-user-targeting-properties.js";
+import { CombatantConditionName } from "../../../conditions/condition-names.js";
+import { Combatant } from "../../../combatants/index.js";
+import { AdventuringParty } from "../../../index.js";
 
 const stepType = ActionResolutionStepType.EvalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
@@ -83,12 +86,74 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           for (const condition of conditionManager.getConditions()) {
             if (!condition.removedOnDeath) continue;
             conditionManager.removeConditionById(condition.id);
+
+            const onRemovedTriggeredActions = condition.onRemoved(
+              actionUserContext,
+              targetCombatant,
+              context.idGenerator
+            );
+
+            this.branchingActions.push(...onRemovedTriggeredActions);
+
             addRemovedConditionIdToUpdate(
               condition.id,
               gameUpdateCommand,
               targetCombatant.entityProperties.id
             );
           }
+
+          // if was attached to anyone, remove their id from that list
+          for (const combatant of party.combatantManager.getAllCombatants()) {
+            if (
+              combatant.combatantProperties.transformProperties.attachedCombatants.has(
+                targetCombatant.getEntityId()
+              )
+            ) {
+              combatant.combatantProperties.transformProperties.removeAttachedCombatant(
+                targetCombatant.getEntityId()
+              );
+            }
+          }
+
+          // kill anyone attached to us that should be
+          const attachedCombatantsDeathActionIntents = getKillAttachedCombatantsActionIntents(
+            targetCombatant,
+            party
+          );
+          this.branchingActions.push(...attachedCombatantsDeathActionIntents);
+
+          // remove linked conditions such as when a web dies it must remove the ensnared condition
+          // from corresponding target
+          const shouldRemoveAllConditionsAppliedByDyingCombatant =
+            targetCombatant.combatantProperties.onDeathProperties?.removeConditionsApplied;
+
+          if (shouldRemoveAllConditionsAppliedByDyingCombatant) {
+            for (const combatant of party.combatantManager.getAllCombatants()) {
+              for (const condition of combatant.combatantProperties.conditionManager.getConditions()) {
+                const wasAppliedByDyingCombatant =
+                  condition.appliedBy.entityProperties.id === targetCombatant.getEntityId();
+                if (wasAppliedByDyingCombatant) {
+                  combatant.combatantProperties.conditionManager.removeConditionById(condition.id);
+
+                  const onRemovedTriggeredActions = condition.onRemoved(
+                    actionUserContext,
+                    combatant,
+                    context.idGenerator
+                  );
+                  this.branchingActions.push(...onRemovedTriggeredActions);
+
+                  addRemovedConditionIdToUpdate(
+                    condition.id,
+                    gameUpdateCommand,
+                    combatant.entityProperties.id
+                  );
+                }
+              }
+            }
+          }
+
+          // @TODO
+          // kill attached combatants that die when their attachedTo is killed
 
           battleOption?.turnOrderManager.updateTrackers(game, party);
 
@@ -152,7 +217,16 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
     if (petsTamed) {
       for (const { petId, tamerId } of petsTamed) {
+        const petCombatant = party.combatantManager.getExpectedCombatant(petId);
+
+        const attachedCombatantsDeathActionIntents = getKillAttachedCombatantsActionIntents(
+          petCombatant,
+          party
+        );
+        this.branchingActions.push(...attachedCombatantsDeathActionIntents);
+
         party.petManager.handlePetTamed(petId, tamerId, game);
+        // kill any webs that were on the pet
       }
     }
   }
@@ -165,4 +239,26 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     const toReturn = this.branchingActions;
     return toReturn;
   }
+}
+
+function getKillAttachedCombatantsActionIntents(
+  targetCombatant: Combatant,
+  party: AdventuringParty
+) {
+  const intents: ActionIntentAndUser[] = [];
+  for (const attachedId of targetCombatant.combatantProperties.transformProperties
+    .attachedCombatants) {
+    const attachedCombatant = party.combatantManager.getExpectedCombatant(attachedId);
+    if (attachedCombatant.combatantProperties.shouldDieWhenCombatantAttachedToDies) {
+      intents.push({
+        user: attachedCombatant,
+        actionExecutionIntent: new CombatActionExecutionIntent(CombatActionName.Death, 1, {
+          type: CombatActionTargetType.Single,
+          targetId: attachedCombatant.getEntityId(),
+        }),
+      });
+    }
+  }
+
+  return intents;
 }

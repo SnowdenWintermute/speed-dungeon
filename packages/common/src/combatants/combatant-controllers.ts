@@ -10,6 +10,7 @@ export enum CombatantControllerType {
   Player,
   Dungeon,
   PlayerPetAI,
+  Neutral,
 }
 
 /** We use the player name, even though it can change, because using the ownerId (snowauth id)

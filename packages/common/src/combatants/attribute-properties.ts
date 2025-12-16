@@ -7,8 +7,7 @@ import { getCombatantTotalAttributes } from "./attributes/get-combatant-total-at
 import { Item } from "../items/index.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { initializeCombatAttributeRecord } from "./attributes/initialize-combat-attribute-record.js";
-
-export type CombatantAttributeRecord = Partial<Record<CombatAttribute, number>>;
+import { CombatantAttributeRecord } from "./combatant-attribute-record.js";
 
 export class CombatantAttributeProperties extends CombatantSubsystem {
   private inherentAttributes: CombatantAttributeRecord = {};

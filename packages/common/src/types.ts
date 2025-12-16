@@ -1,6 +1,7 @@
 import { AdventuringParty } from "./adventuring-party/index.js";
-import { Combatant, CombatantClass } from "./combatants/index.js";
+import { Combatant, CombatantClass, CombatantSpecies } from "./combatants/index.js";
 import { SpeedDungeonGame, SpeedDungeonPlayer } from "./game/index.js";
+import { Meters } from "./index.js";
 
 export interface CharacterAssociatedData {
   character: Combatant;
@@ -138,3 +139,10 @@ export class SanitizedProfile {
 export type ProfileCharacterRanks = {
   [id: string]: { name: string; level: number; rank: number | null; class: CombatantClass };
 };
+
+export type BoundingBoxSizesBySpecies = Partial<
+  Record<
+    CombatantSpecies,
+    { min: [Meters, Meters, Meters]; max: [Meters, Meters, Meters]; volume: number }
+  >
+>;

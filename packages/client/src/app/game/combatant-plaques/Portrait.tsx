@@ -9,20 +9,36 @@ interface Props {
   combatantLevel: number;
   combatantId: EntityId;
   portrait?: string;
+  focusable: boolean;
 }
 
-export default function Portrait({ portrait, portraitHeight, combatantId, combatantLevel }: Props) {
+export default function Portrait({
+  portrait,
+  portraitHeight,
+  combatantId,
+  combatantLevel,
+  focusable,
+}: Props) {
   const [hovered, setHovered] = useState(false);
 
   function handleFocus() {
+    if (!focusable) {
+      return;
+    }
     setHovered(true);
   }
 
   function handleBlur() {
+    if (!focusable) {
+      return;
+    }
     setHovered(false);
   }
 
   function handleClick() {
+    if (!focusable) {
+      return;
+    }
     AppStore.get().gameStore.setFocusedCharacter(combatantId);
   }
 
@@ -35,6 +51,7 @@ export default function Portrait({ portrait, portraitHeight, combatantId, combat
         onMouseEnter={handleFocus}
         onClick={handleClick}
         className={`
+          ${!focusable ? "cursor-auto" : ""}
           h-full aspect-square mr-2 border border-slate-400 bg-slate-600 rounded-full 
           ${hovered && "border-zinc-300"}
           `}

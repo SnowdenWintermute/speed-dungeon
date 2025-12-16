@@ -21,6 +21,7 @@ export interface CombatActionGameLogPropertiesConfig {
   getOnSuccessMessage?: null | ((messageData: ActionUseMessageData) => string);
   getOnFailureMessage?: null | ((messageData: ActionUseMessageData) => string);
   getOnUseMessageDataOverride?: (context: ActionResolutionStepContext) => ActionUseMessageData;
+  doNotPostResourceChange?: boolean;
 }
 
 export class CombatActionGameLogProperties {
@@ -28,6 +29,7 @@ export class CombatActionGameLogProperties {
   public getOnUseMessage: null | ((messageData: ActionUseMessageData) => string) = null;
   public getOnSuccessMessage: null | ((messageData: ActionUseMessageData) => string) = null;
   public getOnFailureMessage: null | ((messageData: ActionUseMessageData) => string) = null;
+  public doNotPostResourceChange?: boolean;
   /** Used by the combat log to determine how to format messages */
   constructor(config: CombatActionGameLogPropertiesConfig) {
     if (config.origin !== undefined) this.origin = config.origin;
@@ -35,6 +37,8 @@ export class CombatActionGameLogProperties {
     if (config.getOnSuccessMessage) this.getOnSuccessMessage = config.getOnSuccessMessage;
     if (config.getOnUseMessageDataOverride)
       this.getOnUseMessageData = config.getOnUseMessageDataOverride;
+    if (config.doNotPostResourceChange)
+      this.doNotPostResourceChange = config.doNotPostResourceChange;
   }
 
   getOnUseMessageData(context: ActionResolutionStepContext): ActionUseMessageData {

@@ -1,22 +1,44 @@
 import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { runIfInBrowser } from "../utils/index.js";
-import { CombatantCondition, CombatantConditionName } from "./combatant-conditions/index.js";
-import { plainToInstance } from "class-transformer";
-import { deserializeCondition } from "./combatant-conditions/deserialize-condition.js";
+import { CombatantCondition } from "../conditions/index.js";
+import { Exclude, instanceToPlain, plainToInstance } from "class-transformer";
 import { EntityId } from "../primatives/index.js";
+import { deserializeCondition } from "../conditions/deserialize-condition.js";
+import { CombatantConditionName } from "../conditions/condition-names.js";
+import cloneDeep from "lodash.clonedeep";
+import { CombatantConditionInit } from "../conditions/condition-config.js";
 
 export class CombatantConditionManager extends CombatantSubsystem {
+  @Exclude({ toPlainOnly: true })
   private conditions: CombatantCondition[] = [];
+
+  /** Conditions deserialize to an init object and reconstruct using their
+   * specific constructors via that object. plainToInstance does not work with
+   * the current implementation of conditions for reasons beyond my understanding, but
+   * allegedly because the getTickProperties() declaration takes in functions as arguments
+   * and makes them "own properties" of the class instance, which when plainToInstance tries to traverse
+   * and execute it can't */
+  public serializedConditions?: CombatantConditionInit[] = [];
 
   constructor() {
     super();
     runIfInBrowser(() => makeAutoObservable(this));
   }
 
+  getSerialized() {
+    const cloned = cloneDeep(this);
+    cloned.serializedConditions = cloned.conditions.map((condition) => {
+      return condition.getSerialized();
+    });
+    const asPlain = instanceToPlain(cloned) as CombatantConditionManager;
+    return asPlain;
+  }
+
   static getDeserialized(plain: CombatantConditionManager) {
+    const deserializedConditions = plain.serializedConditions?.map(deserializeCondition) || [];
     const deserialized = plainToInstance(CombatantConditionManager, plain);
-    deserialized.conditions = plain.conditions.map(deserializeCondition);
+    deserialized.conditions = deserializedConditions;
 
     return deserialized;
   }
@@ -32,7 +54,7 @@ export class CombatantConditionManager extends CombatantSubsystem {
     return null;
   }
 
-  private removeConditionByName(name: CombatantConditionName) {
+  removeConditionByName(name: CombatantConditionName) {
     this.conditions = this.conditions.filter(
       (existingCondition) => existingCondition.name !== name
     );
@@ -45,17 +67,22 @@ export class CombatantConditionManager extends CombatantSubsystem {
 
   /* returns true if condition was preexisting */
   applyCondition(condition: CombatantCondition) {
+    if (condition.multiplesAllowed) {
+      this.conditions.push(condition);
+      return false;
+    }
+
     for (const existingCondition of this.conditions) {
       if (existingCondition.name !== condition.name) {
         continue;
       }
 
       // don't replace an existing condition of higher level
-      const existingConditionIsHigherLevel = existingCondition.level > condition.level;
+      const existingConditionIsHigherLevel = existingCondition.rank > condition.rank;
       if (existingConditionIsHigherLevel) return true;
 
       // if higher level, replace it
-      if (existingCondition.level < condition.level) {
+      if (existingCondition.rank < condition.rank) {
         this.replaceExistingCondition(condition);
         return true;
       }
@@ -105,11 +132,17 @@ export class CombatantConditionManager extends CombatantSubsystem {
         condition.stacksOption.current = Math.max(0, newStacksCount);
       }
 
-      if (condition.stacksOption === null || condition.stacksOption.current === 0) {
+      if (condition.stacksOption === undefined || condition.stacksOption.current === 0) {
         this.removeConditionById(condition.id);
         return condition;
       }
     }
     return;
+  }
+
+  hasConditionName(conditionName: CombatantConditionName) {
+    return this.getConditions()
+      .map((condition) => condition.name)
+      .includes(conditionName);
   }
 }

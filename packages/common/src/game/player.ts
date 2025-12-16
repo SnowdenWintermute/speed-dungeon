@@ -65,6 +65,14 @@ export class CombatActionTargetPreferences {
         } else {
           return { type: CombatActionTargetType.Single, targetId: this.hostileSingle };
         }
+      case FriendOrFoe.Neutral:
+        if (this.hostileSingle !== null) {
+          return { type: CombatActionTargetType.Single, targetId: this.hostileSingle };
+        } else if (this.friendlySingle !== null) {
+          return { type: CombatActionTargetType.Single, targetId: this.friendlySingle };
+        } else {
+          return null;
+        }
     }
   }
 

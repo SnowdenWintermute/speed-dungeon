@@ -2,14 +2,19 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { cloneVector3, runIfInBrowser } from "../utils/index.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { plainToInstance } from "class-transformer";
+import { CombatantSubsystem } from "./combatant-subsystem.js";
+import { EntityId, NormalizedPercentage } from "../index.js";
 
-export class CombatantTransformProperties {
+export class CombatantTransformProperties extends CombatantSubsystem {
   public homeRotation: Quaternion = Quaternion.Zero();
   public rotation: Quaternion = Quaternion.Zero();
-  public homePosition: Vector3 = Vector3.Zero();
+  private homePosition: Vector3 = Vector3.Zero();
   public position: Vector3 = Vector3.Zero();
+  public attachedCombatants = new Set<EntityId>();
+  public scaleModifier?: NormalizedPercentage;
 
   constructor() {
+    super();
     runIfInBrowser(() => makeAutoObservable(this));
   }
 
@@ -22,8 +27,43 @@ export class CombatantTransformProperties {
     return deserialized;
   }
 
+  setAttachedCombatant(entityId: EntityId) {
+    this.attachedCombatants.add(entityId);
+  }
+
+  removeAttachedCombatant(entityId: EntityId) {
+    this.attachedCombatants.delete(entityId);
+  }
+
   setToHomeTransform() {
-    this.position.copyFrom(this.homePosition);
+    this.position.copyFrom(this.getHomePosition());
     this.rotation.copyFrom(this.homeRotation);
+  }
+
+  setHomePosition(newHomePosition: Vector3) {
+    this.homePosition.copyFrom(newHomePosition);
+  }
+
+  setHomeRotation(newHomeRotation: Quaternion) {
+    this.homeRotation.copyFrom(newHomeRotation);
+  }
+
+  getHomePosition() {
+    const transformModifiers = {
+      homePosition: new Vector3(),
+    };
+
+    const conditions = this.getCombatantProperties().conditionManager.getConditions();
+
+    for (const condition of conditions) {
+      const homePositionModifier = condition.getTransformModifiers().homePosition;
+      if (!homePositionModifier) {
+        continue;
+      }
+      const added = transformModifiers.homePosition.add(homePositionModifier);
+      transformModifiers.homePosition.copyFrom(added);
+    }
+
+    return this.homePosition.add(transformModifiers.homePosition);
   }
 }

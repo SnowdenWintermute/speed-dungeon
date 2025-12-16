@@ -1,8 +1,7 @@
 import { COMBAT_ACTIONS } from "../../../combat/index.js";
-import { COMBATANT_CONDITION_CONSTRUCTORS } from "../../../combatants/combatant-conditions/condition-constructors.js";
-import { Combatant, MAX_CONDITION_STACKS } from "../../../combatants/index.js";
+import { Combatant } from "../../../combatants/index.js";
+import { CombatantConditionFactory } from "../../../conditions/condition-factory.js";
 import { HitOutcome } from "../../../hit-outcome.js";
-import { MaxAndCurrent } from "../../../primatives/max-and-current.js";
 import { ActivatedTriggersGameUpdateCommand } from "../../game-update-commands.js";
 import { ActionIntentAndUser, ActionResolutionStepContext } from "../index.js";
 import { addConditionToUpdate } from "./add-condition-to-update.js";
@@ -24,7 +23,7 @@ export function handleHit(
   const { conditionManager } = targetCombatant.combatantProperties;
 
   for (const condition of conditionManager.getConditions()) {
-    const conditionHasNoHitTrigger = !condition.triggeredWhenHitBy(
+    const conditionHasNoHitTrigger = !condition.triggeredWhenHitBy?.includes(
       actionExecutionIntent.actionName
     );
     if (conditionHasNoHitTrigger) continue;
@@ -65,13 +64,11 @@ export function handleHit(
 
   if (conditionsToApply) {
     for (const conditionProperties of conditionsToApply) {
-      const condition = new COMBATANT_CONDITION_CONSTRUCTORS[conditionProperties.conditionName](
-        context.idGenerator.generate(),
-        conditionProperties.appliedBy,
-        targetCombatant.getEntityId(),
-        conditionProperties.level,
-        new MaxAndCurrent(MAX_CONDITION_STACKS, conditionProperties.stacks)
-      );
+      const condition = CombatantConditionFactory.create({
+        ...conditionProperties,
+        id: context.idGenerator.generate(),
+        appliedTo: targetCombatant.getEntityId(),
+      });
 
       const { conditionManager } = targetCombatant.combatantProperties;
       conditionManager.applyCondition(condition);

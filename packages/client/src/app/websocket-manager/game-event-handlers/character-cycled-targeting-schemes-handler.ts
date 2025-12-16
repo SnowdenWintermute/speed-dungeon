@@ -25,10 +25,12 @@ export function characterCycledTargetingSchemesHandler(
       const selectedActionAndRank = targetingProperties.getSelectedActionAndRank();
       const combatActionTarget = targetingProperties.getSelectedTarget();
 
-      if (selectedActionAndRank === null)
+      if (selectedActionAndRank === null) {
         return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
-      if (combatActionTarget === null)
+      }
+      if (combatActionTarget === null) {
         return new Error(ERROR_MESSAGES.COMBATANT.NO_TARGET_SELECTED);
+      }
 
       const actionNameOption = selectedActionAndRank.actionName;
       const targetIdsResult = targetingCalculator.getCombatActionTargetIds(

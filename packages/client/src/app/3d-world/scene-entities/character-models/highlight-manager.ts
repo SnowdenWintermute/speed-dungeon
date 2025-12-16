@@ -12,6 +12,7 @@ import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import { CharacterModelPartCategory } from "./modular-character-parts-model-manager/modular-character-parts";
 import { AppStore } from "@/mobx-stores/app-store";
+import { makeAutoObservable } from "mobx";
 
 export class HighlightManager {
   private originalPartMaterialColors: Partial<
@@ -22,7 +23,11 @@ export class HighlightManager {
   } = {};
   public targetingIndicator: null | Mesh = null;
   public isHighlighted: boolean = false;
-  constructor(private modularCharacter: CharacterModel) {}
+  private isDirty = false;
+
+  constructor(private modularCharacter: CharacterModel) {
+    makeAutoObservable(this);
+  }
 
   setHighlighted() {
     for (const [partCategory, part] of iterateNumericEnumKeyedRecord(
@@ -115,6 +120,16 @@ export class HighlightManager {
   }
 
   updateHighlight() {
+    if (this.isDirty) {
+      // if we tame a pet and they are the last pet in the battle, we'll remove them from the battle before
+      // removing their 3d model since it is playing the onTamed animation with an onComplete function that
+      // synchronizes the combatant models to the game state. During that time, we're trying to call updateHighlight
+      // on every model that still exists, including the pet's model which no longer maps to a combatant
+      // which will cause an error, therefore we'll mark it dirty on the first error so we don't keep trying
+      // to get the combatant on the ticks before the model is synchronized
+      return;
+    }
+
     const partyOption = AppStore.get().gameStore.getPartyOption();
     if (partyOption !== undefined) {
       const gameOption = AppStore.get().gameStore.getGameOption();
@@ -125,27 +140,34 @@ export class HighlightManager {
         return;
       }
 
-      const isMonster = this.modularCharacter
-        .getCombatant()
-        .combatantProperties.controlledBy.isDungeonControlled();
-      if (isMonster) return;
+      try {
+        const isMonster = this.modularCharacter
+          .getCombatant()
+          .combatantProperties.controlledBy.isDungeonControlled();
+        if (isMonster) return;
 
-      const entityId = this.modularCharacter.getCombatant().getEntityId();
+        const entityId = this.modularCharacter.getCombatant().getEntityId();
 
-      const fastestActorId = battleOption.turnOrderManager
-        .getFastestActorTurnOrderTracker()
-        .getId();
-      const isTurn = fastestActorId === entityId;
+        const fastestActorId = battleOption.turnOrderManager
+          .getFastestActorTurnOrderTracker()
+          .getEntityId();
+        const isTurn = fastestActorId === entityId;
 
-      const inputIsLocked = partyOption ? partyOption.inputLock.isLocked() : false;
+        const inputIsLocked = partyOption ? partyOption.inputLock.isLocked() : false;
 
-      const isSelectingActionTargets = AppStore.get().targetIndicatorStore.userHasTargets(entityId);
+        const isSelectingActionTargets =
+          AppStore.get().targetIndicatorStore.userHasTargets(entityId);
 
-      // if (indicators.length && !this.isHighlighted) {
-      if (isTurn && !this.isHighlighted && !inputIsLocked && !isSelectingActionTargets) {
-        this.setHighlighted();
-        // } else if (this.isHighlighted && !indicators.length) {
-      } else if ((this.isHighlighted && !isTurn) || inputIsLocked || isSelectingActionTargets) {
+        // if (indicators.length && !this.isHighlighted) {
+        if (isTurn && !this.isHighlighted && !inputIsLocked && !isSelectingActionTargets) {
+          this.setHighlighted();
+          // } else if (this.isHighlighted && !indicators.length) {
+        } else if ((this.isHighlighted && !isTurn) || inputIsLocked || isSelectingActionTargets) {
+          this.removeHighlight();
+        }
+      } catch (error) {
+        console.info("highlighter error");
+        this.isDirty = true;
         this.removeHighlight();
       }
     }

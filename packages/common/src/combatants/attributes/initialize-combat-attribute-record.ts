@@ -1,4 +1,4 @@
-import { CombatantAttributeRecord } from "../attribute-properties.js";
+import { CombatantAttributeRecord } from "../combatant-attribute-record.js";
 import { CombatAttribute } from "../index.js";
 
 export function initializeCombatAttributeRecord() {

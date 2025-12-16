@@ -21,7 +21,10 @@ export class ConditionTurnScheduler extends TurnScheduler implements ITurnSchedu
 
     const tickPropertiesOption = condition.getTickProperties();
 
-    if (tickPropertiesOption === null) throw new Error("expected condition to be tickable");
+    if (!tickPropertiesOption) {
+      throw new Error("expected condition to be tickable");
+    }
+
     return tickPropertiesOption.getTickSpeed(condition);
   }
 

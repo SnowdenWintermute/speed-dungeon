@@ -2,7 +2,7 @@ import { AppStore } from "@/mobx-stores/app-store";
 import React, { ReactNode, useEffect, useRef } from "react";
 
 interface Props {
-  tooltipText?: string;
+  tooltipText?: ReactNode;
   extraStyles?: string;
   offsetTop?: number;
   children: ReactNode;
@@ -12,14 +12,14 @@ export default function HoverableTooltipWrapper(props: Props) {
   const { tooltipStore } = AppStore.get();
   const elementRef = useRef<HTMLDivElement>(null);
 
-  function showTooltip(elementOption: null | HTMLDivElement, text: string) {
+  function showTooltip(elementOption: null | HTMLDivElement, content: ReactNode) {
     if (!elementOption) return;
     const { x, y, width, height } = elementOption.getBoundingClientRect();
     const offsetTop = props.offsetTop !== undefined ? props.offsetTop : 4;
     let tooltipX = x + width / 2.0;
     let tooltipY = -9999; // send it off screen for measuring before showing it
 
-    tooltipStore.set(text, { x: tooltipX, y: tooltipY });
+    tooltipStore.set(content, { x: tooltipX, y: tooltipY });
 
     // measure tooltip after render
     requestAnimationFrame(() => {

@@ -1,10 +1,6 @@
 import { plainToInstance } from "class-transformer";
 import { FriendOrFoe, TurnTrackerEntityType } from "../combat/index.js";
-import {
-  Combatant,
-  CombatantCondition,
-  ConditionWithCombatantIdAppliedTo,
-} from "../combatants/index.js";
+import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { EntityId } from "../primatives/index.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
@@ -17,7 +13,8 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { runIfInBrowser } from "../utils/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { SpeedDungeonGame } from "../game/index.js";
-import { AdventuringParty } from "./index.js";
+import { CombatantCondition, ConditionWithCombatantIdAppliedTo } from "../conditions/index.js";
+import { CombatantTraitType } from "../combatants/combatant-traits/trait-types.js";
 
 export class CombatantManager extends AdventuringPartySubsystem {
   private combatants: Map<EntityId, Combatant> = new Map();
@@ -33,7 +30,9 @@ export class CombatantManager extends AdventuringPartySubsystem {
 
   getExpectedCombatant(combatantId: EntityId) {
     const combatantOption = this.getCombatantOption(combatantId);
-    if (combatantOption === undefined) throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
+    if (combatantOption === undefined) {
+      throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND + combatantId);
+    }
     return combatantOption;
   }
 
@@ -121,6 +120,10 @@ export class CombatantManager extends AdventuringPartySubsystem {
     );
   }
 
+  getNeutralCombatants() {
+    return this.getAllCombatantsWithControllerTypes([CombatantControllerType.Neutral]);
+  }
+
   getDungeonControlledPets() {
     return this.getDungeonControlledCombatants().filter((combatant) =>
       combatant.combatantProperties.controlledBy.wasSummoned()
@@ -158,9 +161,14 @@ export class CombatantManager extends AdventuringPartySubsystem {
     return conditionOption;
   }
 
-  combatantsAreAllies(a: Combatant, b: Combatant) {
+  static combatantsAreAllies(a: Combatant, b: Combatant) {
     const aType = a.combatantProperties.controlledBy.controllerType;
     const bType = b.combatantProperties.controlledBy.controllerType;
+
+    if (aType === CombatantControllerType.Neutral || bType === CombatantControllerType.Neutral) {
+      return false;
+    }
+
     const aIsDungeonControlled = aType === CombatantControllerType.Dungeon;
     const bIsDungeonControlled = bType === CombatantControllerType.Dungeon;
     const bothDungeonControlled = aIsDungeonControlled && bIsDungeonControlled;
@@ -172,17 +180,25 @@ export class CombatantManager extends AdventuringPartySubsystem {
   getCombatantIdsByDisposition(towardsId: string): Record<FriendOrFoe, EntityId[]> {
     const combatant = this.getExpectedCombatant(towardsId);
 
+    const neutralCombatantIds = this.getParty()
+      .combatantManager.getNeutralCombatants()
+      .map((combatant) => combatant.getEntityId());
+
     const toReturn: Record<FriendOrFoe, EntityId[]> = {
       [FriendOrFoe.Friendly]: [],
       [FriendOrFoe.Hostile]: [],
+      [FriendOrFoe.Neutral]: neutralCombatantIds,
     };
 
     for (const [entityId, combatantToCompare] of this.combatants.entries()) {
-      const comparedIsAlly = this.combatantsAreAllies(combatant, combatantToCompare);
+      const comparedIsAlly = CombatantManager.combatantsAreAllies(combatant, combatantToCompare);
+      const { controllerType } = combatantToCompare.combatantProperties.controlledBy;
+      const comparedIsNeutral = controllerType === CombatantControllerType.Neutral;
+      const comparedIsOpponent = !comparedIsNeutral && !comparedIsAlly;
 
       if (comparedIsAlly) {
         toReturn[FriendOrFoe.Friendly].push(entityId);
-      } else {
+      } else if (comparedIsOpponent) {
         toReturn[FriendOrFoe.Hostile].push(entityId);
       }
     }
@@ -251,7 +267,17 @@ export class CombatantManager extends AdventuringPartySubsystem {
 
     const party = this.getParty();
     const battleOption = party.getBattleOption(game);
+
     if (battleOption) {
+      const isPassive = combatant
+        .getCombatantProperties()
+        .abilityProperties.getTraitProperties()
+        .hasTraitType(CombatantTraitType.Passive);
+
+      if (isPassive) {
+        return;
+      }
+
       const { turnSchedulerManager } = battleOption.turnOrderManager;
 
       const fastestTurnTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
@@ -285,6 +311,12 @@ export class CombatantManager extends AdventuringPartySubsystem {
     }
   }
 
+  removeNeutralCombatants(game: SpeedDungeonGame) {
+    for (const combatant of this.getNeutralCombatants()) {
+      this.removeCombatant(combatant.getEntityId(), game);
+    }
+  }
+
   monstersArePresent() {
     return this.getDungeonControlledCombatants().length > 0;
   }
@@ -311,8 +343,13 @@ export class CombatantManager extends AdventuringPartySubsystem {
       );
     });
 
-    for (const combatant of this.getPartyMemberPets()) {
-      this.setPetHomePositionNextToOwner(combatant);
+    const partyMemberPets = this.getPartyMemberPets();
+    for (const pet of partyMemberPets) {
+      // put them next to the one who summoned them
+      const summonedByCombatant =
+        pet.combatantProperties.controlledBy.getExpectedSummonedByCombatant(this.getParty());
+
+      this.setPetHomePositionNextTo(pet, summonedByCombatant);
     }
 
     for (const combatant of this.getDungeonControlledPets()) {
@@ -320,16 +357,15 @@ export class CombatantManager extends AdventuringPartySubsystem {
     }
   }
 
-  setPetHomePositionNextToOwner(pet: Combatant) {
-    // put them next to the one who summoned them
-    const summonedByCombatant = pet.combatantProperties.controlledBy.getExpectedSummonedByCombatant(
-      this.getParty()
-    );
-
-    const ownerHomePosition = summonedByCombatant.getHomePosition();
+  setPetHomePositionNextTo(pet: Combatant, combatant: Combatant) {
+    const ownerHomePosition = combatant.getHomePosition();
     const petHomePosition = pet.getHomePosition();
-    petHomePosition.copyFrom(ownerHomePosition);
-    petHomePosition.x -= 0.5;
+    const newHomePosition = ownerHomePosition.clone();
+
+    newHomePosition.x -= 0.5;
+
+    pet.combatantProperties.transformProperties.setHomePosition(newHomePosition);
+    pet.combatantProperties.transformProperties.setHomeRotation(combatant.getHomeRotation());
 
     const forward = new Vector3(0, 0, 1);
     const directionToXAxis = new Vector3(0, 0, -petHomePosition.z).normalize();
@@ -367,8 +403,7 @@ export class CombatantManager extends AdventuringPartySubsystem {
     const homeLocation = new Vector3(rowPositionOffset, 0, positionSpacing);
     const { combatantProperties } = combatant;
     const { transformProperties } = combatantProperties;
-    transformProperties.homePosition = homeLocation;
-    // transformProperties.position = transformProperties.homePosition.clone();
+    transformProperties.setHomePosition(homeLocation);
     const forward = new Vector3(0, 0, 1);
     const directionToXAxis = new Vector3(0, 0, -positionSpacing).normalize();
     const homeRotation = new Quaternion();

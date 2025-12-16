@@ -1,9 +1,13 @@
 import { createExpressApp } from "./create-express-app.js";
 import { Server } from "socket.io";
-import { ClientToServerEventTypes, ServerToClientEventTypes } from "@speed-dungeon/common";
+import {
+  ClientToServerEventTypes,
+  EntityNotFoundError,
+  ServerToClientEventTypes,
+} from "@speed-dungeon/common";
 import { GameServer } from "./game-server/index.js";
 import { env } from "./validate-env.js";
-import { gameServer } from "./singletons/index.js";
+import { gameServer, idGenerator } from "./singletons/index.js";
 import { pgPool } from "./singletons/pg-pool.js";
 import { pgOptions } from "./database/config.js";
 import { valkeyManager } from "./kv-store/index.js";
@@ -26,5 +30,14 @@ const listening = expressApp.listen(PORT, async () => {
 
   console.info(`speed dungeon server on port ${PORT}`);
 
-  gameServer.current = new GameServer(io);
+  try {
+    gameServer.current = new GameServer(io);
+  } catch (error) {
+    if (error instanceof EntityNotFoundError) {
+      const note = idGenerator.getHistoryNote(error.entityId);
+      console.info(error.message, error.entityId, note);
+    } else {
+      throw error;
+    }
+  }
 });

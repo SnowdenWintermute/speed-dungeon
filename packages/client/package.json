@@ -27,7 +27,7 @@
     "mobx": "6.15.0",
     "mobx-react-lite": "4.1.1",
     "mobx-store-inheritance": "1.0.6",
-    "next": "15.4.6",
+    "next": "15.5.7",
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "reflect-metadata": "0.2.2",

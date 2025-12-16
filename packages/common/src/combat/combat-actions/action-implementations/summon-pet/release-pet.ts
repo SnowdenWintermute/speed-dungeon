@@ -95,9 +95,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 const config: CombatActionComponentConfig = {
   description: "Permenantly release your creature companion",
   prerequisiteAbilities: [],
-  gameLogMessageProperties: createGenericSpellCastMessageProperties(
-    CombatActionName.SummonPetParent
-  ),
+  gameLogMessageProperties: createGenericSpellCastMessageProperties(CombatActionName.ReleasePet),
   getByRankShortDescriptions: (user, party) => {
     const toReturn: { [rank: number]: string | null } = {};
     party.petManager.iteratePetSlots(user.getEntityId()).forEach((petSlot, i) => {

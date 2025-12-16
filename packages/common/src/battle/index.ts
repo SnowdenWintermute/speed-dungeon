@@ -1,8 +1,10 @@
+import { makeAutoObservable } from "mobx";
 import { BattleResultActionCommandPayload } from "../action-processing/index.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { FriendOrFoe, TurnOrderManager } from "../combat/index.js";
 import { applyExperiencePointChanges } from "../combatants/experience-points/apply-experience-point-changes.js";
 import { SpeedDungeonGame } from "../game/index.js";
+import { runIfInBrowser } from "../index.js";
 import { EntityId } from "../primatives/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 
@@ -15,6 +17,7 @@ export class Battle {
   ) {
     this.turnOrderManager = new TurnOrderManager(game, party);
     party.combatantManager.refillAllCombatantActionPoints();
+    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static createInitialized(
@@ -38,6 +41,7 @@ export class Battle {
     return {
       [FriendOrFoe.Hostile]: idsByDisposition[FriendOrFoe.Friendly],
       [FriendOrFoe.Friendly]: idsByDisposition[FriendOrFoe.Hostile],
+      [FriendOrFoe.Neutral]: idsByDisposition[FriendOrFoe.Neutral],
     };
   }
 
@@ -69,6 +73,7 @@ export class Battle {
     }
 
     combatantManager.removeDungeonControlledCombatants(game);
+    combatantManager.removeNeutralCombatants(game);
 
     const battleIdToRemoveOption = party.battleId;
     party.battleId = null;

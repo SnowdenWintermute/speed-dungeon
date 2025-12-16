@@ -8,7 +8,11 @@ import {
 } from "../../abilities/index.js";
 import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
-import { CombatActionComponent, CombatActionName } from "../../combat/combat-actions/index.js";
+import {
+  CombatActionComponent,
+  CombatActionName,
+  FriendOrFoe,
+} from "../../combat/combat-actions/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { runIfInBrowser } from "../../utils/index.js";
 import { CombatantTraitProperties } from "../combatant-traits/combatant-trait-properties.js";
@@ -19,6 +23,11 @@ import { CombatantSubsystem } from "../combatant-subsystem.js";
 import { ABILITY_TREES } from "../ability-tree/set-up-ability-trees.js";
 import { COMBATANT_TRAIT_DESCRIPTIONS } from "../combatant-traits/index.js";
 import { getTamePetMaxPetLevel } from "../../combat/combat-actions/action-implementations/summon-pet/tame-pet.js";
+import { IdGenerator } from "../../utility-classes/index.js";
+import { Combatant } from "../index.js";
+import cloneDeep from "lodash.clonedeep";
+import { CombatantConditionName } from "../../conditions/condition-names.js";
+import { CombatantConditionFactory } from "../../conditions/condition-factory.js";
 
 export class CombatantAbilityProperties extends CombatantSubsystem {
   private ownedActions: Map<CombatActionName, CombatantActionState> = new Map();
@@ -32,6 +41,10 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
 
   static getDeserialized(serialized: CombatantAbilityProperties) {
     const deserialized = plainToInstance(CombatantAbilityProperties, serialized);
+
+    deserialized.traitProperties = CombatantTraitProperties.getDeserialized(
+      deserialized.traitProperties
+    );
 
     deserialized.ownedActions = new Map<CombatActionName, CombatantActionState>();
     for (const [key, value] of Object.entries(serialized.ownedActions)) {
@@ -257,11 +270,29 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
     return this.traitProperties;
   }
 
-  hasTraitType(traitType: CombatantTraitType) {
-    const { traitProperties } = this;
-    return (
-      !!traitProperties.inherentTraitLevels[traitType] ||
-      !!traitProperties.speccedTraitLevels[traitType]
+  applyConditionsFromTraits(self: Combatant, idGenerator: IdGenerator) {
+    for (const [traitType, rank] of this.traitProperties.iterateAllTraits()) {
+      if (traitType === CombatantTraitType.Flyer) {
+        const flyingCondition = CombatantConditionFactory.create({
+          name: CombatantConditionName.Flying,
+          rank: 1,
+          stacks: null,
+          id: idGenerator.generate(),
+          appliedBy: {
+            friendOrFoe: FriendOrFoe.Friendly,
+            entityProperties: cloneDeep(self.entityProperties),
+          },
+          appliedTo: self.getEntityId(),
+        });
+        this.getCombatantProperties().conditionManager.applyCondition(flyingCondition);
+      }
+    }
+  }
+
+  canGainFlying() {
+    const isEnsnared = this.getCombatantProperties().conditionManager.hasConditionName(
+      CombatantConditionName.Ensnared
     );
+    return !isEnsnared;
   }
 }

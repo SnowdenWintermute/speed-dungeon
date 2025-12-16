@@ -15,7 +15,7 @@ import {
   ActionEntityName,
   CleanupMode,
   CombatantBaseChildTransformNodeName,
-  easeOut,
+  CurveType,
   NormalizedPercentage,
   SceneEntityType,
 } from "@speed-dungeon/common";
@@ -42,6 +42,7 @@ export function threatTargetChangedIndicatorSequence() {
     const monsterCharacterModel = getGameWorld().modelManager.findOne(combatant.getEntityId());
     monsterCharacterModel.homeLocation.rotation =
       combatant.combatantProperties.transformProperties.homeRotation;
+
     monsterCharacterModel.movementManager.startRotatingTowards(
       monsterCharacterModel.homeLocation.rotation,
       1000,
@@ -91,6 +92,7 @@ export function threatTargetChangedIndicatorSequence() {
     indicatorArrow.movementManager.startTranslating(
       targetCurrentPosition,
       duration,
+      { speedCurveOption: CurveType.EaseOut },
       () => {
         getGameWorld().actionEntityManager.unregister(indicatorArrow.entityId, CleanupMode.Soft);
         trail.dispose();
@@ -109,8 +111,7 @@ export function threatTargetChangedIndicatorSequence() {
           trailHeight,
           percentComplete
         );
-      },
-      easeOut
+      }
     );
   }
 }

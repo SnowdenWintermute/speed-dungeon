@@ -1,3 +1,4 @@
+import { Quaternion, Vector3 } from "@babylonjs/core";
 import { HoldableSlotType } from "../items/equipment";
 import { Axis, EntityId, Milliseconds } from "../primatives";
 
@@ -61,6 +62,7 @@ export enum CombatantBaseChildTransformNodeName {
   OffhandEquipment,
   EntityRoot,
   HitboxCenter,
+  HitboxCenterTop,
   Head,
 }
 
@@ -73,6 +75,7 @@ export const COMBATANT_BASE_TRANSFORM_NODE_NAME_STRINGS: Record<
   [CombatantBaseChildTransformNodeName.EntityRoot]: "EntityRoot",
   [CombatantBaseChildTransformNodeName.HitboxCenter]: "HitboxCenter",
   [CombatantBaseChildTransformNodeName.Head]: "HitboxCenter",
+  [CombatantBaseChildTransformNodeName.HitboxCenterTop]: "HitboxCenterTop",
 };
 
 export enum ActionEntityBaseChildTransformNodeName {
@@ -82,4 +85,10 @@ export enum ActionEntityBaseChildTransformNodeName {
 export enum CombatantHoldableChildTransformNodeName {
   NockBone,
   ArrowRest,
+}
+
+export interface TransformModifiers {
+  scale?: number;
+  homePosition?: Vector3;
+  homeRotation?: Quaternion;
 }

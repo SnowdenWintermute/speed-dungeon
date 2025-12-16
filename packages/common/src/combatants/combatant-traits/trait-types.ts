@@ -6,4 +6,7 @@ export enum CombatantTraitType {
   CanConvertToShardsManually,
   ExtraConsumablesStorage,
   IsTameable,
+  Flyer,
+  Passive,
+  CanNotBeRestrained,
 }

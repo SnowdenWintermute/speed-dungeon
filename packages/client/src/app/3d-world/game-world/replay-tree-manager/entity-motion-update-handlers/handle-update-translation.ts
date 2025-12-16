@@ -8,9 +8,10 @@ import {
 } from "@speed-dungeon/common";
 import { plainToInstance } from "class-transformer";
 import { EntityMotionUpdateCompletionTracker } from "./entity-motion-update-completion-tracker";
-import { SceneEntity } from "@/app/3d-world/scene-entities";
 import { getSceneEntityToUpdate } from "./get-scene-entity-to-update";
 import { GameUpdateTracker } from "../game-update-tracker";
+import { CharacterModel } from "@/app/3d-world/scene-entities/character-models";
+import { SceneEntity } from "@/app/3d-world/scene-entities";
 
 export function handleUpdateTranslation(
   motionUpdate: EntityMotionUpdate,
@@ -34,12 +35,29 @@ export function handleUpdateTranslation(
     destination.y = transformNode.getAbsolutePosition().y;
   }
 
-  movementManager.startTranslating(destination, translation.duration, () => {
-    updateCompletionTracker.setTranslationComplete();
+  const pathCurveOption = translation.translationPathCurveOption;
+  const speedCurveOption = translation.translationSpeedCurveOption;
 
-    if (updateCompletionTracker.isComplete()) {
-      gameUpdate.setAsQueuedToComplete();
-      onComplete();
+  movementManager.startTranslating(
+    destination,
+    translation.duration,
+    { pathCurveOption, speedCurveOption },
+    () => {
+      updateCompletionTracker.setTranslationComplete();
+
+      if (updateCompletionTracker.isComplete()) {
+        gameUpdate.setAsQueuedToComplete();
+
+        if (motionUpdate.translationOption?.setAsNewHome) {
+          if (toUpdate instanceof CharacterModel) {
+            toUpdate
+              .getCombatant()
+              .getCombatantProperties()
+              .transformProperties.setHomePosition(destination);
+          }
+        }
+        onComplete();
+      }
     }
-  });
+  );
 }

@@ -38,7 +38,6 @@ export function handleEntityMotionUpdate(
 
   if (motionUpdate.entityType === SpawnableEntityType.ActionEntity) {
     cosmeticDestinationYOption = motionUpdate.cosmeticDestinationY;
-
     const actionEntityModelOption = getGameWorld().actionEntityManager.findOne(
       motionUpdate.entityId,
       motionUpdate
@@ -46,8 +45,9 @@ export function handleEntityMotionUpdate(
 
     let alreadyDespawned = false;
 
-    if (motionUpdate.setParent !== undefined)
+    if (motionUpdate.setParent !== undefined) {
       handleEntityMotionSetNewParentUpdate(actionEntityModelOption, motionUpdate.setParent);
+    }
 
     if (motionUpdate.lockRotationToFace !== undefined) {
       const toUpdate = getSceneEntityToUpdate(motionUpdate);
@@ -67,6 +67,7 @@ export function handleEntityMotionUpdate(
         alreadyDespawned = true;
       }
     };
+
     onAnimationComplete = () => {
       if (despawnOnCompleteMode !== undefined && !alreadyDespawned) {
         despawnAndUnregisterActionEntity(motionUpdate.entityId, despawnOnCompleteMode);
@@ -117,8 +118,9 @@ export function handleEntityMotionUpdate(
     let animationManager: DynamicAnimationManager | SkeletalAnimationManager =
       toUpdate.skeletalAnimationManager;
 
-    if (animationOption.name.type === AnimationType.Dynamic)
+    if (animationOption.name.type === AnimationType.Dynamic) {
       animationManager = toUpdate.dynamicAnimationManager;
+    }
 
     handleUpdateAnimation(
       animationManager,
@@ -159,6 +161,11 @@ function handleCombatantMotionUpdate(
 
   const combatant = AppStore.get().gameStore.getExpectedCombatant(motionUpdate.entityId);
 
+  if (motionUpdate.setParent !== undefined) {
+    const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
+    handleEntityMotionSetNewParentUpdate(combatantModelOption, motionUpdate.setParent);
+  }
+
   // they are already dead, so don't animate them
   // this happens if a combatant dies from getting counterattacked and the server
   // tells them to "return home"
@@ -168,19 +175,24 @@ function handleCombatantMotionUpdate(
   }
 
   toReturn.onTranslationComplete = () => {
-    if (!motionUpdate.idleOnComplete) return;
+    if (!motionUpdate.idleOnComplete) {
+      return;
+    }
     const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
     combatantModelOption.startIdleAnimation(500);
   };
 
   toReturn.onAnimationComplete = () => {
-    if (!motionUpdate.idleOnComplete) return;
+    if (!motionUpdate.idleOnComplete) {
+      return;
+    }
     const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
     combatantModelOption.startIdleAnimation(500);
   };
 
-  if (motionUpdate.equipmentAnimations)
+  if (motionUpdate.equipmentAnimations) {
     handleEquipmentAnimations(motionUpdate.entityId, motionUpdate.equipmentAnimations);
+  }
 
   return toReturn;
 }

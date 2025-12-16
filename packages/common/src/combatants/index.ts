@@ -4,7 +4,7 @@ import { EntityProperties } from "../primatives/index.js";
 import { Inventory } from "./inventory/index.js";
 import { CombatActionName, FriendOrFoe } from "../combat/combat-actions/index.js";
 import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
-import { ConditionAppliedBy, ConditionTickProperties } from "./combatant-conditions/index.js";
+import { CombatantConditionName } from "../index.js";
 import { instanceToPlain, plainToInstance } from "class-transformer";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
@@ -15,12 +15,13 @@ import { AdventuringParty } from "../adventuring-party/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { Battle } from "../battle/index.js";
 import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
-import { CombatantAttributeRecord } from "./attribute-properties.js";
 import { CombatantProperties } from "./combatant-properties.js";
 import { Item } from "../items/index.js";
 import { HoldableSlotType } from "../items/equipment/slots.js";
 import { runIfInBrowser } from "../utils/index.js";
 import makeAutoObservable from "mobx-store-inheritance";
+import { CombatantAttributeRecord } from "./combatant-attribute-record.js";
+import { ConditionAppliedBy } from "../conditions/condition-applied-by.js";
 
 export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
@@ -28,7 +29,6 @@ export * from "./combatant-traits/index.js";
 export * from "./owned-actions/index.js";
 export * from "./inventory/index.js";
 export * from "./combatant-equipment/index.js";
-export * from "./combatant-conditions/index.js";
 export * from "./threat-manager/index.js";
 export * from "./combatant-traits/index.js";
 export * from "./ability-tree/index.js";
@@ -57,7 +57,11 @@ export class Combatant implements IActionUser {
   }
 
   getSerialized() {
+    const serializedConditionManager = this.combatantProperties.conditionManager.getSerialized();
     const serialized = instanceToPlain(this) as Combatant;
+
+    serialized.combatantProperties.conditionManager = serializedConditionManager;
+
     return serialized;
   }
 
@@ -87,7 +91,7 @@ export class Combatant implements IActionUser {
     return false;
   }
   setWasRemovedBeforeHitOutcomes(): void {}
-  getConditionTickPropertiesOption(): null | ConditionTickProperties {
+  getConditionTickPropertiesOption(): null {
     throw new Error("getCombatantPropertiesOption() is invalid on Combatants.");
   }
   getConditionAppliedTo(): EntityId {
@@ -110,7 +114,7 @@ export class Combatant implements IActionUser {
     return this.combatantProperties.transformProperties.position;
   }
   getHomePosition() {
-    return this.combatantProperties.transformProperties.homePosition;
+    return this.combatantProperties.transformProperties.getHomePosition();
   }
   getHomeRotation() {
     return this.combatantProperties.transformProperties.homeRotation;
@@ -157,6 +161,9 @@ export class Combatant implements IActionUser {
     return this.combatantProperties.inventory;
   }
   getIdOfEntityToCreditWithThreat(): EntityId {
+    if (this.combatantProperties.giveThreatGeneratedToId) {
+      return this.combatantProperties.giveThreatGeneratedToId;
+    }
     return this.entityProperties.id;
   }
   hasRequiredAttributesToUseItem(item: Item): boolean {
@@ -165,6 +172,10 @@ export class Combatant implements IActionUser {
 
   getWeaponsInSlots(weaponSlots: HoldableSlotType[], options: { usableWeaponsOnly: boolean }) {
     return this.combatantProperties.equipment.getWeaponsInSlots(weaponSlots, options);
+  }
+
+  getNaturalUnarmedWeapons() {
+    return this.combatantProperties.equipment.getUnarmedWeapons();
   }
 
   hasRequiredConsumablesToUseAction(actionName: CombatActionName) {
@@ -300,5 +311,29 @@ export class Combatant implements IActionUser {
     }
 
     return true;
+  }
+
+  targetFlyingConditionPreventsReachingMeleeRange(target: CombatantProperties) {
+    const targetIsFlying = target.conditionManager.hasConditionName(CombatantConditionName.Flying);
+
+    if (!targetIsFlying) {
+      return false;
+    }
+
+    const userIsFlying = this.getCombatantProperties().conditionManager.hasConditionName(
+      CombatantConditionName.Flying
+    );
+
+    if (userIsFlying) {
+      return false;
+    }
+
+    return true;
+  }
+
+  movementIsRestrained(): boolean {
+    return this.combatantProperties.conditionManager.hasConditionName(
+      CombatantConditionName.Ensnared
+    );
   }
 }

@@ -16,6 +16,17 @@ export const MONSTER_INHERENT_TRAIT_GETTERS: Record<
   [MonsterType.Scavenger]: (combatantLevel) => {
     return {};
   },
+  [MonsterType.Net]: (combatantLevel) => {
+    return {
+      [CombatantTraitType.CanNotBeRestrained]: 1,
+    };
+  },
+  [MonsterType.Spider]: (combatantLevel) => {
+    return {
+      [CombatantTraitType.CanNotBeRestrained]: 1,
+      [CombatantTraitType.IsTameable]: 1,
+    };
+  },
   [MonsterType.Vulture]: (combatantLevel) => {
     return {};
   },
@@ -34,6 +45,11 @@ export const MONSTER_INHERENT_TRAIT_GETTERS: Record<
   [MonsterType.Wolf]: function (
     combatantLevel: number
   ): Partial<Record<CombatantTraitType, number>> {
-    return { [CombatantTraitType.IsTameable]: 1 };
+    return { [CombatantTraitType.IsTameable]: 0 };
+  },
+  [MonsterType.MantaRay]: function (
+    combatantLevel: number
+  ): Partial<Record<CombatantTraitType, number>> {
+    return { [CombatantTraitType.IsTameable]: 0, [CombatantTraitType.Flyer]: 0 };
   },
 };

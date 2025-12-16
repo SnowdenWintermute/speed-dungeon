@@ -63,6 +63,10 @@ export class HealingActionEvaluator extends ResourceChangeActionEvaluator {
         const maxValueChange = maxHitPointChanges.getRecord(targetId)?.value || 0;
         const maxEffectiveValueChange = Math.min(missingHitPoints, maxValueChange);
 
+        if (maxEffectiveValueChange === 0) {
+          continue;
+        }
+
         if (targetId === mainTarget.entityProperties.id) {
           potentialHealingEvaluation.setPrimaryTargetEfficiencyEvaluation(
             maxEffectiveValueChange,
@@ -89,6 +93,11 @@ export class HealingActionEvaluator extends ResourceChangeActionEvaluator {
     evaluatedIntents.sort((a, b) => b.evaluation.getScore() - a.evaluation.getScore());
 
     const bestActionIntentOption = evaluatedIntents[0]?.intent || null;
+
+    if (bestActionIntentOption === null) {
+      console.info("no healing action found");
+    }
+
     return bestActionIntentOption;
   }
 }

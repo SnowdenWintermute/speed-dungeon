@@ -7,18 +7,24 @@ import React from "react";
 
 export const PersistentActionEntityDisplay = observer(() => {
   const party = AppStore.get().gameStore.getExpectedParty();
+  const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
 
   const { actionEntityManager } = party;
 
   return (
-    <ul className="list-none">
-      {Object.entries(actionEntityManager.getActionEntities()).map(
-        ([actionEntityId, actionEntity]) => (
-          <ul key={actionEntityId}>
+    <ul className="list-none w-full mb-2 mx-auto px-1">
+      {Object.entries(actionEntityManager.getActionEntities())
+        .filter(([id, actionEnity]) => {
+          if (showDebug) {
+            return true;
+          }
+          return actionEnity.shouldBeDisplayedInPersistentEntityList();
+        })
+        .map(([actionEntityId, actionEntity]) => (
+          <li key={actionEntityId} className="mb-2 last:mb-0">
             <PersistentActionEntity actionEntity={actionEntity} />
-          </ul>
-        )
-      )}
+          </li>
+        ))}
     </ul>
   );
 });
@@ -44,7 +50,7 @@ const PersistentActionEntity = observer(({ actionEntity }: { actionEntity: Actio
   const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
 
   return (
-    <div className="h-20 w-20 border-2 border-slate-400 relative bg-slate-800 text-zinc-300 pointer-events-auto">
+    <div className="h-28 w-28 border-2 border-slate-400 relative bg-slate-800 text-zinc-300 pointer-events-auto">
       <div className="absolute h-full p-1">{icon}</div>
       <div
         className="absolute h-full p-1 text-sm flex flex-col text-center justify-end w-full"

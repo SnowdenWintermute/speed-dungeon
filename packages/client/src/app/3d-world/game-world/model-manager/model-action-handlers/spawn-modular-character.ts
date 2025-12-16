@@ -2,15 +2,16 @@ import { CombatantModelBlueprint } from "@/singletons/next-to-babylon-message-qu
 import { CombatantSpecies, SKELETON_FILE_PATHS } from "@speed-dungeon/common";
 import { importMesh } from "../../../utils";
 import { GameWorld } from "../../";
-import { AssetContainer } from "@babylonjs/core";
+import { AssetContainer, Vector3 } from "@babylonjs/core";
 import { setCharacterModelPartDefaultMaterials } from "./set-modular-character-part-default-materials";
 import { CharacterModel } from "@/app/3d-world/scene-entities/character-models";
 import { getCharacterModelPartCategoriesAndAssetPaths } from "@/app/3d-world/scene-entities/character-models/modular-character-parts-model-manager/get-modular-character-parts";
+import { MONSTER_SCALING_SIZES } from "@/app/3d-world/scene-entities/character-models/monster-scaling-sizes";
 
 export async function spawnCharacterModel(
   world: GameWorld,
   blueprint: CombatantModelBlueprint,
-  options?: { spawnInDeadPose?: boolean }
+  options?: { spawnInDeadPose?: boolean; doNotIdle?: boolean }
 ): Promise<Error | CharacterModel> {
   const { combatantProperties, entityProperties } = blueprint.combatant;
 
@@ -62,8 +63,24 @@ export async function spawnCharacterModel(
     if (result instanceof Error) console.error(result);
   }
 
-  if (combatantProperties.combatantSpecies === CombatantSpecies.Humanoid)
+  if (combatantProperties.combatantSpecies === CombatantSpecies.Humanoid) {
     modularCharacter.equipmentModelManager.synchronizeCombatantEquipmentModels();
+  }
+
+  const { scaleModifier } = combatantProperties.transformProperties;
+  if (combatantProperties.transformProperties.scaleModifier) {
+    modularCharacter.rootTransformNode.scaling = new Vector3(
+      scaleModifier,
+      scaleModifier,
+      scaleModifier
+    );
+  }
+
+  if (modularCharacter.monsterType !== null) {
+    const defaultScalingModifier = MONSTER_SCALING_SIZES[modularCharacter.monsterType];
+    modularCharacter.rootTransformNode.scaling =
+      modularCharacter.rootTransformNode.scaling.scale(defaultScalingModifier);
+  }
 
   modularCharacter.updateBoundingBox();
 
@@ -71,7 +88,7 @@ export async function spawnCharacterModel(
 
   if (options?.spawnInDeadPose) {
     modularCharacter.setToDeadPose();
-  } else {
+  } else if (!options?.doNotIdle) {
     modularCharacter.startIdleAnimation(0, {});
   }
 

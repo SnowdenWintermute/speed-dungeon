@@ -238,10 +238,9 @@ export const ActionDescriptionDisplay = observer(
                 <div>
                   Applies{" "}
                   {appliedConditionsOption.map((condition) => (
-                    <span key={condition.conditionName}>
+                    <span key={condition.name}>
                       {condition.stacks > 1 && `${condition.stacks} stacks of `}
-                      {COMBATANT_CONDITION_NAME_STRINGS[condition.conditionName]} rank{" "}
-                      {condition.level}
+                      {COMBATANT_CONDITION_NAME_STRINGS[condition.name]} rank {condition.rank}
                     </span>
                   ))}
                 </div>

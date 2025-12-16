@@ -22,7 +22,7 @@ export const ActionMenuAndCharacterSheetLayer = observer(
 
     return (
       <section
-        style={{ zIndex: ZIndexLayers.CharacterSheetAndActionMenu, paddingTop: `calc(100vh / 20)` }}
+        style={{ zIndex: ZIndexLayers.CharacterSheetAndActionMenu, paddingTop: `calc(100vh / 10)` }}
         className={`absolute top-0 h-screen w-screen max-h-screen max-w-screen overflow-auto
       flex
       ${viewingCharacterSheet && "justify-end"}
@@ -44,7 +44,7 @@ export const ActionMenuAndCharacterSheetLayer = observer(
                 <ItemsOnGround maxHeightRem={13.375} party={party} />
               )}
               {abilityTreeOpen && (
-                <div className=" bg-slate-700 p-2 border border-slate-400 pointer-events-auto">
+                <div className=" bg-slate-700 p-2 border border-slate-400 pointer-events-auto h-[16rem]  overflow-auto">
                   <CharacterAttributes
                     combatant={focusedCharacter}
                     showAttributeAssignmentButtons={true}

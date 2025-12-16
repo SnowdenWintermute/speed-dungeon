@@ -10,11 +10,8 @@ import {
 } from "@speed-dungeon/common";
 import { Combatant } from "@speed-dungeon/common";
 import { spawnCharacterModel } from "./spawn-modular-character";
-import { setAlert } from "@/app/components/alerts";
 import cloneDeep from "lodash.clonedeep";
-import { createCombatantPortrait } from "../../image-manager/create-combatant-portrait";
 import { CharacterModel } from "@/app/3d-world/scene-entities/character-models";
-import { startOrStopCosmeticEffects } from "../../replay-tree-manager/start-or-stop-cosmetic-effect";
 import { AppStore } from "@/mobx-stores/app-store";
 
 export async function synchronizeCombatantModelsWithAppState(options: {
@@ -86,20 +83,7 @@ export async function synchronizeCombatantModelsWithAppState(options: {
       console.error(result);
       resultsIncludedError = true;
     } else {
-      modelManager.combatantModels[result.entityId] = result;
-
-      const character = result.getCombatant();
-      const { combatantProperties, entityProperties } = character;
-      const { conditionManager } = combatantProperties;
-
-      conditionManager.getConditions().forEach((condition) => {
-        startOrStopCosmeticEffects(condition.getCosmeticEffectWhileActive(entityProperties.id), []);
-      });
-
-      const portraitResult = await createCombatantPortrait(result.entityId);
-      if (portraitResult instanceof Error) setAlert(portraitResult);
-
-      gameWorldStore.setModelIsLoaded(result.entityId);
+      modelManager.register(result);
     }
   }
   if (resultsIncludedError) return new Error("Error with spawning combatant models");
@@ -127,18 +111,16 @@ function getModelsAndPositions() {
   if (inLobby && gameOption.mode === GameMode.Progression) {
     modelsAndPositions = getProgressionGameLobbyCombatantModelPositions(gameOption);
   } else if (inGame) {
-    console.log("syncing models in game", gameOption.id);
     const party = gameStore.getExpectedParty();
     const { combatantManager } = party;
     for (const combatant of combatantManager.getAllCombatants()) {
       modelsAndPositions[combatant.entityProperties.id] = {
         combatant,
         homeRotation: combatant.combatantProperties.transformProperties.homeRotation,
-        homeLocation: combatant.combatantProperties.transformProperties.homePosition,
+        homeLocation: combatant.combatantProperties.transformProperties.getHomePosition(),
       };
     }
   } else {
-    console.log("syncing models NO game");
     const savedCharacters = AppStore.get().lobbyStore.getSavedCharacterSlots();
     // viewing saved characters
     for (const [slot, character] of iterateNumericEnumKeyedRecord(savedCharacters).filter(

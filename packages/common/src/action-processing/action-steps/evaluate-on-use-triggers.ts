@@ -13,9 +13,12 @@ import { Combatant } from "../../combatants/index.js";
 import { DurabilityLossCondition } from "../../combat/combat-actions/combat-action-durability-loss-condition.js";
 import { DurabilityChangesByEntityId } from "../../durability/index.js";
 import { SpawnableEntityType } from "../../spawnables/index.js";
+import { getStartFlyingActionIntentIfAble } from "../../conditions/configs/ensnared.js";
 
 const stepType = ActionResolutionStepType.EvalOnUseTriggers;
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
+  branchingActions: ActionIntentAndUser[] = [];
+
   constructor(context: ActionResolutionStepContext) {
     let gameUpdateCommand: ActivatedTriggersGameUpdateCommand = {
       type: GameUpdateCommandType.ActivatedTriggers,
@@ -54,6 +57,12 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
             combatant: petOption,
             petProperties: { ownerId: actionUser.getEntityId() },
           });
+
+          // try to gain flying if able
+          const startFlyingIntentAndUser = getStartFlyingActionIntentIfAble(petOption);
+          if (startFlyingIntentAndUser !== undefined) {
+            this.branchingActions.push(startFlyingIntentAndUser);
+          }
         }
       }
     }
@@ -89,10 +98,6 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
   isComplete = () => true;
 
   protected getBranchingActions(): Error | ActionIntentAndUser[] {
-    const branchingActions: {
-      user: Combatant;
-      actionExecutionIntent: CombatActionExecutionIntent;
-    }[] = [];
-    return branchingActions;
+    return this.branchingActions;
   }
 }

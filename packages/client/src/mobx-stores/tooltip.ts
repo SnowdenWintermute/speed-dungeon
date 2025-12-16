@@ -1,9 +1,10 @@
 import { Point } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
+import { ReactNode } from "react";
 
 export class TooltipStore {
   private position: null | Point = null;
-  private text: null | string = null;
+  private text: null | ReactNode = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -13,9 +14,9 @@ export class TooltipStore {
     return { text: this.text, position: this.position };
   }
 
-  set(text: string, position: Point) {
+  set(content: ReactNode, position: Point) {
     this.position = position;
-    this.text = text;
+    this.text = content;
   }
 
   moveTo(position: Point) {

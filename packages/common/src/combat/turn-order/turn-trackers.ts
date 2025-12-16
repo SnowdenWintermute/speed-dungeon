@@ -29,6 +29,18 @@ export abstract class TurnTracker {
     battle: Battle
   ): ActionIntentOptionAndUser;
 
+  getEntityId() {
+    const taggedId = this.getTaggedIdOfTrackedEntity();
+    switch (taggedId.type) {
+      case TurnTrackerEntityType.Combatant:
+        return taggedId.combatantId;
+      case TurnTrackerEntityType.Condition:
+        return taggedId.conditionId;
+      case TurnTrackerEntityType.ActionEntity:
+        return taggedId.actionEntityId;
+    }
+  }
+
   getId() {
     const id =
       this.timeOfNextMove.toFixed(3) + "--" + JSON.stringify(this.getTaggedIdOfTrackedEntity());
@@ -111,8 +123,9 @@ export class ConditionTurnTracker extends TurnTracker {
     );
 
     const tickPropertiesOption = condition.getTickProperties();
-    if (tickPropertiesOption === null)
+    if (!tickPropertiesOption) {
       throw new Error("expected condition tick properties were missing");
+    }
 
     const onTick = tickPropertiesOption.onTick(new ActionUserContext(game, party, condition));
 

@@ -22,6 +22,7 @@ export enum CombatantUiIdentifierType {
   PlayerCharacter,
   PlayerCharacterPet,
   Monster,
+  Neutral,
 }
 
 export function getCombatantUiIdentifier(party: AdventuringParty, combatant: Combatant) {
@@ -42,6 +43,14 @@ export function getCombatantUiIdentifier(party: AdventuringParty, combatant: Com
   const playerPetPosition = playerPetIds.indexOf(combatant.entityProperties.id);
   if (playerPetPosition !== -1)
     return { type: CombatantUiIdentifierType.PlayerCharacterPet, position: playerPetPosition };
+
+  const neutralIds = combatantManager
+    .getNeutralCombatants()
+    .map((combatant) => combatant.getEntityId());
+
+  const neutralPosition = neutralIds.indexOf(combatant.entityProperties.id);
+  if (neutralPosition !== -1)
+    return { type: CombatantUiIdentifierType.Neutral, position: neutralPosition };
 
   const monsterIds = combatantManager
     .getDungeonControlledCombatants()
@@ -72,6 +81,8 @@ export function getCombatantUiIdentifierIcon(party: AdventuringParty, combatant:
         return "P";
       case CombatantUiIdentifierType.Monster:
         return "M";
+      case CombatantUiIdentifierType.Neutral:
+        return "N";
     }
   })();
 

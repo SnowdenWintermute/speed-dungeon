@@ -6,6 +6,7 @@ import {
   AiType,
   CombatActionName,
   Combatant,
+  CombatantClass,
   CombatantControlledBy,
   CombatantControllerType,
   Equipment,
@@ -23,16 +24,21 @@ import { CombatantProperties } from "@speed-dungeon/common";
 //
 const EMPTY_STRING = "";
 
-export function generateMonster(level: number, forcedType?: MonsterType) {
+export function generateMonster(level: number, roomIndex: number, forcedType?: MonsterType) {
   // roll a random monster type from list of pre determined types
-  const spawnableTypes = getSpawnableMonsterTypesByFloor(level);
+  // const spawnableTypes = getSpawnableMonsterTypesByFloor(level);
+  //
+  const spawnableTypes = roomIndex % 2 === 1 ? [MonsterType.MantaRay] : [MonsterType.Spider];
+
   const randomIndex = Math.floor(Math.floor(Math.random() * spawnableTypes.length));
   const monsterType = forcedType !== undefined ? forcedType : spawnableTypes[randomIndex]!;
   const combatantClass = getMonsterCombatantClass(monsterType);
   const combatantSpecies = MONSTER_SPECIES[monsterType];
 
   const entityProperties = {
-    id: idGenerator.generate(),
+    id: idGenerator.generate(
+      `monster ${MONSTER_TYPE_STRINGS[monsterType]} on floor ${level} in room ${roomIndex}`
+    ),
     name: MONSTER_TYPE_STRINGS[monsterType],
   };
   const combatantProperties = new CombatantProperties(
@@ -44,6 +50,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   );
 
   combatantProperties.classProgressionProperties.getMainClass().level = level;
+  // combatantProperties.classProgressionProperties.getMainClass().level = 4;
 
   // // @TODO - remove, testing
   // const testLevel = randBetween(8, 9, rngSingleton);
@@ -60,8 +67,47 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
     // CombatActionName.PassTurn,
   ];
 
+  // @TODO - assign abilities (realistically need to refactor monster creation)
+
   if (monsterType === MonsterType.Cultist) {
     ownedActions.push(...[CombatActionName.Fire, CombatActionName.IceBoltParent]);
+    combatantProperties.controlledBy.setAiTypes([
+      AiType.Healer,
+      AiType.TargetTopOfThreatMeter,
+      AiType.TargetLowestHpEnemy,
+      AiType.RandomMaliciousAction,
+    ]);
+  }
+
+  if (monsterType === MonsterType.MantaRay) {
+    ownedActions.push(...[CombatActionName.IceBoltParent, CombatActionName.Healing]);
+
+    combatantProperties.controlledBy.setAiTypes([
+      AiType.Healer,
+      AiType.PrefersAttackWithMana,
+      AiType.TargetTopOfThreatMeter,
+      AiType.TargetLowestHpEnemy,
+      AiType.RandomMaliciousAction,
+    ]);
+  }
+
+  if (monsterType === MonsterType.Spider) {
+    ownedActions.push(...[CombatActionName.Ensnare]);
+
+    combatantProperties.controlledBy.setAiTypes([
+      AiType.PrefersAttackWithMana,
+      AiType.TargetTopOfThreatMeter,
+      AiType.TargetLowestHpEnemy,
+      AiType.RandomMaliciousAction,
+    ]);
+  }
+
+  if (monsterType === MonsterType.Wolf) {
+    combatantProperties.controlledBy.setAiTypes([
+      AiType.TargetTopOfThreatMeter,
+      AiType.TargetLowestHpEnemy,
+      AiType.RandomMaliciousAction,
+    ]);
   }
 
   for (const actionName of ownedActions) {
@@ -96,9 +142,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   // set hp and mp to max
   monster.combatantProperties.resources.setToMax();
 
-  // @TODO - assign abilities (realistically need to refactor monster creation)
-  //
-  combatantProperties.controlledBy.setAiTypes([AiType.Healer]);
+  monster.combatantProperties.abilityProperties.applyConditionsFromTraits(monster, idGenerator);
 
   return monster;
 }

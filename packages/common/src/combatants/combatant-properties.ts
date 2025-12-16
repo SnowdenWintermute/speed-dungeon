@@ -8,7 +8,7 @@ import { ActionUserTargetingProperties } from "../action-user-context/action-use
 import { CombatantAttributeProperties } from "./attribute-properties.js";
 import { ThreatManager } from "./threat-manager/index.js";
 import { CombatantClass, Inventory } from "./index.js";
-import { plainToInstance } from "class-transformer";
+import { Exclude, plainToInstance } from "class-transformer";
 import {
   ClassProgressionProperties,
   CombatantClassProperties,
@@ -20,6 +20,11 @@ import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { CombatantConditionManager } from "./condition-manager.js";
 import { CombatantTransformProperties } from "./combatant-transform-properties.js";
 import { runIfInBrowser } from "../utils/index.js";
+import { EntityId } from "../index.js";
+
+export interface CombatantOnDeathProperties {
+  removeConditionsApplied: boolean;
+}
 
 export class CombatantProperties {
   // subsystems
@@ -34,11 +39,19 @@ export class CombatantProperties {
     new CombatantClassProperties(1, CombatantClass.Warrior)
   );
   mitigationProperties = new MitigationProperties();
+  // need to specially serialize conditions,
+  // see note on conditionManager.serializedConditions
+  @Exclude()
   conditionManager = new CombatantConditionManager();
   transformProperties = new CombatantTransformProperties();
 
   // ACHIEVEMENTS
   deepestFloorReached: number = 1;
+
+  onDeathProperties?: CombatantOnDeathProperties;
+  removeFromPartyOnDeath?: boolean;
+  giveThreatGeneratedToId?: EntityId;
+  shouldDieWhenCombatantAttachedToDies?: boolean;
 
   constructor(
     mainClassType: CombatantClass,
@@ -51,7 +64,7 @@ export class CombatantProperties {
     // I don't know why but for now this works
     if (homePosition !== undefined) {
       this.transformProperties.position = homePosition;
-      this.transformProperties.homePosition = homePosition.clone();
+      this.transformProperties.setHomePosition(homePosition.clone());
     }
     this.classProgressionProperties.setMainClass(mainClassType);
 
@@ -97,7 +110,7 @@ export class CombatantProperties {
     );
 
     deserialized.conditionManager = CombatantConditionManager.getDeserialized(
-      deserialized.conditionManager
+      combatantProperties.conditionManager
     );
 
     return deserialized;

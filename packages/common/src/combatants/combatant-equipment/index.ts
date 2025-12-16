@@ -20,6 +20,7 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { CombatantSubsystem } from "../combatant-subsystem.js";
+import { MONSTER_UNARMED_WEAPONS } from "../../monsters/monster-unarmed-weapons.js";
 
 const DEFAULT_HOTSWAP_SLOT_ALLOWED_TYPES = [
   EquipmentType.OneHandedMeleeWeapon,
@@ -107,6 +108,29 @@ export class CombatantEquipment extends CombatantSubsystem {
     if (itemOption === undefined) return undefined;
 
     return itemOption.getWeaponProperties();
+  }
+
+  getUnarmedWeapons() {
+    const { monsterType } = this.getCombatantProperties();
+    if (monsterType === null) {
+      return {};
+    } else {
+      const unarmedWeaponsOption = MONSTER_UNARMED_WEAPONS[monsterType];
+      if (unarmedWeaponsOption !== null) {
+        const toReturn: Partial<
+          Record<HoldableSlotType, { equipment: Equipment; weaponProperties: WeaponProperties }>
+        > = {};
+        for (const [slotType, equipment] of iterateNumericEnumKeyedRecord(unarmedWeaponsOption)) {
+          const weaponPropertiesResult = equipment.getWeaponProperties();
+          if (weaponPropertiesResult instanceof Error) continue; // could be a shield so just skip it
+          toReturn[slotType] = { equipment, weaponProperties: weaponPropertiesResult };
+        }
+
+        return toReturn;
+      } else {
+        return {};
+      }
+    }
   }
 
   getWeaponsInSlots(weaponSlots: HoldableSlotType[], options: { usableWeaponsOnly: boolean }) {

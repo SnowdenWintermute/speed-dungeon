@@ -38,6 +38,13 @@ export const SINGLE_FRIENDLY_TARGETING_PROPERTIES: CombatActionTargetingProperti
   usabilityContext: CombatActionUsabilityContext.All,
 };
 
+export const SINGLE_ANY_TARGETING_PROPERTIES: CombatActionTargetingPropertiesConfig = {
+  ...SINGLE_HOSTILE_TARGETING_PROPERTIES,
+  getValidTargetCategories: () => TargetCategories.Any,
+  intent: CombatActionIntent.Malicious,
+  usabilityContext: CombatActionUsabilityContext.All,
+};
+
 export const PET_OF_USER_TARGETING_PROPERTIES: CombatActionTargetingPropertiesConfig = {
   ...SINGLE_FRIENDLY_TARGETING_PROPERTIES,
   prohibitedTargetCombatantStates: [

@@ -9,7 +9,8 @@ export function setUpMageAbilityTree() {
   // tree.assign(0, 1, { type: AbilityType.Action, actionName: CombatActionName.Firewall });
   // tree.assign(0, 2, { type: AbilityType.Action, actionName: CombatActionName.IceBoltParent });
 
-  tree.assign(1, 0, { type: AbilityType.Action, actionName: CombatActionName.TamePet });
+  tree.assign(1, 0, { type: AbilityType.Action, actionName: CombatActionName.Ensnare });
+  tree.assign(1, 1, { type: AbilityType.Action, actionName: CombatActionName.TamePet });
   tree.assign(4, 0, {
     type: AbilityType.Trait,
     traitType: CombatantTraitType.MpBioavailability,

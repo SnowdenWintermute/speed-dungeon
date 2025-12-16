@@ -7,6 +7,7 @@ import {
 import { SpawnableEntityType } from "../../../spawnables/index.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { COMBAT_ACTIONS } from "../../../combat/index.js";
+import { SceneEntityType } from "../../../scene-entities/index.js";
 
 export class CombatantMotionActionResolutionStep extends EntityMotionActionResolutionStep {
   constructor(context: ActionResolutionStepContext, step: ActionResolutionStepType) {
@@ -24,6 +25,25 @@ export class CombatantMotionActionResolutionStep extends EntityMotionActionResol
 
     const stepConfig = action.stepsConfig.getStepConfigOption(step);
     if (!stepConfig) throw new Error("expected step config not found");
+
+    if (stepConfig.shouldIdleOnComplete === false) {
+      update.idleOnComplete = false;
+    }
+
+    // I want to be able to update "attached combatant" positions which are parented to this combatant
+    // so when we attack them we get their proper positions as destinations
+    if (stepConfig.getNewParent) {
+      const newParent = stepConfig.getNewParent(context);
+      update.setParent = newParent;
+
+      if (newParent?.identifier.sceneEntityIdentifier.type === SceneEntityType.CharacterModel) {
+        const combatantId = newParent?.identifier.sceneEntityIdentifier.entityId;
+        context.actionUserContext.party.combatantManager
+          .getExpectedCombatant(combatantId)
+          .getCombatantProperties()
+          .transformProperties.setAttachedCombatant(actionUser.getEntityId());
+      }
+    }
 
     if (stepConfig.shouldIdleOnComplete) update.idleOnComplete = true;
 

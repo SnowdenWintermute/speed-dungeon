@@ -7,12 +7,7 @@ import {
   SceneEntityChildTransformNodeIdentifierWithDuration,
 } from "../scene-entities/index.js";
 import { TaggedShape3DDimensions } from "../utils/shape-utils.js";
-import {
-  CombatantActionState,
-  CombatantAttributeRecord,
-  ConditionAppliedBy,
-  ConditionTickProperties,
-} from "../combatants/index.js";
+import { CombatantActionState } from "../combatants/index.js";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import { MagicalElement } from "../combat/magical-elements.js";
 import {
@@ -33,6 +28,9 @@ import { AdventuringParty } from "../adventuring-party/index.js";
 import { ARROW_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
 import { CombatantProperties } from "../combatants/combatant-properties.js";
 import { Battle } from "../battle/index.js";
+import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
+import { ConditionAppliedBy } from "../conditions/condition-applied-by.js";
+import { ConditionTickProperties } from "../conditions/condition-tick-properties.js";
 
 export enum ActionEntityName {
   Arrow,
@@ -100,6 +98,12 @@ export class ActionEntity implements IActionUser {
     const wasRemoved = !!this.actionEntityProperties.actionOriginData?.wasIncinerated;
     return wasRemoved;
   }
+
+  /** Should be displayed in persistent action entity display list on client */
+  shouldBeDisplayedInPersistentEntityList() {
+    return [ActionEntityName.Firewall].includes(this.actionEntityProperties.name);
+  }
+
   payResourceCosts(): void {
     throw new Error("Method not implemented.");
   }
@@ -140,7 +144,11 @@ export class ActionEntity implements IActionUser {
       return idsByDisposition;
     } else {
       const allCombatantIds = combatantManager.getAllCombatantIds();
-      return { [FriendOrFoe.Hostile]: allCombatantIds, [FriendOrFoe.Friendly]: allCombatantIds };
+      return {
+        [FriendOrFoe.Hostile]: allCombatantIds,
+        [FriendOrFoe.Friendly]: allCombatantIds,
+        [FriendOrFoe.Neutral]: allCombatantIds,
+      };
     }
   }
   getCombatantProperties(): CombatantProperties {
@@ -184,6 +192,16 @@ export class ActionEntity implements IActionUser {
   getWeaponsInSlots() {
     return {};
   }
+
+  getNaturalUnarmedWeapons() {
+    return {};
+  }
+
+  targetFlyingConditionPreventsReachingMeleeRange() {
+    return false;
+  }
+
+  movementIsRestrained = () => false;
 
   actionAndRankMeetsUseRequirements(
     actionAndRank: ActionAndRank,

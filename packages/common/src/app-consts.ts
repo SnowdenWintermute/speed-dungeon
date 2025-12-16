@@ -18,9 +18,13 @@ export const DEEPEST_FLOOR = 10;
 export const EMPTY_ROOMS_PER_FLOOR = 0;
 export const DEFAULT_LEVEL_TO_REACH_FOR_ESCAPE = 4;
 export const GAME_CONFIG = {
-  MONSTER_LAIRS_PER_FLOOR: 1,
+  MONSTER_LAIRS_PER_FLOOR: 2,
   LEVEL_TO_REACH_FOR_ESCAPE: DEFAULT_LEVEL_TO_REACH_FOR_ESCAPE,
   MIN_RACE_GAME_PARTIES: 2,
+};
+
+export const DEBUG_CONFIG = {
+  SAVE_ID_GENERATOR_HISTORY: true,
 };
 export const MAX_PARTY_SIZE = 3;
 export const NUM_MONSTERS_PER_ROOM = 3;
@@ -167,6 +171,7 @@ export enum SkeletalAnimationName {
   StartMovingForward,
   MoveForwardLoop,
   MoveBack,
+  IdleFlying,
   IdleUnarmed,
   IdleMainHand,
   IdleDualWield,
@@ -219,6 +224,11 @@ export enum SkeletalAnimationName {
   UseConsumableDelivery,
   UseConsumableRecovery,
   OnSummoned,
+  Falling,
+  ThrowObjectChambering,
+  ThrowObjectDelivery,
+  ThrowObjectRecovery,
+  Enclose,
 }
 
 export enum DynamicAnimationName {
@@ -232,6 +242,7 @@ export const SKELETAL_ANIMATION_NAME_STRINGS: Record<SkeletalAnimationName, stri
   [SkeletalAnimationName.StartMovingForward]: "sprint-loop",
   [SkeletalAnimationName.MoveForwardLoop]: "sprint-loop",
   [SkeletalAnimationName.MoveBack]: "run-back",
+  [SkeletalAnimationName.IdleFlying]: "idle-flying",
   [SkeletalAnimationName.IdleUnarmed]: "idle-unarmed",
   [SkeletalAnimationName.IdleMainHand]: "idle-1h",
   [SkeletalAnimationName.IdleDualWield]: "idle-dual-wield",
@@ -284,6 +295,11 @@ export const SKELETAL_ANIMATION_NAME_STRINGS: Record<SkeletalAnimationName, stri
   [SkeletalAnimationName.EquipmentRecurveBowShoot]: "recurve-bow-shoot-baked",
   [SkeletalAnimationName.EquipmentCompositeBowShoot]: "composite-bow-shoot-baked",
   [SkeletalAnimationName.OnSummoned]: "on-summoned",
+  [SkeletalAnimationName.Falling]: "falling",
+  [SkeletalAnimationName.ThrowObjectChambering]: "throw-object-chambering",
+  [SkeletalAnimationName.ThrowObjectDelivery]: "throw-object-delivery",
+  [SkeletalAnimationName.ThrowObjectRecovery]: "throw-object-recovery",
+  [SkeletalAnimationName.Enclose]: "enclose",
 };
 
 export const DYNAMIC_ANIMATION_NAME_STRINGS: Record<DynamicAnimationName, string> = {

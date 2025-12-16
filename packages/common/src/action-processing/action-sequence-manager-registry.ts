@@ -8,6 +8,7 @@ import { ActionSequenceManager } from "./action-sequence-manager.js";
 import { ACTION_RESOLUTION_STEP_TYPE_STRINGS, ActionIntentAndUser } from "./action-steps/index.js";
 import { ActionTracker } from "./action-tracker.js";
 import { NestedNodeReplayEvent, ReplayEventType } from "./replay-events.js";
+import { BoundingBoxSizesBySpecies } from "../types.js";
 
 export class TimeKeeper {
   ms: number = 0;
@@ -23,7 +24,8 @@ export class ActionSequenceManagerRegistry {
   public time = new TimeKeeper();
   constructor(
     private idGenerator: IdGenerator,
-    public readonly animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>
+    public readonly animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>,
+    public readonly boundingBoxSizes: BoundingBoxSizesBySpecies
   ) {}
 
   isEmpty() {
@@ -156,13 +158,15 @@ export class ActionSequenceManagerRegistry {
   }
 
   processActiveActionSequences(actionUserContext: ActionUserContext) {
-    for (const sequenceManager of this.getManagers())
+    for (const sequenceManager of this.getManagers()) {
       sequenceManager.processCurrentStep(actionUserContext);
+    }
 
     const timeToTick = this.getShortestTimeToCompletion();
     this.time.ms += timeToTick;
 
-    for (const sequenceManager of this.getManagers())
+    for (const sequenceManager of this.getManagers()) {
       sequenceManager.getCurrentTracker()?.currentStep.tick(timeToTick);
+    }
   }
 }

@@ -37,6 +37,9 @@ import Chevron from "../../../public/img/basic-shapes/chevron.svg";
 import Model3DIcon from "../../../public/img/menu-icons/3d-model-icon.svg";
 import Whistle from "../../../public/img/game-ui-icons/whistle.svg";
 import EditPencil from "../../../public/img/menu-icons//edit-pencil.svg";
+import Feather from "../../../public/img/game-ui-icons/feather.svg";
+import SpiderWeb from "../../../public/img/game-ui-icons/spider-web.svg";
+import Dove from "../../../public/img/game-ui-icons/dove.svg";
 
 import { ReactNode } from "react";
 import {
@@ -88,6 +91,9 @@ export enum IconName {
   Firewall,
   Whistle,
   EditPencil,
+  Feather,
+  SpiderWeb,
+  Dove,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -128,6 +134,9 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.Firewall]: (className) => <Firewall className={className} />,
   [IconName.Whistle]: (className) => <Whistle className={className} />,
   [IconName.EditPencil]: (className: string) => <EditPencil className={className} />,
+  [IconName.Feather]: (className: string) => <Feather className={className} />,
+  [IconName.SpiderWeb]: (className: string) => <SpiderWeb className={className} />,
+  [IconName.Dove]: (className: string) => <Dove className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {
@@ -168,6 +177,12 @@ export const CONDITION_INDICATOR_ICONS: Record<CombatantConditionName, ReactNode
   ),
   [CombatantConditionName.FollowingPetCommand]: (
     <div className="h-full">{SVG_ICONS[IconName.Whistle]("h-full fill-zinc-300")}</div>
+  ),
+  [CombatantConditionName.Flying]: (
+    <div className="h-full">{SVG_ICONS[IconName.Feather]("h-full fill-windgreen")}</div>
+  ),
+  [CombatantConditionName.Ensnared]: (
+    <div className="h-full">{SVG_ICONS[IconName.SpiderWeb]("h-full fill-zinc-300")}</div>
   ),
 };
 
@@ -213,6 +228,12 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
   [CombatActionName.TamePet]: (className: string) => SVG_ICONS[IconName.Whistle](`${className}`),
   [CombatActionName.ReleasePet]: null,
   [CombatActionName.PetCommand]: null,
+  [CombatActionName.FallTowardsHomePosition]: null,
+  [CombatActionName.Ensnare]: (className: string) => SVG_ICONS[IconName.SpiderWeb](`${className}`),
+  [CombatActionName.EnsnareMoveNetTowardTargetAndActivate]: (className: string) =>
+    SVG_ICONS[IconName.SpiderWeb](`${className}`),
+  [CombatActionName.StartFlying]: (className: string) => SVG_ICONS[IconName.Feather](className),
+  [CombatActionName.Death]: null,
 };
 
 export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string) => ReactNode)> = {
@@ -224,6 +245,10 @@ export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string)
   [CombatantTraitType.CanConvertToShardsManually]: null,
   [CombatantTraitType.ExtraConsumablesStorage]: null,
   [CombatantTraitType.IsTameable]: (className: string) => SVG_ICONS[IconName.Whistle](className),
+  [CombatantTraitType.Flyer]: (className: string) => SVG_ICONS[IconName.Feather](className),
+  [CombatantTraitType.Passive]: (className: string) => SVG_ICONS[IconName.Dove](className),
+  [CombatantTraitType.CanNotBeRestrained]: (className: string) =>
+    SVG_ICONS[IconName.Feather](className),
 };
 
 export const ACTION_ENTITY_ICONS: Record<

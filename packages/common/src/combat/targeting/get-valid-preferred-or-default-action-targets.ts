@@ -25,6 +25,7 @@ export function getValidPreferredOrDefaultActionTargets(
 
   const allyIds = targetIdsByDisposition[FriendOrFoe.Friendly];
   const opponentIds = targetIdsByDisposition[FriendOrFoe.Hostile];
+  const neutralIds = targetIdsByDisposition[FriendOrFoe.Neutral];
 
   if (playerOption) {
     const {
@@ -42,15 +43,16 @@ export function getValidPreferredOrDefaultActionTargets(
           if (preferredCategoryOption !== null) {
             switch (preferredCategoryOption) {
               case FriendOrFoe.Hostile:
-                newTargets = getPreferredOrDefaultSingleTargetOption(
-                  preferredHostileOption,
-                  opponentIds
-                );
+                newTargets = getPreferredOrDefaultSingleTargetOption(preferredHostileOption, [
+                  ...opponentIds,
+                  ...neutralIds,
+                ]);
                 break;
               case FriendOrFoe.Friendly:
                 newTargets = getPreferredOrDefaultSingleTargetOption(
                   preferredFriendlyOption,
-                  allyIds
+
+                  [...allyIds, ...neutralIds]
                 );
                 break;
             }
@@ -67,11 +69,16 @@ export function getValidPreferredOrDefaultActionTargets(
           break;
         case TargetingScheme.Area:
           if (preferredCategoryOption) {
-            newTargets = getGroupTargetsOption(allyIds, opponentIds, preferredCategoryOption);
+            newTargets = getGroupTargetsOption(
+              allyIds,
+              opponentIds,
+              neutralIds,
+              preferredCategoryOption
+            );
           } else {
             for (const category of iterateNumericEnum(FriendOrFoe)) {
               if (newTargets) return newTargets;
-              newTargets = getGroupTargetsOption(allyIds, opponentIds, category);
+              newTargets = getGroupTargetsOption(allyIds, opponentIds, neutralIds, category);
             }
           }
           break;
@@ -102,16 +109,22 @@ export function getValidPreferredOrDefaultActionTargets(
     switch (targetingScheme) {
       case TargetingScheme.Single:
         for (const category of iterateNumericEnum(FriendOrFoe)) {
-          const idsOption = category === FriendOrFoe.Friendly ? allyIds : opponentIds;
+          const idsOption =
+            category === FriendOrFoe.Friendly
+              ? [...allyIds, ...neutralIds]
+              : [...opponentIds, ...neutralIds];
 
-          if (idsOption)
+          if (idsOption) {
             newTargets = getPreferredOrDefaultSingleTargetOption(idsOption[0] || null, idsOption);
-          if (newTargets) return newTargets;
+          }
+          if (newTargets) {
+            return newTargets;
+          }
         }
         break;
       case TargetingScheme.Area:
         for (const category of iterateNumericEnum(FriendOrFoe)) {
-          newTargets = getGroupTargetsOption(allyIds, opponentIds, category);
+          newTargets = getGroupTargetsOption(allyIds, opponentIds, neutralIds, category);
           if (newTargets) return newTargets;
         }
         break;
@@ -145,6 +158,7 @@ function getPreferredOrDefaultSingleTargetOption(
 function getGroupTargetsOption(
   allyIdsOption: null | string[],
   opponentIdsOption: null | string[],
+  neutralIdsOption: null | string[],
   category: FriendOrFoe
 ) {
   switch (category) {
@@ -152,6 +166,8 @@ function getGroupTargetsOption(
       return getGroupTargetIfTargetsExist(allyIdsOption, FriendOrFoe.Friendly);
     case FriendOrFoe.Hostile:
       return getGroupTargetIfTargetsExist(opponentIdsOption, FriendOrFoe.Hostile);
+    case FriendOrFoe.Neutral:
+      return getGroupTargetIfTargetsExist(neutralIdsOption, FriendOrFoe.Neutral);
   }
 }
 

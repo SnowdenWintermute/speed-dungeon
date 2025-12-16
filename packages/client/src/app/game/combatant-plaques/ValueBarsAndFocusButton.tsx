@@ -11,10 +11,11 @@ interface Props {
   combatantId: string;
   showExperience: boolean;
   isFocused: boolean;
+  combactView?: boolean;
 }
 
 export const ValueBarsAndFocusButton = observer(
-  ({ combatantProperties, combatantId, showExperience, isFocused }: Props) => {
+  ({ combatantProperties, combatantId, showExperience, isFocused, combactView }: Props) => {
     const totalAttributes = combatantProperties.attributeProperties.getTotalAttributes();
     const maxHitPointsOption = totalAttributes[CombatAttribute.Hp];
     const maxManaOption = totalAttributes[CombatAttribute.Mp];
@@ -24,6 +25,7 @@ export const ValueBarsAndFocusButton = observer(
         maxValue={maxHitPointsOption}
         currentValue={combatantProperties.resources.getHitPoints()}
         color="green-700"
+        compactView={combactView}
       />
     ) : (
       "Immortal object"
@@ -34,6 +36,7 @@ export const ValueBarsAndFocusButton = observer(
         maxValue={maxManaOption}
         currentValue={combatantProperties.resources.getMana()}
         color="blue-700"
+        compactView={combactView}
       />
     ) : (
       <span />
@@ -48,12 +51,13 @@ export const ValueBarsAndFocusButton = observer(
         currentValue={experiencePoints.getCurrent()}
         color="ffxipink"
         hideNumbers={true}
+        compactView={combactView}
       />
     ) : (
       <></>
     );
 
-    <FocusCharacterButton combatantId={combatantId} isFocused={isFocused} />;
+    // <FocusCharacterButton combatantId={combatantId} isFocused={isFocused} />;
 
     return (
       <>

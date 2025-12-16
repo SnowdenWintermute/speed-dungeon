@@ -110,7 +110,9 @@ export class ResourceChangeModifier {
   }
 
   convertResourceChangeValueToFinalSign() {
-    const targetIsUndead = this.target.abilityProperties.hasTraitType(CombatantTraitType.Undead);
+    const targetIsUndead = this.target.abilityProperties
+      .getTraitProperties()
+      .hasTraitType(CombatantTraitType.Undead);
     // if it wasn't intended as healing, but is actually healing target due to affinities,
     // don't "un healify" the hp change here
     const { resourceChange } = this;

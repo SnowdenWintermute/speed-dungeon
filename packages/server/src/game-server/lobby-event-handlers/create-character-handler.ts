@@ -30,9 +30,9 @@ export function createCharacterHandler(
   const newCharacter = createCharacter(name, combatantClass, player.username);
   if (newCharacter instanceof Error) return newCharacter;
 
-  // // @TESTING - pets
-  // // @TODO - don't start a new character with any pets
-  // const testPet = generateMonster(1, MonsterType.Wolf);
+  // @TESTING - pets
+  // @TODO - don't start a new character with any pets
+  // const testPet = generateMonster(1, 1, MonsterType.Wolf);
   // delete testPet.combatantProperties.threatManager;
   // testPet.combatantProperties.controlledBy.controllerType = CombatantControllerType.PlayerPetAI;
 

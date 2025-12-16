@@ -13,6 +13,8 @@ export enum ProhibitedTargetCombatantStates {
   IsNotTameable,
   IsBeyondUserMaximumPetLevel,
   IsNotThisUsersPet,
+  TargetFlyingPreventsReachingRequiredRange,
+  CanNotBeTargetedByRestraintActions,
 }
 
 export const PROHIBITED_TARGET_COMBATANT_STATE_STRINGS: Record<
@@ -28,6 +30,10 @@ export const PROHIBITED_TARGET_COMBATANT_STATE_STRINGS: Record<
   [ProhibitedTargetCombatantStates.IsNotTameable]: "IsNotTameable",
   [ProhibitedTargetCombatantStates.IsBeyondUserMaximumPetLevel]: "IsBeyondUserMaximumPetLevel",
   [ProhibitedTargetCombatantStates.IsNotThisUsersPet]: "IsNotThisUsersPet",
+  [ProhibitedTargetCombatantStates.TargetFlyingPreventsReachingRequiredRange]:
+    "TargetFlyingPreventsReachingRequiredRange",
+  [ProhibitedTargetCombatantStates.CanNotBeTargetedByRestraintActions]:
+    "CanNotBeTargetedByRestraintActions",
 };
 
 export const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
@@ -61,9 +67,9 @@ export const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
     return false;
   },
   [ProhibitedTargetCombatantStates.IsNotTameable]: function (combatant: Combatant): boolean {
-    const isTameable = combatant.combatantProperties.abilityProperties.hasTraitType(
-      CombatantTraitType.IsTameable
-    );
+    const isTameable = combatant.combatantProperties.abilityProperties
+      .getTraitProperties()
+      .hasTraitType(CombatantTraitType.IsTameable);
     return !isTameable;
   },
   [ProhibitedTargetCombatantStates.IsBeyondUserMaximumPetLevel]: function (
@@ -79,5 +85,17 @@ export const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
     user: IActionUser
   ): boolean {
     return combatant.combatantProperties.controlledBy.summonedBy !== user.getEntityId();
+  },
+  [ProhibitedTargetCombatantStates.TargetFlyingPreventsReachingRequiredRange]: (target, user) => {
+    const canNotReachTarget = user.targetFlyingConditionPreventsReachingMeleeRange(
+      target.combatantProperties
+    );
+    return !canNotReachTarget;
+  },
+  [ProhibitedTargetCombatantStates.CanNotBeTargetedByRestraintActions]: (target, user) => {
+    const isUnrestrainable = target.combatantProperties.abilityProperties
+      .getTraitProperties()
+      .hasTraitType(CombatantTraitType.CanNotBeRestrained);
+    return isUnrestrainable;
   },
 };

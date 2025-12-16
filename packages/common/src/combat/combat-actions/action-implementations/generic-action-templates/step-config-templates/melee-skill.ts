@@ -11,7 +11,12 @@ const config = cloneDeep(RANGED_SKILL_STEPS_CONFIG);
 
 config.steps[ActionResolutionStepType.InitialPositioning] = {
   getDestination: getMeleeAttackDestination,
-  getAnimation: () => {
+  getAnimation: (actionUser) => {
+    const isRestrained = actionUser.movementIsRestrained();
+    if (isRestrained) {
+      return null;
+    }
+
     return {
       name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },
       timing: { type: AnimationTimingType.Looping },

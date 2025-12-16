@@ -13,13 +13,13 @@ export function handlePetsTamed(
   game: SpeedDungeonGame
 ) {
   for (const { petId, tamerId } of petsTamed) {
+    party.petManager.handlePetTamed(petId, tamerId, game);
     const modelOption = getGameWorld().modelManager.combatantModels[petId];
     modelOption?.skeletalAnimationManager.startAnimationWithTransition(
       SkeletalAnimationName.OnSummoned,
       500,
       {
         onComplete: () => {
-          party.petManager.handlePetTamed(petId, tamerId, game);
           synchronizeCombatantModelsWithAppState({ softCleanup: true });
         },
       }

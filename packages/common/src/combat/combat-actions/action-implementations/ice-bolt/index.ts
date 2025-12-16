@@ -60,11 +60,8 @@ stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning] = {
   ],
 };
 
-const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
-  requiresCombatTurnInThisContext: () => false,
-};
-
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL;
+const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {};
 const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
 
 const config: CombatActionComponentConfig = {

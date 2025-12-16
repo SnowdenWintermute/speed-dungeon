@@ -9,14 +9,9 @@ export function setUpRogueAbilityTree() {
     type: AbilityType.Action,
     actionName: CombatActionName.Blind,
   });
-  tree.assign(1, 0, {
-    type: AbilityType.Action,
-    actionName: CombatActionName.TamePet,
-  });
-  tree.assign(0, 1, {
-    type: AbilityType.Action,
-    actionName: CombatActionName.Healing,
-  });
+
+  tree.assign(1, 0, { type: AbilityType.Action, actionName: CombatActionName.Ensnare });
+  tree.assign(1, 1, { type: AbilityType.Action, actionName: CombatActionName.TamePet });
   tree.assign(4, 0, {
     type: AbilityType.Trait,
     traitType: CombatantTraitType.HpBioavailability,

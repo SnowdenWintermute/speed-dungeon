@@ -46,15 +46,10 @@ export const TopInfoBar = observer(() => {
     const { gameStore } = AppStore.get();
     gameStore.clearGame();
 
-    console.log("left game");
-
     websocketConnection.emit(ClientToServerEvent.LeaveGame);
 
     getGameWorld().replayTreeManager.clear();
     getGameWorld().modelManager.modelActionQueue.clear();
-
-    // console.log("enqueu sync models after left game");
-    // synchronizeCombatantModelsWithAppState({ placeInHomePositions: true });
 
     getGameWorld().modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
