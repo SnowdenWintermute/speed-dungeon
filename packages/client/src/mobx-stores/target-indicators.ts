@@ -1,4 +1,4 @@
-import { GameWorld } from "@/app/3d-world/game-world";
+import { GameWorld } from "@/game-world-view/game-world";
 import { TargetIndicator } from "@/app/target-indicators";
 import { CombatActionName, EntityId } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
@@ -12,7 +12,7 @@ export class TargetIndicatorStore {
 
   /** avoid a circular reference since targetIndicatorStore will need to access GameWorld
   but GameWorld also accesses AppStore.get() which targetIndicatorStore is a member of
-  so we can't directly call getGameWorld() inside it */
+  so we can't directly call getGameWorldView() inside it */
   initialize(gameWorld: GameWorld) {
     this._gameWorld = gameWorld;
   }

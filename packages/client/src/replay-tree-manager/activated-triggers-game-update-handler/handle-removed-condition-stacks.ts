@@ -1,4 +1,4 @@
-import { getGameWorld } from "@/app/3d-world/SceneManager";
+import { getGameWorldView } from "@/game-world-view/SceneManager";
 import { AdventuringParty, EntityId } from "@speed-dungeon/common";
 import { startOrStopCosmeticEffects } from "../start-or-stop-cosmetic-effect";
 
@@ -20,7 +20,7 @@ export function handleRemovedConditionStacks(
       const conditionRemovedOption = conditionManager.removeStacks(conditionId, numStacks);
 
       if (conditionRemovedOption) {
-        const targetModelOption = getGameWorld().modelManager.findOne(entityId);
+        const targetModelOption = getGameWorldView().modelManager.findOne(entityId);
 
         startOrStopCosmeticEffects(
           [],

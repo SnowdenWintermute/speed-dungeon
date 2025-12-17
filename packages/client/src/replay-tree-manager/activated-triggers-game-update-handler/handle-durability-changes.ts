@@ -1,4 +1,4 @@
-import { getGameWorld } from "@/app/3d-world/SceneManager";
+import { getGameWorldView } from "@/game-world-view/SceneManager";
 import {
   AdventuringParty,
   DurabilityChangesByEntityId,
@@ -25,7 +25,7 @@ export function handleDurabilityChanges(
     // maybe we can set visibilty instead and despawn it later
     const justBrokeHoldable = equipment.isBroken() && slot?.type === EquipmentSlotType.Holdable;
     if (justBrokeHoldable) {
-      const characterModelOption = getGameWorld().modelManager.findOneOptional(
+      const characterModelOption = getGameWorldView().modelManager.findOneOptional(
         combatant.entityProperties.id
       );
 

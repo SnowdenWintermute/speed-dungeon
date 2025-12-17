@@ -6,16 +6,15 @@ import {
   CombatActionName,
   COMBAT_ACTIONS,
   ActionResolutionStepType,
-  SKELETAL_ANIMATION_NAME_STRINGS,
   CombatantConditionName,
 } from "@speed-dungeon/common";
-import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { FloatingMessageService } from "@/mobx-stores/game-event-notifications/floating-message-service";
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
-import { synchronizeCombatantModelsWithAppState } from "../../model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
+import { synchronizeCombatantModelsWithAppState } from "@/game-world-view/model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
 
 export function induceHitRecovery(
   actionUserName: string,
@@ -28,7 +27,7 @@ export function induceHitRecovery(
   wasBlocked: boolean,
   shouldAnimate: boolean
 ) {
-  const targetModel = getGameWorld().modelManager.findOneOptional(targetId);
+  const targetModel = getGameWorldView().modelManager.findOneOptional(targetId);
   if (targetModel === undefined) return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
   FloatingMessageService.startResourceChangeFloatingMessage(
@@ -81,7 +80,7 @@ export function induceHitRecovery(
     // end any motion trackers they might have had
     // this is hacky because we would rather have not given them any but
     // it was the easiest way to implement dying on combatant's own turn
-    const combatantModel = getGameWorld().modelManager.findOne(targetId);
+    const combatantModel = getGameWorldView().modelManager.findOne(targetId);
 
     for (const [movementType, tracker] of combatantModel.movementManager.getTrackers()) {
       tracker.onComplete();

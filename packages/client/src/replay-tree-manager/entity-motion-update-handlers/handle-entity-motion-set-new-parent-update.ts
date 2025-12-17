@@ -1,4 +1,4 @@
-import { SceneEntity } from "@/app/3d-world/scene-entities";
+import { SceneEntity } from "@/game-world-view/scene-entities";
 import { Vector3 } from "@babylonjs/core";
 import { SceneEntityChildTransformNodeIdentifierWithDuration } from "@speed-dungeon/common";
 

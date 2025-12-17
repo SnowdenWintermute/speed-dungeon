@@ -1,6 +1,6 @@
 import { setAlert } from "../components/alerts";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
-import { getGameWorld } from "../3d-world/SceneManager";
+import { getGameWorldView } from "../3d-world/SceneManager";
 import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
 import { ModelActionType } from "../3d-world/game-world/model-manager/model-actions";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
@@ -45,12 +45,12 @@ export async function removeClientPlayerFromGame(username: string) {
 
   characterAutoFocusManager.focusFirstOwnedCharacter();
 
-  getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+  getGameWorldView().modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.SynchronizeCombatantModels,
     placeInHomePositions: true,
   });
 
-  getGameWorld().imageManager.enqueueMessage({
+  getGameWorldView().imageManager.enqueueMessage({
     type: ImageManagerRequestType.ItemDeletion,
     itemIds: itemsToRemoveThumbnails,
   });

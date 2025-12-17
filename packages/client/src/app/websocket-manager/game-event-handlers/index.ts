@@ -24,8 +24,8 @@ import { characterDroppedShardsHandler } from "./character-dropped-shards-handle
 import { characterPurchasedItemHandler } from "./character-purchased-item-handler";
 import { characterPerformedCraftingActionHandler } from "./character-performed-crafting-action-handler";
 import { playerPostedItemLinkHandler } from "./player-posted-item-link-handler";
-import { gameWorld } from "@/app/3d-world/SceneManager";
-import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
+import { gameWorld } from "@/game-world-view/SceneManager";
+import { ModelActionType } from "@/game-world-view/game-world/model-manager/model-actions";
 import { characterSelectedActionLevelHandler } from "./character-selected-action-level-handler";
 import { characterAllocatedAbilityPointHandler } from "./character-allocated-ability-point-handler";
 import { characterTradedItemForBookHandler } from "./character-traded-item-for-book-handler";

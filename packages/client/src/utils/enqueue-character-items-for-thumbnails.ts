@@ -1,5 +1,5 @@
-import { getGameWorld } from "@/app/3d-world/SceneManager";
-import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
+import { ImageManagerRequestType } from "@/game-world-view/image-manager";
 import {
   CONSUMABLE_TYPE_STRINGS,
   Combatant,
@@ -21,7 +21,7 @@ export function enqueueCharacterItemsForThumbnails(character: Combatant) {
   }
 
   for (const item of itemsToCreateThumbnailsFor) {
-    getGameWorld().imageManager.enqueueMessage({
+    getGameWorldView().imageManager.enqueueMessage({
       type: ImageManagerRequestType.ItemCreation,
       item: item,
     });
@@ -38,7 +38,7 @@ export function enqueueConsumableGenericThumbnailCreation() {
       1
     );
 
-    getGameWorld().imageManager.enqueueMessage({
+    getGameWorldView().imageManager.enqueueMessage({
       type: ImageManagerRequestType.ItemCreation,
       item: item,
     });

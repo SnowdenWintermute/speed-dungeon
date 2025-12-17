@@ -6,7 +6,6 @@ import {
   COMBAT_ACTIONS,
   ManaChanges,
 } from "@speed-dungeon/common";
-import { getGameWorld } from "../../SceneManager";
 import { plainToInstance } from "class-transformer";
 import { HitPointChanges } from "@speed-dungeon/common";
 import { induceHitRecovery } from "./induce-hit-recovery";
@@ -16,6 +15,7 @@ import { GameUpdateTracker } from "./game-update-tracker";
 import { FloatingMessageService } from "@/mobx-stores/game-event-notifications/floating-message-service";
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 import { AppStore } from "@/mobx-stores/app-store";
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 
 export async function hitOutcomesGameUpdateHandler(
   update: GameUpdateTracker<HitOutcomesGameUpdateCommand>
@@ -91,7 +91,7 @@ export async function hitOutcomesGameUpdateHandler(
     const targetCombatantResult = AppStore.get().gameStore.getExpectedCombatant(entityId);
     GameLogMessageService.postActionEvaded(actionUserName, targetCombatantResult.getName());
 
-    const targetModel = getGameWorld().modelManager.findOne(entityId);
+    const targetModel = getGameWorldView().modelManager.findOne(entityId);
 
     targetModel.skeletalAnimationManager.startAnimationWithTransition(
       SkeletalAnimationName.Evade,
@@ -105,7 +105,7 @@ export async function hitOutcomesGameUpdateHandler(
   outcomeFlags[HitOutcome.Parry]?.forEach((entityId) => {
     FloatingMessageService.startHitOutcomeParryMessage(entityId);
 
-    const targetModel = getGameWorld().modelManager.findOne(entityId);
+    const targetModel = getGameWorldView().modelManager.findOne(entityId);
 
     targetModel.skeletalAnimationManager.startAnimationWithTransition(
       SkeletalAnimationName.Parry,

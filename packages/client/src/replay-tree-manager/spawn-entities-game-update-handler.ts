@@ -2,24 +2,23 @@ import {
   ActionEntity,
   AdventuringParty,
   Combatant,
-  SpawnableEntity,
   SpawnableEntityType,
   SpawnedCombatant,
   SpawnEntitiesGameUpdateCommand,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
-import {
-  ActionEntityModel,
-  spawnActionEntityModel,
-} from "../../scene-entities/action-entity-models";
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { getGameWorld } from "../../SceneManager";
-import { SceneEntity } from "../../scene-entities";
 import { handleStartPointingTowardEntity } from "./entity-motion-update-handlers/handle-start-pointing-toward";
 import { handleLockRotationToFace } from "./entity-motion-update-handlers/handle-lock-rotation-to-face";
 import { GameUpdateTracker } from "./game-update-tracker";
 import { AppStore } from "@/mobx-stores/app-store";
-import { spawnCharacterModel } from "../model-manager/model-action-handlers/spawn-modular-character";
+import { spawnCharacterModel } from "@/game-world-view/model-manager/model-action-handlers/spawn-character-model";
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
+import { SceneEntity } from "@/game-world-view/scene-entities";
+import {
+  ActionEntityModel,
+  spawnActionEntityModel,
+} from "@/game-world-view/scene-entities/action-entity-models";
 
 export async function spawnEntitiesGameUpdateHandler(
   update: GameUpdateTracker<SpawnEntitiesGameUpdateCommand>
@@ -56,7 +55,7 @@ async function handleNewSpawnableCombatant(
   const { homeRotation } = deserialized.combatantProperties.transformProperties;
   party.combatantManager.addCombatant(deserialized, game);
   const model = await spawnCharacterModel(
-    getGameWorld(),
+    getGameWorldView(),
     {
       combatant: deserialized,
       homeRotation,
@@ -83,7 +82,7 @@ async function handleNewSpawnableCombatant(
     model.movementManager.transformNode.rotationQuaternion = Quaternion.Identity();
   }
 
-  await getGameWorld().modelManager.register(model);
+  await getGameWorldView().modelManager.register(model);
 }
 
 async function handleNewSpawnableActionEntity(
@@ -114,7 +113,7 @@ async function handleNewSpawnableActionEntity(
     actionEntityProperties.name
   );
 
-  getGameWorld().actionEntityManager.register(model);
+  getGameWorldView().actionEntityManager.register(model);
 
   const deserialized = ActionEntity.getDeserialized(actionEntity);
 

@@ -1,5 +1,5 @@
-import { gameWorld } from "@/app/3d-world/SceneManager";
-import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
+import { gameWorld } from "@/game-world-view/SceneManager";
+import { ModelActionType } from "@/game-world-view/game-world/model-manager/model-actions";
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 import { ActionCommandType, ERROR_MESSAGES, GameMessage } from "@speed-dungeon/common";
 

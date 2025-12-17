@@ -14,9 +14,9 @@ import { handleUpdateTranslation } from "./handle-update-translation";
 import { plainToInstance } from "class-transformer";
 import { Quaternion } from "@babylonjs/core";
 import { handleUpdateAnimation } from "./handle-update-animation";
-import { getGameWorld } from "@/app/3d-world/SceneManager";
-import { DynamicAnimationManager } from "@/app/3d-world/scene-entities/model-animation-managers/dynamic-animation-manager";
-import { SkeletalAnimationManager } from "@/app/3d-world/scene-entities/model-animation-managers/skeletal-animation-manager";
+import { getGameWorldView } from "@/game-world-view/SceneManager";
+import { DynamicAnimationManager } from "@/game-world-view/scene-entities/model-animation-managers/dynamic-animation-manager";
+import { SkeletalAnimationManager } from "@/game-world-view/scene-entities/model-animation-managers/skeletal-animation-manager";
 import { handleEntityMotionSetNewParentUpdate } from "./handle-entity-motion-set-new-parent-update";
 import { handleLockRotationToFace } from "./handle-lock-rotation-to-face";
 import { handleStartPointingTowardEntity } from "./handle-start-pointing-toward";
@@ -38,7 +38,7 @@ export function handleEntityMotionUpdate(
 
   if (motionUpdate.entityType === SpawnableEntityType.ActionEntity) {
     cosmeticDestinationYOption = motionUpdate.cosmeticDestinationY;
-    const actionEntityModelOption = getGameWorld().actionEntityManager.findOne(
+    const actionEntityModelOption = getGameWorldView().actionEntityManager.findOne(
       motionUpdate.entityId,
       motionUpdate
     );
@@ -137,7 +137,7 @@ export function handleEntityMotionUpdate(
 }
 
 function despawnAndUnregisterActionEntity(entityId: EntityId, cleanupMode: CleanupMode) {
-  getGameWorld().actionEntityManager.unregister(entityId, cleanupMode);
+  getGameWorldView().actionEntityManager.unregister(entityId, cleanupMode);
 
   const partyResult = AppStore.get().gameStore.getExpectedParty();
   if (partyResult instanceof Error) {
@@ -162,7 +162,7 @@ function handleCombatantMotionUpdate(
   const combatant = AppStore.get().gameStore.getExpectedCombatant(motionUpdate.entityId);
 
   if (motionUpdate.setParent !== undefined) {
-    const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
+    const combatantModelOption = getGameWorldView().modelManager.findOne(motionUpdate.entityId);
     handleEntityMotionSetNewParentUpdate(combatantModelOption, motionUpdate.setParent);
   }
 
@@ -178,7 +178,7 @@ function handleCombatantMotionUpdate(
     if (!motionUpdate.idleOnComplete) {
       return;
     }
-    const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
+    const combatantModelOption = getGameWorldView().modelManager.findOne(motionUpdate.entityId);
     combatantModelOption.startIdleAnimation(500);
   };
 
@@ -186,7 +186,7 @@ function handleCombatantMotionUpdate(
     if (!motionUpdate.idleOnComplete) {
       return;
     }
-    const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
+    const combatantModelOption = getGameWorldView().modelManager.findOne(motionUpdate.entityId);
     combatantModelOption.startIdleAnimation(500);
   };
 

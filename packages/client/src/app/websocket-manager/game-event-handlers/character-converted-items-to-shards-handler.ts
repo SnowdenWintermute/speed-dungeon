@@ -6,8 +6,8 @@ import {
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { setAlert } from "../../components/alerts";
-import { getGameWorld } from "@/app/3d-world/SceneManager";
-import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
+import { getGameWorldView } from "@/game-world-view/SceneManager";
+import { ModelActionType } from "@/game-world-view/game-world/model-manager/model-actions";
 
 export function characterConvertedItemsToShardsHandler(characterAndItems: CharacterAndItems) {
   const slotsUnequipped: TaggedEquipmentSlot[] = [];
@@ -37,7 +37,7 @@ export function characterConvertedItemsToShardsHandler(characterAndItems: Charac
     }
   );
 
-  getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+  getGameWorldView().modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.SynchronizeCombatantEquipmentModels,
     entityId: characterAndItems.characterId,
   });

@@ -1,4 +1,4 @@
-import { getGameWorld } from "@/app/3d-world/SceneManager";
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 import { AnimationTimingType, AnimationType, EntityId } from "@speed-dungeon/common";
 import { EquipmentAnimation } from "@speed-dungeon/common";
 
@@ -6,7 +6,7 @@ export function handleEquipmentAnimations(
   entityId: EntityId,
   equipmentAnimations: EquipmentAnimation[]
 ) {
-  const combatantModelOption = getGameWorld().modelManager.findOne(entityId);
+  const combatantModelOption = getGameWorldView().modelManager.findOne(entityId);
 
   for (const equipmentAnimation of equipmentAnimations) {
     const { slot, animation } = equipmentAnimation;

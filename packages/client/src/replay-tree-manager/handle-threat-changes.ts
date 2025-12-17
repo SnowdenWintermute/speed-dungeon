@@ -4,9 +4,9 @@ import {
   HitOutcomesGameUpdateCommand,
   ThreatChanges,
 } from "@speed-dungeon/common";
-import { threatTargetChangedIndicatorSequence } from "../../scene-entities/character-models/threat-target-changed-indicator-sequence/index";
 import debounce from "lodash.debounce";
 import { AppStore } from "@/mobx-stores/app-store";
+import { threatTargetChangedIndicatorSequence } from "@/game-world-view/scene-entities/character-models/threat-target-changed-indicator-sequence";
 
 const debounceThreatTargetChangeIndicatorSequence = debounce(
   threatTargetChangedIndicatorSequence,

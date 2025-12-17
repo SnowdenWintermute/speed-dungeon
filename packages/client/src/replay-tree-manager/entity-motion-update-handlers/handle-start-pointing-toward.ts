@@ -1,5 +1,5 @@
-import { SceneEntity } from "@/app/3d-world/scene-entities";
-import { ModelMovementManager } from "@/app/3d-world/scene-entities/model-movement-manager";
+import { SceneEntity } from "@/game-world-view/scene-entities";
+import { ModelMovementManager } from "@/game-world-view/scene-entities/model-movement-manager";
 import { SceneEntityChildTransformNodeIdentifierWithDuration } from "@speed-dungeon/common";
 
 export function handleStartPointingTowardEntity(

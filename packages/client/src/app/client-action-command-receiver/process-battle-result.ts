@@ -7,7 +7,7 @@ import {
   Equipment,
 } from "@speed-dungeon/common";
 import { ClientActionCommandReceiver } from ".";
-import { gameWorld, getGameWorld } from "../3d-world/SceneManager";
+import { gameWorld, getGameWorldView } from "../3d-world/SceneManager";
 import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
 import { plainToInstance } from "class-transformer";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
@@ -72,6 +72,6 @@ export async function battleResultActionCommandHandler(
   const { actionEntityManager } = party;
   for (const entityId of actionEntitiesRemoved) {
     actionEntityManager.unregisterActionEntity(entityId);
-    getGameWorld().actionEntityManager.unregister(entityId, CleanupMode.Soft);
+    getGameWorldView().actionEntityManager.unregister(entityId, CleanupMode.Soft);
   }
 }

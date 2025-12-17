@@ -1,5 +1,5 @@
-import { DynamicAnimationManager } from "@/app/3d-world/scene-entities/model-animation-managers/dynamic-animation-manager";
-import { SkeletalAnimationManager } from "@/app/3d-world/scene-entities/model-animation-managers/skeletal-animation-manager";
+import { DynamicAnimationManager } from "@/game-world-view/scene-entities/model-animation-managers/dynamic-animation-manager";
+import { SkeletalAnimationManager } from "@/game-world-view/scene-entities/model-animation-managers/skeletal-animation-manager";
 import {
   ActionEntityMotionGameUpdateCommand,
   AnimationTimingType,
@@ -9,7 +9,7 @@ import {
   SkeletalAnimationName,
 } from "@speed-dungeon/common";
 import { EntityMotionUpdateCompletionTracker } from "./entity-motion-update-completion-tracker";
-import { ManagedAnimationOptions } from "@/app/3d-world/scene-entities/model-animation-managers";
+import { ManagedAnimationOptions } from "@/game-world-view/scene-entities/model-animation-managers";
 import { GameUpdateTracker } from "../game-update-tracker";
 
 export function handleUpdateAnimation(

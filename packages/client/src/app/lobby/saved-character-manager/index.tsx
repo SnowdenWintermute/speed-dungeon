@@ -8,8 +8,8 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import CreateCharacterForm from "./CreateCharacterForm";
 import DeleteCharacterForm from "./DeleteCharacterForm";
 import { CharacterModelDisplay } from "@/app/character-model-display";
-import { getGameWorld } from "@/app/3d-world/SceneManager";
-import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
+import { getGameWorldView } from "@/game-world-view/SceneManager";
+import { ModelActionType } from "@/game-world-view/game-world/model-manager/model-actions";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
@@ -26,7 +26,7 @@ export const SavedCharacterManager = observer(() => {
   const showCharacterManager = dialogStore.isOpen(DialogElementName.SavedCharacterManager);
 
   useEffect(() => {
-    const camera = getGameWorld().camera;
+    const camera = getGameWorldView().camera;
     if (!camera) return;
     camera.target.copyFrom(
       new Vector3(-CHARACTER_SLOT_SPACING + CHARACTER_SLOT_SPACING * currentSlot, 1, 0)
@@ -37,7 +37,7 @@ export const SavedCharacterManager = observer(() => {
   }, [currentSlot]);
 
   useEffect(() => {
-    getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+    getGameWorldView().modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
       placeInHomePositions: true,
     });

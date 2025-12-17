@@ -1,6 +1,6 @@
 import { Combatant } from "@speed-dungeon/common";
 import { ReactNode, useEffect } from "react";
-import { getGameWorld } from "@/app/3d-world/SceneManager";
+import { getGameWorldView } from "@/game-world-view/SceneManager";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
@@ -20,7 +20,7 @@ export const CharacterModelDisplay = observer(
         `${entityId}-position-div`
       ) as HTMLDivElement | null;
       if (modelDomPositionElement === null) return;
-      const modelOption = getGameWorld().modelManager.findOneOptional(entityId);
+      const modelOption = getGameWorldView().modelManager.findOneOptional(entityId);
       if (!modelOption) return;
 
       modelOption.modelDomPositionElement = modelDomPositionElement;

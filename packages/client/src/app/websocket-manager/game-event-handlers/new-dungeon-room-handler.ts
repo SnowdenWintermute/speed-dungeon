@@ -1,11 +1,11 @@
-import { gameWorld, getGameWorld } from "@/app/3d-world/SceneManager";
+import { gameWorld, getGameWorldView } from "@/game-world-view/SceneManager";
 import {
   ENVIRONMENT_MODELS_FOLDER,
   ENVIRONMENT_MODEL_PATHS,
   EnvironmentModelTypes,
-} from "@/app/3d-world/scene-entities/environment-models/environment-model-paths";
-import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
-import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
+} from "@/game-world-view/scene-entities/environment-models/environment-model-paths";
+import { ImageManagerRequestType } from "@/game-world-view/game-world/image-manager";
+import { ModelActionType } from "@/game-world-view/game-world/model-manager/model-actions";
 import { Vector3 } from "@babylonjs/core";
 import {
   CleanupMode,
@@ -37,7 +37,7 @@ export function newDungeonRoomHandler({
   const { actionEntityManager } = party;
   for (const actionEntityId of actionEntitiesToRemove) {
     actionEntityManager.unregisterActionEntity(actionEntityId);
-    getGameWorld().actionEntityManager.unregister(actionEntityId, CleanupMode.Soft);
+    getGameWorldView().actionEntityManager.unregister(actionEntityId, CleanupMode.Soft);
   }
 
   itemIdsOnGroundInPreviousRoom.push(

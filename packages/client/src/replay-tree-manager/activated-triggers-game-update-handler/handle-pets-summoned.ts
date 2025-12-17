@@ -1,4 +1,4 @@
-import { getGameWorld } from "@/app/3d-world/SceneManager";
+import { getGameWorldView } from "@/game-world-view/SceneManager";
 import {
   AdventuringParty,
   PetSlot,
@@ -25,7 +25,7 @@ export function handlePetSlotsSummoned(
 
     synchronizeCombatantModelsWithAppState({
       onComplete: () => {
-        const modelOption = getGameWorld().modelManager.combatantModels[pet.getEntityId()];
+        const modelOption = getGameWorldView().modelManager.combatantModels[pet.getEntityId()];
 
         if (!pet.combatantProperties.isDead()) {
           modelOption?.skeletalAnimationManager.startAnimationWithTransition(

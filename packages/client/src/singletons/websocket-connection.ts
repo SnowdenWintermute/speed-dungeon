@@ -11,9 +11,9 @@ import { setUpBasicLobbyEventHandlers } from "@/app/websocket-manager/basic-lobb
 import { setUpGameLobbyEventHandlers } from "@/app/websocket-manager/lobby-event-handlers";
 import { setUpGameEventHandlers } from "@/app/websocket-manager/game-event-handlers";
 import { setUpSavedCharacterEventListeners } from "@/app/websocket-manager/saved-character-event-handlers";
-import { getGameWorld } from "@/app/3d-world/SceneManager";
-import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { AppStore } from "@/mobx-stores/app-store";
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
+import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
 
 const socketAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
 
@@ -39,13 +39,13 @@ websocketConnection.on("connect", () => {
   AppStore.get().gameStore.clearGame();
   AppStore.get().lobbyStore.setWebsocketConnectedStatus(true);
 
-  getGameWorld().modelManager.modelActionQueue.clear();
-  getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+  getGameWorldView().modelManager.modelActionQueue.clear();
+  getGameWorldView().modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.ClearAllModels,
   });
 
-  getGameWorld().replayTreeManager.clear();
-  getGameWorld()
+  getGameWorldView().replayTreeManager.clear();
+  getGameWorldView()
     .actionEntityManager.getAll()
     .forEach((entity) => entity.cleanup({ softCleanup: false }));
 

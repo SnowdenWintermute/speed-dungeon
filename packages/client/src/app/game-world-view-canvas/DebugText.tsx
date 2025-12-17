@@ -1,16 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ZIndexLayers } from "../z-index-layers";
-import { gameWorld } from "./SceneManager";
-import { drawCompass, drawDebugGrid } from "./game-world/clear-floor-texture";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
 import { ModifierKey } from "@/mobx-stores/input";
+import { gameWorldView } from "./SceneManager";
+import { drawCompass, drawDebugGrid } from "@/game-world-view/clear-floor-texture";
 
 function getGpuName() {
-  if (gameWorld.current === null) return;
+  if (gameWorldView.current === null) return;
 
-  const babylonGl = gameWorld.current.engine._gl;
+  const babylonGl = gameWorldView.current.engine._gl;
   if (!babylonGl) return "Unknown GPU";
 
   // Use the standard WebGL parameter instead of the deprecated extension
@@ -46,7 +46,7 @@ export const DebugText = observer(
       //   navigator.hardwareConcurrency,
       // );
       setGpuName(gpuName);
-    }, [gameWorld.current]);
+    }, [gameWorldView.current]);
 
     useEffect(() => {
       keydownListenerRef.current = function (e: KeyboardEvent) {
@@ -55,16 +55,16 @@ export const DebugText = observer(
         dialogStore.toggle(DialogElementName.Debug);
         const showDebug = dialogStore.isOpen(DialogElementName.Debug);
 
-        if (gameWorld.current) {
+        if (gameWorldView.current) {
           if (showDebug) {
-            drawCompass(gameWorld.current);
-            drawDebugGrid(gameWorld.current);
+            drawCompass(gameWorldView.current);
+            drawDebugGrid(gameWorldView.current);
           } else {
-            gameWorld.current.clearFloorTexture();
+            gameWorldView.current.clearFloorTexture();
           }
 
           for (const modularCharacter of Object.values(
-            gameWorld.current.modelManager.combatantModels
+            gameWorldView.current.modelManager.combatantModels
           )) {
             if (showDebug) modularCharacter.setUpDebugMeshes();
             else modularCharacter.despawnDebugMeshes();

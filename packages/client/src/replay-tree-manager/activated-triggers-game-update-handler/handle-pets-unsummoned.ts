@@ -5,7 +5,7 @@ import {
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { synchronizeCombatantModelsWithAppState } from "../../model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
-import { getGameWorld } from "@/app/3d-world/SceneManager";
+import { getGameWorldView } from "@/game-world-view/SceneManager";
 
 export function handlePetSlotsUnsummoned(
   petsUnsummoned: EntityId[],
@@ -14,7 +14,7 @@ export function handlePetSlotsUnsummoned(
 ) {
   const { petManager } = party;
   for (const petId of petsUnsummoned) {
-    const modelOption = getGameWorld().modelManager.combatantModels[petId];
+    const modelOption = getGameWorldView().modelManager.combatantModels[petId];
 
     if (modelOption?.getCombatant().combatantProperties.isDead()) {
       petManager.unsummonPet(petId, game);

@@ -13,9 +13,9 @@ import { characterAssociatedDataProvider } from "../combatant-associated-details
 import { plainToInstance } from "class-transformer";
 import { setAlert } from "@/app/components/alerts";
 import cloneDeep from "lodash.clonedeep";
-import { gameWorld, getGameWorld } from "@/app/3d-world/SceneManager";
-import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
-import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
+import { gameWorld, getGameWorldView } from "@/game-world-view/SceneManager";
+import { ImageManagerRequestType } from "@/game-world-view/game-world/image-manager";
+import { ModelActionType } from "@/game-world-view/game-world/model-manager/model-actions";
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 import { AppStore } from "@/mobx-stores/app-store";
 import { toJS } from "mobx";
@@ -67,7 +67,7 @@ export function characterPerformedCraftingActionHandler(eventData: {
     const isEquipped = slotEquippedToOption !== null;
 
     if (isEquipped && wasRepaired) {
-      getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+      getGameWorldView().modelManager.modelActionQueue.enqueueMessage({
         type: ModelActionType.SynchronizeCombatantEquipmentModels,
         entityId: character.entityProperties.id,
       });

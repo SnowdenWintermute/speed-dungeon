@@ -16,7 +16,7 @@ import ModKeyTooltip from "./ModKeyTooltip";
 import Divider from "@/app/components/atoms/Divider";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { ZIndexLayers } from "@/app/z-index-layers";
-import { getModelAttribution } from "@/app/3d-world/item-models/get-model-attribution";
+import { getModelAttribution } from "@/game-world-view/item-models/get-model-attribution";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { HOTKEYS } from "@/hotkeys";
 import domtoimage from "dom-to-image";

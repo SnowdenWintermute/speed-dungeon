@@ -1,7 +1,7 @@
 import { Combatant, GameMode } from "@speed-dungeon/common";
 import { setAlert } from "../../components/alerts";
-import { gameWorld } from "@/app/3d-world/SceneManager";
-import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
+import { gameWorld } from "@/game-world-view/SceneManager";
+import { ModelActionType } from "@/game-world-view/game-world/model-manager/model-actions";
 import { AppStore } from "@/mobx-stores/app-store";
 
 export async function characterAddedToPartyHandler(

@@ -1,5 +1,5 @@
 "use client";
-import { getGameWorld } from "@/app/3d-world/SceneManager";
+import { getGameWorldView } from "@/game-world-view/SceneManager";
 import { useRouter } from "next/navigation";
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
@@ -98,7 +98,7 @@ function UserMenu({ username }: { username: null | string }) {
       method: "DELETE",
       credentials: "include",
     });
-    getGameWorld().clearFloorTexture();
+    getGameWorldView().clearFloorTexture();
     mutateHttpState((state) => {
       if (!state.requests[HTTP_REQUEST_NAMES.GET_SESSION])
         state.requests[HTTP_REQUEST_NAMES.GET_SESSION] = new HttpRequestTracker();

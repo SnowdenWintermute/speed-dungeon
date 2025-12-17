@@ -4,7 +4,7 @@ import {
   EntityId,
   Equipment,
 } from "@speed-dungeon/common";
-import { getGameWorld } from "../../../SceneManager";
+import { getGameWorldView } from "../../../SceneManager";
 import { handleThreatChangesUpdate } from "../handle-threat-changes";
 import { handleActionEntityChanges } from "./handle-action-entity-changes";
 import { handleSupportClassLevelsChanged } from "./handle-support-class-levels-changed";
@@ -94,13 +94,13 @@ export async function activatedTriggersGameUpdateHandler(
   if (command.actionEntityIdsDespawned) {
     for (const { id, cleanupMode } of command.actionEntityIdsDespawned) {
       actionEntityManager.unregisterActionEntity(id);
-      getGameWorld().actionEntityManager.unregister(id, cleanupMode);
+      getGameWorldView().actionEntityManager.unregister(id, cleanupMode);
     }
   }
 
   if (command.actionEntityIdsToHide) {
     for (const id of command.actionEntityIdsToHide) {
-      const actionEntity = getGameWorld().actionEntityManager.findOne(id);
+      const actionEntity = getGameWorldView().actionEntityManager.findOne(id);
       actionEntity.setVisibility(0);
 
       // @REFACTOR - this looks like duct tape
