@@ -1,10 +1,10 @@
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
+import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
+import { AppStore } from "@/mobx-stores/app-store";
 import { ActionCommandReceiver, CombatActionReplayTreePayload } from "@speed-dungeon/common";
 import { battleResultActionCommandHandler } from "./process-battle-result";
-import { gameMessageActionCommandHandler } from "./game-message";
 import { removeClientPlayerFromGame } from "./remove-client-player-from-game";
-import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStateType } from "../game/ActionMenu/menu-state/menu-state-type";
-import { getGameWorldView } from "../game-world-view-canvas/SceneManager";
+import { gameMessageActionCommandHandler } from "./game-message";
 
 export class ClientActionCommandReceiver implements ActionCommandReceiver {
   constructor() {}

@@ -1,8 +1,8 @@
 import { AbstractMesh, Camera, Mesh, MeshBuilder, Scene, StandardMaterial } from "@babylonjs/core";
 import { COMBAT_ACTIONS, CombatActionIntent } from "@speed-dungeon/common";
-import { TargetIndicator } from "@/app/target-indicators";
 import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 import { GLOW_LAYER_NAME } from "@/game-world-view/init-scene";
+import { TargetIndicator } from "@/mobx-stores/target-indicators";
 
 export class TargetIndicatorBillboard {
   plane: Mesh;

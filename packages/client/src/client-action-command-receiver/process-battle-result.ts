@@ -10,11 +10,11 @@ import { ClientActionCommandReceiver } from ".";
 import { plainToInstance } from "class-transformer";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStateType } from "../game/ActionMenu/menu-state/menu-state-type";
 import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 import { ImageManagerRequestType } from "@/game-world-view/image-manager";
-import { gameWorldView, getGameWorldView } from "../game-world-view-canvas/SceneManager";
+import { gameWorldView, getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
+import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
 
 export async function battleResultActionCommandHandler(
   this: ClientActionCommandReceiver,

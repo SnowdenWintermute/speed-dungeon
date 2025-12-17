@@ -1,7 +1,18 @@
-import { TargetIndicator } from "@/app/target-indicators";
 import { GameWorldView } from "@/game-world-view";
 import { CombatActionName, EntityId } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
+
+export class TargetIndicator {
+  constructor(
+    public targetedBy: EntityId,
+    public targetId: EntityId,
+    public actionName: CombatActionName
+  ) {}
+
+  getKey() {
+    return this.targetedBy + this.targetId;
+  }
+}
 
 export class TargetIndicatorStore {
   private indicators: TargetIndicator[] = [];
