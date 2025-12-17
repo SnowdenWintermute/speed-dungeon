@@ -36,6 +36,7 @@ export async function spawnCharacterModel(
 
   for (const part of parts) {
     const { assetPath } = part;
+    console.log("fetching modular character part:", part, assetPath);
     if (!assetPath || assetPath === "") {
       console.error("no part asset path provided for part", part);
       continue;

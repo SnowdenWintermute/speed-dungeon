@@ -1,9 +1,9 @@
 import { CharacterAssociatedData, Item } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { ConsideringItemMenuState } from "@/app/game/ActionMenu/menu-state/considering-item";
-import { getGameWorldView } from "@/game-world-view/SceneManager";
-import { ModelActionType } from "@/game-world-view/game-world/model-manager/model-actions";
 import { AppStore } from "@/mobx-stores/app-store";
+import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 
 export function characterEquippedItemHandler(packet: {
   itemId: string;

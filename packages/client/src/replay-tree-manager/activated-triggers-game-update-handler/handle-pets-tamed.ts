@@ -1,11 +1,11 @@
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
+import { synchronizeCombatantModelsWithAppState } from "@/game-world-view/model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
 import {
   AdventuringParty,
   EntityId,
   SkeletalAnimationName,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
-import { synchronizeCombatantModelsWithAppState } from "../../model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
-import { getGameWorldView } from "@/game-world-view/SceneManager";
 
 export function handlePetsTamed(
   petsTamed: { petId: EntityId; tamerId: EntityId }[],

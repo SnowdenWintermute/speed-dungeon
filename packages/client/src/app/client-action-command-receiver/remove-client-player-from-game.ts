@@ -1,11 +1,11 @@
 import { setAlert } from "../components/alerts";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
-import { getGameWorldView } from "../3d-world/SceneManager";
-import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
-import { ModelActionType } from "../3d-world/game-world/model-manager/model-actions";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 import { AppStore } from "@/mobx-stores/app-store";
+import { getGameWorldView } from "../game-world-view-canvas/SceneManager";
+import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
+import { ImageManagerRequestType } from "@/game-world-view/image-manager";
 
 export async function removeClientPlayerFromGame(username: string) {
   const itemsToRemoveThumbnails: string[] = [];

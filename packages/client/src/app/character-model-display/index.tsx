@@ -1,9 +1,9 @@
 import { Combatant } from "@speed-dungeon/common";
 import { ReactNode, useEffect } from "react";
-import { getGameWorldView } from "@/game-world-view/SceneManager";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
+import { getGameWorldView } from "../game-world-view-canvas/SceneManager";
 
 export const CharacterModelDisplay = observer(
   ({ character, children }: { character: Combatant; children?: ReactNode }) => {

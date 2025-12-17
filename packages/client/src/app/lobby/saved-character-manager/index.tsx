@@ -8,11 +8,11 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import CreateCharacterForm from "./CreateCharacterForm";
 import DeleteCharacterForm from "./DeleteCharacterForm";
 import { CharacterModelDisplay } from "@/app/character-model-display";
-import { getGameWorldView } from "@/game-world-view/SceneManager";
-import { ModelActionType } from "@/game-world-view/game-world/model-manager/model-actions";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
+import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
 
 export const CHARACTER_SLOT_SPACING = 1;
 export const CHARACTER_MANAGER_HOTKEY = "S";

@@ -1,4 +1,4 @@
-import { getGameWorldView } from "@/game-world-view/SceneManager";
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 import {
   AdventuringParty,
   DurabilityChangesByEntityId,

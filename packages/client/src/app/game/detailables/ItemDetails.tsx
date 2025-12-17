@@ -16,7 +16,6 @@ import ModKeyTooltip from "./ModKeyTooltip";
 import Divider from "@/app/components/atoms/Divider";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { ZIndexLayers } from "@/app/z-index-layers";
-import { getModelAttribution } from "@/game-world-view/item-models/get-model-attribution";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { HOTKEYS } from "@/hotkeys";
 import domtoimage from "dom-to-image";
@@ -24,6 +23,7 @@ import { EQUIPMENT_ICONS } from "./EquipmentDetails/equipment-icons";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
+import { getModelAttribution } from "@/game-world-view/scene-entities/item-models/get-model-attribution";
 
 interface Props {
   shouldShowModKeyTooltip: boolean;

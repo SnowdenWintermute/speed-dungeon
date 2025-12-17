@@ -1,5 +1,5 @@
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 import { EntityMotionUpdate, SpawnableEntityType } from "@speed-dungeon/common";
-import { getGameWorldView } from "../../../SceneManager";
 
 export function getSceneEntityToUpdate(entityMotionUpdate: EntityMotionUpdate) {
   const { entityId } = entityMotionUpdate;

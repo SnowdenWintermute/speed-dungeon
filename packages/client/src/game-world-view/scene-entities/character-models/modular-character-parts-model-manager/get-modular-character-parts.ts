@@ -28,6 +28,7 @@ export function getCharacterModelPartCategoriesAndAssetPaths(
         assetPath: CHARACTER_PARTS[CombatantClass.Mage][CharacterModelPartCategory.Legs] || "",
       });
     } else {
+      console.log("getting monster full skins for monster type:", combatantProperties.monsterType);
       parts.push({
         category: CharacterModelPartCategory.Full,
         assetPath: MONSTER_FULL_SKINS[combatantProperties.monsterType] || "",

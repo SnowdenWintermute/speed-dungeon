@@ -14,7 +14,6 @@ import { handleUpdateTranslation } from "./handle-update-translation";
 import { plainToInstance } from "class-transformer";
 import { Quaternion } from "@babylonjs/core";
 import { handleUpdateAnimation } from "./handle-update-animation";
-import { getGameWorldView } from "@/game-world-view/SceneManager";
 import { DynamicAnimationManager } from "@/game-world-view/scene-entities/model-animation-managers/dynamic-animation-manager";
 import { SkeletalAnimationManager } from "@/game-world-view/scene-entities/model-animation-managers/skeletal-animation-manager";
 import { handleEntityMotionSetNewParentUpdate } from "./handle-entity-motion-set-new-parent-update";
@@ -23,6 +22,7 @@ import { handleStartPointingTowardEntity } from "./handle-start-pointing-toward"
 import { handleEquipmentAnimations } from "./handle-equipment-animations";
 import { GameUpdateTracker } from "../game-update-tracker";
 import { AppStore } from "@/mobx-stores/app-store";
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 
 export function handleEntityMotionUpdate(
   update: GameUpdateTracker<ActionEntityMotionGameUpdateCommand | CombatantMotionGameUpdateCommand>,

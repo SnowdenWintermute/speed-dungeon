@@ -2,9 +2,9 @@ import { ActionCommandReceiver, CombatActionReplayTreePayload } from "@speed-dun
 import { battleResultActionCommandHandler } from "./process-battle-result";
 import { gameMessageActionCommandHandler } from "./game-message";
 import { removeClientPlayerFromGame } from "./remove-client-player-from-game";
-import { getGameWorldView } from "../3d-world/SceneManager";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "../game/ActionMenu/menu-state/menu-state-type";
+import { getGameWorldView } from "../game-world-view-canvas/SceneManager";
 
 export class ClientActionCommandReceiver implements ActionCommandReceiver {
   constructor() {}

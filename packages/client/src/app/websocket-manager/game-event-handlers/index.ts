@@ -24,13 +24,13 @@ import { characterDroppedShardsHandler } from "./character-dropped-shards-handle
 import { characterPurchasedItemHandler } from "./character-purchased-item-handler";
 import { characterPerformedCraftingActionHandler } from "./character-performed-crafting-action-handler";
 import { playerPostedItemLinkHandler } from "./player-posted-item-link-handler";
-import { gameWorld } from "@/game-world-view/SceneManager";
-import { ModelActionType } from "@/game-world-view/game-world/model-manager/model-actions";
 import { characterSelectedActionLevelHandler } from "./character-selected-action-level-handler";
 import { characterAllocatedAbilityPointHandler } from "./character-allocated-ability-point-handler";
 import { characterTradedItemForBookHandler } from "./character-traded-item-for-book-handler";
 import { AppStore } from "@/mobx-stores/app-store";
 import { characterRenamedPetHandler } from "./character-renamed-pet-handler";
+import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
+import { gameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 
 export function setUpGameEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
@@ -85,11 +85,11 @@ export function setUpGameEventHandlers(
   socket.on(ServerToClientEvent.PlayerPostedItemLink, playerPostedItemLinkHandler);
 
   socket.on(ServerToClientEvent.ActionCommandPayloads, (payloads) => {
-    if (!gameWorld.current) {
+    if (!gameWorldView.current) {
       return console.error("Got action command payloads but no game world was found");
     }
 
-    gameWorld.current.modelManager.modelActionQueue.enqueueMessage({
+    gameWorldView.current.modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.ProcessActionCommands,
       actionCommandPayloads: payloads,
     });

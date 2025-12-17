@@ -4,7 +4,6 @@ import {
   EntityId,
   Equipment,
 } from "@speed-dungeon/common";
-import { getGameWorldView } from "../../../SceneManager";
 import { handleThreatChangesUpdate } from "../handle-threat-changes";
 import { handleActionEntityChanges } from "./handle-action-entity-changes";
 import { handleSupportClassLevelsChanged } from "./handle-support-class-levels-changed";
@@ -20,6 +19,7 @@ import { AppStore } from "@/mobx-stores/app-store";
 import { handlePetSlotsUnsummoned } from "./handle-pets-unsummoned";
 import { handlePetsTamed } from "./handle-pets-tamed";
 import { handlePetSlotsReleased } from "./handle-pets-released";
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 
 export async function activatedTriggersGameUpdateHandler(
   update: GameUpdateTracker<ActivatedTriggersGameUpdateCommand>

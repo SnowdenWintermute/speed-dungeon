@@ -1,5 +1,4 @@
 "use client";
-import { getGameWorldView } from "@/game-world-view/SceneManager";
 import { useRouter } from "next/navigation";
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
@@ -12,6 +11,7 @@ import { resetWebsocketConnection } from "@/singletons/websocket-connection";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 
 export const UserMenuContainer = observer(() => {
   const mutateHttpState = useHttpRequestStore().mutateState;

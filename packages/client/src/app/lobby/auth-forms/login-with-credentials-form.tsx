@@ -7,9 +7,9 @@ import { AuthFormTypes } from ".";
 import useHttpResponseErrors from "@/hooks/use-http-response-errors";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
 import AuthForm from "./AuthForm";
-import { gameWorld } from "@/game-world-view/SceneManager";
 import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
+import { gameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 
 interface Props {
   setActiveForm: React.Dispatch<React.SetStateAction<AuthFormTypes>>;
@@ -39,7 +39,7 @@ export const LoginWithCredentialsForm = observer(({ setActiveForm }: Props) => {
       nonFieldErrors={nonFieldErrors}
       reauthorizeOnSuccess={true}
       successAlert="Welcome back!"
-      handleSuccess={() => gameWorld.current?.drawCharacterSlots()}
+      handleSuccess={() => gameWorldView.current?.drawCharacterSlots()}
     >
       <LabeledTextInputWithErrorDisplay
         name={"email"}

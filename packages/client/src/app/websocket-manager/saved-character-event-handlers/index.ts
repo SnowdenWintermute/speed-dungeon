@@ -1,5 +1,5 @@
-import { ModelActionType } from "@/game-world-view/game-world/model-manager/model-actions";
-import { gameWorld, getGameWorldView } from "@/game-world-view/SceneManager";
+import { gameWorldView, getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
+import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
 import { AppStore } from "@/mobx-stores/app-store";
 import {
   ClientToServerEventTypes,
@@ -31,7 +31,7 @@ export function setUpSavedCharacterEventListeners(
 
     lobbyStore.setSavedCharacterSlots(deserialized);
 
-    gameWorld.current?.drawCharacterSlots();
+    gameWorldView.current?.drawCharacterSlots();
 
     getGameWorldView().modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,

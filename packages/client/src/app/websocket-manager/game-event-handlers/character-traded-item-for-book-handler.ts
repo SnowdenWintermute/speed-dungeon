@@ -7,9 +7,9 @@ import {
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { setAlert } from "../../components/alerts";
-import { getGameWorldView } from "@/game-world-view/SceneManager";
-import { ModelActionType } from "@/game-world-view/game-world/model-manager/model-actions";
 import { plainToInstance } from "class-transformer";
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
+import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
 
 export function characterTradedItemForBookHandler(eventData: {
   characterId: EntityId;

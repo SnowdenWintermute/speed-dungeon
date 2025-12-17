@@ -1,6 +1,6 @@
-import { gameWorld } from "@/game-world-view/SceneManager";
-import { ModelActionType } from "@/game-world-view/game-world/model-manager/model-actions";
+import { gameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
+import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
 import { AppStore } from "@/mobx-stores/app-store";
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
@@ -23,7 +23,7 @@ export function gameStartedHandler(timeStarted: number) {
 
   game.timeStarted = timeStarted;
 
-  const camera = gameWorld.current?.camera;
+  const camera = gameWorldView.current?.camera;
   if (!camera) {
     console.error("no camera found");
     return;
@@ -35,7 +35,7 @@ export function gameStartedHandler(timeStarted: number) {
 
   party.dungeonExplorationManager.setCurrentFloor(game.selectedStartingFloor);
 
-  gameWorld.current?.clearFloorTexture();
+  gameWorldView.current?.clearFloorTexture();
 
   enqueueConsumableGenericThumbnailCreation();
 
@@ -48,7 +48,7 @@ export function gameStartedHandler(timeStarted: number) {
   combatantManager.updateHomePositions();
   combatantManager.setAllCombatantsToHomePositions();
 
-  gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+  gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.SynchronizeCombatantModels,
     placeInHomePositions: true,
   });

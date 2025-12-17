@@ -1,12 +1,12 @@
-import { getGameWorldView } from "@/game-world-view/SceneManager";
 import {
   AdventuringParty,
   PetSlot,
   SkeletalAnimationName,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
-import { synchronizeCombatantModelsWithAppState } from "../../model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
 import { setAlert } from "@/app/components/alerts";
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
+import { synchronizeCombatantModelsWithAppState } from "@/game-world-view/model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
 
 export function handlePetSlotsSummoned(
   petSlotsSummoned: PetSlot[],

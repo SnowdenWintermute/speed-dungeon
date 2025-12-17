@@ -7,14 +7,14 @@ import {
   Equipment,
 } from "@speed-dungeon/common";
 import { ClientActionCommandReceiver } from ".";
-import { gameWorld, getGameWorldView } from "../3d-world/SceneManager";
-import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
 import { plainToInstance } from "class-transformer";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "../game/ActionMenu/menu-state/menu-state-type";
 import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
+import { ImageManagerRequestType } from "@/game-world-view/image-manager";
+import { gameWorldView, getGameWorldView } from "../game-world-view-canvas/SceneManager";
 
 export async function battleResultActionCommandHandler(
   this: ClientActionCommandReceiver,
@@ -30,7 +30,7 @@ export async function battleResultActionCommandHandler(
     );
 
     for (const item of payload.loot.equipment) {
-      gameWorld.current?.imageManager.enqueueMessage({
+      gameWorldView.current?.imageManager.enqueueMessage({
         type: ImageManagerRequestType.ItemCreation,
         item,
       });

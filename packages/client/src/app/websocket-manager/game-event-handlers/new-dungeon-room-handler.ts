@@ -1,11 +1,8 @@
-import { gameWorld, getGameWorldView } from "@/game-world-view/SceneManager";
 import {
   ENVIRONMENT_MODELS_FOLDER,
   ENVIRONMENT_MODEL_PATHS,
   EnvironmentModelTypes,
 } from "@/game-world-view/scene-entities/environment-models/environment-model-paths";
-import { ImageManagerRequestType } from "@/game-world-view/game-world/image-manager";
-import { ModelActionType } from "@/game-world-view/game-world/model-manager/model-actions";
 import { Vector3 } from "@babylonjs/core";
 import {
   CleanupMode,
@@ -17,6 +14,9 @@ import {
   Item,
 } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
+import { gameWorldView, getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
+import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
+import { ImageManagerRequestType } from "@/game-world-view/image-manager";
 
 export function newDungeonRoomHandler({
   dungeonRoom: room,
@@ -79,7 +79,7 @@ export function newDungeonRoomHandler({
   const roomHasVendingMachine = room.roomType === DungeonRoomType.VendingMachine;
 
   if (roomHasVendingMachine && noPreviouslySpawnedVendingMachine) {
-    gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+    gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SpawnEnvironmentModel,
       modelType: EnvironmentModelTypes.VendingMachine,
       path:
@@ -88,19 +88,19 @@ export function newDungeonRoomHandler({
       position: Vector3.Forward(),
     });
   } else if (!roomHasVendingMachine) {
-    gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+    gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.DespawnEnvironmentModel,
       id: "vending-machine",
     });
   }
 
-  gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+  gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.SynchronizeCombatantModels,
     placeInHomePositions: true,
   });
 
   // clean up unused screenshots for items left behind
-  gameWorld.current?.imageManager.enqueueMessage({
+  gameWorldView.current?.imageManager.enqueueMessage({
     type: ImageManagerRequestType.ItemDeletion,
     itemIds: itemIdsOnGroundInPreviousRoom,
   });
@@ -108,7 +108,7 @@ export function newDungeonRoomHandler({
   for (const item of newItemsOnGround) {
     if (item instanceof Consumable) continue;
 
-    gameWorld.current?.imageManager.enqueueMessage({
+    gameWorldView.current?.imageManager.enqueueMessage({
       type: ImageManagerRequestType.ItemCreation,
       item,
     });

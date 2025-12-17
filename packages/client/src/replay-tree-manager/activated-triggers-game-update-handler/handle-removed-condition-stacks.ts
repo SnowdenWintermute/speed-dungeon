@@ -1,6 +1,6 @@
-import { getGameWorldView } from "@/game-world-view/SceneManager";
 import { AdventuringParty, EntityId } from "@speed-dungeon/common";
 import { startOrStopCosmeticEffects } from "../start-or-stop-cosmetic-effect";
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 
 export function handleRemovedConditionStacks(
   removedConditionStacks: Record<
