@@ -1,6 +1,6 @@
-import { gameWorld } from "@/app/3d-world/SceneManager";
-import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { setAlert } from "@/app/components/alerts";
+import { gameWorldView } from "@/app/game-world-view-canvas/SceneManager";
+import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
 import { AppStore } from "@/mobx-stores/app-store";
 import { Combatant, ERROR_MESSAGES, getProgressionGamePartyName } from "@speed-dungeon/common";
 
@@ -44,7 +44,7 @@ export function savedCharacterSelectionInProgressGameHandler(
 
   game.addCharacterToParty(party, player, deserialized.combatant, deserialized.pets);
 
-  gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+  gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.SynchronizeCombatantModels,
     placeInHomePositions: true,
   });

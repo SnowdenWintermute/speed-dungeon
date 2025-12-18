@@ -1,19 +1,30 @@
-import { GameWorld } from "@/app/3d-world/game-world";
-import { TargetIndicator } from "@/app/target-indicators";
+import { GameWorldView } from "@/game-world-view";
 import { CombatActionName, EntityId } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 
+export class TargetIndicator {
+  constructor(
+    public targetedBy: EntityId,
+    public targetId: EntityId,
+    public actionName: CombatActionName
+  ) {}
+
+  getKey() {
+    return this.targetedBy + this.targetId;
+  }
+}
+
 export class TargetIndicatorStore {
   private indicators: TargetIndicator[] = [];
-  _gameWorld: GameWorld | null = null; // we'd like it to be private but then we can't mark it as "not observable"
+  _gameWorld: GameWorldView | null = null; // we'd like it to be private but then we can't mark it as "not observable"
   constructor() {
     makeAutoObservable(this, { _gameWorld: false });
   }
 
   /** avoid a circular reference since targetIndicatorStore will need to access GameWorld
   but GameWorld also accesses AppStore.get() which targetIndicatorStore is a member of
-  so we can't directly call getGameWorld() inside it */
-  initialize(gameWorld: GameWorld) {
+  so we can't directly call getGameWorldView() inside it */
+  initialize(gameWorld: GameWorldView) {
     this._gameWorld = gameWorld;
   }
 

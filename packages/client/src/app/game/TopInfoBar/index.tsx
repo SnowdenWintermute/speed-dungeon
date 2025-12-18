@@ -5,8 +5,6 @@ import { CleanupMode, ClientToServerEvent, DUNGEON_ROOM_TYPE_STRINGS } from "@sp
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { ZIndexLayers } from "@/app/z-index-layers";
-import { getGameWorld } from "@/app/3d-world/SceneManager";
-import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { TurnOrderPredictionBar } from "./turn-order-prediction-bar";
 
 import StairsIcon from "../../../../public/img/game-ui-icons/stairs.svg";
@@ -15,8 +13,9 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
-import { actionCommandQueue, actionCommandReceiver } from "@/singletons/action-command-manager";
-import { synchronizeCombatantModelsWithAppState } from "@/app/3d-world/game-world/model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
+import { actionCommandQueue } from "@/singletons/action-command-manager";
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
+import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
 
 export const TopInfoBar = observer(() => {
   const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
@@ -34,7 +33,10 @@ export const TopInfoBar = observer(() => {
     const { actionEntityManager } = party;
     for (const [entityId, entity] of Object.entries(actionEntityManager.getActionEntities())) {
       actionEntityManager.unregisterActionEntity(entity.entityProperties.id);
-      getGameWorld().actionEntityManager.unregister(entity.entityProperties.id, CleanupMode.Soft);
+      getGameWorldView().actionEntityManager.unregister(
+        entity.entityProperties.id,
+        CleanupMode.Soft
+      );
     }
 
     party.combatantManager.getAllCombatants().forEach((combatant) => {
@@ -48,15 +50,15 @@ export const TopInfoBar = observer(() => {
 
     websocketConnection.emit(ClientToServerEvent.LeaveGame);
 
-    getGameWorld().replayTreeManager.clear();
-    getGameWorld().modelManager.modelActionQueue.clear();
+    getGameWorldView().replayTreeManager.clear();
+    getGameWorldView().modelManager.modelActionQueue.clear();
 
-    getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+    getGameWorldView().modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
       placeInHomePositions: true,
     });
 
-    getGameWorld()?.drawCharacterSlots();
+    getGameWorldView()?.drawCharacterSlots();
   }
 
   const currentFloor = party.dungeonExplorationManager.getCurrentFloor();

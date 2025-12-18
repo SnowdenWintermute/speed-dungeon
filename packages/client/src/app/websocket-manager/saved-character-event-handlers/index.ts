@@ -1,5 +1,5 @@
-import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
-import { gameWorld, getGameWorld } from "@/app/3d-world/SceneManager";
+import { gameWorldView, getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
+import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
 import { AppStore } from "@/mobx-stores/app-store";
 import {
   ClientToServerEventTypes,
@@ -31,9 +31,9 @@ export function setUpSavedCharacterEventListeners(
 
     lobbyStore.setSavedCharacterSlots(deserialized);
 
-    gameWorld.current?.drawCharacterSlots();
+    gameWorldView.current?.drawCharacterSlots();
 
-    getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+    getGameWorldView().modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
       placeInHomePositions: true,
     });
@@ -42,7 +42,7 @@ export function setUpSavedCharacterEventListeners(
   socket.on(ServerToClientEvent.SavedCharacterDeleted, (entityId: EntityId) => {
     lobbyStore.deleteSavedCharacter(entityId);
 
-    getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+    getGameWorldView().modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
       placeInHomePositions: true,
     });
@@ -57,7 +57,7 @@ export function setUpSavedCharacterEventListeners(
       { combatant: deserializedCombatant, pets: deserializedPets },
       slot
     );
-    getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+    getGameWorldView().modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
       placeInHomePositions: true,
     });

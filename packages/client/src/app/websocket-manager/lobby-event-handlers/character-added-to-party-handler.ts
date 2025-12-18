@@ -1,8 +1,8 @@
 import { Combatant, GameMode } from "@speed-dungeon/common";
 import { setAlert } from "../../components/alerts";
-import { gameWorld } from "@/app/3d-world/SceneManager";
-import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { AppStore } from "@/mobx-stores/app-store";
+import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
+import { gameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 
 export async function characterAddedToPartyHandler(
   username: string,
@@ -30,7 +30,7 @@ export async function characterAddedToPartyHandler(
   }
 
   if (game.mode === GameMode.Progression) {
-    gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+    gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
       placeInHomePositions: true,
     });

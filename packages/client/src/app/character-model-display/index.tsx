@@ -1,9 +1,9 @@
 import { Combatant } from "@speed-dungeon/common";
 import { ReactNode, useEffect } from "react";
-import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
+import { getGameWorldView } from "../game-world-view-canvas/SceneManager";
 
 export const CharacterModelDisplay = observer(
   ({ character, children }: { character: Combatant; children?: ReactNode }) => {
@@ -20,7 +20,7 @@ export const CharacterModelDisplay = observer(
         `${entityId}-position-div`
       ) as HTMLDivElement | null;
       if (modelDomPositionElement === null) return;
-      const modelOption = getGameWorld().modelManager.findOneOptional(entityId);
+      const modelOption = getGameWorldView().modelManager.findOneOptional(entityId);
       if (!modelOption) return;
 
       modelOption.modelDomPositionElement = modelDomPositionElement;
@@ -29,18 +29,8 @@ export const CharacterModelDisplay = observer(
       modelOption.debugElement = debugElement as HTMLDivElement;
     }, [modelIsLoading]);
 
-    const testingPetStyles = {
-      // height: "1000px",
-      // width: "1000px",
-      // background: "teal",
-    };
-
     return (
-      <div
-        id={`${entityId}-position-div`}
-        className={`absolute ${modelIsLoading && "opacity-0"} `}
-        style={character.combatantProperties.controlledBy.wasSummoned() ? testingPetStyles : {}}
-      >
+      <div id={`${entityId}-position-div`} className={`absolute ${modelIsLoading && "opacity-0"} `}>
         <div id={`${entityId}-debug-div`} className={showDebug ? "" : "hidden"}></div>
         {children}
       </div>

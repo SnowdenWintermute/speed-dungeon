@@ -1,9 +1,9 @@
 import { CharacterAssociatedData, Item } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { ConsideringItemMenuState } from "@/app/game/ActionMenu/menu-state/considering-item";
-import { getGameWorld } from "@/app/3d-world/SceneManager";
-import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { AppStore } from "@/mobx-stores/app-store";
+import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 
 export function characterEquippedItemHandler(packet: {
   itemId: string;
@@ -23,7 +23,7 @@ export function characterEquippedItemHandler(packet: {
     if (slot !== null) {
       const item = equipment.getEquipmentInSlot(slot);
       if (item !== undefined) {
-        getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+        getGameWorldView().modelManager.modelActionQueue.enqueueMessage({
           type: ModelActionType.SynchronizeCombatantEquipmentModels,
           entityId: character.entityProperties.id,
         });

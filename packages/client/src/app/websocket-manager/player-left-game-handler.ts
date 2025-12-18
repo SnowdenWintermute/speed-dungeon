@@ -1,10 +1,10 @@
 import { ActionCommandType, getProgressionGameMaxStartingFloor } from "@speed-dungeon/common";
-import { gameWorld } from "../3d-world/SceneManager";
-import { ModelActionType } from "../3d-world/game-world/model-manager/model-actions";
 import { AppStore } from "@/mobx-stores/app-store";
+import { gameWorldView } from "../game-world-view-canvas/SceneManager";
+import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
 
 export function playerLeftGameHandler(username: string) {
-  gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+  gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.ProcessActionCommands,
     actionCommandPayloads: [{ type: ActionCommandType.RemovePlayerFromGame, username }],
   });

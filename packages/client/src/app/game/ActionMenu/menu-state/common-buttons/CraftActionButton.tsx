@@ -16,7 +16,6 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { AppStore } from "@/mobx-stores/app-store";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
-import { PriceDisplay } from "@/app/game/character-sheet/ShardsDisplay";
 
 interface Props {
   equipment: Equipment;
