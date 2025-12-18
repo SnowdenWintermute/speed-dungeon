@@ -39,32 +39,14 @@ export class Channel {
 }
 
 export class GameServer implements ActionCommandReceiver {
+  // game manager
   games: HashMap<string, SpeedDungeonGame> = new HashMap();
-  socketIdsByUsername: HashMap<Username, SocketId[]> = new HashMap();
-  connections: HashMap<SocketId, BrowserTabSession> = new HashMap();
-  channels: Partial<Record<ChannelName, Channel>> = {};
-  itemGenerationDirectors: Record<EquipmentType, ItemGenerationDirector>;
-  itemGenerationBuilders: Record<EquipmentType, ItemGenerationBuilder>;
-  gameModeContexts: Record<GameMode, GameModeContext> = {
-    [GameMode.Race]: new GameModeContext(GameMode.Race),
-    [GameMode.Progression]: new GameModeContext(GameMode.Progression),
-  };
-  constructor(public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
-    this.connectionHandler();
-    const { builders, directors } = this.instantiateItemGenerationBuildersAndDirectors();
-    this.itemGenerationDirectors = directors;
-    this.itemGenerationBuilders = builders;
-  }
-  getConnection = getConnection;
-  connectionHandler = connectionHandler;
   initiateLobbyEventListeners = initiateLobbyEventListeners;
   initiateGameEventListeners = initiateGameEventListeners;
   initiateSavedCharacterListeners = initiateSavedCharacterListeners;
-  joinSocketToChannel = joinSocketToChannel;
-  removeSocketFromChannel = removeSocketFromChannel;
-  //
   exploreNextRoom = exploreNextRoom;
-  // ACTION COMMAND HANDLERS
+  generateExperiencePoints = generateExperiencePoints;
+  // action command handlers
   combatActionReplayTreeHandler = async () => {};
   battleResultActionCommandHandler = battleResultActionCommandHandler;
   removePlayerFromGameCommandHandler: (username: string) => Promise<void> = async () => {}; // we only use it on the client
@@ -75,13 +57,35 @@ export class GameServer implements ActionCommandReceiver {
         .emit(ServerToClientEvent.GameMessage, message);
     }
   }
-  // UTILS
+
+  // socket connection manager
+  socketIdsByUsername: HashMap<Username, SocketId[]> = new HashMap();
+  connections: HashMap<SocketId, BrowserTabSession> = new HashMap();
+  channels: Partial<Record<ChannelName, Channel>> = {};
+  getConnection = getConnection;
+  connectionHandler = connectionHandler;
+  joinSocketToChannel = joinSocketToChannel;
+  removeSocketFromChannel = removeSocketFromChannel;
   getSocketCurrentGame = getSocketCurrentGame;
   getSocketIdOfPlayer = getSocketIdOfPlayer;
-  // ITEMS
+
+  // item creation
+  itemGenerationDirectors: Record<EquipmentType, ItemGenerationDirector>;
+  itemGenerationBuilders: Record<EquipmentType, ItemGenerationBuilder>;
   instantiateItemGenerationBuildersAndDirectors = instantiateItemGenerationBuildersAndDirectors;
   generateRandomItem = generateRandomItem;
   generateLoot = generateLoot;
-  // EXP
-  generateExperiencePoints = generateExperiencePoints;
+
+  // strategy pattern for handling certain events
+  gameModeContexts: Record<GameMode, GameModeContext> = {
+    [GameMode.Race]: new GameModeContext(GameMode.Race),
+    [GameMode.Progression]: new GameModeContext(GameMode.Progression),
+  };
+
+  constructor(public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
+    this.connectionHandler();
+    const { builders, directors } = this.instantiateItemGenerationBuildersAndDirectors();
+    this.itemGenerationDirectors = directors;
+    this.itemGenerationBuilders = builders;
+  }
 }

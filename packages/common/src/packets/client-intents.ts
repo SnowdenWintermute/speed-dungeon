@@ -32,7 +32,6 @@ export enum ClientIntentType {
   DropEquippedItem,
   DropItem,
   ToggleReadyToDescend,
-  // AssignAttributePoint , replaced by IncrementAttribute
   AcknowledgeReceiptOfItemOnGroundUpdate,
   PickUpItems,
   GetSavedCharactersList,
@@ -53,178 +52,110 @@ export enum ClientIntentType {
   RenamePet,
 }
 
-export type ClientIntent =
-  | {
-      type: ClientIntentType.RequestToJoinGame;
-      gameName: string;
-    }
-  | {
-      type: ClientIntentType.RequestsGameList;
-    }
-  | {
-      type: ClientIntentType.CreateGame;
-      gameName: string;
-      mode: GameMode;
-      isRanked?: boolean;
-    }
-  | {
-      type: ClientIntentType.JoinGame;
-      gameName: string;
-    }
-  | {
-      type: ClientIntentType.LeaveGame;
-    }
-  | {
-      type: ClientIntentType.CreateParty;
-      partyName: string;
-    }
-  | {
-      type: ClientIntentType.JoinParty;
-      partyName: string;
-    }
-  | {
-      type: ClientIntentType.LeaveParty;
-    }
-  | {
-      type: ClientIntentType.CreateCharacter;
-      name: string;
-      combatantClass: CombatantClass;
-    }
-  | {
-      type: ClientIntentType.DeleteCharacter;
-      characterId: EntityId;
-    }
-  | {
-      type: ClientIntentType.SelectCombatAction;
-      characterId: EntityId;
-      actionAndRankOption: ActionAndRank | null;
-      itemIdOption?: EntityId;
-    }
-  | {
-      type: ClientIntentType.IncrementAttribute;
-      characterId: EntityId;
-      attribute: CombatAttribute;
-    }
-  | {
-      type: ClientIntentType.ToggleReadyToExplore;
-    }
-  | {
-      type: ClientIntentType.UnequipSlot;
-      characterId: EntityId;
-      slot: TaggedEquipmentSlot;
-    }
-  | {
-      type: ClientIntentType.EquipInventoryItem;
-      characterId: EntityId;
-      itemId: EntityId;
-      equipToAltSlot: boolean;
-    }
-  | {
-      type: ClientIntentType.CycleCombatActionTargets;
-      characterId: EntityId;
-      direction: NextOrPrevious;
-    }
-  | {
-      type: ClientIntentType.CycleTargetingSchemes;
-      characterId: EntityId;
-    }
-  | {
-      type: ClientIntentType.UseSelectedCombatAction;
-      characterId: EntityId;
-    }
-  | {
-      type: ClientIntentType.DropEquippedItem;
-      characterId: EntityId;
-      slot: TaggedEquipmentSlot;
-    }
-  | {
-      type: ClientIntentType.DropItem;
-      characterId: EntityId;
-      itemId: EntityId;
-    }
-  | {
-      type: ClientIntentType.ToggleReadyToDescend;
-    }
-  | {
-      type: ClientIntentType.AcknowledgeReceiptOfItemOnGroundUpdate;
-      itemId: EntityId;
-    }
-  | {
-      type: ClientIntentType.PickUpItems;
-      characterAndItems: CharacterAndItems;
-    }
-  | {
-      type: ClientIntentType.GetSavedCharactersList;
-    }
-  | {
-      type: ClientIntentType.GetSavedCharacterById;
-      entityId: EntityId;
-    }
-  | {
-      type: ClientIntentType.CreateSavedCharacter;
-      name: string;
-      combatantClass: CombatantClass;
-      slotNumber: number;
-    }
-  | {
-      type: ClientIntentType.DeleteSavedCharacter;
-      entityId: EntityId;
-    }
-  | {
-      type: ClientIntentType.SelectSavedCharacterForProgressGame;
-      entityId: EntityId;
-    }
-  | {
-      type: ClientIntentType.SelectProgressionGameStartingFloor;
-      floor: number;
-    }
-  | {
-      type: ClientIntentType.SelectHoldableHotswapSlot;
-      characterId: EntityId;
-      slotIndex: number;
-    }
-  | {
-      type: ClientIntentType.ConvertItemsToShards;
-      characterAndItems: CharacterAndItems;
-    }
-  | {
-      type: ClientIntentType.DropShards;
-      characterId: EntityId;
-      numShards: number;
-    }
-  | {
-      type: ClientIntentType.PurchaseItem;
-      characterId: EntityId;
-      consumableType: ConsumableType;
-    }
-  | {
-      type: ClientIntentType.PerformCraftingAction;
-      characterId: EntityId;
-      itemId: EntityId;
-      craftingAction: CraftingAction;
-    }
-  | {
-      type: ClientIntentType.PostItemLink;
-      itemId: EntityId;
-    }
-  | {
-      type: ClientIntentType.SelectCombatActionLevel;
-      characterId: EntityId;
-      actionLevel: number;
-    }
-  | {
-      type: ClientIntentType.AllocateAbilityPoint;
-      characterId: EntityId;
-      ability: AbilityTreeAbility;
-    }
-  | {
-      type: ClientIntentType.TradeItemForBook;
-      characterId: EntityId;
-      itemId: EntityId;
-      bookType: BookConsumableType;
-    }
-  | {
-      type: ClientIntentType.RenamePet;
-      petId: EntityId;
-      newName: string;
-    };
+// Map enum values to payload types
+interface ClientIntentMap {
+  [ClientIntentType.RequestToJoinGame]: { gameName: string };
+  [ClientIntentType.RequestsGameList]: never;
+  [ClientIntentType.CreateGame]: {
+    gameName: string;
+    mode: GameMode;
+    isRanked?: boolean;
+  };
+  [ClientIntentType.JoinGame]: { gameName: string };
+  [ClientIntentType.LeaveGame]: never;
+  [ClientIntentType.CreateParty]: { partyName: string };
+  [ClientIntentType.JoinParty]: { partyName: string };
+  [ClientIntentType.LeaveParty]: never;
+  [ClientIntentType.ToggleReadyToStartGame]: never;
+  [ClientIntentType.CreateCharacter]: {
+    name: string;
+    combatantClass: CombatantClass;
+  };
+  [ClientIntentType.DeleteCharacter]: { characterId: string };
+  [ClientIntentType.SelectCombatAction]: {
+    characterId: string;
+    actionAndRankOption: null | ActionAndRank;
+    itemIdOption?: string;
+  };
+  [ClientIntentType.IncrementAttribute]: {
+    characterId: string;
+    attribute: CombatAttribute;
+  };
+  [ClientIntentType.ToggleReadyToExplore]: never;
+  [ClientIntentType.UnequipSlot]: {
+    characterId: string;
+    slot: TaggedEquipmentSlot;
+  };
+  [ClientIntentType.EquipInventoryItem]: {
+    characterId: string;
+    itemId: string;
+    equipToAltSlot: boolean;
+  };
+  [ClientIntentType.CycleCombatActionTargets]: {
+    characterId: string;
+    direction: NextOrPrevious;
+  };
+  [ClientIntentType.CycleTargetingSchemes]: { characterId: string };
+  [ClientIntentType.UseSelectedCombatAction]: { characterId: string };
+  [ClientIntentType.DropEquippedItem]: {
+    characterId: string;
+    slot: TaggedEquipmentSlot;
+  };
+  [ClientIntentType.DropItem]: { characterId: string; itemId: string };
+  [ClientIntentType.ToggleReadyToDescend]: never;
+  [ClientIntentType.AcknowledgeReceiptOfItemOnGroundUpdate]: { itemId: string };
+  [ClientIntentType.PickUpItems]: { characterAndItem: CharacterAndItems };
+  [ClientIntentType.GetSavedCharactersList]: never;
+  [ClientIntentType.GetSavedCharacterById]: { entityId: string };
+  [ClientIntentType.CreateSavedCharacter]: {
+    name: string;
+    combatantClass: CombatantClass;
+    slotNumber: number;
+  };
+  [ClientIntentType.DeleteSavedCharacter]: { entityId: string };
+  [ClientIntentType.SelectSavedCharacterForProgressGame]: { entityId: string };
+  [ClientIntentType.SelectProgressionGameStartingFloor]: { floor: number };
+  [ClientIntentType.SelectHoldableHotswapSlot]: {
+    characterId: string;
+    slotIndex: number;
+  };
+  [ClientIntentType.ConvertItemsToShards]: { characterAndItems: CharacterAndItems };
+  [ClientIntentType.DropShards]: { characterId: string; numShards: number };
+  [ClientIntentType.PurchaseItem]: {
+    characterId: EntityId;
+    consumableType: ConsumableType;
+  };
+  [ClientIntentType.PerformCraftingAction]: {
+    characterId: EntityId;
+    itemId: EntityId;
+    craftingAction: CraftingAction;
+  };
+  [ClientIntentType.PostItemLink]: { itemId: EntityId };
+  [ClientIntentType.SelectCombatActionLevel]: {
+    characterId: EntityId;
+    actionLevel: number;
+  };
+  [ClientIntentType.AllocateAbilityPoint]: {
+    characterId: EntityId;
+    ability: AbilityTreeAbility;
+  };
+  [ClientIntentType.TradeItemForBook]: {
+    characterId: EntityId;
+    itemId: EntityId;
+    bookType: BookConsumableType;
+  };
+  [ClientIntentType.RenamePet]: { petId: EntityId; newName: string };
+}
+
+export type ClientIntent = {
+  [K in keyof ClientIntentMap]: {
+    type: K;
+    data: ClientIntentMap[K];
+  };
+}[keyof ClientIntentMap];
+
+// // Usage
+// const testEvent: ClientIntent = {
+//   type: ClientIntentType.DropItem,
+//   data: { characterId: "", itemId: "" },
+// };
