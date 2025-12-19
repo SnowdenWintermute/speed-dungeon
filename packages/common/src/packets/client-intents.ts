@@ -147,6 +147,7 @@ interface ClientIntentMap {
   [ClientIntentType.RenamePet]: { petId: EntityId; newName: string };
 }
 
+// Create discriminated union
 export type ClientIntent = {
   [K in keyof ClientIntentMap]: {
     type: K;
@@ -154,8 +155,199 @@ export type ClientIntent = {
   };
 }[keyof ClientIntentMap];
 
-// // Usage
-// const testEvent: ClientIntent = {
-//   type: ClientIntentType.DropItem,
-//   data: { characterId: "", itemId: "" },
-// };
+type ClientIntentHandler<K extends keyof ClientIntentMap> = (intent: ClientIntentMap[K]) => void;
+
+type IntentHandlers = {
+  [K in keyof ClientIntentMap]: ClientIntentHandler<K>;
+};
+
+function handleRequestToJoinGame(data: { gameName: string }) {
+  return;
+}
+
+const intentHandlers: IntentHandlers = {
+  [ClientIntentType.RequestToJoinGame]: handleRequestToJoinGame,
+  [ClientIntentType.RequestsGameList]: function (intent: never): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.CreateGame]: function (intent: {
+    gameName: string;
+    mode: GameMode;
+    isRanked?: boolean;
+  }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.JoinGame]: function (intent: { gameName: string }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.LeaveGame]: function (intent: never): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.CreateParty]: function (intent: { partyName: string }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.JoinParty]: function (intent: { partyName: string }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.LeaveParty]: function (intent: never): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.ToggleReadyToStartGame]: function (intent: never): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.CreateCharacter]: function (intent: {
+    name: string;
+    combatantClass: CombatantClass;
+  }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.DeleteCharacter]: function (intent: { characterId: string }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.SelectCombatAction]: function (intent: {
+    characterId: string;
+    actionAndRankOption: null | ActionAndRank;
+    itemIdOption?: string;
+  }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.IncrementAttribute]: function (intent: {
+    characterId: string;
+    attribute: CombatAttribute;
+  }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.ToggleReadyToExplore]: function (intent: never): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.UnequipSlot]: function (intent: {
+    characterId: string;
+    slot: TaggedEquipmentSlot;
+  }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.EquipInventoryItem]: function (intent: {
+    characterId: string;
+    itemId: string;
+    equipToAltSlot: boolean;
+  }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.CycleCombatActionTargets]: function (intent: {
+    characterId: string;
+    direction: NextOrPrevious;
+  }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.CycleTargetingSchemes]: function (intent: { characterId: string }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.UseSelectedCombatAction]: function (intent: { characterId: string }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.DropEquippedItem]: function (intent: {
+    characterId: string;
+    slot: TaggedEquipmentSlot;
+  }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.DropItem]: function (intent: { characterId: string; itemId: string }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.ToggleReadyToDescend]: function (intent: never): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.AcknowledgeReceiptOfItemOnGroundUpdate]: function (intent: {
+    itemId: string;
+  }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.PickUpItems]: function (intent: { characterAndItem: CharacterAndItems }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.GetSavedCharactersList]: function (intent: never): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.GetSavedCharacterById]: function (intent: { entityId: string }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.CreateSavedCharacter]: function (intent: {
+    name: string;
+    combatantClass: CombatantClass;
+    slotNumber: number;
+  }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.DeleteSavedCharacter]: function (intent: { entityId: string }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.SelectSavedCharacterForProgressGame]: function (intent: {
+    entityId: string;
+  }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.SelectProgressionGameStartingFloor]: function (intent: {
+    floor: number;
+  }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.SelectHoldableHotswapSlot]: function (intent: {
+    characterId: string;
+    slotIndex: number;
+  }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.ConvertItemsToShards]: function (intent: {
+    characterAndItems: CharacterAndItems;
+  }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.DropShards]: function (intent: {
+    characterId: string;
+    numShards: number;
+  }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.PurchaseItem]: function (intent: {
+    characterId: EntityId;
+    consumableType: ConsumableType;
+  }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.PerformCraftingAction]: function (intent: {
+    characterId: EntityId;
+    itemId: EntityId;
+    craftingAction: CraftingAction;
+  }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.PostItemLink]: function (intent: { itemId: EntityId }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.SelectCombatActionLevel]: function (intent: {
+    characterId: EntityId;
+    actionLevel: number;
+  }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.AllocateAbilityPoint]: function (intent: {
+    characterId: EntityId;
+    ability: AbilityTreeAbility;
+  }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.TradeItemForBook]: function (intent: {
+    characterId: EntityId;
+    itemId: EntityId;
+    bookType: BookConsumableType;
+  }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.RenamePet]: function (intent: { petId: EntityId; newName: string }): void {
+    throw new Error("Function not implemented.");
+  },
+};
+
+export function handleClientIntent(intent: ClientIntent): void {
+  intentHandlers[intent.type](intent.data as never);
+}
