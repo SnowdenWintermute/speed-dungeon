@@ -3,6 +3,9 @@ import { Combatant, CombatantClass, CombatantSpecies } from "./combatants/index.
 import { SpeedDungeonGame, SpeedDungeonPlayer } from "./game/index.js";
 import { Meters } from "./index.js";
 
+export type Username = string;
+export type GameName = string;
+
 export interface CharacterAssociatedData {
   character: Combatant;
   game: SpeedDungeonGame;

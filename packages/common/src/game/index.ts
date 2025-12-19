@@ -12,6 +12,7 @@ import { runIfInBrowser } from "../utils/index.js";
 import { Combatant } from "../combatants/index.js";
 import cloneDeep from "lodash.clonedeep";
 import { ERROR_MESSAGES } from "../errors/index.js";
+import { LobbyUser } from "../lobby/lobby-user.js";
 
 export class SpeedDungeonGame {
   players: { [username: string]: SpeedDungeonPlayer } = {};
@@ -51,6 +52,10 @@ export class SpeedDungeonGame {
     }
 
     return deserialized;
+  }
+
+  registerPlayerFromLobbyUser(user: LobbyUser) {
+    this.players[user.username] = new SpeedDungeonPlayer(user.username);
   }
 
   addCharacterToParty(

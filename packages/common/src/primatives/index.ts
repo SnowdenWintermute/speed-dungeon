@@ -34,3 +34,10 @@ export const AXES_TO_STRING: Record<Axis, string> = {
   [Axis.Y]: "y",
   [Axis.Z]: "z",
 };
+
+export class ActionValidity {
+  constructor(
+    public isValid: boolean,
+    public reason: string = "unspecified"
+  ) {}
+}

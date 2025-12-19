@@ -1,16 +1,21 @@
 import {
+  ActionValidity,
   ClientIntent,
   ERROR_MESSAGES,
   GAME_CHANNEL_PREFIX,
   GameMode,
+  GameName,
+  IdGenerator,
   MAX_GAME_NAME_LENGTH,
   RANDOM_GAME_NAMES_FIRST,
   RANDOM_GAME_NAMES_LAST,
   SpeedDungeonGame,
+  SpeedDungeonPlayer,
 } from "../index.js";
 import { GameStateUpdate } from "../packets/game-state-updates";
 import { createLobbyClientIntentHandlers } from "./create-lobby-client-intent-handlers.js";
 import { LobbyClientIntentReceiver } from "./lobby-intent-receiver.js";
+import { LobbyState } from "./lobby-state.js";
 import { LobbyUser } from "./lobby-user.js";
 
 export * from "./random-game-names.js";
@@ -28,42 +33,16 @@ export interface GameSimulatorHandoffStrategy {
   handoff(game: SpeedDungeonGame): void;
 }
 
-export type Username = string;
-export type GameName = string;
-
-// client app will use this to display information in the UI
-// Lobby (either on a server or locally on the client) uses this to
-// compute and send updates about the authoritative lobby state
-export class LobbyState {
-  // games either being set up or already handed off to GameSimulators
-  // so players can see list of joinable games and games in progress
-  // and so the game setup logic can operate on the game state objects
-  private games: Record<GameName, SpeedDungeonGame> = {};
-  // for updating clients with the list of players not currently in games
-  private users: Record<Username, LobbyUser> = {};
-
-  addUser(user: LobbyUser) {}
-  removeUser(username: Username) {}
-  getUserOption(username: Username) {
-    return this.users[username];
-  }
-
-  addGame(game: SpeedDungeonGame) {}
-  removeGame(gameName: GameName) {}
-  getGameOption(gameName: GameName) {
-    return this.games[gameName];
-  }
-}
-
 // lives either inside a LobbyServer or locally on a ClientApp
 export class Lobby {
-  private readonly state = new LobbyState();
+  private readonly lobbyState = new LobbyState();
 
   constructor(
     private readonly updateGateway: LobbyUpdateGateway,
     // listens for client intents and delegates them to handlers
     private readonly clientIntentReceiver: LobbyClientIntentReceiver,
-    private gameSimulatorHandoffStrategy: GameSimulatorHandoffStrategy
+    private gameSimulatorHandoffStrategy: GameSimulatorHandoffStrategy,
+    private idGenerator: IdGenerator
   ) {
     this.clientIntentReceiver.initialize(this);
   }
@@ -76,6 +55,25 @@ export class Lobby {
     return `${firstName} ${lastName}`;
   }
 
+  private getGameNameValidity(gameName: GameName): ActionValidity {
+    if (gameName.length > MAX_GAME_NAME_LENGTH) {
+      return new ActionValidity(
+        false,
+        `Game names may be no longer than ${MAX_GAME_NAME_LENGTH} characters`
+      );
+    }
+
+    const gameNamePrefix = gameName.slice(0, GAME_CHANNEL_PREFIX.length - 1);
+    if (gameNamePrefix === GAME_CHANNEL_PREFIX) {
+      return new ActionValidity(
+        false,
+        `Game names may be no longer than ${MAX_GAME_NAME_LENGTH} characters`
+      );
+    }
+
+    return new ActionValidity(true);
+  }
+
   createGameHandler(
     data: { gameName: string; mode: GameMode; isRanked?: boolean },
     user: LobbyUser
@@ -83,22 +81,14 @@ export class Lobby {
     const { mode, isRanked } = data;
     let { gameName } = data;
 
-    if (user.currentGameName !== null) {
-      throw new Error(ERROR_MESSAGES.LOBBY.ALREADY_IN_GAME);
+    const userCanJoinNewGame = user.canJoinNewGame(isRanked);
+    if (!userCanJoinNewGame.isValid) {
+      throw new Error(userCanJoinNewGame.reason);
     }
 
-    const userIsGuest = user.userId === null;
-    if (isRanked && userIsGuest) {
-      throw new Error(ERROR_MESSAGES.AUTH.REQUIRED);
-    }
-
-    if (gameName.length > MAX_GAME_NAME_LENGTH) {
-      throw new Error(`Game names may be no longer than ${MAX_GAME_NAME_LENGTH} characters`);
-    }
-
-    const gameNamePrefix = gameName.slice(0, GAME_CHANNEL_PREFIX.length - 1);
-    if (gameNamePrefix === GAME_CHANNEL_PREFIX) {
-      throw new Error(`Game name must not start with "${GAME_CHANNEL_PREFIX}"`);
+    const gameNameValidity = this.getGameNameValidity(gameName);
+    if (!gameNameValidity.isValid) {
+      throw new Error(gameNameValidity.reason);
     }
 
     if (gameName === "") {
@@ -106,7 +96,7 @@ export class Lobby {
       gameName = this.generateRandomGameName();
     }
 
-    const gameByThisNameExists = this.state.getGameOption(gameName) !== undefined;
+    const gameByThisNameExists = this.lobbyState.getGameOption(gameName) !== undefined;
     if (gameByThisNameExists) {
       throw new Error(ERROR_MESSAGES.LOBBY.GAME_EXISTS);
     }
@@ -114,15 +104,55 @@ export class Lobby {
     if (mode === GameMode.Progression) {
       // await createProgressionGameHandler(gameServer, session, socket, gameName);
     } else {
-      // const game = new SpeedDungeonGame(
-      //   idGenerator.generate(),
-      //   gameName,
-      //   GameMode.Race,
-      //   session.username,
-      //   isRanked
-      // );
-      // gameServer.games.insert(gameName, game);
-      // joinGameHandler(gameName, session, socket);
+      const game = new SpeedDungeonGame(
+        this.idGenerator.generate(),
+        gameName,
+        GameMode.Race,
+        user.username,
+        isRanked
+      );
+      this.lobbyState.addGame(game);
+      this.joinGameHandler(gameName, user);
+    }
+  }
+
+  async joinGameHandler(gameName: string, user: LobbyUser) {
+    const game = this.lobbyState.getExpectedGame(gameName);
+
+    const userCanJoinNewGame = user.canJoinNewGame(game.isRanked);
+    if (!userCanJoinNewGame.isValid) {
+      throw new Error(userCanJoinNewGame.reason);
+    }
+
+    const gameAlreadyStarted = game.timeStarted !== null;
+    if (gameAlreadyStarted) {
+      throw new Error(ERROR_MESSAGES.LOBBY.GAME_ALREADY_STARTED);
+    }
+
+    if (game.mode === GameMode.Progression) {
+      // joinProgressionGameHandler(gameServer, session, socket, game);
+    } else {
+      user.joinGame(game);
+
+      // update the LobbyUpdateGateway's record of which update channels
+      // the user should be a part of
+      //
+      // send updates via the LobbyUpdateGateway to interested users
+      //
+
+      // for (const channelName of session.channels) {
+      //   gameServer.removeSocketFromChannel(socket.id, channelName);
+      // }
+
+      // gameServer.joinSocketToChannel(socket.id, game.name);
+
+      // socket.emit(ServerToClientEvent.GameFullUpdate, game.getSerialized());
+
+      // gameServer.io
+      //   .of("/")
+      //   .except(socket.id)
+      //   .in(game.name)
+      //   .emit(ServerToClientEvent.PlayerJoinedGame, session.username);
     }
   }
 
