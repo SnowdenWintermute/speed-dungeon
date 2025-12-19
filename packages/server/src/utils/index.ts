@@ -1,9 +1,8 @@
+import { RANDOM_GAME_NAMES_FIRST, RANDOM_GAME_NAMES_LAST } from "@speed-dungeon/common";
 import {
   PLAYER_FIRST_NAMES,
   PLAYER_LAST_NAMES,
   RANDOM_CHARACTER_NAMES_FIRST,
-  RANDOM_GAME_NAMES_FIRST,
-  RANDOM_GAME_NAMES_LAST,
   RANDOM_PARTY_NAMES,
 } from "../random-names/index.js";
 

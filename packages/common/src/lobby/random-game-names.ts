@@ -1,0 +1,32 @@
+export const RANDOM_GAME_NAMES_FIRST = [
+  "strange",
+  "silent",
+  "dark",
+  "eerie",
+  "spooky",
+  "creaky",
+  "rotten",
+  "forgotten",
+  "unsettling",
+  "uncanny",
+];
+
+export const RANDOM_GAME_NAMES_LAST = [
+  "ravine",
+  "cave",
+  "hill",
+  "valley",
+  "tunnel",
+  "sewer",
+  "underground",
+  "descent",
+  "catacomb",
+  "rift",
+  "cellar",
+  "mine",
+  "nest",
+  "tomb",
+  "crypt",
+  "canyon",
+  "forest",
+];

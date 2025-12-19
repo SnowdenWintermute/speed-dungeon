@@ -53,20 +53,20 @@ export enum ClientIntentType {
 }
 
 // Map enum values to payload types
-interface ClientIntentMap {
+export interface ClientIntentMap {
   [ClientIntentType.RequestToJoinGame]: { gameName: string };
-  [ClientIntentType.RequestsGameList]: never;
+  [ClientIntentType.RequestsGameList]: undefined;
   [ClientIntentType.CreateGame]: {
     gameName: string;
     mode: GameMode;
     isRanked?: boolean;
   };
   [ClientIntentType.JoinGame]: { gameName: string };
-  [ClientIntentType.LeaveGame]: never;
+  [ClientIntentType.LeaveGame]: undefined;
   [ClientIntentType.CreateParty]: { partyName: string };
   [ClientIntentType.JoinParty]: { partyName: string };
-  [ClientIntentType.LeaveParty]: never;
-  [ClientIntentType.ToggleReadyToStartGame]: never;
+  [ClientIntentType.LeaveParty]: undefined;
+  [ClientIntentType.ToggleReadyToStartGame]: undefined;
   [ClientIntentType.CreateCharacter]: {
     name: string;
     combatantClass: CombatantClass;
@@ -81,7 +81,7 @@ interface ClientIntentMap {
     characterId: string;
     attribute: CombatAttribute;
   };
-  [ClientIntentType.ToggleReadyToExplore]: never;
+  [ClientIntentType.ToggleReadyToExplore]: undefined;
   [ClientIntentType.UnequipSlot]: {
     characterId: string;
     slot: TaggedEquipmentSlot;
@@ -102,10 +102,10 @@ interface ClientIntentMap {
     slot: TaggedEquipmentSlot;
   };
   [ClientIntentType.DropItem]: { characterId: string; itemId: string };
-  [ClientIntentType.ToggleReadyToDescend]: never;
+  [ClientIntentType.ToggleReadyToDescend]: undefined;
   [ClientIntentType.AcknowledgeReceiptOfItemOnGroundUpdate]: { itemId: string };
   [ClientIntentType.PickUpItems]: { characterAndItem: CharacterAndItems };
-  [ClientIntentType.GetSavedCharactersList]: never;
+  [ClientIntentType.GetSavedCharactersList]: undefined;
   [ClientIntentType.GetSavedCharacterById]: { entityId: string };
   [ClientIntentType.CreateSavedCharacter]: {
     name: string;
@@ -159,7 +159,7 @@ export type ClientIntentHandler<K extends keyof ClientIntentMap> = (
   intent: ClientIntentMap[K]
 ) => void;
 
-export type IntentHandlers = {
+export type ClientIntentHandlers = {
   [K in keyof ClientIntentMap]: ClientIntentHandler<K>;
 };
 
@@ -167,9 +167,9 @@ function handleRequestToJoinGame(data: { gameName: string }) {
   return;
 }
 
-const intentHandlers: IntentHandlers = {
+const intentHandlers: ClientIntentHandlers = {
   [ClientIntentType.RequestToJoinGame]: handleRequestToJoinGame,
-  [ClientIntentType.RequestsGameList]: function (intent: never): void {
+  [ClientIntentType.RequestsGameList]: function (intent: undefined): void {
     throw new Error("Function not implemented.");
   },
   [ClientIntentType.CreateGame]: function (intent: {
@@ -182,7 +182,7 @@ const intentHandlers: IntentHandlers = {
   [ClientIntentType.JoinGame]: function (intent: { gameName: string }): void {
     throw new Error("Function not implemented.");
   },
-  [ClientIntentType.LeaveGame]: function (intent: never): void {
+  [ClientIntentType.LeaveGame]: function (intent: undefined): void {
     throw new Error("Function not implemented.");
   },
   [ClientIntentType.CreateParty]: function (intent: { partyName: string }): void {
@@ -191,10 +191,10 @@ const intentHandlers: IntentHandlers = {
   [ClientIntentType.JoinParty]: function (intent: { partyName: string }): void {
     throw new Error("Function not implemented.");
   },
-  [ClientIntentType.LeaveParty]: function (intent: never): void {
+  [ClientIntentType.LeaveParty]: function (intent: undefined): void {
     throw new Error("Function not implemented.");
   },
-  [ClientIntentType.ToggleReadyToStartGame]: function (intent: never): void {
+  [ClientIntentType.ToggleReadyToStartGame]: function (intent: undefined): void {
     throw new Error("Function not implemented.");
   },
   [ClientIntentType.CreateCharacter]: function (intent: {
@@ -219,7 +219,7 @@ const intentHandlers: IntentHandlers = {
   }): void {
     throw new Error("Function not implemented.");
   },
-  [ClientIntentType.ToggleReadyToExplore]: function (intent: never): void {
+  [ClientIntentType.ToggleReadyToExplore]: function (intent: undefined): void {
     throw new Error("Function not implemented.");
   },
   [ClientIntentType.UnequipSlot]: function (intent: {
@@ -256,7 +256,7 @@ const intentHandlers: IntentHandlers = {
   [ClientIntentType.DropItem]: function (intent: { characterId: string; itemId: string }): void {
     throw new Error("Function not implemented.");
   },
-  [ClientIntentType.ToggleReadyToDescend]: function (intent: never): void {
+  [ClientIntentType.ToggleReadyToDescend]: function (intent: undefined): void {
     throw new Error("Function not implemented.");
   },
   [ClientIntentType.AcknowledgeReceiptOfItemOnGroundUpdate]: function (intent: {
@@ -267,7 +267,7 @@ const intentHandlers: IntentHandlers = {
   [ClientIntentType.PickUpItems]: function (intent: { characterAndItem: CharacterAndItems }): void {
     throw new Error("Function not implemented.");
   },
-  [ClientIntentType.GetSavedCharactersList]: function (intent: never): void {
+  [ClientIntentType.GetSavedCharactersList]: function (intent: undefined): void {
     throw new Error("Function not implemented.");
   },
   [ClientIntentType.GetSavedCharacterById]: function (intent: { entityId: string }): void {

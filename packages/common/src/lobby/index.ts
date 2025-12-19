@@ -1,12 +1,19 @@
 import {
   ClientIntent,
-  ClientIntentType,
-  CombatantClass,
+  ERROR_MESSAGES,
+  GAME_CHANNEL_PREFIX,
   GameMode,
-  IntentHandlers,
+  MAX_GAME_NAME_LENGTH,
+  RANDOM_GAME_NAMES_FIRST,
+  RANDOM_GAME_NAMES_LAST,
   SpeedDungeonGame,
 } from "../index.js";
 import { GameStateUpdate } from "../packets/game-state-updates";
+import { createLobbyClientIntentHandlers } from "./create-lobby-client-intent-handlers.js";
+import { LobbyClientIntentReceiver } from "./lobby-intent-receiver.js";
+import { LobbyUser } from "./lobby-user.js";
+
+export * from "./random-game-names.js";
 
 // either a LocalLobbyUpdateGateway which directly calls client's GameUpdateReceiver handlers for updates
 // or a WebsocketLobbyUpdateGateway which emits socket.io events with the updates which the client's
@@ -21,16 +28,6 @@ export interface GameSimulatorHandoffStrategy {
   handoff(game: SpeedDungeonGame): void;
 }
 
-export class LobbyPlayer {
-  constructor(
-    public username: string,
-    /** snowauth user id */
-    public userId: null | number,
-    public currentGameName: null | string = null,
-    public currentPartyName: null | string = null
-  ) {}
-}
-
 export type Username = string;
 export type GameName = string;
 
@@ -43,39 +40,18 @@ export class LobbyState {
   // and so the game setup logic can operate on the game state objects
   private games: Record<GameName, SpeedDungeonGame> = {};
   // for updating clients with the list of players not currently in games
-  private players: Record<Username, LobbyPlayer> = {};
+  private users: Record<Username, LobbyUser> = {};
 
-  addPlayer(player: LobbyPlayer) {}
-  removePlayer(username: Username) {}
-  getPlayerOption(username: Username) {
-    return this.players[username];
+  addUser(user: LobbyUser) {}
+  removeUser(username: Username) {}
+  getUserOption(username: Username) {
+    return this.users[username];
   }
 
   addGame(game: SpeedDungeonGame) {}
   removeGame(gameName: GameName) {}
   getGameOption(gameName: GameName) {
     return this.games[gameName];
-  }
-}
-
-export abstract class LobbyClientIntentReceiver {
-  private lobby: Lobby | null = null;
-  constructor() {}
-
-  initialize(lobby: Lobby) {
-    this.lobby = lobby;
-  }
-
-  // either set up the socket.io event listener for ClientIntent
-  // or some way the client app can "listen" to local events
-  abstract listen(): void;
-
-  forwardIntent(clientIntent: ClientIntent) {
-    const expectedLobby = this.lobby;
-    if (expectedLobby === null) {
-      throw new Error("Lobby was not initialized");
-    }
-    expectedLobby.handleIntent(clientIntent);
   }
 }
 
@@ -92,102 +68,72 @@ export class Lobby {
     this.clientIntentReceiver.initialize(this);
   }
 
-  // joinLobbyHandler()
-  // leaveLobbyHandler()
-  //
-  // requestGameListHandler()
-  //
-  // createNewGameHandler()
-  joinGameHandler(data: { gameName: string }) {
-    //
+  private generateRandomGameName() {
+    const firstName =
+      RANDOM_GAME_NAMES_FIRST[Math.floor(Math.random() * RANDOM_GAME_NAMES_FIRST.length)];
+    const lastName =
+      RANDOM_GAME_NAMES_LAST[Math.floor(Math.random() * RANDOM_GAME_NAMES_LAST.length)];
+    return `${firstName} ${lastName}`;
   }
-  // leaveGameHandler()
-  //
-  // createPartyHandler()
-  // leavePartyHandler()
-  //
-  // createCharacterHandler()
-  // deleteCharacterHandler()
-  //
-  // selectSavedCharacterHandler()
-  // selectStartingFloorHandler()
-  //
-  // toggleReadyToStartGameHandler()
-  //
 
-  private intentHandlers: Partial<IntentHandlers> = {
-    [ClientIntentType.RequestToJoinGame]: function (intent: { gameName: string }): void {
-      throw new Error("Function not implemented.");
-    },
-    [ClientIntentType.RequestsGameList]: function (intent: never): void {
-      throw new Error("Function not implemented.");
-    },
-    [ClientIntentType.CreateGame]: function (intent: {
-      gameName: string;
-      mode: GameMode;
-      isRanked?: boolean;
-    }): void {
-      throw new Error("Function not implemented.");
-    },
-    [ClientIntentType.JoinGame]: (data): void => this.joinGameHandler(data),
-    [ClientIntentType.LeaveGame]: function (intent: never): void {
-      throw new Error("Function not implemented.");
-    },
-    [ClientIntentType.CreateParty]: function (intent: { partyName: string }): void {
-      throw new Error("Function not implemented.");
-    },
-    [ClientIntentType.JoinParty]: function (intent: { partyName: string }): void {
-      throw new Error("Function not implemented.");
-    },
-    [ClientIntentType.LeaveParty]: function (intent: never): void {
-      throw new Error("Function not implemented.");
-    },
-    [ClientIntentType.ToggleReadyToStartGame]: function (intent: never): void {
-      throw new Error("Function not implemented.");
-    },
-    [ClientIntentType.CreateCharacter]: function (intent: {
-      name: string;
-      combatantClass: CombatantClass;
-    }): void {
-      throw new Error("Function not implemented.");
-    },
-    [ClientIntentType.DeleteCharacter]: function (intent: { characterId: string }): void {
-      throw new Error("Function not implemented.");
-    },
-    [ClientIntentType.GetSavedCharactersList]: function (intent: never): void {
-      throw new Error("Function not implemented.");
-    },
-    [ClientIntentType.GetSavedCharacterById]: function (intent: { entityId: string }): void {
-      throw new Error("Function not implemented.");
-    },
-    [ClientIntentType.CreateSavedCharacter]: function (intent: {
-      name: string;
-      combatantClass: CombatantClass;
-      slotNumber: number;
-    }): void {
-      throw new Error("Function not implemented.");
-    },
-    [ClientIntentType.DeleteSavedCharacter]: function (intent: { entityId: string }): void {
-      throw new Error("Function not implemented.");
-    },
-    [ClientIntentType.SelectSavedCharacterForProgressGame]: function (intent: {
-      entityId: string;
-    }): void {
-      throw new Error("Function not implemented.");
-    },
-    [ClientIntentType.SelectProgressionGameStartingFloor]: function (intent: {
-      floor: number;
-    }): void {
-      throw new Error("Function not implemented.");
-    },
-  };
+  createGameHandler(
+    data: { gameName: string; mode: GameMode; isRanked?: boolean },
+    user: LobbyUser
+  ) {
+    const { mode, isRanked } = data;
+    let { gameName } = data;
 
-  handleIntent(clientIntent: ClientIntent) {
+    if (user.currentGameName !== null) {
+      throw new Error(ERROR_MESSAGES.LOBBY.ALREADY_IN_GAME);
+    }
+
+    const userIsGuest = user.userId === null;
+    if (isRanked && userIsGuest) {
+      throw new Error(ERROR_MESSAGES.AUTH.REQUIRED);
+    }
+
+    if (gameName.length > MAX_GAME_NAME_LENGTH) {
+      throw new Error(`Game names may be no longer than ${MAX_GAME_NAME_LENGTH} characters`);
+    }
+
+    const gameNamePrefix = gameName.slice(0, GAME_CHANNEL_PREFIX.length - 1);
+    if (gameNamePrefix === GAME_CHANNEL_PREFIX) {
+      throw new Error(`Game name must not start with "${GAME_CHANNEL_PREFIX}"`);
+    }
+
+    if (gameName === "") {
+      // @TODO - make it check if this exists and try again a safe number of times before failing
+      gameName = this.generateRandomGameName();
+    }
+
+    const gameByThisNameExists = this.state.getGameOption(gameName) !== undefined;
+    if (gameByThisNameExists) {
+      throw new Error(ERROR_MESSAGES.LOBBY.GAME_EXISTS);
+    }
+
+    if (mode === GameMode.Progression) {
+      // await createProgressionGameHandler(gameServer, session, socket, gameName);
+    } else {
+      // const game = new SpeedDungeonGame(
+      //   idGenerator.generate(),
+      //   gameName,
+      //   GameMode.Race,
+      //   session.username,
+      //   isRanked
+      // );
+      // gameServer.games.insert(gameName, game);
+      // joinGameHandler(gameName, session, socket);
+    }
+  }
+
+  private intentHandlers = createLobbyClientIntentHandlers(this);
+
+  handleIntent(clientIntent: ClientIntent, fromUser: LobbyUser) {
     const handlerOption = this.intentHandlers[clientIntent.type];
     if (handlerOption === undefined) {
       throw new Error("Lobby is not configured to handle this type of ClientIntent");
     }
     // a workaround is to use "as never" for some reason
-    return handlerOption(clientIntent.data as never);
+    return handlerOption(clientIntent.data as never, fromUser);
   }
 }
