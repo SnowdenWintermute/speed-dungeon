@@ -155,9 +155,11 @@ export type ClientIntent = {
   };
 }[keyof ClientIntentMap];
 
-type ClientIntentHandler<K extends keyof ClientIntentMap> = (intent: ClientIntentMap[K]) => void;
+export type ClientIntentHandler<K extends keyof ClientIntentMap> = (
+  intent: ClientIntentMap[K]
+) => void;
 
-type IntentHandlers = {
+export type IntentHandlers = {
   [K in keyof ClientIntentMap]: ClientIntentHandler<K>;
 };
 
