@@ -4,6 +4,7 @@ export * from "./hash-map.js";
 export * from "./entity-properties.js";
 export * from "./max-and-current.js";
 export * from "./number-range.js";
+export type ConnectionId = string;
 export type EntityId = string;
 export type ConditionId = EntityId;
 export enum NextOrPrevious {

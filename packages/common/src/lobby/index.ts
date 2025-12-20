@@ -1,6 +1,7 @@
 import {
   ActionValidity,
   ClientIntent,
+  ConnectionId,
   ERROR_MESSAGES,
   GAME_CHANNEL_PREFIX,
   GameMode,
@@ -10,7 +11,7 @@ import {
   RANDOM_GAME_NAMES_FIRST,
   RANDOM_GAME_NAMES_LAST,
   SpeedDungeonGame,
-  SpeedDungeonPlayer,
+  Username,
 } from "../index.js";
 import { GameStateUpdate } from "../packets/game-state-updates";
 import { createLobbyClientIntentHandlers } from "./create-lobby-client-intent-handlers.js";
@@ -20,11 +21,25 @@ import { LobbyUser } from "./lobby-user.js";
 
 export * from "./random-game-names.js";
 
+interface TransportEndpoint {
+  readonly id: ConnectionId;
+  send(update: GameStateUpdate): void;
+  close?(): void;
+}
+
 // either a LocalLobbyUpdateGateway which directly calls client's GameUpdateReceiver handlers for updates
 // or a WebsocketLobbyUpdateGateway which emits socket.io events with the updates which the client's
 // GameUpdateReceiver is listening for
-export interface LobbyUpdateGateway {
-  submit(update: GameStateUpdate): void;
+export class LobbyUpdateGateway {
+  // socket.io socket objects or local client transport endpoints
+  transportEndpoints: Record<ConnectionId, TransportEndpoint> = {};
+  // when we want to get a connection from a user name
+  // we can use their connectionIds to look up which LobbyUser (associated browser tab) is
+  // in some game or channel
+  connectionIdsByUsername: Record<Username, ConnectionId[]> = {};
+  // when getting a message from some connection id, find out which user it is coming from
+  connections: Record<ConnectionId, LobbyUser> = {};
+  submit(update: GameStateUpdate): void {}
 }
 
 // give the set up game to a GameSimulator either a locally owned GameSimulator
@@ -72,6 +87,31 @@ export class Lobby {
     }
 
     return new ActionValidity(true);
+  }
+
+  joinLobbyHandler(username: string, userId: number | null, connectionId: string) {
+    console.info(
+      `-- ${username} (user id: ${userId}, connection id: ${connectionId}) joined the lobby`
+    );
+
+    // add the user to the lobby state
+    this.lobbyState.addUser(new LobbyUser(username, connectionId, userId));
+
+    // manage the user's update subscription
+    // if (this.socketIdsByUsername.has(username)) {
+    //   const currentSockets = this.socketIdsByUsername.get(username)!;
+    //   currentSockets.push(socket.id);
+    // } else {
+    // this.socketIdsByUsername.insert(username, [socket.id]);
+    // }
+
+    // this.joinSocketToChannel(socket.id, LOBBY_CHANNEL);
+    // socket.emit(ServerToClientEvent.ClientUsername, username);
+
+    // const loggedInUserResult = await getLoggedInUserFromSocket(socket);
+    // if (!(loggedInUserResult instanceof Error)) {
+    //   fetchSavedCharactersHandler(undefined, loggedInUserResult, socket);
+    // }
   }
 
   createGameHandler(
