@@ -1,7 +1,7 @@
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { GameName, Username } from "../types.js";
-import { LobbyUser } from "./lobby-user.js";
+import { UserSession } from "./user-session.js";
 
 /** Client app will use this to display information in the UI
  * Lobby (either on a server or locally on the client) uses this to
@@ -12,22 +12,18 @@ export class LobbyState {
   // and so the game setup logic can operate on the game state objects
   private games: Record<GameName, SpeedDungeonGame> = {};
   // for updating clients with the list of players not currently in games
-  private users: Record<Username, LobbyUser> = {};
+  private usersInLobbyChannel: Set<Username> = new Set();
 
-  addUser(user: LobbyUser) {
-    const userExists = this.users[user.username] !== undefined;
+  addUser(user: UserSession) {
+    const userExists = this.usersInLobbyChannel.has(user.username);
     if (userExists) {
       throw new Error("Tried to add a user to a lobby but a user by that name already existed");
     }
-    this.users[user.username] = user;
+    this.usersInLobbyChannel.add(user.username);
   }
 
   removeUser(username: Username) {
-    delete this.users[username];
-  }
-
-  getUserOption(username: Username) {
-    return this.users[username];
+    this.usersInLobbyChannel.delete(username);
   }
 
   addGame(game: SpeedDungeonGame) {

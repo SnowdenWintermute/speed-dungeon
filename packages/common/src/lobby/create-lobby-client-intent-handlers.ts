@@ -1,10 +1,10 @@
 import { ClientIntentMap, ClientIntentType } from "../packets/client-intents.js";
 import { Lobby } from "./index.js";
-import { LobbyUser } from "./lobby-user.js";
+import { UserSession } from "./user-session.js";
 
 export type LobbyClientIntentHandler<K extends keyof ClientIntentMap> = (
   data: ClientIntentMap[K],
-  user: LobbyUser
+  user: UserSession
 ) => void;
 
 export type LobbyClientIntentHandlers = {

@@ -3,7 +3,7 @@ import { AdventuringParty } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
 import { EntityId } from "../primatives/index.js";
 import { SpeedDungeonPlayer } from "./player.js";
-import { GameMode } from "../types.js";
+import { GameMode, Username } from "../types.js";
 import { MAX_PARTY_SIZE } from "../app-consts.js";
 import { makeAutoObservable } from "mobx";
 import { instanceToPlain, plainToInstance } from "class-transformer";
@@ -12,7 +12,7 @@ import { runIfInBrowser } from "../utils/index.js";
 import { Combatant } from "../combatants/index.js";
 import cloneDeep from "lodash.clonedeep";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { LobbyUser } from "../lobby/lobby-user.js";
+import { UserSession } from "../lobby/user-session.js";
 
 export class SpeedDungeonGame {
   players: { [username: string]: SpeedDungeonPlayer } = {};
@@ -54,8 +54,8 @@ export class SpeedDungeonGame {
     return deserialized;
   }
 
-  registerPlayerFromLobbyUser(user: LobbyUser) {
-    this.players[user.username] = new SpeedDungeonPlayer(user.username);
+  registerPlayerFromLobbyUser(username: Username) {
+    this.players[username] = new SpeedDungeonPlayer(username);
   }
 
   addCharacterToParty(

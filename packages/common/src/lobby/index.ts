@@ -1,7 +1,6 @@
 import {
   ActionValidity,
   ClientIntent,
-  ConnectionId,
   ERROR_MESSAGES,
   GAME_CHANNEL_PREFIX,
   GameMode,
@@ -11,36 +10,15 @@ import {
   RANDOM_GAME_NAMES_FIRST,
   RANDOM_GAME_NAMES_LAST,
   SpeedDungeonGame,
-  Username,
 } from "../index.js";
-import { GameStateUpdate } from "../packets/game-state-updates";
+import { ClientIntentReceiver } from "./client-intent-receiver.js";
 import { createLobbyClientIntentHandlers } from "./create-lobby-client-intent-handlers.js";
-import { LobbyClientIntentReceiver } from "./lobby-intent-receiver.js";
+import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
 import { LobbyState } from "./lobby-state.js";
-import { LobbyUser } from "./lobby-user.js";
+import { UserSessionRegistry } from "./user-session-registry.js";
+import { UserSession } from "./user-session.js";
 
 export * from "./random-game-names.js";
-
-interface TransportEndpoint {
-  readonly id: ConnectionId;
-  send(update: GameStateUpdate): void;
-  close?(): void;
-}
-
-// either a LocalLobbyUpdateGateway which directly calls client's GameUpdateReceiver handlers for updates
-// or a WebsocketLobbyUpdateGateway which emits socket.io events with the updates which the client's
-// GameUpdateReceiver is listening for
-export class LobbyUpdateGateway {
-  // socket.io socket objects or local client transport endpoints
-  transportEndpoints: Record<ConnectionId, TransportEndpoint> = {};
-  // when we want to get a connection from a user name
-  // we can use their connectionIds to look up which LobbyUser (associated browser tab) is
-  // in some game or channel
-  connectionIdsByUsername: Record<Username, ConnectionId[]> = {};
-  // when getting a message from some connection id, find out which user it is coming from
-  connections: Record<ConnectionId, LobbyUser> = {};
-  submit(update: GameStateUpdate): void {}
-}
 
 // give the set up game to a GameSimulator either a locally owned GameSimulator
 // on the client or send it over websockets to a GameServer which owns a GameSimulator
@@ -51,11 +29,12 @@ export interface GameSimulatorHandoffStrategy {
 // lives either inside a LobbyServer or locally on a ClientApp
 export class Lobby {
   private readonly lobbyState = new LobbyState();
+  private readonly userSessionRegistry = new UserSessionRegistry();
 
   constructor(
-    private readonly updateGateway: LobbyUpdateGateway,
+    private readonly updateGateway: GameStateUpdateGateway,
     // listens for client intents and delegates them to handlers
-    private readonly clientIntentReceiver: LobbyClientIntentReceiver,
+    private readonly clientIntentReceiver: ClientIntentReceiver,
     private gameSimulatorHandoffStrategy: GameSimulatorHandoffStrategy,
     private idGenerator: IdGenerator
   ) {
@@ -89,13 +68,13 @@ export class Lobby {
     return new ActionValidity(true);
   }
 
-  joinLobbyHandler(username: string, userId: number | null, connectionId: string) {
+  connectionHandler(session: UserSession) {
     console.info(
-      `-- ${username} (user id: ${userId}, connection id: ${connectionId}) joined the lobby`
+      `-- ${session.username} (user id: ${session.userId}, connection id: ${session.connectionId}) joined the lobby`
     );
 
-    // add the user to the lobby state
-    this.lobbyState.addUser(new LobbyUser(username, connectionId, userId));
+    this.lobbyState.addUser(session);
+    this.userSessionRegistry.register(session);
 
     // manage the user's update subscription
     // if (this.socketIdsByUsername.has(username)) {
@@ -116,7 +95,7 @@ export class Lobby {
 
   createGameHandler(
     data: { gameName: string; mode: GameMode; isRanked?: boolean },
-    user: LobbyUser
+    user: UserSession
   ) {
     const { mode, isRanked } = data;
     let { gameName } = data;
@@ -156,7 +135,7 @@ export class Lobby {
     }
   }
 
-  async joinGameHandler(gameName: string, user: LobbyUser) {
+  async joinGameHandler(gameName: string, user: UserSession) {
     const game = this.lobbyState.getExpectedGame(gameName);
 
     const userCanJoinNewGame = user.canJoinNewGame(game.isRanked);
@@ -198,7 +177,7 @@ export class Lobby {
 
   private intentHandlers = createLobbyClientIntentHandlers(this);
 
-  handleIntent(clientIntent: ClientIntent, fromUser: LobbyUser) {
+  handleIntent(clientIntent: ClientIntent, fromUser: UserSession) {
     const handlerOption = this.intentHandlers[clientIntent.type];
     if (handlerOption === undefined) {
       throw new Error("Lobby is not configured to handle this type of ClientIntent");

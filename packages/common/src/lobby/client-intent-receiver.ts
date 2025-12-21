@@ -1,8 +1,8 @@
 import { ClientIntent } from "../packets/client-intents.js";
 import { Lobby } from "./index.js";
-import { LobbyUser } from "./lobby-user.js";
+import { UserSession } from "./user-session.js";
 
-export abstract class LobbyClientIntentReceiver {
+export abstract class ClientIntentReceiver {
   private lobby: Lobby | null = null;
   constructor() {}
 
@@ -15,7 +15,7 @@ export abstract class LobbyClientIntentReceiver {
   // and determine which player they came from
   abstract listen(): void;
 
-  forwardIntent(clientIntent: ClientIntent, fromUser: LobbyUser) {
+  forwardIntent(clientIntent: ClientIntent, fromUser: UserSession) {
     const expectedLobby = this.lobby;
 
     if (expectedLobby === null) {

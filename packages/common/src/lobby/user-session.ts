@@ -1,10 +1,10 @@
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ActionValidity, LOBBY_CHANNEL, SpeedDungeonGame } from "../index.js";
 
-export class LobbyUser {
+export class UserSession {
   public currentGameName: null | string = null;
   public currentPartyName: null | string = null;
-  public channels: string[] = [LOBBY_CHANNEL];
+  public channelsSubscribedTo: string[] = [LOBBY_CHANNEL];
 
   constructor(
     public username: string,
@@ -28,7 +28,7 @@ export class LobbyUser {
   }
 
   joinGame(game: SpeedDungeonGame) {
-    game.registerPlayerFromLobbyUser(this);
+    game.registerPlayerFromLobbyUser(this.username);
     this.currentGameName = game.name;
   }
 }
