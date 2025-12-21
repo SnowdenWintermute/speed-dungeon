@@ -1,13 +1,10 @@
-import { ConnectionId, Username } from "../index.js";
+import { ChannelName, ConnectionId, Username } from "../index.js";
 import { UserSession } from "./user-session.js";
 
 export class UserSessionRegistry {
-  // when we want to get a connection from a user name
-  // we can use their connectionIds to look up which LobbyUser (associated browser tab) is
-  // in some game or channel
-  // @TODO - handle in register/unregister
+  // we have used this to ensure that when a user has a session in a progression game
+  // they can not load that same saved character in another session
   private connectionIdsByUsername: Map<Username, Set<ConnectionId>> = new Map();
-  // when getting a message from some connection id, find out which user it is coming from
   private userSessions: Map<ConnectionId, UserSession> = new Map();
 
   register(session: UserSession) {
@@ -17,25 +14,55 @@ export class UserSessionRegistry {
     }
 
     this.userSessions.set(session.connectionId, session);
+    this.addConnectionIdToUsername(session);
+  }
+
+  private addConnectionIdToUsername(session: UserSession) {
+    const connectionIdsForThisUser = this.connectionIdsByUsername.get(session.username);
+    if (connectionIdsForThisUser) {
+      connectionIdsForThisUser.add(session.connectionId);
+    } else {
+      this.connectionIdsByUsername.set(session.username, new Set([session.connectionId]));
+    }
   }
 
   unregister(connectionId: ConnectionId) {
-    const doesNotExist = this.userSessions.has(connectionId);
-    if (doesNotExist) {
+    const session = this.userSessions.get(connectionId);
+
+    if (session === undefined) {
       throw new Error("Tried to unregister a session that didn't exist");
     }
+
     this.userSessions.delete(connectionId);
+    this.removeConnectionIdFromUsername(session);
   }
 
-  getConnectionsSubscribedToChannel(channelName: string): ConnectionId[] {
-    const result: ConnectionId[] = [];
+  private removeConnectionIdFromUsername(session: UserSession) {
+    const connectionIdsForThisUser = this.connectionIdsByUsername.get(session.username);
 
-    for (const [connectionId, session] of this.userSessions.entries()) {
-      if (session.channelsSubscribedTo.includes(channelName)) {
-        result.push(connectionId as ConnectionId);
-      }
+    if (connectionIdsForThisUser === undefined) {
+      throw new Error("Expected username to have list of connections");
     }
+    connectionIdsForThisUser.delete(session.connectionId);
+    if (connectionIdsForThisUser.size === 0) {
+      this.connectionIdsByUsername.delete(session.username);
+    }
+  }
 
-    return result;
+  /** Returns all connectionIds whose sessions are currently subscribed
+   * to the given channel. Multiple entries may belong to the same user.*/
+  getConnectionsSubscribedToChannel(channelName: ChannelName): ConnectionId[] {
+    return Array.from(this.userSessions.entries())
+      .filter(([connectionId, session]) => session.isSubscribedToChannel(channelName))
+      .map(([connectionId, session]) => connectionId);
+  }
+
+  public getExpectedSession(connectionId: ConnectionId) {
+    const userSessionOption = this.userSessions.get(connectionId);
+    if (userSessionOption === undefined) {
+      throw new Error("Expected session not found");
+    } else {
+      return userSessionOption;
+    }
   }
 }

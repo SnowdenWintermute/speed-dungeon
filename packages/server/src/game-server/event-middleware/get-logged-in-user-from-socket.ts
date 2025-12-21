@@ -30,11 +30,19 @@ export async function provideLoggedInUser<T>(
 export async function getLoggedInUserFromSocket(socket: Socket) {
   const gameServer = getGameServer();
   const browserTabSessionOption = gameServer.connections.get(socket.id);
-  if (browserTabSessionOption === undefined)
+  if (browserTabSessionOption === undefined) {
     return new Error(ERROR_MESSAGES.SERVER.BROWSER_SESSION_NOT_FOUND);
+  }
+
   const userIdOption = browserTabSessionOption.userId;
-  if (userIdOption === null) return new Error(ERROR_MESSAGES.AUTH.REQUIRED);
+  if (userIdOption === null) {
+    return new Error(ERROR_MESSAGES.AUTH.REQUIRED);
+  }
+
   const profileOption = await speedDungeonProfilesRepo.findOne("ownerId", userIdOption);
-  if (profileOption === undefined) return new Error(ERROR_MESSAGES.USER.MISSING_PROFILE);
+  if (profileOption === undefined) {
+    return new Error(ERROR_MESSAGES.USER.MISSING_PROFILE);
+  }
+
   return { session: browserTabSessionOption, userId: userIdOption, profile: profileOption };
 }

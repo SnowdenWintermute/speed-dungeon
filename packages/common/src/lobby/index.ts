@@ -1,22 +1,27 @@
 import {
   ActionValidity,
   ClientIntent,
+  ConnectionId,
   ERROR_MESSAGES,
   GAME_CHANNEL_PREFIX,
   GameMode,
   GameName,
   IdGenerator,
+  LOBBY_CHANNEL,
   MAX_GAME_NAME_LENGTH,
   RANDOM_GAME_NAMES_FIRST,
   RANDOM_GAME_NAMES_LAST,
   SpeedDungeonGame,
 } from "../index.js";
+import { GameStateUpdateType } from "../packets/game-state-updates.js";
 import { ClientIntentReceiver } from "./client-intent-receiver.js";
 import { createLobbyClientIntentHandlers } from "./create-lobby-client-intent-handlers.js";
 import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
 import { LobbyState } from "./lobby-state.js";
+import { SpeedDungeonProfileLoader } from "./speed-dungeon-profile-loader.js";
+import { TransportEndpoint } from "./transport-endpoint.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
-import { UserSession } from "./user-session.js";
+import { AuthorizedSession, UserSession } from "./user-session.js";
 
 export * from "./random-game-names.js";
 
@@ -36,6 +41,7 @@ export class Lobby {
     // listens for client intents and delegates them to handlers
     private readonly clientIntentReceiver: ClientIntentReceiver,
     private gameSimulatorHandoffStrategy: GameSimulatorHandoffStrategy,
+    private profileLoader: SpeedDungeonProfileLoader,
     private idGenerator: IdGenerator
   ) {
     this.clientIntentReceiver.initialize(this);
@@ -68,29 +74,48 @@ export class Lobby {
     return new ActionValidity(true);
   }
 
-  connectionHandler(session: UserSession) {
+  private async getAuthorizedSessionIfAuthenticated(
+    connectionId: ConnectionId
+  ): Promise<AuthorizedSession | null> {
+    const session = this.userSessionRegistry.getExpectedSession(connectionId);
+    if (session.userId === null) {
+      return null;
+    }
+
+    const profile = await this.profileLoader.fetchExpectedProfile(session.userId);
+
+    return { session, userId: session.userId, profile };
+  }
+
+  private async requireAuthorizedSession(connectionId: ConnectionId) {
+    const session = await this.getAuthorizedSessionIfAuthenticated(connectionId);
+
+    if (session === null) {
+      throw new Error(ERROR_MESSAGES.AUTH.REQUIRED);
+    }
+
+    return session;
+  }
+
+  async connectionHandler(session: UserSession, endpoint: TransportEndpoint) {
     console.info(
       `-- ${session.username} (user id: ${session.userId}, connection id: ${session.connectionId}) joined the lobby`
     );
 
     this.lobbyState.addUser(session);
     this.userSessionRegistry.register(session);
+    this.updateGateway.registerEndpoint(session.connectionId, endpoint);
+    session.subscribeToChannel(LOBBY_CHANNEL);
 
-    // manage the user's update subscription
-    // if (this.socketIdsByUsername.has(username)) {
-    //   const currentSockets = this.socketIdsByUsername.get(username)!;
-    //   currentSockets.push(socket.id);
-    // } else {
-    // this.socketIdsByUsername.insert(username, [socket.id]);
-    // }
+    this.updateGateway.submitToConnection(session.connectionId, {
+      type: GameStateUpdateType.ClientUsername,
+      data: { username: session.username },
+    });
 
-    // this.joinSocketToChannel(socket.id, LOBBY_CHANNEL);
-    // socket.emit(ServerToClientEvent.ClientUsername, username);
-
-    // const loggedInUserResult = await getLoggedInUserFromSocket(socket);
-    // if (!(loggedInUserResult instanceof Error)) {
-    //   fetchSavedCharactersHandler(undefined, loggedInUserResult, socket);
-    // }
+    const loggedInUser = await this.getAuthorizedSessionIfAuthenticated(session.connectionId);
+    if (loggedInUser !== null) {
+      //   fetchSavedCharactersHandler(undefined, loggedInUserResult, socket);
+    }
   }
 
   createGameHandler(

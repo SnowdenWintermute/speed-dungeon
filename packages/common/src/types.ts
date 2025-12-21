@@ -5,6 +5,8 @@ import { Meters } from "./index.js";
 
 export type Username = string;
 export type GameName = string;
+export type ChannelName = string;
+export type IdentityProviderId = number;
 
 export interface CharacterAssociatedData {
   character: Combatant;

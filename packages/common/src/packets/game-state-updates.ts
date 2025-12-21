@@ -15,7 +15,7 @@ import { CombatAttribute } from "../combatants/attributes/index.js";
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
 
-export enum ServerToClientEvent {
+export enum GameStateUpdateType {
   GameList,
   ClientUsername,
   ChannelFullUpdate,
@@ -69,178 +69,178 @@ export enum ServerToClientEvent {
 }
 
 export interface GameStateUpdateMap {
-  [ServerToClientEvent.GameList]: {
+  [GameStateUpdateType.GameList]: {
     gameList: GameListEntry[];
   };
-  [ServerToClientEvent.ClientUsername]: {
+  [GameStateUpdateType.ClientUsername]: {
     username: string;
   };
-  [ServerToClientEvent.ChannelFullUpdate]: {
+  [GameStateUpdateType.ChannelFullUpdate]: {
     channelName: string;
     users: { username: string; userChannelDisplayData: UserChannelDisplayData }[];
   };
-  [ServerToClientEvent.UserJoinedChannel]: {
+  [GameStateUpdateType.UserJoinedChannel]: {
     username: string;
     userChannelDisplayData: UserChannelDisplayData;
   };
-  [ServerToClientEvent.UserLeftChannel]: {
+  [GameStateUpdateType.UserLeftChannel]: {
     username: string;
   };
-  [ServerToClientEvent.ErrorMessage]: {
+  [GameStateUpdateType.ErrorMessage]: {
     message: string;
   };
-  [ServerToClientEvent.GameFullUpdate]: {
+  [GameStateUpdateType.GameFullUpdate]: {
     game: SpeedDungeonGame | null;
   };
-  [ServerToClientEvent.PartyNameUpdate]: {
+  [GameStateUpdateType.PartyNameUpdate]: {
     partyName: string | null;
   };
-  [ServerToClientEvent.PlayerChangedAdventuringParty]: {
+  [GameStateUpdateType.PlayerChangedAdventuringParty]: {
     playerName: string;
     partyName: string | null;
   };
-  [ServerToClientEvent.PlayerLeftGame]: {
+  [GameStateUpdateType.PlayerLeftGame]: {
     username: string;
   };
-  [ServerToClientEvent.PlayerJoinedGame]: {
+  [GameStateUpdateType.PlayerJoinedGame]: {
     username: string;
   };
-  [ServerToClientEvent.PartyCreated]: {
+  [GameStateUpdateType.PartyCreated]: {
     partyId: string;
     partyName: string;
   };
-  [ServerToClientEvent.CharacterAddedToParty]: {
+  [GameStateUpdateType.CharacterAddedToParty]: {
     username: string;
     character: Combatant;
     pets: Combatant[];
   };
-  [ServerToClientEvent.CharacterDeleted]: {
+  [GameStateUpdateType.CharacterDeleted]: {
     username: string;
     characterId: string;
   };
-  [ServerToClientEvent.PlayerToggledReadyToStartGame]: {
+  [GameStateUpdateType.PlayerToggledReadyToStartGame]: {
     username: string;
   };
-  [ServerToClientEvent.GameStarted]: {
+  [GameStateUpdateType.GameStarted]: {
     timeStarted: number;
   };
-  [ServerToClientEvent.PlayerToggledReadyToDescendOrExplore]: {
+  [GameStateUpdateType.PlayerToggledReadyToDescendOrExplore]: {
     characterId: string;
     explorationAction: ExplorationAction;
   };
-  [ServerToClientEvent.DungeonRoomTypesOnCurrentFloor]: {
+  [GameStateUpdateType.DungeonRoomTypesOnCurrentFloor]: {
     roomTypes: (DungeonRoomType | null)[];
   };
-  [ServerToClientEvent.DungeonRoomUpdate]: {
+  [GameStateUpdateType.DungeonRoomUpdate]: {
     dungeonRoom: DungeonRoom;
     monsters: Combatant[];
     actionEntitiesToRemove: EntityId[];
   };
-  [ServerToClientEvent.BattleFullUpdate]: {
+  [GameStateUpdateType.BattleFullUpdate]: {
     battle: Battle | null;
   };
-  [ServerToClientEvent.ActionCommandPayloads]: {
+  [GameStateUpdateType.ActionCommandPayloads]: {
     payloads: ActionCommandPayload[];
   };
-  [ServerToClientEvent.GameMessage]: {
+  [GameStateUpdateType.GameMessage]: {
     message: GameMessage;
   };
-  [ServerToClientEvent.CharacterDroppedItem]: {
+  [GameStateUpdateType.CharacterDroppedItem]: {
     characterAndItem: CharacterAndItem;
   };
-  [ServerToClientEvent.CharacterDroppedEquippedItem]: {
+  [GameStateUpdateType.CharacterDroppedEquippedItem]: {
     characterAndItem: CharacterAndSlot;
   };
-  [ServerToClientEvent.CharacterUnequippedItem]: {
+  [GameStateUpdateType.CharacterUnequippedItem]: {
     characterAndItem: CharacterAndSlot;
   };
-  [ServerToClientEvent.CharacterEquippedItem]: {
+  [GameStateUpdateType.CharacterEquippedItem]: {
     itemId: string;
     equipToAlternateSlot: boolean;
     characterId: string;
   };
-  [ServerToClientEvent.CharacterPickedUpItems]: {
+  [GameStateUpdateType.CharacterPickedUpItems]: {
     characterAndItems: CharacterAndItems;
   };
-  [ServerToClientEvent.CharacterSelectedCombatAction]: {
+  [GameStateUpdateType.CharacterSelectedCombatAction]: {
     characterId: string;
     actionAndRankOption: ActionAndRank | null;
     itemIdOption?: string | null;
   };
-  [ServerToClientEvent.CharacterCycledTargets]: {
+  [GameStateUpdateType.CharacterCycledTargets]: {
     characterId: string;
     direction: NextOrPrevious;
     playerUsername: string;
   };
-  [ServerToClientEvent.CharacterCycledTargetingSchemes]: {
+  [GameStateUpdateType.CharacterCycledTargetingSchemes]: {
     characterId: string;
     playerUsername: string;
   };
-  [ServerToClientEvent.DungeonFloorNumber]: {
+  [GameStateUpdateType.DungeonFloorNumber]: {
     floor: number;
   };
-  [ServerToClientEvent.CharacterSpentAttributePoint]: {
+  [GameStateUpdateType.CharacterSpentAttributePoint]: {
     characterId: string;
     attribute: CombatAttribute;
   };
-  [ServerToClientEvent.SavedCharacterList]: {
+  [GameStateUpdateType.SavedCharacterList]: {
     characterSlots: {
       [slot: number]: null | { combatant: Combatant; pets: Combatant[] };
     };
   };
-  [ServerToClientEvent.SavedCharacter]: {
+  [GameStateUpdateType.SavedCharacter]: {
     character: { combatant: Combatant; pets: Combatant[] };
     slot: number;
   };
-  [ServerToClientEvent.SavedCharacterDeleted]: {
+  [GameStateUpdateType.SavedCharacterDeleted]: {
     id: string;
   };
-  [ServerToClientEvent.PlayerSelectedSavedCharacterInProgressionGame]: {
+  [GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame]: {
     username: string;
     character: { combatant: Combatant; pets: Combatant[] };
   };
-  [ServerToClientEvent.ProgressionGameStartingFloorSelected]: {
+  [GameStateUpdateType.ProgressionGameStartingFloorSelected]: {
     floor: number;
   };
-  [ServerToClientEvent.CharacterSelectedHoldableHotswapSlot]: {
+  [GameStateUpdateType.CharacterSelectedHoldableHotswapSlot]: {
     characterId: string;
     slotIndex: number;
   };
-  [ServerToClientEvent.CharacterConvertedItemsToShards]: {
+  [GameStateUpdateType.CharacterConvertedItemsToShards]: {
     characterAndItems: CharacterAndItems;
   };
-  [ServerToClientEvent.CharacterDroppedShards]: {
+  [GameStateUpdateType.CharacterDroppedShards]: {
     characterId: string;
     shardStack: Consumable;
   };
-  [ServerToClientEvent.CharacterPurchasedItem]: {
+  [GameStateUpdateType.CharacterPurchasedItem]: {
     characterId: EntityId;
     item: Consumable;
     price: number;
   };
-  [ServerToClientEvent.CharacterPerformedCraftingAction]: {
+  [GameStateUpdateType.CharacterPerformedCraftingAction]: {
     characterId: EntityId;
     item: Item;
     craftingAction: CraftingAction;
   };
-  [ServerToClientEvent.PlayerPostedItemLink]: {
+  [GameStateUpdateType.PlayerPostedItemLink]: {
     username: string;
     itemId: EntityId;
   };
-  [ServerToClientEvent.CharacterSelectedCombatActionLevel]: {
+  [GameStateUpdateType.CharacterSelectedCombatActionLevel]: {
     characterId: EntityId;
     actionLevel: number;
   };
-  [ServerToClientEvent.CharacterAllocatedAbilityPoint]: {
+  [GameStateUpdateType.CharacterAllocatedAbilityPoint]: {
     characterId: EntityId;
     ability: AbilityTreeAbility;
   };
-  [ServerToClientEvent.CharacterTradedItemForBook]: {
+  [GameStateUpdateType.CharacterTradedItemForBook]: {
     characterId: EntityId;
     itemIdTraded: EntityId;
     book: Consumable;
   };
-  [ServerToClientEvent.CharacterRenamedPet]: {
+  [GameStateUpdateType.CharacterRenamedPet]: {
     petId: EntityId;
     newName: string;
   };
