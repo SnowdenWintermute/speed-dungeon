@@ -7,7 +7,7 @@ import { EntityId, NextOrPrevious } from "../primatives/index.js";
 import { Combatant } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
 import { UserChannelDisplayData } from "../users/index.js";
-import { GameMode } from "../types.js";
+import { GameMode, Username } from "../types.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { Consumable } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
@@ -77,7 +77,7 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.ChannelFullUpdate]: {
     channelName: string;
-    users: { username: string; userChannelDisplayData: UserChannelDisplayData }[];
+    users: Map<Username, UserChannelDisplayData>;
   };
   [GameStateUpdateType.UserJoinedChannel]: {
     username: string;

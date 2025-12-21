@@ -3,6 +3,16 @@ import { SpeedDungeonGame } from "../game/index.js";
 import { GameName, Username } from "../types.js";
 import { UserSession } from "./user-session.js";
 
+export enum UserAuthStatus {
+  LoggedIn,
+  Guest,
+}
+
+export class UserChannelDisplayData {
+  sessionsInThisChannelCount: number = 1;
+  constructor(public authStatus: UserAuthStatus) {}
+}
+
 /** Client app will use this to display information in the UI
  * Lobby (either on a server or locally on the client) uses this to
  * compute and send updates about the authoritative lobby state */
@@ -12,18 +22,42 @@ export class LobbyState {
   // and so the game setup logic can operate on the game state objects
   private games: Record<GameName, SpeedDungeonGame> = {};
   // for updating clients with the list of players not currently in games
-  private usersInLobbyChannel: Set<Username> = new Set();
+  private usersInLobbyChannel = new Map<string, UserChannelDisplayData>();
 
-  addUser(user: UserSession) {
-    const userExists = this.usersInLobbyChannel.has(user.username);
-    if (userExists) {
-      throw new Error("Tried to add a user to a lobby but a user by that name already existed");
+  /**Users can have more than one session in a single channel so we'll update a reference count
+   * to avoid displaying duplicate names for example when an authorized user has multiple tabs open */
+  addUser(username: string, isAuthorized: boolean) {
+    const existingUser = this.usersInLobbyChannel.get(username);
+    if (existingUser) {
+      existingUser.sessionsInThisChannelCount += 1;
+      return existingUser;
     }
-    this.usersInLobbyChannel.add(user.username);
+
+    const authStatus = isAuthorized ? UserAuthStatus.LoggedIn : UserAuthStatus.Guest;
+    const userChannelDisplayData = new UserChannelDisplayData(authStatus);
+    this.usersInLobbyChannel.set(username, userChannelDisplayData);
+    return userChannelDisplayData;
   }
 
   removeUser(username: Username) {
-    this.usersInLobbyChannel.delete(username);
+    const expectedUser = this.usersInLobbyChannel.get(username);
+    if (expectedUser === undefined) {
+      throw new Error("Tried to remove a user but couldn't find it");
+    }
+
+    expectedUser.sessionsInThisChannelCount -= 1;
+
+    if (expectedUser.sessionsInThisChannelCount < 0) {
+      throw new Error(`User ${username} session count went negative`);
+    }
+
+    if (expectedUser.sessionsInThisChannelCount === 0) {
+      this.usersInLobbyChannel.delete(username);
+    }
+  }
+
+  getUsersList() {
+    return this.usersInLobbyChannel;
   }
 
   addGame(game: SpeedDungeonGame) {
