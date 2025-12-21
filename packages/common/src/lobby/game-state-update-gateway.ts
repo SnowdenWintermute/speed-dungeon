@@ -21,7 +21,7 @@ export class GameStateUpdateGateway {
     endpoint.send(update);
   }
 
-  submitToConnections(connectionIds: Iterable<ConnectionId>, update: GameStateUpdate): void {
+  submitToConnections(connectionIds: ConnectionId[], update: GameStateUpdate): void {
     for (const id of connectionIds) {
       this.submitToConnection(id, update);
     }

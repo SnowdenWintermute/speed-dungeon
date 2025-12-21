@@ -130,9 +130,7 @@ export class Lobby {
 
     // tell other clients in the lobby that this user joined
     this.updateGateway.submitToConnections(
-      this.userSessionRegistry
-        .getConnectionsSubscribedToChannel(LOBBY_CHANNEL)
-        .filter((connectionId) => connectionId !== session.connectionId),
+      this.userSessionRegistry.in(LOBBY_CHANNEL, { excludedIds: [session.connectionId] }),
       {
         type: GameStateUpdateType.UserJoinedChannel,
         data: { username: session.username, userChannelDisplayData },
@@ -195,10 +193,10 @@ export class Lobby {
     }
   }
 
-  async joinGameHandler(gameName: string, user: UserSession) {
+  async joinGameHandler(gameName: string, session: UserSession) {
     const game = this.lobbyState.getExpectedGame(gameName);
 
-    const userCanJoinNewGame = user.canJoinNewGame(game.isRanked);
+    const userCanJoinNewGame = session.canJoinNewGame(game.isRanked);
     if (!userCanJoinNewGame.isValid) {
       throw new Error(userCanJoinNewGame.reason);
     }
@@ -211,27 +209,34 @@ export class Lobby {
     if (game.mode === GameMode.Progression) {
       // joinProgressionGameHandler(gameServer, session, socket, game);
     } else {
-      user.joinGame(game);
+      session.joinGame(game);
 
-      // update the LobbyUpdateGateway's record of which update channels
-      // the user should be a part of
-      //
-      // send updates via the LobbyUpdateGateway to interested users
-      //
+      session.unsubscribeFromChannel(LOBBY_CHANNEL);
+      session.subscribeToChannel(game.name);
 
-      // for (const channelName of session.channels) {
-      //   gameServer.removeSocketFromChannel(socket.id, channelName);
-      // }
+      // update the lobby's user list for when players ask for the list of users in lobby
+      this.lobbyState.removeUser(session.username);
 
-      // gameServer.joinSocketToChannel(socket.id, game.name);
+      // tell the clients in the lobby that the user left the lobby channel
+      this.updateGateway.submitToConnections(this.userSessionRegistry.in(LOBBY_CHANNEL), {
+        type: GameStateUpdateType.UserLeftChannel,
+        data: { username: session.username },
+      });
 
-      // socket.emit(ServerToClientEvent.GameFullUpdate, game.getSerialized());
+      // give the client the game information of the game they joined
+      this.updateGateway.submitToConnection(session.connectionId, {
+        type: GameStateUpdateType.GameFullUpdate,
+        data: { game: game.getSerialized() },
+      });
 
-      // gameServer.io
-      //   .of("/")
-      //   .except(socket.id)
-      //   .in(game.name)
-      //   .emit(ServerToClientEvent.PlayerJoinedGame, session.username);
+      // tell clients already in the game that someone joined
+      this.updateGateway.submitToConnections(
+        this.userSessionRegistry.in(game.name, { excludedIds: [session.connectionId] }),
+        {
+          type: GameStateUpdateType.PlayerJoinedGame,
+          data: { username: session.username },
+        }
+      );
     }
   }
 

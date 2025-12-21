@@ -51,9 +51,15 @@ export class UserSessionRegistry {
 
   /** Returns all connectionIds whose sessions are currently subscribed
    * to the given channel. Multiple entries may belong to the same user.*/
-  getConnectionsSubscribedToChannel(channelName: ChannelName): ConnectionId[] {
+  in(channelName: ChannelName, options?: { excludedIds: [ConnectionId] }): ConnectionId[] {
+    const excludedIds: ConnectionId[] = [];
+    if (options?.excludedIds) {
+      excludedIds.push(...options.excludedIds);
+    }
+
     return Array.from(this.userSessions.entries())
       .filter(([connectionId, session]) => session.isSubscribedToChannel(channelName))
+      .filter(([connectionId, session]) => !excludedIds.includes(connectionId))
       .map(([connectionId, session]) => connectionId);
   }
 
