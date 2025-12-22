@@ -1,5 +1,6 @@
 import { CombatantProperties, EntityId } from "..";
 import { Combatant } from "../combatants/index.js";
+import { UserSession } from "./user-session";
 
 interface CharacterInSlot {
   combatant: Combatant;

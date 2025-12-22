@@ -13,6 +13,8 @@ import { GameStateUpdateType } from "../packets/game-state-updates.js";
 import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
 import { RANDOM_GAME_NAMES_FIRST, RANDOM_GAME_NAMES_LAST } from "./index.js";
 import { LobbyState } from "./lobby-state.js";
+import { SavedCharactersManager } from "./saved-characters-manager.js";
+import { SessionAuthorizationManager } from "./session-authorization-manager.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
 import { UserSession } from "./user-session.js";
 
@@ -21,6 +23,8 @@ export class GameLifecycleManager {
     private readonly lobbyState: LobbyState,
     private readonly updateGateway: GameStateUpdateGateway,
     private readonly userSessionRegistry: UserSessionRegistry,
+    private readonly savedCharactersManager: SavedCharactersManager,
+    private readonly sessionAuthManager: SessionAuthorizationManager,
     private readonly idGenerator: IdGenerator
   ) {}
 
@@ -48,14 +52,14 @@ export class GameLifecycleManager {
     return new ActionValidity(true);
   }
 
-  createGameHandler(
+  async createGameHandler(
     data: { gameName: string; mode: GameMode; isRanked?: boolean },
-    user: UserSession
+    session: UserSession
   ) {
     const { mode, isRanked } = data;
     let { gameName } = data;
 
-    const userCanJoinNewGame = user.canJoinNewGame(isRanked);
+    const userCanJoinNewGame = session.canJoinNewGame(isRanked);
     if (!userCanJoinNewGame.isValid) {
       throw new Error(userCanJoinNewGame.reason);
     }
@@ -66,8 +70,16 @@ export class GameLifecycleManager {
     }
 
     if (gameName === "") {
-      // @TODO - make it check if this exists and try again a safe number of times before failing
-      gameName = this.generateRandomGameName();
+      // get a random game name and make it check if this exists
+      // and try again a safe number of times before failing
+      const maxAttempts = 10;
+      for (let attemptIndex = 0; attemptIndex < maxAttempts; attemptIndex += 1) {
+        gameName = this.generateRandomGameName();
+        const noGameExistsByThisName = this.lobbyState.getGameOption(gameName) === undefined;
+        if (noGameExistsByThisName) {
+          break;
+        }
+      }
     }
 
     const gameByThisNameExists = this.lobbyState.getGameOption(gameName) !== undefined;
@@ -76,18 +88,65 @@ export class GameLifecycleManager {
     }
 
     if (mode === GameMode.Progression) {
-      // await createProgressionGameHandler(gameServer, session, socket, gameName);
+      await this.createProgressionGameHandler(gameName, session);
     } else {
       const game = new SpeedDungeonGame(
         this.idGenerator.generate(),
         gameName,
         GameMode.Race,
-        user.username,
+        session.username,
         isRanked
       );
       this.lobbyState.addGame(game);
-      this.joinGameHandler(gameName, user);
+      this.joinGameHandler(gameName, session);
     }
+  }
+
+  async createProgressionGameHandler(gameName: string, session: UserSession) {
+    // we don't want them loading the same saved character into multiple active games,
+    // so we'll prohibit simultaneous progression games per user
+    const userSessions = this.userSessionRegistry.getExpectedUserSessions(session.username);
+
+    for (const otherSession of userSessions) {
+      if (otherSession.isInGame()) {
+        throw new Error(ERROR_MESSAGES.LOBBY.USER_IN_GAME);
+      }
+    }
+
+    const authorizedSession = await this.sessionAuthManager.requireAuthorizedSession(
+      session.connectionId
+    );
+
+    const defaultSavedCharacter =
+      await this.savedCharactersManager.getDefaultSavedCharacterForProgressionGame(
+        authorizedSession
+      );
+
+    const game = new SpeedDungeonGame(
+      this.idGenerator.generate(),
+      gameName,
+      GameMode.Progression,
+      session.username
+    );
+
+    const { combatant } = defaultSavedCharacter;
+
+    game.lowestStartingFloorOptionsBySavedCharacter[combatant.entityProperties.id] =
+      combatant.combatantProperties.deepestFloorReached;
+
+    game.selectedStartingFloor = combatant.combatantProperties.deepestFloorReached;
+
+    // const defaultPartyName = getProgressionGamePartyName(game.name);
+    // game.adventuringParties[getProgressionGamePartyName(game.name)] =
+    //   AdventuringParty.createInitialized(idGenerator.generate(), defaultPartyName);
+    // gameServer.games.insert(gameName, game);
+    // await joinPlayerToProgressionGame(
+    //   gameServer,
+    //   socket,
+    //   socketMeta,
+    //   game,
+    //   defaultSavedCharacterResult
+    // );
   }
 
   async joinGameHandler(gameName: string, session: UserSession) {

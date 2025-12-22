@@ -32,8 +32,12 @@ export class UserSession {
     return this.channelsSubscribedTo.has(channelName);
   }
 
+  isInGame() {
+    return this.currentGameName !== null;
+  }
+
   canJoinNewGame(isRanked?: boolean): ActionValidity {
-    if (this.currentGameName !== null) {
+    if (this.isInGame()) {
       return new ActionValidity(false, ERROR_MESSAGES.LOBBY.ALREADY_IN_GAME);
     }
 

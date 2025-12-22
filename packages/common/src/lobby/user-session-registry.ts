@@ -1,4 +1,4 @@
-import { ChannelName, ConnectionId, Username } from "../index.js";
+import { ChannelName, ConnectionId, ERROR_MESSAGES, Username } from "../index.js";
 import { UserSession } from "./user-session.js";
 
 export class UserSessionRegistry {
@@ -6,6 +6,29 @@ export class UserSessionRegistry {
   // they can not load that same saved character in another session
   private connectionIdsByUsername: Map<Username, Set<ConnectionId>> = new Map();
   private userSessions: Map<ConnectionId, UserSession> = new Map();
+
+  private getExpectedUserConnectionIds(username: Username) {
+    const idsOption = this.connectionIdsByUsername.get(username);
+    if (idsOption === undefined) {
+      throw new Error(ERROR_MESSAGES.SERVER_GENERIC);
+    } else {
+      return Array.from(idsOption);
+    }
+  }
+
+  getExpectedUserSessions(username: Username) {
+    const connectionIds = this.getExpectedUserConnectionIds(username);
+    const result: UserSession[] = [];
+    for (const id of connectionIds) {
+      const expectedSession = this.userSessions.get(id);
+      if (expectedSession === undefined) {
+        throw new Error("A connection id was registered without a matching session");
+      }
+      result.push(expectedSession);
+    }
+
+    return result;
+  }
 
   register(session: UserSession) {
     const alreadyExists = this.userSessions.has(session.connectionId);
