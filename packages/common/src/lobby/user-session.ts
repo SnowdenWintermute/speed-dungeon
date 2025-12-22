@@ -8,6 +8,7 @@ import {
   SpeedDungeonProfile,
   Username,
 } from "../index.js";
+import { LobbyState } from "./lobby-state.js";
 
 export interface AuthorizedSession {
   session: UserSession;
@@ -34,6 +35,15 @@ export class UserSession {
 
   isInGame() {
     return this.currentGameName !== null;
+  }
+
+  getExpectedCurrentGame(lobbyState: LobbyState) {
+    const currentGameName = this.currentGameName;
+    if (currentGameName === null) {
+      throw new Error(ERROR_MESSAGES.USER.NO_CURRENT_GAME);
+    }
+
+    return lobbyState.getExpectedGame(currentGameName);
   }
 
   canJoinNewGame(isRanked?: boolean): ActionValidity {

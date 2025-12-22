@@ -29,7 +29,7 @@ export class PartySetupManager {
     return RANDOM_PARTY_NAMES[Math.floor(Math.random() * RANDOM_PARTY_NAMES.length)]!;
   }
 
-  createPartyHandler(session: UserSession, game: SpeedDungeonGame, partyName: string) {
+  createPartyHandler(session: UserSession, partyName: string) {
     if (session.currentPartyName) {
       throw new Error(ERROR_MESSAGES.LOBBY.ALREADY_IN_PARTY);
     }
@@ -41,6 +41,8 @@ export class PartySetupManager {
     if (partyName.length > MAX_PARTY_NAME_LENGTH) {
       throw new Error(`Party names may be no longer than ${MAX_PARTY_NAME_LENGTH} characters`);
     }
+
+    const game = session.getExpectedCurrentGame(this.lobbyState);
 
     if (game.adventuringParties[partyName]) {
       throw new Error(ERROR_MESSAGES.LOBBY.PARTY_NAME_EXISTS);
@@ -54,13 +56,15 @@ export class PartySetupManager {
       data: { partyId: party.id, partyName },
     });
 
-    this.joinPartyHandler(session, game, party.name);
+    this.joinPartyHandler(session, party.name);
   }
 
-  joinPartyHandler(session: UserSession, game: SpeedDungeonGame, partyName: string) {
+  joinPartyHandler(session: UserSession, partyName: string) {
     if (session.currentPartyName) {
       throw new Error(ERROR_MESSAGES.LOBBY.ALREADY_IN_PARTY);
     }
+
+    const game = session.getExpectedCurrentGame(this.lobbyState);
 
     game.putPlayerInParty(partyName, session.username);
 
@@ -102,7 +106,7 @@ export class PartySetupManager {
     const party = game.getExpectedParty(partyName);
     const player = game.getExpectedPlayer(session.username);
 
-    this.joinPartyHandler(session, game, partyName);
+    this.joinPartyHandler(session, partyName);
 
     game.addCharacterToParty(
       party,
