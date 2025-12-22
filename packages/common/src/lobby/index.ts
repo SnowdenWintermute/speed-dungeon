@@ -4,6 +4,7 @@ import { createLobbyClientIntentHandlers } from "./create-lobby-client-intent-ha
 import { GameLifecycleManager } from "./game-lifecycle-manager.js";
 import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
 import { LobbyState } from "./lobby-state.js";
+import { PartySetupManager } from "./party-setup-manager.js";
 import { SavedCharacterLoader } from "./saved-character-loader.js";
 import { SavedCharactersManager } from "./saved-characters-manager.js";
 import { SessionAuthorizationManager } from "./session-authorization-manager.js";
@@ -28,6 +29,7 @@ export class Lobby {
   // handler managers
   public readonly sessionAuthManager: SessionAuthorizationManager;
   public readonly gameLifecycleManager: GameLifecycleManager;
+  public readonly partySetupManager: PartySetupManager;
   public readonly sessionLifecycleManager: SessionLifecycleManager;
   public readonly savedCharactersManager: SavedCharactersManager;
 
@@ -54,12 +56,21 @@ export class Lobby {
       this.savedCharacterLoader
     );
 
-    this.gameLifecycleManager = new GameLifecycleManager(
+    this.partySetupManager = new PartySetupManager(
       this.lobbyState,
       updateGateway,
       this.userSessionRegistry,
       this.savedCharactersManager,
       this.sessionAuthManager,
+      idGenerator
+    );
+
+    this.gameLifecycleManager = new GameLifecycleManager(
+      this.lobbyState,
+      updateGateway,
+      this.userSessionRegistry,
+      this.sessionAuthManager,
+      this.partySetupManager,
       idGenerator
     );
 

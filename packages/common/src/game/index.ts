@@ -8,11 +8,10 @@ import { MAX_PARTY_SIZE } from "../app-consts.js";
 import { makeAutoObservable } from "mobx";
 import { instanceToPlain, plainToInstance } from "class-transformer";
 import { ArrayUtils } from "../utils/array-utils.js";
-import { runIfInBrowser } from "../utils/index.js";
+import { getProgressionGameMaxStartingFloor, runIfInBrowser } from "../utils/index.js";
 import { Combatant } from "../combatants/index.js";
 import cloneDeep from "lodash.clonedeep";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { UserSession } from "../lobby/user-session.js";
 import { GAME_CHANNEL_PREFIX } from "../packets/channels.js";
 
 export class SpeedDungeonGame {
@@ -208,6 +207,31 @@ export class SpeedDungeonGame {
   getBattleOption(battleIdOption: null | string) {
     if (!battleIdOption) return undefined;
     return this.battles[battleIdOption];
+  }
+
+  setMaxStartingFloor() {
+    const maxStartingFloor = getProgressionGameMaxStartingFloor(
+      this.lowestStartingFloorOptionsBySavedCharacter
+    );
+    if (this.selectedStartingFloor > maxStartingFloor) {
+      this.selectedStartingFloor = maxStartingFloor;
+    }
+  }
+
+  getExpectedParty(partyName: string) {
+    const result = this.adventuringParties[partyName];
+    if (!result) {
+      throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+    }
+    return result;
+  }
+
+  getExpectedPlayer(username: Username) {
+    const result = this.players[username];
+    if (result === undefined) {
+      throw new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+    }
+    return result;
   }
 }
 

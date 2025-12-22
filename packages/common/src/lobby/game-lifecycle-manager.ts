@@ -1,5 +1,6 @@
 import {
   ActionValidity,
+  AdventuringParty,
   ERROR_MESSAGES,
   GAME_CHANNEL_PREFIX,
   GameMode,
@@ -13,7 +14,7 @@ import { GameStateUpdateType } from "../packets/game-state-updates.js";
 import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
 import { RANDOM_GAME_NAMES_FIRST, RANDOM_GAME_NAMES_LAST } from "./index.js";
 import { LobbyState } from "./lobby-state.js";
-import { SavedCharactersManager } from "./saved-characters-manager.js";
+import { PartySetupManager } from "./party-setup-manager.js";
 import { SessionAuthorizationManager } from "./session-authorization-manager.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
 import { UserSession } from "./user-session.js";
@@ -23,8 +24,8 @@ export class GameLifecycleManager {
     private readonly lobbyState: LobbyState,
     private readonly updateGateway: GameStateUpdateGateway,
     private readonly userSessionRegistry: UserSessionRegistry,
-    private readonly savedCharactersManager: SavedCharactersManager,
     private readonly sessionAuthManager: SessionAuthorizationManager,
+    private readonly partySetupManager: PartySetupManager,
     private readonly idGenerator: IdGenerator
   ) {}
 
@@ -87,19 +88,22 @@ export class GameLifecycleManager {
       throw new Error(ERROR_MESSAGES.LOBBY.GAME_EXISTS);
     }
 
+    let game: SpeedDungeonGame;
+
     if (mode === GameMode.Progression) {
-      await this.createProgressionGameHandler(gameName, session);
+      game = await this.createProgressionGameHandler(gameName, session);
     } else {
-      const game = new SpeedDungeonGame(
+      game = new SpeedDungeonGame(
         this.idGenerator.generate(),
         gameName,
         GameMode.Race,
         session.username,
         isRanked
       );
-      this.lobbyState.addGame(game);
-      this.joinGameHandler(gameName, session);
     }
+
+    this.lobbyState.addGame(game);
+    this.joinGameHandler(gameName, session);
   }
 
   async createProgressionGameHandler(gameName: string, session: UserSession) {
@@ -113,14 +117,7 @@ export class GameLifecycleManager {
       }
     }
 
-    const authorizedSession = await this.sessionAuthManager.requireAuthorizedSession(
-      session.connectionId
-    );
-
-    const defaultSavedCharacter =
-      await this.savedCharactersManager.getDefaultSavedCharacterForProgressionGame(
-        authorizedSession
-      );
+    await this.sessionAuthManager.requireAuthorizedSession(session.connectionId);
 
     const game = new SpeedDungeonGame(
       this.idGenerator.generate(),
@@ -129,24 +126,16 @@ export class GameLifecycleManager {
       session.username
     );
 
-    const { combatant } = defaultSavedCharacter;
+    // unlike race games, progression games have only a single, automatically generated
+    // adventuring party
+    const defaultPartyName = PartySetupManager.getProgressionGamePartyName(game.name);
 
-    game.lowestStartingFloorOptionsBySavedCharacter[combatant.entityProperties.id] =
-      combatant.combatantProperties.deepestFloorReached;
+    game.adventuringParties[defaultPartyName] = AdventuringParty.createInitialized(
+      this.idGenerator.generate(),
+      defaultPartyName
+    );
 
-    game.selectedStartingFloor = combatant.combatantProperties.deepestFloorReached;
-
-    // const defaultPartyName = getProgressionGamePartyName(game.name);
-    // game.adventuringParties[getProgressionGamePartyName(game.name)] =
-    //   AdventuringParty.createInitialized(idGenerator.generate(), defaultPartyName);
-    // gameServer.games.insert(gameName, game);
-    // await joinPlayerToProgressionGame(
-    //   gameServer,
-    //   socket,
-    //   socketMeta,
-    //   game,
-    //   defaultSavedCharacterResult
-    // );
+    return game;
   }
 
   async joinGameHandler(gameName: string, session: UserSession) {
@@ -163,36 +152,40 @@ export class GameLifecycleManager {
     }
 
     if (game.mode === GameMode.Progression) {
-      // joinProgressionGameHandler(gameServer, session, socket, game);
-    } else {
-      session.joinGame(game);
+      await this.sessionAuthManager.requireAuthorizedSession(session.connectionId);
+    }
 
-      session.unsubscribeFromChannel(LOBBY_CHANNEL);
-      session.subscribeToChannel(game.getChannelName());
+    session.joinGame(game);
+    session.unsubscribeFromChannel(LOBBY_CHANNEL);
+    session.subscribeToChannel(game.getChannelName());
 
-      // update the lobby's user list for when players ask for the list of users in lobby
-      this.lobbyState.removeUser(session.username);
+    // update the lobby's user list for when players ask for the list of users in lobby
+    this.lobbyState.removeUser(session.username);
 
-      // tell the clients in the lobby that the user left the lobby channel
-      this.updateGateway.submitToConnections(this.userSessionRegistry.in(LOBBY_CHANNEL), {
-        type: GameStateUpdateType.UserLeftChannel,
+    // tell the clients in the lobby that the user left the lobby channel
+    this.updateGateway.submitToConnections(this.userSessionRegistry.in(LOBBY_CHANNEL), {
+      type: GameStateUpdateType.UserLeftChannel,
+      data: { username: session.username },
+    });
+
+    // give the client the game information of the game they joined
+    this.updateGateway.submitToConnection(session.connectionId, {
+      type: GameStateUpdateType.GameFullUpdate,
+      data: { game: game.getSerialized() },
+    });
+
+    // tell clients already in the game that someone joined
+    this.updateGateway.submitToConnections(
+      this.userSessionRegistry.in(game.name, { excludedIds: [session.connectionId] }),
+      {
+        type: GameStateUpdateType.PlayerJoinedGame,
         data: { username: session.username },
-      });
+      }
+    );
 
-      // give the client the game information of the game they joined
-      this.updateGateway.submitToConnection(session.connectionId, {
-        type: GameStateUpdateType.GameFullUpdate,
-        data: { game: game.getSerialized() },
-      });
-
-      // tell clients already in the game that someone joined
-      this.updateGateway.submitToConnections(
-        this.userSessionRegistry.in(game.name, { excludedIds: [session.connectionId] }),
-        {
-          type: GameStateUpdateType.PlayerJoinedGame,
-          data: { username: session.username },
-        }
-      );
+    // handle automatic party joining and character selection
+    if (game.mode === GameMode.Progression) {
+      this.partySetupManager.joinProgressionGamePartyWithDefaultCharacterHandler(session, game);
     }
   }
 }

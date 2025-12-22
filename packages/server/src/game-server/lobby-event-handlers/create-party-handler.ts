@@ -29,5 +29,6 @@ export function createPartyHandler(
     .io.of("/")
     .in(game.name)
     .emit(ServerToClientEvent.PartyCreated, party.id, partyName);
+
   joinPartyHandler(partyName, playerAssociatedData, socket);
 }
