@@ -13,6 +13,7 @@ import { Combatant } from "../combatants/index.js";
 import cloneDeep from "lodash.clonedeep";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { UserSession } from "../lobby/user-session.js";
+import { GAME_CHANNEL_PREFIX } from "../packets/channels.js";
 
 export class SpeedDungeonGame {
   players: { [username: string]: SpeedDungeonPlayer } = {};
@@ -52,6 +53,13 @@ export class SpeedDungeonGame {
     }
 
     return deserialized;
+  }
+
+  /** Used by subscribed user sessions to receive updates about this game.
+   * Created by adding a standard game prefix to the game's name so as not to
+   * mix up potentially identical game and party names*/
+  getChannelName() {
+    return `${GAME_CHANNEL_PREFIX}${this.name}`;
   }
 
   registerPlayerFromLobbyUser(username: Username) {

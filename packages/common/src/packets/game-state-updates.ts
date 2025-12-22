@@ -32,6 +32,7 @@ export enum GameStateUpdateType {
   CharacterDeleted,
   PlayerToggledReadyToStartGame,
   GameStarted,
+
   PlayerToggledReadyToDescendOrExplore,
   DungeonRoomTypesOnCurrentFloor,
   DungeonRoomUpdate,

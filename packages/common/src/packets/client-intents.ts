@@ -10,51 +10,67 @@ import { GameMode } from "../types.js";
 import { CharacterAndItems } from "./server-to-client.js";
 
 export enum ClientIntentType {
-  RequestToJoinGame,
+  // lobby
   RequestsGameList,
+  // game setup
   CreateGame,
   JoinGame,
   LeaveGame,
+  ToggleReadyToStartGame,
+  // party setup
   CreateParty,
   JoinParty,
   LeaveParty,
-  ToggleReadyToStartGame,
   CreateCharacter,
   DeleteCharacter,
-  SelectCombatAction,
-  IncrementAttribute,
-  ToggleReadyToExplore,
-  UnequipSlot,
-  EquipInventoryItem,
-  CycleCombatActionTargets,
-  CycleTargetingSchemes,
-  UseSelectedCombatAction,
-  DropEquippedItem,
-  DropItem,
-  ToggleReadyToDescend,
-  AcknowledgeReceiptOfItemOnGroundUpdate,
-  PickUpItems,
+  SelectSavedCharacterForProgressGame,
+  SelectProgressionGameStartingFloor,
+  // saved character managment
   GetSavedCharactersList,
   GetSavedCharacterById,
   CreateSavedCharacter,
   DeleteSavedCharacter,
-  SelectSavedCharacterForProgressGame,
-  SelectProgressionGameStartingFloor,
+
+  // action selection
+  SelectCombatAction,
+  SelectCombatActionLevel,
+  CycleCombatActionTargets,
+  CycleTargetingSchemes,
+  UseSelectedCombatAction,
+
+  // character progression
+  IncrementAttribute,
+  AllocateAbilityPoint,
+
+  // dungeon exploration
+  ToggleReadyToExplore,
+  ToggleReadyToDescend,
+
+  // equipment
+  UnequipSlot,
   SelectHoldableHotswapSlot,
+  EquipInventoryItem,
+
+  // item management
+  DropEquippedItem,
+  DropItem,
+  AcknowledgeReceiptOfItemOnGroundUpdate,
+  PickUpItems,
+
+  // crafting and trading
   ConvertItemsToShards,
   DropShards,
   PurchaseItem,
   PerformCraftingAction,
-  PostItemLink,
-  SelectCombatActionLevel,
-  AllocateAbilityPoint,
   TradeItemForBook,
+
+  // misc utility
+  PostItemLink,
   RenamePet,
 }
 
 // Map enum values to payload types
 export interface ClientIntentMap {
-  [ClientIntentType.RequestToJoinGame]: { gameName: string };
   [ClientIntentType.RequestsGameList]: undefined;
   [ClientIntentType.CreateGame]: {
     gameName: string;
@@ -163,12 +179,7 @@ export type ClientIntentHandlers = {
   [K in keyof ClientIntentMap]: ClientIntentHandler<K>;
 };
 
-function handleRequestToJoinGame(data: { gameName: string }) {
-  return;
-}
-
 const intentHandlers: ClientIntentHandlers = {
-  [ClientIntentType.RequestToJoinGame]: handleRequestToJoinGame,
   [ClientIntentType.RequestsGameList]: function (intent: undefined): void {
     throw new Error("Function not implemented.");
   },
