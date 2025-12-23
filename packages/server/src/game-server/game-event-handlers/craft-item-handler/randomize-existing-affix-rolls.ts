@@ -5,9 +5,9 @@ import {
   ERROR_MESSAGES,
   Equipment,
   TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER,
+  getEquipmentGenerationTemplate,
 } from "@speed-dungeon/common";
-import { rollAffix } from "../../item-generation/roll-affix.js";
-import { getEquipmentGenerationTemplate } from "../../item-generation/equipment-templates/index.js";
+import { getGameServer } from "../../../singletons/index.js";
 
 export function randomizeExistingAffixRolls(equipment: Equipment, itemLevelLimiter: number) {
   const shouldBeDisabled = CRAFTING_ACTION_DISABLED_CONDITIONS[CraftingAction.Shake];
@@ -24,7 +24,7 @@ export function randomizeExistingAffixRolls(equipment: Equipment, itemLevelLimit
       multiplier = TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER;
     }
 
-    const affix = rollAffix(
+    const affix = getGameServer().itemGenerator.affixGenerator.rollAffix(
       { affixCategory: AffixCategory.Prefix, prefixType },
       prefix.tier,
       multiplier,
@@ -39,7 +39,7 @@ export function randomizeExistingAffixRolls(equipment: Equipment, itemLevelLimit
       multiplier = TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER;
     }
 
-    const affix = rollAffix(
+    const affix = getGameServer().itemGenerator.affixGenerator.rollAffix(
       { affixCategory: AffixCategory.Suffix, suffixType },
       suffix.tier,
       multiplier,

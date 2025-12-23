@@ -1,16 +1,18 @@
+import { ResourceChangeSource } from "../../../combat/hp-change-source-types.js";
+import { ERROR_MESSAGES } from "../../../errors/index.js";
+import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
+import { ArrayUtils } from "../../../utils/array-utils.js";
+import { WeaponProperties } from "../../equipment/equipment-properties/weapon-properties.js";
 import {
-  ArrayUtils,
   EQUIPMENT_TYPE_STRINGS,
-  ERROR_MESSAGES,
   EquipmentBaseItem,
   EquipmentBaseItemType,
   EquipmentType,
-  ResourceChangeSource,
-  WeaponProperties,
-} from "@speed-dungeon/common";
-import { ItemGenerationBuilder } from "./item-generation-builder.js";
-import { WeaponGenerationTemplate } from "./equipment-templates/equipment-generation-template-abstract-classes.js";
-import { EquipmentGenerationBuilder } from "./equipment-generation-builder.js";
+} from "../../equipment/equipment-types/index.js";
+import { WeaponGenerationTemplate } from "../equipment-templates/base-templates.js";
+import { AffixGenerator } from "./affix-generator/index.js";
+import { EquipmentGenerationBuilder } from "./equipment.js";
+import { ItemGenerationBuilder } from "./item.js";
 import cloneDeep from "lodash.clonedeep";
 
 export class WeaponGenerationBuilder<T extends WeaponGenerationTemplate>
@@ -22,22 +24,27 @@ export class WeaponGenerationBuilder<T extends WeaponGenerationTemplate>
     public equipmentType:
       | EquipmentType.OneHandedMeleeWeapon
       | EquipmentType.TwoHandedMeleeWeapon
-      | EquipmentType.TwoHandedRangedWeapon
+      | EquipmentType.TwoHandedRangedWeapon,
+    randomNumberGenerator: RandomNumberGenerator,
+    affixGenerator: AffixGenerator
   ) {
-    super(templates, equipmentType);
+    super(templates, equipmentType, randomNumberGenerator, affixGenerator);
   }
 
   buildEquipmentBaseItemProperties(baseEquipmentItem: EquipmentBaseItem) {
-    if (baseEquipmentItem.equipmentType !== this.equipmentType)
+    if (baseEquipmentItem.equipmentType !== this.equipmentType) {
       return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
+    }
 
     // look up damage range for the base item and roll it
     const template = this.templates[baseEquipmentItem.baseItemType];
 
-    if (template === undefined)
+    if (template === undefined) {
       return new Error(
         `missing template for equipment type ${EQUIPMENT_TYPE_STRINGS[baseEquipmentItem.equipmentType]}, specific item ${baseEquipmentItem.baseItemType}`
       );
+    }
+
     // roll damageClassifications from possible list
     let damageClassifications: ResourceChangeSource[] = [];
     let shuffledPossibleClassifications = ArrayUtils.shuffle(

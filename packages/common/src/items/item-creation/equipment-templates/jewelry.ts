@@ -1,15 +1,13 @@
+import { NumberRange } from "../../../primatives/number-range.js";
+import { AffixType, PREFIX_TYPES, SUFFIX_TYPES } from "../../equipment/affixes.js";
 import {
   Amulet,
   EquipmentBaseItem,
   EquipmentType,
   Jewelry,
-  NumberRange,
-  PREFIX_TYPES,
-  AffixType,
   Ring,
-  SUFFIX_TYPES,
-} from "@speed-dungeon/common";
-import { EquipmentGenerationTemplate } from "./equipment-generation-template-abstract-classes.js";
+} from "../../equipment/equipment-types/index.js";
+import { EquipmentGenerationTemplate } from "./base-templates.js";
 
 export class JewelryGenerationTemplate extends EquipmentGenerationTemplate {
   constructor(public equipmentBaseItem: EquipmentBaseItem) {

@@ -15,7 +15,6 @@ import {
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../singletons/index.js";
 import { writePlayerCharactersInGameToDb } from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
-import { createConsumableByType } from "../item-generation/create-consumable-by-type.js";
 
 export async function tradeItemForBookHandler(
   eventData: { characterId: EntityId; itemId: EntityId; bookType: BookConsumableType },
@@ -68,7 +67,8 @@ function tradeItemForBook(
   const removedItemResult = combatantProperties.inventory.removeStoredOrEquipped(itemToTradeId);
   if (removedItemResult instanceof Error) return removedItemResult;
 
-  const bookToReturn = createConsumableByType(bookType);
+  const bookToReturn = getGameServer().itemGenerator.createConsumableByType(bookType);
+
   bookToReturn.itemLevel = getBookLevelForTrade(removedItemResult.itemLevel, vendingMachineLevel);
 
   return bookToReturn;

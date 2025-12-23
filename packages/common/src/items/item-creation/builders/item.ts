@@ -1,12 +1,9 @@
-import {
-  EquipmentAffixes,
-  CombatAttribute,
-  ConsumableType,
-  EquipmentBaseItem,
-  EquipmentBaseItemProperties,
-  ItemType,
-  MaxAndCurrent,
-} from "@speed-dungeon/common";
+import { CombatAttribute } from "../../../combatants/index.js";
+import { ConsumableType } from "../../consumables/index.js";
+import { EquipmentAffixes } from "../../equipment/affixes.js";
+import { EquipmentBaseItemProperties } from "../../equipment/equipment-properties/index.js";
+import { EquipmentBaseItem } from "../../equipment/equipment-types/index.js";
+import { ItemType } from "../../index.js";
 
 export type TaggedBaseItem =
   | { type: ItemType.Consumable; baseItem: ConsumableType }

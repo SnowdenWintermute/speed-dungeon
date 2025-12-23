@@ -1,16 +1,10 @@
-import {
-  EquipmentBaseItem,
-  EquipmentType,
-  NumberRange,
-  Shield,
-  AffixType,
-  iterateNumericEnum,
-  ShieldSize,
-  CombatAttribute,
-  PREFIX_TYPES,
-  SUFFIX_TYPES,
-} from "@speed-dungeon/common";
-import { EquipmentGenerationTemplate } from "./equipment-generation-template-abstract-classes.js";
+import { CombatAttribute } from "../../../combatants/attributes/index.js";
+import { NumberRange } from "../../../primatives/number-range.js";
+import { iterateNumericEnum } from "../../../utils/index.js";
+import { AffixType, PREFIX_TYPES, SUFFIX_TYPES } from "../../equipment/affixes.js";
+import { ShieldSize } from "../../equipment/equipment-properties/shield-properties.js";
+import { EquipmentBaseItem, EquipmentType, Shield } from "../../equipment/equipment-types/index.js";
+import { EquipmentGenerationTemplate } from "./base-templates.js";
 
 export class ShieldGenerationTemplate extends EquipmentGenerationTemplate {
   constructor(

@@ -1,27 +1,24 @@
 import {
   BASE_STARTING_ATTRIBUTES,
   Combatant,
-  CombatantControllerType,
   CombatantProperties,
   CombatantTraitType,
   ConsumableType,
   HoldableHotswapSlot,
-  MonsterType,
+  ItemGenerator,
   STARTING_COMBATANT_TRAITS,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { giveStartingAbilities } from "./give-starting-abilities.js";
 import cloneDeep from "lodash.clonedeep";
-import { createConsumableByType } from "../item-generation/create-consumable-by-type.js";
 import { giveStartingEquipment } from "./give-starting-equipment.js";
 import { setPlaytestingCombatantProperties } from "./set-playtesting-combatant-properties.js";
 import { givePlaytestingItems } from "./give-playtesting-items.js";
-import { generateMonster } from "../monster-generation/index.js";
 
 export class CharacterOutfitter {
-  constructor() {}
+  constructor(private itemGenerator: ItemGenerator) {}
 
-  static outfitNewCharacter(character: Combatant) {
+  outfitNewCharacter(character: Combatant) {
     const combatantProperties = character.combatantProperties;
     CharacterOutfitter.setPlaytestingCombatantProperties(combatantProperties);
     CharacterOutfitter.givePlaytestingItems(
@@ -32,7 +29,7 @@ export class CharacterOutfitter {
     CharacterOutfitter.giveStartingAbilities(character);
     // CharacterOutfitter.giveStartingAttributes(combatantProperties);
     CharacterOutfitter.setUpInherentTraits(combatantProperties);
-    CharacterOutfitter.giveStartingInventoryItems(combatantProperties);
+    this.giveStartingInventoryItems(combatantProperties);
     CharacterOutfitter.giveStartingEquipment(combatantProperties);
     combatantProperties.resources.setToMax();
   }
@@ -65,14 +62,14 @@ export class CharacterOutfitter {
     combatantProperties.equipment.addHoldableSlot(new HoldableHotswapSlot());
   }
 
-  static giveStartingInventoryItems(combatantProperties: CombatantProperties) {
+  giveStartingInventoryItems(combatantProperties: CombatantProperties) {
     const hpInjectorCount = 2;
     const mpInjectorCount = 3;
     const injectors = [];
     for (let i = 0; i < hpInjectorCount; i += 1)
-      injectors.push(createConsumableByType(ConsumableType.HpAutoinjector));
+      injectors.push(this.itemGenerator.createConsumableByType(ConsumableType.HpAutoinjector));
     for (let i = 0; i < mpInjectorCount; i += 1)
-      injectors.push(createConsumableByType(ConsumableType.MpAutoinjector));
+      injectors.push(this.itemGenerator.createConsumableByType(ConsumableType.MpAutoinjector));
 
     const { inventory } = combatantProperties;
     inventory.consumables.push(...injectors);

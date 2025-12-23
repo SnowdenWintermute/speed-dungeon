@@ -1,22 +1,27 @@
+import { ItemGenerationBuilder } from "./item.js";
+import { EquipmentGenerationBuilder } from "./equipment.js";
+import { ShieldGenerationTemplate } from "../equipment-templates/shields.js";
 import {
-  ERROR_MESSAGES,
   EquipmentBaseItem,
   EquipmentBaseItemType,
   EquipmentType,
   ShieldProperties,
-  randBetween,
-} from "@speed-dungeon/common";
-import { ItemGenerationBuilder } from "./item-generation-builder.js";
-import { EquipmentGenerationBuilder } from "./equipment-generation-builder.js";
-import { ShieldGenerationTemplate } from "./equipment-templates/shield-templates.js";
-import { rngSingleton } from "../../singletons/index.js";
+} from "../../equipment/index.js";
+import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
+import { ERROR_MESSAGES } from "../../../errors/index.js";
+import { randBetween } from "../../../utils/rand-between.js";
+import { AffixGenerator } from "./affix-generator/index.js";
 
 export class ShieldGenerationBuilder<T extends ShieldGenerationTemplate>
   extends EquipmentGenerationBuilder<T>
   implements ItemGenerationBuilder
 {
-  constructor(public templates: Record<EquipmentBaseItemType, T>) {
-    super(templates, EquipmentType.Shield);
+  constructor(
+    public templates: Record<EquipmentBaseItemType, T>,
+    randomNumberGenerator: RandomNumberGenerator,
+    affixGenerator: AffixGenerator
+  ) {
+    super(templates, EquipmentType.Shield, randomNumberGenerator, affixGenerator);
   }
 
   buildEquipmentBaseItemProperties(baseEquipmentItem: EquipmentBaseItem) {
@@ -27,7 +32,11 @@ export class ShieldGenerationBuilder<T extends ShieldGenerationTemplate>
     if (template.equipmentBaseItem.equipmentType !== EquipmentType.Shield)
       return new Error("invalid template");
 
-    const armorClass = randBetween(template.acRange.min, template.acRange.max, rngSingleton);
+    const armorClass = randBetween(
+      template.acRange.min,
+      template.acRange.max,
+      this.randomNumberGenerator
+    );
 
     const properties: ShieldProperties = {
       taggedBaseEquipment: template.equipmentBaseItem,

@@ -7,7 +7,6 @@ import {
   ItemType,
   ServerToClientEvent,
   getPartyChannelName,
-  pickUpShardStack,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../singletons/index.js";
 
@@ -36,10 +35,9 @@ export function pickUpItemsHandler(
       itemInInventoryResult.consumableType === ConsumableType.StackOfShards;
 
     if (itemIsShardStack) {
-      const mabyeError = pickUpShardStack(
+      const mabyeError = character.combatantProperties.inventory.pickUpShardStack(
         itemId,
-        party.currentRoom.inventory,
-        character.combatantProperties.inventory
+        party.currentRoom.inventory
       );
       if (mabyeError instanceof Error) return mabyeError;
       idsPickedUp.push(itemInInventoryResult.entityProperties.id);

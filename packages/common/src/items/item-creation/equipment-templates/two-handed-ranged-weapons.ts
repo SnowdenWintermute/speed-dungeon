@@ -1,18 +1,18 @@
 import {
-  CombatAttribute,
-  EquipmentBaseItem,
-  EquipmentType,
   ResourceChangeSource,
   ResourceChangeSourceCategory,
-  KineticDamageType,
-  NumberRange,
-  AffixType,
+} from "../../../combat/hp-change-source-types.js";
+import { KineticDamageType } from "../../../combat/kinetic-damage-types.js";
+import { CombatAttribute } from "../../../combatants/attributes/index.js";
+import { NumberRange } from "../../../primatives/number-range.js";
+import { iterateNumericEnum } from "../../../utils/index.js";
+import { AffixType, PREFIX_TYPES, SUFFIX_TYPES } from "../../equipment/affixes.js";
+import {
+  EquipmentBaseItem,
+  EquipmentType,
   TwoHandedRangedWeapon,
-  iterateNumericEnum,
-  PREFIX_TYPES,
-  SUFFIX_TYPES,
-} from "@speed-dungeon/common";
-import { WeaponGenerationTemplate } from "./equipment-generation-template-abstract-classes.js";
+} from "../../equipment/equipment-types/index.js";
+import { WeaponGenerationTemplate } from "./base-templates.js";
 
 export class TwoHandedRangedWeaponGenerationTemplate extends WeaponGenerationTemplate {
   constructor(

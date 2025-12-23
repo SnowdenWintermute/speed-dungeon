@@ -1,0 +1,164 @@
+import {
+  BASE_ITEMS_BY_EQUIPMENT_TYPE,
+  CombatantProperties,
+  Consumable,
+  CONSUMABLE_TYPE_STRINGS,
+  ConsumableType,
+  DEEPEST_FLOOR,
+  Equipment,
+  EquipmentBaseItem,
+  EquipmentType,
+  Item,
+  ItemType,
+  iterateNumericEnum,
+  NumberRange,
+  randBetween,
+} from "../../index.js";
+import { IdGenerator, RandomNumberGenerator } from "../../utility-classes/index.js";
+import { AffixGenerator } from "./builders/affix-generator/index.js";
+import { ItemGenerationDirector } from "./builders/item-generation-director.js";
+import { ItemGenerationBuilder } from "./builders/item.js";
+import { instantiateItemGenerationBuildersAndDirectors } from "./instantiate-item-builders-and-directors.js";
+
+export * from "./equipment-templates/index.js";
+
+export class ItemGenerator {
+  itemGenerationDirectors: Record<EquipmentType, ItemGenerationDirector>;
+  itemGenerationBuilders: Record<EquipmentType, ItemGenerationBuilder>;
+
+  constructor(
+    private idGenerator: IdGenerator,
+    private randomNumberGenerator: RandomNumberGenerator,
+    public readonly affixGenerator: AffixGenerator
+  ) {
+    const { builders, directors } = instantiateItemGenerationBuildersAndDirectors(
+      randomNumberGenerator,
+      affixGenerator
+    );
+
+    this.itemGenerationDirectors = directors;
+    this.itemGenerationBuilders = builders;
+  }
+
+  createConsumableByType(consumableType: ConsumableType) {
+    return new Consumable(
+      {
+        name: CONSUMABLE_TYPE_STRINGS[consumableType],
+        id: this.idGenerator.generate(),
+      },
+      1,
+      {},
+      consumableType,
+      1
+    );
+  }
+
+  generateTestItems(combatantProperties: CombatantProperties, num: number) {
+    for (let i = 0; i < num; i += 1) {
+      const iLvl = randBetween(1, DEEPEST_FLOOR, this.randomNumberGenerator);
+      const randomItem = this.generateRandomItem(1);
+      if (randomItem instanceof Error) return console.error(randomItem);
+      combatantProperties.inventory.insertItem(randomItem);
+    }
+  }
+
+  generateSpecificEquipmentType(
+    equipmentBaseItem: EquipmentBaseItem,
+    options: {
+      noAffixes?: boolean;
+      itemLevel?: number;
+    }
+  ) {
+    const { noAffixes, itemLevel } = options;
+    const itemGenerationDirector = this.itemGenerationDirectors[equipmentBaseItem.equipmentType];
+    const item = itemGenerationDirector?.createItem(itemLevel || 1, this.idGenerator, {
+      forcedBaseItemOption: {
+        type: ItemType.Equipment,
+        taggedBaseEquipment: equipmentBaseItem,
+      },
+      noAffixes,
+    });
+
+    if (!(item instanceof Equipment)) {
+      throw new Error("invalid item type created");
+    }
+
+    return item;
+  }
+
+  generateOneOfEachItem(ilvlRange: NumberRange) {
+    const items: Item[] = [];
+
+    for (const [equipmentTypeString, baseItemEnum] of Object.entries(
+      BASE_ITEMS_BY_EQUIPMENT_TYPE
+    ).sort((a, b) => parseInt(a[0]) - parseInt(b[0]))) {
+      const equipmentType = parseInt(equipmentTypeString) as EquipmentType;
+      if (
+        ![
+          EquipmentType.BodyArmor,
+          EquipmentType.Shield,
+          EquipmentType.OneHandedMeleeWeapon,
+          EquipmentType.TwoHandedMeleeWeapon,
+          EquipmentType.TwoHandedRangedWeapon,
+        ].includes(equipmentType)
+      )
+        continue;
+
+      for (const baseItemString of iterateNumericEnum(baseItemEnum)) {
+        const baseItem = parseInt(baseItemString);
+        const ilvl = randBetween(ilvlRange.min, ilvlRange.max, this.randomNumberGenerator);
+        const item = this.generateSpecificEquipmentType(
+          {
+            equipmentType: equipmentType,
+            baseItemType: baseItem,
+          },
+          { itemLevel: ilvl }
+        );
+        if (item instanceof Error || item === undefined) {
+          console.error("forced item type not generated:", item);
+          continue;
+        }
+        items.push(item);
+      }
+    }
+    return items;
+  }
+
+  generateRandomItem(itemLevel: number): Error | Item {
+    const randomIndex = randBetween(
+      0,
+      Object.keys(this.itemGenerationDirectors).length - 1,
+      this.randomNumberGenerator
+    );
+    const randomItemGenerationDirector = Object.values(this.itemGenerationDirectors)[randomIndex];
+    // const randomItemGenerationDirector = Object.values(this.itemGenerationDirectors)[
+    //   EquipmentType.OneHandedMeleeWeapon
+    // ];
+    if (randomItemGenerationDirector === undefined)
+      return new Error("no director found for that item type");
+
+    let attempts = 0;
+
+    // it is possible for no valid item to be available in certain item level ranges
+    // so try a few times to randomly get a valid one, else resort to an autoinjector
+    let randomItemResult = randomItemGenerationDirector.createItem(itemLevel, this.idGenerator);
+
+    const maxAttempts = 2;
+
+    while (attempts < maxAttempts && randomItemResult instanceof Error) {
+      randomItemResult = randomItemGenerationDirector.createItem(itemLevel, this.idGenerator);
+      attempts += 1;
+    }
+
+    if (randomItemResult instanceof Error) {
+      const message = `Couldn't find a valid item to generate, giving an autoinjector (${randomItemResult.message})`;
+      console.info(message);
+      const autoinjectorType =
+        Math.random() > 0.3 ? ConsumableType.HpAutoinjector : ConsumableType.MpAutoinjector;
+
+      return this.createConsumableByType(autoinjectorType);
+    } else {
+      return randomItemResult;
+    }
+  }
+}

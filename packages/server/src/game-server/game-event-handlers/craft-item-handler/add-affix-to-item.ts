@@ -1,11 +1,12 @@
-import { AffixCategory, ERROR_MESSAGES, Equipment, ItemType } from "@speed-dungeon/common";
-
-import { getEquipmentGenerationTemplate } from "../../item-generation/equipment-templates/index.js";
 import {
-  getRandomValidPrefixTypes,
-  getRandomValidSuffixTypes,
-  rollAffixTierAndValue,
-} from "../../item-generation/equipment-generation-builder.js";
+  AffixCategory,
+  AffixGenerator,
+  ERROR_MESSAGES,
+  Equipment,
+  ItemType,
+  getEquipmentGenerationTemplate,
+} from "@speed-dungeon/common";
+
 import { getGameServer } from "../../../singletons/index.js";
 
 export function addAffixToItem(equipment: Equipment, itemLevelLimiter: number) {
@@ -21,9 +22,9 @@ export function addAffixToItem(equipment: Equipment, itemLevelLimiter: number) {
   );
 
   if (missingPrefix) {
-    const prefixType = getRandomValidPrefixTypes(template, 1)[0];
+    const prefixType = AffixGenerator.getRandomValidPrefixTypes(template, 1)[0];
     if (prefixType === undefined) return new Error("Couldn't generate affix type");
-    const affixResult = rollAffixTierAndValue(
+    const affixResult = getGameServer().itemGenerator.affixGenerator.rollAffixTierAndValue(
       template,
       { affixCategory: AffixCategory.Prefix, prefixType },
       Math.min(equipment.itemLevel, itemLevelLimiter),
@@ -34,9 +35,9 @@ export function addAffixToItem(equipment: Equipment, itemLevelLimiter: number) {
   }
 
   if (missingSuffix) {
-    const suffixType = getRandomValidSuffixTypes(template, 1)[0];
+    const suffixType = AffixGenerator.getRandomValidSuffixTypes(template, 1)[0];
     if (suffixType === undefined) return new Error("Couldn't generate affix type");
-    const affixResult = rollAffixTierAndValue(
+    const affixResult = getGameServer().itemGenerator.affixGenerator.rollAffixTierAndValue(
       template,
       { affixCategory: AffixCategory.Suffix, suffixType },
       Math.min(equipment.itemLevel, itemLevelLimiter),
@@ -47,7 +48,8 @@ export function addAffixToItem(equipment: Equipment, itemLevelLimiter: number) {
   }
 
   const { equipmentBaseItemProperties } = equipment;
-  const builder = getGameServer().itemGenerationBuilders[equipmentBaseItemProperties.equipmentType];
+  const builder =
+    getGameServer().itemGenerator.itemGenerationBuilders[equipmentBaseItemProperties.equipmentType];
   const newName = builder.buildItemName(
     {
       type: ItemType.Equipment,

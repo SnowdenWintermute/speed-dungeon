@@ -1,33 +1,32 @@
+import { ItemNamer } from "./item-namer/index.js";
+import { ItemGenerationBuilder, TaggedBaseItem } from "./item.js";
+import { EquipmentGenerationTemplate } from "../equipment-templates/base-templates.js";
+import { getEquipmentGenerationTemplate } from "../equipment-templates/index.js";
 import {
-  EquipmentAffixes,
-  ArrayUtils,
-  BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL,
-  CHANCE_TO_HAVE_DOUBLE_AFFIX,
-  CHANCE_TO_HAVE_PREFIX,
-  CombatAttribute,
+  AffixCategory,
   EQUIPMENT_TYPE_STRINGS,
-  ERROR_MESSAGES,
+  EquipmentAffixes,
   EquipmentBaseItem,
   EquipmentBaseItemProperties,
   EquipmentBaseItemType,
   EquipmentType,
-  FOUND_ITEM_MAX_DURABILITY_MODIFIER,
-  FOUND_ITEM_MIN_DURABILITY_MODIFIER,
-  ItemType,
   PrefixType,
   SuffixType,
-  TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER,
-  TaggedAffixType,
-  randBetween,
-  AffixCategory,
-  Equipment,
-} from "@speed-dungeon/common";
-import { EquipmentGenerationTemplate } from "./equipment-templates/equipment-generation-template-abstract-classes.js";
-import { getEquipmentGenerationTemplate } from "./equipment-templates/index.js";
-import { rollAffix, rollAffixTier } from "./roll-affix.js";
-import { ItemNamer } from "./item-names/item-namer.js";
-import { ItemGenerationBuilder, TaggedBaseItem } from "./item-generation-builder.js";
-import { rngSingleton } from "../../singletons/index.js";
+} from "../../equipment/index.js";
+import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
+import { ArrayUtils } from "../../../utils/array-utils.js";
+import { ItemType } from "../../index.js";
+import { ERROR_MESSAGES } from "../../../errors/index.js";
+import { randBetween } from "../../../utils/rand-between.js";
+import {
+  BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL,
+  CHANCE_TO_HAVE_DOUBLE_AFFIX,
+  CHANCE_TO_HAVE_PREFIX,
+  CombatAttribute,
+  FOUND_ITEM_MAX_DURABILITY_MODIFIER,
+  FOUND_ITEM_MIN_DURABILITY_MODIFIER,
+} from "../../../index.js";
+import { AffixGenerator } from "./affix-generator/index.js";
 
 export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
   extends ItemNamer
@@ -35,7 +34,9 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
 {
   constructor(
     public templates: Record<EquipmentBaseItemType, T>,
-    public equipmentType: EquipmentType
+    public equipmentType: EquipmentType,
+    protected randomNumberGenerator: RandomNumberGenerator,
+    private affixGenerator: AffixGenerator
   ) {
     super();
   }
@@ -54,7 +55,10 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
       }
     }
 
-    const baseEquipmentItem = ArrayUtils.chooseRandom(availableTypesOnThisLevel, rngSingleton);
+    const baseEquipmentItem = ArrayUtils.chooseRandom(
+      availableTypesOnThisLevel,
+      this.randomNumberGenerator
+    );
     if (baseEquipmentItem instanceof Error) return baseEquipmentItem;
 
     const toReturn: TaggedBaseItem = {
@@ -76,19 +80,22 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
   }
 
   buildDurability(baseEquipmentItem: EquipmentBaseItem) {
-    if (baseEquipmentItem.equipmentType !== this.equipmentType)
+    if (baseEquipmentItem.equipmentType !== this.equipmentType) {
       return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
+    }
     const template = getEquipmentGenerationTemplate(baseEquipmentItem);
-    if (template === undefined)
+
+    if (template === undefined) {
       return new Error(
         `missing template for ${JSON.stringify(baseEquipmentItem)} in equipment type ${EQUIPMENT_TYPE_STRINGS[this.equipmentType]}`
       );
+    }
 
     if (template.maxDurability === null) return null;
     const startingDurability = randBetween(
       Math.floor(template.maxDurability * FOUND_ITEM_MIN_DURABILITY_MODIFIER),
       Math.floor(template.maxDurability * FOUND_ITEM_MAX_DURABILITY_MODIFIER),
-      rngSingleton
+      this.randomNumberGenerator
     );
     let durability = { inherentMax: template.maxDurability, current: startingDurability };
 
@@ -138,13 +145,19 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
     };
 
     // look up valid affixes and their tier levels for item type
-    const prefixTypes = getRandomValidPrefixTypes(template, numAffixesToRoll.prefixes);
+    const prefixTypes = AffixGenerator.getRandomValidPrefixTypes(
+      template,
+      numAffixesToRoll.prefixes
+    );
     affixTypes.prefix.push(...prefixTypes);
-    const suffixTypes = getRandomValidSuffixTypes(template, numAffixesToRoll.suffixes);
+    const suffixTypes = AffixGenerator.getRandomValidSuffixTypes(
+      template,
+      numAffixesToRoll.suffixes
+    );
     affixTypes.suffix.push(...suffixTypes);
 
     for (const suffixType of Object.values(affixTypes.suffix)) {
-      const affixResult = rollAffixTierAndValue(
+      const affixResult = this.affixGenerator.rollAffixTierAndValue(
         template,
         { affixCategory: AffixCategory.Suffix, suffixType },
         itemLevel,
@@ -157,7 +170,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
     }
 
     for (const prefixType of Object.values(affixTypes.prefix)) {
-      const affixResult = rollAffixTierAndValue(
+      const affixResult = this.affixGenerator.rollAffixTierAndValue(
         template,
         { affixCategory: AffixCategory.Prefix, prefixType },
         itemLevel,
@@ -196,56 +209,4 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
     // adjust requirements if any affix has an affect on them
     return toReturn;
   }
-}
-
-export function getRandomValidPrefixTypes(
-  template: EquipmentGenerationTemplate,
-  numToCreate: number
-) {
-  const toReturn: PrefixType[] = [];
-  const possiblePrefixes = Object.keys(template.possibleAffixes.prefix).map(
-    (item) => parseInt(item) as PrefixType
-  );
-  const shuffledPrefixes = ArrayUtils.shuffle(possiblePrefixes);
-  for (let i = 0; i < numToCreate; i += 1) {
-    const randomPrefixOption = shuffledPrefixes.pop();
-    if (randomPrefixOption !== undefined) toReturn.push(randomPrefixOption);
-  }
-  return toReturn;
-}
-
-export function getRandomValidSuffixTypes(
-  template: EquipmentGenerationTemplate,
-  numToCreate: number
-) {
-  const toReturn: SuffixType[] = [];
-  const possibleSuffixes = Object.keys(template.possibleAffixes.suffix).map(
-    (item) => parseInt(item) as SuffixType
-  );
-  const shuffledSuffixes = ArrayUtils.shuffle(possibleSuffixes);
-  for (let i = 0; i < numToCreate; i += 1) {
-    const randomSuffixOption = shuffledSuffixes.pop();
-    if (randomSuffixOption !== undefined) toReturn.push(randomSuffixOption);
-  }
-  return toReturn;
-}
-
-export function rollAffixTierAndValue(
-  template: EquipmentGenerationTemplate,
-  taggedAffixType: TaggedAffixType,
-  maxTierLimiter: number,
-  equipmentType: EquipmentType
-) {
-  const maxTierOption =
-    taggedAffixType.affixCategory === AffixCategory.Prefix
-      ? template.possibleAffixes.prefix[taggedAffixType.prefixType]
-      : template.possibleAffixes.suffix[taggedAffixType.suffixType];
-  if (maxTierOption === undefined)
-    return new Error("invalid template - selected affix type that doesn't exist on template");
-  const rolledTier = rollAffixTier(maxTierOption, maxTierLimiter);
-
-  let multiplier = 1;
-  const equipmentIsTwoHandedWeapon = Equipment.isTwoHandedWeaponType(equipmentType);
-  if (equipmentIsTwoHandedWeapon) multiplier = TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER;
-  return rollAffix(taggedAffixType, rolledTier, multiplier, template);
 }

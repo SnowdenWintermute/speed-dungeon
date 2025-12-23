@@ -1,4 +1,4 @@
-import { AffixType, SuffixType } from "@speed-dungeon/common";
+import { AffixType, SuffixType } from "../../../equipment/affixes.js";
 
 export function getSuffixName(suffixType: SuffixType, tier: number) {
   const nameOption = SUFFIX_NAMES[suffixType][tier];

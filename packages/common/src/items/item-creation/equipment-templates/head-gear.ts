@@ -1,14 +1,14 @@
+import { NumberRange } from "../../../primatives/number-range.js";
+import { AffixType } from "../../equipment/affixes.js";
 import {
-  ArmorCategory,
-  CombatAttribute,
   EquipmentBaseItem,
   EquipmentType,
-  NumberRange,
   HeadGear,
-  iterateNumericEnum,
-  AffixType,
-} from "@speed-dungeon/common";
-import { ArmorGenerationTemplate } from "./equipment-generation-template-abstract-classes.js";
+} from "../../equipment/equipment-types/index.js";
+import { iterateNumericEnum } from "../../../utils/index.js";
+import { ArmorCategory } from "../../equipment/equipment-properties/armor-properties.js";
+import { CombatAttribute } from "../../../combatants/attributes/index.js";
+import { ArmorGenerationTemplate } from "./base-templates.js";
 import { modifyPossibleAffixesByArmorCategory } from "./armor-category-affixes.js";
 
 export class HeadGearGenerationTemplate extends ArmorGenerationTemplate {

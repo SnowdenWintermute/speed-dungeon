@@ -9,7 +9,6 @@ import {
   getConsumableShardPrice,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { createConsumableByType } from "../item-generation/create-consumable-by-type.js";
 import { getGameServer } from "../../singletons/index.js";
 
 export function purchaseItemHandler(
@@ -39,7 +38,7 @@ export function purchaseItemHandler(
   if (priceOption > inventory.shards) return new Error(ERROR_MESSAGES.COMBATANT.NOT_ENOUGH_SHARDS);
 
   inventory.changeShards(priceOption * -1);
-  const purchasedItem = createConsumableByType(consumableType);
+  const purchasedItem = getGameServer().itemGenerator.createConsumableByType(consumableType);
   inventory.consumables.push(purchasedItem);
 
   getGameServer()

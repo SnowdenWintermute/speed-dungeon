@@ -4,7 +4,6 @@ import {
   CombatantClass,
   CombatantProperties,
   EquipmentBaseItem,
-  EquipmentSlotType,
   EquipmentTraitType,
   EquipmentType,
   HoldableSlotType,
@@ -14,8 +13,8 @@ import {
   TwoHandedRangedWeapon,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import { repairEquipment } from "../game-event-handlers/craft-item-handler/repair-equipment.js";
-import { generateSpecificEquipmentType } from "../item-generation/generate-test-items.js";
+
+import { getGameServer } from "../../singletons/index.js";
 
 const STARTING_EQUIPMENT_BY_COMBATANT_CLASS: Record<
   CombatantClass,
@@ -65,7 +64,9 @@ export function giveStartingEquipment(combatantProperties: CombatantProperties) 
   const mainHoldableHotswapSlot = combatantProperties.equipment.getActiveHoldableSlot();
 
   for (const [slotType, template] of iterateNumericEnumKeyedRecord(startingHoldables)) {
-    const holdable = generateSpecificEquipmentType(template, { noAffixes: true });
+    const holdable = getGameServer().itemGenerator.generateSpecificEquipmentType(template, {
+      noAffixes: true,
+    });
     // repairEquipment(holdable); // @TODO - put this back
     mainHoldableHotswapSlot.holdables[slotType] = holdable;
 
@@ -94,7 +95,7 @@ export function giveStartingEquipment(combatantProperties: CombatantProperties) 
 }
 
 function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
-  const mh = generateSpecificEquipmentType(
+  const mh = getGameServer().itemGenerator.generateSpecificEquipmentType(
     {
       equipmentType: EquipmentType.TwoHandedRangedWeapon,
       baseItemType: TwoHandedRangedWeapon.ShortBow,

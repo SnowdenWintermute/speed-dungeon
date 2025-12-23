@@ -6,10 +6,9 @@ import {
   CombatantProperties,
   CombatantSpecies,
 } from "@speed-dungeon/common";
-import { idGenerator } from "../../singletons/index.js";
+import { getGameServer, idGenerator } from "../../singletons/index.js";
 import { generateRandomCharacterName } from "../../utils/index.js";
 import { Vector3 } from "@babylonjs/core";
-import { CharacterOutfitter } from "./character-outfitter.js";
 
 export function createCharacter(
   name: string,
@@ -31,7 +30,7 @@ export function createCharacter(
 
   const newCharacter = Combatant.createInitialized(entityProperties, combatantProperties);
 
-  CharacterOutfitter.outfitNewCharacter(newCharacter);
+  getGameServer().characterOutfitter.outfitNewCharacter(newCharacter);
 
   return newCharacter;
 }

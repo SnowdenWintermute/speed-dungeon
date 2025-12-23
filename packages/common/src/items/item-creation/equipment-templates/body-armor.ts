@@ -1,17 +1,15 @@
+import { CombatAttribute } from "../../../combatants/attributes/index.js";
+import { NumberRange } from "../../../primatives/number-range.js";
+import { iterateNumericEnum } from "../../../utils/index.js";
+import { AffixType, PREFIX_TYPES, SUFFIX_TYPES } from "../../equipment/affixes.js";
+import { ArmorCategory } from "../../equipment/equipment-properties/armor-properties.js";
 import {
-  ArmorCategory,
-  CombatAttribute,
+  BodyArmor,
   EquipmentBaseItem,
   EquipmentType,
-  NumberRange,
-  BodyArmor,
-  iterateNumericEnum,
-  PREFIX_TYPES,
-  SUFFIX_TYPES,
-  AffixType,
-} from "@speed-dungeon/common";
-import { ArmorGenerationTemplate } from "./equipment-generation-template-abstract-classes.js";
+} from "../../equipment/equipment-types/index.js";
 import { modifyPossibleAffixesByArmorCategory } from "./armor-category-affixes.js";
+import { ArmorGenerationTemplate } from "./base-templates.js";
 
 export class BodyArmorGenerationTemplate extends ArmorGenerationTemplate {
   constructor(

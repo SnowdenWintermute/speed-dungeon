@@ -123,6 +123,13 @@ export class Inventory extends CombatantSubsystem {
     }
   }
 
+  pickUpShardStack(stackId: EntityId, inventoryFrom: Inventory) {
+    const shardStackResult = inventoryFrom.removeItem(stackId);
+    if (shardStackResult instanceof Error) return shardStackResult;
+    if (!(shardStackResult instanceof Consumable)) return new Error("checked expectation failed");
+    this.changeShards(shardStackResult.usesRemaining);
+  }
+
   removeItem(itemId: string) {
     let itemResult: Consumable | Equipment | Error = this.removeConsumable(itemId);
     if (itemResult instanceof Error) {

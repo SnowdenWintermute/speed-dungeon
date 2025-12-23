@@ -1,4 +1,6 @@
-import { ArmorCategory, EquipmentType, AffixType } from "@speed-dungeon/common";
+import { AffixType } from "../../equipment/affixes.js";
+import { ArmorCategory } from "../../equipment/equipment-properties/armor-properties.js";
+import { EquipmentType } from "../../equipment/equipment-types/index.js";
 
 export function modifyPossibleAffixesByArmorCategory(
   possibleAffixes: {

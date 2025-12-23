@@ -1,42 +1,46 @@
-import { EquipmentBaseItemType, EquipmentType } from "@speed-dungeon/common";
-import { GameServer } from "../index.js";
-import { ItemGenerationDirector } from "./item-generation-director.js";
-import { ShieldGenerationBuilder } from "./shield-generation-builder.js";
-import { WeaponGenerationBuilder } from "./weapon-generation-builder.js";
-import {
-  SHIELD_EQUIPMENT_GENERATION_TEMPLATES,
-  ShieldGenerationTemplate,
-} from "./equipment-templates/shield-templates.js";
-import {
-  ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES,
-  OneHandedMeleeWeaponGenerationTemplate,
-} from "./equipment-templates/one-handed-melee-weapon-templates.js";
-import {
-  TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES,
-  TwoHandedMeleeWeaponGenerationTemplate,
-} from "./equipment-templates/two-handed-melee-weapon-templates.js";
-import {
-  TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES,
-  TwoHandedRangedWeaponGenerationTemplate,
-} from "./equipment-templates/two-handed-ranged-weapon-templates.js";
+import { RandomNumberGenerator } from "../../utility-classes/randomizers.js";
+import { EquipmentBaseItemType, EquipmentType } from "../equipment/equipment-types/index.js";
+import { ArmorGenerationBuilder } from "./builders/armor.js";
+import { ItemGenerationBuilder } from "./builders/item.js";
+import { ItemGenerationDirector } from "./builders/item-generation-director.js";
+import { JewelryGenerationBuilder } from "./builders/jewelry.js";
+import { ShieldGenerationBuilder } from "./builders/shields.js";
+import { WeaponGenerationBuilder } from "./builders/weapons.js";
 import {
   BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES,
   BodyArmorGenerationTemplate,
-} from "./equipment-templates/body-armor-generation-templates.js";
+} from "./equipment-templates/body-armor.js";
 import {
   HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES,
   HeadGearGenerationTemplate,
-} from "./equipment-templates/head-gear-generation-templates.js";
-import { ArmorGenerationBuilder } from "./armor-generation-builder.js";
+} from "./equipment-templates/head-gear.js";
 import {
   AMULET_GENERATION_TEMPLATES,
   JewelryGenerationTemplate,
   RING_GENERATION_TEMPLATES,
-} from "./equipment-templates/jewelry-generation-templates.js";
-import { JewelryGenerationBuilder } from "./jewelry-generation-builder.js";
-import { ItemGenerationBuilder } from "./item-generation-builder.js";
+} from "./equipment-templates/jewelry.js";
+import {
+  ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES,
+  OneHandedMeleeWeaponGenerationTemplate,
+} from "./equipment-templates/one-handed-melee-weapons.js";
+import {
+  SHIELD_EQUIPMENT_GENERATION_TEMPLATES,
+  ShieldGenerationTemplate,
+} from "./equipment-templates/shields.js";
+import {
+  TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES,
+  TwoHandedMeleeWeaponGenerationTemplate,
+} from "./equipment-templates/two-handed-melee-weapons.js";
+import {
+  TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES,
+  TwoHandedRangedWeaponGenerationTemplate,
+} from "./equipment-templates/two-handed-ranged-weapons.js";
+import { AffixGenerator } from "./builders/affix-generator/index.js";
 
-export function instantiateItemGenerationBuildersAndDirectors(this: GameServer): {
+export function instantiateItemGenerationBuildersAndDirectors(
+  randomNumberGenerator: RandomNumberGenerator,
+  affixGenerator: AffixGenerator
+): {
   builders: Record<EquipmentType, ItemGenerationBuilder>;
   directors: Record<EquipmentType, ItemGenerationDirector>;
 } {
@@ -45,46 +49,72 @@ export function instantiateItemGenerationBuildersAndDirectors(this: GameServer):
       EquipmentBaseItemType,
       OneHandedMeleeWeaponGenerationTemplate
     >,
-    EquipmentType.OneHandedMeleeWeapon
+    EquipmentType.OneHandedMeleeWeapon,
+    randomNumberGenerator,
+    affixGenerator
   );
+
   const twoHandedRangedWeaponBuilder = new WeaponGenerationBuilder(
     TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES as Record<
       EquipmentBaseItemType,
       TwoHandedRangedWeaponGenerationTemplate
     >,
-    EquipmentType.TwoHandedRangedWeapon
+    EquipmentType.TwoHandedRangedWeapon,
+    randomNumberGenerator,
+    affixGenerator
   );
+
   const twoHandedMeleeWeaponBuilder = new WeaponGenerationBuilder(
     TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES as Record<
       EquipmentBaseItemType,
       TwoHandedMeleeWeaponGenerationTemplate
     >,
-    EquipmentType.TwoHandedMeleeWeapon
+    EquipmentType.TwoHandedMeleeWeapon,
+    randomNumberGenerator,
+    affixGenerator
   );
+
   const shieldBuilder = new ShieldGenerationBuilder(
-    SHIELD_EQUIPMENT_GENERATION_TEMPLATES as Record<EquipmentBaseItemType, ShieldGenerationTemplate>
+    SHIELD_EQUIPMENT_GENERATION_TEMPLATES as Record<
+      EquipmentBaseItemType,
+      ShieldGenerationTemplate
+    >,
+    randomNumberGenerator,
+    affixGenerator
   );
+
   const bodyArmorBuilder = new ArmorGenerationBuilder(
     BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES as Record<
       EquipmentBaseItemType,
       BodyArmorGenerationTemplate
     >,
-    EquipmentType.BodyArmor
+    EquipmentType.BodyArmor,
+    randomNumberGenerator,
+    affixGenerator
   );
+
   const headGearBuilder = new ArmorGenerationBuilder(
     HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES as Record<
       EquipmentBaseItemType,
       HeadGearGenerationTemplate
     >,
-    EquipmentType.HeadGear
+    EquipmentType.HeadGear,
+    randomNumberGenerator,
+    affixGenerator
   );
+
   const ringBuilder = new JewelryGenerationBuilder(
     RING_GENERATION_TEMPLATES as Record<EquipmentBaseItemType, JewelryGenerationTemplate>,
-    EquipmentType.Ring
+    EquipmentType.Ring,
+    randomNumberGenerator,
+    affixGenerator
   );
+
   const amuletBuilder = new JewelryGenerationBuilder(
     AMULET_GENERATION_TEMPLATES as Record<EquipmentBaseItemType, JewelryGenerationTemplate>,
-    EquipmentType.Amulet
+    EquipmentType.Amulet,
+    randomNumberGenerator,
+    affixGenerator
   );
 
   const oneHandedMeleeWeaponDirector = new ItemGenerationDirector(oneHandedMeleeWeaponBuilder);

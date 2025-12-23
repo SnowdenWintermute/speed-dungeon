@@ -1,11 +1,7 @@
-import {
-  Consumable,
-  Equipment,
-  EquipmentAffixes,
-  IdGenerator,
-  ItemType,
-} from "@speed-dungeon/common";
-import { ItemGenerationBuilder, TaggedBaseItem } from "./item-generation-builder";
+import { Consumable, ItemType } from "../../../index.js";
+import { IdGenerator } from "../../../utility-classes/index.js";
+import { Equipment, EquipmentAffixes } from "../../equipment/index.js";
+import { ItemGenerationBuilder, TaggedBaseItem } from "./item.js";
 
 export class ItemGenerationDirector {
   constructor(public builder: ItemGenerationBuilder) {}

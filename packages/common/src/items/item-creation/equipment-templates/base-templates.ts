@@ -1,13 +1,10 @@
-import {
-  ArmorCategory,
-  CombatAttribute,
-  DEEPEST_FLOOR,
-  EquipmentBaseItem,
-  ResourceChangeSource,
-  NumberRange,
-  PrefixType,
-  SuffixType,
-} from "@speed-dungeon/common";
+import { DEEPEST_FLOOR } from "../../../app-consts.js";
+import { ResourceChangeSource } from "../../../combat/hp-change-source-types.js";
+import { CombatAttribute } from "../../../combatants/index.js";
+import { NumberRange } from "../../../primatives/index.js";
+import { PrefixType, SuffixType } from "../../equipment/affixes.js";
+import { ArmorCategory } from "../../equipment/equipment-properties/armor-properties.js";
+import { EquipmentBaseItem } from "../../equipment/equipment-types/index.js";
 
 export abstract class EquipmentGenerationTemplate {
   levelRange: NumberRange = new NumberRange(1, DEEPEST_FLOOR);

@@ -15,7 +15,9 @@ export function randomizeBaseItemRollableProperties(
   if (shouldBeDisabled(equipment, itemLevelLimiter))
     return new Error(ERROR_MESSAGES.ITEM.INVALID_PROPERTIES);
   const builder =
-    getGameServer().itemGenerationBuilders[equipment.equipmentBaseItemProperties.equipmentType];
+    getGameServer().itemGenerator.itemGenerationBuilders[
+      equipment.equipmentBaseItemProperties.equipmentType
+    ];
   const newBaseItemPropertiesResult = builder.buildEquipmentBaseItemProperties(
     equipment.equipmentBaseItemProperties.taggedBaseEquipment
   );

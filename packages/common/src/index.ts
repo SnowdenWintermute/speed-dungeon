@@ -10,7 +10,6 @@ export * from "./errors/entity-not-found.js";
 export * from "./items/index.js";
 export * from "./items/equipment/index.js";
 export * from "./items/consumables/index.js";
-export * from "./items/consumables/pick-up-shard-stack.js";
 export * from "./game/index.js";
 export * from "./combat/index.js";
 export * from "./monsters/index.js";
@@ -52,3 +51,6 @@ export * from "./conditions/condition-descriptions.js";
 export * from "./conditions/index.js";
 export * from "./conditions/condition-factory.js";
 export * from "./lobby/index.js";
+
+export * from "./items/item-creation/index.js";
+export * from "./items/item-creation/builders/affix-generator/index.js";

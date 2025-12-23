@@ -1,19 +1,19 @@
 import {
-  CombatAttribute,
-  EquipmentBaseItem,
-  EquipmentType,
   ResourceChangeSource,
   ResourceChangeSourceCategory,
-  KineticDamageType,
-  MagicalElement,
-  NumberRange,
-  AffixType,
+} from "../../../combat/hp-change-source-types.js";
+import { KineticDamageType } from "../../../combat/kinetic-damage-types.js";
+import { MagicalElement } from "../../../combat/magical-elements.js";
+import { CombatAttribute } from "../../../combatants/attributes/index.js";
+import { NumberRange } from "../../../primatives/number-range.js";
+import { iterateNumericEnum } from "../../../utils/index.js";
+import { AffixType, PREFIX_TYPES, SUFFIX_TYPES } from "../../equipment/affixes.js";
+import {
+  EquipmentBaseItem,
+  EquipmentType,
   TwoHandedMeleeWeapon,
-  iterateNumericEnum,
-  SUFFIX_TYPES,
-  PREFIX_TYPES,
-} from "@speed-dungeon/common";
-import { WeaponGenerationTemplate } from "./equipment-generation-template-abstract-classes.js";
+} from "../../equipment/equipment-types/index.js";
+import { WeaponGenerationTemplate } from "./base-templates.js";
 
 export class TwoHandedMeleeWeaponGenerationTemplate extends WeaponGenerationTemplate {
   constructor(

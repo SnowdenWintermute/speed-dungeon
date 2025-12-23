@@ -1,4 +1,4 @@
-import { AffixType, PrefixType } from "@speed-dungeon/common";
+import { AffixType, PrefixType } from "../../../equipment/affixes.js";
 
 export function getPrefixName(prefixType: PrefixType, tier: number) {
   const nameOption = PREFIX_NAMES[prefixType][tier];

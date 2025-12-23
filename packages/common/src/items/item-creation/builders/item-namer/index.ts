@@ -1,13 +1,13 @@
+import { CONSUMABLE_TYPE_STRINGS, iterateNumericEnumKeyedRecord } from "../../../../index.js";
 import {
   Affix,
   AffixCategory,
-  CONSUMABLE_TYPE_STRINGS,
   EquipmentAffixes,
-  EquipmentType,
-  ItemType,
-  ONE_HANDED_MELEE_WEAPON_NAMES,
   PrefixType,
   SuffixType,
+} from "../../../equipment/affixes.js";
+import {
+  EquipmentType,
   formatAmulet,
   formatBodyArmor,
   formatHeadGear,
@@ -15,9 +15,11 @@ import {
   formatShield,
   formatTwoHandedMeleeWeapon,
   formatTwoHandedRangedWeapon,
-  iterateNumericEnumKeyedRecord,
-} from "@speed-dungeon/common";
-import { TaggedBaseItem } from "../item-generation-builder.js";
+  ONE_HANDED_MELEE_WEAPON_NAMES,
+} from "../../../equipment/equipment-types/index.js";
+import { ItemType } from "../../../index.js";
+import { TaggedBaseItem } from "../item.js";
+
 import { getPrefixName } from "./get-prefix-name.js";
 import { getSuffixName } from "./get-suffix-name.js";
 
