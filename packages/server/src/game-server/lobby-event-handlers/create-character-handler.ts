@@ -1,17 +1,13 @@
 import {
-  AiType,
   Combatant,
   CombatantClass,
-  CombatantControllerType,
   ERROR_MESSAGES,
   MAX_CHARACTER_NAME_LENGTH,
-  MonsterType,
   ServerToClientEvent,
 } from "@speed-dungeon/common";
 import { createCharacter } from "../character-creation/index.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { getGameServer } from "../../singletons/index.js";
-import { generateMonster } from "../monster-generation/index.js";
 
 export function createCharacterHandler(
   eventData: { name: string; combatantClass: CombatantClass },
