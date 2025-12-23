@@ -22,6 +22,8 @@ export function createLobbyClientIntentHandlers(lobby: Lobby): Partial<LobbyClie
     [ClientIntentType.JoinGame]: (data, user) =>
       lobby.gameLifecycleManager.joinGameHandler(data.gameName, user),
     // LeaveGame,
+    [ClientIntentType.LeaveGame]: (_data, user) =>
+      lobby.gameLifecycleManager.leaveGameHandler(user),
     // ToggleReadyToStartGame,
     //
     //
@@ -33,6 +35,7 @@ export function createLobbyClientIntentHandlers(lobby: Lobby): Partial<LobbyClie
     [ClientIntentType.JoinParty]: (data, user) =>
       lobby.partySetupManager.joinPartyHandler(user, data.partyName),
     // LeaveParty,
+    [ClientIntentType.LeaveParty]: (_data, user) => lobby.partySetupManager.leavePartyHandler(user),
     // CreateCharacter,
     // DeleteCharacter,
     // SelectSavedCharacterForProgressGame,

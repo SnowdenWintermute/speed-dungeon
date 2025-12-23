@@ -46,6 +46,26 @@ export class UserSession {
     return lobbyState.getExpectedGame(currentGameName);
   }
 
+  getCurrentPartyOption(game: SpeedDungeonGame) {
+    if (this.currentPartyName === null) {
+      return null;
+    }
+
+    try {
+      return game.getExpectedParty(this.currentPartyName);
+    } catch {
+      throw new Error("User session had a party name for a party that did not exist");
+    }
+  }
+
+  getExpectedCurrentParty(game: SpeedDungeonGame) {
+    if (this.currentPartyName === null) {
+      throw new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
+    }
+
+    return game.getExpectedParty(this.currentPartyName);
+  }
+
   canJoinNewGame(isRanked?: boolean): ActionValidity {
     if (this.isInGame()) {
       return new ActionValidity(false, ERROR_MESSAGES.LOBBY.ALREADY_IN_GAME);

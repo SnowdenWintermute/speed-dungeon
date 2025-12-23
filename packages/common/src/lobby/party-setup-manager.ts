@@ -126,4 +126,30 @@ export class PartySetupManager {
       },
     });
   }
+
+  leavePartyHandler(session: UserSession) {
+    const game = session.getExpectedCurrentGame(this.lobbyState);
+
+    // get the reference to the party before we maybe remove it from the game
+    const party = session.getExpectedCurrentParty(game);
+    const removedPlayerDataResult = game.removePlayerFromParty(session.username);
+    if (removedPlayerDataResult instanceof Error) {
+      throw removedPlayerDataResult;
+    }
+
+    const partyChannelName = getPartyChannelName(game.name, party.name);
+
+    session.unsubscribeFromChannel(partyChannelName);
+    session.currentPartyName = null;
+
+    this.updateGateway.submitToConnection(session.connectionId, {
+      type: GameStateUpdateType.PartyNameUpdate,
+      data: { partyName: null },
+    });
+
+    this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
+      type: GameStateUpdateType.PlayerChangedAdventuringParty,
+      data: { playerName: session.username, partyName: null },
+    });
+  }
 }

@@ -188,4 +188,40 @@ export class GameLifecycleManager {
       this.partySetupManager.joinProgressionGamePartyWithDefaultCharacterHandler(session, game);
     }
   }
+
+  leaveGameHandler(session: UserSession) {
+    const game = session.getExpectedCurrentGame(this.lobbyState);
+    const partyOption = session.getCurrentPartyOption(game);
+
+    if (partyOption !== null) {
+      this.partySetupManager.leavePartyHandler(session);
+    }
+
+    game.removePlayer(session.username);
+    session.currentGameName = null;
+    session.unsubscribeFromChannel(game.getChannelName());
+    this.updateGateway.submitToConnection(session.connectionId, {
+      type: GameStateUpdateType.GameFullUpdate,
+      data: { game: null },
+    });
+
+    session.subscribeToChannel(LOBBY_CHANNEL);
+    this.updateGateway.submitToConnection(session.connectionId, {
+      type: GameStateUpdateType.ChannelFullUpdate,
+      data: { channelName: LOBBY_CHANNEL, users: this.lobbyState.getUsersList() },
+    });
+
+    const noPlayersRemain = Object.keys(game.players).length === 0;
+    if (noPlayersRemain) {
+      this.lobbyState.removeGame(game.name);
+
+      return; // no one is left to notify about the player leaving so return early
+    }
+
+    game.setMaxStartingFloor();
+    this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
+      type: GameStateUpdateType.PlayerLeftGame,
+      data: { username: session.username },
+    });
+  }
 }

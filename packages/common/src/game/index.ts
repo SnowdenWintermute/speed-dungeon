@@ -103,13 +103,17 @@ export class SpeedDungeonGame {
   removePlayerFromParty(username: string): Error | RemovedPlayerData {
     const player = this.players[username];
     const charactersRemoved: Combatant[] = [];
-    if (!player) return new Error("No player found to remove");
+    if (!player) {
+      return new Error("No player found to remove");
+    }
     if (!player.partyName) {
       return { partyNameLeft: null, partyWasRemoved: false, charactersRemoved };
     }
 
     const partyLeaving = this.adventuringParties[player.partyName];
-    if (!partyLeaving) return new Error("No party exists");
+    if (!partyLeaving) {
+      return new Error("No party exists");
+    }
 
     // if a removed character was taking their turn, end their turn
     const battleOption = this.getBattleOption(partyLeaving.battleId);
@@ -120,7 +124,9 @@ export class SpeedDungeonGame {
 
     Object.values(characterIds).forEach((characterId) => {
       const removedCharacterResult = partyLeaving.removeCharacter(characterId, player, this);
-      if (removedCharacterResult instanceof Error) return removedCharacterResult;
+      if (removedCharacterResult instanceof Error) {
+        return removedCharacterResult;
+      }
       charactersRemoved.push(removedCharacterResult);
       delete this.lowestStartingFloorOptionsBySavedCharacter[characterId];
     });
