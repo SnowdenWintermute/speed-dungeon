@@ -82,35 +82,9 @@ export class SavedCharactersController {
     const pets: Combatant[] = [];
     const serializedPets = pets.map((pet) => pet.getSerialized());
 
-    // CHECK IF THE SLOT IS VALID TO PUT A NEW CHARACTER IN
-
-    // const slot = await characterSlotsRepo.getSlot(profile.id, slotNumber);
-
-    // if (!slot) {
-    //   throw new Error("Character slot missing");
-    // }
-
-    // if (slot.characterId !== null) {
-    //   throw new Error(ERROR_MESSAGES.USER.CHARACTER_SLOT_FULL);
-    // }
-
-    // PERSIST THE CHARACTER
-
-    // await playerCharactersRepo.insert(newCharacter, pets, userId);
-
-    // UPDATE THE SLOT'S REFERENCE TO THE NEWLY PERSISTED CHARACTER
-
-    // slot.characterId = newCharacter.entityProperties.id;
-    // await characterSlotsRepo.update(slot);
-
-    // UPDATE THE LADDER RANKINGS
-
-    // await valkeyManager.context.zAdd(CHARACTER_LEVEL_LADDER, [
-    //   {
-    //     value: newCharacter.entityProperties.id,
-    //     score: newCharacter.combatantProperties.classProgressionProperties.getMainClass().level,
-    //   },
-    // ]);
+    // check if the slot is valid to put a new character in
+    const slot = await this.savedCharactersService.requireEmptySlot(profile.id, slotIndex);
+    await this.savedCharactersService.saveCharacterInSlot(slot, newCharacter, pets, userId);
 
     this.updateGateway.submitToConnection(session.connectionId, {
       type: GameStateUpdateType.SavedCharacter,

@@ -52,6 +52,8 @@ export function createLobbyClientIntentHandlers(lobby: Lobby): Partial<LobbyClie
     // GetSavedCharactersList,
     // GetSavedCharacterById,
     // CreateSavedCharacter,
+    [ClientIntentType.CreateSavedCharacter]: (data, user) =>
+      lobby.savedCharactersController.createSavedCharacterHandler(user, data),
     // DeleteSavedCharacter,
   };
 }

@@ -36,8 +36,29 @@ export interface SavedCharacterFetchStrategy {
   fetchCharacter: (characterId: EntityId) => Promise<SerializedPlayerCharacter>;
 }
 
+export interface SavedCharacterPersistenceStrategy {
+  insert: (
+    combatant: Combatant,
+    pets: Combatant[],
+    ownerId: number
+  ) => Promise<SerializedPlayerCharacter>;
+  update: (
+    playerCharacter: SerializedPlayerCharacter,
+    pets: Combatant[]
+  ) => Promise<SerializedPlayerCharacter>;
+  delete: (id: number | string) => Promise<SerializedPlayerCharacter>;
+}
+
+export interface SavedCharacterSlotsPersistenceStrategy {
+  update: (characterSlot: CharacterSlot) => Promise<CharacterSlot>;
+}
+
 export class SavedCharactersService {
-  constructor(private savedCharacterFetchStrategy: SavedCharacterFetchStrategy) {}
+  constructor(
+    private readonly savedCharacterFetchStrategy: SavedCharacterFetchStrategy,
+    private readonly savedCharacterSlotsPersistenceStrategy: SavedCharacterSlotsPersistenceStrategy,
+    private readonly savedCharacterPersistenceStrategy: SavedCharacterPersistenceStrategy
+  ) {}
 
   async fetchSavedCharacters(profileId: number): Promise<SavedCharacterSlots> {
     const slots = await this.savedCharacterFetchStrategy.fetchSlots(profileId);
@@ -90,6 +111,33 @@ export class SavedCharactersService {
     }
 
     return { combatant, pets: deserializedPets };
+  }
+
+  async requireEmptySlot(profileId: number, slotIndex: SlotIndex) {
+    const slots = await this.savedCharacterFetchStrategy.fetchSlots(profileId);
+    const slotOption = slots[slotIndex];
+
+    if (slotOption === undefined) {
+      throw new Error("Expected character slot missing");
+    }
+
+    const slotIsFilled = slotOption.characterId !== null;
+    if (slotIsFilled) {
+      throw new Error(ERROR_MESSAGES.USER.CHARACTER_SLOT_FULL);
+    }
+
+    return slotOption;
+  }
+
+  async saveCharacterInSlot(
+    slot: CharacterSlot,
+    newCharacter: Combatant,
+    pets: Combatant[],
+    userId: number
+  ) {
+    await this.savedCharacterPersistenceStrategy.insert(newCharacter, pets, userId);
+    slot.characterId = newCharacter.entityProperties.id;
+    await this.savedCharacterSlotsPersistenceStrategy.update(slot);
   }
 
   static getLivingCharacterInSlotsById(entityId: EntityId, slots: SavedCharacterSlots) {

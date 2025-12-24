@@ -41,9 +41,13 @@ class PlayerCharacterRepo extends DatabaseRepository<PlayerCharacter> {
       )
     );
 
-    if (rows[0]) return toCamelCase(rows)[0] as unknown as PlayerCharacter;
-    console.error(`Failed to insert a new ${tableName} record`);
-    return undefined;
+    const insertedCharacterOption = rows[0];
+    if (insertedCharacterOption) {
+      return toCamelCase(rows)[0] as unknown as PlayerCharacter;
+    } else {
+      console.error(`Failed to insert a new ${tableName} record`);
+      return undefined;
+    }
   }
 
   async update(playerCharacter: PlayerCharacter, pets: Combatant[]) {
