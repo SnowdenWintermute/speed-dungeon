@@ -6,17 +6,17 @@ import { IdGenerator } from "../utility-classes/index.js";
 import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
 import { LobbyState } from "./lobby-state.js";
 import { RANDOM_PARTY_NAMES } from "./random-party-names.js";
-import { SavedCharactersManager } from "./saved-characters-manager.js";
+import { SavedCharactersController } from "./saved-characters-controller.js";
 import { SessionAuthorizationManager } from "./session-authorization-manager.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
 import { UserSession } from "./user-session.js";
 
-export class PartySetupManager {
+export class PartySetupController {
   constructor(
     private readonly lobbyState: LobbyState,
     private readonly updateGateway: GameStateUpdateGateway,
     private readonly userSessionRegistry: UserSessionRegistry,
-    private readonly savedCharactersManager: SavedCharactersManager,
+    private readonly savedCharactersController: SavedCharactersController,
     private readonly sessionAuthManager: SessionAuthorizationManager,
     private readonly idGenerator: IdGenerator
   ) {}
@@ -93,7 +93,7 @@ export class PartySetupManager {
     );
 
     const defaultSavedCharacter =
-      await this.savedCharactersManager.getDefaultSavedCharacterForProgressionGame(
+      await this.savedCharactersController.getDefaultSavedCharacterForProgressionGame(
         authorizedSession
       );
     const { combatant } = defaultSavedCharacter;
@@ -101,7 +101,7 @@ export class PartySetupManager {
     game.lowestStartingFloorOptionsBySavedCharacter[combatant.entityProperties.id] =
       combatant.combatantProperties.deepestFloorReached;
 
-    const partyName = PartySetupManager.getProgressionGamePartyName(game.name);
+    const partyName = PartySetupController.getProgressionGamePartyName(game.name);
 
     const party = game.getExpectedParty(partyName);
     const player = game.getExpectedPlayer(session.username);

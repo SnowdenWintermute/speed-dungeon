@@ -7,17 +7,17 @@ import {
   ItemGenerator,
   SpeedDungeonGame,
 } from "../index.js";
-import { CharacterLifecycleManager } from "./character-lifecycle-manager.js";
+import { CharacterLifecycleController } from "./character-lifecycle-controller.js";
 import { ClientIntentReceiver } from "./client-intent-receiver.js";
 import { createLobbyClientIntentHandlers } from "./create-lobby-client-intent-handlers.js";
-import { GameLifecycleManager } from "./game-lifecycle-manager.js";
+import { GameLifecycleController } from "./game-lifecycle-controller.js";
 import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
 import { LobbyState } from "./lobby-state.js";
-import { PartySetupManager } from "./party-setup-manager.js";
-import { SavedCharacterLoader } from "./saved-character-loader.js";
-import { SavedCharactersManager } from "./saved-characters-manager.js";
+import { PartySetupController } from "./party-setup-controller.js";
+import { SavedCharactersService } from "./saved-character-service.js";
+import { SavedCharactersController } from "./saved-characters-controller.js";
 import { SessionAuthorizationManager } from "./session-authorization-manager.js";
-import { SessionLifecycleManager } from "./session-lifecycle-manager.js";
+import { SessionLifecycleController } from "./session-lifecycle-controller.js";
 import { SpeedDungeonProfileLoader } from "./speed-dungeon-profile-loader.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
 import { UserSession } from "./user-session.js";
@@ -36,14 +36,15 @@ export class Lobby {
   private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
   private readonly lobbyState = new LobbyState();
   private readonly userSessionRegistry = new UserSessionRegistry();
+  private readonly characterCreator: CharacterCreator;
 
   // handler managers
   public readonly sessionAuthManager: SessionAuthorizationManager;
-  public readonly gameLifecycleManager: GameLifecycleManager;
-  public readonly partySetupManager: PartySetupManager;
-  public readonly sessionLifecycleManager: SessionLifecycleManager;
-  public readonly savedCharactersManager: SavedCharactersManager;
-  public readonly characterLifecycleManager: CharacterLifecycleManager;
+  public readonly gameLifecycleController: GameLifecycleController;
+  public readonly partySetupController: PartySetupController;
+  public readonly sessionLifecycleController: SessionLifecycleController;
+  public readonly savedCharactersController: SavedCharactersController;
+  public readonly characterLifecycleController: CharacterLifecycleController;
 
   constructor(
     private readonly updateGateway: GameStateUpdateGateway,
@@ -51,63 +52,66 @@ export class Lobby {
     private readonly clientIntentReceiver: ClientIntentReceiver,
     private readonly gameSimulatorHandoffStrategy: GameSimulatorHandoffStrategy,
     private readonly profileLoader: SpeedDungeonProfileLoader,
-    private readonly savedCharacterLoader: SavedCharacterLoader,
+    private readonly savedCharactersService: SavedCharactersService,
     private readonly idGenerator: IdGenerator
   ) {
     this.clientIntentReceiver.initialize(this);
+
+    this.characterCreator = new CharacterCreator(
+      this.idGenerator,
+      new ItemGenerator(
+        idGenerator,
+        this.randomNumberGenerator,
+        new AffixGenerator(this.randomNumberGenerator)
+      )
+    );
 
     this.sessionAuthManager = new SessionAuthorizationManager(
       this.userSessionRegistry,
       profileLoader
     );
 
-    this.savedCharactersManager = new SavedCharactersManager(
+    this.savedCharactersController = new SavedCharactersController(
       this.sessionAuthManager,
       this.userSessionRegistry,
       updateGateway,
-      this.savedCharacterLoader
+      this.savedCharactersService,
+      this.characterCreator
     );
 
-    this.partySetupManager = new PartySetupManager(
+    this.partySetupController = new PartySetupController(
       this.lobbyState,
       updateGateway,
       this.userSessionRegistry,
-      this.savedCharactersManager,
+      this.savedCharactersController,
       this.sessionAuthManager,
       idGenerator
     );
 
-    this.gameLifecycleManager = new GameLifecycleManager(
+    this.gameLifecycleController = new GameLifecycleController(
       this.lobbyState,
       updateGateway,
       this.userSessionRegistry,
       this.sessionAuthManager,
-      this.partySetupManager,
+      this.partySetupController,
       idGenerator
     );
 
-    this.characterLifecycleManager = new CharacterLifecycleManager(
+    this.characterLifecycleController = new CharacterLifecycleController(
       this.lobbyState,
       updateGateway,
       this.userSessionRegistry,
       this.sessionAuthManager,
-      this.savedCharacterLoader,
-      new CharacterCreator(
-        this.idGenerator,
-        new ItemGenerator(
-          this.idGenerator,
-          this.randomNumberGenerator,
-          new AffixGenerator(this.randomNumberGenerator)
-        )
-      )
+      this.savedCharactersService,
+      this.characterCreator
     );
 
-    this.sessionLifecycleManager = new SessionLifecycleManager(
+    this.sessionLifecycleController = new SessionLifecycleController(
       this.lobbyState,
       updateGateway,
       this.userSessionRegistry,
       this.sessionAuthManager,
-      this.savedCharactersManager
+      this.savedCharactersController
     );
   }
 

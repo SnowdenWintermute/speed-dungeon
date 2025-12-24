@@ -191,7 +191,7 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.SavedCharacter]: {
     character: { combatant: Combatant; pets: Combatant[] };
-    slot: number;
+    slotIndex: number;
   };
   [GameStateUpdateType.SavedCharacterDeleted]: {
     id: string;

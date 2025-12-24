@@ -36,7 +36,7 @@ export interface SavedCharacterFetchStrategy {
   fetchCharacter: (characterId: EntityId) => Promise<SerializedPlayerCharacter>;
 }
 
-export class SavedCharacterLoader {
+export class SavedCharactersService {
   constructor(private savedCharacterFetchStrategy: SavedCharacterFetchStrategy) {}
 
   async fetchSavedCharacters(profileId: number): Promise<SavedCharacterSlots> {

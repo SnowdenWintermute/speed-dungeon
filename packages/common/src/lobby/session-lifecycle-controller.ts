@@ -2,19 +2,19 @@ import { LOBBY_CHANNEL } from "../packets/channels.js";
 import { GameStateUpdateType } from "../packets/game-state-updates.js";
 import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
 import { LobbyState } from "./lobby-state.js";
-import { SavedCharactersManager } from "./saved-characters-manager.js";
+import { SavedCharactersController } from "./saved-characters-controller.js";
 import { SessionAuthorizationManager } from "./session-authorization-manager.js";
 import { TransportEndpoint } from "./transport-endpoint.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
 import { UserSession } from "./user-session.js";
 
-export class SessionLifecycleManager {
+export class SessionLifecycleController {
   constructor(
     private readonly lobbyState: LobbyState,
     private readonly updateGateway: GameStateUpdateGateway,
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly sessionAuthManager: SessionAuthorizationManager,
-    private readonly savedCharactersManager: SavedCharactersManager
+    private readonly savedCharactersController: SavedCharactersController
   ) {}
 
   async connectionHandler(session: UserSession, endpoint: TransportEndpoint) {
@@ -26,7 +26,7 @@ export class SessionLifecycleManager {
       session.connectionId
     );
     if (loggedInUser !== null) {
-      this.savedCharactersManager.fetchSavedCharactersHandler(session);
+      this.savedCharactersController.fetchSavedCharactersHandler(session);
     }
 
     this.userSessionRegistry.register(session);

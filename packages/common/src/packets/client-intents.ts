@@ -126,7 +126,7 @@ export interface ClientIntentMap {
   [ClientIntentType.CreateSavedCharacter]: {
     name: string;
     combatantClass: CombatantClass;
-    slotNumber: number;
+    slotIndex: number;
   };
   [ClientIntentType.DeleteSavedCharacter]: { entityId: string };
   [ClientIntentType.SelectSavedCharacterForProgressGame]: { entityId: string };
@@ -287,7 +287,7 @@ const intentHandlers: ClientIntentHandlers = {
   [ClientIntentType.CreateSavedCharacter]: function (intent: {
     name: string;
     combatantClass: CombatantClass;
-    slotNumber: number;
+    slotIndex: number;
   }): void {
     throw new Error("Function not implemented.");
   },

@@ -14,18 +14,18 @@ import { GameStateUpdateType } from "../packets/game-state-updates.js";
 import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
 import { RANDOM_GAME_NAMES_FIRST, RANDOM_GAME_NAMES_LAST } from "./index.js";
 import { LobbyState } from "./lobby-state.js";
-import { PartySetupManager } from "./party-setup-manager.js";
+import { PartySetupController } from "./party-setup-controller.js";
 import { SessionAuthorizationManager } from "./session-authorization-manager.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
 import { UserSession } from "./user-session.js";
 
-export class GameLifecycleManager {
+export class GameLifecycleController {
   constructor(
     private readonly lobbyState: LobbyState,
     private readonly updateGateway: GameStateUpdateGateway,
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly sessionAuthManager: SessionAuthorizationManager,
-    private readonly partySetupManager: PartySetupManager,
+    private readonly partySetupController: PartySetupController,
     private readonly idGenerator: IdGenerator
   ) {}
 
@@ -128,7 +128,7 @@ export class GameLifecycleManager {
 
     // unlike race games, progression games have only a single, automatically generated
     // adventuring party
-    const defaultPartyName = PartySetupManager.getProgressionGamePartyName(game.name);
+    const defaultPartyName = PartySetupController.getProgressionGamePartyName(game.name);
 
     game.adventuringParties[defaultPartyName] = AdventuringParty.createInitialized(
       this.idGenerator.generate(),
@@ -185,7 +185,7 @@ export class GameLifecycleManager {
 
     // handle automatic party joining and character selection
     if (game.mode === GameMode.Progression) {
-      this.partySetupManager.joinProgressionGamePartyWithDefaultCharacterHandler(session, game);
+      this.partySetupController.joinProgressionGamePartyWithDefaultCharacterHandler(session, game);
     }
   }
 
@@ -194,7 +194,7 @@ export class GameLifecycleManager {
     const partyOption = session.getCurrentPartyOption(game);
 
     if (partyOption !== null) {
-      this.partySetupManager.leavePartyHandler(session);
+      this.partySetupController.leavePartyHandler(session);
     }
 
     game.removePlayer(session.username);

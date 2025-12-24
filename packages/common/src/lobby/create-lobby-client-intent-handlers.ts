@@ -17,34 +17,35 @@ export function createLobbyClientIntentHandlers(lobby: Lobby): Partial<LobbyClie
     // RequestsGameList,
     // CreateGame,
     [ClientIntentType.CreateGame]: (data, user) =>
-      lobby.gameLifecycleManager.createGameHandler(data, user),
+      lobby.gameLifecycleController.createGameHandler(data, user),
     // JoinGame,
     [ClientIntentType.JoinGame]: (data, user) =>
-      lobby.gameLifecycleManager.joinGameHandler(data.gameName, user),
+      lobby.gameLifecycleController.joinGameHandler(data.gameName, user),
     // LeaveGame,
     [ClientIntentType.LeaveGame]: (_data, user) =>
-      lobby.gameLifecycleManager.leaveGameHandler(user),
+      lobby.gameLifecycleController.leaveGameHandler(user),
     // ToggleReadyToStartGame,
     //
     //
     // PARTY SETUP
     // CreateParty,
     [ClientIntentType.CreateParty]: (data, user) =>
-      lobby.partySetupManager.createPartyHandler(user, data.partyName),
+      lobby.partySetupController.createPartyHandler(user, data.partyName),
     // JoinParty,
     [ClientIntentType.JoinParty]: (data, user) =>
-      lobby.partySetupManager.joinPartyHandler(user, data.partyName),
+      lobby.partySetupController.joinPartyHandler(user, data.partyName),
     // LeaveParty,
-    [ClientIntentType.LeaveParty]: (_data, user) => lobby.partySetupManager.leavePartyHandler(user),
+    [ClientIntentType.LeaveParty]: (_data, user) =>
+      lobby.partySetupController.leavePartyHandler(user),
     // CreateCharacter,
     [ClientIntentType.CreateCharacter]: (data, user) =>
-      lobby.characterLifecycleManager.createCharacterHandler(user, data),
+      lobby.characterLifecycleController.createCharacterHandler(user, data),
     // DeleteCharacter,
     [ClientIntentType.DeleteCharacter]: (data, user) =>
-      lobby.characterLifecycleManager.deleteCharacterHandler(user, data),
+      lobby.characterLifecycleController.deleteCharacterHandler(user, data),
     // SelectSavedCharacterForProgressGame,
     [ClientIntentType.SelectSavedCharacterForProgressGame]: (data, user) =>
-      lobby.characterLifecycleManager.selectProgressionGameCharacterHandler(user, data),
+      lobby.characterLifecycleController.selectProgressionGameCharacterHandler(user, data),
     // SelectProgressionGameStartingFloor,
     //
     // SAVED CHARACTER MANAGMENT

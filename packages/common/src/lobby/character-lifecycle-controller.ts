@@ -7,22 +7,22 @@ import { GameMode } from "../types.js";
 import { CharacterCreator } from "./character-creation/index.js";
 import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
 import { LobbyState } from "./lobby-state.js";
-import { SavedCharacterLoader } from "./saved-character-loader.js";
+import { SavedCharactersService } from "./saved-character-service.js";
 import { SessionAuthorizationManager } from "./session-authorization-manager.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
 import { UserSession } from "./user-session.js";
 
-export class CharacterLifecycleManager {
+export class CharacterLifecycleController {
   constructor(
     private readonly lobbyState: LobbyState,
     private readonly updateGateway: GameStateUpdateGateway,
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly sessionAuthManager: SessionAuthorizationManager,
-    private readonly savedCharacterLoader: SavedCharacterLoader,
+    private readonly savedCharactersService: SavedCharactersService,
     private readonly characterCreator: CharacterCreator
   ) {}
 
-  private requireValidCharacterNameLength(name: string) {
+  static requireValidCharacterNameLength(name: string) {
     if (name.length > MAX_CHARACTER_NAME_LENGTH) {
       throw new Error(ERROR_MESSAGES.COMBATANT.MAX_NAME_LENGTH_EXCEEDED);
     }
@@ -36,7 +36,7 @@ export class CharacterLifecycleManager {
     const party = session.getExpectedCurrentParty(game);
     const { name, combatantClass } = data;
 
-    this.requireValidCharacterNameLength(name);
+    CharacterLifecycleController.requireValidCharacterNameLength(name);
 
     const newCharacter = this.characterCreator.createCharacter(
       name,
@@ -98,7 +98,7 @@ export class CharacterLifecycleManager {
       session.connectionId
     );
 
-    const characters = await this.savedCharacterLoader.fetchSavedCharacters(
+    const characters = await this.savedCharactersService.fetchSavedCharacters(
       loggedInUser.profile.id
     );
 
@@ -108,7 +108,10 @@ export class CharacterLifecycleManager {
     }
 
     const { entityId } = data;
-    const savedCharacter = SavedCharacterLoader.getLivingCharacterInSlotsById(entityId, characters);
+    const savedCharacter = SavedCharactersService.getLivingCharacterInSlotsById(
+      entityId,
+      characters
+    );
 
     const player = game.getExpectedPlayer(session.username);
     const characterIdToRemoveOption = player.characterIds[0];
