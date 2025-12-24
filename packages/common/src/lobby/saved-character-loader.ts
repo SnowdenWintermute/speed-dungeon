@@ -1,15 +1,15 @@
-import { CombatantProperties, EntityId } from "..";
+import { CombatantProperties } from "../combatants/combatant-properties.js";
 import { Combatant } from "../combatants/index.js";
-import { UserSession } from "./user-session";
+import { ERROR_MESSAGES } from "../errors/index.js";
+import { EntityId } from "../primatives/index.js";
 
-interface CharacterInSlot {
+export interface CharacterInSlot {
   combatant: Combatant;
   pets: Combatant[];
 }
 
-interface SavedCharacterSlots {
-  [slot: number]: CharacterInSlot;
-}
+type SlotIndex = number;
+type SavedCharacterSlots = Record<SlotIndex, CharacterInSlot>;
 
 export type CharacterSlot = {
   id: string;
@@ -39,7 +39,7 @@ export interface SavedCharacterFetchStrategy {
 export class SavedCharacterLoader {
   constructor(private savedCharacterFetchStrategy: SavedCharacterFetchStrategy) {}
 
-  async fetchSavedCharacters(profileId: number) {
+  async fetchSavedCharacters(profileId: number): Promise<SavedCharacterSlots> {
     const slots = await this.savedCharacterFetchStrategy.fetchSlots(profileId);
     if (slots === undefined) {
       throw new Error("No character slots found");
@@ -90,5 +90,25 @@ export class SavedCharacterLoader {
     }
 
     return { combatant, pets: deserializedPets };
+  }
+
+  static getLivingCharacterInSlotsById(entityId: EntityId, slots: SavedCharacterSlots) {
+    let savedCharacterOption: undefined | CharacterInSlot;
+    for (const character of Object.values(slots)) {
+      if (character.combatant.entityProperties.id === entityId) {
+        if (character.combatant.combatantProperties.isDead()) {
+          throw new Error(ERROR_MESSAGES.COMBATANT.IS_DEAD);
+        }
+
+        savedCharacterOption = character;
+        break;
+      }
+    }
+
+    if (savedCharacterOption === undefined) {
+      throw new Error(ERROR_MESSAGES.USER.SAVED_CHARACTER_NOT_OWNED);
+    }
+
+    return savedCharacterOption;
   }
 }

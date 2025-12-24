@@ -170,9 +170,9 @@ export class SpeedDungeonGame {
   }
 
   togglePlayerReadyToStartGameStatus(username: string) {
-    if (this.playersReadied.includes(username))
+    if (this.playersReadied.includes(username)) {
       ArrayUtils.removeElement(this.playersReadied, username);
-    else this.playersReadied.push(username);
+    } else this.playersReadied.push(username);
   }
 
   addParty(party: AdventuringParty) {

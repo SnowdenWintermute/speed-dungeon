@@ -1,10 +1,13 @@
 import { MAX_CHARACTER_NAME_LENGTH } from "../app-consts.js";
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
+import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { IdGenerator } from "../utility-classes/index.js";
+import { GameStateUpdateType } from "../packets/game-state-updates.js";
+import { GameMode } from "../types.js";
+import { CharacterCreator } from "./character-creation/index.js";
 import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
 import { LobbyState } from "./lobby-state.js";
-import { SavedCharactersManager } from "./saved-characters-manager.js";
+import { SavedCharacterLoader } from "./saved-character-loader.js";
 import { SessionAuthorizationManager } from "./session-authorization-manager.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
 import { UserSession } from "./user-session.js";
@@ -14,9 +17,9 @@ export class CharacterLifecycleManager {
     private readonly lobbyState: LobbyState,
     private readonly updateGateway: GameStateUpdateGateway,
     private readonly userSessionRegistry: UserSessionRegistry,
-    private readonly savedCharactersManager: SavedCharactersManager,
     private readonly sessionAuthManager: SessionAuthorizationManager,
-    private readonly idGenerator: IdGenerator
+    private readonly savedCharacterLoader: SavedCharacterLoader,
+    private readonly characterCreator: CharacterCreator
   ) {}
 
   private requireValidCharacterNameLength(name: string) {
@@ -35,16 +38,103 @@ export class CharacterLifecycleManager {
 
     this.requireValidCharacterNameLength(name);
 
-    // const newCharacter = createCharacter(name, combatantClass, player.username);
-    // if (newCharacter instanceof Error) return newCharacter;
-    // const pets: Combatant[] = [];
-    // const serializedPets = pets.map((pet) => pet.getSerialized());
-    // game.addCharacterToParty(partyOption, player, newCharacter, pets);
-    // const serialized = newCharacter.getSerialized();
-    // getGameServer()
-    //   .io.of("/")
-    //   .in(game.name)
-    //   .emit(ServerToClientEvent.CharacterAddedToParty, session.username, serialized, serializedPets);
+    const newCharacter = this.characterCreator.createCharacter(
+      name,
+      combatantClass,
+      session.username
+    );
+
+    const pets: Combatant[] = [];
+
+    const player = game.getExpectedPlayer(session.username);
+    game.addCharacterToParty(party, player, newCharacter, pets);
+
+    const serialized = newCharacter.getSerialized();
+    const serializedPets = pets.map((pet) => pet.getSerialized());
+
+    this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
+      type: GameStateUpdateType.CharacterAddedToParty,
+      data: { username: session.username, character: serialized, pets: serializedPets },
+    });
+  }
+
+  deleteCharacterHandler(session: UserSession, data: { characterId: string }) {
+    const { characterId } = data;
+    const game = session.getExpectedCurrentGame(this.lobbyState);
+    const player = game.getExpectedPlayer(session.username);
+
+    const playerDoesNotOwnCharacter = !player.characterIds.includes(characterId.toString());
+    if (playerDoesNotOwnCharacter) {
+      throw new Error(ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED);
+    }
+
+    const party = session.getExpectedCurrentParty(game);
+    party.removeCharacter(characterId, player, game);
+
+    party.combatantManager.updateHomePositions();
+
+    const wasReadied = game.playersReadied.includes(session.username);
+    if (wasReadied) {
+      game.togglePlayerReadyToStartGameStatus(session.username);
+      this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
+        type: GameStateUpdateType.PlayerToggledReadyToStartGame,
+        data: { username: session.username },
+      });
+    }
+
+    this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
+      type: GameStateUpdateType.CharacterDeleted,
+      data: { username: session.username, characterId },
+    });
+  }
+
+  async selectProgressionGameCharacterHandler(session: UserSession, data: { entityId: string }) {
+    const game = session.getExpectedCurrentGame(this.lobbyState);
+    if (game.mode !== GameMode.Progression) {
+      throw new Error(ERROR_MESSAGES.GAME.MODE);
+    }
+
+    const loggedInUser = await this.sessionAuthManager.requireAuthorizedSession(
+      session.connectionId
+    );
+
+    const characters = await this.savedCharacterLoader.fetchSavedCharacters(
+      loggedInUser.profile.id
+    );
+
+    const userHasNoSavedCharacters = Object.values(characters).length === 0;
+    if (userHasNoSavedCharacters) {
+      throw new Error(ERROR_MESSAGES.GAME.NO_SAVED_CHARACTERS);
+    }
+
+    const { entityId } = data;
+    const savedCharacter = SavedCharacterLoader.getLivingCharacterInSlotsById(entityId, characters);
+
+    const player = game.getExpectedPlayer(session.username);
+    const characterIdToRemoveOption = player.characterIds[0];
+    if (characterIdToRemoveOption === undefined) {
+      throw new Error("Expected to have a selected character but didn't");
+    }
+
+    const party = session.getExpectedCurrentParty(game);
+    const removedChacter = party.removeCharacter(characterIdToRemoveOption, player, game);
+
+    delete game.lowestStartingFloorOptionsBySavedCharacter[removedChacter.getEntityId()];
+
+    game.addCharacterToParty(party, player, savedCharacter.combatant, savedCharacter.pets);
+
+    game.setMaxStartingFloor();
+
+    this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
+      type: GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame,
+      data: {
+        username: session.username,
+        character: {
+          combatant: savedCharacter.combatant.getSerialized(),
+          pets: savedCharacter.pets.map((pet) => pet.getSerialized()),
+        },
+      },
+    });
   }
 
   private createTestPets() {
@@ -55,29 +145,4 @@ export class CharacterLifecycleManager {
     // // testPet.combatantProperties.attributeProperties.changeUnspentPoints(10);
     // // const pets: Combatant[] = [testPet];
   }
-
-  // private createPlayerCharacter(
-  //   name: string,
-  //   combatantClass: CombatantClass,
-  //   controllingPlayerName: string
-  // ) {
-  //   const characterId = this.idGenerator.generate(`player controlled character: ${name}`);
-
-  //   if (name === "") name = generateRandomCharacterName();
-
-  //   const entityProperties = { id: characterId, name };
-  //   const combatantProperties = new CombatantProperties(
-  //     combatantClass,
-  //     CombatantSpecies.Humanoid,
-  //     null,
-  //     new CombatantControlledBy(CombatantControllerType.Player, controllingPlayerName),
-  //     Vector3.Zero()
-  //   );
-
-  //   const newCharacter = Combatant.createInitialized(entityProperties, combatantProperties);
-
-  //   CharacterOutfitter.outfitNewCharacter(newCharacter);
-
-  //   return newCharacter;
-  // }
 }

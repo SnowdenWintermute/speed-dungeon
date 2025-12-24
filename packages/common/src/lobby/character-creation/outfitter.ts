@@ -1,19 +1,17 @@
-import {
-  BASE_STARTING_ATTRIBUTES,
-  Combatant,
-  CombatantProperties,
-  CombatantTraitType,
-  ConsumableType,
-  HoldableHotswapSlot,
-  ItemGenerator,
-  STARTING_COMBATANT_TRAITS,
-  iterateNumericEnumKeyedRecord,
-} from "@speed-dungeon/common";
-import { giveStartingAbilities } from "./give-starting-abilities.js";
 import cloneDeep from "lodash.clonedeep";
+import { giveStartingAbilities } from "./give-starting-abilities.js";
 import { giveStartingEquipment } from "./give-starting-equipment.js";
 import { setPlaytestingCombatantProperties } from "./set-playtesting-combatant-properties.js";
 import { givePlaytestingItems } from "./give-playtesting-items.js";
+import { BASE_STARTING_ATTRIBUTES } from "../../combatants/combatant-class/level-zero-attributes.js";
+import { CombatantProperties } from "../../combatants/combatant-properties.js";
+import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
+import { STARTING_COMBATANT_TRAITS } from "../../combatants/combatant-class/starting-traits.js";
+import { CombatantTraitType } from "../../combatants/combatant-traits/trait-types.js";
+import { ConsumableType } from "../../items/consumables/index.js";
+import { HoldableHotswapSlot } from "../../combatants/combatant-equipment/index.js";
+import { ItemGenerator } from "../../items/item-creation/index.js";
+import { Combatant } from "../../combatants/index.js";
 
 export class CharacterOutfitter {
   constructor(private itemGenerator: ItemGenerator) {}
@@ -21,16 +19,13 @@ export class CharacterOutfitter {
   outfitNewCharacter(character: Combatant) {
     const combatantProperties = character.combatantProperties;
     CharacterOutfitter.setPlaytestingCombatantProperties(combatantProperties);
-    CharacterOutfitter.givePlaytestingItems(
-      combatantProperties.equipment,
-      combatantProperties.inventory
-    );
+    CharacterOutfitter.givePlaytestingItems(combatantProperties, this.itemGenerator);
 
     CharacterOutfitter.giveStartingAbilities(character);
     // CharacterOutfitter.giveStartingAttributes(combatantProperties);
     CharacterOutfitter.setUpInherentTraits(combatantProperties);
     this.giveStartingInventoryItems(combatantProperties);
-    CharacterOutfitter.giveStartingEquipment(combatantProperties);
+    CharacterOutfitter.giveStartingEquipment(combatantProperties, this.itemGenerator);
     combatantProperties.resources.setToMax();
   }
 

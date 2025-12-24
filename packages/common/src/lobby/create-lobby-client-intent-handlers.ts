@@ -37,8 +37,14 @@ export function createLobbyClientIntentHandlers(lobby: Lobby): Partial<LobbyClie
     // LeaveParty,
     [ClientIntentType.LeaveParty]: (_data, user) => lobby.partySetupManager.leavePartyHandler(user),
     // CreateCharacter,
+    [ClientIntentType.CreateCharacter]: (data, user) =>
+      lobby.characterLifecycleManager.createCharacterHandler(user, data),
     // DeleteCharacter,
+    [ClientIntentType.DeleteCharacter]: (data, user) =>
+      lobby.characterLifecycleManager.deleteCharacterHandler(user, data),
     // SelectSavedCharacterForProgressGame,
+    [ClientIntentType.SelectSavedCharacterForProgressGame]: (data, user) =>
+      lobby.characterLifecycleManager.selectProgressionGameCharacterHandler(user, data),
     // SelectProgressionGameStartingFloor,
     //
     // SAVED CHARACTER MANAGMENT

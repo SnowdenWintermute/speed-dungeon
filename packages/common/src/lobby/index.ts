@@ -1,4 +1,13 @@
-import { ClientIntent, IdGenerator, SpeedDungeonGame } from "../index.js";
+import {
+  AffixGenerator,
+  BasicRandomNumberGenerator,
+  CharacterCreator,
+  ClientIntent,
+  IdGenerator,
+  ItemGenerator,
+  SpeedDungeonGame,
+} from "../index.js";
+import { CharacterLifecycleManager } from "./character-lifecycle-manager.js";
 import { ClientIntentReceiver } from "./client-intent-receiver.js";
 import { createLobbyClientIntentHandlers } from "./create-lobby-client-intent-handlers.js";
 import { GameLifecycleManager } from "./game-lifecycle-manager.js";
@@ -14,6 +23,7 @@ import { UserSessionRegistry } from "./user-session-registry.js";
 import { UserSession } from "./user-session.js";
 
 export * from "./random-game-names.js";
+export * from "./character-creation/index.js";
 
 // give the set up game to a GameSimulator either a locally owned GameSimulator
 // on the client or send it over websockets to a GameServer which owns a GameSimulator
@@ -23,6 +33,7 @@ export interface GameSimulatorHandoffStrategy {
 
 // lives either inside a LobbyServer or locally on a ClientApp
 export class Lobby {
+  private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
   private readonly lobbyState = new LobbyState();
   private readonly userSessionRegistry = new UserSessionRegistry();
 
@@ -32,6 +43,7 @@ export class Lobby {
   public readonly partySetupManager: PartySetupManager;
   public readonly sessionLifecycleManager: SessionLifecycleManager;
   public readonly savedCharactersManager: SavedCharactersManager;
+  public readonly characterLifecycleManager: CharacterLifecycleManager;
 
   constructor(
     private readonly updateGateway: GameStateUpdateGateway,
@@ -72,6 +84,22 @@ export class Lobby {
       this.sessionAuthManager,
       this.partySetupManager,
       idGenerator
+    );
+
+    this.characterLifecycleManager = new CharacterLifecycleManager(
+      this.lobbyState,
+      updateGateway,
+      this.userSessionRegistry,
+      this.sessionAuthManager,
+      this.savedCharacterLoader,
+      new CharacterCreator(
+        this.idGenerator,
+        new ItemGenerator(
+          this.idGenerator,
+          this.randomNumberGenerator,
+          new AffixGenerator(this.randomNumberGenerator)
+        )
+      )
     );
 
     this.sessionLifecycleManager = new SessionLifecycleManager(

@@ -1,5 +1,6 @@
 import {
   ActionCommandReceiver,
+  CharacterCreator,
   ClientToServerEventTypes,
   GameMessagesPayload,
   GameMode,
@@ -27,7 +28,6 @@ import initiateSavedCharacterListeners from "./saved-character-event-handlers/in
 import GameModeContext from "./game-event-handlers/game-mode-strategies/game-mode-context.js";
 import { idGenerator, rngSingleton } from "../singletons/index.js";
 import { AffixGenerator } from "@speed-dungeon/common";
-import { CharacterOutfitter } from "./character-creation/character-outfitter.js";
 
 export type Username = string;
 export type SocketId = string;
@@ -43,10 +43,10 @@ export class GameServer implements ActionCommandReceiver {
     rngSingleton,
     new AffixGenerator(rngSingleton)
   );
-  characterOutfitter: CharacterOutfitter;
+  characterCreator: CharacterCreator;
   constructor(public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
     this.connectionHandler();
-    this.characterOutfitter = new CharacterOutfitter(this.itemGenerator);
+    this.characterCreator = new CharacterCreator(idGenerator, this.itemGenerator);
   }
   // game manager
   games: HashMap<string, SpeedDungeonGame> = new HashMap();

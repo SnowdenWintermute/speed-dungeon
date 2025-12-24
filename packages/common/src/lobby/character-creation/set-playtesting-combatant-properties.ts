@@ -1,8 +1,6 @@
-import {
-  CombatAttribute,
-  CombatantProperties,
-  iterateNumericEnumKeyedRecord,
-} from "@speed-dungeon/common";
+import { CombatAttribute } from "../../combatants/attributes/index.js";
+import { CombatantProperties } from "../../combatants/combatant-properties.js";
+import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 
 export function setPlaytestingCombatantProperties(combatantProperties: CombatantProperties) {
   const { classProgressionProperties } = combatantProperties;

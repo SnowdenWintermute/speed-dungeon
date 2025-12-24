@@ -2,21 +2,18 @@ import {
   ClientToServerEventTypes,
   Combatant,
   CombatantClass,
-  CombatantControllerType,
   ERROR_MESSAGES,
   MAX_CHARACTER_NAME_LENGTH,
-  MonsterType,
   ServerToClientEvent,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io";
 import { LoggedInUser } from "../event-middleware/get-logged-in-user-from-socket.js";
 import { characterSlotsRepo } from "../../database/repos/character-slots.js";
-import { createCharacter } from "../character-creation/index.js";
 import { playerCharactersRepo } from "../../database/repos/player-characters.js";
 import { valkeyManager } from "../../kv-store/index.js";
 import { CHARACTER_LEVEL_LADDER } from "../../kv-store/consts.js";
-import { generateMonster } from "../monster-generation/index.js";
+import { getGameServer } from "../../singletons/index.js";
 
 export async function createSavedCharacterHandler(
   eventData: { name: string; combatantClass: CombatantClass; slotNumber: number },
@@ -34,7 +31,11 @@ export async function createSavedCharacterHandler(
 
   if (slot.characterId !== null) return new Error(ERROR_MESSAGES.USER.CHARACTER_SLOT_FULL);
 
-  const newCharacter = createCharacter(name, combatantClass, loggedInUser.session.username);
+  const newCharacter = getGameServer().characterCreator.createCharacter(
+    name,
+    combatantClass,
+    loggedInUser.session.username
+  );
 
   // @TESTING - pets
   // @TODO - don't start a new character with any pets

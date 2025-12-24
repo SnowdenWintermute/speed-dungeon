@@ -1,20 +1,18 @@
+import { CombatantClass } from "../../combatants/combatant-class/classes.js";
+import { CombatantProperties } from "../../combatants/combatant-properties.js";
+import { AffixCategory, AffixType } from "../../items/equipment/affixes.js";
+import { EquipmentTraitType } from "../../items/equipment/equipment-traits/index.js";
 import {
-  AffixCategory,
-  AffixType,
-  CombatantClass,
-  CombatantProperties,
   EquipmentBaseItem,
-  EquipmentTraitType,
   EquipmentType,
-  HoldableSlotType,
   OneHandedMeleeWeapon,
   Shield,
   TwoHandedMeleeWeapon,
   TwoHandedRangedWeapon,
-  iterateNumericEnumKeyedRecord,
-} from "@speed-dungeon/common";
-
-import { getGameServer } from "../../singletons/index.js";
+} from "../../items/equipment/equipment-types/index.js";
+import { HoldableSlotType } from "../../items/equipment/slots.js";
+import { ItemGenerator } from "../../items/item-creation/index.js";
+import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 
 const STARTING_EQUIPMENT_BY_COMBATANT_CLASS: Record<
   CombatantClass,
@@ -56,7 +54,10 @@ const STARTING_EQUIPMENT_BY_COMBATANT_CLASS: Record<
   },
 };
 
-export function giveStartingEquipment(combatantProperties: CombatantProperties) {
+export function giveStartingEquipment(
+  combatantProperties: CombatantProperties,
+  itemGenerator: ItemGenerator
+) {
   const combatantClass =
     combatantProperties.classProgressionProperties.getMainClass().combatantClass;
   const startingHoldables = STARTING_EQUIPMENT_BY_COMBATANT_CLASS[combatantClass];
@@ -64,7 +65,7 @@ export function giveStartingEquipment(combatantProperties: CombatantProperties) 
   const mainHoldableHotswapSlot = combatantProperties.equipment.getActiveHoldableSlot();
 
   for (const [slotType, template] of iterateNumericEnumKeyedRecord(startingHoldables)) {
-    const holdable = getGameServer().itemGenerator.generateSpecificEquipmentType(template, {
+    const holdable = itemGenerator.generateSpecificEquipmentType(template, {
       noAffixes: true,
     });
     // repairEquipment(holdable); // @TODO - put this back
@@ -90,22 +91,4 @@ export function giveStartingEquipment(combatantProperties: CombatantProperties) 
       },
     };
   }
-  // @TESTING
-  giveHotswapSlotEquipment(combatantProperties);
-}
-
-function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
-  const mh = getGameServer().itemGenerator.generateSpecificEquipmentType(
-    {
-      equipmentType: EquipmentType.TwoHandedRangedWeapon,
-      baseItemType: TwoHandedRangedWeapon.ShortBow,
-    },
-    { noAffixes: true }
-  );
-
-  mh.durability!.inherentMax = 15;
-  mh.changeDurability(100);
-  combatantProperties.inventory.insertItem(mh);
-  combatantProperties.equipment.changeSelectedHotswapSlot(1);
-  combatantProperties.equipment.equipItem(mh.entityProperties.id, false);
 }

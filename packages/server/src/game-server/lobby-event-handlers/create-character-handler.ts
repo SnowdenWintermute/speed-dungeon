@@ -5,7 +5,6 @@ import {
   MAX_CHARACTER_NAME_LENGTH,
   ServerToClientEvent,
 } from "@speed-dungeon/common";
-import { createCharacter } from "../character-creation/index.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { getGameServer } from "../../singletons/index.js";
 
@@ -23,7 +22,11 @@ export function createCharacterHandler(
     return new Error(ERROR_MESSAGES.COMBATANT.MAX_NAME_LENGTH_EXCEEDED);
   }
 
-  const newCharacter = createCharacter(name, combatantClass, player.username);
+  const newCharacter = getGameServer().characterCreator.createCharacter(
+    name,
+    combatantClass,
+    player.username
+  );
   if (newCharacter instanceof Error) return newCharacter;
 
   // @TESTING - pets

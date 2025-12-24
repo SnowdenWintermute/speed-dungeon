@@ -2,21 +2,26 @@ import {
   AffixCategory,
   AffixType,
   Amulet,
+  CombatantProperties,
   CombatAttribute,
-  CombatantEquipment,
   ConsumableType,
   EquipmentType,
   Inventory,
+  ItemGenerator,
   OneHandedMeleeWeapon,
   Ring,
   Shield,
-} from "@speed-dungeon/common";
-import { getGameServer } from "../../singletons/index.js";
+  TwoHandedRangedWeapon,
+} from "../../index.js";
 
-export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inventory: Inventory) {
+export function givePlaytestingItems(
+  combatantProperties: CombatantProperties,
+  itemGenerator: ItemGenerator
+) {
+  const { inventory } = combatantProperties;
   inventory.changeShards(20);
 
-  const tradeableItemResult = getGameServer().itemGenerator.generateSpecificEquipmentType(
+  const tradeableItemResult = itemGenerator.generateSpecificEquipmentType(
     {
       equipmentType: EquipmentType.OneHandedMeleeWeapon,
       baseItemType: OneHandedMeleeWeapon.ShortSword,
@@ -35,7 +40,7 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inv
   inventory.equipment.push(tradeableItemResult);
 
   inventory.equipment.push(
-    getGameServer().itemGenerator.generateSpecificEquipmentType(
+    itemGenerator.generateSpecificEquipmentType(
       {
         equipmentType: EquipmentType.Shield,
         baseItemType: Shield.LanternShield,
@@ -44,7 +49,7 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inv
     )
   );
   inventory.equipment.push(
-    getGameServer().itemGenerator.generateSpecificEquipmentType(
+    itemGenerator.generateSpecificEquipmentType(
       {
         equipmentType: EquipmentType.Ring,
         baseItemType: Ring.Ring,
@@ -53,7 +58,7 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inv
     )
   );
   inventory.equipment.push(
-    getGameServer().itemGenerator.generateSpecificEquipmentType(
+    itemGenerator.generateSpecificEquipmentType(
       {
         equipmentType: EquipmentType.Amulet,
         baseItemType: Amulet.Amulet,
@@ -62,7 +67,7 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inv
     )
   );
 
-  const item = getGameServer().itemGenerator.generateSpecificEquipmentType(
+  const item = itemGenerator.generateSpecificEquipmentType(
     {
       equipmentType: EquipmentType.OneHandedMeleeWeapon,
       baseItemType: OneHandedMeleeWeapon.Stick,
@@ -74,40 +79,52 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment, inv
 
   // const items = generateOneOfEachItem(new NumberRange(1, 10));
   // for (const item of items) inventory.insertItem(item);
+
+  // @TESTING
+  giveHotswapSlotEquipment(combatantProperties, itemGenerator);
 }
 
-function givePlaytestingSkillbooks(inventory: Inventory) {
+function giveHotswapSlotEquipment(
+  combatantProperties: CombatantProperties,
+  itemGenerator: ItemGenerator
+) {
+  const mh = itemGenerator.generateSpecificEquipmentType(
+    {
+      equipmentType: EquipmentType.TwoHandedRangedWeapon,
+      baseItemType: TwoHandedRangedWeapon.ShortBow,
+    },
+    { noAffixes: true }
+  );
+
+  mh.durability!.inherentMax = 15;
+  mh.changeDurability(100);
+  combatantProperties.inventory.insertItem(mh);
+  combatantProperties.equipment.changeSelectedHotswapSlot(1);
+  combatantProperties.equipment.equipItem(mh.entityProperties.id, false);
+}
+
+function givePlaytestingSkillbooks(inventory: Inventory, itemGenerator: ItemGenerator) {
   for (let i = 0; i < 3; i += 1) {
-    const skillbook = getGameServer().itemGenerator.createConsumableByType(
-      ConsumableType.RogueSkillbook
-    );
+    const skillbook = itemGenerator.createConsumableByType(ConsumableType.RogueSkillbook);
     inventory.consumables.push(skillbook);
   }
   for (let i = 0; i < 1; i += 1) {
-    const skillbook = getGameServer().itemGenerator.createConsumableByType(
-      ConsumableType.RogueSkillbook
-    );
+    const skillbook = itemGenerator.createConsumableByType(ConsumableType.RogueSkillbook);
     skillbook.itemLevel = 2;
     inventory.consumables.push(skillbook);
   }
   for (let i = 0; i < 1; i += 1) {
-    const skillbook = getGameServer().itemGenerator.createConsumableByType(
-      ConsumableType.MageSkillbook
-    );
+    const skillbook = itemGenerator.createConsumableByType(ConsumableType.MageSkillbook);
     skillbook.itemLevel = 2;
     inventory.consumables.push(skillbook);
   }
   for (let i = 0; i < 1; i += 1) {
-    const skillbook = getGameServer().itemGenerator.createConsumableByType(
-      ConsumableType.WarriorSkillbook
-    );
+    const skillbook = itemGenerator.createConsumableByType(ConsumableType.WarriorSkillbook);
     skillbook.itemLevel = 2;
     inventory.consumables.push(skillbook);
   }
   for (let i = 0; i < 2; i += 1) {
-    const skillbook = getGameServer().itemGenerator.createConsumableByType(
-      ConsumableType.RogueSkillbook
-    );
+    const skillbook = itemGenerator.createConsumableByType(ConsumableType.RogueSkillbook);
     skillbook.itemLevel = 3;
     inventory.consumables.push(skillbook);
   }
