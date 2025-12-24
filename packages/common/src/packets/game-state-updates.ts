@@ -194,7 +194,7 @@ export interface GameStateUpdateMap {
     slotIndex: number;
   };
   [GameStateUpdateType.SavedCharacterDeleted]: {
-    id: string;
+    entityId: string;
   };
   [GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame]: {
     username: string;

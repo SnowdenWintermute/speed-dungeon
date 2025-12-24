@@ -94,4 +94,32 @@ export class SavedCharactersController {
       },
     });
   }
+
+  async deleteSavedCharacterHandler(session: UserSession, entityId: string) {
+    if (!entityId) {
+      throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
+    }
+
+    const loggedInUser = await this.sessionAuthManager.requireAuthorizedSession(
+      session.connectionId
+    );
+    const { userId, profile } = loggedInUser;
+
+    // delete the character if they own it
+
+    // const characterToDelete = await playerCharactersRepo.findOne("id", entityId);
+    // if (characterToDelete?.ownerId !== userId) {
+    //   throw new Error(ERROR_MESSAGES.USER.SAVED_CHARACTER_NOT_OWNED);
+    // }
+
+    // await playerCharactersRepo.delete(entityId);
+
+    // remove them from ladder
+    // await valkeyManager.context.zRem(CHARACTER_LEVEL_LADDER, [entityId]);
+
+    this.updateGateway.submitToConnection(session.connectionId, {
+      type: GameStateUpdateType.SavedCharacterDeleted,
+      data: { entityId },
+    });
+  }
 }
