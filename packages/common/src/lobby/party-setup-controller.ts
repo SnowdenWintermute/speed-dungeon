@@ -5,7 +5,7 @@ import { GameStateUpdateType } from "../packets/game-state-updates.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
 import { LobbyState } from "./lobby-state.js";
-import { RANDOM_PARTY_NAMES } from "./random-party-names.js";
+import { RANDOM_PARTY_NAMES } from "./random-names.js";
 import { SavedCharactersController } from "./saved-characters-controller.js";
 import { SessionAuthorizationManager } from "./session-authorization-manager.js";
 import { UserSessionRegistry } from "./user-session-registry.js";

@@ -22,7 +22,8 @@ export function createLobbyClientIntentHandlers(lobby: Lobby): Partial<LobbyClie
       lobby.gameLifecycleController.joinGameHandler(data.gameName, user),
     [ClientIntentType.LeaveGame]: (_data, user) =>
       lobby.gameLifecycleController.leaveGameHandler(user),
-    // ToggleReadyToStartGame,
+    [ClientIntentType.ToggleReadyToStartGame]: (_data, user) =>
+      lobby.gameLifecycleController.toggleReadyToStartGameHandler(user),
 
     // PARTY SETUP
     [ClientIntentType.CreateParty]: (data, user) =>

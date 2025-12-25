@@ -11,10 +11,11 @@ import {
   SpeedDungeonGame,
 } from "../index.js";
 import { GameStateUpdateType } from "../packets/game-state-updates.js";
+import { GameSimulatorHandoffStrategy } from "./game-simulator-handoff-strategy.js";
 import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
-import { RANDOM_GAME_NAMES_FIRST, RANDOM_GAME_NAMES_LAST } from "./index.js";
 import { LobbyState } from "./lobby-state.js";
 import { PartySetupController } from "./party-setup-controller.js";
+import { RANDOM_GAME_NAMES_FIRST, RANDOM_GAME_NAMES_LAST } from "./random-names.js";
 import { SessionAuthorizationManager } from "./session-authorization-manager.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
 import { UserSession } from "./user-session.js";
@@ -26,7 +27,8 @@ export class GameLifecycleController {
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly sessionAuthManager: SessionAuthorizationManager,
     private readonly partySetupController: PartySetupController,
-    private readonly idGenerator: IdGenerator
+    private readonly idGenerator: IdGenerator,
+    private readonly gameSimulatorHandoffStrategy: GameSimulatorHandoffStrategy
   ) {}
 
   private generateRandomGameName() {
@@ -257,29 +259,11 @@ export class GameLifecycleController {
 
     game.setAsStarted();
 
-    // @TODO
-    // hand off the game to a game simulator and let it take care of the following:
-    // - await expected connections from players
-    // - handle game mode specific onStart business
-    // - trigger the game simulator's "next room exploration" handler to automatically
-    //   put parties in their first room of the dungeon
-    // let clients know how they should connect to the game simulator and provide them with
-    // credentials if needed
-    // - tell them the game started
-    // - give them connection instructions to the game simulator
-    // - give credentials if needed
+    const connectionInstructions = this.gameSimulatorHandoffStrategy.handoff(game);
 
-    // const gameModeContext = gameServer.gameModeContexts[game.mode];
-    // await gameModeContext.onGameStart(game);
-    // gameServer.io.of("/").in(game.name).emit(ServerToClientEvent.GameStarted, game.timeStarted);
-    //
-    // for (const player of Object.values(game.players)) {
-    //   const socketIdResult = gameServer.getSocketIdOfPlayer(game, player.username);
-    //   if (socketIdResult instanceof Error) return socketIdResult;
-    //   if (!player.partyName) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
-    //   const partyOption = game.adventuringParties[player.partyName];
-    //   if (!partyOption) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
-    //   toggleReadyToExploreHandler(undefined, { game, partyOption, player, session });
-    // }
+    this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
+      type: GameStateUpdateType.GameSimulatorConnectionInstructions,
+      data: { connectionInstructions },
+    });
   }
 }

@@ -14,6 +14,7 @@ import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
+import { GameSimulatorConnectionInstructions } from "../lobby/game-simulator-handoff-strategy.js";
 
 export enum GameStateUpdateType {
   GameList,
@@ -32,6 +33,7 @@ export enum GameStateUpdateType {
   CharacterDeleted,
   PlayerToggledReadyToStartGame,
   GameStarted,
+  GameSimulatorConnectionInstructions,
 
   PlayerToggledReadyToDescendOrExplore,
   DungeonRoomTypesOnCurrentFloor,
@@ -124,6 +126,9 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.GameStarted]: {
     timeStarted: number;
+  };
+  [GameStateUpdateType.GameSimulatorConnectionInstructions]: {
+    connectionInstructions: GameSimulatorConnectionInstructions;
   };
   [GameStateUpdateType.PlayerToggledReadyToDescendOrExplore]: {
     characterId: string;

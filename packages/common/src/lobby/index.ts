@@ -5,12 +5,12 @@ import {
   ClientIntent,
   IdGenerator,
   ItemGenerator,
-  SpeedDungeonGame,
 } from "../index.js";
 import { CharacterLifecycleController } from "./character-lifecycle-controller.js";
 import { ClientIntentReceiver } from "./client-intent-receiver.js";
 import { createLobbyClientIntentHandlers } from "./create-lobby-client-intent-handlers.js";
 import { GameLifecycleController } from "./game-lifecycle-controller.js";
+import { GameSimulatorHandoffStrategy } from "./game-simulator-handoff-strategy.js";
 import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
 import { LobbyState } from "./lobby-state.js";
 import { PartySetupController } from "./party-setup-controller.js";
@@ -23,14 +23,8 @@ import { SpeedDungeonProfileLoader } from "./speed-dungeon-profile-loader.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
 import { UserSession } from "./user-session.js";
 
-export * from "./random-game-names.js";
+export * from "./random-names.js";
 export * from "./character-creation/index.js";
-
-// give the set up game to a GameSimulator either a locally owned GameSimulator
-// on the client or send it over websockets to a GameServer which owns a GameSimulator
-export interface GameSimulatorHandoffStrategy {
-  handoff(game: SpeedDungeonGame): void;
-}
 
 // lives either inside a LobbyServer or locally on a ClientApp
 export class Lobby {
@@ -97,7 +91,8 @@ export class Lobby {
       this.userSessionRegistry,
       this.sessionAuthManager,
       this.partySetupController,
-      idGenerator
+      idGenerator,
+      this.gameSimulatorHandoffStrategy
     );
 
     this.characterLifecycleController = new CharacterLifecycleController(
