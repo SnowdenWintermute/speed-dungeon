@@ -16,6 +16,7 @@ export const ERROR_MESSAGES = {
     BROWSER_SESSION_NOT_FOUND: "No browser session was found associated with that socked ID",
     SOCKET_NOT_FOUND: "No socket by that ID was found",
   },
+  USER_INPUT: { INVALID_TYPE: "Expected user input type was invalid" },
   AUTH: {
     REQUIRED: "Only a logged in user may perform that action",
   },

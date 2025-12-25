@@ -178,7 +178,7 @@ export interface GameStateUpdateMap {
     playerUsername: string;
   };
   [GameStateUpdateType.DungeonFloorNumber]: {
-    floor: number;
+    floorNumber: number;
   };
   [GameStateUpdateType.CharacterSpentAttributePoint]: {
     characterId: string;
@@ -201,7 +201,7 @@ export interface GameStateUpdateMap {
     character: { combatant: Combatant; pets: Combatant[] };
   };
   [GameStateUpdateType.ProgressionGameStartingFloorSelected]: {
-    floor: number;
+    floorNumber: number;
   };
   [GameStateUpdateType.CharacterSelectedHoldableHotswapSlot]: {
     characterId: string;

@@ -27,7 +27,6 @@ export enum ClientIntentType {
   SelectProgressionGameStartingFloor,
   // saved character managment
   GetSavedCharactersList,
-  GetSavedCharacterById,
   CreateSavedCharacter,
   DeleteSavedCharacter,
 
@@ -122,7 +121,6 @@ export interface ClientIntentMap {
   [ClientIntentType.AcknowledgeReceiptOfItemOnGroundUpdate]: { itemId: string };
   [ClientIntentType.PickUpItems]: { characterAndItem: CharacterAndItems };
   [ClientIntentType.GetSavedCharactersList]: undefined;
-  [ClientIntentType.GetSavedCharacterById]: { entityId: string };
   [ClientIntentType.CreateSavedCharacter]: {
     name: string;
     combatantClass: CombatantClass;
@@ -130,7 +128,7 @@ export interface ClientIntentMap {
   };
   [ClientIntentType.DeleteSavedCharacter]: { entityId: string };
   [ClientIntentType.SelectSavedCharacterForProgressGame]: { entityId: string };
-  [ClientIntentType.SelectProgressionGameStartingFloor]: { floor: number };
+  [ClientIntentType.SelectProgressionGameStartingFloor]: { floorNumber: number };
   [ClientIntentType.SelectHoldableHotswapSlot]: {
     characterId: string;
     slotIndex: number;
@@ -281,9 +279,6 @@ const intentHandlers: ClientIntentHandlers = {
   [ClientIntentType.GetSavedCharactersList]: function (intent: undefined): void {
     throw new Error("Function not implemented.");
   },
-  [ClientIntentType.GetSavedCharacterById]: function (intent: { entityId: string }): void {
-    throw new Error("Function not implemented.");
-  },
   [ClientIntentType.CreateSavedCharacter]: function (intent: {
     name: string;
     combatantClass: CombatantClass;
@@ -300,7 +295,7 @@ const intentHandlers: ClientIntentHandlers = {
     throw new Error("Function not implemented.");
   },
   [ClientIntentType.SelectProgressionGameStartingFloor]: function (intent: {
-    floor: number;
+    floorNumber: number;
   }): void {
     throw new Error("Function not implemented.");
   },

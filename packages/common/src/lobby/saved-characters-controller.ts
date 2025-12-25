@@ -4,6 +4,7 @@ import { GameStateUpdateType } from "../packets/game-state-updates.js";
 import { CharacterCreator } from "./character-creation/index.js";
 import { CharacterLifecycleController } from "./character-lifecycle-controller.js";
 import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
+import { CHARACTER_LEVEL_LADDER, RankedLadderService } from "./ranked-ladder-service.js";
 import { SavedCharactersService } from "./saved-character-service.js";
 import { SessionAuthorizationManager } from "./session-authorization-manager.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
@@ -15,6 +16,7 @@ export class SavedCharactersController {
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly updateGateway: GameStateUpdateGateway,
     private readonly savedCharactersService: SavedCharactersService,
+    private readonly rankedLadderService: RankedLadderService,
     private readonly characterCreator: CharacterCreator
   ) {}
 
@@ -22,14 +24,14 @@ export class SavedCharactersController {
     const authorizedSession = await this.sessionAuthManager.requireAuthorizedSession(
       session.connectionId
     );
-    const charactersResult = await this.savedCharactersService.fetchSavedCharacters(
+    const characterSlots = await this.savedCharactersService.fetchSavedCharacters(
       authorizedSession.profile.id
     );
 
     // tell this session about their saved characters
     this.updateGateway.submitToConnection(session.connectionId, {
       type: GameStateUpdateType.SavedCharacterList,
-      data: { characterSlots: charactersResult },
+      data: { characterSlots },
     });
   }
 
@@ -95,27 +97,20 @@ export class SavedCharactersController {
     });
   }
 
-  async deleteSavedCharacterHandler(session: UserSession, entityId: string) {
-    if (!entityId) {
-      throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
-    }
-
+  async deleteSavedCharacterHandler(session: UserSession, data: { entityId: string }) {
+    const { entityId } = data;
     const loggedInUser = await this.sessionAuthManager.requireAuthorizedSession(
       session.connectionId
     );
-    const { userId, profile } = loggedInUser;
+    const { profile } = loggedInUser;
 
-    // delete the character if they own it
+    // delete the character only if they own it
+    const slot = await this.savedCharactersService.requireSlotWithCharacterId(profile.id, entityId);
 
-    // const characterToDelete = await playerCharactersRepo.findOne("id", entityId);
-    // if (characterToDelete?.ownerId !== userId) {
-    //   throw new Error(ERROR_MESSAGES.USER.SAVED_CHARACTER_NOT_OWNED);
-    // }
-
-    // await playerCharactersRepo.delete(entityId);
+    await this.savedCharactersService.deleteCharacterInSlot(entityId, slot);
 
     // remove them from ladder
-    // await valkeyManager.context.zRem(CHARACTER_LEVEL_LADDER, [entityId]);
+    await this.rankedLadderService.removeEntry(CHARACTER_LEVEL_LADDER, entityId);
 
     this.updateGateway.submitToConnection(session.connectionId, {
       type: GameStateUpdateType.SavedCharacterDeleted,

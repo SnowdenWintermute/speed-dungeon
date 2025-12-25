@@ -14,6 +14,7 @@ import { GameLifecycleController } from "./game-lifecycle-controller.js";
 import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
 import { LobbyState } from "./lobby-state.js";
 import { PartySetupController } from "./party-setup-controller.js";
+import { RankedLadderService } from "./ranked-ladder-service.js";
 import { SavedCharactersService } from "./saved-character-service.js";
 import { SavedCharactersController } from "./saved-characters-controller.js";
 import { SessionAuthorizationManager } from "./session-authorization-manager.js";
@@ -53,7 +54,8 @@ export class Lobby {
     private readonly gameSimulatorHandoffStrategy: GameSimulatorHandoffStrategy,
     private readonly profileLoader: SpeedDungeonProfileLoader,
     private readonly savedCharactersService: SavedCharactersService,
-    private readonly idGenerator: IdGenerator
+    private readonly idGenerator: IdGenerator,
+    private readonly rankedLadderService: RankedLadderService
   ) {
     this.clientIntentReceiver.initialize(this);
 
@@ -76,6 +78,7 @@ export class Lobby {
       this.userSessionRegistry,
       updateGateway,
       this.savedCharactersService,
+      this.rankedLadderService,
       this.characterCreator
     );
 

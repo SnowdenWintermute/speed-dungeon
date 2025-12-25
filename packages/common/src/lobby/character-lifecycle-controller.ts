@@ -90,9 +90,8 @@ export class CharacterLifecycleController {
 
   async selectProgressionGameCharacterHandler(session: UserSession, data: { entityId: string }) {
     const game = session.getExpectedCurrentGame(this.lobbyState);
-    if (game.mode !== GameMode.Progression) {
-      throw new Error(ERROR_MESSAGES.GAME.MODE);
-    }
+
+    game.requireMode(GameMode.Progression);
 
     const loggedInUser = await this.sessionAuthManager.requireAuthorizedSession(
       session.connectionId

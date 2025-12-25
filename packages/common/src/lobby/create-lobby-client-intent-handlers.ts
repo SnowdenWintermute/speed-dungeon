@@ -2,58 +2,48 @@ import { ClientIntentMap, ClientIntentType } from "../packets/client-intents.js"
 import { Lobby } from "./index.js";
 import { UserSession } from "./user-session.js";
 
-export type LobbyClientIntentHandler<K extends keyof ClientIntentMap> = (
+export type ClientIntentHandler<K extends keyof ClientIntentMap> = (
   data: ClientIntentMap[K],
   user: UserSession
 ) => void;
 
 export type LobbyClientIntentHandlers = {
-  [K in keyof ClientIntentMap]: LobbyClientIntentHandler<K>;
+  [K in keyof ClientIntentMap]: ClientIntentHandler<K>;
 };
 
 export function createLobbyClientIntentHandlers(lobby: Lobby): Partial<LobbyClientIntentHandlers> {
   return {
     //  GAME SETUP
     // RequestsGameList,
-    // CreateGame,
     [ClientIntentType.CreateGame]: (data, user) =>
       lobby.gameLifecycleController.createGameHandler(data, user),
-    // JoinGame,
     [ClientIntentType.JoinGame]: (data, user) =>
       lobby.gameLifecycleController.joinGameHandler(data.gameName, user),
-    // LeaveGame,
     [ClientIntentType.LeaveGame]: (_data, user) =>
       lobby.gameLifecycleController.leaveGameHandler(user),
     // ToggleReadyToStartGame,
-    //
-    //
+
     // PARTY SETUP
-    // CreateParty,
     [ClientIntentType.CreateParty]: (data, user) =>
       lobby.partySetupController.createPartyHandler(user, data.partyName),
-    // JoinParty,
     [ClientIntentType.JoinParty]: (data, user) =>
       lobby.partySetupController.joinPartyHandler(user, data.partyName),
-    // LeaveParty,
-    [ClientIntentType.LeaveParty]: (_data, user) =>
-      lobby.partySetupController.leavePartyHandler(user),
-    // CreateCharacter,
+    [ClientIntentType.LeaveParty]: (_, user) => lobby.partySetupController.leavePartyHandler(user),
     [ClientIntentType.CreateCharacter]: (data, user) =>
       lobby.characterLifecycleController.createCharacterHandler(user, data),
-    // DeleteCharacter,
     [ClientIntentType.DeleteCharacter]: (data, user) =>
       lobby.characterLifecycleController.deleteCharacterHandler(user, data),
-    // SelectSavedCharacterForProgressGame,
     [ClientIntentType.SelectSavedCharacterForProgressGame]: (data, user) =>
       lobby.characterLifecycleController.selectProgressionGameCharacterHandler(user, data),
-    // SelectProgressionGameStartingFloor,
-    //
+    [ClientIntentType.SelectProgressionGameStartingFloor]: (data, user) =>
+      lobby.partySetupController.selectProgressionGameStartingFloorHandler(user, data),
+
     // SAVED CHARACTER MANAGMENT
-    // GetSavedCharactersList,
-    // GetSavedCharacterById,
-    // CreateSavedCharacter,
+    [ClientIntentType.GetSavedCharactersList]: (_, user) =>
+      lobby.savedCharactersController.fetchSavedCharactersHandler(user),
     [ClientIntentType.CreateSavedCharacter]: (data, user) =>
       lobby.savedCharactersController.createSavedCharacterHandler(user, data),
-    // DeleteSavedCharacter,
+    [ClientIntentType.DeleteSavedCharacter]: (data, user) =>
+      lobby.savedCharactersController.deleteSavedCharacterHandler(user, data),
   };
 }

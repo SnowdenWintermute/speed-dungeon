@@ -129,6 +129,17 @@ export class SavedCharactersService {
     return slotOption;
   }
 
+  async requireSlotWithCharacterId(profileId: number, characterId: EntityId) {
+    const slots = await this.savedCharacterFetchStrategy.fetchSlots(profileId);
+    for (const slot of slots) {
+      if (slot.characterId === characterId) {
+        return slot;
+      }
+    }
+
+    throw new Error("Expected character slot missing");
+  }
+
   async saveCharacterInSlot(
     slot: CharacterSlot,
     newCharacter: Combatant,
@@ -137,6 +148,12 @@ export class SavedCharactersService {
   ) {
     await this.savedCharacterPersistenceStrategy.insert(newCharacter, pets, userId);
     slot.characterId = newCharacter.entityProperties.id;
+    await this.savedCharacterSlotsPersistenceStrategy.update(slot);
+  }
+
+  async deleteCharacterInSlot(characterId: EntityId, slot: CharacterSlot) {
+    await this.savedCharacterPersistenceStrategy.delete(characterId);
+    slot.characterId = null;
     await this.savedCharacterSlotsPersistenceStrategy.update(slot);
   }
 

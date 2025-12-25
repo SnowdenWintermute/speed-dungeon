@@ -1,6 +1,6 @@
 import { MAX_PARTY_NAME_LENGTH } from "../app-consts.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { AdventuringParty, getPartyChannelName, SpeedDungeonGame } from "../index.js";
+import { AdventuringParty, GameMode, getPartyChannelName, SpeedDungeonGame } from "../index.js";
 import { GameStateUpdateType } from "../packets/game-state-updates.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
@@ -150,6 +150,32 @@ export class PartySetupController {
     this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
       type: GameStateUpdateType.PlayerChangedAdventuringParty,
       data: { playerName: session.username, partyName: null },
+    });
+  }
+
+  async selectProgressionGameStartingFloorHandler(
+    session: UserSession,
+    data: { floorNumber: number }
+  ) {
+    const game = session.getExpectedCurrentGame(this.lobbyState);
+
+    game.requireMode(GameMode.Progression);
+
+    const { floorNumber } = data;
+    if (floorNumber > game.getMaxStartingFloor()) {
+      throw new Error(ERROR_MESSAGES.GAME.STARTING_FLOOR_LIMIT);
+    }
+
+    game.selectedStartingFloor = floorNumber;
+
+    this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
+      type: GameStateUpdateType.ProgressionGameStartingFloorSelected,
+      data: { floorNumber },
+    });
+
+    this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
+      type: GameStateUpdateType.DungeonFloorNumber,
+      data: { floorNumber },
     });
   }
 }

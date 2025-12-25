@@ -8,7 +8,7 @@ import { MAX_PARTY_SIZE } from "../app-consts.js";
 import { makeAutoObservable } from "mobx";
 import { instanceToPlain, plainToInstance } from "class-transformer";
 import { ArrayUtils } from "../utils/array-utils.js";
-import { getProgressionGameMaxStartingFloor, runIfInBrowser } from "../utils/index.js";
+import { runIfInBrowser } from "../utils/index.js";
 import { Combatant } from "../combatants/index.js";
 import cloneDeep from "lodash.clonedeep";
 import { ERROR_MESSAGES } from "../errors/index.js";
@@ -59,6 +59,12 @@ export class SpeedDungeonGame {
    * mix up potentially identical game and party names*/
   getChannelName() {
     return `${GAME_CHANNEL_PREFIX}${this.name}`;
+  }
+
+  requireMode(mode: GameMode) {
+    if (this.mode !== mode) {
+      throw new Error(ERROR_MESSAGES.GAME.MODE);
+    }
   }
 
   registerPlayerFromLobbyUser(username: Username) {
@@ -215,10 +221,19 @@ export class SpeedDungeonGame {
     return this.battles[battleIdOption];
   }
 
+  getMaxStartingFloor() {
+    let maxFloor;
+
+    for (const floor of Object.values(this.lowestStartingFloorOptionsBySavedCharacter)) {
+      if (!maxFloor) maxFloor = floor;
+      else if (maxFloor > floor) maxFloor = floor;
+    }
+
+    return maxFloor || 1;
+  }
+
   setMaxStartingFloor() {
-    const maxStartingFloor = getProgressionGameMaxStartingFloor(
-      this.lowestStartingFloorOptionsBySavedCharacter
-    );
+    const maxStartingFloor = this.getMaxStartingFloor();
     if (this.selectedStartingFloor > maxStartingFloor) {
       this.selectedStartingFloor = maxStartingFloor;
     }
