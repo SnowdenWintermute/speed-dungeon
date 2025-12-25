@@ -11,6 +11,7 @@ import { ClientIntentReceiver } from "./client-intent-receiver.js";
 import { createLobbyClientIntentHandlers } from "./create-lobby-client-intent-handlers.js";
 import { GameLifecycleController } from "./game-lifecycle-controller.js";
 import { GameSimulatorHandoffStrategy } from "./game-simulator-handoff-strategy.js";
+import { GameStateUpdateDispatchFactory } from "./game-state-update-dispatch-factory.js";
 import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
 import { LobbyState } from "./lobby-state.js";
 import { PartySetupController } from "./party-setup-controller.js";
@@ -31,6 +32,9 @@ export class Lobby {
   private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
   private readonly lobbyState = new LobbyState();
   private readonly userSessionRegistry = new UserSessionRegistry();
+  private readonly gameStateUpdateDispatchFactory = new GameStateUpdateDispatchFactory(
+    this.userSessionRegistry
+  );
   private readonly characterCreator: CharacterCreator;
 
   // handler managers
@@ -69,8 +73,7 @@ export class Lobby {
 
     this.savedCharactersController = new SavedCharactersController(
       this.sessionAuthManager,
-      this.userSessionRegistry,
-      updateGateway,
+      this.gameStateUpdateDispatchFactory,
       this.savedCharactersService,
       this.rankedLadderService,
       this.characterCreator
@@ -78,8 +81,7 @@ export class Lobby {
 
     this.partySetupController = new PartySetupController(
       this.lobbyState,
-      updateGateway,
-      this.userSessionRegistry,
+      this.gameStateUpdateDispatchFactory,
       this.savedCharactersController,
       this.sessionAuthManager,
       idGenerator
@@ -117,10 +119,16 @@ export class Lobby {
 
   handleIntent(clientIntent: ClientIntent, fromUser: UserSession) {
     const handlerOption = this.intentHandlers[clientIntent.type];
+
     if (handlerOption === undefined) {
       throw new Error("Lobby is not configured to handle this type of ClientIntent");
     }
-    // a workaround is to use "as never" for some reason
-    return handlerOption(clientIntent.data as never, fromUser);
+
+    try {
+      // a workaround is to use "as never" for some reason
+      const gameStateUpdateDispatches = handlerOption(clientIntent.data as never, fromUser);
+    } catch (error) {
+      // do error handling
+    }
   }
 }

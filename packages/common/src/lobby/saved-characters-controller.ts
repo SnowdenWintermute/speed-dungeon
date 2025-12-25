@@ -3,18 +3,16 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import { GameStateUpdateType } from "../packets/game-state-updates.js";
 import { CharacterCreator } from "./character-creation/index.js";
 import { CharacterLifecycleController } from "./character-lifecycle-controller.js";
-import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
+import { GameStateUpdateDispatchFactory } from "./game-state-update-dispatch-factory.js";
 import { CHARACTER_LEVEL_LADDER, RankedLadderService } from "./ranked-ladder-service.js";
 import { SavedCharactersService } from "./saved-character-service.js";
 import { SessionAuthorizationManager } from "./session-authorization-manager.js";
-import { UserSessionRegistry } from "./user-session-registry.js";
 import { AuthorizedSession, UserSession } from "./user-session.js";
 
 export class SavedCharactersController {
   constructor(
     private readonly sessionAuthManager: SessionAuthorizationManager,
-    private readonly userSessionRegistry: UserSessionRegistry,
-    private readonly updateGateway: GameStateUpdateGateway,
+    private readonly updateDispatchFactory: GameStateUpdateDispatchFactory,
     private readonly savedCharactersService: SavedCharactersService,
     private readonly rankedLadderService: RankedLadderService,
     private readonly characterCreator: CharacterCreator
@@ -29,10 +27,12 @@ export class SavedCharactersController {
     );
 
     // tell this session about their saved characters
-    this.updateGateway.submitToConnection(session.connectionId, {
-      type: GameStateUpdateType.SavedCharacterList,
-      data: { characterSlots },
-    });
+    return [
+      this.updateDispatchFactory.createSingle(session.connectionId, {
+        type: GameStateUpdateType.SavedCharacterList,
+        data: { characterSlots },
+      }),
+    ];
   }
 
   async getDefaultSavedCharacterForProgressionGame(authorizedSession: AuthorizedSession) {
@@ -88,13 +88,15 @@ export class SavedCharactersController {
     const slot = await this.savedCharactersService.requireEmptySlot(profile.id, slotIndex);
     await this.savedCharactersService.saveCharacterInSlot(slot, newCharacter, pets, userId);
 
-    this.updateGateway.submitToConnection(session.connectionId, {
-      type: GameStateUpdateType.SavedCharacter,
-      data: {
-        character: { combatant: newCharacter.getSerialized(), pets: serializedPets },
-        slotIndex,
-      },
-    });
+    return [
+      this.updateDispatchFactory.createSingle(session.connectionId, {
+        type: GameStateUpdateType.SavedCharacter,
+        data: {
+          character: { combatant: newCharacter.getSerialized(), pets: serializedPets },
+          slotIndex,
+        },
+      }),
+    ];
   }
 
   async deleteSavedCharacterHandler(session: UserSession, data: { entityId: string }) {
@@ -112,9 +114,11 @@ export class SavedCharactersController {
     // remove them from ladder
     await this.rankedLadderService.removeEntry(CHARACTER_LEVEL_LADDER, entityId);
 
-    this.updateGateway.submitToConnection(session.connectionId, {
-      type: GameStateUpdateType.SavedCharacterDeleted,
-      data: { entityId },
-    });
+    return [
+      this.updateDispatchFactory.createSingle(session.connectionId, {
+        type: GameStateUpdateType.SavedCharacterDeleted,
+        data: { entityId },
+      }),
+    ];
   }
 }

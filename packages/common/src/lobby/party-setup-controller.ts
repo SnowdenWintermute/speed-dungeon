@@ -3,19 +3,20 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import { AdventuringParty, GameMode, getPartyChannelName, SpeedDungeonGame } from "../index.js";
 import { GameStateUpdateType } from "../packets/game-state-updates.js";
 import { IdGenerator } from "../utility-classes/index.js";
-import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
+import {
+  GameStateUpdateDispatch,
+  GameStateUpdateDispatchFactory,
+} from "./game-state-update-dispatch-factory.js";
 import { LobbyState } from "./lobby-state.js";
 import { RANDOM_PARTY_NAMES } from "./random-names.js";
 import { SavedCharactersController } from "./saved-characters-controller.js";
 import { SessionAuthorizationManager } from "./session-authorization-manager.js";
-import { UserSessionRegistry } from "./user-session-registry.js";
 import { UserSession } from "./user-session.js";
 
 export class PartySetupController {
   constructor(
     private readonly lobbyState: LobbyState,
-    private readonly updateGateway: GameStateUpdateGateway,
-    private readonly userSessionRegistry: UserSessionRegistry,
+    private readonly updateDispatchFactory: GameStateUpdateDispatchFactory,
     private readonly savedCharactersController: SavedCharactersController,
     private readonly sessionAuthManager: SessionAuthorizationManager,
     private readonly idGenerator: IdGenerator
@@ -51,12 +52,19 @@ export class PartySetupController {
     const party = AdventuringParty.createInitialized(this.idGenerator.generate(), partyName);
     game.addParty(party);
 
-    this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
-      type: GameStateUpdateType.PartyCreated,
-      data: { partyId: party.id, partyName },
-    });
+    const updateDispatches: GameStateUpdateDispatch[] = [];
 
-    this.joinPartyHandler(session, party.name);
+    updateDispatches.push(
+      this.updateDispatchFactory.createFanOut(game.getChannelName(), {
+        type: GameStateUpdateType.PartyCreated,
+        data: { partyId: party.id, partyName },
+      })
+    );
+
+    const joinPartyUpdateDispatches = this.joinPartyHandler(session, party.name);
+    updateDispatches.push(...joinPartyUpdateDispatches);
+
+    return updateDispatches;
   }
 
   joinPartyHandler(session: UserSession, partyName: string) {
@@ -73,15 +81,23 @@ export class PartySetupController {
     session.subscribeToChannel(partyChannelName);
     session.currentPartyName = partyName;
 
-    this.updateGateway.submitToConnection(session.connectionId, {
-      type: GameStateUpdateType.PartyNameUpdate,
-      data: { partyName },
-    });
+    const updateDispatches: GameStateUpdateDispatch[] = [];
 
-    this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
-      type: GameStateUpdateType.PlayerChangedAdventuringParty,
-      data: { playerName: session.username, partyName },
-    });
+    updateDispatches.push(
+      this.updateDispatchFactory.createSingle(session.connectionId, {
+        type: GameStateUpdateType.PartyNameUpdate,
+        data: { partyName },
+      })
+    );
+
+    updateDispatches.push(
+      this.updateDispatchFactory.createFanOut(game.getChannelName(), {
+        type: GameStateUpdateType.PlayerChangedAdventuringParty,
+        data: { playerName: session.username, partyName },
+      })
+    );
+
+    return updateDispatches;
   }
 
   async joinProgressionGamePartyWithDefaultCharacterHandler(
@@ -106,7 +122,8 @@ export class PartySetupController {
     const party = game.getExpectedParty(partyName);
     const player = game.getExpectedPlayer(session.username);
 
-    this.joinPartyHandler(session, partyName);
+    const updateDispatches: GameStateUpdateDispatch[] = [];
+    updateDispatches.push(...this.joinPartyHandler(session, partyName));
 
     game.addCharacterToParty(
       party,
@@ -117,14 +134,18 @@ export class PartySetupController {
 
     game.setMaxStartingFloor();
 
-    this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
-      type: GameStateUpdateType.CharacterAddedToParty,
-      data: {
-        username: session.username,
-        character: defaultSavedCharacter.combatant.getSerialized(),
-        pets: defaultSavedCharacter.pets.map((pet) => pet.getSerialized()),
-      },
-    });
+    updateDispatches.push(
+      this.updateDispatchFactory.createFanOut(game.getChannelName(), {
+        type: GameStateUpdateType.CharacterAddedToParty,
+        data: {
+          username: session.username,
+          character: defaultSavedCharacter.combatant.getSerialized(),
+          pets: defaultSavedCharacter.pets.map((pet) => pet.getSerialized()),
+        },
+      })
+    );
+
+    return updateDispatches;
   }
 
   leavePartyHandler(session: UserSession) {
@@ -142,15 +163,22 @@ export class PartySetupController {
     session.unsubscribeFromChannel(partyChannelName);
     session.currentPartyName = null;
 
-    this.updateGateway.submitToConnection(session.connectionId, {
-      type: GameStateUpdateType.PartyNameUpdate,
-      data: { partyName: null },
-    });
+    const updateDispatches: GameStateUpdateDispatch[] = [];
+    updateDispatches.push(
+      this.updateDispatchFactory.createSingle(session.connectionId, {
+        type: GameStateUpdateType.PartyNameUpdate,
+        data: { partyName: null },
+      })
+    );
 
-    this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
-      type: GameStateUpdateType.PlayerChangedAdventuringParty,
-      data: { playerName: session.username, partyName: null },
-    });
+    updateDispatches.push(
+      this.updateDispatchFactory.createFanOut(game.getChannelName(), {
+        type: GameStateUpdateType.PlayerChangedAdventuringParty,
+        data: { playerName: session.username, partyName: null },
+      })
+    );
+
+    return updateDispatches;
   }
 
   async selectProgressionGameStartingFloorHandler(
@@ -170,14 +198,22 @@ export class PartySetupController {
     const party = session.getExpectedCurrentParty(game);
     party.dungeonExplorationManager.setCurrentFloor(game.selectedStartingFloor);
 
-    this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
-      type: GameStateUpdateType.ProgressionGameStartingFloorSelected,
-      data: { floorNumber },
-    });
+    const updateDispatches: GameStateUpdateDispatch[] = [];
 
-    this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
-      type: GameStateUpdateType.DungeonFloorNumber,
-      data: { floorNumber },
-    });
+    updateDispatches.push(
+      this.updateDispatchFactory.createFanOut(game.getChannelName(), {
+        type: GameStateUpdateType.ProgressionGameStartingFloorSelected,
+        data: { floorNumber },
+      })
+    );
+
+    updateDispatches.push(
+      this.updateDispatchFactory.createFanOut(game.getChannelName(), {
+        type: GameStateUpdateType.DungeonFloorNumber,
+        data: { floorNumber },
+      })
+    );
+
+    return updateDispatches;
   }
 }
