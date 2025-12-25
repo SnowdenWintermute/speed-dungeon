@@ -14,7 +14,8 @@ export type LobbyClientIntentHandlers = {
 export function createLobbyClientIntentHandlers(lobby: Lobby): Partial<LobbyClientIntentHandlers> {
   return {
     //  GAME SETUP
-    // RequestsGameList,
+    [ClientIntentType.RequestsGameList]: (_, user) =>
+      lobby.gameLifecycleController.requestGameListHandler(user),
     [ClientIntentType.CreateGame]: (data, user) =>
       lobby.gameLifecycleController.createGameHandler(data, user),
     [ClientIntentType.JoinGame]: (data, user) =>

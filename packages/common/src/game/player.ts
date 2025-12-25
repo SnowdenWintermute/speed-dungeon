@@ -18,6 +18,13 @@ export class SpeedDungeonPlayer {
       player.targetPreferences
     );
   }
+
+  requireHasCharacters() {
+    const playerHasNoCharacters = this.characterIds.length === 0;
+    if (playerHasNoCharacters) {
+      throw new Error("You must control at least one character");
+    }
+  }
 }
 
 export class CombatActionTargetPreferences {

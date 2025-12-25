@@ -53,6 +53,14 @@ export class GameLifecycleController {
     return new ActionValidity(true);
   }
 
+  requestGameListHandler(session: UserSession) {
+    const gameList = this.lobbyState.getGamesList();
+    this.updateGateway.submitToConnection(session.connectionId, {
+      type: GameStateUpdateType.GameList,
+      data: { gameList },
+    });
+  }
+
   async createGameHandler(
     data: { gameName: string; mode: GameMode; isRanked?: boolean },
     session: UserSession
@@ -223,5 +231,46 @@ export class GameLifecycleController {
       type: GameStateUpdateType.PlayerLeftGame,
       data: { username: session.username },
     });
+  }
+
+  async toggleReadyToStartGameHandler(session: UserSession) {
+    const game = session.getExpectedCurrentGame(this.lobbyState);
+
+    game.requireGameStartPrerequisites();
+
+    const player = game.getExpectedPlayer(session.username);
+    // this should implicitly check for empty parties since a player with a character
+    // must be in a party, and a party can only exist while at least one player is in it
+    player.requireHasCharacters();
+
+    game.togglePlayerReadyToStartGameStatus(session.username);
+
+    this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
+      type: GameStateUpdateType.PlayerToggledReadyToStartGame,
+      data: { username: session.username },
+    });
+
+    const allPlayersReadied = game.allPlayersAreReadyToStart();
+    const notAllPlayersAreReady = !allPlayersReadied;
+    if (notAllPlayersAreReady) {
+      return;
+    }
+
+    game.setAsStarted();
+
+    // hand off the game to a game simulator and let it take care of the following:
+
+    // const gameModeContext = gameServer.gameModeContexts[game.mode];
+    // await gameModeContext.onGameStart(game);
+    // gameServer.io.of("/").in(game.name).emit(ServerToClientEvent.GameStarted, game.timeStarted);
+    //
+    // for (const player of Object.values(game.players)) {
+    //   const socketIdResult = gameServer.getSocketIdOfPlayer(game, player.username);
+    //   if (socketIdResult instanceof Error) return socketIdResult;
+    //   if (!player.partyName) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
+    //   const partyOption = game.adventuringParties[player.partyName];
+    //   if (!partyOption) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+    //   toggleReadyToExploreHandler(undefined, { game, partyOption, player, session });
+    // }
   }
 }

@@ -167,6 +167,8 @@ export class PartySetupController {
     }
 
     game.selectedStartingFloor = floorNumber;
+    const party = session.getExpectedCurrentParty(game);
+    party.dungeonExplorationManager.setCurrentFloor(game.selectedStartingFloor);
 
     this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
       type: GameStateUpdateType.ProgressionGameStartingFloorSelected,

@@ -1,5 +1,6 @@
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
+import { GameListEntry } from "../packets/game-state-updates.js";
 import { GameName, Username } from "../types.js";
 import { UserSession } from "./user-session.js";
 
@@ -84,5 +85,18 @@ export class LobbyState {
     }
 
     return gameOption;
+  }
+
+  getGamesList() {
+    return Object.entries(this.games).map(
+      ([gameName, game]) =>
+        new GameListEntry(
+          gameName,
+          Object.keys(game.players).length,
+          game.mode,
+          game.timeStarted,
+          game.isRanked
+        )
+    );
   }
 }

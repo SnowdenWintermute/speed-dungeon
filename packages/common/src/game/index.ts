@@ -4,7 +4,7 @@ import { Battle } from "../battle/index.js";
 import { EntityId } from "../primatives/index.js";
 import { SpeedDungeonPlayer } from "./player.js";
 import { GameMode, Username } from "../types.js";
-import { MAX_PARTY_SIZE } from "../app-consts.js";
+import { GAME_CONFIG, MAX_PARTY_SIZE } from "../app-consts.js";
 import { makeAutoObservable } from "mobx";
 import { instanceToPlain, plainToInstance } from "class-transformer";
 import { ArrayUtils } from "../utils/array-utils.js";
@@ -65,6 +65,31 @@ export class SpeedDungeonGame {
     if (this.mode !== mode) {
       throw new Error(ERROR_MESSAGES.GAME.MODE);
     }
+  }
+
+  requireNotYetStarted() {
+    if (this.timeStarted !== null) {
+      throw new Error(ERROR_MESSAGES.GAME.ALREADY_STARTED);
+    }
+  }
+
+  requireGameStartPrerequisites() {
+    this.requireNotYetStarted();
+
+    let minimumNumberOfParties = 1;
+    if (this.mode === GameMode.Race && this.isRanked) {
+      minimumNumberOfParties = GAME_CONFIG.MIN_RACE_GAME_PARTIES;
+    }
+
+    if (Object.keys(this.adventuringParties).length < minimumNumberOfParties) {
+      throw new Error(
+        `Game does not have the minimum number of parties (${minimumNumberOfParties})`
+      );
+    }
+  }
+
+  setAsStarted() {
+    this.timeStarted = Date.now();
   }
 
   registerPlayerFromLobbyUser(username: Username) {
@@ -179,6 +204,16 @@ export class SpeedDungeonGame {
     if (this.playersReadied.includes(username)) {
       ArrayUtils.removeElement(this.playersReadied, username);
     } else this.playersReadied.push(username);
+  }
+
+  allPlayersAreReadyToStart() {
+    for (const usernameInGame of Object.keys(this.players)) {
+      if (this.playersReadied.includes(usernameInGame)) continue;
+      else {
+        return false;
+      }
+    }
+    return true;
   }
 
   addParty(party: AdventuringParty) {
