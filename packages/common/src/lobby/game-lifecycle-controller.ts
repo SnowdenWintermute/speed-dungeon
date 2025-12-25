@@ -243,14 +243,13 @@ export class GameLifecycleController {
     // must be in a party, and a party can only exist while at least one player is in it
     player.requireHasCharacters();
 
-    game.togglePlayerReadyToStartGameStatus(session.username);
+    const allPlayersReadied = game.togglePlayerReadyToStartGameStatus(session.username);
 
     this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
       type: GameStateUpdateType.PlayerToggledReadyToStartGame,
       data: { username: session.username },
     });
 
-    const allPlayersReadied = game.allPlayersAreReadyToStart();
     const notAllPlayersAreReady = !allPlayersReadied;
     if (notAllPlayersAreReady) {
       return;
@@ -258,7 +257,17 @@ export class GameLifecycleController {
 
     game.setAsStarted();
 
+    // @TODO
     // hand off the game to a game simulator and let it take care of the following:
+    // - await expected connections from players
+    // - handle game mode specific onStart business
+    // - trigger the game simulator's "next room exploration" handler to automatically
+    //   put parties in their first room of the dungeon
+    // let clients know how they should connect to the game simulator and provide them with
+    // credentials if needed
+    // - tell them the game started
+    // - give them connection instructions to the game simulator
+    // - give credentials if needed
 
     // const gameModeContext = gameServer.gameModeContexts[game.mode];
     // await gameModeContext.onGameStart(game);

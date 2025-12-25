@@ -89,6 +89,9 @@ export class SpeedDungeonGame {
   }
 
   setAsStarted() {
+    if (this.timeStarted !== null) {
+      throw new Error(ERROR_MESSAGES.GAME.ALREADY_STARTED);
+    }
     this.timeStarted = Date.now();
   }
 
@@ -200,13 +203,24 @@ export class SpeedDungeonGame {
     player.partyName = partyName;
   }
 
+  /** Returns true if all players are ready to start the game */
   togglePlayerReadyToStartGameStatus(username: string) {
     if (this.playersReadied.includes(username)) {
       ArrayUtils.removeElement(this.playersReadied, username);
-    } else this.playersReadied.push(username);
+    } else {
+      this.playersReadied.push(username);
+    }
+
+    const allPlayersReadied = this.allPlayersAreReadyToStart();
+    const notAllPlayersAreReady = !allPlayersReadied;
+    if (notAllPlayersAreReady) {
+      return false;
+    }
+
+    return true;
   }
 
-  allPlayersAreReadyToStart() {
+  private allPlayersAreReadyToStart() {
     for (const usernameInGame of Object.keys(this.players)) {
       if (this.playersReadied.includes(usernameInGame)) continue;
       else {
