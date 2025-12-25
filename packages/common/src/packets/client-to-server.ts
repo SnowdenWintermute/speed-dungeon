@@ -6,7 +6,7 @@ import { BookConsumableType, ConsumableType } from "../items/consumables/index.j
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { EntityId, NextOrPrevious } from "../primatives/index.js";
-import { GameMode } from "../types.js";
+import { GameMode, GameName } from "../types.js";
 import { CharacterAndItems } from "./server-to-client.js";
 
 export enum ClientToServerEvent {
@@ -56,11 +56,11 @@ export interface ClientToServerEventTypes {
   [ClientToServerEvent.RequestToJoinGame]: (gameName: string) => void;
   [ClientToServerEvent.RequestsGameList]: () => void;
   [ClientToServerEvent.CreateGame]: (eventData: {
-    gameName: string;
+    gameName: GameName;
     mode: GameMode;
     isRanked?: boolean;
   }) => void;
-  [ClientToServerEvent.JoinGame]: (gameName: string) => void;
+  [ClientToServerEvent.JoinGame]: (gameName: GameName) => void;
   [ClientToServerEvent.LeaveGame]: (eventData?: undefined) => void;
   [ClientToServerEvent.CreateParty]: (partyName: string) => void;
   [ClientToServerEvent.JoinParty]: (partyName: string) => void;

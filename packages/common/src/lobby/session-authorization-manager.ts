@@ -1,5 +1,5 @@
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { ConnectionId } from "../primatives/index.js";
+import { ConnectionId } from "../types.js";
 import { SpeedDungeonProfileLoader } from "./speed-dungeon-profile-loader.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
 import { AuthorizedSession } from "./user-session.js";

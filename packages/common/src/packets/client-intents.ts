@@ -6,7 +6,7 @@ import { BookConsumableType, ConsumableType } from "../items/consumables/index.j
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { EntityId, NextOrPrevious } from "../primatives/index.js";
-import { GameMode } from "../types.js";
+import { GameMode, GameName } from "../types.js";
 import { CharacterAndItems } from "./server-to-client.js";
 
 export enum ClientIntentType {
@@ -72,11 +72,11 @@ export enum ClientIntentType {
 export interface ClientIntentMap {
   [ClientIntentType.RequestsGameList]: undefined;
   [ClientIntentType.CreateGame]: {
-    gameName: string;
+    gameName: GameName;
     mode: GameMode;
     isRanked?: boolean;
   };
-  [ClientIntentType.JoinGame]: { gameName: string };
+  [ClientIntentType.JoinGame]: { gameName: GameName };
   [ClientIntentType.LeaveGame]: undefined;
   [ClientIntentType.CreateParty]: { partyName: string };
   [ClientIntentType.JoinParty]: { partyName: string };
@@ -182,13 +182,13 @@ const intentHandlers: ClientIntentHandlers = {
     throw new Error("Function not implemented.");
   },
   [ClientIntentType.CreateGame]: function (intent: {
-    gameName: string;
+    gameName: GameName;
     mode: GameMode;
     isRanked?: boolean;
   }): void {
     throw new Error("Function not implemented.");
   },
-  [ClientIntentType.JoinGame]: function (intent: { gameName: string }): void {
+  [ClientIntentType.JoinGame]: function (intent: { gameName: GameName }): void {
     throw new Error("Function not implemented.");
   },
   [ClientIntentType.LeaveGame]: function (intent: undefined): void {

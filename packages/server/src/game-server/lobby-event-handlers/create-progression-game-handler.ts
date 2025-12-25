@@ -2,6 +2,7 @@ import {
   AdventuringParty,
   ClientToServerEventTypes,
   GameMode,
+  GameName,
   ServerToClientEventTypes,
   SpeedDungeonGame,
   getProgressionGamePartyName,
@@ -18,7 +19,7 @@ export async function createProgressionGameHandler(
   gameServer: GameServer,
   socketMeta: BrowserTabSession,
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
-  gameName: string
+  gameName: GameName
 ) {
   const defaultSavedCharacterResult = await getDefaultSavedCharacterForProgressionGame(
     gameServer,

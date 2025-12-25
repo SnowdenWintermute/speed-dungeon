@@ -7,6 +7,7 @@ import {
   ERROR_MESSAGES,
   GameMessage,
   GameMessageType,
+  GameName,
   createPartyWipeMessage,
   getPartyChannelName,
 } from "@speed-dungeon/common";
@@ -15,7 +16,7 @@ import { getGameServer } from "../../../singletons/index.js";
 
 export async function battleResultActionCommandHandler(
   this: GameServer,
-  gameName: string,
+  gameName: GameName,
   payload: BattleResultActionCommandPayload
 ) {
   const gameServer = getGameServer();

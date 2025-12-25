@@ -4,6 +4,7 @@ import {
   ClientToServerEventTypes,
   GameMessagesPayload,
   GameMode,
+  GameName,
   ItemGenerator,
   ServerToClientEvent,
   ServerToClientEventTypes,
@@ -49,7 +50,7 @@ export class GameServer implements ActionCommandReceiver {
     this.characterCreator = new CharacterCreator(idGenerator, this.itemGenerator);
   }
   // game manager
-  games: HashMap<string, SpeedDungeonGame> = new HashMap();
+  games: HashMap<GameName, SpeedDungeonGame> = new HashMap();
   initiateLobbyEventListeners = initiateLobbyEventListeners;
   initiateGameEventListeners = initiateGameEventListeners;
   initiateSavedCharacterListeners = initiateSavedCharacterListeners;

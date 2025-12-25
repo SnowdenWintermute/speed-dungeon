@@ -7,6 +7,7 @@ import {
   CombatantClass,
   GameMode,
   ServerToClientEventTypes,
+  GameName,
 } from "@speed-dungeon/common";
 import { GameServer } from "../game-server";
 
@@ -41,7 +42,7 @@ export async function waitForCondition(
 }
 
 export async function emitGameSetupForTwoUsers(
-  gameName: string,
+  gameName: GameName,
   user1: ClientSocket<ServerToClientEventTypes, ClientToServerEventTypes>,
   user2: ClientSocket<ServerToClientEventTypes, ClientToServerEventTypes>
 ) {

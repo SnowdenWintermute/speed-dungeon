@@ -3,9 +3,10 @@ import { Combatant, CombatantClass, CombatantSpecies } from "./combatants/index.
 import { SpeedDungeonGame, SpeedDungeonPlayer } from "./game/index.js";
 import { Meters } from "./index.js";
 
-export type Username = string;
-export type GameName = string;
-export type ChannelName = string;
+export type Username = string & { __brand: "Username" };
+export type GameName = string & { __brand: "GameName" };
+export type ChannelName = string & { __brand: "ChannelName" };
+export type ConnectionId = string & { __brand: "ConnectionId" };
 export type IdentityProviderId = number;
 
 export interface CharacterAssociatedData {

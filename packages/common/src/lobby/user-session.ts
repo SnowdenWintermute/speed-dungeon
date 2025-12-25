@@ -3,12 +3,14 @@ import {
   ActionValidity,
   ChannelName,
   ConnectionId,
+  GameName,
   IdentityProviderId,
   SpeedDungeonGame,
   SpeedDungeonProfile,
   Username,
 } from "../index.js";
 import { LobbyState } from "./lobby-state.js";
+import { UserSessionRegistry } from "./user-session-registry.js";
 
 export interface AuthorizedSession {
   session: UserSession;
@@ -17,7 +19,7 @@ export interface AuthorizedSession {
 }
 
 export class UserSession {
-  public currentGameName: null | string = null;
+  public currentGameName: null | GameName = null;
   public currentPartyName: null | string = null;
   private channelsSubscribedTo: Set<ChannelName> = new Set();
 
@@ -96,5 +98,16 @@ export class UserSession {
       throw new Error("Tried to unsubscribe to a channel but was not subscribed to it");
     }
     this.channelsSubscribedTo.delete(channelName);
+  }
+
+  requireNotInGameOnAnotherSession(userSessionRegistry: UserSessionRegistry) {
+    // we don't want them loading the same saved character into multiple active games,
+    // so we'll prohibit simultaneous progression games per user
+    const userSessions = userSessionRegistry.getExpectedUserSessions(this.username);
+    for (const otherSession of userSessions) {
+      if (otherSession.isInGame()) {
+        throw new Error(ERROR_MESSAGES.LOBBY.USER_IN_GAME);
+      }
+    }
   }
 }

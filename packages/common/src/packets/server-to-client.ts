@@ -7,7 +7,7 @@ import { EntityId, NextOrPrevious } from "../primatives/index.js";
 import { Combatant } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
 import { UserChannelDisplayData } from "../users/index.js";
-import { GameMode } from "../types.js";
+import { GameMode, GameName } from "../types.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { Consumable } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
@@ -227,7 +227,7 @@ export interface CharacterAndSlot {
 
 export class GameListEntry {
   constructor(
-    public gameName: string,
+    public gameName: GameName,
     public numberOfUsers: number,
     public gameMode: GameMode,
     public timeStarted: null | number,

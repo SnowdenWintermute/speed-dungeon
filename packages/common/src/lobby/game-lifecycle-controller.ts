@@ -12,31 +12,32 @@ import {
 } from "../index.js";
 import { GameStateUpdateType } from "../packets/game-state-updates.js";
 import { GameSimulatorHandoffStrategy } from "./game-simulator-handoff-strategy.js";
-import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
+import { GameStateUpdateDispatchFactory } from "./game-state-update-dispatch-factory.js";
 import { LobbyState } from "./lobby-state.js";
 import { PartySetupController } from "./party-setup-controller.js";
 import { RANDOM_GAME_NAMES_FIRST, RANDOM_GAME_NAMES_LAST } from "./random-names.js";
 import { SessionAuthorizationManager } from "./session-authorization-manager.js";
+import { GameStateUpdateDispatchOutbox } from "./update-dispatch-outbox.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
 import { UserSession } from "./user-session.js";
 
 export class GameLifecycleController {
   constructor(
     private readonly lobbyState: LobbyState,
-    private readonly updateGateway: GameStateUpdateGateway,
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly sessionAuthManager: SessionAuthorizationManager,
+    private readonly updateDispatchFactory: GameStateUpdateDispatchFactory,
     private readonly partySetupController: PartySetupController,
     private readonly idGenerator: IdGenerator,
     private readonly gameSimulatorHandoffStrategy: GameSimulatorHandoffStrategy
   ) {}
 
-  private generateRandomGameName() {
+  private generateRandomGameName(): GameName {
     const firstName =
       RANDOM_GAME_NAMES_FIRST[Math.floor(Math.random() * RANDOM_GAME_NAMES_FIRST.length)];
     const lastName =
       RANDOM_GAME_NAMES_LAST[Math.floor(Math.random() * RANDOM_GAME_NAMES_LAST.length)];
-    return `${firstName} ${lastName}`;
+    return `${firstName} ${lastName}` as GameName;
   }
 
   private getGameNameValidity(gameName: GameName): ActionValidity {
@@ -47,7 +48,7 @@ export class GameLifecycleController {
       );
     }
 
-    const gameNamePrefix = gameName.slice(0, GAME_CHANNEL_PREFIX.length - 1);
+    const gameNamePrefix = gameName.slice(0, GAME_CHANNEL_PREFIX.length);
     if (gameNamePrefix === GAME_CHANNEL_PREFIX) {
       return new ActionValidity(false, `Game names may be not begin with "${GAME_CHANNEL_PREFIX}"`);
     }
@@ -57,14 +58,18 @@ export class GameLifecycleController {
 
   requestGameListHandler(session: UserSession) {
     const gameList = this.lobbyState.getGamesList();
-    this.updateGateway.submitToConnection(session.connectionId, {
+
+    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
+    outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.GameList,
       data: { gameList },
     });
+
+    return outbox;
   }
 
   async createGameHandler(
-    data: { gameName: string; mode: GameMode; isRanked?: boolean },
+    data: { gameName: GameName; mode: GameMode; isRanked?: boolean },
     session: UserSession
   ) {
     const { mode, isRanked } = data;
@@ -113,19 +118,12 @@ export class GameLifecycleController {
     }
 
     this.lobbyState.addGame(game);
-    this.joinGameHandler(gameName, session);
+    const joinGameUpdateHandlerOutbox = await this.joinGameHandler(gameName, session);
+    return joinGameUpdateHandlerOutbox;
   }
 
-  async createProgressionGameHandler(gameName: string, session: UserSession) {
-    // we don't want them loading the same saved character into multiple active games,
-    // so we'll prohibit simultaneous progression games per user
-    const userSessions = this.userSessionRegistry.getExpectedUserSessions(session.username);
-
-    for (const otherSession of userSessions) {
-      if (otherSession.isInGame()) {
-        throw new Error(ERROR_MESSAGES.LOBBY.USER_IN_GAME);
-      }
-    }
+  async createProgressionGameHandler(gameName: GameName, session: UserSession) {
+    session.requireNotInGameOnAnotherSession(this.userSessionRegistry);
 
     await this.sessionAuthManager.requireAuthorizedSession(session.connectionId);
 
@@ -148,7 +146,7 @@ export class GameLifecycleController {
     return game;
   }
 
-  async joinGameHandler(gameName: string, session: UserSession) {
+  async joinGameHandler(gameName: GameName, session: UserSession) {
     const game = this.lobbyState.getExpectedGame(gameName);
 
     const userCanJoinNewGame = session.canJoinNewGame(game.isRanked);
@@ -162,6 +160,7 @@ export class GameLifecycleController {
     }
 
     if (game.mode === GameMode.Progression) {
+      session.requireNotInGameOnAnotherSession(this.userSessionRegistry);
       await this.sessionAuthManager.requireAuthorizedSession(session.connectionId);
     }
 
@@ -172,51 +171,65 @@ export class GameLifecycleController {
     // update the lobby's user list for when players ask for the list of users in lobby
     this.lobbyState.removeUser(session.username);
 
+    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
     // tell the clients in the lobby that the user left the lobby channel
-    this.updateGateway.submitToConnections(this.userSessionRegistry.in(LOBBY_CHANNEL), {
+    outbox.pushToChannel(LOBBY_CHANNEL, {
       type: GameStateUpdateType.UserLeftChannel,
       data: { username: session.username },
     });
 
     // give the client the game information of the game they joined
-    this.updateGateway.submitToConnection(session.connectionId, {
+    outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.GameFullUpdate,
       data: { game: game.getSerialized() },
     });
 
     // tell clients already in the game that someone joined
-    this.updateGateway.submitToConnections(
-      this.userSessionRegistry.in(game.name, { excludedIds: [session.connectionId] }),
+    outbox.pushToChannel(
+      game.getChannelName(),
       {
         type: GameStateUpdateType.PlayerJoinedGame,
         data: { username: session.username },
-      }
+      },
+      { excludedIds: [session.connectionId] }
     );
 
     // handle automatic party joining and character selection
     if (game.mode === GameMode.Progression) {
-      this.partySetupController.joinProgressionGamePartyWithDefaultCharacterHandler(session, game);
+      const otherOutbox =
+        await this.partySetupController.joinProgressionGamePartyWithDefaultCharacterHandler(
+          session,
+          game
+        );
+      outbox.pushFromOther(otherOutbox);
     }
+
+    return outbox;
   }
 
   leaveGameHandler(session: UserSession) {
     const game = session.getExpectedCurrentGame(this.lobbyState);
     const partyOption = session.getCurrentPartyOption(game);
 
+    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
+
     if (partyOption !== null) {
-      this.partySetupController.leavePartyHandler(session);
+      const otherOutbox = this.partySetupController.leavePartyHandler(session);
+      outbox.pushFromOther(otherOutbox);
     }
 
     game.removePlayer(session.username);
     session.currentGameName = null;
     session.unsubscribeFromChannel(game.getChannelName());
-    this.updateGateway.submitToConnection(session.connectionId, {
+
+    outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.GameFullUpdate,
       data: { game: null },
     });
 
     session.subscribeToChannel(LOBBY_CHANNEL);
-    this.updateGateway.submitToConnection(session.connectionId, {
+
+    outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.ChannelFullUpdate,
       data: { channelName: LOBBY_CHANNEL, users: this.lobbyState.getUsersList() },
     });
@@ -225,14 +238,17 @@ export class GameLifecycleController {
     if (noPlayersRemain) {
       this.lobbyState.removeGame(game.name);
 
-      return; // no one is left to notify about the player leaving so return early
+      return outbox; // no one is left to notify about the player leaving so return early
     }
 
     game.setMaxStartingFloor();
-    this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
+
+    outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.PlayerLeftGame,
       data: { username: session.username },
     });
+
+    return outbox;
   }
 
   async toggleReadyToStartGameHandler(session: UserSession) {
@@ -247,23 +263,26 @@ export class GameLifecycleController {
 
     const allPlayersReadied = game.togglePlayerReadyToStartGameStatus(session.username);
 
-    this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
+    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
+    outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.PlayerToggledReadyToStartGame,
       data: { username: session.username },
     });
 
     const notAllPlayersAreReady = !allPlayersReadied;
     if (notAllPlayersAreReady) {
-      return;
+      return outbox;
     }
 
     game.setAsStarted();
 
     const connectionInstructions = this.gameSimulatorHandoffStrategy.handoff(game);
 
-    this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
+    outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.GameSimulatorConnectionInstructions,
       data: { connectionInstructions },
     });
+
+    return outbox;
   }
 }

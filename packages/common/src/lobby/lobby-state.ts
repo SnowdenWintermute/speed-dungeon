@@ -2,7 +2,6 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { GameListEntry } from "../packets/game-state-updates.js";
 import { GameName, Username } from "../types.js";
-import { UserSession } from "./user-session.js";
 
 export enum UserAuthStatus {
   LoggedIn,
@@ -23,11 +22,11 @@ export class LobbyState {
   // and so the game setup logic can operate on the game state objects
   private games: Record<GameName, SpeedDungeonGame> = {};
   // for updating clients with the list of players not currently in games
-  private usersInLobbyChannel = new Map<string, UserChannelDisplayData>();
+  private usersInLobbyChannel = new Map<Username, UserChannelDisplayData>();
 
   /**Users can have more than one session in a single channel so we'll update a reference count
    * to avoid displaying duplicate names for example when an authorized user has multiple tabs open */
-  addUser(username: string, isAuthorized: boolean) {
+  addUser(username: Username, isAuthorized: boolean) {
     const existingUser = this.usersInLobbyChannel.get(username);
     if (existingUser) {
       existingUser.sessionsInThisChannelCount += 1;

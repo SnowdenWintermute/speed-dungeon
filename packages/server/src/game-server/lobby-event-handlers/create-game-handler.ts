@@ -2,6 +2,7 @@ import {
   ERROR_MESSAGES,
   GAME_CHANNEL_PREFIX,
   GameMode,
+  GameName,
   MAX_GAME_NAME_LENGTH,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
@@ -15,7 +16,7 @@ import { getGameServer } from "../../singletons/index.js";
 import { idGenerator } from "../../singletons/index.js";
 
 export default async function createGameHandler(
-  eventData: { gameName: string; mode: GameMode; isRanked?: boolean },
+  eventData: { gameName: GameName; mode: GameMode; isRanked?: boolean },
   session: BrowserTabSession,
   socket: Socket
 ) {

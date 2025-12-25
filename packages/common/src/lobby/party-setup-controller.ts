@@ -3,14 +3,12 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import { AdventuringParty, GameMode, getPartyChannelName, SpeedDungeonGame } from "../index.js";
 import { GameStateUpdateType } from "../packets/game-state-updates.js";
 import { IdGenerator } from "../utility-classes/index.js";
-import {
-  GameStateUpdateDispatch,
-  GameStateUpdateDispatchFactory,
-} from "./game-state-update-dispatch-factory.js";
+import { GameStateUpdateDispatchFactory } from "./game-state-update-dispatch-factory.js";
 import { LobbyState } from "./lobby-state.js";
 import { RANDOM_PARTY_NAMES } from "./random-names.js";
 import { SavedCharactersController } from "./saved-characters-controller.js";
 import { SessionAuthorizationManager } from "./session-authorization-manager.js";
+import { GameStateUpdateDispatchOutbox } from "./update-dispatch-outbox.js";
 import { UserSession } from "./user-session.js";
 
 export class PartySetupController {
@@ -52,19 +50,17 @@ export class PartySetupController {
     const party = AdventuringParty.createInitialized(this.idGenerator.generate(), partyName);
     game.addParty(party);
 
-    const updateDispatches: GameStateUpdateDispatch[] = [];
+    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
 
-    updateDispatches.push(
-      this.updateDispatchFactory.createFanOut(game.getChannelName(), {
-        type: GameStateUpdateType.PartyCreated,
-        data: { partyId: party.id, partyName },
-      })
-    );
+    outbox.pushToChannel(game.getChannelName(), {
+      type: GameStateUpdateType.PartyCreated,
+      data: { partyId: party.id, partyName },
+    });
 
-    const joinPartyUpdateDispatches = this.joinPartyHandler(session, party.name);
-    updateDispatches.push(...joinPartyUpdateDispatches);
+    const joinPartyHandlerOutbox = this.joinPartyHandler(session, party.name);
+    outbox.pushFromOther(joinPartyHandlerOutbox);
 
-    return updateDispatches;
+    return outbox;
   }
 
   joinPartyHandler(session: UserSession, partyName: string) {
@@ -81,23 +77,19 @@ export class PartySetupController {
     session.subscribeToChannel(partyChannelName);
     session.currentPartyName = partyName;
 
-    const updateDispatches: GameStateUpdateDispatch[] = [];
+    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
 
-    updateDispatches.push(
-      this.updateDispatchFactory.createSingle(session.connectionId, {
-        type: GameStateUpdateType.PartyNameUpdate,
-        data: { partyName },
-      })
-    );
+    outbox.pushToConnection(session.connectionId, {
+      type: GameStateUpdateType.PartyNameUpdate,
+      data: { partyName },
+    });
 
-    updateDispatches.push(
-      this.updateDispatchFactory.createFanOut(game.getChannelName(), {
-        type: GameStateUpdateType.PlayerChangedAdventuringParty,
-        data: { playerName: session.username, partyName },
-      })
-    );
+    outbox.pushToChannel(game.getChannelName(), {
+      type: GameStateUpdateType.PlayerChangedAdventuringParty,
+      data: { playerName: session.username, partyName },
+    });
 
-    return updateDispatches;
+    return outbox;
   }
 
   async joinProgressionGamePartyWithDefaultCharacterHandler(
@@ -122,8 +114,9 @@ export class PartySetupController {
     const party = game.getExpectedParty(partyName);
     const player = game.getExpectedPlayer(session.username);
 
-    const updateDispatches: GameStateUpdateDispatch[] = [];
-    updateDispatches.push(...this.joinPartyHandler(session, partyName));
+    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
+    const joinPartyHandlerOutbox = this.joinPartyHandler(session, partyName);
+    outbox.pushFromOther(joinPartyHandlerOutbox);
 
     game.addCharacterToParty(
       party,
@@ -134,24 +127,22 @@ export class PartySetupController {
 
     game.setMaxStartingFloor();
 
-    updateDispatches.push(
-      this.updateDispatchFactory.createFanOut(game.getChannelName(), {
-        type: GameStateUpdateType.CharacterAddedToParty,
-        data: {
-          username: session.username,
-          character: defaultSavedCharacter.combatant.getSerialized(),
-          pets: defaultSavedCharacter.pets.map((pet) => pet.getSerialized()),
-        },
-      })
-    );
+    outbox.pushToChannel(game.getChannelName(), {
+      type: GameStateUpdateType.CharacterAddedToParty,
+      data: {
+        username: session.username,
+        character: defaultSavedCharacter.combatant.getSerialized(),
+        pets: defaultSavedCharacter.pets.map((pet) => pet.getSerialized()),
+      },
+    });
 
-    return updateDispatches;
+    return outbox;
   }
 
   leavePartyHandler(session: UserSession) {
     const game = session.getExpectedCurrentGame(this.lobbyState);
 
-    // get the reference to the party before we maybe remove it from the game
+    // get the reference to the party now before we maybe remove it from the game
     const party = session.getExpectedCurrentParty(game);
     const removedPlayerDataResult = game.removePlayerFromParty(session.username);
     if (removedPlayerDataResult instanceof Error) {
@@ -163,22 +154,18 @@ export class PartySetupController {
     session.unsubscribeFromChannel(partyChannelName);
     session.currentPartyName = null;
 
-    const updateDispatches: GameStateUpdateDispatch[] = [];
-    updateDispatches.push(
-      this.updateDispatchFactory.createSingle(session.connectionId, {
-        type: GameStateUpdateType.PartyNameUpdate,
-        data: { partyName: null },
-      })
-    );
+    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
+    outbox.pushToConnection(session.connectionId, {
+      type: GameStateUpdateType.PartyNameUpdate,
+      data: { partyName: null },
+    });
 
-    updateDispatches.push(
-      this.updateDispatchFactory.createFanOut(game.getChannelName(), {
-        type: GameStateUpdateType.PlayerChangedAdventuringParty,
-        data: { playerName: session.username, partyName: null },
-      })
-    );
+    outbox.pushToChannel(game.getChannelName(), {
+      type: GameStateUpdateType.PlayerChangedAdventuringParty,
+      data: { playerName: session.username, partyName: null },
+    });
 
-    return updateDispatches;
+    return outbox;
   }
 
   async selectProgressionGameStartingFloorHandler(
@@ -198,22 +185,18 @@ export class PartySetupController {
     const party = session.getExpectedCurrentParty(game);
     party.dungeonExplorationManager.setCurrentFloor(game.selectedStartingFloor);
 
-    const updateDispatches: GameStateUpdateDispatch[] = [];
+    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
 
-    updateDispatches.push(
-      this.updateDispatchFactory.createFanOut(game.getChannelName(), {
-        type: GameStateUpdateType.ProgressionGameStartingFloorSelected,
-        data: { floorNumber },
-      })
-    );
+    outbox.pushToChannel(game.getChannelName(), {
+      type: GameStateUpdateType.ProgressionGameStartingFloorSelected,
+      data: { floorNumber },
+    });
 
-    updateDispatches.push(
-      this.updateDispatchFactory.createFanOut(game.getChannelName(), {
-        type: GameStateUpdateType.DungeonFloorNumber,
-        data: { floorNumber },
-      })
-    );
+    outbox.pushToChannel(game.getChannelName(), {
+      type: GameStateUpdateType.DungeonFloorNumber,
+      data: { floorNumber },
+    });
 
-    return updateDispatches;
+    return outbox;
   }
 }

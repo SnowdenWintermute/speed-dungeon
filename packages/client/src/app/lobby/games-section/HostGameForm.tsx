@@ -1,4 +1,4 @@
-import { ClientToServerEvent, GameMode, formatGameMode } from "@speed-dungeon/common";
+import { ClientToServerEvent, GameMode, GameName, formatGameMode } from "@speed-dungeon/common";
 import React, { FormEvent, useEffect, useState } from "react";
 import TextInput from "@/app/components/atoms/TextInput";
 import { websocketConnection } from "@/singletons/websocket-connection";
@@ -17,7 +17,7 @@ export default function HostGameForm() {
   // );
   const [selectedGameMode, setSelectedGameMode] = useState(GameMode.Progression);
   const [isRanked, setIsRanked] = useState(isLoggedIn);
-  const [gameName, setGameName] = useState("");
+  const [gameName, setGameName] = useState<GameName>("" as GameName);
   const [gamePassword, setGamePassword] = useState("");
 
   function createGame(
@@ -49,7 +49,7 @@ export default function HostGameForm() {
             type="text"
             name="game name"
             placeholder="Game name..."
-            onChange={(e) => setGameName(e.target.value)}
+            onChange={(e) => setGameName(e.target.value as GameName)}
             value={gameName}
             autoComplete="new-password"
           />

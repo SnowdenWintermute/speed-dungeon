@@ -89,9 +89,9 @@ export class Lobby {
 
     this.gameLifecycleController = new GameLifecycleController(
       this.lobbyState,
-      updateGateway,
       this.userSessionRegistry,
       this.sessionAuthManager,
+      this.gameStateUpdateDispatchFactory,
       this.partySetupController,
       idGenerator,
       this.gameSimulatorHandoffStrategy

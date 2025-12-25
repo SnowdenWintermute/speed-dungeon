@@ -1,3 +1,4 @@
+import { GameName } from "../index.js";
 import {
   ActionCommandPayload,
   BattleResultActionCommandPayload,
@@ -8,7 +9,7 @@ import {
 export interface ActionCommandReceiver {
   combatActionReplayTreeHandler: (payload: CombatActionReplayTreePayload) => Promise<Error | void>;
   battleResultActionCommandHandler: (
-    gameName: string,
+    gameName: GameName,
     payload: BattleResultActionCommandPayload
   ) => Promise<Error | ActionCommandPayload[] | void>;
   gameMessageCommandHandler: (

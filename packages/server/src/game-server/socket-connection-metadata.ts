@@ -1,4 +1,4 @@
-import { LOBBY_CHANNEL } from "@speed-dungeon/common";
+import { GameName, LOBBY_CHANNEL } from "@speed-dungeon/common";
 import { SocketId, Username } from "./index.js";
 
 export class BrowserTabSession {
@@ -8,7 +8,7 @@ export class BrowserTabSession {
     /** snowauth user id */
     public userId: null | number,
     public channels: string[] = [LOBBY_CHANNEL],
-    public currentGameName: null | string = null,
+    public currentGameName: null | GameName = null,
     public currentPartyName: null | string = null
   ) {}
 }

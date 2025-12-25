@@ -1,6 +1,5 @@
-import { ChannelName } from "../index.js";
+import { ChannelName, ConnectionId } from "../index.js";
 import { GameStateUpdate } from "../packets/game-state-updates.js";
-import { ConnectionId } from "../primatives/index.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
 
 export enum GameStateUpdateDispatchType {

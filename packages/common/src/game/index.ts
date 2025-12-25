@@ -3,7 +3,7 @@ import { AdventuringParty } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
 import { EntityId } from "../primatives/index.js";
 import { SpeedDungeonPlayer } from "./player.js";
-import { GameMode, Username } from "../types.js";
+import { ChannelName, GameMode, GameName, Username } from "../types.js";
 import { GAME_CONFIG, MAX_PARTY_SIZE } from "../app-consts.js";
 import { makeAutoObservable } from "mobx";
 import { instanceToPlain, plainToInstance } from "class-transformer";
@@ -25,7 +25,7 @@ export class SpeedDungeonGame {
   selectedStartingFloor: number = 1;
   constructor(
     public id: string,
-    public name: string,
+    public name: GameName,
     public mode: GameMode,
     public gameCreator: string | null = null,
     public isRanked: boolean = false
@@ -58,7 +58,7 @@ export class SpeedDungeonGame {
    * Created by adding a standard game prefix to the game's name so as not to
    * mix up potentially identical game and party names*/
   getChannelName() {
-    return `${GAME_CHANNEL_PREFIX}${this.name}`;
+    return `${GAME_CHANNEL_PREFIX}${this.name}` as ChannelName;
   }
 
   requireMode(mode: GameMode) {

@@ -2,6 +2,7 @@ import { Socket } from "socket.io";
 import {
   ClientToServerEventTypes,
   GameListEntry,
+  GameName,
   ServerToClientEvent,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
@@ -16,7 +17,7 @@ export default function requestGameListHandler(
     .map(
       ([gameName, game]) =>
         new GameListEntry(
-          gameName,
+          gameName as GameName,
           Object.keys(game.players).length,
           game.mode,
           game.timeStarted,
