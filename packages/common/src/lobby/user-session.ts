@@ -21,7 +21,7 @@ export interface AuthorizedSession {
 export class UserSession {
   public currentGameName: null | GameName = null;
   public currentPartyName: null | string = null;
-  private channelsSubscribedTo: Set<ChannelName> = new Set();
+  private channelsSubscribedTo = new Set<ChannelName>();
 
   constructor(
     public readonly username: Username,

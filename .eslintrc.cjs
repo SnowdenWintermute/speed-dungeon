@@ -4,10 +4,13 @@ module.exports = {
   parserOptions: {
     ecmaVersion: "latest",
     sourceType: "module",
+    project: [
+      "./packages/*/tsconfig.json"
+    ],
+    tsconfigRootDir: __dirname,
   },
   plugins: ["@typescript-eslint"],
   extends: [
-    "next/core-web-vitals", 
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/strict",
@@ -16,6 +19,7 @@ module.exports = {
   rules: {
     "no-unused-expressions": "off",
     "@typescript-eslint/switch-exhaustiveness-check": "error",
-    "@typescript-eslint/no-unused-expressions": "error"
+    "@typescript-eslint/no-unused-expressions": "error",
+    "@typescript-eslint/no-dynamic-delete":"off"
   },
 };

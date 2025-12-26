@@ -1,13 +1,15 @@
 import { AdventuringParty } from "./adventuring-party/index.js";
 import { Combatant, CombatantClass, CombatantSpecies } from "./combatants/index.js";
 import { SpeedDungeonGame, SpeedDungeonPlayer } from "./game/index.js";
-import { Meters } from "./index.js";
+import { EntityId, Meters } from "./index.js";
 
 export type Username = string & { __brand: "Username" };
 export type GameName = string & { __brand: "GameName" };
+export type PartyName = string & { __brand: "PartyName" };
+export type ProfileId = number & { __brand: "ProfileId" };
 export type ChannelName = string & { __brand: "ChannelName" };
 export type ConnectionId = string & { __brand: "ConnectionId" };
-export type IdentityProviderId = number;
+export type IdentityProviderId = number & { __brand: "IdentityProviderId" };
 
 export interface CharacterAssociatedData {
   character: Combatant;
@@ -41,7 +43,7 @@ export function formatGameMode(gameMode: GameMode) {
   }
 }
 
-export type LevelLadderEntry = {
+export interface LevelLadderEntry {
   owner: string;
   characterName: string;
   characterId: string;
@@ -49,24 +51,22 @@ export type LevelLadderEntry = {
   experience: number;
   rank: number;
   gameVersion: string;
-};
+}
 
 export enum PartyFate {
   Wipe = "wipe",
   Escape = "escape",
 }
 
-export type RaceGameAggregatedRecord = {
+export interface RaceGameAggregatedRecord {
   game_id: string;
   game_name: string;
   game_version: string;
   time_of_completion: null | number;
-  parties: {
-    [partyName: string]: RacePartyAggregatedRecord;
-  };
-};
+  parties: Record<PartyName, RacePartyAggregatedRecord>;
+}
 
-export type RacePartyAggregatedRecord = {
+export interface RacePartyAggregatedRecord {
   party_id: string;
   party_name: string;
   party_fate: PartyFate | null;
@@ -82,16 +82,14 @@ export type RacePartyAggregatedRecord = {
       id_of_controlling_user: number;
     };
   };
-};
+}
 
 export class SanitizedRaceGameAggregatedRecord {
   game_id: string;
   game_name: string;
   game_version: string;
   time_of_completion: null | number;
-  parties: {
-    [partyName: string]: SanitizedRacePartyAggregatedRecord;
-  } = {};
+  parties: Record<PartyName, SanitizedRacePartyAggregatedRecord> = {};
   constructor(gameRecord: RaceGameAggregatedRecord) {
     this.game_id = gameRecord.game_id;
     this.game_name = gameRecord.game_name;
@@ -125,13 +123,13 @@ export class SanitizedRacePartyAggregatedRecord {
   }
 }
 
-export type SpeedDungeonProfile = {
+export interface SpeedDungeonProfile {
   id: number;
   ownerId: number;
   characterCapacity: number;
   createdAt: number | Date;
   updatedAt: number | Date;
-};
+}
 
 export class SanitizedProfile {
   createdAt: number;
@@ -142,9 +140,10 @@ export class SanitizedProfile {
   }
 }
 
-export type ProfileCharacterRanks = {
-  [id: string]: { name: string; level: number; rank: number | null; class: CombatantClass };
-};
+export type ProfileCharacterRanks = Record<
+  EntityId,
+  { name: string; level: number; rank: number | null; class: CombatantClass }
+>;
 
 export type BoundingBoxSizesBySpecies = Partial<
   Record<

@@ -4,8 +4,8 @@ import { UserSession } from "./user-session.js";
 export class UserSessionRegistry {
   // we have used this to ensure that when a user has a session in a progression game
   // they can not load that same saved character in another session
-  private connectionIdsByUsername: Map<Username, Set<ConnectionId>> = new Map();
-  private userSessions: Map<ConnectionId, UserSession> = new Map();
+  private connectionIdsByUsername = new Map<Username, Set<ConnectionId>>();
+  private userSessions = new Map<ConnectionId, UserSession>();
 
   private getExpectedUserConnectionIds(username: Username) {
     const idsOption = this.connectionIdsByUsername.get(username);

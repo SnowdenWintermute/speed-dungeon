@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import CustomError from "../../express-error-handler/CustomError.js";
 import {
   ERROR_MESSAGES,
+  PartyName,
   RACE_GAME_RECORDS_PAGE_SIZE,
   RaceGameAggregatedRecord,
   SanitizedRaceGameAggregatedRecord,
@@ -18,7 +19,7 @@ export default async function getUserRankedRaceHistoryHandler(
   try {
     const userId: number = res.locals.userId; // expected from middleware
 
-    let { page } = req.query;
+    const { page } = req.query;
     if (typeof page !== "string") return next([new CustomError("Invalid query string", 400)]);
 
     const pageNumber = parseInt(page);
@@ -46,7 +47,7 @@ export default async function getUserRankedRaceHistoryHandler(
 }
 
 async function sanitizeGameHistoryList(games: RaceGameAggregatedRecord[]) {
-  const userIds: Set<number> = new Set();
+  const userIds: Set<number> = new Set<number>();
   for (const game of games)
     for (const party of Object.values(game.parties))
       for (const character of Object.values(party.characters))
@@ -69,7 +70,7 @@ async function sanitizeGameHistoryList(games: RaceGameAggregatedRecord[]) {
           usernameOfControllingUser: usernamesById[character.id_of_controlling_user] || "unknown",
         };
       }
-      sanitizedGame.parties[partyName] = sanitizedParty;
+      sanitizedGame.parties[partyName as PartyName] = sanitizedParty;
     }
     sanitizedGames.push(sanitizedGame);
   }

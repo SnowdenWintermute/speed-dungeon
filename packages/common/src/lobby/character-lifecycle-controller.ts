@@ -5,19 +5,18 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import { GameStateUpdateType } from "../packets/game-state-updates.js";
 import { GameMode } from "../types.js";
 import { CharacterCreator } from "./character-creation/index.js";
-import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
+import { GameStateUpdateDispatchFactory } from "./game-state-update-dispatch-factory.js";
 import { LobbyState } from "./lobby-state.js";
 import { SavedCharactersService } from "./saved-character-service.js";
 import { SessionAuthorizationManager } from "./session-authorization-manager.js";
-import { UserSessionRegistry } from "./user-session-registry.js";
+import { GameStateUpdateDispatchOutbox } from "./update-dispatch-outbox.js";
 import { UserSession } from "./user-session.js";
 
 export class CharacterLifecycleController {
   constructor(
     private readonly lobbyState: LobbyState,
-    private readonly updateGateway: GameStateUpdateGateway,
-    private readonly userSessionRegistry: UserSessionRegistry,
     private readonly sessionAuthManager: SessionAuthorizationManager,
+    private readonly updateDispatchFactory: GameStateUpdateDispatchFactory,
     private readonly savedCharactersService: SavedCharactersService,
     private readonly characterCreator: CharacterCreator
   ) {}
@@ -52,10 +51,14 @@ export class CharacterLifecycleController {
     const serialized = newCharacter.getSerialized();
     const serializedPets = pets.map((pet) => pet.getSerialized());
 
-    this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
+    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
+
+    outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.CharacterAddedToParty,
       data: { username: session.username, character: serialized, pets: serializedPets },
     });
+
+    return outbox;
   }
 
   deleteCharacterHandler(session: UserSession, data: { characterId: string }) {
@@ -73,19 +76,23 @@ export class CharacterLifecycleController {
 
     party.combatantManager.updateHomePositions();
 
+    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
+
     const wasReadied = game.playersReadied.includes(session.username);
     if (wasReadied) {
       game.togglePlayerReadyToStartGameStatus(session.username);
-      this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
+      outbox.pushToChannel(game.getChannelName(), {
         type: GameStateUpdateType.PlayerToggledReadyToStartGame,
         data: { username: session.username },
       });
     }
 
-    this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
+    outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.CharacterDeleted,
       data: { username: session.username, characterId },
     });
+
+    return outbox;
   }
 
   async selectProgressionGameCharacterHandler(session: UserSession, data: { entityId: string }) {
@@ -127,7 +134,9 @@ export class CharacterLifecycleController {
 
     game.setMaxStartingFloor();
 
-    this.updateGateway.submitToConnections(this.userSessionRegistry.in(game.getChannelName()), {
+    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
+
+    outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame,
       data: {
         username: session.username,
@@ -137,6 +146,8 @@ export class CharacterLifecycleController {
         },
       },
     });
+
+    return outbox;
   }
 
   private createTestPets() {

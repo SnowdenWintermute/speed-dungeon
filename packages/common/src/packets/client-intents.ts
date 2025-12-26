@@ -5,11 +5,14 @@ import { CombatantClass } from "../combatants/index.js";
 import { BookConsumableType, ConsumableType } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
+import { TransportDisconnectReason, TransportEndpoint } from "../lobby/transport-endpoint.js";
 import { EntityId, NextOrPrevious } from "../primatives/index.js";
 import { GameMode, GameName } from "../types.js";
 import { CharacterAndItems } from "./server-to-client.js";
 
 export enum ClientIntentType {
+  Connection,
+  Disconnection,
   // lobby
   RequestsGameList,
   // game setup
@@ -70,6 +73,8 @@ export enum ClientIntentType {
 
 // Map enum values to payload types
 export interface ClientIntentMap {
+  [ClientIntentType.Connection]: { transport: TransportEndpoint };
+  [ClientIntentType.Disconnection]: { reason: TransportDisconnectReason };
   [ClientIntentType.RequestsGameList]: undefined;
   [ClientIntentType.CreateGame]: {
     gameName: GameName;
@@ -352,6 +357,12 @@ const intentHandlers: ClientIntentHandlers = {
     throw new Error("Function not implemented.");
   },
   [ClientIntentType.RenamePet]: function (intent: { petId: EntityId; newName: string }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.Connection]: function (intent: { transport: TransportEndpoint }): void {
+    throw new Error("Function not implemented.");
+  },
+  [ClientIntentType.Disconnection]: function (intent: { reason: TransportDisconnectReason }): void {
     throw new Error("Function not implemented.");
   },
 };

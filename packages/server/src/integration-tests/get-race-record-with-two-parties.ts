@@ -1,9 +1,10 @@
+import { PartyName } from "@speed-dungeon/common";
 import { raceGameRecordsRepo } from "../database/repos/race-game-records";
 
 export async function getRaceGameRecordWithTwoPartyRecords(
   userId: number,
-  party1Name: string,
-  party2Name: string
+  party1Name: PartyName,
+  party2Name: PartyName
 ) {
   const recordShouldContainWipe = await raceGameRecordsRepo.findAllGamesByUserId(userId);
   const record = recordShouldContainWipe[0];

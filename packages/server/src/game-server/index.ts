@@ -35,7 +35,7 @@ export type SocketId = string;
 export type ChannelName = string;
 
 export class Channel {
-  users: Partial<Record<string, { [socketId: string]: BrowserTabSession }>> = {};
+  users: Partial<Record<Username, Record<SocketId, BrowserTabSession>>> = {};
 }
 
 export class GameServer implements ActionCommandReceiver {
@@ -50,14 +50,16 @@ export class GameServer implements ActionCommandReceiver {
     this.characterCreator = new CharacterCreator(idGenerator, this.itemGenerator);
   }
   // game manager
-  games: HashMap<GameName, SpeedDungeonGame> = new HashMap();
+  games = new HashMap<GameName, SpeedDungeonGame>();
   initiateLobbyEventListeners = initiateLobbyEventListeners;
   initiateGameEventListeners = initiateGameEventListeners;
   initiateSavedCharacterListeners = initiateSavedCharacterListeners;
   exploreNextRoom = exploreNextRoom;
   generateExperiencePoints = generateExperiencePoints;
   // action command handlers
-  combatActionReplayTreeHandler = async () => {};
+  combatActionReplayTreeHandler = async () => {
+    return undefined;
+  };
   battleResultActionCommandHandler = battleResultActionCommandHandler;
   removePlayerFromGameCommandHandler: (username: string) => Promise<void> = async () => {}; // we only use it on the client
   async gameMessageCommandHandler(payload: GameMessagesPayload) {
@@ -69,8 +71,8 @@ export class GameServer implements ActionCommandReceiver {
   }
 
   // socket connection manager
-  socketIdsByUsername: HashMap<Username, SocketId[]> = new HashMap();
-  connections: HashMap<SocketId, BrowserTabSession> = new HashMap();
+  socketIdsByUsername = new HashMap<Username, SocketId[]>();
+  connections = new HashMap<SocketId, BrowserTabSession>();
   channels: Partial<Record<ChannelName, Channel>> = {};
   getConnection = getConnection;
   connectionHandler = connectionHandler;

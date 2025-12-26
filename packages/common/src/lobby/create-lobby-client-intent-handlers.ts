@@ -1,11 +1,12 @@
 import { ClientIntentMap, ClientIntentType } from "../packets/client-intents.js";
 import { Lobby } from "./index.js";
+import { GameStateUpdateDispatchOutbox } from "./update-dispatch-outbox.js";
 import { UserSession } from "./user-session.js";
 
 export type ClientIntentHandler<K extends keyof ClientIntentMap> = (
   data: ClientIntentMap[K],
   user: UserSession
-) => void;
+) => GameStateUpdateDispatchOutbox | Promise<GameStateUpdateDispatchOutbox>;
 
 export type LobbyClientIntentHandlers = {
   [K in keyof ClientIntentMap]: ClientIntentHandler<K>;
@@ -13,6 +14,11 @@ export type LobbyClientIntentHandlers = {
 
 export function createLobbyClientIntentHandlers(lobby: Lobby): Partial<LobbyClientIntentHandlers> {
   return {
+    // SESSION
+    [ClientIntentType.Connection]: (data, user) =>
+      lobby.sessionLifecycleController.connectionHandler(user, data.transport),
+    [ClientIntentType.Disconnection]: (data, user) =>
+      lobby.sessionLifecycleController.disconnectionHandler(user, data.reason),
     //  GAME SETUP
     [ClientIntentType.RequestsGameList]: (_, user) =>
       lobby.gameLifecycleController.requestGameListHandler(user),

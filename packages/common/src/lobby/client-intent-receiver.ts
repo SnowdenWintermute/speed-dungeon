@@ -4,7 +4,6 @@ import { UserSession } from "./user-session.js";
 
 export abstract class ClientIntentReceiver {
   private lobby: Lobby | null = null;
-  constructor() {}
 
   initialize(lobby: Lobby) {
     this.lobby = lobby;

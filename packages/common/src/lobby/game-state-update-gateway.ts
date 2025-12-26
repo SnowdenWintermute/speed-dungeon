@@ -4,7 +4,7 @@ import { TransportEndpoint } from "./transport-endpoint.js";
 
 export class GameStateUpdateGateway {
   // socket.io socket objects or local client transport endpoints
-  private transportEndpoints: Map<ConnectionId, TransportEndpoint> = new Map();
+  private transportEndpoints = new Map<ConnectionId, TransportEndpoint>();
   registerEndpoint(connectionId: ConnectionId, endpoint: TransportEndpoint): void {
     this.transportEndpoints.set(connectionId, endpoint);
   }

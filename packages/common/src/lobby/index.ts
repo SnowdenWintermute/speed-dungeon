@@ -99,9 +99,8 @@ export class Lobby {
 
     this.characterLifecycleController = new CharacterLifecycleController(
       this.lobbyState,
-      updateGateway,
-      this.userSessionRegistry,
       this.sessionAuthManager,
+      this.gameStateUpdateDispatchFactory,
       this.savedCharactersService,
       this.characterCreator
     );
@@ -111,7 +110,9 @@ export class Lobby {
       updateGateway,
       this.userSessionRegistry,
       this.sessionAuthManager,
-      this.savedCharactersController
+      this.gameStateUpdateDispatchFactory,
+      this.savedCharactersController,
+      this.gameLifecycleController
     );
   }
 
