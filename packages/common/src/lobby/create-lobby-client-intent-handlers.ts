@@ -1,7 +1,7 @@
 import { ClientIntentMap, ClientIntentType } from "../packets/client-intents.js";
 import { Lobby } from "./index.js";
-import { GameStateUpdateDispatchOutbox } from "./update-dispatch-outbox.js";
-import { UserSession } from "./user-session.js";
+import { GameStateUpdateDispatchOutbox } from "./update-delivery/update-dispatch-outbox.js";
+import { UserSession } from "./sessions/user-session.js";
 
 export type ClientIntentHandler<K extends keyof ClientIntentMap> = (
   data: ClientIntentMap[K],

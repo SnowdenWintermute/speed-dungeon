@@ -1,14 +1,14 @@
-import { Combatant, CombatantClass } from "../combatants/index.js";
-import { ERROR_MESSAGES } from "../errors/index.js";
-import { GameStateUpdateType } from "../packets/game-state-updates.js";
-import { CharacterCreator } from "./character-creation/index.js";
-import { CharacterLifecycleController } from "./character-lifecycle-controller.js";
-import { GameStateUpdateDispatchFactory } from "./game-state-update-dispatch-factory.js";
-import { CHARACTER_LEVEL_LADDER, RankedLadderService } from "./ranked-ladder-service.js";
-import { SavedCharactersService } from "./saved-character-service.js";
-import { SessionAuthorizationManager } from "./session-authorization-manager.js";
-import { GameStateUpdateDispatchOutbox } from "./update-dispatch-outbox.js";
-import { AuthorizedSession, UserSession } from "./user-session.js";
+import { Combatant, CombatantClass } from "../../combatants/index.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
+import { GameStateUpdateType } from "../../packets/game-state-updates.js";
+import { CharacterCreator } from "../character-creation/index.js";
+import { CharacterLifecycleController } from "./character-lifecycle.js";
+import { SavedCharactersService } from "../services/saved-characters.js";
+import { CHARACTER_LEVEL_LADDER, RankedLadderService } from "../services/ranked-ladder.js";
+import { GameStateUpdateDispatchFactory } from "../update-delivery/game-state-update-dispatch-factory.js";
+import { GameStateUpdateDispatchOutbox } from "../update-delivery/update-dispatch-outbox.js";
+import { SessionAuthorizationManager } from "../sessions/authorization-manager.js";
+import { AuthorizedSession, UserSession } from "../sessions/user-session.js";
 
 export class SavedCharactersController {
   constructor(

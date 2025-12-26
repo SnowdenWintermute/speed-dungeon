@@ -1,13 +1,13 @@
-import { ERROR_MESSAGES } from "../errors/index.js";
-import { ConnectionId } from "../types.js";
-import { SpeedDungeonProfileLoader } from "./speed-dungeon-profile-loader.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
+import { ConnectionId } from "../../types.js";
+import { SpeedDungeonProfileService } from "../services/profiles.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
 import { AuthorizedSession } from "./user-session.js";
 
 export class SessionAuthorizationManager {
   constructor(
     private readonly userSessionRegistry: UserSessionRegistry,
-    private readonly profileLoader: SpeedDungeonProfileLoader
+    private readonly profileService: SpeedDungeonProfileService
   ) {}
 
   async getAuthorizedSessionOption(connectionId: ConnectionId): Promise<AuthorizedSession | null> {
@@ -16,7 +16,7 @@ export class SessionAuthorizationManager {
       return null;
     }
 
-    const profile = await this.profileLoader.fetchExpectedProfile(session.userId);
+    const profile = await this.profileService.fetchExpectedProfile(session.userId);
 
     return { session, userId: session.userId, profile };
   }

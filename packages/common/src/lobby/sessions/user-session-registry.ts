@@ -1,4 +1,4 @@
-import { ChannelName, ConnectionId, ERROR_MESSAGES, Username } from "../index.js";
+import { ChannelName, ConnectionId, ERROR_MESSAGES, Username } from "../../index.js";
 import { UserSession } from "./user-session.js";
 
 export class UserSessionRegistry {

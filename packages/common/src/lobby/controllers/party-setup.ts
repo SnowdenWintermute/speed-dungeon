@@ -1,15 +1,21 @@
-import { MAX_PARTY_NAME_LENGTH } from "../app-consts.js";
-import { ERROR_MESSAGES } from "../errors/index.js";
-import { AdventuringParty, GameMode, getPartyChannelName, SpeedDungeonGame } from "../index.js";
-import { GameStateUpdateType } from "../packets/game-state-updates.js";
-import { IdGenerator } from "../utility-classes/index.js";
-import { GameStateUpdateDispatchFactory } from "./game-state-update-dispatch-factory.js";
-import { LobbyState } from "./lobby-state.js";
-import { RANDOM_PARTY_NAMES } from "./random-names.js";
-import { SavedCharactersController } from "./saved-characters-controller.js";
-import { SessionAuthorizationManager } from "./session-authorization-manager.js";
-import { GameStateUpdateDispatchOutbox } from "./update-dispatch-outbox.js";
-import { UserSession } from "./user-session.js";
+import { MAX_PARTY_NAME_LENGTH } from "../../app-consts.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
+import {
+  AdventuringParty,
+  GameMode,
+  getPartyChannelName,
+  PartyName,
+  SpeedDungeonGame,
+} from "../../index.js";
+import { GameStateUpdateType } from "../../packets/game-state-updates.js";
+import { IdGenerator } from "../../utility-classes/index.js";
+import { LobbyState } from "../lobby-state.js";
+import { SavedCharactersController } from "./saved-characters.js";
+import { RANDOM_PARTY_NAMES } from "./default-naming/parties.js";
+import { GameStateUpdateDispatchFactory } from "../update-delivery/game-state-update-dispatch-factory.js";
+import { GameStateUpdateDispatchOutbox } from "../update-delivery/update-dispatch-outbox.js";
+import { SessionAuthorizationManager } from "../sessions/authorization-manager.js";
+import { UserSession } from "../sessions/user-session.js";
 
 export class PartySetupController {
   constructor(
@@ -25,7 +31,11 @@ export class PartySetupController {
   }
 
   generateRandomPartyName() {
-    return RANDOM_PARTY_NAMES[Math.floor(Math.random() * RANDOM_PARTY_NAMES.length)]!;
+    const result = RANDOM_PARTY_NAMES[Math.floor(Math.random() * RANDOM_PARTY_NAMES.length)];
+    if (result === undefined) {
+      throw new Error(ERROR_MESSAGES.CHECKED_EXPECTATION_FAILED);
+    }
+    return result as PartyName;
   }
 
   createPartyHandler(session: UserSession, partyName: string) {

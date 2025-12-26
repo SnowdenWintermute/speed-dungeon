@@ -1,4 +1,4 @@
-import { ERROR_MESSAGES } from "../errors/index.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
 import {
   ActionValidity,
   ChannelName,
@@ -8,8 +8,8 @@ import {
   SpeedDungeonGame,
   SpeedDungeonProfile,
   Username,
-} from "../index.js";
-import { LobbyState } from "./lobby-state.js";
+} from "../../index.js";
+import { LobbyState } from "../lobby-state.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
 
 export interface AuthorizedSession {

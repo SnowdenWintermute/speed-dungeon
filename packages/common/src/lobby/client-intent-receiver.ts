@@ -1,6 +1,6 @@
 import { ClientIntent } from "../packets/client-intents.js";
 import { Lobby } from "./index.js";
-import { UserSession } from "./user-session.js";
+import { UserSession } from "./sessions/user-session.js";
 
 export abstract class ClientIntentReceiver {
   private lobby: Lobby | null = null;

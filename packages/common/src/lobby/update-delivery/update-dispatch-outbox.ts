@@ -1,5 +1,5 @@
-import { GameStateUpdate } from "../packets/game-state-updates.js";
-import { ChannelName, ConnectionId } from "../types.js";
+import { GameStateUpdate } from "../../packets/game-state-updates.js";
+import { ChannelName, ConnectionId } from "../../types.js";
 import {
   GameStateUpdateDispatch,
   GameStateUpdateDispatchFactory,

@@ -1,15 +1,18 @@
-import { LOBBY_CHANNEL } from "../packets/channels.js";
-import { GameStateUpdateType } from "../packets/game-state-updates.js";
-import { GameLifecycleController } from "./game-lifecycle-controller.js";
-import { GameStateUpdateDispatchFactory } from "./game-state-update-dispatch-factory.js";
-import { GameStateUpdateGateway } from "./game-state-update-gateway.js";
-import { LobbyState } from "./lobby-state.js";
-import { SavedCharactersController } from "./saved-characters-controller.js";
-import { SessionAuthorizationManager } from "./session-authorization-manager.js";
-import { TransportDisconnectReason, TransportEndpoint } from "./transport-endpoint.js";
-import { GameStateUpdateDispatchOutbox } from "./update-dispatch-outbox.js";
-import { UserSessionRegistry } from "./user-session-registry.js";
-import { UserSession } from "./user-session.js";
+import { LOBBY_CHANNEL } from "../../packets/channels.js";
+import { GameStateUpdateType } from "../../packets/game-state-updates.js";
+import { GameLifecycleController } from "./game-lifecycle.js";
+import { LobbyState } from "../lobby-state.js";
+import { SavedCharactersController } from "./saved-characters.js";
+import { GameStateUpdateGateway } from "../update-delivery/game-state-update-gateway.js";
+import { GameStateUpdateDispatchFactory } from "../update-delivery/game-state-update-dispatch-factory.js";
+import {
+  TransportDisconnectReason,
+  TransportEndpoint,
+} from "../update-delivery/transport-endpoint.js";
+import { GameStateUpdateDispatchOutbox } from "../update-delivery/update-dispatch-outbox.js";
+import { UserSessionRegistry } from "../sessions/user-session-registry.js";
+import { SessionAuthorizationManager } from "../sessions/authorization-manager.js";
+import { UserSession } from "../sessions/user-session.js";
 
 export class SessionLifecycleController {
   constructor(

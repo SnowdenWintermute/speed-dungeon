@@ -1,7 +1,7 @@
-import { CombatantProperties } from "../combatants/combatant-properties.js";
-import { Combatant } from "../combatants/index.js";
-import { ERROR_MESSAGES } from "../errors/index.js";
-import { EntityId } from "../primatives/index.js";
+import { CombatantProperties } from "../../combatants/combatant-properties.js";
+import { Combatant } from "../../combatants/index.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
+import { EntityId } from "../../primatives/index.js";
 
 export interface CharacterInSlot {
   combatant: Combatant;
@@ -11,16 +11,16 @@ export interface CharacterInSlot {
 type SlotIndex = number;
 type SavedCharacterSlots = Record<SlotIndex, CharacterInSlot>;
 
-export type CharacterSlot = {
+export interface CharacterSlot {
   id: string;
   profileId: number;
   slotNumber: number;
   characterId: null | EntityId;
   createdAt: number | Date;
   updatedAt: number | Date;
-};
+}
 
-export type SerializedPlayerCharacter = {
+export interface SerializedPlayerCharacter {
   id: EntityId;
   name: string;
   ownerId: number;
@@ -29,7 +29,7 @@ export type SerializedPlayerCharacter = {
   createdAt: number | Date;
   updatedAt: number | Date;
   pets: Combatant[];
-};
+}
 
 export interface SavedCharacterFetchStrategy {
   fetchSlots: (profileId: number) => Promise<CharacterSlot[]>;

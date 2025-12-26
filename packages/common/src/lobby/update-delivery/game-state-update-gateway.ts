@@ -1,5 +1,5 @@
-import { GameStateUpdate } from "../packets/game-state-updates.js";
-import { ConnectionId } from "../types.js";
+import { GameStateUpdate } from "../../packets/game-state-updates.js";
+import { ConnectionId } from "../../types.js";
 import { TransportEndpoint } from "./transport-endpoint.js";
 
 export class GameStateUpdateGateway {

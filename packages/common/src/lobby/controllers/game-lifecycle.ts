@@ -9,17 +9,17 @@ import {
   LOBBY_CHANNEL,
   MAX_GAME_NAME_LENGTH,
   SpeedDungeonGame,
-} from "../index.js";
-import { GameStateUpdateType } from "../packets/game-state-updates.js";
-import { GameSimulatorHandoffStrategy } from "./game-simulator-handoff-strategy.js";
-import { GameStateUpdateDispatchFactory } from "./game-state-update-dispatch-factory.js";
-import { LobbyState } from "./lobby-state.js";
-import { PartySetupController } from "./party-setup-controller.js";
-import { RANDOM_GAME_NAMES_FIRST, RANDOM_GAME_NAMES_LAST } from "./random-names.js";
-import { SessionAuthorizationManager } from "./session-authorization-manager.js";
-import { GameStateUpdateDispatchOutbox } from "./update-dispatch-outbox.js";
-import { UserSessionRegistry } from "./user-session-registry.js";
-import { UserSession } from "./user-session.js";
+} from "../../index.js";
+import { GameStateUpdateType } from "../../packets/game-state-updates.js";
+import { GameSimulatorHandoffStrategy } from "../game-simulator-handoff-strategy.js";
+import { LobbyState } from "../lobby-state.js";
+import { PartySetupController } from "./party-setup.js";
+import { RANDOM_GAME_NAMES_FIRST, RANDOM_GAME_NAMES_LAST } from "./default-naming/games.js";
+import { GameStateUpdateDispatchFactory } from "../update-delivery/game-state-update-dispatch-factory.js";
+import { GameStateUpdateDispatchOutbox } from "../update-delivery/update-dispatch-outbox.js";
+import { UserSessionRegistry } from "../sessions/user-session-registry.js";
+import { SessionAuthorizationManager } from "../sessions/authorization-manager.js";
+import { UserSession } from "../sessions/user-session.js";
 
 export class GameLifecycleController {
   constructor(

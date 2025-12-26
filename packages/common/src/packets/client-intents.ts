@@ -5,7 +5,10 @@ import { CombatantClass } from "../combatants/index.js";
 import { BookConsumableType, ConsumableType } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
-import { TransportDisconnectReason, TransportEndpoint } from "../lobby/transport-endpoint.js";
+import {
+  TransportDisconnectReason,
+  TransportEndpoint,
+} from "../lobby/update-delivery//transport-endpoint.js";
 import { EntityId, NextOrPrevious } from "../primatives/index.js";
 import { GameMode, GameName } from "../types.js";
 import { CharacterAndItems } from "./server-to-client.js";
