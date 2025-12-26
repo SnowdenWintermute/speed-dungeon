@@ -32,12 +32,15 @@ export * from "./controllers/default-naming/games.js";
 export * from "./controllers/default-naming/parties.js";
 
 export * from "./character-creation/index.js";
+export * from "./client-intent-receiver.js";
+export * from "./update-delivery/transport-endpoint.js";
 
 // lives either inside a LobbyServer or locally on a ClientApp
 export class Lobby {
   private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
   private readonly lobbyState = new LobbyState();
-  private readonly userSessionRegistry = new UserSessionRegistry();
+  private readonly updateGateway = new GameStateUpdateGateway();
+  readonly userSessionRegistry = new UserSessionRegistry();
   private readonly gameStateUpdateDispatchFactory = new GameStateUpdateDispatchFactory(
     this.userSessionRegistry
   );
@@ -53,7 +56,6 @@ export class Lobby {
   public readonly characterLifecycleController: CharacterLifecycleController;
 
   constructor(
-    private readonly updateGateway: GameStateUpdateGateway,
     // listens for client intents and delegates them to handlers
     private readonly clientIntentReceiver: ClientIntentReceiver,
     private readonly gameSimulatorHandoffStrategy: GameSimulatorHandoffStrategy,
@@ -114,7 +116,7 @@ export class Lobby {
 
     this.sessionLifecycleController = new SessionLifecycleController(
       this.lobbyState,
-      updateGateway,
+      this.updateGateway,
       this.userSessionRegistry,
       this.sessionAuthManager,
       this.gameStateUpdateDispatchFactory,

@@ -1,5 +1,5 @@
 import { DungeonRoom, DungeonRoomType, ExplorationAction } from "../adventuring-party/index.js";
-import { Battle, BattleConclusion } from "../battle/index.js";
+import { Battle } from "../battle/index.js";
 import { ActionCommandPayload } from "../action-processing/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { Item } from "../items/index.js";
@@ -7,14 +7,18 @@ import { EntityId, NextOrPrevious } from "../primatives/index.js";
 import { Combatant } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
 import { UserChannelDisplayData } from "../users/index.js";
-import { GameMode, GameName } from "../types.js";
-import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { Consumable } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
-import { ComputeNormalsBlock } from "@babylonjs/core";
+import {
+  CharacterAndItem,
+  CharacterAndItems,
+  CharacterAndSlot,
+  GameListEntry,
+  GameStateUpdate,
+} from "./game-state-updates.js";
 
 export enum ServerToClientEvent {
   GameList = "0",
@@ -72,6 +76,7 @@ export enum ServerToClientEvent {
   CharacterAllocatedAbilityPoint = "48",
   CharacterTradedItemForBook = "49",
   CharacterRenamedPet = "50",
+  GameStateUpdate = "51",
 }
 
 export interface ServerToClientEventTypes {
@@ -208,37 +213,5 @@ export interface ServerToClientEventTypes {
     petId: EntityId;
     newName: string;
   }) => void;
-}
-
-export interface CharacterAndItem {
-  characterId: string;
-  itemId: string;
-}
-
-export interface CharacterAndItems {
-  characterId: string;
-  itemIds: string[];
-}
-
-export interface CharacterAndSlot {
-  characterId: string;
-  slot: TaggedEquipmentSlot;
-}
-
-export class GameListEntry {
-  constructor(
-    public gameName: GameName,
-    public numberOfUsers: number,
-    public gameMode: GameMode,
-    public timeStarted: null | number,
-    public isRanked: boolean
-  ) {}
-}
-
-export class BattleReport {
-  constructor(
-    public conclusion: BattleConclusion,
-    public loot: Item[] = [],
-    public expChanges: { combatantId: string; experienceChange: number }[] = []
-  ) {}
+  [ServerToClientEvent.GameStateUpdate]: (eventData: GameStateUpdate) => void;
 }

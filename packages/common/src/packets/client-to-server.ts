@@ -7,7 +7,8 @@ import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { EntityId, NextOrPrevious } from "../primatives/index.js";
 import { GameMode, GameName } from "../types.js";
-import { CharacterAndItems } from "./server-to-client.js";
+import { ClientIntent } from "./client-intents.js";
+import { CharacterAndItems } from "./game-state-updates.js";
 
 export enum ClientToServerEvent {
   RequestToJoinGame = "0",
@@ -50,6 +51,7 @@ export enum ClientToServerEvent {
   AllocateAbilityPoint = "38",
   TradeItemForBook = "39",
   RenamePet = "40",
+  ClientIntent = "41",
 }
 
 export interface ClientToServerEventTypes {
@@ -144,4 +146,5 @@ export interface ClientToServerEventTypes {
     bookType: BookConsumableType;
   }) => void;
   [ClientToServerEvent.RenamePet]: (eventData: { petId: EntityId; newName: string }) => void;
+  [ClientToServerEvent.ClientIntent]: (eventData: ClientIntent) => void;
 }

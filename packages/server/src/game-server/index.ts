@@ -6,6 +6,7 @@ import {
   GameMode,
   GameName,
   ItemGenerator,
+  Lobby,
   ServerToClientEvent,
   ServerToClientEventTypes,
   SpeedDungeonGame,
@@ -48,6 +49,8 @@ export class GameServer implements ActionCommandReceiver {
   constructor(public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
     this.connectionHandler();
     this.characterCreator = new CharacterCreator(idGenerator, this.itemGenerator);
+
+    // const lobby = new Lobby();
   }
   // game manager
   games = new HashMap<GameName, SpeedDungeonGame>();
@@ -61,7 +64,7 @@ export class GameServer implements ActionCommandReceiver {
     return undefined;
   };
   battleResultActionCommandHandler = battleResultActionCommandHandler;
-  removePlayerFromGameCommandHandler: (username: string) => Promise<void> = async () => {}; // we only use it on the client
+  removePlayerFromGameCommandHandler: (username: string) => Promise<void> = async () => undefined; // we only use it on the client
   async gameMessageCommandHandler(payload: GameMessagesPayload) {
     for (const message of payload.messages) {
       this.io

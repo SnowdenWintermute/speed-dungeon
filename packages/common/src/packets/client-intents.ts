@@ -11,7 +11,7 @@ import {
 } from "../lobby/update-delivery//transport-endpoint.js";
 import { EntityId, NextOrPrevious } from "../primatives/index.js";
 import { GameMode, GameName } from "../types.js";
-import { CharacterAndItems } from "./server-to-client.js";
+import { CharacterAndItems } from "./game-state-updates.js";
 
 export enum ClientIntentType {
   Connection,
