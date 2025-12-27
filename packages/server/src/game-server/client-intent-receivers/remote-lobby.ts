@@ -44,6 +44,7 @@ export class LobbyRemoteClientIntentReceiver extends ClientIntentReceiver {
         socket.id as ConnectionId
       );
 
+      //
       socket.on(ClientToServerEvent.ClientIntent, (clientIntent) => {
         this.dispatchIntent(clientIntent, socket.id as ConnectionId);
       });
