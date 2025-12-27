@@ -1,11 +1,8 @@
 import { ClientIntent } from "../packets/client-intents.js";
 import { ConnectionId } from "../types.js";
-import { UserSessionRegistry } from "./sessions/user-session-registry.js";
-import { UserSession } from "./sessions/user-session.js";
 
 export interface IntentHandler {
-  handleIntent: (clientIntent: ClientIntent, fromUser: UserSession) => void;
-  userSessionRegistry: UserSessionRegistry;
+  handleIntent: (clientIntent: ClientIntent, fromConnectionId: ConnectionId) => void;
 }
 
 export abstract class ClientIntentReceiver {
@@ -20,15 +17,13 @@ export abstract class ClientIntentReceiver {
       and determine which player they came from */
   abstract listen(): void;
 
-  forwardIntent(clientIntent: ClientIntent, fromConnectionId: ConnectionId) {
+  dispatchIntent(clientIntent: ClientIntent, fromConnectionId: ConnectionId) {
     const expectedHandler = this.intentHandler;
 
     if (expectedHandler === null) {
       throw new Error("Lobby was not initialized");
     }
 
-    const user = expectedHandler.userSessionRegistry.getExpectedSession(fromConnectionId);
-
-    expectedHandler.handleIntent(clientIntent, user);
+    expectedHandler.handleIntent(clientIntent, fromConnectionId);
   }
 }

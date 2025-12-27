@@ -4,8 +4,14 @@ import {
   ClientIntentType,
   ConnectionId,
   ServerToClientEvent,
+  TransportDisconnectReason,
+  TransportDisconnectReasonType,
 } from "@speed-dungeon/common";
-import { ClientToServerEventTypes, ServerToClientEventTypes } from "@speed-dungeon/common";
+import {
+  ClientToServerEventTypes,
+  ClientToServerEvent,
+  ServerToClientEventTypes,
+} from "@speed-dungeon/common";
 import { TransportEndpoint } from "@speed-dungeon/common";
 import { GameStateUpdate } from "@speed-dungeon/common";
 
@@ -33,14 +39,39 @@ export class LobbyRemoteClientIntentReceiver extends ClientIntentReceiver {
     this.io.of("/").on("connection", async (socket) => {
       const transportEndpoint = new SocketTransportEndpoint(socket);
 
-      this.forwardIntent(
+      this.dispatchIntent(
         { type: ClientIntentType.Connection, data: { transport: transportEndpoint } },
         socket.id as ConnectionId
       );
 
-      // socket.on(ClientToServerEvent.ClientIntent, (clientIntent) => {
-      //   // this.forwardIntent(clientIntent);
-      // });
+      socket.on(ClientToServerEvent.ClientIntent, (clientIntent) => {
+        this.dispatchIntent(clientIntent, socket.id as ConnectionId);
+      });
+
+      socket.on("disconnect", (reason) => {
+        this.dispatchIntent(
+          {
+            type: ClientIntentType.Disconnection,
+            data: { reason: new TransportDisconnectReason(SOCKET_IO_DISCONNECT_REASONS[reason]) },
+          },
+          socket.id as ConnectionId
+        );
+      });
     });
   }
 }
+
+const SOCKET_IO_DISCONNECT_REASONS: Record<
+  SocketIO.DisconnectReason,
+  TransportDisconnectReasonType
+> = {
+  "transport error": TransportDisconnectReasonType.TransportError,
+  "transport close": TransportDisconnectReasonType.TransportClose,
+  "forced close": TransportDisconnectReasonType.ForcedClose,
+  "ping timeout": TransportDisconnectReasonType.PingTimeout,
+  "parse error": TransportDisconnectReasonType.ParseError,
+  "server shutting down": TransportDisconnectReasonType.ServerShuttingDown,
+  "forced server close": TransportDisconnectReasonType.ForcedServerClose,
+  "client namespace disconnect": TransportDisconnectReasonType.ClientNamespaceDisconnect,
+  "server namespace disconnect": TransportDisconnectReasonType.ServerNamespaceDisconnect,
+};

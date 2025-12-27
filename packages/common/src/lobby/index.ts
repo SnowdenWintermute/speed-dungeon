@@ -3,6 +3,7 @@ import {
   BasicRandomNumberGenerator,
   CharacterCreator,
   ClientIntent,
+  ConnectionId,
   IdGenerator,
   ItemGenerator,
 } from "../index.js";
@@ -65,6 +66,7 @@ export class Lobby {
     private readonly rankedLadderService: RankedLadderService
   ) {
     this.clientIntentReceiver.initialize(this);
+    this.clientIntentReceiver.listen();
 
     this.characterCreator = new CharacterCreator(
       this.idGenerator,
@@ -127,12 +129,14 @@ export class Lobby {
 
   private intentHandlers = createLobbyClientIntentHandlers(this);
 
-  async handleIntent(clientIntent: ClientIntent, fromUser: UserSession) {
+  async handleIntent(clientIntent: ClientIntent, fromConnectionId: ConnectionId) {
     const handlerOption = this.intentHandlers[clientIntent.type];
 
     if (handlerOption === undefined) {
       throw new Error("Lobby is not configured to handle this type of ClientIntent");
     }
+
+    const fromUser = this.userSessionRegistry.getExpectedSession(fromConnectionId);
 
     // a workaround is to use "as never" for some reason
     const outbox = await handlerOption(clientIntent.data as never, fromUser);

@@ -90,7 +90,7 @@ export class LobbyState {
     return Object.entries(this.games).map(
       ([gameName, game]) =>
         new GameListEntry(
-          gameName,
+          gameName as GameName,
           Object.keys(game.players).length,
           game.mode,
           game.timeStarted,

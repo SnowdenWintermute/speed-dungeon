@@ -30,6 +30,7 @@ import initiateSavedCharacterListeners from "./saved-character-event-handlers/in
 import GameModeContext from "./game-event-handlers/game-mode-strategies/game-mode-context.js";
 import { idGenerator, rngSingleton } from "../singletons/index.js";
 import { AffixGenerator } from "@speed-dungeon/common";
+import { LobbyRemoteClientIntentReceiver } from "./client-intent-receivers/remote-lobby.js";
 
 export type Username = string;
 export type SocketId = string;
@@ -50,7 +51,8 @@ export class GameServer implements ActionCommandReceiver {
     this.connectionHandler();
     this.characterCreator = new CharacterCreator(idGenerator, this.itemGenerator);
 
-    // const lobby = new Lobby();
+    const clientIntentReceiver = new LobbyRemoteClientIntentReceiver(io);
+    // const lobby = new Lobby(clientIntentReceiver);
   }
   // game manager
   games = new HashMap<GameName, SpeedDungeonGame>();
