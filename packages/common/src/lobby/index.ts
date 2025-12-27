@@ -3,7 +3,6 @@ import {
   BasicRandomNumberGenerator,
   CharacterCreator,
   ClientIntent,
-  ClientIntentType,
   ConnectionId,
   IdGenerator,
   ItemGenerator,
@@ -47,6 +46,14 @@ export * from "./services/saved-characters.js";
 export * from "./services/ranked-ladder.js";
 export * from "./services/identity-provider.js";
 
+export interface LobbyExternalServices {
+  identityProviderService: IdentityProviderService;
+  profileService: SpeedDungeonProfileService;
+  savedCharactersService: SavedCharactersService;
+  rankedLadderService: RankedLadderService;
+  idGenerator: IdGenerator;
+}
+
 // lives either inside a LobbyServer or locally on a ClientApp
 export class Lobby {
   private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
@@ -71,31 +78,26 @@ export class Lobby {
     // listens for client intents and delegates them to handlers
     private readonly clientIntentReceiver: ClientIntentReceiver,
     private readonly gameSimulatorHandoffStrategy: GameSimulatorHandoffStrategy,
-    identityProviderService: IdentityProviderService,
-    private profileService: SpeedDungeonProfileService,
-    private readonly savedCharactersService: SavedCharactersService,
-    private readonly rankedLadderService: RankedLadderService,
-    private readonly idGenerator: IdGenerator
+    private readonly externalServices: LobbyExternalServices
   ) {
     this.clientIntentReceiver.initialize(this);
     this.clientIntentReceiver.listen();
 
     this.characterCreator = new CharacterCreator(
-      this.idGenerator,
+      this.externalServices.idGenerator,
       new ItemGenerator(
-        idGenerator,
+        this.externalServices.idGenerator,
         this.randomNumberGenerator,
         new AffixGenerator(this.randomNumberGenerator)
       )
     );
 
-    this.sessionAuthManager = new SessionAuthorizationManager(profileService);
+    this.sessionAuthManager = new SessionAuthorizationManager(externalServices.profileService);
 
     this.savedCharactersController = new SavedCharactersController(
       this.sessionAuthManager,
       this.gameStateUpdateDispatchFactory,
-      this.savedCharactersService,
-      this.rankedLadderService,
+      this.externalServices,
       this.characterCreator
     );
 
@@ -104,7 +106,7 @@ export class Lobby {
       this.gameStateUpdateDispatchFactory,
       this.savedCharactersController,
       this.sessionAuthManager,
-      idGenerator
+      this.externalServices.idGenerator
     );
 
     this.gameLifecycleController = new GameLifecycleController(
@@ -113,7 +115,7 @@ export class Lobby {
       this.sessionAuthManager,
       this.gameStateUpdateDispatchFactory,
       this.partySetupController,
-      idGenerator,
+      this.externalServices.idGenerator,
       this.gameSimulatorHandoffStrategy
     );
 
@@ -121,7 +123,7 @@ export class Lobby {
       this.lobbyState,
       this.sessionAuthManager,
       this.gameStateUpdateDispatchFactory,
-      this.savedCharactersService,
+      this.externalServices.savedCharactersService,
       this.characterCreator
     );
 
@@ -133,7 +135,7 @@ export class Lobby {
       this.gameStateUpdateDispatchFactory,
       this.savedCharactersController,
       this.gameLifecycleController,
-      identityProviderService
+      this.externalServices.identityProviderService
     );
   }
 
@@ -149,7 +151,7 @@ export class Lobby {
     );
 
     if (newSession.userId !== null) {
-      this.profileService.createProfileIfUserHasNone(newSession.userId);
+      this.externalServices.profileService.createProfileIfUserHasNone(newSession.userId);
     }
 
     const outbox = await this.sessionLifecycleController.connectionHandler(

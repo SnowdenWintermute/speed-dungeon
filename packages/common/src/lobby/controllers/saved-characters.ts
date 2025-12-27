@@ -9,15 +9,20 @@ import { GameStateUpdateDispatchFactory } from "../update-delivery/game-state-up
 import { GameStateUpdateDispatchOutbox } from "../update-delivery/update-dispatch-outbox.js";
 import { SessionAuthorizationManager } from "../sessions/authorization-manager.js";
 import { AuthorizedSession, UserSession } from "../sessions/user-session.js";
+import { LobbyExternalServices } from "../index.js";
 
 export class SavedCharactersController {
+  private readonly savedCharactersService: SavedCharactersService;
+  private readonly rankedLadderService: RankedLadderService;
   constructor(
     private readonly sessionAuthManager: SessionAuthorizationManager,
     private readonly updateDispatchFactory: GameStateUpdateDispatchFactory,
-    private readonly savedCharactersService: SavedCharactersService,
-    private readonly rankedLadderService: RankedLadderService,
+    externalServices: LobbyExternalServices,
     private readonly characterCreator: CharacterCreator
-  ) {}
+  ) {
+    this.savedCharactersService = externalServices.savedCharactersService;
+    this.rankedLadderService = externalServices.rankedLadderService;
+  }
 
   async fetchSavedCharactersHandler(session: UserSession) {
     const authorizedSession = await this.sessionAuthManager.requireAuthorizedSession(session);

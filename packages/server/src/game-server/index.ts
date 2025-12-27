@@ -65,36 +65,11 @@ export class GameServer implements ActionCommandReceiver {
   constructor(public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
     this.connectionHandler();
     this.characterCreator = new CharacterCreator(idGenerator, this.itemGenerator);
-
-    const clientIntentReceiver = new LobbyRemoteClientIntentReceiver(io);
+    const clientIntentReceiver = new LobbyRemoteClientIntentReceiver(this.io);
     const gameSimulatorHandoffStrategy = new RemoteGameSimuatorHandoffStrategy();
-    const profilesService = new DatabaseProfileService(speedDungeonProfilesRepo);
-    const savedCharactersPersistenceStrategy = new DatabaseSavedCharacterPersistenceStrategy(
-      playerCharactersRepo
-    );
-    const savedCharacterSlotsPersistenceStrategy =
-      new DatabaseSavedCharacterSlotsPersistenceStrategy(characterSlotsRepo);
-    const savedCharactersService = new SavedCharactersService(
-      savedCharacterSlotsPersistenceStrategy,
-      savedCharactersPersistenceStrategy
-    );
+    const externalServices = this.createLobbyExternalServices();
 
-    const identityProviderService = new IdentityProviderService({
-      execute: async (context: IdentityResolutionContext) => {
-        return await getLoggedInUserOrCreateGuest(context.cookies);
-      },
-    });
-
-    const rankedLadderService = new DatabaseRankedLadderService(valkeyManager.context);
-    const lobby = new Lobby(
-      clientIntentReceiver,
-      gameSimulatorHandoffStrategy,
-      identityProviderService,
-      profilesService,
-      savedCharactersService,
-      rankedLadderService,
-      idGenerator
-    );
+    const lobby = new Lobby(clientIntentReceiver, gameSimulatorHandoffStrategy, externalServices);
   }
   // game manager
   games = new HashMap<GameName, SpeedDungeonGame>();
@@ -136,4 +111,35 @@ export class GameServer implements ActionCommandReceiver {
     [GameMode.Race]: new GameModeContext(GameMode.Race),
     [GameMode.Progression]: new GameModeContext(GameMode.Progression),
   };
+
+  createLobbyExternalServices() {
+    const profileService = new DatabaseProfileService(speedDungeonProfilesRepo);
+    const savedCharactersPersistenceStrategy = new DatabaseSavedCharacterPersistenceStrategy(
+      playerCharactersRepo
+    );
+    const savedCharacterSlotsPersistenceStrategy =
+      new DatabaseSavedCharacterSlotsPersistenceStrategy(characterSlotsRepo);
+    const savedCharactersService = new SavedCharactersService(
+      savedCharacterSlotsPersistenceStrategy,
+      savedCharactersPersistenceStrategy
+    );
+
+    const identityProviderService = new IdentityProviderService({
+      execute: async (context: IdentityResolutionContext) => {
+        return await getLoggedInUserOrCreateGuest(context.cookies);
+      },
+    });
+
+    const rankedLadderService = new DatabaseRankedLadderService(valkeyManager.context);
+
+    const externalServices = {
+      identityProviderService,
+      profileService,
+      savedCharactersService,
+      rankedLadderService,
+      idGenerator,
+    };
+
+    return externalServices;
+  }
 }
