@@ -106,9 +106,7 @@ export class PartySetupController {
     session: UserSession,
     game: SpeedDungeonGame
   ) {
-    const authorizedSession = await this.sessionAuthManager.requireAuthorizedSession(
-      session.connectionId
-    );
+    const authorizedSession = await this.sessionAuthManager.requireAuthorizedSession(session);
 
     const defaultSavedCharacter =
       await this.savedCharactersController.getDefaultSavedCharacterForProgressionGame(

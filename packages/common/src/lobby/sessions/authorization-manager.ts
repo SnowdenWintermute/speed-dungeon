@@ -1,17 +1,11 @@
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { ConnectionId } from "../../types.js";
 import { SpeedDungeonProfileService } from "../services/profiles.js";
-import { UserSessionRegistry } from "./user-session-registry.js";
-import { AuthorizedSession } from "./user-session.js";
+import { AuthorizedSession, UserSession } from "./user-session.js";
 
 export class SessionAuthorizationManager {
-  constructor(
-    private readonly userSessionRegistry: UserSessionRegistry,
-    private readonly profileService: SpeedDungeonProfileService
-  ) {}
+  constructor(private readonly profileService: SpeedDungeonProfileService) {}
 
-  async getAuthorizedSessionOption(connectionId: ConnectionId): Promise<AuthorizedSession | null> {
-    const session = this.userSessionRegistry.getExpectedSession(connectionId);
+  async getAuthorizedSessionOption(session: UserSession): Promise<AuthorizedSession | null> {
     if (session.userId === null) {
       return null;
     }
@@ -21,13 +15,13 @@ export class SessionAuthorizationManager {
     return { session, userId: session.userId, profile };
   }
 
-  async requireAuthorizedSession(connectionId: ConnectionId) {
-    const session = await this.getAuthorizedSessionOption(connectionId);
+  async requireAuthorizedSession(session: UserSession) {
+    const authorizedSession = await this.getAuthorizedSessionOption(session);
 
-    if (session === null) {
+    if (authorizedSession === null) {
       throw new Error(ERROR_MESSAGES.AUTH.REQUIRED);
     }
 
-    return session;
+    return authorizedSession;
   }
 }

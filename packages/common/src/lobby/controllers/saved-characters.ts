@@ -20,9 +20,7 @@ export class SavedCharactersController {
   ) {}
 
   async fetchSavedCharactersHandler(session: UserSession) {
-    const authorizedSession = await this.sessionAuthManager.requireAuthorizedSession(
-      session.connectionId
-    );
+    const authorizedSession = await this.sessionAuthManager.requireAuthorizedSession(session);
     const characterSlots = await this.savedCharactersService.fetchSavedCharacters(
       authorizedSession.profile.id
     );
@@ -68,9 +66,7 @@ export class SavedCharactersController {
     session: UserSession,
     data: { name: string; combatantClass: CombatantClass; slotIndex: number }
   ) {
-    const loggedInUser = await this.sessionAuthManager.requireAuthorizedSession(
-      session.connectionId
-    );
+    const loggedInUser = await this.sessionAuthManager.requireAuthorizedSession(session);
     const { userId, profile } = loggedInUser;
 
     const { name, combatantClass, slotIndex } = data;
@@ -104,9 +100,7 @@ export class SavedCharactersController {
 
   async deleteSavedCharacterHandler(session: UserSession, data: { entityId: string }) {
     const { entityId } = data;
-    const loggedInUser = await this.sessionAuthManager.requireAuthorizedSession(
-      session.connectionId
-    );
+    const loggedInUser = await this.sessionAuthManager.requireAuthorizedSession(session);
     const { profile } = loggedInUser;
 
     // delete the character only if they own it

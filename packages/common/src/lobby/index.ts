@@ -89,10 +89,7 @@ export class Lobby {
       )
     );
 
-    this.sessionAuthManager = new SessionAuthorizationManager(
-      this.userSessionRegistry,
-      profileService
-    );
+    this.sessionAuthManager = new SessionAuthorizationManager(profileService);
 
     this.savedCharactersController = new SavedCharactersController(
       this.sessionAuthManager,

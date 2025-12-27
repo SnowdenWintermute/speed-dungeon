@@ -100,9 +100,7 @@ export class CharacterLifecycleController {
 
     game.requireMode(GameMode.Progression);
 
-    const loggedInUser = await this.sessionAuthManager.requireAuthorizedSession(
-      session.connectionId
-    );
+    const loggedInUser = await this.sessionAuthManager.requireAuthorizedSession(session);
 
     const characters = await this.savedCharactersService.fetchSavedCharacters(
       loggedInUser.profile.id

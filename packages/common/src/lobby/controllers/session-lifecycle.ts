@@ -62,9 +62,7 @@ export class SessionLifecycleController {
       `-- ${session.username} (user id: ${session.userId}, connection id: ${session.connectionId}) joined the lobby`
     );
 
-    const loggedInUser = await this.sessionAuthManager.getAuthorizedSessionOption(
-      session.connectionId
-    );
+    const loggedInUser = await this.sessionAuthManager.getAuthorizedSessionOption(session);
     if (loggedInUser !== null) {
       this.savedCharactersController.fetchSavedCharactersHandler(session);
     }

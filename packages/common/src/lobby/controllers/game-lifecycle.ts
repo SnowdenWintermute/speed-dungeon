@@ -125,7 +125,7 @@ export class GameLifecycleController {
   async createProgressionGameHandler(gameName: GameName, session: UserSession) {
     session.requireNotInGameOnAnotherSession(this.userSessionRegistry);
 
-    await this.sessionAuthManager.requireAuthorizedSession(session.connectionId);
+    await this.sessionAuthManager.requireAuthorizedSession(session);
 
     const game = new SpeedDungeonGame(
       this.idGenerator.generate(),
@@ -161,7 +161,7 @@ export class GameLifecycleController {
 
     if (game.mode === GameMode.Progression) {
       session.requireNotInGameOnAnotherSession(this.userSessionRegistry);
-      await this.sessionAuthManager.requireAuthorizedSession(session.connectionId);
+      await this.sessionAuthManager.requireAuthorizedSession(session);
     }
 
     session.joinGame(game);
