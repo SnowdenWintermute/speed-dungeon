@@ -31,37 +31,30 @@ export interface SerializedPlayerCharacter {
   pets: Combatant[];
 }
 
-export interface SavedCharacterFetchStrategy {
-  fetchSlots: (profileId: number) => Promise<CharacterSlot[]>;
-  fetchCharacter: (characterId: EntityId) => Promise<SerializedPlayerCharacter>;
-}
-
 export interface SavedCharacterPersistenceStrategy {
+  fetchCharacter: (characterId: EntityId) => Promise<SerializedPlayerCharacter>;
   insert: (
     combatant: Combatant,
     pets: Combatant[],
     ownerId: number
   ) => Promise<SerializedPlayerCharacter>;
-  update: (
-    playerCharacter: SerializedPlayerCharacter,
-    pets: Combatant[]
-  ) => Promise<SerializedPlayerCharacter>;
+  update: (combatant: Combatant, pets: Combatant[]) => Promise<SerializedPlayerCharacter>;
   delete: (id: number | string) => Promise<SerializedPlayerCharacter>;
 }
 
 export interface SavedCharacterSlotsPersistenceStrategy {
+  fetchSlots: (profileId: number) => Promise<CharacterSlot[]>;
   update: (characterSlot: CharacterSlot) => Promise<CharacterSlot>;
 }
 
 export class SavedCharactersService {
   constructor(
-    private readonly savedCharacterFetchStrategy: SavedCharacterFetchStrategy,
     private readonly savedCharacterSlotsPersistenceStrategy: SavedCharacterSlotsPersistenceStrategy,
     private readonly savedCharacterPersistenceStrategy: SavedCharacterPersistenceStrategy
   ) {}
 
   async fetchSavedCharacters(profileId: number): Promise<SavedCharacterSlots> {
-    const slots = await this.savedCharacterFetchStrategy.fetchSlots(profileId);
+    const slots = await this.savedCharacterSlotsPersistenceStrategy.fetchSlots(profileId);
     if (slots === undefined) {
       throw new Error("No character slots found");
     }
@@ -89,7 +82,7 @@ export class SavedCharactersService {
   }
 
   async fetchSavedCharacter(characterId: EntityId): Promise<CharacterInSlot> {
-    const character = await this.savedCharacterFetchStrategy.fetchCharacter(characterId);
+    const character = await this.savedCharacterPersistenceStrategy.fetchCharacter(characterId);
 
     if (character === undefined) {
       throw new Error("Character slot was holding an id that didn't match any character");
@@ -114,7 +107,7 @@ export class SavedCharactersService {
   }
 
   async requireEmptySlot(profileId: number, slotIndex: SlotIndex) {
-    const slots = await this.savedCharacterFetchStrategy.fetchSlots(profileId);
+    const slots = await this.savedCharacterSlotsPersistenceStrategy.fetchSlots(profileId);
     const slotOption = slots[slotIndex];
 
     if (slotOption === undefined) {
@@ -130,7 +123,7 @@ export class SavedCharactersService {
   }
 
   async requireSlotWithCharacterId(profileId: number, characterId: EntityId) {
-    const slots = await this.savedCharacterFetchStrategy.fetchSlots(profileId);
+    const slots = await this.savedCharacterSlotsPersistenceStrategy.fetchSlots(profileId);
     for (const slot of slots) {
       if (slot.characterId === characterId) {
         return slot;

@@ -5,8 +5,11 @@ import {
   GameMessagesPayload,
   GameMode,
   GameName,
+  IdentityProviderService,
+  IdentityResolutionContext,
   ItemGenerator,
   Lobby,
+  SavedCharactersService,
   ServerToClientEvent,
   ServerToClientEventTypes,
   SpeedDungeonGame,
@@ -31,6 +34,18 @@ import GameModeContext from "./game-event-handlers/game-mode-strategies/game-mod
 import { idGenerator, rngSingleton } from "../singletons/index.js";
 import { AffixGenerator } from "@speed-dungeon/common";
 import { LobbyRemoteClientIntentReceiver } from "./client-intent-receivers/remote-lobby.js";
+import { RemoteGameSimuatorHandoffStrategy } from "./lobby-setup/remote-game-simulator-handoff-strategy.js";
+import { DatabaseProfileService } from "./services/profiles.js";
+import { speedDungeonProfilesRepo } from "../database/repos/speed-dungeon-profiles.js";
+import {
+  DatabaseSavedCharacterPersistenceStrategy,
+  DatabaseSavedCharacterSlotsPersistenceStrategy,
+} from "./services/saved-characters.js";
+import { playerCharactersRepo } from "../database/repos/player-characters.js";
+import { characterSlotsRepo } from "../database/repos/character-slots.js";
+import { DatabaseRankedLadderService } from "./services/ranked-ladder.js";
+import { valkeyManager } from "../kv-store/index.js";
+import { getLoggedInUserOrCreateGuest } from "./get-logged-in-user-or-create-guest.js";
 
 export type Username = string;
 export type SocketId = string;
@@ -52,7 +67,34 @@ export class GameServer implements ActionCommandReceiver {
     this.characterCreator = new CharacterCreator(idGenerator, this.itemGenerator);
 
     const clientIntentReceiver = new LobbyRemoteClientIntentReceiver(io);
-    // const lobby = new Lobby(clientIntentReceiver);
+    const gameSimulatorHandoffStrategy = new RemoteGameSimuatorHandoffStrategy();
+    const profilesService = new DatabaseProfileService(speedDungeonProfilesRepo);
+    const savedCharactersPersistenceStrategy = new DatabaseSavedCharacterPersistenceStrategy(
+      playerCharactersRepo
+    );
+    const savedCharacterSlotsPersistenceStrategy =
+      new DatabaseSavedCharacterSlotsPersistenceStrategy(characterSlotsRepo);
+    const savedCharactersService = new SavedCharactersService(
+      savedCharacterSlotsPersistenceStrategy,
+      savedCharactersPersistenceStrategy
+    );
+
+    const identityProviderService = new IdentityProviderService({
+      execute: async (context: IdentityResolutionContext) => {
+        return await getLoggedInUserOrCreateGuest(context.cookies);
+      },
+    });
+
+    const rankedLadderService = new DatabaseRankedLadderService(valkeyManager.context);
+    const lobby = new Lobby(
+      clientIntentReceiver,
+      gameSimulatorHandoffStrategy,
+      identityProviderService,
+      profilesService,
+      savedCharactersService,
+      rankedLadderService,
+      idGenerator
+    );
   }
   // game manager
   games = new HashMap<GameName, SpeedDungeonGame>();

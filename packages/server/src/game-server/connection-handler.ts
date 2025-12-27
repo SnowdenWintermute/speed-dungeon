@@ -11,16 +11,16 @@ import { fetchSavedCharactersHandler } from "./saved-character-event-handlers/fe
 export function connectionHandler(this: GameServer) {
   this.io.of("/").on("connection", async (socket) => {
     const req = socket.request;
-    let cookies = req.headers.cookie;
+    const cookies = req.headers.cookie;
 
-    let { username, userId } = await getLoggedInUserOrCreateGuest(cookies, socket);
+    const { username, userId } = await getLoggedInUserOrCreateGuest(cookies);
 
     console.info(`-- ${username} (${socket.id}) connected`);
     this.connections.insert(socket.id, new BrowserTabSession(socket.id, username, userId));
 
-    if (this.socketIdsByUsername.has(username)) {
-      const currentSockets = this.socketIdsByUsername.get(username)!;
-      currentSockets.push(socket.id);
+    const socketListOption = this.socketIdsByUsername.get(username);
+    if (socketListOption) {
+      socketListOption.push(socket.id);
     } else this.socketIdsByUsername.insert(username, [socket.id]);
     // try to send their saved characters
 

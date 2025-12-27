@@ -11,6 +11,7 @@ export const ERROR_MESSAGES = {
   CLASS_INSTANCE_NOT_INITIALIZED: "The class instance was not initialized",
   LOOP_SAFETY_ITERATION_LIMIT_REACHED: (limit: number) =>
     `Loop reached the safety limit of ${limit}`,
+  DATABASE: { SAVING: "There was an error saving the record in the database" },
   SERVER: {
     USERNAME_HAS_NO_SOCKET_IDS: "No socket IDs were found by that username",
     BROWSER_SESSION_NOT_FOUND: "No browser session was found associated with that socked ID",
@@ -75,6 +76,7 @@ export const ERROR_MESSAGES = {
     NO_CURRENT_GAME: "This user has no current game",
     MISSING_PROFILE: "Failed to find expected user profile",
     CHARACTER_SLOT_FULL: "That character slot is occupied",
+    CHARACTER_SLOT_NOT_FOUND: "The expected character slot was not found",
     SAVED_CHARACTER_NOT_OWNED: "You do not own the character with the provided ID",
     NO_LIVING_CHARACTERS: "You have no characters that are alive",
     NOT_FOUND: "User not found",

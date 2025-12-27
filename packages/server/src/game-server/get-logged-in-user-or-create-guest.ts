@@ -1,13 +1,11 @@
-import { Socket } from "socket.io";
 import { speedDungeonProfilesRepo } from "../database/repos/speed-dungeon-profiles.js";
-import { ServerToClientEvent } from "@speed-dungeon/common";
 import getAuthSession from "./utils/get-auth-session.js";
 import { createGuestUser } from "./utils/create-guest-user.js";
+import { IdentityProviderId, Username } from "@speed-dungeon/common";
 
 export async function getLoggedInUserOrCreateGuest(
-  cookies: undefined | string,
-  socket: Socket
-): Promise<{ username: string; userId: null | number }> {
+  cookies: undefined | string
+): Promise<{ username: Username; userId: null | IdentityProviderId }> {
   if (!cookies) return createGuestUser();
 
   try {
@@ -25,8 +23,7 @@ export async function getLoggedInUserOrCreateGuest(
 
     return { username, userId };
   } catch (error) {
-    socket.emit(ServerToClientEvent.ErrorMessage, "Auth server error");
+    console.info("Auth server error", error);
+    return createGuestUser();
   }
-
-  return createGuestUser();
 }

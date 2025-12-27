@@ -3,23 +3,12 @@ import { pgPool } from "../../singletons/pg-pool.js";
 import { RESOURCE_NAMES } from "../db-consts.js";
 import { toCamelCase } from "../utils.js";
 import { DatabaseRepository } from "./index.js";
-import { Combatant, CombatantProperties } from "@speed-dungeon/common";
+import { Combatant, SerializedPlayerCharacter } from "@speed-dungeon/common";
 import { SERVER_VERSION } from "../../server-version.js";
-
-export type PlayerCharacter = {
-  id: string; // UUID
-  name: string;
-  ownerId: number;
-  gameVersion: string;
-  combatantProperties: CombatantProperties;
-  createdAt: number | Date;
-  updatedAt: number | Date;
-  pets: Combatant[];
-};
 
 const tableName = RESOURCE_NAMES.PLAYER_CHARACTERS;
 
-class PlayerCharacterRepo extends DatabaseRepository<PlayerCharacter> {
+export class PlayerCharacterRepo extends DatabaseRepository<SerializedPlayerCharacter> {
   async insert(combatant: Combatant, pets: Combatant[], ownerId: number) {
     const { id, name } = combatant.entityProperties;
     const { combatantProperties } = combatant.getSerialized();
@@ -43,14 +32,14 @@ class PlayerCharacterRepo extends DatabaseRepository<PlayerCharacter> {
 
     const insertedCharacterOption = rows[0];
     if (insertedCharacterOption) {
-      return toCamelCase(rows)[0] as unknown as PlayerCharacter;
+      return toCamelCase(rows)[0] as unknown as SerializedPlayerCharacter;
     } else {
       console.error(`Failed to insert a new ${tableName} record`);
       return undefined;
     }
   }
 
-  async update(playerCharacter: PlayerCharacter, pets: Combatant[]) {
+  async update(playerCharacter: SerializedPlayerCharacter, pets: Combatant[]) {
     const { id, ownerId, name, combatantProperties } = playerCharacter;
 
     const petsAsJSON = JSON.stringify(pets.map((pet) => pet.getSerialized()));
@@ -72,7 +61,7 @@ class PlayerCharacterRepo extends DatabaseRepository<PlayerCharacter> {
       )
     );
 
-    if (rows[0]) return toCamelCase(rows)[0] as unknown as PlayerCharacter;
+    if (rows[0]) return toCamelCase(rows)[0] as unknown as SerializedPlayerCharacter;
     return undefined;
   }
 

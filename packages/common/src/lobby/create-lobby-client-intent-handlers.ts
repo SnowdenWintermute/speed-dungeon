@@ -15,8 +15,6 @@ export type LobbyClientIntentHandlers = {
 export function createLobbyClientIntentHandlers(lobby: Lobby): Partial<LobbyClientIntentHandlers> {
   return {
     // SESSION
-    [ClientIntentType.Connection]: (data, user) =>
-      lobby.sessionLifecycleController.connectionHandler(user, data.transport),
     [ClientIntentType.Disconnection]: (data, user) =>
       lobby.sessionLifecycleController.disconnectionHandler(user, data.reason),
     //  GAME SETUP

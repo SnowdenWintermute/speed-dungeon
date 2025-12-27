@@ -1,5 +1,7 @@
 import {
+  Combatant,
   ERROR_MESSAGES,
+  SerializedPlayerCharacter,
   ServerToClientEvent,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
@@ -8,6 +10,18 @@ import {
 } from "@speed-dungeon/common";
 import { playerCharactersRepo } from "../../database/repos/player-characters.js";
 import { GameServer } from "../index.js";
+
+export async function updatePlayerCharacterInDb(
+  character: Combatant,
+  pets: Combatant[],
+  existingRecord: SerializedPlayerCharacter
+) {
+  const serializedCharacter = character.getSerialized();
+  existingRecord.combatantProperties = serializedCharacter.combatantProperties;
+
+  pets.forEach((pet) => pet.combatantProperties.targetingProperties.clear());
+  await playerCharactersRepo.update(existingRecord, pets);
+}
 
 export async function writePlayerCharactersInGameToDb(
   game: SpeedDungeonGame,
@@ -48,12 +62,8 @@ export async function writePlayerCharactersInGameToDb(
 
       characterResult.combatantProperties.targetingProperties.clear();
 
-      const serializedCharacter = characterResult.getSerialized();
-      existingCharacter.combatantProperties = serializedCharacter.combatantProperties;
-
       const pets = partyOption.petManager.getAllPetsByOwnerId(existingCharacter.id);
-      pets.forEach((pet) => pet.combatantProperties.targetingProperties.clear());
-      await playerCharactersRepo.update(existingCharacter, pets);
+      updatePlayerCharacterInDb(characterResult, pets, existingCharacter);
     }
   } catch (error) {
     if (error instanceof Error) return error;

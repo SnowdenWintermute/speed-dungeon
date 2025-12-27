@@ -3,9 +3,11 @@ import {
   BasicRandomNumberGenerator,
   CharacterCreator,
   ClientIntent,
+  ClientIntentType,
   ConnectionId,
   IdGenerator,
   ItemGenerator,
+  TransportEndpoint,
 } from "../index.js";
 import { ClientIntentReceiver } from "./client-intent-receiver.js";
 import { CharacterLifecycleController } from "./controllers/character-lifecycle.js";
@@ -26,7 +28,11 @@ import {
 } from "./update-delivery/game-state-update-dispatch-factory.js";
 import { UserSessionRegistry } from "./sessions/user-session-registry.js";
 import { SessionAuthorizationManager } from "./sessions/authorization-manager.js";
-import { UserSession } from "./sessions/user-session.js";
+import {
+  IdentityProviderService,
+  IdentityResolutionContext,
+} from "./services/identity-provider.js";
+import { GameStateUpdateDispatchOutbox } from "./update-delivery/update-dispatch-outbox.js";
 
 // @TODO - can remove exports after this becomes default lobby code
 export * from "./controllers/default-naming/games.js";
@@ -35,6 +41,11 @@ export * from "./controllers/default-naming/parties.js";
 export * from "./character-creation/index.js";
 export * from "./client-intent-receiver.js";
 export * from "./update-delivery/transport-endpoint.js";
+export * from "./game-simulator-handoff-strategy.js";
+export * from "./services/profiles.js";
+export * from "./services/saved-characters.js";
+export * from "./services/ranked-ladder.js";
+export * from "./services/identity-provider.js";
 
 // lives either inside a LobbyServer or locally on a ClientApp
 export class Lobby {
@@ -60,10 +71,11 @@ export class Lobby {
     // listens for client intents and delegates them to handlers
     private readonly clientIntentReceiver: ClientIntentReceiver,
     private readonly gameSimulatorHandoffStrategy: GameSimulatorHandoffStrategy,
-    profileService: SpeedDungeonProfileService,
+    identityProviderService: IdentityProviderService,
+    private profileService: SpeedDungeonProfileService,
     private readonly savedCharactersService: SavedCharactersService,
-    private readonly idGenerator: IdGenerator,
-    private readonly rankedLadderService: RankedLadderService
+    private readonly rankedLadderService: RankedLadderService,
+    private readonly idGenerator: IdGenerator
   ) {
     this.clientIntentReceiver.initialize(this);
     this.clientIntentReceiver.listen();
@@ -123,23 +135,48 @@ export class Lobby {
       this.sessionAuthManager,
       this.gameStateUpdateDispatchFactory,
       this.savedCharactersController,
-      this.gameLifecycleController
+      this.gameLifecycleController,
+      identityProviderService
     );
   }
 
   private intentHandlers = createLobbyClientIntentHandlers(this);
 
-  async handleIntent(clientIntent: ClientIntent, fromConnectionId: ConnectionId) {
+  async handleConnection(
+    transportEndpoint: TransportEndpoint,
+    identityResolutionContext: IdentityResolutionContext
+  ) {
+    const newSession = await this.sessionLifecycleController.createUserSession(
+      transportEndpoint.id,
+      identityResolutionContext
+    );
+
+    if (newSession.userId !== null) {
+      this.profileService.createProfileIfUserHasNone(newSession.userId);
+    }
+
+    const outbox = await this.sessionLifecycleController.connectionHandler(
+      newSession,
+      transportEndpoint
+    );
+    this.dispatchOutboxMessages(outbox);
+  }
+
+  async handleIntent(clientIntent: ClientIntent, connectionId: ConnectionId) {
     const handlerOption = this.intentHandlers[clientIntent.type];
 
     if (handlerOption === undefined) {
       throw new Error("Lobby is not configured to handle this type of ClientIntent");
     }
 
-    const fromUser = this.userSessionRegistry.getExpectedSession(fromConnectionId);
+    const fromUser = this.userSessionRegistry.getExpectedSession(connectionId);
 
     // a workaround is to use "as never" for some reason
     const outbox = await handlerOption(clientIntent.data as never, fromUser);
+    this.dispatchOutboxMessages(outbox);
+  }
+
+  private dispatchOutboxMessages(outbox: GameStateUpdateDispatchOutbox) {
     for (const dispatch of outbox.toDispatches()) {
       switch (dispatch.type) {
         case GameStateUpdateDispatchType.Single:

@@ -14,7 +14,6 @@ import { GameMode, GameName } from "../types.js";
 import { CharacterAndItems } from "./game-state-updates.js";
 
 export enum ClientIntentType {
-  Connection,
   Disconnection,
   // lobby
   RequestsGameList,
@@ -76,7 +75,6 @@ export enum ClientIntentType {
 
 // Map enum values to payload types
 export interface ClientIntentMap {
-  [ClientIntentType.Connection]: { transport: TransportEndpoint };
   [ClientIntentType.Disconnection]: { reason: TransportDisconnectReason };
   [ClientIntentType.RequestsGameList]: undefined;
   [ClientIntentType.CreateGame]: {
@@ -360,9 +358,6 @@ const intentHandlers: ClientIntentHandlers = {
     throw new Error("Function not implemented.");
   },
   [ClientIntentType.RenamePet]: function (intent: { petId: EntityId; newName: string }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.Connection]: function (intent: { transport: TransportEndpoint }): void {
     throw new Error("Function not implemented.");
   },
   [ClientIntentType.Disconnection]: function (intent: { reason: TransportDisconnectReason }): void {

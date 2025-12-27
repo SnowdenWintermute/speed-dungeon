@@ -1,8 +1,14 @@
 import { ClientIntent } from "../packets/client-intents.js";
 import { ConnectionId } from "../types.js";
+import { IdentityResolutionContext } from "./services/identity-provider.js";
+import { TransportEndpoint } from "./update-delivery/transport-endpoint.js";
 
 export interface IntentHandler {
   handleIntent: (clientIntent: ClientIntent, fromConnectionId: ConnectionId) => void;
+  handleConnection(
+    transportEndpoint: TransportEndpoint,
+    identityResolutionContext: IdentityResolutionContext
+  ): Promise<void>;
 }
 
 export abstract class ClientIntentReceiver {
@@ -10,6 +16,16 @@ export abstract class ClientIntentReceiver {
 
   initialize(intentHandler: IntentHandler) {
     this.intentHandler = intentHandler;
+  }
+
+  handleConnection(
+    transportEndpoint: TransportEndpoint,
+    identityResolutionContext: IdentityResolutionContext
+  ) {
+    if (this.intentHandler === null) {
+      throw new Error("Not initialized");
+    }
+    this.intentHandler.handleConnection(transportEndpoint, identityResolutionContext);
   }
 
   /** either set up the socket.io event listener for ClientIntent

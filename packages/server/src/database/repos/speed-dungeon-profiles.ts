@@ -7,7 +7,7 @@ import { DEFAULT_ACCOUNT_CHARACTER_CAPACITY, SpeedDungeonProfile } from "@speed-
 
 const tableName = RESOURCE_NAMES.SPEED_DUNGEON_PROFILES;
 
-class SpeedDungeonProfileRepo extends DatabaseRepository<SpeedDungeonProfile> {
+export class SpeedDungeonProfileRepo extends DatabaseRepository<SpeedDungeonProfile> {
   async insert(ownerId: number) {
     const { rows } = await this.pgPool.query(
       format(

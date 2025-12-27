@@ -13,6 +13,12 @@ import { GameStateUpdateDispatchOutbox } from "../update-delivery/update-dispatc
 import { UserSessionRegistry } from "../sessions/user-session-registry.js";
 import { SessionAuthorizationManager } from "../sessions/authorization-manager.js";
 import { UserSession } from "../sessions/user-session.js";
+import {
+  IdentityProviderService,
+  IdentityResolutionContext,
+} from "../services/identity-provider.js";
+import { ConnectionId, Username } from "../../types.js";
+import { PLAYER_FIRST_NAMES, PLAYER_LAST_NAMES } from "./default-naming/users.js";
 
 export class SessionLifecycleController {
   constructor(
@@ -22,8 +28,34 @@ export class SessionLifecycleController {
     private readonly sessionAuthManager: SessionAuthorizationManager,
     private readonly updateDispatchFactory: GameStateUpdateDispatchFactory,
     private readonly savedCharactersController: SavedCharactersController,
-    private readonly gameLifecycleController: GameLifecycleController
+    private readonly gameLifecycleController: GameLifecycleController,
+    private readonly identityProviderService: IdentityProviderService
   ) {}
+
+  async createUserSession(
+    connectionId: ConnectionId,
+    context: IdentityResolutionContext
+  ): Promise<UserSession> {
+    const authenticatedUserOption = await this.identityProviderService.resolve(context);
+    if (authenticatedUserOption === null) {
+      const { username, userId } = this.createGuestUser();
+      return new UserSession(username, connectionId, userId);
+    }
+
+    const { username, userId } = authenticatedUserOption;
+
+    return new UserSession(username, connectionId, userId);
+  }
+
+  private generateRandomUsername() {
+    const firstName = PLAYER_FIRST_NAMES[Math.floor(Math.random() * PLAYER_FIRST_NAMES.length)];
+    const lastName = PLAYER_LAST_NAMES[Math.floor(Math.random() * PLAYER_LAST_NAMES.length)];
+    return `${firstName} ${lastName}` as Username;
+  }
+
+  private createGuestUser() {
+    return { username: this.generateRandomUsername(), userId: null };
+  }
 
   async connectionHandler(session: UserSession, endpoint: TransportEndpoint) {
     console.info(
