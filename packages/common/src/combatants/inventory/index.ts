@@ -1,7 +1,7 @@
 import { INVENTORY_DEFAULT_CAPACITY } from "../../app-consts.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { Item, ItemType } from "../../items/index.js";
-import { Consumable, ConsumableType } from "../../items/consumables/index.js";
+import { Consumable } from "../../items/consumables/index.js";
 import { Equipment, TaggedEquipmentSlot } from "../../items/equipment/index.js";
 import { plainToInstance } from "class-transformer";
 import { EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL } from "../combatant-traits/index.js";
@@ -11,6 +11,7 @@ import { runIfInBrowser } from "../../utils/index.js";
 import { CombatantSubsystem } from "../combatant-subsystem.js";
 import makeAutoObservable from "mobx-store-inheritance";
 import { AdventuringParty } from "../../adventuring-party/index.js";
+import { ConsumableType } from "../../items/consumables/consumable-types.js";
 
 export class Inventory extends CombatantSubsystem {
   consumables: Consumable[] = [];
@@ -139,14 +140,14 @@ export class Inventory extends CombatantSubsystem {
   }
 
   removeEquipment(itemId: string): Error | Equipment {
-    let itemOption = Item.removeFromArray(this.equipment, itemId);
+    const itemOption = Item.removeFromArray(this.equipment, itemId);
     if (itemOption === undefined) return new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
     if (!(itemOption instanceof Equipment)) return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
     else return itemOption;
   }
 
   removeConsumable(itemId: string): Error | Consumable {
-    let itemOption = Item.removeFromArray(this.consumables, itemId);
+    const itemOption = Item.removeFromArray(this.consumables, itemId);
     if (itemOption === undefined) return new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
     if (!(itemOption instanceof Consumable)) return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
     else return itemOption;

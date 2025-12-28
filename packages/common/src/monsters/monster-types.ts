@@ -1,4 +1,4 @@
-import { CombatantClass } from "../combatants/index.js";
+import { CombatantClass } from "../combatants/combatant-class/classes.js";
 
 export enum MonsterType {
   MetallicGolem, // High AC

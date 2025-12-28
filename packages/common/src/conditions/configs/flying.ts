@@ -1,19 +1,19 @@
 import { Vector3 } from "@babylonjs/core";
-import { CombatActionIntent } from "../../combat/combat-actions/index.js";
+import {
+  CombatActionExecutionIntent,
+  CombatActionIntent,
+  CombatActionName,
+} from "../../combat/combat-actions/index.js";
 import { TransformModifiers } from "../../scene-entities/index.js";
 import { CombatantConditionInit } from "../condition-config.js";
-import {
-  ActionUserContext,
-  CombatActionExecutionIntent,
-  CombatActionName,
-  CombatActionTargetType,
-  Combatant,
-  CombatantCondition,
-  IdGenerator,
-  Meters,
-  runIfInBrowser,
-} from "../../index.js";
 import makeAutoObservable from "mobx-store-inheritance";
+import { Meters } from "../../aliases.js";
+import { runIfInBrowser } from "../../utils/index.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
+import { Combatant } from "../../combatants/index.js";
+import { IdGenerator } from "../../utility-classes/index.js";
+import { CombatActionTargetType } from "../../combat/targeting/combat-action-targets.js";
+import { CombatantCondition } from "../index.js";
 
 const FLYING_HEIGHT: Meters = 2;
 

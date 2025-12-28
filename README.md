@@ -55,3 +55,9 @@ Explanation:
 Importing from src tries to pull in the TypeScript source directly. This breaks because:
 Node requires .js extensions in ESM imports, which is handled in the compiled dist files.
 Next.js (Turbopack) reads the .js imports in the source and cannot find the corresponding files.
+
+- Error description: TypeError: Class extends value undefined is not a constructor or null or
+  some other undefined like MyEnum.Member can't find .Member on Undefined. It is probably a circular
+  import.
+  Solution: Try using direct path imports in the complaining file instead of importing from a mass
+  export file like common/index.ts

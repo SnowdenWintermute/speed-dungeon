@@ -115,28 +115,6 @@ export class SanitizedRacePartyAggregatedRecord {
   }
 }
 
-export interface SpeedDungeonProfile {
-  id: number;
-  ownerId: IdentityProviderId;
-  characterCapacity: number;
-  createdAt: number | Date;
-  updatedAt: number | Date;
-}
-
-export class SanitizedProfile {
-  createdAt: number;
-  characterCapacity: number;
-  constructor(profile: SpeedDungeonProfile) {
-    this.createdAt = +profile.createdAt;
-    this.characterCapacity = +profile.characterCapacity;
-  }
-}
-
-export type ProfileCharacterRanks = Record<
-  EntityId,
-  { name: string; level: number; rank: number | null; class: CombatantClass }
->;
-
 export type BoundingBoxSizesBySpecies = Partial<
   Record<
     CombatantSpecies,

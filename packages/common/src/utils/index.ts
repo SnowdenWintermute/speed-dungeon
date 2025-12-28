@@ -6,13 +6,14 @@ export * from "./shape-utils.js";
 export * from "./interpolation-curves.js";
 
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { CONSUMABLE_TYPE_STRINGS, Consumable, ConsumableType } from "../items/consumables/index.js";
+import { CONSUMABLE_TYPE_STRINGS, Consumable } from "../items/consumables/index.js";
 import { BoxDimensions } from "./shape-utils.js";
 import { NextOrPrevious } from "../primatives/index.js";
 import { toJS } from "mobx";
 import cloneDeep from "lodash.clonedeep";
 import { plainToInstance } from "class-transformer";
 import { GameName, PartyName } from "../aliases.js";
+import { ConsumableType } from "../items/consumables/consumable-types.js";
 
 export function iterateNumericEnum<T extends Record<string, string | number>>(
   enumType: T

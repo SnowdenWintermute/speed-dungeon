@@ -2,7 +2,7 @@ import { CombatActionComponent } from ".";
 import { ActionResolutionStepContext } from "../../action-processing/index.js";
 import { IActionUser } from "../../action-user-context/action-user";
 import { AdventuringParty } from "../../adventuring-party";
-import { ConsumableType } from "../../items/consumables/index.js";
+import { ConsumableType } from "../../items/consumables/consumable-types";
 import {
   EquipmentSlotType,
   HoldableSlotType,

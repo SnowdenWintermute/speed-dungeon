@@ -11,6 +11,7 @@ export * from "./errors/entity-not-found.js";
 export * from "./items/index.js";
 export * from "./items/equipment/index.js";
 export * from "./items/consumables/index.js";
+export * from "./items/consumables/consumable-types.js";
 export * from "./game/index.js";
 export * from "./combat/index.js";
 export * from "./monsters/index.js";

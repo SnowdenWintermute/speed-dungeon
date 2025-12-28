@@ -3,7 +3,7 @@ import {
   CHANCE_TO_HAVE_PREFIX,
   CHANCE_TO_HAVE_SUFFIX,
 } from "../../app-consts.js";
-import { ConsumableType } from "../consumables/index.js";
+import { ConsumableType } from "../consumables/consumable-types.js";
 import { Equipment } from "../equipment/index.js";
 import { CraftingAction } from "./crafting-actions.js";
 import { getEquipmentBaseValue } from "./shard-sell-prices.js";

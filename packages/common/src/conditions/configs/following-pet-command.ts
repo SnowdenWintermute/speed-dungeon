@@ -2,8 +2,9 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { AiType } from "../../combat/ai-behavior/index.js";
 import { CombatActionIntent } from "../../combat/combat-actions/combat-action-intent.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
-import { CombatantCondition, runIfInBrowser } from "../../index.js";
 import { CombatantConditionInit } from "../condition-config.js";
+import { runIfInBrowser } from "../../utils/index.js";
+import { CombatantCondition } from "../index.js";
 
 const PET_AI_TYPES_BY_COMMAND_RANK: Record<number, AiType[]> = {
   [1]: [AiType.TargetPetOwnerMostRecentTarget],

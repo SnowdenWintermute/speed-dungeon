@@ -1,4 +1,4 @@
-import { CombatantSpecies } from "../combatants/index.js";
+import { CombatantSpecies } from "../combatants/combatant-species.js";
 import { MonsterType } from "./monster-types.js";
 
 export const MONSTER_SPECIES: Record<MonsterType, CombatantSpecies> = {

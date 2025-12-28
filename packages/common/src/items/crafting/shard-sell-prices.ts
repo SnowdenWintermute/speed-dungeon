@@ -6,7 +6,7 @@ import {
   CHANCE_TO_HAVE_SUFFIX,
 } from "../../app-consts.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { Consumable, ConsumableType } from "../consumables/index.js";
+import { Consumable } from "../consumables/index.js";
 import { Equipment } from "../equipment/index.js";
 import {
   BASE_CONSUMABLE_PRICES,
@@ -16,6 +16,7 @@ import {
   EXPONENTIAL_WEIGHT_SELL,
   LINEAR_STEP_SELL,
 } from "./craft-action-prices.js";
+import { ConsumableType } from "../consumables/consumable-types.js";
 
 const SUFFIX_CHANCE_BEFORE_MAGICAL = BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL * CHANCE_TO_HAVE_SUFFIX;
 const PREFIX_CHANCE_BEFORE_MAGICAL = BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL * CHANCE_TO_HAVE_PREFIX;

@@ -1,4 +1,28 @@
-import { ERROR_MESSAGES, IdentityProviderId, SpeedDungeonProfile } from "../../index.js";
+import { EntityId, IdentityProviderId } from "../../aliases.js";
+import { CombatantClass } from "../../combatants/combatant-class/classes.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
+
+export interface SpeedDungeonProfile {
+  id: number;
+  ownerId: IdentityProviderId;
+  characterCapacity: number;
+  createdAt: number | Date;
+  updatedAt: number | Date;
+}
+
+export class SanitizedProfile {
+  createdAt: number;
+  characterCapacity: number;
+  constructor(profile: SpeedDungeonProfile) {
+    this.createdAt = Number(profile.createdAt);
+    this.characterCapacity = profile.characterCapacity;
+  }
+}
+
+export type ProfileCharacterRanks = Record<
+  EntityId,
+  { name: string; level: number; rank: number | null; class: CombatantClass }
+>;
 
 export abstract class SpeedDungeonProfileService {
   abstract fetchProfileOption(userId: IdentityProviderId): Promise<undefined | SpeedDungeonProfile>;

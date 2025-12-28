@@ -1,18 +1,18 @@
 import makeAutoObservable from "mobx-store-inheritance";
-import { CombatActionIntent } from "../../combat/combat-actions/index.js";
 import {
-  ActionUserContext,
-  COMBAT_ACTIONS,
   CombatActionExecutionIntent,
+  CombatActionIntent,
   CombatActionName,
-  CombatActionTargetType,
-  Combatant,
-  CombatantCondition,
-  IdGenerator,
-  MaxAndCurrent,
-  runIfInBrowser,
-} from "../../index.js";
+} from "../../combat/combat-actions/index.js";
 import { CombatantConditionInit } from "../condition-config.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
+import { Combatant } from "../../combatants/index.js";
+import { IdGenerator } from "../../utility-classes/index.js";
+import { CombatActionTargetType } from "../../combat/targeting/combat-action-targets.js";
+import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
+import { MaxAndCurrent } from "../../primatives/max-and-current.js";
+import { CombatantCondition } from "../index.js";
+import { runIfInBrowser } from "../../utils/index.js";
 
 export class PrimedForExplosionCondition extends CombatantCondition {
   constructor(init: CombatantConditionInit) {

@@ -1,9 +1,9 @@
-import { ConsumableType } from "../../items/consumables/index.js";
 import { CombatActionTarget } from "../index.js";
 import { EntityId, Milliseconds } from "../../aliases.js";
 import { CombatActionName } from "./combat-action-names.js";
 import { ActionResolutionStepType } from "../../action-processing/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
+import { ConsumableType } from "../../items/consumables/consumable-types.js";
 
 export class CombatActionExecutionIntent {
   private delaysByStep: Partial<Record<ActionResolutionStepType, Milliseconds>> = {};

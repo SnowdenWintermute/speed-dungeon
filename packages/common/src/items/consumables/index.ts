@@ -3,15 +3,7 @@ import { Item } from "../index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 import { CombatActionName } from "../../combat/index.js";
 import { CombatantClass } from "../../combatants/index.js";
-
-export enum ConsumableType {
-  HpAutoinjector,
-  MpAutoinjector,
-  StackOfShards,
-  WarriorSkillbook,
-  RogueSkillbook,
-  MageSkillbook,
-}
+import { ConsumableType } from "./consumable-types.js";
 
 export class Consumable extends Item {
   constructor(

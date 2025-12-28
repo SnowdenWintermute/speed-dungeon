@@ -6,7 +6,6 @@ import {
   CombatActionOrigin,
 } from "../../index.js";
 import { BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL } from "../../../../combatants/index.js";
-import { ConsumableType } from "../../../../items/consumables/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import {
@@ -34,6 +33,7 @@ import {
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { CombatantTraitType } from "../../../../combatants/combatant-traits/trait-types.js";
+import { ConsumableType } from "../../../../items/consumables/consumable-types.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 

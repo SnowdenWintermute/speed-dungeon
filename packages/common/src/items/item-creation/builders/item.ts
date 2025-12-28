@@ -1,5 +1,5 @@
 import { CombatAttribute } from "../../../combatants/index.js";
-import { ConsumableType } from "../../consumables/index.js";
+import { ConsumableType } from "../../consumables/consumable-types.js";
 import { EquipmentAffixes } from "../../equipment/affixes.js";
 import { EquipmentBaseItemProperties } from "../../equipment/equipment-properties/index.js";
 import { EquipmentBaseItem } from "../../equipment/equipment-types/index.js";
@@ -17,7 +17,6 @@ export type TaggedBaseItem =
     };
 
 export abstract class ItemGenerationBuilder {
-  constructor() {}
   abstract buildBaseItem: (
     itemLevel: number,
     forcedBaseItemOption?: TaggedBaseItem | undefined

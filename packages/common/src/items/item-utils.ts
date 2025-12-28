@@ -1,4 +1,5 @@
-import { Consumable, ConsumableType } from "./consumables/index.js";
+import { ConsumableType } from "./consumables/consumable-types.js";
+import { Consumable } from "./consumables/index.js";
 import { Equipment } from "./equipment/index.js";
 import { Item } from "./index.js";
 

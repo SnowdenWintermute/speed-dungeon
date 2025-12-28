@@ -3,7 +3,8 @@ import { ActionAndRank } from "../action-user-context/action-user-targeting-prop
 import { EntityId, GameName, PartyName } from "../aliases.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { CombatantClass } from "../combatants/index.js";
-import { BookConsumableType, ConsumableType } from "../items/consumables/index.js";
+import { ConsumableType } from "../items/consumables/consumable-types.js";
+import { BookConsumableType } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { NextOrPrevious } from "../primatives/index.js";
