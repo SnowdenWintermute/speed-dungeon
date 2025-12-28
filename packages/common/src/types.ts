@@ -125,7 +125,7 @@ export class SanitizedRacePartyAggregatedRecord {
 
 export interface SpeedDungeonProfile {
   id: number;
-  ownerId: number;
+  ownerId: IdentityProviderId;
   characterCapacity: number;
   createdAt: number | Date;
   updatedAt: number | Date;

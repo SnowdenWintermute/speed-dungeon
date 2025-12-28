@@ -4,35 +4,23 @@ import {
   SpeedDungeonProfile,
   SpeedDungeonProfileService,
 } from "@speed-dungeon/common";
-import { SpeedDungeonProfileRepo } from "../../database/repos/speed-dungeon-profiles";
+import { SpeedDungeonProfileRepo } from "../../database/repos/speed-dungeon-profiles.js";
 
-export class DatabaseProfileService implements SpeedDungeonProfileService {
-  constructor(private profilesRepo: SpeedDungeonProfileRepo) {}
-  fetchProfileOption(userId: IdentityProviderId): Promise<undefined | SpeedDungeonProfile> {
-    throw new Error("Method not implemented.");
+export class DatabaseProfileService extends SpeedDungeonProfileService {
+  constructor(private profilesRepo: SpeedDungeonProfileRepo) {
+    super();
   }
-  createProfile(userId: IdentityProviderId): Promise<SpeedDungeonProfile> {
-    throw new Error("Method not implemented.");
-  }
-
-  async createProfileIfUserHasNone(userId: IdentityProviderId): Promise<void> {
-    // if they don't yet have a profile, create one
+  async fetchProfileOption(userId: IdentityProviderId): Promise<undefined | SpeedDungeonProfile> {
     const speedDungeonProfileOption = await this.profilesRepo.findOne("ownerId", userId);
-    if (speedDungeonProfileOption === undefined) {
-      console.info("creating speed dungeon profile for user");
-      const expectedProfile = await this.profilesRepo.insert(userId);
-      if (expectedProfile === undefined) {
-        throw new Error(`${ERROR_MESSAGES.DATABASE.SAVING}`);
-      }
-    }
+    return speedDungeonProfileOption;
   }
 
-  async fetchExpectedProfile(userId: IdentityProviderId): Promise<SpeedDungeonProfile> {
-    const expectedProfile = await this.profilesRepo.findOne("ownerId", userId);
+  async createProfile(userId: IdentityProviderId): Promise<SpeedDungeonProfile> {
+    console.info("creating speed dungeon profile for user");
+    const expectedProfile = await this.profilesRepo.insert(userId);
     if (expectedProfile === undefined) {
-      throw new Error(ERROR_MESSAGES.USER.MISSING_PROFILE);
+      throw new Error(`${ERROR_MESSAGES.DATABASE.SAVING}`);
     }
-
     return expectedProfile;
   }
 }
