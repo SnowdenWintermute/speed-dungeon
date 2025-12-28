@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { ConditionId, EntityId, Milliseconds } from "../primatives/index.js";
+import { ConditionId, EntityId, Milliseconds } from "../aliases.js";
 import {
   ActionResourceCosts,
   ActionUseMessageData,

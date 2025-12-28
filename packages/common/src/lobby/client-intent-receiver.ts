@@ -1,5 +1,5 @@
 import { ClientIntent } from "../packets/client-intents.js";
-import { ConnectionId } from "../types.js";
+import { ConnectionId } from "../aliases.js";
 import { IdentityResolutionContext } from "./services/identity-provider.js";
 import { TransportEndpoint } from "./update-delivery/transport-endpoint.js";
 

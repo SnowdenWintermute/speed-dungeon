@@ -1,11 +1,16 @@
-import { ERROR_MESSAGES, ServerToClientEvent, getPartyChannelName } from "@speed-dungeon/common";
+import {
+  ERROR_MESSAGES,
+  PartyName,
+  ServerToClientEvent,
+  getPartyChannelName,
+} from "@speed-dungeon/common";
 import errorHandler from "../error-handler.js";
 import { Socket } from "socket.io";
 import { getGameServer } from "../../singletons/index.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 
 export function joinPartyHandler(
-  partyName: string,
+  partyName: PartyName,
   playerAssociatedData: ServerPlayerAssociatedData,
   socket: Socket
 ) {

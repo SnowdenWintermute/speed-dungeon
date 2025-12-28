@@ -1,6 +1,6 @@
 import { plainToInstance } from "class-transformer";
 import makeAutoObservable from "mobx-store-inheritance";
-import { EntityId } from "../primatives/index.js";
+import { EntityId } from "../aliases.js";
 import { runIfInBrowser } from "../utils/index.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { AiType } from "../combat/ai-behavior/index.js";

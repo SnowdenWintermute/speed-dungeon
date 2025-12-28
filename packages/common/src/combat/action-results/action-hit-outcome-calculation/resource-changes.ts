@@ -1,7 +1,7 @@
 import { plainToInstance } from "class-transformer";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { ThreatType } from "../../../combatants/index.js";
-import { EntityId } from "../../../primatives/index.js";
+import { EntityId } from "../../../aliases.js";
 import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 import { ResourceChange, ResourceChangeSource } from "../../hp-change-source-types.js";
 

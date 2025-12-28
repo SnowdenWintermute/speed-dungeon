@@ -5,6 +5,7 @@ import {
   ConnectionId,
   GameName,
   IdentityProviderId,
+  PartyName,
   SpeedDungeonGame,
   SpeedDungeonProfile,
   Username,
@@ -20,7 +21,7 @@ export interface AuthorizedSession {
 
 export class UserSession {
   public currentGameName: null | GameName = null;
-  public currentPartyName: null | string = null;
+  public currentPartyName: null | PartyName = null;
   private channelsSubscribedTo = new Set<ChannelName>();
 
   constructor(

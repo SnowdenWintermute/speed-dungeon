@@ -9,7 +9,7 @@ import { Combatant, ThreatType } from "../../combatants/index.js";
 import { ConditionAppliedBy } from "../../conditions/condition-applied-by.js";
 import { CombatantConditionName } from "../../conditions/condition-names.js";
 import { HoldableSlotType } from "../../items/equipment/slots.js";
-import { NormalizedPercentage, Percentage } from "../../primatives/index.js";
+import { NormalizedPercentage, Percentage } from "../../aliases.js";
 import { CombatActionHitOutcomes, ThreatChanges } from "../action-results/index.js";
 import { ActionAccuracy } from "./combat-action-accuracy.js";
 import { CombatActionResourceChangeProperties } from "./combat-action-resource-change-properties.js";

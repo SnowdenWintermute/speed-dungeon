@@ -1,6 +1,6 @@
 import { ActionCommandPayload, ActionCommandType } from "./index.js";
 import { ActionCommandReceiver } from "./action-command-receiver.js";
-import { GameName } from "../types.js";
+import { GameName } from "../aliases.js";
 
 export class ActionCommand {
   constructor(

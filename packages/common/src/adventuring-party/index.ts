@@ -1,4 +1,3 @@
-import { EntityId } from "../primatives/index.js";
 import { DungeonRoom, DungeonRoomType } from "./dungeon-room.js";
 import { InputLock } from "./input-lock.js";
 import { ActionCommandQueue } from "../action-processing/action-command-queue.js";
@@ -15,6 +14,7 @@ import { runIfInBrowser } from "../utils/index.js";
 import { Item } from "../items/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { plainToInstance } from "class-transformer";
+import { EntityId, PartyName, Username } from "../aliases.js";
 export * from "./dungeon-room.js";
 export * from "./dungeon-exploration-manager.js";
 export * from "./input-lock.js";
@@ -27,7 +27,7 @@ export class AdventuringParty {
   combatantManager = new CombatantManager();
 
   // players
-  playerUsernames: string[] = [];
+  playerUsernames: Username[] = [];
 
   // current room
   currentRoom: DungeonRoom = new DungeonRoom(DungeonRoomType.Empty);
@@ -38,7 +38,7 @@ export class AdventuringParty {
   timeOfEscape: null | number = null;
 
   // player input management
-  itemsOnGroundNotYetReceivedByAllClients: { [id: EntityId]: EntityId[] } = {};
+  itemsOnGroundNotYetReceivedByAllClients: Record<EntityId, EntityId[]> = {};
   inputLock: InputLock = new InputLock();
 
   // event management
@@ -46,13 +46,13 @@ export class AdventuringParty {
 
   constructor(
     public id: string,
-    public name: string
+    public name: PartyName
   ) {
     runIfInBrowser(() => makeAutoObservable(this));
   }
 
   static createInitialized(id: EntityId, name: string) {
-    const party = new AdventuringParty(id, name);
+    const party = new AdventuringParty(id, name as PartyName);
     party.initialize();
     return party;
   }

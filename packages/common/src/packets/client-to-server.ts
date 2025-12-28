@@ -1,12 +1,13 @@
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
+import { EntityId, GameName, PartyName } from "../aliases.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { CombatantClass } from "../combatants/index.js";
 import { BookConsumableType, ConsumableType } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
-import { EntityId, NextOrPrevious } from "../primatives/index.js";
-import { GameMode, GameName } from "../types.js";
+import { NextOrPrevious } from "../primatives/index.js";
+import { GameMode } from "../types.js";
 import { ClientIntent } from "./client-intents.js";
 import { CharacterAndItems } from "./game-state-updates.js";
 
@@ -64,8 +65,8 @@ export interface ClientToServerEventTypes {
   }) => void;
   [ClientToServerEvent.JoinGame]: (gameName: GameName) => void;
   [ClientToServerEvent.LeaveGame]: (eventData?: undefined) => void;
-  [ClientToServerEvent.CreateParty]: (partyName: string) => void;
-  [ClientToServerEvent.JoinParty]: (partyName: string) => void;
+  [ClientToServerEvent.CreateParty]: (partyName: PartyName) => void;
+  [ClientToServerEvent.JoinParty]: (partyName: PartyName) => void;
   [ClientToServerEvent.LeaveParty]: (eventData?: undefined) => void;
   [ClientToServerEvent.ToggleReadyToStartGame]: (eventData?: undefined) => void;
   [ClientToServerEvent.CreateCharacter]: (eventData: {

@@ -5,7 +5,7 @@ import { Consumable, ConsumableType } from "../../items/consumables/index.js";
 import { Equipment, TaggedEquipmentSlot } from "../../items/equipment/index.js";
 import { plainToInstance } from "class-transformer";
 import { EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL } from "../combatant-traits/index.js";
-import { EntityId } from "../../primatives/index.js";
+import { EntityId } from "../../aliases.js";
 import { CombatantTraitType } from "../combatant-traits/trait-types.js";
 import { runIfInBrowser } from "../../utils/index.js";
 import { CombatantSubsystem } from "../combatant-subsystem.js";

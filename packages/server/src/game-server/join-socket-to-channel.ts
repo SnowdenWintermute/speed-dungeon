@@ -1,5 +1,6 @@
 import {
   ArrayUtils,
+  ChannelName,
   ServerToClientEvent,
   UserAuthStatus,
   UserChannelDisplayData,
@@ -9,7 +10,7 @@ import { Channel, GameServer } from "./index.js";
 export default function joinSocketToChannel(
   this: GameServer,
   socketId: string,
-  newChannelName: string
+  newChannelName: ChannelName
 ) {
   const namespace = "/";
   const socket = this.io.of(namespace).sockets.get(socketId);

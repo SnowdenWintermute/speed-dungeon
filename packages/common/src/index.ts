@@ -4,6 +4,7 @@ export * from "./primatives/index.js";
 export * from "./utility-classes/index.js";
 export * from "./utils/index.js";
 export * from "./utils/array-utils.js";
+export * from "./aliases.js";
 export * from "./types.js";
 export * from "./errors/index.js";
 export * from "./errors/entity-not-found.js";

@@ -8,7 +8,6 @@ import {
   MAX_PARTY_SIZE,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
-  getProgressionGameMaxStartingFloor,
   getProgressionGamePartyName,
 } from "@speed-dungeon/common";
 import React, { useEffect, useMemo } from "react";
@@ -40,9 +39,7 @@ export const ProgressionGameLobby = observer(() => {
   }
 
   // true max starting floor is the deepest that all selected have reached
-  const maxStartingFloor = getProgressionGameMaxStartingFloor(
-    game.lowestStartingFloorOptionsBySavedCharacter
-  );
+  const maxStartingFloor = game.getMaxStartingFloor();
 
   useEffect(() => {
     if (game.selectedStartingFloor > maxStartingFloor) {

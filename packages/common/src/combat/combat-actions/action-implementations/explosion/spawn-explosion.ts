@@ -11,7 +11,7 @@ import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templat
 import { SPAWN_EXPLOSION_STEPS_CONFIG } from "./spawn-explosion-steps-config.js";
 import { HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { COMBAT_ACTIONS } from "../index.js";
-import { EntityId } from "../../../../primatives/index.js";
+import { EntityId } from "../../../../aliases.js";
 import {
   CombatActionTarget,
   CombatActionTargetType,

@@ -16,7 +16,7 @@ import {
   TaggedEquipmentSlot,
   WearableSlotType,
 } from "../../../items/equipment/index.js";
-import { EntityId } from "../../../primatives/index.js";
+import { EntityId } from "../../../aliases.js";
 
 export function addHitOutcomeDurabilityChanges(
   durabilityChanges: DurabilityChangesByEntityId,

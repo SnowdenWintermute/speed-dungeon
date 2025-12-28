@@ -1,4 +1,4 @@
-import { Percentage } from "../../primatives/index.js";
+import { Percentage } from "../../aliases.js";
 import { ArrayUtils } from "../../utils/array-utils.js";
 import { AbilityTreeAbility } from "../../abilities/index.js";
 import { CombatantTraitType } from "./trait-types.js";

@@ -24,7 +24,7 @@ export default function joinPlayerToGame(
     gameServer.removeSocketFromChannel(socket.id, channelName);
   }
 
-  gameServer.joinSocketToChannel(socket.id, game.name);
+  gameServer.joinSocketToChannel(socket.id, game.getChannelName());
 
   socket.emit(ServerToClientEvent.GameFullUpdate, game.getSerialized());
 

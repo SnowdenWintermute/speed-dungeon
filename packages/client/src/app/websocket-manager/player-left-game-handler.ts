@@ -1,4 +1,4 @@
-import { ActionCommandType, getProgressionGameMaxStartingFloor } from "@speed-dungeon/common";
+import { ActionCommandType } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
 import { gameWorldView } from "../game-world-view-canvas/SceneManager";
 import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
@@ -12,9 +12,7 @@ export function playerLeftGameHandler(username: string) {
   const gameOption = AppStore.get().gameStore.getGameOption();
   if (!gameOption) return;
 
-  const maxStartingFloor = getProgressionGameMaxStartingFloor(
-    gameOption.lowestStartingFloorOptionsBySavedCharacter
-  );
+  const maxStartingFloor = gameOption.getMaxStartingFloor();
 
   if (gameOption.selectedStartingFloor > maxStartingFloor) {
     gameOption.selectedStartingFloor = maxStartingFloor;

@@ -1,5 +1,5 @@
-import { EntityId } from "../primatives/index.js";
 import { v4 as uuidv4 } from "uuid";
+import { EntityId } from "../aliases.js";
 
 export class IdGenerator {
   private history: Record<EntityId, string> = {};

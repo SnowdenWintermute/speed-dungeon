@@ -9,7 +9,7 @@ import {
 } from "../../action-processing/index.js";
 import { CombatantSpecies } from "../../combatants/combatant-species.js";
 import { TaggedEquipmentSlot } from "../../items/equipment/slots.js";
-import { Milliseconds } from "../../primatives/index.js";
+import { Milliseconds } from "../../aliases.js";
 import {
   SceneEntityChildTransformNodeIdentifier,
   SceneEntityChildTransformNodeIdentifierWithDuration,

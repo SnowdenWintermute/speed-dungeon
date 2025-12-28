@@ -1,6 +1,6 @@
 import { CombatantCondition } from "../../../conditions/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
-import { EntityId } from "../../../primatives";
+import { EntityId } from "../../../aliases.js";
 import { ActivatedTriggersGameUpdateCommand } from "../../game-update-commands.js";
 
 export function addConditionToUpdate(

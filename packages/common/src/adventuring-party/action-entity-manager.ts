@@ -3,7 +3,7 @@ import { ActionEntity, ActionEntityName } from "../action-entities/index.js";
 import { Battle } from "../battle/index.js";
 import { TurnTrackerEntityType } from "../combat/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { EntityId } from "../primatives/index.js";
+import { EntityId } from "../aliases.js";
 import { runIfInBrowser } from "../utils/index.js";
 import { plainToInstance } from "class-transformer";
 

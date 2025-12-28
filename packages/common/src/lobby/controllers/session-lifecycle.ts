@@ -17,7 +17,7 @@ import {
   IdentityProviderService,
   IdentityResolutionContext,
 } from "../services/identity-provider.js";
-import { ConnectionId, Username } from "../../types.js";
+import { ConnectionId, Username } from "../../aliases.js";
 import { PLAYER_FIRST_NAMES, PLAYER_LAST_NAMES } from "./default-naming/users.js";
 
 export class SessionLifecycleController {

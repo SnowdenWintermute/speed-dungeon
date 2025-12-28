@@ -1,4 +1,4 @@
-import { NormalizedPercentage } from "../primatives/index.js";
+import { NormalizedPercentage } from "../aliases.js";
 
 export interface RandomNumberGenerator {
   roll: () => NormalizedPercentage;

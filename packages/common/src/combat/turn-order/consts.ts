@@ -1,4 +1,4 @@
-import { Milliseconds, NormalizedPercentage } from "../../primatives";
+import { Milliseconds, NormalizedPercentage } from "../../aliases.js";
 
 export const SPEED_DELAY_RECOVERY_WEIGHT = 50;
 export const BASE_ACTION_DELAY: Milliseconds = 1000;

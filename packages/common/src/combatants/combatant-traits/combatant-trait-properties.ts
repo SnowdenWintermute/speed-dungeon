@@ -1,6 +1,6 @@
 import { KineticDamageType } from "../../combat/kinetic-damage-types.js";
 import { MagicalElement } from "../../combat/magical-elements.js";
-import { Percentage } from "../../primatives/index.js";
+import { Percentage } from "../../aliases.js";
 import { makeAutoObservable } from "mobx";
 import { CombatantTraitType } from "./trait-types.js";
 import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../../utils/index.js";

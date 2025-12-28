@@ -3,7 +3,7 @@ import { Battle } from "../battle/index.js";
 import { ActionCommandPayload } from "../action-processing/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { Item } from "../items/index.js";
-import { EntityId, NextOrPrevious } from "../primatives/index.js";
+import { NextOrPrevious } from "../primatives/index.js";
 import { Combatant } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
 import { UserChannelDisplayData } from "../users/index.js";
@@ -19,6 +19,7 @@ import {
   GameListEntry,
   GameStateUpdate,
 } from "./game-state-updates.js";
+import { EntityId } from "../aliases.js";
 
 export enum ServerToClientEvent {
   GameList = "0",

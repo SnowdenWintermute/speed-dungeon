@@ -7,7 +7,7 @@ import {
   SHIELD_SIZE_BLOCK_RATE,
   SHIELD_SIZE_DAMAGE_REDUCTION,
 } from "../../../items/equipment/index.js";
-import { Percentage } from "../../../primatives/index.js";
+import { Percentage } from "../../../aliases.js";
 import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { randBetween } from "../../../utils/index.js";
 import { ActionAccuracyType } from "../../combat-actions/combat-action-accuracy.js";

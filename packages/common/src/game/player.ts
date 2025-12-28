@@ -1,4 +1,3 @@
-import { EntityId } from "../primatives/index.js";
 import {
   FriendOrFoe,
   TargetingScheme,
@@ -6,12 +5,13 @@ import {
 import { COMBAT_ACTIONS, CombatActionTarget, CombatActionTargetType } from "../combat/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
 import { plainToInstance } from "class-transformer";
+import { EntityId, PartyName, Username } from "../aliases.js";
 
 export class SpeedDungeonPlayer {
-  partyName: null | string = null;
+  partyName: null | PartyName = null;
   characterIds: string[] = [];
   targetPreferences: CombatActionTargetPreferences = new CombatActionTargetPreferences();
-  constructor(public username: string) {}
+  constructor(public username: Username) {}
 
   static deserialize(player: SpeedDungeonPlayer) {
     player.targetPreferences = CombatActionTargetPreferences.getDeserialized(
@@ -32,7 +32,6 @@ export class CombatActionTargetPreferences {
   hostileSingle: null | EntityId = null;
   category: null | FriendOrFoe = null;
   targetingSchemePreference: TargetingScheme = TargetingScheme.Single;
-  constructor() {}
 
   static getDeserialized(targetPreferences: CombatActionTargetPreferences) {
     return plainToInstance(CombatActionTargetPreferences, targetPreferences);
@@ -122,6 +121,9 @@ export class CombatActionTargetPreferences {
         break;
       case CombatActionTargetType.All:
         if (targetingSchemes.length > 1) this.targetingSchemePreference = TargetingScheme.All;
+        break;
+      default:
+        throw new Error("Not implemented yet: CombatActionTargetType.SingleAndSides case");
     }
   }
 }

@@ -5,7 +5,7 @@ import { FriendOrFoe, TurnOrderManager } from "../combat/index.js";
 import { applyExperiencePointChanges } from "../combatants/experience-points/apply-experience-point-changes.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { runIfInBrowser } from "../index.js";
-import { EntityId } from "../primatives/index.js";
+import { EntityId } from "../aliases.js";
 import { IdGenerator } from "../utility-classes/index.js";
 
 export class Battle {

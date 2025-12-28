@@ -1,4 +1,4 @@
-import { EntityId } from "../../../primatives";
+import { EntityId } from "../../../aliases.js";
 import { ActivatedTriggersGameUpdateCommand } from "../../game-update-commands.js";
 
 export function addRemovedConditionStacksToUpdate(

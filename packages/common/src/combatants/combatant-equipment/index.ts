@@ -14,7 +14,7 @@ import {
 } from "../../items/equipment/slots.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../../utils/index.js";
-import { EntityId } from "../../primatives/index.js";
+import { EntityId } from "../../aliases.js";
 import { IActionUser } from "../../action-user-context/action-user.js";
 import makeAutoObservable from "mobx-store-inheritance";
 import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";

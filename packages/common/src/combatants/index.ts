@@ -1,10 +1,10 @@
-import { EntityId, MaxAndCurrent } from "../primatives/index.js";
+import { MaxAndCurrent } from "../primatives/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { EntityProperties } from "../primatives/index.js";
 import { Inventory } from "./inventory/index.js";
 import { CombatActionName, FriendOrFoe } from "../combat/combat-actions/index.js";
 import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
-import { CombatantConditionName } from "../index.js";
+import { CombatantConditionName, EntityId } from "../index.js";
 import { instanceToPlain, plainToInstance } from "class-transformer";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";

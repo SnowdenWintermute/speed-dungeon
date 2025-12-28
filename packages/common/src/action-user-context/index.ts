@@ -3,7 +3,7 @@ import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-cate
 import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
-import { EntityId } from "../primatives/index.js";
+import { EntityId } from "../aliases.js";
 import { IActionUser } from "./action-user.js";
 
 export class ActionUserContext {

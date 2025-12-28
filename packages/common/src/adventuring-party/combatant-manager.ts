@@ -2,7 +2,7 @@ import { plainToInstance } from "class-transformer";
 import { FriendOrFoe, TurnTrackerEntityType } from "../combat/index.js";
 import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { EntityId } from "../primatives/index.js";
+import { EntityId } from "../aliases.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
 import {
   COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
@@ -17,7 +17,7 @@ import { CombatantCondition, ConditionWithCombatantIdAppliedTo } from "../condit
 import { CombatantTraitType } from "../combatants/combatant-traits/trait-types.js";
 
 export class CombatantManager extends AdventuringPartySubsystem {
-  private combatants: Map<EntityId, Combatant> = new Map();
+  private combatants = new Map<EntityId, Combatant>();
 
   constructor() {
     super();

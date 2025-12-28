@@ -1,17 +1,16 @@
 import { AdventuringParty } from "./index.js";
 import { MAXIMUM_PET_SLOTS } from "../app-consts.js";
 import { Combatant } from "../combatants/index.js";
-import { EntityId } from "../primatives/index.js";
+import { EntityId } from "../aliases.js";
 import { Battle } from "../battle/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
 import { plainToInstance } from "class-transformer";
 import { CombatantConditionName } from "../conditions/condition-names.js";
-import { CombatantTraitType } from "../combatants/combatant-traits/trait-types.js";
 
 export class PetManager extends AdventuringPartySubsystem {
-  private unsummonedPetsByOwnerId: { [ownerId: EntityId]: (Combatant | undefined)[] } = {};
+  private unsummonedPetsByOwnerId: Record<EntityId, (Combatant | undefined)[]> = {};
 
   static getDeserialized(plain: PetManager) {
     const toReturn = plainToInstance(PetManager, plain);

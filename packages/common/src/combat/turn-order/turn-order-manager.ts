@@ -1,6 +1,6 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
-import { EntityId, Milliseconds } from "../../primatives/index.js";
+import { EntityId, Milliseconds } from "../../aliases.js";
 import { CombatActionName } from "../combat-actions/combat-action-names.js";
 import {
   BASE_ACTION_DELAY,

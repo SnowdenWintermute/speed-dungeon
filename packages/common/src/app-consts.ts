@@ -1,4 +1,4 @@
-import { Meters, Milliseconds } from "./primatives/index.js";
+import { Meters, Milliseconds } from "./aliases.js";
 
 export const LOOP_SAFETY_ITERATION_LIMIT = 40;
 

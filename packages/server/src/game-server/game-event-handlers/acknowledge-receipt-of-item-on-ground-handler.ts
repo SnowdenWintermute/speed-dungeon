@@ -1,12 +1,14 @@
-import { ERROR_MESSAGES } from "@speed-dungeon/common";
+import { EntityId, ERROR_MESSAGES } from "@speed-dungeon/common";
 import { ServerPlayerAssociatedData } from "../event-middleware";
 
 export function acknowledgeReceiptOfItemOnGroundHandler(
-  itemId: string,
+  itemId: EntityId,
   playerAssociatedData: ServerPlayerAssociatedData
 ) {
   const { partyOption, player, game } = playerAssociatedData;
-  if (!partyOption) return new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
+  if (!partyOption) {
+    return new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
+  }
   const party = partyOption;
 
   const receivedBy = party.itemsOnGroundNotYetReceivedByAllClients[itemId];

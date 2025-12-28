@@ -1,16 +1,14 @@
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
+import { EntityId, GameName, PartyName } from "../aliases.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { CombatantClass } from "../combatants/index.js";
 import { BookConsumableType, ConsumableType } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
-import {
-  TransportDisconnectReason,
-  TransportEndpoint,
-} from "../lobby/update-delivery//transport-endpoint.js";
-import { EntityId, NextOrPrevious } from "../primatives/index.js";
-import { GameMode, GameName } from "../types.js";
+import { TransportDisconnectReason } from "../lobby/update-delivery//transport-endpoint.js";
+import { NextOrPrevious } from "../primatives/index.js";
+import { GameMode } from "../types.js";
 import { CharacterAndItems } from "./game-state-updates.js";
 
 export enum ClientIntentType {
@@ -84,8 +82,8 @@ export interface ClientIntentMap {
   };
   [ClientIntentType.JoinGame]: { gameName: GameName };
   [ClientIntentType.LeaveGame]: undefined;
-  [ClientIntentType.CreateParty]: { partyName: string };
-  [ClientIntentType.JoinParty]: { partyName: string };
+  [ClientIntentType.CreateParty]: { partyName: PartyName };
+  [ClientIntentType.JoinParty]: { partyName: PartyName };
   [ClientIntentType.LeaveParty]: undefined;
   [ClientIntentType.ToggleReadyToStartGame]: undefined;
   [ClientIntentType.CreateCharacter]: {

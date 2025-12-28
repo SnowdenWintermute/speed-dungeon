@@ -1,4 +1,4 @@
-import { IdentityProviderId, Username } from "../../types.js";
+import { IdentityProviderId, Username } from "../../aliases.js";
 
 export interface IdentityResolutionContext {
   readonly cookies?: string;

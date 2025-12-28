@@ -1,7 +1,7 @@
 export * from "./cosmetic-effect.js";
 export * from "./cosmetic-effect-constructors.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { EntityId, EntityProperties, MaxAndCurrent } from "../primatives/index.js";
+import { EntityProperties, MaxAndCurrent } from "../primatives/index.js";
 import {
   SceneEntityChildTransformNodeIdentifier,
   SceneEntityChildTransformNodeIdentifierWithDuration,
@@ -31,6 +31,7 @@ import { Battle } from "../battle/index.js";
 import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
 import { ConditionAppliedBy } from "../conditions/condition-applied-by.js";
 import { ConditionTickProperties } from "../conditions/condition-tick-properties.js";
+import { EntityId } from "../aliases.js";
 
 export enum ActionEntityName {
   Arrow,

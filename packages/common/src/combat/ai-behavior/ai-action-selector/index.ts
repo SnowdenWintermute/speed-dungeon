@@ -2,7 +2,7 @@ import cloneDeep from "lodash.clonedeep";
 import { ActionAndRank } from "../../../action-user-context/action-user-targeting-properties.js";
 import { ActionUserContext } from "../../../action-user-context/index.js";
 import { Combatant } from "../../../combatants/index.js";
-import { EntityId, NextOrPrevious } from "../../../primatives/index.js";
+import { NextOrPrevious } from "../../../primatives/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/index.js";
 import {
@@ -11,6 +11,7 @@ import {
 } from "../../targeting/combat-action-targets.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { ArrayUtils } from "../../../utils/array-utils.js";
+import { EntityId } from "../../../aliases.js";
 
 export type AiActionEvaluator = (
   intents: CombatActionExecutionIntent[],

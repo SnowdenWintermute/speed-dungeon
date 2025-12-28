@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { HoldableSlotType } from "../items/equipment";
-import { Axis, EntityId, Milliseconds } from "../primatives";
+import { HoldableSlotType } from "../items/equipment/index.js";
+import { Axis } from "../primatives/index.js";
+import { EntityId, Milliseconds } from "../aliases.js";
 
 export enum SceneEntityType {
   CharacterModel,
@@ -29,23 +30,23 @@ export type SceneEntityIdentifier =
   | CharacterEquipmentModelIdentifier
   | ActionEntityModelIdentifier;
 
-export type CombatantBaseChildTransformNodeIdentifier = {
+export interface CombatantBaseChildTransformNodeIdentifier {
   sceneEntityIdentifier: CharacterModelIdentifier;
   transformNodeName: CombatantBaseChildTransformNodeName;
   ignoreAxes?: Axis[];
-};
+}
 
-export type ActionEntityBaseChildTransformNodeIdentifier = {
+export interface ActionEntityBaseChildTransformNodeIdentifier {
   sceneEntityIdentifier: ActionEntityModelIdentifier;
   transformNodeName: ActionEntityBaseChildTransformNodeName;
   ignoreAxes?: Axis[];
-};
+}
 
-export type CombatantHoldableChildTransformNodeIdentifier = {
+export interface CombatantHoldableChildTransformNodeIdentifier {
   sceneEntityIdentifier: CharacterEquipmentModelIdentifier;
   transformNodeName: CombatantHoldableChildTransformNodeName;
   ignoreAxes?: Axis[];
-};
+}
 
 export type SceneEntityChildTransformNodeIdentifier =
   | CombatantBaseChildTransformNodeIdentifier

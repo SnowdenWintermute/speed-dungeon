@@ -27,7 +27,7 @@ export class PartySetupController {
   ) {}
 
   static getProgressionGamePartyName(gameName: string) {
-    return `Delvers of ${gameName}`;
+    return `Delvers of ${gameName}` as PartyName;
   }
 
   generateRandomPartyName() {
@@ -38,7 +38,7 @@ export class PartySetupController {
     return result as PartyName;
   }
 
-  createPartyHandler(session: UserSession, partyName: string) {
+  createPartyHandler(session: UserSession, partyName: PartyName) {
     if (session.currentPartyName) {
       throw new Error(ERROR_MESSAGES.LOBBY.ALREADY_IN_PARTY);
     }
@@ -73,7 +73,7 @@ export class PartySetupController {
     return outbox;
   }
 
-  joinPartyHandler(session: UserSession, partyName: string) {
+  joinPartyHandler(session: UserSession, partyName: PartyName) {
     if (session.currentPartyName) {
       throw new Error(ERROR_MESSAGES.LOBBY.ALREADY_IN_PARTY);
     }

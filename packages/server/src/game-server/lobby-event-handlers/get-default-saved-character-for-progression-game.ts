@@ -1,4 +1,4 @@
-import { Combatant, ERROR_MESSAGES } from "@speed-dungeon/common";
+import { Combatant, ERROR_MESSAGES, Username } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
 import { fetchSavedCharacters } from "../saved-character-event-handlers/fetch-saved-characters.js";
 import { getLoggedInUserFromSocket } from "../event-middleware/get-logged-in-user-from-socket.js";
@@ -6,7 +6,7 @@ import { Socket } from "socket.io";
 
 export default async function getDefaultSavedCharacterForProgressionGame(
   gameServer: GameServer,
-  username: string,
+  username: Username,
   socket: Socket
 ) {
   // check if user is in game in any tab, we don't want them loading the same

@@ -1,7 +1,7 @@
 import { AutoTargetingScheme } from "./index.js";
 import { CombatActionComponent, FriendOrFoe } from "../../combat-actions/index.js";
 import { CombatActionTarget, CombatActionTargetType } from "../combat-action-targets.js";
-import { EntityId } from "../../../primatives/index.js";
+import { EntityId } from "../../../aliases.js";
 import { Vector3 } from "@babylonjs/core";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { TargetFilterer } from "../filtering.js";

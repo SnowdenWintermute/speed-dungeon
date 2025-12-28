@@ -1,4 +1,4 @@
-import { EntityId } from "../primatives/index.js";
+import { EntityId } from "../aliases.js";
 
 export class EntityNotFoundError extends Error {
   constructor(

@@ -1,6 +1,6 @@
 import { CosmeticEffectNames } from "../../../../../action-entities/cosmetic-effect.js";
 import { ActionResolutionStepContext } from "../../../../../action-processing/index.js";
-import { EntityId, Milliseconds } from "../../../../../primatives/index.js";
+import { EntityId, Milliseconds } from "../../../../../aliases.js";
 import {
   CombatantBaseChildTransformNodeName,
   SceneEntityType,

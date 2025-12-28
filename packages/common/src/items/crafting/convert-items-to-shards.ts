@@ -1,6 +1,6 @@
 import { Item } from "../index.js";
 import { Combatant } from "../../combatants/index.js";
-import { EntityId } from "../../primatives/index.js";
+import { EntityId } from "../../aliases.js";
 import { DungeonRoomType } from "../../adventuring-party/dungeon-room.js";
 import { getItemSellPrice } from "./shard-sell-prices.js";
 import { ArrayUtils } from "../../utils/array-utils.js";

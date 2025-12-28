@@ -1,15 +1,7 @@
-import { AdventuringParty } from "./adventuring-party/index.js";
 import { Combatant, CombatantClass, CombatantSpecies } from "./combatants/index.js";
+import { AdventuringParty } from "./adventuring-party/index.js";
 import { SpeedDungeonGame, SpeedDungeonPlayer } from "./game/index.js";
-import { EntityId, Meters } from "./index.js";
-
-export type Username = string & { __brand: "Username" };
-export type GameName = string & { __brand: "GameName" };
-export type PartyName = string & { __brand: "PartyName" };
-export type ProfileId = number & { __brand: "ProfileId" };
-export type ChannelName = string & { __brand: "ChannelName" };
-export type ConnectionId = string & { __brand: "ConnectionId" };
-export type IdentityProviderId = number & { __brand: "IdentityProviderId" };
+import { EntityId, IdentityProviderId, Meters, PartyName } from "./index.js";
 
 export interface CharacterAssociatedData {
   character: Combatant;

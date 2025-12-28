@@ -1,7 +1,7 @@
 import cloneDeep from "lodash.clonedeep";
 import { iterateNumericEnumKeyedRecord, randBetween, throwIfError } from "../../../utils/index.js";
 import { ResourceChange } from "../../hp-change-source-types.js";
-import { EntityId } from "../../../primatives/index.js";
+import { EntityId } from "../../../aliases.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 export * from "./hit-outcome-mitigation-calculator.js";
 export * from "./incoming-resource-change-calculator.js";
@@ -29,7 +29,6 @@ export class CombatActionHitOutcomes {
   // hit point changes, but may apply a condition to their target or otherwise change something
   outcomeFlags: Partial<Record<HitOutcome, EntityId[]>> = {};
 
-  constructor() {}
   insertOutcomeFlag(flag: HitOutcome, entityId: EntityId) {
     const idsFlagged = this.outcomeFlags[flag];
     if (!idsFlagged) this.outcomeFlags[flag] = [entityId];

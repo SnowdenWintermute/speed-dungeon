@@ -1,6 +1,6 @@
 import { ActionEntity } from "../action-entities/index.js";
+import { EntityId } from "../aliases.js";
 import { Combatant } from "../combatants/index.js";
-import { EntityId } from "../primatives/index.js";
 import { SceneEntityChildTransformNodeIdentifier } from "../scene-entities/index.js";
 
 export enum SpawnableEntityType {
@@ -17,18 +17,18 @@ export interface PetProperties {
   ownerId: EntityId;
 }
 
-export type SpawnedCombatant = {
+export interface SpawnedCombatant {
   type: SpawnableEntityType.Combatant;
   combatant: Combatant;
   parentTransformNodeOption?: SceneEntityChildTransformNodeIdentifier;
   petProperties?: PetProperties;
   doNotIdle?: boolean;
-};
+}
 
-export type SpawnedActionEntity = {
+export interface SpawnedActionEntity {
   type: SpawnableEntityType.ActionEntity;
   actionEntity: ActionEntity;
-};
+}
 
 export type SpawnableEntity = SpawnedCombatant | SpawnedActionEntity;
 

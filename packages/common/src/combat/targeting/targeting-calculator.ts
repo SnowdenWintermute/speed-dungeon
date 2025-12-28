@@ -3,7 +3,7 @@ import { SpeedDungeonPlayer } from "../../game/index.js";
 import { CombatActionComponent, CombatActionExecutionIntent } from "../combat-actions/index.js";
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
 import { getValidPreferredOrDefaultActionTargets } from "./get-valid-preferred-or-default-action-targets.js";
-import { EntityId } from "../../primatives/index.js";
+import { EntityId } from "../../aliases.js";
 import { getActionTargetsIfSchemeIsValid } from "./get-targets-if-scheme-is-valid.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { COMBAT_ACTIONS } from "../combat-actions/action-implementations/index.js";

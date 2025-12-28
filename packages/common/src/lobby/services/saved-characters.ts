@@ -1,7 +1,7 @@
 import { CombatantProperties } from "../../combatants/combatant-properties.js";
 import { Combatant } from "../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { EntityId } from "../../primatives/index.js";
+import { EntityId } from "../../aliases.js";
 
 export interface CharacterInSlot {
   combatant: Combatant;

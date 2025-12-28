@@ -1,5 +1,6 @@
 import {
   ActionCommandReceiver,
+  ChannelName,
   CharacterCreator,
   ClientToServerEventTypes,
   GameMessagesPayload,
@@ -13,6 +14,7 @@ import {
   ServerToClientEvent,
   ServerToClientEventTypes,
   SpeedDungeonGame,
+  Username,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import { initiateLobbyEventListeners } from "./lobby-event-handlers/index.js";
@@ -47,9 +49,7 @@ import { DatabaseRankedLadderService } from "./services/ranked-ladder.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { getLoggedInUserOrCreateGuest } from "./get-logged-in-user-or-create-guest.js";
 
-export type Username = string;
 export type SocketId = string;
-export type ChannelName = string;
 
 export class Channel {
   users: Partial<Record<Username, Record<SocketId, BrowserTabSession>>> = {};
@@ -65,10 +65,10 @@ export class GameServer implements ActionCommandReceiver {
   constructor(public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
     this.connectionHandler();
     this.characterCreator = new CharacterCreator(idGenerator, this.itemGenerator);
+
     const clientIntentReceiver = new LobbyRemoteClientIntentReceiver(this.io);
     const gameSimulatorHandoffStrategy = new RemoteGameSimuatorHandoffStrategy();
     const externalServices = this.createLobbyExternalServices();
-
     const lobby = new Lobby(clientIntentReceiver, gameSimulatorHandoffStrategy, externalServices);
   }
   // game manager

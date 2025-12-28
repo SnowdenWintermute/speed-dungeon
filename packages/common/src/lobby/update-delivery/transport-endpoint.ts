@@ -1,5 +1,5 @@
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
-import { ConnectionId } from "../../types.js";
+import { ConnectionId } from "../../aliases.js";
 
 export interface TransportEndpoint {
   readonly id: ConnectionId;

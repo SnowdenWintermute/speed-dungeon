@@ -1,6 +1,6 @@
 import { ConsumableType } from "../../items/consumables/index.js";
 import { CombatActionTarget } from "../index.js";
-import { EntityId, Milliseconds } from "../../primatives/index.js";
+import { EntityId, Milliseconds } from "../../aliases.js";
 import { CombatActionName } from "./combat-action-names.js";
 import { ActionResolutionStepType } from "../../action-processing/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";

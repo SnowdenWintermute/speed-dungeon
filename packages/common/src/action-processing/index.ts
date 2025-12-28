@@ -14,7 +14,7 @@ import { BattleConclusion } from "../battle/index.js";
 import { Consumable } from "../items/consumables/index.js";
 import { Equipment } from "../items/equipment/index.js";
 import { GameMessage } from "../packets/game-message.js";
-import { EntityId } from "../primatives/index.js";
+import { EntityId, PartyName } from "../aliases.js";
 import { NestedNodeReplayEvent } from "./replay-events.js";
 
 export enum ActionCommandType {
@@ -24,37 +24,37 @@ export enum ActionCommandType {
   RemovePlayerFromGame,
 }
 
-export type CombatActionReplayTreePayload = {
+export interface CombatActionReplayTreePayload {
   type: ActionCommandType.CombatActionReplayTree;
   actionUserId: EntityId;
   root: NestedNodeReplayEvent;
   doNotLockInput?: boolean;
-};
+}
 
-export type BattleResultActionCommandPayload = {
+export interface BattleResultActionCommandPayload {
   type: ActionCommandType.BattleResult;
   conclusion: BattleConclusion;
-  partyName: string;
+  partyName: PartyName;
   experiencePointChanges: { [combatantId: string]: number };
   timestamp: number;
   actionEntitiesRemoved: EntityId[];
   loot?: undefined | { equipment: Equipment[]; consumables: Consumable[] };
-};
+}
 
 export type LadderDeathsUpdate = {
   [combatantName: string]: { owner: string; rank: number; level: number };
 };
 
-export type GameMessagesPayload = {
+export interface GameMessagesPayload {
   type: ActionCommandType.GameMessages;
   messages: GameMessage[];
   partyChannelToExclude?: string;
-};
+}
 
-export type RemovePlayerFromGamePayload = {
+export interface RemovePlayerFromGamePayload {
   type: ActionCommandType.RemovePlayerFromGame;
   username: string;
-};
+}
 
 export type ActionCommandPayload =
   | CombatActionReplayTreePayload

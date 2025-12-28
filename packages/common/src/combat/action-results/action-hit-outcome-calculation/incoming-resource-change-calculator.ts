@@ -1,4 +1,4 @@
-import { EntityId } from "../../../primatives/index.js";
+import { EntityId } from "../../../aliases.js";
 import { iterateNumericEnumKeyedRecord, randBetween } from "../../../utils/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";

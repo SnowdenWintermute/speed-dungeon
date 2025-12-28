@@ -15,7 +15,7 @@ import { TriggerEnvironmentalHazardsActionResolutionStep } from "./determine-env
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import cloneDeep from "lodash.clonedeep";
 import { timeToReachBox } from "../../../utils/index.js";
-import { Milliseconds } from "../../../primatives/index.js";
+import { Milliseconds } from "../../../aliases.js";
 
 const requiredFirewallLevelForIgnitingProjectiles = 2;
 const requiredFirewallLevelForIncineratingProjectiles = 3;

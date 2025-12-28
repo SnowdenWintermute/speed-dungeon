@@ -1,5 +1,5 @@
+import { ChannelName, ConnectionId } from "../../aliases.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
-import { ChannelName, ConnectionId } from "../../types.js";
 import {
   GameStateUpdateDispatch,
   GameStateUpdateDispatchFactory,

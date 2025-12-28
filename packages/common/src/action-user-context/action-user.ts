@@ -1,7 +1,7 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { CombatantActionState, CombatantEquipment, Inventory } from "../combatants/index.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
-import { EntityId, EntityProperties, MaxAndCurrent } from "../primatives/index.js";
+import { EntityProperties, MaxAndCurrent } from "../primatives/index.js";
 import {
   ActionAndRank,
   ActionUserTargetingProperties,
@@ -17,6 +17,7 @@ import { Equipment, WeaponProperties } from "../items/equipment/index.js";
 import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
 import { ConditionTickProperties } from "../conditions/condition-tick-properties.js";
 import { ConditionAppliedBy } from "../conditions/condition-applied-by.js";
+import { EntityId } from "../aliases.js";
 
 export enum ActionUserType {
   Combatant,

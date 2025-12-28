@@ -1,4 +1,4 @@
-import { EntityId } from "../../primatives/index.js";
+import { EntityId } from "../../aliases.js";
 
 export enum TurnTrackerEntityType {
   Combatant,

@@ -1,7 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { IdentityProviderId, ProfileId, SpeedDungeonProfile } from "../types.js";
+import { SpeedDungeonProfile } from "../types.js";
 import { SpeedDungeonProfileService } from "./services/profiles.js";
-import { DEFAULT_ACCOUNT_CHARACTER_CAPACITY, SequentialIdGenerator } from "..";
+import { IdentityProviderId, ProfileId } from "../aliases.js";
+import { SequentialIdGenerator } from "../utils/index.js";
+import { DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "../app-consts.js";
 
 describe("Lobby", () => {
   it("is a test", async () => {
@@ -17,7 +19,7 @@ describe("Lobby", () => {
 });
 
 function createLobbyTestServices() {
-  const profileService = new InMemorySpeedDungeonProfileService();
+  //   const profileService = new DatabaseProfileService(speedDungeonProfilesRepo);
   //   const savedCharactersPersistenceStrategy = new DatabaseSavedCharacterPersistenceStrategy(
   //     playerCharactersRepo
   //   );

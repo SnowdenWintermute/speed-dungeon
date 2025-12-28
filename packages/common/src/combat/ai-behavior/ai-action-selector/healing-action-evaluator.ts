@@ -1,6 +1,6 @@
 import { ActionUserContext } from "../../../action-user-context/index.js";
 import { Combatant, CombatAttribute } from "../../../combatants/index.js";
-import { NormalizedPercentage } from "../../../primatives/index.js";
+import { NormalizedPercentage } from "../../../aliases.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";

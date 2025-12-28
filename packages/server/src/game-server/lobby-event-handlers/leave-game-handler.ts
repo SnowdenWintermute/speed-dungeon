@@ -1,8 +1,4 @@
-import {
-  LOBBY_CHANNEL,
-  ServerToClientEvent,
-  getProgressionGameMaxStartingFloor,
-} from "@speed-dungeon/common";
+import { LOBBY_CHANNEL, ServerToClientEvent } from "@speed-dungeon/common";
 import { leavePartyHandler } from "./leave-party-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { Socket } from "socket.io";
@@ -26,9 +22,7 @@ export async function leaveGameHandler(
 
   game.removePlayer(session.username);
 
-  const maxStartingFloor = getProgressionGameMaxStartingFloor(
-    game.lowestStartingFloorOptionsBySavedCharacter
-  );
+  const maxStartingFloor = game.getMaxStartingFloor();
   if (game.selectedStartingFloor > maxStartingFloor) game.selectedStartingFloor = maxStartingFloor;
 
   const gameNameLeaving = game.name;
@@ -40,7 +34,7 @@ export async function leaveGameHandler(
     gameServer.games.remove(game.name);
   }
 
-  gameServer.removeSocketFromChannel(socket.id, gameNameLeaving);
+  gameServer.removeSocketFromChannel(socket.id, game.getChannelName());
   gameServer.joinSocketToChannel(socket.id, LOBBY_CHANNEL);
 
   if (gameServer.games.get(gameNameLeaving)) {

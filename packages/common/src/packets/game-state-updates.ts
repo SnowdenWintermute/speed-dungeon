@@ -3,11 +3,11 @@ import { Battle, BattleConclusion } from "../battle/index.js";
 import { ActionCommandPayload } from "../action-processing/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { Item } from "../items/index.js";
-import { EntityId, NextOrPrevious } from "../primatives/index.js";
+import { NextOrPrevious } from "../primatives/index.js";
 import { Combatant } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
 import { UserChannelDisplayData } from "../users/index.js";
-import { GameMode, GameName, Username } from "../types.js";
+import { GameMode } from "../types.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { Consumable } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
@@ -15,6 +15,7 @@ import { CombatAttribute } from "../combatants/attributes/index.js";
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
 import { GameSimulatorConnectionInstructions } from "../lobby/game-simulator-handoff-strategy.js";
+import { EntityId, GameName, Username } from "../aliases.js";
 
 export enum GameStateUpdateType {
   GameList,

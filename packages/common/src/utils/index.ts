@@ -1,5 +1,4 @@
 export * from "./get-next-or-previous-number.js";
-export * from "./get-progression-game-max-starting-floor.js";
 export * from "./array-utils.js";
 export * from "./rand-between.js";
 export * from "./shape-utils.js";
@@ -13,8 +12,9 @@ import { NextOrPrevious } from "../primatives/index.js";
 import { toJS } from "mobx";
 import cloneDeep from "lodash.clonedeep";
 import { plainToInstance } from "class-transformer";
+import { GameName, PartyName } from "../aliases.js";
 
-export function iterateNumericEnum<T extends { [name: string]: string | number }>(
+export function iterateNumericEnum<T extends Record<string, string | number>>(
   enumType: T
 ): T[keyof T][] {
   return Object.values(enumType).filter((value) => !isNaN(Number(value))) as T[keyof T][];
@@ -47,8 +47,8 @@ export function cloneVector3(vec3: Vector3) {
   return new Vector3(vec3.x, vec3.y, vec3.z);
 }
 
-export function getProgressionGamePartyName(gameName: string) {
-  return `Delvers of ${gameName}`;
+export function getProgressionGamePartyName(gameName: GameName) {
+  return `Delvers of ${gameName}` as PartyName;
 }
 
 export function isBrowser() {
@@ -75,7 +75,6 @@ export function createDummyConsumable(consumableType: ConsumableType) {
 
 export class SequentialIdGenerator {
   private nextId: number = 0;
-  constructor() {}
   getNextId() {
     return String(this.nextId++);
   }
@@ -174,13 +173,9 @@ export function nameToPossessive(name: string): string {
   return name.endsWith("s") ? `${name}'` : `${name}'s`;
 }
 
-export function cycleListGivenCurrentValue<T>(
-  list: Array<T>,
-  current: T,
-  direction: NextOrPrevious
-): T {
+export function cycleListGivenCurrentValue<T>(list: T[], current: T, direction: NextOrPrevious): T {
   if (list.length < 1) throw new Error("Tried to cycle an empty list");
-  let currentIndex = list.indexOf(current);
+  const currentIndex = list.indexOf(current);
   if (currentIndex === -1) throw new Error("Current value was not found in provided list");
 
   let newIndex;

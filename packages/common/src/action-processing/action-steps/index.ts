@@ -1,4 +1,4 @@
-import { Milliseconds } from "../../primatives/index.js";
+import { Milliseconds } from "../../aliases.js";
 import { COMBAT_ACTIONS, CombatActionComponent } from "../../combat/index.js";
 import { ReplayEventNode } from "../replay-events.js";
 import { GameUpdateCommand } from "../game-update-commands.js";

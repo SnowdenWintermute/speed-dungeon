@@ -1,5 +1,5 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { EntityId } from "../../primatives/index.js";
+import { EntityId } from "../../aliases.js";
 import { ActionEntityTurnScheduler } from "./action-entity-turn-scheduler.js";
 import { CombatantTurnScheduler } from "./combatant-turn-scheduler.js";
 import { ConditionTurnScheduler } from "./condition-turn-scheduler.js";

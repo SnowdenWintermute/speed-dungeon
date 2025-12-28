@@ -1,5 +1,6 @@
 import { ActionIntentAndUser } from "../action-processing/action-steps/index.js";
 import { ActionUserContext } from "../action-user-context/index.js";
+import { EntityId } from "../aliases.js";
 import { AiType } from "../combat/ai-behavior/index.js";
 import { CombatActionIntent } from "../combat/combat-actions/combat-action-intent.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
@@ -7,7 +8,7 @@ import { CosmeticEffectOnTargetTransformNode } from "../combat/combat-actions/co
 import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
 import { CombatantProperties } from "../combatants/combatant-properties.js";
 import { Combatant } from "../combatants/index.js";
-import { EntityId, MaxAndCurrent } from "../primatives/index.js";
+import { MaxAndCurrent } from "../primatives/index.js";
 import { TransformModifiers } from "../scene-entities/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { ConditionAppliedBy } from "./condition-applied-by.js";

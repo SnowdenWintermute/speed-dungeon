@@ -1,8 +1,8 @@
 import {
   GameName,
+  PartyName,
   RANDOM_GAME_NAMES_FIRST,
   RANDOM_GAME_NAMES_LAST,
-  Username,
 } from "@speed-dungeon/common";
 import {
   PLAYER_FIRST_NAMES,
@@ -10,6 +10,7 @@ import {
   RANDOM_CHARACTER_NAMES_FIRST,
   RANDOM_PARTY_NAMES,
 } from "../random-names/index.js";
+import { Username } from "@speed-dungeon/common";
 
 export function generateRandomUsername() {
   const firstName = PLAYER_FIRST_NAMES[Math.floor(Math.random() * PLAYER_FIRST_NAMES.length)];
@@ -26,7 +27,7 @@ export function generateRandomGameName() {
 }
 
 export function generateRandomPartyName() {
-  return RANDOM_PARTY_NAMES[Math.floor(Math.random() * RANDOM_PARTY_NAMES.length)]!;
+  return RANDOM_PARTY_NAMES[Math.floor(Math.random() * RANDOM_PARTY_NAMES.length)]! as PartyName;
 }
 
 export function generateRandomCharacterName() {

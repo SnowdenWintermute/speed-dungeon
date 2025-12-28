@@ -1,9 +1,4 @@
-import {
-  ERROR_MESSAGES,
-  GameMode,
-  ServerToClientEvent,
-  getProgressionGameMaxStartingFloor,
-} from "@speed-dungeon/common";
+import { ERROR_MESSAGES, GameMode, ServerToClientEvent } from "@speed-dungeon/common";
 import errorHandler from "../error-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware";
 import { Socket } from "socket.io";
@@ -19,9 +14,7 @@ export default async function selectProgressionGameStartingFloorHandler(
   const { game, session } = playerAssociatedData;
   if (game.mode !== GameMode.Progression)
     return errorHandler(socket, new Error(ERROR_MESSAGES.GAME.MODE));
-  const maxStartingFloor = getProgressionGameMaxStartingFloor(
-    game.lowestStartingFloorOptionsBySavedCharacter
-  );
+  const maxStartingFloor = game.getMaxStartingFloor();
 
   if (floorNumber > maxStartingFloor)
     return errorHandler(socket, new Error(ERROR_MESSAGES.GAME.STARTING_FLOOR_LIMIT));

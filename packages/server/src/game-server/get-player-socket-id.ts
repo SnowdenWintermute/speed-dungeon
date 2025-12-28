@@ -1,10 +1,10 @@
-import { ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
+import { ERROR_MESSAGES, SpeedDungeonGame, Username } from "@speed-dungeon/common";
 import { GameServer, SocketId } from "./index.js";
 
 export default function getSocketIdOfPlayer(
   this: GameServer,
   game: SpeedDungeonGame,
-  username: string
+  username: Username
 ): Error | SocketId {
   const playerOption = game.players[username];
   if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);

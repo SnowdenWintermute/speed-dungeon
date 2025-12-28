@@ -3,7 +3,7 @@ import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { runIfInBrowser } from "../utils/index.js";
 import { CombatantCondition } from "../conditions/index.js";
 import { Exclude, instanceToPlain, plainToInstance } from "class-transformer";
-import { EntityId } from "../primatives/index.js";
+import { EntityId } from "../aliases.js";
 import { deserializeCondition } from "../conditions/deserialize-condition.js";
 import { CombatantConditionName } from "../conditions/condition-names.js";
 import cloneDeep from "lodash.clonedeep";

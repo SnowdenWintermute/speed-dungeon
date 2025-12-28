@@ -1,7 +1,7 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { CombatantCondition } from "../../conditions/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
-import { EntityId } from "../../primatives/index.js";
+import { EntityId } from "../../aliases.js";
 import { CombatantTurnScheduler } from "./combatant-turn-scheduler.js";
 import { ConditionTurnScheduler } from "./condition-turn-scheduler.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "./consts.js";

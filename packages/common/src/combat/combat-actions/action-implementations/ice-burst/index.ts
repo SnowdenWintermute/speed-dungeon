@@ -24,7 +24,7 @@ import { HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templ
 import { ICE_BURST_PARENT_STEPS_CONFIG } from "./ice-burst-parent-steps-config.js";
 import { ActionIntentAndUser } from "../../../../action-processing/index.js";
 import { COMBAT_ACTIONS } from "../index.js";
-import { EntityId } from "../../../../primatives/index.js";
+import { EntityId } from "../../../../aliases.js";
 
 const targetingProperties = createTargetingPropertiesConfig(
   TARGETING_PROPERTIES_TEMPLATE_GETTERS.EXPLOSION,

@@ -1,9 +1,8 @@
 export * from "./player.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
-import { EntityId } from "../primatives/index.js";
 import { SpeedDungeonPlayer } from "./player.js";
-import { ChannelName, GameMode, GameName, Username } from "../types.js";
+import { GameMode } from "../types.js";
 import { GAME_CONFIG, MAX_PARTY_SIZE } from "../app-consts.js";
 import { makeAutoObservable } from "mobx";
 import { instanceToPlain, plainToInstance } from "class-transformer";
@@ -13,15 +12,16 @@ import { Combatant } from "../combatants/index.js";
 import cloneDeep from "lodash.clonedeep";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { GAME_CHANNEL_PREFIX } from "../packets/channels.js";
+import { ChannelName, EntityId, GameName, PartyName, Username } from "../aliases.js";
 
 export class SpeedDungeonGame {
-  players: { [username: string]: SpeedDungeonPlayer } = {};
+  players: Record<Username, SpeedDungeonPlayer> = {};
   playerCapacity: number | null = null;
   playersReadied: string[] = [];
-  adventuringParties: { [partyName: string]: AdventuringParty } = {};
-  battles: { [id: EntityId]: Battle } = {};
+  adventuringParties: Record<PartyName, AdventuringParty> = {};
+  battles: Record<EntityId, Battle> = {};
   timeStarted: null | number = null;
-  lowestStartingFloorOptionsBySavedCharacter: { [entityId: string]: number } = {};
+  lowestStartingFloorOptionsBySavedCharacter: Record<EntityId, number> = {};
   selectedStartingFloor: number = 1;
   constructor(
     public id: string,
@@ -42,9 +42,9 @@ export class SpeedDungeonGame {
   static getDeserialized(game: SpeedDungeonGame) {
     const deserialized = plainToInstance(SpeedDungeonGame, game);
 
-    for (const [partyId, party] of Object.entries(deserialized.adventuringParties)) {
+    for (const [partyName, party] of Object.entries(deserialized.adventuringParties)) {
       const deserializedParty = AdventuringParty.getDeserialized(party);
-      deserialized.adventuringParties[partyId] = deserializedParty;
+      deserialized.adventuringParties[partyName as PartyName] = deserializedParty;
     }
 
     for (const player of Object.values(deserialized.players)) {
@@ -134,7 +134,7 @@ export class SpeedDungeonGame {
   }
 
   /** returns the name of the party and if the party was removed from the game (in the case of its last member being removed) */
-  removePlayerFromParty(username: string): Error | RemovedPlayerData {
+  removePlayerFromParty(username: Username): Error | RemovedPlayerData {
     const player = this.players[username];
     const charactersRemoved: Combatant[] = [];
     if (!player) {
@@ -183,7 +183,7 @@ export class SpeedDungeonGame {
     return { partyNameLeft: partyLeaving.name, partyWasRemoved: false, charactersRemoved };
   }
 
-  removePlayer(username: string) {
+  removePlayer(username: Username) {
     const removedPlayerResult = this.removePlayerFromParty(username);
     if (removedPlayerResult instanceof Error) return removedPlayerResult;
     delete this.players[username];
@@ -191,7 +191,7 @@ export class SpeedDungeonGame {
     return removedPlayerResult;
   }
 
-  putPlayerInParty(partyName: string, username: string) {
+  putPlayerInParty(partyName: PartyName, username: Username) {
     const party = this.adventuringParties[partyName];
     if (!party) throw new Error("Tried to put a player in a party but the party didn't exist");
     const player = this.players[username];
@@ -255,7 +255,7 @@ export class SpeedDungeonGame {
     return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
   }
 
-  getPlayerPartyOption(username: string): Error | AdventuringParty | undefined {
+  getPlayerPartyOption(username: Username): Error | AdventuringParty | undefined {
     const playerOption = this.players[username];
     if (!playerOption) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
     const partyNameOption = playerOption.partyName;
@@ -288,7 +288,7 @@ export class SpeedDungeonGame {
     }
   }
 
-  getExpectedParty(partyName: string) {
+  getExpectedParty(partyName: PartyName) {
     const result = this.adventuringParties[partyName];
     if (!result) {
       throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
@@ -305,8 +305,8 @@ export class SpeedDungeonGame {
   }
 }
 
-export type RemovedPlayerData = {
+export interface RemovedPlayerData {
   partyNameLeft: null | string;
   partyWasRemoved: boolean;
   charactersRemoved: Combatant[];
-};
+}

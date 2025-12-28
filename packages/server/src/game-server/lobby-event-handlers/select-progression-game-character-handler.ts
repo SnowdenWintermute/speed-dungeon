@@ -1,10 +1,4 @@
-import {
-  Combatant,
-  ERROR_MESSAGES,
-  GameMode,
-  ServerToClientEvent,
-  getProgressionGameMaxStartingFloor,
-} from "@speed-dungeon/common";
+import { Combatant, ERROR_MESSAGES, GameMode, ServerToClientEvent } from "@speed-dungeon/common";
 import errorHandler from "../error-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { getGameServer } from "../../singletons/index.js";
@@ -54,7 +48,6 @@ export async function selectProgressionGameCharacterHandler(
   const removedChacter = partyOption.removeCharacter(characterIdToRemoveOption, player, game);
 
   delete game.lowestStartingFloorOptionsBySavedCharacter[removedChacter.getEntityId()];
-  savedCharacterOption = savedCharacterOption;
 
   game.addCharacterToParty(
     partyOption,
@@ -66,9 +59,7 @@ export async function selectProgressionGameCharacterHandler(
   game.lowestStartingFloorOptionsBySavedCharacter[
     savedCharacterOption.combatant.entityProperties.id
   ] = savedCharacterOption.combatant.combatantProperties.deepestFloorReached;
-  const maxStartingFloor = getProgressionGameMaxStartingFloor(
-    game.lowestStartingFloorOptionsBySavedCharacter
-  );
+  const maxStartingFloor = game.getMaxStartingFloor();
   if (game.selectedStartingFloor > maxStartingFloor) game.selectedStartingFloor = maxStartingFloor;
 
   gameServer.io

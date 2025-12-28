@@ -1,7 +1,7 @@
 import { Option } from "../primatives/option.js";
 import { CombatActionName, FriendOrFoe, TargetingScheme } from "../combat/combat-actions/index.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
-import { EntityId, NextOrPrevious } from "../primatives/index.js";
+import { NextOrPrevious } from "../primatives/index.js";
 import { CombatActionTargetPreferences, SpeedDungeonPlayer } from "../game/player.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
@@ -10,6 +10,7 @@ import { TargetingCalculator } from "../combat/targeting/targeting-calculator.js
 import { makeAutoObservable } from "mobx";
 import { plainToInstance } from "class-transformer";
 import { runIfInBrowser } from "../utils/index.js";
+import { EntityId } from "../aliases.js";
 
 export class ActionAndRank {
   constructor(

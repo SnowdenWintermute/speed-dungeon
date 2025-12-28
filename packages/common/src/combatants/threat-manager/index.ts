@@ -1,10 +1,11 @@
 import { Matrix, Quaternion, Vector3 } from "@babylonjs/core";
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
+import { MaxAndCurrent } from "../../primatives/index.js";
 import { Combatant } from "../index.js";
 import { plainToInstance } from "class-transformer";
 import { makeAutoObservable } from "mobx";
 import { runIfInBrowser } from "../../utils/index.js";
+import { EntityId } from "../../aliases.js";
 
 export const STABLE_THREAT_CAP = 10000;
 export const VOLATILE_THREAT_CAP = 10000;

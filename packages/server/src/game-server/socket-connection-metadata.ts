@@ -1,5 +1,5 @@
-import { GameName, LOBBY_CHANNEL } from "@speed-dungeon/common";
-import { SocketId, Username } from "./index.js";
+import { ChannelName, GameName, LOBBY_CHANNEL, Username } from "@speed-dungeon/common";
+import { SocketId } from "./index.js";
 
 export class BrowserTabSession {
   constructor(
@@ -7,7 +7,7 @@ export class BrowserTabSession {
     public username: Username,
     /** snowauth user id */
     public userId: null | number,
-    public channels: string[] = [LOBBY_CHANNEL],
+    public channels: ChannelName[] = [LOBBY_CHANNEL],
     public currentGameName: null | GameName = null,
     public currentPartyName: null | string = null
   ) {}
