@@ -1,9 +1,9 @@
+import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import {
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { COMBAT_ACTIONS } from "../../combat/index.js";
 
 const stepType = ActionResolutionStepType.StartConcurrentSubActions;
 export class StartConcurrentSubActionsActionResolutionStep extends ActionResolutionStep {

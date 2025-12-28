@@ -2,7 +2,6 @@ import { Vector3 } from "@babylonjs/core";
 import { idGenerator } from "../../singletons/index.js";
 import {
   AbilityType,
-  AiType,
   CombatActionName,
   Combatant,
   CombatantControlledBy,

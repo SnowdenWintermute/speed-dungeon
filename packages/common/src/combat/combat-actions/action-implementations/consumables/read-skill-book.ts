@@ -1,10 +1,7 @@
-import {
-  CombatActionGameLogProperties,
-  CombatActionComponentConfig,
-  CombatActionLeaf,
-  CombatActionName,
-  CombatActionOrigin,
-} from "../../index.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
+import { CombatActionName } from "../../combat-action-names.js";
+import { CombatActionComponentConfig, CombatActionLeaf } from "../../index.js";
 import {
   COMBATANT_CLASS_TO_SKILL_BOOK_TYPE,
   Consumable,

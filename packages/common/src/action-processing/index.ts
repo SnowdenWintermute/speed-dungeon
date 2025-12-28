@@ -2,7 +2,7 @@ import { BattleConclusion } from "../battle/index.js";
 import { Consumable } from "../items/consumables/index.js";
 import { Equipment } from "../items/equipment/index.js";
 import { GameMessage } from "../packets/game-message.js";
-import { EntityId, PartyName } from "../aliases.js";
+import { CombatantId, EntityId, EntityName, PartyName } from "../aliases.js";
 import { NestedNodeReplayEvent } from "./replay-events.js";
 
 export enum ActionCommandType {
@@ -23,15 +23,13 @@ export interface BattleResultActionCommandPayload {
   type: ActionCommandType.BattleResult;
   conclusion: BattleConclusion;
   partyName: PartyName;
-  experiencePointChanges: { [combatantId: string]: number };
+  experiencePointChanges: Record<CombatantId, number>;
   timestamp: number;
   actionEntitiesRemoved: EntityId[];
   loot?: undefined | { equipment: Equipment[]; consumables: Consumable[] };
 }
 
-export type LadderDeathsUpdate = {
-  [combatantName: string]: { owner: string; rank: number; level: number };
-};
+export type LadderDeathsUpdate = Record<EntityName, { owner: string; rank: number; level: number }>;
 
 export interface GameMessagesPayload {
   type: ActionCommandType.GameMessages;

@@ -1,4 +1,3 @@
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
 import {
   createHitOutcomeProperties,
@@ -22,6 +21,7 @@ import { CombatActionName } from "../../combat-action-names.js";
 import { CombatActionLeaf } from "../../combat-action-leaf.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../base-hierarchy-properties.js";
 import { CombatActionComponentConfig } from "../../index.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 
 const targetingProperties = createTargetingPropertiesConfig(
   TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_IN_COMBAT,

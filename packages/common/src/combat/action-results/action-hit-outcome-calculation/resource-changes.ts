@@ -1,13 +1,12 @@
 import { plainToInstance } from "class-transformer";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
-import { ThreatType } from "../../../combatants/index.js";
 import { EntityId } from "../../../aliases.js";
 import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 import { ResourceChange, ResourceChangeSource } from "../../hp-change-source-types.js";
+import { ThreatType } from "../../../combatants/threat-manager/index.js";
 
 export abstract class ResourceChanges<T> {
   protected changes: Record<EntityId, T> = {};
-  constructor() {}
   addRecord(entityId: string, change: T) {
     this.changes[entityId] = change;
   }
@@ -23,9 +22,6 @@ export abstract class ResourceChanges<T> {
 }
 
 export class HitPointChanges extends ResourceChanges<ResourceChange> {
-  constructor() {
-    super();
-  }
   applyToGame(party: AdventuringParty) {
     const combatantsKilled: EntityId[] = [];
 
@@ -78,15 +74,17 @@ export class ManaChanges extends ResourceChanges<ManaChange> {
 }
 
 export class ThreatChanges {
+  // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
   private entries: {
+    // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
     [entityIdOfThreatTableToUpdate: EntityId]: {
       [threatTableEntityId: EntityId]: Partial<Record<ThreatType, number>>;
     };
   } = {};
+  // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
   private entriesToRemove: {
     [entityIdOfThreatTableToUpdate: EntityId]: EntityId[];
   } = {};
-  constructor() {}
 
   static getDeserialized(plain: ThreatChanges) {
     return plainToInstance(ThreatChanges, plain);

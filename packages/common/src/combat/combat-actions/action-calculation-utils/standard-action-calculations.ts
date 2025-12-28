@@ -22,7 +22,7 @@ export function getStandardActionCritMultiplier(
   actionUser: IActionUser,
   critMultiplierAttribute: null | CombatAttribute
 ) {
-  let critMultiplier = BASE_CRIT_MULTIPLIER;
+  const critMultiplier = BASE_CRIT_MULTIPLIER;
   const userAttributes = actionUser.getTotalAttributes();
   let multiplierAttribute = 0;
   if (critMultiplierAttribute !== null)

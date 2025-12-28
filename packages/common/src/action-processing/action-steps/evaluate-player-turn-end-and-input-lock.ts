@@ -1,15 +1,14 @@
-import { AdventuringParty } from "../../adventuring-party/index.js";
-import { COMBAT_ACTIONS, ThreatChanges } from "../../combat/index.js";
+import { ThreatChanges } from "../../combat/action-results/action-hit-outcome-calculation/resource-changes.js";
+import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { Combatant } from "../../combatants/index.js";
 import { ThreatCalculator } from "../../combatants/threat-manager/threat-calculator.js";
+import { ActionCompletionUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import {
-  ActionCompletionUpdateCommand,
   ActionIntentAndUser,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
-  GameUpdateCommandType,
-} from "../index.js";
+} from "./index.js";
 
 const stepType = ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock;
 export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends ActionResolutionStep {
@@ -130,8 +129,8 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   if (!threatChanges.isEmpty()) gameUpdateCommandOption.threatChanges = threatChanges;
   if (shouldSendEndActiveTurnMessage) {
     gameUpdateCommandOption.endActiveCombatantTurn = true;
-  } else {
   }
+
   if (shouldUnlockInput) {
     gameUpdateCommandOption.unlockInput = true;
     party.inputLock.unlockInput();

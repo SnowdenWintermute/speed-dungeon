@@ -1,4 +1,4 @@
-import { CombatantSpecies } from "../combatants/index.js";
+import { CombatantSpecies } from "../combatants/combatant-species.js";
 
 export const SKELETON_FILE_PATHS: Record<CombatantSpecies, string> = {
   [CombatantSpecies.Humanoid]: "humanoid/humanoid-skeleton.glb",

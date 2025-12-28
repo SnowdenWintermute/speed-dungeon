@@ -4,13 +4,13 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { CombatActionExecutionIntent } from "../../combat/index.js";
 import {
   ActivatedTriggersGameUpdateCommand,
   GameUpdateCommandType,
 } from "../game-update-commands.js";
 import { Combatant } from "../../combatants/index.js";
 import { addRemovedConditionStacksToUpdate } from "./hit-outcome-triggers/add-triggered-condition-to-update.js";
+import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 
 // Made this its own step because conditions were being removed by ticking, then the end turn step
 // was trying to sort their turn order tracker but it couldn't get their speed since they no longer

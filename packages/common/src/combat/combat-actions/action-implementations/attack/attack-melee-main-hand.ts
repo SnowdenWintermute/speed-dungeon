@@ -1,13 +1,5 @@
-import {
-  CombatActionGameLogProperties,
-  CombatActionComponentConfig,
-  CombatActionExecutionIntent,
-  CombatActionLeaf,
-  CombatActionName,
-  CombatActionOrigin,
-} from "../../index.js";
+import { CombatActionComponentConfig, CombatActionLeaf } from "../../index.js";
 import { ATTACK } from "./index.js";
-import { CombatantEquipment } from "../../../../combatants/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
@@ -27,6 +19,11 @@ import {
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
+import { CombatantEquipment } from "../../../../combatants/combatant-equipment/index.js";
+import { CombatActionName } from "../../combat-action-names.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
+import { CombatActionExecutionIntent } from "../../combat-action-execution-intent.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 hitOutcomeOverrides.addsPropertiesFromHoldableSlot = HoldableSlotType.MainHand;

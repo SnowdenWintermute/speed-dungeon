@@ -4,7 +4,6 @@ import { ActionUserContext } from "../../../action-user-context/index.js";
 import { Combatant } from "../../../combatants/index.js";
 import { NextOrPrevious } from "../../../primatives/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
-import { CombatActionExecutionIntent } from "../../combat-actions/index.js";
 import {
   CombatActionTarget,
   combatActionTargetsAreEqual,
@@ -12,6 +11,7 @@ import {
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { ArrayUtils } from "../../../utils/array-utils.js";
 import { EntityId } from "../../../aliases.js";
+import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 
 export type AiActionEvaluator = (
   intents: CombatActionExecutionIntent[],

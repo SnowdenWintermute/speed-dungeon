@@ -6,8 +6,8 @@ import {
 } from "../../game-update-commands.js";
 import { SpawnableEntityType } from "../../../spawnables/index.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
-import { COMBAT_ACTIONS } from "../../../combat/index.js";
 import { SceneEntityType } from "../../../scene-entities/index.js";
+import { COMBAT_ACTIONS } from "../../../combat/combat-actions/action-implementations/index.js";
 
 export class CombatantMotionActionResolutionStep extends EntityMotionActionResolutionStep {
   constructor(context: ActionResolutionStepContext, step: ActionResolutionStepType) {

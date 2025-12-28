@@ -1,11 +1,12 @@
-import { ActionPayableResource, COMBAT_ACTIONS } from "../../combat/index.js";
+import { ActionPayableResource } from "../../combat/combat-actions/action-calculation-utils/action-costs.js";
+import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
+import { evaluatePlayerEndTurnAndInputLock } from "./evaluate-player-turn-end-and-input-lock.js";
 import {
   ActionIntentAndUser,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
-} from "../index.js";
-import { evaluatePlayerEndTurnAndInputLock } from "./evaluate-player-turn-end-and-input-lock.js";
+} from "./index.js";
 
 export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends ActionResolutionStep {
   branchingActions: ActionIntentAndUser[] = [];

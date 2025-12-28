@@ -1,12 +1,12 @@
 import { makeAutoObservable } from "mobx";
 import { BattleResultActionCommandPayload } from "../action-processing/index.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
-import { FriendOrFoe, TurnOrderManager } from "../combat/index.js";
 import { applyExperiencePointChanges } from "../combatants/experience-points/apply-experience-point-changes.js";
 import { SpeedDungeonGame } from "../game/index.js";
-import { runIfInBrowser } from "../index.js";
+import { FriendOrFoe, runIfInBrowser } from "../index.js";
 import { EntityId } from "../aliases.js";
 import { IdGenerator } from "../utility-classes/index.js";
+import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
 
 export class Battle {
   turnOrderManager: TurnOrderManager;
@@ -57,7 +57,7 @@ export class Battle {
       party.currentRoom.inventory.insertItems([...loot.consumables, ...loot.equipment]);
     }
     applyExperiencePointChanges(party, experiencePointChanges);
-    const levelUps: { [entityId: string]: number } = {};
+    const levelUps: Record<EntityId, number> = {};
 
     const { combatantManager } = party;
     const partyMembers = combatantManager.getPartyMemberCombatants();

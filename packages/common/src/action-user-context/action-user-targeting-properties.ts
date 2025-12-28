@@ -1,5 +1,4 @@
 import { Option } from "../primatives/option.js";
-import { CombatActionName, FriendOrFoe, TargetingScheme } from "../combat/combat-actions/index.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
 import { NextOrPrevious } from "../primatives/index.js";
 import { CombatActionTargetPreferences, SpeedDungeonPlayer } from "../game/player.js";
@@ -11,6 +10,11 @@ import { makeAutoObservable } from "mobx";
 import { plainToInstance } from "class-transformer";
 import { runIfInBrowser } from "../utils/index.js";
 import { EntityId } from "../aliases.js";
+import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
+import {
+  FriendOrFoe,
+  TargetingScheme,
+} from "../combat/combat-actions/targeting-schemes-and-categories.js";
 
 export class ActionAndRank {
   constructor(
@@ -201,13 +205,16 @@ export class ActionUserTargetingProperties {
 
     if (lastUsedTargetingScheme === null || !targetingSchemes.includes(lastUsedTargetingScheme)) {
       const defaultScheme = targetingSchemes[0];
-      if (typeof defaultScheme === "undefined")
+      if (typeof defaultScheme === "undefined") {
         throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGETING_SCHEMES);
+      }
       newTargetingScheme = defaultScheme;
     } else {
       const lastUsedTargetingSchemeIndex = targetingSchemes.indexOf(lastUsedTargetingScheme);
-      if (lastUsedTargetingSchemeIndex < 0)
+      if (lastUsedTargetingSchemeIndex < 0) {
         throw new Error(ERROR_MESSAGES.CHECKED_EXPECTATION_FAILED);
+      }
+
       const isSelectingLastInList = lastUsedTargetingSchemeIndex === targetingSchemes.length - 1;
       const newSchemeIndex = isSelectingLastInList ? 0 : lastUsedTargetingSchemeIndex + 1;
       newTargetingScheme = targetingSchemes[newSchemeIndex]!;

@@ -1,4 +1,6 @@
-import { Equipment, HoldableSlotType, WeaponProperties } from "../../../items/equipment/index.js";
+import { WeaponProperties } from "../../../items/equipment/equipment-properties/weapon-properties.js";
+import { Equipment } from "../../../items/equipment/index.js";
+import { HoldableSlotType } from "../../../items/equipment/slots.js";
 import { NumberRange } from "../../../primatives/number-range.js";
 
 export function addWeaponsDamageToRange(

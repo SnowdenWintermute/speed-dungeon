@@ -1,15 +1,12 @@
-import {
-  ActionAccuracyType,
-  CombatActionComponentConfig,
-  CombatActionComposite,
-  CombatActionExecutionIntent,
-  CombatActionName,
-} from "../../index.js";
-import { CombatantEquipment } from "../../../../combatants/index.js";
-import { ActionResolutionStepContext } from "../../../../action-processing/index.js";
+import { CombatActionComponentConfig, CombatActionComposite } from "../../index.js";
 import cloneDeep from "lodash.clonedeep";
 import { ATTACK_CONFIG } from "../attack/index.js";
 import { createTargetingPropertiesConfig } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import { ActionAccuracyType } from "../../combat-action-accuracy.js";
+import { ActionResolutionStepContext } from "../../../../action-processing/action-steps/index.js";
+import { CombatActionName } from "../../combat-action-names.js";
+import { CombatantEquipment } from "../../../../combatants/combatant-equipment/index.js";
+import { CombatActionExecutionIntent } from "../../combat-action-execution-intent.js";
 
 const clonedConfig = cloneDeep(ATTACK_CONFIG);
 

@@ -1,11 +1,5 @@
-import {
-  CombatActionComponentConfig,
-  CombatActionExecutionIntent,
-  CombatActionLeaf,
-  CombatActionName,
-} from "../../index.js";
+import { CombatActionComponentConfig, CombatActionLeaf } from "../../index.js";
 import { COUNTER_ATTACK } from "./index.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { ATTACK_RANGED_MAIN_HAND_CONFIG } from "../attack/attack-ranged-main-hand.js";
 import cloneDeep from "lodash.clonedeep";
 import { getRotateTowardPrimaryTargetDestination } from "../common-destination-getters.js";
@@ -20,6 +14,9 @@ import {
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
+import { CombatActionExecutionIntent } from "../../combat-action-execution-intent.js";
+import { CombatActionName } from "../../combat-action-names.js";
 
 const clonedConfig = cloneDeep(ATTACK_RANGED_MAIN_HAND_CONFIG);
 const stepsConfig = clonedConfig.stepsConfig;

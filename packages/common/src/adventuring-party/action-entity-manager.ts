@@ -1,11 +1,11 @@
 import { makeAutoObservable } from "mobx";
 import { ActionEntity, ActionEntityName } from "../action-entities/index.js";
 import { Battle } from "../battle/index.js";
-import { TurnTrackerEntityType } from "../combat/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { EntityId } from "../aliases.js";
 import { runIfInBrowser } from "../utils/index.js";
 import { plainToInstance } from "class-transformer";
+import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
 
 export class ActionEntityManager {
   private actionEntities: Record<EntityId, ActionEntity> = {};

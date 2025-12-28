@@ -1,11 +1,5 @@
 import { plainToInstance } from "class-transformer";
 import {
-  Equipment,
-  EquipmentBaseItem,
-  EquipmentType,
-  WeaponProperties,
-} from "../../items/equipment/index.js";
-import {
   EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE,
   EquipmentSlotType,
   HoldableSlotType,
@@ -21,6 +15,9 @@ import { ActionAndRank } from "../../action-user-context/action-user-targeting-p
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { CombatantSubsystem } from "../combatant-subsystem.js";
 import { MONSTER_UNARMED_WEAPONS } from "../../monsters/monster-unarmed-weapons.js";
+import { EquipmentBaseItem, EquipmentType } from "../../items/equipment/equipment-types/index.js";
+import { Equipment } from "../../items/equipment/index.js";
+import { WeaponProperties } from "../../items/equipment/equipment-properties/weapon-properties.js";
 
 const DEFAULT_HOTSWAP_SLOT_ALLOWED_TYPES = [
   EquipmentType.OneHandedMeleeWeapon,
@@ -175,13 +172,14 @@ export class CombatantEquipment extends CombatantSubsystem {
 
   putEquipmentInSlot(equipmentItem: Equipment, taggedSlot: TaggedEquipmentSlot) {
     switch (taggedSlot.type) {
-      case EquipmentSlotType.Holdable:
+      case EquipmentSlotType.Holdable: {
         const equippedHoldableHotswapSlot = this.getActiveHoldableSlot();
         if (!equippedHoldableHotswapSlot) {
           throw new Error(ERROR_MESSAGES.EQUIPMENT.NO_SELECTED_HOTSWAP_SLOT);
         }
         equippedHoldableHotswapSlot.holdables[taggedSlot.slot] = equipmentItem;
         break;
+      }
       case EquipmentSlotType.Wearable:
         this.wearables[taggedSlot.slot] = equipmentItem;
         break;
@@ -277,7 +275,7 @@ export class CombatantEquipment extends CombatantSubsystem {
                 } else {
                   return [slot];
                 }
-              case HoldableSlotType.OffHand:
+              case HoldableSlotType.OffHand: {
                 const equippedHotswapSlot = combatantProperties.equipment.getActiveHoldableSlot();
                 if (!equippedHotswapSlot) return [];
 
@@ -293,7 +291,9 @@ export class CombatantEquipment extends CombatantSubsystem {
                   }
                 }
                 return [slot];
+              }
             }
+            break;
           case EquipmentSlotType.Wearable:
             return [slot];
         }
@@ -343,10 +343,12 @@ export class CombatantEquipment extends CombatantSubsystem {
 
       switch (slot.type) {
         case EquipmentSlotType.Holdable:
-          const equippedHoldableHotswapSlot = this.getActiveHoldableSlot();
-          if (!equippedHoldableHotswapSlot) continue;
-          itemOption = equippedHoldableHotswapSlot.holdables[slot.slot];
-          delete equippedHoldableHotswapSlot.holdables[slot.slot];
+          {
+            const equippedHoldableHotswapSlot = this.getActiveHoldableSlot();
+            if (!equippedHoldableHotswapSlot) continue;
+            itemOption = equippedHoldableHotswapSlot.holdables[slot.slot];
+            delete equippedHoldableHotswapSlot.holdables[slot.slot];
+          }
           break;
         case EquipmentSlotType.Wearable:
           itemOption = this.wearables[slot.slot];

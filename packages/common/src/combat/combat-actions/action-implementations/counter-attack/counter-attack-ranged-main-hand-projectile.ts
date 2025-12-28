@@ -1,11 +1,8 @@
-import {
-  CombatActionComponentConfig,
-  CombatActionComposite,
-  CombatActionName,
-} from "../../index.js";
+import { CombatActionComponentConfig, CombatActionComposite } from "../../index.js";
 import cloneDeep from "lodash.clonedeep";
 import { ATTACK_RANGED_MAIN_HAND_PROJECTILE_CONFIG } from "../attack/attack-ranged-main-hand-projectile.js";
 import { COUNTER_ATTACK_RANGED_MAIN_HAND } from "./counter-attack-ranged-main-hand.js";
+import { CombatActionName } from "../../combat-action-names.js";
 
 const clonedConfig = cloneDeep(ATTACK_RANGED_MAIN_HAND_PROJECTILE_CONFIG);
 

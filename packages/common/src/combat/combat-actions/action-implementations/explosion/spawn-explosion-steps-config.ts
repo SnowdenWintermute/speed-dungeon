@@ -3,7 +3,7 @@ import {
   ActionEntityName,
   ActionEntityProperties,
 } from "../../../../action-entities/index.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 import { MaxAndCurrent } from "../../../../primatives/max-and-current.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { ActionResolutionStepConfig } from "../../combat-action-steps-config.js";

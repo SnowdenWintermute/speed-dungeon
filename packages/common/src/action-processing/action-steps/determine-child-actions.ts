@@ -1,4 +1,4 @@
-import { COMBAT_ACTIONS } from "../../combat/index.js";
+import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import {
   ActionIntentAndUser,
   ActionResolutionStep,
@@ -19,7 +19,9 @@ export class DetermineChildActionsActionResolutionStep extends ActionResolutionS
     context.tracker.parentActionManager.enqueueActionIntents(children.reverse());
   }
 
-  protected onTick = () => {};
+  protected onTick = () => {
+    // intentional no-op
+  };
   getTimeToCompletion = () => 0;
   isComplete = () => true;
   getBranchingActions(): ActionIntentAndUser[] {

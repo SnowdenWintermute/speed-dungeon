@@ -2,11 +2,7 @@ import {
   BASE_ACTION_HIERARCHY_PROPERTIES,
   CombatActionComponentConfig,
   CombatActionLeaf,
-  CombatActionName,
-  createGenericSpellCastMessageProperties,
-  FriendOrFoe,
 } from "../../index.js";
-import { ActivatedTriggersGameUpdateCommand } from "../../../../action-processing/index.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import {
   COST_PROPERTIES_TEMPLATE_GETTERS,
@@ -20,6 +16,10 @@ import {
 import { ENSNARE_WEB_TRAVEL_AND_ACTIVATE_STEPS_CONFIG } from "./ensnare-web-travel-and-activate-steps-config.js";
 import { ThreatType } from "../../../../combatants/threat-manager/index.js";
 import { CombatantConditionName } from "../../../../conditions/condition-names.js";
+import { ActivatedTriggersGameUpdateCommand } from "../../../../action-processing/game-update-commands.js";
+import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
+import { createGenericSpellCastMessageProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionName } from "../../combat-action-names.js";
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,

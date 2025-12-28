@@ -1,4 +1,3 @@
-import { CombatActionExecutionIntent } from "../combat/index.js";
 import { ActionUserContext } from "../action-user-context/index.js";
 import { CombatantSpecies } from "../combatants/combatant-species.js";
 import { EntityId, Milliseconds } from "../aliases.js";
@@ -9,6 +8,7 @@ import { ACTION_RESOLUTION_STEP_TYPE_STRINGS, ActionIntentAndUser } from "./acti
 import { ActionTracker } from "./action-tracker.js";
 import { NestedNodeReplayEvent, ReplayEventType } from "./replay-events.js";
 import { BoundingBoxSizesBySpecies } from "../types.js";
+import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent.js";
 
 export class TimeKeeper {
   ms: number = 0;

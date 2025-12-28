@@ -3,10 +3,11 @@ import { CombatActionComponent } from "../combat/combat-actions/index.js";
 import { IActionUser } from "../action-user-context/action-user.js";
 import { Combatant } from "../combatants/index.js";
 import { HitOutcome } from "../hit-outcome.js";
-import { Equipment, EquipmentSlotType, TaggedEquipmentSlot } from "../items/equipment/index.js";
+import { Equipment } from "../items/equipment/index.js";
 import { EntityId } from "../aliases.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
+import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 
 export interface EquipmentDurabilityChange {
   taggedSlot: TaggedEquipmentSlot;
@@ -40,7 +41,7 @@ export class DurabilityChanges {
 }
 
 export class DurabilityChangesByEntityId {
-  records: { [entityId: EntityId]: DurabilityChanges } = {};
+  records: Record<EntityId, DurabilityChanges> = {};
 
   updateOrCreateDurabilityChangeRecord(
     actionUser: IActionUser,

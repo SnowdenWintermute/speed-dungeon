@@ -1,8 +1,3 @@
-import { CombatantEquipment } from "../../../../combatants/index.js";
-import {
-  ActionResolutionStepContext,
-  ActionResolutionStepType,
-} from "../../../../action-processing/index.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
 import {
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
@@ -20,6 +15,11 @@ import {
   CombatActionComponentConfig,
   CombatActionComposite,
 } from "../../index.js";
+import {
+  ActionResolutionStepContext,
+  ActionResolutionStepType,
+} from "../../../../action-processing/action-steps/index.js";
+import { CombatantEquipment } from "../../../../combatants/combatant-equipment/index.js";
 
 // placeholder since all this action does is get children
 const hitOutcomeProperties = createHitOutcomeProperties(

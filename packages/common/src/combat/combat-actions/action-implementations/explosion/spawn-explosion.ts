@@ -1,11 +1,4 @@
-import {
-  CombatActionGameLogProperties,
-  CombatActionComponentConfig,
-  CombatActionComposite,
-  CombatActionExecutionIntent,
-  CombatActionName,
-  CombatActionOrigin,
-} from "../../index.js";
+import { CombatActionComponentConfig, CombatActionComposite } from "../../index.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { SPAWN_EXPLOSION_STEPS_CONFIG } from "./spawn-explosion-steps-config.js";
@@ -16,7 +9,8 @@ import {
   CombatActionTarget,
   CombatActionTargetType,
 } from "../../../targeting/combat-action-targets.js";
-import { ActionIntentAndUser } from "../../../../action-processing/index.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
 
 const targetingProperties = TARGETING_PROPERTIES_TEMPLATE_GETTERS.EXPLOSION();
 

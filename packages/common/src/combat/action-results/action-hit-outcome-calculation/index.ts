@@ -1,5 +1,5 @@
 import cloneDeep from "lodash.clonedeep";
-import { iterateNumericEnumKeyedRecord, randBetween, throwIfError } from "../../../utils/index.js";
+import { iterateNumericEnumKeyedRecord, throwIfError } from "../../../utils/index.js";
 import { ResourceChange } from "../../hp-change-source-types.js";
 import { EntityId } from "../../../aliases.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
@@ -11,11 +11,13 @@ import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/inde
 import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { IncomingResourceChangesCalculator } from "./incoming-resource-change-calculator.js";
 import { TargetFilterer } from "../../targeting/filtering.js";
-import { CombatActionComponent, CombatActionExecutionIntent } from "../../combat-actions/index.js";
+import { CombatActionComponent } from "../../combat-actions/index.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 import { HitOutcomeMitigationCalculator } from "./hit-outcome-mitigation-calculator.js";
 import { ResourceChangeModifier } from "./resource-change-modifier.js";
 import { ActionUserContext } from "../../../action-user-context/index.js";
+import { randBetween } from "../../../utils/rand-between.js";
+import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 
 export class CombatActionHitOutcomes {
   resourceChanges?: Partial<Record<CombatActionResource, ResourceChanges<ResourceChange>>>;

@@ -1,7 +1,5 @@
-import {
-  ActionResolutionStepType,
-  AnimationTimingType,
-} from "../../../../action-processing/index.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
+import { AnimationTimingType } from "../../../../action-processing/game-update-commands.js";
 import { AnimationType, DynamicAnimationName } from "../../../../app-consts.js";
 import { CleanupMode } from "../../../../types.js";
 import { ActionResolutionStepConfig } from "../../combat-action-steps-config.js";

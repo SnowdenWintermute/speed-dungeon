@@ -1,12 +1,4 @@
-import {
-  CombatActionGameLogProperties,
-  CombatActionComponentConfig,
-  CombatActionComposite,
-  CombatActionExecutionIntent,
-  CombatActionName,
-  CombatActionOrigin,
-  FriendOrFoe,
-} from "../../index.js";
+import { CombatActionComponentConfig, CombatActionComposite } from "../../index.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CHAINING_SPLIT_ARROW_PARENT } from "./index.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
@@ -34,8 +26,13 @@ import {
   ACTION_EXECUTION_PRECONDITIONS,
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
-import { ActionResolutionStepContext } from "../../../../action-processing/index.js";
 import { Combatant } from "../../../../combatants/index.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
+import { CombatActionName } from "../../combat-action-names.js";
+import { CombatActionExecutionIntent } from "../../combat-action-execution-intent.js";
+import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
+import { ActionResolutionStepContext } from "../../../../action-processing/action-steps/index.js";
 
 const targetingPropertiesOverrides: Partial<CombatActionTargetingPropertiesConfig> = {
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.RandomCombatant },

@@ -4,13 +4,13 @@ import {
   ResourceChangeSource,
   ResourceChangeSourceModifiers,
 } from "../../hp-change-source-types.js";
-import { ResourceChangeModifier } from "../../action-results/index.js";
 import { CombatActionResourceChangeProperties } from "../combat-action-resource-change-properties";
 import { copySelectedModifiersFromResourceChangeSource } from "./copy-selected-modifiers-from-hp-change-source.js";
 import { CombatActionHitOutcomeProperties } from "../combat-action-hit-outcome-properties.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
 import { CombatantProperties } from "../../../combatants/combatant-properties.js";
 import { toJS } from "mobx";
+import { ResourceChangeModifier } from "../../action-results/action-hit-outcome-calculation/resource-change-modifier.js";
 
 export function selectMostEffectiveFromAvailableResourceChangeSourceModifiers(
   hitOutcomeProperties: CombatActionHitOutcomeProperties,

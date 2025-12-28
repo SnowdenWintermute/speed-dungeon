@@ -1,13 +1,6 @@
-import {
-  CombatActionGameLogProperties,
-  CombatActionComponentConfig,
-  CombatActionLeaf,
-  CombatActionName,
-  CombatActionOrigin,
-} from "../../index.js";
+import { CombatActionComponentConfig, CombatActionLeaf } from "../../index.js";
 import { BURNING_TICK_STEPS_CONFIG } from "./burning-tick-steps-config.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
-import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { BURNING_TICK_HIT_OUTCOME_PROPERTIES } from "./burning-tick-hit-outcome-properties.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
@@ -20,6 +13,9 @@ import {
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
 import { throwIfError } from "../../../../utils/index.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
+import { CombatActionName } from "../../combat-action-names.js";
 
 const targetingProperties = createTargetingPropertiesConfig(
   TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE,

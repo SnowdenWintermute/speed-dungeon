@@ -1,6 +1,5 @@
 import { determineMeleeAttackAnimationType } from "../../combat/combat-actions/action-implementations/attack/determine-melee-attack-animation-type.js";
-import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
-import { Combatant } from "../../combatants/index.js";
+import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import {
   ActionIntentAndUser,
   ActionResolutionStep,
@@ -33,7 +32,9 @@ export class DetermineMeleeActionAnimationsActionResolutionStep extends ActionRe
     context.tracker.meleeAttackAnimationType = meleeAttackAnimationType;
   }
 
-  protected onTick = () => {};
+  protected onTick = () => {
+    // intentional no-op
+  };
   getTimeToCompletion = () => 0;
   isComplete = () => true;
   getBranchingActions(): ActionIntentAndUser[] {

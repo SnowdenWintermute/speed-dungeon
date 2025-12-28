@@ -1,7 +1,7 @@
 import { DungeonRoom, DungeonRoomType } from "./dungeon-room.js";
 import { InputLock } from "./input-lock.js";
 import { ActionCommandQueue } from "../action-processing/action-command-queue.js";
-import { SpeedDungeonGame, SpeedDungeonPlayer } from "../game/index.js";
+import { SpeedDungeonGame } from "../game/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { DungeonExplorationManager } from "./dungeon-exploration-manager.js";
 import { ActionEntityManager } from "./action-entity-manager.js";
@@ -15,6 +15,7 @@ import { Item } from "../items/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { plainToInstance } from "class-transformer";
 import { EntityId, PartyName, Username } from "../aliases.js";
+import { SpeedDungeonPlayer } from "../game/player.js";
 
 export class AdventuringParty {
   // subsystems

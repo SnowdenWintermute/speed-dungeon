@@ -1,10 +1,4 @@
 import { ActionEntityName } from "../../../action-entities/index.js";
-import {
-  COMBAT_ACTIONS,
-  CombatActionExecutionIntent,
-  CombatActionName,
-  CombatActionTargetType,
-} from "../../../combat/index.js";
 import { ShapeType3D } from "../../../utils/shape-utils.js";
 import {
   ActionIntentAndUser,
@@ -15,6 +9,10 @@ import { TriggerEnvironmentalHazardsActionResolutionStep } from "./determine-env
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { AnimationTimingType } from "../../game-update-commands.js";
 import { timeToReachBox } from "../../../utils/index.js";
+import { COMBAT_ACTIONS } from "../../../combat/combat-actions/action-implementations/index.js";
+import { CombatActionExecutionIntent } from "../../../combat/combat-actions/combat-action-execution-intent.js";
+import { CombatActionName } from "../../../combat/combat-actions/combat-action-names.js";
+import { CombatActionTargetType } from "../../../combat/targeting/combat-action-targets.js";
 
 export function getFirewallBurnScheduledActions(
   context: ActionResolutionStepContext,

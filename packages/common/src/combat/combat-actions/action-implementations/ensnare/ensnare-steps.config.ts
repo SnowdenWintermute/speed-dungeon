@@ -4,13 +4,7 @@ import { ActionStepConfigUtils } from "../generic-action-templates/step-config-t
 import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 import { getSpeciesTimedAnimation } from "../get-species-timed-animation.js";
 import { Vector3 } from "@babylonjs/core";
-import {
-  Combatant,
-  CombatantClass,
-  CombatantSpecies,
-  CombatantTraitProperties,
-  CombatAttribute,
-} from "../../../../combatants/index.js";
+import { Combatant } from "../../../../combatants/index.js";
 import { CombatantProperties } from "../../../../combatants/combatant-properties.js";
 import { MonsterType } from "../../../../monsters/monster-types.js";
 import {
@@ -29,6 +23,10 @@ import { MagicalElement } from "../../../magical-elements.js";
 import { KineticDamageType } from "../../../kinetic-damage-types.js";
 import { IActionUser } from "../../../../action-user-context/action-user.js";
 import { calculateBalancedAttributeSynergy } from "../../../../utils/index.js";
+import { CombatantSpecies } from "../../../../combatants/combatant-species.js";
+import { CombatantClass } from "../../../../combatants/combatant-class/classes.js";
+import { CombatantTraitProperties } from "../../../../combatants/combatant-traits/combatant-trait-properties.js";
+import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 
 const config = cloneDeep(BASIC_SPELL_STEPS_CONFIG);
 ActionStepConfigUtils.removeMoveForwardSteps(config);

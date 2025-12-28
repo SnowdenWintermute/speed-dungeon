@@ -4,11 +4,11 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "../index.js";
-import { COMBAT_ACTIONS } from "../../../combat/index.js";
 import { getFirewallBurnScheduledActions } from "./check-for-combatant-moving-through-firewall.js";
 import { getProjectileMovingThroughFirewallTriggeredActions } from "./get-projectile-moving-through-firewall-triggered-actions.js";
 import { ActionEntity } from "../../../action-entities/index.js";
 import { Combatant } from "../../../combatants/index.js";
+import { COMBAT_ACTIONS } from "../../../combat/combat-actions/action-implementations/index.js";
 
 export class TriggerEnvironmentalHazardsActionResolutionStep extends ActionResolutionStep {
   protected onTick = () => {};

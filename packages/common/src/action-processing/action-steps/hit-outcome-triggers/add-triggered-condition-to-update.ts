@@ -1,4 +1,4 @@
-import { EntityId } from "../../../aliases.js";
+import { ConditionId, EntityId } from "../../../aliases.js";
 import { ActivatedTriggersGameUpdateCommand } from "../../game-update-commands.js";
 
 export function addRemovedConditionStacksToUpdate(
@@ -18,7 +18,7 @@ export function addRemovedConditionStacksToUpdate(
 }
 
 export function addRemovedConditionIdToUpdate(
-  conditionId: EntityId,
+  conditionId: ConditionId,
   update: ActivatedTriggersGameUpdateCommand,
   targetCombatantId: EntityId
 ) {

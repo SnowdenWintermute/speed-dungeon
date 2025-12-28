@@ -1,10 +1,11 @@
-import { CombatActionName, CombatActionTargetType } from "../index.js";
 import { Combatant } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { CombatActionExecutionIntent } from "../combat-actions/combat-action-execution-intent.js";
 import { AIBehaviorContext } from "./ai-context.js";
 import { RootAIBehaviorNode } from "./custom-nodes/root-ai-behavior-node.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
+import { CombatActionName } from "../combat-actions/combat-action-names.js";
+import { CombatActionTargetType } from "../targeting/combat-action-targets.js";
 
 export function AISelectActionAndTarget(
   game: SpeedDungeonGame,

@@ -1,5 +1,4 @@
 import { plainToInstance } from "class-transformer";
-import { FriendOrFoe, TurnTrackerEntityType } from "../combat/index.js";
 import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { EntityId } from "../aliases.js";
@@ -15,6 +14,8 @@ import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { CombatantCondition, ConditionWithCombatantIdAppliedTo } from "../conditions/index.js";
 import { CombatantTraitType } from "../combatants/combatant-traits/trait-types.js";
+import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
+import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
 
 export class CombatantManager extends AdventuringPartySubsystem {
   private combatants = new Map<EntityId, Combatant>();
@@ -238,7 +239,6 @@ export class CombatantManager extends AdventuringPartySubsystem {
 
   playerOwnsCharacter(playerName: string, characterId: string) {
     const combatant = this.getExpectedCombatant(characterId);
-    combatant.combatantProperties;
     const { controllerPlayerName } = combatant.combatantProperties.controlledBy;
     return controllerPlayerName === playerName;
   }

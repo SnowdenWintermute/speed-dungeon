@@ -1,4 +1,4 @@
-import { CombatActionComponent, CombatActionName } from "../index.js";
+import { CombatActionComponent } from "../index.js";
 import { ATTACK_MELEE_MAIN_HAND } from "./attack/attack-melee-main-hand.js";
 import { ATTACK_MELEE_OFF_HAND } from "./attack/attack-melee-off-hand.js";
 import { ATTACK_RANGED_MAIN_HAND_PROJECTILE } from "./attack/attack-ranged-main-hand-projectile.js";
@@ -44,6 +44,7 @@ import { ENSNARE } from "./ensnare/index.js";
 import { ENSNARE_WEB_TRAVEL_AND_ACTIVATE } from "./ensnare/ensnare-web-travel-and-activate.js";
 import { START_FLYING } from "./start-flying/index.js";
 import { DEATH } from "./death/index.js";
+import { CombatActionName } from "../combat-action-names.js";
 
 export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Attack]: ATTACK,

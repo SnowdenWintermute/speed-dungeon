@@ -5,15 +5,13 @@ import {
   ActionResolutionStepType,
 } from "./index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
-import {
-  COMBAT_ACTIONS,
-  COMBAT_ACTION_NAME_STRINGS,
-  HitOutcomeCalculator,
-  HitPointChanges,
-} from "../../combat/index.js";
 import { HitOutcome } from "../../hit-outcome.js";
 import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
 import { CombatActionResource } from "../../combat/combat-actions/combat-action-hit-outcome-properties.js";
+import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
+import { HitOutcomeCalculator } from "../../combat/action-results/action-hit-outcome-calculation/index.js";
+import { COMBAT_ACTION_NAME_STRINGS } from "../../combat/combat-actions/combat-action-names.js";
+import { HitPointChanges } from "../../combat/action-results/action-hit-outcome-calculation/resource-changes.js";
 
 const stepType = ActionResolutionStepType.RollIncomingHitOutcomes;
 export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutionStep {

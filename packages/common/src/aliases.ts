@@ -1,8 +1,10 @@
 export type Username = string & { __brand: "Username" };
 export type GameName = string & { __brand: "GameName" };
 export type PartyName = string & { __brand: "PartyName" };
-export type ProfileId = number & { __brand: "ProfileId" };
 export type ChannelName = string & { __brand: "ChannelName" };
+export type EntityName = string & { __brand: "EntityName" };
+
+export type ProfileId = number & { __brand: "ProfileId" };
 export type ConnectionId = string & { __brand: "ConnectionId" };
 export type IdentityProviderId = number & { __brand: "IdentityProviderId" };
 

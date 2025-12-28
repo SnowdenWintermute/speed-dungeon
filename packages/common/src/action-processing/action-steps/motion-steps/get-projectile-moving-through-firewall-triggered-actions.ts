@@ -1,10 +1,4 @@
 import { ActionEntity, ActionEntityName } from "../../../action-entities/index.js";
-import {
-  COMBAT_ACTIONS,
-  CombatActionExecutionIntent,
-  CombatActionName,
-  CombatActionTargetType,
-} from "../../../combat/index.js";
 import { ShapeType3D } from "../../../utils/shape-utils.js";
 import {
   ActionIntentAndUser,
@@ -16,6 +10,10 @@ import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import cloneDeep from "lodash.clonedeep";
 import { timeToReachBox } from "../../../utils/index.js";
 import { Milliseconds } from "../../../aliases.js";
+import { COMBAT_ACTIONS } from "../../../combat/combat-actions/action-implementations/index.js";
+import { CombatActionExecutionIntent } from "../../../combat/combat-actions/combat-action-execution-intent.js";
+import { CombatActionName } from "../../../combat/combat-actions/combat-action-names.js";
+import { CombatActionTargetType } from "../../../combat/targeting/combat-action-targets.js";
 
 const requiredFirewallLevelForIgnitingProjectiles = 2;
 const requiredFirewallLevelForIncineratingProjectiles = 3;
@@ -87,7 +85,7 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
   const movementVector = destination.subtract(entityPosition);
   const distance = movementVector.length();
   const speed = distance / duration;
-  let timeToReachFirewallOption = timeToReachBox(
+  const timeToReachFirewallOption = timeToReachBox(
     entityPosition,
     destination,
     firewallPosition,

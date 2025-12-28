@@ -1,12 +1,7 @@
-import {
-  ActionAccuracyType,
-  CombatActionComponentConfig,
-  CombatActionLeaf,
-  CombatActionName,
-} from "../../index.js";
+import { CombatActionName } from "../../combat-action-names.js";
+import { CombatActionComponentConfig, CombatActionLeaf } from "../../index.js";
 import { COUNTER_ATTACK } from "./index.js";
 import { ATTACK_MELEE_MAIN_HAND_CONFIG } from "../attack/attack-melee-main-hand.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import cloneDeep from "lodash.clonedeep";
 import { getRotateTowardPrimaryTargetDestination } from "../common-destination-getters.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
@@ -15,6 +10,8 @@ import {
   ACTION_EXECUTION_PRECONDITIONS,
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
+import { ActionAccuracyType } from "../../combat-action-accuracy.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.MAIN_HAND_MELEE_ATTACK();
 delete stepsConfig.steps[ActionResolutionStepType.InitialPositioning];

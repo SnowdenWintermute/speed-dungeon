@@ -13,9 +13,9 @@ import {
   ActionResolutionStepType,
 } from "./action-steps/index.js";
 import { ACTION_STEP_CREATORS } from "./action-steps/step-creators.js";
-import { CombatActionHitOutcomes } from "../combat/action-results/index.js";
 import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent.js";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
+import { CombatActionHitOutcomes } from "../combat/action-results/action-hit-outcome-calculation/index.js";
 
 export class ActionTracker {
   currentStep: ActionResolutionStep;

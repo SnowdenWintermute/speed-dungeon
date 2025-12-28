@@ -1,4 +1,3 @@
-import { FriendOrFoe } from "../../index.js";
 import { ActionEntity } from "../../../../action-entities/index.js";
 import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
 import {
@@ -7,6 +6,7 @@ import {
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { CombatantConditionName } from "../../../../conditions/condition-names.js";
+import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 
