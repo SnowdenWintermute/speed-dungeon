@@ -1,14 +1,4 @@
-import {
-  CombatActionComponentConfig,
-  CombatActionComposite,
-  CombatActionExecutionIntent,
-  CombatActionName,
-  TargetCategories,
-} from "../../index.js";
-import {
-  CombatActionGameLogProperties,
-  CombatActionOrigin,
-} from "../../combat-action-combat-log-properties.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 import {
   createTargetingPropertiesConfig,
@@ -25,6 +15,11 @@ import { ICE_BURST_PARENT_STEPS_CONFIG } from "./ice-burst-parent-steps-config.j
 import { ActionIntentAndUser } from "../../../../action-processing/index.js";
 import { COMBAT_ACTIONS } from "../index.js";
 import { EntityId } from "../../../../aliases.js";
+import { TargetCategories } from "../../targeting-schemes-and-categories.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
+import { CombatActionName } from "../../combat-action-names.js";
+import { CombatActionExecutionIntent } from "../../combat-action-execution-intent.js";
+import { CombatActionComponentConfig, CombatActionComposite } from "../../index.js";
 
 const targetingProperties = createTargetingPropertiesConfig(
   TARGETING_PROPERTIES_TEMPLATE_GETTERS.EXPLOSION,
