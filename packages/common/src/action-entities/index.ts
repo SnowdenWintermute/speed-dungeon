@@ -1,5 +1,3 @@
-export * from "./cosmetic-effect.js";
-export * from "./cosmetic-effect-constructors.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { EntityProperties, MaxAndCurrent } from "../primatives/index.js";
 import {

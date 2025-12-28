@@ -1,4 +1,3 @@
-export * from "./player.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
 import { SpeedDungeonPlayer } from "./player.js";

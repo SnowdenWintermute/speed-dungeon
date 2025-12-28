@@ -1,18 +1,3 @@
-export * from "./combat-action-hit-outcome-properties.js";
-export * from "./combat-action-names.js";
-export * from "./targeting-schemes-and-categories.js";
-export * from "./combat-action-usable-cotexts.js";
-export * from "./action-calculation-utils/action-costs.js";
-export * from "./combat-action-execution-intent.js";
-export * from "./combat-action-animations.js";
-export * from "./combat-action-intent.js";
-export * from "./combat-action-steps-config.js";
-export * from "./combat-action-resource-change-properties.js";
-export * from "./combat-action-accuracy.js";
-export * from "./combat-action-combat-log-properties.js";
-export * from "./action-implementations/generic-action-templates/pets.js";
-export * from "./combat-action-origin.js";
-
 import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js";
 import { COMBAT_ACTION_NAME_STRINGS, CombatActionName } from "./combat-action-names.js";
 import { Battle } from "../../battle/index.js";

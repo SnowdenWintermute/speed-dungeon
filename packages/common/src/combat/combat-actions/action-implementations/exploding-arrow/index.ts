@@ -1,20 +1,18 @@
 import cloneDeep from "lodash.clonedeep";
 import { AbilityType } from "../../../../abilities/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
-import {
-  CombatActionGameLogProperties,
-  CombatActionComponentConfig,
-  CombatActionComposite,
-  CombatActionExecutionIntent,
-  CombatActionHitOutcomeProperties,
-  CombatActionName,
-  CombatActionOrigin,
-} from "../../index.js";
+
 import { ATTACK_RANGED_MAIN_HAND } from "../attack/attack-ranged-main-hand.js";
 import { EXPLODING_ARROW_PROJECTILE_HIT_OUTCOME_PROPERTIES } from "./exploding-arrow-projectile-hit-outcome-properties.js";
 import { createHitOutcomeProperties } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { ARROW_RESOURCE_CHANGE_CALCULATORS } from "../generic-action-templates/resource-change-calculation-templates/arrow.js";
 import { CombatantTraitType } from "../../../../combatants/combatant-traits/trait-types.js";
+import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
+import { CombatActionName } from "../../combat-action-names.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
+import { CombatActionExecutionIntent } from "../../combat-action-execution-intent.js";
+import { CombatActionComponentConfig, CombatActionComposite } from "../../index.js";
 
 // the purpose of projectile parent hit outcome properties is to show a description
 // we'll clone the projectile's hit outcome properties so we can show the applied effects

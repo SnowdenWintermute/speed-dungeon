@@ -1,8 +1,8 @@
 import {
   ResourceChangeSource,
   ResourceChangeSourceCategory,
-  KineticDamageType,
-} from "../../../combat/index.js";
+} from "../../../combat/hp-change-source-types.js";
+import { KineticDamageType } from "../../../combat/kinetic-damage-types.js";
 import { EntityProperties, NumberRange } from "../../../primatives/index.js";
 import { OneHandedMeleeWeapon } from "../equipment-types/one-handed-melee-weapon.js";
 import { TwoHandedRangedWeapon } from "../equipment-types/two-handed-ranged-weapon.js";

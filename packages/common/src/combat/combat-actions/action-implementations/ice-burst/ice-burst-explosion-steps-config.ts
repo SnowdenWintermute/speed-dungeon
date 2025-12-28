@@ -1,4 +1,4 @@
-import { CosmeticEffectNames } from "../../../../action-entities/index.js";
+import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import {
   ActionResolutionStepType,
   AnimationTimingType,

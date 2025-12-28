@@ -3,29 +3,32 @@ import { BASIC_SPELL_STEPS_CONFIG } from "../generic-action-templates/step-confi
 import { ActionStepConfigUtils } from "../generic-action-templates/step-config-templates/utils.js";
 import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 import { getSpeciesTimedAnimation } from "../get-species-timed-animation.js";
+import { Vector3 } from "@babylonjs/core";
 import {
-  calculateBalancedAttributeSynergy,
   Combatant,
-  COMBATANT_MAX_LEVEL,
-  CombatantBaseChildTransformNodeName,
   CombatantClass,
-  CombatantControlledBy,
-  CombatantControllerType,
-  CombatantProperties,
   CombatantSpecies,
   CombatantTraitProperties,
-  CombatantTraitType,
   CombatAttribute,
-  IActionUser,
-  KineticDamageType,
-  MagicalElement,
-  MonsterType,
+} from "../../../../combatants/index.js";
+import { CombatantProperties } from "../../../../combatants/combatant-properties.js";
+import { MonsterType } from "../../../../monsters/monster-types.js";
+import {
+  CombatantControlledBy,
+  CombatantControllerType,
+} from "../../../../combatants/combatant-controllers.js";
+import { CombatantTraitType } from "../../../../combatants/combatant-traits/trait-types.js";
+import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
+import { SpawnableEntityType } from "../../../../spawnables/index.js";
+import {
+  CombatantBaseChildTransformNodeName,
   SceneEntityType,
-  SkeletalAnimationName,
-  SpawnableEntityType,
-  TargetingCalculator,
-} from "../../../../index.js";
-import { Vector3 } from "@babylonjs/core";
+} from "../../../../scene-entities/index.js";
+import { COMBATANT_MAX_LEVEL, SkeletalAnimationName } from "../../../../app-consts.js";
+import { MagicalElement } from "../../../magical-elements.js";
+import { KineticDamageType } from "../../../kinetic-damage-types.js";
+import { IActionUser } from "../../../../action-user-context/action-user.js";
+import { calculateBalancedAttributeSynergy } from "../../../../utils/index.js";
 
 const config = cloneDeep(BASIC_SPELL_STEPS_CONFIG);
 ActionStepConfigUtils.removeMoveForwardSteps(config);

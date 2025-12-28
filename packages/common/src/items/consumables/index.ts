@@ -1,9 +1,9 @@
 import { EntityProperties } from "../../primatives/entity-properties.js";
 import { Item } from "../index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
-import { CombatActionName } from "../../combat/index.js";
 import { CombatantClass } from "../../combatants/index.js";
 import { ConsumableType } from "./consumable-types.js";
+import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 
 export class Consumable extends Item {
   constructor(

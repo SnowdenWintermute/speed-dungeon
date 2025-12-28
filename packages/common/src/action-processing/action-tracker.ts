@@ -1,10 +1,5 @@
 import { IActionUser } from "../action-user-context/action-user.js";
 import { MeleeAttackAnimationType } from "../combat/combat-actions/action-implementations/attack/determine-melee-attack-animation-type.js";
-import {
-  COMBAT_ACTIONS,
-  CombatActionExecutionIntent,
-  CombatActionHitOutcomes,
-} from "../combat/index.js";
 import { HitOutcome } from "../hit-outcome.js";
 import { Consumable } from "../items/consumables/index.js";
 import { Milliseconds } from "../aliases.js";
@@ -18,6 +13,9 @@ import {
   ActionResolutionStepType,
 } from "./action-steps/index.js";
 import { ACTION_STEP_CREATORS } from "./action-steps/step-creators.js";
+import { CombatActionHitOutcomes } from "../combat/action-results/index.js";
+import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent.js";
+import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 
 export class ActionTracker {
   currentStep: ActionResolutionStep;

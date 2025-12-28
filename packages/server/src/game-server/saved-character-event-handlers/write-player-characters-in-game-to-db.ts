@@ -60,8 +60,6 @@ export async function writePlayerCharactersInGameToDb(
         characterResult.combatantProperties.deepestFloorReached = floorNumber;
       }
 
-      characterResult.combatantProperties.targetingProperties.clear();
-
       const pets = partyOption.petManager.getAllPetsByOwnerId(existingCharacter.id);
       updatePlayerCharacterInDb(characterResult, pets, existingCharacter);
     }

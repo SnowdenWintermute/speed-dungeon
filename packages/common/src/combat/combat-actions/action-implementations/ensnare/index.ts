@@ -25,7 +25,6 @@ import {
   getWebMaxHp,
 } from "./ensnare-steps.config.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
-import { ArrayUtils } from "../../../../utils/array-utils.js";
 import { getEnsnaredEvasionChange } from "../../../../conditions/configs/ensnared.js";
 
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL;

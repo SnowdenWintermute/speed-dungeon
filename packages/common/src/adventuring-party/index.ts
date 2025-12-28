@@ -15,9 +15,6 @@ import { Item } from "../items/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { plainToInstance } from "class-transformer";
 import { EntityId, PartyName, Username } from "../aliases.js";
-export * from "./dungeon-room.js";
-export * from "./dungeon-exploration-manager.js";
-export * from "./input-lock.js";
 
 export class AdventuringParty {
   // subsystems

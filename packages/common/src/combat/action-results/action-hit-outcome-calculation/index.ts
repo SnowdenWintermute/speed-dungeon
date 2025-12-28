@@ -3,11 +3,6 @@ import { iterateNumericEnumKeyedRecord, randBetween, throwIfError } from "../../
 import { ResourceChange } from "../../hp-change-source-types.js";
 import { EntityId } from "../../../aliases.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
-export * from "./hit-outcome-mitigation-calculator.js";
-export * from "./incoming-resource-change-calculator.js";
-export * from "./hp-change-calculation-strategies/index.js";
-export * from "./resource-change-modifier.js";
-export * from "./resource-changes.js";
 
 import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";

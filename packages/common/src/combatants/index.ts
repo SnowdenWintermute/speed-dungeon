@@ -2,7 +2,6 @@ import { MaxAndCurrent } from "../primatives/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { EntityProperties } from "../primatives/index.js";
 import { Inventory } from "./inventory/index.js";
-import { CombatActionName, FriendOrFoe } from "../combat/combat-actions/index.js";
 import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
 import { CombatantConditionName, EntityId } from "../index.js";
 import { instanceToPlain, plainToInstance } from "class-transformer";
@@ -22,22 +21,6 @@ import { runIfInBrowser } from "../utils/index.js";
 import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantAttributeRecord } from "./combatant-attribute-record.js";
 import { ConditionAppliedBy } from "../conditions/condition-applied-by.js";
-
-export * from "./combatant-class/index.js";
-export * from "./combatant-species.js";
-export * from "./combatant-traits/index.js";
-export * from "./owned-actions/index.js";
-export * from "./inventory/index.js";
-export * from "./combatant-equipment/index.js";
-export * from "./threat-manager/index.js";
-export * from "./combatant-traits/index.js";
-export * from "./ability-tree/index.js";
-export * from "./combatant-abilities/index.js";
-export * from "./attributes/index.js";
-export * from "./attribute-properties.js";
-export * from "./class-progression-properties.js";
-
-export * from "./attributes/initialize-combat-attribute-record.js";
 
 export class Combatant implements IActionUser {
   constructor(

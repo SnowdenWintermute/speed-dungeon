@@ -21,13 +21,6 @@ import { plainToInstance } from "class-transformer";
 import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantAttributeRecord } from "../../combatants/combatant-attribute-record.js";
 
-export * from "./equipment-properties/index.js";
-export * from "./pre-determined-items/index.js";
-export * from "./equipment-traits/index.js";
-export * from "./slots.js";
-export * from "./equipment-types/index.js";
-export * from "./affixes.js";
-
 const WEAPON_EQUIPMENT_TYPES = [
   EquipmentType.OneHandedMeleeWeapon,
   EquipmentType.TwoHandedMeleeWeapon,

@@ -17,5 +17,3 @@ export const AI_BEHAVIOR_TYPE_STRINGS: Record<AiType, string> = {
   [AiType.RandomMaliciousAction]: "RandomMaliciousAction",
   [AiType.TargetTopOfThreatMeter]: "TargetTopOfThreatMeter",
 };
-
-export * from "./ai-select-action-and-target.js";

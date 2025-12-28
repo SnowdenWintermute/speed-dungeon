@@ -9,7 +9,6 @@ import {
   ActionEntity,
   ActionEntityActionOriginData,
   ActionEntityName,
-  CosmeticEffectNames,
 } from "../../../../action-entities/index.js";
 import { BoxDimensions, ShapeType3D, TaggedBoxDimensions } from "../../../../utils/shape-utils.js";
 import {
@@ -23,6 +22,7 @@ import {
   COMBAT_ACTION_MAX_LEVEL,
 } from "../../../../app-consts.js";
 import { ActionUserTargetingProperties } from "../../../../action-user-context/action-user-targeting-properties.js";
+import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 

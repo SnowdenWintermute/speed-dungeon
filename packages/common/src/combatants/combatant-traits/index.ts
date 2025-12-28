@@ -3,8 +3,6 @@ import { ArrayUtils } from "../../utils/array-utils.js";
 import { AbilityTreeAbility } from "../../abilities/index.js";
 import { CombatantTraitType } from "./trait-types.js";
 
-export * from "./combatant-trait-properties.js";
-
 export const BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL: Percentage = 50;
 export const EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL = 20;
 

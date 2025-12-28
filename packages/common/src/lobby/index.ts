@@ -33,19 +33,6 @@ import {
 } from "./services/identity-provider.js";
 import { GameStateUpdateDispatchOutbox } from "./update-delivery/update-dispatch-outbox.js";
 
-// @TODO - can remove exports after this becomes default lobby code
-export * from "./controllers/default-naming/games.js";
-export * from "./controllers/default-naming/parties.js";
-
-export * from "./character-creation/index.js";
-export * from "./client-intent-receiver.js";
-export * from "./update-delivery/transport-endpoint.js";
-export * from "./game-simulator-handoff-strategy.js";
-export * from "./services/profiles.js";
-export * from "./services/saved-characters.js";
-export * from "./services/ranked-ladder.js";
-export * from "./services/identity-provider.js";
-
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
   profileService: SpeedDungeonProfileService;

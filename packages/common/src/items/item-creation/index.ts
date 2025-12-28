@@ -20,8 +20,6 @@ import { ItemGenerationDirector } from "./builders/item-generation-director.js";
 import { ItemGenerationBuilder } from "./builders/item.js";
 import { instantiateItemGenerationBuildersAndDirectors } from "./instantiate-item-builders-and-directors.js";
 
-export * from "./equipment-templates/index.js";
-
 export class ItemGenerator {
   itemGenerationDirectors: Record<EquipmentType, ItemGenerationDirector>;
   itemGenerationBuilders: Record<EquipmentType, ItemGenerationBuilder>;

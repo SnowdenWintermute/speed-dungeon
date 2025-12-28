@@ -2,10 +2,14 @@ import {
   FriendOrFoe,
   TargetingScheme,
 } from "../combat/combat-actions/targeting-schemes-and-categories.js";
-import { COMBAT_ACTIONS, CombatActionTarget, CombatActionTargetType } from "../combat/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
 import { plainToInstance } from "class-transformer";
 import { EntityId, PartyName, Username } from "../aliases.js";
+import {
+  CombatActionTarget,
+  CombatActionTargetType,
+} from "../combat/targeting/combat-action-targets.js";
+import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 
 export class SpeedDungeonPlayer {
   partyName: null | PartyName = null;
@@ -97,7 +101,7 @@ export class CombatActionTargetPreferences {
     const targetingSchemes = targetingProperties.getTargetingSchemes(rank);
 
     switch (newTargets.type) {
-      case CombatActionTargetType.Single:
+      case CombatActionTargetType.Single: {
         const { targetId } = newTargets;
         const isOpponentId = !!opponentIdsOption?.includes(targetId);
         if (isOpponentId) {
@@ -110,13 +114,16 @@ export class CombatActionTargetPreferences {
 
         this.targetingSchemePreference = TargetingScheme.Single;
         break;
+      }
       case CombatActionTargetType.Group:
-        const category = newTargets.friendOrFoe;
-        if (targetingSchemes.length > 1) {
-          this.category = category;
-          this.targetingSchemePreference = TargetingScheme.Area;
-        } else {
-          // if they had no choice in targeting schemes, don't update their preference
+        {
+          const category = newTargets.friendOrFoe;
+          if (targetingSchemes.length > 1) {
+            this.category = category;
+            this.targetingSchemePreference = TargetingScheme.Area;
+          } else {
+            // if they had no choice in targeting schemes, don't update their preference
+          }
         }
         break;
       case CombatActionTargetType.All:
