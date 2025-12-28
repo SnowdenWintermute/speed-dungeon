@@ -1,4 +1,4 @@
-import { CombatAttribute } from "../combatants/index.js";
+import { CombatAttribute } from "../combatants/attributes/index.js";
 import { MonsterType } from "./monster-types.js";
 
 export const MONSTER_ATTRIBUTES_BY_LEVEL: Record<

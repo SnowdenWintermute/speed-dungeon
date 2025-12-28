@@ -2,7 +2,7 @@ import { AbilityTreeAbility } from "../abilities/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
 import { EntityId, GameName, PartyName } from "../aliases.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
-import { CombatantClass } from "../combatants/index.js";
+import { CombatantClass } from "../combatants/combatant-class/classes.js";
 import { ConsumableType } from "../items/consumables/consumable-types.js";
 import { BookConsumableType } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";

@@ -4,12 +4,10 @@ import {
 } from "../combat/hp-change-source-types.js";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import { MagicalElement } from "../combat/magical-elements.js";
-import {
-  Equipment,
-  EquipmentType,
-  OneHandedMeleeWeapon,
-  TwoHandedMeleeWeapon,
-} from "../items/equipment/index.js";
+import { EquipmentType } from "../items/equipment/equipment-types/index.js";
+import { OneHandedMeleeWeapon } from "../items/equipment/equipment-types/one-handed-melee-weapon.js";
+import { TwoHandedMeleeWeapon } from "../items/equipment/equipment-types/two-handed-melee-weapon.js";
+import { Equipment } from "../items/equipment/index.js";
 import { HoldableSlotType } from "../items/equipment/slots.js";
 import { NumberRange } from "../primatives/number-range.js";
 import { MonsterType } from "./monster-types.js";

@@ -3,7 +3,6 @@ import {
   ChannelName,
   CharacterCreator,
   ClientToServerEventTypes,
-  GameMessagesPayload,
   GameMode,
   GameName,
   IdentityProviderService,
@@ -22,7 +21,6 @@ import { BrowserTabSession } from "./socket-connection-metadata.js";
 import joinSocketToChannel from "./join-socket-to-channel.js";
 import { connectionHandler } from "./connection-handler.js";
 import removeSocketFromChannel from "./remove-socket-from-channel.js";
-import { HashMap } from "@speed-dungeon/common";
 import getConnection from "./get-connection.js";
 import getSocketCurrentGame from "./utils/get-socket-current-game.js";
 import getSocketIdOfPlayer from "./get-player-socket-id.js";
@@ -48,6 +46,7 @@ import { characterSlotsRepo } from "../database/repos/character-slots.js";
 import { DatabaseRankedLadderService } from "./services/ranked-ladder.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { getLoggedInUserOrCreateGuest } from "./get-logged-in-user-or-create-guest.js";
+import { GameMessagesPayload } from "@speed-dungeon/common";
 
 export type SocketId = string;
 
@@ -72,7 +71,7 @@ export class GameServer implements ActionCommandReceiver {
     const lobby = new Lobby(clientIntentReceiver, gameSimulatorHandoffStrategy, externalServices);
   }
   // game manager
-  games = new HashMap<GameName, SpeedDungeonGame>();
+  games = new Map<GameName, SpeedDungeonGame>();
   initiateLobbyEventListeners = initiateLobbyEventListeners;
   initiateGameEventListeners = initiateGameEventListeners;
   initiateSavedCharacterListeners = initiateSavedCharacterListeners;

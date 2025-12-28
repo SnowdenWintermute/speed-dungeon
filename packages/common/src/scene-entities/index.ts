@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { HoldableSlotType } from "../items/equipment/index.js";
 import { Axis } from "../primatives/index.js";
 import { EntityId, Milliseconds } from "../aliases.js";
+import { HoldableSlotType } from "../items/equipment/slots.js";
 
 export enum SceneEntityType {
   CharacterModel,

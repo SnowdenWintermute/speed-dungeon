@@ -7,7 +7,9 @@ export type ConnectionId = string & { __brand: "ConnectionId" };
 export type IdentityProviderId = number & { __brand: "IdentityProviderId" };
 
 export type EntityId = string;
-export type ConditionId = EntityId;
+export type ItemId = string & { __brand: "ItemId" };
+export type CombatantId = string & { __brand: "CombatantId" };
+export type ConditionId = EntityId & { __brand: "ConditionId" };
 
 export type Milliseconds = number;
 export type Seconds = number;

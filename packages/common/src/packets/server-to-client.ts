@@ -1,4 +1,3 @@
-import { DungeonRoom, DungeonRoomType, ExplorationAction } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
 import { ActionCommandPayload } from "../action-processing/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
@@ -20,6 +19,8 @@ import {
   GameStateUpdate,
 } from "./game-state-updates.js";
 import { EntityId } from "../aliases.js";
+import { ExplorationAction } from "../adventuring-party/dungeon-exploration-manager.js";
+import { DungeonRoom, DungeonRoomType } from "../adventuring-party/dungeon-room.js";
 
 export enum ServerToClientEvent {
   GameList = "0",

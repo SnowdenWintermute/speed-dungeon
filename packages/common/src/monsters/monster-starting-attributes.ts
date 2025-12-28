@@ -1,5 +1,5 @@
+import { CombatAttribute } from "../combatants/attributes/index.js";
 import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
-import { CombatAttribute } from "../combatants/index.js";
 import { MonsterType } from "./monster-types.js";
 
 export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttributeRecord> = {

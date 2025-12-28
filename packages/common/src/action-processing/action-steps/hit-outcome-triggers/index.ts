@@ -8,13 +8,7 @@ import {
   ActivatedTriggersGameUpdateCommand,
   GameUpdateCommandType,
 } from "../../game-update-commands.js";
-import {
-  COMBAT_ACTIONS,
-  CombatActionExecutionIntent,
-  CombatActionName,
-  CombatActionTargetType,
-  ThreatChanges,
-} from "../../../combat/index.js";
+
 import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { addHitOutcomeDurabilityChanges } from "./hit-outcome-durability-change-calculators.js";
 import { HitOutcome } from "../../../hit-outcome.js";
@@ -23,9 +17,15 @@ import { addRemovedConditionIdToUpdate } from "./add-triggered-condition-to-upda
 import { handleTriggeredLifesteals } from "./handle-triggered-lifesteals.js";
 import { handleHit } from "./handle-hit.js";
 import { ActionAndRank } from "../../../action-user-context/action-user-targeting-properties.js";
-import { CombatantConditionName } from "../../../conditions/condition-names.js";
 import { Combatant } from "../../../combatants/index.js";
-import { AdventuringParty } from "../../../index.js";
+import {
+  AdventuringParty,
+  COMBAT_ACTIONS,
+  CombatActionExecutionIntent,
+  CombatActionName,
+  CombatActionTargetType,
+  ThreatChanges,
+} from "../../../index.js";
 
 const stepType = ActionResolutionStepType.EvalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
