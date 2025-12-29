@@ -1,6 +1,5 @@
 import { Vector3 } from "@babylonjs/core";
 import { ActionEntity, ActionEntityName } from "../../../../action-entities/index.js";
-import { ActionResolutionStepContext } from "../../../../action-processing/index.js";
 import { IActionUser } from "../../../../action-user-context/action-user.js";
 import { Combatant } from "../../../../combatants/index.js";
 import {
@@ -21,6 +20,7 @@ import { CombatActionResourceChangeProperties } from "../../combat-action-resour
 import { COMBAT_ACTIONS } from "../index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { CombatantProperties } from "../../../../combatants/combatant-properties.js";
+import { ActionResolutionStepContext } from "../../../../action-processing/action-steps/index.js";
 
 export class ProjectileFactory {
   private resourceChangeProperties: Partial<

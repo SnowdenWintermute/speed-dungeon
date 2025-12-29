@@ -1,9 +1,4 @@
 import makeAutoObservable from "mobx-store-inheritance";
-import {
-  CombatActionExecutionIntent,
-  CombatActionIntent,
-  CombatActionName,
-} from "../../combat/combat-actions/index.js";
 import { CombatantConditionInit } from "../condition-config.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import { Combatant } from "../../combatants/index.js";
@@ -13,6 +8,9 @@ import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementatio
 import { MaxAndCurrent } from "../../primatives/max-and-current.js";
 import { CombatantCondition } from "../index.js";
 import { runIfInBrowser } from "../../utils/index.js";
+import { CombatActionIntent } from "../../combat/combat-actions/combat-action-intent.js";
+import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
+import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 
 export class PrimedForIceBurstCondition extends CombatantCondition {
   constructor(init: CombatantConditionInit) {

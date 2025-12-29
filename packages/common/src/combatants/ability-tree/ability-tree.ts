@@ -8,7 +8,6 @@ export class AbilityTree {
     { length: ABILITY_TREE_DIMENSIONS.x },
     () => Array(ABILITY_TREE_DIMENSIONS.y).fill(undefined)
   );
-  constructor() {}
 
   assign(x: number, y: number, ability: AbilityTreeAbility) {
     if (y > ABILITY_TREE_DIMENSIONS.y - 1) throw new Error("out of bounds");

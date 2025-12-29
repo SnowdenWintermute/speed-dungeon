@@ -7,12 +7,11 @@ import {
 import { MagicalElement } from "../../../magical-elements.js";
 import {
   CombatActionGameLogProperties,
-  CombatActionComponentConfig,
-  CombatActionComposite,
-  CombatActionName,
-  CombatActionResource,
   createGenericSpellCastMessageProperties,
-} from "../../index.js";
+} from "../../combat-action-combat-log-properties.js";
+import { CombatActionResource } from "../../combat-action-hit-outcome-properties.js";
+import { CombatActionName } from "../../combat-action-names.js";
+import { CombatActionComponentConfig, CombatActionComposite } from "../../index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 import {

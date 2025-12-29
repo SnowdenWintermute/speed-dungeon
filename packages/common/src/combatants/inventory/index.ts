@@ -2,7 +2,7 @@ import { INVENTORY_DEFAULT_CAPACITY } from "../../app-consts.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { Item, ItemType } from "../../items/index.js";
 import { Consumable } from "../../items/consumables/index.js";
-import { Equipment, TaggedEquipmentSlot } from "../../items/equipment/index.js";
+import { Equipment } from "../../items/equipment/index.js";
 import { plainToInstance } from "class-transformer";
 import { EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL } from "../combatant-traits/index.js";
 import { EntityId } from "../../aliases.js";
@@ -12,6 +12,7 @@ import { CombatantSubsystem } from "../combatant-subsystem.js";
 import makeAutoObservable from "mobx-store-inheritance";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { ConsumableType } from "../../items/consumables/consumable-types.js";
+import { TaggedEquipmentSlot } from "../../items/equipment/slots.js";
 
 export class Inventory extends CombatantSubsystem {
   consumables: Consumable[] = [];

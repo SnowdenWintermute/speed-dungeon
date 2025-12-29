@@ -43,6 +43,11 @@ export * from "./combatants/combatant-class/classes.js";
 export * from "./combatants/combatant-traits/combatant-trait-properties.js";
 export * from "./adventuring-party/index.js";
 
+export * from "./combatants/experience-points/apply-experience-point-changes.js";
+export * from "./combatants/experience-points/calculate-total-experience.js";
+
+export * from "./combatants/owned-actions/combatant-action-state.js";
+
 export * from "./adventuring-party/dungeon-room.js";
 export * from "./adventuring-party/dungeon-exploration-manager.js";
 export * from "./adventuring-party/input-lock.js";

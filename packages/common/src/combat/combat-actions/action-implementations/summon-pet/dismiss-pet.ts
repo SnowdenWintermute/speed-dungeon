@@ -1,15 +1,8 @@
 import {
   BASE_ACTION_HIERARCHY_PROPERTIES,
   CombatActionComponentConfig,
-  CombatActionGameLogProperties,
   CombatActionLeaf,
-  CombatActionName,
-  CombatActionOrigin,
 } from "../../index.js";
-import {
-  ActionResolutionStepType,
-  ActivatedTriggersGameUpdateCommand,
-} from "../../../../action-processing/index.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
@@ -31,6 +24,11 @@ import {
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
 import { ActionStepConfigUtils } from "../generic-action-templates/step-config-templates/utils.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
+import { ActivatedTriggersGameUpdateCommand } from "../../../../action-processing/game-update-commands.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
+import { CombatActionName } from "../../combat-action-names.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
 

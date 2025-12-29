@@ -1,5 +1,6 @@
-import { ActionResolutionStepContext } from "../../action-processing/index.js";
-import { CombatActionHitOutcomes, ThreatChanges } from "../../combat/action-results/index.js";
+import { ActionResolutionStepContext } from "../../action-processing/action-steps/index.js";
+import { CombatActionHitOutcomes } from "../../combat/action-results/action-hit-outcome-calculation/index.js";
+import { ThreatChanges } from "../../combat/action-results/action-hit-outcome-calculation/resource-changes.js";
 import { ThreatCalculator } from "./threat-calculator.js";
 
 export function getStandardThreatChangesOnHitOutcomes(

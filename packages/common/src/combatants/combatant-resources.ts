@@ -3,8 +3,8 @@ import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../utils/index.js
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { plainToInstance } from "class-transformer";
 import { COMBATANT_MAX_ACTION_POINTS } from "../app-consts.js";
-import { CombatAttribute } from "./index.js";
-import { ActionPayableResource } from "../combat/combat-actions/index.js";
+import { ActionPayableResource } from "../combat/combat-actions/action-calculation-utils/action-costs.js";
+import { CombatAttribute } from "./attributes/index.js";
 
 export class CombatantResources extends CombatantSubsystem {
   private hitPoints: number = 1;

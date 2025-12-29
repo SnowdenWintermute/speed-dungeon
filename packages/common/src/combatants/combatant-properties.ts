@@ -7,7 +7,6 @@ import { CombatantEquipment } from "./combatant-equipment/index.js";
 import { ActionUserTargetingProperties } from "../action-user-context/action-user-targeting-properties.js";
 import { CombatantAttributeProperties } from "./attribute-properties.js";
 import { ThreatManager } from "./threat-manager/index.js";
-import { CombatantClass, Inventory } from "./index.js";
 import { Exclude, plainToInstance } from "class-transformer";
 import {
   ClassProgressionProperties,
@@ -20,7 +19,7 @@ import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { CombatantConditionManager } from "./condition-manager.js";
 import { CombatantTransformProperties } from "./combatant-transform-properties.js";
 import { runIfInBrowser } from "../utils/index.js";
-import { EntityId } from "../index.js";
+import { CombatantClass, EntityId, Inventory } from "../index.js";
 
 export interface CombatantOnDeathProperties {
   removeConditionsApplied: boolean;

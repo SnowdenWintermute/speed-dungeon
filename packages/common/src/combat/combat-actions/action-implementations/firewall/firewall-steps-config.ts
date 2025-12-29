@@ -1,5 +1,4 @@
 import cloneDeep from "lodash.clonedeep";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { ActionResolutionStepConfig } from "../../combat-action-steps-config.js";
 import { FIRE_STEPS_CONFIG } from "../fire/fire-steps-config.js";
 import { createStepsConfig } from "../generic-action-templates/step-config-templates/index.js";
@@ -23,6 +22,7 @@ import {
 } from "../../../../app-consts.js";
 import { ActionUserTargetingProperties } from "../../../../action-user-context/action-user-targeting-properties.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 

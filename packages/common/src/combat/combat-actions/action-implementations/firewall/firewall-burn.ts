@@ -1,12 +1,11 @@
 import {
   CombatActionGameLogProperties,
-  CombatActionComponentConfig,
-  CombatActionComposite,
-  CombatActionName,
   createGenericSpellCastMessageProperties,
-  TargetCategories,
-} from "../../index.js";
+} from "../../combat-action-combat-log-properties.js";
+import { CombatActionName } from "../../combat-action-names.js";
+import { CombatActionComponentConfig, CombatActionComposite } from "../../index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
+import { TargetCategories } from "../../targeting-schemes-and-categories.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 import {
   ACTION_EXECUTION_PRECONDITIONS,

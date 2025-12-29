@@ -2,11 +2,6 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import {
-  CombatActionExecutionIntent,
-  CombatActionIntent,
-  CombatActionName,
-} from "../../combat/combat-actions/index.js";
-import {
   CombatActionTargetSingle,
   CombatActionTargetType,
 } from "../../combat/targeting/combat-action-targets.js";
@@ -23,7 +18,13 @@ import { runIfInBrowser } from "../../utils/index.js";
 import { CombatantConditionInit } from "../condition-config.js";
 import { CombatantCondition } from "../index.js";
 import { MaxAndCurrent } from "../../primatives/max-and-current.js";
-import { ConditionTickProperties, EntityId } from "../../index.js";
+import {
+  CombatActionExecutionIntent,
+  CombatActionIntent,
+  CombatActionName,
+  ConditionTickProperties,
+  EntityId,
+} from "../../index.js";
 
 export class BlindedCondition extends CombatantCondition {
   constructor(init: CombatantConditionInit) {

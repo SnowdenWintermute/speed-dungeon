@@ -2,10 +2,7 @@ import {
   BASE_ACTION_HIERARCHY_PROPERTIES,
   CombatActionComponentConfig,
   CombatActionLeaf,
-  CombatActionName,
-  createGenericSpellCastMessageProperties,
 } from "../../index.js";
-import { ActivatedTriggersGameUpdateCommand } from "../../../../action-processing/index.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import {
   ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
@@ -20,6 +17,9 @@ import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
+import { ActivatedTriggersGameUpdateCommand } from "../../../../action-processing/game-update-commands.js";
+import { createGenericSpellCastMessageProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionName } from "../../combat-action-names.js";
 
 const stepsConfig = createStepsConfig(ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.SUMMON_COMBATANT, {
   steps: {},

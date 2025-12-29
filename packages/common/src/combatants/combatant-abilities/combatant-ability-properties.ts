@@ -8,11 +8,7 @@ import {
 } from "../../abilities/index.js";
 import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
-import {
-  CombatActionComponent,
-  CombatActionName,
-  FriendOrFoe,
-} from "../../combat/combat-actions/index.js";
+import { CombatActionComponent } from "../../combat/combat-actions/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { runIfInBrowser } from "../../utils/index.js";
 import { CombatantTraitProperties } from "../combatant-traits/combatant-trait-properties.js";
@@ -28,9 +24,11 @@ import { Combatant } from "../index.js";
 import cloneDeep from "lodash.clonedeep";
 import { CombatantConditionName } from "../../conditions/condition-names.js";
 import { CombatantConditionFactory } from "../../conditions/condition-factory.js";
+import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
+import { FriendOrFoe } from "../../combat/combat-actions/targeting-schemes-and-categories.js";
 
 export class CombatantAbilityProperties extends CombatantSubsystem {
-  private ownedActions: Map<CombatActionName, CombatantActionState> = new Map();
+  private ownedActions = new Map<CombatActionName, CombatantActionState>();
   private unspentAbilityPoints: number = 0;
   private traitProperties = new CombatantTraitProperties();
 
@@ -87,12 +85,13 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
     switch (ability.type) {
       case AbilityType.Action:
         return this.ownedActions.get(ability.actionName)?.level || 0;
-      case AbilityType.Trait:
+      case AbilityType.Trait: {
         const { speccedTraitLevels, inherentTraitLevels } = this.traitProperties;
         return (
           (speccedTraitLevels[ability.traitType] || 0) +
           (inherentTraitLevels[ability.traitType] || 0)
         );
+      }
     }
   }
 
@@ -201,7 +200,7 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
   private changeAbilityRank(ability: AbilityTreeAbility, changeBy: number) {
     const { ownedActions, traitProperties } = this;
     switch (ability.type) {
-      case AbilityType.Action:
+      case AbilityType.Action: {
         const existingActionOption = ownedActions.get(ability.actionName);
         const actionComesWith = ABILITIES_GRANTED_WHEN_ACTION_ALLOCATED[ability.actionName];
 
@@ -227,11 +226,13 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
           );
         }
         break;
-      case AbilityType.Trait:
+      }
+      case AbilityType.Trait: {
         const existingTraitLevel = traitProperties.speccedTraitLevels[ability.traitType];
         if (existingTraitLevel !== undefined)
           traitProperties.speccedTraitLevels[ability.traitType] = existingTraitLevel + changeBy;
         else traitProperties.speccedTraitLevels[ability.traitType] = changeBy;
+      }
     }
   }
 

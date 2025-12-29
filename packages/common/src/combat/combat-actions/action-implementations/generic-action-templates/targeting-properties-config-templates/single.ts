@@ -1,5 +1,5 @@
+import { AutoTargetingScheme } from "../../../../targeting/auto-targeting/index.js";
 import { AUTO_TARGETING_FUNCTIONS } from "../../../../targeting/auto-targeting/mapped-functions.js";
-import { AutoTargetingScheme } from "../../../../targeting/index.js";
 import { CombatActionIntent } from "../../../combat-action-intent.js";
 import { CombatActionRequiredRange } from "../../../combat-action-range.js";
 import { CombatActionTargetingPropertiesConfig } from "../../../combat-action-targeting-properties.js";

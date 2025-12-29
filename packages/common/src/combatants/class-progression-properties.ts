@@ -1,6 +1,5 @@
 import makeAutoObservable from "mobx-store-inheritance";
 import { plainToInstance } from "class-transformer";
-import { COMBATANT_CLASS_NAME_STRINGS, CombatantClass } from "./combatant-class/index.js";
 import { AbilityUtils } from "../abilities/ability-utils.js";
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ABILITY_TREES } from "./ability-tree/set-up-ability-trees.js";
@@ -14,6 +13,7 @@ import {
 import { runIfInBrowser } from "../utils/index.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
+import { COMBATANT_CLASS_NAME_STRINGS, CombatantClass } from "./combatant-class/classes.js";
 
 export class ExperiencePoints {
   private current: number = 0;

@@ -1,5 +1,4 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { CombatActionHitOutcomes, ThreatChanges } from "../../combat/action-results/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { CombatActionResource } from "../../combat/combat-actions/combat-action-hit-outcome-properties.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
@@ -8,6 +7,8 @@ import { HitOutcome } from "../../hit-outcome.js";
 import { CombatAttribute } from "../attributes/index.js";
 import { Combatant } from "../index.js";
 import { ThreatType } from "./index.js";
+import { CombatActionHitOutcomes } from "../../combat/action-results/action-hit-outcome-calculation/index.js";
+import { ThreatChanges } from "../../combat/action-results/action-hit-outcome-calculation/resource-changes.js";
 
 const DAMAGE_STABLE_THREAT_BASE = 80;
 const HEALING_STABLE_THREAT_BASE = DAMAGE_STABLE_THREAT_BASE / 2;

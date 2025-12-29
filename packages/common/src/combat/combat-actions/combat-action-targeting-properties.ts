@@ -1,14 +1,16 @@
 import { TargetCategories, TargetingScheme } from "./targeting-schemes-and-categories.js";
-import { AutoTargetingSelectionMethod, CombatActionTarget } from "../targeting/index.js";
 import { ProhibitedTargetCombatantStates } from "./prohibited-target-combatant-states.js";
 import { ActionTracker } from "../../action-processing/action-tracker.js";
-import { CombatActionComponent, CombatActionUsabilityContext } from "./index.js";
+import { CombatActionComponent } from "./index.js";
 import { CombatActionIntent } from "./combat-action-intent.js";
-import { EquipmentType } from "../../items/equipment/index.js";
 import { CombatActionRequiredRange } from "./combat-action-range.js";
-import { ActionResolutionStepContext } from "../../action-processing/index.js";
 import { IActionUser } from "../../action-user-context/action-user.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
+import { AutoTargetingSelectionMethod } from "../targeting/auto-targeting/index.js";
+import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js";
+import { EquipmentType } from "../../items/equipment/equipment-types/index.js";
+import { CombatActionTarget } from "../targeting/combat-action-targets.js";
+import { ActionResolutionStepContext } from "../../action-processing/action-steps/index.js";
 
 export interface CombatActionTargetingPropertiesConfig {
   getTargetingSchemes: (actionLevel: number) => TargetingScheme[];

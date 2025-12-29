@@ -1,6 +1,5 @@
 import cloneDeep from "lodash.clonedeep";
 import { CombatActionCostPropertiesConfig } from "../../../combat-action-cost-properties.js";
-import { EquipmentSlotType } from "../../../../../items/equipment/index.js";
 import { FAST_ACTION_COST_PROPERTIES_CONFIG } from "./fast-action.js";
 import { BASIC_ACTION_COST_PROPERTIES_CONFIG } from "./basic-action.js";
 import { BASIC_SPELL_COST_PROPERTIES_CONFIG } from "./basic-spell.js";
@@ -11,6 +10,7 @@ import {
   BASIC_RANGED_MAIN_HAND_ATTACK_COST_PROPERTIES_CONFIG,
 } from "./basic-attacks.js";
 import { FREE_ACTION_COST_PROPERTIES_CONFIG } from "./free-action.js";
+import { EquipmentSlotType } from "../../../../../items/equipment/slots.js";
 
 export const COST_PROPERTIES_TEMPLATE_GETTERS = {
   BASIC_ACTION: () => cloneDeep(BASIC_ACTION_COST_PROPERTIES_CONFIG),

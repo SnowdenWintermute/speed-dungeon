@@ -1,9 +1,9 @@
 import cloneDeep from "lodash.clonedeep";
 import { BASIC_SPELL_STEPS_CONFIG } from "./basic-spell.js";
-import { ActionResolutionStepType } from "../../../../../action-processing/index.js";
 import { getSpeciesTimedAnimation } from "../../get-species-timed-animation.js";
 import { SkeletalAnimationName } from "../../../../../app-consts.js";
 import { ActionStepConfigUtils } from "./utils.js";
+import { ActionResolutionStepType } from "../../../../../action-processing/action-steps/index.js";
 
 const config = cloneDeep(BASIC_SPELL_STEPS_CONFIG);
 ActionStepConfigUtils.removeMoveForwardSteps(config);

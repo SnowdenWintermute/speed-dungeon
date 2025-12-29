@@ -1,6 +1,7 @@
 import { IActionUser } from "../../../../../action-user-context/action-user.js";
 import { iterateNumericEnumKeyedRecord } from "../../../../../utils/index.js";
-import { ActionPayableResource, CombatActionComponent } from "../../../index.js";
+import { ActionPayableResource } from "../../../action-calculation-utils/action-costs.js";
+import { CombatActionComponent } from "../../../index.js";
 
 export function getStandardActionCost(
   user: IActionUser,

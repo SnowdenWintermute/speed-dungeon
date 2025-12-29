@@ -1,4 +1,3 @@
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import {
   ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
   createStepsConfig,
@@ -16,6 +15,7 @@ import { CosmeticEffectInstructionFactory } from "../generic-action-templates/co
 import { throwIfError } from "../../../../utils/index.js";
 import { CleanupMode } from "../../../../types.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 

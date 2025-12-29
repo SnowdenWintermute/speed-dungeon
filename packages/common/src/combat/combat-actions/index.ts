@@ -3,11 +3,6 @@ import { COMBAT_ACTION_NAME_STRINGS, CombatActionName } from "./combat-action-na
 import { Battle } from "../../battle/index.js";
 import { ActionAccuracyType } from "./combat-action-accuracy.js";
 import {
-  ActionIntentAndUser,
-  ActionResolutionStepContext,
-  ActionTracker,
-} from "../../action-processing/index.js";
-import {
   CombatActionTargetingProperties,
   CombatActionTargetingPropertiesConfig,
 } from "./combat-action-targeting-properties.js";
@@ -22,6 +17,12 @@ import { CombatActionGameLogProperties } from "./combat-action-combat-log-proper
 import { IActionUser } from "../../action-user-context/action-user.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
+import {
+  ActionIntentAndUser,
+  ActionResolutionStepContext,
+} from "../../action-processing/action-steps/index.js";
+import { ActionTracker } from "../../action-processing/action-tracker.js";
+import { ActionRank } from "../../aliases.js";
 
 export interface CombatActionComponentConfig {
   // unique to each action
@@ -31,11 +32,11 @@ export interface CombatActionComponentConfig {
   getByRankDescriptions?: (
     user: IActionUser,
     party: AdventuringParty
-  ) => { [rank: number]: string | null };
+  ) => Record<ActionRank, string | null>;
   getByRankShortDescriptions?: (
     user: IActionUser,
     party: AdventuringParty
-  ) => { [rank: number]: string | null };
+  ) => Record<number, string | null>;
   prerequisiteAbilities?: AbilityTreeAbility[];
   // properties objects
   targetingProperties: CombatActionTargetingPropertiesConfig;
@@ -52,7 +53,7 @@ export abstract class CombatActionComponent {
   public readonly getByRankDescriptions: (
     user: IActionUser,
     party: AdventuringParty
-  ) => { [rank: number]: string | null } = () => {
+  ) => Record<ActionRank, string | null> = () => {
     return {};
   };
   // I wanted to show pet names in the action rank selection menu
@@ -60,7 +61,7 @@ export abstract class CombatActionComponent {
   public readonly getByRankShortDescriptions: (
     user: IActionUser,
     party: AdventuringParty
-  ) => { [rank: number]: string | null } = () => {
+  ) => Record<ActionRank, string | null> = () => {
     return {};
   };
   public readonly prerequisiteAbilities?: AbilityTreeAbility[];

@@ -1,4 +1,4 @@
-import { ActionResolutionStepType } from "../../../../../action-processing/index.js";
+import { ActionResolutionStepType } from "../../../../../action-processing/action-steps/index.js";
 import { ActionResolutionStepsConfig } from "../../../combat-action-steps-config.js";
 
 export const VALUE_CHANGE_TICK_ACTION_STEPS_CONFIG = new ActionResolutionStepsConfig(

@@ -1,9 +1,9 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { EntityId } from "../../aliases.js";
-import { CombatAttribute } from "../../combatants/index.js";
 import { ITurnScheduler, TurnScheduler } from "./turn-schedulers.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { CombatantTurnTracker } from "./turn-trackers.js";
+import { CombatAttribute } from "../../combatants/attributes/index.js";
 
 export class CombatantTurnScheduler extends TurnScheduler implements ITurnScheduler {
   constructor(public readonly combatantId: EntityId) {

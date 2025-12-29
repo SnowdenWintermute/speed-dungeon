@@ -1,10 +1,4 @@
-import {
-  CombatActionGameLogProperties,
-  CombatActionComponentConfig,
-  CombatActionComposite,
-  CombatActionName,
-  CombatActionOrigin,
-} from "../../index.js";
+import { CombatActionComponentConfig, CombatActionComposite } from "../../index.js";
 import { ICE_BOLT_PARENT } from "./index.js";
 import { ICE_BOLT_PROJECTILE_HIT_OUTCOME_PROPERTIES } from "./ice-bolt-projectile-hit-outcome-properties.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
@@ -15,6 +9,9 @@ import {
   ACTION_EXECUTION_PRECONDITIONS,
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
+import { CombatActionName } from "../../combat-action-names.js";
 
 const targetingProperties = TARGETING_PROPERTIES_TEMPLATE_GETTERS.COPY_PARENT_HOSTILE();
 targetingProperties.executionPreconditions = [

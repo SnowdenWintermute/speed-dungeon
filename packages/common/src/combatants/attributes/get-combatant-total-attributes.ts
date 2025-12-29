@@ -2,9 +2,8 @@ import { DEX_TO_RANGED_ARMOR_PEN_RATIO, STR_TO_MELEE_ARMOR_PEN_RATIO } from "../
 import { Item } from "../../items/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { EquipmentType } from "../../items/equipment/equipment-types/index.js";
-import { BASE_STARTING_ATTRIBUTES } from "../index.js";
 import { CombatAttribute } from "../attributes/index.js";
-import { Equipment, HoldableSlotType } from "../../items/equipment/index.js";
+import { Equipment } from "../../items/equipment/index.js";
 import { DERIVED_ATTRIBUTE_RATIOS } from "./derrived-attribute-ratios.js";
 import { addAttributesToAccumulator } from "./add-attributes-to-accumulator.js";
 import { COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL } from "../combatant-class/class-attributes-by-level.js";
@@ -12,6 +11,8 @@ import { CombatantProperties } from "../combatant-properties.js";
 import { MONSTER_STARTING_ATTRIBUTES } from "../../monsters/monster-starting-attributes.js";
 import { MONSTER_ATTRIBUTES_BY_LEVEL } from "../../monsters/monster-per-level-attributes.js";
 import { CombatantAttributeRecord } from "../combatant-attribute-record.js";
+import { BASE_STARTING_ATTRIBUTES } from "../combatant-class/level-zero-attributes.js";
+import { HoldableSlotType } from "../../items/equipment/slots.js";
 
 export function getCombatantTotalAttributes(
   combatantProperties: CombatantProperties

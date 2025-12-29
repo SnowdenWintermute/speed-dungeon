@@ -1,5 +1,4 @@
 import cloneDeep from "lodash.clonedeep";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { passTurnConfig } from "./index.js";
 import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
 import {
@@ -11,6 +10,7 @@ import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js
 import { CombatActionName } from "../../combat-action-names.js";
 import { CombatActionComponentConfig } from "../../index.js";
 import { CombatActionLeaf } from "../../combat-action-leaf.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 
 const clonedConfig = cloneDeep(passTurnConfig);
 

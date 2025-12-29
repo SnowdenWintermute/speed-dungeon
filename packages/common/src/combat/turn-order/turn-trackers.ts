@@ -14,9 +14,9 @@ import { ITurnScheduler } from "./turn-schedulers.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { Battle } from "../../battle/index.js";
 import { AISelectActionAndTarget } from "../ai-behavior/ai-select-action-and-target.js";
-import { ActionIntentOptionAndUser } from "../../action-processing/index.js";
 import { ACTION_ENTITY_ACTION_INTENT_GETTERS } from "../../action-entities/index.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
+import { ActionIntentOptionAndUser } from "../../action-processing/action-steps/index.js";
 
 export abstract class TurnTracker {
   constructor(public readonly timeOfNextMove: number) {}

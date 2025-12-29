@@ -1,11 +1,7 @@
 import {
   BASE_ACTION_HIERARCHY_PROPERTIES,
   CombatActionComponentConfig,
-  CombatActionGameLogProperties,
   CombatActionLeaf,
-  CombatActionName,
-  CombatActionOrigin,
-  CombatActionResource,
 } from "../../index.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import {
@@ -29,6 +25,10 @@ import { TAME_PET_STEP_CONFIG } from "./tame-pet-steps-config.js";
 import { AbilityType } from "../../../../abilities/ability-types.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { COMBATANT_MAX_LEVEL } from "../../../../app-consts.js";
+import { CombatActionName } from "../../combat-action-names.js";
+import { CombatActionResource } from "../../combat-action-hit-outcome-properties.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,

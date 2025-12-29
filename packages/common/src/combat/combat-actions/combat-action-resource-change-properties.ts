@@ -1,4 +1,4 @@
-import { NumberRange } from "../../primatives/index.js";
+import { NumberRange } from "../../primatives/number-range.js";
 import { ResourceChangeSource } from "../hp-change-source-types.js";
 
 export interface CombatActionResourceChangeProperties {

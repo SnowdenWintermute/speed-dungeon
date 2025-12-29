@@ -4,15 +4,9 @@ import {
   createTargetingPropertiesConfig,
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
-import {
-  AutoTargetingScheme,
-  CombatActionTarget,
-  CombatActionTargetType,
-} from "../../../targeting/index.js";
 import { BASE_EXPLOSION_RADIUS } from "../../../../app-consts.js";
 import { HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { ICE_BURST_PARENT_STEPS_CONFIG } from "./ice-burst-parent-steps-config.js";
-import { ActionIntentAndUser } from "../../../../action-processing/index.js";
 import { COMBAT_ACTIONS } from "../index.js";
 import { EntityId } from "../../../../aliases.js";
 import { TargetCategories } from "../../targeting-schemes-and-categories.js";
@@ -20,6 +14,12 @@ import { CombatActionOrigin } from "../../combat-action-origin.js";
 import { CombatActionName } from "../../combat-action-names.js";
 import { CombatActionExecutionIntent } from "../../combat-action-execution-intent.js";
 import { CombatActionComponentConfig, CombatActionComposite } from "../../index.js";
+import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
+import {
+  CombatActionTarget,
+  CombatActionTargetType,
+} from "../../../targeting/combat-action-targets.js";
+import { ActionIntentAndUser } from "../../../../action-processing/action-steps/index.js";
 
 const targetingProperties = createTargetingPropertiesConfig(
   TARGETING_PROPERTIES_TEMPLATE_GETTERS.EXPLOSION,

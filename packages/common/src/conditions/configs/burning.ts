@@ -2,16 +2,14 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import {
-  CombatActionExecutionIntent,
-  CombatActionIntent,
-  CombatActionName,
-} from "../../combat/combat-actions/index.js";
-import {
   CombatActionTargetSingle,
   CombatActionTargetType,
 } from "../../combat/targeting/combat-action-targets.js";
 import { BASE_CONDITION_TICK_SPEED } from "../../combat/turn-order/consts.js";
 import {
+  CombatActionExecutionIntent,
+  CombatActionIntent,
+  CombatActionName,
   ConditionTickProperties,
   EntityId,
   MAX_CONDITION_STACKS,

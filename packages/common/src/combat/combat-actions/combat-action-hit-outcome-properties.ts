@@ -1,18 +1,18 @@
 import { ActionEntity } from "../../action-entities/index.js";
-import {
-  ActionResolutionStepContext,
-  ActivatedTriggersGameUpdateCommand,
-} from "../../action-processing/index.js";
 import { IActionUser } from "../../action-user-context/action-user.js";
 import { CombatantProperties } from "../../combatants/combatant-properties.js";
-import { Combatant, ThreatType } from "../../combatants/index.js";
+import { Combatant } from "../../combatants/index.js";
 import { ConditionAppliedBy } from "../../conditions/condition-applied-by.js";
 import { CombatantConditionName } from "../../conditions/condition-names.js";
 import { HoldableSlotType } from "../../items/equipment/slots.js";
 import { NormalizedPercentage, Percentage } from "../../aliases.js";
-import { CombatActionHitOutcomes, ThreatChanges } from "../action-results/index.js";
 import { ActionAccuracy } from "./combat-action-accuracy.js";
 import { CombatActionResourceChangeProperties } from "./combat-action-resource-change-properties.js";
+import { ActionResolutionStepContext } from "../../action-processing/action-steps/index.js";
+import { CombatActionHitOutcomes } from "../action-results/action-hit-outcome-calculation/index.js";
+import { ThreatChanges } from "../action-results/action-hit-outcome-calculation/resource-changes.js";
+import { ActivatedTriggersGameUpdateCommand } from "../../action-processing/game-update-commands.js";
+import { ThreatType } from "../../combatants/threat-manager/index.js";
 
 export enum CombatActionResource {
   HitPoints,

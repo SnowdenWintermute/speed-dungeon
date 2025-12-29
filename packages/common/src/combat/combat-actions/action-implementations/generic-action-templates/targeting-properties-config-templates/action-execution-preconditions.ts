@@ -1,11 +1,11 @@
+import { ActionResolutionStepContext } from "../../../../../action-processing/action-steps/index.js";
 import { ActionTracker } from "../../../../../action-processing/action-tracker.js";
-import { ActionResolutionStepContext } from "../../../../../action-processing/index.js";
-import { CombatantTraitType } from "../../../../../combatants/combatant-traits/trait-types.js";
 import { Combatant } from "../../../../../combatants/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../../items/equipment/slots.js";
 import { TargetingCalculator } from "../../../../targeting/targeting-calculator.js";
+import { ActionPayableResource } from "../../../action-calculation-utils/action-costs.js";
 import { ActionExecutionPrecondition } from "../../../combat-action-targeting-properties.js";
-import { ActionPayableResource, CombatActionComponent } from "../../../index.js";
+import { CombatActionComponent } from "../../../index.js";
 import { MeleeAttackAnimationType } from "../../attack/determine-melee-attack-animation-type.js";
 
 export enum ActionExecutionPreconditions {

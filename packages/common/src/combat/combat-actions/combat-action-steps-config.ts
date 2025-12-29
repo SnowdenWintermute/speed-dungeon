@@ -1,12 +1,5 @@
 import { Vector3 } from "@babylonjs/core";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
-import {
-  ActionResolutionStepContext,
-  ActionResolutionStepType,
-  EntityAnimation,
-  EntityDestination,
-  EntityMotionUpdate,
-} from "../../action-processing/index.js";
 import { CombatantSpecies } from "../../combatants/combatant-species.js";
 import { TaggedEquipmentSlot } from "../../items/equipment/slots.js";
 import { Milliseconds } from "../../aliases.js";
@@ -19,6 +12,15 @@ import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { MeleeAttackAnimationType } from "./action-implementations/attack/determine-melee-attack-animation-type.js";
 import { CleanupMode } from "../../types.js";
 import { IActionUser } from "../../action-user-context/action-user.js";
+import {
+  EntityAnimation,
+  EntityDestination,
+  EntityMotionUpdate,
+} from "../../action-processing/game-update-commands.js";
+import {
+  ActionResolutionStepContext,
+  ActionResolutionStepType,
+} from "../../action-processing/action-steps/index.js";
 
 export interface EquipmentAnimation {
   slot: TaggedEquipmentSlot;

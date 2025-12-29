@@ -1,9 +1,4 @@
 import makeAutoObservable from "mobx-store-inheritance";
-import {
-  CombatActionExecutionIntent,
-  CombatActionIntent,
-  CombatActionName,
-} from "../../combat/combat-actions/index.js";
 import { CombatantConditionInit } from "../condition-config.js";
 import { CombatantProperties } from "../../combatants/combatant-properties.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
@@ -16,6 +11,9 @@ import { CombatActionTargetType } from "../../combat/targeting/combat-action-tar
 import { CombatantCondition } from "../index.js";
 import { MaxAndCurrent } from "../../primatives/max-and-current.js";
 import { runIfInBrowser } from "../../utils/index.js";
+import { CombatActionIntent } from "../../combat/combat-actions/combat-action-intent.js";
+import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
+import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 
 export function getEnsnaredEvasionChange(rank: number) {
   return rank * 25 * -1;

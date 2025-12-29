@@ -1,11 +1,4 @@
-import {
-  ActionPayableResource,
-  CombatActionComponentConfig,
-  CombatActionGameLogProperties,
-  CombatActionLeaf,
-  CombatActionName,
-  createGenericSpellCastMessageProperties,
-} from "../../index.js";
+import { CombatActionComponentConfig, CombatActionLeaf } from "../../index.js";
 import { CombatActionTargetingPropertiesConfig } from "../../combat-action-targeting-properties.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
@@ -17,6 +10,12 @@ import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templat
 import { PET_COMMAND_HIT_OUTCOME_PROPERTIES } from "./pet-command-hit-outcome-properties.js";
 import { PET_COMMAND_STEPS_CONFIG } from "./pet-command-steps-config.js";
 import { PET_COMMAND_AI_TYPE_DESCRIPTIONS_BY_RANK } from "../../../../conditions/configs/following-pet-command.js";
+import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
+import {
+  CombatActionGameLogProperties,
+  createGenericSpellCastMessageProperties,
+} from "../../combat-action-combat-log-properties.js";
+import { CombatActionName } from "../../combat-action-names.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.PET_OF_USER(),

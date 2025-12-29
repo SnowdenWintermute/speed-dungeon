@@ -1,12 +1,6 @@
 import cloneDeep from "lodash.clonedeep";
 import { AbilityType } from "../../../../abilities/ability-types.js";
-import {
-  CombatActionGameLogProperties,
-  CombatActionComponentConfig,
-  CombatActionComposite,
-  CombatActionName,
-  createGenericSpellCastMessageProperties,
-} from "../../index.js";
+import { CombatActionComponentConfig, CombatActionComposite } from "../../index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 import { createHitOutcomeProperties } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
@@ -18,6 +12,11 @@ import {
   ActionEntityActionOriginData,
   ActionEntityName,
 } from "../../../../action-entities/index.js";
+import {
+  CombatActionGameLogProperties,
+  createGenericSpellCastMessageProperties,
+} from "../../combat-action-combat-log-properties.js";
+import { CombatActionName } from "../../combat-action-names.js";
 
 // clone burn hit outcomes for the action description
 // and add an on use trigger to change the stacks/level of an existing firewall

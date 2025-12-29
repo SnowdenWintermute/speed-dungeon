@@ -1,11 +1,4 @@
-import {
-  CombatActionComponentConfig,
-  CombatActionLeaf,
-  CombatActionName,
-  TargetCategories,
-  TargetingScheme,
-  createGenericSpellCastMessageProperties,
-} from "../../index.js";
+import { CombatActionComponentConfig, CombatActionLeaf } from "../../index.js";
 import { CombatActionTargetingPropertiesConfig } from "../../combat-action-targeting-properties.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { HEALING_HIT_OUTCOME_PROPERTIES } from "./healing-hit-outcome-properties.js";
@@ -16,6 +9,9 @@ import {
   createCostPropertiesConfig,
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import { TargetCategories, TargetingScheme } from "../../targeting-schemes-and-categories.js";
+import { createGenericSpellCastMessageProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionName } from "../../combat-action-names.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.AREA_FRIENDLY(),

@@ -7,7 +7,11 @@ export function addAttributesToAccumulator(
   acc: Record<CombatAttribute, number>
 ) {
   for (const [attribute, value] of iterateNumericEnumKeyedRecord(toAdd)) {
-    if (!acc[attribute]) acc[attribute] = value;
-    else acc[attribute]! += value;
+    if (!acc[attribute]) {
+      acc[attribute] = value;
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      acc[attribute]! += value;
+    }
   }
 }

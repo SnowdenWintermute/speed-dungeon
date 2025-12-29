@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { ActionResolutionStepContext } from "../../action-processing/index.js";
 import { TargetingCalculator } from "../targeting/targeting-calculator.js";
 import { getLookRotationFromPositions } from "../../utils/index.js";
+import { ActionResolutionStepContext } from "../../action-processing/action-steps/index.js";
 
 const meleeRange = 1.5;
 const threshold = 0.01;

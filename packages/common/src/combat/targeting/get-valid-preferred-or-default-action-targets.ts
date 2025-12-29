@@ -1,5 +1,4 @@
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { SpeedDungeonPlayer } from "../../game/index.js";
 import { iterateNumericEnum } from "../../utils/index.js";
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
 import {
@@ -10,6 +9,7 @@ import { IActionUser } from "../../action-user-context/action-user.js";
 import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
 import { EntityId } from "../../aliases.js";
 import { COMBAT_ACTIONS } from "../combat-actions/action-implementations/index.js";
+import { SpeedDungeonPlayer } from "../../game/player.js";
 
 export function getValidPreferredOrDefaultActionTargets(
   actionUser: IActionUser,

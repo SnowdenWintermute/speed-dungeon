@@ -11,6 +11,7 @@ import { EntityId } from "../../aliases.js";
 import { ActionUserType, IActionUser } from "../../action-user-context/action-user.js";
 import { CombatantConditionName } from "../../conditions/condition-names.js";
 
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class TargetFilterer {
   static filterPossibleTargetIdsByProhibitedCombatantStates(
     party: AdventuringParty,
