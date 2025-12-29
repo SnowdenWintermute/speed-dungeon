@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { IdentityProviderId } from "../aliases.js";
-import { SequentialIdGenerator } from "../utils/index.js";
-import { SpeedDungeonProfile } from "./services/profiles.js";
+import { InMemorySpeedDungeonProfileService } from "./services/profiles.test.js";
 
 describe("Lobby", () => {
   it("is a test", async () => {
@@ -17,7 +16,7 @@ describe("Lobby", () => {
 });
 
 function createLobbyTestServices() {
-  //   const profileService = new DatabaseProfileService(speedDungeonProfilesRepo);
+  const profileService = new InMemorySpeedDungeonProfileService();
   //   const savedCharactersPersistenceStrategy = new DatabaseSavedCharacterPersistenceStrategy(
   //     playerCharactersRepo
   //   );
@@ -44,25 +43,3 @@ function createLobbyTestServices() {
 }
 
 const TEST_USER_ID: IdentityProviderId = 1 as IdentityProviderId;
-
-// export class InMemorySpeedDungeonProfileService extends SpeedDungeonProfileService {
-export class InMemorySpeedDungeonProfileService {
-  private profiles = new Map<IdentityProviderId, SpeedDungeonProfile>();
-  private idGenerator = new SequentialIdGenerator();
-
-  // async fetchProfileOption(userId: IdentityProviderId): Promise<undefined | SpeedDungeonProfile> {
-  //   return this.profiles.get(userId);
-  // }
-
-  // async createProfile(userId: IdentityProviderId): Promise<SpeedDungeonProfile> {
-  //   const newProfile = {
-  //     id: this.idGenerator.getNextIdNumeric() as ProfileId,
-  //     ownerId: userId,
-  //     characterCapacity: DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
-  //     createdAt: Date.now(),
-  //     updatedAt: Date.now(),
-  //   };
-  //   this.profiles.set(userId, newProfile);
-  //   return newProfile;
-  // }
-}
