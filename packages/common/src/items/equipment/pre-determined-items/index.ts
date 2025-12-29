@@ -1,12 +1,15 @@
+import { EntityName } from "../../../aliases.js";
 import {
   ResourceChangeSource,
   ResourceChangeSourceCategory,
 } from "../../../combat/hp-change-source-types.js";
 import { KineticDamageType } from "../../../combat/kinetic-damage-types.js";
-import { EntityProperties, NumberRange } from "../../../primatives/index.js";
+import { EntityProperties } from "../../../primatives/entity-properties.js";
+import { NumberRange } from "../../../primatives/number-range.js";
+import { EquipmentType } from "../equipment-types/index.js";
 import { OneHandedMeleeWeapon } from "../equipment-types/one-handed-melee-weapon.js";
 import { TwoHandedRangedWeapon } from "../equipment-types/two-handed-ranged-weapon.js";
-import { Equipment, EquipmentType } from "../index.js";
+import { Equipment } from "../index.js";
 
 export enum PreDeterminedItemType {
   SkeletonArcherShortBow,
@@ -16,11 +19,11 @@ export enum PreDeterminedItemType {
 }
 
 export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: string) {
-  const entityProperties: EntityProperties = { name: "", id };
+  const entityProperties: EntityProperties = { name: "" as EntityName, id };
 
   switch (itemType) {
     case PreDeterminedItemType.SkeletonArcherShortBow:
-      entityProperties.name = "Skeleton Archer's Bow";
+      entityProperties.name = "Skeleton Archer's Bow" as EntityName;
       return new Equipment(
         entityProperties,
         1,
@@ -42,7 +45,7 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
         null
       );
     case PreDeterminedItemType.AnimalClaw:
-      entityProperties.name = "Animal Claw";
+      entityProperties.name = "Animal Claw" as EntityName;
       return new Equipment(
         entityProperties,
         1,
@@ -64,7 +67,7 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
         null
       );
     case PreDeterminedItemType.Fist:
-      entityProperties.name = "Fist";
+      entityProperties.name = "Fist" as EntityName;
       return new Equipment(
         entityProperties,
         1,
@@ -86,7 +89,7 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
         null
       );
     case PreDeterminedItemType.Spike:
-      entityProperties.name = "Spike";
+      entityProperties.name = "Spike" as EntityName;
       return new Equipment(
         entityProperties,
         1,

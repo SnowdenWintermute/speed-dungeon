@@ -1,5 +1,4 @@
 import { JewelryGenerationTemplate } from "./jewelry.js";
-import { Amulet, EquipmentBaseItem, EquipmentType, Ring } from "../../equipment/index.js";
 import { BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES } from "./body-armor.js";
 import { HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES } from "./head-gear.js";
 import { EquipmentGenerationTemplate } from "./base-templates.js";
@@ -7,6 +6,8 @@ import { ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES } from "./one-handed-me
 import { TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES } from "./two-handed-melee-weapons.js";
 import { TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES } from "./two-handed-ranged-weapons.js";
 import { SHIELD_EQUIPMENT_GENERATION_TEMPLATES } from "./shields.js";
+import { EquipmentBaseItem, EquipmentType } from "../../equipment/equipment-types/index.js";
+import { Amulet, Ring } from "../../equipment/equipment-types/jewelry.js";
 
 export function getEquipmentGenerationTemplate(
   equipmentBaseItem: EquipmentBaseItem

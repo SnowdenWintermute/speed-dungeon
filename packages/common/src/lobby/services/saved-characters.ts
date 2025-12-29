@@ -1,7 +1,7 @@
 import { CombatantProperties } from "../../combatants/combatant-properties.js";
 import { Combatant } from "../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { EntityId } from "../../aliases.js";
+import { CharacterSlotIndex, EntityId, EntityName } from "../../aliases.js";
 
 export interface CharacterInSlot {
   combatant: Combatant;
@@ -14,7 +14,7 @@ type SavedCharacterSlots = Record<SlotIndex, CharacterInSlot>;
 export interface CharacterSlot {
   id: string;
   profileId: number;
-  slotNumber: number;
+  slotNumber: CharacterSlotIndex;
   characterId: null | EntityId;
   createdAt: number | Date;
   updatedAt: number | Date;
@@ -22,7 +22,7 @@ export interface CharacterSlot {
 
 export interface SerializedPlayerCharacter {
   id: EntityId;
-  name: string;
+  name: EntityName;
   ownerId: number;
   gameVersion: string;
   combatantProperties: CombatantProperties;

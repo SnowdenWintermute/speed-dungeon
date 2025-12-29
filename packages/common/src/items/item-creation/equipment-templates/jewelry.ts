@@ -1,12 +1,7 @@
 import { NumberRange } from "../../../primatives/number-range.js";
 import { AffixType, PREFIX_TYPES, SUFFIX_TYPES } from "../../equipment/affixes.js";
-import {
-  Amulet,
-  EquipmentBaseItem,
-  EquipmentType,
-  Jewelry,
-  Ring,
-} from "../../equipment/equipment-types/index.js";
+import { EquipmentBaseItem, EquipmentType } from "../../equipment/equipment-types/index.js";
+import { Amulet, Jewelry, Ring } from "../../equipment/equipment-types/jewelry.js";
 import { EquipmentGenerationTemplate } from "./base-templates.js";
 
 export class JewelryGenerationTemplate extends EquipmentGenerationTemplate {

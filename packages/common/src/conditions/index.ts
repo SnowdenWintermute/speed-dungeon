@@ -1,5 +1,4 @@
 import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
-import { MaxAndCurrent } from "../primatives/index.js";
 import { EntityProperties } from "../primatives/entity-properties.js";
 import { CombatActionIntent } from "../combat/combat-actions/combat-action-intent.js";
 import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
@@ -24,6 +23,7 @@ import { AdventuringParty } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
 import { AiType } from "../combat/ai-behavior/index.js";
 import { ConditionTickProperties } from "./condition-tick-properties.js";
+import { MaxAndCurrent } from "../primatives/max-and-current.js";
 
 export const MAX_CONDITION_STACKS = 99;
 

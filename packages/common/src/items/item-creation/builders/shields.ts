@@ -1,16 +1,16 @@
 import { ItemGenerationBuilder } from "./item.js";
 import { EquipmentGenerationBuilder } from "./equipment.js";
 import { ShieldGenerationTemplate } from "../equipment-templates/shields.js";
-import {
-  EquipmentBaseItem,
-  EquipmentBaseItemType,
-  EquipmentType,
-  ShieldProperties,
-} from "../../equipment/index.js";
 import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { randBetween } from "../../../utils/rand-between.js";
 import { AffixGenerator } from "./affix-generator/index.js";
+import {
+  EquipmentBaseItem,
+  EquipmentBaseItemType,
+  EquipmentType,
+} from "../../equipment/equipment-types/index.js";
+import { ShieldProperties } from "../../equipment/equipment-properties/shield-properties.js";
 
 export class ShieldGenerationBuilder<T extends ShieldGenerationTemplate>
   extends EquipmentGenerationBuilder<T>

@@ -1,4 +1,5 @@
-import { CombatAttribute } from "../../../combatants/index.js";
+import { EntityName } from "../../../aliases.js";
+import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { ConsumableType } from "../../consumables/consumable-types.js";
 import { EquipmentAffixes } from "../../equipment/affixes.js";
 import { EquipmentBaseItemProperties } from "../../equipment/equipment-properties/index.js";
@@ -43,5 +44,5 @@ export abstract class ItemGenerationBuilder {
   abstract buildItemName: (
     taggedBaseItem: TaggedBaseItem,
     affixes: null | EquipmentAffixes
-  ) => string;
+  ) => EntityName;
 }

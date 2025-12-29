@@ -31,7 +31,7 @@ export async function leaveGameHandler(
   if (Object.keys(game.players).length === 0) {
     const maybeError = await gameModeContext.onLastPlayerLeftGame(game);
     if (maybeError instanceof Error) return maybeError;
-    gameServer.games.remove(game.name);
+    gameServer.games.delete(game.name);
   }
 
   gameServer.removeSocketFromChannel(socket.id, game.getChannelName());

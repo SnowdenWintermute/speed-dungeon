@@ -92,8 +92,8 @@ export class GameServer implements ActionCommandReceiver {
   }
 
   // socket connection manager
-  socketIdsByUsername = new HashMap<Username, SocketId[]>();
-  connections = new HashMap<SocketId, BrowserTabSession>();
+  socketIdsByUsername = new Map<Username, SocketId[]>();
+  connections = new Map<SocketId, BrowserTabSession>();
   channels: Partial<Record<ChannelName, Channel>> = {};
   getConnection = getConnection;
   connectionHandler = connectionHandler;

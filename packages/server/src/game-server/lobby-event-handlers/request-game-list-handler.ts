@@ -12,18 +12,16 @@ export default function requestGameListHandler(
   socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
   const gameServer = getGameServer();
-  const gameList: GameListEntry[] = gameServer.games
-    .entries()
-    .map(
-      ([gameName, game]) =>
-        new GameListEntry(
-          gameName as GameName,
-          Object.keys(game.players).length,
-          game.mode,
-          game.timeStarted,
-          game.isRanked
-        )
-    );
+  const gameList: GameListEntry[] = Array.from(gameServer.games.entries()).map(
+    ([gameName, game]) =>
+      new GameListEntry(
+        gameName as GameName,
+        Object.keys(game.players).length,
+        game.mode,
+        game.timeStarted,
+        game.isRanked
+      )
+  );
 
   socket.emit(ServerToClientEvent.GameList, gameList);
 }

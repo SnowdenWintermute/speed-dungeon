@@ -9,6 +9,15 @@ export class ArrayUtils {
     }
   }
 
+  static getExpectedAtIndex<T>(array: T[], index: number) {
+    const value = array[index];
+    if (value === undefined) {
+      throw new Error("Expected value not found in array at provided index");
+    }
+
+    return value;
+  }
+
   /** Randomizes the order of the array in place */
   static shuffle<T>(array: T[]) {
     for (let i = array.length - 1; i > 0; i--) {

@@ -1,9 +1,7 @@
 import {
-  Amulet,
   EquipmentBaseItem,
   EquipmentBaseItemType,
   EquipmentType,
-  Ring,
 } from "../../equipment/equipment-types/index.js";
 import { JewelryProperties } from "../../equipment/equipment-properties/jewelry-properties.js";
 
@@ -12,6 +10,7 @@ import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { EquipmentGenerationBuilder } from "./equipment.js";
 import { ItemGenerationBuilder } from "./item.js";
 import { AffixGenerator } from "./affix-generator/index.js";
+import { Amulet, Ring } from "../../equipment/equipment-types/jewelry.js";
 
 export class JewelryGenerationBuilder<T extends JewelryGenerationTemplate>
   extends EquipmentGenerationBuilder<T>

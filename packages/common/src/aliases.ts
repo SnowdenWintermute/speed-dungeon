@@ -13,6 +13,7 @@ export type ItemId = string & { __brand: "ItemId" };
 export type CombatantId = string & { __brand: "CombatantId" };
 export type ConditionId = string & { __brand: "ConditionId" };
 export type ActionRank = string & { __brand: "ActionRank" };
+export type CharacterSlotIndex = number & { __brand: "CharacterSlotIndex" };
 
 export type Milliseconds = number;
 export type Seconds = number;

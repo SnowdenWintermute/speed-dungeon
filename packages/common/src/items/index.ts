@@ -1,8 +1,9 @@
 import cloneDeep from "lodash.clonedeep";
-import { EntityProperties } from "../primatives/index.js";
-import itemRequirementsMet from "./requirements-met.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { Consumable } from "./consumables/index.js";
+import { EntityProperties } from "../primatives/entity-properties.js";
+import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
+import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 
 export enum ItemType {
   Consumable,
@@ -41,7 +42,14 @@ export abstract class Item {
     }
   }
 
-  static requirementsMet = itemRequirementsMet;
+  static requirementsMet(item: Item, combatantAttributes: CombatantAttributeRecord) {
+    for (const [key, requiredValue] of iterateNumericEnumKeyedRecord(item.requirements)) {
+      const combatantAttributeValue = combatantAttributes[key];
+      if (!combatantAttributeValue) return false;
+      if (combatantAttributeValue < requiredValue) return false;
+    }
+    return true;
+  }
 
   static isConsumable(item: Item) {
     return item instanceof Consumable;

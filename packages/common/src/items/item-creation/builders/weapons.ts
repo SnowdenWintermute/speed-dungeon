@@ -46,8 +46,8 @@ export class WeaponGenerationBuilder<T extends WeaponGenerationTemplate>
     }
 
     // roll damageClassifications from possible list
-    let damageClassifications: ResourceChangeSource[] = [];
-    let shuffledPossibleClassifications = ArrayUtils.shuffle(
+    const damageClassifications: ResourceChangeSource[] = [];
+    const shuffledPossibleClassifications = ArrayUtils.shuffle(
       cloneDeep(template.possibleDamageClassifications)
     );
 

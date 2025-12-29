@@ -3,6 +3,7 @@ import {
   ClientToServerEventTypes,
   ERROR_MESSAGES,
   EntityId,
+  EntityName,
   GameMode,
   PlayerAssociatedData,
   ServerToClientEvent,
@@ -36,7 +37,7 @@ export async function renamePetHandler(
     return new Error("Can't rename a pet of a character you do not control");
   }
 
-  pet.entityProperties.name = newName;
+  pet.entityProperties.name = newName as EntityName;
 
   // save the character if in progression game
   if (game.mode === GameMode.Progression) {

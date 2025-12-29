@@ -1,13 +1,6 @@
-import { CONSUMABLE_TYPE_STRINGS, iterateNumericEnumKeyedRecord } from "../../../../index.js";
 import {
-  Affix,
-  AffixCategory,
-  EquipmentAffixes,
-  PrefixType,
-  SuffixType,
-} from "../../../equipment/affixes.js";
-import {
-  EquipmentType,
+  CONSUMABLE_TYPE_STRINGS,
+  EntityName,
   formatAmulet,
   formatBodyArmor,
   formatHeadGear,
@@ -15,8 +8,17 @@ import {
   formatShield,
   formatTwoHandedMeleeWeapon,
   formatTwoHandedRangedWeapon,
+  iterateNumericEnumKeyedRecord,
   ONE_HANDED_MELEE_WEAPON_NAMES,
-} from "../../../equipment/equipment-types/index.js";
+} from "../../../../index.js";
+import {
+  Affix,
+  AffixCategory,
+  EquipmentAffixes,
+  PrefixType,
+  SuffixType,
+} from "../../../equipment/affixes.js";
+import { EquipmentType } from "../../../equipment/equipment-types/index.js";
 import { ItemType } from "../../../index.js";
 import { TaggedBaseItem } from "../item.js";
 
@@ -77,6 +79,6 @@ export abstract class ItemNamer {
     const firstPrefixName = prefixNames[0] ? prefixNames[0] + " " : "";
     const firstSuffixName = suffixNames[0] ? " of " + suffixNames[0] : "";
 
-    return firstPrefixName + baseItemName + firstSuffixName;
+    return (firstPrefixName + baseItemName + firstSuffixName) as EntityName;
   }
 }

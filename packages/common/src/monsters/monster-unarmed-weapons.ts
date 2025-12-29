@@ -1,3 +1,4 @@
+import { EntityName } from "../aliases.js";
 import {
   ResourceChangeSource,
   ResourceChangeSourceCategory,
@@ -21,7 +22,7 @@ export const MONSTER_UNARMED_WEAPONS: Record<
     [HoldableSlotType.MainHand]: new Equipment(
       {
         id: "wolf default main hand weapon id",
-        name: "wolf default main hand weapon",
+        name: "wolf default main hand weapon" as EntityName,
       },
       1,
       {},
@@ -44,7 +45,7 @@ export const MONSTER_UNARMED_WEAPONS: Record<
     [HoldableSlotType.OffHand]: new Equipment(
       {
         id: "wolf default off hand weapon id",
-        name: "wolf default off hand weapon",
+        name: "wolf default off hand weapon" as EntityName,
       },
       1,
       {},
@@ -78,7 +79,7 @@ export const MONSTER_UNARMED_WEAPONS: Record<
     [HoldableSlotType.MainHand]: new Equipment(
       {
         id: "spider default main hand weapon id",
-        name: "spider default main hand weapon",
+        name: "spider default main hand weapon" as EntityName,
       },
       1,
       {},
@@ -104,7 +105,7 @@ export const MONSTER_UNARMED_WEAPONS: Record<
     [HoldableSlotType.MainHand]: new Equipment(
       {
         id: "manta ray default main hand weapon id",
-        name: "manta ray default main hand weapon",
+        name: "manta ray default main hand weapon" as EntityName,
       },
       1,
       {},

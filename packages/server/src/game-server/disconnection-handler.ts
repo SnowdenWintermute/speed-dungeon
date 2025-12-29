@@ -33,7 +33,7 @@ export default async function disconnectionHandler(
 
   if (userCurrentSockets) ArrayUtils.removeElement(userCurrentSockets, socket.id);
   if (userCurrentSockets && Object.keys(userCurrentSockets).length < 1)
-    gameServer.socketIdsByUsername.remove(session.username);
+    gameServer.socketIdsByUsername.delete(session.username);
 
-  gameServer.connections.remove(socket.id);
+  gameServer.connections.delete(socket.id);
 }

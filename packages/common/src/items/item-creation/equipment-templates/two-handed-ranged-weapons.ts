@@ -7,11 +7,8 @@ import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { NumberRange } from "../../../primatives/number-range.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
 import { AffixType, PREFIX_TYPES, SUFFIX_TYPES } from "../../equipment/affixes.js";
-import {
-  EquipmentBaseItem,
-  EquipmentType,
-  TwoHandedRangedWeapon,
-} from "../../equipment/equipment-types/index.js";
+import { EquipmentBaseItem, EquipmentType } from "../../equipment/equipment-types/index.js";
+import { TwoHandedRangedWeapon } from "../../equipment/equipment-types/two-handed-ranged-weapon.js";
 import { WeaponGenerationTemplate } from "./base-templates.js";
 
 export class TwoHandedRangedWeaponGenerationTemplate extends WeaponGenerationTemplate {

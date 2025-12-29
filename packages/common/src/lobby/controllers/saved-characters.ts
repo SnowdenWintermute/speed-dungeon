@@ -1,4 +1,4 @@
-import { Combatant, CombatantClass } from "../../combatants/index.js";
+import { Combatant } from "../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { GameStateUpdateType } from "../../packets/game-state-updates.js";
 import { CharacterCreator } from "../character-creation/index.js";
@@ -10,6 +10,7 @@ import { GameStateUpdateDispatchOutbox } from "../update-delivery/update-dispatc
 import { SessionAuthorizationManager } from "../sessions/authorization-manager.js";
 import { AuthorizedSession, UserSession } from "../sessions/user-session.js";
 import { LobbyExternalServices } from "../index.js";
+import { CombatantClass } from "../../combatants/combatant-class/classes.js";
 
 export class SavedCharactersController {
   private readonly savedCharactersService: SavedCharactersService;

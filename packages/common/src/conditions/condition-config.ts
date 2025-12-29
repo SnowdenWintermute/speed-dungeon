@@ -8,7 +8,7 @@ import { CosmeticEffectOnTargetTransformNode } from "../combat/combat-actions/co
 import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
 import { CombatantProperties } from "../combatants/combatant-properties.js";
 import { Combatant } from "../combatants/index.js";
-import { MaxAndCurrent } from "../primatives/index.js";
+import { MaxAndCurrent } from "../primatives/max-and-current.js";
 import { TransformModifiers } from "../scene-entities/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { ConditionAppliedBy } from "./condition-applied-by.js";

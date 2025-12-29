@@ -1,6 +1,9 @@
 import { INVENTORY_DEFAULT_CAPACITY, MAX_CHARACTER_NAME_LENGTH } from "../app-consts.js";
 
-export type CustomErrorDetails = { message: string; field?: string };
+export interface CustomErrorDetails {
+  message: string;
+  field?: string;
+}
 
 export const ERROR_MESSAGES = {
   TODO: "Not yet implemented",

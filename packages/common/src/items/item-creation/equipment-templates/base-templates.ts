@@ -1,7 +1,7 @@
 import { DEEPEST_FLOOR } from "../../../app-consts.js";
 import { ResourceChangeSource } from "../../../combat/hp-change-source-types.js";
-import { CombatAttribute } from "../../../combatants/index.js";
-import { NumberRange } from "../../../primatives/index.js";
+import { CombatAttribute } from "../../../combatants/attributes/index.js";
+import { NumberRange } from "../../../primatives/number-range.js";
 import { PrefixType, SuffixType } from "../../equipment/affixes.js";
 import { ArmorCategory } from "../../equipment/equipment-properties/armor-properties.js";
 import { EquipmentBaseItem } from "../../equipment/equipment-types/index.js";

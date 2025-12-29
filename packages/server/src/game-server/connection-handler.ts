@@ -16,12 +16,12 @@ export function connectionHandler(this: GameServer) {
     const { username, userId } = await getLoggedInUserOrCreateGuest(cookies);
 
     console.info(`-- ${username} (${socket.id}) connected`);
-    this.connections.insert(socket.id, new BrowserTabSession(socket.id, username, userId));
+    this.connections.set(socket.id, new BrowserTabSession(socket.id, username, userId));
 
     const socketListOption = this.socketIdsByUsername.get(username);
     if (socketListOption) {
       socketListOption.push(socket.id);
-    } else this.socketIdsByUsername.insert(username, [socket.id]);
+    } else this.socketIdsByUsername.set(username, [socket.id]);
     // try to send their saved characters
 
     this.joinSocketToChannel(socket.id, LOBBY_CHANNEL);

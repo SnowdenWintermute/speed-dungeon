@@ -2,29 +2,27 @@ import { ItemNamer } from "./item-namer/index.js";
 import { ItemGenerationBuilder, TaggedBaseItem } from "./item.js";
 import { EquipmentGenerationTemplate } from "../equipment-templates/base-templates.js";
 import { getEquipmentGenerationTemplate } from "../equipment-templates/index.js";
-import {
-  AffixCategory,
-  EQUIPMENT_TYPE_STRINGS,
-  EquipmentAffixes,
-  EquipmentBaseItem,
-  EquipmentBaseItemProperties,
-  EquipmentBaseItemType,
-  EquipmentType,
-  PrefixType,
-  SuffixType,
-} from "../../equipment/index.js";
 import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { ArrayUtils } from "../../../utils/array-utils.js";
 import { ItemType } from "../../index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { randBetween } from "../../../utils/rand-between.js";
 import {
+  AffixCategory,
   BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL,
   CHANCE_TO_HAVE_DOUBLE_AFFIX,
   CHANCE_TO_HAVE_PREFIX,
   CombatAttribute,
+  EQUIPMENT_TYPE_STRINGS,
+  EquipmentAffixes,
+  EquipmentBaseItem,
+  EquipmentBaseItemProperties,
+  EquipmentBaseItemType,
+  EquipmentType,
   FOUND_ITEM_MAX_DURABILITY_MODIFIER,
   FOUND_ITEM_MIN_DURABILITY_MODIFIER,
+  PrefixType,
+  SuffixType,
 } from "../../../index.js";
 import { AffixGenerator } from "./affix-generator/index.js";
 
@@ -97,7 +95,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
       Math.floor(template.maxDurability * FOUND_ITEM_MAX_DURABILITY_MODIFIER),
       this.randomNumberGenerator
     );
-    let durability = { inherentMax: template.maxDurability, current: startingDurability };
+    const durability = { inherentMax: template.maxDurability, current: startingDurability };
 
     return durability;
   }
@@ -191,7 +189,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
   ): Error | Partial<Record<CombatAttribute, number>> {
     const toReturn: Partial<Record<CombatAttribute, number>> = {};
     switch (taggedBaseItem.type) {
-      case ItemType.Equipment:
+      case ItemType.Equipment: {
         const template = getEquipmentGenerationTemplate(taggedBaseItem.taggedBaseEquipment);
         if (template === undefined)
           return new Error(
@@ -201,6 +199,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
               EQUIPMENT_TYPE_STRINGS[taggedBaseItem.taggedBaseEquipment.equipmentType]
           );
         return template.requirements;
+      }
       case ItemType.Consumable:
         break;
     }

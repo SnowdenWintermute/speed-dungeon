@@ -50,7 +50,7 @@ export async function createProgressionGameHandler(
   game.adventuringParties[getProgressionGamePartyName(game.name)] =
     AdventuringParty.createInitialized(idGenerator.generate(), defaultPartyName);
 
-  gameServer.games.insert(gameName, game);
+  gameServer.games.set(gameName, game);
 
   await joinPlayerToProgressionGame(
     gameServer,

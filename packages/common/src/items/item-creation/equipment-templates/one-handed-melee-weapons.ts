@@ -8,11 +8,8 @@ import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { NumberRange } from "../../../primatives/number-range.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
 import { AffixType, PREFIX_TYPES, SUFFIX_TYPES } from "../../equipment/affixes.js";
-import {
-  EquipmentBaseItem,
-  EquipmentType,
-  OneHandedMeleeWeapon,
-} from "../../equipment/equipment-types/index.js";
+import { EquipmentBaseItem, EquipmentType } from "../../equipment/equipment-types/index.js";
+import { OneHandedMeleeWeapon } from "../../equipment/equipment-types/one-handed-melee-weapon.js";
 import { WeaponGenerationTemplate } from "./base-templates.js";
 
 export class OneHandedMeleeWeaponGenerationTemplate extends WeaponGenerationTemplate {

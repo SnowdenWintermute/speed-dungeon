@@ -1,6 +1,6 @@
-import { Consumable, ItemType } from "../../../index.js";
+import { Consumable, EntityId, EquipmentAffixes, ItemType } from "../../../index.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
-import { Equipment, EquipmentAffixes } from "../../equipment/index.js";
+import { Equipment } from "../../equipment/index.js";
 import { ItemGenerationBuilder, TaggedBaseItem } from "./item.js";
 
 export class ItemGenerationDirector {
@@ -31,7 +31,7 @@ export class ItemGenerationDirector {
     const name = builder.buildItemName(baseItemResult, affixes);
 
     const entityProperties = {
-      id: idGenerator.generate(),
+      id: idGenerator.generate() as EntityId,
       name,
     };
 

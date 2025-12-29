@@ -5,6 +5,7 @@ import {
   CONSUMABLE_TYPE_STRINGS,
   ConsumableType,
   DEEPEST_FLOOR,
+  EntityName,
   Equipment,
   EquipmentBaseItem,
   EquipmentType,
@@ -13,8 +14,9 @@ import {
   iterateNumericEnum,
   NumberRange,
   randBetween,
+  RandomNumberGenerator,
 } from "../../index.js";
-import { IdGenerator, RandomNumberGenerator } from "../../utility-classes/index.js";
+import { IdGenerator } from "../../utility-classes/index.js";
 import { AffixGenerator } from "./builders/affix-generator/index.js";
 import { ItemGenerationDirector } from "./builders/item-generation-director.js";
 import { ItemGenerationBuilder } from "./builders/item.js";
@@ -41,7 +43,7 @@ export class ItemGenerator {
   createConsumableByType(consumableType: ConsumableType) {
     return new Consumable(
       {
-        name: CONSUMABLE_TYPE_STRINGS[consumableType],
+        name: CONSUMABLE_TYPE_STRINGS[consumableType] as EntityName,
         id: this.idGenerator.generate(),
       },
       1,

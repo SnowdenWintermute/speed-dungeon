@@ -11,6 +11,7 @@ import { RANDOM_CHARACTER_NAMES_FIRST } from "./random-character-names.js";
 import { Vector3 } from "@babylonjs/core";
 import { CharacterOutfitter } from "./outfitter.js";
 import { ItemGenerator } from "../../items/item-creation/index.js";
+import { EntityId, EntityName } from "../../aliases.js";
 
 export class CharacterCreator {
   private characterOutfitter: CharacterOutfitter;
@@ -24,17 +25,19 @@ export class CharacterCreator {
   generateRandomCharacterName() {
     return RANDOM_CHARACTER_NAMES_FIRST[
       Math.floor(Math.random() * RANDOM_CHARACTER_NAMES_FIRST.length)
-    ]!;
+    ]! as EntityName;
   }
 
-  createCharacter(name: string, combatantClass: CombatantClass, controllingPlayerName: string) {
-    const characterId = this.idGenerator.generate(`player controlled character: ${name}`);
+  createCharacter(name: EntityName, combatantClass: CombatantClass, controllingPlayerName: string) {
+    const characterId = this.idGenerator.generate(
+      `player controlled character: ${name}`
+    ) as EntityId;
 
     if (name === "") {
       name = this.generateRandomCharacterName();
     }
 
-    const entityProperties = { id: characterId, name };
+    const entityProperties = { id: characterId as EntityId, name };
     const combatantProperties = new CombatantProperties(
       combatantClass,
       CombatantSpecies.Humanoid,

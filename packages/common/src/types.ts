@@ -2,7 +2,7 @@ import { Combatant } from "./combatants/index.js";
 import { AdventuringParty } from "./adventuring-party/index.js";
 import { SpeedDungeonGame } from "./game/index.js";
 import { SpeedDungeonPlayer } from "./game/player.js";
-import { CombatantId, Meters, PartyName } from "./aliases.js";
+import { CombatantId, EntityId, EntityName, GameName, Meters, PartyName } from "./aliases.js";
 import { CombatantSpecies } from "./combatants/combatant-species.js";
 
 export interface CharacterAssociatedData {
@@ -54,7 +54,7 @@ export enum PartyFate {
 
 export interface RaceGameAggregatedRecord {
   game_id: string;
-  game_name: string;
+  game_name: GameName;
   game_version: string;
   time_of_completion: null | number;
   parties: Record<PartyName, RacePartyAggregatedRecord>;
@@ -62,7 +62,7 @@ export interface RaceGameAggregatedRecord {
 
 export interface RacePartyAggregatedRecord {
   party_id: string;
-  party_name: string;
+  party_name: PartyName;
   party_fate: PartyFate | null;
   party_fate_recorded_at: string | null;
   is_winner: boolean;
@@ -70,8 +70,8 @@ export interface RacePartyAggregatedRecord {
   characters: Record<
     CombatantId,
     {
-      character_id: string;
-      character_name: string;
+      character_id: CombatantId;
+      character_name: EntityName;
       level: number;
       combatant_class: string;
       id_of_controlling_user: number;
@@ -81,7 +81,7 @@ export interface RacePartyAggregatedRecord {
 
 export class SanitizedRaceGameAggregatedRecord {
   game_id: string;
-  game_name: string;
+  game_name: GameName;
   game_version: string;
   time_of_completion: null | number;
   parties: Record<PartyName, SanitizedRacePartyAggregatedRecord> = {};

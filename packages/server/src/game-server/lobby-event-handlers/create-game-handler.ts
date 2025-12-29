@@ -54,7 +54,7 @@ export default async function createGameHandler(
       session.username,
       isRanked
     );
-    gameServer.games.insert(gameName, game);
+    gameServer.games.set(gameName, game);
     joinGameHandler(gameName, session, socket);
   }
 }

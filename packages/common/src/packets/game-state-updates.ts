@@ -1,4 +1,3 @@
-import { DungeonRoom, DungeonRoomType, ExplorationAction } from "../adventuring-party/index.js";
 import { Battle, BattleConclusion } from "../battle/index.js";
 import { ActionCommandPayload } from "../action-processing/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
@@ -15,7 +14,9 @@ import { CombatAttribute } from "../combatants/attributes/index.js";
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
 import { GameSimulatorConnectionInstructions } from "../lobby/game-simulator-handoff-strategy.js";
-import { EntityId, GameName, Username } from "../aliases.js";
+import { CharacterSlotIndex, EntityId, GameName, Username } from "../aliases.js";
+import { ExplorationAction } from "../adventuring-party/dungeon-exploration-manager.js";
+import { DungeonRoom, DungeonRoomType } from "../adventuring-party/dungeon-room.js";
 
 export enum GameStateUpdateType {
   GameList,
@@ -191,9 +192,7 @@ export interface GameStateUpdateMap {
     attribute: CombatAttribute;
   };
   [GameStateUpdateType.SavedCharacterList]: {
-    characterSlots: {
-      [slot: number]: null | { combatant: Combatant; pets: Combatant[] };
-    };
+    characterSlots: Record<CharacterSlotIndex, null | { combatant: Combatant; pets: Combatant[] }>;
   };
   [GameStateUpdateType.SavedCharacter]: {
     character: { combatant: Combatant; pets: Combatant[] };

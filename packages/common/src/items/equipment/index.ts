@@ -11,7 +11,7 @@ import {
   PrefixType,
   SuffixType,
 } from "./affixes.js";
-import { EquipmentBaseItemProperties, WeaponProperties } from "./equipment-properties/index.js";
+import { EquipmentBaseItemProperties } from "./equipment-properties/index.js";
 import { EquipmentType } from "./equipment-types/index.js";
 import { EquipmentTraitType } from "./equipment-traits/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
@@ -20,6 +20,7 @@ import { ResourceChangeSource } from "../../combat/hp-change-source-types.js";
 import { plainToInstance } from "class-transformer";
 import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantAttributeRecord } from "../../combatants/combatant-attribute-record.js";
+import { WeaponProperties } from "./equipment-properties/weapon-properties.js";
 
 const WEAPON_EQUIPMENT_TYPES = [
   EquipmentType.OneHandedMeleeWeapon,

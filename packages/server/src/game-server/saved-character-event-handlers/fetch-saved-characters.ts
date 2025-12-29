@@ -1,11 +1,11 @@
 import { characterSlotsRepo } from "../../database/repos/character-slots.js";
-import { Combatant, CombatantProperties } from "@speed-dungeon/common";
+import { CharacterSlotIndex, Combatant, CombatantProperties } from "@speed-dungeon/common";
 import { playerCharactersRepo } from "../../database/repos/player-characters.js";
 
 export async function fetchSavedCharacters(profileId: number) {
   const slots = await characterSlotsRepo.find("profileId", profileId);
   if (slots === undefined) return new Error("No character slots found");
-  const toReturn: { [slot: number]: { combatant: Combatant; pets: Combatant[] } } = {};
+  const toReturn: Record<CharacterSlotIndex, { combatant: Combatant; pets: Combatant[] }> = {};
   const characterPromises: Promise<void>[] = [];
   for (const slot of slots) {
     if (slot.characterId === null) continue;

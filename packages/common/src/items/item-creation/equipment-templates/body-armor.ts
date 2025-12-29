@@ -3,11 +3,8 @@ import { NumberRange } from "../../../primatives/number-range.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
 import { AffixType, PREFIX_TYPES, SUFFIX_TYPES } from "../../equipment/affixes.js";
 import { ArmorCategory } from "../../equipment/equipment-properties/armor-properties.js";
-import {
-  BodyArmor,
-  EquipmentBaseItem,
-  EquipmentType,
-} from "../../equipment/equipment-types/index.js";
+import { BodyArmor } from "../../equipment/equipment-types/body-armor.js";
+import { EquipmentBaseItem, EquipmentType } from "../../equipment/equipment-types/index.js";
 import { modifyPossibleAffixesByArmorCategory } from "./armor-category-affixes.js";
 import { ArmorGenerationTemplate } from "./base-templates.js";
 

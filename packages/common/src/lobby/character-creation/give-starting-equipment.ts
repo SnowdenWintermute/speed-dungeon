@@ -2,14 +2,10 @@ import { CombatantClass } from "../../combatants/combatant-class/classes.js";
 import { CombatantProperties } from "../../combatants/combatant-properties.js";
 import { AffixCategory, AffixType } from "../../items/equipment/affixes.js";
 import { EquipmentTraitType } from "../../items/equipment/equipment-traits/index.js";
-import {
-  EquipmentBaseItem,
-  EquipmentType,
-  OneHandedMeleeWeapon,
-  Shield,
-  TwoHandedMeleeWeapon,
-  TwoHandedRangedWeapon,
-} from "../../items/equipment/equipment-types/index.js";
+import { EquipmentBaseItem, EquipmentType } from "../../items/equipment/equipment-types/index.js";
+import { OneHandedMeleeWeapon } from "../../items/equipment/equipment-types/one-handed-melee-weapon.js";
+import { Shield } from "../../items/equipment/equipment-types/shield.js";
+import { TwoHandedMeleeWeapon } from "../../items/equipment/equipment-types/two-handed-melee-weapon.js";
 import { HoldableSlotType } from "../../items/equipment/slots.js";
 import { ItemGenerator } from "../../items/item-creation/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";

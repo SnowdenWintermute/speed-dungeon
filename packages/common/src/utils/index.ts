@@ -5,7 +5,7 @@ import { NextOrPrevious } from "../primatives/index.js";
 import { toJS } from "mobx";
 import cloneDeep from "lodash.clonedeep";
 import { plainToInstance } from "class-transformer";
-import { GameName, PartyName } from "../aliases.js";
+import { EntityId, EntityName, GameName, PartyName } from "../aliases.js";
 import { ConsumableType } from "../items/consumables/consumable-types.js";
 
 export function iterateNumericEnum<T extends Record<string, string | number>>(
@@ -59,7 +59,7 @@ export function stringIsValidNumber(str: string) {
 
 export function createDummyConsumable(consumableType: ConsumableType) {
   return new Consumable(
-    { name: CONSUMABLE_TYPE_STRINGS[consumableType], id: "" },
+    { name: CONSUMABLE_TYPE_STRINGS[consumableType] as EntityName, id: "" as EntityId },
     0,
     {},
     consumableType,

@@ -7,7 +7,7 @@ import { Equipment } from "../items/equipment/index.js";
 import { EntityId } from "../aliases.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
-import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
+import { EquipmentSlotType, TaggedEquipmentSlot } from "../items/equipment/slots.js";
 
 export interface EquipmentDurabilityChange {
   taggedSlot: TaggedEquipmentSlot;

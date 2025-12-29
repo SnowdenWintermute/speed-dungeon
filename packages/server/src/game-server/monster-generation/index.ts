@@ -2,10 +2,13 @@ import { Vector3 } from "@babylonjs/core";
 import { idGenerator } from "../../singletons/index.js";
 import {
   AbilityType,
+  AiType,
+  ArrayUtils,
   CombatActionName,
   Combatant,
   CombatantControlledBy,
   CombatantControllerType,
+  EntityName,
   Equipment,
   MONSTER_SPECIES,
   MONSTER_TYPE_STRINGS,
@@ -27,7 +30,10 @@ export function generateMonster(level: number, roomIndex: number, forcedType?: M
   const spawnableTypes = roomIndex % 2 === 1 ? [MonsterType.MantaRay] : [MonsterType.Spider];
 
   const randomIndex = Math.floor(Math.floor(Math.random() * spawnableTypes.length));
-  const monsterType = forcedType !== undefined ? forcedType : spawnableTypes[randomIndex]!;
+  const monsterType =
+    forcedType !== undefined
+      ? forcedType
+      : ArrayUtils.getExpectedAtIndex(spawnableTypes, randomIndex);
   const combatantClass = getMonsterCombatantClass(monsterType);
   const combatantSpecies = MONSTER_SPECIES[monsterType];
 
@@ -35,7 +41,7 @@ export function generateMonster(level: number, roomIndex: number, forcedType?: M
     id: idGenerator.generate(
       `monster ${MONSTER_TYPE_STRINGS[monsterType]} on floor ${level} in room ${roomIndex}`
     ),
-    name: MONSTER_TYPE_STRINGS[monsterType],
+    name: MONSTER_TYPE_STRINGS[monsterType] as EntityName,
   };
   const combatantProperties = new CombatantProperties(
     combatantClass,
