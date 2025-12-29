@@ -10,6 +10,8 @@ import { CombatantCondition } from "../index.js";
 import { runIfInBrowser } from "../../utils/index.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
+import { CombatActionIntent } from "../../combat/combat-actions/combat-action-intent.js";
+import { ActionRank } from "../../aliases.js";
 
 export class PrimedForExplosionCondition extends CombatantCondition {
   constructor(init: CombatantConditionInit) {
@@ -60,7 +62,7 @@ export class PrimedForExplosionCondition extends CombatantCondition {
 
     const actionExecutionIntent = new CombatActionExecutionIntent(
       CombatActionName.SpawnExplosion,
-      actionUser.getLevel(),
+      actionUser.getLevel() as ActionRank,
       actionTarget
     );
 

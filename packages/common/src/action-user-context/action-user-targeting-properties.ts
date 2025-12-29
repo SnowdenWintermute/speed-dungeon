@@ -9,7 +9,7 @@ import { TargetingCalculator } from "../combat/targeting/targeting-calculator.js
 import { makeAutoObservable } from "mobx";
 import { plainToInstance } from "class-transformer";
 import { runIfInBrowser } from "../utils/index.js";
-import { EntityId } from "../aliases.js";
+import { ActionRank, EntityId } from "../aliases.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
 import {
   FriendOrFoe,
@@ -19,7 +19,7 @@ import {
 export class ActionAndRank {
   constructor(
     public actionName: CombatActionName,
-    public rank: number
+    public rank: ActionRank
   ) {
     runIfInBrowser(() => makeAutoObservable(this));
   }

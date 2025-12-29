@@ -6,7 +6,7 @@ import { COMBATANT_CONDITION_NAME_STRINGS, CombatantConditionName } from "./cond
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ConditionAppliedBy } from "./condition-applied-by.js";
 import { CombatantConditionInit } from "./condition-config.js";
-import { EntityId } from "../aliases.js";
+import { EntityId, EntityName } from "../aliases.js";
 import { ActionUserType, IActionUser } from "../action-user-context/action-user.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
 import { ActionUserTargetingProperties } from "../action-user-context/action-user-targeting-properties.js";
@@ -139,7 +139,7 @@ export abstract class CombatantCondition implements IActionUser {
   getEntityProperties(): EntityProperties {
     return { id: this.id, name: this.getName() };
   }
-  getName = () => COMBATANT_CONDITION_NAME_STRINGS[this.name];
+  getName = () => COMBATANT_CONDITION_NAME_STRINGS[this.name] as EntityName;
   getPositionOption = () => null;
   getMovementSpeedOption = () => null;
   getHomePosition(): Vector3 {

@@ -2,7 +2,7 @@ import { Vector3 } from "@babylonjs/core";
 import { TransformModifiers } from "../../scene-entities/index.js";
 import { CombatantConditionInit } from "../condition-config.js";
 import makeAutoObservable from "mobx-store-inheritance";
-import { Meters } from "../../aliases.js";
+import { ActionRank, Meters } from "../../aliases.js";
 import { runIfInBrowser } from "../../utils/index.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import { Combatant } from "../../combatants/index.js";
@@ -49,7 +49,7 @@ export class FlyingCondition extends CombatantCondition {
 
     const actionExecutionIntent = new CombatActionExecutionIntent(
       CombatActionName.FallTowardsHomePosition,
-      1,
+      1 as ActionRank,
       { type: CombatActionTargetType.Single, targetId: actionUser.getEntityId() }
     );
 

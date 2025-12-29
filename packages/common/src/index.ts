@@ -73,7 +73,6 @@ export * from "./lobby/services/ranked-ladder.js";
 export * from "./lobby/services/identity-provider.js";
 
 export * from "./combatants/attributes/index.js";
-export * from "./combatants/experience-points/index.js";
 export * from "./combatants/attributes/add-attributes-to-accumulator.js";
 export * from "./combatants/combatant-attribute-record.js";
 export * from "./combatants/inventory/index.js";
@@ -84,12 +83,10 @@ export * from "./combatants/ability-tree/set-up-ability-trees.js";
 
 export * from "./combatants/combatant-species.js";
 export * from "./combatants/combatant-traits/index.js";
-export * from "./combatants/owned-actions/index.js";
 export * from "./combatants/inventory/index.js";
 export * from "./combatants/combatant-equipment/index.js";
 export * from "./combatants/threat-manager/index.js";
 export * from "./combatants/combatant-traits/index.js";
-export * from "./combatants/ability-tree/index.js";
 export * from "./combatants/combatant-abilities/combatant-ability-properties.js";
 
 export * from "./combatants/attributes/index.js";

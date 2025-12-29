@@ -24,6 +24,7 @@ import { CombatActionName } from "../../combat-action-names.js";
 import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
 import { CombatActionOrigin } from "../../combat-action-origin.js";
 import { CombatActionExecutionIntent } from "../../combat-action-execution-intent.js";
+import { ActionRank } from "../../../../aliases.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 hitOutcomeOverrides.addsPropertiesFromHoldableSlot = HoldableSlotType.MainHand;
@@ -86,7 +87,13 @@ export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
       const { actionExecutionIntent } = context.tracker;
       const { targets } = actionExecutionIntent;
 
-      return [new CombatActionExecutionIntent(CombatActionName.AttackMeleeOffhand, 1, targets)];
+      return [
+        new CombatActionExecutionIntent(
+          CombatActionName.AttackMeleeOffhand,
+          1 as ActionRank,
+          targets
+        ),
+      ];
     },
   },
 };

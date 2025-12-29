@@ -12,12 +12,12 @@ import {
   EntityAnimation,
   EntityTranslation,
 } from "../../game-update-commands.js";
-import { COMBAT_ACTIONS, CombatActionComponent, CombatActionName } from "../../../combat/index.js";
 import { getTranslationTime } from "../../../combat/combat-actions/action-implementations/get-translation-time.js";
 import { Milliseconds } from "../../../aliases.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
 import { Combatant } from "../../../combatants/index.js";
-import { AdventuringParty } from "../../../index.js";
+import { AdventuringParty, COMBAT_ACTIONS, CombatActionName } from "../../../index.js";
+import { CombatActionComponent } from "../../../combat/combat-actions/index.js";
 
 export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   private translationOption: null | EntityTranslation = null;
@@ -78,7 +78,7 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     // this is for when we need to tweak positions/parents of projectiles based on steps of
     // their parent action, like pointing an arrow at a target or releasing from the string
     const stepConfigOption = action.stepsConfig.getStepConfigOption(this.type);
-    let auxiliaryEntityMotionsGetter = stepConfigOption?.getAuxiliaryEntityMotions;
+    const auxiliaryEntityMotionsGetter = stepConfigOption?.getAuxiliaryEntityMotions;
 
     if (auxiliaryEntityMotionsGetter) {
       const auxiliaryEntityMotions = auxiliaryEntityMotionsGetter(

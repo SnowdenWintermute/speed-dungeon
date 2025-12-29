@@ -13,6 +13,7 @@ import { COMBAT_ACTIONS } from "../../../combat/combat-actions/action-implementa
 import { CombatActionExecutionIntent } from "../../../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionName } from "../../../combat/combat-actions/combat-action-names.js";
 import { CombatActionTargetType } from "../../../combat/targeting/combat-action-targets.js";
+import { ActionRank } from "../../../aliases.js";
 
 export function getFirewallBurnScheduledActions(
   context: ActionResolutionStepContext,
@@ -77,7 +78,7 @@ export function getFirewallBurnScheduledActions(
 
   const firewallBurnExecutionIntent = new CombatActionExecutionIntent(
     CombatActionName.FirewallBurn,
-    1,
+    1 as ActionRank,
     { type: CombatActionTargetType.Single, targetId: actionUser.getEntityId() }
   );
 
@@ -108,7 +109,7 @@ export function getFirewallBurnScheduledActions(
     timeToReachFirewallOption
   );
 
-  firewallBurnExecutionIntent.rank = existingFirewallOption.getLevel();
+  firewallBurnExecutionIntent.rank = existingFirewallOption.getLevel() as ActionRank;
 
   const firewallBurnActionIntentWithUser = {
     user: existingFirewallOption,

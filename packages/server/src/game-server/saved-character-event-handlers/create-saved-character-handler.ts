@@ -1,7 +1,9 @@
 import {
+  CharacterSlotIndex,
   ClientToServerEventTypes,
   Combatant,
   CombatantClass,
+  EntityName,
   ERROR_MESSAGES,
   MAX_CHARACTER_NAME_LENGTH,
   ServerToClientEvent,
@@ -16,20 +18,25 @@ import { CHARACTER_LEVEL_LADDER } from "../../kv-store/consts.js";
 import { getGameServer } from "../../singletons/index.js";
 
 export async function createSavedCharacterHandler(
-  eventData: { name: string; combatantClass: CombatantClass; slotNumber: number },
+  eventData: { name: EntityName; combatantClass: CombatantClass; slotNumber: CharacterSlotIndex },
   loggedInUser: LoggedInUser,
   socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
   const { userId, profile } = loggedInUser;
 
   const { name, combatantClass, slotNumber } = eventData;
-  if (name.length > MAX_CHARACTER_NAME_LENGTH)
+  if (name.length > MAX_CHARACTER_NAME_LENGTH) {
     return new Error(ERROR_MESSAGES.COMBATANT.MAX_NAME_LENGTH_EXCEEDED);
+  }
 
   const slot = await characterSlotsRepo.getSlot(profile.id, slotNumber);
-  if (!slot) return new Error("Character slot missing");
+  if (!slot) {
+    return new Error("Character slot missing");
+  }
 
-  if (slot.characterId !== null) return new Error(ERROR_MESSAGES.USER.CHARACTER_SLOT_FULL);
+  if (slot.characterId !== null) {
+    return new Error(ERROR_MESSAGES.USER.CHARACTER_SLOT_FULL);
+  }
 
   const newCharacter = getGameServer().characterCreator.createCharacter(
     name,

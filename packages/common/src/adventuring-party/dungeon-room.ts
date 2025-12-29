@@ -1,7 +1,7 @@
 import { plainToInstance } from "class-transformer";
-import { Inventory } from "../combatants/index.js";
 import { runIfInBrowser } from "../utils/index.js";
 import { makeAutoObservable } from "mobx";
+import { Inventory } from "../combatants/inventory/index.js";
 
 export class DungeonRoom {
   inventory: Inventory = new Inventory();

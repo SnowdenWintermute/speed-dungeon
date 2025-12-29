@@ -11,6 +11,7 @@ import { runIfInBrowser } from "../../utils/index.js";
 import { CombatActionIntent } from "../../combat/combat-actions/combat-action-intent.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
+import { ActionRank } from "../../aliases.js";
 
 export class PrimedForIceBurstCondition extends CombatantCondition {
   constructor(init: CombatantConditionInit) {
@@ -65,7 +66,7 @@ export class PrimedForIceBurstCondition extends CombatantCondition {
 
     const actionExecutionIntent = new CombatActionExecutionIntent(
       CombatActionName.IceBurstParent,
-      this.getLevel(),
+      this.getLevel() as ActionRank,
       actionTarget
     );
 

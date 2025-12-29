@@ -4,13 +4,16 @@ import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templat
 import { SPAWN_EXPLOSION_STEPS_CONFIG } from "./spawn-explosion-steps-config.js";
 import { HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { COMBAT_ACTIONS } from "../index.js";
-import { EntityId } from "../../../../aliases.js";
+import { ActionRank, EntityId } from "../../../../aliases.js";
 import {
   CombatActionTarget,
   CombatActionTargetType,
 } from "../../../targeting/combat-action-targets.js";
 import { CombatActionOrigin } from "../../combat-action-origin.js";
 import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionName } from "../../combat-action-names.js";
+import { ActionIntentAndUser } from "../../../../action-processing/action-steps/index.js";
+import { CombatActionExecutionIntent } from "../../combat-action-execution-intent.js";
 
 const targetingProperties = TARGETING_PROPERTIES_TEMPLATE_GETTERS.EXPLOSION();
 
@@ -53,7 +56,7 @@ const config: CombatActionComponentConfig = {
       const actionIntentAndUser: ActionIntentAndUser = {
         actionExecutionIntent: new CombatActionExecutionIntent(
           CombatActionName.ExecuteExplosion,
-          explosionEntity.actionEntity.getLevel(),
+          explosionEntity.actionEntity.getLevel() as ActionRank,
           targetsToSend
         ),
         user: explosionEntity.actionEntity,

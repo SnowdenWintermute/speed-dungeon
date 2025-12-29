@@ -1,6 +1,14 @@
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
-import { EntityId, GameName, PartyName } from "../aliases.js";
+import {
+  ActionRank,
+  CharacterSlotIndex,
+  CombatantId,
+  EntityId,
+  EntityName,
+  GameName,
+  PartyName,
+} from "../aliases.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
 import { ConsumableType } from "../items/consumables/consumable-types.js";
@@ -71,7 +79,7 @@ export interface ClientToServerEventTypes {
   [ClientToServerEvent.LeaveParty]: (eventData?: undefined) => void;
   [ClientToServerEvent.ToggleReadyToStartGame]: (eventData?: undefined) => void;
   [ClientToServerEvent.CreateCharacter]: (eventData: {
-    name: string;
+    name: EntityName;
     combatantClass: CombatantClass;
   }) => void;
   [ClientToServerEvent.DeleteCharacter]: (characterId: string) => void;
@@ -110,16 +118,16 @@ export interface ClientToServerEventTypes {
   [ClientToServerEvent.PickUpItems]: (characterAndItem: CharacterAndItems) => void;
   [ClientToServerEvent.GetSavedCharactersList]: (eventData?: undefined) => void;
   [ClientToServerEvent.CreateSavedCharacter]: (eventData: {
-    name: string;
+    name: EntityName;
     combatantClass: CombatantClass;
-    slotNumber: number;
+    slotNumber: CharacterSlotIndex;
   }) => void;
   [ClientToServerEvent.DeleteSavedCharacter]: (entityId: string) => void;
   [ClientToServerEvent.SelectSavedCharacterForProgressGame]: (entityId: string) => void;
   [ClientToServerEvent.SelectProgressionGameStartingFloor]: (floor: number) => void;
   [ClientToServerEvent.SelectHoldableHotswapSlot]: (eventData: {
     characterId: string;
-    slotIndex: number;
+    slotIndex: CharacterSlotIndex;
   }) => void;
   [ClientToServerEvent.ConvertItemsToShards]: (characterAndItems: CharacterAndItems) => void;
 
@@ -135,8 +143,8 @@ export interface ClientToServerEventTypes {
   }) => void;
   [ClientToServerEvent.PostItemLink]: (itemId: EntityId) => void;
   [ClientToServerEvent.SelectCombatActionLevel]: (eventData: {
-    characterId: EntityId;
-    actionLevel: number;
+    characterId: CombatantId;
+    actionLevel: ActionRank;
   }) => void;
   [ClientToServerEvent.AllocateAbilityPoint]: (eventData: {
     characterId: EntityId;

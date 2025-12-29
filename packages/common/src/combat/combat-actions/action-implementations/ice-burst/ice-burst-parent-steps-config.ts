@@ -4,6 +4,7 @@ import {
   ActionEntityProperties,
 } from "../../../../action-entities/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
+import { EntityName } from "../../../../aliases.js";
 import { MaxAndCurrent } from "../../../../primatives/max-and-current.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { ActionResolutionStepConfig } from "../../combat-action-steps-config.js";
@@ -23,7 +24,10 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
 
     const position = primaryTarget.combatantProperties.transformProperties.position.clone();
 
-    const entityProperties = { id: context.idGenerator.generate(), name: "ice burst" };
+    const entityProperties = {
+      id: context.idGenerator.generate(),
+      name: "ice burst" as EntityName,
+    };
     const actionEntityProperties: ActionEntityProperties = {
       position,
       name: ActionEntityName.IceBurst,

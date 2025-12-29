@@ -1,6 +1,7 @@
 import {
   Combatant,
   CombatantClass,
+  EntityName,
   ERROR_MESSAGES,
   MAX_CHARACTER_NAME_LENGTH,
   ServerToClientEvent,
@@ -9,7 +10,7 @@ import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { getGameServer } from "../../singletons/index.js";
 
 export function createCharacterHandler(
-  eventData: { name: string; combatantClass: CombatantClass },
+  eventData: { name: EntityName; combatantClass: CombatantClass },
   playerAssociatedData: ServerPlayerAssociatedData
 ) {
   const { game, partyOption, player, session } = playerAssociatedData;

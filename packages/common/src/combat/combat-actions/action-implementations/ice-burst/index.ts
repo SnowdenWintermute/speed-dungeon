@@ -8,7 +8,7 @@ import { BASE_EXPLOSION_RADIUS } from "../../../../app-consts.js";
 import { HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { ICE_BURST_PARENT_STEPS_CONFIG } from "./ice-burst-parent-steps-config.js";
 import { COMBAT_ACTIONS } from "../index.js";
-import { EntityId } from "../../../../aliases.js";
+import { ActionRank, EntityId } from "../../../../aliases.js";
 import { TargetCategories } from "../../targeting-schemes-and-categories.js";
 import { CombatActionOrigin } from "../../combat-action-origin.js";
 import { CombatActionName } from "../../combat-action-names.js";
@@ -75,7 +75,7 @@ const config: CombatActionComponentConfig = {
       const actionIntentAndUser: ActionIntentAndUser = {
         actionExecutionIntent: new CombatActionExecutionIntent(
           CombatActionName.IceBurstExplosion,
-          explosionEntity.actionEntity.getLevel(),
+          explosionEntity.actionEntity.getLevel() as ActionRank,
           targetsToSend
         ),
         user: explosionEntity.actionEntity,

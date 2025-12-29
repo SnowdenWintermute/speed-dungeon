@@ -4,8 +4,10 @@ import { CombatantActionState } from "./owned-actions/combatant-action-state.js"
 import {
   CombatActionName,
   CombatantConditionName,
+  CombatantId,
   EntityId,
   EntityProperties,
+  FriendOrFoe,
   MaxAndCurrent,
 } from "../index.js";
 import { instanceToPlain, plainToInstance } from "class-transformer";
@@ -129,8 +131,8 @@ export class Combatant implements IActionUser {
     this.combatantProperties.resources.refillActionPoints();
     this.combatantProperties.abilityProperties.tickCooldowns();
   }
-  getEntityId(): EntityId {
-    return this.entityProperties.id;
+  getEntityId() {
+    return this.entityProperties.id as CombatantId;
   }
   getLevel(): number {
     return this.combatantProperties.classProgressionProperties.getMainClass().level;

@@ -7,6 +7,7 @@ import {
 } from "../../combat/targeting/combat-action-targets.js";
 import { BASE_CONDITION_TICK_SPEED } from "../../combat/turn-order/consts.js";
 import {
+  ActionRank,
   CombatActionExecutionIntent,
   CombatActionIntent,
   CombatActionName,
@@ -58,7 +59,7 @@ export class BurningCondition extends CombatantCondition {
             user,
             actionExecutionIntent: new CombatActionExecutionIntent(
               CombatActionName.BurningTick,
-              user.getLevel(),
+              user.getLevel() as ActionRank,
               targets
             ),
           },

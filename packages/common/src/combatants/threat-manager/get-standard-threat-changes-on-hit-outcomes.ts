@@ -1,4 +1,5 @@
 import { ActionResolutionStepContext } from "../../action-processing/action-steps/index.js";
+import { CombatantId, EntityId } from "../../aliases.js";
 import { CombatActionHitOutcomes } from "../../combat/action-results/action-hit-outcome-calculation/index.js";
 import { ThreatChanges } from "../../combat/action-results/action-hit-outcome-calculation/resource-changes.js";
 import { ThreatCalculator } from "./threat-calculator.js";
@@ -9,7 +10,7 @@ export function getStandardThreatChangesOnHitOutcomes(
 ) {
   const { party, actionUser } = context.actionUserContext;
 
-  const userIdToCredit = actionUser.getIdOfEntityToCreditWithThreat();
+  const userIdToCredit: EntityId = actionUser.getIdOfEntityToCreditWithThreat();
 
   const userOption = party.combatantManager.getCombatantOption(userIdToCredit);
 
@@ -30,7 +31,7 @@ export function getStandardThreatChangesOnHitOutcomes(
   const partyCombatants = party.combatantManager.getPartyMemberCombatants();
   const userIsOnPlayerTeam = partyCombatants
     .map((combatant) => combatant.getEntityId())
-    .includes(userIdToCredit);
+    .includes(userIdToCredit as CombatantId);
 
   if (userIsOnPlayerTeam) {
     threatCalculator.updateThreatChangesForPlayerControlledCharacterHitOutcomes();

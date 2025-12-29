@@ -14,6 +14,7 @@ import { runIfInBrowser } from "../../utils/index.js";
 import { CombatActionIntent } from "../../combat/combat-actions/combat-action-intent.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
+import { ActionRank } from "../../aliases.js";
 
 export function getEnsnaredEvasionChange(rank: number) {
   return rank * 25 * -1;
@@ -67,10 +68,14 @@ export function getStartFlyingActionIntentIfAble(
     if (combatantCanGainFlying) {
       return {
         user: combatant,
-        actionExecutionIntent: new CombatActionExecutionIntent(CombatActionName.StartFlying, 1, {
-          type: CombatActionTargetType.Single,
-          targetId: combatant.getEntityId(),
-        }),
+        actionExecutionIntent: new CombatActionExecutionIntent(
+          CombatActionName.StartFlying,
+          1 as ActionRank,
+          {
+            type: CombatActionTargetType.Single,
+            targetId: combatant.getEntityId(),
+          }
+        ),
       };
     }
   }

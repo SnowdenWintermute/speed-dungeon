@@ -1,16 +1,8 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { ConditionId, EntityId, Milliseconds } from "../aliases.js";
-import {
-  ActionResourceCosts,
-  ActionUseMessageData,
-  CombatActionHitOutcomes,
-  CombatActionName,
-  HitPointChanges,
-  ThreatChanges,
-} from "../combat/index.js";
+import { CombatantId, ConditionId, EntityId, Milliseconds } from "../aliases.js";
 import { TaggedAnimationName } from "../app-consts.js";
 import { ActionResolutionStepType } from "./action-steps/index.js";
-import { Combatant, CombatantClass } from "../combatants/index.js";
+import { Combatant } from "../combatants/index.js";
 import { SpawnableEntity, SpawnableEntityType } from "../spawnables/index.js";
 import { DurabilityChangesByEntityId } from "../durability/index.js";
 import { HitOutcome } from "../hit-outcome.js";
@@ -27,6 +19,15 @@ import { CleanupMode } from "../types.js";
 import { PetSlot } from "../combat/combat-actions/action-implementations/generic-action-templates/pets.js";
 import { CombatantCondition } from "../conditions/index.js";
 import { CurveType } from "../utils/interpolation-curves.js";
+import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
+import { ActionResourceCosts } from "../combat/combat-actions/action-calculation-utils/action-costs.js";
+import {
+  HitPointChanges,
+  ThreatChanges,
+} from "../combat/action-results/action-hit-outcome-calculation/resource-changes.js";
+import { CombatantClass } from "../combatants/combatant-class/classes.js";
+import { CombatActionHitOutcomes } from "../combat/action-results/action-hit-outcome-calculation/index.js";
+import { ActionUseMessageData } from "../combat/combat-actions/combat-action-combat-log-properties.js";
 
 export enum GameUpdateCommandType {
   SpawnEntities,
@@ -78,14 +79,19 @@ export enum AnimationTimingType {
   Timed,
   Looping,
 }
-export type LoopingAnimation = { type: AnimationTimingType.Looping };
-export type TimedAnimation = { type: AnimationTimingType.Timed; duration: Milliseconds };
+export interface LoopingAnimation {
+  type: AnimationTimingType.Looping;
+}
+export interface TimedAnimation {
+  type: AnimationTimingType.Timed;
+  duration: Milliseconds;
+}
 export type AnimationTiming = LoopingAnimation | TimedAnimation;
-export type EntityAnimation = {
+export interface EntityAnimation {
   name: TaggedAnimationName;
   timing: AnimationTiming;
   smoothTransition: boolean;
-};
+}
 
 export interface SpawnEntitiesGameUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.SpawnEntities;
@@ -163,8 +169,8 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   durabilityChanges?: DurabilityChangesByEntityId;
   hitPointChanges?: HitPointChanges;
   appliedConditions?: Partial<Record<HitOutcome, Record<EntityId, CombatantCondition[]>>>;
-  removedConditionStacks?: Record<EntityId, { conditionId: EntityId; numStacks: number }[]>;
-  removedConditionIds?: Record<EntityId, ConditionId[]>;
+  removedConditionStacks?: Record<CombatantId, { conditionId: EntityId; numStacks: number }[]>;
+  removedConditionIds?: Record<CombatantId, EntityId[]>;
   threatChanges?: ThreatChanges;
   supportClassLevelsGained?: Record<EntityId, CombatantClass>;
   actionEntityIdsDespawned?: { id: EntityId; cleanupMode: CleanupMode }[];

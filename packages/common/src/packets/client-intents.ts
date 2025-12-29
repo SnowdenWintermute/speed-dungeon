@@ -1,8 +1,16 @@
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
-import { EntityId, GameName, PartyName } from "../aliases.js";
+import {
+  ActionRank,
+  CharacterSlotIndex,
+  CombatantId,
+  EntityId,
+  EntityName,
+  GameName,
+  PartyName,
+} from "../aliases.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
-import { CombatantClass } from "../combatants/index.js";
+import { CombatantClass } from "../combatants/combatant-class/classes.js";
 import { ConsumableType } from "../items/consumables/consumable-types.js";
 import { BookConsumableType } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
@@ -88,37 +96,37 @@ export interface ClientIntentMap {
   [ClientIntentType.LeaveParty]: undefined;
   [ClientIntentType.ToggleReadyToStartGame]: undefined;
   [ClientIntentType.CreateCharacter]: {
-    name: string;
+    name: EntityName;
     combatantClass: CombatantClass;
   };
-  [ClientIntentType.DeleteCharacter]: { characterId: string };
+  [ClientIntentType.DeleteCharacter]: { characterId: EntityId };
   [ClientIntentType.SelectCombatAction]: {
-    characterId: string;
+    characterId: CombatantId;
     actionAndRankOption: null | ActionAndRank;
-    itemIdOption?: string;
+    itemIdOption?: EntityId;
   };
   [ClientIntentType.IncrementAttribute]: {
-    characterId: string;
+    characterId: CombatantId;
     attribute: CombatAttribute;
   };
   [ClientIntentType.ToggleReadyToExplore]: undefined;
   [ClientIntentType.UnequipSlot]: {
-    characterId: string;
+    characterId: CombatantId;
     slot: TaggedEquipmentSlot;
   };
   [ClientIntentType.EquipInventoryItem]: {
-    characterId: string;
+    characterId: CombatantId;
     itemId: string;
     equipToAltSlot: boolean;
   };
   [ClientIntentType.CycleCombatActionTargets]: {
-    characterId: string;
+    characterId: CombatantId;
     direction: NextOrPrevious;
   };
   [ClientIntentType.CycleTargetingSchemes]: { characterId: string };
   [ClientIntentType.UseSelectedCombatAction]: { characterId: string };
   [ClientIntentType.DropEquippedItem]: {
-    characterId: string;
+    characterId: CombatantId;
     slot: TaggedEquipmentSlot;
   };
   [ClientIntentType.DropItem]: { characterId: string; itemId: string };
@@ -127,43 +135,43 @@ export interface ClientIntentMap {
   [ClientIntentType.PickUpItems]: { characterAndItem: CharacterAndItems };
   [ClientIntentType.GetSavedCharactersList]: undefined;
   [ClientIntentType.CreateSavedCharacter]: {
-    name: string;
+    name: EntityName;
     combatantClass: CombatantClass;
-    slotIndex: number;
+    slotIndex: CharacterSlotIndex;
   };
-  [ClientIntentType.DeleteSavedCharacter]: { entityId: string };
-  [ClientIntentType.SelectSavedCharacterForProgressGame]: { entityId: string };
+  [ClientIntentType.DeleteSavedCharacter]: { entityId: CombatantId };
+  [ClientIntentType.SelectSavedCharacterForProgressGame]: { entityId: CombatantId };
   [ClientIntentType.SelectProgressionGameStartingFloor]: { floorNumber: number };
   [ClientIntentType.SelectHoldableHotswapSlot]: {
-    characterId: string;
-    slotIndex: number;
+    characterId: EntityId;
+    slotIndex: CharacterSlotIndex;
   };
   [ClientIntentType.ConvertItemsToShards]: { characterAndItems: CharacterAndItems };
-  [ClientIntentType.DropShards]: { characterId: string; numShards: number };
+  [ClientIntentType.DropShards]: { characterId: CombatantId; shardsCount: number };
   [ClientIntentType.PurchaseItem]: {
-    characterId: EntityId;
+    characterId: CombatantId;
     consumableType: ConsumableType;
   };
   [ClientIntentType.PerformCraftingAction]: {
-    characterId: EntityId;
+    characterId: CombatantId;
     itemId: EntityId;
     craftingAction: CraftingAction;
   };
   [ClientIntentType.PostItemLink]: { itemId: EntityId };
   [ClientIntentType.SelectCombatActionLevel]: {
-    characterId: EntityId;
-    actionLevel: number;
+    characterId: CombatantId;
+    actionRank: ActionRank;
   };
   [ClientIntentType.AllocateAbilityPoint]: {
-    characterId: EntityId;
+    characterId: CombatantId;
     ability: AbilityTreeAbility;
   };
   [ClientIntentType.TradeItemForBook]: {
-    characterId: EntityId;
+    characterId: CombatantId;
     itemId: EntityId;
     bookType: BookConsumableType;
   };
-  [ClientIntentType.RenamePet]: { petId: EntityId; newName: string };
+  [ClientIntentType.RenamePet]: { petId: CombatantId; newName: EntityName };
 }
 
 // Create discriminated union
@@ -182,6 +190,7 @@ export type ClientIntentHandlers = {
   [K in keyof ClientIntentMap]: ClientIntentHandler<K>;
 };
 
+// example how to create typed handlers @TODO - remove once Lobby and GameSimulator have their own
 const intentHandlers: ClientIntentHandlers = {
   [ClientIntentType.RequestsGameList]: function (intent: undefined): void {
     throw new Error("Function not implemented.");
@@ -317,7 +326,7 @@ const intentHandlers: ClientIntentHandlers = {
   },
   [ClientIntentType.DropShards]: function (intent: {
     characterId: string;
-    numShards: number;
+    shardsCount: number;
   }): void {
     throw new Error("Function not implemented.");
   },
@@ -339,7 +348,7 @@ const intentHandlers: ClientIntentHandlers = {
   },
   [ClientIntentType.SelectCombatActionLevel]: function (intent: {
     characterId: EntityId;
-    actionLevel: number;
+    actionRank: ActionRank;
   }): void {
     throw new Error("Function not implemented.");
   },

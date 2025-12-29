@@ -442,7 +442,9 @@ export class CombatantEquipment extends CombatantSubsystem {
     const { actionName, rank } = actionAndRank;
     const action = COMBAT_ACTIONS[actionName];
     const { getRequiredEquipmentTypeOptions } = action.targetingProperties;
-    if (getRequiredEquipmentTypeOptions(rank).length === 0) return true;
+    if (getRequiredEquipmentTypeOptions(rank).length === 0) {
+      return true;
+    }
 
     const allEquipment = this.getAllEquippedItems({
       includeUnselectedHotswapSlots: false,

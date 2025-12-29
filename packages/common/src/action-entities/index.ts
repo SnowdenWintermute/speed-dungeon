@@ -1,21 +1,11 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { EntityProperties, MaxAndCurrent } from "../primatives/index.js";
 import {
   SceneEntityChildTransformNodeIdentifier,
   SceneEntityChildTransformNodeIdentifierWithDuration,
 } from "../scene-entities/index.js";
 import { TaggedShape3DDimensions } from "../utils/shape-utils.js";
-import { CombatantActionState } from "../combatants/index.js";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import { MagicalElement } from "../combat/magical-elements.js";
-import {
-  CombatActionExecutionIntent,
-  CombatActionName,
-  CombatActionResource,
-  CombatActionResourceChangeProperties,
-  CombatActionTargetType,
-  FriendOrFoe,
-} from "../combat/index.js";
 import { ActionUserType, IActionUser } from "../action-user-context/action-user.js";
 import {
   ActionAndRank,
@@ -29,7 +19,16 @@ import { Battle } from "../battle/index.js";
 import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
 import { ConditionAppliedBy } from "../conditions/condition-applied-by.js";
 import { ConditionTickProperties } from "../conditions/condition-tick-properties.js";
-import { EntityId } from "../aliases.js";
+import { ActionRank, EntityId, EntityName } from "../aliases.js";
+import { MaxAndCurrent } from "../primatives/max-and-current.js";
+import { CombatActionResource } from "../combat/combat-actions/combat-action-hit-outcome-properties.js";
+import { CombatActionResourceChangeProperties } from "../combat/combat-actions/combat-action-resource-change-properties.js";
+import { EntityProperties } from "../primatives/entity-properties.js";
+import { CombatantActionState } from "../combatants/owned-actions/combatant-action-state.js";
+import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
+import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
+import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent.js";
+import { CombatActionTargetType } from "../combat/targeting/combat-action-targets.js";
 
 export enum ActionEntityName {
   Arrow,
@@ -64,7 +63,7 @@ export interface ActionEntityActionOriginData {
   spawnedBy: EntityProperties;
 }
 
-export type ActionEntityProperties = {
+export interface ActionEntityProperties {
   position: Vector3;
   name: ActionEntityName;
   dimensions?: TaggedShape3DDimensions;
@@ -74,7 +73,7 @@ export type ActionEntityProperties = {
   initialPointToward?: SceneEntityChildTransformNodeIdentifier;
   initialLockRotationToFace?: SceneEntityChildTransformNodeIdentifierWithDuration;
   actionOriginData?: ActionEntityActionOriginData;
-};
+}
 
 export class ActionEntity implements IActionUser {
   constructor(
@@ -90,7 +89,9 @@ export class ActionEntity implements IActionUser {
   }
   setWasRemovedBeforeHitOutcomes() {
     if (this.actionEntityProperties.actionOriginData === undefined)
-      this.actionEntityProperties.actionOriginData = { spawnedBy: { id: "", name: "" } };
+      this.actionEntityProperties.actionOriginData = {
+        spawnedBy: { id: "", name: "" as EntityName },
+      };
     this.actionEntityProperties.actionOriginData.wasIncinerated = true;
   }
   wasRemovedBeforeHitOutcomes(): boolean {
@@ -244,7 +245,7 @@ export const ACTION_ENTITY_ACTION_INTENT_GETTERS: Partial<
   Record<ActionEntityName, () => CombatActionExecutionIntent>
 > = {
   [ActionEntityName.Firewall]: () => {
-    return new CombatActionExecutionIntent(CombatActionName.FirewallPassTurn, 1, {
+    return new CombatActionExecutionIntent(CombatActionName.FirewallPassTurn, 1 as ActionRank, {
       type: CombatActionTargetType.Single,
       targetId: "",
     });

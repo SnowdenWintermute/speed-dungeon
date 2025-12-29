@@ -11,6 +11,7 @@ import { SessionAuthorizationManager } from "../sessions/authorization-manager.j
 import { AuthorizedSession, UserSession } from "../sessions/user-session.js";
 import { LobbyExternalServices } from "../index.js";
 import { CombatantClass } from "../../combatants/combatant-class/classes.js";
+import { EntityName } from "../../aliases.js";
 
 export class SavedCharactersController {
   private readonly savedCharactersService: SavedCharactersService;
@@ -70,7 +71,7 @@ export class SavedCharactersController {
 
   async createSavedCharacterHandler(
     session: UserSession,
-    data: { name: string; combatantClass: CombatantClass; slotIndex: number }
+    data: { name: EntityName; combatantClass: CombatantClass; slotIndex: number }
   ) {
     const loggedInUser = await this.sessionAuthManager.requireAuthorizedSession(session);
     const { userId, profile } = loggedInUser;

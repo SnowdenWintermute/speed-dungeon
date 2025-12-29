@@ -6,6 +6,7 @@ import { RootAIBehaviorNode } from "./custom-nodes/root-ai-behavior-node.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import { CombatActionName } from "../combat-actions/combat-action-names.js";
 import { CombatActionTargetType } from "../targeting/combat-action-targets.js";
+import { ActionRank } from "../../aliases.js";
 
 export function AISelectActionAndTarget(
   game: SpeedDungeonGame,
@@ -29,10 +30,14 @@ export function AISelectActionAndTarget(
   let actionExecutionIntentOption = behaviorContext.selectedActionIntent;
   if (actionExecutionIntentOption === null) {
     console.info("ai context did not have a selected actionExecutionIntent - passing turn");
-    actionExecutionIntentOption = new CombatActionExecutionIntent(CombatActionName.PassTurn, 0, {
-      type: CombatActionTargetType.Single,
-      targetId: user.entityProperties.id,
-    });
+    actionExecutionIntentOption = new CombatActionExecutionIntent(
+      CombatActionName.PassTurn,
+      0 as ActionRank,
+      {
+        type: CombatActionTargetType.Single,
+        targetId: user.entityProperties.id,
+      }
+    );
   }
 
   // must set their target because getAutoTarget may use it when creating action children or triggered actions

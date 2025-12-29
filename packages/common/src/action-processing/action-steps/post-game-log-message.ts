@@ -3,13 +3,13 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { COMBAT_ACTIONS } from "../../combat/index.js";
 import {
   ActionResolutionGameLogMessageUpdateCommand,
   ActionUseGameLogMessageUpdateCommand,
   GameUpdateCommandType,
 } from "../game-update-commands.js";
 import { HitOutcome } from "../../hit-outcome.js";
+import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 
 export class PostGameLogMessageActionResolutionStep extends ActionResolutionStep {
   constructor(

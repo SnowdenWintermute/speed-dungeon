@@ -100,7 +100,7 @@ export abstract class CombatActionComponent {
     this.hitOutcomeProperties = config.hitOutcomeProperties;
     this.costProperties = {
       ...config.costProperties,
-      getResourceCosts: (user: IActionUser, inCombat: boolean, actionLevel: number) =>
+      getResourceCosts: (user: IActionUser, inCombat: boolean, actionLevel: ActionRank) =>
         config.costProperties.getResourceCosts(user, inCombat, actionLevel, this),
     };
 

@@ -1,3 +1,4 @@
+import { EntityName } from "../../aliases.js";
 import { MAX_CHARACTER_NAME_LENGTH } from "../../app-consts.js";
 import { CombatantClass } from "../../combatants/combatant-class/classes.js";
 import { Combatant } from "../../combatants/index.js";
@@ -29,7 +30,7 @@ export class CharacterLifecycleController {
 
   createCharacterHandler(
     session: UserSession,
-    data: { name: string; combatantClass: CombatantClass }
+    data: { name: EntityName; combatantClass: CombatantClass }
   ) {
     const game = session.getExpectedCurrentGame(this.lobbyState);
     const party = session.getExpectedCurrentParty(game);

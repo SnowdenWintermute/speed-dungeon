@@ -27,6 +27,7 @@ import { CombatantSpecies } from "../../../../combatants/combatant-species.js";
 import { CombatantClass } from "../../../../combatants/combatant-class/classes.js";
 import { CombatantTraitProperties } from "../../../../combatants/combatant-traits/combatant-trait-properties.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
+import { EntityName } from "../../../../aliases.js";
 
 const config = cloneDeep(BASIC_SPELL_STEPS_CONFIG);
 ActionStepConfigUtils.removeMoveForwardSteps(config);
@@ -34,7 +35,7 @@ ActionStepConfigUtils.removeMoveForwardSteps(config);
 config.steps[ActionResolutionStepType.PostPrepSpawnEntity] = {
   getSpawnableEntities: (context) => {
     const web = Combatant.createInitialized(
-      { name: "Webbbbbbbbbbbbbbbbbbbbbbb", id: context.idGenerator.generate() },
+      { name: "Webbbbbbbbbbbbbbbbbbbbbbb" as EntityName, id: context.idGenerator.generate() },
       new CombatantProperties(
         CombatantClass.Warrior,
         CombatantSpecies.Net,

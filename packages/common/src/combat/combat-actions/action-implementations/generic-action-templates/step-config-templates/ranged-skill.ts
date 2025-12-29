@@ -1,7 +1,5 @@
-import {
-  ActionResolutionStepType,
-  AnimationTimingType,
-} from "../../../../../action-processing/index.js";
+import { ActionResolutionStepType } from "../../../../../action-processing/action-steps/index.js";
+import { AnimationTimingType } from "../../../../../action-processing/game-update-commands.js";
 import { AnimationType, SkeletalAnimationName } from "../../../../../app-consts.js";
 import { Combatant } from "../../../../../combatants/index.js";
 import { ActionResolutionStepsConfig } from "../../../combat-action-steps-config.js";

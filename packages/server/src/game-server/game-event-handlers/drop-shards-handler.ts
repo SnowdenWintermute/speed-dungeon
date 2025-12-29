@@ -6,6 +6,7 @@ import {
   Consumable,
   ConsumableType,
   ERROR_MESSAGES,
+  EntityName,
   GameMode,
   ServerToClientEvent,
   ServerToClientEventTypes,
@@ -47,7 +48,8 @@ export async function dropShardsHandler(
 }
 
 function createShardStack(numShards: number) {
-  const name = `${CONSUMABLE_TYPE_STRINGS[ConsumableType.StackOfShards]} (${numShards})`;
+  const name =
+    `${CONSUMABLE_TYPE_STRINGS[ConsumableType.StackOfShards]} (${numShards})` as EntityName;
   return new Consumable(
     {
       name,

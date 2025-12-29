@@ -18,7 +18,7 @@ import {
   GameListEntry,
   GameStateUpdate,
 } from "./game-state-updates.js";
-import { EntityId } from "../aliases.js";
+import { ActionRank, EntityId } from "../aliases.js";
 import { ExplorationAction } from "../adventuring-party/dungeon-exploration-manager.js";
 import { DungeonRoom, DungeonRoomType } from "../adventuring-party/dungeon-room.js";
 
@@ -200,7 +200,7 @@ export interface ServerToClientEventTypes {
   }) => void;
   [ServerToClientEvent.CharacterSelectedCombatActionLevel]: (eventData: {
     characterId: EntityId;
-    actionLevel: number;
+    actionLevel: ActionRank;
   }) => void;
   [ServerToClientEvent.CharacterAllocatedAbilityPoint]: (eventData: {
     characterId: EntityId;

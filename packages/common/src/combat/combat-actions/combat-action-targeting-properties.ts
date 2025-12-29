@@ -11,9 +11,10 @@ import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js"
 import { EquipmentType } from "../../items/equipment/equipment-types/index.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { ActionResolutionStepContext } from "../../action-processing/action-steps/index.js";
+import { ActionRank } from "../../aliases.js";
 
 export interface CombatActionTargetingPropertiesConfig {
-  getTargetingSchemes: (actionLevel: number) => TargetingScheme[];
+  getTargetingSchemes: (actionLevel: ActionRank) => TargetingScheme[];
   getValidTargetCategories: (actionLevel: number) => TargetCategories;
   /** Some actions are not targeted by the user and must automatically choose, such as projeciles and triggered explosions. */
   autoTargetSelectionMethod: AutoTargetingSelectionMethod;
@@ -24,7 +25,7 @@ export interface CombatActionTargetingPropertiesConfig {
   /** Used for determining if a target should attempt mitigation */
   intent: CombatActionIntent;
   usabilityContext: CombatActionUsabilityContext;
-  getRequiredEquipmentTypeOptions: (actionLevel: number) => EquipmentType[];
+  getRequiredEquipmentTypeOptions: (actionLevel: ActionRank) => EquipmentType[];
   getAutoTarget: (
     actionUserContext: ActionUserContext,
     actionTrackerOption: null | ActionTracker,

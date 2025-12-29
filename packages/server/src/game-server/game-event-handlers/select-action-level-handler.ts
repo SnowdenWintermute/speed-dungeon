@@ -1,7 +1,9 @@
 import {
   ActionAndRank,
+  ActionRank,
   COMBAT_ACTIONS,
   CharacterAssociatedData,
+  CombatantId,
   ERROR_MESSAGES,
   ServerToClientEvent,
   getPartyChannelName,
@@ -13,8 +15,8 @@ import cloneDeep from "lodash.clonedeep";
 
 export function selectCombatActionLevelHandler(
   eventData: {
-    characterId: string;
-    actionLevel: number;
+    characterId: CombatantId;
+    actionLevel: ActionRank;
   },
   characterAssociatedData: CharacterAssociatedData
 ) {

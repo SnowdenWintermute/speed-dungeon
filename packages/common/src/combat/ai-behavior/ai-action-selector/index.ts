@@ -10,7 +10,7 @@ import {
 } from "../../targeting/combat-action-targets.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { ArrayUtils } from "../../../utils/array-utils.js";
-import { EntityId } from "../../../aliases.js";
+import { ActionRank, EntityId } from "../../../aliases.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 
 export type AiActionEvaluator = (
@@ -97,7 +97,7 @@ export class AiActionSelector {
     // make sure the action is usable at this rank
     for (const [actionName, state] of ownedActions) {
       for (let rank = 1; rank <= state.level; rank += 1) {
-        const actionAndRank = new ActionAndRank(actionName, rank);
+        const actionAndRank = new ActionAndRank(actionName, rank as ActionRank);
         const { canUse } = actionUser.actionAndRankMeetsUseRequirements(
           actionAndRank,
           party,
@@ -105,7 +105,7 @@ export class AiActionSelector {
         );
 
         if (canUse) {
-          possibleActionRanks.push(new ActionAndRank(actionName, rank));
+          possibleActionRanks.push(new ActionAndRank(actionName, rank as ActionRank));
         }
       }
     }

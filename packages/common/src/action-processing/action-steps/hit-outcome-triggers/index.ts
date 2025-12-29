@@ -19,11 +19,13 @@ import { handleHit } from "./handle-hit.js";
 import { ActionAndRank } from "../../../action-user-context/action-user-targeting-properties.js";
 import { Combatant } from "../../../combatants/index.js";
 import {
+  ActionRank,
   AdventuringParty,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   CombatActionName,
   CombatActionTargetType,
+  CombatantId,
   ThreatChanges,
 } from "../../../index.js";
 
@@ -98,7 +100,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             addRemovedConditionIdToUpdate(
               condition.id,
               gameUpdateCommand,
-              targetCombatant.entityProperties.id
+              targetCombatant.entityProperties.id as CombatantId
             );
           }
 
@@ -145,7 +147,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
                   addRemovedConditionIdToUpdate(
                     condition.id,
                     gameUpdateCommand,
-                    combatant.entityProperties.id
+                    combatant.entityProperties.id as CombatantId
                   );
                 }
               }
@@ -186,14 +188,14 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             targetId: actionUser.getEntityId(),
           });
           targetCombatant.combatantProperties.targetingProperties.setSelectedActionAndRank(
-            new ActionAndRank(CombatActionName.Counterattack, 1)
+            new ActionAndRank(CombatActionName.Counterattack, 1 as ActionRank)
           );
 
           this.branchingActions.push({
             user: targetCombatant,
             actionExecutionIntent: new CombatActionExecutionIntent(
               CombatActionName.Counterattack,
-              1,
+              1 as ActionRank,
               {
                 type: CombatActionTargetType.Single,
                 targetId: actionUser.getEntityId(),
@@ -252,10 +254,14 @@ function getKillAttachedCombatantsActionIntents(
     if (attachedCombatant.combatantProperties.shouldDieWhenCombatantAttachedToDies) {
       intents.push({
         user: attachedCombatant,
-        actionExecutionIntent: new CombatActionExecutionIntent(CombatActionName.Death, 1, {
-          type: CombatActionTargetType.Single,
-          targetId: attachedCombatant.getEntityId(),
-        }),
+        actionExecutionIntent: new CombatActionExecutionIntent(
+          CombatActionName.Death,
+          1 as ActionRank,
+          {
+            type: CombatActionTargetType.Single,
+            targetId: attachedCombatant.getEntityId(),
+          }
+        ),
       });
     }
   }

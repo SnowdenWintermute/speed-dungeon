@@ -21,6 +21,7 @@ import { COMBAT_ACTIONS } from "../index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { CombatantProperties } from "../../../../combatants/combatant-properties.js";
 import { ActionResolutionStepContext } from "../../../../action-processing/action-steps/index.js";
+import { EntityName } from "../../../../aliases.js";
 
 export class ProjectileFactory {
   private resourceChangeProperties: Partial<
@@ -99,7 +100,7 @@ export class ProjectileFactory {
       actionEntity: new ActionEntity(
         {
           id: this.context.idGenerator.generate(),
-          name: `${nameToPossessive(this.firedByCombatantName)} arrow`,
+          name: `${nameToPossessive(this.firedByCombatantName)} arrow` as EntityName,
         },
         {
           position: this.startPosition,
@@ -129,7 +130,7 @@ export class ProjectileFactory {
     const actionEntity = new ActionEntity(
       {
         id: this.context.idGenerator.generate(),
-        name: `${nameToPossessive(this.firedByCombatantName)} ice bolt`,
+        name: `${nameToPossessive(this.firedByCombatantName)} ice bolt` as EntityName,
       },
       {
         position: this.startPosition,

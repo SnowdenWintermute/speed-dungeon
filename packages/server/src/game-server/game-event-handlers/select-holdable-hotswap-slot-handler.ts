@@ -1,5 +1,6 @@
 import SocketIO from "socket.io";
 import {
+  ActionRank,
   CharacterAssociatedData,
   ClientToServerEventTypes,
   CombatActionExecutionIntent,
@@ -65,7 +66,7 @@ export function selectHoldableHotswapSlotHandler(
   if (battleOption) {
     executeActionAndSendReplayResult(
       characterAssociatedData,
-      new CombatActionExecutionIntent(CombatActionName.PayActionPoint, 1, {
+      new CombatActionExecutionIntent(CombatActionName.PayActionPoint, 1 as ActionRank, {
         type: CombatActionTargetType.Single,
         targetId: eventData.characterId,
       }),

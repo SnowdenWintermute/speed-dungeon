@@ -19,6 +19,7 @@ import { CombatantConditionInit } from "../condition-config.js";
 import { CombatantCondition } from "../index.js";
 import { MaxAndCurrent } from "../../primatives/max-and-current.js";
 import {
+  ActionRank,
   CombatActionExecutionIntent,
   CombatActionIntent,
   CombatActionName,
@@ -61,7 +62,7 @@ export class BlindedCondition extends CombatantCondition {
             user,
             actionExecutionIntent: new CombatActionExecutionIntent(
               CombatActionName.ConditionPassTurn,
-              0,
+              0 as ActionRank,
               targets
             ),
           },

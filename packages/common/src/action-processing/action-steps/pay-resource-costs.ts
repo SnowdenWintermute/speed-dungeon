@@ -6,6 +6,7 @@ import {
 import { GameUpdateCommandType, ResourcesPaidGameUpdateCommand } from "../game-update-commands.js";
 import { MaxAndCurrent } from "../../primatives/max-and-current.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
+import { ActionRank } from "../../aliases.js";
 
 const stepType = ActionResolutionStepType.PayResourceCosts;
 export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
@@ -19,7 +20,7 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
 
     // for counterattacks, we'll not have a selected action level but we need one
     // to pass to the resource costs function
-    const actionRank = selectedActionLevelAndRank?.rank || 1;
+    const actionRank = selectedActionLevelAndRank?.rank || (1 as ActionRank);
 
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
     const inCombat = party.isInCombat();
