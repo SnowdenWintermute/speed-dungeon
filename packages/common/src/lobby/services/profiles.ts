@@ -1,9 +1,9 @@
-import { EntityId, IdentityProviderId } from "../../aliases.js";
+import { EntityId, IdentityProviderId, ProfileId } from "../../aliases.js";
 import { CombatantClass } from "../../combatants/combatant-class/classes.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 
 export interface SpeedDungeonProfile {
-  id: number;
+  id: ProfileId;
   ownerId: IdentityProviderId;
   characterCapacity: number;
   createdAt: number | Date;

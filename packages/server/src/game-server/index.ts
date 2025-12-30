@@ -112,22 +112,24 @@ export class GameServer implements ActionCommandReceiver {
   };
 
   createLobbyExternalServices() {
+    const identityProviderService = new IdentityProviderService({
+      execute: async (context: IdentityResolutionContext) => {
+        return await getLoggedInUserOrCreateGuest(context.cookies);
+      },
+    });
+
     const profileService = new DatabaseProfileService(speedDungeonProfilesRepo);
+
     const savedCharactersPersistenceStrategy = new DatabaseSavedCharacterPersistenceStrategy(
       playerCharactersRepo
     );
+
     const savedCharacterSlotsPersistenceStrategy =
       new DatabaseSavedCharacterSlotsPersistenceStrategy(characterSlotsRepo);
     const savedCharactersService = new SavedCharactersService(
       savedCharacterSlotsPersistenceStrategy,
       savedCharactersPersistenceStrategy
     );
-
-    const identityProviderService = new IdentityProviderService({
-      execute: async (context: IdentityResolutionContext) => {
-        return await getLoggedInUserOrCreateGuest(context.cookies);
-      },
-    });
 
     const rankedLadderService = new DatabaseRankedLadderService(valkeyManager.context);
 

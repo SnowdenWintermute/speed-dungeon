@@ -6,14 +6,12 @@ import {
   ServerToClientEvent,
   TransportDisconnectReason,
   TransportDisconnectReasonType,
-} from "@speed-dungeon/common";
-import {
   ClientToServerEventTypes,
   ClientToServerEvent,
   ServerToClientEventTypes,
+  TransportEndpoint,
+  GameStateUpdate,
 } from "@speed-dungeon/common";
-import { TransportEndpoint } from "@speed-dungeon/common";
-import { GameStateUpdate } from "@speed-dungeon/common";
 
 export class SocketTransportEndpoint implements TransportEndpoint {
   id: ConnectionId;

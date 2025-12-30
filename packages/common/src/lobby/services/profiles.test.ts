@@ -2,6 +2,7 @@ import { IdentityProviderId, ProfileId } from "../../aliases.js";
 import { DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "../../app-consts.js";
 import { SequentialIdGenerator } from "../../utils/index.js";
 import { SpeedDungeonProfile, SpeedDungeonProfileService } from "./profiles.js";
+import { InMemorySavedCharacterSlotsPersistenceStrategy } from "./saved-characters.test.js";
 
 describe("profiles service", () => {
   it("", async () => {
@@ -12,6 +13,12 @@ describe("profiles service", () => {
 export class InMemorySpeedDungeonProfileService extends SpeedDungeonProfileService {
   private profiles = new Map<IdentityProviderId, SpeedDungeonProfile>();
   private idGenerator = new SequentialIdGenerator();
+
+  constructor(
+    private characterSlotsPersistenceStrategy: InMemorySavedCharacterSlotsPersistenceStrategy
+  ) {
+    super();
+  }
 
   async fetchProfileOption(userId: IdentityProviderId): Promise<undefined | SpeedDungeonProfile> {
     return this.profiles.get(userId);
@@ -26,6 +33,9 @@ export class InMemorySpeedDungeonProfileService extends SpeedDungeonProfileServi
       updatedAt: Date.now(),
     };
     this.profiles.set(userId, newProfile);
+
+    this.characterSlotsPersistenceStrategy.insertSlotsForProfile(newProfile.id);
+
     return newProfile;
   }
 }

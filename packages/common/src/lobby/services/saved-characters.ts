@@ -1,7 +1,14 @@
 import { CombatantProperties } from "../../combatants/combatant-properties.js";
 import { Combatant } from "../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { CharacterSlotIndex, EntityId, EntityName } from "../../aliases.js";
+import {
+  CharacterSlotIndex,
+  EntityId,
+  EntityName,
+  IdentityProviderId,
+  ProfileId,
+} from "../../aliases.js";
+import { APP_VERSION_NUMBER } from "../../app-consts.js";
 
 export interface CharacterInSlot {
   combatant: Combatant;
@@ -11,24 +18,38 @@ export interface CharacterInSlot {
 type SlotIndex = number;
 type SavedCharacterSlots = Record<SlotIndex, CharacterInSlot>;
 
-export interface CharacterSlot {
-  id: string;
-  profileId: number;
-  slotNumber: CharacterSlotIndex;
-  characterId: null | EntityId;
-  createdAt: number | Date;
-  updatedAt: number | Date;
+export class CharacterSlot {
+  characterId: null | EntityId = null;
+  createdAt: number | Date = Date.now();
+  updatedAt: number | Date = Date.now();
+
+  constructor(
+    public id: string,
+    public profileId: number,
+    public slotNumber: CharacterSlotIndex
+  ) {}
 }
 
-export interface SerializedPlayerCharacter {
+export class SerializedPlayerCharacter {
   id: EntityId;
   name: EntityName;
-  ownerId: number;
-  gameVersion: string;
+  ownerId: IdentityProviderId;
+  gameVersion: string = APP_VERSION_NUMBER;
   combatantProperties: CombatantProperties;
-  createdAt: number | Date;
-  updatedAt: number | Date;
   pets: Combatant[];
+  createdAt: number | Date = Date.now();
+  updatedAt: number | Date = Date.now();
+
+  constructor(combatant: Combatant, pets: Combatant[], ownerId: IdentityProviderId) {
+    const { id, name } = combatant.entityProperties;
+    const { combatantProperties } = combatant.getSerialized();
+    const serializedPets = pets.map((pet) => pet.getSerialized());
+    this.id = id;
+    this.name = name;
+    this.ownerId = ownerId;
+    this.combatantProperties = combatantProperties;
+    this.pets = serializedPets;
+  }
 }
 
 export interface SavedCharacterPersistenceStrategy {
@@ -36,14 +57,14 @@ export interface SavedCharacterPersistenceStrategy {
   insert: (
     combatant: Combatant,
     pets: Combatant[],
-    ownerId: number
+    ownerId: IdentityProviderId
   ) => Promise<SerializedPlayerCharacter>;
   update: (combatant: Combatant, pets: Combatant[]) => Promise<SerializedPlayerCharacter>;
   delete: (id: number | string) => Promise<SerializedPlayerCharacter>;
 }
 
 export interface SavedCharacterSlotsPersistenceStrategy {
-  fetchSlots: (profileId: number) => Promise<CharacterSlot[]>;
+  fetchSlots: (profileId: ProfileId) => Promise<CharacterSlot[]>;
   update: (characterSlot: CharacterSlot) => Promise<CharacterSlot>;
 }
 
@@ -53,7 +74,7 @@ export class SavedCharactersService {
     private readonly savedCharacterPersistenceStrategy: SavedCharacterPersistenceStrategy
   ) {}
 
-  async fetchSavedCharacters(profileId: number): Promise<SavedCharacterSlots> {
+  async fetchSavedCharacters(profileId: ProfileId): Promise<SavedCharacterSlots> {
     const slots = await this.savedCharacterSlotsPersistenceStrategy.fetchSlots(profileId);
     if (slots === undefined) {
       throw new Error("No character slots found");
@@ -106,7 +127,7 @@ export class SavedCharactersService {
     return { combatant, pets: deserializedPets };
   }
 
-  async requireEmptySlot(profileId: number, slotIndex: SlotIndex) {
+  async requireEmptySlot(profileId: ProfileId, slotIndex: SlotIndex) {
     const slots = await this.savedCharacterSlotsPersistenceStrategy.fetchSlots(profileId);
     const slotOption = slots[slotIndex];
 
@@ -122,7 +143,7 @@ export class SavedCharactersService {
     return slotOption;
   }
 
-  async requireSlotWithCharacterId(profileId: number, characterId: EntityId) {
+  async requireSlotWithCharacterId(profileId: ProfileId, characterId: EntityId) {
     const slots = await this.savedCharacterSlotsPersistenceStrategy.fetchSlots(profileId);
     for (const slot of slots) {
       if (slot.characterId === characterId) {
@@ -137,7 +158,7 @@ export class SavedCharactersService {
     slot: CharacterSlot,
     newCharacter: Combatant,
     pets: Combatant[],
-    userId: number
+    userId: IdentityProviderId
   ) {
     await this.savedCharacterPersistenceStrategy.insert(newCharacter, pets, userId);
     slot.characterId = newCharacter.entityProperties.id;
