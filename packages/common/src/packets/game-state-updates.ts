@@ -259,7 +259,7 @@ export type GameStateUpdate = {
   };
 }[keyof GameStateUpdateMap];
 
-type GameStateUpdateHandler<K extends keyof GameStateUpdateMap> = (
+export type GameStateUpdateHandler<K extends keyof GameStateUpdateMap> = (
   data: GameStateUpdateMap[K]
 ) => void;
 
