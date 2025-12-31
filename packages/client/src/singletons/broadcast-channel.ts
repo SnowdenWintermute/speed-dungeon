@@ -11,9 +11,9 @@ export enum TabMessageType {
   RefetchAuthSession,
 }
 
-export type TabMessage = {
+export interface TabMessage {
   type: TabMessageType;
-};
+}
 
 broadcastChannel.onmessage = (message: any) => {
   if (message.data.type === TabMessageType.ReconnectSocket) {
