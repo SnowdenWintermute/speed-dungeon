@@ -11,12 +11,17 @@ import {
   ServerToClientEventTypes,
   TransportEndpoint,
   GameStateUpdate,
+  ClientIntent,
 } from "@speed-dungeon/common";
 
-export class SocketTransportEndpoint implements TransportEndpoint {
+export class SocketTransportEndpoint implements TransportEndpoint<GameStateUpdate, ClientIntent> {
   id: ConnectionId;
   constructor(private socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>) {
     this.id = this.socket.id as ConnectionId;
+  }
+  subscribe(type: ClientIntentType) {
+    // socket.on()
+    // @TODO - figure it out
   }
 
   send(update: GameStateUpdate): void {

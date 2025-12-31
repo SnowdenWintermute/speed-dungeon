@@ -1,21 +1,16 @@
 import { ConnectionId } from "../../aliases.js";
 
-// unused, why did we make this
-type EventEnvelope<TType extends PropertyKey, TData> = {
-  type: TType;
-  data: TData;
-};
-
 export interface TransportEndpoint<
   Sendable,
   Receivable extends { type: PropertyKey; data: unknown },
 > {
   readonly id: ConnectionId;
   send(update: Sendable): void;
-  subscribe<K extends Receivable["type"]>(
-    type: K,
-    handler: (payload: Extract<Receivable, { type: K }>["data"]) => void
-  ): void;
+  subscribe(type: Receivable["type"], handler: (payload: Receivable["data"]) => void): void;
+  // subscribe<K extends Receivable["type"]>(
+  //   type: K,
+  //   handler: (payload: Extract<Receivable, { type: K }>["data"]) => void
+  // ): void;
   close?(): void;
 }
 

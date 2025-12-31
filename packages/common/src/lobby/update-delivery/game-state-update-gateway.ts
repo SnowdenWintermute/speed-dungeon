@@ -1,11 +1,18 @@
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { ConnectionId } from "../../aliases.js";
 import { TransportEndpoint } from "./transport-endpoint.js";
+import { ClientIntent } from "../../packets/client-intents.js";
 
 export class GameStateUpdateGateway {
   // socket.io socket objects or local client transport endpoints
-  private transportEndpoints = new Map<ConnectionId, TransportEndpoint>();
-  registerEndpoint(connectionId: ConnectionId, endpoint: TransportEndpoint): void {
+  private transportEndpoints = new Map<
+    ConnectionId,
+    TransportEndpoint<GameStateUpdate, ClientIntent>
+  >();
+  registerEndpoint(
+    connectionId: ConnectionId,
+    endpoint: TransportEndpoint<GameStateUpdate, ClientIntent>
+  ): void {
     this.transportEndpoints.set(connectionId, endpoint);
   }
 

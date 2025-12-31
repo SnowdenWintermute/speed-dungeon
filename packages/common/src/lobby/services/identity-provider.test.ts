@@ -16,9 +16,10 @@ export class FakeUsersIdentityProviderQueryStrategy
   private fakeSessions: Record<IdentityProviderId, Username> = {};
   constructor() {
     const fakeSessionCount = 3;
-    for (let i = 1; i < fakeSessionCount; i += 1) {
-      this.fakeSessions[i as IdentityProviderId] = `username-${i}` as Username;
-      console.log("created fake user:", i);
+    for (let i = 0; i < fakeSessionCount; i += 1) {
+      const userId = i + 1;
+      this.fakeSessions[userId as IdentityProviderId] = `username-${userId}` as Username;
+      console.log("created fake user:", userId);
     }
   }
 

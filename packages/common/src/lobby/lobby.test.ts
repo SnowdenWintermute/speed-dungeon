@@ -10,16 +10,55 @@ import {
 } from "./services/saved-characters.test.js";
 import { InMemoryRankedLadderService } from "./services/ranked-ladder.test.js";
 import { IdGenerator } from "../utility-classes/index.js";
+import {
+  LobbyLocalClientIntentReceiver,
+  LocalConnectionEndpointManager,
+  LocalConnectionFactory,
+} from "./local-client-intent-receiver.js";
+import { ClientIntent } from "../packets/client-intents.js";
+import { GameStateUpdate } from "../packets/game-state-updates.js";
 import { Lobby } from "./index.js";
+import { GameSimulatorConnectionType } from "./game-simulator-handoff-strategy.js";
 
 describe("Lobby", () => {
   it("is a test", async () => {
-    // const lobby = new Lobby(createLobbyTestServices());
+    const localServerConnectionEndpointManager = new LocalConnectionEndpointManager<
+      GameStateUpdate,
+      ClientIntent
+    >();
 
-    // const outbox = await lobby.handleConnection(
-    //   fakeTransportEndpoint(),
-    //   {}
-    // );
+    const lobbyLocalClientIntentReceiver = new LobbyLocalClientIntentReceiver(
+      localServerConnectionEndpointManager
+    );
+
+    lobbyLocalClientIntentReceiver.listen();
+
+    const localClientConnectionEndpointManager = new LocalConnectionEndpointManager<
+      ClientIntent,
+      GameStateUpdate
+    >();
+
+    const localConnectionFactory = new LocalConnectionFactory(
+      localServerConnectionEndpointManager,
+      localClientConnectionEndpointManager
+    );
+
+    const { serverEndpoint, clientEndpoint } = localConnectionFactory.create();
+
+    const lobby = new Lobby(
+      lobbyLocalClientIntentReceiver,
+      {
+        handoff: (game) => {
+          console.log("game handed off");
+          return {
+            type: GameSimulatorConnectionType.Local,
+          };
+        },
+      },
+      createLobbyTestServices()
+    );
+
+    const outbox = await lobby.handleConnection(serverEndpoint, {});
 
     expect(true).toBeTruthy();
   });

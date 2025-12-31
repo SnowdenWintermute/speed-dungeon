@@ -1,6 +1,6 @@
 import { SpeedDungeonGame } from "../game/index.js";
 
-enum GameSimulatorConnectionType {
+export enum GameSimulatorConnectionType {
   Local,
   Remote,
 }

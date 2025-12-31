@@ -4,6 +4,7 @@ import {
   CharacterCreator,
   ClientIntent,
   ConnectionId,
+  GameStateUpdate,
   IdGenerator,
   ItemGenerator,
   TransportEndpoint,
@@ -129,7 +130,7 @@ export class Lobby {
   private intentHandlers = createLobbyClientIntentHandlers(this);
 
   async handleConnection(
-    transportEndpoint: TransportEndpoint,
+    transportEndpoint: TransportEndpoint<GameStateUpdate, ClientIntent>,
     identityResolutionContext: IdentityResolutionContext
   ) {
     const newSession = await this.sessionLifecycleController.createUserSession(

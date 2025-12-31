@@ -1,5 +1,5 @@
 import { LOBBY_CHANNEL } from "../../packets/channels.js";
-import { GameStateUpdateType } from "../../packets/game-state-updates.js";
+import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
 import { GameLifecycleController } from "./game-lifecycle.js";
 import { LobbyState } from "../lobby-state.js";
 import { SavedCharactersController } from "./saved-characters.js";
@@ -19,6 +19,7 @@ import {
 } from "../services/identity-provider.js";
 import { ConnectionId, Username } from "../../aliases.js";
 import { PLAYER_FIRST_NAMES, PLAYER_LAST_NAMES } from "./default-naming/users.js";
+import { ClientIntent } from "../../packets/client-intents.js";
 
 export class SessionLifecycleController {
   constructor(
@@ -57,7 +58,10 @@ export class SessionLifecycleController {
     return { username: this.generateRandomUsername(), userId: null };
   }
 
-  async connectionHandler(session: UserSession, endpoint: TransportEndpoint) {
+  async connectionHandler(
+    session: UserSession,
+    endpoint: TransportEndpoint<GameStateUpdate, ClientIntent>
+  ) {
     console.info(
       `-- ${session.username} (user id: ${session.userId}, connection id: ${session.connectionId}) joined the lobby`
     );
