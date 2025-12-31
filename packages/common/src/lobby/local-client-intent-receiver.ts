@@ -2,6 +2,7 @@ import { ConnectionId } from "../aliases.js";
 import { ClientIntent, ClientIntentType } from "../packets/client-intents.js";
 import { GameStateUpdate, GameStateUpdateType } from "../packets/game-state-updates.js";
 import { IdGenerator } from "../utility-classes/index.js";
+import { ClientIntentReceiver } from "./client-intent-receiver.js";
 import {
   LocalTransportEndpoint,
   TransportDisconnectReason,
@@ -50,9 +51,21 @@ class LocalConnectionEndpointManager<
   Receivable extends { type: PropertyKey; data: unknown },
 > {
   private connections = new Map<ConnectionId, LocalTransportEndpoint<Sendable, Receivable>>();
+  private handleNewConnection: (
+    transportEndpoint: LocalTransportEndpoint<Sendable, Receivable>
+  ) => void = () => {
+    throw new Error("not initialized");
+  };
+
+  setNewConnectionHandler(
+    handler: (transportEndpoint: LocalTransportEndpoint<Sendable, Receivable>) => void
+  ) {
+    this.handleNewConnection = handler;
+  }
 
   onNewConnection(transportEndpoint: LocalTransportEndpoint<Sendable, Receivable>): void {
     this.connections.set(transportEndpoint.id, transportEndpoint);
+    this.handleNewConnection(transportEndpoint);
   }
 
   disconnect(id: ConnectionId, reason: TransportDisconnectReason) {
@@ -82,35 +95,42 @@ const { serverEndpoint, clientEndpoint } = localConnectionFactory.create();
 serverEndpoint.subscribe(ClientIntentType.JoinGame, (data) => {});
 clientEndpoint.subscribe(GameStateUpdateType.PartyCreated, (data) => {});
 
-// export class LobbyRemoteClientIntentReceiver extends ClientIntentReceiver {
-//   constructor(private connectionManager: LocalServerConnectionManager) {
-//     super();
-//   }
+export class LobbyLocalClientIntentReceiver extends ClientIntentReceiver {
+  constructor(
+    private localServerConnectionEndpointManager: LocalConnectionEndpointManager<
+      GameStateUpdate,
+      ClientIntent
+    >
+  ) {
+    super();
+  }
 
-//   listen() {
-//     this.connectionManager.onNewConnection((connection) => {
-//       connection.on(ClientToServerEvent.ClientIntent, (clientIntent) => {
-//         this.dispatchIntent(clientIntent, connection.id);
-//       });
-//     });
-//     // this.io.of("/").on("connection", async (socket) => {
-//     //   console.log("remote lobby is listening");
-//     //   const transportEndpoint = new SocketTransportEndpoint(socket);
-//     //   const req = socket.request;
-//     //   const cookies = req.headers.cookie;
-//     //   this.handleConnection(transportEndpoint, { cookies });
-//     //   socket.on(ClientToServerEvent.ClientIntent, (clientIntent) => {
-//     //     this.dispatchIntent(clientIntent, socket.id as ConnectionId);
-//     //   });
-//     //   socket.on("disconnect", (reason) => {
-//     //     this.dispatchIntent(
-//     //       {
-//     //         type: ClientIntentType.Disconnection,
-//     //         data: { reason: new TransportDisconnectReason(SOCKET_IO_DISCONNECT_REASONS[reason]) },
-//     //       },
-//     //       socket.id as ConnectionId
-//     //     );
-//     //   });
-//     // });
-//   }
-// }
+  listen() {
+    this.localServerConnectionEndpointManager.setNewConnectionHandler((connection) => {
+      serverEndpoint.subscribe(ClientIntentType.JoinGame, (data) => {
+        const intent: ClientIntent = { type: ClientIntentType.JoinGame, data };
+        this.dispatchIntent(intent, connection.id);
+      });
+    });
+
+    // this.io.of("/").on("connection", async (socket) => {
+    //   console.log("remote lobby is listening");
+    //   const transportEndpoint = new SocketTransportEndpoint(socket);
+    //   const req = socket.request;
+    //   const cookies = req.headers.cookie;
+    //   this.handleConnection(transportEndpoint, { cookies });
+    //   socket.on(ClientToServerEvent.ClientIntent, (clientIntent) => {
+    //     this.dispatchIntent(clientIntent, socket.id as ConnectionId);
+    //   });
+    //   socket.on("disconnect", (reason) => {
+    //     this.dispatchIntent(
+    //       {
+    //         type: ClientIntentType.Disconnection,
+    //         data: { reason: new TransportDisconnectReason(SOCKET_IO_DISCONNECT_REASONS[reason]) },
+    //       },
+    //       socket.id as ConnectionId
+    //     );
+    //   });
+    // });
+  }
+}
