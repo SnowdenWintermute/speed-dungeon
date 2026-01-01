@@ -4,27 +4,27 @@ import { GameStateUpdate } from "../packets/game-state-updates.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { LocalConnectionEndpointManager } from "./local-connection-endpoint-manager.js";
 import {
-  LocalTransportEndpoint,
+  LocalConnectionEndpoint,
   TransportDisconnectReason,
   TransportDisconnectReasonType,
-} from "./transport-endpoint.js";
+} from "./connection-endpoint.js";
 
-export class LocalConnectionFactory {
-  private idGenerator = new IdGenerator({ saveHistory: false });
-  private serverConnectionEndpointManager = new LocalConnectionEndpointManager<
+export class InMemoryTransport {
+  private readonly idGenerator = new IdGenerator({ saveHistory: false });
+  private readonly serverConnectionEndpointManager = new LocalConnectionEndpointManager<
     GameStateUpdate,
     ClientIntent
   >();
 
-  private clientConnectionEndpointManager = new LocalConnectionEndpointManager<
+  private readonly clientConnectionEndpointManager = new LocalConnectionEndpointManager<
     ClientIntent,
     GameStateUpdate
   >();
 
-  async create() {
+  async createConnection() {
     const id = this.idGenerator.generate() as ConnectionId;
 
-    const serverEndpoint = new LocalTransportEndpoint<GameStateUpdate, ClientIntent>(
+    const serverEndpoint = new LocalConnectionEndpoint<GameStateUpdate, ClientIntent>(
       id,
       (update) => clientEndpoint.receive(update),
       () =>
@@ -34,7 +34,7 @@ export class LocalConnectionFactory {
         )
     );
 
-    const clientEndpoint = new LocalTransportEndpoint<ClientIntent, GameStateUpdate>(
+    const clientEndpoint = new LocalConnectionEndpoint<ClientIntent, GameStateUpdate>(
       id,
       (intent) => serverEndpoint.receive(intent),
       () =>
@@ -47,5 +47,13 @@ export class LocalConnectionFactory {
     await this.serverConnectionEndpointManager.onNewConnection(serverEndpoint);
 
     return { serverEndpoint, clientEndpoint };
+  }
+
+  getServerConnectionEndpointManager() {
+    return this.serverConnectionEndpointManager;
+  }
+
+  getClientConnectionEndpointManager() {
+    return this.clientConnectionEndpointManager;
   }
 }

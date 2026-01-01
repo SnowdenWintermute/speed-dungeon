@@ -1,13 +1,13 @@
 import { ClientIntent } from "../packets/client-intents.js";
 import { ConnectionId } from "../aliases.js";
 import { IdentityResolutionContext } from "./services/identity-provider.js";
-import { TransportEndpoint } from "./update-delivery/transport-endpoint.js";
 import { GameStateUpdate } from "../packets/game-state-updates.js";
+import { ConnectionEndpoint } from "../transport/connection-endpoint.js";
 
 export interface IntentHandler {
   handleIntent: (clientIntent: ClientIntent, fromConnectionId: ConnectionId) => void;
   handleConnection(
-    transportEndpoint: TransportEndpoint<GameStateUpdate, ClientIntent>,
+    transportEndpoint: ConnectionEndpoint<GameStateUpdate, ClientIntent>,
     identityResolutionContext: IdentityResolutionContext
   ): Promise<void>;
 }
@@ -20,7 +20,7 @@ export abstract class ClientIntentReceiver {
   }
 
   async handleConnection(
-    transportEndpoint: TransportEndpoint<GameStateUpdate, ClientIntent>,
+    transportEndpoint: ConnectionEndpoint<GameStateUpdate, ClientIntent>,
     identityResolutionContext: IdentityResolutionContext
   ) {
     if (this.intentHandler === null) {

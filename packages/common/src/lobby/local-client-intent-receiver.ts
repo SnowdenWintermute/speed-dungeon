@@ -28,7 +28,7 @@ export class LobbyLocalClientIntentReceiver extends ClientIntentReceiver {
 
 // this.io.of("/").on("connection", async (socket) => {
 //   console.log("remote lobby is listening");
-//   const transportEndpoint = new SocketTransportEndpoint(socket);
+//   const transportEndpoint = new SocketConnectionEndpoint(socket);
 //   const req = socket.request;
 //   const cookies = req.headers.cookie;
 //   this.handleConnection(transportEndpoint, { cookies });

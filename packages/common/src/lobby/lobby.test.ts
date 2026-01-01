@@ -11,34 +11,17 @@ import {
 import { InMemoryRankedLadderService } from "./services/ranked-ladder.test.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { LobbyLocalClientIntentReceiver } from "./local-client-intent-receiver.js";
-import { ClientIntent } from "../packets/client-intents.js";
-import { GameStateUpdate } from "../packets/game-state-updates.js";
 import { Lobby } from "./index.js";
 import { GameSimulatorConnectionType } from "./game-simulator-handoff-strategy.js";
 import { GameName } from "../aliases.js";
 import { GameMode } from "../types.js";
-import { LocalConnectionEndpointManager } from "../transport/local-connection-endpoint-manager.js";
-import { LocalConnectionFactory } from "../transport/local-connection-factory.js";
+import { InMemoryTransport } from "../transport/in-memory-transport.js";
 
 describe("Lobby", () => {
   it("is a test", async () => {
-    const localServerConnectionEndpointManager = new LocalConnectionEndpointManager<
-      GameStateUpdate,
-      ClientIntent
-    >();
-
+    const inMemoryTransport = new InMemoryTransport();
     const lobbyLocalClientIntentReceiver = new LobbyLocalClientIntentReceiver(
-      localServerConnectionEndpointManager
-    );
-
-    const localClientConnectionEndpointManager = new LocalConnectionEndpointManager<
-      ClientIntent,
-      GameStateUpdate
-    >();
-
-    const localConnectionFactory = new LocalConnectionFactory(
-      localServerConnectionEndpointManager,
-      localClientConnectionEndpointManager
+      inMemoryTransport.getServerConnectionEndpointManager()
     );
 
     const lobby = new Lobby(
@@ -54,7 +37,7 @@ describe("Lobby", () => {
       createLobbyTestServices()
     );
 
-    const { serverEndpoint, clientEndpoint } = await localConnectionFactory.create();
+    const { serverEndpoint, clientEndpoint } = await inMemoryTransport.createConnection();
 
     const session = lobby.userSessionRegistry.getExpectedSession(serverEndpoint.id);
 

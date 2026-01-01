@@ -4,17 +4,17 @@ import {
   ClientIntentType,
   ConnectionId,
   ServerToClientEvent,
-  TransportDisconnectReason,
-  TransportDisconnectReasonType,
   ClientToServerEventTypes,
   ClientToServerEvent,
   ServerToClientEventTypes,
-  TransportEndpoint,
   GameStateUpdate,
   ClientIntent,
+  ConnectionEndpoint,
+  TransportDisconnectReason,
+  TransportDisconnectReasonType,
 } from "@speed-dungeon/common";
 
-export class SocketTransportEndpoint implements TransportEndpoint<GameStateUpdate, ClientIntent> {
+export class SocketTransportEndpoint implements ConnectionEndpoint<GameStateUpdate, ClientIntent> {
   id: ConnectionId;
   constructor(private socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>) {
     this.id = this.socket.id as ConnectionId;

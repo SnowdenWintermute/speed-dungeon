@@ -65,7 +65,6 @@ export * from "./lobby/controllers/default-naming/parties.js";
 
 export * from "./lobby/character-creation/index.js";
 export * from "./lobby/client-intent-receiver.js";
-export * from "./lobby/update-delivery/transport-endpoint.js";
 export * from "./lobby/game-simulator-handoff-strategy.js";
 export * from "./lobby/services/profiles.js";
 export * from "./lobby/services/saved-characters.js";
@@ -190,3 +189,5 @@ export * from "./combat/ai-behavior/index.js";
 export * from "./combat/targeting/combat-action-targets.js";
 export * from "./combat/ai-behavior/ai-select-action-and-target.js";
 export * from "./combat/combat-actions/action-implementations/index.js";
+
+export * from "./transport/connection-endpoint.js";

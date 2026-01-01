@@ -5,10 +5,6 @@ import { LobbyState } from "../lobby-state.js";
 import { SavedCharactersController } from "./saved-characters.js";
 import { GameStateUpdateGateway } from "../update-delivery/game-state-update-gateway.js";
 import { GameStateUpdateDispatchFactory } from "../update-delivery/game-state-update-dispatch-factory.js";
-import {
-  TransportDisconnectReason,
-  TransportEndpoint,
-} from "../update-delivery/transport-endpoint.js";
 import { GameStateUpdateDispatchOutbox } from "../update-delivery/update-dispatch-outbox.js";
 import { UserSessionRegistry } from "../sessions/user-session-registry.js";
 import { SessionAuthorizationManager } from "../sessions/authorization-manager.js";
@@ -20,6 +16,10 @@ import {
 import { ConnectionId, Username } from "../../aliases.js";
 import { PLAYER_FIRST_NAMES, PLAYER_LAST_NAMES } from "./default-naming/users.js";
 import { ClientIntent } from "../../packets/client-intents.js";
+import {
+  ConnectionEndpoint,
+  TransportDisconnectReason,
+} from "../../transport/connection-endpoint.js";
 
 export class SessionLifecycleController {
   constructor(
@@ -60,7 +60,7 @@ export class SessionLifecycleController {
 
   async connectionHandler(
     session: UserSession,
-    endpoint: TransportEndpoint<GameStateUpdate, ClientIntent>
+    endpoint: ConnectionEndpoint<GameStateUpdate, ClientIntent>
   ) {
     console.info(
       `-- ${session.username} (user id: ${session.userId}, connection id: ${session.connectionId}) joined the lobby`

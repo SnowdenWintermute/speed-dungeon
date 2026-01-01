@@ -1,6 +1,6 @@
 import { ConnectionId } from "../aliases.js";
 
-export interface TransportEndpoint<
+export interface ConnectionEndpoint<
   Sendable,
   Receivable extends { type: PropertyKey; data: unknown },
 > {
@@ -10,10 +10,10 @@ export interface TransportEndpoint<
   close?(): void;
 }
 
-export class LocalTransportEndpoint<
+export class LocalConnectionEndpoint<
   Sendable,
   Receivable extends { type: PropertyKey; data: unknown },
-> implements TransportEndpoint<Sendable, Receivable>
+> implements ConnectionEndpoint<Sendable, Receivable>
 {
   private subscribeAllHandler: ((message: Receivable) => void) | null = null;
 

@@ -1,17 +1,17 @@
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { ConnectionId } from "../../aliases.js";
 import { ClientIntent } from "../../packets/client-intents.js";
-import { TransportEndpoint } from "../../transport/transport-endpoint.js";
+import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
 
 export class GameStateUpdateGateway {
   // socket.io socket objects or local client transport endpoints
   private transportEndpoints = new Map<
     ConnectionId,
-    TransportEndpoint<GameStateUpdate, ClientIntent>
+    ConnectionEndpoint<GameStateUpdate, ClientIntent>
   >();
   registerEndpoint(
     connectionId: ConnectionId,
-    endpoint: TransportEndpoint<GameStateUpdate, ClientIntent>
+    endpoint: ConnectionEndpoint<GameStateUpdate, ClientIntent>
   ): void {
     this.transportEndpoints.set(connectionId, endpoint);
   }
@@ -23,7 +23,7 @@ export class GameStateUpdateGateway {
   submitToConnection(connectionId: ConnectionId, update: GameStateUpdate): void {
     const endpoint = this.transportEndpoints.get(connectionId);
     if (!endpoint) {
-      throw new Error("expected connection id had no associated TransportEndpoint");
+      throw new Error("expected connection id had no associated ConnectionEndpoint");
     }
     endpoint.send(update);
   }
