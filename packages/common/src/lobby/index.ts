@@ -45,7 +45,7 @@ export interface LobbyExternalServices {
 // lives either inside a LobbyServer or locally on a ClientApp
 export class Lobby {
   private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
-  private readonly lobbyState = new LobbyState();
+  public readonly lobbyState = new LobbyState();
   private readonly updateGateway = new GameStateUpdateGateway();
   readonly userSessionRegistry = new UserSessionRegistry();
   private readonly gameStateUpdateDispatchFactory = new GameStateUpdateDispatchFactory(

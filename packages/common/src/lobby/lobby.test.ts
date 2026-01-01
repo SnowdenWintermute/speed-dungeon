@@ -12,43 +12,101 @@ import { InMemoryRankedLadderService } from "./services/ranked-ladder.test.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { LobbyLocalClientIntentReceiver } from "./local-client-intent-receiver.js";
 import { Lobby } from "./index.js";
-import { GameSimulatorConnectionType } from "./game-simulator-handoff-strategy.js";
+import {
+  GameSimulatorConnectionInstructions,
+  GameSimulatorConnectionType,
+} from "./game-simulator-handoff-strategy.js";
 import { GameName } from "../aliases.js";
 import { GameMode } from "../types.js";
 import { InMemoryTransport } from "../transport/in-memory-transport.js";
+import { SpeedDungeonGame } from "../game/index.js";
+import { GameStateUpdateDispatchType } from "./update-delivery/game-state-update-dispatch-factory.js";
+import { GameStateUpdateType } from "../packets/game-state-updates.js";
 
 describe("Lobby", () => {
-  it("is a test", async () => {
-    const inMemoryTransport = new InMemoryTransport();
-    const lobbyLocalClientIntentReceiver = new LobbyLocalClientIntentReceiver(
+  let inMemoryTransport: InMemoryTransport;
+  let lobbyLocalClientIntentReceiver: LobbyLocalClientIntentReceiver;
+  let lobby: Lobby;
+
+  beforeEach(() => {
+    inMemoryTransport = new InMemoryTransport();
+
+    lobbyLocalClientIntentReceiver = new LobbyLocalClientIntentReceiver(
       inMemoryTransport.getServerConnectionEndpointManager()
     );
 
-    const lobby = new Lobby(
+    const fakeGameHandoffStrategy = (
+      game: SpeedDungeonGame
+    ): GameSimulatorConnectionInstructions => {
+      console.log("game handed off");
+      return {
+        type: GameSimulatorConnectionType.Local,
+      };
+    };
+
+    lobby = new Lobby(
       lobbyLocalClientIntentReceiver,
       {
-        handoff: (game) => {
-          console.log("game handed off");
-          return {
-            type: GameSimulatorConnectionType.Local,
-          };
-        },
+        handoff: fakeGameHandoffStrategy,
       },
       createLobbyTestServices()
     );
+  });
 
-    const { serverEndpoint, clientEndpoint } = await inMemoryTransport.createConnection();
-
-    const session = lobby.userSessionRegistry.getExpectedSession(serverEndpoint.id);
-
-    const outbox = await lobby.gameLifecycleController.createGameHandler(
-      { gameName: "my game name" as GameName, mode: GameMode.Race },
-      session
+  it("game creation", async () => {
+    // make a game host
+    const { serverEndpoint: serverEndpointForGameHost, _c1 } =
+      await inMemoryTransport.createConnection();
+    const gameHostSession = lobby.userSessionRegistry.getExpectedSession(
+      serverEndpointForGameHost.id
     );
 
-    console.log("create game outbox:", outbox.toDispatches());
+    // make another lobby user
+    const { serverEndpoint: serverEndpointForOtherInLobby, _c2 } =
+      await inMemoryTransport.createConnection();
+    const otherLobbyUserSession = lobby.userSessionRegistry.getExpectedSession(
+      serverEndpointForOtherInLobby.id
+    );
 
-    expect(true).toBeTruthy();
+    const gameName = "my game name" as GameName;
+    const outbox = await lobby.gameLifecycleController.createGameHandler(
+      { gameName, mode: GameMode.Race },
+      gameHostSession
+    );
+
+    // game exists with creating player in it
+    const game = lobby.lobbyState.getExpectedGame(gameName);
+    expect(game.name).toEqual(gameName);
+    expect(game.players[gameHostSession.username]).toBeDefined();
+
+    // outbox created with correct messages
+    const dispatches = outbox.toDispatches();
+
+    // let's other user know the game host left the lobby
+    const userLeftLobbyChannel = dispatches[0];
+    expect(userLeftLobbyChannel).toEqual({
+      type: GameStateUpdateDispatchType.FanOut,
+      connectionIds: [otherLobbyUserSession.connectionId],
+      update: {
+        type: GameStateUpdateType.UserLeftChannel,
+        data: { username: gameHostSession.username },
+      },
+    });
+
+    // gives game host their new game data
+    const newGameUpdate = dispatches[1];
+    expect(newGameUpdate).toEqual({
+      type: GameStateUpdateDispatchType.Single,
+      connectionId: gameHostSession.connectionId,
+      update: {
+        type: GameStateUpdateType.GameFullUpdate,
+        data: { game: game.getSerialized() },
+      },
+    });
+
+    // tell clients already in the game that someone joined
+
+    // other lobby user can get new game list and see the newly created game
   });
 });
 

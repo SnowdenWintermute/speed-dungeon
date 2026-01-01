@@ -15,8 +15,6 @@ export class LobbyLocalClientIntentReceiver extends ClientIntentReceiver {
 
   listen() {
     this.localServerConnectionEndpointManager.setNewConnectionHandler(async (connection) => {
-      console.log("connection:", connection.id);
-
       await this.handleConnection(connection, {});
 
       connection.subscribeAll((intent) => {
