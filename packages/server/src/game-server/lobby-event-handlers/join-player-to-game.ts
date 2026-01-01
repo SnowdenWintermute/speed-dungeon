@@ -5,12 +5,12 @@ import {
   SpeedDungeonGame,
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
-import { GameServer } from "../index.js";
+import { GameServerNode } from "../index.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
 import SocketIO from "socket.io";
 
 export default function joinPlayerToGame(
-  gameServer: GameServer,
+  gameServer: GameServerNode,
   game: SpeedDungeonGame,
   session: BrowserTabSession,
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>

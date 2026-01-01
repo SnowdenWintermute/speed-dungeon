@@ -4,7 +4,7 @@ import {
   ClientToServerEvent,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
-import { GameServer } from "../index.js";
+import { GameServerNode } from "../index.js";
 import { joinPartyHandler } from "./join-party-handler.js";
 import { applyMiddlewares } from "../event-middleware/index.js";
 import { playerInGame } from "../event-middleware/get-player-associated-data.js";
@@ -22,7 +22,7 @@ import { selectProgressionGameCharacterHandler } from "./select-progression-game
 import selectProgressionGameStartingFloorHandler from "./select-progression-game-starting-floor-handler.js";
 
 export function initiateLobbyEventListeners(
-  this: GameServer,
+  this: GameServerNode,
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
   socket.on(ClientToServerEvent.RequestsGameList, () => requestGameListHandler(socket));

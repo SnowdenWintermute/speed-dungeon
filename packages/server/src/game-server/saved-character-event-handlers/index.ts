@@ -4,7 +4,7 @@ import {
   ClientToServerEventTypes,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
-import { GameServer } from "../index.js";
+import { GameServerNode } from "../index.js";
 import { applyMiddlewares } from "../event-middleware/index.js";
 import { provideLoggedInUser } from "../event-middleware/get-logged-in-user-from-socket.js";
 import { createSavedCharacterHandler } from "./create-saved-character-handler.js";
@@ -12,7 +12,7 @@ import { fetchSavedCharactersHandler } from "./fetch-saved-characters-handler.js
 import deleteSavedCharacterHandler from "./delete-saved-character-handler.js";
 
 export default function initiateSavedCharacterListeners(
-  this: GameServer,
+  this: GameServerNode,
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
   socket.on(

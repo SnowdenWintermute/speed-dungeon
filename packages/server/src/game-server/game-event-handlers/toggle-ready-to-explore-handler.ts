@@ -7,7 +7,7 @@ import {
   Battle,
   GameMode,
 } from "@speed-dungeon/common";
-import { GameServer } from "../index.js";
+import { GameServerNode } from "../index.js";
 import { DungeonRoomType } from "@speed-dungeon/common";
 import { idGenerator, getGameServer } from "../../singletons/index.js";
 import { generateDungeonRoom } from "../dungeon-room-generation/index.js";
@@ -62,7 +62,7 @@ export async function toggleReadyToExploreHandler(
 }
 
 export async function exploreNextRoom(
-  this: GameServer,
+  this: GameServerNode,
   game: SpeedDungeonGame,
   party: AdventuringParty
 ) {

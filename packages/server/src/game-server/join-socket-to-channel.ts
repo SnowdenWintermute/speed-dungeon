@@ -5,10 +5,10 @@ import {
   UserAuthStatus,
   UserChannelDisplayData,
 } from "@speed-dungeon/common";
-import { Channel, GameServer } from "./index.js";
+import { Channel, GameServerNode } from "./index.js";
 
 export default function joinSocketToChannel(
-  this: GameServer,
+  this: GameServerNode,
   socketId: string,
   newChannelName: ChannelName
 ) {

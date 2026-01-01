@@ -1,4 +1,4 @@
-import { GameServer } from "./index.js";
+import { GameServerNode } from "./index.js";
 import { LOBBY_CHANNEL, ServerToClientEvent } from "@speed-dungeon/common";
 import { BrowserTabSession } from "./socket-connection-metadata.js";
 import { applyMiddlewares } from "./event-middleware/index.js";
@@ -8,7 +8,7 @@ import { getLoggedInUserOrCreateGuest } from "./get-logged-in-user-or-create-gue
 import { getLoggedInUserFromSocket } from "./event-middleware/get-logged-in-user-from-socket.js";
 import { fetchSavedCharactersHandler } from "./saved-character-event-handlers/fetch-saved-characters-handler.js";
 
-export function connectionHandler(this: GameServer) {
+export function connectionHandler(this: GameServerNode) {
   this.io.of("/").on("connection", async (socket) => {
     const req = socket.request;
     const cookies = req.headers.cookie;

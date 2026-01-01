@@ -5,7 +5,7 @@ import {
   EntityNotFoundError,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
-import { GameServer } from "./game-server/index.js";
+import { GameServerNode } from "./game-server/index.js";
 import { env } from "./validate-env.js";
 import { gameServer, idGenerator } from "./singletons/index.js";
 import { pgPool } from "./singletons/pg-pool.js";
@@ -31,7 +31,7 @@ const listening = expressApp.listen(PORT, async () => {
   console.info(`speed dungeon server on port ${PORT}`);
 
   try {
-    gameServer.current = new GameServer(io);
+    gameServer.current = new GameServerNode(io);
   } catch (error) {
     if (error instanceof EntityNotFoundError) {
       const note = idGenerator.getHistoryNote(error.entityId);

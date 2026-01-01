@@ -11,11 +11,11 @@ import {
   createPartyWipeMessage,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { GameServer } from "../../index.js";
+import { GameServerNode } from "../../index.js";
 import { getGameServer } from "../../../singletons/index.js";
 
 export async function battleResultActionCommandHandler(
-  this: GameServer,
+  this: GameServerNode,
   gameName: GameName,
   payload: BattleResultActionCommandPayload
 ) {

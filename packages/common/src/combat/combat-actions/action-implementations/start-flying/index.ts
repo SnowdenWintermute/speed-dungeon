@@ -14,13 +14,11 @@ import {
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { START_FLYING_STEPS_CONFIG } from "./start-flying-steps-config.js";
-import {
-  CombatActionGameLogProperties,
-  CombatActionName,
-  CombatActionOrigin,
-  CombatantConditionName,
-  FriendOrFoe,
-} from "../../../../index.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
+import { CombatantConditionName } from "../../../../conditions/condition-names.js";
+import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
+import { CombatActionName } from "../../combat-action-names.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = createTargetingPropertiesConfig(
   TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME,

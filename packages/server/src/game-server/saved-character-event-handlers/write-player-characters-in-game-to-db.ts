@@ -9,7 +9,7 @@ import {
   getProgressionGamePartyName,
 } from "@speed-dungeon/common";
 import { playerCharactersRepo } from "../../database/repos/player-characters.js";
-import { GameServer } from "../index.js";
+import { GameServerNode } from "../index.js";
 
 export async function updatePlayerCharacterInDb(
   character: Combatant,
@@ -73,7 +73,7 @@ export async function writePlayerCharactersInGameToDb(
 }
 
 export async function writeAllPlayerCharacterInGameToDb(
-  gameServer: GameServer,
+  gameServer: GameServerNode,
   game: SpeedDungeonGame
 ) {
   const promises: Promise<Error | void>[] = [];

@@ -54,7 +54,7 @@ export class Channel {
   users: Partial<Record<Username, Record<SocketId, BrowserTabSession>>> = {};
 }
 
-export class GameServer implements ActionCommandReceiver {
+export class GameServerNode implements ActionCommandReceiver {
   itemGenerator: ItemGenerator = new ItemGenerator(
     idGenerator,
     rngSingleton,

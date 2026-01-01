@@ -1,9 +1,9 @@
-import { GameServer } from "../index.js";
+import { GameServerNode } from "../index.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
 import { ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
 
 export default function getSocketCurrentGame(
-  this: GameServer,
+  this: GameServerNode,
   socketMeta: BrowserTabSession
 ): Error | SpeedDungeonGame {
   const { currentGameName } = socketMeta;
