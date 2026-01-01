@@ -63,7 +63,6 @@ export class Lobby {
   public readonly characterLifecycleController: CharacterLifecycleController;
 
   constructor(
-    // listens for client intents and delegates them to handlers
     private readonly clientIntentReceiver: ClientIntentReceiver,
     private readonly gameSimulatorHandoffStrategy: GameSimulatorHandoffStrategy,
     private readonly externalServices: LobbyExternalServices
