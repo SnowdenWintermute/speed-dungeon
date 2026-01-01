@@ -1,4 +1,4 @@
-import { ConnectionId } from "../../aliases.js";
+import { ConnectionId } from "../aliases.js";
 
 export interface TransportEndpoint<
   Sendable,

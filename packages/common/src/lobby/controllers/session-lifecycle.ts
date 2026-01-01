@@ -38,7 +38,7 @@ export class SessionLifecycleController {
     context: IdentityResolutionContext
   ): Promise<UserSession> {
     const authenticatedUserOption = await this.identityProviderService.resolve(context);
-    if (authenticatedUserOption === null) {
+    if (authenticatedUserOption.userId === null) {
       const { username, userId } = this.createGuestUser();
       return new UserSession(username, connectionId, userId);
     }

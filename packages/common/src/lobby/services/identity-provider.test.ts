@@ -14,8 +14,7 @@ export class FakeUsersIdentityProviderQueryStrategy
   implements IdentityProviderSessionQueryStrategy
 {
   private fakeSessions: Record<IdentityProviderId, Username> = {};
-  constructor() {
-    const fakeSessionCount = 3;
+  constructor(fakeSessionCount: number) {
     for (let i = 0; i < fakeSessionCount; i += 1) {
       const userId = i + 1;
       this.fakeSessions[userId as IdentityProviderId] = `username-${userId}` as Username;
@@ -27,7 +26,7 @@ export class FakeUsersIdentityProviderQueryStrategy
     context: IdentityResolutionContext
   ): Promise<{ username: Username; userId: IdentityProviderId | null }> {
     if (context.localUserId === undefined) {
-      return { username: `guest-${context.localUserId}` as Username, userId: null };
+      return { username: `guest-${context}` as Username, userId: null };
     }
 
     const authenticatedSession = this.fakeSessions[context.localUserId];

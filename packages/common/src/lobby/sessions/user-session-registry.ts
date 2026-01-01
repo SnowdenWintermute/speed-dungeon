@@ -89,7 +89,7 @@ export class UserSessionRegistry {
   public getExpectedSession(connectionId: ConnectionId) {
     const userSessionOption = this.userSessions.get(connectionId);
     if (userSessionOption === undefined) {
-      throw new Error("Expected session not found");
+      throw new Error(`Expected session not found by connection id: ${connectionId}`);
     } else {
       return userSessionOption;
     }

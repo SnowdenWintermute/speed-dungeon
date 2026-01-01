@@ -21,7 +21,7 @@ export class SocketTransportEndpoint implements TransportEndpoint<GameStateUpdat
   }
   subscribe(type: ClientIntentType) {
     // socket.on()
-    // @TODO - figure it out
+    // @TODO - figure it out or don't use it
   }
 
   send(update: GameStateUpdate): void {
@@ -40,13 +40,12 @@ export class LobbyRemoteClientIntentReceiver extends ClientIntentReceiver {
 
   listen() {
     this.io.of("/").on("connection", async (socket) => {
-      console.log("remote lobby is listening");
       const transportEndpoint = new SocketTransportEndpoint(socket);
 
       const req = socket.request;
       const cookies = req.headers.cookie;
 
-      this.handleConnection(transportEndpoint, { cookies });
+      await this.handleConnection(transportEndpoint, { cookies });
 
       socket.on(ClientToServerEvent.ClientIntent, (clientIntent) => {
         this.dispatchIntent(clientIntent, socket.id as ConnectionId);

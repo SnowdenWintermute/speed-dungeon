@@ -1,7 +1,7 @@
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { ConnectionId } from "../../aliases.js";
-import { TransportEndpoint } from "./transport-endpoint.js";
 import { ClientIntent } from "../../packets/client-intents.js";
+import { TransportEndpoint } from "../../transport/transport-endpoint.js";
 
 export class GameStateUpdateGateway {
   // socket.io socket objects or local client transport endpoints

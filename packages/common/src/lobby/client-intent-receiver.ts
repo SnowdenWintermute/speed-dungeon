@@ -19,14 +19,14 @@ export abstract class ClientIntentReceiver {
     this.intentHandler = intentHandler;
   }
 
-  handleConnection(
+  async handleConnection(
     transportEndpoint: TransportEndpoint<GameStateUpdate, ClientIntent>,
     identityResolutionContext: IdentityResolutionContext
   ) {
     if (this.intentHandler === null) {
       throw new Error("Not initialized");
     }
-    this.intentHandler.handleConnection(transportEndpoint, identityResolutionContext);
+    await this.intentHandler.handleConnection(transportEndpoint, identityResolutionContext);
   }
 
   /** either set up the socket.io event listener for ClientIntent

@@ -10,17 +10,15 @@ import {
 } from "./services/saved-characters.test.js";
 import { InMemoryRankedLadderService } from "./services/ranked-ladder.test.js";
 import { IdGenerator } from "../utility-classes/index.js";
-import {
-  LobbyLocalClientIntentReceiver,
-  LocalConnectionEndpointManager,
-  LocalConnectionFactory,
-} from "./local-client-intent-receiver.js";
-import { ClientIntent, ClientIntentType } from "../packets/client-intents.js";
+import { LobbyLocalClientIntentReceiver } from "./local-client-intent-receiver.js";
+import { ClientIntent } from "../packets/client-intents.js";
 import { GameStateUpdate } from "../packets/game-state-updates.js";
 import { Lobby } from "./index.js";
 import { GameSimulatorConnectionType } from "./game-simulator-handoff-strategy.js";
 import { GameName } from "../aliases.js";
 import { GameMode } from "../types.js";
+import { LocalConnectionEndpointManager } from "../transport/local-connection-endpoint-manager.js";
+import { LocalConnectionFactory } from "../transport/local-connection-factory.js";
 
 describe("Lobby", () => {
   it("is a test", async () => {
@@ -33,8 +31,6 @@ describe("Lobby", () => {
       localServerConnectionEndpointManager
     );
 
-    lobbyLocalClientIntentReceiver.listen();
-
     const localClientConnectionEndpointManager = new LocalConnectionEndpointManager<
       ClientIntent,
       GameStateUpdate
@@ -44,8 +40,6 @@ describe("Lobby", () => {
       localServerConnectionEndpointManager,
       localClientConnectionEndpointManager
     );
-
-    const { serverEndpoint, clientEndpoint } = localConnectionFactory.create();
 
     const lobby = new Lobby(
       lobbyLocalClientIntentReceiver,
@@ -60,11 +54,13 @@ describe("Lobby", () => {
       createLobbyTestServices()
     );
 
-    await lobby.handleConnection(serverEndpoint, {});
+    const { serverEndpoint, clientEndpoint } = await localConnectionFactory.create();
+
+    const session = lobby.userSessionRegistry.getExpectedSession(serverEndpoint.id);
 
     const outbox = await lobby.gameLifecycleController.createGameHandler(
       { gameName: "my game name" as GameName, mode: GameMode.Race },
-      lobby.userSessionRegistry.getExpectedSession(serverEndpoint.id)
+      session
     );
 
     console.log("create game outbox:", outbox.toDispatches());
@@ -74,7 +70,7 @@ describe("Lobby", () => {
 });
 
 function createLobbyTestServices() {
-  const identityProviderQueryStrategy = new FakeUsersIdentityProviderQueryStrategy();
+  const identityProviderQueryStrategy = new FakeUsersIdentityProviderQueryStrategy(0);
   const identityProviderService = new IdentityProviderService(identityProviderQueryStrategy);
 
   const characterSlotsPersistenceStrategy = new InMemorySavedCharacterSlotsPersistenceStrategy();

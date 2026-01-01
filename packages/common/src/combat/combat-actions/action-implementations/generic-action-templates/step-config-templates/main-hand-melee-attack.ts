@@ -80,7 +80,6 @@ config.options.getFinalSteps = (self, context) => {
   }
 
   if (!offhandShouldExecute) {
-    console.log("off hand should not execute");
     return config.finalSteps;
   }
 
