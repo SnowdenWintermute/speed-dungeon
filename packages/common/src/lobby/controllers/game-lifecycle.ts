@@ -74,6 +74,7 @@ export class GameLifecycleController {
   ) {
     const { mode, isRanked } = data;
     let { gameName } = data;
+    console.log("user", session.username, " wants to create a game by name: ", gameName);
 
     const userCanJoinNewGame = session.canJoinNewGame(isRanked);
     if (!userCanJoinNewGame.isValid) {

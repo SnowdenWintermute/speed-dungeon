@@ -6,11 +6,7 @@ export interface TransportEndpoint<
 > {
   readonly id: ConnectionId;
   send(update: Sendable): void;
-  subscribe(type: Receivable["type"], handler: (payload: Receivable["data"]) => void): void;
-  // subscribe<K extends Receivable["type"]>(
-  //   type: K,
-  //   handler: (payload: Extract<Receivable, { type: K }>["data"]) => void
-  // ): void;
+  receive?(message: Receivable): void;
   close?(): void;
 }
 
@@ -19,7 +15,7 @@ export class LocalTransportEndpoint<
   Receivable extends { type: PropertyKey; data: unknown },
 > implements TransportEndpoint<Sendable, Receivable>
 {
-  private handlers = new Map<Receivable["type"], (payload: Receivable["data"]) => void>();
+  private subscribeAllHandler: ((message: Receivable) => void) | null = null;
 
   constructor(
     public readonly id: ConnectionId,
@@ -35,22 +31,12 @@ export class LocalTransportEndpoint<
     this.deliverInbound(message);
   }
 
-  // subscribe(event: Receivable["type"], handler: (payload: Receivable["data"]) => void): void {
-  //   this.handlers.set(event, handler);
-  // }
-
-  subscribe<K extends Receivable["type"]>(
-    type: K,
-    handler: (payload: Extract<Receivable, { type: K }>["data"]) => void
-  ): void {
-    this.handlers.set(type, handler as (payload: unknown) => void);
+  subscribeAll(handler: (message: Receivable) => void): void {
+    this.subscribeAllHandler = handler;
   }
 
   receive(message: Receivable): void {
-    const handler = this.handlers.get(message.type);
-    if (handler) {
-      handler(message.data);
-    }
+    this.subscribeAllHandler?.(message);
   }
 
   close(): void {

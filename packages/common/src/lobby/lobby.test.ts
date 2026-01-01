@@ -15,10 +15,12 @@ import {
   LocalConnectionEndpointManager,
   LocalConnectionFactory,
 } from "./local-client-intent-receiver.js";
-import { ClientIntent } from "../packets/client-intents.js";
+import { ClientIntent, ClientIntentType } from "../packets/client-intents.js";
 import { GameStateUpdate } from "../packets/game-state-updates.js";
 import { Lobby } from "./index.js";
 import { GameSimulatorConnectionType } from "./game-simulator-handoff-strategy.js";
+import { GameName } from "../aliases.js";
+import { GameMode } from "../types.js";
 
 describe("Lobby", () => {
   it("is a test", async () => {
@@ -58,7 +60,14 @@ describe("Lobby", () => {
       createLobbyTestServices()
     );
 
-    const outbox = await lobby.handleConnection(serverEndpoint, {});
+    await lobby.handleConnection(serverEndpoint, {});
+
+    const outbox = await lobby.gameLifecycleController.createGameHandler(
+      { gameName: "my game name" as GameName, mode: GameMode.Race },
+      lobby.userSessionRegistry.getExpectedSession(serverEndpoint.id)
+    );
+
+    console.log("create game outbox:", outbox.toDispatches());
 
     expect(true).toBeTruthy();
   });

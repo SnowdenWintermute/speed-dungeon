@@ -1,5 +1,5 @@
 import { ConnectionId } from "../aliases.js";
-import { ClientIntent, ClientIntentType } from "../packets/client-intents.js";
+import { ClientIntent } from "../packets/client-intents.js";
 import { GameStateUpdate } from "../packets/game-state-updates.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { ClientIntentReceiver } from "./client-intent-receiver.js";
@@ -57,12 +57,16 @@ export class LocalConnectionEndpointManager<
     throw new Error("not initialized");
   };
 
+  // equivalent to socket.io server's io.on("connection", (newSocketObject) => {
+  // // register socket event listeners on the new object
+  // })
   setNewConnectionHandler(
     handler: (transportEndpoint: LocalTransportEndpoint<Sendable, Receivable>) => void
   ) {
     this.handleNewConnection = handler;
   }
 
+  // equivalent to firing a socket.io connection event
   onNewConnection(transportEndpoint: LocalTransportEndpoint<Sendable, Receivable>): void {
     this.connections.set(transportEndpoint.id, transportEndpoint);
     this.handleNewConnection(transportEndpoint);
@@ -89,13 +93,9 @@ export class LobbyLocalClientIntentReceiver extends ClientIntentReceiver {
   listen() {
     this.localServerConnectionEndpointManager.setNewConnectionHandler((connection) => {
       console.log("connection:", connection.id);
-      connection.subscribe(ClientIntentType.JoinGame, (data) => {
-        const intent: ClientIntent = { type: ClientIntentType.JoinGame, data };
-        this.dispatchIntent(intent, connection.id);
-      });
 
-      connection.subscribe(ClientIntentType.Disconnection, (data) => {
-        this.dispatchIntent({ type: ClientIntentType.Disconnection, data }, connection.id);
+      connection.subscribeAll((intent) => {
+        this.dispatchIntent(intent, connection.id);
       });
     });
   }
