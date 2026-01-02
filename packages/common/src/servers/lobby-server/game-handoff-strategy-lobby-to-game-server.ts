@@ -1,4 +1,4 @@
-import { SpeedDungeonGame } from "../game/index.js";
+import { SpeedDungeonGame } from "../../game/index.js";
 
 export enum GameSimulatorConnectionType {
   Local,
@@ -21,7 +21,7 @@ export type GameSimulatorConnectionInstructions =
 
 // give the set up game to a GameSimulator either a locally owned GameSimulator
 // on the client or send it over websockets to a GameServer which owns a GameSimulator
-export interface GameSimulatorHandoffStrategy {
+export interface GameHandoffStrategyLobbyToGameServer {
   handoff(game: SpeedDungeonGame): GameSimulatorConnectionInstructions;
 
   // @TODO

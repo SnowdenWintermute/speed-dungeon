@@ -8,7 +8,7 @@ import {
   IdentityProviderService,
   IdentityResolutionContext,
   ItemGenerator,
-  Lobby,
+  LobbyServer,
   SavedCharactersService,
   ServerToClientEvent,
   ServerToClientEventTypes,
@@ -68,7 +68,11 @@ export class GameServerNode implements ActionCommandReceiver {
     const clientIntentReceiver = new LobbyRemoteClientIntentReceiver(this.io);
     const gameSimulatorHandoffStrategy = new RemoteGameSimuatorHandoffStrategy();
     const externalServices = this.createLobbyExternalServices();
-    const lobby = new Lobby(clientIntentReceiver, gameSimulatorHandoffStrategy, externalServices);
+    const lobbyServer = new LobbyServer(
+      clientIntentReceiver,
+      gameSimulatorHandoffStrategy,
+      externalServices
+    );
   }
   // game manager
   games = new Map<GameName, SpeedDungeonGame>();

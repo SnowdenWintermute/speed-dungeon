@@ -12,7 +12,7 @@ import {
   Ring,
   Shield,
   TwoHandedRangedWeapon,
-} from "../../index.js";
+} from "../index.js";
 
 export function givePlaytestingItems(
   combatantProperties: CombatantProperties,

@@ -9,17 +9,17 @@ import {
   LOBBY_CHANNEL,
   MAX_GAME_NAME_LENGTH,
   SpeedDungeonGame,
-} from "../../index.js";
-import { GameStateUpdateType } from "../../packets/game-state-updates.js";
-import { GameSimulatorHandoffStrategy } from "../game-simulator-handoff-strategy.js";
+} from "../../../index.js";
+import { GameStateUpdateType } from "../../../packets/game-state-updates.js";
+import { GameStateUpdateDispatchFactory } from "../../update-delivery/game-state-update-dispatch-factory.js";
+import { GameStateUpdateDispatchOutbox } from "../../update-delivery/outbox.js";
+import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
+import { SessionAuthorizationManager } from "../../sessions/authorization-manager.js";
+import { UserSession } from "../../sessions/user-session.js";
 import { LobbyState } from "../lobby-state.js";
 import { PartySetupController } from "./party-setup.js";
-import { RANDOM_GAME_NAMES_FIRST, RANDOM_GAME_NAMES_LAST } from "./default-naming/games.js";
-import { GameStateUpdateDispatchFactory } from "../update-delivery/game-state-update-dispatch-factory.js";
-import { GameStateUpdateDispatchOutbox } from "../update-delivery/update-dispatch-outbox.js";
-import { UserSessionRegistry } from "../sessions/user-session-registry.js";
-import { SessionAuthorizationManager } from "../sessions/authorization-manager.js";
-import { UserSession } from "../sessions/user-session.js";
+import { GameHandoffStrategyLobbyToGameServer } from "../game-handoff-strategy-lobby-to-game-server.js";
+import { RANDOM_GAME_NAMES_FIRST, RANDOM_GAME_NAMES_LAST } from "../default-names/game.js";
 
 export class GameLifecycleController {
   constructor(
@@ -29,7 +29,7 @@ export class GameLifecycleController {
     private readonly updateDispatchFactory: GameStateUpdateDispatchFactory,
     private readonly partySetupController: PartySetupController,
     private readonly idGenerator: IdGenerator,
-    private readonly gameSimulatorHandoffStrategy: GameSimulatorHandoffStrategy
+    private readonly gameSimulatorHandoffStrategy: GameHandoffStrategyLobbyToGameServer
   ) {}
 
   private generateRandomGameName(): GameName {
@@ -208,7 +208,7 @@ export class GameLifecycleController {
   }
 
   leaveGameHandler(session: UserSession) {
-    const game = session.getExpectedCurrentGame(this.lobbyState);
+    const game = session.getExpectedCurrentGame();
     const partyOption = session.getCurrentPartyOption(game);
 
     const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
@@ -252,7 +252,7 @@ export class GameLifecycleController {
   }
 
   async toggleReadyToStartGameHandler(session: UserSession) {
-    const game = session.getExpectedCurrentGame(this.lobbyState);
+    const game = session.getExpectedCurrentGame();
 
     game.requireGameStartPrerequisites();
 

@@ -1,22 +1,21 @@
-import { expect } from "vitest";
-import { IdGenerator } from "../../utility-classes/index.js";
-import { FakeUsersIdentityProviderQueryStrategy } from "../services/identity-provider.test.js";
-import { IdentityProviderService } from "../services/identity-provider.js";
-import { InMemorySpeedDungeonProfileService } from "../services/profiles.test.js";
-import { SavedCharactersService } from "../services/saved-characters.js";
-import { InMemoryRankedLadderService } from "../services/ranked-ladder.test.js";
+import { IdGenerator } from "../../../utility-classes/index.js";
+import { InMemoryTransport } from "../../../transport/in-memory-transport.js";
+import { LobbyLocalClientIntentReceiver } from "../../local-client-intent-receiver.js";
+import { SpeedDungeonGame } from "../../../game/index.js";
 import {
   InMemorySavedCharacterPersistenceStrategy,
   InMemorySavedCharacterSlotsPersistenceStrategy,
-} from "../services/saved-characters.test.js";
-import { InMemoryTransport } from "../../transport/in-memory-transport.js";
-import { LobbyLocalClientIntentReceiver } from "../local-client-intent-receiver.js";
+} from "../../../servers/services/saved-characters.test.js";
+import { SavedCharactersService } from "../../../servers/services/saved-characters.js";
+import { InMemorySpeedDungeonProfileService } from "../../../servers/services/profiles.test.js";
+import { IdentityProviderService } from "../../../servers/services/identity-provider.js";
+import { FakeUsersIdentityProviderQueryStrategy } from "../../../servers/services/identity-provider.test.js";
+import { InMemoryRankedLadderService } from "../../../servers/services/ranked-ladder.test.js";
 import {
   GameSimulatorConnectionInstructions,
   GameSimulatorConnectionType,
-} from "../game-simulator-handoff-strategy.js";
-import { SpeedDungeonGame } from "../../game/index.js";
-import { Lobby } from "../index.js";
+} from "../game-handoff-strategy-lobby-to-game-server.js";
+import { LobbyServer } from "../index.js";
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class TestHelpers {
@@ -36,7 +35,7 @@ export class TestHelpers {
       };
     };
 
-    const lobby = new Lobby(
+    const lobbyServer = new LobbyServer(
       lobbyLocalClientIntentReceiver,
       {
         handoff: fakeGameHandoffStrategy,
@@ -44,7 +43,7 @@ export class TestHelpers {
       TestHelpers.createLobbyTestServices()
     );
 
-    return { inMemoryTransport, lobby };
+    return { inMemoryTransport, lobbyServer };
   }
 
   private static createLobbyTestServices() {

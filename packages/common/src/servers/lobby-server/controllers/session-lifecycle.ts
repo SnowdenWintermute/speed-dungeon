@@ -1,25 +1,26 @@
-import { LOBBY_CHANNEL } from "../../packets/channels.js";
-import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
-import { GameLifecycleController } from "./game-lifecycle.js";
-import { LobbyState } from "../lobby-state.js";
-import { SavedCharactersController } from "./saved-characters.js";
-import { GameStateUpdateGateway } from "../update-delivery/game-state-update-gateway.js";
-import { GameStateUpdateDispatchFactory } from "../update-delivery/game-state-update-dispatch-factory.js";
-import { GameStateUpdateDispatchOutbox } from "../update-delivery/update-dispatch-outbox.js";
-import { UserSessionRegistry } from "../sessions/user-session-registry.js";
-import { SessionAuthorizationManager } from "../sessions/authorization-manager.js";
-import { UserSession } from "../sessions/user-session.js";
+import { LOBBY_CHANNEL } from "../../../packets/channels.js";
+import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
+import { GameStateUpdateGateway } from "../../update-delivery/game-state-update-gateway.js";
+import { GameStateUpdateDispatchFactory } from "../../update-delivery/game-state-update-dispatch-factory.js";
+import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
+import { SessionAuthorizationManager } from "../../sessions/authorization-manager.js";
+import { UserSession } from "../../sessions/user-session.js";
 import {
   IdentityProviderService,
   IdentityResolutionContext,
-} from "../services/identity-provider.js";
-import { ConnectionId, Username } from "../../aliases.js";
-import { PLAYER_FIRST_NAMES, PLAYER_LAST_NAMES } from "./default-naming/users.js";
-import { ClientIntent } from "../../packets/client-intents.js";
+} from "../../services/identity-provider.js";
+import { ConnectionId, Username } from "../../../aliases.js";
+import { ClientIntent } from "../../../packets/client-intents.js";
 import {
   ConnectionEndpoint,
   TransportDisconnectReason,
-} from "../../transport/connection-endpoint.js";
+} from "../../../transport/connection-endpoint.js";
+import { LobbyState } from "../lobby-state.js";
+import { SavedCharactersController } from "./saved-characters.js";
+import { GameLifecycleController } from "./game-lifecycle.js";
+import { ERROR_MESSAGES } from "../../../errors/index.js";
+import { PLAYER_FIRST_NAMES, PLAYER_LAST_NAMES } from "../default-names/users.js";
+import { GameStateUpdateDispatchOutbox } from "../../update-delivery/outbox.js";
 
 export class SessionLifecycleController {
   constructor(
@@ -38,14 +39,26 @@ export class SessionLifecycleController {
     context: IdentityResolutionContext
   ): Promise<UserSession> {
     const authenticatedUserOption = await this.identityProviderService.resolve(context);
+
+    // I'm injecting it here because it will be different on the game server and the lobby server
+    const expectedGameGetter = () => {
+      const session = this.userSessionRegistry.getExpectedSession(connectionId);
+      const currentGameName = session.currentGameName;
+      if (currentGameName === null) {
+        throw new Error(ERROR_MESSAGES.USER.NO_CURRENT_GAME);
+      }
+
+      return this.lobbyState.getExpectedGame(currentGameName);
+    };
+
     if (authenticatedUserOption.userId === null) {
       const { username, userId } = this.createGuestUser();
-      return new UserSession(username, connectionId, userId);
+      return new UserSession(username, connectionId, userId, expectedGameGetter);
     }
 
     const { username, userId } = authenticatedUserOption;
 
-    return new UserSession(username, connectionId, userId);
+    return new UserSession(username, connectionId, userId, expectedGameGetter);
   }
 
   private generateRandomUsername() {

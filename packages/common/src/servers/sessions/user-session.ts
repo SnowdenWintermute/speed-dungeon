@@ -7,17 +7,9 @@ import {
   IdentityProviderId,
   PartyName,
   SpeedDungeonGame,
-  SpeedDungeonProfile,
   Username,
 } from "../../index.js";
-import { LobbyState } from "../lobby-state.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
-
-export interface AuthorizedSession {
-  session: UserSession;
-  userId: IdentityProviderId;
-  profile: SpeedDungeonProfile;
-}
 
 export class UserSession {
   public currentGameName: null | GameName = null;
@@ -29,7 +21,8 @@ export class UserSession {
     /** either a socket.id or a locally generated UUID on client */
     public readonly connectionId: ConnectionId,
     /** snowauth user id */
-    public readonly userId: null | IdentityProviderId
+    public readonly userId: null | IdentityProviderId,
+    public getExpectedCurrentGame: () => SpeedDungeonGame
   ) {}
 
   isSubscribedToChannel(channelName: ChannelName) {
@@ -40,14 +33,14 @@ export class UserSession {
     return this.currentGameName !== null;
   }
 
-  getExpectedCurrentGame(lobbyState: LobbyState) {
-    const currentGameName = this.currentGameName;
-    if (currentGameName === null) {
-      throw new Error(ERROR_MESSAGES.USER.NO_CURRENT_GAME);
-    }
+  // getExpectedCurrentGame(lobbyState: LobbyState) {
+  //   const currentGameName = this.currentGameName;
+  //   if (currentGameName === null) {
+  //     throw new Error(ERROR_MESSAGES.USER.NO_CURRENT_GAME);
+  //   }
 
-    return lobbyState.getExpectedGame(currentGameName);
-  }
+  //   return lobbyState.getExpectedGame(currentGameName);
+  // }
 
   getCurrentPartyOption(game: SpeedDungeonGame) {
     if (this.currentPartyName === null) {

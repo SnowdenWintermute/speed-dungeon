@@ -1,45 +1,45 @@
 import { describe, it, expect } from "vitest";
-import { Lobby } from "../index.js";
-import { GameName } from "../../aliases.js";
-import { GameMode } from "../../types.js";
-import { InMemoryTransport } from "../../transport/in-memory-transport.js";
-import { GameStateUpdateDispatchType } from "../update-delivery/game-state-update-dispatch-factory.js";
-import { GameListEntry, GameStateUpdateType } from "../../packets/game-state-updates.js";
+import { LobbyServer } from "../index.js";
+import { GameName } from "../../../aliases.js";
+import { GameMode } from "../../../types.js";
+import { InMemoryTransport } from "../../../transport/in-memory-transport.js";
+import { GameStateUpdateDispatchType } from "../../update-delivery/game-state-update-dispatch-factory.js";
+import { GameListEntry, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { TestHelpers } from "./helpers.js";
 
-describe("Lobby", () => {
+describe("lobby server", () => {
   let inMemoryTransport: InMemoryTransport;
-  let lobby: Lobby;
+  let lobbyServer: LobbyServer;
 
   beforeEach(() => {
     const inMemoryTransportWithTestLobby = TestHelpers.createInMemoryTransportWithTestLobby();
     inMemoryTransport = inMemoryTransportWithTestLobby.inMemoryTransport;
-    lobby = inMemoryTransportWithTestLobby.lobby;
+    lobbyServer = inMemoryTransportWithTestLobby.lobbyServer;
   });
 
   it("game creation", async () => {
     // make a game host
     const { serverEndpoint: serverEndpointForGameHost, clientEndpoint: _c1 } =
       await inMemoryTransport.createConnection();
-    const gameHostSession = lobby.userSessionRegistry.getExpectedSession(
+    const gameHostSession = lobbyServer.userSessionRegistry.getExpectedSession(
       serverEndpointForGameHost.id
     );
 
     // make another lobby user
     const { serverEndpoint: serverEndpointForOtherInLobby, clientEndpoint: _c2 } =
       await inMemoryTransport.createConnection();
-    const otherLobbyUserSession = lobby.userSessionRegistry.getExpectedSession(
+    const otherLobbyUserSession = lobbyServer.userSessionRegistry.getExpectedSession(
       serverEndpointForOtherInLobby.id
     );
 
     const gameName = "my game name" as GameName;
-    const gameCreationOutbox = await lobby.gameLifecycleController.createGameHandler(
+    const gameCreationOutbox = await lobbyServer.gameLifecycleController.createGameHandler(
       { gameName, mode: GameMode.Race },
       gameHostSession
     );
 
     // game exists with creating player in it
-    const game = lobby.lobbyState.getExpectedGame(gameName);
+    const game = lobbyServer.lobbyState.getExpectedGame(gameName);
     expect(game.name).toEqual(gameName);
     expect(game.players[gameHostSession.username]).toBeDefined();
 
@@ -79,9 +79,31 @@ describe("Lobby", () => {
       },
     });
 
+    // @TODO can't create a game while in one (need to create error dispatches)
+
+    // const anotherGameName = "my other game name" as GameName;
+    // const secondGameCreationOutbox = await lobbyServer.gameLifecycleController.createGameHandler(
+    //   { gameName: anotherGameName, mode: GameMode.Race },
+    //   gameHostSession
+    // );
+
+    // const secondGameCreationDispatches = secondGameCreationOutbox.toDispatches();
+
+    // const gameCreationError = secondGameCreationDispatches[0];
+    // expect(gameCreationError).toEqual({
+    //   type: GameStateUpdateDispatchType.Single,
+    //   connectionId: otherLobbyUserSession.connectionId,
+    //   update: {
+    //     type: GameStateUpdateType.GameList,
+    //     data: {
+    //       gameList: [new GameListEntry(gameName, 1, GameMode.Race, null, false)],
+    //     },
+    //   },
+    // });
+
     // other lobby user can get new game list and see the newly created game
     const getGameListOutbox =
-      lobby.gameLifecycleController.requestGameListHandler(otherLobbyUserSession);
+      lobbyServer.gameLifecycleController.requestGameListHandler(otherLobbyUserSession);
     const getGameListDispatches = getGameListOutbox.toDispatches();
 
     const gameList = getGameListDispatches[0];
@@ -97,7 +119,7 @@ describe("Lobby", () => {
     });
 
     // when another player joins, the host gets a message
-    const joinGameOutbox = await lobby.gameLifecycleController.joinGameHandler(
+    const joinGameOutbox = await lobbyServer.gameLifecycleController.joinGameHandler(
       gameName,
       otherLobbyUserSession
     );

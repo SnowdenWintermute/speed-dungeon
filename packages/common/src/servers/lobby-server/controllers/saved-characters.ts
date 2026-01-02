@@ -1,17 +1,20 @@
-import { Combatant } from "../../combatants/index.js";
-import { ERROR_MESSAGES } from "../../errors/index.js";
-import { GameStateUpdateType } from "../../packets/game-state-updates.js";
-import { CharacterCreator } from "../character-creation/index.js";
+import { Combatant } from "../../../combatants/index.js";
+import { ERROR_MESSAGES } from "../../../errors/index.js";
+import { GameStateUpdateType } from "../../../packets/game-state-updates.js";
+import { CharacterCreator } from "../../../character-creation/index.js";
 import { CharacterLifecycleController } from "./character-lifecycle.js";
-import { SavedCharactersService } from "../services/saved-characters.js";
-import { CHARACTER_LEVEL_LADDER, RankedLadderService } from "../services/ranked-ladder.js";
-import { GameStateUpdateDispatchFactory } from "../update-delivery/game-state-update-dispatch-factory.js";
-import { GameStateUpdateDispatchOutbox } from "../update-delivery/update-dispatch-outbox.js";
-import { SessionAuthorizationManager } from "../sessions/authorization-manager.js";
-import { AuthorizedSession, UserSession } from "../sessions/user-session.js";
+import { SavedCharactersService } from "../../services/saved-characters.js";
+import { CHARACTER_LEVEL_LADDER, RankedLadderService } from "../../services/ranked-ladder.js";
+import { GameStateUpdateDispatchFactory } from "../../update-delivery/game-state-update-dispatch-factory.js";
+import {
+  AuthorizedSession,
+  SessionAuthorizationManager,
+} from "../../sessions/authorization-manager.js";
+import { UserSession } from "../../sessions/user-session.js";
+import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
+import { EntityName } from "../../../aliases.js";
 import { LobbyExternalServices } from "../index.js";
-import { CombatantClass } from "../../combatants/combatant-class/classes.js";
-import { EntityName } from "../../aliases.js";
+import { GameStateUpdateDispatchOutbox } from "../../update-delivery/outbox.js";
 
 export class SavedCharactersController {
   private readonly savedCharactersService: SavedCharactersService;

@@ -1,38 +1,36 @@
-import {
-  AffixGenerator,
-  BasicRandomNumberGenerator,
-  CharacterCreator,
-  ClientIntent,
-  ConnectionId,
-  GameStateUpdate,
-  IdGenerator,
-  ItemGenerator,
-  ConnectionEndpoint,
-} from "../index.js";
-import { ClientIntentReceiver } from "./client-intent-receiver.js";
 import { CharacterLifecycleController } from "./controllers/character-lifecycle.js";
 import { SavedCharactersController } from "./controllers/saved-characters.js";
 import { createLobbyClientIntentHandlers } from "./create-lobby-client-intent-handlers.js";
 import { GameLifecycleController } from "./controllers/game-lifecycle.js";
-import { GameSimulatorHandoffStrategy } from "./game-simulator-handoff-strategy.js";
 import { LobbyState } from "./lobby-state.js";
 import { PartySetupController } from "./controllers/party-setup.js";
 import { SessionLifecycleController } from "./controllers/session-lifecycle.js";
-import { RankedLadderService } from "./services/ranked-ladder.js";
-import { SavedCharactersService } from "./services/saved-characters.js";
-import { SpeedDungeonProfileService } from "./services/profiles.js";
-import { GameStateUpdateGateway } from "./update-delivery/game-state-update-gateway.js";
-import {
-  GameStateUpdateDispatchFactory,
-  GameStateUpdateDispatchType,
-} from "./update-delivery/game-state-update-dispatch-factory.js";
-import { UserSessionRegistry } from "./sessions/user-session-registry.js";
-import { SessionAuthorizationManager } from "./sessions/authorization-manager.js";
 import {
   IdentityProviderService,
   IdentityResolutionContext,
-} from "./services/identity-provider.js";
-import { GameStateUpdateDispatchOutbox } from "./update-delivery/update-dispatch-outbox.js";
+} from "../services/identity-provider.js";
+import { SpeedDungeonProfileService } from "../services/profiles.js";
+import { SavedCharactersService } from "../services/saved-characters.js";
+import { RankedLadderService } from "../services/ranked-ladder.js";
+import { GameStateUpdateGateway } from "../update-delivery/game-state-update-gateway.js";
+import { UserSessionRegistry } from "../sessions/user-session-registry.js";
+import {
+  GameStateUpdateDispatchFactory,
+  GameStateUpdateDispatchType,
+} from "../update-delivery/game-state-update-dispatch-factory.js";
+import { SessionAuthorizationManager } from "../sessions/authorization-manager.js";
+import { IdGenerator } from "../../utility-classes/index.js";
+import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
+import { CharacterCreator } from "../../character-creation/index.js";
+import { ClientIntentReceiver } from "../client-intent-receiver.js";
+import { GameHandoffStrategyLobbyToGameServer } from "./game-handoff-strategy-lobby-to-game-server.js";
+import { ItemGenerator } from "../../items/item-creation/index.js";
+import { AffixGenerator } from "../../items/item-creation/builders/affix-generator/index.js";
+import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
+import { GameStateUpdate } from "../../packets/game-state-updates.js";
+import { ClientIntent } from "../../packets/client-intents.js";
+import { ConnectionId } from "../../aliases.js";
+import { GameStateUpdateDispatchOutbox } from "../update-delivery/outbox.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -42,8 +40,8 @@ export interface LobbyExternalServices {
   idGenerator: IdGenerator;
 }
 
-// lives either inside a LobbyServer or locally on a ClientApp
-export class Lobby {
+// lives either inside a LobbyServerNode or locally on a ClientApp
+export class LobbyServer {
   private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
   public readonly lobbyState = new LobbyState();
   private readonly updateGateway = new GameStateUpdateGateway();
@@ -64,7 +62,7 @@ export class Lobby {
 
   constructor(
     private readonly clientIntentReceiver: ClientIntentReceiver,
-    private readonly gameSimulatorHandoffStrategy: GameSimulatorHandoffStrategy,
+    private readonly gameHandoffStrategy: GameHandoffStrategyLobbyToGameServer,
     private readonly externalServices: LobbyExternalServices
   ) {
     this.clientIntentReceiver.initialize(this);
@@ -103,7 +101,7 @@ export class Lobby {
       this.gameStateUpdateDispatchFactory,
       this.partySetupController,
       this.externalServices.idGenerator,
-      this.gameSimulatorHandoffStrategy
+      this.gameHandoffStrategy
     );
 
     this.characterLifecycleController = new CharacterLifecycleController(

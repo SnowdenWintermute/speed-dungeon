@@ -1,21 +1,21 @@
-import { MAX_PARTY_NAME_LENGTH } from "../../app-consts.js";
-import { ERROR_MESSAGES } from "../../errors/index.js";
+import { MAX_PARTY_NAME_LENGTH } from "../../../app-consts.js";
+import { ERROR_MESSAGES } from "../../../errors/index.js";
 import {
   AdventuringParty,
   GameMode,
   getPartyChannelName,
   PartyName,
   SpeedDungeonGame,
-} from "../../index.js";
-import { GameStateUpdateType } from "../../packets/game-state-updates.js";
-import { IdGenerator } from "../../utility-classes/index.js";
-import { LobbyState } from "../lobby-state.js";
+} from "../../../index.js";
+import { GameStateUpdateType } from "../../../packets/game-state-updates.js";
+import { IdGenerator } from "../../../utility-classes/index.js";
+import { GameStateUpdateDispatchFactory } from "../../update-delivery/game-state-update-dispatch-factory.js";
+import { GameStateUpdateDispatchOutbox } from "../../update-delivery/outbox.js";
+import { SessionAuthorizationManager } from "../../sessions/authorization-manager.js";
+import { UserSession } from "../../sessions/user-session.js";
 import { SavedCharactersController } from "./saved-characters.js";
-import { RANDOM_PARTY_NAMES } from "./default-naming/parties.js";
-import { GameStateUpdateDispatchFactory } from "../update-delivery/game-state-update-dispatch-factory.js";
-import { GameStateUpdateDispatchOutbox } from "../update-delivery/update-dispatch-outbox.js";
-import { SessionAuthorizationManager } from "../sessions/authorization-manager.js";
-import { UserSession } from "../sessions/user-session.js";
+import { LobbyState } from "../lobby-state.js";
+import { RANDOM_PARTY_NAMES } from "../default-names/parties.js";
 
 export class PartySetupController {
   constructor(
@@ -51,7 +51,7 @@ export class PartySetupController {
       throw new Error(`Party names may be no longer than ${MAX_PARTY_NAME_LENGTH} characters`);
     }
 
-    const game = session.getExpectedCurrentGame(this.lobbyState);
+    const game = session.getExpectedCurrentGame();
 
     if (game.adventuringParties[partyName]) {
       throw new Error(ERROR_MESSAGES.LOBBY.PARTY_NAME_EXISTS);
@@ -78,7 +78,7 @@ export class PartySetupController {
       throw new Error(ERROR_MESSAGES.LOBBY.ALREADY_IN_PARTY);
     }
 
-    const game = session.getExpectedCurrentGame(this.lobbyState);
+    const game = session.getExpectedCurrentGame();
 
     game.putPlayerInParty(partyName, session.username);
 
@@ -148,7 +148,7 @@ export class PartySetupController {
   }
 
   leavePartyHandler(session: UserSession) {
-    const game = session.getExpectedCurrentGame(this.lobbyState);
+    const game = session.getExpectedCurrentGame();
 
     // get the reference to the party now before we maybe remove it from the game
     const party = session.getExpectedCurrentParty(game);
@@ -180,7 +180,7 @@ export class PartySetupController {
     session: UserSession,
     data: { floorNumber: number }
   ) {
-    const game = session.getExpectedCurrentGame(this.lobbyState);
+    const game = session.getExpectedCurrentGame();
 
     game.requireMode(GameMode.Progression);
 

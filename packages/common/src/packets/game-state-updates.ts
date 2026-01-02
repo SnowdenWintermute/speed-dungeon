@@ -13,7 +13,7 @@ import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
-import { GameSimulatorConnectionInstructions } from "../lobby/game-simulator-handoff-strategy.js";
+import { GameSimulatorConnectionInstructions } from "../servers/lobby-server/game-handoff-strategy-lobby-to-game-server.js";
 import { CharacterSlotIndex, EntityId, GameName, Username } from "../aliases.js";
 import { ExplorationAction } from "../adventuring-party/dungeon-exploration-manager.js";
 import { DungeonRoom, DungeonRoomType } from "../adventuring-party/dungeon-room.js";

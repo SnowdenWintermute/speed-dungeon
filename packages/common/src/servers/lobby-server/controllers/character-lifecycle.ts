@@ -1,17 +1,17 @@
-import { EntityName } from "../../aliases.js";
-import { MAX_CHARACTER_NAME_LENGTH } from "../../app-consts.js";
-import { CombatantClass } from "../../combatants/combatant-class/classes.js";
-import { Combatant } from "../../combatants/index.js";
-import { ERROR_MESSAGES } from "../../errors/index.js";
-import { GameStateUpdateType } from "../../packets/game-state-updates.js";
-import { GameMode } from "../../types.js";
-import { CharacterCreator } from "../character-creation/index.js";
+import { EntityName } from "../../../aliases.js";
+import { MAX_CHARACTER_NAME_LENGTH } from "../../../app-consts.js";
+import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
+import { Combatant } from "../../../combatants/index.js";
+import { ERROR_MESSAGES } from "../../../errors/index.js";
+import { GameStateUpdateType } from "../../../packets/game-state-updates.js";
+import { GameMode } from "../../../types.js";
+import { CharacterCreator } from "../../../character-creation/index.js";
+import { SavedCharactersService } from "../../services/saved-characters.js";
+import { SessionAuthorizationManager } from "../../sessions/authorization-manager.js";
+import { UserSession } from "../../sessions/user-session.js";
+import { GameStateUpdateDispatchFactory } from "../../update-delivery/game-state-update-dispatch-factory.js";
+import { GameStateUpdateDispatchOutbox } from "../../update-delivery/outbox.js";
 import { LobbyState } from "../lobby-state.js";
-import { SavedCharactersService } from "../services/saved-characters.js";
-import { SessionAuthorizationManager } from "../sessions/authorization-manager.js";
-import { UserSession } from "../sessions/user-session.js";
-import { GameStateUpdateDispatchFactory } from "../update-delivery/game-state-update-dispatch-factory.js";
-import { GameStateUpdateDispatchOutbox } from "../update-delivery/update-dispatch-outbox.js";
 
 export class CharacterLifecycleController {
   constructor(
@@ -32,7 +32,7 @@ export class CharacterLifecycleController {
     session: UserSession,
     data: { name: EntityName; combatantClass: CombatantClass }
   ) {
-    const game = session.getExpectedCurrentGame(this.lobbyState);
+    const game = session.getExpectedCurrentGame();
     const party = session.getExpectedCurrentParty(game);
     const { name, combatantClass } = data;
 
@@ -64,7 +64,7 @@ export class CharacterLifecycleController {
 
   deleteCharacterHandler(session: UserSession, data: { characterId: string }) {
     const { characterId } = data;
-    const game = session.getExpectedCurrentGame(this.lobbyState);
+    const game = session.getExpectedCurrentGame();
     const player = game.getExpectedPlayer(session.username);
 
     const playerDoesNotOwnCharacter = !player.characterIds.includes(characterId.toString());
@@ -97,7 +97,7 @@ export class CharacterLifecycleController {
   }
 
   async selectProgressionGameCharacterHandler(session: UserSession, data: { entityId: string }) {
-    const game = session.getExpectedCurrentGame(this.lobbyState);
+    const game = session.getExpectedCurrentGame();
 
     game.requireMode(GameMode.Progression);
 

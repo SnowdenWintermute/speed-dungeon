@@ -1,8 +1,8 @@
-import { IActionUser } from "../../action-user-context/action-user.js";
-import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
-import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
-import { CombatantActionState } from "../../combatants/owned-actions/combatant-action-state.js";
-import { MaxAndCurrent } from "../../primatives/max-and-current.js";
+import { IActionUser } from "../action-user-context/action-user.js";
+import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
+import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
+import { CombatantActionState } from "../combatants/owned-actions/combatant-action-state.js";
+import { MaxAndCurrent } from "../primatives/max-and-current.js";
 
 export function giveStartingAbilities(actionUser: IActionUser) {
   const ownedActions = [

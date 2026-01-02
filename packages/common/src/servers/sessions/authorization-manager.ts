@@ -1,6 +1,13 @@
+import { IdentityProviderId } from "../../aliases.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { SpeedDungeonProfileService } from "../services/profiles.js";
-import { AuthorizedSession, UserSession } from "./user-session.js";
+import { SpeedDungeonProfile, SpeedDungeonProfileService } from "../services/profiles.js";
+import { UserSession } from "./user-session.js";
+
+export interface AuthorizedSession {
+  session: UserSession;
+  userId: IdentityProviderId;
+  profile: SpeedDungeonProfile;
+}
 
 export class SessionAuthorizationManager {
   constructor(private readonly profileService: SpeedDungeonProfileService) {}

@@ -60,16 +60,17 @@ export * from "./packets/client-intents.js";
 export * from "./packets/game-state-updates.js";
 
 // @TODO - can remove exports after this becomes default lobby code
-export * from "./lobby/controllers/default-naming/games.js";
-export * from "./lobby/controllers/default-naming/parties.js";
 
-export * from "./lobby/character-creation/index.js";
-export * from "./lobby/client-intent-receiver.js";
-export * from "./lobby/game-simulator-handoff-strategy.js";
-export * from "./lobby/services/profiles.js";
-export * from "./lobby/services/saved-characters.js";
-export * from "./lobby/services/ranked-ladder.js";
-export * from "./lobby/services/identity-provider.js";
+export * from "./character-creation/index.js";
+export * from "./servers/lobby-server/default-names/game.js";
+export * from "./servers/lobby-server/default-names/parties.js";
+export * from "./servers/lobby-server/game-handoff-strategy-lobby-to-game-server.js";
+export * from "./servers/client-intent-receiver.js";
+export * from "./servers/services/profiles.js";
+export * from "./servers/services/saved-characters.js";
+export * from "./servers/services/ranked-ladder.js";
+export * from "./servers/services/identity-provider.js";
+export * from "./servers/lobby-server/index.js";
 
 export * from "./combatants/attributes/index.js";
 export * from "./combatants/attributes/add-attributes-to-accumulator.js";
@@ -181,7 +182,6 @@ export * from "./conditions/condition-names.js";
 export * from "./conditions/condition-descriptions.js";
 export * from "./conditions/index.js";
 export * from "./conditions/condition-factory.js";
-export * from "./lobby/index.js";
 
 export * from "./items/item-creation/index.js";
 export * from "./items/item-creation/builders/affix-generator/index.js";

@@ -3,15 +3,15 @@ import { giveStartingAbilities } from "./give-starting-abilities.js";
 import { giveStartingEquipment } from "./give-starting-equipment.js";
 import { setPlaytestingCombatantProperties } from "./set-playtesting-combatant-properties.js";
 import { givePlaytestingItems } from "./give-playtesting-items.js";
-import { BASE_STARTING_ATTRIBUTES } from "../../combatants/combatant-class/level-zero-attributes.js";
-import { CombatantProperties } from "../../combatants/combatant-properties.js";
-import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
-import { STARTING_COMBATANT_TRAITS } from "../../combatants/combatant-class/starting-traits.js";
-import { CombatantTraitType } from "../../combatants/combatant-traits/trait-types.js";
-import { HoldableHotswapSlot } from "../../combatants/combatant-equipment/index.js";
-import { ItemGenerator } from "../../items/item-creation/index.js";
-import { Combatant } from "../../combatants/index.js";
-import { ConsumableType } from "../../items/consumables/consumable-types.js";
+import { BASE_STARTING_ATTRIBUTES } from "../combatants/combatant-class/level-zero-attributes.js";
+import { CombatantProperties } from "../combatants/combatant-properties.js";
+import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
+import { STARTING_COMBATANT_TRAITS } from "../combatants/combatant-class/starting-traits.js";
+import { CombatantTraitType } from "../combatants/combatant-traits/trait-types.js";
+import { HoldableHotswapSlot } from "../combatants/combatant-equipment/index.js";
+import { ItemGenerator } from "../items/item-creation/index.js";
+import { Combatant } from "../combatants/index.js";
+import { ConsumableType } from "../items/consumables/consumable-types.js";
 
 export class CharacterOutfitter {
   constructor(private itemGenerator: ItemGenerator) {}
