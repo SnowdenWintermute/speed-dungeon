@@ -12,6 +12,22 @@ import { ClientIntent } from "../../packets/client-intents.js";
 import { ConnectionId } from "../../aliases.js";
 import { GameStateUpdateDispatchOutbox } from "../update-delivery/outbox.js";
 
+// handle a handoff
+// to game server:
+// - set game
+// - know which user session are allowed
+// to users in game:
+// - remote or local "address" of game server
+// - some way of identifying self to the game server
+
+interface GameJoinToken {
+  readonly gameId: string;
+  readonly playerId: string; // internal game session player id
+  readonly identityProviderId: string; // stable user identity
+  readonly expiresAt: number;
+  readonly signature: string; // HMAC or asymmetric signature
+}
+
 export class GameServer {
   private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
   private readonly updateGateway = new GameStateUpdateGateway();
