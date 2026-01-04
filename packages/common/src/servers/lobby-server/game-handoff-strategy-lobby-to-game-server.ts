@@ -1,7 +1,7 @@
 import { ChannelName, ConnectionId, GameName, PartyName, Username } from "../../aliases.js";
-import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { SpeedDungeonPlayer } from "../../game/player.js";
+import { invariant } from "../../utils/index.js";
 import { UserId } from "../sessions/user-ids.js";
 import { UserSessionRegistry } from "../sessions/user-session-registry.js";
 import { UserSession } from "../sessions/user-session.js";
@@ -73,9 +73,7 @@ export class GameHandoffManager {
       );
 
       const MAX_PERMITTED_USER_SESSIONS_IN_GAME = 1;
-      if (sessionsInGame.length > MAX_PERMITTED_USER_SESSIONS_IN_GAME) {
-        throw new Error(ERROR_MESSAGES.CHECKED_EXPECTATION_FAILED);
-      }
+      invariant(sessionsInGame.length <= MAX_PERMITTED_USER_SESSIONS_IN_GAME);
 
       const expectedSessionForThisPlayer = sessionsInGame[0];
       if (expectedSessionForThisPlayer === undefined) {

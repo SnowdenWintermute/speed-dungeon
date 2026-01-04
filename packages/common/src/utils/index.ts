@@ -7,6 +7,13 @@ import cloneDeep from "lodash.clonedeep";
 import { plainToInstance } from "class-transformer";
 import { EntityId, EntityName, GameName, PartyName } from "../aliases.js";
 import { ConsumableType } from "../items/consumables/consumable-types.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
+
+export function invariant(condition: boolean): asserts condition {
+  if (!condition) {
+    throw new Error(ERROR_MESSAGES.CHECKED_EXPECTATION_FAILED);
+  }
+}
 
 export function iterateNumericEnum<T extends Record<string, string | number>>(
   enumType: T
