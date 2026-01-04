@@ -1,18 +1,5 @@
-import { ChannelName, GameName, PartyName, ServerNodeId, Username } from "../../aliases.js";
+import { GameName, ServerNodeId } from "../../aliases.js";
 import { SpeedDungeonGame } from "../../game/index.js";
-import { SpeedDungeonPlayer } from "../../game/player.js";
-import { UserId } from "../sessions/user-ids.js";
-
-class PendingGameServerUserSession {
-  private readonly channelsSubscribedTo = new Set<ChannelName>();
-
-  constructor(
-    public readonly userId: UserId,
-    public readonly playerUsername: Username,
-    public currentGameName: GameName,
-    public currentPartyName: PartyName
-  ) {}
-}
 
 // lobby's way to keep track of if a game's heartbeat checkin has been made,
 // who has been disconnected in a game, and how long a game has gone on, etc.
@@ -33,13 +20,6 @@ class GameServerNodeHandle {
     // @TODO - use a parameterized strategy
   }
 
-  private createPendingPlayerSessions(players: Map<Username, SpeedDungeonPlayer>) {
-    // const result = Object.entries(players)
-    //   .map
-    // (([username, player]) => new PendingGameServerUserSession()
-    // );
-  }
-
   sendNewGame(game: SpeedDungeonGame) {
     // - adds a local record of the game server in the local game server node registry under it's corresponding node
     this.activeGames.set(game.name, new ActiveGameRecord(game));
@@ -47,7 +27,7 @@ class GameServerNodeHandle {
     this.transmitGameToNode(game);
     // - sends Record<ClaimId, PendingSession> to GameServer
 
-    const pendingSessions = this.createPendingPlayerSessions(game.players);
+    // const pendingSessions = this.createPendingPlayerSessions(game.players);
     // - pending session should expire same time as SessionClaim token expires
     // - if no session is claimed within the time window, close the game
   }

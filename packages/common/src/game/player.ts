@@ -23,6 +23,16 @@ export class SpeedDungeonPlayer {
     );
   }
 
+  getExpectedPartyName() {
+    if (this.partyName === null) {
+      throw new Error(
+        "Expected player to have a party when their pending game session is being created"
+      );
+    }
+
+    return this.partyName;
+  }
+
   requireHasCharacters() {
     const playerHasNoCharacters = this.characterIds.length === 0;
     if (playerHasNoCharacters) {
