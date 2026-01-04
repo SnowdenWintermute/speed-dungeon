@@ -30,9 +30,7 @@ export async function getCharacterAssociatedData<
   if (partyResult instanceof Error) throw partyResult;
   if (partyResult === undefined) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
   const party = partyResult;
-  const playerOption = game.players[socketMeta.username];
-  if (playerOption === undefined) throw new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
-  const player = playerOption;
+  const player = game.getExpectedPlayer(socketMeta.username);
 
   const characterResult = party.combatantManager.getCharacterIfOwned(
     player.username,

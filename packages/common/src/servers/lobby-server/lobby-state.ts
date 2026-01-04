@@ -91,7 +91,7 @@ export class LobbyState {
       ([gameName, game]) =>
         new GameListEntry(
           gameName as GameName,
-          Object.keys(game.players).length,
+          game.getPlayerCount(),
           game.mode,
           game.timeStarted,
           game.isRanked

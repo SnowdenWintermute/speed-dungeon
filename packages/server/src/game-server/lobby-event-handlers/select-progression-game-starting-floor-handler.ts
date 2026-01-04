@@ -21,7 +21,7 @@ export default async function selectProgressionGameStartingFloorHandler(
 
   game.selectedStartingFloor = floorNumber;
 
-  const player = game.players[session.username];
+  const player = game.getPlayer(session.username);
   if (!player)
     return errorHandler(socket, new Error(`${ATTEMPT_TEXT} their player wasn't in the game`));
   if (!player.partyName)

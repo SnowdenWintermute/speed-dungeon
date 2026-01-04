@@ -27,7 +27,7 @@ export async function dropItemHandler(
 
   if (itemDroppedIdResult instanceof Error) return itemDroppedIdResult;
 
-  const playerOption = game.players[player.username];
+  const playerOption = game.getPlayer(player.username);
   if (playerOption && playerOption.partyName && game.mode === GameMode.Progression) {
     const maybeError = await writePlayerCharactersInGameToDb(game, playerOption);
     if (maybeError instanceof Error) return errorHandler(socket, maybeError);

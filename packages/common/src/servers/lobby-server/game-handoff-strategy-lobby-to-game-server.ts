@@ -1,4 +1,5 @@
 import { SpeedDungeonGame } from "../../game/index.js";
+import { UserSessionRegistry } from "../sessions/user-session-registry.js";
 import { GameServerNodeDirectory } from "./game-server-node-directory.js";
 
 export enum GameSimulatorConnectionType {
@@ -27,7 +28,10 @@ export interface GameHandoffStrategyLobbyToGameServer {
 }
 
 export class GameHandoffManager {
-  constructor(private readonly gameServerNodeDirectory: GameServerNodeDirectory) {}
+  constructor(
+    private readonly gameServerNodeDirectory: GameServerNodeDirectory,
+    private readonly userSessionRegistry: UserSessionRegistry
+  ) {}
 
   // handle a handoff from Lobby to GameServer
   handoffGame(game: SpeedDungeonGame) {
@@ -38,6 +42,9 @@ export class GameHandoffManager {
     // - sends Record<ClaimId, PendingSession> to GameServer
     // - pending session should expire same time as SessionClaim token expires
     // - if no session is claimed within the time window, close the game
+    for (const [username, player] of Object.entries(game.players)) {
+      // const sessionsInGame = this.userSessionRegistry.getExpectedUserSessions(username)
+    }
     targetServerNode.sendNewGame(game);
     //
     // - sends GameServerAddress to Players

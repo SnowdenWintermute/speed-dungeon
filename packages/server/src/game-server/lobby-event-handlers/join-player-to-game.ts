@@ -16,7 +16,7 @@ export default function joinPlayerToGame(
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
   const player = new SpeedDungeonPlayer(session.username);
-  game.players[session.username] = player;
+  game.addPlayer(player);
 
   session.currentGameName = game.name;
 

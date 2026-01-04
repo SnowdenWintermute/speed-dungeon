@@ -14,7 +14,7 @@ export function cycleTargetingSchemesHandler(
 ) {
   const { game, party, character } = characterAssociatedData;
   const { username } = characterAssociatedData.player;
-  const playerOption = game.players[username];
+  const playerOption = game.getPlayer(username);
   if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
 
   const targetingCalculator = new TargetingCalculator(

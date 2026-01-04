@@ -9,6 +9,7 @@ import {
   LOBBY_CHANNEL,
   MAX_GAME_NAME_LENGTH,
   SpeedDungeonGame,
+  SpeedDungeonPlayer,
 } from "../../../index.js";
 import { GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { GameStateUpdateDispatchFactory } from "../../update-delivery/game-state-update-dispatch-factory.js";
@@ -234,7 +235,7 @@ export class GameLifecycleController {
       data: { channelName: LOBBY_CHANNEL, users: this.lobbyState.getUsersList() },
     });
 
-    const noPlayersRemain = Object.keys(game.players).length === 0;
+    const noPlayersRemain = game.players.size === 0;
     if (noPlayersRemain) {
       this.lobbyState.removeGame(game.name);
 

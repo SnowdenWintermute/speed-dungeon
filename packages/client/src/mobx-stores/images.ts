@@ -4,8 +4,8 @@ import { makeAutoObservable } from "mobx";
 export type ImageString = string;
 
 export class ImagesStore {
-  private itemThumbnails: Map<EntityId, ImageString> = new Map();
-  private combatantPortraits: Map<EntityId, ImageString> = new Map();
+  private itemThumbnails = new Map<EntityId, ImageString>();
+  private combatantPortraits = new Map<EntityId, ImageString>();
 
   constructor() {
     makeAutoObservable(this);

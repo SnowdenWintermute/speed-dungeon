@@ -29,7 +29,7 @@ export async function joinPlayerToProgressionGame(
   const partyOption = game.adventuringParties[partyName];
   if (!partyOption) return new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
 
-  const playerOption = game.players[session.username];
+  const playerOption = game.getPlayer(session.username);
   if (playerOption === undefined)
     return errorHandler(socket, new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST));
 

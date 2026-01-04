@@ -21,6 +21,7 @@ describe("lobby server", () => {
     // make a game host
     const { serverEndpoint: serverEndpointForGameHost, clientEndpoint: _c1 } =
       await inMemoryTransport.createConnection();
+
     const gameHostSession = lobbyServer.userSessionRegistry.getExpectedSession(
       serverEndpointForGameHost.id
     );
@@ -41,7 +42,7 @@ describe("lobby server", () => {
     // game exists with creating player in it
     const game = lobbyServer.lobbyState.getExpectedGame(gameName);
     expect(game.name).toEqual(gameName);
-    expect(game.players[gameHostSession.username]).toBeDefined();
+    expect(game.getPlayer(gameHostSession.username)).toBeDefined();
 
     // outbox created with correct messages
     const gameCreationDispatches = gameCreationOutbox.toDispatches();

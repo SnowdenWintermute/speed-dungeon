@@ -13,7 +13,7 @@
 // - GameServer validates presented token's signature
 // - GameServer checks the presented ClaimId against its list of PendingSessions
 // - GameServer creates a UserSession linking the player's ConnectionId to an object which
-//   tracks a user's internal ID, if Authenticated/Guest status, and which player and characters
+//   knows user's UserId(Guest or Auth) and which player and characters
 //   they are permitted to control in the game
 //
 // handle all players initially connected

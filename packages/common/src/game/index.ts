@@ -14,7 +14,7 @@ import { GAME_CHANNEL_PREFIX } from "../packets/channels.js";
 import { ChannelName, EntityId, GameName, PartyName, Username } from "../aliases.js";
 
 export class SpeedDungeonGame {
-  players: Record<Username, SpeedDungeonPlayer> = {};
+  players = new Map<Username, SpeedDungeonPlayer>();
   playerCapacity: number | null = null;
   playersReadied: string[] = [];
   adventuringParties: Record<PartyName, AdventuringParty> = {};
@@ -51,6 +51,30 @@ export class SpeedDungeonGame {
     }
 
     return deserialized;
+  }
+
+  getPlayers() {
+    return this.players;
+  }
+
+  getPlayer(username: Username) {
+    return this.players.get(username);
+  }
+
+  getExpectedPlayer(username: Username) {
+    const result = this.players.get(username);
+    if (result === undefined) {
+      throw new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+    }
+    return result;
+  }
+
+  getPlayerCount() {
+    return this.players.size;
+  }
+
+  addPlayer(player: SpeedDungeonPlayer) {
+    this.players.set(player.username, player);
   }
 
   /** Used by subscribed user sessions to receive updates about this game.
@@ -95,7 +119,7 @@ export class SpeedDungeonGame {
   }
 
   registerPlayerFromLobbyUser(username: Username) {
-    this.players[username] = new SpeedDungeonPlayer(username);
+    this.addPlayer(new SpeedDungeonPlayer(username));
   }
 
   addCharacterToParty(
@@ -134,7 +158,7 @@ export class SpeedDungeonGame {
 
   /** returns the name of the party and if the party was removed from the game (in the case of its last member being removed) */
   removePlayerFromParty(username: Username): Error | RemovedPlayerData {
-    const player = this.players[username];
+    const player = this.players.get(username);
     const charactersRemoved: Combatant[] = [];
     if (!player) {
       return new Error("No player found to remove");
@@ -185,7 +209,7 @@ export class SpeedDungeonGame {
   removePlayer(username: Username) {
     const removedPlayerResult = this.removePlayerFromParty(username);
     if (removedPlayerResult instanceof Error) return removedPlayerResult;
-    delete this.players[username];
+    this.players.delete(username);
     ArrayUtils.removeElement(this.playersReadied, username);
     return removedPlayerResult;
   }
@@ -193,7 +217,7 @@ export class SpeedDungeonGame {
   putPlayerInParty(partyName: PartyName, username: Username) {
     const party = this.adventuringParties[partyName];
     if (!party) throw new Error("Tried to put a player in a party but the party didn't exist");
-    const player = this.players[username];
+    const player = this.players.get(username);
     if (!player) {
       throw new Error("Tried to put a player in a party but couldn't find the player in game");
     }
@@ -255,7 +279,7 @@ export class SpeedDungeonGame {
   }
 
   getPlayerPartyOption(username: Username): Error | AdventuringParty | undefined {
-    const playerOption = this.players[username];
+    const playerOption = this.players.get(username);
     if (!playerOption) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
     const partyNameOption = playerOption.partyName;
     if (!partyNameOption) return undefined;
@@ -291,14 +315,6 @@ export class SpeedDungeonGame {
     const result = this.adventuringParties[partyName];
     if (!result) {
       throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
-    }
-    return result;
-  }
-
-  getExpectedPlayer(username: Username) {
-    const result = this.players[username];
-    if (result === undefined) {
-      throw new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
     }
     return result;
   }

@@ -6,7 +6,7 @@ export default function getSocketIdOfPlayer(
   game: SpeedDungeonGame,
   username: Username
 ): Error | SocketId {
-  const playerOption = game.players[username];
+  const playerOption = game.getPlayer(username);
   if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
   const player = playerOption;
   const playerSocketIdsOption = this.socketIdsByUsername.get(player.username);

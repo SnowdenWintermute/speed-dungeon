@@ -32,7 +32,7 @@ export function getPlayerAssociatedData(socket: Socket): Error | ServerPlayerAss
   const game = gameResult;
   const partyResult = game.getPlayerPartyOption(session.username);
   if (partyResult instanceof Error) return partyResult;
-  const playerOption = game.players[session.username];
+  const playerOption = game.getPlayer(session.username);
   if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
 
   return { session, game, partyOption: partyResult, player: playerOption };

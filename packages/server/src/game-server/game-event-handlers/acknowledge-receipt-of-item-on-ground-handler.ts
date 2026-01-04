@@ -21,7 +21,7 @@ export function acknowledgeReceiptOfItemOnGroundHandler(
   let allUsersInPartyHaveReceivedItemUpdate = true;
 
   for (const username of party.playerUsernames) {
-    const playerOption = game.players[username];
+    const playerOption = game.getPlayer(username);
     if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
     if (!receivedBy.includes(username)) {
       allUsersInPartyHaveReceivedItemUpdate = false;

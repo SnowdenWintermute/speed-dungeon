@@ -1,6 +1,5 @@
 import {
   CharacterAssociatedData,
-  ERROR_MESSAGES,
   NextOrPrevious,
   ServerToClientEvent,
   TargetingCalculator,
@@ -16,19 +15,18 @@ export function cycleTargetsHandler(
   const { game, party, character } = characterAssociatedData;
   const { username } = characterAssociatedData.player;
 
-  const playerOption = game.players[username];
-  if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+  const player = game.getExpectedPlayer(username);
 
   const targetingCalculator = new TargetingCalculator(
     new ActionUserContext(game, party, character),
-    playerOption
+    player
   );
 
   const validTargetsByDisposition = targetingCalculator.getValidTargetsByDisposition();
 
   const targetingProperties = character.getTargetingProperties();
 
-  targetingProperties.cycleTargets(eventData.direction, playerOption, validTargetsByDisposition);
+  targetingProperties.cycleTargets(eventData.direction, player, validTargetsByDisposition);
 
   getGameServer()
     .io.to(getPartyChannelName(game.name, party.name))

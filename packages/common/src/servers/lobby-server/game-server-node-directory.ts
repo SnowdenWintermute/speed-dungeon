@@ -8,6 +8,7 @@ class PendingGameServerUserSession {
 
   constructor(
     public readonly userId: UserId,
+    public readonly playerUsername: Username,
     public currentGameName: GameName,
     public currentPartyName: PartyName
   ) {}
@@ -32,11 +33,11 @@ class GameServerNodeHandle {
     // @TODO - use a parameterized strategy
   }
 
-  private createPendingPlayerSessions(players: Record<Username, SpeedDungeonPlayer>) {
+  private createPendingPlayerSessions(players: Map<Username, SpeedDungeonPlayer>) {
     // const result = Object.entries(players)
     //   .map
-    // ([username, player]) => new PendingGameServerUserSession()
-    // ();
+    // (([username, player]) => new PendingGameServerUserSession()
+    // );
   }
 
   sendNewGame(game: SpeedDungeonGame) {
@@ -45,6 +46,7 @@ class GameServerNodeHandle {
     // - sends Game to GameServerNode
     this.transmitGameToNode(game);
     // - sends Record<ClaimId, PendingSession> to GameServer
+
     const pendingSessions = this.createPendingPlayerSessions(game.players);
     // - pending session should expire same time as SessionClaim token expires
     // - if no session is claimed within the time window, close the game
