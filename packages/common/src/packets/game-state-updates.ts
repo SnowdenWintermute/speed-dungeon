@@ -35,7 +35,7 @@ export enum GameStateUpdateType {
   CharacterDeleted,
   PlayerToggledReadyToStartGame,
   GameStarted,
-  GameSimulatorConnectionInstructions,
+  GameServerConnectionInstructions,
 
   PlayerToggledReadyToDescendOrExplore,
   DungeonRoomTypesOnCurrentFloor,
@@ -129,7 +129,7 @@ export interface GameStateUpdateMap {
   [GameStateUpdateType.GameStarted]: {
     timeStarted: number;
   };
-  [GameStateUpdateType.GameSimulatorConnectionInstructions]: {
+  [GameStateUpdateType.GameServerConnectionInstructions]: {
     connectionInstructions: GameSimulatorConnectionInstructions;
   };
   [GameStateUpdateType.PlayerToggledReadyToDescendOrExplore]: {

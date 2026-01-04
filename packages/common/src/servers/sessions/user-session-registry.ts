@@ -1,4 +1,11 @@
-import { ChannelName, ConnectionId, ERROR_MESSAGES, Username } from "../../index.js";
+import {
+  ChannelName,
+  ConnectionId,
+  ERROR_MESSAGES,
+  GameName,
+  invariant,
+  Username,
+} from "../../index.js";
 import { UserSession } from "./user-session.js";
 
 export class UserSessionRegistry {
@@ -93,5 +100,23 @@ export class UserSessionRegistry {
     } else {
       return userSessionOption;
     }
+  }
+
+  public getExpectedSessionInGame(username: Username, gameName: GameName) {
+    const existingSessionsByThisPlayerUsername = this.getExpectedUserSessions(username);
+
+    const sessionsInGame = existingSessionsByThisPlayerUsername.filter(
+      (session) => session.currentGameName === gameName
+    );
+
+    const MAX_PERMITTED_USER_SESSIONS_IN_GAME = 1;
+    invariant(sessionsInGame.length <= MAX_PERMITTED_USER_SESSIONS_IN_GAME);
+
+    const expectedSessionForThisPlayer = sessionsInGame[0];
+    if (expectedSessionForThisPlayer === undefined) {
+      throw new Error("expected to have a user session to match the player in game");
+    }
+
+    return expectedSessionForThisPlayer;
   }
 }

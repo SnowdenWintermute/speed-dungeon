@@ -17,6 +17,8 @@ export type CharacterSlotIndex = number & { __brand: "CharacterSlotIndex" };
 
 export type ServerNodeId = string & { __brand: "ServerNodeId" };
 
+export type SessionClaimId = string & { __brand: "SessionClaimId" };
+
 export type Milliseconds = number;
 export type Seconds = number;
 export type Meters = number;
