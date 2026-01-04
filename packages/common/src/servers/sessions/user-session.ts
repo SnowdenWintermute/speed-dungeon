@@ -4,11 +4,11 @@ import {
   ChannelName,
   ConnectionId,
   GameName,
-  IdentityProviderId,
   PartyName,
   SpeedDungeonGame,
   Username,
 } from "../../index.js";
+import { UserId } from "./user-ids.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
 
 export class UserSession {
@@ -20,8 +20,7 @@ export class UserSession {
     public readonly username: Username,
     /** either a socket.id or a locally generated UUID on client */
     public readonly connectionId: ConnectionId,
-    /** snowauth user id */
-    public readonly userId: null | IdentityProviderId,
+    public readonly userId: UserId,
     public getExpectedCurrentGame: () => SpeedDungeonGame
   ) {}
 

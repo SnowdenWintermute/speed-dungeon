@@ -1,4 +1,5 @@
 import { SpeedDungeonGame } from "../../game/index.js";
+import { GameServerNodeDirectory } from "./game-server-node-directory.js";
 
 export enum GameSimulatorConnectionType {
   Local,
@@ -23,30 +24,23 @@ export type GameSimulatorConnectionInstructions =
 // on the client or send it over websockets to a GameServer which owns a GameSimulator
 export interface GameHandoffStrategyLobbyToGameServer {
   handoff(game: SpeedDungeonGame): GameSimulatorConnectionInstructions;
+}
 
-  // @TODO
-  // hand off the game to a game simulator and let it take care of the following:
-  // - await expected connections from players
-  // - handle game mode specific onStart business
-  // - trigger the game simulator's "next room exploration" handler to automatically
-  //   put parties in their first room of the dungeon
-  //
-  // let clients know how they should connect to the game simulator and provide them with
-  // credentials if needed
-  // - tell them the game started
-  // - give them connection instructions to the game simulator
-  // - give credentials if needed
+export class GameHandoffManager {
+  constructor(private readonly gameServerNodeDirectory: GameServerNodeDirectory) {}
 
-  // const gameModeContext = gameServer.gameModeContexts[game.mode];
-  // await gameModeContext.onGameStart(game);
-  // gameServer.io.of("/").in(game.name).emit(ServerToClientEvent.GameStarted, game.timeStarted);
-  //
-  // for (const player of Object.values(game.players)) {
-  //   const socketIdResult = gameServer.getSocketIdOfPlayer(game, player.username);
-  //   if (socketIdResult instanceof Error) return socketIdResult;
-  //   if (!player.partyName) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
-  //   const partyOption = game.adventuringParties[player.partyName];
-  //   if (!partyOption) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
-  //   toggleReadyToExploreHandler(undefined, { game, partyOption, player, session });
-  // }
+  // handle a handoff from Lobby to GameServer
+  handoffGame(game: SpeedDungeonGame) {
+    // - checks existing GameServers for the one with the lowest load
+    const targetServerNode = this.gameServerNodeDirectory.getLeastBusyGameServerNode();
+    // - adds a local record of the game server in the local game server node registry under it's corresponding node
+    // - sends Game to GameServerNode
+    // - sends Record<ClaimId, PendingSession> to GameServer
+    // - pending session should expire same time as SessionClaim token expires
+    // - if no session is claimed within the time window, close the game
+    targetServerNode.sendNewGame(game);
+    //
+    // - sends GameServerAddress to Players
+    // - sends GameServerSessionClaimToken to Players
+  }
 }

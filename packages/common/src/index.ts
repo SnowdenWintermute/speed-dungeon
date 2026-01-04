@@ -71,6 +71,7 @@ export * from "./servers/services/saved-characters.js";
 export * from "./servers/services/ranked-ladder.js";
 export * from "./servers/services/identity-provider.js";
 export * from "./servers/lobby-server/index.js";
+export * from "./servers/sessions/user-ids.js";
 
 export * from "./combatants/attributes/index.js";
 export * from "./combatants/attributes/add-attributes-to-accumulator.js";

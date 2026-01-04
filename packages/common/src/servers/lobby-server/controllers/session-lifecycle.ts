@@ -21,6 +21,8 @@ import { GameLifecycleController } from "./game-lifecycle.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { PLAYER_FIRST_NAMES, PLAYER_LAST_NAMES } from "../default-names/users.js";
 import { GameStateUpdateDispatchOutbox } from "../../update-delivery/outbox.js";
+import { IdGenerator } from "../../../utility-classes/index.js";
+import { UserId, UserIdType } from "../../sessions/user-ids.js";
 
 export class SessionLifecycleController {
   constructor(
@@ -31,7 +33,8 @@ export class SessionLifecycleController {
     private readonly updateDispatchFactory: GameStateUpdateDispatchFactory,
     private readonly savedCharactersController: SavedCharactersController,
     private readonly gameLifecycleController: GameLifecycleController,
-    private readonly identityProviderService: IdentityProviderService
+    private readonly identityProviderService: IdentityProviderService,
+    private readonly idGenerator: IdGenerator
   ) {}
 
   async createUserSession(
@@ -51,7 +54,7 @@ export class SessionLifecycleController {
       return this.lobbyState.getExpectedGame(currentGameName);
     };
 
-    if (authenticatedUserOption.userId === null) {
+    if (authenticatedUserOption === null) {
       const { username, userId } = this.createGuestUser();
       return new UserSession(username, connectionId, userId, expectedGameGetter);
     }
@@ -68,7 +71,8 @@ export class SessionLifecycleController {
   }
 
   private createGuestUser() {
-    return { username: this.generateRandomUsername(), userId: null };
+    const userId: UserId = { type: UserIdType.Guest, id: this.idGenerator.generate() };
+    return { username: this.generateRandomUsername(), userId };
   }
 
   async connectionHandler(

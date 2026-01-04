@@ -1,4 +1,5 @@
 import { IdentityProviderId, Username } from "../../aliases.js";
+import { UserId } from "../sessions/user-ids.js";
 
 export interface IdentityResolutionContext {
   readonly cookies?: string;
@@ -8,7 +9,7 @@ export interface IdentityResolutionContext {
 export interface IdentityProviderSessionQueryStrategy {
   execute(
     context: IdentityResolutionContext
-  ): Promise<{ username: Username; userId: IdentityProviderId | null }>;
+  ): Promise<{ username: Username; userId: UserId } | null>;
 }
 
 export class IdentityProviderService {

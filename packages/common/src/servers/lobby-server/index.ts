@@ -31,6 +31,8 @@ import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { ClientIntent } from "../../packets/client-intents.js";
 import { ConnectionId } from "../../aliases.js";
 import { GameStateUpdateDispatchOutbox } from "../update-delivery/outbox.js";
+import { GameServerNodeDirectory } from "./game-server-node-directory.js";
+import { UserIdType } from "../sessions/user-ids.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -42,6 +44,7 @@ export interface LobbyExternalServices {
 
 // lives either inside a LobbyServerNode or locally on a ClientApp
 export class LobbyServer {
+  private readonly gameServerNodeRegistry = new GameServerNodeDirectory();
   private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
   public readonly lobbyState = new LobbyState();
   private readonly updateGateway = new GameStateUpdateGateway();
@@ -120,7 +123,8 @@ export class LobbyServer {
       this.gameStateUpdateDispatchFactory,
       this.savedCharactersController,
       this.gameLifecycleController,
-      this.externalServices.identityProviderService
+      this.externalServices.identityProviderService,
+      this.externalServices.idGenerator
     );
   }
 
@@ -135,8 +139,8 @@ export class LobbyServer {
       identityResolutionContext
     );
 
-    if (newSession.userId !== null) {
-      this.externalServices.profileService.createProfileIfUserHasNone(newSession.userId);
+    if (newSession.userId.type === UserIdType.Auth) {
+      this.externalServices.profileService.createProfileIfUserHasNone(newSession.userId.id);
     }
 
     const outbox = await this.sessionLifecycleController.connectionHandler(

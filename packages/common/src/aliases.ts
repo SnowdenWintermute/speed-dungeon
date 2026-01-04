@@ -15,6 +15,8 @@ export type ConditionId = string & { __brand: "ConditionId" };
 export type ActionRank = number & { __brand: "ActionRank" };
 export type CharacterSlotIndex = number & { __brand: "CharacterSlotIndex" };
 
+export type ServerNodeId = string & { __brand: "ServerNodeId" };
+
 export type Milliseconds = number;
 export type Seconds = number;
 export type Meters = number;
