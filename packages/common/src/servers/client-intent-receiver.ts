@@ -1,26 +1,30 @@
-import { ClientIntent } from "../packets/client-intents.js";
 import { ConnectionId } from "../aliases.js";
 import { IdentityResolutionContext } from "./services/identity-provider.js";
-import { GameStateUpdate } from "../packets/game-state-updates.js";
 import { ConnectionEndpoint } from "../transport/connection-endpoint.js";
 
-export interface IntentHandler {
-  handleIntent: (clientIntent: ClientIntent, fromConnectionId: ConnectionId) => void;
+export interface IntentHandler<
+  ClientMessage extends { type: PropertyKey; data: unknown },
+  ServerMessage extends { type: PropertyKey; data: unknown },
+> {
+  handleIntent: (clientIntent: ClientMessage, fromConnectionId: ConnectionId) => void;
   handleConnection(
-    transportEndpoint: ConnectionEndpoint<GameStateUpdate, ClientIntent>,
+    transportEndpoint: ConnectionEndpoint<ServerMessage, ClientMessage>,
     identityResolutionContext: IdentityResolutionContext
   ): Promise<void>;
 }
 
-export abstract class ClientIntentReceiver {
-  private intentHandler: IntentHandler | null = null;
+export abstract class ClientIntentReceiver<
+  ClientMessage extends { type: PropertyKey; data: unknown },
+  ServerMessage extends { type: PropertyKey; data: unknown },
+> {
+  private intentHandler: IntentHandler<ClientMessage, ServerMessage> | null = null;
 
-  initialize(intentHandler: IntentHandler) {
+  initialize(intentHandler: IntentHandler<ClientMessage, ServerMessage>) {
     this.intentHandler = intentHandler;
   }
 
   async handleConnection(
-    transportEndpoint: ConnectionEndpoint<GameStateUpdate, ClientIntent>,
+    transportEndpoint: ConnectionEndpoint<ServerMessage, ClientMessage>,
     identityResolutionContext: IdentityResolutionContext
   ) {
     if (this.intentHandler === null) {
@@ -34,7 +38,7 @@ export abstract class ClientIntentReceiver {
       and determine which player they came from */
   abstract listen(): void;
 
-  dispatchIntent(clientIntent: ClientIntent, fromConnectionId: ConnectionId) {
+  dispatchIntent(clientIntent: ClientMessage, fromConnectionId: ConnectionId) {
     const expectedHandler = this.intentHandler;
 
     if (expectedHandler === null) {

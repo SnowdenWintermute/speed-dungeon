@@ -10,6 +10,7 @@ import {
 import { ClientIntent } from "../../packets/client-intents.js";
 import { ConnectionId, GameName } from "../../aliases.js";
 import { GameStateUpdateDispatchOutbox } from "../update-delivery/outbox.js";
+import { GameStateUpdate } from "../../packets/game-state-updates.js";
 
 export class GameServer {
   private readonly games = new Map<GameName, SpeedDungeonGame>();
@@ -27,7 +28,7 @@ export class GameServer {
   // public readonly savedCharactersController: SavedCharactersController;
 
   constructor(
-    private readonly clientIntentReceiver: ClientIntentReceiver
+    private readonly clientIntentReceiver: ClientIntentReceiver<ClientIntent, GameStateUpdate>
     // private readonly externalServices: LobbyExternalServices
   ) {
     // this.clientIntentReceiver.initialize(this);

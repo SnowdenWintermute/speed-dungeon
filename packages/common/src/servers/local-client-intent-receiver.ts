@@ -3,7 +3,10 @@ import { GameStateUpdate } from "../packets/game-state-updates.js";
 import { LocalConnectionEndpointManager } from "../transport/local-connection-endpoint-manager.js";
 import { ClientIntentReceiver } from "./client-intent-receiver.js";
 
-export class LobbyLocalClientIntentReceiver extends ClientIntentReceiver {
+export class LobbyLocalClientIntentReceiver extends ClientIntentReceiver<
+  ClientIntent,
+  GameStateUpdate
+> {
   constructor(
     private localServerConnectionEndpointManager: LocalConnectionEndpointManager<
       GameStateUpdate,

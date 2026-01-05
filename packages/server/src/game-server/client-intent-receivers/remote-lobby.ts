@@ -14,7 +14,7 @@ import {
   TransportDisconnectReasonType,
 } from "@speed-dungeon/common";
 
-export class SocketTransportEndpoint implements ConnectionEndpoint<GameStateUpdate, ClientIntent> {
+export class SocketConnectionEndpoint implements ConnectionEndpoint<GameStateUpdate, ClientIntent> {
   id: ConnectionId;
   constructor(private socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>) {
     this.id = this.socket.id as ConnectionId;
@@ -33,14 +33,17 @@ export class SocketTransportEndpoint implements ConnectionEndpoint<GameStateUpda
   }
 }
 
-export class LobbyRemoteClientIntentReceiver extends ClientIntentReceiver {
+export class LobbyRemoteClientIntentReceiver extends ClientIntentReceiver<
+  ClientIntent,
+  GameStateUpdate
+> {
   constructor(private io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
     super();
   }
 
   listen() {
     this.io.of("/").on("connection", async (socket) => {
-      const transportEndpoint = new SocketTransportEndpoint(socket);
+      const transportEndpoint = new SocketConnectionEndpoint(socket);
 
       const req = socket.request;
       const cookies = req.headers.cookie;

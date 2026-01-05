@@ -33,6 +33,7 @@ import { GameStateUpdateDispatchOutbox } from "../update-delivery/outbox.js";
 import { GameServerNodeDirectory } from "./game-server-node-directory.js";
 import { UserIdType } from "../sessions/user-ids.js";
 import { GameHandoffStrategyLobbyToGameServer } from "./game-handoff/handoff-strategy.js";
+import { ServerToServerPacket } from "../../packets/server-to-server.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -64,7 +65,11 @@ export class LobbyServer {
   public readonly characterLifecycleController: CharacterLifecycleController;
 
   constructor(
-    private readonly clientIntentReceiver: ClientIntentReceiver,
+    private readonly clientIntentReceiver: ClientIntentReceiver<ClientIntent, GameStateUpdate>,
+    private readonly gameServerMessageReceiver: ClientIntentReceiver<
+      ServerToServerPacket,
+      ServerToServerPacket
+    >,
     private readonly gameHandoffStrategy: GameHandoffStrategyLobbyToGameServer,
     private readonly externalServices: LobbyExternalServices
   ) {
