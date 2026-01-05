@@ -33,6 +33,7 @@ import {
 } from "../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
+import { ConnectionSession, SessionRegistry } from "../sessions/session-registry.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -55,6 +56,7 @@ export class LobbyServer {
   private readonly characterCreator: CharacterCreator;
 
   public readonly sessionAuthManager: SessionAuthorizationManager;
+  private intentHandlers = createLobbyClientIntentHandlers(this);
 
   // controllers
   public readonly gameLifecycleController: GameLifecycleController;
@@ -132,8 +134,6 @@ export class LobbyServer {
     );
   }
 
-  private intentHandlers = createLobbyClientIntentHandlers(this);
-
   async handleConnection(
     connectionEndpoint: ConnectionEndpoint<GameStateUpdate, ClientIntent>,
     identityResolutionContext: IdentityResolutionContext
@@ -182,7 +182,53 @@ export class LobbyServer {
   }
 }
 
-// connection domains
+abstract class ConnectionDomain<
+  Sendable extends { type: PropertyKey; data: unknown },
+  Receivable extends { type: PropertyKey; data: unknown },
+  Session extends ConnectionSession,
+> {
+  // private messageHandlers
+  abstract sessionRegistry: SessionRegistry<Session>;
+
+  private readonly outgoingMessageGateway = new OutgoingMessageGateway<Sendable, Receivable>();
+
+  // verifies authenticity of connection and create's a session for it
+  abstract handleHandshake(connectionId: ConnectionId): void;
+  // calls controller for each message and dispatches the messages they return in their outboxes
+  abstract handleIncomingMessage(message: Receivable, connectionId: ConnectionId): void;
+  abstract messageDispatchFactory: MessageDispatchFactory<Sendable>;
+
+  // disconnectionHandler
+
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+  constructor() {
+    // createMessageHandlers()
+  }
+
+  protected async handleIntent(incomingMessage: Receivable, connectionId: ConnectionId) {
+    // const handlerOption = this.messageHandlers[clientIntent.type];
+    // if (handlerOption === undefined) {
+    //   throw new Error("Lobby is not configured to handle this type of ClientIntent");
+    // }
+    const fromSession = this.sessionRegistry.getExpectedSession(connectionId);
+    // a workaround is to use "as never" for some reason
+    // const outbox = await handlerOption(incomingMessage.data as never, fromSession);
+    // this.dispatchOutboxMessages(outbox);
+  }
+
+  protected dispatchOutboxMessages(outbox: MessageDispatchOutbox<Sendable>) {
+    for (const dispatch of outbox.toDispatches()) {
+      switch (dispatch.type) {
+        case MessageDispatchType.Single:
+          this.outgoingMessageGateway.submitToConnection(dispatch.connectionId, dispatch.message);
+          break;
+        case MessageDispatchType.FanOut:
+          this.outgoingMessageGateway.submitToConnections(dispatch.connectionIds, dispatch.message);
+          break;
+      }
+    }
+  }
+}
 
 // on connection
 // - put connection endpoint id in a pendingHandshakes: Map<ConnectionId, ConnectionEndpoint>
@@ -191,6 +237,8 @@ export class LobbyServer {
 // - determine type of client (user or game server)
 // - call appropriate handleHandshake
 
+// connection domains
+//
 // usersManager | gameServersManager
 // handle handshake - verify connector's identity (guest user, auth user, trusted game server)
 // store sessions

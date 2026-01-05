@@ -21,8 +21,18 @@ module.exports = {
     "@typescript-eslint/switch-exhaustiveness-check": "error",
     "@typescript-eslint/no-unused-expressions": "error",
     "@typescript-eslint/no-dynamic-delete":"off",
-    "@typescript-eslint/no-unused-vars":"warn",
     "@typescript-eslint/no-inferrable-types": "off",
-    "@typescript-eslint/no-explicit-any":"off"
+    "@typescript-eslint/no-explicit-any":"off",
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        "args": "all",
+        "argsIgnorePattern": "^_",
+        "caughtErrors": "all",
+        "caughtErrorsIgnorePattern": "^_",
+        "destructuredArrayIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      },]
   },
 };

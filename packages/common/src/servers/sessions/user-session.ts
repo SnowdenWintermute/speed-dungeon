@@ -8,10 +8,11 @@ import {
   SpeedDungeonGame,
   Username,
 } from "../../index.js";
+import { ConnectionSession } from "./session-registry.js";
 import { UserId } from "./user-ids.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
 
-export class UserSession {
+export class UserSession implements ConnectionSession {
   public currentGameName: null | GameName = null;
   public currentPartyName: null | PartyName = null;
   private channelsSubscribedTo = new Set<ChannelName>();

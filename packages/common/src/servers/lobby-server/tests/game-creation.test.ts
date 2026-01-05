@@ -57,7 +57,7 @@ describe("lobby server", () => {
     expect(userLeftLobbyChannel).toEqual({
       type: MessageDispatchType.FanOut,
       connectionIds: [otherLobbyUserSession.connectionId],
-      update: {
+      message: {
         type: GameStateUpdateType.UserLeftChannel,
         data: { username: gameHostSession.username },
       },
@@ -68,7 +68,7 @@ describe("lobby server", () => {
     expect(newGameUpdate).toEqual({
       type: MessageDispatchType.Single,
       connectionId: gameHostSession.connectionId,
-      update: {
+      message: {
         type: GameStateUpdateType.GameFullUpdate,
         data: { game: game.getSerialized() },
       },
@@ -79,7 +79,7 @@ describe("lobby server", () => {
     expect(playerJoinedGame).toEqual({
       type: MessageDispatchType.FanOut,
       connectionIds: [], // empty since no one was in the game yet
-      update: {
+      message: {
         type: GameStateUpdateType.PlayerJoinedGame,
         data: { username: gameHostSession.username },
       },
@@ -99,7 +99,7 @@ describe("lobby server", () => {
     // expect(gameCreationError).toEqual({
     //   type: GameStateUpdateDispatchType.Single,
     //   connectionId: otherLobbyUserSession.connectionId,
-    //   update: {
+    //   message: {
     //     type: GameStateUpdateType.GameList,
     //     data: {
     //       gameList: [new GameListEntry(gameName, 1, GameMode.Race, null, false)],
@@ -116,7 +116,7 @@ describe("lobby server", () => {
     expect(gameList).toEqual({
       type: MessageDispatchType.Single,
       connectionId: otherLobbyUserSession.connectionId,
-      update: {
+      message: {
         type: GameStateUpdateType.GameList,
         data: {
           gameList: [new GameListEntry(gameName, 1, GameMode.Race, null, false)],
@@ -135,7 +135,7 @@ describe("lobby server", () => {
     expect(secondPlayerJoinedGame).toEqual({
       type: MessageDispatchType.FanOut,
       connectionIds: [gameHostSession.connectionId],
-      update: {
+      message: {
         type: GameStateUpdateType.PlayerJoinedGame,
         data: { username: otherLobbyUserSession.username },
       },
