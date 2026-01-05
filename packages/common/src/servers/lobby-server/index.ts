@@ -12,12 +12,7 @@ import {
 import { SpeedDungeonProfileService } from "../services/profiles.js";
 import { SavedCharactersService } from "../services/saved-characters.js";
 import { RankedLadderService } from "../services/ranked-ladder.js";
-import { GameStateUpdateGateway } from "../update-delivery/game-state-update-gateway.js";
 import { UserSessionRegistry } from "../sessions/user-session-registry.js";
-import {
-  GameStateUpdateDispatchFactory,
-  GameStateUpdateDispatchType,
-} from "../update-delivery/game-state-update-dispatch-factory.js";
 import { SessionAuthorizationManager } from "../sessions/authorization-manager.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
@@ -29,11 +24,15 @@ import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { ClientIntent } from "../../packets/client-intents.js";
 import { ConnectionId } from "../../aliases.js";
-import { GameStateUpdateDispatchOutbox } from "../update-delivery/outbox.js";
 import { GameServerNodeDirectory } from "./game-server-node-directory.js";
 import { UserIdType } from "../sessions/user-ids.js";
 import { GameHandoffStrategyLobbyToGameServer } from "./game-handoff/handoff-strategy.js";
-import { ServerToServerPacket } from "../../packets/server-to-server.js";
+import {
+  MessageDispatchFactory,
+  MessageDispatchType,
+} from "../update-delivery/message-dispatch-factory.js";
+import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
+import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -48,9 +47,9 @@ export class LobbyServer {
   private readonly gameServerNodeRegistry = new GameServerNodeDirectory();
   private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
   public readonly lobbyState = new LobbyState();
-  private readonly updateGateway = new GameStateUpdateGateway();
+  private readonly updateGateway = new OutgoingMessageGateway<GameStateUpdate, ClientIntent>();
   readonly userSessionRegistry = new UserSessionRegistry();
-  private readonly gameStateUpdateDispatchFactory = new GameStateUpdateDispatchFactory(
+  private readonly gameStateUpdateDispatchFactory = new MessageDispatchFactory<GameStateUpdate>(
     this.userSessionRegistry
   );
   private readonly characterCreator: CharacterCreator;
@@ -66,10 +65,10 @@ export class LobbyServer {
 
   constructor(
     private readonly clientIntentReceiver: ClientIntentReceiver<ClientIntent, GameStateUpdate>,
-    private readonly gameServerMessageReceiver: ClientIntentReceiver<
-      ServerToServerPacket,
-      ServerToServerPacket
-    >,
+    // private readonly gameServerMessageReceiver: ClientIntentReceiver<
+    //   ServerToServerPacket,
+    //   ServerToServerPacket
+    // >,
     private readonly gameHandoffStrategy: GameHandoffStrategyLobbyToGameServer,
     private readonly externalServices: LobbyExternalServices
   ) {
@@ -136,11 +135,11 @@ export class LobbyServer {
   private intentHandlers = createLobbyClientIntentHandlers(this);
 
   async handleConnection(
-    transportEndpoint: ConnectionEndpoint<GameStateUpdate, ClientIntent>,
+    connectionEndpoint: ConnectionEndpoint<GameStateUpdate, ClientIntent>,
     identityResolutionContext: IdentityResolutionContext
   ) {
     const newSession = await this.sessionLifecycleController.createUserSession(
-      transportEndpoint.id,
+      connectionEndpoint.id,
       identityResolutionContext
     );
 
@@ -150,7 +149,7 @@ export class LobbyServer {
 
     const outbox = await this.sessionLifecycleController.connectionHandler(
       newSession,
-      transportEndpoint
+      connectionEndpoint
     );
     this.dispatchOutboxMessages(outbox);
   }
@@ -169,16 +168,33 @@ export class LobbyServer {
     this.dispatchOutboxMessages(outbox);
   }
 
-  private dispatchOutboxMessages(outbox: GameStateUpdateDispatchOutbox) {
+  private dispatchOutboxMessages(outbox: MessageDispatchOutbox<GameStateUpdate>) {
     for (const dispatch of outbox.toDispatches()) {
       switch (dispatch.type) {
-        case GameStateUpdateDispatchType.Single:
-          this.updateGateway.submitToConnection(dispatch.connectionId, dispatch.update);
+        case MessageDispatchType.Single:
+          this.updateGateway.submitToConnection(dispatch.connectionId, dispatch.message);
           break;
-        case GameStateUpdateDispatchType.FanOut:
-          this.updateGateway.submitToConnections(dispatch.connectionIds, dispatch.update);
+        case MessageDispatchType.FanOut:
+          this.updateGateway.submitToConnections(dispatch.connectionIds, dispatch.message);
           break;
       }
     }
   }
 }
+
+// connection domains
+
+// on connection
+// - put connection endpoint id in a pendingHandshakes: Map<ConnectionId, ConnectionEndpoint>
+//
+// on handshake packet
+// - determine type of client (user or game server)
+// - call appropriate handleHandshake
+
+// usersManager | gameServersManager
+// handle handshake - verify connector's identity (guest user, auth user, trusted game server)
+// store sessions
+// contain controller subsystems with handlers corresponding to typed messages
+// handle client packets -> create outboxes
+// submit outbox dispatches to connections
+// handle disconnections

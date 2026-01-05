@@ -11,22 +11,22 @@ import {
   MAX_GAME_NAME_LENGTH,
   SpeedDungeonGame,
 } from "../../../index.js";
-import { GameStateUpdateType } from "../../../packets/game-state-updates.js";
-import { GameStateUpdateDispatchFactory } from "../../update-delivery/game-state-update-dispatch-factory.js";
-import { GameStateUpdateDispatchOutbox } from "../../update-delivery/outbox.js";
+import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
 import { SessionAuthorizationManager } from "../../sessions/authorization-manager.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { LobbyState } from "../lobby-state.js";
 import { PartySetupController } from "./party-setup.js";
 import { RANDOM_GAME_NAMES_FIRST, RANDOM_GAME_NAMES_LAST } from "../default-names/game.js";
+import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
+import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 
 export class GameLifecycleController {
   constructor(
     private readonly lobbyState: LobbyState,
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly sessionAuthManager: SessionAuthorizationManager,
-    private readonly updateDispatchFactory: GameStateUpdateDispatchFactory,
+    private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly partySetupController: PartySetupController,
     private readonly idGenerator: IdGenerator,
     private readonly gameSimulatorHandoffStrategy: GameHandoffStrategyLobbyToGameServer
@@ -59,7 +59,7 @@ export class GameLifecycleController {
   requestGameListHandler(session: UserSession) {
     const gameList = this.lobbyState.getGamesList();
 
-    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.GameList,
       data: { gameList },
@@ -171,7 +171,7 @@ export class GameLifecycleController {
     // update the lobby's user list for when players ask for the list of users in lobby
     this.lobbyState.removeUser(session.username);
 
-    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     // tell the clients in the lobby that the user left the lobby channel
     outbox.pushToChannel(LOBBY_CHANNEL, {
       type: GameStateUpdateType.UserLeftChannel,
@@ -211,7 +211,7 @@ export class GameLifecycleController {
     const game = session.getExpectedCurrentGame();
     const partyOption = session.getCurrentPartyOption(game);
 
-    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 
     if (partyOption !== null) {
       const otherOutbox = this.partySetupController.leavePartyHandler(session);
@@ -263,7 +263,7 @@ export class GameLifecycleController {
 
     const allPlayersReadied = game.togglePlayerReadyToStartGameStatus(session.username);
 
-    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.PlayerToggledReadyToStartGame,
       data: { username: session.username },

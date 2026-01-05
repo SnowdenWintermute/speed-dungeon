@@ -3,7 +3,6 @@ import { LobbyServer } from "../index.js";
 import { GameName } from "../../../aliases.js";
 import { GameMode } from "../../../types.js";
 import { InMemoryTransport } from "../../../transport/in-memory-transport.js";
-import { GameStateUpdateDispatchType } from "../../update-delivery/game-state-update-dispatch-factory.js";
 import {
   GameListEntry,
   GameStateUpdate,
@@ -11,6 +10,7 @@ import {
 } from "../../../packets/game-state-updates.js";
 import { TestHelpers } from "./helpers.js";
 import { ClientIntent } from "../../../packets/client-intents.js";
+import { MessageDispatchType } from "../../update-delivery/message-dispatch-factory.js";
 
 describe("lobby server", () => {
   let inMemoryTransport: InMemoryTransport<ClientIntent, GameStateUpdate>;
@@ -55,7 +55,7 @@ describe("lobby server", () => {
     // let's other user know the game host left the lobby
     const userLeftLobbyChannel = gameCreationDispatches[0];
     expect(userLeftLobbyChannel).toEqual({
-      type: GameStateUpdateDispatchType.FanOut,
+      type: MessageDispatchType.FanOut,
       connectionIds: [otherLobbyUserSession.connectionId],
       update: {
         type: GameStateUpdateType.UserLeftChannel,
@@ -66,7 +66,7 @@ describe("lobby server", () => {
     // gives game host their new game data
     const newGameUpdate = gameCreationDispatches[1];
     expect(newGameUpdate).toEqual({
-      type: GameStateUpdateDispatchType.Single,
+      type: MessageDispatchType.Single,
       connectionId: gameHostSession.connectionId,
       update: {
         type: GameStateUpdateType.GameFullUpdate,
@@ -77,7 +77,7 @@ describe("lobby server", () => {
     // tell clients already in the game that someone joined, which is no one yet since it was just created
     const playerJoinedGame = gameCreationDispatches[2];
     expect(playerJoinedGame).toEqual({
-      type: GameStateUpdateDispatchType.FanOut,
+      type: MessageDispatchType.FanOut,
       connectionIds: [], // empty since no one was in the game yet
       update: {
         type: GameStateUpdateType.PlayerJoinedGame,
@@ -114,7 +114,7 @@ describe("lobby server", () => {
 
     const gameList = getGameListDispatches[0];
     expect(gameList).toEqual({
-      type: GameStateUpdateDispatchType.Single,
+      type: MessageDispatchType.Single,
       connectionId: otherLobbyUserSession.connectionId,
       update: {
         type: GameStateUpdateType.GameList,
@@ -133,7 +133,7 @@ describe("lobby server", () => {
 
     const secondPlayerJoinedGame = joinGameDispatches[2];
     expect(secondPlayerJoinedGame).toEqual({
-      type: GameStateUpdateDispatchType.FanOut,
+      type: MessageDispatchType.FanOut,
       connectionIds: [gameHostSession.connectionId],
       update: {
         type: GameStateUpdateType.PlayerJoinedGame,

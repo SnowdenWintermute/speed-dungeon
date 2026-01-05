@@ -1,7 +1,5 @@
 import { LOBBY_CHANNEL } from "../../../packets/channels.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
-import { GameStateUpdateGateway } from "../../update-delivery/game-state-update-gateway.js";
-import { GameStateUpdateDispatchFactory } from "../../update-delivery/game-state-update-dispatch-factory.js";
 import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
 import { SessionAuthorizationManager } from "../../sessions/authorization-manager.js";
 import { UserSession } from "../../sessions/user-session.js";
@@ -20,17 +18,19 @@ import { SavedCharactersController } from "./saved-characters.js";
 import { GameLifecycleController } from "./game-lifecycle.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { PLAYER_FIRST_NAMES, PLAYER_LAST_NAMES } from "../default-names/users.js";
-import { GameStateUpdateDispatchOutbox } from "../../update-delivery/outbox.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
 import { UserId, UserIdType } from "../../sessions/user-ids.js";
+import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
+import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
+import { OutgoingMessageGateway } from "../../update-delivery/message-gateway.js";
 
 export class SessionLifecycleController {
   constructor(
     private readonly lobbyState: LobbyState,
-    private readonly updateGateway: GameStateUpdateGateway,
+    private readonly updateGateway: OutgoingMessageGateway<GameStateUpdate, ClientIntent>,
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly sessionAuthManager: SessionAuthorizationManager,
-    private readonly updateDispatchFactory: GameStateUpdateDispatchFactory,
+    private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly savedCharactersController: SavedCharactersController,
     private readonly gameLifecycleController: GameLifecycleController,
     private readonly identityProviderService: IdentityProviderService,
@@ -91,7 +91,7 @@ export class SessionLifecycleController {
     this.userSessionRegistry.register(session);
     this.updateGateway.registerEndpoint(session.connectionId, endpoint);
 
-    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 
     // tell the client their username
     outbox.pushToConnection(session.connectionId, {
@@ -127,7 +127,7 @@ export class SessionLifecycleController {
       `-- ${session.username} (${session.connectionId})  disconnected. Reason - ${reason.getStringName()}`
     );
 
-    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
+    const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
     if (session.currentGameName !== null) {
       const leaveGameHandlerOutbox = this.gameLifecycleController.leaveGameHandler(session);
       outbox.pushFromOther(leaveGameHandlerOutbox);

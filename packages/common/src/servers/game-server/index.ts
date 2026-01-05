@@ -1,23 +1,19 @@
 import { SpeedDungeonGame } from "../../game/index.js";
-import { GameStateUpdateGateway } from "../update-delivery/game-state-update-gateway.js";
 import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
 import { ClientIntentReceiver } from "../client-intent-receiver.js";
 import { UserSessionRegistry } from "../sessions/user-session-registry.js";
-import {
-  GameStateUpdateDispatchFactory,
-  GameStateUpdateDispatchType,
-} from "../update-delivery/game-state-update-dispatch-factory.js";
 import { ClientIntent } from "../../packets/client-intents.js";
 import { ConnectionId, GameName } from "../../aliases.js";
-import { GameStateUpdateDispatchOutbox } from "../update-delivery/outbox.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
+import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
+import { MessageDispatchFactory } from "../update-delivery/message-dispatch-factory.js";
 
 export class GameServer {
   private readonly games = new Map<GameName, SpeedDungeonGame>();
   private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
-  private readonly updateGateway = new GameStateUpdateGateway();
+  private readonly updateGateway = new OutgoingMessageGateway<GameStateUpdate, ClientIntent>();
   readonly userSessionRegistry = new UserSessionRegistry();
-  private readonly gameStateUpdateDispatchFactory = new GameStateUpdateDispatchFactory(
+  private readonly gameStateUpdateDispatchFactory = new MessageDispatchFactory<GameStateUpdate>(
     this.userSessionRegistry
   );
   // public readonly sessionAuthManager: SessionAuthorizationManager;
@@ -70,16 +66,16 @@ export class GameServer {
     // this.dispatchOutboxMessages(outbox);
   }
 
-  private dispatchOutboxMessages(outbox: GameStateUpdateDispatchOutbox) {
-    for (const dispatch of outbox.toDispatches()) {
-      switch (dispatch.type) {
-        case GameStateUpdateDispatchType.Single:
-          this.updateGateway.submitToConnection(dispatch.connectionId, dispatch.update);
-          break;
-        case GameStateUpdateDispatchType.FanOut:
-          this.updateGateway.submitToConnections(dispatch.connectionIds, dispatch.update);
-          break;
-      }
-    }
-  }
+  // private dispatchOutboxMessages(outbox: GameStateUpdateDispatchOutbox) {
+  //   for (const dispatch of outbox.toDispatches()) {
+  //     switch (dispatch.type) {
+  //       case GameStateUpdateDispatchType.Single:
+  //         this.updateGateway.submitToConnection(dispatch.connectionId, dispatch.update);
+  //         break;
+  //       case GameStateUpdateDispatchType.FanOut:
+  //         this.updateGateway.submitToConnections(dispatch.connectionIds, dispatch.update);
+  //         break;
+  //     }
+  //   }
+  // }
 }

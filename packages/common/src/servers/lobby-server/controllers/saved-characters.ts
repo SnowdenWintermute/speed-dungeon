@@ -1,11 +1,10 @@
 import { Combatant } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
-import { GameStateUpdateType } from "../../../packets/game-state-updates.js";
+import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { CharacterCreator } from "../../../character-creation/index.js";
 import { CharacterLifecycleController } from "./character-lifecycle.js";
 import { SavedCharactersService } from "../../services/saved-characters.js";
 import { CHARACTER_LEVEL_LADDER, RankedLadderService } from "../../services/ranked-ladder.js";
-import { GameStateUpdateDispatchFactory } from "../../update-delivery/game-state-update-dispatch-factory.js";
 import {
   AuthorizedSession,
   SessionAuthorizationManager,
@@ -14,14 +13,15 @@ import { UserSession } from "../../sessions/user-session.js";
 import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
 import { EntityName } from "../../../aliases.js";
 import { LobbyExternalServices } from "../index.js";
-import { GameStateUpdateDispatchOutbox } from "../../update-delivery/outbox.js";
+import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
+import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 
 export class SavedCharactersController {
   private readonly savedCharactersService: SavedCharactersService;
   private readonly rankedLadderService: RankedLadderService;
   constructor(
     private readonly sessionAuthManager: SessionAuthorizationManager,
-    private readonly updateDispatchFactory: GameStateUpdateDispatchFactory,
+    private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     externalServices: LobbyExternalServices,
     private readonly characterCreator: CharacterCreator
   ) {
@@ -35,7 +35,7 @@ export class SavedCharactersController {
       authorizedSession.profile.id
     );
 
-    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     // tell this session about their saved characters
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.SavedCharacterList,
@@ -96,7 +96,7 @@ export class SavedCharactersController {
     const slot = await this.savedCharactersService.requireEmptySlot(profile.id, slotIndex);
     await this.savedCharactersService.saveCharacterInSlot(slot, newCharacter, pets, userId);
 
-    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.SavedCharacter,
       data: {
@@ -120,7 +120,7 @@ export class SavedCharactersController {
     // remove them from ladder
     await this.rankedLadderService.removeEntry(CHARACTER_LEVEL_LADDER, entityId);
 
-    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.SavedCharacterDeleted,
       data: { entityId },

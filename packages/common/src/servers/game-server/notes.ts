@@ -1,7 +1,7 @@
 // on game server spin-up
 // - has hardcoded lobby address
 // - opens connection with lobby and provides some secret credentials
-// - lobby's connection handler
+// - lobby's connection handler verifiest credentials and the lobby->game server connection is now trusted
 //
 // handle a handoff from Lobby to GameServer
 // - checks existing GameServers for the one with the lowest load

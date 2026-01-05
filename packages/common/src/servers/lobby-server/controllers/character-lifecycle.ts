@@ -3,21 +3,21 @@ import { MAX_CHARACTER_NAME_LENGTH } from "../../../app-consts.js";
 import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
 import { Combatant } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
-import { GameStateUpdateType } from "../../../packets/game-state-updates.js";
+import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { GameMode } from "../../../types.js";
 import { CharacterCreator } from "../../../character-creation/index.js";
 import { SavedCharactersService } from "../../services/saved-characters.js";
 import { SessionAuthorizationManager } from "../../sessions/authorization-manager.js";
 import { UserSession } from "../../sessions/user-session.js";
-import { GameStateUpdateDispatchFactory } from "../../update-delivery/game-state-update-dispatch-factory.js";
-import { GameStateUpdateDispatchOutbox } from "../../update-delivery/outbox.js";
 import { LobbyState } from "../lobby-state.js";
+import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
+import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 
 export class CharacterLifecycleController {
   constructor(
     private readonly lobbyState: LobbyState,
     private readonly sessionAuthManager: SessionAuthorizationManager,
-    private readonly updateDispatchFactory: GameStateUpdateDispatchFactory,
+    private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly savedCharactersService: SavedCharactersService,
     private readonly characterCreator: CharacterCreator
   ) {}
@@ -52,7 +52,7 @@ export class CharacterLifecycleController {
     const serialized = newCharacter.getSerialized();
     const serializedPets = pets.map((pet) => pet.getSerialized());
 
-    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 
     outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.CharacterAddedToParty,
@@ -77,7 +77,7 @@ export class CharacterLifecycleController {
 
     party.combatantManager.updateHomePositions();
 
-    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 
     const wasReadied = game.playersReadied.includes(session.username);
     if (wasReadied) {
@@ -133,7 +133,7 @@ export class CharacterLifecycleController {
 
     game.setMaxStartingFloor();
 
-    const outbox = new GameStateUpdateDispatchOutbox(this.updateDispatchFactory);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 
     outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame,

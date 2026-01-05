@@ -1,12 +1,12 @@
 import { ConnectionId, GameName, SessionClaimId, Username } from "../../../aliases.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { SpeedDungeonPlayer } from "../../../game/player.js";
-import { GameStateUpdateType } from "../../../packets/game-state-updates.js";
+import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
 import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
 import { UserSession } from "../../sessions/user-session.js";
-import { GameStateUpdateDispatchFactory } from "../../update-delivery/game-state-update-dispatch-factory.js";
-import { GameStateUpdateDispatchOutbox } from "../../update-delivery/outbox.js";
+import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
+import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { GameServerNodeDirectory } from "../game-server-node-directory.js";
 import { GameServerConnectionType } from "./connection-instructions.js";
 import { PendingGameServerUserSession } from "./pending-user-session.js";
@@ -15,13 +15,13 @@ import { GameServerSessionClaimToken } from "./session-claim-token.js";
 export class GameHandoffManager {
   private connectionInstructionsAwaitingGameSetupConfirmation = new Map<
     GameName,
-    GameStateUpdateDispatchOutbox
+    MessageDispatchOutbox<GameStateUpdate>
   >();
 
   constructor(
     private readonly gameServerNodeDirectory: GameServerNodeDirectory,
     private readonly userSessionRegistry: UserSessionRegistry,
-    private readonly updateFactory: GameStateUpdateDispatchFactory,
+    private readonly updateFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly idGenerator: IdGenerator
   ) {}
 
@@ -86,7 +86,7 @@ export class GameHandoffManager {
       throw new Error("unhandled failure of handoff to game server");
     }
 
-    const outbox = new GameStateUpdateDispatchOutbox(this.updateFactory);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateFactory);
     for (const [connectionId, sessionClaimToken] of claimTokensByConnectionId) {
       outbox.pushToConnection(connectionId, {
         type: GameStateUpdateType.GameServerConnectionInstructions,
