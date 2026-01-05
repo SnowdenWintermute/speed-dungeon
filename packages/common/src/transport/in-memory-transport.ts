@@ -1,6 +1,4 @@
 import { ConnectionId } from "../aliases.js";
-import { ClientIntent } from "../packets/client-intents.js";
-import { GameStateUpdate } from "../packets/game-state-updates.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { LocalConnectionEndpointManager } from "./local-connection-endpoint-manager.js";
 import {
@@ -9,22 +7,25 @@ import {
   TransportDisconnectReasonType,
 } from "./connection-endpoint.js";
 
-export class InMemoryTransport {
+export class InMemoryTransport<
+  ClientMessage extends { type: PropertyKey; data: unknown },
+  ServerMessage extends { type: PropertyKey; data: unknown },
+> {
   private readonly idGenerator = new IdGenerator({ saveHistory: false });
   private readonly serverConnectionEndpointManager = new LocalConnectionEndpointManager<
-    GameStateUpdate,
-    ClientIntent
+    ServerMessage,
+    ClientMessage
   >();
 
   private readonly clientConnectionEndpointManager = new LocalConnectionEndpointManager<
-    ClientIntent,
-    GameStateUpdate
+    ClientMessage,
+    ServerMessage
   >();
 
   async createConnection() {
     const id = this.idGenerator.generate() as ConnectionId;
 
-    const serverEndpoint = new LocalConnectionEndpoint<GameStateUpdate, ClientIntent>(
+    const serverEndpoint = new LocalConnectionEndpoint<ServerMessage, ClientMessage>(
       id,
       (update) => clientEndpoint.receive(update),
       () =>
@@ -34,7 +35,7 @@ export class InMemoryTransport {
         )
     );
 
-    const clientEndpoint = new LocalConnectionEndpoint<ClientIntent, GameStateUpdate>(
+    const clientEndpoint = new LocalConnectionEndpoint<ClientMessage, ServerMessage>(
       id,
       (intent) => serverEndpoint.receive(intent),
       () =>

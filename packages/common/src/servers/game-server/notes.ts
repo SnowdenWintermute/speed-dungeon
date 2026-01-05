@@ -1,10 +1,21 @@
+// on game server spin-up
+// - has hardcoded lobby address
+// - opens connection with lobby and provides some secret credentials
+// - lobby's connection handler
+//
 // handle a handoff from Lobby to GameServer
 // - checks existing GameServers for the one with the lowest load
-// - sends Game to GameServer
+// - adds a local record of the game server in the local game server node registry under it's corresponding node
+// - sends Game to GameServerNode
 // - sends Record<ClaimId, PendingSession> to GameServer
 // - pending session should expire same time as SessionClaim token expires
 // - if no session is claimed within the time window, close the game
+// - stores claim tokens for players and waits for game server to say it is ready
 //
+//  handle "game ready to receive players" message from game server to lobby
+// find a staged outbox for this game name
+// - sends GameServerAddress to Players
+// - sends GameServerSessionClaimToken to Players
 // - sends GameServerAddress to Players
 // - sends GameServerSessionClaimToken to Players
 //

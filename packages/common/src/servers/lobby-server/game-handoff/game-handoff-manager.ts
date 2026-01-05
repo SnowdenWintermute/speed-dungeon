@@ -13,6 +13,11 @@ import { PendingGameServerUserSession } from "./pending-user-session.js";
 import { GameServerSessionClaimToken } from "./session-claim-token.js";
 
 export class GameHandoffManager {
+  private connectionInstructionsAwaitingGameSetupConfirmation = new Map<
+    GameName,
+    GameStateUpdateDispatchOutbox
+  >();
+
   constructor(
     private readonly gameServerNodeDirectory: GameServerNodeDirectory,
     private readonly userSessionRegistry: UserSessionRegistry,
@@ -68,13 +73,7 @@ export class GameHandoffManager {
 
   // handle a handoff from Lobby to GameServer
   async initiateGameHandoff(game: SpeedDungeonGame) {
-    // - checks existing GameServers for the one with the lowest load
     const targetServerNode = this.gameServerNodeDirectory.getLeastBusyGameServerNode();
-    // - adds a local record of the game server in the local game server node registry under it's corresponding node
-    // - sends Game to GameServerNode
-    // - sends Record<ClaimId, PendingSession> to GameServer
-    // - pending session should expire same time as SessionClaim token expires
-    // - if no session is claimed within the time window, close the game
     const pendingSessions = this.createPendingPlayerSessions(game);
     const { pendingSessionsByClaimId, claimTokensByConnectionId } = this.prepareClaimTokens(
       pendingSessions,
@@ -87,10 +86,6 @@ export class GameHandoffManager {
       throw new Error("unhandled failure of handoff to game server");
     }
 
-    // @TODO - wait for game receipt message before sending claims to players
-    // - sends GameServerAddress to Players
-    // - sends GameServerSessionClaimToken to Players
-    // @TODO - use strategy to determine connectionInstructions from claimtokens
     const outbox = new GameStateUpdateDispatchOutbox(this.updateFactory);
     for (const [connectionId, sessionClaimToken] of claimTokensByConnectionId) {
       outbox.pushToConnection(connectionId, {
@@ -105,6 +100,15 @@ export class GameHandoffManager {
       });
     }
 
-    return outbox;
+    // stage outbox and wait for confirmation from game server that game is ready
+    // before sending claims to players
+    this.connectionInstructionsAwaitingGameSetupConfirmation.set(game.name, outbox);
+  }
+
+  onGameReadyHandler(gameName: GameName) {
+    // find a staged outbox for this game name
+    // - sends GameServerAddress to Players
+    // - sends GameServerSessionClaimToken to Players
+    // @TODO - use strategy to determine connectionInstructions from claimtokens
   }
 }

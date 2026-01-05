@@ -2,7 +2,7 @@ import { ConnectionId } from "../aliases.js";
 import { LocalConnectionEndpoint, TransportDisconnectReason } from "./connection-endpoint.js";
 
 export class LocalConnectionEndpointManager<
-  Sendable,
+  Sendable extends { type: PropertyKey; data: unknown },
   Receivable extends { type: PropertyKey; data: unknown },
 > {
   private connections = new Map<ConnectionId, LocalConnectionEndpoint<Sendable, Receivable>>();

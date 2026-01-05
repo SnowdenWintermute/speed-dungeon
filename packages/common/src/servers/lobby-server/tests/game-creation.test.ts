@@ -4,11 +4,16 @@ import { GameName } from "../../../aliases.js";
 import { GameMode } from "../../../types.js";
 import { InMemoryTransport } from "../../../transport/in-memory-transport.js";
 import { GameStateUpdateDispatchType } from "../../update-delivery/game-state-update-dispatch-factory.js";
-import { GameListEntry, GameStateUpdateType } from "../../../packets/game-state-updates.js";
+import {
+  GameListEntry,
+  GameStateUpdate,
+  GameStateUpdateType,
+} from "../../../packets/game-state-updates.js";
 import { TestHelpers } from "./helpers.js";
+import { ClientIntent } from "../../../packets/client-intents.js";
 
 describe("lobby server", () => {
-  let inMemoryTransport: InMemoryTransport;
+  let inMemoryTransport: InMemoryTransport<ClientIntent, GameStateUpdate>;
   let lobbyServer: LobbyServer;
 
   beforeEach(() => {

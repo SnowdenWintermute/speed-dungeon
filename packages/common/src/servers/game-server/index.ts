@@ -8,10 +8,11 @@ import {
   GameStateUpdateDispatchType,
 } from "../update-delivery/game-state-update-dispatch-factory.js";
 import { ClientIntent } from "../../packets/client-intents.js";
-import { ConnectionId } from "../../aliases.js";
+import { ConnectionId, GameName } from "../../aliases.js";
 import { GameStateUpdateDispatchOutbox } from "../update-delivery/outbox.js";
 
 export class GameServer {
+  private readonly games = new Map<GameName, SpeedDungeonGame>();
   private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
   private readonly updateGateway = new GameStateUpdateGateway();
   readonly userSessionRegistry = new UserSessionRegistry();
@@ -26,7 +27,6 @@ export class GameServer {
   // public readonly savedCharactersController: SavedCharactersController;
 
   constructor(
-    public readonly game: SpeedDungeonGame,
     private readonly clientIntentReceiver: ClientIntentReceiver
     // private readonly externalServices: LobbyExternalServices
   ) {

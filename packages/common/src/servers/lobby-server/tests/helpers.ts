@@ -16,11 +16,13 @@ import {
   GameServerConnectionInstructions,
   GameServerConnectionType,
 } from "../game-handoff/connection-instructions.js";
+import { ClientIntent } from "../../../packets/client-intents.js";
+import { GameStateUpdate } from "../../../packets/game-state-updates.js";
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class TestHelpers {
   static createInMemoryTransportWithTestLobby() {
-    const inMemoryTransport = new InMemoryTransport();
+    const inMemoryTransport = new InMemoryTransport<ClientIntent, GameStateUpdate>();
 
     const lobbyLocalClientIntentReceiver = new LobbyLocalClientIntentReceiver(
       inMemoryTransport.getServerConnectionEndpointManager()
