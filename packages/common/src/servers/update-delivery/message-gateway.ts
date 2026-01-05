@@ -1,10 +1,7 @@
 import { ConnectionId } from "../../aliases.js";
 import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
 
-export class OutgoingMessageGateway<
-  Sendable extends { type: PropertyKey; data: unknown },
-  Receivable extends { type: PropertyKey; data: unknown },
-> {
+export class OutgoingMessageGateway<Sendable, Receivable> {
   // socket.io socket objects or local client transport endpoints
   private transportEndpoints = new Map<ConnectionId, ConnectionEndpoint<Sendable, Receivable>>();
   registerEndpoint(

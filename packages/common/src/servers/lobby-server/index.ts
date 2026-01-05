@@ -34,6 +34,7 @@ import {
 import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
 import { ConnectionSession, SessionRegistry } from "../sessions/session-registry.js";
+import { UserSession } from "../sessions/user-session.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -182,20 +183,33 @@ export class LobbyServer {
   }
 }
 
+type IncomingMessageHandler<
+  M extends Record<PropertyKey, unknown>,
+  Session extends ConnectionSession,
+> = {
+  [K in keyof M]: (
+    data: M[K],
+    session: Session
+  ) => MessageDispatchOutbox<any> | Promise<MessageDispatchOutbox<any>>;
+};
+
 abstract class ConnectionDomain<
   Sendable extends { type: PropertyKey; data: unknown },
   Receivable extends { type: PropertyKey; data: unknown },
+  IncomingMap extends Record<PropertyKey, unknown>,
   Session extends ConnectionSession,
 > {
   // private messageHandlers
   abstract sessionRegistry: SessionRegistry<Session>;
 
+  protected abstract readonly messageHandlers: Partial<
+    IncomingMessageHandler<IncomingMap, Session>
+  >;
+
   private readonly outgoingMessageGateway = new OutgoingMessageGateway<Sendable, Receivable>();
 
   // verifies authenticity of connection and create's a session for it
   abstract handleHandshake(connectionId: ConnectionId): void;
-  // calls controller for each message and dispatches the messages they return in their outboxes
-  abstract handleIncomingMessage(message: Receivable, connectionId: ConnectionId): void;
   abstract messageDispatchFactory: MessageDispatchFactory<Sendable>;
 
   // disconnectionHandler
@@ -205,15 +219,17 @@ abstract class ConnectionDomain<
     // createMessageHandlers()
   }
 
-  protected async handleIntent(incomingMessage: Receivable, connectionId: ConnectionId) {
-    // const handlerOption = this.messageHandlers[clientIntent.type];
-    // if (handlerOption === undefined) {
-    //   throw new Error("Lobby is not configured to handle this type of ClientIntent");
-    // }
+  // calls controller for each message and dispatches the messages they return in their outboxes
+  protected async handleIncomingMessage(incomingMessage: Receivable, connectionId: ConnectionId) {
+    const handlerOption = this.messageHandlers[incomingMessage.type];
+    if (handlerOption === undefined) {
+      throw new Error(`Unhandled message type: ${String(incomingMessage.type)}`);
+    }
+
     const fromSession = this.sessionRegistry.getExpectedSession(connectionId);
     // a workaround is to use "as never" for some reason
-    // const outbox = await handlerOption(incomingMessage.data as never, fromSession);
-    // this.dispatchOutboxMessages(outbox);
+    const outbox = await handlerOption(incomingMessage.data as never, fromSession);
+    this.dispatchOutboxMessages(outbox);
   }
 
   protected dispatchOutboxMessages(outbox: MessageDispatchOutbox<Sendable>) {

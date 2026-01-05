@@ -2,10 +2,7 @@ import { ConnectionId } from "../aliases.js";
 import { IdentityResolutionContext } from "./services/identity-provider.js";
 import { ConnectionEndpoint } from "../transport/connection-endpoint.js";
 
-export interface IntentHandler<
-  ClientMessage extends { type: PropertyKey; data: unknown },
-  ServerMessage extends { type: PropertyKey; data: unknown },
-> {
+export interface IntentHandler<ClientMessage, ServerMessage> {
   handleIntent: (clientIntent: ClientMessage, fromConnectionId: ConnectionId) => void;
   handleConnection(
     connectionEndpoint: ConnectionEndpoint<ServerMessage, ClientMessage>,
@@ -14,10 +11,7 @@ export interface IntentHandler<
 }
 
 /** Stands between the local/remote connection manager and packet receipt handlers */
-export abstract class ClientIntentReceiver<
-  ClientMessage extends { type: PropertyKey; data: unknown },
-  ServerMessage extends { type: PropertyKey; data: unknown },
-> {
+export abstract class ClientIntentReceiver<ClientMessage, ServerMessage> {
   private intentHandler: IntentHandler<ClientMessage, ServerMessage> | null = null;
 
   /** Watch for and handle incoming connections. Set up their subscriptions. */

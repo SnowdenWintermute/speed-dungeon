@@ -6,23 +6,23 @@ export enum MessageDispatchType {
   FanOut,
 }
 
-export interface MessageDispatchSingle<Sendable extends { type: PropertyKey; data: unknown }> {
+export interface MessageDispatchSingle<Sendable> {
   type: MessageDispatchType.Single;
   message: Sendable;
   connectionId: ConnectionId;
 }
 
-export interface MessageDispatchFanOut<Sendable extends { type: PropertyKey; data: unknown }> {
+export interface MessageDispatchFanOut<Sendable> {
   type: MessageDispatchType.FanOut;
   message: Sendable;
   connectionIds: ConnectionId[];
 }
 
-export type MessageDispatch<Sendable extends { type: PropertyKey; data: unknown }> =
+export type MessageDispatch<Sendable> =
   | MessageDispatchSingle<Sendable>
   | MessageDispatchFanOut<Sendable>;
 
-export class MessageDispatchFactory<Sendable extends { type: PropertyKey; data: unknown }> {
+export class MessageDispatchFactory<Sendable> {
   constructor(private readonly userSessionRegistry: UserSessionRegistry) {}
 
   createSingle(to: ConnectionId, message: Sendable): MessageDispatchSingle<Sendable> {
