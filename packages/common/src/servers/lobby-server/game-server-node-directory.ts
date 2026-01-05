@@ -1,6 +1,6 @@
 import { GameName, ServerNodeId, SessionClaimId } from "../../aliases.js";
 import { SpeedDungeonGame } from "../../game/index.js";
-import { PendingGameServerUserSession } from "../../index.js";
+import { PendingGameServerUserSession } from "./game-handoff/pending-user-session.js";
 
 // lobby's way to keep track of if a game's heartbeat checkin has been made,
 // who has been disconnected in a game, and how long a game has gone on, etc.
@@ -17,14 +17,15 @@ class GameServerNodeHandle {
     public readonly url: string
   ) {}
 
-  private transmitGameToNode(
+  private async transmitGameToNode(
     game: SpeedDungeonGame,
     pendingSessions: Map<SessionClaimId, PendingGameServerUserSession>
-  ) {
+  ): Promise<{ success: boolean }> {
     // @TODO - use a parameterized strategy
+    return { success: true };
   }
 
-  handleNewActiveGame(
+  async handleNewActiveGame(
     game: SpeedDungeonGame,
     pendingSessions: Map<SessionClaimId, PendingGameServerUserSession>
   ) {
@@ -32,7 +33,7 @@ class GameServerNodeHandle {
     this.activeGames.set(game.name, new ActiveGameRecord(game));
     // - sends Game to GameServerNode
     // - sends Record<ClaimId, PendingSession> to GameServer
-    this.transmitGameToNode(game, pendingSessions);
+    return this.transmitGameToNode(game, pendingSessions);
     // - @TODO if no session is claimed within the time window, close the game
   }
 }

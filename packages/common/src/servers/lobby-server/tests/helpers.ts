@@ -11,11 +11,11 @@ import { InMemorySpeedDungeonProfileService } from "../../../servers/services/pr
 import { IdentityProviderService } from "../../../servers/services/identity-provider.js";
 import { FakeUsersIdentityProviderQueryStrategy } from "../../../servers/services/identity-provider.test.js";
 import { InMemoryRankedLadderService } from "../../../servers/services/ranked-ladder.test.js";
-import {
-  GameSimulatorConnectionInstructions,
-  GameSimulatorConnectionType,
-} from "../game-handoff-strategy-lobby-to-game-server.js";
 import { LobbyServer } from "../index.js";
+import {
+  GameServerConnectionInstructions,
+  GameServerConnectionType,
+} from "../game-handoff/connection-instructions.js";
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class TestHelpers {
@@ -26,12 +26,10 @@ export class TestHelpers {
       inMemoryTransport.getServerConnectionEndpointManager()
     );
 
-    const fakeGameHandoffStrategy = (
-      game: SpeedDungeonGame
-    ): GameSimulatorConnectionInstructions => {
+    const fakeGameHandoffStrategy = (game: SpeedDungeonGame): GameServerConnectionInstructions => {
       console.log("game handed off");
       return {
-        type: GameSimulatorConnectionType.Local,
+        type: GameServerConnectionType.Local,
       };
     };
 

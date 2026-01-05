@@ -23,7 +23,6 @@ import { IdGenerator } from "../../utility-classes/index.js";
 import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
 import { CharacterCreator } from "../../character-creation/index.js";
 import { ClientIntentReceiver } from "../client-intent-receiver.js";
-import { GameHandoffStrategyLobbyToGameServer } from "./game-handoff-strategy-lobby-to-game-server.js";
 import { ItemGenerator } from "../../items/item-creation/index.js";
 import { AffixGenerator } from "../../items/item-creation/builders/affix-generator/index.js";
 import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
@@ -33,6 +32,7 @@ import { ConnectionId } from "../../aliases.js";
 import { GameStateUpdateDispatchOutbox } from "../update-delivery/outbox.js";
 import { GameServerNodeDirectory } from "./game-server-node-directory.js";
 import { UserIdType } from "../sessions/user-ids.js";
+import { GameHandoffStrategyLobbyToGameServer } from "./game-handoff/handoff-strategy.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;

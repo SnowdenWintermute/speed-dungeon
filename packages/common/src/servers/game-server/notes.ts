@@ -43,7 +43,8 @@
 // GameServer
 // - heartbeats to Lobby so the lobby can keep record of active games for reconnection
 // - missed heartbeats cause "stale" status but don't delete game record yet
-// - several missed heartbeats delete the game record
+// - several missed heartbeats delete the game record in the lobby
+// - after no input from any player for a long time, shut down the game server
 //
 // Tokens
 // - must be single use

@@ -3,13 +3,13 @@ import {
   AdventuringParty,
   ERROR_MESSAGES,
   GAME_CHANNEL_PREFIX,
+  GameHandoffStrategyLobbyToGameServer,
   GameMode,
   GameName,
   IdGenerator,
   LOBBY_CHANNEL,
   MAX_GAME_NAME_LENGTH,
   SpeedDungeonGame,
-  SpeedDungeonPlayer,
 } from "../../../index.js";
 import { GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { GameStateUpdateDispatchFactory } from "../../update-delivery/game-state-update-dispatch-factory.js";
@@ -19,7 +19,6 @@ import { SessionAuthorizationManager } from "../../sessions/authorization-manage
 import { UserSession } from "../../sessions/user-session.js";
 import { LobbyState } from "../lobby-state.js";
 import { PartySetupController } from "./party-setup.js";
-import { GameHandoffStrategyLobbyToGameServer } from "../game-handoff-strategy-lobby-to-game-server.js";
 import { RANDOM_GAME_NAMES_FIRST, RANDOM_GAME_NAMES_LAST } from "../default-names/game.js";
 
 export class GameLifecycleController {
@@ -280,7 +279,7 @@ export class GameLifecycleController {
     const connectionInstructions = this.gameSimulatorHandoffStrategy.handoff(game);
 
     outbox.pushToChannel(game.getChannelName(), {
-      type: GameStateUpdateType.GameSimulatorConnectionInstructions,
+      type: GameStateUpdateType.GameServerConnectionInstructions,
       data: { connectionInstructions },
     });
 

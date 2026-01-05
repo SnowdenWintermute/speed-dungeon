@@ -63,8 +63,9 @@ export * from "./packets/game-state-updates.js";
 
 export * from "./character-creation/index.js";
 export * from "./servers/lobby-server/default-names/game.js";
+export * from "./servers/lobby-server/game-handoff/connection-instructions.js";
 export * from "./servers/lobby-server/default-names/parties.js";
-export * from "./servers/lobby-server/game-handoff-strategy-lobby-to-game-server.js";
+export * from "./servers/lobby-server/game-handoff/handoff-strategy.js";
 export * from "./servers/client-intent-receiver.js";
 export * from "./servers/services/profiles.js";
 export * from "./servers/services/saved-characters.js";

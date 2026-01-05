@@ -1,11 +1,11 @@
 import {
+  GameServerConnectionInstructions,
   GameHandoffStrategyLobbyToGameServer,
-  GameSimulatorConnectionInstructions,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 
 export class RemoteGameSimuatorHandoffStrategy implements GameHandoffStrategyLobbyToGameServer {
-  handoff(game: SpeedDungeonGame): GameSimulatorConnectionInstructions {
+  handoff(game: SpeedDungeonGame): GameServerConnectionInstructions {
     throw new Error("Method not implemented.");
     // @TODO
     // hand off the game to a game simulator and let it take care of the following:
