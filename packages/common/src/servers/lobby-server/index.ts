@@ -6,8 +6,10 @@ import { LobbyState } from "./lobby-state.js";
 import { PartySetupController } from "./controllers/party-setup.js";
 import { SessionLifecycleController } from "./controllers/session-lifecycle.js";
 import {
+  ConnectionIdentityResolutionContext,
+  GameServerIdentityResolutionContext,
   IdentityProviderService,
-  IdentityResolutionContext,
+  UserIdentityResolutionContext,
 } from "../services/identity-provider.js";
 import { SpeedDungeonProfileService } from "../services/profiles.js";
 import { SavedCharactersService } from "../services/saved-characters.js";
@@ -24,7 +26,6 @@ import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { ClientIntent } from "../../packets/client-intents.js";
 import { ConnectionId } from "../../aliases.js";
-import { GameServerNodeDirectory } from "./game-server-node-directory.js";
 import { UserIdType } from "../sessions/user-ids.js";
 import { GameHandoffStrategyLobbyToGameServer } from "./game-handoff/handoff-strategy.js";
 import {
@@ -33,6 +34,9 @@ import {
 } from "../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
+import { GameServerSessionRegistry } from "../sessions/game-server-session-registry.js";
+import { GameServerSessionLifecycleController } from "./controllers/game-server-session-lifecycle.js";
+import { ConnectionRole } from "../../http-headers.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -44,11 +48,12 @@ export interface LobbyExternalServices {
 
 // lives either inside a LobbyServerNode or locally on a ClientApp
 export class LobbyServer {
-  private readonly gameServerNodeRegistry = new GameServerNodeDirectory();
   private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
   public readonly lobbyState = new LobbyState();
   private readonly updateGateway = new OutgoingMessageGateway<GameStateUpdate, ClientIntent>();
   readonly userSessionRegistry = new UserSessionRegistry();
+  private readonly gameServerSessionRegistry = new GameServerSessionRegistry();
+
   private readonly gameStateUpdateDispatchFactory = new MessageDispatchFactory<GameStateUpdate>(
     this.userSessionRegistry
   );
@@ -57,12 +62,14 @@ export class LobbyServer {
   public readonly sessionAuthManager: SessionAuthorizationManager;
   private intentHandlers = createLobbyClientIntentHandlers(this);
 
-  // controllers
+  // user controllers
   public readonly gameLifecycleController: GameLifecycleController;
   public readonly partySetupController: PartySetupController;
-  public readonly sessionLifecycleController: SessionLifecycleController;
+  public readonly userSessionLifecycleController: SessionLifecycleController;
   public readonly savedCharactersController: SavedCharactersController;
   public readonly characterLifecycleController: CharacterLifecycleController;
+  // game server controllers
+  public readonly gameServerSessionLifecycleController: GameServerSessionLifecycleController;
 
   constructor(
     private readonly clientIntentReceiver: ClientIntentReceiver<ClientIntent, GameStateUpdate>,
@@ -87,57 +94,44 @@ export class LobbyServer {
 
     this.sessionAuthManager = new SessionAuthorizationManager(externalServices.profileService);
 
-    this.savedCharactersController = new SavedCharactersController(
-      this.sessionAuthManager,
-      this.gameStateUpdateDispatchFactory,
-      this.externalServices,
-      this.characterCreator
-    );
+    const controllers = this.createControllers();
+    this.gameLifecycleController = controllers.gameLifecycleController;
+    this.partySetupController = controllers.partySetupController;
+    this.userSessionLifecycleController = controllers.userSessionLifecycleController;
+    this.savedCharactersController = controllers.savedCharactersController;
+    this.characterLifecycleController = controllers.characterLifecycleController;
 
-    this.partySetupController = new PartySetupController(
-      this.lobbyState,
-      this.gameStateUpdateDispatchFactory,
-      this.savedCharactersController,
-      this.sessionAuthManager,
-      this.externalServices.idGenerator
-    );
-
-    this.gameLifecycleController = new GameLifecycleController(
-      this.lobbyState,
-      this.userSessionRegistry,
-      this.sessionAuthManager,
-      this.gameStateUpdateDispatchFactory,
-      this.partySetupController,
-      this.externalServices.idGenerator,
-      this.gameHandoffStrategy
-    );
-
-    this.characterLifecycleController = new CharacterLifecycleController(
-      this.lobbyState,
-      this.sessionAuthManager,
-      this.gameStateUpdateDispatchFactory,
-      this.externalServices.savedCharactersService,
-      this.characterCreator
-    );
-
-    this.sessionLifecycleController = new SessionLifecycleController(
-      this.lobbyState,
-      this.updateGateway,
-      this.userSessionRegistry,
-      this.sessionAuthManager,
-      this.gameStateUpdateDispatchFactory,
-      this.savedCharactersController,
-      this.gameLifecycleController,
-      this.externalServices.identityProviderService,
-      this.externalServices.idGenerator
-    );
+    this.gameServerSessionLifecycleController = controllers.gameServerSessionLifecycleController;
   }
 
   async handleConnection(
     connectionEndpoint: ConnectionEndpoint<GameStateUpdate, ClientIntent>,
-    identityResolutionContext: IdentityResolutionContext
+    identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
-    const newSession = await this.sessionLifecycleController.createUserSession(
+    switch (identityResolutionContext.type) {
+      case ConnectionRole.User:
+        return this.handleUserConnection(connectionEndpoint, identityResolutionContext);
+      case ConnectionRole.GameServer:
+        return this.handleGameServerConnection(connectionEndpoint, identityResolutionContext);
+    }
+  }
+
+  private async handleGameServerConnection(
+    connectionEndpoint: ConnectionEndpoint<GameStateUpdate, ClientIntent>,
+    identityResolutionContext: GameServerIdentityResolutionContext
+  ) {
+    const newSession = this.gameServerSessionLifecycleController.createServerSession(
+      connectionEndpoint.id,
+      identityResolutionContext
+    );
+    this.gameServerSessionRegistry.register(newSession);
+  }
+
+  private async handleUserConnection(
+    connectionEndpoint: ConnectionEndpoint<GameStateUpdate, ClientIntent>,
+    identityResolutionContext: UserIdentityResolutionContext
+  ) {
+    const newSession = await this.userSessionLifecycleController.createUserSession(
       connectionEndpoint.id,
       identityResolutionContext
     );
@@ -146,7 +140,7 @@ export class LobbyServer {
       this.externalServices.profileService.createProfileIfUserHasNone(newSession.userId.id);
     }
 
-    const outbox = await this.sessionLifecycleController.connectionHandler(
+    const outbox = await this.userSessionLifecycleController.connectionHandler(
       newSession,
       connectionEndpoint
     );
@@ -178,5 +172,65 @@ export class LobbyServer {
           break;
       }
     }
+  }
+
+  private createControllers() {
+    const savedCharactersController = new SavedCharactersController(
+      this.sessionAuthManager,
+      this.gameStateUpdateDispatchFactory,
+      this.externalServices,
+      this.characterCreator
+    );
+
+    const partySetupController = new PartySetupController(
+      this.lobbyState,
+      this.gameStateUpdateDispatchFactory,
+      this.savedCharactersController,
+      this.sessionAuthManager,
+      this.externalServices.idGenerator
+    );
+
+    const gameLifecycleController = new GameLifecycleController(
+      this.lobbyState,
+      this.userSessionRegistry,
+      this.sessionAuthManager,
+      this.gameStateUpdateDispatchFactory,
+      this.partySetupController,
+      this.externalServices.idGenerator,
+      this.gameHandoffStrategy
+    );
+
+    const characterLifecycleController = new CharacterLifecycleController(
+      this.lobbyState,
+      this.sessionAuthManager,
+      this.gameStateUpdateDispatchFactory,
+      this.externalServices.savedCharactersService,
+      this.characterCreator
+    );
+
+    const userSessionLifecycleController = new SessionLifecycleController(
+      this.lobbyState,
+      this.updateGateway,
+      this.userSessionRegistry,
+      this.sessionAuthManager,
+      this.gameStateUpdateDispatchFactory,
+      this.savedCharactersController,
+      this.gameLifecycleController,
+      this.externalServices.identityProviderService,
+      this.externalServices.idGenerator
+    );
+
+    const gameServerSessionLifecycleController = new GameServerSessionLifecycleController(
+      this.gameServerSessionRegistry
+    );
+
+    return {
+      savedCharactersController,
+      partySetupController,
+      gameLifecycleController,
+      characterLifecycleController,
+      userSessionLifecycleController,
+      gameServerSessionLifecycleController,
+    };
   }
 }

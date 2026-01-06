@@ -8,6 +8,8 @@ export * from "./primatives/entity-properties.js";
 export * from "./primatives/max-and-current.js";
 export * from "./primatives/number-range.js";
 
+export * from "./http-headers.js";
+
 export * from "./utility-classes/index.js";
 export * from "./utils/index.js";
 export * from "./utils/array-utils.js";

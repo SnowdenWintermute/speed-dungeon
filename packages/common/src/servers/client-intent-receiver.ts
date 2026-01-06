@@ -1,12 +1,12 @@
 import { ConnectionId } from "../aliases.js";
-import { IdentityResolutionContext } from "./services/identity-provider.js";
+import { UserIdentityResolutionContext } from "./services/identity-provider.js";
 import { ConnectionEndpoint } from "../transport/connection-endpoint.js";
 
 export interface IntentHandler<ClientMessage, ServerMessage> {
   handleIntent: (clientIntent: ClientMessage, fromConnectionId: ConnectionId) => void;
   handleConnection(
     connectionEndpoint: ConnectionEndpoint<ServerMessage, ClientMessage>,
-    identityResolutionContext: IdentityResolutionContext
+    identityResolutionContext: UserIdentityResolutionContext
   ): Promise<void>;
 }
 
@@ -30,7 +30,7 @@ export abstract class ClientIntentReceiver<ClientMessage, ServerMessage> {
 
   async handleConnection(
     transportEndpoint: ConnectionEndpoint<ServerMessage, ClientMessage>,
-    identityResolutionContext: IdentityResolutionContext
+    identityResolutionContext: UserIdentityResolutionContext
   ) {
     const intentHandler = this.requireInitialized();
     await intentHandler.handleConnection(transportEndpoint, identityResolutionContext);

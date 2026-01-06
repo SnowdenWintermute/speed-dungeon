@@ -12,6 +12,10 @@ import {
   ConnectionEndpoint,
   TransportDisconnectReason,
   TransportDisconnectReasonType,
+  HTTP_HEADER_NAME_STRINGS,
+  HttpHeaderNames,
+  CONNECTION_ROLE_STRINGS,
+  ConnectionRole,
 } from "@speed-dungeon/common";
 
 export class SocketConnectionEndpoint implements ConnectionEndpoint<GameStateUpdate, ClientIntent> {
@@ -47,8 +51,18 @@ export class LobbyRemoteClientIntentReceiver extends ClientIntentReceiver<
 
       const req = socket.request;
       const cookies = req.headers.cookie;
+      const connectionRole = req.headers[HTTP_HEADER_NAME_STRINGS[HttpHeaderNames.ConnectionRole]];
 
-      await this.handleConnection(transportEndpoint, { cookies });
+      let connectionType: ConnectionRole;
+      if (connectionRole === CONNECTION_ROLE_STRINGS[ConnectionRole.GameServer]) {
+        connectionType = ConnectionRole.GameServer;
+      } else if (connectionRole === CONNECTION_ROLE_STRINGS[ConnectionRole.User]) {
+        connectionType = ConnectionRole.User;
+      } else {
+        throw new Error("Unrecognized connection role");
+      }
+
+      await this.handleConnection(transportEndpoint, { type: connectionType, cookies });
 
       socket.on(ClientToServerEvent.ClientIntent, (clientIntent) => {
         this.dispatchIntent(clientIntent, socket.id as ConnectionId);

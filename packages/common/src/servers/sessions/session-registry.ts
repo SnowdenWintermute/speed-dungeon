@@ -1,15 +1,34 @@
 import { ChannelName, ConnectionId } from "../../index.js";
 
-export interface ConnectionSession {
-  connectionId: ConnectionId;
-  isSubscribedToChannel: (channelName: ChannelName) => boolean;
+export abstract class ConnectionSession {
+  private channelsSubscribedTo = new Set<ChannelName>();
+
+  constructor(public readonly connectionId: ConnectionId) {}
+
+  isSubscribedToChannel(channelName: ChannelName) {
+    return this.channelsSubscribedTo.has(channelName);
+  }
+
+  subscribeToChannel(channelName: ChannelName) {
+    if (this.channelsSubscribedTo.has(channelName)) {
+      throw new Error("Tried to subscribe to a channel but was already subscribed to it");
+    }
+    this.channelsSubscribedTo.add(channelName);
+  }
+
+  unsubscribeFromChannel(channelName: ChannelName) {
+    if (!this.channelsSubscribedTo.has(channelName)) {
+      throw new Error("Tried to unsubscribe to a channel but was not subscribed to it");
+    }
+    this.channelsSubscribedTo.delete(channelName);
+  }
 }
 
 export abstract class SessionRegistry<T extends ConnectionSession> {
   protected sessions = new Map<ConnectionId, T>();
 
-  abstract onRegister(session: T): void;
-  abstract onUnregister(session: T): void;
+  abstract onRegister?(session: T): void;
+  abstract onUnregister?(session: T): void;
 
   register(session: T) {
     const alreadyExists = this.sessions.has(session.connectionId);
@@ -19,7 +38,7 @@ export abstract class SessionRegistry<T extends ConnectionSession> {
 
     this.sessions.set(session.connectionId, session);
 
-    this.onRegister(session);
+    this.onRegister?.(session);
   }
 
   unregister(connectionId: ConnectionId) {
@@ -30,7 +49,7 @@ export abstract class SessionRegistry<T extends ConnectionSession> {
     }
 
     this.sessions.delete(connectionId);
-    this.onUnregister(session);
+    this.onUnregister?.(session);
   }
 
   /** Returns all connectionIds whose sessions are currently subscribed

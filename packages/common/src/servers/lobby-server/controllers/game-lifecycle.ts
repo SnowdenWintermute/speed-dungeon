@@ -29,7 +29,7 @@ export class GameLifecycleController {
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly partySetupController: PartySetupController,
     private readonly idGenerator: IdGenerator,
-    private readonly gameSimulatorHandoffStrategy: GameHandoffStrategyLobbyToGameServer
+    private readonly gameServerHandoffStrategy: GameHandoffStrategyLobbyToGameServer
   ) {}
 
   private generateRandomGameName(): GameName {
@@ -276,7 +276,7 @@ export class GameLifecycleController {
 
     game.setAsStarted();
 
-    const connectionInstructions = this.gameSimulatorHandoffStrategy.handoff(game);
+    const connectionInstructions = this.gameServerHandoffStrategy.handoff(game);
 
     outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.GameServerConnectionInstructions,

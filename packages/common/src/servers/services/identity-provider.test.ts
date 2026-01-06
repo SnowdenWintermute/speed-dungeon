@@ -2,8 +2,8 @@ import { IdentityProviderId, Username } from "../../aliases.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { UserId, UserIdType } from "../sessions/user-ids.js";
 import {
-  IdentityProviderSessionQueryStrategy,
-  IdentityResolutionContext,
+  IdentityProviderUserSessionQueryStrategy,
+  UserIdentityResolutionContext,
 } from "./identity-provider.js";
 
 describe("identity provider service", () => {
@@ -13,7 +13,7 @@ describe("identity provider service", () => {
 });
 
 export class FakeUsersIdentityProviderQueryStrategy
-  implements IdentityProviderSessionQueryStrategy
+  implements IdentityProviderUserSessionQueryStrategy
 {
   private fakeSessions: Record<IdentityProviderId, Username> = {};
   private idGenerator = new IdGenerator({ saveHistory: false });
@@ -26,7 +26,7 @@ export class FakeUsersIdentityProviderQueryStrategy
   }
 
   async execute(
-    context: IdentityResolutionContext
+    context: UserIdentityResolutionContext
   ): Promise<{ username: Username; userId: UserId } | null> {
     if (context.localUserId === undefined) {
       return {

@@ -3,11 +3,11 @@ import { SpeedDungeonGame } from "../../../game/index.js";
 import { SpeedDungeonPlayer } from "../../../game/player.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
+import { GameServerSessionRegistry } from "../../sessions/game-server-session-registry.js";
 import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
-import { GameServerNodeDirectory } from "../game-server-node-directory.js";
 import { GameServerConnectionType } from "./connection-instructions.js";
 import { PendingGameServerUserSession } from "./pending-user-session.js";
 import { GameServerSessionClaimToken } from "./session-claim-token.js";
@@ -19,7 +19,7 @@ export class GameHandoffManager {
   >();
 
   constructor(
-    private readonly gameServerNodeDirectory: GameServerNodeDirectory,
+    private readonly gameServerSessionRegistry: GameServerSessionRegistry,
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly updateFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly idGenerator: IdGenerator
@@ -73,19 +73,23 @@ export class GameHandoffManager {
 
   // handle a handoff from Lobby to GameServer
   async initiateGameHandoff(game: SpeedDungeonGame) {
-    const targetServerNode = this.gameServerNodeDirectory.getLeastBusyGameServerNode();
+    const targetServer = this.gameServerSessionRegistry.getLeastBusyGameServer();
     const pendingSessions = this.createPendingPlayerSessions(game);
     const { pendingSessionsByClaimId, claimTokensByConnectionId } = this.prepareClaimTokens(
       pendingSessions,
       game.name
     );
 
-    const status = await targetServerNode.handleNewActiveGame(game, pendingSessionsByClaimId);
+    // create an outbox with message for the game server that a new game with these pendingSessionsByClaimId
+    // should be created
+    // const status = await targetServer.handleNewActiveGame(game, pendingSessionsByClaimId);
 
-    if (status.success !== true) {
-      throw new Error("unhandled failure of handoff to game server");
-    }
+    // if (status.success !== true) {
+    //   throw new Error("unhandled failure of handoff to game server");
+    // }
 
+    // stage outbox and wait for confirmation from game server that game is ready
+    // before sending claims to players
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateFactory);
     for (const [connectionId, sessionClaimToken] of claimTokensByConnectionId) {
       outbox.pushToConnection(connectionId, {
@@ -100,8 +104,6 @@ export class GameHandoffManager {
       });
     }
 
-    // stage outbox and wait for confirmation from game server that game is ready
-    // before sending claims to players
     this.connectionInstructionsAwaitingGameSetupConfirmation.set(game.name, outbox);
   }
 

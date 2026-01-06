@@ -19,7 +19,7 @@ export function createLobbyClientIntentHandlers(
   return {
     // SESSION
     [ClientIntentType.Disconnection]: (data, user) =>
-      lobbyServer.sessionLifecycleController.disconnectionHandler(user, data.reason),
+      lobbyServer.userSessionLifecycleController.disconnectionHandler(user, data.reason),
     //  GAME SETUP
     [ClientIntentType.RequestsGameList]: (_, user) =>
       lobbyServer.gameLifecycleController.requestGameListHandler(user),

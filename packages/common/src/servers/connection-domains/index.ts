@@ -20,19 +20,19 @@ type IncomingMessageHandler<
 export abstract class ConnectionDomain<
   Sendable extends { type: PropertyKey; data: unknown },
   Receivable extends { type: PropertyKey; data: unknown },
-  IncomingMap extends Record<PropertyKey, unknown>,
+  IncomingMessageHandlerMap extends Record<PropertyKey, unknown>,
   Session extends ConnectionSession,
 > {
   // private messageHandlers
   abstract sessionRegistry: SessionRegistry<Session>;
 
   protected abstract readonly messageHandlers: Partial<
-    IncomingMessageHandler<IncomingMap, Session>
+    IncomingMessageHandler<IncomingMessageHandlerMap, Session>
   >;
 
   private readonly outgoingMessageGateway = new OutgoingMessageGateway<Sendable, Receivable>();
 
-  // verifies authenticity of connection and create's a session for it
+  // verifies authenticity of connection and creates a session for it
   abstract handleHandshake(connectionId: ConnectionId): void;
   abstract messageDispatchFactory: MessageDispatchFactory<Sendable>;
 

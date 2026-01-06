@@ -1,7 +1,6 @@
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import {
   ActionValidity,
-  ChannelName,
   ConnectionId,
   GameName,
   PartyName,
@@ -12,10 +11,9 @@ import { ConnectionSession } from "./session-registry.js";
 import { UserId } from "./user-ids.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
 
-export class UserSession implements ConnectionSession {
+export class UserSession extends ConnectionSession {
   public currentGameName: null | GameName = null;
   public currentPartyName: null | PartyName = null;
-  private channelsSubscribedTo = new Set<ChannelName>();
 
   constructor(
     public readonly username: Username,
@@ -23,10 +21,8 @@ export class UserSession implements ConnectionSession {
     public readonly connectionId: ConnectionId,
     public readonly userId: UserId,
     public getExpectedCurrentGame: () => SpeedDungeonGame
-  ) {}
-
-  isSubscribedToChannel(channelName: ChannelName) {
-    return this.channelsSubscribedTo.has(channelName);
+  ) {
+    super(connectionId);
   }
 
   isInGame() {
@@ -78,20 +74,6 @@ export class UserSession implements ConnectionSession {
   joinGame(game: SpeedDungeonGame) {
     game.registerPlayerFromLobbyUser(this.username);
     this.currentGameName = game.name;
-  }
-
-  subscribeToChannel(channelName: ChannelName) {
-    if (this.channelsSubscribedTo.has(channelName)) {
-      throw new Error("Tried to subscribe to a channel but was already subscribed to it");
-    }
-    this.channelsSubscribedTo.add(channelName);
-  }
-
-  unsubscribeFromChannel(channelName: ChannelName) {
-    if (!this.channelsSubscribedTo.has(channelName)) {
-      throw new Error("Tried to unsubscribe to a channel but was not subscribed to it");
-    }
-    this.channelsSubscribedTo.delete(channelName);
   }
 
   requireNotInGameOnAnotherSession(userSessionRegistry: UserSessionRegistry) {
