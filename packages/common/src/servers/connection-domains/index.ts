@@ -31,9 +31,6 @@ export abstract class ConnectionDomain<
   >;
 
   private readonly outgoingMessageGateway = new OutgoingMessageGateway<Sendable, Receivable>();
-
-  // verifies authenticity of connection and creates a session for it
-  abstract handleHandshake(connectionId: ConnectionId): void;
   abstract messageDispatchFactory: MessageDispatchFactory<Sendable>;
 
   // disconnectionHandler

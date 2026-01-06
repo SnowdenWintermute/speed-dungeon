@@ -79,6 +79,7 @@ export enum ServerToClientEvent {
   CharacterTradedItemForBook = "49",
   CharacterRenamedPet = "50",
   GameStateUpdate = "51",
+  MessageToGameServer = "52",
 }
 
 export interface ServerToClientEventTypes {
@@ -216,4 +217,5 @@ export interface ServerToClientEventTypes {
     newName: string;
   }) => void;
   [ServerToClientEvent.GameStateUpdate]: (eventData: GameStateUpdate) => void;
+  [ServerToClientEvent.MessageToGameServer]: (eventData: string) => void;
 }

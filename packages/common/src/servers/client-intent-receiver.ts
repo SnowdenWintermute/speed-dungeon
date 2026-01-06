@@ -1,43 +1,25 @@
-import { ConnectionId } from "../aliases.js";
-import { UserIdentityResolutionContext } from "./services/identity-provider.js";
-import { ConnectionEndpoint } from "../transport/connection-endpoint.js";
+import { ConnectionIdentityResolutionContext } from "./services/identity-provider.js";
 
-export interface IntentHandler<ClientMessage, ServerMessage> {
-  handleIntent: (clientIntent: ClientMessage, fromConnectionId: ConnectionId) => void;
-  handleConnection(
-    connectionEndpoint: ConnectionEndpoint<ServerMessage, ClientMessage>,
-    identityResolutionContext: UserIdentityResolutionContext
-  ): Promise<void>;
-}
-
-/** Stands between the local/remote connection manager and packet receipt handlers */
-export abstract class ClientIntentReceiver<ClientMessage, ServerMessage> {
-  private intentHandler: IntentHandler<ClientMessage, ServerMessage> | null = null;
-
+/** Listen for connections and parse their connection role and credentials */
+export abstract class IncomingMessageGateway {
   /** Watch for and handle incoming connections. Set up their subscriptions. */
   abstract listen(): void;
 
-  initialize(intentHandler: IntentHandler<ClientMessage, ServerMessage>) {
-    this.intentHandler = intentHandler;
-  }
+  connectionHandler:
+    | ((connectionIdentityContext: ConnectionIdentityResolutionContext) => void)
+    | null = null;
 
-  private requireInitialized() {
-    if (this.intentHandler === null) {
-      throw new Error("Not initialized");
-    }
-    return this.intentHandler;
-  }
-
-  async handleConnection(
-    transportEndpoint: ConnectionEndpoint<ServerMessage, ClientMessage>,
-    identityResolutionContext: UserIdentityResolutionContext
+  initialize(
+    connectionHandler: (connectionIdentityContext: ConnectionIdentityResolutionContext) => void
   ) {
-    const intentHandler = this.requireInitialized();
-    await intentHandler.handleConnection(transportEndpoint, identityResolutionContext);
+    this.connectionHandler = connectionHandler;
   }
 
-  dispatchIntent(clientIntent: ClientMessage, fromConnectionId: ConnectionId) {
-    const intentHandler = this.requireInitialized();
-    intentHandler.handleIntent(clientIntent, fromConnectionId);
+  requireConnectionHandler() {
+    if (this.connectionHandler === null) {
+      throw new Error("Not initialized with a connectionHandler");
+    }
+
+    return this.connectionHandler;
   }
 }

@@ -19,7 +19,6 @@ import { SessionAuthorizationManager } from "../sessions/authorization-manager.j
 import { IdGenerator } from "../../utility-classes/index.js";
 import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
 import { CharacterCreator } from "../../character-creation/index.js";
-import { ClientIntentReceiver } from "../client-intent-receiver.js";
 import { ItemGenerator } from "../../items/item-creation/index.js";
 import { AffixGenerator } from "../../items/item-creation/builders/affix-generator/index.js";
 import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
@@ -37,6 +36,7 @@ import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
 import { GameServerSessionRegistry } from "../sessions/game-server-session-registry.js";
 import { GameServerSessionLifecycleController } from "./controllers/game-server-session-lifecycle.js";
 import { ConnectionRole } from "../../http-headers.js";
+import { IncomingMessageGateway } from "../client-intent-receiver.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -72,7 +72,7 @@ export class LobbyServer {
   public readonly gameServerSessionLifecycleController: GameServerSessionLifecycleController;
 
   constructor(
-    private readonly clientIntentReceiver: ClientIntentReceiver<ClientIntent, GameStateUpdate>,
+    private readonly incomingMessageGateway: IncomingMessageGateway,
     // private readonly gameServerMessageReceiver: ClientIntentReceiver<
     //   ServerToServerPacket,
     //   ServerToServerPacket
@@ -80,8 +80,8 @@ export class LobbyServer {
     private readonly gameHandoffStrategy: GameHandoffStrategyLobbyToGameServer,
     private readonly externalServices: LobbyExternalServices
   ) {
-    this.clientIntentReceiver.initialize(this);
-    this.clientIntentReceiver.listen();
+    this.incomingMessageGateway.initialize((context) => {});
+    this.incomingMessageGateway.listen();
 
     this.characterCreator = new CharacterCreator(
       this.externalServices.idGenerator,
