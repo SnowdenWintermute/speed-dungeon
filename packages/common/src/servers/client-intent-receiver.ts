@@ -1,25 +1,37 @@
+import { ConnectionId } from "../aliases.js";
 import { ConnectionIdentityResolutionContext } from "./services/identity-provider.js";
 
-/** Listen for connections and parse their connection role and credentials */
+export interface RawConnectionEndpoint {
+  readonly id: ConnectionId;
+  sendRaw(payload: unknown): void;
+  subscribeRaw(handler: (payload: unknown) => void): void;
+  close(): void;
+}
+
+/** Listen for connections and parse their connection role and credentials. Transform the
+ * real transport into an abstract ConnectionEndpoint */
 export abstract class IncomingMessageGateway {
-  /** Watch for and handle incoming connections. Set up their subscriptions. */
   abstract listen(): void;
 
   connectionHandler:
-    | ((connectionIdentityContext: ConnectionIdentityResolutionContext) => void)
+    | ((endpoint: RawConnectionEndpoint, identity: ConnectionIdentityResolutionContext) => void)
     | null = null;
 
   initialize(
-    connectionHandler: (connectionIdentityContext: ConnectionIdentityResolutionContext) => void
+    handler: (
+      endpoint: RawConnectionEndpoint,
+      identity: ConnectionIdentityResolutionContext
+    ) => void
   ) {
-    this.connectionHandler = connectionHandler;
+    this.connectionHandler = handler;
   }
 
   requireConnectionHandler() {
-    if (this.connectionHandler === null) {
+    const connectionHandler = this.connectionHandler;
+    if (connectionHandler === null) {
       throw new Error("Not initialized with a connectionHandler");
     }
 
-    return this.connectionHandler;
+    return connectionHandler;
   }
 }

@@ -36,7 +36,7 @@ import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
 import { GameServerSessionRegistry } from "../sessions/game-server-session-registry.js";
 import { GameServerSessionLifecycleController } from "./controllers/game-server-session-lifecycle.js";
 import { ConnectionRole } from "../../http-headers.js";
-import { IncomingMessageGateway } from "../client-intent-receiver.js";
+import { IncomingMessageGateway, RawConnection } from "../client-intent-receiver.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -105,14 +105,19 @@ export class LobbyServer {
   }
 
   async handleConnection(
-    connectionEndpoint: ConnectionEndpoint<GameStateUpdate, ClientIntent>,
+    // how do I make the types generic, it says required generic type if I leave it out, but I want to accept any type
+    // of connection endpoint
+    connection: RawConnection,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
     switch (identityResolutionContext.type) {
-      case ConnectionRole.User:
+      case ConnectionRole.User: {
+        // const connectionEndpoint = new
         return this.handleUserConnection(connectionEndpoint, identityResolutionContext);
-      case ConnectionRole.GameServer:
+      }
+      case ConnectionRole.GameServer: {
         return this.handleGameServerConnection(connectionEndpoint, identityResolutionContext);
+      }
     }
   }
 

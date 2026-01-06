@@ -14,6 +14,7 @@ import {
   ConnectionRole,
   IncomingMessageGateway,
   ConnectionIdentityResolutionContext,
+  RawConnection,
 } from "@speed-dungeon/common";
 
 export class UserSocketConnectionEndpoint
@@ -52,7 +53,7 @@ export interface SocketConnectionHeaders {
 }
 
 export class LobbyRemoteIncomingMessageGateway extends IncomingMessageGateway {
-  constructor(private io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
+  constructor(private io: SocketIO.Server) {
     super();
   }
 
@@ -89,23 +90,25 @@ export class LobbyRemoteIncomingMessageGateway extends IncomingMessageGateway {
     }
   }
 
-  private createConnectionEndpoint(
-    role: ConnectionRole,
-    socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
-  ) {
-    switch (role) {
-      case ConnectionRole.User:
-        return new UserSocketConnectionEndpoint(socket);
-      case ConnectionRole.GameServer:
-        return new GameServerSocketConnectionEndpoint(socket);
-    }
-  }
-
   listen() {
     this.io.of("/").on("connection", async (socket) => {
       const req = socket.request;
       const identityContext = this.getConnectionIdentityContext(req.headers);
-      const connectionEndpoint = this.createConnectionEndpoint(identityContext.type, socket);
+
+      const rawConnection: RawConnection = {
+        id: socket.id as ConnectionId,
+        sendRaw: function (payload: unknown): void {
+          socket.emit("message", payload);
+        },
+        onReceiveRaw: function (handler: (payload: unknown) => void): void {
+          socket.on("message", handler);
+        },
+        close: function (): void {
+          throw new Error("Function not implemented.");
+        },
+      };
+
+      this.requireConnectionHandler()(rawConnection, identityContext);
 
       // socket.on("disconnect", (reason) => {
       //   this.dispatchIntent(
