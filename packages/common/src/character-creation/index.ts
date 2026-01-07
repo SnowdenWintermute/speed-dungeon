@@ -11,7 +11,7 @@ import { CombatantSpecies } from "../combatants/combatant-species.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { CharacterOutfitter } from "./outfitter.js";
 import { ItemGenerator } from "../items/item-creation/index.js";
-import { EntityId, EntityName } from "../aliases.js";
+import { EntityId, EntityName, Username } from "../aliases.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 
 export class CharacterCreator {
@@ -32,7 +32,11 @@ export class CharacterCreator {
     return name as EntityName;
   }
 
-  createCharacter(name: EntityName, combatantClass: CombatantClass, controllingPlayerName: string) {
+  createCharacter(
+    name: EntityName,
+    combatantClass: CombatantClass,
+    controllingPlayerName: Username
+  ) {
     const characterId = this.idGenerator.generate(
       `player controlled character: ${name}`
     ) as EntityId;

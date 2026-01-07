@@ -4,6 +4,7 @@ import { CombatAttribute } from "../../combatants/attributes/index.js";
 import { ConsumableType } from "./consumable-types.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { CombatantClass } from "../../combatants/combatant-class/classes.js";
+import { EntityName } from "../../aliases.js";
 
 export class Consumable extends Item {
   constructor(
@@ -40,7 +41,7 @@ export function getSkillBookName(consumableType: ConsumableType, itemLevel: numb
     bookVolumeName = `, Volume ${itemLevel}`;
   }
 
-  return CONSUMABLE_TYPE_STRINGS[consumableType] + bookVolumeName;
+  return (CONSUMABLE_TYPE_STRINGS[consumableType] + bookVolumeName) as EntityName;
 }
 
 export const CONSUMABLE_DESCRIPTIONS: Record<ConsumableType, string> = {

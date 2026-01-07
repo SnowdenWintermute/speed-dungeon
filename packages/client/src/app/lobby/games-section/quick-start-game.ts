@@ -1,5 +1,12 @@
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { ClientToServerEvent, CombatantClass, GameMode, GameName } from "@speed-dungeon/common";
+import {
+  ClientToServerEvent,
+  CombatantClass,
+  EntityName,
+  GameMode,
+  GameName,
+  PartyName,
+} from "@speed-dungeon/common";
 
 export function quickStartGame() {
   const socketOption = websocketConnection;
@@ -7,20 +14,20 @@ export function quickStartGame() {
     gameName: "" as GameName,
     mode: GameMode.Race,
   });
-  socketOption.emit(ClientToServerEvent.CreateParty, "");
+  socketOption.emit(ClientToServerEvent.CreateParty, "" as PartyName);
 
   socketOption.emit(ClientToServerEvent.CreateCharacter, {
-    name: "",
+    name: "" as EntityName,
     combatantClass: CombatantClass.Rogue,
   });
 
   socketOption.emit(ClientToServerEvent.CreateCharacter, {
-    name: "",
+    name: "" as EntityName,
     combatantClass: CombatantClass.Warrior,
   });
 
   socketOption.emit(ClientToServerEvent.CreateCharacter, {
-    name: "",
+    name: "" as EntityName,
     combatantClass: CombatantClass.Mage,
   });
   socketOption.emit(ClientToServerEvent.ToggleReadyToStartGame);

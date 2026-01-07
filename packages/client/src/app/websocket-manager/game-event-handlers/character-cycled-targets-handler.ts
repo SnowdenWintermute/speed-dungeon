@@ -3,21 +3,23 @@ import {
   COMBAT_ACTIONS,
   CharacterAssociatedData,
   ERROR_MESSAGES,
+  EntityId,
   NextOrPrevious,
   TargetingCalculator,
+  Username,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { AppStore } from "@/mobx-stores/app-store";
 
 export function characterCycledTargetsHandler(
-  characterId: string,
+  characterId: EntityId,
   direction: NextOrPrevious,
-  playerUsername: string
+  playerUsername: Username
 ) {
   characterAssociatedDataProvider(
     characterId,
     ({ game, party, character }: CharacterAssociatedData) => {
-      const playerOption = game.players[playerUsername];
+      const playerOption = game.getPlayer(playerUsername);
       if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
 
       // @REFACTOR - just pass the targeting calculator for this pattern

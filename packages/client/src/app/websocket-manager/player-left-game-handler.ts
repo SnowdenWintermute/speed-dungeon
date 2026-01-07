@@ -1,9 +1,9 @@
-import { ActionCommandType } from "@speed-dungeon/common";
+import { ActionCommandType, Username } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
 import { gameWorldView } from "../game-world-view-canvas/SceneManager";
 import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
 
-export function playerLeftGameHandler(username: string) {
+export function playerLeftGameHandler(username: Username) {
   gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.ProcessActionCommands,
     actionCommandPayloads: [{ type: ActionCommandType.RemovePlayerFromGame, username }],

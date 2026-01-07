@@ -1,4 +1,4 @@
-import { CharacterAssociatedData, PlayerAssociatedData } from "@speed-dungeon/common";
+import { CharacterAssociatedData, PlayerAssociatedData, Username } from "@speed-dungeon/common";
 import { setAlert } from "../components/alerts";
 import { AppStore } from "@/mobx-stores/app-store";
 
@@ -20,7 +20,7 @@ export function characterAssociatedDataProvider(
 }
 
 export function playerAssociatedDataProvider(
-  username: string,
+  username: Username,
   fn: (characterAssociatedData: PlayerAssociatedData) => void
 ) {
   const { gameStore } = AppStore.get();

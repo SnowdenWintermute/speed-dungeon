@@ -3,19 +3,21 @@ import TextInput from "@/app/components/atoms/TextInput";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import {
   COMBATANT_CLASS_NAME_STRINGS,
+  CharacterSlotIndex,
   ClientToServerEvent,
   CombatantClass,
+  EntityName,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
 import React, { useState } from "react";
 
-export default function CreateCharacterForm({ currentSlot }: { currentSlot: number }) {
+export default function CreateCharacterForm({ currentSlot }: { currentSlot: CharacterSlotIndex }) {
   const [selectedNewCharacterClass, setSelectedNewCharacterClass] = useState(CombatantClass.Mage);
   const [newCharacterName, setNewCharacterName] = useState("");
 
   function createCharacter() {
     websocketConnection.emit(ClientToServerEvent.CreateSavedCharacter, {
-      name: newCharacterName,
+      name: newCharacterName as EntityName,
       combatantClass: selectedNewCharacterClass,
       slotNumber: currentSlot,
     });

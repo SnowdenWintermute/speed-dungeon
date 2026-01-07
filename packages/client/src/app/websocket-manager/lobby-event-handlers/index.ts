@@ -60,7 +60,7 @@ export function setUpGameLobbyEventHandlers(
   socket.on(ServerToClientEvent.PlayerJoinedGame, (username) => {
     const gameOption = AppStore.get().gameStore.getGameOption();
     const player = new SpeedDungeonPlayer(username);
-    if (gameOption) gameOption.players[username] = player;
+    if (gameOption) gameOption.addPlayer(player);
   });
 
   socket.on(ServerToClientEvent.PlayerLeftGame, playerLeftGameHandler);
@@ -77,7 +77,9 @@ export function setUpGameLobbyEventHandlers(
     // to remove them from a party when still in a game
     if (!gameOption.timeStarted) {
       gameOption.removePlayerFromParty(username);
-      if (partyName === null) return;
+      if (partyName === null) {
+        return;
+      }
       gameOption.putPlayerInParty(partyName, username);
     }
   });

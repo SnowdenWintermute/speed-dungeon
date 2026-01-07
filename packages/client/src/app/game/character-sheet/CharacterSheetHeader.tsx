@@ -10,6 +10,7 @@ import {
   COMBATANT_CLASS_NAME_STRINGS,
   CombatantProperties,
   EntityId,
+  EntityName,
 } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React, { FormEvent, useEffect, useState } from "react";
@@ -64,7 +65,7 @@ export const CharacterSheetHeader = observer((props: Props) => {
 
     websocketConnection.emit(ClientToServerEvent.RenamePet, {
       petId: entityId,
-      newName: editNameText,
+      newName: editNameText as EntityName,
     });
 
     setIsEditingName(false);

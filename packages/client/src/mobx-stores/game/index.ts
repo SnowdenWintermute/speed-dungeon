@@ -7,6 +7,7 @@ import {
   EntityId,
   ServerToClientEventTypes,
   SpeedDungeonGame,
+  Username,
 } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 import { AppStore } from "../app-store";
@@ -15,7 +16,7 @@ import { Socket } from "socket.io-client";
 
 export class GameStore {
   private game: null | SpeedDungeonGame = null;
-  private username: null | string = null;
+  private username: null | Username = null;
   private focusedCharacterId: EntityId | null = null;
   private websocketConnection: Socket<ServerToClientEventTypes, ClientToServerEventTypes> | null =
     null;
@@ -39,7 +40,7 @@ export class GameStore {
     return this.username;
   }
 
-  setUsername(username: string) {
+  setUsername(username: Username) {
     this.username = username;
   }
 
@@ -47,14 +48,18 @@ export class GameStore {
     this.username = null;
   }
 
-  getExpectedPlayer(username: string) {
-    const playerOption = this.getExpectedGame().players[username];
-    if (playerOption === undefined) throw new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+  getExpectedPlayer(username: Username) {
+    const playerOption = this.getExpectedGame().getPlayer(username);
+    if (playerOption === undefined) {
+      throw new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+    }
     return playerOption;
   }
 
   getExpectedClientPlayer() {
-    if (this.username === null) throw new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+    if (this.username === null) {
+      throw new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+    }
     return this.getExpectedPlayer(this.username);
   }
 
@@ -91,14 +96,11 @@ export class GameStore {
     return new CombatantContext(game, party, combatant);
   }
 
-  getExpectedPlayerContext(username: string) {
+  getExpectedPlayerContext(username: Username) {
     const game = this.getExpectedGame();
-    if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-    const player = game.players[username];
-    if (!player) throw new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+    const player = game.getExpectedPlayer(username);
     if (player.partyName === null) throw new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
-    const party = game.adventuringParties[player.partyName];
-    if (!party) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+    const party = game.getExpectedParty(player.partyName);
     return { game, party, player };
   }
 
@@ -108,7 +110,7 @@ export class GameStore {
 
   getPartyOption() {
     if (this.username === null || this.game === null) return undefined;
-    const player = this.game.players[this.username];
+    const player = this.game.getPlayer(this.username);
     if (!player?.partyName) return undefined;
     return this.game.adventuringParties[player.partyName];
   }

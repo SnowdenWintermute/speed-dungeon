@@ -1,8 +1,8 @@
-import { Battle, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
+import { Battle, ERROR_MESSAGES, PartyName, SpeedDungeonGame } from "@speed-dungeon/common";
 
 export default function getCurrentBattleOption(
   game: SpeedDungeonGame,
-  partyName: string
+  partyName: PartyName
 ): Error | null | Battle {
   const party = game.adventuringParties[partyName];
   if (party === undefined) return new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);

@@ -14,7 +14,7 @@ import { getGameServer } from "../../singletons/index.js";
 import { writePlayerCharactersInGameToDb } from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
 
 export async function renamePetHandler(
-  eventData: { petId: EntityId; newName: string },
+  eventData: { petId: EntityId; newName: EntityName },
   playerAssociatedData: PlayerAssociatedData,
   _socket?: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {

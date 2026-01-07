@@ -29,7 +29,7 @@ export const websocketConnection: Socket<ServerToClientEventTypes, ClientToServe
     transports: ["websocket"],
     withCredentials: true,
     autoConnect: false,
-    extraHeaders: {
+    query: {
       [HTTP_HEADER_NAME_STRINGS[HttpHeaderNames.ConnectionRole]]:
         CONNECTION_ROLE_STRINGS[ConnectionRole.User],
     },

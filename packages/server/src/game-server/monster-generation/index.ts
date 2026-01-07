@@ -13,6 +13,7 @@ import {
   MONSTER_SPECIES,
   MONSTER_TYPE_STRINGS,
   MonsterType,
+  Username,
   getMonsterCombatantClass,
 } from "@speed-dungeon/common";
 import { ThreatManager } from "@speed-dungeon/common";
@@ -47,7 +48,7 @@ export function generateMonster(level: number, roomIndex: number, forcedType?: M
     combatantClass,
     combatantSpecies,
     monsterType,
-    new CombatantControlledBy(CombatantControllerType.Dungeon, EMPTY_STRING),
+    new CombatantControlledBy(CombatantControllerType.Dungeon, EMPTY_STRING as Username),
     Vector3.Zero()
   );
 

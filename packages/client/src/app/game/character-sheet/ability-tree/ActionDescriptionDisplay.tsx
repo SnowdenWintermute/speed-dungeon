@@ -1,4 +1,5 @@
 import {
+  ActionRank,
   AdventuringParty,
   ArrayUtils,
   CombatActionResourceChangeProperties,
@@ -45,7 +46,11 @@ export const ActionDescriptionDisplay = observer(
     const maxRank = isSupportClassAbility ? 2 : 3;
 
     for (const actionRank of ArrayUtils.createFilledWithSequentialNumbers(maxRank, 1)) {
-      const rankDescription = description.getDescriptionByLevel(user, party, actionRank);
+      const rankDescription = description.getDescriptionByLevel(
+        user,
+        party,
+        actionRank as ActionRank
+      );
 
       const diff = ActionDescription.getDiff<Partial<typeof rankDescription>>(
         prevDescription,

@@ -127,7 +127,7 @@ export interface ClientToServerEventTypes {
   [ClientToServerEvent.SelectProgressionGameStartingFloor]: (floor: number) => void;
   [ClientToServerEvent.SelectHoldableHotswapSlot]: (eventData: {
     characterId: string;
-    slotIndex: CharacterSlotIndex;
+    slotIndex: number;
   }) => void;
   [ClientToServerEvent.ConvertItemsToShards]: (characterAndItems: CharacterAndItems) => void;
 
@@ -155,6 +155,6 @@ export interface ClientToServerEventTypes {
     itemId: EntityId;
     bookType: BookConsumableType;
   }) => void;
-  [ClientToServerEvent.RenamePet]: (eventData: { petId: EntityId; newName: string }) => void;
+  [ClientToServerEvent.RenamePet]: (eventData: { petId: EntityId; newName: EntityName }) => void;
   [ClientToServerEvent.ClientIntent]: (eventData: ClientIntent) => void;
 }

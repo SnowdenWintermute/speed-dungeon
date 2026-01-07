@@ -4,18 +4,19 @@ import {
   COMBAT_ACTIONS,
   ERROR_MESSAGES,
   TargetingCalculator,
+  Username,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { AppStore } from "@/mobx-stores/app-store";
 
 export function characterCycledTargetingSchemesHandler(
   characterId: string,
-  playerUsername: string
+  playerUsername: Username
 ) {
   characterAssociatedDataProvider(
     characterId,
     ({ game, party, character }: CharacterAssociatedData) => {
-      const playerOption = game.players[playerUsername];
+      const playerOption = game.getPlayer(playerUsername);
       if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
       const combatantContext = new ActionUserContext(game, party, character);
       const targetingCalculator = new TargetingCalculator(combatantContext, playerOption);

@@ -1,5 +1,9 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { COMBATANT_CLASS_NAME_STRINGS, iterateNumericEnum } from "@speed-dungeon/common";
+import {
+  COMBATANT_CLASS_NAME_STRINGS,
+  EntityName,
+  iterateNumericEnum,
+} from "@speed-dungeon/common";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
 import TextInput from "@/app/components/atoms/TextInput";
@@ -147,7 +151,7 @@ const CreateCharacterForm = observer(({ i }: { i: number }) => {
   function handleCreateCharacter(e: FormEvent<HTMLElement>) {
     e.preventDefault();
     websocketConnection.emit(ClientToServerEvent.CreateCharacter, {
-      name: characterName,
+      name: characterName as EntityName,
       combatantClass: combatantClassSelection,
     });
     setCharacterName("");

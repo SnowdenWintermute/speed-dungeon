@@ -1,6 +1,7 @@
 import {
   ACTION_PAYABLE_RESOURCE_STRINGS,
   AbilityType,
+  ActionRank,
   COMBAT_ACTIONS,
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
   CombatActionName,
@@ -27,7 +28,8 @@ export const ActionDetails = observer(
     const { abilityProperties } = combatantProperties;
     const actionStateOption = abilityProperties.getOwnedActionOption(actionName);
     const selectedLevelOption =
-      focusedCharacter.getTargetingProperties().getSelectedActionAndRank()?.rank || 1;
+      focusedCharacter.getTargetingProperties().getSelectedActionAndRank()?.rank ||
+      (1 as ActionRank);
 
     const inCombat = party.combatantManager.monstersArePresent();
 

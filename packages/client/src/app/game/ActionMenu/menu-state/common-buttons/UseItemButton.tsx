@@ -2,6 +2,7 @@ import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
 import {
   ActionAndRank,
+  ActionRank,
   ClientToServerEvent,
   Consumable,
   Equipment,
@@ -106,7 +107,7 @@ function getUseItemClickHandler(item: Item, slotItemIsEquippedTo: null | TaggedE
       itemIdOption?: string;
     } = {
       characterId,
-      actionAndRankOption: new ActionAndRank(actionName, 1),
+      actionAndRankOption: new ActionAndRank(actionName, 1 as ActionRank),
     };
 
     if (Consumable.isSkillBook(item.consumableType)) {

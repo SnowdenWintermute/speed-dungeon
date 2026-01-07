@@ -27,7 +27,7 @@ import { CombatantSpecies } from "../../../../combatants/combatant-species.js";
 import { CombatantClass } from "../../../../combatants/combatant-class/classes.js";
 import { CombatantTraitProperties } from "../../../../combatants/combatant-traits/combatant-trait-properties.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
-import { EntityName } from "../../../../aliases.js";
+import { EntityName, Username } from "../../../../aliases.js";
 
 const config = cloneDeep(BASIC_SPELL_STEPS_CONFIG);
 ActionStepConfigUtils.removeMoveForwardSteps(config);
@@ -40,7 +40,7 @@ config.steps[ActionResolutionStepType.PostPrepSpawnEntity] = {
         CombatantClass.Warrior,
         CombatantSpecies.Net,
         MonsterType.Net,
-        new CombatantControlledBy(CombatantControllerType.Dungeon, ""),
+        new CombatantControlledBy(CombatantControllerType.Dungeon, "" as Username),
         Vector3.Zero()
       )
     );

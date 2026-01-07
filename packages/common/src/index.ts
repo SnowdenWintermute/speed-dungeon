@@ -116,11 +116,17 @@ export * from "./combat/combat-actions/combat-action-combat-log-properties.js";
 export * from "./combat/combat-actions/action-implementations/generic-action-templates/pets.js";
 export * from "./combat/combat-actions/combat-action-origin.js";
 
+// turn order
+export * from "./combat/turn-order/turn-trackers.js";
+export * from "./combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
+
 export * from "./combat/action-results/action-hit-outcome-calculation/hit-outcome-mitigation-calculator.js";
 export * from "./combat/action-results/action-hit-outcome-calculation/incoming-resource-change-calculator.js";
 export * from "./combat/action-results/action-hit-outcome-calculation/hp-change-calculation-strategies/index.js";
 export * from "./combat/action-results/action-hit-outcome-calculation/resource-change-modifier.js";
 export * from "./combat/action-results/action-hit-outcome-calculation/resource-changes.js";
+export * from "./combat/hp-change-source-types.js";
+export * from "./combat/combat-actions/index.js";
 
 export * from "./combat/action-results/action-hit-outcome-calculation/hp-change-calculation-strategies/magical-hp-change-calculation-strategy.js";
 export * from "./combat/action-results/action-hit-outcome-calculation/hp-change-calculation-strategies/physical-hp-change-calculation-strategy.js";
@@ -128,6 +134,8 @@ export * from "./combat/action-results/action-hit-outcome-calculation/hp-change-
 export * from "./combat/targeting/targeting-calculator.js";
 export * from "./action-user-context/index.js";
 export * from "./action-entities/index.js";
+export * from "./action-entities/cosmetic-effect.js";
+export * from "./action-entities/cosmetic-effect-constructors.js";
 export * from "./spawnables/index.js";
 
 export * from "./action-processing/action-command.js";
@@ -196,3 +204,5 @@ export * from "./combat/ai-behavior/index.js";
 export * from "./combat/targeting/combat-action-targets.js";
 export * from "./combat/ai-behavior/ai-select-action-and-target.js";
 export * from "./combat/combat-actions/action-implementations/index.js";
+export * from "./combat/magical-elements.js";
+export * from "./combat/kinetic-damage-types.js";

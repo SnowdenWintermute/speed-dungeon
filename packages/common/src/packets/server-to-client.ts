@@ -18,7 +18,7 @@ import {
   GameListEntry,
   GameStateUpdate,
 } from "./game-state-updates.js";
-import { ActionRank, EntityId, Username } from "../aliases.js";
+import { ActionRank, ChannelName, EntityId, EntityName, PartyName, Username } from "../aliases.js";
 import { ExplorationAction } from "../adventuring-party/dungeon-exploration-manager.js";
 import { DungeonRoom, DungeonRoomType } from "../adventuring-party/dungeon-room.js";
 
@@ -85,35 +85,35 @@ export enum ServerToClientEvent {
 export interface ServerToClientEventTypes {
   [ServerToClientEvent.GameList]: (gameList: GameListEntry[]) => void;
   [ServerToClientEvent.ChannelFullUpdate]: (
-    channelName: string,
+    channelName: ChannelName,
     userNames: { username: string; userChannelDisplayData: UserChannelDisplayData }[]
   ) => void;
   [ServerToClientEvent.ClientUsername]: (username: Username) => void;
   [ServerToClientEvent.UserJoinedChannel]: (
-    username: string,
+    username: Username,
     userChannelDisplayData: UserChannelDisplayData
   ) => void;
   [ServerToClientEvent.UserLeftChannel]: (username: Username) => void;
   [ServerToClientEvent.ErrorMessage]: (message: string) => void;
   [ServerToClientEvent.GameFullUpdate]: (game: null | SpeedDungeonGame) => void;
-  [ServerToClientEvent.PartyNameUpdate]: (partyName: null | string) => void;
+  [ServerToClientEvent.PartyNameUpdate]: (partyName: null | PartyName) => void;
   [ServerToClientEvent.PlayerChangedAdventuringParty]: (
-    playerName: string,
-    partyName: null | string
+    playerName: Username,
+    partyName: null | PartyName
   ) => void;
   [ServerToClientEvent.PlayerLeftGame]: (username: Username) => void;
   [ServerToClientEvent.PlayerJoinedGame]: (username: Username) => void;
-  [ServerToClientEvent.PartyCreated]: (partyId: string, partyName: string) => void;
+  [ServerToClientEvent.PartyCreated]: (partyId: string, partyName: PartyName) => void;
   [ServerToClientEvent.CharacterAddedToParty]: (
-    username: string,
+    username: Username,
     character: Combatant,
     pets: Combatant[]
   ) => void;
-  [ServerToClientEvent.CharacterDeleted]: (username: string, characterId: string) => void;
-  [ServerToClientEvent.PlayerToggledReadyToStartGame]: (username: string) => void;
+  [ServerToClientEvent.CharacterDeleted]: (username: Username, characterId: EntityId) => void;
+  [ServerToClientEvent.PlayerToggledReadyToStartGame]: (username: Username) => void;
   [ServerToClientEvent.GameStarted]: (timeStarted: number) => void;
   [ServerToClientEvent.PlayerToggledReadyToDescendOrExplore]: (
-    characterId: string,
+    characterId: EntityId,
     explorationAction: ExplorationAction
   ) => void;
   [ServerToClientEvent.DungeonRoomTypesOnCurrentFloor]: (
@@ -132,25 +132,25 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.CharacterDroppedEquippedItem]: (characterAndItem: CharacterAndSlot) => void;
   [ServerToClientEvent.CharacterUnequippedItem]: (characterAndItem: CharacterAndSlot) => void;
   [ServerToClientEvent.CharacterEquippedItem]: (characterEquip: {
-    itemId: string;
+    itemId: EntityId;
     equipToAlternateSlot: boolean;
     characterId: string;
   }) => void;
   [ServerToClientEvent.CharacterPickedUpItems]: (characterAndItems: CharacterAndItems) => void;
   // [ServerToClientEvent.RawActionResults]: (actionResults: ActionResult[]) => void;
   [ServerToClientEvent.CharacterSelectedCombatAction]: (
-    characterId: string,
+    characterId: EntityId,
     actionAndRankOption: ActionAndRank | null,
     itemIdOption?: null | string
   ) => void;
   [ServerToClientEvent.CharacterCycledTargets]: (
-    characterId: string,
+    characterId: EntityId,
     direction: NextOrPrevious,
-    playerUsername: string
+    playerUsername: Username
   ) => void;
   [ServerToClientEvent.CharacterCycledTargetingSchemes]: (
-    characterId: string,
-    playerUsername: string
+    characterId: EntityId,
+    playerUsername: Username
   ) => void;
   [ServerToClientEvent.DungeonFloorNumber]: (number: number) => void;
   [ServerToClientEvent.CharacterSpentAttributePoint]: (
@@ -166,7 +166,7 @@ export interface ServerToClientEventTypes {
   ) => void;
   [ServerToClientEvent.SavedCharacterDeleted]: (id: string) => void;
   [ServerToClientEvent.PlayerSelectedSavedCharacterInProgressionGame]: (
-    username: string,
+    username: Username,
     character: { combatant: Combatant; pets: Combatant[] }
   ) => void;
   [ServerToClientEvent.ProgressionGameStartingFloorSelected]: (floor: number) => void;
@@ -174,14 +174,14 @@ export interface ServerToClientEventTypes {
   // properties since only the server code can currently do that
   [ServerToClientEvent.TestItems]: (items: Item[]) => void;
   [ServerToClientEvent.CharacterSelectedHoldableHotswapSlot]: (
-    characterId: string,
+    characterId: EntityId,
     slotIndex: number
   ) => void;
   [ServerToClientEvent.CharacterConvertedItemsToShards]: (
     characterAndItems: CharacterAndItems
   ) => void;
   [ServerToClientEvent.CharacterDroppedShards]: (eventData: {
-    characterId: string;
+    characterId: EntityId;
     shardStack: Consumable;
   }) => void;
   [ServerToClientEvent.CharacterPurchasedItem]: (eventData: {
@@ -196,7 +196,7 @@ export interface ServerToClientEventTypes {
     craftingAction: CraftingAction;
   }) => void;
   [ServerToClientEvent.PlayerPostedItemLink]: (eventData: {
-    username: string;
+    username: Username;
     itemId: EntityId;
   }) => void;
   [ServerToClientEvent.CharacterSelectedCombatActionLevel]: (eventData: {
@@ -214,7 +214,7 @@ export interface ServerToClientEventTypes {
   }) => void;
   [ServerToClientEvent.CharacterRenamedPet]: (eventData: {
     petId: EntityId;
-    newName: string;
+    newName: EntityName;
   }) => void;
   [ServerToClientEvent.GameStateUpdate]: (eventData: GameStateUpdate) => void;
   [ServerToClientEvent.MessageToGameServer]: (eventData: string) => void;

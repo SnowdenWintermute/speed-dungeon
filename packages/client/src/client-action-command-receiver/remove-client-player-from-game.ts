@@ -1,4 +1,4 @@
-import { ERROR_MESSAGES } from "@speed-dungeon/common";
+import { ERROR_MESSAGES, Username } from "@speed-dungeon/common";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 import { AppStore } from "@/mobx-stores/app-store";
@@ -7,7 +7,7 @@ import { ImageManagerRequestType } from "@/game-world-view/image-manager";
 import { setAlert } from "@/app/components/alerts";
 import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 
-export async function removeClientPlayerFromGame(username: string) {
+export async function removeClientPlayerFromGame(username: Username) {
   const itemsToRemoveThumbnails: string[] = [];
 
   const gameOption = AppStore.get().gameStore.getGameOption();

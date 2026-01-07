@@ -1,5 +1,6 @@
 import {
   Consumable,
+  EntityName,
   Item,
   ItemUtils,
   NextOrPrevious,
@@ -120,7 +121,7 @@ export abstract class ActionMenuState {
         if (skillBookNameOption) buttonText = skillBookNameOption;
         const stackOption = consumablesByTypeAndLevel[consumableType]?.[itemLevel];
         const stackSize = stackOption?.length || 0;
-        if (stackSize > 1) buttonText += ` (${stackSize})`;
+        if (stackSize > 1) buttonText = (buttonText + ` (${stackSize})`) as EntityName;
       }
 
       const buttonNumber = (i % ACTION_MENU_PAGE_SIZE) + 1;

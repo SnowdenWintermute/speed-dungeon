@@ -5,6 +5,7 @@ import {
   Combatant,
   Consumable,
   ConsumableType,
+  EntityName,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
 
@@ -31,7 +32,7 @@ export function enqueueCharacterItemsForThumbnails(character: Combatant) {
 export function enqueueConsumableGenericThumbnailCreation() {
   for (const consumableType of iterateNumericEnum(ConsumableType)) {
     const item = new Consumable(
-      { id: CONSUMABLE_TYPE_STRINGS[consumableType], name: "" },
+      { id: CONSUMABLE_TYPE_STRINGS[consumableType], name: "" as EntityName },
       0,
       {},
       consumableType,

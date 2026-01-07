@@ -1,11 +1,11 @@
-import { Combatant, GameMode } from "@speed-dungeon/common";
+import { Combatant, GameMode, Username } from "@speed-dungeon/common";
 import { setAlert } from "../../components/alerts";
 import { AppStore } from "@/mobx-stores/app-store";
 import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
 import { gameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 
 export async function characterAddedToPartyHandler(
-  username: string,
+  username: Username,
   character: Combatant,
   pets: Combatant[]
 ) {

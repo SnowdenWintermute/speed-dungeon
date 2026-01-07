@@ -1,5 +1,6 @@
 import {
   ActionAndRank,
+  ActionRank,
   ActionUserContext,
   CharacterAssociatedData,
   COMBAT_ACTIONS,
@@ -12,7 +13,7 @@ import { AppStore } from "@/mobx-stores/app-store";
 
 export function characterSelectedActionLevelHandler(eventData: {
   characterId: string;
-  actionLevel: number;
+  actionLevel: ActionRank;
 }) {
   characterAssociatedDataProvider(
     eventData.characterId,
@@ -30,8 +31,9 @@ export function characterSelectedActionLevelHandler(eventData: {
 
       targetingProperties.setSelectedActionAndRank(new ActionAndRank(actionName, actionLevel));
 
-      const playerOption =
-        game.players[character.combatantProperties.controlledBy.controllerPlayerName];
+      const playerOption = game.getPlayer(
+        character.combatantProperties.controlledBy.controllerPlayerName
+      );
       if (playerOption === undefined) return new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
 
       const targetingCalculator = new TargetingCalculator(

@@ -31,8 +31,12 @@ export function handleEntityMotionUpdate(
 ) {
   const { translationOption, rotationOption, animationOption, delayOption } = motionUpdate;
 
-  let onAnimationComplete = () => {};
-  let onTranslationComplete = () => {};
+  let onAnimationComplete = () => {
+    // no-op until assigned
+  };
+  let onTranslationComplete = () => {
+    // no-op until assigned
+  };
 
   let cosmeticDestinationYOption = undefined;
 

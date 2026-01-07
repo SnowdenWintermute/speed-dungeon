@@ -40,7 +40,8 @@ export function getCombatantUiIdentifier(party: AdventuringParty, combatant: Com
   const playerPetIds = combatantManager
     .getPartyMemberPets()
     .map((combatant) => combatant.getEntityId());
-  const playerPetPosition = playerPetIds.indexOf(combatant.entityProperties.id);
+
+  const playerPetPosition = playerPetIds.indexOf(combatant.getEntityId());
   if (playerPetPosition !== -1)
     return { type: CombatantUiIdentifierType.PlayerCharacterPet, position: playerPetPosition };
 
@@ -48,7 +49,7 @@ export function getCombatantUiIdentifier(party: AdventuringParty, combatant: Com
     .getNeutralCombatants()
     .map((combatant) => combatant.getEntityId());
 
-  const neutralPosition = neutralIds.indexOf(combatant.entityProperties.id);
+  const neutralPosition = neutralIds.indexOf(combatant.getEntityId());
   if (neutralPosition !== -1)
     return { type: CombatantUiIdentifierType.Neutral, position: neutralPosition };
 

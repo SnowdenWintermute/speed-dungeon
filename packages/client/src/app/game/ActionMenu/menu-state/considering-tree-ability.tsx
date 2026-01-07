@@ -2,6 +2,7 @@ import { ActionMenuState } from "./index";
 import {
   AbilityTreeAbility,
   AbilityType,
+  ActionRank,
   ArrayUtils,
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
   Combatant,
@@ -124,7 +125,11 @@ function getConditionsToShowDetailButtonsFor(ability: AbilityTreeAbility, user: 
   const party = AppStore.get().gameStore.getExpectedParty();
 
   for (const actionRank of ArrayUtils.createFilledWithSequentialNumbers(3, 1)) {
-    const rankDescription = description.getDescriptionByLevel(user, party, actionRank);
+    const rankDescription = description.getDescriptionByLevel(
+      user,
+      party,
+      actionRank as ActionRank
+    );
     const conditionsAppliedOption = rankDescription[ActionDescriptionComponent.AppliesConditions];
     if (!conditionsAppliedOption) continue;
     for (const conditionBlueprint of conditionsAppliedOption) {

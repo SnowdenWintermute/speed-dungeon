@@ -14,7 +14,9 @@ export function startOrStopCosmeticEffects(
     const { name, parent } = cosmeticEffectOnEntity;
     const sceneEntity = SceneEntity.getFromIdentifier(parent.sceneEntityIdentifier);
     const { cosmeticEffectManager } = sceneEntity;
-    cosmeticEffectManager.stopEffect(name, () => {});
+    cosmeticEffectManager.stopEffect(name, () => {
+      // no-op
+    });
   }
 
   if (cosmeticEffectsToStart?.length) {
@@ -64,7 +66,9 @@ export function startOrStopCosmeticEffects(
       if (lifetime !== undefined) {
         effectToStartLifetimeTimeout.addLifetimeTimeout(
           setTimeout(() => {
-            cosmeticEffectManager.stopEffect(name, () => {});
+            cosmeticEffectManager.stopEffect(name, () => {
+              // no-op
+            });
           }, lifetime)
         );
       }

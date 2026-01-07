@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import {
+  CharacterSlotIndex,
   ClientToServerEvent,
   NextOrPrevious,
   getNextOrPreviousNumber,

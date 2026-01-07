@@ -9,7 +9,7 @@ import {
   UntypedSocketConnectionEndpoint,
 } from "@speed-dungeon/common";
 
-export interface SocketConnectionHeaders {
+export interface SocketHandshakeData {
   cookie?: string;
   [header: string]: string | string[] | undefined;
 }
@@ -20,19 +20,23 @@ export class LobbyRemoteIncomingMessageGateway extends IncomingMessageGateway {
   }
 
   private parseConnectionIdentityContext(
-    headers: SocketConnectionHeaders
+    handshakeData: SocketHandshakeData
   ): ConnectionIdentityResolutionContext {
-    const cookies = headers.cookie;
-    const connectionRole = headers[HTTP_HEADER_NAME_STRINGS[HttpHeaderNames.ConnectionRole]];
+    const cookies = handshakeData.cookie;
+    const connectionRole = handshakeData[HTTP_HEADER_NAME_STRINGS[HttpHeaderNames.ConnectionRole]];
+
+    console.log("connection role in headers:", connectionRole);
+
     if (typeof connectionRole !== "string") {
       throw new Error("unexpected header content");
     }
 
     if (connectionRole === CONNECTION_ROLE_STRINGS[ConnectionRole.GameServer]) {
       const handshakePayload = JSON.parse(
-        headers[HttpHeaderNames.GameServerToLobbyHandshakePayload]?.toString() || ""
+        handshakeData[HttpHeaderNames.GameServerToLobbyHandshakePayload]?.toString() || ""
       );
-      const handshakeSignature = headers[HttpHeaderNames.GameServerToLobbyHandshakeSignature] || "";
+      const handshakeSignature =
+        handshakeData[HttpHeaderNames.GameServerToLobbyHandshakeSignature] || "";
       return {
         type: ConnectionRole.GameServer,
         gameServerId: handshakePayload["gameServerId"],
@@ -55,10 +59,21 @@ export class LobbyRemoteIncomingMessageGateway extends IncomingMessageGateway {
   listen() {
     this.io.of("/").on("connection", async (socket) => {
       const req = socket.request;
-      const identityContext = this.parseConnectionIdentityContext(req.headers);
+      console.log(
+        "headers:",
+        req.headers,
+        "rawheaders:",
+        req.rawHeaders,
+        "distinct:",
+        req.headersDistinct
+      );
+      const identityContext = this.parseConnectionIdentityContext({
+        ...socket.handshake.query,
+        cookie: req.headers.cookie,
+      });
 
       const untypedEndpoint = new UntypedSocketConnectionEndpoint(socket);
-      this.requireConnectionHandler()(untypedEndpoint, identityContext);
+      await this.requireConnectionHandler()(untypedEndpoint, identityContext);
     });
   }
 }

@@ -5,6 +5,7 @@ import { websocketConnection } from "@/singletons/websocket-connection";
 import {
   AbilityType,
   ActionAndRank,
+  ActionRank,
   ClientToServerEvent,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionName,
@@ -44,7 +45,8 @@ export const CombatActionButton = observer((props: Props) => {
 
   const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
 
-  const useWouldBeError = user.canUseAction({ actionName, rank: 1 }, game, party) instanceof Error;
+  const useWouldBeError =
+    user.canUseAction({ actionName, rank: 1 as ActionRank }, game, party) instanceof Error;
 
   const shouldBeDisabled = useWouldBeError || !userControlsThisCharacter;
 
@@ -60,7 +62,7 @@ export const CombatActionButton = observer((props: Props) => {
       clickHandler={() => {
         websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
           characterId: user.getEntityId(),
-          actionAndRankOption: new ActionAndRank(actionName, 1),
+          actionAndRankOption: new ActionAndRank(actionName, 1 as ActionRank),
         });
 
         focusStore.combatantAbilities.clear();
@@ -93,8 +95,8 @@ const AttackActionIcon = observer(({ user }: { user: Combatant }) => {
   const { gameStore } = AppStore.get();
   const party = gameStore.getExpectedParty();
   const inCombat = party.isInCombat();
-  let mainHandIcons = [];
-  let offHandIcons = [];
+  const mainHandIcons = [];
+  const offHandIcons = [];
   let ohDisabledStyle = "";
 
   const { mhIcons, ohIcons, ohDisabled } = getAttackActionIcons(combatantProperties, inCombat);

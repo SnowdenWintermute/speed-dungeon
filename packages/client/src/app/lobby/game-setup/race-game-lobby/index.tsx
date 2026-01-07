@@ -1,4 +1,9 @@
-import { BASE_SCREEN_SIZE, ClientToServerEvent, GOLDEN_RATIO } from "@speed-dungeon/common";
+import {
+  BASE_SCREEN_SIZE,
+  ClientToServerEvent,
+  GOLDEN_RATIO,
+  PartyName,
+} from "@speed-dungeon/common";
 import React from "react";
 import { GameLobby } from "../GameLobby";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
@@ -11,7 +16,7 @@ export const RaceGameLobby = observer(() => {
   const { gameStore } = AppStore.get();
   const username = gameStore.getExpectedUsername();
   const game = gameStore.getExpectedGame();
-  const playerOption = game.players[username];
+  const playerOption = game.getPlayer(username);
 
   return (
     <GameLobby>
@@ -40,7 +45,7 @@ function CreatePartyCard() {
   const menuWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));
 
   function createParty() {
-    websocketConnection.emit(ClientToServerEvent.CreateParty, "");
+    websocketConnection.emit(ClientToServerEvent.CreateParty, "" as PartyName);
   }
 
   return (

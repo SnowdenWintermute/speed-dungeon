@@ -2,6 +2,7 @@ import {
   ActionEntity,
   ActionEntityActionOriginData,
   AdventuringParty,
+  EntityName,
 } from "@speed-dungeon/common";
 
 export function handleActionEntityChanges(
@@ -23,7 +24,7 @@ export function handleActionEntityChanges(
     let { actionOriginData } = actionEntity.actionEntityProperties;
     if (!actionOriginData)
       actionOriginData = actionEntity.actionEntityProperties.actionOriginData = {
-        spawnedBy: { id: "", name: "not found" },
+        spawnedBy: { id: "", name: "not found" as EntityName },
       };
 
     // @PERF - probably don't need to send the whole MaxAndCurrent for level and stacks unless

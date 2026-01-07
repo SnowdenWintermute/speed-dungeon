@@ -12,7 +12,7 @@ import { ActionAndRank } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
 
 export function characterSelectedCombatActionHandler(
-  characterId: string,
+  characterId: EntityId,
   selectedActionAndRank: null | ActionAndRank,
   itemIdOption?: null | EntityId
 ) {
@@ -31,8 +31,9 @@ export function characterSelectedCombatActionHandler(
       const combatActionOption =
         selectedActionAndRank !== null ? COMBAT_ACTIONS[selectedActionAndRank.actionName] : null;
 
-      const playerOption =
-        game.players[character.combatantProperties.controlledBy.controllerPlayerName];
+      const playerOption = game.getPlayer(
+        character.combatantProperties.controlledBy.controllerPlayerName
+      );
       if (playerOption === undefined) return new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
 
       const targetingCalculator = new TargetingCalculator(

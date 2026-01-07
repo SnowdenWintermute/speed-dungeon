@@ -2,10 +2,15 @@ import { setAlert } from "@/app/components/alerts";
 import { gameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
 import { AppStore } from "@/mobx-stores/app-store";
-import { Combatant, ERROR_MESSAGES, getProgressionGamePartyName } from "@speed-dungeon/common";
+import {
+  Combatant,
+  ERROR_MESSAGES,
+  getProgressionGamePartyName,
+  Username,
+} from "@speed-dungeon/common";
 
 export function savedCharacterSelectionInProgressGameHandler(
-  username: string,
+  username: Username,
   character: { combatant: Combatant; pets: Combatant[] }
 ) {
   const { gameStore } = AppStore.get();
@@ -22,7 +27,7 @@ export function savedCharacterSelectionInProgressGameHandler(
   const partyName = getProgressionGamePartyName(game.name);
   const party = game.adventuringParties[partyName];
   if (!party) return setAlert(new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST));
-  const player = game.players[username];
+  const player = game.getPlayer(username);
   if (!player) return setAlert(new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST));
 
   const previouslySelectedCharacterId = player.characterIds[0];

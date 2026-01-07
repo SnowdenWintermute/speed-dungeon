@@ -1,6 +1,6 @@
 import { plainToInstance } from "class-transformer";
 import makeAutoObservable from "mobx-store-inheritance";
-import { EntityId } from "../aliases.js";
+import { EntityId, Username } from "../aliases.js";
 import { runIfInBrowser } from "../utils/index.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { AiType } from "../combat/ai-behavior/index.js";
@@ -24,7 +24,7 @@ export class CombatantControlledBy extends CombatantSubsystem {
   constructor(
     public controllerType: CombatantControllerType,
     /** For player name, can be empty string if this is dungeon controlled */
-    public controllerPlayerName: string
+    public controllerPlayerName: Username
   ) {
     super();
     runIfInBrowser(() => makeAutoObservable(this));

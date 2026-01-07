@@ -1,4 +1,4 @@
-import { GameName } from "../index.js";
+import { GameName, Username } from "../index.js";
 import {
   ActionCommandPayload,
   BattleResultActionCommandPayload,
@@ -16,5 +16,5 @@ export interface ActionCommandReceiver {
     payload: GameMessagesPayload,
     partyChannelToExcludeOption?: string
   ) => Promise<Error | void>;
-  removePlayerFromGameCommandHandler: (username: string) => Promise<Error | void>;
+  removePlayerFromGameCommandHandler: (username: Username) => Promise<Error | void>;
 }

@@ -2,6 +2,7 @@
 import {
   ActionAccuracyType,
   ActionPayableResource,
+  ActionRank,
   ActionUserContext,
   ArrayUtils,
   COMBAT_ACTIONS,
@@ -72,7 +73,7 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
     party,
     new CombatActionExecutionIntent(
       actionStateOption.actionName,
-      selectedActionAndRankOption?.rank || 1,
+      selectedActionAndRankOption?.rank || (1 as ActionRank),
       currentTargetsOption
     )
   );
@@ -92,7 +93,9 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
         />
       )}
       <ul className="list-none">
-        {ArrayUtils.createFilledWithSequentialNumbers(maxRankToShow, 1).map((rank) => {
+        {ArrayUtils.createFilledWithSequentialNumbers(maxRankToShow, 1).map((rankUncast) => {
+          const rank = rankUncast as ActionRank;
+
           const percentChanceToHit = HitOutcomeMitigationCalculator.getActionHitChance(
             action,
             combatant,
@@ -128,10 +131,10 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
           const shortDescriptionOption =
             rankDescription[ActionDescriptionComponent.ByRankDescriptionsShort];
 
-          function handleSelectActionLevel(level: number) {
+          function handleSelectActionLevel(actionLevel: ActionRank) {
             websocketConnection.emit(ClientToServerEvent.SelectCombatActionLevel, {
-              characterId: entityProperties.id,
-              actionLevel: level,
+              characterId: combatant.getEntityId(),
+              actionLevel,
             });
           }
 
