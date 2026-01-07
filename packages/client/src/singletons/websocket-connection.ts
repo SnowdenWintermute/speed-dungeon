@@ -19,7 +19,7 @@ import {
   ConnectionRole,
   HTTP_HEADER_NAME_STRINGS,
   HttpHeaderNames,
-} from "@speed-dungeon/common/src/http-headers";
+} from "@speed-dungeon/common";
 
 const socketAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
 

@@ -1,27 +1,24 @@
-import { ConnectionId } from "../aliases.js";
+import { UntypedConnectionEndpoint } from "../transport/connection-endpoint.js";
 import { ConnectionIdentityResolutionContext } from "./services/identity-provider.js";
 
-export interface RawConnectionEndpoint {
-  readonly id: ConnectionId;
-  sendRaw(payload: unknown): void;
-  subscribeRaw(handler: (payload: unknown) => void): void;
-  close(): void;
-}
-
 /** Listen for connections and parse their connection role and credentials. Transform the
- * real transport into an abstract ConnectionEndpoint */
+ * real transport into an abstract UntypedConnectionEndpoint. The owning server will determine
+ * the connection role and transform the UntypedSocketConnectionEndpoint to a ConnectionEndpoint<Sendable, Receiveable> */
 export abstract class IncomingMessageGateway {
   abstract listen(): void;
 
   connectionHandler:
-    | ((endpoint: RawConnectionEndpoint, identity: ConnectionIdentityResolutionContext) => void)
+    | ((
+        endpoint: UntypedConnectionEndpoint,
+        identity: ConnectionIdentityResolutionContext
+      ) => Promise<void>)
     | null = null;
 
   initialize(
     handler: (
-      endpoint: RawConnectionEndpoint,
+      endpoint: UntypedConnectionEndpoint,
       identity: ConnectionIdentityResolutionContext
-    ) => void
+    ) => Promise<void>
   ) {
     this.connectionHandler = handler;
   }

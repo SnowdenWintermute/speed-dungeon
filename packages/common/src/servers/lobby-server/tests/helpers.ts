@@ -1,6 +1,5 @@
 import { IdGenerator } from "../../../utility-classes/index.js";
 import { InMemoryTransport } from "../../../transport/in-memory-transport.js";
-import { LobbyLocalClientIntentReceiver } from "../../local-client-intent-receiver.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import {
   InMemorySavedCharacterPersistenceStrategy,
@@ -16,15 +15,14 @@ import {
   GameServerConnectionInstructions,
   GameServerConnectionType,
 } from "../game-handoff/connection-instructions.js";
-import { ClientIntent } from "../../../packets/client-intents.js";
-import { GameStateUpdate } from "../../../packets/game-state-updates.js";
+import { InMemoryIncomingMessageGateway } from "../../in-memory-incoming-message-gateway.js";
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class TestHelpers {
   static createInMemoryTransportWithTestLobby() {
-    const inMemoryTransport = new InMemoryTransport<ClientIntent, GameStateUpdate>();
+    const inMemoryTransport = new InMemoryTransport();
 
-    const lobbyLocalClientIntentReceiver = new LobbyLocalClientIntentReceiver(
+    const lobbyLocalClientIntentReceiver = new InMemoryIncomingMessageGateway(
       inMemoryTransport.getServerConnectionEndpointManager()
     );
 

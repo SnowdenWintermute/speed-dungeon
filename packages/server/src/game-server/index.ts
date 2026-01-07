@@ -33,7 +33,6 @@ import initiateSavedCharacterListeners from "./saved-character-event-handlers/in
 import GameModeContext from "./game-event-handlers/game-mode-strategies/game-mode-context.js";
 import { idGenerator, rngSingleton } from "../singletons/index.js";
 import { AffixGenerator } from "@speed-dungeon/common";
-import { LobbyRemoteClientIntentReceiver } from "./client-intent-receivers/remote-lobby.js";
 import { RemoteGameSimuatorHandoffStrategy } from "./lobby-setup/remote-game-simulator-handoff-strategy.js";
 import { DatabaseProfileService } from "./services/profiles.js";
 import { speedDungeonProfilesRepo } from "../database/repos/speed-dungeon-profiles.js";
@@ -47,6 +46,7 @@ import { DatabaseRankedLadderService } from "./services/ranked-ladder.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { getLoggedInUserOrCreateGuest } from "./get-logged-in-user-or-create-guest.js";
 import { GameMessagesPayload } from "@speed-dungeon/common";
+import { LobbyRemoteIncomingMessageGateway } from "./client-intent-receivers/remote-lobby.js";
 
 export type SocketId = string;
 
@@ -65,11 +65,11 @@ export class GameServerNode implements ActionCommandReceiver {
     this.connectionHandler();
     this.characterCreator = new CharacterCreator(idGenerator, this.itemGenerator);
 
-    const clientIntentReceiver = new LobbyRemoteClientIntentReceiver(this.io);
+    const usersIncomingMessageGateway = new LobbyRemoteIncomingMessageGateway(this.io);
     const gameSimulatorHandoffStrategy = new RemoteGameSimuatorHandoffStrategy();
     const externalServices = this.createLobbyExternalServices();
     const lobbyServer = new LobbyServer(
-      clientIntentReceiver,
+      usersIncomingMessageGateway,
       gameSimulatorHandoffStrategy,
       externalServices
     );

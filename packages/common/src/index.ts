@@ -68,13 +68,16 @@ export * from "./servers/lobby-server/default-names/game.js";
 export * from "./servers/lobby-server/game-handoff/connection-instructions.js";
 export * from "./servers/lobby-server/default-names/parties.js";
 export * from "./servers/lobby-server/game-handoff/handoff-strategy.js";
-export * from "./servers/client-intent-receiver.js";
 export * from "./servers/services/profiles.js";
 export * from "./servers/services/saved-characters.js";
 export * from "./servers/services/ranked-ladder.js";
 export * from "./servers/services/identity-provider.js";
 export * from "./servers/lobby-server/index.js";
 export * from "./servers/sessions/user-ids.js";
+export * from "./servers/incoming-message-gateway.js";
+
+export * from "./transport/connection-endpoint.js";
+export * from "./transport/socket-connection-endpoint.js";
 
 export * from "./combatants/attributes/index.js";
 export * from "./combatants/attributes/add-attributes-to-accumulator.js";
@@ -193,5 +196,3 @@ export * from "./combat/ai-behavior/index.js";
 export * from "./combat/targeting/combat-action-targets.js";
 export * from "./combat/ai-behavior/ai-select-action-and-target.js";
 export * from "./combat/combat-actions/action-implementations/index.js";
-
-export * from "./transport/connection-endpoint.js";

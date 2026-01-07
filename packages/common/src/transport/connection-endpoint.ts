@@ -1,72 +1,46 @@
-import { ConnectionId } from "../aliases.js";
+import { ConnectionId, UntypedEndpointBrand } from "../aliases.js";
 
 export interface ConnectionEndpoint<Sendable, Receivable> {
   readonly id: ConnectionId;
   send(update: Sendable): void;
-  receive?(message: Receivable): void;
-  close?(): void;
+  receive(message: Receivable): void;
+  subscribeAll(handler: (message: unknown) => void): void;
+  close(): void;
+  // otherwise we were able to pass untyped endpoints as arguments that expected typed endpoints
+  readonly [UntypedEndpointBrand]?: never;
 }
 
-export class LocalConnectionEndpoint<Sendable, Receivable>
-  implements ConnectionEndpoint<Sendable, Receivable>
-{
-  private subscribeAllHandler: ((message: Receivable) => void) | null = null;
+export abstract class UntypedConnectionEndpoint {
+  abstract readonly id: ConnectionId;
+  abstract send(payload: unknown): void;
+  abstract receive(payload: unknown): void;
+  abstract subscribeAll(
+    messageHandler: (payload: unknown) => void,
+    disconnectHandler: (payload: unknown) => void
+  ): void;
+  abstract close(): void;
+  abstract readonly [UntypedEndpointBrand]: true;
 
-  constructor(
-    public readonly id: ConnectionId,
-    /**
-      ask the transport to deliver this message as someone’s inbound. Basically they will
-      call receive on their paired endpoint, but they don't know that explicitly
-    * */
-    private readonly deliverInbound: (message: Sendable) => void,
-    private readonly onClose: () => void
-  ) {}
+  toTyped<Sendable, Receivable>(): ConnectionEndpoint<Sendable, Receivable> {
+    const untyped = this;
 
-  send(message: Sendable): void {
-    this.deliverInbound(message);
-  }
-
-  subscribeAll(handler: (message: Receivable) => void): void {
-    this.subscribeAllHandler = handler;
-  }
-
-  receive(message: Receivable): void {
-    this.subscribeAllHandler?.(message);
-  }
-
-  close(): void {
-    this.onClose();
-  }
-}
-
-export enum TransportDisconnectReasonType {
-  TransportError,
-  TransportClose,
-  ForcedClose,
-  PingTimeout,
-  ParseError,
-  ServerShuttingDown,
-  ForcedServerClose,
-  ClientNamespaceDisconnect,
-  ServerNamespaceDisconnect,
-}
-
-const TRANSPORT_DISCONNECT_REASON_TYPE_STRINGS: Record<TransportDisconnectReasonType, string> = {
-  [TransportDisconnectReasonType.TransportError]: "TransportError",
-  [TransportDisconnectReasonType.TransportClose]: "TransportClose",
-  [TransportDisconnectReasonType.ForcedClose]: "ForcedClose",
-  [TransportDisconnectReasonType.PingTimeout]: "PingTimeout",
-  [TransportDisconnectReasonType.ParseError]: "ParseError",
-  [TransportDisconnectReasonType.ServerShuttingDown]: "ServerShuttingDown",
-  [TransportDisconnectReasonType.ForcedServerClose]: "ForcedServerClose",
-  [TransportDisconnectReasonType.ClientNamespaceDisconnect]: "ClientNamespaceDisconnect",
-  [TransportDisconnectReasonType.ServerNamespaceDisconnect]: "ServerNamespaceDisconnect",
-};
-
-export class TransportDisconnectReason {
-  constructor(public readonly type: TransportDisconnectReasonType) {}
-
-  getStringName() {
-    return TRANSPORT_DISCONNECT_REASON_TYPE_STRINGS[this.type];
+    return {
+      id: untyped.id,
+      send(message: Sendable) {
+        untyped.send(message);
+      },
+      receive(message: Receivable) {
+        untyped.receive?.(message);
+      },
+      subscribeAll(handler: (message: Receivable) => void) {
+        untyped.subscribeAll(
+          (payload) => handler(payload as Receivable),
+          () => untyped.close()
+        );
+      },
+      close() {
+        untyped.close();
+      },
+    };
   }
 }

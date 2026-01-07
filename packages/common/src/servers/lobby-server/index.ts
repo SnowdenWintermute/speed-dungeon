@@ -21,7 +21,6 @@ import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js
 import { CharacterCreator } from "../../character-creation/index.js";
 import { ItemGenerator } from "../../items/item-creation/index.js";
 import { AffixGenerator } from "../../items/item-creation/builders/affix-generator/index.js";
-import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { ClientIntent } from "../../packets/client-intents.js";
 import { ConnectionId } from "../../aliases.js";
@@ -36,7 +35,8 @@ import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
 import { GameServerSessionRegistry } from "../sessions/game-server-session-registry.js";
 import { GameServerSessionLifecycleController } from "./controllers/game-server-session-lifecycle.js";
 import { ConnectionRole } from "../../http-headers.js";
-import { IncomingMessageGateway, RawConnection } from "../client-intent-receiver.js";
+import { IncomingMessageGateway } from "../incoming-message-gateway.js";
+import { UntypedConnectionEndpoint } from "../../transport/connection-endpoint.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -80,7 +80,9 @@ export class LobbyServer {
     private readonly gameHandoffStrategy: GameHandoffStrategyLobbyToGameServer,
     private readonly externalServices: LobbyExternalServices
   ) {
-    this.incomingMessageGateway.initialize((context) => {});
+    this.incomingMessageGateway.initialize(
+      async (context, identityContext) => await this.handleConnection(context, identityContext)
+    );
     this.incomingMessageGateway.listen();
 
     this.characterCreator = new CharacterCreator(
@@ -105,35 +107,24 @@ export class LobbyServer {
   }
 
   async handleConnection(
-    // how do I make the types generic, it says required generic type if I leave it out, but I want to accept any type
-    // of connection endpoint
-    connection: RawConnection,
+    endpoint: UntypedConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
+    console.log("got new connection to lobby:", endpoint.id);
     switch (identityResolutionContext.type) {
       case ConnectionRole.User: {
-        // const connectionEndpoint = new
-        return this.handleUserConnection(connectionEndpoint, identityResolutionContext);
+        console.log("is user connection");
+        return await this.handleUserConnection(endpoint, identityResolutionContext);
       }
       case ConnectionRole.GameServer: {
-        return this.handleGameServerConnection(connectionEndpoint, identityResolutionContext);
+        console.log("is game server connection");
+        return await this.handleGameServerConnection(endpoint, identityResolutionContext);
       }
     }
   }
 
-  private async handleGameServerConnection(
-    connectionEndpoint: ConnectionEndpoint<GameStateUpdate, ClientIntent>,
-    identityResolutionContext: GameServerIdentityResolutionContext
-  ) {
-    const newSession = this.gameServerSessionLifecycleController.createServerSession(
-      connectionEndpoint.id,
-      identityResolutionContext
-    );
-    this.gameServerSessionRegistry.register(newSession);
-  }
-
   private async handleUserConnection(
-    connectionEndpoint: ConnectionEndpoint<GameStateUpdate, ClientIntent>,
+    connectionEndpoint: UntypedConnectionEndpoint,
     identityResolutionContext: UserIdentityResolutionContext
   ) {
     const newSession = await this.userSessionLifecycleController.createUserSession(
@@ -141,15 +132,30 @@ export class LobbyServer {
       identityResolutionContext
     );
 
+    console.log("created user session:", newSession);
+
     if (newSession.userId.type === UserIdType.Auth) {
       this.externalServices.profileService.createProfileIfUserHasNone(newSession.userId.id);
     }
 
+    const userConnectionEndpoint = connectionEndpoint.toTyped<GameStateUpdate, ClientIntent>();
+
     const outbox = await this.userSessionLifecycleController.connectionHandler(
       newSession,
-      connectionEndpoint
+      userConnectionEndpoint
     );
     this.dispatchOutboxMessages(outbox);
+  }
+
+  private async handleGameServerConnection(
+    connectionEndpoint: UntypedConnectionEndpoint,
+    identityResolutionContext: GameServerIdentityResolutionContext
+  ) {
+    const newSession = this.gameServerSessionLifecycleController.createServerSession(
+      connectionEndpoint.id,
+      identityResolutionContext
+    );
+    this.gameServerSessionRegistry.register(newSession);
   }
 
   async handleIntent(clientIntent: ClientIntent, connectionId: ConnectionId) {

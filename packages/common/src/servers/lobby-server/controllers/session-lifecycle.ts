@@ -9,10 +9,7 @@ import {
 } from "../../services/identity-provider.js";
 import { ConnectionId, Username } from "../../../aliases.js";
 import { ClientIntent } from "../../../packets/client-intents.js";
-import {
-  ConnectionEndpoint,
-  TransportDisconnectReason,
-} from "../../../transport/connection-endpoint.js";
+import { ConnectionEndpoint } from "../../../transport/connection-endpoint.js";
 import { LobbyState } from "../lobby-state.js";
 import { SavedCharactersController } from "./saved-characters.js";
 import { GameLifecycleController } from "./game-lifecycle.js";
@@ -23,6 +20,7 @@ import { UserId, UserIdType } from "../../sessions/user-ids.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { OutgoingMessageGateway } from "../../update-delivery/message-gateway.js";
+import { TransportDisconnectReason } from "../../../transport/disconnect-reasons.js";
 
 export class SessionLifecycleController {
   constructor(

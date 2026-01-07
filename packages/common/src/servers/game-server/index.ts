@@ -1,12 +1,12 @@
 import { SpeedDungeonGame } from "../../game/index.js";
 import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
-import { ClientIntentReceiver } from "../client-intent-receiver.js";
 import { UserSessionRegistry } from "../sessions/user-session-registry.js";
 import { ClientIntent } from "../../packets/client-intents.js";
 import { ConnectionId, GameName } from "../../aliases.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
 import { MessageDispatchFactory } from "../update-delivery/message-dispatch-factory.js";
+import { IncomingMessageGateway } from "../incoming-message-gateway.js";
 
 export class GameServer {
   private readonly games = new Map<GameName, SpeedDungeonGame>();
@@ -24,11 +24,11 @@ export class GameServer {
   // public readonly savedCharactersController: SavedCharactersController;
 
   constructor(
-    private readonly clientIntentReceiver: ClientIntentReceiver<ClientIntent, GameStateUpdate>
+    private readonly usersIncomingMessageGateway: IncomingMessageGateway
     // private readonly externalServices: LobbyExternalServices
   ) {
     // this.clientIntentReceiver.initialize(this);
-    this.clientIntentReceiver.listen();
+    this.usersIncomingMessageGateway.listen();
 
     // this.sessionAuthManager = new SessionAuthorizationManager(externalServices.profileService);
   }

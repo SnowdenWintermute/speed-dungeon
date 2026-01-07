@@ -3,17 +3,13 @@ import { LobbyServer } from "../index.js";
 import { GameName } from "../../../aliases.js";
 import { GameMode } from "../../../types.js";
 import { InMemoryTransport } from "../../../transport/in-memory-transport.js";
-import {
-  GameListEntry,
-  GameStateUpdate,
-  GameStateUpdateType,
-} from "../../../packets/game-state-updates.js";
+import { GameListEntry, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { TestHelpers } from "./helpers.js";
-import { ClientIntent } from "../../../packets/client-intents.js";
 import { MessageDispatchType } from "../../update-delivery/message-dispatch-factory.js";
+import { ConnectionRole } from "../../../http-headers.js";
 
 describe("lobby server", () => {
-  let inMemoryTransport: InMemoryTransport<ClientIntent, GameStateUpdate>;
+  let inMemoryTransport: InMemoryTransport;
   let lobbyServer: LobbyServer;
 
   beforeEach(() => {
@@ -25,15 +21,21 @@ describe("lobby server", () => {
   it("game creation", async () => {
     // make a game host
     const { serverEndpoint: serverEndpointForGameHost, clientEndpoint: _c1 } =
-      await inMemoryTransport.createConnection();
+      await inMemoryTransport.createConnection({ type: ConnectionRole.User });
 
+    console.log(
+      "about to get game host session",
+      JSON.stringify(lobbyServer.userSessionRegistry, null, 2)
+    );
     const gameHostSession = lobbyServer.userSessionRegistry.getExpectedSession(
       serverEndpointForGameHost.id
     );
 
+    console.log("game host session:", gameHostSession);
+
     // make another lobby user
     const { serverEndpoint: serverEndpointForOtherInLobby, clientEndpoint: _c2 } =
-      await inMemoryTransport.createConnection();
+      await inMemoryTransport.createConnection({ type: ConnectionRole.User });
     const otherLobbyUserSession = lobbyServer.userSessionRegistry.getExpectedSession(
       serverEndpointForOtherInLobby.id
     );

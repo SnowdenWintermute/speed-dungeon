@@ -16,7 +16,7 @@ import { BookConsumableType } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { NextOrPrevious } from "../primatives/index.js";
-import { TransportDisconnectReason } from "../transport/connection-endpoint.js";
+import { TransportDisconnectReason } from "../transport/disconnect-reasons.js";
 import { GameMode } from "../types.js";
 import { CharacterAndItems } from "./game-state-updates.js";
 

@@ -1,31 +1,20 @@
 import { ConnectionId } from "../aliases.js";
 import { IdGenerator } from "../utility-classes/index.js";
-import { LocalConnectionEndpointManager } from "./local-connection-endpoint-manager.js";
-import {
-  LocalConnectionEndpoint,
-  TransportDisconnectReason,
-  TransportDisconnectReasonType,
-} from "./connection-endpoint.js";
+import { ConnectionIdentityResolutionContext } from "../servers/services/identity-provider.js";
+import { InMemoryConnectionEndpointManager } from "./in-memory-connection-endpoint-manager.js";
+import { UntypedInMemoryConnectionEndpoint } from "./in-memory-connection-endpoint.js";
+import { TransportDisconnectReason, TransportDisconnectReasonType } from "./disconnect-reasons.js";
 
-export class InMemoryTransport<
-  ClientMessage extends { type: PropertyKey; data: unknown },
-  ServerMessage extends { type: PropertyKey; data: unknown },
-> {
+export class InMemoryTransport {
   private readonly idGenerator = new IdGenerator({ saveHistory: false });
-  private readonly serverConnectionEndpointManager = new LocalConnectionEndpointManager<
-    ServerMessage,
-    ClientMessage
-  >();
+  private readonly serverConnectionEndpointManager = new InMemoryConnectionEndpointManager();
 
-  private readonly clientConnectionEndpointManager = new LocalConnectionEndpointManager<
-    ClientMessage,
-    ServerMessage
-  >();
+  private readonly clientConnectionEndpointManager = new InMemoryConnectionEndpointManager();
 
-  async createConnection() {
+  async createConnection(identityContext: ConnectionIdentityResolutionContext) {
     const id = this.idGenerator.generate() as ConnectionId;
 
-    const serverEndpoint = new LocalConnectionEndpoint<ServerMessage, ClientMessage>(
+    const serverEndpoint = new UntypedInMemoryConnectionEndpoint(
       id,
       (update) => clientEndpoint.receive(update),
       () =>
@@ -35,7 +24,7 @@ export class InMemoryTransport<
         )
     );
 
-    const clientEndpoint = new LocalConnectionEndpoint<ClientMessage, ServerMessage>(
+    const clientEndpoint = new UntypedInMemoryConnectionEndpoint(
       id,
       (intent) => serverEndpoint.receive(intent),
       () =>
@@ -45,7 +34,7 @@ export class InMemoryTransport<
         )
     );
 
-    await this.serverConnectionEndpointManager.onNewConnection(serverEndpoint);
+    await this.serverConnectionEndpointManager.onNewConnection(serverEndpoint, identityContext);
 
     return { serverEndpoint, clientEndpoint };
   }
