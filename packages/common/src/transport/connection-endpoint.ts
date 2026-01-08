@@ -1,10 +1,14 @@
 import { ConnectionId, UntypedEndpointBrand } from "../aliases.js";
+import { TransportDisconnectReason } from "./disconnect-reasons.js";
 
 export interface ConnectionEndpoint<Sendable, Receivable> {
   readonly id: ConnectionId;
   send(update: Sendable): void;
   receive(message: Receivable): void;
-  subscribeAll(handler: (message: unknown) => void): void;
+  subscribeAll(
+    handler: (message: Receivable) => void,
+    disconnectHandler: (payload: TransportDisconnectReason) => void
+  ): void;
   close(): void;
   // otherwise we were able to pass untyped endpoints as arguments that expected typed endpoints
   readonly [UntypedEndpointBrand]?: never;

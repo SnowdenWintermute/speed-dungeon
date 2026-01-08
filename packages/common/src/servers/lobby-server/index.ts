@@ -140,6 +140,25 @@ export class LobbyServer {
 
     const userConnectionEndpoint = connectionEndpoint.toTyped<GameStateUpdate, ClientIntent>();
 
+    userConnectionEndpoint.subscribeAll(
+      async (receivable) => {
+        const handlerOption = this.intentHandlers[receivable.type];
+
+        if (handlerOption === undefined) {
+          throw new Error("Lobby is not configured to handle this type of ClientIntent");
+        }
+
+        const session = this.userSessionRegistry.getExpectedSession(userConnectionEndpoint.id);
+
+        // a workaround is to use "as never" for some reason
+        const outbox = await handlerOption(receivable.data as never, session);
+        this.dispatchOutboxMessages(outbox);
+      },
+      (reason) => {
+        console.log(`${connectionEndpoint.id} disconnected: ${reason.getStringName()}`);
+      }
+    );
+
     const outbox = await this.userSessionLifecycleController.connectionHandler(
       newSession,
       userConnectionEndpoint
@@ -156,20 +175,6 @@ export class LobbyServer {
       identityResolutionContext
     );
     this.gameServerSessionRegistry.register(newSession);
-  }
-
-  async handleIntent(clientIntent: ClientIntent, connectionId: ConnectionId) {
-    const handlerOption = this.intentHandlers[clientIntent.type];
-
-    if (handlerOption === undefined) {
-      throw new Error("Lobby is not configured to handle this type of ClientIntent");
-    }
-
-    const fromUser = this.userSessionRegistry.getExpectedSession(connectionId);
-
-    // a workaround is to use "as never" for some reason
-    const outbox = await handlerOption(clientIntent.data as never, fromUser);
-    this.dispatchOutboxMessages(outbox);
   }
 
   private dispatchOutboxMessages(outbox: MessageDispatchOutbox<GameStateUpdate>) {
