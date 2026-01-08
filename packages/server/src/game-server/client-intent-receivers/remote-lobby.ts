@@ -31,22 +31,7 @@ export class LobbyRemoteIncomingConnectionGateway extends IncomingConnectionGate
       throw new Error("unexpected header content");
     }
 
-    if (connectionRole === CONNECTION_ROLE_STRINGS[ConnectionRole.GameServer]) {
-      const handshakePayload = JSON.parse(
-        handshakeData[HttpHeaderNames.GameServerToLobbyHandshakePayload]?.toString() || ""
-      );
-      const handshakeSignature =
-        handshakeData[HttpHeaderNames.GameServerToLobbyHandshakeSignature] || "";
-      return {
-        type: ConnectionRole.GameServer,
-        gameServerId: handshakePayload["gameServerId"],
-        gameServerName: handshakePayload["gameServerName"],
-        gameServerUrl: handshakePayload["gameServerUrl"],
-        expirationTimestamp: handshakePayload["expirationTimestamp"],
-        nonce: handshakePayload["nonce"],
-        signature: handshakeSignature?.toString(),
-      };
-    } else if (connectionRole === CONNECTION_ROLE_STRINGS[ConnectionRole.User]) {
+    if (connectionRole === CONNECTION_ROLE_STRINGS[ConnectionRole.User]) {
       return {
         type: ConnectionRole.User,
         cookies,

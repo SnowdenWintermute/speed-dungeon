@@ -1,4 +1,4 @@
-import { GameServerId, GameServerName, IdentityProviderId, Username } from "../../aliases.js";
+import { IdentityProviderId, Username } from "../../aliases.js";
 import { ConnectionRole } from "../../http-headers.js";
 import { UserId } from "../sessions/user-ids.js";
 
@@ -8,19 +8,7 @@ export interface UserIdentityResolutionContext {
   readonly localUserId?: IdentityProviderId;
 }
 
-export interface GameServerIdentityResolutionContext {
-  readonly type: ConnectionRole.GameServer;
-  readonly gameServerId: GameServerId;
-  readonly gameServerName: GameServerName;
-  readonly gameServerUrl: string;
-  readonly expirationTimestamp: number;
-  readonly nonce: string;
-  readonly signature: string;
-}
-
-export type ConnectionIdentityResolutionContext =
-  | UserIdentityResolutionContext
-  | GameServerIdentityResolutionContext;
+export type ConnectionIdentityResolutionContext = UserIdentityResolutionContext;
 
 export interface IdentityProviderUserSessionQueryStrategy {
   execute(

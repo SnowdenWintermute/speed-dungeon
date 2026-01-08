@@ -1,9 +1,9 @@
 import { UntypedConnectionEndpoint } from "../transport/connection-endpoint.js";
 import { ConnectionIdentityResolutionContext } from "./services/identity-provider.js";
 
-/** Listen for connections and parse their connection role and credentials. Transform the
- * real transport into an abstract UntypedConnectionEndpoint. The owning server will determine
- * the connection role and transform the UntypedSocketConnectionEndpoint to a ConnectionEndpoint<Sendable, Receiveable> */
+/** Listen for connections and parse their credentials. Transform the real transport into an
+ * abstract UntypedConnectionEndpoint. The owning server will transform the UntypedConnectionEndpoint
+ * to a ConnectionEndpoint<Sendable, Receiveable> */
 export abstract class IncomingConnectionGateway {
   abstract listen(): void;
 

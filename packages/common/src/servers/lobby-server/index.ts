@@ -7,7 +7,6 @@ import { PartySetupController } from "./controllers/party-setup.js";
 import { SessionLifecycleController } from "./controllers/session-lifecycle.js";
 import {
   ConnectionIdentityResolutionContext,
-  GameServerIdentityResolutionContext,
   IdentityProviderService,
   UserIdentityResolutionContext,
 } from "../services/identity-provider.js";
@@ -31,13 +30,9 @@ import {
 } from "../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
-import { GameServerSessionRegistry } from "../sessions/game-server-session-registry.js";
-import { GameServerSessionLifecycleController } from "./controllers/game-server-session-lifecycle.js";
 import { ConnectionRole } from "../../http-headers.js";
 import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { UntypedConnectionEndpoint } from "../../transport/connection-endpoint.js";
-import { createLobbyGameServerIntentHandlers } from "./create-game-server-intent-handlers.js";
-import { ServerToServerMessage } from "../../packets/server-to-server.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -55,12 +50,7 @@ export class LobbyServer {
     GameStateUpdate,
     ClientIntent
   >();
-  private readonly outgoingMessagesToGameServersGateway = new OutgoingMessageGateway<
-    ServerToServerMessage,
-    ServerToServerMessage
-  >();
   readonly userSessionRegistry = new UserSessionRegistry();
-  private readonly gameServerSessionRegistry = new GameServerSessionRegistry();
 
   private readonly gameStateUpdateDispatchFactory = new MessageDispatchFactory<GameStateUpdate>(
     this.userSessionRegistry
@@ -69,7 +59,6 @@ export class LobbyServer {
 
   public readonly sessionAuthManager: SessionAuthorizationManager;
   private userIntentHandlers = createLobbyClientIntentHandlers(this);
-  private gameServerIntentHandlers = createLobbyGameServerIntentHandlers(this);
 
   // user controllers
   public readonly gameLifecycleController: GameLifecycleController;
@@ -78,7 +67,6 @@ export class LobbyServer {
   public readonly savedCharactersController: SavedCharactersController;
   public readonly characterLifecycleController: CharacterLifecycleController;
   // game server controllers
-  public readonly gameServerSessionLifecycleController: GameServerSessionLifecycleController;
 
   constructor(
     private readonly incomingConnectionGateway: IncomingConnectionGateway,
@@ -107,8 +95,6 @@ export class LobbyServer {
     this.userSessionLifecycleController = controllers.userSessionLifecycleController;
     this.savedCharactersController = controllers.savedCharactersController;
     this.characterLifecycleController = controllers.characterLifecycleController;
-
-    this.gameServerSessionLifecycleController = controllers.gameServerSessionLifecycleController;
   }
 
   async handleConnection(
@@ -120,10 +106,6 @@ export class LobbyServer {
       case ConnectionRole.User: {
         console.log("is user connection");
         return await this.handleUserConnection(endpoint, identityResolutionContext);
-      }
-      case ConnectionRole.GameServer: {
-        console.log("is game server connection");
-        return await this.handleGameServerConnection(endpoint, identityResolutionContext);
       }
     }
   }
@@ -174,69 +156,6 @@ export class LobbyServer {
       userConnectionEndpoint
     );
     this.dispatchUserOutboxMessages(outbox);
-  }
-
-  private async handleGameServerConnection(
-    connectionEndpoint: UntypedConnectionEndpoint,
-    identityResolutionContext: GameServerIdentityResolutionContext
-  ) {
-    const newSession = this.gameServerSessionLifecycleController.createServerSession(
-      connectionEndpoint.id,
-      identityResolutionContext
-    );
-    this.gameServerSessionRegistry.register(newSession);
-
-    const gameServerConnectionEndpoint = connectionEndpoint.toTyped<
-      ServerToServerMessage,
-      ServerToServerMessage
-    >();
-
-    gameServerConnectionEndpoint.subscribeAll(
-      async (receivable) => {
-        const handlerOption = this.gameServerIntentHandlers[receivable.type];
-
-        if (handlerOption === undefined) {
-          throw new Error("Lobby is not configured to handle this type of ClientIntent");
-        }
-
-        const session = this.gameServerSessionRegistry.getExpectedSession(
-          gameServerConnectionEndpoint.id
-        );
-
-        // a workaround is to use "as never" for some reason
-        const outbox = await handlerOption(receivable.data as never, session);
-
-        this.dispatchGameServerOutboxMessages(outbox);
-      },
-      (reason) => {
-        console.log(`${connectionEndpoint.id} disconnected: ${reason.getStringName()}`);
-      }
-    );
-
-    // const outbox = await this.gameServerSessionLifecycleController.connectionHandler(
-    //   newSession,
-    //   gameServerConnectionEndpoint
-    // );
-    // this.dispatchUserOutboxMessages(outbox);
-  }
-
-  private dispatchGameServerOutboxMessages(outbox: MessageDispatchOutbox<ServerToServerMessage>) {
-    for (const dispatch of outbox.toDispatches()) {
-      switch (dispatch.type) {
-        case MessageDispatchType.Single:
-          this.outgoingMessagesToGameServersGateway.submitToConnection(
-            dispatch.connectionId,
-            dispatch.message
-          );
-          break;
-        case MessageDispatchType.FanOut:
-          this.outgoingMessagesToGameServersGateway.submitToConnections(
-            dispatch.connectionIds,
-            dispatch.message
-          );
-          break;
-      }
-    }
   }
 
   private dispatchUserOutboxMessages(outbox: MessageDispatchOutbox<GameStateUpdate>) {
@@ -304,17 +223,12 @@ export class LobbyServer {
       this.externalServices.idGenerator
     );
 
-    const gameServerSessionLifecycleController = new GameServerSessionLifecycleController(
-      this.gameServerSessionRegistry
-    );
-
     return {
       savedCharactersController,
       partySetupController,
       gameLifecycleController,
       characterLifecycleController,
       userSessionLifecycleController,
-      gameServerSessionLifecycleController,
     };
   }
 }
