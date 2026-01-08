@@ -5,7 +5,7 @@ import {
   CONNECTION_ROLE_STRINGS,
   ConnectionRole,
   ConnectionIdentityResolutionContext,
-  IncomingMessageGateway,
+  IncomingConnectionGateway,
   UntypedSocketConnectionEndpoint,
 } from "@speed-dungeon/common";
 
@@ -14,7 +14,7 @@ export interface SocketHandshakeData {
   [header: string]: string | string[] | undefined;
 }
 
-export class LobbyRemoteIncomingMessageGateway extends IncomingMessageGateway {
+export class LobbyRemoteIncomingConnectionGateway extends IncomingConnectionGateway {
   constructor(private io: SocketIO.Server) {
     super();
   }
@@ -59,14 +59,7 @@ export class LobbyRemoteIncomingMessageGateway extends IncomingMessageGateway {
   listen() {
     this.io.of("/").on("connection", async (socket) => {
       const req = socket.request;
-      console.log(
-        "headers:",
-        req.headers,
-        "rawheaders:",
-        req.rawHeaders,
-        "distinct:",
-        req.headersDistinct
-      );
+
       const identityContext = this.parseConnectionIdentityContext({
         ...socket.handshake.query,
         cookie: req.headers.cookie,

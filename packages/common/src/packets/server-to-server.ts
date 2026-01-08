@@ -2,32 +2,24 @@ import { GameName, SessionClaimId } from "../aliases.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { PendingGameServerUserSession } from "../servers/lobby-server/game-handoff/pending-user-session.js";
 
-export enum ServerToServerPacketType {
+export enum ServerToServerMessageType {
   GameHandoff,
   GameServerReady,
 }
 
-export interface ServerToServerPacketMap {
-  [ServerToServerPacketType.GameHandoff]: {
+export interface ServerToServerMessageMap {
+  [ServerToServerMessageType.GameHandoff]: {
     game: SpeedDungeonGame;
     pendingSessionsByClaimId: Map<SessionClaimId, PendingGameServerUserSession>;
   };
-  [ServerToServerPacketType.GameServerReady]: {
+  [ServerToServerMessageType.GameServerReady]: {
     gameName: GameName;
   };
 }
 
-export type ServerToServerPacket = {
-  [K in keyof ServerToServerPacketMap]: {
+export type ServerToServerMessage = {
+  [K in keyof ServerToServerMessageMap]: {
     type: K;
-    data: ServerToServerPacketMap[K];
+    data: ServerToServerMessageMap[K];
   };
-}[keyof ServerToServerPacketMap];
-
-export type ServerToServerPacketHandler<K extends keyof ServerToServerPacketMap> = (
-  intent: ServerToServerPacketMap[K]
-) => void;
-
-export type ServerToServerPacketHandlers = {
-  [K in keyof ServerToServerPacketMap]: ServerToServerPacketHandler<K>;
-};
+}[keyof ServerToServerMessageMap];

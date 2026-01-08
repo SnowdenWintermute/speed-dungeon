@@ -6,7 +6,7 @@ import { ConnectionId, GameName } from "../../aliases.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
 import { MessageDispatchFactory } from "../update-delivery/message-dispatch-factory.js";
-import { IncomingMessageGateway } from "../incoming-message-gateway.js";
+import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 
 export class GameServer {
   private readonly games = new Map<GameName, SpeedDungeonGame>();
@@ -24,11 +24,11 @@ export class GameServer {
   // public readonly savedCharactersController: SavedCharactersController;
 
   constructor(
-    private readonly usersIncomingMessageGateway: IncomingMessageGateway
+    private readonly usersIncomingConnectionGateway: IncomingConnectionGateway
     // private readonly externalServices: LobbyExternalServices
   ) {
     // this.clientIntentReceiver.initialize(this);
-    this.usersIncomingMessageGateway.listen();
+    this.usersIncomingConnectionGateway.listen();
 
     // this.sessionAuthManager = new SessionAuthorizationManager(externalServices.profileService);
   }

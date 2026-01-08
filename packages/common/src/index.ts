@@ -74,7 +74,7 @@ export * from "./servers/services/ranked-ladder.js";
 export * from "./servers/services/identity-provider.js";
 export * from "./servers/lobby-server/index.js";
 export * from "./servers/sessions/user-ids.js";
-export * from "./servers/incoming-message-gateway.js";
+export * from "./servers/incoming-connection-gateway.js";
 
 export * from "./transport/connection-endpoint.js";
 export * from "./transport/socket-connection-endpoint.js";

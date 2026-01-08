@@ -16,9 +16,11 @@ import { BookConsumableType } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { NextOrPrevious } from "../primatives/index.js";
+import { UserSession } from "../servers/sessions/user-session.js";
+import { MessageDispatchOutbox } from "../servers/update-delivery/outbox.js";
 import { TransportDisconnectReason } from "../transport/disconnect-reasons.js";
 import { GameMode } from "../types.js";
-import { CharacterAndItems } from "./game-state-updates.js";
+import { CharacterAndItems, GameStateUpdate } from "./game-state-updates.js";
 
 export enum ClientIntentType {
   Disconnection,
@@ -174,205 +176,9 @@ export interface ClientIntentMap {
   [ClientIntentType.RenamePet]: { petId: CombatantId; newName: EntityName };
 }
 
-// Create discriminated union
 export type ClientIntent = {
   [K in keyof ClientIntentMap]: {
     type: K;
     data: ClientIntentMap[K];
   };
 }[keyof ClientIntentMap];
-
-export type ClientIntentHandler<K extends keyof ClientIntentMap> = (
-  intent: ClientIntentMap[K]
-) => void;
-
-export type ClientIntentHandlers = {
-  [K in keyof ClientIntentMap]: ClientIntentHandler<K>;
-};
-
-// example how to create typed handlers @TODO - remove once Lobby and GameSimulator have their own
-const intentHandlers: ClientIntentHandlers = {
-  [ClientIntentType.RequestsGameList]: function (intent: undefined): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.CreateGame]: function (intent: {
-    gameName: GameName;
-    mode: GameMode;
-    isRanked?: boolean;
-  }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.JoinGame]: function (intent: { gameName: GameName }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.LeaveGame]: function (intent: undefined): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.CreateParty]: function (intent: { partyName: string }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.JoinParty]: function (intent: { partyName: string }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.LeaveParty]: function (intent: undefined): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.ToggleReadyToStartGame]: function (intent: undefined): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.CreateCharacter]: function (intent: {
-    name: string;
-    combatantClass: CombatantClass;
-  }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.DeleteCharacter]: function (intent: { characterId: string }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.SelectCombatAction]: function (intent: {
-    characterId: string;
-    actionAndRankOption: null | ActionAndRank;
-    itemIdOption?: string;
-  }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.IncrementAttribute]: function (intent: {
-    characterId: string;
-    attribute: CombatAttribute;
-  }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.ToggleReadyToExplore]: function (intent: undefined): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.UnequipSlot]: function (intent: {
-    characterId: string;
-    slot: TaggedEquipmentSlot;
-  }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.EquipInventoryItem]: function (intent: {
-    characterId: string;
-    itemId: string;
-    equipToAltSlot: boolean;
-  }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.CycleCombatActionTargets]: function (intent: {
-    characterId: string;
-    direction: NextOrPrevious;
-  }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.CycleTargetingSchemes]: function (intent: { characterId: string }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.UseSelectedCombatAction]: function (intent: { characterId: string }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.DropEquippedItem]: function (intent: {
-    characterId: string;
-    slot: TaggedEquipmentSlot;
-  }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.DropItem]: function (intent: { characterId: string; itemId: string }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.ToggleReadyToDescend]: function (intent: undefined): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.AcknowledgeReceiptOfItemOnGroundUpdate]: function (intent: {
-    itemId: string;
-  }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.PickUpItems]: function (intent: { characterAndItem: CharacterAndItems }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.GetSavedCharactersList]: function (intent: undefined): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.CreateSavedCharacter]: function (intent: {
-    name: string;
-    combatantClass: CombatantClass;
-    slotIndex: number;
-  }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.DeleteSavedCharacter]: function (intent: { entityId: string }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.SelectSavedCharacterForProgressGame]: function (intent: {
-    entityId: string;
-  }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.SelectProgressionGameStartingFloor]: function (intent: {
-    floorNumber: number;
-  }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.SelectHoldableHotswapSlot]: function (intent: {
-    characterId: string;
-    slotIndex: number;
-  }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.ConvertItemsToShards]: function (intent: {
-    characterAndItems: CharacterAndItems;
-  }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.DropShards]: function (intent: {
-    characterId: string;
-    shardsCount: number;
-  }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.PurchaseItem]: function (intent: {
-    characterId: EntityId;
-    consumableType: ConsumableType;
-  }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.PerformCraftingAction]: function (intent: {
-    characterId: EntityId;
-    itemId: EntityId;
-    craftingAction: CraftingAction;
-  }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.PostItemLink]: function (intent: { itemId: EntityId }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.SelectCombatActionLevel]: function (intent: {
-    characterId: EntityId;
-    actionRank: ActionRank;
-  }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.AllocateAbilityPoint]: function (intent: {
-    characterId: EntityId;
-    ability: AbilityTreeAbility;
-  }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.TradeItemForBook]: function (intent: {
-    characterId: EntityId;
-    itemId: EntityId;
-    bookType: BookConsumableType;
-  }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.RenamePet]: function (intent: { petId: EntityId; newName: string }): void {
-    throw new Error("Function not implemented.");
-  },
-  [ClientIntentType.Disconnection]: function (intent: { reason: TransportDisconnectReason }): void {
-    throw new Error("Function not implemented.");
-  },
-};
-
-export function handleClientIntent(intent: ClientIntent): void {
-  intentHandlers[intent.type](intent.data as never);
-}

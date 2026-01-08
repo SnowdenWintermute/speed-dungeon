@@ -4,7 +4,7 @@ import { ConnectionIdentityResolutionContext } from "./services/identity-provide
 /** Listen for connections and parse their connection role and credentials. Transform the
  * real transport into an abstract UntypedConnectionEndpoint. The owning server will determine
  * the connection role and transform the UntypedSocketConnectionEndpoint to a ConnectionEndpoint<Sendable, Receiveable> */
-export abstract class IncomingMessageGateway {
+export abstract class IncomingConnectionGateway {
   abstract listen(): void;
 
   connectionHandler:

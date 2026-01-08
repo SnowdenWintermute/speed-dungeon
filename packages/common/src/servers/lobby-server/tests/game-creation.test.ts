@@ -20,7 +20,7 @@ describe("lobby server", () => {
 
   it("game creation", async () => {
     // make a game host
-    const { serverEndpoint: serverEndpointForGameHost, clientEndpoint: _c1 } =
+    const { serverEndpoint: serverEndpointForGameHost, clientEndpoint: clientEndpointForGameHost } =
       await inMemoryTransport.createConnection({ type: ConnectionRole.User });
 
     console.log(
@@ -41,6 +41,7 @@ describe("lobby server", () => {
     );
 
     const gameName = "my game name" as GameName;
+
     const gameCreationOutbox = await lobbyServer.gameLifecycleController.createGameHandler(
       { gameName, mode: GameMode.Race },
       gameHostSession

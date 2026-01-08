@@ -1,7 +1,7 @@
 import { InMemoryConnectionEndpointManager } from "../transport/in-memory-connection-endpoint-manager.js";
-import { IncomingMessageGateway } from "./incoming-message-gateway.js";
+import { IncomingConnectionGateway } from "./incoming-connection-gateway.js";
 
-export class InMemoryIncomingMessageGateway extends IncomingMessageGateway {
+export class InMemoryIncomingConnectionGateway extends IncomingConnectionGateway {
   constructor(private localServerConnectionEndpointManager: InMemoryConnectionEndpointManager) {
     super();
   }

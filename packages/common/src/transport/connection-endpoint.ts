@@ -16,13 +16,13 @@ export interface ConnectionEndpoint<Sendable, Receivable> {
 
 export abstract class UntypedConnectionEndpoint {
   abstract readonly id: ConnectionId;
-  abstract send(payload: unknown): void;
-  abstract receive(payload: unknown): void;
-  abstract subscribeAll(
+  protected abstract send(payload: unknown): void;
+  protected abstract receive(payload: unknown): void;
+  protected abstract subscribeAll(
     messageHandler: (payload: unknown) => void,
     disconnectHandler: (payload: unknown) => void
   ): void;
-  abstract close(): void;
+  protected abstract close(): void;
   abstract readonly [UntypedEndpointBrand]: true;
 
   toTyped<Sendable, Receivable>(): ConnectionEndpoint<Sendable, Receivable> {

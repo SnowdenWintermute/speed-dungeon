@@ -46,7 +46,7 @@ import { DatabaseRankedLadderService } from "./services/ranked-ladder.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { getLoggedInUserOrCreateGuest } from "./get-logged-in-user-or-create-guest.js";
 import { GameMessagesPayload } from "@speed-dungeon/common";
-import { LobbyRemoteIncomingMessageGateway } from "./client-intent-receivers/remote-lobby.js";
+import { LobbyRemoteIncomingConnectionGateway } from "./client-intent-receivers/remote-lobby.js";
 
 export type SocketId = string;
 
@@ -65,11 +65,11 @@ export class GameServerNode implements ActionCommandReceiver {
     this.connectionHandler();
     this.characterCreator = new CharacterCreator(idGenerator, this.itemGenerator);
 
-    const usersIncomingMessageGateway = new LobbyRemoteIncomingMessageGateway(this.io);
+    const usersIncomingConnectionGateway = new LobbyRemoteIncomingConnectionGateway(this.io);
     const gameSimulatorHandoffStrategy = new RemoteGameSimuatorHandoffStrategy();
     const externalServices = this.createLobbyExternalServices();
     const lobbyServer = new LobbyServer(
-      usersIncomingMessageGateway,
+      usersIncomingConnectionGateway,
       gameSimulatorHandoffStrategy,
       externalServices
     );

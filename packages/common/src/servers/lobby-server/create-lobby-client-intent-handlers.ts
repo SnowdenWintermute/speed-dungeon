@@ -4,13 +4,13 @@ import { UserSession } from "../sessions/user-session.js";
 import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 import { LobbyServer } from "./index.js";
 
-export type ClientIntentHandler<K extends keyof ClientIntentMap> = (
+export type LobbyClientIntentHandler<K extends keyof ClientIntentMap> = (
   data: ClientIntentMap[K],
   user: UserSession
 ) => MessageDispatchOutbox<GameStateUpdate> | Promise<MessageDispatchOutbox<GameStateUpdate>>;
 
 export type LobbyClientIntentHandlers = {
-  [K in keyof ClientIntentMap]: ClientIntentHandler<K>;
+  [K in keyof ClientIntentMap]: LobbyClientIntentHandler<K>;
 };
 
 export function createLobbyClientIntentHandlers(

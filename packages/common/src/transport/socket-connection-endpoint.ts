@@ -1,5 +1,4 @@
 import { ConnectionId, UntypedEndpointBrand } from "../aliases.js";
-import { ConnectionIdentityResolutionContext } from "../servers/services/identity-provider.js";
 import { UntypedConnectionEndpoint } from "./connection-endpoint.js";
 
 // abstract the client and server versions of socket.io socket object

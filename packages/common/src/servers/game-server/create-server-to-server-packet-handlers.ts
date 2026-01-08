@@ -1,15 +1,24 @@
-import {
-  ServerToServerPacketType,
-  ServerToServerPacketHandlers,
-} from "../../packets/server-to-server.js";
-import { GameServer } from "./index.js";
+// import {
+//     ServerToServerMessageMap,
+//   ServerToServerMessageType,
+// } from "../../packets/server-to-server.js";
+// import { GameServer } from "./index.js";
 
-export function createGameServerInterServerPacketHandlers(
-  gameServer: GameServer
-): Partial<ServerToServerPacketHandlers> {
-  return {
-    [ServerToServerPacketType.GameHandoff]: (data) => {
-      // handle the game handoff
-    },
-  };
-}
+// export type GameServerMessageFromLobbyHandler<K extends keyof ServerToServerMessageMap> = (
+//   data: ServerToServerMessageMap[K],
+//   session: UserSession
+// ) => MessageDispatchOutbox<GameStateUpdate> | Promise<MessageDispatchOutbox<GameStateUpdate>>;
+
+// export type LobbyClientIntentHandlers = {
+//   [K in keyof ClientIntentMap]: LobbyClientIntentHandler<K>;
+// };
+
+// export function createGameServerInterServerMessageHandlers(
+//   gameServer: GameServer
+// ): Partial<LobbyGameServerMessageHandler> {
+//   return {
+//     [ServerToServerMessageType.GameHandoff]: (data) => {
+//       // handle the game handoff
+//     },
+//   };
+// }

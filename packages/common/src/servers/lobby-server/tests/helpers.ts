@@ -15,14 +15,14 @@ import {
   GameServerConnectionInstructions,
   GameServerConnectionType,
 } from "../game-handoff/connection-instructions.js";
-import { InMemoryIncomingMessageGateway } from "../../in-memory-incoming-message-gateway.js";
+import { InMemoryIncomingConnectionGateway } from "../../in-memory-incoming-connection-gateway.js";
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class TestHelpers {
   static createInMemoryTransportWithTestLobby() {
     const inMemoryTransport = new InMemoryTransport();
 
-    const lobbyLocalClientIntentReceiver = new InMemoryIncomingMessageGateway(
+    const lobbyLocalClientIntentReceiver = new InMemoryIncomingConnectionGateway(
       inMemoryTransport.getServerConnectionEndpointManager()
     );
 
