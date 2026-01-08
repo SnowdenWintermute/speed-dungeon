@@ -132,6 +132,8 @@ export class LobbyServer {
     connectionEndpoint: UntypedConnectionEndpoint,
     identityResolutionContext: UserIdentityResolutionContext
   ) {
+    // authenticate
+    // create session
     const newSession = await this.userSessionLifecycleController.createUserSession(
       connectionEndpoint.id,
       identityResolutionContext
@@ -139,12 +141,15 @@ export class LobbyServer {
 
     console.log("created user session:", newSession);
 
+    // special business logic for this session type
     if (newSession.userId.type === UserIdType.Auth) {
       this.externalServices.profileService.createProfileIfUserHasNone(newSession.userId.id);
     }
 
+    // type the connection endpoint
     const userConnectionEndpoint = connectionEndpoint.toTyped<GameStateUpdate, ClientIntent>();
 
+    // attach the connection to message handlers and disconnectionHandler
     userConnectionEndpoint.subscribeAll(
       async (receivable) => {
         const handlerOption = this.userIntentHandlers[receivable.type];
@@ -163,7 +168,7 @@ export class LobbyServer {
         this.userSessionLifecycleController.disconnectionHandler(newSession, reason);
       }
     );
-
+    //
     const outbox = await this.userSessionLifecycleController.connectionHandler(
       newSession,
       userConnectionEndpoint

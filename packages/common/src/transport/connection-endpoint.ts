@@ -15,6 +15,7 @@ export interface ConnectionEndpoint<Sendable, Receivable> {
 }
 
 export abstract class UntypedConnectionEndpoint {
+  // @TODO - make it so we cannot call these methods until transformed into a typed endpoint
   abstract readonly id: ConnectionId;
   protected abstract send(payload: unknown): void;
   protected abstract receive(payload: unknown): void;

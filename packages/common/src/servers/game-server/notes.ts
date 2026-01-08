@@ -1,65 +1,68 @@
 // on game server spin-up
-// - has hardcoded lobby address
-// - opens connection with lobby and provides some secret credentials
-// - lobby's connection handler verifiest credentials and the lobby->game server connection is now trusted
+// - reports readiness status to something that lobby can query
+//   - third party library like Agones
+//   - in-memory game server fleet manager (for offline single player, only ever makes one local game server)
 //
-// handle a handoff from Lobby to GameServer
-// - checks existing GameServers for the one with the lowest load
-// - adds a local record of the game server in the local game server node registry under it's corresponding node
-// - sends Game to GameServerNode
-// - sends Record<ClaimId, PendingSession> to GameServer
-// - pending session should expire same time as SessionClaim token expires
-// - if no session is claimed within the time window, close the game
-// - stores claim tokens for players and waits for game server to say it is ready
+// on all players in lobby game ready to start game
+// - getLeastBusyGameServerOrProvisionOne()
+// - await write PendingGameSetup to a central store in a Record<GameId, PendingGameSetup> (valkey or in-memory)
+//   - PendingGameSetup has a TTL that will somehow get it cleaned up if no game server tries to claim it
+// - lobby issues signed GameServerSessionClaimToken to users which include
+//    - URL of game server
+//    - PendingGameSetup game ID
+//    - Username to attach to the corresponding Player in the PendingGameSetup
+//    - Expiry
+//    - Nonce
+// - clients use the URL in the token to open connections to the GameServer and present their tokens in the handshake
 //
-//  handle "game ready to receive players" message from game server to lobby
-// find a staged outbox for this game name
-// - sends GameServerAddress to Players
-// - sends GameServerSessionClaimToken to Players
-// - sends GameServerAddress to Players
-// - sends GameServerSessionClaimToken to Players
-//
-// handle connection
-// - player opens connection with GameServer and presents SessionClaimToken
-// - GameServer validates presented token's signature
-// - GameServer checks the presented ClaimId against its list of PendingSessions
-// - GameServer creates a UserSession linking the player's ConnectionId to an object which
-//   knows user's UserId(Guest or Auth) and which player and characters
-//   they are permitted to control in the game
-//
-// handle all players initially connected
-// - handle game mode specific onStart business
-// - trigger the game simulator's "next room exploration" handler to automatically
-//   put parties in their first room of the dungeon
-//
+// when the game server receives incoming connection from a user
+// - checks their handshake for a GameServerSessionClaimToken
+// - validates the token signature
+// - if no game exists on the server by the id in the GameServerSessionClaimToken
+//   - check the central store for a PendingGameSetup by that id
+//   - create the Game from the PendingGameSetup
+//   - delete the PendingGameSetup record from the central store
+//   - write an ActiveGame record to the central store in a Record<GameId, ActiveGame>
+//     so the lobby can check if this game still exists when a user reconnects to the lobby
+//     after disconnection from the game server
+// - create the UserSession and assign it to the user's connection
+// - place the UserSession in the Game
+// - if all Players in Game have a corresponding expected UserSession
+//   - if the game has not yet started
+//     - handle any game mode specific onStart business
+//     - start accepting player inputs
+//     - start a heartbeat loop to periodically update the ActiveGame record's lastHeartbeatTimestamp
+//       in the central store
+//   - if the game was in progress
+//     - this was a reconnection for a disconnected user
+//     - unpause acceptance of player inputs
+
 //
 // handle disconnection
 // - delete the user's session and create a DisconnectedSession from its data
+// - write the DisconnectedSession to a shared store (valkey or in-memory) as a Record<UserId, DisconnectedSession>
 // - pause acceptance of user inputs until reconnection is established or a timeout has passed
-// - tell the lobby server that a user in this game has disconnected with their session's associated UserId or GuestId
-// - lobby records in a Map<UserId,DisconnectedSession> or Map<GuestId, DisconnectedSession>
-// - lobby has a disconnected sessions cleanup loop to delete any expired disconnected sessions
+//   - on timeout or reconnection, delete the entry in the Record<UserId, DisconnectedSession>
 //
-// handle a reconnection
+// handle a reconnection (to lobby server after disconnection from game server)
 // - guests provide GuestId (UUID) from their local storage
 // - if authenticated user, lobby server gets their UserId from lobby's auth service
-// - lobby checks disconnected session lists for that GuestId or UserId
+// - lobby checks the central store for a DisconnectedSession for that GuestId or UserId
 // - lobby ensures the game associated with this disconnected session is still active
-// - lobby tells game server to create a new PendingReconnectionSession with new SessionClaimId
-// - game server checks its DisconnectedSession list for matching
-// - lobby provides a new GameServerSessionClaimToken with new SessionClaimId and GameServerAddress to client
-// - client connects to the GameServerAddress with their new GameServerSessionClaimToken
-// - GameServer unpauses input acceptance
+//   by checking the central store's Record<GameId, ActiveGame>
+// - lobby provides a GameServerSessionClaimToken to user client
+// - user client executes normal flow for onGameServerSessionClaimTokenReceipt, same as when they
+//   are in a lobby game setup and start a new game
 //
-// GameServer
-// - heartbeats to Lobby so the lobby can keep record of active games for reconnection
-// - missed heartbeats cause "stale" status but don't delete game record yet
-// - several missed heartbeats delete the game record in the lobby
-// - after no input from any player for a long time, shut down the game server
+// lobby's DanglingResourcesCleanupLoop
+// - read all ActiveGame records from the central store and check their last lastHeartbeatTimestamp
+// - if expired, clean up any dangling records in the central store:
+//   - PendingGameSetup
+//   - ActiveGame
+//   - DisconnectedSession
 //
-// Tokens
-// - must be single use
-// - must expire
+// on lobby server crash
+// - have the containing node auto-restart the process
 //
 // interface GameServerSessionClaimToken {
 //   readonly gameId: string; // UUID
