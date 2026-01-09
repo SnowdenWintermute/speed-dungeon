@@ -2,8 +2,8 @@ import { IdentityProviderId, Username } from "../../aliases.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { UserId, UserIdType } from "../sessions/user-ids.js";
 import {
+  ConnectionIdentityResolutionContext,
   IdentityProviderUserSessionQueryStrategy,
-  UserIdentityResolutionContext,
 } from "./identity-provider.js";
 
 describe("identity provider service", () => {
@@ -26,7 +26,7 @@ export class FakeUsersIdentityProviderQueryStrategy
   }
 
   async execute(
-    context: UserIdentityResolutionContext
+    context: ConnectionIdentityResolutionContext
   ): Promise<{ username: Username; userId: UserId } | null> {
     if (context.localUserId === undefined) {
       return {

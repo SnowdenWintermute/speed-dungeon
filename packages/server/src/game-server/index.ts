@@ -3,6 +3,7 @@ import {
   ChannelName,
   CharacterCreator,
   ClientToServerEventTypes,
+  ConnectionIdentityResolutionContext,
   GameMode,
   GameName,
   IdentityProviderService,
@@ -12,7 +13,6 @@ import {
   ServerToClientEvent,
   ServerToClientEventTypes,
   SpeedDungeonGame,
-  UserIdentityResolutionContext,
   Username,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
@@ -117,7 +117,7 @@ export class GameServerNode implements ActionCommandReceiver {
 
   createLobbyExternalServices() {
     const identityProviderService = new IdentityProviderService({
-      execute: async (context: UserIdentityResolutionContext) => {
+      execute: async (context: ConnectionIdentityResolutionContext) => {
         return await getLoggedInUserOrCreateGuest(context.cookies);
       },
     });

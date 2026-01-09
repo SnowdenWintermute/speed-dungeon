@@ -8,7 +8,6 @@ import { SessionLifecycleController } from "./controllers/session-lifecycle.js";
 import {
   ConnectionIdentityResolutionContext,
   IdentityProviderService,
-  UserIdentityResolutionContext,
 } from "../services/identity-provider.js";
 import { SpeedDungeonProfileService } from "../services/profiles.js";
 import { SavedCharactersService } from "../services/saved-characters.js";
@@ -112,7 +111,7 @@ export class LobbyServer {
 
   private async handleUserConnection(
     connectionEndpoint: UntypedConnectionEndpoint,
-    identityResolutionContext: UserIdentityResolutionContext
+    identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
     // authenticate
     // create session
@@ -150,7 +149,8 @@ export class LobbyServer {
         this.userSessionLifecycleController.disconnectionHandler(newSession, reason);
       }
     );
-    //
+    // @TODO: would be nice to take the connection endpoint regitration out of this handler
+    // and do it inline here since it is a separate concern from the new session handler
     const outbox = await this.userSessionLifecycleController.connectionHandler(
       newSession,
       userConnectionEndpoint

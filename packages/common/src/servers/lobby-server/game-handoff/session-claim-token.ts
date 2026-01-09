@@ -1,4 +1,4 @@
-import { GameName, SessionClaimId } from "../../../aliases.js";
+import { GameName, SessionClaimId, Username } from "../../../aliases.js";
 
 export class GameServerSessionClaimToken {
   // asymmetric signature signed by lobby server's private key
@@ -8,6 +8,7 @@ export class GameServerSessionClaimToken {
   constructor(
     readonly sessionClaimId: SessionClaimId,
     readonly gameName: GameName,
+    readonly username: Username,
     readonly expirationTimestamp: number
   ) {}
 }

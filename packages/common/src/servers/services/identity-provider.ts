@@ -2,24 +2,24 @@ import { IdentityProviderId, Username } from "../../aliases.js";
 import { ConnectionRole } from "../../http-headers.js";
 import { UserId } from "../sessions/user-ids.js";
 
-export interface UserIdentityResolutionContext {
+export interface ConnectionIdentityResolutionContext {
   readonly type: ConnectionRole.User;
   readonly cookies?: string; // user credentials or server credentials
   readonly localUserId?: IdentityProviderId;
 }
 
-export type ConnectionIdentityResolutionContext = UserIdentityResolutionContext;
-
 export interface IdentityProviderUserSessionQueryStrategy {
   execute(
-    context: UserIdentityResolutionContext
+    context: ConnectionIdentityResolutionContext
   ): Promise<{ username: Username; userId: UserId } | null>;
 }
 
+/** Resolves identities based on the provided method. Hides how identities are resolved from
+ *  clients such as the LobbyServer. */
 export class IdentityProviderService {
   constructor(private readonly sessionQueryStrategy: IdentityProviderUserSessionQueryStrategy) {}
 
-  async resolve(context: UserIdentityResolutionContext) {
+  async resolve(context: ConnectionIdentityResolutionContext) {
     return await this.sessionQueryStrategy.execute(context);
   }
 }

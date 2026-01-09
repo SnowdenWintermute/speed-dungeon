@@ -1,13 +1,12 @@
 import { ConnectionId, GameName, SessionClaimId, Username } from "../../../aliases.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { SpeedDungeonPlayer } from "../../../game/player.js";
-import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
+import { GameStateUpdate } from "../../../packets/game-state-updates.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
 import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
-import { GameServerConnectionType } from "./connection-instructions.js";
 import { PendingGameServerUserSession } from "./pending-user-session.js";
 import { GameServerSessionClaimToken } from "./session-claim-token.js";
 
@@ -59,6 +58,7 @@ export class GameHandoffManager {
       const claimToken = new GameServerSessionClaimToken(
         claimId,
         gameName,
+        pendingSession.playerUsername,
         pendingSession.expirationTimestamp
       );
 
@@ -71,6 +71,21 @@ export class GameHandoffManager {
 
   // handle a handoff from Lobby to GameServer
   async initiateGameHandoff(game: SpeedDungeonGame) {
+    // on all players in lobby game ready to start game
+    // - getLeastBusyGameServerOrProvisionOne()
+    // - await write PendingGameSetup to a central store in a Record<GameId, PendingGameSetup> (valkey or in-memory)
+    //   - PendingGameSetup has a TTL that will somehow get it cleaned up if no game server tries to claim it
+    //   - PendingGameSetup includes SpeedDungeonGame and a Map<Username, UserId> so when users present their
+    //     tokens GameServer can create a session for them by UserId without exposing UserId to the client in the token
+    // - lobby issues signed GameServerSessionClaimToken to users which include
+    //    - URL of game server
+    //    - PendingGameSetup game ID
+    //    - Username to attach to the corresponding Player in the PendingGameSetup
+    //    - Expiry
+    //    - Nonce
+    // - clients use the URL in the token to open connections to the GameServer and present their tokens in the handshake
+    //
+    //
     // const targetServer = this.gameServerSessionRegistry.getLeastBusyGameServer();
     // const pendingSessions = this.createPendingPlayerSessions(game);
     // const { pendingSessionsByClaimId, claimTokensByConnectionId } = this.prepareClaimTokens(

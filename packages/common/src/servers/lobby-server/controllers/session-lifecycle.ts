@@ -4,8 +4,8 @@ import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
 import { SessionAuthorizationManager } from "../../sessions/authorization-manager.js";
 import { UserSession } from "../../sessions/user-session.js";
 import {
+  ConnectionIdentityResolutionContext,
   IdentityProviderService,
-  UserIdentityResolutionContext,
 } from "../../services/identity-provider.js";
 import { ConnectionId, Username } from "../../../aliases.js";
 import { ClientIntent } from "../../../packets/client-intents.js";
@@ -37,7 +37,7 @@ export class SessionLifecycleController {
 
   async createUserSession(
     connectionId: ConnectionId,
-    context: UserIdentityResolutionContext
+    context: ConnectionIdentityResolutionContext
   ): Promise<UserSession> {
     const authenticatedUserOption = await this.identityProviderService.resolve(context);
 
