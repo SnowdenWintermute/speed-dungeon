@@ -33,12 +33,12 @@ export function deleteCharacterHandler(
   if (wasReadied) {
     gameServer.io
       .of("/")
-      .in(game.name)
+      .in(game.getChannelName())
       .emit(ServerToClientEvent.PlayerToggledReadyToStartGame, session.username);
   }
 
   gameServer.io
     .of("/")
-    .in(game.name)
+    .in(game.getChannelName())
     .emit(ServerToClientEvent.CharacterDeleted, session.username, characterId);
 }

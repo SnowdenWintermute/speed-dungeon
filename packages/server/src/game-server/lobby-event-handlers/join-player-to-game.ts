@@ -31,7 +31,7 @@ export default function joinPlayerToGame(
   gameServer.io
     .of("/")
     .except(socket.id)
-    .in(game.name)
+    .in(game.getChannelName())
     .emit(ServerToClientEvent.PlayerJoinedGame, session.username);
   return player;
 }

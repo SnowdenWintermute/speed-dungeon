@@ -28,7 +28,7 @@ export const ProgressionGameLobby = observer(() => {
     websocketConnection.emit(ClientToServerEvent.GetSavedCharactersList);
   }, []);
 
-  const numPlayersInGame = useMemo(() => Object.values(game.players).length, [game.players]);
+  const numPlayersInGame = useMemo(() => game.players.size, [game.players]);
 
   const menuWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));
 
@@ -51,7 +51,7 @@ export const ProgressionGameLobby = observer(() => {
     <GameLobby>
       <div style={{ width: `${menuWidth}px` }}>
         <ul className="w-full flex flex-col">
-          {Object.values(game.players).map((player, i) => (
+          {Array.from(game.players).map(([username, player], i) => (
             <PlayerDisplay playerOption={player} game={game} index={i} key={player.username} />
           ))}
           {new Array(MAX_PARTY_SIZE - numPlayersInGame).fill(null).map((_item, i) => (
@@ -74,7 +74,7 @@ export const ProgressionGameLobby = observer(() => {
             value: index + 1,
             disabled: index + 1 > maxStartingFloor,
           }))}
-          disabled={Object.values(game.players)[0]?.username !== username}
+          disabled={Array.from(game.players)[0]?.[1].username !== username}
         />
       </div>
     </GameLobby>

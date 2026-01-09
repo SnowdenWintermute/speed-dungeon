@@ -46,7 +46,7 @@ export async function joinPlayerToProgressionGame(
 
   gameServer.io
     .of("/")
-    .in(game.name)
+    .in(game.getChannelName())
     .emit(
       ServerToClientEvent.CharacterAddedToParty,
       session.username,

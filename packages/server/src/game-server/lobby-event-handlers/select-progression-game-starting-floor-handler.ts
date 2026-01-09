@@ -30,7 +30,11 @@ export default async function selectProgressionGameStartingFloorHandler(
   const gameServer = getGameServer();
   gameServer.io
     .of("/")
-    .in(game.name)
+    .in(game.getChannelName())
     .emit(ServerToClientEvent.ProgressionGameStartingFloorSelected, floorNumber);
-  gameServer.io.of("/").in(game.name).emit(ServerToClientEvent.DungeonFloorNumber, floorNumber);
+
+  gameServer.io
+    .of("/")
+    .in(game.getChannelName())
+    .emit(ServerToClientEvent.DungeonFloorNumber, floorNumber);
 }

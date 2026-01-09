@@ -58,7 +58,7 @@ export const GameLobby = observer(({ children }: Props) => {
         <div className="w-[1px] h-full bg-slate-400 mr-4" />
         <ul className="flex items-center">
           <div className="text-lg mr-2">Players:</div>
-          {Object.values(game.players).map((player) => (
+          {Array.from(game.players).map(([username, player]) => (
             <PlayerInGameIcon
               playersReadied={game.playersReadied}
               player={player}

@@ -64,7 +64,7 @@ export async function selectProgressionGameCharacterHandler(
 
   gameServer.io
     .of("/")
-    .in(game.name)
+    .in(game.getChannelName())
     .emit(ServerToClientEvent.PlayerSelectedSavedCharacterInProgressionGame, player.username, {
       combatant: savedCharacterOption.combatant.getSerialized(),
       pets: savedCharacterOption.pets.map((pet) => pet.getSerialized()),

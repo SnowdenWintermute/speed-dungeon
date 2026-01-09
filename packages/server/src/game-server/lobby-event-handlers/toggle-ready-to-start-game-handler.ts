@@ -43,7 +43,7 @@ export async function toggleReadyToStartGameHandler(
 
   gameServer.io
     .of("/")
-    .in(game.name)
+    .in(game.getChannelName())
     .emit(ServerToClientEvent.PlayerToggledReadyToStartGame, username);
 
   if (!allPlayersReadied) return;
@@ -53,9 +53,12 @@ export async function toggleReadyToStartGameHandler(
   const gameModeContext = gameServer.gameModeContexts[game.mode];
   await gameModeContext.onGameStart(game);
 
-  gameServer.io.of("/").in(game.name).emit(ServerToClientEvent.GameStarted, game.timeStarted);
+  gameServer.io
+    .of("/")
+    .in(game.getChannelName())
+    .emit(ServerToClientEvent.GameStarted, game.timeStarted);
 
-  for (const player of Object.values(game.players)) {
+  for (const [_, player] of Array.from(game.players)) {
     const socketIdResult = gameServer.getSocketIdOfPlayer(game, player.username);
     if (socketIdResult instanceof Error) return socketIdResult;
     if (!player.partyName) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);

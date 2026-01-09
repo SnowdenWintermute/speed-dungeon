@@ -78,7 +78,7 @@ export async function writeAllPlayerCharacterInGameToDb(
 ) {
   const promises: Promise<Error | void>[] = [];
 
-  for (const player of Object.values(game.players)) {
+  for (const [_, player] of Array.from(game.players)) {
     promises.push(writePlayerCharactersInGameToDb(game, player));
   }
   const maybeErrors = await Promise.all(promises);

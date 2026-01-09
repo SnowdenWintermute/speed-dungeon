@@ -48,7 +48,9 @@ COPY tsconfig.json .
 COPY packages/client/package.json ./packages/client
 
 WORKDIR /app/packages/common
-RUN tsc && echo compiled common directory
+RUN rm tsconfig.tsbuildinfo
+RUN rm -rf ./dist
+RUN tsc -p tsconfig.build.json && echo compiled common directory
 
 WORKDIR /app/packages/client
 RUN NEXT_PUBLIC_PRODUCTION="production" yarn run build

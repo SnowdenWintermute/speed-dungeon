@@ -54,4 +54,5 @@ export const MONSTER_FULL_SKINS: Partial<Record<MonsterType, string>> = {
   [MonsterType.IceElemental]: "monsters/cube-full.glb",
   [MonsterType.MantaRay]: "monsters/manta-ray-full.glb",
   [MonsterType.Spider]: "monsters/spider-full.glb",
+  [MonsterType.Net]: "effects/net-full.glb",
 };

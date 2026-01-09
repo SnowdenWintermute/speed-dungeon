@@ -62,7 +62,7 @@ export async function leavePartyHandler(
   socket.emit(ServerToClientEvent.PartyNameUpdate, null);
   gameServer.io
     .of("/")
-    .in(game.name)
+    .in(game.getChannelName())
     .emit(ServerToClientEvent.PlayerChangedAdventuringParty, username, null);
 }
 

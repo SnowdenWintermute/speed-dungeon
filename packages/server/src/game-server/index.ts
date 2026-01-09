@@ -65,14 +65,14 @@ export class GameServerNode implements ActionCommandReceiver {
     this.connectionHandler();
     this.characterCreator = new CharacterCreator(idGenerator, this.itemGenerator);
 
-    const usersIncomingConnectionGateway = new LobbyRemoteIncomingConnectionGateway(this.io);
-    const gameSimulatorHandoffStrategy = new RemoteGameSimuatorHandoffStrategy();
-    const externalServices = this.createLobbyExternalServices();
-    const lobbyServer = new LobbyServer(
-      usersIncomingConnectionGateway,
-      gameSimulatorHandoffStrategy,
-      externalServices
-    );
+    // const usersIncomingConnectionGateway = new LobbyRemoteIncomingConnectionGateway(this.io);
+    // const gameSimulatorHandoffStrategy = new RemoteGameSimuatorHandoffStrategy();
+    // const externalServices = this.createLobbyExternalServices();
+    // const lobbyServer = new LobbyServer(
+    //   usersIncomingConnectionGateway,
+    //   gameSimulatorHandoffStrategy,
+    //   externalServices
+    // );
   }
   // game manager
   games = new Map<GameName, SpeedDungeonGame>();

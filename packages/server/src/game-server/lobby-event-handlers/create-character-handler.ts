@@ -49,6 +49,6 @@ export function createCharacterHandler(
 
   getGameServer()
     .io.of("/")
-    .in(game.name)
+    .in(game.getChannelName())
     .emit(ServerToClientEvent.CharacterAddedToParty, session.username, serialized, serializedPets);
 }

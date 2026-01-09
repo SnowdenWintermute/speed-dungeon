@@ -34,8 +34,9 @@ export function createPartyHandler(
 
   getGameServer()
     .io.of("/")
-    .in(game.name)
+    .in(game.getChannelName())
     .emit(ServerToClientEvent.PartyCreated, party.id, partyName);
+  console.log("sent party created event");
 
   joinPartyHandler(partyName, playerAssociatedData, socket);
 }

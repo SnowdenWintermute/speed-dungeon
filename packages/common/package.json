@@ -15,6 +15,7 @@
     "mobx": "6.15.0",
     "mobx-store-inheritance": "1.0.6",
     "oxide.ts": "1.1.0",
+    "reflect-metadata": "^0.2.2",
     "uuid": "11.0.5"
   },
   "devDependencies": {
