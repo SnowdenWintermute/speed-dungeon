@@ -32,12 +32,14 @@ import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
 import { ConnectionRole } from "../../http-headers.js";
 import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { UntypedConnectionEndpoint } from "../../transport/connection-endpoint.js";
+import { GameSessionStoreService } from "../services/game-session-store/index.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
   profileService: SpeedDungeonProfileService;
   savedCharactersService: SavedCharactersService;
   rankedLadderService: RankedLadderService;
+  gameSessionStoreService: GameSessionStoreService;
   idGenerator: IdGenerator;
 }
 

@@ -3,6 +3,9 @@ import { SpeedDungeonGame } from "../../../game/index.js";
 import { SpeedDungeonPlayer } from "../../../game/player.js";
 import { GameStateUpdate } from "../../../packets/game-state-updates.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
+import { GameSessionStoreService } from "../../services/game-session-store/index.js";
+import { PendingGameSetup } from "../../services/game-session-store/pending-game-setup.js";
+import { UserId } from "../../sessions/user-ids.js";
 import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
@@ -19,6 +22,7 @@ export class GameHandoffManager {
   constructor(
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly updateFactory: MessageDispatchFactory<GameStateUpdate>,
+    private readonly gameSessionStoreService: GameSessionStoreService,
     private readonly idGenerator: IdGenerator
   ) {}
 
@@ -73,10 +77,22 @@ export class GameHandoffManager {
   async initiateGameHandoff(game: SpeedDungeonGame) {
     // on all players in lobby game ready to start game
     // - getLeastBusyGameServerOrProvisionOne()
+    const sessionsInGame = this.getPlayerSessionsInGame(game);
+
+    const userIdsByUsername = new Map<Username, UserId>();
+    for (const [username, data] of sessionsInGame) {
+      userIdsByUsername.set(username, data.session.userId);
+    }
+
     // - await write PendingGameSetup to a central store in a Record<GameId, PendingGameSetup> (valkey or in-memory)
     //   - PendingGameSetup has a TTL that will somehow get it cleaned up if no game server tries to claim it
     //   - PendingGameSetup includes SpeedDungeonGame and a Map<Username, UserId> so when users present their
     //     tokens GameServer can create a session for them by UserId without exposing UserId to the client in the token
+    await this.gameSessionStoreService.writePendingGameSetup(
+      game.id,
+      new PendingGameSetup(game, userIdsByUsername)
+    );
+
     // - lobby issues signed GameServerSessionClaimToken to users which include
     //    - URL of game server
     //    - PendingGameSetup game ID
