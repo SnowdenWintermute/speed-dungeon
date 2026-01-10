@@ -18,8 +18,6 @@ export type CharacterSlotIndex = number & { __brand: "CharacterSlotIndex" };
 export type GameServerId = string & { __brand: "GameServerId" };
 export type GameServerName = string & { __brand: "GameServerName" };
 
-export type SessionClaimId = string & { __brand: "SessionClaimId" };
-
 /** enforces that untyped endpoints can not be passed as typed endpoints even though
  * their shapes otherwise match up because of the unknown types */
 export const UntypedEndpointBrand: unique symbol = Symbol("UntypedEndpointBrand");

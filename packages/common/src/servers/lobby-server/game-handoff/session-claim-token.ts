@@ -1,14 +1,17 @@
-import { GameName, SessionClaimId, Username } from "../../../aliases.js";
+import { Milliseconds, Username } from "../../../aliases.js";
+import { ONE_SECOND } from "../../../app-consts.js";
+import crypto from "crypto";
 
 export class GameServerSessionClaimToken {
-  // asymmetric signature signed by lobby server's private key
-  // contains the sessionClaimId and expirationTimestamp to prove
-  // the client has not tampered with them
-  readonly signature: string = "";
+  readonly expirationTimestamp = GameServerSessionClaimToken.createExpirationTimestamp();
+  readonly nonce = crypto.randomBytes(16).toString("hex");
   constructor(
-    readonly sessionClaimId: SessionClaimId,
-    readonly gameName: GameName,
-    readonly username: Username,
-    readonly expirationTimestamp: number
+    readonly gameId: string,
+    readonly username: Username
   ) {}
+
+  static readonly TimeToLive: Milliseconds = ONE_SECOND * 5 * 60;
+  static createExpirationTimestamp() {
+    return Date.now() + GameServerSessionClaimToken.TimeToLive;
+  }
 }

@@ -14,7 +14,7 @@
 //    - PendingGameSetup game ID
 //    - Username to attach to the corresponding Player in the PendingGameSetup
 //    - Expiry
-//    - Nonce
+//    - Nonce     const nonce = crypto.randomBytes(16).toString("hex");
 // - clients use the URL in the token to open connections to the GameServer and present their tokens in the handshake
 //
 // when the game server receives incoming connection from a user

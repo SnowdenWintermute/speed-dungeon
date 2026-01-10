@@ -4,7 +4,6 @@ import { UserId } from "../../sessions/user-ids.js";
 /** Will be used to create the UserSession on the game server when user presents a vaild claim token */
 export class PendingGameServerUserSession {
   private readonly channelsSubscribedTo = new Set<ChannelName>();
-  readonly expirationTimestamp = PendingGameServerUserSession.createExpirationTimestamp();
 
   constructor(
     public readonly userId: UserId,
@@ -17,9 +16,4 @@ export class PendingGameServerUserSession {
     public currentGameName: GameName,
     public currentPartyName: PartyName
   ) {}
-
-  static readonly TimeToLive: Seconds = 5 * 60;
-  static createExpirationTimestamp() {
-    return Date.now() + PendingGameServerUserSession.TimeToLive;
-  }
 }
