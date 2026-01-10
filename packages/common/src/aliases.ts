@@ -1,5 +1,6 @@
 export type Username = string & { __brand: "Username" };
 export type GameName = string & { __brand: "GameName" };
+export type GameId = string & { __brand: "GameId" };
 export type PartyName = string & { __brand: "PartyName" };
 export type ChannelName = string & { __brand: "ChannelName" };
 export type EntityName = string & { __brand: "EntityName" };

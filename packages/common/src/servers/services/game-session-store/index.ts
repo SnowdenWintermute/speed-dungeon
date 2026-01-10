@@ -1,16 +1,18 @@
+import { GameId } from "../../../aliases.js";
 import { DisconnectedSession } from "../../sessions/disconnected-session.js";
+import { UserId } from "../../sessions/user-ids.js";
 import { ActiveGameStatus } from "./active-game-status.js";
 import { PendingGameSetup } from "./pending-game-setup.js";
 
 export interface GameSessionStoreService {
-  writePendingGameSetup(gameId: string, setup: PendingGameSetup): Promise<void>;
-  getPendingGameSetup(gameId: string): Promise<PendingGameSetup | null>;
-  deletePendingGameSetup(gameId: string): Promise<void>;
+  writePendingGameSetup(gameId: GameId, setup: PendingGameSetup): Promise<void>;
+  getPendingGameSetup(gameId: GameId): Promise<PendingGameSetup | null>;
+  deletePendingGameSetup(gameId: GameId): Promise<void>;
 
-  writeActiveGame(gameId: string, game: ActiveGameStatus): Promise<void>;
-  getActiveGame(gameId: string): Promise<ActiveGameStatus | null>;
+  writeActiveGameStatus(gameId: GameId, game: ActiveGameStatus): Promise<void>;
+  getActiveGameStatus(gameId: GameId): Promise<ActiveGameStatus | null>;
 
-  writeDisconnectedUser(userId: string, record: DisconnectedSession): Promise<void>;
-  getDisconnectedUser(userId: string): Promise<DisconnectedSession | null>;
-  deleteDisconnectedUser(userId: string): Promise<void>;
+  writeDisconnectedUser(userId: UserId, record: DisconnectedSession): Promise<void>;
+  getDisconnectedUser(userId: UserId): Promise<DisconnectedSession | null>;
+  deleteDisconnectedUser(userId: UserId): Promise<void>;
 }

@@ -2,7 +2,7 @@ import { SpeedDungeonGame } from "../../game/index.js";
 import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
 import { UserSessionRegistry } from "../sessions/user-session-registry.js";
 import { ClientIntent } from "../../packets/client-intents.js";
-import { ConnectionId, GameName } from "../../aliases.js";
+import { GameId } from "../../aliases.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
 import {
@@ -21,6 +21,8 @@ import {
 } from "../services/identity-provider.js";
 import { createGameServerClientIntentHandlers } from "./create-game-server-client-intent-handlers.js";
 import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
+import { PendingGameSetup } from "../services/game-session-store/pending-game-setup.js";
+import { ActiveGameStatus } from "../services/game-session-store/active-game-status.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -30,7 +32,7 @@ export interface GameServerExternalServices {
 }
 
 export class GameServer {
-  private readonly games = new Map<GameName, SpeedDungeonGame>();
+  private readonly games = new Map<GameId, SpeedDungeonGame>();
   private readonly idGenerator = new IdGenerator({ saveHistory: false });
   private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
   private readonly updateGateway = new OutgoingMessageGateway<GameStateUpdate, ClientIntent>();
@@ -57,8 +59,6 @@ export class GameServer {
       async (context, identityContext) => await this.handleConnection(context, identityContext)
     );
     this.incomingConnectionGateway.listen();
-
-    // this.sessionAuthManager = new SessionAuthorizationManager(externalServices.profileService);
   }
 
   private intentHandlers = createGameServerClientIntentHandlers(this);
@@ -67,20 +67,71 @@ export class GameServer {
     endpoint: UntypedConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
-    const newSession = await this.sessionLifecycleController.createUserSession(
-      transportEndpoint.id,
-      identityResolutionContext
-    );
-
-    if (newSession.userId !== null) {
-      this.externalServices.profileService.createProfileIfUserHasNone(newSession.userId);
+    // - checks their handshake for a GameServerSessionClaimToken
+    const sessionClaimTokenOption = identityResolutionContext.gameServerSessionClaimToken;
+    if (sessionClaimTokenOption === undefined) {
+      throw new Error("No token was provided when attempting to join the game server");
     }
 
-    const outbox = await this.sessionLifecycleController.connectionHandler(
-      newSession,
-      transportEndpoint
-    );
-    this.dispatchOutboxMessages(outbox);
+    // @TODO - decrypts and validates the token
+    const token = sessionClaimTokenOption;
+
+    // - if no game exists on the server by the id in the GameServerSessionClaimToken
+    let existingGame = this.games.get(token.gameId);
+    if (existingGame === undefined) {
+      //   - check the central store for a PendingGameSetup by that id
+      const { gameSessionStoreService } = this.externalServices;
+      const pendingGameSetupOption = await gameSessionStoreService.getPendingGameSetup(
+        token.gameId
+      );
+      if (pendingGameSetupOption === null) {
+        throw new Error(
+          "A user presented a token with a game id that didn't match any existing game or pending game setup."
+        );
+      }
+
+      //   - create the Game from the PendingGameSetup
+      const newGame = SpeedDungeonGame.getDeserialized(pendingGameSetupOption.game);
+      this.games.set(newGame.id, newGame);
+      existingGame = newGame;
+      //   - delete the PendingGameSetup record from the central store
+      gameSessionStoreService.deletePendingGameSetup(newGame.id);
+
+      //   - write an ActiveGame record to the central store in a Record<GameId, ActiveGame>
+      //     so the lobby can check if this game still exists when a user reconnects to the lobby
+      //     after disconnection from the game server
+      gameSessionStoreService.writeActiveGameStatus(
+        newGame.id,
+        new ActiveGameStatus(newGame.name, newGame.id)
+      );
+    }
+
+    // - create the UserSession and assign it to the user's connection
+    // - place the UserSession in the Game
+    // - if all Players in Game have a corresponding expected UserSession
+    //   - if the game has not yet started
+    //     - handle any game mode specific onStart business
+    //     - start accepting player inputs
+    //     - start a heartbeat loop to periodically update the ActiveGame record's lastHeartbeatTimestamp
+    //       in the central store
+    //   - if the game was in progress
+    //     - this was a reconnection for a disconnected user
+    //     - unpause acceptance of player inputs
+
+    // const newSession = await this.sessionLifecycleController.createUserSession(
+    //   transportEndpoint.id,
+    //   identityResolutionContext
+    // );
+
+    // if (newSession.userId !== null) {
+    //   this.externalServices.profileService.createProfileIfUserHasNone(newSession.userId);
+    // }
+
+    // const outbox = await this.sessionLifecycleController.connectionHandler(
+    //   newSession,
+    //   transportEndpoint
+    // );
+    // this.dispatchOutboxMessages(outbox);
   }
 
   private dispatchUserOutboxMessages(outbox: MessageDispatchOutbox<GameStateUpdate>) {

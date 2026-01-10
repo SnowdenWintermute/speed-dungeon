@@ -1,6 +1,7 @@
 import {
   AdventuringParty,
   ClientToServerEventTypes,
+  GameId,
   GameMode,
   GameName,
   ServerToClientEventTypes,
@@ -32,7 +33,7 @@ export async function createProgressionGameHandler(
   }
 
   const game = new SpeedDungeonGame(
-    idGenerator.generate(),
+    idGenerator.generate() as GameId,
     gameName,
     GameMode.Progression,
     socketMeta.username

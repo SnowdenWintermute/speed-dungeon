@@ -4,6 +4,7 @@ import {
   ERROR_MESSAGES,
   GAME_CHANNEL_PREFIX,
   GameHandoffStrategyLobbyToGameServer,
+  GameId,
   GameMode,
   GameName,
   IdGenerator,
@@ -109,7 +110,7 @@ export class GameLifecycleController {
       game = await this.createProgressionGameHandler(gameName, session);
     } else {
       game = new SpeedDungeonGame(
-        this.idGenerator.generate(),
+        this.idGenerator.generate() as GameId,
         gameName,
         GameMode.Race,
         session.username,
@@ -128,7 +129,7 @@ export class GameLifecycleController {
     await this.sessionAuthManager.requireAuthorizedSession(session);
 
     const game = new SpeedDungeonGame(
-      this.idGenerator.generate(),
+      this.idGenerator.generate() as GameId,
       gameName,
       GameMode.Progression,
       session.username

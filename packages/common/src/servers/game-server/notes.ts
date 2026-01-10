@@ -9,14 +9,15 @@
 //   - PendingGameSetup has a TTL that will somehow get it cleaned up if no game server tries to claim it
 //   - PendingGameSetup includes SpeedDungeonGame and a Map<Username, UserId> so when users present their
 //     tokens GameServer can create a session for them by UserId without exposing UserId to the client in the token
-// - lobby issues signed GameServerSessionClaimToken to users which include
+// - lobby sends to users
 //    - URL of game server
+// - lobby issues opaque encrypted GameServerSessionClaimToken to users which include
 //    - PendingGameSetup game ID
 //    - Username to attach to the corresponding Player in the PendingGameSetup
 //    - Expiry
 //    - Nonce     const nonce = crypto.randomBytes(16).toString("hex");
-// - clients use the URL in the token to open connections to the GameServer and present their tokens in the handshake
-//
+// - clients use the URL open connections to the GameServer and present their tokens in the handshake
+
 // when the game server receives incoming connection from a user
 // - checks their handshake for a GameServerSessionClaimToken
 // - decrypts and validates the token
@@ -55,6 +56,9 @@
 // - lobby provides a GameServerSessionClaimToken to user client
 // - user client executes normal flow for onGameServerSessionClaimTokenReceipt, same as when they
 //   are in a lobby game setup and start a new game
+//
+//   game server's heartbeat loop
+//   - update all corresponding ActiveGameStatus objects in the central store
 //
 // lobby's DanglingResourcesCleanupLoop
 // - read all ActiveGame records from the central store and check their last lastHeartbeatTimestamp

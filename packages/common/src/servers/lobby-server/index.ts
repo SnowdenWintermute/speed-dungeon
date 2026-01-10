@@ -32,6 +32,7 @@ import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
 import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { UntypedConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
+import { LobbySessionAuthorizationManager } from "./lobby-session-authorization-manager.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -87,7 +88,7 @@ export class LobbyServer {
       )
     );
 
-    this.sessionAuthManager = new SessionAuthorizationManager(externalServices.profileService);
+    this.sessionAuthManager = new LobbySessionAuthorizationManager(externalServices.profileService);
 
     const controllers = this.createControllers();
     this.gameLifecycleController = controllers.gameLifecycleController;

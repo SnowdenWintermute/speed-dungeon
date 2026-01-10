@@ -11,7 +11,7 @@ import { Combatant } from "../combatants/index.js";
 import cloneDeep from "lodash.clonedeep";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { GAME_CHANNEL_PREFIX } from "../packets/channels.js";
-import { ChannelName, EntityId, GameName, PartyName, Username } from "../aliases.js";
+import { ChannelName, EntityId, GameId, GameName, PartyName, Username } from "../aliases.js";
 
 export class SpeedDungeonGame {
   players = new Map<Username, SpeedDungeonPlayer>();
@@ -23,7 +23,7 @@ export class SpeedDungeonGame {
   lowestStartingFloorOptionsBySavedCharacter: Record<EntityId, number> = {};
   selectedStartingFloor: number = 1;
   constructor(
-    public id: string,
+    public id: GameId,
     public name: GameName,
     public mode: GameMode,
     public gameCreator: string | null = null,

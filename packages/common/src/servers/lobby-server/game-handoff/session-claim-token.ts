@@ -1,4 +1,4 @@
-import { Milliseconds, Username } from "../../../aliases.js";
+import { GameId, Milliseconds, Username } from "../../../aliases.js";
 import { ONE_SECOND } from "../../../app-consts.js";
 import crypto from "crypto";
 
@@ -6,7 +6,7 @@ export class GameServerSessionClaimToken {
   readonly expirationTimestamp = GameServerSessionClaimToken.createExpirationTimestamp();
   readonly nonce = crypto.randomBytes(16).toString("hex");
   constructor(
-    readonly gameId: string,
+    readonly gameId: GameId,
     readonly username: Username
   ) {}
 

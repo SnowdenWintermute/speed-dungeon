@@ -1,6 +1,7 @@
 import {
   ERROR_MESSAGES,
   GAME_CHANNEL_PREFIX,
+  GameId,
   GameMode,
   GameName,
   MAX_GAME_NAME_LENGTH,
@@ -23,7 +24,8 @@ export default async function createGameHandler(
   if (session.currentGameName)
     return errorHandler(socket, new Error(ERROR_MESSAGES.LOBBY.ALREADY_IN_GAME));
   const gameServer = getGameServer();
-  let { gameName, mode, isRanked } = eventData;
+  let { gameName } = eventData;
+  const { mode, isRanked } = eventData;
 
   if (isRanked && session.userId === null)
     return errorHandler(socket, new Error(ERROR_MESSAGES.AUTH.REQUIRED));
@@ -48,7 +50,7 @@ export default async function createGameHandler(
     await createProgressionGameHandler(gameServer, session, socket, gameName);
   } else {
     const game = new SpeedDungeonGame(
-      idGenerator.generate(),
+      idGenerator.generate() as GameId,
       gameName,
       GameMode.Race,
       session.username,

@@ -1,4 +1,4 @@
-import { ConnectionId } from "../../../aliases.js";
+import { ConnectionId, GameId } from "../../../aliases.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { GameSessionStoreService } from "../../services/game-session-store/index.js";
@@ -31,7 +31,7 @@ export class GameHandoffManager {
     return result;
   }
 
-  private prepareClaimTokens(sessions: UserSession[], gameId: string) {
+  private prepareClaimTokens(sessions: UserSession[], gameId: GameId) {
     const claimTokensByConnectionId = new Map<ConnectionId, GameServerSessionClaimToken>();
 
     for (const session of sessions) {
