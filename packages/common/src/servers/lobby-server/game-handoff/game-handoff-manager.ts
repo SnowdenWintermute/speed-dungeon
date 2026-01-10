@@ -1,13 +1,13 @@
-import { ConnectionId, GameName } from "../../../aliases.js";
+import { ConnectionId } from "../../../aliases.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
-import { IdGenerator } from "../../../utility-classes/index.js";
 import { GameSessionStoreService } from "../../services/game-session-store/index.js";
 import { PendingGameSetup } from "../../services/game-session-store/pending-game-setup.js";
 import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
+import { LobbyState } from "../lobby-state.js";
 import { GameServerConnectionType } from "./connection-instructions.js";
 import { GameServerSessionClaimToken } from "./session-claim-token.js";
 
@@ -16,7 +16,7 @@ export class GameHandoffManager {
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly updateFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly gameSessionStoreService: GameSessionStoreService,
-    private readonly idGenerator: IdGenerator
+    private readonly lobbyState: LobbyState
   ) {}
 
   private getPlayerSessionsInGame(game: SpeedDungeonGame) {
@@ -45,6 +45,7 @@ export class GameHandoffManager {
   // on all players in lobby game ready to start game
   // handle a handoff from Lobby to GameServer
   async initiateGameHandoff(game: SpeedDungeonGame) {
+    // @TODO - resolve to a placeholder url for a single static test server
     // - getLeastBusyGameServerOrProvisionOne()
     const leastBusyServerUrl = "";
 
@@ -68,5 +69,7 @@ export class GameHandoffManager {
         },
       });
     }
+
+    this.lobbyState.removeGame(game.name);
   }
 }

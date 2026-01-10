@@ -29,15 +29,6 @@ export class UserSession extends ConnectionSession {
     return this.currentGameName !== null;
   }
 
-  // getExpectedCurrentGame(lobbyState: LobbyState) {
-  //   const currentGameName = this.currentGameName;
-  //   if (currentGameName === null) {
-  //     throw new Error(ERROR_MESSAGES.USER.NO_CURRENT_GAME);
-  //   }
-
-  //   return lobbyState.getExpectedGame(currentGameName);
-  // }
-
   getCurrentPartyOption(game: SpeedDungeonGame) {
     if (this.currentPartyName === null) {
       return null;

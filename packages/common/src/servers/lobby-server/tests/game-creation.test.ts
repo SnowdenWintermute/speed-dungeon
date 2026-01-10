@@ -4,7 +4,7 @@ import { GameName } from "../../../aliases.js";
 import { GameMode } from "../../../types.js";
 import { InMemoryTransport } from "../../../transport/in-memory-transport.js";
 import { GameListEntry, GameStateUpdateType } from "../../../packets/game-state-updates.js";
-import { TestHelpers } from "./helpers.js";
+import { TestHelpers } from "./helpers.test.js";
 import { MessageDispatchType } from "../../update-delivery/message-dispatch-factory.js";
 import { ConnectionRole } from "../../../http-headers.js";
 

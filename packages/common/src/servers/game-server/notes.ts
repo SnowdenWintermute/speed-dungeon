@@ -19,7 +19,7 @@
 //
 // when the game server receives incoming connection from a user
 // - checks their handshake for a GameServerSessionClaimToken
-// - validates the token signature
+// - decrypts and validates the token
 // - if no game exists on the server by the id in the GameServerSessionClaimToken
 //   - check the central store for a PendingGameSetup by that id
 //   - create the Game from the PendingGameSetup

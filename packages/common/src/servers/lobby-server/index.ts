@@ -4,7 +4,7 @@ import { createLobbyClientIntentHandlers } from "./create-lobby-client-intent-ha
 import { GameLifecycleController } from "./controllers/game-lifecycle.js";
 import { LobbyState } from "./lobby-state.js";
 import { PartySetupController } from "./controllers/party-setup.js";
-import { SessionLifecycleController } from "./controllers/session-lifecycle.js";
+import { LobbySessionLifecycleController } from "./controllers/session-lifecycle.js";
 import {
   ConnectionIdentityResolutionContext,
   IdentityProviderService,
@@ -29,7 +29,6 @@ import {
 } from "../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
-import { ConnectionRole } from "../../http-headers.js";
 import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { UntypedConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
@@ -64,7 +63,7 @@ export class LobbyServer {
   // user controllers
   public readonly gameLifecycleController: GameLifecycleController;
   public readonly partySetupController: PartySetupController;
-  public readonly userSessionLifecycleController: SessionLifecycleController;
+  public readonly userSessionLifecycleController: LobbySessionLifecycleController;
   public readonly savedCharactersController: SavedCharactersController;
   public readonly characterLifecycleController: CharacterLifecycleController;
   // game server controllers
@@ -99,19 +98,6 @@ export class LobbyServer {
   }
 
   async handleConnection(
-    endpoint: UntypedConnectionEndpoint,
-    identityResolutionContext: ConnectionIdentityResolutionContext
-  ) {
-    console.log("got new connection to lobby:", endpoint.id);
-    switch (identityResolutionContext.type) {
-      case ConnectionRole.User: {
-        console.log("is user connection");
-        return await this.handleUserConnection(endpoint, identityResolutionContext);
-      }
-    }
-  }
-
-  private async handleUserConnection(
     connectionEndpoint: UntypedConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
@@ -213,7 +199,7 @@ export class LobbyServer {
       this.characterCreator
     );
 
-    const userSessionLifecycleController = new SessionLifecycleController(
+    const userSessionLifecycleController = new LobbySessionLifecycleController(
       this.lobbyState,
       this.outgoingMessagesToUsersGateway,
       this.userSessionRegistry,

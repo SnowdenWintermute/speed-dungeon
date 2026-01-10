@@ -8,7 +8,6 @@ import {
   GameName,
   IdentityProviderService,
   ItemGenerator,
-  LobbyServer,
   SavedCharactersService,
   ServerToClientEvent,
   ServerToClientEventTypes,
@@ -33,7 +32,6 @@ import initiateSavedCharacterListeners from "./saved-character-event-handlers/in
 import GameModeContext from "./game-event-handlers/game-mode-strategies/game-mode-context.js";
 import { idGenerator, rngSingleton } from "../singletons/index.js";
 import { AffixGenerator } from "@speed-dungeon/common";
-import { RemoteGameSimuatorHandoffStrategy } from "./lobby-setup/remote-game-simulator-handoff-strategy.js";
 import { DatabaseProfileService } from "./services/profiles.js";
 import { speedDungeonProfilesRepo } from "../database/repos/speed-dungeon-profiles.js";
 import {
@@ -46,7 +44,6 @@ import { DatabaseRankedLadderService } from "./services/ranked-ladder.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { getLoggedInUserOrCreateGuest } from "./get-logged-in-user-or-create-guest.js";
 import { GameMessagesPayload } from "@speed-dungeon/common";
-import { LobbyRemoteIncomingConnectionGateway } from "./client-intent-receivers/remote-lobby.js";
 
 export type SocketId = string;
 

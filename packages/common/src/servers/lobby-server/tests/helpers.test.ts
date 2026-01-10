@@ -16,6 +16,7 @@ import {
   GameServerConnectionType,
 } from "../game-handoff/connection-instructions.js";
 import { InMemoryIncomingConnectionGateway } from "../../in-memory-incoming-connection-gateway.js";
+import { InMemoryGameSessionStoreService } from "../../services/game-session-store/in-memory-game-session-store-service.js";
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class TestHelpers {
@@ -58,6 +59,8 @@ export class TestHelpers {
       new InMemorySavedCharacterPersistenceStrategy()
     );
 
+    const gameSessionStoreService = new InMemoryGameSessionStoreService();
+
     const rankedLadderService = new InMemoryRankedLadderService();
     const externalServices = {
       identityProviderService,
@@ -65,6 +68,7 @@ export class TestHelpers {
       savedCharactersService,
       rankedLadderService,
       idGenerator: new IdGenerator({ saveHistory: false }),
+      gameSessionStoreService,
     };
     return externalServices;
   }

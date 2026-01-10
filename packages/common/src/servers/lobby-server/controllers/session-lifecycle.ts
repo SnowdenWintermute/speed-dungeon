@@ -22,7 +22,7 @@ import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-f
 import { OutgoingMessageGateway } from "../../update-delivery/message-gateway.js";
 import { TransportDisconnectReason } from "../../../transport/disconnect-reasons.js";
 
-export class SessionLifecycleController {
+export class LobbySessionLifecycleController {
   constructor(
     private readonly lobbyState: LobbyState,
     private readonly updateGateway: OutgoingMessageGateway<GameStateUpdate, ClientIntent>,

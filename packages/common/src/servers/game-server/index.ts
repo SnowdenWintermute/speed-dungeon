@@ -5,17 +5,43 @@ import { ClientIntent } from "../../packets/client-intents.js";
 import { ConnectionId, GameName } from "../../aliases.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
-import { MessageDispatchFactory } from "../update-delivery/message-dispatch-factory.js";
+import {
+  MessageDispatchFactory,
+  MessageDispatchType,
+} from "../update-delivery/message-dispatch-factory.js";
 import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";
+import { GameSessionStoreService } from "../services/game-session-store/index.js";
+import { SavedCharactersService } from "../services/saved-characters.js";
+import { RankedLadderService } from "../services/ranked-ladder.js";
+import { IdGenerator } from "../../utility-classes/index.js";
+import { UntypedConnectionEndpoint } from "../../transport/connection-endpoint.js";
+import {
+  ConnectionIdentityResolutionContext,
+  IdentityProviderService,
+} from "../services/identity-provider.js";
+import { createGameServerClientIntentHandlers } from "./create-game-server-client-intent-handlers.js";
+import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
+
+export interface GameServerExternalServices {
+  gameSessionStoreService: GameSessionStoreService;
+  identityProviderService: IdentityProviderService;
+  savedCharactersService: SavedCharactersService;
+  rankedLadderService: RankedLadderService;
+}
 
 export class GameServer {
   private readonly games = new Map<GameName, SpeedDungeonGame>();
+  private readonly idGenerator = new IdGenerator({ saveHistory: false });
   private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
   private readonly updateGateway = new OutgoingMessageGateway<GameStateUpdate, ClientIntent>();
   readonly userSessionRegistry = new UserSessionRegistry();
   private readonly gameStateUpdateDispatchFactory = new MessageDispatchFactory<GameStateUpdate>(
     this.userSessionRegistry
   );
+  private readonly outgoingMessagesToUsersGateway = new OutgoingMessageGateway<
+    GameStateUpdate,
+    ClientIntent
+  >();
   // public readonly sessionAuthManager: SessionAuthorizationManager;
 
   // controllers
@@ -24,58 +50,55 @@ export class GameServer {
   // public readonly savedCharactersController: SavedCharactersController;
 
   constructor(
-    private readonly usersIncomingConnectionGateway: IncomingConnectionGateway
-    // private readonly externalServices: LobbyExternalServices
+    private readonly incomingConnectionGateway: IncomingConnectionGateway,
+    private readonly externalServices: GameServerExternalServices
   ) {
-    // this.clientIntentReceiver.initialize(this);
-    this.usersIncomingConnectionGateway.listen();
+    this.incomingConnectionGateway.initialize(
+      async (context, identityContext) => await this.handleConnection(context, identityContext)
+    );
+    this.incomingConnectionGateway.listen();
 
     // this.sessionAuthManager = new SessionAuthorizationManager(externalServices.profileService);
   }
 
-  // private intentHandlers = createLobbyClientIntentHandlers(this);
+  private intentHandlers = createGameServerClientIntentHandlers(this);
 
-  // async handleConnection(
-  //   transportEndpoint: ConnectionEndpoint<GameStateUpdate, ClientIntent>,
-  //   identityResolutionContext: IdentityResolutionContext
-  // ) {
-  //   const newSession = await this.sessionLifecycleController.createUserSession(
-  //     transportEndpoint.id,
-  //     identityResolutionContext
-  //   );
+  async handleConnection(
+    endpoint: UntypedConnectionEndpoint,
+    identityResolutionContext: ConnectionIdentityResolutionContext
+  ) {
+    const newSession = await this.sessionLifecycleController.createUserSession(
+      transportEndpoint.id,
+      identityResolutionContext
+    );
 
-  //   if (newSession.userId !== null) {
-  //     this.externalServices.profileService.createProfileIfUserHasNone(newSession.userId);
-  //   }
+    if (newSession.userId !== null) {
+      this.externalServices.profileService.createProfileIfUserHasNone(newSession.userId);
+    }
 
-  //   const outbox = await this.sessionLifecycleController.connectionHandler(
-  //     newSession,
-  //     transportEndpoint
-  //   );
-  //   this.dispatchOutboxMessages(outbox);
-  // }
-
-  async handleIntent(clientIntent: ClientIntent, connectionId: ConnectionId) {
-    // const handlerOption = this.intentHandlers[clientIntent.type];
-    // if (handlerOption === undefined) {
-    //   throw new Error("Lobby is not configured to handle this type of ClientIntent");
-    // }
-    // const fromUser = this.userSessionRegistry.getExpectedSession(connectionId);
-    // // a workaround is to use "as never" for some reason
-    // const outbox = await handlerOption(clientIntent.data as never, fromUser);
-    // this.dispatchOutboxMessages(outbox);
+    const outbox = await this.sessionLifecycleController.connectionHandler(
+      newSession,
+      transportEndpoint
+    );
+    this.dispatchOutboxMessages(outbox);
   }
 
-  // private dispatchOutboxMessages(outbox: GameStateUpdateDispatchOutbox) {
-  //   for (const dispatch of outbox.toDispatches()) {
-  //     switch (dispatch.type) {
-  //       case GameStateUpdateDispatchType.Single:
-  //         this.updateGateway.submitToConnection(dispatch.connectionId, dispatch.update);
-  //         break;
-  //       case GameStateUpdateDispatchType.FanOut:
-  //         this.updateGateway.submitToConnections(dispatch.connectionIds, dispatch.update);
-  //         break;
-  //     }
-  //   }
-  // }
+  private dispatchUserOutboxMessages(outbox: MessageDispatchOutbox<GameStateUpdate>) {
+    for (const dispatch of outbox.toDispatches()) {
+      switch (dispatch.type) {
+        case MessageDispatchType.Single:
+          this.outgoingMessagesToUsersGateway.submitToConnection(
+            dispatch.connectionId,
+            dispatch.message
+          );
+          break;
+        case MessageDispatchType.FanOut:
+          this.outgoingMessagesToUsersGateway.submitToConnections(
+            dispatch.connectionIds,
+            dispatch.message
+          );
+          break;
+      }
+    }
+  }
 }
