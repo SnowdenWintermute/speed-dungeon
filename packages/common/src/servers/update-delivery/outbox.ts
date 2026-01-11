@@ -1,7 +1,7 @@
 import { ChannelName, ConnectionId } from "../../aliases.js";
 import { MessageDispatch, MessageDispatchFactory } from "./message-dispatch-factory.js";
 
-export class MessageDispatchOutbox<Sendable extends { type: PropertyKey; data: unknown }> {
+export class MessageDispatchOutbox<Sendable> {
   private list: MessageDispatch<Sendable>[] = [];
   constructor(private dispatchFactory: MessageDispatchFactory<Sendable>) {}
 

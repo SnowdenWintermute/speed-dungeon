@@ -16,14 +16,10 @@ import { BookConsumableType } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { NextOrPrevious } from "../primatives/index.js";
-import { UserSession } from "../servers/sessions/user-session.js";
-import { MessageDispatchOutbox } from "../servers/update-delivery/outbox.js";
-import { TransportDisconnectReason } from "../transport/disconnect-reasons.js";
 import { GameMode } from "../types.js";
-import { CharacterAndItems, GameStateUpdate } from "./game-state-updates.js";
+import { CharacterAndItems } from "./game-state-updates.js";
 
 export enum ClientIntentType {
-  Disconnection,
   // lobby
   RequestsGameList,
   // game setup
@@ -84,7 +80,6 @@ export enum ClientIntentType {
 
 // Map enum values to payload types
 export interface ClientIntentMap {
-  [ClientIntentType.Disconnection]: { reason: TransportDisconnectReason };
   [ClientIntentType.RequestsGameList]: undefined;
   [ClientIntentType.CreateGame]: {
     gameName: GameName;

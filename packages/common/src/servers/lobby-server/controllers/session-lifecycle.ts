@@ -16,8 +16,11 @@ import { IdGenerator } from "../../../utility-classes/index.js";
 import { UserId, UserIdType } from "../../sessions/user-ids.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
+import { SessionLifecycleController } from "../../controllers/session-lifecycle.js";
 
-export class LobbySessionLifecycleController {
+export class LobbySessionLifecycleController
+  implements SessionLifecycleController<GameStateUpdate>
+{
   constructor(
     private readonly lobbyState: LobbyState,
     private readonly userSessionRegistry: UserSessionRegistry,
@@ -28,7 +31,7 @@ export class LobbySessionLifecycleController {
     private readonly idGenerator: IdGenerator
   ) {}
 
-  async createUserSession(
+  async createSession(
     connectionId: ConnectionId,
     context: ConnectionIdentityResolutionContext
   ): Promise<UserSession> {
@@ -66,15 +69,17 @@ export class LobbySessionLifecycleController {
     return { username: this.generateRandomUsername(), userId };
   }
 
-  async connectionHandler(session: UserSession) {
+  async activateSession(session: UserSession) {
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+
     const isAuthorizedUser = session.userId.type === UserIdType.Auth;
     if (isAuthorizedUser) {
-      this.savedCharactersController.fetchSavedCharactersHandler(session);
+      const savedCharactersOutbox =
+        await this.savedCharactersController.fetchSavedCharactersHandler(session);
+      outbox.pushFromOther(savedCharactersOutbox);
     }
 
     this.userSessionRegistry.register(session);
-
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 
     // tell the client their username
     outbox.pushToConnection(session.connectionId, {
@@ -104,7 +109,7 @@ export class LobbySessionLifecycleController {
     return outbox;
   }
 
-  async disconnectionHandler(session: UserSession) {
+  cleanupSession(session: UserSession) {
     const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
     if (session.currentGameName !== null) {
       const leaveGameHandlerOutbox = this.gameLifecycleController.leaveGameHandler(session);

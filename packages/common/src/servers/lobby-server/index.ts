@@ -101,12 +101,10 @@ export class LobbyServer {
   ) {
     // authenticate
     // create session
-    const newSession = await this.userSessionLifecycleController.createUserSession(
+    const newSession = await this.userSessionLifecycleController.createSession(
       connectionEndpoint.id,
       identityResolutionContext
     );
-
-    console.log("created user session:", newSession);
 
     // special business logic for this session type
     if (newSession.userId.type === UserIdType.Auth) {
@@ -141,7 +139,7 @@ export class LobbyServer {
       },
       (reason) => this.disconnectionHandler(newSession, reason)
     );
-    const outbox = await this.userSessionLifecycleController.connectionHandler(newSession);
+    const outbox = await this.userSessionLifecycleController.activateSession(newSession);
     this.dispatchUserOutboxMessages(outbox);
   }
 
@@ -149,7 +147,7 @@ export class LobbyServer {
     console.info(
       `-- ${session.username} (${session.connectionId})  disconnected. Reason - ${reason.getStringName()}`
     );
-    this.userSessionLifecycleController.disconnectionHandler(session);
+    this.userSessionLifecycleController.cleanupSession(session);
     this.outgoingMessagesToUsersGateway.unregisterEndpoint(session.connectionId);
   }
 
