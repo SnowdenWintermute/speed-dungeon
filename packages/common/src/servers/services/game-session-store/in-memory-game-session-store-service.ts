@@ -1,31 +1,39 @@
+import { GameId } from "../../../aliases.js";
 import { DisconnectedSession } from "../../sessions/disconnected-session.js";
+import { UserId } from "../../sessions/user-ids.js";
 import { ActiveGameStatus } from "./active-game-status.js";
 import { GameSessionStoreService } from "./index.js";
 import { PendingGameSetup } from "./pending-game-setup.js";
 
 export class InMemoryGameSessionStoreService implements GameSessionStoreService {
-  writePendingGameSetup(gameId: string, setup: PendingGameSetup): Promise<void> {
+  writeActiveGameStatus(gameId: GameId, game: ActiveGameStatus): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  getPendingGameSetup(gameId: string): Promise<PendingGameSetup | null> {
+  getActiveGameStatus(gameId: GameId): Promise<ActiveGameStatus | null> {
     throw new Error("Method not implemented.");
   }
-  deletePendingGameSetup(gameId: string): Promise<void> {
+  writePendingGameSetup(gameId: GameId, setup: PendingGameSetup): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  writeActiveGame(gameId: string, game: ActiveGameStatus): Promise<void> {
+  getPendingGameSetup(gameId: GameId): Promise<PendingGameSetup | null> {
     throw new Error("Method not implemented.");
   }
-  getActiveGame(gameId: string): Promise<ActiveGameStatus | null> {
+  deletePendingGameSetup(gameId: GameId): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  writeDisconnectedUser(userId: string, record: DisconnectedSession): Promise<void> {
+  writeActiveGame(gameId: GameId, game: ActiveGameStatus): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  getDisconnectedUser(userId: string): Promise<DisconnectedSession | null> {
+  getActiveGame(gameId: GameId): Promise<ActiveGameStatus | null> {
     throw new Error("Method not implemented.");
   }
-  deleteDisconnectedUser(userId: string): Promise<void> {
+  writeDisconnectedUser(userId: UserId, record: DisconnectedSession): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+  getDisconnectedUser(userId: UserId): Promise<DisconnectedSession | null> {
+    throw new Error("Method not implemented.");
+  }
+  deleteDisconnectedUser(userId: UserId): Promise<void> {
     throw new Error("Method not implemented.");
   }
 }

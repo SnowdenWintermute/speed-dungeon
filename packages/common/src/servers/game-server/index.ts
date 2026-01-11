@@ -21,7 +21,6 @@ import {
 } from "../services/identity-provider.js";
 import { createGameServerClientIntentHandlers } from "./create-game-server-client-intent-handlers.js";
 import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
-import { PendingGameSetup } from "../services/game-session-store/pending-game-setup.js";
 import { ActiveGameStatus } from "../services/game-session-store/active-game-status.js";
 
 export interface GameServerExternalServices {
@@ -67,43 +66,18 @@ export class GameServer {
     endpoint: UntypedConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
-    // - checks their handshake for a GameServerSessionClaimToken
     const sessionClaimTokenOption = identityResolutionContext.gameServerSessionClaimToken;
     if (sessionClaimTokenOption === undefined) {
       throw new Error("No token was provided when attempting to join the game server");
     }
 
-    // @TODO - decrypts and validates the token
+    // @TODO - decrypt and validate the token
     const token = sessionClaimTokenOption;
 
-    // - if no game exists on the server by the id in the GameServerSessionClaimToken
     let existingGame = this.games.get(token.gameId);
+    // this means this is the first user to join this game
     if (existingGame === undefined) {
-      //   - check the central store for a PendingGameSetup by that id
-      const { gameSessionStoreService } = this.externalServices;
-      const pendingGameSetupOption = await gameSessionStoreService.getPendingGameSetup(
-        token.gameId
-      );
-      if (pendingGameSetupOption === null) {
-        throw new Error(
-          "A user presented a token with a game id that didn't match any existing game or pending game setup."
-        );
-      }
-
-      //   - create the Game from the PendingGameSetup
-      const newGame = SpeedDungeonGame.getDeserialized(pendingGameSetupOption.game);
-      this.games.set(newGame.id, newGame);
-      existingGame = newGame;
-      //   - delete the PendingGameSetup record from the central store
-      gameSessionStoreService.deletePendingGameSetup(newGame.id);
-
-      //   - write an ActiveGame record to the central store in a Record<GameId, ActiveGame>
-      //     so the lobby can check if this game still exists when a user reconnects to the lobby
-      //     after disconnection from the game server
-      gameSessionStoreService.writeActiveGameStatus(
-        newGame.id,
-        new ActiveGameStatus(newGame.name, newGame.id)
-      );
+      existingGame = await this.initializeExpectedPendingGame(token.gameId);
     }
 
     // - create the UserSession and assign it to the user's connection
@@ -132,6 +106,27 @@ export class GameServer {
     //   transportEndpoint
     // );
     // this.dispatchOutboxMessages(outbox);
+  }
+
+  private async initializeExpectedPendingGame(gameId: GameId) {
+    const { gameSessionStoreService } = this.externalServices;
+    const pendingGameSetupOption = await gameSessionStoreService.getPendingGameSetup(gameId);
+    if (pendingGameSetupOption === null) {
+      throw new Error(
+        "A user presented a token with a game id that didn't match any existing game or pending game setup."
+      );
+    }
+
+    const newGame = SpeedDungeonGame.getDeserialized(pendingGameSetupOption.game);
+    this.games.set(newGame.id, newGame);
+    gameSessionStoreService.deletePendingGameSetup(newGame.id);
+
+    gameSessionStoreService.writeActiveGameStatus(
+      newGame.id,
+      new ActiveGameStatus(newGame.name, newGame.id)
+    );
+
+    return newGame;
   }
 
   private dispatchUserOutboxMessages(outbox: MessageDispatchOutbox<GameStateUpdate>) {
