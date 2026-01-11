@@ -43,7 +43,6 @@ export class GameServer {
     GameStateUpdate,
     ClientIntent
   >();
-  // public readonly sessionAuthManager: SessionAuthorizationManager;
 
   // controllers
   // public readonly gameLifecycleController: GameLifecycleController;

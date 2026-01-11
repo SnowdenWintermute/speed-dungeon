@@ -14,7 +14,6 @@ import {
 } from "../../../index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
-import { SessionAuthorizationManager } from "../../sessions/authorization-manager.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { LobbyState } from "../lobby-state.js";
 import { PartySetupController } from "./party-setup.js";
@@ -26,7 +25,6 @@ export class GameLifecycleController {
   constructor(
     private readonly lobbyState: LobbyState,
     private readonly userSessionRegistry: UserSessionRegistry,
-    private readonly sessionAuthManager: SessionAuthorizationManager,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly partySetupController: PartySetupController,
     private readonly idGenerator: IdGenerator,
@@ -126,7 +124,7 @@ export class GameLifecycleController {
   async createProgressionGameHandler(gameName: GameName, session: UserSession) {
     session.requireNotInGameOnAnotherSession(this.userSessionRegistry);
 
-    await this.sessionAuthManager.requireAuthorizedSession(session);
+    session.requireAuthorized();
 
     const game = new SpeedDungeonGame(
       this.idGenerator.generate() as GameId,
@@ -162,7 +160,7 @@ export class GameLifecycleController {
 
     if (game.mode === GameMode.Progression) {
       session.requireNotInGameOnAnotherSession(this.userSessionRegistry);
-      await this.sessionAuthManager.requireAuthorizedSession(session);
+      session.requireAuthorized();
     }
 
     session.joinGame(game);

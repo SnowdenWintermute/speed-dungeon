@@ -6,23 +6,21 @@ import {
   getPartyChannelName,
   PartyName,
   SpeedDungeonGame,
+  SpeedDungeonProfileService,
 } from "../../../index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
-import { SessionAuthorizationManager } from "../../sessions/authorization-manager.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { SavedCharactersController } from "./saved-characters.js";
-import { LobbyState } from "../lobby-state.js";
 import { RANDOM_PARTY_NAMES } from "../default-names/parties.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 
 export class PartySetupController {
   constructor(
-    private readonly lobbyState: LobbyState,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly savedCharactersController: SavedCharactersController,
-    private readonly sessionAuthManager: SessionAuthorizationManager,
+    private readonly profileService: SpeedDungeonProfileService,
     private readonly idGenerator: IdGenerator
   ) {}
 
@@ -106,12 +104,11 @@ export class PartySetupController {
     session: UserSession,
     game: SpeedDungeonGame
   ) {
-    const authorizedSession = await this.sessionAuthManager.requireAuthorizedSession(session);
-
+    session.requireAuthorized();
+    const profile = await session.requireProfile(this.profileService);
     const defaultSavedCharacter =
-      await this.savedCharactersController.getDefaultSavedCharacterForProgressionGame(
-        authorizedSession
-      );
+      await this.savedCharactersController.getDefaultSavedCharacterForProgressionGame(profile);
+
     const { combatant } = defaultSavedCharacter;
 
     game.lowestStartingFloorOptionsBySavedCharacter[combatant.entityProperties.id] =

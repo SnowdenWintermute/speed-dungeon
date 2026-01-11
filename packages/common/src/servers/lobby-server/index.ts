@@ -13,7 +13,6 @@ import { SpeedDungeonProfileService } from "../services/profiles.js";
 import { SavedCharactersService } from "../services/saved-characters.js";
 import { RankedLadderService } from "../services/ranked-ladder.js";
 import { UserSessionRegistry } from "../sessions/user-session-registry.js";
-import { SessionAuthorizationManager } from "../sessions/authorization-manager.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
 import { CharacterCreator } from "../../character-creation/index.js";
@@ -32,7 +31,8 @@ import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
 import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { UntypedConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
-import { LobbySessionAuthorizationManager } from "./lobby-session-authorization-manager.js";
+import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js";
+import { UserSession } from "../sessions/user-session.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -58,7 +58,6 @@ export class LobbyServer {
   );
   private readonly characterCreator: CharacterCreator;
 
-  public readonly sessionAuthManager: SessionAuthorizationManager;
   private userIntentHandlers = createLobbyClientIntentHandlers(this);
 
   // user controllers
@@ -88,8 +87,6 @@ export class LobbyServer {
       )
     );
 
-    this.sessionAuthManager = new LobbySessionAuthorizationManager(externalServices.profileService);
-
     const controllers = this.createControllers();
     this.gameLifecycleController = controllers.gameLifecycleController;
     this.partySetupController = controllers.partySetupController;
@@ -118,6 +115,14 @@ export class LobbyServer {
 
     // type the connection endpoint
     const userConnectionEndpoint = connectionEndpoint.toTyped<GameStateUpdate, ClientIntent>();
+    this.outgoingMessagesToUsersGateway.registerEndpoint(
+      userConnectionEndpoint.id,
+      userConnectionEndpoint
+    );
+
+    console.info(
+      `-- ${newSession.username} (user id: ${newSession.userId}, connection id: ${newSession.connectionId}) joined the lobby`
+    );
 
     // attach the connection to message handlers and disconnectionHandler
     userConnectionEndpoint.subscribeAll(
@@ -134,17 +139,18 @@ export class LobbyServer {
         const outbox = await handlerOption(receivable.data as never, session);
         this.dispatchUserOutboxMessages(outbox);
       },
-      (reason) => {
-        this.userSessionLifecycleController.disconnectionHandler(newSession, reason);
-      }
+      (reason) => this.disconnectionHandler(newSession, reason)
     );
-    // @TODO: would be nice to take the connection endpoint regitration out of this handler
-    // and do it inline here since it is a separate concern from the new session handler
-    const outbox = await this.userSessionLifecycleController.connectionHandler(
-      newSession,
-      userConnectionEndpoint
-    );
+    const outbox = await this.userSessionLifecycleController.connectionHandler(newSession);
     this.dispatchUserOutboxMessages(outbox);
+  }
+
+  private disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
+    console.info(
+      `-- ${session.username} (${session.connectionId})  disconnected. Reason - ${reason.getStringName()}`
+    );
+    this.userSessionLifecycleController.disconnectionHandler(session);
+    this.outgoingMessagesToUsersGateway.unregisterEndpoint(session.connectionId);
   }
 
   private dispatchUserOutboxMessages(outbox: MessageDispatchOutbox<GameStateUpdate>) {
@@ -168,24 +174,22 @@ export class LobbyServer {
 
   private createControllers() {
     const savedCharactersController = new SavedCharactersController(
-      this.sessionAuthManager,
+      this.externalServices.profileService,
       this.gameStateUpdateDispatchFactory,
       this.externalServices,
       this.characterCreator
     );
 
     const partySetupController = new PartySetupController(
-      this.lobbyState,
       this.gameStateUpdateDispatchFactory,
       this.savedCharactersController,
-      this.sessionAuthManager,
+      this.externalServices.profileService,
       this.externalServices.idGenerator
     );
 
     const gameLifecycleController = new GameLifecycleController(
       this.lobbyState,
       this.userSessionRegistry,
-      this.sessionAuthManager,
       this.gameStateUpdateDispatchFactory,
       this.partySetupController,
       this.externalServices.idGenerator,
@@ -193,8 +197,7 @@ export class LobbyServer {
     );
 
     const characterLifecycleController = new CharacterLifecycleController(
-      this.lobbyState,
-      this.sessionAuthManager,
+      this.externalServices.profileService,
       this.gameStateUpdateDispatchFactory,
       this.externalServices.savedCharactersService,
       this.characterCreator
@@ -202,9 +205,7 @@ export class LobbyServer {
 
     const userSessionLifecycleController = new LobbySessionLifecycleController(
       this.lobbyState,
-      this.outgoingMessagesToUsersGateway,
       this.userSessionRegistry,
-      this.sessionAuthManager,
       this.gameStateUpdateDispatchFactory,
       this.savedCharactersController,
       this.gameLifecycleController,

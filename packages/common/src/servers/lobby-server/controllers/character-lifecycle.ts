@@ -7,16 +7,14 @@ import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-stat
 import { GameMode } from "../../../types.js";
 import { CharacterCreator } from "../../../character-creation/index.js";
 import { SavedCharactersService } from "../../services/saved-characters.js";
-import { SessionAuthorizationManager } from "../../sessions/authorization-manager.js";
 import { UserSession } from "../../sessions/user-session.js";
-import { LobbyState } from "../lobby-state.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
+import { SpeedDungeonProfileService } from "../../services/profiles.js";
 
 export class CharacterLifecycleController {
   constructor(
-    private readonly lobbyState: LobbyState,
-    private readonly sessionAuthManager: SessionAuthorizationManager,
+    private readonly profileService: SpeedDungeonProfileService,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly savedCharactersService: SavedCharactersService,
     private readonly characterCreator: CharacterCreator
@@ -101,11 +99,9 @@ export class CharacterLifecycleController {
 
     game.requireMode(GameMode.Progression);
 
-    const loggedInUser = await this.sessionAuthManager.requireAuthorizedSession(session);
-
-    const characters = await this.savedCharactersService.fetchSavedCharacters(
-      loggedInUser.profile.id
-    );
+    session.requireAuthorized();
+    const profile = await session.requireProfile(this.profileService);
+    const characters = await this.savedCharactersService.fetchSavedCharacters(profile.id);
 
     const userHasNoSavedCharacters = Object.values(characters).length === 0;
     if (userHasNoSavedCharacters) {

@@ -5,10 +5,11 @@ import {
   GameName,
   PartyName,
   SpeedDungeonGame,
+  SpeedDungeonProfileService,
   Username,
 } from "../../index.js";
 import { ConnectionSession } from "./session-registry.js";
-import { UserId } from "./user-ids.js";
+import { AuthUserId, UserId, UserIdType } from "./user-ids.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
 
 export class UserSession extends ConnectionSession {
@@ -76,5 +77,16 @@ export class UserSession extends ConnectionSession {
         throw new Error(ERROR_MESSAGES.LOBBY.USER_IN_GAME);
       }
     }
+  }
+
+  requireAuthorized(): asserts this is { userId: AuthUserId } {
+    if (this.userId.type !== UserIdType.Auth) {
+      throw new Error(ERROR_MESSAGES.AUTH.REQUIRED);
+    }
+  }
+
+  requireProfile(profileService: SpeedDungeonProfileService) {
+    this.requireAuthorized();
+    return profileService.fetchExpectedProfile(this.userId.id);
   }
 }

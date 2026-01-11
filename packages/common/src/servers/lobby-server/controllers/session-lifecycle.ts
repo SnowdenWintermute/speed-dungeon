@@ -1,15 +1,12 @@
 import { LOBBY_CHANNEL } from "../../../packets/channels.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
-import { SessionAuthorizationManager } from "../../sessions/authorization-manager.js";
 import { UserSession } from "../../sessions/user-session.js";
 import {
   ConnectionIdentityResolutionContext,
   IdentityProviderService,
 } from "../../services/identity-provider.js";
 import { ConnectionId, Username } from "../../../aliases.js";
-import { ClientIntent } from "../../../packets/client-intents.js";
-import { ConnectionEndpoint } from "../../../transport/connection-endpoint.js";
 import { LobbyState } from "../lobby-state.js";
 import { SavedCharactersController } from "./saved-characters.js";
 import { GameLifecycleController } from "./game-lifecycle.js";
@@ -19,15 +16,11 @@ import { IdGenerator } from "../../../utility-classes/index.js";
 import { UserId, UserIdType } from "../../sessions/user-ids.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
-import { OutgoingMessageGateway } from "../../update-delivery/message-gateway.js";
-import { TransportDisconnectReason } from "../../../transport/disconnect-reasons.js";
 
 export class LobbySessionLifecycleController {
   constructor(
     private readonly lobbyState: LobbyState,
-    private readonly updateGateway: OutgoingMessageGateway<GameStateUpdate, ClientIntent>,
     private readonly userSessionRegistry: UserSessionRegistry,
-    private readonly sessionAuthManager: SessionAuthorizationManager,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly savedCharactersController: SavedCharactersController,
     private readonly gameLifecycleController: GameLifecycleController,
@@ -73,21 +66,13 @@ export class LobbySessionLifecycleController {
     return { username: this.generateRandomUsername(), userId };
   }
 
-  async connectionHandler(
-    session: UserSession,
-    endpoint: ConnectionEndpoint<GameStateUpdate, ClientIntent>
-  ) {
-    console.info(
-      `-- ${session.username} (user id: ${session.userId}, connection id: ${session.connectionId}) joined the lobby`
-    );
-
-    const loggedInUser = await this.sessionAuthManager.getAuthorizedSessionOption(session);
-    if (loggedInUser !== null) {
+  async connectionHandler(session: UserSession) {
+    const isAuthorizedUser = session.userId.type === UserIdType.Auth;
+    if (isAuthorizedUser) {
       this.savedCharactersController.fetchSavedCharactersHandler(session);
     }
 
     this.userSessionRegistry.register(session);
-    this.updateGateway.registerEndpoint(session.connectionId, endpoint);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 
@@ -97,7 +82,6 @@ export class LobbySessionLifecycleController {
       data: { username: session.username },
     });
 
-    const isAuthorizedUser = loggedInUser !== null;
     const userChannelDisplayData = this.lobbyState.addUser(session.username, isAuthorizedUser);
     session.subscribeToChannel(LOBBY_CHANNEL);
 
@@ -120,11 +104,7 @@ export class LobbySessionLifecycleController {
     return outbox;
   }
 
-  async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
-    console.info(
-      `-- ${session.username} (${session.connectionId})  disconnected. Reason - ${reason.getStringName()}`
-    );
-
+  async disconnectionHandler(session: UserSession) {
     const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
     if (session.currentGameName !== null) {
       const leaveGameHandlerOutbox = this.gameLifecycleController.leaveGameHandler(session);
@@ -134,7 +114,6 @@ export class LobbySessionLifecycleController {
     this.lobbyState.removeUser(session.username);
 
     this.userSessionRegistry.unregister(session.connectionId);
-    this.updateGateway.unregisterEndpoint(session.connectionId);
 
     return outbox;
   }
