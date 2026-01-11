@@ -1,4 +1,11 @@
-import { ConnectionId, ERROR_MESSAGES, GameName, invariant, Username } from "../../index.js";
+import {
+  ConnectionId,
+  ERROR_MESSAGES,
+  GameName,
+  invariant,
+  UserId,
+  Username,
+} from "../../index.js";
 import { SessionRegistry } from "./session-registry.js";
 import { UserSession } from "./user-session.js";
 
@@ -14,9 +21,34 @@ export class UserSessionRegistry extends SessionRegistry<UserSession> {
     this.removeConnectionIdFromUsername(session);
   }
 
+  getConnectionIdsByUsername(username: Username) {
+    return this.connectionIdsByUsername.get(username) || new Set<ConnectionId>();
+  }
+
+  userIsAlreadyConnected(userId: UserId): boolean {
+    throw new Error("not implemented");
+    // need to store users by user id so guest users can be checked for existing
+    // connections since we provide user id in the GameServerSessionClaimTokens
+    // and that links guests to their disconnection sessions and we can't let them
+    // claim their disconnection session twice
+  }
+
+  requireSingleConnection(username: Username) {
+    const connectionIds = this.getConnectionIdsByUsername(username);
+    if (connectionIds.size !== 1) {
+      throw new Error("Expected a single connection for this username");
+    }
+    const connectionIdOption = Array.from(connectionIds.keys())[0];
+    if (connectionIdOption === undefined) {
+      throw new Error(ERROR_MESSAGES.CHECKED_EXPECTATION_FAILED);
+    }
+
+    return connectionIdOption;
+  }
+
   private getExpectedUserConnectionIds(username: Username) {
-    const idsOption = this.connectionIdsByUsername.get(username);
-    if (idsOption === undefined) {
+    const idsOption = this.getConnectionIdsByUsername(username);
+    if (idsOption.size === 0) {
       throw new Error(ERROR_MESSAGES.SERVER_GENERIC);
     } else {
       return Array.from(idsOption);

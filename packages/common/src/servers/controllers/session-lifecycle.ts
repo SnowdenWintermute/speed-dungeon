@@ -9,7 +9,7 @@ export interface SessionLifecycleController<Sendable> {
     context: ConnectionIdentityResolutionContext
   ): Promise<UserSession>;
 
-  activateSession(session: UserSession): Promise<MessageDispatchOutbox<Sendable>>;
+  activateSession(session: UserSession, ...args: any[]): Promise<MessageDispatchOutbox<Sendable>>;
 
-  cleanupSession(session: UserSession): void;
+  cleanupSession(session: UserSession): Promise<MessageDispatchOutbox<Sendable>>;
 }

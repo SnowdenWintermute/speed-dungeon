@@ -41,6 +41,7 @@ export const ERROR_MESSAGES = {
     PARTY_NAME_EXISTS: "A party by that name already exists in the current game",
   },
   GAME: {
+    NOT_FOUND: "No game was found by that id",
     NOT_STARTED: "The specified game was never started",
     ALREADY_STARTED: "That game has already started",
     PARTY_DOES_NOT_EXIST: "No party was found with the provided name",

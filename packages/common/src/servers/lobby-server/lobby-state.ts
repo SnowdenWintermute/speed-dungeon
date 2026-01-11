@@ -1,7 +1,5 @@
-import { ERROR_MESSAGES } from "../../errors/index.js";
-import { SpeedDungeonGame } from "../../game/index.js";
-import { GameListEntry } from "../../packets/game-state-updates.js";
-import { GameName, Username } from "../../aliases.js";
+import { Username } from "../../aliases.js";
+import { GameRegistry } from "../game-registry.js";
 
 export enum UserAuthStatus {
   LoggedIn,
@@ -20,7 +18,7 @@ export class LobbyState {
   // games either being set up or already handed off to GameSimulators
   // so players can see list of joinable games and games in progress
   // and so the game setup logic can operate on the game state objects
-  private games: Record<GameName, SpeedDungeonGame> = {};
+  public readonly gameRegistry = new GameRegistry();
   // for updating clients with the list of players not currently in games
   private usersInLobbyChannel = new Map<Username, UserChannelDisplayData>();
 
@@ -58,44 +56,5 @@ export class LobbyState {
 
   getUsersList() {
     return this.usersInLobbyChannel;
-  }
-
-  addGame(game: SpeedDungeonGame) {
-    const gameExists = this.games[game.name] !== undefined;
-    if (gameExists) {
-      throw new Error("Tried to add a game to a lobby but a game by that name already existed");
-    }
-    this.games[game.name] = game;
-  }
-
-  removeGame(gameName: GameName) {
-    delete this.games[gameName];
-  }
-
-  getGameOption(gameName: GameName) {
-    return this.games[gameName];
-  }
-
-  getExpectedGame(gameName: GameName) {
-    const gameOption = this.getGameOption(gameName);
-
-    if (gameOption === undefined) {
-      throw new Error(ERROR_MESSAGES.GAME_DOESNT_EXIST);
-    }
-
-    return gameOption;
-  }
-
-  getGamesList() {
-    return Object.entries(this.games).map(
-      ([gameName, game]) =>
-        new GameListEntry(
-          gameName as GameName,
-          game.getPlayerCount(),
-          game.mode,
-          game.timeStarted,
-          game.isRanked
-        )
-    );
   }
 }

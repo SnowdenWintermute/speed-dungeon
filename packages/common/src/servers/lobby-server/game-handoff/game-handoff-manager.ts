@@ -1,4 +1,4 @@
-import { ConnectionId, GameId } from "../../../aliases.js";
+import { ConnectionId, GameName } from "../../../aliases.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { GameSessionStoreService } from "../../services/game-session-store/index.js";
@@ -31,11 +31,15 @@ export class GameHandoffManager {
     return result;
   }
 
-  private prepareClaimTokens(sessions: UserSession[], gameId: GameId) {
+  private prepareClaimTokens(sessions: UserSession[], gameName: GameName) {
     const claimTokensByConnectionId = new Map<ConnectionId, GameServerSessionClaimToken>();
 
     for (const session of sessions) {
-      const claimToken = new GameServerSessionClaimToken(gameId, session.username);
+      const claimToken = new GameServerSessionClaimToken(
+        gameName,
+        session.username,
+        session.userId
+      );
       claimTokensByConnectionId.set(session.connectionId, claimToken);
     }
 
@@ -49,10 +53,10 @@ export class GameHandoffManager {
     // - getLeastBusyGameServerOrProvisionOne()
     const leastBusyServerUrl = "";
 
-    await this.gameSessionStoreService.writePendingGameSetup(game.id, new PendingGameSetup(game));
+    await this.gameSessionStoreService.writePendingGameSetup(game.name, new PendingGameSetup(game));
 
     const sessionsInGame = this.getPlayerSessionsInGame(game);
-    const claimTokens = this.prepareClaimTokens(sessionsInGame, game.id);
+    const claimTokens = this.prepareClaimTokens(sessionsInGame, game.name);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateFactory);
     for (const [connectionId, token] of claimTokens) {
@@ -70,6 +74,8 @@ export class GameHandoffManager {
       });
     }
 
-    this.lobbyState.removeGame(game.name);
+    // @TODO - write the game as a pending game setup in the lobby's registry
+    // so we can still check for name collisions in game creation
+    this.lobbyState.gameRegistry.unregisterGame(game.name);
   }
 }

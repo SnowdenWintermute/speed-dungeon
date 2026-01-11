@@ -20,8 +20,9 @@ import { PartySetupController } from "./party-setup.js";
 import { RANDOM_GAME_NAMES_FIRST, RANDOM_GAME_NAMES_LAST } from "../default-names/game.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
+import { GameLifecycleController } from "../../controllers/game-lifecycle.js";
 
-export class GameLifecycleController {
+export class LobbyGameLifecycleController implements GameLifecycleController {
   constructor(
     private readonly lobbyState: LobbyState,
     private readonly userSessionRegistry: UserSessionRegistry,
@@ -56,7 +57,8 @@ export class GameLifecycleController {
   }
 
   requestGameListHandler(session: UserSession) {
-    const gameList = this.lobbyState.getGamesList();
+    const gameList = this.lobbyState.gameRegistry.getGamesList();
+    console.log("got game list: ", gameList);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToConnection(session.connectionId, {
@@ -90,14 +92,15 @@ export class GameLifecycleController {
       const maxAttempts = 10;
       for (let attemptIndex = 0; attemptIndex < maxAttempts; attemptIndex += 1) {
         gameName = this.generateRandomGameName();
-        const noGameExistsByThisName = this.lobbyState.getGameOption(gameName) === undefined;
+        const noGameExistsByThisName =
+          this.lobbyState.gameRegistry.getGameOption(gameName) === undefined;
         if (noGameExistsByThisName) {
           break;
         }
       }
     }
 
-    const gameByThisNameExists = this.lobbyState.getGameOption(gameName) !== undefined;
+    const gameByThisNameExists = this.lobbyState.gameRegistry.getGameOption(gameName) !== undefined;
     if (gameByThisNameExists) {
       throw new Error(ERROR_MESSAGES.LOBBY.GAME_EXISTS);
     }
@@ -116,7 +119,7 @@ export class GameLifecycleController {
       );
     }
 
-    this.lobbyState.addGame(game);
+    this.lobbyState.gameRegistry.registerGame(game);
     const joinGameUpdateHandlerOutbox = await this.joinGameHandler(gameName, session);
     return joinGameUpdateHandlerOutbox;
   }
@@ -146,7 +149,7 @@ export class GameLifecycleController {
   }
 
   async joinGameHandler(gameName: GameName, session: UserSession) {
-    const game = this.lobbyState.getExpectedGame(gameName);
+    const game = this.lobbyState.gameRegistry.requireGame(gameName);
 
     const userCanJoinNewGame = session.canJoinNewGame(game.isRanked);
     if (!userCanJoinNewGame.isValid) {
@@ -164,6 +167,7 @@ export class GameLifecycleController {
     }
 
     session.joinGame(game);
+    game.registerPlayerFromLobbyUser(session.username);
     session.unsubscribeFromChannel(LOBBY_CHANNEL);
     session.subscribeToChannel(game.getChannelName());
 
@@ -206,7 +210,7 @@ export class GameLifecycleController {
     return outbox;
   }
 
-  leaveGameHandler(session: UserSession) {
+  async leaveGameHandler(session: UserSession) {
     const game = session.getExpectedCurrentGame();
     const partyOption = session.getCurrentPartyOption(game);
 
@@ -235,7 +239,7 @@ export class GameLifecycleController {
 
     const noPlayersRemain = game.players.size === 0;
     if (noPlayersRemain) {
-      this.lobbyState.removeGame(game.name);
+      this.lobbyState.gameRegistry.unregisterGame(game.name);
 
       return outbox; // no one is left to notify about the player leaving so return early
     }

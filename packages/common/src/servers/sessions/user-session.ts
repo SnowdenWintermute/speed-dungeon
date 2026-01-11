@@ -8,6 +8,7 @@ import {
   SpeedDungeonProfileService,
   Username,
 } from "../../index.js";
+import { GameRegistry } from "../game-registry.js";
 import { ConnectionSession } from "./session-registry.js";
 import { AuthUserId, UserId, UserIdType } from "./user-ids.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
@@ -21,9 +22,16 @@ export class UserSession extends ConnectionSession {
     /** either a socket.id or a locally generated UUID on client */
     public readonly connectionId: ConnectionId,
     public readonly userId: UserId,
-    public getExpectedCurrentGame: () => SpeedDungeonGame
+    private readonly gameRegistry: GameRegistry
   ) {
     super(connectionId);
+  }
+
+  getExpectedCurrentGame() {
+    if (this.currentGameName === null) {
+      throw new Error(ERROR_MESSAGES.USER.NO_CURRENT_GAME);
+    }
+    return this.gameRegistry.requireGame(this.currentGameName);
   }
 
   isInGame() {
@@ -64,7 +72,6 @@ export class UserSession extends ConnectionSession {
   }
 
   joinGame(game: SpeedDungeonGame) {
-    game.registerPlayerFromLobbyUser(this.username);
     this.currentGameName = game.name;
   }
 

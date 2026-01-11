@@ -48,7 +48,7 @@ describe("lobby server", () => {
     );
 
     // game exists with creating player in it
-    const game = lobbyServer.lobbyState.getExpectedGame(gameName);
+    const game = lobbyServer.lobbyState.gameRegistry.requireGame(gameName);
     expect(game.name).toEqual(gameName);
     expect(game.getPlayer(gameHostSession.username)).toBeDefined();
 

@@ -1,7 +1,7 @@
 import { CharacterLifecycleController } from "./controllers/character-lifecycle.js";
 import { SavedCharactersController } from "./controllers/saved-characters.js";
 import { createLobbyClientIntentHandlers } from "./create-lobby-client-intent-handlers.js";
-import { GameLifecycleController } from "./controllers/game-lifecycle.js";
+import { LobbyGameLifecycleController } from "./controllers/game-lifecycle.js";
 import { LobbyState } from "./lobby-state.js";
 import { PartySetupController } from "./controllers/party-setup.js";
 import { LobbySessionLifecycleController } from "./controllers/session-lifecycle.js";
@@ -61,7 +61,7 @@ export class LobbyServer {
   private userIntentHandlers = createLobbyClientIntentHandlers(this);
 
   // user controllers
-  public readonly gameLifecycleController: GameLifecycleController;
+  public readonly gameLifecycleController: LobbyGameLifecycleController;
   public readonly partySetupController: PartySetupController;
   public readonly userSessionLifecycleController: LobbySessionLifecycleController;
   public readonly savedCharactersController: SavedCharactersController;
@@ -143,11 +143,11 @@ export class LobbyServer {
     this.dispatchUserOutboxMessages(outbox);
   }
 
-  private disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
+  private async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
     console.info(
       `-- ${session.username} (${session.connectionId})  disconnected. Reason - ${reason.getStringName()}`
     );
-    this.userSessionLifecycleController.cleanupSession(session);
+    await this.userSessionLifecycleController.cleanupSession(session);
     this.outgoingMessagesToUsersGateway.unregisterEndpoint(session.connectionId);
   }
 
@@ -185,7 +185,7 @@ export class LobbyServer {
       this.externalServices.idGenerator
     );
 
-    const gameLifecycleController = new GameLifecycleController(
+    const gameLifecycleController = new LobbyGameLifecycleController(
       this.lobbyState,
       this.userSessionRegistry,
       this.gameStateUpdateDispatchFactory,

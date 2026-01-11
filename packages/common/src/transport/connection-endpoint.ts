@@ -7,7 +7,7 @@ export interface ConnectionEndpoint<Sendable, Receivable> {
   receive(message: Receivable): void;
   subscribeAll(
     handler: (message: Receivable) => void,
-    disconnectHandler: (payload: TransportDisconnectReason) => void
+    disconnectHandler: (payload: TransportDisconnectReason) => Promise<void>
   ): void;
   close(): void;
   // otherwise we were able to pass untyped endpoints as arguments that expected typed endpoints
@@ -21,7 +21,7 @@ export abstract class UntypedConnectionEndpoint {
   protected abstract receive(payload: unknown): void;
   protected abstract subscribeAll(
     messageHandler: (payload: unknown) => void,
-    disconnectHandler: (payload: unknown) => void
+    disconnectHandler: (payload: unknown) => Promise<void>
   ): void;
   protected abstract close(): void;
   abstract readonly [UntypedEndpointBrand]: true;
@@ -40,7 +40,7 @@ export abstract class UntypedConnectionEndpoint {
       subscribeAll(handler: (message: Receivable) => void) {
         untyped.subscribeAll(
           (payload) => handler(payload as Receivable),
-          () => untyped.close()
+          async () => untyped.close()
         );
       },
       close() {

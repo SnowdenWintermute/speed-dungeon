@@ -38,11 +38,16 @@
 //       in the central store
 //   - if the game was in progress
 //     - this was a reconnection for a disconnected user
+//     - delete the disconnection session from the central store
 //     - unpause acceptance of player inputs
 
 //
 // handle disconnection
-// - delete the user's session and create a DisconnectedSession from its data
+// - clean up the user's session, but hold a reference for potential reconnection
+// - if the user was a member of a dead party, just let them DC without any reconnection method
+// - if there are no living parties in the game, clean up the game
+// otherwise, allow for reconnection
+// -  create a DisconnectedSession from the user's session
 // - write the DisconnectedSession to a shared store (valkey or in-memory) as a Record<UserId, DisconnectedSession>
 // - pause acceptance of user inputs until reconnection is established or a timeout has passed
 //   - on timeout or reconnection, delete the entry in the Record<UserId, DisconnectedSession>
@@ -70,22 +75,3 @@
 // on lobby server crash
 // - have the containing node auto-restart the process
 //
-// interface GameServerSessionClaimToken {
-//   readonly gameId: string; // UUID
-//   readonly sessionClaimId: string; // UUID
-//   // newly generate guest username or current auth username. Including this ensures that if a user
-//   // changed their username or were assigned a different guest username in between disconnecting and
-//   // reconnecting that they will show as the correct name in the game
-//   readonly username: string;
-//   readonly expiresAt: number;
-//   readonly signature: string; // HMAC or asymmetric signature
-// }
-
-// interface DisconnectedSession {
-//   readonly gameId: string; // UUID
-//   // if both guestId and userId are null, this is invalid
-//   readonly userId: null | IdentityProviderId; // UUID
-//   readonly guestId: null | string; // UUID
-//   readonly expiresAt: number;
-//   readonly signature: string; // asymmetric signature, lobby holds private key, game servers hold public key
-// }
