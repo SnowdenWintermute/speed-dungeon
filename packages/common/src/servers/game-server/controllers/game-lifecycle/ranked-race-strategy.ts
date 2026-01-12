@@ -3,9 +3,9 @@ import { CombatantId } from "../../../../aliases.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../../game/index.js";
 import { SpeedDungeonPlayer } from "../../../../game/player.js";
-import { PartyFate } from "../../../../types.js";
 import { RaceGameRecordsService } from "../../../services/race-game-records.js";
 import { GameModeStrategy } from "./game-mode-strategy.js";
+import { PartyFate } from "./record-types.js";
 
 export default class RankedRaceStrategy implements GameModeStrategy {
   constructor(private raceGameRecordsService: RaceGameRecordsService) {}
@@ -48,23 +48,21 @@ export default class RankedRaceStrategy implements GameModeStrategy {
     if (!game.isRanked) {
       return [];
     }
-    if (!game.timeStarted) {
-      throw new Error(ERROR_MESSAGES.GAME.NOT_STARTED);
-    }
-
-    await updateRaceGameCharacterRecordLevels(party);
 
     const partyRecord = await this.raceGameRecordsService.getExpectedPartyRecord(party.id);
-    if (partyRecord.partyFate) {
+
+    if (partyRecord.partyFate !== null) {
       return [];
     }
+
+    await this.updateRaceGameCharacterRecordLevels(party);
 
     partyRecord.partyFate = PartyFate.Wipe;
     partyRecord.partyFateRecordedAt = new Date(Date.now()).toISOString();
 
     const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
     partyRecord.deepestFloor = floorNumber;
-    await raceGamePartyRecordsRepo.update(partyRecord);
+    await this.raceGameRecordsService.applyUpdatedPartyRecord(partyRecord);
 
     let allPartiesAreDead = true;
     for (const party of Object.values(game.adventuringParties)) {
@@ -77,6 +75,8 @@ export default class RankedRaceStrategy implements GameModeStrategy {
     if (allPartiesAreDead) {
       await this.raceGameRecordsService.markGameCompleted(game.id);
     }
+
+    return [];
 
     // @TODO - if there is only one party left, tell them they are the last ones left alive
     // but they must escape to claim victory
@@ -93,20 +93,13 @@ export default class RankedRaceStrategy implements GameModeStrategy {
 
   async onPartyEscape(game: SpeedDungeonGame, party: AdventuringParty) {
     if (!game.isRanked) {
-      return [];
-    }
-    if (!game.timeStarted) {
-      throw new Error(ERROR_MESSAGES.GAME.NOT_STARTED);
+      return;
     }
 
-    await updateRaceGameCharacterRecordLevels(party);
-
-    const partyRecord = await raceGamePartyRecordsRepo.findById(party.id);
-    if (!partyRecord) {
-      throw new Error(ERROR_MESSAGES.GAME_RECORDS.PARTY_RECORD_NOT_FOUND);
-    }
-    if (partyRecord.partyFate) {
-      return [];
+    await this.updateRaceGameCharacterRecordLevels(party);
+    const partyRecord = await this.raceGameRecordsService.getExpectedPartyRecord(party.id);
+    if (partyRecord.partyFate !== null) {
+      return;
     }
     partyRecord.partyFate = PartyFate.Escape;
     partyRecord.partyFateRecordedAt = new Date(Date.now()).toISOString();
@@ -114,7 +107,7 @@ export default class RankedRaceStrategy implements GameModeStrategy {
     const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
     partyRecord.deepestFloor = floorNumber;
 
-    const gameRecord = await raceGameRecordsRepo.findAggregatedGameRecordById(game.id);
+    const gameRecord = await this.raceGameRecordsService.findAggregatedGameRecordById(game.id);
     if (!gameRecord) {
       throw new Error(ERROR_MESSAGES.GAME_RECORDS.NOT_FOUND);
     }
@@ -132,7 +125,8 @@ export default class RankedRaceStrategy implements GameModeStrategy {
       await this.raceGameRecordsService.markGameCompleted(game.id);
     }
 
-    await raceGamePartyRecordsRepo.update(partyRecord);
+    await this.raceGameRecordsService.applyUpdatedPartyRecord(partyRecord);
+    return;
   }
 
   private async updateRaceGameCharacterRecordLevels(
@@ -147,7 +141,7 @@ export default class RankedRaceStrategy implements GameModeStrategy {
           const userControlsThisCharacter = controllerPlayerName === onlyForUsername;
           if (!userControlsThisCharacter) continue;
         }
-        await raceGameCharacterRecordsRepo.update(character);
+        await this.raceGameRecordsService.updateCharacterRecord(character);
       }
     } catch (error) {
       return error as unknown as Error;

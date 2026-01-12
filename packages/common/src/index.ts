@@ -208,3 +208,4 @@ export * from "./combat/magical-elements.js";
 export * from "./combat/kinetic-damage-types.js";
 
 export * from "./servers/services/race-game-records.js";
+export * from "./servers/game-server/controllers/game-lifecycle/record-types.js";

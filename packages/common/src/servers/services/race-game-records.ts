@@ -1,13 +1,17 @@
 import { GameId } from "../../aliases.js";
+import { Combatant } from "../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
-import { PartyFate } from "../../types.js";
+import {
+  PartyFate,
+  RaceGameAggregatedRecord,
+} from "../game-server/controllers/game-lifecycle/record-types.js";
 
 export interface RaceGamePartyRecord {
   id: number;
   gameRecordId: number;
   partyName: string;
-  partyFate: PartyFate;
+  partyFate: null | PartyFate;
   partyFateRecordedAt: null | string;
   isWinner: boolean;
   deepestFloor: number;
@@ -17,6 +21,11 @@ export interface RaceGameRecordsPersistenceStrategy {
   insert: (game: SpeedDungeonGame) => Promise<void>;
   markGameCompleted: (gameId: GameId) => Promise<void>;
   findPartyRecord: (partyId: string) => Promise<RaceGamePartyRecord | undefined>;
+  updatePartyRecord: (
+    updatedRecord: RaceGamePartyRecord
+  ) => Promise<RaceGamePartyRecord | undefined>;
+  findAggregatedGameRecordById(gameId: GameId): Promise<RaceGameAggregatedRecord>;
+  updateCharacterRecord(combatant: Combatant): Promise<void>;
 }
 
 export class RaceGameRecordsService {
@@ -40,5 +49,17 @@ export class RaceGameRecordsService {
     }
 
     return partyRecordOption;
+  }
+
+  async applyUpdatedPartyRecord(updated: RaceGamePartyRecord) {
+    return await this.raceGameRecordsPersistenceStrategy.updatePartyRecord(updated);
+  }
+
+  async findAggregatedGameRecordById(gameId: GameId) {
+    return this.raceGameRecordsPersistenceStrategy.findAggregatedGameRecordById(gameId);
+  }
+
+  async updateCharacterRecord(combatant: Combatant) {
+    return this.raceGameRecordsPersistenceStrategy.updateCharacterRecord(combatant);
   }
 }

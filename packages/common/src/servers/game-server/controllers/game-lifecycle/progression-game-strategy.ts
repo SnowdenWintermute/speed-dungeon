@@ -1,18 +1,36 @@
+import { ActionCommandType } from "../../../../action-processing/index.js";
+import { AdventuringParty } from "../../../../adventuring-party/index.js";
+import { EntityId } from "../../../../aliases.js";
+import { calculateTotalExperience } from "../../../../combatants/experience-points/calculate-total-experience.js";
+import { Combatant } from "../../../../combatants/index.js";
+import { SpeedDungeonGame } from "../../../../game/index.js";
+import { SpeedDungeonPlayer } from "../../../../game/player.js";
+import { getPartyChannelName } from "../../../../packets/channels.js";
+import {
+  GameMessage,
+  GameMessageType,
+  createLevelLadderExpRankMessage,
+  createLevelLadderLevelupMessage,
+} from "../../../../packets/game-message.js";
+import { RankedLadderService } from "../../../services/ranked-ladder.js";
+import { SavedCharactersService } from "../../../services/saved-characters.js";
+import { GameModeStrategy } from "./game-mode-strategy.js";
+
 export default class ProgressionGameStrategy implements GameModeStrategy {
-  async onGameStart(_game: SpeedDungeonGame): Promise<void | Error> {
+  constructor(
+    private readonly savedCharactersService: SavedCharactersService,
+    private readonly rankedLadderService: RankedLadderService
+  ) {}
+  async onGameStart(_game: SpeedDungeonGame) {
     // we don't need to do anything unless their character changes
     return Promise.resolve();
   }
 
-  async onBattleResult(game: SpeedDungeonGame, _party: AdventuringParty): Promise<Error | void> {
-    await writeAllPlayerCharacterInGameToDb(getGameServer(), game);
+  async onBattleResult(game: SpeedDungeonGame, _party: AdventuringParty) {
+    await this.savedCharactersService.writeAllPlayerCharacterInGameToDb(getGameServer(), game);
   }
 
-  async onGameLeave(
-    game: SpeedDungeonGame,
-    party: AdventuringParty,
-    player: SpeedDungeonPlayer
-  ): Promise<void | Error | ActionCommandPayload[]> {
+  async onGameLeave(game: SpeedDungeonGame, party: AdventuringParty, player: SpeedDungeonPlayer) {
     const characters: Combatant[] = [];
 
     for (const id of player.characterIds) {
@@ -28,6 +46,7 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
     const maybeError = await writePlayerCharactersInGameToDb(game, player);
     if (maybeError instanceof Error) return maybeError;
     // If they're leaving a game while dead, this character should be removed from the ladder
+
     const deathsAndRanks = await removeDeadCharactersFromLadder(characters);
     const deathMessagePayloads = getTopRankedDeathMessagesActionCommandPayload(
       getPartyChannelName(game.name, party.name),
@@ -36,18 +55,15 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
     return [deathMessagePayloads];
   }
 
-  onLastPlayerLeftGame(_game: SpeedDungeonGame): Promise<void | Error> {
+  onLastPlayerLeftGame(_game: SpeedDungeonGame) {
     return Promise.resolve();
   }
 
-  onPartyEscape(_game: SpeedDungeonGame, _party: AdventuringParty): Promise<void | Error> {
+  onPartyEscape(_game: SpeedDungeonGame, _party: AdventuringParty) {
     return Promise.resolve();
   }
 
-  async onPartyWipe(
-    game: SpeedDungeonGame,
-    party: AdventuringParty
-  ): Promise<void | Error | ActionCommandPayload[]> {
+  async onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty) {
     const partyCharacters = party.combatantManager.getPartyMemberCharacters();
     const ladderDeathsUpdate = await removeDeadCharactersFromLadder(partyCharacters);
     const deathMessagePayloads = getTopRankedDeathMessagesActionCommandPayload(
@@ -60,8 +76,8 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
   async onPartyVictory(
     game: SpeedDungeonGame,
     party: AdventuringParty,
-    levelups: { [id: string]: number }
-  ): Promise<void | Error | ActionCommandPayload[]> {
+    levelups: Record<EntityId, number>
+  ) {
     const partyCharacters = party.combatantManager.getPartyMemberCharacters();
 
     const messages: GameMessage[] = [];
