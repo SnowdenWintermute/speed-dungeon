@@ -52,7 +52,7 @@ export * from "./combatants/owned-actions/combatant-action-state.js";
 
 export * from "./adventuring-party/dungeon-room.js";
 export * from "./adventuring-party/dungeon-exploration-manager.js";
-export * from "./adventuring-party/input-lock.js";
+export * from "./primatives/timed-lock.js";
 
 export * from "./packets/server-to-client.js";
 export * from "./packets/client-to-server.js";

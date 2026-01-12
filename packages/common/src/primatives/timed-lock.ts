@@ -2,15 +2,18 @@ import { makeAutoObservable } from "mobx";
 import { runIfInBrowser } from "../utils/index.js";
 import { plainToInstance } from "class-transformer";
 
-export class InputLock {
+export class TimedLock {
   timeLocked: null | number = null;
   lockDuration: null | number = null;
-  constructor() {
+  constructor(options?: { startAsLocked: boolean }) {
     runIfInBrowser(() => makeAutoObservable(this));
+    if (options?.startAsLocked) {
+      this.lockInput();
+    }
   }
 
-  static getDeserialized(plain: InputLock) {
-    const toReturn = plainToInstance(InputLock, plain);
+  static getDeserialized(plain: TimedLock) {
+    const toReturn = plainToInstance(TimedLock, plain);
     return toReturn;
   }
 

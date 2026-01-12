@@ -106,13 +106,18 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     const gameHasNotYetStarted = game.timeStarted === null;
     //   - if the game has not yet started
     if (gameHasNotYetStarted) {
-      // @TODO
-      //     - handle any game mode specific onStart business
-      game.timeStarted = Date.now();
       const gameModeContext = this.gameModeContexts[game.mode];
-      //     - start accepting player inputs
+      await gameModeContext.strategy.onGameStart(game);
+
+      game.timeStarted = Date.now();
+      game.inputLock.unlockInput(); // @TODO - check this lock when players submit inputs
+
+      // @TODO
+      //
       //     - start a heartbeat loop to periodically update the ActiveGame record's lastHeartbeatTimestamp
       //       in the central store
+      //
+      //       - let players know game has begun and they may unlock their client's inputs
       //
       // FROM OLD GAME SERVER CODE WHEN STARTING GAME:
       // await gameModeContext.onGameStart(game);

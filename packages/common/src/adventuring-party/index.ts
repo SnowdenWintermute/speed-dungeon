@@ -1,5 +1,4 @@
 import { DungeonRoom, DungeonRoomType } from "./dungeon-room.js";
-import { InputLock } from "./input-lock.js";
 import { ActionCommandQueue } from "../action-processing/action-command-queue.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
@@ -16,6 +15,7 @@ import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { plainToInstance } from "class-transformer";
 import { EntityId, PartyName, Username } from "../aliases.js";
 import { SpeedDungeonPlayer } from "../game/player.js";
+import { TimedLock } from "../primatives/timed-lock.js";
 
 export class AdventuringParty {
   // subsystems
@@ -37,7 +37,7 @@ export class AdventuringParty {
 
   // player input management
   itemsOnGroundNotYetReceivedByAllClients: Record<EntityId, EntityId[]> = {};
-  inputLock: InputLock = new InputLock();
+  inputLock = new TimedLock();
 
   // event management
   actionCommandQueue: ActionCommandQueue = new ActionCommandQueue();
@@ -59,7 +59,7 @@ export class AdventuringParty {
     const toReturn = plainToInstance(AdventuringParty, plain);
     toReturn.combatantManager = CombatantManager.getDeserialized(toReturn.combatantManager);
     toReturn.currentRoom = DungeonRoom.getDeserialized(toReturn.currentRoom);
-    toReturn.inputLock = InputLock.getDeserialized(toReturn.inputLock);
+    toReturn.inputLock = TimedLock.getDeserialized(toReturn.inputLock);
     toReturn.dungeonExplorationManager = DungeonExplorationManager.getDeserialized(
       toReturn.dungeonExplorationManager
     );
