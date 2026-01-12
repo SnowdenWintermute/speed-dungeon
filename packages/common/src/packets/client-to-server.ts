@@ -82,7 +82,7 @@ export interface ClientToServerEventTypes {
     name: EntityName;
     combatantClass: CombatantClass;
   }) => void;
-  [ClientToServerEvent.DeleteCharacter]: (characterId: string) => void;
+  [ClientToServerEvent.DeleteCharacter]: (characterId: CombatantId) => void;
   [ClientToServerEvent.SelectCombatAction]: (eventData: {
     characterId: string;
     actionAndRankOption: null | ActionAndRank;

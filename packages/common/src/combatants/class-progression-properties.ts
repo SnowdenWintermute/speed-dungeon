@@ -14,6 +14,7 @@ import { runIfInBrowser } from "../utils/index.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { COMBATANT_CLASS_NAME_STRINGS, CombatantClass } from "./combatant-class/classes.js";
+import { calculateTotalExperience } from "./experience-points/calculate-total-experience.js";
 
 export class ExperiencePoints {
   private current: number = 0;
@@ -110,6 +111,10 @@ export class ClassProgressionProperties extends CombatantSubsystem {
     }
 
     return levelupCount;
+  }
+
+  get totalExperiencePoints() {
+    return calculateTotalExperience(this.mainClass.level) + this.experiencePoints.getCurrent();
   }
 
   isEligableToReceiveExperiencePoints(party: AdventuringParty) {

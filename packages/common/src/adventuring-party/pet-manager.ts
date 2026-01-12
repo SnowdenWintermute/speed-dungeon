@@ -33,7 +33,7 @@ export class PetManager extends AdventuringPartySubsystem {
   getAllPetsByOwnerId(ownerId: EntityId) {
     const unsummoned = this.iteratePetSlots(ownerId)
       .map((petSlot) => petSlot.petOption)
-      .filter((petOption) => petOption !== undefined);
+      .filter((petOption): petOption is Combatant => petOption !== undefined);
     const summonedOption = this.getCombatantSummonedPetOption(ownerId);
 
     const allPets = [...unsummoned];

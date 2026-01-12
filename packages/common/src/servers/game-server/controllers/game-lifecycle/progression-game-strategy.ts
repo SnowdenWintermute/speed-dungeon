@@ -1,7 +1,6 @@
-import { ActionCommandType } from "../../../../action-processing/index.js";
+import { ActionCommandPayload, ActionCommandType } from "../../../../action-processing/index.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { EntityId } from "../../../../aliases.js";
-import { calculateTotalExperience } from "../../../../combatants/experience-points/calculate-total-experience.js";
 import { Combatant } from "../../../../combatants/index.js";
 import { SpeedDungeonGame } from "../../../../game/index.js";
 import { SpeedDungeonPlayer } from "../../../../game/player.js";
@@ -16,7 +15,7 @@ import { RankedLadderService } from "../../../services/ranked-ladder.js";
 import { SavedCharactersService } from "../../../services/saved-characters.js";
 import { GameModeStrategy } from "./game-mode-strategy.js";
 
-export default class ProgressionGameStrategy implements GameModeStrategy {
+export class ProgressionGameStrategy implements GameModeStrategy {
   constructor(
     private readonly savedCharactersService: SavedCharactersService,
     private readonly rankedLadderService: RankedLadderService
@@ -26,32 +25,28 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
     return Promise.resolve();
   }
 
-  async onBattleResult(game: SpeedDungeonGame, _party: AdventuringParty) {
-    await this.savedCharactersService.writeAllPlayerCharacterInGameToDb(getGameServer(), game);
+  async onBattleResult(game: SpeedDungeonGame, party: AdventuringParty) {
+    await this.savedCharactersService.updateAllInParty(game, party);
   }
 
   async onGameLeave(game: SpeedDungeonGame, party: AdventuringParty, player: SpeedDungeonPlayer) {
     const characters: Combatant[] = [];
 
     for (const id of player.characterIds) {
-      const characterResult = game.getCombatantById(id);
-      if (characterResult instanceof Error) return characterResult;
+      const characterResult = game.getExpectedCombatant(id);
       characters.push(characterResult);
-
-      delete game.lowestStartingFloorOptionsBySavedCharacter[id];
     }
 
-    if (!game.timeStarted) return;
+    await this.savedCharactersService.updateAllInParty(game, party);
 
-    const maybeError = await writePlayerCharactersInGameToDb(game, player);
-    if (maybeError instanceof Error) return maybeError;
     // If they're leaving a game while dead, this character should be removed from the ladder
+    const deathsAndRanks = await this.rankedLadderService.removeDeadCharacters(characters);
+    const deathMessagePayloads =
+      this.rankedLadderService.getTopRankedDeathMessagesActionCommandPayload(
+        getPartyChannelName(game.name, party.name),
+        deathsAndRanks
+      );
 
-    const deathsAndRanks = await removeDeadCharactersFromLadder(characters);
-    const deathMessagePayloads = getTopRankedDeathMessagesActionCommandPayload(
-      getPartyChannelName(game.name, party.name),
-      deathsAndRanks
-    );
     return [deathMessagePayloads];
   }
 
@@ -65,11 +60,12 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
 
   async onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty) {
     const partyCharacters = party.combatantManager.getPartyMemberCharacters();
-    const ladderDeathsUpdate = await removeDeadCharactersFromLadder(partyCharacters);
-    const deathMessagePayloads = getTopRankedDeathMessagesActionCommandPayload(
-      getPartyChannelName(game.name, party.name),
-      ladderDeathsUpdate
-    );
+    const ladderDeathsUpdate = await this.rankedLadderService.removeDeadCharacters(partyCharacters);
+    const deathMessagePayloads =
+      this.rankedLadderService.getTopRankedDeathMessagesActionCommandPayload(
+        getPartyChannelName(game.name, party.name),
+        ladderDeathsUpdate
+      );
     return [deathMessagePayloads];
   }
 
@@ -77,31 +73,26 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
     game: SpeedDungeonGame,
     party: AdventuringParty,
     levelups: Record<EntityId, number>
-  ) {
+  ): Promise<ActionCommandPayload[]> {
     const partyCharacters = party.combatantManager.getPartyMemberCharacters();
 
     const messages: GameMessage[] = [];
 
     for (const character of partyCharacters) {
-      const { name, id } = character.entityProperties;
+      const { classProgressionProperties } = character.combatantProperties;
+      const totalExp = classProgressionProperties.totalExperiencePoints;
 
-      const { level } = character.combatantProperties.classProgressionProperties.getMainClass();
+      const { id } = character.entityProperties;
+      const { previousRank, newRank } =
+        await this.rankedLadderService.updateOrCreateCharacterLevelEntry(id, totalExp);
+
+      if (newRank === previousRank || newRank >= 10) {
+        // not interesting enough to tell anyone about it
+        continue;
+      }
+
+      const { name } = character.entityProperties;
       const { controlledBy } = character.combatantProperties;
-      const currentRankOption = await valkeyManager.context.zRevRank(CHARACTER_LEVEL_LADDER, id);
-      const totalExp =
-        calculateTotalExperience(level) +
-        character.combatantProperties.classProgressionProperties.experiencePoints.getCurrent();
-      await valkeyManager.context.zAdd(CHARACTER_LEVEL_LADDER, [
-        {
-          value: id,
-          score: totalExp,
-        },
-      ]);
-      const newRank = await valkeyManager.context.zRevRank(CHARACTER_LEVEL_LADDER, id);
-
-      // - if they leveled up and were in the top 10 ranks, emit a message to everyone
-      if (newRank === null || newRank >= 10) continue;
-
       const controllingPlayer = controlledBy.controllerPlayerName;
 
       const levelup = levelups[id];
@@ -115,8 +106,7 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
         );
       }
 
-      // - if they ranked up and were in the top 10 ranks, emit a message to everyone
-      if (newRank === currentRankOption || newRank >= 10) continue;
+      // but if they ranked up and were in the top 10 ranks, emit a message to everyone
       messages.push(
         new GameMessage(
           GameMessageType.LadderProgress,

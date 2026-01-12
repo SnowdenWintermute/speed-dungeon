@@ -117,7 +117,7 @@ export class BattleProcessor {
 
   async handleBattleConclusion(partyWipesResult: PartyWipes) {
     const { gameServer, game, party } = this;
-    let actionCommandPayloads: ActionCommandPayload[] = [];
+    const actionCommandPayloads: ActionCommandPayload[] = [];
 
     const conclusion = await getBattleConclusionCommandAndPayload(game, party, partyWipesResult);
     actionCommandPayloads.push(conclusion.payload);

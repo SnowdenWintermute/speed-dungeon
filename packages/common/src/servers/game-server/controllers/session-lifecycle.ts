@@ -11,7 +11,7 @@ import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-f
 import { SessionLifecycleController } from "../../controllers/session-lifecycle.js";
 import { GameRegistry } from "../../game-registry.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
-import { GameServerGameLifecycleController } from "./game-lifecycle.js";
+import { GameServerGameLifecycleController } from "./game-lifecycle/index.js";
 
 export class GameServerSessionLifecycleController
   implements SessionLifecycleController<GameStateUpdate>

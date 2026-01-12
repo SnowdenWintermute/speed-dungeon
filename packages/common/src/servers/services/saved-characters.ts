@@ -9,6 +9,10 @@ import {
   ProfileId,
 } from "../../aliases.js";
 import { APP_VERSION_NUMBER } from "../../app-consts.js";
+import { SpeedDungeonGame } from "../../game/index.js";
+import { SpeedDungeonPlayer } from "../../game/player.js";
+import { getProgressionGamePartyName } from "../../utils/index.js";
+import { AdventuringParty } from "../../adventuring-party/index.js";
 
 export interface CharacterInSlot {
   combatant: Combatant;
@@ -163,6 +167,49 @@ export class SavedCharactersService {
     await this.savedCharacterPersistenceStrategy.insert(newCharacter, pets, userId);
     slot.characterId = newCharacter.entityProperties.id;
     await this.savedCharacterSlotsPersistenceStrategy.update(slot);
+  }
+
+  async updateCharacter(character: Combatant, pets: Combatant[]) {
+    await this.savedCharacterPersistenceStrategy.update(character, pets);
+  }
+
+  async updateCharactersOwnedByPlayerInGame(
+    game: SpeedDungeonGame,
+    player: SpeedDungeonPlayer
+  ): Promise<void> {
+    if (!player.partyName) {
+      throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
+    }
+
+    for (const id of player.characterIds) {
+      const character = game.getExpectedCombatant(id);
+      character.getTargetingProperties().clear({ clearTargetingPreferences: true });
+
+      const party = game.getExpectedParty(getProgressionGamePartyName(game.name));
+      const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
+
+      const existingCharacter = await this.savedCharacterPersistenceStrategy.fetchCharacter(
+        character.entityProperties.id
+      );
+      if (floorNumber > existingCharacter.combatantProperties.deepestFloorReached) {
+        character.combatantProperties.deepestFloorReached = floorNumber;
+      }
+
+      const pets = party.petManager.getAllPetsByOwnerId(existingCharacter.id);
+      this.updateCharacter(character, pets);
+    }
+  }
+
+  async updateAllInParty(game: SpeedDungeonGame, party: AdventuringParty) {
+    const promises: Promise<void>[] = [];
+
+    for (const [_, player] of Array.from(game.players)) {
+      if (player.partyName === party.name) {
+        promises.push(this.updateCharactersOwnedByPlayerInGame(game, player));
+      }
+    }
+
+    await Promise.all(promises);
   }
 
   async deleteCharacterInSlot(characterId: EntityId, slot: CharacterSlot) {

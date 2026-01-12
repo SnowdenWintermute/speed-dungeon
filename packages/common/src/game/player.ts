@@ -4,7 +4,7 @@ import {
 } from "../combat/combat-actions/targeting-schemes-and-categories.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
 import { plainToInstance } from "class-transformer";
-import { EntityId, PartyName, Username } from "../aliases.js";
+import { CombatantId, EntityId, PartyName, Username } from "../aliases.js";
 import {
   CombatActionTarget,
   CombatActionTargetType,
@@ -13,7 +13,7 @@ import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/
 
 export class SpeedDungeonPlayer {
   partyName: null | PartyName = null;
-  characterIds: string[] = [];
+  characterIds: CombatantId[] = [];
   targetPreferences: CombatActionTargetPreferences = new CombatActionTargetPreferences();
   constructor(public username: Username) {}
 

@@ -1,4 +1,4 @@
-import { EntityName } from "../../../aliases.js";
+import { CombatantId, EntityName } from "../../../aliases.js";
 import { MAX_CHARACTER_NAME_LENGTH } from "../../../app-consts.js";
 import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
 import { Combatant } from "../../../combatants/index.js";
@@ -60,12 +60,12 @@ export class CharacterLifecycleController {
     return outbox;
   }
 
-  deleteCharacterHandler(session: UserSession, data: { characterId: string }) {
+  deleteCharacterHandler(session: UserSession, data: { characterId: CombatantId }) {
     const { characterId } = data;
     const game = session.getExpectedCurrentGame();
     const player = game.getExpectedPlayer(session.username);
 
-    const playerDoesNotOwnCharacter = !player.characterIds.includes(characterId.toString());
+    const playerDoesNotOwnCharacter = !player.characterIds.includes(characterId);
     if (playerDoesNotOwnCharacter) {
       throw new Error(ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED);
     }

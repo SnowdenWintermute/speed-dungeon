@@ -11,7 +11,15 @@ import { Combatant } from "../combatants/index.js";
 import cloneDeep from "lodash.clonedeep";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { GAME_CHANNEL_PREFIX } from "../packets/channels.js";
-import { ChannelName, EntityId, GameId, GameName, PartyName, Username } from "../aliases.js";
+import {
+  ChannelName,
+  CombatantId,
+  EntityId,
+  GameId,
+  GameName,
+  PartyName,
+  Username,
+} from "../aliases.js";
 
 export class SpeedDungeonGame {
   players = new Map<Username, SpeedDungeonPlayer>();
@@ -143,7 +151,7 @@ export class SpeedDungeonGame {
       throw new Error(ERROR_MESSAGES.GAME.MAX_PARTY_SIZE);
     }
 
-    const characterId = character.entityProperties.id;
+    const characterId = character.getEntityId();
 
     combatantManager.addCombatant(character, this);
 
@@ -262,14 +270,29 @@ export class SpeedDungeonGame {
     this.adventuringParties[party.name] = party;
   }
 
-  getCombatantById(entityId: string): Error | Combatant {
+  // deprecated - use getExpectedCombatant
+  getCombatantById(entityId: string) {
     for (const party of Object.values(this.adventuringParties)) {
       const combatantOption = party.combatantManager.getCombatantOption(entityId);
       const combatantWasFound = combatantOption !== undefined;
-      if (combatantWasFound) return combatantOption;
+      if (combatantWasFound) {
+        return combatantOption;
+      }
     }
 
     return new Error(`${ERROR_MESSAGES.COMBATANT.NOT_FOUND}: Entity Id: ${entityId}`);
+  }
+
+  getExpectedCombatant(entityId: CombatantId) {
+    for (const party of Object.values(this.adventuringParties)) {
+      const combatantOption = party.combatantManager.getCombatantOption(entityId);
+      const combatantWasFound = combatantOption !== undefined;
+      if (combatantWasFound) {
+        return combatantOption;
+      }
+    }
+
+    throw new Error(`${ERROR_MESSAGES.COMBATANT.NOT_FOUND}: Entity Id: ${entityId}`);
   }
 
   getPartyOfCombatant(combatantId: string): Error | AdventuringParty {

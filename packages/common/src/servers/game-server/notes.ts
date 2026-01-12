@@ -38,6 +38,7 @@
 //       in the central store
 //   - if the game was in progress
 //     - this was a reconnection for a disconnected user
+//     - make sure they already didn't reconnect (check that they aren't currently connected)
 //     - delete the disconnection session from the central store
 //     - unpause acceptance of player inputs
 

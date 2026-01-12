@@ -17,7 +17,7 @@ export const CharacterCard = observer(
     const { controllerPlayerName } = character.combatantProperties.controlledBy;
 
     function deleteCharacter() {
-      websocketConnection.emit(ClientToServerEvent.DeleteCharacter, character.entityProperties.id);
+      websocketConnection.emit(ClientToServerEvent.DeleteCharacter, character.getEntityId());
     }
 
     const icon = getCombatantClassIcon(combatantClass, "fill-slate-400", "stroke-slate-400");

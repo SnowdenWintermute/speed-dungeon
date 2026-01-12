@@ -11,21 +11,39 @@ import { UserSessionRegistry } from "../../../sessions/user-session-registry.js"
 import { MessageDispatchFactory } from "../../../update-delivery/message-dispatch-factory.js";
 import { getPartyChannelName } from "../../../../packets/channels.js";
 import { GameMode } from "../../../../types.js";
-import GameModeContext from "./game-mode-context.js";
+import { GameModeContext } from "./game-mode-context.js";
+import { RaceGameRecordsService } from "../../../services/race-game-records.js";
+import { SavedCharactersService } from "../../../services/saved-characters.js";
+import { RankedLadderService } from "../../../services/ranked-ladder.js";
 
 export class GameServerGameLifecycleController implements GameLifecycleController {
   // strategy pattern for handling certain events
-  gameModeContexts: Record<GameMode, GameModeContext> = {
-    [GameMode.Race]: new GameModeContext(GameMode.Race),
-    [GameMode.Progression]: new GameModeContext(GameMode.Progression),
-  };
+  gameModeContexts: Record<GameMode, GameModeContext>;
 
   constructor(
     private readonly gameRegistry: GameRegistry,
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly gameSessionStoreService: GameSessionStoreService,
+    raceGameRecordsService: RaceGameRecordsService,
+    savedCharactersLadderService: SavedCharactersService,
+    rankedLadderService: RankedLadderService,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>
-  ) {}
+  ) {
+    this.gameModeContexts = {
+      [GameMode.Race]: new GameModeContext(
+        GameMode.Race,
+        raceGameRecordsService,
+        savedCharactersLadderService,
+        rankedLadderService
+      ),
+      [GameMode.Progression]: new GameModeContext(
+        GameMode.Progression,
+        raceGameRecordsService,
+        savedCharactersLadderService,
+        rankedLadderService
+      ),
+    };
+  }
 
   async initializeExpectedPendingGame(gameName: GameName) {
     const pendingGameSetupOption = await this.gameSessionStoreService.getPendingGameSetup(gameName);

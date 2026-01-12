@@ -7,7 +7,7 @@ import { RaceGameRecordsService } from "../../../services/race-game-records.js";
 import { GameModeStrategy } from "./game-mode-strategy.js";
 import { PartyFate } from "./record-types.js";
 
-export default class RankedRaceStrategy implements GameModeStrategy {
+export class RankedRaceStrategy implements GameModeStrategy {
   constructor(private raceGameRecordsService: RaceGameRecordsService) {}
 
   async onBattleResult(_game: SpeedDungeonGame, _party: AdventuringParty) {

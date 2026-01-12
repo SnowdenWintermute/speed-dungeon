@@ -24,13 +24,16 @@ import { GameServerSessionLifecycleController } from "./controllers/session-life
 import { GameRegistry } from "../game-registry.js";
 import { UserSession } from "../sessions/user-session.js";
 import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js";
-import { GameServerGameLifecycleController } from "./controllers/game-lifecycle.js";
+import { GameServerGameLifecycleController } from "./controllers/game-lifecycle/index.js";
+import { RaceGameRecordsService } from "../services/race-game-records.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
   identityProviderService: IdentityProviderService;
   savedCharactersService: SavedCharactersService;
   rankedLadderService: RankedLadderService;
+  raceGameRecordsService: RaceGameRecordsService;
+  savedCharactersLadderService: SavedCharactersService;
 }
 
 export class GameServer {
@@ -65,6 +68,9 @@ export class GameServer {
       this.gameRegistry,
       this.userSessionRegistry,
       this.externalServices.gameSessionStoreService,
+      this.externalServices.raceGameRecordsService,
+      this.externalServices.savedCharactersLadderService,
+      this.externalServices.rankedLadderService,
       this.gameStateUpdateDispatchFactory
     );
 

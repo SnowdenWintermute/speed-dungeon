@@ -96,7 +96,7 @@ export interface ClientIntentMap {
     name: EntityName;
     combatantClass: CombatantClass;
   };
-  [ClientIntentType.DeleteCharacter]: { characterId: EntityId };
+  [ClientIntentType.DeleteCharacter]: { characterId: CombatantId };
   [ClientIntentType.SelectCombatAction]: {
     characterId: CombatantId;
     actionAndRankOption: null | ActionAndRank;

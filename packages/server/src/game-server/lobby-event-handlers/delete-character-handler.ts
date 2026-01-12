@@ -1,11 +1,16 @@
-import { ArrayUtils, ERROR_MESSAGES, ServerToClientEvent } from "@speed-dungeon/common";
+import {
+  ArrayUtils,
+  CombatantId,
+  ERROR_MESSAGES,
+  ServerToClientEvent,
+} from "@speed-dungeon/common";
 import errorHandler from "../error-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware";
 import { Socket } from "socket.io";
 import { getGameServer } from "../../singletons/index.js";
 
 export function deleteCharacterHandler(
-  characterId: string,
+  characterId: CombatantId,
   playerAssociatedData: ServerPlayerAssociatedData,
   socket: Socket
 ) {
@@ -18,7 +23,7 @@ export function deleteCharacterHandler(
 
   const party = partyOption;
 
-  if (!player.characterIds.includes(characterId.toString())) {
+  if (!player.characterIds.includes(characterId)) {
     return errorHandler(socket, new Error(ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED));
   }
 
