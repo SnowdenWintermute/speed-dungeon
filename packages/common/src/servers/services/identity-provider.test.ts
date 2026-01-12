@@ -1,6 +1,6 @@
-import { IdentityProviderId, Username } from "../../aliases.js";
+import { GuestUserId, IdentityProviderId, Username } from "../../aliases.js";
 import { IdGenerator } from "../../utility-classes/index.js";
-import { UserId, UserIdType } from "../sessions/user-ids.js";
+import { TaggedUserId, UserIdType } from "../sessions/user-ids.js";
 import {
   ConnectionIdentityResolutionContext,
   IdentityProviderUserSessionQueryStrategy,
@@ -27,11 +27,11 @@ export class FakeUsersIdentityProviderQueryStrategy
 
   async execute(
     context: ConnectionIdentityResolutionContext
-  ): Promise<{ username: Username; userId: UserId } | null> {
+  ): Promise<{ username: Username; taggedUserId: TaggedUserId } | null> {
     if (context.localUserId === undefined) {
       return {
         username: `guest-${context}` as Username,
-        userId: { type: UserIdType.Guest, id: this.idGenerator.generate() },
+        taggedUserId: { type: UserIdType.Guest, id: this.idGenerator.generate() as GuestUserId },
       };
     }
 
@@ -39,13 +39,13 @@ export class FakeUsersIdentityProviderQueryStrategy
     if (authenticatedSession === undefined) {
       return {
         username: `guest-${context.localUserId}` as Username,
-        userId: { type: UserIdType.Guest, id: this.idGenerator.generate() },
+        taggedUserId: { type: UserIdType.Guest, id: this.idGenerator.generate() as GuestUserId },
       };
     }
 
     return {
       username: authenticatedSession,
-      userId: { type: UserIdType.Auth, id: context.localUserId },
+      taggedUserId: { type: UserIdType.Auth, id: context.localUserId as IdentityProviderId },
     };
   }
 }

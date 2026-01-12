@@ -6,13 +6,13 @@ import {
   ConnectionIdentityResolutionContext,
   IdentityProviderService,
 } from "../../services/identity-provider.js";
-import { ConnectionId, Username } from "../../../aliases.js";
+import { ConnectionId, GuestUserId, Username } from "../../../aliases.js";
 import { LobbyState } from "../lobby-state.js";
 import { SavedCharactersController } from "./saved-characters.js";
 import { LobbyGameLifecycleController } from "./game-lifecycle.js";
 import { PLAYER_FIRST_NAMES, PLAYER_LAST_NAMES } from "../default-names/users.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
-import { UserId, UserIdType } from "../../sessions/user-ids.js";
+import { TaggedUserId, UserIdType } from "../../sessions/user-ids.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { SessionLifecycleController } from "../../controllers/session-lifecycle.js";
@@ -37,13 +37,13 @@ export class LobbySessionLifecycleController
     const authenticatedUserOption = await this.identityProviderService.resolve(context);
 
     if (authenticatedUserOption === null) {
-      const { username, userId } = this.createGuestUser();
-      return new UserSession(username, connectionId, userId, this.lobbyState.gameRegistry);
+      const { username, taggedUserId } = this.createGuestUser();
+      return new UserSession(username, connectionId, taggedUserId, this.lobbyState.gameRegistry);
     }
 
-    const { username, userId } = authenticatedUserOption;
+    const { username, taggedUserId } = authenticatedUserOption;
 
-    return new UserSession(username, connectionId, userId, this.lobbyState.gameRegistry);
+    return new UserSession(username, connectionId, taggedUserId, this.lobbyState.gameRegistry);
   }
 
   private generateRandomUsername() {
@@ -53,15 +53,17 @@ export class LobbySessionLifecycleController
   }
 
   private createGuestUser() {
-    const userId: UserId = { type: UserIdType.Guest, id: this.idGenerator.generate() };
-    return { username: this.generateRandomUsername(), userId };
+    const taggedUserId: TaggedUserId = {
+      type: UserIdType.Guest,
+      id: this.idGenerator.generate() as GuestUserId,
+    };
+    return { username: this.generateRandomUsername(), taggedUserId };
   }
 
   async activateSession(session: UserSession) {
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 
-    const isAuthorizedUser = session.userId.type === UserIdType.Auth;
-    if (isAuthorizedUser) {
+    if (session.isAuth()) {
       const savedCharactersOutbox =
         await this.savedCharactersController.fetchSavedCharactersHandler(session);
       outbox.pushFromOther(savedCharactersOutbox);
@@ -75,7 +77,7 @@ export class LobbySessionLifecycleController
       data: { username: session.username },
     });
 
-    const userChannelDisplayData = this.lobbyState.addUser(session.username, isAuthorizedUser);
+    const userChannelDisplayData = this.lobbyState.addUser(session.username, session.isAuth());
     session.subscribeToChannel(LOBBY_CHANNEL);
 
     // tell the client about the channel they are in and other users in the lobby channel

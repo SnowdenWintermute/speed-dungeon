@@ -23,7 +23,10 @@ export class GameHandoffManager {
     const result: UserSession[] = [];
 
     for (const [username, player] of game.getPlayers()) {
-      const session = this.userSessionRegistry.getExpectedSessionInGame(username, game.name);
+      const session = this.userSessionRegistry.getExpectedSessionInGameByUsername(
+        username,
+        game.name
+      );
 
       result.push(session);
     }
@@ -38,7 +41,7 @@ export class GameHandoffManager {
       const claimToken = new GameServerSessionClaimToken(
         gameName,
         session.username,
-        session.userId
+        session.taggedUserId
       );
       claimTokensByConnectionId.set(session.connectionId, claimToken);
     }

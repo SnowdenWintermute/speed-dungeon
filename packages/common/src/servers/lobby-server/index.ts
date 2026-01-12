@@ -107,8 +107,8 @@ export class LobbyServer {
     );
 
     // special business logic for this session type
-    if (newSession.userId.type === UserIdType.Auth) {
-      this.externalServices.profileService.createProfileIfUserHasNone(newSession.userId.id);
+    if (newSession.taggedUserId.type === UserIdType.Auth) {
+      this.externalServices.profileService.createProfileIfUserHasNone(newSession.taggedUserId.id);
     }
 
     // type the connection endpoint
@@ -119,7 +119,7 @@ export class LobbyServer {
     );
 
     console.info(
-      `-- ${newSession.username} (user id: ${newSession.userId}, connection id: ${newSession.connectionId}) joined the lobby`
+      `-- ${newSession.username} (user id: ${newSession.taggedUserId.id}, connection id: ${newSession.connectionId}) joined the lobby`
     );
 
     // attach the connection to message handlers and disconnectionHandler

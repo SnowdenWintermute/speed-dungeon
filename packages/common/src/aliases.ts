@@ -8,6 +8,7 @@ export type EntityName = string & { __brand: "EntityName" };
 export type ProfileId = number & { __brand: "ProfileId" };
 export type ConnectionId = string & { __brand: "ConnectionId" };
 export type IdentityProviderId = number & { __brand: "IdentityProviderId" };
+export type GuestUserId = string & { __brand: "GuestUserId" };
 
 export type EntityId = string;
 export type ItemId = string & { __brand: "ItemId" };

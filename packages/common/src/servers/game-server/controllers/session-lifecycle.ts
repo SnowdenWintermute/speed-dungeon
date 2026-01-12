@@ -42,14 +42,14 @@ export class GameServerSessionLifecycleController
     // it is possible to be given a reconnection token in two separate browser tabs
     // while the disconnection record is live in the central store, and there would be
     // undefined behavior if a user tried to claim a session while already in a game
-    if (this.userSessionRegistry.userIsAlreadyConnected(sessionClaimTokenOption.userId)) {
+    if (this.userSessionRegistry.userIsAlreadyConnected(sessionClaimTokenOption.taggedUserId.id)) {
       throw new Error("Only one connection per user is permitted on a single game server");
     }
 
     const newSession = new UserSession(
       token.username,
       connectionId,
-      token.userId,
+      token.taggedUserId,
       this.gameRegistry
     );
     return newSession;

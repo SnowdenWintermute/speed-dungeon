@@ -10,7 +10,7 @@ import {
 } from "../../index.js";
 import { GameRegistry } from "../game-registry.js";
 import { ConnectionSession } from "./session-registry.js";
-import { AuthUserId, UserId, UserIdType } from "./user-ids.js";
+import { AuthTaggedUserId, TaggedUserId, UserIdType } from "./user-ids.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
 
 export class UserSession extends ConnectionSession {
@@ -21,7 +21,7 @@ export class UserSession extends ConnectionSession {
     public readonly username: Username,
     /** either a socket.id or a locally generated UUID on client */
     public readonly connectionId: ConnectionId,
-    public readonly userId: UserId,
+    public readonly taggedUserId: TaggedUserId,
     private readonly gameRegistry: GameRegistry
   ) {
     super(connectionId);
@@ -36,6 +36,14 @@ export class UserSession extends ConnectionSession {
 
   isInGame() {
     return this.currentGameName !== null;
+  }
+
+  isAuth() {
+    return this.taggedUserId.type === UserIdType.Auth;
+  }
+
+  isGuest() {
+    return this.taggedUserId.type === UserIdType.Guest;
   }
 
   getCurrentPartyOption(game: SpeedDungeonGame) {
@@ -63,7 +71,7 @@ export class UserSession extends ConnectionSession {
       return new ActionValidity(false, ERROR_MESSAGES.LOBBY.ALREADY_IN_GAME);
     }
 
-    const userIsGuest = this.userId === null;
+    const userIsGuest = this.taggedUserId.type === UserIdType.Guest;
     if (isRanked && userIsGuest) {
       return new ActionValidity(false, ERROR_MESSAGES.AUTH.REQUIRED);
     }
@@ -78,7 +86,7 @@ export class UserSession extends ConnectionSession {
   requireNotInGameOnAnotherSession(userSessionRegistry: UserSessionRegistry) {
     // we don't want them loading the same saved character into multiple active games,
     // so we'll prohibit simultaneous progression games per user
-    const userSessions = userSessionRegistry.getExpectedUserSessions(this.username);
+    const userSessions = userSessionRegistry.getExpectedUserSessions(this.taggedUserId.id);
     for (const otherSession of userSessions) {
       if (otherSession.isInGame()) {
         throw new Error(ERROR_MESSAGES.LOBBY.USER_IN_GAME);
@@ -86,8 +94,8 @@ export class UserSession extends ConnectionSession {
     }
   }
 
-  requireAuthorized(): asserts this is { userId: AuthUserId } {
-    if (this.userId.type !== UserIdType.Auth) {
+  requireAuthorized(): asserts this is { userId: AuthTaggedUserId } {
+    if (this.taggedUserId.type !== UserIdType.Auth) {
       throw new Error(ERROR_MESSAGES.AUTH.REQUIRED);
     }
   }

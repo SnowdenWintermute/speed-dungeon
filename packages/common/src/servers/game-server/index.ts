@@ -110,7 +110,7 @@ export class GameServer {
     );
 
     console.info(
-      `-- ${session.username} (user id: ${session.userId}, connection id: ${session.connectionId}) joined the ${this.name} game server`
+      `-- ${session.username} (user id: ${session.taggedUserId.id}, connection id: ${session.connectionId}) joined the ${this.name} game server`
     );
 
     // attach the connection to message handlers and disconnectionHandler

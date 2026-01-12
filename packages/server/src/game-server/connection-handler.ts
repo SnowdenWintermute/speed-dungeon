@@ -13,10 +13,10 @@ export function connectionHandler(this: GameServerNode) {
     const req = socket.request;
     const cookies = req.headers.cookie;
 
-    const { username, userId } = await getLoggedInUserOrCreateGuest(cookies);
+    const { username, taggedUserId } = await getLoggedInUserOrCreateGuest(cookies);
 
     console.info(`-- ${username} (${socket.id}) connected`);
-    this.connections.set(socket.id, new BrowserTabSession(socket.id, username, userId));
+    this.connections.set(socket.id, new BrowserTabSession(socket.id, username, taggedUserId));
 
     const socketListOption = this.socketIdsByUsername.get(username);
     if (socketListOption) {

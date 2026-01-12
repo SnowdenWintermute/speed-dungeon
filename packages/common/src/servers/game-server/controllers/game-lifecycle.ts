@@ -115,8 +115,8 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
   private allPlayersAreConnectedToGame(game: SpeedDungeonGame) {
     let result = true;
     for (const [username, player] of Array.from(game.players)) {
-      const connectionIds = this.userSessionRegistry.getConnectionIdsByUsername(username);
-      if (connectionIds.size === 0) {
+      const sessions = this.userSessionRegistry.getSessionsByUsername(username);
+      if (sessions.length === 0) {
         result = false;
         break;
       }
