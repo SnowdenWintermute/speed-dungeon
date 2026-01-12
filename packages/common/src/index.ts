@@ -206,3 +206,5 @@ export * from "./combat/ai-behavior/ai-select-action-and-target.js";
 export * from "./combat/combat-actions/action-implementations/index.js";
 export * from "./combat/magical-elements.js";
 export * from "./combat/kinetic-damage-types.js";
+
+export * from "./servers/services/race-game-records.js";

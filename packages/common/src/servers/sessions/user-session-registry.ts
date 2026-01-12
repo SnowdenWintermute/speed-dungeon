@@ -36,11 +36,7 @@ export class UserSessionRegistry extends SessionRegistry<UserSession> {
   }
 
   userIsAlreadyConnected(userId: UserId): boolean {
-    throw new Error("not implemented");
-    // need to store users by user id so guest users can be checked for existing
-    // connections since we provide user id in the GameServerSessionClaimTokens
-    // and that links guests to their disconnection sessions and we can't let them
-    // claim their disconnection session twice
+    return this.connectionIdsByUserId.has(userId);
   }
 
   requireSingleConnection(userId: UserId) {

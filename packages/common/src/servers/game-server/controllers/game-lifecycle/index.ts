@@ -1,16 +1,17 @@
-import { GameName } from "../../../aliases.js";
-import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
-import { GameLifecycleController } from "../../controllers/game-lifecycle.js";
-import { GameRegistry } from "../../game-registry.js";
-import { GameSessionStoreService } from "../../services/game-session-store/index.js";
-import { ActiveGameStatus } from "../../services/game-session-store/active-game-status.js";
-import { UserSession } from "../../sessions/user-session.js";
-import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
-import { SpeedDungeonGame } from "../../../game/index.js";
-import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
-import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
-import { getPartyChannelName } from "../../../packets/channels.js";
-import { GameMode } from "../../../types.js";
+import { GameName } from "../../../../aliases.js";
+import { GameStateUpdate, GameStateUpdateType } from "../../../../packets/game-state-updates.js";
+import { GameLifecycleController } from "../../../controllers/game-lifecycle.js";
+import { GameRegistry } from "../../../game-registry.js";
+import { GameSessionStoreService } from "../../../services/game-session-store/index.js";
+import { ActiveGameStatus } from "../../../services/game-session-store/active-game-status.js";
+import { UserSession } from "../../../sessions/user-session.js";
+import { MessageDispatchOutbox } from "../../../update-delivery/outbox.js";
+import { SpeedDungeonGame } from "../../../../game/index.js";
+import { UserSessionRegistry } from "../../../sessions/user-session-registry.js";
+import { MessageDispatchFactory } from "../../../update-delivery/message-dispatch-factory.js";
+import { getPartyChannelName } from "../../../../packets/channels.js";
+import { GameMode } from "../../../../types.js";
+import GameModeContext from "./game-mode-context.js";
 
 export class GameServerGameLifecycleController implements GameLifecycleController {
   // strategy pattern for handling certain events
@@ -90,7 +91,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       // @TODO
       //     - handle any game mode specific onStart business
       game.timeStarted = Date.now();
-      const gameModeContext = gameServer.gameModeContexts[game.mode];
+      const gameModeContext = this.gameModeContexts[game.mode];
       //     - start accepting player inputs
       //     - start a heartbeat loop to periodically update the ActiveGame record's lastHeartbeatTimestamp
       //       in the central store

@@ -7,18 +7,18 @@ import { raceGamePartyRecordsRepo } from "./race-game-party-records.js";
 import { SERVER_VERSION } from "../../server-version.js";
 import { env } from "../../validate-env.js";
 
-export type RaceGameRecord = {
+export interface RaceGameRecord {
   id: number;
   gameName: string;
   gameVersion: string;
   timeOfCompletion: number | Date;
-};
+}
 
-export type RaceGameParticipant = {
+export interface RaceGameParticipant {
   id: number;
   partyId: number;
   userId: string; // UUID
-};
+}
 
 const tableName = RESOURCE_NAMES.RACE_GAME_RECORDS;
 

@@ -5,22 +5,12 @@ import { DatabaseRepository } from "./index.js";
 import {
   AdventuringParty,
   ERROR_MESSAGES,
-  PartyFate,
+  RaceGamePartyRecord,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { raceGameCharacterRecordsRepo } from "./race-game-character-records.js";
 import { raceGameParticipantRecordsRepo } from "./race-game-participants-repo.js";
 import { getUserIdsByUsername } from "../get-user-ids-by-username.js";
-
-export type RaceGamePartyRecord = {
-  id: number;
-  gameRecordId: number;
-  partyName: string;
-  partyFate: PartyFate;
-  partyFateRecordedAt: null | string;
-  isWinner: boolean;
-  deepestFloor: number;
-};
 
 const tableName = RESOURCE_NAMES.RACE_GAME_PARTY_RECORDS;
 

@@ -2,7 +2,7 @@ import { Combatant } from "./combatants/index.js";
 import { AdventuringParty } from "./adventuring-party/index.js";
 import { SpeedDungeonGame } from "./game/index.js";
 import { SpeedDungeonPlayer } from "./game/player.js";
-import { CombatantId, EntityId, EntityName, GameName, Meters, PartyName } from "./aliases.js";
+import { CombatantId, EntityName, GameName, Meters, PartyName } from "./aliases.js";
 import { CombatantSpecies } from "./combatants/combatant-species.js";
 
 export interface CharacterAssociatedData {
