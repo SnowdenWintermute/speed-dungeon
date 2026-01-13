@@ -1,7 +1,7 @@
 import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
 import { UserSessionRegistry } from "../sessions/user-session-registry.js";
 import { ClientIntent } from "../../packets/client-intents.js";
-import { GameServerName } from "../../aliases.js";
+import { GameServerName, Milliseconds } from "../../aliases.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
 import {
@@ -26,6 +26,8 @@ import { UserSession } from "../sessions/user-session.js";
 import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js";
 import { GameServerGameLifecycleController } from "./controllers/game-lifecycle/index.js";
 import { RaceGameRecordsService } from "../services/race-game-records.js";
+import { HeartbeatScheduler } from "../../primatives/heartbeat.js";
+import { ONE_SECOND } from "../../app-consts.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -36,9 +38,12 @@ export interface GameServerExternalServices {
   savedCharactersLadderService: SavedCharactersService;
 }
 
+export const GAME_RECORD_HEARTBEAT_MS: Milliseconds = ONE_SECOND * 10;
+
 export class GameServer {
   private readonly gameRegistry = new GameRegistry();
   private readonly idGenerator = new IdGenerator({ saveHistory: false });
+  private readonly heartbeatScheduler = new HeartbeatScheduler(GAME_RECORD_HEARTBEAT_MS);
   private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
   readonly userSessionRegistry = new UserSessionRegistry();
   private readonly gameStateUpdateDispatchFactory = new MessageDispatchFactory<GameStateUpdate>(
@@ -64,9 +69,12 @@ export class GameServer {
     );
     this.incomingConnectionGateway.listen();
 
+    this.heartbeatScheduler.start();
+
     this.gameLifecycleController = new GameServerGameLifecycleController(
       this.gameRegistry,
       this.userSessionRegistry,
+      this.heartbeatScheduler,
       this.externalServices.gameSessionStoreService,
       this.externalServices.raceGameRecordsService,
       this.externalServices.savedCharactersLadderService,
@@ -137,6 +145,7 @@ export class GameServer {
       },
       (reason) => this.disconnectionHandler(session, reason)
     );
+
     const outbox = await this.sessionLifecycleController.activateSession(session);
 
     // - place the UserSession in the Game

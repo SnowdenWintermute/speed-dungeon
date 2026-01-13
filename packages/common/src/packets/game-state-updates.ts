@@ -35,6 +35,7 @@ export enum GameStateUpdateType {
   CharacterDeleted,
   PlayerToggledReadyToStartGame,
   GameStarted,
+  GameInputLockUpdate,
   GameServerConnectionInstructions,
 
   PlayerToggledReadyToDescendOrExplore,
@@ -128,6 +129,9 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.GameStarted]: {
     timeStarted: number;
+  };
+  [GameStateUpdateType.GameInputLockUpdate]: {
+    isLocked: boolean;
   };
   [GameStateUpdateType.GameServerConnectionInstructions]: {
     connectionInstructions: GameServerConnectionInstructions;

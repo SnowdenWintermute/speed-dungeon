@@ -1,4 +1,4 @@
-import { GameName } from "../../../../aliases.js";
+import { GameId, GameName, Milliseconds } from "../../../../aliases.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../../packets/game-state-updates.js";
 import { GameLifecycleController } from "../../../controllers/game-lifecycle.js";
 import { GameRegistry } from "../../../game-registry.js";
@@ -15,6 +15,8 @@ import { GameModeContext } from "./game-mode-context.js";
 import { RaceGameRecordsService } from "../../../services/race-game-records.js";
 import { SavedCharactersService } from "../../../services/saved-characters.js";
 import { RankedLadderService } from "../../../services/ranked-ladder.js";
+import { HeartbeatScheduler, HeartbeatTask } from "../../../../primatives/heartbeat.js";
+import { GAME_RECORD_HEARTBEAT_MS } from "../../index.js";
 
 export class GameServerGameLifecycleController implements GameLifecycleController {
   // strategy pattern for handling certain events
@@ -23,6 +25,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
   constructor(
     private readonly gameRegistry: GameRegistry,
     private readonly userSessionRegistry: UserSessionRegistry,
+    private readonly heartbeatScheduler: HeartbeatScheduler,
     private readonly gameSessionStoreService: GameSessionStoreService,
     raceGameRecordsService: RaceGameRecordsService,
     savedCharactersLadderService: SavedCharactersService,
@@ -62,6 +65,16 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       new ActiveGameStatus(newGame.name, newGame.id)
     );
 
+    const heartbeat = new HeartbeatTask(GAME_RECORD_HEARTBEAT_MS, () => {
+      // currently overwrites but could just update - this is simpler for now
+      this.gameSessionStoreService.writeActiveGameStatus(
+        newGame.name,
+        new ActiveGameStatus(newGame.name, newGame.id)
+      );
+    });
+
+    this.heartbeatScheduler.register(heartbeat);
+
     return newGame;
   }
 
@@ -76,15 +89,14 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 
-    // give the client the game information of the game they joined
-    // if they reconnected their client would not have the game information
-    // from when they were in the lobby
+    // if they are reconnecting their client would have lost the game information
+    // could avoid sending it if this is a connection from the lobby though
+    // for simplicity we'll eat the performance cost until it is measured
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.GameFullUpdate,
       data: { game: game.getSerialized() },
     });
 
-    // tell clients already in the game that someone joined
     // clients should handle this differently than in the lobby
     // and just mark this player as connected in their client
     outbox.pushToChannel(
@@ -96,51 +108,43 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       { excludedIds: [session.connectionId] }
     );
 
-    // - if all Players in Game have a corresponding expected UserSession
     const allPlayersAreConnectedToGame = this.allPlayersAreConnectedToGame(game);
+    const gameHasNotYetStarted = game.timeStarted === null;
 
-    if (!allPlayersAreConnectedToGame) {
-      return outbox;
+    if (gameHasNotYetStarted && allPlayersAreConnectedToGame) {
+      const startGameOutbox = await this.startGame(game);
+      outbox.pushFromOther(startGameOutbox);
+    } else {
+      // this was a reconnection for a disconnected user
+      this.gameSessionStoreService.deleteDisconnectedUser(session.taggedUserId.id);
     }
 
-    const gameHasNotYetStarted = game.timeStarted === null;
-    //   - if the game has not yet started
-    if (gameHasNotYetStarted) {
-      const gameModeContext = this.gameModeContexts[game.mode];
-      await gameModeContext.strategy.onGameStart(game);
-
-      game.timeStarted = Date.now();
+    if (allPlayersAreConnectedToGame) {
       game.inputLock.unlockInput(); // @TODO - check this lock when players submit inputs
-
-      // @TODO
-      //
-      //     - start a heartbeat loop to periodically update the ActiveGame record's lastHeartbeatTimestamp
-      //       in the central store
-      //
-      //       - let players know game has begun and they may unlock their client's inputs
-      //
-      // FROM OLD GAME SERVER CODE WHEN STARTING GAME:
-      // await gameModeContext.onGameStart(game);
-      // gameServer.io
-      //   .of("/")
-      //   .in(game.getChannelName())
-      //   .emit(ServerToClientEvent.GameStarted, game.timeStarted);
-      // for (const [_, player] of Array.from(game.players)) {
-      //   const socketIdResult = gameServer.getSocketIdOfPlayer(game, player.username);
-      //   if (socketIdResult instanceof Error) return socketIdResult;
-      //   if (!player.partyName) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
-      //   const partyOption = game.adventuringParties[player.partyName];
-      //   if (!partyOption) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
-      //   toggleReadyToExploreHandler(undefined, { game, partyOption, player, session });
-    } else {
-      // @TODO
-      //   - if the game was in progress
-      //     - this was a reconnection for a disconnected user
-      //     - delete the disconnection session from the central store
-      //     - unpause acceptance of player inputs
+      outbox.pushToChannel(game.getChannelName(), {
+        type: GameStateUpdateType.GameInputLockUpdate,
+        data: { isLocked: false },
+      });
     }
 
     return outbox;
+  }
+
+  private async startGame(game: SpeedDungeonGame) {
+    const gameModeContext = this.gameModeContexts[game.mode];
+    await gameModeContext.strategy.onGameStart(game);
+
+    game.timeStarted = Date.now();
+
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+    outbox.pushToChannel(game.getChannelName(), {
+      type: GameStateUpdateType.GameStarted,
+      data: { timeStarted: game.timeStarted },
+    });
+
+    return outbox;
+    // - we used to run the "explore next room" handler or otherwise put the parties in their first room
+    //   but hopefully we don't need to do this anymore since adventuring party starts in empty room by default
   }
 
   private allPlayersAreConnectedToGame(game: SpeedDungeonGame) {
