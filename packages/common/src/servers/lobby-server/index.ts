@@ -95,6 +95,7 @@ export class LobbyServer {
     this.characterLifecycleController = controllers.characterLifecycleController;
   }
 
+  // @TODO - extract common functionality in game server and lobby server
   async handleConnection(
     connectionEndpoint: UntypedConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext

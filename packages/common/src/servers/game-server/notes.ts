@@ -63,6 +63,11 @@
 // - user client executes normal flow for onGameServerSessionClaimTokenReceipt, same as when they
 //   are in a lobby game setup and start a new game
 //
+// on intentional game leave (LEAVE GAME button pressed)
+// - warn users that they will not be able to reconnect
+// - don't create a DisconnectedSession for them
+// - don't add them to the input lock RC
+//
 //   game server's heartbeat loop
 //   - update all corresponding ActiveGameStatus objects in the central store
 //
