@@ -236,24 +236,26 @@ export class GameServer {
               console.error("failed to delete disconnectedSession:", error);
             }
 
-            outbox.pushToChannel(game.getChannelName(), {
+            const reconnectionTimeoutOutbox = new MessageDispatchOutbox(
+              this.gameStateUpdateDispatchFactory
+            );
+
+            reconnectionTimeoutOutbox.pushToChannel(game.getChannelName(), {
               type: GameStateUpdateType.PlayerReconnectionTimedOut,
               data: { username: session.username },
             });
             game.inputLock.remove(session.taggedUserId.id);
-            //   - clean up the player's in game resources
-            //     - characters/pets
-            //     - player object
+            const leaveGameHandlerOutbox =
+              await this.gameLifecycleController.leaveGameHandler(session);
+            reconnectionTimeoutOutbox.pushFromOther(leaveGameHandlerOutbox);
+
+            this.dispatchUserOutboxMessages(reconnectionTimeoutOutbox);
           })
         );
       } else {
-        // clean up the player's in game resources
-        //  - characters/pets
-        //  - player object
+        const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
+        outbox.pushFromOther(leaveGameHandlerOutbox);
       }
-
-      const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
-      outbox.pushFromOther(leaveGameHandlerOutbox);
     } catch (error) {
       console.error("unexpected error while handling disconnection from living party:", error);
     }
