@@ -1,4 +1,4 @@
-import { GameId, GameName, Milliseconds } from "../../../../aliases.js";
+import { GameName } from "../../../../aliases.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../../packets/game-state-updates.js";
 import { GameLifecycleController } from "../../../controllers/game-lifecycle.js";
 import { GameRegistry } from "../../../game-registry.js";
@@ -114,9 +114,6 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     if (gameHasNotYetStarted && allPlayersAreConnectedToGame) {
       const startGameOutbox = await this.startGame(game);
       outbox.pushFromOther(startGameOutbox);
-    } else {
-      // this was a reconnection for a disconnected user
-      this.gameSessionStoreService.deleteDisconnectedUser(session.taggedUserId.id);
     }
 
     if (allPlayersAreConnectedToGame) {
@@ -162,6 +159,19 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
 
   async leaveGameHandler(session: UserSession) {
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+    const game = session.getExpectedCurrentGame();
+
+    let allPartiesWiped = false;
+    for (const party of Object.values(game.adventuringParties)) {
+      if (party.timeOfWipe === null) {
+        allPartiesWiped = false;
+        break;
+      }
+    }
+
+    if (allPartiesWiped) {
+      // - if there are no living parties in the game, clean up the game
+    }
     return outbox;
   }
 }

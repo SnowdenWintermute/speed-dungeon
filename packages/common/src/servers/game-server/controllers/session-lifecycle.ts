@@ -63,10 +63,6 @@ export class GameServerSessionLifecycleController
 
   async cleanupSession(session: UserSession) {
     const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
-    if (session.currentGameName !== null) {
-      const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
-      outbox.pushFromOther(leaveGameHandlerOutbox);
-    }
     this.userSessionRegistry.unregister(session.connectionId);
     return outbox;
   }

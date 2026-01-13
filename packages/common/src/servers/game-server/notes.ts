@@ -72,6 +72,7 @@
 //   - PendingGameSetup
 //   - ActiveGame
 //   - DisconnectedSession
+//   - heartbeat
 //
 // on lobby server crash
 // - have the containing node auto-restart the process

@@ -30,6 +30,7 @@ export enum GameStateUpdateType {
   PlayerChangedAdventuringParty,
   PlayerLeftGame,
   PlayerJoinedGame,
+  PlayerDisconnectedWithReconnectionOpportunity,
   PartyCreated,
   CharacterAddedToParty,
   CharacterDeleted,
@@ -102,14 +103,17 @@ export interface GameStateUpdateMap {
     partyName: string | null;
   };
   [GameStateUpdateType.PlayerChangedAdventuringParty]: {
-    playerName: string;
+    playerName: Username;
     partyName: string | null;
   };
   [GameStateUpdateType.PlayerLeftGame]: {
-    username: string;
+    username: Username;
+  };
+  [GameStateUpdateType.PlayerDisconnectedWithReconnectionOpportunity]: {
+    username: Username;
   };
   [GameStateUpdateType.PlayerJoinedGame]: {
-    username: string;
+    username: Username;
   };
   [GameStateUpdateType.PartyCreated]: {
     partyId: string;

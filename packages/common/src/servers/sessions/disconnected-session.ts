@@ -9,6 +9,10 @@ export class DisconnectedSession {
     private username: Username
   ) {}
 
+  static fromUserSession(session: UserSession) {
+    return new DisconnectedSession(session.taggedUserId, session.username);
+  }
+
   toUserSession(connectionId: ConnectionId, gameRegistry: GameRegistry) {
     return new UserSession(this.username, connectionId, this.taggedUserId, gameRegistry);
   }

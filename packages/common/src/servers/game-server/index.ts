@@ -2,7 +2,7 @@ import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js
 import { UserSessionRegistry } from "../sessions/user-session-registry.js";
 import { ClientIntent } from "../../packets/client-intents.js";
 import { GameServerName, Milliseconds } from "../../aliases.js";
-import { GameStateUpdate } from "../../packets/game-state-updates.js";
+import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
 import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
 import {
   MessageDispatchFactory,
@@ -28,9 +28,12 @@ import { GameServerGameLifecycleController } from "./controllers/game-lifecycle/
 import { RaceGameRecordsService } from "../services/race-game-records.js";
 import { HeartbeatScheduler } from "../../primatives/heartbeat.js";
 import { ONE_SECOND } from "../../app-consts.js";
+import { DisconnectedSession } from "../sessions/disconnected-session.js";
+import { DisconnectedSessionStoreService } from "../services/disconnected-session-store/index.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
+  disconnectedSessionStoreService: DisconnectedSessionStoreService;
   identityProviderService: IdentityProviderService;
   savedCharactersService: SavedCharactersService;
   rankedLadderService: RankedLadderService;
@@ -39,6 +42,7 @@ export interface GameServerExternalServices {
 }
 
 export const GAME_RECORD_HEARTBEAT_MS: Milliseconds = ONE_SECOND * 10;
+export const RECONNECTION_TIMER_HEARTBEAT_MS: Milliseconds = ONE_SECOND * 120;
 
 export class GameServer {
   private readonly gameRegistry = new GameRegistry();
@@ -146,6 +150,11 @@ export class GameServer {
       (reason) => this.disconnectionHandler(session, reason)
     );
 
+    // if this was a reconnection for a disconnected user
+    await this.externalServices.disconnectedSessionStoreService.deleteDisconnectedSession(
+      session.taggedUserId.id
+    );
+
     const outbox = await this.sessionLifecycleController.activateSession(session);
 
     // - place the UserSession in the Game
@@ -155,13 +164,60 @@ export class GameServer {
     this.dispatchUserOutboxMessages(outbox);
   }
 
-  // @TODO - combine with lobby server, it is almost exact same
+  // @TODO - combine with lobby server, it is almost exact same other than disconnection session logic
   private async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
+    await this.sessionLifecycleController.cleanupSession(session);
+    this.outgoingMessagesToUsersGateway.unregisterEndpoint(session.connectionId);
     console.info(
       `-- ${session.username} (${session.connectionId}) disconnected from ${this.name} game server. Reason - ${reason.getStringName()}`
     );
-    await this.sessionLifecycleController.cleanupSession(session);
-    this.outgoingMessagesToUsersGateway.unregisterEndpoint(session.connectionId);
+
+    const outbox = new MessageDispatchOutbox(this.gameStateUpdateDispatchFactory);
+    // - if the user party is still alive, provide a reconnection opportunity
+    try {
+      const game = session.getExpectedCurrentGame();
+      const party = session.getExpectedCurrentParty(game);
+      const partyIsStillAlive = party.timeOfWipe === null;
+
+      const reconnectionPermitted = partyIsStillAlive;
+
+      if (reconnectionPermitted) {
+        const disconnectedSession = DisconnectedSession.fromUserSession(session);
+        this.externalServices.disconnectedSessionStoreService.writeDisconnectedSession(
+          session.taggedUserId.id,
+          disconnectedSession
+        );
+
+        // - pause acceptance of user inputs until reconnection is established or a timeout has passed
+        game.inputLock.lockInput();
+        outbox.pushToChannel(game.getChannelName(), {
+          type: GameStateUpdateType.GameInputLockUpdate,
+          data: { isLocked: true },
+        });
+        // - tell the users still in game that a player is awaiting reconnection
+        outbox.pushToChannel(game.getChannelName(), {
+          type: GameStateUpdateType.PlayerDisconnectedWithReconnectionOpportunity,
+          data: { username: session.username },
+        });
+
+        // - if timeout elapses without reconnection,
+        //   - clean up the player's in game resources
+        //     - characters/pets
+        //     - player object
+        //   - remove the disconnection session
+      } else {
+        // clean up the player's in game resources
+        //  - characters/pets
+        //  - player object
+      }
+
+      const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
+      outbox.pushFromOther(leaveGameHandlerOutbox);
+    } catch (error) {
+      console.error("unexpected error while handling disconnection from living party:", error);
+    }
+
+    this.dispatchUserOutboxMessages(outbox);
   }
 
   // @TODO - combine with lobby server's version, it is same thing

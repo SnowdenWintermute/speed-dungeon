@@ -8,5 +8,8 @@ export interface GameLifecycleController {
     gameName: GameName,
     session: UserSession
   ): Promise<MessageDispatchOutbox<GameStateUpdate>>;
-  leaveGameHandler(session: UserSession): Promise<MessageDispatchOutbox<GameStateUpdate>>;
+  leaveGameHandler(
+    session: UserSession,
+    ...args: any[]
+  ): Promise<MessageDispatchOutbox<GameStateUpdate>>;
 }
