@@ -30,6 +30,8 @@ import { HeartbeatScheduler } from "../../primatives/heartbeat.js";
 import { ONE_SECOND } from "../../app-consts.js";
 import { DisconnectedSession } from "../sessions/disconnected-session.js";
 import { DisconnectedSessionStoreService } from "../services/disconnected-session-store/index.js";
+import { UserId } from "../sessions/user-ids.js";
+import { ReconnectionOpportunity } from "./reconnection-opportunity.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -42,12 +44,13 @@ export interface GameServerExternalServices {
 }
 
 export const GAME_RECORD_HEARTBEAT_MS: Milliseconds = ONE_SECOND * 10;
-export const RECONNECTION_TIMER_HEARTBEAT_MS: Milliseconds = ONE_SECOND * 120;
+export const RECONNECTION_OPPORTUNITY_TIMOUT_MS: Milliseconds = ONE_SECOND * 120;
 
 export class GameServer {
   private readonly gameRegistry = new GameRegistry();
   private readonly idGenerator = new IdGenerator({ saveHistory: false });
   private readonly heartbeatScheduler = new HeartbeatScheduler(GAME_RECORD_HEARTBEAT_MS);
+  private readonly reconnectionOpportunities = new Map<UserId, ReconnectionOpportunity>();
   private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
   readonly userSessionRegistry = new UserSessionRegistry();
   private readonly gameStateUpdateDispatchFactory = new MessageDispatchFactory<GameStateUpdate>(
@@ -150,16 +153,33 @@ export class GameServer {
       (reason) => this.disconnectionHandler(session, reason)
     );
 
-    // if this was a reconnection for a disconnected user
-    await this.externalServices.disconnectedSessionStoreService.deleteDisconnectedSession(
+    const outbox = await this.sessionLifecycleController.activateSession(session);
+
+    const gameIsInProgress = existingGame.timeStarted !== null;
+
+    const reconnectionOpportunityOption = this.reconnectionOpportunities.get(
       session.taggedUserId.id
     );
 
-    const outbox = await this.sessionLifecycleController.activateSession(session);
+    const isValidReconnection =
+      gameIsInProgress &&
+      reconnectionOpportunityOption !== undefined &&
+      reconnectionOpportunityOption.claim();
 
-    // - place the UserSession in the Game
-    const joinGameOutbox = await this.gameLifecycleController.joinGameHandler(gameName, session);
-    outbox.pushFromOther(joinGameOutbox);
+    if (isValidReconnection) {
+      this.reconnectionOpportunities.delete(session.taggedUserId.id);
+      await this.externalServices.disconnectedSessionStoreService.deleteDisconnectedSession(
+        session.taggedUserId.id
+      );
+
+      const joinGameOutbox = await this.gameLifecycleController.joinGameHandler(gameName, session);
+      outbox.pushFromOther(joinGameOutbox);
+    } else if (!gameIsInProgress) {
+      const joinGameOutbox = await this.gameLifecycleController.joinGameHandler(gameName, session);
+      outbox.pushFromOther(joinGameOutbox);
+    } else {
+      throw new Error("Client attempted to reconnect to a game under invalid conditions");
+    }
 
     this.dispatchUserOutboxMessages(outbox);
   }
@@ -201,10 +221,23 @@ export class GameServer {
         });
 
         // - if timeout elapses without reconnection,
-        //   - clean up the player's in game resources
-        //     - characters/pets
-        //     - player object
-        //   - remove the disconnection session
+        this.reconnectionOpportunities.set(
+          session.taggedUserId.id,
+          new ReconnectionOpportunity(RECONNECTION_OPPORTUNITY_TIMOUT_MS, async () => {
+            this.reconnectionOpportunities.delete(session.taggedUserId.id);
+            try {
+              await this.externalServices.disconnectedSessionStoreService.deleteDisconnectedSession(
+                session.taggedUserId.id
+              );
+            } catch (error) {
+              console.error("failed to delete disconnectedSession:", error);
+            }
+            //   - clean up the player's in game resources
+            //     - characters/pets
+            //     - player object
+            //     - remove unlock input reference count in case multiple reconnections pending
+          })
+        );
       } else {
         // clean up the player's in game resources
         //  - characters/pets
