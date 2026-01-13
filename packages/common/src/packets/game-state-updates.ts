@@ -31,12 +31,12 @@ export enum GameStateUpdateType {
   PlayerLeftGame,
   PlayerJoinedGame,
   PlayerDisconnectedWithReconnectionOpportunity,
+  PlayerReconnectionTimedOut,
   PartyCreated,
   CharacterAddedToParty,
   CharacterDeleted,
   PlayerToggledReadyToStartGame,
   GameStarted,
-  GameInputLockUpdate,
   GameServerConnectionInstructions,
 
   PlayerToggledReadyToDescendOrExplore,
@@ -112,6 +112,9 @@ export interface GameStateUpdateMap {
   [GameStateUpdateType.PlayerDisconnectedWithReconnectionOpportunity]: {
     username: Username;
   };
+  [GameStateUpdateType.PlayerReconnectionTimedOut]: {
+    username: Username;
+  };
   [GameStateUpdateType.PlayerJoinedGame]: {
     username: Username;
   };
@@ -133,9 +136,6 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.GameStarted]: {
     timeStarted: number;
-  };
-  [GameStateUpdateType.GameInputLockUpdate]: {
-    isLocked: boolean;
   };
   [GameStateUpdateType.GameServerConnectionInstructions]: {
     connectionInstructions: GameServerConnectionInstructions;

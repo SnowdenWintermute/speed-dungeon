@@ -20,7 +20,8 @@ import {
   PartyName,
   Username,
 } from "../aliases.js";
-import { TimedLock } from "../primatives/timed-lock.js";
+import { ReferenceCountedLock } from "../primatives/reference-counted-lock.js";
+import { UserId } from "../servers/sessions/user-ids.js";
 
 export class SpeedDungeonGame {
   players = new Map<Username, SpeedDungeonPlayer>();
@@ -31,7 +32,7 @@ export class SpeedDungeonGame {
   timeStarted: null | number = null;
   lowestStartingFloorOptionsBySavedCharacter: Record<EntityId, number> = {};
   selectedStartingFloor: number = 1;
-  inputLock = new TimedLock();
+  inputLock = new ReferenceCountedLock<UserId>();
   constructor(
     public id: GameId,
     public name: GameName,

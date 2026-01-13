@@ -117,11 +117,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     }
 
     if (allPlayersAreConnectedToGame) {
-      game.inputLock.unlockInput(); // @TODO - check this lock when players submit inputs
-      outbox.pushToChannel(game.getChannelName(), {
-        type: GameStateUpdateType.GameInputLockUpdate,
-        data: { isLocked: false },
-      });
+      game.inputLock.remove(session.taggedUserId.id); // @TODO - check this lock when players submit inputs
     }
 
     return outbox;

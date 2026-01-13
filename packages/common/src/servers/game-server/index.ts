@@ -209,11 +209,7 @@ export class GameServer {
         );
 
         // - pause acceptance of user inputs until reconnection is established or a timeout has passed
-        game.inputLock.lockInput();
-        outbox.pushToChannel(game.getChannelName(), {
-          type: GameStateUpdateType.GameInputLockUpdate,
-          data: { isLocked: true },
-        });
+        game.inputLock.add(session.taggedUserId.id);
         // - tell the users still in game that a player is awaiting reconnection
         outbox.pushToChannel(game.getChannelName(), {
           type: GameStateUpdateType.PlayerDisconnectedWithReconnectionOpportunity,
@@ -229,6 +225,10 @@ export class GameServer {
               await this.externalServices.disconnectedSessionStoreService.deleteDisconnectedSession(
                 session.taggedUserId.id
               );
+              outbox.pushToChannel(game.getChannelName(), {
+                type: GameStateUpdateType.PlayerReconnectionTimedOut,
+                data: { username: session.username },
+              });
             } catch (error) {
               console.error("failed to delete disconnectedSession:", error);
             }
