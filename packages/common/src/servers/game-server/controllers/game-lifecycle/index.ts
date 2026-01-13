@@ -17,6 +17,13 @@ import { SavedCharactersService } from "../../../services/saved-characters.js";
 import { RankedLadderService } from "../../../services/ranked-ladder.js";
 import { HeartbeatScheduler, HeartbeatTask } from "../../../../primatives/heartbeat.js";
 import { GAME_RECORD_HEARTBEAT_MS } from "../../index.js";
+import { AdventuringParty } from "../../../../adventuring-party/index.js";
+import { PartyDelayedGameMessageFactory } from "../../party-delayed-game-message-factory.js";
+import {
+  createPartyAbandonedMessage,
+  createPartyWipeMessage,
+  GameMessageType,
+} from "../../../../packets/game-message.js";
 
 export class GameServerGameLifecycleController implements GameLifecycleController {
   // strategy pattern for handling certain events
@@ -30,7 +37,8 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     raceGameRecordsService: RaceGameRecordsService,
     savedCharactersLadderService: SavedCharactersService,
     rankedLadderService: RankedLadderService,
-    private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>
+    private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
+    private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory
   ) {
     this.gameModeContexts = {
       [GameMode.Race]: new GameModeContext(
@@ -157,17 +165,93 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     const game = session.getExpectedCurrentGame();
 
-    let allPartiesWiped = false;
-    for (const party of Object.values(game.adventuringParties)) {
-      if (party.timeOfWipe === null) {
-        allPartiesWiped = false;
+    const player = game.getExpectedPlayer(session.username);
+    const party = player.getExpectedParty(game);
+    const gameModeContext = this.gameModeContexts[game.mode];
+    await gameModeContext.strategy.onGameLeave(game, party, player);
+
+    const removedPlayerData = game.removePlayerFromParty(session.username);
+    const { partyWasRemoved } = removedPlayerData;
+
+    // check if only dead players remain
+    let deadPartyMembersAbandoned = false;
+    if (!partyWasRemoved && party.playerUsernames.length > 0) {
+      const { partyAbandoned, outbox: deadPartyMembersAbandonedOutbox } =
+        this.handleAbandoningDeadPartyMembers(game, party);
+      outbox.pushFromOther(deadPartyMembersAbandonedOutbox);
+      deadPartyMembersAbandoned = partyAbandoned;
+    }
+
+    const partyHasNotYetEscaped = !party.timeOfEscape; // if they already escaped they shouldn't be marked as wiped
+    const partyHasNotYetWiped = party.timeOfWipe === null;
+    const partyIsInWipableState =
+      partyWasRemoved || (deadPartyMembersAbandoned && partyHasNotYetWiped);
+    const partyShouldBeMarkedWiped = partyHasNotYetEscaped && partyIsInWipableState;
+
+    if (partyShouldBeMarkedWiped) {
+      party.timeOfWipe = Date.now();
+      const partyWipePayloads = await gameModeContext.strategy.onPartyWipe(game, party);
+
+      const remainingParties = Object.values(game.adventuringParties);
+      if (remainingParties.length) {
+        const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
+
+        const partyWipedOutbox =
+          this.partyDelayedGameMessageFactory.createMessageInGameWithOptionalDelayForParty(
+            game.getChannelName(),
+            GameMessageType.PartyWipe,
+            createPartyWipeMessage(party.name, floorNumber, new Date(Date.now())),
+            getPartyChannelName(game.name, party.name)
+          );
+        outbox.pushFromOther(partyWipedOutbox);
+      }
+
+      outbox.pushToChannel(game.getChannelName(), {
+        type: GameStateUpdateType.ActionCommandPayloads,
+        data: { payloads: partyWipePayloads },
+      });
+    }
+
+    game.removePlayer(session.username);
+
+    const noPlayersRemain = Object.keys(game.players).length === 0;
+    const allPartiesWiped = game.allPartiesWiped();
+
+    // - if there are no living parties in the game, clean up the game
+    if (allPartiesWiped || noPlayersRemain) {
+      await gameModeContext.strategy.onLastPlayerLeftGame(game);
+      this.gameRegistry.unregisterGame(game.name);
+    }
+
+    return outbox;
+  }
+
+  handleAbandoningDeadPartyMembers(
+    game: SpeedDungeonGame,
+    party: AdventuringParty
+  ): { partyAbandoned: boolean; outbox: MessageDispatchOutbox<GameStateUpdate> } {
+    let allRemainingCharactersAreDead = true;
+    const partyMembers = party.combatantManager.getPartyMemberCombatants();
+    for (const character of partyMembers) {
+      const characterIsAlive = !character.combatantProperties.isDead();
+      if (characterIsAlive) {
+        allRemainingCharactersAreDead = false;
         break;
       }
     }
 
-    if (allPartiesWiped) {
-      // - if there are no living parties in the game, clean up the game
+    if (allRemainingCharactersAreDead && !party.timeOfWipe) {
+      const abandonedPartyOutbox =
+        this.partyDelayedGameMessageFactory.createMessageInGameWithOptionalDelayForParty(
+          game.getChannelName(),
+          GameMessageType.PartyDissolved,
+          createPartyAbandonedMessage(party.name),
+          getPartyChannelName(game.name, party.name)
+        );
+      return { partyAbandoned: true, outbox: abandonedPartyOutbox };
     }
-    return outbox;
+
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+    return { partyAbandoned: false, outbox };
   }
 }

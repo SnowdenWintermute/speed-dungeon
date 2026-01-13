@@ -1,7 +1,7 @@
 import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
 import { UserSessionRegistry } from "../sessions/user-session-registry.js";
 import { ClientIntent } from "../../packets/client-intents.js";
-import { GameServerName, Milliseconds } from "../../aliases.js";
+import { ChannelName, ConnectionId, GameServerName, Milliseconds } from "../../aliases.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
 import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
 import {
@@ -32,6 +32,8 @@ import { DisconnectedSession } from "../sessions/disconnected-session.js";
 import { DisconnectedSessionStoreService } from "../services/disconnected-session-store/index.js";
 import { UserId } from "../sessions/user-ids.js";
 import { ReconnectionOpportunity } from "./reconnection-opportunity.js";
+import { GameMessage, GameMessageType } from "../../packets/game-message.js";
+import { PartyDelayedGameMessageFactory } from "./party-delayed-game-message-factory.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -61,6 +63,10 @@ export class GameServer {
     ClientIntent
   >();
 
+  private readonly partyDelayedGameMessageFactory = new PartyDelayedGameMessageFactory(
+    this.gameStateUpdateDispatchFactory
+  );
+
   // controllers
   public readonly gameLifecycleController: GameServerGameLifecycleController;
   public readonly sessionLifecycleController: GameServerSessionLifecycleController;
@@ -86,7 +92,8 @@ export class GameServer {
       this.externalServices.raceGameRecordsService,
       this.externalServices.savedCharactersLadderService,
       this.externalServices.rankedLadderService,
-      this.gameStateUpdateDispatchFactory
+      this.gameStateUpdateDispatchFactory,
+      this.partyDelayedGameMessageFactory
     );
 
     this.sessionLifecycleController = new GameServerSessionLifecycleController(
@@ -225,17 +232,18 @@ export class GameServer {
               await this.externalServices.disconnectedSessionStoreService.deleteDisconnectedSession(
                 session.taggedUserId.id
               );
-              outbox.pushToChannel(game.getChannelName(), {
-                type: GameStateUpdateType.PlayerReconnectionTimedOut,
-                data: { username: session.username },
-              });
             } catch (error) {
               console.error("failed to delete disconnectedSession:", error);
             }
+
+            outbox.pushToChannel(game.getChannelName(), {
+              type: GameStateUpdateType.PlayerReconnectionTimedOut,
+              data: { username: session.username },
+            });
+            game.inputLock.remove(session.taggedUserId.id);
             //   - clean up the player's in game resources
             //     - characters/pets
             //     - player object
-            //     - remove unlock input reference count in case multiple reconnections pending
           })
         );
       } else {

@@ -24,11 +24,8 @@ export async function leavePartyHandler(
   if (!partyOption) return;
   const { username } = player;
 
-  const removedPlayerDataResult = game.removePlayerFromParty(username);
-  if (removedPlayerDataResult instanceof Error) {
-    return errorHandler(socket, removedPlayerDataResult);
-  }
-  let { partyWasRemoved } = removedPlayerDataResult;
+  const removedPlayerData = game.removePlayerFromParty(username);
+  const { partyWasRemoved } = removedPlayerData;
 
   // check if only dead players remain
   let deadPartyMembersAbandoned = false;

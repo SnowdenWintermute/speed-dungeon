@@ -1,3 +1,4 @@
+import { OptimizeIndices } from "@babylonjs/core";
 import { ChannelName, ConnectionId } from "../../index.js";
 import { UserSessionRegistry } from "../sessions/user-session-registry.js";
 
@@ -36,12 +37,20 @@ export class MessageDispatchFactory<Sendable> {
   createFanOut(
     inChannel: ChannelName,
     message: Sendable,
-    options?: { excludedIds: ConnectionId[] }
+    options?: { excludedIds?: ConnectionId[]; excludedChannels?: ChannelName[] }
   ): MessageDispatchFanOut<Sendable> {
     const excludedIds = options?.excludedIds || [];
+
+    const excludedChannels = options?.excludedChannels || [];
+    const connectionIdsFromExcludedChannels: ConnectionId[] = [];
+    for (const excludedChannel of excludedChannels) {
+      connectionIdsFromExcludedChannels.push(...this.userSessionRegistry.in(excludedChannel));
+    }
+
     const connectionIds = this.userSessionRegistry
-      .in(inChannel)
-      .filter((id) => !excludedIds.includes(id));
+      .in(inChannel) // Returns all connectionIds whose sessions are currently subscribed to the given channel. Multiple entries may belong to the same user.
+      .filter((id) => !excludedIds.includes(id))
+      .filter((id) => !connectionIdsFromExcludedChannels.includes(id));
 
     return {
       type: MessageDispatchType.FanOut,

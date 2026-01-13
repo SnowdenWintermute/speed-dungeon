@@ -10,6 +10,8 @@ import {
   CombatActionTargetType,
 } from "../combat/targeting/combat-action-targets.js";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
+import { SpeedDungeonGame } from "./index.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
 
 export class SpeedDungeonPlayer {
   partyName: null | PartyName = null;
@@ -31,6 +33,21 @@ export class SpeedDungeonPlayer {
     }
 
     return this.partyName;
+  }
+
+  getPartyOption(game: SpeedDungeonGame) {
+    if (this.partyName === null) {
+      return null;
+    }
+    return game.getExpectedParty(this.partyName);
+  }
+
+  getExpectedParty(game: SpeedDungeonGame) {
+    const partyOption = this.getPartyOption(game);
+    if (partyOption === null) {
+      throw new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
+    }
+    return partyOption;
   }
 
   requireHasCharacters() {

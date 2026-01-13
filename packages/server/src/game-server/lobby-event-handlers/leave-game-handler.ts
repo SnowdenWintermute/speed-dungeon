@@ -22,8 +22,7 @@ export async function leaveGameHandler(
 
   game.removePlayer(session.username);
 
-  const maxStartingFloor = game.getMaxStartingFloor();
-  if (game.selectedStartingFloor > maxStartingFloor) game.selectedStartingFloor = maxStartingFloor;
+  game.setMaxStartingFloor();
 
   const gameNameLeaving = game.name;
   session.currentGameName = null;

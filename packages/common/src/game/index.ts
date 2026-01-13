@@ -173,20 +173,15 @@ export class SpeedDungeonGame {
   }
 
   /** returns the name of the party and if the party was removed from the game (in the case of its last member being removed) */
-  removePlayerFromParty(username: Username): Error | RemovedPlayerData {
-    const player = this.players.get(username);
+  removePlayerFromParty(username: Username): RemovedPlayerData {
+    const player = this.getExpectedPlayer(username);
     const charactersRemoved: Combatant[] = [];
-    if (!player) {
-      return new Error("No player found to remove");
-    }
+
     if (!player.partyName) {
       return { partyNameLeft: null, partyWasRemoved: false, charactersRemoved };
     }
 
-    const partyLeaving = this.adventuringParties[player.partyName];
-    if (!partyLeaving) {
-      return new Error("No party exists");
-    }
+    const partyLeaving = this.getExpectedParty(player.partyName);
 
     // if a removed character was taking their turn, end their turn
     const battleOption = this.getBattleOption(partyLeaving.battleId);
@@ -196,11 +191,8 @@ export class SpeedDungeonGame {
     const characterIds = cloneDeep(player.characterIds);
 
     Object.values(characterIds).forEach((characterId) => {
-      const removedCharacterResult = partyLeaving.removeCharacter(characterId, player, this);
-      if (removedCharacterResult instanceof Error) {
-        return removedCharacterResult;
-      }
-      charactersRemoved.push(removedCharacterResult);
+      const removedCharacter = partyLeaving.removeCharacter(characterId, player, this);
+      charactersRemoved.push(removedCharacter);
       delete this.lowestStartingFloorOptionsBySavedCharacter[characterId];
     });
 
@@ -348,6 +340,15 @@ export class SpeedDungeonGame {
       throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
     }
     return result;
+  }
+
+  allPartiesWiped() {
+    for (const party of Object.values(this.adventuringParties)) {
+      if (party.timeOfWipe === null) {
+        return false;
+      }
+    }
+    return true;
   }
 }
 

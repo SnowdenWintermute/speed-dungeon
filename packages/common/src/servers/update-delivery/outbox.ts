@@ -16,7 +16,7 @@ export class MessageDispatchOutbox<Sendable> {
   pushToChannel(
     inChannel: ChannelName,
     update: Sendable,
-    options?: { excludedIds: ConnectionId[] }
+    options?: { excludedIds?: ConnectionId[]; excludedChannels?: ChannelName[] }
   ) {
     this.list.push(this.dispatchFactory.createFanOut(inChannel, update, options));
   }
