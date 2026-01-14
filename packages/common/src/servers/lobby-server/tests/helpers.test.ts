@@ -17,6 +17,7 @@ import {
 } from "../game-handoff/connection-instructions.js";
 import { InMemoryIncomingConnectionGateway } from "../../in-memory-incoming-connection-gateway.js";
 import { InMemoryGameSessionStoreService } from "../../services/game-session-store/in-memory-game-session-store-service.js";
+import { InMemoryDisconnectedSessionStoreService } from "../../services/disconnected-session-store/in-memory-disconnected-session-store.js";
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class TestHelpers {
@@ -60,6 +61,7 @@ export class TestHelpers {
     );
 
     const gameSessionStoreService = new InMemoryGameSessionStoreService();
+    const disconnectedSessionStoreService = new InMemoryDisconnectedSessionStoreService();
 
     const rankedLadderService = new InMemoryRankedLadderService();
     const externalServices = {
@@ -69,6 +71,7 @@ export class TestHelpers {
       rankedLadderService,
       idGenerator: new IdGenerator({ saveHistory: false }),
       gameSessionStoreService,
+      disconnectedSessionStoreService,
     };
     return externalServices;
   }

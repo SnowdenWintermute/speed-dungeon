@@ -1,8 +1,28 @@
+import { GuestSessionReconnectionToken, IdentityProviderId } from "../../../aliases.js";
 import { DisconnectedSession } from "../../sessions/disconnected-session.js";
-import { UserId } from "../../sessions/user-ids.js";
+
+export enum ReconnectionKeyType {
+  Auth,
+  Guest,
+}
+
+export interface GuestReconnectionKey {
+  type: ReconnectionKeyType.Guest;
+  reconnectionToken: GuestSessionReconnectionToken;
+}
+
+export interface AuthReconnectionKey {
+  type: ReconnectionKeyType.Auth;
+  userId: IdentityProviderId;
+}
+
+export type ReconnectionKey = GuestReconnectionKey | AuthReconnectionKey;
 
 export interface DisconnectedSessionStoreService {
-  writeDisconnectedSession(userId: UserId, record: DisconnectedSession): Promise<void>;
-  getDisconnectedSession(userId: UserId): Promise<DisconnectedSession | null>;
-  deleteDisconnectedSession(userId: UserId): Promise<void>;
+  writeDisconnectedSession(
+    reconnectionKey: ReconnectionKey,
+    record: DisconnectedSession
+  ): Promise<void>;
+  getDisconnectedSession(reconnectionKey: ReconnectionKey): Promise<DisconnectedSession | null>;
+  deleteDisconnectedSession(reconnectionKey: ReconnectionKey): Promise<void>;
 }

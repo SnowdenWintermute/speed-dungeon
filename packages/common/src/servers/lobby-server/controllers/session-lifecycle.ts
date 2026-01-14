@@ -46,12 +46,6 @@ export class LobbySessionLifecycleController
     return new UserSession(username, connectionId, taggedUserId, this.lobbyState.gameRegistry);
   }
 
-  private generateRandomUsername() {
-    const firstName = PLAYER_FIRST_NAMES[Math.floor(Math.random() * PLAYER_FIRST_NAMES.length)];
-    const lastName = PLAYER_LAST_NAMES[Math.floor(Math.random() * PLAYER_LAST_NAMES.length)];
-    return `${firstName} ${lastName}` as Username;
-  }
-
   private createGuestUser() {
     const taggedUserId: TaggedUserId = {
       type: UserIdType.Guest,
@@ -60,15 +54,17 @@ export class LobbySessionLifecycleController
     return { username: this.generateRandomUsername(), taggedUserId };
   }
 
-  async activateSession(session: UserSession) {
+  private generateRandomUsername() {
+    const firstName = PLAYER_FIRST_NAMES[Math.floor(Math.random() * PLAYER_FIRST_NAMES.length)];
+    const lastName = PLAYER_LAST_NAMES[Math.floor(Math.random() * PLAYER_LAST_NAMES.length)];
+    return `${firstName} ${lastName}` as Username;
+  }
+
+  async activateSession(
+    session: UserSession,
+    options?: { sessionWillBeForwardedToGameServer: boolean }
+  ) {
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
-
-    if (session.isAuth()) {
-      const savedCharactersOutbox =
-        await this.savedCharactersController.fetchSavedCharactersHandler(session);
-      outbox.pushFromOther(savedCharactersOutbox);
-    }
-
     this.userSessionRegistry.register(session);
 
     // tell the client their username
@@ -76,6 +72,18 @@ export class LobbySessionLifecycleController
       type: GameStateUpdateType.ClientUsername,
       data: { username: session.username },
     });
+
+    // don't set up all their lobby stuff because we just want to forward them
+    // to their disconnected session in the game server
+    if (options?.sessionWillBeForwardedToGameServer) {
+      return outbox;
+    }
+
+    if (session.isAuth()) {
+      const savedCharactersOutbox =
+        await this.savedCharactersController.fetchSavedCharactersHandler(session);
+      outbox.pushFromOther(savedCharactersOutbox);
+    }
 
     const userChannelDisplayData = this.lobbyState.addUser(session.username, session.isAuth());
     session.subscribeToChannel(LOBBY_CHANNEL);

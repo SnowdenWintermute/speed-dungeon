@@ -18,7 +18,7 @@ import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js
 import { CharacterCreator } from "../../character-creation/index.js";
 import { ItemGenerator } from "../../items/item-creation/index.js";
 import { AffixGenerator } from "../../items/item-creation/builders/affix-generator/index.js";
-import { GameStateUpdate } from "../../packets/game-state-updates.js";
+import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
 import { ClientIntent } from "../../packets/client-intents.js";
 import { UserIdType } from "../sessions/user-ids.js";
 import { GameHandoffStrategyLobbyToGameServer } from "./game-handoff/handoff-strategy.js";
@@ -33,6 +33,14 @@ import { UntypedConnectionEndpoint } from "../../transport/connection-endpoint.j
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
 import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js";
 import { UserSession } from "../sessions/user-session.js";
+import {
+  DisconnectedSessionStoreService,
+  ReconnectionKeyType,
+} from "../services/disconnected-session-store/index.js";
+import { GameServerSessionClaimToken } from "./game-handoff/session-claim-token.js";
+import { GameServerConnectionType } from "./game-handoff/connection-instructions.js";
+import { GameServerName } from "../../aliases.js";
+import { DisconnectedSession } from "../sessions/disconnected-session.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -40,6 +48,7 @@ export interface LobbyExternalServices {
   savedCharactersService: SavedCharactersService;
   rankedLadderService: RankedLadderService;
   gameSessionStoreService: GameSessionStoreService;
+  disconnectedSessionStoreService: DisconnectedSessionStoreService;
   idGenerator: IdGenerator;
 }
 
@@ -100,17 +109,11 @@ export class LobbyServer {
     connectionEndpoint: UntypedConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
-    // authenticate
-    // create session
     const newSession = await this.userSessionLifecycleController.createSession(
       connectionEndpoint.id,
       identityResolutionContext
     );
-
-    // special business logic for this session type
-    if (newSession.taggedUserId.type === UserIdType.Auth) {
-      this.externalServices.profileService.createProfileIfUserHasNone(newSession.taggedUserId.id);
-    }
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.gameStateUpdateDispatchFactory);
 
     // type the connection endpoint
     const userConnectionEndpoint = connectionEndpoint.toTyped<GameStateUpdate, ClientIntent>();
@@ -118,6 +121,73 @@ export class LobbyServer {
       userConnectionEndpoint.id,
       userConnectionEndpoint
     );
+
+    let disconnectedSessionOption: DisconnectedSession | null = null;
+
+    if (newSession.taggedUserId.type === UserIdType.Auth) {
+      this.externalServices.profileService.createProfileIfUserHasNone(newSession.taggedUserId.id);
+
+      disconnectedSessionOption =
+        await this.externalServices.disconnectedSessionStoreService.getDisconnectedSession(
+          newSession.getReconnectionKey()
+        );
+    } else if (newSession.taggedUserId.type === UserIdType.Guest) {
+      // would have been given by the game server
+      if (identityResolutionContext.clientCachedGuestReconnectionToken) {
+        disconnectedSessionOption =
+          await this.externalServices.disconnectedSessionStoreService.getDisconnectedSession({
+            type: ReconnectionKeyType.Guest,
+            reconnectionToken: identityResolutionContext.clientCachedGuestReconnectionToken,
+          });
+      }
+    }
+
+    // we will rely on the game server to delete the disconnectedSession when it is claimed or expires
+    // in the event that it expires after we issue the claim token and before the user presents it, we will
+    // not accept their reconnection to the game server. the reason I didn't want to delete it here is because
+    // the game server needs to know when the disconnectedSession expires or is claimed so it can remove the
+    // input lock's RC for that user in the game. also, if they get their claim token then disconnect before
+    // reconnecting to the game server they won't be able to reconnect again if we delete it now.
+    if (disconnectedSessionOption) {
+      // - lobby ensures the game associated with this disconnected session is still active
+      //   by checking the central store's Record<GameId, ActiveGame>
+      const gameStillExists =
+        await this.externalServices.gameSessionStoreService.getActiveGameStatus(
+          disconnectedSessionOption.gameName
+        );
+
+      if (gameStillExists) {
+        // - lobby provides a GameServerSessionClaimToken to user client
+        const claimToken = new GameServerSessionClaimToken(
+          disconnectedSessionOption.gameName,
+          newSession.username,
+          newSession.taggedUserId
+        );
+
+        outbox.pushFromOther(
+          await this.userSessionLifecycleController.activateSession(newSession, {
+            sessionWillBeForwardedToGameServer: true,
+          })
+        );
+        // @TODO - encrypt the token
+        // const encryptedToken =
+        outbox.pushToConnection(newSession.connectionId, {
+          type: GameStateUpdateType.GameServerConnectionInstructions,
+          data: {
+            connectionInstructions: {
+              type: GameServerConnectionType.Remote,
+              url: this.getGameServerUrlFromName(disconnectedSessionOption.gameServerName),
+              sessionClaimToken: claimToken,
+            },
+          },
+        });
+
+        // - user client executes normal flow for onGameServerSessionClaimTokenReceipt, same as when they
+        //   are in a lobby game setup and start a new game
+        this.dispatchUserOutboxMessages(outbox);
+        return;
+      }
+    }
 
     console.info(
       `-- ${newSession.username} (user id: ${newSession.taggedUserId.id}, connection id: ${newSession.connectionId}) joined the lobby`
@@ -140,7 +210,7 @@ export class LobbyServer {
       },
       (reason) => this.disconnectionHandler(newSession, reason)
     );
-    const outbox = await this.userSessionLifecycleController.activateSession(newSession);
+    outbox.pushFromOther(await this.userSessionLifecycleController.activateSession(newSession));
     this.dispatchUserOutboxMessages(outbox);
   }
 
@@ -219,5 +289,9 @@ export class LobbyServer {
       characterLifecycleController,
       userSessionLifecycleController,
     };
+  }
+
+  private getGameServerUrlFromName(name: GameServerName) {
+    return "";
   }
 }

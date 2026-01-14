@@ -84,6 +84,7 @@ export const ERROR_MESSAGES = {
     SAVED_CHARACTER_NOT_OWNED: "You do not own the character with the provided ID",
     NO_LIVING_CHARACTERS: "You have no characters that are alive",
     NOT_FOUND: "User not found",
+    GUEST_ALREADY_EXISTS: "Guest by that id already is connected",
   },
   COMBATANT: {
     NOT_FOUND: "No combatant was found with the provided ID",

@@ -13,7 +13,13 @@ import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
-import { CharacterSlotIndex, EntityId, GameName, Username } from "../aliases.js";
+import {
+  CharacterSlotIndex,
+  EntityId,
+  GameName,
+  GuestSessionReconnectionToken,
+  Username,
+} from "../aliases.js";
 import { ExplorationAction } from "../adventuring-party/dungeon-exploration-manager.js";
 import { DungeonRoom, DungeonRoomType } from "../adventuring-party/dungeon-room.js";
 import { GameServerConnectionInstructions } from "../servers/lobby-server/game-handoff/connection-instructions.js";
@@ -21,6 +27,7 @@ import { GameServerConnectionInstructions } from "../servers/lobby-server/game-h
 export enum GameStateUpdateType {
   GameList,
   ClientUsername,
+  CacheGuestSessionReconnectionToken,
   ChannelFullUpdate,
   UserJoinedChannel,
   UserLeftChannel,
@@ -81,6 +88,9 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.ClientUsername]: {
     username: string;
+  };
+  [GameStateUpdateType.CacheGuestSessionReconnectionToken]: {
+    token: GuestSessionReconnectionToken;
   };
   [GameStateUpdateType.ChannelFullUpdate]: {
     channelName: string;

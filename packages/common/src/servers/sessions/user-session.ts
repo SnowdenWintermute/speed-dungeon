@@ -3,12 +3,18 @@ import {
   ActionValidity,
   ConnectionId,
   GameName,
+  GuestSessionReconnectionToken,
+  invariant,
   PartyName,
   SpeedDungeonGame,
   SpeedDungeonProfileService,
   Username,
 } from "../../index.js";
 import { GameRegistry } from "../game-registry.js";
+import {
+  ReconnectionKey,
+  ReconnectionKeyType,
+} from "../services/disconnected-session-store/index.js";
 import { ConnectionSession } from "./session-registry.js";
 import { AuthTaggedUserId, TaggedUserId, UserIdType } from "./user-ids.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
@@ -16,6 +22,7 @@ import { UserSessionRegistry } from "./user-session-registry.js";
 export class UserSession extends ConnectionSession {
   public currentGameName: null | GameName = null;
   public currentPartyName: null | PartyName = null;
+  private guestReconnectionToken: null | GuestSessionReconnectionToken = null;
 
   constructor(
     public readonly username: Username,
@@ -103,5 +110,33 @@ export class UserSession extends ConnectionSession {
   requireProfile(profileService: SpeedDungeonProfileService) {
     this.requireAuthorized();
     return profileService.fetchExpectedProfile(this.userId.id);
+  }
+
+  setGuestReconnectionToken(token: GuestSessionReconnectionToken) {
+    invariant(this.isGuest());
+    this.guestReconnectionToken = token;
+  }
+
+  getGuestReconnectionTokenOption() {
+    return this.guestReconnectionToken;
+  }
+
+  getReconnectionKey(): ReconnectionKey {
+    switch (this.taggedUserId.type) {
+      case UserIdType.Auth: {
+        return {
+          type: ReconnectionKeyType.Auth,
+          userId: this.taggedUserId.id,
+        };
+      }
+      case UserIdType.Guest: {
+        const reconnectionTokenOption = this.getGuestReconnectionTokenOption();
+        invariant(reconnectionTokenOption !== null);
+        return {
+          type: ReconnectionKeyType.Guest,
+          reconnectionToken: reconnectionTokenOption,
+        };
+      }
+    }
   }
 }

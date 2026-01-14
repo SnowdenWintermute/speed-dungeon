@@ -1,7 +1,8 @@
 import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
 import { UserSessionRegistry } from "../sessions/user-session-registry.js";
 import { ClientIntent } from "../../packets/client-intents.js";
-import { ChannelName, ConnectionId, GameServerName, Milliseconds } from "../../aliases.js";
+import { randomBytes } from "crypto";
+import { GameServerName, GuestSessionReconnectionToken, Milliseconds } from "../../aliases.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
 import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
 import {
@@ -30,10 +31,9 @@ import { HeartbeatScheduler } from "../../primatives/heartbeat.js";
 import { ONE_SECOND } from "../../app-consts.js";
 import { DisconnectedSession } from "../sessions/disconnected-session.js";
 import { DisconnectedSessionStoreService } from "../services/disconnected-session-store/index.js";
-import { UserId } from "../sessions/user-ids.js";
 import { ReconnectionOpportunity } from "./reconnection-opportunity.js";
-import { GameMessage, GameMessageType } from "../../packets/game-message.js";
 import { PartyDelayedGameMessageFactory } from "./party-delayed-game-message-factory.js";
+import { ReconnectionOpportunityManager } from "./reconnection-opportunity-manager.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -52,8 +52,8 @@ export class GameServer {
   private readonly gameRegistry = new GameRegistry();
   private readonly idGenerator = new IdGenerator({ saveHistory: false });
   private readonly heartbeatScheduler = new HeartbeatScheduler(GAME_RECORD_HEARTBEAT_MS);
-  private readonly reconnectionOpportunities = new Map<UserId, ReconnectionOpportunity>();
   private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
+  private readonly reconnectionOpportunityManager = new ReconnectionOpportunityManager();
   readonly userSessionRegistry = new UserSessionRegistry();
   private readonly gameStateUpdateDispatchFactory = new MessageDispatchFactory<GameStateUpdate>(
     this.userSessionRegistry
@@ -164,8 +164,8 @@ export class GameServer {
 
     const gameIsInProgress = existingGame.timeStarted !== null;
 
-    const reconnectionOpportunityOption = this.reconnectionOpportunities.get(
-      session.taggedUserId.id
+    const reconnectionOpportunityOption = this.reconnectionOpportunityManager.get(
+      session.getReconnectionKey()
     );
 
     const isValidReconnection =
@@ -174,9 +174,9 @@ export class GameServer {
       reconnectionOpportunityOption.claim();
 
     if (isValidReconnection) {
-      this.reconnectionOpportunities.delete(session.taggedUserId.id);
+      this.reconnectionOpportunityManager.remove(session.getReconnectionKey());
       await this.externalServices.disconnectedSessionStoreService.deleteDisconnectedSession(
-        session.taggedUserId.id
+        session.getReconnectionKey()
       );
 
       const joinGameOutbox = await this.gameLifecycleController.joinGameHandler(gameName, session);
@@ -187,6 +187,14 @@ export class GameServer {
     } else {
       throw new Error("Client attempted to reconnect to a game under invalid conditions");
     }
+
+    const newReconnectionToken = this.generateGuestReconnectionToken();
+    outbox.pushToConnection(session.connectionId, {
+      type: GameStateUpdateType.CacheGuestSessionReconnectionToken,
+      data: {
+        token: newReconnectionToken,
+      },
+    });
 
     this.dispatchUserOutboxMessages(outbox);
   }
@@ -209,9 +217,9 @@ export class GameServer {
       const reconnectionPermitted = partyIsStillAlive;
 
       if (reconnectionPermitted) {
-        const disconnectedSession = DisconnectedSession.fromUserSession(session);
+        const disconnectedSession = DisconnectedSession.fromUserSession(session, this.name);
         this.externalServices.disconnectedSessionStoreService.writeDisconnectedSession(
-          session.taggedUserId.id,
+          session.getReconnectionKey(),
           disconnectedSession
         );
 
@@ -224,13 +232,13 @@ export class GameServer {
         });
 
         // - if timeout elapses without reconnection,
-        this.reconnectionOpportunities.set(
-          session.taggedUserId.id,
+        this.reconnectionOpportunityManager.add(
+          session.getReconnectionKey(),
           new ReconnectionOpportunity(RECONNECTION_OPPORTUNITY_TIMOUT_MS, async () => {
-            this.reconnectionOpportunities.delete(session.taggedUserId.id);
+            this.reconnectionOpportunityManager.remove(session.getReconnectionKey());
             try {
               await this.externalServices.disconnectedSessionStoreService.deleteDisconnectedSession(
-                session.taggedUserId.id
+                session.getReconnectionKey()
               );
             } catch (error) {
               console.error("failed to delete disconnectedSession:", error);
@@ -281,5 +289,9 @@ export class GameServer {
           break;
       }
     }
+  }
+
+  private generateGuestReconnectionToken(): GuestSessionReconnectionToken {
+    return randomBytes(32).toString("base64url") as GuestSessionReconnectionToken;
   }
 }
