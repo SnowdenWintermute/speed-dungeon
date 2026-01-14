@@ -56,6 +56,7 @@
 // handle a reconnection (to lobby server after disconnection from game server)
 // - guests provide GuestId (UUID) from their local storage
 // - if authenticated user, lobby server gets their UserId from lobby's auth service
+//
 // - lobby checks the central store for a DisconnectedSession for that GuestId or UserId
 // - lobby ensures the game associated with this disconnected session is still active
 //   by checking the central store's Record<GameId, ActiveGame>
@@ -63,13 +64,19 @@
 // - user client executes normal flow for onGameServerSessionClaimTokenReceipt, same as when they
 //   are in a lobby game setup and start a new game
 //
+// game server's heartbeat loop
+// - update all corresponding ActiveGameStatus objects in the central store
+//
+// on lobby server crash
+// - have the containing node auto-restart the process
+//
+// ^^^ CURRENTLY DONE ABOVE THIS LINE ^^^
+// vvv NEXT DO THINGS BELOW THIS LINE vvv
+//
 // on intentional game leave (LEAVE GAME button pressed)
 // - warn users that they will not be able to reconnect
 // - don't create a DisconnectedSession for them
 // - don't add them to the input lock RC
-//
-//   game server's heartbeat loop
-//   - update all corresponding ActiveGameStatus objects in the central store
 //
 // lobby's DanglingResourcesCleanupLoop
 // - read all ActiveGame records from the central store and check their last lastHeartbeatTimestamp
@@ -79,6 +86,4 @@
 //   - DisconnectedSession
 //   - heartbeat
 //
-// on lobby server crash
-// - have the containing node auto-restart the process
 //

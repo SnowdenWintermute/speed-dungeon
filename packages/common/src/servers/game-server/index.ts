@@ -1,14 +1,9 @@
 import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
-import { UserSessionRegistry } from "../sessions/user-session-registry.js";
 import { ClientIntent } from "../../packets/client-intents.js";
 import { randomBytes } from "crypto";
 import { GameServerName, GuestSessionReconnectionToken, Milliseconds } from "../../aliases.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
-import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
-import {
-  MessageDispatchFactory,
-  MessageDispatchType,
-} from "../update-delivery/message-dispatch-factory.js";
+import { MessageDispatchFactory } from "../update-delivery/message-dispatch-factory.js";
 import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
 import { SavedCharactersService } from "../services/saved-characters.js";
@@ -34,6 +29,7 @@ import { DisconnectedSessionStoreService } from "../services/disconnected-sessio
 import { ReconnectionOpportunity } from "./reconnection-opportunity.js";
 import { PartyDelayedGameMessageFactory } from "./party-delayed-game-message-factory.js";
 import { ReconnectionOpportunityManager } from "./reconnection-opportunity-manager.js";
+import { SpeedDungeonServer } from "../speed-dungeon-server.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -48,20 +44,15 @@ export interface GameServerExternalServices {
 export const GAME_RECORD_HEARTBEAT_MS: Milliseconds = ONE_SECOND * 10;
 export const RECONNECTION_OPPORTUNITY_TIMOUT_MS: Milliseconds = ONE_SECOND * 120;
 
-export class GameServer {
+export class GameServer extends SpeedDungeonServer {
   private readonly gameRegistry = new GameRegistry();
   private readonly idGenerator = new IdGenerator({ saveHistory: false });
   private readonly heartbeatScheduler = new HeartbeatScheduler(GAME_RECORD_HEARTBEAT_MS);
   private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
   private readonly reconnectionOpportunityManager = new ReconnectionOpportunityManager();
-  readonly userSessionRegistry = new UserSessionRegistry();
   private readonly gameStateUpdateDispatchFactory = new MessageDispatchFactory<GameStateUpdate>(
     this.userSessionRegistry
   );
-  private readonly outgoingMessagesToUsersGateway = new OutgoingMessageGateway<
-    GameStateUpdate,
-    ClientIntent
-  >();
 
   private readonly partyDelayedGameMessageFactory = new PartyDelayedGameMessageFactory(
     this.gameStateUpdateDispatchFactory
@@ -77,6 +68,7 @@ export class GameServer {
     private readonly incomingConnectionGateway: IncomingConnectionGateway,
     private readonly externalServices: GameServerExternalServices
   ) {
+    super();
     this.incomingConnectionGateway.initialize(
       async (context, identityContext) => await this.handleConnection(context, identityContext)
     );
@@ -122,6 +114,13 @@ export class GameServer {
       identityResolutionContext
     );
 
+    // type the connection endpoint
+    const userConnectionEndpoint = connectionEndpoint.toTyped<GameStateUpdate, ClientIntent>();
+    this.outgoingMessagesGateway.registerEndpoint(
+      userConnectionEndpoint.id,
+      userConnectionEndpoint
+    );
+
     const { gameName } = sessionClaimTokenOption;
 
     let existingGame = this.gameRegistry.getGameOption(gameName);
@@ -130,34 +129,14 @@ export class GameServer {
       existingGame = await this.gameLifecycleController.initializeExpectedPendingGame(gameName);
     }
 
-    // type the connection endpoint
-    const userConnectionEndpoint = connectionEndpoint.toTyped<GameStateUpdate, ClientIntent>();
-    this.outgoingMessagesToUsersGateway.registerEndpoint(
-      userConnectionEndpoint.id,
-      userConnectionEndpoint
-    );
-
     console.info(
       `-- ${session.username} (user id: ${session.taggedUserId.id}, connection id: ${session.connectionId}) joined the ${this.name} game server`
     );
 
-    // attach the connection to message handlers and disconnectionHandler
-    // @TODO - this is same as on lobby server, combine it
-    userConnectionEndpoint.subscribeAll(
-      async (receivable) => {
-        const handlerOption = this.intentHandlers[receivable.type];
-
-        if (handlerOption === undefined) {
-          throw new Error("Lobby is not configured to handle this type of ClientIntent");
-        }
-
-        const session = this.userSessionRegistry.getExpectedSession(userConnectionEndpoint.id);
-
-        // a workaround is to use "as never" for some reason
-        const outbox = await handlerOption(receivable.data as never, session);
-        this.dispatchUserOutboxMessages(outbox);
-      },
-      (reason) => this.disconnectionHandler(session, reason)
+    this.attachIntentHandlersToSessionConnection(
+      session,
+      userConnectionEndpoint,
+      this.intentHandlers
     );
 
     const outbox = await this.sessionLifecycleController.activateSession(session);
@@ -196,13 +175,13 @@ export class GameServer {
       },
     });
 
-    this.dispatchUserOutboxMessages(outbox);
+    this.dispatchOutboxMessages(outbox);
   }
 
   // @TODO - combine with lobby server, it is almost exact same other than disconnection session logic
-  private async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
+  protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
     await this.sessionLifecycleController.cleanupSession(session);
-    this.outgoingMessagesToUsersGateway.unregisterEndpoint(session.connectionId);
+    this.outgoingMessagesGateway.unregisterEndpoint(session.connectionId);
     console.info(
       `-- ${session.username} (${session.connectionId}) disconnected from ${this.name} game server. Reason - ${reason.getStringName()}`
     );
@@ -257,7 +236,7 @@ export class GameServer {
               await this.gameLifecycleController.leaveGameHandler(session);
             reconnectionTimeoutOutbox.pushFromOther(leaveGameHandlerOutbox);
 
-            this.dispatchUserOutboxMessages(reconnectionTimeoutOutbox);
+            this.dispatchOutboxMessages(reconnectionTimeoutOutbox);
           })
         );
       } else {
@@ -268,27 +247,7 @@ export class GameServer {
       console.error("unexpected error while handling disconnection from living party:", error);
     }
 
-    this.dispatchUserOutboxMessages(outbox);
-  }
-
-  // @TODO - combine with lobby server's version, it is same thing
-  private dispatchUserOutboxMessages(outbox: MessageDispatchOutbox<GameStateUpdate>) {
-    for (const dispatch of outbox.toDispatches()) {
-      switch (dispatch.type) {
-        case MessageDispatchType.Single:
-          this.outgoingMessagesToUsersGateway.submitToConnection(
-            dispatch.connectionId,
-            dispatch.message
-          );
-          break;
-        case MessageDispatchType.FanOut:
-          this.outgoingMessagesToUsersGateway.submitToConnections(
-            dispatch.connectionIds,
-            dispatch.message
-          );
-          break;
-      }
-    }
+    this.dispatchOutboxMessages(outbox);
   }
 
   private generateGuestReconnectionToken(): GuestSessionReconnectionToken {

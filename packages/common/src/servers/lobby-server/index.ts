@@ -12,7 +12,6 @@ import {
 import { SpeedDungeonProfileService } from "../services/profiles.js";
 import { SavedCharactersService } from "../services/saved-characters.js";
 import { RankedLadderService } from "../services/ranked-ladder.js";
-import { UserSessionRegistry } from "../sessions/user-session-registry.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
 import { CharacterCreator } from "../../character-creation/index.js";
@@ -22,12 +21,8 @@ import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-u
 import { ClientIntent } from "../../packets/client-intents.js";
 import { UserIdType } from "../sessions/user-ids.js";
 import { GameHandoffStrategyLobbyToGameServer } from "./game-handoff/handoff-strategy.js";
-import {
-  MessageDispatchFactory,
-  MessageDispatchType,
-} from "../update-delivery/message-dispatch-factory.js";
+import { MessageDispatchFactory } from "../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
-import { OutgoingMessageGateway } from "../update-delivery/message-gateway.js";
 import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { UntypedConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
@@ -42,6 +37,7 @@ import { GameServerConnectionType } from "./game-handoff/connection-instructions
 import { GameServerName } from "../../aliases.js";
 import { DisconnectedSession } from "../sessions/disconnected-session.js";
 import { GameHandoffManager } from "./game-handoff/game-handoff-manager.js";
+import { SpeedDungeonServer } from "../speed-dungeon-server.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -54,27 +50,16 @@ export interface LobbyExternalServices {
 }
 
 // lives either inside a LobbyServerNode or locally on a ClientApp
-export class LobbyServer {
+export class LobbyServer extends SpeedDungeonServer {
   private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
   public readonly lobbyState = new LobbyState();
-  private readonly outgoingMessagesToUsersGateway = new OutgoingMessageGateway<
-    GameStateUpdate,
-    ClientIntent
-  >();
-  readonly userSessionRegistry = new UserSessionRegistry();
 
   private readonly gameStateUpdateDispatchFactory = new MessageDispatchFactory<GameStateUpdate>(
     this.userSessionRegistry
   );
   private readonly characterCreator: CharacterCreator;
 
-  private readonly gameHandoffManager = new GameHandoffManager(
-    this.userSessionRegistry,
-    this.gameStateUpdateDispatchFactory,
-    this.externalServices.gameSessionStoreService,
-    this.lobbyState
-  );
-
+  private readonly gameHandoffManager: GameHandoffManager;
   private userIntentHandlers = createLobbyClientIntentHandlers(this);
 
   // user controllers
@@ -90,6 +75,15 @@ export class LobbyServer {
     private readonly gameHandoffStrategy: GameHandoffStrategyLobbyToGameServer,
     private readonly externalServices: LobbyExternalServices
   ) {
+    super();
+
+    this.gameHandoffManager = new GameHandoffManager(
+      this.userSessionRegistry,
+      this.gameStateUpdateDispatchFactory,
+      externalServices.gameSessionStoreService,
+      this.lobbyState
+    );
+
     this.incomingConnectionGateway.initialize(
       async (context, identityContext) => await this.handleConnection(context, identityContext)
     );
@@ -112,7 +106,6 @@ export class LobbyServer {
     this.characterLifecycleController = controllers.characterLifecycleController;
   }
 
-  // @TODO - extract common functionality in game server and lobby server
   async handleConnection(
     connectionEndpoint: UntypedConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
@@ -125,7 +118,7 @@ export class LobbyServer {
 
     // type the connection endpoint
     const userConnectionEndpoint = connectionEndpoint.toTyped<GameStateUpdate, ClientIntent>();
-    this.outgoingMessagesToUsersGateway.registerEndpoint(
+    this.outgoingMessagesGateway.registerEndpoint(
       userConnectionEndpoint.id,
       userConnectionEndpoint
     );
@@ -192,7 +185,7 @@ export class LobbyServer {
 
         // - user client executes normal flow for onGameServerSessionClaimTokenReceipt, same as when they
         //   are in a lobby game setup and start a new game
-        this.dispatchUserOutboxMessages(outbox);
+        this.dispatchOutboxMessages(outbox);
         return;
       }
     }
@@ -202,51 +195,22 @@ export class LobbyServer {
     );
 
     // attach the connection to message handlers and disconnectionHandler
-    userConnectionEndpoint.subscribeAll(
-      async (receivable) => {
-        const handlerOption = this.userIntentHandlers[receivable.type];
-
-        if (handlerOption === undefined) {
-          throw new Error("Lobby is not configured to handle this type of ClientIntent");
-        }
-
-        const session = this.userSessionRegistry.getExpectedSession(userConnectionEndpoint.id);
-
-        // a workaround is to use "as never" for some reason
-        const outbox = await handlerOption(receivable.data as never, session);
-        this.dispatchUserOutboxMessages(outbox);
-      },
-      (reason) => this.disconnectionHandler(newSession, reason)
+    this.attachIntentHandlersToSessionConnection(
+      newSession,
+      userConnectionEndpoint,
+      this.userIntentHandlers
     );
+
     outbox.pushFromOther(await this.userSessionLifecycleController.activateSession(newSession));
-    this.dispatchUserOutboxMessages(outbox);
+    this.dispatchOutboxMessages(outbox);
   }
 
-  private async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
+  protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
     console.info(
       `-- ${session.username} (${session.connectionId})  disconnected. Reason - ${reason.getStringName()}`
     );
     await this.userSessionLifecycleController.cleanupSession(session);
-    this.outgoingMessagesToUsersGateway.unregisterEndpoint(session.connectionId);
-  }
-
-  private dispatchUserOutboxMessages(outbox: MessageDispatchOutbox<GameStateUpdate>) {
-    for (const dispatch of outbox.toDispatches()) {
-      switch (dispatch.type) {
-        case MessageDispatchType.Single:
-          this.outgoingMessagesToUsersGateway.submitToConnection(
-            dispatch.connectionId,
-            dispatch.message
-          );
-          break;
-        case MessageDispatchType.FanOut:
-          this.outgoingMessagesToUsersGateway.submitToConnections(
-            dispatch.connectionIds,
-            dispatch.message
-          );
-          break;
-      }
-    }
+    this.outgoingMessagesGateway.unregisterEndpoint(session.connectionId);
   }
 
   private createControllers() {
