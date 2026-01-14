@@ -129,8 +129,9 @@ export class GameServer extends SpeedDungeonServer {
       existingGame = await this.gameLifecycleController.initializeExpectedPendingGame(gameName);
     }
 
+    const { username, taggedUserId, connectionId } = session;
     console.info(
-      `-- ${session.username} (user id: ${session.taggedUserId.id}, connection id: ${session.connectionId}) joined the ${this.name} game server`
+      `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the ${this.name} game server`
     );
 
     this.attachIntentHandlersToSessionConnection(

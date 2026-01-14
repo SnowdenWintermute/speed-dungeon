@@ -11,7 +11,7 @@ import { UserSession } from "./user-session.js";
 
 export class DisconnectedSession {
   constructor(
-    private taggedUserId: TaggedUserId,
+    public readonly taggedUserId: TaggedUserId,
     private username: Username,
     private _gameName: GameName,
     public readonly gameServerName: GameServerName,

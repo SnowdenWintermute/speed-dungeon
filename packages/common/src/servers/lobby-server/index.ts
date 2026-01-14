@@ -110,11 +110,10 @@ export class LobbyServer extends SpeedDungeonServer {
     connectionEndpoint: UntypedConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
-    const newSession = await this.userSessionLifecycleController.createSession(
+    const session = await this.userSessionLifecycleController.createSession(
       connectionEndpoint.id,
       identityResolutionContext
     );
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.gameStateUpdateDispatchFactory);
 
     // type the connection endpoint
     const userConnectionEndpoint = connectionEndpoint.toTyped<GameStateUpdate, ClientIntent>();
@@ -123,25 +122,10 @@ export class LobbyServer extends SpeedDungeonServer {
       userConnectionEndpoint
     );
 
-    let disconnectedSessionOption: DisconnectedSession | null = null;
-
-    if (newSession.taggedUserId.type === UserIdType.Auth) {
-      this.externalServices.profileService.createProfileIfUserHasNone(newSession.taggedUserId.id);
-
-      disconnectedSessionOption =
-        await this.externalServices.disconnectedSessionStoreService.getDisconnectedSession(
-          newSession.getReconnectionKey()
-        );
-    } else if (newSession.taggedUserId.type === UserIdType.Guest) {
-      // would have been given by the game server
-      if (identityResolutionContext.clientCachedGuestReconnectionToken) {
-        disconnectedSessionOption =
-          await this.externalServices.disconnectedSessionStoreService.getDisconnectedSession({
-            type: ReconnectionKeyType.Guest,
-            reconnectionToken: identityResolutionContext.clientCachedGuestReconnectionToken,
-          });
-      }
-    }
+    const disconnectedSessionOption = await this.getDisconnectedSessionOption(
+      session,
+      identityResolutionContext
+    );
 
     // we will rely on the game server to delete the disconnectedSession when it is claimed or expires
     // in the event that it expires after we issue the claim token and before the user presents it, we will
@@ -150,58 +134,31 @@ export class LobbyServer extends SpeedDungeonServer {
     // input lock's RC for that user in the game. also, if they get their claim token then disconnect before
     // reconnecting to the game server they won't be able to reconnect again if we delete it now.
     if (disconnectedSessionOption) {
-      // - lobby ensures the game associated with this disconnected session is still active
-      //   by checking the central store's Record<GameId, ActiveGame>
       const gameStillExists =
         await this.externalServices.gameSessionStoreService.getActiveGameStatus(
           disconnectedSessionOption.gameName
         );
 
       if (gameStillExists) {
-        // - lobby provides a GameServerSessionClaimToken to user client
-        const claimToken = new GameServerSessionClaimToken(
-          disconnectedSessionOption.gameName,
-          newSession.username,
-          newSession.taggedUserId
-        );
-
-        outbox.pushFromOther(
-          await this.userSessionLifecycleController.activateSession(newSession, {
-            sessionWillBeForwardedToGameServer: true,
-          })
-        );
-        // @TODO - encrypt the token
-        // const encryptedToken =
-        outbox.pushToConnection(newSession.connectionId, {
-          type: GameStateUpdateType.GameServerConnectionInstructions,
-          data: {
-            connectionInstructions: {
-              type: GameServerConnectionType.Remote,
-              url: this.getGameServerUrlFromName(disconnectedSessionOption.gameServerName),
-              sessionClaimToken: claimToken,
-            },
-          },
-        });
-
-        // - user client executes normal flow for onGameServerSessionClaimTokenReceipt, same as when they
-        //   are in a lobby game setup and start a new game
-        this.dispatchOutboxMessages(outbox);
-        return;
+        await this.giveClientReconnectionInstructions(session, disconnectedSessionOption);
+        return; // don't set up the rest of their lobby session, they will go directly to reconnect to game server
       }
     }
 
+    const { username, taggedUserId, connectionId } = session;
     console.info(
-      `-- ${newSession.username} (user id: ${newSession.taggedUserId.id}, connection id: ${newSession.connectionId}) joined the lobby`
+      `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the lobby`
     );
 
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.gameStateUpdateDispatchFactory);
     // attach the connection to message handlers and disconnectionHandler
     this.attachIntentHandlersToSessionConnection(
-      newSession,
+      session,
       userConnectionEndpoint,
       this.userIntentHandlers
     );
 
-    outbox.pushFromOther(await this.userSessionLifecycleController.activateSession(newSession));
+    outbox.pushFromOther(await this.userSessionLifecycleController.activateSession(session));
     this.dispatchOutboxMessages(outbox);
   }
 
@@ -211,6 +168,67 @@ export class LobbyServer extends SpeedDungeonServer {
     );
     await this.userSessionLifecycleController.cleanupSession(session);
     this.outgoingMessagesGateway.unregisterEndpoint(session.connectionId);
+  }
+
+  private async giveClientReconnectionInstructions(
+    session: UserSession,
+    disconnectedSession: DisconnectedSession
+  ) {
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.gameStateUpdateDispatchFactory);
+    const claimToken = new GameServerSessionClaimToken(
+      disconnectedSession.gameName,
+      session.username,
+      disconnectedSession.taggedUserId
+    );
+
+    outbox.pushFromOther(
+      await this.userSessionLifecycleController.activateSession(session, {
+        sessionWillBeForwardedToGameServer: true,
+      })
+    );
+    // @TODO - encrypt the token
+    // const encryptedToken =
+    const url = this.getGameServerUrlFromName(disconnectedSession.gameServerName);
+    outbox.pushToConnection(session.connectionId, {
+      type: GameStateUpdateType.GameServerConnectionInstructions,
+      data: {
+        connectionInstructions: {
+          type: GameServerConnectionType.Remote,
+          url,
+          sessionClaimToken: claimToken,
+        },
+      },
+    });
+
+    // - user client executes normal flow for onGameServerSessionClaimTokenReceipt, same as when they
+    //   are in a lobby game setup and start a new game
+    this.dispatchOutboxMessages(outbox);
+
+    const { username, taggedUserId, connectionId } = session;
+    console.info(
+      `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) was given instructions to reconnect to server ${disconnectedSession.gameServerName} at url ${url}`
+    );
+  }
+
+  private async getDisconnectedSessionOption(
+    session: UserSession,
+    identityResolutionContext: ConnectionIdentityResolutionContext
+  ) {
+    if (session.taggedUserId.type === UserIdType.Auth) {
+      this.externalServices.profileService.createProfileIfUserHasNone(session.taggedUserId.id);
+
+      return await this.externalServices.disconnectedSessionStoreService.getDisconnectedSession(
+        session.getReconnectionKey()
+      );
+    } else if (session.taggedUserId.type === UserIdType.Guest) {
+      // would have been given by the game server and cached on the client
+      if (identityResolutionContext.clientCachedGuestReconnectionToken) {
+        return await this.externalServices.disconnectedSessionStoreService.getDisconnectedSession({
+          type: ReconnectionKeyType.Guest,
+          reconnectionToken: identityResolutionContext.clientCachedGuestReconnectionToken,
+        });
+      }
+    }
   }
 
   private createControllers() {
