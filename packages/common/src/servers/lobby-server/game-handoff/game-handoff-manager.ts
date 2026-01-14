@@ -77,8 +77,8 @@ export class GameHandoffManager {
       });
     }
 
-    // @TODO - write the game as a pending game setup in the lobby's registry
-    // so we can still check for name collisions in game creation
     this.lobbyState.gameRegistry.unregisterGame(game.name);
+
+    return outbox;
   }
 }

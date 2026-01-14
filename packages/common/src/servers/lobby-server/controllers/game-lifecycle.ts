@@ -3,7 +3,6 @@ import {
   AdventuringParty,
   ERROR_MESSAGES,
   GAME_CHANNEL_PREFIX,
-  GameHandoffStrategyLobbyToGameServer,
   GameId,
   GameMode,
   GameName,
@@ -21,6 +20,8 @@ import { RANDOM_GAME_NAMES_FIRST, RANDOM_GAME_NAMES_LAST } from "../default-name
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { GameLifecycleController } from "../../controllers/game-lifecycle.js";
+import { GameHandoffManager } from "../game-handoff/game-handoff-manager.js";
+import { GameSessionStoreService } from "../../services/game-session-store/index.js";
 
 export class LobbyGameLifecycleController implements GameLifecycleController {
   constructor(
@@ -29,7 +30,8 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly partySetupController: PartySetupController,
     private readonly idGenerator: IdGenerator,
-    private readonly gameServerHandoffStrategy: GameHandoffStrategyLobbyToGameServer
+    private readonly gameHandoffManager: GameHandoffManager,
+    private readonly gameSessionStoreService: GameSessionStoreService
   ) {}
 
   private generateRandomGameName(): GameName {
@@ -86,14 +88,21 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       throw new Error(gameNameValidity.reason);
     }
 
+    // @TODO - check if game name exists in lobby or on another game server
+    const gameNameExists = await this.gameExistsByName(gameName);
+    if (gameNameExists) {
+      throw new Error(ERROR_MESSAGES.LOBBY.GAME_EXISTS);
+    }
+
     if (gameName === "") {
       // get a random game name and make it check if this exists
       // and try again a safe number of times before failing
       const maxAttempts = 10;
       for (let attemptIndex = 0; attemptIndex < maxAttempts; attemptIndex += 1) {
         gameName = this.generateRandomGameName();
-        const noGameExistsByThisName =
-          this.lobbyState.gameRegistry.getGameOption(gameName) === undefined;
+        // @PERF - awaiting in a loop is no bueno
+        const noGameExistsByThisName = !(await this.gameExistsByName(gameName));
+
         if (noGameExistsByThisName) {
           break;
         }
@@ -279,13 +288,26 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
 
     game.setAsStarted();
 
-    const connectionInstructions = this.gameServerHandoffStrategy.handoff(game);
-
-    outbox.pushToChannel(game.getChannelName(), {
-      type: GameStateUpdateType.GameServerConnectionInstructions,
-      data: { connectionInstructions },
-    });
+    const connectionInstructions = await this.gameHandoffManager.initiateGameHandoff(game);
+    outbox.pushFromOther(connectionInstructions);
 
     return outbox;
+  }
+
+  async gameExistsByName(gameName: GameName) {
+    const lobbyGameExistsByThisName = this.lobbyState.gameRegistry.getGameOption(gameName);
+    if (lobbyGameExistsByThisName) {
+      return true;
+    }
+    const pendingGameExistsByThisName =
+      await this.gameSessionStoreService.getPendingGameSetup(gameName);
+    if (pendingGameExistsByThisName) {
+      return true;
+    }
+    const activeGameExistsByThisName =
+      await this.gameSessionStoreService.getActiveGameStatus(gameName);
+    if (activeGameExistsByThisName) {
+      return true;
+    }
   }
 }

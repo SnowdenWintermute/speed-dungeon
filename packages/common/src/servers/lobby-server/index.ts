@@ -41,6 +41,7 @@ import { GameServerSessionClaimToken } from "./game-handoff/session-claim-token.
 import { GameServerConnectionType } from "./game-handoff/connection-instructions.js";
 import { GameServerName } from "../../aliases.js";
 import { DisconnectedSession } from "../sessions/disconnected-session.js";
+import { GameHandoffManager } from "./game-handoff/game-handoff-manager.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -66,6 +67,13 @@ export class LobbyServer {
     this.userSessionRegistry
   );
   private readonly characterCreator: CharacterCreator;
+
+  private readonly gameHandoffManager = new GameHandoffManager(
+    this.userSessionRegistry,
+    this.gameStateUpdateDispatchFactory,
+    this.externalServices.gameSessionStoreService,
+    this.lobbyState
+  );
 
   private userIntentHandlers = createLobbyClientIntentHandlers(this);
 
@@ -262,7 +270,8 @@ export class LobbyServer {
       this.gameStateUpdateDispatchFactory,
       this.partySetupController,
       this.externalServices.idGenerator,
-      this.gameHandoffStrategy
+      this.gameHandoffManager,
+      this.externalServices.gameSessionStoreService
     );
 
     const characterLifecycleController = new CharacterLifecycleController(
