@@ -8,6 +8,7 @@ import {
   MAX_PARTY_SIZE,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
+  Username,
   getProgressionGamePartyName,
 } from "@speed-dungeon/common";
 import React, { useEffect, useMemo } from "react";
@@ -114,7 +115,7 @@ const PlayerDisplay = observer(
     }
 
     const readyText = playerOption
-      ? game.playersReadied.includes(playerOption.username || "")
+      ? game.playersReadied.includes(playerOption.username || ("" as Username))
         ? "Ready"
         : "Selecting character"
       : "";

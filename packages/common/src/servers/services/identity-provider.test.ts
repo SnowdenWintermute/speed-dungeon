@@ -28,24 +28,6 @@ export class FakeUsersIdentityProviderQueryStrategy
   async execute(
     context: ConnectionIdentityResolutionContext
   ): Promise<{ username: Username; taggedUserId: TaggedUserId } | null> {
-    if (context.localUserId === undefined) {
-      return {
-        username: `guest-${context}` as Username,
-        taggedUserId: { type: UserIdType.Guest, id: this.idGenerator.generate() as GuestUserId },
-      };
-    }
-
-    const authenticatedSession = this.fakeSessions[context.localUserId];
-    if (authenticatedSession === undefined) {
-      return {
-        username: `guest-${context.localUserId}` as Username,
-        taggedUserId: { type: UserIdType.Guest, id: this.idGenerator.generate() as GuestUserId },
-      };
-    }
-
-    return {
-      username: authenticatedSession,
-      taggedUserId: { type: UserIdType.Auth, id: context.localUserId as IdentityProviderId },
-    };
+    return null;
   }
 }

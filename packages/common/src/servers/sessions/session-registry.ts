@@ -37,7 +37,6 @@ export abstract class SessionRegistry<T extends ConnectionSession> {
     }
 
     this.sessions.set(session.connectionId, session);
-    console.log("set session", this.sessions);
 
     this.onRegister?.(session);
   }

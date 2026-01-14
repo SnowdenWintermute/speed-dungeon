@@ -77,6 +77,7 @@ export class GameHandoffManager {
       });
     }
 
+    console.log("about to unregisterGame in handoff");
     this.lobbyState.gameRegistry.unregisterGame(game.name);
 
     return outbox;

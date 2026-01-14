@@ -1,39 +1,30 @@
 import { GameName } from "../../../aliases.js";
-import { DisconnectedSession } from "../../sessions/disconnected-session.js";
-import { UserId } from "../../sessions/user-ids.js";
 import { ActiveGameStatus } from "./active-game-status.js";
 import { GameSessionStoreService } from "./index.js";
 import { PendingGameSetup } from "./pending-game-setup.js";
 
 export class InMemoryGameSessionStoreService implements GameSessionStoreService {
-  writeActiveGameStatus(gameName: GameName, game: ActiveGameStatus): Promise<void> {
-    throw new Error("Method not implemented.");
+  private pendingGameSetups = new Map<GameName, PendingGameSetup>();
+  private activeGameStatusRecords = new Map<GameName, ActiveGameStatus>();
+
+  async writePendingGameSetup(gameName: GameName, setup: PendingGameSetup): Promise<void> {
+    this.pendingGameSetups.set(gameName, setup);
   }
-  getActiveGameStatus(gameName: GameName): Promise<ActiveGameStatus | null> {
-    throw new Error("Method not implemented.");
+
+  async getPendingGameSetup(gameName: GameName): Promise<PendingGameSetup | null> {
+    return this.pendingGameSetups.get(gameName) || null;
   }
-  writePendingGameSetup(gameName: GameName, setup: PendingGameSetup): Promise<void> {
-    throw new Error("Method not implemented.");
+  async deletePendingGameSetup(gameName: GameName): Promise<void> {
+    this.pendingGameSetups.delete(gameName);
   }
-  getPendingGameSetup(gameName: GameName): Promise<PendingGameSetup | null> {
-    throw new Error("Method not implemented.");
+
+  async writeActiveGameStatus(gameName: GameName, game: ActiveGameStatus): Promise<void> {
+    this.activeGameStatusRecords.set(gameName, game);
   }
-  deletePendingGameSetup(gameName: GameName): Promise<void> {
-    throw new Error("Method not implemented.");
+  async getActiveGameStatus(gameName: GameName): Promise<ActiveGameStatus | null> {
+    return this.activeGameStatusRecords.get(gameName) || null;
   }
-  writeActiveGame(gameName: GameName, game: ActiveGameStatus): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-  getActiveGame(gameName: GameName): Promise<ActiveGameStatus | null> {
-    throw new Error("Method not implemented.");
-  }
-  writeDisconnectedUser(userId: UserId, record: DisconnectedSession): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-  getDisconnectedUser(userId: UserId): Promise<DisconnectedSession | null> {
-    throw new Error("Method not implemented.");
-  }
-  deleteDisconnectedUser(userId: UserId): Promise<void> {
-    throw new Error("Method not implemented.");
+  async deleteActiveGameStatus(gameName: GameName): Promise<void> {
+    this.activeGameStatusRecords.get(gameName);
   }
 }

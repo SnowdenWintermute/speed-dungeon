@@ -26,7 +26,7 @@ import { UserId } from "../servers/sessions/user-ids.js";
 export class SpeedDungeonGame {
   players = new Map<Username, SpeedDungeonPlayer>();
   playerCapacity: number | null = null;
-  playersReadied: string[] = [];
+  playersReadied: Username[] = [];
   adventuringParties: Record<PartyName, AdventuringParty> = {};
   battles: Record<EntityId, Battle> = {};
   timeStarted: null | number = null;
@@ -235,7 +235,9 @@ export class SpeedDungeonGame {
   }
 
   /** Returns true if all players are ready to start the game */
-  togglePlayerReadyToStartGameStatus(username: string) {
+  togglePlayerReadyToStartGameStatus(username: Username) {
+    console.log("players currently ready:", this.playersReadied);
+
     if (this.playersReadied.includes(username)) {
       ArrayUtils.removeElement(this.playersReadied, username);
     } else {
@@ -252,9 +254,11 @@ export class SpeedDungeonGame {
   }
 
   private allPlayersAreReadyToStart() {
-    for (const usernameInGame of Object.keys(this.players)) {
-      if (this.playersReadied.includes(usernameInGame)) continue;
-      else {
+    console.log("checking if playersReadied", this.playersReadied);
+    for (const [username, _player] of this.getPlayers()) {
+      if (this.playersReadied.includes(username)) {
+        continue;
+      } else {
         return false;
       }
     }

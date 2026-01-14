@@ -51,7 +51,11 @@ export class LobbySessionLifecycleController
       type: UserIdType.Guest,
       id: this.idGenerator.generate() as GuestUserId,
     };
-    return { username: this.generateRandomUsername(), taggedUserId };
+
+    const username = this.generateRandomUsername();
+    console.log("createGuestUser with username", username);
+
+    return { username, taggedUserId };
   }
 
   private generateRandomUsername() {

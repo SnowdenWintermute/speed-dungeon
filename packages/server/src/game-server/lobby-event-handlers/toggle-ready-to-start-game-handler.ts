@@ -33,8 +33,8 @@ export async function toggleReadyToStartGameHandler(
 
   let allPlayersReadied = true;
 
-  for (const usernameInGame of Object.keys(game.players)) {
-    if (game.playersReadied.includes(usernameInGame)) continue;
+  for (const [username, _player] of game.getPlayers()) {
+    if (game.playersReadied.includes(username)) continue;
     else {
       allPlayersReadied = false;
       break;

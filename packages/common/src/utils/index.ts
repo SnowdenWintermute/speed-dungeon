@@ -11,6 +11,7 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 
 export function invariant(condition: boolean): asserts condition {
   if (!condition) {
+    console.trace();
     throw new Error(ERROR_MESSAGES.CHECKED_EXPECTATION_FAILED);
   }
 }

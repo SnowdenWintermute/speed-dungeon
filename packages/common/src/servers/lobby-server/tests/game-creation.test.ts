@@ -1,12 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { LobbyServer } from "../index.js";
-import { GameName } from "../../../aliases.js";
+import { EntityName, GameName, PartyName } from "../../../aliases.js";
 import { GameMode } from "../../../types.js";
 import { InMemoryTransport } from "../../../transport/in-memory-transport.js";
 import { GameListEntry, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { TestHelpers } from "./helpers.test.js";
 import { MessageDispatchType } from "../../update-delivery/message-dispatch-factory.js";
 import { ConnectionRole } from "../../../http-headers.js";
+import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
 
 describe("lobby server", () => {
   let inMemoryTransport: InMemoryTransport;
@@ -23,15 +24,9 @@ describe("lobby server", () => {
     const { serverEndpoint: serverEndpointForGameHost, clientEndpoint: clientEndpointForGameHost } =
       await inMemoryTransport.createConnection({ type: ConnectionRole.User });
 
-    console.log(
-      "about to get game host session",
-      JSON.stringify(lobbyServer.userSessionRegistry, null, 2)
-    );
     const gameHostSession = lobbyServer.userSessionRegistry.getExpectedSession(
       serverEndpointForGameHost.id
     );
-
-    console.log("game host session:", gameHostSession);
 
     // make another lobby user
     const { serverEndpoint: serverEndpointForOtherInLobby, clientEndpoint: _c2 } =
@@ -48,6 +43,7 @@ describe("lobby server", () => {
     );
 
     // game exists with creating player in it
+    console.log("about to require game in game creation test");
     const game = lobbyServer.lobbyState.gameRegistry.requireGame(gameName);
     expect(game.name).toEqual(gameName);
     expect(game.getPlayer(gameHostSession.username)).toBeDefined();
@@ -143,5 +139,38 @@ describe("lobby server", () => {
         data: { username: otherLobbyUserSession.username },
       },
     });
+
+    const testPartyName = "my test party" as PartyName;
+
+    const gameHostCreatedPartyOutbox = lobbyServer.partySetupController.createPartyHandler(
+      gameHostSession,
+      testPartyName
+    );
+    const otherUserJoinedPartyOutbox = lobbyServer.partySetupController.joinPartyHandler(
+      otherLobbyUserSession,
+      testPartyName
+    );
+
+    const gameHostCreatedCharacter =
+      lobbyServer.characterLifecycleController.createCharacterHandler(gameHostSession, {
+        name: "game host character name" as EntityName,
+        combatantClass: CombatantClass.Mage,
+      });
+    const otherUserCreatedCharacter =
+      lobbyServer.characterLifecycleController.createCharacterHandler(otherLobbyUserSession, {
+        name: "other user character name" as EntityName,
+        combatantClass: CombatantClass.Warrior,
+      });
+
+    const gameHostReadiedOutbox =
+      await lobbyServer.gameLifecycleController.toggleReadyToStartGameHandler(gameHostSession);
+    const otherUserReadiedOutbox =
+      await lobbyServer.gameLifecycleController.toggleReadyToStartGameHandler(
+        otherLobbyUserSession
+      );
+
+    console.log(JSON.stringify(otherUserReadiedOutbox.toDispatches(), null, 2));
+
+    expect(game.timeStarted !== null);
   });
 });

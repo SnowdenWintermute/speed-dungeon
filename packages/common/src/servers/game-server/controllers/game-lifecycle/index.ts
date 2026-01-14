@@ -224,7 +224,10 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     // - if there are no living parties in the game, clean up the game
     if (allPartiesWiped || noPlayersRemain) {
       await gameModeContext.strategy.onLastPlayerLeftGame(game);
+
+      console.log("about to unregisterGame in game server leaveGameHandler");
       this.gameRegistry.unregisterGame(game.name);
+      this.gameSessionStoreService.deleteActiveGameStatus(game.name);
     }
 
     return outbox;

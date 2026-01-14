@@ -248,6 +248,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
 
     const noPlayersRemain = game.players.size === 0;
     if (noPlayersRemain) {
+      console.log("about to unregisterGame in lobby leaveGameHandler");
       this.lobbyState.gameRegistry.unregisterGame(game.name);
 
       return outbox; // no one is left to notify about the player leaving so return early
@@ -264,6 +265,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
   }
 
   async toggleReadyToStartGameHandler(session: UserSession) {
+    console.log("about to get getExpectedCurrentGame in toggleReadyToStartGameHandler");
     const game = session.getExpectedCurrentGame();
 
     game.requireGameStartPrerequisites();
@@ -274,6 +276,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     player.requireHasCharacters();
 
     const allPlayersReadied = game.togglePlayerReadyToStartGameStatus(session.username);
+    console.log("all players readied:", allPlayersReadied);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(game.getChannelName(), {
@@ -283,11 +286,13 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
 
     const notAllPlayersAreReady = !allPlayersReadied;
     if (notAllPlayersAreReady) {
+      console.log("not all players ready yet");
       return outbox;
     }
 
     game.setAsStarted();
 
+    console.log("about to initiate game handoff");
     const connectionInstructions = await this.gameHandoffManager.initiateGameHandoff(game);
     outbox.pushFromOther(connectionInstructions);
 
