@@ -5,12 +5,11 @@ import { TaggedUserId } from "../../sessions/user-ids.js";
 import crypto from "crypto";
 
 // @TODO - get secret from some secret provider either local or process.env
-const secret = "WFcB9xz20TzxKivwLv42Ow==";
+const secret = "ZF0lw20QkbTIzBG5qYfcCw006+5+7EKyEXmEUCgHTK4=";
 
 export class GameServerSessionClaimToken {
   readonly expirationTimestamp = GameServerSessionClaimToken.createExpirationTimestamp();
 
-  // @TODO - check this when claiming and keep track of them in a short term storage
   readonly nonce = crypto.randomBytes(16).toString("hex");
   constructor(
     readonly gameName: GameName,
@@ -29,5 +28,32 @@ export class GameServerSessionClaimToken {
 
   static async decrypt(encrypted: string): Promise<GameServerSessionClaimToken> {
     return await SodiumHelpers.decrypt<GameServerSessionClaimToken>(encrypted, secret);
+  }
+}
+
+export interface SessionClaimTokenCodec {
+  encode(token: GameServerSessionClaimToken): Promise<string>;
+  decode(encoded: string): Promise<GameServerSessionClaimToken>;
+}
+
+export class OpaqueEncryptionSessionClaimTokenCodec implements SessionClaimTokenCodec {
+  constructor(private readonly secret: string) {}
+
+  async encode(token: GameServerSessionClaimToken): Promise<string> {
+    return SodiumHelpers.encrypt(token, this.secret);
+  }
+
+  async decode(encoded: string): Promise<GameServerSessionClaimToken> {
+    return SodiumHelpers.decrypt(encoded, this.secret);
+  }
+}
+
+export class UntrustedLocalSessionClaimTokenCodec implements SessionClaimTokenCodec {
+  async encode(token: GameServerSessionClaimToken): Promise<string> {
+    return JSON.stringify(token);
+  }
+
+  async decode(encoded: string): Promise<GameServerSessionClaimToken> {
+    return JSON.parse(encoded) as GameServerSessionClaimToken;
   }
 }

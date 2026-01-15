@@ -34,4 +34,11 @@ export class SodiumHelpers {
       throw new Error(`Error decrypting: ${error}`);
     }
   }
+
+  static async createSecret() {
+    await sodium.ready;
+    const keyBytes = sodium.randombytes_buf(sodium.crypto_secretbox_KEYBYTES);
+    const secret = sodium.to_base64(keyBytes, sodium.base64_variants.ORIGINAL);
+    console.log(secret);
+  }
 }
