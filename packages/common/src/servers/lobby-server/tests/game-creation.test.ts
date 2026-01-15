@@ -8,21 +8,26 @@ import { TestHelpers } from "./helpers.test.js";
 import { MessageDispatchType } from "../../update-delivery/message-dispatch-factory.js";
 import { ConnectionRole } from "../../../http-headers.js";
 import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
+import { GameServer } from "../../game-server/index.js";
 
 describe("lobby server", () => {
-  let inMemoryTransport: InMemoryTransport;
+  let lobbyInMemoryTransport: InMemoryTransport;
+  let gameServerInMemoryTransport: InMemoryTransport;
   let lobbyServer: LobbyServer;
+  let gameServer: GameServer;
 
   beforeEach(async () => {
-    const inMemoryTransportWithTestLobby = await TestHelpers.createInMemoryTransportWithTestLobby();
-    inMemoryTransport = inMemoryTransportWithTestLobby.inMemoryTransport;
-    lobbyServer = inMemoryTransportWithTestLobby.lobbyServer;
+    const inMemoryTransportAndServers = await TestHelpers.createInMemoryTransportWithTestServers();
+    lobbyInMemoryTransport = inMemoryTransportAndServers.lobbyInMemoryTransport;
+    gameServerInMemoryTransport = inMemoryTransportAndServers.gameServerInMemoryTransport;
+    lobbyServer = inMemoryTransportAndServers.lobbyServer;
+    gameServer = inMemoryTransportAndServers.gameServer;
   });
 
   it("game creation", async () => {
     // make a game host
     const { serverEndpoint: serverEndpointForGameHost, clientEndpoint: clientEndpointForGameHost } =
-      await inMemoryTransport.createConnection({ type: ConnectionRole.User });
+      await lobbyInMemoryTransport.createConnection({ type: ConnectionRole.User });
 
     const gameHostSession = lobbyServer.userSessionRegistry.getExpectedSession(
       serverEndpointForGameHost.id
@@ -30,7 +35,7 @@ describe("lobby server", () => {
 
     // make another lobby user
     const { serverEndpoint: serverEndpointForOtherInLobby, clientEndpoint: _c2 } =
-      await inMemoryTransport.createConnection({ type: ConnectionRole.User });
+      await lobbyInMemoryTransport.createConnection({ type: ConnectionRole.User });
     const otherLobbyUserSession = lobbyServer.userSessionRegistry.getExpectedSession(
       serverEndpointForOtherInLobby.id
     );

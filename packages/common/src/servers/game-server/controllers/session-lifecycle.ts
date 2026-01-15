@@ -12,10 +12,7 @@ import { SessionLifecycleController } from "../../controllers/session-lifecycle.
 import { GameRegistry } from "../../game-registry.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { GameServerGameLifecycleController } from "./game-lifecycle/index.js";
-import {
-  GameServerSessionClaimToken,
-  GameServerSessionClaimTokenCodec,
-} from "../../lobby-server/game-handoff/session-claim-token.js";
+import { GameServerSessionClaimTokenCodec } from "../../lobby-server/game-handoff/session-claim-token.js";
 
 export class GameServerSessionLifecycleController
   implements SessionLifecycleController<GameStateUpdate>
@@ -27,7 +24,6 @@ export class GameServerSessionLifecycleController
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly gameRegistry: GameRegistry,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private readonly identityProviderService: IdentityProviderService,
     private readonly gameLifecycleController: GameServerGameLifecycleController,
     private readonly idGenerator: IdGenerator,
     private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec

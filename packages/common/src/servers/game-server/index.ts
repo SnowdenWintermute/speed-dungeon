@@ -10,10 +10,7 @@ import { SavedCharactersService } from "../services/saved-characters.js";
 import { RankedLadderService } from "../services/ranked-ladder.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { UntypedConnectionEndpoint } from "../../transport/connection-endpoint.js";
-import {
-  ConnectionIdentityResolutionContext,
-  IdentityProviderService,
-} from "../services/identity-provider.js";
+import { ConnectionIdentityResolutionContext } from "../services/identity-provider.js";
 import { createGameServerClientIntentHandlers } from "./create-game-server-client-intent-handlers.js";
 import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 import { GameServerSessionLifecycleController } from "./controllers/session-lifecycle.js";
@@ -36,11 +33,9 @@ import { GameServerSessionClaimTokenCodec } from "../lobby-server/game-handoff/s
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
   disconnectedSessionStoreService: DisconnectedSessionStoreService;
-  identityProviderService: IdentityProviderService;
   savedCharactersService: SavedCharactersService;
   rankedLadderService: RankedLadderService;
   raceGameRecordsService: RaceGameRecordsService;
-  savedCharactersLadderService: SavedCharactersService;
 }
 
 export const GAME_RECORD_HEARTBEAT_MS: Milliseconds = ONE_SECOND * 10;
@@ -85,7 +80,7 @@ export class GameServer extends SpeedDungeonServer {
       this.heartbeatScheduler,
       this.externalServices.gameSessionStoreService,
       this.externalServices.raceGameRecordsService,
-      this.externalServices.savedCharactersLadderService,
+      this.externalServices.savedCharactersService,
       this.externalServices.rankedLadderService,
       this.gameStateUpdateDispatchFactory,
       this.partyDelayedGameMessageFactory
@@ -95,7 +90,6 @@ export class GameServer extends SpeedDungeonServer {
       this.userSessionRegistry,
       this.gameRegistry,
       this.gameStateUpdateDispatchFactory,
-      this.externalServices.identityProviderService,
       this.gameLifecycleController,
       this.idGenerator,
       this.gameServerSessionClaimTokenCodec

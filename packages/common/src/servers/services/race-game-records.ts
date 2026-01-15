@@ -5,6 +5,7 @@ import { SpeedDungeonGame } from "../../game/index.js";
 import {
   PartyFate,
   RaceGameAggregatedRecord,
+  RacePartyAggregatedRecord,
 } from "../game-server/controllers/game-lifecycle/record-types.js";
 
 export interface RaceGamePartyRecord {
@@ -61,5 +62,32 @@ export class RaceGameRecordsService {
 
   async updateCharacterRecord(combatant: Combatant) {
     return this.raceGameRecordsPersistenceStrategy.updateCharacterRecord(combatant);
+  }
+}
+
+export class InMemoryRaceGameRecordsPersistenceStrategy
+  implements RaceGameRecordsPersistenceStrategy
+{
+  gameRecords = new Map<GameId, RaceGameAggregatedRecord>();
+  partyRecords = new Map<string, RaceGamePartyRecord>();
+  characterRecords = new Map<GameId, RaceGamePartyRecord>();
+  async insert(game: SpeedDungeonGame) {
+    throw new Error("not implemented");
+  }
+
+  async markGameCompleted(gameId: GameId) {
+    throw new Error("not implemented");
+  }
+  async findPartyRecord(partyId: string): Promise<RaceGamePartyRecord> {
+    throw new Error("not implemented");
+  }
+  async updatePartyRecord(updatedRecord: RaceGamePartyRecord): Promise<RaceGamePartyRecord> {
+    throw new Error("not implemented");
+  }
+  async findAggregatedGameRecordById(gameId: GameId): Promise<RaceGameAggregatedRecord> {
+    throw new Error("Method not implemented.");
+  }
+  async updateCharacterRecord(combatant: Combatant): Promise<void> {
+    throw new Error("Method not implemented.");
   }
 }
