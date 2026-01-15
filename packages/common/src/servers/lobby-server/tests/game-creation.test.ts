@@ -3,13 +3,18 @@ import { LobbyServer } from "../index.js";
 import { EntityName, GameName, PartyName } from "../../../aliases.js";
 import { GameMode } from "../../../types.js";
 import { InMemoryTransport } from "../../../transport/in-memory-transport.js";
-import { GameListEntry, GameStateUpdateType } from "../../../packets/game-state-updates.js";
+import {
+  GameListEntry,
+  GameStateUpdate,
+  GameStateUpdateType,
+} from "../../../packets/game-state-updates.js";
 import { TestHelpers } from "./helpers.test.js";
 import { MessageDispatchType } from "../../update-delivery/message-dispatch-factory.js";
 import { ConnectionRole } from "../../../http-headers.js";
 import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
 import { GameServer } from "../../game-server/index.js";
 import { GameServerConnectionType } from "../game-handoff/connection-instructions.js";
+import { ClientIntent } from "../../../packets/client-intents.js";
 
 describe("lobby server", () => {
   let lobbyInMemoryTransport: InMemoryTransport;
@@ -186,6 +191,7 @@ describe("lobby server", () => {
       );
 
     let someUserInGameConnection;
+    let someUserReconnectionToken;
     for (const messageDispatch of otherUserReadiedOutbox.toDispatches()) {
       if (
         messageDispatch.type === MessageDispatchType.Single &&
@@ -203,9 +209,22 @@ describe("lobby server", () => {
           encodedGameServerSessionClaimToken: token,
         });
 
-        userConnectionToGameServerEndpoint.subscribeAll((someEvent) => {
-          console.log(someEvent);
-        });
+        const typedEndpoint = userConnectionToGameServerEndpoint.toTyped<
+          ClientIntent,
+          GameStateUpdate
+        >();
+
+        typedEndpoint.subscribeAll(
+          (someEvent) => {
+            if (someEvent.type === GameStateUpdateType.CacheGuestSessionReconnectionToken) {
+              console.log(someEvent);
+              someUserReconnectionToken = someEvent.data.token;
+            }
+          },
+          async (reason) => {
+            console.log("disconnected");
+          }
+        );
 
         await openConnectionToGameServer();
 
@@ -213,12 +232,22 @@ describe("lobby server", () => {
       }
     }
 
+    expect(game.getTimeStarted !== null);
     expect(!game.inputLock.isLocked);
 
     someUserInGameConnection?.close();
 
     expect(game.inputLock.isLocked);
 
-    expect(game.getTimeStarted !== null);
+    const {
+      serverEndpoint: reconnectingUserLobbyConnectionEndpoint,
+      clientEndpoint: reconnectingUserConnectionToLobbyEndpoint,
+      open: openReconnectingUserConnectionToLobby,
+    } = await lobbyInMemoryTransport.createConnection({
+      type: ConnectionRole.User,
+      clientCachedGuestReconnectionToken: someUserReconnectionToken,
+    });
+
+    await openReconnectingUserConnectionToLobby();
   });
 });

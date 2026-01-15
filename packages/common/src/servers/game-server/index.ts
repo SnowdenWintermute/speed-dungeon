@@ -169,17 +169,12 @@ export class GameServer extends SpeedDungeonServer {
     }
 
     const newReconnectionToken = this.generateGuestReconnectionToken();
-    console.log("new reconnection token minted:", newReconnectionToken);
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.CacheGuestSessionReconnectionToken,
       data: {
         token: newReconnectionToken,
       },
     });
-    console.log(
-      "dispatching outbox on user connection:",
-      JSON.stringify(outbox.toDispatches(), null, 2)
-    );
 
     this.dispatchOutboxMessages(outbox);
   }
