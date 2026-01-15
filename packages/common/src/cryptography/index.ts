@@ -39,6 +39,6 @@ export class SodiumHelpers {
     await sodium.ready;
     const keyBytes = sodium.randombytes_buf(sodium.crypto_secretbox_KEYBYTES);
     const secret = sodium.to_base64(keyBytes, sodium.base64_variants.ORIGINAL);
-    console.log(secret);
+    return secret;
   }
 }

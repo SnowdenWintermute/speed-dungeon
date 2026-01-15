@@ -13,8 +13,8 @@ describe("lobby server", () => {
   let inMemoryTransport: InMemoryTransport;
   let lobbyServer: LobbyServer;
 
-  beforeEach(() => {
-    const inMemoryTransportWithTestLobby = TestHelpers.createInMemoryTransportWithTestLobby();
+  beforeEach(async () => {
+    const inMemoryTransportWithTestLobby = await TestHelpers.createInMemoryTransportWithTestLobby();
     inMemoryTransport = inMemoryTransportWithTestLobby.inMemoryTransport;
     lobbyServer = inMemoryTransportWithTestLobby.lobbyServer;
   });

@@ -14,18 +14,18 @@ import { InMemoryIncomingConnectionGateway } from "../../in-memory-incoming-conn
 import { InMemoryGameSessionStoreService } from "../../services/game-session-store/in-memory-game-session-store-service.js";
 import { InMemoryDisconnectedSessionStoreService } from "../../services/disconnected-session-store/in-memory-disconnected-session-store.js";
 import { OpaqueEncryptionSessionClaimTokenCodec } from "../game-handoff/session-claim-token.js";
+import { SodiumHelpers } from "../../../cryptography/index.js";
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class TestHelpers {
-  static createInMemoryTransportWithTestLobby() {
+  static async createInMemoryTransportWithTestLobby() {
     const inMemoryTransport = new InMemoryTransport();
 
     const lobbyLocalClientIntentReceiver = new InMemoryIncomingConnectionGateway(
       inMemoryTransport.getServerConnectionEndpointManager()
     );
 
-    // @TODO - get secret from some secret provider either local or process.env
-    const testSecret = "ZF0lw20QkbTIzBG5qYfcCw006+5+7EKyEXmEUCgHTK4=";
+    const testSecret = await SodiumHelpers.createSecret();
     const codec = new OpaqueEncryptionSessionClaimTokenCodec(testSecret);
 
     const lobbyServer = new LobbyServer(
