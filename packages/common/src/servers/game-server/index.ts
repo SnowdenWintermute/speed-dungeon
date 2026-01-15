@@ -30,6 +30,7 @@ import { ReconnectionOpportunity } from "./reconnection-opportunity.js";
 import { PartyDelayedGameMessageFactory } from "./party-delayed-game-message-factory.js";
 import { ReconnectionOpportunityManager } from "./reconnection-opportunity-manager.js";
 import { SpeedDungeonServer } from "../speed-dungeon-server.js";
+import { invariant } from "../../utils/index.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -104,7 +105,7 @@ export class GameServer extends SpeedDungeonServer {
     connectionEndpoint: UntypedConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
-    const sessionClaimTokenOption = identityResolutionContext.gameServerSessionClaimToken;
+    const sessionClaimTokenOption = identityResolutionContext.encrypteGameServerSessionClaimToken;
     if (sessionClaimTokenOption === undefined) {
       throw new Error("No token was provided when attempting to join the game server");
     }
@@ -121,7 +122,8 @@ export class GameServer extends SpeedDungeonServer {
       userConnectionEndpoint
     );
 
-    const { gameName } = sessionClaimTokenOption;
+    const gameName = session.currentGameName;
+    invariant(gameName !== null); // should have been set from their token in createSession
 
     let existingGame = this.gameRegistry.getGameOption(gameName);
     // this means this is the first user to join this game

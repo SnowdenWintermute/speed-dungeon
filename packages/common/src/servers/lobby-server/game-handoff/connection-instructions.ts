@@ -1,5 +1,3 @@
-import { GameServerSessionClaimToken } from "./session-claim-token.js";
-
 export enum GameServerConnectionType {
   Local,
   Remote,
@@ -12,7 +10,7 @@ export interface LocalGameServerConnectionInstructions {
 export interface RemoteGameServerConnectionInstructions {
   type: GameServerConnectionType.Remote;
   url: string;
-  sessionClaimToken: GameServerSessionClaimToken;
+  encryptedSessionClaimToken: string;
 }
 
 export type GameServerConnectionInstructions =

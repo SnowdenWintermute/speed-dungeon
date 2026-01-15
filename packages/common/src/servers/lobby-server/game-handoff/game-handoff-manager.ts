@@ -62,16 +62,16 @@ export class GameHandoffManager {
     const claimTokens = this.prepareClaimTokens(sessionsInGame, game.name);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateFactory);
+
     for (const [connectionId, token] of claimTokens) {
-      // @TODO - encrypt the token
-      // const encryptedToken =
+      const encryptedToken = await GameServerSessionClaimToken.encrypt(token);
       outbox.pushToConnection(connectionId, {
         type: GameStateUpdateType.GameServerConnectionInstructions,
         data: {
           connectionInstructions: {
             type: GameServerConnectionType.Remote,
             url: leastBusyServerUrl, // game server url
-            sessionClaimToken: token,
+            encryptedSessionClaimToken: encryptedToken,
           },
         },
       });

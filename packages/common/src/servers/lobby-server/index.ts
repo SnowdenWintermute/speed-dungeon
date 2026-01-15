@@ -186,8 +186,8 @@ export class LobbyServer extends SpeedDungeonServer {
         sessionWillBeForwardedToGameServer: true,
       })
     );
-    // @TODO - encrypt the token
-    // const encryptedToken =
+
+    const encryptedSessionClaimToken = await GameServerSessionClaimToken.encrypt(claimToken);
     const url = this.getGameServerUrlFromName(disconnectedSession.gameServerName);
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.GameServerConnectionInstructions,
@@ -195,7 +195,7 @@ export class LobbyServer extends SpeedDungeonServer {
         connectionInstructions: {
           type: GameServerConnectionType.Remote,
           url,
-          sessionClaimToken: claimToken,
+          encryptedSessionClaimToken,
         },
       },
     });
