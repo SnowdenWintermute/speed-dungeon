@@ -21,7 +21,7 @@ export function gameStartedHandler(timeStarted: number) {
 
   const { game, party } = gameStore.getFocusedCharacterContext();
 
-  game.timeStarted = timeStarted;
+  game.setAsStarted();
 
   const camera = gameWorldView.current?.camera;
   if (!camera) {

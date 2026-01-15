@@ -120,7 +120,6 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     const gameHasNotYetStarted = game.getTimeStarted() === null;
 
     if (gameHasNotYetStarted && allPlayersAreConnectedToGame) {
-      console.log("all players connected, starting game");
       const startGameOutbox = await this.startGame(game);
       outbox.pushFromOther(startGameOutbox);
     }
@@ -226,7 +225,6 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     if (allPartiesWiped || noPlayersRemain) {
       await gameModeContext.strategy.onLastPlayerLeftGame(game);
 
-      console.log("about to unregisterGame in game server leaveGameHandler");
       this.gameRegistry.unregisterGame(game.name);
       this.gameSessionStoreService.deleteActiveGameStatus(game.name);
     }

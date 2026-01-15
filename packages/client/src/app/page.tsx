@@ -20,7 +20,7 @@ export default observer(() => {
   const game = AppStore.get().gameStore.getGameOption();
   const focusedCharacterOption = AppStore.get().gameStore.getFocusedCharacterOption();
 
-  const shouldShowGame = focusedCharacterOption !== undefined && game?.timeStarted !== undefined;
+  const shouldShowGame = focusedCharacterOption !== undefined && game?.getTimeStarted();
 
   const componentToRender = shouldShowGame ? (
     <Game />

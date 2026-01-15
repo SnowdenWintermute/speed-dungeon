@@ -68,23 +68,19 @@ export function setUpGameLobbyEventHandlers(
     const gameOption = AppStore.get().gameStore.getGameOption();
     if (!gameOption) return;
     gameOption.addParty(AdventuringParty.createInitialized(partyId, partyName));
-    console.log("added new party:", partyName);
   });
   socket.on(ServerToClientEvent.PlayerChangedAdventuringParty, (username, partyName) => {
-    console.log("player changed party:", username);
     const gameOption = AppStore.get().gameStore.getGameOption();
     if (!gameOption) return;
     // ignore if game already started. this is a relic of the fact we remove them
     // from their party when leaving a lobby game, but it is an unhandled crash
     // to remove them from a party when still in a game
-    if (!gameOption.timeStarted) {
+    if (gameOption.getTimeStarted() === null) {
       gameOption.removePlayerFromParty(username);
       if (partyName === null) {
         return;
       }
       gameOption.putPlayerInParty(partyName, username);
-
-      console.log("player placed in party:", username);
     }
   });
   socket.on(ServerToClientEvent.CharacterAddedToParty, characterAddedToPartyHandler);

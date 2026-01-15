@@ -12,7 +12,6 @@ export default function joinSocketToChannel(
   socketId: string,
   newChannelName: ChannelName
 ) {
-  console.log("joined socket to channel", newChannelName);
   const namespace = "/";
   const socket = this.io.of(namespace).sockets.get(socketId);
   const session = this.connections.get(socketId);

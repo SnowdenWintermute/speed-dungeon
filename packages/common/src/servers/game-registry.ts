@@ -12,11 +12,9 @@ export class GameRegistry {
       throw new Error("Tried to add a game to a lobby but a game by that name already existed");
     }
     this.games.set(game.name, game);
-    console.log("set game in registry", game.name);
   }
 
   unregisterGame(gameName: GameName) {
-    console.log("unregisterGame by name", gameName);
     this.games.delete(gameName);
   }
 

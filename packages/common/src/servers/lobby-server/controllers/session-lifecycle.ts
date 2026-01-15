@@ -53,7 +53,6 @@ export class LobbySessionLifecycleController
     };
 
     const username = this.generateRandomUsername();
-    console.log("createGuestUser with username", username);
 
     return { username, taggedUserId };
   }

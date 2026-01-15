@@ -106,8 +106,8 @@ function getModelsAndPositions() {
   const gameOption = gameStore.getGameOption();
   let modelsAndPositions: ModelsAndPositions = {};
 
-  const inLobby = gameOption && !gameOption.timeStarted;
-  const inGame = gameOption && gameOption.timeStarted;
+  const inLobby = gameOption && gameOption.getTimeStarted() !== null;
+  const inGame = gameOption && gameOption.getTimeStarted() !== null;
   if (inLobby && gameOption.mode === GameMode.Progression) {
     modelsAndPositions = getProgressionGameLobbyCombatantModelPositions(gameOption);
   } else if (inGame) {

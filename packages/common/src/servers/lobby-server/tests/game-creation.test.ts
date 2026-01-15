@@ -27,16 +27,27 @@ describe("lobby server", () => {
 
   it("game creation", async () => {
     // make a game host
-    const { serverEndpoint: serverEndpointForGameHost, clientEndpoint: clientEndpointForGameHost } =
-      await lobbyInMemoryTransport.createConnection({ type: ConnectionRole.User });
+    const {
+      serverEndpoint: serverEndpointForGameHost,
+      clientEndpoint: clientEndpointForGameHost,
+      open: openGameHostConnectionToLobby,
+    } = await lobbyInMemoryTransport.createConnection({ type: ConnectionRole.User });
+
+    await openGameHostConnectionToLobby();
 
     const gameHostSession = lobbyServer.userSessionRegistry.getExpectedSession(
       serverEndpointForGameHost.id
     );
 
     // make another lobby user
-    const { serverEndpoint: serverEndpointForOtherInLobby, clientEndpoint: _c2 } =
-      await lobbyInMemoryTransport.createConnection({ type: ConnectionRole.User });
+    const {
+      serverEndpoint: serverEndpointForOtherInLobby,
+      clientEndpoint: _c2,
+
+      open: openGameJoinerConnectionToLobby,
+    } = await lobbyInMemoryTransport.createConnection({ type: ConnectionRole.User });
+    await openGameJoinerConnectionToLobby();
+
     const otherLobbyUserSession = lobbyServer.userSessionRegistry.getExpectedSession(
       serverEndpointForOtherInLobby.id
     );
@@ -49,7 +60,6 @@ describe("lobby server", () => {
     );
 
     // game exists with creating player in it
-    console.log("about to require game in game creation test");
     const game = lobbyServer.lobbyState.gameRegistry.requireGame(gameName);
     expect(game.name).toEqual(gameName);
     expect(game.getPlayer(gameHostSession.username)).toBeDefined();
@@ -175,6 +185,7 @@ describe("lobby server", () => {
         otherLobbyUserSession
       );
 
+    let someUserInGameConnection;
     for (const messageDispatch of otherUserReadiedOutbox.toDispatches()) {
       if (
         messageDispatch.type === MessageDispatchType.Single &&
@@ -186,12 +197,27 @@ describe("lobby server", () => {
         const {
           serverEndpoint: gameServerConnectionEndpoint,
           clientEndpoint: userConnectionToGameServerEndpoint,
+          open: openConnectionToGameServer,
         } = await gameServerInMemoryTransport.createConnection({
           type: ConnectionRole.User,
           encodedGameServerSessionClaimToken: token,
         });
+
+        userConnectionToGameServerEndpoint.subscribeAll((someEvent) => {
+          console.log(someEvent);
+        });
+
+        await openConnectionToGameServer();
+
+        someUserInGameConnection = userConnectionToGameServerEndpoint;
       }
     }
+
+    expect(!game.inputLock.isLocked);
+
+    someUserInGameConnection?.close();
+
+    expect(game.inputLock.isLocked);
 
     expect(game.getTimeStarted !== null);
   });

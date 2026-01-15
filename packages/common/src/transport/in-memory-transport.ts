@@ -34,9 +34,12 @@ export class InMemoryTransport {
         )
     );
 
-    await this.serverConnectionEndpointManager.onNewConnection(serverEndpoint, identityContext);
-
-    return { serverEndpoint, clientEndpoint };
+    return {
+      serverEndpoint,
+      clientEndpoint,
+      open: async () =>
+        await this.serverConnectionEndpointManager.onNewConnection(serverEndpoint, identityContext),
+    };
   }
 
   getServerConnectionEndpointManager() {

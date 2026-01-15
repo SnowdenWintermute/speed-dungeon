@@ -7,9 +7,8 @@ export class SodiumHelpers {
 
     const key = sodium.from_base64(secret, sodium.base64_variants.ORIGINAL);
     const nonce = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
-    const plaintext = Buffer.from(JSON.stringify(token), "utf8");
 
-    const ciphertext = sodium.crypto_secretbox_easy(plaintext, nonce, key);
+    const ciphertext = sodium.crypto_secretbox_easy(JSON.stringify(token), nonce, key);
 
     const combined = new Uint8Array(nonce.length + ciphertext.length);
     combined.set(nonce, 0);

@@ -16,7 +16,6 @@ export class InMemoryIncomingConnectionGateway extends IncomingConnectionGateway
 }
 
 // this.io.of("/").on("connection", async (socket) => {
-//   console.log("remote lobby is listening");
 //   const transportEndpoint = new SocketConnectionEndpoint(socket);
 //   const req = socket.request;
 //   const cookies = req.headers.cookie;

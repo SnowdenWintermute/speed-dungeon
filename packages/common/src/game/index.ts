@@ -52,15 +52,15 @@ export class SpeedDungeonGame {
 
   static getDeserialized(game: SpeedDungeonGame) {
     const deserializedPlayers = new Map<Username, SpeedDungeonPlayer>();
-    for (const [username, player] of Object.entries(game.players)) {
-      console.log("player:", player);
+    for (const [username, player] of game.players) {
       SpeedDungeonPlayer.deserialize(player);
       deserializedPlayers.set(username as Username, player);
     }
 
     const deserialized = plainToInstance(SpeedDungeonGame, game);
     deserialized.players = deserializedPlayers;
-    console.log("deserialized game:", deserialized);
+
+    deserialized.inputLock = new ReferenceCountedLock<UserId>();
 
     for (const [partyName, party] of Object.entries(deserialized.adventuringParties)) {
       const deserializedParty = AdventuringParty.getDeserialized(party);
@@ -140,8 +140,6 @@ export class SpeedDungeonGame {
   }
 
   setAsStarted() {
-    console.log("trace for game set as started");
-    console.trace();
     if (this.timeStarted !== null) {
       throw new Error(ERROR_MESSAGES.GAME.ALREADY_STARTED);
     }
@@ -250,8 +248,6 @@ export class SpeedDungeonGame {
 
   /** Returns true if all players are ready to start the game */
   togglePlayerReadyToStartGameStatus(username: Username) {
-    console.log("players currently ready:", this.playersReadied);
-
     if (this.playersReadied.includes(username)) {
       ArrayUtils.removeElement(this.playersReadied, username);
     } else {
@@ -268,7 +264,6 @@ export class SpeedDungeonGame {
   }
 
   private allPlayersAreReadyToStart() {
-    console.log("checking if playersReadied", this.playersReadied);
     for (const [username, _player] of this.getPlayers()) {
       if (this.playersReadied.includes(username)) {
         continue;

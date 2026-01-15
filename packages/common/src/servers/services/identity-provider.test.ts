@@ -21,7 +21,6 @@ export class FakeUsersIdentityProviderQueryStrategy
     for (let i = 0; i < fakeSessionCount; i += 1) {
       const userId = i + 1;
       this.fakeSessions[userId as IdentityProviderId] = `username-${userId}` as Username;
-      console.log("created fake user:", userId);
     }
   }
 

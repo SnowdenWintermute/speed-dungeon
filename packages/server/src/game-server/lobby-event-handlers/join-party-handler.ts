@@ -29,6 +29,4 @@ export function joinPartyHandler(
     .of("/")
     .to(game.getChannelName())
     .emit(ServerToClientEvent.PlayerChangedAdventuringParty, session.username, partyName);
-
-  console.log("sent PlayerChangedAdventuringParty  event");
 }

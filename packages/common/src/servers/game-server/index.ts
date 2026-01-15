@@ -142,7 +142,6 @@ export class GameServer extends SpeedDungeonServer {
     const outbox = await this.sessionLifecycleController.activateSession(session);
 
     const gameIsInProgress = existingGame.getTimeStarted() !== null;
-    console.log("game is in progress", gameIsInProgress, existingGame.getTimeStarted());
 
     if (gameIsInProgress) {
       const reconnectionOpportunityOption = this.reconnectionOpportunityManager.get(
@@ -170,12 +169,17 @@ export class GameServer extends SpeedDungeonServer {
     }
 
     const newReconnectionToken = this.generateGuestReconnectionToken();
+    console.log("new reconnection token minted:", newReconnectionToken);
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.CacheGuestSessionReconnectionToken,
       data: {
         token: newReconnectionToken,
       },
     });
+    console.log(
+      "dispatching outbox on user connection:",
+      JSON.stringify(outbox.toDispatches(), null, 2)
+    );
 
     this.dispatchOutboxMessages(outbox);
   }

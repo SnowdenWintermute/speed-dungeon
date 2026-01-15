@@ -34,7 +34,6 @@ export class HeartbeatScheduler {
   }
 
   private async tick(): Promise<void> {
-    console.log("heartbeat task count: ", this.tasks.size);
     const now = Date.now() as Milliseconds;
 
     for (const task of this.tasks) {
