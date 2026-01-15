@@ -2,12 +2,7 @@ import format from "pg-format";
 import { pgPool } from "../../singletons/pg-pool.js";
 import { RESOURCE_NAMES } from "../db-consts.js";
 import { DatabaseRepository } from "./index.js";
-import {
-  AdventuringParty,
-  ERROR_MESSAGES,
-  RaceGamePartyRecord,
-  SpeedDungeonGame,
-} from "@speed-dungeon/common";
+import { AdventuringParty, RaceGamePartyRecord, SpeedDungeonGame } from "@speed-dungeon/common";
 import { raceGameCharacterRecordsRepo } from "./race-game-character-records.js";
 import { raceGameParticipantRecordsRepo } from "./race-game-participants-repo.js";
 import { getUserIdsByUsername } from "../get-user-ids-by-username.js";
@@ -18,7 +13,7 @@ class RaceGamePartyRecordRepo extends DatabaseRepository<RaceGamePartyRecord> {
   async insert(game: SpeedDungeonGame, party: AdventuringParty) {
     const userIdsByUsernameResult = await getUserIdsByUsername(Object.keys(game.players));
     if (userIdsByUsernameResult instanceof Error) return userIdsByUsernameResult;
-    if (game.timeStarted === null) return new Error(ERROR_MESSAGES.GAME.NOT_STARTED);
+    game.requireTimeStarted();
 
     const { rows } = await this.pgPool.query(
       format(

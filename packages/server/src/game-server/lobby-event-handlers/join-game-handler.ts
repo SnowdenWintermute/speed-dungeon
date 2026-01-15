@@ -17,7 +17,7 @@ export default async function joinGameHandler(
   if (session.userId === null && game?.isRanked) return new Error(ERROR_MESSAGES.AUTH.REQUIRED);
 
   if (!game) return new Error(ERROR_MESSAGES.GAME_DOESNT_EXIST);
-  if (game.timeStarted) return new Error(ERROR_MESSAGES.LOBBY.GAME_ALREADY_STARTED);
+  game.requireNotYetStarted();
   if (game.mode === GameMode.Progression) {
     joinProgressionGameHandler(gameServer, session, socket, game);
   } else {

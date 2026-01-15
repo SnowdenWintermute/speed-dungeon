@@ -102,7 +102,7 @@ export class GameServer extends SpeedDungeonServer {
     connectionEndpoint: UntypedConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
-    const sessionClaimTokenOption = identityResolutionContext.encrypteGameServerSessionClaimToken;
+    const sessionClaimTokenOption = identityResolutionContext.encodedGameServerSessionClaimToken;
     if (sessionClaimTokenOption === undefined) {
       throw new Error("No token was provided when attempting to join the game server");
     }
@@ -141,18 +141,20 @@ export class GameServer extends SpeedDungeonServer {
 
     const outbox = await this.sessionLifecycleController.activateSession(session);
 
-    const gameIsInProgress = existingGame.timeStarted !== null;
+    const gameIsInProgress = existingGame.getTimeStarted() !== null;
+    console.log("game is in progress", gameIsInProgress, existingGame.getTimeStarted());
 
-    const reconnectionOpportunityOption = this.reconnectionOpportunityManager.get(
-      session.getReconnectionKey()
-    );
+    if (gameIsInProgress) {
+      const reconnectionOpportunityOption = this.reconnectionOpportunityManager.get(
+        session.getReconnectionKey()
+      );
 
-    const isValidReconnection =
-      gameIsInProgress &&
-      reconnectionOpportunityOption !== undefined &&
-      reconnectionOpportunityOption.claim();
+      const isValidReconnection =
+        reconnectionOpportunityOption !== undefined && reconnectionOpportunityOption.claim();
+      if (!isValidReconnection) {
+        throw new Error("Invalid reconnection");
+      }
 
-    if (isValidReconnection) {
       this.reconnectionOpportunityManager.remove(session.getReconnectionKey());
       await this.externalServices.disconnectedSessionStoreService.deleteDisconnectedSession(
         session.getReconnectionKey()

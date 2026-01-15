@@ -23,7 +23,7 @@ export default class RankedRaceStrategy implements GameModeStrategy {
     partyOption: undefined | AdventuringParty,
     player: SpeedDungeonPlayer
   ): Promise<Error | void> {
-    if (!game.timeStarted || !game.isRanked) return Promise.resolve();
+    if (game.getTimeStarted() === null || !game.isRanked) return Promise.resolve();
     if (!partyOption) return new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
 
     const maybeError = await updateRaceGameCharacterRecordLevels(partyOption, player.username);
@@ -39,7 +39,6 @@ export default class RankedRaceStrategy implements GameModeStrategy {
 
   async onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty): Promise<Error | void> {
     if (!game.isRanked) return Promise.resolve();
-    if (!game.timeStarted) return new Error(ERROR_MESSAGES.GAME.NOT_STARTED);
     const maybeError = await updateRaceGameCharacterRecordLevels(party);
     if (maybeError instanceof Error) return maybeError;
 
@@ -79,7 +78,6 @@ export default class RankedRaceStrategy implements GameModeStrategy {
 
   async onPartyEscape(game: SpeedDungeonGame, party: AdventuringParty): Promise<Error | void> {
     if (!game.isRanked) return Promise.resolve();
-    if (!game.timeStarted) return new Error(ERROR_MESSAGES.GAME.NOT_STARTED);
     const maybeError = await updateRaceGameCharacterRecordLevels(party);
     if (maybeError instanceof Error) return maybeError;
 

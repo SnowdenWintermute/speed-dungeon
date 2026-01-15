@@ -40,7 +40,7 @@ export class GameRegistry {
         gameName as GameName,
         game.getPlayerCount(),
         game.mode,
-        game.timeStarted,
+        game.getTimeStarted(),
         game.isRanked
       );
     });

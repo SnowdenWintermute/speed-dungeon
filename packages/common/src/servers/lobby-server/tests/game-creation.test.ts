@@ -9,6 +9,7 @@ import { MessageDispatchType } from "../../update-delivery/message-dispatch-fact
 import { ConnectionRole } from "../../../http-headers.js";
 import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
 import { GameServer } from "../../game-server/index.js";
+import { GameServerConnectionType } from "../game-handoff/connection-instructions.js";
 
 describe("lobby server", () => {
   let lobbyInMemoryTransport: InMemoryTransport;
@@ -174,8 +175,24 @@ describe("lobby server", () => {
         otherLobbyUserSession
       );
 
-    console.log(JSON.stringify(otherUserReadiedOutbox.toDispatches(), null, 2));
+    for (const messageDispatch of otherUserReadiedOutbox.toDispatches()) {
+      if (
+        messageDispatch.type === MessageDispatchType.Single &&
+        messageDispatch.message.type === GameStateUpdateType.GameServerConnectionInstructions &&
+        messageDispatch.message.data.connectionInstructions.type === GameServerConnectionType.Remote
+      ) {
+        const token =
+          messageDispatch.message.data.connectionInstructions.encryptedSessionClaimToken;
+        const {
+          serverEndpoint: gameServerConnectionEndpoint,
+          clientEndpoint: userConnectionToGameServerEndpoint,
+        } = await gameServerInMemoryTransport.createConnection({
+          type: ConnectionRole.User,
+          encodedGameServerSessionClaimToken: token,
+        });
+      }
+    }
 
-    expect(game.timeStarted !== null);
+    expect(game.getTimeStarted !== null);
   });
 });

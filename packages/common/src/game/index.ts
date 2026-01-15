@@ -29,7 +29,8 @@ export class SpeedDungeonGame {
   playersReadied: Username[] = [];
   adventuringParties: Record<PartyName, AdventuringParty> = {};
   battles: Record<EntityId, Battle> = {};
-  timeStarted: null | number = null;
+  private timeStarted: null | number = null;
+  timeHandedOff: null | number = null;
   lowestStartingFloorOptionsBySavedCharacter: Record<EntityId, number> = {};
   selectedStartingFloor: number = 1;
   inputLock = new ReferenceCountedLock<UserId>();
@@ -127,7 +128,20 @@ export class SpeedDungeonGame {
     }
   }
 
+  getTimeStarted() {
+    return this.timeStarted;
+  }
+
+  requireTimeStarted() {
+    if (this.timeStarted === null) {
+      throw new Error("Expected the game to have been started");
+    }
+    return this.timeStarted;
+  }
+
   setAsStarted() {
+    console.log("trace for game set as started");
+    console.trace();
     if (this.timeStarted !== null) {
       throw new Error(ERROR_MESSAGES.GAME.ALREADY_STARTED);
     }

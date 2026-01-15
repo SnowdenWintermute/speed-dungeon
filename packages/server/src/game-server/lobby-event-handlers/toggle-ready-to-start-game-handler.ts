@@ -11,7 +11,7 @@ export async function toggleReadyToStartGameHandler(
   const { game, session, player } = playerAssociatedData;
 
   const { username } = player;
-  if (game.timeStarted) return new Error(ERROR_MESSAGES.LOBBY.GAME_ALREADY_STARTED);
+  game.requireNotYetStarted();
 
   const minimumNumberOfParties =
     game.mode === GameMode.Race && game.isRanked ? GAME_CONFIG.MIN_RACE_GAME_PARTIES : 1;
@@ -48,7 +48,7 @@ export async function toggleReadyToStartGameHandler(
 
   if (!allPlayersReadied) return;
 
-  game.timeStarted = Date.now();
+  game.setAsStarted();
 
   const gameModeContext = gameServer.gameModeContexts[game.mode];
   await gameModeContext.onGameStart(game);
@@ -56,7 +56,7 @@ export async function toggleReadyToStartGameHandler(
   gameServer.io
     .of("/")
     .in(game.getChannelName())
-    .emit(ServerToClientEvent.GameStarted, game.timeStarted);
+    .emit(ServerToClientEvent.GameStarted, game.requireTimeStarted());
 
   for (const [_, player] of Array.from(game.players)) {
     const socketIdResult = gameServer.getSocketIdOfPlayer(game, player.username);

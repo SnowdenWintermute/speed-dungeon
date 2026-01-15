@@ -18,7 +18,7 @@ export default function requestGameListHandler(
         gameName as GameName,
         Object.keys(game.players).length,
         game.mode,
-        game.timeStarted,
+        game.getTimeStarted(),
         game.isRanked
       )
   );

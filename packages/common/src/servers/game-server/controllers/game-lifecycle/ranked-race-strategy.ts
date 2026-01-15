@@ -26,7 +26,7 @@ export class RankedRaceStrategy implements GameModeStrategy {
     partyOption: undefined | AdventuringParty,
     player: SpeedDungeonPlayer
   ) {
-    if (!game.timeStarted || !game.isRanked) {
+    if (game.getTimeStarted() === null || !game.isRanked) {
       return [];
     }
     if (!partyOption) {

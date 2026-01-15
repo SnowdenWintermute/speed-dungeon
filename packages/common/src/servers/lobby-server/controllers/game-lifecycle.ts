@@ -165,8 +165,8 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       throw new Error(userCanJoinNewGame.reason);
     }
 
-    const gameAlreadyStarted = game.timeStarted !== null;
-    if (gameAlreadyStarted) {
+    const gameAlreadyHandedOff = game.timeHandedOff !== null;
+    if (gameAlreadyHandedOff) {
       throw new Error(ERROR_MESSAGES.LOBBY.GAME_ALREADY_STARTED);
     }
 
@@ -290,7 +290,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       return outbox;
     }
 
-    game.setAsStarted();
+    game.timeHandedOff = Date.now();
 
     console.log("about to initiate game handoff");
     const connectionInstructions = await this.gameHandoffManager.initiateGameHandoff(game);

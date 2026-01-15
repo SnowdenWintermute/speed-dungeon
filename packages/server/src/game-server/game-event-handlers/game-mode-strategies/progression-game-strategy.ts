@@ -48,7 +48,7 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
       delete game.lowestStartingFloorOptionsBySavedCharacter[id];
     }
 
-    if (!game.timeStarted) return;
+    if (game.getTimeStarted() === null) return;
 
     const maybeError = await writePlayerCharactersInGameToDb(game, player);
     if (maybeError instanceof Error) return maybeError;

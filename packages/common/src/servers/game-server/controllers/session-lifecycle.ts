@@ -33,7 +33,7 @@ export class GameServerSessionLifecycleController
     connectionId: ConnectionId,
     context: ConnectionIdentityResolutionContext
   ): Promise<UserSession> {
-    const sessionClaimTokenOption = context.encrypteGameServerSessionClaimToken;
+    const sessionClaimTokenOption = context.encodedGameServerSessionClaimToken;
     if (sessionClaimTokenOption === undefined) {
       throw new Error("No token was provided when attempting to join the game server");
     }

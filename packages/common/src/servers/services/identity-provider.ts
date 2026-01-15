@@ -7,7 +7,7 @@ export interface ConnectionIdentityResolutionContext {
   readonly cookies?: string; // user credentials or server credentials
   readonly localUserId?: IdentityProviderId;
   readonly clientCachedGuestReconnectionToken?: GuestSessionReconnectionToken;
-  readonly encrypteGameServerSessionClaimToken?: string;
+  readonly encodedGameServerSessionClaimToken?: string;
 }
 
 export interface IdentityProviderUserSessionQueryStrategy {

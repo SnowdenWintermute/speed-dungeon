@@ -117,9 +117,10 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     );
 
     const allPlayersAreConnectedToGame = this.allPlayersAreConnectedToGame(game);
-    const gameHasNotYetStarted = game.timeStarted === null;
+    const gameHasNotYetStarted = game.getTimeStarted() === null;
 
     if (gameHasNotYetStarted && allPlayersAreConnectedToGame) {
+      console.log("all players connected, starting game");
       const startGameOutbox = await this.startGame(game);
       outbox.pushFromOther(startGameOutbox);
     }
@@ -135,12 +136,12 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     const gameModeContext = this.gameModeContexts[game.mode];
     await gameModeContext.strategy.onGameStart(game);
 
-    game.timeStarted = Date.now();
+    game.setAsStarted();
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.GameStarted,
-      data: { timeStarted: game.timeStarted },
+      data: { timeStarted: game.requireTimeStarted() },
     });
 
     return outbox;
