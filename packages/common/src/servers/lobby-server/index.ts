@@ -20,7 +20,6 @@ import { AffixGenerator } from "../../items/item-creation/builders/affix-generat
 import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
 import { ClientIntent } from "../../packets/client-intents.js";
 import { UserIdType } from "../sessions/user-ids.js";
-import { GameHandoffStrategyLobbyToGameServer } from "./game-handoff/handoff-strategy.js";
 import { MessageDispatchFactory } from "../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";
@@ -32,7 +31,10 @@ import {
   DisconnectedSessionStoreService,
   ReconnectionKeyType,
 } from "../services/disconnected-session-store/index.js";
-import { GameServerSessionClaimToken } from "./game-handoff/session-claim-token.js";
+import {
+  GameServerSessionClaimToken,
+  GameServerSessionClaimTokenCodec,
+} from "./game-handoff/session-claim-token.js";
 import { GameServerConnectionType } from "./game-handoff/connection-instructions.js";
 import { GameServerName } from "../../aliases.js";
 import { DisconnectedSession } from "../sessions/disconnected-session.js";
@@ -72,8 +74,8 @@ export class LobbyServer extends SpeedDungeonServer {
 
   constructor(
     private readonly incomingConnectionGateway: IncomingConnectionGateway,
-    private readonly gameHandoffStrategy: GameHandoffStrategyLobbyToGameServer,
-    private readonly externalServices: LobbyExternalServices
+    private readonly externalServices: LobbyExternalServices,
+    private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
   ) {
     super();
 
@@ -81,7 +83,8 @@ export class LobbyServer extends SpeedDungeonServer {
       this.userSessionRegistry,
       this.gameStateUpdateDispatchFactory,
       externalServices.gameSessionStoreService,
-      this.lobbyState
+      this.lobbyState,
+      this.gameServerSessionClaimTokenCodec
     );
 
     this.incomingConnectionGateway.initialize(
@@ -187,7 +190,8 @@ export class LobbyServer extends SpeedDungeonServer {
       })
     );
 
-    const encryptedSessionClaimToken = await GameServerSessionClaimToken.encrypt(claimToken);
+    const encryptedSessionClaimToken =
+      await this.gameServerSessionClaimTokenCodec.encode(claimToken);
     const url = this.getGameServerUrlFromName(disconnectedSession.gameServerName);
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.GameServerConnectionInstructions,

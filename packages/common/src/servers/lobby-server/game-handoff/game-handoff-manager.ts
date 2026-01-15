@@ -9,14 +9,18 @@ import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-f
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { LobbyState } from "../lobby-state.js";
 import { GameServerConnectionType } from "./connection-instructions.js";
-import { GameServerSessionClaimToken } from "./session-claim-token.js";
+import {
+  GameServerSessionClaimToken,
+  GameServerSessionClaimTokenCodec,
+} from "./session-claim-token.js";
 
 export class GameHandoffManager {
   constructor(
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly updateFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly gameSessionStoreService: GameSessionStoreService,
-    private readonly lobbyState: LobbyState
+    private readonly lobbyState: LobbyState,
+    private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
   ) {}
 
   private getPlayerSessionsInGame(game: SpeedDungeonGame) {
@@ -64,7 +68,7 @@ export class GameHandoffManager {
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateFactory);
 
     for (const [connectionId, token] of claimTokens) {
-      const encryptedToken = await GameServerSessionClaimToken.encrypt(token);
+      const encryptedToken = await this.gameServerSessionClaimTokenCodec.encode(token);
       outbox.pushToConnection(connectionId, {
         type: GameStateUpdateType.GameServerConnectionInstructions,
         data: {

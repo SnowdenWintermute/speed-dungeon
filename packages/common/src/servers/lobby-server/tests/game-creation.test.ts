@@ -1,4 +1,3 @@
-import sodium from "libsodium-wrappers";
 import { describe, it, expect } from "vitest";
 import { LobbyServer } from "../index.js";
 import { EntityName, GameName, PartyName } from "../../../aliases.js";

@@ -4,9 +4,6 @@ import { SodiumHelpers } from "../../../cryptography/index.js";
 import { TaggedUserId } from "../../sessions/user-ids.js";
 import crypto from "crypto";
 
-// @TODO - get secret from some secret provider either local or process.env
-const secret = "ZF0lw20QkbTIzBG5qYfcCw006+5+7EKyEXmEUCgHTK4=";
-
 export class GameServerSessionClaimToken {
   readonly expirationTimestamp = GameServerSessionClaimToken.createExpirationTimestamp();
 
@@ -21,22 +18,14 @@ export class GameServerSessionClaimToken {
   static createExpirationTimestamp() {
     return Date.now() + GameServerSessionClaimToken.TimeToLive;
   }
-
-  static async encrypt(token: GameServerSessionClaimToken): Promise<string> {
-    return await SodiumHelpers.encrypt<GameServerSessionClaimToken>(token, secret);
-  }
-
-  static async decrypt(encrypted: string): Promise<GameServerSessionClaimToken> {
-    return await SodiumHelpers.decrypt<GameServerSessionClaimToken>(encrypted, secret);
-  }
 }
 
-export interface SessionClaimTokenCodec {
+export interface GameServerSessionClaimTokenCodec {
   encode(token: GameServerSessionClaimToken): Promise<string>;
   decode(encoded: string): Promise<GameServerSessionClaimToken>;
 }
 
-export class OpaqueEncryptionSessionClaimTokenCodec implements SessionClaimTokenCodec {
+export class OpaqueEncryptionSessionClaimTokenCodec implements GameServerSessionClaimTokenCodec {
   constructor(private readonly secret: string) {}
 
   async encode(token: GameServerSessionClaimToken): Promise<string> {
@@ -48,7 +37,7 @@ export class OpaqueEncryptionSessionClaimTokenCodec implements SessionClaimToken
   }
 }
 
-export class UntrustedLocalSessionClaimTokenCodec implements SessionClaimTokenCodec {
+export class UntrustedLocalSessionClaimTokenCodec implements GameServerSessionClaimTokenCodec {
   async encode(token: GameServerSessionClaimToken): Promise<string> {
     return JSON.stringify(token);
   }

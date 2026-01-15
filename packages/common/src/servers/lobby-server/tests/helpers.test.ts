@@ -1,6 +1,5 @@
 import { IdGenerator } from "../../../utility-classes/index.js";
 import { InMemoryTransport } from "../../../transport/in-memory-transport.js";
-import { SpeedDungeonGame } from "../../../game/index.js";
 import {
   InMemorySavedCharacterPersistenceStrategy,
   InMemorySavedCharacterSlotsPersistenceStrategy,
@@ -11,13 +10,10 @@ import { IdentityProviderService } from "../../../servers/services/identity-prov
 import { FakeUsersIdentityProviderQueryStrategy } from "../../../servers/services/identity-provider.test.js";
 import { InMemoryRankedLadderService } from "../../../servers/services/ranked-ladder.test.js";
 import { LobbyServer } from "../index.js";
-import {
-  GameServerConnectionInstructions,
-  GameServerConnectionType,
-} from "../game-handoff/connection-instructions.js";
 import { InMemoryIncomingConnectionGateway } from "../../in-memory-incoming-connection-gateway.js";
 import { InMemoryGameSessionStoreService } from "../../services/game-session-store/in-memory-game-session-store-service.js";
 import { InMemoryDisconnectedSessionStoreService } from "../../services/disconnected-session-store/in-memory-disconnected-session-store.js";
+import { OpaqueEncryptionSessionClaimTokenCodec } from "../game-handoff/session-claim-token.js";
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class TestHelpers {
@@ -28,19 +24,14 @@ export class TestHelpers {
       inMemoryTransport.getServerConnectionEndpointManager()
     );
 
-    const fakeGameHandoffStrategy = (game: SpeedDungeonGame): GameServerConnectionInstructions => {
-      console.log("game handed off");
-      return {
-        type: GameServerConnectionType.Local,
-      };
-    };
+    // @TODO - get secret from some secret provider either local or process.env
+    const testSecret = "ZF0lw20QkbTIzBG5qYfcCw006+5+7EKyEXmEUCgHTK4=";
+    const codec = new OpaqueEncryptionSessionClaimTokenCodec(testSecret);
 
     const lobbyServer = new LobbyServer(
       lobbyLocalClientIntentReceiver,
-      {
-        handoff: fakeGameHandoffStrategy,
-      },
-      TestHelpers.createLobbyTestServices()
+      TestHelpers.createLobbyTestServices(),
+      codec
     );
 
     return { inMemoryTransport, lobbyServer };

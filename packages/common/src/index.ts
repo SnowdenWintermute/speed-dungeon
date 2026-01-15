@@ -67,7 +67,6 @@ export * from "./character-creation/index.js";
 export * from "./servers/lobby-server/default-names/game.js";
 export * from "./servers/lobby-server/game-handoff/connection-instructions.js";
 export * from "./servers/lobby-server/default-names/parties.js";
-export * from "./servers/lobby-server/game-handoff/handoff-strategy.js";
 export * from "./servers/services/profiles.js";
 export * from "./servers/services/saved-characters.js";
 export * from "./servers/services/ranked-ladder.js";

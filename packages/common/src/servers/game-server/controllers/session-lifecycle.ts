@@ -12,7 +12,10 @@ import { SessionLifecycleController } from "../../controllers/session-lifecycle.
 import { GameRegistry } from "../../game-registry.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { GameServerGameLifecycleController } from "./game-lifecycle/index.js";
-import { GameServerSessionClaimToken } from "../../lobby-server/game-handoff/session-claim-token.js";
+import {
+  GameServerSessionClaimToken,
+  GameServerSessionClaimTokenCodec,
+} from "../../lobby-server/game-handoff/session-claim-token.js";
 
 export class GameServerSessionLifecycleController
   implements SessionLifecycleController<GameStateUpdate>
@@ -26,7 +29,8 @@ export class GameServerSessionLifecycleController
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly identityProviderService: IdentityProviderService,
     private readonly gameLifecycleController: GameServerGameLifecycleController,
-    private readonly idGenerator: IdGenerator
+    private readonly idGenerator: IdGenerator,
+    private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
   ) {}
 
   async createSession(
@@ -38,7 +42,8 @@ export class GameServerSessionLifecycleController
       throw new Error("No token was provided when attempting to join the game server");
     }
 
-    const decryptedToken = await GameServerSessionClaimToken.decrypt(sessionClaimTokenOption);
+    const decryptedToken =
+      await this.gameServerSessionClaimTokenCodec.decode(sessionClaimTokenOption);
 
     const tokenIsExpired = Date.now() > decryptedToken.expirationTimestamp;
     if (tokenIsExpired) {

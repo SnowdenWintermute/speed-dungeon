@@ -31,6 +31,7 @@ import { PartyDelayedGameMessageFactory } from "./party-delayed-game-message-fac
 import { ReconnectionOpportunityManager } from "./reconnection-opportunity-manager.js";
 import { SpeedDungeonServer } from "../speed-dungeon-server.js";
 import { invariant } from "../../utils/index.js";
+import { GameServerSessionClaimTokenCodec } from "../lobby-server/game-handoff/session-claim-token.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -67,7 +68,8 @@ export class GameServer extends SpeedDungeonServer {
   constructor(
     private readonly name: GameServerName,
     private readonly incomingConnectionGateway: IncomingConnectionGateway,
-    private readonly externalServices: GameServerExternalServices
+    private readonly externalServices: GameServerExternalServices,
+    private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
   ) {
     super();
     this.incomingConnectionGateway.initialize(
@@ -95,7 +97,8 @@ export class GameServer extends SpeedDungeonServer {
       this.gameStateUpdateDispatchFactory,
       this.externalServices.identityProviderService,
       this.gameLifecycleController,
-      this.idGenerator
+      this.idGenerator,
+      this.gameServerSessionClaimTokenCodec
     );
   }
 
