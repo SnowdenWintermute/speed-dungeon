@@ -190,8 +190,8 @@ describe("lobby server", () => {
         otherLobbyUserSession
       );
 
-    clientEndpointForGameHost.close();
-    clientEndpointForOtherInLobby.close();
+    await clientEndpointForGameHost.close();
+    await clientEndpointForOtherInLobby.close();
 
     let someUserInGameConnection;
     let someUserReconnectionToken;
@@ -238,7 +238,7 @@ describe("lobby server", () => {
     expect(game.getTimeStarted !== null).toBeTruthy();
     expect(game.inputLock.isLocked).toBeFalsy();
 
-    someUserInGameConnection?.close();
+    await someUserInGameConnection?.close();
 
     // expect(game.inputLock.isLocked).toBe(true);
 

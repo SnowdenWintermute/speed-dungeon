@@ -4,7 +4,7 @@ import { TransportDisconnectReason, TransportDisconnectReasonType } from "./disc
 
 export class UntypedInMemoryConnectionEndpoint extends UntypedConnectionEndpoint {
   private subscribeAllHandler: ((message: unknown) => void) | null = null;
-  private disconnectHandler: ((reason: TransportDisconnectReason) => void) | null = null;
+  private disconnectHandler: ((reason: TransportDisconnectReason) => Promise<void>) | null = null;
   private alreadyClosed = false;
 
   readonly [UntypedEndpointBrand] = true;
@@ -16,7 +16,7 @@ export class UntypedInMemoryConnectionEndpoint extends UntypedConnectionEndpoint
       call receive on their paired endpoint, but they don't know that explicitly. Analogous to socket.emit
     * */
     private readonly deliverInbound: (message: unknown) => void,
-    private readonly onClose: () => void
+    private readonly onClose: () => Promise<void>
   ) {
     super();
   }
@@ -29,7 +29,7 @@ export class UntypedInMemoryConnectionEndpoint extends UntypedConnectionEndpoint
   // analogous to socket.on("someEventWeAgreeOn", (data)=>void)
   subscribeAll(
     handler: (message: unknown) => void,
-    disconnectHandler: (reason: TransportDisconnectReason) => void
+    disconnectHandler: (reason: TransportDisconnectReason) => Promise<void>
   ): void {
     this.subscribeAllHandler = handler;
     this.disconnectHandler = disconnectHandler;
@@ -40,7 +40,7 @@ export class UntypedInMemoryConnectionEndpoint extends UntypedConnectionEndpoint
     this.subscribeAllHandler?.(message);
   }
 
-  close(): void {
+  async close(): Promise<void> {
     if (this.alreadyClosed) {
       return console.log("called close but transport already closed");
     }
@@ -51,7 +51,7 @@ export class UntypedInMemoryConnectionEndpoint extends UntypedConnectionEndpoint
       console.log("In memory endpoint closed without a disconnect handler");
     } else {
       console.log("calling disconnectHandler for", this.id);
-      this.disconnectHandler(
+      await this.disconnectHandler(
         new TransportDisconnectReason(TransportDisconnectReasonType.TransportClose)
       );
     }

@@ -118,6 +118,12 @@ export class LobbyServer extends SpeedDungeonServer {
       identityResolutionContext
     );
 
+    if (session.taggedUserId.type === UserIdType.Auth) {
+      await this.externalServices.profileService.createProfileIfUserHasNone(
+        session.taggedUserId.id
+      );
+    }
+
     // type the connection endpoint
     const userConnectionEndpoint = connectionEndpoint.toTyped<GameStateUpdate, ClientIntent>();
     this.outgoingMessagesGateway.registerEndpoint(
@@ -198,6 +204,7 @@ export class LobbyServer extends SpeedDungeonServer {
     const encryptedSessionClaimToken =
       await this.gameServerSessionClaimTokenCodec.encode(claimToken);
     const url = this.getGameServerUrlFromName(disconnectedSession.gameServerName);
+
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.GameServerConnectionInstructions,
       data: {
@@ -224,8 +231,6 @@ export class LobbyServer extends SpeedDungeonServer {
     identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
     if (session.taggedUserId.type === UserIdType.Auth) {
-      this.externalServices.profileService.createProfileIfUserHasNone(session.taggedUserId.id);
-
       return await this.externalServices.disconnectedSessionStoreService.getDisconnectedSession(
         session.getReconnectionKey()
       );
@@ -250,7 +255,7 @@ export class LobbyServer extends SpeedDungeonServer {
 
     const partySetupController = new PartySetupController(
       this.gameStateUpdateDispatchFactory,
-      this.savedCharactersController,
+      savedCharactersController,
       this.externalServices.profileService,
       this.externalServices.idGenerator
     );
@@ -259,7 +264,7 @@ export class LobbyServer extends SpeedDungeonServer {
       this.lobbyState,
       this.userSessionRegistry,
       this.gameStateUpdateDispatchFactory,
-      this.partySetupController,
+      partySetupController,
       this.externalServices.idGenerator,
       this.gameHandoffManager,
       this.externalServices.gameSessionStoreService
@@ -276,8 +281,8 @@ export class LobbyServer extends SpeedDungeonServer {
       this.lobbyState,
       this.userSessionRegistry,
       this.gameStateUpdateDispatchFactory,
-      this.savedCharactersController,
-      this.gameLifecycleController,
+      savedCharactersController,
+      gameLifecycleController,
       this.externalServices.identityProviderService,
       this.externalServices.idGenerator
     );

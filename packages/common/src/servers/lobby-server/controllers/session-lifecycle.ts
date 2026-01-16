@@ -111,6 +111,7 @@ export class LobbySessionLifecycleController
   }
 
   async cleanupSession(session: UserSession) {
+    console.log("cleaning up session: ", session);
     const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
     if (session.currentGameName !== null) {
       const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);

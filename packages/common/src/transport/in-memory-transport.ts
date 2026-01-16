@@ -16,7 +16,7 @@ export class InMemoryTransport {
     const serverEndpoint = new UntypedInMemoryConnectionEndpoint(
       id,
       (update) => clientEndpoint.receive(update),
-      () => {
+      async () => {
         this.serverConnectionEndpointManager.disconnect(id);
         this.clientConnectionEndpointManager.disconnect(id);
       }
@@ -25,7 +25,7 @@ export class InMemoryTransport {
     const clientEndpoint = new UntypedInMemoryConnectionEndpoint(
       id,
       (intent) => serverEndpoint.receive(intent),
-      () => {
+      async () => {
         this.serverConnectionEndpointManager.disconnect(id);
         this.clientConnectionEndpointManager.disconnect(id);
       }
