@@ -10,12 +10,6 @@ import {
   SerializedPlayerCharacter,
 } from "./saved-characters.js";
 
-describe("saved characters and slots service", () => {
-  it("", async () => {
-    //
-  });
-});
-
 export class InMemorySavedCharacterSlotsPersistenceStrategy
   implements SavedCharacterSlotsPersistenceStrategy
 {

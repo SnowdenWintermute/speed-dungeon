@@ -3,12 +3,6 @@ import { EntityId } from "../../aliases.js";
 import { Combatant } from "../../combatants/index.js";
 import { RankedLadderService } from "./ranked-ladder.js";
 
-describe("ranked ladder service", () => {
-  it("", async () => {
-    //
-  });
-});
-
 export class InMemoryRankedLadderService implements RankedLadderService {
   getCurrentRank(ladderName: string, entryId: EntityId): Promise<number> {
     throw new Error("Method not implemented.");

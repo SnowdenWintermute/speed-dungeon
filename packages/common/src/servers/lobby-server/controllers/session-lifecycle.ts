@@ -111,16 +111,23 @@ export class LobbySessionLifecycleController
   }
 
   async cleanupSession(session: UserSession) {
-    console.log("cleaning up session: ", session);
+    console.log("cleaning up session:", session.connectionId, "gameName:", session.currentGameName);
     const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
     if (session.currentGameName !== null) {
+      const gameExists = await this.gameLifecycleController.gameExistsByName(
+        session.currentGameName
+      );
+      console.log("will try leave game", session.currentGameName, " it exists?:", gameExists);
       const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
       outbox.pushFromOther(leaveGameHandlerOutbox);
     }
 
-    this.lobbyState.removeUser(session.username);
+    this.lobbyState.removeUserIfInLobbyChannel(session.username);
 
     this.userSessionRegistry.unregister(session.connectionId);
+
+    console.log("filtering out connection id:", session.connectionId);
+    outbox.removeRecipients([session.connectionId]);
 
     return outbox;
   }

@@ -176,7 +176,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     session.subscribeToChannel(game.getChannelName());
 
     // update the lobby's user list for when players ask for the list of users in lobby
-    this.lobbyState.removeUser(session.username);
+    this.lobbyState.removeExpectedUserInLobbyChannel(session.username);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     // tell the clients in the lobby that the user left the lobby channel
@@ -215,6 +215,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
   }
 
   async leaveGameHandler(session: UserSession) {
+    console.log("leave game handler started for user:", session.taggedUserId.id);
     const game = session.getExpectedCurrentGame();
     const partyOption = session.getCurrentPartyOption(game);
 
@@ -243,6 +244,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
 
     const noPlayersRemain = game.players.size === 0;
     if (noPlayersRemain) {
+      console.log("no players remain, removing game from registry");
       this.lobbyState.gameRegistry.unregisterGame(game.name);
 
       return outbox; // no one is left to notify about the player leaving so return early
@@ -304,5 +306,6 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     if (activeGameExistsByThisName) {
       return true;
     }
+    return false;
   }
 }

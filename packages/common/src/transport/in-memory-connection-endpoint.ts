@@ -42,20 +42,18 @@ export class UntypedInMemoryConnectionEndpoint extends UntypedConnectionEndpoint
 
   async close(): Promise<void> {
     if (this.alreadyClosed) {
-      return console.log("called close but transport already closed");
+      return;
     }
 
     this.alreadyClosed = true;
 
     if (this.disconnectHandler === null) {
-      console.log("In memory endpoint closed without a disconnect handler");
+      // In memory endpoint closed without a disconnect handler
     } else {
-      console.log("calling disconnectHandler for", this.id);
       await this.disconnectHandler(
         new TransportDisconnectReason(TransportDisconnectReasonType.TransportClose)
       );
     }
-    console.log("calling onClose");
-    this.onClose();
+    await this.onClose();
   }
 }

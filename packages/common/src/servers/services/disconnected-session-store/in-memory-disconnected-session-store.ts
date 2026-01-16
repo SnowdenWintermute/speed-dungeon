@@ -10,7 +10,6 @@ export class InMemoryDisconnectedSessionStoreService implements DisconnectedSess
     reconnectionKey: ReconnectionKey,
     record: DisconnectedSession
   ): Promise<void> {
-    console.log("setting reconnectionKey:", reconnectionKey, record);
     switch (reconnectionKey.type) {
       case ReconnectionKeyType.Auth:
         this.byIdentityProviderId.set(reconnectionKey.userId, record);
@@ -23,12 +22,6 @@ export class InMemoryDisconnectedSessionStoreService implements DisconnectedSess
   async getDisconnectedSession(
     reconnectionKey: ReconnectionKey
   ): Promise<DisconnectedSession | null> {
-    console.log(
-      "attempting to get DisconnectedSession with key:",
-      reconnectionKey,
-      this.byIdentityProviderId,
-      this.byReconnectionToken
-    );
     switch (reconnectionKey.type) {
       case ReconnectionKeyType.Auth:
         return this.byIdentityProviderId.get(reconnectionKey.userId) || null;

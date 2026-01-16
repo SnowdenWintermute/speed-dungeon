@@ -74,10 +74,8 @@ export class GameServerSessionLifecycleController
       this.gameRegistry
     );
 
-    console.log("decryptedToken", decryptedToken);
-
     if (decryptedToken.reconnectionTokenOption) {
-      console.log("setting reconnectionTokenOption");
+      console.log("setting reconnectionTokenOption", decryptedToken.reconnectionTokenOption);
       newSession.setGuestReconnectionToken(decryptedToken.reconnectionTokenOption);
     }
 

@@ -118,6 +118,11 @@ export class LobbyServer extends SpeedDungeonServer {
       identityResolutionContext
     );
 
+    const { username, taggedUserId, connectionId } = session;
+    console.info(
+      `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the lobby`
+    );
+
     if (session.taggedUserId.type === UserIdType.Auth) {
       await this.externalServices.profileService.createProfileIfUserHasNone(
         session.taggedUserId.id
@@ -143,8 +148,6 @@ export class LobbyServer extends SpeedDungeonServer {
     // input lock's RC for that user in the game. also, if they get their claim token then disconnect before
     // reconnecting to the game server they won't be able to reconnect again if we delete it now.
     if (disconnectedSessionOption) {
-      console.log("a user joined the lobby with a disconnected session found in registry");
-      console.log("disconnectedSessionOption:", disconnectedSessionOption);
       const gameStillExists =
         await this.externalServices.gameSessionStoreService.getActiveGameStatus(
           disconnectedSessionOption.gameName
@@ -156,11 +159,6 @@ export class LobbyServer extends SpeedDungeonServer {
       }
     }
 
-    const { username, taggedUserId, connectionId } = session;
-    console.info(
-      `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the lobby`
-    );
-
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.gameStateUpdateDispatchFactory);
     // attach the connection to message handlers and disconnectionHandler
     this.attachIntentHandlersToSessionConnection(
@@ -169,17 +167,19 @@ export class LobbyServer extends SpeedDungeonServer {
       this.userIntentHandlers
     );
 
-    outbox.pushFromOther(await this.userSessionLifecycleController.activateSession(session));
+    const sessionActivationOutbox =
+      await this.userSessionLifecycleController.activateSession(session);
+    outbox.pushFromOther(sessionActivationOutbox);
     this.dispatchOutboxMessages(outbox);
   }
 
   protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
-    console.log("LOBBY DISCONNECTION HANDLER");
     console.info(
       `-- ${session.username} (${session.connectionId})  disconnected. Reason - ${reason.getStringName()}`
     );
-    await this.userSessionLifecycleController.cleanupSession(session);
+    const outbox = await this.userSessionLifecycleController.cleanupSession(session);
     this.outgoingMessagesGateway.unregisterEndpoint(session.connectionId);
+    this.dispatchOutboxMessages(outbox);
   }
 
   private async giveClientReconnectionInstructions(

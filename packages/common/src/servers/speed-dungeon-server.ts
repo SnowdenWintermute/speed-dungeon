@@ -46,7 +46,6 @@ export abstract class SpeedDungeonServer {
         this.dispatchOutboxMessages(outbox);
       },
       async (reason) => {
-        console.log("disconnectionHandler in server:", this.name);
         this.disconnectionHandler(session, reason);
       }
     );

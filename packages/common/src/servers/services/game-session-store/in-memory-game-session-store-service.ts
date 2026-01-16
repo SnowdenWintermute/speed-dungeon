@@ -12,8 +12,10 @@ export class InMemoryGameSessionStoreService implements GameSessionStoreService 
   }
 
   async getPendingGameSetup(gameName: GameName): Promise<PendingGameSetup | null> {
-    return this.pendingGameSetups.get(gameName) || null;
+    const gameOption = this.pendingGameSetups.get(gameName);
+    return gameOption || null;
   }
+
   async deletePendingGameSetup(gameName: GameName): Promise<void> {
     this.pendingGameSetups.delete(gameName);
   }
@@ -21,9 +23,11 @@ export class InMemoryGameSessionStoreService implements GameSessionStoreService 
   async writeActiveGameStatus(gameName: GameName, game: ActiveGameStatus): Promise<void> {
     this.activeGameStatusRecords.set(gameName, game);
   }
+
   async getActiveGameStatus(gameName: GameName): Promise<ActiveGameStatus | null> {
     return this.activeGameStatusRecords.get(gameName) || null;
   }
+
   async deleteActiveGameStatus(gameName: GameName): Promise<void> {
     this.activeGameStatusRecords.get(gameName);
   }

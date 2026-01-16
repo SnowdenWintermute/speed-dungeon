@@ -57,7 +57,7 @@ describe("lobby server", () => {
       serverEndpointForOtherInLobby.id
     );
 
-    const gameName = "my game name" as GameName;
+    const gameName = "DarkSphere" as GameName;
 
     const gameCreationOutbox = await lobbyServer.gameLifecycleController.createGameHandler(
       { gameName, mode: GameMode.Race },
@@ -220,12 +220,11 @@ describe("lobby server", () => {
         typedEndpoint.subscribeAll(
           (someEvent) => {
             if (someEvent.type === GameStateUpdateType.CacheGuestSessionReconnectionToken) {
-              console.log(someEvent);
               someUserReconnectionToken = someEvent.data.token;
             }
           },
           async (reason) => {
-            console.log("fake test client disconnected");
+            // fake test client disconnected
           }
         );
 
@@ -256,7 +255,7 @@ describe("lobby server", () => {
 
     typedReconnectingUserConnectionToLobbyEndpoint.subscribeAll(
       (message) => {
-        console.log("got message:", message);
+        //
       },
       async (reason) => {
         //

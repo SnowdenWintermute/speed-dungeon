@@ -6,13 +6,7 @@ import {
   IdentityProviderUserSessionQueryStrategy,
 } from "./identity-provider.js";
 
-describe("identity provider service", () => {
-  it("", async () => {
-    //
-  });
-});
-
-export class FakeUsersIdentityProviderQueryStrategy
+export class InMemoryIdentityProviderQueryStrategy
   implements IdentityProviderUserSessionQueryStrategy
 {
   private fakeSessions: Record<IdentityProviderId, Username> = {};

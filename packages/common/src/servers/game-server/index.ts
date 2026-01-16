@@ -112,6 +112,11 @@ export class GameServer extends SpeedDungeonServer {
       identityResolutionContext
     );
 
+    const { username, taggedUserId, connectionId } = session;
+    console.info(
+      `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the [${this.name}] game server`
+    );
+
     // type the connection endpoint
     const userConnectionEndpoint = connectionEndpoint.toTyped<GameStateUpdate, ClientIntent>();
     this.outgoingMessagesGateway.registerEndpoint(
@@ -131,11 +136,6 @@ export class GameServer extends SpeedDungeonServer {
       existingGame = await this.gameLifecycleController.initializeExpectedPendingGame(gameName);
     }
 
-    const { username, taggedUserId, connectionId } = session;
-    console.info(
-      `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the [${this.name}] game server`
-    );
-
     this.attachIntentHandlersToSessionConnection(
       session,
       userConnectionEndpoint,
@@ -147,7 +147,6 @@ export class GameServer extends SpeedDungeonServer {
     const gameIsInProgress = existingGame.getTimeStarted() !== null;
 
     if (gameIsInProgress) {
-      console.log("user connecting while game in progress");
       const reconnectionOpportunityOption = this.reconnectionOpportunityManager.get(
         session.getReconnectionKey()
       );
@@ -185,6 +184,10 @@ export class GameServer extends SpeedDungeonServer {
 
   // @TODO - combine with lobby server, it is almost exact same other than disconnection session logic
   protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
+    console.info(
+      `-- ${session.username} (${session.connectionId}) disconnected from ${this.name} game server. Reason - ${reason.getStringName()}`
+    );
+
     const outbox = new MessageDispatchOutbox(this.gameStateUpdateDispatchFactory);
     // - if the user party is still alive, provide a reconnection opportunity
     try {
@@ -195,7 +198,11 @@ export class GameServer extends SpeedDungeonServer {
       const reconnectionPermitted = partyIsStillAlive;
 
       if (reconnectionPermitted) {
-        console.log("reconnection is permitted");
+        console.log(
+          "reconnection is permitted, saving a reconnection session for",
+          session.username,
+          session.taggedUserId.id
+        );
         const disconnectedSession = DisconnectedSession.fromUserSession(session, this.name);
         this.externalServices.disconnectedSessionStoreService.writeDisconnectedSession(
           session.getReconnectionKey(),
@@ -247,11 +254,11 @@ export class GameServer extends SpeedDungeonServer {
       console.error("unexpected error while handling disconnection from living party:", error);
     }
 
-    await this.sessionLifecycleController.cleanupSession(session);
+    const cleanupSessionOutbox = await this.sessionLifecycleController.cleanupSession(session);
+    outbox.pushFromOther(cleanupSessionOutbox);
     this.outgoingMessagesGateway.unregisterEndpoint(session.connectionId);
-    console.info(
-      `-- ${session.username} (${session.connectionId}) disconnected from ${this.name} game server. Reason - ${reason.getStringName()}`
-    );
+
+    outbox.removeRecipients([session.connectionId]);
 
     this.dispatchOutboxMessages(outbox);
   }

@@ -1,3 +1,4 @@
+import cloneDeep from "lodash.clonedeep";
 import { ConnectionId, GameName } from "../../../aliases.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
@@ -64,7 +65,12 @@ export class GameHandoffManager {
     // - getLeastBusyGameServerOrProvisionOne()
     const leastBusyServerUrl = "";
 
-    await this.gameSessionStoreService.writePendingGameSetup(game.name, new PendingGameSetup(game));
+    await this.gameSessionStoreService.writePendingGameSetup(
+      game.name,
+      // if we don't clone, player list will be mutated when players disconnect causing
+      // error of "no players in game" when they try to join as their player on the game server
+      new PendingGameSetup(cloneDeep(game))
+    );
 
     const sessionsInGame = this.getPlayerSessionsInGame(game);
     const claimTokens = this.prepareClaimTokens(sessionsInGame, game.name);
@@ -85,7 +91,8 @@ export class GameHandoffManager {
       });
     }
 
-    this.lobbyState.gameRegistry.unregisterGame(game.name);
+    // currently we assume the game will be removed from the lobby's registry
+    // once the last player client disconnects to go join it
 
     return outbox;
   }

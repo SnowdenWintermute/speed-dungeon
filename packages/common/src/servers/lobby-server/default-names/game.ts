@@ -9,6 +9,19 @@ export const RANDOM_GAME_NAMES_FIRST = [
   "forgotten",
   "unsettling",
   "uncanny",
+  "decaying",
+  "abandoned",
+  "hollow",
+  "pristine",
+  "unexplored",
+  "alien",
+  "faraway",
+  "unreachable",
+  "imagined",
+  "misplaced",
+  "intangible",
+  "ancient",
+  "incomprehensible",
 ];
 
 export const RANDOM_GAME_NAMES_LAST = [
@@ -29,4 +42,10 @@ export const RANDOM_GAME_NAMES_LAST = [
   "crypt",
   "canyon",
   "forest",
+  "sphere",
+  "bunker",
+  "ruins",
+  "mountain",
+  "fathoms",
+  "abyss",
 ];

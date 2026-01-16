@@ -64,7 +64,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       );
     }
 
-    const newGame = SpeedDungeonGame.getDeserialized(pendingGameSetupOption.game);
+    const newGame = pendingGameSetupOption.game;
     this.gameRegistry.registerGame(newGame);
     this.gameSessionStoreService.deletePendingGameSetup(newGame.name);
 

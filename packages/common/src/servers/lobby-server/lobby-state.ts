@@ -37,21 +37,29 @@ export class LobbyState {
     return userChannelDisplayData;
   }
 
-  removeUser(username: Username) {
-    const expectedUser = this.usersInLobbyChannel.get(username);
-    if (expectedUser === undefined) {
-      throw new Error("Tried to remove a user but couldn't find it");
+  removeExpectedUserInLobbyChannel(username: Username) {
+    const userRemoved = this.removeUserIfInLobbyChannel(username);
+    if (!userRemoved) {
+      throw new Error("Expected a user to exist when removing them from lobby channel");
+    }
+  }
+
+  removeUserIfInLobbyChannel(username: Username) {
+    const userOption = this.usersInLobbyChannel.get(username);
+    if (userOption === undefined) {
+      return false;
     }
 
-    expectedUser.sessionsInThisChannelCount -= 1;
+    userOption.sessionsInThisChannelCount -= 1;
 
-    if (expectedUser.sessionsInThisChannelCount < 0) {
+    if (userOption.sessionsInThisChannelCount < 0) {
       throw new Error(`User ${username} session count went negative`);
     }
 
-    if (expectedUser.sessionsInThisChannelCount === 0) {
+    if (userOption.sessionsInThisChannelCount === 0) {
       this.usersInLobbyChannel.delete(username);
     }
+    return true;
   }
 
   getUsersList() {

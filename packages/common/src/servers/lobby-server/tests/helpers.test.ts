@@ -1,14 +1,7 @@
 import { IdGenerator } from "../../../utility-classes/index.js";
 import { InMemoryTransport } from "../../../transport/in-memory-transport.js";
-import {
-  InMemorySavedCharacterPersistenceStrategy,
-  InMemorySavedCharacterSlotsPersistenceStrategy,
-} from "../../../servers/services/saved-characters.test.js";
 import { SavedCharactersService } from "../../../servers/services/saved-characters.js";
-import { InMemorySpeedDungeonProfileService } from "../../../servers/services/profiles.test.js";
 import { IdentityProviderService } from "../../../servers/services/identity-provider.js";
-import { FakeUsersIdentityProviderQueryStrategy } from "../../../servers/services/identity-provider.test.js";
-import { InMemoryRankedLadderService } from "../../../servers/services/ranked-ladder.test.js";
 import { LobbyServer } from "../index.js";
 import { InMemoryIncomingConnectionGateway } from "../../in-memory-incoming-connection-gateway.js";
 import { InMemoryGameSessionStoreService } from "../../services/game-session-store/in-memory-game-session-store-service.js";
@@ -24,8 +17,21 @@ import {
   InMemoryRaceGameRecordsPersistenceStrategy,
   RaceGameRecordsService,
 } from "../../services/race-game-records.js";
+import { InMemorySpeedDungeonProfileService } from "../../services/in-memory-profiles-service.js";
+import {
+  InMemorySavedCharacterPersistenceStrategy,
+  InMemorySavedCharacterSlotsPersistenceStrategy,
+} from "../../services/in-memory-saved-characters-service.js";
+import { InMemoryRankedLadderService } from "../../services/in-memory-ranked-ladder-service.js";
+import { InMemoryIdentityProviderQueryStrategy } from "../../services/in-memory-identity-provider-service.js";
 
 export const TEST_GAME_SERVER_NAME = "test game server name";
+
+describe("placeholder", () => {
+  it("placeholder", () => {
+    //
+  });
+});
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class TestHelpers {
@@ -87,7 +93,7 @@ export class TestHelpers {
     savedCharactersService: SavedCharactersService,
     rankedLadderService: RankedLadderService
   ) {
-    const identityProviderQueryStrategy = new FakeUsersIdentityProviderQueryStrategy(0);
+    const identityProviderQueryStrategy = new InMemoryIdentityProviderQueryStrategy(0);
     const identityProviderService = new IdentityProviderService(identityProviderQueryStrategy);
 
     const characterSlotsPersistenceStrategy = new InMemorySavedCharacterSlotsPersistenceStrategy();
