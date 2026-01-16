@@ -1,16 +1,3 @@
-import {
-  ActionValidity,
-  AdventuringParty,
-  ERROR_MESSAGES,
-  GAME_CHANNEL_PREFIX,
-  GameId,
-  GameMode,
-  GameName,
-  IdGenerator,
-  LOBBY_CHANNEL,
-  MAX_GAME_NAME_LENGTH,
-  SpeedDungeonGame,
-} from "../../../index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
 import { UserSession } from "../../sessions/user-session.js";
@@ -22,6 +9,15 @@ import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { GameLifecycleController } from "../../controllers/game-lifecycle.js";
 import { GameHandoffManager } from "../game-handoff/game-handoff-manager.js";
 import { GameSessionStoreService } from "../../services/game-session-store/index.js";
+import { IdGenerator } from "../../../utility-classes/index.js";
+import { GameId, GameName } from "../../../aliases.js";
+import { MAX_GAME_NAME_LENGTH } from "../../../app-consts.js";
+import { ActionValidity } from "../../../primatives/index.js";
+import { GAME_CHANNEL_PREFIX, LOBBY_CHANNEL } from "../../../packets/channels.js";
+import { GameMode } from "../../../types.js";
+import { ERROR_MESSAGES } from "../../../errors/index.js";
+import { SpeedDungeonGame } from "../../../game/index.js";
+import { AdventuringParty } from "../../../adventuring-party/index.js";
 
 export class LobbyGameLifecycleController implements GameLifecycleController {
   constructor(

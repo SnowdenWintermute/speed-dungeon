@@ -9,10 +9,10 @@ import { EntityId, EntityName, GameName, PartyName } from "../aliases.js";
 import { ConsumableType } from "../items/consumables/consumable-types.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 
-export function invariant(condition: boolean): asserts condition {
+export function invariant(condition: boolean, message?: string): asserts condition {
   if (!condition) {
     console.trace();
-    throw new Error(ERROR_MESSAGES.CHECKED_EXPECTATION_FAILED);
+    throw new Error(`${ERROR_MESSAGES.CHECKED_EXPECTATION_FAILED}${message ? `: ${message}` : ""}`);
   }
 }
 

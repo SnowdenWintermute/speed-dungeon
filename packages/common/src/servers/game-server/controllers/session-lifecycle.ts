@@ -74,7 +74,15 @@ export class GameServerSessionLifecycleController
       this.gameRegistry
     );
 
+    console.log("decryptedToken", decryptedToken);
+
+    if (decryptedToken.reconnectionTokenOption) {
+      console.log("setting reconnectionTokenOption");
+      newSession.setGuestReconnectionToken(decryptedToken.reconnectionTokenOption);
+    }
+
     newSession.currentGameName = decryptedToken.gameName;
+    newSession.currentPartyName = decryptedToken.partyName;
 
     return newSession;
   }

@@ -78,6 +78,12 @@
 // - don't create a DisconnectedSession for them
 // - don't add them to the input lock RC
 //
+// on reconnect attempt rejected
+// - tell client to delete their stored reconnect token
+//
+// on game ended
+// - tell client to delete their stored reconnect token
+//
 // lobby's DanglingResourcesCleanupLoop
 // - read all ActiveGame records from the central store and check their last lastHeartbeatTimestamp
 // - if expired, clean up any dangling records in the central store:

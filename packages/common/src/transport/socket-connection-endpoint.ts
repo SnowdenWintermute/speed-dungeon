@@ -1,5 +1,7 @@
 import { ConnectionId, UntypedEndpointBrand } from "../aliases.js";
 import { UntypedConnectionEndpoint } from "./connection-endpoint.js";
+import { SOCKET_IO_DISCONNECT_REASONS, TransportDisconnectReason } from "./disconnect-reasons.js";
+import SocketIO from "socket.io";
 
 // abstract the client and server versions of socket.io socket object
 export interface MessageSocket {
@@ -28,12 +30,15 @@ export class UntypedSocketConnectionEndpoint extends UntypedConnectionEndpoint {
   }
   subscribeAll(
     messageHandler: (payload: unknown) => void,
-    disconnectHandler: (payload: unknown) => void
+    disconnectHandler: (payload: TransportDisconnectReason) => void
   ): void {
     this.socket.on(UntypedSocketConnectionEndpoint.UniversalMessageEventName, (data) =>
       messageHandler(data)
     );
-    this.socket.on("disconnect", (reason) => {
+    this.socket.on("disconnect", (socketIoTransportCloseString) => {
+      const type =
+        SOCKET_IO_DISCONNECT_REASONS[socketIoTransportCloseString as SocketIO.DisconnectReason];
+      const reason = new TransportDisconnectReason(type);
       disconnectHandler(reason);
     });
   }

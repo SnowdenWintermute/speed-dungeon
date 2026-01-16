@@ -1,6 +1,6 @@
-import { GuestUserId, IdentityProviderId, Username } from "../../aliases.js";
+import { IdentityProviderId, Username } from "../../aliases.js";
 import { IdGenerator } from "../../utility-classes/index.js";
-import { TaggedUserId, UserIdType } from "../sessions/user-ids.js";
+import { TaggedUserId } from "../sessions/user-ids.js";
 import {
   ConnectionIdentityResolutionContext,
   IdentityProviderUserSessionQueryStrategy,

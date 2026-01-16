@@ -1,6 +1,7 @@
 import { ConnectionId, GameName } from "../../../aliases.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
+import { invariant } from "../../../utils/index.js";
 import { GameSessionStoreService } from "../../services/game-session-store/index.js";
 import { PendingGameSetup } from "../../services/game-session-store/pending-game-setup.js";
 import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
@@ -42,10 +43,13 @@ export class GameHandoffManager {
     const claimTokensByConnectionId = new Map<ConnectionId, GameServerSessionClaimToken>();
 
     for (const session of sessions) {
+      invariant(session.currentPartyName !== null);
       const claimToken = new GameServerSessionClaimToken(
         gameName,
+        session.currentPartyName,
         session.username,
-        session.taggedUserId
+        session.taggedUserId,
+        session.getGuestReconnectionTokenOption() || undefined
       );
       claimTokensByConnectionId.set(session.connectionId, claimToken);
     }

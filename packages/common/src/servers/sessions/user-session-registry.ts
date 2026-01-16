@@ -1,12 +1,8 @@
-import {
-  ConnectionId,
-  ERROR_MESSAGES,
-  GameName,
-  invariant,
-  UserId,
-  Username,
-} from "../../index.js";
+import { ConnectionId, GameName, Username } from "../../aliases.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
+import { invariant } from "../../utils/index.js";
 import { SessionRegistry } from "./session-registry.js";
+import { UserId } from "./user-ids.js";
 import { UserSession } from "./user-session.js";
 
 export class UserSessionRegistry extends SessionRegistry<UserSession> {

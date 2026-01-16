@@ -77,7 +77,7 @@ export class LobbyServer extends SpeedDungeonServer {
     private readonly externalServices: LobbyExternalServices,
     private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
   ) {
-    super();
+    super("LobbyServer");
 
     this.gameHandoffManager = new GameHandoffManager(
       this.userSessionRegistry,
@@ -137,6 +137,8 @@ export class LobbyServer extends SpeedDungeonServer {
     // input lock's RC for that user in the game. also, if they get their claim token then disconnect before
     // reconnecting to the game server they won't be able to reconnect again if we delete it now.
     if (disconnectedSessionOption) {
+      console.log("a user joined the lobby with a disconnected session found in registry");
+      console.log("disconnectedSessionOption:", disconnectedSessionOption);
       const gameStillExists =
         await this.externalServices.gameSessionStoreService.getActiveGameStatus(
           disconnectedSessionOption.gameName
@@ -166,6 +168,7 @@ export class LobbyServer extends SpeedDungeonServer {
   }
 
   protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
+    console.log("LOBBY DISCONNECTION HANDLER");
     console.info(
       `-- ${session.username} (${session.connectionId})  disconnected. Reason - ${reason.getStringName()}`
     );
@@ -180,8 +183,10 @@ export class LobbyServer extends SpeedDungeonServer {
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.gameStateUpdateDispatchFactory);
     const claimToken = new GameServerSessionClaimToken(
       disconnectedSession.gameName,
+      disconnectedSession.partyName,
       session.username,
-      disconnectedSession.taggedUserId
+      disconnectedSession.taggedUserId,
+      disconnectedSession.guestUserReconnectionTokenOption || undefined
     );
 
     outbox.pushFromOther(

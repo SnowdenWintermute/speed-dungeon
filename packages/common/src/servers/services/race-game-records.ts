@@ -5,7 +5,6 @@ import { SpeedDungeonGame } from "../../game/index.js";
 import {
   PartyFate,
   RaceGameAggregatedRecord,
-  RacePartyAggregatedRecord,
 } from "../game-server/controllers/game-lifecycle/record-types.js";
 
 export interface RaceGamePartyRecord {

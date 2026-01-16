@@ -1,13 +1,5 @@
 import { MAX_PARTY_NAME_LENGTH } from "../../../app-consts.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
-import {
-  AdventuringParty,
-  GameMode,
-  getPartyChannelName,
-  PartyName,
-  SpeedDungeonGame,
-  SpeedDungeonProfileService,
-} from "../../../index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
 import { UserSession } from "../../sessions/user-session.js";
@@ -15,6 +7,12 @@ import { SavedCharactersController } from "./saved-characters.js";
 import { RANDOM_PARTY_NAMES } from "../default-names/parties.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
+import { SpeedDungeonProfileService } from "../../services/profiles.js";
+import { PartyName } from "../../../aliases.js";
+import { AdventuringParty } from "../../../adventuring-party/index.js";
+import { getPartyChannelName } from "../../../packets/channels.js";
+import { SpeedDungeonGame } from "../../../game/index.js";
+import { GameMode } from "../../../types.js";
 
 export class PartySetupController {
   constructor(

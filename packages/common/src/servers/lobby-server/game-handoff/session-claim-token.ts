@@ -1,4 +1,10 @@
-import { GameName, Milliseconds, Username } from "../../../aliases.js";
+import {
+  GameName,
+  GuestSessionReconnectionToken,
+  Milliseconds,
+  PartyName,
+  Username,
+} from "../../../aliases.js";
 import { ONE_SECOND } from "../../../app-consts.js";
 import { SodiumHelpers } from "../../../cryptography/index.js";
 import { TaggedUserId } from "../../sessions/user-ids.js";
@@ -10,8 +16,10 @@ export class GameServerSessionClaimToken {
   readonly nonce = crypto.randomBytes(16).toString("hex");
   constructor(
     readonly gameName: GameName,
+    readonly partyName: PartyName,
     readonly username: Username,
-    readonly taggedUserId: TaggedUserId
+    readonly taggedUserId: TaggedUserId,
+    readonly reconnectionTokenOption?: GuestSessionReconnectionToken
   ) {}
 
   static readonly TimeToLive: Milliseconds = ONE_SECOND * 5 * 60;

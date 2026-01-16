@@ -3,6 +3,7 @@ import {
   GameName,
   GameServerName,
   GuestSessionReconnectionToken,
+  PartyName,
   Username,
 } from "../../aliases.js";
 import { GameRegistry } from "../game-registry.js";
@@ -14,15 +15,23 @@ export class DisconnectedSession {
     public readonly taggedUserId: TaggedUserId,
     private username: Username,
     private _gameName: GameName,
+    private _partyName: PartyName,
     public readonly gameServerName: GameServerName,
     public readonly guestUserReconnectionTokenOption: null | GuestSessionReconnectionToken
   ) {}
 
   static fromUserSession(session: UserSession, gameServerName: GameServerName) {
+    if (session.currentGameName === null) {
+      throw new Error("Can't create disconnected session for user not in game");
+    }
+    if (session.currentPartyName === null) {
+      throw new Error("Can't create disconnected session for user not in party");
+    }
     return new DisconnectedSession(
       session.taggedUserId,
       session.username,
-      session.currentGameName || ("" as GameName),
+      session.currentGameName,
+      session.currentPartyName,
       gameServerName,
       session.getGuestReconnectionTokenOption()
     );
@@ -30,6 +39,10 @@ export class DisconnectedSession {
 
   get gameName() {
     return this._gameName;
+  }
+
+  get partyName() {
+    return this._partyName;
   }
 
   toUserSession(connectionId: ConnectionId, gameRegistry: GameRegistry) {

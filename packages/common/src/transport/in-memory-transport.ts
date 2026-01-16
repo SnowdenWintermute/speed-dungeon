@@ -3,7 +3,6 @@ import { IdGenerator } from "../utility-classes/index.js";
 import { ConnectionIdentityResolutionContext } from "../servers/services/identity-provider.js";
 import { InMemoryConnectionEndpointManager } from "./in-memory-connection-endpoint-manager.js";
 import { UntypedInMemoryConnectionEndpoint } from "./in-memory-connection-endpoint.js";
-import { TransportDisconnectReason, TransportDisconnectReasonType } from "./disconnect-reasons.js";
 
 export class InMemoryTransport {
   private readonly idGenerator = new IdGenerator({ saveHistory: false });
@@ -17,28 +16,28 @@ export class InMemoryTransport {
     const serverEndpoint = new UntypedInMemoryConnectionEndpoint(
       id,
       (update) => clientEndpoint.receive(update),
-      () =>
-        this.serverConnectionEndpointManager.disconnect(
-          id,
-          new TransportDisconnectReason(TransportDisconnectReasonType.TransportClose)
-        )
+      () => {
+        this.serverConnectionEndpointManager.disconnect(id);
+        this.clientConnectionEndpointManager.disconnect(id);
+      }
     );
 
     const clientEndpoint = new UntypedInMemoryConnectionEndpoint(
       id,
       (intent) => serverEndpoint.receive(intent),
-      () =>
-        this.clientConnectionEndpointManager.disconnect(
-          id,
-          new TransportDisconnectReason(TransportDisconnectReasonType.TransportClose)
-        )
+      () => {
+        this.serverConnectionEndpointManager.disconnect(id);
+        this.clientConnectionEndpointManager.disconnect(id);
+      }
     );
 
     return {
       serverEndpoint,
       clientEndpoint,
-      open: async () =>
-        await this.serverConnectionEndpointManager.onNewConnection(serverEndpoint, identityContext),
+      open: async () => {
+        await this.serverConnectionEndpointManager.onNewConnection(serverEndpoint, identityContext);
+        await this.clientConnectionEndpointManager.onNewConnection(serverEndpoint, identityContext);
+      },
     };
   }
 

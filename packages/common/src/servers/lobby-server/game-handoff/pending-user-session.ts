@@ -1,4 +1,4 @@
-import { ChannelName, GameName, PartyName, Seconds, Username } from "../../../aliases.js";
+import { ChannelName, GameName, PartyName, Username } from "../../../aliases.js";
 import { UserId } from "../../sessions/user-ids.js";
 
 /** Will be used to create the UserSession on the game server when user presents a vaild claim token */

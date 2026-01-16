@@ -21,7 +21,7 @@ export abstract class UntypedConnectionEndpoint {
   protected abstract receive(payload: unknown): void;
   protected abstract subscribeAll(
     messageHandler: (payload: unknown) => void,
-    disconnectHandler: (payload: unknown) => Promise<void>
+    disconnectHandler: (payload: TransportDisconnectReason) => Promise<void>
   ): void;
   protected abstract close(): void;
   abstract readonly [UntypedEndpointBrand]: true;
@@ -37,10 +37,13 @@ export abstract class UntypedConnectionEndpoint {
       receive(message: Receivable) {
         untyped.receive?.(message);
       },
-      subscribeAll(handler: (message: Receivable) => void) {
+      subscribeAll(
+        handler: (message: Receivable) => void,
+        disconnectHandler: (reason: TransportDisconnectReason) => void
+      ) {
         untyped.subscribeAll(
           (payload) => handler(payload as Receivable),
-          async () => untyped.close()
+          async (reason) => disconnectHandler(reason)
         );
       },
       close() {

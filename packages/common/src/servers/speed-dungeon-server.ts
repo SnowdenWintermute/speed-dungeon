@@ -17,11 +17,19 @@ export abstract class SpeedDungeonServer {
   >();
   readonly userSessionRegistry = new UserSessionRegistry();
 
+  constructor(readonly name: string) {}
+
   protected attachIntentHandlersToSessionConnection(
     session: UserSession,
     userConnectionEndpoint: ConnectionEndpoint<GameStateUpdate, ClientIntent>,
     intentHandlers: Partial<GameServerClientIntentHandlers> | Partial<LobbyClientIntentHandlers>
   ) {
+    console.log(
+      "attaching connection handlers to",
+      userConnectionEndpoint.id,
+      " for server:",
+      this.name
+    );
     // attach the connection to message handlers and disconnectionHandler
     userConnectionEndpoint.subscribeAll(
       async (receivable) => {
@@ -37,7 +45,10 @@ export abstract class SpeedDungeonServer {
         const outbox = await handlerOption(receivable.data as never, session);
         this.dispatchOutboxMessages(outbox);
       },
-      (reason) => this.disconnectionHandler(session, reason)
+      async (reason) => {
+        console.log("disconnectionHandler in server:", this.name);
+        this.disconnectionHandler(session, reason);
+      }
     );
   }
 

@@ -1,20 +1,20 @@
-import { ERROR_MESSAGES } from "../../errors/index.js";
 import {
-  ActionValidity,
   ConnectionId,
   GameName,
   GuestSessionReconnectionToken,
-  invariant,
   PartyName,
-  SpeedDungeonGame,
-  SpeedDungeonProfileService,
   Username,
-} from "../../index.js";
+} from "../../aliases.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
+import { SpeedDungeonGame } from "../../game/index.js";
+import { ActionValidity } from "../../primatives/index.js";
+import { invariant } from "../../utils/index.js";
 import { GameRegistry } from "../game-registry.js";
 import {
   ReconnectionKey,
   ReconnectionKeyType,
 } from "../services/disconnected-session-store/index.js";
+import { SpeedDungeonProfileService } from "../services/profiles.js";
 import { ConnectionSession } from "./session-registry.js";
 import { AuthTaggedUserId, TaggedUserId, UserIdType } from "./user-ids.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
@@ -131,7 +131,7 @@ export class UserSession extends ConnectionSession {
       }
       case UserIdType.Guest: {
         const reconnectionTokenOption = this.getGuestReconnectionTokenOption();
-        invariant(reconnectionTokenOption !== null);
+        invariant(reconnectionTokenOption !== null, "reconnectionTokenOption was null");
         return {
           type: ReconnectionKeyType.Guest,
           reconnectionToken: reconnectionTokenOption,

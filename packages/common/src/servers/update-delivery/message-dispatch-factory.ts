@@ -1,5 +1,4 @@
-import { OptimizeIndices } from "@babylonjs/core";
-import { ChannelName, ConnectionId } from "../../index.js";
+import { ChannelName, ConnectionId } from "../../aliases.js";
 import { UserSessionRegistry } from "../sessions/user-session-registry.js";
 
 export enum MessageDispatchType {

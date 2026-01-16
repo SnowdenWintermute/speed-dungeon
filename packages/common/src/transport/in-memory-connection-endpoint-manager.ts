@@ -1,6 +1,5 @@
 import { ConnectionId } from "../aliases.js";
 import { ConnectionIdentityResolutionContext } from "../servers/services/identity-provider.js";
-import { TransportDisconnectReason } from "./disconnect-reasons.js";
 import { UntypedInMemoryConnectionEndpoint } from "./in-memory-connection-endpoint.js";
 
 export class InMemoryConnectionEndpointManager {
@@ -8,9 +7,13 @@ export class InMemoryConnectionEndpointManager {
   private handleNewConnection: (
     transportEndpoint: UntypedInMemoryConnectionEndpoint,
     identityContext: ConnectionIdentityResolutionContext
-  ) => Promise<void> = () => {
-    throw new Error("not initialized");
+  ) => Promise<void> = async (endpoint) => {
+    //
   };
+
+  hasConnection(connectionId: ConnectionId) {
+    return this.connections.has(connectionId);
+  }
 
   // equivalent to socket.io server's io.on("connection", (newSocketObject) => {
   // // register socket event listeners on the new object
@@ -33,9 +36,10 @@ export class InMemoryConnectionEndpointManager {
     await this.handleNewConnection(transportEndpoint, identityContext);
   }
 
-  disconnect(id: ConnectionId, reason: TransportDisconnectReason) {
+  disconnect(id: ConnectionId) {
     const connection = this.connections.get(id);
     if (connection) {
+      connection.close();
       this.connections.delete(id);
     }
   }

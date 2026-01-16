@@ -1,8 +1,11 @@
 import { ConnectionId, UntypedEndpointBrand } from "../aliases.js";
 import { UntypedConnectionEndpoint } from "./connection-endpoint.js";
+import { TransportDisconnectReason, TransportDisconnectReasonType } from "./disconnect-reasons.js";
 
 export class UntypedInMemoryConnectionEndpoint extends UntypedConnectionEndpoint {
   private subscribeAllHandler: ((message: unknown) => void) | null = null;
+  private disconnectHandler: ((reason: TransportDisconnectReason) => void) | null = null;
+  private alreadyClosed = false;
 
   readonly [UntypedEndpointBrand] = true;
 
@@ -24,8 +27,12 @@ export class UntypedInMemoryConnectionEndpoint extends UntypedConnectionEndpoint
   }
 
   // analogous to socket.on("someEventWeAgreeOn", (data)=>void)
-  subscribeAll(handler: (message: unknown) => void): void {
+  subscribeAll(
+    handler: (message: unknown) => void,
+    disconnectHandler: (reason: TransportDisconnectReason) => void
+  ): void {
     this.subscribeAllHandler = handler;
+    this.disconnectHandler = disconnectHandler;
   }
 
   // analogous to having the "someEventWeAgreeOn" subscribed event fire
@@ -34,6 +41,21 @@ export class UntypedInMemoryConnectionEndpoint extends UntypedConnectionEndpoint
   }
 
   close(): void {
+    if (this.alreadyClosed) {
+      return console.log("called close but transport already closed");
+    }
+
+    this.alreadyClosed = true;
+
+    if (this.disconnectHandler === null) {
+      console.log("In memory endpoint closed without a disconnect handler");
+    } else {
+      console.log("calling disconnectHandler for", this.id);
+      this.disconnectHandler(
+        new TransportDisconnectReason(TransportDisconnectReasonType.TransportClose)
+      );
+    }
+    console.log("calling onClose");
     this.onClose();
   }
 }
