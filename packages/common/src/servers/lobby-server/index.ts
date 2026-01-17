@@ -35,7 +35,6 @@ import {
   GameServerSessionClaimToken,
   GameServerSessionClaimTokenCodec,
 } from "./game-handoff/session-claim-token.js";
-import { GameServerConnectionType } from "./game-handoff/connection-instructions.js";
 import { GameServerName } from "../../aliases.js";
 import { DisconnectedSession } from "../sessions/disconnected-session.js";
 import { GameHandoffManager } from "./game-handoff/game-handoff-manager.js";
@@ -209,7 +208,6 @@ export class LobbyServer extends SpeedDungeonServer {
       type: GameStateUpdateType.GameServerConnectionInstructions,
       data: {
         connectionInstructions: {
-          type: GameServerConnectionType.Remote,
           url,
           encryptedSessionClaimToken,
         },

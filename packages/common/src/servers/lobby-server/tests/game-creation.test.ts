@@ -13,7 +13,6 @@ import { MessageDispatchType } from "../../update-delivery/message-dispatch-fact
 import { ConnectionRole } from "../../../http-headers.js";
 import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
 import { GameServer } from "../../game-server/index.js";
-import { GameServerConnectionType } from "../game-handoff/connection-instructions.js";
 import { ClientIntent } from "../../../packets/client-intents.js";
 
 describe("lobby server", () => {
@@ -190,6 +189,7 @@ describe("lobby server", () => {
         otherLobbyUserSession
       );
 
+    // they both leave the lobby to go to game server
     await clientEndpointForGameHost.close();
     await clientEndpointForOtherInLobby.close();
 
@@ -198,8 +198,7 @@ describe("lobby server", () => {
     for (const messageDispatch of otherUserReadiedOutbox.toDispatches()) {
       if (
         messageDispatch.type === MessageDispatchType.Single &&
-        messageDispatch.message.type === GameStateUpdateType.GameServerConnectionInstructions &&
-        messageDispatch.message.data.connectionInstructions.type === GameServerConnectionType.Remote
+        messageDispatch.message.type === GameStateUpdateType.GameServerConnectionInstructions
       ) {
         const token =
           messageDispatch.message.data.connectionInstructions.encryptedSessionClaimToken;
@@ -239,8 +238,6 @@ describe("lobby server", () => {
 
     await someUserInGameConnection?.close();
 
-    // expect(game.inputLock.isLocked).toBe(true);
-
     const {
       serverEndpoint: reconnectingUserLobbyConnectionEndpoint,
       clientEndpoint: reconnectingUserConnectionToLobbyEndpoint,
@@ -253,9 +250,14 @@ describe("lobby server", () => {
     const typedReconnectingUserConnectionToLobbyEndpoint =
       reconnectingUserConnectionToLobbyEndpoint.toTyped<ClientIntent, GameStateUpdate>();
 
+    let reconnectionSessionClaimToken;
     typedReconnectingUserConnectionToLobbyEndpoint.subscribeAll(
       (message) => {
-        //
+        console.log("message for user reconnecting to lobby:", message);
+        if (message.type === GameStateUpdateType.GameServerConnectionInstructions) {
+          reconnectionSessionClaimToken =
+            message.data.connectionInstructions.encryptedSessionClaimToken;
+        }
       },
       async (reason) => {
         //
@@ -264,6 +266,31 @@ describe("lobby server", () => {
 
     await openReconnectingUserConnectionToLobby();
 
-    // expect(game.inputLock.isLocked).toBeTruthy();
+    expect(reconnectionSessionClaimToken).toBeDefined();
+
+    await typedReconnectingUserConnectionToLobbyEndpoint.close();
+
+    const {
+      serverEndpoint: serverReconnectingUserConnectionToGameServerEndpoint,
+      clientEndpoint: clientReconnectingUserConnectionToGameServerEndpoint,
+      open: openReconnectionToGameServer,
+    } = await gameServerInMemoryTransport.createConnection({
+      type: ConnectionRole.User,
+      encodedGameServerSessionClaimToken: reconnectionSessionClaimToken,
+    });
+
+    const typedReconnectionToGameServerEndpoint =
+      clientReconnectingUserConnectionToGameServerEndpoint.toTyped<ClientIntent, GameStateUpdate>();
+
+    typedReconnectionToGameServerEndpoint.subscribeAll(
+      (message) => {
+        console.log("message for user reconnecting to game server:", message);
+      },
+      async (reason) => {
+        //
+      }
+    );
+
+    await openReconnectionToGameServer();
   });
 });

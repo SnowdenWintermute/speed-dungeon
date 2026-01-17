@@ -42,7 +42,7 @@ export class UntypedSocketConnectionEndpoint extends UntypedConnectionEndpoint {
       disconnectHandler(reason);
     });
   }
-  close(): void {
+  async close() {
     this.socket.disconnect();
   }
 }

@@ -142,8 +142,6 @@ export class GameServer extends SpeedDungeonServer {
       this.intentHandlers
     );
 
-    const outbox = await this.sessionLifecycleController.activateSession(session);
-
     const gameIsInProgress = existingGame.getTimeStarted() !== null;
 
     if (gameIsInProgress) {
@@ -163,12 +161,14 @@ export class GameServer extends SpeedDungeonServer {
       );
 
       console.log("user", session.username, "reconnecting to game", gameName);
-      const joinGameOutbox = await this.gameLifecycleController.joinGameHandler(gameName, session);
-      outbox.pushFromOther(joinGameOutbox);
-    } else {
-      const joinGameOutbox = await this.gameLifecycleController.joinGameHandler(gameName, session);
-      outbox.pushFromOther(joinGameOutbox);
+      // give them a username that matches their old one if they are a guest
+      session.username = reconnectionOpportunityOption.username;
     }
+
+    const outbox = await this.sessionLifecycleController.activateSession(session);
+
+    const joinGameOutbox = await this.gameLifecycleController.joinGameHandler(gameName, session);
+    outbox.pushFromOther(joinGameOutbox);
 
     const newReconnectionToken = this.generateGuestReconnectionToken();
     session.setGuestReconnectionToken(newReconnectionToken);
@@ -203,6 +203,7 @@ export class GameServer extends SpeedDungeonServer {
           session.username,
           session.taggedUserId.id
         );
+
         const disconnectedSession = DisconnectedSession.fromUserSession(session, this.name);
         this.externalServices.disconnectedSessionStoreService.writeDisconnectedSession(
           session.getReconnectionKey(),
@@ -220,31 +221,35 @@ export class GameServer extends SpeedDungeonServer {
         // - if timeout elapses without reconnection,
         this.reconnectionOpportunityManager.add(
           session.getReconnectionKey(),
-          new ReconnectionOpportunity(RECONNECTION_OPPORTUNITY_TIMOUT_MS, async () => {
-            this.reconnectionOpportunityManager.remove(session.getReconnectionKey());
-            try {
-              await this.externalServices.disconnectedSessionStoreService.deleteDisconnectedSession(
-                session.getReconnectionKey()
+          new ReconnectionOpportunity(
+            RECONNECTION_OPPORTUNITY_TIMOUT_MS,
+            session.username,
+            async () => {
+              this.reconnectionOpportunityManager.remove(session.getReconnectionKey());
+              try {
+                await this.externalServices.disconnectedSessionStoreService.deleteDisconnectedSession(
+                  session.getReconnectionKey()
+                );
+              } catch (error) {
+                console.error("failed to delete disconnectedSession:", error);
+              }
+
+              const reconnectionTimeoutOutbox = new MessageDispatchOutbox(
+                this.gameStateUpdateDispatchFactory
               );
-            } catch (error) {
-              console.error("failed to delete disconnectedSession:", error);
+
+              reconnectionTimeoutOutbox.pushToChannel(game.getChannelName(), {
+                type: GameStateUpdateType.PlayerReconnectionTimedOut,
+                data: { username: session.username },
+              });
+              game.inputLock.remove(session.taggedUserId.id);
+              const leaveGameHandlerOutbox =
+                await this.gameLifecycleController.leaveGameHandler(session);
+              reconnectionTimeoutOutbox.pushFromOther(leaveGameHandlerOutbox);
+
+              this.dispatchOutboxMessages(reconnectionTimeoutOutbox);
             }
-
-            const reconnectionTimeoutOutbox = new MessageDispatchOutbox(
-              this.gameStateUpdateDispatchFactory
-            );
-
-            reconnectionTimeoutOutbox.pushToChannel(game.getChannelName(), {
-              type: GameStateUpdateType.PlayerReconnectionTimedOut,
-              data: { username: session.username },
-            });
-            game.inputLock.remove(session.taggedUserId.id);
-            const leaveGameHandlerOutbox =
-              await this.gameLifecycleController.leaveGameHandler(session);
-            reconnectionTimeoutOutbox.pushFromOther(leaveGameHandlerOutbox);
-
-            this.dispatchOutboxMessages(reconnectionTimeoutOutbox);
-          })
+          )
         );
       } else {
         const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);

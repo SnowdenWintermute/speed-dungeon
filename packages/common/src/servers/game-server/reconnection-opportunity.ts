@@ -1,4 +1,4 @@
-import { Milliseconds } from "../../aliases.js";
+import { Milliseconds, Username } from "../../aliases.js";
 
 export class ReconnectionOpportunity {
   private timeout: NodeJS.Timeout | null;
@@ -6,6 +6,7 @@ export class ReconnectionOpportunity {
 
   constructor(
     duration: Milliseconds,
+    public readonly username: Username,
     private readonly onExpire: () => void
   ) {
     this.timeout = setTimeout(() => {

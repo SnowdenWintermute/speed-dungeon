@@ -25,13 +25,21 @@ export class UserSession extends ConnectionSession {
   private guestReconnectionToken: null | GuestSessionReconnectionToken = null;
 
   constructor(
-    public readonly username: Username,
+    private _username: Username,
     /** either a socket.id or a locally generated UUID on client */
     public readonly connectionId: ConnectionId,
     public readonly taggedUserId: TaggedUserId,
     private readonly gameRegistry: GameRegistry
   ) {
     super(connectionId);
+  }
+
+  get username() {
+    return this._username;
+  }
+
+  set username(username: Username) {
+    this._username = username;
   }
 
   getExpectedCurrentGame() {

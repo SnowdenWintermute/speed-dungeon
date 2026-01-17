@@ -10,7 +10,6 @@ import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { LobbyState } from "../lobby-state.js";
-import { GameServerConnectionType } from "./connection-instructions.js";
 import {
   GameServerSessionClaimToken,
   GameServerSessionClaimTokenCodec,
@@ -83,7 +82,6 @@ export class GameHandoffManager {
         type: GameStateUpdateType.GameServerConnectionInstructions,
         data: {
           connectionInstructions: {
-            type: GameServerConnectionType.Remote,
             url: leastBusyServerUrl, // game server url
             encryptedSessionClaimToken: encryptedToken,
           },
