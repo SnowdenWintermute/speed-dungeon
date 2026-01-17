@@ -1,10 +1,7 @@
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
 import { UserSession } from "../../sessions/user-session.js";
-import {
-  ConnectionIdentityResolutionContext,
-  IdentityProviderService,
-} from "../../services/identity-provider.js";
+import { ConnectionIdentityResolutionContext } from "../../services/identity-provider.js";
 import { ConnectionId, Milliseconds } from "../../../aliases.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";

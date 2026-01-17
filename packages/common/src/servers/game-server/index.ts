@@ -102,11 +102,6 @@ export class GameServer extends SpeedDungeonServer {
     connectionEndpoint: UntypedConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
-    const sessionClaimTokenOption = identityResolutionContext.encodedGameServerSessionClaimToken;
-    if (sessionClaimTokenOption === undefined) {
-      throw new Error("No token was provided when attempting to join the game server");
-    }
-
     const session = await this.sessionLifecycleController.createSession(
       connectionEndpoint.id,
       identityResolutionContext
@@ -117,24 +112,15 @@ export class GameServer extends SpeedDungeonServer {
       `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the [${this.name}] game server`
     );
 
-    // type the connection endpoint
     const userConnectionEndpoint = connectionEndpoint.toTyped<GameStateUpdate, ClientIntent>();
-    this.outgoingMessagesGateway.registerEndpoint(
-      userConnectionEndpoint.id,
-      userConnectionEndpoint
-    );
+    this.outgoingMessagesGateway.registerEndpoint(userConnectionEndpoint);
 
     const gameName = session.currentGameName;
-
     if (gameName === null) {
       throw new Error("should have been set from their token in createSession");
     }
 
-    let existingGame = this.gameRegistry.getGameOption(gameName);
-    // this means this is the first user to join this game
-    if (existingGame === undefined) {
-      existingGame = await this.gameLifecycleController.initializeExpectedPendingGame(gameName);
-    }
+    const existingGame = await this.gameLifecycleController.getOrInitializeGame(gameName);
 
     this.attachIntentHandlersToSessionConnection(
       session,

@@ -56,7 +56,15 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     };
   }
 
-  async initializeExpectedPendingGame(gameName: GameName) {
+  async getOrInitializeGame(gameName: GameName) {
+    const existingGame = this.gameRegistry.getGameOption(gameName);
+    if (existingGame) {
+      return existingGame;
+    }
+    return await this.initializeExpectedPendingGame(gameName);
+  }
+
+  private async initializeExpectedPendingGame(gameName: GameName) {
     const pendingGameSetupOption = await this.gameSessionStoreService.getPendingGameSetup(gameName);
     if (pendingGameSetupOption === null) {
       throw new Error(

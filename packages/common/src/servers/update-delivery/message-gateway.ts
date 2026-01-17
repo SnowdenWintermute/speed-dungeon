@@ -4,11 +4,8 @@ import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
 export class OutgoingMessageGateway<Sendable, Receivable> {
   // socket.io socket objects or local client transport endpoints
   private transportEndpoints = new Map<ConnectionId, ConnectionEndpoint<Sendable, Receivable>>();
-  registerEndpoint(
-    connectionId: ConnectionId,
-    endpoint: ConnectionEndpoint<Sendable, Receivable>
-  ): void {
-    this.transportEndpoints.set(connectionId, endpoint);
+  registerEndpoint(endpoint: ConnectionEndpoint<Sendable, Receivable>): void {
+    this.transportEndpoints.set(endpoint.id, endpoint);
   }
 
   unregisterEndpoint(connectionId: ConnectionId): void {

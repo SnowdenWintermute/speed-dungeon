@@ -17,28 +17,21 @@ import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js
 import { CharacterCreator } from "../../character-creation/index.js";
 import { ItemGenerator } from "../../items/item-creation/index.js";
 import { AffixGenerator } from "../../items/item-creation/builders/affix-generator/index.js";
-import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
+import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { ClientIntent } from "../../packets/client-intents.js";
 import { UserIdType } from "../sessions/user-ids.js";
 import { MessageDispatchFactory } from "../update-delivery/message-dispatch-factory.js";
-import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { UntypedConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
 import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js";
 import { UserSession } from "../sessions/user-session.js";
-import {
-  DisconnectedSessionStoreService,
-  ReconnectionKeyType,
-} from "../services/disconnected-session-store/index.js";
-import {
-  GameServerSessionClaimToken,
-  GameServerSessionClaimTokenCodec,
-} from "./game-handoff/session-claim-token.js";
-import { GameServerName } from "../../aliases.js";
-import { DisconnectedSession } from "../sessions/disconnected-session.js";
+import { DisconnectedSessionStoreService } from "../services/disconnected-session-store/index.js";
+import { GameServerSessionClaimTokenCodec } from "./game-handoff/session-claim-token.js";
 import { GameHandoffManager } from "./game-handoff/game-handoff-manager.js";
 import { SpeedDungeonServer } from "../speed-dungeon-server.js";
+import { LobbyReconnectionProtocol } from "./reconnection/index.js";
+import { ConnectionContextType } from "../reconnection-protocol/index.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -55,14 +48,14 @@ export class LobbyServer extends SpeedDungeonServer {
   private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
   public readonly lobbyState = new LobbyState();
 
-  private readonly gameStateUpdateDispatchFactory = new MessageDispatchFactory<GameStateUpdate>(
+  private readonly updateDispatchFactory = new MessageDispatchFactory<GameStateUpdate>(
     this.userSessionRegistry
   );
   private readonly characterCreator: CharacterCreator;
 
   private readonly gameHandoffManager: GameHandoffManager;
   private userIntentHandlers = createLobbyClientIntentHandlers(this);
-
+  private readonly reconnectionProtocol: LobbyReconnectionProtocol;
   // user controllers
   public readonly gameLifecycleController: LobbyGameLifecycleController;
   public readonly partySetupController: PartySetupController;
@@ -80,7 +73,7 @@ export class LobbyServer extends SpeedDungeonServer {
 
     this.gameHandoffManager = new GameHandoffManager(
       this.userSessionRegistry,
-      this.gameStateUpdateDispatchFactory,
+      this.updateDispatchFactory,
       externalServices.gameSessionStoreService,
       this.lobbyState,
       this.gameServerSessionClaimTokenCodec
@@ -106,6 +99,13 @@ export class LobbyServer extends SpeedDungeonServer {
     this.userSessionLifecycleController = controllers.userSessionLifecycleController;
     this.savedCharactersController = controllers.savedCharactersController;
     this.characterLifecycleController = controllers.characterLifecycleController;
+
+    this.reconnectionProtocol = new LobbyReconnectionProtocol(
+      gameServerSessionClaimTokenCodec,
+      this.updateDispatchFactory,
+      externalServices.gameSessionStoreService,
+      externalServices.disconnectedSessionStoreService
+    );
   }
 
   async handleConnection(
@@ -128,48 +128,31 @@ export class LobbyServer extends SpeedDungeonServer {
       );
     }
 
-    // type the connection endpoint
     const userConnectionEndpoint = connectionEndpoint.toTyped<GameStateUpdate, ClientIntent>();
-    this.outgoingMessagesGateway.registerEndpoint(
-      userConnectionEndpoint.id,
-      userConnectionEndpoint
-    );
+    this.outgoingMessagesGateway.registerEndpoint(userConnectionEndpoint);
 
-    const disconnectedSessionOption = await this.getDisconnectedSessionOption(
+    const connectionContext = await this.reconnectionProtocol.evaluateConnectionContext(
       session,
       identityResolutionContext
     );
 
-    // we will rely on the game server to delete the disconnectedSession when it is claimed or expires
-    // in the event that it expires after we issue the claim token and before the user presents it, we will
-    // not accept their reconnection to the game server. the reason I didn't want to delete it here is because
-    // the game server needs to know when the disconnectedSession expires or is claimed so it can remove the
-    // input lock's RC for that user in the game. also, if they get their claim token then disconnect before
-    // reconnecting to the game server they won't be able to reconnect again if we delete it now.
-    if (disconnectedSessionOption) {
-      const gameStillExists =
-        await this.externalServices.gameSessionStoreService.getActiveGameStatus(
-          disconnectedSessionOption.gameName
-        );
+    if (connectionContext.type === ConnectionContextType.Reconnection) {
+      const outbox = await this.userSessionLifecycleController.activateSession(session, {
+        sessionWillBeForwardedToGameServer: true,
+      });
+      const reconnectionCredentialsOutbox = await connectionContext.issueCredentials();
+      outbox.pushFromOther(reconnectionCredentialsOutbox);
+      this.dispatchOutboxMessages(outbox);
+    } else {
+      this.attachIntentHandlersToSessionConnection(
+        session,
+        userConnectionEndpoint,
+        this.userIntentHandlers
+      );
 
-      if (gameStillExists) {
-        await this.giveClientReconnectionInstructions(session, disconnectedSessionOption);
-        return; // don't set up the rest of their lobby session, they will go directly to reconnect to game server
-      }
+      const outbox = await this.userSessionLifecycleController.activateSession(session);
+      this.dispatchOutboxMessages(outbox);
     }
-
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.gameStateUpdateDispatchFactory);
-    // attach the connection to message handlers and disconnectionHandler
-    this.attachIntentHandlersToSessionConnection(
-      session,
-      userConnectionEndpoint,
-      this.userIntentHandlers
-    );
-
-    const sessionActivationOutbox =
-      await this.userSessionLifecycleController.activateSession(session);
-    outbox.pushFromOther(sessionActivationOutbox);
-    this.dispatchOutboxMessages(outbox);
   }
 
   protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
@@ -181,78 +164,16 @@ export class LobbyServer extends SpeedDungeonServer {
     this.dispatchOutboxMessages(outbox);
   }
 
-  private async giveClientReconnectionInstructions(
-    session: UserSession,
-    disconnectedSession: DisconnectedSession
-  ) {
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.gameStateUpdateDispatchFactory);
-    const claimToken = new GameServerSessionClaimToken(
-      disconnectedSession.gameName,
-      disconnectedSession.partyName,
-      session.username,
-      disconnectedSession.taggedUserId,
-      disconnectedSession.guestUserReconnectionTokenOption || undefined
-    );
-
-    outbox.pushFromOther(
-      await this.userSessionLifecycleController.activateSession(session, {
-        sessionWillBeForwardedToGameServer: true,
-      })
-    );
-
-    const encryptedSessionClaimToken =
-      await this.gameServerSessionClaimTokenCodec.encode(claimToken);
-    const url = this.getGameServerUrlFromName(disconnectedSession.gameServerName);
-
-    outbox.pushToConnection(session.connectionId, {
-      type: GameStateUpdateType.GameServerConnectionInstructions,
-      data: {
-        connectionInstructions: {
-          url,
-          encryptedSessionClaimToken,
-        },
-      },
-    });
-
-    // - user client executes normal flow for onGameServerSessionClaimTokenReceipt, same as when they
-    //   are in a lobby game setup and start a new game
-    this.dispatchOutboxMessages(outbox);
-
-    const { username, taggedUserId, connectionId } = session;
-    console.info(
-      `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) was given instructions to reconnect to server ${disconnectedSession.gameServerName} at url ${url}`
-    );
-  }
-
-  private async getDisconnectedSessionOption(
-    session: UserSession,
-    identityResolutionContext: ConnectionIdentityResolutionContext
-  ) {
-    if (session.taggedUserId.type === UserIdType.Auth) {
-      return await this.externalServices.disconnectedSessionStoreService.getDisconnectedSession(
-        session.getReconnectionKey()
-      );
-    } else if (session.taggedUserId.type === UserIdType.Guest) {
-      // would have been given by the game server and cached on the client
-      if (identityResolutionContext.clientCachedGuestReconnectionToken) {
-        return await this.externalServices.disconnectedSessionStoreService.getDisconnectedSession({
-          type: ReconnectionKeyType.Guest,
-          reconnectionToken: identityResolutionContext.clientCachedGuestReconnectionToken,
-        });
-      }
-    }
-  }
-
   private createControllers() {
     const savedCharactersController = new SavedCharactersController(
       this.externalServices.profileService,
-      this.gameStateUpdateDispatchFactory,
+      this.updateDispatchFactory,
       this.externalServices,
       this.characterCreator
     );
 
     const partySetupController = new PartySetupController(
-      this.gameStateUpdateDispatchFactory,
+      this.updateDispatchFactory,
       savedCharactersController,
       this.externalServices.profileService,
       this.externalServices.idGenerator
@@ -261,7 +182,7 @@ export class LobbyServer extends SpeedDungeonServer {
     const gameLifecycleController = new LobbyGameLifecycleController(
       this.lobbyState,
       this.userSessionRegistry,
-      this.gameStateUpdateDispatchFactory,
+      this.updateDispatchFactory,
       partySetupController,
       this.externalServices.idGenerator,
       this.gameHandoffManager,
@@ -270,7 +191,7 @@ export class LobbyServer extends SpeedDungeonServer {
 
     const characterLifecycleController = new CharacterLifecycleController(
       this.externalServices.profileService,
-      this.gameStateUpdateDispatchFactory,
+      this.updateDispatchFactory,
       this.externalServices.savedCharactersService,
       this.characterCreator
     );
@@ -278,7 +199,7 @@ export class LobbyServer extends SpeedDungeonServer {
     const userSessionLifecycleController = new LobbySessionLifecycleController(
       this.lobbyState,
       this.userSessionRegistry,
-      this.gameStateUpdateDispatchFactory,
+      this.updateDispatchFactory,
       savedCharactersController,
       gameLifecycleController,
       this.externalServices.identityProviderService,
@@ -292,9 +213,5 @@ export class LobbyServer extends SpeedDungeonServer {
       characterLifecycleController,
       userSessionLifecycleController,
     };
-  }
-
-  private getGameServerUrlFromName(name: GameServerName) {
-    return "";
   }
 }
