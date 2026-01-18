@@ -1,12 +1,17 @@
 import { ClientIntent } from "../packets/client-intents.js";
 import { GameStateUpdate } from "../packets/game-state-updates.js";
-import { ConnectionEndpoint } from "../transport/connection-endpoint.js";
+import { ConnectionEndpoint, UntypedConnectionEndpoint } from "../transport/connection-endpoint.js";
 import { TransportDisconnectReason } from "../transport/disconnect-reasons.js";
+import { BasicRandomNumberGenerator } from "../utility-classes/randomizers.js";
 import { GameServerClientIntentHandlers } from "./game-server/create-game-server-client-intent-handlers.js";
 import { LobbyClientIntentHandlers } from "./lobby-server/create-lobby-client-intent-handlers.js";
+import { ConnectionIdentityResolutionContext } from "./services/identity-provider.js";
 import { UserSessionRegistry } from "./sessions/user-session-registry.js";
 import { UserSession } from "./sessions/user-session.js";
-import { MessageDispatchType } from "./update-delivery/message-dispatch-factory.js";
+import {
+  MessageDispatchFactory,
+  MessageDispatchType,
+} from "./update-delivery/message-dispatch-factory.js";
 import { OutgoingMessageGateway } from "./update-delivery/message-gateway.js";
 import { MessageDispatchOutbox } from "./update-delivery/outbox.js";
 
@@ -16,6 +21,11 @@ export abstract class SpeedDungeonServer {
     ClientIntent
   >();
   readonly userSessionRegistry = new UserSessionRegistry();
+  protected readonly updateDispatchFactory = new MessageDispatchFactory<GameStateUpdate>(
+    this.userSessionRegistry
+  );
+
+  protected readonly randomNumberGenerator = new BasicRandomNumberGenerator();
 
   constructor(readonly name: string) {}
 
@@ -66,6 +76,11 @@ export abstract class SpeedDungeonServer {
       }
     }
   }
+
+  protected abstract handleConnection(
+    connectionEndpoint: UntypedConnectionEndpoint,
+    identityResolutionContext: ConnectionIdentityResolutionContext
+  ): Promise<void>;
 
   protected abstract disconnectionHandler(
     session: UserSession,

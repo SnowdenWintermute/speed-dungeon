@@ -79,10 +79,14 @@
 // - don't add them to the input lock RC
 //
 // on reconnect attempt rejected
-// - tell client to delete their stored reconnect token
+// - it should not matter because they would only legitimately be reconnecting if
+// we wrote a DisconnectedSession record
 //
 // on game ended
-// - tell client to delete their stored reconnect token
+// - delete any disconnected sessions
+//
+// user is disconnected and gets reconnection token, then game ends before
+// they connect... what happens?
 //
 // lobby's DanglingResourcesCleanupLoop
 // - read all ActiveGame records from the central store and check their last lastHeartbeatTimestamp

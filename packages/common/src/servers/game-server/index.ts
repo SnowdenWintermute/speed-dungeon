@@ -1,9 +1,6 @@
-import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
 import { ClientIntent } from "../../packets/client-intents.js";
-import { randomBytes } from "crypto";
-import { GameServerName, GuestSessionReconnectionToken, Milliseconds } from "../../aliases.js";
-import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
-import { MessageDispatchFactory } from "../update-delivery/message-dispatch-factory.js";
+import { GameServerName, Milliseconds } from "../../aliases.js";
+import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
 import { SavedCharactersService } from "../services/saved-characters.js";
@@ -12,7 +9,6 @@ import { IdGenerator } from "../../utility-classes/index.js";
 import { UntypedConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { ConnectionIdentityResolutionContext } from "../services/identity-provider.js";
 import { createGameServerClientIntentHandlers } from "./create-game-server-client-intent-handlers.js";
-import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 import { GameServerSessionLifecycleController } from "./controllers/session-lifecycle.js";
 import { GameRegistry } from "../game-registry.js";
 import { UserSession } from "../sessions/user-session.js";
@@ -21,14 +17,13 @@ import { GameServerGameLifecycleController } from "./controllers/game-lifecycle/
 import { RaceGameRecordsService } from "../services/race-game-records.js";
 import { HeartbeatScheduler } from "../../primatives/heartbeat.js";
 import { ONE_SECOND } from "../../app-consts.js";
-import { DisconnectedSession } from "../sessions/disconnected-session.js";
 import { DisconnectedSessionStoreService } from "../services/disconnected-session-store/index.js";
-import { ReconnectionOpportunity } from "./reconnection-opportunity.js";
 import { PartyDelayedGameMessageFactory } from "./party-delayed-game-message-factory.js";
 import { ReconnectionOpportunityManager } from "./reconnection-opportunity-manager.js";
 import { SpeedDungeonServer } from "../speed-dungeon-server.js";
-import { invariant } from "../../utils/index.js";
 import { GameServerSessionClaimTokenCodec } from "../lobby-server/game-handoff/session-claim-token.js";
+import { GameServerReconnectionProtocol } from "./reconnection/index.js";
+import { ConnectionContextType } from "../reconnection-protocol/index.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -39,20 +34,16 @@ export interface GameServerExternalServices {
 }
 
 export const GAME_RECORD_HEARTBEAT_MS: Milliseconds = ONE_SECOND * 10;
-export const RECONNECTION_OPPORTUNITY_TIMOUT_MS: Milliseconds = ONE_SECOND * 120;
 
 export class GameServer extends SpeedDungeonServer {
   private readonly gameRegistry = new GameRegistry();
   private readonly idGenerator = new IdGenerator({ saveHistory: false });
   private readonly heartbeatScheduler = new HeartbeatScheduler(GAME_RECORD_HEARTBEAT_MS);
-  private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
   private readonly reconnectionOpportunityManager = new ReconnectionOpportunityManager();
-  private readonly gameStateUpdateDispatchFactory = new MessageDispatchFactory<GameStateUpdate>(
-    this.userSessionRegistry
-  );
+  private readonly reconnectionProtocol: GameServerReconnectionProtocol;
 
   private readonly partyDelayedGameMessageFactory = new PartyDelayedGameMessageFactory(
-    this.gameStateUpdateDispatchFactory
+    this.updateDispatchFactory
   );
 
   // controllers
@@ -82,17 +73,25 @@ export class GameServer extends SpeedDungeonServer {
       this.externalServices.raceGameRecordsService,
       this.externalServices.savedCharactersService,
       this.externalServices.rankedLadderService,
-      this.gameStateUpdateDispatchFactory,
+      this.updateDispatchFactory,
       this.partyDelayedGameMessageFactory
     );
 
     this.sessionLifecycleController = new GameServerSessionLifecycleController(
       this.userSessionRegistry,
       this.gameRegistry,
-      this.gameStateUpdateDispatchFactory,
+      this.updateDispatchFactory,
       this.gameLifecycleController,
       this.idGenerator,
       this.gameServerSessionClaimTokenCodec
+    );
+
+    this.reconnectionProtocol = new GameServerReconnectionProtocol(
+      this.updateDispatchFactory,
+      externalServices.disconnectedSessionStoreService,
+      this.reconnectionOpportunityManager,
+      this.gameLifecycleController,
+      (outbox) => this.dispatchOutboxMessages(outbox)
     );
   }
 
@@ -129,26 +128,12 @@ export class GameServer extends SpeedDungeonServer {
     );
 
     const gameIsInProgress = existingGame.getTimeStarted() !== null;
-
-    if (gameIsInProgress) {
-      const reconnectionOpportunityOption = this.reconnectionOpportunityManager.get(
-        session.getReconnectionKey()
-      );
-
-      const isValidReconnection =
-        reconnectionOpportunityOption !== undefined && reconnectionOpportunityOption.claim();
-      if (!isValidReconnection) {
-        throw new Error("Invalid reconnection");
-      }
-
-      this.reconnectionOpportunityManager.remove(session.getReconnectionKey());
-      await this.externalServices.disconnectedSessionStoreService.deleteDisconnectedSession(
-        session.getReconnectionKey()
-      );
-
-      console.log("user", session.username, "reconnecting to game", gameName);
-      // give them a username that matches their old one if they are a guest
-      session.username = reconnectionOpportunityOption.username;
+    const connectionContext = await this.reconnectionProtocol.evaluateConnectionContext(
+      session,
+      gameIsInProgress
+    );
+    if (connectionContext.type === ConnectionContextType.Reconnection) {
+      await connectionContext.attemptReconnectionClaim();
     }
 
     const outbox = await this.sessionLifecycleController.activateSession(session);
@@ -156,14 +141,9 @@ export class GameServer extends SpeedDungeonServer {
     const joinGameOutbox = await this.gameLifecycleController.joinGameHandler(gameName, session);
     outbox.pushFromOther(joinGameOutbox);
 
-    const newReconnectionToken = this.generateGuestReconnectionToken();
-    session.setGuestReconnectionToken(newReconnectionToken);
-    outbox.pushToConnection(session.connectionId, {
-      type: GameStateUpdateType.CacheGuestSessionReconnectionToken,
-      data: {
-        token: newReconnectionToken,
-      },
-    });
+    const refreshedReconnectionTokenOutbox =
+      await this.reconnectionProtocol.issueReconnectionCredential(session);
+    outbox.pushFromOther(refreshedReconnectionTokenOutbox);
 
     this.dispatchOutboxMessages(outbox);
   }
@@ -174,76 +154,7 @@ export class GameServer extends SpeedDungeonServer {
       `-- ${session.username} (${session.connectionId}) disconnected from ${this.name} game server. Reason - ${reason.getStringName()}`
     );
 
-    const outbox = new MessageDispatchOutbox(this.gameStateUpdateDispatchFactory);
-    // - if the user party is still alive, provide a reconnection opportunity
-    try {
-      const game = session.getExpectedCurrentGame();
-      const party = session.getExpectedCurrentParty(game);
-      const partyIsStillAlive = party.timeOfWipe === null;
-
-      const reconnectionPermitted = partyIsStillAlive;
-
-      if (reconnectionPermitted) {
-        console.log(
-          "reconnection is permitted, saving a reconnection session for",
-          session.username,
-          session.taggedUserId.id
-        );
-
-        const disconnectedSession = DisconnectedSession.fromUserSession(session, this.name);
-        this.externalServices.disconnectedSessionStoreService.writeDisconnectedSession(
-          session.getReconnectionKey(),
-          disconnectedSession
-        );
-
-        // - pause acceptance of user inputs until reconnection is established or a timeout has passed
-        game.inputLock.add(session.taggedUserId.id);
-        // - tell the users still in game that a player is awaiting reconnection
-        outbox.pushToChannel(game.getChannelName(), {
-          type: GameStateUpdateType.PlayerDisconnectedWithReconnectionOpportunity,
-          data: { username: session.username },
-        });
-
-        // - if timeout elapses without reconnection,
-        this.reconnectionOpportunityManager.add(
-          session.getReconnectionKey(),
-          new ReconnectionOpportunity(
-            RECONNECTION_OPPORTUNITY_TIMOUT_MS,
-            session.username,
-            async () => {
-              this.reconnectionOpportunityManager.remove(session.getReconnectionKey());
-              try {
-                await this.externalServices.disconnectedSessionStoreService.deleteDisconnectedSession(
-                  session.getReconnectionKey()
-                );
-              } catch (error) {
-                console.error("failed to delete disconnectedSession:", error);
-              }
-
-              const reconnectionTimeoutOutbox = new MessageDispatchOutbox(
-                this.gameStateUpdateDispatchFactory
-              );
-
-              reconnectionTimeoutOutbox.pushToChannel(game.getChannelName(), {
-                type: GameStateUpdateType.PlayerReconnectionTimedOut,
-                data: { username: session.username },
-              });
-              game.inputLock.remove(session.taggedUserId.id);
-              const leaveGameHandlerOutbox =
-                await this.gameLifecycleController.leaveGameHandler(session);
-              reconnectionTimeoutOutbox.pushFromOther(leaveGameHandlerOutbox);
-
-              this.dispatchOutboxMessages(reconnectionTimeoutOutbox);
-            }
-          )
-        );
-      } else {
-        const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
-        outbox.pushFromOther(leaveGameHandlerOutbox);
-      }
-    } catch (error) {
-      console.error("unexpected error while handling disconnection from living party:", error);
-    }
+    const outbox = await this.reconnectionProtocol.onPlayerDisconnected(session, this.name);
 
     const cleanupSessionOutbox = await this.sessionLifecycleController.cleanupSession(session);
     outbox.pushFromOther(cleanupSessionOutbox);
@@ -252,9 +163,5 @@ export class GameServer extends SpeedDungeonServer {
     outbox.removeRecipients([session.connectionId]);
 
     this.dispatchOutboxMessages(outbox);
-  }
-
-  private generateGuestReconnectionToken(): GuestSessionReconnectionToken {
-    return randomBytes(32).toString("base64url") as GuestSessionReconnectionToken;
   }
 }

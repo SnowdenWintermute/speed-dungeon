@@ -107,7 +107,7 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
     return outbox;
   }
 
-  onPlayerDisconnected(...args: any[]): Promise<void> {
+  onPlayerDisconnected(...args: any[]): Promise<MessageDispatchOutbox<GameStateUpdate>> {
     throw new Error("Method not implemented.");
   }
 

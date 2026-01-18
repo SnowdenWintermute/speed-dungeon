@@ -13,14 +13,12 @@ import { SpeedDungeonProfileService } from "../services/profiles.js";
 import { SavedCharactersService } from "../services/saved-characters.js";
 import { RankedLadderService } from "../services/ranked-ladder.js";
 import { IdGenerator } from "../../utility-classes/index.js";
-import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
 import { CharacterCreator } from "../../character-creation/index.js";
 import { ItemGenerator } from "../../items/item-creation/index.js";
 import { AffixGenerator } from "../../items/item-creation/builders/affix-generator/index.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { ClientIntent } from "../../packets/client-intents.js";
 import { UserIdType } from "../sessions/user-ids.js";
-import { MessageDispatchFactory } from "../update-delivery/message-dispatch-factory.js";
 import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { UntypedConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
@@ -45,12 +43,7 @@ export interface LobbyExternalServices {
 
 // lives either inside a LobbyServerNode or locally on a ClientApp
 export class LobbyServer extends SpeedDungeonServer {
-  private readonly randomNumberGenerator = new BasicRandomNumberGenerator();
   public readonly lobbyState = new LobbyState();
-
-  private readonly updateDispatchFactory = new MessageDispatchFactory<GameStateUpdate>(
-    this.userSessionRegistry
-  );
   private readonly characterCreator: CharacterCreator;
 
   private readonly gameHandoffManager: GameHandoffManager;

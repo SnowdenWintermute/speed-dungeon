@@ -1,15 +1,26 @@
-import { GameStateUpdate } from "../../../packets/game-state-updates.js";
+import { GameServerName, GuestSessionReconnectionToken, Milliseconds } from "../../../aliases.js";
+import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import {
   ConnectionContextType,
   PlayerReconnectionProtocol,
 } from "../../reconnection-protocol/index.js";
-import { ConnectionIdentityResolutionContext } from "../../services/identity-provider.js";
+import { DisconnectedSessionStoreService } from "../../services/disconnected-session-store/index.js";
+import { DisconnectedSession } from "../../sessions/disconnected-session.js";
+import { UserIdType } from "../../sessions/user-ids.js";
 import { UserSession } from "../../sessions/user-session.js";
+import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
+import { ReconnectionOpportunityManager } from "../reconnection-opportunity-manager.js";
+import { randomBytes } from "crypto";
+import { ReconnectionOpportunity } from "../reconnection-opportunity.js";
+import { ONE_SECOND } from "../../../app-consts.js";
+import { GameServerGameLifecycleController } from "../controllers/game-lifecycle/index.js";
+
+export const RECONNECTION_OPPORTUNITY_TIMOUT_MS: Milliseconds = ONE_SECOND * 120;
 
 interface GameServerReconnectionContext {
   type: ConnectionContextType.Reconnection;
-  issueCredentials: () => Promise<MessageDispatchOutbox<GameStateUpdate>>;
+  attemptReconnectionClaim: () => Promise<void>;
 }
 
 interface GameServerInitialConnectionContext {
@@ -21,30 +32,152 @@ export type GameServerConnectionContext =
   | GameServerInitialConnectionContext;
 
 export class GameServerReconnectionProtocol implements PlayerReconnectionProtocol {
-  constructor() {
-    // private readonly disconnectedSessionStoreService: DisconnectedSessionStoreService // private readonly gameSessionStoreService: GameSessionStoreService, // private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>, // private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec,
-    //
-  }
+  constructor(
+    private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
+    private readonly disconnectedSessionStoreService: DisconnectedSessionStoreService,
+    private readonly reconnectionOpportunityManager: ReconnectionOpportunityManager,
+    private readonly gameLifecycleController: GameServerGameLifecycleController,
+    private readonly dispatchOutboxMessages: (
+      outbox: MessageDispatchOutbox<GameStateUpdate>
+    ) => void
+  ) {}
 
   async evaluateConnectionContext(
     session: UserSession,
-    identityResolutionContext: ConnectionIdentityResolutionContext
+    gameIsInProgress: boolean
   ): Promise<GameServerConnectionContext> {
-    //
-    throw new Error("Method not implemented.");
+    if (!gameIsInProgress) {
+      return { type: ConnectionContextType.InitialConnection };
+    } else {
+      return {
+        type: ConnectionContextType.Reconnection,
+        attemptReconnectionClaim: async () => await this.attemptReconnectionClaim(session),
+      };
+    }
   }
 
+  /** After successful connection guest users will be provided a random bytes token to store on their client. 
+      When they reconnect we will use it to find their reconnection opportunity */
   async issueReconnectionCredential(
     session: UserSession
   ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
-    throw new Error("Method not implemented.");
+    if (session.taggedUserId.type === UserIdType.Auth) {
+      // auth users are reconnected via their auth ID so they don't need a token
+      return new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+    }
+
+    const newReconnectionToken = this.generateGuestReconnectionToken();
+    session.setGuestReconnectionToken(newReconnectionToken);
+
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+    outbox.pushToConnection(session.connectionId, {
+      type: GameStateUpdateType.CacheGuestSessionReconnectionToken,
+      data: {
+        token: newReconnectionToken,
+      },
+    });
+
+    return outbox;
   }
 
-  onPlayerDisconnected(...args: any[]): Promise<void> {
-    throw new Error("Method not implemented.");
+  private generateGuestReconnectionToken(): GuestSessionReconnectionToken {
+    return randomBytes(32).toString("base64url") as GuestSessionReconnectionToken;
   }
 
-  attemptReconnectionClaim(...args: any[]): Promise<void> {
-    throw new Error("Method not implemented.");
+  async onPlayerDisconnected(
+    session: UserSession,
+    gameServerName: GameServerName
+  ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
+    const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
+    const game = session.getExpectedCurrentGame();
+    const party = session.getExpectedCurrentParty(game);
+    const partyIsStillAlive = party.timeOfWipe === null;
+
+    // if their party is dead, no need to reconnect
+    const reconnectionForbidden = !partyIsStillAlive;
+    if (reconnectionForbidden) {
+      const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
+      outbox.pushFromOther(leaveGameHandlerOutbox);
+      return outbox;
+    }
+
+    const { username, taggedUserId } = session;
+    console.log(
+      `reconnection is permitted, saving a reconnection session for ${username} ${taggedUserId.id}`
+    );
+
+    const disconnectedSession = DisconnectedSession.fromUserSession(session, gameServerName);
+    this.disconnectedSessionStoreService.writeDisconnectedSession(
+      session.getReconnectionKey(),
+      disconnectedSession
+    );
+
+    game.inputLock.add(session.taggedUserId.id);
+
+    outbox.pushToChannel(game.getChannelName(), {
+      type: GameStateUpdateType.PlayerDisconnectedWithReconnectionOpportunity,
+      data: { username: session.username },
+    });
+
+    const onReconnectionTimeout = async () => {
+      this.reconnectionOpportunityManager.remove(session.getReconnectionKey());
+      try {
+        await this.disconnectedSessionStoreService.deleteDisconnectedSession(
+          session.getReconnectionKey()
+        );
+      } catch (error) {
+        console.error("failed to delete disconnectedSession:", error);
+      }
+
+      const reconnectionTimeoutOutbox = new MessageDispatchOutbox(this.updateDispatchFactory);
+
+      reconnectionTimeoutOutbox.pushToChannel(game.getChannelName(), {
+        type: GameStateUpdateType.PlayerReconnectionTimedOut,
+        data: { username: session.username },
+      });
+
+      game.inputLock.remove(session.taggedUserId.id);
+
+      const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
+      reconnectionTimeoutOutbox.pushFromOther(leaveGameHandlerOutbox);
+
+      this.dispatchOutboxMessages(reconnectionTimeoutOutbox);
+    };
+
+    this.reconnectionOpportunityManager.add(
+      session.getReconnectionKey(),
+      new ReconnectionOpportunity(
+        RECONNECTION_OPPORTUNITY_TIMOUT_MS,
+        session.username,
+        onReconnectionTimeout
+      )
+    );
+
+    return outbox;
+  }
+
+  async attemptReconnectionClaim(session: UserSession): Promise<void> {
+    const reconnectionOpportunityOption = this.reconnectionOpportunityManager.get(
+      session.getReconnectionKey()
+    );
+
+    const claimExists = reconnectionOpportunityOption !== undefined;
+    const isValidReconnection = claimExists && reconnectionOpportunityOption.claim();
+
+    if (!isValidReconnection) {
+      throw new Error("Invalid reconnection");
+    }
+
+    this.reconnectionOpportunityManager.remove(session.getReconnectionKey());
+    await this.disconnectedSessionStoreService.deleteDisconnectedSession(
+      session.getReconnectionKey()
+    );
+
+    console.info(`user ${session.username} reconnecting to game ${session.currentGameName}`);
+
+    // give them a username that matches their old one if they are a guest since guest would have
+    // some randomly assigned name and we need to give them the name they had when they disconnected
+    // so it will match their player in game
+    session.username = reconnectionOpportunityOption.username;
   }
 }

@@ -12,7 +12,7 @@ export interface ConnectionContext {
 
 export interface PlayerReconnectionProtocol {
   evaluateConnectionContext(...args: any[]): Promise<ConnectionContext>;
-  onPlayerDisconnected(...args: any[]): Promise<void>;
+  onPlayerDisconnected(...args: any[]): Promise<MessageDispatchOutbox<GameStateUpdate>>;
   issueReconnectionCredential(...args: any[]): Promise<MessageDispatchOutbox<GameStateUpdate>>;
   attemptReconnectionClaim(...args: any[]): Promise<void>;
 }
