@@ -1,4 +1,4 @@
-import { ChannelName, ConnectionId } from "../../index.js";
+import { ChannelName, ConnectionId } from "../../aliases.js";
 
 export abstract class ConnectionSession {
   private channelsSubscribedTo = new Set<ChannelName>();

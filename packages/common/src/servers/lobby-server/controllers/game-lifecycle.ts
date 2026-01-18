@@ -83,7 +83,6 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       throw new Error(gameNameValidity.reason);
     }
 
-    // @TODO - check if game name exists in lobby or on another game server
     const gameNameExists = await this.gameExistsByName(gameName);
     if (gameNameExists) {
       throw new Error(ERROR_MESSAGES.LOBBY.GAME_EXISTS);
