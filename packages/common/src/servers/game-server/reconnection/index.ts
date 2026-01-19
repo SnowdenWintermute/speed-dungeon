@@ -81,6 +81,7 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
   }
 
   private generateGuestReconnectionToken(): GuestSessionReconnectionToken {
+    // base64url creates a string that is able to be sent in query params
     return randomBytes(32).toString("base64url") as GuestSessionReconnectionToken;
   }
 
@@ -108,7 +109,7 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
 
     const disconnectedSession = DisconnectedSession.fromUserSession(session, gameServerName);
     this.disconnectedSessionStoreService.writeDisconnectedSession(
-      session.getReconnectionKey(),
+      session.requireReconnectionKey(),
       disconnectedSession
     );
 
@@ -120,10 +121,10 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     });
 
     const onReconnectionTimeout = async () => {
-      this.reconnectionOpportunityManager.remove(session.getReconnectionKey());
+      this.reconnectionOpportunityManager.remove(session.requireReconnectionKey());
       try {
         await this.disconnectedSessionStoreService.deleteDisconnectedSession(
-          session.getReconnectionKey()
+          session.requireReconnectionKey()
         );
       } catch (error) {
         console.error("failed to delete disconnectedSession:", error);
@@ -145,7 +146,7 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     };
 
     this.reconnectionOpportunityManager.add(
-      session.getReconnectionKey(),
+      session.requireReconnectionKey(),
       new ReconnectionOpportunity(
         RECONNECTION_OPPORTUNITY_TIMOUT_MS,
         session.username,
@@ -158,7 +159,7 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
 
   async attemptReconnectionClaim(session: UserSession): Promise<void> {
     const reconnectionOpportunityOption = this.reconnectionOpportunityManager.get(
-      session.getReconnectionKey()
+      session.requireReconnectionKey()
     );
 
     const claimExists = reconnectionOpportunityOption !== undefined;
@@ -168,9 +169,9 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
       throw new Error("Invalid reconnection");
     }
 
-    this.reconnectionOpportunityManager.remove(session.getReconnectionKey());
+    this.reconnectionOpportunityManager.remove(session.requireReconnectionKey());
     await this.disconnectedSessionStoreService.deleteDisconnectedSession(
-      session.getReconnectionKey()
+      session.requireReconnectionKey()
     );
 
     console.info(`user ${session.username} reconnecting to game ${session.currentGameName}`);

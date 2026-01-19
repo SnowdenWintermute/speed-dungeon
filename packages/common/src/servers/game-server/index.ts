@@ -15,7 +15,7 @@ import { UserSession } from "../sessions/user-session.js";
 import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js";
 import { GameServerGameLifecycleController } from "./controllers/game-lifecycle/index.js";
 import { RaceGameRecordsService } from "../services/race-game-records.js";
-import { HeartbeatScheduler } from "../../primatives/heartbeat.js";
+import { HeartbeatScheduler, HeartbeatTask } from "../../primatives/heartbeat.js";
 import { ONE_SECOND } from "../../app-consts.js";
 import { DisconnectedSessionStoreService } from "../services/disconnected-session-store/index.js";
 import { PartyDelayedGameMessageFactory } from "./party-delayed-game-message-factory.js";
@@ -24,6 +24,7 @@ import { SpeedDungeonServer } from "../speed-dungeon-server.js";
 import { GameServerSessionClaimTokenCodec } from "../lobby-server/game-handoff/session-claim-token.js";
 import { GameServerReconnectionProtocol } from "./reconnection/index.js";
 import { ConnectionContextType } from "../reconnection-protocol/index.js";
+import { ActiveGameStatus } from "../services/game-session-store/active-game-status.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -57,7 +58,7 @@ export class GameServer extends SpeedDungeonServer {
     private readonly externalServices: GameServerExternalServices,
     private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
   ) {
-    super("Game Server");
+    super(name);
     this.incomingConnectionGateway.initialize(
       async (context, identityContext) => await this.handleConnection(context, identityContext)
     );
@@ -68,7 +69,6 @@ export class GameServer extends SpeedDungeonServer {
     this.gameLifecycleController = new GameServerGameLifecycleController(
       this.gameRegistry,
       this.userSessionRegistry,
-      this.heartbeatScheduler,
       this.externalServices.gameSessionStoreService,
       this.externalServices.raceGameRecordsService,
       this.externalServices.savedCharactersService,
@@ -163,5 +163,20 @@ export class GameServer extends SpeedDungeonServer {
     outbox.removeRecipients([session.connectionId]);
 
     this.dispatchOutboxMessages(outbox);
+  }
+
+  private startActiveGamesRecordHeartbeat() {
+    this.heartbeatScheduler.start();
+
+    const heartbeat = new HeartbeatTask(GAME_RECORD_HEARTBEAT_MS, () => {
+      // currently overwrites but could just update - this is simpler for now
+      for (const [gameName, game] of this.gameRegistry.games)
+        this.externalServices.gameSessionStoreService.writeActiveGameStatus(
+          gameName,
+          new ActiveGameStatus(gameName, game.id)
+        );
+    });
+
+    this.heartbeatScheduler.register(heartbeat);
   }
 }

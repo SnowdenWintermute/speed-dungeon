@@ -124,10 +124,7 @@ export class LobbyServer extends SpeedDungeonServer {
     const userConnectionEndpoint = connectionEndpoint.toTyped<GameStateUpdate, ClientIntent>();
     this.outgoingMessagesGateway.registerEndpoint(userConnectionEndpoint);
 
-    const connectionContext = await this.reconnectionProtocol.evaluateConnectionContext(
-      session,
-      identityResolutionContext
-    );
+    const connectionContext = await this.reconnectionProtocol.evaluateConnectionContext(session);
 
     if (connectionContext.type === ConnectionContextType.Reconnection) {
       const outbox = await this.userSessionLifecycleController.activateSession(session, {

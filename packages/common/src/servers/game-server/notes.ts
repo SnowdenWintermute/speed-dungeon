@@ -96,4 +96,4 @@
 //   - DisconnectedSession
 //   - heartbeat
 //
-//
+//- enforce unique usernames for guests

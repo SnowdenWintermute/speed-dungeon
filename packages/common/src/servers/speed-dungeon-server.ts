@@ -3,6 +3,7 @@ import { GameStateUpdate } from "../packets/game-state-updates.js";
 import { ConnectionEndpoint, UntypedConnectionEndpoint } from "../transport/connection-endpoint.js";
 import { TransportDisconnectReason } from "../transport/disconnect-reasons.js";
 import { BasicRandomNumberGenerator } from "../utility-classes/randomizers.js";
+import { invariant } from "../utils/index.js";
 import { GameServerClientIntentHandlers } from "./game-server/create-game-server-client-intent-handlers.js";
 import { LobbyClientIntentHandlers } from "./lobby-server/create-lobby-client-intent-handlers.js";
 import { ConnectionIdentityResolutionContext } from "./services/identity-provider.js";
@@ -45,13 +46,18 @@ export abstract class SpeedDungeonServer {
       async (receivable) => {
         const handlerOption = intentHandlers[receivable.type];
 
-        if (handlerOption === undefined) {
-          throw new Error("Lobby is not configured to handle this type of ClientIntent");
-        }
+        invariant(
+          handlerOption !== undefined,
+          "Server is not configured to handle this type of message"
+        );
 
         const session = this.userSessionRegistry.getExpectedSession(userConnectionEndpoint.id);
 
-        // a workaround is to use "as never" for some reason
+        // TS asks: what argument would be valid for *any* possible handler?
+        // Because this is a union of handlers, the parameter type becomes the
+        // intersection of all payload types, which collapses to `never`.
+        // Since we look up handler in a typed record and check it is not undefined
+        // we can say the data is the correct type for the handler
         const outbox = await handlerOption(receivable.data as never, session);
         this.dispatchOutboxMessages(outbox);
       },

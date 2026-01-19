@@ -37,8 +37,20 @@ export class LobbySessionLifecycleController
     const authenticatedUserOption = await this.identityProviderService.resolve(context);
 
     if (authenticatedUserOption === null) {
+      // @TODO - enforce unique usernames for guests
       const { username, taggedUserId } = this.createGuestUser();
-      return new UserSession(username, connectionId, taggedUserId, this.lobbyState.gameRegistry);
+      const guestSession = new UserSession(
+        username,
+        connectionId,
+        taggedUserId,
+        this.lobbyState.gameRegistry
+      );
+
+      // given by game server to guests on disconnect to identify them
+      if (context.clientCachedGuestReconnectionToken) {
+        guestSession.setGuestReconnectionToken(context.clientCachedGuestReconnectionToken);
+      }
+      return guestSession;
     }
 
     const { username, taggedUserId } = authenticatedUserOption;

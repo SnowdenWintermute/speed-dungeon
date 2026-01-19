@@ -15,8 +15,6 @@ import { GameModeContext } from "./game-mode-context.js";
 import { RaceGameRecordsService } from "../../../services/race-game-records.js";
 import { SavedCharactersService } from "../../../services/saved-characters.js";
 import { RankedLadderService } from "../../../services/ranked-ladder.js";
-import { HeartbeatScheduler, HeartbeatTask } from "../../../../primatives/heartbeat.js";
-import { GAME_RECORD_HEARTBEAT_MS } from "../../index.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { PartyDelayedGameMessageFactory } from "../../party-delayed-game-message-factory.js";
 import {
@@ -32,7 +30,6 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
   constructor(
     private readonly gameRegistry: GameRegistry,
     private readonly userSessionRegistry: UserSessionRegistry,
-    private readonly heartbeatScheduler: HeartbeatScheduler,
     private readonly gameSessionStoreService: GameSessionStoreService,
     raceGameRecordsService: RaceGameRecordsService,
     savedCharactersLadderService: SavedCharactersService,
@@ -81,16 +78,6 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       new ActiveGameStatus(newGame.name, newGame.id)
     );
 
-    const heartbeat = new HeartbeatTask(GAME_RECORD_HEARTBEAT_MS, () => {
-      // currently overwrites but could just update - this is simpler for now
-      this.gameSessionStoreService.writeActiveGameStatus(
-        newGame.name,
-        new ActiveGameStatus(newGame.name, newGame.id)
-      );
-    });
-
-    this.heartbeatScheduler.register(heartbeat);
-
     return newGame;
   }
 
@@ -132,9 +119,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       outbox.pushFromOther(startGameOutbox);
     }
 
-    if (allPlayersAreConnectedToGame) {
-      game.inputLock.remove(session.taggedUserId.id); // @TODO - check this lock when players submit inputs
-    }
+    game.inputLock.remove(session.taggedUserId.id); // @TODO - check this lock when players submit inputs
 
     return outbox;
   }

@@ -1,5 +1,5 @@
-import { GameStateUpdate } from "../../packets/game-state-updates";
-import { MessageDispatchOutbox } from "../update-delivery/outbox";
+import { GameStateUpdate } from "../../packets/game-state-updates.js";
+import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 
 export enum ConnectionContextType {
   InitialConnection,

@@ -129,7 +129,7 @@ export class UserSession extends ConnectionSession {
     return this.guestReconnectionToken;
   }
 
-  getReconnectionKey(): ReconnectionKey {
+  getReconnectionKeyOption(): null | ReconnectionKey {
     switch (this.taggedUserId.type) {
       case UserIdType.Auth: {
         return {
@@ -139,12 +139,22 @@ export class UserSession extends ConnectionSession {
       }
       case UserIdType.Guest: {
         const reconnectionTokenOption = this.getGuestReconnectionTokenOption();
-        invariant(reconnectionTokenOption !== null, "reconnectionTokenOption was null");
+
+        if (!reconnectionTokenOption) {
+          return null;
+        }
+
         return {
           type: ReconnectionKeyType.Guest,
           reconnectionToken: reconnectionTokenOption,
         };
       }
     }
+  }
+
+  requireReconnectionKey() {
+    const key = this.getReconnectionKeyOption();
+    invariant(key !== null);
+    return key;
   }
 }
