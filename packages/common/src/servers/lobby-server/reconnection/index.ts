@@ -4,7 +4,7 @@ import {
   ConnectionContextType,
   PlayerReconnectionProtocol,
 } from "../../reconnection-protocol/index.js";
-import { DisconnectedSessionStoreService } from "../../services/disconnected-session-store/index.js";
+import { ReconnectionForwardingStoreService } from "../../services/disconnected-session-store/index.js";
 import { GameSessionStoreService } from "../../services/game-session-store/index.js";
 import { ConnectionIdentityResolutionContext } from "../../services/identity-provider.js";
 import { DisconnectedSession } from "../../sessions/disconnected-session.js";
@@ -32,7 +32,7 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
     private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly gameSessionStoreService: GameSessionStoreService,
-    private readonly disconnectedSessionStoreService: DisconnectedSessionStoreService
+    private readonly reconnectionForwardingStoreService: ReconnectionForwardingStoreService
   ) {}
 
   async evaluateConnectionContext(session: UserSession): Promise<LobbyConnectionContext> {
@@ -112,7 +112,7 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
   private async getDisconnectedSessionOption(session: UserSession) {
     const reconnectionKey = session.getReconnectionKeyOption();
     if (reconnectionKey) {
-      return await this.disconnectedSessionStoreService.getDisconnectedSession(reconnectionKey);
+      return await this.reconnectionForwardingStoreService.getDisconnectedSession(reconnectionKey);
     }
   }
   // async evaluateAdmission(attempt: ReconnectionAttempt): Promise<LobbyAdmissionDecision>;

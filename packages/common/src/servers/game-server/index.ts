@@ -17,7 +17,7 @@ import { GameServerGameLifecycleController } from "./controllers/game-lifecycle/
 import { RaceGameRecordsService } from "../services/race-game-records.js";
 import { HeartbeatScheduler, HeartbeatTask } from "../../primatives/heartbeat.js";
 import { ONE_SECOND } from "../../app-consts.js";
-import { DisconnectedSessionStoreService } from "../services/disconnected-session-store/index.js";
+import { ReconnectionForwardingStoreService } from "../services/disconnected-session-store/index.js";
 import { PartyDelayedGameMessageFactory } from "./party-delayed-game-message-factory.js";
 import { ReconnectionOpportunityManager } from "./reconnection-opportunity-manager.js";
 import { SpeedDungeonServer } from "../speed-dungeon-server.js";
@@ -28,7 +28,7 @@ import { ActiveGameStatus } from "../services/game-session-store/active-game-sta
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
-  disconnectedSessionStoreService: DisconnectedSessionStoreService;
+  reconnectionForwardingStoreService: ReconnectionForwardingStoreService;
   savedCharactersService: SavedCharactersService;
   rankedLadderService: RankedLadderService;
   raceGameRecordsService: RaceGameRecordsService;
@@ -65,6 +65,7 @@ export class GameServer extends SpeedDungeonServer {
     this.incomingConnectionGateway.listen();
 
     this.heartbeatScheduler.start();
+    this.startActiveGamesRecordHeartbeatTask();
 
     this.gameLifecycleController = new GameServerGameLifecycleController(
       this.gameRegistry,
@@ -88,7 +89,7 @@ export class GameServer extends SpeedDungeonServer {
 
     this.reconnectionProtocol = new GameServerReconnectionProtocol(
       this.updateDispatchFactory,
-      externalServices.disconnectedSessionStoreService,
+      externalServices.reconnectionForwardingStoreService,
       this.reconnectionOpportunityManager,
       this.gameLifecycleController,
       (outbox) => this.dispatchOutboxMessages(outbox)
@@ -165,9 +166,7 @@ export class GameServer extends SpeedDungeonServer {
     this.dispatchOutboxMessages(outbox);
   }
 
-  private startActiveGamesRecordHeartbeat() {
-    this.heartbeatScheduler.start();
-
+  private startActiveGamesRecordHeartbeatTask() {
     const heartbeat = new HeartbeatTask(GAME_RECORD_HEARTBEAT_MS, () => {
       // currently overwrites but could just update - this is simpler for now
       for (const [gameName, game] of this.gameRegistry.games)

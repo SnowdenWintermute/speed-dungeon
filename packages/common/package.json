@@ -13,6 +13,7 @@
     "immer": "10.1.1",
     "libsodium-wrappers": "^0.8.0",
     "lodash.clonedeep": "4.5.0",
+    "lodash.ismatch": "^4.4.0",
     "mobx": "6.15.0",
     "mobx-store-inheritance": "1.0.6",
     "oxide.ts": "1.1.0",
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "@types/libsodium-wrappers": "^0.7.14",
-    "@types/lodash.clonedeep": "4.5.9"
+    "@types/lodash.clonedeep": "4.5.9",
+    "@types/lodash.ismatch": "^4.4.9"
   }
 }

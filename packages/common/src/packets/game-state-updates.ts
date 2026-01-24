@@ -14,10 +14,12 @@ import { CombatAttribute } from "../combatants/attributes/index.js";
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
 import {
+  ChannelName,
   CharacterSlotIndex,
   EntityId,
   GameName,
   GuestSessionReconnectionToken,
+  PartyName,
   Username,
 } from "../aliases.js";
 import { ExplorationAction } from "../adventuring-party/dungeon-exploration-manager.js";
@@ -87,34 +89,34 @@ export interface GameStateUpdateMap {
     gameList: GameListEntry[];
   };
   [GameStateUpdateType.ClientUsername]: {
-    username: string;
+    username: Username;
   };
   [GameStateUpdateType.CacheGuestSessionReconnectionToken]: {
     token: GuestSessionReconnectionToken;
   };
   [GameStateUpdateType.ChannelFullUpdate]: {
-    channelName: string;
+    channelName: ChannelName;
     users: Map<Username, UserChannelDisplayData>;
   };
   [GameStateUpdateType.UserJoinedChannel]: {
-    username: string;
+    username: Username;
     userChannelDisplayData: UserChannelDisplayData;
   };
   [GameStateUpdateType.UserLeftChannel]: {
-    username: string;
+    username: Username;
   };
   [GameStateUpdateType.ErrorMessage]: {
-    message: string;
+    message: Username;
   };
   [GameStateUpdateType.GameFullUpdate]: {
     game: SpeedDungeonGame | null;
   };
   [GameStateUpdateType.PartyNameUpdate]: {
-    partyName: string | null;
+    partyName: PartyName | null;
   };
   [GameStateUpdateType.PlayerChangedAdventuringParty]: {
     playerName: Username;
-    partyName: string | null;
+    partyName: PartyName | null;
   };
   [GameStateUpdateType.PlayerLeftGame]: {
     username: Username;
@@ -130,19 +132,19 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.PartyCreated]: {
     partyId: string;
-    partyName: string;
+    partyName: PartyName;
   };
   [GameStateUpdateType.CharacterAddedToParty]: {
-    username: string;
+    username: Username;
     character: Combatant;
     pets: Combatant[];
   };
   [GameStateUpdateType.CharacterDeleted]: {
-    username: string;
+    username: Username;
     characterId: string;
   };
   [GameStateUpdateType.PlayerToggledReadyToStartGame]: {
-    username: string;
+    username: Username;
   };
   [GameStateUpdateType.GameStarted]: {
     timeStarted: number;
@@ -196,11 +198,11 @@ export interface GameStateUpdateMap {
   [GameStateUpdateType.CharacterCycledTargets]: {
     characterId: string;
     direction: NextOrPrevious;
-    playerUsername: string;
+    playerUsername: Username;
   };
   [GameStateUpdateType.CharacterCycledTargetingSchemes]: {
     characterId: string;
-    playerUsername: string;
+    playerUsername: Username;
   };
   [GameStateUpdateType.DungeonFloorNumber]: {
     floorNumber: number;

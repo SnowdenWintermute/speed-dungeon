@@ -10,6 +10,10 @@ export interface ConnectionEndpoint<Sendable, Receivable> {
     disconnectHandler: (payload: TransportDisconnectReason) => Promise<void>
   ): void;
   close(): Promise<void>;
+
+  on(eventName: string, listener: (message: Receivable) => Promise<void> | void): void;
+  once(eventName: string, listener: (message: Receivable) => Promise<void> | void): void;
+  off(eventName: string, listener: (message: Receivable) => Promise<void> | void): void;
   // otherwise we were able to pass untyped endpoints as arguments that expected typed endpoints
   readonly [UntypedEndpointBrand]?: never;
 }

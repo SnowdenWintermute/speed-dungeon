@@ -1,19 +1,30 @@
 import { describe, it, expect } from "vitest";
-import { LobbyServer } from "../index.js";
-import { EntityName, GameName, PartyName } from "../../../aliases.js";
-import { GameMode } from "../../../types.js";
-import { InMemoryTransport } from "../../../transport/in-memory-transport.js";
+import { InMemoryTransport } from "../../transport/in-memory-transport.js";
+import { LobbyServer } from "../lobby-server/index.js";
+import { GameServer } from "../game-server/index.js";
+import { TestHelpers } from "./fixtures/index.js";
+import { ConnectionRole } from "../../http-headers.js";
+import { EntityName, GameName, PartyName } from "../../aliases.js";
+import { GameMode } from "../../types.js";
+import { MessageDispatchType } from "../update-delivery/message-dispatch-factory.js";
 import {
   GameListEntry,
   GameStateUpdate,
   GameStateUpdateType,
-} from "../../../packets/game-state-updates.js";
-import { TestHelpers } from "./helpers.test.js";
-import { MessageDispatchType } from "../../update-delivery/message-dispatch-factory.js";
-import { ConnectionRole } from "../../../http-headers.js";
-import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
-import { GameServer } from "../../game-server/index.js";
-import { ClientIntent } from "../../../packets/client-intents.js";
+} from "../../packets/game-state-updates.js";
+import { CombatantClass } from "../../combatants/combatant-class/classes.js";
+import { ClientIntent } from "../../packets/client-intents.js";
+
+// @TODO
+// - pre game start input
+// - input while awaiting reconnect
+// - input after timeout
+// - input after reconnect
+// - reconnect after timeout
+// - session claim token
+// - session claim token reuse
+// - reconnect token reuse
+// -
 
 describe("lobby server", () => {
   let lobbyInMemoryTransport: InMemoryTransport;

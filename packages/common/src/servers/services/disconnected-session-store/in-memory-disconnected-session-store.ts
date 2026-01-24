@@ -1,8 +1,8 @@
 import { GuestSessionReconnectionToken, IdentityProviderId } from "../../../aliases.js";
 import { DisconnectedSession } from "../../sessions/disconnected-session.js";
-import { DisconnectedSessionStoreService, ReconnectionKey, ReconnectionKeyType } from "./index.js";
+import { ReconnectionForwardingStoreService, ReconnectionKey, ReconnectionKeyType } from "./index.js";
 
-export class InMemoryDisconnectedSessionStoreService implements DisconnectedSessionStoreService {
+export class InMemoryReconnectionForwardingStoreService implements ReconnectionForwardingStoreService {
   private byIdentityProviderId = new Map<IdentityProviderId, DisconnectedSession>();
   private byReconnectionToken = new Map<GuestSessionReconnectionToken, DisconnectedSession>();
 

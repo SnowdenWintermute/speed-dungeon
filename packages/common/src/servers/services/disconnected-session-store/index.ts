@@ -18,7 +18,7 @@ export interface AuthReconnectionKey {
 
 export type ReconnectionKey = GuestReconnectionKey | AuthReconnectionKey;
 
-export interface DisconnectedSessionStoreService {
+export interface ReconnectionForwardingStoreService {
   writeDisconnectedSession(
     reconnectionKey: ReconnectionKey,
     record: DisconnectedSession

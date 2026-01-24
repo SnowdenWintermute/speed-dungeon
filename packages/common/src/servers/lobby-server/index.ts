@@ -24,7 +24,7 @@ import { UntypedConnectionEndpoint } from "../../transport/connection-endpoint.j
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
 import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js";
 import { UserSession } from "../sessions/user-session.js";
-import { DisconnectedSessionStoreService } from "../services/disconnected-session-store/index.js";
+import { ReconnectionForwardingStoreService } from "../services/disconnected-session-store/index.js";
 import { GameServerSessionClaimTokenCodec } from "./game-handoff/session-claim-token.js";
 import { GameHandoffManager } from "./game-handoff/game-handoff-manager.js";
 import { SpeedDungeonServer } from "../speed-dungeon-server.js";
@@ -37,7 +37,7 @@ export interface LobbyExternalServices {
   savedCharactersService: SavedCharactersService;
   rankedLadderService: RankedLadderService;
   gameSessionStoreService: GameSessionStoreService;
-  disconnectedSessionStoreService: DisconnectedSessionStoreService;
+  reconnectionForwardingStoreService: ReconnectionForwardingStoreService;
   idGenerator: IdGenerator;
 }
 
@@ -97,7 +97,7 @@ export class LobbyServer extends SpeedDungeonServer {
       gameServerSessionClaimTokenCodec,
       this.updateDispatchFactory,
       externalServices.gameSessionStoreService,
-      externalServices.disconnectedSessionStoreService
+      externalServices.reconnectionForwardingStoreService
     );
   }
 

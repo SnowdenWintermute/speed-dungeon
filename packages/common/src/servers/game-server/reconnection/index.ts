@@ -4,7 +4,7 @@ import {
   ConnectionContextType,
   PlayerReconnectionProtocol,
 } from "../../reconnection-protocol/index.js";
-import { DisconnectedSessionStoreService } from "../../services/disconnected-session-store/index.js";
+import { ReconnectionForwardingStoreService } from "../../services/disconnected-session-store/index.js";
 import { DisconnectedSession } from "../../sessions/disconnected-session.js";
 import { UserIdType } from "../../sessions/user-ids.js";
 import { UserSession } from "../../sessions/user-session.js";
@@ -34,7 +34,7 @@ export type GameServerConnectionContext =
 export class GameServerReconnectionProtocol implements PlayerReconnectionProtocol {
   constructor(
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private readonly disconnectedSessionStoreService: DisconnectedSessionStoreService,
+    private readonly reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     private readonly reconnectionOpportunityManager: ReconnectionOpportunityManager,
     private readonly gameLifecycleController: GameServerGameLifecycleController,
     private readonly dispatchOutboxMessages: (
@@ -108,7 +108,7 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     );
 
     const disconnectedSession = DisconnectedSession.fromUserSession(session, gameServerName);
-    this.disconnectedSessionStoreService.writeDisconnectedSession(
+    this.reconnectionForwardingStoreService.writeDisconnectedSession(
       session.requireReconnectionKey(),
       disconnectedSession
     );
@@ -123,7 +123,7 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     const onReconnectionTimeout = async () => {
       this.reconnectionOpportunityManager.remove(session.requireReconnectionKey());
       try {
-        await this.disconnectedSessionStoreService.deleteDisconnectedSession(
+        await this.reconnectionForwardingStoreService.deleteDisconnectedSession(
           session.requireReconnectionKey()
         );
       } catch (error) {
@@ -170,7 +170,7 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     }
 
     this.reconnectionOpportunityManager.remove(session.requireReconnectionKey());
-    await this.disconnectedSessionStoreService.deleteDisconnectedSession(
+    await this.reconnectionForwardingStoreService.deleteDisconnectedSession(
       session.requireReconnectionKey()
     );
 
