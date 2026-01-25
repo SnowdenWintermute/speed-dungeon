@@ -1,13 +1,12 @@
-import SocketIO from "socket.io";
 import {
-  HTTP_HEADER_NAME_STRINGS,
-  HttpHeaderNames,
-  CONNECTION_ROLE_STRINGS,
-  ConnectionRole,
   ConnectionIdentityResolutionContext,
   IncomingConnectionGateway,
-  UntypedSocketConnectionEndpoint,
+  NodeWebSocketConnectionEndpoint,
+  GuestSessionReconnectionToken,
+  QUERY_PARAMS,
 } from "@speed-dungeon/common";
+import { WebSocketServer } from "ws";
+import { IncomingMessage } from "node:http";
 
 export interface SocketHandshakeData {
   cookie?: string;
@@ -15,40 +14,44 @@ export interface SocketHandshakeData {
 }
 
 export class LobbyRemoteIncomingConnectionGateway extends IncomingConnectionGateway {
-  constructor(private io: SocketIO.Server) {
+  constructor(private wss: WebSocketServer) {
     super();
   }
 
-  private parseConnectionIdentityContext(
-    handshakeData: SocketHandshakeData
+  protected parseConnectionIdentityContext(
+    request: IncomingMessage
   ): ConnectionIdentityResolutionContext {
-    const cookies = handshakeData.cookie;
-    const connectionRole = handshakeData[HTTP_HEADER_NAME_STRINGS[HttpHeaderNames.ConnectionRole]];
-
-    if (typeof connectionRole !== "string") {
-      throw new Error("unexpected header content");
+    if (request.url === undefined) {
+      throw new Error("no url in handshake");
     }
 
-    if (connectionRole === CONNECTION_ROLE_STRINGS[ConnectionRole.User]) {
-      return {
-        type: ConnectionRole.User,
-        cookies,
-      };
-    } else {
-      throw new Error("Unrecognized connection role");
-    }
+    const url = new URL(request.url, `http://${request.headers.host}`);
+    const reconnectionToken = url.searchParams.get(QUERY_PARAMS.GUEST_RECONNECTION_TOKEN);
+    const sessionClaimToken = url.searchParams.get(QUERY_PARAMS.SESSION_CLAIM_TOKEN);
+
+    // @SECURITY - validate the query params
+
+    const cookies = Object.fromEntries(
+      request.headers.cookie?.split("; ").map((c) => c.split("=")) ?? []
+    );
+
+    return {
+      clientCachedGuestReconnectionToken:
+        (reconnectionToken as GuestSessionReconnectionToken) || undefined,
+      encodedGameServerSessionClaimToken: sessionClaimToken || undefined,
+      cookies,
+    };
   }
 
   listen() {
-    this.io.of("/").on("connection", async (socket) => {
-      const req = socket.request;
+    this.wss.on("connection", async (socket, request) => {
+      if (request.url === undefined) {
+        throw new Error("no url in handshake");
+      }
 
-      const identityContext = this.parseConnectionIdentityContext({
-        ...socket.handshake.query,
-        cookie: req.headers.cookie,
-      });
+      const identityContext = this.parseConnectionIdentityContext(request);
 
-      const untypedEndpoint = new UntypedSocketConnectionEndpoint(socket);
+      const untypedEndpoint = new NodeWebSocketConnectionEndpoint(socket);
       await this.requireConnectionHandler()(untypedEndpoint, identityContext);
     });
   }

@@ -1,58 +1,38 @@
-import { ConnectionId, UntypedEndpointBrand } from "../aliases.js";
-import { TransportDisconnectReason } from "./disconnect-reasons.js";
+import { ConnectionId } from "../aliases";
 
-export interface ConnectionEndpoint<Sendable, Receivable> {
-  readonly id: ConnectionId;
-  send(update: Sendable): void;
-  receive(message: Receivable): void;
-  subscribeAll(
-    handler: (message: Receivable) => void,
-    disconnectHandler: (payload: TransportDisconnectReason) => Promise<void>
-  ): void;
-  close(): Promise<void>;
-
-  on(eventName: string, listener: (message: Receivable) => Promise<void> | void): void;
-  once(eventName: string, listener: (message: Receivable) => Promise<void> | void): void;
-  off(eventName: string, listener: (message: Receivable) => Promise<void> | void): void;
-  // otherwise we were able to pass untyped endpoints as arguments that expected typed endpoints
-  readonly [UntypedEndpointBrand]?: never;
+export enum ConnectionEndpointReadyState {
+  CONNECTING = 0,
+  OPEN = 1,
+  CLOSING = 2,
+  CLOSED = 3,
 }
 
-export abstract class UntypedConnectionEndpoint {
-  // @TODO - make it so we cannot call these methods until transformed into a typed endpoint
-  abstract readonly id: ConnectionId;
-  protected abstract send(payload: unknown): void;
-  protected abstract receive(payload: unknown): void;
-  protected abstract subscribeAll(
-    messageHandler: (payload: unknown) => void,
-    disconnectHandler: (payload: TransportDisconnectReason) => Promise<void>
-  ): void;
-  protected abstract close(): Promise<void>;
-  abstract readonly [UntypedEndpointBrand]: true;
+export interface ConnectionEndpoint {
+  id: ConnectionId;
+  readyState: ConnectionEndpointReadyState;
 
-  toTyped<Sendable, Receivable>(): ConnectionEndpoint<Sendable, Receivable> {
-    const untyped = this;
+  // Event handlers
+  on(event: "open", listener: () => void): this;
+  on(event: "message", listener: (data: string | Buffer | ArrayBuffer) => void): this;
+  on(event: "close", listener: (code: number, reason: string) => void): this;
+  on(event: "error", listener: (error: Error) => void): this;
+  on(event: "ping", listener: (data: Buffer) => void): this;
+  on(event: "pong", listener: (data: Buffer) => void): this;
+  on(event: string, listener: (...args: any[]) => void): this;
 
-    return {
-      id: untyped.id,
-      send(message: Sendable) {
-        untyped.send(message);
-      },
-      receive(message: Receivable) {
-        untyped.receive?.(message);
-      },
-      subscribeAll(
-        handler: (message: Receivable) => void,
-        disconnectHandler: (reason: TransportDisconnectReason) => void
-      ) {
-        untyped.subscribeAll(
-          (payload) => handler(payload as Receivable),
-          async (reason) => disconnectHandler(reason)
-        );
-      },
-      async close() {
-        await untyped.close();
-      },
-    };
-  }
+  once(event: "open", listener: () => void): this;
+  once(event: "message", listener: (data: string | Buffer | ArrayBuffer) => void): this;
+  once(event: "close", listener: (code: number, reason: string) => void): this;
+  once(event: "error", listener: (error: Error) => void): this;
+  once(event: "ping", listener: (data: Buffer) => void): this;
+  once(event: "pong", listener: (data: Buffer) => void): this;
+  once(event: string, listener: (...args: any[]) => void): this;
+
+  off(event: string, listener: (...args: any[]) => void): this;
+
+  send(data: string | Buffer | ArrayBuffer): void;
+  close(code?: number, reason?: string): void;
+
+  ping(data?: any, mask?: boolean, callback?: (err?: Error) => void): void;
+  pong(data?: any, mask?: boolean, callback?: (err?: Error) => void): void;
 }

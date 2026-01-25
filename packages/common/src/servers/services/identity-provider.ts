@@ -1,9 +1,7 @@
 import { GuestSessionReconnectionToken, IdentityProviderId, Username } from "../../aliases.js";
-import { ConnectionRole } from "../../http-headers.js";
 import { TaggedUserId } from "../sessions/user-ids.js";
 
 export interface ConnectionIdentityResolutionContext {
-  readonly type: ConnectionRole.User;
   readonly cookies?: string; // user credentials or server credentials
   readonly localUserId?: IdentityProviderId;
   readonly clientCachedGuestReconnectionToken?: GuestSessionReconnectionToken;

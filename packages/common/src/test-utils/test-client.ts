@@ -7,11 +7,15 @@ import { ConnectionEndpoint } from "../transport/connection-endpoint.js";
 type GameStateUpdateOfType<T extends GameStateUpdateType> = Extract<GameStateUpdate, { type: T }>;
 
 export class TestClient {
-  private _connectionEndpoint: ConnectionEndpoint<ClientIntent, GameStateUpdate> | null = null;
+  private _connectionEndpoint: ConnectionEndpoint | null = null;
   private _username: Username | null = null;
   constructor(public name: string) {}
 
-  initializeSocket(url: string, queryParams: { name: string; value: string }[] = []) {
+  initializeSocket(
+    endpoint: ConnectionEndpoint,
+    url: string,
+    queryParams: { name: string; value: string }[] = []
+  ) {
     let urlWithParams = url;
     queryParams.forEach(({ name, value }, i) => {
       const isFirstParam = i === 0;
@@ -24,7 +28,7 @@ export class TestClient {
       urlWithParams += `${name}=${encodeURIComponent(value)}`;
     });
 
-    const connectionEndpoint = new WebSocket(urlWithParams);
+    const connectionEndpoint = endpoint;
     this._connectionEndpoint = connectionEndpoint;
   }
 
@@ -135,7 +139,7 @@ export class TestClient {
     const messages: GameStateUpdate[] = [];
 
     return new Promise<GameStateUpdateOfType<T>>((resolve, reject) => {
-      const onMessage = (rawData: RawData) => {
+      const onMessage = (rawData: string) => {
         const typedMessage = TestClient.getTypedMessage(rawData);
         messages.push(typedMessage); // so we can see what we got if it fails
 
@@ -175,7 +179,7 @@ export class TestClient {
     });
   }
 
-  static getTypedMessage(rawData: RawData) {
+  static getTypedMessage(rawData: string) {
     const asString = rawData.toString();
     const asJson = JSON.parse(asString);
     const typedMessage = asJson as GameStateUpdate;

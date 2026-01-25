@@ -10,11 +10,3 @@ export enum HttpHeaderNames {
 export const HTTP_HEADER_NAME_STRINGS: Record<HttpHeaderNames, string> = {
   [HttpHeaderNames.ConnectionRole]: "connection-role",
 };
-
-export enum ConnectionRole {
-  User,
-}
-
-export const CONNECTION_ROLE_STRINGS: Record<ConnectionRole, string> = {
-  [ConnectionRole.User]: "user",
-};
