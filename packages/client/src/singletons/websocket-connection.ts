@@ -14,12 +14,6 @@ import { setUpSavedCharacterEventListeners } from "@/app/websocket-manager/saved
 import { AppStore } from "@/mobx-stores/app-store";
 import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
-import {
-  CONNECTION_ROLE_STRINGS,
-  ConnectionRole,
-  HTTP_HEADER_NAME_STRINGS,
-  HttpHeaderNames,
-} from "@speed-dungeon/common";
 
 const socketAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
 
@@ -30,8 +24,7 @@ export const websocketConnection: Socket<ServerToClientEventTypes, ClientToServe
     withCredentials: true,
     autoConnect: false,
     query: {
-      [HTTP_HEADER_NAME_STRINGS[HttpHeaderNames.ConnectionRole]]:
-        CONNECTION_ROLE_STRINGS[ConnectionRole.User],
+      ["header name"]: "header value",
     },
   }
 );

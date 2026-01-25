@@ -76,7 +76,6 @@ export * from "./servers/sessions/user-ids.js";
 export * from "./servers/incoming-connection-gateway.js";
 
 export * from "./transport/connection-endpoint.js";
-export * from "./transport/socket-connection-endpoint.js";
 
 export * from "./combatants/attributes/index.js";
 export * from "./combatants/attributes/add-attributes-to-accumulator.js";

@@ -5,6 +5,7 @@ import { TransportDisconnectReason } from "../transport/disconnect-reasons.js";
 import { BasicRandomNumberGenerator } from "../utility-classes/randomizers.js";
 import { invariant } from "../utils/index.js";
 import { GameServerClientIntentHandlers } from "./game-server/create-game-server-client-intent-handlers.js";
+import { IncomingConnectionGateway } from "./incoming-connection-gateway.js";
 import { LobbyClientIntentHandlers } from "./lobby-server/create-lobby-client-intent-handlers.js";
 import { ConnectionIdentityResolutionContext } from "./services/identity-provider.js";
 import { UserSessionRegistry } from "./sessions/user-session-registry.js";
@@ -25,7 +26,31 @@ export abstract class SpeedDungeonServer {
 
   protected readonly randomNumberGenerator = new BasicRandomNumberGenerator();
 
-  constructor(readonly name: string) {}
+  constructor(
+    readonly name: string,
+    protected readonly incomingConnectionGateway: IncomingConnectionGateway
+  ) {}
+
+  closeTransportServer() {
+    this.incomingConnectionGateway.close();
+  }
+
+  private parseMessage(rawData: string | ArrayBuffer | Buffer<ArrayBufferLike>) {
+    // Convert to string
+    let messageStr: string;
+    if (typeof rawData === "string") {
+      messageStr = rawData;
+    } else if (rawData instanceof Buffer) {
+      messageStr = rawData.toString("utf8");
+    } else if (rawData instanceof ArrayBuffer) {
+      messageStr = new TextDecoder().decode(rawData);
+    } else {
+      throw new Error("Unknown message type");
+    }
+
+    const parsed = JSON.parse(messageStr) as ClientIntent;
+    return parsed;
+  }
 
   protected attachIntentHandlersToSessionConnection(
     session: UserSession,
@@ -33,20 +58,8 @@ export abstract class SpeedDungeonServer {
     intentHandlers: Partial<GameServerClientIntentHandlers> | Partial<LobbyClientIntentHandlers>
   ) {
     // attach the connection to message handlers and disconnectionHandler
-    userConnectionEndpoint.on("message", async (receivable) => {
-      // Convert to string
-      let messageStr: string;
-      if (typeof receivable === "string") {
-        messageStr = receivable;
-      } else if (receivable instanceof Buffer) {
-        messageStr = receivable.toString("utf8");
-      } else if (receivable instanceof ArrayBuffer) {
-        messageStr = new TextDecoder().decode(receivable);
-      } else {
-        throw new Error("Unknown message type");
-      }
-
-      const parsed = JSON.parse(messageStr) as ClientIntent;
+    userConnectionEndpoint.on("message", async (rawData) => {
+      const parsed = this.parseMessage(rawData);
 
       const handlerOption = intentHandlers[parsed.type];
 

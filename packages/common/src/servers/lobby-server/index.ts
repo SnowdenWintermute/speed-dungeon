@@ -16,11 +16,8 @@ import { IdGenerator } from "../../utility-classes/index.js";
 import { CharacterCreator } from "../../character-creation/index.js";
 import { ItemGenerator } from "../../items/item-creation/index.js";
 import { AffixGenerator } from "../../items/item-creation/builders/affix-generator/index.js";
-import { GameStateUpdate } from "../../packets/game-state-updates.js";
-import { ClientIntent } from "../../packets/client-intents.js";
 import { UserIdType } from "../sessions/user-ids.js";
 import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";
-import { UntypedConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
 import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js";
 import { UserSession } from "../sessions/user-session.js";
@@ -30,6 +27,7 @@ import { GameHandoffManager } from "./game-handoff/game-handoff-manager.js";
 import { SpeedDungeonServer } from "../speed-dungeon-server.js";
 import { LobbyReconnectionProtocol } from "./reconnection/index.js";
 import { ConnectionContextType } from "../reconnection-protocol/index.js";
+import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -58,11 +56,11 @@ export class LobbyServer extends SpeedDungeonServer {
   // game server controllers
 
   constructor(
-    private readonly incomingConnectionGateway: IncomingConnectionGateway,
+    protected readonly incomingConnectionGateway: IncomingConnectionGateway,
     private readonly externalServices: LobbyExternalServices,
     private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
   ) {
-    super("LobbyServer");
+    super("LobbyServer", incomingConnectionGateway);
 
     this.gameHandoffManager = new GameHandoffManager(
       this.userSessionRegistry,
@@ -102,9 +100,10 @@ export class LobbyServer extends SpeedDungeonServer {
   }
 
   async handleConnection(
-    connectionEndpoint: UntypedConnectionEndpoint,
+    connectionEndpoint: ConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
+    console.log("got connection on lobby");
     const session = await this.userSessionLifecycleController.createSession(
       connectionEndpoint.id,
       identityResolutionContext
@@ -121,8 +120,7 @@ export class LobbyServer extends SpeedDungeonServer {
       );
     }
 
-    const userConnectionEndpoint = connectionEndpoint.toTyped<GameStateUpdate, ClientIntent>();
-    this.outgoingMessagesGateway.registerEndpoint(userConnectionEndpoint);
+    this.outgoingMessagesGateway.registerEndpoint(connectionEndpoint);
 
     const connectionContext = await this.reconnectionProtocol.evaluateConnectionContext(session);
 
@@ -136,7 +134,7 @@ export class LobbyServer extends SpeedDungeonServer {
     } else {
       this.attachIntentHandlersToSessionConnection(
         session,
-        userConnectionEndpoint,
+        connectionEndpoint,
         this.userIntentHandlers
       );
 

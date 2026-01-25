@@ -1,21 +1,23 @@
-import {
-  ConnectionIdentityResolutionContext,
-  IncomingConnectionGateway,
-  NodeWebSocketConnectionEndpoint,
-  GuestSessionReconnectionToken,
-  QUERY_PARAMS,
-} from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { IncomingMessage } from "node:http";
+import { IncomingConnectionGateway } from "./incoming-connection-gateway.js";
+import { ConnectionIdentityResolutionContext } from "./services/identity-provider.js";
+import { QUERY_PARAMS } from "./query-params.js";
+import { GuestSessionReconnectionToken } from "../aliases.js";
+import { NodeWebSocketConnectionEndpoint } from "../transport/node-websocket-connection-endpoint.js";
 
 export interface SocketHandshakeData {
   cookie?: string;
   [header: string]: string | string[] | undefined;
 }
 
-export class LobbyRemoteIncomingConnectionGateway extends IncomingConnectionGateway {
+export class NodeWebSocketIncomingConnectionGateway extends IncomingConnectionGateway {
   constructor(private wss: WebSocketServer) {
     super();
+  }
+
+  close() {
+    this.wss.close();
   }
 
   protected parseConnectionIdentityContext(
@@ -45,13 +47,14 @@ export class LobbyRemoteIncomingConnectionGateway extends IncomingConnectionGate
 
   listen() {
     this.wss.on("connection", async (socket, request) => {
+      console.log("got connection");
       if (request.url === undefined) {
         throw new Error("no url in handshake");
       }
 
       const identityContext = this.parseConnectionIdentityContext(request);
 
-      const untypedEndpoint = new NodeWebSocketConnectionEndpoint(socket);
+      const untypedEndpoint = new NodeWebSocketConnectionEndpoint(socket, this.issueConnectionId());
       await this.requireConnectionHandler()(untypedEndpoint, identityContext);
     });
   }

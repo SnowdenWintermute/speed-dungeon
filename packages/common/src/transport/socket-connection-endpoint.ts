@@ -1,5 +1,4 @@
 // import { ConnectionId, UntypedEndpointBrand } from "../aliases.js";
-// import { UntypedConnectionEndpoint } from "./connection-endpoint.js";
 // import { SOCKET_IO_DISCONNECT_REASONS, TransportDisconnectReason } from "./disconnect-reasons.js";
 // import SocketIO from "socket.io";
 

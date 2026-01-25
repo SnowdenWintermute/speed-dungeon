@@ -9,25 +9,8 @@ type GameStateUpdateOfType<T extends GameStateUpdateType> = Extract<GameStateUpd
 export class TestClient {
   private _connectionEndpoint: ConnectionEndpoint | null = null;
   private _username: Username | null = null;
-  constructor(public name: string) {}
 
-  initializeSocket(
-    endpoint: ConnectionEndpoint,
-    url: string,
-    queryParams: { name: string; value: string }[] = []
-  ) {
-    let urlWithParams = url;
-    queryParams.forEach(({ name, value }, i) => {
-      const isFirstParam = i === 0;
-      if (isFirstParam) {
-        urlWithParams += "?";
-      } else {
-        urlWithParams += "&";
-      }
-
-      urlWithParams += `${name}=${encodeURIComponent(value)}`;
-    });
-
+  initializeEndpoint(endpoint: ConnectionEndpoint) {
     const connectionEndpoint = endpoint;
     this._connectionEndpoint = connectionEndpoint;
   }

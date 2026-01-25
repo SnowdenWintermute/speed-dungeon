@@ -6,7 +6,6 @@ import { GameSessionStoreService } from "../services/game-session-store/index.js
 import { SavedCharactersService } from "../services/saved-characters.js";
 import { RankedLadderService } from "../services/ranked-ladder.js";
 import { IdGenerator } from "../../utility-classes/index.js";
-import { UntypedConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { ConnectionIdentityResolutionContext } from "../services/identity-provider.js";
 import { createGameServerClientIntentHandlers } from "./create-game-server-client-intent-handlers.js";
 import { GameServerSessionLifecycleController } from "./controllers/session-lifecycle.js";
@@ -25,6 +24,7 @@ import { GameServerSessionClaimTokenCodec } from "../lobby-server/game-handoff/s
 import { GameServerReconnectionProtocol } from "./reconnection/index.js";
 import { ConnectionContextType } from "../reconnection-protocol/index.js";
 import { ActiveGameStatus } from "../services/game-session-store/active-game-status.js";
+import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -54,11 +54,11 @@ export class GameServer extends SpeedDungeonServer {
 
   constructor(
     readonly name: GameServerName,
-    private readonly incomingConnectionGateway: IncomingConnectionGateway,
+    protected readonly incomingConnectionGateway: IncomingConnectionGateway,
     private readonly externalServices: GameServerExternalServices,
     private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
   ) {
-    super(name);
+    super(name, incomingConnectionGateway);
     this.incomingConnectionGateway.initialize(
       async (context, identityContext) => await this.handleConnection(context, identityContext)
     );
@@ -99,7 +99,7 @@ export class GameServer extends SpeedDungeonServer {
   private intentHandlers = createGameServerClientIntentHandlers(this);
 
   async handleConnection(
-    connectionEndpoint: UntypedConnectionEndpoint,
+    connectionEndpoint: ConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
     const session = await this.sessionLifecycleController.createSession(
@@ -112,8 +112,7 @@ export class GameServer extends SpeedDungeonServer {
       `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the [${this.name}] game server`
     );
 
-    const userConnectionEndpoint = connectionEndpoint.toTyped<GameStateUpdate, ClientIntent>();
-    this.outgoingMessagesGateway.registerEndpoint(userConnectionEndpoint);
+    this.outgoingMessagesGateway.registerEndpoint(connectionEndpoint);
 
     const gameName = session.currentGameName;
     if (gameName === null) {
@@ -122,11 +121,7 @@ export class GameServer extends SpeedDungeonServer {
 
     const existingGame = await this.gameLifecycleController.getOrInitializeGame(gameName);
 
-    this.attachIntentHandlersToSessionConnection(
-      session,
-      userConnectionEndpoint,
-      this.intentHandlers
-    );
+    this.attachIntentHandlersToSessionConnection(session, connectionEndpoint, this.intentHandlers);
 
     const gameIsInProgress = existingGame.getTimeStarted() !== null;
     const connectionContext = await this.reconnectionProtocol.evaluateConnectionContext(

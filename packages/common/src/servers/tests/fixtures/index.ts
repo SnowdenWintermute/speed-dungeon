@@ -1,8 +1,6 @@
 import { IdGenerator } from "../../../utility-classes/index.js";
-import { InMemoryTransport } from "../../../transport/in-memory-transport.js";
 import { SavedCharactersService } from "../../../servers/services/saved-characters.js";
 import { IdentityProviderService } from "../../../servers/services/identity-provider.js";
-import { InMemoryIncomingConnectionGateway } from "../../in-memory-incoming-connection-gateway.js";
 import { InMemoryGameSessionStoreService } from "../../services/game-session-store/in-memory-game-session-store-service.js";
 import { InMemoryReconnectionForwardingStoreService } from "../../services/disconnected-session-store/in-memory-disconnected-session-store.js";
 import { SodiumHelpers } from "../../../cryptography/index.js";
@@ -10,7 +8,7 @@ import { GameServer, GameServerExternalServices } from "../../game-server/index.
 import { GameSessionStoreService } from "../../services/game-session-store/index.js";
 import { ReconnectionForwardingStoreService } from "../../services/disconnected-session-store/index.js";
 import { RankedLadderService } from "../../services/ranked-ladder.js";
-import { GameServerName } from "../../../aliases.js";
+import { ConnectionId, GameServerName } from "../../../aliases.js";
 import {
   InMemoryRaceGameRecordsPersistenceStrategy,
   RaceGameRecordsService,
@@ -24,13 +22,23 @@ import { InMemoryRankedLadderService } from "../../services/in-memory-ranked-lad
 import { InMemoryIdentityProviderQueryStrategy } from "../../services/in-memory-identity-provider-service.js";
 import { OpaqueEncryptionSessionClaimTokenCodec } from "../../lobby-server/game-handoff/session-claim-token.js";
 import { LobbyServer } from "../../lobby-server/index.js";
+import { NodeWebSocketIncomingConnectionGateway } from "../../node-websocket-incoming-connection-gateway.js";
+import { WebSocketServer } from "ws";
 
 export const TEST_GAME_SERVER_NAME = "test game server name";
+export const TEST_LOBBY_SERVER_PORT = 8090;
+export const TEST_GAME_SERVER_PORT = 8091;
+export const TEST_LOBBY_URL = localServerUrl(TEST_LOBBY_SERVER_PORT);
+/** Clients don't need to know their connection id */
+export const CLIENT_CONNECTION_ENDPOINT_NIL_ID = "" as ConnectionId;
+
+export function localServerUrl(port: number) {
+  return `ws://localhost:${port}`;
+}
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class TestHelpers {
-  static async createInMemoryTransportWithTestServers() {
-    const lobbyInMemoryTransport = new InMemoryTransport();
+  static async createTestServers() {
     const gameSessionStoreService = new InMemoryGameSessionStoreService();
     const reconnectionForwardingStoreService = new InMemoryReconnectionForwardingStoreService();
     const savedCharactersService = new SavedCharactersService(
@@ -42,15 +50,15 @@ export class TestHelpers {
       new InMemoryRaceGameRecordsPersistenceStrategy()
     );
 
-    const localLobbyInMemoryIncomingConnectionGateway = new InMemoryIncomingConnectionGateway(
-      lobbyInMemoryTransport.getServerConnectionEndpointManager()
+    const lobbyWebSocketServer = new WebSocketServer({ port: TEST_LOBBY_SERVER_PORT });
+    const lobbyIncomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(
+      lobbyWebSocketServer
     );
-
     const testSecret = await SodiumHelpers.createSecret();
     const codec = new OpaqueEncryptionSessionClaimTokenCodec(testSecret);
 
     const lobbyServer = new LobbyServer(
-      localLobbyInMemoryIncomingConnectionGateway,
+      lobbyIncomingConnectionGateway,
       TestHelpers.createLobbyTestServices(
         gameSessionStoreService,
         reconnectionForwardingStoreService,
@@ -60,14 +68,14 @@ export class TestHelpers {
       codec
     );
 
-    const gameServerInMemoryTransport = new InMemoryTransport();
-    const localGameServerIncomingConnectionGateway = new InMemoryIncomingConnectionGateway(
-      gameServerInMemoryTransport.getServerConnectionEndpointManager()
+    const gameServerWebSocketServer = new WebSocketServer({ port: TEST_GAME_SERVER_PORT });
+    const gameServerIncomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(
+      gameServerWebSocketServer
     );
 
     const gameServer = new GameServer(
       TEST_GAME_SERVER_NAME as GameServerName,
-      localGameServerIncomingConnectionGateway,
+      gameServerIncomingConnectionGateway,
       TestHelpers.createGameServerTestServices(
         gameSessionStoreService,
         reconnectionForwardingStoreService,
@@ -78,7 +86,7 @@ export class TestHelpers {
       codec
     );
 
-    return { lobbyInMemoryTransport, gameServerInMemoryTransport, lobbyServer, gameServer };
+    return { lobbyServer, gameServer };
   }
 
   private static createLobbyTestServices(

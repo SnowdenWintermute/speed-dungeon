@@ -1,19 +1,19 @@
-import { InMemoryConnectionEndpointManager } from "../transport/in-memory-connection-endpoint-manager.js";
-import { IncomingConnectionGateway } from "./incoming-connection-gateway.js";
+// import { InMemoryConnectionEndpointManager } from "../transport/in-memory-connection-endpoint-manager.js";
+// import { IncomingConnectionGateway } from "./incoming-connection-gateway.js";
 
-export class InMemoryIncomingConnectionGateway extends IncomingConnectionGateway {
-  constructor(private localServerConnectionEndpointManager: InMemoryConnectionEndpointManager) {
-    super();
-  }
+// export class InMemoryIncomingConnectionGateway extends IncomingConnectionGateway {
+//   constructor(private localServerConnectionEndpointManager: InMemoryConnectionEndpointManager) {
+//     super();
+//   }
 
-  listen() {
-    this.localServerConnectionEndpointManager.setNewConnectionHandler(
-      async (connection, identityContext) => {
-        await this.requireConnectionHandler()(connection, identityContext);
-      }
-    );
-  }
-}
+//   listen() {
+//     this.localServerConnectionEndpointManager.setNewConnectionHandler(
+//       async (connection, identityContext) => {
+//         await this.requireConnectionHandler()(connection, identityContext);
+//       }
+//     );
+//   }
+// }
 
 // this.io.of("/").on("connection", async (socket) => {
 //   const transportEndpoint = new SocketConnectionEndpoint(socket);
