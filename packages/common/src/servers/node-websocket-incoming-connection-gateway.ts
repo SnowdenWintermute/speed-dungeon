@@ -6,11 +6,6 @@ import { QUERY_PARAMS } from "./query-params.js";
 import { GuestSessionReconnectionToken } from "../aliases.js";
 import { NodeWebSocketConnectionEndpoint } from "../transport/node-websocket-connection-endpoint.js";
 
-export interface SocketHandshakeData {
-  cookie?: string;
-  [header: string]: string | string[] | undefined;
-}
-
 export class NodeWebSocketIncomingConnectionGateway extends IncomingConnectionGateway {
   constructor(private wss: WebSocketServer) {
     super();
@@ -23,6 +18,7 @@ export class NodeWebSocketIncomingConnectionGateway extends IncomingConnectionGa
   protected parseConnectionIdentityContext(
     request: IncomingMessage
   ): ConnectionIdentityResolutionContext {
+    // @SECURITY - validate the query params
     if (request.url === undefined) {
       throw new Error("no url in handshake");
     }
@@ -30,8 +26,6 @@ export class NodeWebSocketIncomingConnectionGateway extends IncomingConnectionGa
     const url = new URL(request.url, `http://${request.headers.host}`);
     const reconnectionToken = url.searchParams.get(QUERY_PARAMS.GUEST_RECONNECTION_TOKEN);
     const sessionClaimToken = url.searchParams.get(QUERY_PARAMS.SESSION_CLAIM_TOKEN);
-
-    // @SECURITY - validate the query params
 
     const cookies = Object.fromEntries(
       request.headers.cookie?.split("; ").map((c) => c.split("=")) ?? []
@@ -47,11 +41,6 @@ export class NodeWebSocketIncomingConnectionGateway extends IncomingConnectionGa
 
   listen() {
     this.wss.on("connection", async (socket, request) => {
-      console.log("got connection");
-      if (request.url === undefined) {
-        throw new Error("no url in handshake");
-      }
-
       const identityContext = this.parseConnectionIdentityContext(request);
 
       const untypedEndpoint = new NodeWebSocketConnectionEndpoint(socket, this.issueConnectionId());

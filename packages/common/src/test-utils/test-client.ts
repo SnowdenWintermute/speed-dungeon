@@ -112,7 +112,7 @@ export class TestClient {
     return messageFromServer;
   }
 
-  static MESSAGE_WAIT_TIMEOUT = 400 as Milliseconds;
+  static MESSAGE_WAIT_TIMEOUT = 300 as Milliseconds;
 
   async awaitGameStateUpdate<T extends GameStateUpdateType>(
     expectedReplyType: T,

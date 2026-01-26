@@ -106,7 +106,7 @@ export interface GameStateUpdateMap {
     username: Username;
   };
   [GameStateUpdateType.ErrorMessage]: {
-    message: Username;
+    message: string;
   };
   [GameStateUpdateType.GameFullUpdate]: {
     game: SpeedDungeonGame | null;

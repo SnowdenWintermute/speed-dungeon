@@ -115,7 +115,7 @@ export class TestHelpers {
     return externalServices;
   }
 
-  private static createGameServerTestServices(
+  static createGameServerTestServices(
     gameSessionStoreService: GameSessionStoreService,
     reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     savedCharactersService: SavedCharactersService,

@@ -1,59 +1,129 @@
-// import { ConnectionId, UntypedEndpointBrand } from "../aliases.js";
-// import { UntypedConnectionEndpoint } from "./connection-endpoint.js";
-// import { TransportDisconnectReason, TransportDisconnectReasonType } from "./disconnect-reasons.js";
+import { EventEmitter } from "events";
+import { ConnectionId } from "../aliases.js";
+import { ConnectionEndpoint, ConnectionEndpointReadyState } from "./connection-endpoint.js";
 
-// export class UntypedInMemoryConnectionEndpoint extends UntypedConnectionEndpoint {
-//   private subscribeAllHandler: ((message: unknown) => void) | null = null;
-//   private disconnectHandler: ((reason: TransportDisconnectReason) => Promise<void>) | null = null;
-//   private alreadyClosed = false;
+export class InMemoryConnectionEndpoint extends EventEmitter implements ConnectionEndpoint {
+  readyState: ConnectionEndpointReadyState = ConnectionEndpointReadyState.CONNECTING;
 
-//   readonly [UntypedEndpointBrand] = true;
+  private peer?: InMemoryConnectionEndpoint;
 
-//   constructor(
-//     public readonly id: ConnectionId,
-//     /**
-//       ask the transport to deliver this message as someone’s inbound. Basically they will
-//       call receive on their paired endpoint, but they don't know that explicitly. Analogous to socket.emit
-//     * */
-//     private readonly deliverInbound: (message: unknown) => void,
-//     private readonly onClose: () => Promise<void>
-//   ) {
-//     super();
-//   }
+  constructor(readonly id: ConnectionId) {
+    super();
+    this.triggerOpen();
+  }
 
-//   // analogous to socket.emit
-//   send(message: unknown): void {
-//     this.deliverInbound(message);
-//   }
+  setPeer(peer: InMemoryConnectionEndpoint): void {
+    this.peer = peer;
+  }
 
-//   // analogous to socket.on("someEventWeAgreeOn", (data)=>void)
-//   subscribeAll(
-//     handler: (message: unknown) => void,
-//     disconnectHandler: (reason: TransportDisconnectReason) => Promise<void>
-//   ): void {
-//     this.subscribeAllHandler = handler;
-//     this.disconnectHandler = disconnectHandler;
-//   }
+  /** Emit 'open' asynchronously, matching node "ws" WebSocket timing.
+      This is slightly different than browser's WebSocket timing which uses a Macrotask or just "task" */
+  triggerOpen(): void {
+    queueMicrotask(() => {
+      if (this.readyState === ConnectionEndpointReadyState.CONNECTING) {
+        this.readyState = ConnectionEndpointReadyState.OPEN;
+        this.emit("open");
+      }
+    });
+  }
 
-//   // analogous to having the "someEventWeAgreeOn" subscribed event fire
-//   receive(message: unknown): void {
-//     this.subscribeAllHandler?.(message);
-//   }
+  /** Async delivery to peer to ensure timing expectations in tests */
+  send(data: string | Buffer | ArrayBuffer): void {
+    if (this.readyState !== ConnectionEndpointReadyState.OPEN) {
+      throw new Error("WebSocket is not open: readyState " + this.readyState);
+    }
 
-//   async close(): Promise<void> {
-//     if (this.alreadyClosed) {
-//       return;
-//     }
+    queueMicrotask(() => {
+      if (this.peer && this.peer.readyState === ConnectionEndpointReadyState.OPEN) {
+        this.peer.emit("message", data);
+      }
+    });
+  }
 
-//     this.alreadyClosed = true;
+  close(code: number = 1000, reason: string = ""): void {
+    const closingStates = [
+      ConnectionEndpointReadyState.CLOSING,
+      ConnectionEndpointReadyState.CLOSED,
+    ];
 
-//     if (this.disconnectHandler === null) {
-//       // In memory endpoint closed without a disconnect handler
-//     } else {
-//       await this.disconnectHandler(
-//         new TransportDisconnectReason(TransportDisconnectReasonType.TransportClose)
-//       );
-//     }
-//     await this.onClose();
-//   }
-// }
+    if (closingStates.includes(this.readyState)) {
+      return;
+    }
+
+    this.readyState = ConnectionEndpointReadyState.CLOSING;
+
+    queueMicrotask(() => {
+      this.readyState = ConnectionEndpointReadyState.CLOSED;
+      this.emit("close", code, reason);
+
+      if (this.peer === undefined) {
+        return;
+      }
+
+      const peerStillOpen = this.peer.readyState !== ConnectionEndpointReadyState.CLOSED;
+      if (peerStillOpen) {
+        this.peer.readyState = ConnectionEndpointReadyState.CLOSED;
+        this.peer.emit("close", code, reason);
+      }
+    });
+  }
+
+  ping(data?: any, mask?: boolean, callback?: (err?: Error) => void): void {
+    if (this.readyState !== ConnectionEndpointReadyState.OPEN) {
+      callback?.(new Error("WebSocket is not open"));
+      return;
+    }
+
+    queueMicrotask(() => {
+      if (this.peer && this.peer.readyState === ConnectionEndpointReadyState.OPEN) {
+        const buffer = data ? Buffer.from(data) : Buffer.alloc(0);
+        this.peer.emit("ping", buffer);
+        // Auto-respond with pong (like real WebSocket)
+        this.peer.pong(buffer, mask, () => {
+          // no-op
+        });
+      }
+      callback?.();
+    });
+  }
+
+  pong(data?: any, mask?: boolean, callback?: (err?: Error) => void): void {
+    if (this.readyState !== ConnectionEndpointReadyState.OPEN) {
+      callback?.(new Error("WebSocket is not open"));
+      return;
+    }
+
+    queueMicrotask(() => {
+      if (this.peer && this.peer.readyState === ConnectionEndpointReadyState.OPEN) {
+        const buffer = data ? Buffer.from(data) : Buffer.alloc(0);
+        this.peer.emit("pong", buffer);
+      }
+      callback?.();
+    });
+  }
+
+  // EventEmitter methods are inherited, but we need proper typing
+  on(event: "open", listener: () => void): this;
+  on(event: "message", listener: (data: string | Buffer | ArrayBuffer) => void): this;
+  on(event: "close", listener: (code: number, reason: string) => void): this;
+  on(event: "error", listener: (error: Error) => void): this;
+  on(event: "ping", listener: (data: Buffer) => void): this;
+  on(event: "pong", listener: (data: Buffer) => void): this;
+  on(event: string, listener: (...args: any[]) => void): this {
+    return super.on(event, listener);
+  }
+
+  once(event: "open", listener: () => void): this;
+  once(event: "message", listener: (data: string | Buffer | ArrayBuffer) => void): this;
+  once(event: "close", listener: (code: number, reason: string) => void): this;
+  once(event: "error", listener: (error: Error) => void): this;
+  once(event: "ping", listener: (data: Buffer) => void): this;
+  once(event: "pong", listener: (data: Buffer) => void): this;
+  once(event: string, listener: (...args: any[]) => void): this {
+    return super.once(event, listener);
+  }
+
+  off(event: string, listener: (...args: any[]) => void): this {
+    return super.off(event, listener);
+  }
+}

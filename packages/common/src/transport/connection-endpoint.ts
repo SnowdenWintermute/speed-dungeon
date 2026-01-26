@@ -1,4 +1,4 @@
-import { ConnectionId } from "../aliases";
+import { ConnectionId } from "../aliases.js";
 
 export enum ConnectionEndpointReadyState {
   CONNECTING = 0,
@@ -11,7 +11,6 @@ export interface ConnectionEndpoint {
   id: ConnectionId;
   readyState: ConnectionEndpointReadyState;
 
-  // Event handlers
   on(event: "open", listener: () => void): this;
   on(event: "message", listener: (data: string | Buffer | ArrayBuffer) => void): this;
   on(event: "close", listener: (code: number, reason: string) => void): this;

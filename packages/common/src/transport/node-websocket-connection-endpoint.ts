@@ -7,7 +7,7 @@ export class NodeWebSocketConnectionEndpoint implements ConnectionEndpoint {
 
   constructor(
     ws: WebSocket,
-    public readonly id: ConnectionId
+    readonly id: ConnectionId
   ) {
     this.ws = ws;
   }

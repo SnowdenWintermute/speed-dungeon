@@ -147,7 +147,7 @@ export class GameServer extends SpeedDungeonServer {
   // @TODO - combine with lobby server, it is almost exact same other than disconnection session logic
   protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
     console.info(
-      `-- ${session.username} (${session.connectionId}) disconnected from ${this.name} game server. Reason - ${reason.getStringName()}`
+      `-- ${session.username} (${session.connectionId}) disconnected from ${this.name} game server.`
     );
 
     const outbox = await this.reconnectionProtocol.onPlayerDisconnected(session, this.name);

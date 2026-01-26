@@ -144,9 +144,7 @@ export class LobbyServer extends SpeedDungeonServer {
   }
 
   protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
-    console.info(
-      `-- ${session.username} (${session.connectionId})  disconnected. Reason - ${reason.getStringName()}`
-    );
+    console.info(`-- ${session.username} (${session.connectionId})  disconnected.`);
     const outbox = await this.userSessionLifecycleController.cleanupSession(session);
     this.outgoingMessagesGateway.unregisterEndpoint(session.connectionId);
     this.dispatchOutboxMessages(outbox);

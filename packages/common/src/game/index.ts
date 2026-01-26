@@ -52,7 +52,7 @@ export class SpeedDungeonGame {
 
   static getDeserialized(game: SpeedDungeonGame) {
     const deserializedPlayers = new Map<Username, SpeedDungeonPlayer>();
-    for (const [username, player] of game.players) {
+    for (const [username, player] of Object.entries(game.players)) {
       SpeedDungeonPlayer.deserialize(player);
       deserializedPlayers.set(username as Username, player);
     }

@@ -1,5 +1,5 @@
 import { ClientIntent } from "../packets/client-intents.js";
-import { GameStateUpdate } from "../packets/game-state-updates.js";
+import { GameStateUpdate, GameStateUpdateType } from "../packets/game-state-updates.js";
 import { ConnectionEndpoint } from "../transport/connection-endpoint.js";
 import { TransportDisconnectReason } from "../transport/disconnect-reasons.js";
 import { BasicRandomNumberGenerator } from "../utility-classes/randomizers.js";
@@ -75,8 +75,23 @@ export abstract class SpeedDungeonServer {
       // intersection of all payload types, which collapses to `never`.
       // Since we look up handler in a typed record and check it is not undefined
       // we can say the data is the correct type for the handler
-      const outbox = await handlerOption(parsed.data as never, session);
-      this.dispatchOutboxMessages(outbox);
+      try {
+        const outbox = await handlerOption(parsed.data as never, session);
+        this.dispatchOutboxMessages(outbox);
+      } catch (error) {
+        if (error instanceof Error) {
+          const errorOutbox = new MessageDispatchOutbox<GameStateUpdate>(
+            this.updateDispatchFactory
+          );
+          errorOutbox.pushToConnection(session.connectionId, {
+            type: GameStateUpdateType.ErrorMessage,
+            data: { message: error.message },
+          });
+          this.dispatchOutboxMessages(errorOutbox);
+        } else {
+          console.trace(error);
+        }
+      }
     });
     userConnectionEndpoint.on("close", async (reason) => {
       this.disconnectionHandler(session, reason);
