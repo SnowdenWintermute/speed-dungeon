@@ -19,7 +19,6 @@ export class MessageDispatchOutbox<Sendable> {
     for (const dispatch of this.list) {
       if (dispatch.type === MessageDispatchType.Single) {
         if (connectionIds.includes(dispatch.connectionId)) {
-          console.log("filtering---");
           continue;
         }
       } else {
@@ -30,8 +29,6 @@ export class MessageDispatchOutbox<Sendable> {
       }
       newList.push(dispatch);
     }
-
-    console.log("after filteringout:", newList);
 
     this.list = newList;
   }
