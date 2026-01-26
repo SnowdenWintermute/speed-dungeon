@@ -9,7 +9,12 @@ import { createTestWebSocketIncomingConnectionGateways } from "./create-test-web
 
 export interface ClientEndpointFactory {
   name: string;
-  createClientEndpoint(url: string): ConnectionEndpoint;
+  createClientEndpoint(
+    url: string,
+    options?: {
+      headers?: Record<string, string>;
+    }
+  ): ConnectionEndpoint;
   createIncomingConnectionGateways(): {
     lobbyIncomingConnectionGateway: IncomingConnectionGateway;
     gameServerIncomingConnectionGateway: IncomingConnectionGateway;
@@ -18,9 +23,14 @@ export interface ClientEndpointFactory {
 
 const websocketFactory: ClientEndpointFactory = {
   name: "node-websocket",
-  createClientEndpoint(url) {
+  createClientEndpoint(
+    url,
+    options?: {
+      headers?: Record<string, string>;
+    }
+  ) {
     return new NodeWebSocketConnectionEndpoint(
-      new WebSocket(url),
+      new WebSocket(url, options),
       CLIENT_CONNECTION_ENDPOINT_NIL_ID
     );
   },
@@ -31,8 +41,13 @@ const websocketFactory: ClientEndpointFactory = {
 
 const inMemoryFactory: ClientEndpointFactory = {
   name: "in-memory",
-  createClientEndpoint(url) {
-    return InMemoryConnectionEndpointServerRegistry.singleton.connect(url);
+  createClientEndpoint(
+    url,
+    options?: {
+      headers?: Record<string, string>;
+    }
+  ) {
+    return InMemoryConnectionEndpointServerRegistry.singleton.connect(url, options);
   },
   createIncomingConnectionGateways() {
     return createTestInMemoryIncomingConnectionGateways();

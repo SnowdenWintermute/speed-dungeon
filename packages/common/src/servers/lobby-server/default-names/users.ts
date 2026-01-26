@@ -72,6 +72,7 @@ export const RANDOM_PARTY_NAMES = [
   "The Crew of Moya",
   "The Attenders",
   "Descender's Anonymous",
+  "French 75",
 ];
 
 // export const RANDOM_CHARACTER_NAMES_FIRST: [&str; 10] = [

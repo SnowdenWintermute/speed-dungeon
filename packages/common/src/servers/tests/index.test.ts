@@ -47,7 +47,7 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)("$name lobby server", (clientE
     gameServer.closeTransportServer();
   });
 
-  it("minimum parties", async () => {
+  it("minimum characters", async () => {
     const { hostClient, joinerClient } =
       await testGameSetupToTwoPlayersInParty(clientEndpointFactory);
     await hostClient.sendMessageAndAwaitReplyType(

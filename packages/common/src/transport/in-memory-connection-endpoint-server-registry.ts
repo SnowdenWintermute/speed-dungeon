@@ -27,7 +27,9 @@ export class InMemoryConnectionEndpointServerRegistry {
     const serverAddress = `${url.protocol}//${url.host}`;
 
     const server = this.servers.get(serverAddress);
-    if (!server) throw new Error(`No server at: ${serverAddress}`);
+    if (!server) {
+      throw new Error(`No server at: ${serverAddress}`);
+    }
 
     const clientEndpoint = new InMemoryConnectionEndpoint(CLIENT_CONNECTION_ENDPOINT_NIL_ID);
 
