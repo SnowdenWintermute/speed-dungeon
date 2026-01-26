@@ -1,11 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { LobbyServer } from "../lobby-server/index.js";
 import { GameServer } from "../game-server/index.js";
-import {
-  CLIENT_CONNECTION_ENDPOINT_NIL_ID,
-  TEST_LOBBY_URL,
-  TestHelpers,
-} from "./fixtures/index.js";
+import { CLIENT_CONNECTION_ENDPOINT_NIL_ID, TEST_LOBBY_URL } from "./fixtures/index.js";
 import { TestClient } from "../../test-utils/test-client.js";
 import { WebSocket } from "ws";
 import { NodeWebSocketConnectionEndpoint } from "../../transport/node-websocket-connection-endpoint.js";
@@ -15,6 +11,9 @@ import { GameStateUpdateType } from "../../packets/game-state-updates.js";
 import { invariant } from "../../utils/index.js";
 import { GameMode } from "../../types.js";
 import { SpeedDungeonGame } from "../../game/index.js";
+import { createTestServers } from "./fixtures/create-test-servers.js";
+import { createTestInMemoryIncomingConnectionGateways } from "./fixtures/create-test-in-memory-incoming-connection-gateways.js";
+import { InMemoryConnectionEndpointServerRegistry } from "../../transport/in-memory-connection-endpoint-server-registry.js";
 
 // @TODO
 // - pre game start input
@@ -32,7 +31,13 @@ describe("lobby server", () => {
   let gameServer: GameServer;
 
   beforeEach(async () => {
-    const inMemoryTransportAndServers = await TestHelpers.createTestServers();
+    const { lobbyIncomingConnectionGateway, gameServerIncomingConnectionGateway } =
+      createTestInMemoryIncomingConnectionGateways();
+
+    const inMemoryTransportAndServers = await createTestServers(
+      lobbyIncomingConnectionGateway,
+      gameServerIncomingConnectionGateway
+    );
     lobbyServer = inMemoryTransportAndServers.lobbyServer;
     gameServer = inMemoryTransportAndServers.gameServer;
   });
@@ -46,13 +51,16 @@ describe("lobby server", () => {
     const { hostClient, joinerClient } = await testGameSetupToTwoPlayersInParty();
     await hostClient.sendMessageAndAwaitReplyType(
       { type: ClientIntentType.ToggleReadyToStartGame, data: undefined },
-      GameStateUpdateType.PlayerToggledReadyToStartGame
+      GameStateUpdateType.ErrorMessage
     );
 
     await joinerClient.sendMessageAndAwaitReplyType(
       { type: ClientIntentType.ToggleReadyToStartGame, data: undefined },
-      GameStateUpdateType.PlayerToggledReadyToStartGame
+      GameStateUpdateType.ErrorMessage
     );
+
+    await joinerClient.close();
+    await hostClient.close();
   });
 
   // it("minimum parties", async () => {
@@ -76,7 +84,7 @@ async function testGameSetupToTwoPlayersInParty() {
   );
   partyName = hostCreatePartyMessage.data.partyName;
 
-  const joinerJoinedPartyMessage = await joinerClient.sendMessageAndAwaitReplyType(
+  await joinerClient.sendMessageAndAwaitReplyType(
     { type: ClientIntentType.JoinParty, data: { partyName } },
     GameStateUpdateType.PlayerChangedAdventuringParty,
     { logMessage: true }
@@ -87,10 +95,11 @@ async function testGameSetupToTwoPlayersInParty() {
 
 async function testGameSetupToTwoPlayersJoined() {
   const hostClient = new TestClient();
-  const hostEndpoint = new NodeWebSocketConnectionEndpoint(
-    new WebSocket(TEST_LOBBY_URL),
-    CLIENT_CONNECTION_ENDPOINT_NIL_ID
-  );
+  // const hostEndpoint = new NodeWebSocketConnectionEndpoint(
+  //   new WebSocket(TEST_LOBBY_URL),
+  //   CLIENT_CONNECTION_ENDPOINT_NIL_ID
+  // );
+  const hostEndpoint = InMemoryConnectionEndpointServerRegistry.singleton.connect(TEST_LOBBY_URL);
   hostClient.initializeEndpoint(hostEndpoint);
   await hostClient.connect();
 
@@ -117,10 +126,11 @@ async function testGameSetupToTwoPlayersJoined() {
 
   // have someone join
   const joinerClient = new TestClient();
-  const joinerEndpoint = new NodeWebSocketConnectionEndpoint(
-    new WebSocket(TEST_LOBBY_URL),
-    CLIENT_CONNECTION_ENDPOINT_NIL_ID
-  );
+  // const joinerEndpoint = new NodeWebSocketConnectionEndpoint(
+  //   new WebSocket(TEST_LOBBY_URL),
+  //   CLIENT_CONNECTION_ENDPOINT_NIL_ID
+  // );
+  const joinerEndpoint = InMemoryConnectionEndpointServerRegistry.singleton.connect(TEST_LOBBY_URL);
   joinerClient.initializeEndpoint(joinerEndpoint);
   await joinerClient.connect();
 

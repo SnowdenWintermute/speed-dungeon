@@ -6,6 +6,11 @@ import {
 import { InMemoryConnectionEndpoint } from "./in-memory-connection-endpoint.js";
 
 export class InMemoryConnectionEndpointServerRegistry {
+  private static _singleton = new InMemoryConnectionEndpointServerRegistry();
+  static get singleton() {
+    return this._singleton;
+  }
+
   private servers = new Map<string, InMemoryConnectionEndpointServer>();
 
   registerServer(address: string, server: InMemoryConnectionEndpointServer): void {

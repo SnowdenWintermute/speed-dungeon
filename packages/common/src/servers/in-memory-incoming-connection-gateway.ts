@@ -1,35 +1,19 @@
-// import { InMemoryConnectionEndpointManager } from "../transport/in-memory-connection-endpoint-manager.js";
-// import { IncomingConnectionGateway } from "./incoming-connection-gateway.js";
+import { IncomingConnectionGateway } from "./incoming-connection-gateway.js";
+import { InMemoryConnectionEndpointServer } from "../transport/in-memory-connection-endpoint-server.js";
 
-// export class InMemoryIncomingConnectionGateway extends IncomingConnectionGateway {
-//   constructor(private localServerConnectionEndpointManager: InMemoryConnectionEndpointManager) {
-//     super();
-//   }
+export class InMemoryIncomingConnectionGateway extends IncomingConnectionGateway {
+  constructor(private inMemoryConnectionEndpointServer: InMemoryConnectionEndpointServer) {
+    super();
+  }
 
-//   listen() {
-//     this.localServerConnectionEndpointManager.setNewConnectionHandler(
-//       async (connection, identityContext) => {
-//         await this.requireConnectionHandler()(connection, identityContext);
-//       }
-//     );
-//   }
-// }
+  close() {
+    this.inMemoryConnectionEndpointServer.close();
+  }
 
-// this.io.of("/").on("connection", async (socket) => {
-//   const transportEndpoint = new SocketConnectionEndpoint(socket);
-//   const req = socket.request;
-//   const cookies = req.headers.cookie;
-//   this.handleConnection(transportEndpoint, { cookies });
-//   socket.on(ClientToServerEvent.ClientIntent, (clientIntent) => {
-//     this.dispatchIntent(clientIntent, socket.id as ConnectionId);
-//   });
-//   socket.on("disconnect", (reason) => {
-//     this.dispatchIntent(
-//       {
-//         type: ClientIntentType.Disconnection,
-//         data: { reason: new TransportDisconnectReason(SOCKET_IO_DISCONNECT_REASONS[reason]) },
-//       },
-//       socket.id as ConnectionId
-//     );
-//   });
-// });
+  listen() {
+    this.inMemoryConnectionEndpointServer.on("connection", async (untypedEndpoint, request) => {
+      const identityContext = this.parseConnectionIdentityContext(request);
+      await this.requireConnectionHandler()(untypedEndpoint, identityContext);
+    });
+  }
+}

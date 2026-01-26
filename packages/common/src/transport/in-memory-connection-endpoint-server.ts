@@ -6,7 +6,7 @@ import { IncomingMessage } from "http";
 
 export interface InMemoryConnectionRequest {
   url: string;
-  headers: Record<string, string | string[] | undefined>;
+  headers: Record<string, string | undefined>;
   method?: string;
 }
 
