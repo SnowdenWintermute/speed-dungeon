@@ -2,7 +2,6 @@ import { EventEmitter } from "events";
 import { InMemoryConnectionEndpoint } from "./in-memory-connection-endpoint.js";
 import { ConnectionId } from "../aliases.js";
 import { v4 as uuidv4 } from "uuid";
-import { IncomingMessage } from "http";
 
 export interface InMemoryConnectionRequest {
   url: string;
@@ -62,10 +61,7 @@ export class InMemoryConnectionEndpointServer extends EventEmitter {
   // Match ws.WebSocketServer interface
   on(
     event: "connection",
-    listener: (
-      endpoint: InMemoryConnectionEndpoint,
-      request: IncomingMessage | InMemoryConnectionRequest
-    ) => void
+    listener: (endpoint: InMemoryConnectionEndpoint, request: InMemoryConnectionRequest) => void
   ): this;
   on(event: "listening", listener: () => void): this;
   on(event: "error", listener: (error: Error) => void): this;

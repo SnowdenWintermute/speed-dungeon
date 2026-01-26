@@ -12,7 +12,7 @@ export interface ConnectionEndpoint {
   readyState: ConnectionEndpointReadyState;
 
   on(event: "open", listener: () => void): this;
-  on(event: "message", listener: (data: string | Buffer | ArrayBuffer) => void): this;
+  on(event: "message", listener: (data: string | ArrayBuffer) => void): this;
   on(event: "close", listener: (code: number, reason: string) => void): this;
   on(event: "error", listener: (error: Error) => void): this;
   on(event: "ping", listener: (data: Buffer) => void): this;
@@ -20,7 +20,7 @@ export interface ConnectionEndpoint {
   on(event: string, listener: (...args: any[]) => void): this;
 
   once(event: "open", listener: () => void): this;
-  once(event: "message", listener: (data: string | Buffer | ArrayBuffer) => void): this;
+  once(event: "message", listener: (data: string | ArrayBuffer) => void): this;
   once(event: "close", listener: (code: number, reason: string) => void): this;
   once(event: "error", listener: (error: Error) => void): this;
   once(event: "ping", listener: (data: Buffer) => void): this;

@@ -39,7 +39,7 @@ const websocketFactory: ClientEndpointFactory = {
   },
 };
 
-const inMemoryFactory: ClientEndpointFactory = {
+export const inMemoryFactory: ClientEndpointFactory = {
   name: "in-memory",
   createClientEndpoint(
     url,

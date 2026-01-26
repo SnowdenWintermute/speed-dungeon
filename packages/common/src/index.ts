@@ -209,3 +209,9 @@ export * from "./servers/services/race-game-records.js";
 export * from "./servers/game-server/controllers/game-lifecycle/record-types.js";
 export * from "./transport/node-websocket-connection-endpoint.js";
 export * from "./servers/query-params.js";
+
+export * from "./servers/tests/fixtures/create-test-servers.js";
+export * from "./servers/tests/fixtures/create-test-in-memory-incoming-connection-gateways.js";
+export * from "./servers/tests/fixtures/test-connection-endpoint-factories.js";
+export * from "./servers/tests/fixtures/index.js";
+export * from "./test-utils/test-client.js";

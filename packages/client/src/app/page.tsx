@@ -13,6 +13,7 @@ import { SkyColorProvider } from "./SkyColorProvider";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import SceneManager from "./game-world-view-canvas/SceneManager";
+
 // for immer to be able to use map and set
 enableMapSet();
 
