@@ -30,9 +30,12 @@ export class InMemoryConnectionEndpoint extends BaseEmitter implements Connectio
   }
 
   /** Async delivery to peer to ensure timing expectations in tests */
-  send(data: string | Buffer | ArrayBuffer): void {
+  send(data: string | ArrayBuffer, callback?: (err?: Error) => void): void {
     if (this.readyState !== ConnectionEndpointReadyState.OPEN) {
-      throw new Error("WebSocket is not open: readyState " + this.readyState);
+      callback?.(
+        new Error("InMemoryConnectionEndpoint is not open: readyState " + this.readyState)
+      );
+      return;
     }
 
     queueMicrotask(() => {
@@ -64,23 +67,28 @@ export class InMemoryConnectionEndpoint extends BaseEmitter implements Connectio
 
       const peerStillOpen = this.peer.readyState !== ConnectionEndpointReadyState.CLOSED;
       if (peerStillOpen) {
-        this.peer.readyState = ConnectionEndpointReadyState.CLOSED;
-        this.peer.emit("close", code, reason);
+        // Queue peer close separately to simulate network delay
+        queueMicrotask(() => {
+          if (this.peer === undefined) {
+            return;
+          }
+          this.peer.readyState = ConnectionEndpointReadyState.CLOSED;
+          this.peer.emit("close", code, reason);
+        });
       }
     });
   }
 
   ping(data?: any, mask?: boolean, callback?: (err?: Error) => void): void {
     if (this.readyState !== ConnectionEndpointReadyState.OPEN) {
-      callback?.(new Error("WebSocket is not open"));
+      callback?.(new Error("InMemoryConnectionEndpoint is not open"));
       return;
     }
 
     queueMicrotask(() => {
       if (this.peer && this.peer.readyState === ConnectionEndpointReadyState.OPEN) {
-        const buffer = data ? Buffer.from(data) : Buffer.alloc(0);
+        const buffer = data ?? new Uint8Array(0);
         this.peer.emit("ping", buffer);
-        // Auto-respond with pong (like real WebSocket)
         this.peer.pong(buffer, mask, () => {
           // no-op
         });
@@ -97,14 +105,47 @@ export class InMemoryConnectionEndpoint extends BaseEmitter implements Connectio
 
     queueMicrotask(() => {
       if (this.peer && this.peer.readyState === ConnectionEndpointReadyState.OPEN) {
-        const buffer = data ? Buffer.from(data) : Buffer.alloc(0);
-        this.peer.emit("pong", buffer); // emit doesnt't exist
+        const buffer = data ?? new Uint8Array(0);
+        this.peer.emit("pong", buffer);
       }
       callback?.();
     });
   }
 
-  // EventEmitter methods are inherited, but we need proper typing
+  // ping(data?: any, mask?: boolean, callback?: (err?: Error) => void): void {
+  //   if (this.readyState !== ConnectionEndpointReadyState.OPEN) {
+  //     callback?.(new Error("InMemoryConnectionEndpoint is not open"));
+  //     return;
+  //   }
+
+  //   queueMicrotask(() => {
+  //     if (this.peer && this.peer.readyState === ConnectionEndpointReadyState.OPEN) {
+  //       const buffer = data ? Buffer.from(data) : Buffer.alloc(0);
+  //       this.peer.emit("ping", buffer);
+  //       // Auto-respond with pong (like real WebSocket)
+  //       this.peer.pong(buffer, mask, () => {
+  //         // no-op
+  //       });
+  //     }
+  //     callback?.();
+  //   });
+  // }
+
+  // pong(data?: any, mask?: boolean, callback?: (err?: Error) => void): void {
+  //   if (this.readyState !== ConnectionEndpointReadyState.OPEN) {
+  //     callback?.(new Error("WebSocket is not open"));
+  //     return;
+  //   }
+
+  //   queueMicrotask(() => {
+  //     if (this.peer && this.peer.readyState === ConnectionEndpointReadyState.OPEN) {
+  //       const buffer = data ? Buffer.from(data) : Buffer.alloc(0);
+  //       this.peer.emit("pong", buffer); // emit doesnt't exist
+  //     }
+  //     callback?.();
+  //   });
+  // }
+
   on(event: "open", listener: () => void): this;
   on(event: "message", listener: (data: string | ArrayBuffer) => void): this;
   on(event: "close", listener: (code: number, reason: string) => void): this;

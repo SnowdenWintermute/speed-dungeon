@@ -22,7 +22,7 @@ const gameServer = inMemoryTransportAndServers.gameServer;
 
 doesInMemoryTransportWorkOnClient();
 
-async function doesInMemoryTransportWorkOnClient() {
+export async function doesInMemoryTransportWorkOnClient() {
   const hostClient = new TestClient();
   const hostEndpoint = inMemoryFactory.createClientEndpoint(TEST_LOBBY_URL);
   hostClient.initializeEndpoint(hostEndpoint);

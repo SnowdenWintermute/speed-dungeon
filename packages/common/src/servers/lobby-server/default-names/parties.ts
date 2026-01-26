@@ -9,4 +9,5 @@ export const RANDOM_PARTY_NAMES = [
   "The Attenders",
   "Descender's Anonymous",
   "Hello Kitty Bike Club",
+  "Tantalus",
 ];

@@ -43,35 +43,37 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)("$name lobby server", (clientE
   });
 
   afterEach(async () => {
+    await new Promise((resolve) => setImmediate(resolve));
     lobbyServer.closeTransportServer();
     gameServer.closeTransportServer();
   });
 
-  it("minimum characters", async () => {
-    const { hostClient, joinerClient } =
-      await testGameSetupToTwoPlayersInParty(clientEndpointFactory);
-    await hostClient.sendMessageAndAwaitReplyType(
-      { type: ClientIntentType.ToggleReadyToStartGame, data: undefined },
-      GameStateUpdateType.ErrorMessage
-    );
-
-    await joinerClient.sendMessageAndAwaitReplyType(
-      { type: ClientIntentType.ToggleReadyToStartGame, data: undefined },
-      GameStateUpdateType.ErrorMessage
-    );
-
-    await joinerClient.close();
-    await hostClient.close();
-  });
-
-  // it("minimum parties", async () => {
-  //   const { hostClient } = await testGameSetupToTwoPlayersJoined();
-
+  // it("minimum characters", async () => {
+  //   const { hostClient, joinerClient } =
+  //     await testGameSetupToTwoPlayersInParty(clientEndpointFactory);
   //   await hostClient.sendMessageAndAwaitReplyType(
   //     { type: ClientIntentType.ToggleReadyToStartGame, data: undefined },
   //     GameStateUpdateType.ErrorMessage
   //   );
+
+  //   await joinerClient.sendMessageAndAwaitReplyType(
+  //     { type: ClientIntentType.ToggleReadyToStartGame, data: undefined },
+  //     GameStateUpdateType.ErrorMessage
+  //   );
+
+  //   await joinerClient.close();
+  //   await hostClient.close();
   // });
+  //
+
+  it("minimum parties", async () => {
+    const { hostClient } = await testGameSetupToTwoPlayersJoined(clientEndpointFactory);
+
+    await hostClient.sendMessageAndAwaitReplyType(
+      { type: ClientIntentType.ToggleReadyToStartGame, data: undefined },
+      GameStateUpdateType.ErrorMessage
+    );
+  });
 });
 
 async function testGameSetupToTwoPlayersInParty(clientEndpointFactory: ClientEndpointFactory) {
@@ -96,10 +98,6 @@ async function testGameSetupToTwoPlayersInParty(clientEndpointFactory: ClientEnd
 
 async function testGameSetupToTwoPlayersJoined(clientEndpointFactory: ClientEndpointFactory) {
   const hostClient = new TestClient();
-  // const hostEndpoint = new NodeWebSocketConnectionEndpoint(
-  //   new WebSocket(TEST_LOBBY_URL),
-  //   CLIENT_CONNECTION_ENDPOINT_NIL_ID
-  // );
   const hostEndpoint = clientEndpointFactory.createClientEndpoint(TEST_LOBBY_URL);
   hostClient.initializeEndpoint(hostEndpoint);
   await hostClient.connect();

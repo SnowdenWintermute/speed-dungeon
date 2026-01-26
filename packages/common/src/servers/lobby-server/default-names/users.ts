@@ -134,6 +134,14 @@ export const RANDOM_CHARACTER_NAMES_FIRST = [
   "Stark",
   "Sein",
   "Kraft",
+  // FFIX
+  "Blank",
+  "Cinna",
+  "Baku",
+  "Marcus",
+  "Ruby",
+  "Freya",
+  "Beatrix",
 ];
 
 // originals
