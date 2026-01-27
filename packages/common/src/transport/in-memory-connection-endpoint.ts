@@ -112,46 +112,12 @@ export class InMemoryConnectionEndpoint extends BaseEmitter implements Connectio
     });
   }
 
-  // ping(data?: any, mask?: boolean, callback?: (err?: Error) => void): void {
-  //   if (this.readyState !== ConnectionEndpointReadyState.OPEN) {
-  //     callback?.(new Error("InMemoryConnectionEndpoint is not open"));
-  //     return;
-  //   }
-
-  //   queueMicrotask(() => {
-  //     if (this.peer && this.peer.readyState === ConnectionEndpointReadyState.OPEN) {
-  //       const buffer = data ? Buffer.from(data) : Buffer.alloc(0);
-  //       this.peer.emit("ping", buffer);
-  //       // Auto-respond with pong (like real WebSocket)
-  //       this.peer.pong(buffer, mask, () => {
-  //         // no-op
-  //       });
-  //     }
-  //     callback?.();
-  //   });
-  // }
-
-  // pong(data?: any, mask?: boolean, callback?: (err?: Error) => void): void {
-  //   if (this.readyState !== ConnectionEndpointReadyState.OPEN) {
-  //     callback?.(new Error("WebSocket is not open"));
-  //     return;
-  //   }
-
-  //   queueMicrotask(() => {
-  //     if (this.peer && this.peer.readyState === ConnectionEndpointReadyState.OPEN) {
-  //       const buffer = data ? Buffer.from(data) : Buffer.alloc(0);
-  //       this.peer.emit("pong", buffer); // emit doesnt't exist
-  //     }
-  //     callback?.();
-  //   });
-  // }
-
   on(event: "open", listener: () => void): this;
   on(event: "message", listener: (data: string | ArrayBuffer) => void): this;
   on(event: "close", listener: (code: number, reason: string) => void): this;
   on(event: "error", listener: (error: Error) => void): this;
-  on(event: "ping", listener: (data: Buffer) => void): this;
-  on(event: "pong", listener: (data: Buffer) => void): this;
+  on(event: "ping", listener: (data: Uint8Array) => void): this;
+  on(event: "pong", listener: (data: Uint8Array) => void): this;
   on(event: string, listener: (...args: any[]) => void): this {
     return super.on(event, listener); // super can only be referenced in a derived class
   }
@@ -160,8 +126,8 @@ export class InMemoryConnectionEndpoint extends BaseEmitter implements Connectio
   once(event: "message", listener: (data: string | ArrayBuffer) => void): this;
   once(event: "close", listener: (code: number, reason: string) => void): this;
   once(event: "error", listener: (error: Error) => void): this;
-  once(event: "ping", listener: (data: Buffer) => void): this;
-  once(event: "pong", listener: (data: Buffer) => void): this;
+  once(event: "ping", listener: (data: Uint8Array) => void): this;
+  once(event: "pong", listener: (data: Uint8Array) => void): this;
   once(event: string, listener: (...args: any[]) => void): this {
     return super.once(event, listener);
   }

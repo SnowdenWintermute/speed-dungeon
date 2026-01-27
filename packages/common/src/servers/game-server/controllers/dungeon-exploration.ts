@@ -150,9 +150,10 @@ export class DungeonExplorationController {
       },
     });
 
-    const battleProcessor = new BattleProcessor(this, game, party, battleOption);
-    const maybeError = await battleProcessor.processBattleUntilPlayerTurnOrConclusion();
-    if (maybeError instanceof Error) return maybeError;
+    // const battleProcessor = new BattleProcessor(this, game, party, battleOption);
+    // const maybeError = await battleProcessor.processBattleUntilPlayerTurnOrConclusion();
+    // if (maybeError instanceof Error) return maybeError;
+    return outbox;
   }
 
   private putPartyInNextRoom(
