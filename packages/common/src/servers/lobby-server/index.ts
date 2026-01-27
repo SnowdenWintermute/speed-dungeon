@@ -58,7 +58,8 @@ export class LobbyServer extends SpeedDungeonServer {
   constructor(
     protected readonly incomingConnectionGateway: IncomingConnectionGateway,
     private readonly externalServices: LobbyExternalServices,
-    private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
+    private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec,
+    fetchLeastBusyServer: () => Promise<string>
   ) {
     super("LobbyServer", incomingConnectionGateway);
 
@@ -67,7 +68,8 @@ export class LobbyServer extends SpeedDungeonServer {
       this.updateDispatchFactory,
       externalServices.gameSessionStoreService,
       this.lobbyState,
-      this.gameServerSessionClaimTokenCodec
+      this.gameServerSessionClaimTokenCodec,
+      fetchLeastBusyServer
     );
 
     this.incomingConnectionGateway.initialize(
@@ -103,16 +105,15 @@ export class LobbyServer extends SpeedDungeonServer {
     connectionEndpoint: ConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
-    console.log("got connection on lobby");
     const session = await this.userSessionLifecycleController.createSession(
       connectionEndpoint.id,
       identityResolutionContext
     );
 
     const { username, taggedUserId, connectionId } = session;
-    console.info(
-      `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the lobby`
-    );
+    // console.info(
+    //   `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the lobby`
+    // );
 
     if (session.taggedUserId.type === UserIdType.Auth) {
       await this.externalServices.profileService.createProfileIfUserHasNone(

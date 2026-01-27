@@ -21,7 +21,8 @@ export class GameHandoffManager {
     private readonly updateFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly gameSessionStoreService: GameSessionStoreService,
     private readonly lobbyState: LobbyState,
-    private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
+    private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec,
+    private readonly getLeastBusyServerUrl: () => Promise<string>
   ) {}
 
   private getPlayerSessionsInGame(game: SpeedDungeonGame) {
@@ -62,7 +63,7 @@ export class GameHandoffManager {
   async initiateGameHandoff(game: SpeedDungeonGame) {
     // @TODO - resolve to a placeholder url for a single static test server
     // - getLeastBusyGameServerOrProvisionOne()
-    const leastBusyServerUrl = "";
+    const leastBusyServerUrl = await this.getLeastBusyServerUrl();
 
     await this.gameSessionStoreService.writePendingGameSetup(
       game.name,

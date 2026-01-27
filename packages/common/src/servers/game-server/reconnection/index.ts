@@ -102,11 +102,6 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
       return outbox;
     }
 
-    const { username, taggedUserId } = session;
-    console.log(
-      `reconnection is permitted, saving a reconnection session for ${username} ${taggedUserId.id}`
-    );
-
     const disconnectedSession = DisconnectedSession.fromUserSession(session, gameServerName);
     this.reconnectionForwardingStoreService.writeDisconnectedSession(
       session.requireReconnectionKey(),

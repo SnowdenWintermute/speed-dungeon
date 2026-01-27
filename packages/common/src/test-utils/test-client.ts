@@ -3,6 +3,9 @@ import { GameStateUpdate, GameStateUpdateType } from "../packets/game-state-upda
 import { Milliseconds, Username } from "../aliases.js";
 import { ClientIntent } from "../packets/client-intents.js";
 import { ConnectionEndpoint } from "../transport/connection-endpoint.js";
+import { GameServerConnectionInstructions } from "../servers/lobby-server/game-handoff/connection-instructions.js";
+import { ClientEndpointFactory } from "../servers/tests/fixtures/test-connection-endpoint-factories.js";
+import { QUERY_PARAMS } from "../servers/query-params.js";
 
 type GameStateUpdateOfType<T extends GameStateUpdateType> = Extract<GameStateUpdate, { type: T }>;
 
@@ -167,5 +170,36 @@ export class TestClient {
     const asJson = JSON.parse(asString);
     const typedMessage = asJson as GameStateUpdate;
     return typedMessage;
+  }
+
+  async connectToGameServer(
+    endpointFactory: ClientEndpointFactory,
+    connectionInstructions: GameServerConnectionInstructions
+  ) {
+    const hostClientQueryParams = {
+      name: QUERY_PARAMS.SESSION_CLAIM_TOKEN,
+      value: connectionInstructions.encryptedSessionClaimToken,
+    };
+
+    this.initializeEndpoint(
+      endpointFactory.createClientEndpoint(connectionInstructions.url, {
+        queryParams: [hostClientQueryParams],
+      })
+    );
+
+    const hostClientJoinedGameServerMessageListener = this.awaitGameStateUpdate(
+      GameStateUpdateType.GameFullUpdate
+    );
+
+    const reconnectTokenMessageListener = this.awaitGameStateUpdate(
+      GameStateUpdateType.CacheGuestSessionReconnectionToken
+    );
+
+    await this.connect();
+
+    const reconnectionToken = await reconnectTokenMessageListener;
+    const joinedGameServerMessage = await hostClientJoinedGameServerMessageListener;
+
+    return { joinedGameServerMessage, reconnectionToken };
   }
 }

@@ -214,7 +214,6 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
   }
 
   async leaveGameHandler(session: UserSession) {
-    console.log("leave game handler started for user:", session.taggedUserId.id);
     const game = session.getExpectedCurrentGame();
     const partyOption = session.getCurrentPartyOption(game);
 
@@ -243,7 +242,6 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
 
     const noPlayersRemain = game.players.size === 0;
     if (noPlayersRemain) {
-      console.log("no players remain, removing game from registry");
       this.lobbyState.gameRegistry.unregisterGame(game.name);
 
       return outbox; // no one is left to notify about the player leaving so return early

@@ -6,12 +6,14 @@ import { InMemoryConnectionEndpointServerRegistry } from "../../../transport/in-
 import { IncomingConnectionGateway } from "../../incoming-connection-gateway.js";
 import { createTestInMemoryIncomingConnectionGateways } from "./create-test-in-memory-incoming-connection-gateways.js";
 import { createTestWebSocketIncomingConnectionGateways } from "./create-test-websocket-incoming-connection-gateways.js";
+import { urlWithQueryParams } from "../../../utils/url-with-query-params.js";
 
 export interface ClientEndpointFactory {
   name: string;
   createClientEndpoint(
     url: string,
     options?: {
+      queryParams?: { name: string; value: string }[];
       headers?: Record<string, string>;
     }
   ): ConnectionEndpoint;
@@ -26,11 +28,12 @@ const websocketFactory: ClientEndpointFactory = {
   createClientEndpoint(
     url,
     options?: {
+      queryParams?: { name: string; value: string }[];
       headers?: Record<string, string>;
     }
   ) {
     return new NodeWebSocketConnectionEndpoint(
-      new WebSocket(url, options),
+      new WebSocket(urlWithQueryParams(url, options?.queryParams || []), options),
       CLIENT_CONNECTION_ENDPOINT_NIL_ID
     );
   },
@@ -44,10 +47,14 @@ export const inMemoryFactory: ClientEndpointFactory = {
   createClientEndpoint(
     url,
     options?: {
+      queryParams?: { name: string; value: string }[];
       headers?: Record<string, string>;
     }
   ) {
-    return InMemoryConnectionEndpointServerRegistry.singleton.connect(url, options);
+    return InMemoryConnectionEndpointServerRegistry.singleton.connect(
+      urlWithQueryParams(url, options?.queryParams || []),
+      options
+    );
   },
   createIncomingConnectionGateways() {
     return createTestInMemoryIncomingConnectionGateways();

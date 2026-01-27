@@ -18,7 +18,9 @@ import { LobbyServer } from "../../lobby-server/index.js";
 import {
   createGameServerTestServices,
   createLobbyTestServices,
+  localServerUrl,
   TEST_GAME_SERVER_NAME,
+  TEST_GAME_SERVER_PORT,
 } from "./index.js";
 import { IncomingConnectionGateway } from "../../incoming-connection-gateway.js";
 
@@ -40,6 +42,10 @@ export async function createTestServers(
   const testSecret = await SodiumHelpers.createSecret();
   const codec = new OpaqueEncryptionSessionClaimTokenCodec(testSecret);
 
+  async function testLeastBusyServerUrlGetter() {
+    return localServerUrl(TEST_GAME_SERVER_PORT);
+  }
+
   const lobbyServer = new LobbyServer(
     lobbyIncomingConnectionGateway,
     createLobbyTestServices(
@@ -48,7 +54,8 @@ export async function createTestServers(
       savedCharactersService,
       rankedLadderService
     ),
-    codec
+    codec,
+    () => testLeastBusyServerUrlGetter()
   );
 
   const gameServer = new GameServer(

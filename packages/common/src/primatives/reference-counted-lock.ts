@@ -19,13 +19,10 @@ export class ReferenceCountedLock<T> {
       return;
     }
 
-    console.log("added to RC lock:", reference);
-
     this.references.add(reference);
   }
 
   remove(reference: T) {
-    console.log("removed from RC lock:", reference);
     this.references.delete(reference);
   }
 
