@@ -4,7 +4,7 @@ import { GameServer } from "../game-server/index.js";
 import { TEST_LOBBY_URL } from "./fixtures/index.js";
 import { TestClient } from "../../test-utils/test-client.js";
 import { ClientIntentType } from "../../packets/client-intents.js";
-import { GameName, PartyName } from "../../aliases.js";
+import { EntityName, GameName, PartyName } from "../../aliases.js";
 import { GameStateUpdateType } from "../../packets/game-state-updates.js";
 import { invariant } from "../../utils/index.js";
 import { GameMode } from "../../types.js";
@@ -14,6 +14,7 @@ import {
   TEST_CONNECTION_ENDPOINT_FACTORIES,
   ClientEndpointFactory,
 } from "./fixtures/test-connection-endpoint-factories.js";
+import { CombatantClass } from "../../combatants/combatant-class/classes.js";
 
 // @TODO
 // - pre game start input
@@ -48,23 +49,23 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)("$name lobby server", (clientE
     gameServer.closeTransportServer();
   });
 
-  // it("minimum characters", async () => {
-  //   const { hostClient, joinerClient } =
-  //     await testGameSetupToTwoPlayersInParty(clientEndpointFactory);
-  //   await hostClient.sendMessageAndAwaitReplyType(
-  //     { type: ClientIntentType.ToggleReadyToStartGame, data: undefined },
-  //     GameStateUpdateType.ErrorMessage
-  //   );
+  it("game handoff", async () => {
+    const { hostClient, joinerClient } = await testGameSetupToGameHandoff(clientEndpointFactory);
+  });
 
-  //   await joinerClient.sendMessageAndAwaitReplyType(
-  //     { type: ClientIntentType.ToggleReadyToStartGame, data: undefined },
-  //     GameStateUpdateType.ErrorMessage
-  //   );
+  it("minimum characters", async () => {
+    const { hostClient, joinerClient } =
+      await testGameSetupToTwoPlayersInParty(clientEndpointFactory);
+    await hostClient.sendMessageAndAwaitReplyType(
+      { type: ClientIntentType.ToggleReadyToStartGame, data: undefined },
+      GameStateUpdateType.ErrorMessage
+    );
 
-  //   await joinerClient.close();
-  //   await hostClient.close();
-  // });
-  //
+    await joinerClient.sendMessageAndAwaitReplyType(
+      { type: ClientIntentType.ToggleReadyToStartGame, data: undefined },
+      GameStateUpdateType.ErrorMessage
+    );
+  });
 
   it("minimum parties", async () => {
     const { hostClient } = await testGameSetupToTwoPlayersJoined(clientEndpointFactory);
@@ -94,6 +95,70 @@ async function testGameSetupToTwoPlayersInParty(clientEndpointFactory: ClientEnd
   );
 
   return { hostClient, joinerClient, partyName };
+}
+
+async function testGameSetupToGameHandoff(clientEndpointFactory: ClientEndpointFactory) {
+  const { hostClient, joinerClient } =
+    await testGameSetupToTwoPlayersInPartyWithCharacters(clientEndpointFactory);
+
+  const joinerClientHostReadiedListener = joinerClient.awaitGameStateUpdate(
+    GameStateUpdateType.PlayerToggledReadyToStartGame
+  );
+  await hostClient.sendMessageAndAwaitReplyType(
+    {
+      type: ClientIntentType.ToggleReadyToStartGame,
+      data: undefined,
+    },
+    GameStateUpdateType.PlayerToggledReadyToStartGame
+  );
+
+  await joinerClientHostReadiedListener;
+
+  const hostGameHandoffListener = hostClient.awaitGameStateUpdate(
+    GameStateUpdateType.GameServerConnectionInstructions
+  );
+  const joinerGameHandoffListener = joinerClient.awaitGameStateUpdate(
+    GameStateUpdateType.GameServerConnectionInstructions
+  );
+
+  await joinerClient.sendMessageAndAwaitReplyType(
+    {
+      type: ClientIntentType.ToggleReadyToStartGame,
+      data: undefined,
+    },
+    GameStateUpdateType.PlayerToggledReadyToStartGame
+  );
+
+  const handoffMessage = await hostGameHandoffListener;
+  await joinerGameHandoffListener;
+  console.log("handoffMessage:", handoffMessage);
+
+  return { hostClient, joinerClient };
+}
+
+async function testGameSetupToTwoPlayersInPartyWithCharacters(
+  clientEndpointFactory: ClientEndpointFactory
+) {
+  const { hostClient, joinerClient } =
+    await testGameSetupToTwoPlayersInParty(clientEndpointFactory);
+
+  await hostClient.sendMessageAndAwaitReplyType(
+    {
+      type: ClientIntentType.CreateCharacter,
+      data: { combatantClass: CombatantClass.Warrior, name: "" as EntityName },
+    },
+    GameStateUpdateType.CharacterAddedToParty
+  );
+
+  await joinerClient.sendMessageAndAwaitReplyType(
+    {
+      type: ClientIntentType.CreateCharacter,
+      data: { combatantClass: CombatantClass.Mage, name: "" as EntityName },
+    },
+    GameStateUpdateType.CharacterAddedToParty
+  );
+
+  return { hostClient, joinerClient };
 }
 
 async function testGameSetupToTwoPlayersJoined(clientEndpointFactory: ClientEndpointFactory) {
