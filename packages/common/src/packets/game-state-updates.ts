@@ -153,7 +153,7 @@ export interface GameStateUpdateMap {
     connectionInstructions: GameServerConnectionInstructions;
   };
   [GameStateUpdateType.PlayerToggledReadyToDescendOrExplore]: {
-    characterId: string;
+    username: Username;
     explorationAction: ExplorationAction;
   };
   [GameStateUpdateType.DungeonRoomTypesOnCurrentFloor]: {

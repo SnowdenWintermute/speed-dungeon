@@ -1,4 +1,4 @@
-import { ClientIntentMap } from "../../packets/client-intents.js";
+import { ClientIntentMap, ClientIntentType } from "../../packets/client-intents.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 import { GameServer } from "./index.js";
@@ -35,6 +35,9 @@ export function createGameServerClientIntentHandlers(
     //
     // // DUNGEON EXPLORATION
     // ToggleReadyToExplore,
+
+    [ClientIntentType.ToggleReadyToExplore]: (_, user) =>
+      gameServer.dungeonExplorationController.toggleReadyToExploreHandler(user),
     // ToggleReadyToDescend,
     //
     // // EQUIPMENT

@@ -111,6 +111,12 @@ export class AdventuringParty {
     return this.combatantManager.monstersArePresent();
   }
 
+  requireNotInCombat() {
+    if (this.isInCombat()) {
+      throw new Error(ERROR_MESSAGES.PARTY.CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT);
+    }
+  }
+
   removeCharacter(
     characterId: EntityId,
     player: SpeedDungeonPlayer,
@@ -130,5 +136,11 @@ export class AdventuringParty {
 
   setCurrentRoom(room: DungeonRoom) {
     this.currentRoom = room;
+  }
+
+  requireInputUnlocked() {
+    if (this.inputLock.isLocked()) {
+      throw new Error(ERROR_MESSAGES.PARTY.INPUT_IS_LOCKED);
+    }
   }
 }

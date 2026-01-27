@@ -25,6 +25,7 @@ import { GameServerReconnectionProtocol } from "./reconnection/index.js";
 import { ConnectionContextType } from "../reconnection-protocol/index.js";
 import { ActiveGameStatus } from "../services/game-session-store/active-game-status.js";
 import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
+import { DungeonExplorationController } from "./controllers/dungeon-exploration.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -49,6 +50,7 @@ export class GameServer extends SpeedDungeonServer {
 
   // controllers
   public readonly gameLifecycleController: GameServerGameLifecycleController;
+  public readonly dungeonExplorationController: DungeonExplorationController;
   public readonly sessionLifecycleController: GameServerSessionLifecycleController;
   // public readonly savedCharactersController: SavedCharactersController;
 

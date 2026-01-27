@@ -1,6 +1,7 @@
 import { makeAutoObservable } from "mobx";
 import { runIfInBrowser } from "../utils/index.js";
 import { plainToInstance } from "class-transformer";
+import { ERROR_MESSAGES } from "../errors/index.js";
 
 export class TimedLock {
   timeLocked: null | number = null;

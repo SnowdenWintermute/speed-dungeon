@@ -1,22 +1,20 @@
+import { EntityName } from "../../aliases.js";
+import { DEEPEST_FLOOR } from "../../app-consts.js";
+import { CombatantProperties } from "../../combatants/combatant-properties.js";
+import { NumberRange } from "../../primatives/number-range.js";
+import { IdGenerator } from "../../utility-classes/index.js";
+import { RandomNumberGenerator } from "../../utility-classes/randomizers.js";
+import { iterateNumericEnum } from "../../utils/index.js";
+import { randBetween } from "../../utils/rand-between.js";
+import { ConsumableType } from "../consumables/consumable-types.js";
+import { Consumable, CONSUMABLE_TYPE_STRINGS } from "../consumables/index.js";
 import {
   BASE_ITEMS_BY_EQUIPMENT_TYPE,
-  CombatantProperties,
-  Consumable,
-  CONSUMABLE_TYPE_STRINGS,
-  ConsumableType,
-  DEEPEST_FLOOR,
-  EntityName,
-  Equipment,
   EquipmentBaseItem,
   EquipmentType,
-  Item,
-  ItemType,
-  iterateNumericEnum,
-  NumberRange,
-  randBetween,
-  RandomNumberGenerator,
-} from "../../index.js";
-import { IdGenerator } from "../../utility-classes/index.js";
+} from "../equipment/equipment-types/index.js";
+import { Equipment } from "../equipment/index.js";
+import { Item, ItemType } from "../index.js";
 import { AffixGenerator } from "./builders/affix-generator/index.js";
 import { ItemGenerationDirector } from "./builders/item-generation-director.js";
 import { ItemGenerationBuilder } from "./builders/item.js";

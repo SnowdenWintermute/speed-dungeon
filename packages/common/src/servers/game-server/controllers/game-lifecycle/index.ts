@@ -32,7 +32,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly gameSessionStoreService: GameSessionStoreService,
     raceGameRecordsService: RaceGameRecordsService,
-    savedCharactersLadderService: SavedCharactersService,
+    savedCharactersService: SavedCharactersService,
     rankedLadderService: RankedLadderService,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory
@@ -41,13 +41,13 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       [GameMode.Race]: new GameModeContext(
         GameMode.Race,
         raceGameRecordsService,
-        savedCharactersLadderService,
+        savedCharactersService,
         rankedLadderService
       ),
       [GameMode.Progression]: new GameModeContext(
         GameMode.Progression,
         raceGameRecordsService,
-        savedCharactersLadderService,
+        savedCharactersService,
         rankedLadderService
       ),
     };
