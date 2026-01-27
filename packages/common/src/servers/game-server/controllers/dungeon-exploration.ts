@@ -9,7 +9,7 @@ import { ItemGenerator } from "../../../items/item-creation/index.js";
 import { generateMonster } from "../../../monsters/generate-monster.js";
 import { getPartyChannelName } from "../../../packets/channels.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
-import { GameMode } from "../../../types.js";
+import { AnimationLengths, BoundingBoxSizes, GameMode } from "../../../types.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
 import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { GameRegistry } from "../../game-registry.js";
@@ -17,6 +17,7 @@ import { SavedCharactersService } from "../../services/saved-characters.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
+import { BattleProcessor } from "./battle-processor.js";
 
 export class DungeonExplorationController {
   // strategy pattern for handling certain events
@@ -24,12 +25,13 @@ export class DungeonExplorationController {
 
   constructor(
     private readonly gameRegistry: GameRegistry,
-
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly savedCharactersService: SavedCharactersService,
     private readonly idGenerator: IdGenerator,
     private readonly itemGenerator: ItemGenerator,
-    private readonly randomNumberGenerator: RandomNumberGenerator
+    private readonly randomNumberGenerator: RandomNumberGenerator,
+    private readonly animationLengths: AnimationLengths,
+    private readonly boundingBoxSizes: BoundingBoxSizes
   ) {
     // private readonly userSessionRegistry: UserSessionRegistry,
     // private readonly gameSessionStoreService: GameSessionStoreService,
@@ -150,8 +152,14 @@ export class DungeonExplorationController {
       },
     });
 
-    // const battleProcessor = new BattleProcessor(this, game, party, battleOption);
-    // const maybeError = await battleProcessor.processBattleUntilPlayerTurnOrConclusion();
+    const battleProcessor = new BattleProcessor(
+      game,
+      party,
+      battleOption,
+      this.animationLengths,
+      this.boundingBoxSizes
+    );
+    const battleProcessingOutbox = await battleProcessor.processBattleUntilPlayerTurnOrConclusion();
     // if (maybeError instanceof Error) return maybeError;
     return outbox;
   }

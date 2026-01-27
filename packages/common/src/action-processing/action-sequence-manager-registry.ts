@@ -53,9 +53,8 @@ export class ActionSequenceManagerRegistry {
     );
     this.actionManagers[id] = manager;
 
-    const stepTrackerResult = manager.startProcessingNext();
-    if (stepTrackerResult instanceof Error) return stepTrackerResult;
-    const initialGameUpdate = stepTrackerResult.currentStep.getGameUpdateCommandOption();
+    const stepTracker = manager.startProcessingNext();
+    const initialGameUpdate = stepTracker.currentStep.getGameUpdateCommandOption();
 
     return initialGameUpdate;
   }

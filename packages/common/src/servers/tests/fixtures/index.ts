@@ -11,7 +11,7 @@ import { InMemorySpeedDungeonProfileService } from "../../services/in-memory-pro
 import { InMemorySavedCharacterSlotsPersistenceStrategy } from "../../services/in-memory-saved-characters-service.js";
 import { InMemoryIdentityProviderQueryStrategy } from "../../services/in-memory-identity-provider-service.js";
 
-export const TEST_GAME_SERVER_NAME = "test game server name";
+export const TEST_GAME_SERVER_NAME = "Lindblum Test Server";
 export const TEST_LOBBY_SERVER_PORT = 8090;
 export const TEST_GAME_SERVER_PORT = 8091;
 export const TEST_LOBBY_URL = localServerUrl(TEST_LOBBY_SERVER_PORT);

@@ -1,6 +1,4 @@
-import { ClientIntent } from "../../packets/client-intents.js";
 import { GameServerName, Milliseconds } from "../../aliases.js";
-import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
 import { SavedCharactersService } from "../services/saved-characters.js";
@@ -26,6 +24,8 @@ import { ConnectionContextType } from "../reconnection-protocol/index.js";
 import { ActiveGameStatus } from "../services/game-session-store/active-game-status.js";
 import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { DungeonExplorationController } from "./controllers/dungeon-exploration.js";
+import { ItemGenerator } from "../../items/item-creation/index.js";
+import { AffixGenerator } from "../../items/item-creation/builders/affix-generator/index.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -40,6 +40,7 @@ export const GAME_RECORD_HEARTBEAT_MS: Milliseconds = ONE_SECOND * 10;
 export class GameServer extends SpeedDungeonServer {
   private readonly gameRegistry = new GameRegistry();
   private readonly idGenerator = new IdGenerator({ saveHistory: false });
+  private readonly itemGenerator: ItemGenerator;
   private readonly heartbeatScheduler = new HeartbeatScheduler(GAME_RECORD_HEARTBEAT_MS);
   private readonly reconnectionOpportunityManager = new ReconnectionOpportunityManager();
   private readonly reconnectionProtocol: GameServerReconnectionProtocol;
@@ -61,6 +62,13 @@ export class GameServer extends SpeedDungeonServer {
     private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
   ) {
     super(name, incomingConnectionGateway);
+
+    this.itemGenerator = new ItemGenerator(
+      this.idGenerator,
+      this.randomNumberGenerator,
+      new AffixGenerator(this.randomNumberGenerator)
+    );
+
     this.incomingConnectionGateway.initialize(
       async (context, identityContext) => await this.handleConnection(context, identityContext)
     );
@@ -87,6 +95,15 @@ export class GameServer extends SpeedDungeonServer {
       this.gameLifecycleController,
       this.idGenerator,
       this.gameServerSessionClaimTokenCodec
+    );
+
+    this.dungeonExplorationController = new DungeonExplorationController(
+      this.gameRegistry,
+      this.updateDispatchFactory,
+      this.externalServices.savedCharactersService,
+      this.idGenerator,
+      this.itemGenerator,
+      this.randomNumberGenerator
     );
 
     this.reconnectionProtocol = new GameServerReconnectionProtocol(

@@ -43,3 +43,20 @@ export type BoundingBoxSizesBySpecies = Partial<
     { min: [Meters, Meters, Meters]; max: [Meters, Meters, Meters]; volume: number }
   >
 >;
+
+export interface PartyWipes {
+  alliesDefeated: boolean;
+  opponentsDefeated: boolean;
+}
+
+export type AnimationLengths = Record<CombatantSpecies, Record<string, number>>;
+export type BoundingBoxSizes = Partial<
+  Record<
+    CombatantSpecies,
+    {
+      min: [Meters, Meters, Meters];
+      max: [Meters, Meters, Meters];
+      volume: number;
+    }
+  >
+>;

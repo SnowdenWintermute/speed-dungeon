@@ -16,6 +16,7 @@ import { CombatantCondition, ConditionWithCombatantIdAppliedTo } from "../condit
 import { CombatantTraitType } from "../combatants/combatant-traits/trait-types.js";
 import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
 import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
+import { PartyWipes } from "../types.js";
 
 export class CombatantManager extends AdventuringPartySubsystem {
   private combatants = new Map<EntityId, Combatant>();
@@ -421,5 +422,46 @@ export class CombatantManager extends AdventuringPartySubsystem {
     }
 
     return deserialized;
+  }
+
+  checkForWipes(inBattle: boolean): PartyWipes {
+    // IF NOT IN BATTLE AND SOMEHOW WIPED OWN PARTY
+    if (!inBattle) {
+      const partyMemberCombatants = this.getPartyMemberCombatants();
+
+      const alliesDefeated = Combatant.groupIsDead(partyMemberCombatants);
+
+      return {
+        alliesDefeated,
+        opponentsDefeated: false,
+      };
+    }
+
+    // MORE LIKELY, IN BATTLE
+    const partyCombatants = this.getPartyMemberCombatants();
+    const dungeonControlledCombatants = this.getDungeonControlledCombatants();
+
+    const partyWipesResult = this.checkForDefeatedCombatantGroups(
+      partyCombatants,
+      dungeonControlledCombatants
+    );
+    if (partyWipesResult instanceof Error) throw partyWipesResult;
+
+    return partyWipesResult;
+  }
+
+  private checkForDefeatedCombatantGroups(
+    allies: Combatant[],
+    opponents: Combatant[]
+  ):
+    | Error
+    | {
+        alliesDefeated: boolean;
+        opponentsDefeated: boolean;
+      } {
+    const alliesDefeated = Combatant.groupIsDead(allies);
+    const opponentsDefeated = Combatant.groupIsDead(opponents);
+
+    return { alliesDefeated, opponentsDefeated };
   }
 }
