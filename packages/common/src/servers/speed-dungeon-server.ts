@@ -103,19 +103,9 @@ export abstract class SpeedDungeonServer {
     for (const dispatch of outbox.toDispatches()) {
       switch (dispatch.type) {
         case MessageDispatchType.Single:
-          console.log(
-            "sending to remaining recipients:",
-            dispatch.connectionId,
-            dispatch.message.type
-          );
           this.outgoingMessagesGateway.submitToConnection(dispatch.connectionId, dispatch.message);
           break;
         case MessageDispatchType.FanOut:
-          console.log(
-            "sending to remaining recipients:",
-            dispatch.connectionIds,
-            dispatch.message.type
-          );
           this.outgoingMessagesGateway.submitToConnections(
             dispatch.connectionIds,
             dispatch.message

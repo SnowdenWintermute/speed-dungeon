@@ -20,7 +20,7 @@ import { UserIdType } from "../sessions/user-ids.js";
 import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
 import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js";
-import { UserSession } from "../sessions/user-session.js";
+import { UserSession, UserSessionConnectionState } from "../sessions/user-session.js";
 import { ReconnectionForwardingStoreService } from "../services/disconnected-session-store/index.js";
 import { GameServerSessionClaimTokenCodec } from "./game-handoff/session-claim-token.js";
 import { GameHandoffManager } from "./game-handoff/game-handoff-manager.js";
@@ -146,8 +146,14 @@ export class LobbyServer extends SpeedDungeonServer {
 
   protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
     console.info(`-- ${session.username} (${session.connectionId})  disconnected.`);
-    const outbox = await this.userSessionLifecycleController.cleanupSession(session);
+
+    session.connectionState = UserSessionConnectionState.Disconnected;
     this.outgoingMessagesGateway.unregisterEndpoint(session.connectionId);
+
+    const outbox = await this.userSessionLifecycleController.cleanupSession(session);
+
+    outbox.removeRecipients([session.connectionId]);
+
     this.dispatchOutboxMessages(outbox);
   }
 

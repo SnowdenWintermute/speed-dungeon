@@ -178,7 +178,8 @@ export class TestClient {
   /** Caches GuestSessionReconnectionToken and Game if successful */
   async connectToGameServer(
     endpointFactory: ClientEndpointFactory,
-    connectionInstructions: GameServerConnectionInstructions
+    connectionInstructions: GameServerConnectionInstructions,
+    expectMessageOnConnection?: GameStateUpdateType
   ) {
     const hostClientQueryParams = {
       name: QUERY_PARAMS.SESSION_CLAIM_TOKEN,

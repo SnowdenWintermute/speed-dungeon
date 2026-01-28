@@ -8,17 +8,16 @@ export async function testGameSetupToBothPlayersJoined(
   const { hostClient, joinerClient, joinerConnectionInstructions } =
     await testGameSetupToHostJoinedGameServer(clientEndpointFactory);
 
+  await joinerClient.connectToGameServer(clientEndpointFactory, joinerConnectionInstructions);
   const gameStartedMessageListener = joinerClient.awaitGameStateUpdate(
     GameStateUpdateType.GameStarted
   );
 
-  await joinerClient.connectToGameServer(clientEndpointFactory, joinerConnectionInstructions);
-
-  // const gameStartedMessage = await gameStartedMessageListener;
-  // console.log("game started message:", gameStartedMessage);
+  const gameStartedMessage = await gameStartedMessageListener;
+  console.log("game started message:", gameStartedMessage);
   // expect(gameStartedMessage.data.timeStarted).toBeDefined();
   // await hostClient.close();
-  // await joinerClient.close();
+  await joinerClient.close();
 
   return { hostClient, joinerClient };
 }

@@ -172,32 +172,27 @@ export class GameServer extends SpeedDungeonServer {
       await this.reconnectionProtocol.issueReconnectionCredential(session);
     outbox.pushFromOther(refreshedReconnectionTokenOutbox);
 
+    console.log("dispatching outbox on game server connection");
     this.dispatchOutboxMessages(outbox);
   }
 
   // @TODO - combine with lobby server, it is almost exact same other than disconnection session logic
   protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
-    for (const disconnectedSession of this.userSessionRegistry.disconnectedSessions) {
-      //
-    }
-    session.connectionState = UserSessionConnectionState.Disconnected;
     console.info(
       `-- ${session.username} (${session.connectionId}) disconnected from ${this.name} game server.`
     );
+
+    session.connectionState = UserSessionConnectionState.Disconnected;
+    this.outgoingMessagesGateway.unregisterEndpoint(session.connectionId);
 
     const outbox = await this.reconnectionProtocol.onPlayerDisconnected(session, this.name);
 
     const cleanupSessionOutbox = await this.sessionLifecycleController.cleanupSession(session);
     outbox.pushFromOther(cleanupSessionOutbox);
-    this.outgoingMessagesGateway.unregisterEndpoint(session.connectionId);
 
-    for (const disconnectedSession of this.userSessionRegistry.disconnectedSessions) {
-      console.log("disconnectedSession:", disconnectedSession);
-      outbox.removeRecipients([disconnectedSession.connectionId]);
-    }
+    // outbox.removeRecipients([session.connectionId]);
 
     this.dispatchOutboxMessages(outbox);
-    console.log("finish dispatching");
   }
 
   private startActiveGamesRecordHeartbeatTask() {

@@ -131,6 +131,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     game.setAsStarted();
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+    console.log("pushing game started outbox");
     outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.GameStarted,
       data: { timeStarted: game.requireTimeStarted() },

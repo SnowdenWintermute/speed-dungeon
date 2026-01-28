@@ -1,5 +1,6 @@
 import { ChannelName, ConnectionId } from "../../aliases.js";
 import { UserSessionRegistry } from "../sessions/user-session-registry.js";
+import { UserSessionConnectionState } from "../sessions/user-session.js";
 
 export enum MessageDispatchType {
   Single,
@@ -48,6 +49,11 @@ export class MessageDispatchFactory<Sendable> {
 
     const connectionIds = this.userSessionRegistry
       .in(inChannel) // Returns all connectionIds whose sessions are currently subscribed to the given channel. Multiple entries may belong to the same user.
+      .filter(
+        (id) =>
+          this.userSessionRegistry.getExpectedSession(id).connectionState !==
+          UserSessionConnectionState.Disconnected
+      )
       .filter((id) => !excludedIds.includes(id))
       .filter((id) => !connectionIdsFromExcludedChannels.includes(id));
 

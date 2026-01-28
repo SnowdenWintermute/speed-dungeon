@@ -28,6 +28,10 @@ export class UserSession extends ConnectionSession {
   public currentGameName: null | GameName = null;
   public currentPartyName: null | PartyName = null;
   private guestReconnectionToken: null | GuestSessionReconnectionToken = null;
+  // in the case of two connections disconnecting at the same time we will synchronously
+  // set each one to disconnected such that we won't have an async race between each
+  // disconnection handler trying to send a user disconnected message to each other but they
+  // both are no longer registered endpoints
   private _connectionState = UserSessionConnectionState.Connected;
 
   constructor(

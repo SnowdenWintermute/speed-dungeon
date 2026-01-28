@@ -1,7 +1,7 @@
 import { LOBBY_CHANNEL } from "../../../packets/channels.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
-import { UserSession } from "../../sessions/user-session.js";
+import { UserSession, UserSessionConnectionState } from "../../sessions/user-session.js";
 import {
   ConnectionIdentityResolutionContext,
   IdentityProviderService,
@@ -123,6 +123,8 @@ export class LobbySessionLifecycleController
   }
 
   async cleanupSession(session: UserSession) {
+    this.userSessionRegistry.unregister(session.connectionId);
+
     const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
     if (session.currentGameName !== null) {
       const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
@@ -133,9 +135,7 @@ export class LobbySessionLifecycleController
     // referral to the game server
     this.lobbyState.removeUserIfInLobbyChannel(session.username);
 
-    this.userSessionRegistry.unregister(session.connectionId);
-
-    outbox.removeRecipients([session.connectionId]);
+    // outbox.removeRecipients([session.connectionId]);
 
     return outbox;
   }
