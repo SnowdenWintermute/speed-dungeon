@@ -15,7 +15,7 @@ export class OutgoingMessageGateway<Sendable> {
     const endpoint = this.transportEndpoints.get(connectionId);
     if (!endpoint) {
       throw new Error(
-        `expected connection id ${connectionId} had no associated ConnectionEndpoint`
+        `expected connection id ${connectionId} had no associated ConnectionEndpoint, message: ${JSON.stringify(message)}`
       );
     }
 

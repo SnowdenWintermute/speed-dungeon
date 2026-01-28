@@ -103,7 +103,7 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     }
 
     const disconnectedSession = DisconnectedSession.fromUserSession(session, gameServerName);
-    this.reconnectionForwardingStoreService.writeDisconnectedSession(
+    await this.reconnectionForwardingStoreService.writeDisconnectedSession(
       session.requireReconnectionKey(),
       disconnectedSession
     );

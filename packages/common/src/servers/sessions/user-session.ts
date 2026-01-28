@@ -19,10 +19,16 @@ import { ConnectionSession } from "./session-registry.js";
 import { AuthTaggedUserId, TaggedUserId, UserIdType } from "./user-ids.js";
 import { UserSessionRegistry } from "./user-session-registry.js";
 
+export enum UserSessionConnectionState {
+  Connected,
+  Disconnected,
+}
+
 export class UserSession extends ConnectionSession {
   public currentGameName: null | GameName = null;
   public currentPartyName: null | PartyName = null;
   private guestReconnectionToken: null | GuestSessionReconnectionToken = null;
+  private _connectionState = UserSessionConnectionState.Connected;
 
   constructor(
     private _username: Username,
@@ -40,6 +46,14 @@ export class UserSession extends ConnectionSession {
 
   set username(username: Username) {
     this._username = username;
+  }
+
+  get connectionState() {
+    return this._connectionState;
+  }
+
+  set connectionState(newState: UserSessionConnectionState) {
+    this._connectionState = newState;
   }
 
   getExpectedCurrentGame() {

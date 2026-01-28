@@ -8,7 +8,7 @@ import { invariant } from "../../../../utils/index.js";
 import { TEST_LOBBY_URL } from "../index.js";
 import { ClientEndpointFactory } from "../test-connection-endpoint-factories.js";
 
-export async function testGameSetupToTwoPlayersJoined(
+export async function testGameSetupToTwoPlayersJoinedLobbyGame(
   clientEndpointFactory: ClientEndpointFactory
 ) {
   const hostClient = new TestClient();

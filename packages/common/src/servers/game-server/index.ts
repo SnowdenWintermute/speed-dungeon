@@ -8,7 +8,7 @@ import { ConnectionIdentityResolutionContext } from "../services/identity-provid
 import { createGameServerClientIntentHandlers } from "./create-game-server-client-intent-handlers.js";
 import { GameServerSessionLifecycleController } from "./controllers/session-lifecycle.js";
 import { GameRegistry } from "../game-registry.js";
-import { UserSession } from "../sessions/user-session.js";
+import { UserSession, UserSessionConnectionState } from "../sessions/user-session.js";
 import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js";
 import { GameServerGameLifecycleController } from "./controllers/game-lifecycle/index.js";
 import { RaceGameRecordsService } from "../services/race-game-records.js";
@@ -46,6 +46,7 @@ export class GameServer extends SpeedDungeonServer {
   private readonly heartbeatScheduler = new HeartbeatScheduler(GAME_RECORD_HEARTBEAT_MS);
   private readonly reconnectionOpportunityManager = new ReconnectionOpportunityManager();
   private readonly reconnectionProtocol: GameServerReconnectionProtocol;
+  private readonly pendingDisconnections: Promise<void>[] = [];
 
   private readonly partyDelayedGameMessageFactory = new PartyDelayedGameMessageFactory(
     this.updateDispatchFactory
@@ -176,6 +177,10 @@ export class GameServer extends SpeedDungeonServer {
 
   // @TODO - combine with lobby server, it is almost exact same other than disconnection session logic
   protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
+    for (const disconnectedSession of this.userSessionRegistry.disconnectedSessions) {
+      //
+    }
+    session.connectionState = UserSessionConnectionState.Disconnected;
     console.info(
       `-- ${session.username} (${session.connectionId}) disconnected from ${this.name} game server.`
     );
@@ -186,9 +191,13 @@ export class GameServer extends SpeedDungeonServer {
     outbox.pushFromOther(cleanupSessionOutbox);
     this.outgoingMessagesGateway.unregisterEndpoint(session.connectionId);
 
-    outbox.removeRecipients([session.connectionId]);
+    for (const disconnectedSession of this.userSessionRegistry.disconnectedSessions) {
+      console.log("disconnectedSession:", disconnectedSession);
+      outbox.removeRecipients([disconnectedSession.connectionId]);
+    }
 
     this.dispatchOutboxMessages(outbox);
+    console.log("finish dispatching");
   }
 
   private startActiveGamesRecordHeartbeatTask() {

@@ -3,7 +3,7 @@ import { ERROR_MESSAGES } from "../../errors/index.js";
 import { invariant } from "../../utils/index.js";
 import { SessionRegistry } from "./session-registry.js";
 import { UserId } from "./user-ids.js";
-import { UserSession } from "./user-session.js";
+import { UserSession, UserSessionConnectionState } from "./user-session.js";
 
 export class UserSessionRegistry extends SessionRegistry<UserSession> {
   // we have used this to ensure that when a user has a session in a progression game
@@ -108,5 +108,18 @@ export class UserSessionRegistry extends SessionRegistry<UserSession> {
     }
 
     return expectedSessionForThisPlayer;
+  }
+
+  get disconnectedSessions() {
+    const result: UserSession[] = [];
+    console.log("getting disconnectedSessions", this.sessions);
+    for (const [connectionId, userSession] of this.sessions) {
+      console.log("checking if session disconnected:", userSession.connectionState);
+      if (userSession.connectionState === UserSessionConnectionState.Disconnected) {
+        result.push(userSession);
+      }
+    }
+
+    return result;
   }
 }

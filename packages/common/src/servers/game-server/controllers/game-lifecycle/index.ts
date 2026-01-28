@@ -219,7 +219,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       await gameModeContext.strategy.onLastPlayerLeftGame(game);
 
       this.gameRegistry.unregisterGame(game.name);
-      this.gameSessionStoreService.deleteActiveGameStatus(game.name);
+      await this.gameSessionStoreService.deleteActiveGameStatus(game.name);
     }
 
     return outbox;

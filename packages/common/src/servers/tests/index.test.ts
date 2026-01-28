@@ -7,9 +7,9 @@ import { createTestServers } from "./fixtures/create-test-servers.js";
 import { TEST_CONNECTION_ENDPOINT_FACTORIES } from "./fixtures/test-connection-endpoint-factories.js";
 import { testGameSetupToTwoPlayersInParty } from "./fixtures/checkpoints/two-players-in-party.js";
 import { testGameSetupToGameHandoff } from "./fixtures/checkpoints/game-handoff.js";
-import { testGameSetupToTwoPlayersJoined } from "./fixtures/checkpoints/two-players-joined.js";
 import { QUERY_PARAMS } from "../query-params.js";
 import { testGameSetupToHostJoinedGameServer } from "./fixtures/checkpoints/host-joined-game-server.js";
+import { testGameSetupToBothPlayersJoined } from "./fixtures/checkpoints/two-players-joined-game-server.js";
 
 // @TODO
 // - pre game start input
@@ -46,7 +46,8 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)("$name lobby server", (clientE
   });
 
   it("input after reconnect", async () => {
-    const { hostClient } = await testGameSetupToHostJoinedGameServer(clientEndpointFactory);
+    const { hostClient, joinerClient } =
+      await testGameSetupToBothPlayersJoined(clientEndpointFactory);
     //
   });
 

@@ -7,10 +7,7 @@ export async function testGameSetupToHostJoinedGameServer(
   const { hostClient, joinerClient, hostConnectionInstructions, joinerConnectionInstructions } =
     await testGameSetupToGameHandoff(clientEndpointFactory);
 
-  const { joinedGameServerMessage, reconnectionToken } = await hostClient.connectToGameServer(
-    clientEndpointFactory,
-    hostConnectionInstructions
-  );
+  await hostClient.connectToGameServer(clientEndpointFactory, hostConnectionInstructions);
 
   return { hostClient, joinerClient, joinerConnectionInstructions };
 }

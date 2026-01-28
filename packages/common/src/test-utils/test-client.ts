@@ -1,17 +1,20 @@
 import isMatch from "lodash.ismatch";
 import { GameStateUpdate, GameStateUpdateType } from "../packets/game-state-updates.js";
-import { Milliseconds, Username } from "../aliases.js";
+import { GuestSessionReconnectionToken, Milliseconds, Username } from "../aliases.js";
 import { ClientIntent } from "../packets/client-intents.js";
 import { ConnectionEndpoint } from "../transport/connection-endpoint.js";
 import { GameServerConnectionInstructions } from "../servers/lobby-server/game-handoff/connection-instructions.js";
 import { ClientEndpointFactory } from "../servers/tests/fixtures/test-connection-endpoint-factories.js";
 import { QUERY_PARAMS } from "../servers/query-params.js";
+import { SpeedDungeonGame } from "../game/index.js";
 
 type GameStateUpdateOfType<T extends GameStateUpdateType> = Extract<GameStateUpdate, { type: T }>;
 
 export class TestClient {
   private _connectionEndpoint: ConnectionEndpoint | null = null;
   private _username: Username | null = null;
+  private _currentGame: null | SpeedDungeonGame = null;
+  private _cachedReconnectionToken: null | GuestSessionReconnectionToken = null;
 
   initializeEndpoint(endpoint: ConnectionEndpoint) {
     const connectionEndpoint = endpoint;
@@ -172,6 +175,7 @@ export class TestClient {
     return typedMessage;
   }
 
+  /** Caches GuestSessionReconnectionToken and Game if successful */
   async connectToGameServer(
     endpointFactory: ClientEndpointFactory,
     connectionInstructions: GameServerConnectionInstructions
@@ -197,9 +201,28 @@ export class TestClient {
 
     await this.connect();
 
-    const reconnectionToken = await reconnectTokenMessageListener;
+    const reconnectionTokenMessage = await reconnectTokenMessageListener;
     const joinedGameServerMessage = await hostClientJoinedGameServerMessageListener;
 
-    return { joinedGameServerMessage, reconnectionToken };
+    this.game = joinedGameServerMessage.data.game;
+    this.guestReconnectionToken = reconnectionTokenMessage.data.token;
+
+    return { joinedGameServerMessage, reconnectionToken: reconnectionTokenMessage.data.token };
+  }
+
+  set game(game: SpeedDungeonGame | null) {
+    this._currentGame = game;
+  }
+
+  get game(): Readonly<SpeedDungeonGame | null> {
+    return this._currentGame;
+  }
+
+  set guestReconnectionToken(token: null | GuestSessionReconnectionToken) {
+    this._cachedReconnectionToken = token;
+  }
+
+  get guestReconnectionToken(): Readonly<GuestSessionReconnectionToken | null> {
+    return this.guestReconnectionToken;
   }
 }

@@ -30,6 +30,8 @@ export class MessageDispatchOutbox<Sendable> {
       newList.push(dispatch);
     }
 
+    console.log("after removal:", JSON.stringify(newList, null, 2));
+
     this.list = newList;
   }
 
