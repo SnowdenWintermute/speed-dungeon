@@ -6,7 +6,30 @@ import {
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 
-export async function getAnimationLengths(filePath: string) {
+export async function collectAnimationLengths() {
+  const assetsFolderPath = "./assets/";
+  const toReturn: Record<CombatantSpecies, Record<string, Milliseconds>> = {
+    [CombatantSpecies.Humanoid]: {},
+    [CombatantSpecies.Dragon]: {},
+    [CombatantSpecies.Skeleton]: {},
+    [CombatantSpecies.Velociraptor]: {},
+    [CombatantSpecies.Elemental]: {},
+    [CombatantSpecies.Golem]: {},
+    [CombatantSpecies.Canine]: {},
+    [CombatantSpecies.Ray]: {},
+    [CombatantSpecies.Net]: {},
+    [CombatantSpecies.Spider]: {},
+  };
+
+  for (const [species, skeletonPath] of iterateNumericEnumKeyedRecord(SKELETON_FILE_PATHS)) {
+    const animationLengths = await getAnimationLengths(assetsFolderPath + skeletonPath);
+    toReturn[species] = animationLengths;
+  }
+
+  return toReturn;
+}
+
+async function getAnimationLengths(filePath: string) {
   const io = new NodeIO();
   try {
     const document = await io.read(filePath);
@@ -37,27 +60,4 @@ export async function getAnimationLengths(filePath: string) {
     console.error("couldn't read file for getting animationLengths", filePath);
     return {};
   }
-}
-
-export async function collectAnimationLengths() {
-  const assetsFolderPath = "./assets/";
-  const toReturn: Record<CombatantSpecies, Record<string, Milliseconds>> = {
-    [CombatantSpecies.Humanoid]: {},
-    [CombatantSpecies.Dragon]: {},
-    [CombatantSpecies.Skeleton]: {},
-    [CombatantSpecies.Velociraptor]: {},
-    [CombatantSpecies.Elemental]: {},
-    [CombatantSpecies.Golem]: {},
-    [CombatantSpecies.Canine]: {},
-    [CombatantSpecies.Ray]: {},
-    [CombatantSpecies.Net]: {},
-    [CombatantSpecies.Spider]: {},
-  };
-
-  for (const [species, skeletonPath] of iterateNumericEnumKeyedRecord(SKELETON_FILE_PATHS)) {
-    const animationLengths = await getAnimationLengths(assetsFolderPath + skeletonPath);
-    toReturn[species] = animationLengths;
-  }
-
-  return toReturn;
 }

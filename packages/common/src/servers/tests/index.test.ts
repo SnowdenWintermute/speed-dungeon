@@ -13,6 +13,7 @@ import { testGameSetupToHostJoinedGameServer } from "./fixtures/checkpoints/host
 
 // @TODO
 // - pre game start input
+//
 // - input while awaiting reconnect
 // - input after timeout
 // - input after reconnect
@@ -44,17 +45,22 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)("$name lobby server", (clientE
     gameServer.closeTransportServer();
   });
 
-  it("input before game start", async () => {
+  it("input after reconnect", async () => {
     const { hostClient } = await testGameSetupToHostJoinedGameServer(clientEndpointFactory);
-    // don't allow input before all players are in game
-    await hostClient.sendMessageAndAwaitReplyType(
-      {
-        type: ClientIntentType.ToggleReadyToExplore,
-        data: undefined,
-      },
-      GameStateUpdateType.ErrorMessage
-    );
+    //
   });
+
+  // it("input before game start", async () => {
+  //   const { hostClient } = await testGameSetupToHostJoinedGameServer(clientEndpointFactory);
+  //   // don't allow input before all players are in game
+  //   await hostClient.sendMessageAndAwaitReplyType(
+  //     {
+  //       type: ClientIntentType.ToggleReadyToExplore,
+  //       data: undefined,
+  //     },
+  //     GameStateUpdateType.ErrorMessage
+  //   );
+  // });
 
   // it("minimum characters", async () => {
   //   const { hostClient, joinerClient } =

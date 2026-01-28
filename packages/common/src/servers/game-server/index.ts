@@ -27,6 +27,7 @@ import { DungeonExplorationController } from "./controllers/dungeon-exploration.
 import { ItemGenerator } from "../../items/item-creation/index.js";
 import { AffixGenerator } from "../../items/item-creation/builders/affix-generator/index.js";
 import { GameServerGameEventCommandReceiver } from "./controllers/game-event-command-receiver.js";
+import { PLACEHOLDER_ANIMATION_LENGTHS } from "../../types.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -111,7 +112,9 @@ export class GameServer extends SpeedDungeonServer {
       this.idGenerator,
       this.itemGenerator,
       this.randomNumberGenerator,
-      this.gameEventCommandReceiver
+      this.gameEventCommandReceiver,
+      PLACEHOLDER_ANIMATION_LENGTHS,
+      {}
     );
 
     this.reconnectionProtocol = new GameServerReconnectionProtocol(

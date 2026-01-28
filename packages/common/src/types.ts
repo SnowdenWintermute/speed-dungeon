@@ -60,3 +60,16 @@ export type BoundingBoxSizes = Partial<
     }
   >
 >;
+
+export const PLACEHOLDER_ANIMATION_LENGTHS: AnimationLengths = {
+  [CombatantSpecies.Humanoid]: {},
+  [CombatantSpecies.Dragon]: {},
+  [CombatantSpecies.Skeleton]: {},
+  [CombatantSpecies.Velociraptor]: {},
+  [CombatantSpecies.Elemental]: {},
+  [CombatantSpecies.Golem]: {},
+  [CombatantSpecies.Canine]: {},
+  [CombatantSpecies.Ray]: {},
+  [CombatantSpecies.Net]: {},
+  [CombatantSpecies.Spider]: {},
+};
