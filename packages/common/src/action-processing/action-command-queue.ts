@@ -26,8 +26,10 @@ export class ActionCommandQueue {
     this.commands.push(...commands);
   }
 
-  async processCommands(): Promise<Error | ActionCommandPayload[]> {
-    if (this.isProcessing) return [];
+  async processCommands(): Promise<ActionCommandPayload[]> {
+    if (this.isProcessing) {
+      return [];
+    }
     const errors: Error[] = [];
     const newPayloads: ActionCommandPayload[] = [];
     this.isProcessing = true;
@@ -45,7 +47,10 @@ export class ActionCommandQueue {
     }
     this.isProcessing = false;
 
-    if (errors[0]) return errors[0];
-    else return newPayloads;
+    if (errors[0]) {
+      throw errors[0];
+    } else {
+      return newPayloads;
+    }
   }
 }

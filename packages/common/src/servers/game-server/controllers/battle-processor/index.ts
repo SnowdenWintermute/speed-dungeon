@@ -1,23 +1,27 @@
-import { ActionCommand } from "../../../action-processing/action-command.js";
-import { ActionIntentOptionAndUser } from "../../../action-processing/action-steps/index.js";
+import { ActionCommand } from "../../../../action-processing/action-command.js";
+import { ActionIntentOptionAndUser } from "../../../../action-processing/action-steps/index.js";
 import {
   ActionCommandPayload,
   ActionCommandType,
   CombatActionReplayTreePayload,
-} from "../../../action-processing/index.js";
-import { processCombatAction } from "../../../action-processing/process-combat-action.js";
-import { ActionUserContext } from "../../../action-user-context/index.js";
-import { AdventuringParty } from "../../../adventuring-party/index.js";
-import { LOOP_SAFETY_ITERATION_LIMIT } from "../../../app-consts.js";
-import { Battle } from "../../../battle/index.js";
-import { ERROR_MESSAGES } from "../../../errors/index.js";
-import { SpeedDungeonGame } from "../../../game/index.js";
-import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
-import { AnimationLengths, BoundingBoxSizes, PartyWipes } from "../../../types.js";
-import { IdGenerator } from "../../../utility-classes/index.js";
-import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
-import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
-import { getPartyChannelName } from "../../../packets/channels.js";
+} from "../../../../action-processing/index.js";
+import { processCombatAction } from "../../../../action-processing/process-combat-action.js";
+import { ActionUserContext } from "../../../../action-user-context/index.js";
+import { AdventuringParty } from "../../../../adventuring-party/index.js";
+import { LOOP_SAFETY_ITERATION_LIMIT } from "../../../../app-consts.js";
+import { Battle } from "../../../../battle/index.js";
+import { ERROR_MESSAGES } from "../../../../errors/index.js";
+import { SpeedDungeonGame } from "../../../../game/index.js";
+import { GameStateUpdate, GameStateUpdateType } from "../../../../packets/game-state-updates.js";
+import { AnimationLengths, BoundingBoxSizes, PartyWipes } from "../../../../types.js";
+import { IdGenerator } from "../../../../utility-classes/index.js";
+import { MessageDispatchFactory } from "../../../update-delivery/message-dispatch-factory.js";
+import { MessageDispatchOutbox } from "../../../update-delivery/outbox.js";
+import { getPartyChannelName } from "../../../../packets/channels.js";
+import { getBattleConclusionCommandAndPayload } from "./get-battle-conclusion-command-and-payload.js";
+import { ItemGenerator } from "../../../../items/item-creation/index.js";
+import { RandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
+import { ActionCommandReceiver } from "../../../../action-processing/action-command-receiver.js";
 
 export class BattleProcessor {
   constructor(
@@ -26,6 +30,9 @@ export class BattleProcessor {
     private party: AdventuringParty,
     private battle: Battle,
     private idGenerator: IdGenerator,
+    private itemGenerator: ItemGenerator,
+    private rng: RandomNumberGenerator,
+    private gameEventCommandReceiver: ActionCommandReceiver,
     private animationLengths: AnimationLengths,
     private boundingBoxSizes: BoundingBoxSizes
   ) {}
@@ -124,18 +131,25 @@ export class BattleProcessor {
     return fastestActorTurnTracker.getNextActionIntentAndUser(game, party, battle);
   }
 
-  async handleBattleConclusion(partyWipesResult: PartyWipes) {
+  async handleBattleConclusion(partyWipes: PartyWipes) {
     const { game, party } = this;
     const actionCommandPayloads: ActionCommandPayload[] = [];
 
-    const conclusion = await getBattleConclusionCommandAndPayload(game, party, partyWipesResult);
+    const conclusion = await getBattleConclusionCommandAndPayload(
+      game,
+      party,
+      partyWipes,
+      this.itemGenerator,
+      this.rng,
+      this.gameEventCommandReceiver
+    );
     actionCommandPayloads.push(conclusion.payload);
     party.actionCommandQueue.enqueueNewCommands([conclusion.command]);
     const payloadsResult = await party.actionCommandQueue.processCommands();
     if (payloadsResult instanceof Error) return payloadsResult;
     actionCommandPayloads.push(...payloadsResult);
     const payloadsCommands = payloadsResult.map(
-      (item) => new ActionCommand(game.name, item, gameServer)
+      (item) => new ActionCommand(game.name, item, this.gameEventCommandReceiver)
     );
     party.actionCommandQueue.enqueueNewCommands(payloadsCommands);
     await party.actionCommandQueue.processCommands();

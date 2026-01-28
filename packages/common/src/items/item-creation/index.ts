@@ -159,4 +159,18 @@ export class ItemGenerator {
       return randomItemResult;
     }
   }
+
+  generateLoot(quantity: number, maxItemLevel: number, rng: RandomNumberGenerator) {
+    const equipment: Equipment[] = [];
+    const consumables: Consumable[] = [];
+    for (let i = 0; i < quantity; i += 1) {
+      const floorNumber = maxItemLevel;
+      const iLvl = randBetween(1, floorNumber, rng);
+      const randomItem = this.generateRandomItem(iLvl);
+      if (randomItem instanceof Error) console.error(randomItem);
+      if (randomItem instanceof Consumable) consumables.push(randomItem);
+      else if (randomItem instanceof Equipment) equipment.push(randomItem);
+    }
+    return { equipment, consumables };
+  }
 }

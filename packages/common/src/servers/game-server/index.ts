@@ -26,6 +26,7 @@ import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { DungeonExplorationController } from "./controllers/dungeon-exploration.js";
 import { ItemGenerator } from "../../items/item-creation/index.js";
 import { AffixGenerator } from "../../items/item-creation/builders/affix-generator/index.js";
+import { GameServerGameEventCommandReceiver } from "./controllers/game-event-command-receiver.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -54,6 +55,7 @@ export class GameServer extends SpeedDungeonServer {
   public readonly dungeonExplorationController: DungeonExplorationController;
   public readonly sessionLifecycleController: GameServerSessionLifecycleController;
   // public readonly savedCharactersController: SavedCharactersController;
+  private readonly gameEventCommandReceiver: GameServerGameEventCommandReceiver;
 
   constructor(
     readonly name: GameServerName,
@@ -97,13 +99,19 @@ export class GameServer extends SpeedDungeonServer {
       this.gameServerSessionClaimTokenCodec
     );
 
+    this.gameEventCommandReceiver = new GameServerGameEventCommandReceiver(
+      this.gameRegistry,
+      this.gameLifecycleController.gameModeContexts
+    );
+
     this.dungeonExplorationController = new DungeonExplorationController(
       this.gameRegistry,
       this.updateDispatchFactory,
       this.externalServices.savedCharactersService,
       this.idGenerator,
       this.itemGenerator,
-      this.randomNumberGenerator
+      this.randomNumberGenerator,
+      this.gameEventCommandReceiver
     );
 
     this.reconnectionProtocol = new GameServerReconnectionProtocol(

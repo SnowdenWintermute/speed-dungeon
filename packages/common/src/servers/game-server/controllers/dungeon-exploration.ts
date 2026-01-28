@@ -1,3 +1,4 @@
+import { ActionCommandReceiver } from "../../../action-processing/action-command-receiver.js";
 import { ExplorationAction } from "../../../adventuring-party/dungeon-exploration-manager.js";
 import { DungeonRoom, DungeonRoomType } from "../../../adventuring-party/dungeon-room.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
@@ -17,12 +18,9 @@ import { SavedCharactersService } from "../../services/saved-characters.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
-import { BattleProcessor } from "./battle-processor.js";
+import { BattleProcessor } from "./battle-processor/index.js";
 
 export class DungeonExplorationController {
-  // strategy pattern for handling certain events
-  // gameModeContexts: Record<GameMode, GameModeContext>;
-
   constructor(
     private readonly gameRegistry: GameRegistry,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
@@ -30,29 +28,10 @@ export class DungeonExplorationController {
     private readonly idGenerator: IdGenerator,
     private readonly itemGenerator: ItemGenerator,
     private readonly randomNumberGenerator: RandomNumberGenerator,
+    private readonly gameEventCommandReceiver: ActionCommandReceiver,
     private readonly animationLengths: AnimationLengths,
     private readonly boundingBoxSizes: BoundingBoxSizes
-  ) {
-    // private readonly userSessionRegistry: UserSessionRegistry,
-    // private readonly gameSessionStoreService: GameSessionStoreService,
-    // raceGameRecordsService: RaceGameRecordsService,
-    // rankedLadderService: RankedLadderService,
-    // private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory
-    // this.gameModeContexts = {
-    //   [GameMode.Race]: new GameModeContext(
-    //     GameMode.Race,
-    //     raceGameRecordsService,
-    //     savedCharactersLadderService,
-    //     rankedLadderService
-    //   ),
-    //   [GameMode.Progression]: new GameModeContext(
-    //     GameMode.Progression,
-    //     raceGameRecordsService,
-    //     savedCharactersLadderService,
-    //     rankedLadderService
-    //   ),
-    // };
-  }
+  ) {}
 
   async toggleReadyToExploreHandler(
     session: UserSession
@@ -153,9 +132,14 @@ export class DungeonExplorationController {
     });
 
     const battleProcessor = new BattleProcessor(
+      this.updateDispatchFactory,
       game,
       party,
       battleOption,
+      this.idGenerator,
+      this.itemGenerator,
+      this.randomNumberGenerator,
+      this.gameEventCommandReceiver,
       this.animationLengths,
       this.boundingBoxSizes
     );

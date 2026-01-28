@@ -34,7 +34,7 @@ export async function battleResultActionCommandHandler(
   if (maybeError instanceof Error) return maybeError;
 
   switch (conclusion) {
-    case BattleConclusion.Defeat:
+    case BattleConclusion.Defeat: {
       if (party.battleId !== null) delete game.battles[party.battleId];
       party.battleId = null;
 
@@ -58,7 +58,8 @@ export async function battleResultActionCommandHandler(
       if (defeatMessagePayloadResults instanceof Error) return defeatMessagePayloadResults;
       if (defeatMessagePayloadResults) gameMessagePayloads.push(...defeatMessagePayloadResults);
       break;
-    case BattleConclusion.Victory:
+    }
+    case BattleConclusion.Victory: {
       const levelups = Battle.handleVictory(game, party, payload);
       const victoryMessagePayloadResults = await gameModeContext.onPartyVictory(
         game,
@@ -68,6 +69,7 @@ export async function battleResultActionCommandHandler(
       if (victoryMessagePayloadResults instanceof Error) return victoryMessagePayloadResults;
       if (victoryMessagePayloadResults) gameMessagePayloads.push(...victoryMessagePayloadResults);
       break;
+    }
   }
   return gameMessagePayloads;
 }
