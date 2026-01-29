@@ -127,7 +127,11 @@ export class TestClient {
   startLoggingMessages() {
     const onMessage = (rawData: string) => {
       const typedMessage = TestClient.getTypedMessage(rawData);
-      console.log("GOT MESSAGE:", GAME_STATE_UPDATE_TYPE_STRINGS[typedMessage.type], typedMessage);
+      console.info(
+        "test client message receipt:",
+        GAME_STATE_UPDATE_TYPE_STRINGS[typedMessage.type],
+        typedMessage
+      );
     };
     this.connectionEndpoint.on("message", onMessage);
   }
@@ -219,6 +223,8 @@ export class TestClient {
     this.game = joinedGameServerMessage.data.game;
     this.guestReconnectionToken = reconnectionTokenMessage.data.token;
 
+    console.log("set reconnectionToken", this.guestReconnectionToken);
+
     return { joinedGameServerMessage, reconnectionToken: reconnectionTokenMessage.data.token };
   }
 
@@ -235,6 +241,6 @@ export class TestClient {
   }
 
   get guestReconnectionToken(): Readonly<GuestSessionReconnectionToken | null> {
-    return this.guestReconnectionToken;
+    return this._cachedReconnectionToken;
   }
 }

@@ -14,9 +14,13 @@ export class TimeMachine {
     this.currentTimeMs = this.originalDateNow();
   }
 
-  advanceTime(milliseconds: number) {
+  advanceTime(milliseconds: number, options?: { logMessage: boolean }) {
     if (!this.isStarted) {
       throw new Error("Time machine not started");
+    }
+
+    if (options?.logMessage) {
+      console.info("advancing time:", milliseconds);
     }
 
     vi.advanceTimersByTime(milliseconds);

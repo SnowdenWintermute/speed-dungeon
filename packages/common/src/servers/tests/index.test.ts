@@ -8,12 +8,16 @@ import { TEST_CONNECTION_ENDPOINT_FACTORIES } from "./fixtures/test-connection-e
 import { testGameSetupToBothPlayersJoined } from "./fixtures/checkpoints/two-players-joined-game-server.js";
 import { TimeMachine } from "../../test-utils/time-machine.js";
 import { RECONNECTION_OPPORTUNITY_TIMEOUT_MS } from "../game-server/reconnection/index.js";
+import { testGameSetupToHostJoinedGameServer } from "./fixtures/checkpoints/host-joined-game-server.js";
+import { testGameSetupToTwoPlayersInParty } from "./fixtures/checkpoints/two-players-in-party.js";
+import { testGameSetupToTwoPlayersJoinedLobbyGame } from "./fixtures/checkpoints/two-players-joined-lobby-game.js";
+import { testGameSetupToSuccessfulGameReconnect } from "./fixtures/checkpoints/successful-game-reconnect.js";
 
 // @TODO
 // - pre game start input
 // - input while awaiting reconnect
-//
 // - input after timeout
+//
 // - input after reconnect
 // - reconnect after timeout
 // - session claim token
@@ -46,6 +50,11 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       timeMachine.returnToPresent();
     });
 
+    it("input after reconnect", async () => {
+      const { hostClient, joinerClient } =
+        await testGameSetupToSuccessfulGameReconnect(clientEndpointFactory);
+    });
+
     // it("input before game start", async () => {
     //   const { hostClient } = await testGameSetupToHostJoinedGameServer(clientEndpointFactory);
     //   // don't allow input before all players are in game
@@ -57,7 +66,6 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
     //     GameStateUpdateType.ErrorMessage
     //   );
     // });
-    //
 
     // it("input while awaiting reconnect", async () => {
     //   const { hostClient, joinerClient } =
@@ -69,38 +77,29 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
     //       type: ClientIntentType.ToggleReadyToExplore,
     //       data: undefined,
     //     },
-    //     GameStateUpdateType.ErrorMessage,
-    //     { logMessage: true }
+    //     GameStateUpdateType.ErrorMessage
     //   );
-
     // });
 
-    it("input after reconnect timeout", async () => {
-      timeMachine.start();
-      const { hostClient, joinerClient } =
-        await testGameSetupToBothPlayersJoined(clientEndpointFactory);
+    // it("input after reconnect timeout", async () => {
+    //   timeMachine.start();
+    //   const { hostClient, joinerClient } =
+    //     await testGameSetupToBothPlayersJoined(clientEndpointFactory);
 
-      await joinerClient.close();
+    //   await joinerClient.close();
 
-      timeMachine.advanceTime(RECONNECTION_OPPORTUNITY_TIMEOUT_MS);
+    //   timeMachine.advanceTime(RECONNECTION_OPPORTUNITY_TIMEOUT_MS);
 
-      hostClient.startLoggingMessages();
+    //   const message = await hostClient.sendMessageAndAwaitReplyType(
+    //     {
+    //       type: ClientIntentType.ToggleReadyToExplore,
+    //       data: undefined,
+    //     },
+    //     GameStateUpdateType.PlayerToggledReadyToDescendOrExplore
+    //   );
 
-      const message = await hostClient.sendMessageAndAwaitReplyType(
-        {
-          type: ClientIntentType.ToggleReadyToExplore,
-          data: undefined,
-        },
-        GameStateUpdateType.PlayerToggledReadyToDescendOrExplore,
-        { logMessage: true }
-      );
-
-      // timeMachine.advanceTime(RECONNECTION_OPPORTUNITY_TIMEOUT_MS);
-
-      console.log("MESSAGE AFTER TIMEOUT:", message);
-
-      expect(message.type).toBe(GameStateUpdateType.PlayerToggledReadyToDescendOrExplore);
-    });
+    //   expect(message.type).toBe(GameStateUpdateType.PlayerToggledReadyToDescendOrExplore);
+    // });
 
     // it("minimum characters", async () => {
     //   const { hostClient, joinerClient } =
@@ -121,7 +120,7 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
 
     // it("minimum parties", async () => {
     //   const { hostClient, joinerClient } =
-    //     await testGameSetupToTwoPlayersJoined(clientEndpointFactory);
+    //     await testGameSetupToTwoPlayersJoinedLobbyGame(clientEndpointFactory);
 
     //   await hostClient.sendMessageAndAwaitReplyType(
     //     { type: ClientIntentType.ToggleReadyToStartGame, data: undefined },

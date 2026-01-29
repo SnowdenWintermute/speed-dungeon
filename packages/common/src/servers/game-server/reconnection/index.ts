@@ -102,12 +102,6 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
       return outbox;
     }
 
-    const disconnectedSession = DisconnectedSession.fromUserSession(session, gameServerName);
-    await this.reconnectionForwardingStoreService.writeDisconnectedSession(
-      session.requireReconnectionKey(),
-      disconnectedSession
-    );
-
     game.inputLock.add(session.taggedUserId.id);
 
     outbox.pushToChannel(game.getChannelName(), {
@@ -137,8 +131,6 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
       const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
       reconnectionTimeoutOutbox.pushFromOther(leaveGameHandlerOutbox);
 
-      console.log("reconnection timeout");
-
       this.dispatchOutboxMessages(reconnectionTimeoutOutbox);
     };
 
@@ -149,6 +141,12 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
         session.username,
         onReconnectionTimeout
       )
+    );
+
+    const disconnectedSession = DisconnectedSession.fromUserSession(session, gameServerName);
+    await this.reconnectionForwardingStoreService.writeDisconnectedSession(
+      session.requireReconnectionKey(),
+      disconnectedSession
     );
 
     return outbox;

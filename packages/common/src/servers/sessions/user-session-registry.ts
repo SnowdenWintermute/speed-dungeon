@@ -112,9 +112,7 @@ export class UserSessionRegistry extends SessionRegistry<UserSession> {
 
   get disconnectedSessions() {
     const result: UserSession[] = [];
-    console.log("getting disconnectedSessions", this.sessions);
     for (const [connectionId, userSession] of this.sessions) {
-      console.log("checking if session disconnected:", userSession.connectionState);
       if (userSession.connectionState === UserSessionConnectionState.Disconnected) {
         result.push(userSession);
       }

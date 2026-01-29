@@ -9,7 +9,6 @@ export class ReconnectionOpportunity {
     public readonly username: Username,
     private readonly onExpire: () => void
   ) {
-    console.log("set timeout for duration:", duration);
     this.timeout = setTimeout(() => {
       this.expire();
     }, duration);
