@@ -97,7 +97,9 @@ export class BattleProcessor {
           this.boundingBoxSizes
         );
 
-        if (replayTreeResult instanceof Error) return replayTreeResult;
+        if (replayTreeResult instanceof Error) {
+          throw replayTreeResult;
+        }
         const { rootReplayNode } = replayTreeResult;
 
         const actionUserId = user.getEntityId();

@@ -1,5 +1,9 @@
 import isMatch from "lodash.ismatch";
-import { GameStateUpdate, GameStateUpdateType } from "../packets/game-state-updates.js";
+import {
+  GAME_STATE_UPDATE_TYPE_STRINGS,
+  GameStateUpdate,
+  GameStateUpdateType,
+} from "../packets/game-state-updates.js";
 import { GuestSessionReconnectionToken, Milliseconds, Username } from "../aliases.js";
 import { ClientIntent } from "../packets/client-intents.js";
 import { ConnectionEndpoint } from "../transport/connection-endpoint.js";
@@ -120,6 +124,14 @@ export class TestClient {
 
   static MESSAGE_WAIT_TIMEOUT = 300 as Milliseconds;
 
+  startLoggingMessages() {
+    const onMessage = (rawData: string) => {
+      const typedMessage = TestClient.getTypedMessage(rawData);
+      console.log("GOT MESSAGE:", GAME_STATE_UPDATE_TYPE_STRINGS[typedMessage.type], typedMessage);
+    };
+    this.connectionEndpoint.on("message", onMessage);
+  }
+
   async awaitGameStateUpdate<T extends GameStateUpdateType>(
     expectedReplyType: T,
     expectedData?: any
@@ -178,21 +190,20 @@ export class TestClient {
   /** Caches GuestSessionReconnectionToken and Game if successful */
   async connectToGameServer(
     endpointFactory: ClientEndpointFactory,
-    connectionInstructions: GameServerConnectionInstructions,
-    expectMessageOnConnection?: GameStateUpdateType
+    connectionInstructions: GameServerConnectionInstructions
   ) {
-    const hostClientQueryParams = {
+    const queryParams = {
       name: QUERY_PARAMS.SESSION_CLAIM_TOKEN,
       value: connectionInstructions.encryptedSessionClaimToken,
     };
 
     this.initializeEndpoint(
       endpointFactory.createClientEndpoint(connectionInstructions.url, {
-        queryParams: [hostClientQueryParams],
+        queryParams: [queryParams],
       })
     );
 
-    const hostClientJoinedGameServerMessageListener = this.awaitGameStateUpdate(
+    const clientJoinedGameServerMessageListener = this.awaitGameStateUpdate(
       GameStateUpdateType.GameFullUpdate
     );
 
@@ -203,7 +214,7 @@ export class TestClient {
     await this.connect();
 
     const reconnectionTokenMessage = await reconnectTokenMessageListener;
-    const joinedGameServerMessage = await hostClientJoinedGameServerMessageListener;
+    const joinedGameServerMessage = await clientJoinedGameServerMessageListener;
 
     this.game = joinedGameServerMessage.data.game;
     this.guestReconnectionToken = reconnectionTokenMessage.data.token;

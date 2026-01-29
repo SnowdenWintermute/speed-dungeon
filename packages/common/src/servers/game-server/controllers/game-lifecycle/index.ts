@@ -131,7 +131,6 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     game.setAsStarted();
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
-    console.log("pushing game started outbox");
     outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.GameStarted,
       data: { timeStarted: game.requireTimeStarted() },
@@ -212,7 +211,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
 
     game.removePlayer(session.username);
 
-    const noPlayersRemain = Object.keys(game.players).length === 0;
+    const noPlayersRemain = game.players.size === 0;
     const allPartiesWiped = game.allPartiesWiped();
 
     // - if there are no living parties in the game, clean up the game

@@ -16,7 +16,7 @@ import { ReconnectionOpportunity } from "../reconnection-opportunity.js";
 import { ONE_SECOND } from "../../../app-consts.js";
 import { GameServerGameLifecycleController } from "../controllers/game-lifecycle/index.js";
 
-export const RECONNECTION_OPPORTUNITY_TIMOUT_MS: Milliseconds = ONE_SECOND * 120;
+export const RECONNECTION_OPPORTUNITY_TIMEOUT_MS = (ONE_SECOND * 120) as Milliseconds;
 
 interface GameServerReconnectionContext {
   type: ConnectionContextType.Reconnection;
@@ -137,13 +137,15 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
       const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
       reconnectionTimeoutOutbox.pushFromOther(leaveGameHandlerOutbox);
 
+      console.log("reconnection timeout");
+
       this.dispatchOutboxMessages(reconnectionTimeoutOutbox);
     };
 
     this.reconnectionOpportunityManager.add(
       session.requireReconnectionKey(),
       new ReconnectionOpportunity(
-        RECONNECTION_OPPORTUNITY_TIMOUT_MS,
+        RECONNECTION_OPPORTUNITY_TIMEOUT_MS,
         session.username,
         onReconnectionTimeout
       )

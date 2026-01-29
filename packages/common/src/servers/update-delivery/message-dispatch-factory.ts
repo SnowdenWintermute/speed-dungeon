@@ -26,7 +26,14 @@ export type MessageDispatch<Sendable> =
 export class MessageDispatchFactory<Sendable> {
   constructor(private readonly userSessionRegistry: UserSessionRegistry) {}
 
-  createSingle(to: ConnectionId, message: Sendable): MessageDispatchSingle<Sendable> {
+  createSingle(to: ConnectionId, message: Sendable): MessageDispatchSingle<Sendable> | undefined {
+    if (
+      this.userSessionRegistry.getExpectedSession(to).connectionState ===
+      UserSessionConnectionState.Disconnected
+    ) {
+      return;
+    }
+
     return {
       type: MessageDispatchType.Single,
       connectionId: to,

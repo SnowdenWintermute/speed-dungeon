@@ -16,6 +16,7 @@ import { plainToInstance } from "class-transformer";
 import { EntityId, PartyName, Username } from "../aliases.js";
 import { SpeedDungeonPlayer } from "../game/player.js";
 import { TimedLock } from "../primatives/timed-lock.js";
+import { ReferenceCountedLock } from "../primatives/reference-counted-lock.js";
 
 export class AdventuringParty {
   // subsystems

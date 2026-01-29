@@ -19,6 +19,7 @@ export class GameRegistry {
   }
 
   unregisterGame(gameName: GameName) {
+    console.log("unregisterGame: ", gameName);
     this._games.delete(gameName);
   }
 

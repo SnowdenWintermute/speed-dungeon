@@ -139,6 +139,12 @@ export class SpeedDungeonGame {
     return this.timeStarted;
   }
 
+  requireInputUnlocked() {
+    if (this.inputLock.isLocked) {
+      throw new Error(ERROR_MESSAGES.GAME.INPUT_IS_LOCKED);
+    }
+  }
+
   setAsStarted() {
     if (this.timeStarted !== null) {
       throw new Error(ERROR_MESSAGES.GAME.ALREADY_STARTED);

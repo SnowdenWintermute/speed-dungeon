@@ -319,3 +319,66 @@ export class BattleReport {
     public expChanges: { combatantId: string; experienceChange: number }[] = []
   ) {}
 }
+
+export const GAME_STATE_UPDATE_TYPE_STRINGS: Record<GameStateUpdateType, string> = {
+  [GameStateUpdateType.GameList]: "GameList",
+  [GameStateUpdateType.ClientUsername]: "ClientUsername",
+  [GameStateUpdateType.CacheGuestSessionReconnectionToken]: "CacheGuestSessionReconnectionToken",
+  [GameStateUpdateType.ChannelFullUpdate]: "ChannelFullUpdate",
+  [GameStateUpdateType.UserJoinedChannel]: "UserJoinedChannel",
+  [GameStateUpdateType.UserLeftChannel]: "UserLeftChannel",
+  [GameStateUpdateType.ErrorMessage]: "ErrorMessage",
+  [GameStateUpdateType.GameFullUpdate]: "GameFullUpdate",
+  [GameStateUpdateType.PartyNameUpdate]: "PartyNameUpdate",
+  [GameStateUpdateType.PlayerChangedAdventuringParty]: "PlayerChangedAdventuringParty",
+  [GameStateUpdateType.PlayerLeftGame]: "PlayerLeftGame",
+  [GameStateUpdateType.PlayerJoinedGame]: "PlayerJoinedGame",
+  [GameStateUpdateType.PlayerDisconnectedWithReconnectionOpportunity]:
+    "PlayerDisconnectedWithReconnectionOpportunity",
+  [GameStateUpdateType.PlayerReconnectionTimedOut]: "PlayerReconnectionTimedOut",
+  [GameStateUpdateType.PartyCreated]: "PartyCreated",
+  [GameStateUpdateType.CharacterAddedToParty]: "CharacterAddedToParty",
+  [GameStateUpdateType.CharacterDeleted]: "CharacterDeleted",
+  [GameStateUpdateType.PlayerToggledReadyToStartGame]: "PlayerToggledReadyToStartGame",
+  [GameStateUpdateType.GameStarted]: "GameStarted",
+  [GameStateUpdateType.GameServerConnectionInstructions]: "GameServerConnectionInstructions",
+
+  [GameStateUpdateType.PlayerToggledReadyToDescendOrExplore]:
+    "PlayerToggledReadyToDescendOrExplore",
+  [GameStateUpdateType.DungeonRoomTypesOnCurrentFloor]: "DungeonRoomTypesOnCurrentFloor",
+  [GameStateUpdateType.DungeonRoomUpdate]: "DungeonRoomUpdate",
+  [GameStateUpdateType.BattleFullUpdate]: "BattleFullUpdate",
+  [GameStateUpdateType.ActionCommandPayloads]: "ActionCommandPayloads",
+  [GameStateUpdateType.GameMessage]: "GameMessage",
+  // BattleReport ,
+  [GameStateUpdateType.CharacterDroppedItem]: "CharacterDroppedItem",
+  [GameStateUpdateType.CharacterDroppedEquippedItem]: "CharacterDroppedEquippedItem",
+  [GameStateUpdateType.CharacterUnequippedItem]: "CharacterUnequippedItem",
+  [GameStateUpdateType.CharacterEquippedItem]: "CharacterEquippedItem",
+  [GameStateUpdateType.CharacterPickedUpItems]: "CharacterPickedUpItems",
+  // RawActionResults ,
+  [GameStateUpdateType.CharacterSelectedCombatAction]: "CharacterSelectedCombatAction",
+  [GameStateUpdateType.CharacterCycledTargets]: "CharacterCycledTargets",
+  [GameStateUpdateType.CharacterCycledTargetingSchemes]: "CharacterCycledTargetingSchemes",
+  [GameStateUpdateType.DungeonFloorNumber]: "DungeonFloorNumber",
+  [GameStateUpdateType.CharacterSpentAttributePoint]: "CharacterSpentAttributePoint",
+  [GameStateUpdateType.SavedCharacterList]: "SavedCharacterList",
+  [GameStateUpdateType.SavedCharacter]: "SavedCharacter",
+  [GameStateUpdateType.SavedCharacterDeleted]: "SavedCharacterDeleted",
+  [GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame]:
+    "PlayerSelectedSavedCharacterInProgressionGame",
+  [GameStateUpdateType.ProgressionGameStartingFloorSelected]:
+    "ProgressionGameStartingFloorSelected",
+  [GameStateUpdateType.CharacterSelectedHoldableHotswapSlot]:
+    "CharacterSelectedHoldableHotswapSlot",
+  [GameStateUpdateType.CharacterConvertedItemsToShards]: "CharacterConvertedItemsToShards",
+  [GameStateUpdateType.CharacterDroppedShards]: "CharacterDroppedShards",
+  [GameStateUpdateType.CharacterPurchasedItem]: "CharacterPurchasedItem",
+  [GameStateUpdateType.CharacterPerformedCraftingAction]: "CharacterPerformedCraftingAction",
+  [GameStateUpdateType.PlayerPostedItemLink]: "PlayerPostedItemLink",
+  // ActionResultReplayTree ,
+  [GameStateUpdateType.CharacterSelectedCombatActionLevel]: "CharacterSelectedCombatActionLevel",
+  [GameStateUpdateType.CharacterAllocatedAbilityPoint]: "CharacterAllocatedAbilityPoint",
+  [GameStateUpdateType.CharacterTradedItemForBook]: "CharacterTradedItemForBook",
+  [GameStateUpdateType.CharacterRenamedPet]: "CharacterRenamedPet",
+};

@@ -41,6 +41,7 @@ export class DungeonExplorationController {
     const party = game.getExpectedParty(player.getExpectedPartyName());
 
     game.requireTimeStarted();
+    game.requireInputUnlocked();
     party.requireInputUnlocked();
     party.requireNotInCombat();
 
@@ -144,6 +145,7 @@ export class DungeonExplorationController {
       this.boundingBoxSizes
     );
     const battleProcessingOutbox = await battleProcessor.processBattleUntilPlayerTurnOrConclusion();
+    outbox.pushFromOther(battleProcessingOutbox);
     // if (maybeError instanceof Error) return maybeError;
     return outbox;
   }

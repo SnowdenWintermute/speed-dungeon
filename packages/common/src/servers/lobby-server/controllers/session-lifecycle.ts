@@ -123,8 +123,6 @@ export class LobbySessionLifecycleController
   }
 
   async cleanupSession(session: UserSession) {
-    this.userSessionRegistry.unregister(session.connectionId);
-
     const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
     if (session.currentGameName !== null) {
       const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
@@ -135,7 +133,7 @@ export class LobbySessionLifecycleController
     // referral to the game server
     this.lobbyState.removeUserIfInLobbyChannel(session.username);
 
-    // outbox.removeRecipients([session.connectionId]);
+    this.userSessionRegistry.unregister(session.connectionId);
 
     return outbox;
   }

@@ -1,9 +1,5 @@
 import { ChannelName, ConnectionId } from "../../aliases.js";
-import {
-  MessageDispatch,
-  MessageDispatchFactory,
-  MessageDispatchType,
-} from "./message-dispatch-factory.js";
+import { MessageDispatch, MessageDispatchFactory } from "./message-dispatch-factory.js";
 
 export class MessageDispatchOutbox<Sendable> {
   private list: MessageDispatch<Sendable>[] = [];
@@ -13,28 +9,11 @@ export class MessageDispatchOutbox<Sendable> {
     return this.list;
   }
 
-  removeRecipients(connectionIds: ConnectionId[]) {
-    const newList: MessageDispatch<Sendable>[] = [];
-
-    for (const dispatch of this.list) {
-      if (dispatch.type === MessageDispatchType.Single) {
-        if (connectionIds.includes(dispatch.connectionId)) {
-          continue;
-        }
-      } else {
-        dispatch.connectionIds = dispatch.connectionIds.filter((id) => !connectionIds.includes(id));
-        if (dispatch.connectionIds.length === 0) {
-          continue;
-        }
-      }
-      newList.push(dispatch);
-    }
-
-    this.list = newList;
-  }
-
   pushToConnection(to: ConnectionId, update: Sendable) {
-    this.list.push(this.dispatchFactory.createSingle(to, update));
+    const dispatchOption = this.dispatchFactory.createSingle(to, update);
+    if (dispatchOption) {
+      this.list.push(dispatchOption);
+    }
   }
 
   pushToChannel(

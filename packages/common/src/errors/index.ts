@@ -53,6 +53,7 @@ export const ERROR_MESSAGES = {
     NO_SAVED_CHARACTERS: "You must create a saved character to play in that game mode",
     STARTING_FLOOR_LIMIT:
       "You can't start on a deeper floor than the deepest floor reached by any character in your party",
+    INPUT_IS_LOCKED: "Can't accept new inputs while waiting for a player to reconnect",
   },
   PARTY: {
     PLAYER_NOT_FOUND: "The provided username does not belong to any player in this party",

@@ -139,9 +139,9 @@ export class GameServer extends SpeedDungeonServer {
     );
 
     const { username, taggedUserId, connectionId } = session;
-    console.info(
-      `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the [${this.name}] game server`
-    );
+    // console.info(
+    //   `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the [${this.name}] game server`
+    // );
 
     this.outgoingMessagesGateway.registerEndpoint(connectionEndpoint);
 
@@ -172,15 +172,14 @@ export class GameServer extends SpeedDungeonServer {
       await this.reconnectionProtocol.issueReconnectionCredential(session);
     outbox.pushFromOther(refreshedReconnectionTokenOutbox);
 
-    console.log("dispatching outbox on game server connection");
     this.dispatchOutboxMessages(outbox);
   }
 
   // @TODO - combine with lobby server, it is almost exact same other than disconnection session logic
   protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
-    console.info(
-      `-- ${session.username} (${session.connectionId}) disconnected from ${this.name} game server.`
-    );
+    // console.info(
+    //   `-- ${session.username} (${session.connectionId}) disconnected from ${this.name} game server.`
+    // );
 
     session.connectionState = UserSessionConnectionState.Disconnected;
     this.outgoingMessagesGateway.unregisterEndpoint(session.connectionId);
@@ -189,8 +188,6 @@ export class GameServer extends SpeedDungeonServer {
 
     const cleanupSessionOutbox = await this.sessionLifecycleController.cleanupSession(session);
     outbox.pushFromOther(cleanupSessionOutbox);
-
-    // outbox.removeRecipients([session.connectionId]);
 
     this.dispatchOutboxMessages(outbox);
   }
