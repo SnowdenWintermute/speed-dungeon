@@ -2,7 +2,7 @@ import { GuestSessionReconnectionToken, IdentityProviderId, Username } from "../
 import { TaggedUserId } from "../sessions/user-ids.js";
 
 export interface ConnectionIdentityResolutionContext {
-  readonly cookies?: string; // user credentials or server credentials
+  readonly authSessionId?: string;
   readonly localUserId?: IdentityProviderId;
   readonly clientCachedGuestReconnectionToken?: GuestSessionReconnectionToken;
   readonly encodedGameServerSessionClaimToken?: string;

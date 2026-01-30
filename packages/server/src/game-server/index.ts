@@ -115,7 +115,8 @@ export class GameServerNode implements ActionCommandReceiver {
   createLobbyExternalServices() {
     const identityProviderService = new IdentityProviderService({
       execute: async (context: ConnectionIdentityResolutionContext) => {
-        return await getLoggedInUserOrCreateGuest(context.cookies);
+        // @TODO - this is wrong because this old fn expects cookies, not authSessionId
+        return await getLoggedInUserOrCreateGuest(context.authSessionId);
       },
     });
 

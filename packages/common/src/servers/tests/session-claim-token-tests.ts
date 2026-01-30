@@ -1,0 +1,64 @@
+import { it, expect } from "vitest";
+import { testGameSetupToSuccessfulGameReconnect } from "./fixtures/checkpoints/successful-game-reconnect.js";
+import { QUERY_PARAMS } from "../query-params.js";
+import { TEST_GAME_SERVER_URL } from "./fixtures/index.js";
+import { testGameSetupToGameHandoff } from "./fixtures/checkpoints/game-handoff.js";
+import { ClientEndpointFactory } from "./fixtures/test-connection-endpoint-factories.js";
+
+export function sessionClaimTokenTests(clientEndpointFactory: ClientEndpointFactory) {
+  it("session claim token required", async () => {
+    const { hostClient, hostConnectionInstructions } =
+      await testGameSetupToGameHandoff(clientEndpointFactory);
+
+    hostConnectionInstructions.encryptedSessionClaimToken = "";
+
+    const queryParams = {
+      name: QUERY_PARAMS.SESSION_CLAIM_TOKEN,
+      value: hostConnectionInstructions.encryptedSessionClaimToken,
+    };
+
+    const endpoint = clientEndpointFactory.createClientEndpoint(hostConnectionInstructions.url, {
+      queryParams: [queryParams],
+    });
+
+    hostClient.initializeEndpoint(endpoint);
+    await expect(hostClient.connect()).rejects.toThrow();
+  });
+
+  it("invalid session claim token", async () => {
+    const { hostClient, hostConnectionInstructions } =
+      await testGameSetupToGameHandoff(clientEndpointFactory);
+
+    hostConnectionInstructions.encryptedSessionClaimToken += " ";
+
+    const queryParams = {
+      name: QUERY_PARAMS.SESSION_CLAIM_TOKEN,
+      value: hostConnectionInstructions.encryptedSessionClaimToken,
+    };
+
+    const endpoint = clientEndpointFactory.createClientEndpoint(hostConnectionInstructions.url, {
+      queryParams: [queryParams],
+    });
+
+    hostClient.initializeEndpoint(endpoint);
+    await expect(hostClient.connect()).rejects.toThrow();
+  });
+
+  it("session claim token reuse", async () => {
+    const { hostClient } = await testGameSetupToSuccessfulGameReconnect(clientEndpointFactory);
+
+    await hostClient.close();
+
+    const endpoint = clientEndpointFactory.createClientEndpoint(TEST_GAME_SERVER_URL, {
+      queryParams: [
+        {
+          name: QUERY_PARAMS.SESSION_CLAIM_TOKEN,
+          value: hostClient.sessionClaimToken || "",
+        },
+      ],
+    });
+
+    hostClient.initializeEndpoint(endpoint);
+    await expect(hostClient.connect()).rejects.toThrow();
+  });
+}

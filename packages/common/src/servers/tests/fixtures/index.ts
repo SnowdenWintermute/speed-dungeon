@@ -5,7 +5,7 @@ import { GameServerExternalServices } from "../../game-server/index.js";
 import { GameSessionStoreService } from "../../services/game-session-store/index.js";
 import { ReconnectionForwardingStoreService } from "../../services/reconnection-forwarding-store/index.js";
 import { RankedLadderService } from "../../services/ranked-ladder.js";
-import { ConnectionId, GameServerName } from "../../../aliases.js";
+import { ConnectionId, GameServerName, Username } from "../../../aliases.js";
 import { RaceGameRecordsService } from "../../services/race-game-records.js";
 import { InMemorySpeedDungeonProfileService } from "../../services/in-memory-profiles-service.js";
 import { InMemorySavedCharacterSlotsPersistenceStrategy } from "../../services/in-memory-saved-characters-service.js";
@@ -19,6 +19,9 @@ export const TEST_GAME_SERVER_URL = localServerUrl(TEST_GAME_SERVER_PORT);
 /** Clients don't need to know their connection id */
 export const CLIENT_CONNECTION_ENDPOINT_NIL_ID = "" as ConnectionId;
 
+export const TEST_AUTH_SESSION_ID = "1234";
+export const TEST_AUTH_USERNAME = "TestUsername" as Username;
+
 export function localServerUrl(port: number) {
   return `ws://localhost:${port}`;
 }
@@ -29,7 +32,13 @@ export function createLobbyTestServices(
   savedCharactersService: SavedCharactersService,
   rankedLadderService: RankedLadderService
 ) {
-  const identityProviderQueryStrategy = new InMemoryIdentityProviderQueryStrategy(0);
+  const identityProviderQueryStrategy = new InMemoryIdentityProviderQueryStrategy();
+
+  identityProviderQueryStrategy.addIdentityWithPermenantAuthSession(
+    TEST_AUTH_USERNAME,
+    TEST_AUTH_SESSION_ID
+  );
+
   const identityProviderService = new IdentityProviderService(identityProviderQueryStrategy);
 
   const characterSlotsPersistenceStrategy = new InMemorySavedCharacterSlotsPersistenceStrategy();

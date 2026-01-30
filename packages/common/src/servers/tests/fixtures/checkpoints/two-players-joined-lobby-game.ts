@@ -35,6 +35,7 @@ export async function testGameSetupToTwoPlayersJoinedLobbyGame(
     },
     GameStateUpdateType.GameList
   );
+
   expect(gameHostLobbyGameListUpdate.data.gameList.length).toBe(1);
 
   // have someone join

@@ -53,15 +53,19 @@ export abstract class IncomingConnectionGateway {
     const reconnectionToken = url.searchParams.get(QUERY_PARAMS.GUEST_RECONNECTION_TOKEN);
     const sessionClaimToken = url.searchParams.get(QUERY_PARAMS.SESSION_CLAIM_TOKEN);
 
-    const cookies = Object.fromEntries(
-      request.headers.cookie?.split("; ").map((c) => c.split("=")) ?? []
-    );
+    let authSessionId = "";
+    const cookieHeaderOption = request.headers.cookie;
+    if (cookieHeaderOption) {
+      authSessionId = Object.fromEntries(
+        cookieHeaderOption.split("; ").map((cookie) => cookie.split("=")) ?? []
+      )["id"];
+    }
 
     return {
       clientCachedGuestReconnectionToken:
         (reconnectionToken as GuestSessionReconnectionToken) || undefined,
       encodedGameServerSessionClaimToken: sessionClaimToken || undefined,
-      cookies,
+      authSessionId,
     };
   }
 }

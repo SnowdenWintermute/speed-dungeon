@@ -57,10 +57,7 @@ export class TestClient {
     await new Promise<void>((resolve, reject) => {
       const onOpen = async () => {
         try {
-          const connectionMessage = await Promise.any([
-            usernameAssignment,
-            reconnectionInstructions,
-          ]);
+          await Promise.any([usernameAssignment, reconnectionInstructions]);
           cleanup();
           resolve();
         } catch (error) {

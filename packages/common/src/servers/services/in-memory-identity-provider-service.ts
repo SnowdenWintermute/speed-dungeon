@@ -1,6 +1,6 @@
 import { IdentityProviderId, Username } from "../../aliases.js";
-import { IdGenerator } from "../../utility-classes/index.js";
-import { TaggedUserId } from "../sessions/user-ids.js";
+import { SequentialIdGenerator } from "../../utils/index.js";
+import { TaggedUserId, UserIdType } from "../sessions/user-ids.js";
 import {
   ConnectionIdentityResolutionContext,
   IdentityProviderUserSessionQueryStrategy,
@@ -9,18 +9,35 @@ import {
 export class InMemoryIdentityProviderQueryStrategy
   implements IdentityProviderUserSessionQueryStrategy
 {
-  private fakeSessions: Record<IdentityProviderId, Username> = {};
-  private idGenerator = new IdGenerator({ saveHistory: false });
-  constructor(fakeSessionCount: number) {
-    for (let i = 0; i < fakeSessionCount; i += 1) {
-      const userId = i + 1;
-      this.fakeSessions[userId as IdentityProviderId] = `username-${userId}` as Username;
-    }
+  private identities = new Map<IdentityProviderId, Username>();
+  private authSessions = new Map<string, IdentityProviderId>();
+  private idGenerator = new SequentialIdGenerator();
+
+  private getNextUserId() {
+    return this.idGenerator.getNextIdNumeric() as IdentityProviderId;
+  }
+
+  addIdentityWithPermenantAuthSession(username: Username, authSessionId: string) {
+    const id = this.getNextUserId();
+    this.identities.set(id, username);
+    this.authSessions.set(authSessionId, id);
   }
 
   async execute(
     context: ConnectionIdentityResolutionContext
   ): Promise<{ username: Username; taggedUserId: TaggedUserId } | null> {
+    if (context.authSessionId !== undefined) {
+      const activeSessionOptionUserId = this.authSessions.get(context.authSessionId) || null;
+
+      if (activeSessionOptionUserId) {
+        const username = this.identities.get(activeSessionOptionUserId);
+        if (!username) {
+          throw new Error("in memory auth session expected");
+        }
+        console.log("in memory auth user session found");
+        return { username, taggedUserId: { type: UserIdType.Auth, id: activeSessionOptionUserId } };
+      }
+    }
     return null;
   }
 }
