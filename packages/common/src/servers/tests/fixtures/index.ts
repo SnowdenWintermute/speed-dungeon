@@ -3,15 +3,15 @@ import { SavedCharactersService } from "../../../servers/services/saved-characte
 import { IdentityProviderService } from "../../../servers/services/identity-provider.js";
 import { GameServerExternalServices } from "../../game-server/index.js";
 import { GameSessionStoreService } from "../../services/game-session-store/index.js";
-import { ReconnectionForwardingStoreService } from "../../services/disconnected-session-store/index.js";
+import { ReconnectionForwardingStoreService } from "../../services/reconnection-forwarding-store/index.js";
 import { RankedLadderService } from "../../services/ranked-ladder.js";
-import { ConnectionId } from "../../../aliases.js";
+import { ConnectionId, GameServerName } from "../../../aliases.js";
 import { RaceGameRecordsService } from "../../services/race-game-records.js";
 import { InMemorySpeedDungeonProfileService } from "../../services/in-memory-profiles-service.js";
 import { InMemorySavedCharacterSlotsPersistenceStrategy } from "../../services/in-memory-saved-characters-service.js";
 import { InMemoryIdentityProviderQueryStrategy } from "../../services/in-memory-identity-provider-service.js";
 
-export const TEST_GAME_SERVER_NAME = "Lindblum Test Server";
+export const TEST_GAME_SERVER_NAME = "Lindblum Test Server" as GameServerName;
 export const TEST_LOBBY_SERVER_PORT = 8090;
 export const TEST_GAME_SERVER_PORT = 8091;
 export const TEST_LOBBY_URL = localServerUrl(TEST_LOBBY_SERVER_PORT);

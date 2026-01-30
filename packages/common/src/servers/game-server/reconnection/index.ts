@@ -4,8 +4,7 @@ import {
   ConnectionContextType,
   PlayerReconnectionProtocol,
 } from "../../reconnection-protocol/index.js";
-import { ReconnectionForwardingStoreService } from "../../services/disconnected-session-store/index.js";
-import { DisconnectedSession } from "../../sessions/disconnected-session.js";
+import { ReconnectionForwardingStoreService } from "../../services/reconnection-forwarding-store/index.js";
 import { UserIdType } from "../../sessions/user-ids.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
@@ -15,6 +14,7 @@ import { randomBytes } from "crypto";
 import { ReconnectionOpportunity } from "../reconnection-opportunity.js";
 import { ONE_SECOND } from "../../../app-consts.js";
 import { GameServerGameLifecycleController } from "../controllers/game-lifecycle/index.js";
+import { GameServerReconnectionForwardingRecord } from "../../services/reconnection-forwarding-store/game-server-reconnection-forwarding-record.js";
 
 export const RECONNECTION_OPPORTUNITY_TIMEOUT_MS = (ONE_SECOND * 120) as Milliseconds;
 
@@ -112,11 +112,11 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     const onReconnectionTimeout = async () => {
       this.reconnectionOpportunityManager.remove(session.requireReconnectionKey());
       try {
-        await this.reconnectionForwardingStoreService.deleteDisconnectedSession(
+        await this.reconnectionForwardingStoreService.deleteGameServerReconnectionForwardingRecord(
           session.requireReconnectionKey()
         );
       } catch (error) {
-        console.error("failed to delete disconnectedSession:", error);
+        console.error("failed to delete reconnectionForwardingRecord:", error);
       }
 
       const reconnectionTimeoutOutbox = new MessageDispatchOutbox(this.updateDispatchFactory);
@@ -143,12 +143,15 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
       )
     );
 
-    const disconnectedSession = DisconnectedSession.fromUserSession(session, gameServerName);
-    await this.reconnectionForwardingStoreService.writeDisconnectedSession(
-      session.requireReconnectionKey(),
-      disconnectedSession
+    const reconnectionForwardingRecord = GameServerReconnectionForwardingRecord.fromUserSession(
+      session,
+      gameServerName
     );
-    console.log("wrote disconnectedSession");
+
+    await this.reconnectionForwardingStoreService.writeGameServerReconnectionForwardingRecord(
+      session.requireReconnectionKey(),
+      reconnectionForwardingRecord
+    );
 
     return outbox;
   }
@@ -166,7 +169,7 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     }
 
     this.reconnectionOpportunityManager.remove(session.requireReconnectionKey());
-    await this.reconnectionForwardingStoreService.deleteDisconnectedSession(
+    await this.reconnectionForwardingStoreService.deleteGameServerReconnectionForwardingRecord(
       session.requireReconnectionKey()
     );
 

@@ -2,7 +2,7 @@ import { GuestSessionReconnectionToken, IdentityProviderId } from "../../aliases
 import {
   ReconnectionKey,
   ReconnectionKeyType,
-} from "../services/disconnected-session-store/index.js";
+} from "../services/reconnection-forwarding-store/index.js";
 import { ReconnectionOpportunity } from "./reconnection-opportunity.js";
 
 export class ReconnectionOpportunityManager {

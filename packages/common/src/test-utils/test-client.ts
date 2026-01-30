@@ -44,7 +44,7 @@ export class TestClient {
   }
 
   async connect() {
-    const usernameAssignment = this.awaitGameStateUpdate(GameStateUpdateType.ClientUsername).then(
+    const usernameAssignment = this.awaitGameStateUpdate(GameStateUpdateType.OnConnection).then(
       (message) => {
         this._username = message.data.username;
       }
@@ -222,8 +222,6 @@ export class TestClient {
 
     this.game = joinedGameServerMessage.data.game;
     this.guestReconnectionToken = reconnectionTokenMessage.data.token;
-
-    console.log("set reconnectionToken", this.guestReconnectionToken);
 
     return { joinedGameServerMessage, reconnectionToken: reconnectionTokenMessage.data.token };
   }

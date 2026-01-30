@@ -12,15 +12,19 @@ import { testGameSetupToHostJoinedGameServer } from "./fixtures/checkpoints/host
 import { testGameSetupToTwoPlayersInParty } from "./fixtures/checkpoints/two-players-in-party.js";
 import { testGameSetupToTwoPlayersJoinedLobbyGame } from "./fixtures/checkpoints/two-players-joined-lobby-game.js";
 import { testGameSetupToSuccessfulGameReconnect } from "./fixtures/checkpoints/successful-game-reconnect.js";
+import { invariant } from "../../utils/index.js";
+import { QUERY_PARAMS } from "../query-params.js";
+import { TEST_LOBBY_URL } from "./fixtures/index.js";
+import { testGameSetupToGameHandoff } from "./fixtures/checkpoints/game-handoff.js";
 
 // @TODO
 // - pre game start input
 // - input while awaiting reconnect
 // - input after timeout
-//
 // - input after reconnect
 // - reconnect after timeout
-// - session claim token
+// - session claim token required
+//
 // - session claim token reuse
 // - reconnect token reuse
 // -
@@ -50,10 +54,67 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       timeMachine.returnToPresent();
     });
 
-    it("input after reconnect", async () => {
-      const { hostClient, joinerClient } =
-        await testGameSetupToSuccessfulGameReconnect(clientEndpointFactory);
+    it("session claim token required", async () => {
+      const { hostClient, hostConnectionInstructions } =
+        await testGameSetupToGameHandoff(clientEndpointFactory);
+
+      hostConnectionInstructions.encryptedSessionClaimToken = "";
+
+      const queryParams = {
+        name: QUERY_PARAMS.SESSION_CLAIM_TOKEN,
+        value: "",
+      };
+
+      const endpoint = clientEndpointFactory.createClientEndpoint(hostConnectionInstructions.url, {
+        queryParams: [queryParams],
+      });
+
+      hostClient.initializeEndpoint(endpoint);
+      await expect(hostClient.connect()).rejects.toThrow();
     });
+
+    // it("reconnect after timeout", async () => {
+    //   timeMachine.start();
+    //   const { joinerClient } = await testGameSetupToBothPlayersJoined(clientEndpointFactory);
+
+    //   await joinerClient.close();
+
+    //   timeMachine.advanceTime(RECONNECTION_OPPORTUNITY_TIMEOUT_MS);
+
+    //   invariant(joinerClient.guestReconnectionToken !== null);
+
+    //   const joinerRejoinLobbyParams = {
+    //     name: QUERY_PARAMS.GUEST_RECONNECTION_TOKEN,
+    //     value: joinerClient.guestReconnectionToken as unknown as string,
+    //   };
+
+    //   joinerClient.initializeEndpoint(
+    //     clientEndpointFactory.createClientEndpoint(TEST_LOBBY_URL, {
+    //       queryParams: [joinerRejoinLobbyParams],
+    //     })
+    //   );
+
+    //   const joinerClientInitialJoinUsernameMessageListener = joinerClient.awaitGameStateUpdate(
+    //     GameStateUpdateType.OnConnection,
+    //     { expiredReconnection: true }
+    //   );
+
+    //   const joinerClientInitialJoinUsernameMessage =
+    //     await joinerClientInitialJoinUsernameMessageListener;
+    //   expect(joinerClientInitialJoinUsernameMessage.data.username).toBeDefined();
+    // });
+
+    // it("input after reconnect", async () => {
+    //   const { hostClient } = await testGameSetupToSuccessfulGameReconnect(clientEndpointFactory);
+
+    //   await hostClient.sendMessageAndAwaitReplyType(
+    //     {
+    //       type: ClientIntentType.ToggleReadyToExplore,
+    //       data: undefined,
+    //     },
+    //     GameStateUpdateType.PlayerToggledReadyToDescendOrExplore
+    //   );
+    // });
 
     // it("input before game start", async () => {
     //   const { hostClient } = await testGameSetupToHostJoinedGameServer(clientEndpointFactory);

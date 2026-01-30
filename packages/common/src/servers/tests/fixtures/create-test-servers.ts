@@ -1,6 +1,5 @@
 import { SavedCharactersService } from "../../../servers/services/saved-characters.js";
 import { InMemoryGameSessionStoreService } from "../../services/game-session-store/in-memory-game-session-store-service.js";
-import { InMemoryReconnectionForwardingStoreService } from "../../services/disconnected-session-store/in-memory-disconnected-session-store.js";
 import { SodiumHelpers } from "../../../cryptography/index.js";
 import { GameServer } from "../../game-server/index.js";
 import { GameServerName } from "../../../aliases.js";
@@ -21,8 +20,10 @@ import {
   localServerUrl,
   TEST_GAME_SERVER_NAME,
   TEST_GAME_SERVER_PORT,
+  TEST_GAME_SERVER_URL,
 } from "./index.js";
 import { IncomingConnectionGateway } from "../../incoming-connection-gateway.js";
+import { InMemoryReconnectionForwardingStoreService } from "../../services/reconnection-forwarding-store/in-memory-reconnection-forwarding-store.js";
 
 export async function createTestServers(
   lobbyIncomingConnectionGateway: IncomingConnectionGateway,
@@ -55,6 +56,7 @@ export async function createTestServers(
       rankedLadderService
     ),
     codec,
+    { [TEST_GAME_SERVER_NAME]: TEST_GAME_SERVER_URL },
     () => testLeastBusyServerUrlGetter()
   );
 

@@ -3,6 +3,7 @@ import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
 
 export class OutgoingMessageGateway<Sendable> {
   private transportEndpoints = new Map<ConnectionId, ConnectionEndpoint>();
+
   registerEndpoint(endpoint: ConnectionEndpoint): void {
     this.transportEndpoints.set(endpoint.id, endpoint);
   }
@@ -14,9 +15,15 @@ export class OutgoingMessageGateway<Sendable> {
   submitToConnection(connectionId: ConnectionId, message: Sendable): void {
     const endpoint = this.transportEndpoints.get(connectionId);
     if (!endpoint) {
-      throw new Error(
-        `expected connection id ${connectionId} had no associated ConnectionEndpoint, message: ${JSON.stringify(message)}`
-      );
+      // it is possible for this sequence:
+      // - we add a message to an outbox in an async function
+      // - the session disconnects and we remove them
+      // - the original async function finishes
+      // - we try to send the message to a session no longer existing
+      return;
+      // throw new Error(
+      //   `expected connection id ${connectionId} had no associated ConnectionEndpoint, message: ${JSON.stringify(message)}`
+      // );
     }
 
     const serializedMessage = JSON.stringify(message);

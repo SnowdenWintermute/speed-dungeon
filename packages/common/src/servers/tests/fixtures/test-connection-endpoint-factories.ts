@@ -61,7 +61,4 @@ export const inMemoryFactory: ClientEndpointFactory = {
   },
 };
 
-export const TEST_CONNECTION_ENDPOINT_FACTORIES = [
-  // websocketFactory,
-  inMemoryFactory,
-];
+export const TEST_CONNECTION_ENDPOINT_FACTORIES = [websocketFactory, inMemoryFactory];

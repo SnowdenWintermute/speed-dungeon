@@ -10,11 +10,11 @@ import { SpeedDungeonGame } from "../../game/index.js";
 import { ActionValidity } from "../../primatives/index.js";
 import { invariant } from "../../utils/index.js";
 import { GameRegistry } from "../game-registry.js";
+import { SpeedDungeonProfileService } from "../services/profiles.js";
 import {
   ReconnectionKey,
   ReconnectionKeyType,
-} from "../services/disconnected-session-store/index.js";
-import { SpeedDungeonProfileService } from "../services/profiles.js";
+} from "../services/reconnection-forwarding-store/index.js";
 import { ConnectionSession } from "./session-registry.js";
 import { AuthTaggedUserId, TaggedUserId, UserIdType } from "./user-ids.js";
 import { UserSessionRegistry } from "./user-session-registry.js";

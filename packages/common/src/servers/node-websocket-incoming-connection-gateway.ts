@@ -16,7 +16,17 @@ export class NodeWebSocketIncomingConnectionGateway extends IncomingConnectionGa
       const identityContext = this.parseConnectionIdentityContext(request);
 
       const untypedEndpoint = new NodeWebSocketConnectionEndpoint(socket, this.issueConnectionId());
-      await this.requireConnectionHandler()(untypedEndpoint, identityContext);
+      try {
+        await this.requireConnectionHandler()(untypedEndpoint, identityContext);
+      } catch (error) {
+        if (error instanceof Error) {
+          console.info("error with attempted connection:", error.message);
+        } else {
+          console.trace(error);
+        }
+
+        untypedEndpoint.close();
+      }
     });
   }
 }

@@ -28,7 +28,7 @@ import { GameServerConnectionInstructions } from "../servers/lobby-server/game-h
 
 export enum GameStateUpdateType {
   GameList,
-  ClientUsername,
+  OnConnection,
   CacheGuestSessionReconnectionToken,
   ChannelFullUpdate,
   UserJoinedChannel,
@@ -88,8 +88,9 @@ export interface GameStateUpdateMap {
   [GameStateUpdateType.GameList]: {
     gameList: GameListEntry[];
   };
-  [GameStateUpdateType.ClientUsername]: {
+  [GameStateUpdateType.OnConnection]: {
     username: Username;
+    expiredReconnection?: boolean;
   };
   [GameStateUpdateType.CacheGuestSessionReconnectionToken]: {
     token: GuestSessionReconnectionToken;
@@ -322,7 +323,7 @@ export class BattleReport {
 
 export const GAME_STATE_UPDATE_TYPE_STRINGS: Record<GameStateUpdateType, string> = {
   [GameStateUpdateType.GameList]: "GameList",
-  [GameStateUpdateType.ClientUsername]: "ClientUsername",
+  [GameStateUpdateType.OnConnection]: "OnConnection",
   [GameStateUpdateType.CacheGuestSessionReconnectionToken]: "CacheGuestSessionReconnectionToken",
   [GameStateUpdateType.ChannelFullUpdate]: "ChannelFullUpdate",
   [GameStateUpdateType.UserJoinedChannel]: "UserJoinedChannel",

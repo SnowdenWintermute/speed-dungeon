@@ -88,7 +88,7 @@ export class GameServerSessionLifecycleController
     // tell the client their username since if they are a reconnecting guest they will have some random
     // username from the lobby and we want to give them the username they disconnected with
     outbox.pushToConnection(session.connectionId, {
-      type: GameStateUpdateType.ClientUsername,
+      type: GameStateUpdateType.OnConnection,
       data: { username: session.username },
     });
     return outbox;

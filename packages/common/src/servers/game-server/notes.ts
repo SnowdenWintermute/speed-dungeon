@@ -48,16 +48,16 @@
 // - if the user was a member of a dead party, just let them DC without any reconnection method
 // - if there are no living parties in the game, clean up the game
 // otherwise, allow for reconnection
-// -  create a DisconnectedSession from the user's session
-// - write the DisconnectedSession to a shared store (valkey or in-memory) as a Record<UserId, DisconnectedSession>
+// -  create a GameServerReconnectionForwardingRecord from the user's session
+// - write the GameServerReconnectionForwardingRecord to a shared store (valkey or in-memory) as a Record<UserId, GameServerReconnectionForwardingRecord>
 // - pause acceptance of user inputs until reconnection is established or a timeout has passed
-//   - on timeout or reconnection, delete the entry in the Record<UserId, DisconnectedSession>
+//   - on timeout or reconnection, delete the entry in the Record<UserId, GameServerReconnectionForwardingRecord>
 //
 // handle a reconnection (to lobby server after disconnection from game server)
 // - guests provide GuestId (UUID) from their local storage
 // - if authenticated user, lobby server gets their UserId from lobby's auth service
 //
-// - lobby checks the central store for a DisconnectedSession for that GuestId or UserId
+// - lobby checks the central store for a GameServerReconnectionForwardingRecord for that GuestId or UserId
 // - lobby ensures the game associated with this disconnected session is still active
 //   by checking the central store's Record<GameId, ActiveGame>
 // - lobby provides a GameServerSessionClaimToken to user client
@@ -75,12 +75,12 @@
 //
 // on intentional game leave (LEAVE GAME button pressed)
 // - warn users that they will not be able to reconnect
-// - don't create a DisconnectedSession for them
+// - don't create a GameServerReconnectionForwardingRecord for them
 // - don't add them to the input lock RC
 //
 // on reconnect attempt rejected
 // - it should not matter because they would only legitimately be reconnecting if
-// we wrote a DisconnectedSession record
+// we wrote a GameServerReconnectionForwardingRecord record
 //
 // on game ended
 // - delete any disconnected sessions
@@ -93,7 +93,7 @@
 // - if expired, clean up any dangling records in the central store:
 //   - PendingGameSetup
 //   - ActiveGame
-//   - DisconnectedSession
+//   - GameServerReconnectionForwardingRecord
 //   - heartbeat
 //
 //- enforce unique usernames for guests

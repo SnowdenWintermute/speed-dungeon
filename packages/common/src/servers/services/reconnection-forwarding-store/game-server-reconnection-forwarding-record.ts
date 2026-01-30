@@ -5,10 +5,10 @@ import {
   GuestSessionReconnectionToken,
   PartyName,
   Username,
-} from "../../aliases.js";
-import { GameRegistry } from "../game-registry.js";
-import { TaggedUserId } from "./user-ids.js";
-import { UserSession } from "./user-session.js";
+} from "../../../aliases.js";
+import { GameRegistry } from "../../game-registry.js";
+import { TaggedUserId } from "../../sessions/user-ids.js";
+import { UserSession } from "../../sessions/user-session.js";
 
 export class GameServerReconnectionForwardingRecord {
   constructor(

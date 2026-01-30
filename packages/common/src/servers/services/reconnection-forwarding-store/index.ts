@@ -1,5 +1,5 @@
 import { GuestSessionReconnectionToken, IdentityProviderId } from "../../../aliases.js";
-import { DisconnectedSession } from "../../sessions/disconnected-session.js";
+import { GameServerReconnectionForwardingRecord } from "./game-server-reconnection-forwarding-record.js";
 
 export enum ReconnectionKeyType {
   Auth,
@@ -19,10 +19,12 @@ export interface AuthReconnectionKey {
 export type ReconnectionKey = GuestReconnectionKey | AuthReconnectionKey;
 
 export interface ReconnectionForwardingStoreService {
-  writeDisconnectedSession(
+  writeGameServerReconnectionForwardingRecord(
     reconnectionKey: ReconnectionKey,
-    record: DisconnectedSession
+    record: GameServerReconnectionForwardingRecord
   ): Promise<void>;
-  getDisconnectedSession(reconnectionKey: ReconnectionKey): Promise<DisconnectedSession | null>;
-  deleteDisconnectedSession(reconnectionKey: ReconnectionKey): Promise<void>;
+  getGameServerReconnectionForwardingRecord(
+    reconnectionKey: ReconnectionKey
+  ): Promise<GameServerReconnectionForwardingRecord | null>;
+  deleteGameServerReconnectionForwardingRecord(reconnectionKey: ReconnectionKey): Promise<void>;
 }

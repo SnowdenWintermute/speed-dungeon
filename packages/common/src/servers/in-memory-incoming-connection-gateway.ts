@@ -13,7 +13,17 @@ export class InMemoryIncomingConnectionGateway extends IncomingConnectionGateway
   listen() {
     this.inMemoryConnectionEndpointServer.on("connection", async (untypedEndpoint, request) => {
       const identityContext = this.parseConnectionIdentityContext(request);
-      await this.requireConnectionHandler()(untypedEndpoint, identityContext);
+      try {
+        await this.requireConnectionHandler()(untypedEndpoint, identityContext);
+      } catch (error) {
+        if (error instanceof Error) {
+          console.info("error with attempted connection:", error.message);
+        } else {
+          console.trace(error);
+        }
+
+        untypedEndpoint.close();
+      }
     });
   }
 }

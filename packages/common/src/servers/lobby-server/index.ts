@@ -21,13 +21,14 @@ import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
 import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js";
 import { UserSession, UserSessionConnectionState } from "../sessions/user-session.js";
-import { ReconnectionForwardingStoreService } from "../services/disconnected-session-store/index.js";
+import { ReconnectionForwardingStoreService } from "../services/reconnection-forwarding-store/index.js";
 import { GameServerSessionClaimTokenCodec } from "./game-handoff/session-claim-token.js";
 import { GameHandoffManager } from "./game-handoff/game-handoff-manager.js";
 import { SpeedDungeonServer } from "../speed-dungeon-server.js";
 import { LobbyReconnectionProtocol } from "./reconnection/index.js";
 import { ConnectionContextType } from "../reconnection-protocol/index.js";
 import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
+import { GameServerName } from "../../aliases.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -59,6 +60,7 @@ export class LobbyServer extends SpeedDungeonServer {
     protected readonly incomingConnectionGateway: IncomingConnectionGateway,
     private readonly externalServices: LobbyExternalServices,
     private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec,
+    private readonly gameServerUrlRegistry: Record<GameServerName, string>,
     fetchLeastBusyServer: () => Promise<string>
   ) {
     super("LobbyServer", incomingConnectionGateway);
@@ -97,7 +99,8 @@ export class LobbyServer extends SpeedDungeonServer {
       gameServerSessionClaimTokenCodec,
       this.updateDispatchFactory,
       externalServices.gameSessionStoreService,
-      externalServices.reconnectionForwardingStoreService
+      externalServices.reconnectionForwardingStoreService,
+      gameServerUrlRegistry
     );
   }
 
@@ -139,7 +142,10 @@ export class LobbyServer extends SpeedDungeonServer {
         this.userIntentHandlers
       );
 
-      const outbox = await this.userSessionLifecycleController.activateSession(session);
+      const hadExpiredReconnectionToken = session.getGuestReconnectionTokenOption() !== null;
+      const outbox = await this.userSessionLifecycleController.activateSession(session, {
+        hadExpiredReconnectionToken,
+      });
       this.dispatchOutboxMessages(outbox);
     }
   }

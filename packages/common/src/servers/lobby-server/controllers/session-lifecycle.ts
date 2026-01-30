@@ -77,15 +77,21 @@ export class LobbySessionLifecycleController
 
   async activateSession(
     session: UserSession,
-    options?: { sessionWillBeForwardedToGameServer: boolean }
+    options?: {
+      sessionWillBeForwardedToGameServer?: boolean;
+      hadExpiredReconnectionToken?: boolean;
+    }
   ) {
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     this.userSessionRegistry.register(session);
 
     // tell the client their username
     outbox.pushToConnection(session.connectionId, {
-      type: GameStateUpdateType.ClientUsername,
-      data: { username: session.username },
+      type: GameStateUpdateType.OnConnection,
+      data: {
+        username: session.username,
+        expiredReconnection: options?.hadExpiredReconnectionToken,
+      },
     });
 
     // don't set up all their lobby stuff because we just want to forward them
