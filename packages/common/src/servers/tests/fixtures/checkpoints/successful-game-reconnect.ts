@@ -20,8 +20,10 @@ export async function testGameSetupToSuccessfulGameReconnect(
 
   const joinerRejoinLobbyParams = {
     name: QUERY_PARAMS.GUEST_RECONNECTION_TOKEN,
-    value: joinerClient.guestReconnectionToken as unknown as string,
+    value: joinerClient.guestReconnectionToken,
   };
+
+  const usedJoinerGuestReconnectionToken = structuredClone(joinerClient.guestReconnectionToken);
 
   joinerClient.initializeEndpoint(
     clientEndpointFactory.createClientEndpoint(TEST_LOBBY_URL, {
@@ -46,5 +48,6 @@ export async function testGameSetupToSuccessfulGameReconnect(
   return {
     joinerClient,
     hostClient,
+    usedJoinerGuestReconnectionToken,
   };
 }

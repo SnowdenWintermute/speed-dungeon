@@ -14,21 +14,11 @@ import { testGameSetupToTwoPlayersJoinedLobbyGame } from "./fixtures/checkpoints
 import { testGameSetupToSuccessfulGameReconnect } from "./fixtures/checkpoints/successful-game-reconnect.js";
 import { invariant } from "../../utils/index.js";
 import { QUERY_PARAMS } from "../query-params.js";
-import { TEST_LOBBY_URL } from "./fixtures/index.js";
+import { TEST_GAME_SERVER_URL, TEST_LOBBY_URL } from "./fixtures/index.js";
 import { testGameSetupToGameHandoff } from "./fixtures/checkpoints/game-handoff.js";
 
 // @TODO
-// - pre game start input
-// - input while awaiting reconnect
-// - input after timeout
-// - input after reconnect
-// - reconnect after timeout
-// - session claim token required
-// - invalid session claim token
-//
-// - session claim token reuse
-// - reconnect token reuse
-// -
+// - reconnection with auth user
 
 describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
   "$name reconnection flow",
@@ -53,6 +43,53 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       lobbyServer.closeTransportServer();
       gameServer.closeTransportServer();
       timeMachine.returnToPresent();
+    });
+
+    it("reconnect token reuse", async () => {
+      const { joinerClient, usedJoinerGuestReconnectionToken } =
+        await testGameSetupToSuccessfulGameReconnect(clientEndpointFactory);
+
+      await joinerClient.close();
+
+      const queryParams = {
+        name: QUERY_PARAMS.GUEST_RECONNECTION_TOKEN,
+        value: usedJoinerGuestReconnectionToken,
+      };
+
+      const endpoint = clientEndpointFactory.createClientEndpoint(TEST_LOBBY_URL, {
+        queryParams: [queryParams],
+      });
+
+      joinerClient.initializeEndpoint(endpoint);
+
+      const joinerClientInitialJoinUsernameMessageListener = joinerClient.awaitGameStateUpdate(
+        GameStateUpdateType.OnConnection,
+        { expiredReconnection: true }
+      );
+
+      await joinerClient.connect();
+
+      const joinerClientInitialJoinUsernameMessage =
+        await joinerClientInitialJoinUsernameMessageListener;
+      expect(joinerClientInitialJoinUsernameMessage.data.username).toBeDefined();
+    });
+
+    it("session claim token reuse", async () => {
+      const { hostClient } = await testGameSetupToSuccessfulGameReconnect(clientEndpointFactory);
+
+      await hostClient.close();
+
+      const endpoint = clientEndpointFactory.createClientEndpoint(TEST_GAME_SERVER_URL, {
+        queryParams: [
+          {
+            name: QUERY_PARAMS.SESSION_CLAIM_TOKEN,
+            value: hostClient.sessionClaimToken || "",
+          },
+        ],
+      });
+
+      hostClient.initializeEndpoint(endpoint);
+      await expect(hostClient.connect()).rejects.toThrow();
     });
 
     it("invalid session claim token", async () => {
@@ -93,123 +130,123 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       await expect(hostClient.connect()).rejects.toThrow();
     });
 
-    // it("reconnect after timeout", async () => {
-    //   timeMachine.start();
-    //   const { joinerClient } = await testGameSetupToBothPlayersJoined(clientEndpointFactory);
+    it("reconnect after timeout", async () => {
+      timeMachine.start();
+      const { joinerClient } = await testGameSetupToBothPlayersJoined(clientEndpointFactory);
 
-    //   await joinerClient.close();
+      await joinerClient.close();
 
-    //   timeMachine.advanceTime(RECONNECTION_OPPORTUNITY_TIMEOUT_MS);
+      timeMachine.advanceTime(RECONNECTION_OPPORTUNITY_TIMEOUT_MS);
 
-    //   invariant(joinerClient.guestReconnectionToken !== null);
+      invariant(joinerClient.guestReconnectionToken !== null);
 
-    //   const joinerRejoinLobbyParams = {
-    //     name: QUERY_PARAMS.GUEST_RECONNECTION_TOKEN,
-    //     value: joinerClient.guestReconnectionToken as unknown as string,
-    //   };
+      const joinerRejoinLobbyParams = {
+        name: QUERY_PARAMS.GUEST_RECONNECTION_TOKEN,
+        value: joinerClient.guestReconnectionToken as unknown as string,
+      };
 
-    //   joinerClient.initializeEndpoint(
-    //     clientEndpointFactory.createClientEndpoint(TEST_LOBBY_URL, {
-    //       queryParams: [joinerRejoinLobbyParams],
-    //     })
-    //   );
+      joinerClient.initializeEndpoint(
+        clientEndpointFactory.createClientEndpoint(TEST_LOBBY_URL, {
+          queryParams: [joinerRejoinLobbyParams],
+        })
+      );
 
-    //   const joinerClientInitialJoinUsernameMessageListener = joinerClient.awaitGameStateUpdate(
-    //     GameStateUpdateType.OnConnection,
-    //     { expiredReconnection: true }
-    //   );
+      const joinerClientInitialJoinUsernameMessageListener = joinerClient.awaitGameStateUpdate(
+        GameStateUpdateType.OnConnection,
+        { expiredReconnection: true }
+      );
 
-    //   const joinerClientInitialJoinUsernameMessage =
-    //     await joinerClientInitialJoinUsernameMessageListener;
-    //   expect(joinerClientInitialJoinUsernameMessage.data.username).toBeDefined();
-    // });
+      const joinerClientInitialJoinUsernameMessage =
+        await joinerClientInitialJoinUsernameMessageListener;
+      expect(joinerClientInitialJoinUsernameMessage.data.username).toBeDefined();
+    });
 
-    // it("input after reconnect", async () => {
-    //   const { hostClient } = await testGameSetupToSuccessfulGameReconnect(clientEndpointFactory);
+    it("input after reconnect", async () => {
+      const { hostClient } = await testGameSetupToSuccessfulGameReconnect(clientEndpointFactory);
 
-    //   await hostClient.sendMessageAndAwaitReplyType(
-    //     {
-    //       type: ClientIntentType.ToggleReadyToExplore,
-    //       data: undefined,
-    //     },
-    //     GameStateUpdateType.PlayerToggledReadyToDescendOrExplore
-    //   );
-    // });
+      await hostClient.sendMessageAndAwaitReplyType(
+        {
+          type: ClientIntentType.ToggleReadyToExplore,
+          data: undefined,
+        },
+        GameStateUpdateType.PlayerToggledReadyToDescendOrExplore
+      );
+    });
 
-    // it("input before game start", async () => {
-    //   const { hostClient } = await testGameSetupToHostJoinedGameServer(clientEndpointFactory);
-    //   // don't allow input before all players are in game
-    //   await hostClient.sendMessageAndAwaitReplyType(
-    //     {
-    //       type: ClientIntentType.ToggleReadyToExplore,
-    //       data: undefined,
-    //     },
-    //     GameStateUpdateType.ErrorMessage
-    //   );
-    // });
+    it("input before game start", async () => {
+      const { hostClient } = await testGameSetupToHostJoinedGameServer(clientEndpointFactory);
+      // don't allow input before all players are in game
+      await hostClient.sendMessageAndAwaitReplyType(
+        {
+          type: ClientIntentType.ToggleReadyToExplore,
+          data: undefined,
+        },
+        GameStateUpdateType.ErrorMessage
+      );
+    });
 
-    // it("input while awaiting reconnect", async () => {
-    //   const { hostClient, joinerClient } =
-    //     await testGameSetupToBothPlayersJoined(clientEndpointFactory);
-    //   await hostClient.close();
+    it("input while awaiting reconnect", async () => {
+      const { hostClient, joinerClient } =
+        await testGameSetupToBothPlayersJoined(clientEndpointFactory);
+      await hostClient.close();
 
-    //   joinerClient.sendMessageAndAwaitReplyType(
-    //     {
-    //       type: ClientIntentType.ToggleReadyToExplore,
-    //       data: undefined,
-    //     },
-    //     GameStateUpdateType.ErrorMessage
-    //   );
-    // });
+      joinerClient.sendMessageAndAwaitReplyType(
+        {
+          type: ClientIntentType.ToggleReadyToExplore,
+          data: undefined,
+        },
+        GameStateUpdateType.ErrorMessage
+      );
+    });
 
-    // it("input after reconnect timeout", async () => {
-    //   timeMachine.start();
-    //   const { hostClient, joinerClient } =
-    //     await testGameSetupToBothPlayersJoined(clientEndpointFactory);
+    it("input after reconnect timeout", async () => {
+      timeMachine.start();
+      const { hostClient, joinerClient } =
+        await testGameSetupToBothPlayersJoined(clientEndpointFactory);
 
-    //   await joinerClient.close();
+      await joinerClient.close();
 
-    //   timeMachine.advanceTime(RECONNECTION_OPPORTUNITY_TIMEOUT_MS);
+      timeMachine.advanceTime(RECONNECTION_OPPORTUNITY_TIMEOUT_MS);
 
-    //   const message = await hostClient.sendMessageAndAwaitReplyType(
-    //     {
-    //       type: ClientIntentType.ToggleReadyToExplore,
-    //       data: undefined,
-    //     },
-    //     GameStateUpdateType.PlayerToggledReadyToDescendOrExplore
-    //   );
+      const message = await hostClient.sendMessageAndAwaitReplyType(
+        {
+          type: ClientIntentType.ToggleReadyToExplore,
+          data: undefined,
+        },
+        GameStateUpdateType.PlayerToggledReadyToDescendOrExplore
+      );
 
-    //   expect(message.type).toBe(GameStateUpdateType.PlayerToggledReadyToDescendOrExplore);
-    // });
+      expect(message.type).toBe(GameStateUpdateType.PlayerToggledReadyToDescendOrExplore);
+    });
 
-    // it("minimum characters", async () => {
-    //   const { hostClient, joinerClient } =
-    //     await testGameSetupToTwoPlayersInParty(clientEndpointFactory);
-    //   await hostClient.sendMessageAndAwaitReplyType(
-    //     { type: ClientIntentType.ToggleReadyToStartGame, data: undefined },
-    //     GameStateUpdateType.ErrorMessage
-    //   );
+    it("minimum characters", async () => {
+      const { hostClient, joinerClient } =
+        await testGameSetupToTwoPlayersInParty(clientEndpointFactory);
+      await hostClient.sendMessageAndAwaitReplyType(
+        { type: ClientIntentType.ToggleReadyToStartGame, data: undefined },
+        GameStateUpdateType.ErrorMessage
+      );
 
-    //   await joinerClient.sendMessageAndAwaitReplyType(
-    //     { type: ClientIntentType.ToggleReadyToStartGame, data: undefined },
-    //     GameStateUpdateType.ErrorMessage
-    //   );
+      await joinerClient.sendMessageAndAwaitReplyType(
+        { type: ClientIntentType.ToggleReadyToStartGame, data: undefined },
+        GameStateUpdateType.ErrorMessage
+      );
 
-    //   await hostClient.close();
-    //   await joinerClient.close();
-    // });
+      await hostClient.close();
+      await joinerClient.close();
+    });
 
-    // it("minimum parties", async () => {
-    //   const { hostClient, joinerClient } =
-    //     await testGameSetupToTwoPlayersJoinedLobbyGame(clientEndpointFactory);
+    it("minimum parties", async () => {
+      const { hostClient, joinerClient } =
+        await testGameSetupToTwoPlayersJoinedLobbyGame(clientEndpointFactory);
 
-    //   await hostClient.sendMessageAndAwaitReplyType(
-    //     { type: ClientIntentType.ToggleReadyToStartGame, data: undefined },
-    //     GameStateUpdateType.ErrorMessage
-    //   );
+      await hostClient.sendMessageAndAwaitReplyType(
+        { type: ClientIntentType.ToggleReadyToStartGame, data: undefined },
+        GameStateUpdateType.ErrorMessage
+      );
 
-    //   await hostClient.close();
-    //   await joinerClient.close();
-    // });
+      await hostClient.close();
+      await joinerClient.close();
+    });
   }
 );

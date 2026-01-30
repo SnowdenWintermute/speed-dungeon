@@ -19,6 +19,7 @@ export class TestClient {
   private _username: Username | null = null;
   private _currentGame: null | SpeedDungeonGame = null;
   private _cachedReconnectionToken: null | GuestSessionReconnectionToken = null;
+  public sessionClaimToken: null | string = null;
 
   initializeEndpoint(endpoint: ConnectionEndpoint) {
     const connectionEndpoint = endpoint;
@@ -238,7 +239,7 @@ export class TestClient {
     this._cachedReconnectionToken = token;
   }
 
-  get guestReconnectionToken(): Readonly<GuestSessionReconnectionToken | null> {
-    return this._cachedReconnectionToken;
+  get guestReconnectionToken(): GuestSessionReconnectionToken | null {
+    return structuredClone(this._cachedReconnectionToken);
   }
 }

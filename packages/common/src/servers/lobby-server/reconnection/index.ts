@@ -44,6 +44,7 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
     // reconnecting to the game server they won't be able to reconnect again if we delete it now.
     const reconnectionForwardingRecordOption =
       await this.getGameServerReconnectionForwardingRecordOption(session);
+
     if (!reconnectionForwardingRecordOption) {
       return { type: ConnectionContextType.InitialConnection };
     }
