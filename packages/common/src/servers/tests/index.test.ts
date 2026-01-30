@@ -24,6 +24,7 @@ import { testGameSetupToGameHandoff } from "./fixtures/checkpoints/game-handoff.
 // - input after reconnect
 // - reconnect after timeout
 // - session claim token required
+// - invalid session claim token
 //
 // - session claim token reuse
 // - reconnect token reuse
@@ -54,6 +55,25 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       timeMachine.returnToPresent();
     });
 
+    it("invalid session claim token", async () => {
+      const { hostClient, hostConnectionInstructions } =
+        await testGameSetupToGameHandoff(clientEndpointFactory);
+
+      hostConnectionInstructions.encryptedSessionClaimToken += " ";
+
+      const queryParams = {
+        name: QUERY_PARAMS.SESSION_CLAIM_TOKEN,
+        value: hostConnectionInstructions.encryptedSessionClaimToken,
+      };
+
+      const endpoint = clientEndpointFactory.createClientEndpoint(hostConnectionInstructions.url, {
+        queryParams: [queryParams],
+      });
+
+      hostClient.initializeEndpoint(endpoint);
+      await expect(hostClient.connect()).rejects.toThrow();
+    });
+
     it("session claim token required", async () => {
       const { hostClient, hostConnectionInstructions } =
         await testGameSetupToGameHandoff(clientEndpointFactory);
@@ -62,7 +82,7 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
 
       const queryParams = {
         name: QUERY_PARAMS.SESSION_CLAIM_TOKEN,
-        value: "",
+        value: hostConnectionInstructions.encryptedSessionClaimToken,
       };
 
       const endpoint = clientEndpointFactory.createClientEndpoint(hostConnectionInstructions.url, {
