@@ -92,9 +92,9 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
     });
 
     const { username, taggedUserId, connectionId } = session;
-    console.info(
-      `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) was given instructions to reconnect to server ${reconnectionForwardingRecord.gameServerName} at url ${url}`
-    );
+    // console.info(
+    //   `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) was given instructions to reconnect to server ${reconnectionForwardingRecord.gameServerName} at url ${url}`
+    // );
 
     return outbox;
   }

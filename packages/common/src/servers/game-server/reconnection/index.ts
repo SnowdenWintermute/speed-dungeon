@@ -173,7 +173,7 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
       session.requireReconnectionKey()
     );
 
-    console.info(`user ${session.username} reconnecting to game ${session.currentGameName}`);
+    // console.info(`user ${session.username} reconnecting to game ${session.currentGameName}`);
 
     // give them a username that matches their old one if they are a guest since guest would have
     // some randomly assigned name and we need to give them the name they had when they disconnected

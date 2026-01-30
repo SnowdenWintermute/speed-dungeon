@@ -15,7 +15,10 @@ export class InMemorySpeedDungeonProfileService extends SpeedDungeonProfileServi
   }
 
   async fetchProfileOption(userId: IdentityProviderId): Promise<undefined | SpeedDungeonProfile> {
-    return this.profiles.get(userId);
+    const profileOption = this.profiles.get(userId);
+
+    console.log("get profile:", profileOption, this.profiles);
+    return profileOption;
   }
 
   async createProfile(userId: IdentityProviderId): Promise<SpeedDungeonProfile> {
@@ -28,7 +31,9 @@ export class InMemorySpeedDungeonProfileService extends SpeedDungeonProfileServi
     };
     this.profiles.set(userId, newProfile);
 
-    this.characterSlotsPersistenceStrategy.insertSlotsForProfile(newProfile.id);
+    await this.characterSlotsPersistenceStrategy.insertSlotsForProfile(newProfile.id);
+
+    console.log("set profile:", this.profiles);
 
     return newProfile;
   }

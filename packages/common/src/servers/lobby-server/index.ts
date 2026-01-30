@@ -142,11 +142,16 @@ export class LobbyServer extends SpeedDungeonServer {
         this.userIntentHandlers
       );
 
-      const hadExpiredReconnectionToken = session.getGuestReconnectionTokenOption() !== null;
-      const outbox = await this.userSessionLifecycleController.activateSession(session, {
-        hadExpiredReconnectionToken,
-      });
-      this.dispatchOutboxMessages(outbox);
+      try {
+        const hadExpiredReconnectionToken = session.getGuestReconnectionTokenOption() !== null;
+        const outbox = await this.userSessionLifecycleController.activateSession(session, {
+          hadExpiredReconnectionToken,
+        });
+
+        this.dispatchOutboxMessages(outbox);
+      } catch (err) {
+        console.log(err);
+      }
     }
   }
 

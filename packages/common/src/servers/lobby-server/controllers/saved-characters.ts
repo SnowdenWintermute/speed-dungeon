@@ -29,6 +29,7 @@ export class SavedCharactersController {
   async fetchSavedCharactersHandler(session: UserSession) {
     session.requireAuthorized();
     const profile = await session.requireProfile(this.profileService);
+    console.log("profile obtain");
     const characterSlots = await this.savedCharactersService.fetchSavedCharacters(profile.id);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);

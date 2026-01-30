@@ -127,15 +127,17 @@ export class UserSession extends ConnectionSession {
     }
   }
 
-  requireAuthorized(): asserts this is { userId: AuthTaggedUserId } {
+  // be careful with this! led to longer than-needed debug sesh
+  requireAuthorized(): asserts this is { taggedUserId: AuthTaggedUserId } {
     if (this.taggedUserId.type !== UserIdType.Auth) {
       throw new Error(ERROR_MESSAGES.AUTH.REQUIRED);
     }
   }
 
-  requireProfile(profileService: SpeedDungeonProfileService) {
+  async requireProfile(profileService: SpeedDungeonProfileService) {
     this.requireAuthorized();
-    return profileService.fetchExpectedProfile(this.userId.id);
+    const expectedProfile = await profileService.fetchExpectedProfile(this.taggedUserId.id);
+    return expectedProfile;
   }
 
   setGuestReconnectionToken(token: GuestSessionReconnectionToken) {

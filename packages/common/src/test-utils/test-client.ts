@@ -50,6 +50,7 @@ export class TestClient {
         this._username = message.data.username;
       }
     );
+
     const reconnectionInstructions = this.awaitGameStateUpdate(
       GameStateUpdateType.GameServerConnectionInstructions
     );

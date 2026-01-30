@@ -29,7 +29,9 @@ export abstract class SpeedDungeonProfileService {
   abstract createProfile(userId: IdentityProviderId): Promise<SpeedDungeonProfile>;
 
   async fetchExpectedProfile(userId: IdentityProviderId): Promise<SpeedDungeonProfile> {
+    console.log("try get profile");
     const expectedProfile = await this.fetchProfileOption(userId);
+    console.log("expectedProfile:", expectedProfile);
     if (expectedProfile === undefined) {
       throw new Error(ERROR_MESSAGES.USER.MISSING_PROFILE);
     }

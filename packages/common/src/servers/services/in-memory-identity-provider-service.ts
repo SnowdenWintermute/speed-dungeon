@@ -27,14 +27,13 @@ export class InMemoryIdentityProviderQueryStrategy
     context: ConnectionIdentityResolutionContext
   ): Promise<{ username: Username; taggedUserId: TaggedUserId } | null> {
     if (context.authSessionId !== undefined) {
-      const activeSessionOptionUserId = this.authSessions.get(context.authSessionId) || null;
+      const activeSessionOptionUserId = this.authSessions.get(context.authSessionId);
 
-      if (activeSessionOptionUserId) {
+      if (activeSessionOptionUserId !== undefined) {
         const username = this.identities.get(activeSessionOptionUserId);
         if (!username) {
           throw new Error("in memory auth session expected");
         }
-        console.log("in memory auth user session found");
         return { username, taggedUserId: { type: UserIdType.Auth, id: activeSessionOptionUserId } };
       }
     }

@@ -20,7 +20,7 @@ export class NodeWebSocketIncomingConnectionGateway extends IncomingConnectionGa
         await this.requireConnectionHandler()(untypedEndpoint, identityContext);
       } catch (error) {
         if (error instanceof Error) {
-          console.info("error with attempted connection:", error.message);
+          // console.info("error with attempted connection:", error.message);
         } else {
           console.trace(error);
         }

@@ -51,6 +51,8 @@ export class LobbySessionLifecycleController
         guestSession.setGuestReconnectionToken(context.clientCachedGuestReconnectionToken);
       }
       return guestSession;
+    } else {
+      console.log("auth user:", authenticatedUserOption);
     }
 
     const { username, taggedUserId } = authenticatedUserOption;
