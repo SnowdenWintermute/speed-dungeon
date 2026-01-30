@@ -69,6 +69,7 @@ export interface SavedCharacterPersistenceStrategy {
 
 export interface SavedCharacterSlotsPersistenceStrategy {
   fetchSlots: (profileId: ProfileId) => Promise<CharacterSlot[]>;
+  createSlots: (profileId: ProfileId) => Promise<void>;
   update: (characterSlot: CharacterSlot) => Promise<CharacterSlot>;
 }
 

@@ -24,6 +24,7 @@ import {
 } from "./index.js";
 import { IncomingConnectionGateway } from "../../incoming-connection-gateway.js";
 import { InMemoryReconnectionForwardingStoreService } from "../../services/reconnection-forwarding-store/in-memory-reconnection-forwarding-store.js";
+import { InMemorySpeedDungeonProfileService } from "../../services/in-memory-profiles-service.js";
 
 export async function createTestServers(
   lobbyIncomingConnectionGateway: IncomingConnectionGateway,
@@ -31,14 +32,18 @@ export async function createTestServers(
 ) {
   const gameSessionStoreService = new InMemoryGameSessionStoreService();
   const reconnectionForwardingStoreService = new InMemoryReconnectionForwardingStoreService();
+
+  const characterSlotsPersistenceStrategy = new InMemorySavedCharacterSlotsPersistenceStrategy();
   const savedCharactersService = new SavedCharactersService(
-    new InMemorySavedCharacterSlotsPersistenceStrategy(),
+    characterSlotsPersistenceStrategy,
     new InMemorySavedCharacterPersistenceStrategy()
   );
   const rankedLadderService = new InMemoryRankedLadderService();
   const raceGameRecordsService = new RaceGameRecordsService(
     new InMemoryRaceGameRecordsPersistenceStrategy()
   );
+
+  const profileService = new InMemorySpeedDungeonProfileService(characterSlotsPersistenceStrategy);
 
   const testSecret = await SodiumHelpers.createSecret();
   const codec = new OpaqueEncryptionSessionClaimTokenCodec(testSecret);
@@ -53,7 +58,8 @@ export async function createTestServers(
       gameSessionStoreService,
       reconnectionForwardingStoreService,
       savedCharactersService,
-      rankedLadderService
+      rankedLadderService,
+      profileService
     ),
     codec,
     { [TEST_GAME_SERVER_NAME]: TEST_GAME_SERVER_URL },

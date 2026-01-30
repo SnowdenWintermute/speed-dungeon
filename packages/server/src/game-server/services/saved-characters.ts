@@ -3,6 +3,7 @@ import {
   Combatant,
   EntityId,
   ERROR_MESSAGES,
+  ProfileId,
   SavedCharacterPersistenceStrategy,
   SavedCharacterSlotsPersistenceStrategy,
   SerializedPlayerCharacter,
@@ -10,8 +11,14 @@ import {
 import { CharacterSlotsRepo } from "../../database/repos/character-slots.js";
 import { PlayerCharacterRepo } from "../../database/repos/player-characters.js";
 
-export class DatabaseSavedCharacterSlotsPersistenceStrategy implements SavedCharacterSlotsPersistenceStrategy {
+export class DatabaseSavedCharacterSlotsPersistenceStrategy
+  implements SavedCharacterSlotsPersistenceStrategy
+{
   constructor(private characterSlotsRepo: CharacterSlotsRepo) {}
+
+  async createSlots(profileId: ProfileId): Promise<void> {
+    //
+  }
 
   async fetchSlots(profileId: number): Promise<CharacterSlot[]> {
     const expectedSlots = await this.characterSlotsRepo.find("profileId", profileId);
@@ -31,7 +38,9 @@ export class DatabaseSavedCharacterSlotsPersistenceStrategy implements SavedChar
   }
 }
 
-export class DatabaseSavedCharacterPersistenceStrategy implements SavedCharacterPersistenceStrategy {
+export class DatabaseSavedCharacterPersistenceStrategy
+  implements SavedCharacterPersistenceStrategy
+{
   constructor(private playerCharactersRepo: PlayerCharacterRepo) {}
 
   async fetchCharacter(characterId: EntityId): Promise<SerializedPlayerCharacter> {

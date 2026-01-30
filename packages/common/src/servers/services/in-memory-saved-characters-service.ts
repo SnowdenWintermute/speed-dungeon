@@ -13,7 +13,7 @@ import {
 export class InMemorySavedCharacterSlotsPersistenceStrategy
   implements SavedCharacterSlotsPersistenceStrategy
 {
-  private slotsByProfileId = new Map<ProfileId, CharacterSlot[]>();
+  private readonly slotsByProfileId = new Map<ProfileId, CharacterSlot[]>();
   private idGenerator = new SequentialIdGenerator();
 
   async fetchSlots(profileId: ProfileId): Promise<CharacterSlot[]> {
@@ -25,7 +25,7 @@ export class InMemorySavedCharacterSlotsPersistenceStrategy
   }
 
   async update(characterSlot: CharacterSlot): Promise<CharacterSlot> {
-    for (const profileCharacterSlots of Object.values(this.slotsByProfileId)) {
+    for (const [profileId, profileCharacterSlots] of this.slotsByProfileId) {
       for (const slot of profileCharacterSlots) {
         if (slot.id === characterSlot.id) {
           return Object.assign(slot, characterSlot);
@@ -36,7 +36,7 @@ export class InMemorySavedCharacterSlotsPersistenceStrategy
     throw new Error(ERROR_MESSAGES.USER.CHARACTER_SLOT_NOT_FOUND);
   }
 
-  async insertSlotsForProfile(profileId: ProfileId) {
+  async createSlots(profileId: ProfileId) {
     if (this.slotsByProfileId.has(profileId)) {
       throw new Error("slots already exist for profile");
     }
@@ -56,7 +56,7 @@ export class InMemorySavedCharacterSlotsPersistenceStrategy
 export class InMemorySavedCharacterPersistenceStrategy
   implements SavedCharacterPersistenceStrategy
 {
-  private savedCharacters = new Map<EntityId, SerializedPlayerCharacter>();
+  private readonly savedCharacters = new Map<EntityId, SerializedPlayerCharacter>();
 
   async fetchCharacter(characterId: EntityId): Promise<SerializedPlayerCharacter> {
     const expected = this.savedCharacters.get(characterId);

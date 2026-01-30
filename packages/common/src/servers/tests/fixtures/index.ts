@@ -7,9 +7,8 @@ import { ReconnectionForwardingStoreService } from "../../services/reconnection-
 import { RankedLadderService } from "../../services/ranked-ladder.js";
 import { ConnectionId, GameServerName, Username } from "../../../aliases.js";
 import { RaceGameRecordsService } from "../../services/race-game-records.js";
-import { InMemorySpeedDungeonProfileService } from "../../services/in-memory-profiles-service.js";
-import { InMemorySavedCharacterSlotsPersistenceStrategy } from "../../services/in-memory-saved-characters-service.js";
 import { InMemoryIdentityProviderQueryStrategy } from "../../services/in-memory-identity-provider-service.js";
+import { SpeedDungeonProfileService } from "../../services/profiles.js";
 
 export const TEST_GAME_SERVER_NAME = "Lindblum Test Server" as GameServerName;
 export const TEST_LOBBY_SERVER_PORT = 8090;
@@ -30,7 +29,8 @@ export function createLobbyTestServices(
   gameSessionStoreService: GameSessionStoreService,
   reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
   savedCharactersService: SavedCharactersService,
-  rankedLadderService: RankedLadderService
+  rankedLadderService: RankedLadderService,
+  profileService: SpeedDungeonProfileService
 ) {
   const identityProviderQueryStrategy = new InMemoryIdentityProviderQueryStrategy();
 
@@ -40,9 +40,6 @@ export function createLobbyTestServices(
   );
 
   const identityProviderService = new IdentityProviderService(identityProviderQueryStrategy);
-
-  const characterSlotsPersistenceStrategy = new InMemorySavedCharacterSlotsPersistenceStrategy();
-  const profileService = new InMemorySpeedDungeonProfileService(characterSlotsPersistenceStrategy);
 
   const externalServices = {
     identityProviderService,
