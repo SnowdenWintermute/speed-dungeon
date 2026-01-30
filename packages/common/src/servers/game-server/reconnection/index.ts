@@ -148,6 +148,7 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
       session.requireReconnectionKey(),
       disconnectedSession
     );
+    console.log("wrote disconnectedSession");
 
     return outbox;
   }

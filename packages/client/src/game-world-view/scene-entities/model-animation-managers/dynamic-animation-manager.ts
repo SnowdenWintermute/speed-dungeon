@@ -27,7 +27,9 @@ export abstract class DynamicAnimation {
     return cloneDeep(this);
   }
 
-  start(shouldLoop: boolean, speedModifier?: number) {}
+  start(shouldLoop: boolean, speedModifier?: number) {
+    //
+  }
 
   abstract animateScene(scene: AssetContainer): void;
 }

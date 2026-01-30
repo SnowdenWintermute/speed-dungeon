@@ -20,7 +20,7 @@ export async function testGameSetupToSuccessfulGameReconnect(
 
   const joinerRejoinLobbyParams = {
     name: QUERY_PARAMS.GUEST_RECONNECTION_TOKEN,
-    value: JSON.stringify(joinerClient.guestReconnectionToken),
+    value: joinerClient.guestReconnectionToken as unknown as string,
   };
 
   joinerClient.initializeEndpoint(

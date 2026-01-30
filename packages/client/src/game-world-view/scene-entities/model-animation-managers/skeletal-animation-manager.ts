@@ -148,7 +148,7 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     }
   }
 
-  stepAnimationTransitionWeights(): Error | void {
+  stepAnimationTransitionWeights() {
     if (!this.playing) return;
 
     const length = this.playing.getLength();

@@ -111,9 +111,9 @@ export class LobbyServer extends SpeedDungeonServer {
     );
 
     const { username, taggedUserId, connectionId } = session;
-    // console.info(
-    //   `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the lobby`
-    // );
+    console.info(
+      `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the lobby`
+    );
 
     if (session.taggedUserId.type === UserIdType.Auth) {
       await this.externalServices.profileService.createProfileIfUserHasNone(

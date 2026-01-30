@@ -1,9 +1,9 @@
-export type ManagedAnimationOptions = {
+export interface ManagedAnimationOptions {
   shouldLoop?: boolean;
   animationDurationOverrideOption?: number;
   onComplete?: () => void;
   onlyPlayLastFrame?: boolean;
-};
+}
 
 export abstract class ManagedAnimation<T> {
   protected timeStarted: number = Date.now();
@@ -28,7 +28,6 @@ export abstract class AnimationManager<T> {
   playing: null | ManagedAnimation<T> = null;
   previous: null | ManagedAnimation<T> = null;
   locked: boolean = false;
-  constructor() {}
 
   abstract cloneAnimation(animationGroup: T): T;
 
@@ -38,7 +37,7 @@ export abstract class AnimationManager<T> {
     options?: ManagedAnimationOptions
   ): void;
 
-  abstract stepAnimationTransitionWeights(): Error | void;
+  abstract stepAnimationTransitionWeights(): void;
 
   abstract handleCompletedAnimations(): void;
 

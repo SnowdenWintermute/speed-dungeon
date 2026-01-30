@@ -43,6 +43,7 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
     // input lock's RC for that user in the game. also, if they get their claim token then disconnect before
     // reconnecting to the game server they won't be able to reconnect again if we delete it now.
     const disconnectedSessionOption = await this.getDisconnectedSessionOption(session);
+    console.log("disconnectedSessionOption:", disconnectedSessionOption);
     if (!disconnectedSessionOption) {
       return { type: ConnectionContextType.InitialConnection };
     }
@@ -111,6 +112,7 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
 
   private async getDisconnectedSessionOption(session: UserSession) {
     const reconnectionKey = session.getReconnectionKeyOption();
+    console.log("has reconnection key", reconnectionKey);
     if (reconnectionKey) {
       return await this.reconnectionForwardingStoreService.getDisconnectedSession(reconnectionKey);
     }
