@@ -6,13 +6,19 @@ import { TestClient } from "../../../../test-utils/test-client.js";
 import { GameMode } from "../../../../types.js";
 import { invariant } from "../../../../utils/index.js";
 import { TEST_LOBBY_URL } from "../index.js";
-import { ClientEndpointFactory } from "../test-connection-endpoint-factories.js";
+import {
+  ClientEndpointFactory,
+  TestAuthSessionIds,
+} from "../test-connection-endpoint-factories.js";
 
 export async function testGameSetupToTwoPlayersJoinedLobbyGame(
-  clientEndpointFactory: ClientEndpointFactory
+  clientEndpointFactory: ClientEndpointFactory,
+  authSessionIds?: TestAuthSessionIds
 ) {
   const hostClient = new TestClient();
-  const hostEndpoint = clientEndpointFactory.createClientEndpoint(TEST_LOBBY_URL);
+  const hostEndpoint = clientEndpointFactory.createClientEndpoint(TEST_LOBBY_URL, {
+    headers: { cookie: `id=${authSessionIds?.hostAuthSessionId}` },
+  });
   hostClient.initializeEndpoint(hostEndpoint);
   await hostClient.connect();
 
@@ -40,7 +46,9 @@ export async function testGameSetupToTwoPlayersJoinedLobbyGame(
 
   // have someone join
   const joinerClient = new TestClient();
-  const joinerEndpoint = clientEndpointFactory.createClientEndpoint(TEST_LOBBY_URL);
+  const joinerEndpoint = clientEndpointFactory.createClientEndpoint(TEST_LOBBY_URL, {
+    headers: { cookie: `id=${authSessionIds?.joinerAuthSessionId}` },
+  });
   joinerClient.initializeEndpoint(joinerEndpoint);
   await joinerClient.connect();
 

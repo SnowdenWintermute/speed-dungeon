@@ -3,12 +3,20 @@ import { testGameSetupToSuccessfulGameReconnect } from "./fixtures/checkpoints/s
 import { QUERY_PARAMS } from "../query-params.js";
 import { TEST_GAME_SERVER_URL } from "./fixtures/index.js";
 import { testGameSetupToGameHandoff } from "./fixtures/checkpoints/game-handoff.js";
-import { ClientEndpointFactory } from "./fixtures/test-connection-endpoint-factories.js";
+import {
+  ClientEndpointFactory,
+  TestAuthSessionIds,
+} from "./fixtures/test-connection-endpoint-factories.js";
 
-export function sessionClaimTokenTests(clientEndpointFactory: ClientEndpointFactory) {
+export function sessionClaimTokenTests(
+  clientEndpointFactory: ClientEndpointFactory,
+  authSessionIds?: TestAuthSessionIds
+) {
   it("session claim token required", async () => {
-    const { hostClient, hostConnectionInstructions } =
-      await testGameSetupToGameHandoff(clientEndpointFactory);
+    const { hostClient, hostConnectionInstructions } = await testGameSetupToGameHandoff(
+      clientEndpointFactory,
+      authSessionIds
+    );
 
     hostConnectionInstructions.encryptedSessionClaimToken = "";
 
@@ -19,6 +27,7 @@ export function sessionClaimTokenTests(clientEndpointFactory: ClientEndpointFact
 
     const endpoint = clientEndpointFactory.createClientEndpoint(hostConnectionInstructions.url, {
       queryParams: [queryParams],
+      headers: { cookie: `id=${authSessionIds?.hostAuthSessionId}` },
     });
 
     hostClient.initializeEndpoint(endpoint);
@@ -26,8 +35,10 @@ export function sessionClaimTokenTests(clientEndpointFactory: ClientEndpointFact
   });
 
   it("invalid session claim token", async () => {
-    const { hostClient, hostConnectionInstructions } =
-      await testGameSetupToGameHandoff(clientEndpointFactory);
+    const { hostClient, hostConnectionInstructions } = await testGameSetupToGameHandoff(
+      clientEndpointFactory,
+      authSessionIds
+    );
 
     hostConnectionInstructions.encryptedSessionClaimToken += " ";
 
@@ -45,7 +56,10 @@ export function sessionClaimTokenTests(clientEndpointFactory: ClientEndpointFact
   });
 
   it("session claim token reuse", async () => {
-    const { hostClient } = await testGameSetupToSuccessfulGameReconnect(clientEndpointFactory);
+    const { hostClient } = await testGameSetupToSuccessfulGameReconnect(
+      clientEndpointFactory,
+      authSessionIds
+    );
 
     await hostClient.close();
 
@@ -56,6 +70,7 @@ export function sessionClaimTokenTests(clientEndpointFactory: ClientEndpointFact
           value: hostClient.sessionClaimToken || "",
         },
       ],
+      headers: { cookie: `id=${authSessionIds?.hostAuthSessionId}` },
     });
 
     hostClient.initializeEndpoint(endpoint);

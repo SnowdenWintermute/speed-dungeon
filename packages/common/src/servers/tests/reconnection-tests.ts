@@ -7,15 +7,19 @@ import { invariant } from "../../utils/index.js";
 import { QUERY_PARAMS } from "../query-params.js";
 import { TEST_LOBBY_URL } from "./fixtures/index.js";
 import { TimeMachine } from "../../test-utils/time-machine.js";
-import { ClientEndpointFactory } from "./fixtures/test-connection-endpoint-factories.js";
+import {
+  ClientEndpointFactory,
+  TestAuthSessionIds,
+} from "./fixtures/test-connection-endpoint-factories.js";
 
 export function reconnectionTests(
   clientEndpointFactory: ClientEndpointFactory,
-  timeMachine: TimeMachine
+  timeMachine: TimeMachine,
+  authSessionIds?: TestAuthSessionIds
 ) {
   it("reconnect token reuse", async () => {
     const { joinerClient, usedJoinerGuestReconnectionToken } =
-      await testGameSetupToSuccessfulGameReconnect(clientEndpointFactory);
+      await testGameSetupToSuccessfulGameReconnect(clientEndpointFactory, authSessionIds);
 
     await joinerClient.close();
 

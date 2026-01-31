@@ -18,8 +18,10 @@ export const TEST_GAME_SERVER_URL = localServerUrl(TEST_GAME_SERVER_PORT);
 /** Clients don't need to know their connection id */
 export const CLIENT_CONNECTION_ENDPOINT_NIL_ID = "" as ConnectionId;
 
-export const TEST_AUTH_SESSION_ID = "1234";
-export const TEST_AUTH_USERNAME = "TestUsername" as Username;
+export const TEST_AUTH_SESSION_ID_PLAYER_1 = "0000";
+export const TEST_AUTH_SESSION_ID_PLAYER_2 = "0001";
+export const TEST_AUTH_USERNAME_PLAYER_1 = "TestUsername1" as Username;
+export const TEST_AUTH_USERNAME_PLAYER_2 = "TestUsername2" as Username;
 
 export function localServerUrl(port: number) {
   return `ws://localhost:${port}`;
@@ -35,8 +37,13 @@ export function createLobbyTestServices(
   const identityProviderQueryStrategy = new InMemoryIdentityProviderQueryStrategy();
 
   identityProviderQueryStrategy.addIdentityWithPermenantAuthSession(
-    TEST_AUTH_USERNAME,
-    TEST_AUTH_SESSION_ID
+    TEST_AUTH_USERNAME_PLAYER_1,
+    TEST_AUTH_SESSION_ID_PLAYER_1
+  );
+
+  identityProviderQueryStrategy.addIdentityWithPermenantAuthSession(
+    TEST_AUTH_USERNAME_PLAYER_2,
+    TEST_AUTH_SESSION_ID_PLAYER_2
   );
 
   const identityProviderService = new IdentityProviderService(identityProviderQueryStrategy);

@@ -1,13 +1,17 @@
 import { GameStateUpdateType } from "../../../../packets/game-state-updates.js";
 import { QUERY_PARAMS } from "../../../query-params.js";
-import { ClientEndpointFactory } from "../test-connection-endpoint-factories.js";
+import {
+  ClientEndpointFactory,
+  TestAuthSessionIds,
+} from "../test-connection-endpoint-factories.js";
 import { testGameSetupToHostJoinedGameServer } from "./host-joined-game-server.js";
 
 export async function testGameSetupToBothPlayersJoined(
-  clientEndpointFactory: ClientEndpointFactory
+  clientEndpointFactory: ClientEndpointFactory,
+  authSessionIds?: TestAuthSessionIds
 ) {
   const { hostClient, joinerClient, joinerConnectionInstructions } =
-    await testGameSetupToHostJoinedGameServer(clientEndpointFactory);
+    await testGameSetupToHostJoinedGameServer(clientEndpointFactory, authSessionIds);
 
   const joinerQueryParams = {
     name: QUERY_PARAMS.SESSION_CLAIM_TOKEN,
@@ -17,6 +21,7 @@ export async function testGameSetupToBothPlayersJoined(
   joinerClient.initializeEndpoint(
     clientEndpointFactory.createClientEndpoint(joinerConnectionInstructions.url, {
       queryParams: [joinerQueryParams],
+      headers: { cookie: `id=${authSessionIds?.joinerAuthSessionId}` },
     })
   );
 

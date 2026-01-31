@@ -2,17 +2,29 @@ import { GameStateUpdateType } from "../../../../packets/game-state-updates.js";
 import { invariant } from "../../../../utils/index.js";
 import { QUERY_PARAMS } from "../../../query-params.js";
 import { TEST_LOBBY_URL } from "../index.js";
-import { ClientEndpointFactory } from "../test-connection-endpoint-factories.js";
+import {
+  ClientEndpointFactory,
+  TestAuthSessionIds,
+} from "../test-connection-endpoint-factories.js";
 import { testGameSetupToGameHandoff } from "./game-handoff.js";
 
 export async function testGameSetupToSuccessfulGameReconnect(
-  clientEndpointFactory: ClientEndpointFactory
+  clientEndpointFactory: ClientEndpointFactory,
+  authSessionIds?: TestAuthSessionIds
 ) {
   const { hostClient, joinerClient, hostConnectionInstructions, joinerConnectionInstructions } =
-    await testGameSetupToGameHandoff(clientEndpointFactory);
+    await testGameSetupToGameHandoff(clientEndpointFactory, authSessionIds);
 
-  await hostClient.connectToGameServer(clientEndpointFactory, hostConnectionInstructions);
-  await joinerClient.connectToGameServer(clientEndpointFactory, joinerConnectionInstructions);
+  await hostClient.connectToGameServer(
+    clientEndpointFactory,
+    hostConnectionInstructions,
+    authSessionIds?.hostAuthSessionId || ""
+  );
+  await joinerClient.connectToGameServer(
+    clientEndpointFactory,
+    joinerConnectionInstructions,
+    authSessionIds?.joinerAuthSessionId || ""
+  );
 
   await joinerClient.close();
 
@@ -28,6 +40,7 @@ export async function testGameSetupToSuccessfulGameReconnect(
   joinerClient.initializeEndpoint(
     clientEndpointFactory.createClientEndpoint(TEST_LOBBY_URL, {
       queryParams: [joinerRejoinLobbyParams],
+      headers: { cookie: `id=${authSessionIds?.joinerAuthSessionId}` },
     })
   );
 
@@ -43,7 +56,11 @@ export async function testGameSetupToSuccessfulGameReconnect(
 
   await joinerClient.close();
 
-  await joinerClient.connectToGameServer(clientEndpointFactory, rejoinConnectionInstructions);
+  await joinerClient.connectToGameServer(
+    clientEndpointFactory,
+    rejoinConnectionInstructions,
+    authSessionIds?.joinerAuthSessionId || ""
+  );
 
   return {
     joinerClient,

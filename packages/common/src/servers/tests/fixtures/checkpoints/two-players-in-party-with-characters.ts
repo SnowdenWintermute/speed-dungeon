@@ -2,14 +2,20 @@ import { EntityName } from "../../../../aliases.js";
 import { CombatantClass } from "../../../../combatants/combatant-class/classes.js";
 import { ClientIntentType } from "../../../../packets/client-intents.js";
 import { GameStateUpdateType } from "../../../../packets/game-state-updates.js";
-import { ClientEndpointFactory } from "../test-connection-endpoint-factories.js";
+import {
+  ClientEndpointFactory,
+  TestAuthSessionIds,
+} from "../test-connection-endpoint-factories.js";
 import { testGameSetupToTwoPlayersInParty } from "./two-players-in-party.js";
 
 export async function testGameSetupToTwoPlayersInPartyWithCharacters(
-  clientEndpointFactory: ClientEndpointFactory
+  clientEndpointFactory: ClientEndpointFactory,
+  authSessionIds?: TestAuthSessionIds
 ) {
-  const { hostClient, joinerClient } =
-    await testGameSetupToTwoPlayersInParty(clientEndpointFactory);
+  const { hostClient, joinerClient } = await testGameSetupToTwoPlayersInParty(
+    clientEndpointFactory,
+    authSessionIds
+  );
 
   await hostClient.sendMessageAndAwaitReplyType(
     {

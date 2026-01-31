@@ -8,7 +8,10 @@ import { GuestSessionReconnectionToken, Milliseconds, Username } from "../aliase
 import { ClientIntent } from "../packets/client-intents.js";
 import { ConnectionEndpoint } from "../transport/connection-endpoint.js";
 import { GameServerConnectionInstructions } from "../servers/lobby-server/game-handoff/connection-instructions.js";
-import { ClientEndpointFactory } from "../servers/tests/fixtures/test-connection-endpoint-factories.js";
+import {
+  ClientEndpointFactory,
+  TestAuthSessionIds,
+} from "../servers/tests/fixtures/test-connection-endpoint-factories.js";
 import { QUERY_PARAMS } from "../servers/query-params.js";
 import { SpeedDungeonGame } from "../game/index.js";
 
@@ -162,7 +165,7 @@ export class TestClient {
         cleanup();
         reject(
           new Error(
-            `Timed out waiting for message of type ${expectedReplyType}, instead got ${JSON.stringify(messages, null, 2)}`
+            `Timed out waiting for message of type ${expectedReplyType}, instead got ${JSON.stringify(messages, null, 2).slice(0, 40)}`
           )
         );
       }, TestClient.MESSAGE_WAIT_TIMEOUT);
@@ -193,7 +196,8 @@ export class TestClient {
   /** Caches GuestSessionReconnectionToken and Game if successful */
   async connectToGameServer(
     endpointFactory: ClientEndpointFactory,
-    connectionInstructions: GameServerConnectionInstructions
+    connectionInstructions: GameServerConnectionInstructions,
+    authSessionId: string
   ) {
     const queryParams = {
       name: QUERY_PARAMS.SESSION_CLAIM_TOKEN,
@@ -203,6 +207,7 @@ export class TestClient {
     this.initializeEndpoint(
       endpointFactory.createClientEndpoint(connectionInstructions.url, {
         queryParams: [queryParams],
+        headers: { cookie: `id=${authSessionId}` },
       })
     );
 

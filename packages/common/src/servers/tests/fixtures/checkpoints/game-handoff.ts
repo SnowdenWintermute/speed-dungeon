@@ -1,12 +1,19 @@
 import { ClientIntentType } from "../../../../packets/client-intents.js";
 import { GameStateUpdateType } from "../../../../packets/game-state-updates.js";
-import { GameServerSessionClaimToken } from "../../../lobby-server/game-handoff/session-claim-token.js";
-import { ClientEndpointFactory } from "../test-connection-endpoint-factories.js";
+import {
+  ClientEndpointFactory,
+  TestAuthSessionIds,
+} from "../test-connection-endpoint-factories.js";
 import { testGameSetupToTwoPlayersInPartyWithCharacters } from "./two-players-in-party-with-characters.js";
 
-export async function testGameSetupToGameHandoff(clientEndpointFactory: ClientEndpointFactory) {
-  const { hostClient, joinerClient } =
-    await testGameSetupToTwoPlayersInPartyWithCharacters(clientEndpointFactory);
+export async function testGameSetupToGameHandoff(
+  clientEndpointFactory: ClientEndpointFactory,
+  authSessionIds?: TestAuthSessionIds
+) {
+  const { hostClient, joinerClient } = await testGameSetupToTwoPlayersInPartyWithCharacters(
+    clientEndpointFactory,
+    authSessionIds
+  );
 
   const joinerClientHostReadiedListener = joinerClient.awaitGameStateUpdate(
     GameStateUpdateType.PlayerToggledReadyToStartGame

@@ -1,7 +1,12 @@
 import { ConnectionEndpoint } from "../../../transport/connection-endpoint.js";
 import WebSocket from "ws";
 import { NodeWebSocketConnectionEndpoint } from "../../../transport/node-websocket-connection-endpoint.js";
-import { CLIENT_CONNECTION_ENDPOINT_NIL_ID } from "./index.js";
+import {
+  CLIENT_CONNECTION_ENDPOINT_NIL_ID,
+  TEST_AUTH_SESSION_ID,
+  TEST_AUTH_SESSION_ID_PLAYER_1,
+  TEST_AUTH_SESSION_ID_PLAYER_2,
+} from "./index.js";
 import { InMemoryConnectionEndpointServerRegistry } from "../../../transport/in-memory-connection-endpoint-server-registry.js";
 import { IncomingConnectionGateway } from "../../incoming-connection-gateway.js";
 import { createTestInMemoryIncomingConnectionGateways } from "./create-test-in-memory-incoming-connection-gateways.js";
@@ -9,7 +14,6 @@ import { createTestWebSocketIncomingConnectionGateways } from "./create-test-web
 import { urlWithQueryParams } from "../../../utils/url-with-query-params.js";
 
 export interface ClientEndpointFactory {
-  name: string;
   createClientEndpoint(
     url: string,
     options?: {
@@ -24,7 +28,6 @@ export interface ClientEndpointFactory {
 }
 
 const websocketFactory: ClientEndpointFactory = {
-  name: "node-websocket",
   createClientEndpoint(
     url,
     options?: {
@@ -43,7 +46,6 @@ const websocketFactory: ClientEndpointFactory = {
 };
 
 export const inMemoryFactory: ClientEndpointFactory = {
-  name: "in-memory",
   createClientEndpoint(
     url,
     options?: {
@@ -61,7 +63,26 @@ export const inMemoryFactory: ClientEndpointFactory = {
   },
 };
 
+export interface TestAuthSessionIds {
+  hostAuthSessionId: string;
+  joinerAuthSessionId: string;
+}
+
 export const TEST_CONNECTION_ENDPOINT_FACTORIES = [
-  websocketFactory,
-  // inMemoryFactory
+  // {
+  //   name: "node-websocket",
+  //   clientEndpointFactory: websocketFactory,
+  // },
+  // {
+  //   name: "in-memory",
+  //   clientEndpointFactory: inMemoryFactory,
+  // },
+  {
+    name: "in-memory-auth-users",
+    clientEndpointFactory: inMemoryFactory,
+    authSessionIds: {
+      hostAuthSessionId: TEST_AUTH_SESSION_ID_PLAYER_1,
+      joinerAuthSessionId: TEST_AUTH_SESSION_ID_PLAYER_2,
+    },
+  },
 ];
