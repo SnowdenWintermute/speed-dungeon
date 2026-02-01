@@ -18,6 +18,11 @@ export function reconnectionTests(
   authSessionIds?: TestAuthSessionIds
 ) {
   it("reconnect token reuse", async () => {
+    if (authSessionIds?.joinerAuthSessionId) {
+      // auth users don't use guest reconnect tokens
+      return;
+    }
+
     const { joinerClient, usedJoinerGuestReconnectionToken } =
       await testGameSetupToSuccessfulGameReconnect(clientEndpointFactory, authSessionIds);
 
@@ -25,11 +30,12 @@ export function reconnectionTests(
 
     const queryParams = {
       name: QUERY_PARAMS.GUEST_RECONNECTION_TOKEN,
-      value: usedJoinerGuestReconnectionToken,
+      value: usedJoinerGuestReconnectionToken || "",
     };
 
     const endpoint = clientEndpointFactory.createClientEndpoint(TEST_LOBBY_URL, {
       queryParams: [queryParams],
+      headers: { cookie: `id=${authSessionIds?.joinerAuthSessionId}` },
     });
 
     joinerClient.initializeEndpoint(endpoint);
@@ -43,6 +49,7 @@ export function reconnectionTests(
 
     const joinerClientInitialJoinUsernameMessage =
       await joinerClientInitialJoinUsernameMessageListener;
+
     expect(joinerClientInitialJoinUsernameMessage.data.username).toBeDefined();
   });
 

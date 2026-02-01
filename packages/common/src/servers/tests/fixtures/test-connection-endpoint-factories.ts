@@ -3,7 +3,6 @@ import WebSocket from "ws";
 import { NodeWebSocketConnectionEndpoint } from "../../../transport/node-websocket-connection-endpoint.js";
 import {
   CLIENT_CONNECTION_ENDPOINT_NIL_ID,
-  TEST_AUTH_SESSION_ID,
   TEST_AUTH_SESSION_ID_PLAYER_1,
   TEST_AUTH_SESSION_ID_PLAYER_2,
 } from "./index.js";
@@ -69,14 +68,14 @@ export interface TestAuthSessionIds {
 }
 
 export const TEST_CONNECTION_ENDPOINT_FACTORIES = [
-  // {
-  //   name: "node-websocket",
-  //   clientEndpointFactory: websocketFactory,
-  // },
-  // {
-  //   name: "in-memory",
-  //   clientEndpointFactory: inMemoryFactory,
-  // },
+  {
+    name: "node-websocket",
+    clientEndpointFactory: websocketFactory,
+  },
+  {
+    name: "in-memory",
+    clientEndpointFactory: inMemoryFactory,
+  },
   {
     name: "in-memory-auth-users",
     clientEndpointFactory: inMemoryFactory,

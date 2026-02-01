@@ -8,10 +8,7 @@ import { GuestSessionReconnectionToken, Milliseconds, Username } from "../aliase
 import { ClientIntent } from "../packets/client-intents.js";
 import { ConnectionEndpoint } from "../transport/connection-endpoint.js";
 import { GameServerConnectionInstructions } from "../servers/lobby-server/game-handoff/connection-instructions.js";
-import {
-  ClientEndpointFactory,
-  TestAuthSessionIds,
-} from "../servers/tests/fixtures/test-connection-endpoint-factories.js";
+import { ClientEndpointFactory } from "../servers/tests/fixtures/test-connection-endpoint-factories.js";
 import { QUERY_PARAMS } from "../servers/query-params.js";
 import { SpeedDungeonGame } from "../game/index.js";
 
@@ -215,9 +212,9 @@ export class TestClient {
       GameStateUpdateType.GameFullUpdate
     );
 
-    const reconnectTokenMessageListener = this.awaitGameStateUpdate(
-      GameStateUpdateType.CacheGuestSessionReconnectionToken
-    );
+    const reconnectTokenMessageListener = authSessionId
+      ? null
+      : this.awaitGameStateUpdate(GameStateUpdateType.CacheGuestSessionReconnectionToken);
 
     await this.connect();
 
@@ -225,9 +222,10 @@ export class TestClient {
     const joinedGameServerMessage = await clientJoinedGameServerMessageListener;
 
     this.game = joinedGameServerMessage.data.game;
-    this.guestReconnectionToken = reconnectionTokenMessage.data.token;
+    const guestReconnectionTokenOption = reconnectionTokenMessage?.data.token || null;
+    this.guestReconnectionToken = guestReconnectionTokenOption;
 
-    return { joinedGameServerMessage, reconnectionToken: reconnectionTokenMessage.data.token };
+    return { joinedGameServerMessage, reconnectionToken: guestReconnectionTokenOption };
   }
 
   set game(game: SpeedDungeonGame | null) {

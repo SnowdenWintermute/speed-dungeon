@@ -18,10 +18,12 @@ export async function testGameSetupToBothPlayersJoined(
     value: joinerConnectionInstructions.encryptedSessionClaimToken,
   };
 
+  const joinerAuthSessionIdOption = authSessionIds?.joinerAuthSessionId;
+
   joinerClient.initializeEndpoint(
     clientEndpointFactory.createClientEndpoint(joinerConnectionInstructions.url, {
       queryParams: [joinerQueryParams],
-      headers: { cookie: `id=${authSessionIds?.joinerAuthSessionId}` },
+      headers: { cookie: `id=${joinerAuthSessionIdOption}` },
     })
   );
 
@@ -29,9 +31,9 @@ export async function testGameSetupToBothPlayersJoined(
     GameStateUpdateType.GameFullUpdate
   );
 
-  const reconnectTokenMessageListener = joinerClient.awaitGameStateUpdate(
-    GameStateUpdateType.CacheGuestSessionReconnectionToken
-  );
+  const reconnectTokenMessageListener = joinerAuthSessionIdOption
+    ? null
+    : joinerClient.awaitGameStateUpdate(GameStateUpdateType.CacheGuestSessionReconnectionToken);
 
   const gameStartedMessageListener = joinerClient.awaitGameStateUpdate(
     GameStateUpdateType.GameStarted
@@ -43,7 +45,7 @@ export async function testGameSetupToBothPlayersJoined(
   const joinedGameServerMessage = await joinerClientJoinedGameServerMessageListener;
 
   joinerClient.game = joinedGameServerMessage.data.game;
-  joinerClient.guestReconnectionToken = reconnectionTokenMessage.data.token;
+  joinerClient.guestReconnectionToken = reconnectionTokenMessage?.data.token || null;
 
   const gameStartedMessage = await gameStartedMessageListener;
   expect(gameStartedMessage.data.timeStarted).toBeDefined();

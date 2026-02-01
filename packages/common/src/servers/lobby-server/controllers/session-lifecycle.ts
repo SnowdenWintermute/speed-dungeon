@@ -1,7 +1,7 @@
 import { LOBBY_CHANNEL } from "../../../packets/channels.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
-import { UserSession, UserSessionConnectionState } from "../../sessions/user-session.js";
+import { UserSession } from "../../sessions/user-session.js";
 import {
   ConnectionIdentityResolutionContext,
   IdentityProviderService,
@@ -52,12 +52,9 @@ export class LobbySessionLifecycleController
       }
       return guestSession;
     } else {
-      console.log("auth user:", authenticatedUserOption);
+      const { username, taggedUserId } = authenticatedUserOption;
+      return new UserSession(username, connectionId, taggedUserId, this.lobbyState.gameRegistry);
     }
-
-    const { username, taggedUserId } = authenticatedUserOption;
-
-    return new UserSession(username, connectionId, taggedUserId, this.lobbyState.gameRegistry);
   }
 
   private createGuestUser() {

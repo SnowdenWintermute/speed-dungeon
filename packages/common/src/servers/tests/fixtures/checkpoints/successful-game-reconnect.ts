@@ -1,5 +1,4 @@
 import { GameStateUpdateType } from "../../../../packets/game-state-updates.js";
-import { invariant } from "../../../../utils/index.js";
 import { QUERY_PARAMS } from "../../../query-params.js";
 import { TEST_LOBBY_URL } from "../index.js";
 import {
@@ -28,11 +27,11 @@ export async function testGameSetupToSuccessfulGameReconnect(
 
   await joinerClient.close();
 
-  invariant(joinerClient.guestReconnectionToken !== null);
+  // invariant(joinerClient.guestReconnectionToken !== null);
 
   const joinerRejoinLobbyParams = {
     name: QUERY_PARAMS.GUEST_RECONNECTION_TOKEN,
-    value: joinerClient.guestReconnectionToken,
+    value: joinerClient.guestReconnectionToken || "",
   };
 
   const usedJoinerGuestReconnectionToken = structuredClone(joinerClient.guestReconnectionToken);

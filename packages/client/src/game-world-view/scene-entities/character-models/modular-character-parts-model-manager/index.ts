@@ -3,6 +3,7 @@ import { BONE_NAMES, BoneName } from "../skeleton-structure-variables";
 import {
   ERROR_MESSAGES,
   NormalizedPercentage,
+  invariant,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { AssetContainer } from "@babylonjs/core";
@@ -33,7 +34,8 @@ export class ModularCharacterPartsModelManager {
       // attach part
       if (mesh.skeleton) mesh.skeleton = assetContainer.skeletons[0];
       mesh.visibility = this.characterModel.getVisibility();
-      mesh.parent = parent!;
+      invariant(parent !== undefined);
+      mesh.parent = parent;
     }
 
     part.skeletons[0]?.dispose();

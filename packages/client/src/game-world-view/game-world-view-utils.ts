@@ -15,6 +15,9 @@ import { BASE_FILE_PATH } from "./scene-entities/character-models/modular-charac
 export async function importMesh(path: string, scene: Scene) {
   if (path === "") throw new Error("Empty file path");
 
+  // a babylon method for fetching assets
+  //*@param* `source` — a string that defines the name of the scene file, or starts with "data:"
+  //following by the stringified version of the scene, or a File object, or an ArrayBufferView
   const assetContainer = await LoadAssetContainerAsync((BASE_FILE_PATH || "") + path, scene);
   assetContainer.addToScene();
 

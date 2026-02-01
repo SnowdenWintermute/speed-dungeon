@@ -113,10 +113,7 @@ export class LobbyServer extends SpeedDungeonServer {
       identityResolutionContext
     );
 
-    const { username, taggedUserId, connectionId } = session;
-    console.info(
-      `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the lobby`
-    );
+    // this.logUserConnected(session);
 
     if (session.taggedUserId.type === UserIdType.Auth) {
       await this.externalServices.profileService.createProfileIfUserHasNone(
@@ -153,6 +150,13 @@ export class LobbyServer extends SpeedDungeonServer {
       //   console.log(err);
       // }
     }
+  }
+
+  private logUserConnected(session: UserSession) {
+    const { username, taggedUserId, connectionId } = session;
+    console.info(
+      `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the lobby`
+    );
   }
 
   protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {

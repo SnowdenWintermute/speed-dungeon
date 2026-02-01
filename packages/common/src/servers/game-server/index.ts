@@ -46,7 +46,6 @@ export class GameServer extends SpeedDungeonServer {
   private readonly heartbeatScheduler = new HeartbeatScheduler(GAME_RECORD_HEARTBEAT_MS);
   private readonly reconnectionOpportunityManager = new ReconnectionOpportunityManager();
   private readonly reconnectionProtocol: GameServerReconnectionProtocol;
-  private readonly pendingDisconnections: Promise<void>[] = [];
 
   private readonly partyDelayedGameMessageFactory = new PartyDelayedGameMessageFactory(
     this.updateDispatchFactory
@@ -137,11 +136,7 @@ export class GameServer extends SpeedDungeonServer {
       connectionEndpoint.id,
       identityResolutionContext
     );
-
-    const { username, taggedUserId, connectionId } = session;
-    // console.info(
-    //   `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the [${this.name}] game server`
-    // );
+    // this.logUserConnected(session);
 
     this.outgoingMessagesGateway.registerEndpoint(connectionEndpoint);
 
@@ -173,6 +168,13 @@ export class GameServer extends SpeedDungeonServer {
     outbox.pushFromOther(refreshedReconnectionTokenOutbox);
 
     this.dispatchOutboxMessages(outbox);
+  }
+
+  private logUserConnected(session: UserSession) {
+    const { username, taggedUserId, connectionId } = session;
+    console.info(
+      `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the [${this.name}] game server`
+    );
   }
 
   // @TODO - combine with lobby server, it is almost exact same other than disconnection session logic
