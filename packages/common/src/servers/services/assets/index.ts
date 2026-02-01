@@ -66,8 +66,81 @@ export class FallbackAssetSource implements AssetSource {
   }
 }
 
-// @TODO
-// Online mode runs a synchronizer ahead of time. Offline mode does not. Consumers remain oblivious.
-export interface AssetSynchronizer {
+export interface AssetService {
+  /**
+   * Returns the bytes for a given logical asset.
+   * Throws if the asset is unavailable (e.g., offline & not cached).
+   */
+  getAsset(assetId: AssetId): Promise<ArrayBuffer>;
+
+  /**
+   * Optional: pre-fetch or synchronize assets ahead of time.
+   * Can be used by the synchronizer in online mode.
+   */
   ensureAsset(assetId: AssetId): Promise<void>;
+}
+
+export class AppClientAssetService implements AssetService {
+  constructor(
+    private readonly httpSource: AssetSource,
+    private readonly cacheSource: AssetSource,
+    private readonly isOnline: () => boolean
+  ) {}
+
+  async getAsset(assetId: AssetId): Promise<ArrayBuffer> {
+    if (this.isOnline()) {
+      try {
+        // Check cache first
+        let cached: ArrayBuffer | null = null;
+        try {
+          cached = await this.cacheSource.getAssetBytes(assetId);
+        } catch {
+          // ignore, cache miss
+        }
+
+        // Always check for update if cached
+        if (cached) {
+          const updated = await this.checkForUpdate(assetId, cached);
+          if (!updated) return cached;
+        }
+
+        // Fetch from HTTP if not cached or updated
+        const bytes = await this.httpSource.getAssetBytes(assetId);
+
+        // Store/update cache
+        await this.storeInCache(assetId, bytes);
+        return bytes;
+      } catch (err) {
+        // fallback to cache if available
+        try {
+          return await this.cacheSource.getAssetBytes(assetId);
+        } catch {
+          throw new Error(`Unable to load asset ${assetId} online or from cache`);
+        }
+      }
+    } else {
+      // offline: must be in cache
+      return this.cacheSource.getAssetBytes(assetId);
+    }
+  }
+
+  async ensureAsset(assetId: AssetId): Promise<void> {
+    if (!this.isOnline()) return; // can't fetch
+
+    const bytes = await this.httpSource.getAssetBytes(assetId);
+    await this.storeInCache(assetId, bytes);
+  }
+
+  private async checkForUpdate(assetId: AssetId, cached: ArrayBuffer): Promise<boolean> {
+    // Optional: fetch a hash, ETag, or version number from server
+    // Return true if server version is newer
+    return true; // placeholder, always fetch for now
+  }
+
+  private async storeInCache(assetId: AssetId, bytes: ArrayBuffer) {
+    // Store in IndexedDB, Capacitor FS, or other cache source
+    if ("storeAssetBytes" in this.cacheSource) {
+      await (this.cacheSource as any).storeAssetBytes(assetId, bytes);
+    }
+  }
 }
