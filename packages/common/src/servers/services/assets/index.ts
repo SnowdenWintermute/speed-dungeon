@@ -76,12 +76,6 @@ export interface AssetService {
    * Throws if the asset is unavailable (e.g., offline & not cached).
    */
   getAsset(assetId: AssetId): Promise<ArrayBuffer>;
-
-  /**
-   * Optional: pre-fetch or synchronize assets ahead of time.
-   * Can be used by the synchronizer in online mode.
-   */
-  ensureAsset(assetId: AssetId): Promise<void>;
 }
 
 interface FetchEntry {
@@ -94,76 +88,77 @@ interface PrefetchEntry {
   priority: number;
 }
 
+export enum AssetFetchPriority {
+  Urgent,
+  PrefetchHigh,
+  PrefetchLow,
+}
+
 export class ClientAppAssetService implements AssetService {
   private prefetchQueue: PrefetchEntry[] = [];
-  private inProgress = new Map<AssetId, FetchEntry>();
+  private fetchesInProgress = new Map<AssetId, FetchEntry>();
 
   constructor(
-    private readonly httpStore: AssetStore,
+    private readonly remoteStore: AssetStore,
     private readonly cache: AssetStore,
+    private readonly assetIdsByDefaultPrefetchPriority: PrefetchEntry[],
     private readonly isOnline: () => boolean
   ) {}
 
   async getAsset(assetId: AssetId): Promise<ArrayBuffer> {
-    if (!this.isOnline()) {
-      return this.cache.getAssetBytes(assetId);
-    }
-
     try {
       return await this.cache.getAssetBytes(assetId);
     } catch (error) {
       console.log(`${assetId} not found in cache: ${error}`);
     }
 
-    const bytes = await this.httpStore.getAssetBytes(assetId);
-    await this.cacheAsset(assetId, bytes);
-
-    return bytes;
+    return await this.fetchAndCacheRemoteAssetOrGetAlreadyQueuedFetch(
+      assetId,
+      AssetFetchPriority.Urgent
+    );
   }
 
-  async fetchAsset(assetId: AssetId, priority: number): Promise<ArrayBuffer> {
-    const existing = this.inProgress.get(assetId);
+  async prefetchAssets() {
+    const recentAssetIdVersions = await this.getAssetIdVersions();
+    // @TODO - compare to cache and build list of updateable AssetIds to fetch
+
+    for (const assetId of recentAssetIdVersions) {
+      this.prefetchQueue.push({ assetId, priority: AssetFetchPriority.PrefetchLow });
+    }
+  }
+
+  private async fetchAndCacheRemoteAssetOrGetAlreadyQueuedFetch(
+    assetId: AssetId,
+    priority: number
+  ): Promise<ArrayBuffer> {
+    if (!this.isOnline()) {
+      throw new Error("Can't fetch asset - no internet connection");
+    }
+
+    const existing = this.fetchesInProgress.get(assetId);
     if (existing) {
-      // already being fetched; maybe update priority
-      if (priority > existing.priority) {
-        existing.priority = priority;
-        // optionally reorder queue if used for background fetching
-      }
+      existing.priority = priority;
       return existing.promise;
     }
 
-    // start a new fetch
-    const fetchPromise = this.ensureAsset(assetId);
-    this.inProgress.set(assetId, { promise: fetchPromise, priority });
+    const fetchAndCachePromise = this.fetchAndCacheRemoteAsset(assetId);
+    this.fetchesInProgress.set(assetId, { promise: fetchAndCachePromise, priority });
 
-    fetchPromise.finally(() => {
-      this.inProgress.delete(assetId);
+    fetchAndCachePromise.finally(() => {
+      this.fetchesInProgress.delete(assetId);
       // also remove from prefetchQueue if it was queued
     });
 
-    return fetchPromise;
+    return fetchAndCachePromise;
   }
 
-  async getUpdatedAssetIds(): Promise<AssetId[]> {
+  private async fetchAndCacheRemoteAsset(assetId: AssetId) {
+    const bytes = await this.remoteStore.getAssetBytes(assetId);
+    this.cache.cacheAsset(assetId, bytes);
+    return bytes;
+  }
+
+  async getAssetIdVersions(): Promise<AssetId[]> {
     throw new Error("not implemented");
-  }
-
-  async ensureAsset(assetId: AssetId): Promise<void> {
-    if (!this.isOnline()) {
-      return;
-    }
-
-    const bytes = await this.httpStore.getAssetBytes(assetId);
-    await this.cacheAsset(assetId, bytes);
-  }
-
-  private async checkForUpdate(assetId: AssetId, cached: ArrayBuffer): Promise<boolean> {
-    // Optional: fetch a hash, ETag, or version number from server
-    // Return true if server version is newer
-    return true; // placeholder, always fetch for now
-  }
-
-  private async cacheAsset(assetId: AssetId, bytes: ArrayBuffer) {
-    await this.cache.cacheAsset(assetId, bytes);
   }
 }
