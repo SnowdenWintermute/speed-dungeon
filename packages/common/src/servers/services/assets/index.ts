@@ -2,13 +2,15 @@ import path from "path";
 import fs from "fs";
 
 // provide a way for GameServer to give URL and get a file (.glb, sound file, texture)
-export type AssetId = string & { __brand: "AssetId" };
-export interface AssetSource {
-  // ArrayBuffer format works in all runtimes, node, browser etc.
+export type AssetId = string & { __brand: "AssetId" }; // models/monsters/manta-ray.glb
+
+// ArrayBuffer format was chosen because it works in all runtimes, node, browser etc.
+export interface AssetStore {
   getAssetBytes(assetId: AssetId): Promise<ArrayBuffer>;
+  cacheAsset(assetId: AssetId, bytes: ArrayBuffer): Promise<void>;
 }
 
-export class HttpAssetSource implements AssetSource {
+export class HttpAssetStore implements AssetStore {
   constructor(private readonly baseUrl: string) {}
 
   async getAssetBytes(assetId: AssetId): Promise<ArrayBuffer> {
@@ -18,26 +20,39 @@ export class HttpAssetSource implements AssetSource {
     }
     return await res.arrayBuffer();
   }
-}
 
-export class FileSystemAssetSource implements AssetSource {
-  constructor(private readonly baseDir: string) {}
-
-  async getAssetBytes(assetId: AssetId): Promise<ArrayBuffer> {
-    const fullPath = path.join(this.baseDir, assetId);
-    if (!fullPath.startsWith(this.baseDir)) {
-      throw new Error("Directory traversal attempt");
-    }
-    const buffer = await fs.promises.readFile(fullPath);
-    const asArrayBuffer = buffer.buffer.slice(
-      buffer.byteOffset,
-      buffer.byteOffset + buffer.byteLength
-    );
-    return asArrayBuffer;
+  async cacheAsset(): Promise<void> {
+    throw new Error("Can't cache to the http source");
   }
 }
 
-export class IndexedDbAssetSource implements AssetSource {
+export class FileSystemAssetStore implements AssetStore {
+  private baseRealPath = "";
+  constructor(private readonly baseDir: string) {}
+
+  async getAssetBytes(assetId: AssetId): Promise<ArrayBuffer> {
+    if (!this.baseRealPath) {
+      this.baseRealPath = await fs.promises.realpath(this.baseDir);
+    }
+
+    const candidatePath = path.resolve(this.baseRealPath, assetId);
+    const candidateRealPath = await fs.promises.realpath(candidatePath);
+    const relative = path.relative(this.baseRealPath, candidateRealPath);
+
+    if (relative.startsWith("..") || path.isAbsolute(relative)) {
+      throw new Error("Directory traversal attempt");
+    }
+
+    const buffer = await fs.promises.readFile(candidateRealPath);
+    return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+  }
+
+  async cacheAsset(): Promise<void> {
+    // @TODO
+  }
+}
+
+export class IndexedDbAssetStore implements AssetStore {
   async getAssetBytes(assetId: AssetId): Promise<ArrayBuffer> {
     const entry = await readFromIndexedDb(assetId);
     if (!entry) {
@@ -45,25 +60,14 @@ export class IndexedDbAssetSource implements AssetSource {
     }
     return entry;
   }
+
+  async cacheAsset(): Promise<void> {
+    // @TODO
+  }
 }
 
 async function readFromIndexedDb(id: string): Promise<ArrayBuffer> {
   throw new Error("not implemented");
-}
-
-export class FallbackAssetSource implements AssetSource {
-  constructor(private readonly sources: AssetSource[]) {}
-
-  async getAssetBytes(assetId: AssetId): Promise<ArrayBuffer> {
-    for (const source of this.sources) {
-      try {
-        return await source.getAssetBytes(assetId);
-      } catch {
-        console.error("couldn't get asset bytes");
-      }
-    }
-    throw new Error(`Asset not found in any source: ${assetId}`);
-  }
 }
 
 export interface AssetService {
@@ -80,55 +84,77 @@ export interface AssetService {
   ensureAsset(assetId: AssetId): Promise<void>;
 }
 
-export class AppClientAssetService implements AssetService {
+interface FetchEntry {
+  promise: Promise<ArrayBuffer>;
+  priority: number;
+}
+
+interface PrefetchEntry {
+  assetId: AssetId;
+  priority: number;
+}
+
+export class ClientAppAssetService implements AssetService {
+  private prefetchQueue: PrefetchEntry[] = [];
+  private inProgress = new Map<AssetId, FetchEntry>();
+
   constructor(
-    private readonly httpSource: AssetSource,
-    private readonly cacheSource: AssetSource,
+    private readonly httpStore: AssetStore,
+    private readonly cache: AssetStore,
     private readonly isOnline: () => boolean
   ) {}
 
   async getAsset(assetId: AssetId): Promise<ArrayBuffer> {
-    if (this.isOnline()) {
-      try {
-        // Check cache first
-        let cached: ArrayBuffer | null = null;
-        try {
-          cached = await this.cacheSource.getAssetBytes(assetId);
-        } catch {
-          // ignore, cache miss
-        }
-
-        // Always check for update if cached
-        if (cached) {
-          const updated = await this.checkForUpdate(assetId, cached);
-          if (!updated) return cached;
-        }
-
-        // Fetch from HTTP if not cached or updated
-        const bytes = await this.httpSource.getAssetBytes(assetId);
-
-        // Store/update cache
-        await this.storeInCache(assetId, bytes);
-        return bytes;
-      } catch (err) {
-        // fallback to cache if available
-        try {
-          return await this.cacheSource.getAssetBytes(assetId);
-        } catch {
-          throw new Error(`Unable to load asset ${assetId} online or from cache`);
-        }
-      }
-    } else {
-      // offline: must be in cache
-      return this.cacheSource.getAssetBytes(assetId);
+    if (!this.isOnline()) {
+      return this.cache.getAssetBytes(assetId);
     }
+
+    try {
+      return await this.cache.getAssetBytes(assetId);
+    } catch (error) {
+      console.log(`${assetId} not found in cache: ${error}`);
+    }
+
+    const bytes = await this.httpStore.getAssetBytes(assetId);
+    await this.cacheAsset(assetId, bytes);
+
+    return bytes;
+  }
+
+  async fetchAsset(assetId: AssetId, priority: number): Promise<ArrayBuffer> {
+    const existing = this.inProgress.get(assetId);
+    if (existing) {
+      // already being fetched; maybe update priority
+      if (priority > existing.priority) {
+        existing.priority = priority;
+        // optionally reorder queue if used for background fetching
+      }
+      return existing.promise;
+    }
+
+    // start a new fetch
+    const fetchPromise = this.ensureAsset(assetId);
+    this.inProgress.set(assetId, { promise: fetchPromise, priority });
+
+    fetchPromise.finally(() => {
+      this.inProgress.delete(assetId);
+      // also remove from prefetchQueue if it was queued
+    });
+
+    return fetchPromise;
+  }
+
+  async getUpdatedAssetIds(): Promise<AssetId[]> {
+    throw new Error("not implemented");
   }
 
   async ensureAsset(assetId: AssetId): Promise<void> {
-    if (!this.isOnline()) return; // can't fetch
+    if (!this.isOnline()) {
+      return;
+    }
 
-    const bytes = await this.httpSource.getAssetBytes(assetId);
-    await this.storeInCache(assetId, bytes);
+    const bytes = await this.httpStore.getAssetBytes(assetId);
+    await this.cacheAsset(assetId, bytes);
   }
 
   private async checkForUpdate(assetId: AssetId, cached: ArrayBuffer): Promise<boolean> {
@@ -137,10 +163,7 @@ export class AppClientAssetService implements AssetService {
     return true; // placeholder, always fetch for now
   }
 
-  private async storeInCache(assetId: AssetId, bytes: ArrayBuffer) {
-    // Store in IndexedDB, Capacitor FS, or other cache source
-    if ("storeAssetBytes" in this.cacheSource) {
-      await (this.cacheSource as any).storeAssetBytes(assetId, bytes);
-    }
+  private async cacheAsset(assetId: AssetId, bytes: ArrayBuffer) {
+    await this.cache.cacheAsset(assetId, bytes);
   }
 }
