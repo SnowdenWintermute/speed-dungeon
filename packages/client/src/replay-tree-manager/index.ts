@@ -5,7 +5,6 @@ import { AppStore } from "@/mobx-stores/app-store";
 export class ReplayTreeProcessorManager {
   private queue: { root: NestedNodeReplayEvent; onComplete: () => void }[] = [];
   private current: null | ReplayTreeProcessor = null;
-  constructor() {}
 
   getCurrent() {
     return this.current;
