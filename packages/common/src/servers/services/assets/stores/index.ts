@@ -8,6 +8,7 @@ export interface AbortableGetBytes {
 // ArrayBuffer format was chosen because it works in all runtimes, node, browser etc.
 export interface AssetStore {
   getAssetBytes(assetId: AssetId): Promise<ArrayBuffer>;
+  getAssetBytesOption(assetId: AssetId): Promise<ArrayBuffer | undefined>;
   getAssetBytesAbortable?(assetId: AssetId): AbortableGetBytes;
   cacheAsset(assetId: AssetId, bytes: ArrayBuffer): Promise<void>;
 }

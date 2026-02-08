@@ -14,6 +14,15 @@ export class RemoteServerAssetStore implements AssetStore {
     return res.arrayBuffer();
   }
 
+  async getAssetBytesOption(assetId: AssetId): Promise<ArrayBuffer | undefined> {
+    try {
+      const asset = await this.getAssetBytes(assetId);
+      return asset;
+    } catch {
+      return undefined;
+    }
+  }
+
   getAssetBytesAbortable(assetId: AssetId): AbortableGetBytes {
     const abortController = new AbortController();
     const bytesPromise = new Promise<ArrayBuffer>((resolve, reject) => {

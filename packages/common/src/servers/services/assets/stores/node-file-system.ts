@@ -24,6 +24,17 @@ export class NodeFileSystemAssetStore implements AssetStore {
     return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
   }
 
+  async getAssetBytesOption(assetId: AssetId): Promise<ArrayBuffer | undefined> {
+    try {
+      return await this.getAssetBytes(assetId);
+    } catch (error) {
+      if (error instanceof Error && (error as NodeJS.ErrnoException).code === "ENOENT") {
+        return undefined;
+      }
+      throw error;
+    }
+  }
+
   async cacheAsset(): Promise<void> {
     // @TODO
   }

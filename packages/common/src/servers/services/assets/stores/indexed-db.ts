@@ -3,9 +3,17 @@ import { AssetStore } from "./index.js";
 
 export class IndexedDbAssetStore implements AssetStore {
   async getAssetBytes(assetId: AssetId): Promise<ArrayBuffer> {
+    const assetOption = await this.getAssetBytesOption(assetId);
+    if (assetOption === undefined) {
+      throw new Error(`Asset not in cache: ${assetId}`);
+    }
+    return assetOption;
+  }
+
+  async getAssetBytesOption(assetId: AssetId): Promise<ArrayBuffer | undefined> {
     const entry = await readFromIndexedDb(assetId);
     if (!entry) {
-      throw new Error(`Asset not in cache: ${assetId}`);
+      return undefined;
     }
     return entry;
   }

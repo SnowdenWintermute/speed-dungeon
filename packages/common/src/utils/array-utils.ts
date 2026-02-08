@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-extraneous-class */
 import { RandomNumberGenerator } from "../utility-classes/randomizers.js";
 import { randBetween } from "./rand-between.js";
 
