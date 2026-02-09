@@ -1,13 +1,13 @@
-import { AssetId } from "../index.js";
-import { AssetStore } from "./index.js";
+import { AssetId, VersionedAsset } from "../index.js";
+import { AssetCache } from "./index.js";
 import path from "path";
 import fs from "fs";
 
-export class NodeFileSystemAssetStore implements AssetStore {
+export class NodeFileSystemAssetStore implements AssetCache {
   private baseRealPath = "";
   constructor(private readonly baseDir: string) {}
 
-  async getAssetBytes(assetId: AssetId): Promise<ArrayBuffer> {
+  async getAsset(assetId: AssetId): Promise<VersionedAsset> {
     if (!this.baseRealPath) {
       this.baseRealPath = await fs.promises.realpath(this.baseDir);
     }
@@ -21,12 +21,16 @@ export class NodeFileSystemAssetStore implements AssetStore {
     }
 
     const buffer = await fs.promises.readFile(candidateRealPath);
-    return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+    const bytes = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+
+    // @TODO - actually get version from file metadata
+
+    return new VersionedAsset(bytes, { version: 1, sizeBytes: bytes.byteLength });
   }
 
-  async getAssetBytesOption(assetId: AssetId): Promise<ArrayBuffer | undefined> {
+  async getAssetOption(assetId: AssetId): Promise<VersionedAsset | undefined> {
     try {
-      return await this.getAssetBytes(assetId);
+      return await this.getAsset(assetId);
     } catch (error) {
       if (error instanceof Error && (error as NodeJS.ErrnoException).code === "ENOENT") {
         return undefined;
@@ -37,5 +41,7 @@ export class NodeFileSystemAssetStore implements AssetStore {
 
   async cacheAsset(): Promise<void> {
     // @TODO
+    // - store file with bytes and version metadata
+    // - probably do this by hand in file system, just put files in folders
   }
 }

@@ -1,16 +1,16 @@
-import { AssetId } from "../index.js";
-import { AssetStore } from "./index.js";
+import { AssetId, VersionedAsset } from "../index.js";
+import { AssetCache } from "./index.js";
 
-export class IndexedDbAssetStore implements AssetStore {
-  async getAssetBytes(assetId: AssetId): Promise<ArrayBuffer> {
-    const assetOption = await this.getAssetBytesOption(assetId);
+export class IndexedDbAssetStore implements AssetCache {
+  async getAsset(assetId: AssetId): Promise<VersionedAsset> {
+    const assetOption = await this.getAssetOption(assetId);
     if (assetOption === undefined) {
       throw new Error(`Asset not in cache: ${assetId}`);
     }
     return assetOption;
   }
 
-  async getAssetBytesOption(assetId: AssetId): Promise<ArrayBuffer | undefined> {
+  async getAssetOption(assetId: AssetId): Promise<VersionedAsset | undefined> {
     const entry = await readFromIndexedDb(assetId);
     if (!entry) {
       return undefined;
@@ -23,6 +23,6 @@ export class IndexedDbAssetStore implements AssetStore {
   }
 }
 
-async function readFromIndexedDb(id: string): Promise<ArrayBuffer> {
+async function readFromIndexedDb(id: string): Promise<VersionedAsset | undefined> {
   throw new Error("not implemented");
 }
