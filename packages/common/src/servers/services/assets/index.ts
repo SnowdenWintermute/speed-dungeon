@@ -1,5 +1,5 @@
 import { FetchAbortedError } from "../../../errors/fetch-aborted.js";
-import { invariant } from "../../../utils/index.js";
+import { invariant, iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 import { AssetCache, RemoteAssetStore } from "./stores/index.js";
 
 // provide a way for GameServer to give URL and get a file (.glb, sound file, texture)
@@ -49,40 +49,48 @@ export enum AssetFetchPriority {
 }
 
 class ScheduledFetchQueue {
-  // @TODO - really only need the asset id and the priority
-  // because the manifest handles other metadata
-  private scheduledFetches = new Map<AssetId, IntentToFetch>();
+  private idsByPriority: Record<AssetFetchPriority, Set<AssetId>> = {
+    [AssetFetchPriority.PrefetchLow]: new Set(),
+    [AssetFetchPriority.PrefetchHigh]: new Set(),
+    [AssetFetchPriority.Urgent]: new Set(),
+  };
+  private prioritiesById = new Map<AssetId, AssetFetchPriority>();
 
-  remove(assetId: AssetId): IntentToFetch | undefined {
-    const option = this.scheduledFetches.get(assetId);
+  remove(assetId: AssetId) {
+    const option = this.prioritiesById.get(assetId);
     if (option) {
-      this.scheduledFetches.delete(assetId);
-      return option;
-    } else {
-      return undefined;
+      this.prioritiesById.delete(assetId);
+      this.getIdsAtPriority(option).delete(assetId);
     }
   }
 
-  add(intent: IntentToFetch) {
-    this.scheduledFetches.set(intent.assetId, intent);
+  private getIdsAtPriority(priority: AssetFetchPriority) {
+    const result = this.idsByPriority[priority];
+    return result;
   }
 
-  popNextHighestPriority() {
-    // @PERFORMANCE - could be improved
-    const sorted = Array.from(this.scheduledFetches.entries()).sort(
-      ([aId, aIntent], [bId, bIntent]) => aIntent.priority - bIntent.priority
-    );
+  add(assetId: AssetId, priority: AssetFetchPriority) {
+    invariant(!this.prioritiesById.has(assetId), "entry already exists");
+    this.getIdsAtPriority(priority).add(assetId);
+    this.prioritiesById.set(assetId, priority);
+  }
 
-    const next = sorted[0];
-    if (next === undefined) {
-      return undefined;
-    } else {
-      const assetId = next[0];
-      const popped = this.scheduledFetches.get(assetId);
-      invariant(popped !== undefined);
-      this.scheduledFetches.delete(assetId);
-      return popped;
+  popNextHighestPriority(): AssetId | undefined {
+    const sortedPriorities = iterateNumericEnumKeyedRecord(this.idsByPriority)
+      .map(([priority, assetIdSet]) => priority)
+      .sort((a, b) => a - b);
+
+    for (const priority of sortedPriorities) {
+      const set = this.getIdsAtPriority(priority);
+      if (set.size > 0) {
+        const next = set.values().next().value;
+        invariant(next !== undefined);
+        this.remove(next);
+        return next;
+      }
     }
+
+    return undefined;
   }
 }
 
@@ -165,13 +173,7 @@ export class ClientAppAssetService implements AssetService {
       invariant(managedFetch !== undefined);
       managedFetch.abort();
 
-      const intentToFetch: IntentToFetch = {
-        assetId: managedFetchId,
-        priority: managedFetch.priority,
-        sizeBytes: managedFetch.versionData.sizeBytes,
-      };
-
-      this.prefetchQueue.add(intentToFetch);
+      this.prefetchQueue.add(managedFetchId, managedFetch.priority);
     }
   }
 
@@ -207,11 +209,7 @@ export class ClientAppAssetService implements AssetService {
         defaultPriority = AssetFetchPriority.PrefetchLow;
       }
 
-      this.prefetchQueue.add({
-        assetId,
-        priority: defaultPriority,
-        sizeBytes: versionData.sizeBytes,
-      });
+      this.prefetchQueue.add(assetId, defaultPriority);
     }
 
     // start fetching the first TARGET_CONCURRENT_FETCH_COUNT assets
@@ -221,7 +219,7 @@ export class ClientAppAssetService implements AssetService {
         break;
       }
 
-      this.startManagedFetch(nextHighestPriorityFetch.assetId);
+      this.startManagedFetch(nextHighestPriorityFetch);
     }
     //
     // on each fetch completed
