@@ -1,7 +1,13 @@
 import { AssetId, VersionedAsset } from "../index.js";
 import { AssetCache } from "./index.js";
 
-export class IndexedDbAssetStore implements AssetCache {
+export class IndexedDbAssetStore extends AssetCache {
+  removeAsset(assetId: AssetId): Promise<boolean> {
+    throw new Error("Method not implemented.");
+  }
+  getAssetIdsCached(): Promise<Set<AssetId>> {
+    throw new Error("Method not implemented.");
+  }
   async getAsset(assetId: AssetId): Promise<VersionedAsset> {
     const assetOption = await this.getAssetOption(assetId);
     if (assetOption === undefined) {

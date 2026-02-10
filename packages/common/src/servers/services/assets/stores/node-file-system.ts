@@ -3,9 +3,18 @@ import { AssetCache } from "./index.js";
 import path from "path";
 import fs from "fs";
 
-export class NodeFileSystemAssetStore implements AssetCache {
+export class NodeFileSystemAssetStore extends AssetCache {
   private baseRealPath = "";
-  constructor(private readonly baseDir: string) {}
+  constructor(private readonly baseDir: string) {
+    super();
+  }
+
+  removeAsset(assetId: AssetId): Promise<boolean> {
+    throw new Error("Method not implemented.");
+  }
+  getAssetIdsCached(): Promise<Set<AssetId>> {
+    throw new Error("Method not implemented.");
+  }
 
   async getAsset(assetId: AssetId): Promise<VersionedAsset> {
     if (!this.baseRealPath) {
