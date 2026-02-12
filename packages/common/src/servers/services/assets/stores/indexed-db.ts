@@ -1,13 +1,23 @@
-import { AssetId, VersionedAsset } from "../index.js";
+import { AssetId } from "../index.js";
+import { VersionedAsset } from "../versioned-asset.js";
 import { AssetCache } from "./index.js";
+import { IndexedDbVersionedAssetRepo } from "./indexed-db-versioned-asset-repo.js";
 
 export class IndexedDbAssetStore extends AssetCache {
-  removeAsset(assetId: AssetId): Promise<boolean> {
-    throw new Error("Method not implemented.");
+  indexedDbAssetsRepo: IndexedDbVersionedAssetRepo;
+  constructor(indexedDB: IDBFactory) {
+    super();
+    this.indexedDbAssetsRepo = new IndexedDbVersionedAssetRepo(indexedDB);
   }
-  getAssetIdsCached(): Promise<Set<AssetId>> {
-    throw new Error("Method not implemented.");
+
+  async removeAsset(assetId: AssetId): Promise<void> {
+    await this.indexedDbAssetsRepo.delete(assetId);
   }
+
+  async getAssetIdsCached(): Promise<Set<AssetId>> {
+    return await this.indexedDbAssetsRepo.getAllKeys();
+  }
+
   async getAsset(assetId: AssetId): Promise<VersionedAsset> {
     const assetOption = await this.getAssetOption(assetId);
     if (assetOption === undefined) {
@@ -17,18 +27,10 @@ export class IndexedDbAssetStore extends AssetCache {
   }
 
   async getAssetOption(assetId: AssetId): Promise<VersionedAsset | undefined> {
-    const entry = await readFromIndexedDb(assetId);
-    if (!entry) {
-      return undefined;
-    }
-    return entry;
+    return await this.indexedDbAssetsRepo.findById(assetId);
   }
 
-  async cacheAsset(): Promise<void> {
-    // @TODO
+  async cacheAsset(assetId: AssetId, versionedAsset: VersionedAsset): Promise<void> {
+    await this.indexedDbAssetsRepo.insert(assetId, versionedAsset);
   }
-}
-
-async function readFromIndexedDb(id: string): Promise<VersionedAsset | undefined> {
-  throw new Error("not implemented");
 }

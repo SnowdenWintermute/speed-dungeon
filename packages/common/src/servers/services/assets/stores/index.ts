@@ -1,4 +1,5 @@
-import { AssetId, VersionedAsset } from "../index.js";
+import { AssetId } from "../index.js";
+import { VersionedAsset } from "../versioned-asset.js";
 
 export interface AbortableAssetFetch {
   promise: Promise<ArrayBuffer>;
@@ -17,7 +18,7 @@ export abstract class AssetCache {
   abstract cacheAsset(assetId: AssetId, asset: VersionedAsset): Promise<void>;
   abstract getAssetOption(assetId: AssetId): Promise<VersionedAsset | undefined>;
   /** return true if asset existed */
-  abstract removeAsset(assetId: AssetId): Promise<boolean>;
+  abstract removeAsset(assetId: AssetId): Promise<void>;
   abstract getAssetIdsCached(): Promise<Set<AssetId>>;
 
   async removeAssetsNotIncluded(toKeep: Set<AssetId>) {

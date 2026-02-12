@@ -1,6 +1,8 @@
-export interface AssetVersionData {
-  sizeBytes: number;
-  version: number;
+import { NormalizedPercentage } from "../../../aliases.js";
+
+export interface AssetManifestEntry {
+  versionData: AssetVersionData;
+  percentFetched: NormalizedPercentage;
 }
 
 export class VersionedAsset {
@@ -8,4 +10,9 @@ export class VersionedAsset {
     public bytes: ArrayBuffer,
     public versionData: AssetVersionData
   ) {}
+}
+
+export interface AssetVersionData {
+  sizeBytes: number;
+  version: number;
 }

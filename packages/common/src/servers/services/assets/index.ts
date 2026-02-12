@@ -3,9 +3,8 @@ import { invariant } from "../../../utils/index.js";
 import { ManagedAssetFetch } from "./managed-asset-fetch.js";
 import { AssetFetchPriority, ScheduledFetchQueue } from "./scheduled-fetch-queue.js";
 import { AssetCache, RemoteAssetStore } from "./stores/index.js";
-import { AssetVersionData, VersionedAsset } from "./versioned-asset.js";
+import { AssetManifestEntry, AssetVersionData, VersionedAsset } from "./versioned-asset.js";
 
-// provide a way for GameServer to give URL and get a file (.glb, sound file, texture)
 export type AssetId = string & { __brand: "AssetId" }; // models/monsters/manta-ray.glb
 
 const TARGET_CONCURRENT_FETCH_COUNT = 2;
@@ -14,12 +13,20 @@ export interface AssetService {
   getAsset(assetId: AssetId): Promise<ArrayBuffer>;
 }
 
+export class GameServerNodeAssetService implements AssetService {
+  constructor(private localFileSystemStore: AssetCache) {}
+  async getAsset(assetId: AssetId): Promise<ArrayBuffer> {
+    const versionedAsset = await this.localFileSystemStore.getAsset(assetId);
+    return versionedAsset.bytes;
+  }
+}
+
 export class ClientAppAssetService implements AssetService {
   private prefetchQueue = new ScheduledFetchQueue();
   private activeFetches = new Map<AssetId, ManagedAssetFetch>();
-  private assetManifest: null | Map<AssetId, AssetVersionData> = new Map<
+  private assetManifest: null | Map<AssetId, AssetManifestEntry> = new Map<
     AssetId,
-    AssetVersionData
+    AssetManifestEntry
   >();
 
   constructor(
@@ -30,8 +37,20 @@ export class ClientAppAssetService implements AssetService {
   ) {}
 
   async initialize() {
-    // get updated asset list
-    this.assetManifest = await this.getFreshAssetIdVersions();
+    const offline = !this.isOnline();
+    if (offline) {
+      // check if have a lastCachedManifest
+      // check if cache containes all assets
+      // check if manifest version matches game version
+    }
+
+    const upToDateVersionData = await this.getFreshAssetIdVersions();
+
+    this.assetManifest = new Map(
+      Array.from(upToDateVersionData, ([key, versionData]) => {
+        return [key, { versionData, percentFetched: 0 }] as const;
+      })
+    );
   }
 
   async getAsset(assetId: AssetId): Promise<ArrayBuffer> {
@@ -56,15 +75,18 @@ export class ClientAppAssetService implements AssetService {
 
   private async startManagedFetch(assetId: AssetId) {
     const { promise, abort } = this.remoteStore.getAssetBytesAbortable(assetId);
-    const versionData = this.requireAssetVersionData(assetId);
+
+    const versionData = this.requireAssetManifestEntry(assetId).versionData;
 
     const newFetch = new ManagedAssetFetch(promise, versionData, AssetFetchPriority.Urgent, abort);
 
     newFetch.promise
       .then(async (bytes) => {
         const versionedAsset = new VersionedAsset(bytes, versionData);
-        //   - store asset in cache
+
         await this.cache.cacheAsset(assetId, versionedAsset);
+
+        this.requireAssetManifestEntry(assetId).percentFetched = 1;
       })
       .catch((error) => {
         if (isAbortError(error)) {
@@ -80,16 +102,9 @@ export class ClientAppAssetService implements AssetService {
           this.clearUnusedFromCache();
         }
 
-        // on each fetch completed
-        //   - if (currentFetchCount < TARGET_CONCURRENT_FETCH_COUNT) pop next and start fetching it
         if (this.activeFetches.size < TARGET_CONCURRENT_FETCH_COUNT) {
           this.startNextPrefetch();
         }
-
-        //   - update user facing asset fetch progress tracker
-        //     - mark AssetId as completed
-        //     - percent complete should reflect assets marked as completed based on their size in bytes
-        //
       });
 
     this.activeFetches.set(assetId, newFetch);
@@ -129,7 +144,9 @@ export class ClientAppAssetService implements AssetService {
 
   async startPrefetch() {
     const needsUpdate = await this.getAssetIdsNeedingUpdate();
-    // build prioritized list of assets to pre fetch
+
+    this.markUpToDateAssetsCompleted(needsUpdate);
+
     for (const [assetId, versionData] of needsUpdate) {
       let defaultPriority = this.assetIdsByDefaultPrefetchPriority.get(assetId);
       if (defaultPriority === undefined) {
@@ -139,35 +156,34 @@ export class ClientAppAssetService implements AssetService {
       this.prefetchQueue.add(assetId, defaultPriority);
     }
 
-    // start fetching the first TARGET_CONCURRENT_FETCH_COUNT assets
     while (
       this.activeFetches.size < TARGET_CONCURRENT_FETCH_COUNT &&
       this.prefetchQueue.hasEntries()
     ) {
       this.startNextPrefetch();
     }
-
-    // initialize a user facing progress tracker
   }
 
   private async getAssetIdsNeedingUpdate() {
-    // get updated asset list
     const updatedAssetList = this.requireAssetManifest();
-    // compare to current cache
+
     const needsUpdate = new Map<AssetId, AssetVersionData>();
     const comparePromises: Promise<void>[] = [];
-    for (const [assetId, assetVersionData] of updatedAssetList) {
+
+    for (const [assetId, manifestEntry] of updatedAssetList) {
       const checkIfMissingOrStale = new Promise<void>(() => {
         this.cache.getAssetOption(assetId).then((assetOption) => {
           const notCached = assetOption === undefined;
           if (notCached) {
-            needsUpdate.set(assetId, assetVersionData);
+            needsUpdate.set(assetId, manifestEntry.versionData);
             return;
           }
 
-          const cachedAssetIsStale = assetOption.versionData.version !== assetVersionData.version;
+          const cachedAssetIsStale =
+            assetOption.versionData.version !== manifestEntry.versionData.version;
+
           if (cachedAssetIsStale) {
-            needsUpdate.set(assetId, assetVersionData);
+            needsUpdate.set(assetId, manifestEntry.versionData);
           }
         });
       });
@@ -177,6 +193,15 @@ export class ClientAppAssetService implements AssetService {
     await Promise.all(comparePromises);
 
     return needsUpdate;
+  }
+
+  private markUpToDateAssetsCompleted(needsUpdate: Map<AssetId, AssetVersionData>) {
+    const manifest = this.requireAssetManifest();
+    for (const [assetId, manifestEntry] of manifest.entries()) {
+      if (!needsUpdate.has(assetId)) {
+        manifestEntry.percentFetched = 1;
+      }
+    }
   }
 
   private async getFreshAssetIdVersions(): Promise<Map<AssetId, AssetVersionData>> {
@@ -193,7 +218,7 @@ export class ClientAppAssetService implements AssetService {
     return this.assetManifest;
   }
 
-  private requireAssetVersionData(assetId: AssetId) {
+  private requireAssetManifestEntry(assetId: AssetId) {
     const assetManifest = this.requireAssetManifest();
     const result = assetManifest.get(assetId);
     if (result === undefined) {

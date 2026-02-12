@@ -1,29 +1,30 @@
-import { AssetId, VersionedAsset } from "../index.js";
+import { AssetId } from "../index.js";
 import { AssetCache } from "./index.js";
 import path from "path";
 import fs from "fs";
+import { VersionedAsset } from "../versioned-asset.js";
 
 export class NodeFileSystemAssetStore extends AssetCache {
-  private baseRealPath = "";
   constructor(private readonly baseDir: string) {
     super();
   }
 
-  removeAsset(assetId: AssetId): Promise<boolean> {
+  removeAsset(assetId: AssetId): Promise<void> {
     throw new Error("Method not implemented.");
   }
+
   getAssetIdsCached(): Promise<Set<AssetId>> {
     throw new Error("Method not implemented.");
   }
 
   async getAsset(assetId: AssetId): Promise<VersionedAsset> {
-    if (!this.baseRealPath) {
-      this.baseRealPath = await fs.promises.realpath(this.baseDir);
-    }
+    console.log(process.cwd());
+    const baseRealPath = await fs.promises.realpath(this.baseDir);
 
-    const candidatePath = path.resolve(this.baseRealPath, assetId);
+    const candidatePath = path.resolve(baseRealPath, assetId);
     const candidateRealPath = await fs.promises.realpath(candidatePath);
-    const relative = path.relative(this.baseRealPath, candidateRealPath);
+    const relative = path.relative(baseRealPath, candidateRealPath);
+    console.log("relative:", relative);
 
     if (relative.startsWith("..") || path.isAbsolute(relative)) {
       throw new Error("Directory traversal attempt");
@@ -49,8 +50,6 @@ export class NodeFileSystemAssetStore extends AssetCache {
   }
 
   async cacheAsset(): Promise<void> {
-    // @TODO
-    // - store file with bytes and version metadata
-    // - probably do this by hand in file system, just put files in folders
+    throw new Error("not implemented, expect files to be placed manually");
   }
 }
