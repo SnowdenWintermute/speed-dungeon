@@ -6,7 +6,7 @@ export interface AssetManifestEntry {
   percentFetched: NormalizedPercentage;
 }
 
-export type AssetManifest = Map<AssetId, AssetManifestEntry>;
+export type AssetManifest = Record<AssetId, AssetManifestEntry>;
 
 export class VersionedAsset {
   constructor(

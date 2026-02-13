@@ -2,11 +2,36 @@ import { AssetId, AssetService, invariant } from "@speed-dungeon/common";
 import { AssetCache } from "@speed-dungeon/common";
 import { Router, Request, Response, NextFunction } from "express";
 
+import { createHash } from "crypto";
+import { AssetManifest } from "@speed-dungeon/common/src/servers/services/assets/versioned-asset";
+
+function hashArrayBuffer(bytes: ArrayBuffer): string {
+  const hash = createHash("sha256");
+  hash.update(Buffer.from(bytes));
+  return hash.digest("hex");
+}
+
 export class GameServerNodeAssetService implements AssetService {
   constructor(private localFileSystemStore: AssetCache) {}
   async getAsset(assetId: AssetId): Promise<ArrayBuffer> {
     const versionedAsset = await this.localFileSystemStore.getAsset(assetId);
     return versionedAsset.bytes;
+  }
+
+  async createManifest() {
+    const assetIds = await this.localFileSystemStore.getAssetIdsCached();
+
+    const manifest: AssetManifest = {};
+
+    for (const id of assetIds) {
+      const asset = await this.localFileSystemStore.getAsset(id);
+
+      const hash = hashArrayBuffer(asset.bytes);
+
+      manifest[id] = hash;
+    }
+
+    return manifest;
   }
 }
 
