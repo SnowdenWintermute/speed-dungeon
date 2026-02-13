@@ -1,13 +1,17 @@
-import { AssetId, ClientAppAssetService, GameServerNodeAssetService } from "../index.js";
-import { RemoteServerAssetStore } from "../stores/remote-server.js";
-import { IndexedDbAssetStore } from "../stores/indexed-db.js";
+import { AssetId, ClientAppAssetService } from "@speed-dungeon/common";
+import { IndexedDbAssetStore } from "@speed-dungeon/common";
+import { NodeFileSystemAssetStore } from "@speed-dungeon/common";
+import { RemoteServerAssetStore } from "@speed-dungeon/common";
+import { AssetServer, GameServerNodeAssetService } from "@speed-dungeon/server";
 import { indexedDB as fakeIndexedDB } from "fake-indexeddb";
-import { NodeFileSystemAssetStore } from "../stores/node-file-system.js";
+import { createExpressApp } from "./create-test-express-app.js";
+
+export const ASSET_CACHE_TEST_PORT = 8085;
 
 //
 describe("asset management", () => {
-  it("something", async () => {
-    const testServerUrl = "http://localhost";
+  it("asset prefetch", async () => {
+    const testServerUrl = `http://localhost:${ASSET_CACHE_TEST_PORT}`;
     const remoteStore = new RemoteServerAssetStore(testServerUrl);
     const cache = new IndexedDbAssetStore(fakeIndexedDB);
 
@@ -29,6 +33,17 @@ describe("asset management", () => {
     const assetId = "monsters/manta-ray-full.glb" as AssetId;
     const asset = await gameServerNodeAssetService.getAsset(assetId);
     console.log(asset);
+    const expressApp = createExpressApp();
+    const assetServer = new AssetServer(gameServerNodeAssetService);
+    const assetRouter = assetServer.createRouter();
+    expressApp.use(assetRouter);
+
+    expressApp.listen(ASSET_CACHE_TEST_PORT, () => {
+      console.log("started listening for asset requests");
+    });
+
+    await clientAppAssetService.initialize();
+    await clientAppAssetService.startPrefetch();
   });
 });
 
@@ -39,6 +54,11 @@ describe("asset management", () => {
 // - TestGameClient
 //
 // GameServerNode
+// - GameServerNodeAssetService
+// - contains AssetServer which uses the GameServerNodeAssetService
+// - contains a GameServer which also uses the GameServerNodeAssetService
+//
+// AssetServer
 // - GET -> AssetManifest
 // - GET -> Asset by AssetId
 // - GameServerNodeAssetService

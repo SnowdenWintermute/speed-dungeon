@@ -3,7 +3,7 @@ import { invariant } from "../../../utils/index.js";
 import { ManagedAssetFetch } from "./managed-asset-fetch.js";
 import { AssetFetchPriority, ScheduledFetchQueue } from "./scheduled-fetch-queue.js";
 import { AssetCache, RemoteAssetStore } from "./stores/index.js";
-import { AssetManifestEntry, AssetVersionData, VersionedAsset } from "./versioned-asset.js";
+import { AssetManifest, AssetVersionData, VersionedAsset } from "./versioned-asset.js";
 
 export type AssetId = string & { __brand: "AssetId" }; // models/monsters/manta-ray.glb
 
@@ -13,21 +13,10 @@ export interface AssetService {
   getAsset(assetId: AssetId): Promise<ArrayBuffer>;
 }
 
-export class GameServerNodeAssetService implements AssetService {
-  constructor(private localFileSystemStore: AssetCache) {}
-  async getAsset(assetId: AssetId): Promise<ArrayBuffer> {
-    const versionedAsset = await this.localFileSystemStore.getAsset(assetId);
-    return versionedAsset.bytes;
-  }
-}
-
 export class ClientAppAssetService implements AssetService {
   private prefetchQueue = new ScheduledFetchQueue();
   private activeFetches = new Map<AssetId, ManagedAssetFetch>();
-  private assetManifest: null | Map<AssetId, AssetManifestEntry> = new Map<
-    AssetId,
-    AssetManifestEntry
-  >();
+  private assetManifest: null | AssetManifest = null;
 
   constructor(
     private readonly remoteStore: RemoteAssetStore,
@@ -37,6 +26,7 @@ export class ClientAppAssetService implements AssetService {
   ) {}
 
   async initialize() {
+    console.log("initializing ClientAppAssetService");
     const offline = !this.isOnline();
     if (offline) {
       // check if have a lastCachedManifest
@@ -45,12 +35,9 @@ export class ClientAppAssetService implements AssetService {
     }
 
     const upToDateVersionData = await this.getFreshAssetIdVersions();
+    this.assetManifest = upToDateVersionData;
 
-    this.assetManifest = new Map(
-      Array.from(upToDateVersionData, ([key, versionData]) => {
-        return [key, { versionData, percentFetched: 0 }] as const;
-      })
-    );
+    console.log("initialized ClientAppAssetService");
   }
 
   async getAsset(assetId: AssetId): Promise<ArrayBuffer> {
@@ -143,6 +130,7 @@ export class ClientAppAssetService implements AssetService {
   }
 
   async startPrefetch() {
+    console.log("starting prefetch");
     const needsUpdate = await this.getAssetIdsNeedingUpdate();
 
     this.markUpToDateAssetsCompleted(needsUpdate);
@@ -166,6 +154,7 @@ export class ClientAppAssetService implements AssetService {
 
   private async getAssetIdsNeedingUpdate() {
     const updatedAssetList = this.requireAssetManifest();
+    console.log("asset manifest obtained:", updatedAssetList);
 
     const needsUpdate = new Map<AssetId, AssetVersionData>();
     const comparePromises: Promise<void>[] = [];
@@ -204,12 +193,11 @@ export class ClientAppAssetService implements AssetService {
     }
   }
 
-  private async getFreshAssetIdVersions(): Promise<Map<AssetId, AssetVersionData>> {
-    // http request to remote asset server
-    throw new Error("not implemented");
+  private async getFreshAssetIdVersions(): Promise<AssetManifest> {
+    return await this.remoteStore.getAssetManifest();
   }
 
-  private requireAssetManifest() {
+  private requireAssetManifest(): AssetManifest {
     invariant(
       this.assetManifest !== null,
       "ClientAppAssetService was not initialized with updated asset list"

@@ -215,3 +215,9 @@ export * from "./servers/tests/fixtures/create-test-in-memory-incoming-connectio
 export * from "./servers/tests/fixtures/test-connection-endpoint-factories.js";
 export * from "./servers/tests/fixtures/index.js";
 export * from "./test-utils/test-client.js";
+
+export * from "./servers/services/assets/index.js";
+export * from "./servers/services/assets/stores/index.js";
+export * from "./servers/services/assets/stores/indexed-db.js";
+export * from "./servers/services/assets/stores/remote-server.js";
+export * from "./servers/services/assets/stores/node-file-system.js";

@@ -1,5 +1,5 @@
 import { AssetId } from "../index.js";
-import { VersionedAsset } from "../versioned-asset.js";
+import { AssetManifest, VersionedAsset } from "../versioned-asset.js";
 
 export interface AbortableAssetFetch {
   promise: Promise<ArrayBuffer>;
@@ -9,6 +9,7 @@ export interface AbortableAssetFetch {
 export abstract class RemoteAssetStore {
   abstract getAssetBytes(assetId: AssetId): Promise<ArrayBuffer>;
   abstract getAssetBytesAbortable(assetId: AssetId): AbortableAssetFetch;
+  abstract getAssetManifest(): Promise<AssetManifest>;
 }
 
 /** A store we can cache to

@@ -2,10 +2,10 @@
   "name": "@speed-dungeon/server",
   "version": "0.11.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "migrate": "node-pg-migrate -f pg-migrate-config.json",
-    "serve": "tsc-watch -b --onSuccess \"node dist/index.js\"",
+    "serve": "tsc-watch -b --onSuccess \"node dist/main.js\"",
     "test": "node --experimental-vm-modules --trace-warnings --inspect $(yarn bin jest) --no-cache --setupFiles dotenv/config --watchAll"
   },
   "type": "module",

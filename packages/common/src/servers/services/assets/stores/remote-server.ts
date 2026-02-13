@@ -1,9 +1,15 @@
 import { FetchAbortedError } from "../../../../errors/fetch-aborted.js";
 import { AssetId } from "../index.js";
+import { AssetManifest } from "../versioned-asset.js";
 import { AbortableAssetFetch, RemoteAssetStore } from "./index.js";
 
 export class RemoteServerAssetStore implements RemoteAssetStore {
   constructor(private readonly baseUrl: string) {}
+  async getAssetManifest(): Promise<AssetManifest> {
+    const res = await fetch(`${this.baseUrl}/assets/manifest`);
+    const manifest = await res.json();
+    return manifest;
+  }
 
   async getAssetBytes(assetId: AssetId): Promise<ArrayBuffer> {
     const res = await fetch(`${this.baseUrl}/${assetId}`);

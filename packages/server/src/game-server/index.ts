@@ -8,6 +8,7 @@ import {
   GameName,
   IdentityProviderService,
   ItemGenerator,
+  NodeFileSystemAssetStore,
   SavedCharactersService,
   ServerToClientEvent,
   ServerToClientEventTypes,
@@ -15,6 +16,7 @@ import {
   Username,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
+import { Express } from "express";
 import { initiateLobbyEventListeners } from "./lobby-event-handlers/index.js";
 import { BrowserTabSession } from "./socket-connection-metadata.js";
 import joinSocketToChannel from "./join-socket-to-channel.js";
@@ -44,6 +46,7 @@ import { DatabaseRankedLadderService } from "./services/ranked-ladder.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { getLoggedInUserOrCreateGuest } from "./get-logged-in-user-or-create-guest.js";
 import { GameMessagesPayload } from "@speed-dungeon/common";
+import { AssetServer, GameServerNodeAssetService } from "../asset-server/index.js";
 
 export type SocketId = string;
 
@@ -58,9 +61,19 @@ export class GameServerNode implements ActionCommandReceiver {
     new AffixGenerator(rngSingleton)
   );
   characterCreator: CharacterCreator;
-  constructor(public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
+  assetServer: AssetServer;
+  constructor(
+    public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>,
+    private expressApp: Express
+  ) {
     this.connectionHandler();
     this.characterCreator = new CharacterCreator(idGenerator, this.itemGenerator);
+
+    const fsAssetStore = new NodeFileSystemAssetStore("/packages/server/assets");
+    const assetService = new GameServerNodeAssetService(fsAssetStore);
+    this.assetServer = new AssetServer(assetService);
+    const assetRouter = this.assetServer.createRouter();
+    expressApp.use(assetRouter);
 
     // const usersIncomingConnectionGateway = new LobbyRemoteIncomingConnectionGateway(this.io);
     // const gameSimulatorHandoffStrategy = new RemoteGameSimuatorHandoffStrategy();
