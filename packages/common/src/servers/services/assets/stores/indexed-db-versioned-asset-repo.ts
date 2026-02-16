@@ -9,7 +9,7 @@ interface IndexedDbAssetRecord {
   id: string;
   bytes: ArrayBuffer;
   sizeBytes: number;
-  version: number;
+  hash: string;
 }
 
 export class IndexedDbVersionedAssetRepo {
@@ -53,7 +53,7 @@ export class IndexedDbVersionedAssetRepo {
         resolve(
           new VersionedAsset(record.bytes, {
             sizeBytes: record.sizeBytes,
-            version: record.version,
+            hash: record.hash,
           })
         );
       };
@@ -90,7 +90,7 @@ export class IndexedDbVersionedAssetRepo {
         id,
         bytes: asset.bytes,
         sizeBytes: asset.versionData.sizeBytes,
-        version: asset.versionData.version,
+        hash: asset.versionData.hash,
       };
 
       store.put(record);

@@ -3,6 +3,13 @@ import { AssetCache } from "./index.js";
 import path from "path";
 import fs from "fs";
 import { VersionedAsset } from "../versioned-asset.js";
+import { createHash } from "crypto";
+
+function hashArrayBuffer(bytes: ArrayBuffer): string {
+  const hash = createHash("sha256");
+  hash.update(Buffer.from(bytes));
+  return hash.digest("hex");
+}
 
 export class NodeFileSystemAssetStore extends AssetCache {
   constructor(private readonly baseDir: string) {
@@ -33,9 +40,7 @@ export class NodeFileSystemAssetStore extends AssetCache {
     const buffer = await fs.promises.readFile(candidateRealPath);
     const bytes = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
 
-    // @TODO - actually get version from file metadata
-
-    return new VersionedAsset(bytes, { version: 1, sizeBytes: bytes.byteLength });
+    return new VersionedAsset(bytes, { hash: hashArrayBuffer(bytes), sizeBytes: bytes.byteLength });
   }
 
   async getAssetOption(assetId: AssetId): Promise<VersionedAsset | undefined> {

@@ -1,12 +1,12 @@
 import { NormalizedPercentage } from "../../../aliases.js";
 import { AssetId } from "./index.js";
 
-export interface AssetManifestEntry {
-  versionData: AssetVersionData;
-  percentFetched: NormalizedPercentage;
-}
+export type AssetManifest = Record<AssetId, AssetVersionData>;
 
-export type AssetManifest = Record<AssetId, AssetManifestEntry>;
+// export interface AssetManifestEntry {
+//   versionData: AssetVersionData;
+//   percentFetched: NormalizedPercentage;
+// }
 
 export class VersionedAsset {
   constructor(
@@ -17,5 +17,5 @@ export class VersionedAsset {
 
 export interface AssetVersionData {
   sizeBytes: number;
-  version: number;
+  hash: string;
 }

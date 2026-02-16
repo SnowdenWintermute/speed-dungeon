@@ -221,3 +221,4 @@ export * from "./servers/services/assets/stores/index.js";
 export * from "./servers/services/assets/stores/indexed-db.js";
 export * from "./servers/services/assets/stores/remote-server.js";
 export * from "./servers/services/assets/stores/node-file-system.js";
+export * from "./servers/services/assets/versioned-asset.js";

@@ -1,5 +1,5 @@
 import { FetchAbortedError } from "../../../errors/fetch-aborted.js";
-import { invariant } from "../../../utils/index.js";
+import { invariant, iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 import { ManagedAssetFetch } from "./managed-asset-fetch.js";
 import { AssetFetchPriority, ScheduledFetchQueue } from "./scheduled-fetch-queue.js";
 import { AssetCache, RemoteAssetStore } from "./stores/index.js";
@@ -63,7 +63,7 @@ export class ClientAppAssetService implements AssetService {
   private async startManagedFetch(assetId: AssetId) {
     const { promise, abort } = this.remoteStore.getAssetBytesAbortable(assetId);
 
-    const versionData = this.requireAssetManifestEntry(assetId).versionData;
+    const versionData = this.requireAssetManifestEntry(assetId);
 
     const newFetch = new ManagedAssetFetch(promise, versionData, AssetFetchPriority.Urgent, abort);
 
@@ -72,8 +72,6 @@ export class ClientAppAssetService implements AssetService {
         const versionedAsset = new VersionedAsset(bytes, versionData);
 
         await this.cache.cacheAsset(assetId, versionedAsset);
-
-        this.requireAssetManifestEntry(assetId).percentFetched = 1;
       })
       .catch((error) => {
         if (isAbortError(error)) {
@@ -133,8 +131,6 @@ export class ClientAppAssetService implements AssetService {
     console.log("starting prefetch");
     const needsUpdate = await this.getAssetIdsNeedingUpdate();
 
-    this.markUpToDateAssetsCompleted(needsUpdate);
-
     for (const [assetId, versionData] of needsUpdate) {
       let defaultPriority = this.assetIdsByDefaultPrefetchPriority.get(assetId);
       if (defaultPriority === undefined) {
@@ -159,20 +155,20 @@ export class ClientAppAssetService implements AssetService {
     const needsUpdate = new Map<AssetId, AssetVersionData>();
     const comparePromises: Promise<void>[] = [];
 
-    for (const [assetId, manifestEntry] of updatedAssetList) {
+    for (const [assetId, versionData] of Object.entries(updatedAssetList)) {
+      const typedAssetId = assetId as AssetId;
       const checkIfMissingOrStale = new Promise<void>(() => {
-        this.cache.getAssetOption(assetId).then((assetOption) => {
+        this.cache.getAssetOption(typedAssetId).then((assetOption) => {
           const notCached = assetOption === undefined;
           if (notCached) {
-            needsUpdate.set(assetId, manifestEntry.versionData);
+            needsUpdate.set(typedAssetId, versionData);
             return;
           }
 
-          const cachedAssetIsStale =
-            assetOption.versionData.version !== manifestEntry.versionData.version;
+          const cachedAssetIsStale = assetOption.versionData.hash !== versionData.hash;
 
           if (cachedAssetIsStale) {
-            needsUpdate.set(assetId, manifestEntry.versionData);
+            needsUpdate.set(typedAssetId, versionData);
           }
         });
       });
@@ -182,15 +178,6 @@ export class ClientAppAssetService implements AssetService {
     await Promise.all(comparePromises);
 
     return needsUpdate;
-  }
-
-  private markUpToDateAssetsCompleted(needsUpdate: Map<AssetId, AssetVersionData>) {
-    const manifest = this.requireAssetManifest();
-    for (const [assetId, manifestEntry] of manifest.entries()) {
-      if (!needsUpdate.has(assetId)) {
-        manifestEntry.percentFetched = 1;
-      }
-    }
   }
 
   private async getFreshAssetIdVersions(): Promise<AssetManifest> {
@@ -208,7 +195,7 @@ export class ClientAppAssetService implements AssetService {
 
   private requireAssetManifestEntry(assetId: AssetId) {
     const assetManifest = this.requireAssetManifest();
-    const result = assetManifest.get(assetId);
+    const result = assetManifest[assetId];
     if (result === undefined) {
       throw new Error("Expected to have this asset in the version manifest");
     }
@@ -217,7 +204,9 @@ export class ClientAppAssetService implements AssetService {
 
   private async clearUnusedFromCache() {
     const updatedAssetList = this.requireAssetManifest();
-    await this.cache.removeAssetsNotIncluded(new Set(updatedAssetList.keys()));
+    await this.cache.removeAssetsNotIncluded(
+      new Set(Object.keys(updatedAssetList).map((key) => key as AssetId))
+    );
   }
 }
 
