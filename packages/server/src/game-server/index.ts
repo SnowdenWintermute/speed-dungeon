@@ -71,7 +71,7 @@ export class GameServerNode implements ActionCommandReceiver {
 
     const fsAssetStore = new NodeFileSystemAssetStore("/packages/server/assets");
     const assetService = new GameServerNodeAssetService(fsAssetStore);
-    this.assetServer = new AssetServer(assetService);
+    this.assetServer = new AssetServer(fsAssetStore);
     const assetRouter = this.assetServer.createRouter();
     expressApp.use(assetRouter);
 

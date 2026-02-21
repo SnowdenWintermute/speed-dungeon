@@ -1,5 +1,5 @@
 import { FetchAbortedError } from "../../../errors/fetch-aborted.js";
-import { invariant, iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
+import { invariant } from "../../../utils/index.js";
 import { ManagedAssetFetch } from "./managed-asset-fetch.js";
 import { AssetFetchPriority, ScheduledFetchQueue } from "./scheduled-fetch-queue.js";
 import { AssetCache, RemoteAssetStore } from "./stores/index.js";
@@ -65,21 +65,27 @@ export class ClientAppAssetService implements AssetService {
 
     const versionData = this.requireAssetManifestEntry(assetId);
 
+    console.log("starting managed fetch for", assetId);
     const newFetch = new ManagedAssetFetch(promise, versionData, AssetFetchPriority.Urgent, abort);
 
-    newFetch.promise
+    promise
       .then(async (bytes) => {
+        console.log("managed fetch then clause");
         const versionedAsset = new VersionedAsset(bytes, versionData);
+        console.log("fetched asset", assetId, bytes);
 
         await this.cache.cacheAsset(assetId, versionedAsset);
       })
       .catch((error) => {
+        console.log("managed fetch catch clause");
         if (isAbortError(error)) {
           return;
         }
+        console.log("error fetching asset:", error);
         throw error;
       })
       .finally(() => {
+        console.log("managed fetch finally clause");
         this.activeFetches.delete(assetId);
         const updatesCompleted = this.activeFetches.size === 0 && this.prefetchQueue.isEmpty();
 
@@ -99,7 +105,9 @@ export class ClientAppAssetService implements AssetService {
       this.rescheduleLowPriorityFetches();
     }
 
+    console.log("about to await promise");
     const result = await promise;
+    console.log("after await promise");
     return result;
   }
 
@@ -130,6 +138,7 @@ export class ClientAppAssetService implements AssetService {
   async startPrefetch() {
     console.log("starting prefetch");
     const needsUpdate = await this.getAssetIdsNeedingUpdate();
+    console.log(needsUpdate.size, "assets need updates");
 
     for (const [assetId, versionData] of needsUpdate) {
       let defaultPriority = this.assetIdsByDefaultPrefetchPriority.get(assetId);
@@ -144,34 +153,40 @@ export class ClientAppAssetService implements AssetService {
       this.activeFetches.size < TARGET_CONCURRENT_FETCH_COUNT &&
       this.prefetchQueue.hasEntries()
     ) {
+      console.log("starting next prefetch");
       this.startNextPrefetch();
     }
   }
 
   private async getAssetIdsNeedingUpdate() {
     const updatedAssetList = this.requireAssetManifest();
-    console.log("asset manifest obtained:", updatedAssetList);
 
     const needsUpdate = new Map<AssetId, AssetVersionData>();
     const comparePromises: Promise<void>[] = [];
 
     for (const [assetId, versionData] of Object.entries(updatedAssetList)) {
       const typedAssetId = assetId as AssetId;
-      const checkIfMissingOrStale = new Promise<void>(() => {
-        this.cache.getAssetOption(typedAssetId).then((assetOption) => {
-          const notCached = assetOption === undefined;
-          if (notCached) {
-            needsUpdate.set(typedAssetId, versionData);
-            return;
-          }
+      const checkIfMissingOrStale = new Promise<void>((resolve, reject) => {
+        this.cache
+          .getAssetOption(typedAssetId)
+          .then((assetOption) => {
+            const notCached = assetOption === undefined;
+            if (notCached) {
+              needsUpdate.set(typedAssetId, versionData);
+              resolve();
+              return;
+            }
 
-          const cachedAssetIsStale = assetOption.versionData.hash !== versionData.hash;
+            const cachedAssetIsStale = assetOption.versionData.hash !== versionData.hash;
 
-          if (cachedAssetIsStale) {
-            needsUpdate.set(typedAssetId, versionData);
-          }
-        });
-      });
+            if (cachedAssetIsStale) {
+              needsUpdate.set(typedAssetId, versionData);
+            }
+
+            resolve();
+          })
+          .catch((error) => console.error(error));
+      }).catch((error) => console.error(error));
       comparePromises.push(checkIfMissingOrStale);
     }
 

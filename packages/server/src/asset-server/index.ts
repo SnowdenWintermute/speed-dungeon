@@ -1,4 +1,4 @@
-import { AssetId, AssetService, invariant } from "@speed-dungeon/common";
+import { AssetId, AssetService, invariant, NodeFileSystemAssetStore } from "@speed-dungeon/common";
 import { AssetCache } from "@speed-dungeon/common";
 import { AssetManifest } from "@speed-dungeon/common";
 import { Router, Request, Response, NextFunction } from "express";
@@ -8,6 +8,19 @@ export class GameServerNodeAssetService implements AssetService {
   async getAsset(assetId: AssetId): Promise<ArrayBuffer> {
     const versionedAsset = await this.localFileSystemStore.getAsset(assetId);
     return versionedAsset.bytes;
+  }
+}
+
+export class AssetServer {
+  constructor(private localFileSystemStore: NodeFileSystemAssetStore) {}
+
+  createRouter(): Router {
+    const router = Router();
+
+    router.get("/asset-manifest", this.serveManifest.bind(this));
+    router.get("/assets/*", this.serveAsset.bind(this));
+
+    return router;
   }
 
   async createManifest() {
@@ -22,38 +35,31 @@ export class GameServerNodeAssetService implements AssetService {
 
     return manifest;
   }
-}
 
-export class AssetServer {
-  constructor(private readonly assetService: AssetService) {}
-
-  createRouter(): Router {
-    const router = Router();
-
-    router.get("/assets/manifest", this.serveManifest.bind(this));
-    router.get("/assets/:assetId", this.serveAsset.bind(this));
-
-    return router;
-  }
-
-  private serveManifest(req: Request, res: Response, next: NextFunction) {
-    const manifest = new Map();
+  private async serveManifest(req: Request, res: Response, next: NextFunction) {
+    console.log("serving manifest");
+    const manifest = await this.createManifest();
     res.json(manifest);
   }
 
   private async serveAsset(req: Request, res: Response, next: NextFunction) {
+    console.log("attempting to serve asset");
     try {
-      const assetId = req.params.assetId;
+      // const assetId = req.params.assetId;
+      const assetId = req.params[0];
+      console.log("looking for assetid:", assetId);
       invariant(assetId !== undefined, "No assetId provided");
-      const asset = await this.assetService.getAsset(assetId as AssetId);
+      const asset = await this.localFileSystemStore.getAsset(assetId as AssetId);
 
-      const buffer = Buffer.from(asset);
+      const buffer = Buffer.from(asset.bytes);
+      console.log("serving asset id:", assetId, "bytes:", buffer);
       res
         .status(200)
         .setHeader("Content-Type", "application/octet-stream")
         .setHeader("Content-Length", buffer.byteLength.toString())
         .send(buffer);
     } catch (err) {
+      console.error("error serving asset:", err);
       next(err);
     }
   }

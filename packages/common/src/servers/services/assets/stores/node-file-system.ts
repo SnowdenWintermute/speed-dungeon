@@ -20,18 +20,43 @@ export class NodeFileSystemAssetStore extends AssetCache {
     throw new Error("Method not implemented.");
   }
 
-  getAssetIdsCached(): Promise<Set<AssetId>> {
-    throw new Error("Method not implemented.");
+  async getAssetIdsCached(): Promise<Set<AssetId>> {
+    const results = new Set<AssetId>();
+    this.walkDirectory(this.baseDir, results);
+    return results;
+  }
+
+  private walkDirectory(directory: string, results: Set<AssetId>) {
+    const entries = fs.readdirSync(directory, { withFileTypes: true });
+
+    for (const entry of entries) {
+      const fullPath = path.join(directory, entry.name);
+
+      if (entry.isDirectory()) {
+        this.walkDirectory(fullPath, results);
+        continue;
+      }
+
+      if (!entry.isFile()) {
+        continue;
+      }
+
+      // Convert to logical id
+      const relativePath = path.relative(this.baseDir, fullPath);
+
+      // Normalize to forward slashes for cross-platform consistency
+      const logicalId = relativePath.split(path.sep).join("/");
+
+      results.add(logicalId as AssetId);
+    }
   }
 
   async getAsset(assetId: AssetId): Promise<VersionedAsset> {
-    console.log(process.cwd());
     const baseRealPath = await fs.promises.realpath(this.baseDir);
 
     const candidatePath = path.resolve(baseRealPath, assetId);
     const candidateRealPath = await fs.promises.realpath(candidatePath);
     const relative = path.relative(baseRealPath, candidateRealPath);
-    console.log("relative:", relative);
 
     if (relative.startsWith("..") || path.isAbsolute(relative)) {
       throw new Error("Directory traversal attempt");

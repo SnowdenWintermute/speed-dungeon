@@ -54,7 +54,7 @@ export class ScheduledFetchQueue {
 
   hasEntries() {
     for (const [priority, assetIds] of iterateNumericEnumKeyedRecord(this.idsByPriority)) {
-      if (assetIds.size < 0) {
+      if (assetIds.size > 0) {
         return true;
       }
     }

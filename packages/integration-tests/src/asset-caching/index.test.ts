@@ -28,13 +28,12 @@ describe("asset management", () => {
 
     const baseAssetDirectory = "packages/server/assets/";
     const localFileSystemStore = new NodeFileSystemAssetStore(baseAssetDirectory);
+    localFileSystemStore.getAssetIdsCached();
+
     const gameServerNodeAssetService = new GameServerNodeAssetService(localFileSystemStore);
 
-    const assetId = "monsters/manta-ray-full.glb" as AssetId;
-    const asset = await gameServerNodeAssetService.getAsset(assetId);
-    console.log(asset);
     const expressApp = createExpressApp();
-    const assetServer = new AssetServer(gameServerNodeAssetService);
+    const assetServer = new AssetServer(localFileSystemStore);
     const assetRouter = assetServer.createRouter();
     expressApp.use(assetRouter);
 
